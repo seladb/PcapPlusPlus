@@ -4,6 +4,7 @@
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"
+#include "TLVData.h"
 
 #include <vector>
 
@@ -55,11 +56,131 @@ struct ndpoptionlinklayer : ndpoptionbase
 #pragma pack(pop)
 
 /**
+ * @class NdpOption
+ * A wrapper class for NDP options. This class does not create or modify NDP option records, but rather
+ * serves as a wrapper and provides useful methods for retrieving data from them
+ */
+class NdpOption : public TLVRecord<uint8_t, uint8_t>
+{
+  public:
+	/**
+	 * A c'tor for this class that gets a pointer to the option raw data (byte array)
+	 * @param[in] optionRawData A pointer to the NDP option raw data
+	 */
+	NdpOption(uint8_t *optionRawData) : TLVRecord(optionRawData) {}
+
+	/**
+	 * A d'tor for this class, currently does nothing
+	 */
+	~NdpOption() {}
+
+	/**
+	 * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum.
+	 */
+	NDPNeighborOptionTypes getNdpOptionType() const
+	{
+		return (NDPNeighborOptionTypes)m_Data->recordType;
+	}
+
+	// implement abstract methods
+
+	size_t getTotalSize() const
+	{
+		if (m_Data == NULL)
+			return (size_t)0;
+
+		return (size_t)m_Data->recordLen * 8;
+	}
+
+	size_t getDataSize() const
+	{
+		if (m_Data == NULL)
+			return 0;
+
+		return (size_t)m_Data->recordLen * 8 - (2 * sizeof(uint8_t));
+	}
+};
+
+/**
+ * @class NdpOptionBuilder
+ * A class for building NDP option records. This builder receives the NDP option parameters in its c'tor,
+ * builds the NDP option raw buffer and provides a build() method to get a NdpOption object out of it
+ */
+class NdpOptionBuilder : public TLVRecordBuilder
+{
+
+  public:
+	/**
+	 * A c'tor for building NDP options which their value is a byte array. The NdpOption object can be later
+	 * retrieved by calling build()
+	 * @param[in] optionType NDP option type
+	 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any
+	 * way.
+	 * @param[in] optionValueLen Option value length in bytes
+	 */
+	NdpOptionBuilder(NDPNeighborOptionTypes optionType, const uint8_t *optionValue, uint8_t optionValueLen)
+		: TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) {}
+
+	/**
+	 * Build the NdpOption object out of the parameters defined in the c'tor
+	 * @return The NdpOption object
+	 */
+	NdpOption build() const;
+};
+
+/**
  * @class NDPLayerBase
  * Represents a base for NDP packet types
  */
 class NDPLayerBase : public Layer
 {
+  public:
+	/**
+	 * @return The number of NDP options in this layer
+	 */
+	size_t getNdpOptionCount() const;
+
+	/**
+	 * Get an NDP option by type.
+	 * @param[in] option NDP option type
+	 * @return An NdpOption object that contains the first option that matches this type, or logical NULL
+	 * (NdpOption#isNull() == true) if no such option found
+	 */
+	NdpOption getNdpOption(NDPNeighborOptionTypes option) const;
+
+	/**
+	 * @return The first NDP option in the packet. If the current layer contains no options the returned value will
+	 * contain a logical NULL (NdpOption#isNull() == true)
+	 */
+	NdpOption getFirstNdpOption() const;
+
+	/**
+	 * Get the NDP option that comes after a given option. If the given option was the last one, the
+	 * returned value will contain a logical NULL (IdpOption#isNull() == true)
+	 * @param[in] option An NDP option object that exists in the current layer
+	 * @return A NdpOption object that contains the NDP option data that comes next, or logical NULL if the given
+	 * NDP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
+	 */
+	NdpOption getNextNdpOption(NdpOption &tcpOption) const;
+
+	/**
+	 * Add a new NDP option at the end of the layer (after the last NDP option)
+	 * @param[in] optionBuilder An NdpOptionBuilder object that contains the NDP option data to be added
+	 * @return A NdpOption object that contains the newly added IPv4 option data or logical NULL
+	 * (NdpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+	 * printed to log
+	 */
+	NdpOption addNdpOption(const NdpOptionBuilder &optionBuilder);
+
+	/**
+	 * Remove all NDP options from the layer
+	 * @return True if options removed successfully or false if some error occurred (an appropriate error message will
+	 * be printed to log)
+	 */
+	bool removeAllNdpOptions();
+
+	size_t getHeaderLen() const { return m_DataLen;	};
+
   protected:
 	NDPLayerBase() = default;
 
@@ -68,12 +189,16 @@ class NDPLayerBase : public Layer
 	{
 	}
 
-	virtual ~NDPLayerBase()	{}
+	virtual ~NDPLayerBase() {}
 
-	ndpoptionbase *GetOptionOfType(size_t headerLen, NDPNeighborOptionTypes type) const;
-
-	void CreateLinkLayerOption(ndpoptionlinklayer *ptrToOption, NDPNeighborOptionTypes optionType,
-							   const MacAddress &linkLayerAddr);
+  private:
+	virtual size_t getNdpHeaderLen() const = 0;
+	virtual uint8_t *getNdpOptionsBasePtr() const
+	{
+		return m_Data + getNdpHeaderLen();
+	};
+	NdpOption addNdpOptionAt(const NdpOptionBuilder &optionBuilder, int offset);
+	TLVRecordReader<NdpOption> m_OptionReader;
 };
 
 /**
@@ -83,7 +208,6 @@ class NDPLayerBase : public Layer
 class NDPNeighborAdvertisementLayer : public NDPLayerBase
 {
   public:
-
 	/**
 	 * @struct ndpneighboradvertisementhdr
 	 * Represents neighbor advertisement message format
@@ -161,17 +285,7 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	/**
 	 * @return A pointer to the @ref ndpneighboradvertisementhdr
 	 */
-	ndpneighboradvertisementhdr *getNdpHeader() const { return (ndpneighboradvertisementhdr *)m_Data; }
-
-	/**
-	 * @return The Length of the NDPNeighborAdvertisement header. Whether returns length of the advertisement header
-	 * if no link layer option is set, or length of header + option
-	 */
-	size_t getHeaderLen() const
-	{
-		return hasTargetMacInfo() ? sizeof(ndpneighboradvertisementhdr) + sizeof(ndpoptionlinklayer)
-								  : sizeof(ndpneighboradvertisementhdr);
-	}
+	ndpneighboradvertisementhdr *getNdpHeader() const {	return (ndpneighboradvertisementhdr *)m_Data; }
 
 	/**
 	 * @return Get the target MAC address
@@ -181,10 +295,7 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	/**
 	 * @return Get the target IP address
 	 */
-	IPv6Address getTargetIP() const
-    {
-        return IPv6Address(getNdpHeader()->targetIP);
-    }
+	IPv6Address getTargetIP() const	{ return IPv6Address(getNdpHeader()->targetIP);	}
 
 	/**
 	 * @return Get information if the target link-layer address was added in the option field of the header
@@ -204,7 +315,7 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	/**
 	 * @return Get the override flag
 	 */
-	bool getOverrideFlag() const { return getNdpHeader()->override; }
+	bool getOverrideFlag() const { return getNdpHeader()->override;	}
 
 	/**
 	 * Does nothing for this layer
@@ -220,6 +331,8 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 
 	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
+	size_t getNdpHeaderLen() const { return sizeof(ndpneighboradvertisementhdr); };
+
   private:
 	void setNeighborAdvertisementHeaderFields(const IPv6Address &targetIP, bool byRouter, bool unicastResponse,
 											  bool override);
@@ -232,7 +345,6 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 class NDPNeighborSolicitationLayer : public NDPLayerBase
 {
   public:
-
 	/**
 	 * @struct ndpneighborsolicitationhdr
 	 * Represents neighbor solicitation message format
@@ -278,7 +390,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 	/**
 	 * @return A pointer to the @ref ndpneighborsolicitationhdr
 	 */
-	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data; }
+	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data;	}
 
 	/**
 	 * @return Get the IP address specified as the target IP address in the solicitation message
@@ -301,14 +413,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 	 */
 	MacAddress getLinkLayerAddress() const;
 
-	/**
-	 * @return The length of the NDPNeighborSolicitation header.
-	 */
-	size_t getHeaderLen() const
-	{
-		return hasLinkLayerAddress() ? sizeof(ndpneighborsolicitationhdr) + sizeof(ndpoptionlinklayer)
-									 : sizeof(ndpneighborsolicitationhdr);
-	}
+	size_t getNdpHeaderLen() const { return sizeof(ndpneighborsolicitationhdr);	};
 
 	/**
 	 * Does nothing for this layer

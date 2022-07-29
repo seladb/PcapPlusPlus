@@ -149,7 +149,7 @@ PTF_TEST_CASE(IcmpV6SolicitationParsing)
 
 	PTF_ASSERT_EQUAL(shouldBeLayer->getHeaderLen(), 28);
 	PTF_ASSERT_EQUAL(shouldBeLayer->getTargetIP(), pcpp::IPv6Address("fd53:7cb8:383:2::1:117"));
-	PTF_ASSERT_TRUE(shouldBeLayer->hasLinkLayerAddress());
+	PTF_ASSERT_FALSE(shouldBeLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER).isNull());
 	PTF_ASSERT_EQUAL(shouldBeLayer->getLinkLayerAddress(), pcpp::MacAddress("00:54:af:e9:4d:80"));
 }
 
@@ -191,8 +191,10 @@ PTF_TEST_CASE(IcmpV6SolicitationCrafting)
 	PTF_ASSERT_EQUAL(shouldBeNdpLayer->getHeaderLen(), isNdpLayer->getHeaderLen());
 	PTF_ASSERT_EQUAL(shouldBeNdpLayer->getTargetIP(), isNdpLayer->getTargetIP());
 
-	PTF_ASSERT_TRUE(shouldBeNdpLayer->hasLinkLayerAddress());
-	PTF_ASSERT_TRUE(isNdpLayer->hasLinkLayerAddress());
+	PTF_ASSERT_FALSE(shouldBeNdpLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER).isNull());
+	PTF_ASSERT_EQUAL(shouldBeNdpLayer->getNdpOptionCount(), 1);
+	PTF_ASSERT_FALSE(isNdpLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER).isNull());
+	PTF_ASSERT_EQUAL(isNdpLayer->getNdpOptionCount(), 1);
 
 	PTF_ASSERT_EQUAL(shouldBeNdpLayer->getLinkLayerAddress(), isNdpLayer->getLinkLayerAddress());
 }
