@@ -564,7 +564,7 @@ bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 {
-	RawPacket* const rPacket = const_cast<RawPacket *>(&rawPacket);
+	RawPacket* rPacket = const_cast<RawPacket *>(&rawPacket);
 	if (checkMtu)
 	{
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
