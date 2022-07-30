@@ -1,4 +1,8 @@
-exclude: '.*\.(pcap|pcapng|dat|txt)'
+exclude: |
+  (?x)^(
+    3rdParty/.*|
+    .*\.(pcap|pcapng|dat|txt)
+  )$
 fail_fast: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
