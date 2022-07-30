@@ -151,35 +151,8 @@ typedef icmpv6_echo_request icmpv6_echo_reply;
 class IcmpV6Layer : public Layer
 {
   public:
-	/**
-	 * A constructor that creates the layer from an existing packet raw data
-	 * @param[in] data A pointer to the raw data (will be casted to @ref icmpv6hdr)
-	 * @param[in] dataLen Size of the data in bytes
-	 * @param[in] prevLayer A pointer to the previous layer
-	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-	 */
-	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: Layer(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = ICMPv6;
-	}
 
-	/**
-	 * An empty constructor that creates a new layer with an empty ICMPv6 header without setting the ICMPv6 type or
-	 * ICMPv6 data. Call the set*Data() methods to set ICMPv6 type and data
-	 */
-	IcmpV6Layer();
-
-	/**
-	 * A constructor that allocates a new ICMPv6 header
-	 * @param[in] type Message type ICMPv6
-	 * @param[in] code Code field
-	 */
-	IcmpV6Layer(ICMPv6MessageType type, uint8_t code);
-
-	virtual ~IcmpV6Layer()
-	{
-	}
+	virtual ~IcmpV6Layer() { }
 
 	/**
 	 * Get a pointer to the basic ICMPv6 header. Notice this points directly to the data, so every change will change
@@ -216,38 +189,6 @@ class IcmpV6Layer : public Layer
 	uint16_t getChecksum() const;
 
 	/**
-	 * @return ICMP echo request data. If the layer isn't of type ICMP echo request NULL is returned
-	 */
-	icmpv6_echo_request *getEchoRequestData();
-
-	/**
-	 * Set echo request message data
-	 * @param[in] id Echo request identifier
-	 * @param[in] sequence Echo request sequence
-	 * @param[in] data A pointer to echo request payload to set
-	 * @param[in] dataLen The length of the echo request payload
-	 * @return A pointer to the echo request data that have been set or NULL if something went wrong
-	 * (an appropriate error log is printed in such cases)
-	 */
-	icmpv6_echo_request *setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
-
-	/**
-	 * @return ICMPv6 echo reply data. If the layer isn't of type ICMPv6 echo reply NULL is returned
-	 */
-	icmpv6_echo_reply *getEchoReplyData();
-
-	/**
-	 * Set echo reply message data
-	 * @param[in] id Echo reply identifier
-	 * @param[in] sequence Echo reply sequence
-	 * @param[in] data A pointer to echo reply payload to set
-	 * @param[in] dataLen The length of the echo reply payload
-	 * @return A pointer to the echo reply data that have been set or NULL if something went wrong
-	 * (an appropriate error log is printed in such cases)
-	 */
-	icmpv6_echo_reply *setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
-
-	/**
 	 * A static method that validates the input data
 	 * @param[in] data The pointer to the beginning of a byte stream of an ICMPv6 layer
 	 * @param[in] dataLen The length of the byte stream
@@ -277,12 +218,80 @@ class IcmpV6Layer : public Layer
 		return OsiModelNetworkLayer;
 	}
 
-  private:
-	icmpv6_echo_request m_EchoData;
+	static ProtocolType getIcmpv6Version(uint8_t* data, size_t dataLen);
+
 	bool cleanIcmpLayer();
-	bool setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
 	void calculateChecksum();
+
+  protected:
+	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: Layer(data, dataLen, prevLayer, packet)
+	{}
+
+	IcmpV6Layer() {}
+};
+
+class ICMPv6EchoRequestLayer : public IcmpV6Layer
+{
+public:
+	ICMPv6EchoRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : IcmpV6Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMPv6EchoRequest; }
+
+	ICMPv6EchoRequestLayer();
+
+	virtual ~ICMPv6EchoRequestLayer() {}
+
+	/**
+	 * @return ICMP echo request data. If the layer isn't of type ICMP echo request NULL is returned
+	 */
+	icmpv6_echo_request *getEchoRequestData();
+
+	/**
+	 * Set echo request message data
+	 * @param[in] id Echo request identifier
+	 * @param[in] sequence Echo request sequence
+	 * @param[in] data A pointer to echo request payload to set
+	 * @param[in] dataLen The length of the echo request payload
+	 * @return A pointer to the echo request data that have been set or NULL if something went wrong
+	 * (an appropriate error log is printed in such cases)
+	 */
+	icmpv6_echo_request *setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+
+	bool setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+
+private:
+	icmpv6_echo_request m_EchoData;
+};
+
+class ICMPv6EchoReplyLayer : public IcmpV6Layer
+{
+public:
+	ICMPv6EchoReplyLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : IcmpV6Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMPv6EchoReply; }
+
+	ICMPv6EchoReplyLayer();
+
+	virtual ~ICMPv6EchoReplyLayer() {}
+
+	/**
+	 * @return ICMPv6 echo reply data. If the layer isn't of type ICMPv6 echo reply NULL is returned
+	 */
+	icmpv6_echo_reply *getEchoReplyData();
+
+	/**
+	 * Set echo reply message data
+	 * @param[in] id Echo reply identifier
+	 * @param[in] sequence Echo reply sequence
+	 * @param[in] data A pointer to echo reply payload to set
+	 * @param[in] dataLen The length of the echo reply payload
+	 * @return A pointer to the echo reply data that have been set or NULL if something went wrong
+	 * (an appropriate error log is printed in such cases)
+	 */
+	icmpv6_echo_reply *setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+
+	bool setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+
+private:
+	icmpv6_echo_reply m_EchoData;
 };
 
 } // namespace pcpp

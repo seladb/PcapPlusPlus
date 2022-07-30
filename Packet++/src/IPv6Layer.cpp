@@ -8,6 +8,7 @@
 #include "GreLayer.h"
 #include "IPSecLayer.h"
 #include "IcmpV6Layer.h"
+#include "NdpLayer.h"
 #include "Packet.h"
 #include "PacketUtils.h"
 #include <string.h>
@@ -261,8 +262,15 @@ void IPv6Layer::parseNextLayer()
 		break;
 	case PACKETPP_IPPROTO_ICMPV6:
 	{
-		if(IcmpV6Layer::isDataValid(payload, payloadLen))
-			m_NextLayer = new IcmpV6Layer(payload, payloadLen, this, m_Packet);
+		ProtocolType icmpv6Ver = IcmpV6Layer::getIcmpv6Version(payload, payloadLen);
+		if(icmpv6Ver == ICMPv6EchoRequest)
+			m_NextLayer = new ICMPv6EchoRequestLayer(payload, payloadLen, this, m_Packet);
+		else if(icmpv6Ver == ICMPv6EchoReply)
+			m_NextLayer = new ICMPv6EchoReplyLayer(payload, payloadLen, this, m_Packet);
+		else if(icmpv6Ver == NDPNeighborSolicitation)
+			m_NextLayer = new NDPNeighborSolicitationLayer(payload, payloadLen, this, m_Packet);
+		else if(icmpv6Ver == NDPNeighborAdvertisement)
+			m_NextLayer = new NDPNeighborAdvertisementLayer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;

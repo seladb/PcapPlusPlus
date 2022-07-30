@@ -1,6 +1,7 @@
 #ifndef PACKETPP_NDP_LAYER
 #define PACKETPP_NDP_LAYER
 
+#include "IcmpV6Layer.h"
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"
@@ -28,32 +29,6 @@ enum NDPNeighborOptionTypes
 	NDP_OPTION_REDIRECTED_HEADER = 4,
 	NDP_OPTION_MTU = 5
 };
-
-/**
- * @struct ndpoptionbase
- * Represents a base for neighbor discovery options
- */
-#pragma pack(push, 1)
-struct ndpoptionbase
-{
-	/* 8-bit identifier of the type of option */
-	uint8_t type;
-	/* The length of the option (including the type and length fields) in units of 8 octets. */
-	uint8_t length;
-};
-#pragma pack(pop)
-
-/**
- * @struct ndpoptionlinklayer
- * Represents the link layer neighbor discovery option
- */
-#pragma pack(push, 1)
-struct ndpoptionlinklayer : ndpoptionbase
-{
-	/** Link layer address */
-	uint8_t linklayerAddress[6];
-};
-#pragma pack(pop)
 
 /**
  * @class NdpOption
@@ -132,9 +107,11 @@ class NdpOptionBuilder : public TLVRecordBuilder
  * @class NDPLayerBase
  * Represents a base for NDP packet types
  */
-class NDPLayerBase : public Layer
+class NDPLayerBase : public IcmpV6Layer
 {
   public:
+	virtual ~NDPLayerBase() {}
+
 	/**
 	 * @return The number of NDP options in this layer
 	 */
@@ -185,11 +162,9 @@ class NDPLayerBase : public Layer
 	NDPLayerBase() = default;
 
 	NDPLayerBase(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: Layer(data, dataLen, prevLayer, packet)
+		: IcmpV6Layer(data, dataLen, prevLayer, packet)
 	{
 	}
-
-	virtual ~NDPLayerBase() {}
 
   private:
 	virtual size_t getNdpHeaderLen() const = 0;
@@ -320,16 +295,16 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	/**
 	 * Does nothing for this layer
 	 */
-	void computeCalculateFields() {}
+	//void computeCalculateFields() {}
 
 	/**
 	 * Currently the last layer.
 	 */
-	void parseNextLayer() {}
+	//void parseNextLayer() {}
 
 	std::string toString() const;
 
-	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+	//OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
 	size_t getNdpHeaderLen() const { return sizeof(ndpneighboradvertisementhdr); };
 
@@ -418,16 +393,16 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 	/**
 	 * Does nothing for this layer
 	 */
-	void computeCalculateFields() {}
+	// void computeCalculateFields() {}
 
 	/**
 	 * Currently the last layer.
 	 */
-	void parseNextLayer() {}
+	// void parseNextLayer() {}
 
 	std::string toString() const;
 
-	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+	//OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 };
 
 } // namespace pcpp
