@@ -89,7 +89,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 						0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37};
 
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("11:22:33:44:55:66"), pcpp::MacAddress("66:55:44:33:22:11"));
-	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address(std::string("1111::8888")), pcpp::IPv6Address(std::string("8888::1111")));
+	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address(std::string("fe80::215:5dff:fea5:c4c5")), pcpp::IPv6Address(std::string("fe80::dd05:dae0:74bc:7341")));
 
 	// Echo request creation
 	pcpp::Packet echoRequestPacket(1);
@@ -100,7 +100,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&echoReqLayer));
 	echoRequestPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData()+58, buffer1+58, bufferLength1-58); // start after checksum field
+	PTF_ASSERT_BUF_COMPARE(echoRequestPacket.getRawPacket()->getRawData()+54, buffer1+54, bufferLength1-54);
 
 	// Echo reply creation
 	pcpp::EthLayer ethLayer2(ethLayer);
@@ -113,7 +113,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_NOT_NULL(echoRepLayer.setEchoReplyData(0x0018, 0x0014, data, 56));
 	echoReplyPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData()+58, buffer2+58, bufferLength2-58); // start after checksum field
+	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData()+54, buffer2+54, bufferLength2-54);
 
 	delete [] buffer1;
 	delete [] buffer2;
