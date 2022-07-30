@@ -54,7 +54,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 		return 1;
 	}
 
-	while (reader.getNextPacket(rawPacket))
+	do
 	{
 		// parse the raw packet into a parsed packet
 		pcpp::Packet parsedPacket(&rawPacket);
@@ -70,6 +70,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 			std::cout << "Source IP is '" << srcIP.toString() << "'; Dest IP is '" << destIP.toString() << "'" << std::endl;
 		}
 	}
+	while (reader.getNextPacket(rawPacket));
 
 	// close the file
 	reader.close();
