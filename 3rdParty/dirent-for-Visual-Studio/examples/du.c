@@ -1,24 +1,25 @@
 /*
- * List files and directories recursively.
+ * Compute disk usage of files and sub-directories in bytes.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command
  *
- *     find "C:\Program Files"
+ *     du "c:\Program Files"
  *
- * will output thousands of file names such as
+ * might produce listing such as
  *
- *     c:\Program Files/7-Zip/7-zip.chm
- *     c:\Program Files/7-Zip/7-zip.dll
- *     c:\Program Files/7-Zip/7z.dll
- *     c:\Program Files/Adobe/Reader 10.0/Reader/logsession.dll
- *     c:\Program Files/Adobe/Reader 10.0/Reader/LogTransport2.exe
- *     c:\Program Files/Windows NT/Accessories/wordpad.exe
- *     c:\Program Files/Windows NT/Accessories/write.wpc
+ *     5204927     7-Zip
+ *     140046882   CCleaner
+ *     83140342    CMake
+ *     2685264     Internet Explorer
+ *     686314712   LibreOffice
+ *     214025459   Mozilla Firefox
+ *     174753900   VideoLAN
  *
- * The find command provided by this file is only an example: the command does
- * not provide options to restrict the output to certain files as the Linux
- * version does.
+ * If you compare this program to a genuine du command in Linux, then be ware
+ * directories themselves consume some space in Linux.  This program, however,
+ * only counts the files and hence the size will always be smaller than that
+ * reported by Linux du.
  *
  * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -30,38 +31,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <locale.h>
 
-static int find_directory(const char *dirname);
+static long long list_directory(const char *dirname, int level);
 static int _main(int argc, char *argv[]);
 
-int
+static int
 _main(int argc, char *argv[])
 {
 	/* For each directory in command line */
 	int i = 1;
 	while (i < argc) {
-		if (!find_directory(argv[i]))
-			exit(EXIT_FAILURE);
+		list_directory(argv[i], 0);
 		i++;
 	}
 
 	/* List current working directory if no arguments on command line */
 	if (argc == 1)
-		find_directory(".");
+		list_directory(".", 0);
 
 	return EXIT_SUCCESS;
 }
 
-/* Find files and subdirectories recursively */
-static int
-find_directory(const char *dirname)
+/* Find files and subdirectories recursively; list their sizes */
+static long long
+list_directory(const char *dirname, int level)
 {
 	char buffer[PATH_MAX + 2];
 	char *p = buffer;
 	char *end = &buffer[PATH_MAX];
-
+	
 	/* Copy directory name to buffer */
 	const char *src = dirname;
 	while (p < end && *src != '\0') {
@@ -69,63 +70,77 @@ find_directory(const char *dirname)
 	}
 	*p = '\0';
 
+	/* Get final character of directory name */
+	char c;
+	if (buffer < p)
+		c = p[-1];
+	else
+		c = ':';
+
+	/* Append directory separator if not already there */
+	if (c != ':' && c != '/' && c != '\\')
+		*p++ = '/';
+
 	/* Open directory stream */
 	DIR *dir = opendir(dirname);
 	if (!dir) {
-		/* Could not open directory */
 		fprintf(stderr,
 			"Cannot open %s (%s)\n", dirname, strerror(errno));
-		return /*failure*/ 0;
+		return 0LL;
 	}
 
-	/* Print all files and directories within the directory */
+	/* Compute total disk usage of all files and directories */
+	struct stat stbuf;
 	struct dirent *ent;
+	long long total = 0;
 	while ((ent = readdir(dir)) != NULL) {
-		char *q = p;
-		char c;
+		/* Skip pseudo directories . and .. */
+		if (strcmp(ent->d_name, ".") == 0
+			|| strcmp(ent->d_name, "..") == 0)
+			continue;
 
-		/* Get final character of directory name */
-		if (buffer < q)
-			c = q[-1];
-		else
-			c = ':';
+		/* Skip links as they consume no space */
+		if (ent->d_type == DT_LNK)
+			continue;
 
-		/* Append directory separator if not already there */
-		if (c != ':' && c != '/' && c != '\\')
-			*q++ = '/';
+		/* Skip device entries */
+		if (ent->d_type != DT_REG && ent->d_type != DT_DIR)
+			continue;
 
-		/* Append file name */
+		/* Append file name to buffer */
 		src = ent->d_name;
+		char *q = p;
 		while (q < end && *src != '\0') {
 			*q++ = *src++;
 		}
 		*q = '\0';
 
-		/* Decide what to do with the directory entry */
-		switch (ent->d_type) {
-		case DT_LNK:
-		case DT_REG:
-			/* Output file name with directory */
-			printf("%s\n", buffer);
-			break;
-
-		case DT_DIR:
-			/* Scan sub-directory recursively */
-			if (strcmp(ent->d_name, ".") != 0
-				&&  strcmp(ent->d_name, "..") != 0) {
-				find_directory(buffer);
+		/* Add file size */
+		long long size = 0;
+		if (ent->d_type == DT_REG) {
+			if (stat(buffer, &stbuf) == /*Error*/-1) {
+				fprintf(stderr, "Cannot access %s\n", buffer);
+				continue;
 			}
-			break;
-
-		default:
-			/* Ignore device entries */
-			/*NOP*/;
+			size += (long long) stbuf.st_size;
 		}
 
+		/* Compute size of subdirectories recursively */
+		if (ent->d_type == DT_DIR)
+			size += list_directory(buffer, level + 1);
+
+		/* Update total size of directory */
+		total += size;
+
+		/* Output file/directory size in bytes */
+		if (level == 0)
+			printf("%-10lld  %s\n", size, ent->d_name);
 	}
 
 	closedir(dir);
-	return /*success*/ 1;
+
+	/* Return total size of directory */
+	return total;
 }
 
 /* Stub for converting arguments to UTF-8 on Windows */

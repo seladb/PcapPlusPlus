@@ -1,3 +1,16 @@
+2018-05-08  Toni Rönkkö
+
+	* Version 1.23.2: fixes bad scandir prototype.
+
+2017-08-27  Toni Rönkkö
+
+	* Version 1.23: support readdir_r and scandir functions.
+
+2017-07-18  Toni Rönkkö
+
+	* Created release branches v1.22 and v1.21 to Git.  Published version
+	1.22 at softagalleria.net.
+
 2016-09-11  Toni Rönkkö
 
 	* Version 1.22: added support for CMake.  Thanks to Paul Fultz II.

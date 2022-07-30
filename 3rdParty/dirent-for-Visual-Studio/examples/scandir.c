@@ -1,10 +1,10 @@
 /*
- * List contents of a directory.
+ * List contents of a directory in an alphabetical order.
  *
  * Compile this file with Visual Studio and run the produced command in
  * console with a directory name argument.  For example, command
  *
- *     ls "c:\Program Files"
+ *     scandir "c:\Program Files"
  *
  * might output something like
  *
@@ -15,10 +15,6 @@
  *     Microsoft Visual Studio 9.0/
  *     Microsoft.NET/
  *     Mozilla Firefox/
- *
- * The ls command provided by this file is only an example: the command does
- * not have any fancy options like "ls -al" in Linux and the command does not
- * support file name matching like "ls *.c".
  *
  * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -57,20 +53,24 @@ _main(int argc, char *argv[])
  * List files and directories within a directory.
  */
 static void
-list_directory(const char *dirname)
+list_directory(
+	const char *dirname)
 {
-	/* Open directory stream */
-	DIR *dir = opendir(dirname);
-	if (!dir) {
-		/* Could not open directory */
+	/* Scan files in directory */
+	struct dirent **files;
+	int n = scandir(dirname, &files, NULL, alphasort);
+	if (n < 0) {
 		fprintf(stderr,
 			"Cannot open %s (%s)\n", dirname, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	/* Print all files and directories within the directory */
-	struct dirent *ent;
-	while ((ent = readdir(dir)) != NULL) {
+	/* Loop through file names */
+	for (int i = 0; i < n; i++) {
+		/* Get pointer to file entry */
+		struct dirent *ent = files[i];
+
+		/* Output file name */
 		switch (ent->d_type) {
 		case DT_REG:
 			printf("%s\n", ent->d_name);
@@ -89,7 +89,11 @@ list_directory(const char *dirname)
 		}
 	}
 
-	closedir(dir);
+	/* Release file names */
+	for (int i = 0; i < n; i++) {
+		free(files[i]);
+	}
+	free(files);
 }
 
 /* Stub for converting arguments to UTF-8 on Windows */

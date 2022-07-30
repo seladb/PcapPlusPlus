@@ -1,24 +1,12 @@
 /*
- * List contents of a directory.
+ * Output contents of a file.
  *
  * Compile this file with Visual Studio and run the produced command in
- * console with a directory name argument.  For example, command
+ * console with a file name argument.  For example, command
  *
- *     ls "c:\Program Files"
+ *     cat include\dirent.h
  *
- * might output something like
- *
- *     ./
- *     ../
- *     7-Zip/
- *     Internet Explorer/
- *     Microsoft Visual Studio 9.0/
- *     Microsoft.NET/
- *     Mozilla Firefox/
- *
- * The ls command provided by this file is only an example: the command does
- * not have any fancy options like "ls -al" in Linux and the command does not
- * support file name matching like "ls *.c".
+ * will output the dirent.h to screen.
  *
  * Copyright (C) 1998-2019 Toni Ronkko
  * This file is part of dirent.  Dirent may be freely distributed
@@ -33,63 +21,54 @@
 #include <errno.h>
 #include <locale.h>
 
-static void list_directory(const char *dirname);
+static void output_file(const char *fn);
 static int _main(int argc, char *argv[]);
 
 static int
 _main(int argc, char *argv[])
 {
-	/* For each directory in command line */
-	int i = 1;
-	while (i < argc) {
-		list_directory(argv[i]);
-		i++;
+	/* Require at least one file */
+	if (argc == 1) {
+		fprintf(stderr, "Usage: cat filename\n");
+		return EXIT_FAILURE;
 	}
 
-	/* List current working directory if no arguments on command line */
-	if (argc == 1)
-		list_directory(".");
-
+	/* For each file name argument in command line */
+	int i = 1;
+	while (i < argc) {
+		output_file(argv[i]);
+		i++;
+	}
 	return EXIT_SUCCESS;
 }
 
 /*
- * List files and directories within a directory.
+ * Output file to screen
  */
 static void
-list_directory(const char *dirname)
+output_file(const char *fn)
 {
-	/* Open directory stream */
-	DIR *dir = opendir(dirname);
-	if (!dir) {
+	/* Open file */
+	FILE *fp = fopen(fn, "r");
+	if (!fp) {
 		/* Could not open directory */
-		fprintf(stderr,
-			"Cannot open %s (%s)\n", dirname, strerror(errno));
+		fprintf(stderr, "Cannot open %s (%s)\n", fn, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
-	/* Print all files and directories within the directory */
-	struct dirent *ent;
-	while ((ent = readdir(dir)) != NULL) {
-		switch (ent->d_type) {
-		case DT_REG:
-			printf("%s\n", ent->d_name);
-			break;
+	/* Output file to screen */
+	size_t n;
+	do {
+		/* Read some bytes from file */
+		char buffer[4096];
+		n = fread(buffer, 1, 4096, fp);
 
-		case DT_DIR:
-			printf("%s/\n", ent->d_name);
-			break;
+		/* Output bytes to screen */
+		fwrite(buffer, 1, n, stdout);
+	} while (n != 0);
 
-		case DT_LNK:
-			printf("%s@\n", ent->d_name);
-			break;
-
-		default:
-			printf("%s*\n", ent->d_name);
-		}
-	}
-
-	closedir(dir);
+	/* Close file */
+	fclose(fp);
 }
 
 /* Stub for converting arguments to UTF-8 on Windows */
