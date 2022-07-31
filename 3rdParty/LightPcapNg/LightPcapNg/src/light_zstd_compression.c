@@ -26,9 +26,10 @@
 #include "light_zstd_compression.h"
 #include "light_compression_functions.h"
 #include "light_file.h"
-#include <stdlib.h>
-#include <memory.h>
 #include <assert.h>
+#include <memory.h>
+#include <stdlib.h>
+#include <string.h>
 
 _compression_t * (*get_compression_context_ptr)(int) = &get_zstd_compression_context;
 void(*free_compression_context_ptr)(_compression_t*) = &free_zstd_compression_context;
