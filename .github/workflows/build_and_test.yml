@@ -8,8 +8,8 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
       - uses: pre-commit/action@v2.0.3
 
   linux:
@@ -44,9 +44,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
+
+      - name: Mark repository as safe (Checkout actions is not run with same UID)
+        run: |
+          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
+          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -91,9 +96,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
+
+      - name: Mark repository as safe (Checkout actions is not run with same UID)
+        run: |
+          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
+          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -DPCAPPP_BUILD_EXAMPLES=ON -DPCAPPP_BUILD_TESTS=ON -S . -B $BUILD_DIR
@@ -124,9 +134,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
+
+      - name: Mark repository as safe (Checkout actions is not run with same UID)
+        run: |
+          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
+          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -158,13 +173,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.8.x"
+
+      - name: Mark repository as safe (Checkout actions is not run with same UID)
+        run: |
+          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
+          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         if: ${{ matrix.use-zstd != 'true' }}
@@ -229,7 +249,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
 
@@ -244,7 +264,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: "3.8.x"
 
@@ -295,11 +315,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: "3.8.x"
 
@@ -360,25 +380,32 @@ jobs:
             api-version: 30
           - run-on-os: macos-11
             target: arm64-v8a
+            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
           - run-on-os: macos-11
             target: x86_64
+            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30
 
     runs-on: ${{ matrix.run-on-os }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: "0"
+
+      - name: Mark repository as safe (Checkout actions is not run with same UID)
+        run: |
+          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
+          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure and Cross-compile libpcap
         run: |
           NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
           wget https://github.com/the-tcpdump-group/libpcap/archive/refs/tags/libpcap-1.10.1.zip
           unzip libpcap-1.10.1.zip && cd libpcap-libpcap-1.10.1
-          cmake -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" -S . -B build
+          cmake -DCMAKE_TOOLCHAIN_FILE="${NDK_ROOT}/build/cmake/android.toolchain.cmake" -DCMAKE_INSTALL_PREFIX="${NDK_ROOT}/sysroot" ${{matrix.cmake_configure}} -S . -B build
           cmake --build build -j
           cmake --install build
 
