@@ -202,6 +202,7 @@ ICMPv6EchoRequestLayer::ICMPv6EchoRequestLayer()
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = ICMPv6EchoRequest;
+	getIcmpv6Header()->type = ICMPv6_ECHO_REPLY;
 }
 
 icmpv6_echo_request *ICMPv6EchoRequestLayer::getEchoRequestData()
@@ -261,6 +262,7 @@ ICMPv6EchoReplyLayer::ICMPv6EchoReplyLayer()
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = ICMPv6EchoReply;
+	getIcmpv6Header()->type = ICMPv6_ECHO_REPLY;
 }
 
 icmpv6_echo_reply *ICMPv6EchoReplyLayer::getEchoReplyData()

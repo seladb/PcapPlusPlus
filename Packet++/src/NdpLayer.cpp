@@ -134,6 +134,7 @@ void NDPNeighborAdvertisementLayer::setNeighborAdvertisementHeaderFields(const I
 																		 bool unicastResponse, bool override)
 {
 	ndpneighboradvertisementhdr *pHdr = getNdpHeader();
+	pHdr->type =ICMPv6_NEIGHBOR_ADVERTISEMENT;
 	pHdr->router = byRouter;
 	pHdr->solicited = unicastResponse;
 	pHdr->override = override;
@@ -176,6 +177,7 @@ NDPNeighborSolicitationLayer::NDPNeighborSolicitationLayer(const IPv6Address &ta
 	m_Protocol = NDPNeighborSolicitation;
 
 	ndpneighborsolicitationhdr *pHdr = getNdpHeader();
+	pHdr->type =ICMPv6_NEIGHBOR_SOLICITATION;
 	memcpy(pHdr->targetIP, targetIP.toBytes(), 16);
 }
 
@@ -187,6 +189,7 @@ NDPNeighborSolicitationLayer::NDPNeighborSolicitationLayer(const IPv6Address &ta
 	m_Protocol = NDPNeighborSolicitation;
 
 	ndpneighborsolicitationhdr *pHdr = getNdpHeader();
+	pHdr->type =ICMPv6_NEIGHBOR_SOLICITATION;
 	memcpy(pHdr->targetIP, targetIP.toBytes(), 16);
 
 	this->addNdpOption(pcpp::NdpOptionBuilder(pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER, srcMac.getRawData(), 6));

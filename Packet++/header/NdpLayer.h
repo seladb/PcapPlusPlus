@@ -188,7 +188,7 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	 * Represents neighbor advertisement message format
 	 */
 #pragma pack(push, 1)
-	struct ndpneighboradvertisementhdr
+	struct ndpneighboradvertisementhdr : icmpv6hdr
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		uint32_t
@@ -325,7 +325,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 	 * Represents neighbor solicitation message format
 	 */
 #pragma pack(push, 1)
-	struct ndpneighborsolicitationhdr
+	struct ndpneighborsolicitationhdr : icmpv6hdr
 	{
 		/** Reserved */
 		uint32_t reserved;

@@ -253,13 +253,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
-	PTF_RUN_TEST(IcmpV6Parsing, "icmpv6");
+	PTF_RUN_TEST(IcmpV6ParsingTest, "icmpv6");
 	PTF_RUN_TEST(IcmpV6CreationTest, "icmpv6");
-	PTF_RUN_TEST(IcmpV6Crafting, "icmpv6");
-	PTF_RUN_TEST(IcmpV6SolicitationParsing, "icmpv6");
-	PTF_RUN_TEST(IcmpV6SolicitationCrafting, "icmpv6");
-	PTF_RUN_TEST(IcmpV6AdvertisementParsing, "icmpv6");
-	PTF_RUN_TEST(IcmpV6AdvertisementCrafting, "icmpv6");
+	PTF_RUN_TEST(IcmpV6EditTest, "icmpv6");
 
 	PTF_END_RUNNING_TESTS;
 }
