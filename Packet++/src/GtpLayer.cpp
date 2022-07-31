@@ -342,7 +342,7 @@ GtpV1Layer::GtpExtension GtpV1Layer::getNextExtension() const
 {
 	uint8_t nextExtType = 0;
 	bool nextExtExists = getNextExtensionHeaderType(nextExtType);
-	if (!nextExtExists || nextExtType == 0 || m_DataLen < sizeof(gtpv1_header) + sizeof(uint8_t))
+	if (!nextExtExists || nextExtType == 0 || m_DataLen <= sizeof(gtpv1_header) + sizeof(gtpv1_header_extra))
 	{
 		return GtpV1Layer::GtpExtension();
 	}

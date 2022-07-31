@@ -167,11 +167,16 @@ PTF_TEST_CASE(DhcpV6EditTest);
 PTF_TEST_CASE(NtpMethodsTests);
 PTF_TEST_CASE(NtpParsingV3Tests);
 PTF_TEST_CASE(NtpParsingV4Tests);
-PTF_TEST_CASE(NtpCraftingTests);
+PTF_TEST_CASE(NtpCreationTests);
 
 // Implemented in TelnetTests.cpp
 PTF_TEST_CASE(TelnetCommandParsingTests);
 PTF_TEST_CASE(TelnetDataParsingTests);
+
+// Implemented in FtpTests.cpp
+PTF_TEST_CASE(FtpParsingTests);
+PTF_TEST_CASE(FtpCreationTests);
+PTF_TEST_CASE(FtpEditTests);
 
 // Implemented in LLCTests.cpp
 PTF_TEST_CASE(LLCParsingTests);
