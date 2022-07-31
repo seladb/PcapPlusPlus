@@ -48,6 +48,9 @@
     <ClInclude Include="..\..\Packet++\header\EthLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\FtpLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Packet++\header\GreLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,6 +82,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Packet++\header\Layer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\SingleCommandTextProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h">
@@ -188,6 +194,9 @@
     <ClCompile Include="..\..\Packet++\src\EthLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\FtpLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Packet++\src\GreLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -219,6 +228,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\Layer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\SingleCommandTextProtocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp">
