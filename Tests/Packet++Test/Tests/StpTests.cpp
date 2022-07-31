@@ -22,13 +22,20 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 	PTF_ASSERT_EQUAL(stpConfLayer->getVersion(), 0x0);
 	PTF_ASSERT_EQUAL(stpConfLayer->getType(), 0x0);
 	PTF_ASSERT_EQUAL(stpConfLayer->getFlag(), 0x0);
-	PTF_ASSERT_EQUAL(stpConfLayer->getRootId(), be64toh(0x8064001c0e877800));
+	PTF_ASSERT_EQUAL(stpConfLayer->getRootId(), 0x8064001c0e877800);
+	PTF_ASSERT_EQUAL(stpConfLayer->getRootPriority(), 32768);
+	PTF_ASSERT_EQUAL(stpConfLayer->getRootSystemIDExtension(), 100);
+	PTF_ASSERT_EQUAL(stpConfLayer->getRootSystemID(), pcpp::MacAddress("00:1c:0e:87:78:00"));
 	PTF_ASSERT_EQUAL(stpConfLayer->getPathCost(), 0x4);
-	PTF_ASSERT_EQUAL(stpConfLayer->getPortId(), be16toh(0x8004));
-	PTF_ASSERT_EQUAL(stpConfLayer->getMessageAge(), 0x1);
-	PTF_ASSERT_EQUAL(stpConfLayer->getMaximumAge(), 0x14);
-	PTF_ASSERT_EQUAL(stpConfLayer->getTransmissionInterval(), 0x2);
-	PTF_ASSERT_EQUAL(stpConfLayer->getForwardDelay(), 0x0f);
+	PTF_ASSERT_EQUAL(stpConfLayer->getBridgeId(), 0x8064001c0e878500);
+	PTF_ASSERT_EQUAL(stpConfLayer->getBridgePriority(), 32768);
+	PTF_ASSERT_EQUAL(stpConfLayer->getBridgeSystemIDExtension(), 100);
+	PTF_ASSERT_EQUAL(stpConfLayer->getBridgeSystemID(), pcpp::MacAddress("00:1c:0e:87:85:00"));
+	PTF_ASSERT_EQUAL(stpConfLayer->getPortId(), 0x8004);
+	PTF_ASSERT_EQUAL(stpConfLayer->getMessageAge(), 1);
+	PTF_ASSERT_EQUAL(stpConfLayer->getMaximumAge(), 20);
+	PTF_ASSERT_EQUAL(stpConfLayer->getTransmissionInterval(), 2);
+	PTF_ASSERT_EQUAL(stpConfLayer->getForwardDelay(), 15);
 
 	PTF_ASSERT_EQUAL(stpConfLayer->toString(), "Spanning Tree Configuration");
 }
@@ -70,14 +77,21 @@ PTF_TEST_CASE(RapidStpParsingTests)
 	PTF_ASSERT_EQUAL(stpRapidLayer->getVersion(), 0x2);
 	PTF_ASSERT_EQUAL(stpRapidLayer->getType(), 0x2);
 	PTF_ASSERT_EQUAL(stpRapidLayer->getFlag(), 0x3d);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getRootId(), be64toh(0x6001000d65adf600));
+	PTF_ASSERT_EQUAL(stpRapidLayer->getRootId(), 0x6001000d65adf600);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getRootPriority(), 24576);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getRootSystemIDExtension(), 1);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getRootSystemID(), pcpp::MacAddress("00:0d:65:ad:f6:00"));
 	PTF_ASSERT_EQUAL(stpRapidLayer->getPathCost(), 0x0a);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getBridgeId(), be64toh(0x8001000bfd860f00));
-	PTF_ASSERT_EQUAL(stpRapidLayer->getPortId(), be16toh(0x8001));
-	PTF_ASSERT_EQUAL(stpRapidLayer->getMessageAge(), 0x1);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getMaximumAge(), 0x14);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getTransmissionInterval(), 0x2);
-	PTF_ASSERT_EQUAL(stpRapidLayer->getVersion1Len(), 0x0);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getBridgeId(), 0x8001000bfd860f00);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getBridgePriority(), 32768);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getBridgeSystemIDExtension(), 1);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getBridgeSystemID(), pcpp::MacAddress("00:0b:fd:86:0f:00"));
+	PTF_ASSERT_EQUAL(stpRapidLayer->getPortId(), 0x8001);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getMessageAge(), 1);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getMaximumAge(), 20);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getTransmissionInterval(), 2);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getForwardDelay(), 15);
+	PTF_ASSERT_EQUAL(stpRapidLayer->getVersion1Len(), 0);
 
 	PTF_ASSERT_EQUAL(stpRapidLayer->toString(), "Rapid Spanning Tree");
 }
@@ -99,22 +113,32 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getVersion(), 0x3);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getType(), 0x2);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getFlag(), 0x7c);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getRootId(), be64toh(0x8000000c305dd100));
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getRootId(), 0x8000000c305dd100);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getRootPriority(), 32768);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getRootSystemIDExtension(), 0);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getRootSystemID(), pcpp::MacAddress("00:0c:30:5d:d1:00"));
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getPathCost(), 0x0);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getBridgeId(), be64toh(0x8000000c305dd100));
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getPortId(), be16toh(0x8005));
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getMessageAge(), 0x0);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getMaximumAge(), 0x14);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getTransmissionInterval(), 0x2);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getVersion1Len(), 0x0);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getVersion3Len(), 0x50);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getBridgeId(), 0x8000000c305dd100);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getBridgePriority(), 32768);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getBridgeSystemIDExtension(), 0);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getBridgeSystemID(), pcpp::MacAddress("00:0c:30:5d:d1:00"));
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getPortId(), 0x8005);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getMessageAge(), 0);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getMaximumAge(), 20);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getTransmissionInterval(), 2);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getForwardDelay(), 15);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getVersion1Len(), 0);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getVersion3Len(), 80);
 
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getMstConfigurationFormatSelector(), 0x0);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getMstConfigurationName(), std::string());
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getMstConfigRevision(), 0x0);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTIrpc(), 0x00030d40);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgeId(), be64toh(0x8000001aa197d180));
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getRemainingHopCount(), 0x13);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgeId(), 0x8000001aa197d180);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgePriority(), 32768);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgeSystemIDExtension(), 0);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgeSystemID(), pcpp::MacAddress("00:1a:a1:97:d1:80"));
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getRemainingHopCount(), 19);
 
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getNumberOfMSTIConfMessages(), 1);
 
@@ -124,9 +148,9 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	PTF_ASSERT_EQUAL(ptrExtension->flags, 0x7c);
 	PTF_ASSERT_EQUAL(ptrExtension->regionalRootId, be64toh(0x8005000c305dd100));
 	PTF_ASSERT_EQUAL(ptrExtension->pathCost, be32toh(0x00030d40));
-	PTF_ASSERT_EQUAL(ptrExtension->bridgePriority, 0x80);
-	PTF_ASSERT_EQUAL(ptrExtension->portPriority, 0x80);
-	PTF_ASSERT_EQUAL(ptrExtension->remainingHops, 0x13);
+	PTF_ASSERT_EQUAL(ptrExtension->bridgePriority, 8 << 4);
+	PTF_ASSERT_EQUAL(ptrExtension->portPriority, 8 << 4);
+	PTF_ASSERT_EQUAL(ptrExtension->remainingHops, 19);
 
 	PTF_ASSERT_EQUAL(stpMultipleLayer->toString(), "Multiple Spanning Tree");
 }

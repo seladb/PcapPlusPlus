@@ -6,85 +6,77 @@
 namespace pcpp
 {
 
-// ---------------------- Class STP Layer ----------------------
-pcpp::MacAddress StpLayer::StpMulticastDstMAC("01:80:C2:00:00:00");
-pcpp::MacAddress StpLayer::StpUplinkFastMulticastDstMAC("01:00:0C:CD:CD:CD");
+	// ---------------------- Class STP Layer ----------------------
+	pcpp::MacAddress StpLayer::StpMulticastDstMAC("01:80:C2:00:00:00");
+	pcpp::MacAddress StpLayer::StpUplinkFastMulticastDstMAC("01:00:0C:CD:CD:CD");
 
-bool StpLayer::isDataValid(const uint8_t *data, size_t dataLen)
-{
-	return data && dataLen;
-}
-
-StpLayer::StpType StpLayer::getStpType(const uint8_t *data, size_t dataLen)
-{
-	if (dataLen >= sizeof(stp_tcn_bpdu))
+	pcpp::MacAddress StpLayer::IDtoMacAddress(uint64_t id)
 	{
-		stp_tcn_bpdu *ptr = (stp_tcn_bpdu *)data;
-		switch (ptr->type)
-		{
-		case 0x00:
-			return ConfigurationBPDU;
-		case 0x80:
-			return TopologyChangeBPDU;
-		case 0x02: {
-			if (ptr->version == 0x2)
-				return Rapid;
-			if (ptr->version == 0x3)
-				return Multiple;
-			PCPP_LOG_ERROR("Unknown Spanning Tree Version");
-			return NotSTP;
-		}
-		default:
-			PCPP_LOG_ERROR("Unknown Spanning Tree Protocol type");
-			return NotSTP;
-		}
+
+		return pcpp::MacAddress((id >> 40) & 0xFF, (id >> 32) & 0xFF, (id >> 24) & 0xFF, (id >> 16) & 0xFF,
+								(id >> 8) & 0xFF, id & 0xFF);
 	}
-	else
-		PCPP_LOG_ERROR("Data length is less than any STP header");
 
-	return NotSTP;
-}
+	bool StpLayer::isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen; }
 
-// ---------------------- Class StpConfigurationBPDU Layer ----------------------
+	StpLayer::StpType StpLayer::getStpType(const uint8_t *data, size_t dataLen)
+	{
+		if (dataLen >= sizeof(stp_tcn_bpdu))
+		{
+			stp_tcn_bpdu *ptr = (stp_tcn_bpdu *)data;
+			switch (ptr->type)
+			{
+			case 0x00:
+				return ConfigurationBPDU;
+			case 0x80:
+				return TopologyChangeBPDU;
+			case 0x02: {
+				if (ptr->version == 0x2)
+					return Rapid;
+				if (ptr->version == 0x3)
+					return Multiple;
+				PCPP_LOG_ERROR("Unknown Spanning Tree Version");
+				return NotSTP;
+			}
+			default:
+				PCPP_LOG_ERROR("Unknown Spanning Tree Protocol type");
+				return NotSTP;
+			}
+		}
+		else
+			PCPP_LOG_ERROR("Data length is less than any STP header");
 
-std::string StpConfigurationBPDULayer::toString() const
-{
-	return "Spanning Tree Configuration";
-}
+		return NotSTP;
+	}
 
-// ---------------------- Class StpTopologyChangeBPDU Layer ----------------------
+	// ---------------------- Class StpConfigurationBPDU Layer ----------------------
 
-std::string StpTopologyChangeBPDULayer::toString() const
-{
-	return "Spanning Tree Topology Change Notification";
-}
+	std::string StpConfigurationBPDULayer::toString() const { return "Spanning Tree Configuration"; }
 
-// ---------------------- Class RapidStp Layer ----------------------
+	// ---------------------- Class StpTopologyChangeBPDU Layer ----------------------
 
-std::string RapidStpLayer::toString() const
-{
-	return "Rapid Spanning Tree";
-}
+	std::string StpTopologyChangeBPDULayer::toString() const { return "Spanning Tree Topology Change Notification"; }
 
-// ---------------------- Class MultipleStp Layer ----------------------
+	// ---------------------- Class RapidStp Layer ----------------------
 
-msti_conf_msg *MultipleStpLayer::getMstiConfMessages() const
-{
-	if (getNumberOfMSTIConfMessages())
-		return (msti_conf_msg *)(m_Data + sizeof(mstp_conf_bpdu));
-	return NULL;
-}
+	std::string RapidStpLayer::toString() const { return "Rapid Spanning Tree"; }
 
-std::string MultipleStpLayer::getMstConfigurationName() const
-{
-	std::string str = std::string((char *)(getMstpHeader()->mstConfigName), 32);
-	str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
-	return str;
-}
+	// ---------------------- Class MultipleStp Layer ----------------------
 
-std::string MultipleStpLayer::toString() const
-{
-	return "Multiple Spanning Tree";
-}
+	msti_conf_msg *MultipleStpLayer::getMstiConfMessages() const
+	{
+		if (getNumberOfMSTIConfMessages())
+			return (msti_conf_msg *)(m_Data + sizeof(mstp_conf_bpdu));
+		return NULL;
+	}
+
+	std::string MultipleStpLayer::getMstConfigurationName() const
+	{
+		std::string str = std::string((char *)(getMstpHeader()->mstConfigName), 32);
+		str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
+		return str;
+	}
+
+	std::string MultipleStpLayer::toString() const { return "Multiple Spanning Tree"; }
 
 } // namespace pcpp
