@@ -33,5 +33,5 @@ INSTALL_SCRIPT := install.sh
 UNINSTALL_SCRIPT := uninstall.sh
 
 ifndef LIB_FUZZING_ENGINE
-LIB_FUZZING_ENGINE = -fsanitize=fuzzer
+LIB_FUZZING_ENGINE := -fsanitize=fuzzer
 endif
