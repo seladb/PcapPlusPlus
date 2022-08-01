@@ -53,13 +53,9 @@ task:
 task:
   name: Regression Tests Linux (Memory Behavior Sanitizer)
   container:
-    image: gcr.io/oss-fuzz-base/base-builder
+    image: seladb/ubuntu1804:latest
   configure_script:
-    - cd $SRC/libpcap/
-    - ./configure
-    - make
-    - cd $SRC/PcapPlusPlus
-    - ./configure-fuzzing.sh --libpcap-static-lib-dir $SRC/libpcap/ --sanitizer memory
+    - ./configure-fuzzing.sh --sanitizer memory
     - ldconfig
   build_script:
     - make fuzzers
