@@ -144,7 +144,7 @@ class NDPLayerBase : public IcmpV6Layer
 	 * @return A NdpOption object that contains the NDP option data that comes next, or logical NULL if the given
 	 * NDP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
 	 */
-	NdpOption getNextNdpOption(NdpOption &tcpOption) const;
+	NdpOption getNextNdpOption(NdpOption &option) const;
 
 	/**
 	 * Add a new NDP option at the end of the layer (after the last NDP option)

@@ -39,9 +39,9 @@ NdpOption NDPLayerBase::getFirstNdpOption() const
 	return m_OptionReader.getFirstTLVRecord(getNdpOptionsBasePtr(), getHeaderLen() - getNdpHeaderLen());
 }
 
-NdpOption NDPLayerBase::getNextNdpOption(NdpOption &ndpOption) const
+NdpOption NDPLayerBase::getNextNdpOption(NdpOption &option) const
 {
-	return m_OptionReader.getNextTLVRecord(ndpOption, getNdpOptionsBasePtr(), getHeaderLen() - getNdpHeaderLen());
+	return m_OptionReader.getNextTLVRecord(option, getNdpOptionsBasePtr(), getHeaderLen() - getNdpHeaderLen());
 }
 
 NdpOption NDPLayerBase::getNdpOption(NDPNeighborOptionTypes option) const
