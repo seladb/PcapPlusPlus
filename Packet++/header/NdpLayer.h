@@ -178,7 +178,7 @@ class NDPLayerBase : public IcmpV6Layer
 
 /**
  * @class NDPNeighborSolicitationLayer
- * Represents an NDP Neighbor Solicitation protocol layer
+ * Represents a NDP Neighbor Solicitation protocol layer
  */
 class NDPNeighborSolicitationLayer : public NDPLayerBase
 {
@@ -254,7 +254,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 
 /**
  * @class NDPNeighborAdvertisementLayer
- * Represents an NDP Neighbor Advertisement protocol layer
+ * Represents a NDP Neighbor Advertisement protocol layer
  */
 class NDPNeighborAdvertisementLayer : public NDPLayerBase
 {

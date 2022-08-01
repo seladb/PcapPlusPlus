@@ -211,6 +211,10 @@ class IcmpV6Layer : public Layer
 	icmpv6hdr *getIcmpv6Header() const { return (icmpv6hdr *)m_Data; }
 };
 
+/**
+ * @class ICMPv6EchoRequestLayer
+ * Represents an ICMPv6 echo request protocol layer
+ */
 class ICMPv6EchoRequestLayer : public IcmpV6Layer
 {
   public:
@@ -250,6 +254,10 @@ class ICMPv6EchoRequestLayer : public IcmpV6Layer
 	icmpv6_echo_request m_EchoData;
 };
 
+/**
+ * @class ICMPv6EchoReplyLayer
+ * Represents an ICMPv6 echo reply protocol layer
+ */
 class ICMPv6EchoReplyLayer : public IcmpV6Layer
 {
   public:
