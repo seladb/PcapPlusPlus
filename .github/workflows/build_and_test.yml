@@ -15,11 +15,11 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2204
+            python: python3
           - image: ubuntu2004
             python: python3
           - image: ubuntu1804
-            python: python3.8
-          - image: ubuntu1604
             python: python3.8
           - image: centos7
             python: python3.8
@@ -92,7 +92,7 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        image: [ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
+        image: [ubuntu2004-dpdk2111, ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
 
     steps:
       - name: Checkout code
@@ -145,7 +145,7 @@ jobs:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        os-version: [macos-10.15, macos-11]
+        os-version: [macos-11, macos-12]
 
     steps:
       - name: Checkout code
@@ -191,7 +191,7 @@ jobs:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        os-version: [macos-10.15]
+        os-version: [macos-11]
 
     steps:
       - name: Checkout code
@@ -250,7 +250,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
-        run: ./configure-windows-mingw.bat mingw-w64 -m  /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
+        run: ./configure-windows-mingw.bat -m /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -379,7 +379,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
+          NDK_ROOT=$(ls -dr ${ANDROID_SDK_ROOT}/ndk/*/ | head -1)
           LIBPCAP_PATH=$(pwd)/libpcap-android
           ./configure-android.sh --ndk-path $NDK_ROOT --target ${{ matrix.target }} --api ${{ matrix.api-version }} --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/${{ matrix.target }}/${{ matrix.api-version }}
 

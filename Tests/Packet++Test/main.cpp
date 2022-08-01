@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(NtpMethodsTests, "ntp");
 	PTF_RUN_TEST(NtpParsingV3Tests, "ntp");
 	PTF_RUN_TEST(NtpParsingV4Tests, "ntp");
-	PTF_RUN_TEST(NtpCraftingTests, "ntp");
+	PTF_RUN_TEST(NtpCreationTests, "ntp");
 
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
@@ -256,6 +256,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(IcmpV6ParsingTest, "icmpv6");
 	PTF_RUN_TEST(IcmpV6CreationTest, "icmpv6");
 	PTF_RUN_TEST(IcmpV6EditTest, "icmpv6");
+
+	PTF_RUN_TEST(FtpParsingTests, "ftp");
+	PTF_RUN_TEST(FtpCreationTests, "ftp");
+	PTF_RUN_TEST(FtpEditTests, "ftp");
 
 	PTF_END_RUNNING_TESTS;
 }

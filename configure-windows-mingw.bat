@@ -11,7 +11,7 @@ set PLATFORM_MK=mk\platform.mk
 set PCAPPLUSPLUS_MK=mk\PcapPlusPlus.mk
 
 :: initially set MINGW_TYPE, MINGW_HOME and PCAP_SDK_HOME to empty values
-set MINGW_TYPE=
+set MINGW_TYPE=mingw-w64
 set MINGW_HOME=
 set PCAP_SDK_HOME=
 
@@ -25,10 +25,8 @@ if "%1" NEQ "" (
 if "%ERRORLEVEL%" NEQ "0" exit /B 1
 
 :: verify that both variables MINGW_HOME, PCAP_SDK_HOME, MSYS_HOME are set
-if "%MINGW_TYPE%"=="" echo MinGW compiler (mingw32 or mingw-w64) was not provided. Exiting & exit /B 1
-if "%MINGW_HOME%"=="" echo MinGW directory was not provided. Exiting & exit /B 1
-if "%MINGW_TYPE%"=="mingw-w64" if "%MSYS_HOME%"=="" echo MSYS2 directory was not provided. Exiting & exit /B 1
-if "%MINGW_TYPE%"=="mingw32" set MSYS_HOME=$(MINGW_HOME)/msys/1.0
+if "%MINGW_HOME%"=="" echo %MINGW_TYPE% directory was not provided. Exiting & exit /B 1
+if "%MSYS_HOME%"=="" echo MSYS2 directory was not provided. Exiting & exit /B 1
 if "%PCAP_SDK_HOME%"=="" echo WinPcap/Npcap SDK directory was not provided. Exiting & exit /B 1
 
 :: replace "\" with "/" in MINGW_HOME
@@ -123,16 +121,6 @@ if "%HAS_PARAM%"=="1" shift /1
 :: return to GETOPT_START to handle the next switch
 goto GETOPT_START
 
-:CASEmingw32
-	set MINGW_TYPE=%1
-	:: exit ok
-	exit /B 0
-
-:CASEmingw-w64
-	set MINGW_TYPE=%1
-	:: exit ok
-	exit /B 0
-
 :: handling help switches (-h or --help)
 :CASE--help
 :CASE-h
@@ -147,7 +135,7 @@ goto GETOPT_START
 	:: this argument must have a parameter. If no parameter was found goto GETOPT_REQUIRED_PARAM and exit
 	if "%2"=="" goto GETOPT_REQUIRED_PARAM %1
 	:: verify the MinGW dir provided by the user exists. If not, exit with error code 3, meaning ask the caller to exit the script
-	if not exist %2\ call :GETOPT_ERROR "MinGW directory '%2' does not exist" & exit /B 3
+	if not exist %2\ call :GETOPT_ERROR "%MINGW_TYPE% directory '%2' does not exist" & exit /B 3
 	:: if all went well, set the MINGW_HOME variable with the directory given by the user
 	set MINGW_HOME=%2
 	:: notify GETOPT this switch has a parameter
@@ -210,32 +198,18 @@ goto GETOPT_START
 :: a "function" that implements the wizard mode which reads MinGW home and WinPcap/Npcap SDK by displaying a wizard for the user
 :READ_PARAMS_FROM_USER
 
-echo MinGW32 or MinGW-w64 are required for compiling PcapPlusPlus. Please specify
-echo the type you want to use (can be either "mingw32" or "mingw-w64")
-echo.
-:while0
-:: ask the user to type MinGW type
-set /p MINGW_TYPE=    Please specify mingw32 or mingw-w64: %=%
-if "%MINGW_TYPE%" NEQ "mingw32" if "%MINGW_TYPE%" NEQ "mingw-w64" (echo Please choose one of "mingw32" or "mingw-w64" && goto while0)
-
-echo.
-echo.
-
 :: get MinGW location from user and verify it exists
-echo If %MINGW_TYPE% is not installed, please download and install it
-if "%MINGW_TYPE%"=="mingw32" echo mingw32 can be downloaded from: www.mingw.org/
-if "%MINGW_TYPE%"=="mingw-w64" echo mingw-w64 can be downloaded from: sourceforge.net/projects/mingw-w64/
+echo If %MINGW_TYPE% is not installed, please download and install it from here:
+echo https://www.mingw-w64.org/downloads/#mingw-builds
 echo.
 :while1
 :: ask the user to type MinGW dir
-set /p MINGW_HOME=    Please specify %MINGW_TYPE% installed path (for example: C:\MinGW or C:\i686-8.1.0-posix-dwarf-rt_v6-rev0): %=%
+set /p MINGW_HOME=    Please specify %MINGW_TYPE% installed path (for example: C:\i686-8.1.0-posix-dwarf-rt_v6-rev0): %=%
 :: if input dir doesn't exist print an error to the user and go back to previous line
 if not exist %MINGW_HOME%\ (echo Directory does not exist!! && goto while1)
 
 echo.
 echo.
-
-if "%MINGW_TYPE%"=="mingw32" goto msys-not-required
 
 :: get MSYS2 location from user and verify it exists
 echo MSYS2 is required for compiling PcapPlusPlus.
@@ -276,12 +250,11 @@ echo This script has 2 modes of operation:
 echo   1) Without any switches. In this case the script will guide you through using wizards
 echo   2) With switches, as described below
 echo.
-echo Basic usage: %~nx0 [-h] MINGW_COMPILER -m MINGW_HOME_DIR -w PCAP_SDK_DIR [-s MSYS_HOME_DIR]
+echo Basic usage: %~nx0 [-h] -m MINGW_HOME_DIR -s MSYS_HOME_DIR -w PCAP_SDK_DIR
 echo.
 echo The following switches are recognized:
-echo MINGW_COMPILER        --The MinGW compiler to use. Can be either "mingw32" or "mingw-w64"
-echo -m^|--mingw-home      --Set MinGW home directory (the folder that includes "bin", "lib" and "include" directories)
-echo -s^|--msys-home       --Set MSYS2 home directory (must for mingw-w64, not must for mingw32)
+echo -m^|--mingw-home      --Set %MINGW_TYPE% home directory (the folder that includes "bin", "lib" and "include" directories)
+echo -s^|--msys-home       --Set MSYS2 home directory
 echo -w^|--pcap-sdk        --Set WinPcap/Npcap SDK directory
 echo -h^|--help            --Display this help message and exits. No further actions are performed
 echo.

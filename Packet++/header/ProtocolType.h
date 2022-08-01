@@ -262,6 +262,11 @@ namespace pcpp
 	 */
 	const ProtocolType Telnet = 0x8000000000;
 
+  	/**
+   	 * File Transfer (FTP) Protocol
+	 */
+	const ProtocolType FTP = 0x10000000000;
+
 	/**
 	 * ICMPv6 Echo Request protocol
 	 */
