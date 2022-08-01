@@ -55,7 +55,7 @@ task:
   container:
     image: gcr.io/oss-fuzz-base/base-builder
   configure_script:
-    - ./configure-fuzzing.sh --sanitizer memory
+    - ./configure-fuzzing.sh --libpcap-static-lib-dir $SRC/libpcap/ --sanitizer memory
     - ldconfig
   build_script:
     - make fuzzers
