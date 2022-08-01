@@ -52,7 +52,7 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t>
 
 	/**
 	 * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum. If the data is null a value
-	 * of ::NDP_OPTION_Unknown is returned
+	 * of NDP_OPTION_Unknown is returned
 	 */
 	NDPNeighborOptionTypes getNdpOptionType() const
 	{
