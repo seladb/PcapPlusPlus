@@ -148,8 +148,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address(std::string("fe80::215:5dff:fea5:c4c5")), pcpp::IPv6Address(std::string("fe80::dd05:dae0:74bc:7341")));
 
 	// Echo request creation
-	pcpp::ICMPv6EchoRequestLayer echoReqLayer;
-	PTF_ASSERT_NOT_NULL(echoReqLayer.setEchoRequestData(0x0018, 0x0014, data, 56));
+	pcpp::ICMPv6EchoRequestLayer echoReqLayer(0x0018, 0x0014, data, 56);
 	pcpp::Packet echoRequestPacket(100);
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ipv6Layer));
@@ -161,12 +160,11 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	// Echo reply creation
 	pcpp::EthLayer ethLayer2(ethLayer);
 	pcpp::IPv6Layer ipLayer2(ipv6Layer);
-	pcpp::ICMPv6EchoReplyLayer echoRepLayer;
+	pcpp::ICMPv6EchoReplyLayer echoRepLayer(0x0018, 0x0014, data, 56);
 	pcpp::Packet echoReplyPacket(100);
 	PTF_ASSERT_TRUE(echoReplyPacket.addLayer(&ethLayer2));
 	PTF_ASSERT_TRUE(echoReplyPacket.addLayer(&ipLayer2));
 	PTF_ASSERT_TRUE(echoReplyPacket.addLayer(&echoRepLayer));
-	PTF_ASSERT_NOT_NULL(echoRepLayer.setEchoReplyData(0x0018, 0x0014, data, 56));
 	echoReplyPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoReplyPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData()+54, buffer2+54, bufferLength2-54);

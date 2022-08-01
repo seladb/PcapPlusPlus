@@ -52,29 +52,6 @@ uint16_t IcmpV6Layer::getChecksum() const
 	return be16toh(getIcmpv6Header()->checksum);
 }
 
-bool IcmpV6Layer::cleanIcmpLayer()
-{
-	// remove all layers after
-
-	if (m_Packet != NULL)
-	{
-		bool res = m_Packet->removeAllLayersAfter(this);
-		if (!res)
-			return false;
-	}
-
-	// shorten layer to size of icmpv6hdr
-
-	size_t headerLen = this->getHeaderLen();
-	if (headerLen > sizeof(icmpv6hdr))
-	{
-		if (!this->shortenLayer(sizeof(icmpv6hdr), headerLen - sizeof(icmpv6hdr)))
-			return false;
-	}
-
-	return true;
-}
-
 void IcmpV6Layer::parseNextLayer()
 {
 	size_t headerLen = getHeaderLen();
@@ -149,15 +126,21 @@ void IcmpV6Layer::calculateChecksum()
 // ICMPv6EchoRequestLayer
 //
 
-ICMPv6EchoRequestLayer::ICMPv6EchoRequestLayer()
+ICMPv6EchoRequestLayer::ICMPv6EchoRequestLayer(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
 {
-	m_DataLen = sizeof(icmpv6hdr);
+	m_DataLen = sizeof(icmpv6_echo_hdr) + dataLen;
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = ICMPv6EchoRequest;
 
-	pcpp::icmpv6_echo_hdr *ptr = (icmpv6_echo_hdr *)m_Data;
-	ptr->type = ICMPv6_ECHO_REQUEST;
+	icmpv6_echo_request *header = getEchoRequestData();
+	header->header->type = ICMPv6_ECHO_REQUEST;
+	header->header->code = 0;
+	header->header->checksum = 0;
+	header->header->id = htobe16(id);
+	header->header->sequence = htobe16(sequence);
+	if (data != NULL && dataLen > 0)
+		memcpy(header->data, data, dataLen);
 }
 
 icmpv6_echo_request *ICMPv6EchoRequestLayer::getEchoRequestData()
@@ -167,34 +150,6 @@ icmpv6_echo_request *ICMPv6EchoRequestLayer::getEchoRequestData()
 	m_EchoData.dataLength = m_DataLen - sizeof(icmpv6_echo_hdr);
 
 	return &m_EchoData;
-}
-
-icmpv6_echo_request *ICMPv6EchoRequestLayer::setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data,
-																size_t dataLen)
-{
-	if (setEchoData(id, sequence, data, dataLen))
-		return getEchoRequestData();
-	else
-		return NULL;
-}
-
-bool ICMPv6EchoRequestLayer::setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
-{
-	if (!cleanIcmpLayer())
-		return false;
-
-	if (!this->extendLayer(m_DataLen, sizeof(icmpv6_echo_hdr) - sizeof(icmpv6hdr) + dataLen))
-		return false;
-
-	icmpv6_echo_request *header = getEchoRequestData();
-	header->header->code = 0;
-	header->header->checksum = 0;
-	header->header->id = htobe16(id);
-	header->header->sequence = htobe16(sequence);
-	if (data != NULL && dataLen > 0)
-		memcpy(header->data, data, dataLen);
-
-	return true;
 }
 
 std::string ICMPv6EchoRequestLayer::toString() const
@@ -208,15 +163,21 @@ std::string ICMPv6EchoRequestLayer::toString() const
 // ICMPv6EchoReplyLayer
 //
 
-ICMPv6EchoReplyLayer::ICMPv6EchoReplyLayer()
+ICMPv6EchoReplyLayer::ICMPv6EchoReplyLayer(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
 {
-	m_DataLen = sizeof(icmpv6hdr);
+	m_DataLen = sizeof(icmpv6_echo_hdr) + dataLen;
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = ICMPv6EchoReply;
 
-	pcpp::icmpv6_echo_hdr *ptr = (icmpv6_echo_hdr *)m_Data;
-	ptr->type = ICMPv6_ECHO_REPLY;
+	icmpv6_echo_reply *header = getEchoReplyData();
+	header->header->type = ICMPv6_ECHO_REPLY;
+	header->header->code = 0;
+	header->header->checksum = 0;
+	header->header->id = htobe16(id);
+	header->header->sequence = htobe16(sequence);
+	if (data != NULL && dataLen > 0)
+		memcpy(header->data, data, dataLen);
 }
 
 icmpv6_echo_reply *ICMPv6EchoReplyLayer::getEchoReplyData()
@@ -226,34 +187,6 @@ icmpv6_echo_reply *ICMPv6EchoReplyLayer::getEchoReplyData()
 	m_EchoData.dataLength = m_DataLen - sizeof(icmpv6_echo_hdr);
 
 	return &m_EchoData;
-}
-
-icmpv6_echo_reply *ICMPv6EchoReplyLayer::setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data,
-														  size_t dataLen)
-{
-	if (setEchoData(id, sequence, data, dataLen))
-		return getEchoReplyData();
-	else
-		return NULL;
-}
-
-bool ICMPv6EchoReplyLayer::setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
-{
-	if (!cleanIcmpLayer())
-		return false;
-
-	if (!this->extendLayer(m_DataLen, sizeof(icmpv6_echo_hdr) - sizeof(icmpv6hdr) + dataLen))
-		return false;
-
-	icmpv6_echo_request *header = (icmpv6_echo_request *)getEchoReplyData();
-	header->header->code = 0;
-	header->header->checksum = 0;
-	header->header->id = htobe16(id);
-	header->header->sequence = htobe16(sequence);
-	if (data != NULL && dataLen > 0)
-		memcpy(header->data, data, dataLen);
-
-	return true;
 }
 
 std::string ICMPv6EchoReplyLayer::toString() const

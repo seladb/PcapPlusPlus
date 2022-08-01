@@ -146,7 +146,7 @@ typedef icmpv6_echo_request icmpv6_echo_reply;
 
 /**
  * @class IcmpV6Layer
- * Abstract base class for ICMPv6 protocol layers.
+ * Abstract base class for ICMPv6 protocol layers. Cannot be instantiated and contains common logic for derived classes.
  */
 class IcmpV6Layer : public Layer
 {
@@ -206,8 +206,6 @@ class IcmpV6Layer : public Layer
 	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 		: Layer(data, dataLen, prevLayer, packet) {}
 
-	bool cleanIcmpLayer();
-
   private:
 	void calculateChecksum();
 	icmpv6hdr *getIcmpv6Header() const { return (icmpv6hdr *)m_Data; }
@@ -216,13 +214,28 @@ class IcmpV6Layer : public Layer
 class ICMPv6EchoRequestLayer : public IcmpV6Layer
 {
   public:
+	/**
+	 * A constructor that creates the layer from an existing packet raw data
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+	 */
 	ICMPv6EchoRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 		: IcmpV6Layer(data, dataLen, prevLayer, packet)
 	{
 		m_Protocol = ICMPv6EchoRequest;
 	}
 
-	ICMPv6EchoRequestLayer();
+	/**
+	 * A constructor for a new echo request layer
+	 * @param[in] id Echo request identifier
+	 * @param[in] sequence Echo request sequence
+	 * @param[in] data A pointer to echo request payload to set
+	 * @param[in] dataLen The length of the echo request payload
+	 */
+
+	ICMPv6EchoRequestLayer(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
 	virtual ~ICMPv6EchoRequestLayer() {}
 
@@ -231,34 +244,36 @@ class ICMPv6EchoRequestLayer : public IcmpV6Layer
 	 */
 	icmpv6_echo_request *getEchoRequestData();
 
-	/**
-	 * Set echo request message data
-	 * @param[in] id Echo request identifier
-	 * @param[in] sequence Echo request sequence
-	 * @param[in] data A pointer to echo request payload to set
-	 * @param[in] dataLen The length of the echo request payload
-	 * @return A pointer to the echo request data that have been set or NULL if something went wrong
-	 * (an appropriate error log is printed in such cases)
-	 */
-	icmpv6_echo_request *setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
-
 	std::string toString() const;
 
   private:
 	icmpv6_echo_request m_EchoData;
-	bool setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 };
 
 class ICMPv6EchoReplyLayer : public IcmpV6Layer
 {
   public:
+	/**
+	 * A constructor that creates the layer from an existing packet raw data
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+	 */
 	ICMPv6EchoReplyLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 		: IcmpV6Layer(data, dataLen, prevLayer, packet)
 	{
 		m_Protocol = ICMPv6EchoReply;
 	}
 
-	ICMPv6EchoReplyLayer();
+	/**
+	 *  A constructor for a new echo reply layer
+	 * @param[in] id Echo reply identifier
+	 * @param[in] sequence Echo reply sequence
+	 * @param[in] data A pointer to echo reply payload to set
+	 * @param[in] dataLen The length of the echo reply payload
+	 */
+	ICMPv6EchoReplyLayer(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
 	virtual ~ICMPv6EchoReplyLayer()	{}
 
@@ -267,22 +282,10 @@ class ICMPv6EchoReplyLayer : public IcmpV6Layer
 	 */
 	icmpv6_echo_reply *getEchoReplyData();
 
-	/**
-	 * Set echo reply message data
-	 * @param[in] id Echo reply identifier
-	 * @param[in] sequence Echo reply sequence
-	 * @param[in] data A pointer to echo reply payload to set
-	 * @param[in] dataLen The length of the echo reply payload
-	 * @return A pointer to the echo reply data that have been set or NULL if something went wrong
-	 * (an appropriate error log is printed in such cases)
-	 */
-	icmpv6_echo_reply *setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
-
 	std::string toString() const;
 
   private:
 	icmpv6_echo_reply m_EchoData;
-	bool setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 };
 
 } // namespace pcpp
