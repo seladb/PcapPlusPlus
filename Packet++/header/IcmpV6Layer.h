@@ -13,23 +13,6 @@ namespace pcpp
 {
 
 /**
- * @struct icmpv6hdr
- * Represents an ICMPv6 protocol header
- */
-#pragma pack(push, 1)
-struct icmpv6hdr
-{
-	/** Type of the message. Values in the range from 0 to 127 (high-order bit is 0) indicate an error message,
-	while values in the range from 128 to 255 (high-order bit is 1) indicate an information message. */
-	uint8_t type;
-	/** The code field value depends on the message type and provides an additional level of message granularity */
-	uint8_t code;
-	/** The checksum field provides a minimal level of integrity verification for the ICMP message */
-	uint16_t checksum;
-};
-#pragma pack(pop)
-
-/**
  * An enum representing the available ICMPv6 message types
  */
 enum ICMPv6MessageType
@@ -111,6 +94,23 @@ enum ICMPv6MessageType
 };
 
 /**
+ * @struct icmpv6hdr
+ * Represents an ICMPv6 protocol header
+ */
+#pragma pack(push, 1)
+struct icmpv6hdr
+{
+	/** Type of the message. Values in the range from 0 to 127 (high-order bit is 0) indicate an error message,
+	while values in the range from 128 to 255 (high-order bit is 1) indicate an information message. */
+	uint8_t type;
+	/** The code field value depends on the message type and provides an additional level of message granularity */
+	uint8_t code;
+	/** The checksum field provides a minimal level of integrity verification for the ICMP message */
+	uint16_t checksum;
+};
+#pragma pack(pop)
+
+/**
  * @struct icmpv6_echo_hdr
  * ICMP echo request/reply message structure
  */
@@ -146,32 +146,27 @@ typedef icmpv6_echo_request icmpv6_echo_reply;
 
 /**
  * @class IcmpV6Layer
- * Represents an ICMPv6 protocol layer
+ * Abstract base class for ICMPv6 protocol layers.
  */
 class IcmpV6Layer : public Layer
 {
   public:
-
-	virtual ~IcmpV6Layer() { }
+	virtual ~IcmpV6Layer() {}
 
 	/**
-	 * Get a pointer to the basic ICMPv6 header. Notice this points directly to the data, so every change will change
-	 * the actual packet data
-	 * @return A pointer to the @ref icmpv6hdr
+	 * A static method that determines the ICMPv6 protocol type of ICMPv6 layer raw data by looking at the
+	 * icmpv6hdr#type field
+	 * @param[in] data The pointer to the beginning of an ICMPv6 byte stream
+	 * @param[in] dataLen The length of the byte stream
+	 * @return The specific ProtocolType or UnknownProtocol if it can not be determined
 	 */
-	icmpv6hdr *getIcmpv6Header() const
-	{
-		return (icmpv6hdr *)m_Data;
-	}
+	static ProtocolType getIcmpv6Version(uint8_t *data, size_t dataLen);
 
 	/**
 	 * @param[in] type Type to check
 	 * @return True if the layer if of the given type, false otherwise
 	 */
-	bool isMessageOfType(ICMPv6MessageType type) const
-	{
-		return getMessageType() == type;
-	}
+	bool isMessageOfType(ICMPv6MessageType type) const { return getMessageType() == type; }
 
 	/**
 	 * @return Get the ICMPv6 Message Type
@@ -189,14 +184,6 @@ class IcmpV6Layer : public Layer
 	uint16_t getChecksum() const;
 
 	/**
-	 * A static method that validates the input data
-	 * @param[in] data The pointer to the beginning of a byte stream of an ICMPv6 layer
-	 * @param[in] dataLen The length of the byte stream
-	 * @return True if the data is valid and can represent an ICMPv6 layer
-	 */
-	static bool isDataValid(const uint8_t *data, size_t dataLen);
-
-	/**
 	 * Identifies next layer and tries to create it
 	 */
 	void parseNextLayer();
@@ -211,38 +198,36 @@ class IcmpV6Layer : public Layer
 	 */
 	void computeCalculateFields();
 
-	std::string toString() const;
+	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
-	OsiModelLayer getOsiModelLayer() const
-	{
-		return OsiModelNetworkLayer;
-	}
+  protected:
+	IcmpV6Layer() = default;
 
-	static ProtocolType getIcmpv6Version(uint8_t* data, size_t dataLen);
+	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: Layer(data, dataLen, prevLayer, packet) {}
 
 	bool cleanIcmpLayer();
 
+  private:
 	void calculateChecksum();
-
-  protected:
-	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: Layer(data, dataLen, prevLayer, packet)
-	{}
-
-	IcmpV6Layer() {}
+	icmpv6hdr *getIcmpv6Header() const { return (icmpv6hdr *)m_Data; }
 };
 
 class ICMPv6EchoRequestLayer : public IcmpV6Layer
 {
-public:
-	ICMPv6EchoRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : IcmpV6Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMPv6EchoRequest; }
+  public:
+	ICMPv6EchoRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: IcmpV6Layer(data, dataLen, prevLayer, packet)
+	{
+		m_Protocol = ICMPv6EchoRequest;
+	}
 
 	ICMPv6EchoRequestLayer();
 
 	virtual ~ICMPv6EchoRequestLayer() {}
 
 	/**
-	 * @return ICMP echo request data. If the layer isn't of type ICMP echo request NULL is returned
+	 * @return ICMP echo request data.
 	 */
 	icmpv6_echo_request *getEchoRequestData();
 
@@ -257,23 +242,28 @@ public:
 	 */
 	icmpv6_echo_request *setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
-	bool setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+	std::string toString() const;
 
-private:
+  private:
 	icmpv6_echo_request m_EchoData;
+	bool setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 };
 
 class ICMPv6EchoReplyLayer : public IcmpV6Layer
 {
-public:
-	ICMPv6EchoReplyLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : IcmpV6Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMPv6EchoReply; }
+  public:
+	ICMPv6EchoReplyLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: IcmpV6Layer(data, dataLen, prevLayer, packet)
+	{
+		m_Protocol = ICMPv6EchoReply;
+	}
 
 	ICMPv6EchoReplyLayer();
 
-	virtual ~ICMPv6EchoReplyLayer() {}
+	virtual ~ICMPv6EchoReplyLayer()	{}
 
 	/**
-	 * @return ICMPv6 echo reply data. If the layer isn't of type ICMPv6 echo reply NULL is returned
+	 * @return ICMPv6 echo reply data.
 	 */
 	icmpv6_echo_reply *getEchoReplyData();
 
@@ -288,10 +278,11 @@ public:
 	 */
 	icmpv6_echo_reply *setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
-	bool setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
+	std::string toString() const;
 
-private:
+  private:
 	icmpv6_echo_reply m_EchoData;
+	bool setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 };
 
 } // namespace pcpp

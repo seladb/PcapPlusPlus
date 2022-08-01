@@ -15,6 +15,28 @@
 namespace pcpp
 {
 
+ProtocolType IcmpV6Layer::getIcmpv6Version(uint8_t *data, size_t dataLen)
+{
+	if (dataLen < sizeof(icmpv6hdr))
+		return UnknownProtocol;
+
+	icmpv6hdr *hdr = (icmpv6hdr *)data;
+
+	switch (hdr->type)
+	{
+	case ICMPv6_ECHO_REQUEST:
+		return ICMPv6EchoRequest;
+	case ICMPv6_ECHO_REPLY:
+		return ICMPv6EchoReply;
+	case ICMPv6_NEIGHBOR_SOLICITATION:
+		return NDPNeighborSolicitation;
+	case ICMPv6_NEIGHBOR_ADVERTISEMENT:
+		return NDPNeighborAdvertisement;
+	}
+
+	return UnknownProtocol;
+}
+
 ICMPv6MessageType IcmpV6Layer::getMessageType() const
 {
 	return (ICMPv6MessageType)getIcmpv6Header()->type;
@@ -51,26 +73,6 @@ bool IcmpV6Layer::cleanIcmpLayer()
 	}
 
 	return true;
-}
-
-bool IcmpV6Layer::isDataValid(const uint8_t *data, size_t dataLen)
-{
-	if (dataLen < sizeof(icmpv6hdr))
-		return false;
-
-	/* Currently checks if the type equals an already implemented type. If not, return false. */
-	icmpv6hdr *hdr = (icmpv6hdr *)data;
-
-	switch (hdr->type)
-	{
-	case ICMPv6_ECHO_REQUEST:
-	case ICMPv6_ECHO_REPLY:
-	case ICMPv6_NEIGHBOR_SOLICITATION:
-	case ICMPv6_NEIGHBOR_ADVERTISEMENT:
-		return true;
-	}
-
-	return false;
 }
 
 void IcmpV6Layer::parseNextLayer()
@@ -143,58 +145,9 @@ void IcmpV6Layer::calculateChecksum()
 	}
 }
 
-std::string IcmpV6Layer::toString() const
-{
-	std::string messageTypeAsString;
-	ICMPv6MessageType type = getMessageType();
-	switch (type)
-	{
-	case ICMPv6_ECHO_REQUEST:
-		messageTypeAsString = "Echo Request";
-		break;
-	case ICMPv6_ECHO_REPLY:
-		messageTypeAsString = "Echo Reply";
-		break;
-	case ICMPv6_NEIGHBOR_SOLICITATION:
-		messageTypeAsString = "Neighbor Solicitation";
-		break;
-	case ICMPv6_NEIGHBOR_ADVERTISEMENT:
-		messageTypeAsString = "Neighbor Advertisement";
-		break;
-	default:
-		messageTypeAsString = "Unknown";
-		break;
-	}
-
-	std::ostringstream typeStream;
-	typeStream << (int)type;
-
-	return "ICMPv6 Layer, " + messageTypeAsString + " (type: " + typeStream.str() + ")";
-}
-
-ProtocolType IcmpV6Layer::getIcmpv6Version(uint8_t* data, size_t dataLen)
-{
-	if (dataLen < sizeof(icmpv6hdr))
-		return UnknownProtocol;
-
-	icmpv6hdr *hdr = (icmpv6hdr *)data;
-
-	switch (hdr->type)
-	{
-	case ICMPv6_ECHO_REQUEST:
-		return ICMPv6EchoRequest;
-	case ICMPv6_ECHO_REPLY:
-		return ICMPv6EchoReply;
-	case ICMPv6_NEIGHBOR_SOLICITATION:
-		return NDPNeighborSolicitation;
-	case ICMPv6_NEIGHBOR_ADVERTISEMENT:
-		return NDPNeighborAdvertisement;
-	}
-
-	return UnknownProtocol;
-}
-
+//
 // ICMPv6EchoRequestLayer
+//
 
 ICMPv6EchoRequestLayer::ICMPv6EchoRequestLayer()
 {
@@ -202,14 +155,13 @@ ICMPv6EchoRequestLayer::ICMPv6EchoRequestLayer()
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = ICMPv6EchoRequest;
-	getIcmpv6Header()->type = ICMPv6_ECHO_REPLY;
+
+	pcpp::icmpv6_echo_hdr *ptr = (icmpv6_echo_hdr *)m_Data;
+	ptr->type = ICMPv6_ECHO_REQUEST;
 }
 
 icmpv6_echo_request *ICMPv6EchoRequestLayer::getEchoRequestData()
 {
-	if (!isMessageOfType(ICMPv6_ECHO_REQUEST))
-		return NULL;
-
 	m_EchoData.header = (icmpv6_echo_hdr *)m_Data;
 	m_EchoData.data = (uint8_t *)(m_Data + sizeof(icmpv6_echo_hdr));
 	m_EchoData.dataLength = m_DataLen - sizeof(icmpv6_echo_hdr);
@@ -218,16 +170,15 @@ icmpv6_echo_request *ICMPv6EchoRequestLayer::getEchoRequestData()
 }
 
 icmpv6_echo_request *ICMPv6EchoRequestLayer::setEchoRequestData(uint16_t id, uint16_t sequence, const uint8_t *data,
-													 size_t dataLen)
+																size_t dataLen)
 {
-	if (setEchoData(ICMPv6_ECHO_REQUEST, id, sequence, data, dataLen))
+	if (setEchoData(id, sequence, data, dataLen))
 		return getEchoRequestData();
 	else
 		return NULL;
 }
 
-bool ICMPv6EchoRequestLayer::setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data,
-							  size_t dataLen)
+bool ICMPv6EchoRequestLayer::setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
 {
 	if (!cleanIcmpLayer())
 		return false;
@@ -235,14 +186,7 @@ bool ICMPv6EchoRequestLayer::setEchoData(ICMPv6MessageType echoType, uint16_t id
 	if (!this->extendLayer(m_DataLen, sizeof(icmpv6_echo_hdr) - sizeof(icmpv6hdr) + dataLen))
 		return false;
 
-	getIcmpv6Header()->type = (uint8_t)echoType;
-
-	icmpv6_echo_request *header = NULL;
-	if (echoType == ICMPv6_ECHO_REQUEST)
-		header = getEchoRequestData();
-	else
-		return false;
-
+	icmpv6_echo_request *header = getEchoRequestData();
 	header->header->code = 0;
 	header->header->checksum = 0;
 	header->header->id = htobe16(id);
@@ -253,8 +197,16 @@ bool ICMPv6EchoRequestLayer::setEchoData(ICMPv6MessageType echoType, uint16_t id
 	return true;
 }
 
+std::string ICMPv6EchoRequestLayer::toString() const
+{
+	std::ostringstream typeStream;
+	typeStream << (int)getMessageType();
+	return "ICMPv6 Layer, Echo Request (type: " + typeStream.str() + ")";
+}
 
+//
 // ICMPv6EchoReplyLayer
+//
 
 ICMPv6EchoReplyLayer::ICMPv6EchoReplyLayer()
 {
@@ -262,14 +214,13 @@ ICMPv6EchoReplyLayer::ICMPv6EchoReplyLayer()
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
 	m_Protocol = ICMPv6EchoReply;
-	getIcmpv6Header()->type = ICMPv6_ECHO_REPLY;
+
+	pcpp::icmpv6_echo_hdr *ptr = (icmpv6_echo_hdr *)m_Data;
+	ptr->type = ICMPv6_ECHO_REPLY;
 }
 
 icmpv6_echo_reply *ICMPv6EchoReplyLayer::getEchoReplyData()
 {
-	if (!isMessageOfType(ICMPv6_ECHO_REPLY))
-		return NULL;
-
 	m_EchoData.header = (icmpv6_echo_hdr *)m_Data;
 	m_EchoData.data = (uint8_t *)(m_Data + sizeof(icmpv6_echo_hdr));
 	m_EchoData.dataLength = m_DataLen - sizeof(icmpv6_echo_hdr);
@@ -277,16 +228,16 @@ icmpv6_echo_reply *ICMPv6EchoReplyLayer::getEchoReplyData()
 	return &m_EchoData;
 }
 
-icmpv6_echo_reply *ICMPv6EchoReplyLayer::setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
+icmpv6_echo_reply *ICMPv6EchoReplyLayer::setEchoReplyData(uint16_t id, uint16_t sequence, const uint8_t *data,
+														  size_t dataLen)
 {
-	if (setEchoData(ICMPv6_ECHO_REPLY, id, sequence, data, dataLen))
+	if (setEchoData(id, sequence, data, dataLen))
 		return getEchoReplyData();
 	else
 		return NULL;
 }
 
-bool ICMPv6EchoReplyLayer::setEchoData(ICMPv6MessageType echoType, uint16_t id, uint16_t sequence, const uint8_t *data,
-							  size_t dataLen)
+bool ICMPv6EchoReplyLayer::setEchoData(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen)
 {
 	if (!cleanIcmpLayer())
 		return false;
@@ -294,14 +245,7 @@ bool ICMPv6EchoReplyLayer::setEchoData(ICMPv6MessageType echoType, uint16_t id, 
 	if (!this->extendLayer(m_DataLen, sizeof(icmpv6_echo_hdr) - sizeof(icmpv6hdr) + dataLen))
 		return false;
 
-	getIcmpv6Header()->type = (uint8_t)echoType;
-
-	icmpv6_echo_request *header = NULL;
-	if (echoType == ICMPv6_ECHO_REPLY)
-		header = (icmpv6_echo_request *)getEchoReplyData();
-	else
-		return false;
-
+	icmpv6_echo_request *header = (icmpv6_echo_request *)getEchoReplyData();
 	header->header->code = 0;
 	header->header->checksum = 0;
 	header->header->id = htobe16(id);
@@ -310,6 +254,13 @@ bool ICMPv6EchoReplyLayer::setEchoData(ICMPv6MessageType echoType, uint16_t id, 
 		memcpy(header->data, data, dataLen);
 
 	return true;
+}
+
+std::string ICMPv6EchoReplyLayer::toString() const
+{
+	std::ostringstream typeStream;
+	typeStream << (int)getMessageType();
+	return "ICMPv6 Layer, Echo Reply (type: " + typeStream.str() + ")";
 }
 
 } // namespace pcpp

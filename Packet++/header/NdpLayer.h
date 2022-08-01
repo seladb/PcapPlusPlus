@@ -19,7 +19,7 @@ namespace pcpp
 {
 
 /**
- * An enum representing the available option types for Neighbor Discovery in IPv6 (see RFC4861)
+ * An enum representing the available option types for Neighbor Discovery in IPv6 (see RFC 4861)
  */
 enum NDPNeighborOptionTypes
 {
@@ -27,7 +27,8 @@ enum NDPNeighborOptionTypes
 	NDP_OPTION_TARGET_LINK_LAYER = 2,
 	NDP_OPTION_PREFIX_INFORMATION = 3,
 	NDP_OPTION_REDIRECTED_HEADER = 4,
-	NDP_OPTION_MTU = 5
+	NDP_OPTION_MTU = 5,
+	NDP_OPTION_Unknown = 255
 };
 
 /**
@@ -50,10 +51,14 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t>
 	~NdpOption() {}
 
 	/**
-	 * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum.
+	 * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum. If the data is null a value
+	 * of ::NDP_OPTION_Unknown is returned
 	 */
 	NDPNeighborOptionTypes getNdpOptionType() const
 	{
+		if (m_Data == NULL)
+			return NDP_OPTION_Unknown;
+
 		return (NDPNeighborOptionTypes)m_Data->recordType;
 	}
 
@@ -72,7 +77,7 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t>
 		if (m_Data == NULL)
 			return 0;
 
-		return (size_t)m_Data->recordLen * 8 - (2 * sizeof(uint8_t));
+		return (size_t)m_Data->recordLen * 8 - (2 * sizeof(uint8_t)); // length value is stored in units of 8 octets
 	}
 };
 
@@ -87,7 +92,7 @@ class NdpOptionBuilder : public TLVRecordBuilder
   public:
 	/**
 	 * A c'tor for building NDP options which their value is a byte array. The NdpOption object can be later
-	 * retrieved by calling build()
+	 * retrieved by calling build(). Each option is padded to have a 64-bit boundary.
 	 * @param[in] optionType NDP option type
 	 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any
 	 * way.
@@ -97,7 +102,8 @@ class NdpOptionBuilder : public TLVRecordBuilder
 		: TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) {}
 
 	/**
-	 * Build the NdpOption object out of the parameters defined in the c'tor
+	 * Build the NdpOption object out of the parameters defined in the c'tor. Padding bytes are added to the
+	 * option for option length with 64-bit boundaries.
 	 * @return The NdpOption object
 	 */
 	NdpOption build() const;
@@ -118,7 +124,7 @@ class NDPLayerBase : public IcmpV6Layer
 	size_t getNdpOptionCount() const;
 
 	/**
-	 * Get an NDP option by type.
+	 * Get a NDP option by type.
 	 * @param[in] option NDP option type
 	 * @return An NdpOption object that contains the first option that matches this type, or logical NULL
 	 * (NdpOption#isNull() == true) if no such option found
@@ -143,7 +149,7 @@ class NDPLayerBase : public IcmpV6Layer
 	/**
 	 * Add a new NDP option at the end of the layer (after the last NDP option)
 	 * @param[in] optionBuilder An NdpOptionBuilder object that contains the NDP option data to be added
-	 * @return A NdpOption object that contains the newly added IPv4 option data or logical NULL
+	 * @return A NdpOption object that contains the newly added NDP option data or logical NULL
 	 * (NdpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 	 * printed to log
 	 */
@@ -156,24 +162,94 @@ class NDPLayerBase : public IcmpV6Layer
 	 */
 	bool removeAllNdpOptions();
 
-	size_t getHeaderLen() const { return m_DataLen;	};
-
   protected:
 	NDPLayerBase() = default;
 
 	NDPLayerBase(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: IcmpV6Layer(data, dataLen, prevLayer, packet)
-	{
-	}
+		: IcmpV6Layer(data, dataLen, prevLayer, packet)	{}
 
   private:
-	virtual size_t getNdpHeaderLen() const = 0;
-	virtual uint8_t *getNdpOptionsBasePtr() const
-	{
-		return m_Data + getNdpHeaderLen();
-	};
-	NdpOption addNdpOptionAt(const NdpOptionBuilder &optionBuilder, int offset);
 	TLVRecordReader<NdpOption> m_OptionReader;
+
+	virtual size_t getNdpHeaderLen() const = 0;
+	virtual uint8_t *getNdpOptionsBasePtr() const { return m_Data + getNdpHeaderLen(); };
+	NdpOption addNdpOptionAt(const NdpOptionBuilder &optionBuilder, int offset);
+};
+
+/**
+ * @class NDPNeighborSolicitationLayer
+ * Represents an NDP Neighbor Solicitation protocol layer
+ */
+class NDPNeighborSolicitationLayer : public NDPLayerBase
+{
+  public:
+	/**
+	 * @struct ndpneighborsolicitationhdr
+	 * Represents neighbor solicitation message format
+	 */
+#pragma pack(push, 1)
+	struct ndpneighborsolicitationhdr : icmpv6hdr
+	{
+		/** Reserved */
+		uint32_t reserved;
+		/** Target address - Target address of solicitation message */
+		uint8_t targetIP[16];
+	};
+#pragma pack(pop)
+
+	/**
+	 * A constructor that creates the layer from an existing packet raw data
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+	 */
+	NDPNeighborSolicitationLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: NDPLayerBase(data, dataLen, prevLayer, packet)
+	{
+		m_Protocol = NDPNeighborSolicitation;
+	}
+
+	/**
+	 * A constructor for a new NDPNeighborSolicitationLayer object
+	 * @param[in] code Code field
+	 * @param[in] targetIP Target IP address for which the solicitation shall be created
+	 */
+	NDPNeighborSolicitationLayer(uint8_t code, const IPv6Address &targetIP);
+
+	/**
+	 * A constructor for a new NDPNeighborSolicitationLayer object
+	 * @param[in] code Code field
+	 * @param[in] targetIP Target IP address for which the solicitation shall be created
+	 * @param[in] srcMac Mac address which shall be put in the linklayer option
+	 */
+	NDPNeighborSolicitationLayer(uint8_t code, const IPv6Address &targetIP, const MacAddress &srcMac);
+
+	virtual ~NDPNeighborSolicitationLayer() {}
+
+	/**
+	 * @return Get the IP address specified as the target IP address in the solicitation message
+	 */
+	IPv6Address getTargetIP() const	{ return IPv6Address(getNdpHeader()->targetIP); };
+
+	/**
+	 * Checks if the layer has a link layer address option set
+	 * @return true if link layer address option is available, false otherwise
+	 */
+	bool hasLinkLayerAddress() const;
+
+	/**
+	 * Get the Link Layer Address
+	 * @return Mac address which is specified in the link layer address option
+	 */
+	MacAddress getLinkLayerAddress() const;
+
+	std::string toString() const;
+
+  private:
+	void initLayer(uint8_t code, const IPv6Address &targetIP);
+	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data;	}
+	size_t getNdpHeaderLen() const { return sizeof(ndpneighborsolicitationhdr);	};
 };
 
 /**
@@ -235,32 +311,30 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 
 	/**
 	 * A constructor that allocates a new NDP Advertisement Layer with target link-layer address option
-	 * @param targetIP The target IP address from the Neighbor Solicitation message (solicited advertisements) or the
-	 * address whose link-layer address has changed (unsolicited advertisement)
-	 * @param targetMac Adds the target link-layer address into the option field of the layer
-	 * @param byRouter The router flag
-	 * @param unicastResponse The solicited flag
-	 * @param override The override flag
+	 * @param[in] code Code field
+	 * @param[in] targetIP The target IP address from the Neighbor Solicitation message (solicited advertisements) or
+	 * the address whose link-layer address has changed (unsolicited advertisement)
+	 * @param[in] targetMac Adds the target link-layer address into the option field of the layer
+	 * @param[in] routerFlag The router flag
+	 * @param[in] unicastFlag The solicited flag
+	 * @param[in] overrideFlag The override flag
 	 */
-	NDPNeighborAdvertisementLayer(const IPv6Address &targetIP, const MacAddress &targetMac, bool byRouter,
-								  bool unicastResponse, bool override);
+	NDPNeighborAdvertisementLayer(uint8_t code, const IPv6Address &targetIP, const MacAddress &targetMac,
+								  bool routerFlag, bool unicastFlag, bool overrideFlag);
 
 	/**
 	 * A constructor that allocates a new NDP Advertisement Layer
+	 * @param code Code field
 	 * @param targetIP The target IP address from the Neighbor Solicitation message (solicited advertisements) or the
 	 * address whose link-layer address has changed (unsolicited advertisement)
-	 * @param byRouter The router flag
-	 * @param unicastResponse The solicited flag
-	 * @param override The override flag
+	 * @param routerFlag The router flag
+	 * @param unicastFlag The solicited flag
+	 * @param overrideFlag The override flag
 	 */
-	NDPNeighborAdvertisementLayer(const IPv6Address &targetIP, bool byRouter, bool unicastResponse, bool override);
+	NDPNeighborAdvertisementLayer(uint8_t code, const IPv6Address &targetIP, bool routerFlag, bool unicastFlag,
+								  bool overrideFlag);
 
 	virtual ~NDPNeighborAdvertisementLayer() {}
-
-	/**
-	 * @return A pointer to the @ref ndpneighboradvertisementhdr
-	 */
-	ndpneighboradvertisementhdr *getNdpHeader() const {	return (ndpneighboradvertisementhdr *)m_Data; }
 
 	/**
 	 * @return Get the target MAC address
@@ -292,117 +366,12 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	 */
 	bool getOverrideFlag() const { return getNdpHeader()->override;	}
 
-	/**
-	 * Does nothing for this layer
-	 */
-	//void computeCalculateFields() {}
-
-	/**
-	 * Currently the last layer.
-	 */
-	//void parseNextLayer() {}
-
 	std::string toString() const;
-
-	//OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
-
-	size_t getNdpHeaderLen() const { return sizeof(ndpneighboradvertisementhdr); };
 
   private:
-	void setNeighborAdvertisementHeaderFields(const IPv6Address &targetIP, bool byRouter, bool unicastResponse,
-											  bool override);
-};
-
-/**
- * @class NDPNeighborSolicitationLayer
- * Represents an NDP Neighbor Solicitation protocol layer
- */
-class NDPNeighborSolicitationLayer : public NDPLayerBase
-{
-  public:
-	/**
-	 * @struct ndpneighborsolicitationhdr
-	 * Represents neighbor solicitation message format
-	 */
-#pragma pack(push, 1)
-	struct ndpneighborsolicitationhdr : icmpv6hdr
-	{
-		/** Reserved */
-		uint32_t reserved;
-		/** Target address - Target address of solicitation message */
-		uint8_t targetIP[16];
-	};
-#pragma pack(pop)
-
-	/**
-	 * A constructor that creates the layer from an existing packet raw data
-	 * @param[in] data A pointer to the raw data
-	 * @param[in] dataLen Size of the data in bytes
-	 * @param[in] prevLayer A pointer to the previous layer
-	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-	 */
-	NDPNeighborSolicitationLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: NDPLayerBase(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = NDPNeighborSolicitation;
-	}
-
-	/**
-	 * A constructor for a new NDPNeighborSolicitationLayer object
-	 * @param[in] targetIP Target IP address for which the solicitation shall be created
-	 */
-	NDPNeighborSolicitationLayer(const IPv6Address &targetIP);
-
-	/**
-	 * A constructor for a new NDPNeighborSolicitationLayer object
-	 * @param[in] targetIP Target IP address for which the solicitation shall be created
-	 * @param[in] srcMac Mac address which shall be put in the linklayer option
-	 */
-	NDPNeighborSolicitationLayer(const IPv6Address &targetIP, const MacAddress &srcMac);
-
-	virtual ~NDPNeighborSolicitationLayer() {}
-
-	/**
-	 * @return A pointer to the @ref ndpneighborsolicitationhdr
-	 */
-	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data;	}
-
-	/**
-	 * @return Get the IP address specified as the target IP address in the solicitation message
-	 */
-	IPv6Address getTargetIP() const
-	{
-		return IPv6Address(getNdpHeader()->targetIP);
-	};
-
-	/**
-	 * Checks if the layer has a link layer address option set
-	 * @return true if link layer address option is available
-	 * @return false if not
-	 */
-	bool hasLinkLayerAddress() const;
-
-	/**
-	 * Get the Link Layer Address
-	 * @return Mac address which is specified in the link layer address option
-	 */
-	MacAddress getLinkLayerAddress() const;
-
-	size_t getNdpHeaderLen() const { return sizeof(ndpneighborsolicitationhdr);	};
-
-	/**
-	 * Does nothing for this layer
-	 */
-	// void computeCalculateFields() {}
-
-	/**
-	 * Currently the last layer.
-	 */
-	// void parseNextLayer() {}
-
-	std::string toString() const;
-
-	//OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+	void initLayer(uint8_t code, const IPv6Address &targetIP, bool routerFlag, bool unicastFlag, bool overrideFlag);
+	ndpneighboradvertisementhdr *getNdpHeader() const {	return (ndpneighboradvertisementhdr *)m_Data; }
+	size_t getNdpHeaderLen() const { return sizeof(ndpneighboradvertisementhdr); };
 };
 
 } // namespace pcpp
