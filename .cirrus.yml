@@ -53,7 +53,7 @@ task:
 task:
   name: Regression Tests Linux (Memory Behavior Sanitizer)
   container:
-    image: seladb/ubuntu1804:latest
+    image: gcr.io/oss-fuzz-base/base-clang 
   configure_script:
     - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
     - ./configure-fuzzing.sh --sanitizer memory
