@@ -57,9 +57,9 @@ task:
   configure_script:
     - apt-get update && apt-get install -y libpcap-dev git make
     - ./configure-fuzzing.sh --sanitizer memory
-    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
     - ldconfig
   build_script:
+    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
     - make fuzzers
   test_script:
     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
