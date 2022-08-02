@@ -53,7 +53,7 @@ task:
 task:
   name: Regression Tests Linux (Memory Behavior Sanitizer)
   container:
-    image: gcr.io/oss-fuzz-base/base-clang 
+    image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
     - apt-get update && apt-get install -y libpcap-dev git make
     - ./configure-fuzzing.sh --sanitizer memory
