@@ -55,6 +55,7 @@ task:
   container:
     image: gcr.io/oss-fuzz-base/base-clang 
   configure_script:
+    - apt-get update && apt-get install -y libpcap-dev git make
     - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
     - ./configure-fuzzing.sh --sanitizer memory
     - ldconfig
