@@ -56,10 +56,10 @@ task:
     image: gcr.io/oss-fuzz-base/base-clang 
   configure_script:
     - apt-get update && apt-get install -y libpcap-dev git make
-    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
     - ./configure-fuzzing.sh --sanitizer memory
     - ldconfig
   build_script:
+    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
     - make fuzzers
   test_script:
     - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
