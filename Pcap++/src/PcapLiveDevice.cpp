@@ -141,22 +141,23 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+        PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	//PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == NULL)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
 		return;
 	}
-
 	uint8_t* packetData = new uint8_t[pkthdr->caplen];
 	memcpy(packetData, packet, pkthdr->caplen);
-	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
-	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
+	RawPacket rawPacketPtr = RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
+	pThis->m_CapturedPackets->pushBack(&rawPacketPtr);
 }
 
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+        PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	//PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == NULL)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -164,7 +165,6 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 	}
 
 	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
 	if (pThis->m_cbOnPacketArrivesBlockingMode != NULL)
 		if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
 			pThis->m_StopThread = true;
@@ -566,14 +566,15 @@ bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 {
+	//RawPacket* rPacket = const_cast<RawPacket *>(&rawPacket);
+	RawPacket *rPacket = (RawPacket *)&rawPacket;
 	if (checkMtu)
 	{
-		RawPacket *rPacket = (RawPacket *)&rawPacket;
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 		return sendPacket(&parsedPacket, true);
 	}
 	// Send packet without Mtu check
-	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+	return sendPacket(rPacket->getRawData(), rPacket->getRawDataLen());
 }
 
 bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
@@ -757,7 +758,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
 	uint8_t buffer[512];
-	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+	PACKET_OID_DATA* oidData = reinterpret_cast<PACKET_OID_DATA*>(buffer);
 	oidData->Oid = OID_802_3_CURRENT_ADDRESS;
 	oidData->Length = 6;
 	oidData->Data[0] = 0;
@@ -839,7 +840,7 @@ void PcapLiveDevice::setDefaultGateway()
 #if defined(_WIN32)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
 	uint8_t* buffer = new uint8_t[outBufLen];
-	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
+	PIP_ADAPTER_INFO adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer);
 	DWORD retVal = 0;
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
