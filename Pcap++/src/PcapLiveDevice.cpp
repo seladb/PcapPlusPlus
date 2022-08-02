@@ -141,7 +141,8 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
+        PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	//PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == NULL)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -155,7 +156,8 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
+        PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	//PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == NULL)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -564,7 +566,8 @@ bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 
 bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 {
-	RawPacket* rPacket = const_cast<RawPacket *>(&rawPacket);
+	//RawPacket* rPacket = const_cast<RawPacket *>(&rawPacket);
+	RawPacket *rPacket = (RawPacket *)&rawPacket;
 	if (checkMtu)
 	{
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
