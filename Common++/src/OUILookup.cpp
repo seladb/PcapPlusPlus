@@ -1,5 +1,6 @@
 #include "OUILookup.h"
 #include "Logger.h"
+#include "EndianPortable.h"
 
 #include <fstream>
 #include <string.h>

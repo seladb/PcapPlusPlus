@@ -23,20 +23,12 @@ for line in Lines:
             outFile.write(buffer)
             alreadyWritten = True
             count += 1
-        line = line.replace('"', '')
-        splitted = line.split("\t")
-        if len(splitted) >= 3 and len(splitted[0]) == 8:
-            buffer = ( 
-                splitted[0].lower().strip()
-                + ','
-                + splitted[2].strip()
-            )
-        elif len(splitted) == 2 and len(splitted[0]) == 8:
-            buffer = (
-                splitted[0].lower().strip()
-                + ','
-                + splitted[1].strip()
-            )
+        line = line.replace('"', "")
+        splitLine = line.split("\t")
+        if len(splitLine) >= 3 and len(splitLine[0]) == 8:
+            buffer = splitLine[0].lower().strip() + "," + splitLine[2].strip()
+        elif len(splitLine) == 2 and len(splitLine[0]) == 8:
+            buffer = splitLine[0].lower().strip() + "," + splitLine[1].strip()
         else:
             buffer = []
     except:
@@ -56,11 +48,11 @@ outLines = []
 maskValues = []
 for line in Lines:
     try:
-        line = line.replace('"', '')
-        splitted = line.split("\t")
-        if len(splitted) >= 3 and len(splitted[0]) > 8 and len(splitted[0]) < 21:
+        line = line.replace('"', "")
+        splitLine = line.split("\t")
+        if len(splitLine) >= 3 and len(splitLine[0]) > 8 and len(splitLine[0]) < 21:
             # Process mask
-            maskSplit = splitted[0].split("/")
+            maskSplit = splitLine[0].split("/")
             if len(maskSplit) == 2:
                 if maskSplit[1] not in maskValues:
                     maskValues.append(maskSplit[1])
@@ -68,15 +60,13 @@ for line in Lines:
                 indx = maskValues.index(maskSplit[1])
                 # Format
                 outLines[indx].append(
-                    maskSplit[0].lower().strip()
-                    + ','
-                    + splitted[2].strip()
+                    maskSplit[0].lower().strip() + "," + splitLine[2].strip()
                 )
             else:
                 continue
-        elif len(splitted) == 2 and len(splitted[0]) > 8 and len(splitted[0]) < 21:
+        elif len(splitLine) == 2 and len(splitLine[0]) > 8 and len(splitLine[0]) < 21:
             # Process mask
-            maskSplit = splitted[0].split("/")
+            maskSplit = splitLine[0].split("/")
             if len(maskSplit) == 2:
                 if maskSplit[1] not in maskValues:
                     maskValues.append(maskSplit[1])
@@ -84,9 +74,7 @@ for line in Lines:
                 indx = maskValues.index(maskSplit[1])
                 # Format
                 outLines[indx].append(
-                    maskSplit[0].lower().strip()
-                    + ','
-                    + splitted[1].strip()
+                    maskSplit[0].lower().strip() + "," + splitLine[1].strip()
                 )
             else:
                 continue

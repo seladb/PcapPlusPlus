@@ -13,7 +13,7 @@ namespace pcpp
 {
     /**
 	 * @class OUILookup
-	 * Provides vendor name matching functionality from MAC addresses 
+	 * Provides vendor name matching functionality from MAC addresses
 	 */
 	class OUILookup
 	{
