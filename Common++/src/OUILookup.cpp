@@ -18,7 +18,7 @@ int OUILookup::initOUIDatabase(const std::string &path)
 
 	// Open database
 	if (path.empty())
-		dataFile.open("PCPP_OUIDatabase.bin");
+		dataFile.open("PCPP_OUIDatabase.dat");
 	else
 		dataFile.open(path);
 

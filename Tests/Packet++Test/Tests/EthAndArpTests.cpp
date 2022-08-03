@@ -13,7 +13,7 @@
 PTF_TEST_CASE(OUILookup)
 {
 	pcpp::OUILookup lookupEngine;
-	PTF_ASSERT_GREATER_THAN(lookupEngine.initOUIDatabase("../../3rdParty/OUILookup/PCPP_OUIDatabase.bin"), 0);
+	PTF_ASSERT_GREATER_THAN(lookupEngine.initOUIDatabase("../../3rdParty/OUILookup/PCPP_OUIDatabase.dat"), 0);
 
 	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("aa:aa:aa:aa:aa:aa")), "Unknown");
 

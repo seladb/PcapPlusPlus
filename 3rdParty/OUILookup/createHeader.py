@@ -5,7 +5,7 @@ print("Creating header from downloaded data ...")
 
 # Prepare files
 inFile = open("manuf.dat", "r")
-outFile = open("PCPP_OUIDatabase.bin", "w")
+outFile = open("PCPP_OUIDatabase.dat", "w")
 
 Lines = inFile.readlines()
 count = 0
