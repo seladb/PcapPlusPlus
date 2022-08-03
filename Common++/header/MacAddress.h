@@ -140,12 +140,6 @@ namespace pcpp
 		std::string toString() const;
 
 		/**
-		 * Returns the vendor of the MAC address
-		 * @return std::string Vendor name
-		 */
-		std::string getVendorName();
-
-		/**
 		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user responsibility
 		 * @param[in] arr A pointer to where array will be allocated
 		 */

@@ -7,28 +7,26 @@
 #include "ArpLayer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
+#include "OUILookup.h"
 #include "SystemUtils.h"
 
-PTF_TEST_CASE(MacAddressTest)
+PTF_TEST_CASE(OUILookup)
 {
-	pcpp::MacAddress addr1("aa:aa:aa:aa:aa:aa");
-	PTF_ASSERT_EQUAL(addr1.getVendorName(), "Unknown");
+	pcpp::OUILookup lookupEngine;
+	PTF_ASSERT_GREATER_THAN(lookupEngine.initOUIDatabase("../../3rdParty/OUILookup/PCPP_OUIDatabase.bin"), 0);
+
+	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("aa:aa:aa:aa:aa:aa")), "Unknown");
 
 	// CIDR 36
-	pcpp::MacAddress addr2("70:B3:D5:34:A0:00");
-	PTF_ASSERT_EQUAL(addr2.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
-	pcpp::MacAddress addr3("70:B3:D5:34:AF:FF");
-	PTF_ASSERT_EQUAL(addr3.getVendorName(), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("70:B3:D5:34:A0:00")), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
+	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("70:B3:D5:34:AF:FF")), "Pavo Tasarim Üreti̇m Ti̇c A.Ş.");
 
 	// CIDR 28
-	pcpp::MacAddress addr4("f4:0e:11:f0:00:00");
-	PTF_ASSERT_EQUAL(addr4.getVendorName(), "Private");
-	pcpp::MacAddress addr5("f4:0e:11:ff:ff:ff");
-	PTF_ASSERT_EQUAL(addr5.getVendorName(), "Private");
+	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("f4:0e:11:f0:00:00")), "Private");
+	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("f4:0e:11:ff:ff:ff")), "Private");
 
 	// Short
-	pcpp::MacAddress addr6("00:0A:35:01:01:01");
-	PTF_ASSERT_EQUAL(addr6.getVendorName(), "Xilinx");
+	PTF_ASSERT_EQUAL(lookupEngine.getVendorName(pcpp::MacAddress("00:0A:35:01:01:01")), "Xilinx");
 }
 
 PTF_TEST_CASE(EthPacketCreation)
