@@ -36,7 +36,7 @@
     <ClInclude Include="..\..\Common++\header\MacAddress.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Common++\header\MacOUILookup.h">
+    <ClInclude Include="..\..\Common++\header\OUILookup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Common++\header\PcapPlusPlusVersion.h">
@@ -68,7 +68,7 @@
     <ClCompile Include="..\..\Common++\src\MacAddress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Common++\src\MacOUILookup.cpp">
+    <ClCompile Include="..\..\Common++\src\OUILookup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Common++\src\SystemUtils.cpp">

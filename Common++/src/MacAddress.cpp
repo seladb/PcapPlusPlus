@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "EndianPortable.h"
 #include "MacAddress.h"
-
-#include <iostream>
 
 namespace pcpp
 {

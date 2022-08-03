@@ -199,7 +199,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Common++\header\Logger.h" />
     <ClInclude Include="..\..\Common++\header\LRUList.h" />
     <ClInclude Include="..\..\Common++\header\MacAddress.h" />
-    <ClInclude Include="..\..\Common++\header\MacOUILookup.h" />
+    <ClInclude Include="..\..\Common++\header\OUILookup.h" />
     <ClInclude Include="..\..\Common++\header\PcapPlusPlusVersion.h" />
     <ClInclude Include="..\..\Common++\header\PointerVector.h" />
     <ClInclude Include="..\..\Common++\header\SystemUtils.h" />
@@ -211,7 +211,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Common++\src\IpUtils.cpp" />
     <ClCompile Include="..\..\Common++\src\Logger.cpp" />
     <ClCompile Include="..\..\Common++\src\MacAddress.cpp" />
-    <ClCompile Include="..\..\Common++\src\MacOUILookup.cpp" />
+    <ClCompile Include="..\..\Common++\src\OUILookup.cpp" />
     <ClCompile Include="..\..\Common++\src\PcapPlusPlusVersion.cpp" />
     <ClCompile Include="..\..\Common++\src\SystemUtils.cpp" />
     <ClCompile Include="..\..\Common++\src\TablePrinter.cpp" />
