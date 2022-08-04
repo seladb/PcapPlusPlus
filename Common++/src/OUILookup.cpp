@@ -90,31 +90,31 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 		addr.copyTo(buffArray);
 
 #if __BYTE_ORDER == __BIG_ENDIAN
-		std::cout << "big endian" << std::endl;
 		bufferAddr =
-			(((uint64_t)(((uint8_t *)(buffArray))[5]) << 16) + ((uint64_t)(((uint8_t *)(buffArray))[4]) << 24) +
-			 ((uint64_t)(((uint8_t *)(buffArray))[3]) << 32) + ((uint64_t)(((uint8_t *)(buffArray))[2]) << 40) +
-			 ((uint64_t)(((uint8_t *)(buffArray))[1]) << 48) + ((uint64_t)(((uint8_t *)(buffArray))[0]) << 56));
+			(((uint64_t)((buffArray)[5]) << 16) + ((uint64_t)((buffArray)[4]) << 24) +
+			 ((uint64_t)((buffArray)[3]) << 32) + ((uint64_t)((buffArray)[2]) << 40) +
+			 ((uint64_t)((buffArray)[1]) << 48) + ((uint64_t)((buffArray)[0]) << 56));
+
+		// Align and mask
+		uint64_t maskValue = htobe64(~((1 << (48 - entry.first)) - 1)) >> 16;
+		bufferAddr = bufferAddr & maskValue;
+		
+		buffArray[5] = (bufferAddr >> 56) & 0xFF;
+		buffArray[4] = (bufferAddr >> 48) & 0xFF;
+		buffArray[3] = (bufferAddr >> 40) & 0xFF;
+		buffArray[2] = (bufferAddr >> 32) & 0xFF;
+		buffArray[1] = (bufferAddr >> 24) & 0xFF;
+		buffArray[0] = (bufferAddr >> 16) & 0xFF;
 #else
-		std::cout << "little endian" << std::endl;
 		bufferAddr =
-			(((uint64_t)(((uint8_t *)(buffArray))[0]) << 0) + ((uint64_t)(((uint8_t *)(buffArray))[1]) << 8) +
-			 ((uint64_t)(((uint8_t *)(buffArray))[2]) << 16) + ((uint64_t)(((uint8_t *)(buffArray))[3]) << 24) +
-			 ((uint64_t)(((uint8_t *)(buffArray))[4]) << 32) + ((uint64_t)(((uint8_t *)(buffArray))[5]) << 40));
-#endif
+			(((uint64_t)((buffArray)[0]) << 0) + ((uint64_t)((buffArray)[1]) << 8) +
+			 ((uint64_t)((buffArray)[2]) << 16) + ((uint64_t)((buffArray)[3]) << 24) +
+			 ((uint64_t)((buffArray)[4]) << 32) + ((uint64_t)((buffArray)[5]) << 40));
 
 		// Align and mask
 		uint64_t maskValue = htobe64(~((1 << (48 - entry.first)) - 1)) >> 16;
 		bufferAddr = bufferAddr & maskValue;
 
-#if __BYTE_ORDER == __BIG_ENDIAN
-		buffArray[0] = (bufferAddr >> 56) & 0xFF;
-		buffArray[1] = (bufferAddr >> 48) & 0xFF;
-		buffArray[2] = (bufferAddr >> 40) & 0xFF;
-		buffArray[3] = (bufferAddr >> 32) & 0xFF;
-		buffArray[4] = (bufferAddr >> 24) & 0xFF;
-		buffArray[5] = (bufferAddr >> 16) & 0xFF;
-#else
 		buffArray[5] = (bufferAddr >> 40) & 0xFF;
 		buffArray[4] = (bufferAddr >> 32) & 0xFF;
 		buffArray[3] = (bufferAddr >> 24) & 0xFF;
@@ -122,6 +122,7 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 		buffArray[1] = (bufferAddr >> 8) & 0xFF;
 		buffArray[0] = (bufferAddr >> 0) & 0xFF;
 #endif
+
 		// Search
 		std::string searchStr = MacAddress(buffArray).toString();
 		auto itr = entry.second.find(searchStr);
