@@ -96,8 +96,10 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 			 ((uint64_t)((buffArray)[1]) << 48) + ((uint64_t)((buffArray)[0]) << 56));
 
 		// Align and mask
-		uint64_t maskValue = htole64(~((1 << (48 - entry.first)) - 1)) >> 16;
+		uint64_t maskValue = be64toh(~((1 << (48 - entry.first)) - 1)) >> 16;
 		bufferAddr = bufferAddr & maskValue;
+
+		std::cout << maskValue << " " << bufferAddr << std::endl;
 		
 		buffArray[0] = (bufferAddr >> 56) & 0xFF;
 		buffArray[1] = (bufferAddr >> 48) & 0xFF;
@@ -112,8 +114,10 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 			 ((uint64_t)((buffArray)[4]) << 32) + ((uint64_t)((buffArray)[5]) << 40));
 
 		// Align and mask
-		uint64_t maskValue = htobe64(~((1 << (48 - entry.first)) - 1)) >> 16;
+		uint64_t maskValue = be64toh(~((1 << (48 - entry.first)) - 1)) >> 16;
 		bufferAddr = bufferAddr & maskValue;
+
+		std::cout << maskValue << " " << bufferAddr << std::endl;
 
 		buffArray[5] = (bufferAddr >> 40) & 0xFF;
 		buffArray[4] = (bufferAddr >> 32) & 0xFF;
