@@ -90,11 +90,13 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 		addr.copyTo(buffArray);
 
 #if __BYTE_ORDER == __BIG_ENDIAN
+		std::cout << "big endian" << std::endl;
 		bufferAddr =
 			(((uint64_t)(((uint8_t *)(buffArray))[5]) << 16) + ((uint64_t)(((uint8_t *)(buffArray))[4]) << 24) +
 			 ((uint64_t)(((uint8_t *)(buffArray))[3]) << 32) + ((uint64_t)(((uint8_t *)(buffArray))[2]) << 40) +
 			 ((uint64_t)(((uint8_t *)(buffArray))[1]) << 48) + ((uint64_t)(((uint8_t *)(buffArray))[0]) << 56));
 #else
+		std::cout << "little endian" << std::endl;
 		bufferAddr =
 			(((uint64_t)(((uint8_t *)(buffArray))[0]) << 0) + ((uint64_t)(((uint8_t *)(buffArray))[1]) << 8) +
 			 ((uint64_t)(((uint8_t *)(buffArray))[2]) << 16) + ((uint64_t)(((uint8_t *)(buffArray))[3]) << 24) +
