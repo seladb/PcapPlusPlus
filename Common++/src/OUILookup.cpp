@@ -101,12 +101,12 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 
 		std::cout << maskValue << " " << bufferAddr << std::endl;
 		
-		buffArray[0] = (bufferAddr >> 56) & 0xFF;
-		buffArray[1] = (bufferAddr >> 48) & 0xFF;
-		buffArray[2] = (bufferAddr >> 40) & 0xFF;
-		buffArray[3] = (bufferAddr >> 32) & 0xFF;
-		buffArray[4] = (bufferAddr >> 24) & 0xFF;
-		buffArray[5] = (bufferAddr >> 16) & 0xFF;
+		buffArray[5] = (bufferAddr >> 40) & 0xFF;
+		buffArray[4] = (bufferAddr >> 32) & 0xFF;
+		buffArray[3] = (bufferAddr >> 24) & 0xFF;
+		buffArray[2] = (bufferAddr >> 16) & 0xFF;
+		buffArray[1] = (bufferAddr >> 8) & 0xFF;
+		buffArray[0] = (bufferAddr >> 0) & 0xFF;
 #else
 		bufferAddr =
 			(((uint64_t)((buffArray)[0]) << 0) + ((uint64_t)((buffArray)[1]) << 8) +
