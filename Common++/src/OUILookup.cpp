@@ -89,7 +89,6 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 		uint8_t buffArray[6];
 		addr.copyTo(buffArray);
 
-#if __BYTE_ORDER == __BIG_ENDIAN
 		bufferAddr =
 			(((uint64_t)((buffArray)[0]) << 0) + ((uint64_t)((buffArray)[1]) << 8) +
 			 ((uint64_t)((buffArray)[2]) << 16) + ((uint64_t)((buffArray)[3]) << 24) +
@@ -99,33 +98,12 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 		uint64_t maskValue = be64toh(~((1 << (48 - entry.first)) - 1)) >> 16;
 		bufferAddr = bufferAddr & maskValue;
 
-		std::cout << maskValue << " " << bufferAddr << std::endl;
-		
 		buffArray[5] = (bufferAddr >> 40) & 0xFF;
 		buffArray[4] = (bufferAddr >> 32) & 0xFF;
 		buffArray[3] = (bufferAddr >> 24) & 0xFF;
 		buffArray[2] = (bufferAddr >> 16) & 0xFF;
 		buffArray[1] = (bufferAddr >> 8) & 0xFF;
 		buffArray[0] = (bufferAddr >> 0) & 0xFF;
-#else
-		bufferAddr =
-			(((uint64_t)((buffArray)[0]) << 0) + ((uint64_t)((buffArray)[1]) << 8) +
-			 ((uint64_t)((buffArray)[2]) << 16) + ((uint64_t)((buffArray)[3]) << 24) +
-			 ((uint64_t)((buffArray)[4]) << 32) + ((uint64_t)((buffArray)[5]) << 40));
-
-		// Align and mask
-		uint64_t maskValue = be64toh(~((1 << (48 - entry.first)) - 1)) >> 16;
-		bufferAddr = bufferAddr & maskValue;
-
-		std::cout << maskValue << " " << bufferAddr << std::endl;
-
-		buffArray[5] = (bufferAddr >> 40) & 0xFF;
-		buffArray[4] = (bufferAddr >> 32) & 0xFF;
-		buffArray[3] = (bufferAddr >> 24) & 0xFF;
-		buffArray[2] = (bufferAddr >> 16) & 0xFF;
-		buffArray[1] = (bufferAddr >> 8) & 0xFF;
-		buffArray[0] = (bufferAddr >> 0) & 0xFF;
-#endif
 
 		// Search
 		std::string searchStr = MacAddress(buffArray).toString();
