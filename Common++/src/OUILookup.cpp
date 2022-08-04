@@ -91,9 +91,9 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 
 #if __BYTE_ORDER == __BIG_ENDIAN
 		bufferAddr =
-			(((uint64_t)((buffArray)[5]) << 16) + ((uint64_t)((buffArray)[4]) << 24) +
-			 ((uint64_t)((buffArray)[3]) << 32) + ((uint64_t)((buffArray)[2]) << 40) +
-			 ((uint64_t)((buffArray)[1]) << 48) + ((uint64_t)((buffArray)[0]) << 56));
+			(((uint64_t)((buffArray)[0]) << 0) + ((uint64_t)((buffArray)[1]) << 8) +
+			 ((uint64_t)((buffArray)[2]) << 16) + ((uint64_t)((buffArray)[3]) << 24) +
+			 ((uint64_t)((buffArray)[4]) << 32) + ((uint64_t)((buffArray)[5]) << 40));
 
 		// Align and mask
 		uint64_t maskValue = be64toh(~((1 << (48 - entry.first)) - 1)) >> 16;
