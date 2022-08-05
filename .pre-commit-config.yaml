@@ -2,7 +2,7 @@ exclude: '.*\.(pcap|pcapng|dat|txt)'
 fail_fast: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.3.0
     hooks:
       - id: trailing-whitespace
       - id: check-case-conflict
@@ -10,7 +10,7 @@ repos:
     #   - id: mixed-line-ending
     #     args: ['--fix=lf']
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.6.0
     hooks:
       - id: black
 #   - repo: https://github.com/pocc/pre-commit-hooks
@@ -22,7 +22,7 @@ repos:
     hooks:
       - id: codespell
   - repo: https://github.com/crate-ci/typos
-    rev: v1.4.1
+    rev: v1.10.3
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
