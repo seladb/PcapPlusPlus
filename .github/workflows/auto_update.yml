@@ -1,11 +1,8 @@
 name: Auto Update
 
 on:
-  push:
-    branches:
-      - auto-oui-update
-#  schedule:
-#    - cron: '0 10 * * 0'
+  schedule:
+    - cron: '0 10 * * 0'
 
 jobs:
   oui-update:
@@ -14,7 +11,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with: { ref: auto-oui-update }
+        with: { ref: dev }
       - name: Run update
         run: |
             cd 3rdParty/OUILookup
@@ -22,6 +19,6 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: OUI Database updated
-          branch: auto-oui-update
+          branch: dev
           file_pattern: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
           add_options: '-u'
