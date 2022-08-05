@@ -2,7 +2,8 @@ name: Auto Update
 
 on:
   push:
-    - auto-oui-update
+    branches:
+      - auto-oui-update
   schedule:
 #    - cron: '0 10 * * 0'
 
