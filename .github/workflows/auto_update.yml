@@ -1,0 +1,25 @@
+name: Auto Update
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+#    - cron: '0 10 * * 0'
+
+jobs:
+  oui-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with: { ref: dev }
+      - name: Run update
+        run: |
+            cd 3rdParty/OUILookup
+            sh updateData.sh
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: OUI Database updated
+          branch: auto-oui-update
+          file_pattern: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
+          add_options: '-u'
