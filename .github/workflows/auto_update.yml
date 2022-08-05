@@ -1,8 +1,9 @@
 name: Auto Update
 
 on:
+  push:
+    - auto-oui-update
   schedule:
-    - cron: '*/5 * * * *'
 #    - cron: '0 10 * * 0'
 
 jobs:
@@ -12,7 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with: { ref: dev }
+        with: { ref: auto-oui-update }
       - name: Run update
         run: |
             cd 3rdParty/OUILookup
