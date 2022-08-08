@@ -262,17 +262,7 @@ void IPv6Layer::parseNextLayer()
 		break;
 	case PACKETPP_IPPROTO_ICMPV6:
 	{
-		ProtocolType icmpv6Ver = IcmpV6Layer::getIcmpv6Version(payload, payloadLen);
-		if(icmpv6Ver == ICMPv6EchoRequest)
-			m_NextLayer = new ICMPv6EchoRequestLayer(payload, payloadLen, this, m_Packet);
-		else if(icmpv6Ver == ICMPv6EchoReply)
-			m_NextLayer = new ICMPv6EchoReplyLayer(payload, payloadLen, this, m_Packet);
-		else if(icmpv6Ver == NDPNeighborSolicitation)
-			m_NextLayer = new NDPNeighborSolicitationLayer(payload, payloadLen, this, m_Packet);
-		else if(icmpv6Ver == NDPNeighborAdvertisement)
-			m_NextLayer = new NDPNeighborAdvertisementLayer(payload, payloadLen, this, m_Packet);
-		else
-			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = IcmpV6Layer::parseIcmpV6Layer(payload, payloadLen, this, m_Packet);
 		break;
 	}
 	default:

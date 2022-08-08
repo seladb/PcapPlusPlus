@@ -268,24 +268,9 @@ namespace pcpp
 	const ProtocolType FTP = 0x10000000000;
 
 	/**
-	 * ICMPv6 Echo Request protocol
+	 * ICMPv6 protocol
 	 */
-	const ProtocolType ICMPv6EchoRequest = 0x010000000000;
-
-	/**
-	 * ICMPv6 Echo Reply protocol
-	 */
-	const ProtocolType ICMPv6EchoReply = 0x020000000000;
-
-	/**
-	 * ICMPv6 protocol Neighbor Solicitation
-	 */
-	const ProtocolType NDPNeighborSolicitation = 0x040000000000;
-
-	/**
-	 * ICMPv6 protocol Neighbor Advertisement
-	 */
-	const ProtocolType NDPNeighborAdvertisement = 0x080000000000;
+	const ProtocolType ICMPv6 = 0x20000000000;
 
 	/**
 	 * An enum representing OSI model layers

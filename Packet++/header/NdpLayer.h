@@ -38,7 +38,7 @@ enum NDPNeighborOptionTypes
  */
 class NdpOption : public TLVRecord<uint8_t, uint8_t>
 {
-  public:
+public:
 	/**
 	 * A c'tor for this class that gets a pointer to the option raw data (byte array)
 	 * @param[in] optionRawData A pointer to the NDP option raw data
@@ -88,8 +88,7 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t>
  */
 class NdpOptionBuilder : public TLVRecordBuilder
 {
-
-  public:
+public:
 	/**
 	 * A c'tor for building NDP options which their value is a byte array. The NdpOption object can be later
 	 * retrieved by calling build(). Each option is padded to have a 64-bit boundary.
@@ -115,7 +114,7 @@ class NdpOptionBuilder : public TLVRecordBuilder
  */
 class NDPLayerBase : public IcmpV6Layer
 {
-  public:
+public:
 	virtual ~NDPLayerBase() {}
 
 	/**
@@ -162,13 +161,13 @@ class NDPLayerBase : public IcmpV6Layer
 	 */
 	bool removeAllNdpOptions();
 
-  protected:
+protected:
 	NDPLayerBase() = default;
 
 	NDPLayerBase(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 		: IcmpV6Layer(data, dataLen, prevLayer, packet)	{}
 
-  private:
+private:
 	TLVRecordReader<NdpOption> m_OptionReader;
 
 	virtual size_t getNdpHeaderLen() const = 0;
@@ -182,7 +181,7 @@ class NDPLayerBase : public IcmpV6Layer
  */
 class NDPNeighborSolicitationLayer : public NDPLayerBase
 {
-  public:
+public:
 	/**
 	 * @struct ndpneighborsolicitationhdr
 	 * Represents neighbor solicitation message format
@@ -205,10 +204,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	NDPNeighborSolicitationLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: NDPLayerBase(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = NDPNeighborSolicitation;
-	}
+		: NDPLayerBase(data, dataLen, prevLayer, packet) {}
 
 	/**
 	 * A constructor for a new NDPNeighborSolicitationLayer object
@@ -246,7 +242,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
 
 	std::string toString() const;
 
-  private:
+private:
 	void initLayer(uint8_t code, const IPv6Address &targetIP);
 	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data;	}
 	size_t getNdpHeaderLen() const { return sizeof(ndpneighborsolicitationhdr);	};
@@ -258,7 +254,7 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase
  */
 class NDPNeighborAdvertisementLayer : public NDPLayerBase
 {
-  public:
+public:
 	/**
 	 * @struct ndpneighboradvertisementhdr
 	 * Represents neighbor advertisement message format
@@ -304,10 +300,7 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
 	NDPNeighborAdvertisementLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: NDPLayerBase(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = NDPNeighborAdvertisement;
-	}
+		: NDPLayerBase(data, dataLen, prevLayer, packet) {}
 
 	/**
 	 * A constructor that allocates a new NDP Advertisement Layer with target link-layer address option
@@ -368,7 +361,7 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase
 
 	std::string toString() const;
 
-  private:
+private:
 	void initLayer(uint8_t code, const IPv6Address &targetIP, bool routerFlag, bool unicastFlag, bool overrideFlag);
 	ndpneighboradvertisementhdr *getNdpHeader() const {	return (ndpneighboradvertisementhdr *)m_Data; }
 	size_t getNdpHeaderLen() const { return sizeof(ndpneighboradvertisementhdr); };

@@ -1,6 +1,7 @@
 #ifndef PACKETPP_ICMPV6_LAYER
 #define PACKETPP_ICMPV6_LAYER
 
+#include "EndianPortable.h"
 #include "Layer.h"
 
 /// @file
@@ -15,8 +16,10 @@ namespace pcpp
 /**
  * An enum representing the available ICMPv6 message types
  */
-enum ICMPv6MessageType
+enum class ICMPv6MessageType : int
 {
+	/** Unknown ICMPv6 message */
+	ICMPv6_UNKNOWN_MESSAGE = 0,
 	/** Destination Unreachable Message */
 	ICMPv6_DESTINATION_UNREACHABLE = 1,
 	/** Packet Too Big Message */
@@ -125,42 +128,33 @@ typedef struct icmpv6_echo_hdr : icmpv6hdr
 #pragma pack(pop)
 
 /**
- * @struct icmpv6_echo_request
- * ICMPv6 echo request/reply message structure
- */
-typedef struct icmpv6_echo_request
-{
-	/** a pointer to the header data */
-	icmpv6_echo_hdr *header;
-	/** most echo requests/replies contain some payload data. This is the data length */
-	size_t dataLength;
-	/** most echo requests/replies contain some payload data. This is a pointer to this data */
-	uint8_t *data;
-} icmpv6_echo_request;
-
-/**
- * @typedef icmpv6_echo_reply
- * ICMPv6 echo reply message structure, same as icmpv6_echo_request
- */
-typedef icmpv6_echo_request icmpv6_echo_reply;
-
-/**
  * @class IcmpV6Layer
- * Abstract base class for ICMPv6 protocol layers. Cannot be instantiated and contains common logic for derived classes.
+ * Base class for ICMPv6 protocol layers which provides common logic for ICMPv6 messages.
  */
 class IcmpV6Layer : public Layer
 {
-  public:
+public:
+	/**
+	 * A constructor that creates the layer from an existing packet raw data
+	 * @param data A pointer to the raw data
+	 * @param dataLen Size of the data in bytes
+	 * @param prevLayer A pointer to the previous layer
+	 * @param packet A pointer to the Packet instance where layer will be stored in
+	 */
+	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMPv6; }
+
 	virtual ~IcmpV6Layer() {}
 
 	/**
-	 * A static method that determines the ICMPv6 protocol type of ICMPv6 layer raw data by looking at the
-	 * icmpv6hdr#type field
-	 * @param[in] data The pointer to the beginning of an ICMPv6 byte stream
-	 * @param[in] dataLen The length of the byte stream
-	 * @return The specific ProtocolType or UnknownProtocol if it can not be determined
+	 * A static method that creates an ICMPv6 layer from packet raw data
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored
+	 * @return Layer* A newly allocated ICMPv6 layer
 	 */
-	static ProtocolType getIcmpv6Version(uint8_t *data, size_t dataLen);
+	static Layer *IcmpV6Layer::parseIcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 	/**
 	 * @param[in] type Type to check
@@ -184,14 +178,14 @@ class IcmpV6Layer : public Layer
 	uint16_t getChecksum() const;
 
 	/**
-	 * Identifies next layer and tries to create it
+	 * Does nothing for this layer. ICMPv6 is the last layer.
 	 */
-	void parseNextLayer();
+	void parseNextLayer() {}
 
 	/**
-	 * @return The length of the ICMPv6 header
+	 * @return The size of the ICMPv6 message
 	 */
-	size_t getHeaderLen() const;
+	size_t getHeaderLen() const { return m_DataLen; }
 
 	/**
 	 * Calculate ICMPv6 checksum field
@@ -200,24 +194,34 @@ class IcmpV6Layer : public Layer
 
 	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
 
-  protected:
+	std::string toString() const;
+
+protected:
 	IcmpV6Layer() = default;
 
-	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: Layer(data, dataLen, prevLayer, packet) {}
-
-  private:
+private:
 	void calculateChecksum();
 	icmpv6hdr *getIcmpv6Header() const { return (icmpv6hdr *)m_Data; }
 };
 
 /**
- * @class ICMPv6EchoRequestLayer
- * Represents an ICMPv6 echo request protocol layer
+ * @class ICMPv6EchoLayer
+ * Represents an ICMPv6 echo request/reply protocol layer
  */
-class ICMPv6EchoRequestLayer : public IcmpV6Layer
+class ICMPv6EchoLayer : public IcmpV6Layer
 {
-  public:
+public:
+	/**
+	 * An enum representing ICMPv6 echo message types
+	 */
+	enum ICMPv6EchoType
+	{
+		/** Echo Request Type */
+		REQUEST,
+		/** Echo Reply Type */
+		REPLY
+	};
+
 	/**
 	 * A constructor that creates the layer from an existing packet raw data
 	 * @param[in] data A pointer to the raw data
@@ -225,75 +229,45 @@ class ICMPv6EchoRequestLayer : public IcmpV6Layer
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 	 */
-	ICMPv6EchoRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: IcmpV6Layer(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = ICMPv6EchoRequest;
-	}
+	ICMPv6EchoLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: IcmpV6Layer(data, dataLen, prevLayer, packet)	{}
 
 	/**
-	 * A constructor for a new echo request layer
+	 * A constructor for a new echo request/reply layer
+	 * @param[in] echoType The type of the echo message
 	 * @param[in] id Echo request identifier
-	 * @param[in] sequence Echo request sequence
+	 * @param[in] sequence Echo request sequence number
 	 * @param[in] data A pointer to echo request payload to set
 	 * @param[in] dataLen The length of the echo request payload
 	 */
+	ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
 
-	ICMPv6EchoRequestLayer(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
-
-	virtual ~ICMPv6EchoRequestLayer() {}
+	virtual ~ICMPv6EchoLayer() {}
 
 	/**
-	 * @return ICMP echo request data.
+	 * @return Identifier in host representation
 	 */
-	icmpv6_echo_request *getEchoRequestData();
+	uint16_t getIdentifier() const { return be16toh(getEchoHeader()->id); };
+
+	/**
+	 * @return Sequence number in host representation
+	 */
+	uint16_t getSequenceNr() const { return be16toh(getEchoHeader()->sequence); }
+
+	/**
+	 * @return Size of the data in bytes
+	 */
+	size_t getEchoDataLen() const { return m_DataLen - sizeof(icmpv6_echo_hdr); }
+
+	/**
+	 * @return Pointer to the beginning of the data
+	 */
+	uint8_t *getEchoDataPtr() const { return m_Data + sizeof(icmpv6_echo_hdr); }
 
 	std::string toString() const;
 
-  private:
-	icmpv6_echo_request m_EchoData;
-};
-
-/**
- * @class ICMPv6EchoReplyLayer
- * Represents an ICMPv6 echo reply protocol layer
- */
-class ICMPv6EchoReplyLayer : public IcmpV6Layer
-{
-  public:
-	/**
-	 * A constructor that creates the layer from an existing packet raw data
-	 * @param[in] data A pointer to the raw data
-	 * @param[in] dataLen Size of the data in bytes
-	 * @param[in] prevLayer A pointer to the previous layer
-	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-	 */
-	ICMPv6EchoReplyLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-		: IcmpV6Layer(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = ICMPv6EchoReply;
-	}
-
-	/**
-	 *  A constructor for a new echo reply layer
-	 * @param[in] id Echo reply identifier
-	 * @param[in] sequence Echo reply sequence
-	 * @param[in] data A pointer to echo reply payload to set
-	 * @param[in] dataLen The length of the echo reply payload
-	 */
-	ICMPv6EchoReplyLayer(uint16_t id, uint16_t sequence, const uint8_t *data, size_t dataLen);
-
-	virtual ~ICMPv6EchoReplyLayer()	{}
-
-	/**
-	 * @return ICMPv6 echo reply data.
-	 */
-	icmpv6_echo_reply *getEchoReplyData();
-
-	std::string toString() const;
-
-  private:
-	icmpv6_echo_reply m_EchoData;
+private:
+	icmpv6_echo_hdr *getEchoHeader() const { return (icmpv6_echo_hdr *)m_Data; }
 };
 
 } // namespace pcpp

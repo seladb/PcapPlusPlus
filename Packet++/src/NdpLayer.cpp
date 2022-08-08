@@ -116,10 +116,10 @@ void NDPNeighborSolicitationLayer::initLayer(uint8_t code, const IPv6Address &ta
 	m_DataLen = sizeof(ndpneighborsolicitationhdr);
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
-	m_Protocol = NDPNeighborSolicitation;
+	m_Protocol = ICMPv6;
 
 	ndpneighborsolicitationhdr *pHdr = getNdpHeader();
-	pHdr->type = ICMPv6_NEIGHBOR_SOLICITATION;
+	pHdr->type = static_cast<uint8_t>(ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION);
 	pHdr->code = code;
 	memcpy(pHdr->targetIP, targetIP.toBytes(), 16);
 }
@@ -145,7 +145,7 @@ MacAddress NDPNeighborSolicitationLayer::getLinkLayerAddress() const
 std::string NDPNeighborSolicitationLayer::toString() const
 {
 	std::ostringstream typeStream;
-	typeStream << "NDP Neighbor Solicitation Layer, TargetIP: " + getTargetIP().toString();
+	typeStream << "ICMPv6 Layer, Neighbor Solicitation Message, TargetIP: " + getTargetIP().toString();
 	hasLinkLayerAddress() ? typeStream << ", SourceMAC: " + getLinkLayerAddress().toString() : typeStream << ", no Option";
 
 	return typeStream.str();
@@ -177,10 +177,10 @@ void NDPNeighborAdvertisementLayer::initLayer(uint8_t code, const IPv6Address &t
 	m_DataLen = sizeof(ndpneighboradvertisementhdr);
 	m_Data = new uint8_t[m_DataLen];
 	memset(m_Data, 0, m_DataLen);
-	m_Protocol = NDPNeighborAdvertisement;
+	m_Protocol = ICMPv6;
 
 	ndpneighboradvertisementhdr *pHdr = getNdpHeader();
-	pHdr->type = ICMPv6_NEIGHBOR_ADVERTISEMENT;
+	pHdr->type = static_cast<uint8_t>(ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT);
 	pHdr->code = code;
 	pHdr->router = routerFlag;
 	pHdr->solicited = unicastFlag;
@@ -210,7 +210,7 @@ MacAddress NDPNeighborAdvertisementLayer::getTargetMac() const
 std::string NDPNeighborAdvertisementLayer::toString() const
 {
 	std::ostringstream typeStream;
-	typeStream << "NDP Neighbor Advertisement Layer, TargetIP: " << getTargetIP().toString();
+	typeStream << "ICMPv6 Layer, Neighbor Advertisement Message, TargetIP: " << getTargetIP().toString();
 	hasTargetMacInfo() ? typeStream << ", TargetMAC: " + getTargetMac().toString() : typeStream << ", no Option";
 
 	return typeStream.str();
