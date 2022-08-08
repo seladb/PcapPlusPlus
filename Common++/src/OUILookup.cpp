@@ -8,12 +8,12 @@
 namespace pcpp
 {
 
-#define PCPP_SHORT_MACS 0
-#define PCPP_LONG_MACS 1
+#define PCPP_SHORT_MACS 1
+#define PCPP_LONG_MACS 2
 
-int OUILookup::initOUIDatabase(const std::string &path)
+int64_t OUILookup::initOUIDatabase(const std::string &path)
 {
-	uint64_t ctrRead = 0;
+	int64_t ctrRead = 0;
 	std::ifstream dataFile;
 
 	// Open database
@@ -29,10 +29,11 @@ int OUILookup::initOUIDatabase(const std::string &path)
 	}
 
 	// Read file
-	int condition = -1;
+	int condition = 0;
 	uint16_t maskValue = 0;
 	for (std::string line; std::getline(dataFile, line);)
 	{
+		// Search for assignment line
 		if (!line.compare("PCPP_SHORT_MACS"))
 		{
 			condition = PCPP_SHORT_MACS;
@@ -50,6 +51,7 @@ int OUILookup::initOUIDatabase(const std::string &path)
 			continue;
 		}
 
+		// Convert and insert the value
 		switch (condition)
 		{
 		case PCPP_SHORT_MACS: {
