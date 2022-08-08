@@ -36,7 +36,7 @@ namespace pcpp
 	public:
 		/**
 		 * Initialise internal OUI database
-		 * @param[in] path Path to OUI database. The database itself is located at <PcapPlusPlus Source>/3rdParty/OUILookup/PCPP_OUIDatabase.dat
+		 * @param[in] path Path to OUI database. The database itself is located at PcapPlusPlus_Source_Dir/3rdParty/OUILookup/PCPP_OUIDatabase.dat
 		 * @return int64_t Returns the number of total vendors, negative on errors
 		 */
 		int64_t initOUIDatabase(const std::string &path = "");
