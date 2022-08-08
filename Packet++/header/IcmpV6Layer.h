@@ -154,7 +154,7 @@ public:
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored
 	 * @return Layer* A newly allocated ICMPv6 layer
 	 */
-	static Layer *IcmpV6Layer::parseIcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+	static Layer *parseIcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 	/**
 	 * @param[in] type Type to check
