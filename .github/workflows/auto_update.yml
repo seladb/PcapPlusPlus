@@ -16,9 +16,18 @@ jobs:
         run: |
             cd 3rdParty/OUILookup
             sh updateData.sh
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
         with:
-          commit_message: OUI Database updated
-          branch: dev
-          file_pattern: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
-          add_options: '-u'
+          add-paths: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
+          commit_message: Auto OUI Database Update
+          body: |
+            Update OUI database to latest
+
+            Auto generated
+          branch: auto-update/oui_update
+          delete-branch: true
+          title: Auto OUI Database Update
+          labels: automated-pr
+          assignees: seladb
+
