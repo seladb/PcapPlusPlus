@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with: 
+        with:
           ref: dev
       - name: Run update
         run: |
@@ -20,8 +20,9 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
+          author: GitHub <noreply@github.com>
           add-paths: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
-          commit_message: Auto OUI Database Update
+          commit-message: Auto OUI Database Update
           body: |
             Update OUI database to latest
 
