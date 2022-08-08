@@ -30,4 +30,3 @@ jobs:
           title: Auto OUI Database Update
           labels: automated-pr
           assignees: seladb
-
