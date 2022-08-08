@@ -36,13 +36,13 @@ namespace pcpp
 	public:
 		/**
 		 * Initialise internal OUI database
-		 * @param[in] path Path to OUI database binary
+		 * @param[in] path Path to OUI database. The database itself is located at <PcapPlusPlus Source>/3rdParty/OUILookup/PCPP_OUIDatabase.dat
 		 * @return int Returns the number of total vendors, negative on errors
 		 */
 		int initOUIDatabase(const std::string &path = "");
 
 		/**
-		 * Returns the vendor of the MAC address. OUI database should be initialized with initMacDatabase()
+		 * Returns the vendor of the MAC address. OUI database should be initialized with initOUIDatabase()
 		 * @param[in] addr MAC address to search
 		 * @return Vendor name
 		 */

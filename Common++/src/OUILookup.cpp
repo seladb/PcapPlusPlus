@@ -18,7 +18,7 @@ int OUILookup::initOUIDatabase(const std::string &path)
 
 	// Open database
 	if (path.empty())
-		dataFile.open("PCPP_OUIDatabase.dat");
+		dataFile.open("/usr/share/pcapplusplus/PCPP_OUIDatabase.dat");
 	else
 		dataFile.open(path);
 
@@ -81,6 +81,9 @@ int OUILookup::initOUIDatabase(const std::string &path)
 
 std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
 {
+	if (OUIVendorListShort.empty() || OUIVendorListLong.empty())
+		PCPP_LOG_ERROR("At least one of the vendors list is empty");
+
 	// First check long addresses
 	for (const auto &entry : OUIVendorListLong)
 	{
