@@ -177,3 +177,8 @@ PTF_TEST_CASE(TelnetDataParsingTests);
 PTF_TEST_CASE(FtpParsingTests);
 PTF_TEST_CASE(FtpCreationTests);
 PTF_TEST_CASE(FtpEditTests);
+
+// Implemented in WakeOnLanTests.cpp
+PTF_TEST_CASE(WakeOnLanParsingTests);
+PTF_TEST_CASE(WakeOnLanCreationTests);
+PTF_TEST_CASE(WakeOnLanEditTests);

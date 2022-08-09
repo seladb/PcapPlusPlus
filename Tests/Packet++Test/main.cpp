@@ -257,5 +257,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(FtpCreationTests, "ftp");
 	PTF_RUN_TEST(FtpEditTests, "ftp");
 
+	PTF_RUN_TEST(WakeOnLanParsingTests, "wol");
+	PTF_RUN_TEST(WakeOnLanCreationTests, "wol");
+	PTF_RUN_TEST(WakeOnLanEditTests, "wol");
+
 	PTF_END_RUNNING_TESTS;
 }

@@ -268,6 +268,11 @@ namespace pcpp
 	const ProtocolType FTP = 0x10000000000;
 
 	/**
+	 * Wake On LAN (WOL) Protocol
+	 */
+	const ProtocolType WakeOnLan = 0x20000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
