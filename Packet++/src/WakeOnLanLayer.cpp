@@ -14,7 +14,8 @@ namespace pcpp
 
     void WakeOnLanLayer::setTargetAddr(const pcpp::MacAddress &targetAddr)
     {
-
+        for (size_t idx = 0; idx < 16; ++idx)
+            memcpy(&(getWakeOnLanHeader()->addrBody[idx * 6]), targetAddr.getRawData(), 6);
     }
 
     std::string WakeOnLanLayer::getPassword() const
