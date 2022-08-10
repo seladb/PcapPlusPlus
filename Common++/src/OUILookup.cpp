@@ -17,10 +17,7 @@ namespace pcpp
 		std::ifstream dataFile;
 
 		// Open database
-		if (path.empty())
-			dataFile.open("/usr/share/pcapplusplus/PCPP_OUIDatabase.dat");
-		else
-			dataFile.open(path);
+		dataFile.open(path);
 
 		if (!dataFile.is_open())
 		{
