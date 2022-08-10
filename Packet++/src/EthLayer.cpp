@@ -75,6 +75,7 @@ void EthLayer::parseNextLayer()
 		m_NextLayer = WakeOnLanLayer::isDataValid(payload, payloadLen)
 			? static_cast<Layer*>(new WakeOnLanLayer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
