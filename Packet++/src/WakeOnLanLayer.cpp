@@ -14,26 +14,47 @@ namespace pcpp
 
     void WakeOnLanLayer::setTargetAddr(const pcpp::MacAddress &targetAddr)
     {
-        for (size_t idx = 0; idx < 16; ++idx)
-            memcpy(&(getWakeOnLanHeader()->addrBody[idx * 6]), targetAddr.getRawData(), 6);
-    }
+		for (size_t idx = 0; idx < 16; ++idx)
+			memcpy(&(getWakeOnLanHeader()->addrBody[idx * 6]), targetAddr.getRawData(), 6);
+	}
 
     std::string WakeOnLanLayer::getPassword() const
-    {
+	{
 		if (m_DataLen <= sizeof(wol_header))
 			return "";
 		return std::string((char *)&m_Data[sizeof(wol_header)], m_DataLen - sizeof(wol_header));
 	}
 
-    void WakeOnLanLayer::setPassword(const std::string &password)
+	bool WakeOnLanLayer::setPassword(const std::string &password)
     {
+		return setPassword((uint8_t *)password.c_str(), password.size());
+	}
 
-    }
-
-    void WakeOnLanLayer::setPassword(const uint8_t *password, uint8_t len)
+    bool WakeOnLanLayer::setPassword(const uint8_t *password, uint8_t len)
     {
+		if (len)
+		{
+			if (m_DataLen > sizeof(wol_header) + len)
+			{
+				if (!shortenLayer(0, m_DataLen - (sizeof(wol_header) + len)))
+				{
+					PCPP_LOG_ERROR("Can't shorten Wake on LAN layer");
+					return false;
+				}
+			}
+			else if (m_DataLen < sizeof(wol_header) + len)
+			{
+				if (!extendLayer(0, (sizeof(wol_header) + len) - m_DataLen))
+				{
+					PCPP_LOG_ERROR("Can't extend Wake on LAN layer");
+					return false;
+				}
+			}
+			memcpy(&m_Data[sizeof(wol_header)], password, len);
+		}
 
-    }
+        return true;
+	}
 
     bool WakeOnLanLayer::isDataValid(const uint8_t *data, size_t dataSize)
     {
