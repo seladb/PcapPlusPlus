@@ -12,7 +12,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: auto-precommit-update
+          ref: dev
+      - name: Setup Python
         uses: actions/setup-python@v2
       - name: Run update
         run: |
@@ -22,7 +23,7 @@ jobs:
         uses: peter-evans/create-pull-request@v4
         with:
           author: GitHub <noreply@github.com>
-          add-paths: .github/workflows/auto_update.yml
+          add-paths: .pre-commit-config.yaml
           commit-message: Auto pre-commit update
           body: |
             Update pre-commit hooks to latest
