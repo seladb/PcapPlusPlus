@@ -49,8 +49,8 @@ namespace pcpp
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
-		 * @param targetAddr Target MAC address
-		 * @param password Optional password
+		 * @param[in] targetAddr Target MAC address
+		 * @param[in] password Optional password
 		 */
 		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const std::string &password = "");
 
@@ -68,7 +68,7 @@ namespace pcpp
 
 		/**
 		 * Set the target MAC address
-		 * @param targetAddr MAC address of the target
+		 * @param[in] targetAddr MAC address of the target
 		 */
 		void setTargetAddr(const pcpp::MacAddress &targetAddr);
 
@@ -80,16 +80,18 @@ namespace pcpp
 
 		/**
 		 * Set the password of the command
-		 * @param password Password as string. Length of the password should be less than 6 bytes
+		 * @param[in] password Password as string. Length of the password should be less than 6 bytes
+		 * @return bool True if successfull, false otherwise
 		 */
-		void setPassword(const std::string &password);
+		bool setPassword(const std::string &password);
 
 		/**
 		 * Set the password of the command
-		 * @param password Password as array
-		 * @param len Length of the password array, length of the password should be less than 6 bytes
+		 * @param[in] password Password as array
+		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
+		 * @return bool True if successfull, false otherwise
 		 */
-		void setPassword(const uint8_t *password, uint8_t len);
+		bool setPassword(const uint8_t *password, uint8_t len);
 
 		/**
 		 * A static method that checks whether the port is considered as Wake on LAN
