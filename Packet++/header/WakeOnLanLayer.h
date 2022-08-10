@@ -2,6 +2,7 @@
 #define PACKETPP_WAKEONLAN_LAYER
 
 #include "Layer.h"
+#include "IpAddress.h"
 #include "MacAddress.h"
 
 /// @file
@@ -50,9 +51,8 @@ namespace pcpp
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
 		 * @param[in] targetAddr Target MAC address
-		 * @param[in] password Optional password
 		 */
-		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const std::string &password = "");
+		WakeOnLanLayer(const pcpp::MacAddress &targetAddr);
 
 		/**
 		 * Get a pointer to the Wake On LAN header. Notice this points directly to the data, so every change will change the actual packet data
@@ -80,18 +80,36 @@ namespace pcpp
 
 		/**
 		 * Set the password of the command
+		 * @param[in] password Password as array
+		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
+		 * @return true If successful
+		 * @return false otherwise
+		 */
+		bool setPassword(const uint8_t *password, uint8_t len);
+
+		/**
+		 * Set the password of the command
 		 * @param[in] password Password as string. Length of the password should be less than 6 bytes
-		 * @return bool True if successfull, false otherwise
+		 * @return true If successful
+		 * @return false otherwise
 		 */
 		bool setPassword(const std::string &password);
 
 		/**
 		 * Set the password of the command
-		 * @param[in] password Password as array
-		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
-		 * @return bool True if successfull, false otherwise
+		 * @param[in] addr Password as MAC address
+		 * @return true If successful
+		 * @return false otherwise
 		 */
-		bool setPassword(const uint8_t *password, uint8_t len);
+		bool setPassword(const MacAddress &addr);
+
+		/**
+		 * Set the password of the command
+		 * @param addr Password as IPv4 address
+		 * @return true If successful
+		 * @return false otherwise
+		 */
+		bool setPassword(const IPv4Address &addr);
 
 		/**
 		 * A static method that checks whether the port is considered as Wake on LAN

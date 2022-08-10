@@ -1,12 +1,22 @@
 #define LOG_MODULE PacketLogModuleWakeOnLanLayer
 
 #include "WakeOnLanLayer.h"
-#include "IpAddress.h"
 #include "Logger.h"
 
 
 namespace pcpp
 {
+
+	WakeOnLanLayer::WakeOnLanLayer(const pcpp::MacAddress &targetAddr)
+	{
+		m_Data = new uint8_t[sizeof(wol_header)];
+		m_DataLen = sizeof(wol_header);
+		m_Protocol = WakeOnLan;
+
+		// Init fields
+		memset(getWakeOnLanHeader()->sync, 0xFF, 6);
+		setTargetAddr(targetAddr);
+	}
 
 	pcpp::MacAddress WakeOnLanLayer::getTargetAddr() const
 	{
@@ -28,11 +38,6 @@ namespace pcpp
 		return std::string((char *)&m_Data[sizeof(wol_header)], m_DataLen - sizeof(wol_header));
 	}
 
-	bool WakeOnLanLayer::setPassword(const std::string &password)
-	{
-		return setPassword((uint8_t *)password.c_str(), password.size());
-	}
-
 	bool WakeOnLanLayer::setPassword(const uint8_t *password, uint8_t len)
 	{
 		if (len)
@@ -47,7 +52,7 @@ namespace pcpp
 			}
 			else if (m_DataLen < sizeof(wol_header) + len)
 			{
-				if (!extendLayer(0, (sizeof(wol_header) + len) - m_DataLen))
+				if (!extendLayer(m_DataLen, (sizeof(wol_header) + len) - m_DataLen))
 				{
 					PCPP_LOG_ERROR("Can't extend Wake on LAN layer");
 					return false;
@@ -57,6 +62,21 @@ namespace pcpp
 		}
 
 		return true;
+	}
+
+	bool WakeOnLanLayer::setPassword(const std::string &password)
+	{
+		return setPassword((uint8_t *)password.c_str(), password.size());
+	}
+
+	bool WakeOnLanLayer::setPassword(const MacAddress &addr)
+	{
+		return setPassword(addr.getRawData(), 6);
+	}
+
+	bool WakeOnLanLayer::setPassword(const IPv4Address &addr)
+	{
+		return setPassword(addr.toBytes(), 4);
 	}
 
 	bool WakeOnLanLayer::isDataValid(const uint8_t *data, size_t dataSize)
