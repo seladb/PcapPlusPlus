@@ -144,6 +144,15 @@ public:
 	IcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 		: Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMPv6; }
 
+	/**
+	 * A constructor that allocates a new ICMPv6 layer with type, code and data
+	 * @param[in] msgType Message type of the ICMPv6 layer
+	 * @param[in] code Code field of the ICMPv6 layer
+	 * @param[in] data A pointer to the payload to set
+	 * @param[in] dataLen The length of the payload
+	 */
+	IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code, const uint8_t *data, size_t dataLen);
+
 	virtual ~IcmpV6Layer() {}
 
 	/**

@@ -126,13 +126,13 @@ void NDPNeighborSolicitationLayer::initLayer(uint8_t code, const IPv6Address &ta
 
 bool NDPNeighborSolicitationLayer::hasLinkLayerAddress() const
 {
-	NdpOption option = this->getNdpOption(NDP_OPTION_SOURCE_LINK_LAYER);
+	NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
 	return option.isNull() ? false : true;
 }
 
 MacAddress NDPNeighborSolicitationLayer::getLinkLayerAddress() const
 {
-	NdpOption option = this->getNdpOption(NDP_OPTION_SOURCE_LINK_LAYER);
+	NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
 
 	if (option.isNull())
 	{
@@ -191,13 +191,13 @@ void NDPNeighborAdvertisementLayer::initLayer(uint8_t code, const IPv6Address &t
 
 bool NDPNeighborAdvertisementLayer::hasTargetMacInfo() const
 {
-	NdpOption option = this->getNdpOption(NDP_OPTION_TARGET_LINK_LAYER);
+	NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 	return option.isNull() ? false : true;
 }
 
 MacAddress NDPNeighborAdvertisementLayer::getTargetMac() const
 {
-	NdpOption option = this->getNdpOption(NDP_OPTION_TARGET_LINK_LAYER);
+	NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 
 	if (option.isNull())
 	{

@@ -72,12 +72,12 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 	pcpp::NdpOption sourceLinkLayerOption = neighSoliLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
 	PTF_ASSERT_TRUE(sourceLinkLayerOption.isNotNull());
-	PTF_ASSERT_EQUAL(sourceLinkLayerOption.getNdpOptionType(), pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
+	PTF_ASSERT_EQUAL((int)sourceLinkLayerOption.getNdpOptionType(), 1);
 	PTF_ASSERT_EQUAL(sourceLinkLayerOption.getDataSize(), 6);
 	PTF_ASSERT_EQUAL(sourceLinkLayerOption.getTotalSize(), 8);
 	PTF_ASSERT_EQUAL(pcpp::MacAddress(sourceLinkLayerOption.getValue()), pcpp::MacAddress("00:54:af:e9:4d:80"));
-	pcpp::NdpOption sourceLinkLayerOption2 = neighSoliLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
-	PTF_ASSERT_TRUE(sourceLinkLayerOption2.isNull());
+	pcpp::NdpOption targetLinkLayerOption2 = neighSoliLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
+	PTF_ASSERT_TRUE(targetLinkLayerOption2.isNull());
 
 	pcpp::IcmpV6Layer *icmpNeighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::IcmpV6Layer>();
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getHeaderLen(), 32);
@@ -102,7 +102,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 	pcpp::NdpOption targetLinkLayerOption = neighAdvLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 	PTF_ASSERT_TRUE(targetLinkLayerOption.isNotNull());
-	PTF_ASSERT_EQUAL(targetLinkLayerOption.getNdpOptionType(), pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
+	PTF_ASSERT_EQUAL((int)targetLinkLayerOption.getNdpOptionType(), 2);
 	PTF_ASSERT_EQUAL(targetLinkLayerOption.getDataSize(), 6);
 	PTF_ASSERT_EQUAL(targetLinkLayerOption.getTotalSize(), 8);
 	PTF_ASSERT_EQUAL(pcpp::MacAddress(targetLinkLayerOption.getValue()), pcpp::MacAddress("c2:00:54:f5:00:00"));
@@ -147,11 +147,27 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("11:22:33:44:55:66"), pcpp::MacAddress("66:55:44:33:22:11"));
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address(std::string("fe80::215:5dff:fea5:c4c5")), pcpp::IPv6Address(std::string("fe80::dd05:dae0:74bc:7341")));
 
+	// Create ICMPv6 layer with type, code and data
+	uint8_t headerEchoMessage[] = {0x00, 0x18, 0x00, 0x14};
+	uint8_t icmpv6Message[4+56];
+	std::copy(headerEchoMessage, headerEchoMessage+4, icmpv6Message);
+	std::copy(data, data+56, icmpv6Message+4);
+	pcpp::IcmpV6Layer icmpv6Layer(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, 0, icmpv6Message, 4+56);
+	pcpp::Packet icmpv6LayerPacket(100);
+	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&ipv6Layer));
+	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&icmpv6Layer));
+	icmpv6LayerPacket.computeCalculateFields();
+	PTF_ASSERT_EQUAL(icmpv6LayerPacket.getRawPacket()->getRawDataLen(), bufferLength1);
+	PTF_ASSERT_BUF_COMPARE(icmpv6LayerPacket.getRawPacket()->getRawData()+54, buffer1+54, bufferLength1-54);
+
 	// Echo request creation
+	pcpp::EthLayer ethLayer1(ethLayer);
+	pcpp::IPv6Layer ipv6Layer1(ipv6Layer);
 	pcpp::ICMPv6EchoLayer echoReqLayer(pcpp::ICMPv6EchoLayer::REQUEST, 0x0018, 20, data, 56);
 	pcpp::Packet echoRequestPacket(100);
-	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ipv6Layer));
+	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ethLayer1));
+	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ipv6Layer1));
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&echoReqLayer));
 	echoRequestPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(echoRequestPacket.getRawPacket()->getRawDataLen(), bufferLength1);
@@ -170,11 +186,11 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_BUF_COMPARE(echoReplyPacket.getRawPacket()->getRawData()+54, buffer2+54, bufferLength2-54);
 
 	// Neighbor solicitation with source link-layer option
-	pcpp::IPv6Layer *pIpv6SoliLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fd53:7cb8:383:4::67"), pcpp::IPv6Address("fd53:7cb8:383:2::1:117"));
-	pcpp::NDPNeighborSolicitationLayer *pNdpSoliLayer = new pcpp::NDPNeighborSolicitationLayer(0, pcpp::IPv6Address("fd53:7cb8:383:2::1:117"), pcpp::MacAddress("00:54:af:e9:4d:80"));
+	pcpp::IPv6Layer *ipv6SoliLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fd53:7cb8:383:4::67"), pcpp::IPv6Address("fd53:7cb8:383:2::1:117"));
+	pcpp::NDPNeighborSolicitationLayer *ndpSoliLayer = new pcpp::NDPNeighborSolicitationLayer(0, pcpp::IPv6Address("fd53:7cb8:383:2::1:117"), pcpp::MacAddress("00:54:af:e9:4d:80"));
 	pcpp::Packet neighSoliPacket(100);
-	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(pIpv6SoliLayer, true));
-	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(pNdpSoliLayer, true));
+	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(ipv6SoliLayer, true));
+	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(ndpSoliLayer, true));
 	neighSoliPacket.computeCalculateFields();
 	PTF_ASSERT_BUF_COMPARE(neighSoliPacket.getRawPacket()->getRawData()+40, buffer3+58, bufferLength3-62); // dat file contains frame with eth + vlan layer (14 + 4 bytes) and  trailing bytes (4 bytes)
 
@@ -192,11 +208,11 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_EQUAL(sourceLinkLayerOption.getTotalSize(), 8);
 
 	// Neighbor advertisement with target link-layer option
-	pcpp::IPv6Layer *pIpv6AdvLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), pcpp::IPv6Address("ff02::1"));
-	pcpp::NDPNeighborAdvertisementLayer *pNdpAdvLayer = new pcpp::NDPNeighborAdvertisementLayer(0, pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), pcpp::MacAddress("c2:00:54:f5:00:00"), true, false, true);
+	pcpp::IPv6Layer *ipv6AdvLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), pcpp::IPv6Address("ff02::1"));
+	pcpp::NDPNeighborAdvertisementLayer *ndpAdvLayer = new pcpp::NDPNeighborAdvertisementLayer(0, pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), pcpp::MacAddress("c2:00:54:f5:00:00"), true, false, true);
 	pcpp::Packet neighAdvPacket(100);
-	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(pIpv6AdvLayer, true));
-	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(pNdpAdvLayer, true));
+	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(ipv6AdvLayer, true));
+	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(ndpAdvLayer, true));
 	neighAdvPacket.computeCalculateFields();
 	PTF_ASSERT_BUF_COMPARE(neighAdvPacket.getRawPacket()->getRawData()+40, buffer4+54, bufferLength4-54);
 
@@ -217,11 +233,11 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_EQUAL(targetLinkLayerOption.getTotalSize(), 8);
 
 	// Neighbor advertisement without option
-	pcpp::IPv6Layer *pIpv6AdvLayer2 = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80:ebeb:ebeb::1"), pcpp::IPv6Address("fe80:ebeb:ebeb::2"));
-	pcpp::NDPNeighborAdvertisementLayer *pNdpAdvLayer2 = new pcpp::NDPNeighborAdvertisementLayer(0, pcpp::IPv6Address("fe80:ebeb:ebeb::1"), false, true, false);
+	pcpp::IPv6Layer *ipv6AdvLayer2 = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80:ebeb:ebeb::1"), pcpp::IPv6Address("fe80:ebeb:ebeb::2"));
+	pcpp::NDPNeighborAdvertisementLayer *ndpAdvLayer2 = new pcpp::NDPNeighborAdvertisementLayer(0, pcpp::IPv6Address("fe80:ebeb:ebeb::1"), false, true, false);
 	pcpp::Packet neighAdvPacket2(100);
-	PTF_ASSERT_TRUE(neighAdvPacket2.addLayer(pIpv6AdvLayer2, true));
-	PTF_ASSERT_TRUE(neighAdvPacket2.addLayer(pNdpAdvLayer2, true));
+	PTF_ASSERT_TRUE(neighAdvPacket2.addLayer(ipv6AdvLayer2, true));
+	PTF_ASSERT_TRUE(neighAdvPacket2.addLayer(ndpAdvLayer2, true));
 	neighAdvPacket2.computeCalculateFields();
 	PTF_ASSERT_BUF_COMPARE(neighAdvPacket2.getRawPacket()->getRawData()+40, buffer5+54, bufferLength5-58); // dat file contains eth layer (14 bytes) and trailing bytes (4 bytes)
 
@@ -250,11 +266,11 @@ PTF_TEST_CASE(IcmpV6EditTest)
 	// Creates neighbor advertisement packet without option, adds two options and removes options afterwards.
 	// Note: This is not a real packet, because neighbor advertisement packet can only contain one target link-layer option
 	// but for testing NDP options and if padding bytes are handled correct (each option must be padded to 64-bit boundary)
-	pcpp::IPv6Layer *pIpv6AdvLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), pcpp::IPv6Address("ff02::1"));
-	pcpp::NDPNeighborAdvertisementLayer *pNdpAdvLayer = new pcpp::NDPNeighborAdvertisementLayer(0, pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), true, false, true);
+	pcpp::IPv6Layer *ipv6AdvLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), pcpp::IPv6Address("ff02::1"));
+	pcpp::NDPNeighborAdvertisementLayer *ndpAdvLayer = new pcpp::NDPNeighborAdvertisementLayer(0, pcpp::IPv6Address("fe80::c000:54ff:fef5:0"), true, false, true);
 	pcpp::Packet neighAdvPacket(100);
-	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(pIpv6AdvLayer, true));
-	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(pNdpAdvLayer, true));
+	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(ipv6AdvLayer, true));
+	PTF_ASSERT_TRUE(neighAdvPacket.addLayer(ndpAdvLayer, true));
 	pcpp::NDPNeighborAdvertisementLayer *neighAdvLayer = neighAdvPacket.getLayerOfType<pcpp::NDPNeighborAdvertisementLayer>();
 
 	uint8_t dataOption1[6] = {0xc2, 0x00, 0x54, 0xf5, 0x01, 0x02};
@@ -263,7 +279,7 @@ PTF_TEST_CASE(IcmpV6EditTest)
 	PTF_ASSERT_EQUAL(neighAdvLayer->getHeaderLen(), 32);
 	pcpp::NdpOption option1 = neighAdvLayer->getFirstNdpOption();
 	PTF_ASSERT_TRUE(option1.isNotNull());
-	PTF_ASSERT_EQUAL(option1.getNdpOptionType(), pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
+	PTF_ASSERT_EQUAL((int)option1.getNdpOptionType(), 2);
 	PTF_ASSERT_EQUAL(option1.getDataSize(), 6);
 	PTF_ASSERT_EQUAL(option1.getTotalSize(), 8);
 	PTF_ASSERT_EQUAL(neighAdvLayer->getTargetMac(), pcpp::MacAddress("c2:00:54:f5:00:00"));
@@ -276,7 +292,7 @@ PTF_TEST_CASE(IcmpV6EditTest)
 	PTF_ASSERT_EQUAL(neighAdvLayer->getHeaderLen(), 40);
 	pcpp::NdpOption option2 = neighAdvLayer->getNextNdpOption(option1);
 	PTF_ASSERT_TRUE(option2.isNotNull());
-	PTF_ASSERT_EQUAL(option2.getNdpOptionType(), pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
+	PTF_ASSERT_EQUAL((int)option2.getNdpOptionType(), 1);
 	PTF_ASSERT_EQUAL(option2.getDataSize(), 6);
 	PTF_ASSERT_EQUAL(option2.getTotalSize(), 8);
 	PTF_ASSERT_EQUAL(pcpp::MacAddress(option2.getValue()), pcpp::MacAddress("c2:00:54:f5:01:00"));

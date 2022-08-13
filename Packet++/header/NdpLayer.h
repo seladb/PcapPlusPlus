@@ -21,14 +21,14 @@ namespace pcpp
 /**
  * An enum representing the available option types for Neighbor Discovery in IPv6 (see RFC 4861)
  */
-enum NDPNeighborOptionTypes
+enum class NDPNeighborOptionTypes : int
 {
 	NDP_OPTION_SOURCE_LINK_LAYER = 1,
 	NDP_OPTION_TARGET_LINK_LAYER = 2,
 	NDP_OPTION_PREFIX_INFORMATION = 3,
 	NDP_OPTION_REDIRECTED_HEADER = 4,
 	NDP_OPTION_MTU = 5,
-	NDP_OPTION_Unknown = 255
+	NDP_OPTION_UNKNOWN = 255
 };
 
 /**
@@ -52,14 +52,14 @@ public:
 
 	/**
 	 * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum. If the data is null a value
-	 * of NDP_OPTION_Unknown is returned
+	 * of NDP_OPTION_UNKNOWN is returned
 	 */
 	NDPNeighborOptionTypes getNdpOptionType() const
 	{
 		if (m_Data == NULL)
-			return NDP_OPTION_Unknown;
+			return NDPNeighborOptionTypes::NDP_OPTION_UNKNOWN;
 
-		return (NDPNeighborOptionTypes)m_Data->recordType;
+		return static_cast<NDPNeighborOptionTypes>(m_Data->recordType);
 	}
 
 	// implement abstract methods

@@ -39,6 +39,21 @@ Layer* IcmpV6Layer::parseIcmpV6Layer(uint8_t *data, size_t dataLen, Layer* prevL
 	}
 }
 
+IcmpV6Layer::IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code, const uint8_t *data, size_t dataLen)
+{
+	m_DataLen = sizeof(icmpv6hdr) + dataLen;
+	m_Data = new uint8_t[m_DataLen];
+	memset(m_Data, 0, m_DataLen);
+	m_Protocol = ICMPv6;
+
+	icmpv6hdr *hdr = (icmpv6hdr *)m_Data;
+	hdr->type = static_cast<uint8_t>(msgType);
+	hdr->code = code;
+
+	if (data != NULL && dataLen > 0)
+		memcpy(m_Data + sizeof(icmpv6hdr), data, dataLen);
+}
+
 ICMPv6MessageType IcmpV6Layer::getMessageType() const
 {
 	return static_cast<ICMPv6MessageType>(getIcmpv6Header()->type);
