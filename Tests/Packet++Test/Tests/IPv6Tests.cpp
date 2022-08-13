@@ -6,6 +6,7 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "UdpLayer.h"
+#include "IcmpV6Layer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
 #include "SystemUtils.h"
@@ -324,12 +325,12 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	pcpp::IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
 	newIPv6Layer2.addExtension<pcpp::IPv6HopByHopHeader>(newHopByHopHeader);
 
-	pcpp::PayloadLayer newPayloadLayer2(*ipv6HopByHop.getLayerOfType<pcpp::PayloadLayer>());
+	pcpp::IcmpV6Layer newIcmpV6Layer2(*ipv6HopByHop.getLayerOfType<pcpp::IcmpV6Layer>());
 
 	pcpp::Packet newPacket2;
 	newPacket2.addLayer(&newEthLayer2);
 	newPacket2.addLayer(&newIPv6Layer2);
-	newPacket2.addLayer(&newPayloadLayer2);
+	newPacket2.addLayer(&newIcmpV6Layer2);
 	newPacket2.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipv6HopByHop.getRawPacket()->getRawDataLen(), newPacket2.getRawPacket()->getRawDataLen());
