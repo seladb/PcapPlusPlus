@@ -148,18 +148,14 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address(std::string("fe80::215:5dff:fea5:c4c5")), pcpp::IPv6Address(std::string("fe80::dd05:dae0:74bc:7341")));
 
 	// Create ICMPv6 layer with type, code and data
-	uint8_t headerEchoMessage[] = {0x00, 0x18, 0x00, 0x14};
-	uint8_t icmpv6Message[4+56];
-	std::copy(headerEchoMessage, headerEchoMessage+4, icmpv6Message);
-	std::copy(data, data+56, icmpv6Message+4);
-	pcpp::IcmpV6Layer icmpv6Layer(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, 0, icmpv6Message, 4+56);
+	pcpp::IcmpV6Layer icmpv6Layer(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, 0, data, 56);
 	pcpp::Packet icmpv6LayerPacket(100);
 	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&ipv6Layer));
 	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&icmpv6Layer));
 	icmpv6LayerPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(icmpv6LayerPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(icmpv6LayerPacket.getRawPacket()->getRawData()+54, buffer1+54, bufferLength1-54);
+	PTF_ASSERT_EQUAL(icmpv6LayerPacket.getRawPacket()->getRawDataLen(), bufferLength1-4); // comparing with IcmpV6_EchoRequest frame which has the same data but an additional echo header
+	PTF_ASSERT_BUF_COMPARE(icmpv6LayerPacket.getRawPacket()->getRawData()+58, buffer1+62, bufferLength1-62);
 
 	// Echo request creation
 	pcpp::EthLayer ethLayer1(ethLayer);
