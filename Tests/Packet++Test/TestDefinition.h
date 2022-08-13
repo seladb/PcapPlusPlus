@@ -173,6 +173,11 @@ PTF_TEST_CASE(NtpCreationTests);
 PTF_TEST_CASE(TelnetCommandParsingTests);
 PTF_TEST_CASE(TelnetDataParsingTests);
 
+// Implemented in IcmpV6Tests.cpp
+PTF_TEST_CASE(IcmpV6ParsingTest);
+PTF_TEST_CASE(IcmpV6CreationTest);
+PTF_TEST_CASE(IcmpV6EditTest);
+
 // Implemented in FtpTests.cpp
 PTF_TEST_CASE(FtpParsingTests);
 PTF_TEST_CASE(FtpCreationTests);
