@@ -22,7 +22,7 @@ repos:
     hooks:
       - id: codespell
   - repo: https://github.com/crate-ci/typos
-    rev: v1.10.3
+    rev: v1.11.0
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
