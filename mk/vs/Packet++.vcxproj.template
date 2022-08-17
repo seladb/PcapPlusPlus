@@ -195,6 +195,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\GtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\HttpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IcmpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\IcmpV6Layer.h" />
     <ClInclude Include="..\..\Packet++\header\IgmpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\IPReassembly.h" />
     <ClInclude Include="..\..\Packet++\header\IPSecLayer.h" />
@@ -204,6 +205,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\Layer.h" />
     <ClCompile Include="..\..\Packet++\header\SingleCommandTextProtocol.h" />
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\NdpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NtpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NullLoopbackLayer.h" />
     <ClInclude Include="..\..\Packet++\header\Packet.h" />
@@ -245,6 +247,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\GtpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\HttpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IcmpLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\IcmpV6Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IgmpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPReassembly.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPSecLayer.cpp" />
@@ -254,6 +257,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SingleCommandTextProtocol.cpp" />
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\NdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NtpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NullLoopbackLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\Packet.cpp" />

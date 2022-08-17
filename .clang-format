@@ -1,5 +1,7 @@
 ---
 BasedOnStyle: Microsoft
 UseTab: Always
+AllowShortFunctionsOnASingleLine: All
+NamespaceIndentation: All
 
 ...
