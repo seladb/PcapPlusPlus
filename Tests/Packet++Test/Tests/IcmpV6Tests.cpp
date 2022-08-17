@@ -2,6 +2,7 @@
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "EthLayer.h"
+#include "GeneralUtils.h"
 #include "IPv6Layer.h"
 #include "IcmpV6Layer.h"
 #include "Logger.h"
@@ -21,19 +22,21 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/IcmpV6_NeighSoli.dat");
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/IcmpV6_NeighAdv.dat");
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/IcmpV6_NeighAdvNoOption.dat");
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/IcmpV6_Generic.dat");
 
 	pcpp::Packet echoRequestPacket(&rawPacket1);
 	pcpp::Packet echoReplyPacket(&rawPacket2);
 	pcpp::Packet neighSoliPacket(&rawPacket3);
 	pcpp::Packet neighAdvPacket(&rawPacket4);
 	pcpp::Packet neighAdvPacketNoOpt(&rawPacket5);
+	pcpp::Packet icmpV6GenericPacket(&rawPacket6);
 
 	// Echo request
 	PTF_ASSERT_TRUE(echoRequestPacket.isPacketOfType(pcpp::ICMPv6));
 	pcpp::ICMPv6EchoLayer *echoRequestLayer = echoRequestPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>();
 	PTF_ASSERT_NOT_NULL(echoRequestLayer);
 	PTF_ASSERT_TRUE(echoRequestLayer->isMessageOfType(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST));
-	PTF_ASSERT_EQUAL((int)echoRequestLayer->getMessageType(), 128);
+	PTF_ASSERT_EQUAL((int)echoRequestLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST);
 	PTF_ASSERT_EQUAL(echoRequestLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(echoRequestLayer->getChecksum(), 0x7a4c);
 	PTF_ASSERT_EQUAL(echoRequestLayer->getIdentifier(), 0x0018);
@@ -48,7 +51,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	pcpp::ICMPv6EchoLayer *echoReplyLayer = echoReplyPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>();
 	PTF_ASSERT_NOT_NULL(echoReplyLayer);
 	PTF_ASSERT_TRUE(echoReplyLayer->isMessageOfType(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REPLY));
-	PTF_ASSERT_EQUAL((int)echoReplyLayer->getMessageType(), 129);
+	PTF_ASSERT_EQUAL((int)echoReplyLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_ECHO_REPLY);
 	PTF_ASSERT_EQUAL(echoReplyLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(echoReplyLayer->getChecksum(), 0x794c);
 	PTF_ASSERT_EQUAL(echoReplyLayer->getIdentifier(), 0x0018);
@@ -62,7 +65,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	pcpp::NDPNeighborSolicitationLayer *neighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::NDPNeighborSolicitationLayer>();
 	PTF_ASSERT_NOT_NULL(neighSoliLayer);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)neighSoliLayer->getMessageType(), 135);
+	PTF_ASSERT_EQUAL((int)neighSoliLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getChecksum(), 0xfe98);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getTargetIP(), pcpp::IPv6Address("fd53:7cb8:383:2::1:117"));
@@ -81,7 +84,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 	pcpp::IcmpV6Layer *icmpNeighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::IcmpV6Layer>();
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)icmpNeighSoliLayer->getMessageType(), 135);
+	PTF_ASSERT_EQUAL((int)icmpNeighSoliLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION);
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getChecksum(), 0xfe98);
 
@@ -89,7 +92,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_TRUE(neighAdvPacket.isPacketOfType(pcpp::ICMPv6));
 	pcpp::NDPNeighborAdvertisementLayer *neighAdvLayer = neighAdvPacket.getLayerOfType<pcpp::NDPNeighborAdvertisementLayer>();
 	PTF_ASSERT_EQUAL(neighAdvLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)neighAdvLayer->getMessageType(), 136);
+	PTF_ASSERT_EQUAL((int)neighAdvLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT);
 	PTF_ASSERT_EQUAL(neighAdvLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(neighAdvLayer->getChecksum(), 0x9abb);
 	PTF_ASSERT_TRUE(neighAdvLayer->getRouterFlag());
@@ -109,7 +112,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 	pcpp::IcmpV6Layer *icmpNeighAdv = neighAdvPacket.getLayerOfType<pcpp::IcmpV6Layer>();
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)icmpNeighAdv->getMessageType(), 136);
+	PTF_ASSERT_EQUAL((int)icmpNeighAdv->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT);
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getChecksum(), 0x9abb);
 
@@ -126,6 +129,20 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_EQUAL(neighAdvNoOptLayer->getNdpOptionCount(), 0);
 	pcpp::NdpOption targetLinkLayerNoOptOption = neighAdvNoOptLayer->getNdpOption(pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 	PTF_ASSERT_TRUE(targetLinkLayerNoOptOption.isNull());
+
+	// Generic ICMPv6 packet
+	PTF_ASSERT_TRUE(icmpV6GenericPacket.isPacketOfType(pcpp::ICMPv6));
+	pcpp::IcmpV6Layer *icmpV6Layer = icmpV6GenericPacket.getLayerOfType<pcpp::IcmpV6Layer>();
+	PTF_ASSERT_NOT_NULL(icmpV6Layer);
+	PTF_ASSERT_EQUAL(icmpV6Layer->getHeaderLen(), 48);
+	PTF_ASSERT_TRUE(icmpV6Layer->isMessageOfType(pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS));
+	PTF_ASSERT_EQUAL((int)icmpV6Layer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS);
+	PTF_ASSERT_EQUAL(icmpV6Layer->getCode(), 0);
+	PTF_ASSERT_EQUAL(icmpV6Layer->getChecksum(), 0x2b5a);
+	PTF_ASSERT_EQUAL(icmpV6Layer->toString(), "ICMPv6 Layer, Message type: 143");
+	PTF_ASSERT_NULL(icmpV6Layer->getNextLayer());
+	std::string expectedPayloadString = "0000000204000000ff05000000000000000000000001000304000000ff020000000000000000000000010002";
+	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(icmpV6Layer->getDataPtr(4), icmpV6Layer->getDataLen() - 4), expectedPayloadString);
 }
 
 PTF_TEST_CASE(IcmpV6CreationTest)
@@ -138,6 +155,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpV6_NeighSoli.dat");
 	READ_FILE_INTO_BUFFER(4, "PacketExamples/IcmpV6_NeighAdv.dat");
 	READ_FILE_INTO_BUFFER(5, "PacketExamples/IcmpV6_NeighAdvNoOption.dat");
+	READ_FILE_INTO_BUFFER(6, "PacketExamples/IcmpV6_Generic.dat");
 
 	uint8_t data[56] = {0xbd, 0xce, 0xcb, 0x62, 0x00, 0x00, 0x00, 0x00, 0xf3, 0xa1, 0x09, 0x00, 0x00, 0x00,
 						0x00, 0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
@@ -250,11 +268,36 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_FALSE(neighAdvLayer2->hasTargetMacInfo());
 	PTF_ASSERT_EQUAL(neighAdvLayer2->getTargetMac(), pcpp::MacAddress());
 
+	// Generic ICMPv6 packet
+	pcpp::IPv6Layer *ipv6Layer2 = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80::a00:27ff:fed4:10bb"), pcpp::IPv6Address("ff02::16"));
+	ipv6Layer2->getIPv6Header()->hopLimit = 1;
+
+	std::vector<pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, NULL, 0));
+	pcpp::IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
+	ipv6Layer2->addExtension<pcpp::IPv6HopByHopHeader>(newHopByHopHeader);
+	ipv6Layer2->getDataPtr(40)[0] = 0x3a;
+
+	uint8_t data2[44] = {0x00, 0x00, 0x00, 0x02, 0x04, 0x00, 0x00, 0x00, 0xff, 0x05, 0x00, 0x00, 0x00,
+						 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x04, 0x00,
+						 0x00, 0x00, 0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+						 0x00, 0x00, 0x00, 0x01, 0x00, 0x02};
+
+	pcpp::IcmpV6Layer *icmpV6GenericLayer = new pcpp::IcmpV6Layer(pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS, 0, data2, 44);
+	pcpp::Packet genericIcmpV6Packet(100);
+	genericIcmpV6Packet.addLayer(ipv6Layer2, true);
+	genericIcmpV6Packet.addLayer(icmpV6GenericLayer, true);
+	genericIcmpV6Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(genericIcmpV6Packet.getRawPacket()->getRawData(), buffer6+14, bufferLength6-14);
+
 	delete [] buffer1;
 	delete [] buffer2;
 	delete [] buffer3;
 	delete [] buffer4;
 	delete [] buffer5;
+	delete [] buffer6;
 }
 
 PTF_TEST_CASE(IcmpV6EditTest)
