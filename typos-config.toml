@@ -24,6 +24,7 @@ tha = "tha"
 gost = "gost"
 ba = "ba"
 lengt = "lengt"
+referer = "referer"
 
 [type.make]
 extend-glob = []
