@@ -155,6 +155,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	READ_FILE_INTO_BUFFER(3, "PacketExamples/IcmpV6_NeighSoli.dat");
 	READ_FILE_INTO_BUFFER(4, "PacketExamples/IcmpV6_NeighAdv.dat");
 	READ_FILE_INTO_BUFFER(5, "PacketExamples/IcmpV6_NeighAdvNoOption.dat");
+	READ_FILE_INTO_BUFFER(6, "PacketExamples/IcmpV6_Generic.dat");
 
 	uint8_t data[56] = {0xbd, 0xce, 0xcb, 0x62, 0x00, 0x00, 0x00, 0x00, 0xf3, 0xa1, 0x09, 0x00, 0x00, 0x00,
 						0x00, 0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
@@ -267,11 +268,36 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_FALSE(neighAdvLayer2->hasTargetMacInfo());
 	PTF_ASSERT_EQUAL(neighAdvLayer2->getTargetMac(), pcpp::MacAddress());
 
+	// Generic ICMPv6 packet
+	pcpp::IPv6Layer *ipv6Layer2 = new pcpp::IPv6Layer(pcpp::IPv6Address("fe80::a00:27ff:fed4:10bb"), pcpp::IPv6Address("ff02::16"));
+	ipv6Layer2->getIPv6Header()->hopLimit = 1;
+
+	std::vector<pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, NULL, 0));
+	pcpp::IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
+	ipv6Layer2->addExtension<pcpp::IPv6HopByHopHeader>(newHopByHopHeader);
+	ipv6Layer2->getDataPtr(40)[0] = 0x3a;
+
+	uint8_t data2[44] = {0x00, 0x00, 0x00, 0x02, 0x04, 0x00, 0x00, 0x00, 0xff, 0x05, 0x00, 0x00, 0x00,
+						 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x04, 0x00,
+						 0x00, 0x00, 0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+						 0x00, 0x00, 0x00, 0x01, 0x00, 0x02};
+
+	pcpp::IcmpV6Layer *icmpV6GenericLayer = new pcpp::IcmpV6Layer(pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS, 0, data2, 44);
+	pcpp::Packet genericIcmpV6Packet(100);
+	genericIcmpV6Packet.addLayer(ipv6Layer2, true);
+	genericIcmpV6Packet.addLayer(icmpV6GenericLayer, true);
+	genericIcmpV6Packet.computeCalculateFields();
+
+	PTF_ASSERT_BUF_COMPARE(genericIcmpV6Packet.getRawPacket()->getRawData(), buffer6+14, bufferLength6-14);
+
 	delete [] buffer1;
 	delete [] buffer2;
 	delete [] buffer3;
 	delete [] buffer4;
 	delete [] buffer5;
+	delete [] buffer6;
 }
 
 PTF_TEST_CASE(IcmpV6EditTest)
