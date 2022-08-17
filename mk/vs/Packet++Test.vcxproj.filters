@@ -53,6 +53,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\IcmpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\IcmpV6Tests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\IgmpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
