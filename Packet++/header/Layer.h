@@ -42,7 +42,7 @@ namespace pcpp
 	 * For example: a pointer to a structured header (e.g tcphdr, iphdr, etc.), protocol header size, payload size, compute
 	 * fields that can be automatically computed, print protocol data to string, etc.
 	 * Each protocol instance is obviously part of a protocol stack (which construct a packet). This protocol stack is represented
-	 * in PcapPlusPlus in a linked list, and each layer is an element in this list. That's why each layer has proprties to the next and previous
+	 * in PcapPlusPlus in a linked list, and each layer is an element in this list. That's why each layer has properties to the next and previous
 	 * layer in the protocol stack
 	 * The Layer class, as a base class, is abstract and the user can't create an instance of it (it has a private constructor)
 	 * Each layer holds a pointer to the relevant place in the packet. The layer sees all the data from this pointer forward until the
