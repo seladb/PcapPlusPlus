@@ -113,7 +113,7 @@ std::string IcmpV6Layer::toString() const
 {
 	std::ostringstream typeStream;
 	typeStream << (int)getMessageType();
-	return "ICMPv6 Layer, (type: " + typeStream.str() + ")";
+	return "ICMPv6 Layer, Message type: " + typeStream.str();
 }
 
 //
