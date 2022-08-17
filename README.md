@@ -192,37 +192,38 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 16. IPv4
 17. IPv6
 18. MPLS
-19. Raw IP (IPv4 & IPv6)
+19. NDP
+20. Raw IP (IPv4 & IPv6)
 
 ### Transport Layer (L4)
 
-20. GTP (v1)
-21. IPSec AH & ESP - parsing only (no editing capabilities)
-22. TCP
-23. UDP
+21. GTP (v1)
+22. IPSec AH & ESP - parsing only (no editing capabilities)
+23. TCP
+24. UDP
 
 ### Session Layer (L5)
 
-24. SDP
-25. SIP
+25. SDP
+26. SIP
 
 ### Presentation Layer (L6)
 
-26. SSL/TLS - parsing only (no editing capabilities)
+27. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-27. BGP (v4)
-28. DHCP
-29. DHCPv6
-30. DNS
-31. FTP
-32. HTTP headers (request & response)
-33. NTP (v3, v4)
-34. Radius
-35. SSH - parsing only (no editing capabilities)
-36. Telnet - parsing only (no editing capabilities)
-37. Generic payload
+28. BGP (v4)
+29. DHCP
+30. DHCPv6
+31. DNS
+32. FTP
+33. HTTP headers (request & response)
+34. NTP (v3, v4)
+35. Radius
+36. SSH - parsing only (no editing capabilities)
+37. Telnet - parsing only (no editing capabilities)
+38. Generic payload
 
 ## DPDK And PF_RING Support
 
