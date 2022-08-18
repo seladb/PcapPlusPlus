@@ -149,6 +149,16 @@ ICMPv6EchoLayer::ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id, uint16_t 
 		memcpy(getEchoDataPtr(), data, dataLen);
 }
 
+uint16_t ICMPv6EchoLayer::getIdentifier() const
+{
+	return be16toh(getEchoHeader()->id);
+}
+
+uint16_t ICMPv6EchoLayer::getSequenceNr() const
+{
+	return be16toh(getEchoHeader()->sequence);
+}
+
 std::string ICMPv6EchoLayer::toString() const
 {
 	std::ostringstream typeStream;
