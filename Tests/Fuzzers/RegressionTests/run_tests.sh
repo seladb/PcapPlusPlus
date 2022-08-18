@@ -10,7 +10,7 @@ NC='\033[0m'
 
 for sample in $(ls ${SAMPLES}); do
 	echo -n "Running sample $sample..."
-	$BINARY $SAMPLES/$sample && echo -e "${GREEN}[OK]${NC}" || { FAILED=True && echo -e "${RED}[FAIL]${NC}"; }
+	$BINARY $SAMPLES/$sample &> /dev/null && echo -e "${GREEN}[OK]${NC}" || { FAILED=True && echo -e "${RED}[FAIL]${NC}"; }
 done
 
 if [[ ! -z $FAILED ]]; then
