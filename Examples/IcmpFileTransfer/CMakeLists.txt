@@ -1,6 +1,6 @@
 add_executable(IcmpFileTransfer-catcher Common.cpp IcmpFileTransfer-catcher.cpp)
 
-target_link_libraries(IcmpFileTransfer-catcher PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(IcmpFileTransfer-catcher PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio
@@ -14,7 +14,7 @@ set_target_properties(
 
 add_executable(IcmpFileTransfer-pitcher Common.cpp IcmpFileTransfer-pitcher.cpp)
 
-target_link_libraries(IcmpFileTransfer-pitcher PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(IcmpFileTransfer-pitcher PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

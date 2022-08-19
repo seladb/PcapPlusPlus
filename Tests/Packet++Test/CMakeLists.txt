@@ -30,7 +30,7 @@ add_executable(
   Tests/VlanMplsTests.cpp
   Utils/TestUtils.cpp)
 
-target_link_libraries(Packet++Test PUBLIC memplumber PcapPP PcppTestFramework
+target_link_libraries(Packet++Test PUBLIC memplumber Pcap++ PcppTestFramework
                                           EndianPortable)
 
 if(MSVC)

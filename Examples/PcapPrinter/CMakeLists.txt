@@ -1,6 +1,6 @@
 add_executable(PcapPrinter main.cpp)
 
-target_link_libraries(PcapPrinter PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(PcapPrinter PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

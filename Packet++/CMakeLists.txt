@@ -1,5 +1,5 @@
 add_library(
-  PacketPP
+  Packet++
   src/ArpLayer.cpp
   src/BgpLayer.cpp
   src/DhcpLayer.cpp
@@ -107,26 +107,26 @@ set(public_headers
     header/VxlanLayer.h)
 
 # Don't use set_target_properties CMake limit to 50 elements
-set_property(TARGET PacketPP PROPERTY PUBLIC_HEADER ${public_headers})
+set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 
 target_include_directories(
-  PacketPP
+  Packet++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
          $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
 
-target_link_libraries(PacketPP PUBLIC CommonPP)
+target_link_libraries(Packet++ PUBLIC Common++)
 
 if(PCAPPP_INSTALL)
   install(
-    TARGETS PacketPP
+    TARGETS Packet++
     EXPORT PcapPlusPlusTargets
     ARCHIVE DESTINATION ${PCAPP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${PCAPP_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${PCAPP_INSTALL_INCLUDEDIR})
 endif()
 
-set_property(TARGET PacketPP PROPERTY OUTPUT_NAME "packet++")
-set_property(TARGET PacketPP PROPERTY VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
+set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "packet++")
+set_property(TARGET Packet++ PROPERTY VERSION ${VERSION_MAJOR}.${VERSION_MINOR})

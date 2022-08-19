@@ -15,7 +15,7 @@ add_executable(
   Tests/RawSocketTests.cpp
   Tests/TcpReassemblyTests.cpp)
 
-target_link_libraries(Pcap++Test PUBLIC memplumber PcapPP PcppTestFramework
+target_link_libraries(Pcap++Test PUBLIC memplumber Pcap++ PcppTestFramework
                                         EndianPortable)
 
 if(MSVC)

@@ -1,6 +1,6 @@
 add_executable(TcpReassembly main.cpp)
 
-target_link_libraries(TcpReassembly PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(TcpReassembly PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

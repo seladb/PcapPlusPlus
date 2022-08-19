@@ -1,6 +1,6 @@
 add_executable(IPFragUtil main.cpp)
 
-target_link_libraries(IPFragUtil PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(IPFragUtil PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

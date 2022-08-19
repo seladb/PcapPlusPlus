@@ -1,6 +1,6 @@
 add_executable(PcapSearch main.cpp)
 
-target_link_libraries(PcapSearch PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(PcapSearch PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h and dirent.h not avaible on VStudio

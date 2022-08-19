@@ -1,6 +1,6 @@
 add_executable(ArpSpoofing main.cpp)
 
-target_link_libraries(ArpSpoofing PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(ArpSpoofing PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

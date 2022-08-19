@@ -1,6 +1,6 @@
 add_executable(IPDefragUtil main.cpp)
 
-target_link_libraries(IPDefragUtil PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(IPDefragUtil PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

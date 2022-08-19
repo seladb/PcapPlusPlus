@@ -1,6 +1,6 @@
 add_executable(Arping main.cpp)
 
-target_link_libraries(Arping PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(Arping PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

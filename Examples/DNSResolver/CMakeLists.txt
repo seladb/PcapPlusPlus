@@ -1,6 +1,6 @@
 add_executable(DNSResolver main.cpp)
 
-target_link_libraries(DNSResolver PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(DNSResolver PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

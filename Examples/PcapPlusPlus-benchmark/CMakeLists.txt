@@ -1,6 +1,6 @@
 add_executable(benchmark benchmark.cpp)
 
-target_link_libraries(benchmark PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(benchmark PUBLIC PcapPlusPlus::Pcap++)
 
 set_target_properties(benchmark PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                            "${CMAKE_BINARY_DIR}/examples_bin")

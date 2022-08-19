@@ -4,11 +4,11 @@ project(PcapPlusPlusExamples)
 
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
-if(TARGET PcapPP)
-  # Are we building from the PcapPP project ??
-  message(STATUS "Building Example from Pcap++ project")
+if(TARGET Pcap++)
+  # Are we building from the PcapPlusPlus project ??
+  message(STATUS "Building Example from PcapPlusPlus project")
   # Alias the project to make it compatible with imported package
-  add_library(PcapPlusPlus::PcapPP ALIAS PcapPP)
+  add_library(PcapPlusPlus::Pcap++ ALIAS Pcap++)
 else()
   find_package(PcapPlusPlus CONFIG REQUIRED)
   message(STATUS "Using Pcap++ ${PcapPlusPlus_VERSION}")

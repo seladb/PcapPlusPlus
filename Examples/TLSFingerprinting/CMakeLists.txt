@@ -1,6 +1,6 @@
 add_executable(TLSFingerprinting main.cpp)
 
-target_link_libraries(TLSFingerprinting PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(TLSFingerprinting PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio

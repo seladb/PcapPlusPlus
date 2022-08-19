@@ -1,6 +1,6 @@
 add_executable(PcapSplitter main.cpp)
 
-target_link_libraries(PcapSplitter PUBLIC PcapPlusPlus::PcapPP)
+target_link_libraries(PcapSplitter PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h not avaible on VStudio
