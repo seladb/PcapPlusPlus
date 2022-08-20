@@ -502,18 +502,22 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 
 #ifdef HAS_SET_DIRECTION_ENABLED
-	// create a non-default configuration with only cpturing incoming packets and open the device again
+	packetCount = 0;
+
+	// create a non-default configuration with only capturing incoming packets and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000, pcpp::PcapLiveDevice::PCPP_IN);
 
 	liveDev->open(devConfigWithDirection);
-
-	packetCount = 0;
+	PTF_ASSERT_TRUE(liveDev->isOpened());
 
 	// start capturing in non-default configuration witch only captures incoming traffics
 	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7), -1);
 
-	PTF_ASSERT_GREATER_THAN(packetCount, 0);
 	liveDev->close();
+	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	PTF_ASSERT_GREATER_THAN(packetCount, 0);
+
 #endif
 
 	// create a non-default configuration with a snapshot length of 10 bytes
