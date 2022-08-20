@@ -387,7 +387,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const { return "Spanning Tree Configuration"; }
 	};
 
 	/**
@@ -443,7 +443,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const { return "Spanning Tree Topology Change Notification"; }
 	};
 
 	/**
@@ -595,7 +595,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const { return "Rapid Spanning Tree"; }
 	};
 
 	/**
@@ -827,7 +827,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const { return "Multiple Spanning Tree"; }
 	};
 } // namespace pcpp
 

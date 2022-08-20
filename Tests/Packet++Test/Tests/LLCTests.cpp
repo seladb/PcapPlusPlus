@@ -17,7 +17,7 @@ PTF_TEST_CASE(LLCParsingTests)
 
 	PTF_ASSERT_NOT_NULL(llcLayer);
 
-	pcpp::llc_header *header = llcLayer->getLLCheader();
+	pcpp::llc_header *header = llcLayer->getLlcHeader();
 	PTF_ASSERT_EQUAL(header->dsap, 0x42);
 	PTF_ASSERT_EQUAL(header->ssap, 0x42);
 	PTF_ASSERT_EQUAL(header->control, 0x3);

@@ -33,7 +33,6 @@ namespace pcpp
 	 */
 	class LLCLayer : public Layer
 	{
-	private:
 	public:
 
 		/**
@@ -49,11 +48,11 @@ namespace pcpp
 		 * Get a pointer to Logical Link Control (LLC) layer header
 		 * @return llc_header* Pointer to LLC header
 		 */
-		inline llc_header *getLLCheader() const { return (llc_header*)m_Data; };
+		inline llc_header *getLlcHeader() const { return (llc_header*)m_Data; };
 
 		// overridden methods
 
-		/// Parses the next layer.
+		/// Parses the next layer. Currently only STP supported as next layer
 		void parseNextLayer();
 
 		/// Does nothing for this layer

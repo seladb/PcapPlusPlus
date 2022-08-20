@@ -4,7 +4,6 @@
 #include "EthLayer.h"
 #include "EthDot3Layer.h"
 #include "SllLayer.h"
-#include "StpLayer.h"
 #include "NullLoopbackLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"

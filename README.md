@@ -173,7 +173,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 1. Ethernet II
 2. IEEE 802.3 Ethernet
-3. Logical Link Control (Only BPDU supported)
+3. LLC (Only BPDU supported)
 4. Null/Loopback
 5. Packet trailer (a.k.a footer or padding)
 6. PPPoE

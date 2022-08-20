@@ -12,7 +12,7 @@ void LLCLayer::parseNextLayer()
 	if (m_DataLen <= sizeof(llc_header))
 		return;
 
-	llc_header *hdr = getLLCheader();
+	llc_header *hdr = getLlcHeader();
 	uint8_t *payload = m_Data + sizeof(llc_header);
 	size_t payloadLen = m_DataLen - sizeof(llc_header);
 
