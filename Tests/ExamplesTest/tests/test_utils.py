@@ -1,21 +1,24 @@
-import platform
-import os
 from itertools import filterfalse
+import os
+import platform
+import pytest
 import subprocess
-import tempfile
-
-DEFAULT_EXAMPLE_DIR = os.path.abspath("../../Dist/examples/")
 
 
 def run_example(
-    example_name, args, timeout=10, expected_return_code=0, requires_root=False
+    example_name,
+    args,
+    root_path,
+    timeout=10,
+    expected_return_code=0,
+    requires_root=False,
 ):
     command_to_run = (
         ["sudo"]
         if requires_root
         and (platform.system() == "Linux" or platform.system() == "Darwin")
         else []
-    ) + [os.path.join(DEFAULT_EXAMPLE_DIR, example_name)]
+    ) + [os.path.join(root_path, example_name)]
     for flag, val in args.items():
         if flag:
             command_to_run.append(flag)
@@ -63,12 +66,17 @@ def compare_stdout_with_file(stdout, file_path, skip_line_predicate):
 
 
 class ExampleTest(object):
+    @pytest.fixture(autouse=True)
+    def _root_path(self, request):
+        self.root_path = request.config.getoption("--root-path")
+
     def run_example(
         self, args, timeout=10, expected_return_code=0, requires_root=False
     ):
         return run_example(
             example_name=self.__class__.__name__[4:],
             args=args,
+            root_path=self.root_path,
             timeout=timeout,
             expected_return_code=expected_return_code,
             requires_root=requires_root,

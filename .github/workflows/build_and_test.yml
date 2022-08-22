@@ -51,7 +51,7 @@ jobs:
           cd Tests/ExamplesTest
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest --interface eth0
+          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples
 
       - name: Check installation
         run: |
@@ -175,7 +175,7 @@ jobs:
           cd Tests/ExamplesTest
           python -m pip install -U pip
           python -m pip install -r requirements.txt
-          python -m pytest --interface en0 --use-sudo
+          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples
 
       - name: Check installation
         run: |
@@ -268,7 +268,7 @@ jobs:
         run: |
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
-          python -m pytest
+          python -m pytest --root-path=../../Dist/examples
 
   visual-studio:
     runs-on: windows-2019
@@ -346,7 +346,7 @@ jobs:
         run: |
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
-          python -m pytest
+          python -m pytest --root-path=../../Dist/examples
 
   android:
     strategy:

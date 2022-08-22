@@ -1,4 +1,7 @@
 import pytest
+import os
+
+DEFAULT_EXAMPLE_DIR = os.path.abspath("../../Dist/examples/")
 
 
 def pytest_addoption(parser):
@@ -6,6 +9,12 @@ def pytest_addoption(parser):
         "--interface", action="store", help="interface IP address or name."
     )
     parser.addoption("--gateway", action="store", help="default gateway IP address.")
+    parser.addoption(
+        "--root-path",
+        action="store",
+        default=DEFAULT_EXAMPLE_DIR,
+        help="root path to use.",
+    )
     parser.addoption(
         "--use-sudo",
         action="store_true",

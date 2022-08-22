@@ -1,4 +1,3 @@
-import subprocess
 import pytest
 from .test_utils import ExampleTest
 
