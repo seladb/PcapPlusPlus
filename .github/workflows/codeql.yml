@@ -45,7 +45,7 @@ jobs:
 
     - run: |
         ./configure-linux.sh --default
-        make all
+        make libs -j8
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
