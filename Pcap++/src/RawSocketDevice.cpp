@@ -15,6 +15,7 @@
 #include "SystemUtils.h"
 #include "Packet.h"
 #include "EthLayer.h"
+#include <memory>
 
 namespace pcpp
 {
@@ -106,8 +107,8 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	}
 
 	SOCKET fd = ((SocketContainer*)m_Socket)->fd;
-	char* buffer = new char[RAW_SOCKET_BUFFER_LEN];
-	memset(buffer, 0, RAW_SOCKET_BUFFER_LEN);
+	std::unique_ptr<char[]> buffer(new char[RAW_SOCKET_BUFFER_LEN]);
+	memset(buffer.get(), 0, RAW_SOCKET_BUFFER_LEN);
 
 	// value of 0 timeout means disabling timeout
 	if (timeout < 0)
@@ -119,11 +120,10 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	DWORD timeoutVal = timeout * 1000;
 	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
-	//recvfrom(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0, (struct sockaddr*)&sockAddr,(socklen_t*)&sockAddrLen);
-	int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
+	//recvfrom(fd, buffer.get(), RAW_SOCKET_BUFFER_LEN, 0, (struct sockaddr*)&sockAddr,(socklen_t*)&sockAddrLen);
+	int bufferLen = recv(fd, buffer.get(), RAW_SOCKET_BUFFER_LEN, 0);
 	if (bufferLen < 0)
 	{
-		delete [] buffer;
 		int errorCode = 0;
 		RecvPacketResult error = getError(errorCode);
 
@@ -137,12 +137,11 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	{
 		timeval time;
 		gettimeofday(&time, NULL);
-		rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_DLT_RAW1);
+		rawPacket.setRawData((const uint8_t*)buffer.get(), bufferLen, time, LINKTYPE_DLT_RAW1);
 		return RecvSuccess;
 	}
 
 	PCPP_LOG_ERROR("Buffer length is zero");
-	delete [] buffer;
 	return RecvError;
 
 #elif defined(__linux__)
@@ -154,9 +153,8 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	}
 
 	int fd = ((SocketContainer*)m_Socket)->fd;
-	char* buffer = new char[RAW_SOCKET_BUFFER_LEN];
-	memset(buffer, 0, RAW_SOCKET_BUFFER_LEN);
-
+	std::unique_ptr<char[]> buffer(new char[RAW_SOCKET_BUFFER_LEN]);
+	memset(buffer.get(), 0, RAW_SOCKET_BUFFER_LEN);
 	// value of 0 timeout means disabling timeout
 	if (timeout < 0)
 		timeout = 0;
@@ -181,10 +179,9 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	timeoutVal.tv_usec = 0;
 	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
-	int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
+	int bufferLen = recv(fd, buffer.get(), RAW_SOCKET_BUFFER_LEN, 0);
 	if (bufferLen < 0)
 	{
-		delete [] buffer;
 		int errorCode = errno;
 		RecvPacketResult error = getError(errorCode);
 
@@ -198,12 +195,11 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	{
 		timeval time;
 		gettimeofday(&time, NULL);
-		rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_ETHERNET);
+		rawPacket.setRawData((const uint8_t*)buffer.get(), bufferLen, time, LINKTYPE_ETHERNET);
 		return RecvSuccess;
 	}
 
 	PCPP_LOG_ERROR("Buffer length is zero");
-	delete [] buffer;
 	return RecvError;
 
 #else
