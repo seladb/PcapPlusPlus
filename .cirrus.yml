@@ -51,6 +51,20 @@ task:
     - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
+  name: Regression Tests Linux (Memory Behavior Sanitizer)
+  container:
+    image: gcr.io/oss-fuzz-base/base-clang
+  configure_script:
+    - apt-get update && apt-get install -y libpcap-dev git make
+    - ./configure-fuzzing.sh --sanitizer memory
+    - ldconfig
+  build_script:
+    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
+    - make fuzzers
+  test_script:
+    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+
+task:
   name: Regression Tests Linux (Address Sanitizer)
   container:
     image: seladb/ubuntu1804:latest
