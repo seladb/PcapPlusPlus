@@ -505,7 +505,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 	packetCount = 0;
 
 	// create a non-default configuration with only capturing incoming packets and open the device again
-	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000, pcpp::PcapLiveDevice::PCPP_IN);
+	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000, pcpp::PcapLiveDevice::PCPP_OUT);
 
 	liveDev->open(devConfigWithDirection);
 	PTF_ASSERT_TRUE(liveDev->isOpened());
