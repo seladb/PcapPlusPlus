@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2204
     permissions:
-      actions: read
-      contents: read
       security-events: write
 
     strategy:
