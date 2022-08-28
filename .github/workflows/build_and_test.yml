@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Configure PcapPlusPlus
-        run: ./configure-linux.sh --default ${{ matrix.configure }}
+        run: ./configure-linux.sh --default ${{ matrix.configure }} --set-direction-enabled
 
       - name: Build PcapPlusPlus
         run: make all
@@ -156,7 +156,7 @@ jobs:
           python-version: "3.8.x"
 
       - name: Configure PcapPlusPlus
-        run: ./configure-mac_os_x.sh
+        run: ./configure-mac_os_x.sh --set-direction-enabled
 
       - name: Build PcapPlusPlus
         run: make all
