@@ -17,12 +17,15 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 include(VersionFromGit)
 
 # Get the git version
-version_from_git(LOG ON TIMESTAMP "%Y%m%d%H%M%S")
+version_from_git(
+  LOG
+  ON
+  TIMESTAMP
+  "%Y%m%d%H%M%S")
 
 project(
   PcapPlusPlus
-  DESCRIPTION
-    "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets."
+  DESCRIPTION "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets."
   VERSION ${VERSION})
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
@@ -31,21 +34,17 @@ include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(DetectOS)
 include(GNUInstallDirs)
-set(PCAPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/pcapplusplus)
+set(PCAPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 set(PCAPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
 set(PCAPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
-option(BUILD_TESTING "Build Tests" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
-option(PCAPPP_USE_DPDK
-       "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_HOME")
-option(
-  PCAPPP_USE_PF_RING
-  "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_HOME"
-)
+option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_HOME")
+option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_HOME")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 
 # Set C++11
@@ -53,26 +52,35 @@ set(CMAKE_CXX_STANDARD 11)
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
 
+# Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
+if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+  if(NOT PCAP_ROOT)
+    message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
+  endif()
+  if(NOT Packet_ROOT)
+    set(Packet_ROOT ${PCAP_ROOT})
+  endif()
+endif()
+
 # Do we need Packet Packages on Windows ?
-if(TARGET_PLATFORM_WINDOWS)
+if(PCAPPP_TARGET_PLATFORM_WINDOWS)
   find_package(Packet)
   if(NOT Packet_FOUND)
-    message(FATAL_ERROR "Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
+    message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
   endif()
 endif()
 
 find_package(PCAP)
 if(NOT PCAP_FOUND)
-  if(TARGET_PLATFORM_WINDOWS)
-    message("Specify NPCAP Library with -DPCAP_ROOT=<NPCAP_SDK_PATH>")
+  if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+    message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
   else()
     message(FATAL_ERROR "PCAP library not found!")
   endif()
 endif()
 
 # Enable the option if it's available
-option(PCAPPP_HAS_PCAP_IMMEDIATE_MODE
-       "Enable Pcap Has Immediate Mode (supported on libpcap>=1.5)"
+option(PCAPPP_HAS_PCAP_IMMEDIATE_MODE "Enable PCAP immediate Mode (supported on libpcap>=1.5)"
        ${HAVE_PCAP_IMMEDIATE_MODE})
 
 # Check in case user force it but it's not available
@@ -84,8 +92,7 @@ if(PCAPPP_HAS_PCAP_IMMEDIATE_MODE)
 endif()
 
 # Enable the option if it's available
-option(PCAPPP_HAS_PCAP_SET_DIRECTION "Enable Pcap Direction catpure"
-       ${HAVE_PCAP_DIRECTION})
+option(PCAPPP_HAS_PCAP_SET_DIRECTION "Enable PCAP Direction catpure" ${HAVE_PCAP_DIRECTION})
 
 # Check in case user force it but it's not available
 if(PCAPPP_HAS_PCAP_SET_DIRECTION)
@@ -95,16 +102,15 @@ if(PCAPPP_HAS_PCAP_SET_DIRECTION)
   add_definitions(-DHAS_SET_DIRECTION_ENABLED)
 endif()
 
-if(TARGET_PLATFORM_WINDOWS AND TARGET_COMPILER_MSVC)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+if(PCAPPP_TARGET_PLATFORM_WINDOWS AND PCAPPP_TARGET_COMPILER_MSVC)
   # Other hacks for VStudio
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
-  set(THREADS_PREFER_PTHREAD_FLAG ON)
-  find_package(Threads REQUIRED)
   if(NOT CMAKE_USE_PTHREADS_INIT)
     message(FATAL_ERROR "Pthreads not found!")
   endif()
-  set(_PCAPP_THREADS Threads::Threads)
 endif()
 
 if(PCAPPP_USE_DPDK)
@@ -134,7 +140,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-if(TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
+if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC)
   add_compile_options(-Wall -g)
 endif()
 
@@ -148,11 +154,10 @@ if(PCAPPP_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif()
 
-if(BUILD_TESTING)
+if(PCAPPP_BUILD_TESTS)
   include(CTest)
   add_subdirectory(Tests)
 endif()
-
 
 if(PCAPPP_INSTALL)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "seladb")
@@ -161,10 +166,8 @@ if(PCAPPP_INSTALL)
   include(CPack)
 
   # Generate PKG-Config
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in
-                 ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc @ONLY)
-  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
-          DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc @ONLY)
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
   # CMake helpers to compile Pcap++ with CMake
   if(LIGHT_PCAPNG_ZSTD)
@@ -177,8 +180,7 @@ if(PCAPPP_INSTALL)
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
     INSTALL_DESTINATION ${PCAPP_INSTALL_CMAKEDIR})
 
   write_basic_package_version_file(
@@ -188,11 +190,10 @@ if(PCAPPP_INSTALL)
 
   # CMake helpers to compile Pcap++ with CMake
   install(
-    FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
-      ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
-      ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake
-      ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
+          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake
+          ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake
     COMPONENT dev
     DESTINATION ${PCAPP_INSTALL_CMAKEDIR})
 endif()

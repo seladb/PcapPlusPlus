@@ -278,7 +278,7 @@ jobs:
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPacket_ROOT=/C/Npcap-sdk -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B $BUILD_DIR
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -347,7 +347,7 @@ jobs:
         if: matrix.use_zstd == true
 
       - name: Configure PcapPlusPlus
-        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPacket_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B $env:BUILD_DIR
+        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B $env:BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $env:BUILD_DIR -j
@@ -428,9 +428,9 @@ jobs:
           PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
           cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
           mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/pcapplusplus/libpcap++.a ${PCAPPLUSPLUS_LIBS_PATH}/libPcap++.a
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/pcapplusplus/libpacket++.a ${PCAPPLUSPLUS_LIBS_PATH}/libPacket++.a
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/pcapplusplus/libcommon++.a ${PCAPPLUSPLUS_LIBS_PATH}/libCommon++.a
+          mv ${TOYVPN_PCAPPLUSPLUS}/lib/libpcap++.a ${PCAPPLUSPLUS_LIBS_PATH}/libPcap++.a
+          mv ${TOYVPN_PCAPPLUSPLUS}/lib/libpacket++.a ${PCAPPLUSPLUS_LIBS_PATH}/libPacket++.a
+          mv ${TOYVPN_PCAPPLUSPLUS}/lib/libcommon++.a ${PCAPPLUSPLUS_LIBS_PATH}/libCommon++.a
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Build ToyVpn-PcapPlusPlus

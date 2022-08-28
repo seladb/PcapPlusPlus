@@ -1,5 +1,6 @@
 add_library(
   Packet++
+  $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
   src/BgpLayer.cpp
   src/DhcpLayer.cpp
@@ -24,8 +25,8 @@ add_library(
   src/Layer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
-  src/NullLoopbackLayer.cpp
   src/NtpLayer.cpp
+  src/NullLoopbackLayer.cpp
   src/Packet.cpp
   src/PacketTrailerLayer.cpp
   src/PacketUtils.cpp
@@ -50,7 +51,7 @@ add_library(
   src/VlanLayer.cpp
   src/VxlanLayer.cpp
   # Force hash-library pcapng to be link fully static
-  $<TARGET_OBJECTS:hash-library>)
+)
 
 set(public_headers
     header/ArpLayer.h
@@ -111,8 +112,7 @@ set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 
 target_include_directories(
   Packet++
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header>
-         $<INSTALL_INTERFACE:include/pcapplusplus>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)

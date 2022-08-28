@@ -26,4 +26,8 @@ target_link_libraries(Fuzzer PUBLIC PcapPlusPlus::Pcap++)
 
 # Compile and link with Fuzzer + ASAN
 target_compile_options(Fuzzer PRIVATE -g -fsanitize=fuzzer,address)
-target_link_options(Fuzzer PRIVATE -g -fsanitize=fuzzer,address)
+target_link_options(
+  Fuzzer
+  PRIVATE
+  -g
+  -fsanitize=fuzzer,address)

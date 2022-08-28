@@ -3,5 +3,5 @@ add_subdirectory(Pcap++Test)
 add_subdirectory(PcppTestFramework)
 
 if(PCAPPP_BUILD_EXAMPLES)
-        add_subdirectory(ExamplesTest)
+  add_subdirectory(ExamplesTest)
 endif()
