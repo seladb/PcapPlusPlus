@@ -490,8 +490,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	// create a non-default configuration with timeout of 10ms and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfig(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000);
-	liveDev->open(devConfig);
-	PTF_ASSERT_TRUE(liveDev->isOpened());
+	PTF_ASSERT_TRUE(liveDev->open(devConfig));
 
 	// start capturing in non-default configuration
 	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7), -1);
@@ -506,9 +505,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 
 	// create a non-default configuration with only capturing incoming packets and open the device again
 	pcpp::PcapLiveDevice::DeviceConfiguration devConfigWithDirection(pcpp::PcapLiveDevice::Promiscuous, 10, 2000000, pcpp::PcapLiveDevice::PCPP_OUT);
-
-	liveDev->open(devConfigWithDirection);
-	PTF_ASSERT_TRUE(liveDev->isOpened());
+	PTF_ASSERT_TRUE(liveDev->open(devConfigWithDirection));
 
 	// start capturing in non-default configuration witch only captures incoming traffics
 	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutPacketCount, &packetCount, 7), -1);
