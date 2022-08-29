@@ -95,6 +95,12 @@ if(LIGHT_PCAPNG_ZSTD)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)
 endif()
 
+# Static linking GCC/Threads for minGW (Windows + GNU)
+if(PCAPPP_TARGET_PLATFORM_WINDOWS AND PCAPPP_TARGET_COMPILER_GCC)
+  target_link_libraries(Pcap++ PUBLIC -static-libgcc -static-libstdc++)
+  target_link_libraries(Pcap++ PUBLIC -static Threads::Threads)
+endif()
+
 if(PCAPPP_INSTALL)
   install(
     TARGETS Pcap++
