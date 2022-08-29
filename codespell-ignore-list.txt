@@ -6,3 +6,4 @@ gost
 inout
 ba
 wont
+pinter
