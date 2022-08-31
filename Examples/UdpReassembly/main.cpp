@@ -152,7 +152,6 @@ class GlobalConfig
 		static GlobalConfig instance;
 		return instance;
 	}
-
 };
 
 // 存储某一五元组的数据包
@@ -276,16 +275,15 @@ void listInterfaces()
 
 static void OnUdpMessageReadyCallback(pcpp::UdpPacketData *udpData, void *userCookie)
 {
-/* 	1. manager 存 TcpReassemblyData   									yes
-	2. manager 的指定 TcpReassemblyData 里边fileStream 是否为NULL
-		2.1 将当前（指传入的参数）的名称加入opened列表
-		2.2 如果打开的文件已达上限，关闭目前的
-		2.3 设置文件名
-		2.4 打开文件， 模式由之前2.2设置的reopenFileStreams决定
-	3. 更改TcpReassemblyData里的统计值
-	4. 将数据写入打开的文件里
- */
-
+	/* 	1. manager 存 TcpReassemblyData   									yes
+		2. manager 的指定 TcpReassemblyData 里边fileStream 是否为NULL
+			2.1 将当前（指传入的参数）的名称加入opened列表
+			2.2 如果打开的文件已达上限，关闭目前的
+			2.3 设置文件名
+			2.4 打开文件， 模式由之前2.2设置的reopenFileStreams决定
+		3. 更改TcpReassemblyData里的统计值
+		4. 将数据写入打开的文件里
+	 */
 
 	// 1.
 
@@ -300,12 +298,12 @@ static void OnUdpMessageReadyCallback(pcpp::UdpPacketData *udpData, void *userCo
 		iter = mgr->find(udpData->getTupleName());
 	}
 
-	// 2. 
+	// 2.
 
 	//  if filestream isn't open yet
 	if (iter->second.fileStream == NULL)
 	{
-		// 2.1 
+		// 2.1
 
 		std::string nameToCloseFile;
 		int result =
@@ -325,20 +323,23 @@ static void OnUdpMessageReadyCallback(pcpp::UdpPacketData *udpData, void *userCo
 					GlobalConfig::getInstance().closeFileSteam(iter2->second.fileStream);
 					iter2->second.fileStream = NULL;
 
-					// set the reopen flag to true to indicate that next time this file will be opened it will be opened in append mode (and not overwrite mode)
+					// set the reopen flag to true to indicate that next time this file will be opened it will be opened
+					// in append mode (and not overwrite mode)
 					iter2->second.reopenFileStream = true;
 				}
 			}
 		}
 
-		// 2.3 
+		// 2.3
 
 		// get the file name according to the 5-tuple etc.
-		std::string fileName = udpData->getTupleName() + ".txt";
+		std::string name = udpData->getTupleName() + ".txt";
+		std::string fileName = GlobalConfig::getInstance().getFileName(name);
 
 		// 2.4
 
-		// open the file in overwrite mode (if this is the first time the file is opened) or in append mode (if it was already opened before)
+		// open the file in overwrite mode (if this is the first time the file is opened) or in append mode (if it was
+		// already opened before)
 		iter->second.fileStream = GlobalConfig::getInstance().openFileStream(fileName, iter->second.reopenFileStream);
 	}
 
@@ -354,8 +355,7 @@ static void OnUdpMessageReadyCallback(pcpp::UdpPacketData *udpData, void *userCo
 	// 4.
 
 	// write the new data to the file
-	iter->second.fileStream->write((char*)udpData->getData(), udpData->getDataLength());
-
+	iter->second.fileStream->write((char *)udpData->getData(), udpData->getDataLength());
 }
 
 /**
@@ -413,7 +413,6 @@ void doUdpReassemblyOnPcapFile(std::string fileName, pcpp::UDPReassembly &udpRea
 	std::cout << "Totally processed " << GlobalConfig::getInstance().PacketNum << " packets handled." << std::endl;
 }
 
-//++++++ok
 /**
  * The method responsible for UDP reassembly on live traffic
  */
