@@ -21,6 +21,37 @@ task:
     - python -m pip install -r requirements.txt
     - python -m pytest --interface vtnet0 --use-sudo
 
+  name: Test FreeBSD w/ CMake
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-12-3
+      image_family: freebsd-13-0
+  install_script:
+    - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
+  clone_script: |
+    if [ -z "$CIRRUS_PR" ]; then
+      git clone --recursive --branch=$CIRRUS_BRANCH https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
+      git reset --hard $CIRRUS_CHANGE_IN_REPO
+    else
+      git clone --recursive https://x-access-token:${CIRRUS_REPO_CLONE_TOKEN}@github.com/${CIRRUS_REPO_FULL_NAME}.git $CIRRUS_WORKING_DIR
+      git fetch origin pull/$CIRRUS_PR/head:pull/$CIRRUS_PR
+      git reset --hard $CIRRUS_CHANGE_IN_REPO
+    fi
+  configure_script:
+    - cmake -S . -B Dist
+  build_script:
+    - cmake --build Dist -j
+  test_pcapplusplus_script:
+    - ifconfig vtnet0 promisc
+    - python -m ensurepip
+    - python -m pip install -r ci/run_tests/requirements.txt
+    - python ci/run_tests/run_tests.py --interface vtnet0
+  test_examples_script:
+    - cd Tests/ExamplesTest
+    - python -m ensurepip
+    - python -m pip install -r requirements.txt
+    - python -m pytest --interface vtnet0 --use-sudo --root-path=../../Dist/examples_bin
+
 task:
   name: Test Zstd Linux
   container:
