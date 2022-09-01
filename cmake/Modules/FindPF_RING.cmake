@@ -22,7 +22,7 @@ find_package_handle_standard_args(
   PF_RING
   REQUIRED_VARS PF_RING_LIBRARIES PF_RING_KERNEL_INCLUDE_DIR
                 PF_RING_USER_INCLUDE_DIR
-  FAIL_MESSAGE "PF_RING not found! Please specify PF_RING_HOME.")
+  FAIL_MESSAGE "PF_RING not found! Please specify PF_RING_ROOT.")
 
 set(PF_RING_LIBRARIES ${PF_RING_LIBRARIES} dl)
 

@@ -1,5 +1,3 @@
-project(PcapPlusPlusTutorials)
-
 if(PCAPPP_USE_DPDK)
   add_subdirectory(Tutorial-DpdkL2Fwd)
 endif()

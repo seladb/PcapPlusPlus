@@ -34,9 +34,9 @@ include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(DetectOS)
 include(GNUInstallDirs)
-set(PCAPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
-set(PCAPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
-set(PCAPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
+set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
+set(PCAPPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
@@ -44,7 +44,7 @@ option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_HOME")
-option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_HOME")
+option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 
 # Set C++11
@@ -176,12 +176,12 @@ if(PCAPPP_INSTALL)
 
   install(
     EXPORT PcapPlusPlusTargets
-    DESTINATION ${PCAPP_INSTALL_CMAKEDIR}
+    DESTINATION ${PCAPPP_INSTALL_CMAKEDIR}
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
-    INSTALL_DESTINATION ${PCAPP_INSTALL_CMAKEDIR})
+    INSTALL_DESTINATION ${PCAPPP_INSTALL_CMAKEDIR})
 
   write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
@@ -195,5 +195,5 @@ if(PCAPPP_INSTALL)
           ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake
           ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake
     COMPONENT dev
-    DESTINATION ${PCAPP_INSTALL_CMAKEDIR})
+    DESTINATION ${PCAPPP_INSTALL_CMAKEDIR})
 endif()
