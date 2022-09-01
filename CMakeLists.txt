@@ -30,6 +30,7 @@ project(
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
 # Include the other modules
+include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(DetectOS)
@@ -40,6 +41,12 @@ set(PCAPPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
+cmake_dependent_option(
+  PCAPPP_BUILD_TUTORIALS
+  "Build Tutorials"
+  OFF
+  "PCAPPP_BUILD_EXAMPLES"
+  OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 

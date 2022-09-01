@@ -77,7 +77,7 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
@@ -226,7 +226,7 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials

@@ -36,7 +36,9 @@ add_subdirectory(SSLAnalyzer)
 add_subdirectory(TcpReassembly)
 add_subdirectory(TLSFingerprinting)
 
-add_subdirectory(Tutorials)
+if(PCAPPP_BUILD_TUTORIALS)
+  add_subdirectory(Tutorials)
+endif()
 
 if(PCAPPP_USE_DPDK)
   add_subdirectory(DpdkExample-FilterTraffic)
