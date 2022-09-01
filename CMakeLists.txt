@@ -92,7 +92,8 @@ if(PCAPPP_HAS_PCAP_IMMEDIATE_MODE)
 endif()
 
 # Enable the option if it's available
-option(PCAPPP_HAS_PCAP_SET_DIRECTION "Enable PCAP Direction catpure" ${HAVE_PCAP_DIRECTION})
+option(PCAPPP_HAS_PCAP_SET_DIRECTION
+       "Enable set direction for capturing incoming or outgoing packets (supported on libpcap>=0.9.1)" OFF)
 
 # Check in case user force it but it's not available
 if(PCAPPP_HAS_PCAP_SET_DIRECTION)
