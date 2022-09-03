@@ -8,3 +8,10 @@ if(MSVC)
 endif()
 
 set_target_properties(DNSResolver PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
+
+if(PCAPPP_INSTALL)
+  install(
+    TARGETS DNSResolver
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+endif()

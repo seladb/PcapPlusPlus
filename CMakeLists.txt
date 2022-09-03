@@ -31,9 +31,12 @@ include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(DetectOS)
 include(GNUInstallDirs)
-set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
-set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
+
+# Declare install folders location
+set(PCAPPP_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(PCAPPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
+set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
+set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
