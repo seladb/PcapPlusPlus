@@ -303,15 +303,23 @@ jobs:
   visual-studio:
     strategy:
       matrix:
-        os: [windows-2019, windows-2022]
-        pcap_lib: [npcap, winpcap]
-        arch: [Win32, x64]
-        use_zstd: [false]
         include:
+          - os: "windows-2019"
+            platform: "Visual Studio 16 2019"
+            arch: "x64"
+            pcap_lib: "npcap"
           - os: windows-2019
             platform: "Visual Studio 16 2019"
+            arch: Win32
+            pcap_lib: "winpcap"
           - os: windows-2022
             platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: "winpcap"
+          - os: windows-2022
+            platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: "npcap"
 
     runs-on: ${{ matrix.os }}
     steps:
