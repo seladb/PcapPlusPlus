@@ -1,3 +1,4 @@
+# ~~~
 # The MIT License (MIT)
 #
 # Copyright (c) 2016-2017 Theo Willows
@@ -19,6 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+# ~~~
 
 cmake_minimum_required(VERSION 3.0.0)
 
@@ -27,10 +29,18 @@ include(CMakeParseArguments)
 function(version_from_git)
   # Parse arguments
   set(options OPTIONAL FAST)
-  set(oneValueArgs GIT_EXECUTABLE INCLUDE_HASH LOG TIMESTAMP)
+  set(oneValueArgs
+      GIT_EXECUTABLE
+      INCLUDE_HASH
+      LOG
+      TIMESTAMP)
   set(multiValueArgs)
-  cmake_parse_arguments(ARG "${options}" "${oneValueArgs}" "${multiValueArgs}"
-                        ${ARGN})
+  cmake_parse_arguments(
+    ARG
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN})
 
   # Defaults
   if(NOT DEFINED ARG_INCLUDE_HASH)
@@ -55,9 +65,11 @@ function(version_from_git)
     OUTPUT_VARIABLE git_describe
     ERROR_VARIABLE git_error
     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
-  if(NOT git_result EQUAL 0)
-    message(
-      FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+  if(NOT
+     git_result
+     EQUAL
+     0)
+    message(FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
   endif()
 
   # Get Git tag
@@ -68,9 +80,11 @@ function(version_from_git)
     OUTPUT_VARIABLE git_tag
     ERROR_VARIABLE git_error
     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
-  if(NOT git_result EQUAL 0)
-    message(
-      FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+  if(NOT
+     git_result
+     EQUAL
+     0)
+    message(FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
   endif()
 
   # Get Git tag
@@ -81,22 +95,20 @@ function(version_from_git)
     OUTPUT_VARIABLE git_branch
     ERROR_VARIABLE git_error
     OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
-  if(NOT git_result EQUAL 0)
-    message(
-      FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
+  if(NOT
+     git_result
+     EQUAL
+     0)
+    message(FATAL_ERROR "[MunkeiVersionFromGit] Failed to execute Git: ${git_error}")
   endif()
 
-  if(git_tag MATCHES
-     "^v([0-9]+)[.]([0-9]+)(-[.0-9A-Za-z-]+)?([+][.0-9A-Za-z-]+)?$")
+  if(git_tag MATCHES "^v([0-9]+)[.]([0-9]+)(-[.0-9A-Za-z-]+)?([+][.0-9A-Za-z-]+)?$")
     set(version_major "${CMAKE_MATCH_1}")
     set(version_minor "${CMAKE_MATCH_2}")
     set(identifiers "${CMAKE_MATCH_3}")
     set(metadata "${CMAKE_MATCH_4}")
   else()
-    message(
-      FATAL_ERROR
-        "[MunkeiVersionFromGit] Git tag isn't valid semantic version: [${git_tag}]"
-    )
+    message(FATAL_ERROR "[MunkeiVersionFromGit] Git tag isn't valid semantic version: [${git_tag}]")
   endif()
 
   if("${git_tag}" STREQUAL "${git_describe}")
@@ -105,7 +117,11 @@ function(version_from_git)
 
   if(NOT git_at_a_tag)
     # Extract the Git hash (if one exists)
-    string(REGEX MATCH "g[0-9a-f]+$" git_hash "${git_describe}")
+    string(
+      REGEX MATCH
+            "g[0-9a-f]+$"
+            git_hash
+            "${git_describe}")
   endif()
 
   # Construct the version variables
@@ -114,15 +130,27 @@ function(version_from_git)
 
   # Identifiers
   if(identifiers MATCHES ".+")
-    string(SUBSTRING "${identifiers}" 1 -1 identifiers)
+    string(
+      SUBSTRING "${identifiers}"
+                1
+                -1
+                identifiers)
     set(semver "${semver}-${identifiers}")
   endif()
 
   # Metadata TODO Split and join (add Git hash between)
   if(metadata MATCHES ".+")
-    string(SUBSTRING "${metadata}" 1 -1 metadata)
+    string(
+      SUBSTRING "${metadata}"
+                1
+                -1
+                metadata)
     # Split
-    string(REPLACE "." ";" metadata "${metadata}")
+    string(
+      REPLACE "."
+              ";"
+              metadata
+              "${metadata}")
   endif()
 
   if(NOT git_at_a_tag)
@@ -140,7 +168,11 @@ function(version_from_git)
   endif()
 
   # Join
-  string(REPLACE ";" "." metadata "${metadata}")
+  string(
+    REPLACE ";"
+            "."
+            metadata
+            "${metadata}")
 
   if(metadata MATCHES ".+")
     set(semver "${semver}+${metadata}")

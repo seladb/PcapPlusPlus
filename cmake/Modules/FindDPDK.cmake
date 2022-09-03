@@ -1,3 +1,4 @@
+# ~~~
 # Try to find dpdk
 #
 # Once done, this will define
@@ -6,6 +7,7 @@
 # dpdk_FOUND
 # dpdk_INCLUDE_DIR
 # dpdk_LIBRARIES
+# ~~~
 
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
@@ -15,17 +17,15 @@ endif()
 if(dpdk_INCLUDE_DIRS)
   # good
 elseif(TARGET dpdk::dpdk)
-  get_target_property(dpdk_INCLUDE_DIRS dpdk::dpdk
-                      INTERFACE_INCLUDE_DIRECTORIES)
+  get_target_property(dpdk_INCLUDE_DIRS dpdk::dpdk INTERFACE_INCLUDE_DIRECTORIES)
 else()
-  find_path(
-    dpdk_config_INCLUDE_DIR rte_config.h
-    PATH_SUFFIXES dpdk include)
-  find_path(
-    dpdk_common_INCLUDE_DIR rte_common.h
-    PATH_SUFFIXES dpdk include)
+  find_path(dpdk_config_INCLUDE_DIR rte_config.h PATH_SUFFIXES dpdk include)
+  find_path(dpdk_common_INCLUDE_DIR rte_common.h PATH_SUFFIXES dpdk include)
   set(dpdk_INCLUDE_DIRS "${dpdk_config_INCLUDE_DIR}")
-  if(NOT dpdk_config_INCLUDE_DIR STREQUAL dpdk_common_INCLUDE_DIR)
+  if(NOT
+     dpdk_config_INCLUDE_DIR
+     STREQUAL
+     dpdk_common_INCLUDE_DIR)
     list(APPEND dpdk_INCLUDE_DIRS "${dpdk_common_INCLUDE_DIR}")
   endif()
 endif()
@@ -200,10 +200,8 @@ foreach(c ${components})
   if(DPDK_rte_${c}_LIBRARY)
     if(NOT TARGET ${dpdk_lib})
       add_library(${dpdk_lib} UNKNOWN IMPORTED)
-      set_target_properties(
-        ${dpdk_lib}
-        PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${dpdk_INCLUDE_DIRS}"
-                   IMPORTED_LOCATION "${DPDK_rte_${c}_LIBRARY}")
+      set_target_properties(${dpdk_lib} PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${dpdk_INCLUDE_DIRS}"
+                                                   IMPORTED_LOCATION "${DPDK_rte_${c}_LIBRARY}")
       if(c STREQUAL pmd_mlx5)
         find_package(verbs QUIET)
         if(verbs_FOUND)
@@ -219,8 +217,11 @@ endforeach()
 mark_as_advanced(dpdk_INCLUDE_DIRS ${dpdk_LIBRARIES})
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(dpdk DEFAULT_MSG dpdk_INCLUDE_DIRS
-                                  dpdk_LIBRARIES)
+find_package_handle_standard_args(
+  dpdk
+  DEFAULT_MSG
+  dpdk_INCLUDE_DIRS
+  dpdk_LIBRARIES)
 
 if(dpdk_FOUND)
   if(NOT TARGET dpdk::cflags)
@@ -233,19 +234,22 @@ if(dpdk_FOUND)
     endif()
     add_library(dpdk::cflags INTERFACE IMPORTED)
     if(rte_cflags)
-      set_target_properties(dpdk::cflags PROPERTIES INTERFACE_COMPILE_OPTIONS
-                                                    "${rte_cflags}")
+      set_target_properties(dpdk::cflags PROPERTIES INTERFACE_COMPILE_OPTIONS "${rte_cflags}")
     endif()
   endif()
 
   if(NOT TARGET dpdk::dpdk)
     add_library(dpdk::dpdk INTERFACE IMPORTED)
     find_package(Threads QUIET)
-    list(APPEND _dpdk_libs Threads::Threads dpdk::cflags numa dl)
-    set_target_properties(
-      dpdk::dpdk
-      PROPERTIES INTERFACE_LINK_LIBRARIES "${_dpdk_libs}"
-                 INTERFACE_INCLUDE_DIRECTORIES "${dpdk_INCLUDE_DIRS}")
+    list(
+      APPEND
+      _dpdk_libs
+      Threads::Threads
+      dpdk::cflags
+      numa
+      dl)
+    set_target_properties(dpdk::dpdk PROPERTIES INTERFACE_LINK_LIBRARIES "${_dpdk_libs}" INTERFACE_INCLUDE_DIRECTORIES
+                                                                                         "${dpdk_INCLUDE_DIRS}")
   endif()
 endif()
 

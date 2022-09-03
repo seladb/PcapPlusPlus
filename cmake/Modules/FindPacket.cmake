@@ -34,29 +34,25 @@
 #                          link with. An absolute path is will be used if the
 #                          Packet library is not located in the compiler's
 #                          default search path.
-
+#
 # Packet_FOUND           - TRUE if the Packet library *and* header are found.
 #
 # Hints and Backward Compatibility
 # ================================
 #
-# To tell this module where to look, a user may set the environment variable
-# Packet_ROOT to point cmake to the *root* of a directory with include and lib
-# subdirectories for packet.dll (e.g WpdPack or npcap-sdk). Alternatively,
-# Packet_ROOT may also be set from cmake command line or GUI (e.g cmake
-# -DPacket_ROOT=C:\path\to\packet [...])
+# To tell this module where to look, a user may set the environment variable Packet_ROOT to point cmake to the *root* of
+# a directory with include and lib subdirectories for packet.dll (e.g WpdPack or npcap-sdk). Alternatively, Packet_ROOT
+# may also be set from cmake command line or GUI (e.g cmake -DPacket_ROOT=C:\path\to\packet [...])
 # ~~~
 
 # The 64-bit Packet.lib is located under /x64
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   #
-  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level
-  # directory contains 32-bit libraries; the 64-bit libraries are in the Lib/x64
-  # directory.
+  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries; the
+  # 64-bit libraries are in the Lib/x64 directory.
   #
-  # The only way to *FORCE* CMake to look in the Lib/x64 directory without
-  # searching in the Lib directory first appears to be to set
-  # CMAKE_LIBRARY_ARCHITECTURE to "x64".
+  # The only way to *FORCE* CMake to look in the Lib/x64 directory without searching in the Lib directory first appears
+  # to be to set CMAKE_LIBRARY_ARCHITECTURE to "x64".
   #
   set(CMAKE_LIBRARY_ARCHITECTURE "x64")
 endif()
@@ -69,8 +65,11 @@ find_library(Packet_LIBRARY NAMES Packet packet)
 
 # Set Packet_FOUND to TRUE if Packet_INCLUDE_DIR and Packet_LIBRARY are TRUE.
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Packet DEFAULT_MSG Packet_INCLUDE_DIR
-                                  Packet_LIBRARY)
+find_package_handle_standard_args(
+  Packet
+  DEFAULT_MSG
+  Packet_INCLUDE_DIR
+  Packet_LIBRARY)
 
 mark_as_advanced(Packet_INCLUDE_DIR Packet_LIBRARY)
 

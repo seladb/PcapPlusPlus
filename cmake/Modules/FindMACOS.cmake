@@ -18,6 +18,4 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
   MACOS
   REQUIRED_VARS MACOS_CORE_FOUNDATION_LIBRARY MACOS_SYSTEM_CONFIGURATION_LIBRARY
-  FAIL_MESSAGE
-    "MacOS required libraries CoreFoundation and SystemConfiguration not found!"
-)
+  FAIL_MESSAGE "MacOS required libraries CoreFoundation and SystemConfiguration not found!")

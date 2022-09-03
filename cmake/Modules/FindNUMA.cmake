@@ -23,8 +23,6 @@ find_package_handle_standard_args(
 
 if(NUMA_FOUND AND NOT TARGET NUMA::NUMA)
   add_library(NUMA::NUMA INTERFACE IMPORTED)
-  set_property(TARGET NUMA::NUMA PROPERTY INTERFACE_LINK_LIBRARIES
-                                          "${NUMA_LIBRARY}")
-  set_property(TARGET NUMA::NUMA PROPERTY INTERFACE_INCLUDE_DIRECTORIES
-                                          "${NUMA_INCLUDE_DIR}")
+  set_property(TARGET NUMA::NUMA PROPERTY INTERFACE_LINK_LIBRARIES "${NUMA_LIBRARY}")
+  set_property(TARGET NUMA::NUMA PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${NUMA_INCLUDE_DIR}")
 endif()
