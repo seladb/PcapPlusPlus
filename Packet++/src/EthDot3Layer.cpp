@@ -6,7 +6,7 @@
 namespace pcpp
 {
 
-EthDot3Layer::EthDot3Layer(const MacAddress &sourceMac, const MacAddress &destMac, uint16_t length) : Layer()
+EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
 {
 	const size_t headerLen = sizeof(ether_dot3_header);
 	m_DataLen = headerLen;
