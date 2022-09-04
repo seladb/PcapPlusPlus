@@ -38,10 +38,8 @@ typedef stp_tcn_bpdu stp_header;
  * Represents payload configuration of BPDU for STP
  */
 #pragma pack(push, 1)
-	struct stp_conf_bpdu
+	struct stp_conf_bpdu : stp_tcn_bpdu
 	{
-		/// Common TCN header
-		struct stp_tcn_bpdu tcn_header;
 		/// Flag for indicate purpose of BPDU
 		uint8_t flag;
 		/// Root bridge ID
@@ -68,10 +66,8 @@ typedef stp_tcn_bpdu stp_header;
  * Represents payload configuration of BPDU for Rapid STP (RSTP)
  */
 #pragma pack(push, 1)
-	struct rstp_conf_bpdu
+	struct rstp_conf_bpdu : stp_conf_bpdu
 	{
-		/// Common Configuration BPDU header
-		struct stp_conf_bpdu conf_header;
 		/// Version1 length. The value is 0x0
 		uint8_t version1Len;
 	};
@@ -82,10 +78,8 @@ typedef stp_tcn_bpdu stp_header;
  * Represents payload configuration of BPDU for Multiple STP (MSTP)
  */
 #pragma pack(push, 1)
-	struct mstp_conf_bpdu
+	struct mstp_conf_bpdu : rstp_conf_bpdu
 	{
-		/// Common Rapid STP header
-		struct rstp_conf_bpdu rstp_header;
 		/// Version3 length.
 		uint16_t version3Len;
 		/// Configuration id format selector
