@@ -1,5 +1,6 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
+#include "EndianPortable.h"
 #include "GeneralUtils.h"
 #include "SystemUtils.h"
 #include "Packet.h"
