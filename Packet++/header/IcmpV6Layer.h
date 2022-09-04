@@ -1,7 +1,6 @@
 #ifndef PACKETPP_ICMPV6_LAYER
 #define PACKETPP_ICMPV6_LAYER
 
-#include "EndianPortable.h"
 #include "Layer.h"
 
 /// @file
@@ -256,12 +255,12 @@ public:
 	/**
 	 * @return Identifier in host representation
 	 */
-	uint16_t getIdentifier() const { return be16toh(getEchoHeader()->id); };
+	uint16_t getIdentifier() const;
 
 	/**
 	 * @return Sequence number in host representation
 	 */
-	uint16_t getSequenceNr() const { return be16toh(getEchoHeader()->sequence); }
+	uint16_t getSequenceNr() const;
 
 	/**
 	 * @return Size of the data in bytes
