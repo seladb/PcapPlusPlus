@@ -41,7 +41,7 @@ PTF_TEST_CASE(LLCParsingTests)
 	PTF_ASSERT_EQUAL(header2->ssap, 0xaa);
 	PTF_ASSERT_EQUAL(header2->control, 0x3);
 
-}
+} // LLCParsingTests
 
 PTF_TEST_CASE(LLCCreationTests)
 {
@@ -58,4 +58,4 @@ PTF_TEST_CASE(LLCCreationTests)
 	pcpp::LLCLayer craftedLayer1(0x42, 0x42, 0x3);
 	PTF_ASSERT_BUF_COMPARE(llcLayer1->getData(), craftedLayer1.getData(), craftedLayer1.getDataLen());
 
-}
+} // LLCCreationTests

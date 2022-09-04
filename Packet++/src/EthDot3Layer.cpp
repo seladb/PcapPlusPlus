@@ -13,7 +13,7 @@ EthDot3Layer::EthDot3Layer(const MacAddress &sourceMac, const MacAddress &destMa
 	m_Data = new uint8_t[headerLen];
 	memset(m_Data, 0, headerLen);
 
-	ether_dot3_header *ethHdr = (ether_dot3_header *)m_Data;
+	ether_dot3_header* ethHdr = (ether_dot3_header*)m_Data;
 	destMac.copyTo(ethHdr->dstMac);
 	sourceMac.copyTo(ethHdr->srcMac);
 	ethHdr->length = be16toh(length);
@@ -25,7 +25,7 @@ void EthDot3Layer::parseNextLayer()
 	if (m_DataLen <= sizeof(ether_dot3_header))
 		return;
 
-	uint8_t *payload = m_Data + sizeof(ether_dot3_header);
+	uint8_t* payload = m_Data + sizeof(ether_dot3_header);
 	size_t payloadLen = m_DataLen - sizeof(ether_dot3_header);
 
 	if (LLCLayer::isDataValid(payload, payloadLen))
@@ -39,7 +39,7 @@ std::string EthDot3Layer::toString() const
 	return "IEEE 802.3 Ethernet, Src: " + getSourceMac().toString() + ", Dst: " + getDestMac().toString();
 }
 
-bool EthDot3Layer::isDataValid(const uint8_t *data, size_t dataLen)
+bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen)
 {
 	if (dataLen >= sizeof(ether_dot3_header))
 	{
@@ -51,7 +51,7 @@ bool EthDot3Layer::isDataValid(const uint8_t *data, size_t dataLen)
 		 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
 		 * More: IEEE Std 802.3 Clause 3.2.6
 		 */
-		return be16toh(*(uint16_t *)(data + 12)) <= (uint16_t)0x05DC;
+		return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
 	}
 	else
 	{

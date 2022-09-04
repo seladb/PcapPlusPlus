@@ -8,6 +8,7 @@
 
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {
+
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -39,10 +40,12 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 	PTF_ASSERT_EQUAL(stpConfLayer->getForwardDelay(), 15);
 
 	PTF_ASSERT_EQUAL(stpConfLayer->toString(), "Spanning Tree Configuration");
-}
+
+} // StpConfigurationParsingTests
 
 PTF_TEST_CASE(StpTopologyChangeParsingTests)
 {
+
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -59,10 +62,11 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 	PTF_ASSERT_EQUAL(stpTopologyLayer->getType(), 0x80);
 
 	PTF_ASSERT_EQUAL(stpTopologyLayer->toString(), "Spanning Tree Topology Change Notification");
-}
+} // StpTopologyChangeParsingTests
 
 PTF_TEST_CASE(RapidStpParsingTests)
 {
+
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -95,10 +99,11 @@ PTF_TEST_CASE(RapidStpParsingTests)
 	PTF_ASSERT_EQUAL(stpRapidLayer->getVersion1Len(), 0);
 
 	PTF_ASSERT_EQUAL(stpRapidLayer->toString(), "Rapid Spanning Tree");
-}
+} // RapidStpParsingTests
 
 PTF_TEST_CASE(MultipleStpParsingTests)
 {
+
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -154,4 +159,4 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	PTF_ASSERT_EQUAL(ptrExtension->remainingHops, 19);
 
 	PTF_ASSERT_EQUAL(stpMultipleLayer->toString(), "Multiple Spanning Tree");
-}
+} // MultipleStpParsingTests
