@@ -18,7 +18,7 @@ MacAddress StpLayer::IDtoMacAddress(uint64_t id)
 
 bool StpLayer::isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen; }
 
-StpLayer::StpType StpLayer::getStpType(const uint8_t *data, size_t dataLen)
+StpLayer* StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet)
 {
 	if (dataLen >= sizeof(stp_tcn_bpdu))
 	{
@@ -26,26 +26,27 @@ StpLayer::StpType StpLayer::getStpType(const uint8_t *data, size_t dataLen)
 		switch (ptr->type)
 		{
 		case 0x00:
-			return ConfigurationBPDU;
+			return new StpConfigurationBPDULayer(data, dataLen, prevLayer, packet);
 		case 0x80:
-			return TopologyChangeBPDU;
-		case 0x02: {
+			return new StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet);
+		case 0x02:
 			if (ptr->version == 0x2)
-				return Rapid;
+				return new RapidStpLayer(data, dataLen, prevLayer, packet);
 			if (ptr->version == 0x3)
-				return Multiple;
+				return new MultipleStpLayer(data, dataLen, prevLayer, packet);
 			PCPP_LOG_DEBUG("Unknown Spanning Tree Version");
-			return NotSTP;
-		}
+			return nullptr;
+		// TODO: Per VLAN Spanning Tree+ (PVST+)
+		// TODO: Rapid Per VLAN Spanning Tree+ (RPVST+)
+		// TODO: Cisco Uplink Fast
 		default:
 			PCPP_LOG_DEBUG("Unknown Spanning Tree Protocol type");
-			return NotSTP;
+			return nullptr;
 		}
 	}
-	else
-		PCPP_LOG_DEBUG("Data length is less than any STP header");
 
-	return NotSTP;
+	PCPP_LOG_DEBUG("Data length is less than any STP header");
+	return nullptr;
 }
 
 // ---------------------- Class MultipleStp Layer ----------------------

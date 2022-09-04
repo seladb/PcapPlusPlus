@@ -194,26 +194,6 @@ namespace pcpp
 		/// STP Uplink Fast protocol uses "01:00:0C:CD:CD:CD" as destination MAC
 		static pcpp::MacAddress StpUplinkFastMulticastDstMAC;
 
-		/**
-		 * Defines the type of Spanning Tree Protocol packet
-		 */
-		enum StpType
-		{
-			/// Not an STP packet
-			NotSTP,
-			/// Configuration BPDU
-			ConfigurationBPDU,
-			/// Network topology change BPDU
-			TopologyChangeBPDU,
-			/// Rapid Spanning Tree Protocol
-			Rapid,
-			/// Multiple Spanning Tree Protocol
-			Multiple
-			// TODO: Per VLAN Spanning Tree+ (PVST+)
-			// TODO: Rapid Per VLAN Spanning Tree+ (RPVST+)
-			// TODO: Cisco Uplink Fast
-		};
-
 		// overridden methods
 
 		/// Parses the next layer. STP is the always last so does nothing for this layer
@@ -236,12 +216,15 @@ namespace pcpp
 		static bool isDataValid(const uint8_t *data, size_t dataLen);
 
 		/**
-		 * Get the type of Spanning Tree
-		 * @param[in] data The pointer to the beginning of a byte stream of an Spanning Tree packet
-		 * @param[in] dataLen The length of the byte stream
-		 * @return StpType Type of the Spanning Tree
+		 * A method to create STP layer from existing packet
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored
+		 * @return StpLayer* A newly allocated STP layer of one of the following types (according to the message type):
+		 * StpConfigurationBPDULayer, StpTopologyChangeBPDULayer, RapidStpLayer, MultipleStpLayer
 		 */
-		static StpType getStpType(const uint8_t *data, size_t dataLen);
+		static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	};
 
 	/**
@@ -789,7 +772,10 @@ namespace pcpp
 		 * Returns the system identifier extension of CIST bridge
 		 * @return uint16_t System extension of CIST bridge
 		 */
-		inline uint16_t getCISTBridgeSystemIDExtension() const { return be16toh(getMstpHeader()->cistBridgeId) & 0x0fff; }
+		inline uint16_t getCISTBridgeSystemIDExtension() const
+		{
+			return be16toh(getMstpHeader()->cistBridgeId) & 0x0fff;
+		}
 
 		/**
 		 * Returns the system identifier of CIST bridge
