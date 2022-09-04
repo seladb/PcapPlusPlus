@@ -26,4 +26,16 @@ PTF_TEST_CASE(LLCParsingTests)
 	PTF_ASSERT_EQUAL(llcLayer->getNextLayer()->getProtocol(), pcpp::STP, enum);
 
 	PTF_ASSERT_EQUAL(llcLayer->toString(), "Logical Link Control");
+
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/llc_vlan.dat");
+	pcpp::Packet llcPacket(&rawPacket2);
+	pcpp::LLCLayer *llcLayer2 = llcPacket.getLayerOfType<pcpp::LLCLayer>();
+
+	PTF_ASSERT_NOT_NULL(llcLayer2);
+
+	pcpp::llc_header *header2 = llcLayer2->getLlcHeader();
+	PTF_ASSERT_EQUAL(header2->dsap, 0xaa);
+	PTF_ASSERT_EQUAL(header2->ssap, 0xaa);
+	PTF_ASSERT_EQUAL(header2->control, 0x3);
+
 }
