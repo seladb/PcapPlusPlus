@@ -365,12 +365,20 @@ namespace pcpp
 		/**
 		 * @return Get the size of the STP Configuration BPDU header
 		 */
-		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
+		size_t getHeaderLen() const { return sizeof(stp_conf_bpdu); }
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const { return "Spanning Tree Configuration"; }
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an Spanning Tree Configuration BPDU packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an Spanning Tree packet
+		 */
+		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_conf_bpdu); }
 	};
 
 	/**
@@ -427,6 +435,14 @@ namespace pcpp
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const { return "Spanning Tree Topology Change Notification"; }
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an Spanning Tree Topology Change BPDU packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an Spanning Tree packet
+		 */
+		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_tcn_bpdu); }
 	};
 
 	/**
@@ -579,6 +595,14 @@ namespace pcpp
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const { return "Rapid Spanning Tree"; }
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an Rapid STP packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an Spanning Tree packet
+		 */
+		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(rstp_conf_bpdu); }
 	};
 
 	/**
@@ -814,6 +838,14 @@ namespace pcpp
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const { return "Multiple Spanning Tree"; }
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an Multiple STP packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an Spanning Tree packet
+		 */
+		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(mstp_conf_bpdu); }
 	};
 } // namespace pcpp
 

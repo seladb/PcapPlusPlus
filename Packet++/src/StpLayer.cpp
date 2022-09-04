@@ -26,14 +26,22 @@ StpLayer* StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer* prevLaye
 		switch (ptr->type)
 		{
 		case 0x00:
-			return new StpConfigurationBPDULayer(data, dataLen, prevLayer, packet);
+			return StpConfigurationBPDULayer::isDataValid(data, dataLen)
+				? new StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
+				: nullptr;
 		case 0x80:
-			return new StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet);
+			return StpTopologyChangeBPDULayer::isDataValid(data, dataLen)
+				? new StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
+				: nullptr;
 		case 0x02:
 			if (ptr->version == 0x2)
-				return new RapidStpLayer(data, dataLen, prevLayer, packet);
+				return RapidStpLayer::isDataValid(data, dataLen)
+					? new RapidStpLayer(data, dataLen, prevLayer, packet)
+					: nullptr;
 			if (ptr->version == 0x3)
-				return new MultipleStpLayer(data, dataLen, prevLayer, packet);
+				return MultipleStpLayer::isDataValid(data, dataLen)
+					? new MultipleStpLayer(data, dataLen, prevLayer, packet)
+					: nullptr;
 			PCPP_LOG_DEBUG("Unknown Spanning Tree Version");
 			return nullptr;
 		// TODO: Per VLAN Spanning Tree+ (PVST+)
