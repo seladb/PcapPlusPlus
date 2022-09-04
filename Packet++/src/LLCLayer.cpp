@@ -51,4 +51,9 @@ std::string LLCLayer::toString() const
 	return "Logical Link Control";
 }
 
+bool LLCLayer::isDataValid(const uint8_t *data, size_t dataLen)
+{
+	return dataLen >= sizeof(llc_header) && !(data[0] == 0xFF && data[1] == 0xFF);
+}
+
 } // namespace pcpp
