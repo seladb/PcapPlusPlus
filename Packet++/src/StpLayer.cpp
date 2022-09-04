@@ -63,7 +63,7 @@ msti_conf_msg *MultipleStpLayer::getMstiConfMessages() const
 {
 	if (getNumberOfMSTIConfMessages())
 		return (msti_conf_msg *)(m_Data + sizeof(mstp_conf_bpdu));
-	return NULL;
+	return nullptr;
 }
 
 std::string MultipleStpLayer::getMstConfigurationName() const

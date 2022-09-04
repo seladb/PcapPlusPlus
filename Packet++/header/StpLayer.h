@@ -13,39 +13,6 @@
  */
 namespace pcpp
 {
-/**
- * @struct stp_conf_bpdu
- * Represents payload configuration of BPDU for STP
- */
-#pragma pack(push, 1)
-	struct stp_conf_bpdu
-	{
-		/// Protocol ID. Fixed at 0x0, which represents IEEE 802.1d
-		uint16_t protoId;
-		/// Protocol version. 0x0 for STP
-		uint8_t version;
-		/// Type of the BPDU. 0x0 for configuration
-		uint8_t type;
-		/// Flag for indicate purpose of BPDU
-		uint8_t flag;
-		/// Root bridge ID
-		uint64_t rootId;
-		/// Cost of path
-		uint32_t pathCost;
-		/// Bridge ID
-		uint64_t bridgeId;
-		/// Port ID
-		uint16_t portId;
-		/// Age of the BPDU
-		uint16_t msgAge;
-		/// Maximum age of the BPDU
-		uint16_t maxAge;
-		/// BPDU transmission interval
-		uint16_t helloTime;
-		/// Delay for STP
-		uint16_t forwardDelay;
-	};
-#pragma pack(pop)
 
 /**
  * @struct stp_tcn_bpdu
@@ -56,26 +23,25 @@ namespace pcpp
 	{
 		/// Protocol ID. Fixed at 0x0, which represents IEEE 802.1d
 		uint16_t protoId;
-		/// Protocol version. 0x0 for STP
+		/// Protocol version. 0x0 for STP, 0x2 for RSTP, 0x3 for MSTP
 		uint8_t version;
-		/// Type of the BPDU. 0x80 for TCN
+		/// Type of the BPDU. 0x0 for configuration, 0x2 for RSTP/MSTP, 0x80 for TCN
 		uint8_t type;
 	};
 #pragma pack(pop)
 
+/// Spanning Tree protocol common header
+typedef stp_tcn_bpdu stp_header;
+
 /**
- * @struct rstp_conf_bpdu
- * Represents payload configuration of BPDU for Rapid STP (RSTP)
+ * @struct stp_conf_bpdu
+ * Represents payload configuration of BPDU for STP
  */
 #pragma pack(push, 1)
-	struct rstp_conf_bpdu
+	struct stp_conf_bpdu
 	{
-		/// Protocol ID. Fixed at 0x0, which represents IEEE 802.1d
-		uint16_t protoId;
-		/// Protocol version. 0x2 for RSTP
-		uint8_t version;
-		/// Type of the BPDU. 0x2 for RSTP/MSTP
-		uint8_t type;
+		/// Common TCN header
+		struct stp_tcn_bpdu tcn_header;
 		/// Flag for indicate purpose of BPDU
 		uint8_t flag;
 		/// Root bridge ID
@@ -94,6 +60,18 @@ namespace pcpp
 		uint16_t helloTime;
 		/// Delay for STP
 		uint16_t forwardDelay;
+	};
+#pragma pack(pop)
+
+/**
+ * @struct rstp_conf_bpdu
+ * Represents payload configuration of BPDU for Rapid STP (RSTP)
+ */
+#pragma pack(push, 1)
+	struct rstp_conf_bpdu
+	{
+		/// Common Configuration BPDU header
+		struct stp_conf_bpdu conf_header;
 		/// Version1 length. The value is 0x0
 		uint8_t version1Len;
 	};
@@ -106,32 +84,8 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct mstp_conf_bpdu
 	{
-		/// Protocol ID. Fixed at 0x0, which represents IEEE 802.1d
-		uint16_t protoId;
-		/// Protocol version. 0x3 for MSTP
-		uint8_t version;
-		/// Type of the BPDU. 0x2 for RSTP/MSTP
-		uint8_t type;
-		/// Flag for indicate purpose of BPDU
-		uint8_t flag;
-		/// Root bridge ID
-		uint64_t rootId;
-		/// Cost of path
-		uint32_t pathCost;
-		/// Bridge ID
-		uint64_t bridgeId;
-		/// Port ID
-		uint16_t portId;
-		/// Age of the BPDU
-		uint16_t msgAge;
-		/// Maximum age of the BPDU
-		uint16_t maxAge;
-		/// BPDU transmission interval
-		uint16_t helloTime;
-		/// Delay for STP
-		uint16_t forwardDelay;
-		/// Version1 length. The value is 0x0
-		uint8_t version1Len;
+		/// Common Rapid STP header
+		struct rstp_conf_bpdu rstp_header;
 		/// Version3 length.
 		uint16_t version3Len;
 		/// Configuration id format selector
@@ -194,6 +148,30 @@ namespace pcpp
 		/// STP Uplink Fast protocol uses "01:00:0C:CD:CD:CD" as destination MAC
 		static pcpp::MacAddress StpUplinkFastMulticastDstMAC;
 
+		/**
+		 * Get a pointer to base Spanning tree header
+		 * @return stp_header* A pointer to spanning tree header
+		 */
+		inline stp_header *getStpHeader() const { return (stp_header *)(m_Data); }
+
+		/**
+		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
+		 * @return uint16_t ID of the protocol
+		 */
+		inline uint16_t getProtoId() const { return getStpHeader()->protoId; }
+
+		/**
+		 * Returns the version. Fixed at 0x0 for STP messages
+		 * @return uint8_t Version number
+		 */
+		inline uint8_t getVersion() const { return getStpHeader()->version; }
+
+		/**
+		 * Returns the type of configuration message.
+		 * @return uint8_t Type of configuration message
+		 */
+		inline uint8_t getType() const { return getStpHeader()->type; }
+
 		// overridden methods
 
 		/// Parses the next layer. STP is the always last so does nothing for this layer
@@ -224,14 +202,60 @@ namespace pcpp
 		 * @return StpLayer* A newly allocated STP layer of one of the following types (according to the message type):
 		 * StpConfigurationBPDULayer, StpTopologyChangeBPDULayer, RapidStpLayer, MultipleStpLayer
 		 */
-		static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+	};
+
+	/**
+	 * @class StpTopologyChangeBPDULayer
+	 * Represents network topology change BPDU message of Spanning Tree Protocol
+	 */
+	class StpTopologyChangeBPDULayer : public StpLayer
+	{
+	  public:
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		StpTopologyChangeBPDULayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+			: StpLayer(data, dataLen, prevLayer, packet)
+		{
+		}
+
+		/**
+		 * Get a pointer to network topology change (TCN) BPDU message
+		 * @return stp_tcn_bpdu* A pointer to TCN BPDU message
+		 */
+		inline stp_tcn_bpdu* getStpTcnHeader() { return getStpHeader(); }
+
+		// overridden methods
+
+		/**
+		 * @return Get the size of the STP network topology change BPDU header
+		 */
+		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
+
+		/**
+		 * @return Returns the protocol info as readable string
+		 */
+		std::string toString() const { return "Spanning Tree Topology Change Notification"; }
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an Spanning Tree Topology Change BPDU packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an Spanning Tree packet
+		 */
+		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_tcn_bpdu); }
 	};
 
 	/**
 	 * @class StpConfigurationBPDULayer
 	 * Represents configuration BPDU message of Spanning Tree Protocol
 	 */
-	class StpConfigurationBPDULayer : public StpLayer
+	class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
 	{
 	  public:
 		/**
@@ -242,7 +266,7 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		StpConfigurationBPDULayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpLayer(data, dataLen, prevLayer, packet)
+			: StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
 		{
 		}
 
@@ -251,24 +275,6 @@ namespace pcpp
 		 * @return stp_conf_bpdu* A pointer to configuration BPDU message
 		 */
 		inline stp_conf_bpdu *getStpConfHeader() const { return (stp_conf_bpdu *)(m_Data); }
-
-		/**
-		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
-		 * @return uint16_t ID of the protocol
-		 */
-		inline uint16_t getProtoId() const { return getStpConfHeader()->protoId; }
-
-		/**
-		 * Returns the version. Fixed at 0x0 for STP messages
-		 * @return uint8_t Version number
-		 */
-		inline uint8_t getVersion() const { return getStpConfHeader()->version; }
-
-		/**
-		 * Returns the type of configuration message. Fixed at 0x0 for configuration messages
-		 * @return uint8_t Type of configuration message
-		 */
-		inline uint8_t getType() const { return getStpConfHeader()->type; }
 
 		/**
 		 * Returns the flags of configuration message which indicates purpose of BPDU
@@ -378,78 +384,17 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_conf_bpdu); }
-	};
-
-	/**
-	 * @class StpTopologyChangeBPDULayer
-	 * Represents network topology change BPDU message of Spanning Tree Protocol
-	 */
-	class StpTopologyChangeBPDULayer : public StpLayer
-	{
-	  public:
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
-		StpTopologyChangeBPDULayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpLayer(data, dataLen, prevLayer, packet)
+		static bool isDataValid(const uint8_t *data, size_t dataLen)
 		{
+			return data && dataLen >= sizeof(stp_conf_bpdu);
 		}
-
-		/**
-		 * Get a pointer to network topology change (TCN) BPDU message
-		 * @return stp_tcn_bpdu* A pointer to TCN BPDU message
-		 */
-		inline stp_tcn_bpdu *getStpTcnHeader() const { return (stp_tcn_bpdu *)(m_Data); }
-
-		/**
-		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
-		 * @return uint16_t ID of the protocol
-		 */
-		inline uint16_t getProtoId() const { return getStpTcnHeader()->protoId; }
-
-		/**
-		 * Returns the version. Fixed at 0x0 for STP messages
-		 * @return uint8_t Version number
-		 */
-		inline uint8_t getVersion() const { return getStpTcnHeader()->version; }
-
-		/**
-		 * Returns the type of configuration message. Fixed at 0x80 for TCN
-		 * @return uint8_t Type of configuration message
-		 */
-		inline uint8_t getType() const { return getStpTcnHeader()->type; }
-
-		// overridden methods
-
-		/**
-		 * @return Get the size of the STP network topology change BPDU header
-		 */
-		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
-
-		/**
-		 * @return Returns the protocol info as readable string
-		 */
-		std::string toString() const { return "Spanning Tree Topology Change Notification"; }
-
-		/**
-		 * A static method that validates the input data
-		 * @param[in] data The pointer to the beginning of a byte stream of an Spanning Tree Topology Change BPDU packet
-		 * @param[in] dataLen The length of the byte stream
-		 * @return True if the data is valid and can represent an Spanning Tree packet
-		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_tcn_bpdu); }
 	};
 
 	/**
 	 * @class RapidStpLayer
 	 * Represents Rapid Spanning Tree Protocol (RSTP)
 	 */
-	class RapidStpLayer : public StpLayer
+	class RapidStpLayer : public StpConfigurationBPDULayer
 	{
 	  public:
 		/**
@@ -460,7 +405,7 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		RapidStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpLayer(data, dataLen, prevLayer, packet)
+			: StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
 		{
 		}
 
@@ -469,114 +414,6 @@ namespace pcpp
 		 * @return rstp_conf_bpdu* A pointer to Rapid STP header
 		 */
 		inline rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu *)(m_Data); }
-
-		/**
-		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
-		 * @return uint16_t ID of the protocol
-		 */
-		inline uint16_t getProtoId() const { return getRstpConfHeader()->protoId; }
-
-		/**
-		 * Returns the version. Fixed at 0x2 for Rapid STP messages
-		 * @return uint8_t Version number
-		 */
-		inline uint8_t getVersion() const { return getRstpConfHeader()->version; }
-
-		/**
-		 * Returns the type of configuration message. Fixed at 0x2 Rapid STP / Multiple STP
-		 * @return uint8_t Type of configuration message
-		 */
-		inline uint8_t getType() const { return getRstpConfHeader()->type; }
-
-		/**
-		 * Returns the flags of configuration message which indicates purpose of BPDU
-		 * @return uint8_t Flags of the configuration message
-		 */
-		inline uint8_t getFlag() const { return getRstpConfHeader()->flag; }
-
-		/**
-		 * Returns the root bridge identifier
-		 * @return uint64_t root bridge identifier
-		 */
-		inline uint64_t getRootId() const { return be64toh(getRstpConfHeader()->rootId); }
-
-		/**
-		 * Returns the priority of root bridge
-		 * @return uint16_t Priority of root bridge
-		 */
-		inline uint16_t getRootPriority() const { return be16toh(getRstpConfHeader()->rootId) & 0xf000; }
-
-		/**
-		 * Returns the system identifier extension of root bridge
-		 * @return uint16_t System extension of root bridge
-		 */
-		inline uint16_t getRootSystemIDExtension() const { return be16toh(getRstpConfHeader()->rootId) & 0x0fff; }
-
-		/**
-		 * Returns the system identifier of root bridge
-		 * @return pcpp::MacAddress System identifier of root bridge
-		 */
-		inline pcpp::MacAddress getRootSystemID() const { return IDtoMacAddress(getRootId()); }
-
-		/**
-		 * Returns the value of the cost of path
-		 * @return uint32_t Cost of path
-		 */
-		inline uint32_t getPathCost() const { return be32toh(getRstpConfHeader()->pathCost); }
-
-		/**
-		 * Returns the bridge identifier
-		 * @return uint64_t Bridge identifier
-		 */
-		inline uint64_t getBridgeId() const { return be64toh(getRstpConfHeader()->bridgeId); }
-
-		/**
-		 * Returns the priority of bridge
-		 * @return uint16_t Priority of bridge
-		 */
-		inline uint16_t getBridgePriority() const { return be16toh(getRstpConfHeader()->bridgeId) & 0xf000; }
-
-		/**
-		 * Returns the system identifier extension of bridge
-		 * @return uint16_t System extension of bridge
-		 */
-		inline uint16_t getBridgeSystemIDExtension() const { return be16toh(getRstpConfHeader()->bridgeId) & 0x0fff; }
-
-		/**
-		 * Returns the system identifier of bridge
-		 * @return pcpp::MacAddress System identifier of bridge
-		 */
-		inline pcpp::MacAddress getBridgeSystemID() const { return IDtoMacAddress(getBridgeId()); }
-
-		/**
-		 * Returns the port ID
-		 * @return uint16_t Port ID
-		 */
-		inline uint16_t getPortId() const { return be16toh(getRstpConfHeader()->portId); }
-
-		/**
-		 * Returns age of the BPDU message
-		 * @return double Age of BPDU
-		 */
-		inline double getMessageAge() const { return be16toh(getRstpConfHeader()->msgAge) / 256.0; }
-
-		/**
-		 * Returns maximum age of the BPDU message
-		 * @return double Maximum age of BPDU
-		 */
-		inline double getMaximumAge() const { return be16toh(getRstpConfHeader()->maxAge) / 256.0; }
-
-		/**
-		 * Returns the BPDU transmission interval
-		 * @return double Value of the transmission interval
-		 */
-		inline double getTransmissionInterval() const { return be16toh(getRstpConfHeader()->helloTime) / 256.0; }
-
-		/**
-		 * Returns the delay for STP message
-		 * @return double Value of the forward delay
-		 */
-		inline double getForwardDelay() const { return be16toh(getRstpConfHeader()->forwardDelay) / 256.0; }
 
 		/**
 		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
@@ -602,14 +439,17 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(rstp_conf_bpdu); }
+		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(rstp_conf_bpdu);
+		}
 	};
 
 	/**
 	 * @class MultipleStpLayer
 	 * Represents Multiple Spanning Tree Protocol (MSTP)
 	 */
-	class MultipleStpLayer : public StpLayer
+	class MultipleStpLayer : public RapidStpLayer
 	{
 	  public:
 		/**
@@ -620,7 +460,7 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		MultipleStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpLayer(data, dataLen, prevLayer, packet)
+			: RapidStpLayer(data, dataLen, prevLayer, packet)
 		{
 		}
 
@@ -629,120 +469,6 @@ namespace pcpp
 		 * @return mstp_conf_bpdu* A pointer to Multiple STP header
 		 */
 		inline mstp_conf_bpdu *getMstpHeader() const { return (mstp_conf_bpdu *)(m_Data); }
-
-		/**
-		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
-		 * @return uint16_t ID of the protocol
-		 */
-		inline uint16_t getProtoId() const { return getMstpHeader()->protoId; }
-
-		/**
-		 * Returns the version. Fixed at 0x3 for Multiple STP messages
-		 * @return uint8_t Version number
-		 */
-		inline uint8_t getVersion() const { return getMstpHeader()->version; }
-
-		/**
-		 * Returns the type of message. Fixed at 0x2 Rapid STP / Multiple STP
-		 * @return uint8_t Type of message
-		 */
-		inline uint8_t getType() const { return getMstpHeader()->type; }
-
-		/**
-		 * Returns the flags of message which indicates purpose of BPDU
-		 * @return uint8_t Flags of the message
-		 */
-		inline uint8_t getFlag() const { return getMstpHeader()->flag; }
-
-		/**
-		 * Returns the Root bridge identifier
-		 * @return uint64_t Root bridge identifier
-		 */
-		inline uint64_t getRootId() const { return be64toh(getMstpHeader()->rootId); }
-
-		/**
-		 * Returns the priority of root bridge
-		 * @return uint16_t Priority of root bridge
-		 */
-		inline uint16_t getRootPriority() const { return be16toh(getMstpHeader()->rootId) & 0xf000; }
-
-		/**
-		 * Returns the system identifier extension of root bridge
-		 * @return uint16_t System extension of root bridge
-		 */
-		inline uint16_t getRootSystemIDExtension() const { return be16toh(getMstpHeader()->rootId) & 0x0fff; }
-
-		/**
-		 * Returns the system identifier of root bridge
-		 * @return pcpp::MacAddress System identifier of root bridge
-		 */
-		inline pcpp::MacAddress getRootSystemID() const { return IDtoMacAddress(getRootId()); }
-
-		/**
-		 * Returns the value of the cost of path
-		 * @return uint32_t Cost of path
-		 */
-		inline uint32_t getPathCost() const { return be32toh(getMstpHeader()->pathCost); }
-
-		/**
-		 * Returns the bridge identifier
-		 * @return uint64_t Bridge identifier
-		 */
-		inline uint64_t getBridgeId() const { return be64toh(getMstpHeader()->bridgeId); }
-
-		/**
-		 * Returns the priority of bridge
-		 * @return uint16_t Priority of bridge
-		 */
-		inline uint16_t getBridgePriority() const { return be16toh(getMstpHeader()->bridgeId) & 0xf000; }
-
-		/**
-		 * Returns the system identifier extension of bridge
-		 * @return uint16_t System extension of bridge
-		 */
-		inline uint16_t getBridgeSystemIDExtension() const { return be16toh(getMstpHeader()->bridgeId) & 0x0fff; }
-
-		/**
-		 * Returns the system identifier of bridge
-		 * @return pcpp::MacAddress System identifier of bridge
-		 */
-		inline pcpp::MacAddress getBridgeSystemID() const { return IDtoMacAddress(getBridgeId()); }
-
-		/**
-		 * Returns the port identifier
-		 * @return uint16_t Port identifier
-		 */
-		inline uint16_t getPortId() const { return be16toh(getMstpHeader()->portId); }
-
-		/**
-		 * Returns age of the BPDU message
-		 * @return double Age of BPDU
-		 */
-		inline double getMessageAge() const { return be16toh(getMstpHeader()->msgAge) / 256.0; }
-
-		/**
-		 * Returns maximum age of the BPDU message
-		 * @return double Maximum age of BPDU
-		 */
-		inline double getMaximumAge() const { return be16toh(getMstpHeader()->maxAge) / 256.0; }
-
-		/**
-		 * Returns the BPDU transmission interval
-		 * @return double Value of the transmission interval
-		 */
-		inline double getTransmissionInterval() const { return be16toh(getMstpHeader()->helloTime) / 256.0; }
-
-		/**
-		 * Returns the delay for STP message
-		 * @return double Value of the forward delay
-		 */
-		inline double getForwardDelay() const { return be16toh(getMstpHeader()->forwardDelay) / 256.0; }
-
-		/**
-		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
-		 * @return uint8_t
-		 */
-		inline uint8_t getVersion1Len() const { return getMstpHeader()->version1Len; }
 
 		/**
 		 * Returns the length of version3 field.
@@ -845,7 +571,10 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(mstp_conf_bpdu); }
+		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(mstp_conf_bpdu);
+		}
 	};
 } // namespace pcpp
 
