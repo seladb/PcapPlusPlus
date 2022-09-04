@@ -44,6 +44,7 @@ PTF_TEST_CASE(LLCParsingTests)
 
 PTF_TEST_CASE(LLCCreationTests)
 {
+
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -55,4 +56,5 @@ PTF_TEST_CASE(LLCCreationTests)
 
 	pcpp::LLCLayer craftedLayer1(0x42, 0x42, 0x3);
 	PTF_ASSERT_BUF_COMPARE(llcLayer1->getData(), craftedLayer1.getData(), craftedLayer1.getDataLen());
+
 }
