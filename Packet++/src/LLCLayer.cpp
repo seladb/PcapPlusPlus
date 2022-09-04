@@ -7,6 +7,21 @@
 namespace pcpp
 {
 
+LLCLayer::LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control)
+{
+	m_DataLen = sizeof(llc_header);
+	m_Data = new uint8_t[sizeof(llc_header)];
+	memset(m_Data, 0, sizeof(llc_header));
+	
+	m_Protocol = LLC;
+
+	// Set values
+	llc_header* header = getLlcHeader();
+	header->dsap = dsap;
+	header->ssap = ssap;
+	header->control = control;
+}
+
 void LLCLayer::parseNextLayer()
 {
 	if (m_DataLen <= sizeof(llc_header))

@@ -45,6 +45,14 @@ namespace pcpp
 		LLCLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = LLC; }
 
 		/**
+		 * A constructor that creates the LLC layer from provided values
+		 * @param[in] dsap Destination Service Access Point
+		 * @param[in] ssap Source Service Access Point
+		 * @param[in] control Control Field
+		 */
+		LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control);
+
+		/**
 		 * Get a pointer to Logical Link Control (LLC) layer header
 		 * @return llc_header* Pointer to LLC header
 		 */

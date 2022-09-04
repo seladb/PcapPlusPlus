@@ -262,6 +262,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(FtpEditTests, "ftp");
 
 	PTF_RUN_TEST(LLCParsingTests, "llc");
+	PTF_RUN_TEST(LLCCreationTests, "llc");
 
 	PTF_RUN_TEST(StpConfigurationParsingTests, "stp");
 	PTF_RUN_TEST(StpTopologyChangeParsingTests, "stp");

@@ -185,6 +185,7 @@ PTF_TEST_CASE(FtpEditTests);
 
 // Implemented in LLCTests.cpp
 PTF_TEST_CASE(LLCParsingTests);
+PTF_TEST_CASE(LLCCreationTests);
 
 // Implemented in StpTests.cpp
 PTF_TEST_CASE(StpConfigurationParsingTests);
