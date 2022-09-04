@@ -26,9 +26,10 @@ jobs:
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
-          - image: ubuntu2004-zstd
-            python: python3
-            config-zstd: ON
+          # Handle ZSTD build by Cirrus CI
+          # - image: ubuntu2004-zstd
+          #   python: python3
+          #   config-zstd: ON
           - image: ubuntu1804
             python: python3.8
             config-zstd: OFF
@@ -172,7 +173,9 @@ jobs:
       matrix:
         os-version: [macos-11, macos-12]
         arch: [x86_64, arm64]
-        config-zstd: [ON, OFF]
+        # Handle ZSTD build by Cirrus CI
+        # config-zstd: [ON, OFF]
+        config-zstd: [OFF]
         exclude:
           # excludes ZSTD on Arm64
           - arch: arm64
