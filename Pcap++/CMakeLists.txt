@@ -111,4 +111,4 @@ if(PCAPPP_INSTALL)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY OUTPUT_NAME "pcap++")
-set_property(TARGET Pcap++ PROPERTY VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
+set_property(TARGET Pcap++ PROPERTY VERSION ${SEMVER})

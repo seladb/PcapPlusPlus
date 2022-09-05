@@ -196,7 +196,7 @@ if(PCAPPP_INSTALL)
 
   write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
-    VERSION ${VERSION}
+    VERSION ${SEMVER}
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake

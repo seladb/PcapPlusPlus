@@ -45,4 +45,4 @@ if(PCAPPP_INSTALL)
 endif()
 
 set_property(TARGET Common++ PROPERTY OUTPUT_NAME "common++")
-set_property(TARGET Common++ PROPERTY VERSION ${VERSION_MAJOR}.${VERSION_MINOR})
+set_property(TARGET Common++ PROPERTY VERSION ${SEMVER})
