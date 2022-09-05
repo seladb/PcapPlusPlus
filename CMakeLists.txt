@@ -53,7 +53,7 @@ cmake_dependent_option(
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
-option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_HOME")
+option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 
@@ -130,6 +130,10 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with env DPDK_DIR=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
+
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/setup_dpdk.py ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk_settings.dat.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/setup_dpdk_settings.dat)
 endif()
 
 # Git Commit and Branch
