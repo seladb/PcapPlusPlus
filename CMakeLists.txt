@@ -17,7 +17,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 include(VersionFromGit)
 
 # Get the git version
-version_from_git(LOG ON)
+version_from_git(
+  LOG
+  ON
+  INCLUDE_HASH
+  OFF)
 
 project(
   PcapPlusPlus

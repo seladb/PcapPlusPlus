@@ -154,7 +154,6 @@ function(version_from_git)
   endif()
 
   if(NOT git_at_a_tag)
-
     if(ARG_INCLUDE_HASH)
       list(APPEND metadata "${git_hash}")
     endif(ARG_INCLUDE_HASH)
@@ -165,16 +164,13 @@ function(version_from_git)
       list(APPEND metadata "${timestamp}")
     endif(DEFINED ARG_TIMESTAMP)
 
-  endif()
+    # Join
+    string(
+      REPLACE ";"
+              "."
+              metadata
+              "${metadata}")
 
-  # Join
-  string(
-    REPLACE ";"
-            "."
-            metadata
-            "${metadata}")
-
-  if(metadata MATCHES ".+")
     set(semver "${semver}+${metadata}")
   endif()
 
