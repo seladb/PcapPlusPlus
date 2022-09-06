@@ -282,8 +282,9 @@ void DnsResource::setTTL(uint32_t newTTL)
 
 size_t DnsResource::getDataLength() const
 {
-	// Heap overflow may occur here, check boundary of m_DnsLayer->m_Data first
-	if (m_OffsetInLayer + m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t) >= m_DnsLayer->m_DataLen)
+	// Heap buffer overflow may occur here, check boundary of m_DnsLayer->m_Data first
+	// Due to dataLength which is uint16_t, here m_DnsLayer->m_Data must have at least 2 bytes to read
+	if (m_OffsetInLayer + m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t) >= m_DnsLayer->m_DataLen - 1)
 	{
 		return 0;
 	}
