@@ -282,7 +282,17 @@ void DnsResource::setTTL(uint32_t newTTL)
 
 size_t DnsResource::getDataLength() const
 {
-	uint16_t dataLength = *(uint16_t*)(getRawData() + m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t));
+
+	size_t sizeToRead = m_NameLength + 2*sizeof(uint16_t) + sizeof(uint32_t);
+
+	// Heap buffer overflow may occur here, check boundary of m_DnsLayer->m_Data first
+	// Due to dataLength which is uint16_t, here m_DnsLayer->m_Data must have at least 2 bytes to read
+	if (m_DnsLayer && m_OffsetInLayer + sizeToRead >= m_DnsLayer->m_DataLen - 1)
+	{
+		return 0;
+	}
+
+	uint16_t dataLength = *(uint16_t*)(getRawData() + sizeToRead);
 	return be16toh(dataLength);
 }
 
