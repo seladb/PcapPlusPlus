@@ -42,8 +42,10 @@
 
 #if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
 #define GET_MASTER_CORE rte_get_master_lcore
+#define MASTER_LCORE "--master-lcore"
 #else
 #define GET_MASTER_CORE rte_get_main_lcore
+#define MASTER_LCORE "--main-lcore"
 #endif
 
 namespace pcpp
@@ -103,7 +105,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	dpdkParamsStream << "2 ";
 	dpdkParamsStream << "-c ";
 	dpdkParamsStream << "0x" << std::hex << std::setw(2) << std::setfill('0') << coreMask << " ";
-	dpdkParamsStream << "--master-lcore ";
+	dpdkParamsStream << MASTER_LCORE << " ";
 	dpdkParamsStream << (int)masterCore << " ";
 
 	uint32_t i = 0;
