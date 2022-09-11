@@ -337,25 +337,25 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Returns age of the BPDU message
-		 * @return Age of BPDU
+		 * @return Age of BPDU in seconds
 		 */
 		double getMessageAge() const;
 
 		/**
 		 * Returns maximum age of the BPDU message
-		 * @return Maximum age of BPDU
+		 * @return Maximum age of BPDU in seconds
 		 */
 		double getMaximumAge() const;
 
 		/**
 		 * Returns the BPDU transmission interval
-		 * @return Value of the transmission interval
+		 * @return Value of the transmission interval in seconds
 		 */
 		double getTransmissionInterval() const;
 
 		/**
 		 * Returns the delay for STP message
-		 * @return Value of the forward delay
+		 * @return Value of the forward delay in seconds
 		 */
 		double getForwardDelay() const;
 
