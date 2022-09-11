@@ -51,7 +51,7 @@ PTF_TEST_CASE(LLCCreationTests)
 
 	pcpp::Packet llcPacket1(&rawPacket1);
 	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
-	
+
 	pcpp::LLCLayer *llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
 	PTF_ASSERT_NOT_NULL(llcLayer1);
 

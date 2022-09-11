@@ -84,19 +84,13 @@ uint16_t StpConfigurationBPDULayer::getBridgeSystemIDExtension() const
 
 uint16_t StpConfigurationBPDULayer::getPortId() const { return be16toh(getStpConfHeader()->portId); }
 
-double StpConfigurationBPDULayer::getMessageAge() const { return be16toh(getStpConfHeader()->msgAge) / 256.0; }
+double StpConfigurationBPDULayer::getMessageAge() const { return getStpConfHeader()->msgAge; }
 
-double StpConfigurationBPDULayer::getMaximumAge() const { return be16toh(getStpConfHeader()->maxAge) / 256.0; }
+double StpConfigurationBPDULayer::getMaximumAge() const { return getStpConfHeader()->maxAge; }
 
-double StpConfigurationBPDULayer::getTransmissionInterval() const
-{
-	return be16toh(getStpConfHeader()->helloTime) / 256.0;
-}
+double StpConfigurationBPDULayer::getTransmissionInterval() const { return getStpConfHeader()->helloTime; }
 
-double StpConfigurationBPDULayer::getForwardDelay() const
-{
-	return be16toh(getStpConfHeader()->forwardDelay) / 256.0;
-}
+double StpConfigurationBPDULayer::getForwardDelay() const { return getStpConfHeader()->forwardDelay; }
 
 // ---------------------- Class MultipleStpLayer ----------------------
 
