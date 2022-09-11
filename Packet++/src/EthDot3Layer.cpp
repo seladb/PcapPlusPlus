@@ -1,10 +1,10 @@
 #include "EthDot3Layer.h"
-#include "PayloadLayer.h"
 #include "EndianPortable.h"
+#include "PayloadLayer.h"
+#include "LLCLayer.h"
 
 namespace pcpp
 {
-
 
 EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
 {
@@ -28,7 +28,10 @@ void EthDot3Layer::parseNextLayer()
 	uint8_t* payload = m_Data + sizeof(ether_dot3_header);
 	size_t payloadLen = m_DataLen - sizeof(ether_dot3_header);
 
-	m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+	if (LLCLayer::isDataValid(payload, payloadLen))
+		m_NextLayer = new LLCLayer(payload, payloadLen, this, m_Packet);
+	else
+		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
 
 std::string EthDot3Layer::toString() const
@@ -56,4 +59,4 @@ bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	}
 }
 
-}
+} // namespace pcpp

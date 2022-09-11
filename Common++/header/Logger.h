@@ -63,6 +63,8 @@ namespace pcpp
 		PacketLogModuleIPSecLayer, ///< IPSecLayers module (Packet++)
 		PacketLogModuleNtpLayer, ///< NtpLayer module (Packet++)
 		PacketLogModuleTelnetLayer, ///< TelnetLayer module (Packet++)
+		PacketLogModuleStpLayer, ///< StpLayer module (Packet++)
+		PacketLogModuleLLCLayer, ///< LLCLayer module (Packet++)
 		PacketLogModuleSingleCommandTextProtocolLayer, ///< SingleCommandTextProtocol module (Packet++)
 		PacketLogModuleNdpLayer, ///< NdpLayer module (Packet++)
 		PacketLogModuleFtpLayer, ///< FtpLayer module (Packet++)
