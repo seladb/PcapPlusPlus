@@ -8,15 +8,15 @@
 
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 
 	pcpp::Packet stpPacket(&rawPacket1);
-	pcpp::StpConfigurationBPDULayer *stpConfLayer = stpPacket.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
+	pcpp::StpConfigurationBPDULayer *stpConfLayer = stpPacket.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
 	PTF_ASSERT_NOT_NULL(stpConfLayer);
 
 	// Stp Configuration Layer Tests
@@ -40,20 +40,19 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 	PTF_ASSERT_EQUAL(stpConfLayer->getForwardDelay(), 15);
 
 	PTF_ASSERT_EQUAL(stpConfLayer->toString(), "Spanning Tree Configuration");
-
 } // StpConfigurationParsingTests
 
 PTF_TEST_CASE(StpTopologyChangeParsingTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
 
 	pcpp::Packet stpPacket(&rawPacket1);
-	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayer = stpPacket.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
+	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayer = stpPacket.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
 	PTF_ASSERT_NOT_NULL(stpTopologyLayer);
 
 	// Stp Topology Change Layer Tests
@@ -66,15 +65,15 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 
 PTF_TEST_CASE(RapidStpParsingTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
 
 	pcpp::Packet stpPacket(&rawPacket1);
-	pcpp::RapidStpLayer *stpRapidLayer = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
+	pcpp::RapidStpLayer *stpRapidLayer = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
 	PTF_ASSERT_NOT_NULL(stpRapidLayer);
 
 	// Rapid Stp Layer Tests
@@ -103,15 +102,15 @@ PTF_TEST_CASE(RapidStpParsingTests)
 
 PTF_TEST_CASE(MultipleStpParsingTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultiple.dat");
 
 	pcpp::Packet stpPacket(&rawPacket1);
-	pcpp::MultipleStpLayer *stpMultipleLayer = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
 
+	pcpp::MultipleStpLayer *stpMultipleLayer = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
 	PTF_ASSERT_NOT_NULL(stpMultipleLayer);
 
 	// Multiple Stp Tests
@@ -139,7 +138,7 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getMstConfigurationFormatSelector(), 0x0);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getMstConfigurationName(), std::string());
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getMstConfigRevision(), 0x0);
-	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTIrpc(), 0x00030d40);
+	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTIrpc(), 200000);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgeId(), 0x8000001aa197d180);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgePriority(), 32768);
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getCISTBridgeSystemIDExtension(), 0);
@@ -153,7 +152,7 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 
 	PTF_ASSERT_EQUAL(ptrExtension->flags, 0x7c);
 	PTF_ASSERT_EQUAL(ptrExtension->regionalRootId, be64toh(0x8005000c305dd100));
-	PTF_ASSERT_EQUAL(ptrExtension->pathCost, be32toh(0x00030d40));
+	PTF_ASSERT_EQUAL(ptrExtension->pathCost, be32toh(200000));
 	PTF_ASSERT_EQUAL(ptrExtension->bridgePriority, 8 << 4);
 	PTF_ASSERT_EQUAL(ptrExtension->portPriority, 8 << 4);
 	PTF_ASSERT_EQUAL(ptrExtension->remainingHops, 19);

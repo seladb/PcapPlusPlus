@@ -9,15 +9,15 @@
 
 PTF_TEST_CASE(LLCParsingTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 
 	pcpp::Packet llcPacket1(&rawPacket1);
-	pcpp::LLCLayer *llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
+	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
 
+	pcpp::LLCLayer *llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
 	PTF_ASSERT_NOT_NULL(llcLayer1);
 
 	pcpp::llc_header *header1 = llcLayer1->getLlcHeader();
@@ -40,22 +40,21 @@ PTF_TEST_CASE(LLCParsingTests)
 	PTF_ASSERT_EQUAL(header2->dsap, 0xaa);
 	PTF_ASSERT_EQUAL(header2->ssap, 0xaa);
 	PTF_ASSERT_EQUAL(header2->control, 0x3);
-
 } // LLCParsingTests
 
 PTF_TEST_CASE(LLCCreationTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 
 	pcpp::Packet llcPacket1(&rawPacket1);
+	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
+	
 	pcpp::LLCLayer *llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
 	PTF_ASSERT_NOT_NULL(llcLayer1);
 
 	pcpp::LLCLayer craftedLayer1(0x42, 0x42, 0x3);
 	PTF_ASSERT_BUF_COMPARE(llcLayer1->getData(), craftedLayer1.getData(), craftedLayer1.getDataLen());
-
 } // LLCCreationTests
