@@ -143,25 +143,25 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Get a pointer to base Spanning tree header
-		 * @return stp_header* A pointer to spanning tree header
+		 * @return A pointer to spanning tree header
 		 */
 		stp_header *getStpHeader() const { return (stp_header *)(m_Data); }
 
 		/**
 		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
-		 * @return uint16_t ID of the protocol
+		 * @return ID of the protocol
 		 */
 		uint16_t getProtoId() const { return getStpHeader()->protoId; }
 
 		/**
 		 * Returns the version. Fixed at 0x0 for STP messages
-		 * @return uint8_t Version number
+		 * @return Version number
 		 */
 		uint8_t getVersion() const { return getStpHeader()->version; }
 
 		/**
 		 * Returns the type of configuration message.
-		 * @return uint8_t Type of configuration message
+		 * @return Type of configuration message
 		 */
 		uint8_t getType() const { return getStpHeader()->type; }
 
@@ -192,7 +192,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored
-		 * @return StpLayer* A newly allocated STP layer of one of the following types (according to the message type):
+		 * @return A newly allocated STP layer of one of the following types (according to the message type):
 		 * StpConfigurationBPDULayer, StpTopologyChangeBPDULayer, RapidStpLayer, MultipleStpLayer
 		 */
 		static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
@@ -219,7 +219,7 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Get a pointer to network topology change (TCN) BPDU message
-		 * @return stp_tcn_bpdu* A pointer to TCN BPDU message
+		 * @return A pointer to TCN BPDU message
 		 */
 		stp_tcn_bpdu* getStpTcnHeader() { return getStpHeader(); }
 
@@ -265,97 +265,97 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Get a pointer to configuration BPDU message
-		 * @return stp_conf_bpdu* A pointer to configuration BPDU message
+		 * @return A pointer to configuration BPDU message
 		 */
 		stp_conf_bpdu *getStpConfHeader() const { return (stp_conf_bpdu *)(m_Data); }
 
 		/**
 		 * Returns the flags of configuration message which indicates purpose of BPDU
-		 * @return uint8_t Flags of the configuration message
+		 * @return Flags of the configuration message
 		 */
 		uint8_t getFlag() const { return getStpConfHeader()->flag; }
 
 		/**
 		 * Returns the root bridge identifier
-		 * @return uint64_t root bridge identifier
+		 * @return root bridge identifier
 		 */
 		uint64_t getRootId() const;
 
 		/**
 		 * Returns the priority of root bridge
-		 * @return uint16_t Priority of root bridge
+		 * @return Priority of root bridge
 		 */
 		uint16_t getRootPriority() const;
 
 		/**
 		 * Returns the system identifier extension of root bridge
-		 * @return uint16_t System extension of root bridge
+		 * @return System extension of root bridge
 		 */
 		uint16_t getRootSystemIDExtension() const;
 
 		/**
 		 * Returns the system identifier of root bridge
-		 * @return pcpp::MacAddress System identifier of root bridge
+		 * @return System identifier of root bridge
 		 */
 		pcpp::MacAddress getRootSystemID() const { return IDtoMacAddress(getRootId()); }
 
 		/**
 		 * Returns the value of the cost of path
-		 * @return uint32_t Cost of path
+		 * @return Cost of path
 		 */
 		uint32_t getPathCost() const;
 
 		/**
 		 * Returns the bridge identifier
-		 * @return uint64_t Bridge identifier
+		 * @return Bridge identifier
 		 */
 		uint64_t getBridgeId() const;
 
 		/**
 		 * Returns the priority of bridge
-		 * @return uint16_t Priority of bridge
+		 * @return Priority of bridge
 		 */
 		uint16_t getBridgePriority() const;
 
 		/**
 		 * Returns the system identifier extension of bridge
-		 * @return uint16_t System extension of bridge
+		 * @return System extension of bridge
 		 */
 		uint16_t getBridgeSystemIDExtension() const;
 
 		/**
 		 * Returns the system identifier of bridge
-		 * @return pcpp::MacAddress System identifier of bridge
+		 * @return System identifier of bridge
 		 */
 		pcpp::MacAddress getBridgeSystemID() const { return IDtoMacAddress(getBridgeId()); }
 
 		/**
 		 * Returns the port identifier
-		 * @return uint16_t Port identifier
+		 * @return Port identifier
 		 */
 		uint16_t getPortId() const;
 
 		/**
 		 * Returns age of the BPDU message
-		 * @return double Age of BPDU
+		 * @return Age of BPDU
 		 */
 		double getMessageAge() const;
 
 		/**
 		 * Returns maximum age of the BPDU message
-		 * @return double Maximum age of BPDU
+		 * @return Maximum age of BPDU
 		 */
 		double getMaximumAge() const;
 
 		/**
 		 * Returns the BPDU transmission interval
-		 * @return double Value of the transmission interval
+		 * @return Value of the transmission interval
 		 */
 		double getTransmissionInterval() const;
 
 		/**
 		 * Returns the delay for STP message
-		 * @return double Value of the forward delay
+		 * @return Value of the forward delay
 		 */
 		double getForwardDelay() const;
 
@@ -404,13 +404,13 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Get a pointer to Rapid STP header
-		 * @return rstp_conf_bpdu* A pointer to Rapid STP header
+		 * @return A pointer to Rapid STP header
 		 */
 		rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu *)(m_Data); }
 
 		/**
 		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
-		 * @return uint8_t Length of the version1 field
+		 * @return Length of the version1 field
 		 */
 		uint8_t getVersion1Len() const { return getRstpConfHeader()->version1Len; }
 
@@ -459,86 +459,85 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Get a pointer to Multiple STP header
-		 * @return mstp_conf_bpdu* A pointer to Multiple STP header
+		 * @return A pointer to Multiple STP header
 		 */
 		mstp_conf_bpdu *getMstpHeader() const { return (mstp_conf_bpdu *)(m_Data); }
 
 		/**
-		 * Returns the length of version3 field.
-		 * @return uint16_t
+		 * @return Returns the length of version3 field.
 		 */
 		uint16_t getVersion3Len() const;
 
 		/**
 		 * Returns the configuration ID format selector
-		 * @return uint8_t Configuration ID of format selector
+		 * @return Configuration ID of format selector
 		 */
 		uint8_t getMstConfigurationFormatSelector() const { return getMstpHeader()->mstConfigFormatSelector; }
 
 		/**
 		 * Returns the pointer to configuration name field.
-		 * @return std::string Configuration name
+		 * @return Configuration name
 		 */
 		std::string getMstConfigurationName() const;
 
 		/**
 		 * Returns the revision of configuration ID
-		 * @return uint16_t Revision of configuration ID
+		 * @return Revision of configuration ID
 		 */
 		uint16_t getMstConfigRevision() const { return getMstpHeader()->mstConfigRevision; }
 
 		/**
 		 * Returns the pointer to configuration message digest. The field itself always 16 bytes long.
-		 * @return uint8_t* A pointer to configuration digest
+		 * @return A pointer to configuration digest
 		 */
 		uint8_t *getMstConfigDigest() const { return getMstpHeader()->mstConfigDigest; }
 
 		/**
 		 * Returns CIST internal root path cost
-		 * @return uint32_t Value of the internal root path cost
+		 * @return Value of the internal root path cost
 		 */
 		uint32_t getCISTIrpc() const;
 
 		/**
 		 * Returns CIST bridge identifier
-		 * @return uint64_t Value of the bridge identifier
+		 * @return Value of the bridge identifier
 		 */
 		uint64_t getCISTBridgeId() const;
 
 		/**
 		 * Returns the priority of CIST bridge
-		 * @return uint16_t Priority of CIST bridge
+		 * @return Priority of CIST bridge
 		 */
 		uint16_t getCISTBridgePriority() const;
 
 		/**
 		 * Returns the system identifier extension of CIST bridge
-		 * @return uint16_t System extension of CIST bridge
+		 * @return System extension of CIST bridge
 		 */
 		uint16_t getCISTBridgeSystemIDExtension() const;
 
 		/**
 		 * Returns the system identifier of CIST bridge
-		 * @return pcpp::MacAddress System identifier of CIST bridge
+		 * @return System identifier of CIST bridge
 		 */
 		pcpp::MacAddress getCISTBridgeSystemID() const { return IDtoMacAddress(getCISTBridgeId()); }
 
 		/**
 		 * Returns the remaining hop count
-		 * @return uint8_t Value of remaining hop count
+		 * @return Value of remaining hop count
 		 */
 		uint8_t getRemainingHopCount() const { return getMstpHeader()->remainId; }
 
 		/**
 		 * Returns the total number of MSTI configuration messages
-		 * @return uint8_t Number of MSTI configuration messages. Can be between 0 and 64.
+		 * @return Number of MSTI configuration messages. Can be between 0 and 64.
 		 */
 		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - 64) / sizeof(msti_conf_msg); }
 
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI messages.
 		 * The number of messages can be obtained by using getNumberOfMSTIConfMessages()
-		 * @return msti_conf_msg* An array pointer to MSTI configuration messages. Returns NULL if there is no MSTI
+		 * @return An array pointer to MSTI configuration messages. Returns NULL if there is no MSTI
 		 * message.
 		 */
 		msti_conf_msg *getMstiConfMessages() const;

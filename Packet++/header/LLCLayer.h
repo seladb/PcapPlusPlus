@@ -54,7 +54,7 @@ namespace pcpp
 
 		/**
 		 * Get a pointer to Logical Link Control (LLC) layer header
-		 * @return llc_header* Pointer to LLC header
+		 * @return Pointer to LLC header
 		 */
 		inline llc_header *getLlcHeader() const { return (llc_header*)m_Data; };
 
