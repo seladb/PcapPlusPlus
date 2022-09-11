@@ -532,7 +532,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the total number of MSTI configuration messages
 		 * @return Number of MSTI configuration messages. Can be between 0 and 64.
 		 */
-		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - 64) / sizeof(msti_conf_msg); }
+		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - (sizeof(mstp_conf_bpdu) - sizeof(rstp_conf_bpdu) - sizeof(uint16_t))) / sizeof(msti_conf_msg); }
 
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI messages.
