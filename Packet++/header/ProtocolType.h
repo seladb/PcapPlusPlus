@@ -273,6 +273,16 @@ namespace pcpp
 	const ProtocolType ICMPv6 = 0x20000000000;
 
 	/**
+	 * Spanning Tree Protocol
+	 */
+	const ProtocolType STP = 0x40000000000;
+
+	/**
+	 * Logical Link Control (LLC)
+	 */
+	const ProtocolType LLC = 0x80000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
