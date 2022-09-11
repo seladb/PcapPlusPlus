@@ -167,6 +167,11 @@ typedef stp_tcn_bpdu stp_header;
 
 		// overridden methods
 
+		/**
+		 * @return The size of STP packet
+		 */
+		size_t getHeaderLen() const { return m_DataLen; }
+
 		/// Parses the next layer. STP is the always last so does nothing for this layer
 		void parseNextLayer() {}
 
@@ -224,11 +229,6 @@ typedef stp_tcn_bpdu stp_header;
 		stp_tcn_bpdu* getStpTcnHeader() { return getStpHeader(); }
 
 		// overridden methods
-
-		/**
-		 * @return Get the size of the STP network topology change BPDU header
-		 */
-		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
 
 		/**
 		 * @return Returns the protocol info as readable string
@@ -362,11 +362,6 @@ typedef stp_tcn_bpdu stp_header;
 		// overridden methods
 
 		/**
-		 * @return Get the size of the STP Configuration BPDU header
-		 */
-		size_t getHeaderLen() const { return sizeof(stp_conf_bpdu); }
-
-		/**
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const { return "Spanning Tree Configuration"; }
@@ -415,11 +410,6 @@ typedef stp_tcn_bpdu stp_header;
 		uint8_t getVersion1Len() const { return getRstpConfHeader()->version1Len; }
 
 		// overridden methods
-
-		/**
-		 * @return Get the size of the RSTP header
-		 */
-		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
 
 		/**
 		 * @return Returns the protocol info as readable string
@@ -543,11 +533,6 @@ typedef stp_tcn_bpdu stp_header;
 		msti_conf_msg *getMstiConfMessages() const;
 
 		// overridden methods
-
-		/**
-		 * @return Get the size of the MSTP header
-		 */
-		size_t getHeaderLen() const { return sizeof(mstp_conf_bpdu); }
 
 		/**
 		 * @return Returns the protocol info as readable string
