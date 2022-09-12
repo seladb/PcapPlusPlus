@@ -345,9 +345,8 @@ static void OnRipMessageReadyCallback(pcpp::RipPacketData *ripData, void *userCo
 
 	// 3.
 
-	// count number of packets and bytes in each side of the connection
+	// count number of packets and bytes 
 	iter->second.numOfDataPackets++;
-	iter->second.bytes += (int)ripData->getDataLength();
 
 	// set new processed packet number
 	GlobalConfig::getInstance().PacketNum++;
@@ -355,7 +354,7 @@ static void OnRipMessageReadyCallback(pcpp::RipPacketData *ripData, void *userCo
 	// 4.
 
 	// write the new data to the file
-	iter->second.fileStream->write((char *)ripData->getData(), ripData->getDataLength());
+	ripData->getLayer()->ToStructuredOutput(*iter->second.fileStream);
 }
 
 /**

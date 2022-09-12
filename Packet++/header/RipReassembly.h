@@ -3,6 +3,7 @@
 
 #include "IpAddress.h"
 #include "Packet.h"
+#include "RipLayer.h"
 #include <map>
 
 
@@ -15,19 +16,14 @@ namespace pcpp
 class RipPacketData
 {
   public:
-	RipPacketData(const uint8_t *ripData, size_t ripDataLength, std::string tupleName)
-		: m_Data(ripData), m_DataLen(ripDataLength), m_TupleName(tupleName)
+	RipPacketData(const RipLayer* layer , std::string tupleName)
+		: m_Layer(layer), m_TupleName(tupleName)
 	{
 	}
 
-	const uint8_t *getData() const
+	const RipLayer *getLayer() const
 	{
-		return m_Data;
-	}
-
-	size_t getDataLength() const
-	{
-		return m_DataLen;
+		return m_Layer;
 	}
 
 	std::string getTupleName()
@@ -36,8 +32,7 @@ class RipPacketData
 	}
 
   private:
-	const uint8_t *m_Data;
-	size_t m_DataLen;
+	const RipLayer* m_Layer;
 	std::string m_TupleName;
 };
 

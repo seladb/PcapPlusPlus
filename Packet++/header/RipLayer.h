@@ -1,8 +1,9 @@
 #ifndef PACKETPP_RIP_LAYER
 #define PACKETPP_RIP_LAYER
 
-#include <vector>
 #include <memory>
+#include <vector>
+#include <sstream>
 
 #include "Layer.h"
 
@@ -29,41 +30,46 @@ struct riphdr
 	// Must be zero
 	uint16_t reserve;
 };
+
+struct RipEntry
+{
+	// Address Family Identifier
+	uint16_t family;
+	// Route Tag
+	uint16_t tag;
+	// IP Address
+	uint8_t prefix[4];
+	// Subnet Mask. Must be zero in RIP-1
+	uint8_t mask[4];
+	// Next Hop. Must be zero in RIP-1
+	uint8_t nexthop[4];
+	// Metric
+	uint32_t metric;
+};
 #pragma pack(pop)
 
-// struct RipEntry
-// {
-// 	// Address Family Identifier
-// 	uint16_t family;
-// 	// Route Tag
-// 	uint16_t tag;
-// 	// IP Address
-// 	uint8_t prefix[4];
-// 	// Subnet Mask. Must be zero in RIP-1
-// 	uint8_t mask[4];
-// 	// Next Hop. Must be zero in RIP-1
-// 	uint8_t nexthop[4];
-// 	// Metric
-// 	uint32_t metric;
-// };
-// #pragma pack(pop)
+class RipTableEntry
+{
+  public:
+	RipTableEntry(std::istream &is);
+	void ToV1StructuredOutput(std::ostream &os);
+	void ToV2StructuredOutput(std::ostream &os);
+	uint16_t get_family();
+	uint16_t get_tag();
+	uint32_t get_prefix();
+	uint32_t get_mask();
+	uint32_t get_nexthop();
+	uint32_t get_metric();
 
-// class RipTableEntry
-// {
-//   public:
-// 	RipTableEntry(std::istream &is);
-// 	uint32_t get_prefix();
-// 	uint32_t get_mask();
-// 	uint32_t get_nexthop();
-// 	uint32_t get_metric();
-
-//   private:
-// 	RipEntry re;
-// 	uint32_t prefix;
-// 	uint32_t mask;
-// 	uint32_t nexthop;
-// 	uint32_t metric;
-// };
+  private:
+	RipEntry re;
+	uint16_t family;
+	uint16_t tag;
+	uint32_t prefix;
+	uint32_t mask;
+	uint32_t nexthop;
+	uint32_t metric;
+};
 
 /**
  * @class RipLayer
@@ -81,10 +87,29 @@ class RipLayer : public Layer
 	 */
 	RipLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet)
 	{
+		// set protocol
 		m_Protocol = RIP;
+
+		// calculate rte
+		size_t len = Layer::getLayerPayloadSize();
+		uint8_t *dt = Layer::getLayerPayload();
+		// convert uint8_t to char then to string
+		std::string s((char *)dt, len);
+		std::istringstream iss(s);
+		std::istream &stream = iss;
+
+		while (len > 0)
+		{
+			auto temp_rte = std::make_shared<RipTableEntry>(stream);
+			rtes.push_back(temp_rte);
+			len = len - sizeof(RipEntry);
+		}
 	}
 
-	static bool isRipPort(uint16_t port) { return port == 520; }
+	static bool isRipPort(uint16_t port)
+	{
+		return port == 520;
+	}
 
 	/**
 	 * Get a pointer to the RIP header. Notice this points directly to the data, so every change will change the actual
@@ -106,20 +131,21 @@ class RipLayer : public Layer
 	 */
 	uint8_t getVersion() const;
 
-	// /**
-	//  * @return RIP Route Table Entry size
-	//  */
-	// uint32_t getRteSize() const;
+	/**
+	 * @return RIP Route Table Entry size
+	 */
+	uint32_t getRteSize() const;
 
-	// /**
-	//  * @return RIP Route Table Entry
-	//  */
-	// std::shared_ptr<RipTableEntry> getRte(uint32_t index);
+	/**
+	 * @return RIP Route Table Entry
+	 */
+	std::shared_ptr<RipTableEntry> getRte(uint32_t index);
 
+	void ToStructuredOutput(std::ostream &os) const;
 
 	// implement abstract methods
 
-	void parseNextLayer() {};
+	void parseNextLayer(){};
 
 	/**
 	 * @return Size of @ref riphdr
@@ -129,7 +155,7 @@ class RipLayer : public Layer
 		return sizeof(riphdr);
 	}
 
-    void computeCalculateFields();
+	void computeCalculateFields();
 
 	std::string toString() const;
 
@@ -139,7 +165,7 @@ class RipLayer : public Layer
 	}
 
   private:
-	// std::vector<std::shared_ptr<RipTableEntry> > rtes;
+	std::vector<std::shared_ptr<RipTableEntry>> rtes;
 };
 
 } // namespace pcpp

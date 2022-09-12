@@ -41,15 +41,6 @@ RIPReassembly::ReassemblyStatus RIPReassembly::reassemblePacket(RawPacket *ripRa
 
 RIPReassembly::ReassemblyStatus RIPReassembly::reassemblePacket(Packet &ripData)
 {
-	/*
-		1. 拿到目标包的源IP和目的IP， 过滤非目标包
-		2. 更新状态（返回值）
-		3.  设置RIPReassemblyData
-			计算链接tupleName，在fragment list找目标fragment，若不存在则添加
-			再更新RIPReassemblyData 里的fragment信息
-		4. 如果已经设置过回调函数，data调用该函数进行处理
-	*/
-
 	// 1.
 
 	IPAddress srcIP, dstIP;
@@ -88,29 +79,8 @@ RIPReassembly::ReassemblyStatus RIPReassembly::reassemblePacket(Packet &ripData)
 	ReassemblyStatus status = RipMessageHandled;
 
 	// 3.
-	RIPReassemblyData *ripReassemblyData = NULL;
 	std::string tupleName = getTupleName(srcIP, dstIP, srcPort, dstPort);
-
-	// 元组列表里找对应的
-	FragmentList::iterator iter = m_FragmentList.find(tupleName);
-
-	if (iter == m_FragmentList.end())
-	{
-		std::pair<FragmentList::iterator, bool> pair =
-			m_FragmentList.insert(std::make_pair(tupleName, RIPReassemblyData()));
-		ripReassemblyData = &pair.first->second;
-		ripReassemblyData->srcIP = srcIP;
-		ripReassemblyData->dstIP = dstIP;
-		ripReassemblyData->srcPort = srcPort;
-		ripReassemblyData->dstPort = dstPort;
-		ripReassemblyData->tupleName = tupleName;
-		ripReassemblyData->number = 0;
-	}
-
-	// 包处理
-	uint8_t *data = ripLayer->getData();
-	size_t len = ripLayer->getDataLen();
-	RipPacketData packetdata(data, len, tupleName);
+	RipPacketData packetdata(ripLayer, tupleName);
 
 	// 4.
 
