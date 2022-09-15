@@ -47,13 +47,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-
-      - name: Mark repository as safe (Checkout actions is not run with same UID)
-        run: |
-          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
-          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
@@ -105,13 +98,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-
-      - name: Mark repository as safe (Checkout actions is not run with same UID)
-        run: |
-          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
-          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
@@ -143,13 +129,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-
-      - name: Mark repository as safe (Checkout actions is not run with same UID)
-        run: |
-          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
-          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -184,17 +163,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
 
       - uses: actions/setup-python@v3
         with:
           python-version: "3.8.x"
-
-      - name: Mark repository as safe (Checkout actions is not run with same UID)
-        run: |
-          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
-          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Configure PcapPlusPlus
         run: |
@@ -254,8 +226,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -328,8 +298,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
 
       - uses: actions/setup-python@v3
         with:
@@ -404,13 +372,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: "0"
-
-      - name: Mark repository as safe (Checkout actions is not run with same UID)
-        run: |
-          git config --global --add safe.directory /__w/PcapPlusPlus/PcapPlusPlus
-          git config --global --add safe.directory ${{ github.workspace }}
 
       - name: Checkout lipbcap for Android
         uses: actions/checkout@main

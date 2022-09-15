@@ -129,4 +129,4 @@ if(PCAPPP_INSTALL)
 endif()
 
 set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "packet++")
-set_property(TARGET Packet++ PROPERTY VERSION ${SEMVER})
+set_property(TARGET Packet++ PROPERTY VERSION ${PCAPPP_VERSION})

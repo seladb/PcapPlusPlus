@@ -6,30 +6,21 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
 endif()
 
+set(PCAPPP_VERSION "22.05+")
+
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
   set(PCAPPP_MAIN_PROJECT ON)
 endif()
 
-# Include git module required for version
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-include(VersionFromGit)
-
-# Get the git version
-version_from_git(
-  LOG
-  ON
-  INCLUDE_HASH
-  OFF)
-
 project(
   PcapPlusPlus
   DESCRIPTION "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets."
-  VERSION ${VERSION})
-set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
+  HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
-# Include the other modules
+# Include our custom CMake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
@@ -176,7 +167,7 @@ endif()
 
 if(PCAPPP_INSTALL)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "seladb")
-  set(CPACK_PACKAGE_FILE_NAME PcapPlusPlus-v${SEMVER})
+  set(CPACK_PACKAGE_FILE_NAME PcapPlusPlus-${PCAPPP_VERSION})
 
   include(CPack)
 
@@ -200,7 +191,7 @@ if(PCAPPP_INSTALL)
 
   write_basic_package_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
-    VERSION ${SEMVER}
+    VERSION ${PCAPPP_VERSION}
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
