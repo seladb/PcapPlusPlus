@@ -57,6 +57,18 @@ task:
     - python3 ci/run_tests/run_tests.py --interface eth0
 
 task:
+  name: Test Zstd Linux w/ CMake
+  container:
+    image: seladb/ubuntu2004-zstd:latest
+  configure_script:
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+  build_script:
+    - cmake --build Dist -j
+  test_pcapplusplus_script:
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface eth0
+
+task:
   name: Test Zstd MacOS
   osx_instance:
     image: monterey-xcode
@@ -65,6 +77,22 @@ task:
     - ./configure-mac_os_x.sh --use-zstd
   build_script:
     - make all
+  install_tcpreplay_script:
+    - brew install tcpreplay
+  test_pcapplusplus_script:
+    - python3 -m ensurepip
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
+
+task:
+  name: Test Zstd MacOS w/ CMake
+  osx_instance:
+    image: monterey-xcode
+  configure_script:
+    - brew install zstd
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+  build_script:
+    - cmake --build Dist -j
   install_tcpreplay_script:
     - brew install tcpreplay
   test_pcapplusplus_script:
