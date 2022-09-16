@@ -23,6 +23,7 @@ add_library(
   src/IPv6Extensions.cpp
   src/IPv6Layer.cpp
   src/Layer.cpp
+  src/LLCLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
   src/NtpLayer.cpp
@@ -42,6 +43,7 @@ add_library(
   src/SSLCommon.cpp
   src/SSLHandshake.cpp
   src/SSLLayer.cpp
+  src/StpLayer.cpp
   src/TcpLayer.cpp
   src/TcpReassembly.cpp
   src/TelnetLayer.cpp
@@ -78,6 +80,7 @@ set(public_headers
     header/IPv6Extensions.h
     header/IPv6Layer.h
     header/Layer.h
+    header/LLCLayer.h
     header/MplsLayer.h
     header/NullLoopbackLayer.h
     header/NdpLayer.h
@@ -98,6 +101,7 @@ set(public_headers
     header/SSLCommon.h
     header/SSLHandshake.h
     header/SSLLayer.h
+    header/StpLayer.h
     header/TcpLayer.h
     header/TcpReassembly.h
     header/TelnetLayer.h

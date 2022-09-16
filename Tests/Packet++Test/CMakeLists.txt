@@ -16,6 +16,7 @@ add_executable(
   Tests/IPSecTests.cpp
   Tests/IPv4Tests.cpp
   Tests/IPv6Tests.cpp
+  Tests/LLCTests.cpp
   Tests/NtpTests.cpp
   Tests/PacketTests.cpp
   Tests/PacketUtilsTests.cpp
@@ -25,6 +26,7 @@ add_executable(
   Tests/SllNullLoopbackTests.cpp
   Tests/SSHTests.cpp
   Tests/SSLTests.cpp
+  Tests/StpTests.cpp
   Tests/TcpTests.cpp
   Tests/TelnetTests.cpp
   Tests/VlanMplsTests.cpp
