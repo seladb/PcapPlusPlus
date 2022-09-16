@@ -7,6 +7,7 @@
 #include "TcpLayer.h"
 #include "GreLayer.h"
 #include "IPSecLayer.h"
+#include "OspfLayer.h"
 #include "Packet.h"
 #include "PacketUtils.h"
 #include <string.h>
@@ -258,6 +259,11 @@ void IPv6Layer::parseNextLayer()
 			? static_cast<Layer*>(new ESPLayer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
+	case PACKETPP_IPPROTO_OSPF:
+		m_NextLayer = OspfLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new OspfLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
@@ -287,6 +293,9 @@ void IPv6Layer::computeCalculateFields()
 		case GREv0:
 		case GREv1:
 			nextHeader = PACKETPP_IPPROTO_GRE;
+			break;
+		case OSPF: 
+			nextHeader = PACKETPP_IPPROTO_OSPF;
 			break;
 		default:
 			break;

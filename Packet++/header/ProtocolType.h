@@ -63,6 +63,11 @@ namespace pcpp
 	const ProtocolType HTTPResponse = 0x40;
 
 	/**
+	 * OSPF protocol
+	 */
+	const ProtocolType OSPF = 0x59;
+
+	/**
 	 * HTTP protocol (aggregation bitmask of HTTP request and HTTP response protocols)
 	 */
 	const ProtocolType HTTP = 0x60;

@@ -9,6 +9,7 @@
 #include "GreLayer.h"
 #include "IgmpLayer.h"
 #include "IPSecLayer.h"
+#include "OspfLayer.h"
 #include "PacketUtils.h"
 #include <string.h>
 #include <sstream>
@@ -326,6 +327,11 @@ void IPv4Layer::parseNextLayer()
 			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
+	case PACKETPP_IPPROTO_OSPF: 
+		m_NextLayer = OspfLayer::isDataValid(payload, payloadLen)
+			? static_cast<Layer*>(new OspfLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet)); 
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
@@ -359,6 +365,9 @@ void IPv4Layer::computeCalculateFields()
 		case IGMPv2:
 		case IGMPv3:
 			ipHdr->protocol = PACKETPP_IPPROTO_IGMP;
+			break;
+		case OSPF:
+			ipHdr->protocol = PACKETPP_IPPROTO_OSPF;
 			break;
 		default:
 			break;

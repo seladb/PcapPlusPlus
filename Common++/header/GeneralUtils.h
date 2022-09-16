@@ -12,6 +12,9 @@
  */
 namespace pcpp
 {
+	uint64_t arr2num(uint8_t *ch, uint8_t size);
+	std::string num2ip(uint32_t i);
+
 	/**
 	 * Convert a byte array into a string of hex characters. For example: for the array { 0xaa, 0x2b, 0x10 } the string
 	 * "aa2b10" will be returned

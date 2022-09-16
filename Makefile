@@ -31,6 +31,7 @@ EXAMPLE_KNI_PONG     := Examples/KniPong
 EXAMPLE_UDP_REASM	:= Examples/UdpReassembly
 EXAMPLE_GRE_REASM	:= Examples/GreReassembly
 EXAMPLE_RIP_REASM	:= Examples/RipReassembly
+EXAMPLE_OSPF_REASM	:= Examples/OspfReassembly
 
 
 UNAME := $(shell uname)
@@ -59,6 +60,7 @@ all: libs
 	@cd $(EXAMPLE_UDP_REASM)         && $(MAKE) UdpReassembly
 	@cd $(EXAMPLE_GRE_REASM)         && $(MAKE) GreReassembly
 	@cd $(EXAMPLE_RIP_REASM)         && $(MAKE) RipReassembly
+	@cd $(EXAMPLE_OSPF_REASM)         && $(MAKE) OspfReassembly
 
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) DpdkTrafficFilter
@@ -87,6 +89,7 @@ endif
 	$(CP) $(EXAMPLE_UDP_REASM)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_GRE_REASM)/Bin/* ./Dist/examples
 	$(CP) $(EXAMPLE_RIP_REASM)/Bin/* ./Dist/examples
+	$(CP) $(EXAMPLE_OSPF_REASM)/Bin/* ./Dist/examples
 
 ifdef USE_DPDK
 	$(CP) $(EXAMPLE_DPDK1)/Bin/* ./Dist/examples
@@ -147,6 +150,7 @@ clean:
 	@cd $(EXAMPLE_UDP_REASM)         && $(MAKE) clean
 	@cd $(EXAMPLE_GRE_REASM)         && $(MAKE) clean
 	@cd $(EXAMPLE_RIP_REASM)         && $(MAKE) clean
+	@cd $(EXAMPLE_OSPF_REASM)         && $(MAKE) clean
 
 ifdef USE_DPDK
 	@cd $(EXAMPLE_DPDK1)             && $(MAKE) clean

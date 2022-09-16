@@ -6,9 +6,36 @@
 #include <iomanip>
 #include <string.h>
 #include <stdlib.h>
+#include <memory>
+#include <vector>
+
 
 namespace pcpp
 {
+	
+uint64_t arr2num(uint8_t *ch, uint8_t size)
+{
+	uint64_t result = 0;
+	--size;
+	for (size_t i = 0; i < size; ++i)
+	{
+		result = (result + *(ch + i)) * 0x100;
+	}
+	return result + *(ch + size);
+}
+
+std::string num2ip(uint32_t i)
+{
+	std::vector<std::string> nums;
+	for (size_t j = 0; j < 3; ++j)
+	{
+		nums.push_back(std::to_string(i % 0x100));
+		i = (i - i % 0x100) / 0x100;
+	}
+	nums.push_back(std::to_string(i));
+
+	return nums[3] + "." + nums[2] + "." + nums[1] + "." + nums[0];
+}
 
 std::string byteArrayToHexString(const uint8_t* byteArr, size_t byteArrSize, int stringSizeLimit)
 {
