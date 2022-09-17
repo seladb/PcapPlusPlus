@@ -283,6 +283,11 @@ namespace pcpp
 	const ProtocolType LLC = 0x80000000000;
 
 	/**
+	 * SOME/IP Base protocol
+	 */
+	const ProtocolType SomeIP = 0x100000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
