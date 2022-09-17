@@ -192,3 +192,7 @@ PTF_TEST_CASE(StpConfigurationParsingTests);
 PTF_TEST_CASE(StpTopologyChangeParsingTests);
 PTF_TEST_CASE(RapidStpParsingTests);
 PTF_TEST_CASE(MultipleStpParsingTests);
+
+// Implemented in SomeIpTests.cpp
+PTF_TEST_CASE(SomeIpParsingTest);
+PTF_TEST_CASE(SomeIpCreationTest);

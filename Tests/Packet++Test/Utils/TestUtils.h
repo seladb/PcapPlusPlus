@@ -15,6 +15,8 @@ uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength);
 
 void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uint8_t* buffer2, size_t buffer2Len);
 
+void testSetUp();
+
 #define READ_FILE_INTO_BUFFER(num, filename) \
 	int bufferLength##num = 0; \
 	uint8_t* buffer##num = pcpp_tests::readFileIntoBuffer(filename, bufferLength##num); \

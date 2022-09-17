@@ -13,6 +13,7 @@
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
 #include "NtpLayer.h"
+#include "SomeIpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -133,6 +134,8 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
 	else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) && NtpLayer::isDataValid(udpData, udpDataLen))
 		m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst)) && SomeIpLayer::isDataValid(udpData, udpDataLen))
+		m_NextLayer = new SomeIpLayer(udpData, udpDataLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }

@@ -68,6 +68,7 @@ namespace pcpp
 		PacketLogModuleSingleCommandTextProtocolLayer, ///< SingleCommandTextProtocol module (Packet++)
 		PacketLogModuleNdpLayer, ///< NdpLayer module (Packet++)
 		PacketLogModuleFtpLayer, ///< FtpLayer module (Packet++)
+		PacketLogModuleSomeIpLayer, ///< SomeIpLayer module (Packet++)
 		PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)
 		PcapLogModuleRemoteDevice, ///< WinPcapRemoteDevice module (Pcap++)
 		PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)
