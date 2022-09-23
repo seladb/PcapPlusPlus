@@ -448,7 +448,7 @@ private:
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList);
 
-	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, uint32_t flowKey);
+	void handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, uint32_t flowKey, bool isRst);
 
 	void closeConnectionInternal(uint32_t flowKey, ConnectionEndReason reason);
 
