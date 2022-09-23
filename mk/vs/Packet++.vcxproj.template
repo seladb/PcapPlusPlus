@@ -203,6 +203,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\IPv6Extensions.h" />
     <ClInclude Include="..\..\Packet++\header\IPv6Layer.h" />
     <ClInclude Include="..\..\Packet++\header\Layer.h" />
+    <ClInclude Include="..\..\Packet++\header\LLCLayer.h" />
     <ClCompile Include="..\..\Packet++\header\SingleCommandTextProtocol.h" />
     <ClInclude Include="..\..\Packet++\header\MplsLayer.h" />
     <ClInclude Include="..\..\Packet++\header\NdpLayer.h" />
@@ -220,9 +221,11 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\SllLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SipLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SdpLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\SomeIpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SSLCommon.h" />
     <ClInclude Include="..\..\Packet++\header\SSLHandshake.h" />
     <ClInclude Include="..\..\Packet++\header\SSLLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\StpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\TextBasedProtocol.h" />
     <ClInclude Include="..\..\Packet++\header\TcpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\TcpReassembly.h" />
@@ -255,6 +258,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\IPv6Extensions.cpp" />
     <ClCompile Include="..\..\Packet++\src\IPv6Layer.cpp" />
     <ClCompile Include="..\..\Packet++\src\Layer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\LLCLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SingleCommandTextProtocol.cpp" />
     <ClCompile Include="..\..\Packet++\src\MplsLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\NdpLayer.cpp" />
@@ -271,9 +275,11 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\SdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSHLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SllLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\SomeIpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLCommon.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLHandshake.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\StpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\TextBasedProtocol.cpp" />
     <ClCompile Include="..\..\Packet++\src\TcpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\TcpReassembly.cpp" />

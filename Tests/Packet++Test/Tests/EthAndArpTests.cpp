@@ -164,12 +164,7 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 	PTF_ASSERT_EQUAL(be16toh(ethDot3Layer->getEthHeader()->length), 38);
 
 	PTF_ASSERT_NOT_NULL(ethDot3Layer->getNextLayer());
-	PTF_ASSERT_EQUAL(ethDot3Layer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
-	pcpp::PayloadLayer* payloadLayer = (pcpp::PayloadLayer*)ethDot3Layer->getNextLayer();
-	PTF_ASSERT_NOT_NULL(payloadLayer);
-	PTF_ASSERT_EQUAL(payloadLayer->getDataLen(), 46);
-
-	PTF_ASSERT_NULL(payloadLayer->getNextLayer());
+	PTF_ASSERT_EQUAL(ethDot3Layer->getNextLayer()->getProtocol(), pcpp::LLC, enum);
 } // EthDot3LayerParsingTest
 
 

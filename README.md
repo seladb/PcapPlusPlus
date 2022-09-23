@@ -3,6 +3,7 @@
 [![GitHub Actions](https://github.com/seladb/PcapPlusPlus/workflows/Build%20and%20test/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
 [![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
 [![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc/branch/master?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![CodeQL status](https://github.com/seladb/PcapPlusPlus/workflows/CodeQL/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
 [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/seladb/PcapPlusPlus.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/seladb/PcapPlusPlus/context:cpp)
 <a href="https://twitter.com/intent/follow?screen_name=seladb">
     <img src="https://img.shields.io/twitter/follow/seladb.svg?label=Follow%20PcapPlusPlus" alt="Follow PcapPlusPlus" />
@@ -173,55 +174,58 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 1. Ethernet II
 2. IEEE 802.3 Ethernet
-3. Null/Loopback
-4. Packet trailer (a.k.a footer or padding)
-5. PPPoE
-6. SLL (Linux cooked capture)
-7. VLAN
-8. VXLAN
+3. LLC (Only BPDU supported)
+4. Null/Loopback
+5. Packet trailer (a.k.a footer or padding)
+6. PPPoE
+7. SLL (Linux cooked capture)
+8. STP - parsing only (no editing capabilities)
+9. VLAN
+10. VXLAN
 
 ### Network Layer (L3)
 
-9. ARP
-10. GRE
-11. ICMP
-12. ICMPv6
-13. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-14. IPv4
-15. IPv6
-16. MPLS
-17. NDP
-18. Raw IP (IPv4 & IPv6)
+11. ARP
+12. GRE
+13. ICMP
+14. ICMPv6
+15. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+16. IPv4
+17. IPv6
+18. MPLS
+19. NDP
+20. Raw IP (IPv4 & IPv6)
 
 ### Transport Layer (L4)
 
-19. GTP (v1)
-20. IPSec AH & ESP - parsing only (no editing capabilities)
-21. TCP
-22. UDP
+21. GTP (v1)
+22. IPSec AH & ESP - parsing only (no editing capabilities)
+23. TCP
+24. UDP
 
 ### Session Layer (L5)
 
-23. SDP
-24. SIP
+25. SDP
+26. SIP
 
 ### Presentation Layer (L6)
 
-25. SSL/TLS - parsing only (no editing capabilities)
+27. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-26. BGP (v4)
-27. DHCP
-28. DHCPv6
-29. DNS
-30. FTP
-31. HTTP headers (request & response)
-32. NTP (v3, v4)
-33. Radius
-34. SSH - parsing only (no editing capabilities)
-35. Telnet - parsing only (no editing capabilities)
-36. Generic payload
+28. BGP (v4)
+29. DHCP
+30. DHCPv6
+31. DNS
+32. FTP
+33. HTTP headers (request & response)
+34. NTP (v3, v4)
+35. Radius
+36. SOME/IP
+37. SSH - parsing only (no editing capabilities)
+38. Telnet - parsing only (no editing capabilities)
+39. Generic payload
 
 ## DPDK And PF_RING Support
 

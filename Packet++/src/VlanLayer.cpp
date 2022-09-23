@@ -7,6 +7,7 @@
 #include "ArpLayer.h"
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
+#include "LLCLayer.h"
 #include <string.h>
 #include <sstream>
 #include "EndianPortable.h"
@@ -101,7 +102,9 @@ void VlanLayer::parseNextLayer()
 		m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
 		break;
 	default:
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer = (be16toh(hdr->etherType) < 1500 && LLCLayer::isDataValid(payload, payloadLen))
+			? static_cast<Layer *>(new LLCLayer(payload, payloadLen, this, m_Packet))
+			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 	}
 }
 

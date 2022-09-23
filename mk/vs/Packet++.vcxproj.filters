@@ -87,6 +87,9 @@
     <ClInclude Include="..\..\Packet++\header\Layer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\LLCLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Packet++\header\SingleCommandTextProtocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -138,6 +141,9 @@
     <ClInclude Include="..\..\Packet++\header\SllLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\SomeIpLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Packet++\header\SSLCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -145,6 +151,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Packet++\header\SSLLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Packet++\header\StpLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Packet++\header\TelnetLayer.h">
@@ -239,6 +248,9 @@
     <ClCompile Include="..\..\Packet++\src\Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\LLCLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Packet++\src\SingleCommandTextProtocol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -275,6 +287,9 @@
     <ClCompile Include="..\..\Packet++\src\SllLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\SomeIpLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Packet++\src\SSHLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -285,6 +300,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\SSLLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Packet++\src\StpLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Packet++\src\TextBasedProtocol.cpp">

@@ -68,6 +68,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\IPv6Tests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\LLCTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\NtpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
@@ -92,7 +95,13 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SllNullLoopbackTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\SomeIpTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSLTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\StpTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\TcpTests.cpp">

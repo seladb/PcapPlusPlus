@@ -1,4 +1,5 @@
 #include "TestUtils.h"
+#include "SomeIpLayer.h"
 #include <iostream>
 #include <iomanip>
 #include <string.h>
@@ -71,6 +72,12 @@ void printBufferDifferences(const uint8_t* buffer1, size_t buffer1Len, const uin
 		}
 	}
 	std::cout << "\n\n" << std::dec << differenceCount << " bytes differ\n\n";
+}
+
+void testSetUp()
+{
+	pcpp::SomeIpLayer::addSomeIpPort(1);
+	pcpp::SomeIpLayer::removeSomeIpPort(1);
 }
 
 #ifdef PCPP_TESTS_DEBUG

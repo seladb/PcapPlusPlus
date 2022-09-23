@@ -171,7 +171,7 @@ def usage():
       (https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html)
     - Bind devices from their "standard" drivers to DPDK-controlled drivers
 
-    In addition this tool allowes checking the status of the devices currently
+    In addition this tool allows checking the status of the devices currently
     bound/unbound to DPDK (similar to `dpdk-devbind --status`).
 
     Last, it allows unsetting all DPDK configuration and restore the system to its
