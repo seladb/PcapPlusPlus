@@ -7,7 +7,6 @@
 
 PTF_TEST_CASE(WakeOnLanParsingTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -34,12 +33,10 @@ PTF_TEST_CASE(WakeOnLanParsingTests)
 	PTF_ASSERT_EQUAL(wolLayer2->getTargetAddr(), pcpp::MacAddress("00:90:27:85:cf:01"));
 	PTF_ASSERT_EQUAL(wolLayer2->getPassword(), "");
 	PTF_ASSERT_EQUAL(wolLayer2->toString(), "Wake On LAN 00:90:27:85:cf:01");
-
 }
 
 PTF_TEST_CASE(WakeOnLanCreationTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 
@@ -60,15 +57,12 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 	PTF_ASSERT_NOT_NULL(wolLayer2);
 
 	pcpp::WakeOnLanLayer wolcraftedLayer2(pcpp::MacAddress("00:90:27:85:cf:01"));
-
 	PTF_ASSERT_EQUAL(wolcraftedLayer2.getDataLen(), wolLayer2->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(wolcraftedLayer2.getDataPtr(), wolLayer2->getDataPtr(), wolLayer2->getDataLen());
-
 }
 
 PTF_TEST_CASE(WakeOnLanEditTests)
 {
-
 	timeval time;
 	gettimeofday(&time, NULL);
 }
