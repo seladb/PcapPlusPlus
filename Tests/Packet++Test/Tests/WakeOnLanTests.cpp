@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "GeneralUtils.h"
+#include "SystemUtils.h"
 #include "Logger.h"
 #include "Packet.h"
 #include "WakeOnLanLayer.h"
