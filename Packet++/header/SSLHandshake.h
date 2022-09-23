@@ -478,7 +478,7 @@ public:
 	SSLCipherSuite* getCipherSuite(int index) const;
 
 	/**
-	 * Get the cipher-suite ID by index. This method just parses the ID from the clinet-hello message and returns it.
+	 * Get the cipher-suite ID by index. This method just parses the ID from the client-hello message and returns it.
 	 * To get more information on the cipher-suite you can use the getCipherSuite() method
 	 * @param[in] index The index of the cipher-suite to return
 	 * @param[out] isValid Set to "true" if parsing succeeded and the return value is valid or "false" if:
