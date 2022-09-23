@@ -47,7 +47,7 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 
 	pcpp::WakeOnLanLayer wolcraftedLayer1(pcpp::MacAddress("00:0d:56:dc:9e:35"));
 	PTF_ASSERT_TRUE(wolcraftedLayer1.setPassword(pcpp::IPv4Address("192.168.1.1")));
-	
+
 	PTF_ASSERT_EQUAL(wolcraftedLayer1.getDataLen(), wolLayer1->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(wolcraftedLayer1.getDataPtr(), wolLayer1->getDataPtr(), wolLayer1->getDataLen());
 
