@@ -615,4 +615,20 @@ void PPP_PPTPLayer::computeCalculateFields()
 		header->protocol = 0;
 }
 
+
+void PPP_PPTPLayer::ToStructuredOutput(std::ostream &os) const{
+	os << "PPP Packet:" << '\n';
+    os << '\t' << "header: " << '\n';
+    os << "\t\t"
+       << "Broadcast Address: \t" <<  (std::bitset<8>)getPPP_PPTPHeader()->address << '\n';
+    os << "\t\t"
+       << "Control bytes: \t\t" <<  (std::bitset<8>)getPPP_PPTPHeader()->control << '\n';
+	os << "\t\t"
+		<< "next layer protocol: \t" << std::hex << getPPP_PPTPHeader()->protocol << std::oct <<'\n';
+	
+	os << "payload length:" << getLayerPayloadSize()<<"\n\n";
+
+    os << std::endl;
+}
+
 } // namespace pcpp

@@ -73,6 +73,10 @@ namespace pcpp
 	const ProtocolType HTTP = 0x60;
 
 	/**
+	 * L2TP protocol
+	 */
+	const ProtocolType L2TP = 0x73;
+	/**
 	 * ARP protocol
 	 */
 	const ProtocolType ARP = 0x80;

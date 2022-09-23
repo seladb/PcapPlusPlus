@@ -396,6 +396,7 @@ namespace pcpp
 		 */
 		ppp_pptp_header* getPPP_PPTPHeader() const { return (ppp_pptp_header*)m_Data; }
 
+		void ToStructuredOutput(std::ostream &os) const;
 
 		// implement abstract methods
 
