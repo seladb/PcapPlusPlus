@@ -66,4 +66,29 @@ PTF_TEST_CASE(WakeOnLanEditTests)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
+	pcpp::Packet wolPacket1(&rawPacket1);
+	pcpp::WakeOnLanLayer *wolLayer1 = wolPacket1.getLayerOfType<pcpp::WakeOnLanLayer>();
+	PTF_ASSERT_NOT_NULL(wolLayer1);
+
+	// Edit password
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WoL_ether_edited1.dat");
+	pcpp::Packet wolPacketEdited1(&rawPacket2);
+	pcpp::WakeOnLanLayer *wolLayer2 = wolPacketEdited1.getLayerOfType<pcpp::WakeOnLanLayer>();
+	PTF_ASSERT_NOT_NULL(wolLayer2);
+
+	wolLayer1->setPassword(pcpp::IPv4Address("172.0.0.2"));
+	PTF_ASSERT_EQUAL(wolLayer1->getDataLen(), wolLayer2->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(wolLayer1->getDataPtr(), wolLayer2->getDataPtr(), wolLayer2->getDataLen());
+
+	// Edit target
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/WoL_ether_edited2.dat");
+	pcpp::Packet wolPacketEdited2(&rawPacket3);
+	pcpp::WakeOnLanLayer *wolLayer3 = wolPacketEdited2.getLayerOfType<pcpp::WakeOnLanLayer>();
+	PTF_ASSERT_NOT_NULL(wolLayer3);
+
+	wolLayer1->setTargetAddr("00:90:27:85:cf:01");
+	PTF_ASSERT_EQUAL(wolLayer1->getDataLen(), wolLayer3->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(wolLayer1->getDataPtr(), wolLayer3->getDataPtr(), wolLayer3->getDataLen());
 }

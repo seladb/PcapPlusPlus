@@ -1,8 +1,8 @@
 #ifndef PACKETPP_WAKEONLAN_LAYER
 #define PACKETPP_WAKEONLAN_LAYER
 
-#include "Layer.h"
 #include "IpAddress.h"
+#include "Layer.h"
 #include "MacAddress.h"
 
 /// @file
@@ -13,14 +13,12 @@
  */
 namespace pcpp
 {
-
 	/**
 	 * Class for representing the Wake on LAN Layer
 	 */
 	class WakeOnLanLayer : public Layer
 	{
-	public:
-
+	  public:
 		/**
 		 * @struct wol_header
 		 * Wake On LAN protocol header
@@ -31,7 +29,7 @@ namespace pcpp
 			/// Sync stream (FF FF FF FF FF FF)
 			uint8_t sync[6];
 			/// Target MAC address repeated 16 times
-			uint8_t addrBody[6*16];
+			uint8_t addrBody[6 * 16];
 		};
 #pragma pack(pop)
 
@@ -55,10 +53,11 @@ namespace pcpp
 		WakeOnLanLayer(const pcpp::MacAddress &targetAddr);
 
 		/**
-		 * Get a pointer to the Wake On LAN header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the Wake On LAN header. Notice this points directly to the data, so every change will change
+		 * the actual packet data
 		 * @return wol_header* A pointer to the wol_header
 		 */
-		inline wol_header* getWakeOnLanHeader() const { return (wol_header*)m_Data; }
+		inline wol_header *getWakeOnLanHeader() const { return (wol_header *)m_Data; }
 
 		/**
 		 * Get the target MAC address of the command
@@ -133,7 +132,7 @@ namespace pcpp
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const { return m_DataLen;	}
+		size_t getHeaderLen() const { return m_DataLen; }
 
 		/// Does nothing for this layer
 		void computeCalculateFields() {}
