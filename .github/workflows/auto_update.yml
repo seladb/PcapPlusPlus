@@ -34,6 +34,7 @@ jobs:
           title: Auto precommit update
           labels: automated-pr
           assignees: seladb
+
   oui-update:
     runs-on: ubuntu-latest
 
