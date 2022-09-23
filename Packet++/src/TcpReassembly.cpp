@@ -240,7 +240,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	{
 		PCPP_LOG_DEBUG("Got FIN or RST packet without data on side " << sideIndex);
 
-		handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+		handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 		return FIN_RSTWithNoData;
 	}
 
@@ -289,7 +289,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		// handle case where this packet is FIN or RST (although it's unlikely)
 		if (isFinOrRst)
-			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 
 		// return - nothing else to do here
 		return status;
@@ -329,7 +329,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
-			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 
 		// return - nothing else to do here
 		return status;
@@ -346,7 +346,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
 			{
-				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 				status = FIN_RSTWithNoData;
 			}
 			else
@@ -379,7 +379,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
-			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 
 		// return - nothing else to do here
 		return status;
@@ -397,7 +397,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 			// handle case where this packet is FIN or RST
 			if (isFinOrRst)
 			{
-				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+				handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 				status = FIN_RSTWithNoData;
 			}
 			else
@@ -430,7 +430,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		// handle case where this packet is FIN or RST
 		if (isFinOrRst)
 		{
-			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey);
+			handleFinOrRst(tcpReassemblyData, sideIndex, flowKey, isRst);
 		}
 
 		return status;
@@ -450,7 +450,7 @@ static std::string prepareMissingDataMessage(uint32_t missingDataLen)
 	return missingDataTextStream.str();
 }
 
-void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, uint32_t flowKey)
+void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, uint32_t flowKey, bool isRst)
 {
 	// if this side already saw a FIN or RST packet, do nothing and return
 	if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
@@ -461,12 +461,19 @@ void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t 
 	// set FIN/RST flag for this side
 	tcpReassemblyData->twoSides[sideIndex].gotFinOrRst = true;
 
-	// check if the other side also sees FIN or RST packet. If so - close the flow. Otherwise - only clear the out-of-order packets for this side
+	// check if the other side also sees FIN or RST packet. If so - just close the flow. Otherwise - clear the out-of-order packets for this side
 	int otherSideIndex = 1 - sideIndex;
 	if (tcpReassemblyData->twoSides[otherSideIndex].gotFinOrRst)
+	{
 		closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
+		return;
+	}
 	else
 		checkOutOfOrderFragments(tcpReassemblyData, sideIndex, true);
+
+	// and if it's a rst, close the flow unilaterally
+	if(isRst)
+		closeConnectionInternal(flowKey, TcpReassembly::TcpReassemblyConnectionClosedByFIN_RST);
 }
 
 void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList)
