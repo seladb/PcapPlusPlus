@@ -2,9 +2,38 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '0 10 * * 0'
+    - cron: '10 10 15 * *'
 
 jobs:
+  precommit-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: dev
+      - name: Setup Python
+        uses: actions/setup-python@v4
+      - name: Run update
+        run: |
+            pip install pre-commit
+            pre-commit autoupdate
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          author: GitHub <noreply@github.com>
+          add-paths: .pre-commit-config.yaml
+          commit-message: Auto pre-commit update
+          body: |
+            Update pre-commit hooks to latest
+
+            Auto generated
+          branch: auto-update/precommit_update
+          delete-branch: true
+          title: Auto precommit update
+          labels: automated-pr
+          assignees: seladb
   oui-update:
     runs-on: ubuntu-latest
 
@@ -13,6 +42,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: dev
+      - name: Setup Python
+        uses: actions/setup-python@v4
       - name: Run update
         run: |
             cd 3rdParty/OUILookup

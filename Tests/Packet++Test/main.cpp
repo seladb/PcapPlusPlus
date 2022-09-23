@@ -5,7 +5,7 @@
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
 #include "Logger.h"
-
+#include "../../Tests/Packet++Test/Utils/TestUtils.h"
 
 static struct option PacketTestOptions[] =
 {
@@ -106,6 +106,8 @@ int main(int argc, char* argv[])
 	}
 
 	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
+
+	pcpp_tests::testSetUp();
 
 	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
@@ -253,9 +255,24 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TelnetCommandParsingTests, "telnet");
 	PTF_RUN_TEST(TelnetDataParsingTests, "telnet");
 
+	PTF_RUN_TEST(IcmpV6ParsingTest, "icmpv6");
+	PTF_RUN_TEST(IcmpV6CreationTest, "icmpv6");
+	PTF_RUN_TEST(IcmpV6EditTest, "icmpv6");
+
 	PTF_RUN_TEST(FtpParsingTests, "ftp");
 	PTF_RUN_TEST(FtpCreationTests, "ftp");
 	PTF_RUN_TEST(FtpEditTests, "ftp");
+
+	PTF_RUN_TEST(LLCParsingTests, "llc");
+	PTF_RUN_TEST(LLCCreationTests, "llc");
+
+	PTF_RUN_TEST(StpConfigurationParsingTests, "stp");
+	PTF_RUN_TEST(StpTopologyChangeParsingTests, "stp");
+	PTF_RUN_TEST(RapidStpParsingTests, "stp");
+	PTF_RUN_TEST(MultipleStpParsingTests, "stp");
+
+	PTF_RUN_TEST(SomeIpParsingTest, "someip");
+	PTF_RUN_TEST(SomeIpCreationTest, "someip");
 
 	PTF_END_RUNNING_TESTS;
 }
