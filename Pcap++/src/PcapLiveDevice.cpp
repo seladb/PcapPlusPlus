@@ -944,10 +944,10 @@ IPv6Address PcapLiveDevice::getIPv6Address() const
 	for (std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end();
 		 addrIter++)
 	{
-		char addrAsString[INET6_ADDRSTRLEN];
-		internal::sockaddr2string(addrIter->addr, addrAsString);
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
 		{
+			char addrAsString[INET6_ADDRSTRLEN];
+			internal::sockaddr2string(addrIter->addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
 		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter->addr);
@@ -956,7 +956,7 @@ IPv6Address PcapLiveDevice::getIPv6Address() const
 			PCPP_LOG_DEBUG("Address is NULL");
 			continue;
 		}
-		return IPv6Address(addrAsString);
+		return IPv6Address(currAddr->s6_addr);
 	}
 	return IPv6Address::Zero;
 }
