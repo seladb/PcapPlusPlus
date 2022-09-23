@@ -182,7 +182,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 8. STP - parsing only (no editing capabilities)
 9. VLAN
 10. VXLAN
-11. Wake on Lan (WoL)
+11. Wake on LAN (WoL)
 
 ### Network Layer (L3)
 

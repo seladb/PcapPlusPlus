@@ -55,13 +55,13 @@ namespace pcpp
 		/**
 		 * Get a pointer to the Wake On LAN header. Notice this points directly to the data, so every change will change
 		 * the actual packet data
-		 * @return wol_header* A pointer to the wol_header
+		 * @return A pointer to the wol_header
 		 */
 		inline wol_header *getWakeOnLanHeader() const { return (wol_header *)m_Data; }
 
 		/**
 		 * Get the target MAC address of the command
-		 * @return pcpp::MacAddress MAC address of the target
+		 * @return MAC address of the target
 		 */
 		pcpp::MacAddress getTargetAddr() const;
 
@@ -73,7 +73,7 @@ namespace pcpp
 
 		/**
 		 * Get the password of the command
-		 * @return std::string Returns the password if exists, empty string otherwise
+		 * @return Returns the password if exists, empty string otherwise
 		 */
 		std::string getPassword() const;
 
@@ -81,32 +81,28 @@ namespace pcpp
 		 * Set the password of the command
 		 * @param[in] password Password as array
 		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
-		 * @return true If successful
-		 * @return false otherwise
+		 * @return True if operation successful, false otherwise
 		 */
 		bool setPassword(const uint8_t *password, uint8_t len);
 
 		/**
 		 * Set the password of the command
 		 * @param[in] password Password as string. Length of the password should be less than 6 bytes
-		 * @return true If successful
-		 * @return false otherwise
+		 * @return True if operation successful, false otherwise
 		 */
 		bool setPassword(const std::string &password);
 
 		/**
 		 * Set the password of the command
 		 * @param[in] addr Password as MAC address
-		 * @return true If successful
-		 * @return false otherwise
+		 * @return True if operation successful, false otherwise
 		 */
 		bool setPassword(const MacAddress &addr);
 
 		/**
 		 * Set the password of the command
 		 * @param addr Password as IPv4 address
-		 * @return true If successful
-		 * @return false otherwise
+		 * @return True if operation successful, false otherwise
 		 */
 		bool setPassword(const IPv4Address &addr);
 
