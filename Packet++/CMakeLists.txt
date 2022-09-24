@@ -39,6 +39,7 @@ add_library(
   src/SingleCommandTextProtocol.cpp
   src/SipLayer.cpp
   src/SllLayer.cpp
+  src/SomeIpLayer.cpp
   src/SSHLayer.cpp
   src/SSLCommon.cpp
   src/SSLHandshake.cpp
@@ -97,6 +98,7 @@ set(public_headers
     header/SingleCommandTextProtocol.h
     header/SipLayer.h
     header/SllLayer.h
+    header/SomeIpLayer.h
     header/SSHLayer.h
     header/SSLCommon.h
     header/SSLHandshake.h
