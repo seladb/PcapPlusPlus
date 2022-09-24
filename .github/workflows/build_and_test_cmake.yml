@@ -257,7 +257,9 @@ jobs:
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
-        run: cmake --build $BUILD_DIR
+        # More than 2 jobs would make the build crash with OOM
+        # cc1plus.exe: out of memory allocating 65536 bytes
+        run: cmake --build $BUILD_DIR -j 2
 
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
