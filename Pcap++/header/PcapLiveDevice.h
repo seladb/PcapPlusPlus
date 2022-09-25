@@ -287,6 +287,12 @@ namespace pcpp
 		IPv4Address getIPv4Address() const;
 
 		/**
+		 * @return The IPv6 address for this interface. If multiple IPv6 addresses are defined for this interface, the first will be picked.
+		 * If no IPv6 addresses are defined, a zeroed IPv6 address (IPv6Address#Zero) will be returned
+		 */
+		IPv6Address getIPv6Address() const;
+
+		/**
 		 * @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4 or if couldn't extract
 		 * default gateway IPv4Address#Zero will be returned. If multiple gateways were defined the first one will be returned
 		 */
