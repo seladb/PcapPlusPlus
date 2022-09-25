@@ -81,8 +81,7 @@ if(NOT PCAP_FOUND)
 endif()
 
 # Enable the option if it's available
-option(PCAPPP_HAS_PCAP_IMMEDIATE_MODE "Enable PCAP immediate Mode (supported on libpcap>=1.5)"
-       ${HAVE_PCAP_IMMEDIATE_MODE})
+option(PCAPPP_HAS_PCAP_IMMEDIATE_MODE "Enable PCAP immediate Mode (supported on libpcap>=1.5)" OFF)
 
 # Check in case user force it but it's not available
 if(PCAPPP_HAS_PCAP_IMMEDIATE_MODE)
