@@ -149,6 +149,12 @@ if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC)
   add_compile_options(-Wall -g)
 endif()
 
+# Static linking GCC/Threads for minGW (Windows + GNU)
+if(PCAPPP_TARGET_PLATFORM_WINDOWS AND PCAPPP_TARGET_COMPILER_GCC)
+  add_link_options(-static-libgcc -static-libstdc++)
+  add_link_options(-static)
+endif()
+
 add_subdirectory(3rdParty)
 add_subdirectory(Packet++)
 add_subdirectory(Pcap++)

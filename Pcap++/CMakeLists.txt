@@ -82,12 +82,6 @@ target_include_directories(
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
           $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>)
 
-# Static linking GCC/Threads for minGW (Windows + GNU)
-if(PCAPPP_TARGET_PLATFORM_WINDOWS AND PCAPPP_TARGET_COMPILER_GCC)
-  target_link_libraries(Pcap++ PUBLIC -static-libgcc -static-libstdc++)
-  target_link_libraries(Pcap++ PUBLIC -static)
-endif()
-
 target_link_libraries(
   Pcap++
   PUBLIC Common++
