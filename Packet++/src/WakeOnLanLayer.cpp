@@ -52,7 +52,7 @@ bool WakeOnLanLayer::setPassword(const uint8_t *password, uint8_t len)
 	{
 		if (m_DataLen > sizeof(wol_header) + len)
 		{
-			if (!shortenLayer(0, m_DataLen - (sizeof(wol_header) + len)))
+			if (!shortenLayer(sizeof(wol_header), m_DataLen - (sizeof(wol_header) + len)))
 			{
 				PCPP_LOG_ERROR("Can't shorten Wake on LAN layer");
 				return false;
