@@ -1,6 +1,7 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EthLayer.h"
+#include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "Packet.h"
 #include "SomeIpLayer.h"
@@ -10,30 +11,45 @@
 #include <array>
 #include <cstring>
 
+class SomeIpTeardown
+{
+public:
+	SomeIpTeardown() {}
+	~SomeIpTeardown() {	pcpp::SomeIpLayer::removeAllSomeIpPorts(); }
+};
+
+PTF_TEST_CASE(SomeIpPortTest)
+{
+	SomeIpTeardown someIpTeardown;
+
+	pcpp::SomeIpLayer::addSomeIpPort(1234);
+	PTF_ASSERT_TRUE(pcpp::SomeIpLayer::isSomeIpPort(1234));
+
+	pcpp::SomeIpLayer::removeSomeIpPort(1234);
+	PTF_ASSERT_FALSE(pcpp::SomeIpLayer::isSomeIpPort(1234));
+
+	pcpp::SomeIpLayer::addSomeIpPort(1235);
+	pcpp::SomeIpLayer::addSomeIpPort(1236);
+	PTF_ASSERT_TRUE(pcpp::SomeIpLayer::isSomeIpPort(1235));
+	PTF_ASSERT_TRUE(pcpp::SomeIpLayer::isSomeIpPort(1236));
+
+	pcpp::SomeIpLayer::removeAllSomeIpPorts();
+	PTF_ASSERT_FALSE(pcpp::SomeIpLayer::isSomeIpPort(1235));
+	PTF_ASSERT_FALSE(pcpp::SomeIpLayer::isSomeIpPort(1236));
+}
+
 PTF_TEST_CASE(SomeIpParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, NULL);
 
-	// Test adding SOME/IP port and removing with SomeIpLayer::removeAllSomeIpPorts
+	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(29180);
-	PTF_ASSERT_TRUE(pcpp::SomeIpLayer::isSomeIpPort(29180));
-	PTF_ASSERT_FALSE(pcpp::SomeIpLayer::isSomeIpPort(29181));
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/someip.dat");
-	pcpp::Packet someIpPacket(&rawPacket1);
-
-	pcpp::SomeIpLayer::removeAllSomeIpPorts();
-	PTF_ASSERT_FALSE(pcpp::SomeIpLayer::isSomeIpPort(29180));
-
-	//  Test adding SOME/IP port and removing with SomeIpLayer::removeSomeIpPort
-	pcpp::SomeIpLayer::addSomeIpPort(29180);
-
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/someip2.dat");
+	pcpp::Packet someIpPacket(&rawPacket1);
 	pcpp::Packet someIpPacket2(&rawPacket2);
-
-	pcpp::SomeIpLayer::removeSomeIpPort(29180);
-	PTF_ASSERT_FALSE(pcpp::SomeIpLayer::isSomeIpPort(29180));
 
 	// Test with one SOME/IP layer
 	PTF_ASSERT_TRUE(someIpPacket.isPacketOfType(pcpp::SomeIP));
@@ -147,4 +163,143 @@ PTF_TEST_CASE(SomeIpCreationTest)
 
 	delete [] buffer1;
 	delete [] buffer2;
+}
+
+PTF_TEST_CASE(SomeIpTpParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	SomeIpTeardown someIpTeardown;
+	pcpp::SomeIpLayer::addSomeIpPort(16832);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpTp1.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SomeIpTp2.dat");
+
+	pcpp::Packet someIpTpPacket1(&rawPacket1);
+	pcpp::Packet someIpTpPacket2(&rawPacket2);
+
+	// Test SOME/IP-TP start packet
+	PTF_ASSERT_TRUE(someIpTpPacket1.isPacketOfType(pcpp::SomeIP));
+	pcpp::SomeIpTpLayer *someIpTpLayer1 = someIpTpPacket1.getLayerOfType<pcpp::SomeIpTpLayer>();
+	PTF_ASSERT_NOT_NULL(someIpTpLayer1);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getHeaderLen(), 1412);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getMessageID(), 0xd05f8001);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getServiceID(), 0xd05f);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getMethodID(), 0x8001);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getLengthField(), 1404);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getRequestID(), 0x0);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getClientID(), 0x0);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getSessionID(), 0x0);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getProtocolVersion(), 1);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getInterfaceVersion(), 0x1);
+	PTF_ASSERT_EQUAL((int)someIpTpLayer1->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getReturnCode(), 0);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getOffset(), 0);
+	PTF_ASSERT_TRUE(someIpTpLayer1->getMoreSegmentsFlag());
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getPduPayloadSize(), 1392);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getPduPayload()[0], 0x12);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getPduPayload()[1391], 0x34);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->toString(), "SOME/IP-TP Layer, Service ID: 0xd05f, Method ID: 0x8001, Length: 1404");
+
+	// Test SOME/IP-TP end packet
+	PTF_ASSERT_TRUE(someIpTpPacket2.isPacketOfType(pcpp::SomeIP));
+	pcpp::SomeIpTpLayer *someIpTpLayer2 = someIpTpPacket2.getLayerOfType<pcpp::SomeIpTpLayer>();
+	PTF_ASSERT_NOT_NULL(someIpTpLayer2);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getHeaderLen(), 245);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageID(), 0xd05f8001);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getServiceID(), 0xd05f);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getMethodID(), 0x8001);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getLengthField(), 237);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getRequestID(), 0x0);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getClientID(), 0x0);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getSessionID(), 0x0);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getProtocolVersion(), 1);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getInterfaceVersion(), 0x1);
+	PTF_ASSERT_EQUAL((int)someIpTpLayer2->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getReturnCode(), 0);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getOffset() * 16, 91872);
+	PTF_ASSERT_FALSE(someIpTpLayer2->getMoreSegmentsFlag());
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayloadSize(), 225);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayload()[0], 0xab);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getPduPayload()[224], 0xcd);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->toString(), "SOME/IP-TP Layer, Service ID: 0xd05f, Method ID: 0x8001, Length: 237");
+}
+
+PTF_TEST_CASE(SomeIpTpCreationTest)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_INTO_BUFFER(1, "PacketExamples/SomeIpTp1.dat");
+	READ_FILE_INTO_BUFFER(2, "PacketExamples/SomeIpTp2.dat");
+
+	const size_t dataLen1 = 1392;
+	uint8_t data1[dataLen1] = {0};
+	data1[0] = 0x12;
+	data1[dataLen1-1] = 0x34;
+
+	const size_t dataLen2 = 225;
+	uint8_t data2[dataLen2] = {0};
+	data2[0] = 0xab;
+	data2[dataLen2-1] = 0xcd;
+
+	pcpp::EthLayer ethLayer1(pcpp::MacAddress("02:7d:fa:01:17:40"), pcpp::MacAddress("02:7d:fa:00:10:01"), PCPP_ETHERTYPE_IP);
+	pcpp::IPv4Layer ipLayer1(pcpp::IPv4Address("192.168.0.1"), pcpp::IPv4Address("192.168.0.2"));
+	ipLayer1.getIPv4Header()->timeToLive = 20;
+	pcpp::UdpLayer udpLayer1(30502, 16832);
+
+	// Test SOME/IP-TP start packet
+	pcpp::SomeIpTpLayer someIpTpLayer1(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0, 0,
+									   true, data1, dataLen1);
+
+	pcpp::Packet someIpTpPacket1(500);
+	PTF_ASSERT_TRUE(someIpTpPacket1.addLayer(&ethLayer1));
+	PTF_ASSERT_TRUE(someIpTpPacket1.addLayer(&ipLayer1));
+	PTF_ASSERT_TRUE(someIpTpPacket1.addLayer(&udpLayer1));
+	PTF_ASSERT_TRUE(someIpTpPacket1.addLayer(&someIpTpLayer1));
+	someIpTpPacket1.computeCalculateFields();
+
+	PTF_ASSERT_EQUAL(someIpTpPacket1.getRawPacket()->getRawDataLen(), bufferLength1);
+	PTF_ASSERT_BUF_COMPARE(someIpTpPacket1.getRawPacket()->getRawData(), buffer1, bufferLength1);
+
+	// Test SOME/IP-TP end packet
+	pcpp::EthLayer ethLayer2(ethLayer1);
+	pcpp::IPv4Layer ipLayer2(ipLayer1);
+	pcpp::UdpLayer udpLayer2(udpLayer1);
+	pcpp::SomeIpTpLayer someIpTpLayer2(0xd05f, 0x8001, 0, 0, 1, pcpp::SomeIpLayer::MsgType::REQUEST_NO_RETURN, 0,
+									   91872 / 16, false, data2, dataLen2);
+
+	pcpp::Packet someIpTpPacket2(500);
+	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&ethLayer2));
+	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&ipLayer2));
+	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&udpLayer2));
+	PTF_ASSERT_TRUE(someIpTpPacket2.addLayer(&someIpTpLayer2));
+	someIpTpPacket2.computeCalculateFields();
+
+	PTF_ASSERT_EQUAL(someIpTpPacket2.getRawPacket()->getRawDataLen(), bufferLength2);
+	PTF_ASSERT_BUF_COMPARE(someIpTpPacket2.getRawPacket()->getRawData(), buffer2, bufferLength2);
+
+	delete [] buffer1;
+	delete [] buffer2;
+}
+
+PTF_TEST_CASE(SomeIpTpEditTest)
+{
+	const size_t dataLen2 = 225;
+	uint8_t data2[dataLen2] = {0};
+
+	pcpp::SomeIpTpLayer someIpTpLayer(0x6059, 0x410c, 0x3, 0xa, 0x5, pcpp::SomeIpLayer::MsgType::REQUEST, 0, 91872 / 16,
+									  true, data2, dataLen2);
+	someIpTpLayer.setOffset(123);
+
+	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 123);
+	PTF_ASSERT_TRUE(someIpTpLayer.getMoreSegmentsFlag());
+
+	someIpTpLayer.setMoreSegmentsFlag(false);
+
+	PTF_ASSERT_EQUAL(someIpTpLayer.getOffset(), 123);
+	PTF_ASSERT_FALSE(someIpTpLayer.getMoreSegmentsFlag());
 }

@@ -194,8 +194,12 @@ PTF_TEST_CASE(RapidStpParsingTests);
 PTF_TEST_CASE(MultipleStpParsingTests);
 
 // Implemented in SomeIpTests.cpp
+PTF_TEST_CASE(SomeIpPortTest);
 PTF_TEST_CASE(SomeIpParsingTest);
 PTF_TEST_CASE(SomeIpCreationTest);
+PTF_TEST_CASE(SomeIpTpParsingTest);
+PTF_TEST_CASE(SomeIpTpCreationTest);
+PTF_TEST_CASE(SomeIpTpEditTest);
 
 // Implemented in WakeOnLanTests.cpp
 PTF_TEST_CASE(WakeOnLanParsingTests);
