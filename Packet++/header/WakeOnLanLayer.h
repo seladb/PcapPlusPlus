@@ -18,6 +18,9 @@ namespace pcpp
 	 */
 	class WakeOnLanLayer : public Layer
 	{
+	  private:
+	  	void init(uint16_t len);
+
 	  public:
 		/**
 		 * @struct wol_header
@@ -51,6 +54,28 @@ namespace pcpp
 		 * @param[in] targetAddr Target MAC address
 		 */
 		WakeOnLanLayer(const pcpp::MacAddress &targetAddr);
+
+		/**
+		 * Construct a new Wake On Lan Layer with provided values
+		 * @param[in] targetAddr Target MAC address
+		 * @param[in] password Password as array
+		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
+		 */
+		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, uint8_t *password, uint8_t len);
+
+		/**
+		 * Construct a new Wake On Lan Layer with provided values
+		 * @param[in] targetAddr Target MAC address
+		 * @param[in] password Password as MAC address
+		 */
+		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const pcpp::MacAddress &password);
+
+		/**
+		 * Construct a new Wake On Lan Layer with provided values
+		 * @param[in] targetAddr Target MAC address
+		 * @param[in] password Password as IPv4 address
+		 */
+		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const IPv4Address &password);
 
 		/**
 		 * Get a pointer to the Wake On LAN header. Notice this points directly to the data, so every change will change

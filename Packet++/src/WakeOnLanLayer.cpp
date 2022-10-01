@@ -8,15 +8,40 @@
 namespace pcpp
 {
 
-WakeOnLanLayer::WakeOnLanLayer(const pcpp::MacAddress &targetAddr)
+void WakeOnLanLayer::init(uint16_t len)
 {
-	m_Data = new uint8_t[sizeof(wol_header)];
-	m_DataLen = sizeof(wol_header);
+	m_Data = new uint8_t[len];
+	m_DataLen = len;
 	m_Protocol = WakeOnLan;
 
-	// Init fields
 	memset(getWakeOnLanHeader()->sync, 0xFF, 6);
+}
+
+WakeOnLanLayer::WakeOnLanLayer(const pcpp::MacAddress &targetAddr)
+{
+	init(sizeof(wol_header));
 	setTargetAddr(targetAddr);
+}
+
+WakeOnLanLayer::WakeOnLanLayer(const pcpp::MacAddress &targetAddr, uint8_t *password, uint8_t len)
+{
+	init(sizeof(wol_header) + len);
+	setTargetAddr(targetAddr);
+	setPassword(password, len);
+}
+
+WakeOnLanLayer::WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const pcpp::MacAddress &password)
+{
+	init(sizeof(wol_header) + 6);
+	setTargetAddr(targetAddr);
+	setPassword(password);
+}
+
+WakeOnLanLayer::WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const IPv4Address &password)
+{
+	init(sizeof(wol_header) + 4);
+	setTargetAddr(targetAddr);
+	setPassword(password);
 }
 
 pcpp::MacAddress WakeOnLanLayer::getTargetAddr() const
