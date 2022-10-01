@@ -1,15 +1,17 @@
 #define LOG_MODULE PacketLogModuleSomeIpLayer
 
 #include "SomeIpLayer.h"
-#include "EndianPortable.h"
 #include "Packet.h"
 #include "PayloadLayer.h"
+#include "EndianPortable.h"
 #include <algorithm>
 #include <sstream>
 #include <string.h>
 
 namespace pcpp
 {
+
+// SomeIpLayer
 
 void splitUint32Id(uint32_t uint32Id, uint16_t &uint16IdUpper, uint16_t &uint16IdLower)
 {
@@ -41,6 +43,55 @@ SomeIpLayer::SomeIpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientI
 	setReturnCode(returnCode);
 }
 
+Layer* SomeIpLayer::parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet)
+{
+	/* Ideas taken from wireshark some ip dissector */
+	const size_t headerLen = sizeof(someiphdr);
+	if (dataLen < headerLen)
+		return new PayloadLayer(data, dataLen, prevLayer, packet);
+
+	uint32_t lengthBE = 0;
+	memcpy(&lengthBE, data + sizeof(uint32_t), sizeof(uint32_t)); // length field in SOME/IP header
+	uint32_t length = be32toh(lengthBE);
+	if ((length < 8) || (length > dataLen - 8))
+		return new PayloadLayer(data, dataLen, prevLayer, packet);
+
+	if (data[12] != SOMEIP_PROTOCOL_VERSION)
+		return new PayloadLayer(data, dataLen, prevLayer, packet);
+
+	someiphdr *hdr = (someiphdr *)data;
+
+	switch (static_cast<MsgType>(hdr->msgType & ~(uint8_t)MsgType::TP_REQUEST))
+	{
+	case MsgType::REQUEST:
+	case MsgType::REQUEST_ACK:
+	case MsgType::REQUEST_NO_RETURN:
+	case MsgType::REQUEST_NO_RETURN_ACK:
+	case MsgType::NOTIFICATION:
+	case MsgType::NOTIFICATION_ACK:
+	case MsgType::RESPONSE:
+	case MsgType::RESPONSE_ACK:
+	case MsgType::ERRORS:
+	case MsgType::ERROR_ACK:
+		break;
+	default:
+		return new PayloadLayer(data, dataLen, prevLayer, packet);
+	}
+
+	if (hdr->serviceID == 0xFFFF && hdr->methodID == 0x8100)
+	{
+		return new PayloadLayer(data, dataLen, prevLayer, packet); // TODO: impl SomeIpSdLayer()
+	}
+	else if ((hdr->msgType & (uint8_t)SomeIpLayer::MsgType::TP_REQUEST) != 0)
+	{
+		return new SomeIpTpLayer(data, dataLen, prevLayer, packet);
+	}
+	else
+	{
+		return new SomeIpLayer(data, dataLen, prevLayer, packet);
+	}
+}
+
 bool SomeIpLayer::isSomeIpPort(uint16_t port)
 {
 	return std::any_of(m_SomeIpPorts.begin(), m_SomeIpPorts.end(),
@@ -60,44 +111,6 @@ void SomeIpLayer::removeSomeIpPort(uint16_t port)
 void SomeIpLayer::removeAllSomeIpPorts()
 {
 	m_SomeIpPorts.clear();
-}
-
-bool SomeIpLayer::isDataValid(uint8_t *data, uint32_t dataLen)
-{
-	/* Ideas taken from wireshark some ip dissector */
-	const size_t headerLen = sizeof(someiphdr);
-	if (dataLen < headerLen)
-		return false;
-
-	uint32_t lengthBE = 0;
-	memcpy(&lengthBE, data + sizeof(uint32_t), sizeof(uint32_t)); // length field in SOME/IP header
-	uint32_t length = be32toh(lengthBE);
-	if ((length < 8) || (length > dataLen - 8))
-		return false;
-
-	if (data[12] != SOMEIP_PROTOCOL_VERSION)
-		return false;
-
-	someiphdr *hdr = (someiphdr *)data;
-
-	switch (static_cast<MsgType>(hdr->msgType & ~(uint8_t)MsgType::TP_REQUEST))
-	{
-	case MsgType::REQUEST:
-	case MsgType::REQUEST_ACK:
-	case MsgType::REQUEST_NO_RETURN:
-	case MsgType::REQUEST_NO_RETURN_ACK:
-	case MsgType::NOTIFICATION:
-	case MsgType::NOTIFICATION_ACK:
-	case MsgType::RESPONSE:
-	case MsgType::RESPONSE_ACK:
-	case MsgType::ERRORS:
-	case MsgType::ERROR_ACK:
-		break;
-	default:
-		return false;
-	}
-
-	return true;
 }
 
 uint32_t SomeIpLayer::getMessageID() const
@@ -240,43 +253,6 @@ void SomeIpLayer::setPayloadLength(uint32_t payloadLength)
 						  payloadLength);
 }
 
-uint32_t SomeIpLayer::getHeaderLengthWithPayload() const
-{
-	/* Add outer header of SOME/IP to length (messageId and length field itself) */
-	return sizeof(uint32_t) * 2 + getLengthField();
-}
-
-size_t SomeIpLayer::getHeaderLen() const
-{
-	if (subProtocolFollows())
-	{
-		/* If there is a protocol coming after the normal SOME/IP header, return just the header length so PcapPlusPlus
-		handles the oncoming protocols correctly */
-		return sizeof(someiphdr);
-	}
-	else
-	{
-		/* Else, return the length of the header + payload, since it is a normal SOME/IP PDU */
-		return getHeaderLengthWithPayload();
-	}
-}
-
-bool SomeIpLayer::subProtocolFollows() const
-{
-	/* Check if the header is a valid SOME/IP-SD header */
-	if (isSomeIpSdPacket(getServiceID(), getMethodID()))
-	{
-		return true;
-	}
-	/* Check if the payload is a valid SOME/IP-TP layer */
-	if (isSomeIpTpPacket(getMessageTypeAsInt()))
-	{
-		return true;
-	}
-
-	return false;
-}
-
 void SomeIpLayer::parseNextLayer()
 {
 	size_t headerLen = getHeaderLen();
@@ -286,33 +262,15 @@ void SomeIpLayer::parseNextLayer()
 	uint8_t *payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
 
-	/* Check if the header is a valid SomeIpSd header */
-	if (isSomeIpSdPacket(getServiceID(), getMethodID()))
-	{
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-	}
-	/* Check if the payload is a valid SomeIp TP layer */
-	else if (isSomeIpTpPacket(getMessageTypeAsInt()))
-	{
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-	}
-	else if (isDataValid(payload, payloadLen))
-	/* else parse as SomeIpLayer (i.e. respect chaining of SomeIpLayers in one Ethernet frame) */
-	{
-		m_NextLayer = new SomeIpLayer(payload, payloadLen, this, m_Packet);
-	}
-	else
-	{
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-	}
+	m_NextLayer = parseSomeIpLayer(payload, payloadLen, this, m_Packet);
 }
 
 std::string SomeIpLayer::toString() const
 {
 	std::stringstream dataStream;
-	dataStream << std::hex;
 
 	dataStream << "SOME/IP Layer"
+			   << std::hex
 			   << ", Service ID: 0x" << getServiceID()
 			   << ", Method ID: 0x" << getMethodID()
 			   << std::dec
@@ -321,15 +279,86 @@ std::string SomeIpLayer::toString() const
 	return dataStream.str();
 }
 
-bool SomeIpLayer::isSomeIpSdPacket(uint16_t serviceId, uint16_t methodId)
+// SomeIpTpLayer
+
+SomeIpTpLayer::SomeIpTpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientID, uint16_t sessionID,
+							 uint8_t interfaceVersion, MsgType type, uint8_t returnCode, uint32_t offset,
+							 bool moreSegmentsFlag, const uint8_t *const data, size_t dataLen)
 {
-	return serviceId == 0xFFFF && methodId == 0x8100;
+	const size_t headerLen = sizeof(someiptphdr);
+
+	m_DataLen = headerLen + dataLen;
+	m_Data = new uint8_t[m_DataLen];
+	m_Protocol = SomeIP;
+	memset(m_Data, 0, headerLen);
+	memcpy(m_Data + headerLen, data, dataLen);
+
+	setServiceID(serviceID);
+	setMethodID(methodID);
+	setPayloadLength(dataLen + sizeof(uint32_t));
+	setClientID(clientID);
+	setSessionID(sessionID);
+	setProtocolVersion(0x01);
+	setInterfaceVersion(interfaceVersion);
+	setMessageType(setTpFlag((uint8_t)type));
+	setReturnCode(returnCode);
+	setOffset(offset);
+	setMoreSegmentsFlag(moreSegmentsFlag);
 }
 
-bool SomeIpLayer::isSomeIpTpPacket(uint8_t msgType)
+uint32_t SomeIpTpLayer::getOffset() const
 {
-	/* Check if TP flag is set in msgType */
-	return (msgType & (uint8_t)SomeIpLayer::MsgType::TP_REQUEST) != 0;
+	return (be32toh(getSomeIpTpHeader()->offsetAndFlag) & SOMEIP_TP_OFFSET_MASK) >> 4;
 }
 
+void SomeIpTpLayer::setOffset(uint32_t offset)
+{
+	uint32_t val = (offset << 4) | (be32toh(getSomeIpTpHeader()->offsetAndFlag) & ~SOMEIP_TP_OFFSET_MASK);
+	getSomeIpTpHeader()->offsetAndFlag = htobe32(val);
+}
+
+bool SomeIpTpLayer::getMoreSegmentsFlag() const
+{
+	return be32toh(getSomeIpTpHeader()->offsetAndFlag) & SOMEIP_TP_MORE_FLAG_MASK;
+}
+
+void SomeIpTpLayer::setMoreSegmentsFlag(bool flag)
+{
+	uint32_t val = be32toh(getSomeIpTpHeader()->offsetAndFlag);
+
+	if (flag)
+	{
+		val = val | SOMEIP_TP_MORE_FLAG_MASK;
+	}
+	else
+	{
+		val = val & ~SOMEIP_TP_MORE_FLAG_MASK;
+	}
+
+	getSomeIpTpHeader()->offsetAndFlag = htobe32(val);
+}
+
+void SomeIpTpLayer::computeCalculateFields()
+{
+	setMessageType(setTpFlag(getMessageTypeAsInt()));
+}
+
+std::string SomeIpTpLayer::toString() const
+{
+	std::stringstream dataStream;
+
+	dataStream << "SOME/IP-TP Layer"
+			   << std::hex
+			   << ", Service ID: 0x" << getServiceID()
+			   << ", Method ID: 0x" << getMethodID()
+			   << std::dec
+			   << ", Length: " << getLengthField();
+
+	return dataStream.str();
+}
+
+uint8_t SomeIpTpLayer::setTpFlag(uint8_t messageType)
+{
+	return messageType | (uint8_t)SomeIpLayer::MsgType::TP_REQUEST;
+}
 } // namespace pcpp

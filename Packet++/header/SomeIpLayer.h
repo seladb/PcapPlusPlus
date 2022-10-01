@@ -120,6 +120,17 @@ public:
 	~SomeIpLayer() {}
 
 	/**
+	 * A static method that creates a SOME/IP or SOME/IP-TP layer from packet raw data. Returns PayloadLayer if data is
+	 * not valid.
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored
+	 * @return Layer* A newly allocated layer
+	 */
+	static Layer* parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+	/**
 	 * Get a pointer to the basic SOME/IP header. Notice this points directly to the data, so every change will change
 	 * the actual packet data
 	 * @return A pointer to the @ref someiphdr
@@ -150,14 +161,6 @@ public:
 	 * Removes all ports from a list of ports where pcap checks for SOME/IP communication.
 	 */
 	static void removeAllSomeIpPorts();
-
-	/**
-	 * A static method that validates the input data
-	 * @param[in] data The pointer to the beginning of a byte stream of a SOME/IP packet
-	 * @param[in] dataLen The length of the byte stream
-	 * @return true if SOME/IP protocol, false otherwise
-	 */
-	static bool isDataValid(uint8_t *data, uint32_t dataLen);
 
 	/**
 	 * Get the messageID
@@ -304,57 +307,155 @@ public:
 	void setPayloadLength(uint32_t payloadLength);
 
 	/**
-	 * Get the Header Length With Payload, as is stated in the length field of the SOME/IP header.
-	 * @return uint32_t Length of the complete SOME/IP Pdu, including header and payload
-	 */
-	uint32_t getHeaderLengthWithPayload() const;
-
-	/**
 	 * @return A pointer for the layer payload, meaning the first byte after the header
 	 */
-	uint8_t *getPduPayload() const { return m_Data + sizeof(someiphdr);	}
+	uint8_t *getPduPayload() const { return m_Data + getSomeIpHeaderLen(); }
 
 	/**
 	 * @return The size in bytes of the payload
 	 */
-	size_t getPduPayloadSize() const { return getHeaderLengthWithPayload() - sizeof(someiphdr); }
+	size_t getPduPayloadSize() const { return getHeaderLen() - getSomeIpHeaderLen(); }
 
 	/**
 	 * Get the Length of the SOME/IP header inc payload
 	 * @return size_t
 	 */
-	size_t getHeaderLen() const;
+	size_t getHeaderLen() const { return sizeof(uint32_t) * 2 + getLengthField(); }
 
 	/**
 	 * Does nothing for this layer
 	 */
-	void computeCalculateFields() {}
+	virtual void computeCalculateFields() {}
 
 	/**
-	 * Identifies next layer and tries to create it
+	 * Identifies the following next layers: SomeIpLayer, SomeIpTpLayer. Otherwise sets PayloadLayer
 	 */
 	void parseNextLayer();
 
 	/**
 	 * @return The string representation of the SOME/IP layer
 	 */
-	std::string toString() const;
+	virtual std::string toString() const;
 
 	/**
 	 * @return The OSI model layer of this layer
 	 */
 	OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
 
+protected:
+	SomeIpLayer() {}
+
 private:
 	static const uint8_t SOMEIP_PROTOCOL_VERSION = 1;
+	virtual size_t getSomeIpHeaderLen() const { return sizeof(someiphdr); }
 
 	/* Using unordered_set since insertion and search should be almost constant time */
 	static std::unordered_set<uint16_t> m_SomeIpPorts;
-
-	bool subProtocolFollows() const;
-
-	static bool isSomeIpSdPacket(uint16_t serviceId, uint16_t methodId);
-	static bool isSomeIpTpPacket(uint8_t msgType);
 };
+
+/**
+ * @class SomeIpTpLayer
+ * Represents an SOME/IP Transport Protocol Layer
+ */
+class SomeIpTpLayer : public SomeIpLayer
+{
+public:
+	/**
+	 * @struct someiptphdr
+	 * Represents an SOME/IP-TP protocol header.
+	 */
+#pragma pack(push, 1)
+	struct someiptphdr : someiphdr
+	{
+		/** Contains the offset and the more segments flag. 28 bit offset field measured in 16 bytes + 3 bit reserved +
+		 * 1 bit more segments flag */
+		uint32_t offsetAndFlag;
+	};
+#pragma pack(pop)
+
+	/**
+	 * A constructor that creates the layer from an existing packet raw data
+	 * @param[in] data A pointer to the raw data (will be casted to @ref someiptphdr)
+	 * @param[in] dataLen Size of the data in bytes
+	 * @param[in] prevLayer A pointer to the previous layer
+	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+	 */
+	SomeIpTpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		: SomeIpLayer(data, dataLen, prevLayer, packet) {}
+
+	/**
+	 * A constructor that creates empty layer and sets values
+	 * @param[in] serviceID Service ID
+	 * @param[in] methodID Method ID
+	 * @param[in] clientID Client ID
+	 * @param[in] sessionID Session ID
+	 * @param[in] interfaceVersion Interface Version
+	 * @param[in] type Type of the message
+	 * @param[in] returnCode Return Code
+	 * @param[in] offset Offset indicating the data offset in increments of 16 bytes
+	 * @param[in] moreSegmentsFlag Flag indicating whether more SOME/IP-TP Packets will follow
+	 * @param[in] data A pointer to the raw data
+	 * @param[in] dataLen Size of the data in bytes
+	 */
+	SomeIpTpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientID, uint16_t sessionID,
+				  uint8_t interfaceVersion, MsgType type, uint8_t returnCode, uint32_t offset, bool moreSegmentsFlag,
+				  const uint8_t *const data = nullptr, size_t dataLen = 0);
+
+	/**
+	 * Destroy the layer object
+	 */
+	~SomeIpTpLayer() {}
+
+	/**
+	 * Get a pointer to the basic SOME/IP-TP header. Notice this points directly to the data, so every change will
+	 * change the actual packet data
+	 * @return A pointer to the @ref someiptphdr
+	 */
+	someiptphdr *getSomeIpTpHeader() const { return (someiptphdr *)m_Data; }
+
+	/**
+	 * Get the Offset. Offset is returned in multiple of 16 bytes.
+	 * @return The offset value
+	 */
+	uint32_t getOffset() const;
+
+	/**
+	 * Set the Offset. Already has to be in multiples of 16 bytes.
+	 * If 32 bytes have already been transmitted, the offset has to be set to 2.
+	 * @param[in] offset Offset to set. Already has to be in multiples of 16 bytes.
+	 */
+	void setOffset(uint32_t offset);
+
+	/**
+	 * Get the More Segments Flag
+	 * @return true if the More Segments Flag is set, false if it is not set
+	 */
+	bool getMoreSegmentsFlag() const;
+
+	/**
+	 * Set the More Segments Flag
+	 * @param[in] flag True if the More Segments Flag shall be set, false for resetting
+	 */
+	void setMoreSegmentsFlag(bool flag);
+
+	/**
+	 * Sets the message type in this layer with enabling the TP flag
+	 */
+	void computeCalculateFields();
+
+	/**
+	 * @return The string representation of the SOME/IP-TP layer
+	 */
+	std::string toString() const;
+
+private:
+	static const uint32_t SOMEIP_TP_MORE_FLAG_MASK = 0x01;
+	static const uint32_t SOMEIP_TP_OFFSET_MASK = 0xFFFFFFF0;
+
+	size_t getSomeIpHeaderLen() const { return sizeof(someiptphdr); }
+
+	static uint8_t setTpFlag(uint8_t messageType);
+};
+
 } // namespace pcpp
 #endif /* PACKETPP_SOMEIP_LAYER */
