@@ -134,9 +134,9 @@ namespace pcpp
 		void computeCalculateFields() {}
 
 		/**
-		 * @return The OSI layer level of Wake on LAN.
+		 * @return The OSI layer level of Wake on LAN (Data Link Layer)
 		 */
-		OsiModelLayer getOsiModelLayer() const { return OsiModelLayerUnknown; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 
 		/**
 		 * @return Returns the protocol info as readable string
