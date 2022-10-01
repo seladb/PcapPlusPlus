@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleWakeOnLanLayer
 
 #include "WakeOnLanLayer.h"
+#include "GeneralUtils.h"
 #include "Logger.h"
 
 
@@ -31,11 +32,18 @@ void WakeOnLanLayer::setTargetAddr(const pcpp::MacAddress &targetAddr)
 
 std::string WakeOnLanLayer::getPassword() const
 {
-	if (m_DataLen - sizeof(wol_header) == 4)
+	size_t passSize = m_DataLen - sizeof(wol_header);
+	switch (passSize)
+	{
+	case 0:
+		return std::string();
+	case 4:
 		return IPv4Address(&m_Data[sizeof(wol_header)]).toString();
-	if (m_DataLen - sizeof(wol_header) == 6)
+	case 6:
 		return MacAddress(&m_Data[sizeof(wol_header)]).toString();
-	return std::string((char *)&m_Data[sizeof(wol_header)], m_DataLen - sizeof(wol_header));
+	default:
+		return byteArrayToHexString(&m_Data[sizeof(wol_header)], passSize);
+	}
 }
 
 bool WakeOnLanLayer::setPassword(const uint8_t *password, uint8_t len)
@@ -66,7 +74,7 @@ bool WakeOnLanLayer::setPassword(const uint8_t *password, uint8_t len)
 
 bool WakeOnLanLayer::setPassword(const std::string &password)
 {
-	return setPassword((uint8_t *)password.c_str(), password.size());
+	return setPassword(reinterpret_cast<const uint8_t*>(password.c_str()), password.size());
 }
 
 bool WakeOnLanLayer::setPassword(const MacAddress &addr)
@@ -97,7 +105,7 @@ bool WakeOnLanLayer::isDataValid(const uint8_t *data, size_t dataSize)
 
 std::string WakeOnLanLayer::toString() const
 {
-	return "Wake On LAN " + getTargetAddr().toString();
+	return "Wake On LAN Layer, target address: " + getTargetAddr().toString();
 }
 
 } // namespace pcpp
