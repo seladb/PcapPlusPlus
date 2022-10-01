@@ -404,9 +404,7 @@ jobs:
           PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
           cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
           mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/libpcap++.a ${PCAPPLUSPLUS_LIBS_PATH}/libPcap++.a
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/libpacket++.a ${PCAPPLUSPLUS_LIBS_PATH}/libPacket++.a
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/libcommon++.a ${PCAPPLUSPLUS_LIBS_PATH}/libCommon++.a
+          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Build ToyVpn-PcapPlusPlus
