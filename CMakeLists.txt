@@ -122,8 +122,6 @@ if(PCAPPP_USE_DPDK)
   add_definitions(-DUSE_DPDK)
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/setup_dpdk.py ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk_settings.dat.in
-                 ${CMAKE_CURRENT_BINARY_DIR}/setup_dpdk_settings.dat)
 endif()
 
 # Git Commit and Branch
