@@ -87,7 +87,7 @@ target_link_libraries(
   PUBLIC Common++
          Packet++
          $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
-         $<$<BOOL:${PCAPPP_USE_DPDK}>:dpdk::dpdk>
+         $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
          PCAP::PCAP
          Threads::Threads)
 

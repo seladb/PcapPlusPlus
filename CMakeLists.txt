@@ -116,8 +116,8 @@ endif()
 
 if(PCAPPP_USE_DPDK)
   find_package(DPDK)
-  if(NOT dpdk_FOUND)
-    message(FATAL_ERROR "Specify DPDK Library with env DPDK_DIR=<DPDK_PATH>")
+  if(NOT DPDK_FOUND)
+    message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
 
