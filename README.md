@@ -1,13 +1,11 @@
 ![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)
 
-[![GitHub Actions](https://github.com/seladb/PcapPlusPlus/workflows/Build%20and%20test/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
-[![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
-[![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc/branch/master?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
-[![CodeQL status](https://github.com/seladb/PcapPlusPlus/workflows/CodeQL/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/seladb/PcapPlusPlus.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/seladb/PcapPlusPlus/context:cpp)
-<a href="https://twitter.com/intent/follow?screen_name=seladb">
-    <img src="https://img.shields.io/twitter/follow/seladb.svg?label=Follow%20PcapPlusPlus" alt="Follow PcapPlusPlus" />
-</a>
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/Build%20and%20test?logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
+[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
+[![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus?logo=appveyor&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/CodeQL?label=CodeQL&logo=github)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
+[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
+![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
@@ -42,6 +40,9 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 ## Download
 
 You can choose between downloading from GitHub release page, use a package manager or build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
+
+![GitHub all releases](https://img.shields.io/github/downloads/seladb/PcapPlusPlus/total?label=Downloads&logo=github)
+![homebrew downloads](https://img.shields.io/homebrew/installs/dy/pcapplusplus?label=Downloads&logo=homebrew)
 
 ### GitHub Release Page
 
