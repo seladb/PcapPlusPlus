@@ -263,10 +263,21 @@ If you like this project please __Star us on GitHub — it helps!__ :star: :star
 
 Please visit the [PcapPlusPlus web-site](https://pcapplusplus.github.io/community) to learn more.
 
+[![GitHub issues](https://img.shields.io/github/issues/seladb/PcapPlusPlus?label=Issues&logo=github)](https://github.com/seladb/PcapPlusPlus/issues/new/choose)
+[![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)
+[![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)
+[![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat-square&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)
+[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
+
 ## Contributing
 
 We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/community#contribute) in PcapPlusPlus web-site.
 
+![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?label=Contributors&logo=github)
+![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/seladb/PcapPlusPlus?label=Pull%20requests&logo=github&color=success)
+
 ## License
 
 PcapPlusPlus is released under the [Unlicense license](https://unlicense.org/).
+
+[![GitHub](https://img.shields.io/github/license/seladb/PcapPlusPlus?color=%23808080&logo=unlicense)](https://unlicense.org/)
