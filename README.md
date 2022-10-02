@@ -2,8 +2,8 @@
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/Build%20and%20test?logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
 [![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
-[![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus?logo=appveyor&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/CodeQL?label=CodeQL&logo=github)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
+[![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus/master?logo=appveyor&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/CodeQL?label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
 [![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
 ![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)
 
