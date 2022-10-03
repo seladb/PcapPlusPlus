@@ -1,11 +1,12 @@
 ![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/Build%20and%20test?logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
-[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
-[![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus/master?logo=appveyor&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/Build%20and%20test?label=Github%20Actions&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
+[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?label=Cirrus%20CI&logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
+[![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus/master?label=AppVeyor&logo=appveyor&logocolor=white&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/CodeQL?label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
+[![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
 [![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
-![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)
+[![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
@@ -42,7 +43,6 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 You can choose between downloading from GitHub release page, use a package manager or build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
 
 ![GitHub all releases](https://img.shields.io/github/downloads/seladb/PcapPlusPlus/total?style=flat&label=Downloads&logo=github)
-![homebrew downloads](https://img.shields.io/homebrew/installs/dy/pcapplusplus?style=flat&label=Downloads&logo=homebrew)
 
 ### GitHub Release Page
 
@@ -253,31 +253,22 @@ You can see the results in the [Benchmarks](https://pcapplusplus.github.io/docs/
 
 We'd be more than happy to get feedback, please feel free to reach out to us in any of the following ways:
 
-- Open a GitHub ticket
-- Post a message in PcapPlusPlus Google group: <https://groups.google.com/d/forum/pcapplusplus-support>
-- Ask a question on Stack Overflow: <https://stackoverflow.com/questions/tagged/pcapplusplus>
-- Send an email to: <pcapplusplus@gmail.com>
-- Follow us on Twitter: <https://twitter.com/seladb>
+- Open a GitHub ticket <sub><sub>[![GitHub issues](https://img.shields.io/github/issues/seladb/PcapPlusPlus?style=flat&label=Issues&logo=github)](https://github.com/seladb/PcapPlusPlus/issues/new/choose)</sub></sub>
+- Post a message in PcapPlusPlus Google group: <sub><sub>[![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)</sub></sub>
+- Ask a question on Stack Overflow: <sub><sub>[![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)</sub></sub>
+- Send an email to: <sub><sub>[![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)</sub></sub>
+- Follow us on Twitter: <sub><sub>[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)</sub></sub>
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
 Please visit the [PcapPlusPlus web-site](https://pcapplusplus.github.io/community) to learn more.
 
-[![GitHub issues](https://img.shields.io/github/issues/seladb/PcapPlusPlus?style=flat&label=Issues&logo=github)](https://github.com/seladb/PcapPlusPlus/issues/new/choose)
-[![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)
-[![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)
-[![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)
-[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
-
 ## Contributing
 
 We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/community#contribute) in PcapPlusPlus web-site.
-
-![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)
-![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/seladb/PcapPlusPlus?style=flat&label=Pull%20requests&logo=github&color=success)
 
 ## License
 
 PcapPlusPlus is released under the [Unlicense license](https://unlicense.org/).
 
-[![GitHub](https://img.shields.io/github/license/seladb/PcapPlusPlus?style=flat&color=%23808080&logo=unlicense)](https://unlicense.org/)
+[![GitHub](https://img.shields.io/github/license/seladb/PcapPlusPlus?style=flat&color=blue&logo=unlicense)](https://unlicense.org/)
