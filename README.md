@@ -169,13 +169,7 @@ If you see any missing data please [contact us](#provide-feedback).
 
 ## Multi Platform Support
 
-PcapPlusPlus is currently supported on <sub><sub>
-![](https://img.shields.io/badge/Windows-%230078D6.svg?&style=flat&logo=windows&logoColor=white)
-![](https://img.shields.io/badge/Linux-%23FCC624.svg?&style=flat&logo=linux&logoColor=black)
-![](https://img.shields.io/badge/MacOS-%23FFFFFF.svg?&style=flat&logo=macos&logoColor=black)
-![](https://img.shields.io/badge/Android-%23000000.svg?&style=flat&logo=android&logoColor=3DDC84)
-![](https://img.shields.io/badge/FreeBSD-%23A62B28.svg?&style=flat&logo=freebsd&logoColor=red)
-</sub></sub>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
+PcapPlusPlus is currently supported on __Windows__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows.png" alt="Windows" style="height:16px;"/></sub>, __Linux__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux.png" alt="Linux" style="height:16px;"/></sub>, __MacOS__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark.png" alt="MacOS" style="height:16px;"/></sub>, __Android__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android.png" alt="Android" style="height:16px;"/></sub> and __FreeBSD__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="FreeBSD" style="height:16px;"/></sub>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 
 
