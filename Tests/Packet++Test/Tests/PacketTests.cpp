@@ -981,7 +981,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 #else
 	// on Window compilers localtime is already thread safe.
 	// in old compilers (< C++0x) localtime_r was not defined so we have to fall back to localtime
-	nowtm = localtime(&nowtime); // lgtm [cpp/potentially-dangerous-function]
+	nowtm = localtime(&nowtime);
 #endif
 
 	char tmbuf[64];

@@ -686,9 +686,9 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	// on Window compilers localtime and gmtime are already thread safe.
 	// in old compilers (< C++0x) gmtime_r and localtime_r were not defined so we have to fall back to localtime and gmtime
 	if (timeAsLocalTime)
-		nowtm = localtime(&nowtime); // lgtm [cpp/potentially-dangerous-function]
+		nowtm = localtime(&nowtime);
 	else
-		nowtm = gmtime(&nowtime); // lgtm [cpp/potentially-dangerous-function]
+		nowtm = gmtime(&nowtime);
 #endif
 
 	char tmbuf[64], buf[128];
