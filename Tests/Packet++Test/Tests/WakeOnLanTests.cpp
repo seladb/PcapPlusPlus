@@ -68,8 +68,6 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 	pcpp::WakeOnLanLayer wolcraftedLayer2(pcpp::MacAddress("00:90:27:85:cf:01"));
 	PTF_ASSERT_EQUAL(wolcraftedLayer2.getDataLen(), wolLayer2->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(wolcraftedLayer2.getDataPtr(), wolLayer2->getDataPtr(), wolLayer2->getDataLen());
-
-
 }
 
 PTF_TEST_CASE(WakeOnLanEditTests)
