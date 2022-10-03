@@ -6,7 +6,7 @@
 [![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?label=Cirrus%20CI&logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
 [![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus/master?label=AppVeyor&logo=appveyor&logoColor=white&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/CodeQL?label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
-[![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)  
+[![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
 [![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
 [![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
 
@@ -170,7 +170,6 @@ If you see any missing data please [contact us](#provide-feedback).
 ## Multi Platform Support
 
 PcapPlusPlus is currently supported on __Windows__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows.png" alt="Windows" style="height:16px;"/></sub>, __Linux__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux.png" alt="Linux" style="height:16px;"/></sub>, __MacOS__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark.png" alt="MacOS" style="height:16px;"/></sub>, __Android__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android.png" alt="Android" style="height:16px;"/></sub> and __FreeBSD__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="FreeBSD" style="height:16px;"/></sub>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
-
 
 
 ## Supported Network Protocols
