@@ -262,7 +262,7 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
 - Open a GitHub ticket <sub><sub>[![GitHub issues](https://img.shields.io/github/issues/seladb/PcapPlusPlus?style=flat&label=Issues&logo=github)](https://github.com/seladb/PcapPlusPlus/issues/new/choose)</sub></sub>
 - Post a message in PcapPlusPlus Google group: <sub><sub>[![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)</sub></sub>
 - Ask a question on Stack Overflow: <sub><sub>[![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)</sub></sub>
-- Send an email to: <sub><sub>[![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)</sub></sub>
+- Send an email: <sub><sub>[![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)</sub></sub>
 - Follow us on Twitter: <sub><sub>[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)</sub></sub>
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
