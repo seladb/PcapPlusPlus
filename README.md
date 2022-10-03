@@ -172,7 +172,6 @@ If you see any missing data please [contact us](#provide-feedback).
 
 PcapPlusPlus is currently supported on __Windows__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows.png" alt="Windows" style="height:16px;"/></sub>, __Linux__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux.png" alt="Linux" style="height:16px;"/></sub>, __MacOS__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark.png" alt="MacOS" style="height:16px;"/></sub>, __Android__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android.png" alt="Android" style="height:16px;"/></sub> and __FreeBSD__ <sub><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="FreeBSD" style="height:16px;"/></sub>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
-
 ## Supported Network Protocols
 
 PcapPlusPlus currently supports parsing, editing and creation of packets of the following protocols:
