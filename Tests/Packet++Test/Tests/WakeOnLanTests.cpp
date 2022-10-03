@@ -54,6 +54,10 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 	PTF_ASSERT_EQUAL(wolcraftedLayer1.getDataLen(), wolLayer1->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(wolcraftedLayer1.getDataPtr(), wolLayer1->getDataPtr(), wolLayer1->getDataLen());
 
+	pcpp::WakeOnLanLayer createdLayer(pcpp::MacAddress("00:0d:56:dc:9e:35"), pcpp::IPv4Address("192.168.1.1"));
+	PTF_ASSERT_EQUAL(createdLayer.getDataLen(), wolLayer1->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(createdLayer.getDataPtr(), wolLayer1->getDataPtr(), wolLayer1->getDataLen());
+
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/WoL_udp.dat");
 
 	pcpp::Packet wolPacket2(&rawPacket2);
@@ -64,6 +68,8 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 	pcpp::WakeOnLanLayer wolcraftedLayer2(pcpp::MacAddress("00:90:27:85:cf:01"));
 	PTF_ASSERT_EQUAL(wolcraftedLayer2.getDataLen(), wolLayer2->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(wolcraftedLayer2.getDataPtr(), wolLayer2->getDataPtr(), wolLayer2->getDataLen());
+
+
 }
 
 PTF_TEST_CASE(WakeOnLanEditTests)
