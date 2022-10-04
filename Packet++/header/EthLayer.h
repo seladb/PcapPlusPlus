@@ -36,7 +36,7 @@ namespace pcpp
 	/** Address resolution */
 #define PCPP_ETHERTYPE_ARP           0x0806
 	/** Transparent Ethernet Bridging */
-#define PCPP_ETHERTYPE_ETHBRIDGE 0x6558
+#define PCPP_ETHERTYPE_ETHBRIDGE     0x6558
 	/** Reverse ARP */
 #define PCPP_ETHERTYPE_REVARP        0x8035
 	/** AppleTalk protocol */
@@ -63,6 +63,8 @@ namespace pcpp
 #define PCPP_ETHERTYPE_ROCEV1        0x8915
 	/** IEEE 802.1ad Provider Bridge, Q-in-Q */
 #define PCPP_ETHERTYPE_IEEE_802_1AD  0x88A8
+	/** Wake on LAN */
+#define PCPP_ETHERTYPE_WAKE_ON_LAN   0x0842
 
 
 	/**

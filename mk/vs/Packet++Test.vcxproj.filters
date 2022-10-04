@@ -113,6 +113,9 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\VlanMplsTests.cpp">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\WakeOnLanTests.cpp">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Tests\Packet++Test\Utils\TestUtils.cpp">
       <Filter>Source Files\TestUtils</Filter>
     </ClCompile>
