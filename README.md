@@ -171,11 +171,11 @@ If you see any missing data please [contact us](#provide-feedback).
 ## Multi Platform Support
 
 PcapPlusPlus is currently supported on 
-__Windows__ <picture><img src="https://github.com/egecetin/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows-small.png" alt="Windows"/></picture>,
-__Linux__ <picture><img src="https://github.com/egecetin/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux-small.png" alt="Linux"/></picture>,
-__MacOS__ <picture><img src="https://github.com/egecetin/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark-small.png" alt="MacOS"/></picture>,
-__Android__ <picture><img src="https://github.com/egecetin/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android-small.png" alt="Android"/></picture> and 
-__FreeBSD__ <picture><img src="https://github.com/egecetin/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd-small.png" alt="FreeBSD"/></picture>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
+__Windows__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows-small.png" alt=""/></picture>,
+__Linux__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux-small.png" alt=""/></picture>,
+__MacOS__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark-small.png" alt=""/></picture>,
+__Android__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android-small.png" alt=""/></picture> and 
+__FreeBSD__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd-small.png" alt=""/></picture>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
 
@@ -257,11 +257,39 @@ You can see the results in the [Benchmarks](https://pcapplusplus.github.io/docs/
 
 We'd be more than happy to get feedback, please feel free to reach out to us in any of the following ways:
 
-- Open a GitHub ticket <sub><sub>[![GitHub issues](https://img.shields.io/github/issues/seladb/PcapPlusPlus?style=flat&label=Issues&logo=github)](https://github.com/seladb/PcapPlusPlus/issues/new/choose)</sub></sub>
-- Post a message in PcapPlusPlus Google group: <sub><sub>[![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)</sub></sub>
-- Ask a question on Stack Overflow: <sub><sub>[![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)</sub></sub>
-- Send an email: <sub><sub>[![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)</sub></sub>
-- Follow us on Twitter: <sub><sub>[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)</sub></sub>
+<table>
+<tr></tr>
+  <th>
+
+  [![GitHub issues](https://img.shields.io/github/issues/seladb/PcapPlusPlus?style=flat&label=Issues&logo=github)](https://github.com/seladb/PcapPlusPlus/issues/new/choose)
+  </th>
+  <th>Open a GitHub ticket</th>
+<tr></tr>
+  <th>
+  
+  [![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)</th>
+  <th>Post a message in PcapPlusPlus Google group</th>
+<tr></tr>
+  <th>
+  
+  [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)</th>
+  <th>Ask a question on Stack Overflow</th>
+<tr></tr>
+  <th>
+  
+  [![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)</th>
+  <th>Send an email</th>
+<tr></tr>
+  <th>
+  
+  [![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)</th>
+  <th>Follow us on Twitter</th>
+</table>
+-  <sub><sub></sub></sub>
+- : <sub><sub>[</sub></sub>
+- : <sub><sub></sub></sub>
+- : <sub><sub></sub></sub>
+- : <sub><sub></sub></sub>
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
