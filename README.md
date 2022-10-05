@@ -170,11 +170,11 @@ If you see any missing data please [contact us](#provide-feedback).
 
 ## Multi Platform Support
 
-PcapPlusPlus is currently supported on 
+PcapPlusPlus is currently supported on
 __Windows__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows-small.png" alt=""/></picture>,
 __Linux__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux-small.png" alt=""/></picture>,
 __MacOS__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark-small.png" alt=""/></picture>,
-__Android__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android-small.png" alt=""/></picture> and 
+__Android__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android-small.png" alt=""/></picture> and
 __FreeBSD__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd-small.png" alt=""/></picture>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
@@ -266,30 +266,25 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
   <th>Open a GitHub ticket</th>
 <tr></tr>
   <th>
-  
+
   [![Google Groups](https://img.shields.io/badge/Google%20Groups-%234285F4.svg?&style=flat&logo=google&logoColor=white)](https://groups.google.com/d/forum/pcapplusplus-support)</th>
   <th>Post a message in PcapPlusPlus Google group</th>
 <tr></tr>
   <th>
-  
+
   [![Stack Overflow](https://img.shields.io/badge/Stack%20Overflow-%23F58025.svg?&style=flat&logo=stackoverflow&logoColor=white)](https://stackoverflow.com/questions/tagged/pcapplusplus)</th>
   <th>Ask a question on Stack Overflow</th>
 <tr></tr>
   <th>
-  
+
   [![E-Mail](https://img.shields.io/badge/E--Mail-%230078d4.svg?&style=flat&logo=minutemailer&logoColor=white)](mailto:pcapplusplus@gmail.com)</th>
   <th>Send an email</th>
 <tr></tr>
   <th>
-  
+
   [![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)</th>
   <th>Follow us on Twitter</th>
 </table>
--  <sub><sub></sub></sub>
-- : <sub><sub>[</sub></sub>
-- : <sub><sub></sub></sub>
-- : <sub><sub></sub></sub>
-- : <sub><sub></sub></sub>
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
