@@ -171,11 +171,11 @@ If you see any missing data please [contact us](#provide-feedback).
 ## Multi Platform Support
 
 PcapPlusPlus is currently supported on 
-__Windows__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows.png" alt="Windows" style="height:16px;"/></picture>,
-__Linux__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux.png" alt="Linux" style="height:16px;"/></picture>,
-__MacOS__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark.png" alt="MacOS" style="height:16px;"/></picture>,
-__Android__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android.png" alt="Android" style="height:16px;"/></picture> and 
-__FreeBSD__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="FreeBSD" style="height:16px;"/></picture>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
+__Windows__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows-small.png" alt="Windows"/></picture>,
+__Linux__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux-small.png" alt="Linux"/></picture>,
+__MacOS__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark-small.png" alt="MacOS"/></picture>,
+__Android__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android-small.png" alt="Android"/></picture> and 
+__FreeBSD__ <picture><img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd-small.png" alt="FreeBSD"/></picture>. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
 
