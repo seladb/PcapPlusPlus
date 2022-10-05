@@ -123,7 +123,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	while (dpdkParamsStream.good() && i < initDpdkArgc)
 	{
 		dpdkParamsStream >> dpdkParamsArray[i];
-		initDpdkArgvBuffer[i] = new char[dpdkParamsArray[i].length()];
+		initDpdkArgvBuffer[i] = new char[dpdkParamsArray[i].length() + 1];
 		strcpy(initDpdkArgvBuffer[i], dpdkParamsArray[i].c_str());
 		i++;
 	}
