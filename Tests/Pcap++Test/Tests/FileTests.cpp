@@ -611,6 +611,13 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	// -------
 
+	// copy the .zstd file to a similar file with .zst extension
+	std::ifstream  zstdFile(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH, std::ios::binary);
+	std::ofstream  zstFile(EXAMPLE2_PCAPNG_ZST_WRITE_PATH,   std::ios::binary);
+	zstFile << zstdFile.rdbuf();
+	zstdFile.close();
+	zstFile.close();
+
 	pcpp::IFileReaderDevice* genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAP_PATH);
 	FileReaderTeardown genericReaderTeardown1(genericReader);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapFileReaderDevice*>(genericReader));
@@ -624,11 +631,6 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 	FileReaderTeardown genericReaderTeardown3(genericReader);
 	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapNgFileReaderDevice*>(genericReader));
 	PTF_ASSERT_TRUE(genericReader->open());
-
-	// copy the .zstd file to a similar file with .zst extension
-	std::ifstream  zstdFile(EXAMPLE2_PCAPNG_ZSTD_WRITE_PATH, std::ios::binary);
-	std::ofstream  zstFile(EXAMPLE2_PCAPNG_ZST_WRITE_PATH,   std::ios::binary);
-	zstFile << zstdFile.rdbuf();
 
 	genericReader = pcpp::IFileReaderDevice::getReader(EXAMPLE2_PCAPNG_ZST_WRITE_PATH);
 	FileReaderTeardown genericReaderTeardown4(genericReader);
