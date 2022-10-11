@@ -111,12 +111,14 @@ void free_zstd_decompression_context(_decompression_t* context)
 
 int is_zstd_compressed_file(const char* file_path)
 {
-	if (strstr(file_path, ".zstd"))
+	if (strstr(file_path, ".zst")) // good for .zst and .zstd extensions
 	{
 		return 1;
 	}
 	else
+	{
 		return 0;
+	}
 }
 
 size_t read_zstd_compressed(light_file fd, void *buf, size_t count)
