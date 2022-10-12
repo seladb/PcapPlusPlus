@@ -288,6 +288,11 @@ namespace pcpp
 	const ProtocolType SomeIP = 0x100000000000;
 
 	/**
+	 * Wake On LAN (WOL) Protocol
+	 */
+	const ProtocolType WakeOnLan = 0x200000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer

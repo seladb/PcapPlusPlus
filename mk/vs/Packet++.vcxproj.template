@@ -234,6 +234,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\UdpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\VlanLayer.h" />
     <ClInclude Include="..\..\Packet++\header\VxlanLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\WakeOnLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Packet++\src\ArpLayer.cpp" />
@@ -288,10 +289,11 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\UdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VlanLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\VxlanLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\WakeOnLanLayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\3rdParty\hash-library\md5.cpp" />
-    <ClCompile Include="..\..\3rdParty\hash-library\md5.h" />
+    <ClInclude Include="..\..\3rdParty\hash-library\md5.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Common++.vcxproj">
