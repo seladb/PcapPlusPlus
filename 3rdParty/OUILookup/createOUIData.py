@@ -1,103 +1,71 @@
-from datetime import datetime
-from datetime import timezone
+import json
 
 print("Creating header from downloaded data ...")
 
 # Prepare files
 inFile = open("manuf.dat", "r")
-outFile = open("PCPP_OUIDatabase.dat", "w")
-
+outFile = open("PCPP_OUIDataset.json", "w")
 Lines = inFile.readlines()
-count = 0
 
-# Short MAC addresses
-outFile.write("PCPP_SHORT_MACS\n")
+countSuccess = 0
+countFail = 0
+readMAC = ''
+readVendor = ''
+oldMacAddress = 0
+mainJson = {}
+bufferJson = {}
 
-alreadyWritten = False
-buffer = []
+# Every line is a new MAC address
 for line in Lines:
     try:
-        if buffer != []:
-            if alreadyWritten:
-                outFile.write("\n")
-            outFile.write(buffer)
-            alreadyWritten = True
-            count += 1
+        # Prepare line
         line = line.replace('"', "")
         splitLine = line.split("\t")
+
         if len(splitLine) >= 3 and len(splitLine[0]) == 8:
-            buffer = splitLine[0].lower().strip() + "," + splitLine[2].strip()
+            readMAC = splitLine[0].lower().strip()
+            readVendor = splitLine[2].strip()
         elif len(splitLine) == 2 and len(splitLine[0]) == 8:
-            buffer = splitLine[0].lower().strip() + "," + splitLine[1].strip()
-        else:
-            buffer = []
-    except:
-        buffer = []
-        continue
-
-if buffer != []:
-    outFile.write("\n")
-    outFile.write(buffer)
-    count += 1
-outFile.write("\n")
-
-# Long MAC addresses (with mask)
-outFile.write("PCPP_LONG_MACS\n")
-
-outLines = []
-maskValues = []
-for line in Lines:
-    try:
-        line = line.replace('"', "")
-        splitLine = line.split("\t")
-        if len(splitLine) >= 3 and len(splitLine[0]) > 8 and len(splitLine[0]) < 21:
-            # Process mask
-            maskSplit = splitLine[0].split("/")
-            if len(maskSplit) == 2:
-                if maskSplit[1] not in maskValues:
-                    maskValues.append(maskSplit[1])
-                    outLines.append([])
-                indx = maskValues.index(maskSplit[1])
-                # Format
-                outLines[indx].append(
-                    maskSplit[0].lower().strip() + "," + splitLine[2].strip()
-                )
-            else:
-                continue
+            readMAC = splitLine[0].lower().strip()
+            readVendor = splitLine[1].strip()
         elif len(splitLine) == 2 and len(splitLine[0]) > 8 and len(splitLine[0]) < 21:
-            # Process mask
             maskSplit = splitLine[0].split("/")
             if len(maskSplit) == 2:
-                if maskSplit[1] not in maskValues:
-                    maskValues.append(maskSplit[1])
-                    outLines.append([])
-                indx = maskValues.index(maskSplit[1])
-                # Format
-                outLines[indx].append(
-                    maskSplit[0].lower().strip() + "," + splitLine[1].strip()
-                )
+                readMask = int(maskSplit[1])
             else:
-                continue
+                raise Exception("Unknown number of elements for masking long MAC address", line)
+        elif len(splitLine) == 3 and len(splitLine[0]) > 8 and len(splitLine[0]) < 21:
+            maskSplit = splitLine[0].split("/")
+            if len(maskSplit) == 2:
+                readMask = int(maskSplit[1])
+            else:
+                raise Exception("Unknown number of elements for masking long MAC address", line)
+        elif (line[0] != '#') or (line[0] != '\n'):
+            raise Exception("") 
         else:
-            continue
-    except:
+            raise Exception("Unkown number of elements for line", line)
+        
+        if len(readMAC) == 8: # If equal to 8 should be a non-masked (short) MAC address
+            currentMacAddress = int(readMAC.replace(":",''), 16)
+            mainJson.update({currentMacAddress:{"vendor":readVendor}})
+            oldMacAddress == currentMacAddress
+        else: # Otherwise this should be a masked (long) MAC address
+            continue # <--------------------------
+        countSuccess = countSuccess + 1
+    except Exception as e:
+        if hasattr(e, 'message'):
+            print(e)
+            countFail = countFail + 1
+        readMAC = ''
+        readVendor = ''
+        readMask = 0
         continue
 
-# Sorted indices
-indx = sorted(range(len(maskValues)), key=lambda k: maskValues[k], reverse=True)
-maskValues = [x for _, x in sorted(zip(indx, maskValues))]
-outLines = [x for _, x in sorted(zip(indx, outLines))]
-
-ctrIndx = 0
-for mask in maskValues:
-    outFile.write("MASK " + mask + "\n")
-    for value in outLines[ctrIndx]:
-        outFile.write(value + "\n")
-        count += 1
-    ctrIndx += 1
+print("Total number of vendors is", countSuccess, "failed", countFail)
+print("Writing file")
+outFile.write(json.dumps(mainJson, indent=4))
 
 inFile.close()
 outFile.close()
 
-print("Total number of vendors is", count)
 print("Done!")
