@@ -9,8 +9,8 @@ Lines = inFile.readlines()
 
 countSuccess = 0
 countFail = 0
-readMAC = ''
-readVendor = ''
+readMAC = ""
+readVendor = ""
 mainJson = {}
 vMask = []
 vMaskedVendors = {}
@@ -19,9 +19,9 @@ vMaskedVendors = {}
 for line in Lines:
     try:
         readMask = 0
-        readMACShort = ''
-        readMACLong = ''
-        readVendor = ''
+        readMACShort = ""
+        readMACLong = ""
+        readVendor = ""
 
         # Prepare line
         line = line.replace('"', "")
@@ -44,7 +44,9 @@ for line in Lines:
                 readVendor = splitLine[1].strip()
                 readMask = int(maskSplit[1])
             else:
-                raise Exception("Unknown number of elements for masking long MAC address", line)
+                raise Exception(
+                    "Unknown number of elements for masking long MAC address", line
+                )
         # MAC/Mask + Short name + Long name
         elif len(splitLine) == 3 and len(splitLine[0]) > 8 and len(splitLine[0]) < 21:
             maskSplit = splitLine[0].split("/")
@@ -54,26 +56,30 @@ for line in Lines:
                 readVendor = splitLine[1].strip()
                 readMask = int(maskSplit[1])
             else:
-                raise Exception("Unknown number of elements for masking long MAC address", line)
+                raise Exception(
+                    "Unknown number of elements for masking long MAC address", line
+                )
         # Comment lines
-        elif (line[0] != '#') or (line[0] != '\n'):
+        elif (line[0] != "#") or (line[0] != "\n"):
             raise Exception("")
         else:
             raise Exception("Unkown number of elements for line", line)
-        
+
         # If equal to 0 should be a non-masked (short) MAC address
         if readMask == 0:
             if len(vMask):
                 mainJson[currentMacAddressShort]["maskedFilters"] = []
                 for i in range(0, len(vMask)):
-                    mainJson[currentMacAddressShort]["maskedFilters"].append({"mask":vMask[i], "vendors":vMaskedVendors[i]})
-            currentMacAddressShort = int(readMACShort.replace(":",''), 16)
-            mainJson[currentMacAddressShort] = {"vendor":readVendor}
+                    mainJson[currentMacAddressShort]["maskedFilters"].append(
+                        {"mask": vMask[i], "vendors": vMaskedVendors[i]}
+                    )
+            currentMacAddressShort = int(readMACShort.replace(":", ""), 16)
+            mainJson[currentMacAddressShort] = {"vendor": readVendor}
             vMask = []
             vMaskedVendors = []
         # Otherwise this should be a masked (long) MAC address
         else:
-            currentMacAddressLong = int(readMACLong.replace(":",''), 16)
+            currentMacAddressLong = int(readMACLong.replace(":", ""), 16)
             if readMask in vMask:
                 indx = vMask.index(readMask)
             else:
@@ -83,7 +89,7 @@ for line in Lines:
             vMaskedVendors[indx][currentMacAddressLong] = readVendor
         countSuccess = countSuccess + 1
     except Exception as e:
-        if hasattr(e, 'message'):
+        if hasattr(e, "message"):
             print(e)
             countFail = countFail + 1
 
