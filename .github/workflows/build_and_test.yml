@@ -5,9 +5,9 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: pre-commit/action@v2.0.3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - uses: pre-commit/action@v3.0.0
 
   linux:
     runs-on: ubuntu-20.04
@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
         run: ./configure-linux.sh --default ${{ matrix.configure }} --set-direction-enabled
@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
         run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
@@ -96,7 +96,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
         run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
@@ -123,7 +123,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
         run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
@@ -149,9 +149,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
 
@@ -195,9 +195,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
 
@@ -227,7 +227,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -236,7 +236,7 @@ jobs:
           install: mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
 
@@ -292,9 +292,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
 
@@ -369,7 +369,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Checkout lipbcap for Android
         uses: actions/checkout@main
