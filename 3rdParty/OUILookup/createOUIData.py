@@ -63,7 +63,7 @@ for line in Lines:
         elif (line[0] != "#") or (line[0] != "\n"):
             raise Exception("")
         else:
-            raise Exception("Unkown number of elements for line", line)
+            raise Exception("Unknown number of elements for line", line)
 
         # If equal to 0 should be a non-masked (short) MAC address
         if readMask == 0:
