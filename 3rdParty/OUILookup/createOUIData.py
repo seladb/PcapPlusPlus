@@ -93,6 +93,15 @@ for line in Lines:
             print(e)
             countFail = countFail + 1
 
+# Append last buffer
+if len(vMask):
+    mainJson[currentMacAddressShort]["maskedFilters"] = []
+    for i in range(0, len(vMask)):
+        mainJson[currentMacAddressShort]["maskedFilters"].append(
+            {"mask": vMask[i], "vendors": vMaskedVendors[i]}
+        )
+
+# Dump to file
 print("Total number of vendors is", countSuccess, "failed", countFail)
 print("Writing file")
 outFile.write(json.dumps(mainJson, indent=4))
