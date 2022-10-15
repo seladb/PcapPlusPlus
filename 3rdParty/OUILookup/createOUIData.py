@@ -105,6 +105,7 @@ if len(vMask):
 print("Total number of vendors is", countSuccess, "failed", countFail)
 print("Writing file")
 outFile.write(json.dumps(mainJson, indent=4))
+outFile.write('\n')
 
 inFile.close()
 outFile.close()
