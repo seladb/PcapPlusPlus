@@ -53,7 +53,7 @@ for line in Lines:
             if len(maskSplit) == 2:
                 readMACLong = maskSplit[0].lower().strip()
                 readMACShort = maskSplit[0][0:8].lower().strip()
-                readVendor = splitLine[1].strip()
+                readVendor = splitLine[2].strip()
                 readMask = int(maskSplit[1])
             else:
                 raise Exception(
