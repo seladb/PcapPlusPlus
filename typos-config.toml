@@ -4,7 +4,12 @@ extend-exclude = [  "*.toml",
                     "codespell-ignore-list.txt",
                     "ci/",
                     "Dist/",
-                    "mk/"
+                    "mk/",
+                    "Tests/ExamplesTest/expected_output/",
+                    "Tests/ExamplesTest/pcap_examples/",
+                    "Tests/Packet++Test/PacketExamples/",
+                    "Tests/Pcap++Test/PcapExamples/",
+                    "3rdParty/OUILookup/PCPP_OUIDataset.json"
                  ]
 
 [default.extend-identifiers]

@@ -21,8 +21,10 @@ repos:
     rev: v2.2.1
     hooks:
       - id: codespell
+        pass_filenames: false
   - repo: https://github.com/crate-ci/typos
     rev: v1.12.4
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
+        pass_filenames: false
