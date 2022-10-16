@@ -1,5 +1,4 @@
 #include "OUILookup.h"
-#include "EndianPortable.h"
 #include "Logger.h"
 #include "json.hpp"
 
@@ -31,19 +30,20 @@ namespace pcpp
 				continue;
 
 			std::vector<MaskedFilter> vLocalMaskedFilter;
-			if (val.contains("maskedFilter") && val["maskedFilter"].is_array())
+			if (val.contains("maskedFilters") && val["maskedFilters"].is_array())
 			{
 				// Iterate through masked filters
-				for (const auto &entry : val["maskedFilter"])
+				for (const auto &entry : val["maskedFilters"])
 				{
-					if (entry.is_object() && entry.contains("mask") && entry.contains("vendors") &&
-						entry["mask"].is_number_integer() && entry["vendors"].is_object())
+					auto subVal = entry.get<nlohmann::json>();
+					if (subVal.is_object() && subVal.contains("mask") && subVal.contains("vendors") &&
+						subVal["mask"].is_number_integer() && subVal["vendors"].is_object())
 					{
-						int maskValue = entry["mask"].get<int>();
+						int maskValue = subVal["mask"].get<int>();
 						vLocalMaskedFilter.push_back({maskValue, {}});
 
 						// Parse masked filter
-						for (const auto &subentry : entry["vendors"].items())
+						for (const auto &subentry : subVal["vendors"].items())
 						{
 							if (subentry.value().is_string())
 							{
@@ -73,17 +73,17 @@ namespace pcpp
 		uint8_t buffArray[6];
 		addr.copyTo(buffArray);
 
-		uint64_t macAddr = (((uint64_t)((buffArray)[0]) << 0) + ((uint64_t)((buffArray)[1]) << 8) +
-							((uint64_t)((buffArray)[2]) << 16) + ((uint64_t)((buffArray)[3]) << 24) +
-							((uint64_t)((buffArray)[4]) << 32) + ((uint64_t)((buffArray)[5]) << 40));
+		uint64_t macAddr = (((uint64_t)((buffArray)[5]) << 0) + ((uint64_t)((buffArray)[4]) << 8) +
+							((uint64_t)((buffArray)[3]) << 16) + ((uint64_t)((buffArray)[2]) << 24) +
+							((uint64_t)((buffArray)[1]) << 32) + ((uint64_t)((buffArray)[0]) << 40));
 
-		auto itr = vendorMap.find(macAddr & ~uint64_t(UINT32_MAX));
+		auto itr = vendorMap.find(macAddr >> 24);
 		if (itr == vendorMap.end())
 			return "Unknown";
 
 		for (const auto &entry : itr->second.maskedFilter)
 		{
-			uint64_t maskValue = be64toh(~((1 << (48 - entry.mask)) - 1)) >> 16;
+			uint64_t maskValue = ~((1 << (48 - entry.mask)) - 1);
 			uint64_t bufferAddr = macAddr & maskValue;
 
 			auto subItr = entry.vendorMap.find(bufferAddr);
