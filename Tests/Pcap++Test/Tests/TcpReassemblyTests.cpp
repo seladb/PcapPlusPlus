@@ -531,6 +531,22 @@ PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST)
 	tcpReassemblyResults.clear();
 	expectedReassemblyData.clear();
 
+	// test rst packet without fin in end of connection
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_rst.pcap", packetStream, errMsg));
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	PTF_ASSERT_EQUAL(stats.size(), 1);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 0);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEnded);
+	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEndedManually);
+
+	packetStream.clear();
+	tcpReassemblyResults.clear();
+	expectedReassemblyData.clear();
+
 	//test fin packet in end of connection that has also data
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_http_stream_fin2.pcap", packetStream, errMsg));
 	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);

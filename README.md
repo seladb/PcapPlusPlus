@@ -1,13 +1,17 @@
-![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)
+<div align="center">
 
-[![GitHub Actions](https://github.com/seladb/PcapPlusPlus/workflows/Build%20and%20test/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
-[![Build Status](https://api.cirrus-ci.com/github/seladb/PcapPlusPlus.svg)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
-[![Build status](https://ci.appveyor.com/api/projects/status/4u5ui21ibbevkstc/branch/master?svg=true)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
-[![CodeQL status](https://github.com/seladb/PcapPlusPlus/workflows/CodeQL/badge.svg)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/seladb/PcapPlusPlus.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/seladb/PcapPlusPlus/context:cpp)
-<a href="https://twitter.com/intent/follow?screen_name=seladb">
-    <img src="https://img.shields.io/twitter/follow/seladb.svg?label=Follow%20PcapPlusPlus" alt="Follow PcapPlusPlus" />
-</a>
+[![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)](https://pcapplusplus.github.io)
+
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/Build%20and%20test?label=Actions&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
+[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?label=Cirrus%20CI&logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
+[![AppVeyor](https://img.shields.io/appveyor/build/seladb/PcapPlusPlus/master?label=AppVeyor&logo=appveyor&logoColor=white&style=flat)](https://ci.appveyor.com/project/seladb/pcapplusplus/branch/master)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/seladb/PcapPlusPlus/CodeQL?label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
+[![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
+<br>
+[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
+[![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
+
+</div>
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.
 
@@ -42,6 +46,8 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
 ## Download
 
 You can choose between downloading from GitHub release page, use a package manager or build PcapPlusPlus yourself. For more details please visit the [Download](https://pcapplusplus.github.io/docs/install) page in PcapPlusPlus web-site.
+
+[![GitHub all releases](https://img.shields.io/github/downloads/seladb/PcapPlusPlus/total?style=flat&label=Downloads&logo=github)]()
 
 ### GitHub Release Page
 
@@ -164,7 +170,28 @@ If you see any missing data please [contact us](#provide-feedback).
 
 ## Multi Platform Support
 
-PcapPlusPlus is currently supported on __Windows__, __Linux__, __MacOS__, __Android__ and __FreeBSD__. Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
+PcapPlusPlus is currently supported on
+__Windows__
+<picture>
+  <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-windows.png" alt="" width="16" height="16"/>
+</picture>,
+__Linux__
+<picture>
+  <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-linux.png" alt="" width="16" height="16"/>
+</picture>,
+__MacOS__
+<picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple-dark.png"/>
+  <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-apple.png" alt="" width="16" height="16"/>
+</picture>,
+__Android__
+<picture>
+  <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-android.png" alt="" width="16" height="16"/>
+</picture> and
+__FreeBSD__
+<picture>
+  <img src="https://github.com/PcapPlusPlus/pcapplusplus.github.io/raw/master/static/img/os-logos/logo-freebsd.png" alt="" width="16" height="16"/>
+</picture>.
+Please visit PcapPlusPlus web-site to see all of the [supported platforms](https://pcapplusplus.github.io/docs/platforms) and refer to the [Download](#download) section to start using PcapPlusPlus on your platform.
 
 ## Supported Network Protocols
 
@@ -182,50 +209,51 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 8. STP - parsing only (no editing capabilities)
 9. VLAN
 10. VXLAN
+11. Wake on LAN (WoL)
 
 ### Network Layer (L3)
 
-11. ARP
-12. GRE
-13. ICMP
-14. ICMPv6
-15. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-16. IPv4
-17. IPv6
-18. MPLS
-19. NDP
-20. Raw IP (IPv4 & IPv6)
+12. ARP
+13. GRE
+14. ICMP
+15. ICMPv6
+16. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+17. IPv4
+18. IPv6
+19. MPLS
+20. NDP
+21. Raw IP (IPv4 & IPv6)
 
 ### Transport Layer (L4)
 
-21. GTP (v1)
-22. IPSec AH & ESP - parsing only (no editing capabilities)
-23. TCP
-24. UDP
+22. GTP (v1)
+23. IPSec AH & ESP - parsing only (no editing capabilities)
+24. TCP
+25. UDP
 
 ### Session Layer (L5)
 
-25. SDP
-26. SIP
+26. SDP
+27. SIP
 
 ### Presentation Layer (L6)
 
-27. SSL/TLS - parsing only (no editing capabilities)
+28. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-28. BGP (v4)
-29. DHCP
-30. DHCPv6
-31. DNS
-32. FTP
-33. HTTP headers (request & response)
-34. NTP (v3, v4)
-35. Radius
-36. SOME/IP
-37. SSH - parsing only (no editing capabilities)
-38. Telnet - parsing only (no editing capabilities)
-39. Generic payload
+29. BGP (v4)
+30. DHCP
+31. DHCPv6
+32. DNS
+33. FTP
+34. HTTP headers (request & response)
+35. NTP (v3, v4)
+36. Radius
+37. SOME/IP
+38. SSH - parsing only (no editing capabilities)
+39. Telnet - parsing only (no editing capabilities)
+40. Generic payload
 
 ## DPDK And PF_RING Support
 
@@ -263,3 +291,5 @@ We would very much appreciate any contribution to this project. If you're intere
 ## License
 
 PcapPlusPlus is released under the [Unlicense license](https://unlicense.org/).
+
+[![GitHub](https://img.shields.io/github/license/seladb/PcapPlusPlus?style=flat&color=blue&logo=unlicense)](https://unlicense.org/)

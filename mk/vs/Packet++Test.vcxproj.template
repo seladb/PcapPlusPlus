@@ -199,6 +199,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\TcpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\TelnetTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\VlanMplsTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\WakeOnLanTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\main.cpp" />
     <ClCompile Include="..\..\3rdParty\MemPlumber\MemPlumber\memplumber.cpp" />
   </ItemGroup>

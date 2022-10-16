@@ -77,15 +77,13 @@ IFileReaderDevice::IFileReaderDevice(const std::string& fileName) : IFileDevice(
 
 IFileReaderDevice* IFileReaderDevice::getReader(const std::string& fileName)
 {
-	const char* fileExtension = strrchr(fileName.c_str(), '.');
+	const auto extensionPos = fileName.find_last_of('.');
+	const auto fileExtension = extensionPos != std::string::npos ? fileName.substr(extensionPos) : "";
 
-	if (fileExtension != NULL)
-	{
-		if(strcmp(fileExtension, ".pcapng") == 0 || strcmp(fileExtension, ".zstd") == 0)
-			return new PcapNgFileReaderDevice(fileName);
-		else if(strcmp(fileExtension, ".snoop") == 0)
-			return new SnoopFileReaderDevice(fileName);
-	}
+	if (fileExtension == ".pcapng" || fileExtension == ".zstd" || fileExtension == ".zst")
+		return new PcapNgFileReaderDevice(fileName);
+	else if (fileExtension == ".snoop")
+		return new SnoopFileReaderDevice(fileName);
 
 	return new PcapFileReaderDevice(fileName);
 }

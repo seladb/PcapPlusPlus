@@ -698,6 +698,29 @@ def is_mount(mount_path):
     return False
 
 
+def find_and_set_rte_sdk(args, settings):
+    if args.rte_sdk:
+        settings.rte_sdk = args.rte_sdk
+        return
+
+    if os.environ.get("RTE_SDK"):
+        settings.rte_sdk = os.environ.get("RTE_SDK")
+        return
+
+    if hasattr(settings, "rte_sdk") and settings.rte_sdk:
+        return
+
+    raise RuntimeError(
+        "Cannot find RTE_SDK. Searched in the settings file, OS env variables and command-line arguments"
+    )
+
+
+def verify_rte_sdk(args, settings):
+    find_and_set_rte_sdk(args, settings)
+    if not os.path.exists(settings.rte_sdk):
+        raise FileExistsError("RTE_SDK path: '%s' does not exist" % settings.rte_sdk)
+
+
 def check_huge_pages():
     with open("/proc/meminfo", "r") as meminfo:
         for line in meminfo:
@@ -998,6 +1021,12 @@ def handle_restore(_args, settings):
 def handle_setup(args, settings):
     interface_infos = []
     try:
+        verify_rte_sdk(args, settings)
+    except Exception as exc:
+        logger.error(exc)
+        raise
+
+    try:
         setup_huge_pages(args.huge_pages)
         load_dpdk_module(args.dpdk_module, settings)
         if args.load_kni:
@@ -1076,6 +1105,12 @@ def parse_args():
         "--verbose",
         action="store_true",
         help="print more verbose output",
+    )
+    parser_setup.add_argument(
+        "-r",
+        "--rte-sdk",
+        type=str,
+        help="DPDK home directory",
     )
 
     parser_status = subparsers.add_parser(
