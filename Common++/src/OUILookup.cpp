@@ -33,6 +33,7 @@ namespace pcpp
 			std::vector<MaskedFilter> vLocalMaskedFilter;
 			if (val.contains("maskedFilter") && val["maskedFilter"].is_array())
 			{
+				// Iterate through masked filters
 				for (const auto &entry : val["maskedFilter"])
 				{
 					if (entry.is_object() && entry.contains("mask") && entry.contains("vendors") &&
@@ -41,6 +42,7 @@ namespace pcpp
 						int maskValue = entry["mask"].get<int>();
 						vLocalMaskedFilter.push_back({maskValue, {}});
 
+						// Parse masked filter
 						for (const auto &subentry : entry["vendors"].items())
 						{
 							if (subentry.value().is_string())
