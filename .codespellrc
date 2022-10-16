@@ -1,4 +1,4 @@
 [codespell]
-skip = *.dat,typos-config.toml,.git,./ci,./Dist,./mk,./Tests/ExamplesTest/expected_output,./Tests/ExamplesTest/pcap_examples,./Tests/Packet++Test/PacketExamples,./Tests/Pcap++Test/PcapExamples,./3rdParty/OUILookup/PCPP_OUIDataset.json
+skip = *.dat,typos-config.toml,.git,./ci,./Dist,./mk,./Tests/ExamplesTest/expected_output,./Tests/ExamplesTest/pcap_examples,./Tests/Packet++Test/PacketExamples,./Tests/Pcap++Test/PcapExamples,./3rdParty/json,./3rdParty/OUILookup/PCPP_OUIDataset.json
 ignore-words = codespell-ignore-list.txt
 count =
