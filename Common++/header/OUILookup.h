@@ -17,29 +17,40 @@ namespace pcpp
 	 */
 	class OUILookup
 	{
-	private:
+	  private:
 		/**
-		 * MAC addresses with only first three octets
-		 * The first element is "XX:XX:XX" formatted MAC address and the second element is the Vendor
+		 * MAC addresses with mask values. For example for a MAC address "XX:XX:XX:XX:X0:00/36" the first element will
+		 * be 36, and the second element will be unsigned integer equivalent of "XX:XX:XX:XX:X0:00" and vendor name.
 		 */
-		std::unordered_map<std::string, std::string> OUIVendorListShort;
+		struct MaskedFilter
+		{
+			int mask;
+			std::unordered_map<uint64_t, std::string> vendorMap;
+		};
+
+		/// Vendors for MAC addresses and mask filters if exists
+		struct VendorData
+		{
+			std::string vendorName;
+			std::vector<MaskedFilter> maskedFilter;
+		};
 
 		/**
-		 * Full MAC addresses (with mask)
-		 * Every element of vector holds a different mask. The first element of the pair holds the value of mask and
-		 * the second one is the MAC address list for this mask. For example for a MAC address "XX:XX:XX:XX:X0:00/36"
-		 * the first element will be 36, and the second element will be "XX:XX:XX:XX:X0:00" and vendor name. So the
-		 * library will only search the required masks during runtime.
+		 * MAC addresses with only first three octets. The first element is unsigned integer equivalent of "XX:XX:XX"
+		 * formatted MAC address
 		 */
-		std::vector<std::pair<int, std::unordered_map<std::string, std::string>>> OUIVendorListLong;
+		typedef std::unordered_map<uint64_t, VendorData> OUIVendorMap;
 
-	public:
+		/// Internal vendor list for MAC addresses
+		OUIVendorMap vendorMap;
+
+	  public:
 		/**
 		 * Initialise internal OUI database
-		 * @param[in] path Path to OUI database. The database itself is located at PcapPlusPlus_Source_Dir/3rdParty/OUILookup/PCPP_OUIDatabase.dat
+		 * @param[in] path Path to OUI database. The database itself is located at 3rdParty/OUILookup/PCPP_OUIDatabase.json
 		 * @return int64_t Returns the number of total vendors, negative on errors
 		 */
-		int64_t initOUIDatabase(const std::string &path = "PCPP_OUIDatabase.dat");
+		int64_t initOUIDatabase(const std::string &path = "PCPP_OUIDatabase.json");
 
 		/**
 		 * Returns the vendor of the MAC address. OUI database should be initialized with initOUIDatabase()
