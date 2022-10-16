@@ -4,7 +4,7 @@ print("Creating header from downloaded data ...")
 
 # Prepare files
 inFile = open("manuf.dat", "r")
-outFile = open("PCPP_OUIDataset.json", "w")
+outFile = open("PCPP_OUIDataset.json", "w", encoding='utf8')
 Lines = inFile.readlines()
 
 countSuccess = 0
@@ -104,7 +104,7 @@ if len(vMask):
 # Dump to file
 print("Total number of vendors is", countSuccess, "failed", countFail)
 print("Writing file")
-outFile.write(json.dumps(mainJson, indent=4))
+outFile.write(json.dumps(mainJson, indent=4, ensure_ascii=False))
 outFile.write('\n')
 
 inFile.close()
