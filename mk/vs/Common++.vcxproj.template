@@ -100,7 +100,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)"</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -123,7 +123,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +150,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)"</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,7 +173,7 @@ xcopy "$(PcapPlusPlusHome)\Common++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;GIT_BRANCH="$(GitBranch)";GIT_COMMIT="$(GitCommit)";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(PcapPlusPlusHome)\Common++\header;$(PcapPlusPlusHome)\3rdParty\EndianPortable\include;$(PcapPlusPlusHome)\3rdParty\json;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
