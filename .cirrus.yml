@@ -31,7 +31,7 @@ task:
   configure_script:
     - cmake -S . -B Dist
   build_script:
-    - cmake --build Dist -j
+    - cmake --build Dist -j 2
   test_pcapplusplus_script:
     - ifconfig vtnet0 promisc
     - python -m ensurepip
