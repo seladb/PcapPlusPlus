@@ -83,7 +83,7 @@ void testSetUp()
 #ifdef PCPP_TESTS_DEBUG
 #include "pcap.h"
 
-void savePacketToPcap(pcpp::Packet& packet, std::string fileName)
+void savePacketToPcap(pcpp::Packet& packet, const std::string &fileName)
 {
 	pcap_t* pcap;
 	pcap = pcap_open_dead(1, 65565);

@@ -181,7 +181,7 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
 	}
 }
 
-std::string executeShellCommand(const std::string command)
+std::string executeShellCommand(const std::string &command)
 {
 	FILE* pipe = POPEN(command.c_str(), "r");
 	if (!pipe) return "ERROR";
@@ -197,7 +197,7 @@ std::string executeShellCommand(const std::string command)
 }
 
 
-bool directoryExists(std::string dirPath)
+bool directoryExists(const std::string &dirPath)
 {
 	struct stat info;
 

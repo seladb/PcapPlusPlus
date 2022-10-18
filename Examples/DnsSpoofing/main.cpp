@@ -305,7 +305,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * Activate DNS spoofing: prepare the device and start capturing DNS requests
  */
-void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, const pcpp::IPAddress& clientIP, std::vector<std::string> dnsHostsToSpoof)
+void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, const pcpp::IPAddress& clientIP, const std::vector<std::string> &dnsHostsToSpoof)
 {
 	// open device
 	if (!dev->open())

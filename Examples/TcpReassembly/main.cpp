@@ -141,7 +141,7 @@ public:
 	 * Open a file stream. Inputs are the filename to open and a flag indicating whether to append to an existing file or overwrite it.
 	 * Return value is a pointer to the new file stream
 	 */
-	std::ostream* openFileStream(std::string fileName, bool reopen)
+	std::ostream* openFileStream(const std::string &fileName, bool reopen)
 	{
 		// if the user chooses to write only to console, don't open anything and return std::cout
 		if (writeToConsole)

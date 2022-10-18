@@ -101,7 +101,7 @@ public:
 	/**
 	 * Re-implement Splitter's getFileName() method, this time with the IP/port value
 	 */
-	std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& packet, const std::string &outputPcapBasePath, int fileNumber)
 	{
 		// first set the base string as the outputPcapBasePath
 		std::string result = outputPcapBasePath;

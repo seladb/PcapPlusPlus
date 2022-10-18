@@ -229,14 +229,14 @@ namespace pcpp
 	 * @param[in] command The command to run
 	 * @return The output of the command (both stdout and stderr)
 	 */
-	std::string executeShellCommand(const std::string command);
+	std::string executeShellCommand(const std::string &command);
 
 	/**
 	 * Check if a directory exists
 	 * @param[in] dirPath Full path of the directory to search
 	 * @return True if directory exists, false otherwise
 	 */
-	bool directoryExists(std::string dirPath);
+	bool directoryExists(const std::string &dirPath);
 
 	/**
 	 * Retrieve a system-wide real-time accurate clock. It's actually a multi-platform version of clock_gettime() which is
