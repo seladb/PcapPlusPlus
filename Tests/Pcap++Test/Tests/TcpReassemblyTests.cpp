@@ -81,11 +81,11 @@ static size_t getPayloadLen(pcpp::RawPacket& rawPacket)
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 	if (tcpLayer == NULL)
-		throw;
+		throw std::runtime_error("TCP Layer not found");
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == NULL)
-		throw;
+		throw std::runtime_error("IPv4 Layer not found");
 
 	return be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
 }
@@ -221,7 +221,7 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
 	if (tcpLayer == NULL)
-		throw;
+		throw std::runtime_error("TCP Layer not found");
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == NULL)
