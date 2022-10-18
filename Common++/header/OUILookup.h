@@ -48,7 +48,7 @@ namespace pcpp
 		/**
 		 * Initialise internal OUI database
 		 * @param[in] path Path to OUI database. The database itself is located at 3rdParty/OUILookup/PCPP_OUIDatabase.json
-		 * @return int64_t Returns the number of total vendors, negative on errors
+		 * @return Returns the number of total vendors, negative on errors
 		 */
 		int64_t initOUIDatabase(const std::string &path = "PCPP_OUIDatabase.json");
 
