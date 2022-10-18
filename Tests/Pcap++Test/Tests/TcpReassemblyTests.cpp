@@ -225,7 +225,7 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == NULL)
-		throw;
+		throw std::runtime_error("IPv4 Layer not found");
 
 	int tcpPayloadSize = be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
 
