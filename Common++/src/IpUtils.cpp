@@ -267,7 +267,7 @@ inet_pton6(const char* src, uint8_t* dst)
 	static const char xdigits_l[] = "0123456789abcdef",
 			  xdigits_u[] = "0123456789ABCDEF";
 	u_char tmp[NS_IN6ADDRSZ], *tp, *endp, *colonp;
-	const char *xdigits, *curtok;
+	const char *curtok;
 	int ch, saw_xdigit;
 	u_int val;
 
@@ -283,7 +283,7 @@ inet_pton6(const char* src, uint8_t* dst)
 	val = 0;
 	while ((ch = *src++) != '\0')
 	{
-		const char* pch;
+		const char* pch, *xdigits;
 
 		if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
 			pch = strchr((xdigits = xdigits_u), ch);
