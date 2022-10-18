@@ -39,7 +39,7 @@ int64_t OUILookup::initOUIDatabase(const std::string &path)
 				if (!entry.is_object())
 					continue;
 				auto subVal = entry.get<nlohmann::json>();
-				if (subVal.is_object() && subVal.contains("mask") && subVal.contains("vendors") &&
+				if (subVal.contains("mask") && subVal.contains("vendors") &&
 					subVal["mask"].is_number_integer() && subVal["vendors"].is_object())
 				{
 					int maskValue = subVal["mask"].get<int>();
