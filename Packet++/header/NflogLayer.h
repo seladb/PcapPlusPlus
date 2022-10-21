@@ -12,6 +12,28 @@
  */
 namespace pcpp
 {
+	/*
+ 	* TLV types.
+ 	*/
+	#define NFULA_PACKET_HDR			1	/* nflog_packet_hdr_t */
+	#define NFULA_MARK					2	/* packet mark from skbuff */
+	#define NFULA_TIMESTAMP				3	/* nflog_timestamp_t for skbuff's time stamp */
+	#define NFULA_IFINDEX_INDEV			4	/* ifindex of device on which packet received (possibly bridge group) */
+	#define NFULA_IFINDEX_OUTDEV		5	/* ifindex of device on which packet transmitted (possibly bridge group) */
+	#define NFULA_IFINDEX_PHYSINDEV		6	/* ifindex of physical device on which packet received (not bridge group) */
+	#define NFULA_IFINDEX_PHYSOUTDEV	7	/* ifindex of physical device on which packet transmitted (not bridge group) */
+	#define NFULA_HWADDR				8	/* nflog_hwaddr_t for hardware address */
+	#define NFULA_PAYLOAD				9	/* packet payload */
+	#define NFULA_PREFIX				10	/* text string - null-terminated, count includes NUL */
+	#define NFULA_UID					11	/* UID owning socket on which packet was sent/received */
+	#define NFULA_SEQ					12	/* sequence number of packets on this NFLOG socket */
+	#define NFULA_SEQ_GLOBAL			13	/* sequence number of pakets on all NFLOG sockets */
+	#define NFULA_GID					14	/* GID owning socket on which packet was sent/received */
+	#define NFULA_HWTYPE				15	/* ARPHRD_ type of skbuff's device */
+	#define NFULA_HWHEADER				16	/* skbuff's MAC-layer header */
+	#define NFULA_HWLEN					17	/* length of skbuff's MAC-layer header */
+
+
 
 	/**
 	 * @struct nflog_header
@@ -32,17 +54,32 @@ namespace pcpp
 		/** contains the link-layer address of the sender of the packet; the number of bytes of that field that are
 		 *  meaningful is specified by the link-layer address length field
 		 **/
-		uint8_t link_layer_addr[8];
+		// uint8_t link_layer_addr[8];
 		/** Contains an Ethernet protocol type of the next layer */
-		uint16_t protocol_type;
+		// uint16_t protocol_type;
 	};
 #pragma pack(pop)
 
 	/**
-	 * @class SllLayer
-	 * Represents an SLL (Linux cooked capture) protocol layer
+	 * @struct nflog_tlv
+	 * Represents Nflog tlv structure
 	 */
-	class SllLayer : public Layer
+#pragma pack(push, 1)
+	struct nflog_tlv
+	{
+		/* tlv length */
+		uint16_t tlv_length;
+
+		/* tlv type */
+		uint16_t tlv_type;
+	};
+#pragma pack(pop)
+
+	/**
+	 * @class NflogLayer
+	 * Represents an NFLOG protocol layer
+	 */
+	class NflogLayer : public Layer
 	{
 	public:
 		/**
@@ -51,22 +88,22 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		SllLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = SLL; }
+		NflogLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = NFLOG; }
 
 		/**
 		 * A constructor that creates a new SLL header and allocates the data
 		 * @param[in] packetType The packet type
 		 * @param[in] ARPHRDType The ARPHRD type
 		 */
-		SllLayer(uint16_t packetType, uint16_t ARPHRDType);
+		NflogLayer(uint16_t packetType, uint16_t ARPHRDType);
 
-		~SllLayer() {}
+		~NflogLayer() {}
 
 		/**
 		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the actual packet data
 		 * @return A pointer to the sll_header
 		 */
-		sll_header* getSllHeader() const { return (sll_header*)m_Data; }
+		nflog_header* getNflogHeader() const { return (nflog_header*)m_Data; }
 
 		/**
 		 * A setter for the link layer address field
@@ -93,7 +130,7 @@ namespace pcpp
 		/**
 		 * @return Size of sll_header
 		 */
-		size_t getHeaderLen() const { return sizeof(sll_header); }
+		size_t getHeaderLen() const { return sizeof(nflog_header); }
 
 		/**
 		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
