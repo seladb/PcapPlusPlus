@@ -361,7 +361,7 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new HttpResponseLayer(payload, payloadLen, this, m_Packet);
 	else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
 		m_NextLayer = SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet);
-	else if (SipLayer::isSipPort(portDst))
+	else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 	{
 		if (SipRequestFirstLine::parseMethod((char*)payload, payloadLen) != SipRequestLayer::SipMethodUnknown)
 			m_NextLayer = new SipRequestLayer(payload, payloadLen, this, m_Packet);
