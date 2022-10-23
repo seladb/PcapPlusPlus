@@ -165,12 +165,14 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1)
 	{
+		delete [] buffer;
 		PCPP_LOG_ERROR("Cannot get socket flags");
 		return RecvError;
 	}
 	flags = (blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
 	if (fcntl(fd, F_SETFL, flags) != 0)
 	{
+		delete [] buffer;
 		PCPP_LOG_ERROR("Cannot set socket non-blocking flag");
 		return RecvError;
 	}
