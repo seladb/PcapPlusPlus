@@ -184,7 +184,7 @@ std::pair<uint16_t, uint16_t> getTcpPorts(const pcpp::Packet& packet)
  * This method takes the parsed packets and the TLS fingerprint as inputs, extracts the rest of the data such as IP addresses and TCP ports,
  * and writes a single row to the output file
  */
-void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPacket, std::string tlsFPString, std::string tlsFP_MD5, std::string tlsFPType, std::string separator)
+void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPacket, const std::string &tlsFPString, const std::string &tlsFP_MD5, const std::string &tlsFPType, const std::string &separator)
 {
 	std::pair<pcpp::IPAddress, pcpp::IPAddress> ipSrcDest = getIPs(parsedPacket);
 	std::pair<uint16_t, uint16_t> tcpPorts = getTcpPorts(parsedPacket);
@@ -203,7 +203,7 @@ void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPack
 /**
  * Write the column headers to the output file
  */
-void writeHeaderToOutputFile(std::ofstream& outputFile, std::string separator)
+void writeHeaderToOutputFile(std::ofstream& outputFile, const std::string &separator)
 {
 	outputFile <<
 		"TLS Fingerprint (MD5)" << separator <<

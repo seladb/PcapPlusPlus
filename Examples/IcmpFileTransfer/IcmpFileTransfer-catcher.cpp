@@ -428,7 +428,7 @@ static bool sendContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, v
 /**
  * Send a file to the pitcher
  */
-void sendFile(std::string filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize)
+void sendFile(const std::string &filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize)
 {
 	// identify the interface to listen and send packets to
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(catcherIP);

@@ -401,7 +401,7 @@ static bool waitForFileTransferStartAck(pcpp::RawPacket* rawPacket, pcpp::PcapLi
 /**
  * Send a file to the catcher
  */
-void sendFile(std::string filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize, int packetPerSec)
+void sendFile(const std::string &filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize, int packetPerSec)
 {
 	// identify the interface to listen and send packets to
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(pitcherIP);

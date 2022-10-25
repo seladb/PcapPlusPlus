@@ -31,7 +31,7 @@ void testSetUp();
 	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true, linktype)
 
 #ifdef PCPP_TESTS_DEBUG
-void savePacketToPcap(pcpp::Packet& packet, std::string fileName);
+void savePacketToPcap(pcpp::Packet& packet, const std::string &fileName);
 #endif
 
 }

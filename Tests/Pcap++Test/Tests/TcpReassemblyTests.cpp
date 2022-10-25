@@ -60,7 +60,7 @@ struct TcpReassemblyMultipleConnStats
 // readFileIntoString()
 // ~~~~~~~~~~~~~~~~~~~~
 
-static std::string readFileIntoString(std::string fileName)
+static std::string readFileIntoString(const std::string &fileName)
 {
 	std::ifstream infile(fileName.c_str(), std::ios::binary);
 	std::ostringstream ostrm;

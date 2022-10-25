@@ -42,7 +42,7 @@ public:
 	 * first packet that will be written to this file. The default implementation is the following:
 	 * ' /requested-path/original-file-name-[4-digit-number-starting-at-0000].pcap'
 	 */
-	virtual std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	virtual std::string getFileName(pcpp::Packet& packet, const std::string &outputPcapBasePath, int fileNumber)
 	{
 	    std::ostringstream sstream;
 	    sstream << std::setw(4) << std::setfill( '0' ) << fileNumber;

@@ -154,7 +154,7 @@ void listDpdkPorts()
  * packets, etc.
  */
 void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, std::vector<pcpp::SystemCore>& coresToUse,
-		bool writePacketsToDisk, std::string packetFilePath, pcpp::DpdkDevice* sendPacketsTo,
+		bool writePacketsToDisk, const std::string &packetFilePath, pcpp::DpdkDevice* sendPacketsTo,
 		AppWorkerConfig workerConfigArr[], int workerConfigArrLen, uint16_t rxQueues)
 {
 	// create a list of pairs of DpdkDevice and RX queues for all RX queues in all requested devices
