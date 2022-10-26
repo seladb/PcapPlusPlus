@@ -755,7 +755,7 @@ std::string SipResponseFirstLine::getStatusCodeString() const
 	std::string result;
 	if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
 	{
-		int statusStringOffset = 12;
+		const int statusStringOffset = 12;
 		int statusStringEndOffset = m_FirstLineEndOffset - 2;
 		if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
 			statusStringEndOffset++;
