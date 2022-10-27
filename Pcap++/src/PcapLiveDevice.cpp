@@ -474,7 +474,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	long startTimeSec = 0, startTimeNSec = 0;
 	clockGetTime(startTimeSec, startTimeNSec);
 
-	long curTimeSec = 0, curTimeNSec = 0;
+	long curTimeSec = 0;
 
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
@@ -491,6 +491,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
 		{
+			long curTimeNSec = 0;
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
 			clockGetTime(curTimeSec, curTimeNSec);
 		}

@@ -147,11 +147,10 @@ size_t TelnetLayer::getTotalNumberOfCommands()
 	if (isCommandField(m_Data))
 		++ctr;
 
-	size_t offset = 0;
 	uint8_t *pos = m_Data;
 	while (pos != NULL)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 		if (pos)
 			++ctr;
@@ -169,11 +168,10 @@ size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
 	if (isCommandField(m_Data) && m_Data[1] == command)
 		++ctr;
 
-	size_t offset = 0;
 	uint8_t *pos = m_Data;
 	while (pos != NULL)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 		if (pos && pos[1] == command)
 			++ctr;
@@ -235,10 +233,9 @@ TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command)
 		return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
 
 	uint8_t *pos = m_Data;
-	size_t offset = 0;
 	while (pos != NULL)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 
 		if (pos && pos[1] == command)
@@ -282,10 +279,9 @@ uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
 	}
 
 	uint8_t *pos = m_Data;
-	size_t offset = 0;
 	while (pos != NULL)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 
 		if (pos && pos[1] == command)

@@ -691,9 +691,10 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 		nowtm = gmtime(&nowtime);
 #endif
 
-	char tmbuf[64], buf[128];
+	char buf[128];
 	if (nowtm != NULL)
 	{
+		char tmbuf[64];
 		strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
 		snprintf(buf, sizeof(buf), "%s.%09lu", tmbuf, (unsigned long)timestamp.tv_nsec);
 	}

@@ -793,7 +793,7 @@ int HttpResponseFirstLine::getStatusCodeAsInt() const
 std::string HttpResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
-	int statusStringOffset = 13;
+	const int statusStringOffset = 13;
 	if (m_StatusCode != HttpResponseLayer::HttpStatusCodeUnknown)
 	{
 		int statusStringEndOffset = m_FirstLineEndOffset - 2;

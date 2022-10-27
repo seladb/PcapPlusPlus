@@ -522,7 +522,7 @@ void pingPongProcess(const LinuxSocket& sock)
 	size_t netbuffPos = 0;
 	unsigned char ttybuff[IO_BUFF_SIZE];
 	size_t ttybuffPos = 0;
-	int n, num_fds;
+	int n;
 	ssize_t ret;
 
 	/* stdin */
@@ -554,7 +554,7 @@ void pingPongProcess(const LinuxSocket& sock)
 			return;
 
 		/* poll */
-		num_fds = poll(pfd, 4, DEFAULT_POLL_TIMEOUT);
+		int num_fds = poll(pfd, 4, DEFAULT_POLL_TIMEOUT);
 
 		/* treat poll errors */
 		if (num_fds == -1)

@@ -753,7 +753,7 @@ int SipResponseFirstLine::getStatusCodeAsInt() const
 std::string SipResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
-	int statusStringOffset = 12;
+	const int statusStringOffset = 12;
 	if (m_StatusCode != SipResponseLayer::SipStatusCodeUnknown)
 	{
 		int statusStringEndOffset = m_FirstLineEndOffset - 2;
