@@ -1,7 +1,6 @@
 #ifndef PACKETPP_NFLOG_LAYER
 #define PACKETPP_NFLOG_LAYER
 
-#include "MacAddress.h"
 #include "Layer.h"
 
 /// @file
@@ -79,29 +78,41 @@ namespace pcpp
 		 */
 		NflogLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = NFLOG; }
 
-		/**
-		 * A constructor that creates a new SLL header and allocates the data
-		 * @param[in] packetType The packet type
-		 * @param[in] ARPHRDType The ARPHRD type
-		 */
-		NflogLayer(uint16_t packetType, uint16_t ARPHRDType);
-
 		~NflogLayer() {}
 
 		/**
-		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the actual packet data
-		 * @return A pointer to the sll_header
+		 * Get a pointer to the Nflog header.
+		 * @return A pointer to the nflog_header
 		 */
 		nflog_header* getNflogHeader() const { return (nflog_header*)m_Data; }
 		
+		/**
+		 * Get address family of the packet. e.g. 2 for ipv4 and 10 for ipv6
+		 * @return an unsigned char of address famliy
+		*/
+		uint8_t getFamily();
+
+		/**
+		 * returns a pair of pointer to payload of packet and the offset from the beginning of m_Data
+		 * @return pair of <uint8_t*, int>
+		*/
+		std::pair<uint8_t*, int> getPayload();
+
+		/**
+		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer using address family
+		 * Otherwise sets PayloadLayer
+		 */
 		void parseNextLayer();
 
 		/**
-		 * @return Size of sll_header
+		 * @return Size of nflog_header
 		 */
 		size_t getHeaderLen() const { return sizeof(nflog_header); }
 
-		void computeCalculateFields();
+		/**
+		 * nothing to do for now
+		*/
+		void computeCalculateFields() {};
 
 		std::string toString() const;
 
