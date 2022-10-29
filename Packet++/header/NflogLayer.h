@@ -63,6 +63,15 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
+	struct nflog_packet_header
+	{
+		uint16_t hardware_protocol;
+
+		uint8_t netfilter_hook;
+
+		uint8_t padding;
+	};
+
 	/**
 	 * @class NflogLayer
 	 * Represents an NFLOG protocol layer
@@ -91,6 +100,12 @@ namespace pcpp
 		 * @return an unsigned char of address famliy
 		*/
 		uint8_t getFamily();
+
+		/**
+		 * get packet header of the packet as the tlv value of 1
+		 * @return pointer to nflog_packet_header
+		*/
+		nflog_packet_header* getPacketHeader();
 
 		/**
 		 * returns a pair of pointer to payload of packet and the offset from the beginning of m_Data

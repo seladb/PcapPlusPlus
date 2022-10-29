@@ -36,6 +36,13 @@ std::pair<uint8_t*, int> NflogLayer::getPayload()
 	return std::make_pair(data + sizeof(nflog_tlv), offset);
 }
 
+nflog_packet_header* NflogLayer::getPacketHeader()
+{
+	// NFULA_PACKET_HDR is the first tlv
+	uint8_t* data = m_Data + sizeof(nflog_header) + sizeof(nflog_tlv);
+	return (nflog_packet_header*)data;
+}
+
 void NflogLayer::parseNextLayer()
 {
 	if (m_DataLen <= sizeof(nflog_header))
