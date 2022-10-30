@@ -63,6 +63,10 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
+	/**
+	 * @struct nflog_packet_header
+	 * represents data of the first tlv by tlv type 1
+	*/
 #pragma pack(push, 1)
 	struct nflog_packet_header
 	{
