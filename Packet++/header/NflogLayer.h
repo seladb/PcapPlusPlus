@@ -55,10 +55,10 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct nflog_tlv
 	{
-		/* tlv length */
+		/** tlv length */
 		uint16_t tlv_length;
 
-		/* tlv type */
+		/** tlv type */
 		uint16_t tlv_type;
 	};
 #pragma pack(pop)
@@ -66,13 +66,13 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct nflog_packet_header
 	{
-		/* e.g. ipv4, unknown, etc */
+		/** e.g. ipv4, unknown, etc */
 		uint16_t hardware_protocol;
 
-		/* local-in, local-out, post-routing, etc */
+		/** local-in, local-out, post-routing, etc */
 		uint8_t netfilter_hook;
 
-		/* one byte padding */
+		/** one byte padding */
 		uint8_t padding;
 	};
 #pragma pack(pop)
