@@ -63,6 +63,7 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
+#pragma pack(push, 1)
 	struct nflog_packet_header
 	{
 		// e.g. ipv4, unknown, etc
@@ -74,6 +75,7 @@ namespace pcpp
 		// one byte padding
 		uint8_t padding;
 	};
+#pragma pack(pop)
 
 	/**
 	 * @class NflogLayer
