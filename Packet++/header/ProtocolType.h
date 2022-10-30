@@ -138,7 +138,7 @@ namespace pcpp
 	const ProtocolType SLL = 0x40000;
 
 	/**
-	 * NFLOG (linux netfilter nflog) protocol 
+	 * NFLOG (linux netfilter nflog) protocol
 	 */
 	const ProtocolType NFLOG = 0x50000;
 

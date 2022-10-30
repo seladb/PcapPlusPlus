@@ -41,7 +41,7 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct nflog_header
 	{
-		
+
 		uint8_t address_family;
 		uint8_t version;
 		uint16_t resource_id;
@@ -65,10 +65,13 @@ namespace pcpp
 
 	struct nflog_packet_header
 	{
+		// e.g. ipv4, unknown, etc
 		uint16_t hardware_protocol;
 
+		// local-in, local-out, post-routing, etc
 		uint8_t netfilter_hook;
-
+		
+		// one byte padding
 		uint8_t padding;
 	};
 
@@ -94,7 +97,7 @@ namespace pcpp
 		 * @return A pointer to the nflog_header
 		 */
 		nflog_header* getNflogHeader() const { return (nflog_header*)m_Data; }
-		
+
 		/**
 		 * Get address family of the packet. e.g. 2 for ipv4 and 10 for ipv6
 		 * @return an unsigned char of address famliy
