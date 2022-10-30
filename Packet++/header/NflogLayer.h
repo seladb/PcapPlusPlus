@@ -71,7 +71,7 @@ namespace pcpp
 
 		// local-in, local-out, post-routing, etc
 		uint8_t netfilter_hook;
-		
+
 		// one byte padding
 		uint8_t padding;
 	};
