@@ -132,7 +132,7 @@ void listInterfaces()
 }
 
 
-void printStatsHeadline(std::string description)
+void printStatsHeadline(const std::string &description)
 {
 	std::string underline;
 	for (size_t i = 0; i < description.length(); i++)

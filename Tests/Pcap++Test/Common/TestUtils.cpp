@@ -13,7 +13,7 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-bool sendURLRequest(std::string url)
+bool sendURLRequest(const std::string &url)
 {
 #if defined(_WIN32)
 	std::string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
@@ -52,7 +52,7 @@ bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket
 }
 
 
-int getFileLength(std::string filename)
+int getFileLength(const std::string &filename)
 {
 	std::ifstream infile(filename.c_str(), std::ifstream::binary);
 	if (!infile)
@@ -64,7 +64,7 @@ int getFileLength(std::string filename)
 }
 
 
-uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength)
+uint8_t* readFileIntoBuffer(const std::string &filename, int& bufferLength)
 {
 	int fileLength = getFileLength(filename);
 	if (fileLength == -1)

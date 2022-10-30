@@ -100,7 +100,7 @@ void listInterfaces()
 
 
 void readCommandLineArguments(int argc, char* argv[],
-		std::string thisSide, std::string otherSide,
+		const std::string &thisSide, const std::string &otherSide,
 		bool& sender, bool& receiver,
 		pcpp::IPv4Address& myIP, pcpp::IPv4Address& otherSideIP,
 		std::string& fileNameToSend,

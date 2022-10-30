@@ -199,7 +199,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
  * Searches all pcap files in given directory (and sub-directories if directed by the user) and output how many packets in each file matches a given
  * search criteria. This method outputs how many directories were searched, how many files were searched and how many packets were matched
  */
-void searchDirectories(std::string directory, bool includeSubDirectories, std::string searchCriteria, std::ofstream* detailedReportFile,
+void searchDirectories(const std::string &directory, bool includeSubDirectories, const std::string &searchCriteria, std::ofstream* detailedReportFile,
 		std::map<std::string, bool> extensionsToSearch,
 		int& totalDirSearched, int& totalFilesSearched, int& totalPacketsFound)
 {
