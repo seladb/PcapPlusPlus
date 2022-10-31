@@ -219,6 +219,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClInclude Include="..\..\Packet++\header\RawPacket.h" />
     <ClInclude Include="..\..\Packet++\header\SSHLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SllLayer.h" />
+    <ClInclude Include="..\..\Packet++\header\NflogLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SipLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SdpLayer.h" />
     <ClInclude Include="..\..\Packet++\header\SomeIpLayer.h" />
@@ -276,6 +277,7 @@ xcopy "$(PcapPlusPlusHome)\Packet++\header\*" "$(PcapPlusPlusHome)\Dist\header" 
     <ClCompile Include="..\..\Packet++\src\SdpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSHLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SllLayer.cpp" />
+    <ClCompile Include="..\..\Packet++\src\NflogLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SomeIpLayer.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLCommon.cpp" />
     <ClCompile Include="..\..\Packet++\src\SSLHandshake.cpp" />
