@@ -620,9 +620,9 @@ class SomeIpSdLayer : public SomeIpLayer
 public:
 	friend class SomeIpSdEntry;
 
-	typedef std::shared_ptr<SomeIpSdEntry> EntryPtr;
+	typedef SomeIpSdEntry* EntryPtr;
 	typedef std::vector<EntryPtr> EntriesVec;
-	typedef std::shared_ptr<SomeIpSdOption> OptionPtr;
+	typedef SomeIpSdOption* OptionPtr;
 	typedef std::vector<OptionPtr> OptionsVec;
 
 	/**

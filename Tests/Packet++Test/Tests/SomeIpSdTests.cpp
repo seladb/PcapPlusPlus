@@ -43,7 +43,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 
 	pcpp::SomeIpSdLayer::EntriesVec entries1 = someIpSdLayer->getEntries();
 	PTF_ASSERT_EQUAL(entries1.size(), 1);
-	pcpp::SomeIpSdEntry* entry = entries1.at(0).get();
+	pcpp::SomeIpSdEntry* entry = *(entries1.begin());
 
 	PTF_ASSERT_EQUAL(entry->getLength(), 16);
 	PTF_ASSERT_EQUAL(entry->getNumOptions(), 1);
@@ -57,7 +57,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 
 	pcpp::SomeIpSdLayer::OptionsVec options = someIpSdLayer->getOptions();
 	PTF_ASSERT_EQUAL(options.size(), 1);
-	pcpp::SomeIpSdOption* option = options.at(0).get();
+	pcpp::SomeIpSdOption* option = *(options.begin());
 	PTF_ASSERT_EQUAL(option->getLength(), 12);
 	PTF_ASSERT_EQUAL((uint8_t)option->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv4Endpoint);
 	PTF_ASSERT_EQUAL(option->getDataPtr()[1], 0x09);
@@ -91,7 +91,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	pcpp::SomeIpSdLayer::EntriesVec entries2 = someIpSdLayer2->getEntries();
 	PTF_ASSERT_EQUAL(entries2.size(), 1);
 
-	pcpp::SomeIpSdEntry* entry2 = entries2.at(0).get();
+	pcpp::SomeIpSdEntry* entry2 = *(entries2.begin());
 	PTF_ASSERT_EQUAL(entry2->getLength(), 16);
 	PTF_ASSERT_EQUAL(entry2->getNumOptions(), 2);
 	PTF_ASSERT_EQUAL((uint8_t)entry2->getType(), (uint8_t)pcpp::SomeIpSdEntry::EntryType::OfferService);
@@ -105,7 +105,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	pcpp::SomeIpSdLayer::OptionsVec options2 = someIpSdLayer2->getOptions();
 	PTF_ASSERT_EQUAL(options2.size(), 2);
 
-	pcpp::SomeIpSdOption* option2_1 = options2.at(0).get();
+	pcpp::SomeIpSdOption* option2_1 = *(options2.begin());
 	PTF_ASSERT_EQUAL(option2_1->getLength(), 24);
 	PTF_ASSERT_EQUAL((uint8_t)option2_1->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv6Endpoint);
 	PTF_ASSERT_EQUAL(option2_1->getDataPtr()[1], 0x15);
@@ -115,7 +115,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getProtocol(), pcpp::SomeIpSdProtocolType::SD_TCP);
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getPort(), 29769);
 
-	pcpp::SomeIpSdOption* option2_2 = options2.at(1).get();
+	pcpp::SomeIpSdOption* option2_2 = *(options2.begin()+1);
 	PTF_ASSERT_EQUAL(option2_2->getLength(), 93);
 	PTF_ASSERT_EQUAL((uint8_t)option2_2->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::ConfigurationString);
 	PTF_ASSERT_EQUAL(option2_2->getDataPtr()[5], 0x63);
@@ -128,12 +128,12 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	pcpp::SomeIpSdLayer::OptionsVec options2Entry0 = someIpSdLayer2->getOptionsFromEntry(0);
 	PTF_ASSERT_EQUAL(options2Entry0.size(), 2);
 
-	pcpp::SomeIpSdOption* options2Entry0_1 = options2Entry0.at(0).get();
+	pcpp::SomeIpSdOption* options2Entry0_1 = *(options2Entry0.begin());
 	PTF_ASSERT_EQUAL(options2Entry0_1->getLength(), 24);
 	PTF_ASSERT_EQUAL((uint8_t)options2Entry0_1->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv6Endpoint);
 	PTF_ASSERT_EQUAL(options2Entry0_1->getDataPtr()[1], 0x15);
 
-	pcpp::SomeIpSdOption* options2Entry0_2 = options2Entry0.at(1).get();
+	pcpp::SomeIpSdOption* options2Entry0_2 = *(options2Entry0.begin()+1);
 	PTF_ASSERT_EQUAL(options2Entry0_2->getLength(), 93);
 	PTF_ASSERT_EQUAL((uint8_t)options2Entry0_2->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::ConfigurationString);
 	PTF_ASSERT_EQUAL(options2Entry0_2->getDataPtr()[5], 0x63);
@@ -165,7 +165,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	pcpp::SomeIpSdLayer::EntriesVec entries3 = someIpSdLayer3->getEntries();
 	PTF_ASSERT_EQUAL(entries3.size(), 2);
 
-	pcpp::SomeIpSdEntry* entry3_1 = entries3.at(0).get();
+	pcpp::SomeIpSdEntry* entry3_1 = *(entries3.begin());
 	PTF_ASSERT_EQUAL(entry3_1->getLength(), 16);
 	PTF_ASSERT_EQUAL(entry3_1->getNumOptions(), 1);
 	PTF_ASSERT_EQUAL((uint8_t)entry3_1->getType(), (uint8_t)pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup);
@@ -177,7 +177,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL(entry3_1->getEventgroupId(), 1);
 	PTF_ASSERT_EQUAL(entry3_1->getDataPtr()[0], 0x06);
 
-	pcpp::SomeIpSdEntry* entry3_2 = entries3.at(1).get();
+	pcpp::SomeIpSdEntry* entry3_2 = *(entries3.begin()+1);
 	PTF_ASSERT_EQUAL(entry3_2->getLength(), 16);
 	PTF_ASSERT_EQUAL(entry3_2->getNumOptions(), 1);
 	PTF_ASSERT_EQUAL((uint8_t)entry3_2->getType(), (uint8_t)pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup);
@@ -192,10 +192,30 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	pcpp::SomeIpSdLayer::OptionsVec options3 = someIpSdLayer3->getOptions();
 	PTF_ASSERT_EQUAL(options3.size(), 1);
 
-	pcpp::SomeIpSdOption* option3 = options3.at(0).get();
+	pcpp::SomeIpSdOption* option3 = *(options3.begin());
 	PTF_ASSERT_EQUAL(option3->getLength(), 12);
 	PTF_ASSERT_EQUAL((uint8_t)option3->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv4Endpoint);
 	PTF_ASSERT_EQUAL(option3->getDataPtr()[1], 0x09);
+
+	delete entry;
+	delete option;
+	entries1.clear();
+	options.clear();
+
+	delete entry2;
+	delete option2_1;
+	delete option2_2;
+	delete options2Entry0_1;
+	delete options2Entry0_2;
+	entries2.clear();
+	options2.clear();
+	options2Entry0.clear();
+
+	delete entry3_1;
+	delete entry3_2;
+	delete option3;
+	entries3.clear();
+	options3.clear();
 }
 
 PTF_TEST_CASE(SomeIpSdCreationTest)

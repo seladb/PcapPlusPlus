@@ -496,13 +496,13 @@ const SomeIpSdLayer::EntriesVec SomeIpSdLayer::getEntries() const
 
 	while (remainingLen > 0)
 	{
-		entry =	std::shared_ptr<SomeIpSdEntry>(new SomeIpSdEntry(this, offset));
+		entry =	new SomeIpSdEntry(this, offset);
 
 		size_t entryLen = entry->getLength();
 		remainingLen -= entryLen;
 		offset += entryLen;
 
-		vecEntries.push_back(std::move(entry));
+		vecEntries.push_back(entry);
 	}
 
 	return vecEntries;
@@ -744,21 +744,21 @@ SomeIpSdLayer::OptionPtr SomeIpSdLayer::parseOption(SomeIpSdOption::OptionType t
 	case SomeIpSdOption::OptionType::IPv4Multicast:
 	case SomeIpSdOption::OptionType::IPv4SdEndpoint:
 	{
-		return std::shared_ptr<SomeIpSdIPv4Option>(new SomeIpSdIPv4Option(this, offset));
+		return new SomeIpSdIPv4Option(this, offset);
 	}
 	case SomeIpSdOption::OptionType::IPv6Endpoint:
 	case SomeIpSdOption::OptionType::IPv6Multicast:
 	case SomeIpSdOption::OptionType::IPv6SdEndpoint:
 	{
-		return std::shared_ptr<SomeIpSdIPv6Option>(new SomeIpSdIPv6Option(this, offset));
+		return new SomeIpSdIPv6Option(this, offset);
 	}
 	case SomeIpSdOption::OptionType::ConfigurationString:
 	{
-		return std::shared_ptr<SomeIpSdConfigurationOption>(new SomeIpSdConfigurationOption(this, offset));
+		return new SomeIpSdConfigurationOption(this, offset);
 	}
 	case SomeIpSdOption::OptionType::LoadBalancing:
 	{
-		return std::shared_ptr<SomeIpSdLoadBalancingOption>(new SomeIpSdLoadBalancingOption(this, offset));
+		return new SomeIpSdLoadBalancingOption(this, offset);
 	}
 	default:
 		break;
