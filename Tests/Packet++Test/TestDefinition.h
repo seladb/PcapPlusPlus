@@ -201,6 +201,10 @@ PTF_TEST_CASE(SomeIpTpParsingTest);
 PTF_TEST_CASE(SomeIpTpCreationTest);
 PTF_TEST_CASE(SomeIpTpEditTest);
 
+// Implemented in SomeIpSdTests.cpp
+PTF_TEST_CASE(SomeIpSdParsingTest);
+PTF_TEST_CASE(SomeIpSdCreationTest);
+
 // Implemented in WakeOnLanTests.cpp
 PTF_TEST_CASE(WakeOnLanParsingTests);
 PTF_TEST_CASE(WakeOnLanCreationTests);
