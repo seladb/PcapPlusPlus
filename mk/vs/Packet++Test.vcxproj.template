@@ -193,6 +193,7 @@
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SipSdpTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SllNullLoopbackTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SomeIpTests.cpp" />
+    <ClCompile Include="..\..\Tests\Packet++Test\Tests\SomeIpSdTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSHTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\SSLTests.cpp" />
     <ClCompile Include="..\..\Tests\Packet++Test\Tests\StpTests.cpp" />
