@@ -40,12 +40,15 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
 	pcpp::IPv4Address ipv4Addr("10.0.0.4"), subnet1("10.0.0.0"), subnet2("10.10.0.0"), mask("255.255.255.0");
+	std::string maskedSubnet1("10.0.0.0/24"), maskedSubnet2("10.10.0.0/24");
 	PTF_ASSERT_TRUE(ipv4Addr.isValid());
 	PTF_ASSERT_TRUE(subnet1.isValid());
 	PTF_ASSERT_TRUE(subnet2.isValid());
 	PTF_ASSERT_TRUE(mask.isValid());
 	PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(subnet1, mask));
 	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(subnet2, mask));
+	PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(maskedSubnet1));
+	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(maskedSubnet2));
 
 	pcpp::IPv4Address badAddress(std::string("sdgdfgd"));
 	PTF_ASSERT_FALSE(badAddress.isValid());

@@ -1,6 +1,9 @@
 #define LOG_MODULE CommonLogModuleIpUtils
 
+#include <cmath>
 #include <errno.h>
+#include <sstream>
+#include <stdint.h>
 #include "Logger.h"
 #include "IpUtils.h"
 #include "IpAddress.h"
@@ -40,6 +43,29 @@ namespace pcpp
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
 			memset(m_Bytes, 0, sizeof(m_Bytes));
+	}
+
+
+	bool IPv4Address::matchSubnet(const std::string& subnet) const
+	{
+		std::stringstream ss(subnet);
+    	std::string subnetOnly, subnetPrefixStr;
+        std::getline(ss, subnetOnly, '/');
+        std::getline(ss, subnetPrefixStr);
+
+		uint32_t subnetPrefix = std::stoi(subnetPrefixStr);
+		uint32_t subnetMask = pow(2, subnetPrefix) - 1;
+
+		IPv4Address subnetAsIpAddr(subnetOnly);
+		IPv4Address maskAsIpAddr(subnetMask);
+
+		if (!maskAsIpAddr.isValid() || !subnetAsIpAddr.isValid())
+		{
+			PCPP_LOG_ERROR("Subnet '" << subnet << "' is in illegal format");
+			return false;
+		}
+
+		return matchSubnet(subnetAsIpAddr, maskAsIpAddr);
 	}
 
 
