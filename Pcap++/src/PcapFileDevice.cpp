@@ -163,7 +163,7 @@ bool SnoopFileReaderDevice::open()
 		LINKTYPE_FDDI		/* FDDI */
 	};
 	uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
-	if (datalink_type > 9)
+	if (datalink_type > 8)
 	{
 		PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
 		m_snoopFile.close();
