@@ -309,7 +309,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	{
 		if (!tempCoreMask)
 			break;
-		
+
 		if (tempCoreMask & 1)
 			++numOfCoresInUse;
 		tempCoreMask = tempCoreMask >> 1;
