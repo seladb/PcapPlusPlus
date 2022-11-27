@@ -204,10 +204,10 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 
 		// print configuration for core
 		std::cout << "   Core configuration:" << std::endl;
-		for (InputDataConfig::iterator iter = workerConfigArr[i].InDataCfg.begin(); iter != workerConfigArr[i].InDataCfg.end(); iter++)
+		for (InputDataConfig::iterator subIter = workerConfigArr[i].InDataCfg.begin(); subIter != workerConfigArr[i].InDataCfg.end(); subIter++)
 		{
-			std::cout << "      DPDK device#" << iter->first->getDeviceId() << ": ";
-			for (std::vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
+			std::cout << "      DPDK device#" << subIter->first->getDeviceId() << ": ";
+			for (std::vector<int>::iterator iter2 = subIter->second.begin(); iter2 != subIter->second.end(); iter2++)
 			{
 				std::cout << "RX-Queue#" << *iter2 << ";  ";
 

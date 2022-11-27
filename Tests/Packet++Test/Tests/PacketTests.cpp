@@ -1015,7 +1015,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 	// test print packet
 	std::ostringstream expectedStream;
 	expectedStream << expectedPacketHeaderString << std::endl;
-	for (std::vector<std::string>::iterator iter = expectedLayerStrings.begin(); iter != expectedLayerStrings.end(); iter++)
+	for (iter = expectedLayerStrings.begin(); iter != expectedLayerStrings.end(); iter++)
 	{
 		expectedStream << *iter << std::endl;
 	}

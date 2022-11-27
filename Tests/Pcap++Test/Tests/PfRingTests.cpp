@@ -328,7 +328,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	aggrStats.drop = 0;
 
 	pcpp::PfRingDevice::PfRingStats stats;
-	for (int i = 0; i < totalnumOfCores; i++)
+	for (i = 0; i < totalnumOfCores; i++)
 	{
 		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & TestPfRingMultiThreadCoreMask) == 0)
 			continue;
