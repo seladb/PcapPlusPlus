@@ -582,10 +582,6 @@ int main(int argc, char* argv[])
 	{
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
 	}
-	if (nPort < 0 || nPort > 65535)
-	{
-		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
-	}
 
 	// analyze in pcap file mode
 	if (readPacketsFromPcapFileName != "")

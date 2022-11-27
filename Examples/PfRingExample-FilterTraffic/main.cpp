@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
 			case 'p':
 			{
 				srcPortToMatch = atoi(optarg);
-				if (srcPortToMatch <= 0)
+				if (atoi(optarg) <= 0)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
 				}
@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
 			case 'P':
 			{
 				dstPortToMatch = atoi(optarg);
-				if (dstPortToMatch <= 0)
+				if (atoi(optarg) <= 0)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
 				}
