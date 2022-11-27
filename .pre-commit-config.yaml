@@ -13,10 +13,12 @@ repos:
     rev: 22.10.0
     hooks:
       - id: black
-#   - repo: https://github.com/pocc/pre-commit-hooks
-#     rev: v1.3.5
-#     hooks:
-#       - id: clang-format
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: cppcheck
+        args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt"]
+#      - id: clang-format
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.2
     hooks:
