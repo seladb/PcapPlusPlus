@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
 			case 'p':
 			{
 				int ret = atoi(optarg);
-				if (ret <= 0 && ret > 65535)
+				if (ret <= 0 || ret > 65535)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
 				}
@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
 			case 'P':
 			{
 				int ret = atoi(optarg);
-				if (ret <= 0 && ret > 65535)
+				if (ret <= 0 || ret > 65535)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
 				}
