@@ -305,16 +305,14 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	int totalnumOfCores = pcpp::getNumOfCores();
 	int numOfCoresInUse = 0;
 	pcpp::CoreMask tempCoreMask = TestPfRingMultiThreadCoreMask;
-	int i = 0;
-	while ((tempCoreMask != 0) && (i < totalnumOfCores))
+	for (int i = 0; i < totalnumOfCores; ++i)
 	{
+		if (!tempCoreMask)
+			break;
+		
 		if (tempCoreMask & 1)
-		{
-			numOfCoresInUse++;
-		}
-
+			++numOfCoresInUse;
 		tempCoreMask = tempCoreMask >> 1;
-		i++;
 	}
 
 	PTF_ASSERT_TRUE(dev->openMultiRxChannels((uint8_t)numOfCoresInUse, pcpp::PfRingDevice::PerFlow));
@@ -328,7 +326,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	aggrStats.drop = 0;
 
 	pcpp::PfRingDevice::PfRingStats stats;
-	for (i = 0; i < totalnumOfCores; i++)
+	for (int i = 0; i < totalnumOfCores; i++)
 	{
 		if ((pcpp::SystemCores::IdToSystemCore[i].Mask & TestPfRingMultiThreadCoreMask) == 0)
 			continue;
