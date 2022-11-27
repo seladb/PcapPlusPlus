@@ -720,7 +720,7 @@ HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 }
 
 
-HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::string prevFieldName)
+HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::string &prevFieldName)
 {
 	std::ostringstream contentLengthAsString;
 	contentLengthAsString << contentLength;

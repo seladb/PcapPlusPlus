@@ -32,7 +32,7 @@ namespace pcpp
 		 * @param[in] username The username for authentication with the remote daemon
 		 * @param[in] password The password for authentication with the remote daemon
 		 */
-		PcapRemoteAuthentication(const std::string username, const std::string password) { userName = username; this->password = password; }
+		PcapRemoteAuthentication(const std::string &username, const std::string &password) { userName = username; this->password = password; }
 
 		/**
 		 * A copy c'tor for this object

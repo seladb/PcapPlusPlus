@@ -53,7 +53,7 @@ namespace pcpp
 		 * (e.g eth0, eth1, etc.)
 		 * @return A pointer to the PF_RING device
 		 */
-		PfRingDevice* getPfRingDeviceByName(const std::string devName) const;
+		PfRingDevice* getPfRingDeviceByName(const std::string &devName) const;
 
 		/**
 		 * Get installed PF_RING version
