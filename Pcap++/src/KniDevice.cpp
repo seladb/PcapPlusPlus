@@ -532,11 +532,6 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, rawPacketArrLength);
 	uint16_t packetsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
 
-	if (unlikely(!packetsReceived))
-	{
-		return 0;
-	}
-
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
 
