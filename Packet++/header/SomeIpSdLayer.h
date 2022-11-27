@@ -294,7 +294,7 @@ public:
 	 * Construct a new Configuration Option object
 	 * @param[in] configurationString the configuration string
 	 */
-	SomeIpSdConfigurationOption(const std::string &configurationString);
+	explicit SomeIpSdConfigurationOption(const std::string &configurationString);
 
 	/**
 	 * Construct a new Configuration Option object from already existing memory

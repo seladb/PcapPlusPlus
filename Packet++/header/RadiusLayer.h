@@ -45,7 +45,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the attribute raw data (byte array)
 		 * @param[in] attrRawData A pointer to the attribute raw data
 		 */
-		RadiusAttribute(uint8_t* attrRawData) : TLVRecord(attrRawData) { }
+		explicit RadiusAttribute(uint8_t* attrRawData) : TLVRecord(attrRawData) { }
 
 		/**
 		 * A d'tor for this class, currently does nothing

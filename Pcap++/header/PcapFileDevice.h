@@ -27,7 +27,7 @@ namespace pcpp
 	protected:
 		std::string m_FileName;
 
-		IFileDevice(const std::string& fileName);
+		explicit IFileDevice(const std::string& fileName);
 		virtual ~IFileDevice();
 
 	public:
@@ -117,7 +117,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+		explicit PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
 
 		/**
 		 * A destructor for this class
@@ -197,7 +197,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		SnoopFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+		explicit SnoopFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
 
 		/**
 		 * A destructor for this class
@@ -260,7 +260,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapNgFileReaderDevice(const std::string& fileName);
+		explicit PcapNgFileReaderDevice(const std::string& fileName);
 
 		/**
 		 * A destructor for this class
@@ -401,7 +401,7 @@ namespace pcpp
 		 * @param[in] fileName The full path of the file
 		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
 		 */
-		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
+		explicit PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
 
 		/**
 		 * A destructor for this class
@@ -493,7 +493,7 @@ namespace pcpp
 		 * @param[in] fileName The full path of the file
 		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0
 		 */
-		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
+		explicit PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
 
 		/**
 		 * A destructor for this class
