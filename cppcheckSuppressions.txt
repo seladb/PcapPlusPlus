@@ -1,4 +1,5 @@
 *:3rdParty/*
+
 ConfigurationNotChecked:*
 ctuOneDefinitionRuleViolation:Examples/*
 missingInclude:*
@@ -7,6 +8,8 @@ unusedFunction:*
 unusedStructMember:*
 
 constParameter:Common++/header/SystemUtils.h:309
+duplInheritedMember:Packet++/header/SomeIpSdLayer.h:199
+duplInheritedMember:Packet++/header/SomeIpSdLayer.h:275
 knownConditionTrueFalse:Tests/Pcap++Test/main.cpp:148
 knownConditionTrueFalse:Examples/Tutorials/Tutorial-DpdkL2Fwd/WorkerThread.cpp:19
 knownConditionTrueFalse:Examples/DpdkExample-FilterTraffic/AppWorkerThread.h:73
@@ -18,18 +21,15 @@ shiftNegative:Pcap++/src/PfRingDevice.cpp:609
 shiftNegative:Pcap++/src/PfRingDevice.cpp:721
 uninitdata:Pcap++/src/PcapLiveDevice.cpp:870
 uninitMemberVar:Packet++/header/IcmpLayer.h:399
+unreadVariable:Packet++/src/DnsResource.cpp:111
+unreadVariable:Packet++/src/DnsResource.cpp:137
 unusedVariable:Tests/Pcap++Test/Tests/LoggerTests.cpp:169
 unusedVariable:Tests/Pcap++Test/Tests/LoggerTests.cpp:197
 unusedVariable:Tests/Packet++Test/Tests/SomeIpTests.cpp:23
 unusedVariable:Tests/Packet++Test/Tests/SomeIpTests.cpp:46
 unusedVariable:Tests/Packet++Test/Tests/SomeIpTests.cpp:173
 
-duplInheritedMember:Packet++/header/SomeIpSdLayer.h
 noExplicitConstructor:Common++/header/IpAddress.h
-stlFindInsert:*
-unreadVariable:*
-invalidPrintfArgType_sint:*
-useInitializationList:*
 missingOverride:*
 postfixOperator:*
 cstyleCast:*
