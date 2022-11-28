@@ -100,9 +100,8 @@ private:
 
 public:
 
-	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port)
+	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port) : m_ProcessHandle(nullptr)
 	{
-		m_ProcessHandle = NULL;
 		if (!activateRemoteDevice)
 			return;
 
