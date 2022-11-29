@@ -122,13 +122,13 @@ namespace pcpp
 		 * @param[in] masterCore The core DPDK will use as master to control all worker thread. The default, unless set otherwise, is 0
 		 * @param[in] initDpdkArgc Number of optional arguments
 		 * @param[in] initDpdkArgv Optional arguments
-		 * @param[in] prgName program name to be provided for the DPDK
+		 * @param[in] appName program name to be provided for the DPDK
 		 * @return True if initialization succeeded or false if huge-pages or DPDK kernel driver are not loaded, if mBufPoolSizePerDevice
 		 * isn't power of 2 minus 1, if DPDK infra initialization failed or if DpdkDevice initialization failed. Anyway, if this method
 		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const char *prgName = "pcapplusplusapp");
+		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
 
 		/**
 		 * Get a DpdkDevice by port ID
