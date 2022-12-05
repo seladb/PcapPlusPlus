@@ -134,6 +134,7 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
+		static uint64_t MacAddresstoID(const pcpp::MacAddress &addr);
 
 	  public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
@@ -154,16 +155,34 @@ typedef stp_tcn_bpdu stp_header;
 		uint16_t getProtoId() const { return getStpHeader()->protoId; }
 
 		/**
+		 * Sets the protocol id
+		 * @param[in] value ID of the protocol
+		 */
+		void setProtoId(uint16_t value) { getStpHeader()->protoId = value; }
+
+		/**
 		 * Returns the version. Fixed at 0x0 for STP messages
 		 * @return Version number
 		 */
 		uint8_t getVersion() const { return getStpHeader()->version; }
 
 		/**
+		 * Sets the version
+		 * @param[in] value Version number
+		 */
+		void setVersion(uint8_t value) { getStpHeader()->version = value; }
+
+		/**
 		 * Returns the type of configuration message.
 		 * @return Type of configuration message
 		 */
 		uint8_t getType() const { return getStpHeader()->type; }
+
+		/**
+		 * Sets the type of configuration message
+		 * @param[in] value Type of configuration message
+		 */
+		void setType(uint8_t value) { getStpHeader()->type = value; }
 
 		// overridden methods
 
@@ -276,10 +295,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint8_t getFlag() const { return getStpConfHeader()->flag; }
 
 		/**
+		 * Returns the flags of configuration message which indicates purpose of BPDU
+		 * @param[in] value Flags of the configuration message
+		 */
+		void setFlag(uint8_t value) { getStpConfHeader()->flag = value; }
+
+		/**
 		 * Returns the root bridge identifier
-		 * @return root bridge identifier
+		 * @return Root bridge identifier
 		 */
 		uint64_t getRootId() const;
+
+		/**
+		 * Sets the root bridge identifier
+		 * @param[in] value Root bridge identifier
+		 */
+		void setRootId(uint64_t value);
 
 		/**
 		 * Returns the priority of root bridge
@@ -288,10 +319,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint16_t getRootPriority() const;
 
 		/**
+		 * Sets the priority of root bridge
+		 * @param[in] value Priority of root bridge
+		 */
+		void setRootPriority(uint16_t value);
+
+		/**
 		 * Returns the system identifier extension of root bridge
 		 * @return System extension of root bridge
 		 */
 		uint16_t getRootSystemIDExtension() const;
+
+		/**
+		 * Sets the system identifier extension of root bridge
+		 * @param[in] value System extension of root bridge
+		 */
+		void setRootSystemIDExtension(uint16_t value);
 
 		/**
 		 * Returns the system identifier of root bridge
@@ -300,10 +343,22 @@ typedef stp_tcn_bpdu stp_header;
 		pcpp::MacAddress getRootSystemID() const { return IDtoMacAddress(getRootId()); }
 
 		/**
+		 * Sets the system identifier of root bridge
+		 * @param[in] value System identifier of root bridge
+		 */
+		void setRootSystemID(const pcpp::MacAddress &value);
+
+		/**
 		 * Returns the value of the cost of path
 		 * @return Cost of path
 		 */
 		uint32_t getPathCost() const;
+
+		/**
+		 * Sets the value of the cost of path
+		 * @param[in] value Cost of path
+		 */
+		void setPathCost(uint32_t value);
 
 		/**
 		 * Returns the bridge identifier
@@ -312,10 +367,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint64_t getBridgeId() const;
 
 		/**
+		 * Sets the bridge identifier
+		 * @param[in] value Bridge identifier
+		 */
+		void setBridgeId(uint64_t value);
+
+		/**
 		 * Returns the priority of bridge
 		 * @return Priority of bridge
 		 */
 		uint16_t getBridgePriority() const;
+
+		/**
+		 * Sets the priority of bridge
+		 * @param[in] value Priority of bridge
+		 */
+		void setBridgePriority(uint16_t value);
 
 		/**
 		 * Returns the system identifier extension of bridge
@@ -324,10 +391,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint16_t getBridgeSystemIDExtension() const;
 
 		/**
+		 * Sets the system identifier extension of bridge
+		 * @param[in] value System extension of bridge
+		 */
+		void setBridgeSystemIDExtension(uint16_t value);
+
+		/**
 		 * Returns the system identifier of bridge
 		 * @return System identifier of bridge
 		 */
 		pcpp::MacAddress getBridgeSystemID() const { return IDtoMacAddress(getBridgeId()); }
+
+		/**
+		 * Sets the system identifier of bridge
+		 * @param[in] value System identifier of bridge
+		 */
+		void setBridgeSystemID(const pcpp::MacAddress &value);
 
 		/**
 		 * Returns the port identifier
@@ -336,10 +415,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint16_t getPortId() const;
 
 		/**
+		 * Sets the port identifier
+		 * @param[in] value Port identifier
+		 */
+		void setPortId(uint16_t value);
+
+		/**
 		 * Returns age of the BPDU message
 		 * @return Age of BPDU in seconds
 		 */
 		double getMessageAge() const;
+
+		/**
+		 * Sets age of the BPDU message
+		 * @param[in] value Age of BPDU in seconds
+		 */
+		void setMessageAge(double value);
 
 		/**
 		 * Returns maximum age of the BPDU message
@@ -348,16 +439,34 @@ typedef stp_tcn_bpdu stp_header;
 		double getMaximumAge() const;
 
 		/**
+		 * Sets maximum age of the BPDU message
+		 * @param[in] value Maximum age of BPDU in seconds
+		 */
+		void setMaximumAge(double value);
+
+		/**
 		 * Returns the BPDU transmission interval
 		 * @return Value of the transmission interval in seconds
 		 */
 		double getTransmissionInterval() const;
 
 		/**
+		 * Sets the BPDU transmission interval
+		 * @param[in] value Value of the transmission interval in seconds
+		 */
+		void setTransmissionInterval(double value);
+
+		/**
 		 * Returns the delay for STP message
 		 * @return Value of the forward delay in seconds
 		 */
 		double getForwardDelay() const;
+
+		/**
+		 * Sets the delay for STP message
+		 * @param[in] value Value of the forward delay in seconds
+		 */
+		void setForwardDelay(double value);
 
 		// overridden methods
 
@@ -409,6 +518,12 @@ typedef stp_tcn_bpdu stp_header;
 		 */
 		uint8_t getVersion1Len() const { return getRstpConfHeader()->version1Len; }
 
+		/**
+		 * Returns the length of version1 field
+		 * @param[in] value Length of the version1 field
+		 */
+		void setVersion1Len(uint8_t value) { getRstpConfHeader()->version1Len = value; }
+
 		// overridden methods
 
 		/**
@@ -454,9 +569,16 @@ typedef stp_tcn_bpdu stp_header;
 		mstp_conf_bpdu *getMstpHeader() const { return (mstp_conf_bpdu *)(m_Data); }
 
 		/**
-		 * @return Returns the length of version3 field.
+		 * Returns the length of version3 field
+		 * @return Length of version3 field
 		 */
 		uint16_t getVersion3Len() const;
+
+		/**
+		 * Sets the length of version3 field
+		 * @param[in] value Length of version3 field
+		 */
+		void setVersion3Len(uint16_t value);
 
 		/**
 		 * Returns the configuration ID format selector
@@ -465,10 +587,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint8_t getMstConfigurationFormatSelector() const { return getMstpHeader()->mstConfigFormatSelector; }
 
 		/**
-		 * Returns the pointer to configuration name field.
+		 * Sets the configuration ID format selector
+		 * @param[in] value Configuration ID of format selector
+		 */
+		void setMstConfigurationFormatSelector(uint8_t value) { getMstpHeader()->mstConfigFormatSelector = value; }
+
+		/**
+		 * Returns the pointer to configuration name field
 		 * @return Configuration name
 		 */
 		std::string getMstConfigurationName() const;
+
+		/**
+		 * Sets the configuration name field
+		 * @param[in] value Configuration name
+		 */
+		void setMstConfigurationName(const std::string &value);
 
 		/**
 		 * Returns the revision of configuration ID
@@ -477,10 +611,23 @@ typedef stp_tcn_bpdu stp_header;
 		uint16_t getMstConfigRevision() const { return getMstpHeader()->mstConfigRevision; }
 
 		/**
+		 * Sets the revision of configuration ID
+		 * @param[in] value Revision of configuration ID
+		 */
+		void setMstConfigRevision(uint16_t value) { getMstpHeader()->mstConfigRevision = value; }
+
+		/**
 		 * Returns the pointer to configuration message digest. The field itself always 16 bytes long.
 		 * @return A pointer to configuration digest
 		 */
 		uint8_t *getMstConfigDigest() const { return getMstpHeader()->mstConfigDigest; }
+
+		/**
+		 * Sets the pointer to configuration message digest. The field itself always 16 bytes long.
+		 * @param[in] value Pointer to digest
+		 * @param[in] len Length of the digest, should be less than 16
+		 */
+		void setMstConfigDigest(const uint8_t *value, uint8_t len);
 
 		/**
 		 * Returns CIST internal root path cost
@@ -489,10 +636,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint32_t getCISTIrpc() const;
 
 		/**
+		 * Sets CIST internal root path cost
+		 * @param[in] value Value of the internal root path cost
+		 */
+		void setCISTIrpc(uint32_t value);
+
+		/**
 		 * Returns CIST bridge identifier
 		 * @return Value of the bridge identifier
 		 */
 		uint64_t getCISTBridgeId() const;
+
+		/**
+		 * Sets CIST bridge identifier
+		 * @param[in] value Value of the bridge identifier
+		 */
+		void setCISTBridgeId(uint64_t value);
 
 		/**
 		 * Returns the priority of CIST bridge
@@ -501,10 +660,22 @@ typedef stp_tcn_bpdu stp_header;
 		uint16_t getCISTBridgePriority() const;
 
 		/**
+		 * Sets the priority of CIST bridge
+		 * @param[in] value Priority of CIST bridge
+		 */
+		void setCISTBridgePriority(uint16_t value);
+
+		/**
 		 * Returns the system identifier extension of CIST bridge
 		 * @return System extension of CIST bridge
 		 */
 		uint16_t getCISTBridgeSystemIDExtension() const;
+
+		/**
+		 * Sets the system identifier extension of CIST bridge
+		 * @param[in] value System extension of CIST bridge
+		 */
+		void setCISTBridgeSystemIDExtension(uint16_t value);
 
 		/**
 		 * Returns the system identifier of CIST bridge
@@ -513,16 +684,34 @@ typedef stp_tcn_bpdu stp_header;
 		pcpp::MacAddress getCISTBridgeSystemID() const { return IDtoMacAddress(getCISTBridgeId()); }
 
 		/**
+		 * Sets the system identifier of CIST bridge
+		 * @param[in] value System identifier of CIST bridge
+		 */
+		void setCISTBridgeSystemID(const pcpp::MacAddress &value);
+
+		/**
 		 * Returns the remaining hop count
 		 * @return Value of remaining hop count
 		 */
 		uint8_t getRemainingHopCount() const { return getMstpHeader()->remainId; }
 
 		/**
+		 * Returns the remaining hop count
+		 * @param[in] value Value of remaining hop count
+		 */
+		void setRemainingHopCount(uint8_t value) { getMstpHeader()->remainId = value; }
+
+		/**
 		 * Returns the total number of MSTI configuration messages
 		 * @return Number of MSTI configuration messages. Can be between 0 and 64.
 		 */
 		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - (sizeof(mstp_conf_bpdu) - sizeof(rstp_conf_bpdu) - sizeof(uint16_t))) / sizeof(msti_conf_msg); }
+
+		/**
+		 * Sets the total number of MSTI configuration messages
+		 * @param[in] value Number of MSTI configuration messages. Should be between 0 and 64
+		 */
+		void setNumberOfMSTIConfMessages(uint8_t value);
 
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI messages.
