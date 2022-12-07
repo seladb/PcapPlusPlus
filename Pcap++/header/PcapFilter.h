@@ -608,7 +608,7 @@ namespace pcpp
 		 * @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note not all protocols are
 		 * supported. List of supported protocols is found in the class description
 		 */
-		explicit ProtoFilter(ProtocolType proto) { m_Proto = proto; }
+		explicit ProtoFilter(ProtocolType proto) : m_Proto(proto) {}
 
 		void parseToString(std::string& result);
 
@@ -637,7 +637,7 @@ namespace pcpp
 		 * A constructor that get the ARP opcode and creates the filter
 		 * @param[in] opCode The ARP opcode: ::ARP_REQUEST or ::ARP_REPLY
 		 */
-		explicit ArpFilter(ArpOpcode opCode) { m_OpCode = opCode; }
+		explicit ArpFilter(ArpOpcode opCode) : m_OpCode(opCode) {}
 
 		void parseToString(std::string& result);
 

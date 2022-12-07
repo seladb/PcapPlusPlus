@@ -70,7 +70,7 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
 {
 	char **initDpdkArgvBuffer;
 
@@ -100,7 +100,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 
 
 	std::stringstream dpdkParamsStream;
-	dpdkParamsStream << "pcapplusplusapp ";
+	dpdkParamsStream << appName << " ";
 	dpdkParamsStream << "-n ";
 	dpdkParamsStream << "2 ";
 	dpdkParamsStream << "-c ";
