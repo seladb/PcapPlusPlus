@@ -129,6 +129,8 @@ public:
 				)
 			{
 				m_ProcessHandle = NULL;
+				PCPP_LOG_ERROR("Create process failed " << (int)GetLastError());
+				return;
 			}
 
 		m_ProcessHandle = pi.hProcess;
