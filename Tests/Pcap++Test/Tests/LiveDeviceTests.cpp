@@ -100,9 +100,8 @@ private:
 
 public:
 
-	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port)
+	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port) : m_ProcessHandle(nullptr)
 	{
-		m_ProcessHandle = NULL;
 		if (!activateRemoteDevice)
 			return;
 
@@ -129,6 +128,8 @@ public:
 				)
 			{
 				m_ProcessHandle = NULL;
+				PCPP_LOG_ERROR("Create process failed " << (int)GetLastError());
+				return;
 			}
 
 		m_ProcessHandle = pi.hProcess;
