@@ -87,7 +87,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 	}
 
 	char versionAsString[25];
-	sprintf(versionAsString, "PF_RING v.%d.%d.%d\n",
+	sprintf(versionAsString, "PF_RING v.%u.%u.%u\n",
 	  (version & 0xFFFF0000) >> 16,
 	  (version & 0x0000FF00) >> 8,
 	  version & 0x000000FF);

@@ -419,8 +419,7 @@ int main(int argc, char* argv[])
 					// convert the IP ID to uint16_t
 					uint16_t ipID = (uint16_t)atoi(ipIDStr.c_str());
 					// add the IP ID into the map if it doesn't already exist
-					if (ipIDMap.find(ipID) == ipIDMap.end())
-						ipIDMap[ipID] = true;
+					ipIDMap.emplace(ipID, true);
 				}
 
 				// verify list is not empty

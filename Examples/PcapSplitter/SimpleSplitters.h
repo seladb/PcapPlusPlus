@@ -129,10 +129,7 @@ private:
 	pcpp::BPFStringFilter filter;
 
 public:
-	BpfCriteriaSplitter(const std::string &bpfFilter) : filter(bpfFilter)
-	{
-		m_BpfFilter = bpfFilter;
-	}
+	BpfCriteriaSplitter(const std::string &bpfFilter) : filter(bpfFilter), m_BpfFilter(bpfFilter) {}
 
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
