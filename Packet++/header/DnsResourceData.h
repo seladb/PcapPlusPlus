@@ -149,7 +149,7 @@ namespace pcpp
 		 * to set the DNS RR data as 'my.subdomain.yahoo.com' you may use the following string: 'my.subdomain.#12'.
 		 * This will result in writing 'my.subdomain' and a pointer to offset 12
 		 */
-		StringDnsResourceData(const std::string& data) { m_Data = data; }
+		StringDnsResourceData(const std::string& data) : m_Data(data) {}
 
 		StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource);
 
