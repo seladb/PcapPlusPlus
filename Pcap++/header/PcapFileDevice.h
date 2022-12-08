@@ -161,7 +161,7 @@ namespace pcpp
 	class SnoopFileReaderDevice : public IFileReaderDevice
 	{
 	private:
-		#pragma pack(0)
+		#pragma pack(1)
 		/*
 		 * File format header.
 		 */
