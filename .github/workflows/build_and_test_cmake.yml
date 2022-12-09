@@ -26,10 +26,6 @@ jobs:
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
-          # Handle ZSTD build by Cirrus CI
-          # - image: ubuntu2004-zstd
-          #   python: python3
-          #   config-zstd: ON
           - image: ubuntu1804
             python: python3.8
             config-zstd: OFF
