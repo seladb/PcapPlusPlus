@@ -25,7 +25,7 @@ namespace pcpp
 
 	protected:
 		SingleCommandTextProtocol(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
-		SingleCommandTextProtocol(std::string &command, std::string &option);
+		SingleCommandTextProtocol(const std::string &command, const std::string &option);
 
 		bool setCommandInternal(std::string value);
 		bool setCommandOptionInternal(std::string value);

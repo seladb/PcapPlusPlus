@@ -20,7 +20,7 @@ static void __ptfSplitString(const std::string& input, std::vector<std::string>&
 	}
 }
 
-static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool emptyTagSetMeansAll)
+static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetToCompareWith, bool emptyTagSetMeansAll)
 {
 	std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
 

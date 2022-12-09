@@ -45,7 +45,7 @@ namespace pcpp
 		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
 	}
 
-	SingleCommandTextProtocol::SingleCommandTextProtocol(std::string &command, std::string &option)
+	SingleCommandTextProtocol::SingleCommandTextProtocol(const std::string &command, const std::string &option)
 	{
 		m_Data = new uint8_t[6];
 		m_DataLen = 6;

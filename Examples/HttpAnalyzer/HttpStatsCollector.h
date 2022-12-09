@@ -161,16 +161,16 @@ public:
 		if (httpPacket->isPacketOfType(pcpp::HTTPRequest))
 		{
 			pcpp::HttpRequestLayer* req = httpPacket->getLayerOfType<pcpp::HttpRequestLayer>();
-			pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-			collectHttpGeneralStats(tcpLayer, req, hashVal);
+			pcpp::TcpLayer* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+			collectHttpGeneralStats(tcpLayer1, req, hashVal);
 			collectRequestStats(req);
 		}
 		// if packet is an HTTP response - collect HTTP response stats on this packet
 		else if (httpPacket->isPacketOfType(pcpp::HTTPResponse))
 		{
 			pcpp::HttpResponseLayer* res = httpPacket->getLayerOfType<pcpp::HttpResponseLayer>();
-			pcpp::TcpLayer* tcpLayer = httpPacket->getLayerOfType<pcpp::TcpLayer>();
-			collectHttpGeneralStats(tcpLayer, res, hashVal);
+			pcpp::TcpLayer* tcpLayer1 = httpPacket->getLayerOfType<pcpp::TcpLayer>();
+			collectHttpGeneralStats(tcpLayer1, res, hashVal);
 			collectResponseStats(res);
 		}
 

@@ -19,7 +19,7 @@ namespace pcpp
 	{
 	protected:
 		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
-		FtpLayer(std::string command, std::string option) : SingleCommandTextProtocol(command, option) { m_Protocol = FTP; };
+		FtpLayer(const std::string &command, const std::string &option) : SingleCommandTextProtocol(command, option) { m_Protocol = FTP; };
 
 	public:
 

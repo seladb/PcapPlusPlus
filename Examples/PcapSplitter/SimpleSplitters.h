@@ -165,8 +165,8 @@ public:
 		}
 
 
-		pcpp::BPFStringFilter filter(m_BpfFilter);
-		bool filterValid = filter.verifyFilter();
+		pcpp::BPFStringFilter localFilter(m_BpfFilter);
+		bool filterValid = localFilter.verifyFilter();
 		if (!filterValid)
 			errorString = "BPF filter is not valid";
 

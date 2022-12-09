@@ -45,7 +45,7 @@ int SipLayer::getContentLength() const
 	return 0;
 }
 
-HeaderField* SipLayer::setContentLength(int contentLength, const std::string prevFieldName)
+HeaderField* SipLayer::setContentLength(int contentLength, const std::string &prevFieldName)
 {
 	std::ostringstream contentLengthAsString;
 	contentLengthAsString << contentLength;
