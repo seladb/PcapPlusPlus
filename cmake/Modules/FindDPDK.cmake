@@ -107,7 +107,7 @@ else()
       APPEND
       _DPDK_LOOK_FOR_LIBS
       pmd_bond
-      pmd_vmxnet3
+      pmd_vmxnet3_uio
       pmd_virtio
       pmd_enic
       pmd_i40e
