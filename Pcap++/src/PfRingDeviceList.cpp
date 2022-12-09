@@ -63,7 +63,7 @@ PfRingDeviceList::~PfRingDeviceList()
 	}
 }
 
-PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string devName) const
+PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(std::vector<PfRingDevice*>::const_iterator devIter = m_PfRingDeviceList.begin(); devIter != m_PfRingDeviceList.end(); devIter++)
