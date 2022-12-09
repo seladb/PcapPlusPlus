@@ -40,6 +40,7 @@ add_library(
   src/SipLayer.cpp
   src/SllLayer.cpp
   src/SomeIpLayer.cpp
+  src/SomeIpSdLayer.cpp
   src/SSHLayer.cpp
   src/SSLCommon.cpp
   src/SSLHandshake.cpp
@@ -100,6 +101,7 @@ set(public_headers
     header/SipLayer.h
     header/SllLayer.h
     header/SomeIpLayer.h
+    header/SomeIpSdLayer.h
     header/SSHLayer.h
     header/SSLCommon.h
     header/SSLHandshake.h
