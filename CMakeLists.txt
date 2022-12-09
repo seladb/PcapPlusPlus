@@ -1,11 +1,6 @@
 # We need 3.12 or later, so that we can set policy CMP0074; see below.
 cmake_minimum_required(VERSION 3.12)
 
-# We want find_path() and find_library() to honor {packagename}_ROOT
-if(POLICY CMP0074)
-  cmake_policy(SET CMP0074 NEW)
-endif()
-
 set(PCAPPP_VERSION "22.05+")
 
 # MAIN_PROJECT CHECK
