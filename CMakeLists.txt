@@ -1,7 +1,7 @@
 # We need 3.12 or later, so that we can set policy CMP0074; see below.
 cmake_minimum_required(VERSION 3.12)
 
-set(PCAPPP_VERSION "22.05+")
+set(PCAPPP_VERSION "22.11+")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
