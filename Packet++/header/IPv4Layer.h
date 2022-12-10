@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IPV4_LAYER
 #define PACKETPP_IPV4_LAYER
 
+#include "EndianPortable.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include "IpAddress.h"
