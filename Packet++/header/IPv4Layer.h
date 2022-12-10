@@ -628,7 +628,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an IPv4 packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
 		int m_NumOfTrailingBytes;
