@@ -368,7 +368,7 @@ void HttpRequestFirstLine::parseVersion()
 	}
 
 	// verify packet doesn't end before the version, meaning still left place for " HTTP/x.y" (9 chars)
-	if ((uint16_t)(verPos + 9 - (char*)m_HttpRequest->m_Data) > m_HttpRequest->getDataLen())
+	if ((verPos + 9 - (char*)m_HttpRequest->m_Data) > m_HttpRequest->getDataLen())
 	{
 		m_Version = HttpVersionUnknown;
 		m_VersionOffset = -1;
