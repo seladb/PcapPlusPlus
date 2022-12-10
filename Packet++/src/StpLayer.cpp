@@ -17,12 +17,12 @@ MacAddress StpLayer::IDtoMacAddress(uint64_t id)
 						id & 0xFF);
 }
 
-uint64_t MacAddresstoID(const pcpp::MacAddress &addr)
+uint64_t StpLayer::MacAddresstoID(const pcpp::MacAddress &addr)
 {
 	uint8_t value[6];
 	addr.copyTo(value);
-	return (uint64_t(value[0]) << 40) | (uint64_t(value[1]) << 32) | (uint64_t(value[2]) << 24) |
-			(uint64_t(value[3]) << 16) | (uint64_t(value[4]) << 8) | (uint64_t(value[5]));
+	return ((uint64_t(value[0]) << 40) | (uint64_t(value[1]) << 32) | (uint64_t(value[2]) << 24) |
+			(uint64_t(value[3]) << 16) | (uint64_t(value[4]) << 8) | (uint64_t(value[5])));
 }
 
 bool StpLayer::isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen; }
@@ -75,7 +75,7 @@ uint16_t StpConfigurationBPDULayer::getRootPriority() const { return be16toh(get
 
 void StpConfigurationBPDULayer::setRootPriority(uint16_t value)
 {
-	getStpConfHeader()->rootId = htobe16((be16toh(getStpConfHeader()->rootId) & ~(0xf000)) | (value & 0xf000));
+	getStpConfHeader()->rootId = (getStpConfHeader()->rootId & ~htobe16(0xf000)) | htobe16(value & 0xf000);
 }
 
 uint16_t StpConfigurationBPDULayer::getRootSystemIDExtension() const
@@ -85,13 +85,13 @@ uint16_t StpConfigurationBPDULayer::getRootSystemIDExtension() const
 
 void StpConfigurationBPDULayer::setRootSystemIDExtension(uint16_t value)
 {
-	getStpConfHeader()->rootId = htobe16((be16toh(getStpConfHeader()->rootId) & ~(0x0fff)) | (value & 0x0fff));
+	getStpConfHeader()->rootId = (getStpConfHeader()->rootId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 }
 
-void StpConfigurationBPDULayer::setRootSystemID(const pcpp::MacAddress &value)
+void StpConfigurationBPDULayer::setRootSystemID(const pcpp::MacAddress &value) 
 {
-	// <----------------------------------
-}
+	setRootId((getRootId() & (uint64_t(0xffff) << 48)) | MacAddresstoID(value));
+};
 
 uint32_t StpConfigurationBPDULayer::getPathCost() const { return be32toh(getStpConfHeader()->pathCost); }
 
@@ -108,7 +108,7 @@ uint16_t StpConfigurationBPDULayer::getBridgePriority() const
 
 void StpConfigurationBPDULayer::setBridgePriority(uint16_t value)
 {
-	getStpConfHeader()->bridgeId = htobe16((be16toh(getStpConfHeader()->bridgeId) & ~(0xf000)) | (value & 0xf000));
+	getStpConfHeader()->bridgeId = (getStpConfHeader()->bridgeId & ~htobe16(0xf000)) | htobe16(value & 0xf000);
 }
 
 uint16_t StpConfigurationBPDULayer::getBridgeSystemIDExtension() const
@@ -118,12 +118,12 @@ uint16_t StpConfigurationBPDULayer::getBridgeSystemIDExtension() const
 
 void StpConfigurationBPDULayer::setBridgeSystemIDExtension(uint16_t value)
 {
-	getStpConfHeader()->bridgeId = htobe16((be16toh(getStpConfHeader()->bridgeId) & ~(0x0fff)) | (value & 0x0fff));
+	getStpConfHeader()->bridgeId = (getStpConfHeader()->bridgeId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 }
 
 void StpConfigurationBPDULayer::setBridgeSystemID(const pcpp::MacAddress &value)
 {
-	// <----------------------------------------------------------
+	setBridgeId((getBridgeId() & (uint64_t(0xffff) << 48)) | MacAddresstoID(value));
 }
 
 uint16_t StpConfigurationBPDULayer::getPortId() const { return be16toh(getStpConfHeader()->portId); }
@@ -184,7 +184,7 @@ void MultipleStpLayer::setCISTBridgeSystemIDExtension(uint16_t value)
 
 void MultipleStpLayer::setCISTBridgeSystemID(const pcpp::MacAddress &value)
 {
-	// <-------------------------------------------------------
+	setCISTBridgeId((getCISTBridgeId() & (uint64_t(0x0fff) << 48)) | MacAddresstoID(value));
 }
 
 void setNumberOfMSTIConfMessages(uint8_t value)
