@@ -243,6 +243,9 @@ bool RadiusLayer::isDataValid(const uint8_t* udpData, size_t udpDataLen)
 	if(udpData != NULL)
 	{
 		const radius_header* radHdr = reinterpret_cast<const radius_header*>(udpData);
+		const size_t minLength = offsetof(radius_header, length) + sizeof(radHdr->length);
+		if (udpDataLen < minLength)
+			return false;
 		size_t radLen = be16toh(radHdr->length);
 		return radLen >= sizeof(radius_header) && radLen <= udpDataLen;
 	}
