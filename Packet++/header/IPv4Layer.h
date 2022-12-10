@@ -1,7 +1,6 @@
 #ifndef PACKETPP_IPV4_LAYER
 #define PACKETPP_IPV4_LAYER
 
-#include "EndianPortable.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include "IpAddress.h"
@@ -643,25 +642,6 @@ namespace pcpp
 		void initLayer();
 		void initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
 	};
-
-
-	// implementation of inline methods
-
-	bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
-	{
-		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
-		if (dataLen < sizeof(iphdr))
-			return false;
-
-		if (hdr->ipVersion != 4 || hdr->internetHeaderLength < 5)
-			return false;
-
-		const size_t totalLen = be16toh(hdr->totalLength);
-		if (totalLen != 0 && totalLen > dataLen)
-			return false;
-
-		return true;
-	}
 
 } // namespace pcpp
 

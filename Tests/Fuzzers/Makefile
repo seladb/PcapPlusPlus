@@ -2,7 +2,7 @@ include ../../mk/platform.mk
 include ../../mk/PcapPlusPlus.mk
 
 PCAPPP_BUILD_DIR := ../../Dist
-PCAPPP_INCLUDES += -I$(PCAPPP_BUILD_DIR)/header -I$(ENDIAN_PORTABLE_INCLUDE)
+PCAPPP_INCLUDES += -I$(PCAPPP_BUILD_DIR)/header
 PCAPPP_LIBS_DIR += -L$(PCAPPP_BUILD_DIR)
 PCAPPP_LIBS += -lPcap++ -lPacket++ -lCommon++ -lpthread
 
