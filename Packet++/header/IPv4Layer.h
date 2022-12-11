@@ -643,6 +643,7 @@ namespace pcpp
 		void initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
 	};
 
+
 	// implementation of inline methods
 
 	bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
