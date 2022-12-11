@@ -296,7 +296,8 @@ void IPv4Layer::parseNextLayer()
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(payload, be16toh(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
+		igmpVer = IgmpLayer::getIGMPVerFromData(
+			payload, std::min<size_t>(payloadLen, be16toh(getIPv4Header()->totalLength) - hdrLen), igmpQuery);
 		if (igmpVer == IGMPv1)
 			m_NextLayer = new IgmpV1Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv2)
@@ -573,22 +574,6 @@ bool IPv4Layer::removeAllOptions()
 	getIPv4Header()->internetHeaderLength = (5 & 0xf);
 	m_NumOfTrailingBytes = 0;
 	m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
-	return true;
-}
-
-bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
-{
-	const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
-	if (dataLen < sizeof(iphdr))
-		return false;
-
-	if (hdr->ipVersion != 4 || hdr->internetHeaderLength < 5)
-		return false;
-
-	const size_t totalLen = be16toh(hdr->totalLength);
-	if (totalLen != 0 && totalLen > dataLen)
-		return false;
-
 	return true;
 }
 
