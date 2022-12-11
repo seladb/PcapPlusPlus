@@ -61,7 +61,7 @@ endif()
 find_path(Packet_INCLUDE_DIR Packet32.h PATH_SUFFIXES include Include)
 
 # Find the library
-find_library(Packet_LIBRARY NAMES Packet packet)
+find_library(Packet_LIBRARY NAMES Packet packet NAMES_PER_DIR)
 
 # Set Packet_FOUND to TRUE if Packet_INCLUDE_DIR and Packet_LIBRARY are TRUE.
 include(FindPackageHandleStandardArgs)

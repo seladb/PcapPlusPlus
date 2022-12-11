@@ -32,7 +32,7 @@ target_include_directories(
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
 
 if(PCAPPP_TARGET_PLATFORM_WINDOWS)
-  target_link_libraries(Common++ PUBLIC ws2_32 iphlpapi)
+  target_link_libraries(Common++ PRIVATE ws2_32 iphlpapi)
 endif()
 
 if(PCAPPP_INSTALL)

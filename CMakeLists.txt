@@ -100,7 +100,7 @@ endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-if(PCAPPP_TARGET_PLATFORM_WINDOWS AND PCAPPP_TARGET_COMPILER_MSVC)
+if(MSVC)
   # Other hacks for VStudio
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 else()
@@ -116,7 +116,7 @@ if(PCAPPP_USE_DPDK)
   endif()
   add_definitions(-DUSE_DPDK)
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/setup_dpdk.py ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mk/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
 
 # Git Commit and Branch
@@ -139,11 +139,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC)
-  add_compile_options(-Wall -g)
+  add_compile_options(-Wall)
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
-if(PCAPPP_TARGET_PLATFORM_WINDOWS AND PCAPPP_TARGET_COMPILER_GCC)
+if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
   add_link_options(-static)
 endif()
@@ -170,12 +170,12 @@ if(PCAPPP_INSTALL)
   include(CPack)
 
   # Generate PKG-Config
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc @ONLY)
-  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" @ONLY)
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
   # CMake helpers to compile Pcap++ with CMake
   if(LIGHT_PCAPNG_ZSTD)
-    set(_PCAPPP_FIND_ZSTD "if(NOT ZSTD_FOUND)\n  find_package(ZSTD)\nendif()")
+    set(_PCAPPP_FIND_ZSTD "if(NOT ZSTD_FOUND)\n  find_dependency(ZSTD)\nendif()")
   endif()
 
   install(
@@ -184,20 +184,20 @@ if(PCAPPP_INSTALL)
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
-    INSTALL_DESTINATION ${PCAPPP_INSTALL_CMAKEDIR})
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
+    INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 
   write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
+    "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
     VERSION ${PCAPPP_VERSION}
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
   install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake
-          ${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake
-          ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake
-          ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
+          "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake"
+          "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
     COMPONENT dev
     DESTINATION ${PCAPPP_INSTALL_CMAKEDIR})
 endif()
