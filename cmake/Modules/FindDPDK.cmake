@@ -107,7 +107,7 @@ else()
       APPEND
       _DPDK_LOOK_FOR_LIBS
       pmd_bond
-      pmd_vmxnet3_uio
+      pmd_vmxnet3
       pmd_virtio
       pmd_enic
       pmd_i40e
@@ -120,7 +120,9 @@ else()
 
   # Check that all libraries exists
   foreach(lib ${_DPDK_LOOK_FOR_LIBS})
-    find_library(rte_${lib} NAMES rte_${lib} REQUIRED)
+    # Regarding the build system used make or meson the librte_pmd_vmxnet3 could be
+    # named librte_pmd_vmxnet3_uio
+    find_library(rte_${lib} NAMES rte_${lib} rte_${lib}_uio NAMES_PER_DIR REQUIRED)
     list(APPEND DPDK_LIBRARIES ${rte_${lib}})
 
     get_filename_component(_DPDK_LIBRARY_DIR ${rte_${lib}} PATH)
