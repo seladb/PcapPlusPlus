@@ -4,7 +4,7 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDeviceList.cpp>
-  $<$<BOOL:${PCAPPP_TARGET_PLATFORM_LINUX}>:src/LinuxNicInformationSocket.cpp>
+  $<$<BOOL:${UNIX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
   src/NetworkUtils.cpp
   src/PcapFileDevice.cpp
@@ -12,12 +12,12 @@ add_library(
   src/PcapFilter.cpp
   src/PcapLiveDevice.cpp
   src/PcapLiveDeviceList.cpp
-  $<$<BOOL:${PCAPPP_TARGET_PLATFORM_WINDOWS}>:src/PcapRemoteDevice.cpp>
-  $<$<BOOL:${PCAPPP_TARGET_PLATFORM_WINDOWS}>:src/PcapRemoteDeviceList.cpp>
+  $<$<BOOL:${WIN32}>:src/PcapRemoteDevice.cpp>
+  $<$<BOOL:${WIN32}>:src/PcapRemoteDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDeviceList.cpp>
   src/RawSocketDevice.cpp
-  $<$<BOOL:${PCAPPP_TARGET_PLATFORM_WINDOWS}>:src/WinPcapLiveDevice.cpp>
+  $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
   # Force light pcapng to be link fully static
   $<TARGET_OBJECTS:light_pcapng>)
 
@@ -50,11 +50,11 @@ if(PCAPPP_USE_PF_RING)
     header/PfRingDeviceList.h)
 endif()
 
-if(PCAPPP_TARGET_PLATFORM_LINUX)
+if(UNIX)
   list(APPEND public_headers header/LinuxNicInformationSocket.h)
 endif()
 
-if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+if(WIN32)
   list(
     APPEND
     public_headers
@@ -65,10 +65,10 @@ endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
 
-if(PCAPPP_TARGET_PLATFORM_MACOS)
+if(APPLE)
   find_package(MACOS)
   target_link_libraries(Pcap++ PUBLIC ${MACOS_CORE_FOUNDATION_LIBRARY} ${MACOS_SYSTEM_CONFIGURATION_LIBRARY})
-elseif(PCAPPP_TARGET_PLATFORM_WINDOWS)
+elseif(WIN32)
   target_compile_definitions(Pcap++ PUBLIC -DHAVE_REMOTE)
   target_compile_definitions(Pcap++ PUBLIC -DWPCAP)
   target_link_libraries(Pcap++ PRIVATE ws2_32 iphlpapi)

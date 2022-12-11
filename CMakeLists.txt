@@ -19,7 +19,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
-include(DetectOS)
 include(GNUInstallDirs)
 
 # Declare install folders location
@@ -49,7 +48,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
-if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+if(WIN32)
   if(NOT PCAP_ROOT)
     message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
   endif()
@@ -59,7 +58,7 @@ if(PCAPPP_TARGET_PLATFORM_WINDOWS)
 endif()
 
 # Do we need Packet Packages on Windows ?
-if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+if(WIN32)
   find_package(Packet)
   if(NOT Packet_FOUND)
     message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
@@ -68,7 +67,7 @@ endif()
 
 find_package(PCAP)
 if(NOT PCAP_FOUND)
-  if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+  if(WIN32)
     message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
   else()
     message(FATAL_ERROR "PCAP library not found!")

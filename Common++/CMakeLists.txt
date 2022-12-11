@@ -31,7 +31,7 @@ target_include_directories(
   # Don't link with EndianPortable as it won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
 
-if(PCAPPP_TARGET_PLATFORM_WINDOWS)
+if(WIN32)
   target_link_libraries(Common++ PRIVATE ws2_32 iphlpapi)
 endif()
 
