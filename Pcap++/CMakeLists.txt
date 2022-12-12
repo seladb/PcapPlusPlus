@@ -4,7 +4,7 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDeviceList.cpp>
-  $<$<BOOL:${UNIX}>:src/LinuxNicInformationSocket.cpp>
+  $<$<BOOL:${LINUX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
   src/NetworkUtils.cpp
   src/PcapFileDevice.cpp
@@ -50,7 +50,7 @@ if(PCAPPP_USE_PF_RING)
     header/PfRingDeviceList.h)
 endif()
 
-if(UNIX)
+if(LINUX)
   list(APPEND public_headers header/LinuxNicInformationSocket.h)
 endif()
 

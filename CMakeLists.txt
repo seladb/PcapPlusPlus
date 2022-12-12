@@ -20,6 +20,11 @@ include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(GNUInstallDirs)
+# LINUX is set Only since 3.25
+# see: https://cmake.org/cmake/help/latest/variable/LINUX.html
+if (UNIX AND NOT APPLE AND NOT CYGWIN AND NOT ANDROID)
+  set(LINUX True)
+endif()
 
 # Declare install folders location
 set(PCAPPP_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
