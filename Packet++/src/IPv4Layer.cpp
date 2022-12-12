@@ -296,7 +296,8 @@ void IPv4Layer::parseNextLayer()
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(payload, be16toh(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
+		igmpVer = IgmpLayer::getIGMPVerFromData(
+			payload, std::min<size_t>(payloadLen, be16toh(getIPv4Header()->totalLength) - hdrLen), igmpQuery);
 		if (igmpVer == IGMPv1)
 			m_NextLayer = new IgmpV1Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv2)
