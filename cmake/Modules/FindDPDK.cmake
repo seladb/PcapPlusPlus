@@ -75,18 +75,19 @@ else()
   # Find the include dirs and get the version
   find_path(DPDK_VERSION_INCLUDE_DIR rte_version.h REQUIRED PATH_SUFFIXES dpdk include)
   find_path(DPDK_CONFIG_INCLUDE_DIR rte_config.h REQUIRED PATH_SUFFIXES dpdk include)
-  find_path(DPDK_BUILD_CONFIG_INCLUDE_DIR rte_build_config.h PATH_SUFFIXES dpdk include)
 
   set(DPDK_INCLUDE_DIRS ${DPDK_INCLUDE_DIRS})
   list(APPEND DPDK_INCLUDE_DIRS ${DPDK_VERSION_INCLUDE_DIR})
   list(APPEND DPDK_INCLUDE_DIRS ${DPDK_CONFIG_INCLUDE_DIR})
-  list(APPEND DPDK_INCLUDE_DIRS ${DPDK_BUILD_CONFIG_INCLUDE_DIR})
   list(REMOVE_DUPLICATES DPDK_INCLUDE_DIRS)
 
   dpdk_read_version(DPDK_VERSION "${DPDK_VERSION_INCLUDE_DIR}/rte_version.h")
   # If no version found fall back to rte_build_config.h
   if (DPDK_VERSION STREQUAL "..")
-    dpdk_read_version(DPDK_VERSION "${DPDK_BUILD_CONFIG_INCLUDE_DIR}/rte_build_config.h")
+    find_file(DPDK_BUILD_CONFIG_INCLUDE rte_build_config.h PATHS ${DPDK_INCLUDE_DIRS})
+    if (DPDK_BUILD_CONFIG_INCLUDE)
+      dpdk_read_version(DPDK_VERSION "${DPDK_BUILD_CONFIG_INCLUDE_DIR}/rte_build_config.h")
+    endif()
     if (DPDK_VERSION STREQUAL "..")
       message(WARN "Can't parse DPDK version!")
     endif()
