@@ -112,6 +112,14 @@ namespace pcpp
 
 		/**
 		 * Checks whether the address matches a subnet.
+		 * For example: if subnet is 10.1.1.1/24 and address is 10.1.1.9 then the method will return true
+		 * Another example: if subnet is 10.1.1.1/16 and address is 11.1.1.9 then the method will return false
+		 * @param[in] subnet A string in X.X.X.X/Y format representing the masked subnet to compare with the address
+		 */
+		bool matchSubnet(const std::string& subnet) const;
+
+		/**
+		 * Checks whether the address matches a subnet.
 		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
 		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
 		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
