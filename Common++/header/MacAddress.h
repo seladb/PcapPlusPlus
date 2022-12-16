@@ -54,7 +54,7 @@ namespace pcpp
 		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
 	 	 *	@param[in] addr A pointer to the string
 		 */
-		explicit MacAddress(const std::string& addr) { init(addr.c_str()); }
+		MacAddress(const std::string& addr) { init(addr.c_str()); }
 
 		/**
 		 *  A constructor that creates an instance of 6 bytes representing the MAC address
