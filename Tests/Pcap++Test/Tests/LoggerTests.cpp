@@ -139,7 +139,7 @@ class LoggerCleaner
 		~LoggerCleaner()
 		{
 			pcpp::Logger::getInstance().enableLogs();
-			pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Info);
+			pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::Logger::Info);
 			pcpp::Logger::getInstance().resetLogPrinter();
 			std::cout.clear();
 			LogPrinter::clean();
@@ -241,7 +241,7 @@ PTF_TEST_CASE(TestLogger)
 	PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLastError(), "error log");
 
 	// change all modules log level
-	pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
+	pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::Logger::Debug);
 	for (int module = 1; module < pcpp::NumOfLogModules; module++)
 	{
 		PTF_ASSERT_EQUAL(pcpp::Logger::getInstance().getLogLevel((pcpp::LogModule)module), pcpp::Logger::Debug, enum);
