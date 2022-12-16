@@ -143,8 +143,8 @@ else()
   list(REMOVE_DUPLICATES DPDK_LIBRARY_DIRS)
 
   # We also need NUMA, Threads and DL
-  find_package(NUMA)
-  find_package(Threads)
+  find_package(NUMA REQUIRED)
+  find_package(Threads REQUIRED)
 
   list(APPEND DPDK_LIBRARIES Threads::Threads)
   list(APPEND DPDK_LIBRARIES NUMA::NUMA)
