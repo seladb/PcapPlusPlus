@@ -489,6 +489,9 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 	//the following line trashes the log with many messages. Uncomment only if necessary
 	//PCPP_LOG_DEBUG("KNI Captured %d packets", numOfPktsReceived);
 
+	if (unlikely(numOfPktsReceived <= 0))
+		return 0;
+
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
 
@@ -527,6 +530,9 @@ uint16_t KniDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawPa
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, rawPacketArrLength);
 	uint16_t packetsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
 
+	if (unlikely(packetsReceived <= 0))
+		return 0;
+
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
 
@@ -561,6 +567,9 @@ uint16_t KniDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLengt
 
 	struct rte_mbuf** mBufArray = CPP_VLA(struct rte_mbuf*, packetsArrLength);
 	uint16_t packetsReceived = rte_kni_rx_burst(m_Device, mBufArray, MAX_BURST_SIZE);
+
+	if (unlikely(packetsReceived <= 0))
+		return 0;
 
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
