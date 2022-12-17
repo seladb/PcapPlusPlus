@@ -132,7 +132,7 @@ namespace pcpp
 	private:
 		DnsQuery(DnsLayer* dnsLayer, size_t offsetInLayer) : IDnsResource(dnsLayer, offsetInLayer) {}
 
-		DnsQuery(uint8_t* emptyRawData) : IDnsResource(emptyRawData) {}
+		explicit DnsQuery(uint8_t* emptyRawData) : IDnsResource(emptyRawData) {}
 
 	public:
 		virtual ~DnsQuery() {}

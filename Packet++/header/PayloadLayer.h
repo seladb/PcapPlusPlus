@@ -43,7 +43,7 @@ namespace pcpp
 		 * to have an even number of chars (each char represents one nibble). If the string is not a valid hex stream an error will be printed to log and the payload
 		 * layer will be empty (no data)
 		 */
-		PayloadLayer(const std::string& payloadAsHexStream);
+		explicit PayloadLayer(const std::string& payloadAsHexStream);
 
 		~PayloadLayer() {}
 

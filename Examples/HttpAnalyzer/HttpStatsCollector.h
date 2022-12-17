@@ -134,7 +134,7 @@ public:
 	/**
 	 * C'tor - clear all structures
 	 */
-	HttpStatsCollector(uint16_t dstPort)
+	explicit HttpStatsCollector(uint16_t dstPort)
 	{
 		clear();
 		m_DstPort = dstPort;

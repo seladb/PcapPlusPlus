@@ -447,7 +447,7 @@ namespace pcpp
 
 	protected:
 		DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, size_t offsetAdjustment);
-		DnsLayer(size_t offsetAdjustment);
+		explicit DnsLayer(size_t offsetAdjustment);
 
 	private:
 		IDnsResource* m_ResourceList;

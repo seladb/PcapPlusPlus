@@ -124,7 +124,7 @@ public:
 	 * C'tor for this class
 	 * @param[in] data The raw data for the extension
 	 */
-	SSLExtension(uint8_t* data);
+	explicit SSLExtension(uint8_t* data);
 
 	virtual ~SSLExtension() { }
 
@@ -187,7 +187,7 @@ public:
 	 * C'tor for this class
 	 * @param[in] data The raw data for the extension
 	 */
-	SSLServerNameIndicationExtension(uint8_t* data) : SSLExtension(data) {}
+	explicit SSLServerNameIndicationExtension(uint8_t* data) : SSLExtension(data) {}
 
 	/**
 	 * @return The hostname written in the extension data
@@ -208,7 +208,7 @@ public:
 	 * C'tor for this class
 	 * @param[in] data The raw data for the extension
 	 */
-	SSLSupportedVersionsExtension(uint8_t* data) : SSLExtension(data) {}
+	explicit SSLSupportedVersionsExtension(uint8_t* data) : SSLExtension(data) {}
 
 	/**
 	 * @return The list of supported versions mentioned in the extension data
@@ -229,7 +229,7 @@ class TLSSupportedGroupsExtension : public SSLExtension
 	 * C'tor for this class
 	 * @param[in] data The raw data for the extension
 	 */
-	TLSSupportedGroupsExtension(uint8_t* data) : SSLExtension(data) {}
+	explicit TLSSupportedGroupsExtension(uint8_t* data) : SSLExtension(data) {}
 
 	/**
 	 * @return A vector of the supported groups (also known as "Elliptic Curves")
@@ -250,7 +250,7 @@ class TLSECPointFormatExtension : public SSLExtension
 	 * C'tor for this class
 	 * @param[in] data The raw data for the extension
 	 */
-	TLSECPointFormatExtension(uint8_t* data) : SSLExtension(data) {}
+	explicit TLSECPointFormatExtension(uint8_t* data) : SSLExtension(data) {}
 
 	/**
 	 * @return A vector of the elliptic curves point formats

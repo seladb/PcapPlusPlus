@@ -86,7 +86,7 @@ class KniDeviceTeardown
 
 	public:
 
-		KniDeviceTeardown(pcpp::KniDevice* dev)
+		explicit KniDeviceTeardown(pcpp::KniDevice* dev)
 		{
 			m_KniDevice = dev;
 		}

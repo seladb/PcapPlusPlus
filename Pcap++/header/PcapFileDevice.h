@@ -27,7 +27,7 @@ namespace pcpp
 	protected:
 		std::string m_FileName;
 
-		IFileDevice(const std::string& fileName);
+		explicit IFileDevice(const std::string& fileName);
 		virtual ~IFileDevice();
 
 	public:

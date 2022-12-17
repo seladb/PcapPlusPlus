@@ -236,7 +236,7 @@ namespace pcpp
 			 * A c'tor that gets a pointer to the tag raw data (byte array)
 			 * @param[in] tagRawData A pointer to the tag raw data
 			 */
-			PPPoETag(uint8_t* tagRawData) : TLVRecord(tagRawData) { }
+			explicit PPPoETag(uint8_t* tagRawData) : TLVRecord(tagRawData) { }
 
 			/**
 			 * A d'tor for this class, currently does nothing
@@ -283,7 +283,7 @@ namespace pcpp
 			 * be retrieved by calling build()
 			 * @param[in] tagType Tag type
 			 */
-			PPPoETagBuilder(PPPoETagTypes tagType) :
+			explicit PPPoETagBuilder(PPPoETagTypes tagType) :
 				TLVRecordBuilder(static_cast<uint16_t>(tagType), NULL, 0) { }
 
 			/**

@@ -217,7 +217,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
 		 * @param[in] optionRawData A pointer to the IPv4 option raw data
 		 */
-		IPv4Option(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
+		explicit IPv4Option(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
 
 		/**
 		 * A d'tor for this class, currently does nothing
@@ -390,7 +390,7 @@ namespace pcpp
 		 * A c'tor for building IPv4 timestamp option (::IPV4OPT_Timestamp). The IPv4Option object can be later retrieved by calling build()
 		 * @param[in] timestampValue The timestamp value to build the IPv4 option with
 		 */
-		IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampValue);
+		explicit IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampValue);
 
 		/**
 		 * Build the IPv4Option object out of the parameters defined in the c'tor

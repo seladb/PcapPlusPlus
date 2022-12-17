@@ -124,7 +124,7 @@ protected:
 	 * A protected c'tor for this class which gets the output file limit size. If maxFile is UNLIMITED_FILES_MAGIC_NUMBER,
 	 * it's considered there's no output files limit
 	 */
-	SplitterWithMaxFiles(int maxFiles, int firstFileNumber = 0) : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+	explicit SplitterWithMaxFiles(int maxFiles, int firstFileNumber = 0) : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
 	{
 		m_MaxFiles = maxFiles;
 		m_NextFile = firstFileNumber;
@@ -173,7 +173,7 @@ protected:
 	/**
 	 * A protected c'tor for this class that only propagate the maxFiles to its ancestor
 	 */
-	ValueBasedSplitter(int maxFiles) : SplitterWithMaxFiles(maxFiles, 1) {}
+	explicit ValueBasedSplitter(int maxFiles) : SplitterWithMaxFiles(maxFiles, 1) {}
 
 	/**
 	 * A helper method that gets the packet value and returns the file to write it to, and also a file to close if the

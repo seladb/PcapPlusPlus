@@ -21,7 +21,7 @@ private:
 	uint32_t m_CoreId;
 
 public:
-	AppWorkerThread(AppWorkerConfig& workerConfig) :
+	explicit AppWorkerThread(AppWorkerConfig& workerConfig) :
 		m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES+1)
 	{
 	}

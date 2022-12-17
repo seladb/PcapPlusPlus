@@ -68,7 +68,7 @@ protected:
 class IPv4FragmentWrapper : public IPFragmentWrapper
 {
 public:
-	IPv4FragmentWrapper(Packet* fragment)
+	explicit IPv4FragmentWrapper(Packet* fragment)
 	{
 		m_IPLayer = fragment->isPacketOfType(IPv4) ? fragment->getLayerOfType<IPv4Layer>() : NULL;
 	}
@@ -137,7 +137,7 @@ private:
 class IPv6FragmentWrapper : public IPFragmentWrapper
 {
 public:
-	IPv6FragmentWrapper(Packet* fragment)
+	explicit IPv6FragmentWrapper(Packet* fragment)
 	{
 		m_IPLayer = fragment->isPacketOfType(IPv6) ? fragment->getLayerOfType<IPv6Layer>() : NULL;
 		if (m_IPLayer != NULL)

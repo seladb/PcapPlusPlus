@@ -36,7 +36,7 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] maxSize The max size this list can go
 		 */
-		LRUList(size_t maxSize)
+		explicit LRUList(size_t maxSize)
 		{
 			m_MaxSize = maxSize;
 		}
