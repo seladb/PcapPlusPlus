@@ -69,7 +69,7 @@ namespace pcpp
 		 * parse only up to a certain OSI layer (for example transport layer) and want to avoid the performance impact and memory consumption of parsing the whole packet.
 		 * Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
 		 */
-		Packet(RawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+		explicit Packet(RawPacket* rawPacket, bool freeRawPacket = false, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.

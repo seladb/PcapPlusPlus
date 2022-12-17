@@ -425,7 +425,7 @@ namespace pcpp
 		 * @param[in] sipVersion SIP version to set, default is SIP/2.0
 		 *
 		 */
-		SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "", std::string sipVersion = "SIP/2.0");
+		explicit SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "", std::string sipVersion = "SIP/2.0");
 
 		virtual ~SipResponseLayer();
 

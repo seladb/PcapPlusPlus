@@ -253,7 +253,7 @@ public:
 	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of IPv4Address#Zero
 	 * if not provided
 	 */
-	IgmpV1Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address())
+	explicit IgmpV1Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address())
 		: IgmpLayer(type, groupAddr, 0, IGMPv1) {}
 
 	/**
@@ -294,7 +294,7 @@ public:
 	 * @param[in] groupAddr The multicast address to set. This is an optional parameter and has a default value of unspecified/zero IPv4 address
 	 * @param[in] maxResponseTime The max response time to set. This is an optional parameter and has a default value of 0 if not provided
 	 */
-	IgmpV2Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address(), uint8_t maxResponseTime = 0)
+	explicit IgmpV2Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address(), uint8_t maxResponseTime = 0)
 		: IgmpLayer(type, groupAddr, maxResponseTime, IGMPv2) {}
 
 	/**

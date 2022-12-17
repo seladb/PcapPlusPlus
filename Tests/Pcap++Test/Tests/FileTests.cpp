@@ -12,7 +12,7 @@ private:
 	pcpp::IFileReaderDevice* m_Reader;
 
 public:
-	FileReaderTeardown(pcpp::IFileReaderDevice* reader)
+	explicit FileReaderTeardown(pcpp::IFileReaderDevice* reader)
 	{
 		m_Reader = reader;
 	}

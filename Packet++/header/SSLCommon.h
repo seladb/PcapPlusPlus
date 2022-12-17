@@ -178,7 +178,7 @@ namespace pcpp
 		 * @param[in] sslVersionValue The numeric value representing this SSL/TLS version. For example:
 		 * for TLS 1.2 this would be 0x0303.
 		 */
-		SSLVersion(uint16_t sslVersionValue) { m_SSLVersionValue = sslVersionValue; }
+		explicit SSLVersion(uint16_t sslVersionValue) { m_SSLVersionValue = sslVersionValue; }
 
 		/**
 		 * @return An enum value of type SSLVersion::SSLVersionEnum representing the SSL/TLS version.
