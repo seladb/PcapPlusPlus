@@ -313,8 +313,7 @@ int main(int argc, char* argv[])
 					// convert the IP ID to uint16_t
 					uint32_t fragID = (uint32_t)atoi(ipIDStr.c_str());
 					// add the frag ID into the map if it doesn't already exist
-					if (fragIDMap.find(fragID) == fragIDMap.end())
-						fragIDMap[fragID] = true;
+					fragIDMap.emplace(fragID, true);
 				}
 
 				// verify list is not empty

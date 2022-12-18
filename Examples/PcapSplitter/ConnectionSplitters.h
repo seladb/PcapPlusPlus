@@ -17,7 +17,7 @@ public:
 	 * A c'tor for this class that gets the maximum number of files. If this number is lower or equal to 0 it's
 	 * considered not to have a file count limit
 	 */
-	TwoTupleSplitter(int maxFiles) : ValueBasedSplitter(maxFiles) {}
+	explicit TwoTupleSplitter(int maxFiles) : ValueBasedSplitter(maxFiles) {}
 
 	/**
 	 * Find the 2-tuple flow for this packet and get the file number it belongs to. If flow is new, return a new file number
@@ -87,7 +87,7 @@ public:
 	 * A c'tor for this class that gets the maximum number of files. If this number is lower or equal to 0 it's
 	 * considered not to have a file count limit
 	 */
-	FiveTupleSplitter(int maxFiles) : ValueBasedSplitter(maxFiles) {}
+	explicit FiveTupleSplitter(int maxFiles) : ValueBasedSplitter(maxFiles) {}
 
 	/**
 	 * Find the flow for this packet and get the file number it belongs to. If flow is new, return a new file number
