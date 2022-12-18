@@ -41,7 +41,7 @@ RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator,
 	memcpy(hdr->authenticator, authenticator, authenticatorArrSize);
 }
 
-RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string authenticator)
+RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string &authenticator)
 {
 	m_DataLen = sizeof(radius_header);
 	m_Data = new uint8_t[m_DataLen];
@@ -240,7 +240,7 @@ bool RadiusLayer::removeAllAttributes()
 
 bool RadiusLayer::isDataValid(const uint8_t* udpData, size_t udpDataLen)
 {
-	if(udpData != NULL)
+	if(udpData != NULL && udpDataLen >= sizeof(radius_header))
 	{
 		const radius_header* radHdr = reinterpret_cast<const radius_header*>(udpData);
 		size_t radLen = be16toh(radHdr->length);

@@ -100,9 +100,8 @@ private:
 
 public:
 
-	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port)
+	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port) : m_ProcessHandle(nullptr)
 	{
-		m_ProcessHandle = NULL;
 		if (!activateRemoteDevice)
 			return;
 
@@ -129,6 +128,8 @@ public:
 				)
 			{
 				m_ProcessHandle = NULL;
+				PCPP_LOG_ERROR("Create process failed " << (int)GetLastError());
+				return;
 			}
 
 		m_ProcessHandle = pi.hProcess;
@@ -285,7 +286,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 
 	liveDev->stopCapture();
 	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-	PTF_ASSERT_GREATER_THAN(numOfTimeStatsWereInvoked, totalSleepTime*0.8);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1);
 	pcpp::IPcapDevice::PcapStats statistics;
 	liveDev->getStatistics(statistics);
 	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets

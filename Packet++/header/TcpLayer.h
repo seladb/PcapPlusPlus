@@ -203,7 +203,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
 		 * @param[in] optionRawData A pointer to the TCP option raw data
 		 */
-		TcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
+		explicit TcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData) { }
 
 		/**
 		 * A d'tor for this class, currently does nothing
@@ -312,7 +312,7 @@ namespace pcpp
 		 * by calling build()
 		 * @param[in] optionType An enum value indicating which option type to build (NOP or EOL)
 		 */
-		TcpOptionBuilder(NopEolOptionTypes optionType);
+		explicit TcpOptionBuilder(NopEolOptionTypes optionType);
 
 		/**
 		 * Build the TcpOption object out of the parameters defined in the c'tor

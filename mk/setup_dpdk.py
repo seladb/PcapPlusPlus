@@ -7,6 +7,7 @@
 import sys
 import os
 import json
+import glob
 import logging
 import time
 import argparse
@@ -852,9 +853,15 @@ def insert_kni_module(args, settings):
     if not hasattr(settings, "rte_sdk") or not settings.rte_sdk:
         raise RuntimeError("Cannot find RTE_SDK value in '%s'" % _SETTINGS_FILE)
 
+    kni_module_path = glob.glob(
+        f"{settings.rte_sdk}/**/{kni_module}.ko", recursive=True
+    )
+    if not kni_module_path:
+        raise RuntimeError(f"Cannot find KNI kernel module {kni_module}")
+
     kmod_params = args.kni_params
     output = check_output(
-        ["insmod", "%s/build/kmod/%s.ko" % (settings.rte_sdk, kni_module), kmod_params],
+        ["insmod", kni_module_path[0], kmod_params],
         stderr=subprocess.STDOUT,
     )
     if output:

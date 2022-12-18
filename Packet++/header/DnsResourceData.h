@@ -99,7 +99,7 @@ namespace pcpp
 		 * A c'tor to this class
 		 * @param[in] ptr A pointer to IDnsResourceData
 		 */
-		DnsResourceDataPtr(IDnsResourceData* ptr) : PCPP_SMART_PTR(IDnsResourceData)(ptr) {}
+		explicit DnsResourceDataPtr(IDnsResourceData* ptr) : PCPP_SMART_PTR(IDnsResourceData)(ptr) {}
 
 		//Visual studio has always been stupid about returning something useful for __cplusplus
 		//Only recently was this fixed - and even then it requires a specific hack to the command line during build
@@ -149,7 +149,7 @@ namespace pcpp
 		 * to set the DNS RR data as 'my.subdomain.yahoo.com' you may use the following string: 'my.subdomain.#12'.
 		 * This will result in writing 'my.subdomain' and a pointer to offset 12
 		 */
-		StringDnsResourceData(const std::string& data) { m_Data = data; }
+		explicit StringDnsResourceData(const std::string& data) : m_Data(data) {}
 
 		StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource);
 
@@ -191,13 +191,13 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv4 address to store in this object
 		 */
-		IPv4DnsResourceData(const IPv4Address& addr) : m_Data(addr) {}
+		explicit IPv4DnsResourceData(const IPv4Address& addr) : m_Data(addr) {}
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] addrAsString A string representation of an IPv4 address to store in this object
 		 */
-		IPv4DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
+		explicit IPv4DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
 
 		/**
 		 * Equality operator overload for this class that compares the IPv4 addresses stored in each object
@@ -240,13 +240,13 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv6 address to store in this object
 		 */
-		IPv6DnsResourceData(const IPv6Address& addr) : m_Data(addr) {}
+		explicit IPv6DnsResourceData(const IPv6Address& addr) : m_Data(addr) {}
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] addrAsString A string representation of an IPv6 address to store in this object
 		 */
-		IPv6DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
+		explicit IPv6DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
 
 		/**
 		 * Equality operator overload for this class that compares the IPv6 addresses stored in each object
@@ -369,7 +369,7 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] dataAsHexString A hex string that represents the DNS RR data
 		 */
-		GenericDnsResourceData(const std::string& dataAsHexString);
+		explicit GenericDnsResourceData(const std::string& dataAsHexString);
 
 		/**
 		 * A copy c'tor for this class

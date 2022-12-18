@@ -27,7 +27,7 @@ namespace pcpp
 	protected:
 		std::string m_FileName;
 
-		IFileDevice(const std::string& fileName);
+		explicit IFileDevice(const std::string& fileName);
 		virtual ~IFileDevice();
 
 	public:
@@ -161,7 +161,7 @@ namespace pcpp
 	class SnoopFileReaderDevice : public IFileReaderDevice
 	{
 	private:
-		#pragma pack(0)
+		#pragma pack(1)
 		/*
 		 * File format header.
 		 */

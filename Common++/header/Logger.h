@@ -157,7 +157,7 @@ namespace pcpp
 		 * Set all PcapPlusPlus modules to a certain log level
 		 * @param[in] level The log level to set all modules to
 		 */
-		void setAllModlesToLogLevel(LogLevel level) { for (int i=1; i<NumOfLogModules; i++) m_LogModulesArray[i] = level; }
+		void setAllModulesToLogLevel(LogLevel level) { for (int i=1; i<NumOfLogModules; i++) m_LogModulesArray[i] = level; }
 
 		/**
 		 * Set a custom log printer.

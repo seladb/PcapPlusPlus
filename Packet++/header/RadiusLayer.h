@@ -45,7 +45,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the attribute raw data (byte array)
 		 * @param[in] attrRawData A pointer to the attribute raw data
 		 */
-		RadiusAttribute(uint8_t* attrRawData) : TLVRecord(attrRawData) { }
+		explicit RadiusAttribute(uint8_t* attrRawData) : TLVRecord(attrRawData) { }
 
 		/**
 		 * A d'tor for this class, currently does nothing
@@ -202,7 +202,7 @@ namespace pcpp
 		 * packet's authenticator field will stay zero. If the hex string represents an array that is larger than 16 bytes,
 		 * only the first 16 bytes will be copied to the packet
 		 */
-		RadiusLayer(uint8_t code, uint8_t id, const std::string authenticator);
+		RadiusLayer(uint8_t code, uint8_t id, const std::string &authenticator);
 
 		/**
 		 * A d'tor for this layer, currently does nothing

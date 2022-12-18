@@ -312,7 +312,7 @@ namespace pcpp
 		 * A constructor that creates a new GREv1 header and allocates the data
 		 * @param[in] callID The call ID to set
 		 */
-		GREv1Layer(uint16_t callID);
+		explicit GREv1Layer(uint16_t callID);
 
 		virtual ~GREv1Layer() {}
 
