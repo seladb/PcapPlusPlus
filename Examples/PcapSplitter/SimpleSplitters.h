@@ -18,7 +18,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the packet count for each split file
 	 */
-	PacketCountSplitter(int maxPacketsPerFile)
+	explicit PacketCountSplitter(int maxPacketsPerFile)
 	{
 		m_PacketCount = 0;
 		m_MaxPacketsPerFile = maxPacketsPerFile;
