@@ -229,7 +229,7 @@ namespace pcpp
 			{
 				m_FragmentID = other.m_FragmentID;
 				m_SrcIP = other.m_SrcIP;
-				m_SrcIP = other.m_DstIP;
+				m_DstIP = other.m_DstIP;
 				return *this;
 			}
 

@@ -574,18 +574,10 @@ int main(int argc, char* argv[])
 	if (readPacketsFromPcapFileName == "" && interfaceNameOrIP == "")
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
 
-	//get the port
-	std::istringstream is(port);
-	uint16_t nPort = -1;
-	is >> nPort;
-	if (is.fail())
-	{
+	// get the port
+	int nPort = atoi(port.c_str());
+	if (nPort <= 0 || nPort > 65535)
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
-	}
-	if (nPort < 0 || nPort > 65535)
-	{
-		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
-	}
 
 	// analyze in pcap file mode
 	if (readPacketsFromPcapFileName != "")

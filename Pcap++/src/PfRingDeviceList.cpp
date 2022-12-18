@@ -16,7 +16,7 @@ PfRingDeviceList::PfRingDeviceList()
 
 	FILE *fd = popen("lsmod | grep pf_ring", "r");
 	char buf[16];
-	if (fread (buf, 1, sizeof (buf), fd) <= 0) // if there is some result the module must be loaded
+	if (!fread(buf, 1, sizeof (buf), fd)) // if there is some result the module must be loaded
 	{
 		PCPP_LOG_ERROR("PF_RING kernel module isn't loaded. Please run: 'sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko'");
 		return;

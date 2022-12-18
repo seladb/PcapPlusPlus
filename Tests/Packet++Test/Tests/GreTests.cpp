@@ -102,7 +102,6 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 1);
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(6));
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, 0);
-	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev1Layer->getSequenceNumber(value32));
 	PTF_ASSERT_EQUAL(value32, 40000);
@@ -124,7 +123,6 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 0);
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(17));
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178));
-	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev1Layer->getAcknowledgmentNum(value32));
 	PTF_ASSERT_EQUAL(value32, 40000);

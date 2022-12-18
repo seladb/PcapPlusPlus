@@ -11,15 +11,15 @@
 namespace pcpp
 {
 
-bool TelnetLayer::isDataField(uint8_t *pos)
+bool TelnetLayer::isDataField(uint8_t *pos) const
 {
 	// "FF FF" means data
-	return pos[0] != InterpretAsCommand || (pos[0] == InterpretAsCommand && pos[1] == InterpretAsCommand);
+	return pos[0] != InterpretAsCommand || pos[1] == InterpretAsCommand;
 }
 
-bool TelnetLayer::isCommandField(uint8_t *pos)
+bool TelnetLayer::isCommandField(uint8_t *pos) const
 {
-	return pos[0] == InterpretAsCommand && pos[1] != InterpretAsCommand;
+	return !isDataField(pos);
 }
 
 size_t TelnetLayer::distanceToNextIAC(uint8_t *startPos, size_t maxLength)
@@ -471,7 +471,7 @@ std::string TelnetLayer::getTelnetOptionAsString(TelnetOption val)
 
 std::string TelnetLayer::toString() const
 {
-	if (m_Data[0] != InterpretAsCommand || (m_Data[0] == InterpretAsCommand && m_Data[1] == InterpretAsCommand))
+	if (isDataField(m_Data))
 		return "Telnet Data";
 	return "Telnet Control";
 }

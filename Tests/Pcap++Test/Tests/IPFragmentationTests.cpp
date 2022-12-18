@@ -348,7 +348,7 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 		{
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FIRST_FRAGMENT, enum);
 		}
-		else if (i > 1 && i < (packetStream.size()-1))
+		else if (i < (packetStream.size()-1))
 		{
 			PTF_ASSERT_NULL(result);
 			PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::FRAGMENT, enum);

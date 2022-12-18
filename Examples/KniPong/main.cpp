@@ -291,7 +291,6 @@ inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
 {	// Open socket
 	enum { INVALID_FD = -1 };
 	LinuxSocket sock;
-	sock.m_Socket = INVALID_FD;
 	if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD)
 	{
 		int old_errno = errno;
