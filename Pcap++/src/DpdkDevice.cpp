@@ -792,8 +792,10 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t
 	//the following line trashes the log with many messages. Uncomment only if necessary
 	//PCPP_LOG_DEBUG("Captured %d packets", numOfPktsReceived);
 
-	if (unlikely(numOfPktsReceived <= 0))
+	if (unlikely(!numOfPktsReceived))
+	{
 		return 0;
+	}
 
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
@@ -838,8 +840,10 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacket** rawPacketsArr, uint16_t rawP
 	struct rte_mbuf* mBufArray[rawPacketArrLength];
 	uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, rawPacketArrLength);
 
-	if (unlikely(packetsReceived <= 0))
+	if (unlikely(!packetsReceived))
+	{
 		return 0;
+	}
 
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
@@ -879,8 +883,10 @@ uint16_t DpdkDevice::receivePackets(Packet** packetsArr, uint16_t packetsArrLeng
 	struct rte_mbuf* mBufArray[packetsArrLength];
 	uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, packetsArrLength);
 
-	if (unlikely(packetsReceived <= 0))
+	if (unlikely(!packetsReceived))
+	{
 		return 0;
+	}
 
 	timespec time;
 	clock_gettime(CLOCK_REALTIME, &time);
