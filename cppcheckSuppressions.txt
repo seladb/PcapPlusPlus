@@ -23,11 +23,12 @@ uninitdata:Pcap++/src/PcapLiveDevice.cpp:870
 uninitMemberVar:Packet++/header/IcmpLayer.h:399
 unreadVariable:Packet++/src/DnsResource.cpp:111
 unreadVariable:Packet++/src/DnsResource.cpp:137
-unusedVariable:Tests/Pcap++Test/Tests/LoggerTests.cpp:169
-unusedVariable:Tests/Pcap++Test/Tests/LoggerTests.cpp:197
+unusedVariable:Tests/Pcap++Test/Tests/LoggerTests.cpp:168
+unusedVariable:Tests/Pcap++Test/Tests/LoggerTests.cpp:196
 unusedVariable:Tests/Packet++Test/Tests/SomeIpTests.cpp:23
 unusedVariable:Tests/Packet++Test/Tests/SomeIpTests.cpp:46
 unusedVariable:Tests/Packet++Test/Tests/SomeIpTests.cpp:173
+useStlAlgorithm:Tests/Pcap++Test/Tests/LoggerTests.cpp:187
 noExplicitConstructor:Common++/header/IpAddress.h
 noExplicitConstructor:Common++/header/MacAddress.h
 noExplicitConstructor:Pcap++/header/PcapFileDevice.h
