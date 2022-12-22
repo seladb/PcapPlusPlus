@@ -10,7 +10,7 @@
 
 PTF_TEST_CASE(NflogPacketParsingTest)
 {
-    timeval time;
+	timeval time;
 	gettimeofday(&time, NULL);
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/nflogPacket.dat", pcpp::LINKTYPE_NFLOG);
@@ -21,7 +21,7 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 	PTF_ASSERT_EQUAL(nflogPacket.getFirstLayer()->getProtocol(), pcpp::NFLOG, enum);
 	pcpp::NflogLayer* nflogLayer = nflogPacket.getLayerOfType<pcpp::NflogLayer>();
 	PTF_ASSERT_NOT_NULL(nflogLayer->getNextLayer());
-    pcpp::nflog_packet_header* pck_hdr = nflogLayer->getPacketHeader();
+	pcpp::nflog_packet_header* pck_hdr = nflogLayer->getPacketHeader();
     PTF_ASSERT_EQUAL(pck_hdr->hardware_protocol, 0);
     PTF_ASSERT_EQUAL((int)pck_hdr->netfilter_hook, 3);
     PTF_ASSERT_EQUAL(nflogLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);

@@ -12,8 +12,7 @@ namespace pcpp
 
 uint8_t NflogLayer::getFamily()
 {
-	nflog_header* hdr = getNflogHeader();
-	return hdr->address_family;
+	return getNflogHeader()->address_family;
 }
 
 std::pair<uint8_t*, int> NflogLayer::getPayload()

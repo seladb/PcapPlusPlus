@@ -41,7 +41,6 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct nflog_header
 	{
-
 		uint8_t address_family;
 		uint8_t version;
 		uint16_t resource_id;
