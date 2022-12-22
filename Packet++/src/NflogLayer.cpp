@@ -20,19 +20,15 @@ std::pair<uint8_t*, int> NflogLayer::getPayload()
 	uint8_t* data = m_Data + sizeof(nflog_header);
 	nflog_tlv* current_tlv = (nflog_tlv*)data;
 
-	uint16_t offset = sizeof(nflog_header);
-
 	while (current_tlv->tlv_type != NFULA_PAYLOAD) {
 		uint16_t len = current_tlv->tlv_length;
 		data = data + len;
-		offset += len;
 		while (*data == 0) {
 			data += 1;
-			offset += 1;
 		}
 		current_tlv = (nflog_tlv*)data;
 	}
-	return std::make_pair(data + sizeof(nflog_tlv), offset);
+	return std::make_pair(data + sizeof(nflog_tlv), current_tlv->tlv_length);
 }
 
 nflog_packet_header* NflogLayer::getPacketHeader()
@@ -49,7 +45,7 @@ void NflogLayer::parseNextLayer()
 
 	auto payloadInfo = getPayload();
 	uint8_t* payload = payloadInfo.first;
-	size_t payloadLen = m_DataLen - payloadInfo.second + 1;
+	size_t payloadLen = payloadInfo.second + sizeof(nflog_tlv);
 
 	uint8_t family = getFamily();
 
