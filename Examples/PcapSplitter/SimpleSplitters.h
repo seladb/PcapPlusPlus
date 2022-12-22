@@ -76,7 +76,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the file size in bytes for each split file
 	 */
-	FileSizeSplitter(uint64_t maxBytesPerFile)
+	explicit FileSizeSplitter(uint64_t maxBytesPerFile)
 	{
 		m_TotalSize = 0;
 		// each file size contains a pcap header with size of PCAP_FILE_HEADER_SIZE
@@ -129,10 +129,7 @@ private:
 	pcpp::BPFStringFilter filter;
 
 public:
-	BpfCriteriaSplitter(const std::string &bpfFilter) : filter(bpfFilter)
-	{
-		m_BpfFilter = bpfFilter;
-	}
+	explicit BpfCriteriaSplitter(const std::string &bpfFilter) : filter(bpfFilter), m_BpfFilter(bpfFilter) {}
 
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
@@ -168,8 +165,8 @@ public:
 		}
 
 
-		pcpp::BPFStringFilter filter(m_BpfFilter);
-		bool filterValid = filter.verifyFilter();
+		pcpp::BPFStringFilter localFilter(m_BpfFilter);
+		bool filterValid = localFilter.verifyFilter();
 		if (!filterValid)
 			errorString = "BPF filter is not valid";
 
@@ -184,7 +181,7 @@ public:
 class RoundRobinSplitter : public SplitterWithMaxFiles
 {
 public:
-	RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles) { }
+	explicit RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles) { }
 
 	/**
 	 * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes care of the round-robin method

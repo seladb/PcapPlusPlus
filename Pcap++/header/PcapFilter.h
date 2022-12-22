@@ -171,7 +171,7 @@ namespace pcpp
 		const std::string m_FilterStr;
 
 	public:
-		BPFStringFilter(const std::string& filterStr) : m_FilterStr(filterStr) {}
+		explicit BPFStringFilter(const std::string& filterStr) : m_FilterStr(filterStr) {}
 
 		virtual ~BPFStringFilter() {}
 
@@ -203,7 +203,7 @@ namespace pcpp
 	protected:
 		void parseDirection(std::string& directionAsString);
 		Direction getDir() const { return m_Dir; }
-		IFilterWithDirection(Direction dir) { m_Dir = dir; }
+		explicit IFilterWithDirection(Direction dir) { m_Dir = dir; }
 	public:
 		/**
 		 * Set the direction for the filter (source or destination)
@@ -226,7 +226,7 @@ namespace pcpp
 	protected:
 		std::string parseOperator();
 		FilterOperator getOperator() const { return m_Operator; }
-		IFilterWithOperator(FilterOperator op) { m_Operator = op; }
+		explicit IFilterWithOperator(FilterOperator op) { m_Operator = op; }
 	public:
 		/**
 		 * Set the operator for the filter
@@ -473,7 +473,7 @@ namespace pcpp
 		 * A constructor that gets the EtherType and creates the filter with it
 		 * @param[in] etherType The EtherType value to create the filter with
 		 */
-		EtherTypeFilter(uint16_t etherType) : m_EtherType(etherType) {}
+		explicit EtherTypeFilter(uint16_t etherType) : m_EtherType(etherType) {}
 
 		void parseToString(std::string& result);
 
@@ -509,7 +509,7 @@ namespace pcpp
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
-		AndFilter(std::vector<GeneralFilter*>& filters);
+		explicit AndFilter(std::vector<GeneralFilter*>& filters);
 
 		/**
 		 * Add filter to the and condition
@@ -551,7 +551,7 @@ namespace pcpp
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
-		OrFilter(std::vector<GeneralFilter*>& filters);
+		explicit OrFilter(std::vector<GeneralFilter*>& filters);
 
 		/**
 		 * Add filter to the or condition
@@ -578,7 +578,7 @@ namespace pcpp
 		 * A constructor that gets a pointer to a filter and create the inverse version of it
 		 * @param[in] filterToInverse A pointer to filter which the created filter be the inverse of
 		 */
-		NotFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
+		explicit NotFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
 
 		void parseToString(std::string& result);
 
@@ -608,7 +608,7 @@ namespace pcpp
 		 * @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note not all protocols are
 		 * supported. List of supported protocols is found in the class description
 		 */
-		ProtoFilter(ProtocolType proto) { m_Proto = proto; }
+		explicit ProtoFilter(ProtocolType proto) : m_Proto(proto) {}
 
 		void parseToString(std::string& result);
 
@@ -637,7 +637,7 @@ namespace pcpp
 		 * A constructor that get the ARP opcode and creates the filter
 		 * @param[in] opCode The ARP opcode: ::ARP_REQUEST or ::ARP_REPLY
 		 */
-		ArpFilter(ArpOpcode opCode) { m_OpCode = opCode; }
+		explicit ArpFilter(ArpOpcode opCode) : m_OpCode(opCode) {}
 
 		void parseToString(std::string& result);
 
@@ -665,7 +665,7 @@ namespace pcpp
 		 * A constructor the gets the VLAN ID and creates the filter
 		 * @param[in] vlanId The VLAN ID to use for the filter
 		 */
-		VlanFilter(uint16_t vlanId) : m_VlanID(vlanId) {}
+		explicit VlanFilter(uint16_t vlanId) : m_VlanID(vlanId) {}
 
 		void parseToString(std::string& result);
 

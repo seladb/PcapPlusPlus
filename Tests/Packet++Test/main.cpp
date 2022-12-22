@@ -280,6 +280,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SomeIpTpCreationTest, "someip");
 	PTF_RUN_TEST(SomeIpTpEditTest, "someip");
 
+	PTF_RUN_TEST(SomeIpSdParsingTest, "someipsd");
+	PTF_RUN_TEST(SomeIpSdCreationTest, "someipsd");
+
 	PTF_RUN_TEST(WakeOnLanParsingTests, "wol");
 	PTF_RUN_TEST(WakeOnLanCreationTests, "wol");
 	PTF_RUN_TEST(WakeOnLanEditTests, "wol");

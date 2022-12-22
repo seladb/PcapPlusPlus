@@ -204,13 +204,12 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 
 		// print configuration for core
 		std::cout << "   Core configuration:" << std::endl;
-		for (InputDataConfig::iterator iter = workerConfigArr[i].InDataCfg.begin(); iter != workerConfigArr[i].InDataCfg.end(); iter++)
+		for (InputDataConfig::iterator iter2 = workerConfigArr[i].InDataCfg.begin(); iter2 != workerConfigArr[i].InDataCfg.end(); iter2++)
 		{
-			std::cout << "      DPDK device#" << iter->first->getDeviceId() << ": ";
-			for (std::vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
+			std::cout << "      DPDK device#" << iter2->first->getDeviceId() << ": ";
+			for (std::vector<int>::iterator iter3 = iter2->second.begin(); iter3 != iter2->second.end(); iter3++)
 			{
-				std::cout << "RX-Queue#" << *iter2 << ";  ";
-
+				std::cout << "RX-Queue#" << *iter3 << ";  ";
 			}
 			std::cout << std::endl;
 		}
@@ -379,20 +378,22 @@ int main(int argc, char* argv[])
 			}
 			case 'p':
 			{
-				srcPortToMatch = atoi(optarg);
-				if (srcPortToMatch <= 0)
+				int ret = atoi(optarg);
+				if (ret <= 0 || ret > 65535)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
 				}
+				srcPortToMatch = ret;
 				break;
 			}
 			case 'P':
 			{
-				dstPortToMatch = atoi(optarg);
-				if (dstPortToMatch <= 0)
+				int ret = atoi(optarg);
+				if (ret <= 0 || ret > 65535)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
 				}
+				dstPortToMatch = ret;
 				break;
 			}
 			case 'o':
