@@ -22,11 +22,11 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 	pcpp::NflogLayer* nflogLayer = nflogPacket.getLayerOfType<pcpp::NflogLayer>();
 	PTF_ASSERT_NOT_NULL(nflogLayer->getNextLayer());
 
-	pcpp::nflog_header* nflog_hdr = nflogLayer->getNflogHeader();   
+	pcpp::nflog_header* nflog_hdr = nflogLayer->getNflogHeader();
 	PTF_ASSERT_EQUAL(nflog_hdr->address_family, pcpp::IPv4);
 	PTF_ASSERT_EQUAL(nflog_hdr->version, 0);
 	PTF_ASSERT_EQUAL(be16toh(nflog_hdr->resource_id), 42);
-	
+
 	pcpp::nflog_packet_header* pck_hdr = nflogLayer->getPacketHeader();
     PTF_ASSERT_EQUAL(pck_hdr->hardware_protocol, 0);
     PTF_ASSERT_EQUAL((int)pck_hdr->netfilter_hook, 3);
