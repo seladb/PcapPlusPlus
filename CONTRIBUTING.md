@@ -22,6 +22,7 @@ Every code contribution to this project is highly valued and appreciated. I enco
    - PcapPlusPlus compiles successfully on your machine, including all unit-tests and examples (just run `make` from PcapPlusPlus main directory)
    - Unit-tests pass succssfully on your machine (both `Tests/Packet++Test` and `Tests/Pcap++Test`)
    - All new APIs are well documented using Doxygen (please use @ for keywords)
+   - Make sure that pre-commit hooks are passing by using `pre-commit run --all-files`. For pre-commit hooks you need to install `cppcheck` on your system.
 - After you commit the code and push it to GitHub, before creating the pull request please make sure that:
    - You merge all new code from **dev** to your fork
    - Register an account on Appveyor and TravisCI and make sure all unit-tests pass on all platforms
