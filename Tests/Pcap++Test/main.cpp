@@ -145,6 +145,7 @@ int main(int argc, char* argv[])
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
 	pcpp::Logger::getInstance();
 
+	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")

@@ -20,6 +20,7 @@ public:
 
 PTF_TEST_CASE(SomeIpPortTest)
 {
+	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
 
 	pcpp::SomeIpLayer::addSomeIpPort(1234);
@@ -43,6 +44,7 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(29180);
 
@@ -170,6 +172,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(16832);
 
