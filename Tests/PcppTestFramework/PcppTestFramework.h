@@ -19,7 +19,7 @@
 
 #define PTF_PRINT_ASSERTION(severity, op) \
 	std::cout << std::left << std::setw(35) << __FUNCTION__ << ": " \
-    << severity \
+	<< severity \
 	<< " (" << __FILE__ << ":" << __LINE__ << "). " \
 	<< "Assert " << op << " failed:" \
 	<< std::endl
