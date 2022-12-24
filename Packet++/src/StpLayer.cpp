@@ -150,10 +150,7 @@ void StpConfigurationBPDULayer::setForwardDelay(double value) { getStpConfHeader
 
 uint16_t MultipleStpLayer::getVersion3Len() const { return be16toh(getMstpHeader()->version3Len); }
 
-void MultipleStpLayer::setVersion3Len(uint16_t value)
-{
-	getMstpHeader()->version3Len = htobe16(getMstpHeader()->version3Len);
-}
+void MultipleStpLayer::setVersion3Len(uint16_t value) { getMstpHeader()->version3Len = htobe16(value); }
 
 uint32_t MultipleStpLayer::getCISTIrpc() const { return be32toh(getMstpHeader()->irpc); }
 
@@ -167,8 +164,7 @@ uint16_t MultipleStpLayer::getCISTBridgePriority() const { return be16toh(getMst
 
 void MultipleStpLayer::setCISTBridgePriority(uint16_t value)
 {
-	getMstpHeader()->cistBridgeId =
-		htobe16((be16toh(getMstpHeader()->cistBridgeId) & ~(0xf000)) | (value & 0xf000));
+	getMstpHeader()->cistBridgeId = (getMstpHeader()->cistBridgeId & ~htobe16(0xf000)) | htobe16(value & 0xf000);
 }
 
 uint16_t MultipleStpLayer::getCISTBridgeSystemIDExtension() const
@@ -178,25 +174,12 @@ uint16_t MultipleStpLayer::getCISTBridgeSystemIDExtension() const
 
 void MultipleStpLayer::setCISTBridgeSystemIDExtension(uint16_t value)
 {
-	getMstpHeader()->cistBridgeId =
-		htobe16((be16toh(getMstpHeader()->cistBridgeId) & ~(0x0fff)) | (value & 0x0fff));
+	getMstpHeader()->cistBridgeId = (getMstpHeader()->cistBridgeId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 }
 
 void MultipleStpLayer::setCISTBridgeSystemID(const pcpp::MacAddress &value)
 {
-	setCISTBridgeId((getCISTBridgeId() & (uint64_t(0x0fff) << 48)) | MacAddresstoID(value));
-}
-
-void setNumberOfMSTIConfMessages(uint8_t value)
-{
-	// <-------------------------------------------------------
-}
-
-msti_conf_msg *MultipleStpLayer::getMstiConfMessages() const
-{
-	if (getNumberOfMSTIConfMessages())
-		return (msti_conf_msg *)(m_Data + sizeof(mstp_conf_bpdu));
-	return nullptr;
+	setCISTBridgeId((getCISTBridgeId() & (uint64_t(0xffff) << 48)) | MacAddresstoID(value));
 }
 
 std::string MultipleStpLayer::getMstConfigurationName() const
@@ -204,6 +187,35 @@ std::string MultipleStpLayer::getMstConfigurationName() const
 	std::string str = std::string((char *)(getMstpHeader()->mstConfigName), 32);
 	str.erase(std::find(str.begin(), str.end(), '\0'), str.end());
 	return str;
+}
+
+uint16_t MultipleStpLayer::getMstConfigRevision() const
+{
+	return be16toh(getMstpHeader()->mstConfigRevision);
+}
+
+void MultipleStpLayer::setMstConfigRevision(uint16_t value)
+{
+	getMstpHeader()->mstConfigRevision = htobe16(value);
+}
+
+void MultipleStpLayer::setMstConfigDigest(const uint8_t *value, uint8_t len)
+{
+	memset(getMstpHeader()->mstConfigDigest, 0, 16);
+	memcpy(getMstpHeader()->mstConfigDigest, value, std::min<size_t>(len, 16));
+}
+
+void MultipleStpLayer::setMstConfigurationName(const std::string &value)
+{
+	memset(getMstpHeader()->mstConfigName, 0, 32);
+	memcpy(getMstpHeader()->mstConfigName, value.c_str(), std::min<size_t>(value.size(), 32));
+}
+
+msti_conf_msg *MultipleStpLayer::getMstiConfMessages() const
+{
+	if (getNumberOfMSTIConfMessages())
+		return (msti_conf_msg *)(m_Data + sizeof(mstp_conf_bpdu));
+	return nullptr;
 }
 
 } // namespace pcpp

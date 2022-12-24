@@ -600,7 +600,8 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Sets the configuration name field
-		 * @param[in] value Configuration name
+		 * @param[in] value Configuration name. Length should be less than 32, if longer value provided first 32 
+		 * characters are used
 		 */
 		void setMstConfigurationName(const std::string &value);
 
@@ -608,13 +609,13 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the revision of configuration ID
 		 * @return Revision of configuration ID
 		 */
-		uint16_t getMstConfigRevision() const { return getMstpHeader()->mstConfigRevision; }
+		uint16_t getMstConfigRevision() const;
 
 		/**
 		 * Sets the revision of configuration ID
 		 * @param[in] value Revision of configuration ID
 		 */
-		void setMstConfigRevision(uint16_t value) { getMstpHeader()->mstConfigRevision = value; }
+		void setMstConfigRevision(uint16_t value);
 
 		/**
 		 * Returns the pointer to configuration message digest. The field itself always 16 bytes long.
@@ -625,7 +626,7 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * Sets the pointer to configuration message digest. The field itself always 16 bytes long.
 		 * @param[in] value Pointer to digest
-		 * @param[in] len Length of the digest, should be less than 16
+		 * @param[in] len Length of the digest, should be less than 16. If longer first 16 bytes are used
 		 */
 		void setMstConfigDigest(const uint8_t *value, uint8_t len);
 
@@ -706,12 +707,6 @@ typedef stp_tcn_bpdu stp_header;
 		 * @return Number of MSTI configuration messages. Can be between 0 and 64.
 		 */
 		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - (sizeof(mstp_conf_bpdu) - sizeof(rstp_conf_bpdu) - sizeof(uint16_t))) / sizeof(msti_conf_msg); }
-
-		/**
-		 * Sets the total number of MSTI configuration messages
-		 * @param[in] value Number of MSTI configuration messages. Should be between 0 and 64
-		 */
-		void setNumberOfMSTIConfMessages(uint8_t value);
 
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI messages.
