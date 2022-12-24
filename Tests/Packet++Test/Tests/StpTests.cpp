@@ -49,9 +49,6 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	timeval time;
 	gettimeofday(&time, NULL);
 
-	pcpp::PcapFileWriterDevice writer("StpConfEdit.pcap");
-	writer.open();
-
 	// Read base packet
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 	pcpp::Packet stpPacket1(&rawPacket1);
@@ -61,12 +58,12 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	PTF_ASSERT_NOT_NULL(stpConfLayerOrg);
 
 	// Read target packet
-	// READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpConfEdit1.dat");
-	// pcpp::Packet stpPacket2(&rawPacket2);
-	// PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpConfEdit1.dat");
+	pcpp::Packet stpPacket2(&rawPacket2);
+	PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
 
-	// pcpp::StpConfigurationBPDULayer *stpConfLayerTgt1 = stpPacket2.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
-	// PTF_ASSERT_NOT_NULL(stpConfLayerTgt1);
+	pcpp::StpConfigurationBPDULayer *stpConfLayerTgt1 = stpPacket2.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpConfLayerTgt1);
 
 	// Set fields
 	stpConfLayerOrg->setFlag(0x13);
@@ -79,17 +76,15 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	stpConfLayerOrg->setTransmissionInterval(3);
 	stpConfLayerOrg->setForwardDelay(9);
 
-	// PTF_ASSERT_EQUAL(stpConfLayerOrg->getDataLen(), stpConfLayerTgt1->getDataLen());
-	// PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrg->getDataLen());
+	PTF_ASSERT_EQUAL(stpConfLayerOrg->getDataLen(), stpConfLayerTgt1->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrg->getDataLen());
 
-	writer.writePacket(*(stpPacket1.getRawPacket()));
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpConfEdit2.dat");
+	pcpp::Packet stpPacket3(&rawPacket3);
+	PTF_ASSERT_TRUE(stpPacket3.isPacketOfType(pcpp::STP));
 
-	// READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpConfEdit2.dat");
-	// pcpp::Packet stpPacket3(&rawPacket3);
-	// PTF_ASSERT_TRUE(stpPacket3.isPacketOfType(pcpp::STP));
-
-	// pcpp::StpConfigurationBPDULayer *stpConfLayerTgt2 = stpPacket2.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
-	// PTF_ASSERT_NOT_NULL(stpConfLayerTgt2);
+	pcpp::StpConfigurationBPDULayer *stpConfLayerTgt2 = stpPacket3.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpConfLayerTgt2);
 
 	// Set fields
 	stpConfLayerOrg->setRootSystemID("AA:BB:CC:DD:EE:FF");
@@ -100,11 +95,8 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	stpConfLayerOrg->setBridgeSystemIDExtension(11);
 	stpConfLayerOrg->setBridgeSystemID("FF:EE:DD:CC:BB:AA");
 
-	// PTF_ASSERT_EQUAL(stpConfLayerOrg->getDataLen(), stpConfLayerTgt2->getDataLen());
-	// PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrg->getDataLen());
-
-	writer.writePacket(*(stpPacket1.getRawPacket()));
-	writer.close();
+	PTF_ASSERT_EQUAL(stpConfLayerOrg->getDataLen(), stpConfLayerTgt2->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrg->getDataLen());
 } // StpConfigurationEditTests
 
 PTF_TEST_CASE(StpTopologyChangeParsingTests)
@@ -133,6 +125,9 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	//pcpp::PcapFileWriterDevice writer("StpTopologyEdit.pcap");
+	//writer.open();
+
 	// Read base packet
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
 	pcpp::Packet stpPacket1(&rawPacket1);
@@ -142,20 +137,22 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	PTF_ASSERT_NOT_NULL(stpTopologyLayerOrg);
 
 	// Read target packet
-	// READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpTcnEdit.dat");
-	// pcpp::Packet stpPacket2(&rawPacket2);
-	// PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpTopologyEdit.dat");
+	pcpp::Packet stpPacket2(&rawPacket2);
+	PTF_ASSERT_TRUE(stpPacket2.isPacketOfType(pcpp::STP));
 
-	// pcpp::StpConfigurationBPDULayer *stpConfLayerTgt = stpPacket2.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
-	// PTF_ASSERT_NOT_NULL(stpConfLayerTgt);
+	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayerTgt = stpPacket2.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpTopologyLayerTgt);
 
 	// Set fields
 	stpTopologyLayerOrg->setProtoId(0xaa);
 	stpTopologyLayerOrg->setVersion(0x13);
-	stpTopologyLayerOrg->setType(0x77);
 
-	// PTF_ASSERT_EQUAL(stpTopologyLayerOrg->getDataLen(), stpTopologyLayerTgt->getDataLen());
-	// PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrg->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrg->getDataLen());
+	//writer.writePacket(*(stpPacket1.getRawPacket()));
+	//writer.close();
+
+	PTF_ASSERT_EQUAL(stpTopologyLayerOrg->getDataLen(), stpTopologyLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrg->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrg->getDataLen());
 
 } // StpTopologyChangeEditTests
 
