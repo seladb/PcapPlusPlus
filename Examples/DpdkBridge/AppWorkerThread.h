@@ -68,7 +68,7 @@ public:
 		// free packet array (frees all mbufs as well)
 		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
 		{
-			if (packetArr[i] != NULL)
+			if (packetArr[i] != nullptr)
 				delete packetArr[i];
 		}
 

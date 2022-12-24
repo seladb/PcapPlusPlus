@@ -46,7 +46,7 @@ struct AppWorkerConfig
 	bool WriteMatchedPacketsToFile;
 	std::string PathToWritePackets;
 
-	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), SendPacketsTo(NULL), WriteMatchedPacketsToFile(false), PathToWritePackets("")
+	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), SendPacketsTo(nullptr), WriteMatchedPacketsToFile(false), PathToWritePackets("")
 	{
 	}
 };

@@ -48,7 +48,7 @@ public:
 		m_Stop = false;
 		m_Stats.WorkerId = coreId;
 		pcpp::DpdkDevice* sendPacketsTo = m_WorkerConfig.SendPacketsTo;
-		pcpp::PcapFileWriterDevice* pcapWriter = NULL;
+		pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
 
 		// if needed, create the pcap file writer which all matched packets will be written into
 		if (m_WorkerConfig.WriteMatchedPacketsToFile)
@@ -126,13 +126,13 @@ public:
 						if (packetMatched)
 						{
 							// send packet to TX port if needed
-							if (sendPacketsTo != NULL)
+							if (sendPacketsTo != nullptr)
 							{
 								sendPacketsTo->sendPacket(*packetArr[i], 0);
 							}
 
 							// save packet to file if needed
-							if (pcapWriter != NULL)
+							if (pcapWriter != nullptr)
 							{
 								pcapWriter->writePacket(*packetArr[i]);
 							}
@@ -147,12 +147,12 @@ public:
 		// free packet array (frees all mbufs as well)
 		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
 		{
-			if (packetArr[i] != NULL)
+			if (packetArr[i] != nullptr)
 				delete packetArr[i];
 		}
 
 		// close and delete pcap file writer
-		if (pcapWriter != NULL)
+		if (pcapWriter != nullptr)
 		{
 			delete pcapWriter;
 		}

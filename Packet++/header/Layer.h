@@ -168,12 +168,12 @@ namespace pcpp
 		Layer* m_PrevLayer;
 		bool m_IsAllocatedInPacket;
 
-		Layer() : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(UnknownProtocol), m_NextLayer(NULL), m_PrevLayer(NULL), m_IsAllocatedInPacket(false) { }
+		Layer() : m_Data(nullptr), m_DataLen(0), m_Packet(nullptr), m_Protocol(UnknownProtocol), m_NextLayer(nullptr), m_PrevLayer(NULL), m_IsAllocatedInPacket(false) { }
 
 		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
 			m_Data(data), m_DataLen(dataLen),
 			m_Packet(packet), m_Protocol(UnknownProtocol),
-			m_NextLayer(NULL), m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false) {}
+			m_NextLayer(nullptr), m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false) {}
 
 		// Copy c'tor
 		Layer(const Layer& other);

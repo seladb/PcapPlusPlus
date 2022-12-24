@@ -432,7 +432,7 @@ namespace pcpp
 			bool lastFragment;
 			uint8_t* fragmentData;
 			size_t fragmentDataLen;
-			IPFragment() { fragmentOffset = 0; lastFragment = false; fragmentData = NULL; fragmentDataLen = 0; }
+			IPFragment() { fragmentOffset = 0; lastFragment = false; fragmentData = nullptr; fragmentDataLen = 0; }
 			~IPFragment() { delete [] fragmentData; }
 		};
 
@@ -444,8 +444,8 @@ namespace pcpp
 			uint32_t fragmentID;
 			PacketKey* packetKey;
 			PointerVector<IPFragment> outOfOrderFragments;
-			IPFragmentData(PacketKey* pktKey, uint32_t fragId) { currentOffset = 0; data = NULL; deleteData = true; fragmentID = fragId; packetKey = pktKey; }
-			~IPFragmentData() { delete packetKey; if (deleteData && data != NULL) { delete data; } }
+			IPFragmentData(PacketKey* pktKey, uint32_t fragId) { currentOffset = 0; data = nullptr; deleteData = true; fragmentID = fragId; packetKey = pktKey; }
+			~IPFragmentData() { delete packetKey; if (deleteData && data != nullptr) { delete data; } }
 		};
 
 		LRUList<uint32_t> m_PacketLRU;

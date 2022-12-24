@@ -43,7 +43,7 @@ struct AppWorkerConfig
 	uint16_t RxQueues;
 	pcpp::DpdkDevice* TxDevice;
 
-	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), RxDevice(NULL), RxQueues(1), TxDevice(NULL)
+	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), RxDevice(nullptr), RxQueues(1), TxDevice(nullptr)
 	{
 	}
 };

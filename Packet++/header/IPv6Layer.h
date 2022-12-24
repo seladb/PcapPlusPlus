@@ -229,7 +229,7 @@ namespace pcpp
 	TIPv6Extension* IPv6Layer::getExtensionOfType() const
 	{
 		IPv6Extension* curExt = m_FirstExtension;
-		while (curExt != NULL && dynamic_cast<TIPv6Extension*>(curExt) == NULL)
+		while (curExt != nullptr && dynamic_cast<TIPv6Extension*>(curExt) == nullptr)
 			curExt = curExt->getNextHeader();
 
 		return (TIPv6Extension*)curExt;
@@ -241,13 +241,13 @@ namespace pcpp
 		int offsetToAddHeader = (int)getHeaderLen();
 		if (!extendLayer(offsetToAddHeader, extensionHeader.getExtensionLen()))
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		TIPv6Extension* newHeader = new TIPv6Extension(this, (size_t)offsetToAddHeader);
 		(*newHeader) = extensionHeader;
 
-		if (m_FirstExtension != NULL)
+		if (m_FirstExtension != nullptr)
 		{
 			newHeader->getBaseHeader()->nextHeader = m_LastExtension->getBaseHeader()->nextHeader;
 			m_LastExtension->getBaseHeader()->nextHeader = newHeader->getExtensionType();

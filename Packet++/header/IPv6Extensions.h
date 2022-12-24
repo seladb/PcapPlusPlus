@@ -75,11 +75,11 @@ namespace pcpp
 
 		// protected c'tor
 		IPv6Extension(IDataContainer* dataContainer, size_t offset) :
-			m_NextHeader(NULL), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(dataContainer), m_Offset(offset), m_ShadowData(NULL) {}
+			m_NextHeader(nullptr), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(dataContainer), m_Offset(offset), m_ShadowData(NULL) {}
 
 		// protected empty c'tor
 		IPv6Extension() :
-			m_NextHeader(NULL), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(NULL), m_Offset(0), m_ShadowData(NULL) {}
+			m_NextHeader(nullptr), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(nullptr), m_Offset(0), m_ShadowData(nullptr) {}
 
 		// protected assignment operator
 		IPv6Extension& operator=(const IPv6Extension& other);

@@ -50,7 +50,7 @@ public:
 		{
 			// extract TCP layer
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-			if (tcpLayer != NULL)
+			if (tcpLayer != nullptr)
 			{
 				uint16_t srcPort = tcpLayer->getSrcPort();
 				uint16_t dstPort = tcpLayer->getDstPort();
@@ -83,7 +83,7 @@ public:
 		{
 			// for UDP packets, decide the server port by the lower port
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
-			if (udpLayer != NULL)
+			if (udpLayer != nullptr)
 			{
 				uint16_t srcPort = udpLayer->getSrcPort();
 				uint16_t dstPort = udpLayer->getDstPort();
@@ -116,7 +116,7 @@ public:
 		{
 			// extract TCP layer
 			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-			if (tcpLayer != NULL)
+			if (tcpLayer != nullptr)
 			{
 				uint16_t srcPort = tcpLayer->getSrcPort();
 				uint16_t dstPort = tcpLayer->getDstPort();
@@ -146,7 +146,7 @@ public:
 		{
 			// for UDP packets, decide the server port by the lower port
 			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
-			if (udpLayer != NULL)
+			if (udpLayer != nullptr)
 			{
 				uint16_t srcPort = udpLayer->getSrcPort();
 				uint16_t dstPort = udpLayer->getDstPort();

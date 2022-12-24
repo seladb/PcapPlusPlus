@@ -60,7 +60,7 @@ namespace pcpp
 		 * @return True if this instance is of the requested type, false otherwise
 		 */
 		template <class IDnsResourceDataType>
-		bool isTypeOf() const { return dynamic_cast<const IDnsResourceDataType*>(this) != NULL; }
+		bool isTypeOf() const { return dynamic_cast<const IDnsResourceDataType*>(this) != nullptr; }
 
 		/**
 		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries to
@@ -377,7 +377,7 @@ namespace pcpp
 		 */
 		GenericDnsResourceData(const GenericDnsResourceData& other);
 
-		~GenericDnsResourceData() { if (m_Data != NULL) delete [] m_Data; }
+		~GenericDnsResourceData() { if (m_Data != nullptr) delete [] m_Data; }
 
 		GenericDnsResourceData& operator=(const GenericDnsResourceData& other);
 

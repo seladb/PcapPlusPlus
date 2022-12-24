@@ -395,7 +395,7 @@ private:
 
 		// extract hostname and add to hostname count map
 		pcpp::HeaderField* hostField = req->getFieldByName(PCPP_HTTP_HOST_FIELD);
-		if (hostField != NULL)
+		if (hostField != nullptr)
 			m_RequestStats.hostnameCount[hostField->getFieldValue()]++;
 
 		m_RequestStats.methodCount[req->getFirstLine()->getMethod()]++;
@@ -414,7 +414,7 @@ private:
 
 		// extract content-length (if exists)
 		pcpp::HeaderField* contentLengthField = res->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
-		if (contentLengthField != NULL)
+		if (contentLengthField != nullptr)
 		{
 			m_ResponseStats.numOfMessagesWithContentLength++;
 			m_ResponseStats.totalContentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
@@ -424,7 +424,7 @@ private:
 
 		// extract content-type and add to content-type map
 		pcpp::HeaderField* contentTypeField = res->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
-		if (contentTypeField != NULL)
+		if (contentTypeField != nullptr)
 		{
 			std::string contentType = contentTypeField->getFieldValue();
 
@@ -449,7 +449,7 @@ private:
 	{
 	    struct timeval tv;
 
-	    gettimeofday(&tv, NULL);
+	    gettimeofday(&tv, nullptr);
 
 	    return (((double) tv.tv_sec) + (double) (tv.tv_usec / 1000000.0));
 	}

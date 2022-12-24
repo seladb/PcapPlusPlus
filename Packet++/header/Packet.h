@@ -338,14 +338,14 @@ namespace pcpp
 	{
 		if (!reverse)
 		{
-			if (dynamic_cast<TLayer*>(getFirstLayer()) != NULL)
+			if (dynamic_cast<TLayer*>(getFirstLayer()) != nullptr)
 				return dynamic_cast<TLayer*>(getFirstLayer());
 
 			return getNextLayerOfType<TLayer>(getFirstLayer());
 		}
 
 		// lookup in reverse order
-		if (dynamic_cast<TLayer*>(getLastLayer()) != NULL)
+		if (dynamic_cast<TLayer*>(getLastLayer()) != nullptr)
 			return dynamic_cast<TLayer*>(getLastLayer());
 
 		return getPrevLayerOfType<TLayer>(getLastLayer());
@@ -354,11 +354,11 @@ namespace pcpp
 	template<class TLayer>
 	TLayer* Packet::getNextLayerOfType(Layer* curLayer) const
 	{
-		if (curLayer == NULL)
-			return NULL;
+		if (curLayer == nullptr)
+			return nullptr;
 
 		curLayer = curLayer->getNextLayer();
-		while ((curLayer != NULL) && (dynamic_cast<TLayer*>(curLayer) == NULL))
+		while ((curLayer != nullptr) && (dynamic_cast<TLayer*>(curLayer) == nullptr))
 		{
 			curLayer = curLayer->getNextLayer();
 		}
@@ -369,11 +369,11 @@ namespace pcpp
 	template<class TLayer>
 	TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const
 	{
-		if (curLayer == NULL)
-			return NULL;
+		if (curLayer == nullptr)
+			return nullptr;
 
 		curLayer = curLayer->getPrevLayer();
-		while (curLayer != NULL && dynamic_cast<TLayer*>(curLayer) == NULL)
+		while (curLayer != nullptr && dynamic_cast<TLayer*>(curLayer) == nullptr)
 		{
 			curLayer = curLayer->getPrevLayer();
 		}

@@ -282,7 +282,7 @@ private:
 	{
 		// go over all SSL messages in this packet
 		pcpp::SSLLayer* sslLayer = sslPacket->getLayerOfType<pcpp::SSLLayer>();
-		while (sslLayer != NULL)
+		while (sslLayer != nullptr)
 		{
 			// check if the layer is an alert message
 			pcpp::SSLRecordType recType = sslLayer->getRecordType();
@@ -311,14 +311,14 @@ private:
 			else if (recType == pcpp::SSL_HANDSHAKE)
 			{
 				pcpp::SSLHandshakeLayer* handshakeLayer = dynamic_cast<pcpp::SSLHandshakeLayer*>(sslLayer);
-				if (handshakeLayer == NULL)
+				if (handshakeLayer == nullptr)
 					continue;
 
 				// try to find client-hello message
 				pcpp::SSLClientHelloMessage* clientHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
 
 				// collect client-hello stats
-				if (clientHelloMessage != NULL)
+				if (clientHelloMessage != nullptr)
 				{
 					collecClientHelloStats(clientHelloMessage);
 				}
@@ -327,7 +327,7 @@ private:
 				pcpp::SSLServerHelloMessage* serverHelloMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
 
 				// collect server-hello stats
-				if (serverHelloMessage != NULL)
+				if (serverHelloMessage != nullptr)
 				{
 					m_GeneralStats.sslVersionCount[serverHelloMessage->getHandshakeVersion().asUInt()]++;
 					collecServerHelloStats(serverHelloMessage);
