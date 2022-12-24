@@ -193,7 +193,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xee));
     PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), be32toh(0xfb));
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), pcpp::NtpLayer::DCFa);
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), pcpp::NtpLayer::ClockSource::DCFa, enumclass);
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Meinberg DCF77 with amplitude modulation");
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xdcd2aabfe3771e96));
     PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), be64toh(0xdcd2aae48e835d2a));
@@ -287,7 +287,7 @@ PTF_TEST_CASE(NtpCreationTests)
     ntpLayer2.setPrecision(int8_t(0xfa));
     ntpLayer2.setRootDelayInSecs(0.031250);
     ntpLayer2.setRootDispersionInSecs(0.125);
-    ntpLayer2.setReferenceIdentifier(pcpp::NtpLayer::DCFa);
+    ntpLayer2.setReferenceIdentifier(pcpp::NtpLayer::ClockSource::DCFa);
     ntpLayer2.setReferenceTimestampInSecs(1121509470.0);
     ntpLayer2.setOriginTimestampInSecs(1121509866.0);
     ntpLayer2.setReceiveTimestampInSecs(1121509865.0);
