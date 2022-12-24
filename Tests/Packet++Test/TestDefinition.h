@@ -189,7 +189,9 @@ PTF_TEST_CASE(LLCCreationTests);
 
 // Implemented in StpTests.cpp
 PTF_TEST_CASE(StpConfigurationParsingTests);
+PTF_TEST_CASE(StpConfigurationEditTests);
 PTF_TEST_CASE(StpTopologyChangeParsingTests);
+PTF_TEST_CASE(StpTopologyChangeEditTests);
 PTF_TEST_CASE(RapidStpParsingTests);
 PTF_TEST_CASE(MultipleStpParsingTests);
 
