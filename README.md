@@ -38,7 +38,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Session Layer (L5)](#session-layer-l5)
   - [Presentation Layer (L6)](#presentation-layer-l6)
   - [Application Layer (L7)](#application-layer-l7)
-- [DPDK And PF_RING Support](#dpdk-and-pf_ring-support)
+- [DPDK And PF\_RING Support](#dpdk-and-pf_ring-support)
 - [Benchmarks](#benchmarks)
 - [Provide Feedback](#provide-feedback)
 - [Contributing](#contributing)
@@ -207,7 +207,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 5. Packet trailer (a.k.a footer or padding)
 6. PPPoE
 7. SLL (Linux cooked capture)
-8. STP - parsing only (no editing capabilities)
+8. STP
 9. VLAN
 10. VXLAN
 11. Wake on LAN (WoL)
