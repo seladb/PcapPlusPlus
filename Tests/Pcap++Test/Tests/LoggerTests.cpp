@@ -165,6 +165,7 @@ void printLogThread(int threadId)
 
 PTF_TEST_CASE(TestLoggerMultiThread)
 {
+	// cppcheck-suppress unusedVariable
 	LoggerCleaner loggerCleaner;
 
 	std::thread threads[MultiThreadLogCounter::ThreadCount];
@@ -184,6 +185,7 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 	int totalLogMessages = 0;
 	for (int logMessagesCount : MultiThreadLogCounter::logMessageThreadCount)
 	{
+		// cppcheck-suppress useStlAlgorithm
 		totalLogMessages += logMessagesCount;
 	}
 
@@ -193,6 +195,7 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 
 PTF_TEST_CASE(TestLogger)
 {
+	// cppcheck-suppress unusedVariable
 	LoggerCleaner loggerCleaner;
 
 	// verify all modules are on info log level
