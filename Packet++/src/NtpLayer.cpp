@@ -534,20 +534,16 @@ namespace pcpp
 
     double NtpLayer::convertFromShortFormat(const uint32_t val)
     {
-        double integerPart, fractionPart;
-
-        integerPart = netToHost16(val & 0xFFFF);
-        fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
+        double integerPart = netToHost16(val & 0xFFFF);
+        double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
 
         return integerPart + fractionPart;
     }
 
     double NtpLayer::convertFromTimestampFormat(const uint64_t val)
     {
-        double integerPart, fractionPart;
-
-        integerPart = netToHost32(val & 0xFFFFFFFF);
-        fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
+        double integerPart = netToHost32(val & 0xFFFFFFFF);
+        double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
 
         // TODO: Return integer and fraction parts as struct to increase precision
         // Offset change should be done here because of overflow
@@ -556,42 +552,35 @@ namespace pcpp
 
     uint32_t NtpLayer::convertToShortFormat(const double val)
     {
-        double integerPart, fractionPart;
-        uint16_t integerPartInt, fractionPartInt;
-
-        fractionPart = modf(val, &integerPart);
+        double integerPart;
+        double fractionPart = modf(val, &integerPart);
 
         // Cast values to 16bit
-        integerPartInt = hostToNet16(integerPart);
-        fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
+        uint32_t integerPartInt = hostToNet16(integerPart);
+        uint32_t fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
 
-        return static_cast<uint32_t>(integerPartInt) | (static_cast<uint32_t>(fractionPartInt)) << 16;
+        return integerPartInt | (fractionPartInt << 16);
     }
 
     uint64_t NtpLayer::convertToTimestampFormat(const double val)
     {
-        double integerPart, fractionPart;
-        uint32_t integerPartInt, fractionPartInt;
-
-        fractionPart = modf(val, &integerPart);
+        double integerPart;
+        double fractionPart = modf(val, &integerPart);
 
         // Cast values to 32bit
-        integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
-        fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
+        uint64_t integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
+        uint64_t fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
 
-        return static_cast<uint64_t>(integerPartInt) | (static_cast<uint64_t>(fractionPartInt) << 32);
+        return integerPartInt | (fractionPartInt << 32);
     }
 
     std::string NtpLayer::convertToIsoFormat(const double timestamp)
     {
-        char buffer[50], bufferFraction[15];
-        double integerPart, fractionPart;
+        double integerPart;
+        double fractionPart = modf(timestamp, &integerPart);
+
         struct tm *timer;
-        time_t timeStruct;
-
-        fractionPart = modf(timestamp, &integerPart);
-
-        timeStruct = integerPart;
+        time_t timeStruct = integerPart;
 #if defined(_WIN32)
         if (timeStruct < 0)
             timeStruct = 0;
@@ -608,6 +597,7 @@ namespace pcpp
             PCPP_LOG_ERROR("Can't convert time");
             return std::string();
         }
+        char buffer[50], bufferFraction[15];
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
         snprintf(bufferFraction, sizeof(bufferFraction), "%.04lfZ", fabs(fractionPart));
