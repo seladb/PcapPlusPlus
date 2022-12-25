@@ -16,7 +16,7 @@ private:
 
 public:
 
-	DeviceTeardown(pcpp::IDevice* device, bool deleteDevice = false) : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice) {}
+	explicit DeviceTeardown(pcpp::IDevice* device, bool deleteDevice = false) : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice) {}
 
 	~DeviceTeardown()
 	{

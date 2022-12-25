@@ -196,6 +196,7 @@ private:
 		/* IPv4-Address field */
 		uint32_t ipv4Address;
 		/* Reserved */
+		// cppcheck-suppress duplInheritedMember
 		uint8_t reserved;
 		/* Layer 4 Protocol field (L4-Proto) - Either UDP or TCP */
 		SomeIpSdProtocolType l4Protocol;
@@ -272,6 +273,7 @@ private:
 		/* IPv6-Address field */
 		uint8_t ipv6Address[16];
 		/* Reserved */
+		// cppcheck-suppress duplInheritedMember
 		uint8_t reserved;
 		/* Layer 4 Protocol field (L4-Proto) - Either UDP or TCP */
 		SomeIpSdProtocolType l4Protocol;
