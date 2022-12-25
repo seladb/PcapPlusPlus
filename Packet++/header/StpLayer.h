@@ -133,7 +133,7 @@ typedef stp_tcn_bpdu stp_header;
 			m_Protocol = STP;
 		}
 
-		StpLayer(size_t dataLen)
+		explicit StpLayer(size_t dataLen)
 		{
 			m_DataLen = dataLen;
 			m_Data = new uint8_t[dataLen];
@@ -234,7 +234,7 @@ typedef stp_tcn_bpdu stp_header;
 	class StpTopologyChangeBPDULayer : public StpLayer
 	{
 	  protected:
-		StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
+		explicit StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
 
 	  public:
 		/**
@@ -286,7 +286,7 @@ typedef stp_tcn_bpdu stp_header;
 	class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
 	{
 	  protected:
-		StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen) {}
+		explicit StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen) {}
 
 	  public:
 		/**
@@ -521,7 +521,7 @@ typedef stp_tcn_bpdu stp_header;
 	class RapidStpLayer : public StpConfigurationBPDULayer
 	{
 	  protected:
-		RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
+		explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
 
 	  public:
 		/**
