@@ -66,7 +66,32 @@ StpLayer *StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLaye
 	return nullptr;
 }
 
+// ---------------------- Class StpTopologyChangeBPDULayer ----------------------
+StpTopologyChangeBPDULayer::StpTopologyChangeBPDULayer()
+{
+	m_DataLen = sizeof(stp_tcn_bpdu);
+	m_Data = new uint8_t[sizeof(stp_tcn_bpdu)];
+	memset(m_Data, 0, sizeof(stp_tcn_bpdu));
+
+	// Set initial values for TCN
+	setProtoId(0x0);
+	setVersion(0x0);
+	setType(0x80);
+}
+
 // ---------------------- Class StpConfigurationBPDULayer ----------------------
+StpConfigurationBPDULayer::StpConfigurationBPDULayer()
+{
+	m_DataLen = sizeof(stp_conf_bpdu);
+	m_Data = new uint8_t[sizeof(stp_conf_bpdu)];
+	memset(m_Data, 0, sizeof(stp_conf_bpdu));
+
+	// Set initial value for configuration BPDU
+	setProtoId(0x0);
+	setVersion(0x0);
+	setType(0x0);
+}
+
 uint64_t StpConfigurationBPDULayer::getRootId() const { return be64toh(getStpConfHeader()->rootId); }
 
 void StpConfigurationBPDULayer::setRootId(uint64_t value) { getStpConfHeader()->rootId = htobe64(value); }
@@ -146,7 +171,31 @@ double StpConfigurationBPDULayer::getForwardDelay() const { return getStpConfHea
 
 void StpConfigurationBPDULayer::setForwardDelay(double value) { getStpConfHeader()->forwardDelay = value; }
 
+// ---------------------- Class RapidStpLayer ----------------------
+RapidStpLayer::RapidStpLayer()
+{
+	m_DataLen = sizeof(rstp_conf_bpdu);
+	m_Data = new uint8_t[sizeof(rstp_conf_bpdu)];
+	memset(m_Data, 0, sizeof(rstp_conf_bpdu));
+
+	// Set initial value for Rapid STP
+	setProtoId(0x0);
+	setVersion(0x2);
+	setType(0x2);
+}
+
 // ---------------------- Class MultipleStpLayer ----------------------
+MultipleStpLayer::MultipleStpLayer()
+{
+	m_DataLen = sizeof(mstp_conf_bpdu);
+	m_Data = new uint8_t[sizeof(mstp_conf_bpdu)];
+	memset(m_Data, 0, sizeof(mstp_conf_bpdu));
+
+	// Set initial value for Multiple STP
+	setProtoId(0x0);
+	setVersion(0x3);
+	setType(0x2);
+}
 
 uint16_t MultipleStpLayer::getVersion3Len() const { return be16toh(getMstpHeader()->version3Len); }
 

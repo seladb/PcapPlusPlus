@@ -133,6 +133,8 @@ typedef stp_tcn_bpdu stp_header;
 			m_Protocol = STP;
 		}
 
+		StpLayer() { m_Protocol = STP; }
+
 		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
 		static uint64_t MacAddresstoID(const pcpp::MacAddress &addr);
 
@@ -242,6 +244,11 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		/**
+		 * Empty c'tor
+		 */
+		StpTopologyChangeBPDULayer();
+
+		/**
 		 * Get a pointer to network topology change (TCN) BPDU message
 		 * @return A pointer to TCN BPDU message
 		 */
@@ -281,6 +288,11 @@ typedef stp_tcn_bpdu stp_header;
 			: StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
 		{
 		}
+
+		/**
+		 * Empty c'tor
+		 */
+		StpConfigurationBPDULayer();
 
 		/**
 		 * Get a pointer to configuration BPDU message
@@ -507,6 +519,11 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		/**
+		 * Empty c'tor
+		 */
+		RapidStpLayer();
+
+		/**
 		 * Get a pointer to Rapid STP header
 		 * @return A pointer to Rapid STP header
 		 */
@@ -561,6 +578,11 @@ typedef stp_tcn_bpdu stp_header;
 			: RapidStpLayer(data, dataLen, prevLayer, packet)
 		{
 		}
+
+		/**
+		 * Empty c'tor
+		 */
+		MultipleStpLayer();
 
 		/**
 		 * Get a pointer to Multiple STP header
