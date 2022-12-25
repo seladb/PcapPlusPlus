@@ -711,8 +711,7 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI messages.
 		 * The number of messages can be obtained by using getNumberOfMSTIConfMessages()
-		 * @return An array pointer to MSTI configuration messages. Returns NULL if there is no MSTI
-		 * message.
+		 * @return An array pointer to MSTI configuration messages. Returns NULL if there is no MSTI message.
 		 */
 		msti_conf_msg *getMstiConfMessages() const;
 
