@@ -133,7 +133,13 @@ typedef stp_tcn_bpdu stp_header;
 			m_Protocol = STP;
 		}
 
-		StpLayer() { m_Protocol = STP; }
+		StpLayer(size_t dataLen)
+		{
+			m_DataLen = dataLen;
+			m_Data = new uint8_t[dataLen];
+			memset(m_Data, 0, dataLen);
+			m_Protocol = STP;
+		}
 
 		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
 		static uint64_t MacAddresstoID(const pcpp::MacAddress &addr);
@@ -193,9 +199,6 @@ typedef stp_tcn_bpdu stp_header;
 		 */
 		size_t getHeaderLen() const { return m_DataLen; }
 
-		/// Parses the next layer. STP is the always last so does nothing for this layer
-		void parseNextLayer() {}
-
 		/// Does nothing for this layer
 		void computeCalculateFields() {}
 
@@ -230,6 +233,9 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class StpTopologyChangeBPDULayer : public StpLayer
 	{
+	  protected:
+		StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
+
 	  public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -256,6 +262,9 @@ typedef stp_tcn_bpdu stp_header;
 
 		// overridden methods
 
+		/// Parses next layer
+		void parseNextLayer();
+
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
@@ -276,6 +285,9 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
 	{
+	  protected:
+		StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen) {}
+
 	  public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -482,6 +494,9 @@ typedef stp_tcn_bpdu stp_header;
 
 		// overridden methods
 
+		/// Parses next layer
+		void parseNextLayer();
+
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
@@ -505,6 +520,9 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class RapidStpLayer : public StpConfigurationBPDULayer
 	{
+	  protected:
+		RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
+
 	  public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -543,6 +561,9 @@ typedef stp_tcn_bpdu stp_header;
 
 		// overridden methods
 
+		/// Parses next layer
+		void parseNextLayer();
+
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
@@ -562,7 +583,7 @@ typedef stp_tcn_bpdu stp_header;
 
 	/**
 	 * @class MultipleStpLayer
-	 * Represents Multiple Spanning Tree Protocol (MSTP)
+	 * Represents Multiple Spanning Tree Protocol (MSTP). It has limited capabilities (no crafting / limited editing) over MSTI configuration
 	 */
 	class MultipleStpLayer : public RapidStpLayer
 	{
@@ -622,7 +643,7 @@ typedef stp_tcn_bpdu stp_header;
 
 		/**
 		 * Sets the configuration name field
-		 * @param[in] value Configuration name. Length should be less than 32, if longer value provided first 32 
+		 * @param[in] value Configuration name. Length should be less than 32, if longer value provided first 32
 		 * characters are used
 		 */
 		void setMstConfigurationName(const std::string &value);
@@ -738,6 +759,9 @@ typedef stp_tcn_bpdu stp_header;
 		msti_conf_msg *getMstiConfMessages() const;
 
 		// overridden methods
+
+		/// Parses next layer
+		void parseNextLayer() {}
 
 		/**
 		 * @return Returns the protocol info as readable string

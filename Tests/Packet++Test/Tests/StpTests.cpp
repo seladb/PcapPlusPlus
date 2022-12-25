@@ -6,8 +6,6 @@
 #include "Packet.h"
 #include "StpLayer.h"
 
-#include "PcapFileDevice.h"
-
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {
 	timeval time;
@@ -20,6 +18,7 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 
 	pcpp::StpConfigurationBPDULayer *stpConfLayer = stpPacket.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
 	PTF_ASSERT_NOT_NULL(stpConfLayer);
+	PTF_ASSERT_NOT_NULL(stpConfLayer->getNextLayer());
 
 	// Stp Configuration Layer Tests
 	PTF_ASSERT_EQUAL(stpConfLayer->getProtoId(), 0x0);
@@ -43,6 +42,38 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 
 	PTF_ASSERT_EQUAL(stpConfLayer->toString(), "Spanning Tree Configuration");
 } // StpConfigurationParsingTests
+
+PTF_TEST_CASE(StpConfigurationCreationTests)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
+
+	pcpp::Packet stpPacket(&rawPacket1);
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
+
+	pcpp::StpConfigurationBPDULayer *stpConfLayerTgt = stpPacket.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpConfLayerTgt);
+
+	pcpp::StpConfigurationBPDULayer stpConfLayer;
+
+	stpConfLayer.setFlag(0x0);
+	stpConfLayer.setRootId(0x8064001c0e877800);
+	stpConfLayer.setRootPriority(32768);
+	stpConfLayer.setRootSystemIDExtension(100);
+	stpConfLayer.setRootSystemID(pcpp::MacAddress("00:1c:0e:87:78:00"));
+	stpConfLayer.setPathCost(0x4);
+	stpConfLayer.setBridgeId(0x8064001c0e878500);
+	stpConfLayer.setPortId(0x8004);
+	stpConfLayer.setMessageAge(1);
+	stpConfLayer.setMaximumAge(20);
+	stpConfLayer.setTransmissionInterval(2);
+	stpConfLayer.setForwardDelay(15);
+
+	PTF_ASSERT_EQUAL(stpConfLayer.getDataLen(), stpConfLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayer.getData(), stpConfLayerTgt->getData(), stpConfLayer.getDataLen());
+} // StpConfigurationCreationTests
 
 PTF_TEST_CASE(StpConfigurationEditTests)
 {
@@ -111,6 +142,7 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 
 	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayer = stpPacket.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
 	PTF_ASSERT_NOT_NULL(stpTopologyLayer);
+	PTF_ASSERT_NOT_NULL(stpTopologyLayer->getNextLayer());
 
 	// Stp Topology Change Layer Tests
 	PTF_ASSERT_EQUAL(stpTopologyLayer->getProtoId(), 0x0);
@@ -119,6 +151,25 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 
 	PTF_ASSERT_EQUAL(stpTopologyLayer->toString(), "Spanning Tree Topology Change Notification");
 } // StpTopologyChangeParsingTests
+
+PTF_TEST_CASE(StpTopologyChangeCreationTests)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
+
+	pcpp::Packet stpPacket(&rawPacket1);
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
+
+	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayerTgt = stpPacket.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpTopologyLayerTgt);
+
+	pcpp::StpTopologyChangeBPDULayer stpTopologyLayer;
+
+	PTF_ASSERT_EQUAL(stpTopologyLayer.getDataLen(), stpTopologyLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpTopologyLayer.getData(), stpTopologyLayerTgt->getData(), stpTopologyLayer.getDataLen());
+} // StpTopologyChangeCreationTests
 
 PTF_TEST_CASE(StpTopologyChangeEditTests)
 {
@@ -162,6 +213,7 @@ PTF_TEST_CASE(RapidStpParsingTests)
 
 	pcpp::RapidStpLayer *stpRapidLayer = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
 	PTF_ASSERT_NOT_NULL(stpRapidLayer);
+	PTF_ASSERT_NULL(stpRapidLayer->getNextLayer());
 
 	// Rapid Stp Layer Tests
 	PTF_ASSERT_EQUAL(stpRapidLayer->getProtoId(), 0x0);
@@ -186,6 +238,39 @@ PTF_TEST_CASE(RapidStpParsingTests)
 
 	PTF_ASSERT_EQUAL(stpRapidLayer->toString(), "Rapid Spanning Tree");
 } // RapidStpParsingTests
+
+PTF_TEST_CASE(RapidStpCreationTests)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
+
+	pcpp::Packet stpPacket(&rawPacket1);
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
+
+	pcpp::RapidStpLayer *stpRapidLayerTgt = stpPacket.getLayerOfType<pcpp::RapidStpLayer>();
+	PTF_ASSERT_NOT_NULL(stpRapidLayerTgt);
+
+	pcpp::RapidStpLayer stpRapidLayer;
+
+	stpRapidLayer.setProtoId(0x0);
+	stpRapidLayer.setVersion(0x2);
+	stpRapidLayer.setType(0x2);
+	stpRapidLayer.setFlag(0x3d);
+	stpRapidLayer.setRootId(0x6001000d65adf600);
+	stpRapidLayer.setPathCost(0x0a);
+	stpRapidLayer.setBridgeId(0x8001000bfd860f00);
+	stpRapidLayer.setPortId(0x8001);
+	stpRapidLayer.setMessageAge(1);
+	stpRapidLayer.setMaximumAge(20);
+	stpRapidLayer.setTransmissionInterval(2);
+	stpRapidLayer.setForwardDelay(15);
+	stpRapidLayer.setVersion1Len(0);
+
+	PTF_ASSERT_EQUAL(stpRapidLayer.getDataLen(), stpRapidLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpRapidLayer.getData(), stpRapidLayerTgt->getData(), stpRapidLayer.getDataLen());
+} // RapidStpCreationTests
 
 PTF_TEST_CASE(RapidStpEditTests)
 {
@@ -231,6 +316,7 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 
 	pcpp::MultipleStpLayer *stpMultipleLayer = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
 	PTF_ASSERT_NOT_NULL(stpMultipleLayer);
+	PTF_ASSERT_NULL(stpMultipleLayer->getNextLayer());
 
 	// Multiple Stp Tests
 	PTF_ASSERT_EQUAL(stpMultipleLayer->getProtoId(), 0x0);
@@ -277,6 +363,47 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	PTF_ASSERT_EQUAL(ptrExtension->remainingHops, 19);
 
 	PTF_ASSERT_EQUAL(stpMultipleLayer->toString(), "Multiple Spanning Tree");
+} // MultipleStpParsingTests
+
+PTF_TEST_CASE(MultipleStpCreationTests)
+{
+	timeval time;
+	gettimeofday(&time, NULL);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultipleWithoutConfig.dat");
+
+	pcpp::Packet stpPacket(&rawPacket1);
+	PTF_ASSERT_TRUE(stpPacket.isPacketOfType(pcpp::STP));
+
+	pcpp::MultipleStpLayer *stpMultipleLayerTgt = stpPacket.getLayerOfType<pcpp::MultipleStpLayer>();
+	PTF_ASSERT_NOT_NULL(stpMultipleLayerTgt);
+
+	pcpp::MultipleStpLayer stpMultipleLayer;
+
+	stpMultipleLayer.setProtoId(0x0);
+	stpMultipleLayer.setVersion(0x3);
+	stpMultipleLayer.setType(0x2);
+	stpMultipleLayer.setFlag(0x7c);
+	stpMultipleLayer.setRootId(0x8000000c305dd100);
+	stpMultipleLayer.setPathCost(0x0);
+	stpMultipleLayer.setBridgeId(0x8000000c305dd100);
+	stpMultipleLayer.setPortId(0x8005);
+	stpMultipleLayer.setMessageAge(0);
+	stpMultipleLayer.setMaximumAge(20);
+	stpMultipleLayer.setTransmissionInterval(2);
+	stpMultipleLayer.setForwardDelay(15);
+	stpMultipleLayer.setVersion1Len(0);
+	stpMultipleLayer.setVersion3Len(64);
+
+	stpMultipleLayer.setMstConfigurationFormatSelector(0x0);
+	stpMultipleLayer.setMstConfigurationName(std::string("Test Message"));
+	stpMultipleLayer.setMstConfigRevision(0x0);
+	stpMultipleLayer.setCISTIrpc(200000);
+	stpMultipleLayer.setCISTBridgeId(0x8000001aa197d180);
+	stpMultipleLayer.setRemainingHopCount(19);
+
+	PTF_ASSERT_EQUAL(stpMultipleLayer.getDataLen(), stpMultipleLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpMultipleLayer.getData(), stpMultipleLayerTgt->getData(), stpMultipleLayer.getDataLen());
 } // MultipleStpParsingTests
 
 PTF_TEST_CASE(MultipleStpEditTests)

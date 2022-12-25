@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleStpLayer
 
 #include "StpLayer.h"
+#include "PayloadLayer.h"
 #include "EndianPortable.h"
 #include "Logger.h"
 
@@ -36,16 +37,12 @@ StpLayer *StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLaye
 		{
 		case 0x00:
 			return StpConfigurationBPDULayer::isDataValid(data, dataLen)
-						? new StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
-						: nullptr;
-		case 0x80:
-			return StpTopologyChangeBPDULayer::isDataValid(data, dataLen)
-						? new StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
+						? new StpConfigurationBPDULayer(data, sizeof(stp_conf_bpdu), prevLayer, packet)
 						: nullptr;
 		case 0x02:
 			if (ptr->version == 0x2)
 				return RapidStpLayer::isDataValid(data, dataLen)
-							? new RapidStpLayer(data, dataLen, prevLayer, packet)
+							? new RapidStpLayer(data, sizeof(rstp_conf_bpdu), prevLayer, packet)
 							: nullptr;
 			if (ptr->version == 0x3)
 				return MultipleStpLayer::isDataValid(data, dataLen)
@@ -53,6 +50,10 @@ StpLayer *StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLaye
 							: nullptr;
 			PCPP_LOG_DEBUG("Unknown Spanning Tree Version");
 			return nullptr;
+		case 0x80:
+			return StpTopologyChangeBPDULayer::isDataValid(data, dataLen)
+						? new StpTopologyChangeBPDULayer(data, sizeof(stp_tcn_bpdu), prevLayer, packet)
+						: nullptr;
 		// TODO: Per VLAN Spanning Tree+ (PVST+)
 		// TODO: Rapid Per VLAN Spanning Tree+ (RPVST+)
 		// TODO: Cisco Uplink Fast
@@ -67,25 +68,23 @@ StpLayer *StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLaye
 }
 
 // ---------------------- Class StpTopologyChangeBPDULayer ----------------------
-StpTopologyChangeBPDULayer::StpTopologyChangeBPDULayer()
+StpTopologyChangeBPDULayer::StpTopologyChangeBPDULayer() : StpLayer(sizeof(stp_tcn_bpdu))
 {
-	m_DataLen = sizeof(stp_tcn_bpdu);
-	m_Data = new uint8_t[sizeof(stp_tcn_bpdu)];
-	memset(m_Data, 0, sizeof(stp_tcn_bpdu));
-
 	// Set initial values for TCN
 	setProtoId(0x0);
 	setVersion(0x0);
 	setType(0x80);
 }
 
-// ---------------------- Class StpConfigurationBPDULayer ----------------------
-StpConfigurationBPDULayer::StpConfigurationBPDULayer()
+void StpTopologyChangeBPDULayer::parseNextLayer()
 {
-	m_DataLen = sizeof(stp_conf_bpdu);
-	m_Data = new uint8_t[sizeof(stp_conf_bpdu)];
-	memset(m_Data, 0, sizeof(stp_conf_bpdu));
+	if (m_DataLen > sizeof(stp_tcn_bpdu))
+		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
+}
 
+// ---------------------- Class StpConfigurationBPDULayer ----------------------
+StpConfigurationBPDULayer::StpConfigurationBPDULayer() : StpTopologyChangeBPDULayer(sizeof(stp_conf_bpdu))
+{
 	// Set initial value for configuration BPDU
 	setProtoId(0x0);
 	setVersion(0x0);
@@ -113,7 +112,7 @@ void StpConfigurationBPDULayer::setRootSystemIDExtension(uint16_t value)
 	getStpConfHeader()->rootId = (getStpConfHeader()->rootId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 }
 
-void StpConfigurationBPDULayer::setRootSystemID(const pcpp::MacAddress &value) 
+void StpConfigurationBPDULayer::setRootSystemID(const pcpp::MacAddress &value)
 {
 	setRootId((getRootId() & (uint64_t(0xffff) << 48)) | MacAddresstoID(value));
 };
@@ -171,26 +170,30 @@ double StpConfigurationBPDULayer::getForwardDelay() const { return getStpConfHea
 
 void StpConfigurationBPDULayer::setForwardDelay(double value) { getStpConfHeader()->forwardDelay = value; }
 
-// ---------------------- Class RapidStpLayer ----------------------
-RapidStpLayer::RapidStpLayer()
+void StpConfigurationBPDULayer::parseNextLayer()
 {
-	m_DataLen = sizeof(rstp_conf_bpdu);
-	m_Data = new uint8_t[sizeof(rstp_conf_bpdu)];
-	memset(m_Data, 0, sizeof(rstp_conf_bpdu));
+	if (m_DataLen > sizeof(stp_conf_bpdu))
+		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
+}
 
+// ---------------------- Class RapidStpLayer ----------------------
+RapidStpLayer::RapidStpLayer() : StpConfigurationBPDULayer(sizeof(rstp_conf_bpdu))
+{
 	// Set initial value for Rapid STP
 	setProtoId(0x0);
 	setVersion(0x2);
 	setType(0x2);
 }
 
-// ---------------------- Class MultipleStpLayer ----------------------
-MultipleStpLayer::MultipleStpLayer()
+void RapidStpLayer::parseNextLayer()
 {
-	m_DataLen = sizeof(mstp_conf_bpdu);
-	m_Data = new uint8_t[sizeof(mstp_conf_bpdu)];
-	memset(m_Data, 0, sizeof(mstp_conf_bpdu));
+	if (m_DataLen > sizeof(rstp_conf_bpdu))
+		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, m_Packet);
+}
 
+// ---------------------- Class MultipleStpLayer ----------------------
+MultipleStpLayer::MultipleStpLayer() : RapidStpLayer(sizeof(mstp_conf_bpdu))
+{
 	// Set initial value for Multiple STP
 	setProtoId(0x0);
 	setVersion(0x3);
