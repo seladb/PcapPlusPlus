@@ -867,6 +867,7 @@ void PcapLiveDevice::setDefaultGateway()
 	}
 
 	delete[] buffer;
+	// cppcheck-suppress uninitdata
 	delete[] buffer2;
 #elif defined(__linux__)
 	std::ifstream routeFile("/proc/net/route");

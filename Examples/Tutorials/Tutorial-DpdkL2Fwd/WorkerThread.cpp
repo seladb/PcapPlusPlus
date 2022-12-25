@@ -16,6 +16,7 @@ bool L2FwdWorkerThread::run(uint32_t coreId)
 	pcpp::MBufRawPacket* mbufArr[64] = {};
 
 	// endless loop, until asking the thread to stop
+	// cppcheck-suppress knownConditionTrueFalse
 	while (!m_Stop)
 	{
 		// receive packets from RX device

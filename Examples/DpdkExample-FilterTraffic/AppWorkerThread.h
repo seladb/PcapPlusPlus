@@ -70,6 +70,7 @@ public:
 		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
 		// main loop, runs until be told to stop
+		// cppcheck-suppress knownConditionTrueFalse
 		while (!m_Stop)
 		{
 			// go over all DPDK devices configured for this worker/core

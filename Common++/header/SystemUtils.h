@@ -306,6 +306,7 @@ namespace pcpp
 		 * @param[in] argv The argv param from main()
 		 * @return No return value
 		 */
+		// cppcheck-suppress constParameter
 		static void init(int argc, char* argv[])
 		{
 			if (argc == 0)

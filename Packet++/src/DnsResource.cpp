@@ -108,6 +108,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 				if (encodedNameLength == 256)
 				{
 					resultPtr--;
+					// cppcheck-suppress unreadVariable
 					decodedNameLength--;
 				}
 				else
@@ -134,6 +135,7 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 				// add the last '\0' to the decoded string
 				if (encodedNameLength == 256)
 				{
+					// cppcheck-suppress unreadVariable
 					decodedNameLength--;
 					resultPtr--;
 				}
