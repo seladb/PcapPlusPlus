@@ -114,14 +114,14 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag thirdTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
 	PTF_ASSERT_FALSE(thirdTag.isNull());
-	PTF_ASSERT_EQUAL(thirdTag, pppoeDiscoveryLayer->getNextTag(secondTag), object_no_str);
+	PTF_ASSERT_TRUE(thirdTag == pppoeDiscoveryLayer->getNextTag(secondTag));
 	PTF_ASSERT_EQUAL(thirdTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, enum);
 	PTF_ASSERT_EQUAL(thirdTag.getDataSize(), 4);
 	PTF_ASSERT_EQUAL(thirdTag.getValueAsString(), "BRAS");
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag fourthTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
 	PTF_ASSERT_FALSE(fourthTag.isNull());
-	PTF_ASSERT_EQUAL(fourthTag, pppoeDiscoveryLayer->getNextTag(thirdTag), object_no_str);
+	PTF_ASSERT_TRUE(fourthTag == pppoeDiscoveryLayer->getNextTag(thirdTag));
 	PTF_ASSERT_EQUAL(fourthTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, enum);
 	PTF_ASSERT_EQUAL(fourthTag.getDataSize(), 16);
 	PTF_ASSERT_EQUAL(fourthTag.getValueAs<uint64_t>(), 0xf284240687050f3dULL);
