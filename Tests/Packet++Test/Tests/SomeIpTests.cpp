@@ -20,6 +20,7 @@ public:
 
 PTF_TEST_CASE(SomeIpPortTest)
 {
+	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
 
 	pcpp::SomeIpLayer::addSomeIpPort(1234);
@@ -43,6 +44,7 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(29180);
 
@@ -65,7 +67,7 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	PTF_ASSERT_EQUAL(someIpLayer->getSessionID(), 0xa);
 	PTF_ASSERT_EQUAL(someIpLayer->getProtocolVersion(), 1);
 	PTF_ASSERT_EQUAL(someIpLayer->getInterfaceVersion(), 0x5);
-	PTF_ASSERT_EQUAL((int)someIpLayer->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::REQUEST);
+	PTF_ASSERT_EQUAL(someIpLayer->getMessageType(), pcpp::SomeIpLayer::MsgType::REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(someIpLayer->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::REQUEST);
 	PTF_ASSERT_EQUAL(someIpLayer->getReturnCode(), 0);
 	PTF_ASSERT_EQUAL(someIpLayer->getPduPayloadSize(), 22);
@@ -87,7 +89,7 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	PTF_ASSERT_EQUAL(someIpLayer2_1->getSessionID(), 0xa);
 	PTF_ASSERT_EQUAL(someIpLayer2_1->getProtocolVersion(), 1);
 	PTF_ASSERT_EQUAL(someIpLayer2_1->getInterfaceVersion(), 0x5);
-	PTF_ASSERT_EQUAL((int)someIpLayer2_1->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::REQUEST);
+	PTF_ASSERT_EQUAL(someIpLayer2_1->getMessageType(), pcpp::SomeIpLayer::MsgType::REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(someIpLayer2_1->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::REQUEST);
 	PTF_ASSERT_EQUAL(someIpLayer2_1->getReturnCode(), 0);
 	PTF_ASSERT_EQUAL(someIpLayer2_1->getPduPayloadSize(), 22);
@@ -108,7 +110,7 @@ PTF_TEST_CASE(SomeIpParsingTest)
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getSessionID(), 0xb);
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getProtocolVersion(), 1);
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getInterfaceVersion(), 0x6);
-	PTF_ASSERT_EQUAL((int)someIpLayer2_2->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::REQUEST);
+	PTF_ASSERT_EQUAL(someIpLayer2_2->getMessageType(), pcpp::SomeIpLayer::MsgType::REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::REQUEST);
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getReturnCode(), 0);
 	PTF_ASSERT_EQUAL(someIpLayer2_2->getPduPayloadSize(), 20);
@@ -170,6 +172,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	timeval time;
 	gettimeofday(&time, NULL);
 
+	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
 	pcpp::SomeIpLayer::addSomeIpPort(16832);
 
@@ -193,7 +196,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	PTF_ASSERT_EQUAL(someIpTpLayer1->getSessionID(), 0x0);
 	PTF_ASSERT_EQUAL(someIpTpLayer1->getProtocolVersion(), 1);
 	PTF_ASSERT_EQUAL(someIpTpLayer1->getInterfaceVersion(), 0x1);
-	PTF_ASSERT_EQUAL((int)someIpTpLayer1->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
+	PTF_ASSERT_EQUAL(someIpTpLayer1->getMessageType(), pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN, enumclass);
 	PTF_ASSERT_EQUAL(someIpTpLayer1->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
 	PTF_ASSERT_EQUAL(someIpTpLayer1->getReturnCode(), 0);
 	PTF_ASSERT_EQUAL(someIpTpLayer1->getOffset(), 0);
@@ -217,7 +220,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getSessionID(), 0x0);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getProtocolVersion(), 1);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getInterfaceVersion(), 0x1);
-	PTF_ASSERT_EQUAL((int)someIpTpLayer2->getMessageType(), (int)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
+	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageType(), pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN, enumclass);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getMessageTypeAsInt(), (uint8_t)pcpp::SomeIpLayer::MsgType::TP_REQUEST_NO_RETURN);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getReturnCode(), 0);
 	PTF_ASSERT_EQUAL(someIpTpLayer2->getOffset() * 16, 91872);

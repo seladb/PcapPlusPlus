@@ -168,6 +168,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	device->sendPacket(&arpRequest);
 
 	// block on the conditional mutex until capture thread signals or until timeout expires
+	// cppcheck-suppress localMutex
 	std::unique_lock<std::mutex> lock(mutex);
 	std::cv_status res = cond.wait_for(lock, std::chrono::seconds(arpTimeout));
 
@@ -417,6 +418,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	device->sendPacket(&dnsRequest);
 
 	// block on the conditional mutex until capture thread signals or until timeout expires
+	// cppcheck-suppress localMutex
 	std::unique_lock<std::mutex> lock(mutex);
 	std::cv_status res = cond.wait_for(lock, std::chrono::seconds(dnsTimeout));
 
