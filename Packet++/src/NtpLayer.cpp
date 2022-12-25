@@ -182,6 +182,11 @@ namespace pcpp
         getNtpHeader()->referenceIdentifier = static_cast<uint32_t>(val);
     }
 
+    void NtpLayer::setReferenceIdentifier(KissODeath val)
+    {
+        getNtpHeader()->referenceIdentifier = static_cast<uint32_t>(val);
+    }
+
     std::string NtpLayer::getReferenceIdentifierString() const
     {
         uint8_t stratum = getStratum();

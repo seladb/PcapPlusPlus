@@ -459,6 +459,12 @@ namespace pcpp
         void setReferenceIdentifier(ClockSource val);
 
         /**
+         * Set the value of reference identifier
+         * @param[in] val Value of the reference identifier as Kiss-O-Death code
+         */
+        void setReferenceIdentifier(KissODeath val);
+
+        /**
          * @return The value of reference identifier as a string. String representation of NTP clock source if stratum is 1,
          * IPv4 address or MD5 hash of first four octets of IPv6
          */
