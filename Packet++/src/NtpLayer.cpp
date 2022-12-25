@@ -565,7 +565,7 @@ namespace pcpp
         integerPartInt = hostToNet16(integerPart);
         fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
 
-        return uint32_t(integerPartInt) | (uint32_t(fractionPartInt)) << 16;
+        return static_cast<uint32_t>(integerPartInt) | (static_cast<uint32_t>(fractionPartInt)) << 16;
     }
 
     uint64_t NtpLayer::convertToTimestampFormat(const double val)
@@ -579,7 +579,7 @@ namespace pcpp
         integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
         fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
 
-        return uint64_t(integerPartInt) | (uint64_t(fractionPartInt) << 32);
+        return static_cast<uint64_t>(integerPartInt) | (static_cast<uint64_t>(fractionPartInt) << 32);
     }
 
     std::string NtpLayer::convertToIsoFormat(const double timestamp)
@@ -628,10 +628,6 @@ namespace pcpp
 
     std::string NtpLayer::toString() const
     {
-        std::stringstream ss;
-
-        ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();
-
-        return ss.str();
+        return std::string("NTP Layer v") + std::to_string(getVersion()) + ", Mode: " + getModeString();
     }
 }
