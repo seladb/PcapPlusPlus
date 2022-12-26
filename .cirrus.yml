@@ -21,6 +21,28 @@ task:
     - python -m pip install -r requirements.txt
     - python -m pytest --interface vtnet0 --use-sudo
 
+  name: Test FreeBSD w/ CMake
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-12-3
+      image_family: freebsd-13-0
+  install_script:
+    - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
+  configure_script:
+    - cmake -S . -B Dist
+  build_script:
+    - cmake --build Dist -j 2
+  test_pcapplusplus_script:
+    - ifconfig vtnet0 promisc
+    - python -m ensurepip
+    - python -m pip install -r ci/run_tests/requirements.txt
+    - python ci/run_tests/run_tests.py --interface vtnet0
+  test_examples_script:
+    - cd Tests/ExamplesTest
+    - python -m ensurepip
+    - python -m pip install -r requirements.txt
+    - python -m pytest --interface vtnet0 --use-sudo --root-path=../../Dist/examples_bin
+
 task:
   name: Test Zstd Linux
   container:
@@ -35,6 +57,18 @@ task:
     - python3 ci/run_tests/run_tests.py --interface eth0
 
 task:
+  name: Test Zstd Linux w/ CMake
+  container:
+    image: seladb/ubuntu2004-zstd:latest
+  configure_script:
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+  build_script:
+    - cmake --build Dist -j 2
+  test_pcapplusplus_script:
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface eth0
+
+task:
   name: Test Zstd MacOS
   osx_instance:
     image: monterey-xcode
@@ -43,6 +77,22 @@ task:
     - ./configure-mac_os_x.sh --use-zstd
   build_script:
     - make all
+  install_tcpreplay_script:
+    - brew install tcpreplay
+  test_pcapplusplus_script:
+    - python3 -m ensurepip
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
+
+task:
+  name: Test Zstd MacOS w/ CMake
+  osx_instance:
+    image: monterey-xcode
+  configure_script:
+    - brew install zstd
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+  build_script:
+    - cmake --build Dist -j
   install_tcpreplay_script:
     - brew install tcpreplay
   test_pcapplusplus_script:

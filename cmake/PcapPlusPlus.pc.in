@@ -1,0 +1,10 @@
+prefix="@CMAKE_INSTALL_PREFIX@"
+libdir="@CMAKE_INSTALL_FULL_LIBDIR@"
+includedir="@CMAKE_INSTALL_FULL_INCLUDEDIR@"
+
+Name: @PROJECT_NAME@
+Description: @CMAKE_PROJECT_DESCRIPTION@
+URL: @CMAKE_PROJECT_HOMEPAGE_URL@
+Version: @PCAPPP_VERSION@
+Cflags: -I${includedir}/pcapplusplus
+Libs: -L${libdir}/pcapplusplus -lPcap++ -lPacket++ -lCommon++ -lpcap -lpthread
