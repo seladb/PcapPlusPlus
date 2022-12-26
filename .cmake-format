@@ -1,0 +1,75 @@
+# --------------------------
+# General Formatting Options
+# --------------------------
+# How wide to allow formatted cmake files
+line_width = 120
+
+# How many spaces to tab for indent
+tab_size = 2
+
+# If an argument group contains more than this many sub-groups (parg or kwarg
+# groups), then force it to a vertical layout.
+max_subgroups_hwrap = 2
+
+# If a positional argument group contains more than this many arguments, then
+# force it to a vertical layout.
+max_pargs_hwrap = 3
+
+# If true, separate flow control names from their parentheses with a space
+separate_ctrl_name_with_space = False
+
+# If true, separate function names from parentheses with a space
+separate_fn_name_with_space = False
+
+# If a statement is wrapped to more than one line, than dangle the closing
+# parenthesis on it's own line.
+dangle_parens = False
+
+# If the trailing parenthesis must be 'dangled' on it's on line, then align it
+# to this reference: `prefix`: the start of the statement,  `prefix-indent`: the
+# start of the statement, plus one indentation  level, `child`: align to the
+# column of the arguments
+dangle_align = 'prefix'
+
+min_prefix_chars = 4
+
+# If the statement spelling length (including space and parenthesis) is larger
+# than the tab width by more than this amount, then force reject un-nested
+# layouts.
+max_prefix_chars = 10
+
+# If a candidate layout is wrapped horizontally but it exceeds this many lines,
+# then reject the layout.
+max_lines_hwrap = 2
+
+# What style line endings to use in the output.
+line_ending = 'unix'
+
+# Format command names consistently as 'lower' or 'upper' case
+command_case = 'lower'
+
+# Format keywords consistently as 'lower' or 'upper' case
+keyword_case = 'unchanged'
+
+# If true, the argument lists which are known to be sortable will be sorted
+# lexicographicall
+enable_sort = True
+
+# If true, the parsers may infer whether or not an argument list is sortable
+# (without annotation).
+autosort = True
+
+# By default, if cmake-format cannot successfully fit everything into the
+# desired linewidth it will apply the last, most aggressive attempt that it
+# made. If this flag is True, however, cmake-format will print error, exit
+# with non-zero status code, and write-out nothing
+require_valid_layout = False
+
+# Specify structure for custom cmake functions
+additional_commands = {
+  "pkg_find": {
+    "kwargs": {
+      "PKG": "*"
+    }
+  }
+}

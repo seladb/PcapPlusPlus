@@ -4,9 +4,7 @@ project(light_pcapng C)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/LightPcapNg/cmake/")
 
-find_package(ZSTD)
-
-option(LIGHT_PCAPNG_ZSTD "Build with ZSTD compression support" ${ZSTD_FOUND})
+option(LIGHT_PCAPNG_ZSTD "Build with ZSTD compression support" OFF)
 
 add_library(
   light_pcapng OBJECT
@@ -30,12 +28,11 @@ if(BUILD_SHARED_LIBS)
   set_property(TARGET light_pcapng PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
 
-target_include_directories(
-  light_pcapng
-  PUBLIC $<INSTALL_INTERFACE:include>
-         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/LightPcapNg/include>)
+target_include_directories(light_pcapng PUBLIC $<INSTALL_INTERFACE:include>
+                                               $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/LightPcapNg/include>)
 
 if(LIGHT_PCAPNG_ZSTD)
+  find_package(ZSTD)
   if(NOT ZSTD_FOUND)
     message(FATAL_ERROR "ZSTD required but not found!")
   elseif(ZSTD_VERSION_STRING VERSION_LESS "1.4.0")
