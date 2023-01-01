@@ -171,6 +171,7 @@ if(PCAPPP_BUILD_EXAMPLES)
 endif()
 
 if(PCAPPP_BUILD_TESTS)
+  configure_file(cmake/cdashtesting.cmake.in cdashtesting.cmake @ONLY)
   include(CTest)
   add_subdirectory(Tests)
 endif()
