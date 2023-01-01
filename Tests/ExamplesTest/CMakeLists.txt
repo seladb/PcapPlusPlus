@@ -3,7 +3,9 @@ find_package(
   COMPONENTS Interpreter
   REQUIRED)
 
+set(PCAPPP_TESTS_EXAMPLESTEST_ARGS "--interface;eth0" CACHE STRING "Arguments passed to ExamplesTest")
+
 add_test(
   NAME ExamplesTest
-  COMMAND ${Python_EXECUTABLE} -m pytest "${CMAKE_CURRENT_SOURCE_DIR}" --root-path "${PCAPPP_BINARY_EXAMPLES_DIR}"
+  COMMAND ${Python_EXECUTABLE} -m pytest "${CMAKE_CURRENT_SOURCE_DIR}" --root-path "${PCAPPP_BINARY_EXAMPLES_DIR}" ${PCAPPP_TESTS_EXAMPLESTEST_ARGS}
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

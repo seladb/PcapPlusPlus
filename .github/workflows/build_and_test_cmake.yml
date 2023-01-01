@@ -13,8 +13,7 @@ jobs:
         with:
           python-version: "3.8.x"
       - name: Install dependencies
-        run: |
-          sudo apt install cppcheck=2.7-1
+        run: sudo apt install cppcheck=2.7-1
       - uses: pre-commit/action@v3.0.0
       - name: CMake format
         run: ./ci/cmake-format-all.sh && git diff --exit-code
@@ -50,23 +49,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD="${{ matrix.config-zstd }}" -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;eth0" -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
 
-      - name: Test PcapPlusPlus
+      - name: Install Test Requirements
         run: |
-          ${{ matrix.python }} -m pip install -U pip
-          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
-          ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
-
-      - name: Test Examples
-        run: |
-          cd Tests/ExamplesTest
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
+
+      - name: Test PcapPlusPlus
+        run: ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
+
+      - name: Test Examples
+        run: ctest -S $BUILD_DIR/cdashtesting.cmake
 
       - name: Check installation
         run: cmake --install $BUILD_DIR

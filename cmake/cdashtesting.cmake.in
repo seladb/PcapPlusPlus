@@ -22,6 +22,6 @@ ctest_test()
 ctest_memcheck()
 
 set(CDASH_TOKEN "$ENV{CTEST_CDASH_AUTH_TOKEN}")
-if (NOT "${CDASK_TOKEN}"" STREQUAL "")
+if (NOT "${CDASH_TOKEN}" STREQUAL "")
 	ctest_submit(HTTPHEADER "Authorization: Bearer ${CDASH_TOKEN}")
 endif()
