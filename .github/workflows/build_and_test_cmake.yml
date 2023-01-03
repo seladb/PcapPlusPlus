@@ -103,43 +103,35 @@ jobs:
       - name: Check AVX
         run: grep avx /proc/cpuinfo
 
-      - name: Test Packet++
+      - name: Install Test Requirements
         run: |
-          cd Tests/Packet++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+          python3 -m pip install -U pip
+          python3 -m pip install -r requirements.txt
 
-      - name: Test Pcap++
-        run: |
-          cd Tests/Pcap++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
+      - name: Test PcapPlusPlus
+        run: if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then ctest -S $BUILD_DIR/cdashtesting.cmake; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Tests; fi
 
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
-    strategy:
-      matrix:
-        include:
-          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B $BUILD_DIR
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: ${{ matrix.configure }}
+        run: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
 
-      - name: Test Packet++
+      - name: Install Test Requirements
         run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test
+          python3 -m pip install -U pip
+          python3 -m pip install -r requirements.txt
 
-      - name: Test Pcap++
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test -n
+      - name: Test PcapPlusPlus
+        run: ctest -S $BUILD_DIR/cdashtesting.cmake
 
   macos:
     runs-on: ${{ matrix.os-version }}
