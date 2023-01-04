@@ -19,7 +19,7 @@ public:
 
 	~FileReaderTeardown()
 	{
-		if (m_Reader != NULL)
+		if (m_Reader != nullptr)
 		{
 			delete m_Reader;
 		}

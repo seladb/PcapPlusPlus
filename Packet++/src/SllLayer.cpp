@@ -104,7 +104,7 @@ void SllLayer::parseNextLayer()
 
 void SllLayer::computeCalculateFields()
 {
-	if (m_NextLayer == NULL)
+	if (m_NextLayer == nullptr)
 		return;
 
 	sll_header* hdr = getSllHeader();

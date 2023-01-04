@@ -11,7 +11,7 @@
 PTF_TEST_CASE(SSLClientHelloParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-ClientHello1.dat");
 
 	pcpp::Packet clientHelloPacket(&rawPacket1);
@@ -168,7 +168,7 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 PTF_TEST_CASE(SSLExtensionWithZeroSizeTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls_zero_size_ext.dat");
 
 	pcpp::Packet clientHelloPacket(&rawPacket1);
@@ -192,7 +192,7 @@ PTF_TEST_CASE(SSLExtensionWithZeroSizeTest)
 PTF_TEST_CASE(SSLAppDataParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleAppData.dat");
 
 	pcpp::Packet appDataPacket(&rawPacket1);
@@ -229,7 +229,7 @@ PTF_TEST_CASE(SSLAppDataParsingTest)
 PTF_TEST_CASE(SSLAlertParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-AlertClear.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SSL-AlertEnc.dat");
 
@@ -265,7 +265,7 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords1.dat");
 
 	pcpp::Packet multipleRecordsPacket(&rawPacket1);
@@ -336,7 +336,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 PTF_TEST_CASE(SSLMultipleRecordParsing2Test)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords2.dat");
 
@@ -365,7 +365,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing2Test)
 PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords3.dat");
 
@@ -429,7 +429,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 PTF_TEST_CASE(SSLMultipleRecordParsing4Test)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords4.dat");
 
@@ -464,7 +464,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing4Test)
 PTF_TEST_CASE(SSLPartialCertificateParseTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-PartialCertificate1.dat");
 
@@ -506,7 +506,7 @@ PTF_TEST_CASE(SSLPartialCertificateParseTest)
 PTF_TEST_CASE(SSLNewSessionTicketParseTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-NewSessionTicket.dat");
 
@@ -531,7 +531,7 @@ PTF_TEST_CASE(SSLNewSessionTicketParseTest)
 PTF_TEST_CASE(SSLMalformedPacketParsing)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ssl-malformed1.dat");
 
@@ -548,7 +548,7 @@ PTF_TEST_CASE(SSLMalformedPacketParsing)
 PTF_TEST_CASE(TLS1_3ParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls1_3_client_hello1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/tls1_3_client_hello2.dat");
@@ -702,7 +702,7 @@ PTF_TEST_CASE(TLSCipherSuiteTest)
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tls1_3_client_hello1.dat");
 	pcpp::Packet tls13ClientHello1(&rawPacket1);
@@ -734,7 +734,7 @@ PTF_TEST_CASE(ClientHelloTLSFingerprintTest)
 PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-MultipleRecords1.dat");
 

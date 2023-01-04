@@ -15,7 +15,7 @@
 PTF_TEST_CASE(DnsLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dns3.dat");
 
@@ -125,7 +125,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 	int answerCount = 2;
 	pcpp::IPv4Address subnet("212.199.219.0");
 	std::string subnetMask = "255.255.255.0";
-	while (curAnswer != NULL)
+	while (curAnswer != nullptr)
 	{
 		PTF_ASSERT_EQUAL(curAnswer->getDnsType(), pcpp::DNS_TYPE_A, enum);
 		PTF_ASSERT_EQUAL(curAnswer->getDnsClass(), pcpp::DNS_CLASS_IN, enum);
@@ -227,7 +227,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 PTF_TEST_CASE(DnsLayerQueryCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/DnsEdit2.dat");
 
@@ -290,7 +290,7 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	PTF_ASSERT_TRUE(newQuery->setName("_sleep-proxy._udp.local"));
 
-	PTF_ASSERT_NULL(dns1Layer.addQuery(NULL));
+	PTF_ASSERT_NULL(dns1Layer.addQuery(nullptr));
 	PTF_ASSERT_EQUAL(dns1Layer.getQueryCount(), 2);
 
 	dnsEdit1Packet.computeCalculateFields();
@@ -305,7 +305,7 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 PTF_TEST_CASE(DnsLayerResourceCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/DnsEdit4.dat");
 
@@ -495,7 +495,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 PTF_TEST_CASE(DnsLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/DnsEdit3.dat");
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/DnsEdit5.dat");
@@ -530,7 +530,7 @@ PTF_TEST_CASE(DnsLayerEditTest)
 PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/DnsEdit6.dat");
 
@@ -574,7 +574,7 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 
 	PTF_ASSERT_FALSE(dnsLayer6->removeQuery("BlaBla", true));
 	PTF_ASSERT_FALSE(dnsLayer6->removeAuthority(secondAuthority));
-	PTF_ASSERT_FALSE(dnsLayer6->removeAdditionalRecord(NULL));
+	PTF_ASSERT_FALSE(dnsLayer6->removeAdditionalRecord(nullptr));
 
 	size_t additionalRecordSize = dnsLayer6->getFirstAdditionalRecord()->getSize();
 	PTF_ASSERT_TRUE(dnsLayer6->removeAdditionalRecord(dnsLayer6->getFirstAdditionalRecord()));
@@ -634,7 +634,7 @@ PTF_TEST_CASE(DnsLayerRemoveResourceTest)
 PTF_TEST_CASE(DnsOverTcpParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_query.dat");
 	pcpp::Packet dnsPacket(&rawPacket1);
@@ -696,7 +696,7 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 	};
 
 	int i = 0;
-	for (pcpp::DnsResource* authority = dnsLayer->getFirstAuthority(); authority != NULL; authority = dnsLayer->getNextAuthority(authority))
+	for (pcpp::DnsResource* authority = dnsLayer->getFirstAuthority(); authority != nullptr; authority = dnsLayer->getNextAuthority(authority))
 	{
 		PTF_ASSERT_EQUAL(authority->getName(), expectedNames[i]);
 		PTF_ASSERT_EQUAL(authority->getDnsType(), expectedTypes[i], enum);
@@ -727,7 +727,7 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 PTF_TEST_CASE(DnsOverTcpCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_answer2.dat");
 	pcpp::Packet dnsPacket(&rawPacket1);
@@ -752,7 +752,7 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 PTF_TEST_CASE(DnsNXDomainTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/DNS_NXDomain.dat");
 	pcpp::Packet dnsPacket(&rawPacket1);

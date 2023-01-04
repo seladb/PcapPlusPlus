@@ -42,7 +42,7 @@ PTF_TEST_CASE(SomeIpPortTest)
 PTF_TEST_CASE(SomeIpParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
@@ -123,7 +123,7 @@ PTF_TEST_CASE(SomeIpParsingTest)
 PTF_TEST_CASE(SomeIpCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/someip.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/someip2.dat");
@@ -170,7 +170,7 @@ PTF_TEST_CASE(SomeIpCreationTest)
 PTF_TEST_CASE(SomeIpTpParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// cppcheck-suppress unusedVariable
 	SomeIpTeardown someIpTeardown;
@@ -234,7 +234,7 @@ PTF_TEST_CASE(SomeIpTpParsingTest)
 PTF_TEST_CASE(SomeIpTpCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/SomeIpTp1.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/SomeIpTp2.dat");
