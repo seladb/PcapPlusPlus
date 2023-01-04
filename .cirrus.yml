@@ -70,8 +70,8 @@ task:
 
 task:
   name: Test Zstd MacOS
-  osx_instance:
-    image: monterey-xcode
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
     - brew install zstd
     - ./configure-mac_os_x.sh --use-zstd
@@ -86,8 +86,8 @@ task:
 
 task:
   name: Test Zstd MacOS w/ CMake
-  osx_instance:
-    image: monterey-xcode
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
     - brew install zstd
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
