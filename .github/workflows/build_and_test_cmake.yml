@@ -63,7 +63,11 @@ jobs:
         run: ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
-        run: ctest -S $BUILD_DIR/cdashtesting.cmake
+        run:
+          ctest -S $BUILD_DIR/asan-testing.cmake --verbose
+          ctest -S $BUILD_DIR/msan-testing.cmake --verbose
+          ctest -S $BUILD_DIR/tsan-testing.cmake --verbose
+
 
       - name: Check installation
         run: cmake --install $BUILD_DIR
