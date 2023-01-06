@@ -1,7 +1,8 @@
 set(CTEST_SOURCE_DIRECTORY  "@CMAKE_SOURCE_DIR@")
 set(CTEST_BINARY_DIRECTORY  "@CMAKE_BINARY_DIR@")
 set(CTEST_CMAKE_GENERATOR   "@CMAKE_GENERATOR@")
-set(CTEST_BUILD_NAME        "@CMAKE_SYSTEM_NAME@-@CMAKE_SYSTEM_PROCESSOR@-AddressSanitizer")
+set(CTEST_MEMORYCHECK_TYPE  "AddressSanitizer")
+set(CTEST_BUILD_NAME        "@CMAKE_SYSTEM_NAME@-@CMAKE_SYSTEM_PROCESSOR@-${CTEST_MEMORYCHECK_TYPE}")
 set(CTEST_SITE              "@SITE@")
 
 set(MODEL Experimental)
@@ -11,10 +12,18 @@ elseif(${CTEST_SCRIPT_ARG} MATCHES Continuous)
   set(MODEL Continuous)
 endif()
 
-set(CTEST_MEMORYCHECK_TYPE "AddressSanitizer")
 ctest_start(${MODEL})
-ctest_configure(OPTIONS "-DPCAPPP_USE_SANITIZER=Address")
-ctest_build()
+
+ctest_configure(OPTIONS "-DPCAPPP_USE_SANITIZER=Address" RETURN_VALUE ret)
+if (ret)
+  message(FATAL_ERROR "Configuration failed!")
+endif ()
+
+ctest_build(RETURN_VALUE ret)
+if (ret)
+  message(FATAL_ERROR "Build failed!")
+endif ()
+
 ctest_memcheck(RETURN_VALUE test_result)
 
 set(CDASH_TOKEN "$ENV{CTEST_CDASH_AUTH_TOKEN}")

@@ -12,8 +12,17 @@ elseif(${CTEST_SCRIPT_ARG} MATCHES Continuous)
 endif()
 
 ctest_start(${MODEL})
-ctest_configure()
-ctest_build()
+
+ctest_configure(OPTIONS RETURN_VALUE ret)
+if (ret)
+  message(FATAL_ERROR "Configuration failed!")
+endif ()
+
+ctest_build(RETURN_VALUE ret)
+if (ret)
+  message(FATAL_ERROR "Build failed!")
+endif ()
+
 ctest_test(RETURN_VALUE test_result)
 
 set(CDASH_TOKEN "$ENV{CTEST_CDASH_AUTH_TOKEN}")
