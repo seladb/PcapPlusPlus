@@ -63,7 +63,7 @@ jobs:
         run: ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
-        run: ctest -S $BUILD_DIR/testing.cmake --verbose
+        run: ctest -S $BUILD_DIR/testing.cmake --extra-verbose
 
       - name: Check installation
         run: cmake --install $BUILD_DIR
@@ -109,7 +109,7 @@ jobs:
           python3 -m pip install -r requirements.txt
 
       - name: Test PcapPlusPlus
-        run: if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then ctest -S $BUILD_DIR/cdashtesting.cmake; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Tests; fi
+        run: if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then ctest -S $BUILD_DIR/testing.cmake --extra-verbose; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Tests; fi
 
   pfring:
     runs-on: ubuntu-20.04
@@ -131,7 +131,7 @@ jobs:
           python3 -m pip install -r requirements.txt
 
       - name: Test PcapPlusPlus
-        run: ctest -S $BUILD_DIR/cdashtesting.cmake
+        run: ctest -S $BUILD_DIR/testing.cmake --extra-verbose
 
   macos:
     runs-on: ${{ matrix.os-version }}
