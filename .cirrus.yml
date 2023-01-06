@@ -101,42 +101,31 @@ task:
     - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
-  name: Regression Tests Linux (Memory Behavior Sanitizer)
-  container:
-    image: gcr.io/oss-fuzz-base/base-clang
-  configure_script:
-    - apt-get update && apt-get install -y libpcap-dev git make
-    - ./configure-fuzzing.sh --sanitizer memory
-    - ldconfig
-  build_script:
-    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
-
-task:
   name: Regression Tests Linux (Address Sanitizer)
   container:
-    image: seladb/ubuntu1804:latest
+    image: seladb/ubuntu2004:latest
   configure_script:
-    - ./configure-fuzzing.sh --sanitizer address
-    - ldconfig
-  build_script:
-    - make fuzzers
+    - cmake -S . -B $BUILD_DIR
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - ctest -S $BUILD_DIR/asan-testing.cmake --verbose
 
 task:
-  name: Regression Tests Linux (Undefined Behavior Sanitizer)
+  name: Regression Tests Linux (Memory Sanitizer)
   container:
-    image: seladb/ubuntu1804:latest
+    image: seladb/ubuntu2004:latest
   configure_script:
-    - ./configure-fuzzing.sh --sanitizer undefined
-    - ldconfig
-  build_script:
-    - make fuzzers
+    - cmake -S . -B $BUILD_DIR
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - ctest -S $BUILD_DIR/msan-testing.cmake --verbose
+
+task:
+  name: Regression Tests Linux (Thread Sanitizer)
+  container:
+    image: seladb/ubuntu2004:latest
+  configure_script:
+    - cmake -S . -B $BUILD_DIR
+  test_script:
+    - ctest -S $BUILD_DIR/tsan-testing.cmake --verbose
 
 task:
   name: Build Doxygen Documentation
