@@ -171,6 +171,7 @@ if(PCAPPP_BUILD_EXAMPLES)
 endif()
 
 if(PCAPPP_BUILD_TESTS)
+  configure_file(cmake/testing.cmake.in testing.cmake @ONLY)
   configure_file(cmake/asan-testing.cmake.in asan-testing.cmake @ONLY)
   configure_file(cmake/msan-testing.cmake.in msan-testing.cmake @ONLY)
   configure_file(cmake/tsan-testing.cmake.in tsan-testing.cmake @ONLY)
