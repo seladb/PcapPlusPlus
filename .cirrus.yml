@@ -1,3 +1,6 @@
+env:
+  BUILD_DIR: "build"
+
 task:
   name: Test FreeBSD
   freebsd_instance:
