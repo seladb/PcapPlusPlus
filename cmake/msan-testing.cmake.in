@@ -1,7 +1,7 @@
 set(CTEST_SOURCE_DIRECTORY  "@CMAKE_SOURCE_DIR@")
 set(CTEST_BINARY_DIRECTORY  "@CMAKE_BINARY_DIR@")
 set(CTEST_CMAKE_GENERATOR   "@CMAKE_GENERATOR@")
-set(CTEST_BUILD_NAME        "@BUILDNAME@")
+set(CTEST_BUILD_NAME        "@CMAKE_SYSTEM_NAME@-@CMAKE_SYSTEM_PROCESSOR@-MemorySanitizer")
 set(CTEST_SITE              "@SITE@")
 
 set(MODEL Experimental)
@@ -16,7 +16,6 @@ ctest_start(${MODEL})
 file(WRITE "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt" "-g -O1 -fsanitize=memory -fno-omit-frame-pointer")
 ctest_configure()
 ctest_build()
-ctest_test()
 ctest_memcheck()
 
 set(CDASH_TOKEN "$ENV{CTEST_CDASH_AUTH_TOKEN}")
