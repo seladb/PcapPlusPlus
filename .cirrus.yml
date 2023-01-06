@@ -128,6 +128,15 @@ task:
     - ctest -S $BUILD_DIR/tsan-testing.cmake --verbose
 
 task:
+  name: Regression Tests Linux (Undefined Behavior Sanitizer)
+  container:
+    image: seladb/ubuntu2004:latest
+  configure_script:
+    - cmake -S . -B $BUILD_DIR
+  test_script:
+    - ctest -S $BUILD_DIR/ubsan-testing.cmake --verbose
+
+task:
   name: Build Doxygen Documentation
   container:
     image: seladb/ubuntu1804:latest
