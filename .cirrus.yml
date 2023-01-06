@@ -107,6 +107,9 @@ task:
   name: Regression Tests Linux (Address Sanitizer)
   container:
     image: seladb/ubuntu2004:latest
+  requirements_script:
+    - python3 -m pip install -U pip
+    - python3 -m pip install -r requirements.txt
   configure_script:
     - cmake -S . -B $BUILD_DIR
   test_script:
@@ -116,6 +119,9 @@ task:
   name: Regression Tests Linux (Memory Sanitizer)
   container:
     image: seladb/ubuntu2004:latest
+  requirements_script:
+    - python3 -m pip install -U pip
+    - python3 -m pip install -r requirements.txt
   configure_script:
     - cmake -S . -B $BUILD_DIR
   test_script:
@@ -125,6 +131,9 @@ task:
   name: Regression Tests Linux (Thread Sanitizer)
   container:
     image: seladb/ubuntu2004:latest
+  requirements_script:
+    - python3 -m pip install -U pip
+    - python3 -m pip install -r requirements.txt
   configure_script:
     - cmake -S . -B $BUILD_DIR
   test_script:
@@ -134,6 +143,9 @@ task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
   container:
     image: seladb/ubuntu2004:latest
+  requirements_script:
+    - python3 -m pip install -U pip
+    - python3 -m pip install -r requirements.txt
   configure_script:
     - cmake -S . -B $BUILD_DIR
   test_script:
