@@ -68,26 +68,26 @@ task:
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface eth0
 
-task:
-  name: Test Zstd MacOS
-  osx_instance:
-    image: monterey-xcode
-  configure_script:
-    - brew install zstd
-    - ./configure-mac_os_x.sh --use-zstd
-  build_script:
-    - make all
-  install_tcpreplay_script:
-    - brew install tcpreplay
-  test_pcapplusplus_script:
-    - python3 -m ensurepip
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
+#task:
+#  name: Test Zstd MacOS
+#  macos_instance:
+#    image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
+#  configure_script:
+#    - brew install zstd
+#    - ./configure-mac_os_x.sh --use-zstd
+#  build_script:
+#    - make all
+#  install_tcpreplay_script:
+#    - brew install tcpreplay
+#  test_pcapplusplus_script:
+#    - python3 -m ensurepip
+#    - python3 -m pip install -r ci/run_tests/requirements.txt
+#    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
   name: Test Zstd MacOS w/ CMake
-  osx_instance:
-    image: monterey-xcode
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
     - brew install zstd
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist

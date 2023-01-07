@@ -81,10 +81,7 @@ jobs:
           cmake --build build_examples -j
 
       - name: Test Tutorials
-        run: |
-          # We need to execute the HelloWorld in the same folder as the PCAP file
-          cp build_examples/Tutorials/Tutorial-HelloWorld/Tutorial-HelloWorld Examples/Tutorials/Tutorial-HelloWorld/
-          cd Examples/Tutorials/Tutorial-HelloWorld && ./Tutorial-HelloWorld
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
         run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
@@ -248,10 +245,7 @@ jobs:
 
       - name: Test Tutorials
         if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          # We need to execute the HelloWorld in the same folder as the PCAP file
-          cp build_examples/Tutorials/Tutorial-HelloWorld/Tutorial-HelloWorld Examples/Tutorials/Tutorial-HelloWorld/
-          cd Examples/Tutorials/Tutorial-HelloWorld && ./Tutorial-HelloWorld
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
         run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
