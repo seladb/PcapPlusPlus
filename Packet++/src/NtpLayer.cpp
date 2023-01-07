@@ -179,57 +179,101 @@ namespace pcpp
 
     void NtpLayer::setReferenceIdentifier(ClockSource val)
     {
-        getNtpHeader()->referenceIdentifier = val;
+        getNtpHeader()->referenceIdentifier = static_cast<uint32_t>(val);
+    }
+
+    void NtpLayer::setReferenceIdentifier(KissODeath val)
+    {
+        getNtpHeader()->referenceIdentifier = static_cast<uint32_t>(val);
     }
 
     std::string NtpLayer::getReferenceIdentifierString() const
     {
         uint8_t stratum = getStratum();
+        uint8_t version = getVersion();
+        uint32_t refID = getReferenceIdentifier();
 
         if (stratum == 0)
         {
-            switch (getVersion())
+            switch (version)
             {
             case 3:
             {
-                switch (getReferenceIdentifier())
+                switch (static_cast<ClockSource>(refID))
                 {
-                case DCN:
+                case ClockSource::DCN:
                     return "DCN routing protocol";
-                case NIST:
+                case ClockSource::NIST:
                     return "NIST public modem";
-                case TSP:
+                case ClockSource::TSP:
                     return "TSP time protocol";
-                case DTS:
+                case ClockSource::DTS:
                     return "Digital Time Service";
                 default:
                     return "Unknown";
                 }
             }
             case 4:
-                // TODO: It should return 4-character Kiss Code
-                return "Unspecified";
-            default:
-                return "Unsupported NTP version";
+            {
+                switch (static_cast<KissODeath>(refID))
+                {
+                case KissODeath::ACST:
+                    return "The association belongs to a anycast server";
+                case KissODeath::AUTH:
+                    return "Server authentication failed";
+                case KissODeath::AUTO:
+                    return "Autokey sequence failed";
+                case KissODeath::BCST:
+                    return "The association belongs to a broadcast server";
+                case KissODeath::CRYP:
+                    return "Cryptographic authentication or identification failed";
+                case KissODeath::DENY:
+                    return "Access denied by remote server";
+                case KissODeath::DROP:
+                    return "Lost peer in symmetric mode";
+                case KissODeath::RSTR:
+                    return "Access denied due to local policy";
+                case KissODeath::INIT:
+                    return "The association has not yet synchronized for the first time";
+                case KissODeath::MCST:
+                    return "The association belongs to a manycast server";
+                case KissODeath::NKEY:
+                    return "No key found.  Either the key was never installed or is not trusted";
+                case KissODeath::RATE:
+                    return "Rate exceeded.  The server has temporarily denied access because the client exceeded the rate "
+                        "threshold";
+                case KissODeath::RMOT:
+                    return "Somebody is tinkering with the association from a remote host running ntpdc.  Not to worry "
+                        "unless some rascal has stolen your keys";
+                case KissODeath::STEP:
+                    return "A step change in system time has occurred, but the association has not yet resynchronized";
+                default:
+                {
+                    char arrBuff[4] = {static_cast<char>((refID >> 24) & 0xFF), static_cast<char>((refID >> 16) & 0xFF),
+                                       static_cast<char>((refID >> 8) & 0xFF), static_cast<char>((refID) & 0xFF)};
+                    return arrBuff;
+                }
+                }
+            }
             }
         }
         else if (stratum == 1)
         {
-            switch (getVersion())
+            switch (version)
             {
             case 3:
             {
-                switch (getReferenceIdentifier())
+                switch (static_cast<ClockSource>(refID))
                 {
-                case ATOM:
+                case ClockSource::ATOM:
                     return "Atomic clock";
-                case VLF:
+                case ClockSource::VLF:
                     return "VLF radio";
-                case LORC:
+                case ClockSource::LORC:
                     return "LORAN-C radionavigation";
-                case GOES:
+                case ClockSource::GOES:
                     return "GOES UHF environment satellite";
-                case GPS:
+                case ClockSource::GPS:
                     return "GPS UHF satellite positioning";
                 default:
                     return "Unknown";
@@ -237,61 +281,69 @@ namespace pcpp
             }
             case 4:
             {
-                switch (getReferenceIdentifier())
+                switch (static_cast<ClockSource>(refID))
                 {
-                case GOES:
+                case ClockSource::GOES:
                     return "Geosynchronous Orbit Environment Satellite";
-                case GPS:
+                case ClockSource::GPS:
                     return "Global Position System";
-                case GAL:
+                case ClockSource::GAL:
                     return "Galileo Positioning System";
-                case PPS:
+                case ClockSource::PPS:
                     return "Generic pulse-per-second";
-                case IRIG:
+                case ClockSource::IRIG:
                     return "Inter-Range Instrumentation Group";
-                case WWVB:
+                case ClockSource::WWVB:
                     return "LF Radio WWVB Ft. Collins, CO 60 kHz";
-                case DCF:
+                case ClockSource::DCF:
                     return "LF Radio DCF77 Mainflingen, DE 77.5 kHz";
-                case HBG:
+                case ClockSource::HBG:
                     return "LF Radio HBG Prangins, HB 75 kHz";
-                case MSF:
+                case ClockSource::MSF:
                     return "LF Radio MSF Anthorn, UK 60 kHz";
-                case JJY:
+                case ClockSource::JJY:
                     return "LF Radio JJY Fukushima, JP 40 kHz, Saga, JP 60 kHz";
-                case LORC:
+                case ClockSource::LORC:
                     return "MF Radio LORAN C station, 100 kHz";
-                case TDF:
+                case ClockSource::TDF:
                     return "MF Radio Allouis, FR 162 kHz";
-                case CHU:
+                case ClockSource::CHU:
                     return "HF Radio CHU Ottawa, Ontario";
-                case WWV:
+                case ClockSource::WWV:
                     return "HF Radio WWV Ft. Collins, CO";
-                case WWVH:
+                case ClockSource::WWVH:
                     return "HF Radio WWVH Kauai, HI";
-                case NIST:
+                case ClockSource::NIST:
                     return "NIST telephone modem";
-                case ACTS:
+                case ClockSource::ACTS:
                     return "NIST telephone modem";
-                case USNO:
+                case ClockSource::USNO:
                     return "USNO telephone modem";
-                case PTB:
+                case ClockSource::PTB:
                     return "European telephone modem";
-                case DCFa:
+                case ClockSource::MRS:
+                    return "Multi Reference Sources";
+                case ClockSource::XFAC:
+                    return "Inter Face Association Changed";
+                case ClockSource::STEP:
+                    return "Step time change";
+                case ClockSource::GOOG:
+                    return "Google NTP servers";
+                case ClockSource::DCFa:
                     return "Meinberg DCF77 with amplitude modulation";
-                case DCFp:
+                case ClockSource::DCFp:
                     return "Meinberg DCF77 with phase modulation)/pseudo random phase modulation";
-                case GPSs:
+                case ClockSource::GPSs:
                     return "Meinberg GPS (with shared memory access)";
-                case GPSi:
+                case ClockSource::GPSi:
                     return "Meinberg GPS (with interrupt based access)";
-                case GLNs:
+                case ClockSource::GLNs:
                     return "Meinberg GPS/GLONASS (with shared memory access)";
-                case GLNi:
+                case ClockSource::GLNi:
                     return "Meinberg GPS/GLONASS (with interrupt based access)";
-                case LCL:
+                case ClockSource::LCL:
                     return "Meinberg Undisciplined local clock";
-                case LOCL:
+                case ClockSource::LOCL:
                     return "Meinberg Undisciplined local clock";
                 default:
                     return "Unknown";
@@ -484,20 +536,16 @@ namespace pcpp
 
     double NtpLayer::convertFromShortFormat(const uint32_t val)
     {
-        double integerPart, fractionPart;
-
-        integerPart = netToHost16(val & 0xFFFF);
-        fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
+        double integerPart = netToHost16(val & 0xFFFF);
+        double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
 
         return integerPart + fractionPart;
     }
 
     double NtpLayer::convertFromTimestampFormat(const uint64_t val)
     {
-        double integerPart, fractionPart;
-
-        integerPart = netToHost32(val & 0xFFFFFFFF);
-        fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
+        double integerPart = netToHost32(val & 0xFFFFFFFF);
+        double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
 
         // TODO: Return integer and fraction parts as struct to increase precision
         // Offset change should be done here because of overflow
@@ -506,50 +554,35 @@ namespace pcpp
 
     uint32_t NtpLayer::convertToShortFormat(const double val)
     {
-        uint32_t retval = 0;
-        double integerPart, fractionPart;
-        uint16_t integerPartInt, fractionPartInt;
-
-        fractionPart = modf(val, &integerPart);
+        double integerPart;
+        double fractionPart = modf(val, &integerPart);
 
         // Cast values to 16bit
-        integerPartInt = hostToNet16(integerPart);
-        fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
+        uint32_t integerPartInt = hostToNet16(integerPart);
+        uint32_t fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
 
-        retval = retval | uint32_t(integerPartInt);
-        retval = retval | (uint32_t(fractionPartInt)) << 16;
-
-        return retval;
+        return integerPartInt | (fractionPartInt << 16);
     }
 
     uint64_t NtpLayer::convertToTimestampFormat(const double val)
     {
-        uint64_t retval = 0;
-        double integerPart, fractionPart;
-        uint32_t integerPartInt, fractionPartInt;
-
-        fractionPart = modf(val, &integerPart);
+        double integerPart;
+        double fractionPart = modf(val, &integerPart);
 
         // Cast values to 32bit
-        integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
-        fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
+        uint64_t integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
+        uint64_t fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
 
-        retval = retval | uint64_t(integerPartInt);
-        retval = retval | (uint64_t(fractionPartInt) << 32);
-
-        return retval;
+        return integerPartInt | (fractionPartInt << 32);
     }
 
     std::string NtpLayer::convertToIsoFormat(const double timestamp)
     {
-        char buffer[50], bufferFraction[15];
-        double integerPart, fractionPart;
+        double integerPart;
+        double fractionPart = modf(timestamp, &integerPart);
+
         struct tm *timer;
-        time_t timeStruct;
-
-        fractionPart = modf(timestamp, &integerPart);
-
-        timeStruct = integerPart;
+        time_t timeStruct = integerPart;
 #if defined(_WIN32)
         if (timeStruct < 0)
             timeStruct = 0;
@@ -566,6 +599,7 @@ namespace pcpp
             PCPP_LOG_ERROR("Can't convert time");
             return std::string();
         }
+        char buffer[50], bufferFraction[15];
         strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
         snprintf(bufferFraction, sizeof(bufferFraction), "%.04lfZ", fabs(fractionPart));
@@ -586,10 +620,6 @@ namespace pcpp
 
     std::string NtpLayer::toString() const
     {
-        std::stringstream ss;
-
-        ss << "NTP Layer v" << (int)getVersion() << ", Mode: " << getModeString();
-
-        return ss.str();
+        return std::string("NTP Layer v") + std::to_string(getVersion()) + ", Mode: " + getModeString();
     }
 }
