@@ -205,6 +205,9 @@ jobs:
         with:
           python-version: "3.8.x"
 
+      - name: Install Pre-Configure Requirements
+        run: python3 -m pip install gcovr
+
       - name: Configure PcapPlusPlus
         run: |
           cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B $BUILD_DIR
