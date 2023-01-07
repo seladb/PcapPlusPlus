@@ -114,7 +114,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Pre-Configure Requirements
-        run: ${{ matrix.python }} -m pip install gcovr
+        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
@@ -158,7 +158,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install Pre-Configure Requirements
-        run: ${{ matrix.python }} -m pip install gcovr
+        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -301,7 +301,7 @@ jobs:
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
 
       - name: Install Pre-Configure Requirements
-        run: ${{ matrix.python }} -m pip install gcovr
+        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
