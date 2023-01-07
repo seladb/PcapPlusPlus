@@ -64,6 +64,9 @@ jobs:
           ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
           ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
       - name: Test Examples
         run: |
           cd Tests/ExamplesTest
@@ -82,9 +85,6 @@ jobs:
 
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-      - name: Create Cobertura Report
-        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -226,6 +226,9 @@ jobs:
           python -m pip install -r ci/run_tests/requirements.txt
           python ci/run_tests/run_tests.py --interface en0 --use-sudo
 
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
       - name: Test Examples
         if: ${{ matrix.arch == 'x86_64' }}
         run: |
@@ -246,9 +249,6 @@ jobs:
       - name: Test Tutorials
         if: ${{ matrix.arch == 'x86_64' }}
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-      - name: Create Cobertura Report
-        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -316,14 +316,14 @@ jobs:
           python -m pip install -r ci\run_tests\requirements.txt
           python ci\run_tests\run_tests_windows.py
 
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
       - name: Test Examples
         run: |
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
-
-      - name: Create Cobertura Report
-        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
