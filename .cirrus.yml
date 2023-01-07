@@ -111,9 +111,9 @@ task:
     - python3 -m pip install -U pip
     - python3 -m pip install -r requirements.txt
   configure_script:
-    - cmake -S . -B $BUILD_DIR
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer
   test_script:
-    - ctest -S $BUILD_DIR/asan-testing.cmake --extra-verbose --output-on-failure
+    - ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure
 
 task:
   name: Regression Tests Linux (Memory Sanitizer)
@@ -123,9 +123,9 @@ task:
     - python3 -m pip install -U pip
     - python3 -m pip install -r requirements.txt
   configure_script:
-    - cmake -S . -B $BUILD_DIR
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=MemorySanitizer
   test_script:
-    - ctest -S $BUILD_DIR/msan-testing.cmake --extra-verbose --output-on-failure
+    - ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure
 
 task:
   name: Regression Tests Linux (Thread Sanitizer)
@@ -135,9 +135,9 @@ task:
     - python3 -m pip install -U pip
     - python3 -m pip install -r requirements.txt
   configure_script:
-    - cmake -S . -B $BUILD_DIR
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=ThreadSanitizer
   test_script:
-    - ctest -S $BUILD_DIR/tsan-testing.cmake --extra-verbose --output-on-failure
+    - ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
@@ -147,9 +147,9 @@ task:
     - python3 -m pip install -U pip
     - python3 -m pip install -r requirements.txt
   configure_script:
-    - cmake -S . -B $BUILD_DIR
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer
   test_script:
-    - ctest -S $BUILD_DIR/ubsan-testing.cmake --extra-verbose --output-on-failure
+    - ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure
 
 task:
   name: Build Doxygen Documentation
