@@ -90,6 +90,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
+          flags: ${{ matrix.image }}
           fail_ci_if_error: true
           verbose: true
 
@@ -139,6 +140,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
+          flags: ${{ matrix.image }}
           fail_ci_if_error: true
           verbose: true
 
@@ -180,6 +182,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
+          flags: pfring
           fail_ci_if_error: true
           verbose: true
 
@@ -257,6 +260,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
+          flags: ${{ matrix.os-version }}
           fail_ci_if_error: true
           verbose: true
 
@@ -332,6 +336,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
+          flags: ${{ matrix.sys }}
           fail_ci_if_error: true
           verbose: true
 
