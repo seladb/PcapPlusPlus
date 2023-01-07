@@ -20,11 +20,9 @@ set(CMAKE_CXX_STANDARD 11)
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
 
-if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC)
-  if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
-    add_compile_options(--coverage)
-    add_link_options(--coverage)
-  endif()
+if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
+  add_compile_options(--coverage)
+  add_link_options(--coverage)
 endif()
 
 add_subdirectory(Arping)
