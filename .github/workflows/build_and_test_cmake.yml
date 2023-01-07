@@ -330,7 +330,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Create Cobertura Report
-        run: gcovr -v --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr -v --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml -r $BUILD_DIR .
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
