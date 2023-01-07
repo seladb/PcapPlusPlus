@@ -31,4 +31,4 @@ build_script:
   - cmd: cmake -G "%generator%" -A "%arch%" -DPCAP_ROOT="C:\Npcap-sdk" -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;%NetworkIP%" -S . -B "%BUILD_DIR%"
 
 test_script:
-  - cmd: ctest -S "%BUILD_DIR%/testing.cmake" --extra-verbose --output-on-failure
+  - cmd: ctest -S "%BUILD_DIR%/testing.cmake" -C "Debug" --extra-verbose --output-on-failure

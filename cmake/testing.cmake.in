@@ -24,7 +24,7 @@ ctest_start(${MODEL})
 #  message(FATAL_ERROR "Configuration failed!")
 #endif ()
 
-ctest_build(CONFIGURATION "Debug" RETURN_VALUE ret)
+ctest_build(RETURN_VALUE ret)
 if (ret)
   message(FATAL_ERROR "Build failed!")
 endif ()
