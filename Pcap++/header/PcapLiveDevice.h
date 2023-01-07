@@ -2,12 +2,14 @@
 #ifndef PCAPPP_LIVE_DEVICE
 #define PCAPPP_LIVE_DEVICE
 
-#include "PcapDevice.h"
+#include <atomic>
 #include <vector>
 #include <string.h>
 #include <thread>
+
 #include "IpAddress.h"
 #include "Packet.h"
+#include "PcapDevice.h"
 
 // forward declarations for structs and typedefs that are defined in pcap.h
 struct pcap_if;
@@ -96,7 +98,7 @@ namespace pcpp
 		bool m_CaptureThreadStarted;
 		std::thread m_StatsThread;
 		bool m_StatsThreadStarted;
-		bool m_StopThread;
+		std::atomic<bool> m_StopThread;
 		OnPacketArrivesCallback m_cbOnPacketArrives;
 		void* m_cbOnPacketArrivesUserCookie;
 		OnStatsUpdateCallback m_cbOnStatsUpdate;
