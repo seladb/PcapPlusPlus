@@ -320,7 +320,7 @@ jobs:
           python ci\run_tests\run_tests_windows.py
 
       - name: Create Cobertura Report
-        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Test Examples
         run: |
