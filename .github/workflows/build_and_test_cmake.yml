@@ -49,6 +49,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install Pre-Configure Requirements
+        run: ${{ matrix.python }} -m pip install gcovr
+
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
 
@@ -74,7 +77,7 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPCAPPP_BUILD_COVERAGE=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
@@ -82,6 +85,16 @@ jobs:
           # We need to execute the HelloWorld in the same folder as the PCAP file
           cp build_examples/Tutorials/Tutorial-HelloWorld/Tutorial-HelloWorld Examples/Tutorials/Tutorial-HelloWorld/
           cd Examples/Tutorials/Tutorial-HelloWorld && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
 
   dpdk:
     runs-on: ubuntu-20.04
@@ -99,6 +112,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install Pre-Configure Requirements
+        run: ${{ matrix.python }} -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
@@ -119,6 +135,16 @@ jobs:
           cd Tests/Pcap++Test
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
@@ -130,6 +156,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install Pre-Configure Requirements
+        run: ${{ matrix.python }} -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -146,6 +175,16 @@ jobs:
         run: |
           cd Tests/Pcap++Test
           Bin/Pcap++Test -n
+
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
 
   macos:
     runs-on: ${{ matrix.os-version }}
@@ -204,7 +243,7 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPCAPPP_BUILD_COVERAGE=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
@@ -213,6 +252,16 @@ jobs:
           # We need to execute the HelloWorld in the same folder as the PCAP file
           cp build_examples/Tutorials/Tutorial-HelloWorld/Tutorial-HelloWorld Examples/Tutorials/Tutorial-HelloWorld/
           cd Examples/Tutorials/Tutorial-HelloWorld && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
 
   mingw-w64:
     runs-on: windows-latest
@@ -251,6 +300,9 @@ jobs:
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
 
+      - name: Install Pre-Configure Requirements
+        run: ${{ matrix.python }} -m pip install gcovr
+
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
@@ -275,6 +327,16 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
+
+      - name: Create Cobertura Report
+        run: gcovr -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
 
   visual-studio:
     strategy:

@@ -41,6 +41,7 @@ cmake_dependent_option(
   "PCAPPP_BUILD_EXAMPLES"
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" ${PCAPPP_MAIN_PROJECT})
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
@@ -144,6 +145,10 @@ endif()
 
 if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC)
   add_compile_options(-Wall)
+  if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
+    add_compile_options(--coverage)
+    add_link_options(--coverage)
+  endif()
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
