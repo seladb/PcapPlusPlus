@@ -145,16 +145,17 @@ endif()
 
 if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC)
   add_compile_options(-Wall)
-  if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
-    add_compile_options(--coverage)
-    add_link_options(--coverage)
-  endif()
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
 if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
   add_link_options(-static)
+endif()
+
+if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
+  add_compile_options(--coverage)
+  add_link_options(--coverage)
 endif()
 
 add_subdirectory(3rdParty)
