@@ -27,9 +27,7 @@ task:
       image_family: freebsd-12-3
       image_family: freebsd-13-0
   install_script:
-    - pkg install -y bash cmake git gmake gsed libpcap tcpreplay libxml2 libxslt
-    - python -m ensurepip
-    - python -m pip install gcovr
+    - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
     - cmake -S . -B Dist
   build_script:
@@ -44,11 +42,6 @@ task:
     - python -m ensurepip
     - python -m pip install -r requirements.txt
     - python -m pytest --interface vtnet0 --use-sudo --root-path=../../Dist/examples_bin
-  coverage_script:
-    - gcovr -v -r Dist --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
-    - curl -Os https://uploader.codecov.io/latest/linux/codecov
-    - chmod +x codecov
-    - ./codecov -v -f coverage.xml -F freebsd
 
 task:
   name: Test Zstd Linux
