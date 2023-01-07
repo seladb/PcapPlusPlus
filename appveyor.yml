@@ -1,6 +1,7 @@
 version: 1.0.{build}
 
 environment:
+  BUILD_DIR: "build"
   NPCAP_USERNAME:
     secure: iVuVl18E7ZfsuRjz0YKJKQ==
   NPCAP_PASSWORD:
@@ -8,13 +9,13 @@ environment:
   PYTHON: "C:\\Python38-x64"
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      compiler: vs2015
-      platform: x86
-      config: Debug
+      platform: "x86"
+      generator: "Visual Studio 14 2015"
+      arch: "Win32"
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      compiler: vs2017
-      platform: x86
-      config: Debug
+      platform: "x86"
+      generator: "Visual Studio 15 2017"
+      arch: "Win32"
 
 init:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
@@ -22,20 +23,12 @@ init:
 install:
   - cmd: ci\install_npcap.bat
   - cmd: python -m pip install --upgrade pip
+  - cmd: python -m pip install -r requirements.txt
   - cmd: ci\install_tcpreplay.bat
 
-before_build:
-  - cmd: configure-windows-visual-studio.bat -v %compiler% -w C:\Npcap-sdk
-
 build_script:
-  - ps: msbuild mk\$env:compiler\PcapPlusPlus.sln /p:Configuration=$env:config /p:Platform=$env:platform
-  - ps: msbuild mk\$env:compiler\PcapPlusPlus-Examples.sln /p:Configuration=$env:config /p:Platform=$env:platform
-  - ps: msbuild mk\$env:compiler\Tutorials.sln /p:Configuration=$env:config /p:Platform=$env:platform
+  - cmd: ci\find_ip.bat
+  - cmd: cmake -G "%generator%" -A "%arch%" -DPCAP_ROOT="C:\Npcap-sdk" -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;%NetworkIP%" -S . -B "%BUILD_DIR%"
 
 test_script:
-  - cmd: python -m pip install -r ci\run_tests\requirements.txt
-  - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets
-  - cmd: ci\find_ip.bat
-  - cmd: cd Tests\ExamplesTest
-  - cmd: python -m pip install -r requirements.txt
-  - cmd: python -m pytest --interface %NetworkIP%
+  - cmd: ctest -S "%BUILD_DIR%/testing.cmake" --extra-verbose --output-on-failure

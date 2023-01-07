@@ -18,12 +18,12 @@ if (ret)
   message(FATAL_ERROR "Configuration failed!")
 endif ()
 
-ctest_build(RETURN_VALUE ret)
+ctest_build(CONFIGURATION "Debug" RETURN_VALUE ret)
 if (ret)
   message(FATAL_ERROR "Build failed!")
 endif ()
 
-ctest_test(RETURN_VALUE test_result)
+ctest_test(CONFIGURATION "Debug" RETURN_VALUE test_result)
 
 set(CDASH_TOKEN "$ENV{CTEST_CDASH_AUTH_TOKEN}")
 if (NOT "${CDASH_TOKEN}" STREQUAL "")
