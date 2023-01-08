@@ -16,6 +16,10 @@ def find_interface():
         capture_output=True,
         cwd=TCPREPLAY_PATH,
     )
+    if completed_process.returncode != 0:
+        print("Error executing \"tcpreplay.exe --listnics\"!")
+        exit(1)
+
     raw_nics_output = completed_process.stdout.decode("utf-8")
     for row in raw_nics_output.split("\n")[2:]:
         columns = row.split("\t")
