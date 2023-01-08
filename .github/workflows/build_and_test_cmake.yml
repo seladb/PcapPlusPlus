@@ -90,7 +90,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
-          flags: ${{ matrix.image }}
+          flags: ${{ matrix.image }},unittest
           fail_ci_if_error: true
           verbose: true
 
@@ -140,7 +140,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
-          flags: ${{ matrix.image }}
+          flags: ${{ matrix.image }},unittest
           fail_ci_if_error: true
           verbose: true
 
@@ -182,7 +182,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
-          flags: pfring
+          flags: pfring,unittest
           fail_ci_if_error: true
           verbose: true
 
@@ -260,7 +260,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
-          flags: ${{ matrix.os-version }}
+          flags: ${{ matrix.os-version }},unittest
           fail_ci_if_error: true
           verbose: true
 
@@ -340,7 +340,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
-          flags: ${{ matrix.sys }}
+          flags: ${{ matrix.sys }},unittest
           fail_ci_if_error: true
           verbose: true
 
