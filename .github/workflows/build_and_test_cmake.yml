@@ -377,6 +377,11 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
 
+      - name: Setup OpenCppCoverage and add to PATH
+        run: |
+          choco install OpenCppCoverage -y
+          echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
+
       - name: Install WinPcap
         run: |
           ci\install_winpcap.bat
@@ -410,7 +415,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py
+          python ci\run_tests\run_tests_windows.py --coverage
 
       - name: Test Examples
         run: |
@@ -418,6 +423,14 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
+          flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
+          fail_ci_if_error: true
+          verbose: true
 
   android:
     strategy:
