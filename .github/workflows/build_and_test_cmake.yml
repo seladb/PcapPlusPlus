@@ -177,10 +177,7 @@ jobs:
 
       - name: Test Examples
         if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          python -m pip install -U pip
-          python -m pip install -r requirements.txt
-          ctest -S "$BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
+        run: ctest -S "$BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
       - name: Check installation
         run: cmake --install "$BUILD_DIR"
@@ -252,10 +249,7 @@ jobs:
           python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
-        run: |
-          python -m pip install -U pip
-          python -m pip install -r requirements.txt
-          ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
+        run: ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
   visual-studio:
     strategy:
@@ -327,10 +321,7 @@ jobs:
           python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
-        run: |
-          python -m pip install -U pip
-          python -m pip install -r requirements.txt
-          ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
+        run: ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
 
   android:

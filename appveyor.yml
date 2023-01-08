@@ -24,8 +24,6 @@ install:
   - cmd: ci\install_npcap.bat
   - cmd: python -m pip install --upgrade pip
   - cmd: python -m pip install -r requirements.txt
-  - cmd: python -m pytest --version
-  - cmd: python --version
   - cmd: ci\install_tcpreplay.bat
 
 build_script:
