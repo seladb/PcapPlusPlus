@@ -17,7 +17,7 @@ def find_interface():
         cwd=TCPREPLAY_PATH,
     )
     if completed_process.returncode != 0:
-        print("Error executing \"tcpreplay.exe --listnics\"!")
+        print('Error executing "tcpreplay.exe --listnics"!')
         exit(1)
 
     raw_nics_output = completed_process.stdout.decode("utf-8")
