@@ -155,6 +155,9 @@ jobs:
         with:
           python-version: "3.8.x"
 
+      - name: Allow capture for user
+        run: sudo chown $USER /dev/bpf*
+
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;en0" -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
