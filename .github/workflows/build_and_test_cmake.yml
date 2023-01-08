@@ -49,10 +49,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD="${{ matrix.config-zstd }}" -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;eth0" -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD="${{ matrix.config-zstd }}" -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;eth0" -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Install Test Requirements
         run: |
@@ -63,10 +63,10 @@ jobs:
         run: ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
-        run: ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure
+        run: ctest -S "$BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
       - name: Check installation
-        run: cmake --install $BUILD_DIR
+        run: cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
         run: |
@@ -95,10 +95,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
+        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Check AVX
         run: grep avx /proc/cpuinfo
@@ -109,7 +109,7 @@ jobs:
           python3 -m pip install -r requirements.txt
 
       - name: Test PcapPlusPlus
-        run: if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Tests; fi
+        run: if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then ctest -S "$BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Tests; fi
 
   pfring:
     runs-on: ubuntu-20.04
@@ -120,10 +120,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B $BUILD_DIR
+        run: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Install Test Requirements
         run: |
@@ -131,7 +131,7 @@ jobs:
           python3 -m pip install -r requirements.txt
 
       - name: Test PcapPlusPlus
-        run: ctest -S $BUILD_DIR/testing.cmake --extra-verbose --output-on-failure
+        run: ctest -S "$BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
   macos:
     runs-on: ${{ matrix.os-version }}
@@ -157,13 +157,13 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B $BUILD_DIR
+          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Check architecture
-        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
+        run: lipo "$BUILD_DIR/Pcap++/libPcap++.a" -verify_arch ${{ matrix.arch }}
 
       - name: Install Tcpreplay
         run: brew install tcpreplay
@@ -185,7 +185,7 @@ jobs:
           python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
 
       - name: Check installation
-        run: cmake --install $BUILD_DIR
+        run: cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
         run: |
@@ -236,28 +236,24 @@ jobs:
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
-        run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B $BUILD_DIR
+        run: cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
         # More than 2 jobs would make the build crash with OOM
         # cc1plus.exe: out of memory allocating 65536 bytes
-        run: cmake --build $BUILD_DIR -j 2
+        run: cmake --build "$BUILD_DIR" -j 2
 
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
       - name: Test PcapPlusPlus
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
+          python -m pip install -r requirements.txt
           python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
-        run: |
-          cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
-          python -m pytest --root-path=../../Dist/examples_bin
+        run: ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
   visual-studio:
     strategy:
@@ -314,25 +310,23 @@ jobs:
         if: matrix.use_zstd == true
 
       - name: Configure PcapPlusPlus
-        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B $env:BUILD_DIR
+        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B "$env:BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $env:BUILD_DIR -j
+        run: cmake --build "$env:BUILD_DIR" -j
 
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
 
       - name: Test PcapPlusPlus
         run: |
-          python -m pip install -r ci\run_tests\requirements.txt
+          python -m pip install -r requirements.txt
           python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
         run: |
-          move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
-          cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
-          python -m pytest --root-path=../../Dist/examples_bin
+          ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
+
 
   android:
     strategy:
@@ -368,10 +362,10 @@ jobs:
       - name: Configure PcapPlusPlus
         run: |
           LIBPCAP_PATH=$(pwd)/libpcap-android
-          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B $BUILD_DIR
+          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
         uses: actions/checkout@master
@@ -386,7 +380,7 @@ jobs:
           TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
           PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
           PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
-          cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
+          cmake --install "$BUILD_DIR" --prefix ${TOYVPN_PCAPPLUSPLUS}
           mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
