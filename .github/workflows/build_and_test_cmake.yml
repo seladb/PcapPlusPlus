@@ -156,8 +156,7 @@ jobs:
           python-version: "3.8.x"
 
       - name: Configure PcapPlusPlus
-        run: |
-          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;en0" -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
@@ -173,16 +172,12 @@ jobs:
         if: ${{ matrix.arch == 'x86_64' }}
         run: |
           python -m pip install -U pip
-          python -m pip install -r ci/run_tests/requirements.txt
+          python -m pip install -r requirements.txt
           python ci/run_tests/run_tests.py --interface en0 --use-sudo
 
       - name: Test Examples
         if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          cd Tests/ExamplesTest
-          python -m pip install -U pip
-          python -m pip install -r requirements.txt
-          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
+        run: ctest -S "$BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
       - name: Check installation
         run: cmake --install "$BUILD_DIR"
@@ -236,7 +231,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
-        run: cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B "$BUILD_DIR"
+        run: cmake -G "MinGW Makefiles" -DPCAP_ROOT="/C/Npcap-sdk" -DLIGHT_PCAPNG_ZSTD=OFF -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -253,7 +248,10 @@ jobs:
           python ci\run_tests\run_tests_windows.py
 
       - name: Test Examples
-        run: ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
+        run: |
+          python -m pip install -r requirements.txt
+          python --version
+          ctest -C "Debug" -S "$env:BUILD_DIR/testing.cmake" --extra-verbose --output-on-failure
 
   visual-studio:
     strategy:
