@@ -84,7 +84,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
-        run: gcovr -v -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -134,7 +134,7 @@ jobs:
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
       - name: Create Cobertura Report
-        run: gcovr -v -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -176,7 +176,7 @@ jobs:
           Bin/Pcap++Test -n
 
       - name: Create Cobertura Report
-        run: gcovr -v -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -254,7 +254,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
-        run: gcovr -v -r $BUILD_DIR --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -293,6 +293,9 @@ jobs:
         with:
           python-version: "3.8.x"
 
+      - name: Install Pre-Configure Requirements
+        run: python3 -m pip install gcovr
+
       - name: Install NPcap
         env:
           NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
@@ -300,9 +303,6 @@ jobs:
         run: |
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
-
-      - name: Install Pre-Configure Requirements
-        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
@@ -329,8 +329,12 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
 
-      - name: Create Cobertura Report
-        run: gcovr -v --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml -r $BUILD_DIR .
+      - name: Process Coverage Files
+        shell: msys2 {0}
+        run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
+
+      - name: Create Coberture Report
+        run: gcovr -v -g -k -r . --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
