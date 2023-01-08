@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.8.x"
+          python-version: "3.8"
       - name: Install dependencies
         run: sudo apt install cppcheck=2.7-1
       - uses: pre-commit/action@v3.0.0
@@ -153,7 +153,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.8.x"
+          python-version: "3.8"
 
       - name: Allow capture for user
         run: sudo chown $USER /dev/bpf*
@@ -222,7 +222,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.8.x"
+          python-version: "3.8"
 
       - name: Install NPcap
         env:
@@ -282,7 +282,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.8.x"
+          python-version: "3.8"
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
