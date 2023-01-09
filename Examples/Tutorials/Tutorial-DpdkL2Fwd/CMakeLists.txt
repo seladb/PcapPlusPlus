@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(Tutorial-DpdkL2Fwd)
 
-add_executable("${PROJECT_NAME}" main.cpp)
+add_executable("${PROJECT_NAME}" main.cpp WorkerThread.cpp)
 
 if(NOT TARGET PcapPlusPlus::Pcap++)
         message("Compiling Tutorial out of project")
