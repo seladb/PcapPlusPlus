@@ -15,7 +15,7 @@ project(
   HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
 # Include our custom CMake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
@@ -205,11 +205,11 @@ if(PCAPPP_INSTALL)
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
+  install(DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules" COMPONENT devel DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
-          "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake"
           "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
-    COMPONENT dev
-    DESTINATION ${PCAPPP_INSTALL_CMAKEDIR})
+    COMPONENT devel
+    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 endif()
