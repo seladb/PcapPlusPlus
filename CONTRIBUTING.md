@@ -2,7 +2,7 @@
 
 Thanks for contributing to PcapPlusPlus! Any contribution is highly welcome and appreciated
 
-If you haven't already, please take a look at [PcapPlusPlus web-site](http://seladb.github.io/PcapPlusPlus-Doc) which provides a lot of information on existing features and capabilities, tutorials and build instructions
+If you haven't already, please take a look at [PcapPlusPlus web-site](https://pcapplusplus.github.io) which provides a lot of information on existing features and capabilities, tutorials and build instructions
 
 ## Bug Reports
 
