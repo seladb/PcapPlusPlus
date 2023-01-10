@@ -65,8 +65,14 @@ task:
   build_script:
     - cmake --build Dist -j 2
   test_pcapplusplus_script:
+    - python3 -m pip install gcovr
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface eth0
+  coverage_report_script:
+    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -v -f coverage.xml -F zstd -F ubuntu2004 -F unittest
 
 #task:
 #  name: Test Zstd MacOS
@@ -97,8 +103,14 @@ task:
     - brew install tcpreplay
   test_pcapplusplus_script:
     - python3 -m ensurepip
+    - python3 -m pip install gcovr
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
+  coverage_report_script:
+    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest
 
 task:
   name: Regression Tests Linux (Memory Behavior Sanitizer)
