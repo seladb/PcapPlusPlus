@@ -99,7 +99,7 @@ task:
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
   build_script:
     - cmake --build Dist -j
-  install_tcpreplay_script:
+  install_tcpreplay_gcovr_script:
     - brew install tcpreplay gcovr
   test_pcapplusplus_script:
     - python3 -m ensurepip
@@ -107,7 +107,7 @@ task:
     - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
   coverage_report_script:
     - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
-    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - curl -Os https://uploader.codecov.io/latest/macos/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest
 
