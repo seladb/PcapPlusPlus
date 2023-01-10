@@ -29,7 +29,7 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 
 BpfFilterWrapper::BpfFilterWrapper()
 {
-	m_Program = NULL;
+	m_Program = nullptr;
 	m_LinkType = LINKTYPE_ETHERNET;
 }
 
@@ -68,11 +68,11 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 void BpfFilterWrapper::freeProgram()
 {
-	if (m_Program != NULL)
+	if (m_Program != nullptr)
 	{
 		pcap_freecode(m_Program);
 		delete m_Program;
-		m_Program = NULL;
+		m_Program = nullptr;
 		m_FilterStr.clear();
 	}
 }

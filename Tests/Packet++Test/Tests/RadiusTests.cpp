@@ -12,7 +12,7 @@
 PTF_TEST_CASE(RadiusLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_1.dat");
 	pcpp::Packet radiusPacket(&rawPacket1);
@@ -85,7 +85,7 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 PTF_TEST_CASE(RadiusLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_11.dat");
 
@@ -155,7 +155,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 PTF_TEST_CASE(RadiusLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(11, "PacketExamples/radius_11.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/radius_2.dat");

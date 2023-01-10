@@ -110,7 +110,7 @@ void VlanLayer::parseNextLayer()
 
 void VlanLayer::computeCalculateFields()
 {
-	if (m_NextLayer == NULL)
+	if (m_NextLayer == nullptr)
 		return;
 
 	switch (m_NextLayer->getProtocol())

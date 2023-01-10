@@ -29,7 +29,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	}
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpRequestWithVlan.dat");
 
@@ -71,7 +71,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 PTF_TEST_CASE(QinQ802_1adParse)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/QinQ_802.1_AD.dat");
 	pcpp::Packet qinq8021adPacket(&rawPacket1);
@@ -95,7 +95,7 @@ PTF_TEST_CASE(QinQ802_1adParse)
 PTF_TEST_CASE(MplsLayerTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/MplsPackets2.dat");
@@ -180,7 +180,7 @@ PTF_TEST_CASE(MplsLayerTest)
 PTF_TEST_CASE(VxlanParsingAndCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Vxlan1.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/Vxlan2.dat");
