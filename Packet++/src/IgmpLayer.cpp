@@ -59,7 +59,7 @@ ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& 
 {
 	isQuery = false;
 
-	if (dataLen < 8 || data == NULL)
+	if (dataLen < 8 || data == nullptr)
 		return UnknownProtocol;
 
 	switch ((int)data[0])
@@ -368,7 +368,7 @@ igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord() const
 {
 	// check if there are group records at all
 	if (getHeaderLen() <= sizeof(igmpv3_report_header))
-		return NULL;
+		return nullptr;
 
 	uint8_t* curGroupPtr = m_Data + sizeof(igmpv3_report_header);
 	return (igmpv3_group_record*)curGroupPtr;
@@ -376,12 +376,12 @@ igmpv3_group_record* IgmpV3ReportLayer::getFirstGroupRecord() const
 
 igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
 {
-	if (groupRecord == NULL)
-		return NULL;
+	if (groupRecord == nullptr)
+		return nullptr;
 
 	// prev group was the last group
 	if ((uint8_t*)groupRecord + groupRecord->getRecordLen() - m_Data >= (int)getHeaderLen())
-		return NULL;
+		return nullptr;
 
 	igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
 
@@ -400,7 +400,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	if (offset > (int)getHeaderLen())
 	{
 		PCPP_LOG_ERROR("Cannot add group record, offset is out of layer bounds");
-		return NULL;
+		return nullptr;
 	}
 
 	size_t groupRecordSize = sizeof(igmpv3_group_record) + sizeof(uint32_t)*sourceAddresses.size();
@@ -408,7 +408,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	if (!extendLayer(offset, groupRecordSize))
 	{
 		PCPP_LOG_ERROR("Cannot add group record, cannot extend layer");
-		return NULL;
+		return nullptr;
 	}
 
 	uint8_t* groupRecordBuffer = new uint8_t[groupRecordSize];
@@ -447,7 +447,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType
 	if (index < 0 || index > groupCnt)
 	{
 		PCPP_LOG_ERROR("Cannot add group record, index " << index << " out of bounds");
-		return NULL;
+		return nullptr;
 	}
 
 	size_t offset = sizeof(igmpv3_report_header);
@@ -455,10 +455,10 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAtIndex(uint8_t recordType
 	igmpv3_group_record* curRecord = getFirstGroupRecord();
 	for (int i = 0; i < index; i++)
 	{
-		if (curRecord == NULL)
+		if (curRecord == nullptr)
 		{
 			PCPP_LOG_ERROR("Cannot add group record, cannot find group record at index " << i);
-			return NULL;
+			return nullptr;
 		}
 
 		offset += curRecord->getRecordLen();
@@ -483,7 +483,7 @@ bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
 	igmpv3_group_record* curRecord = getFirstGroupRecord();
 	for (int i = 0; i < index; i++)
 	{
-		if (curRecord == NULL)
+		if (curRecord == nullptr)
 		{
 			PCPP_LOG_ERROR("Cannot remove group record at index " << index << ", cannot find group record at index " << i);
 			return false;

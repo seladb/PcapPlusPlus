@@ -37,7 +37,7 @@ PTF_TEST_CASE(NtpMethodsTests)
 PTF_TEST_CASE(NtpParsingV3Tests)
 {
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv3.dat");
 
@@ -88,7 +88,7 @@ PTF_TEST_CASE(NtpParsingV3Tests)
 PTF_TEST_CASE(NtpParsingV4Tests)
 {
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
 
@@ -219,7 +219,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
 PTF_TEST_CASE(NtpCreationTests)
 {
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
 

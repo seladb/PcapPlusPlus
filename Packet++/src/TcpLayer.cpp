@@ -33,11 +33,11 @@ TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
 	switch (optionType)
 	{
 	case EOL:
-		init((uint8_t)PCPP_TCPOPT_EOL, NULL, 0);
+		init((uint8_t)PCPP_TCPOPT_EOL, nullptr, 0);
 		break;
 	case NOP:
 	default:
-		init((uint8_t)PCPP_TCPOPT_NOP, NULL, 0);
+		init((uint8_t)PCPP_TCPOPT_NOP, nullptr, 0);
 		break;
 	}
 }
@@ -52,7 +52,7 @@ TcpOption TcpOptionBuilder::build() const
 		if (m_RecValueLen != 0)
 		{
 			PCPP_LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't have option value. Tried to set option value of size " << m_RecValueLen);
-			return TcpOption(NULL);
+			return TcpOption(nullptr);
 		}
 
 		optionSize = 1;
@@ -64,7 +64,7 @@ TcpOption TcpOptionBuilder::build() const
 	if (optionSize > 1)
 	{
 		recordBuffer[1] = static_cast<uint8_t>(optionSize);
-		if (optionSize > 2 && m_RecValue != NULL)
+		if (optionSize > 2 && m_RecValue != nullptr)
 			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 	}
 
@@ -101,7 +101,7 @@ TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const
 {
 	TcpOption nextOpt = m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 	if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
-		return TcpOption(NULL);
+		return TcpOption(nullptr);
 
 	return nextOpt;
 }
@@ -130,7 +130,7 @@ TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, Tcp
 		if (prevOpt.isNull())
 		{
 			PCPP_LOG_ERROR("Previous option of type " << (int)prevOptionType << " not found, cannot add a new TCP option");
-			return TcpOption(NULL);
+			return TcpOption(nullptr);
 		}
 
 		offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
@@ -207,7 +207,7 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int of
 	{
 		PCPP_LOG_ERROR("Could not extend TcpLayer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
-		return TcpOption(NULL);
+		return TcpOption(nullptr);
 	}
 
 	memcpy(m_Data + offset, newOption.getRecordBasePtr(), newOption.getTotalSize());
@@ -248,7 +248,7 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
 	uint16_t checksumRes = 0;
 	uint16_t currChecksumValue = tcpHdr->headerChecksum;
 
-	if (m_PrevLayer != NULL)
+	if (m_PrevLayer != nullptr)
 	{
 		tcpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];

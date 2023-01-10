@@ -70,7 +70,7 @@ class IPv4FragmentWrapper : public IPFragmentWrapper
 public:
 	explicit IPv4FragmentWrapper(Packet* fragment)
 	{
-		m_IPLayer = fragment->isPacketOfType(IPv4) ? fragment->getLayerOfType<IPv4Layer>() : NULL;
+		m_IPLayer = fragment->isPacketOfType(IPv4) ? fragment->getLayerOfType<IPv4Layer>() : nullptr;
 	}
 
 	// implement abstract methods
@@ -139,18 +139,18 @@ class IPv6FragmentWrapper : public IPFragmentWrapper
 public:
 	explicit IPv6FragmentWrapper(Packet* fragment)
 	{
-		m_IPLayer = fragment->isPacketOfType(IPv6) ? fragment->getLayerOfType<IPv6Layer>() : NULL;
-		if (m_IPLayer != NULL)
+		m_IPLayer = fragment->isPacketOfType(IPv6) ? fragment->getLayerOfType<IPv6Layer>() : nullptr;
+		if (m_IPLayer != nullptr)
 			m_FragHeader = m_IPLayer->getExtensionOfType<IPv6FragmentationHeader>();
 		else
-			m_FragHeader = NULL;
+			m_FragHeader = nullptr;
 	}
 
 	// implement abstract methods
 
 	bool isFragment()
 	{
-		return (m_FragHeader != NULL);
+		return (m_FragHeader != nullptr);
 	}
 
 	bool isFirstFragment()
@@ -185,7 +185,7 @@ public:
 
 	uint32_t hashPacket()
 	{
-		if (m_FragHeader == NULL)
+		if (m_FragHeader == nullptr)
 			return 0;
 
 		ScalarBuffer<uint8_t> vec[3];
@@ -290,7 +290,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// create fragment wrapper
 	IPv4FragmentWrapper ipv4Wrapper(fragment);
 	IPv6FragmentWrapper ipv6Wrapper(fragment);
-	IPFragmentWrapper* fragWrapper = NULL;
+	IPFragmentWrapper* fragWrapper = nullptr;
 	if (fragment->isPacketOfType(IPv4))
 		fragWrapper = &ipv4Wrapper;
 	else // fragment->isPacketOfType(IPv6)
@@ -307,7 +307,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// create a hash from source IP, destination IP and IP/fragment ID
 	uint32_t hash = fragWrapper->hashPacket();
 
-	IPFragmentData* fragData = NULL;
+	IPFragmentData* fragData = nullptr;
 
 	// check whether this packet already exists in the map
 	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
@@ -329,7 +329,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		fragData = iter->second;
 
 		// mark this packet as used
-		m_PacketLRU.put(hash, NULL);
+		m_PacketLRU.put(hash, nullptr);
 	}
 
 	bool gotLastFragment = false;
@@ -337,7 +337,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	// if current fragment is the first fragment of this packet
 	if (fragWrapper->isFirstFragment())
 	{
-		if (fragData->data == NULL) // first fragment
+		if (fragData->data == nullptr) // first fragment
 		{
 			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got first fragment, allocating RawPacket");
 
@@ -353,7 +353,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		{
 			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got duplicated first fragment");
 			status = FRAGMENT;
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -367,11 +367,11 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 		if (fragData->currentOffset == fragOffset)
 		{
 			// malformed fragment which is not the first fragment but its offset is 0
-			if (fragData->data == NULL)
+			if (fragData->data == nullptr)
 			{
 				PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Fragment is malformed");
 				status = MALFORMED_FRAGMENT;
-				return NULL;
+				return nullptr;
 			}
 
 			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Found next matching fragment with offset " << fragOffset << ", adding fragment data to reassembled packet");
@@ -409,7 +409,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			fragData->outOfOrderFragments.pushBack(newFrag);
 
 			status = OUT_OF_ORDER_FRAGMENT;
-			return NULL;
+			return nullptr;
 		}
 		else
 		{
@@ -472,7 +472,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	if (status != FIRST_FRAGMENT)
 		status = FRAGMENT;
 
-	return NULL;
+	return nullptr;
 }
 
 Packet* IPReassembly::processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
@@ -499,7 +499,7 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 		IPFragmentData* fragData = iter->second;
 
 		// some data already exists
-		if (fragData != NULL && fragData->data != NULL)
+		if (fragData != nullptr && fragData->data != nullptr)
 		{
 			// create a copy of the RawPacket object
 			RawPacket* partialRawPacket = new RawPacket(*(fragData->data));
@@ -539,7 +539,7 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void IPReassembly::removePacket(const PacketKey& key)
@@ -573,8 +573,8 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
 		IPFragmentData* dataRemoved = iter->second;
 
-		PacketKey* key = NULL;
-		if (m_OnFragmentsCleanCallback != NULL)
+		PacketKey* key = nullptr;
+		if (m_OnFragmentsCleanCallback != nullptr)
 			key = dataRemoved->packetKey->clone();
 
 		PCPP_LOG_DEBUG("Reached maximum packet capacity, removing data for FragID=0x" << std::hex << dataRemoved->fragmentID);
@@ -582,7 +582,7 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 		m_FragmentMap.erase(iter);
 
 		// fire callback if not null
-		if (m_OnFragmentsCleanCallback != NULL)
+		if (m_OnFragmentsCleanCallback != nullptr)
 		{
 			m_OnFragmentsCleanCallback(key, m_CallbackUserCookie);
 			delete key;

@@ -16,7 +16,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 	// A much wider test is in Pcap++Test
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
 
@@ -68,7 +68,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 PTF_TEST_CASE(HttpRequestLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
 
@@ -89,7 +89,7 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	pcpp::HttpRequestLayer httpLayer(pcpp::HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", pcpp::OneDotOne);
 	PTF_ASSERT_NOT_NULL(httpLayer.addField(PCPP_HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
 	PTF_ASSERT_NOT_NULL(httpLayer.addField("Dummy-Field", "some value"));
-	pcpp::HeaderField* hostField = httpLayer.insertField(NULL, PCPP_HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
+	pcpp::HeaderField* hostField = httpLayer.insertField(nullptr, PCPP_HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
 	PTF_ASSERT_NOT_NULL(hostField);
 	PTF_ASSERT_NOT_NULL(httpLayer.insertField(hostField, PCPP_HTTP_CONNECTION_FIELD, "keep-alive"));
 	pcpp::HeaderField* userAgentField = httpLayer.addField(PCPP_HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
@@ -131,7 +131,7 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 PTF_TEST_CASE(HttpRequestLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
 
@@ -175,7 +175,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 	// A much wider test is in Pcap++Test
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
 
@@ -203,7 +203,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 PTF_TEST_CASE(HttpResponseLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
 
@@ -268,7 +268,7 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 PTF_TEST_CASE(HttpResponseLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses2.dat");
 
@@ -305,7 +305,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 PTF_TEST_CASE(HttpMalformedResponseTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/HttpMalformedResponse.dat");
 
@@ -316,7 +316,7 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 	std::string fieldNames[] = {"x-amz-request-id2 CA4DB8F36423461F\r\n", "x-amz-id-2", PCPP_HTTP_CONTENT_TYPE_FIELD, PCPP_HTTP_TRANSFER_ENCODING_FIELD, "Date", PCPP_HTTP_SERVER_FIELD};
 	std::string fieldValues[] = {"", "xcjboWLTcibyztI2kdnRoUvPdimtSPdYQYsQ4pHAebH4miKlux4Am0SBZrvVxsHN", "application/xml", "chunked", "Thu, 21 Feb 2013 06:27:11 GMT", "AmazonS3"};
 	int index = 0;
-	for (pcpp::HeaderField* field = httpResp->getFirstField(); field != NULL && !field->isEndOfHeader(); field = httpResp->getNextField(field))
+	for (pcpp::HeaderField* field = httpResp->getFirstField(); field != nullptr && !field->isEndOfHeader(); field = httpResp->getNextField(field))
 	{
 		PTF_ASSERT_EQUAL(field->getFieldName(), fieldNames[index]);
 		PTF_ASSERT_EQUAL(field->getFieldValue(), fieldValues[index]);

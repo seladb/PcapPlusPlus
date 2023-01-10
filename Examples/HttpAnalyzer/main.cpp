@@ -51,16 +51,16 @@
 
 static struct option HttpAnalyzerOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"dst-port",  required_argument, 0, 'p'},
-	{"input-file",  required_argument, 0, 'f'},
-	{"output-file", required_argument, 0, 'o'},
-	{"rate-calc-period", required_argument, 0, 'r'},
-	{"disable-rates-print", no_argument, 0, 'd'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"dst-port",  required_argument, nullptr, 'p'},
+	{"input-file",  required_argument, nullptr, 'f'},
+	{"output-file", required_argument, nullptr, 'o'},
+	{"rate-calc-period", required_argument, nullptr, 'r'},
+	{"disable-rates-print", no_argument, nullptr, 'd'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -160,7 +160,7 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	data->statsCollector->collectStats(&parsedPacket);
 
 	// if needed - write the packet to the output pcap file
-	if (data->pcapWriter != NULL)
+	if (data->pcapWriter != nullptr)
 	{
 		data->pcapWriter->writePacket(*packet);
 	}
@@ -456,7 +456,7 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
-	pcpp::PcapFileWriterDevice* pcapWriter = NULL;
+	pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
 	if (savePacketsToFileName != "")
 	{
 		pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
@@ -504,7 +504,7 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 	printStatsSummary(collector);
 
 	// close and free the writer device
-	if (pcapWriter != NULL)
+	if (pcapWriter != nullptr)
 	{
 		pcapWriter->close();
 		delete pcapWriter;
@@ -587,7 +587,7 @@ int main(int argc, char* argv[])
 	else // analyze in live traffic mode
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing and analyzing traffic

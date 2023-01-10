@@ -48,7 +48,7 @@ DnsLayer& DnsLayer::operator=(const DnsLayer& other)
 	Layer::operator=(other);
 
 	IDnsResource* curResource = m_ResourceList;
-	while (curResource != NULL)
+	while (curResource != nullptr)
 	{
 		IDnsResource* temp = curResource->getNextResource();
 		delete curResource;
@@ -63,7 +63,7 @@ DnsLayer& DnsLayer::operator=(const DnsLayer& other)
 DnsLayer::~DnsLayer()
 {
 	IDnsResource* curResource = m_ResourceList;
-	while (curResource != NULL)
+	while (curResource != nullptr)
 	{
 		IDnsResource* nextResource = curResource->getNextResource();
 		delete curResource;
@@ -75,12 +75,12 @@ void DnsLayer::init(size_t offsetAdjustment, bool callParseResource)
 {
 	m_OffsetAdjustment = offsetAdjustment;
 	m_Protocol = DNS;
-	m_ResourceList = NULL;
+	m_ResourceList = nullptr;
 
-	m_FirstQuery = NULL;
-	m_FirstAnswer = NULL;
-	m_FirstAuthority = NULL;
-	m_FirstAdditional = NULL;
+	m_FirstQuery = nullptr;
+	m_FirstAnswer = nullptr;
+	m_FirstAuthority = nullptr;
+	m_FirstAdditional = nullptr;
 
 	if (callParseResource)
 		parseResources();
@@ -115,7 +115,7 @@ bool DnsLayer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend, IDnsRes
 		return false;
 
 	IDnsResource* curResource = resource->getNextResource();
-	while (curResource != NULL)
+	while (curResource != nullptr)
 	{
 		curResource->m_OffsetInLayer += numOfBytesToExtend;
 		curResource = curResource->getNextResource();
@@ -130,7 +130,7 @@ bool DnsLayer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsR
 		return false;
 
 	IDnsResource* curResource = resource->getNextResource();
-	while (curResource != NULL)
+	while (curResource != nullptr)
 	{
 		curResource->m_OffsetInLayer -= numOfBytesToShorten;
 		curResource = curResource->getNextResource();
@@ -182,9 +182,9 @@ void DnsLayer::parseResources()
 			numOfAdditional--;
 		}
 
-		DnsResource* newResource = NULL;
-		DnsQuery* newQuery = NULL;
-		IDnsResource* newGenResource = NULL;
+		DnsResource* newResource = nullptr;
+		DnsQuery* newQuery = nullptr;
+		IDnsResource* newGenResource = nullptr;
 		if (resType == DnsQueryType)
 		{
 			newQuery = new DnsQuery(this, offsetInPacket);
@@ -206,7 +206,7 @@ void DnsLayer::parseResources()
 		}
 
 		// this resource is the first resource
-		if (m_ResourceList == NULL)
+		if (m_ResourceList == nullptr)
 		{
 			m_ResourceList = newGenResource;
 			curResource = m_ResourceList;
@@ -217,13 +217,13 @@ void DnsLayer::parseResources()
 			curResource = curResource->getNextResource();
 		}
 
-		if (resType == DnsQueryType && m_FirstQuery == NULL)
+		if (resType == DnsQueryType && m_FirstQuery == nullptr)
 			m_FirstQuery = newQuery;
-		else if (resType == DnsAnswerType && m_FirstAnswer == NULL)
+		else if (resType == DnsAnswerType && m_FirstAnswer == nullptr)
 			m_FirstAnswer = newResource;
-		else if (resType == DnsAuthorityType && m_FirstAuthority == NULL)
+		else if (resType == DnsAuthorityType && m_FirstAuthority == nullptr)
 			m_FirstAuthority = newResource;
-		else if (resType == DnsAdditionalType && m_FirstAdditional == NULL)
+		else if (resType == DnsAdditionalType && m_FirstAdditional == nullptr)
 			m_FirstAdditional = newResource;
 	}
 
@@ -234,8 +234,8 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 	size_t index = 0;
 	while (index < resourceCount)
 	{
-		if (startFrom == NULL)
-			return NULL;
+		if (startFrom == nullptr)
+			return nullptr;
 
 		std::string resourceName = startFrom->getName();
 		if (exactMatch && resourceName == name)
@@ -248,16 +248,16 @@ IDnsResource* DnsLayer::getResourceByName(IDnsResource* startFrom, size_t resour
 		index++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 DnsQuery* DnsLayer::getQuery(const std::string& name, bool exactMatch) const
 {
 	uint16_t numOfQueries = be16toh(getDnsHeader()->numberOfQuestions);
 	IDnsResource* res = getResourceByName(m_FirstQuery, numOfQueries, name, exactMatch);
-	if (res != NULL)
+	if (res != nullptr)
 		return dynamic_cast<DnsQuery*>(res);
-	return NULL;
+	return nullptr;
 }
 
 
@@ -269,11 +269,11 @@ DnsQuery* DnsLayer::getFirstQuery() const
 
 DnsQuery* DnsLayer::getNextQuery(DnsQuery* query) const
 {
-	if (query == NULL
-		|| query->getNextResource() == NULL
+	if (query == nullptr
+		|| query->getNextResource() == nullptr
 		|| query->getType() != DnsQueryType
 		|| query->getNextResource()->getType() != DnsQueryType)
-		return NULL;
+		return nullptr;
 
 	return (DnsQuery*)(query->getNextResource());
 }
@@ -287,9 +287,9 @@ DnsResource* DnsLayer::getAnswer(const std::string& name, bool exactMatch) const
 {
 	uint16_t numOfAnswers = be16toh(getDnsHeader()->numberOfAnswers);
 	IDnsResource* res = getResourceByName(m_FirstAnswer, numOfAnswers, name, exactMatch);
-	if (res != NULL)
+	if (res != nullptr)
 		return dynamic_cast<DnsResource*>(res);
-	return NULL;
+	return nullptr;
 }
 
 DnsResource* DnsLayer::getFirstAnswer() const
@@ -299,11 +299,11 @@ DnsResource* DnsLayer::getFirstAnswer() const
 
 DnsResource* DnsLayer::getNextAnswer(DnsResource* answer) const
 {
-	if (answer == NULL
-		|| answer->getNextResource() == NULL
+	if (answer == nullptr
+		|| answer->getNextResource() == nullptr
 		|| answer->getType() != DnsAnswerType
 		|| answer->getNextResource()->getType() != DnsAnswerType)
-		return NULL;
+		return nullptr;
 
 	return (DnsResource*)(answer->getNextResource());
 }
@@ -317,9 +317,9 @@ DnsResource* DnsLayer::getAuthority(const std::string& name, bool exactMatch) co
 {
 	uint16_t numOfAuthorities = be16toh(getDnsHeader()->numberOfAuthority);
 	IDnsResource* res = getResourceByName(m_FirstAuthority, numOfAuthorities, name, exactMatch);
-	if (res != NULL)
+	if (res != nullptr)
 		return dynamic_cast<DnsResource*>(res);
-	return NULL;
+	return nullptr;
 }
 
 DnsResource* DnsLayer::getFirstAuthority() const
@@ -329,11 +329,11 @@ DnsResource* DnsLayer::getFirstAuthority() const
 
 DnsResource* DnsLayer::getNextAuthority(DnsResource* authority) const
 {
-	if (authority == NULL
-		|| authority->getNextResource() == NULL
+	if (authority == nullptr
+		|| authority->getNextResource() == nullptr
 		|| authority->getType() != DnsAuthorityType
 		|| authority->getNextResource()->getType() != DnsAuthorityType)
-		return NULL;
+		return nullptr;
 
 	return (DnsResource*)(authority->getNextResource());
 }
@@ -347,9 +347,9 @@ DnsResource* DnsLayer::getAdditionalRecord(const std::string& name, bool exactMa
 {
 	uint16_t numOfAdditionalRecords = be16toh(getDnsHeader()->numberOfAdditional);
 	IDnsResource* res = getResourceByName(m_FirstAdditional, numOfAdditionalRecords, name, exactMatch);
-	if (res != NULL)
+	if (res != nullptr)
 		return dynamic_cast<DnsResource*>(res);
-	return NULL;
+	return nullptr;
 }
 
 DnsResource* DnsLayer::getFirstAdditionalRecord() const
@@ -359,11 +359,11 @@ DnsResource* DnsLayer::getFirstAdditionalRecord() const
 
 DnsResource* DnsLayer::getNextAdditionalRecord(DnsResource* additionalRecord) const
 {
-	if (additionalRecord == NULL
-		|| additionalRecord->getNextResource() == NULL
+	if (additionalRecord == nullptr
+		|| additionalRecord->getNextResource() == nullptr
 		|| additionalRecord->getType() != DnsAdditionalType
 		|| additionalRecord->getNextResource()->getType() != DnsAdditionalType)
-		return NULL;
+		return nullptr;
 
 	return (DnsResource*)(additionalRecord->getNextResource());
 }
@@ -438,7 +438,7 @@ IDnsResource* DnsLayer::getFirstResource(DnsResourceType resType) const
 		return m_FirstAdditional;
 	}
 	default:
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -493,23 +493,23 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 	{
 		delete newResource;
 		PCPP_LOG_ERROR("Couldn't set new resource data");
-		return NULL;
+		return nullptr;
 	}
 
 	size_t newResourceOffsetInLayer = getBasicHeaderSize();
 	IDnsResource* curResource = m_ResourceList;
-	while (curResource != NULL && curResource->getType() <= resType)
+	while (curResource != nullptr && curResource->getType() <= resType)
 	{
 		newResourceOffsetInLayer += curResource->getSize();
 		IDnsResource* nextResource = curResource->getNextResource();
-		if (nextResource == NULL || nextResource->getType() > resType)
+		if (nextResource == nullptr || nextResource->getType() > resType)
 			break;
 		curResource = nextResource;
 	}
 
 
 	// set next resource for new resource. This must happen here for extendLayer to succeed
-	if (curResource != NULL)
+	if (curResource != nullptr)
 	{
 		if (curResource->getType() > newResource->getType())
 			newResource->setNexResource(m_ResourceList);
@@ -524,14 +524,14 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 	{
 		PCPP_LOG_ERROR("Couldn't extend DNS layer, addResource failed");
 		delete newResource;
-		return NULL;
+		return nullptr;
 	}
 
 	// connect the new resource to layer
 	newResource->setDnsLayer(this, newResourceOffsetInLayer);
 
 	// connect the new resource to the layer's resource list
-	if (curResource != NULL)
+	if (curResource != nullptr)
 	{
 		curResource->setNexResource(newResource);
 		// this means the new resource is the first of it's type
@@ -574,18 +574,18 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 	// find the offset in the layer to insert the new query
 	size_t newQueryOffsetInLayer = getBasicHeaderSize();
 	DnsQuery* curQuery = getFirstQuery();
-	while (curQuery != NULL)
+	while (curQuery != nullptr)
 	{
 		newQueryOffsetInLayer += curQuery->getSize();
 		DnsQuery* nextQuery = getNextQuery(curQuery);
-		if (nextQuery == NULL)
+		if (nextQuery == nullptr)
 			break;
 		curQuery = nextQuery;
 
 	}
 
 	// set next resource for new query. This must happen here for extendLayer to succeed
-	if (curQuery != NULL)
+	if (curQuery != nullptr)
 		newQuery->setNexResource(curQuery->getNextResource());
 	else
 		newQuery->setNexResource(m_ResourceList);
@@ -595,14 +595,14 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 	{
 		PCPP_LOG_ERROR("Couldn't extend DNS layer, addQuery failed");
 		delete newQuery;
-		return NULL;
+		return nullptr;
 	}
 
 	// connect the new query to layer
 	newQuery->setDnsLayer(this, newQueryOffsetInLayer);
 
 	// connect the new query to the layer's resource list
-	if (curQuery != NULL)
+	if (curQuery != nullptr)
 		curQuery->setNexResource(newQuery);
 	else // curQuery == NULL, meaning this is the first query
 	{
@@ -618,8 +618,8 @@ DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass 
 
 DnsQuery* DnsLayer::addQuery(DnsQuery* const copyQuery)
 {
-	if (copyQuery == NULL)
-		return NULL;
+	if (copyQuery == nullptr)
+		return nullptr;
 
 	return addQuery(copyQuery->getName(), copyQuery->getDnsType(), copyQuery->getDnsClass());
 }
@@ -627,7 +627,7 @@ DnsQuery* DnsLayer::addQuery(DnsQuery* const copyQuery)
 bool DnsLayer::removeQuery(const std::string& queryNameToRemove, bool exactMatch)
 {
 	DnsQuery* queryToRemove = getQuery(queryNameToRemove, exactMatch);
-	if (queryToRemove == NULL)
+	if (queryToRemove == nullptr)
 	{
 		PCPP_LOG_DEBUG("Query not found");
 		return false;
@@ -651,7 +651,7 @@ bool DnsLayer::removeQuery(DnsQuery* queryToRemove)
 DnsResource* DnsLayer::addAnswer(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 {
 	DnsResource* res = addResource(DnsAnswerType, name, dnsType, dnsClass, ttl, data);
-	if (res != NULL)
+	if (res != nullptr)
 	{
 		// increase number of answer records
 		getDnsHeader()->numberOfAnswers = htobe16(getAnswerCount() + 1);
@@ -662,8 +662,8 @@ DnsResource* DnsLayer::addAnswer(const std::string& name, DnsType dnsType, DnsCl
 
 DnsResource* DnsLayer::addAnswer(DnsResource* const copyAnswer)
 {
-	if (copyAnswer == NULL)
-		return NULL;
+	if (copyAnswer == nullptr)
+		return nullptr;
 
 	return addAnswer(copyAnswer->getName(), copyAnswer->getDnsType(), copyAnswer->getDnsClass(), copyAnswer->getTTL(), copyAnswer->getData().get());
 }
@@ -671,7 +671,7 @@ DnsResource* DnsLayer::addAnswer(DnsResource* const copyAnswer)
 bool DnsLayer::removeAnswer(const std::string& answerNameToRemove, bool exactMatch)
 {
 	DnsResource* answerToRemove = getAnswer(answerNameToRemove, exactMatch);
-	if (answerToRemove == NULL)
+	if (answerToRemove == nullptr)
 	{
 		PCPP_LOG_DEBUG("Answer record not found");
 		return false;
@@ -696,7 +696,7 @@ bool DnsLayer::removeAnswer(DnsResource* answerToRemove)
 DnsResource* DnsLayer::addAuthority(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 {
 	DnsResource* res = addResource(DnsAuthorityType, name, dnsType, dnsClass, ttl, data);
-	if (res != NULL)
+	if (res != nullptr)
 	{
 		// increase number of authority records
 		getDnsHeader()->numberOfAuthority = htobe16(getAuthorityCount() + 1);
@@ -707,8 +707,8 @@ DnsResource* DnsLayer::addAuthority(const std::string& name, DnsType dnsType, Dn
 
 DnsResource* DnsLayer::addAuthority(DnsResource* const copyAuthority)
 {
-	if (copyAuthority == NULL)
-		return NULL;
+	if (copyAuthority == nullptr)
+		return nullptr;
 
 	return addAuthority(copyAuthority->getName(), copyAuthority->getDnsType(), copyAuthority->getDnsClass(), copyAuthority->getTTL(), copyAuthority->getData().get());
 }
@@ -716,7 +716,7 @@ DnsResource* DnsLayer::addAuthority(DnsResource* const copyAuthority)
 bool DnsLayer::removeAuthority(const std::string& authorityNameToRemove, bool exactMatch)
 {
 	DnsResource* authorityToRemove = getAuthority(authorityNameToRemove, exactMatch);
-	if (authorityToRemove == NULL)
+	if (authorityToRemove == nullptr)
 	{
 		PCPP_LOG_DEBUG("Authority not found");
 		return false;
@@ -741,7 +741,7 @@ bool DnsLayer::removeAuthority(DnsResource* authorityToRemove)
 DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl, IDnsResourceData* data)
 {
 	DnsResource* res = addResource(DnsAdditionalType, name, dnsType, dnsClass, ttl, data);
-	if (res != NULL)
+	if (res != nullptr)
 	{
 		// increase number of authority records
 		getDnsHeader()->numberOfAdditional = htobe16(getAdditionalRecordCount() + 1);
@@ -753,7 +753,7 @@ DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsT
 DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsType, uint16_t customData1, uint32_t customData2, IDnsResourceData* data)
 {
 	DnsResource* res = addAdditionalRecord(name, dnsType, DNS_CLASS_ANY, customData2, data);
-	if (res != NULL)
+	if (res != nullptr)
 	{
 		res->setCustomDnsClass(customData1);
 	}
@@ -763,8 +763,8 @@ DnsResource* DnsLayer::addAdditionalRecord(const std::string& name, DnsType dnsT
 
 DnsResource* DnsLayer::addAdditionalRecord(DnsResource* const copyAdditionalRecord)
 {
-	if (copyAdditionalRecord == NULL)
-		return NULL;
+	if (copyAdditionalRecord == nullptr)
+		return nullptr;
 
 	return addAdditionalRecord(copyAdditionalRecord->getName(), copyAdditionalRecord->getDnsType(), copyAdditionalRecord->getCustomDnsClass(), copyAdditionalRecord->getTTL(), copyAdditionalRecord->getData().get());
 }
@@ -772,7 +772,7 @@ DnsResource* DnsLayer::addAdditionalRecord(DnsResource* const copyAdditionalReco
 bool DnsLayer::removeAdditionalRecord(const std::string& additionalRecordNameToRemove, bool exactMatch)
 {
 	DnsResource* additionalRecordToRemove = getAdditionalRecord(additionalRecordNameToRemove, exactMatch);
-	if (additionalRecordToRemove == NULL)
+	if (additionalRecordToRemove == nullptr)
 	{
 		PCPP_LOG_DEBUG("Additional record not found");
 		return false;
@@ -795,7 +795,7 @@ bool DnsLayer::removeAdditionalRecord(DnsResource* additionalRecordToRemove)
 
 bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 {
-	if (resourceToRemove == NULL)
+	if (resourceToRemove == nullptr)
 	{
 		PCPP_LOG_DEBUG("resourceToRemove cannot be NULL");
 		return false;
@@ -806,7 +806,7 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 
 	if (m_ResourceList != resourceToRemove)
 	{
-		while (prevResource != NULL)
+		while (prevResource != nullptr)
 		{
 			IDnsResource* temp = prevResource->getNextResource();
 			if (temp == resourceToRemove)
@@ -816,7 +816,7 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 		}
 	}
 
-	if (prevResource == NULL)
+	if (prevResource == nullptr)
 	{
 		PCPP_LOG_DEBUG("Resource not found");
 		return false;
@@ -843,10 +843,10 @@ bool DnsLayer::removeResource(IDnsResource* resourceToRemove)
 	if (getFirstResource(resourceToRemove->getType()) == resourceToRemove)
 	{
 		IDnsResource* nextResource = resourceToRemove->getNextResource();
-		if (nextResource != NULL && nextResource->getType() == resourceToRemove->getType())
+		if (nextResource != nullptr && nextResource->getType() == resourceToRemove->getType())
 			setFirstResource(resourceToRemove->getType(), nextResource);
 		else
-			setFirstResource(resourceToRemove->getType(), NULL);
+			setFirstResource(resourceToRemove->getType(), nullptr);
 	}
 
 	// free resourceToRemove memory

@@ -28,16 +28,16 @@
 
 static struct option TLSFingerprintingOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"input-file",  required_argument, 0, 'r'},
-	{"output-file", required_argument, 0, 'o'},
-	{"separator", required_argument, 0, 's'},
-	{"tls-fp-type", required_argument, 0, 't'},
-	{"filter", required_argument, 0, 'f'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"input-file",  required_argument, nullptr, 'r'},
+	{"output-file", required_argument, nullptr, 'o'},
+	{"separator", required_argument, nullptr, 's'},
+	{"tls-fp-type", required_argument, nullptr, 't'},
+	{"filter", required_argument, nullptr, 'f'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 #define EXIT_WITH_ERROR(reason) do { \
@@ -332,14 +332,14 @@ void handlePacket(pcpp::RawPacket* rawPacket, const HandlePacketData* data)
 	{
 		// extract the SSL/TLS handhsake layer
 		pcpp::SSLHandshakeLayer* sslHandshakeLayer = parsedPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
-		if (sslHandshakeLayer != NULL)
+		if (sslHandshakeLayer != nullptr)
 		{
 			// if user requested to extract ClientHello TLS fingerprint
 			if (data->chFP)
 			{
 				// check if the SSL/TLS handhsake layer contains a ClientHello message
 				pcpp::SSLClientHelloMessage* clientHelloMessage = sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
-				if (clientHelloMessage != NULL)
+				if (clientHelloMessage != nullptr)
 				{
 					data->stats->numOfCHPackets++;
 
@@ -357,7 +357,7 @@ void handlePacket(pcpp::RawPacket* rawPacket, const HandlePacketData* data)
 			{
 				// check if the SSL/TLS handhsake layer contains a ServerHello message
 				pcpp::SSLServerHelloMessage* servertHelloMessage = sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
-				if (servertHelloMessage != NULL)
+				if (servertHelloMessage != nullptr)
 				{
 					data->stats->numOfSHPackets++;
 
@@ -458,7 +458,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 {
 	// extract pcap live device by interface name or IP address
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-	if (dev == NULL)
+	if (dev == nullptr)
 		EXIT_WITH_ERROR("Couldn't find interface by given IP address or name");
 
 	if (!dev->open())

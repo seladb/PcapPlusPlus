@@ -10,7 +10,7 @@
 PTF_TEST_CASE(SomeIpSdParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SomeIpSdOffer.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/SomeIpSdOffer2.dat");
@@ -221,7 +221,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 PTF_TEST_CASE(SomeIpSdCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/SomeIpSdOffer.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/SomeIpSdSubscribe.dat");

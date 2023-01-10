@@ -75,7 +75,7 @@ std::string SdpLayer::toString() const
 IPv4Address SdpLayer::getOwnerIPv4Address() const
 {
 	HeaderField* originator = getFieldByName(PCPP_SDP_ORIGINATOR_FIELD);
-	if (originator == NULL)
+	if (originator == nullptr)
 		return IPv4Address::Zero;
 
 	std::vector<std::string> tokens = splitByWhiteSpaces(originator->getFieldValue());
@@ -93,7 +93,7 @@ uint16_t SdpLayer::getMediaPort(std::string mediaType) const
 	int mediaFieldIndex = 0;
 	HeaderField* mediaDesc = getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldIndex);
 
-	while (mediaDesc != NULL)
+	while (mediaDesc != nullptr)
 	{
 		std::vector<std::string> tokens = splitByWhiteSpaces(mediaDesc->getFieldValue());
 
@@ -113,7 +113,7 @@ bool SdpLayer::addMediaDescription(std::string mediaType, uint16_t mediaPort, st
 	portStream << mediaPort;
 
 	std::string mediaFieldValue = mediaType + " " + portStream.str() + " " + mediaProtocol + " " + mediaFormat;
-	if (addField(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldValue) == NULL)
+	if (addField(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldValue) == nullptr)
 	{
 		PCPP_LOG_ERROR("Failed to add media description field");
 		return false;
@@ -122,7 +122,7 @@ bool SdpLayer::addMediaDescription(std::string mediaType, uint16_t mediaPort, st
 
 	for (std::vector<std::string>::iterator iter = mediaAttributes.begin(); iter != mediaAttributes.end(); iter++)
 	{
-		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, *iter) == NULL)
+		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, *iter) == nullptr)
 		{
 			PCPP_LOG_ERROR("Failed to add media attribute '" << *iter << "'");
 			return false;

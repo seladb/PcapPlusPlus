@@ -136,7 +136,7 @@ void MplsLayer::parseNextLayer()
 void MplsLayer::computeCalculateFields()
 {
 	Layer* nextLayer = getNextLayer();
-	if (nextLayer != NULL)
+	if (nextLayer != nullptr)
 	{
 		setBottomOfStack((nextLayer->getProtocol() != MPLS));
 	}

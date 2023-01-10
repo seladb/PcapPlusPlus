@@ -23,7 +23,7 @@ IPv6Extension& IPv6Extension::operator=(const IPv6Extension& other)
 	// notice this is not necessarily safe - it assumes the current extension has enough memory allocated to consume
 	// the other extension. That's why the assignment operator isn't public (it's currently used only inside IPv6Layer)
 	memcpy(getDataPtr(), other.getDataPtr(), other.getExtensionLen());
-	m_NextHeader = NULL;
+	m_NextHeader = nullptr;
 	m_ExtType = other.m_ExtType;
 
 	return *this;
@@ -31,7 +31,7 @@ IPv6Extension& IPv6Extension::operator=(const IPv6Extension& other)
 
 uint8_t* IPv6Extension::getDataPtr() const
 {
-	if (m_DataContainer != NULL)
+	if (m_DataContainer != nullptr)
 		return m_DataContainer->getDataPtr(m_Offset);
 
 	return m_ShadowData;
@@ -44,7 +44,7 @@ void IPv6Extension::initShadowPtr(size_t size)
 
 IPv6Extension::~IPv6Extension()
 {
-	if (m_ShadowData != NULL)
+	if (m_ShadowData != nullptr)
 		delete [] m_ShadowData;
 }
 
@@ -200,7 +200,7 @@ IPv6RoutingHeader::IPv6RoutingHeader(uint8_t routingType, uint8_t segmentsLeft, 
 	routingHeader->routingType = routingType;
 	routingHeader->segmentsLeft = segmentsLeft;
 
-	if (additionalRoutingDataLen > 0 && additionalRoutingData != NULL)
+	if (additionalRoutingDataLen > 0 && additionalRoutingData != nullptr)
 	{
 		uint8_t* additionalDataPtr = getDataPtr() + sizeof(ipv6_routing_header);
 		memcpy(additionalDataPtr, additionalRoutingData, additionalRoutingDataLen);
@@ -212,7 +212,7 @@ uint8_t* IPv6RoutingHeader::getRoutingAdditionalData() const
 	if (getExtensionLen() > sizeof(ipv6_routing_header))
 		return getDataPtr() + sizeof(ipv6_routing_header);
 
-	return NULL;
+	return nullptr;
 }
 
 size_t IPv6RoutingHeader::getRoutingAdditionalDataLength() const
@@ -256,7 +256,7 @@ IPv6AuthenticationHeader::IPv6AuthenticationHeader(uint32_t securityParametersIn
 	authHeader->securityParametersIndex = htobe32(securityParametersIndex);
 	authHeader->sequenceNumber = htobe32(sequenceNumber);
 
-	if (integrityCheckValueLen > 0 && integrityCheckValue != NULL)
+	if (integrityCheckValueLen > 0 && integrityCheckValue != nullptr)
 	{
 		uint8_t* icvPtr = getDataPtr() + sizeof(ipv6_authentication_header);
 		memcpy(icvPtr, integrityCheckValue, integrityCheckValueLen);
@@ -268,7 +268,7 @@ uint8_t* IPv6AuthenticationHeader::getIntegrityCheckValue() const
 	if (getExtensionLen() > sizeof(ipv6_authentication_header))
 		return getDataPtr() + sizeof(ipv6_authentication_header);
 
-	return NULL;
+	return nullptr;
 }
 
 size_t IPv6AuthenticationHeader::getIntegrityCheckValueLength() const

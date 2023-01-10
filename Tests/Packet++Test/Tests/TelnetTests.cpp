@@ -12,7 +12,7 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 {
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/telnetCommand.dat");
 
@@ -147,7 +147,7 @@ PTF_TEST_CASE(TelnetDataParsingTests)
 {
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/telnetData.dat");
 

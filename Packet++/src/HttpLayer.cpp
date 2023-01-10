@@ -17,10 +17,10 @@ namespace pcpp
 
 HeaderField* HttpMessage::addField(const std::string& fieldName, const std::string& fieldValue)
 {
-	if (getFieldByName(fieldName) != NULL)
+	if (getFieldByName(fieldName) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << fieldName << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::addField(fieldName, fieldValue);
@@ -28,10 +28,10 @@ HeaderField* HttpMessage::addField(const std::string& fieldName, const std::stri
 
 HeaderField* HttpMessage::addField(const HeaderField& newField)
 {
-	if (getFieldByName(newField.getFieldName()) != NULL)
+	if (getFieldByName(newField.getFieldName()) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << newField.getFieldName() << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::addField(newField);
@@ -39,10 +39,10 @@ HeaderField* HttpMessage::addField(const HeaderField& newField)
 
 HeaderField* HttpMessage::insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue)
 {
-	if (getFieldByName(fieldName) != NULL)
+	if (getFieldByName(fieldName) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << fieldName << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::insertField(prevField, fieldName, fieldValue);
@@ -50,10 +50,10 @@ HeaderField* HttpMessage::insertField(HeaderField* prevField, const std::string&
 
 HeaderField* HttpMessage::insertField(HeaderField* prevField, const HeaderField& newField)
 {
-	if (getFieldByName(newField.getFieldName()) != NULL)
+	if (getFieldByName(newField.getFieldName()) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << newField.getFieldName() << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::insertField(prevField, newField);
@@ -87,7 +87,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 {
 	HttpMessage::operator=(other);
 
-	if (m_FirstLine != NULL)
+	if (m_FirstLine != nullptr)
 		delete m_FirstLine;
 
 	m_FirstLine = new HttpRequestFirstLine(this);
@@ -99,7 +99,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 std::string HttpRequestLayer::getUrl() const
 {
 	HeaderField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
-	if (hostField == NULL)
+	if (hostField == nullptr)
 		return m_FirstLine->getUri();
 
 	return hostField->getFieldValue() + m_FirstLine->getUri();
@@ -194,7 +194,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	}
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
+	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != nullptr)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpRequest->m_Data + 1;
 		m_IsComplete = true;
@@ -360,7 +360,7 @@ void HttpRequestFirstLine::parseVersion()
 {
 	char* data = (char*)(m_HttpRequest->m_Data + m_UriOffset);
 	char* verPos = cross_platform_memmem(data, m_HttpRequest->getDataLen() - m_UriOffset, " HTTP/", 6);
-	if (verPos == NULL)
+	if (verPos == nullptr)
 	{
 		m_Version = HttpVersionUnknown;
 		m_VersionOffset = -1;
@@ -711,7 +711,7 @@ HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 {
 	HttpMessage::operator=(other);
 
-	if (m_FirstLine != NULL)
+	if (m_FirstLine != nullptr)
 		delete m_FirstLine;
 
 	m_FirstLine = new HttpResponseFirstLine(this);
@@ -726,7 +726,7 @@ HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::s
 	contentLengthAsString << contentLength;
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField == NULL)
+	if (contentLengthField == nullptr)
 	{
 		HeaderField* prevField = getFieldByName(prevFieldName);
 		contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
@@ -742,7 +742,7 @@ int HttpResponseLayer::getContentLength() const
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField != NULL)
+	if (contentLengthField != nullptr)
 		return atoi(contentLengthField->getFieldValue().c_str());
 	return 0;
 }
@@ -1249,7 +1249,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != NULL)
+	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != nullptr)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpResponse->m_Data + 1;
 		m_IsComplete = true;

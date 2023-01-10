@@ -12,7 +12,7 @@
 PTF_TEST_CASE(IgmpParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IGMPv1_1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IGMPv2_1.dat");
@@ -106,7 +106,7 @@ PTF_TEST_CASE(IgmpCreateAndEditTest)
 PTF_TEST_CASE(Igmpv3ParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/igmpv3_query.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/igmpv3_report.dat");

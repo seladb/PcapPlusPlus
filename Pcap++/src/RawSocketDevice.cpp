@@ -69,7 +69,7 @@ struct SocketContainer
 #endif
 };
 
-RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_Socket(NULL)
+RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_Socket(nullptr)
 {
 #if defined(_WIN32)
 
@@ -535,7 +535,7 @@ bool RawSocketDevice::open()
 
 void RawSocketDevice::close()
 {
-	if (m_Socket != NULL && isOpened())
+	if (m_Socket != nullptr && isOpened())
 	{
 		SocketContainer* sockContainer = (SocketContainer*)m_Socket;
 #if defined(_WIN32)
@@ -544,7 +544,7 @@ void RawSocketDevice::close()
 		::close(sockContainer->fd);
 #endif
 		delete sockContainer;
-		m_Socket = NULL;
+		m_Socket = nullptr;
 		m_DeviceOpened = false;
 	}
 }

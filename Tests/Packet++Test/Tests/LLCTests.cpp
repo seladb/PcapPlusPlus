@@ -10,7 +10,7 @@
 PTF_TEST_CASE(LLCParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 
@@ -45,7 +45,7 @@ PTF_TEST_CASE(LLCParsingTests)
 PTF_TEST_CASE(LLCCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 

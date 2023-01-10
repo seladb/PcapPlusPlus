@@ -24,7 +24,7 @@ PayloadLayer::PayloadLayer(const std::string& payloadAsHexStream)
 	if (hexStringToByteArray(payloadAsHexStream, m_Data, m_DataLen) == 0)
 	{
 		delete [] m_Data;
-		m_Data = NULL;
+		m_Data = nullptr;
 		m_DataLen = 0;
 	}
 }

@@ -15,7 +15,7 @@
 PTF_TEST_CASE(IcmpV6ParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpV6_EchoRequest.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IcmpV6_EchoReply.dat");
@@ -148,7 +148,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 PTF_TEST_CASE(IcmpV6CreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/IcmpV6_EchoRequest.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpV6_EchoReply.dat");
@@ -274,7 +274,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 
 	std::vector<pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
 	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
-	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, NULL, 0));
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, nullptr, 0));
 	pcpp::IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
 	ipv6Layer2->addExtension<pcpp::IPv6HopByHopHeader>(newHopByHopHeader);
 	ipv6Layer2->getDataPtr(40)[0] = 0x3a;

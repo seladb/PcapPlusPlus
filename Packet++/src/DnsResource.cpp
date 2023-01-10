@@ -10,7 +10,7 @@ namespace pcpp
 {
 
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
-	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(NULL)
+	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(nullptr)
 {
 	char decodedName[256];
 	m_NameLength = decodeName((const char*)getRawData(), decodedName);
@@ -19,13 +19,13 @@ IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 }
 
 IDnsResource::IDnsResource(uint8_t* emptyRawData)
-	: m_DnsLayer(NULL), m_OffsetInLayer(0), m_NextResource(NULL), m_DecodedName(""), m_NameLength(0), m_ExternalRawData(emptyRawData)
+	: m_DnsLayer(nullptr), m_OffsetInLayer(0), m_NextResource(nullptr), m_DecodedName(""), m_NameLength(0), m_ExternalRawData(emptyRawData)
 {
 }
 
 uint8_t* IDnsResource::getRawData() const
 {
-	if (m_DnsLayer == NULL)
+	if (m_DnsLayer == nullptr)
 		return m_ExternalRawData;
 
 	return m_DnsLayer->m_Data + m_OffsetInLayer;
@@ -227,7 +227,7 @@ bool IDnsResource::setName(const std::string& newName)
 	char encodedName[256];
 	size_t encodedNameLen = 0;
 	encodeName(newName, encodedName, encodedNameLen);
-	if (m_DnsLayer != NULL)
+	if (m_DnsLayer != nullptr)
 	{
 		if (encodedNameLen > m_NameLength)
 		{
@@ -267,7 +267,7 @@ void IDnsResource::setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer)
 	memcpy(dnsLayer->m_Data + offsetInLayer, m_ExternalRawData, getSize());
 	m_DnsLayer = dnsLayer;
 	m_OffsetInLayer = offsetInLayer;
-	m_ExternalRawData = NULL;
+	m_ExternalRawData = nullptr;
 }
 
 uint32_t DnsResource::getTTL() const
@@ -347,7 +347,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	size_t dataLength = 0;
 	uint8_t dataAsByteArr[256];
 
-	if (data == NULL)
+	if (data == nullptr)
 	{
 		PCPP_LOG_ERROR("Given data is NULL");
 		return false;
@@ -415,7 +415,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 	size_t dataLengthOffset = m_NameLength + (2*sizeof(uint16_t)) + sizeof(uint32_t);
 	size_t dataOffset = dataLengthOffset + sizeof(uint16_t);
 
-	if (m_DnsLayer != NULL)
+	if (m_DnsLayer != nullptr)
 	{
 		size_t curLength = getDataLength();
 		if (dataLength > curLength)

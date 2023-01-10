@@ -591,10 +591,10 @@ namespace pcpp
         struct tm timer_r;
         timer = gmtime_r(&timeStruct, &timer_r);
 
-        if (timer != NULL)
+        if (timer != nullptr)
             timer = &timer_r;
 #endif
-        if (timer == NULL)
+        if (timer == nullptr)
         {
             PCPP_LOG_ERROR("Can't convert time");
             return std::string();

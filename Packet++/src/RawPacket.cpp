@@ -10,7 +10,7 @@ namespace pcpp
 
 void RawPacket::init(bool deleteRawDataAtDestructor)
 {
-	m_RawData = 0;
+	m_RawData = nullptr;
 	m_RawDataLen = 0;
 	m_FrameLength = 0;
 	m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
@@ -47,7 +47,7 @@ RawPacket::~RawPacket()
 
 RawPacket::RawPacket(const RawPacket& other)
 {
-	m_RawData = NULL;
+	m_RawData = nullptr;
 	copyDataFrom(other, true);
 }
 
@@ -55,7 +55,7 @@ RawPacket& RawPacket::operator=(const RawPacket& other)
 {
 	if (this != &other)
 	{
-		if (m_RawData != NULL)
+		if (m_RawData != nullptr)
 			delete [] m_RawData;
 
 		m_RawPacketSet = false;
@@ -99,7 +99,7 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec tim
 	if(frameLength == -1)
 		frameLength = rawDataLen;
 	m_FrameLength = frameLength;
-	if (m_RawData != 0 && m_DeleteRawDataAtDestructor)
+	if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
 	{
 		delete[] m_RawData;
 	}
@@ -114,10 +114,10 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec tim
 
 void RawPacket::clear()
 {
-	if (m_RawData != 0)
+	if (m_RawData != nullptr)
 		delete[] m_RawData;
 
-	m_RawData = 0;
+	m_RawData = nullptr;
 	m_RawDataLen = 0;
 	m_FrameLength = 0;
 	m_RawPacketSet = false;
@@ -136,7 +136,7 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert, size_t data
 	// if insertData is called with atIndex == m_RawDataLen, then no data is being moved. The data of the raw packet is still extended by dataToInsertLen
 	memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen, (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
 
-	if (dataToInsert != NULL)
+	if (dataToInsert != nullptr)
 	{
 		// insert data
 		memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);

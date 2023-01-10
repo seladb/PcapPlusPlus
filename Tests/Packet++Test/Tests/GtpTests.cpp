@@ -14,7 +14,7 @@
 PTF_TEST_CASE(GtpLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u2.dat");
@@ -174,7 +174,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 PTF_TEST_CASE(GtpLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u-1ext.dat");
@@ -246,7 +246,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 PTF_TEST_CASE(GtpLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u-ipv6.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/gtp-u-ipv6-edited.dat");

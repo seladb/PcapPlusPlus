@@ -14,7 +14,7 @@
 PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession1.dat");
 
@@ -45,7 +45,7 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession2.dat");
 
@@ -79,7 +79,7 @@ PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery2.dat");
 
@@ -138,7 +138,7 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery1.dat");
 

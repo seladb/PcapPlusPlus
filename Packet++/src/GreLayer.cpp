@@ -79,7 +79,7 @@ uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMis
 			}
 			break;
 		default: // shouldn't get there
-			return NULL;
+			return nullptr;
 		}
 
 		if (field == curField)
@@ -87,17 +87,17 @@ uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMis
 			if (curFieldExists || returnOffsetEvenIfFieldMissing)
 				return origPtr;
 
-			return NULL;
+			return nullptr;
 		}
 	} // for
 
-	return NULL;
+	return nullptr;
 }
 
 void GreLayer::computeCalculateFieldsInner()
 {
 	gre_basic_header* header = (gre_basic_header*)m_Data;
-	if (m_NextLayer != NULL)
+	if (m_NextLayer != nullptr)
 	{
 		switch (m_NextLayer->getProtocol())
 		{
@@ -133,7 +133,7 @@ bool GreLayer::getSequenceNumber(uint32_t& seqNumber) const
 		return false;
 
 	uint32_t* val = (uint32_t*)getFieldValue(GreSeq, false);
-	if (val == NULL)
+	if (val == nullptr)
 		return false;
 
 	seqNumber = be32toh(*val);
@@ -281,7 +281,7 @@ bool GREv0Layer::getChecksum(uint16_t& checksum)
 		return false;
 
 	uint16_t* val = (uint16_t*)getFieldValue(GreChecksumOrRouting, false);
-	if (val == NULL)
+	if (val == nullptr)
 		return false;
 
 	checksum = be16toh(*val);
@@ -361,7 +361,7 @@ bool GREv0Layer::getOffset(uint16_t& offset) const
 		return false;
 
 	uint8_t* val = (uint8_t*)getFieldValue(GreChecksumOrRouting, false);
-	if (val == NULL)
+	if (val == nullptr)
 		return false;
 
 	offset = be16toh(*(val+2));
@@ -374,7 +374,7 @@ bool GREv0Layer::getKey(uint32_t& key) const
 		return false;
 
 	uint32_t* val = (uint32_t*)getFieldValue(GreKey, false);
-	if (val == NULL)
+	if (val == nullptr)
 		return false;
 
 	key = be32toh(*val);
@@ -480,7 +480,7 @@ bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
 		return false;
 
 	uint32_t* val = (uint32_t*)getFieldValue(GreAck, false);
-	if (val == NULL)
+	if (val == nullptr)
 		return false;
 
 	ackNum = be32toh(*val);
@@ -597,7 +597,7 @@ void PPP_PPTPLayer::parseNextLayer()
 void PPP_PPTPLayer::computeCalculateFields()
 {
 	ppp_pptp_header* header = getPPP_PPTPHeader();
-	if (m_NextLayer != NULL)
+	if (m_NextLayer != nullptr)
 	{
 		switch (m_NextLayer->getProtocol())
 		{

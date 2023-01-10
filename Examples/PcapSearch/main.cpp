@@ -41,14 +41,14 @@
 
 static struct option PcapSearchOptions[] =
 {
-	{"input-dir",  required_argument, 0, 'd'},
-	{"not-include-sub-dir", no_argument, 0, 'n'},
-	{"search", required_argument, 0, 's'},
-	{"detailed-report", required_argument, 0, 'r'},
-	{"set-extensions", required_argument, 0, 'e'},
-	{"version", no_argument, 0, 'v'},
-	{"help", no_argument, 0, 'h'},
-	{0, 0, 0, 0}
+	{"input-dir",  required_argument, nullptr, 'd'},
+	{"not-include-sub-dir", no_argument, nullptr, 'n'},
+	{"search", required_argument, nullptr, 's'},
+	{"detailed-report", required_argument, nullptr, 'r'},
+	{"set-extensions", required_argument, nullptr, 'e'},
+	{"version", no_argument, nullptr, 'v'},
+	{"help", no_argument, nullptr, 'h'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -124,7 +124,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 	// if the reader fails to open
 	if (!reader->open())
 	{
-		if (detailedReportFile != NULL)
+		if (detailedReportFile != nullptr)
 		{
 			// PcapPlusPlus logger saves the last internal error. Write this error to the report file
 			(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
@@ -145,7 +145,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 		return 0;
 	}
 
-	if (detailedReportFile != NULL)
+	if (detailedReportFile != nullptr)
 	{
 		(*detailedReportFile) << "File '" << pcapFilePath << "':" << std::endl;
 	}
@@ -157,7 +157,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 	while (reader->getNextPacket(rawPacket))
 	{
 		// if a detailed report is required, parse the packet and print it to the report file
-		if (detailedReportFile != NULL)
+		if (detailedReportFile != nullptr)
 		{
 			// parse the packet
 			pcpp::Packet parsedPacket(&rawPacket);
@@ -178,7 +178,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 	reader->close();
 
 	// finalize the report
-	if (detailedReportFile != NULL)
+	if (detailedReportFile != nullptr)
 	{
 		if (packetCount > 0)
 			(*detailedReportFile) << "\n";
@@ -207,7 +207,7 @@ void searchDirectories(const std::string &directory, bool includeSubDirectories,
 	DIR *dir = opendir(directory.c_str());
 
 	// dir is null usually when user has no access permissions
-	if (dir == NULL)
+	if (dir == nullptr)
 		return;
 
 	struct dirent *entry = readdir(dir);
@@ -215,7 +215,7 @@ void searchDirectories(const std::string &directory, bool includeSubDirectories,
 	std::vector<std::string> pcapList;
 
 	// go over all files in this directory
-	while (entry != NULL)
+	while (entry != nullptr)
 	{
 		std::string name(entry->d_name);
 
@@ -373,7 +373,7 @@ int main(int argc, char* argv[])
 	}
 
 	DIR *dir = opendir(inputDirectory.c_str());
-	if (dir == NULL)
+	if (dir == nullptr)
 	{
 		EXIT_WITH_ERROR("Cannot find or open input directory");
 	}
@@ -386,7 +386,7 @@ int main(int argc, char* argv[])
 	}
 
 	// open the detailed report file if requested by the user
-	std::ofstream* detailedReportFile = NULL;
+	std::ofstream* detailedReportFile = nullptr;
 	if (detailedReportFileName != "")
 	{
 		detailedReportFile = new std::ofstream();
@@ -414,7 +414,7 @@ int main(int argc, char* argv[])
 		<< totalPacketsFound << " packets were matched to search criteria"
 		<< std::endl;
 
-	if (detailedReportFile != NULL)
+	if (detailedReportFile != nullptr)
 	{
 		if (detailedReportFile->is_open())
 			detailedReportFile->close();

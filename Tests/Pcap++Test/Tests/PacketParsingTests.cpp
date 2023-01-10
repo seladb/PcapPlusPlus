@@ -75,7 +75,7 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 			homeReqs++;
 
 		pcpp::HeaderField* hostField = httpReqLayer->getFieldByName("Host");
-		if (hostField != NULL)
+		if (hostField != nullptr)
 		{
 			std::string host = hostField->getFieldValue();
 			if (host == "www.winwin.co.il")
@@ -87,7 +87,7 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 		}
 
 		pcpp::HeaderField* userAgentField = httpReqLayer->getFieldByName("User-Agent");
-		if (userAgentField == NULL)
+		if (userAgentField == nullptr)
 			continue;
 
 		std::string userAgent = userAgentField->getFieldValue();
@@ -177,7 +177,7 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 		statusCodes[httpResLayer->getFirstLine()->getStatusCode()]++;
 
 		pcpp::HeaderField* contentTypeField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
-		if (contentTypeField != NULL)
+		if (contentTypeField != nullptr)
 		{
 			std::string contentType = contentTypeField->getFieldValue();
 			if (contentType.find("image/") != std::string::npos)
@@ -187,15 +187,15 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 		}
 
 		pcpp::HeaderField* contentEncodingField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_ENCODING_FIELD);
-		if (contentEncodingField != NULL && contentEncodingField->getFieldValue() == "gzip")
+		if (contentEncodingField != nullptr && contentEncodingField->getFieldValue() == "gzip")
 			gzipCount++;
 
 		pcpp::HeaderField* transferEncodingField = httpResLayer->getFieldByName(PCPP_HTTP_TRANSFER_ENCODING_FIELD);
-		if (transferEncodingField != NULL && transferEncodingField->getFieldValue() == "chunked")
+		if (transferEncodingField != nullptr && transferEncodingField->getFieldValue() == "chunked")
 			chunkedCount++;
 
 		pcpp::HeaderField* contentLengthField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
-		if (contentLengthField != NULL)
+		if (contentLengthField != nullptr)
 		{
 			std::string lengthAsString = contentLengthField->getFieldValue();
 			int length = atoi(lengthAsString.c_str());
@@ -319,15 +319,15 @@ PTF_TEST_CASE(TestDnsParsing)
 		{
 			packetsContainingDnsQuery++;
 
-			if (dnsLayer->getQuery("aus3.mozilla.org", true) != NULL)
+			if (dnsLayer->getQuery("aus3.mozilla.org", true) != nullptr)
 				queriesWithNameMozillaOrg++;
-			if (dnsLayer->getQuery("www.google.com", true) != NULL)
+			if (dnsLayer->getQuery("www.google.com", true) != nullptr)
 				queriesWithNameGoogle++;
 
 			bool isTypeA = false;
 			bool isClassIN = false;
 
-			for (pcpp::DnsQuery* query = dnsLayer->getFirstQuery(); query != NULL; query = dnsLayer->getNextQuery(query))
+			for (pcpp::DnsQuery* query = dnsLayer->getFirstQuery(); query != nullptr; query = dnsLayer->getNextQuery(query))
 			{
 				if (query->getDnsType() == pcpp::DNS_TYPE_A)
 					isTypeA = true;
@@ -347,14 +347,14 @@ PTF_TEST_CASE(TestDnsParsing)
 		{
 			packetsContainingDnsAnswer++;
 
-			if (dnsLayer->getAnswer("www.google-analytics.com", true) != NULL)
+			if (dnsLayer->getAnswer("www.google-analytics.com", true) != nullptr)
 				answersWithNameGoogleAnalytics++;
 
 			bool isTypeCNAME = false;
 			bool isTypePTR = false;
 			bool isTtlLessThan30 = false;
 
-			for (pcpp::DnsResource* answer = dnsLayer->getFirstAnswer(); answer != NULL; answer = dnsLayer->getNextAnswer(answer))
+			for (pcpp::DnsResource* answer = dnsLayer->getFirstAnswer(); answer != nullptr; answer = dnsLayer->getNextAnswer(answer))
 			{
 				if (answer->getTTL() < 30)
 					isTtlLessThan30 = true;
@@ -378,10 +378,10 @@ PTF_TEST_CASE(TestDnsParsing)
 		{
 			packetsContainingDnsAuthority++;
 
-			if (dnsLayer->getAuthority("Yaels-iPhone.local", true) != NULL)
+			if (dnsLayer->getAuthority("Yaels-iPhone.local", true) != nullptr)
 				authoritiesWithNameYaelPhone++;
 
-			for (pcpp::DnsResource* auth = dnsLayer->getFirstAuthority(); auth != NULL; auth = dnsLayer->getNextAuthority(auth))
+			for (pcpp::DnsResource* auth = dnsLayer->getFirstAuthority(); auth != nullptr; auth = dnsLayer->getNextAuthority(auth))
 			{
 				if (auth->getData()->toString() == "10.0.0.2")
 				{
@@ -395,15 +395,15 @@ PTF_TEST_CASE(TestDnsParsing)
 		{
 			packetsContainingDnsAdditional++;
 
-			if (dnsLayer->getAdditionalRecord("", true) != NULL)
+			if (dnsLayer->getAdditionalRecord("", true) != nullptr)
 				additionalWithEmptyName++;
 
-			if (dnsLayer->getAdditionalRecord("D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa", true) != NULL)
+			if (dnsLayer->getAdditionalRecord("D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa", true) != nullptr)
 				additionalWithLongUglyName++;
 
 			bool isTypeNSEC = false;
 
-			for (pcpp::DnsResource* add = dnsLayer->getFirstAdditionalRecord(); add != NULL; add = dnsLayer->getNextAdditionalRecord(add))
+			for (pcpp::DnsResource* add = dnsLayer->getFirstAdditionalRecord(); add != nullptr; add = dnsLayer->getNextAdditionalRecord(add))
 			{
 				if (add->getDnsType() == pcpp::DNS_TYPE_NSEC)
 					isTypeNSEC = true;

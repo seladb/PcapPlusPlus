@@ -9,7 +9,7 @@ TLVRecordBuilder::TLVRecordBuilder()
 {
 	m_RecType = 0;
 	m_RecValueLen = 0;
-	m_RecValue = NULL;
+	m_RecValue = nullptr;
 }
 
 TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const uint8_t* recValue, uint8_t recValueLen)
@@ -44,7 +44,7 @@ TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue
 {
 	m_RecType = 0;
 	m_RecValueLen = 0;
-	m_RecValue = NULL;
+	m_RecValue = nullptr;
 
 	if (valueIsHexString)
 	{
@@ -66,8 +66,8 @@ void TLVRecordBuilder::copyData(const TLVRecordBuilder& other)
 {
 	m_RecType = other.m_RecType;
 	m_RecValueLen = other.m_RecValueLen;
-	m_RecValue = NULL;
-	if (other.m_RecValue != NULL)
+	m_RecValue = nullptr;
+	if (other.m_RecValue != nullptr)
 	{
 		m_RecValue = new uint8_t[m_RecValueLen];
 		memcpy(m_RecValue, other.m_RecValue, m_RecValueLen);
@@ -81,10 +81,10 @@ TLVRecordBuilder::TLVRecordBuilder(const TLVRecordBuilder& other)
 
 TLVRecordBuilder& TLVRecordBuilder::operator=(const TLVRecordBuilder& other)
 {
-	if (m_RecValue != NULL)
+	if (m_RecValue != nullptr)
 	{
 		delete [] m_RecValue;
-		m_RecValue = NULL;
+		m_RecValue = nullptr;
 	}
 
 	copyData(other);
@@ -94,7 +94,7 @@ TLVRecordBuilder& TLVRecordBuilder::operator=(const TLVRecordBuilder& other)
 
 TLVRecordBuilder::~TLVRecordBuilder()
 {
-	if (m_RecValue != NULL) delete [] m_RecValue;
+	if (m_RecValue != nullptr) delete [] m_RecValue;
 }
 
 void TLVRecordBuilder::init(uint32_t recType, const uint8_t* recValue, size_t recValueLen)
@@ -102,7 +102,7 @@ void TLVRecordBuilder::init(uint32_t recType, const uint8_t* recValue, size_t re
 	m_RecType = recType;
 	m_RecValueLen = recValueLen;
 	m_RecValue = new uint8_t[recValueLen];
-	if (recValue != NULL)
+	if (recValue != nullptr)
 		memcpy(m_RecValue, recValue, recValueLen);
 	else
 		memset(m_RecValue, 0, recValueLen);

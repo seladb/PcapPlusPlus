@@ -69,7 +69,7 @@ SSLLayer* SSLLayer::createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevL
 		}
 
 		default:
-			return NULL;
+			return nullptr;
 	}
 }
 
@@ -133,7 +133,7 @@ SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevL
 	while (true)
 	{
 		SSLHandshakeMessage* message = SSLHandshakeMessage::createHandshakeMessage(curPos, recordDataLen-curPosIndex, this);
-		if (message == NULL)
+		if (message == nullptr)
 			break;
 
 		m_MessageList.pushBack(message);
@@ -145,7 +145,7 @@ SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevL
 SSLHandshakeMessage* SSLHandshakeLayer::getHandshakeMessageAt(int index) const
 {
 	if (index < 0 || index >= (int)(m_MessageList.size()))
-		return NULL;
+		return nullptr;
 
 	return const_cast<SSLHandshakeMessage*>(m_MessageList.at(index));
 }
@@ -236,7 +236,7 @@ std::string SSLAlertLayer::toString() const
 uint8_t* SSLApplicationDataLayer::getEncryptedData() const
 {
 	if (getHeaderLen() <= sizeof(ssl_tls_record_layer))
-		return NULL;
+		return nullptr;
 
 	return m_Data + sizeof(ssl_tls_record_layer);
 }

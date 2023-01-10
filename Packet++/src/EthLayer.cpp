@@ -83,7 +83,7 @@ void EthLayer::parseNextLayer()
 
 void EthLayer::computeCalculateFields()
 {
-	if (m_NextLayer == NULL)
+	if (m_NextLayer == nullptr)
 		return;
 
 	switch (m_NextLayer->getProtocol())

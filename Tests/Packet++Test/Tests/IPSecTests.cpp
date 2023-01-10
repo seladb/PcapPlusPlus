@@ -8,7 +8,7 @@
 PTF_TEST_CASE(IPSecParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipsec_ah_esp.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ipsec_ah_icmp.dat");

@@ -16,7 +16,7 @@
 PTF_TEST_CASE(SllPacketParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/SllPacket.dat", pcpp::LINKTYPE_LINUX_SLL);
 
@@ -60,7 +60,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	tcpLayer.getTcpHeader()->windowSize = htobe16(4098);
 	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NOP)).isNotNull());
 	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NOP)).isNotNull());
-	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::PCPP_TCPOPT_TIMESTAMP, NULL, PCPP_TCPOLEN_TIMESTAMP-2));
+	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::PCPP_TCPOPT_TIMESTAMP, nullptr, PCPP_TCPOLEN_TIMESTAMP-2));
 	PTF_ASSERT_TRUE(tsOption.isNotNull());
 	tsOption.setValue<uint32_t>(htobe32(0x0402383b));
 	tsOption.setValue<uint32_t>(htobe32(0x03ff37f5), 4);
@@ -86,7 +86,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 PTF_TEST_CASE(NullLoopbackTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/NullLoopback2.dat", pcpp::LINKTYPE_NULL);

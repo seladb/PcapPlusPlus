@@ -24,12 +24,12 @@
 
 static struct option L3FwdOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"victim", required_argument, 0, 'c'},
-	{"gateway", required_argument, 0, 'g'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"victim", required_argument, nullptr, 'c'},
+	{"gateway", required_argument, nullptr, 'g'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
 	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
 
 	//Verifying interface is valid
-	if (pIfaceDevice == NULL)
+	if (pIfaceDevice == nullptr)
 	{
 		EXIT_WITH_ERROR("Cannot find interface");
 	}

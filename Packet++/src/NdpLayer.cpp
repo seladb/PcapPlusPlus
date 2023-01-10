@@ -70,7 +70,7 @@ NdpOption NDPLayerBase::addNdpOptionAt(const NdpOptionBuilder &optionBuilder, in
 	{
 		PCPP_LOG_ERROR("Could not extend NdpLayer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
-		return NdpOption(NULL);
+		return NdpOption(nullptr);
 	}
 
 	memcpy(m_Data + offset, newOption.getRecordBasePtr(), newOption.getTotalSize());

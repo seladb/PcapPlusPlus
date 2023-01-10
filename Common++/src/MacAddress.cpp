@@ -29,7 +29,7 @@ void MacAddress::init(const char* addr)
 		byte[1] = *addr++;
 		if(*addr != '\0') // holds the ":" char or end of string
 			++addr; // ignore the ":" char
-		m_Address[i] = static_cast<uint8_t>(strtol(byte, NULL, 16));
+		m_Address[i] = static_cast<uint8_t>(strtol(byte, nullptr, 16));
 
 		// The strtol function returns zero value in two cases: when an error occurs or the string '00' is converted.
 		// This code verifies that it's the second case.

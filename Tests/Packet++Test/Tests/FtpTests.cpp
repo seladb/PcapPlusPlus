@@ -12,7 +12,7 @@
 PTF_TEST_CASE(FtpParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Test IPv4 packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
@@ -101,7 +101,7 @@ PTF_TEST_CASE(FtpParsingTests)
 PTF_TEST_CASE(FtpCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Craft packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
@@ -150,7 +150,7 @@ PTF_TEST_CASE(FtpCreationTests)
 PTF_TEST_CASE(FtpEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Modify existing request packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");

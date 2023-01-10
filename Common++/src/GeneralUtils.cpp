@@ -74,12 +74,12 @@ char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char
 	char* ptr = (char*)haystack;
 	while (needleLen <= (haystackLen - (ptr - haystack)))
 	{
-		if (NULL != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
+		if (nullptr != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
 		{
 			// check if there is room to do a memcmp
 			if(needleLen > (haystackLen - (ptr - haystack)))
 			{
-				return NULL;
+				return nullptr;
 			}
 
 			if (0 == memcmp(ptr, needle, needleLen))
@@ -91,7 +91,7 @@ char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char
 			break;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 }

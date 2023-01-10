@@ -14,7 +14,7 @@ namespace pcpp
  */
 SomeIpSdOption::~SomeIpSdOption()
 {
-	if (m_ShadowData != NULL)
+	if (m_ShadowData != nullptr)
 		delete[] m_ShadowData;
 }
 
@@ -24,7 +24,7 @@ SomeIpSdOption::OptionType SomeIpSdOption::getType() const {
 
 uint8_t* SomeIpSdOption::getDataPtr() const
 {
-	if (m_DataContainer != NULL)
+	if (m_DataContainer != nullptr)
 		return m_DataContainer->getDataPtr(m_Offset);
 
 	return m_ShadowData;
@@ -287,13 +287,13 @@ SomeIpSdEntry::SomeIpSdEntry(const SomeIpSdLayer *pSomeIpSdLayer, size_t offset)
 
 SomeIpSdEntry::~SomeIpSdEntry()
 {
-	if (m_ShadowData != NULL)
+	if (m_ShadowData != nullptr)
 		delete[] m_ShadowData;
 }
 
 uint8_t *SomeIpSdEntry::getDataPtr() const
 {
-	if (m_Layer != NULL)
+	if (m_Layer != nullptr)
 		return m_Layer->getDataPtr(m_Offset);
 
 	return m_ShadowData;

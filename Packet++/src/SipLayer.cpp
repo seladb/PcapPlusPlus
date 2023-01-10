@@ -40,7 +40,7 @@ int SipLayer::getContentLength() const
 	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField != NULL)
+	if (contentLengthField != nullptr)
 		return atoi(contentLengthField->getFieldValue().c_str());
 	return 0;
 }
@@ -51,7 +51,7 @@ HeaderField* SipLayer::setContentLength(int contentLength, const std::string &pr
 	contentLengthAsString << contentLength;
 	std::string contentLengthFieldName(PCPP_SIP_CONTENT_LENGTH_FIELD);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField == NULL)
+	if (contentLengthField == nullptr)
 	{
 		HeaderField* prevField = getFieldByName(prevFieldName);
 		contentLengthField = insertField(prevField, PCPP_SIP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
@@ -81,7 +81,7 @@ void SipLayer::parseNextLayer()
 void SipLayer::computeCalculateFields()
 {
 	HeaderField* contentLengthField = getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD);
-	if (contentLengthField == NULL)
+	if (contentLengthField == nullptr)
 		return;
 
 	size_t headerLen = getHeaderLen();
@@ -116,7 +116,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 	parseVersion();
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char *)memchr((char*)(m_SipRequest->m_Data + m_VersionOffset), '\n', m_SipRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
+	if ((endOfFirstLine = (char *)memchr((char*)(m_SipRequest->m_Data + m_VersionOffset), '\n', m_SipRequest->m_DataLen-(size_t)m_VersionOffset)) != nullptr)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_SipRequest->m_Data + 1;
 		m_IsComplete = true;
@@ -300,7 +300,7 @@ void SipRequestFirstLine::parseVersion()
 
 	char* data = (char*)(m_SipRequest->m_Data + m_UriOffset);
 	char* verPos = (char*)cross_platform_memmem(data, m_SipRequest->getDataLen() - m_UriOffset, " SIP/", 5);
-	if (verPos == NULL)
+	if (verPos == nullptr)
 	{
 		m_Version = "";
 		m_VersionOffset = -1;
@@ -455,7 +455,7 @@ SipRequestLayer& SipRequestLayer::operator=(const SipRequestLayer& other)
 {
 	SipLayer::operator=(other);
 
-	if (m_FirstLine != NULL)
+	if (m_FirstLine != nullptr)
 		delete m_FirstLine;
 
 	m_FirstLine = new SipRequestFirstLine(this);
@@ -696,7 +696,7 @@ SipResponseLayer& SipResponseLayer::operator=(const SipResponseLayer& other)
 {
 	SipLayer::operator=(other);
 
-	if (m_FirstLine != NULL)
+	if (m_FirstLine != nullptr)
 		delete m_FirstLine;
 
 	m_FirstLine = new SipResponseFirstLine(this);
@@ -1213,7 +1213,7 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_Si
 
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char *)memchr((char*)(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen)) != NULL)
+	if ((endOfFirstLine = (char *)memchr((char*)(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen)) != nullptr)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_SipResponse->m_Data + 1;
 		m_IsComplete = true;
@@ -1281,7 +1281,7 @@ std::string SipResponseFirstLine::parseVersion(char* data, size_t dataLen)
 	}
 
 	char* nextSpace = (char*)memchr(data, ' ', dataLen);
-	if (nextSpace == NULL)
+	if (nextSpace == nullptr)
 		return "";
 
 	return std::string(data, nextSpace - data);

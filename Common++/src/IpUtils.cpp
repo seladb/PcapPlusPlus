@@ -20,12 +20,12 @@ namespace pcpp
 	{
 		in_addr* sockaddr2in_addr(struct sockaddr* sa)
 		{
-			if (sa == NULL)
-				return NULL;
+			if (sa == nullptr)
+				return nullptr;
 			if (sa->sa_family == AF_INET)
 				return &(((struct sockaddr_in*)sa)->sin_addr);
 			PCPP_LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
-			return NULL;
+			return nullptr;
 		}
 
 		in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
@@ -33,13 +33,13 @@ namespace pcpp
 			if (sa->sa_family == AF_INET6)
 				return &(((struct sockaddr_in6*)sa)->sin6_addr);
 			PCPP_LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
-			return NULL;
+			return nullptr;
 		}
 
 		void sockaddr2string(struct sockaddr* sa, char* resultString)
 		{
 			in_addr* ipv4Addr = sockaddr2in_addr(sa);
-			if (ipv4Addr != NULL)
+			if (ipv4Addr != nullptr)
 			{
 				PCPP_LOG_DEBUG("IPv4 packet address");
 				inet_ntop(AF_INET, &(((sockaddr_in*)sa)->sin_addr), resultString, INET_ADDRSTRLEN);

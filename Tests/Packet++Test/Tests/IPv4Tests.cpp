@@ -60,7 +60,7 @@ PTF_TEST_CASE(IPv4PacketCreation)
 PTF_TEST_CASE(IPv4PacketParsing)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpPacket.dat");
 
@@ -119,7 +119,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 PTF_TEST_CASE(IPv4FragmentationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4Frag1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4Frag2.dat");
@@ -166,7 +166,7 @@ PTF_TEST_CASE(IPv4FragmentationTest)
 PTF_TEST_CASE(IPv4OptionsParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4Option1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv4Option2.dat");
@@ -323,7 +323,7 @@ PTF_TEST_CASE(IPv4OptionsParsingTest)
 PTF_TEST_CASE(IPv4OptionsEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv4-NoOptions1.dat");
 	READ_FILE_INTO_BUFFER(11, "PacketExamples/IPv4Option1.dat");
@@ -351,8 +351,8 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	pcpp::IPv4Layer* ipLayer = ipOpt1.getLayerOfType<pcpp::IPv4Layer>();
 	uint8_t commSecOptionData[] = { 0x00, 0x00, 0x00, 0x02, 0x02, 0x10, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x04, 0x00, 0x05, 0x00, 0x06, 0x00, 0xef };
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull());
-	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull());
-	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0), pcpp::IPV4OPT_CommercialSecurity).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0), pcpp::IPV4OPT_CommercialSecurity).isNull());
 	ipOpt1.computeCalculateFields();
 
 
@@ -389,7 +389,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	for (int i = 0; i < 6; i++)
 		ipListValue.push_back(pcpp::IPv4Address::Zero);
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_RecordRoute, ipListValue)).isNull());
-	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, NULL, 0)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0)).isNull());
 	ipOpt4.computeCalculateFields();
 	PTF_ASSERT_EQUAL(ipOpt4.getRawPacket()->getRawDataLen(), bufferLength44);
 	PTF_ASSERT_BUF_COMPARE(ipOpt4.getRawPacket()->getRawData(), buffer44, ipOpt4.getRawPacket()->getRawDataLen());
@@ -436,7 +436,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_EQUAL(optData.getTotalSize(), 7);
 	ipListValue = optData.getValueAsIpList();
 	PTF_ASSERT_EQUAL(ipListValue.size(), 0);
-	optData = ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, NULL, 0));
+	optData = ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, nullptr, 0));
 	PTF_ASSERT_FALSE(optData.isNull());
 	PTF_ASSERT_EQUAL(optData.getIPv4OptionType(), pcpp::IPV4OPT_NOP, enum);
 	PTF_ASSERT_EQUAL(optData.getTotalSize(), 1);
@@ -445,7 +445,7 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_BUF_COMPARE(ipOpt6.getRawPacket()->getRawData(), buffer66, ipOpt6.getRawPacket()->getRawDataLen());
 
 	ipLayer = ipOpt7.getLayerOfType<pcpp::IPv4Layer>();
-	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, NULL, 0)).isNull());
+	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_NOP, nullptr, 0)).isNull());
 	ipListValue.clear();
 	ipListValue.push_back(pcpp::IPv4Address::Zero);
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_LooseSourceRoute, ipListValue)).isNull());
@@ -512,7 +512,7 @@ PTF_TEST_CASE(IPv4UdpChecksum)
 		std::string fileName = strStream.str();
 
 		timeval time;
-		gettimeofday(&time, NULL);
+		gettimeofday(&time, nullptr);
 
 		READ_FILE_AND_CREATE_PACKET(1, fileName.c_str());
 

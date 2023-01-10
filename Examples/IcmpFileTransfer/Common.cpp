@@ -21,16 +21,16 @@
 
 static struct option IcmpFTOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"dest-ip",  required_argument, 0, 'd'},
-	{"send-file",  required_argument, 0, 's'},
-	{"receive-file", no_argument, 0, 'r'},
-	{"speed", required_argument, 0, 'p'},
-	{"block-size", required_argument, 0, 'b'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"dest-ip",  required_argument, nullptr, 'd'},
+	{"send-file",  required_argument, nullptr, 's'},
+	{"receive-file", no_argument, nullptr, 'r'},
+	{"speed", required_argument, nullptr, 'p'},
+	{"block-size", required_argument, nullptr, 'b'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, no_argument, nullptr, no_argument}
 };
 
 
@@ -172,7 +172,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	if (!interfaceIP.isValid())
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
 
 		myIP = dev->getIPv4Address();
@@ -237,9 +237,9 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev,
 
 	// then ICMP
 	pcpp::IcmpLayer icmpLayer;
-	if (sendRequest && icmpLayer.setEchoRequestData(icmpMsgId, 0, msgType, data, dataLen) == NULL)
+	if (sendRequest && icmpLayer.setEchoRequestData(icmpMsgId, 0, msgType, data, dataLen) == nullptr)
 		EXIT_WITH_ERROR("Cannot set ICMP echo request data");
-	else if (!sendRequest && icmpLayer.setEchoReplyData(icmpMsgId, 0, msgType, data, dataLen) == NULL)
+	else if (!sendRequest && icmpLayer.setEchoReplyData(icmpMsgId, 0, msgType, data, dataLen) == nullptr)
 		EXIT_WITH_ERROR("Cannot set ICMP echo response data");
 
 	// create an new packet and add all layers to it
