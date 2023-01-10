@@ -63,14 +63,14 @@
 
 static struct option PcapSplitterOptions[] =
 {
-	{"input-file",  required_argument, 0, 'f'},
-	{"output-file", required_argument, 0, 'o'},
-	{"method", required_argument, 0, 'm'},
-	{"param", required_argument, 0, 'p'},
-	{"filter", required_argument, 0, 'i'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"input-file",  required_argument, nullptr, 'f'},
+	{"output-file", required_argument, nullptr, 'o'},
+	{"method", required_argument, nullptr, 'm'},
+	{"param", required_argument, nullptr, 'p'},
+	{"filter", required_argument, nullptr, 'i'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -287,12 +287,12 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Split method was not given");
 	}
 
-	Splitter* splitter = NULL;
+	Splitter* splitter = nullptr;
 
 	// decide of the splitter to use, according to the user's choice
 	if (method == SPLIT_BY_FILE_SIZE)
 	{
-		uint64_t paramAsUint64 = (paramWasSet ? strtoull(param, NULL, 10) : 0);
+		uint64_t paramAsUint64 = (paramWasSet ? strtoull(param, nullptr, 10) : 0);
 		splitter = new FileSizeSplitter(paramAsUint64);
 	}
 	else if (method == SPLIT_BY_PACKET_COUNT)
@@ -356,9 +356,9 @@ int main(int argc, char* argv[])
 
 	// open a pcap file for reading
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputPcapFileName);
-	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL);
+	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr);
 
-	if (reader == NULL || !reader->open())
+	if (reader == nullptr || !reader->open())
 	{
 		EXIT_WITH_ERROR("Error opening input pcap file");
 	}
@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
 
 		// if file number exists in the map but PcapFileWriterDevice is null it means this file was open once and
 		// then closed. In this case we need to re-open the PcapFileWriterDevice in append mode
-		else if (outputFiles[fileNum] == NULL)
+		else if (outputFiles[fileNum] == nullptr)
 		{
 			// get file name from the splitter and add the .pcap extension
 			std::string fileName = splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) + outputFileExtenison;
@@ -456,7 +456,7 @@ int main(int argc, char* argv[])
 
 				// free the writer memory and put null in the map record
 				delete outputFiles[*it];
-				outputFiles[*it] = NULL;
+				outputFiles[*it] = nullptr;
 			}
 		}
 

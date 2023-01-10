@@ -15,7 +15,7 @@
 PTF_TEST_CASE(SipRequestLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_req1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sip_req2.dat");
@@ -124,7 +124,7 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_req1.dat");
 
@@ -147,8 +147,8 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(sipReqLayer.addField(PCPP_SIP_CALL_ID_FIELD, "12013223@200.57.7.195"));
 	PTF_ASSERT_NOT_NULL(sipReqLayer.addField(PCPP_SIP_CONTENT_TYPE_FIELD, "application/sdp"));
 	PTF_ASSERT_TRUE(sipReqLayer.addEndOfHeader());
-	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(NULL, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0"));
-	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(NULL, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290"));
+	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0"));
+	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290"));
 	pcpp::HeaderField* callIDField = sipReqLayer.getFieldByName(PCPP_SIP_CALL_ID_FIELD);
 	PTF_ASSERT_NOT_NULL(callIDField);
 	pcpp::HeaderField* newField = sipReqLayer.insertField(callIDField, PCPP_SIP_CSEQ_FIELD, "1 INVITE");
@@ -183,7 +183,7 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 PTF_TEST_CASE(SipRequestLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sip_req2.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_req3.dat");
@@ -239,7 +239,7 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 PTF_TEST_CASE(SipResponseLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_resp1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sip_resp2.dat");
@@ -347,7 +347,7 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 PTF_TEST_CASE(SipResponseLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/sip_resp6.dat");
 
@@ -373,8 +373,8 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(contentLengthField);
 	contentLengthField->setFieldValue(" 0");
 	PTF_ASSERT_NOT_NULL(sipRespLayer.addEndOfHeader());
-	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(NULL, PCPP_SIP_CALL_ID_FIELD, "93803593"));
-	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(NULL, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 10.3.160.214:5060;rport=5060;received=10.3.160.214;branch=z9hG4bK19266132"));
+	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(nullptr, PCPP_SIP_CALL_ID_FIELD, "93803593"));
+	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 10.3.160.214:5060;rport=5060;received=10.3.160.214;branch=z9hG4bK19266132"));
 	pcpp::HeaderField* fromField = sipRespLayer.getFieldByName(PCPP_SIP_FROM_FIELD);
 	PTF_ASSERT_NOT_NULL(fromField);
 	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(fromField, PCPP_SIP_TO_FIELD, "<sip:user103@ims.hom>;tag=z9hG4bKPjoKb0QlsN0Z-v4iW63WRm5UfjLn.Gm81V"));
@@ -394,7 +394,7 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 PTF_TEST_CASE(SipResponseLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_resp3.dat");
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/sip_resp4.dat");
@@ -455,7 +455,7 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 PTF_TEST_CASE(SdpLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_req1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/sdp.dat");
@@ -509,7 +509,7 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 PTF_TEST_CASE(SdpLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sdp.dat");
 
@@ -575,7 +575,7 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 PTF_TEST_CASE(SdpLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sdp.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/sip_resp3.dat");
@@ -590,7 +590,7 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	PTF_ASSERT_TRUE(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD)->setFieldValue("Phone-Call"));
 	PTF_ASSERT_TRUE(sdpLayer->getFieldByName(PCPP_SDP_CONNECTION_INFO_FIELD)->setFieldValue("IN IP4 10.33.6.100"));
 	PTF_ASSERT_TRUE(sdpLayer->removeField(PCPP_SDP_MEDIA_NAME_FIELD));
-	while (sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD) != NULL)
+	while (sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD) != nullptr)
 	{
 		sdpLayer->removeField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD);
 	}

@@ -50,7 +50,7 @@ IcmpV6Layer::IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code, const uint8_t 
 	hdr->type = static_cast<uint8_t>(msgType);
 	hdr->code = code;
 
-	if (data != NULL && dataLen > 0)
+	if (data != nullptr && dataLen > 0)
 		memcpy(m_Data + sizeof(icmpv6hdr), data, dataLen);
 }
 
@@ -85,7 +85,7 @@ void IcmpV6Layer::calculateChecksum()
 
 	getIcmpv6Header()->checksum = 0;
 
-	if (m_PrevLayer != NULL)
+	if (m_PrevLayer != nullptr)
 	{
 		ScalarBuffer<uint16_t> vec[2];
 
@@ -145,7 +145,7 @@ ICMPv6EchoLayer::ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id, uint16_t 
 	header->id = htobe16(id);
 	header->sequence = htobe16(sequence);
 
-	if (data != NULL && dataLen > 0)
+	if (data != nullptr && dataLen > 0)
 		memcpy(getEchoDataPtr(), data, dataLen);
 }
 

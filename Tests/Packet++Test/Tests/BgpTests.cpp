@@ -12,7 +12,7 @@
 PTF_TEST_CASE(BgpLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Bgp_keepalive.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Bgp_open.dat");
@@ -216,7 +216,7 @@ PTF_TEST_CASE(BgpLayerParsingTest)
 PTF_TEST_CASE(BgpLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Bgp_keepalive.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Bgp_route-refresh.dat");
@@ -430,7 +430,7 @@ PTF_TEST_CASE(BgpLayerCreationTest)
 PTF_TEST_CASE(BgpLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Bgp_notification.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Bgp_notification2.dat");
@@ -450,7 +450,7 @@ PTF_TEST_CASE(BgpLayerEditTest)
 	pcpp::Packet bgpNotificationPacket2(&rawPacket2);
 	pcpp::BgpNotificationMessageLayer* bgpNotificationMessage1 = bgpNotificationPacket1.getLayerOfType<pcpp::BgpNotificationMessageLayer>();
 	PTF_ASSERT_NOT_NULL(bgpNotificationMessage1);
-	PTF_ASSERT_TRUE(bgpNotificationMessage1->setNotificationData(NULL, 0));
+	PTF_ASSERT_TRUE(bgpNotificationMessage1->setNotificationData(nullptr, 0));
 	bgpNotificationMessage1->getNotificationMsgHeader()->errorSubCode = 4;
 	bgpNotificationPacket1.computeCalculateFields();
 	pcpp::BgpNotificationMessageLayer* bgpNotificationMessage2 = bgpNotificationPacket2.getLayerOfType<pcpp::BgpNotificationMessageLayer>();

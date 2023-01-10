@@ -19,11 +19,11 @@ namespace pcpp
 SSHLayer* SSHLayer::createSSHMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 {
 	SSHIdentificationMessage* sshIdnetMsg = SSHIdentificationMessage::tryParse(data, dataLen, prevLayer, packet);
-	if (sshIdnetMsg != NULL)
+	if (sshIdnetMsg != nullptr)
 		return sshIdnetMsg;
 
 	SSHHandshakeMessage* sshHandshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
-	if (sshHandshakeMessage != NULL)
+	if (sshHandshakeMessage != nullptr)
 		return sshHandshakeMessage;
 
 	return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
@@ -46,13 +46,13 @@ SSHIdentificationMessage* SSHIdentificationMessage::tryParse(uint8_t* data, size
 {
 	// Payload must be at least as long as the string "SSH-"
 	if (dataLen < 5)
-		return NULL;
+		return nullptr;
 
 	// Payload must begin with "SSH-" and end with "\n"
 	if (data[0] == 0x53 && data[1] == 0x53 && data[2] == 0x48 && data[3] == 0x2d && data[dataLen - 1] == 0x0a)
 		return new SSHIdentificationMessage(data, dataLen, prevLayer, packet);
 
-	return NULL;
+	return nullptr;
 }
 
 std::string SSHIdentificationMessage::getIdentificationMessage()
@@ -135,7 +135,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 	if (dataLen < sizeof(SSHHandshakeMessage::ssh_message_base))
 	{
 		PCPP_LOG_DEBUG("Data length is smaller than the minimum size of an SSH handshake message. It's probably not an SSH handshake message");
-		return NULL;
+		return nullptr;
 	}
 
 	SSHHandshakeMessage::ssh_message_base* msgBase = (SSHHandshakeMessage::ssh_message_base*)data;
@@ -144,13 +144,13 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 	if (msgLength + sizeof(uint32_t) > dataLen)
 	{
 		PCPP_LOG_DEBUG("Message size is larger than layer size. It's probably not an SSH handshake message");
-		return NULL;
+		return nullptr;
 	}
 
 	if (msgBase->paddingLength > msgLength)
 	{
 		PCPP_LOG_DEBUG("Message padding is larger than message size. It's probably not an SSH handshake message");
-		return NULL;
+		return nullptr;
 	}
 
 	if (msgBase->messageCode != 20 &&
@@ -158,7 +158,7 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data, size_t dataLen
 		(msgBase->messageCode < 30 || msgBase->messageCode > 49))
 		{
 			PCPP_LOG_DEBUG("Unknown message type " << (int)msgBase->messageCode << ". It's probably not an SSH handshake message");
-			return NULL;
+			return nullptr;
 		}
 
 	switch (msgBase->messageCode)
@@ -224,7 +224,7 @@ std::string SSHKeyExchangeInitMessage::getFieldValue(int fieldOffsetIndex)
 uint8_t* SSHKeyExchangeInitMessage::getCookie()
 {
 	if (m_DataLen < sizeof(ssh_message_base) + 16)
-		return NULL;
+		return nullptr;
 
 	return m_Data + sizeof(ssh_message_base);
 }
@@ -232,7 +232,7 @@ uint8_t* SSHKeyExchangeInitMessage::getCookie()
 std::string SSHKeyExchangeInitMessage::getCookieAsHexStream()
 {
 	uint8_t* cookie = getCookie();
-	if (cookie == NULL)
+	if (cookie == nullptr)
 		return "";
 
 	return byteArrayToHexString(cookie, 16);

@@ -9,7 +9,7 @@
 PTF_TEST_CASE(WakeOnLanParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
 
@@ -39,7 +39,7 @@ PTF_TEST_CASE(WakeOnLanParsingTests)
 PTF_TEST_CASE(WakeOnLanCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
 
@@ -73,7 +73,7 @@ PTF_TEST_CASE(WakeOnLanCreationTests)
 PTF_TEST_CASE(WakeOnLanEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WoL_ether.dat");
 

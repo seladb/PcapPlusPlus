@@ -9,7 +9,7 @@
 PTF_TEST_CASE(DhcpV6ParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_1.dat");
 
@@ -56,7 +56,7 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 PTF_TEST_CASE(DhcpV6CreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_2.dat");
 
@@ -128,7 +128,7 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 PTF_TEST_CASE(DhcpV6EditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_1.dat");
 

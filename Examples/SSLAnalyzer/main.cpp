@@ -51,15 +51,15 @@
 
 static struct option SSLAnalyzerOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"input-file",  required_argument, 0, 'f'},
-	{"output-file", required_argument, 0, 'o'},
-	{"rate-calc-period", required_argument, 0, 'r'},
-	{"disable-rates-print", no_argument, 0, 'd'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"input-file",  required_argument, nullptr, 'f'},
+	{"output-file", required_argument, nullptr, 'o'},
+	{"rate-calc-period", required_argument, nullptr, 'r'},
+	{"disable-rates-print", no_argument, nullptr, 'd'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -158,7 +158,7 @@ void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
 	data->statsCollector->collectStats(&parsedPacket);
 
 	// if needed - write the packet to the output pcap file
-	if (data->pcapWriter != NULL)
+	if (data->pcapWriter != nullptr)
 	{
 		data->pcapWriter->writePacket(*packet);
 	}
@@ -436,7 +436,7 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 
 
 	// if needed to save the captured packets to file - open a writer device
-	pcpp::PcapFileWriterDevice* pcapWriter = NULL;
+	pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
 	if (savePacketsToFileName != "")
 	{
 		pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
@@ -484,7 +484,7 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	printStatsSummary(collector);
 
 	// close and free the writer device
-	if (pcapWriter != NULL)
+	if (pcapWriter != nullptr)
 	{
 		pcapWriter->close();
 		delete pcapWriter;
@@ -559,7 +559,7 @@ int main(int argc, char* argv[])
 	{
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing and analyzing traffic
