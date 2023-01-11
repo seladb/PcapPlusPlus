@@ -228,9 +228,7 @@ jobs:
         env:
           NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
           NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
-        run: |
-          ci\install_npcap.bat
-          echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+        run: ci\install_npcap.bat
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}

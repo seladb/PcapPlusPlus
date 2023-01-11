@@ -18,6 +18,6 @@ add_test(
 set_tests_properties(PythonRequirements PROPERTIES DEPENDS "UpgradePip")
 
 add_test(
-  NAME ExamplesTestv
+  NAME ExamplesTest
   COMMAND ${Python_EXECUTABLE} -m pytest "$<SHELL_PATH:${CMAKE_CURRENT_SOURCE_DIR}>" --root-path "$<SHELL_PATH:${PCAPPP_BINARY_EXAMPLES_DIR}>" ${PCAPPP_TESTS_EXAMPLESTEST_ARGS}
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
