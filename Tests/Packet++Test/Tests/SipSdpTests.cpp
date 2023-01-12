@@ -130,17 +130,10 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 
 	pcpp::Packet sipReqSamplePacket(&rawPacket1);
 
-	pcpp::Packet newSipPacket;
-
 	pcpp::EthLayer ethLayer(*sipReqSamplePacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer;
 	ip4Layer = *(sipReqSamplePacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ip4Layer));
-
 	pcpp::UdpLayer udpLayer = *(sipReqSamplePacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&udpLayer));
 
 	pcpp::SipRequestLayer sipReqLayer(pcpp::SipRequestLayer::SipINVITE, "sip:francisco@bestel.com:55060");
 
@@ -166,11 +159,15 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	contentLengthField->setFieldValue("  229");
 
 
+	pcpp::Packet newSipPacket;
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(&udpLayer));
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&sipReqLayer));
 
 	pcpp::SipRequestLayer* samplePacketSipLayer = sipReqSamplePacket.getLayerOfType<pcpp::SipRequestLayer>();
-	pcpp::PayloadLayer payloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize(), true);
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&payloadLayer));
+	auto payloadLayer = new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize(), true);
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(payloadLayer, true));
 
 	newSipPacket.computeCalculateFields();
 
@@ -353,17 +350,10 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 
 	pcpp::Packet sipRespSamplePacket(&rawPacket6);
 
-	pcpp::Packet newSipPacket;
-
 	pcpp::EthLayer ethLayer(*sipRespSamplePacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer;
 	ip4Layer = *(sipRespSamplePacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ip4Layer));
-
 	pcpp::UdpLayer udpLayer = *(sipRespSamplePacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(newSipPacket.addLayer(&udpLayer));
 
 	pcpp::SipResponseLayer sipRespLayer(pcpp::SipResponseLayer::Sip504ServerTimeout);
 
@@ -379,6 +369,10 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(fromField);
 	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(fromField, PCPP_SIP_TO_FIELD, "<sip:user103@ims.hom>;tag=z9hG4bKPjoKb0QlsN0Z-v4iW63WRm5UfjLn.Gm81V"));
 
+	pcpp::Packet newSipPacket;
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(newSipPacket.addLayer(&udpLayer));
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&sipRespLayer));
 
 	newSipPacket.computeCalculateFields();
@@ -515,20 +509,11 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 
 	pcpp::Packet sdpPacket(&rawPacket1);
 
-	pcpp::Packet newSdpPacket;
-
 	pcpp::EthLayer ethLayer(*sdpPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer;
 	ip4Layer = *(sdpPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&ip4Layer));
-
 	pcpp::UdpLayer udpLayer = *(sdpPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&udpLayer));
-
 	pcpp::SipResponseLayer sipLayer = *(sdpPacket.getLayerOfType<pcpp::SipResponseLayer>());
-	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&sipLayer));
 
 	pcpp::SdpLayer newSdpLayer("IPP", 782647527, 782647407, pcpp::IPv4Address("10.33.6.100"), "Phone-Call", 0, 0);
 
@@ -549,6 +534,11 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 	imageAttributes.push_back("T38FaxUdpEC:t38UDPRedundancy");
 	PTF_ASSERT_TRUE(newSdpLayer.addMediaDescription("image", 6012, "udptl", "t38", imageAttributes));
 
+	pcpp::Packet newSdpPacket;
+	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&udpLayer));
+	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&sipLayer));
 	PTF_ASSERT_TRUE(newSdpPacket.addLayer(&newSdpLayer));
 
 	newSdpPacket.computeCalculateFields();

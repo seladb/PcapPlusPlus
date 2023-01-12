@@ -224,16 +224,10 @@ PTF_TEST_CASE(NtpCreationTests)
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
 
     pcpp::Packet ntpPacket(&rawPacket1);
-    pcpp::Packet craftedPacket;
 
     pcpp::EthLayer ethLayer(*ntpPacket.getLayerOfType<pcpp::EthLayer>());
-    PTF_ASSERT_TRUE(craftedPacket.addLayer(&ethLayer));
-
     pcpp::IPv4Layer ipv4Layer(*ntpPacket.getLayerOfType<pcpp::IPv4Layer>());
-    PTF_ASSERT_TRUE(craftedPacket.addLayer(&ipv4Layer));
-
     pcpp::UdpLayer udpLayer(*ntpPacket.getLayerOfType<pcpp::UdpLayer>());
-    PTF_ASSERT_TRUE(craftedPacket.addLayer(&udpLayer));
 
     pcpp::NtpLayer ntpLayer;
 
@@ -252,6 +246,10 @@ PTF_TEST_CASE(NtpCreationTests)
     ntpLayer.setReceiveTimestamp(be64toh(0xd944575531b4e978));
     ntpLayer.setTransmitTimestamp(be64toh(0xd94f51f42d26e2f4));
 
+	pcpp::Packet craftedPacket;
+	PTF_ASSERT_TRUE(craftedPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(craftedPacket.addLayer(&ipv4Layer));
+	PTF_ASSERT_TRUE(craftedPacket.addLayer(&udpLayer));
     craftedPacket.addLayer(&ntpLayer);
 
     PTF_ASSERT_EQUAL(bufferLength1, craftedPacket.getRawPacket()->getRawDataLen());
@@ -260,16 +258,10 @@ PTF_TEST_CASE(NtpCreationTests)
     READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv3crafting.dat");
 
     pcpp::Packet ntpPacket2(&rawPacket2);
-    pcpp::Packet craftedPacket2;
 
     pcpp::EthLayer ethLayer2(*ntpPacket2.getLayerOfType<pcpp::EthLayer>());
-    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
-
     pcpp::IPv4Layer ipv4Layer2(*ntpPacket2.getLayerOfType<pcpp::IPv4Layer>());
-    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
-
     pcpp::UdpLayer udpLayer2(*ntpPacket2.getLayerOfType<pcpp::UdpLayer>());
-    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&udpLayer2));
 
     pcpp::NtpLayer ntpLayer2;
 
@@ -288,6 +280,10 @@ PTF_TEST_CASE(NtpCreationTests)
     ntpLayer2.setReceiveTimestampInSecs(1121509865.0);
     ntpLayer2.setTransmitTimestampInSecs(1121509865.0);
 
+	pcpp::Packet craftedPacket2;
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&udpLayer2));
     craftedPacket2.addLayer(&ntpLayer2);
 
     PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());

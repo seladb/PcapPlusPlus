@@ -38,7 +38,6 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->length, htobe16(154));
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->headerChecksum, htobe16(0x5fea));
 
-	pcpp::Packet ip6UdpPacketNew(1);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("6c:f0:49:b2:de:6e"), pcpp::MacAddress ("33:33:00:00:00:0c"));
 
 	pcpp::IPv6Layer ip6Layer(srcIP, dstIP);
@@ -53,6 +52,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	afterIpv6Layer->copyData(payloadData);
 	pcpp::PayloadLayer payloadLayer(payloadData, afterIpv6Layer->getDataLen(), true);
 
+	pcpp::Packet ip6UdpPacketNew(1);
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ip6Layer));
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&udpLayer));

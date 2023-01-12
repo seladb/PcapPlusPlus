@@ -233,16 +233,9 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	pcpp::Packet dnsEdit2RefPacket(&rawPacket2);
 
-	pcpp::Packet dnsEdit2Packet(1);
-
 	pcpp::EthLayer ethLayer2(*dnsEdit2RefPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&ethLayer2));
-
 	pcpp::IPv4Layer ipLayer2(*dnsEdit2RefPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&ipLayer2));
-
 	pcpp::UdpLayer udpLayer2(*dnsEdit2RefPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&udpLayer2));
 
 	pcpp::DnsLayer dns2Layer;
 	dns2Layer.getDnsHeader()->recursionDesired = true;
@@ -252,6 +245,10 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 	PTF_ASSERT_EQUAL(dns2Layer.getQueryCount(), 1);
 	PTF_ASSERT_EQUAL(newQuery->getName(), "mail-attachment.googleusercontent.com");
 
+	pcpp::Packet dnsEdit2Packet(1);
+	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&ethLayer2));
+	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&ipLayer2));
+	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&udpLayer2));
 	PTF_ASSERT_TRUE(dnsEdit2Packet.addLayer(&dns2Layer));
 
 	dnsEdit2Packet.computeCalculateFields();
@@ -265,19 +262,16 @@ PTF_TEST_CASE(DnsLayerQueryCreationTest)
 
 	pcpp::Packet dnsEdit1RefPacket(&rawPacket1);
 
-	pcpp::Packet dnsEdit1Packet(1);
-
 	pcpp::EthLayer ethLayer1(*dnsEdit1RefPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&ethLayer1));
-
 	pcpp::IPv4Layer ipLayer1(*dnsEdit1RefPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&ipLayer1));
-
 	pcpp::UdpLayer udpLayer1(*dnsEdit1RefPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&udpLayer1));
 
 	pcpp::DnsLayer dns1Layer;
 
+	pcpp::Packet dnsEdit1Packet(1);
+	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&ethLayer1));
+	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&ipLayer1));
+	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&udpLayer1));
 	PTF_ASSERT_TRUE(dnsEdit1Packet.addLayer(&dns1Layer));
 
 	newQuery = dns1Layer.addQuery("_apple-mobdev._tcp.local", pcpp::DNS_TYPE_PTR, pcpp::DNS_CLASS_IN);
@@ -311,16 +305,9 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	pcpp::Packet dnsEdit4RefPacket(&rawPacket4);
 
-	pcpp::Packet dnsEdit4Packet(1);
-
 	pcpp::EthLayer ethLayer4(*dnsEdit4RefPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&ethLayer4));
-
 	pcpp::IPv4Layer ipLayer4(*dnsEdit4RefPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&ipLayer4));
-
 	pcpp::UdpLayer udpLayer4(*dnsEdit4RefPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&udpLayer4));
 
 	pcpp::DnsLayer dns4Layer;
 	dns4Layer.getDnsHeader()->transactionID = htobe16(14627);
@@ -334,6 +321,10 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT_EQUAL(dns4Layer.getFirstAnswer(), firstAnswer, ptr);
 	PTF_ASSERT_EQUAL(firstAnswer->getData()->toString(), "assets.pinterest.com.cdngc.net");
 
+	pcpp::Packet dnsEdit4Packet(1);
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&ethLayer4));
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&ipLayer4));
+	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&udpLayer4));
 	PTF_ASSERT_TRUE(dnsEdit4Packet.addLayer(&dns4Layer));
 
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer(), firstAnswer, ptr);
@@ -374,16 +365,9 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	pcpp::Packet dnsEdit6RefPacket(&rawPacket6);
 
-	pcpp::Packet dnsEdit6Packet(52);
-
 	pcpp::EthLayer ethLayer6(*dnsEdit6RefPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&ethLayer6));
-
 	pcpp::IPv6Layer ipLayer6(*dnsEdit6RefPacket.getLayerOfType<pcpp::IPv6Layer>());
-	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&ipLayer6));
-
 	pcpp::UdpLayer udpLayer6(*dnsEdit6RefPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&udpLayer6));
 
 	pcpp::DnsLayer dnsLayer6;
 
@@ -396,6 +380,10 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	query->setDnsClass(pcpp::DNS_CLASS_CH);
 	query->setDnsType(pcpp::DNS_TYPE_ALL);
 
+	pcpp::Packet dnsEdit6Packet(52);
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&ethLayer6));
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&ipLayer6));
+	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&udpLayer6));
 	PTF_ASSERT_TRUE(dnsEdit6Packet.addLayer(&dnsLayer6));
 
 	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2");
@@ -443,16 +431,9 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	pcpp::Packet dnsEdit7RefPacket(&rawPacket7);
 
-	pcpp::Packet dnsEdit7Packet(60);
-
 	pcpp::EthLayer ethLayer7(*dnsEdit7RefPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&ethLayer7));
-
 	pcpp::IPv4Layer ipLayer7(*dnsEdit7RefPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&ipLayer7));
-
 	pcpp::UdpLayer udpLayer7(*dnsEdit7RefPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&udpLayer7));
 
 	pcpp::DnsLayer dnsLayer7;
 	dnsLayer7.getDnsHeader()->transactionID = htobe16(612);
@@ -481,6 +462,10 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	answer = dnsLayer7.addAnswer(queryNameOffset.str(), pcpp::DNS_TYPE_MX, pcpp::DNS_CLASS_IN, 187, &mxDnsData);
 	PTF_ASSERT_NOT_NULL(answer);
 
+	pcpp::Packet dnsEdit7Packet(60);
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&ethLayer7));
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&ipLayer7));
+	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&udpLayer7));
 	PTF_ASSERT_TRUE(dnsEdit7Packet.addLayer(&dnsLayer7));
 
 	dnsEdit7Packet.computeCalculateFields();
@@ -730,9 +715,6 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dns_over_tcp_answer2.dat");
-	pcpp::Packet dnsPacket(&rawPacket1);
-
-	dnsPacket.removeLayer(pcpp::DNS);
 
 	pcpp::DnsOverTcpLayer newDnsLayer;
 	newDnsLayer.getDnsHeader()->transactionID = htobe16(0x38);
@@ -742,6 +724,10 @@ PTF_TEST_CASE(DnsOverTcpCreationTest)
 	newDnsLayer.addQuery("github.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN);
 	pcpp::IPv4DnsResourceData ipv4Answer("192.30.255.113");
 	newDnsLayer.addAnswer("github.com", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_IN, 32, &ipv4Answer);
+
+	pcpp::Packet dnsPacket(&rawPacket1);
+	dnsPacket.removeLayer(pcpp::DNS);
+
 	dnsPacket.addLayer(&newDnsLayer);
 	dnsPacket.computeCalculateFields();
 
