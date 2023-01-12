@@ -14,11 +14,21 @@
 
 PTF_TEST_CASE(IPv4PacketCreation)
 {
-	pcpp::Packet ip4Packet(1);
-
 	pcpp::MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	pcpp::MacAddress dstMac("bb:bb:bb:bb:bb:bb");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
+
+	pcpp::IPv4Address ipSrc("1.1.1.1");
+	pcpp::IPv4Address ipDst("20.20.20.20");
+	pcpp::IPv4Layer ip4Layer(ipSrc, ipDst);
+	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
+
+
+	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
+	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+
+
+	pcpp::Packet ip4Packet(1);
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
 
 	pcpp::Packet tmpPacket(50);
@@ -30,15 +40,7 @@ PTF_TEST_CASE(IPv4PacketCreation)
 	PTF_ASSERT_NOT_NULL(rawPacket);
 	PTF_ASSERT_EQUAL(rawPacket->getRawDataLen(), 14);
 
-
-	pcpp::IPv4Address ipSrc("1.1.1.1");
-	pcpp::IPv4Address ipDst("20.20.20.20");
-	pcpp::IPv4Layer ip4Layer(ipSrc, ipDst);
-	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ip4Layer));
-
-	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
-	pcpp::PayloadLayer payloadLayer(payload, 10, true);
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&payloadLayer));
 
 	ip4Packet.computeCalculateFields();
