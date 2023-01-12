@@ -125,7 +125,6 @@ PTF_TEST_CASE(NullLoopbackTest)
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, enum);
 	PTF_ASSERT_GREATER_THAN(nullLoopbackLayer->getFamily(), 1500);
 
-	pcpp::Packet newNullPacket(1);
 	pcpp::NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
 	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address("172.16.1.117"), pcpp::IPv4Address("172.16.1.255"));
 	newIp4Layer.getIPv4Header()->ipId = htobe16(49513);
@@ -136,6 +135,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	uint8_t payload[] = { 0x42, 0x4a, 0x4e, 0x42, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	pcpp::PayloadLayer newPayloadLayer(payload, 16, false);
 
+	pcpp::Packet newNullPacket(1);
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newNullLoopbackLayer));
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newIp4Layer));
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newUdpLayer));

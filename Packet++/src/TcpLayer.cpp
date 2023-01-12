@@ -230,7 +230,7 @@ void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize)
 		newNumberOfTrailingBytes++;
 
 	if (newNumberOfTrailingBytes < m_NumOfTrailingBytes)
-		shortenLayer(sizeof(tcphdr)+totalOptSize, m_NumOfTrailingBytes - newNumberOfTrailingBytes);
+		shortenLayer(sizeof(tcphdr)+totalOptSize, m_NumOfTrailingBytes - newNumberOfTrailingBytes - 1);
 	else if (newNumberOfTrailingBytes > m_NumOfTrailingBytes)
 		extendLayer(sizeof(tcphdr)+totalOptSize, newNumberOfTrailingBytes - m_NumOfTrailingBytes);
 

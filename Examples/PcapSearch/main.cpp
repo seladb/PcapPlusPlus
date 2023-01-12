@@ -377,6 +377,7 @@ int main(int argc, char* argv[])
 	{
 		EXIT_WITH_ERROR("Cannot find or open input directory");
 	}
+	closedir(dir);
 
 	// verify the search criteria is a valid BPF filter
 	pcpp::BPFStringFilter filter(searchCriteria);

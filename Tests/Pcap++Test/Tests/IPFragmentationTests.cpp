@@ -859,11 +859,11 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 	delete ip6Packet3;
 	delete ip6Packet4;
 
-	delete buffer1;
-	delete buffer4;
-	delete buffer6;
-	delete buffer61;
-	delete buffer62;
+	delete [] buffer1;
+	delete [] buffer4;
+	delete [] buffer6;
+	delete [] buffer61;
+	delete [] buffer62;
 } // TestIPFragMultipleFrags
 
 
