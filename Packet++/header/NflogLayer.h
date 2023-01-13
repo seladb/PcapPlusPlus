@@ -103,7 +103,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
 		 * @param[in] recordRawData A pointer to the option raw data
 		 */
-		NflogTlv(uint8_t* recordRawData)
+		explicit NflogTlv(uint8_t* recordRawData)
 		{
 			assign(recordRawData);
 		}
