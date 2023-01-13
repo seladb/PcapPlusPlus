@@ -4,8 +4,11 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
-#include <string.h>
+#include "GeneralUtils.h"
 #include "NullLoopbackLayer.h"
+
+#include <string.h>
+
 
 namespace pcpp
 {
@@ -15,20 +18,15 @@ uint8_t NflogLayer::getFamily()
 	return getNflogHeader()->address_family;
 }
 
-std::pair<uint8_t*, int> NflogLayer::getPayload()
+std::pair<uint8_t*, int> NflogLayer::getTlvByType(uint32_t type) const
 {
-	uint8_t* data = m_Data + sizeof(nflog_header);
-	nflog_tlv* current_tlv = (nflog_tlv*)data;
+	NflogTlv tlv = m_TlvReader.getTLVRecord(
+		type,
+		getTlvsBasePtr(),
+		m_DataLen - sizeof(nflog_header));
 
-	while (current_tlv->tlv_type != NFULA_PAYLOAD) {
-		uint16_t len = current_tlv->tlv_length;
-		data = data + len;
-		while (*data == 0) {
-			data += 1;
-		}
-		current_tlv = (nflog_tlv*)data;
-	}
-	return std::make_pair(data + sizeof(nflog_tlv), current_tlv->tlv_length);
+	std::pair<uint8_t*, int> out = std::make_pair(tlv.getValue(), tlv.getTotalSize());
+	return out;
 }
 
 nflog_packet_header* NflogLayer::getPacketHeader()
@@ -42,8 +40,7 @@ void NflogLayer::parseNextLayer()
 {
 	if (m_DataLen <= sizeof(nflog_header))
 		return;
-
-	auto payloadInfo = getPayload();
+	auto payloadInfo = getTlvByType(NflogTlvType::NFULA_PAYLOAD);
 	uint8_t* payload = payloadInfo.first;
 	size_t payloadLen = payloadInfo.second + sizeof(nflog_tlv);
 

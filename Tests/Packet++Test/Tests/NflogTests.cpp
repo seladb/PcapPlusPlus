@@ -32,7 +32,7 @@ PTF_TEST_CASE(NflogPacketParsingTest)
     PTF_ASSERT_EQUAL((int)pck_hdr->netfilter_hook, 3);
     PTF_ASSERT_EQUAL(nflogLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 
-	std::pair<uint8_t*, int> $payloadInfo = nflogLayer->getPayload();
+	std::pair<uint8_t*, int> $payloadInfo = nflogLayer->getTlvByType(pcpp::NflogTlvType::NFULA_PAYLOAD);
 	PTF_ASSERT_EQUAL($payloadInfo.second, 65);
 	PTF_ASSERT_EQUAL($payloadInfo.first[0], 'E');
 

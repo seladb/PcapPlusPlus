@@ -2,6 +2,8 @@
 #define PACKETPP_NFLOG_LAYER
 
 #include "Layer.h"
+#include "TLVData.h"
+#include "GeneralUtils.h"
 
 /// @file
 
@@ -11,29 +13,6 @@
  */
 namespace pcpp
 {
-	/*
- 	* TLV types.
- 	*/
-	#define NFULA_PACKET_HDR			1	/* nflog_packet_hdr_t */
-	#define NFULA_MARK					2	/* packet mark from skbuff */
-	#define NFULA_TIMESTAMP				3	/* nflog_timestamp_t for skbuff's time stamp */
-	#define NFULA_IFINDEX_INDEV			4	/* ifindex of device on which packet received (possibly bridge group) */
-	#define NFULA_IFINDEX_OUTDEV		5	/* ifindex of device on which packet transmitted (possibly bridge group) */
-	#define NFULA_IFINDEX_PHYSINDEV		6	/* ifindex of physical device on which packet received (not bridge group) */
-	#define NFULA_IFINDEX_PHYSOUTDEV	7	/* ifindex of physical device on which packet transmitted (not bridge group) */
-	#define NFULA_HWADDR				8	/* nflog_hwaddr_t for hardware address */
-	#define NFULA_PAYLOAD				9	/* packet payload */
-	#define NFULA_PREFIX				10	/* text string - null-terminated, count includes NUL */
-	#define NFULA_UID					11	/* UID owning socket on which packet was sent/received */
-	#define NFULA_SEQ					12	/* sequence number of packets on this NFLOG socket */
-	#define NFULA_SEQ_GLOBAL			13	/* sequence number of pakets on all NFLOG sockets */
-	#define NFULA_GID					14	/* GID owning socket on which packet was sent/received */
-	#define NFULA_HWTYPE				15	/* ARPHRD_ type of skbuff's device */
-	#define NFULA_HWHEADER				16	/* skbuff's MAC-layer header */
-	#define NFULA_HWLEN					17	/* length of skbuff's MAC-layer header */
-
-
-
 	/**
 	 * @struct nflog_header
 	 * Represents Nflog header
@@ -80,6 +59,101 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
+	enum NflogTlvType
+	{
+		NFULA_PACKET_HDR			= 1,	/* nflog_packet_hdr_t */
+		NFULA_MARK					= 2,	/* packet mark from skbuff */
+ 		NFULA_TIMESTAMP				= 3,	/* nflog_timestamp_t for skbuff's time stamp */
+ 		NFULA_IFINDEX_INDEV			= 4,	/* ifindex of device on which packet received (possibly bridge group) */
+ 		NFULA_IFINDEX_OUTDEV		= 5,	/* ifindex of device on which packet transmitted (possibly bridge group) */
+ 		NFULA_IFINDEX_PHYSINDEV		= 6,	/* ifindex of physical device on which packet received (not bridge group) */
+ 		NFULA_IFINDEX_PHYSOUTDEV	= 7,	/* ifindex of physical device on which packet transmitted (not bridge group) */
+ 		NFULA_HWADDR				= 8,	/* nflog_hwaddr_t for hardware address */
+ 		NFULA_PAYLOAD				= 9,	/* packet payload */
+ 		NFULA_PREFIX				= 10,	/* text string - null-terminated, count includes NUL */
+ 		NFULA_UID					= 11,	/* UID owning socket on which packet was sent/received */
+ 		NFULA_SEQ					= 12,	/* sequence number of packets on this NFLOG socket */
+ 		NFULA_SEQ_GLOBAL			= 13,	/* sequence number of pakets on all NFLOG sockets */
+ 		NFULA_GID					= 14,	/* GID owning socket on which packet was sent/received */
+ 		NFULA_HWTYPE				= 15,	/* ARPHRD_ type of skbuff's device */
+ 		NFULA_HWHEADER				= 16,	/* skbuff's MAC-layer header */
+ 		NFULA_HWLEN					= 17,	/* length of skbuff's MAC-layer header */
+	};
+
+	/**
+	 * @class NflogTlv
+	 * A wrapper class for NFLOG tlv fields. This class does not create or modify TLVs related to NFLOG, but rather
+	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
+	 */
+	class NflogTlv/*: public TLVRecord<uint16_t, uint16_t>*/
+	{
+	private:
+		struct NflogTLVRawData
+		{
+			/** Record length in bytes */
+			uint16_t recordLen;
+			/** Record type */
+			uint16_t recordType;
+			/** Record value (variable size) */
+			uint8_t recordValue[];
+		};
+		NflogTLVRawData* m_Data;
+	public:
+		/**
+		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
+		 * @param[in] recordRawData A pointer to the option raw data
+		 */
+		NflogTlv(uint8_t* recordRawData)
+		{
+			assign(recordRawData);
+		}
+
+		/**
+		 * @return recordLen attribute in NflogTLVRawData
+		 */
+		size_t getTotalSize() const { return m_Data->recordLen; }
+
+		/**
+		 * Assign a pointer to the TLV record raw data (byte array)
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 */
+		void assign(uint8_t* recordRawData)
+		{
+			if(recordRawData == NULL)
+				m_Data = NULL;
+			else
+			{
+				// to pass from some unknown paddings after tlv wit type NFULA_PREFIX
+				while (*recordRawData == 0)
+					recordRawData += 1;
+				m_Data = (NflogTLVRawData*)recordRawData;
+			}
+		}
+
+		/**
+		 * @return True if the TLV record raw data is NULL, false otherwise
+		 */
+		bool isNull() const 
+		{
+			return (m_Data == NULL);
+		}
+
+		/**
+		 * @return The type field of the record (the 'T' in __Type__-Length-Value)
+		 */
+		uint16_t getType() const { return m_Data->recordType; }
+
+		/**
+		 * @return A pointer to the TLV record raw data byte stream
+		 */
+		uint8_t* getRecordBasePtr() const { return (uint8_t*)m_Data; }
+
+		/**
+		 * @return A pointer to the value of the record as byte array (the 'V' in Type-Length- __Value__)
+		 */
+		uint8_t* getValue() const { return m_Data->recordValue; }
+	};
+
 	/**
 	 * @class NflogLayer
 	 * Represents an NFLOG protocol layer
@@ -116,11 +190,11 @@ namespace pcpp
 		nflog_packet_header* getPacketHeader();
 
 		/**
-		 * returns a pair of pointer to payload of packet and the offset from the beginning of m_Data
+		 * returns a pair of pointer to tlv data and the length of the tlv
+		 * @param[in] type type of tlv by using enum defined as NflogTlvType
 		 * @return pair of <uint8_t*, int>
 		*/
-		std::pair<uint8_t*, int> getPayload();
-
+		std::pair<uint8_t*, int> getTlvByType(uint32_t type) const;
 
 		// implement abstract methods
 
@@ -143,6 +217,11 @@ namespace pcpp
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
+
+	private:
+		uint8_t* getTlvsBasePtr() const { return m_Data + sizeof(nflog_header); }
+
+		TLVRecordReader<NflogTlv> m_TlvReader;
 	};
 
 } // namespace pcpp
