@@ -26,7 +26,7 @@ install:
   - cmd: ci\install_tcpreplay.bat
 
 before_build:
-  - ps: cmake -A env:platform -G $env:compiler -DPCAP_ROOT=C:\Npcap-sdk -S . -B $env:BUILD_DIR
+  - ps: cmake -A $env:platform -G $env:compiler -DPCAP_ROOT=C:\Npcap-sdk -S . -B $env:BUILD_DIR
 
 build_script:
   - ps: cmake --build $env:BUILD_DIR --config env:config -j
