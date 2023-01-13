@@ -37,4 +37,4 @@ test_script:
   - cmd: ci\find_ip.bat
   - cmd: cd Tests\ExamplesTest
   - cmd: python -m pip install -r requirements.txt
-  - cmd: python -m pytest --interface %NetworkIP%
+  - cmd: python -m pytest --interface %NetworkIP% --root-path=..\..\%BUILD_DIR\examples_bin\%config%
