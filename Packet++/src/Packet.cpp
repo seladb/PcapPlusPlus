@@ -25,32 +25,32 @@ namespace pcpp
 {
 
 Packet::Packet(size_t maxPacketLen) :
-	m_RawPacket(NULL),
-	m_FirstLayer(NULL),
-	m_LastLayer(NULL),
+	m_RawPacket(nullptr),
+	m_FirstLayer(nullptr),
+	m_LastLayer(nullptr),
 	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(maxPacketLen),
 	m_FreeRawPacket(true),
 	m_CanReallocateData(true)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	uint8_t* data = new uint8_t[maxPacketLen];
 	memset(data, 0, maxPacketLen);
 	m_RawPacket = new RawPacket(data, 0, time, true, LINKTYPE_ETHERNET);
 }
 
 Packet::Packet(uint8_t* buffer, size_t bufferSize) :
-	m_RawPacket(NULL),
-	m_FirstLayer(NULL),
-	m_LastLayer(NULL),
+	m_RawPacket(nullptr),
+	m_FirstLayer(nullptr),
+	m_LastLayer(nullptr),
 	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(bufferSize),
 	m_FreeRawPacket(true),
 	m_CanReallocateData(false)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 	memset(buffer, 0, bufferSize);
 	m_RawPacket = new RawPacket(buffer, 0, time, false, LINKTYPE_ETHERNET);
 }
@@ -59,14 +59,14 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 {
 	destructPacketData();
 
-	m_FirstLayer = NULL;
-	m_LastLayer = NULL;
+	m_FirstLayer = nullptr;
+	m_LastLayer = nullptr;
 	m_ProtocolTypes = UnknownProtocol;
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
 	m_CanReallocateData = true;
-	if (m_RawPacket == NULL)
+	if (m_RawPacket == nullptr)
 		return;
 
 	LinkLayerType linkType = m_RawPacket->getLinkLayerType();
@@ -75,30 +75,30 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer)
+	while (curLayer != nullptr && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer)
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->parseNextLayer();
 		curLayer->m_IsAllocatedInPacket = true;
 		curLayer = curLayer->getNextLayer();
-		if (curLayer != NULL)
+		if (curLayer != nullptr)
 			m_LastLayer = curLayer;
 	}
 
-	if (curLayer != NULL && (curLayer->getProtocol() & parseUntil) != 0)
+	if (curLayer != nullptr && (curLayer->getProtocol() & parseUntil) != 0)
 	{
 		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->m_IsAllocatedInPacket = true;
 	}
 
-	if (curLayer != NULL &&  curLayer->getOsiModelLayer() > parseUntilLayer)
+	if (curLayer != nullptr &&  curLayer->getOsiModelLayer() > parseUntilLayer)
 	{
 		m_LastLayer = curLayer->getPrevLayer();
 		delete curLayer;
-		m_LastLayer->m_NextLayer = NULL;
+		m_LastLayer->m_NextLayer = nullptr;
 	}
 
-	if (m_LastLayer != NULL && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
+	if (m_LastLayer != nullptr && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
 	{
 		// find if there is data left in the raw packet that doesn't belong to any layer. In that case it's probably a packet trailer.
 		// create a PacketTrailerLayer layer and add it at the end of the packet
@@ -122,31 +122,31 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	m_FreeRawPacket = false;
-	m_RawPacket = NULL;
-	m_FirstLayer = NULL;
+	m_RawPacket = nullptr;
+	m_FirstLayer = nullptr;
 	setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
 }
 
 Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
 {
 	m_FreeRawPacket = false;
-	m_RawPacket = NULL;
-	m_FirstLayer = NULL;
+	m_RawPacket = nullptr;
+	m_FirstLayer = nullptr;
 	setRawPacket(rawPacket, false, parseUntil, OsiModelLayerUnknown);
 }
 
 Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
 {
 	m_FreeRawPacket = false;
-	m_RawPacket = NULL;
-	m_FirstLayer = NULL;
+	m_RawPacket = nullptr;
+	m_FirstLayer = nullptr;
 	setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
 }
 
 void Packet::destructPacketData()
 {
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		Layer* nextLayer = curLayer->getNextLayer();
 		if (curLayer->m_IsAllocatedInPacket)
@@ -154,7 +154,7 @@ void Packet::destructPacketData()
 		curLayer = nextLayer;
 	}
 
-	if (m_RawPacket != NULL && m_FreeRawPacket)
+	if (m_RawPacket != nullptr && m_FreeRawPacket)
 	{
 		delete m_RawPacket;
 	}
@@ -178,12 +178,12 @@ void Packet::copyDataFrom(const Packet& other)
 	m_FirstLayer = createFirstLayer(m_RawPacket->getLinkLayerType());
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		curLayer->parseNextLayer();
 		curLayer->m_IsAllocatedInPacket = true;
 		curLayer = curLayer->getNextLayer();
-		if (curLayer != NULL)
+		if (curLayer != nullptr)
 			m_LastLayer = curLayer;
 	}
 }
@@ -206,7 +206,7 @@ void Packet::reallocateRawData(size_t newSize)
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
 
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		PCPP_LOG_DEBUG("Setting new data pointer to layer '" << typeid(curLayer).name() << "'");
 		curLayer->m_Data = (uint8_t*)dataPtr;
@@ -217,7 +217,7 @@ void Packet::reallocateRawData(size_t newSize)
 
 bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 {
-	if (newLayer == NULL)
+	if (newLayer == nullptr)
 	{
 		PCPP_LOG_ERROR("Layer to add is NULL");
 		return false;
@@ -229,7 +229,7 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 		return false;
 	}
 
-	if (prevLayer != NULL && prevLayer->getProtocol() == PacketTrailer)
+	if (prevLayer != nullptr && prevLayer->getProtocol() == PacketTrailer)
 	{
 		PCPP_LOG_ERROR("Cannot insert layer after packet trailer");
 		return false;
@@ -252,7 +252,7 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 
 	// insert layer data to raw packet
 	int indexToInsertData = 0;
-	if (prevLayer != NULL)
+	if (prevLayer != nullptr)
 		indexToInsertData = prevLayer->m_Data + prevLayer->getHeaderLen() - m_RawPacket->getRawData();
 	m_RawPacket->insertData(indexToInsertData, newLayer->m_Data, newLayerHeaderLen);
 
@@ -260,7 +260,7 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 	delete[] newLayer->m_Data;
 
 	// add layer to layers linked list
-	if (prevLayer != NULL)
+	if (prevLayer != nullptr)
 	{
 		newLayer->setNextLayer(prevLayer->getNextLayer());
 		newLayer->setPrevLayer(prevLayer);
@@ -269,12 +269,12 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 	else //prevLayer == NULL
 	{
 		newLayer->setNextLayer(m_FirstLayer);
-		if (m_FirstLayer != NULL)
+		if (m_FirstLayer != nullptr)
 			m_FirstLayer->setPrevLayer(newLayer);
 		m_FirstLayer = newLayer;
 	}
 
-	if (newLayer->getNextLayer() == NULL)
+	if (newLayer->getNextLayer() == nullptr)
 		m_LastLayer = newLayer;
 	else
 		newLayer->getNextLayer()->setPrevLayer(newLayer);
@@ -294,12 +294,12 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 
 	// if a packet trailer exists, get its length
 	size_t packetTrailerLen = 0;
-	if (m_LastLayer != NULL && m_LastLayer->getProtocol() == PacketTrailer)
+	if (m_LastLayer != nullptr && m_LastLayer->getProtocol() == PacketTrailer)
 		packetTrailerLen = m_LastLayer->getDataLen();
 
 	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		// set data ptr to layer
 		curLayer->m_Data = (uint8_t*)dataPtr;
@@ -329,7 +329,7 @@ bool Packet::removeLayer(ProtocolType layerType, int index)
 {
 	Layer* layerToRemove = getLayerOfType(layerType, index);
 
-	if (layerToRemove != NULL)
+	if (layerToRemove != nullptr)
 	{
 		return removeLayer(layerToRemove, true);
 	}
@@ -343,7 +343,7 @@ bool Packet::removeLayer(ProtocolType layerType, int index)
 bool Packet::removeFirstLayer()
 {
 	Layer* firstLayer = getFirstLayer();
-	if (firstLayer == NULL)
+	if (firstLayer == nullptr)
 	{
 		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
@@ -355,7 +355,7 @@ bool Packet::removeFirstLayer()
 bool Packet::removeLastLayer()
 {
 	Layer* lastLayer = getLastLayer();
-	if (lastLayer == NULL)
+	if (lastLayer == nullptr)
 	{
 		PCPP_LOG_ERROR("Packet has no layers");
 		return false;
@@ -367,7 +367,7 @@ bool Packet::removeLastLayer()
 bool Packet::removeAllLayersAfter(Layer* layer)
 {
 	Layer* curLayer = layer->getNextLayer();
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		Layer* tempLayer = curLayer->getNextLayer();
 		if (!removeLayer(curLayer, true))
@@ -382,23 +382,23 @@ Layer* Packet::detachLayer(ProtocolType layerType, int index)
 {
 	Layer* layerToDetach = getLayerOfType(layerType, index);
 
-	if (layerToDetach != NULL)
+	if (layerToDetach != nullptr)
 	{
 		if (removeLayer(layerToDetach, false))
 			return layerToDetach;
 		else
-			return NULL;
+			return nullptr;
 	}
 	else
 	{
 		PCPP_LOG_ERROR("Layer of the requested type was not found in packet");
-		return NULL;
+		return nullptr;
 	}
 }
 
 bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 {
-	if (layer == NULL)
+	if (layer == nullptr)
 	{
 		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
@@ -413,7 +413,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 
 	// verify layer is allocated to *this* packet
 	Layer* curLayer = layer;
-	while (curLayer->m_PrevLayer != NULL)
+	while (curLayer->m_PrevLayer != nullptr)
 		curLayer = curLayer->m_PrevLayer;
 	if (curLayer != m_FirstLayer)
 	{
@@ -438,9 +438,9 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	}
 
 	// remove layer from layers linked list
-	if (layer->m_PrevLayer != NULL)
+	if (layer->m_PrevLayer != nullptr)
 		layer->m_PrevLayer->setNextLayer(layer->m_NextLayer);
-	if (layer->m_NextLayer != NULL)
+	if (layer->m_NextLayer != nullptr)
 		layer->m_NextLayer->setPrevLayer(layer->m_PrevLayer);
 
 	// take care of head and tail ptrs
@@ -448,12 +448,12 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 		m_FirstLayer = layer->m_NextLayer;
 	if (m_LastLayer == layer)
 		m_LastLayer = layer->m_PrevLayer;
-	layer->setNextLayer(NULL);
-	layer->setPrevLayer(NULL);
+	layer->setNextLayer(nullptr);
+	layer->setPrevLayer(nullptr);
 
 	// get packet trailer len if exists
 	size_t packetTrailerLen = 0;
-	if (m_LastLayer != NULL && m_LastLayer->getProtocol() == PacketTrailer)
+	if (m_LastLayer != nullptr && m_LastLayer->getProtocol() == PacketTrailer)
 		packetTrailerLen = m_LastLayer->getDataLen();
 
 	// re-calculate all layers data ptr and data length
@@ -468,7 +468,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	bool anotherLayerWithSameProtocolExists = false;
 
 	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		// set data ptr to layer
 		curLayer->m_Data = (uint8_t*)dataPtr;
@@ -506,7 +506,7 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 	// if layer was not allocated by this packet or the tryToDelete is not set, detach it from the packet so it can be reused
 	else
 	{
-		layer->m_Packet = NULL;
+		layer->m_Packet = nullptr;
 		layer->m_Data = layerOldData;
 		layer->m_DataLen = layerOldDataSize;
 	}
@@ -518,7 +518,7 @@ Layer* Packet::getLayerOfType(ProtocolType layerType, int index) const
 {
 	Layer* curLayer = getFirstLayer();
 	int curIndex = 0;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		if (curLayer->getProtocol() == layerType)
 		{
@@ -535,7 +535,7 @@ Layer* Packet::getLayerOfType(ProtocolType layerType, int index) const
 
 bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend)
 {
-	if (layer == NULL)
+	if (layer == nullptr)
 	{
 		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
@@ -568,7 +568,7 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 	// no new data has to be created for this insertion which saves at least little time
 	// this move operation occurs on already allocated memory, which is backed by the reallocation if's provided above
 	// if offsetInLayer == layer->getHeaderLen() insertData will not move any data but only increase the packet size by numOfBytesToExtend
-	m_RawPacket->insertData(indexToInsertData, NULL, numOfBytesToExtend);
+	m_RawPacket->insertData(indexToInsertData, nullptr, numOfBytesToExtend);
 
 	// re-calculate all layers data ptr and data length
 	const uint8_t* dataPtr = m_RawPacket->getRawData();
@@ -576,7 +576,7 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 	// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
 	Layer* curLayer = m_FirstLayer;
 	bool passedExtendedLayer = false;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		// set the data ptr
 		curLayer->m_Data = (uint8_t*)dataPtr;
@@ -600,7 +600,7 @@ bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExt
 
 bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToShorten)
 {
-	if (layer == NULL)
+	if (layer == nullptr)
 	{
 		PCPP_LOG_ERROR("Layer is NULL");
 		return false;
@@ -627,7 +627,7 @@ bool Packet::shortenLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToSh
 	// go over all layers from the first layer to the last layer and set the data ptr and data length for each layer
 	Layer* curLayer = m_FirstLayer;
 	bool passedExtendedLayer = false;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		// set the data ptr
 		curLayer->m_Data = (uint8_t*)dataPtr;
@@ -654,7 +654,7 @@ void Packet::computeCalculateFields()
 	// calculated fields should be calculated from top layer to bottom layer
 
 	Layer* curLayer = m_LastLayer;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		curLayer->computeCalculateFields();
 		curLayer = curLayer->getPrevLayer();
@@ -669,7 +669,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	// convert raw packet timestamp to printable format
 	timespec timestamp = m_RawPacket->getPacketTimeStamp();
 	time_t nowtime = timestamp.tv_sec;
-	struct tm *nowtm = NULL;
+	struct tm *nowtm = nullptr;
 #if __cplusplus > 199711L && !defined(_WIN32)
   // localtime_r and gmtime_r are thread-safe versions of localtime and gmtime,
 	// but they're defined only in newer compilers (>= C++0x).
@@ -681,7 +681,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 	else
 		nowtm = gmtime_r(&nowtime, &nowtm_r);
 
-	if (nowtm != NULL)
+	if (nowtm != nullptr)
 		nowtm = &nowtm_r;
 #else
 	// on Window compilers localtime and gmtime are already thread safe.
@@ -693,7 +693,7 @@ std::string Packet::printPacketInfo(bool timeAsLocalTime) const
 #endif
 
 	char buf[128];
-	if (nowtm != NULL)
+	if (nowtm != nullptr)
 	{
 		char tmbuf[64];
 		strftime(tmbuf, sizeof(tmbuf), "%Y-%m-%d %H:%M:%S", nowtm);
@@ -709,7 +709,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 {
 	size_t rawDataLen = (size_t)m_RawPacket->getRawDataLen();
 	if (rawDataLen == 0)
-		return NULL;
+		return nullptr;
 
 	const uint8_t* rawData = m_RawPacket->getRawData();
 
@@ -725,7 +725,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 		}
 		else
 		{
-			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
+			return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
 		}
 	}
 	else if (linkType == LINKTYPE_LINUX_SLL)
@@ -737,7 +737,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 		if (rawDataLen >= sizeof(uint32_t))
 			return new NullLoopbackLayer((uint8_t*)rawData, rawDataLen, this);
 		else // rawDataLen is too small fir Null/Loopback
-			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
+			return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
 	}
 	else if (linkType == LINKTYPE_RAW || linkType == LINKTYPE_DLT_RAW1 || linkType == LINKTYPE_DLT_RAW2)
 	{
@@ -745,31 +745,31 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 		if (ipVer == 0x40)
 		{
 			return IPv4Layer::isDataValid(rawData, rawDataLen)
-				? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, NULL, this))
-				: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this));
+				? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
+				: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 		}
 		else if (ipVer == 0x60)
 		{
 			return IPv6Layer::isDataValid(rawData, rawDataLen)
-				? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, NULL, this))
-				: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this));
+				? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
+				: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 		}
 		else
 		{
-			return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
+			return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
 		}
 	}
 	else if (linkType == LINKTYPE_IPV4)
 	{
 		return IPv4Layer::isDataValid(rawData, rawDataLen)
-			? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, NULL, this))
-			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this));
+			? static_cast<Layer*>(new IPv4Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
+			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 	}
 	else if (linkType == LINKTYPE_IPV6)
 	{
 		return IPv6Layer::isDataValid(rawData, rawDataLen)
-			? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, NULL, this))
-			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this));
+			? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
+			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 	}
 	else if (linkType == LINKTYPE_NFLOG)
 	{
@@ -777,7 +777,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	}
 
 	// unknown link type
-	return new PayloadLayer((uint8_t*)rawData, rawDataLen, NULL, this);
+	return new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this);
 }
 
 std::string Packet::toString(bool timeAsLocalTime) const
@@ -798,7 +798,7 @@ void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime
 	result.clear();
 	result.push_back(printPacketInfo(timeAsLocalTime));
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		result.push_back(curLayer->toString());
 		curLayer = curLayer->getNextLayer();

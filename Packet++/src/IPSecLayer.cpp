@@ -39,13 +39,13 @@ uint8_t* AuthenticationHeaderLayer::getICVBytes() const
 	size_t icvLength = getICVLength();
 	if (icvLength > 0)
 		return m_Data + sizeof(ipsec_authentication_header);
-	return NULL;
+	return nullptr;
 }
 
 std::string AuthenticationHeaderLayer::getICVHexStream() const
 {
 	uint8_t* bytes = getICVBytes();
-	if (bytes == NULL)
+	if (bytes == nullptr)
 		return "";
 
 	return byteArrayToHexString(bytes, getICVLength());

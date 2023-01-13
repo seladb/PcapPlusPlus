@@ -13,7 +13,7 @@
 PTF_TEST_CASE(IcmpParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpEchoRequest.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IcmpEchoReply.dat");
@@ -47,7 +47,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 	pcpp::Packet icmpAddrMaskReq(&rawPacket14);
 	pcpp::Packet icmpAddrMaskRep(&rawPacket15);
 
-	pcpp::IcmpLayer* icmpLayer = NULL;
+	pcpp::IcmpLayer* icmpLayer = nullptr;
 
 	PTF_ASSERT_TRUE(icmpEchoRequest.isPacketOfType(pcpp::ICMP));
 	PTF_ASSERT_TRUE(icmpEchoReply.isPacketOfType(pcpp::ICMP));
@@ -263,7 +263,7 @@ PTF_TEST_CASE(IcmpParsingTest)
 PTF_TEST_CASE(IcmpCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/IcmpEchoRequest.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpEchoReply.dat");
@@ -290,9 +290,9 @@ PTF_TEST_CASE(IcmpCreationTest)
 			0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37 };
 
 	// Echo request creation
-	pcpp::Packet echoRequestPacket(1);
 	pcpp::IcmpLayer echoReqLayer;
 	PTF_ASSERT_NOT_NULL(echoReqLayer.setEchoRequestData(0xd73b, 0, 0xe45104007dd6a751ULL, data, 48));
+	pcpp::Packet echoRequestPacket(1);
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&ipLayer));
 	PTF_ASSERT_TRUE(echoRequestPacket.addLayer(&echoReqLayer));
@@ -318,18 +318,18 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::IPv4Layer ipLayer3(ipLayer);
 	pcpp::IcmpLayer timeExceededLayer;
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(timeExceededLayer.setTimeExceededData(1, NULL, NULL));
+	PTF_ASSERT_NULL(timeExceededLayer.setTimeExceededData(1, nullptr, nullptr));
 	pcpp::Logger::getInstance().enableLogs();
-	pcpp::Packet timeExceededPacket(10);
-	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&ethLayer3));
-	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&ipLayer3));
-	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&timeExceededLayer));
 	pcpp::IPv4Layer ipLayerForTimeExceeded(pcpp::IPv4Address("10.0.0.6"), pcpp::IPv4Address("8.8.8.8"));
 	ipLayerForTimeExceeded.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayerForTimeExceeded.getIPv4Header()->timeToLive = 1;
 	ipLayerForTimeExceeded.getIPv4Header()->ipId = be16toh(2846);
 	pcpp::IcmpLayer icmpLayerForTimeExceeded;
 	icmpLayerForTimeExceeded.setEchoRequestData(3175, 1, 0x00058bbd569f3d49ULL, data, 48);
+	pcpp::Packet timeExceededPacket(10);
+	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&ethLayer3));
+	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&ipLayer3));
+	PTF_ASSERT_TRUE(timeExceededPacket.addLayer(&timeExceededLayer));
 	PTF_ASSERT_NOT_NULL(timeExceededLayer.setTimeExceededData(0, &ipLayerForTimeExceeded, &icmpLayerForTimeExceeded));
 	timeExceededPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(timeExceededPacket.getRawPacket()->getRawDataLen(), bufferLength11);
@@ -340,16 +340,16 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::IPv4Layer ipLayer4(ipLayer);
 	pcpp::IcmpLayer destUnreachableLayer;
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(destUnreachableLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, NULL, NULL));
+	PTF_ASSERT_NULL(destUnreachableLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, nullptr, nullptr));
 	pcpp::Logger::getInstance().enableLogs();
+	pcpp::UdpLayer udpLayerForDestUnreachable(49182, 33446);
+	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.1.2"), pcpp::IPv4Address("172.16.0.2"));
+	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
+	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(230);
 	pcpp::Packet destUnreachablePacket(10);
 	PTF_ASSERT_TRUE(destUnreachablePacket.addLayer(&ethLayer4));
 	PTF_ASSERT_TRUE(destUnreachablePacket.addLayer(&ipLayer4));
 	PTF_ASSERT_TRUE(destUnreachablePacket.addLayer(&destUnreachableLayer));
-	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.1.2"), pcpp::IPv4Address("172.16.0.2"));
-	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 1;
-	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(230);
-	pcpp::UdpLayer udpLayerForDestUnreachable(49182, 33446);
 	PTF_ASSERT_NOT_NULL(destUnreachableLayer.setDestUnreachableData(pcpp::IcmpPortUnreachable, 0, &ipLayerForDestUnreachable, &udpLayerForDestUnreachable));
 	destUnreachablePacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(destUnreachablePacket.getRawPacket()->getRawDataLen(), bufferLength10);
@@ -359,13 +359,13 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer5(ethLayer);
 	pcpp::IPv4Layer ipLayer5(ipLayer);
 	pcpp::IcmpLayer timestampReplyLayer;
-	pcpp::Packet timestampReplyPacket(20);
-	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&ethLayer5));
-	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&ipLayer5));
 	timeval orig = { 16131, 171000 };
 	timeval recv = { 16133, 474000 };
 	timeval tran = { 16133, 474000 };
 	PTF_ASSERT_NOT_NULL(timestampReplyLayer.setTimestampReplyData(14640, 0, orig, recv, tran));
+	pcpp::Packet timestampReplyPacket(20);
+	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&ethLayer5));
+	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&ipLayer5));
 	PTF_ASSERT_TRUE(timestampReplyPacket.addLayer(&timestampReplyLayer));
 	timestampReplyPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(timestampReplyPacket.getRawPacket()->getRawDataLen(), bufferLength4-6);
@@ -374,10 +374,10 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::EthLayer ethLayer6(ethLayer);
 	pcpp::IPv4Layer ipLayer6(ipLayer);
 	pcpp::IcmpLayer addressMaskRequestLayer;
+	PTF_ASSERT_NOT_NULL(addressMaskRequestLayer.setAddressMaskRequestData(45068, 1536, pcpp::IPv4Address::Zero));
 	pcpp::Packet addressMaskRequestPacket(30);
 	PTF_ASSERT_TRUE(addressMaskRequestPacket.addLayer(&ethLayer6));
 	PTF_ASSERT_TRUE(addressMaskRequestPacket.addLayer(&ipLayer6));
-	PTF_ASSERT_NOT_NULL(addressMaskRequestLayer.setAddressMaskRequestData(45068, 1536, pcpp::IPv4Address::Zero));
 	PTF_ASSERT_TRUE(addressMaskRequestPacket.addLayer(&addressMaskRequestLayer));
 	addressMaskRequestPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(addressMaskRequestPacket.getRawPacket()->getRawDataLen(), bufferLength14 - 14);
@@ -388,17 +388,17 @@ PTF_TEST_CASE(IcmpCreationTest)
 	pcpp::IPv4Layer ipLayer7(ipLayer);
 	pcpp::IcmpLayer redirectLayer;
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_NULL(redirectLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, NULL, NULL));
+	PTF_ASSERT_NULL(redirectLayer.setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, nullptr, nullptr));
 	pcpp::Logger::getInstance().enableLogs();
-	pcpp::Packet redirectPacket(13);
-	PTF_ASSERT_TRUE(redirectPacket.addLayer(&ethLayer7));
-	PTF_ASSERT_TRUE(redirectPacket.addLayer(&ipLayer7));
-	PTF_ASSERT_TRUE(redirectPacket.addLayer(&redirectLayer));
 	pcpp::IPv4Layer ipLayerForRedirect(pcpp::IPv4Address("10.2.10.2"), pcpp::IPv4Address("10.3.71.7"));
 	ipLayerForRedirect.getIPv4Header()->ipId = be16toh(14848);
 	ipLayerForRedirect.getIPv4Header()->timeToLive = 31;
 	pcpp::IcmpLayer icmpLayerForRedirect;
-	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, NULL, 0);
+	icmpLayerForRedirect.setEchoRequestData(512, 12544, 0, nullptr, 0);
+	pcpp::Packet redirectPacket(13);
+	PTF_ASSERT_TRUE(redirectPacket.addLayer(&ethLayer7));
+	PTF_ASSERT_TRUE(redirectPacket.addLayer(&ipLayer7));
+	PTF_ASSERT_TRUE(redirectPacket.addLayer(&redirectLayer));
 	PTF_ASSERT_NOT_NULL(redirectLayer.setRedirectData(1, pcpp::IPv4Address("10.2.99.98"), &ipLayerForRedirect, &icmpLayerForRedirect));
 	redirectPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(redirectPacket.getRawPacket()->getRawDataLen(), bufferLength5+8);
@@ -449,7 +449,7 @@ PTF_TEST_CASE(IcmpCreationTest)
 PTF_TEST_CASE(IcmpEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpRouterAdv1.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpEchoRequest.dat");
@@ -491,6 +491,14 @@ PTF_TEST_CASE(IcmpEditTest)
 
 	// convert time exceeded to echo request
 
+	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.0.7"), pcpp::IPv4Address("10.0.0.111"));
+	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
+	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
+	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(10203);
+
+	pcpp::IcmpLayer icmpLayerForDestUnreachable;
+	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41ULL, data, 48);
+
 	pcpp::Packet icmpTimeExceededUdp(&rawPacket4);
 
 	icmpLayer = icmpTimeExceededUdp.getLayerOfType<pcpp::IcmpLayer>();
@@ -510,12 +518,6 @@ PTF_TEST_CASE(IcmpEditTest)
 
 	// convert echo request to dest unreachable
 
-	pcpp::IPv4Layer ipLayerForDestUnreachable(pcpp::IPv4Address("10.0.0.7"), pcpp::IPv4Address("10.0.0.111"));
-	ipLayerForDestUnreachable.getIPv4Header()->fragmentOffset = 0x0040;
-	ipLayerForDestUnreachable.getIPv4Header()->timeToLive = 64;
-	ipLayerForDestUnreachable.getIPv4Header()->ipId = be16toh(10203);
-	pcpp::IcmpLayer icmpLayerForDestUnreachable;
-	icmpLayerForDestUnreachable.setEchoRequestData(3189, 4, 0x000809f2569f3e41ULL, data, 48);
 	pcpp::icmp_destination_unreachable* destUnreachable = icmpLayer->setDestUnreachableData(pcpp::IcmpHostUnreachable, 0, &ipLayerForDestUnreachable, &icmpLayerForDestUnreachable);
 	PTF_ASSERT_NOT_NULL(destUnreachable);
 	PTF_ASSERT_EQUAL(icmpLayer->getHeaderLen(), 8);

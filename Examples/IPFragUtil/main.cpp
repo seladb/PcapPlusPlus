@@ -23,14 +23,14 @@
 
 static struct option FragUtilOptions[] =
 {
-	{"output-file", required_argument, 0, 'o'},
-	{"frag-size", required_argument, 0, 's'},
-	{"filter-by-ipid", required_argument, 0, 'd'},
-	{"bpf-filter", required_argument, 0, 'f'},
-	{"copy-all-packets", no_argument, 0, 'a'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"output-file", required_argument, nullptr, 'o'},
+	{"frag-size", required_argument, nullptr, 's'},
+	{"filter-by-ipid", required_argument, nullptr, 'd'},
+	{"bpf-filter", required_argument, nullptr, 'f'},
+	{"copy-all-packets", no_argument, nullptr, 'a'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 /**
@@ -158,7 +158,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 	else
 		return;
 
-	pcpp::Layer* ipLayer = NULL;
+	pcpp::Layer* ipLayer = nullptr;
 	if (ipProto == pcpp::IPv4)
 		ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
 	else // ipProto == IPv6
@@ -195,7 +195,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 		pcpp::Packet newFrag(newFragRawPacket);
 
 		// find the IPv4/6 layer of the new fragment
-		pcpp::Layer* fragIpLayer = NULL;
+		pcpp::Layer* fragIpLayer = nullptr;
 		if (ipProto == pcpp::IPv4)
 			fragIpLayer = newFrag.getLayerOfType<pcpp::IPv4Layer>();
 		else // ipProto == IPv6
@@ -289,7 +289,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 		{
 			// get the IPv4 layer
 			pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
-			if (ipLayer != NULL)
+			if (ipLayer != nullptr)
 			{
 				// check if packet ID matches one of the IP IDs requested by the user
 				if (ipIDs.find(pcpp::netToHost16(ipLayer->getIPv4Header()->ipId)) != ipIDs.end())
@@ -507,13 +507,13 @@ int main(int argc, char* argv[])
 
 
 	// create a writer device for output file in the same file type as input file
-	pcpp::IFileWriterDevice* writer = NULL;
+	pcpp::IFileWriterDevice* writer = nullptr;
 
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != NULL)
+	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
 	{
 		writer = new pcpp::PcapFileWriterDevice(outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
 	}
-	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL)
+	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
 	{
 		writer = new pcpp::PcapNgFileWriterDevice(outputFile);
 	}

@@ -16,7 +16,7 @@
 PTF_TEST_CASE(SllPacketParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/SllPacket.dat", pcpp::LINKTYPE_LINUX_SLL);
 
@@ -60,7 +60,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	tcpLayer.getTcpHeader()->windowSize = htobe16(4098);
 	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NOP)).isNotNull());
 	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NOP)).isNotNull());
-	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::PCPP_TCPOPT_TIMESTAMP, NULL, PCPP_TCPOLEN_TIMESTAMP-2));
+	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::PCPP_TCPOPT_TIMESTAMP, nullptr, PCPP_TCPOLEN_TIMESTAMP-2));
 	PTF_ASSERT_TRUE(tsOption.isNotNull());
 	tsOption.setValue<uint32_t>(htobe32(0x0402383b));
 	tsOption.setValue<uint32_t>(htobe32(0x03ff37f5), 4);
@@ -86,7 +86,7 @@ PTF_TEST_CASE(SllPacketCreationTest)
 PTF_TEST_CASE(NullLoopbackTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/NullLoopback2.dat", pcpp::LINKTYPE_NULL);
@@ -125,7 +125,6 @@ PTF_TEST_CASE(NullLoopbackTest)
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::IPv4, enum);
 	PTF_ASSERT_GREATER_THAN(nullLoopbackLayer->getFamily(), 1500);
 
-	pcpp::Packet newNullPacket(1);
 	pcpp::NullLoopbackLayer newNullLoopbackLayer(PCPP_BSD_AF_INET);
 	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address("172.16.1.117"), pcpp::IPv4Address("172.16.1.255"));
 	newIp4Layer.getIPv4Header()->ipId = htobe16(49513);
@@ -136,6 +135,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	uint8_t payload[] = { 0x42, 0x4a, 0x4e, 0x42, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	pcpp::PayloadLayer newPayloadLayer(payload, 16, false);
 
+	pcpp::Packet newNullPacket(1);
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newNullLoopbackLayer));
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newIp4Layer));
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newUdpLayer));

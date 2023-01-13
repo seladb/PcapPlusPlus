@@ -46,29 +46,29 @@ class LogPrinter
 		{
 			LogPrinter::lastLogLevelSeen = 999;
 			LogPrinter::lastLineSeen = 99999;
-			if (LogPrinter::lastLogMessageSeen != NULL)
+			if (LogPrinter::lastLogMessageSeen != nullptr)
 			{
 				delete LogPrinter::lastLogMessageSeen;
-				LogPrinter::lastLogMessageSeen = NULL;
+				LogPrinter::lastLogMessageSeen = nullptr;
 			}
-			if (LogPrinter::lastFilenameSeen != NULL)
+			if (LogPrinter::lastFilenameSeen != nullptr)
 			{
 				delete LogPrinter::lastFilenameSeen;
-				LogPrinter::lastFilenameSeen = NULL;
+				LogPrinter::lastFilenameSeen = nullptr;
 			}
 
-			if (LogPrinter::lastMethodSeen != NULL)
+			if (LogPrinter::lastMethodSeen != nullptr)
 			{
 				delete LogPrinter::lastMethodSeen;
-				LogPrinter::lastMethodSeen = NULL;
+				LogPrinter::lastMethodSeen = nullptr;
 			}
 		}
 };
 
 int LogPrinter::lastLogLevelSeen = 999;
-std::string* LogPrinter::lastLogMessageSeen = NULL;
-std::string* LogPrinter::lastFilenameSeen = NULL;
-std::string* LogPrinter::lastMethodSeen = NULL;
+std::string* LogPrinter::lastLogMessageSeen = nullptr;
+std::string* LogPrinter::lastFilenameSeen = nullptr;
+std::string* LogPrinter::lastMethodSeen = nullptr;
 int LogPrinter::lastLineSeen = 99999;
 
 
@@ -165,6 +165,7 @@ void printLogThread(int threadId)
 
 PTF_TEST_CASE(TestLoggerMultiThread)
 {
+	// cppcheck-suppress unusedVariable
 	LoggerCleaner loggerCleaner;
 
 	std::thread threads[MultiThreadLogCounter::ThreadCount];
@@ -184,6 +185,7 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 	int totalLogMessages = 0;
 	for (int logMessagesCount : MultiThreadLogCounter::logMessageThreadCount)
 	{
+		// cppcheck-suppress useStlAlgorithm
 		totalLogMessages += logMessagesCount;
 	}
 
@@ -193,6 +195,7 @@ PTF_TEST_CASE(TestLoggerMultiThread)
 
 PTF_TEST_CASE(TestLogger)
 {
+	// cppcheck-suppress unusedVariable
 	LoggerCleaner loggerCleaner;
 
 	// verify all modules are on info log level

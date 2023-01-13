@@ -29,7 +29,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	}
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpRequestWithVlan.dat");
 
@@ -46,7 +46,6 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getCFI(), 0);
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 2);
 
-	pcpp::Packet arpWithVlanNew(1);
 	pcpp::MacAddress macSrc("ca:03:0d:b4:00:1c");
 	pcpp::MacAddress macDest("ff:ff:ff:ff:ff:ff");
 	// Don't set EtherType for EthLayer and the first VlanLayer,
@@ -55,6 +54,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	pcpp::VlanLayer firstVlanLayer(666, 1, 5);
 	pcpp::VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
 	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, macSrc, pcpp::MacAddress("00:00:00:00:00:00"), pcpp::IPv4Address("192.168.2.200"), pcpp::IPv4Address("192.168.2.254"));
+    pcpp::Packet arpWithVlanNew(1);
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&firstVlanLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&secondVlanLayer));
@@ -71,7 +71,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 PTF_TEST_CASE(QinQ802_1adParse)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/QinQ_802.1_AD.dat");
 	pcpp::Packet qinq8021adPacket(&rawPacket1);
@@ -95,7 +95,7 @@ PTF_TEST_CASE(QinQ802_1adParse)
 PTF_TEST_CASE(MplsLayerTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/MplsPackets2.dat");
@@ -180,7 +180,7 @@ PTF_TEST_CASE(MplsLayerTest)
 PTF_TEST_CASE(VxlanParsingAndCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Vxlan1.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/Vxlan2.dat");
@@ -216,8 +216,8 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 	vxlanPacket.computeCalculateFields();
 
 	// create new vxlan layer
-	pcpp::VxlanLayer newVxlanLayer(3000001, 100, true, true, true);
-	PTF_ASSERT_TRUE(vxlanPacket.insertLayer(vxlanPacket.getLayerOfType<pcpp::UdpLayer>(), &newVxlanLayer));
+	pcpp::VxlanLayer* newVxlanLayer = new pcpp::VxlanLayer(3000001, 100, true, true, true);
+	PTF_ASSERT_TRUE(vxlanPacket.insertLayer(vxlanPacket.getLayerOfType<pcpp::UdpLayer>(), newVxlanLayer, true));
 
 	// verify new vxlan layer
 	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1);

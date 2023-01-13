@@ -18,7 +18,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the packet count for each split file
 	 */
-	PacketCountSplitter(int maxPacketsPerFile)
+	explicit PacketCountSplitter(int maxPacketsPerFile)
 	{
 		m_PacketCount = 0;
 		m_MaxPacketsPerFile = maxPacketsPerFile;
@@ -129,7 +129,7 @@ private:
 	pcpp::BPFStringFilter filter;
 
 public:
-	explicit BpfCriteriaSplitter(const std::string &bpfFilter) : filter(bpfFilter), m_BpfFilter(bpfFilter) {}
+	explicit BpfCriteriaSplitter(const std::string &bpfFilter) : m_BpfFilter(bpfFilter), filter(bpfFilter) {}
 
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not

@@ -19,7 +19,7 @@ DhcpOption DhcpOptionBuilder::build() const
 		if (m_RecValueLen != 0)
 		{
 			PCPP_LOG_ERROR("Can't set DHCP END option or DHCP PAD option with size different than 0, tried to set size " << (int)m_RecValueLen);
-			return DhcpOption(NULL);
+			return DhcpOption(nullptr);
 		}
 
 		recSize = sizeof(uint8_t);
@@ -31,7 +31,7 @@ DhcpOption DhcpOptionBuilder::build() const
 	if (recSize > 1)
 	{
 		recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
-		if (m_RecValue != NULL)
+		if (m_RecValue != nullptr)
 			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 		else
 			memset(recordBuffer+2, 0, m_RecValueLen);
@@ -75,7 +75,7 @@ DhcpLayer::DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr) :
 MacAddress DhcpLayer::getClientHardwareAddress() const
 {
 	dhcp_header* hdr = getDhcpHeader();
-	if (hdr != NULL && hdr->hardwareType == 1 && hdr->hardwareAddressLength == 6)
+	if (hdr != nullptr && hdr->hardwareType == 1 && hdr->hardwareAddressLength == 6)
 		return MacAddress(hdr->clientHardwareAddress);
 
 	PCPP_LOG_DEBUG("Hardware type isn't Ethernet or hardware addr len != 6, returning MacAddress:Zero");
@@ -227,7 +227,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 	if (newOpt.isNull())
 	{
 		PCPP_LOG_ERROR("Cannot build new option of type " << (int)newOpt.getType());
-		return DhcpOption(NULL);
+		return DhcpOption(nullptr);
 	}
 
 	size_t sizeToExtend = newOpt.getTotalSize();
@@ -235,7 +235,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
-		return DhcpOption(NULL);
+		return DhcpOption(nullptr);
 	}
 
 	memcpy(m_Data + offset, newOpt.getRecordBasePtr(), newOpt.getTotalSize());

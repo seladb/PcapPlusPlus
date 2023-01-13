@@ -30,16 +30,16 @@
 
 static struct option ArpingOptions[] =
 {
-	{"interface",  optional_argument, 0, 'i'},
-	{"source-mac",  optional_argument, 0, 's'},
-	{"source-ip", optional_argument, 0, 'S'},
-	{"target-ip", required_argument, 0, 'T'},
-	{"count", optional_argument, 0, 'c'},
-	{"help", optional_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{"list", optional_argument, 0, 'l'},
-	{"timeout", optional_argument, 0, 'w'},
-	{0, 0, 0, 0}
+	{"interface",  optional_argument, nullptr, 'i'},
+	{"source-mac",  optional_argument, nullptr, 's'},
+	{"source-ip", optional_argument, nullptr, 'S'},
+	{"target-ip", required_argument, nullptr, 'T'},
+	{"count", optional_argument, nullptr, 'c'},
+	{"help", optional_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{"list", optional_argument, nullptr, 'l'},
+	{"timeout", optional_argument, nullptr, 'w'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -179,13 +179,13 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Target IP is not valid");
 
 
-	pcpp::PcapLiveDevice* dev = NULL;
+	pcpp::PcapLiveDevice* dev = nullptr;
 
 	// Search interface by name or IP
 	if (!ifaceNameOrIP.empty())
 	{
 		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(ifaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}
 	else

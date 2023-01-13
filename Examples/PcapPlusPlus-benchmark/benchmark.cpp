@@ -34,14 +34,14 @@ bool handle_dns(Packet& packet)
 	DnsLayer* dnsLayer = packet.getLayerOfType<DnsLayer>();
 
 	DnsQuery* query = dnsLayer->getFirstQuery();
-	while (query != NULL)
+	while (query != nullptr)
 	{
 		count++;
 		query = dnsLayer->getNextQuery(query);
 	}
 
 	DnsResource* answer = dnsLayer->getFirstAnswer();
-	while (answer != NULL)
+	while (answer != nullptr)
 	{
 		count++;
 		answer = dnsLayer->getNextAnswer(answer);

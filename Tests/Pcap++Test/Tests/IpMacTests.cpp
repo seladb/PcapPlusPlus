@@ -188,7 +188,7 @@ PTF_TEST_CASE(TestMacAddress)
 	oss << macAddr1;
 	PTF_ASSERT_EQUAL(oss.str(), "11:02:33:04:55:06");
 
-	uint8_t* arrToCopyTo = NULL;
+	uint8_t* arrToCopyTo = nullptr;
 	macAddr3.copyTo(&arrToCopyTo);
 	PTF_ASSERT_EQUAL(arrToCopyTo[0], 0x11, hex);
 	PTF_ASSERT_EQUAL(arrToCopyTo[1], 0x02, hex);
@@ -235,7 +235,7 @@ PTF_TEST_CASE(TestLRUList)
 	PTF_ASSERT_EQUAL(lruList.put(1, &deletedValue), 0);
 	PTF_ASSERT_EQUAL(deletedValue, 0);
 
-	PTF_ASSERT_EQUAL(lruList.put(2, NULL), 0);
+	PTF_ASSERT_EQUAL(lruList.put(2, nullptr), 0);
 
 	PTF_ASSERT_EQUAL(lruList.put(3, &deletedValue), 1);
 	PTF_ASSERT_EQUAL(deletedValue, 1);
@@ -276,7 +276,7 @@ PTF_TEST_CASE(TestGeneralUtils)
 
 PTF_TEST_CASE(TestGetMacAddress)
 {
-	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
