@@ -123,7 +123,7 @@ namespace pcpp
 				m_Data = NULL;
 			else
 			{
-				// to pass from some unknown paddings after tlv wit type NFULA_PREFIX
+				// to pass from some unknown paddings after tlv with type NFULA_PREFIX
 				while (*recordRawData == 0)
 					recordRawData += 1;
 				m_Data = (NflogTLVRawData*)recordRawData;
@@ -133,7 +133,7 @@ namespace pcpp
 		/**
 		 * @return True if the TLV record raw data is NULL, false otherwise
 		 */
-		bool isNull() const 
+		bool isNull() const
 		{
 			return (m_Data == NULL);
 		}
