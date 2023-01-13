@@ -8,10 +8,10 @@ environment:
   PYTHON: "C:\\Python38-x64"
   BUILD_DIR: "build"
   matrix:
-#    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-#      compiler: vs2015
-#      platform: x86
-#      config: Debug
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      compiler: "Visual Studio 14 2015"
+      platform: x64
+      config: Debug
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       compiler: "Visual Studio 15 2017"
       platform: x64
