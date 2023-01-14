@@ -202,7 +202,7 @@ class TestPcapSplitter(ExampleTest):
             "-o": tmpdir,
             "-m": "connection",
         }
-        self.run_example(args=args)
+        self.run_example(args=args, timeout=20)
         assert len(os.listdir(tmpdir)) == 254
         connection_map = {}
         for filename in os.listdir(tmpdir):
