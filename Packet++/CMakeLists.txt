@@ -26,6 +26,7 @@ add_library(
   src/LLCLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
+  src/NflogLayer.cpp
   src/NtpLayer.cpp
   src/NullLoopbackLayer.cpp
   src/Packet.cpp
@@ -87,6 +88,7 @@ set(public_headers
     header/MplsLayer.h
     header/NullLoopbackLayer.h
     header/NdpLayer.h
+    header/NflogLayer.h
     header/NtpLayer.h
     header/Packet.h
     header/PacketTrailerLayer.h
