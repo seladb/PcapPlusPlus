@@ -6,14 +6,11 @@ environment:
   NPCAP_PASSWORD:
     secure: 8sWBrDudyutFv+4Eq6teJA==
   PYTHON: "C:\\Python38-x64"
+  BUILD_DIR: "build"
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      compiler: vs2015
-      platform: x86
-      config: Debug
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      compiler: vs2017
-      platform: x86
+      compiler: "Visual Studio 15 2017"
+      platform: x64
       config: Debug
 
 init:
@@ -27,12 +24,10 @@ install:
   - cmd: set PATH="C:\\Program Files\\OpenCppCoverage";%PATH%
 
 before_build:
-  - cmd: configure-windows-visual-studio.bat -v %compiler% -w C:\Npcap-sdk
+  - ps: cmake -A "$env:platform" -G "$env:compiler" -DPCAP_ROOT=C:\Npcap-sdk -S . -B "$env:BUILD_DIR"
 
 build_script:
-  - ps: msbuild mk\$env:compiler\PcapPlusPlus.sln /p:Configuration=$env:config /p:Platform=$env:platform
-  - ps: msbuild mk\$env:compiler\PcapPlusPlus-Examples.sln /p:Configuration=$env:config /p:Platform=$env:platform
-  - ps: msbuild mk\$env:compiler\Tutorials.sln /p:Configuration=$env:config /p:Platform=$env:platform
+  - ps: cmake --build "$env:BUILD_DIR" --config "$env:config" -j
 
 test_script:
   - cmd: python -m pip install -r ci\run_tests\requirements.txt
@@ -40,7 +35,7 @@ test_script:
   - cmd: ci\find_ip.bat
   - cmd: cd Tests\ExamplesTest
   - cmd: python -m pip install -r requirements.txt
-  - cmd: python -m pytest --interface %NetworkIP%
+  - cmd: python -m pytest --interface %NetworkIP% --root-path=..\..\%BUILD_DIR%\examples_bin\%config%
   - cmd: cd ..\..\
   - ps: Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
   - cmd: .\codecov.exe -v -f ./Tests/Pcap++Test/Pcap++Coverage.xml -f ./Tests/Packet++Test/Packet++Coverage.xml -F %compiler% -F unittest -B %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%

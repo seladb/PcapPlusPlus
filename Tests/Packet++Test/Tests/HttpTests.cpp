@@ -74,17 +74,10 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 
 	pcpp::Packet sampleHttpPacket(&rawPacket1);
 
-	pcpp::Packet httpPacket(10);
-
 	pcpp::EthLayer ethLayer(*sampleHttpPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer;
 	ip4Layer = *(sampleHttpPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&ip4Layer));
-
 	pcpp::TcpLayer tcpLayer = *(sampleHttpPacket.getLayerOfType<pcpp::TcpLayer>());
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&tcpLayer));
 
 	pcpp::HttpRequestLayer httpLayer(pcpp::HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", pcpp::OneDotOne);
 	PTF_ASSERT_NOT_NULL(httpLayer.addField(PCPP_HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
@@ -108,8 +101,12 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	pcpp::Logger::getInstance().enableLogs();
 	hostField->setFieldValue("www.walla.co.il");
 
-
+	pcpp::Packet httpPacket(10);
+	PTF_ASSERT_TRUE(httpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(httpPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(httpPacket.addLayer(&tcpLayer));
 	PTF_ASSERT_TRUE(httpPacket.addLayer(&httpLayer));
+
 	hostField->setFieldValue("www.ynet.co.il");
 	httpLayer.getFirstLine()->setMethod(pcpp::HttpRequestLayer::HttpGET);
 	PTF_ASSERT_EQUAL(httpLayer.getFirstLine()->getMethod(), pcpp::HttpRequestLayer::HttpGET, enum);
@@ -209,16 +206,9 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 	pcpp::Packet sampleHttpPacket(&rawPacket1);
 
-	pcpp::Packet httpPacket(100);
-
 	pcpp::EthLayer ethLayer = *sampleHttpPacket.getLayerOfType<pcpp::EthLayer>();
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer(*sampleHttpPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&ip4Layer));
-
 	pcpp::TcpLayer tcpLayer(*sampleHttpPacket.getLayerOfType<pcpp::TcpLayer>());
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&tcpLayer));
 
 	pcpp::HttpResponseLayer httpResponse(pcpp::OneDotOne, pcpp::HttpResponseLayer::Http200OK);
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/5.0"));
@@ -237,10 +227,14 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(httpResponse.addField("Cache-Control", "max-age=66137"));
 	PTF_ASSERT_TRUE(httpResponse.removeField("KUKU"));
 
+	pcpp::Packet httpPacket(100);
+	PTF_ASSERT_TRUE(httpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(httpPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(httpPacket.addLayer(&tcpLayer));
 	PTF_ASSERT_TRUE(httpPacket.addLayer(&httpResponse));
 
-	pcpp::PayloadLayer payloadLayer = *sampleHttpPacket.getLayerOfType<pcpp::PayloadLayer>();
-	PTF_ASSERT_TRUE(httpPacket.addLayer(&payloadLayer));
+	auto payloadLayer = new pcpp::PayloadLayer(*sampleHttpPacket.getLayerOfType<pcpp::PayloadLayer>());
+	PTF_ASSERT_TRUE(httpPacket.addLayer(payloadLayer, true));
 
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_CONNECTION_FIELD, "keep-alive"));
 	PTF_ASSERT_NOT_NULL(httpResponse.addEndOfHeader());
