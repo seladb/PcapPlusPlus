@@ -87,8 +87,8 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	pcpp::Packet stpPacket1(&rawPacket1);
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
-	pcpp::StpConfigurationBPDULayer *stpConfLayerOrg = stpPacket1.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
-	PTF_ASSERT_NOT_NULL(stpConfLayerOrg);
+	pcpp::StpConfigurationBPDULayer *stpConfLayerOrig = stpPacket1.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpConfLayerOrig);
 
 	// Read target packet
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpConfEdit1.dat");
@@ -99,18 +99,18 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	PTF_ASSERT_NOT_NULL(stpConfLayerTgt1);
 
 	// Set fields
-	stpConfLayerOrg->setFlag(0x13);
-	stpConfLayerOrg->setRootId(0x1122334455667788);
-	stpConfLayerOrg->setPathCost(0x7);
-	stpConfLayerOrg->setBridgeId(0xab12348765998877);
-	stpConfLayerOrg->setPortId(0x1111);
-	stpConfLayerOrg->setMessageAge(7);
-	stpConfLayerOrg->setMaximumAge(12);
-	stpConfLayerOrg->setTransmissionInterval(3);
-	stpConfLayerOrg->setForwardDelay(9);
+	stpConfLayerOrig->setFlag(0x13);
+	stpConfLayerOrig->setRootId(0x1122334455667788);
+	stpConfLayerOrig->setPathCost(0x7);
+	stpConfLayerOrig->setBridgeId(0xab12348765998877);
+	stpConfLayerOrig->setPortId(0x1111);
+	stpConfLayerOrig->setMessageAge(7);
+	stpConfLayerOrig->setMaximumAge(12);
+	stpConfLayerOrig->setTransmissionInterval(3);
+	stpConfLayerOrig->setForwardDelay(9);
 
-	PTF_ASSERT_EQUAL(stpConfLayerOrg->getDataLen(), stpConfLayerTgt1->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrg->getDataLen());
+	PTF_ASSERT_EQUAL(stpConfLayerOrig->getDataLen(), stpConfLayerTgt1->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrig->getDataLen());
 
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpConfEdit2.dat");
 	pcpp::Packet stpPacket3(&rawPacket3);
@@ -120,16 +120,16 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	PTF_ASSERT_NOT_NULL(stpConfLayerTgt2);
 
 	// Set fields
-	stpConfLayerOrg->setRootSystemID("AA:BB:CC:DD:EE:FF");
-	stpConfLayerOrg->setRootPriority(20480);
-	stpConfLayerOrg->setRootSystemIDExtension(7);
+	stpConfLayerOrig->setRootSystemID("AA:BB:CC:DD:EE:FF");
+	stpConfLayerOrig->setRootPriority(20480);
+	stpConfLayerOrig->setRootSystemIDExtension(7);
 
-	stpConfLayerOrg->setBridgePriority(28672);
-	stpConfLayerOrg->setBridgeSystemIDExtension(11);
-	stpConfLayerOrg->setBridgeSystemID("FF:EE:DD:CC:BB:AA");
+	stpConfLayerOrig->setBridgePriority(28672);
+	stpConfLayerOrig->setBridgeSystemIDExtension(11);
+	stpConfLayerOrig->setBridgeSystemID("FF:EE:DD:CC:BB:AA");
 
-	PTF_ASSERT_EQUAL(stpConfLayerOrg->getDataLen(), stpConfLayerTgt2->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrg->getDataLen());
+	PTF_ASSERT_EQUAL(stpConfLayerOrig->getDataLen(), stpConfLayerTgt2->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrig->getDataLen());
 } // StpConfigurationEditTests
 
 
@@ -186,8 +186,8 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	pcpp::Packet stpPacket1(&rawPacket1);
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
-	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayerOrg = stpPacket1.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
-	PTF_ASSERT_NOT_NULL(stpTopologyLayerOrg);
+	pcpp::StpTopologyChangeBPDULayer *stpTopologyLayerOrig = stpPacket1.getLayerOfType<pcpp::StpTopologyChangeBPDULayer>();
+	PTF_ASSERT_NOT_NULL(stpTopologyLayerOrig);
 
 	// Read target packet
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpTopologyEdit.dat");
@@ -198,11 +198,11 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	PTF_ASSERT_NOT_NULL(stpTopologyLayerTgt);
 
 	// Set fields
-	stpTopologyLayerOrg->setProtoId(0xaa);
-	stpTopologyLayerOrg->setVersion(0x13);
+	stpTopologyLayerOrig->setProtoId(0xaa);
+	stpTopologyLayerOrig->setVersion(0x13);
 
-	PTF_ASSERT_EQUAL(stpTopologyLayerOrg->getDataLen(), stpTopologyLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrg->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrg->getDataLen());
+	PTF_ASSERT_EQUAL(stpTopologyLayerOrig->getDataLen(), stpTopologyLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrig->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrig->getDataLen());
 } // StpTopologyChangeEditTests
 
 
@@ -288,8 +288,8 @@ PTF_TEST_CASE(RapidStpEditTests)
 	pcpp::Packet stpPacket1(&rawPacket1);
 	PTF_ASSERT_TRUE(stpPacket1.isPacketOfType(pcpp::STP));
 
-	pcpp::RapidStpLayer *stpRapidLayerOrg = stpPacket1.getLayerOfType<pcpp::RapidStpLayer>();
-	PTF_ASSERT_NOT_NULL(stpRapidLayerOrg);
+	pcpp::RapidStpLayer *stpRapidLayerOrig = stpPacket1.getLayerOfType<pcpp::RapidStpLayer>();
+	PTF_ASSERT_NOT_NULL(stpRapidLayerOrig);
 
 	// Read target packet
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/StpRapidEdit.dat");
@@ -300,15 +300,15 @@ PTF_TEST_CASE(RapidStpEditTests)
 	PTF_ASSERT_NOT_NULL(stpRapidLayerTgt);
 
 	// Set fields
-	stpRapidLayerOrg->setPortId(0x1234);
-	stpRapidLayerOrg->setMessageAge(13);
-	stpRapidLayerOrg->setMaximumAge(21);
-	stpRapidLayerOrg->setTransmissionInterval(7);
-	stpRapidLayerOrg->setForwardDelay(18);
-	stpRapidLayerOrg->setVersion1Len(2);
+	stpRapidLayerOrig->setPortId(0x1234);
+	stpRapidLayerOrig->setMessageAge(13);
+	stpRapidLayerOrig->setMaximumAge(21);
+	stpRapidLayerOrig->setTransmissionInterval(7);
+	stpRapidLayerOrig->setForwardDelay(18);
+	stpRapidLayerOrig->setVersion1Len(2);
 
-	PTF_ASSERT_EQUAL(stpRapidLayerOrg->getDataLen(), stpRapidLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpRapidLayerOrg->getData(), stpRapidLayerTgt->getData(), stpRapidLayerTgt->getDataLen());
+	PTF_ASSERT_EQUAL(stpRapidLayerOrig->getDataLen(), stpRapidLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpRapidLayerOrig->getData(), stpRapidLayerTgt->getData(), stpRapidLayerTgt->getDataLen());
 } // RapidStpEditTests
 
 
@@ -433,21 +433,21 @@ PTF_TEST_CASE(MultipleStpEditTests)
 	pcpp::RapidStpLayer *stpMultipleLayerTgt = stpPacket2.getLayerOfType<pcpp::RapidStpLayer>();
 	PTF_ASSERT_NOT_NULL(stpMultipleLayerTgt);
 
-	pcpp::MultipleStpLayer *stpMultipleLayerOrg = stpPacket1.getLayerOfType<pcpp::MultipleStpLayer>();
-	PTF_ASSERT_NOT_NULL(stpMultipleLayerOrg);
+	pcpp::MultipleStpLayer *stpMultipleLayerOrig = stpPacket1.getLayerOfType<pcpp::MultipleStpLayer>();
+	PTF_ASSERT_NOT_NULL(stpMultipleLayerOrig);
 
 	// Set fields
-	stpMultipleLayerOrg->setVersion3Len(15);
+	stpMultipleLayerOrig->setVersion3Len(15);
 
-	stpMultipleLayerOrg->setMstConfigurationFormatSelector(0x3);
-	stpMultipleLayerOrg->setMstConfigurationName("Test String");
-	stpMultipleLayerOrg->setMstConfigRevision(0x11);
-	stpMultipleLayerOrg->setCISTIrpc(212345);
-	stpMultipleLayerOrg->setCISTBridgeId(0x7000003bb79180d1);
-	stpMultipleLayerOrg->setRemainingHopCount(17);
+	stpMultipleLayerOrig->setMstConfigurationFormatSelector(0x3);
+	stpMultipleLayerOrig->setMstConfigurationName("Test String");
+	stpMultipleLayerOrig->setMstConfigRevision(0x11);
+	stpMultipleLayerOrig->setCISTIrpc(212345);
+	stpMultipleLayerOrig->setCISTBridgeId(0x7000003bb79180d1);
+	stpMultipleLayerOrig->setRemainingHopCount(17);
 
-	PTF_ASSERT_EQUAL(stpMultipleLayerOrg->getDataLen(), stpMultipleLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpMultipleLayerOrg->getData(), stpMultipleLayerTgt->getData(), stpMultipleLayerTgt->getDataLen());
+	PTF_ASSERT_EQUAL(stpMultipleLayerOrig->getDataLen(), stpMultipleLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpMultipleLayerOrig->getData(), stpMultipleLayerTgt->getData(), stpMultipleLayerTgt->getDataLen());
 
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpMultipleEdit2.dat");
 	pcpp::Packet stpPacket3(&rawPacket3);
@@ -456,10 +456,10 @@ PTF_TEST_CASE(MultipleStpEditTests)
 	pcpp::StpConfigurationBPDULayer *stpMultipleLayerTgt2 = stpPacket3.getLayerOfType<pcpp::StpConfigurationBPDULayer>();
 	PTF_ASSERT_NOT_NULL(stpMultipleLayerTgt2);
 
-	stpMultipleLayerOrg->setCISTBridgePriority(24576);
-	stpMultipleLayerOrg->setCISTBridgeSystemIDExtension(5);
-	stpMultipleLayerOrg->setCISTBridgeSystemID("FF:EE:DD:CC:BB:AA");
+	stpMultipleLayerOrig->setCISTBridgePriority(24576);
+	stpMultipleLayerOrig->setCISTBridgeSystemIDExtension(5);
+	stpMultipleLayerOrig->setCISTBridgeSystemID("FF:EE:DD:CC:BB:AA");
 
-	PTF_ASSERT_EQUAL(stpMultipleLayerOrg->getDataLen(), stpMultipleLayerTgt2->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpMultipleLayerOrg->getData(), stpMultipleLayerTgt2->getData(), stpMultipleLayerTgt2->getDataLen());
+	PTF_ASSERT_EQUAL(stpMultipleLayerOrig->getDataLen(), stpMultipleLayerTgt2->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpMultipleLayerOrig->getData(), stpMultipleLayerTgt2->getData(), stpMultipleLayerTgt2->getDataLen());
 } // MultipleStpEditTests
