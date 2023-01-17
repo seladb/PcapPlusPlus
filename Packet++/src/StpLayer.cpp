@@ -37,12 +37,12 @@ StpLayer *StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLaye
 		{
 		case 0x00:
 			return StpConfigurationBPDULayer::isDataValid(data, dataLen)
-						? new StpConfigurationBPDULayer(data, sizeof(stp_conf_bpdu), prevLayer, packet)
+						? new StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
 						: nullptr;
 		case 0x02:
 			if (ptr->version == 0x2)
 				return RapidStpLayer::isDataValid(data, dataLen)
-							? new RapidStpLayer(data, sizeof(rstp_conf_bpdu), prevLayer, packet)
+							? new RapidStpLayer(data, dataLen, prevLayer, packet)
 							: nullptr;
 			if (ptr->version == 0x3)
 				return MultipleStpLayer::isDataValid(data, dataLen)
@@ -52,7 +52,7 @@ StpLayer *StpLayer::parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLaye
 			return nullptr;
 		case 0x80:
 			return StpTopologyChangeBPDULayer::isDataValid(data, dataLen)
-						? new StpTopologyChangeBPDULayer(data, sizeof(stp_tcn_bpdu), prevLayer, packet)
+						? new StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
 						: nullptr;
 		// TODO: Per VLAN Spanning Tree+ (PVST+)
 		// TODO: Rapid Per VLAN Spanning Tree+ (RPVST+)

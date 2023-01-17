@@ -263,6 +263,11 @@ typedef stp_tcn_bpdu stp_header;
 
 		// overridden methods
 
+		/**
+		 * @return The size of STP TCN message
+		 */
+		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
+
 		/// Parses next layer
 		void parseNextLayer();
 
@@ -496,6 +501,11 @@ typedef stp_tcn_bpdu stp_header;
 
 		// overridden methods
 
+		/**
+		 * @return The size of STP configuration BPDU message
+		 */
+		size_t getHeaderLen() const { return sizeof(stp_conf_bpdu); }
+
 		/// Parses next layer
 		void parseNextLayer();
 
@@ -563,6 +573,11 @@ typedef stp_tcn_bpdu stp_header;
 		void setVersion1Len(uint8_t value) { getRstpConfHeader()->version1Len = value; }
 
 		// overridden methods
+				
+		/**
+		 * @return The size of Rapid STP message
+		 */
+		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
 
 		/// Parses next layer
 		void parseNextLayer();

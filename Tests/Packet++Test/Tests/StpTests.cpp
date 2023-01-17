@@ -72,8 +72,7 @@ PTF_TEST_CASE(StpConfigurationCreationTests)
 	stpConfLayer.setTransmissionInterval(2);
 	stpConfLayer.setForwardDelay(15);
 
-	PTF_ASSERT_EQUAL(stpConfLayer.getDataLen(), stpConfLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpConfLayer.getData(), stpConfLayerTgt->getData(), stpConfLayer.getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayer.getData(), stpConfLayerTgt->getData(), stpConfLayer.getHeaderLen());
 } // StpConfigurationCreationTests
 
 
@@ -109,8 +108,7 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	stpConfLayerOrig->setTransmissionInterval(3);
 	stpConfLayerOrig->setForwardDelay(9);
 
-	PTF_ASSERT_EQUAL(stpConfLayerOrig->getDataLen(), stpConfLayerTgt1->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrig->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt1->getData(), stpConfLayerOrig->getHeaderLen());
 
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/StpConfEdit2.dat");
 	pcpp::Packet stpPacket3(&rawPacket3);
@@ -128,8 +126,7 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	stpConfLayerOrig->setBridgeSystemIDExtension(11);
 	stpConfLayerOrig->setBridgeSystemID("FF:EE:DD:CC:BB:AA");
 
-	PTF_ASSERT_EQUAL(stpConfLayerOrig->getDataLen(), stpConfLayerTgt2->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrig->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrig->getHeaderLen());
 } // StpConfigurationEditTests
 
 
@@ -171,8 +168,7 @@ PTF_TEST_CASE(StpTopologyChangeCreationTests)
 
 	pcpp::StpTopologyChangeBPDULayer stpTopologyLayer;
 
-	PTF_ASSERT_EQUAL(stpTopologyLayer.getDataLen(), stpTopologyLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpTopologyLayer.getData(), stpTopologyLayerTgt->getData(), stpTopologyLayer.getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpTopologyLayer.getData(), stpTopologyLayerTgt->getData(), stpTopologyLayer.getHeaderLen());
 } // StpTopologyChangeCreationTests
 
 
@@ -201,8 +197,7 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 	stpTopologyLayerOrig->setProtoId(0xaa);
 	stpTopologyLayerOrig->setVersion(0x13);
 
-	PTF_ASSERT_EQUAL(stpTopologyLayerOrig->getDataLen(), stpTopologyLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrig->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrig->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrig->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrig->getHeaderLen());
 } // StpTopologyChangeEditTests
 
 
@@ -274,8 +269,7 @@ PTF_TEST_CASE(RapidStpCreationTests)
 	stpRapidLayer.setForwardDelay(15);
 	stpRapidLayer.setVersion1Len(0);
 
-	PTF_ASSERT_EQUAL(stpRapidLayer.getDataLen(), stpRapidLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpRapidLayer.getData(), stpRapidLayerTgt->getData(), stpRapidLayer.getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpRapidLayer.getData(), stpRapidLayerTgt->getData(), stpRapidLayer.getHeaderLen());
 } // RapidStpCreationTests
 
 
@@ -307,8 +301,7 @@ PTF_TEST_CASE(RapidStpEditTests)
 	stpRapidLayerOrig->setForwardDelay(18);
 	stpRapidLayerOrig->setVersion1Len(2);
 
-	PTF_ASSERT_EQUAL(stpRapidLayerOrig->getDataLen(), stpRapidLayerTgt->getDataLen());
-	PTF_ASSERT_BUF_COMPARE(stpRapidLayerOrig->getData(), stpRapidLayerTgt->getData(), stpRapidLayerTgt->getDataLen());
+	PTF_ASSERT_BUF_COMPARE(stpRapidLayerOrig->getData(), stpRapidLayerTgt->getData(), stpRapidLayerTgt->getHeaderLen());
 } // RapidStpEditTests
 
 
