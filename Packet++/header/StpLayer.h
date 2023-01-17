@@ -142,7 +142,7 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
-		static uint64_t MacAddresstoID(const pcpp::MacAddress &addr);
+		static uint64_t macAddressToID(const pcpp::MacAddress &addr);
 
 	  public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
