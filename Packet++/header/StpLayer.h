@@ -250,7 +250,8 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		/**
-		 * Empty c'tor
+		 * Empty c'tor to create a new network topology change (TCN) BPDU layer.
+		 * Initializes the protocol identifier, version and STP type fields with correct values
 		 */
 		StpTopologyChangeBPDULayer();
 
@@ -302,7 +303,8 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		/**
-		 * Empty c'tor
+		 * Empty c'tor to create a new configuration BPDU layer.
+		 * Initializes the protocol identifier, version and STP type fields with correct values
 		 */
 		StpConfigurationBPDULayer();
 
@@ -537,7 +539,8 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		/**
-		 * Empty c'tor
+		 * Empty c'tor to create a new Rapid STP layer.
+		 * Initializes the protocol identifier, version and STP type fields with correct values
 		 */
 		RapidStpLayer();
 
@@ -601,7 +604,8 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		/**
-		 * Empty c'tor
+		 * Empty c'tor to create a new Multiple STP layer.
+		 * Initializes the protocol identifier, version and STP type fields with correct values
 		 */
 		MultipleStpLayer();
 
@@ -612,7 +616,6 @@ typedef stp_tcn_bpdu stp_header;
 		mstp_conf_bpdu *getMstpHeader() const { return (mstp_conf_bpdu *)(m_Data); }
 
 		/**
-		 * Returns the length of version3 field
 		 * @return Length of version3 field
 		 */
 		uint16_t getVersion3Len() const;
