@@ -9,7 +9,7 @@
 PTF_TEST_CASE(StpConfigurationParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 
@@ -136,7 +136,7 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 PTF_TEST_CASE(StpTopologyChangeParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
 
@@ -209,7 +209,7 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 PTF_TEST_CASE(RapidStpParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
 
@@ -315,7 +315,7 @@ PTF_TEST_CASE(RapidStpEditTests)
 PTF_TEST_CASE(MultipleStpParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultiple.dat");
 

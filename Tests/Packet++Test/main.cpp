@@ -9,14 +9,14 @@
 
 static struct option PacketTestOptions[] =
 {
-	{"include-tags",  required_argument, 0, 't'},
-	{"exclude-tags",  required_argument, 0, 'x'},
-	{"show-skipped-tests", no_argument, 0, 'w' },
-	{"mem-verbose", no_argument, 0, 'm' },
-	{"verbose", no_argument, 0, 'v' },
-	{"skip-mem-leak-check", no_argument, 0, 's' },
-	{"help", no_argument, 0, 'h' },
-	{0, 0, 0, 0}
+	{"include-tags",  required_argument, nullptr, 't'},
+	{"exclude-tags",  required_argument, nullptr, 'x'},
+	{"show-skipped-tests", no_argument, nullptr, 'w' },
+	{"mem-verbose", no_argument, nullptr, 'm' },
+	{"verbose", no_argument, nullptr, 'v' },
+	{"skip-mem-leak-check", no_argument, nullptr, 's' },
+	{"help", no_argument, nullptr, 'h' },
+	{nullptr, 0, nullptr, 0}
 };
 
 void printUsage()

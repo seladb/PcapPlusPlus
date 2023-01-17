@@ -30,7 +30,7 @@ namespace pcpp
 	{
 		char addrBuffer[INET_ADDRSTRLEN];
 
-		if (inet_ntop(AF_INET, toBytes(), addrBuffer, sizeof(addrBuffer)) != NULL)
+		if (inet_ntop(AF_INET, toBytes(), addrBuffer, sizeof(addrBuffer)) != nullptr)
 			return std::string(addrBuffer);
 
 		return std::string();
@@ -117,7 +117,7 @@ namespace pcpp
 	{
 		char addrBuffer[INET6_ADDRSTRLEN];
 
-		if (inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != NULL)
+		if (inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != nullptr)
 			return std::string(addrBuffer);
 
 		return std::string();

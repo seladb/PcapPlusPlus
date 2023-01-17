@@ -80,11 +80,11 @@ static size_t getPayloadLen(pcpp::RawPacket& rawPacket)
 	pcpp::Packet packet(&rawPacket);
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-	if (tcpLayer == NULL)
+	if (tcpLayer == nullptr)
 		throw std::runtime_error("TCP Layer not found");
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-	if (ipLayer == NULL)
+	if (ipLayer == nullptr)
 		throw std::runtime_error("IPv4 Layer not found");
 
 	return be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
@@ -176,7 +176,7 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 
 static bool tcpReassemblyTest(std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results, bool monitorOpenCloseConns, bool closeConnsManually)
 {
-	pcpp::TcpReassembly* tcpReassembly = NULL;
+	pcpp::TcpReassembly* tcpReassembly = nullptr;
 
 	if (monitorOpenCloseConns)
 		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
@@ -220,11 +220,11 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 	pcpp::Packet packet(&rawPacket);
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-	if (tcpLayer == NULL)
+	if (tcpLayer == nullptr)
 		throw std::runtime_error("TCP Layer not found");
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-	if (ipLayer == NULL)
+	if (ipLayer == nullptr)
 		throw std::runtime_error("IPv4 Layer not found");
 
 	int tcpPayloadSize = be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
@@ -249,7 +249,7 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 	}
 
 	pcpp::Layer* layerToRemove = tcpLayer->getNextLayer();
-	if (layerToRemove != NULL)
+	if (layerToRemove != nullptr)
 		packet.removeLayer(layerToRemove->getProtocol());
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);

@@ -108,7 +108,7 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 	int srcPosition = 0;
 
 	TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>(true); // lookup in reverse order
-	if (tcpLayer != NULL)
+	if (tcpLayer != nullptr)
 	{
 		portSrc = tcpLayer->getTcpHeader()->portSrc;
 		portDst = tcpLayer->getTcpHeader()->portDst;
@@ -133,7 +133,7 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 
 
 	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
-	if (ipv4Layer != NULL)
+	if (ipv4Layer != nullptr)
 	{
 		if (portSrc == portDst && ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
 			srcPosition = 1;
@@ -171,7 +171,7 @@ uint32_t hash2Tuple(Packet* packet)
 	ScalarBuffer<uint8_t> vec[2];
 
 	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
-	if (ipv4Layer != NULL)
+	if (ipv4Layer != nullptr)
 	{
 		int srcPosition = 0;
 		if (ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)

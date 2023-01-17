@@ -37,6 +37,7 @@ add_subdirectory(TcpReassembly)
 add_subdirectory(TLSFingerprinting)
 
 if(PCAPPP_BUILD_TUTORIALS)
+  set(PCAPPP_BINARY_TUTORIAL_DIR ${CMAKE_BINARY_DIR}/tutorials_bin)
   add_subdirectory(Tutorials)
 endif()
 

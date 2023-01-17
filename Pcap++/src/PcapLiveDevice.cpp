@@ -72,15 +72,15 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	m_IsLoopback = (pInterface->flags & 0x1) == PCAP_IF_LOOPBACK;
 
 	m_Name = pInterface->name;
-	if (pInterface->description != NULL)
+	if (pInterface->description != nullptr)
 		m_Description = pInterface->description;
 	PCPP_LOG_DEBUG("Added live device: name=" << m_Name << "; desc=" << m_Description);
 	PCPP_LOG_DEBUG("   Addresses:");
-	while (pInterface->addresses != NULL)
+	while (pInterface->addresses != nullptr)
 	{
 		m_Addresses.insert(m_Addresses.end(), *(pInterface->addresses));
 		pInterface->addresses = pInterface->addresses->next;
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != NULL && pInterface->addresses->addr != NULL)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != nullptr && pInterface->addresses->addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
@@ -107,15 +107,15 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	m_StopThread = false;
 	m_CaptureThread = {};
 	m_StatsThread = {};
-	m_cbOnPacketArrives = NULL;
-	m_cbOnStatsUpdate = NULL;
-	m_cbOnPacketArrivesBlockingMode = NULL;
-	m_cbOnPacketArrivesBlockingModeUserCookie = NULL;
+	m_cbOnPacketArrives = nullptr;
+	m_cbOnStatsUpdate = nullptr;
+	m_cbOnPacketArrivesBlockingMode = nullptr;
+	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 	m_IntervalToUpdateStats = 0;
-	m_cbOnPacketArrivesUserCookie = NULL;
-	m_cbOnStatsUpdateUserCookie = NULL;
+	m_cbOnPacketArrivesUserCookie = nullptr;
+	m_cbOnStatsUpdateUserCookie = nullptr;
 	m_CaptureCallbackMode = true;
-	m_CapturedPackets = NULL;
+	m_CapturedPackets = nullptr;
 	if (calculateMacAddress)
 	{
 		setDeviceMacAddress();
@@ -127,7 +127,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
-	if (pThis == NULL)
+	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
 		return;
@@ -135,14 +135,14 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
-	if (pThis->m_cbOnPacketArrives != NULL)
+	if (pThis->m_cbOnPacketArrives != nullptr)
 		pThis->m_cbOnPacketArrives(&rawPacket, pThis, pThis->m_cbOnPacketArrivesUserCookie);
 }
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
-	if (pThis == NULL)
+	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
 		return;
@@ -157,7 +157,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
-	if (pThis == NULL)
+	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
 		return;
@@ -165,7 +165,7 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 
 	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
 
-	if (pThis->m_cbOnPacketArrivesBlockingMode != NULL)
+	if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
 		if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
 			pThis->m_StopThread = true;
 }
@@ -252,7 +252,7 @@ pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 	{
 		PCPP_LOG_ERROR(pcap_geterr(pcap));
 		pcap_close(pcap);
-		return NULL;
+		return nullptr;
 	}
 
 #ifdef HAS_SET_DIRECTION_ENABLED
@@ -307,7 +307,7 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	m_PcapDescriptor = doOpen(config);
 	m_PcapSendDescriptor = doOpen(config);
-	if (m_PcapDescriptor == NULL || m_PcapSendDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr || m_PcapSendDescriptor == nullptr)
 	{
 		m_DeviceOpened = false;
 		return false;
@@ -328,7 +328,7 @@ bool PcapLiveDevice::open()
 
 void PcapLiveDevice::close()
 {
-	if (m_PcapDescriptor == NULL && m_PcapSendDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr && m_PcapSendDescriptor == nullptr)
 	{
 		PCPP_LOG_DEBUG("Device '" << m_Name << "' already closed");
 		return;
@@ -349,7 +349,7 @@ void PcapLiveDevice::close()
 
 PcapLiveDevice* PcapLiveDevice::clone()
 {
-	PcapLiveDevice *retval = NULL;
+	PcapLiveDevice *retval = nullptr;
 
 	pcap_if_t *interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -357,11 +357,11 @@ PcapLiveDevice* PcapLiveDevice::clone()
 	if (err < 0)
 	{
 		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
-		return NULL;
+		return nullptr;
 	}
 
 	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != NULL)
+	while (currInterface != nullptr)
 	{
 		if(!strcmp(currInterface->name, getName().c_str()))
 			break;
@@ -379,17 +379,17 @@ PcapLiveDevice* PcapLiveDevice::clone()
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
 {
-	return startCapture(onPacketArrives, onPacketArrivesUserCookie, 0, NULL, NULL);
+	return startCapture(onPacketArrives, onPacketArrivesUserCookie, 0, nullptr, nullptr);
 }
 
 bool PcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	return startCapture(NULL, NULL, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
+	return startCapture(nullptr, nullptr, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
@@ -411,7 +411,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	m_CaptureThreadStarted = true;
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
-	if (onStatsUpdate != NULL && intervalInSecondsToUpdateStats > 0)
+	if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 	{
 		m_cbOnStatsUpdate = onStatsUpdate;
 		m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
@@ -425,7 +425,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 
 bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 {
-	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
@@ -451,7 +451,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout)
 {
-	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return 0;
@@ -463,10 +463,10 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		return 0;
 	}
 
-	m_cbOnPacketArrives = NULL;
-	m_cbOnStatsUpdate = NULL;
-	m_cbOnPacketArrivesUserCookie = NULL;
-	m_cbOnStatsUpdateUserCookie = NULL;
+	m_cbOnPacketArrives = nullptr;
+	m_cbOnStatsUpdate = nullptr;
+	m_cbOnPacketArrivesUserCookie = nullptr;
+	m_cbOnStatsUpdateUserCookie = nullptr;
 
 	m_cbOnPacketArrivesBlockingMode = onPacketArrives;
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
@@ -501,8 +501,8 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 	m_StopThread = false;
 
-	m_cbOnPacketArrivesBlockingMode = NULL;
-	m_cbOnPacketArrivesBlockingModeUserCookie = NULL;
+	m_cbOnPacketArrivesBlockingMode = nullptr;
+	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
 	if (curTimeSec > (startTimeSec + timeout))
 		return -1;
@@ -512,7 +512,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 void PcapLiveDevice::stopCapture()
 {
 	// in blocking mode stop capture isn't relevant
-	if (m_cbOnPacketArrivesBlockingMode != NULL)
+	if (m_cbOnPacketArrivesBlockingMode != nullptr)
 		return;
 
 	m_StopThread = true;
@@ -587,7 +587,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 	if (checkMtu)
 	{
 		timeval time;
-		gettimeofday(&time, NULL);
+		gettimeofday(&time, nullptr);
 		pcpp::RawPacket rawPacket(packetData, packetDataLength, time, false, linkType);
 		Packet parsedPacket = Packet(&rawPacket, pcpp::OsiModelDataLinkLayer);
 		return sendPacket(&parsedPacket, true);
@@ -814,7 +814,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 		return;
 	}
 
-	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0)
+	if (sysctl(mib, 6, nullptr, &len, nullptr, 0) < 0)
 	{
 		PCPP_LOG_DEBUG("Error in retrieving MAC address: sysctl 1 error");
 		return;
@@ -822,7 +822,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 
 	uint8_t buf[len];
 
-	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0)
+	if (sysctl(mib, 6, buf, &len, nullptr, 0) < 0)
 	{
 		PCPP_LOG_DEBUG("Error in retrieving MAC address: sysctl 2 error");
 		return;
@@ -921,7 +921,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 {
 	for(std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
 	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(addrIter->addr, addrAsString);
@@ -929,7 +929,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 		}
 
 		in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
-		if (currAddr == NULL)
+		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
 			continue;
@@ -946,14 +946,14 @@ IPv6Address PcapLiveDevice::getIPv6Address() const
 	for (std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end();
 		 addrIter++)
 	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != NULL)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
 			internal::sockaddr2string(addrIter->addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
 		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter->addr);
-		if (currAddr == NULL)
+		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
 			continue;

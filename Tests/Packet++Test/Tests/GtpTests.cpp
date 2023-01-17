@@ -14,7 +14,7 @@
 PTF_TEST_CASE(GtpLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u2.dat");
@@ -174,33 +174,28 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 PTF_TEST_CASE(GtpLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtp-u-1ext.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/gtp-u-2ext.dat");
 
 	pcpp::Packet gtpPacket1(&rawPacket1);
-	pcpp::Packet newGtpPacket;
 
 	pcpp::EthLayer ethLayer(*gtpPacket1.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer(*gtpPacket1.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer));
-
 	pcpp::UdpLayer udpLayer(*gtpPacket1.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&udpLayer));
-
 	pcpp::GtpV1Layer gtpLayer(pcpp::GtpV1_GPDU, 1, true, 10461, false, 0);
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&gtpLayer));
-
 	pcpp::IPv4Layer ip4Layer2(*gtpPacket1.getNextLayerOfType<pcpp::IPv4Layer>(gtpPacket1.getLayerOfType<pcpp::UdpLayer>()));
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer2));
-
 	pcpp::IcmpLayer icmpLayer(*gtpPacket1.getLayerOfType<pcpp::IcmpLayer>());
-	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&icmpLayer));
 
+	pcpp::Packet newGtpPacket;
+	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&udpLayer));
+	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&gtpLayer));
+	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&ip4Layer2));
+	PTF_ASSERT_TRUE(newGtpPacket.addLayer(&icmpLayer));
 	newGtpPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(bufferLength1, newGtpPacket.getRawPacket()->getRawDataLen());
@@ -246,7 +241,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 PTF_TEST_CASE(GtpLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtp-u-ipv6.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/gtp-u-ipv6-edited.dat");

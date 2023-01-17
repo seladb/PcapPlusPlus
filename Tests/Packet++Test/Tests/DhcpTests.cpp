@@ -12,7 +12,7 @@
 PTF_TEST_CASE(DhcpParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dhcp1.dat");
 
@@ -165,7 +165,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	pcpp::DhcpOption agentOpt = dhcpLayer.addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DHCP_AGENT_OPTIONS, agentData, 22));
 	PTF_ASSERT_FALSE(agentOpt.isNull());
 
-	pcpp::DhcpOption clientIdOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DHCP_CLIENT_IDENTIFIER, NULL, 16), pcpp::DHCPOPT_SIP_SERVERS);
+	pcpp::DhcpOption clientIdOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DHCP_CLIENT_IDENTIFIER, nullptr, 16), pcpp::DHCPOPT_SIP_SERVERS);
 	clientIdOpt.setValue<uint8_t>(0);
 	clientIdOpt.setValueString("nathan1clientid", 1);
 	PTF_ASSERT_FALSE(clientIdOpt.isNull());
@@ -190,7 +190,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 	pcpp::DhcpOption tftpServerOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_TFTP_SERVER_NAME, std::string("172.22.178.234")), pcpp::DHCPOPT_ROUTERS);
 	PTF_ASSERT_FALSE(tftpServerOpt.isNull());
 
-	pcpp::DhcpOption dnsOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DOMAIN_NAME_SERVERS, NULL, 8), pcpp::DHCPOPT_ROUTERS);
+	pcpp::DhcpOption dnsOpt = dhcpLayer.addOptionAfter(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_DOMAIN_NAME_SERVERS, nullptr, 8), pcpp::DHCPOPT_ROUTERS);
 	PTF_ASSERT_FALSE(dnsOpt.isNull());
 	pcpp::IPv4Address dns1IP("143.209.4.1");
 	pcpp::IPv4Address dns2IP("143.209.5.1");
@@ -215,7 +215,7 @@ PTF_TEST_CASE(DhcpCreationTest)
 PTF_TEST_CASE(DhcpEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Dhcp4.dat");
 
@@ -262,7 +262,7 @@ PTF_TEST_CASE(DhcpEditTest)
 
 	PTF_ASSERT_EQUAL(dhcpLayer->getMessageType(), pcpp::DHCP_UNKNOWN_MSG_TYPE, enum);
 
-	PTF_ASSERT_FALSE(dhcpLayer->addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_END, NULL, 0)).isNull());
+	PTF_ASSERT_FALSE(dhcpLayer->addOption(pcpp::DhcpOptionBuilder(pcpp::DHCPOPT_END, nullptr, 0)).isNull());
 
 	PTF_ASSERT_FALSE(dhcpLayer->setMessageType(pcpp::DHCP_UNKNOWN_MSG_TYPE));
 

@@ -15,7 +15,7 @@ namespace pcpp
 icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int index) const
 {
 	if (index < 0 || index >= header->advertisementCount)
-		return NULL;
+		return nullptr;
 
 	uint8_t* headerAsByteArr = (uint8_t*)header;
 	return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) + index * sizeof(icmp_router_address_structure));
@@ -48,7 +48,7 @@ bool IcmpLayer::cleanIcmpLayer()
 {
 	// remove all layers after
 
-	if (m_Packet != NULL)
+	if (m_Packet != nullptr)
 	{
 		bool res = m_Packet->removeAllLayersAfter(this);
 		if (!res)
@@ -77,7 +77,7 @@ bool IcmpLayer::setEchoData(IcmpMessageType echoType, uint16_t id, uint16_t sequ
 
 	getIcmpHeader()->type = (uint8_t)echoType;
 
-	icmp_echo_request* header = NULL;
+	icmp_echo_request* header = nullptr;
 	if (echoType == ICMP_ECHO_REQUEST)
 		header = getEchoRequestData();
 	else if (echoType == ICMP_ECHO_REPLY)
@@ -90,7 +90,7 @@ bool IcmpLayer::setEchoData(IcmpMessageType echoType, uint16_t id, uint16_t sequ
 	header->header->id = htobe16(id);
 	header->header->sequence = htobe16(sequence);
 	header->header->timestamp = timestamp;
-	if (data != NULL && dataLen > 0)
+	if (data != nullptr && dataLen > 0)
 		memcpy(header->data, data, dataLen);
 
 	return true;
@@ -98,20 +98,20 @@ bool IcmpLayer::setEchoData(IcmpMessageType echoType, uint16_t id, uint16_t sequ
 
 bool IcmpLayer::setIpAndL4Layers(IPv4Layer* ipLayer, Layer* l4Layer)
 {
-	if (m_Packet == NULL)
+	if (m_Packet == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot set ICMP data that involves IP and L4 layers on a layer not attached to a packet. "
 				"Please add the ICMP layer to a packet and try again");
 		return false;
 	}
 
-	if (ipLayer != NULL && !m_Packet->addLayer(ipLayer))
+	if (ipLayer != nullptr && !m_Packet->addLayer(ipLayer))
 	{
 		PCPP_LOG_ERROR("Couldn't add IP layer to ICMP packet");
 		return false;
 	}
 
-	if (l4Layer != NULL && !m_Packet->addLayer(l4Layer))
+	if (l4Layer != nullptr && !m_Packet->addLayer(l4Layer))
 	{
 		PCPP_LOG_ERROR("Couldn't add L4 layer to ICMP packet");
 		return false;
@@ -123,7 +123,7 @@ bool IcmpLayer::setIpAndL4Layers(IPv4Layer* ipLayer, Layer* l4Layer)
 icmp_echo_request* IcmpLayer::getEchoRequestData()
 {
 	if (!isMessageOfType(ICMP_ECHO_REQUEST))
-		return NULL;
+		return nullptr;
 
 	m_EchoData.header = (icmp_echo_hdr*)m_Data;
 	m_EchoData.data = (uint8_t*)(m_Data + sizeof(icmp_echo_hdr));
@@ -137,13 +137,13 @@ icmp_echo_request* IcmpLayer::setEchoRequestData(uint16_t id, uint16_t sequence,
 	if (setEchoData(ICMP_ECHO_REQUEST, id, sequence, timestamp, data, dataLen))
 		return getEchoRequestData();
 	else
-		return NULL;
+		return nullptr;
 }
 
 icmp_echo_reply* IcmpLayer::getEchoReplyData()
 {
 	if (!isMessageOfType(ICMP_ECHO_REPLY))
-		return NULL;
+		return nullptr;
 
 	m_EchoData.header = (icmp_echo_hdr*)m_Data;
 	m_EchoData.data = (uint8_t*)(m_Data + sizeof(icmp_echo_hdr));
@@ -157,14 +157,14 @@ icmp_echo_reply* IcmpLayer::setEchoReplyData(uint16_t id, uint16_t sequence, uin
 	if (setEchoData(ICMP_ECHO_REPLY, id, sequence, timestamp, data, dataLen))
 		return getEchoReplyData();
 	else
-		return NULL;
+		return nullptr;
 }
 
 
 icmp_timestamp_request* IcmpLayer::getTimestampRequestData()
 {
 	if (!isMessageOfType(ICMP_TIMESTAMP_REQUEST))
-		return NULL;
+		return nullptr;
 
 	return (icmp_timestamp_request*)m_Data;
 }
@@ -172,10 +172,10 @@ icmp_timestamp_request* IcmpLayer::getTimestampRequestData()
 icmp_timestamp_request* IcmpLayer::setTimestampRequestData(uint16_t id, uint16_t sequence, timeval originateTimestamp)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_timestamp_request) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_TIMESTAMP_REQUEST;
 
@@ -193,7 +193,7 @@ icmp_timestamp_request* IcmpLayer::setTimestampRequestData(uint16_t id, uint16_t
 icmp_timestamp_reply* IcmpLayer::getTimestampReplyData()
 {
 	if (!isMessageOfType(ICMP_TIMESTAMP_REPLY))
-		return NULL;
+		return nullptr;
 
 	return (icmp_timestamp_reply*)m_Data;
 }
@@ -202,10 +202,10 @@ icmp_timestamp_reply* IcmpLayer::setTimestampReplyData(uint16_t id, uint16_t seq
 		timeval originateTimestamp, timeval receiveTimestamp, timeval transmitTimestamp)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_timestamp_reply) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_TIMESTAMP_REPLY;
 
@@ -223,7 +223,7 @@ icmp_timestamp_reply* IcmpLayer::setTimestampReplyData(uint16_t id, uint16_t seq
 icmp_destination_unreachable* IcmpLayer::getDestUnreachableData()
 {
 	if (!isMessageOfType(ICMP_DEST_UNREACHABLE))
-		return NULL;
+		return nullptr;
 
 	return (icmp_destination_unreachable*)m_Data;
 }
@@ -231,10 +231,10 @@ icmp_destination_unreachable* IcmpLayer::getDestUnreachableData()
 icmp_destination_unreachable* IcmpLayer::setDestUnreachableData(IcmpDestUnreachableCodes code, uint16_t nextHopMTU, IPv4Layer* ipHeader, Layer* l4Header)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_destination_unreachable) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_DEST_UNREACHABLE;
 
@@ -244,7 +244,7 @@ icmp_destination_unreachable* IcmpLayer::setDestUnreachableData(IcmpDestUnreacha
 	header->unused = 0;
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
-		return NULL;
+		return nullptr;
 
 	return header;
 }
@@ -252,7 +252,7 @@ icmp_destination_unreachable* IcmpLayer::setDestUnreachableData(IcmpDestUnreacha
 icmp_source_quench* IcmpLayer::getSourceQuenchdata()
 {
 	if (!isMessageOfType(ICMP_SOURCE_QUENCH))
-		return NULL;
+		return nullptr;
 
 	return (icmp_source_quench*)m_Data;
 
@@ -261,10 +261,10 @@ icmp_source_quench* IcmpLayer::getSourceQuenchdata()
 icmp_source_quench* IcmpLayer::setSourceQuenchdata(IPv4Layer* ipHeader, Layer* l4Header)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_source_quench) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_SOURCE_QUENCH;
 
@@ -272,7 +272,7 @@ icmp_source_quench* IcmpLayer::setSourceQuenchdata(IPv4Layer* ipHeader, Layer* l
 	header->unused = 0;
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
-		return NULL;
+		return nullptr;
 
 	return header;
 }
@@ -280,7 +280,7 @@ icmp_source_quench* IcmpLayer::setSourceQuenchdata(IPv4Layer* ipHeader, Layer* l
 icmp_redirect* IcmpLayer::getRedirectData()
 {
 	if (!isMessageOfType(ICMP_REDIRECT))
-		return NULL;
+		return nullptr;
 
 	return (icmp_redirect*)m_Data;
 }
@@ -290,14 +290,14 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 	if (code > 3)
 	{
 		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP redirect data");
-		return NULL;
+		return nullptr;
 	}
 
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_redirect) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_REDIRECT;
 
@@ -306,7 +306,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 	header->gatewayAddress = gatewayAddress.toInt();
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
-		return NULL;
+		return nullptr;
 
 	return header;
 }
@@ -314,7 +314,7 @@ icmp_redirect* IcmpLayer::setRedirectData(uint8_t code, IPv4Address gatewayAddre
 icmp_router_advertisement* IcmpLayer::getRouterAdvertisementData() const
 {
 	if (!isMessageOfType(ICMP_ROUTER_ADV))
-		return NULL;
+		return nullptr;
 
 	m_RouterAdvData.header = (icmp_router_advertisement_hdr*)m_Data;
 
@@ -326,14 +326,14 @@ icmp_router_advertisement* IcmpLayer::setRouterAdvertisementData(uint8_t code, u
 	if (code != 0 && code != 16)
 	{
 		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP router advertisement data (only codes 0 and 16 are legal)");
-		return NULL;
+		return nullptr;
 	}
 
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_router_advertisement_hdr) + (routerAddresses.size()*sizeof(icmp_router_address_structure)) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_ROUTER_ADV;
 
@@ -357,7 +357,7 @@ icmp_router_advertisement* IcmpLayer::setRouterAdvertisementData(uint8_t code, u
 icmp_router_solicitation* IcmpLayer::getRouterSolicitationData()
 {
 	if (!isMessageOfType(ICMP_ROUTER_SOL))
-		return NULL;
+		return nullptr;
 
 	return (icmp_router_solicitation*)m_Data;
 }
@@ -365,7 +365,7 @@ icmp_router_solicitation* IcmpLayer::getRouterSolicitationData()
 icmp_router_solicitation* IcmpLayer::setRouterSolicitationData()
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_ROUTER_SOL;
 
@@ -378,7 +378,7 @@ icmp_router_solicitation* IcmpLayer::setRouterSolicitationData()
 icmp_time_exceeded* IcmpLayer::getTimeExceededData()
 {
 	if (!isMessageOfType(ICMP_TIME_EXCEEDED))
-		return NULL;
+		return nullptr;
 
 	return (icmp_time_exceeded*)m_Data;
 }
@@ -388,14 +388,14 @@ icmp_time_exceeded* IcmpLayer::setTimeExceededData(uint8_t code, IPv4Layer* ipHe
 	if (code > 1)
 	{
 		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP time exceeded data");
-		return NULL;
+		return nullptr;
 	}
 
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_time_exceeded) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_TIME_EXCEEDED;
 
@@ -404,7 +404,7 @@ icmp_time_exceeded* IcmpLayer::setTimeExceededData(uint8_t code, IPv4Layer* ipHe
 	header->unused = 0;
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
-		return NULL;
+		return nullptr;
 
 	return header;
 }
@@ -412,7 +412,7 @@ icmp_time_exceeded* IcmpLayer::setTimeExceededData(uint8_t code, IPv4Layer* ipHe
 icmp_param_problem* IcmpLayer::getParamProblemData()
 {
 	if (!isMessageOfType(ICMP_PARAM_PROBLEM))
-		return NULL;
+		return nullptr;
 
 	return (icmp_param_problem*)m_Data;
 }
@@ -422,14 +422,14 @@ icmp_param_problem* IcmpLayer::setParamProblemData(uint8_t code, uint8_t errorOc
 	if (code > 2)
 	{
 		PCPP_LOG_ERROR("Unknown code " << (int)code << " for ICMP parameter problem data");
-		return NULL;
+		return nullptr;
 	}
 
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_param_problem) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_PARAM_PROBLEM;
 
@@ -440,7 +440,7 @@ icmp_param_problem* IcmpLayer::setParamProblemData(uint8_t code, uint8_t errorOc
 	header->pointer = errorOctetPointer;
 
 	if (!setIpAndL4Layers(ipHeader, l4Header))
-		return NULL;
+		return nullptr;
 
 	return header;
 }
@@ -448,7 +448,7 @@ icmp_param_problem* IcmpLayer::setParamProblemData(uint8_t code, uint8_t errorOc
 icmp_address_mask_request* IcmpLayer::getAddressMaskRequestData()
 {
 	if (!isMessageOfType(ICMP_ADDRESS_MASK_REQUEST))
-		return NULL;
+		return nullptr;
 
 	return (icmp_address_mask_request*)m_Data;
 }
@@ -456,10 +456,10 @@ icmp_address_mask_request* IcmpLayer::getAddressMaskRequestData()
 icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uint16_t sequence, IPv4Address mask)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_address_mask_request) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_ADDRESS_MASK_REQUEST;
 
@@ -475,7 +475,7 @@ icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uin
 icmp_address_mask_reply* IcmpLayer::getAddressMaskReplyData()
 {
 	if (!isMessageOfType(ICMP_ADDRESS_MASK_REPLY))
-		return NULL;
+		return nullptr;
 
 	return (icmp_address_mask_reply*)m_Data;
 }
@@ -483,10 +483,10 @@ icmp_address_mask_reply* IcmpLayer::getAddressMaskReplyData()
 icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_t sequence, IPv4Address mask)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_address_mask_reply) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_ADDRESS_MASK_REPLY;
 
@@ -502,7 +502,7 @@ icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_
 icmp_info_request* IcmpLayer::getInfoRequestData()
 {
 	if (!isMessageOfType(ICMP_INFO_REQUEST))
-		return NULL;
+		return nullptr;
 
 	return (icmp_info_request*)m_Data;
 }
@@ -510,10 +510,10 @@ icmp_info_request* IcmpLayer::getInfoRequestData()
 icmp_info_request* IcmpLayer::setInfoRequestData(uint16_t id, uint16_t sequence)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_info_request) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_INFO_REQUEST;
 
@@ -528,7 +528,7 @@ icmp_info_request* IcmpLayer::setInfoRequestData(uint16_t id, uint16_t sequence)
 icmp_info_reply* IcmpLayer::getInfoReplyData()
 {
 	if (!isMessageOfType(ICMP_INFO_REPLY))
-		return NULL;
+		return nullptr;
 
 	return (icmp_info_reply*)m_Data;
 }
@@ -536,10 +536,10 @@ icmp_info_reply* IcmpLayer::getInfoReplyData()
 icmp_info_reply* IcmpLayer::setInfoReplyData(uint16_t id, uint16_t sequence)
 {
 	if (!cleanIcmpLayer())
-		return NULL;
+		return nullptr;
 
 	if (!this->extendLayer(m_DataLen, sizeof(icmp_info_reply) - sizeof(icmphdr)))
-		return NULL;
+		return nullptr;
 
 	getIcmpHeader()->type = (uint8_t)ICMP_INFO_REPLY;
 
@@ -620,7 +620,7 @@ void IcmpLayer::computeCalculateFields()
 
 	size_t icmpLen = 0;
 	Layer* curLayer = this;
-	while (curLayer != NULL)
+	while (curLayer != nullptr)
 	{
 		icmpLen += curLayer->getHeaderLen();
 		curLayer = curLayer->getNextLayer();

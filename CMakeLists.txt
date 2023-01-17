@@ -15,7 +15,7 @@ project(
   HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
 # Include our custom CMake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
@@ -102,6 +102,14 @@ if(PCAPPP_ENABLE_PCAP_SET_DIRECTION)
   add_definitions(-DHAS_SET_DIRECTION_ENABLED)
 endif()
 
+option(PCAPPP_ENABLE_CLANG-TIDY "Run Clang-Tidy static analysis during build" OFF)
+
+if (PCAPPP_ENABLE_CLANG-TIDY)
+  find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
+  set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix" "--checks=modernize-use-nullptr")
+  set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
+endif()
+
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 if(MSVC)
@@ -119,7 +127,7 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
-
+  set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mk/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
 
@@ -197,11 +205,11 @@ if(PCAPPP_INSTALL)
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
+  install(DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules" COMPONENT devel DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
-          "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/FindPCAP.cmake"
           "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
-    COMPONENT dev
-    DESTINATION ${PCAPPP_INSTALL_CMAKEDIR})
+    COMPONENT devel
+    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 endif()

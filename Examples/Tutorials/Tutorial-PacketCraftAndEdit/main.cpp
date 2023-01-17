@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader("1_http_packet.pcap");
 
 	// verify that a reader interface was indeed created
-	if (reader == NULL)
+	if (reader == nullptr)
 	{
 		std::cerr << "Cannot determine reader for file type" << std::endl;
 		return 1;

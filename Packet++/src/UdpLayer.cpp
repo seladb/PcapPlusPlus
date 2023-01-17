@@ -51,7 +51,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	uint16_t checksumRes = 0;
 	uint16_t currChecksumValue = udpHdr->headerChecksum;
 
-	if (m_PrevLayer != NULL)
+	if (m_PrevLayer != nullptr)
 	{
 		udpHdr->headerChecksum = 0;
 		ScalarBuffer<uint16_t> vec[2];
