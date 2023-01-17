@@ -573,7 +573,7 @@ typedef stp_tcn_bpdu stp_header;
 		void setVersion1Len(uint8_t value) { getRstpConfHeader()->version1Len = value; }
 
 		// overridden methods
-				
+
 		/**
 		 * @return The size of Rapid STP message
 		 */
