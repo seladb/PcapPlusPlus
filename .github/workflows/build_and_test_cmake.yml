@@ -15,6 +15,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install cppcheck=2.7-1
+          pip install cmake-format
       - uses: pre-commit/action@v3.0.0
       - name: CMake format
         run: ./ci/cmake-format-all.sh && git diff --exit-code
