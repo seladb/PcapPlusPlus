@@ -43,6 +43,7 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 	PTF_ASSERT_EQUAL(stpConfLayer->toString(), "Spanning Tree Configuration");
 } // StpConfigurationParsingTests
 
+
 PTF_TEST_CASE(StpConfigurationCreationTests)
 {
 	timeval time;
@@ -74,6 +75,7 @@ PTF_TEST_CASE(StpConfigurationCreationTests)
 	PTF_ASSERT_EQUAL(stpConfLayer.getDataLen(), stpConfLayerTgt->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(stpConfLayer.getData(), stpConfLayerTgt->getData(), stpConfLayer.getDataLen());
 } // StpConfigurationCreationTests
+
 
 PTF_TEST_CASE(StpConfigurationEditTests)
 {
@@ -130,6 +132,7 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrg->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrg->getDataLen());
 } // StpConfigurationEditTests
 
+
 PTF_TEST_CASE(StpTopologyChangeParsingTests)
 {
 	timeval time;
@@ -152,6 +155,7 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 	PTF_ASSERT_EQUAL(stpTopologyLayer->toString(), "Spanning Tree Topology Change Notification");
 } // StpTopologyChangeParsingTests
 
+
 PTF_TEST_CASE(StpTopologyChangeCreationTests)
 {
 	timeval time;
@@ -170,6 +174,7 @@ PTF_TEST_CASE(StpTopologyChangeCreationTests)
 	PTF_ASSERT_EQUAL(stpTopologyLayer.getDataLen(), stpTopologyLayerTgt->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(stpTopologyLayer.getData(), stpTopologyLayerTgt->getData(), stpTopologyLayer.getDataLen());
 } // StpTopologyChangeCreationTests
+
 
 PTF_TEST_CASE(StpTopologyChangeEditTests)
 {
@@ -198,8 +203,8 @@ PTF_TEST_CASE(StpTopologyChangeEditTests)
 
 	PTF_ASSERT_EQUAL(stpTopologyLayerOrg->getDataLen(), stpTopologyLayerTgt->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(stpTopologyLayerOrg->getData(), stpTopologyLayerTgt->getData(), stpTopologyLayerOrg->getDataLen());
-
 } // StpTopologyChangeEditTests
+
 
 PTF_TEST_CASE(RapidStpParsingTests)
 {
@@ -239,6 +244,7 @@ PTF_TEST_CASE(RapidStpParsingTests)
 	PTF_ASSERT_EQUAL(stpRapidLayer->toString(), "Rapid Spanning Tree");
 } // RapidStpParsingTests
 
+
 PTF_TEST_CASE(RapidStpCreationTests)
 {
 	timeval time;
@@ -272,6 +278,7 @@ PTF_TEST_CASE(RapidStpCreationTests)
 	PTF_ASSERT_BUF_COMPARE(stpRapidLayer.getData(), stpRapidLayerTgt->getData(), stpRapidLayer.getDataLen());
 } // RapidStpCreationTests
 
+
 PTF_TEST_CASE(RapidStpEditTests)
 {
 	timeval time;
@@ -303,6 +310,7 @@ PTF_TEST_CASE(RapidStpEditTests)
 	PTF_ASSERT_EQUAL(stpRapidLayerOrg->getDataLen(), stpRapidLayerTgt->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(stpRapidLayerOrg->getData(), stpRapidLayerTgt->getData(), stpRapidLayerTgt->getDataLen());
 } // RapidStpEditTests
+
 
 PTF_TEST_CASE(MultipleStpParsingTests)
 {
@@ -365,6 +373,7 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 	PTF_ASSERT_EQUAL(stpMultipleLayer->toString(), "Multiple Spanning Tree");
 } // MultipleStpParsingTests
 
+
 PTF_TEST_CASE(MultipleStpCreationTests)
 {
 	timeval time;
@@ -405,6 +414,7 @@ PTF_TEST_CASE(MultipleStpCreationTests)
 	PTF_ASSERT_EQUAL(stpMultipleLayer.getDataLen(), stpMultipleLayerTgt->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(stpMultipleLayer.getData(), stpMultipleLayerTgt->getData(), stpMultipleLayer.getDataLen());
 } // MultipleStpParsingTests
+
 
 PTF_TEST_CASE(MultipleStpEditTests)
 {
