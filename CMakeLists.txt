@@ -20,9 +20,11 @@ include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(GNUInstallDirs)
-# LINUX is set Only since 3.25
-# see: https://cmake.org/cmake/help/latest/variable/LINUX.html
-if (UNIX AND NOT APPLE AND NOT CYGWIN AND NOT ANDROID)
+# LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
+if(UNIX
+   AND NOT APPLE
+   AND NOT CYGWIN
+   AND NOT ANDROID)
   set(LINUX True)
 endif()
 
@@ -104,7 +106,7 @@ endif()
 
 option(PCAPPP_ENABLE_CLANG-TIDY "Run Clang-Tidy static analysis during build" OFF)
 
-if (PCAPPP_ENABLE_CLANG-TIDY)
+if(PCAPPP_ENABLE_CLANG-TIDY)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
   set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix" "--checks=modernize-use-nullptr")
   set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
@@ -182,7 +184,8 @@ if(PCAPPP_INSTALL)
   include(CPack)
 
   # Generate PKG-Config
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" @ONLY)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+                 @ONLY)
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
   # CMake helpers to compile Pcap++ with CMake
@@ -196,8 +199,8 @@ if(PCAPPP_INSTALL)
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
-    INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake" INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 
   write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
@@ -205,7 +208,10 @@ if(PCAPPP_INSTALL)
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
-  install(DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules" COMPONENT devel DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+  install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules"
+    COMPONENT devel
+    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
