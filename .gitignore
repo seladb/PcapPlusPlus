@@ -32,6 +32,7 @@
 
 #Distribution folder
 Dist/
+build/
 
 #auto-generated make files
 mk/PcapPlusPlus.mk
