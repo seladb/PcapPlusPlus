@@ -160,9 +160,9 @@ if(PCAPPP_ENABLE_PCAP_SET_DIRECTION)
   add_definitions(-DHAS_SET_DIRECTION_ENABLED)
 endif()
 
-option(PCAPPP_ENABLE_CLANG-TIDY "Run Clang-Tidy static analysis during build" OFF)
+option(PCAPPP_ENABLE_CLANG_TIDY "Run Clang-Tidy static analysis during build" OFF)
 
-if(PCAPPP_ENABLE_CLANG-TIDY)
+if(PCAPPP_ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
   set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix" "--checks=modernize-use-nullptr")
   set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
