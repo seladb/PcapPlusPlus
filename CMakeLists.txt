@@ -32,6 +32,36 @@ set(PCAPPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
 set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
+# Build options enable sanitizers
+set(PCAPPP_ALLOWED_SANITIZERS "" "AddressSanitizer" "Fuzzer" "MemorySanitizer" "ThreadSanitizer" "UndefinedBehaviorSanitizer")
+set(PCAPPP_USE_SANITIZER "" CACHE STRING "Compile with a sanitizer")
+set_property(CACHE PCAPPP_USE_SANITIZER PROPERTY STRINGS ${PCAPPP_ALLOWED_SANITIZERS})
+
+if(NOT PCAPPP_USE_SANITIZER IN_LIST PCAPPP_ALLOWED_SANITIZERS)
+    message(FATAL_ERROR "PCAPPP_USE_SANITIZER must be one of ${PCAPPP_ALLOWED_SANITIZERS}")
+endif()
+
+if (PCAPPP_USE_SANITIZER)
+  add_compile_options("-fno-omit-frame-pointer")
+  add_compile_options("-O1")
+  if (PCAPPP_USE_SANITIZER STREQUAL "AddressSanitizer")
+    add_compile_options("-fsanitize=address")
+    add_link_options("-fsanitize=address")
+  elseif (PCAPPP_USE_SANITIZER STREQUAL "Fuzzer")
+    add_compile_options("-fsanitize=fuzzer,address")
+    add_link_options("-fsanitize=fuzzer,address")
+  elseif (PCAPPP_USE_SANITIZER STREQUAL "MemorySanitizer")
+    add_compile_options("-fsanitize=memory")
+    add_link_options("-fsanitize=memory")
+  elseif (PCAPPP_USE_SANITIZER STREQUAL "ThreadSanitizer")
+    add_compile_options("-fsanitize=thread")
+    add_link_options("-fsanitize=thread")
+  elseif (PCAPPP_USE_SANITIZER STREQUAL "UndefinedBehaviorSanitizer")
+    add_compile_options("-fsanitize=undefined")
+    add_link_options("-fsanitize=undefined")
+  endif()
+endif()
+
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
 cmake_dependent_option(
@@ -41,6 +71,17 @@ cmake_dependent_option(
   "PCAPPP_BUILD_EXAMPLES"
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
+cmake_dependent_option(
+  PCAPPP_BUILD_FUZZERS
+  "Build Fuzzers binaries"
+  OFF
+  "PCAPPP_BUILD_TESTS"
+  OFF)
+# Check that we build with Fuzzing sanitizer
+if (PCAPPP_BUILD_FUZZERS AND NOT PCAPPP_USE_SANITIZER STREQUAL "Fuzzer")
+  message(SEND_ERROR "Building Fuzzers requires PCAPPP_USE_SANITIZER=Fuzzer")
+endif()
+
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
