@@ -83,12 +83,12 @@ else()
 
   dpdk_read_version(DPDK_VERSION "${DPDK_VERSION_INCLUDE_DIR}/rte_version.h")
   # If no version found fall back to rte_build_config.h
-  if (DPDK_VERSION STREQUAL "..")
+  if(DPDK_VERSION STREQUAL "..")
     find_file(DPDK_BUILD_CONFIG_INCLUDE rte_build_config.h PATHS ${DPDK_INCLUDE_DIRS})
-    if (DPDK_BUILD_CONFIG_INCLUDE)
+    if(DPDK_BUILD_CONFIG_INCLUDE)
       dpdk_read_version(DPDK_VERSION "${DPDK_BUILD_CONFIG_INCLUDE_DIR}/rte_build_config.h")
     endif()
-    if (DPDK_VERSION STREQUAL "..")
+    if(DPDK_VERSION STREQUAL "..")
       message(WARN "Can't parse DPDK version!")
     endif()
   endif()
@@ -130,9 +130,13 @@ else()
 
   # Check that all libraries exists
   foreach(lib ${_DPDK_LOOK_FOR_LIBS})
-    # Regarding the build system used make or meson the librte_pmd_vmxnet3 could be
-    # named librte_pmd_vmxnet3_uio
-    find_library(rte_${lib} NAMES rte_${lib} rte_${lib}_uio NAMES_PER_DIR REQUIRED)
+    # Regarding the build system used make or meson the librte_pmd_vmxnet3 could be named librte_pmd_vmxnet3_uio
+    find_library(
+      rte_${lib}
+      NAMES rte_${lib}
+            rte_${lib}_uio
+            NAMES_PER_DIR
+            REQUIRED)
     list(APPEND DPDK_LIBRARIES ${rte_${lib}})
 
     get_filename_component(_DPDK_LIBRARY_DIR ${rte_${lib}} PATH)
