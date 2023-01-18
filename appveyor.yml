@@ -7,15 +7,12 @@ environment:
   NPCAP_PASSWORD:
     secure: 8sWBrDudyutFv+4Eq6teJA==
   PYTHON: "C:\\Python38-x64"
+  BUILD_DIR: "build"
   matrix:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      platform: "x86"
-      generator: "Visual Studio 14 2015"
-      arch: "Win32"
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: "x86"
-      generator: "Visual Studio 15 2017"
-      arch: "Win32"
+      compiler: "Visual Studio 15 2017"
+      platform: x64
+      config: Debug
 
 init:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
@@ -26,9 +23,18 @@ install:
   - cmd: python -m pip install -r requirements.txt
   - cmd: ci\install_tcpreplay.bat
 
-build_script:
+before_build:
   - cmd: ci\find_ip.bat
-  - cmd: cmake -G "%generator%" -A "%arch%" -DPCAP_ROOT="C:\Npcap-sdk" -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;%NetworkIP%" -S . -B "%BUILD_DIR%"
+  - ps: cmake -A "$env:platform" -G "$env:compiler" -DPCAP_ROOT=C:\Npcap-sdk -DPCAPPP_TESTS_EXAMPLESTEST_ARGS="--interface;%NetworkIP%" -S . -B "$env:BUILD_DIR"
+
+build_script:
+  - ps: cmake --build "$env:BUILD_DIR" --config "$env:config" -j
 
 test_script:
   - cmd: ctest -S "%BUILD_DIR%/testing.cmake" -C "Debug" --extra-verbose --output-on-failure
+  - cmd: python -m pip install -r ci\run_tests\requirements.txt
+  - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets
+  - cmd: ci\find_ip.bat
+  - cmd: cd Tests\ExamplesTest
+  - cmd: python -m pip install -r requirements.txt
+  - cmd: python -m pytest --interface %NetworkIP% --root-path=..\..\%BUILD_DIR%\examples_bin\%config%
