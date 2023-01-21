@@ -114,14 +114,12 @@ task:
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - apt-get update && apt-get install -y libpcap-dev git make
-    - ./configure-fuzzing.sh --sanitizer memory
-    - ldconfig
+    - apt-get update && apt-get install -y libpcap-dev git cmake
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=Fuzzer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
-    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
-    - make fuzzers
+    - cmake --build $BUILD_DIR -j
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - $BUILD_DIR/Tests/Fuzzers/Fuzzer
 
 task:
   name: Regression Tests Linux (Address Sanitizer)
