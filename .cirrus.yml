@@ -1,3 +1,6 @@
+env:
+  BUILD_DIR: "build"
+
 task:
   name: Test FreeBSD
   freebsd_instance:
@@ -125,12 +128,13 @@ task:
   container:
     image: seladb/ubuntu1804:latest
   configure_script:
-    - ./configure-fuzzing.sh --sanitizer address
-    - ldconfig
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer
   build_script:
-    - make fuzzers
+    - cmake --build $BUILD_DIR -j
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - python3 -m pip install -U pip
+    - python3 -m pip install -r ci/run_tests/requirements.txt
+    - python3 ci/run_tests/run_tests.py --interface eth0
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
