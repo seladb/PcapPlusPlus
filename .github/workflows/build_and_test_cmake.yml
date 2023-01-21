@@ -169,6 +169,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
+          sudo chmod a+rw /dev/bpf*
           cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
@@ -186,7 +187,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface en0 --use-sudo
+          python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
         if: ${{ matrix.arch == 'x86_64' }}

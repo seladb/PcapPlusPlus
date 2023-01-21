@@ -12,6 +12,7 @@ matrix:
 
 before_script:
   - ./configure-mac_os_x.sh
+  - sudo chmod a+rw /dev/bpf*
 
 install:
   - python3 -m pip install -U pip;
@@ -23,7 +24,7 @@ script:
   - cd Tests/Packet++Test && Bin/Packet++Test || ERR_CODE=$?;
   - cd ../Pcap++Test && sudo Bin/Pcap++Test -n || ERR_CODE=$?;
   - source ../../ci/find_ip_mac.sh;
-  - cd ../ExamplesTest && python3 -m pytest --interface $NETWORK_IP --use-sudo || ERR_CODE=$?;
+  - cd ../ExamplesTest && python3 -m pytest --interface $NETWORK_IP || ERR_CODE=$?;
   - cd ../../ && sudo make install || ERR_CODE=$?;
   - (exit $ERR_CODE)
 
