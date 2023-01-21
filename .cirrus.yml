@@ -7,6 +7,7 @@ task:
   install_script:
     - pkg install -y libpcap bash gsed gmake tcpreplay
   configure_script:
+    - chown $USER:$USER /dev/bpf*
     - ./configure-freebsd.sh --default
   build_script:
     - gmake all
@@ -19,7 +20,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0 --use-sudo
+    - python -m pytest --interface vtnet0
 
   name: Test FreeBSD w/ CMake
   freebsd_instance:
@@ -29,6 +30,7 @@ task:
   install_script:
     - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
+    - chown $USER:$USER /dev/bpf*
     - cmake -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
@@ -41,7 +43,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0 --use-sudo --root-path=../../Dist/examples_bin
+    - python -m pytest --interface vtnet0 --root-path=../../Dist/examples_bin
 
 task:
   name: Test Zstd Linux
