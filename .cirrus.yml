@@ -119,7 +119,8 @@ task:
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
-    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -runs 100000
+    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -help=1
+    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -runs=100000
 
 task:
   name: Regression Tests Linux (Address Sanitizer)
@@ -130,9 +131,9 @@ task:
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
-    - python3 -m pip install -U pip
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface eth0
+    - python3.8 -m pip install -U pip
+    - python3.8 -m pip install -r ci/run_tests/requirements.txt
+    - python3.8 ci/run_tests/run_tests.py --interface eth0
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
