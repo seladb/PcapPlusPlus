@@ -119,7 +119,7 @@ task:
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
-    - $BUILD_DIR/Tests/Fuzzers/Fuzzer
+    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -runs 100000
 
 task:
   name: Regression Tests Linux (Address Sanitizer)
