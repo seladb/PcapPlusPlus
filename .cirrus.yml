@@ -110,7 +110,7 @@ task:
     - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
-  name: Regression Tests Linux (Memory Behavior Sanitizer)
+  name: Regression Tests Linux (Fuzzer Sanitizer)
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
@@ -120,6 +120,7 @@ task:
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
     - $BUILD_DIR/Tests/Fuzzers/Fuzzer -help=1
     - $BUILD_DIR/Tests/Fuzzers/Fuzzer -runs=100000
 
