@@ -101,7 +101,7 @@ task:
     - sudo chmod a+rw /dev/bpf*
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
   build_script:
-    - cmake --build Dist -j
+    - cmake --build Dist -j 2
   install_tcpreplay_script:
     - brew install tcpreplay
   test_pcapplusplus_script:
@@ -117,7 +117,7 @@ task:
     - apt-get update && apt-get install -y libpcap-dev git cmake
     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=Fuzzer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
-    - cmake --build $BUILD_DIR -j
+    - cmake --build $BUILD_DIR -j 2
   test_script:
     - $BUILD_DIR/Tests/Fuzzers/Fuzzer
 
@@ -128,7 +128,7 @@ task:
   configure_script:
     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer
   build_script:
-    - cmake --build $BUILD_DIR -j
+    - cmake --build $BUILD_DIR -j 2
   test_script:
     - python3 -m pip install -U pip
     - python3 -m pip install -r ci/run_tests/requirements.txt
