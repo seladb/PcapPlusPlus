@@ -43,10 +43,6 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 		return -1;
 	}
 
-	for(size_t i = 0; i < Size; i++)
-		printf("0x%02X ", Data[i]);
-	printf("\n\n");
-
 	// Disable logs
 	pcpp::Logger::getInstance().suppressLogs();
 
@@ -57,6 +53,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 		std::cerr << "Error opening the pcap file\n";
 		return -1;
 	}
+
+	for(size_t i = 0; i < Size; i++)
+		printf("0x%02X ", Data[i]);
+	printf("\n\n");
 
 	// read the first (and only) packet from the file
 	pcpp::RawPacket rawPacket;

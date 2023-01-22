@@ -121,8 +121,8 @@ task:
     - cmake --build $BUILD_DIR -j 2
   test_script:
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
-    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -help=1
-    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -runs=100000
+    # Run the fuzzer for 10 minutes
+    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -max_total_time=600
 
 task:
   name: Regression Tests Linux (Address Sanitizer)
