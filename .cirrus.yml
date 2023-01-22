@@ -114,7 +114,8 @@ task:
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - apt-get update && apt-get install -y libpcap-dev git cmake
+    - apt-get update && apt-get install -y build-essential bison cmake flex wget
+    - wget https://www.tcpdump.org/release/libpcap-1.10.3.tar.gz && tar -xvf libpcap-1.10.3.tar.gz && cd libpcap-1.10.3 && cmake -S . -B build && cmake --build build -j 2 &&  cmake --install build && cd ..
     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=Fuzzer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
