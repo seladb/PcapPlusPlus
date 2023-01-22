@@ -40,7 +40,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 	if (dumpDataToPcapFile(Data, Size) < 0)
 	{
 		std::cerr << "Can't Dump buffer to a PCAP file!!!!\n";
-		return -1;
+		return 0;
 	}
 
 	// Disable logs
@@ -51,10 +51,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 	if (!reader.open())
 	{
 		std::cerr << "Error opening the pcap file\n";
-		return -1;
+		return 0;
 	}
 
-	for(size_t i = 0; i < Size; i++)
+	for (size_t i = 0; i < Size; i++)
 		printf("0x%02X ", Data[i]);
 	printf("\n\n");
 
@@ -63,7 +63,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size)
 	if (!reader.getNextPacket(rawPacket))
 	{
 		std::cerr << "Couldn't read the first packet in the file\n";
-		return -1;
+		return 0;
 	}
 
 	do
