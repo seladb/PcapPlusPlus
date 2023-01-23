@@ -161,6 +161,7 @@ jobs:
           python-version: "3.8.x"
 
       - name: Configure PcapPlusPlus
+        # Ensure user have access to network devices instead of giving super-user right
         run: |
           sudo chmod a+rw /dev/bpf*
           ./configure-mac_os_x.sh --set-direction-enabled

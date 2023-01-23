@@ -7,6 +7,7 @@ task:
   install_script:
     - pkg install -y libpcap bash gsed gmake tcpreplay
   configure_script:
+    # Ensure user have access to network devices instead of giving super-user right
     - chmod a+rw /dev/bpf*
     - ./configure-freebsd.sh --default
   build_script:
@@ -30,6 +31,7 @@ task:
   install_script:
     - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
+    # Ensure user have access to network devices instead of giving super-user right
     - chmod a+rw /dev/bpf*
     - cmake -S . -B Dist
   build_script:
@@ -92,6 +94,7 @@ task:
     image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
     - brew install zstd
+    # Ensure user have access to network devices instead of giving super-user right
     - sudo chmod a+rw /dev/bpf*
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
   build_script:
