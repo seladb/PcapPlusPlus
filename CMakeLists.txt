@@ -86,14 +86,6 @@ cmake_dependent_option(
   OFF
   "PCAPPP_BUILD_TESTS"
   OFF)
-# Check that we build with Fuzzing sanitizer
-if(PCAPPP_BUILD_FUZZERS
-   AND NOT
-       PCAPPP_USE_SANITIZER
-       STREQUAL
-       "Fuzzer")
-  message(SEND_ERROR "Building Fuzzers requires PCAPPP_USE_SANITIZER=Fuzzer")
-endif()
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 

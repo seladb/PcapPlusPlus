@@ -110,43 +110,46 @@ task:
     - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
-  name: Regression Tests Linux (Fuzzer Sanitizer)
+  name: Regression Tests Linux (Address Sanitizer)
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - apt-get update && apt-get install -y build-essential bison cmake flex wget
-    - wget https://www.tcpdump.org/release/libpcap-1.10.3.tar.gz && tar -xvf libpcap-1.10.3.tar.gz && cd libpcap-1.10.3 && cmake -DBUILD_SHARED_LIBS=OFF -S . -B build && cmake --build build -j 2 &&  cmake --install build && cd ..
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=Fuzzer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
+    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
-    # Run the fuzzer for 10 minutes
-    - $BUILD_DIR/Tests/Fuzzers/Fuzzer -max_total_time=600 -max_len=65535 -workers=2
+    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
+    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+    - Tests/Fuzzers/RegressionTests/run_tests.sh
 
 task:
-  name: Regression Tests Linux (Address Sanitizer)
+  name: Regression Tests Linux (Memory Sanitizer)
   container:
-    image: seladb/ubuntu1804:latest
+    image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer
+    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=MemorySanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
-    - python3.8 -m pip install -U pip
-    - python3.8 -m pip install -r ci/run_tests/requirements.txt
-    - python3.8 ci/run_tests/run_tests.py --interface eth0
+    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
+    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+    - Tests/Fuzzers/RegressionTests/run_tests.sh
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
   container:
-    image: seladb/ubuntu1804:latest
+    image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - ./configure-fuzzing.sh --sanitizer undefined
-    - ldconfig
+    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
-    - make fuzzers
+    - cmake --build $BUILD_DIR -j 2
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
+    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+    - Tests/Fuzzers/RegressionTests/run_tests.sh
 
 task:
   name: Build Doxygen Documentation
