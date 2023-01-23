@@ -126,7 +126,7 @@ task:
 task:
   name: Regression Tests Linux (Memory Sanitizer)
   container:
-    image: gcr.io/oss-fuzz-base/base-clang
+    image: seladb/ubuntu1804:latest
   configure_script:
     - apt-get update && apt-get install -y cmake git libpcap-dev
     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=MemorySanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
