@@ -1,3 +1,5 @@
-add_executable(Fuzzer FuzzTarget.cpp)
+find_package(Fuzzer REQUIRED)
 
-target_link_libraries(Fuzzer PRIVATE Pcap++ -fsanitize=fuzzer,address)
+add_executable(FuzzTarget FuzzTarget.cpp)
+
+target_link_libraries(FuzzTarget PRIVATE Pcap++ Fuzzer::Fuzzer)

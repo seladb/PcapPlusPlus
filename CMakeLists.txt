@@ -38,7 +38,6 @@ set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 set(PCAPPP_ALLOWED_SANITIZERS
     ""
     "AddressSanitizer"
-    "Fuzzer"
     "MemorySanitizer"
     "ThreadSanitizer"
     "UndefinedBehaviorSanitizer")
@@ -59,10 +58,6 @@ if(PCAPPP_USE_SANITIZER)
   add_compile_options("-O1")
   if(PCAPPP_USE_SANITIZER STREQUAL "AddressSanitizer")
     add_compile_options("-fsanitize=address")
-    add_link_options("-fsanitize=address")
-  elseif(PCAPPP_USE_SANITIZER STREQUAL "Fuzzer")
-    add_compile_options("-fsanitize=fuzzer,address")
-    # Only link the fuzzer app to avoid multiple main() definition
     add_link_options("-fsanitize=address")
   elseif(PCAPPP_USE_SANITIZER STREQUAL "MemorySanitizer")
     add_compile_options("-fsanitize=memory")
