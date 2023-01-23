@@ -3,7 +3,11 @@ add_subdirectory(EndianPortable)
 add_subdirectory(Getopt-for-Visual-Studio)
 add_subdirectory(LightPcapNg)
 add_subdirectory(hash-library)
-add_subdirectory(MemPlumber/MemPlumber)
+if (PCAPPP_USE_SANITIZER STREQUAL "MemorySanitizer")
+  message(WARNING "Memplumber conflict with MemorySanitizer, it will not be built!")
+else()
+  add_subdirectory(MemPlumber/MemPlumber)
+endif()
 
 if(PCAPPP_INSTALL)
   install(
