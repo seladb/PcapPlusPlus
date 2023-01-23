@@ -7,6 +7,8 @@ task:
   install_script:
     - pkg install -y libpcap bash gsed gmake tcpreplay
   configure_script:
+    # Ensure user have access to network devices instead of giving super-user right
+    - chmod a+rw /dev/bpf*
     - ./configure-freebsd.sh --default
   build_script:
     - gmake all
@@ -19,7 +21,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0 --use-sudo
+    - python -m pytest --interface vtnet0
 
   name: Test FreeBSD w/ CMake
   freebsd_instance:
@@ -29,6 +31,8 @@ task:
   install_script:
     - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
+    # Ensure user have access to network devices instead of giving super-user right
+    - chmod a+rw /dev/bpf*
     - cmake -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
@@ -41,7 +45,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0 --use-sudo --root-path=../../Dist/examples_bin
+    - python -m pytest --interface vtnet0 --root-path=../../Dist/examples_bin
 
 task:
   name: Test Zstd Linux
@@ -90,6 +94,8 @@ task:
     image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
     - brew install zstd
+    # Ensure user have access to network devices instead of giving super-user right
+    - sudo chmod a+rw /dev/bpf*
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
   build_script:
     - cmake --build Dist -j
@@ -98,7 +104,7 @@ task:
   test_pcapplusplus_script:
     - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
+    - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
 
 task:
   name: Regression Tests Linux (Memory Behavior Sanitizer)
