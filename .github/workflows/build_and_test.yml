@@ -161,7 +161,10 @@ jobs:
           python-version: "3.8.x"
 
       - name: Configure PcapPlusPlus
-        run: ./configure-mac_os_x.sh --set-direction-enabled
+        # Ensure user have access to network devices instead of giving super-user right
+        run: |
+          sudo chmod a+rw /dev/bpf*
+          ./configure-mac_os_x.sh --set-direction-enabled
 
       - name: Build PcapPlusPlus
         run: make all
@@ -173,14 +176,14 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface en0 --use-sudo
+          python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
         run: |
           cd Tests/ExamplesTest
           python -m pip install -U pip
           python -m pip install -r requirements.txt
-          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples
+          python -m pytest --interface en0 --root-path=../../Dist/examples
 
       - name: Check installation
         run: |

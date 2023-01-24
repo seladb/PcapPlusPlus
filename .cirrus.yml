@@ -1,3 +1,6 @@
+env:
+  BUILD_DIR: "build"
+
 task:
   name: Test FreeBSD
   freebsd_instance:
@@ -7,6 +10,8 @@ task:
   install_script:
     - pkg install -y libpcap bash gsed gmake tcpreplay
   configure_script:
+    # Ensure user have access to network devices instead of giving super-user right
+    - chmod a+rw /dev/bpf*
     - ./configure-freebsd.sh --default
   build_script:
     - gmake all
@@ -19,7 +24,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0 --use-sudo
+    - python -m pytest --interface vtnet0
 
   name: Test FreeBSD w/ CMake
   freebsd_instance:
@@ -29,6 +34,8 @@ task:
   install_script:
     - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
+    # Ensure user have access to network devices instead of giving super-user right
+    - chmod a+rw /dev/bpf*
     - cmake -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
@@ -41,7 +48,7 @@ task:
     - cd Tests/ExamplesTest
     - python -m ensurepip
     - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0 --use-sudo --root-path=../../Dist/examples_bin
+    - python -m pytest --interface vtnet0 --root-path=../../Dist/examples_bin
 
 task:
   name: Test Zstd Linux
@@ -96,15 +103,17 @@ task:
     image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
     - brew install zstd
+    # Ensure user have access to network devices instead of giving super-user right
+    - sudo chmod a+rw /dev/bpf*
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
   build_script:
-    - cmake --build Dist -j
+    - cmake --build Dist -j 2
   install_tcpreplay_gcovr_script:
     - brew install tcpreplay gcovr
   test_pcapplusplus_script:
     - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
+    - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
   coverage_report_script:
     - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/macos/codecov
@@ -112,42 +121,47 @@ task:
     - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest
 
 task:
-  name: Regression Tests Linux (Memory Behavior Sanitizer)
+  name: Regression Tests Linux (Address Sanitizer)
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - apt-get update && apt-get install -y libpcap-dev git make
-    - ./configure-fuzzing.sh --sanitizer memory
-    - ldconfig
+    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
-    - export LIB_FUZZING_ENGINE="-fsanitize=fuzzer"
-    - make fuzzers
+    - cmake --build $BUILD_DIR -j 2
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
+    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+    - Tests/Fuzzers/RegressionTests/run_tests.sh
 
-task:
-  name: Regression Tests Linux (Address Sanitizer)
-  container:
-    image: seladb/ubuntu1804:latest
-  configure_script:
-    - ./configure-fuzzing.sh --sanitizer address
-    - ldconfig
-  build_script:
-    - make fuzzers
-  test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+# Compilation failed due too issue w/ MemPlumber
+# task:
+#   name: Regression Tests Linux (Memory Sanitizer)
+#   container:
+#     image: gcr.io/oss-fuzz-base/base-clang
+#   configure_script:
+#     - apt-get update && apt-get install -y cmake git libpcap-dev
+#     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=MemorySanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
+#   build_script:
+#     - cmake --build $BUILD_DIR -j 2
+#   test_script:
+#     - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
+#     - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+#     - Tests/Fuzzers/RegressionTests/run_tests.sh
 
 task:
   name: Regression Tests Linux (Undefined Behavior Sanitizer)
   container:
-    image: seladb/ubuntu1804:latest
+    image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - ./configure-fuzzing.sh --sanitizer undefined
-    - ldconfig
+    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
-    - make fuzzers
+    - cmake --build $BUILD_DIR -j 2
   test_script:
-    - cd Tests/Fuzzers/RegressionTests && ./run_tests.sh
+    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
+    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+    - Tests/Fuzzers/RegressionTests/run_tests.sh
 
 task:
   name: Build Doxygen Documentation
@@ -159,9 +173,9 @@ task:
   get_code_script:
     - git clone https://github.com/PcapPlusPlus/pcapplusplus.github.io.git
   configure_script:
-    - ./configure-linux.sh --default
+    - cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_TESTS=OFF -B build -S .
   build_script:
-    - make libs
+    - cmake --build build -j 2
   build_documentation_script:
     - cd pcapplusplus.github.io/static/api-docs/next/doxygen
     - doxygen Doxyfile-ci
