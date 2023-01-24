@@ -9,7 +9,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/seladb/PcapPlusPlus/codeql.yml?branch=master&label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
 [![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
 <br>
-[![Twitter Follow](https://img.shields.io/twitter/follow/seladb?label=Follow%20PcapPlusPlus&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
+[![Twitter Follow](https://img.shields.io/badge/follow-%40seladb-1DA1F2?logo=twitter&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
 [![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
 
 </div>
@@ -38,7 +38,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Session Layer (L5)](#session-layer-l5)
   - [Presentation Layer (L6)](#presentation-layer-l6)
   - [Application Layer (L7)](#application-layer-l7)
-- [DPDK And PF_RING Support](#dpdk-and-pf_ring-support)
+- [DPDK And PF\_RING Support](#dpdk-and-pf_ring-support)
 - [Benchmarks](#benchmarks)
 - [Provide Feedback](#provide-feedback)
 - [Contributing](#contributing)
