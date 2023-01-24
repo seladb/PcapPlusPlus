@@ -156,7 +156,7 @@ task:
   configure_script:
     - cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_TESTS=OFF -B build -S .
   build_script:
-    - cmake --build build -j
+    - cmake --build build -j 2
   build_documentation_script:
     - cd pcapplusplus.github.io/static/api-docs/next/doxygen
     - doxygen Doxyfile-ci
