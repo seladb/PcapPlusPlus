@@ -1,5 +1,5 @@
 task:
-  name: Test FreeBSD w/ CMake
+  name: Test FreeBSD
   freebsd_instance:
     matrix:
       image_family: freebsd-12-3
