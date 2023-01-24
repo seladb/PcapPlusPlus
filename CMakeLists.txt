@@ -38,7 +38,6 @@ set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 set(PCAPPP_ALLOWED_SANITIZERS
     ""
     "AddressSanitizer"
-    "Fuzzer"
     "MemorySanitizer"
     "ThreadSanitizer"
     "UndefinedBehaviorSanitizer")
@@ -60,9 +59,6 @@ if(PCAPPP_USE_SANITIZER)
   if(PCAPPP_USE_SANITIZER STREQUAL "AddressSanitizer")
     add_compile_options("-fsanitize=address")
     add_link_options("-fsanitize=address")
-  elseif(PCAPPP_USE_SANITIZER STREQUAL "Fuzzer")
-    add_compile_options("-fsanitize=fuzzer,address")
-    add_link_options("-fsanitize=fuzzer,address")
   elseif(PCAPPP_USE_SANITIZER STREQUAL "MemorySanitizer")
     add_compile_options("-fsanitize=memory")
     add_link_options("-fsanitize=memory")
@@ -90,14 +86,6 @@ cmake_dependent_option(
   OFF
   "PCAPPP_BUILD_TESTS"
   OFF)
-# Check that we build with Fuzzing sanitizer
-if(PCAPPP_BUILD_FUZZERS
-   AND NOT
-       PCAPPP_USE_SANITIZER
-       STREQUAL
-       "Fuzzer")
-  message(SEND_ERROR "Building Fuzzers requires PCAPPP_USE_SANITIZER=Fuzzer")
-endif()
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
