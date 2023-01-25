@@ -1,2 +1,0 @@
-# Apple Silicon (arm64) specific build flags
-GLOBAL_FLAGS := -arch arm64 -target arm64-apple-macos11 -isysroot $(MACOS_SDK_HOME)

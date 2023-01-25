@@ -1,7 +1,0 @@
-### FreeBSD ###
-
-# includes
-PCAPPP_INCLUDES += -I/usr/include/netinet
-
-# libs
-PCAPPP_LIBS += -lpcap -lpthread -lexecinfo

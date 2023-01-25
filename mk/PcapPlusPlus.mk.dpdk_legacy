@@ -1,4 +1,0 @@
-### DPDK < 20.11 ###
-
-# libs
-PCAPPP_LIBS += -Wl,--whole-archive -lrte_pmd_bond -lrte_pmd_vmxnet3_uio -lrte_pmd_virtio -lrte_pmd_enic -lrte_pmd_i40e -lrte_pmd_fm10k -lrte_pmd_ixgbe -lrte_pmd_e1000 -lrte_pmd_ring -lrte_pmd_af_packet -Wl,--no-whole-archive
