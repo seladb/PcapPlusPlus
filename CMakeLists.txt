@@ -20,9 +20,11 @@ include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(DetectCompiler)
 include(GNUInstallDirs)
-# LINUX is set Only since 3.25
-# see: https://cmake.org/cmake/help/latest/variable/LINUX.html
-if (UNIX AND NOT APPLE AND NOT CYGWIN AND NOT ANDROID)
+# LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
+if(UNIX
+   AND NOT APPLE
+   AND NOT CYGWIN
+   AND NOT ANDROID)
   set(LINUX True)
 endif()
 
@@ -31,6 +33,43 @@ set(PCAPPP_INSTALL_BINDIR ${CMAKE_INSTALL_BINDIR})
 set(PCAPPP_INSTALL_CMAKEDIR ${CMAKE_INSTALL_LIBDIR}/cmake/pcapplusplus)
 set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
 set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
+
+# Build options enable sanitizers
+set(PCAPPP_ALLOWED_SANITIZERS
+    ""
+    "AddressSanitizer"
+    "MemorySanitizer"
+    "ThreadSanitizer"
+    "UndefinedBehaviorSanitizer")
+set(PCAPPP_USE_SANITIZER
+    ""
+    CACHE STRING "Compile with a sanitizer")
+set_property(CACHE PCAPPP_USE_SANITIZER PROPERTY STRINGS ${PCAPPP_ALLOWED_SANITIZERS})
+
+if(NOT
+   PCAPPP_USE_SANITIZER
+   IN_LIST
+   PCAPPP_ALLOWED_SANITIZERS)
+  message(FATAL_ERROR "PCAPPP_USE_SANITIZER must be one of ${PCAPPP_ALLOWED_SANITIZERS}")
+endif()
+
+if(PCAPPP_USE_SANITIZER)
+  add_compile_options("-fno-omit-frame-pointer")
+  add_compile_options("-O1")
+  if(PCAPPP_USE_SANITIZER STREQUAL "AddressSanitizer")
+    add_compile_options("-fsanitize=address")
+    add_link_options("-fsanitize=address")
+  elseif(PCAPPP_USE_SANITIZER STREQUAL "MemorySanitizer")
+    add_compile_options("-fsanitize=memory")
+    add_link_options("-fsanitize=memory")
+  elseif(PCAPPP_USE_SANITIZER STREQUAL "ThreadSanitizer")
+    add_compile_options("-fsanitize=thread")
+    add_link_options("-fsanitize=thread")
+  elseif(PCAPPP_USE_SANITIZER STREQUAL "UndefinedBehaviorSanitizer")
+    add_compile_options("-fsanitize=undefined")
+    add_link_options("-fsanitize=undefined")
+  endif()
+endif()
 
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
@@ -41,6 +80,13 @@ cmake_dependent_option(
   "PCAPPP_BUILD_EXAMPLES"
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
+cmake_dependent_option(
+  PCAPPP_BUILD_FUZZERS
+  "Build Fuzzers binaries"
+  OFF
+  "PCAPPP_BUILD_TESTS"
+  OFF)
+
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
@@ -102,9 +148,9 @@ if(PCAPPP_ENABLE_PCAP_SET_DIRECTION)
   add_definitions(-DHAS_SET_DIRECTION_ENABLED)
 endif()
 
-option(PCAPPP_ENABLE_CLANG-TIDY "Run Clang-Tidy static analysis during build" OFF)
+option(PCAPPP_ENABLE_CLANG_TIDY "Run Clang-Tidy static analysis during build" OFF)
 
-if (PCAPPP_ENABLE_CLANG-TIDY)
+if(PCAPPP_ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
   set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix" "--checks=modernize-use-nullptr")
   set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
@@ -128,7 +174,7 @@ if(PCAPPP_USE_DPDK)
   endif()
   add_definitions(-DUSE_DPDK)
   set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mk/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
 
 # Git Commit and Branch
@@ -182,7 +228,8 @@ if(PCAPPP_INSTALL)
   include(CPack)
 
   # Generate PKG-Config
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" @ONLY)
+  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+                 @ONLY)
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
   # CMake helpers to compile Pcap++ with CMake
@@ -196,8 +243,8 @@ if(PCAPPP_INSTALL)
     NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
-    INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake" INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 
   write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
@@ -205,7 +252,10 @@ if(PCAPPP_INSTALL)
     COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
-  install(DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules" COMPONENT devel DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+  install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules"
+    COMPONENT devel
+    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
