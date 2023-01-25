@@ -50,9 +50,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Pre-Configure Requirements
-        run: ${{ matrix.python }} -m pip install gcovr
-
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
 
@@ -85,7 +82,9 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
-        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: |
+          ${{ matrix.python }} -m pip install gcovr
+          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -112,9 +111,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Pre-Configure Requirements
-        run: python3 -m pip install gcovr
-
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
 
@@ -135,7 +131,9 @@ jobs:
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
       - name: Create Cobertura Report
-        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: |
+          python3 -m pip install gcovr
+          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -157,9 +155,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install Pre-Configure Requirements
-        run: python3 -m pip install gcovr
-
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
 
@@ -177,7 +172,9 @@ jobs:
           Bin/Pcap++Test -n
 
       - name: Create Cobertura Report
-        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: |
+          python3 -m pip install gcovr
+          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -208,9 +205,6 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
-
-      - name: Install Pre-Configure Requirements
-        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
@@ -257,7 +251,9 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
-        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: |
+          python3 -m pip install gcovr
+          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -296,9 +292,6 @@ jobs:
         with:
           python-version: "3.8.x"
 
-      - name: Install Pre-Configure Requirements
-        run: python3 -m pip install gcovr
-
       - name: Install NPcap
         env:
           NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
@@ -331,6 +324,9 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
+
+      - name: Install Coverage Requirements
+        run: python3 -m pip install gcovr
 
       - name: Process Coverage Files
         shell: msys2 {0}
