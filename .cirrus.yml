@@ -125,7 +125,7 @@ task:
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - apt-get update && apt-get install -y cmake git libpcap-dev gcovr curl
     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
@@ -133,6 +133,11 @@ task:
     - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
     - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
     - Tests/Fuzzers/RegressionTests/run_tests.sh
+  coverage_report_script:
+    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -v -f coverage.xml -F fuzzing
 
 # Compilation failed due too issue w/ MemPlumber
 # task:
@@ -154,7 +159,7 @@ task:
   container:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
-    - apt-get update && apt-get install -y cmake git libpcap-dev
+    - apt-get update && apt-get install -y cmake git libpcap-dev gcovr curl
     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
@@ -162,6 +167,11 @@ task:
     - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
     - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
     - Tests/Fuzzers/RegressionTests/run_tests.sh
+  coverage_report_script:
+    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -v -f coverage.xml -F fuzzing
 
 task:
   name: Build Doxygen Documentation
