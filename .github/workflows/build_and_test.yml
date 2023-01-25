@@ -1,4 +1,4 @@
-name: Build and test w/ CMake
+name: Build and test
 on: [push, pull_request]
 
 env:
