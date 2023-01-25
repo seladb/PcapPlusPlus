@@ -191,6 +191,11 @@ namespace pcpp
 		 */
 		NflogLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = NFLOG; }
 
+        /**
+		 * A constructor that allocates a new Nflog header with empty fields
+		 */
+		NflogLayer();
+
 		~NflogLayer() {}
 
 		/**
@@ -199,6 +204,12 @@ namespace pcpp
 		 */
 		nflog_header* getNflogHeader() const { return (nflog_header*)m_Data; }
 
+        /**
+         * Set address family in header of the packet.
+         * @param[in] family as uint8_t
+        */
+        void setFamily(uint8_t family);
+
 		/**
 		 * Get address family of the packet. e.g. 2 for ipv4 and 10 for ipv6
 		 * @return an unsigned char of address family
@@ -206,11 +217,23 @@ namespace pcpp
 		uint8_t getFamily();
 
         /**
+         * Set version number in header of the packet.
+         * @param[in] version as uint8_t
+        */
+        void setVersion(uint8_t version);
+
+        /**
          * Get Version number inside packet header
          * The version field is 0 for the current version of the pseudo-header
          * @return an unsigned char for version
         */
         uint8_t getVersion();
+
+        /**
+         * Set resource id in header of the packet.
+         * @param[in] resourceId as uint16_t
+        */
+        void setResourceId(uint16_t resourceId);
 
         /**
          * Get Resource Id in packet header
@@ -254,6 +277,8 @@ namespace pcpp
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
 
 	private:
+        void initLayer();
+
 		uint8_t* getTlvsBasePtr() const { return m_Data + sizeof(nflog_header); }
 
 		TLVRecordReader<NflogTlv> m_TlvReader;

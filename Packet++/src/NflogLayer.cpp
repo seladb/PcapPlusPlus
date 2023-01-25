@@ -13,14 +13,48 @@
 namespace pcpp
 {
 
+void NflogLayer::initLayer()
+{
+	m_Packet = NULL;
+	const size_t headerLen = sizeof(nflog_header);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	m_Protocol = NFLOG;
+	memset(m_Data, 0, headerLen);
+	nflog_header* nflogHeader = getNflogHeader();
+	nflogHeader->addressFamily = pcpp::IPv4;
+	nflogHeader->resourceId = 0;
+	nflogHeader->version = 0;
+}
+
+NflogLayer::NflogLayer()
+{
+	initLayer();
+}
+
+void NflogLayer::setFamily(uint8_t family)
+{
+	getNflogHeader()->addressFamily = family;
+}
+
 uint8_t NflogLayer::getFamily()
 {
 	return getNflogHeader()->addressFamily;
 }
 
+void NflogLayer::setVersion(uint8_t version)
+{
+	getNflogHeader()->version = version;
+}
+
 uint8_t NflogLayer::getVersion()
 {
 	return getNflogHeader()->version;
+}
+
+void NflogLayer::setResourceId(uint16_t resourceId)
+{
+	getNflogHeader()->resourceId = resourceId;
 }
 
 uint16_t NflogLayer::getResourceId()
