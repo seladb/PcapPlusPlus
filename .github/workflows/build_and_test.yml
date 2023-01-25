@@ -50,6 +50,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install Pre-Configure Requirements
+        run: ${{ matrix.python }} -m pip install gcovr
+
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
 
@@ -75,11 +78,22 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPCAPPP_BUILD_COVERAGE=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.image }},unittest
+          fail_ci_if_error: true
+          verbose: true
 
   dpdk:
     runs-on: ubuntu-20.04
@@ -97,6 +111,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install Pre-Configure Requirements
+        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
@@ -117,6 +134,17 @@ jobs:
           cd Tests/Pcap++Test
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
+      - name: Create Cobertura Report
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.image }},unittest
+          fail_ci_if_error: true
+          verbose: true
+
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
@@ -128,6 +156,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install Pre-Configure Requirements
+        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -144,6 +175,17 @@ jobs:
         run: |
           cd Tests/Pcap++Test
           Bin/Pcap++Test -n
+
+      - name: Create Cobertura Report
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: pfring,unittest
+          fail_ci_if_error: true
+          verbose: true
 
   macos:
     runs-on: ${{ matrix.os-version }}
@@ -166,6 +208,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
+
+      - name: Install Pre-Configure Requirements
+        run: python3 -m pip install gcovr
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
@@ -204,12 +249,23 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPCAPPP_BUILD_COVERAGE=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
         if: ${{ matrix.arch == 'x86_64' }}
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.os-version }},unittest
+          fail_ci_if_error: true
+          verbose: true
 
   mingw-w64:
     runs-on: windows-latest
@@ -239,6 +295,9 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
+
+      - name: Install Pre-Configure Requirements
+        run: python3 -m pip install gcovr
 
       - name: Install NPcap
         env:
@@ -273,6 +332,21 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
 
+      - name: Process Coverage Files
+        shell: msys2 {0}
+        run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
+
+      - name: Create Coberture Report
+        run: gcovr -v -g -k -r . --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.sys }},unittest
+          fail_ci_if_error: true
+          verbose: true
+
   visual-studio:
     strategy:
       matrix:
@@ -305,6 +379,11 @@ jobs:
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
+
+      - name: Setup OpenCppCoverage and add to PATH
+        run: |
+          choco install OpenCppCoverage -y
+          echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
 
       - name: Install WinPcap
         run: |
@@ -339,7 +418,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py
+          python ci\run_tests\run_tests_windows.py --coverage
 
       - name: Test Examples
         run: |
@@ -347,6 +426,14 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
+          flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
+          fail_ci_if_error: true
+          verbose: true
 
   android:
     strategy:

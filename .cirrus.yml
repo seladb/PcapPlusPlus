@@ -81,7 +81,8 @@ task:
     - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
     - Tests/Fuzzers/RegressionTests/run_tests.sh
   coverage_report_script:
-    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - find . -name "*.gcno" -exec llvm-cov gcov -b -l -p -c {} +
+    - gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F fuzzing
@@ -115,7 +116,8 @@ task:
     - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
     - Tests/Fuzzers/RegressionTests/run_tests.sh
   coverage_report_script:
-    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - find . -name "*.gcno" -exec llvm-cov gcov -b -l -p -c {} +
+    - gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F fuzzing
