@@ -37,8 +37,8 @@ jobs:
         # queries: security-extended,security-and-quality
 
     - run: |
-        ./configure-linux.sh --default
-        make libs -j8
+        cmake -S . -B build
+        cmake --build build -j
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2

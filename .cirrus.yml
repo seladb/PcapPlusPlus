@@ -8,30 +8,6 @@ task:
       image_family: freebsd-12-3
       image_family: freebsd-13-0
   install_script:
-    - pkg install -y libpcap bash gsed gmake tcpreplay
-  configure_script:
-    # Ensure user have access to network devices instead of giving super-user right
-    - chmod a+rw /dev/bpf*
-    - ./configure-freebsd.sh --default
-  build_script:
-    - gmake all
-  test_pcapplusplus_script:
-    - ifconfig vtnet0 promisc
-    - python -m ensurepip
-    - python -m pip install -r ci/run_tests/requirements.txt
-    - python ci/run_tests/run_tests.py --interface vtnet0
-  test_examples_script:
-    - cd Tests/ExamplesTest
-    - python -m ensurepip
-    - python -m pip install -r requirements.txt
-    - python -m pytest --interface vtnet0
-
-  name: Test FreeBSD w/ CMake
-  freebsd_instance:
-    matrix:
-      image_family: freebsd-12-3
-      image_family: freebsd-13-0
-  install_script:
     - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
     # Ensure user have access to network devices instead of giving super-user right
@@ -55,19 +31,6 @@ task:
   container:
     image: seladb/ubuntu2004-zstd:latest
   configure_script:
-    - ./configure-linux.sh --use-zstd
-    - ldconfig
-  build_script:
-    - make all
-  test_pcapplusplus_script:
-    - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface eth0
-
-task:
-  name: Test Zstd Linux w/ CMake
-  container:
-    image: seladb/ubuntu2004-zstd:latest
-  configure_script:
     - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
@@ -81,24 +44,8 @@ task:
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F zstd -F ubuntu2004 -F unittest
 
-#task:
-#  name: Test Zstd MacOS
-#  macos_instance:
-#    image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
-#  configure_script:
-#    - brew install zstd
-#    - ./configure-mac_os_x.sh --use-zstd
-#  build_script:
-#    - make all
-#  install_tcpreplay_script:
-#    - brew install tcpreplay
-#  test_pcapplusplus_script:
-#    - python3 -m ensurepip
-#    - python3 -m pip install -r ci/run_tests/requirements.txt
-#    - python3 ci/run_tests/run_tests.py --interface en0 --use-sudo --test-args="-x TestPcapLiveDeviceSpecialCfg"
-
 task:
-  name: Test Zstd MacOS w/ CMake
+  name: Test Zstd MacOS
   macos_instance:
     image: ghcr.io/cirruslabs/macos-ventura-xcode:14.1
   configure_script:
