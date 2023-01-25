@@ -140,7 +140,7 @@ namespace pcpp
 	/**
 	 * NFLOG (linux netfilter nflog) protocol
 	 */
-	const ProtocolType NFLOG = 0x50000;
+	const ProtocolType NFLOG = 0x400000000000;
 
 	/**
 	 * DHCP/BOOTP protocol

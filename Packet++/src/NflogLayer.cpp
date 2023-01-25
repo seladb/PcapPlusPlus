@@ -15,18 +15,28 @@ namespace pcpp
 
 uint8_t NflogLayer::getFamily()
 {
-	return getNflogHeader()->address_family;
+	return getNflogHeader()->addressFamily;
 }
 
-std::pair<uint8_t*, int> NflogLayer::getTlvByType(uint32_t type) const
+uint8_t NflogLayer::getVersion()
+{
+	return getNflogHeader()->version;
+}
+
+uint16_t NflogLayer::getResourceId()
+{
+	return getNflogHeader()->resourceId;
+}
+
+NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const
 {
 	NflogTlv tlv = m_TlvReader.getTLVRecord(
-		type,
+		static_cast<uint32_t> (type),
 		getTlvsBasePtr(),
 		m_DataLen - sizeof(nflog_header));
 
-	std::pair<uint8_t*, int> out = std::make_pair(tlv.getValue(), tlv.getTotalSize());
-	return out;
+	// std::pair<uint8_t*, int> out = std::make_pair(tlv.getValue(), tlv.getTotalSize());
+	return tlv;
 }
 
 nflog_packet_header* NflogLayer::getPacketHeader()
@@ -41,8 +51,8 @@ void NflogLayer::parseNextLayer()
 	if (m_DataLen <= sizeof(nflog_header))
 		return;
 	auto payloadInfo = getTlvByType(NflogTlvType::NFULA_PAYLOAD);
-	uint8_t* payload = payloadInfo.first;
-	size_t payloadLen = payloadInfo.second + sizeof(nflog_tlv);
+	uint8_t* payload = payloadInfo.getValue();
+	size_t payloadLen = payloadInfo.getTotalSize() + sizeof(nflog_tlv);
 
 	uint8_t family = getFamily();
 
