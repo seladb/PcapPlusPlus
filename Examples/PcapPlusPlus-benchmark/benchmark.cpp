@@ -7,10 +7,10 @@
  * with minor changes necessary to test and run PcapPlusPlus.
  * This application currently compiles and runs on Linux only, I didn't manage to compile it on Windows with MinGW (issues related to
  * to compiling a C++11 application together with WinPcap. There's probably a solution but I didn't find it yet)
- * In order to run this benchmark please download packet-capture-benchmarks and compile the existing benchmarks . Then copy the
- * application folder to packet-capture-benchmarks/ , rename it to PcapPlusPlus and compile it using the makefile provided here.
- * Then use benchmark.sh script provided in packet-capture-benchmarks with all benchmarks you want to run. For example:
- * ./benchmark.sh libpcap PcapPlusPlus libtins libcrafter
+ * In order to run this benchmark please download packet-capture-benchmarks and compile the existing benchmarks . Then build PcapPlusPlus
+ * which will also build the benchmark in `<cmake_build_dir>/examples_bin/benchmark`. Copy this executable to `packet-capture-benchmarks/pcapplusplus`
+ * Then run the `benchmark.sh` script provided in `packet-capture-benchmarks` with all benchmarks you want to run. For example:
+ * `./benchmark.sh libpcap PcapPlusPlus libtins libcrafter`
  */
 
 #include <Packet.h>
