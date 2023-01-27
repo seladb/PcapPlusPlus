@@ -33,7 +33,13 @@ add_executable(
   Tests/TelnetTests.cpp
   Tests/VlanMplsTests.cpp
   Tests/WakeOnLanTests.cpp
-  Utils/TestUtils.cpp)
+  Tests/TpktTests.cpp
+  Tests/CotpTests.cpp
+  Tests/S7commTests.cpp
+
+  Utils/TestUtils.cpp
+
+)
 
 target_link_libraries(
   Packet++Test
