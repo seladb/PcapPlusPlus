@@ -53,6 +53,11 @@ namespace pcpp
 	const ProtocolType UDP = 0x10;
 
 	/**
+	 * NBNS protocol
+	 */
+	const ProtocolType NBNS = 0x019;
+
+	/**
 	 * HTTP request protocol
 	 */
 	const ProtocolType HTTPRequest = 0x20;

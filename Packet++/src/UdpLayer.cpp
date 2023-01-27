@@ -16,6 +16,7 @@
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
 #include "PacketUtils.h"
+#include "NbnsLayer.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
@@ -139,6 +140,8 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
 	else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 		m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
+	else if ((NbnsLayer::isNbnsPort(portSrc, portDst)))
+		m_NextLayer = new NbnsLayer(udpData, udpDataLen, this,m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }

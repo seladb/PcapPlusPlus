@@ -217,3 +217,5 @@ PTF_TEST_CASE(SomeIpSdCreationTest);
 PTF_TEST_CASE(WakeOnLanParsingTests);
 PTF_TEST_CASE(WakeOnLanCreationTests);
 PTF_TEST_CASE(WakeOnLanEditTests);
+
+PTF_TEST_CASE(NbnsPacketNoOptionsParsing);

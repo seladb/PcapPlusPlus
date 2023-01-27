@@ -15,6 +15,7 @@
 #include "FtpLayer.h"
 #include "SomeIpLayer.h"
 #include "PacketUtils.h"
+#include "NbnsLayer.h"
 #include "Logger.h"
 #include <string.h>
 #include <sstream>
@@ -388,6 +389,8 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new FtpRequestLayer(payload, payloadLen, this, m_Packet);
 	else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet);
+	else if (NbnsLayer::isNbnsPort(portSrc, portDst))
+		m_NextLayer = NbnsLayer::parseNbnsLayer(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
