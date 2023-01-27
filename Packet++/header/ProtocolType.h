@@ -51,7 +51,18 @@ namespace pcpp
 	 * UDP protocol
 	 */
 	const ProtocolType UDP = 0x10;
-
+	/**
+	 * TPKT protocol
+	 */
+	const ProtocolType TPKT = 0x05;
+	/**
+	 * COTP protocol
+	 */
+	const ProtocolType COTP = 0x07;
+	/**
+	 * * S7COMM protocol
+	 */
+	const ProtocolType S7COMM = 0x09;
 	/**
 	 * HTTP request protocol
 	 */
@@ -262,8 +273,8 @@ namespace pcpp
 	 */
 	const ProtocolType Telnet = 0x8000000000;
 
-  	/**
-   	 * File Transfer (FTP) Protocol
+	/**
+	 * File Transfer (FTP) Protocol
 	 */
 	const ProtocolType FTP = 0x10000000000;
 
@@ -315,6 +326,6 @@ namespace pcpp
 		OsiModelLayerUnknown = 8
 	};
 
-} //namespace pcpp
+} // namespace pcpp
 
 #endif

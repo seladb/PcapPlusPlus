@@ -217,3 +217,12 @@ PTF_TEST_CASE(SomeIpSdCreationTest);
 PTF_TEST_CASE(WakeOnLanParsingTests);
 PTF_TEST_CASE(WakeOnLanCreationTests);
 PTF_TEST_CASE(WakeOnLanEditTests);
+
+//Implemented in TpktTests.cpp
+PTF_TEST_CASE(TpktPacketNoOptionsParsing);
+
+//Implemented in CotpTests.cpp
+PTF_TEST_CASE(CotpPacketNoOptionsParsing);
+
+//Implemented in S7commTests.cpp
+PTF_TEST_CASE(S7commPacketNoOptionsParsing);

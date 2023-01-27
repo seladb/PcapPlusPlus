@@ -294,5 +294,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WakeOnLanCreationTests, "wol");
 	PTF_RUN_TEST(WakeOnLanEditTests, "wol");
 
+	PTF_RUN_TEST(TpktPacketNoOptionsParsing, "tpkt");
+
+	PTF_RUN_TEST(CotpPacketNoOptionsParsing, "cotp");
+
+	PTF_RUN_TEST(S7commPacketNoOptionsParsing, "s7");
+
 	PTF_END_RUNNING_TESTS;
 }
