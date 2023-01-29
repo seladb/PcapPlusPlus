@@ -486,7 +486,6 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 	pcpp::RawPacket rawPacket2,rawPacketCompress;
 
-	int packet_count = 0;
 	while (readerDev2.getNextPacket(rawPacket, pktComment))
 	{
 		packetCount++;
@@ -570,7 +569,6 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 			uint64_t timeDiff = (uint64_t)(packet1_timestamp.tv_nsec - packetCompress_timestamp.tv_nsec);
 			PTF_ASSERT_LOWER_THAN(timeDiff, 100000);
 		}
-		packet_count++;
 	}
 
 	PTF_ASSERT_EQUAL(packetCount, 159);
