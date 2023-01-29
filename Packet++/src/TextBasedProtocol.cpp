@@ -3,6 +3,7 @@
 #include "PayloadLayer.h"
 #include <string.h>
 #include <algorithm>
+#include <utility>
 #include <stdlib.h>
 
 namespace pcpp
@@ -515,10 +516,10 @@ HeaderField::HeaderField(std::string name, std::string value, char nameValueSepa
 {
 	m_NameValueSeparator = nameValueSeparator;
 	m_SpacesAllowedBetweenNameAndValue = spacesAllowedBetweenNameAndValue;
-	initNewField(name, value);
+	initNewField(std::move(name), std::move(value));
 }
 
-void HeaderField::initNewField(std::string name, std::string value)
+void HeaderField::initNewField(const std::string& name, const std::string& value)
 {
 	m_TextBasedProtocolMessage = nullptr;
 	m_NameOffsetInMessage = 0;
@@ -621,7 +622,7 @@ std::string HeaderField::getFieldValue() const
 	return result;
 }
 
-bool HeaderField::setFieldValue(std::string newValue)
+bool HeaderField::setFieldValue(const std::string& newValue)
 {
 	// Field isn't linked with any message yet
 	if (m_TextBasedProtocolMessage == nullptr)

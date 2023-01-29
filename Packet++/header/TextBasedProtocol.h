@@ -71,7 +71,7 @@ public:
 	 * @param[in] newValue The new value to set to the field. Old value will be deleted
 	 * @return True if setting the value was completed successfully, false otherwise
 	 */
-	bool setFieldValue(std::string newValue);
+	bool setFieldValue(const std::string& newValue);
 
 	/**
 	 * Get an indication whether the field is a field that ends the header (meaning contain only CRLF - see class explanation)
@@ -86,7 +86,7 @@ private:
 	char* getData() const;
 	void setNextField(HeaderField* nextField);
 	HeaderField *getNextField() const;
-	void initNewField(std::string name, std::string value);
+	void initNewField(const std::string& name, const std::string& value);
 	void attachToTextBasedProtocolMessage(TextBasedProtocolMessage* message, int fieldOffsetInMessage);
 
 	uint8_t* m_NewFieldData;

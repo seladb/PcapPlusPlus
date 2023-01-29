@@ -233,7 +233,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
  */
 void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
 		int fragSize,
-		bool filterByBpf, std::string bpfFilter,
+		bool filterByBpf, const std::string& bpfFilter,
 		bool filterByIpID, std::map<uint16_t, bool> ipIDs,
 		bool copyAllPacketsToOutputFile,
 		FragStats& stats)
