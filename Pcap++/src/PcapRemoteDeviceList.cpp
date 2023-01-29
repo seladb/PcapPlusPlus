@@ -1,7 +1,5 @@
 #if defined(_WIN32)
 
-// GCOVR_EXCL_START
-
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
 #include "PcapRemoteDeviceList.h"
@@ -221,7 +219,5 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 }
 
 } // namespace pcpp
-
-// GCOVR_EXCL_STOP
 
 #endif // _WIN32
