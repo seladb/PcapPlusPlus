@@ -7,6 +7,7 @@ on:
 
 env:
   BUILD_DIR: Dist
+  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude Kni* --exclude PfRing* --exclude Dpdk* --exclude MBuf* --xml 
 
 jobs:
   pre-commit:
@@ -88,7 +89,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           ${{ matrix.python }} -m pip install gcovr
-          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -137,7 +138,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           python3 -m pip install gcovr
-          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -178,7 +179,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           python3 -m pip install gcovr
-          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -257,7 +258,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           python3 -m pip install gcovr
-          gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
@@ -337,7 +338,7 @@ jobs:
         run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
 
       - name: Create Coberture Report
-        run: gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+        run: gcovr -v -g -k -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3

@@ -1,5 +1,6 @@
 env:
   BUILD_DIR: "build"
+  GCOVR_FLAGS: "--gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude Kni* --exclude PfRing* --exclude Dpdk* --exclude MBuf* --xml"
 
 task:
   name: Test FreeBSD
@@ -39,7 +40,7 @@ task:
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface eth0
   coverage_report_script:
-    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F zstd -F ubuntu2004 -F unittest || true
@@ -62,7 +63,7 @@ task:
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
   coverage_report_script:
-    - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/macos/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest || true
@@ -82,7 +83,7 @@ task:
     - Tests/Fuzzers/RegressionTests/run_tests.sh
   coverage_report_script:
     - find . -name "*.gcno" -exec llvm-cov gcov -b -l -p -c {} +
-    - gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - gcovr -v -g -k -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F fuzzing || true
@@ -117,7 +118,7 @@ task:
     - Tests/Fuzzers/RegressionTests/run_tests.sh
   coverage_report_script:
     - find . -name "*.gcno" -exec llvm-cov gcov -b -l -p -c {} +
-    - gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
+    - gcovr -v -g -k -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F fuzzing || true
