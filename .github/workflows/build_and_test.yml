@@ -7,7 +7,7 @@ on:
 
 env:
   BUILD_DIR: Dist
-  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
+  GCOVR_FLAGS: "--gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml"
 
 jobs:
   pre-commit:
