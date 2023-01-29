@@ -4,10 +4,18 @@
 #include "Layer.h"
 #include "EthLayer.h"
 
+/// @file
 
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp {
 
-
+	/**
+	 * @struct tpkthdr
+	 * Represents a TPKT protocol header
+	 */
 #pragma pack(push, 1)
 	typedef struct {
 		/** message vrsn */
@@ -19,8 +27,9 @@ namespace pcpp {
 	} tpkthdr;
 #pragma pack(pop)
 
-	/**
+	 /**
      * @class TpktLayer
+     * Represents a TPKT (Transport Service on top of the TCP) protocol layer
 	 */
 	class TpktLayer : public Layer {
 	  public:

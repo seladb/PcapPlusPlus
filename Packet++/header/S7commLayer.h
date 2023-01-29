@@ -4,10 +4,18 @@
 #include "Layer.h"
 #include "EthLayer.h"
 
+/// @file
 
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp {
 
-
+	/**
+	 * @struct s7commhdr
+	 * Represents a S7COMM (S7 Communication) protocol header
+	 */
 #pragma pack(push, 1)
 	typedef struct {
 		/** protocol id */
@@ -28,6 +36,7 @@ namespace pcpp {
 
 	/**
      * @class S7commLayer
+     * * Represents a S7COMM protocol header
 	 */
 	class S7commLayer : public Layer {
 	  public:

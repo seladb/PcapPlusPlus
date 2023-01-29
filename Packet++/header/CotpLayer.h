@@ -4,10 +4,18 @@
 #include "Layer.h"
 #include "EthLayer.h"
 
+/// @file
 
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp {
 
-
+	/**
+	 * @struct cotphdr
+	 * Represents a COTP protocol header
+	 */
 #pragma pack(push, 1)
 	typedef struct {
 		/** length */
@@ -19,7 +27,10 @@ namespace pcpp {
 	} cotphdr;
 #pragma pack(pop)
 
-
+	/**
+     * @class CotpLayer
+     * * Represents a COTP (Connection Oriented Transport Protocol, ISO 8073) protocol header
+	 */
 	class CotpLayer : public Layer {
 	  public:
 		virtual ~CotpLayer() {}
