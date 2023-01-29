@@ -3,6 +3,8 @@
 
 #if defined(_WIN32)
 
+// GCOVR_EXCL_START
+
 #include <vector>
 #include "PcapLiveDevice.h"
 
@@ -143,5 +145,7 @@ namespace pcpp
 } // namespace pcpp
 
 #endif // _WIN32
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPPP_PCAP_REMOTE_DEVICE */

@@ -3,6 +3,8 @@
 
 #if defined(_WIN32)
 
+// GCOVR_EXCL_START
+
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
 
@@ -148,5 +150,7 @@ namespace pcpp
 } // namespace pcpp
 
 #endif // _WIN32
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPP_PCAP_REMOTE_DEVICE_LIST */
