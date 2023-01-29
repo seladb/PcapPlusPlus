@@ -36,10 +36,12 @@ namespace pcpp
 	 * IPv6 protocol
 	 */
 	const ProtocolType IPv6 = 0x04;
+
 	/**
 	 * TPKT protocol
 	 */
 	const ProtocolType TPKT = 0x05;
+
 	/**
 	 * IP protocol (aggregation bitmask of IPv4 and IPv6 protocols)
 	 */
@@ -49,6 +51,7 @@ namespace pcpp
 	 * COTP protocol
 	 */
 	const ProtocolType COTP = 0x07;
+
 	/**
 	 * TCP protocol
 	 */
@@ -63,6 +66,7 @@ namespace pcpp
 	 * UDP protocol
 	 */
 	const ProtocolType UDP = 0x10;
+
 	/**
 	 * HTTP request protocol
 	 */
