@@ -7,7 +7,7 @@ on:
 
 env:
   BUILD_DIR: Dist
-  GCOVR_FLAGS: "--gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml"
+  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
 
 jobs:
   pre-commit:
@@ -338,7 +338,7 @@ jobs:
         run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
 
       - name: Create Coberture Report
-        run: gcovr -v -g -k -r . "$GCOVR_FLAGS" -o coverage.xml
+        run: gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
