@@ -80,7 +80,7 @@ cmake_dependent_option(
   "PCAPPP_BUILD_EXAMPLES"
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
-option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 cmake_dependent_option(
   PCAPPP_BUILD_FUZZERS
   "Build Fuzzers binaries"
