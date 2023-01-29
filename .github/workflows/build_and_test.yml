@@ -7,7 +7,7 @@ on:
 
 env:
   BUILD_DIR: Dist
-  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude "*Kni*"" --exclude "*PfRing*"" --exclude "*Dpdk*" --exclude "*MBuf*" --xml
+  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude ".*/Kni*" --exclude ".*/PfRing*" --exclude "./*Dpdk*" --exclude "./*MBuf*" --xml
 
 jobs:
   pre-commit:

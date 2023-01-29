@@ -1,6 +1,6 @@
 env:
   BUILD_DIR: "build"
-  GCOVR_FLAGS: "--gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude \"*Kni*\" --exclude \"*PfRing*\" --exclude \"*Dpdk*\" --exclude \"*MBuf*\" --xml"
+  GCOVR_FLAGS: "--gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude \"./*Kni*\" --exclude \"./*PfRing*\" --exclude \"./*Dpdk*\" --exclude \"./*MBuf*\" --xml"
 
 task:
   name: Test FreeBSD
