@@ -58,6 +58,7 @@ add_library(
   src/VlanLayer.cpp
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
+  # Force hash-library pcapng to be link fully static
 )
 
 set(public_headers
