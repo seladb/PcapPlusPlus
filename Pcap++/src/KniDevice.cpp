@@ -1,5 +1,7 @@
 #if defined(USE_DPDK) && defined(__linux__)
 
+// GCOVR_EXCL_START
+
 #define LOG_MODULE PcapLogModuleKniDevice
 
 #include "KniDevice.h"
@@ -1005,4 +1007,7 @@ void KniDevice::close()
 	m_DeviceOpened = false;
 }
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
+
 #endif /* defined(USE_DPDK) && defined(__linux__) */

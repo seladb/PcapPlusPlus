@@ -1,6 +1,8 @@
 #ifndef PCAPPP_PF_RING_DEVICE
 #define PCAPPP_PF_RING_DEVICE
 
+// GCOVR_EXCL_START
+
 #include "Device.h"
 #include "MacAddress.h"
 #include "SystemUtils.h"
@@ -345,5 +347,7 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPPP_PF_RING_DEVICE */

@@ -7,7 +7,7 @@ on:
 
 env:
   BUILD_DIR: Dist
-  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --exclude ".*/Kni*" --exclude ".*/PfRing*" --exclude "./*Dpdk*" --exclude "./*MBuf*" --xml
+  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
 
 jobs:
   pre-commit:
@@ -337,16 +337,16 @@ jobs:
         shell: msys2 {0}
         run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
 
-      #- name: Create Coberture Report
-      #  run: gcovr -v -g -k -r . $GCOVR_FLAGS -o coverage.xml
-#
-      #- name: Upload Coverage Results
-      #  uses: codecov/codecov-action@v3
-      #  with:
-      #    files: ./coverage.xml
-      #    flags: ${{ matrix.sys }},unittest
-      #    fail_ci_if_error: false
-      #    verbose: true
+      - name: Create Coberture Report
+        run: gcovr -v -g -k -r . $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.sys }},unittest
+          fail_ci_if_error: false
+          verbose: true
 
   visual-studio:
     strategy:

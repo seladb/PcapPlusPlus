@@ -1,5 +1,7 @@
 #ifdef USE_PF_RING
 
+// GCOVR_EXCL_START
+
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include "PfRingDevice.h"
@@ -883,5 +885,7 @@ void PfRingDevice::CoreConfiguration::clear()
 }
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* USE_PF_RING */
