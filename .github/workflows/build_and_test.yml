@@ -91,7 +91,7 @@ jobs:
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   dpdk:
@@ -140,7 +140,7 @@ jobs:
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   pfring:
@@ -181,7 +181,7 @@ jobs:
         with:
           files: ./coverage.xml
           flags: pfring,unittest
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   macos:
@@ -260,7 +260,7 @@ jobs:
         with:
           files: ./coverage.xml
           flags: ${{ matrix.os-version }},unittest
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   mingw-w64:
@@ -340,7 +340,7 @@ jobs:
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   visual-studio:
@@ -428,7 +428,7 @@ jobs:
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
   android:

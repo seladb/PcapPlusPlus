@@ -42,7 +42,7 @@ task:
     - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
-    - ./codecov -v -f coverage.xml -F zstd -F ubuntu2004 -F unittest
+    - ./codecov -v -f coverage.xml -F zstd -F ubuntu2004 -F unittest || true
 
 task:
   name: Test Zstd MacOS
@@ -52,7 +52,7 @@ task:
     - brew install zstd
     # Ensure user have access to network devices instead of giving super-user right
     - sudo chmod a+rw /dev/bpf*
-    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
   install_tcpreplay_gcovr_script:
@@ -65,7 +65,7 @@ task:
     - gcovr -v -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/macos/codecov
     - chmod +x codecov
-    - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest
+    - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest || true
 
 task:
   name: Regression Tests Linux (Address Sanitizer)
@@ -73,7 +73,7 @@ task:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
     - apt-get update && apt-get install -y cmake git libpcap-dev gcovr curl
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_COVERAGE=ON
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
@@ -85,7 +85,7 @@ task:
     - gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
-    - ./codecov -v -f coverage.xml -F fuzzing
+    - ./codecov -v -f coverage.xml -F fuzzing || true
 
 # Compilation failed due too issue w/ MemPlumber
 # task:
@@ -108,7 +108,7 @@ task:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
     - apt-get update && apt-get install -y cmake git libpcap-dev gcovr curl
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_COVERAGE=ON
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
@@ -120,7 +120,7 @@ task:
     - gcovr -v -g -k -r . --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
     - chmod +x codecov
-    - ./codecov -v -f coverage.xml -F fuzzing
+    - ./codecov -v -f coverage.xml -F fuzzing || true
 
 task:
   name: Build Doxygen Documentation
