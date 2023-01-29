@@ -220,7 +220,7 @@ jobs:
         run: cmake --build $BUILD_DIR -j
 
       - name: Check architecture
-        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
+        run: lipo $BUILD_DIR/Pcap++/libPcap++.so -verify_arch ${{ matrix.arch }}
 
       - name: Install Tcpreplay
         run: brew install tcpreplay
