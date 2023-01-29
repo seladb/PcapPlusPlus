@@ -512,7 +512,7 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int
 	}
 }
 
-HeaderField::HeaderField(std::string name, std::string value, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue)
+HeaderField::HeaderField(const std::string& name, const std::string& value, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue)
 {
 	m_NameValueSeparator = nameValueSeparator;
 	m_SpacesAllowedBetweenNameAndValue = spacesAllowedBetweenNameAndValue;

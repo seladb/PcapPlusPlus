@@ -80,7 +80,7 @@ public:
 	bool isEndOfHeader() const { return m_IsEndOfHeaderField; }
 
 private:
-	HeaderField(std::string name, std::string value, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue);
+	HeaderField(const std::string& name, const std::string& value, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue);
 	HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage, int offsetInMessage, char nameValueSeparator, bool spacesAllowedBetweenNameAndValue);
 
 	char* getData() const;
