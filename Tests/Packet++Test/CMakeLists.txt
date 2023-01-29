@@ -2,6 +2,7 @@ add_executable(
   Packet++Test
   main.cpp
   Tests/BgpTests.cpp
+  Tests/CotpTests.cpp
   Tests/DhcpTests.cpp
   Tests/DhcpV6Tests.cpp
   Tests/DnsTests.cpp
@@ -22,6 +23,7 @@ add_executable(
   Tests/PacketUtilsTests.cpp
   Tests/PPPoETests.cpp
   Tests/RadiusTests.cpp
+  Tests/S7commTests.cpp
   Tests/SipSdpTests.cpp
   Tests/SllNullLoopbackTests.cpp
   Tests/SomeIpSdTests.cpp
@@ -31,14 +33,10 @@ add_executable(
   Tests/StpTests.cpp
   Tests/TcpTests.cpp
   Tests/TelnetTests.cpp
+  Tests/TpktTests.cpp
   Tests/VlanMplsTests.cpp
   Tests/WakeOnLanTests.cpp
-  Tests/TpktTests.cpp
-  Tests/CotpTests.cpp
-  Tests/S7commTests.cpp
-
   Utils/TestUtils.cpp
-
 )
 
 target_link_libraries(
