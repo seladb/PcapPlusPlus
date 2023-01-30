@@ -152,7 +152,8 @@ option(PCAPPP_ENABLE_CLANG_TIDY "Run Clang-Tidy static analysis during build" OF
 
 if(PCAPPP_ENABLE_CLANG_TIDY)
   find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
-  set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix" "--checks=modernize-use-nullptr,modernize-use-override,performance-unnecessary-value-param")
+  set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix"
+                         "--checks=modernize-use-nullptr,modernize-use-override,performance-unnecessary-value-param")
   set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
   # Force to recompile all files with clang-tidy by setting a dummy definition variable
   add_definitions(-DUSE_CLANG_TIDY)
