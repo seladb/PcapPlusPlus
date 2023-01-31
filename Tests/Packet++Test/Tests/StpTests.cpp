@@ -47,7 +47,7 @@ PTF_TEST_CASE(StpConfigurationParsingTests)
 PTF_TEST_CASE(StpConfigurationCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
 
@@ -79,7 +79,7 @@ PTF_TEST_CASE(StpConfigurationCreationTests)
 PTF_TEST_CASE(StpConfigurationEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Read base packet
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpConf.dat");
@@ -156,7 +156,7 @@ PTF_TEST_CASE(StpTopologyChangeParsingTests)
 PTF_TEST_CASE(StpTopologyChangeCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
 
@@ -175,7 +175,7 @@ PTF_TEST_CASE(StpTopologyChangeCreationTests)
 PTF_TEST_CASE(StpTopologyChangeEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Read base packet
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpTcn.dat");
@@ -243,7 +243,7 @@ PTF_TEST_CASE(RapidStpParsingTests)
 PTF_TEST_CASE(RapidStpCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
 
@@ -276,7 +276,7 @@ PTF_TEST_CASE(RapidStpCreationTests)
 PTF_TEST_CASE(RapidStpEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpRapid.dat");
 	pcpp::Packet stpPacket1(&rawPacket1);
@@ -370,7 +370,7 @@ PTF_TEST_CASE(MultipleStpParsingTests)
 PTF_TEST_CASE(MultipleStpCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultipleWithoutConfig.dat");
 
@@ -412,7 +412,7 @@ PTF_TEST_CASE(MultipleStpCreationTests)
 PTF_TEST_CASE(MultipleStpEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/StpMultiple.dat");
 	pcpp::Packet stpPacket1(&rawPacket1);
