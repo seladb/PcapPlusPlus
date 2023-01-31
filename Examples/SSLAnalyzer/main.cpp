@@ -168,7 +168,7 @@ void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
 /**
  * An auxiliary method for sorting the string count map. Used in printServerNames() and in printCipherSuites()
  */
-bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
+bool stringCountComparer(const std::pair<std::string, int>& first, const std::pair<std::string, int>& second)
 {
 	if (first.second == second.second)
 	{
@@ -225,7 +225,7 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 /**
  * Print SSL record version map
  */
-void printVersions(std::map<uint16_t, int>& versionMap, std::string headline)
+void printVersions(std::map<uint16_t, int>& versionMap, const std::string& headline)
 {
 	// create the table
 	std::vector<std::string> columnNames;
@@ -374,7 +374,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * activate SSL/TLS analysis from pcap file
  */
-void analyzeSSLFromPcapFile(std::string pcapFileName)
+void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 {
 	// open input file (pcap or pcapng file)
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFileName);
@@ -408,7 +408,7 @@ void analyzeSSLFromPcapFile(std::string pcapFileName)
 /**
  * activate SSL analysis from live traffic
  */
-void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, std::string savePacketsToFileName)
+void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, const std::string& savePacketsToFileName)
 {
 	// open the device
 	if (!dev->open())

@@ -237,7 +237,7 @@ void printMethods(HttpRequestStats& reqStatscollector)
 /**
  * An auxiliary method for sorting the hostname count map. Used only in printHostnames()
  */
-bool hostnameComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
+bool hostnameComparer(const std::pair<std::string, int>& first, const std::pair<std::string, int>& second)
 {
 	if (first.second == second.second)
 	{
@@ -406,7 +406,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * activate HTTP analysis from pcap file
  */
-void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
+void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFileName);
@@ -445,7 +445,7 @@ void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 /**
  * activate HTTP analysis from live traffic
  */
-void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
+void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, const std::string& savePacketsToFileName, uint16_t dstPort)
 {
 	// open the device
 	if (!dev->open())
