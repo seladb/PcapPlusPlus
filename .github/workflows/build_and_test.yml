@@ -78,7 +78,6 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          mkdir -p build_examples
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
@@ -126,7 +125,6 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          mkdir -p build_examples
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
@@ -166,7 +164,6 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          mkdir -p build_examples
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPF_RING_ROOT="/PF_RING" -S Examples -B build_examples
           cmake --build build_examples -j
 
