@@ -502,7 +502,7 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
 /**
  * The method responsible for TCP reassembly on pcap/pcapng files
  */
-void doTcpReassemblyOnPcapFile(std::string fileName, pcpp::TcpReassembly& tcpReassembly, std::string bpfFilter = "")
+void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly& tcpReassembly, const std::string& bpfFilter = "")
 {
 	// open input file (pcap or pcapng file)
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(fileName);
@@ -544,7 +544,7 @@ void doTcpReassemblyOnPcapFile(std::string fileName, pcpp::TcpReassembly& tcpRea
 /**
  * The method responsible for TCP reassembly on live traffic
  */
-void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly& tcpReassembly, std::string bpfFilter = "")
+void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly& tcpReassembly, const std::string& bpfFilter = "")
 {
 	// try to open device
 	if (!dev->open())

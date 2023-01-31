@@ -95,7 +95,7 @@ void printAppVersion()
  * who pass them, and writes the result packets to the output file
  */
 void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
-		bool filterByBpf, std::string bpfFilter,
+		bool filterByBpf, const std::string& bpfFilter,
 		bool filterByIpID, std::map<uint32_t, bool> fragIDs,
 		bool copyAllPacketsToOutputFile,
 		DefragStats& stats)

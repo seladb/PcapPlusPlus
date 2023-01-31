@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include <sstream>
+#include <utility>
 #include <string.h>
 #include "EndianPortable.h"
 
@@ -119,7 +120,7 @@ bool MxDnsResourceData::operator==(const MxDnsResourceData& other) const
 void MxDnsResourceData::setMxData(uint16_t preference, std::string mailExchange)
 {
 	m_Data.preference = preference;
-	m_Data.mailExchange = mailExchange;
+	m_Data.mailExchange = std::move(mailExchange);
 }
 
 std::string MxDnsResourceData::toString() const

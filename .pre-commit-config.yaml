@@ -17,7 +17,7 @@ repos:
     rev: v1.3.5
     hooks:
       - id: cppcheck
-        args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr"]
+        args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
 #      - id: clang-format
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.2

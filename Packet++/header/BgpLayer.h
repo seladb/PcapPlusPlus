@@ -184,7 +184,7 @@ public:
 		 * @param[in] valueAsHexString Parameter data as hex string. The length field will be set accordingly.
 		 * If this parameter is not a valid hex string the data will remain zeroed and length will be also zero
 		 */
-		optional_parameter(uint8_t typeVal, std::string valueAsHexString);
+		optional_parameter(uint8_t typeVal, const std::string& valueAsHexString);
 	};
 
 	/**
@@ -327,7 +327,7 @@ public:
 		 * @param[in] dataAsHexString Path attribute data as hex string. The path_attribute#length field will be set accordingly.
 		 * If this parameter is not a valid hex string the data will remain zeroed and length will be also set to zero
 		 */
-		path_attribute(uint8_t flagsVal, uint8_t typeVal, std::string dataAsHexString);
+		path_attribute(uint8_t flagsVal, uint8_t typeVal, const std::string& dataAsHexString);
 	};
 
 	/**

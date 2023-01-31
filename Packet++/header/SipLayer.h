@@ -199,7 +199,7 @@ namespace pcpp
 		 * @param[in] requestUri The URI of the request
 		 * @param[in] version SIP version to be used in this request. Default is "SIP/2.0"
 		 */
-		SipRequestLayer(SipMethod method, std::string requestUri, std::string version = "SIP/2.0");
+		SipRequestLayer(SipMethod method, const std::string& requestUri, const std::string& version = "SIP/2.0");
 
 		~SipRequestLayer();
 
@@ -425,7 +425,7 @@ namespace pcpp
 		 * @param[in] sipVersion SIP version to set, default is SIP/2.0
 		 *
 		 */
-		explicit SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "", std::string sipVersion = "SIP/2.0");
+		explicit SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "", const std::string& sipVersion = "SIP/2.0");
 
 		virtual ~SipResponseLayer();
 
@@ -495,7 +495,7 @@ namespace pcpp
 		 * @param[in] newUri The URI to set
 		 * @return False if shortening/extending the SipRequestLayer data failed. True otherwise
 		 */
-		bool setUri(std::string newUri);
+		bool setUri(const std::string& newUri);
 
 		/**
 		 * @return The SIP version
@@ -544,7 +544,7 @@ namespace pcpp
 
 	private:
 		SipRequestFirstLine(SipRequestLayer* sipRequest);
-		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri);
+		SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, const std::string& version, const std::string& uri);
 			//throw(SipRequestFirstLineException); // Deprecated in C++17
 
 		void parseVersion();
@@ -607,7 +607,7 @@ namespace pcpp
 		 * Set the SIP version. The version to set is expected to be in the format of SIP/x.y otherwise an error will be written to log
 		 * @param[in] newVersion The SIP version to set
 		 */
-		void setVersion(std::string newVersion);
+		void setVersion(const std::string& newVersion);
 
 		/**
 		 * A static method for parsing the SIP status code out of raw data
@@ -659,7 +659,7 @@ namespace pcpp
 
 	private:
 		SipResponseFirstLine(SipResponseLayer* sipResponse);
-		SipResponseFirstLine(SipResponseLayer* sipResponse,  std::string version, SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "");
+		SipResponseFirstLine(SipResponseLayer* sipResponse,  const std::string& version, SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "");
 
 		static SipResponseLayer::SipResponseStatusCode validateStatusCode(char* data, size_t dataLen, SipResponseLayer::SipResponseStatusCode potentialCode);
 

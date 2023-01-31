@@ -121,7 +121,7 @@ void BgpLayer::setBgpFields(size_t messageLen)
 // BgpOpenMessageLayer
 // ~~~~~~~~~~~~~~~~~~~~
 
-BgpOpenMessageLayer::optional_parameter::optional_parameter(uint8_t typeVal, std::string valueAsHexString)
+BgpOpenMessageLayer::optional_parameter::optional_parameter(uint8_t typeVal, const std::string& valueAsHexString)
 {
 	type = typeVal;
 	length = hexStringToByteArray(valueAsHexString, value, 32);
@@ -306,7 +306,7 @@ bool BgpOpenMessageLayer::clearOptionalParameters()
 // BgpUpdateMessageLayer
 // ~~~~~~~~~~~~~~~~~~~~~
 
-BgpUpdateMessageLayer::path_attribute::path_attribute(uint8_t flagsVal, uint8_t typeVal, std::string dataAsHexString)
+BgpUpdateMessageLayer::path_attribute::path_attribute(uint8_t flagsVal, uint8_t typeVal, const std::string& dataAsHexString)
 {
 	flags = flagsVal;
 	type = typeVal;

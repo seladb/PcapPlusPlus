@@ -38,7 +38,7 @@ namespace pcpp
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
 	}
 
-	bool SingleCommandTextProtocol::hyphenRequired(std::string value)
+	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
 	{
 		size_t firstPos = value.find_first_of("\r\n");
 		size_t lastPos = value.find_last_of("\r\n");

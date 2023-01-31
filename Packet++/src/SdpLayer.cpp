@@ -10,7 +10,7 @@
 namespace pcpp
 {
 
-std::vector<std::string> splitByWhiteSpaces(std::string str)
+std::vector<std::string> splitByWhiteSpaces(const std::string& str)
 {
 	std::string buf;
 	std::stringstream stream(str);
@@ -35,7 +35,7 @@ SdpLayer::SdpLayer()
 	m_FieldsOffset = 0;
 }
 
-SdpLayer::SdpLayer(std::string username, long sessionID, long sessionVersion, IPv4Address ipAddress, std::string sessionName, long startTime, long stopTime)
+SdpLayer::SdpLayer(const std::string& username, long sessionID, long sessionVersion, IPv4Address ipAddress, const std::string& sessionName, long startTime, long stopTime)
 {
 	m_Protocol = SDP;
 	m_FieldsOffset = 0;
@@ -88,7 +88,7 @@ IPv4Address SdpLayer::getOwnerIPv4Address() const
 	return IPv4Address(tokens[5]);
 }
 
-uint16_t SdpLayer::getMediaPort(std::string mediaType) const
+uint16_t SdpLayer::getMediaPort(const std::string& mediaType) const
 {
 	int mediaFieldIndex = 0;
 	HeaderField* mediaDesc = getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldIndex);
@@ -107,7 +107,7 @@ uint16_t SdpLayer::getMediaPort(std::string mediaType) const
 	return 0;
 }
 
-bool SdpLayer::addMediaDescription(std::string mediaType, uint16_t mediaPort, std::string mediaProtocol, std::string mediaFormat, std::vector<std::string> mediaAttributes)
+bool SdpLayer::addMediaDescription(const std::string& mediaType, uint16_t mediaPort, const std::string& mediaProtocol, const std::string& mediaFormat, std::vector<std::string> mediaAttributes)
 {
 	std::stringstream portStream;
 	portStream << mediaPort;

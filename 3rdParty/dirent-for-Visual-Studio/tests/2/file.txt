@@ -1,1 +1,0 @@
-This dummy file is needed by the test program t-dirent.

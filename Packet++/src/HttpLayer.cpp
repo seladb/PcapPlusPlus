@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <exception>
+#include <utility>
 
 namespace pcpp
 {
@@ -71,7 +72,7 @@ HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLay
 	parseFields();
 }
 
-HttpRequestLayer::HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version)
+HttpRequestLayer::HttpRequestLayer(HttpMethod method, const std::string& uri, HttpVersion version)
 {
 	m_Protocol = HTTPRequest;
 	m_FirstLine = new HttpRequestFirstLine(this, method, version, uri);
@@ -215,45 +216,47 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	}
 }
 
-HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri)
-try		// throw(HttpRequestFirstLineException)
+HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, const std::string &uri)
 {
-	if (method == HttpRequestLayer::HttpMethodUnknown)
+	try		// throw(HttpRequestFirstLineException)
 	{
-		m_Exception.setMessage("Method supplied was HttpMethodUnknown");
-		throw m_Exception;
-	}
+		if (method == HttpRequestLayer::HttpMethodUnknown)
+		{
+			m_Exception.setMessage("Method supplied was HttpMethodUnknown");
+			throw m_Exception;
+		}
 
-	if (version == HttpVersionUnknown)
+		if (version == HttpVersionUnknown)
+		{
+			m_Exception.setMessage("Version supplied was HttpVersionUnknown");
+			throw m_Exception;
+		}
+
+		m_HttpRequest = httpRequest;
+
+		m_Method = method;
+		m_Version = version;
+
+		std::string firstLine = MethodEnumToString[m_Method] + " " + uri + " "  + "HTTP/" + VersionEnumToString[m_Version] + "\r\n";
+
+		m_UriOffset =  MethodEnumToString[m_Method].length() + 1;
+		m_FirstLineEndOffset = firstLine.length();
+		m_VersionOffset = m_UriOffset + uri.length() + 6;
+
+		m_HttpRequest->m_DataLen = firstLine.length();
+		m_HttpRequest->m_Data = new uint8_t[m_HttpRequest->m_DataLen];
+		memcpy(m_HttpRequest->m_Data, firstLine.c_str(), m_HttpRequest->m_DataLen);
+
+		m_IsComplete = true;
+	}
+	catch(const HttpRequestFirstLineException&)
 	{
-		m_Exception.setMessage("Version supplied was HttpVersionUnknown");
-		throw m_Exception;
+		throw;
 	}
-
-	m_HttpRequest = httpRequest;
-
-	m_Method = method;
-	m_Version = version;
-
-	std::string firstLine = MethodEnumToString[m_Method] + " " + uri + " "  + "HTTP/" + VersionEnumToString[m_Version] + "\r\n";
-
-	m_UriOffset =  MethodEnumToString[m_Method].length() + 1;
-	m_FirstLineEndOffset = firstLine.length();
-	m_VersionOffset = m_UriOffset + uri.length() + 6;
-
-	m_HttpRequest->m_DataLen = firstLine.length();
-	m_HttpRequest->m_Data = new uint8_t[m_HttpRequest->m_DataLen];
-	memcpy(m_HttpRequest->m_Data, firstLine.c_str(), m_HttpRequest->m_DataLen);
-
-	m_IsComplete = true;
-}
-catch(const HttpRequestFirstLineException&)
-{
-	throw;
-}
-catch(...)
-{
-	std::terminate();
+	catch(...)
+	{
+		std::terminate();
+	}
 }
 
 HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_t dataLen)
@@ -692,7 +695,7 @@ HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevL
 HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
 	m_Protocol = HTTPResponse;
-	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, statusCodeString);
+	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, std::move(statusCodeString));
 	m_FieldsOffset = m_FirstLine->getSize();
 }
 

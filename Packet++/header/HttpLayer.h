@@ -167,7 +167,7 @@ namespace pcpp
 		 * @param[in] uri The URI of the first line
 		 * @param[in] version HTTP version to be used in this request
 		 */
-		HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version);
+		HttpRequestLayer(HttpMethod method, const std::string& uri, HttpVersion version);
 
 		virtual ~HttpRequestLayer();
 
@@ -571,7 +571,7 @@ namespace pcpp
 		};
 	private:
 		HttpRequestFirstLine(HttpRequestLayer* httpRequest);
-		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri = "/");
+		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, const std::string& uri = "/");
 			//throw(HttpRequestFirstLineException); // Deprecated in C++17
 
 		void parseVersion();

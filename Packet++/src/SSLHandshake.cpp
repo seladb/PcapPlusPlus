@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <set>
+#include <utility>
 #include "Logger.h"
 #include "SSLHandshake.h"
 
@@ -1058,7 +1059,7 @@ SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 {
-	uint32_t nameHash = hashString(name);
+	uint32_t nameHash = hashString(std::move(name));
 	std::map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
 	if (pos == CipherSuiteStringToObjectMap.end())
 		return nullptr;

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <exception>
+#include <utility>
 
 namespace pcpp
 {
@@ -134,7 +135,7 @@ SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipReq
 	}
 }
 
-SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, std::string version, std::string uri)
+SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method, const std::string& version, const std::string& uri)
 try		// throw(SipRequestFirstLineException)
 {
 	if (method == SipRequestLayer::SipMethodUnknown)
@@ -383,7 +384,7 @@ std::string SipRequestFirstLine::getUri() const
 	return result;
 }
 
-bool SipRequestFirstLine::setUri(std::string newUri)
+bool SipRequestFirstLine::setUri(const std::string& newUri)
 {
 	if (newUri == "")
 	{
@@ -439,10 +440,10 @@ SipRequestLayer::SipRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer
 	parseFields();
 }
 
-SipRequestLayer::SipRequestLayer(SipMethod method, std::string requestUri, std::string version)
+SipRequestLayer::SipRequestLayer(SipMethod method, const std::string& requestUri, const std::string& version)
 {
 	m_Protocol = SIPRequest;
-	m_FirstLine = new SipRequestFirstLine(this, method, version, requestUri);
+	m_FirstLine = new SipRequestFirstLine(this, method, std::move(version), std::move(requestUri));
 	m_FieldsOffset = m_FirstLine->getSize();
 }
 
@@ -674,10 +675,10 @@ SipResponseLayer::SipResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLay
 	parseFields();
 }
 
-SipResponseLayer::SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString, std::string sipVersion)
+SipResponseLayer::SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString, const std::string& sipVersion)
 {
 	m_Protocol = SIPResponse;
-	m_FirstLine = new SipResponseFirstLine(this, sipVersion, statusCode, statusCodeString);
+	m_FirstLine = new SipResponseFirstLine(this, std::move(sipVersion), statusCode, std::move(statusCodeString));
 	m_FieldsOffset = m_FirstLine->getSize();
 }
 
@@ -821,7 +822,7 @@ bool SipResponseFirstLine::setStatusCode(SipResponseLayer::SipResponseStatusCode
 
 }
 
-void SipResponseFirstLine::setVersion(std::string newVersion)
+void SipResponseFirstLine::setVersion(const std::string& newVersion)
 {
 	if (newVersion == "")
 		return;
@@ -1232,7 +1233,7 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_Si
 }
 
 
-SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse,  std::string version, SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString)
+SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse,  const std::string& version, SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString)
 {
 	if (statusCode == SipResponseLayer::SipStatusCodeUnknown)
 	{

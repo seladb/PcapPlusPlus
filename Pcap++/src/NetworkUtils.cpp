@@ -292,7 +292,7 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, vo
 }
 
 
-IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
+IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
 		int dnsTimeout, IPv4Address dnsServerIP, IPv4Address gatewayIP) const
 {
 	IPv4Address result = IPv4Address::Zero;

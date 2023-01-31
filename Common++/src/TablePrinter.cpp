@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <iterator>
+#include <utility>
 #include "TablePrinter.h"
 #include "Logger.h"
 
@@ -11,7 +12,7 @@ namespace pcpp
 {
 
 TablePrinter::TablePrinter(std::vector<std::string> columnNames, std::vector<int> columnWidths) :
-	m_ColumnNames(columnNames), m_ColumnWidths(columnWidths),
+	m_ColumnNames(std::move(columnNames)), m_ColumnWidths(std::move(columnWidths)),
 	m_FirstRow(true), m_TableClosed(false)
 {
 	if (m_ColumnWidths.size() != m_ColumnNames.size())
@@ -65,7 +66,7 @@ bool TablePrinter::printRow(std::vector<std::string> values)
 	return true;
 }
 
-bool TablePrinter::printRow(std::string values, char delimiter)
+bool TablePrinter::printRow(const std::string& values, char delimiter)
 {
 	std::string singleValue;
 	std::istringstream valueStream(values);
