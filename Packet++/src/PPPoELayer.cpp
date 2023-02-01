@@ -309,11 +309,18 @@ int PPPoEDiscoveryLayer::getTagCount() const
 PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilder& tagBuilder, int offset)
 {
 	PPPoETag newTag = tagBuilder.build();
+	if (newTag.isNull())
+	{
+		PCPP_LOG_ERROR("Cannot build new tag of type " << (int)newTag.getType());
+		return newTag;
+	}
+
 	size_t sizeToExtend = newTag.getTotalSize();
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << sizeToExtend << "] bytes");
+		newTag.purgeRecordData();
 		return PPPoETag(nullptr);
 	}
 
