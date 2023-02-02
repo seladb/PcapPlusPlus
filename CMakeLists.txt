@@ -190,6 +190,7 @@ if(PCAPPP_USE_PF_RING)
     message(FATAL_ERROR "Packet library -DPF_RING_ROOT=<PF_RING_PATH>")
   endif()
   add_definitions(-DUSE_PF_RING)
+  set(_PCAPPP_FIND_PF_RING "find_dependency(PF_RING)\n")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
