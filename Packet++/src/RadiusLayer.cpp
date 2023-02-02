@@ -58,11 +58,17 @@ RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string &authentica
 RadiusAttribute RadiusLayer::addAttrAt(const RadiusAttributeBuilder& attrBuilder, int offset)
 {
 	RadiusAttribute newAttr = attrBuilder.build();
-	size_t sizeToExtend = newAttr.getTotalSize();
+	if (newAttr.isNull())
+	{
+		PCPP_LOG_ERROR("Cannot build new attribute of type " << (int)newAttr.getType());
+		return newAttr;
+	}
 
+	size_t sizeToExtend = newAttr.getTotalSize();
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend RadiusLayer in [" << newAttr.getTotalSize() << "] bytes");
+		newAttr.purgeRecordData();
 		return RadiusAttribute(nullptr);
 	}
 
