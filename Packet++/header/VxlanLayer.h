@@ -89,7 +89,7 @@ namespace pcpp
 		 * @param[in] setPolicyAppliedFlag Set Policy Applied flag. Optional parameter (default is false)
 		 * @param[in] setDontLearnFlag Set Don't Learn flag. Optional parameter (default is false)
 		 */
-		VxlanLayer(uint32_t vni = 0, uint16_t groupPolicyID = 0, bool setGbpFlag = false, bool setPolicyAppliedFlag = false, bool setDontLearnFlag = false);
+		explicit VxlanLayer(uint32_t vni = 0, uint16_t groupPolicyID = 0, bool setGbpFlag = false, bool setPolicyAppliedFlag = false, bool setDontLearnFlag = false);
 
 		~VxlanLayer() {}
 
