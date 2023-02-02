@@ -172,6 +172,7 @@ DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
+		newOpt.purgeRecordData();
 		return DhcpV6Option(nullptr);
 	}
 

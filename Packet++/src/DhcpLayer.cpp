@@ -235,6 +235,7 @@ DhcpOption DhcpLayer::addOptionAt(const DhcpOptionBuilder& optionBuilder, int of
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
+		newOpt.purgeRecordData();
 		return DhcpOption(nullptr);
 	}
 
