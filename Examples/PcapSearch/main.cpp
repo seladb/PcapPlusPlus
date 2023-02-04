@@ -28,6 +28,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <dirent.h>
+#include <utility>
 #include <vector>
 #include <map>
 #include <Logger.h>
@@ -107,7 +108,7 @@ void printAppVersion()
 /*
  * Returns the extension of a given file name
  */
-std::string getExtension(std::string fileName)
+std::string getExtension(const std::string& fileName)
 {
 	return fileName.substr(fileName.find_last_of(".") + 1);
 }
@@ -116,7 +117,7 @@ std::string getExtension(std::string fileName)
 /**
  * Searches all packet in a given pcap file for a certain search criteria. Returns how many packets matched the search criteria
  */
-int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstream* detailedReportFile)
+int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std::ofstream* detailedReportFile)
 {
 	// create the pcap/pcap-ng reader
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFilePath);
@@ -138,7 +139,7 @@ int searchPcap(std::string pcapFilePath, std::string searchCriteria, std::ofstre
 	}
 
 	// set the filter for the file so only packets that match the search criteria will be read
-	if (!reader->setFilter(searchCriteria))
+	if (!reader->setFilter(std::move(searchCriteria)))
 	{
 		// free the reader memory and return
 		delete reader;

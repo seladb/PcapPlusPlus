@@ -4,6 +4,7 @@ target_link_libraries(PcapSearch PUBLIC PcapPlusPlus::Pcap++)
 
 if(MSVC)
   # This executable requires getopt.h and dirent.h not available on VStudio
+  add_subdirectory(dirent-for-Visual-Studio)
   target_link_libraries(PcapSearch PRIVATE dirent-for-Visual-Studio Getopt-for-Visual-Studio)
 endif()
 

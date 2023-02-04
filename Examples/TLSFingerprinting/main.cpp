@@ -59,7 +59,7 @@ bool isNotAlphanumeric(char c)
 /**
  * An auxiliary method for sorting the TLS fingerprint count map. Used in printCommonTLSFingerprints()
  */
-bool stringCountComparer(std::pair<std::string, uint64_t> first, std::pair<std::string, uint64_t> second)
+bool stringCountComparer(const std::pair<std::string, uint64_t>& first, const std::pair<std::string, uint64_t>& second)
 {
 	if (first.second == second.second)
 	{

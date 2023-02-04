@@ -79,7 +79,6 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          mkdir -p build_examples
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
@@ -148,6 +147,17 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+      - name: Check installation
+        run: cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
@@ -188,6 +198,17 @@ jobs:
           flags: pfring,unittest
           fail_ci_if_error: false
           verbose: true
+
+      - name: Check installation
+        run: cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPF_RING_ROOT="/PF_RING" -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
   macos:
     runs-on: ${{ matrix.os-version }}
