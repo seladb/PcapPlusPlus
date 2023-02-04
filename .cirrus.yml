@@ -74,7 +74,7 @@ task:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
     - apt-get update && apt-get install -y cmake git libpcap-dev
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_COVERAGE=ON
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
@@ -103,7 +103,7 @@ task:
     image: gcr.io/oss-fuzz-base/base-clang
   configure_script:
     - apt-get update && apt-get install -y cmake git libpcap-dev
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF -DPCAPPP_BUILD_COVERAGE=ON
+    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
   build_script:
     - cmake --build $BUILD_DIR -j 2
   test_script:
