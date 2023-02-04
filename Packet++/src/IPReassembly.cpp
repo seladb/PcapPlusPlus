@@ -75,32 +75,32 @@ public:
 
 	// implement abstract methods
 
-	bool isFragment()
+	bool isFragment() override
 	{
 		return m_IPLayer->isFragment();
 	}
 
-	bool isFirstFragment()
+	bool isFirstFragment() override
 	{
 		return m_IPLayer->isFirstFragment();
 	}
 
-	bool isLastFragment()
+	bool isLastFragment() override
 	{
 		return m_IPLayer->isLastFragment();
 	}
 
-	uint16_t getFragmentOffset()
+	uint16_t getFragmentOffset() override
 	{
 		return m_IPLayer->getFragmentOffset();
 	}
 
-	uint32_t getFragmentId()
+	uint32_t getFragmentId() override
 	{
 		return (uint32_t)be16toh(m_IPLayer->getIPv4Header()->ipId);
 	}
 
-	uint32_t hashPacket()
+	uint32_t hashPacket() override
 	{
 		ScalarBuffer<uint8_t> vec[3];
 
@@ -114,17 +114,17 @@ public:
 		return pcpp::fnvHash(vec, 3);
 	}
 
-	IPReassembly::PacketKey* createPacketKey()
+	IPReassembly::PacketKey* createPacketKey() override
 	{
 		return new IPReassembly::IPv4PacketKey(be16toh(m_IPLayer->getIPv4Header()->ipId), m_IPLayer->getSrcIPv4Address(), m_IPLayer->getDstIPv4Address());
 	}
 
-	uint8_t* getIPLayerPayload()
+	uint8_t* getIPLayerPayload() override
 	{
 		return m_IPLayer->getLayerPayload();
 	}
 
-	size_t getIPLayerPayloadSize()
+	size_t getIPLayerPayloadSize() override
 	{
 		return m_IPLayer->getLayerPayloadSize();
 	}
@@ -148,12 +148,12 @@ public:
 
 	// implement abstract methods
 
-	bool isFragment()
+	bool isFragment() override
 	{
 		return (m_FragHeader != nullptr);
 	}
 
-	bool isFirstFragment()
+	bool isFirstFragment() override
 	{
 		if (isFragment())
 			return m_FragHeader->isFirstFragment();
@@ -161,7 +161,7 @@ public:
 		return false;
 	}
 
-	bool isLastFragment()
+	bool isLastFragment() override
 	{
 		if (isFragment())
 			return m_FragHeader->isLastFragment();
@@ -170,7 +170,7 @@ public:
 	}
 
 
-	uint16_t getFragmentOffset()
+	uint16_t getFragmentOffset() override
 	{
 		if (isFragment())
 			return m_FragHeader->getFragmentOffset();
@@ -178,12 +178,12 @@ public:
 		return 0;
 	}
 
-	uint32_t getFragmentId()
+	uint32_t getFragmentId() override
 	{
 		return be32toh(m_FragHeader->getFragHeader()->id);
 	}
 
-	uint32_t hashPacket()
+	uint32_t hashPacket() override
 	{
 		if (m_FragHeader == nullptr)
 			return 0;
@@ -200,17 +200,17 @@ public:
 		return pcpp::fnvHash(vec, 3);
 	}
 
-	IPReassembly::PacketKey* createPacketKey()
+	IPReassembly::PacketKey* createPacketKey() override
 	{
 		return new IPReassembly::IPv6PacketKey(be32toh(m_FragHeader->getFragHeader()->id), m_IPLayer->getSrcIPv6Address(), m_IPLayer->getDstIPv6Address());
 	}
 
-	uint8_t* getIPLayerPayload()
+	uint8_t* getIPLayerPayload() override
 	{
 		return m_IPLayer->getLayerPayload();
 	}
 
-	size_t getIPLayerPayloadSize()
+	size_t getIPLayerPayloadSize() override
 	{
 		return m_IPLayer->getLayerPayloadSize();
 	}

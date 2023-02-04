@@ -1,5 +1,9 @@
 name: Build and test
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "master", "dev" ]
+  pull_request:
+    branches: [ "dev" ]
 
 env:
   BUILD_DIR: Dist
@@ -74,7 +78,6 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          mkdir -p build_examples
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
@@ -117,6 +120,17 @@ jobs:
           cd Tests/Pcap++Test
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
+      - name: Check installation
+        run: cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
@@ -144,6 +158,17 @@ jobs:
         run: |
           cd Tests/Pcap++Test
           Bin/Pcap++Test -n
+
+      - name: Check installation
+        run: cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPF_RING_ROOT="/PF_RING" -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
   macos:
     runs-on: ${{ matrix.os-version }}

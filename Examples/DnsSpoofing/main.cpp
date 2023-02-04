@@ -243,7 +243,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 /**
  * An auxiliary method for sorting the string count map. Used for printing the summary of spoofed hosts
  */
-bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
+bool stringCountComparer(const std::pair<std::string, int>& first, const std::pair<std::string, int>& second)
 {
 	if (first.second == second.second)
 	{

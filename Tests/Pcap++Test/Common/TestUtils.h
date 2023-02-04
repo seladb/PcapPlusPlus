@@ -38,7 +38,7 @@ public:
 
 bool sendURLRequest(const std::string &url);
 
-bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg);
+bool readPcapIntoPacketVec(const std::string& pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg);
 
 int getFileLength(const std::string &filename);
 
