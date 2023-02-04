@@ -333,7 +333,7 @@ jobs:
         run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
 
       - name: Create Coberture Report
-        run: gcovr -v -g -k $env:GCOVR_FLAGS -r . -o coverage.xml
+        run: gcovr -v -g -k -r . "$env:GCOVR_FLAGS" -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
