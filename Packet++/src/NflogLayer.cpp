@@ -5,6 +5,7 @@
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "GeneralUtils.h"
+#include "EndianPortable.h"
 
 #include <string.h>
 
