@@ -138,11 +138,6 @@ namespace pcpp
 	const ProtocolType SLL = 0x40000;
 
 	/**
-	 * NFLOG (linux netfilter nflog) protocol
-	 */
-	const ProtocolType NFLOG = 0x400000000000;
-
-	/**
 	 * DHCP/BOOTP protocol
 	 */
 	const ProtocolType DHCP = 0x80000;
@@ -296,6 +291,11 @@ namespace pcpp
 	 * Wake On LAN (WOL) Protocol
 	 */
 	const ProtocolType WakeOnLan = 0x200000000000;
+
+	/**
+	 * NFLOG (Linux Netfilter NFLOG) Protocol
+	 */
+	const ProtocolType NFLOG = 0x400000000000;
 
 	/**
 	 * An enum representing OSI model layers

@@ -24,23 +24,14 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 
 	PTF_ASSERT_EQUAL(nflogLayer->getFamily(), pcpp::IPv4);
 	PTF_ASSERT_EQUAL(nflogLayer->getVersion(), 0);
-	PTF_ASSERT_EQUAL(be16toh(nflogLayer->getResourceId()), 42);
+	PTF_ASSERT_EQUAL(be16toh(htobe16(nflogLayer->getResourceId())), 42);
 
 	pcpp::nflog_packet_header* pck_hdr = nflogLayer->getPacketHeader();
 	PTF_ASSERT_EQUAL(pck_hdr->hardwareProtocol, 0);
 	PTF_ASSERT_EQUAL((int)pck_hdr->netfilterHook, 3);
 	PTF_ASSERT_EQUAL(nflogLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 
-	pcpp::NflogTlv $payloadInfo = nflogLayer->getTlvByType(pcpp::NflogTlvType::NFULA_PAYLOAD);
+	pcpp::NflogTLV $payloadInfo = nflogLayer->getTlvByType(pcpp::NflogTlvType::NFULA_PAYLOAD);
 	PTF_ASSERT_EQUAL($payloadInfo.getTotalSize(), 65);
 	PTF_ASSERT_EQUAL($payloadInfo.getValue()[0], 'E');
-
-	nflogLayer->setVersion(1);
-	PTF_ASSERT_EQUAL(nflogLayer->getVersion(), 1);
-
-	pcpp::NflogLayer* new_layer = new pcpp::NflogLayer();
-	PTF_ASSERT_EQUAL(new_layer->getResourceId(), 0);
-
-	delete new_layer;
-
 }

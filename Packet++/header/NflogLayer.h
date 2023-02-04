@@ -13,6 +13,12 @@
  */
 namespace pcpp
 {
+
+	/** IPv4 protocol */
+	#define PCPP_WS_NFPROTO_IPV4		2
+	/** IPv6 protocol */
+	#define PCPP_WS_NFPROTO_IPV6		10
+
 	/**
 	 * @struct nflog_header
 	 * Represents Nflog header
@@ -66,48 +72,48 @@ namespace pcpp
 
 	enum class NflogTlvType
 	{
-	    /// the packet header structure
+	    /** the packet header structure */
 		NFULA_PACKET_HDR			= 1,
-        /// packet mark from skbuff
+        /** packet mark from skbuff */
 		NFULA_MARK					= 2,
-        /// nflog_timestamp_t for skbuff's time stamp
+        /** nflog_timestamp_t for skbuff's time stamp */
  		NFULA_TIMESTAMP				= 3,
-        /// ifindex of device on which packet received (possibly bridge group)
+        /** ifindex of device on which packet received (possibly bridge group) */
  		NFULA_IFINDEX_INDEV			= 4,
-        /// ifindex of device on which packet transmitted (possibly bridge group)
+        /** ifindex of device on which packet transmitted (possibly bridge group) */
  		NFULA_IFINDEX_OUTDEV		= 5,
-        /// ifindex of physical device on which packet received (not bridge group)
+        /** ifindex of physical device on which packet received (not bridge group) */
  		NFULA_IFINDEX_PHYSINDEV		= 6,
-        /// ifindex of physical device on which packet transmitted (not bridge group)
+        /** ifindex of physical device on which packet transmitted (not bridge group) */
  		NFULA_IFINDEX_PHYSOUTDEV	= 7,
-        /// nflog_hwaddr_t for hardware address
+        /** nflog_hwaddr_t for hardware address */
  		NFULA_HWADDR				= 8,
-        /// packet payload
+        /** packet payload */
  		NFULA_PAYLOAD				= 9,
-        /// text string - null-terminated, count includes NUL
+        /** text string - null-terminated, count includes NUL */
  		NFULA_PREFIX				= 10,
-        /// UID owning socket on which packet was sent/received
+        /** UID owning socket on which packet was sent/received */
  		NFULA_UID					= 11,
-        /// sequence number of packets on this NFLOG socket
+        /** sequence number of packets on this NFLOG socket */
  		NFULA_SEQ					= 12,
-        /// sequence number of pakets on all NFLOG sockets
+        /** sequence number of pakets on all NFLOG sockets */
  		NFULA_SEQ_GLOBAL			= 13,
-        /// GID owning socket on which packet was sent/received
+        /** GID owning socket on which packet was sent/received */
  		NFULA_GID					= 14,
-        /// ARPHRD_ type of skbuff's device
+        /** ARPHRD_ type of skbuff's device */
  		NFULA_HWTYPE				= 15,
-        /// skbuff's MAC-layer header
+        /** skbuff's MAC-layer header */
  		NFULA_HWHEADER				= 16,
-        /// length of skbuff's MAC-layer header
+        /** length of skbuff's MAC-layer header */
  		NFULA_HWLEN					= 17,
 	};
 
 	/**
-	 * @class NflogTlv
+	 * @class NflogTLV
 	 * A wrapper class for NFLOG tlv fields. This class does not create or modify TLVs related to NFLOG, but rather
 	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
 	 */
-	class NflogTlv
+	class NflogTLV
 	{
 	private:
 		struct NflogTLVRawData
@@ -125,7 +131,7 @@ namespace pcpp
 		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
 		 * @param[in] recordRawData A pointer to the option raw data
 		 */
-		explicit NflogTlv(uint8_t* recordRawData)
+		explicit NflogTLV(uint8_t* recordRawData)
 		{
 			assign(recordRawData);
 		}
@@ -141,8 +147,8 @@ namespace pcpp
 		 */
 		void assign(uint8_t* recordRawData)
 		{
-			if(recordRawData == NULL)
-				m_Data = NULL;
+			if(recordRawData == nullptr)
+				m_Data = nullptr;
 			else
 			{
 				// to pass from some unknown paddings after tlv with type NFULA_PREFIX
@@ -157,7 +163,7 @@ namespace pcpp
 		 */
 		bool isNull() const
 		{
-			return (m_Data == NULL);
+			return (m_Data == nullptr);
 		}
 
 		/**
@@ -191,11 +197,6 @@ namespace pcpp
 		 */
 		NflogLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = NFLOG; }
 
-        /**
-		 * A constructor that allocates a new Nflog header with empty fields
-		 */
-		NflogLayer();
-
 		~NflogLayer() {}
 
 		/**
@@ -204,12 +205,6 @@ namespace pcpp
 		 */
 		nflog_header* getNflogHeader() const { return (nflog_header*)m_Data; }
 
-        /**
-         * Set address family in header of the packet.
-         * @param[in] family as uint8_t
-        */
-        void setFamily(uint8_t family);
-
 		/**
 		 * Get address family of the packet. e.g. 2 for ipv4 and 10 for ipv6
 		 * @return an unsigned char of address family
@@ -217,23 +212,11 @@ namespace pcpp
 		uint8_t getFamily();
 
         /**
-         * Set version number in header of the packet.
-         * @param[in] version as uint8_t
-        */
-        void setVersion(uint8_t version);
-
-        /**
          * Get Version number inside packet header
          * The version field is 0 for the current version of the pseudo-header
          * @return an unsigned char for version
         */
         uint8_t getVersion();
-
-        /**
-         * Set resource id in header of the packet.
-         * @param[in] resourceId as uint16_t
-        */
-        void setResourceId(uint16_t resourceId);
 
         /**
          * Get Resource Id in packet header
@@ -250,9 +233,9 @@ namespace pcpp
 		/**
 		 * returns a pair of pointer to tlv data and the length of the tlv
 		 * @param[in] type type of tlv by using enum class defined as NflogTlvType
-		 * @return NflogTlv obtained by type
+		 * @return NflogTLV obtained by type
 		*/
-		NflogTlv getTlvByType(NflogTlvType type) const;
+		NflogTLV getTlvByType(NflogTlvType type) const;
 
 		// implement abstract methods
 
@@ -265,7 +248,7 @@ namespace pcpp
 		/**
 		 * @return Size of nflog_header
 		 */
-		size_t getHeaderLen() const { return sizeof(nflog_header); }
+		size_t getHeaderLen() const;
 
 		/**
 		 * nothing to do for now
@@ -281,7 +264,7 @@ namespace pcpp
 
 		uint8_t* getTlvsBasePtr() const { return m_Data + sizeof(nflog_header); }
 
-		TLVRecordReader<NflogTlv> m_TlvReader;
+		TLVRecordReader<NflogTLV> m_TlvReader;
 	};
 
 } // namespace pcpp

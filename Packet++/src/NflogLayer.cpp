@@ -5,7 +5,6 @@
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "GeneralUtils.h"
-#include "NullLoopbackLayer.h"
 
 #include <string.h>
 
@@ -13,38 +12,9 @@
 namespace pcpp
 {
 
-void NflogLayer::initLayer()
-{
-	m_Packet = NULL;
-	const size_t headerLen = sizeof(nflog_header);
-	m_DataLen = headerLen;
-	m_Data = new uint8_t[headerLen];
-	m_Protocol = NFLOG;
-	memset(m_Data, 0, headerLen);
-	nflog_header* nflogHeader = getNflogHeader();
-	nflogHeader->addressFamily = pcpp::IPv4;
-	nflogHeader->resourceId = 0;
-	nflogHeader->version = 0;
-}
-
-NflogLayer::NflogLayer()
-{
-	initLayer();
-}
-
-void NflogLayer::setFamily(uint8_t family)
-{
-	getNflogHeader()->addressFamily = family;
-}
-
 uint8_t NflogLayer::getFamily()
 {
 	return getNflogHeader()->addressFamily;
-}
-
-void NflogLayer::setVersion(uint8_t version)
-{
-	getNflogHeader()->version = version;
 }
 
 uint8_t NflogLayer::getVersion()
@@ -52,24 +22,18 @@ uint8_t NflogLayer::getVersion()
 	return getNflogHeader()->version;
 }
 
-void NflogLayer::setResourceId(uint16_t resourceId)
-{
-	getNflogHeader()->resourceId = resourceId;
-}
-
 uint16_t NflogLayer::getResourceId()
 {
-	return getNflogHeader()->resourceId;
+	return be16toh(getNflogHeader()->resourceId);
 }
 
-NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const
+NflogTLV NflogLayer::getTlvByType(NflogTlvType type) const
 {
-	NflogTlv tlv = m_TlvReader.getTLVRecord(
+	NflogTLV tlv = m_TlvReader.getTLVRecord(
 		static_cast<uint32_t> (type),
 		getTlvsBasePtr(),
 		m_DataLen - sizeof(nflog_header));
 
-	// std::pair<uint8_t*, int> out = std::make_pair(tlv.getValue(), tlv.getTotalSize());
 	return tlv;
 }
 
@@ -85,21 +49,24 @@ void NflogLayer::parseNextLayer()
 	if (m_DataLen <= sizeof(nflog_header))
 		return;
 	auto payloadInfo = getTlvByType(NflogTlvType::NFULA_PAYLOAD);
+	if (payloadInfo.isNull())
+	{
+		return;
+	}
+
 	uint8_t* payload = payloadInfo.getValue();
-	size_t payloadLen = payloadInfo.getTotalSize() + sizeof(nflog_tlv);
+	size_t payloadLen = payloadInfo.getTotalSize() - sizeof(nflog_tlv);
 
 	uint8_t family = getFamily();
 
 	switch (family)
 	{
-	case PCPP_BSD_AF_INET:
+	case PCPP_WS_NFPROTO_IPV4:
 		m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
 			? static_cast<Layer*>(new IPv4Layer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
-	case PCPP_BSD_AF_INET6_BSD:
-	case PCPP_BSD_AF_INET6_FREEBSD:
-	case PCPP_BSD_AF_INET6_DARWIN:
+	case PCPP_WS_NFPROTO_IPV6:
 		m_NextLayer = IPv6Layer::isDataValid(payload, payloadLen)
 			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
@@ -108,6 +75,27 @@ void NflogLayer::parseNextLayer()
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 
+}
+
+size_t NflogLayer::getHeaderLen() const
+{
+	size_t headerLen = 0;
+	NflogTLV currentTLV =  m_TlvReader.getFirstTLVRecord(
+		getTlvsBasePtr(),
+		m_DataLen - sizeof(nflog_header));
+
+	while (currentTLV.getType() != static_cast<uint16_t> (NflogTlvType::NFULA_PAYLOAD))
+	{
+		headerLen += currentTLV.getTotalSize();
+		currentTLV = m_TlvReader.getNextTLVRecord(currentTLV, getTlvsBasePtr(), m_DataLen - sizeof(nflog_header));
+	}
+	if (currentTLV.getType() == static_cast<uint16_t> (NflogTlvType::NFULA_PAYLOAD))
+	{
+		// for the length and type of the payload TLV
+		headerLen += 2 * sizeof (uint16_t);
+	}
+	// nflog_header has not a form of TLV and contains 3 fields (family, resource_id, version)
+	return headerLen + sizeof(nflog_header);
 }
 
 std::string NflogLayer::toString() const
