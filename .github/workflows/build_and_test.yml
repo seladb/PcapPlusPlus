@@ -116,7 +116,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -133,19 +133,6 @@ jobs:
         run: |
           cd Tests/Pcap++Test
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
-
-      - name: Create Cobertura Report
-        run: |
-          python3 -m pip install gcovr
-          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.image }},unittest
-          fail_ci_if_error: false
-          verbose: true
 
       - name: Check installation
         run: cmake --install $BUILD_DIR
@@ -164,7 +151,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B $BUILD_DIR
 
     steps:
       - name: Checkout code
@@ -185,19 +172,6 @@ jobs:
         run: |
           cd Tests/Pcap++Test
           Bin/Pcap++Test -n
-
-      - name: Create Cobertura Report
-        run: |
-          python3 -m pip install gcovr
-          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
-          flags: pfring,unittest
-          fail_ci_if_error: false
-          verbose: true
 
       - name: Check installation
         run: cmake --install $BUILD_DIR
