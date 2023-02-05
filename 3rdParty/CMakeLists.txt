@@ -7,7 +7,7 @@ add_subdirectory(hash-library)
 add_subdirectory(json)
 add_subdirectory(LightPcapNg)
 add_subdirectory(MemPlumber/MemPlumber)
-add_subdirectory(OUILookup)
+add_subdirectory(OUIDataset)
 
 if(PCAPPP_INSTALL)
   install(

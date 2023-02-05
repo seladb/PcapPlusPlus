@@ -37,7 +37,7 @@ build/
 
 #auto generated files
 setup_dpdk_settings.dat
-3rdParty/OUILookup/manuf.dat
+3rdParty/OUIDataset/manuf.dat
 
 #curl text
 Tests/Pcap++Test/cUrl/curl_output.txt

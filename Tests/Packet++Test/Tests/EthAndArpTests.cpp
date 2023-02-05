@@ -13,7 +13,7 @@
 PTF_TEST_CASE(OUILookup)
 {
 	pcpp::OUILookup lookupEngineJson;
-	PTF_ASSERT_GREATER_THAN(lookupEngineJson.initOUIDatabaseFromJson("../../3rdParty/OUILookup/PCPP_OUIDataset.json"), 0);
+	PTF_ASSERT_GREATER_THAN(lookupEngineJson.initOUIDatabaseFromJson("../../3rdParty/OUIDataset/PCPP_OUIDataset.json"), 0);
 
 	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("aa:aa:aa:aa:aa:aa")), "Unknown");
 	// CIDR 36
