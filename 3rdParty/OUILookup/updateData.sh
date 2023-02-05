@@ -1,3 +1,4 @@
+#!/bin/sh
 set -e
 
 # Rename with .dat extension to prevent typo checks
