@@ -44,13 +44,23 @@ namespace pcpp
 		/// Internal vendor list for MAC addresses
 		OUIVendorMap vendorMap;
 
+		template <typename T>
+		int64_t internalParser(T &jsonData);
+
 	  public:
+
 		/**
-		 * Initialise internal OUI database
+		 * Initialise internal OUI database from a compile time data
+		 * @return Returns the number of total vendors, negative on errors
+		 */
+		int64_t initOUIDatabaseFromInternalData();
+
+		/**
+		 * Initialise internal OUI database from a JSON file
 		 * @param[in] path Path to OUI database. The database itself is located at 3rdParty/OUILookup/PCPP_OUIDatabase.json
 		 * @return Returns the number of total vendors, negative on errors
 		 */
-		int64_t initOUIDatabase(const std::string &path = "PCPP_OUIDatabase.json");
+		int64_t initOUIDatabaseFromJson(const std::string &path = "");
 
 		/**
 		 * Returns the vendor of the MAC address. OUI database should be initialized with initOUIDatabase()

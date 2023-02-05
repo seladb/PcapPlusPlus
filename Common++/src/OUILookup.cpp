@@ -1,5 +1,7 @@
 #include "OUILookup.h"
+
 #include "Logger.h"
+#include "PCPP_OUIDataset.h"
 #include "json.hpp"
 
 #include <fstream>
@@ -7,21 +9,11 @@
 namespace pcpp
 {
 
-int64_t OUILookup::initOUIDatabase(const std::string &path)
+template <typename T>
+int64_t OUILookup::internalParser(T &jsonData)
 {
 	int64_t ctrRead = 0;
-	std::ifstream dataFile;
-
-	// Open database
-	dataFile.open(path);
-	if (!dataFile.is_open())
-	{
-		PCPP_LOG_ERROR(std::string("Can't open OUI database: ") + strerror(errno));
-		return -1;
-	}
-
-	// Parse values
-	nlohmann::json parsedJson = nlohmann::json::parse(dataFile);
+	nlohmann::json parsedJson = nlohmann::json::parse(jsonData);
 	for (const auto &line : parsedJson.items())
 	{
 		if (!(line.value().is_object()))
@@ -39,8 +31,8 @@ int64_t OUILookup::initOUIDatabase(const std::string &path)
 				if (!entry.is_object())
 					continue;
 				auto subVal = entry.get<nlohmann::json>();
-				if (subVal.contains("mask") && subVal.contains("vendors") &&
-					subVal["mask"].is_number_integer() && subVal["vendors"].is_object())
+				if (subVal.contains("mask") && subVal.contains("vendors") && subVal["mask"].is_number_integer() &&
+					subVal["vendors"].is_object())
 				{
 					int maskValue = subVal["mask"].get<int>();
 					vLocalMaskedFilter.push_back({maskValue, {}});
@@ -65,6 +57,27 @@ int64_t OUILookup::initOUIDatabase(const std::string &path)
 
 	PCPP_LOG_DEBUG(std::to_string(ctrRead) + " vendors read successfully");
 	return ctrRead;
+}
+
+int64_t OUILookup::initOUIDatabaseFromInternalData()
+{
+	return internalParser(PCPP_OUIDataset_json);
+}
+
+int64_t OUILookup::initOUIDatabaseFromJson(const std::string &path)
+{
+	std::ifstream dataFile;
+
+	// Open database
+	dataFile.open(path);
+	if (!dataFile.is_open())
+	{
+		PCPP_LOG_ERROR(std::string("Can't open OUI database: ") + strerror(errno));
+		return -1;
+	}
+
+	// Parse values
+	return internalParser(dataFile);
 }
 
 std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
