@@ -9,7 +9,7 @@ extend-exclude = [  "*.toml",
                     "Tests/ExamplesTest/pcap_examples/",
                     "Tests/Packet++Test/PacketExamples/",
                     "Tests/Pcap++Test/PcapExamples/",
-                    "3rdParty/OUILookup/PCPP_OUIDataset.json",
+                    "3rdParty/OUIDataset/PCPP_OUIDataset.json",
                     "3rdParty/json/"
                  ]
 
