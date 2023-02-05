@@ -16,7 +16,7 @@
 PTF_TEST_CASE(GreParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/GREv0_1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/GREv0_2.dat");
@@ -24,9 +24,9 @@ PTF_TEST_CASE(GreParsingTest)
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/GREv1_2.dat");
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/GREv0_4.dat");
 
-	pcpp::GREv0Layer* grev0Layer = NULL;
-	pcpp::GREv1Layer* grev1Layer = NULL;
-	pcpp::TcpLayer* tcpLayer = NULL;
+	pcpp::GREv0Layer* grev0Layer = nullptr;
+	pcpp::GREv1Layer* grev1Layer = nullptr;
+	pcpp::TcpLayer* tcpLayer = nullptr;
 
 	pcpp::Packet grev0Packet1(&rawPacket1);
 	pcpp::Packet grev0Packet2(&rawPacket2);
@@ -61,7 +61,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(value32, 40000);
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
-	grev0Layer = NULL;
+	grev0Layer = nullptr;
 
 	// GREv0 packet 2
 	PTF_ASSERT_TRUE(grev0Packet2.isPacketOfType(pcpp::GRE) && grev0Packet2.isPacketOfType(pcpp::GREv0));
@@ -89,7 +89,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(grev0Layer->getGreHeader()->protocol, htobe16(PCPP_ETHERTYPE_IP));
 	PTF_ASSERT_NOT_NULL(grev0Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(grev0Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
-	grev0Layer = NULL;
+	grev0Layer = nullptr;
 
 	// GREv1 packet 1
 	PTF_ASSERT_TRUE(grev1Packet1.isPacketOfType(pcpp::GRE) && grev1Packet1.isPacketOfType(pcpp::GREv1));
@@ -102,14 +102,13 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 1);
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(6));
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, 0);
-	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev1Layer->getSequenceNumber(value32));
 	PTF_ASSERT_EQUAL(value32, 40000);
 	PTF_ASSERT_TRUE(grev1Layer->getAcknowledgmentNum(value32));
 	PTF_ASSERT_EQUAL(value32, 26);
 	PTF_ASSERT_NULL(grev1Layer->getNextLayer());
-	grev1Layer = NULL;
+	grev1Layer = nullptr;
 
 	// GREv1 packet 2
 	PTF_ASSERT_TRUE(grev1Packet2.isPacketOfType(pcpp::GRE) && grev1Packet2.isPacketOfType(pcpp::GREv1));
@@ -124,7 +123,6 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->ackSequenceNumBit, 0);
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->callID, htobe16(17));
 	PTF_ASSERT_EQUAL(grev1Layer->getGreHeader()->payloadLength, htobe16(178));
-	value16 = 40000;
 	value32 = 40000;
 	PTF_ASSERT_FALSE(grev1Layer->getAcknowledgmentNum(value32));
 	PTF_ASSERT_EQUAL(value32, 40000);
@@ -141,7 +139,7 @@ PTF_TEST_CASE(GreParsingTest)
 	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, htobe16(PCPP_PPP_IP));
 	PTF_ASSERT_NOT_NULL(pppLayer->getNextLayer());
 	PTF_ASSERT_EQUAL(pppLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
-	grev1Layer = NULL;
+	grev1Layer = nullptr;
 
 	// GREv0 packet 4 - Transparent Ethernet Bridging
 	PTF_ASSERT_TRUE(grev0Packet4.isPacketOfType(pcpp::GRE) && grev0Packet4.isPacketOfType(pcpp::GREv0));
@@ -155,8 +153,8 @@ PTF_TEST_CASE(GreParsingTest)
 	tcpLayer = grev0Packet4.getLayerOfType<pcpp::TcpLayer>(true /* reverse */);
 	PTF_ASSERT_NOT_NULL(tcpLayer);
 	PTF_ASSERT_EQUAL(tcpLayer->getSrcPort(), 1232);
-	grev0Layer = NULL;
-	tcpLayer = NULL;
+	grev0Layer = nullptr;
+	tcpLayer = nullptr;
 } // GreParsingTest
 
 
@@ -235,7 +233,7 @@ PTF_TEST_CASE(GreEditTest)
 	// GREv0 packet edit
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/GREv0_3.dat");
 
@@ -401,8 +399,8 @@ PTF_TEST_CASE(GreEditTest)
 
 	PTF_ASSERT_EQUAL(pppLayer->getPPP_PPTPHeader()->protocol, 0);
 
-	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"), pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
-	PTF_ASSERT_TRUE(grev1Packet.addLayer(&ipv6Layer));
+	auto ipv6Layer = new pcpp::IPv6Layer(pcpp::IPv6Address("2402:f000:1:8e01::5555"), pcpp::IPv6Address("2607:fcd0:100:2300::b108:2a6b"));
+	PTF_ASSERT_TRUE(grev1Packet.addLayer(ipv6Layer, true));
 	grev1Packet.computeCalculateFields();
 
 	PTF_ASSERT_NOT_NULL(pppLayer->getNextLayer());

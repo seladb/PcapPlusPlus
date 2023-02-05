@@ -11,20 +11,20 @@
 namespace pcpp
 {
 
-bool TelnetLayer::isDataField(uint8_t *pos)
+bool TelnetLayer::isDataField(uint8_t *pos) const
 {
 	// "FF FF" means data
-	return pos[0] != InterpretAsCommand || (pos[0] == InterpretAsCommand && pos[1] == InterpretAsCommand);
+	return pos[0] != InterpretAsCommand || pos[1] == InterpretAsCommand;
 }
 
-bool TelnetLayer::isCommandField(uint8_t *pos)
+bool TelnetLayer::isCommandField(uint8_t *pos) const
 {
-	return pos[0] == InterpretAsCommand && pos[1] != InterpretAsCommand;
+	return !isDataField(pos);
 }
 
 size_t TelnetLayer::distanceToNextIAC(uint8_t *startPos, size_t maxLength)
 {
-	uint8_t *pos = NULL;
+	uint8_t *pos = nullptr;
 	size_t addition = 0;
 	size_t currentOffset = 0;
 	do
@@ -75,7 +75,7 @@ uint8_t *TelnetLayer::getNextDataField(uint8_t *pos, size_t len)
 			return pos;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 uint8_t *TelnetLayer::getNextCommandField(uint8_t *pos, size_t len)
@@ -92,7 +92,7 @@ uint8_t *TelnetLayer::getNextCommandField(uint8_t *pos, size_t len)
 			return pos;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int16_t TelnetLayer::getSubCommand(uint8_t *pos, size_t len)
@@ -110,12 +110,12 @@ uint8_t *TelnetLayer::getCommandData(uint8_t *pos, size_t &len)
 		return &pos[3];
 	}
 	len = 0;
-	return NULL;
+	return nullptr;
 }
 
 std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
 {
-	uint8_t *dataPos = NULL;
+	uint8_t *dataPos = nullptr;
 	if (isDataField(m_Data))
 		dataPos = m_Data;
 	else
@@ -147,11 +147,10 @@ size_t TelnetLayer::getTotalNumberOfCommands()
 	if (isCommandField(m_Data))
 		++ctr;
 
-	size_t offset = 0;
 	uint8_t *pos = m_Data;
-	while (pos != NULL)
+	while (pos != nullptr)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 		if (pos)
 			++ctr;
@@ -169,11 +168,10 @@ size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
 	if (isCommandField(m_Data) && m_Data[1] == command)
 		++ctr;
 
-	size_t offset = 0;
 	uint8_t *pos = m_Data;
-	while (pos != NULL)
+	while (pos != nullptr)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 		if (pos && pos[1] == command)
 			++ctr;
@@ -235,10 +233,9 @@ TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command)
 		return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
 
 	uint8_t *pos = m_Data;
-	size_t offset = 0;
-	while (pos != NULL)
+	while (pos != nullptr)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 
 		if (pos && pos[1] == command)
@@ -259,7 +256,7 @@ uint8_t *TelnetLayer::getOptionData(size_t &length)
 		length = lenBuffer;
 		return posBuffer;
 	}
-	return NULL;
+	return nullptr;
 }
 
 uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
@@ -269,7 +266,7 @@ uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
 	{
 		PCPP_LOG_ERROR("Command type can't be negative");
 		length = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	if (isCommandField(m_Data) && m_Data[1] == command)
@@ -282,10 +279,9 @@ uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
 	}
 
 	uint8_t *pos = m_Data;
-	size_t offset = 0;
-	while (pos != NULL)
+	while (pos != nullptr)
 	{
-		offset = pos - m_Data;
+		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 
 		if (pos && pos[1] == command)
@@ -300,7 +296,7 @@ uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
 
 	PCPP_LOG_DEBUG("Can't find requested command");
 	length = 0;
-	return NULL;
+	return nullptr;
 }
 
 std::string TelnetLayer::getTelnetCommandAsString(TelnetCommand val)
@@ -475,7 +471,7 @@ std::string TelnetLayer::getTelnetOptionAsString(TelnetOption val)
 
 std::string TelnetLayer::toString() const
 {
-	if (m_Data[0] != InterpretAsCommand || (m_Data[0] == InterpretAsCommand && m_Data[1] == InterpretAsCommand))
+	if (isDataField(m_Data))
 		return "Telnet Data";
 	return "Telnet Control";
 }

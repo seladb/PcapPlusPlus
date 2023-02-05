@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
 	// find the interface by IP address
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
-	if (dev == NULL)
+	if (dev == nullptr)
 	{
 		std::cerr << "Cannot find interface with IPv4 address of '" << interfaceIPAddr << "'" << std::endl;
 		return 1;

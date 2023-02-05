@@ -58,18 +58,18 @@
 
 static struct option TcpAssemblyOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"input-file",  required_argument, 0, 'r'},
-	{"output-dir", required_argument, 0, 'o'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"filter", required_argument, 0, 'e'},
-	{"write-metadata", no_argument, 0, 'm'},
-	{"write-to-console", no_argument, 0, 'c'},
-	{"separate-sides", no_argument, 0, 's'},
-	{"max-file-desc", required_argument, 0, 'f'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"input-file",  required_argument, nullptr, 'r'},
+	{"output-dir", required_argument, nullptr, 'o'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"filter", required_argument, nullptr, 'e'},
+	{"write-metadata", no_argument, nullptr, 'm'},
+	{"write-to-console", no_argument, nullptr, 'c'},
+	{"separate-sides", no_argument, nullptr, 's'},
+	{"max-file-desc", required_argument, nullptr, 'f'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -83,7 +83,7 @@ private:
 	/**
 	 * A private c'tor (as this is a singleton)
 	 */
-	GlobalConfig() { writeMetadata = false; writeToConsole = false; separateSides = false; maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES; m_RecentConnsWithActivity = NULL; }
+	GlobalConfig() { writeMetadata = false; writeToConsole = false; separateSides = false; maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES; m_RecentConnsWithActivity = nullptr; }
 
 	// A least-recently-used (LRU) list of all connections seen so far. Each connection is represented by its flow key. This LRU list is used to decide which connection was seen least
 	// recently in case we reached max number of open file descriptors and we need to decide which files to close
@@ -141,7 +141,7 @@ public:
 	 * Open a file stream. Inputs are the filename to open and a flag indicating whether to append to an existing file or overwrite it.
 	 * Return value is a pointer to the new file stream
 	 */
-	std::ostream* openFileStream(std::string fileName, bool reopen)
+	std::ostream* openFileStream(const std::string &fileName, bool reopen)
 	{
 		// if the user chooses to write only to console, don't open anything and return std::cout
 		if (writeToConsole)
@@ -181,7 +181,7 @@ public:
 		// This is a lazy implementation - the instance isn't created until the user requests it for the first time.
 		// the side of the LRU list is determined by the max number of allowed open files at any point in time. Default is DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES
 		// but the user can choose another number
-		if (m_RecentConnsWithActivity == NULL)
+		if (m_RecentConnsWithActivity == nullptr)
 			m_RecentConnsWithActivity = new pcpp::LRUList<uint32_t>(maxOpenFiles);
 
 		// return the pointer
@@ -230,7 +230,7 @@ struct TcpReassemblyData
 	/**
 	 * the default c'tor
 	 */
-	TcpReassemblyData() { fileStreams[0] = NULL; fileStreams[1] = NULL; clear(); }
+	TcpReassemblyData() { fileStreams[0] = nullptr; fileStreams[1] = nullptr; clear(); }
 
 	/**
 	 * The default d'tor
@@ -238,10 +238,10 @@ struct TcpReassemblyData
 	~TcpReassemblyData()
 	{
 		// close files on both sides if open
-		if (fileStreams[0] != NULL)
+		if (fileStreams[0] != nullptr)
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
 
-		if (fileStreams[1] != NULL)
+		if (fileStreams[1] != nullptr)
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[1]);
 	}
 
@@ -251,16 +251,16 @@ struct TcpReassemblyData
 	void clear()
 	{
 		// for the file stream - close them if they're not null
-		if (fileStreams[0] != NULL)
+		if (fileStreams[0] != nullptr)
 		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
-			fileStreams[0] = NULL;
+			fileStreams[0] = nullptr;
 		}
 
-		if (fileStreams[1] != NULL)
+		if (fileStreams[1] != nullptr)
 		{
 			GlobalConfig::getInstance().closeFileSteam(fileStreams[1]);
-			fileStreams[1] = NULL;
+			fileStreams[1] = nullptr;
 		}
 
 		reopenFileStreams[0] = false;
@@ -362,7 +362,7 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 		side = 0;
 
 	// if the file stream on the relevant side isn't open yet (meaning it's the first data on this connection)
-	if (iter->second.fileStreams[side] == NULL)
+	if (iter->second.fileStreams[side] == nullptr)
 	{
 		// add the flow key of this connection to the list of open connections. If the return value isn't NULL it means that there are too many open files
 		// and we need to close the connection with least recently used file(s) in order to open a new one.
@@ -380,11 +380,11 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 				// close files on both sides (if they're open)
 				for (int index = 0; index < 2; index++)
 				{
-					if (iter2->second.fileStreams[index] != NULL)
+					if (iter2->second.fileStreams[index] != nullptr)
 					{
 						// close the file
 						GlobalConfig::getInstance().closeFileSteam(iter2->second.fileStreams[index]);
-						iter2->second.fileStreams[index] = NULL;
+						iter2->second.fileStreams[index] = nullptr;
 
 						// set the reopen flag to true to indicate that next time this file will be opened it will be opened in append mode (and not overwrite mode)
 						iter2->second.reopenFileStreams[index] = true;
@@ -502,7 +502,7 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
 /**
  * The method responsible for TCP reassembly on pcap/pcapng files
  */
-void doTcpReassemblyOnPcapFile(std::string fileName, pcpp::TcpReassembly& tcpReassembly, std::string bpfFilter = "")
+void doTcpReassemblyOnPcapFile(const std::string& fileName, pcpp::TcpReassembly& tcpReassembly, const std::string& bpfFilter = "")
 {
 	// open input file (pcap or pcapng file)
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(fileName);
@@ -544,7 +544,7 @@ void doTcpReassemblyOnPcapFile(std::string fileName, pcpp::TcpReassembly& tcpRea
 /**
  * The method responsible for TCP reassembly on live traffic
  */
-void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly& tcpReassembly, std::string bpfFilter = "")
+void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev, pcpp::TcpReassembly& tcpReassembly, const std::string& bpfFilter = "")
 {
 	// try to open device
 	if (!dev->open())
@@ -676,7 +676,7 @@ int main(int argc, char* argv[])
 	{
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing packets and do TCP reassembly

@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader("1_http_packet.pcap");
 
 	// verify that a reader interface was indeed created
-	if (reader == NULL)
+	if (reader == nullptr)
 	{
 		std::cerr << "Cannot determine reader for file type" << std::endl;
 		return 1;
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 	pcpp::Packet parsedPacket(&rawPacket);
 
 	// first let's go over the layers one by one and find out its type, its total length, its header length and its payload length
-	for (pcpp::Layer* curLayer = parsedPacket.getFirstLayer(); curLayer != NULL; curLayer = curLayer->getNextLayer())
+	for (pcpp::Layer* curLayer = parsedPacket.getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 	{
 		std::cout
 			<< "Layer type: " << getProtocolTypeAsString(curLayer->getProtocol()) << "; " // get layer type
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 
 	// now let's get the Ethernet layer
 	pcpp::EthLayer* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
-	if (ethernetLayer == NULL)
+	if (ethernetLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
 		return 1;
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 
 	// let's get the IPv4 layer
 	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
-	if (ipLayer == NULL)
+	if (ipLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find IPv4 layer" << std::endl;
 		return 1;
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 
 	// let's get the TCP layer
 	pcpp::TcpLayer* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
-	if (tcpLayer == NULL)
+	if (tcpLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find TCP layer" << std::endl;
 		return 1;
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
 
 	// let's get the HTTP request layer
 	pcpp::HttpRequestLayer* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
-	if (httpRequestLayer == NULL)
+	if (httpRequestLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find HTTP request layer" << std::endl;
 		return 1;

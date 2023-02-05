@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include <sstream>
+#include <utility>
 #include <string.h>
 #include "EndianPortable.h"
 
@@ -12,7 +13,7 @@ namespace pcpp
 
 size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const
 {
-	if (dnsResource == NULL)
+	if (dnsResource == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot decode name, DNS resource object is NULL");
 		return 0;
@@ -23,7 +24,7 @@ size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsR
 
 void IDnsResourceData::encodeName(const std::string& decodedName, char* result, size_t& resultLen, IDnsResource* dnsResource) const
 {
-	if (dnsResource == NULL)
+	if (dnsResource == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot encode name, DNS resource object is NULL");
 		return;
@@ -119,7 +120,7 @@ bool MxDnsResourceData::operator==(const MxDnsResourceData& other) const
 void MxDnsResourceData::setMxData(uint16_t preference, std::string mailExchange)
 {
 	m_Data.preference = preference;
-	m_Data.mailExchange = mailExchange;
+	m_Data.mailExchange = std::move(mailExchange);
 }
 
 std::string MxDnsResourceData::toString() const
@@ -141,9 +142,9 @@ bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*
 
 GenericDnsResourceData::GenericDnsResourceData(uint8_t* dataPtr, size_t dataLen)
 {
-	m_Data = NULL;
+	m_Data = nullptr;
 	m_DataLen = 0;
-	if (dataLen > 0 && dataPtr != NULL)
+	if (dataLen > 0 && dataPtr != nullptr)
 	{
 		m_DataLen = dataLen;
 		m_Data = new uint8_t[dataLen];
@@ -153,7 +154,7 @@ GenericDnsResourceData::GenericDnsResourceData(uint8_t* dataPtr, size_t dataLen)
 
 GenericDnsResourceData::GenericDnsResourceData(const std::string& dataAsHexString)
 {
-	m_Data = NULL;
+	m_Data = nullptr;
 	uint8_t tempDataArr[2048];
 	m_DataLen = hexStringToByteArray(dataAsHexString, tempDataArr, 2048);
 	if (m_DataLen != 0)
@@ -167,7 +168,7 @@ GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& oth
 {
 	m_DataLen = other.m_DataLen;
 
-	if (m_DataLen > 0 && other.m_Data != NULL)
+	if (m_DataLen > 0 && other.m_Data != nullptr)
 	{
 		m_Data = new uint8_t[m_DataLen];
 		memcpy(m_Data, other.m_Data, m_DataLen);
@@ -176,12 +177,12 @@ GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& oth
 
 GenericDnsResourceData& GenericDnsResourceData::operator=(const GenericDnsResourceData& other)
 {
-	if (m_Data != NULL)
+	if (m_Data != nullptr)
 		delete [] m_Data;
 
-	m_Data = NULL;
+	m_Data = nullptr;
 	m_DataLen = other.m_DataLen;
-	if (m_DataLen > 0 && other.m_Data != NULL)
+	if (m_DataLen > 0 && other.m_Data != nullptr)
 	{
 		m_Data = new uint8_t[m_DataLen];
 		memcpy(m_Data, other.m_Data, m_DataLen);
@@ -205,7 +206,7 @@ std::string GenericDnsResourceData::toString() const
 
 bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
 {
-	if (m_DataLen == 0 || m_Data == NULL)
+	if (m_DataLen == 0 || m_Data == nullptr)
 	{
 		PCPP_LOG_ERROR("Input data is null or illegal");
 		return false;

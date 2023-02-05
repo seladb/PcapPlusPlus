@@ -36,7 +36,7 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 
 PTF_TEST_CASE(TestPcapFiltersLive)
 {
-	pcpp::PcapLiveDevice* liveDev = NULL;
+	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
@@ -155,7 +155,7 @@ PTF_TEST_CASE(TestPcapFiltersLive)
 			bool srcPortMatch = tcpLayer->getSrcPort() == 80;
 			bool srcIpMatch = false;
 			pcpp::IPv4Layer* ip4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
-			if (ip4Layer != NULL)
+			if (ip4Layer != nullptr)
 			{
 				srcIpMatch = ip4Layer->getSrcIPAddress() == ipToSearch;
 			}

@@ -32,18 +32,9 @@
 
 #Distribution folder
 Dist/
-
-#auto-generated make files
-mk/PcapPlusPlus.mk
-mk/platform.mk
-mk/PcapPlusPlus.mk-e
-3rdParty/LightPcapNg/zstd.mk
+build/
 
 #auto generated files
-install.sh
-uninstall.sh
-setup-dpdk.sh
-setup_dpdk.py
 setup_dpdk_settings.dat
 
 #curl text
@@ -75,7 +66,6 @@ mk/vs2017/**
 mk/vs2019/**
 
 #Tutorial outputs
-Examples/Tutorials/**/Makefile
 Examples/Tutorials/**/*.exe
 
 #venv

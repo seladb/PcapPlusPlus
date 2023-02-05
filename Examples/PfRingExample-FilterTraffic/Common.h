@@ -70,7 +70,7 @@ public:
 			HttpCount++;
 	}
 
-	void collectStats(PacketStats& stats)
+	void collectStats(const PacketStats& stats)
 	{
 		PacketCount += stats.PacketCount;
 		EthCount += stats.EthCount;
@@ -88,7 +88,7 @@ public:
 
 	void clear() { ThreadId = MAX_NUM_OF_CORES+1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; MatchedTcpFlows = 0; MatchedUdpFlows = 0; MatchedPackets = 0; }
 
-	std::string getStatValuesAsString(std::string delimiter)
+	std::string getStatValuesAsString(const std::string &delimiter)
 	{
 		std::stringstream values;
 		if (ThreadId == MAX_NUM_OF_CORES+1)

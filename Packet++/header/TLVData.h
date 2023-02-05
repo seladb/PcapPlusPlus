@@ -268,7 +268,7 @@ namespace pcpp
 		 * input record.isNull() is true or if the next record is out of bounds of the byte stream, a logical NULL instance
 		 * of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
-		TLVRecordType getNextTLVRecord(TLVRecordType& record, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
+		TLVRecordType getNextTLVRecord(TLVRecordType& record, const uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
 			TLVRecordType resRec(NULL); // for NRVO optimization
 

@@ -87,7 +87,7 @@ public:
 
 	/**
 	 * A constructor that creates the layer from an existing packet raw data
-	 * @param[in] data A pointer to the raw data (will be casted to @ref someiphdr)
+	 * @param[in] data A pointer to the raw data (will be casted to someiphdr)
 	 * @param[in] dataLen Size of the data in bytes
 	 * @param[in] prevLayer A pointer to the previous layer
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored in
@@ -133,7 +133,7 @@ public:
 	/**
 	 * Get a pointer to the basic SOME/IP header. Notice this points directly to the data, so every change will change
 	 * the actual packet data
-	 * @return A pointer to the @ref someiphdr
+	 * @return A pointer to the someiphdr
 	 */
 	someiphdr *getSomeIpHeader() const { return (someiphdr *)m_Data; }
 
@@ -328,7 +328,7 @@ public:
 	virtual void computeCalculateFields() {}
 
 	/**
-	 * Identifies the following next layers: SomeIpLayer, SomeIpTpLayer. Otherwise sets PayloadLayer
+	 * Identifies the following next layers: SomeIpLayer, SomeIpTpLayer, SomeIpSdLayer. Otherwise sets PayloadLayer
 	 */
 	void parseNextLayer();
 

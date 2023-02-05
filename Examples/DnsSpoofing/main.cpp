@@ -42,14 +42,14 @@
 
 static struct option DnsSpoofingOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"spoof-dns-server", required_argument, 0, 'd'},
-	{"client-ip", required_argument, 0, 'c'},
-	{"host-list", required_argument, 0, 'o'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{"list", no_argument, 0, 'l'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"spoof-dns-server", required_argument, nullptr, 'd'},
+	{"client-ip", required_argument, nullptr, 'c'},
+	{"host-list", required_argument, nullptr, 'o'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{"list", no_argument, nullptr, 'l'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -157,7 +157,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	pcpp::DnsLayer* dnsLayer = dnsRequest.getLayerOfType<pcpp::DnsLayer>();
 
 	// skip DNS requests with more than 1 request or with 0 requests
-	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) || dnsLayer->getFirstQuery() == NULL)
+	if (dnsLayer->getDnsHeader()->numberOfQuestions != pcpp::hostToNet16(1) || dnsLayer->getFirstQuery() == nullptr)
 		return;
 
 	// skip DNS requests which are not of class IN and type A (IPv4) or AAAA (IPv6)
@@ -174,7 +174,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		// go over all hosts in dnsHostsToSpoof list and see if current query matches one of them
 		for (std::vector<std::string>::iterator iter = args->dnsHostsToSpoof.begin(); iter != args->dnsHostsToSpoof.end(); iter++)
 		{
-			if (dnsLayer->getQuery(*iter, false) != NULL)
+			if (dnsLayer->getQuery(*iter, false) != nullptr)
 			{
 				hostMatch = true;
 				break;
@@ -197,7 +197,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	pcpp::IPAddress srcIP = ipLayer->getSrcIPAddress();
 	pcpp::IPv4Layer* ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(ipLayer);
 	pcpp::IPv6Layer* ip6Layer = dynamic_cast<pcpp::IPv6Layer*>(ipLayer);
-	if (ip4Layer != NULL)
+	if (ip4Layer != nullptr)
 	{
 		ip4Layer->setSrcIPv4Address(ip4Layer->getDstIPv4Address());
 		ip4Layer->setDstIPv4Address(srcIP.getIPv4());
@@ -243,7 +243,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 /**
  * An auxiliary method for sorting the string count map. Used for printing the summary of spoofed hosts
  */
-bool stringCountComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
+bool stringCountComparer(const std::pair<std::string, int>& first, const std::pair<std::string, int>& second)
 {
 	if (first.second == second.second)
 	{
@@ -305,7 +305,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * Activate DNS spoofing: prepare the device and start capturing DNS requests
  */
-void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, const pcpp::IPAddress& clientIP, std::vector<std::string> dnsHostsToSpoof)
+void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, const pcpp::IPAddress& clientIP, const std::vector<std::string> &dnsHostsToSpoof)
 {
 	// open device
 	if (!dev->open())
@@ -428,7 +428,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	pcpp::PcapLiveDevice* dev = NULL;
+	pcpp::PcapLiveDevice* dev = nullptr;
 
 	// check if interface argument is IP or name and extract the device
 	if (interfaceNameOrIP.empty())
@@ -437,7 +437,7 @@ int main(int argc, char* argv[])
 	}
 
 	dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-	if (dev == NULL)
+	if (dev == nullptr)
 		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 	// verify DNS server IP is a valid IPv4 address

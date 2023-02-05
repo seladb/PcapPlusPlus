@@ -53,7 +53,7 @@ namespace pcpp
 		 * Construct a new Wake On Lan Layer with provided values
 		 * @param[in] targetAddr Target MAC address
 		 */
-		WakeOnLanLayer(const pcpp::MacAddress &targetAddr);
+		explicit WakeOnLanLayer(const pcpp::MacAddress &targetAddr);
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values

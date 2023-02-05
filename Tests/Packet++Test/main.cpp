@@ -9,14 +9,14 @@
 
 static struct option PacketTestOptions[] =
 {
-	{"include-tags",  required_argument, 0, 't'},
-	{"exclude-tags",  required_argument, 0, 'x'},
-	{"show-skipped-tests", no_argument, 0, 'w' },
-	{"mem-verbose", no_argument, 0, 'm' },
-	{"verbose", no_argument, 0, 'v' },
-	{"skip-mem-leak-check", no_argument, 0, 's' },
-	{"help", no_argument, 0, 'h' },
-	{0, 0, 0, 0}
+	{"include-tags",  required_argument, nullptr, 't'},
+	{"exclude-tags",  required_argument, nullptr, 'x'},
+	{"show-skipped-tests", no_argument, nullptr, 'w' },
+	{"mem-verbose", no_argument, nullptr, 'm' },
+	{"verbose", no_argument, nullptr, 'v' },
+	{"skip-mem-leak-check", no_argument, nullptr, 's' },
+	{"help", no_argument, nullptr, 'h' },
+	{nullptr, 0, nullptr, 0}
 };
 
 void printUsage()
@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
 	pcpp::Logger::getInstance();
 
+	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")
@@ -267,9 +268,17 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(LLCCreationTests, "llc");
 
 	PTF_RUN_TEST(StpConfigurationParsingTests, "stp");
+	PTF_RUN_TEST(StpConfigurationCreationTests, "stp");
+	PTF_RUN_TEST(StpConfigurationEditTests, "stp");
 	PTF_RUN_TEST(StpTopologyChangeParsingTests, "stp");
+	PTF_RUN_TEST(StpTopologyChangeCreationTests, "stp");
+	PTF_RUN_TEST(StpTopologyChangeEditTests, "stp");
 	PTF_RUN_TEST(RapidStpParsingTests, "stp");
+	PTF_RUN_TEST(RapidStpCreationTests, "stp");
+	PTF_RUN_TEST(RapidStpEditTests, "stp");
 	PTF_RUN_TEST(MultipleStpParsingTests, "stp");
+	PTF_RUN_TEST(MultipleStpCreationTests, "stp");
+	PTF_RUN_TEST(MultipleStpEditTests, "stp");
 
 	PTF_RUN_TEST(SomeIpPortTest, "someip");
 	PTF_RUN_TEST(SomeIpParsingTest, "someip");
@@ -277,6 +286,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SomeIpTpParsingTest, "someip");
 	PTF_RUN_TEST(SomeIpTpCreationTest, "someip");
 	PTF_RUN_TEST(SomeIpTpEditTest, "someip");
+
+	PTF_RUN_TEST(SomeIpSdParsingTest, "someipsd");
+	PTF_RUN_TEST(SomeIpSdCreationTest, "someipsd");
 
 	PTF_RUN_TEST(WakeOnLanParsingTests, "wol");
 	PTF_RUN_TEST(WakeOnLanCreationTests, "wol");

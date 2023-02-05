@@ -1,6 +1,11 @@
 #define LOG_MODULE CommonLogModuleIpUtils
 
+#include <algorithm>
+#include <cmath>
 #include <errno.h>
+#include <sstream>
+#include <stdexcept>
+#include <stdint.h>
 #include "Logger.h"
 #include "IpUtils.h"
 #include "IpAddress.h"
@@ -25,7 +30,7 @@ namespace pcpp
 	{
 		char addrBuffer[INET_ADDRSTRLEN];
 
-		if (inet_ntop(AF_INET, toBytes(), addrBuffer, sizeof(addrBuffer)) != NULL)
+		if (inet_ntop(AF_INET, toBytes(), addrBuffer, sizeof(addrBuffer)) != nullptr)
 			return std::string(addrBuffer);
 
 		return std::string();
@@ -40,6 +45,50 @@ namespace pcpp
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
 			memset(m_Bytes, 0, sizeof(m_Bytes));
+	}
+
+
+	bool IPv4Address::matchSubnet(const std::string& subnet) const
+	{
+		std::stringstream ss(subnet);
+		std::string subnetOnly, subnetPrefixStr;
+		std::getline(ss, subnetOnly, '/');
+		std::getline(ss, subnetPrefixStr);
+
+		if (subnetPrefixStr.empty() || !std::all_of(subnetPrefixStr.begin(), subnetPrefixStr.end(), ::isdigit)) {
+			PCPP_LOG_ERROR("subnet prefix '" << subnetPrefixStr << "' must be an integer");
+			return false;
+		}
+
+		uint32_t subnetPrefix;
+		try {
+			subnetPrefix = std::stoi(subnetPrefixStr);
+		} catch (const std::invalid_argument& e) {
+			PCPP_LOG_ERROR("Subnet prefix in '" << subnet << "' must be an integer");
+			return false;
+		} catch (const std::out_of_range& e) {
+			PCPP_LOG_ERROR("Subnet prefix in '" << subnet << "' must be between 0 and 32");
+			return false;
+		}
+
+		if (subnetPrefix > 32)
+		{
+			PCPP_LOG_ERROR("Subnet prefix '" << subnetPrefix << "' must be between 0 and 32");
+			return false;
+		}
+
+		uint32_t subnetMask = pow(2, subnetPrefix) - 1;
+
+		IPv4Address subnetAsIpAddr(subnetOnly);
+		IPv4Address maskAsIpAddr(subnetMask);
+
+		if (!maskAsIpAddr.isValid() || !subnetAsIpAddr.isValid())
+		{
+			PCPP_LOG_ERROR("Subnet '" << subnet << "' is in illegal format");
+			return false;
+		}
+
+		return matchSubnet(subnetAsIpAddr, maskAsIpAddr);
 	}
 
 
@@ -68,7 +117,7 @@ namespace pcpp
 	{
 		char addrBuffer[INET6_ADDRSTRLEN];
 
-		if (inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != NULL)
+		if (inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != nullptr)
 			return std::string(addrBuffer);
 
 		return std::string();

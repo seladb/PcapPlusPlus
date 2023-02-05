@@ -101,7 +101,7 @@ public:
 	/**
 	 * Re-implement Splitter's getFileName() method, this time with the IP/port value
 	 */
-	std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& packet, const std::string &outputPcapBasePath, int fileNumber)
 	{
 		// first set the base string as the outputPcapBasePath
 		std::string result = outputPcapBasePath;
@@ -297,7 +297,7 @@ public:
 	/**
 	 * C'tor for this class, does nothing but calling its ancestor
 	 */
-	ClientIPSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
+	explicit ClientIPSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
 
 protected:
 
@@ -369,7 +369,7 @@ public:
 	/**
 	 * C'tor for this class, does nothing but calling its ancestor
 	 */
-	ServerIPSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
+	explicit ServerIPSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
 
 protected:
 
@@ -442,7 +442,7 @@ public:
 	/**
 	 * C'tor for this class, does nothing but calling its ancestor
 	 */
-	ServerPortSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
+	explicit ServerPortSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
 
 protected:
 
@@ -515,7 +515,7 @@ public:
 	/**
 	 * C'tor for this class, does nothing but calling its ancestor
 	 */
-	ClientPortSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
+	explicit ClientPortSplitter(int maxFiles) : IPPortSplitter(maxFiles) {}
 
 protected:
 

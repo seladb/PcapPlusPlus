@@ -7,7 +7,7 @@
 PTF_TEST_CASE(SSHParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSHIdentification.dat");
 	pcpp::Packet sshIdentificationPacket(&rawPacket1);
@@ -97,7 +97,7 @@ PTF_TEST_CASE(SSHParsingTest)
 PTF_TEST_CASE(SSHMalformedParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// SSH identification message that ends with "\r" instead of "\n" or "\r\n"
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSHIdentification_Malformed.dat");

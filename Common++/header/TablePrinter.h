@@ -35,7 +35,7 @@ namespace pcpp
 		 * @return True if row was printed successfully or false otherwise (in any case of error an appropriate message
 		 * will be printed to log)
 		 */
-		bool printRow(std::string values, char delimiter);
+		bool printRow(const std::string& values, char delimiter);
 
 		/**
 		 * Print a single row

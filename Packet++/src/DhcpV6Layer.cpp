@@ -42,14 +42,14 @@ size_t DhcpV6Option::getDataSize() const
 DhcpV6Option DhcpV6OptionBuilder::build() const
 {
 	if (m_RecType == 0)
-		return DhcpV6Option(NULL);
+		return DhcpV6Option(nullptr);
 	size_t optionSize = 2 * sizeof(uint16_t) + m_RecValueLen;
 	uint8_t* recordBuffer = new uint8_t[optionSize];
 	uint16_t optionTypeVal = htobe16(static_cast<uint16_t>(m_RecType));
 	uint16_t optionLength = htobe16(static_cast<uint16_t>(m_RecValueLen));
 	memcpy(recordBuffer, &optionTypeVal, sizeof(uint16_t));
 	memcpy(recordBuffer + sizeof(uint16_t), &optionLength, sizeof(uint16_t));
-	if (optionSize > 0 && m_RecValue != NULL)
+	if (optionSize > 0 && m_RecValue != nullptr)
 		memcpy(recordBuffer + 2*sizeof(uint16_t), m_RecValue, m_RecValueLen);
 
 	return DhcpV6Option(recordBuffer);
@@ -164,7 +164,7 @@ DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, 
 	if (newOpt.isNull())
 	{
 		PCPP_LOG_ERROR("Cannot build new option");
-		return DhcpV6Option(NULL);
+		return DhcpV6Option(nullptr);
 	}
 
 	size_t sizeToExtend = newOpt.getTotalSize();
@@ -172,7 +172,8 @@ DhcpV6Option DhcpV6Layer::addOptionAt(const DhcpV6OptionBuilder& optionBuilder, 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend DhcpLayer in [" << newOpt.getTotalSize() << "] bytes");
-		return DhcpV6Option(NULL);
+		newOpt.purgeRecordData();
+		return DhcpV6Option(nullptr);
 	}
 
 	memcpy(m_Data + offset, newOpt.getRecordBasePtr(), newOpt.getTotalSize());
@@ -200,7 +201,7 @@ DhcpV6Option DhcpV6Layer::addOptionAfter(const DhcpV6OptionBuilder& optionBuilde
 	if (prevOpt.isNull())
 	{
 		PCPP_LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
-		return DhcpV6Option(NULL);
+		return DhcpV6Option(nullptr);
 	}
 	offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
 	return addOptionAt(optionBuilder, offset);
@@ -215,7 +216,7 @@ DhcpV6Option DhcpV6Layer::addOptionBefore(const DhcpV6OptionBuilder& optionBuild
 	if (nextOpt.isNull())
 	{
 		PCPP_LOG_ERROR("Option type " << optionType << " doesn't exist in layer");
-		return DhcpV6Option(NULL);
+		return DhcpV6Option(nullptr);
 	}
 
 	offset = nextOpt.getRecordBasePtr() - m_Data;

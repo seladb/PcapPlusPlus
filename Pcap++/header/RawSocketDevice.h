@@ -63,7 +63,7 @@ namespace pcpp
 		 * @param[in] interfaceIP The network interface IP to bind the raw socket to. It can be either an IPv4 or IPv6 address
 		 * (both are supported in raw sockets)
 		 */
-		RawSocketDevice(const IPAddress& interfaceIP);
+		explicit RawSocketDevice(const IPAddress& interfaceIP);
 
 		/**
 		 * A d'tor for this class. It closes the raw socket if not previously closed by calling close()

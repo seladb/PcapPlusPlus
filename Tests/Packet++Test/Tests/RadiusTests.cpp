@@ -12,7 +12,7 @@
 PTF_TEST_CASE(RadiusLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_1.dat");
 	pcpp::Packet radiusPacket(&rawPacket1);
@@ -85,23 +85,16 @@ PTF_TEST_CASE(RadiusLayerParsingTest)
 PTF_TEST_CASE(RadiusLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_11.dat");
 
 	pcpp::Packet radiusPacket(&rawPacket1);
 
-	pcpp::Packet newRadiusPacket;
-
 	pcpp::EthLayer ethLayer(*radiusPacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&ethLayer));
-
 	pcpp::IPv4Layer ip4Layer;
 	ip4Layer = *(radiusPacket.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&ip4Layer));
-
 	pcpp::UdpLayer udpLayer(*radiusPacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&udpLayer));
 
 	pcpp::RadiusLayer radiusLayer(11, 5, "f050649184625d36f14c9075b7a48b83");
 	pcpp::RadiusAttribute radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(8, pcpp::IPv4Address("255.255.255.254")));
@@ -115,6 +108,10 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 	PTF_ASSERT_EQUAL(radiusNewAttr.getDataSize(), 4);
 	PTF_ASSERT_EQUAL(radiusNewAttr.getValueAs<uint32_t>(), htobe32(576));
 
+	pcpp::Packet newRadiusPacket;
+	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&ip4Layer));
+	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&udpLayer));
 	PTF_ASSERT_TRUE(newRadiusPacket.addLayer(&radiusLayer));
 
 	radiusNewAttr = radiusLayer.addAttribute(pcpp::RadiusAttributeBuilder(18, std::string("Hello, %u")));
@@ -155,7 +152,7 @@ PTF_TEST_CASE(RadiusLayerCreationTest)
 PTF_TEST_CASE(RadiusLayerEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(11, "PacketExamples/radius_11.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/radius_2.dat");

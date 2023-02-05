@@ -69,7 +69,7 @@ struct SocketContainer
 #endif
 };
 
-RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_Socket(NULL)
+RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP) : IDevice(), m_Socket(nullptr)
 {
 #if defined(_WIN32)
 
@@ -165,12 +165,14 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	int flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1)
 	{
+		delete [] buffer;
 		PCPP_LOG_ERROR("Cannot get socket flags");
 		return RecvError;
 	}
 	flags = (blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
 	if (fcntl(fd, F_SETFL, flags) != 0)
 	{
+		delete [] buffer;
 		PCPP_LOG_ERROR("Cannot set socket non-blocking flag");
 		return RecvError;
 	}
@@ -533,7 +535,7 @@ bool RawSocketDevice::open()
 
 void RawSocketDevice::close()
 {
-	if (m_Socket != NULL && isOpened())
+	if (m_Socket != nullptr && isOpened())
 	{
 		SocketContainer* sockContainer = (SocketContainer*)m_Socket;
 #if defined(_WIN32)
@@ -542,7 +544,7 @@ void RawSocketDevice::close()
 		::close(sockContainer->fd);
 #endif
 		delete sockContainer;
-		m_Socket = NULL;
+		m_Socket = nullptr;
 		m_DeviceOpened = false;
 	}
 }

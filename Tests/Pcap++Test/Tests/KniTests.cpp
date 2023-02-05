@@ -86,7 +86,7 @@ class KniDeviceTeardown
 
 	public:
 
-		KniDeviceTeardown(pcpp::KniDevice* dev)
+		explicit KniDeviceTeardown(pcpp::KniDevice* dev)
 		{
 			m_KniDevice = dev;
 		}
@@ -116,7 +116,6 @@ PTF_TEST_CASE(TestKniDevice)
 
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
 	uint16_t KNI_TEST_MTU = 1540;
-	uint16_t KNI_NEW_MTU = 1500;
 	bool isLinkUp = true;
 	pcpp::KniDevice* device = NULL;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
@@ -202,6 +201,7 @@ PTF_TEST_CASE(TestKniDevice)
 	}
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_MTU))
 	{
+		uint16_t KNI_NEW_MTU = 1500;
 		bool mtuSet = device->setMtu(KNI_NEW_MTU);
 		PTF_NON_CRITICAL_TRUE(mtuSet);
 		if (mtuSet)

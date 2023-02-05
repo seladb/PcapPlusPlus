@@ -34,14 +34,14 @@ RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator,
 	hdr->code = code;
 	hdr->id = id;
 	hdr->length = htobe16(sizeof(radius_header));
-	if (authenticatorArrSize == 0 || authenticator == NULL)
+	if (authenticatorArrSize == 0 || authenticator == nullptr)
 		return;
 	if (authenticatorArrSize > 16)
 		authenticatorArrSize = 16;
 	memcpy(hdr->authenticator, authenticator, authenticatorArrSize);
 }
 
-RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string authenticator)
+RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string &authenticator)
 {
 	m_DataLen = sizeof(radius_header);
 	m_Data = new uint8_t[m_DataLen];
@@ -58,12 +58,18 @@ RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const std::string authenticat
 RadiusAttribute RadiusLayer::addAttrAt(const RadiusAttributeBuilder& attrBuilder, int offset)
 {
 	RadiusAttribute newAttr = attrBuilder.build();
-	size_t sizeToExtend = newAttr.getTotalSize();
+	if (newAttr.isNull())
+	{
+		PCPP_LOG_ERROR("Cannot build new attribute of type " << (int)newAttr.getType());
+		return newAttr;
+	}
 
+	size_t sizeToExtend = newAttr.getTotalSize();
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend RadiusLayer in [" << newAttr.getTotalSize() << "] bytes");
-		return RadiusAttribute(NULL);
+		newAttr.purgeRecordData();
+		return RadiusAttribute(nullptr);
 	}
 
 	memcpy(m_Data + offset, newAttr.getRecordBasePtr(), newAttr.getTotalSize());
@@ -240,7 +246,7 @@ bool RadiusLayer::removeAllAttributes()
 
 bool RadiusLayer::isDataValid(const uint8_t* udpData, size_t udpDataLen)
 {
-	if(udpData != NULL)
+	if(udpData != nullptr && udpDataLen >= sizeof(radius_header))
 	{
 		const radius_header* radHdr = reinterpret_cast<const radius_header*>(udpData);
 		size_t radLen = be16toh(radHdr->length);

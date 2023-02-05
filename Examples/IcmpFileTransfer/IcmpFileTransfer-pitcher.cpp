@@ -94,14 +94,14 @@ static void waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveD
 	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return;
 
-	if (icmpVoidData == NULL)
+	if (icmpVoidData == nullptr)
 		return;
 
 	IcmpFileTransferStartRecv* icmpFTStart = (IcmpFileTransferStartRecv*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP reply
 	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
-	if (icmpLayer->getEchoReplyData() == NULL)
+	if (icmpLayer->getEchoReplyData() == nullptr)
 		return;
 
 	// verify the source IP is the catcher's IP and the dest IP is the pitcher's IP
@@ -115,7 +115,7 @@ static void waitForFileTransferStart(pcpp::RawPacket* rawPacket, pcpp::PcapLiveD
 		return;
 
 	// verify there is data in the ICMP reply
-	if (icmpLayer->getEchoReplyData()->data == NULL)
+	if (icmpLayer->getEchoReplyData()->data == nullptr)
 		return;
 
 	// extract the file name from the ICMP reply data
@@ -139,14 +139,14 @@ static void getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev
 	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return;
 
-	if (icmpVoidData == NULL)
+	if (icmpVoidData == nullptr)
 		return;
 
 	IcmpFileContentData* icmpFileContentData = (IcmpFileContentData*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP reply
 	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
-	if (icmpLayer->getEchoReplyData() == NULL)
+	if (icmpLayer->getEchoReplyData() == nullptr)
 		return;
 
 	// verify the source IP is the catcher's IP and the dest IP is the pitcher's IP
@@ -185,7 +185,7 @@ static void getFileContent(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev
 	}
 
 	// verify the ICMP reply has data
-	if (icmpLayer->getEchoReplyData()->data == NULL)
+	if (icmpLayer->getEchoReplyData()->data == nullptr)
 		return;
 
 	// increment the expected ICMP ID
@@ -214,7 +214,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 {
 	// identify the interface to listen and send packets to
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(pitcherIP);
-	if (dev == NULL)
+	if (dev == nullptr)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '" << pitcherIP << "'");
 
 	// try to open the interface (device)
@@ -261,7 +261,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 	// while didn't receive response from the catcher, keep sending the ICMP_FT_WAITING_FT_START message
 	while (!icmpFTStart.gotFileTransferStartMsg)
 	{
-		sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_FT_START, NULL, 0);
+		sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_FT_START, nullptr, 0);
 		icmpId++;
 		// sleep for a few seconds between sending the message
 		pcpp::multiPlatformSleep(SEND_TIMEOUT_BEFORE_FT_START);
@@ -314,7 +314,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 		// keep sending ICMP requests with ICMP_FT_WAITING_DATA message in the timestamp field until all file was received or until an error occurred
 		while (!icmpFileContentData.fileTransferCompleted && !icmpFileContentData.fileTransferError)
 		{
-			sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_DATA, NULL, 0);
+			sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_WAITING_DATA, nullptr, 0);
 
 			// if rate limit was set by the user, sleep between sending packets
 			if (packetPerSec > 1)
@@ -334,7 +334,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 		{
 			for (int i = 0; i < NUM_OF_ABORT_MESSAGES_TO_SEND; i++)
 			{
-				sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_ABORT, NULL, 0);
+				sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_ABORT, nullptr, 0);
 				usleep(SLEEP_BETWEEN_ABORT_MESSAGES);
 			}
 
@@ -369,14 +369,14 @@ static bool waitForFileTransferStartAck(pcpp::RawPacket* rawPacket, pcpp::PcapLi
 	if (!parsedPacket.isPacketOfType(pcpp::ICMP) || !parsedPacket.isPacketOfType(pcpp::IPv4))
 		return false;
 
-	if (icmpVoidData == NULL)
+	if (icmpVoidData == nullptr)
 		return false;
 
 	IcmpFileTransferStartSend* icmpData = (IcmpFileTransferStartSend*)icmpVoidData;
 
 	// extract the ICMP layer, verify it's an ICMP reply
 	pcpp::IcmpLayer* icmpLayer = parsedPacket.getLayerOfType<pcpp::IcmpLayer>();
-	if (icmpLayer->getEchoReplyData() == NULL)
+	if (icmpLayer->getEchoReplyData() == nullptr)
 		return false;
 
 	// verify the ICMP ID of the reply matched the ICMP ID the pitcher sent in the request
@@ -401,11 +401,11 @@ static bool waitForFileTransferStartAck(pcpp::RawPacket* rawPacket, pcpp::PcapLi
 /**
  * Send a file to the catcher
  */
-void sendFile(std::string filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize, int packetPerSec)
+void sendFile(const std::string &filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, size_t blockSize, int packetPerSec)
 {
 	// identify the interface to listen and send packets to
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(pitcherIP);
-	if (dev == NULL)
+	if (dev == nullptr)
 		EXIT_WITH_ERROR("Cannot find network interface with IP '" << pitcherIP << "'");
 
 	// try to open the interface (device)
@@ -534,7 +534,7 @@ void sendFile(std::string filePath, pcpp::IPv4Address pitcherIP, pcpp::IPv4Addre
 
 		// done sending the file to the catcher, send an ICMP request with message type ICMP_FT_END (in the timestamp field) to the catcher
 		// to indicate all file was sent
-		if (!sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_END, NULL, 0))
+		if (!sendIcmpRequest(dev, pitcherMacAddr, catcherMacAddr, pitcherIP, catcherIP, icmpId, ICMP_FT_END, nullptr, 0))
 			EXIT_WITH_ERROR("Cannot send file transfer end message");
 
 		std::cout << std::endl << std::endl
@@ -566,7 +566,7 @@ int main(int argc, char* argv[])
 	size_t blockSize = 0;
 
 	// disable stdout buffering so all std::cout command will be printed immediately
-	setbuf(stdout, NULL);
+	setbuf(stdout, nullptr);
 
 	// read and parse command line arguments. This method also takes care of arguments correctness. If they're not correct, it'll exit the program
 	readCommandLineArguments(argc, argv, "pitcher", "catcher", sender, receiver, pitcherIP, catcherIP, fileNameToSend, packetsPerSec, blockSize);

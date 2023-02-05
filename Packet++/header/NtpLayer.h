@@ -189,7 +189,7 @@ namespace pcpp
          * 32-bit code identifying the particular server or reference clock.
          * The interpretation depends on the value in the stratum field.
          */
-        enum ClockSource
+        enum class ClockSource : uint32_t
         {
             // NTPv4
 
@@ -231,6 +231,14 @@ namespace pcpp
             USNO = ('U') | ('S' << 8) | ('N' << 16) | ('O' << 24),
             /// European telephone modem
             PTB = ('P') | ('T' << 8) | ('B' << 16),
+            /// Multi Reference Sources
+            MRS = ('M') | ('R' << 8) | ('S' << 16),
+            /// Inter Face Association Changed
+            XFAC = ('X') | ('F' << 8) | ('A' << 16) | ('C' << 24),
+            /// Step time change
+            STEP = ('S') | ('T' << 8) | ('E' << 16) | ('P' << 24),
+            /// Google Refid used by Google NTP servers as time4.google.com
+            GOOG = ('G') | ('O' << 8) | ('O' << 16) | ('G' << 24),
             /// Meinberg DCF77 with amplitude modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
             DCFa = ('D') | ('C' << 8) | ('F' << 16) | ('a' << 24),
             /// Meinberg DCF77 with phase modulation)/pseudo random phase modulation (Ref: https://www.meinbergglobal.com/english/info/ntp-refid.htm)
@@ -261,6 +269,41 @@ namespace pcpp
             /// VLF radio (OMEGA, etc.)
             VLF = ('V') | ('L' << 8) | ('F' << 16)
 
+        };
+
+        /**
+         * 32-bit Kiss of Death (KoD) codes
+         */
+        enum class KissODeath : uint32_t
+        {
+            /// The association belongs to a anycast server
+            ACST = ('A') | ('C' << 8) | ('S' << 16) | ('T' << 24),
+            /// Server authentication failed
+            AUTH = ('A') | ('U' << 8) | ('T' << 16) | ('H' << 24),
+            /// Autokey sequence failed
+            AUTO = ('A') | ('U' << 8) | ('T' << 16) | ('O' << 24),
+            /// The association belongs to a broadcast server
+            BCST = ('B') | ('C' << 8) | ('S' << 16) | ('T' << 24),
+            /// Cryptographic authentication or identification failed
+            CRYP = ('C') | ('R' << 8) | ('Y' << 16) | ('P' << 24),
+            /// Access denied by remote server
+            DENY = ('D') | ('E' << 8) | ('N' << 16) | ('Y' << 24),
+            /// Lost peer in symmetric mode
+            DROP = ('D') | ('R' << 8) | ('O' << 16) | ('P' << 24),
+            /// Access denied due to local policy
+            RSTR = ('R') | ('S' << 8) | ('T' << 16) | ('R' << 24),
+            /// The association has not yet synchronized for the first time
+            INIT = ('I') | ('N' << 8) | ('I' << 16) | ('T' << 24),
+            /// The association belongs to a manycast server
+            MCST = ('M') | ('C' << 8) | ('S' << 16) | ('T' << 24),
+            /// No key found.  Either the key was never installed or is not trusted
+            NKEY = ('N') | ('K' << 8) | ('E' << 16) | ('Y' << 24),
+            /// Rate exceeded.  The server has temporarily denied access because the client exceeded the rate threshold
+            RATE = ('R') | ('A' << 8) | ('T' << 16) | ('E' << 24),
+            /// Somebody is tinkering with the association from a remote host running ntpdc.  Not to worry unless some rascal has stolen your keys
+            RMOT = ('R') | ('M' << 8) | ('O' << 16) | ('T' << 24),
+            /// A step change in system time has occurred, but the association has not yet resynchronized
+            STEP = ('S') | ('T' << 8) | ('E' << 16) | ('P' << 24),
         };
 
         /**
@@ -414,6 +457,12 @@ namespace pcpp
          * @param[in] val Value of the reference identifier as ClockSource
          */
         void setReferenceIdentifier(ClockSource val);
+
+        /**
+         * Set the value of reference identifier
+         * @param[in] val Value of the reference identifier as Kiss-O-Death code
+         */
+        void setReferenceIdentifier(KissODeath val);
 
         /**
          * @return The value of reference identifier as a string. String representation of NTP clock source if stratum is 1,

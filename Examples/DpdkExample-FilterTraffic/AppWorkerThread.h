@@ -70,6 +70,7 @@ public:
 		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
 		// main loop, runs until be told to stop
+		// cppcheck-suppress knownConditionTrueFalse
 		while (!m_Stop)
 		{
 			// go over all DPDK devices configured for this worker/core
@@ -95,10 +96,10 @@ public:
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
 						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
-						std::map<uint32_t, bool>::const_iterator iter = m_FlowTable.find(hash);
+						std::map<uint32_t, bool>::const_iterator iter3 = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
-						if (iter != m_FlowTable.end() && iter->second)
+						if (iter3 != m_FlowTable.end() && iter3->second)
 						{
 							packetMatched = true;
 						}

@@ -280,7 +280,7 @@ PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::PPPoETagBuilder::build() cons
 	uint16_t tagLength = htobe16(static_cast<uint16_t>(m_RecValueLen));
 	memcpy(recordBuffer, &tagTypeVal, sizeof(uint16_t));
 	memcpy(recordBuffer + sizeof(uint16_t), &tagLength, sizeof(uint16_t));
-	if (tagLength > 0 && m_RecValue != NULL)
+	if (tagLength > 0 && m_RecValue != nullptr)
 		memcpy(recordBuffer + 2*sizeof(uint16_t), m_RecValue, m_RecValueLen);
 
 	return PPPoEDiscoveryLayer::PPPoETag(recordBuffer);
@@ -309,12 +309,19 @@ int PPPoEDiscoveryLayer::getTagCount() const
 PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilder& tagBuilder, int offset)
 {
 	PPPoETag newTag = tagBuilder.build();
+	if (newTag.isNull())
+	{
+		PCPP_LOG_ERROR("Cannot build new tag of type " << (int)newTag.getType());
+		return newTag;
+	}
+
 	size_t sizeToExtend = newTag.getTotalSize();
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << sizeToExtend << "] bytes");
-		return PPPoETag(NULL);
+		newTag.purgeRecordData();
+		return PPPoETag(nullptr);
 	}
 
 	memcpy(m_Data + offset, newTag.getRecordBasePtr(), newTag.getTotalSize());

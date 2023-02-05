@@ -15,7 +15,7 @@
 PTF_TEST_CASE(IcmpV6ParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IcmpV6_EchoRequest.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IcmpV6_EchoReply.dat");
@@ -36,7 +36,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	pcpp::ICMPv6EchoLayer *echoRequestLayer = echoRequestPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>();
 	PTF_ASSERT_NOT_NULL(echoRequestLayer);
 	PTF_ASSERT_TRUE(echoRequestLayer->isMessageOfType(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST));
-	PTF_ASSERT_EQUAL((int)echoRequestLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST);
+	PTF_ASSERT_EQUAL(echoRequestLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_ECHO_REQUEST, enumclass);
 	PTF_ASSERT_EQUAL(echoRequestLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(echoRequestLayer->getChecksum(), 0x7a4c);
 	PTF_ASSERT_EQUAL(echoRequestLayer->getIdentifier(), 0x0018);
@@ -51,7 +51,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	pcpp::ICMPv6EchoLayer *echoReplyLayer = echoReplyPacket.getLayerOfType<pcpp::ICMPv6EchoLayer>();
 	PTF_ASSERT_NOT_NULL(echoReplyLayer);
 	PTF_ASSERT_TRUE(echoReplyLayer->isMessageOfType(pcpp::ICMPv6MessageType::ICMPv6_ECHO_REPLY));
-	PTF_ASSERT_EQUAL((int)echoReplyLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_ECHO_REPLY);
+	PTF_ASSERT_EQUAL(echoReplyLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_ECHO_REPLY, enumclass);
 	PTF_ASSERT_EQUAL(echoReplyLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(echoReplyLayer->getChecksum(), 0x794c);
 	PTF_ASSERT_EQUAL(echoReplyLayer->getIdentifier(), 0x0018);
@@ -65,7 +65,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	pcpp::NDPNeighborSolicitationLayer *neighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::NDPNeighborSolicitationLayer>();
 	PTF_ASSERT_NOT_NULL(neighSoliLayer);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)neighSoliLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION);
+	PTF_ASSERT_EQUAL(neighSoliLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION, enumclass);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getChecksum(), 0xfe98);
 	PTF_ASSERT_EQUAL(neighSoliLayer->getTargetIP(), pcpp::IPv6Address("fd53:7cb8:383:2::1:117"));
@@ -84,7 +84,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 	pcpp::IcmpV6Layer *icmpNeighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::IcmpV6Layer>();
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)icmpNeighSoliLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION);
+	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_SOLICITATION, enumclass);
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpNeighSoliLayer->getChecksum(), 0xfe98);
 
@@ -92,7 +92,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_TRUE(neighAdvPacket.isPacketOfType(pcpp::ICMPv6));
 	pcpp::NDPNeighborAdvertisementLayer *neighAdvLayer = neighAdvPacket.getLayerOfType<pcpp::NDPNeighborAdvertisementLayer>();
 	PTF_ASSERT_EQUAL(neighAdvLayer->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)neighAdvLayer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT);
+	PTF_ASSERT_EQUAL(neighAdvLayer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT, enumclass);
 	PTF_ASSERT_EQUAL(neighAdvLayer->getCode(), 0);
 	PTF_ASSERT_EQUAL(neighAdvLayer->getChecksum(), 0x9abb);
 	PTF_ASSERT_TRUE(neighAdvLayer->getRouterFlag());
@@ -112,7 +112,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 
 	pcpp::IcmpV6Layer *icmpNeighAdv = neighAdvPacket.getLayerOfType<pcpp::IcmpV6Layer>();
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getHeaderLen(), 32);
-	PTF_ASSERT_EQUAL((int)icmpNeighAdv->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT);
+	PTF_ASSERT_EQUAL(icmpNeighAdv->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_NEIGHBOR_ADVERTISEMENT, enumclass);
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpNeighAdv->getChecksum(), 0x9abb);
 
@@ -136,7 +136,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 	PTF_ASSERT_NOT_NULL(icmpV6Layer);
 	PTF_ASSERT_EQUAL(icmpV6Layer->getHeaderLen(), 48);
 	PTF_ASSERT_TRUE(icmpV6Layer->isMessageOfType(pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS));
-	PTF_ASSERT_EQUAL((int)icmpV6Layer->getMessageType(), (int)pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS);
+	PTF_ASSERT_EQUAL(icmpV6Layer->getMessageType(), pcpp::ICMPv6MessageType::ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS, enumclass);
 	PTF_ASSERT_EQUAL(icmpV6Layer->getCode(), 0);
 	PTF_ASSERT_EQUAL(icmpV6Layer->getChecksum(), 0x2b5a);
 	PTF_ASSERT_EQUAL(icmpV6Layer->toString(), "ICMPv6 Layer, Message type: 143");
@@ -148,7 +148,7 @@ PTF_TEST_CASE(IcmpV6ParsingTest)
 PTF_TEST_CASE(IcmpV6CreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/IcmpV6_EchoRequest.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/IcmpV6_EchoReply.dat");
@@ -274,7 +274,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 
 	std::vector<pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
 	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
-	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, NULL, 0));
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, nullptr, 0));
 	pcpp::IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
 	ipv6Layer2->addExtension<pcpp::IPv6HopByHopHeader>(newHopByHopHeader);
 	ipv6Layer2->getDataPtr(40)[0] = 0x3a;

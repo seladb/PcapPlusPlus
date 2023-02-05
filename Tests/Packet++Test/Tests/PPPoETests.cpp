@@ -14,7 +14,7 @@
 PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession1.dat");
 
@@ -45,27 +45,23 @@ PTF_TEST_CASE(PPPoESessionLayerParsingTest)
 PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoESession2.dat");
 
 	pcpp::Packet samplePacket(&rawPacket1);
 
-	pcpp::Packet pppoesPacket(1);
-
 	pcpp::EthLayer ethLayer(*samplePacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&ethLayer));
-
 	pcpp::PPPoESessionLayer pppoesLayer(1, 1, 0x0011, PCPP_PPP_IPV6);
-	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&pppoesLayer));
-
 	pcpp::IPv6Layer ipv6Layer(*samplePacket.getLayerOfType<pcpp::IPv6Layer>());
-	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&ipv6Layer));
-
 	pcpp::UdpLayer udpLayer(*samplePacket.getLayerOfType<pcpp::UdpLayer>());
-	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&udpLayer));
-
 	pcpp::DhcpV6Layer dhcpv6Layer(*samplePacket.getLayerOfType<pcpp::DhcpV6Layer>());
+
+	pcpp::Packet pppoesPacket(1);
+	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&pppoesLayer));
+	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&ipv6Layer));
+	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&udpLayer));
 	PTF_ASSERT_TRUE(pppoesPacket.addLayer(&dhcpv6Layer));
 
 	pppoesPacket.computeCalculateFields();
@@ -79,7 +75,7 @@ PTF_TEST_CASE(PPPoESessionLayerCreationTest)
 PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery2.dat");
 
@@ -114,14 +110,14 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag thirdTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME);
 	PTF_ASSERT_FALSE(thirdTag.isNull());
-	PTF_ASSERT_EQUAL(thirdTag, pppoeDiscoveryLayer->getNextTag(secondTag), object_no_str);
+	PTF_ASSERT_TRUE(thirdTag == pppoeDiscoveryLayer->getNextTag(secondTag));
 	PTF_ASSERT_EQUAL(thirdTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, enum);
 	PTF_ASSERT_EQUAL(thirdTag.getDataSize(), 4);
 	PTF_ASSERT_EQUAL(thirdTag.getValueAsString(), "BRAS");
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag fourthTag = pppoeDiscoveryLayer->getTag(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE);
 	PTF_ASSERT_FALSE(fourthTag.isNull());
-	PTF_ASSERT_EQUAL(fourthTag, pppoeDiscoveryLayer->getNextTag(thirdTag), object_no_str);
+	PTF_ASSERT_TRUE(fourthTag == pppoeDiscoveryLayer->getNextTag(thirdTag));
 	PTF_ASSERT_EQUAL(fourthTag.getType(), pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_COOKIE, enum);
 	PTF_ASSERT_EQUAL(fourthTag.getDataSize(), 16);
 	PTF_ASSERT_EQUAL(fourthTag.getValueAs<uint64_t>(), 0xf284240687050f3dULL);
@@ -138,20 +134,14 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerParsingTest)
 PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/PPPoEDiscovery1.dat");
 
 	pcpp::Packet samplePacket(&rawPacket1);
 
-	pcpp::Packet pppoedPacket(1);
-
 	pcpp::EthLayer ethLayer(*samplePacket.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(pppoedPacket.addLayer(&ethLayer));
-
 	pcpp::PPPoEDiscoveryLayer pppoedLayer(1, 1, pcpp::PPPoELayer::PPPOE_CODE_PADI, 0);
-
-	PTF_ASSERT_TRUE(pppoedPacket.addLayer(&pppoedLayer));
 
 	pcpp::PPPoEDiscoveryLayer::PPPoETag svcNameTag = pppoedLayer.addTag(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_SVC_NAME));
 	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 1);
@@ -161,6 +151,10 @@ PTF_TEST_CASE(PPPoEDiscoveryLayerCreateTest)
 	pppoedLayer.addTagAfter(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_HOST_UNIQ, hostUniqData), svcNameTag.getType());
 	PTF_ASSERT_EQUAL(pppoedLayer.getTagCount(), 2);
 	PTF_ASSERT_EQUAL(pppoedLayer.getPPPoEHeader()->payloadLength, htobe16(12));
+
+	pcpp::Packet pppoedPacket(1);
+	PTF_ASSERT_TRUE(pppoedPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(pppoedPacket.addLayer(&pppoedLayer));
 
 	pppoedPacket.computeCalculateFields();
 

@@ -14,14 +14,14 @@
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
 
 	pcpp::Packet ip6UdpPacket(&rawPacket1);
 	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(pcpp::TCP));
-	pcpp::IPv6Layer* ipv6Layer = NULL;
+	pcpp::IPv6Layer* ipv6Layer = nullptr;
 	ipv6Layer = ip6UdpPacket.getLayerOfType<pcpp::IPv6Layer>();
 	PTF_ASSERT_NOT_NULL(ipv6Layer);
 	PTF_ASSERT_EQUAL(ipv6Layer->getIPv6Header()->nextHeader, 17);
@@ -30,7 +30,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	pcpp::IPv6Address dstIP("ff02::c");
 	PTF_ASSERT_EQUAL(ipv6Layer->getSrcIPAddress(), srcIP);
 	PTF_ASSERT_EQUAL(ipv6Layer->getDstIPAddress(), dstIP);
-	pcpp::UdpLayer* pUdpLayer = NULL;
+	pcpp::UdpLayer* pUdpLayer = nullptr;
 	pUdpLayer = ip6UdpPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(pUdpLayer);
 	PTF_ASSERT_EQUAL(pUdpLayer->getDstPort(), 1900);
@@ -38,7 +38,6 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->length, htobe16(154));
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->headerChecksum, htobe16(0x5fea));
 
-	pcpp::Packet ip6UdpPacketNew(1);
 	pcpp::EthLayer ethLayer(pcpp::MacAddress("6c:f0:49:b2:de:6e"), pcpp::MacAddress ("33:33:00:00:00:0c"));
 
 	pcpp::IPv6Layer ip6Layer(srcIP, dstIP);
@@ -53,6 +52,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	afterIpv6Layer->copyData(payloadData);
 	pcpp::PayloadLayer payloadLayer(payloadData, afterIpv6Layer->getDataLen(), true);
 
+	pcpp::Packet ip6UdpPacketNew(1);
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ip6Layer));
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&udpLayer));
@@ -77,7 +77,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 PTF_TEST_CASE(IPv6FragmentationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6Frag1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IPv6Frag2.dat");
@@ -159,7 +159,7 @@ PTF_TEST_CASE(IPv6FragmentationTest)
 PTF_TEST_CASE(IPv6ExtensionsTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ipv6_options_destination.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ipv6_options_hop_by_hop.dat");
@@ -321,7 +321,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 
 	std::vector<pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder> hopByHopExtOptions;
 	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(5, (uint16_t)0));
-	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, NULL, 0));
+	hopByHopExtOptions.push_back(pcpp::IPv6TLVOptionHeader::IPv6TLVOptionBuilder(1, nullptr, 0));
 	pcpp::IPv6HopByHopHeader newHopByHopHeader(hopByHopExtOptions);
 	newIPv6Layer2.addExtension<pcpp::IPv6HopByHopHeader>(newHopByHopHeader);
 

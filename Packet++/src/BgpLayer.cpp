@@ -31,13 +31,13 @@ size_t BgpLayer::getHeaderLen() const
 BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 {
 	if (dataLen < sizeof(bgp_common_header))
-		return NULL;
+		return nullptr;
 
 	bgp_common_header* bgpHeader = (bgp_common_header*)data;
 
 	// illegal header data - length is too small
 	if (be16toh(bgpHeader->length) < static_cast<uint16_t>(sizeof(bgp_common_header)))
-		return NULL;
+		return nullptr;
 
 	switch (bgpHeader->messageType)
 	{
@@ -52,7 +52,7 @@ BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLaye
 	case 5: // ROUTE-REFRESH
 		return new BgpRouteRefreshMessageLayer(data, dataLen, prevLayer, packet);
 	default:
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -121,7 +121,7 @@ void BgpLayer::setBgpFields(size_t messageLen)
 // BgpOpenMessageLayer
 // ~~~~~~~~~~~~~~~~~~~~
 
-BgpOpenMessageLayer::optional_parameter::optional_parameter(uint8_t typeVal, std::string valueAsHexString)
+BgpOpenMessageLayer::optional_parameter::optional_parameter(uint8_t typeVal, const std::string& valueAsHexString)
 {
 	type = typeVal;
 	length = hexStringToByteArray(valueAsHexString, value, 32);
@@ -155,7 +155,7 @@ BgpOpenMessageLayer::BgpOpenMessageLayer(uint16_t myAutonomousSystem, uint16_t h
 
 size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional_parameter>& optionalParams, uint8_t* resultByteArr, size_t maxByteArrSize)
 {
-	if (resultByteArr == NULL || maxByteArrSize == 0)
+	if (resultByteArr == nullptr || maxByteArrSize == 0)
 	{
 		return 0;
 	}
@@ -199,7 +199,7 @@ void BgpOpenMessageLayer::setBgpId(const IPv4Address& newBgpId)
 	}
 
 	bgp_open_message* msgHdr = getOpenMsgHeader();
-	if (msgHdr == NULL)
+	if (msgHdr == nullptr)
 	{
 		return;
 	}
@@ -210,7 +210,7 @@ void BgpOpenMessageLayer::setBgpId(const IPv4Address& newBgpId)
 void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>& optionalParameters)
 {
 	bgp_open_message* msgHdr = getOpenMsgHeader();
-	if (msgHdr == NULL || msgHdr->optionalParameterLength == 0)
+	if (msgHdr == nullptr || msgHdr->optionalParameterLength == 0)
 	{
 		return;
 	}
@@ -251,7 +251,7 @@ void BgpOpenMessageLayer::getOptionalParameters(std::vector<optional_parameter>&
 size_t BgpOpenMessageLayer::getOptionalParametersLength()
 {
 	bgp_open_message* msgHdr = getOpenMsgHeader();
-	if (msgHdr != NULL)
+	if (msgHdr != nullptr)
 	{
 		return (size_t)(msgHdr->optionalParameterLength);
 	}
@@ -306,7 +306,7 @@ bool BgpOpenMessageLayer::clearOptionalParameters()
 // BgpUpdateMessageLayer
 // ~~~~~~~~~~~~~~~~~~~~~
 
-BgpUpdateMessageLayer::path_attribute::path_attribute(uint8_t flagsVal, uint8_t typeVal, std::string dataAsHexString)
+BgpUpdateMessageLayer::path_attribute::path_attribute(uint8_t flagsVal, uint8_t typeVal, const std::string& dataAsHexString)
 {
 	flags = flagsVal;
 	type = typeVal;
@@ -408,7 +408,7 @@ void BgpUpdateMessageLayer::parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLe
 
 size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefix_and_ip>& prefixAndIpData, uint8_t* resultByteArr, size_t maxByteArrSize)
 {
-	if (resultByteArr == NULL || maxByteArrSize == 0)
+	if (resultByteArr == nullptr || maxByteArrSize == 0)
 	{
 		return 0;
 	}
@@ -469,7 +469,7 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
 
 size_t BgpUpdateMessageLayer::pathAttributesToByteArray(const std::vector<path_attribute>& pathAttributes, uint8_t* resultByteArr, size_t maxByteArrSize)
 {
-	if (resultByteArr == NULL || maxByteArrSize == 0)
+	if (resultByteArr == nullptr || maxByteArrSize == 0)
 	{
 		return 0;
 	}
@@ -754,7 +754,7 @@ bool BgpUpdateMessageLayer::clearNetworkLayerReachabilityInfo()
 
 BgpNotificationMessageLayer::BgpNotificationMessageLayer(uint8_t errorCode, uint8_t errorSubCode)
 {
-	initMessageData(errorCode, errorSubCode, NULL, 0);
+	initMessageData(errorCode, errorSubCode, nullptr, 0);
 }
 
 BgpNotificationMessageLayer::BgpNotificationMessageLayer(uint8_t errorCode, uint8_t errorSubCode, const uint8_t* notificationData, size_t notificationDataLen)
@@ -772,7 +772,7 @@ BgpNotificationMessageLayer::BgpNotificationMessageLayer(uint8_t errorCode, uint
 void BgpNotificationMessageLayer::initMessageData(uint8_t errorCode, uint8_t errorSubCode, const uint8_t* notificationData, size_t notificationDataLen)
 {
 	size_t headerLen = sizeof(bgp_notification_message);
-	if (notificationData != NULL && notificationDataLen > 0)
+	if (notificationData != nullptr && notificationDataLen > 0)
 	{
 		headerLen += notificationDataLen;
 	}
@@ -805,13 +805,13 @@ uint8_t* BgpNotificationMessageLayer::getNotificationData() const
 		return m_Data + sizeof(bgp_notification_message);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 std::string BgpNotificationMessageLayer::getNotificationDataAsHexString() const
 {
 	uint8_t* notificationData = getNotificationData();
-	if (notificationData == NULL)
+	if (notificationData == nullptr)
 	{
 		return "";
 	}
@@ -821,7 +821,7 @@ std::string BgpNotificationMessageLayer::getNotificationDataAsHexString() const
 
 bool BgpNotificationMessageLayer::setNotificationData(const uint8_t* newNotificationData, size_t newNotificationDataLen)
 {
-	if (newNotificationData == NULL)
+	if (newNotificationData == nullptr)
 	{
 		newNotificationDataLen = 0;
 	}
@@ -861,7 +861,7 @@ bool BgpNotificationMessageLayer::setNotificationData(const std::string& newNoti
 {
 	if (newNotificationDataAsHexString.empty())
 	{
-		return setNotificationData(NULL, 0);
+		return setNotificationData(nullptr, 0);
 	}
 
 	uint8_t newNotificationData[1500];

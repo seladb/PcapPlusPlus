@@ -97,7 +97,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		 * Currently doesn't identify any particular layer (because LLC is not supported yet) so the payload will always be of type PayloadLayer.
+		 * Parses next layer
 		 */
 		void parseNextLayer();
 

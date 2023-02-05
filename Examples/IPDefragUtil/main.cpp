@@ -21,13 +21,13 @@
 
 static struct option DefragUtilOptions[] =
 {
-	{"output-file", required_argument, 0, 'o'},
-	{"filter-by-ipid", required_argument, 0, 'd'},
-	{"bpf-filter", required_argument, 0, 'f'},
-	{"copy-all-packets", no_argument, 0, 'a'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"output-file", required_argument, nullptr, 'o'},
+	{"filter-by-ipid", required_argument, nullptr, 'd'},
+	{"bpf-filter", required_argument, nullptr, 'f'},
+	{"copy-all-packets", no_argument, nullptr, 'a'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 /**
@@ -95,7 +95,7 @@ void printAppVersion()
  * who pass them, and writes the result packets to the output file
  */
 void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
-		bool filterByBpf, std::string bpfFilter,
+		bool filterByBpf, const std::string& bpfFilter,
 		bool filterByIpID, std::map<uint32_t, bool> fragIDs,
 		bool copyAllPacketsToOutputFile,
 		DefragStats& stats)
@@ -154,7 +154,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 		{
 			// get the IPv4 layer
 			pcpp::IPv4Layer* ipv4Layer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
-			if (ipv4Layer != NULL)
+			if (ipv4Layer != nullptr)
 			{
 				// check if packet ID matches one of the IP IDs requested by the user
 				if (fragIDs.find((uint32_t)pcpp::netToHost16(ipv4Layer->getIPv4Header()->ipId)) != fragIDs.end())
@@ -169,7 +169,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 
 			// get the IPv6 layer
 			pcpp::IPv6Layer* ipv6Layer = parsedPacket.getLayerOfType<pcpp::IPv6Layer>();
-			if (ipv6Layer != NULL && ipv6Layer->isFragment())
+			if (ipv6Layer != nullptr && ipv6Layer->isFragment())
 			{
 				// if this packet is a fragment, get the fragmentation header
 				pcpp::IPv6FragmentationHeader* fragHdr = ipv6Layer->getExtensionOfType<pcpp::IPv6FragmentationHeader>();
@@ -313,8 +313,7 @@ int main(int argc, char* argv[])
 					// convert the IP ID to uint16_t
 					uint32_t fragID = (uint32_t)atoi(ipIDStr.c_str());
 					// add the frag ID into the map if it doesn't already exist
-					if (fragIDMap.find(fragID) == fragIDMap.end())
-						fragIDMap[fragID] = true;
+					fragIDMap.emplace(fragID, true);
 				}
 
 				// verify list is not empty
@@ -395,13 +394,13 @@ int main(int argc, char* argv[])
 
 
 	// create a writer device for output file in the same file type as input file
-	pcpp::IFileWriterDevice* writer = NULL;
+	pcpp::IFileWriterDevice* writer = nullptr;
 
-	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != NULL)
+	if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
 	{
 		writer = new pcpp::PcapFileWriterDevice(outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
 	}
-	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != NULL)
+	else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
 	{
 		writer = new pcpp::PcapNgFileWriterDevice(outputFile);
 	}
