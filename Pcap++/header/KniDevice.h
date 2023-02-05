@@ -49,7 +49,7 @@
  *    The problem is laying in DPDK in rte_kni_update_link function
  *    (it is DPDK BUG if rte_kni_update_link is __rte_experimental).
  *    It is recommended to load rte_kni.ko module with "carrier=on" DPDK
- *    default is "carrier=off", provided setup-dpdk.sh by default loads with
+ *    default is "carrier=off", provided setup_dpdk.py by default loads with
  *    "carrier=on" if Your DPDK version supports it. The good indication of
  *    this issue are "DPDK KNI Failed to update links state for device"
  *    messages when Pcap++Test application is being run.

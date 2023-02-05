@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <exception>
+#include <utility>
 
 namespace pcpp
 {
@@ -17,10 +18,10 @@ namespace pcpp
 
 HeaderField* HttpMessage::addField(const std::string& fieldName, const std::string& fieldValue)
 {
-	if (getFieldByName(fieldName) != NULL)
+	if (getFieldByName(fieldName) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << fieldName << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::addField(fieldName, fieldValue);
@@ -28,10 +29,10 @@ HeaderField* HttpMessage::addField(const std::string& fieldName, const std::stri
 
 HeaderField* HttpMessage::addField(const HeaderField& newField)
 {
-	if (getFieldByName(newField.getFieldName()) != NULL)
+	if (getFieldByName(newField.getFieldName()) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << newField.getFieldName() << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::addField(newField);
@@ -39,10 +40,10 @@ HeaderField* HttpMessage::addField(const HeaderField& newField)
 
 HeaderField* HttpMessage::insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue)
 {
-	if (getFieldByName(fieldName) != NULL)
+	if (getFieldByName(fieldName) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << fieldName << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::insertField(prevField, fieldName, fieldValue);
@@ -50,10 +51,10 @@ HeaderField* HttpMessage::insertField(HeaderField* prevField, const std::string&
 
 HeaderField* HttpMessage::insertField(HeaderField* prevField, const HeaderField& newField)
 {
-	if (getFieldByName(newField.getFieldName()) != NULL)
+	if (getFieldByName(newField.getFieldName()) != nullptr)
 	{
 		PCPP_LOG_ERROR("Field '" << newField.getFieldName() << "' already exists!");
-		return NULL;
+		return nullptr;
 	}
 
 	return TextBasedProtocolMessage::insertField(prevField, newField);
@@ -71,7 +72,7 @@ HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLay
 	parseFields();
 }
 
-HttpRequestLayer::HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version)
+HttpRequestLayer::HttpRequestLayer(HttpMethod method, const std::string& uri, HttpVersion version)
 {
 	m_Protocol = HTTPRequest;
 	m_FirstLine = new HttpRequestFirstLine(this, method, version, uri);
@@ -87,7 +88,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 {
 	HttpMessage::operator=(other);
 
-	if (m_FirstLine != NULL)
+	if (m_FirstLine != nullptr)
 		delete m_FirstLine;
 
 	m_FirstLine = new HttpRequestFirstLine(this);
@@ -99,7 +100,7 @@ HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 std::string HttpRequestLayer::getUrl() const
 {
 	HeaderField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
-	if (hostField == NULL)
+	if (hostField == nullptr)
 		return m_FirstLine->getUri();
 
 	return hostField->getFieldValue() + m_FirstLine->getUri();
@@ -194,7 +195,7 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	}
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != NULL)
+	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n', m_HttpRequest->m_DataLen-(size_t)m_VersionOffset)) != nullptr)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpRequest->m_Data + 1;
 		m_IsComplete = true;
@@ -215,45 +216,47 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_Ht
 	}
 }
 
-HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri)
-try		// throw(HttpRequestFirstLineException)
+HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, const std::string &uri)
 {
-	if (method == HttpRequestLayer::HttpMethodUnknown)
+	try		// throw(HttpRequestFirstLineException)
 	{
-		m_Exception.setMessage("Method supplied was HttpMethodUnknown");
-		throw m_Exception;
-	}
+		if (method == HttpRequestLayer::HttpMethodUnknown)
+		{
+			m_Exception.setMessage("Method supplied was HttpMethodUnknown");
+			throw m_Exception;
+		}
 
-	if (version == HttpVersionUnknown)
+		if (version == HttpVersionUnknown)
+		{
+			m_Exception.setMessage("Version supplied was HttpVersionUnknown");
+			throw m_Exception;
+		}
+
+		m_HttpRequest = httpRequest;
+
+		m_Method = method;
+		m_Version = version;
+
+		std::string firstLine = MethodEnumToString[m_Method] + " " + uri + " "  + "HTTP/" + VersionEnumToString[m_Version] + "\r\n";
+
+		m_UriOffset =  MethodEnumToString[m_Method].length() + 1;
+		m_FirstLineEndOffset = firstLine.length();
+		m_VersionOffset = m_UriOffset + uri.length() + 6;
+
+		m_HttpRequest->m_DataLen = firstLine.length();
+		m_HttpRequest->m_Data = new uint8_t[m_HttpRequest->m_DataLen];
+		memcpy(m_HttpRequest->m_Data, firstLine.c_str(), m_HttpRequest->m_DataLen);
+
+		m_IsComplete = true;
+	}
+	catch(const HttpRequestFirstLineException&)
 	{
-		m_Exception.setMessage("Version supplied was HttpVersionUnknown");
-		throw m_Exception;
+		throw;
 	}
-
-	m_HttpRequest = httpRequest;
-
-	m_Method = method;
-	m_Version = version;
-
-	std::string firstLine = MethodEnumToString[m_Method] + " " + uri + " "  + "HTTP/" + VersionEnumToString[m_Version] + "\r\n";
-
-	m_UriOffset =  MethodEnumToString[m_Method].length() + 1;
-	m_FirstLineEndOffset = firstLine.length();
-	m_VersionOffset = m_UriOffset + uri.length() + 6;
-
-	m_HttpRequest->m_DataLen = firstLine.length();
-	m_HttpRequest->m_Data = new uint8_t[m_HttpRequest->m_DataLen];
-	memcpy(m_HttpRequest->m_Data, firstLine.c_str(), m_HttpRequest->m_DataLen);
-
-	m_IsComplete = true;
-}
-catch(const HttpRequestFirstLineException&)
-{
-	throw;
-}
-catch(...)
-{
-	std::terminate();
+	catch(...)
+	{
+		std::terminate();
+	}
 }
 
 HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_t dataLen)
@@ -360,7 +363,7 @@ void HttpRequestFirstLine::parseVersion()
 {
 	char* data = (char*)(m_HttpRequest->m_Data + m_UriOffset);
 	char* verPos = cross_platform_memmem(data, m_HttpRequest->getDataLen() - m_UriOffset, " HTTP/", 6);
-	if (verPos == NULL)
+	if (verPos == nullptr)
 	{
 		m_Version = HttpVersionUnknown;
 		m_VersionOffset = -1;
@@ -368,7 +371,7 @@ void HttpRequestFirstLine::parseVersion()
 	}
 
 	// verify packet doesn't end before the version, meaning still left place for " HTTP/x.y" (9 chars)
-	if ((uint16_t)(verPos + 9 - (char*)m_HttpRequest->m_Data) > m_HttpRequest->getDataLen())
+	if ((verPos + 9 - (char*)m_HttpRequest->m_Data) > m_HttpRequest->getDataLen())
 	{
 		m_Version = HttpVersionUnknown;
 		m_VersionOffset = -1;
@@ -692,7 +695,7 @@ HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevL
 HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
 	m_Protocol = HTTPResponse;
-	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, statusCodeString);
+	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, std::move(statusCodeString));
 	m_FieldsOffset = m_FirstLine->getSize();
 }
 
@@ -711,7 +714,7 @@ HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 {
 	HttpMessage::operator=(other);
 
-	if (m_FirstLine != NULL)
+	if (m_FirstLine != nullptr)
 		delete m_FirstLine;
 
 	m_FirstLine = new HttpResponseFirstLine(this);
@@ -720,13 +723,13 @@ HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 }
 
 
-HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::string prevFieldName)
+HeaderField* HttpResponseLayer::setContentLength(int contentLength, const std::string &prevFieldName)
 {
 	std::ostringstream contentLengthAsString;
 	contentLengthAsString << contentLength;
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField == NULL)
+	if (contentLengthField == nullptr)
 	{
 		HeaderField* prevField = getFieldByName(prevFieldName);
 		contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
@@ -742,7 +745,7 @@ int HttpResponseLayer::getContentLength() const
 	std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 	std::transform(contentLengthFieldName.begin(), contentLengthFieldName.end(), contentLengthFieldName.begin(), ::tolower);
 	HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
-	if (contentLengthField != NULL)
+	if (contentLengthField != nullptr)
 		return atoi(contentLengthField->getFieldValue().c_str());
 	return 0;
 }
@@ -793,7 +796,7 @@ int HttpResponseFirstLine::getStatusCodeAsInt() const
 std::string HttpResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
-	int statusStringOffset = 13;
+	const int statusStringOffset = 13;
 	if (m_StatusCode != HttpResponseLayer::HttpStatusCodeUnknown)
 	{
 		int statusStringEndOffset = m_FirstLineEndOffset - 2;
@@ -1249,7 +1252,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 
 
 	char* endOfFirstLine;
-	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != NULL)
+	if ((endOfFirstLine = (char*)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) != nullptr)
 	{
 		m_FirstLineEndOffset = endOfFirstLine - (char*)m_HttpResponse->m_Data + 1;
 		m_IsComplete = true;

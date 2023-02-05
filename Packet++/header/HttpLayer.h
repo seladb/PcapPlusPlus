@@ -167,7 +167,7 @@ namespace pcpp
 		 * @param[in] uri The URI of the first line
 		 * @param[in] version HTTP version to be used in this request
 		 */
-		HttpRequestLayer(HttpMethod method, std::string uri, HttpVersion version);
+		HttpRequestLayer(HttpMethod method, const std::string& uri, HttpVersion version);
 
 		virtual ~HttpRequestLayer();
 
@@ -455,7 +455,7 @@ namespace pcpp
 		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be created after it
 		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
 		 */
-		HeaderField* setContentLength(int contentLength, const std::string prevFieldName = "");
+		HeaderField* setContentLength(int contentLength, const std::string &prevFieldName = "");
 
 		/**
 		 * The length of the body of many HTTP response messages is determined by a HTTP header field called "Content-Length". This method
@@ -561,7 +561,7 @@ namespace pcpp
 		{
 		public:
 			~HttpRequestFirstLineException() throw() {}
-			void setMessage(std::string message) { m_Message = message; }
+			void setMessage(const std::string &message) { m_Message = message; }
 			virtual const char* what() const throw()
 			{
 				return m_Message.c_str();
@@ -571,7 +571,7 @@ namespace pcpp
 		};
 	private:
 		HttpRequestFirstLine(HttpRequestLayer* httpRequest);
-		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, std::string uri = "/");
+		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, const std::string& uri = "/");
 			//throw(HttpRequestFirstLineException); // Deprecated in C++17
 
 		void parseVersion();
@@ -673,7 +673,7 @@ namespace pcpp
 		{
 		public:
 			~HttpResponseFirstLineException() throw() {}
-			void setMessage(std::string message) { m_Message = message; }
+			void setMessage(const std::string &message) { m_Message = message; }
 			virtual const char* what() const throw()
 			{
 				return m_Message.c_str();

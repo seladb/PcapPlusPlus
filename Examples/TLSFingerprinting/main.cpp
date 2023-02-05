@@ -28,16 +28,16 @@
 
 static struct option TLSFingerprintingOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"input-file",  required_argument, 0, 'r'},
-	{"output-file", required_argument, 0, 'o'},
-	{"separator", required_argument, 0, 's'},
-	{"tls-fp-type", required_argument, 0, 't'},
-	{"filter", required_argument, 0, 'f'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"input-file",  required_argument, nullptr, 'r'},
+	{"output-file", required_argument, nullptr, 'o'},
+	{"separator", required_argument, nullptr, 's'},
+	{"tls-fp-type", required_argument, nullptr, 't'},
+	{"filter", required_argument, nullptr, 'f'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 #define EXIT_WITH_ERROR(reason) do { \
@@ -59,7 +59,7 @@ bool isNotAlphanumeric(char c)
 /**
  * An auxiliary method for sorting the TLS fingerprint count map. Used in printCommonTLSFingerprints()
  */
-bool stringCountComparer(std::pair<std::string, uint64_t> first, std::pair<std::string, uint64_t> second)
+bool stringCountComparer(const std::pair<std::string, uint64_t>& first, const std::pair<std::string, uint64_t>& second)
 {
 	if (first.second == second.second)
 	{
@@ -184,7 +184,7 @@ std::pair<uint16_t, uint16_t> getTcpPorts(const pcpp::Packet& packet)
  * This method takes the parsed packets and the TLS fingerprint as inputs, extracts the rest of the data such as IP addresses and TCP ports,
  * and writes a single row to the output file
  */
-void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPacket, std::string tlsFPString, std::string tlsFP_MD5, std::string tlsFPType, std::string separator)
+void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPacket, const std::string &tlsFPString, const std::string &tlsFP_MD5, const std::string &tlsFPType, const std::string &separator)
 {
 	std::pair<pcpp::IPAddress, pcpp::IPAddress> ipSrcDest = getIPs(parsedPacket);
 	std::pair<uint16_t, uint16_t> tcpPorts = getTcpPorts(parsedPacket);
@@ -203,7 +203,7 @@ void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPack
 /**
  * Write the column headers to the output file
  */
-void writeHeaderToOutputFile(std::ofstream& outputFile, std::string separator)
+void writeHeaderToOutputFile(std::ofstream& outputFile, const std::string &separator)
 {
 	outputFile <<
 		"TLS Fingerprint (MD5)" << separator <<
@@ -332,14 +332,14 @@ void handlePacket(pcpp::RawPacket* rawPacket, const HandlePacketData* data)
 	{
 		// extract the SSL/TLS handhsake layer
 		pcpp::SSLHandshakeLayer* sslHandshakeLayer = parsedPacket.getLayerOfType<pcpp::SSLHandshakeLayer>();
-		if (sslHandshakeLayer != NULL)
+		if (sslHandshakeLayer != nullptr)
 		{
 			// if user requested to extract ClientHello TLS fingerprint
 			if (data->chFP)
 			{
 				// check if the SSL/TLS handhsake layer contains a ClientHello message
 				pcpp::SSLClientHelloMessage* clientHelloMessage = sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
-				if (clientHelloMessage != NULL)
+				if (clientHelloMessage != nullptr)
 				{
 					data->stats->numOfCHPackets++;
 
@@ -357,7 +357,7 @@ void handlePacket(pcpp::RawPacket* rawPacket, const HandlePacketData* data)
 			{
 				// check if the SSL/TLS handhsake layer contains a ServerHello message
 				pcpp::SSLServerHelloMessage* servertHelloMessage = sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
-				if (servertHelloMessage != NULL)
+				if (servertHelloMessage != nullptr)
 				{
 					data->stats->numOfSHPackets++;
 
@@ -458,7 +458,7 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 {
 	// extract pcap live device by interface name or IP address
 	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-	if (dev == NULL)
+	if (dev == nullptr)
 		EXIT_WITH_ERROR("Couldn't find interface by given IP address or name");
 
 	if (!dev->open())

@@ -26,21 +26,22 @@ PTF_TEST_CASE(InsertDataToPacket)
 	// Creating a packet
 	// ~~~~~~~~~~~~~~~~~
 
-	pcpp::Packet ip4Packet(1);
-
 	pcpp::MacAddress srcMac("aa:aa:aa:aa:aa:aa");
 	pcpp::MacAddress dstMac("bb:bb:bb:bb:bb:bb");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
-	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
 
 	pcpp::IPv4Address ipSrc("1.1.1.1");
 	pcpp::IPv4Address ipDst("20.20.20.20");
 	pcpp::IPv4Layer ip4Layer(ipSrc, ipDst);
 	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
-	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ip4Layer));
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
 	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+
+	// create the packet
+	pcpp::Packet ip4Packet(1);
+	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(ip4Packet.addLayer(&ip4Layer));
 	PTF_ASSERT_TRUE(ip4Packet.addLayer(&payloadLayer));
 
 	ip4Packet.computeCalculateFields();
@@ -48,9 +49,9 @@ PTF_TEST_CASE(InsertDataToPacket)
 	// Adding a VLAN layer between Eth and IP
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::VlanLayer vlanLayer(100, 0, 0, PCPP_ETHERTYPE_IP);
+	auto vlanLayer = new pcpp::VlanLayer(100, 0, 0, PCPP_ETHERTYPE_IP);
 
-	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&ethLayer, &vlanLayer));
+	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&ethLayer, vlanLayer, true));
 	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac);
 	PTF_ASSERT_EQUAL(ip4Layer.getIPv4Header()->internetHeaderLength, 5);
 	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst);
@@ -63,12 +64,12 @@ PTF_TEST_CASE(InsertDataToPacket)
 
 	pcpp::MacAddress srcMac2("cc:cc:cc:cc:cc:cc");
 	pcpp::MacAddress dstMac2("dd:dd:dd:dd:dd:dd");
-	pcpp::EthLayer ethLayer2(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
-	PTF_ASSERT_TRUE(ip4Packet.insertLayer(NULL, &ethLayer2));
+	auto ethLayer2 = new pcpp::EthLayer(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
+	PTF_ASSERT_TRUE(ip4Packet.insertLayer(nullptr, ethLayer2, true));
 
-	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer(), &ethLayer2, ptr);
+	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer(), ethLayer2, ptr);
 	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer()->getNextLayer(), &ethLayer, ptr);
-	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer()->getNextLayer()->getNextLayer(), &vlanLayer, ptr);
+	PTF_ASSERT_EQUAL(ip4Packet.getFirstLayer()->getNextLayer()->getNextLayer(), vlanLayer, ptr);
 	PTF_ASSERT_EQUAL(ethLayer.getDestMac(), dstMac);
 	PTF_ASSERT_EQUAL(ip4Layer.getIPv4Header()->internetHeaderLength, 5);
 	PTF_ASSERT_EQUAL(ip4Layer.getDstIPAddress(), ipDst);
@@ -79,16 +80,16 @@ PTF_TEST_CASE(InsertDataToPacket)
 	// Adding a TCP layer at the end of the packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::TcpLayer tcpLayer((uint16_t)12345, (uint16_t)80);
-	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&payloadLayer, &tcpLayer));
+	auto tcpLayer = new pcpp::TcpLayer((uint16_t)12345, (uint16_t)80);
+	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&payloadLayer, tcpLayer, true));
 
 
 	// Create a new packet and use insertLayer for the first layer in packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	pcpp::Packet testPacket(1);
 	pcpp::EthLayer ethLayer3(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
-	PTF_ASSERT_TRUE(testPacket.insertLayer(NULL, &ethLayer3));
+    pcpp::Packet testPacket(1);
+	PTF_ASSERT_TRUE(testPacket.insertLayer(nullptr, &ethLayer3));
 	PTF_ASSERT_EQUAL(testPacket.getFirstLayer(), &ethLayer3, ptr);
 	PTF_ASSERT_NULL(testPacket.getFirstLayer()->getNextLayer());
 	PTF_ASSERT_EQUAL(ethLayer3.getDestMac(), dstMac2);
@@ -149,13 +150,14 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 PTF_TEST_CASE(InsertVlanToPacket)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
 
+	pcpp::VlanLayer vlanLayer(4001, 0, 0, PCPP_ETHERTYPE_IP);
+
 	pcpp::Packet tcpPacket(&rawPacket1);
 
-	pcpp::VlanLayer vlanLayer(4001, 0, 0, PCPP_ETHERTYPE_IP);
 	PTF_ASSERT_TRUE(tcpPacket.insertLayer(tcpPacket.getFirstLayer(), &vlanLayer));
 
 	PTF_ASSERT_EQUAL(tcpPacket.getRawPacket()->getRawDataLen(), 78);
@@ -171,7 +173,7 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketNoOptions.dat");
 
@@ -284,7 +286,7 @@ PTF_TEST_CASE(RemoveLayerTest)
 	// ~~~~~~~~~~~~~~~~~
 
 	pcpp::VlanLayer vlanLayer(4001, 0, 0, PCPP_ETHERTYPE_IP);
-	PTF_ASSERT_TRUE(testPacket.insertLayer(NULL, &vlanLayer));
+	PTF_ASSERT_TRUE(testPacket.insertLayer(nullptr, &vlanLayer));
 	PTF_ASSERT_EQUAL(testPacket.getFirstLayer(), &vlanLayer, ptr);
 	PTF_ASSERT_EQUAL(testPacket.getFirstLayer()->getNextLayer(), &ip4Layer, ptr);
 	PTF_ASSERT_TRUE(testPacket.isPacketOfType(pcpp::VLAN));
@@ -362,7 +364,7 @@ PTF_TEST_CASE(RemoveLayerTest)
 PTF_TEST_CASE(CopyLayerAndPacketTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpResponses1.dat");
 
@@ -408,7 +410,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 	pcpp::HeaderField* curFieldInSample = sampleHttpLayer->getFirstField();
 	pcpp::HeaderField* curFieldInCopy = httpResLayer.getFirstField();
-	while (curFieldInSample != NULL && curFieldInCopy != NULL)
+	while (curFieldInSample != nullptr && curFieldInCopy != nullptr)
 	{
 		PTF_ASSERT_TRUE(curFieldInCopy != curFieldInSample);
 		PTF_ASSERT_EQUAL(curFieldInSample->getFieldName(), curFieldInCopy->getFieldName());
@@ -438,7 +440,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_TRUE(samplePacketCopy.isPacketOfType(pcpp::HTTPResponse));
 	pcpp::Layer* curSamplePacketLayer = sampleHttpPacket.getFirstLayer();
 	pcpp::Layer* curPacketCopyLayer = samplePacketCopy.getFirstLayer();
-	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
+	while (curSamplePacketLayer != nullptr && curPacketCopyLayer != nullptr)
 	{
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getProtocol(), curPacketCopyLayer->getProtocol(), enum);
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getHeaderLen(), curPacketCopyLayer->getHeaderLen());
@@ -472,7 +474,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 	curSamplePacketLayer = nullLoopbackPacket.getFirstLayer();
 	curPacketCopyLayer = nullLoopbackPacketCopy.getFirstLayer();
-	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
+	while (curSamplePacketLayer != nullptr && curPacketCopyLayer != nullptr)
 	{
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getProtocol(), curPacketCopyLayer->getProtocol(), enum);
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getHeaderLen(), curPacketCopyLayer->getHeaderLen());
@@ -502,7 +504,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 	curSamplePacketLayer = sllPacket.getFirstLayer();
 	curPacketCopyLayer = sllPacketCopy.getFirstLayer();
-	while (curSamplePacketLayer != NULL && curPacketCopyLayer != NULL)
+	while (curSamplePacketLayer != nullptr && curPacketCopyLayer != nullptr)
 	{
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getProtocol(), curPacketCopyLayer->getProtocol(), enum);
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getHeaderLen(), curPacketCopyLayer->getHeaderLen());
@@ -555,7 +557,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 PTF_TEST_CASE(PacketLayerLookupTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	{
 		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/radius_1.dat");
@@ -608,7 +610,7 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
 
@@ -640,7 +642,7 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 PTF_TEST_CASE(ParsePartialPacketTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/SSL-ClientHello1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/IGMPv1_1.dat");
@@ -734,7 +736,7 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 PTF_TEST_CASE(PacketTrailerTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/packet_trailer_arp.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/packet_trailer_ipv4.dat");
@@ -783,8 +785,8 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(ip6Layer->getDataLen(), be16toh(ip6Layer->getIPv6Header()->payloadLength) + ip6Layer->getHeaderLen());
 
 	// add layer before trailer
-	pcpp::VlanLayer newVlanLayer(123, true, 1, PCPP_ETHERTYPE_IPV6);
-	PTF_ASSERT_TRUE(trailerIPv6Packet.insertLayer(ethLayer, &newVlanLayer));
+	auto newVlanLayer = new pcpp::VlanLayer(123, true, 1, PCPP_ETHERTYPE_IPV6);
+	PTF_ASSERT_TRUE(trailerIPv6Packet.insertLayer(ethLayer, newVlanLayer, true));
 	trailerIPv6Packet.computeCalculateFields();
 	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 468);
 	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::VlanLayer>()->getDataLen(), 454);
@@ -794,11 +796,11 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getDataLen(), 4);
 
 	// add layer just before trailer
-	pcpp::HttpRequestLayer httpReq(pcpp::HttpRequestLayer::HttpGET, "/main.html", pcpp::OneDotOne);
-	httpReq.addEndOfHeader();
+	auto httpReq = new pcpp::HttpRequestLayer(pcpp::HttpRequestLayer::HttpGET, "/main.html", pcpp::OneDotOne);
+	httpReq->addEndOfHeader();
 	pcpp::TcpLayer* tcpLayer = trailerIPv4Packet.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_NOT_NULL(tcpLayer);
-	trailerIPv4Packet.insertLayer(tcpLayer, &httpReq);
+	trailerIPv4Packet.insertLayer(tcpLayer, httpReq, true);
 	trailerIPv4Packet.computeCalculateFields();
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 87);
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), 67);
@@ -808,9 +810,9 @@ PTF_TEST_CASE(PacketTrailerTest)
 
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
-	pcpp::PayloadLayer newPayloadLayer(payload, 4, false);
+	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer(new pcpp::PayloadLayer(payload, 4, false));
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(&newPayloadLayer));
+	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
 	pcpp::Logger::getInstance().enableLogs();
 
 	// remove layer before trailer
@@ -830,8 +832,8 @@ PTF_TEST_CASE(PacketTrailerTest)
 
 	// remove trailer
 	ethLayer = trailerIPv6Packet2.getLayerOfType<pcpp::EthLayer>();
-	pcpp::VlanLayer newVlanLayer2(456, true, 1, PCPP_ETHERTYPE_IPV6);
-	PTF_ASSERT_TRUE(trailerIPv6Packet2.insertLayer(ethLayer, &newVlanLayer2));
+	auto newVlanLayer2 = new pcpp::VlanLayer(456, true, 1, PCPP_ETHERTYPE_IPV6);
+	PTF_ASSERT_TRUE(trailerIPv6Packet2.insertLayer(ethLayer, newVlanLayer2, true));
 	pcpp::PacketTrailerLayer* packetTrailer = trailerIPv6Packet2.getLayerOfType<pcpp::PacketTrailerLayer>();
 	PTF_ASSERT_NOT_NULL(packetTrailer);
 	PTF_ASSERT_TRUE(trailerIPv6Packet2.removeLayer(pcpp::PacketTrailer));
@@ -849,18 +851,18 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getDataLen(), 6);
 
 	// rebuild packet starting from trailer
-	pcpp::EthLayer newEthLayer(pcpp::MacAddress("30:46:9a:23:fb:fa"), pcpp::MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
-	PTF_ASSERT_TRUE(trailerIPv4Packet.insertLayer(NULL, &newEthLayer));
-	pcpp::IPv4Layer newIp4Layer(pcpp::IPv4Address("173.194.78.104"), pcpp::IPv4Address("10.0.0.1"));
-	newIp4Layer.getIPv4Header()->ipId = htobe16(40382);
-	newIp4Layer.getIPv4Header()->timeToLive = 46;
-	trailerIPv4Packet.insertLayer(&newEthLayer, &newIp4Layer);
-	pcpp::TcpLayer newTcpLayer(443, 55194);
-	newTcpLayer.getTcpHeader()->ackNumber = htobe32(0x807df56c);
-	newTcpLayer.getTcpHeader()->sequenceNumber = htobe32(0x46529f28);
-	newTcpLayer.getTcpHeader()->ackFlag = 1;
-	newTcpLayer.getTcpHeader()->windowSize = htobe16(344);
-	trailerIPv4Packet.insertLayer(&newIp4Layer, &newTcpLayer);
+	auto newEthLayer = new pcpp::EthLayer(pcpp::MacAddress("30:46:9a:23:fb:fa"), pcpp::MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
+	PTF_ASSERT_TRUE(trailerIPv4Packet.insertLayer(nullptr, newEthLayer, true));
+	auto newIp4Layer = new pcpp::IPv4Layer(pcpp::IPv4Address("173.194.78.104"), pcpp::IPv4Address("10.0.0.1"));
+	newIp4Layer->getIPv4Header()->ipId = htobe16(40382);
+	newIp4Layer->getIPv4Header()->timeToLive = 46;
+	trailerIPv4Packet.insertLayer(newEthLayer, newIp4Layer, true);
+	auto newTcpLayer = new pcpp::TcpLayer(443, 55194);
+	newTcpLayer->getTcpHeader()->ackNumber = htobe32(0x807df56c);
+	newTcpLayer->getTcpHeader()->sequenceNumber = htobe32(0x46529f28);
+	newTcpLayer->getTcpHeader()->ackFlag = 1;
+	newTcpLayer->getTcpHeader()->windowSize = htobe16(344);
+	trailerIPv4Packet.insertLayer(newIp4Layer, newTcpLayer, true);
 	trailerIPv4Packet.computeCalculateFields();
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 60);
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::IPv4Layer>()->getDataLen(), 40);
@@ -869,7 +871,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 
 	// extend layer before trailer
 	ip6Layer = trailerIPv6Packet.getLayerOfType<pcpp::IPv6Layer>();
-	pcpp::IPv6RoutingHeader routingExt(4, 3, NULL, 0);
+	pcpp::IPv6RoutingHeader routingExt(4, 3, nullptr, 0);
 	ip6Layer->addExtension<pcpp::IPv6RoutingHeader>(routingExt);
 	trailerIPv6Packet.computeCalculateFields();
 	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 476);
@@ -911,12 +913,12 @@ PTF_TEST_CASE(PacketTrailerTest)
 
 PTF_TEST_CASE(ResizeLayerTest)
 {
-	// Creating a packet
-	pcpp::Packet packet(1500);
-
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
 	pcpp::PayloadLayer payloadLayer(payload, 10, true);
-	PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
+
+    // Creating a packet
+    pcpp::Packet packet(1500);
+    PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
 
 	// Starting Resize testing
 	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 10); // Size of packet before resizing is not correct
@@ -970,7 +972,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 
 	// convert the timestamp to a printable format
 	time_t nowtime = time.tv_sec;
-	struct tm *nowtm = NULL;
+	struct tm *nowtm = nullptr;
 #if __cplusplus > 199711L && !defined(_WIN32)
   // localtime_r is a thread-safe versions of localtime,
 	// but they're defined only in newer compilers (>= C++0x).
@@ -1002,7 +1004,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 
 	// test print layers
 	std::vector<std::string>::iterator iter = expectedLayerStrings.begin();
-	for (pcpp::Layer* layer = packet.getFirstLayer(); layer != NULL; layer = layer->getNextLayer())
+	for (pcpp::Layer* layer = packet.getFirstLayer(); layer != nullptr; layer = layer->getNextLayer())
 	{
 		PTF_ASSERT_EQUAL(layer->toString(), *iter);
 		std::ostringstream layerStream;
@@ -1015,9 +1017,9 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 	// test print packet
 	std::ostringstream expectedStream;
 	expectedStream << expectedPacketHeaderString << std::endl;
-	for (std::vector<std::string>::iterator iter = expectedLayerStrings.begin(); iter != expectedLayerStrings.end(); iter++)
+	for (const auto& it : expectedLayerStrings)
 	{
-		expectedStream << *iter << std::endl;
+		expectedStream << it << std::endl;
 	}
 
 	std::ostringstream packetStream;

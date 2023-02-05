@@ -181,7 +181,7 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
 	}
 }
 
-std::string executeShellCommand(const std::string command)
+std::string executeShellCommand(const std::string &command)
 {
 	FILE* pipe = POPEN(command.c_str(), "r");
 	if (!pipe) return "ERROR";
@@ -189,7 +189,7 @@ std::string executeShellCommand(const std::string command)
 	std::string result = "";
 	while(!feof(pipe))
 	{
-		if(fgets(buffer, 128, pipe) != NULL)
+		if(fgets(buffer, 128, pipe) != nullptr)
 			result += buffer;
 	}
 	PCLOSE(pipe);
@@ -197,7 +197,7 @@ std::string executeShellCommand(const std::string command)
 }
 
 
-bool directoryExists(std::string dirPath)
+bool directoryExists(const std::string &dirPath)
 {
 	struct stat info;
 
@@ -346,10 +346,10 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 		// The way to make sure the signal is called only once is using this lock and putting NULL in m_ApplicationInterruptedHandler
 		const std::lock_guard<std::mutex> lock(UnixLinuxHandlerRoutineMutex);
 
-		if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
+		if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != nullptr)
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 
-		ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = NULL;
+		ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = nullptr;
 
 		return;
 	}
@@ -363,7 +363,7 @@ void ApplicationEventHandler::handlerRoutine(int signum)
 
 
 ApplicationEventHandler::ApplicationEventHandler() :
-		 m_ApplicationInterruptedHandler(NULL), m_ApplicationInterruptedCookie(NULL)
+		 m_ApplicationInterruptedHandler(nullptr), m_ApplicationInterruptedCookie(nullptr)
 {
 }
 
@@ -379,7 +379,7 @@ void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback hand
 	memset(&action, 0, sizeof(struct sigaction));
 	action.sa_handler = handlerRoutine;
 	sigemptyset(&action.sa_mask);
-	sigaction(SIGINT, &action, NULL);
+	sigaction(SIGINT, &action, nullptr);
 #endif
 }
 

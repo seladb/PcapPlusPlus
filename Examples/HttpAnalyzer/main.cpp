@@ -51,16 +51,16 @@
 
 static struct option HttpAnalyzerOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"dst-port",  required_argument, 0, 'p'},
-	{"input-file",  required_argument, 0, 'f'},
-	{"output-file", required_argument, 0, 'o'},
-	{"rate-calc-period", required_argument, 0, 'r'},
-	{"disable-rates-print", no_argument, 0, 'd'},
-	{"list-interfaces", no_argument, 0, 'l'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"dst-port",  required_argument, nullptr, 'p'},
+	{"input-file",  required_argument, nullptr, 'f'},
+	{"output-file", required_argument, nullptr, 'o'},
+	{"rate-calc-period", required_argument, nullptr, 'r'},
+	{"disable-rates-print", no_argument, nullptr, 'd'},
+	{"list-interfaces", no_argument, nullptr, 'l'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -134,7 +134,7 @@ void listInterfaces()
 }
 
 
-void printStatsHeadline(std::string description)
+void printStatsHeadline(const std::string &description)
 {
 	std::string underline;
 	for (size_t i = 0; i < description.length(); i++)
@@ -160,7 +160,7 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	data->statsCollector->collectStats(&parsedPacket);
 
 	// if needed - write the packet to the output pcap file
-	if (data->pcapWriter != NULL)
+	if (data->pcapWriter != nullptr)
 	{
 		data->pcapWriter->writePacket(*packet);
 	}
@@ -237,7 +237,7 @@ void printMethods(HttpRequestStats& reqStatscollector)
 /**
  * An auxiliary method for sorting the hostname count map. Used only in printHostnames()
  */
-bool hostnameComparer(std::pair<std::string, int> first, std::pair<std::string, int> second)
+bool hostnameComparer(const std::pair<std::string, int>& first, const std::pair<std::string, int>& second)
 {
 	if (first.second == second.second)
 	{
@@ -406,7 +406,7 @@ void onApplicationInterrupted(void* cookie)
 /**
  * activate HTTP analysis from pcap file
  */
-void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
+void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
 	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFileName);
@@ -445,7 +445,7 @@ void analyzeHttpFromPcapFile(std::string pcapFileName, uint16_t dstPort)
 /**
  * activate HTTP analysis from live traffic
  */
-void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, std::string savePacketsToFileName, uint16_t dstPort)
+void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodically, int printRatePeriod, const std::string& savePacketsToFileName, uint16_t dstPort)
 {
 	// open the device
 	if (!dev->open())
@@ -456,7 +456,7 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
-	pcpp::PcapFileWriterDevice* pcapWriter = NULL;
+	pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
 	if (savePacketsToFileName != "")
 	{
 		pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
@@ -504,7 +504,7 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 	printStatsSummary(collector);
 
 	// close and free the writer device
-	if (pcapWriter != NULL)
+	if (pcapWriter != nullptr)
 	{
 		pcapWriter->close();
 		delete pcapWriter;
@@ -574,18 +574,10 @@ int main(int argc, char* argv[])
 	if (readPacketsFromPcapFileName == "" && interfaceNameOrIP == "")
 		EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
 
-	//get the port
-	std::istringstream is(port);
-	uint16_t nPort = -1;
-	is >> nPort;
-	if (is.fail())
-	{
+	// get the port
+	int nPort = atoi(port.c_str());
+	if (nPort <= 0 || nPort > 65535)
 		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
-	}
-	if (nPort < 0 || nPort > 65535)
-	{
-		EXIT_WITH_ERROR("Please input a number between 0 to 65535");
-	}
 
 	// analyze in pcap file mode
 	if (readPacketsFromPcapFileName != "")
@@ -595,7 +587,7 @@ int main(int argc, char* argv[])
 	else // analyze in live traffic mode
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 		// start capturing and analyzing traffic

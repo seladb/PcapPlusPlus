@@ -16,7 +16,6 @@
 
 PTF_TEST_CASE(NtpMethodsTests)
 {
-
     double val = 12345.125;
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromTimestampFormat(pcpp::NtpLayer::convertToTimestampFormat(val)), val);
     PTF_ASSERT_EQUAL(pcpp::NtpLayer::convertFromShortFormat(pcpp::NtpLayer::convertToShortFormat(val)), val);
@@ -37,9 +36,8 @@ PTF_TEST_CASE(NtpMethodsTests)
 
 PTF_TEST_CASE(NtpParsingV3Tests)
 {
-
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv3.dat");
 
@@ -89,9 +87,8 @@ PTF_TEST_CASE(NtpParsingV3Tests)
 
 PTF_TEST_CASE(NtpParsingV4Tests)
 {
-
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
 
@@ -193,7 +190,7 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getPrecision(), int8_t(0xee));
     PTF_ASSERT_EQUAL(ntpLayer->getRootDelay(), 0);
     PTF_ASSERT_EQUAL(ntpLayer->getRootDispersion(), be32toh(0xfb));
-    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), pcpp::NtpLayer::DCFa);
+    PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifier(), static_cast<uint32_t>(pcpp::NtpLayer::ClockSource::DCFa));
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceIdentifierString(), "Meinberg DCF77 with amplitude modulation");
     PTF_ASSERT_EQUAL(ntpLayer->getReferenceTimestamp(), be64toh(0xdcd2aabfe3771e96));
     PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestamp(), be64toh(0xdcd2aae48e835d2a));
@@ -217,28 +214,20 @@ PTF_TEST_CASE(NtpParsingV4Tests)
     PTF_ASSERT_EQUAL(ntpLayer->getOriginTimestampAsString(), "2017-05-26T13:23:48.5567Z");
     PTF_ASSERT_EQUAL(ntpLayer->getReceiveTimestampAsString(), "2017-05-26T13:23:48.5571Z");
     PTF_ASSERT_EQUAL(ntpLayer->getTransmitTimestampAsString(), "2017-05-26T13:23:48.5578Z");
-
 } // NtpParsingV4Tests
 
 PTF_TEST_CASE(NtpCreationTests)
 {
-
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ntpv4.dat");
 
     pcpp::Packet ntpPacket(&rawPacket1);
-    pcpp::Packet craftedPacket;
 
     pcpp::EthLayer ethLayer(*ntpPacket.getLayerOfType<pcpp::EthLayer>());
-    PTF_ASSERT_TRUE(craftedPacket.addLayer(&ethLayer));
-
     pcpp::IPv4Layer ipv4Layer(*ntpPacket.getLayerOfType<pcpp::IPv4Layer>());
-    PTF_ASSERT_TRUE(craftedPacket.addLayer(&ipv4Layer));
-
     pcpp::UdpLayer udpLayer(*ntpPacket.getLayerOfType<pcpp::UdpLayer>());
-    PTF_ASSERT_TRUE(craftedPacket.addLayer(&udpLayer));
 
     pcpp::NtpLayer ntpLayer;
 
@@ -257,6 +246,10 @@ PTF_TEST_CASE(NtpCreationTests)
     ntpLayer.setReceiveTimestamp(be64toh(0xd944575531b4e978));
     ntpLayer.setTransmitTimestamp(be64toh(0xd94f51f42d26e2f4));
 
+	pcpp::Packet craftedPacket;
+	PTF_ASSERT_TRUE(craftedPacket.addLayer(&ethLayer));
+	PTF_ASSERT_TRUE(craftedPacket.addLayer(&ipv4Layer));
+	PTF_ASSERT_TRUE(craftedPacket.addLayer(&udpLayer));
     craftedPacket.addLayer(&ntpLayer);
 
     PTF_ASSERT_EQUAL(bufferLength1, craftedPacket.getRawPacket()->getRawDataLen());
@@ -265,16 +258,10 @@ PTF_TEST_CASE(NtpCreationTests)
     READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ntpv3crafting.dat");
 
     pcpp::Packet ntpPacket2(&rawPacket2);
-    pcpp::Packet craftedPacket2;
 
     pcpp::EthLayer ethLayer2(*ntpPacket2.getLayerOfType<pcpp::EthLayer>());
-    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
-
     pcpp::IPv4Layer ipv4Layer2(*ntpPacket2.getLayerOfType<pcpp::IPv4Layer>());
-    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
-
     pcpp::UdpLayer udpLayer2(*ntpPacket2.getLayerOfType<pcpp::UdpLayer>());
-    PTF_ASSERT_TRUE(craftedPacket2.addLayer(&udpLayer2));
 
     pcpp::NtpLayer ntpLayer2;
 
@@ -287,15 +274,18 @@ PTF_TEST_CASE(NtpCreationTests)
     ntpLayer2.setPrecision(int8_t(0xfa));
     ntpLayer2.setRootDelayInSecs(0.031250);
     ntpLayer2.setRootDispersionInSecs(0.125);
-    ntpLayer2.setReferenceIdentifier(pcpp::NtpLayer::DCFa);
+    ntpLayer2.setReferenceIdentifier(pcpp::NtpLayer::ClockSource::DCFa);
     ntpLayer2.setReferenceTimestampInSecs(1121509470.0);
     ntpLayer2.setOriginTimestampInSecs(1121509866.0);
     ntpLayer2.setReceiveTimestampInSecs(1121509865.0);
     ntpLayer2.setTransmitTimestampInSecs(1121509865.0);
 
+	pcpp::Packet craftedPacket2;
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&udpLayer2));
     craftedPacket2.addLayer(&ntpLayer2);
 
     PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
     PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
-
 } // NtpCraftingTests

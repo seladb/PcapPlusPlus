@@ -58,7 +58,7 @@ static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice* device, void
 
 	// extract the ARP layer from the packet
 	ArpLayer* arpReplyLayer = packet.getLayerOfType<ArpLayer>(true); // lookup in reverse order
-	if (arpReplyLayer == NULL)
+	if (arpReplyLayer == nullptr)
 		return;
 
 	// verify it's the right ARP response
@@ -159,7 +159,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	};
 
 	struct timeval now;
-	gettimeofday(&now,NULL);
+	gettimeofday(&now,nullptr);
 
 	// start capturing. The capture is done on another thread, hence "arpPacketReceived" is running on that thread
 	device->startCapture(arpPacketReceived, &data);
@@ -168,6 +168,7 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	device->sendPacket(&arpRequest);
 
 	// block on the conditional mutex until capture thread signals or until timeout expires
+	// cppcheck-suppress localMutex
 	std::unique_lock<std::mutex> lock(mutex);
 	std::cv_status res = cond.wait_for(lock, std::chrono::seconds(arpTimeout));
 
@@ -223,7 +224,7 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, vo
 
 	// extract the DNS layer from the packet
 	DnsLayer* dnsResponseLayer = packet.getLayerOfType<DnsLayer>(true); // lookup in reverse order
-	if (dnsResponseLayer == NULL)
+	if (dnsResponseLayer == nullptr)
 		return;
 
 	// verify it's the right DNS response
@@ -243,14 +244,14 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, vo
 
 	std::string hostToFind = data->hostname;
 
-	DnsResource* dnsAnswer = NULL;
+	DnsResource* dnsAnswer = nullptr;
 
 	while (true)
 	{
 		dnsAnswer = dnsResponseLayer->getAnswer(hostToFind, true);
 
 		// if response doesn't contain hostname or cname - return
-		if (dnsAnswer == NULL)
+		if (dnsAnswer == nullptr)
 		{
 			PCPP_LOG_DEBUG("DNS answer doesn't contain hostname '" << hostToFind << "'");
 			return;
@@ -291,7 +292,7 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, vo
 }
 
 
-IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
+IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname, PcapLiveDevice* device, double& dnsResponseTimeMS, uint32_t& dnsTTL,
 		int dnsTimeout, IPv4Address dnsServerIP, IPv4Address gatewayIP) const
 {
 	IPv4Address result = IPv4Address::Zero;
@@ -408,7 +409,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 
 
 	struct timeval now;
-	gettimeofday(&now,NULL);
+	gettimeofday(&now,nullptr);
 
 	// start capturing. The capture is done on another thread, hence "dnsResponseReceived" is running on that thread
 	device->startCapture(dnsResponseReceived, &data);
@@ -417,6 +418,7 @@ IPv4Address NetworkUtils::getIPv4Address(std::string hostname, PcapLiveDevice* d
 	device->sendPacket(&dnsRequest);
 
 	// block on the conditional mutex until capture thread signals or until timeout expires
+	// cppcheck-suppress localMutex
 	std::unique_lock<std::mutex> lock(mutex);
 	std::cv_status res = cond.wait_for(lock, std::chrono::seconds(dnsTimeout));
 

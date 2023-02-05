@@ -190,9 +190,17 @@ PTF_TEST_CASE(LLCCreationTests);
 
 // Implemented in StpTests.cpp
 PTF_TEST_CASE(StpConfigurationParsingTests);
+PTF_TEST_CASE(StpConfigurationCreationTests);
+PTF_TEST_CASE(StpConfigurationEditTests);
 PTF_TEST_CASE(StpTopologyChangeParsingTests);
+PTF_TEST_CASE(StpTopologyChangeCreationTests);
+PTF_TEST_CASE(StpTopologyChangeEditTests);
 PTF_TEST_CASE(RapidStpParsingTests);
+PTF_TEST_CASE(RapidStpCreationTests);
+PTF_TEST_CASE(RapidStpEditTests);
 PTF_TEST_CASE(MultipleStpParsingTests);
+PTF_TEST_CASE(MultipleStpCreationTests);
+PTF_TEST_CASE(MultipleStpEditTests);
 
 // Implemented in SomeIpTests.cpp
 PTF_TEST_CASE(SomeIpPortTest);
@@ -201,6 +209,10 @@ PTF_TEST_CASE(SomeIpCreationTest);
 PTF_TEST_CASE(SomeIpTpParsingTest);
 PTF_TEST_CASE(SomeIpTpCreationTest);
 PTF_TEST_CASE(SomeIpTpEditTest);
+
+// Implemented in SomeIpSdTests.cpp
+PTF_TEST_CASE(SomeIpSdParsingTest);
+PTF_TEST_CASE(SomeIpSdCreationTest);
 
 // Implemented in WakeOnLanTests.cpp
 PTF_TEST_CASE(WakeOnLanParsingTests);

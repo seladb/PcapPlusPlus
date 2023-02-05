@@ -16,7 +16,7 @@ private:
 
 public:
 
-	DeviceTeardown(pcpp::IDevice* device, bool deleteDevice = false) : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice) {}
+	explicit DeviceTeardown(pcpp::IDevice* device, bool deleteDevice = false) : m_Device(device), m_CancelTeardown(false), m_DeleteDevice(deleteDevice) {}
 
 	~DeviceTeardown()
 	{
@@ -36,13 +36,13 @@ public:
 	}
 };
 
-bool sendURLRequest(std::string url);
+bool sendURLRequest(const std::string &url);
 
-bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg);
+bool readPcapIntoPacketVec(const std::string& pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg);
 
-int getFileLength(std::string filename);
+int getFileLength(const std::string &filename);
 
-uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength);
+uint8_t* readFileIntoBuffer(const std::string &filename, int& bufferLength);
 
 template<typename KeyType, typename LeftValue, typename RightValue>
 void intersectMaps(

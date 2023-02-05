@@ -18,15 +18,15 @@
 
 static struct option DNSResolverOptions[] =
 {
-	{"interface",  required_argument, 0, 'i'},
-	{"hostname", required_argument, 0, 's'},
-	{"dns-server", required_argument, 0, 'd'},
-	{"gateway", required_argument, 0, 'g'},
-	{"timeout", optional_argument, 0, 't'},
-	{"help", no_argument, 0, 'h'},
-	{"version", no_argument, 0, 'v'},
-	{"list", no_argument, 0, 'l'},
-	{0, 0, 0, 0}
+	{"interface",  required_argument, nullptr, 'i'},
+	{"hostname", required_argument, nullptr, 's'},
+	{"dns-server", required_argument, nullptr, 'd'},
+	{"gateway", required_argument, nullptr, 'g'},
+	{"timeout", optional_argument, nullptr, 't'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{"list", no_argument, nullptr, 'l'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -175,13 +175,13 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Hostname not provided");
 
 	// find the interface to send the DNS request from
-	pcpp::PcapLiveDevice* dev = NULL;
+	pcpp::PcapLiveDevice* dev = nullptr;
 
 	// if interface name or IP was provided - find the device accordingly
 	if (interfaceNameOrIPProvided)
 	{
 		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}
 	// if interface name or IP was not provided - find a device that has a default gateway
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		if (dev == NULL)
+		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find an interface with a default gateway");
 	}
 

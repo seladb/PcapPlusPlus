@@ -38,14 +38,14 @@ namespace pcpp
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
 	}
 
-	bool SingleCommandTextProtocol::hyphenRequired(std::string value)
+	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
 	{
 		size_t firstPos = value.find_first_of("\r\n");
 		size_t lastPos = value.find_last_of("\r\n");
 		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
 	}
 
-	SingleCommandTextProtocol::SingleCommandTextProtocol(std::string &command, std::string &option)
+	SingleCommandTextProtocol::SingleCommandTextProtocol(const std::string &command, const std::string &option)
 	{
 		m_Data = new uint8_t[6];
 		m_DataLen = 6;

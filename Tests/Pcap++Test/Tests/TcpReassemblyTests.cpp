@@ -60,7 +60,7 @@ struct TcpReassemblyMultipleConnStats
 // readFileIntoString()
 // ~~~~~~~~~~~~~~~~~~~~
 
-static std::string readFileIntoString(std::string fileName)
+static std::string readFileIntoString(const std::string &fileName)
 {
 	std::ifstream infile(fileName.c_str(), std::ios::binary);
 	std::ostringstream ostrm;
@@ -80,12 +80,12 @@ static size_t getPayloadLen(pcpp::RawPacket& rawPacket)
 	pcpp::Packet packet(&rawPacket);
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-	if (tcpLayer == NULL)
-		throw;
+	if (tcpLayer == nullptr)
+		throw std::runtime_error("TCP Layer not found");
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-	if (ipLayer == NULL)
-		throw;
+	if (ipLayer == nullptr)
+		throw std::runtime_error("IPv4 Layer not found");
 
 	return be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
 }
@@ -176,7 +176,7 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 
 static bool tcpReassemblyTest(std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results, bool monitorOpenCloseConns, bool closeConnsManually)
 {
-	pcpp::TcpReassembly* tcpReassembly = NULL;
+	pcpp::TcpReassembly* tcpReassembly = nullptr;
 
 	if (monitorOpenCloseConns)
 		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
@@ -220,12 +220,12 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 	pcpp::Packet packet(&rawPacket);
 
 	pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
-	if (tcpLayer == NULL)
-		throw;
+	if (tcpLayer == nullptr)
+		throw std::runtime_error("TCP Layer not found");
 
 	pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-	if (ipLayer == NULL)
-		throw;
+	if (ipLayer == nullptr)
+		throw std::runtime_error("IPv4 Layer not found");
 
 	int tcpPayloadSize = be16toh(ipLayer->getIPv4Header()->totalLength)-ipLayer->getHeaderLen()-tcpLayer->getHeaderLen();
 
@@ -249,7 +249,7 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 	}
 
 	pcpp::Layer* layerToRemove = tcpLayer->getNextLayer();
-	if (layerToRemove != NULL)
+	if (layerToRemove != nullptr)
 		packet.removeLayer(layerToRemove->getProtocol());
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
@@ -721,9 +721,9 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections.find(results.flowKeysList[0]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections.find(results.flowKeysList[1]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn3 = managedConnections.find(results.flowKeysList[2]);
-	PTF_ASSERT_NOT_EQUAL(iterConn1, managedConnections.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn2, managedConnections.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn3, managedConnections.end(), object_no_str);
+	PTF_ASSERT_TRUE(iterConn1 != managedConnections.end());
+	PTF_ASSERT_TRUE(iterConn2 != managedConnections.end());
+	PTF_ASSERT_TRUE(iterConn3 != managedConnections.end());
 	PTF_ASSERT_GREATER_THAN(tcpReassembly.isConnectionOpen(iterConn1->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
@@ -974,9 +974,9 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections.find(results.flowKeysList[0]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections.find(results.flowKeysList[1]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn3 = managedConnections.find(results.flowKeysList[2]);
-	PTF_ASSERT_NOT_EQUAL(iterConn1, managedConnections.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn2, managedConnections.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn3, managedConnections.end(), object_no_str);
+	PTF_ASSERT_TRUE(iterConn1 != managedConnections.end());
+	PTF_ASSERT_TRUE(iterConn2 != managedConnections.end());
+	PTF_ASSERT_TRUE(iterConn3 != managedConnections.end());
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
@@ -996,9 +996,9 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	iterConn1 = managedConnections.find(flowKeys[0]);
 	iterConn2 = managedConnections.find(flowKeys[1]);
 	iterConn3 = managedConnections.find(flowKeys[2]);
-	PTF_ASSERT_NOT_EQUAL(iterConn1, managedConnections.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn2, managedConnections.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn3, managedConnections.end(), object_no_str);
+	PTF_ASSERT_TRUE(iterConn1 != managedConnections.end());
+	PTF_ASSERT_TRUE(iterConn2 != managedConnections.end());
+	PTF_ASSERT_TRUE(iterConn3 != managedConnections.end());
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn1->second), -1);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), -1);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), -1);
@@ -1036,8 +1036,8 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
 
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn1 = managedConnections1.find(results1.flowKeysList[0]);
 	pcpp::TcpReassembly::ConnectionInfoList::const_iterator iterConn2 = managedConnections2.find(results2.flowKeysList[0]);
-	PTF_ASSERT_NOT_EQUAL(iterConn1, managedConnections1.end(), object_no_str);
-	PTF_ASSERT_NOT_EQUAL(iterConn2, managedConnections2.end(), object_no_str);
+	PTF_ASSERT_TRUE(iterConn1 != managedConnections1.end());
+	PTF_ASSERT_TRUE(iterConn2 != managedConnections2.end());
 	PTF_ASSERT_EQUAL(tcpReassembly1.isConnectionOpen(iterConn1->second), 1);
 	PTF_ASSERT_EQUAL(tcpReassembly2.isConnectionOpen(iterConn2->second), 1);
 	PTF_ASSERT_EQUAL(results1.stats.begin()->second.numOfDataPackets, 1); // The second data packet is incomplete so we stopped at one

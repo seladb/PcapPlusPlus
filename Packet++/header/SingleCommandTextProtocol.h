@@ -21,11 +21,11 @@ namespace pcpp
 	private:
 		size_t getArgumentFieldOffset() const;
 		void setDelimiter(bool hyphen);
-		bool hyphenRequired(std::string value);
+		bool hyphenRequired(const std::string& value);
 
 	protected:
 		SingleCommandTextProtocol(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
-		SingleCommandTextProtocol(std::string &command, std::string &option);
+		SingleCommandTextProtocol(const std::string &command, const std::string &option);
 
 		bool setCommandInternal(std::string value);
 		bool setCommandOptionInternal(std::string value);

@@ -12,7 +12,7 @@
 PTF_TEST_CASE(FtpParsingTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Test IPv4 packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
@@ -101,24 +101,23 @@ PTF_TEST_CASE(FtpParsingTests)
 PTF_TEST_CASE(FtpCreationTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Craft packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");
 
 	pcpp::Packet ftpPacket1(&rawPacket1);
-	pcpp::Packet craftedPacket1;
 
 	pcpp::EthLayer ethLayer1(*ftpPacket1.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ethLayer1));
-
 	pcpp::IPv4Layer ipv4Layer1(*ftpPacket1.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ipv4Layer1));
-
 	pcpp::TcpLayer tcpLayer1(*ftpPacket1.getLayerOfType<pcpp::TcpLayer>());
-	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
 
 	pcpp::FtpRequestLayer ftpReqLayer1(pcpp::FtpRequestLayer::FtpCommand::USER, "csanders");
+
+	pcpp::Packet craftedPacket1;
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ethLayer1));
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ipv4Layer1));
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
 	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ftpReqLayer1));
 
 	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket1.getRawPacket()->getRawDataLen());
@@ -127,20 +126,19 @@ PTF_TEST_CASE(FtpCreationTests)
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/ftpIpv4RespHyphen.dat");
 
 	pcpp::Packet ftpPacket2(&rawPacket2);
-	pcpp::Packet craftedPacket2;
 
 	pcpp::EthLayer ethLayer2(*ftpPacket2.getLayerOfType<pcpp::EthLayer>());
-	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
-
 	pcpp::IPv4Layer ipv4Layer2(*ftpPacket2.getLayerOfType<pcpp::IPv4Layer>());
-	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
-
 	pcpp::TcpLayer tcpLayer2(*ftpPacket2.getLayerOfType<pcpp::TcpLayer>());
-	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
 
 	pcpp::FtpResponseLayer ftpRespLayer1(
 		pcpp::FtpResponseLayer::FtpStatusCode::SYSTEM_STATUS,
 		"Extensions supported:\r\n CLNT\r\n MDTM\r\n PASV\r\n REST STREAM\r\n SIZE\r\n211 End.");
+
+	pcpp::Packet craftedPacket2;
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
 	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ftpRespLayer1));
 
 	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
@@ -150,7 +148,7 @@ PTF_TEST_CASE(FtpCreationTests)
 PTF_TEST_CASE(FtpEditTests)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	// Modify existing request packets
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ftpIpv4Req.dat");

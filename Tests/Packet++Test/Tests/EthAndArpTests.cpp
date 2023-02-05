@@ -90,7 +90,7 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 PTF_TEST_CASE(EthAndArpPacketParsing)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ArpResponsePacket.dat");
 
@@ -150,7 +150,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 PTF_TEST_CASE(EthDot3LayerParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/EthDot3.dat");
 	pcpp::Packet ethDot3Packet(&rawPacket1);
@@ -171,7 +171,7 @@ PTF_TEST_CASE(EthDot3LayerParsingTest)
 PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/EthDot3.dat");
 	READ_FILE_INTO_BUFFER(2, "PacketExamples/EthDot3_2.dat");
@@ -198,12 +198,12 @@ PTF_TEST_CASE(EthDot3LayerCreateEditTest)
 	ethDot3NewLayer.setSourceMac(pcpp::MacAddress("00:1a:a1:97:d1:85"));
 	ethDot3NewLayer.getEthHeader()->length = htobe16(121);
 
-	pcpp::PayloadLayer newPayloadLayer2("424203000003027c8000000c305dd100000000008000000c305dd10080050000140002000f000000500000000"
+	auto newPayloadLayer2 = new pcpp::PayloadLayer("424203000003027c8000000c305dd100000000008000000c305dd10080050000140002000f000000500000000"
 			"00000000000000000000000000000000000000000000000000000000000000055bf4e8a44b25d442868549c1bf7720f00030d408000001a"
 			"a197d180137c8005000c305dd10000030d40808013");
 
 	PTF_ASSERT_TRUE(newEthDot3Packet.detachLayer(&newPayloadLayer));
-	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(&newPayloadLayer2));
+	PTF_ASSERT_TRUE(newEthDot3Packet.addLayer(newPayloadLayer2, true));
 	newEthDot3Packet.computeCalculateFields();
 
 	PTF_ASSERT_BUF_COMPARE(newEthDot3Packet.getRawPacket()->getRawData(), buffer2, bufferLength2);

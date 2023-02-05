@@ -1,0 +1,16 @@
+*:3rdParty/*
+
+ConfigurationNotChecked:*
+ctuOneDefinitionRuleViolation:Examples/*
+missingInclude:*
+unknownMacro:*
+unusedFunction:*
+unusedStructMember:*
+
+noExplicitConstructor:Common++/header/IpAddress.h
+noExplicitConstructor:Common++/header/MacAddress.h
+noExplicitConstructor:Pcap++/header/PcapFileDevice.h
+
+missingOverride:*
+postfixOperator:*
+cstyleCast:*

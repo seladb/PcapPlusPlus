@@ -13,7 +13,7 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-bool sendURLRequest(std::string url)
+bool sendURLRequest(const std::string &url)
 {
 #if defined(_WIN32)
 	std::string cmd = "cUrl\\curl_win32.exe -s -o cUrl\\curl_output.txt";
@@ -30,7 +30,7 @@ bool sendURLRequest(std::string url)
 }
 
 
-bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg)
+bool readPcapIntoPacketVec(const std::string& pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg)
 {
 	errMsg = "";
 	packetStream.clear();
@@ -52,7 +52,7 @@ bool readPcapIntoPacketVec(std::string pcapFileName, std::vector<pcpp::RawPacket
 }
 
 
-int getFileLength(std::string filename)
+int getFileLength(const std::string &filename)
 {
 	std::ifstream infile(filename.c_str(), std::ifstream::binary);
 	if (!infile)
@@ -64,15 +64,15 @@ int getFileLength(std::string filename)
 }
 
 
-uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength)
+uint8_t* readFileIntoBuffer(const std::string &filename, int& bufferLength)
 {
 	int fileLength = getFileLength(filename);
 	if (fileLength == -1)
-		return NULL;
+		return nullptr;
 
 	std::ifstream infile(filename.c_str());
 	if (!infile)
-		return NULL;
+		return nullptr;
 
 	bufferLength = fileLength/2 + 2;
 	uint8_t* result = new uint8_t[bufferLength];
@@ -82,7 +82,7 @@ uint8_t* readFileIntoBuffer(std::string filename, int& bufferLength)
 		char byte[3];
 		memset(byte, 0, 3);
 		infile.read(byte, 2);
-		result[i] = (uint8_t)strtol(byte, NULL, 16);
+		result[i] = (uint8_t)strtol(byte, nullptr, 16);
 		i++;
 	}
 	infile.close();

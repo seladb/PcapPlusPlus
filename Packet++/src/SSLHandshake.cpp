@@ -6,6 +6,7 @@
 #include <sstream>
 #include <map>
 #include <set>
+#include <utility>
 #include "Logger.h"
 #include "SSLHandshake.h"
 
@@ -1051,17 +1052,17 @@ SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 {
 	std::map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
 	if (pos == CipherSuiteIdToObjectMap.end())
-		return NULL;
+		return nullptr;
 	else
 		return pos->second;
 }
 
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 {
-	uint32_t nameHash = hashString(name);
+	uint32_t nameHash = hashString(std::move(name));
 	std::map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
 	if (pos == CipherSuiteStringToObjectMap.end())
-		return NULL;
+		return nullptr;
 	else
 		return pos->second;
 }
@@ -1106,7 +1107,7 @@ uint8_t* SSLExtension::getData() const
 		return getExtensionStruct()->extensionData;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1224,7 +1225,7 @@ SSLHandshakeMessage::SSLHandshakeMessage(uint8_t* data, size_t dataLen, SSLHands
 SSLHandshakeMessage* SSLHandshakeMessage::createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container)
 {
 	if (dataLen < sizeof(ssl_tls_handshake_layer))
-		return NULL;
+		return nullptr;
 
 	ssl_tls_handshake_layer* hsMsgHeader = (ssl_tls_handshake_layer*)data;
 	switch (hsMsgHeader->handshakeType)
@@ -1305,7 +1306,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 		&& (curPos - m_Data) < (int)messageLen
 		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtensionLen)
 	{
-		SSLExtension* newExt = NULL;
+		SSLExtension* newExt = nullptr;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
 		switch (sslExtType)
 		{
@@ -1362,7 +1363,7 @@ uint8_t* SSLClientHelloMessage::getSessionID() const
 	if (getSessionIDLength() > 0)
 		return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
 	else
-		return NULL;
+		return nullptr;
 }
 
 int SSLClientHelloMessage::getCipherSuiteCount() const
@@ -1379,7 +1380,7 @@ SSLCipherSuite* SSLClientHelloMessage::getCipherSuite(int index) const
 {
 	bool isValid;
 	uint16_t id = getCipherSuiteID(index, isValid);
-	return (isValid ? SSLCipherSuite::getCipherSuiteByID(id) : NULL);
+	return (isValid ? SSLCipherSuite::getCipherSuiteByID(id) : nullptr);
 }
 
 uint16_t SSLClientHelloMessage::getCipherSuiteID(int index, bool& isValid) const
@@ -1442,7 +1443,7 @@ SSLExtension* SSLClientHelloMessage::getExtensionOfType(uint16_t type) const
 			return curElem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 SSLExtension* SSLClientHelloMessage::getExtensionOfType(SSLExtensionType type) const
@@ -1455,7 +1456,7 @@ SSLExtension* SSLClientHelloMessage::getExtensionOfType(SSLExtensionType type) c
 			return curElem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generateTLSFingerprint() const
@@ -1488,7 +1489,7 @@ SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generate
 
 	// extract supported groups
 	TLSSupportedGroupsExtension* supportedGroupsExt = getExtensionOfType<TLSSupportedGroupsExtension>();
-	if (supportedGroupsExt != NULL)
+	if (supportedGroupsExt != nullptr)
 	{
 		std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
 		for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
@@ -1498,7 +1499,7 @@ SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generate
 
 	// extract EC point formats
 	TLSECPointFormatExtension* ecPointFormatExt = getExtensionOfType<TLSECPointFormatExtension>();
-	if (ecPointFormatExt != NULL)
+	if (ecPointFormatExt != nullptr)
 	{
 		result.ecPointFormats = ecPointFormatExt->getECPointFormatList();
 	}
@@ -1590,12 +1591,12 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 	uint8_t* extensionPos = extensionLengthPos + sizeof(uint16_t);
 	uint8_t* curPos = extensionPos;
 	size_t messageLen = getMessageLength();
-	size_t minSSLExtensionLen = 2*sizeof(uint16_t) + sizeof(uint8_t);
+	size_t minSSLExtensionLen = 2*sizeof(uint16_t);
 	while ((curPos - extensionPos) < (int)extensionLength
 		&& (curPos - m_Data) < (int)messageLen
 		&& (int)messageLen - (curPos - m_Data) >= (int)minSSLExtensionLen)
 	{
-		SSLExtension* newExt = NULL;
+		SSLExtension* newExt = nullptr;
 		uint16_t sslExtType = be16toh(*(uint16_t*)curPos);
 		switch (sslExtType)
 		{
@@ -1629,7 +1630,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 SSLVersion SSLServerHelloMessage::getHandshakeVersion() const
 {
 	SSLSupportedVersionsExtension* supportedVersionsExt = getExtensionOfType<SSLSupportedVersionsExtension>();
-	if (supportedVersionsExt != NULL)
+	if (supportedVersionsExt != nullptr)
 	{
 		std::vector<SSLVersion> supportedVersions = supportedVersionsExt->getSupportedVersions();
 		if (supportedVersions.size() == 1)
@@ -1657,14 +1658,14 @@ uint8_t* SSLServerHelloMessage::getSessionID() const
 	if (getSessionIDLength() > 0)
 		return (m_Data + sizeof(ssl_tls_client_server_hello) + 1);
 	else
-		return NULL;
+		return nullptr;
 }
 
 SSLCipherSuite* SSLServerHelloMessage::getCipherSuite() const
 {
 	bool isValid;
 	uint16_t id = getCipherSuiteID(isValid);
-	return (isValid ? SSLCipherSuite::getCipherSuiteByID(id) : NULL);
+	return (isValid ? SSLCipherSuite::getCipherSuiteByID(id) : nullptr);
 }
 
 uint16_t SSLServerHelloMessage::getCipherSuiteID(bool& isValid) const
@@ -1709,7 +1710,7 @@ uint16_t SSLServerHelloMessage::getExtensionsLength() const
 SSLExtension* SSLServerHelloMessage::getExtension(int index) const
 {
 	if (index < 0 || index >= (int)m_ExtensionList.size())
-		return NULL;
+		return nullptr;
 
 	return const_cast<SSLExtension*>(m_ExtensionList.at(index));
 }
@@ -1724,7 +1725,7 @@ SSLExtension* SSLServerHelloMessage::getExtensionOfType(uint16_t type) const
 			return curElem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 SSLExtension* SSLServerHelloMessage::getExtensionOfType(SSLExtensionType type) const
@@ -1737,7 +1738,7 @@ SSLExtension* SSLServerHelloMessage::getExtensionOfType(SSLExtensionType type) c
 			return curElem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 SSLServerHelloMessage::ServerHelloTLSFingerprint SSLServerHelloMessage::generateTLSFingerprint() const
@@ -1872,7 +1873,7 @@ SSLx509Certificate* SSLCertificateMessage::getCertificate(int index) const
 	if (index < 0 || index > (int)m_CertificateList.size())
 	{
 		PCPP_LOG_DEBUG("certificate index out of range: asked for index " << index << ", total size is " << m_CertificateList.size());
-		return NULL;
+		return nullptr;
 	}
 
 	return const_cast<SSLx509Certificate*>(m_CertificateList.at(index));
@@ -1908,7 +1909,7 @@ uint8_t* SSLServerKeyExchangeMessage::getServerKeyExchangeParams() const
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
 
-	return NULL;
+	return nullptr;
 }
 
 size_t SSLServerKeyExchangeMessage::getServerKeyExchangeParamsLength() const
@@ -1934,7 +1935,7 @@ uint8_t* SSLClientKeyExchangeMessage::getClientKeyExchangeParams() const
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
 
-	return NULL;
+	return nullptr;
 }
 
 size_t SSLClientKeyExchangeMessage::getClientKeyExchangeParamsLength() const
@@ -1996,7 +1997,7 @@ uint8_t* SSLCertificateRequestMessage::getCertificateAuthorityData() const
 	size_t messageLen = getMessageLength();
 	size_t offset = sizeof(ssl_tls_handshake_layer) + sizeof(uint8_t) + m_ClientCertificateTypes.size() + sizeof(uint16_t);
 	if (offset >= messageLen)
-		return NULL;
+		return nullptr;
 
 	return m_Data + offset;
 }
@@ -2033,7 +2034,7 @@ uint8_t* SSLCertificateVerifyMessage::getSignedHash() const
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
 
-	return NULL;
+	return nullptr;
 }
 
 size_t SSLCertificateVerifyMessage::getSignedHashLength() const
@@ -2059,7 +2060,7 @@ uint8_t* SSLFinishedMessage::getSignedHash() const
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
 
-	return NULL;
+	return nullptr;
 }
 
 size_t SSLFinishedMessage::getSignedHashLength() const
@@ -2086,7 +2087,7 @@ uint8_t* SSLNewSessionTicketMessage::getSessionTicketData() const
 	if (getMessageLength() > sizeof(ssl_tls_handshake_layer))
 		return (m_Data + sizeof(ssl_tls_handshake_layer));
 
-	return NULL;
+	return nullptr;
 }
 
 size_t SSLNewSessionTicketMessage::getSessionTicketDataLength() const

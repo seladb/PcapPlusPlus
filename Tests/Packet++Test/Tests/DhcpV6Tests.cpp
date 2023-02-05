@@ -9,7 +9,7 @@
 PTF_TEST_CASE(DhcpV6ParsingTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_1.dat");
 
@@ -56,18 +56,19 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 PTF_TEST_CASE(DhcpV6CreationTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_2.dat");
 
 	uint8_t origBuffer[1500];
 
+	pcpp::DhcpV6Layer newDhcpV6Layer(pcpp::DHCPV6_ADVERTISE, 0x9a0006);
+	PTF_ASSERT_EQUAL(newDhcpV6Layer.getTransactionID(), 0x9a0006);
+
 	memcpy(origBuffer, buffer1, bufferLength1);
 	pcpp::Packet dhcpv6Packet(&rawPacket1);
 	pcpp::DhcpV6Layer* origDhcpV6Layer = dynamic_cast<pcpp::DhcpV6Layer*>(dhcpv6Packet.detachLayer(pcpp::DHCPv6));
 	PTF_ASSERT_NOT_NULL(origDhcpV6Layer);
-	pcpp::DhcpV6Layer newDhcpV6Layer(pcpp::DHCPV6_ADVERTISE, 0x9a0006);
-	PTF_ASSERT_EQUAL(newDhcpV6Layer.getTransactionID(), 0x9a0006);
 
 	// 1st option
 	pcpp::DhcpV6Option option = newDhcpV6Layer.addOption(pcpp::DhcpV6OptionBuilder(pcpp::DHCPV6_OPT_IA_NA, "1d00fcea00000000000000000005001820010dba0100000000000000000000300000017700000258"));
@@ -128,7 +129,7 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 PTF_TEST_CASE(DhcpV6EditTest)
 {
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/dhcpv6_1.dat");
 

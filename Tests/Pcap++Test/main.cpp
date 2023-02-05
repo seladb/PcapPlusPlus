@@ -10,21 +10,21 @@
 
 static struct option PcapTestOptions[] =
 {
-	{"debug-mode", no_argument, 0, 'b'},
-	{"use-ip",  required_argument, 0, 'i'},
-	{"remote-ip", required_argument, 0, 'r'},
-	{"remote-port", required_argument, 0, 'p'},
-	{"dpdk-port", required_argument, 0, 'd' },
-	{"no-networking", no_argument, 0, 'n' },
-	{"verbose", no_argument, 0, 'v' },
-	{"mem-verbose", no_argument, 0, 'm' },
-	{"kni-ip", no_argument, 0, 'k' },
-	{"skip-mem-leak-check", no_argument, 0, 's' },
-	{"include-tags",  required_argument, 0, 't'},
-	{"exclude-tags",  required_argument, 0, 'x'},
-	{"show-skipped-tests", no_argument, 0, 'w' },
-	{"help", no_argument, 0, 'h'},
-	{0, 0, 0, 0}
+	{"debug-mode", no_argument, nullptr, 'b'},
+	{"use-ip",  required_argument, nullptr, 'i'},
+	{"remote-ip", required_argument, nullptr, 'r'},
+	{"remote-port", required_argument, nullptr, 'p'},
+	{"dpdk-port", required_argument, nullptr, 'd' },
+	{"no-networking", no_argument, nullptr, 'n' },
+	{"verbose", no_argument, nullptr, 'v' },
+	{"mem-verbose", no_argument, nullptr, 'm' },
+	{"kni-ip", no_argument, nullptr, 'k' },
+	{"skip-mem-leak-check", no_argument, nullptr, 's' },
+	{"include-tags",  required_argument, nullptr, 't'},
+	{"exclude-tags",  required_argument, nullptr, 'x'},
+	{"show-skipped-tests", no_argument, nullptr, 'w' },
+	{"help", no_argument, nullptr, 'h'},
+	{nullptr, 0, nullptr, 0}
 };
 
 
@@ -145,6 +145,7 @@ int main(int argc, char* argv[])
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
 	pcpp::Logger::getInstance();
 
+	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
 	{
 		if (configTags != "")
@@ -174,7 +175,7 @@ int main(int argc, char* argv[])
 
 	if (PcapTestGlobalArgs.debugMode)
 	{
-		pcpp::Logger::getInstance().setAllModlesToLogLevel(pcpp::Logger::Debug);
+		pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::Logger::Debug);
 	}
 
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl

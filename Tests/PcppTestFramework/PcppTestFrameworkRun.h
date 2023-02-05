@@ -20,7 +20,7 @@ static void __ptfSplitString(const std::string& input, std::vector<std::string>&
 	}
 }
 
-static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, bool emptyTagSetMeansAll)
+static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetToCompareWith, bool emptyTagSetMeansAll)
 {
 	std::vector<std::string> tagSetVec, tagSetToCompareWithVec;
 
@@ -63,7 +63,7 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 	{ \
 		if (showSkippedTests) \
 		{ \
-			std::cout << std::left << std::setw(30) << #TestName << ": SKIPPED (tags don't match)" << std::endl; \
+			std::cout << std::left << std::setw(35) << #TestName << ": SKIPPED (tags don't match)" << std::endl; \
 		} \
 		TestName##_result = PTF_RESULT_SKIPPED; \
 	} \
@@ -91,7 +91,7 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 				if (memLeakCount > 0 || memLeakSize > 0) \
 				{ \
 					TestName##_result = PTF_RESULT_FAILED; \
-					std::cout << std::left << std::setw(30) << #TestName << ": FAILED. Memory leak found! " \
+					std::cout << std::left << std::setw(35) << #TestName << ": FAILED. Memory leak found! " \
 					<< memLeakCount << " objects and " \
 					<< memLeakSize << "[bytes] leaked" << std::endl; \
 				} \
@@ -99,7 +99,7 @@ static bool __ptfCheckTags(std::string tagSet, std::string tagSetToCompareWith, 
 		} \
 		if (TestName##_result == PTF_RESULT_PASSED) \
 		{ \
-			std::cout << std::left << std::setw(30) << #TestName << ": PASSED" << std::endl; \
+			std::cout << std::left << std::setw(35) << #TestName << ": PASSED" << std::endl; \
 		} \
 	} \
 	if (TestName##_result == PTF_RESULT_PASSED) testsPassed++; \

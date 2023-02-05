@@ -57,7 +57,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 {
 	m_RecType = (uint8_t)IPV4OPT_Timestamp;
 	m_RecValueLen = 0;
-	m_RecValue = NULL;
+	m_RecValue = nullptr;
 
 	if (timestampValue.type == IPv4TimestampOptionValue::Unknown)
 	{
@@ -129,7 +129,7 @@ IPv4OptionBuilder::IPv4OptionBuilder(const IPv4TimestampOptionValue& timestampVa
 IPv4Option IPv4OptionBuilder::build() const
 {
 	if (!m_BuilderParamsValid)
-		return IPv4Option(NULL);
+		return IPv4Option(nullptr);
 
 	size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
@@ -139,7 +139,7 @@ IPv4Option IPv4OptionBuilder::build() const
 		if (m_RecValueLen != 0)
 		{
 			PCPP_LOG_ERROR("Can't set IPv4 NOP option or IPv4 End-of-options option with size different than 0, tried to set size " << (int)m_RecValueLen);
-			return IPv4Option(NULL);
+			return IPv4Option(nullptr);
 		}
 
 		optionSize = sizeof(uint8_t);
@@ -151,7 +151,7 @@ IPv4Option IPv4OptionBuilder::build() const
 	if (optionSize > 1)
 	{
 		recordBuffer[1] = static_cast<uint8_t>(optionSize);
-		if (optionSize > 2 && m_RecValue != NULL)
+		if (optionSize > 2 && m_RecValue != nullptr)
 			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 	}
 
@@ -296,7 +296,8 @@ void IPv4Layer::parseNextLayer()
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	case PACKETPP_IPPROTO_IGMP:
-		igmpVer = IgmpLayer::getIGMPVerFromData(payload, be16toh(getIPv4Header()->totalLength) - hdrLen, igmpQuery);
+		igmpVer = IgmpLayer::getIGMPVerFromData(
+			payload, std::min<size_t>(payloadLen, be16toh(getIPv4Header()->totalLength) - hdrLen), igmpQuery);
 		if (igmpVer == IGMPv1)
 			m_NextLayer = new IgmpV1Layer(payload, payloadLen, this, m_Packet);
 		else if (igmpVer == IGMPv2)
@@ -338,7 +339,7 @@ void IPv4Layer::computeCalculateFields()
 	ipHdr->totalLength = htobe16(m_DataLen);
 	ipHdr->headerChecksum = 0;
 
-	if (m_NextLayer != NULL)
+	if (m_NextLayer != nullptr)
 	{
 		switch (m_NextLayer->getProtocol())
 		{
@@ -470,14 +471,14 @@ IPv4Option IPv4Layer::addOptionAt(const IPv4OptionBuilder& optionBuilder, int of
 	{
 		PCPP_LOG_ERROR("Cannot add option - adding this option will exceed IPv4 total option size which is " << IPV4_MAX_OPT_SIZE);
 		newOption.purgeRecordData();
-		return IPv4Option(NULL);
+		return IPv4Option(nullptr);
 	}
 
 	if (!extendLayer(offset, sizeToExtend))
 	{
 		PCPP_LOG_ERROR("Could not extend IPv4Layer in [" << sizeToExtend << "] bytes");
 		newOption.purgeRecordData();
-		return IPv4Option(NULL);
+		return IPv4Option(nullptr);
 	}
 
 	memcpy(m_Data + offset, newOption.getRecordBasePtr(), newOption.getTotalSize());

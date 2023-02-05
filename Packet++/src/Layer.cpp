@@ -14,7 +14,7 @@ Layer::~Layer()
 		delete [] m_Data;
 }
 
-Layer::Layer(const Layer& other) : m_Packet(NULL), m_Protocol(other.m_Protocol), m_NextLayer(NULL), m_PrevLayer(NULL), m_IsAllocatedInPacket(false)
+Layer::Layer(const Layer& other) : m_Packet(nullptr), m_Protocol(other.m_Protocol), m_NextLayer(nullptr), m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
 {
 	m_DataLen = other.getHeaderLen();
 	m_Data = new uint8_t[other.m_DataLen];
@@ -26,14 +26,14 @@ Layer& Layer::operator=(const Layer& other)
 	if (this == &other)
 		return *this;
 
-	if (m_Data != NULL)
+	if (m_Data != nullptr)
 		delete [] m_Data;
 
 	m_DataLen = other.getHeaderLen();
-	m_Packet = NULL;
+	m_Packet = nullptr;
 	m_Protocol = other.m_Protocol;
-	m_NextLayer = NULL;
-	m_PrevLayer = NULL;
+	m_NextLayer = nullptr;
+	m_PrevLayer = nullptr;
 	m_Data = new uint8_t[other.m_DataLen];
 	m_IsAllocatedInPacket = false;
 	memcpy(m_Data, other.m_Data, other.m_DataLen);
@@ -48,13 +48,13 @@ void Layer::copyData(uint8_t* toArr) const
 
 bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 {
-	if (m_Data == NULL)
+	if (m_Data == nullptr)
 	{
 		PCPP_LOG_ERROR("Layer's data is NULL");
 		return false;
 	}
 
-	if (m_Packet == NULL)
+	if (m_Packet == nullptr)
 	{
 		if ((size_t)offsetInLayer > m_DataLen)
 		{
@@ -76,13 +76,13 @@ bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
 
 bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
 {
-	if (m_Data == NULL)
+	if (m_Data == nullptr)
 	{
 		PCPP_LOG_ERROR("Layer's data is NULL");
 		return false;
 	}
 
-	if (m_Packet == NULL)
+	if (m_Packet == nullptr)
 	{
 		if ((size_t)offsetInLayer >= m_DataLen)
 		{

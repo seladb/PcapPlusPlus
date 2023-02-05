@@ -18,7 +18,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the packet count for each split file
 	 */
-	PacketCountSplitter(int maxPacketsPerFile)
+	explicit PacketCountSplitter(int maxPacketsPerFile)
 	{
 		m_PacketCount = 0;
 		m_MaxPacketsPerFile = maxPacketsPerFile;
@@ -76,7 +76,7 @@ public:
 	/**
 	 * A c'tor for this class which gets the file size in bytes for each split file
 	 */
-	FileSizeSplitter(uint64_t maxBytesPerFile)
+	explicit FileSizeSplitter(uint64_t maxBytesPerFile)
 	{
 		m_TotalSize = 0;
 		// each file size contains a pcap header with size of PCAP_FILE_HEADER_SIZE
@@ -129,10 +129,7 @@ private:
 	pcpp::BPFStringFilter filter;
 
 public:
-	BpfCriteriaSplitter(std::string bpfFilter) : filter(bpfFilter)
-	{
-		m_BpfFilter = bpfFilter;
-	}
+	explicit BpfCriteriaSplitter(const std::string &bpfFilter) : m_BpfFilter(bpfFilter), filter(bpfFilter) {}
 
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
@@ -148,7 +145,7 @@ public:
 	 * Re-implement Splitter's getFileName() method, clarifying which file was matched by the BPF
 	 * filter and which didn't
 	 */
-	std::string getFileName(pcpp::Packet& packet, std::string outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& packet, const std::string &outputPcapBasePath, int fileNumber)
 	{
 		if (fileNumber == 0)
 			return outputPcapBasePath + "match-bpf";
@@ -168,8 +165,8 @@ public:
 		}
 
 
-		pcpp::BPFStringFilter filter(m_BpfFilter);
-		bool filterValid = filter.verifyFilter();
+		pcpp::BPFStringFilter localFilter(m_BpfFilter);
+		bool filterValid = localFilter.verifyFilter();
 		if (!filterValid)
 			errorString = "BPF filter is not valid";
 
@@ -184,7 +181,7 @@ public:
 class RoundRobinSplitter : public SplitterWithMaxFiles
 {
 public:
-	RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles) { }
+	explicit RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles) { }
 
 	/**
 	 * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes care of the round-robin method

@@ -1,5 +1,6 @@
 import pytest
 import os
+from typing import Any
 import ipaddress
 from scapy.all import rdpcap, IP, IPv6, TCP, UDP
 from .test_utils import ExampleTest
@@ -8,6 +9,12 @@ from .test_utils import ExampleTest
 class TestPcapSplitter(ExampleTest):
 
     pytestmark = [pytest.mark.pcapsplitter, pytest.mark.no_network]
+
+    def run_example(self, **kwargs) -> Any:
+        if "timeout" not in kwargs:
+            kwargs["timeout"] = 20
+
+        return super().run_example(**kwargs)
 
     def test_split_by_file_size(self, tmpdir):
         args = {

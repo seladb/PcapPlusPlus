@@ -14,6 +14,9 @@
 namespace pcpp
 {
 
+template <typename T, size_t N>
+constexpr size_t ARRAY_SIZE(T (&)[N]) { return N; }
+
 struct pcap_file_header
 {
 	uint32_t magic;
@@ -54,11 +57,11 @@ std::string IFileDevice::getFileName() const
 
 void IFileDevice::close()
 {
-	if (m_PcapDescriptor != NULL)
+	if (m_PcapDescriptor != nullptr)
 	{
 		pcap_close(m_PcapDescriptor);
 		PCPP_LOG_DEBUG("Successfully closed file reader device for filename '" << m_FileName << "'");
-		m_PcapDescriptor = NULL;
+		m_PcapDescriptor = nullptr;
 	}
 
 	m_DeviceOpened = false;
@@ -163,7 +166,7 @@ bool SnoopFileReaderDevice::open()
 		LINKTYPE_FDDI		/* FDDI */
 	};
 	uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
-	if (datalink_type > 9)
+	if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)
 	{
 		PCPP_LOG_ERROR("Cannot read data link type for '" << m_FileName << "'");
 		m_snoopFile.close();
@@ -241,7 +244,7 @@ bool PcapFileReaderDevice::open()
 	m_NumOfPacketsRead = 0;
 	m_NumOfPacketsNotParsed = 0;
 
-	if (m_PcapDescriptor != NULL)
+	if (m_PcapDescriptor != nullptr)
 	{
 		PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
 		return true;
@@ -253,7 +256,7 @@ bool PcapFileReaderDevice::open()
 #else
 	m_PcapDescriptor = pcap_open_offline(m_FileName.c_str(), errbuf);
 #endif
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot open file reader device for filename '" << m_FileName << "': " << errbuf);
 		m_DeviceOpened = false;
@@ -265,7 +268,7 @@ bool PcapFileReaderDevice::open()
 	{
 		PCPP_LOG_ERROR("Invalid link layer (" << linkLayer << ") for reader device filename '" << m_FileName << "'");
 		pcap_close(m_PcapDescriptor);
-		m_PcapDescriptor = NULL;
+		m_PcapDescriptor = nullptr;
 		m_DeviceOpened = false;
 		return false;
 	}
@@ -288,14 +291,14 @@ void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
 bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 {
 	rawPacket.clear();
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("File device '" << m_FileName << "' not opened");
 		return false;
 	}
 	pcap_pkthdr pkthdr;
 	const uint8_t* pPacketData = pcap_next(m_PcapDescriptor, &pkthdr);
-	if (pPacketData == NULL)
+	if (pPacketData == nullptr)
 	{
 		PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
 		return false;
@@ -324,7 +327,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 PcapNgFileReaderDevice::PcapNgFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName)
 {
-	m_LightPcapNg = NULL;
+	m_LightPcapNg = nullptr;
 }
 
 bool PcapNgFileReaderDevice::open()
@@ -332,14 +335,14 @@ bool PcapNgFileReaderDevice::open()
 	m_NumOfPacketsRead = 0;
 	m_NumOfPacketsNotParsed = 0;
 
-	if (m_LightPcapNg != NULL)
+	if (m_LightPcapNg != nullptr)
 	{
 		PCPP_LOG_DEBUG("pcapng descriptor already opened. Nothing to do");
 		return true;
 	}
 
 	m_LightPcapNg = light_pcapng_open_read(m_FileName.c_str(), LIGHT_FALSE);
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot open pcapng reader device for filename '" << m_FileName << "'");
 		m_DeviceOpened = false;
@@ -356,14 +359,14 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 	rawPacket.clear();
 	packetComment = "";
 
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
 		return false;
 	}
 
 	light_packet_header pktHeader;
-	const uint8_t* pktData = NULL;
+	const uint8_t* pktData = nullptr;
 
 	if (!light_get_next_packet((light_pcapng_t*)m_LightPcapNg, &pktHeader, &pktData))
 	{
@@ -388,7 +391,7 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 		return false;
 	}
 
-	if (pktHeader.comment != NULL && pktHeader.comment_length > 0)
+	if (pktHeader.comment != nullptr && pktHeader.comment_length > 0)
 		packetComment = std::string(pktHeader.comment, pktHeader.comment_length);
 
 	m_NumOfPacketsRead++;
@@ -416,11 +419,11 @@ bool PcapNgFileReaderDevice::setFilter(std::string filterAsString)
 
 void PcapNgFileReaderDevice::close()
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 		return;
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
-	m_LightPcapNg = NULL;
+	m_LightPcapNg = nullptr;
 
 	m_DeviceOpened = false;
 	PCPP_LOG_DEBUG("File reader closed for file '" << m_FileName << "'");
@@ -429,7 +432,7 @@ void PcapNgFileReaderDevice::close()
 
 std::string PcapNgFileReaderDevice::getOS() const
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
 		return "";
@@ -438,7 +441,7 @@ std::string PcapNgFileReaderDevice::getOS() const
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
 	char* res = fileInfo->os_desc;
 	size_t len = fileInfo->os_desc_size;
-	if (len == 0 || res == NULL)
+	if (len == 0 || res == nullptr)
 		return "";
 
 	return std::string(res, len);
@@ -446,7 +449,7 @@ std::string PcapNgFileReaderDevice::getOS() const
 
 std::string PcapNgFileReaderDevice::getHardware() const
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
 		return "";
@@ -455,7 +458,7 @@ std::string PcapNgFileReaderDevice::getHardware() const
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
 	char* res = fileInfo->hardware_desc;
 	size_t len = fileInfo->hardware_desc_size;
-	if (len == 0 || res == NULL)
+	if (len == 0 || res == nullptr)
 		return "";
 
 	return std::string(res, len);
@@ -463,7 +466,7 @@ std::string PcapNgFileReaderDevice::getHardware() const
 
 std::string PcapNgFileReaderDevice::getCaptureApplication() const
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
 		return "";
@@ -472,7 +475,7 @@ std::string PcapNgFileReaderDevice::getCaptureApplication() const
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
 	char* res = fileInfo->user_app_desc;
 	size_t len = fileInfo->user_app_desc_size;
-	if (len == 0 || res == NULL)
+	if (len == 0 || res == nullptr)
 		return "";
 
 	return std::string(res, len);
@@ -480,7 +483,7 @@ std::string PcapNgFileReaderDevice::getCaptureApplication() const
 
 std::string PcapNgFileReaderDevice::getCaptureFileComment() const
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Pcapng file device '" << m_FileName << "' not opened");
 		return "";
@@ -489,7 +492,7 @@ std::string PcapNgFileReaderDevice::getCaptureFileComment() const
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
 	char* res = fileInfo->file_comment;
 	size_t len = fileInfo->file_comment_size;
-	if (len == 0 || res == NULL)
+	if (len == 0 || res == nullptr)
 		return "";
 
 	return std::string(res, len);
@@ -513,26 +516,26 @@ IFileWriterDevice:: IFileWriterDevice(const std::string& fileName) : IFileDevice
 
 PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType) : IFileWriterDevice(fileName)
 {
-	m_PcapDumpHandler = NULL;
+	m_PcapDumpHandler = nullptr;
 	m_NumOfPacketsNotWritten = 0;
 	m_NumOfPacketsWritten = 0;
 	m_PcapLinkLayerType = linkLayerType;
 	m_AppendMode = false;
-	m_File = NULL;
+	m_File = nullptr;
 }
 
 void PcapFileWriterDevice::closeFile()
 {
-	if (m_AppendMode && m_File != NULL)
+	if (m_AppendMode && m_File != nullptr)
 	{
 		fclose(m_File);
-		m_File = NULL;
+		m_File = nullptr;
 	}
 }
 
 bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 {
-	if ((!m_AppendMode && m_PcapDescriptor == NULL) || (m_PcapDumpHandler == NULL))
+	if ((!m_AppendMode && m_PcapDescriptor == nullptr) || (m_PcapDumpHandler == nullptr))
 	{
 		PCPP_LOG_ERROR("Device not opened");
 		m_NumOfPacketsNotWritten++;
@@ -589,7 +592,7 @@ bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
 
 bool PcapFileWriterDevice::open()
 {
-	if (m_PcapDescriptor != NULL)
+	if (m_PcapDescriptor != nullptr)
 	{
 		PCPP_LOG_DEBUG("Pcap descriptor already opened. Nothing to do");
 		return true;
@@ -609,7 +612,7 @@ bool PcapFileWriterDevice::open()
 	m_NumOfPacketsWritten = 0;
 
 	m_PcapDescriptor = pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE);
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName << "': pcap_open_dead returned NULL");
 		m_DeviceOpened = false;
@@ -618,7 +621,7 @@ bool PcapFileWriterDevice::open()
 
 
 	m_PcapDumpHandler = pcap_dump_open(m_PcapDescriptor, m_FileName.c_str());
-	if (m_PcapDumpHandler == NULL)
+	if (m_PcapDumpHandler == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName << "': pcap_dump_open returned NULL with error: '" << pcap_geterr(m_PcapDescriptor) << "'");
 		m_DeviceOpened = false;
@@ -656,18 +659,18 @@ void PcapFileWriterDevice::close()
 
 	IFileDevice::close();
 
-	if (!m_AppendMode && m_PcapDumpHandler != NULL)
+	if (!m_AppendMode && m_PcapDumpHandler != nullptr)
 	{
 		pcap_dump_close(m_PcapDumpHandler);
 	}
-	else if (m_AppendMode && m_File != NULL)
+	else if (m_AppendMode && m_File != nullptr)
 	{
 		// in append mode it's impossible to use pcap_dump_close, see comment above pcap_dump
 		fclose(m_File);
 	}
 
-	m_PcapDumpHandler = NULL;
-	m_File = NULL;
+	m_PcapDumpHandler = nullptr;
+	m_File = nullptr;
 	PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");
 }
 
@@ -692,7 +695,7 @@ bool PcapFileWriterDevice::open(bool appendMode)
 	m_File = fopen(m_FileName.c_str(), "rb+");
 #endif
 
-	if (m_File == NULL)
+	if (m_File == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot open '" << m_FileName << "' for reading and writing");
 		return false;
@@ -740,13 +743,13 @@ bool PcapFileWriterDevice::open(bool appendMode)
 
 PcapNgFileWriterDevice::PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel) : IFileWriterDevice(fileName)
 {
-	m_LightPcapNg = NULL;
+	m_LightPcapNg = nullptr;
 	m_CompressionLevel = compressionLevel;
 }
 
 bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hardware, const std::string& captureApp, const std::string& fileComment)
 {
-	if (m_LightPcapNg != NULL)
+	if (m_LightPcapNg != nullptr)
 	{
 		PCPP_LOG_DEBUG("Pcap-ng descriptor already opened. Nothing to do");
 		return true;
@@ -758,7 +761,7 @@ bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hard
 	light_pcapng_file_info* info = light_create_file_info(os.c_str(), hardware.c_str(), captureApp.c_str(), fileComment.c_str());
 
 	m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName << "': light_pcapng_open_write returned NULL");
 
@@ -775,7 +778,7 @@ bool PcapNgFileWriterDevice::open(const std::string& os, const std::string& hard
 
 bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const std::string& comment)
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Device not opened");
 		m_NumOfPacketsNotWritten++;
@@ -800,7 +803,7 @@ bool PcapNgFileWriterDevice::writePacket(RawPacket const& packet, const std::str
 	}
 	else
 	{
-		pktHeader.comment = NULL;
+		pktHeader.comment = nullptr;
 		pktHeader.comment_length = 0;
 	}
 
@@ -829,7 +832,7 @@ bool PcapNgFileWriterDevice::writePackets(const RawPacketVector& packets)
 
 bool PcapNgFileWriterDevice::open()
 {
-	if (m_LightPcapNg != NULL)
+	if (m_LightPcapNg != nullptr)
 	{
 		PCPP_LOG_DEBUG("Pcap-ng descriptor already opened. Nothing to do");
 		return true;
@@ -841,7 +844,7 @@ bool PcapNgFileWriterDevice::open()
 	light_pcapng_file_info* info = light_create_default_file_info();
 
 	m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName << "': light_pcapng_open_write returned NULL");
 
@@ -865,7 +868,7 @@ bool PcapNgFileWriterDevice::open(bool appendMode)
 	m_NumOfPacketsWritten = 0;
 
 	m_LightPcapNg = light_pcapng_open_append(m_FileName.c_str());
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening file writer device in append mode for file '" << m_FileName << "': light_pcapng_open_append returned NULL");
 		m_DeviceOpened = false;
@@ -880,7 +883,7 @@ bool PcapNgFileWriterDevice::open(bool appendMode)
 
 void PcapNgFileWriterDevice::flush()
 {
-	if (!m_DeviceOpened || m_LightPcapNg == NULL)
+	if (!m_DeviceOpened || m_LightPcapNg == nullptr)
 		return;
 
 	light_pcapng_flush((light_pcapng_t*)m_LightPcapNg);
@@ -889,11 +892,11 @@ void PcapNgFileWriterDevice::flush()
 
 void PcapNgFileWriterDevice::close()
 {
-	if (m_LightPcapNg == NULL)
+	if (m_LightPcapNg == nullptr)
 		return;
 
 	light_pcapng_close((light_pcapng_t*)m_LightPcapNg);
-	m_LightPcapNg = NULL;
+	m_LightPcapNg = nullptr;
 
 	m_DeviceOpened = false;
 	PCPP_LOG_DEBUG("File writer closed for file '" << m_FileName << "'");

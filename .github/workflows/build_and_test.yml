@@ -1,5 +1,12 @@
 name: Build and test
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "master", "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+env:
+  BUILD_DIR: Dist
 
 jobs:
   pre-commit:
@@ -9,7 +16,13 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.8.x"
+      - name: Install dependencies
+        run: |
+          sudo apt install cppcheck=2.7-1
+          pip install cmake-format
       - uses: pre-commit/action@v3.0.0
+      - name: CMake format
+        run: ./ci/cmake-format-all.sh && git diff --exit-code
 
   linux:
     runs-on: ubuntu-20.04
@@ -19,28 +32,33 @@ jobs:
         include:
           - image: ubuntu2204
             python: python3
+            config-zstd: OFF
           - image: ubuntu2004
             python: python3
+            config-zstd: OFF
           - image: ubuntu1804
             python: python3.8
+            config-zstd: OFF
           - image: centos7
             python: python3.8
             test-flags: --test-args="-s"
+            config-zstd: OFF
           - image: fedora34
             python: python3
+            config-zstd: OFF
           - image: alpine315
             python: python3
-            configure: --musl
+            config-zstd: OFF
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: ./configure-linux.sh --default ${{ matrix.configure }} --set-direction-enabled
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
-        run: make all
+        run: cmake --build $BUILD_DIR -j
 
       - name: Test PcapPlusPlus
         run: |
@@ -53,58 +71,41 @@ jobs:
           cd Tests/ExamplesTest
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples
+          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
 
       - name: Check installation
-        run: |
-          make install
+        run: cmake --install $BUILD_DIR
 
       - name: Build Tutorials
         run: |
-          cd Examples/Tutorials/Tutorial-HelloWorld
-          make -f Makefile.non_windows all
-          ./Tutorial-HelloWorld
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake --build build_examples -j
 
-  dpdk-legacy:
-    runs-on: ubuntu-20.04
-    container: seladb/ubuntu2004-dpdk1811
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Configure PcapPlusPlus
-        run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
-
-      - name: Build PcapPlusPlus
-        run: make all
-
-      - name: Test Packet++
-        run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test
-
-      - name: Test Pcap++
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test -n
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
   dpdk:
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        image: [ubuntu2004-dpdk2111, ubuntu2004-dpdk2011, ubuntu2004-dpdk1911]
+        image:
+          [
+            ubuntu2004-dpdk2111,
+            ubuntu2004-dpdk2011,
+            ubuntu2004-dpdk1911,
+            ubuntu2004-dpdk1811,
+          ]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: ./configure-linux.sh --dpdk --dpdk-home /dpdk
+        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
-        run: make all
+        run: cmake --build $BUILD_DIR -j
 
       - name: Check AVX
         run: grep avx /proc/cpuinfo
@@ -119,19 +120,34 @@ jobs:
           cd Tests/Pcap++Test
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
+      - name: Check installation
+        run: cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
   pfring:
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
+    strategy:
+      matrix:
+        include:
+          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B $BUILD_DIR
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: ./configure-linux.sh --pf-ring --pf-ring-home /PF_RING
+        run: ${{ matrix.configure }}
 
       - name: Build PcapPlusPlus
-        run: make all
+        run: cmake --build $BUILD_DIR -j
 
       - name: Test Packet++
         run: |
@@ -143,11 +159,30 @@ jobs:
           cd Tests/Pcap++Test
           Bin/Pcap++Test -n
 
+      - name: Check installation
+        run: cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPF_RING_ROOT="/PF_RING" -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
   macos:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
         os-version: [macos-11, macos-12]
+        arch: [x86_64, arm64]
+        # Handle ZSTD build by Cirrus CI
+        # config-zstd: [ON, OFF]
+        config-zstd: [OFF]
+        exclude:
+          # excludes ZSTD on Arm64
+          - arch: arm64
+            config-zstd: ON
 
     steps:
       - name: Checkout code
@@ -158,64 +193,48 @@ jobs:
           python-version: "3.8.x"
 
       - name: Configure PcapPlusPlus
-        run: ./configure-mac_os_x.sh --set-direction-enabled
+        # Ensure user have access to network devices instead of giving super-user right
+        run: |
+          sudo chmod a+rw /dev/bpf*
+          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
-        run: make all
+        run: cmake --build $BUILD_DIR -j
+
+      - name: Check architecture
+        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
 
       - name: Install Tcpreplay
         run: brew install tcpreplay
 
       - name: Test PcapPlusPlus
+        # We can't run cross compiled binaries
+        if: ${{ matrix.arch == 'x86_64' }}
         run: |
           python -m pip install -U pip
           python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface en0 --use-sudo
+          python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
+        if: ${{ matrix.arch == 'x86_64' }}
         run: |
           cd Tests/ExamplesTest
           python -m pip install -U pip
           python -m pip install -r requirements.txt
-          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples
+          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
 
       - name: Check installation
-        run: |
-          make install
+        run: cmake --install $BUILD_DIR
 
       - name: Build Tutorials
         run: |
-          cd Examples/Tutorials/Tutorial-HelloWorld
-          make -f Makefile.non_windows all
-          ./Tutorial-HelloWorld
+          mkdir -p build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+          cmake --build build_examples -j
 
-  macos-apple-silicon-arm64:
-    runs-on: ${{ matrix.os-version }}
-    strategy:
-      matrix:
-        os-version: [macos-11]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
-
-      - name: Configure PcapPlusPlus
-        run: ./configure-mac_os_x.sh --arm64
-
-      - name: Build PcapPlusPlus
-        run: make all
-
-      - name: Check for arm64 slice in executables
-        run: |
-          cd Dist && ALL_EXECUTABLES_WITHOUT_SYMLINKS=($(find . -perm +111 -type f)) && for EXECUTABLE in ${ALL_EXECUTABLES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $EXECUTABLE"; CHECK_ARCH=$(lipo $EXECUTABLE -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $EXECUTABLE"; exit 1; else echo "Found arm64 slice in $EXECUTABLE"; fi; done
-
-      - name: Check for arm64 slice in libraries
-        run: |
-          cd Dist && ALL_LIBRARIES_WITHOUT_SYMLINKS=($(find . -name "*.a" -type f)) &&  for LIBRARY in ${ALL_LIBRARIES_WITHOUT_SYMLINKS[@]}; do echo "Checking for arm64 in $LIBRARY"; CHECK_ARCH=$(lipo $LIBRARY -verify_arch arm64 2>&1); RETVAL=$?; if [ $RETVAL -eq 1 ]; then echo "Couldn't find arm64 slice in $LIBRARY"; exit 1; else echo "Found arm64 slice in $LIBRARY"; fi; done
+      - name: Test Tutorials
+        if: ${{ matrix.arch == 'x86_64' }}
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
   mingw-w64:
     runs-on: windows-latest
@@ -235,7 +254,11 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: ${{matrix.sys}}
-          install: mingw-w64-${{matrix.env}}-gcc mingw-w64-${{matrix.env}}-make
+          install: >-
+            git
+            mingw-w64-${{matrix.env}}-cmake
+            mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -252,11 +275,14 @@ jobs:
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
-        run: ./configure-windows-mingw.bat -m /${{ matrix.sys }} -w ${{ env.PCAP_SDK_DIR }} -s .
+        run: |
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
-        run: mingw32-make all
+        # More than 2 jobs would make the build crash with OOM
+        # cc1plus.exe: out of memory allocating 65536 bytes
+        run: cmake --build $BUILD_DIR -j 2
 
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
@@ -270,28 +296,30 @@ jobs:
         run: |
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
-          python -m pytest --root-path=../../Dist/examples
+          python -m pytest --root-path=../../Dist/examples_bin
 
   visual-studio:
-    runs-on: windows-2019
     strategy:
       matrix:
         include:
-          - vs-version: vs2019
-            platform: x64
-            config: Debug
-          - vs-version: vs2019
-            platform: x64
-            config: Release
-            use_zstd: true
-          - vs-version: vs2019
-            platform: x86
-            config: Debug
-          - vs-version: vs2019
-            platform: x86
-            config: Release
-            pcap_lib: npcap
+          - os: "windows-2019"
+            platform: "Visual Studio 16 2019"
+            arch: "x64"
+            pcap_lib: "npcap"
+          - os: windows-2019
+            platform: "Visual Studio 16 2019"
+            arch: Win32
+            pcap_lib: "winpcap"
+          - os: windows-2022
+            platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: "winpcap"
+          - os: windows-2022
+            platform: "Visual Studio 17 2022"
+            arch: "x64"
+            pcap_lib: "npcap"
 
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -307,7 +335,7 @@ jobs:
         run: |
           ci\install_winpcap.bat
           echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib != 'npcap'
+        if: matrix.pcap_lib == 'winpcap'
 
       - name: Install NPcap
         env:
@@ -325,16 +353,10 @@ jobs:
         if: matrix.use_zstd == true
 
       - name: Configure PcapPlusPlus
-        run: ./configure-windows-visual-studio.bat -v ${{matrix.vs-version}} -w ${{ env.PCAP_SDK_DIR }} ${{ env.ZSTD_HOME_PARAM }}
+        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B $env:BUILD_DIR
 
       - name: Build PcapPlusPlus
-        run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
-
-      - name: Build Examples
-        run: msbuild /m mk\${{matrix.vs-version}}\PcapPlusPlus-Examples.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
-
-      - name: Build Tutorials
-        run: msbuild /m mk\${{matrix.vs-version}}\Tutorials.sln /p:Configuration=${{matrix.config}} /p:Platform=${{matrix.platform}}
+        run: cmake --build $env:BUILD_DIR -j
 
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
@@ -346,9 +368,10 @@ jobs:
 
       - name: Test Examples
         run: |
+          move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
-          python -m pytest --root-path=../../Dist/examples
+          python -m pytest --root-path=../../Dist/examples_bin
 
   android:
     strategy:
@@ -362,9 +385,11 @@ jobs:
             api-version: 30
           - run-on-os: macos-11
             target: arm64-v8a
+            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
           - run-on-os: macos-11
             target: x86_64
+            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30
 
     runs-on: ${{ matrix.run-on-os }}
@@ -381,12 +406,11 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: |
-          NDK_ROOT=$(ls -dr ${ANDROID_SDK_ROOT}/ndk/*/ | head -1)
           LIBPCAP_PATH=$(pwd)/libpcap-android
-          ./configure-android.sh --ndk-path $NDK_ROOT --target ${{ matrix.target }} --api ${{ matrix.api-version }} --libpcap-include-dir $LIBPCAP_PATH/include --libpcap-lib-dir $LIBPCAP_PATH/${{ matrix.target }}/${{ matrix.api-version }}
+          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
-        run: make all
+        run: cmake --build $BUILD_DIR -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
         uses: actions/checkout@master
@@ -395,15 +419,16 @@ jobs:
           path: ./ToyVpn-PcapPlusPlus
           submodules: true
 
-      - name: Copy PcapPlusPlus libs to ToyVpn-PcapPlusPlus
+      - name: Install locally PcapPlusPlus
+        # CMake install library in $prefix/lib ToyVpn want $prefix/$target/$api-version
         run: |
-          TOYVPN_LIBS=./ToyVpn-PcapPlusPlus/app/libs
-          PCAPPLUSPLUS_LIBS_PATH=$TOYVPN_LIBS/pcapplusplus/${{ matrix.target }}/${{ matrix.api-version }}
-          PCAPPLUSPLUS_INCLUDE_PATH=$TOYVPN_LIBS/pcapplusplus/include
-          mkdir -p $PCAPPLUSPLUS_LIBS_PATH
-          mkdir -p $PCAPPLUSPLUS_INCLUDE_PATH
-          cp Dist/*.a $PCAPPLUSPLUS_LIBS_PATH/
-          cp -R Dist/header/* $PCAPPLUSPLUS_INCLUDE_PATH/
+          TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
+          PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
+          PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
+          cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
+          mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
+          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
+          mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
