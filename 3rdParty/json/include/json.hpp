@@ -3392,7 +3392,7 @@ NLOHMANN_JSON_NAMESPACE_END
     template<typename U> class AllocatorType = std::allocator,
     template<typename T, typename SFINAE = void> class JSONSerializer =
     adl_serializer,
-    class BinaryType = std::vector<std::uint8_t>, // cppcheck-suppress syntaxError
+    class BinaryType = std::vector<std::uint8_t>,
     class CustomBaseClass = void>
     class basic_json;
 
@@ -4183,7 +4183,6 @@ inline std::size_t concat_length(const char /*c*/, Args&& ... rest)
 template<typename... Args>
 inline std::size_t concat_length(const char* cstr, Args&& ... rest)
 {
-    // cppcheck-suppress ignoredReturnValue
     return ::strlen(cstr) + concat_length(std::forward<Args>(rest)...);
 }
 
@@ -19897,7 +19896,6 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 #if JSON_DIAGNOSTICS
         JSON_TRY
         {
-            // cppcheck-suppress assertWithSideEffect
             JSON_ASSERT(!check_parents || !is_structured() || std::all_of(begin(), end(), [this](const basic_json & j)
             {
                 return j.m_parent == this;
