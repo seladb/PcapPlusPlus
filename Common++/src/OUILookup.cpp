@@ -12,6 +12,9 @@ namespace pcpp
 template <typename T>
 int64_t OUILookup::internalParser(T &jsonData)
 {
+	// Clear all entries before adding
+	vendorMap.clear();
+
 	int64_t ctrRead = 0;
 	nlohmann::json parsedJson = nlohmann::json::parse(jsonData);
 	for (const auto &line : parsedJson.items())
