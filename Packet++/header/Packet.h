@@ -42,7 +42,7 @@ namespace pcpp
 		 * When using this constructor an empty raw buffer is allocated (with the size of maxPacketLen) and a new RawPacket is created
 		 * @param[in] maxPacketLen The expected packet length in bytes
 		 */
-		Packet(size_t maxPacketLen = 1);
+		explicit Packet(size_t maxPacketLen = 1);
 
 		/**
 		 * A constructor for creating a new packet with a buffer that is pre-allocated by the user.
