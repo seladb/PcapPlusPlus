@@ -284,7 +284,7 @@ namespace pcpp
 			 * specified, there is a default key defined inside DpdkDevice
 			 * @param[in] rssKeyLength The length in bytes of the array pointed by rssKey. Default value is the length of default rssKey
 			 */
-			DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128,
+			explicit DpdkDeviceConfiguration(uint16_t receiveDescriptorsNumber = 128,
 					uint16_t transmitDescriptorsNumber = 512,
 					uint16_t flushTxBufferTimeout = 100,
 					uint64_t rssHashFunction = RSS_DEFAULT,

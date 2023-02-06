@@ -433,7 +433,7 @@ private:
 			// remove charset as it's not relevant for these stats
 			size_t charsetPos = contentType.find(";");
 			if (charsetPos != std::string::npos)
-				contentType = contentType.substr(0, charsetPos);
+				contentType.resize(charsetPos);
 
 			m_ResponseStats.contentTypeCount[contentType]++;
 		}

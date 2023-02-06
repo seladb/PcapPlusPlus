@@ -1,9 +1,9 @@
 name: Build and test
 on:
   push:
-    branches: [ "master", "dev" ]
+    branches: ["master", "dev"]
   pull_request:
-    branches: [ "dev" ]
+    branches: ["dev"]
 
 env:
   BUILD_DIR: Dist
@@ -11,18 +11,31 @@ env:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+    container: seladb/alpine317
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Install dependencies
         run: |
-          sudo apt install cppcheck=2.7-1
-          pip install cmake-format
+          apk update && apk add cppcheck python3-dev
+          python3 -m pip install cmake-format
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - uses: pre-commit/action@v3.0.0
+
       - name: CMake format
-        run: ./ci/cmake-format-all.sh && git diff --exit-code
+        run: |
+          ./ci/cmake-format-all.sh
+          git diff --exit-code
+
+      - name: Configure PcapPlusPlus for Static analysis
+        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B $BUILD_DIR
+
+      - name: Build PcapPlusPlus and check any diff
+        run: |
+          cmake --build $BUILD_DIR -j
+          git diff --exit-code
 
   linux:
     runs-on: ubuntu-20.04

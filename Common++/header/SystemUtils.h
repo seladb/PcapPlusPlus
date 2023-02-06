@@ -332,7 +332,10 @@ namespace pcpp
 			}
 
 			// remove file extension
-			m_AppName = m_AppName.substr(0, m_AppName.rfind('.'));
+			lastPos = m_AppName.rfind('.');
+			if (lastPos != std::string::npos) {
+				m_AppName.resize(lastPos);
+			}
 		}
 
 		/**

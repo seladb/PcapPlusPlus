@@ -336,7 +336,7 @@ public:
 	 * @param[in] s_qrv A 1-byte value representing the value in Suppress Router-side Processing Flag + Querier's Robustness Variable
 	 * (igmpv3_query_header#s_qrv field). This is an optional parameter and has a default value of 0 if not provided
 	 */
-	IgmpV3QueryLayer(const IPv4Address& multicastAddr = IPv4Address(), uint8_t maxResponseTime = 0, uint8_t s_qrv = 0);
+	explicit IgmpV3QueryLayer(const IPv4Address& multicastAddr = IPv4Address(), uint8_t maxResponseTime = 0, uint8_t s_qrv = 0);
 
 	/**
 	 * Get a pointer to the raw IGMPv3 membership query header. Notice this points directly to the data, so every change will change the
