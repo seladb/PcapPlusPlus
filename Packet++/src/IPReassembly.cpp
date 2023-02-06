@@ -342,7 +342,15 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			PCPP_LOG_DEBUG("[FragID=0x" << std::hex << fragWrapper->getFragmentId() << "] Got first fragment, allocating RawPacket");
 
 			// create the reassembled packet and copy the fragment data to it
-			fragData->data = new RawPacket(*(fragment->getRawPacket()));
+
+			// copy only data from the beginning of the fragment to the end of IP layer payload.
+			// Don't copy data beyond it such as packet trailer
+			auto fragmentRawPacket = fragment->getRawPacket();
+			auto rawDataLen = fragWrapper->getIPLayerPayload() - fragmentRawPacket ->getRawData() + fragWrapper->getIPLayerPayloadSize();
+			auto rawData = new uint8_t[rawDataLen];
+			memcpy(rawData, fragmentRawPacket->getRawData(), rawDataLen);
+
+			fragData->data = new RawPacket(rawData, rawDataLen, fragmentRawPacket->getPacketTimeStamp(), true, fragmentRawPacket->getLinkLayerType());
 			fragData->currentOffset = fragWrapper->getIPLayerPayloadSize();
 			status = FIRST_FRAGMENT;
 
