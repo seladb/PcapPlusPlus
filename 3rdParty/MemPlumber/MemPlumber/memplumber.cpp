@@ -22,7 +22,7 @@
 #endif
 
 #ifndef _NOEXCEPT
-#define _NOEXCEPT
+#define _NOEXCEPT noexcept
 #endif
 
 class MemPlumberInternal {

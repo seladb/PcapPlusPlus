@@ -225,7 +225,7 @@ namespace pcpp
 			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
 			 * to capture all the data available from the packet.
 			*/
-			DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
+			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
 				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0)
 			{
 				this->mode = mode;

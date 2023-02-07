@@ -345,7 +345,7 @@ public:
 	 * @param[in] pathAttributes A vector of path attributes data. If left empty (which is the default value) no path attribute information will be written to the message
 	 * @param[in] nlri A vector of network layer reachability data. If left empty (which is the default value) no reachability information will be written to the message
 	 */
-	BgpUpdateMessageLayer(
+	explicit BgpUpdateMessageLayer(
 		const std::vector<prefix_and_ip>& withdrawnRoutes = std::vector<prefix_and_ip>(),
 		const std::vector<path_attribute>& pathAttributes = std::vector<path_attribute>(),
 		const std::vector<prefix_and_ip>& nlri = std::vector<prefix_and_ip>());
