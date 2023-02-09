@@ -30,10 +30,9 @@ set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 target_include_directories(
   Common++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
-  # Don't link with EndianPortable as it won't be exported
+  # Don't link with EndianPortable and json as it won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
-  PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>
-  PRIVATE $<TARGET_PROPERTY:OUIDataset,INTERFACE_INCLUDE_DIRECTORIES>)
+  PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>)
 
 if(WIN32)
   target_link_libraries(Common++ PRIVATE ws2_32 iphlpapi)

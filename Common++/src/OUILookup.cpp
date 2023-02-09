@@ -1,7 +1,6 @@
 #include "OUILookup.h"
-
 #include "Logger.h"
-#include "PCPP_OUIDataset.h"
+
 #include "json.hpp"
 
 #include <fstream>
@@ -60,11 +59,6 @@ int64_t OUILookup::internalParser(T &jsonData)
 
 	PCPP_LOG_DEBUG(std::to_string(ctrRead) + " vendors read successfully");
 	return ctrRead;
-}
-
-int64_t OUILookup::initOUIDatabaseFromInternalData()
-{
-	return internalParser(PCPP_OUIDataset_json);
 }
 
 int64_t OUILookup::initOUIDatabaseFromJson(const std::string &path)
