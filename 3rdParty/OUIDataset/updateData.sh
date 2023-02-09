@@ -1,11 +1,8 @@
 #!/bin/sh
 set -e
 
-# Rename with .dat extension to prevent typo checks
-# wget -O manuf.dat https://gitlab.com/wireshark/wireshark/-/raw/master/manuf
-
-# Create source file from manuf.dat
-python3 createOUIData.py
+# Download manuf.dat and create source file in json format
+python3 create_oui_data.py
 
 # Convert json information to static C file
 mkdir -p include

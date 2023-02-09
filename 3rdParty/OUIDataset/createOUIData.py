@@ -3,7 +3,7 @@ import json
 print("Creating header from downloaded data ...")
 
 # Prepare files
-inFile = open("manuf.dat", "r")
+inFile = open("manuf.dat", "r", encoding="utf8")
 outFile = open("PCPP_OUIDataset.json", "w", encoding="utf8")
 Lines = inFile.readlines()
 
@@ -24,7 +24,7 @@ for line in Lines:
         readVendor = ""
 
         # Prepare line
-        line = line.replace('"', "")
+        # line = line.replace('"', "")
         splitLine = line.split("\t")
 
         # MAC + Short name
