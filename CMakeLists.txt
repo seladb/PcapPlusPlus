@@ -214,6 +214,7 @@ endif()
 if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
   add_compile_options(--coverage)
   add_link_options(--coverage)
+  set(_PCAPPP_FIND_COVERAGE "find_dependency(Coverage)\n")
 endif()
 
 add_subdirectory(3rdParty)
