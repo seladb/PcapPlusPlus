@@ -234,7 +234,7 @@ namespace pcpp
 		{
 			std::vector<IPv4Address> res;
 
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return res;
 
 			size_t dataSize = getDataSize();
@@ -270,7 +270,7 @@ namespace pcpp
 			IPv4TimestampOptionValue res;
 			res.clear();
 
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return res;
 
 			if (getIPv4OptionType() != IPV4OPT_Timestamp)
@@ -311,7 +311,7 @@ namespace pcpp
 		 */
 		IPv4OptionTypes getIPv4OptionType() const
 		{
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return IPV4OPT_Unknown;
 
 			return (IPv4OptionTypes)m_Data->recordType;
@@ -322,7 +322,7 @@ namespace pcpp
 
 		size_t getTotalSize() const
 		{
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return 0;
 
 			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOptionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
@@ -333,7 +333,7 @@ namespace pcpp
 
 		size_t getDataSize() const
 		{
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return 0;
 
 			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOptionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)

@@ -216,6 +216,9 @@ namespace pcpp
 
 			size_t getTotalSize() const
 			{
+				if (m_Data == nullptr)
+					return 0;
+
 				if (m_Data->recordType == Pad0OptionType)
 					return sizeof(uint8_t);
 
@@ -224,8 +227,8 @@ namespace pcpp
 
 			size_t getDataSize() const
 			{
-				if (m_Data->recordType == Pad0OptionType)
-					return (size_t)0;
+				if (m_Data == nullptr || m_Data->recordType == Pad0OptionType)
+					return 0;
 
 				return (size_t)m_Data->recordLen;
 			}

@@ -454,7 +454,7 @@ namespace pcpp
 		 */
 		std::string getValueAsString(int valueOffset = 0) const
 		{
-			if (m_Data->recordLen - valueOffset < 1)
+			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
 				return "";
 
 			return std::string((const char*)m_Data->recordValue + valueOffset, (int)m_Data->recordLen - valueOffset);
@@ -485,6 +485,9 @@ namespace pcpp
 
 		size_t getTotalSize() const
 		{
+			if (m_Data == nullptr)
+				return 0;
+
 			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
 				return sizeof(uint8_t);
 
@@ -493,6 +496,9 @@ namespace pcpp
 
 		size_t getDataSize() const
 		{
+			if (m_Data == nullptr)
+				return 0;
+
 			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
 				return 0;
 

@@ -56,11 +56,17 @@ namespace pcpp
 
 		size_t getTotalSize() const
 		{
+			if (m_Data == nullptr)
+				return 0;
+
 			return (size_t)m_Data->recordLen;
 		}
 
 		size_t getDataSize() const
 		{
+			if (m_Data == nullptr)
+				return 0;
+
 			return (size_t)m_Data->recordLen - 2*sizeof(uint8_t);
 		}
 	};

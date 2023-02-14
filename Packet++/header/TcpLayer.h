@@ -216,7 +216,7 @@ namespace pcpp
 		 */
 		TcpOptionType getTcpOptionType() const
 		{
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return TCPOPT_Unknown;
 
 			return (TcpOptionType)m_Data->recordType;
@@ -226,8 +226,8 @@ namespace pcpp
 
 		size_t getTotalSize() const
 		{
-			if (m_Data == NULL)
-				return (size_t)0;
+			if (m_Data == nullptr)
+				return 0;
 
 			if (m_Data->recordType == (uint8_t)PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
 				return sizeof(uint8_t);
@@ -237,11 +237,11 @@ namespace pcpp
 
 		size_t getDataSize() const
 		{
-			if (m_Data == NULL)
+			if (m_Data == nullptr)
 				return 0;
 
 			if (m_Data->recordType == (uint8_t)PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
-				return (size_t)0;
+				return 0;
 
 			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
 		}
