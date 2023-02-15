@@ -100,15 +100,15 @@ struct ConnectionData
 
 	/**
 	 * Set startTime of Connection
-	 * @param[in] startTime integer value
+	 * @param[in] startTimeValue integer value
 	 */
-	void setStartTime(const timeval &startTime) { this->startTime = startTime; }
+	void setStartTime(const timeval &startTimeValue) { startTime = startTimeValue; }
 
 	/**
 	 * Set endTime of Connection
-	 * @param[in] endTime integer value
+	 * @param[in] endTimeValue integer value
 	 */
-	void setEndTime(const timeval &endTime) { this->endTime = endTime; }
+	void setEndTime(const timeval &endTimeValue) { endTime = endTimeValue; }
 };
 
 
