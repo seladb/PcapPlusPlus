@@ -50,7 +50,7 @@ jobs:
       - name: Run update
         run: |
             cd 3rdParty/OUILookup
-            sh updateData.sh
+            python3 create_oui_data.py
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
