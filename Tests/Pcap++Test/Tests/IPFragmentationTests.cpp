@@ -166,8 +166,6 @@ PTF_TEST_CASE(TestIPFragmentationSanity)
 } // TestIPFragmentationSanity
 
 
-
-
 PTF_TEST_CASE(TestIPFragOutOfOrder)
 {
 	std::vector<pcpp::RawPacket> packetStream;
@@ -463,8 +461,6 @@ PTF_TEST_CASE(TestIPFragOutOfOrder)
 } // TestIPFragOutOfOrder
 
 
-
-
 PTF_TEST_CASE(TestIPFragPartialData)
 {
 	std::vector<pcpp::RawPacket> packetStream;
@@ -529,8 +525,6 @@ PTF_TEST_CASE(TestIPFragPartialData)
 	delete partialPacket;
 	delete [] buffer;
 } // TestIPFragPartialData
-
-
 
 
 PTF_TEST_CASE(TestIPFragMultipleFrags)
@@ -867,8 +861,6 @@ PTF_TEST_CASE(TestIPFragMultipleFrags)
 } // TestIPFragMultipleFrags
 
 
-
-
 PTF_TEST_CASE(TestIPFragMapOverflow)
 {
 	pcpp::PcapFileReaderDevice reader("PcapExamples/ip4_fragments.pcap");
@@ -978,8 +970,6 @@ PTF_TEST_CASE(TestIPFragMapOverflow)
 } // TestIPFragMapOverflow
 
 
-
-
 PTF_TEST_CASE(TestIPFragRemove)
 {
 	pcpp::PcapFileReaderDevice reader("PcapExamples/ip4_fragments.pcap");
@@ -1082,3 +1072,36 @@ PTF_TEST_CASE(TestIPFragRemove)
 	ipReassembly.processPacket(ip4Packet8Frags.at(0), status);
 	PTF_ASSERT_EQUAL(ipReassembly.getCurrentCapacity(), 6);
 } // TestIPFragRemove
+
+
+PTF_TEST_CASE(TestIPFragWithPadding)
+{
+	std::vector<pcpp::RawPacket> packetStream;
+	std::string errMsg;
+
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/frag_with_padding.pcap", packetStream, errMsg));
+
+	pcpp::IPReassembly ipReassembly;
+	pcpp::IPReassembly::ReassemblyStatus status;
+
+	pcpp::Packet* result = nullptr;
+
+	for (auto rawPacket : packetStream)
+	{
+		pcpp::Packet packet(&rawPacket);
+		result = ipReassembly.processPacket(&packet, status);
+	}
+
+	PTF_ASSERT_NOT_NULL(result);
+	PTF_ASSERT_EQUAL(status, pcpp::IPReassembly::REASSEMBLED, enum);
+
+	int bufferLength = 0;
+	uint8_t* buffer = readFileIntoBuffer("PcapExamples/frag_with_padding_defragmented.dat", bufferLength);
+	PTF_ASSERT_NOT_NULL(buffer);
+
+	PTF_ASSERT_EQUAL(bufferLength, result->getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(result->getRawPacket()->getRawData(), buffer, bufferLength);
+
+	delete result;
+	delete [] buffer;
+} // TestIPFragWithPadding

@@ -283,6 +283,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPFragMultipleFrags, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragMapOverflow, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragRemove, "no_network;ip_frag");
+	PTF_RUN_TEST(TestIPFragWithPadding, "no_network;ip_frag");
 
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 
