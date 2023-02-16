@@ -36,3 +36,33 @@ jobs:
           title: Auto precommit update
           labels: automated-pr
           assignees: seladb
+
+  oui-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: dev
+      - name: Setup Python
+        uses: actions/setup-python@v4
+      - name: Run update
+        run: |
+            cd 3rdParty/OUILookup
+            python3 create_oui_data.py
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          author: GitHub <noreply@github.com>
+          add-paths: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
+          commit-message: Auto OUI Database Update
+          body: |
+            Update OUI database to latest
+
+            Auto generated
+          branch: auto-update/oui_update
+          delete-branch: true
+          title: Auto OUI Database Update
+          labels: automated-pr
+          assignees: seladb
