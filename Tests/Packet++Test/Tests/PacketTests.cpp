@@ -450,6 +450,15 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 		curSamplePacketLayer = curSamplePacketLayer->getNextLayer();
 		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
 	}
+	auto samplePacketCopyHttpResponseLayer = samplePacketCopy.getLayerOfType<pcpp::HttpResponseLayer>();
+	auto contentTypeField = samplePacketCopyHttpResponseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
+	PTF_ASSERT_NOT_NULL(samplePacketCopyHttpResponseLayer->insertField(contentTypeField, "X-Forwarded-For", "10.20.30.40"));
+
+	samplePacketCopy = sampleHttpPacket;
+	samplePacketCopyHttpResponseLayer = samplePacketCopy.getLayerOfType<pcpp::HttpResponseLayer>();
+	contentTypeField = samplePacketCopyHttpResponseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
+	PTF_ASSERT_NOT_NULL(samplePacketCopyHttpResponseLayer->insertField(contentTypeField, "X-Forwarded-For", "10.20.30.40"));
+
 
 	PTF_ASSERT_NULL(curSamplePacketLayer);
 	PTF_ASSERT_NULL(curPacketCopyLayer);
