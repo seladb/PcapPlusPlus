@@ -11,6 +11,9 @@ namespace pcpp
 
 DhcpV6OptionType DhcpV6Option::getType() const
 {
+	if (m_Data == nullptr)
+		return DhcpV6OptionType::DHCPV6_OPT_UNKNOWN;
+
 	uint16_t optionType = be16toh(m_Data->recordType);
 	if (optionType <= 62 && optionType != 10 && optionType != 35 && optionType != 57 && optionType != 58)
 	{
@@ -26,16 +29,25 @@ DhcpV6OptionType DhcpV6Option::getType() const
 
 std::string DhcpV6Option::getValueAsHexString() const
 {
+	if (m_Data == nullptr)
+		return "";
+
 	return byteArrayToHexString(m_Data->recordValue, getDataSize());
 }
 
 size_t DhcpV6Option::getTotalSize() const
 {
+	if (m_Data == nullptr)
+		return 0;
+
 	return 2*sizeof(uint16_t) + be16toh(m_Data->recordLen);
 }
 
 size_t DhcpV6Option::getDataSize() const
 {
+	if (m_Data == nullptr)
+		return 0;
+
 	return static_cast<size_t>(be16toh(m_Data->recordLen));
 }
 
@@ -43,6 +55,7 @@ DhcpV6Option DhcpV6OptionBuilder::build() const
 {
 	if (m_RecType == 0)
 		return DhcpV6Option(nullptr);
+
 	size_t optionSize = 2 * sizeof(uint16_t) + m_RecValueLen;
 	uint8_t* recordBuffer = new uint8_t[optionSize];
 	uint16_t optionTypeVal = htobe16(static_cast<uint16_t>(m_RecType));

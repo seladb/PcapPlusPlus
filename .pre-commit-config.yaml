@@ -7,10 +7,10 @@ repos:
       - id: trailing-whitespace
       - id: check-case-conflict
       - id: end-of-file-fixer
-    #   - id: mixed-line-ending
-    #     args: ['--fix=lf']
+      - id: mixed-line-ending
+        args: ['--fix=lf']
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.1.0
     hooks:
       - id: black
   - repo: https://github.com/pocc/pre-commit-hooks
@@ -23,8 +23,10 @@ repos:
     rev: v2.2.2
     hooks:
       - id: codespell
+        pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.13.7
+    rev: typos-dict-v0.9.16
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
+        pass_filenames: false

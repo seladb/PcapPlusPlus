@@ -5,6 +5,7 @@ add_library(
   src/IpUtils.cpp
   src/Logger.cpp
   src/MacAddress.cpp
+  src/OUILookup.cpp
   src/PcapPlusPlusVersion.cpp
   src/SystemUtils.cpp
   src/TablePrinter.cpp)
@@ -16,6 +17,7 @@ set(public_headers
     header/Logger.h
     header/LRUList.h
     header/MacAddress.h
+    header/OUILookup.h
     header/PcapPlusPlusVersion.h
     header/PointerVector.h
     header/SystemUtils.h
@@ -28,8 +30,9 @@ set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 target_include_directories(
   Common++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
-  # Don't link with EndianPortable as it won't be exported
-  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
+  # Don't link with EndianPortable and json as it won't be exported
+  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
+  PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>)
 
 if(WIN32)
   target_link_libraries(Common++ PRIVATE ws2_32 iphlpapi)
