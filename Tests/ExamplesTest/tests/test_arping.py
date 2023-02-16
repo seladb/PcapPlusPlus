@@ -4,7 +4,6 @@ from .test_utils import ExampleTest
 
 @pytest.mark.dnsresolver
 class TestArping(ExampleTest):
-
     pytestmark = [pytest.mark.arping]
 
     @pytest.mark.interface_needed

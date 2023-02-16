@@ -7,7 +7,6 @@ from .test_utils import ExampleTest
 
 
 class TestPcapSplitter(ExampleTest):
-
     pytestmark = [pytest.mark.pcapsplitter, pytest.mark.no_network]
 
     def run_example(self, **kwargs) -> Any:
