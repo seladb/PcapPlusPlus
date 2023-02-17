@@ -76,7 +76,7 @@ namespace pcpp
 			/**
 			 * A default virtual d'tor
 			 */
-			virtual ~PacketKey() {}
+			virtual ~PacketKey() = default;
 
 			/**
 			 * @return A 4-byte hash value of the packet key
@@ -95,10 +95,10 @@ namespace pcpp
 
 		protected:
 			// private c'tor
-			PacketKey() {}
+			PacketKey() = default;
 
 			// private copy c'tor
-			PacketKey(const PacketKey& other) {}
+			PacketKey(const PacketKey& other) = default;
 		};
 
 
