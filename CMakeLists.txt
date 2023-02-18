@@ -245,7 +245,8 @@ if(PCAPPP_INSTALL)
   set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
   set(CPACK_PACKAGE_MAINTAINER "seladb")
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-      "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.")
+      "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
+  )
   set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
   set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
@@ -254,6 +255,12 @@ if(PCAPPP_INSTALL)
 
   if(APPLE)
     set(CPACK_SYSTEM_NAME "Darwin-${CMAKE_SYSTEM_PROCESSOR}")
+  elseif(LINUX)
+    # Easier for Packing but requires CMake 3.22
+    cmake_minimum_required(VERSION 3.22)
+    cmake_host_system_information(RESULT DISTRO_ID QUERY DISTRIB_ID)
+    cmake_host_system_information(RESULT DISTRO_VERSION_ID QUERY DISTRIB_VERSION_ID)
+    set(CPACK_SYSTEM_NAME "Linux-${DISTRO_ID}-${DISTRO_VERSION_ID}")
   endif()
 
   include(CPack)
