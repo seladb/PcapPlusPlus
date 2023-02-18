@@ -76,7 +76,7 @@ namespace pcpp
 			/**
 			 * A default virtual d'tor
 			 */
-			virtual ~PacketKey() {}
+			virtual ~PacketKey() = default;
 
 			/**
 			 * @return A 4-byte hash value of the packet key
@@ -95,10 +95,10 @@ namespace pcpp
 
 		protected:
 			// private c'tor
-			PacketKey() {}
+			PacketKey() = default;
 
 			// private copy c'tor
-			PacketKey(const PacketKey& other) {}
+			PacketKey(const PacketKey& other) = default;
 		};
 
 
@@ -324,7 +324,7 @@ namespace pcpp
 		 * onFragmentsCleanCallback. This parameter is optional, default cookie is NULL
 		 * @param[in] maxPacketsToStore Set the capacity limit of the IP reassembly mechanism. Default capacity is #PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE
 		 */
-		IPReassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void *callbackUserCookie = NULL, size_t maxPacketsToStore = PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE)
+		explicit IPReassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void *callbackUserCookie = NULL, size_t maxPacketsToStore = PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE)
 			: m_PacketLRU(maxPacketsToStore), m_OnFragmentsCleanCallback(onFragmentsCleanCallback), m_CallbackUserCookie(callbackUserCookie) {}
 
 		/**

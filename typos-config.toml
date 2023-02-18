@@ -5,6 +5,12 @@ extend-exclude = [  "*.toml",
                     "ci/",
                     "Dist/",
                     "mk/",
+                    "Tests/ExamplesTest/expected_output/",
+                    "Tests/ExamplesTest/pcap_examples/",
+                    "Tests/Packet++Test/PacketExamples/",
+                    "Tests/Pcap++Test/PcapExamples/",
+                    "3rdParty/OUIDataset/PCPP_OUIDataset.json",
+                    "3rdParty/json/"
                  ]
 
 [default.extend-identifiers]

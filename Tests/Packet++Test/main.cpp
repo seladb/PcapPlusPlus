@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
 
 	pcpp_tests::testSetUp();
 
+	PTF_RUN_TEST(OUILookup, "eth2;eth;oui");
 	PTF_RUN_TEST(EthPacketCreation, "eth2;eth");
 	PTF_RUN_TEST(EthPacketPointerCreation, "eth2;eth");
 	PTF_RUN_TEST(EthAndArpPacketParsing, "eth2;eth;arp");

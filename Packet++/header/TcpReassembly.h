@@ -100,15 +100,15 @@ struct ConnectionData
 
 	/**
 	 * Set startTime of Connection
-	 * @param[in] startTime integer value
+	 * @param[in] startTimeValue integer value
 	 */
-	void setStartTime(const timeval &startTime) { this->startTime = startTime; }
+	void setStartTime(const timeval &startTimeValue) { startTime = startTimeValue; }
 
 	/**
 	 * Set endTime of Connection
-	 * @param[in] endTime integer value
+	 * @param[in] endTimeValue integer value
 	 */
-	void setEndTime(const timeval &endTime) { this->endTime = endTime; }
+	void setEndTime(const timeval &endTimeValue) { endTime = endTimeValue; }
 };
 
 
@@ -217,7 +217,7 @@ struct TcpReassemblyConfiguration
 	 * @param[in] maxOutOfOrderFragments The maximum number of unmatched fragments to keep per flow before missed fragments are considered lost. The default is unlimited.
 	 * @param[in] enableBaseBufferClearCondition To enable to clear buffer once packet contains data from a different side than the side seen before
 	 */
-	TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30, uint32_t maxOutOfOrderFragments = 0,
+	explicit TcpReassemblyConfiguration(bool removeConnInfo = true, uint32_t closedConnectionDelay = 5, uint32_t maxNumToClean = 30, uint32_t maxOutOfOrderFragments = 0,
 		bool enableBaseBufferClearCondition = true) : removeConnInfo(removeConnInfo), closedConnectionDelay(closedConnectionDelay), maxNumToClean(maxNumToClean), maxOutOfOrderFragments(maxOutOfOrderFragments), enableBaseBufferClearCondition(enableBaseBufferClearCondition)
 	{
 	}
@@ -344,7 +344,7 @@ public:
 	 * @param[in] onConnectionEndCallback The callback to be invoked when a new connection is terminated (either by a FIN/RST packet or manually by the user). This parameter is optional
 	 * @param[in] config Optional parameter for defining special configuration parameters. If not set the default parameters will be set
 	 */
-	TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = NULL, OnTcpConnectionStart onConnectionStartCallback = NULL, OnTcpConnectionEnd onConnectionEndCallback = NULL, const TcpReassemblyConfiguration &config = TcpReassemblyConfiguration());
+	explicit TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = NULL, OnTcpConnectionStart onConnectionStartCallback = NULL, OnTcpConnectionEnd onConnectionEndCallback = NULL, const TcpReassemblyConfiguration &config = TcpReassemblyConfiguration());
 
 	/**
 	 * The most important method of this class which gets a packet from the user and processes it. If this packet opens a new connection, ends a connection or contains new data on an

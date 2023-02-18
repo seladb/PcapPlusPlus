@@ -259,16 +259,25 @@ std::string PPPoESessionLayer::toString() const
 
 PPPoEDiscoveryLayer::PPPoETagTypes PPPoEDiscoveryLayer::PPPoETag::getType() const
 {
+	if (m_Data == nullptr)
+		return PPPoEDiscoveryLayer::PPPoETagTypes::PPPOE_TAG_EOL;
+
 	return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(m_Data->recordType);
 }
 
 size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const
 {
+	if (m_Data == nullptr)
+		return 0;
+
 	return 2*sizeof(uint16_t) + be16toh(m_Data->recordLen);
 }
 
 size_t PPPoEDiscoveryLayer::PPPoETag::getDataSize() const
 {
+	if (m_Data == nullptr)
+		return 0;
+
 	return be16toh(m_Data->recordLen);
 }
 

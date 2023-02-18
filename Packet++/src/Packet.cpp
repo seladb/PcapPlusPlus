@@ -177,6 +177,7 @@ void Packet::copyDataFrom(const Packet& other)
 	m_ProtocolTypes = other.m_ProtocolTypes;
 	m_FirstLayer = createFirstLayer(m_RawPacket->getLinkLayerType());
 	m_LastLayer = m_FirstLayer;
+	m_CanReallocateData = true;
 	Layer* curLayer = m_FirstLayer;
 	while (curLayer != nullptr)
 	{
