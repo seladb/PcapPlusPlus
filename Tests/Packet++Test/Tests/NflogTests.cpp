@@ -6,6 +6,7 @@
 #include "NflogLayer.h"
 #include "IPv4Layer.h"
 #include "SystemUtils.h"
+#include "GeneralUtils.h"
 
 
 PTF_TEST_CASE(NflogPacketParsingTest)
@@ -24,14 +25,37 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 
 	PTF_ASSERT_EQUAL(nflogLayer->getFamily(), pcpp::IPv4);
 	PTF_ASSERT_EQUAL(nflogLayer->getVersion(), 0);
-	PTF_ASSERT_EQUAL(be16toh(htobe16(nflogLayer->getResourceId())), 42);
+	PTF_ASSERT_EQUAL(nflogLayer->getResourceId(), 42);
 
-	pcpp::nflog_packet_header* pck_hdr = nflogLayer->getPacketHeader();
-	PTF_ASSERT_EQUAL(pck_hdr->hardwareProtocol, 0);
-	PTF_ASSERT_EQUAL((int)pck_hdr->netfilterHook, 3);
 	PTF_ASSERT_EQUAL(nflogLayer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 
-	pcpp::NflogTLV $payloadInfo = nflogLayer->getTlvByType(pcpp::NflogTlvType::NFULA_PAYLOAD);
-	PTF_ASSERT_EQUAL($payloadInfo.getTotalSize(), 65);
-	PTF_ASSERT_EQUAL($payloadInfo.getValue()[0], 'E');
+	pcpp::NflogTlvType expectedTypes[6] = {
+		pcpp::NflogTlvType::NFULA_PACKET_HDR,
+		pcpp::NflogTlvType::NFULA_PREFIX,
+		pcpp::NflogTlvType::NFULA_IFINDEX_OUTDEV,
+		pcpp::NflogTlvType::NFULA_UID,
+		pcpp::NflogTlvType::NFULA_GID,
+		pcpp::NflogTlvType::NFULA_PAYLOAD
+	};
+
+	int optSizes[6] = {8, 5, 8, 8, 8, 65};
+	std::string optDataAsHexString[6] = {
+		"0800010000000300",
+		"05000a0000",
+		"0800050000000002",
+		"08000b0000000000",
+		"08000e0000000000",
+		"410009004500003d021040004011208f0a00020f0a000203a542003500294156c04e0100000100000000000003777777076578616d706c65036e65740000010001"
+	};
+
+	for (int i = 0; i < 6; i++) {
+		pcpp::NflogTlv tlv = nflogLayer->getTlvByType(expectedTypes[i]);
+
+		PTF_ASSERT_EQUAL(tlv.getTotalSize(), optSizes[i]);
+		PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(tlv.getRecordBasePtr(), optSizes[i]), optDataAsHexString[i]);
+	}
+
+	/// sum of all TLVs before payload + size of nflog_header + size of (recordLength + recordType) variables of payload TLV
+	int headerLen = 45;
+	PTF_ASSERT_EQUAL(nflogLayer->getHeaderLen(), headerLen, enum);
 }

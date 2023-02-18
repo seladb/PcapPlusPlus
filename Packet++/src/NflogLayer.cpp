@@ -8,6 +8,7 @@
 #include "EndianPortable.h"
 
 #include <string.h>
+#include <iostream>
 
 
 namespace pcpp
@@ -28,21 +29,14 @@ uint16_t NflogLayer::getResourceId()
 	return be16toh(getNflogHeader()->resourceId);
 }
 
-NflogTLV NflogLayer::getTlvByType(NflogTlvType type) const
+NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const
 {
-	NflogTLV tlv = m_TlvReader.getTLVRecord(
+	NflogTlv tlv = m_TlvReader.getTLVRecord(
 		static_cast<uint32_t> (type),
 		getTlvsBasePtr(),
 		m_DataLen - sizeof(nflog_header));
 
 	return tlv;
-}
-
-nflog_packet_header* NflogLayer::getPacketHeader()
-{
-	// NFULA_PACKET_HDR is the first tlv
-	uint8_t* data = m_Data + sizeof(nflog_header) + sizeof(nflog_tlv);
-	return (nflog_packet_header*)data;
 }
 
 void NflogLayer::parseNextLayer()
@@ -80,12 +74,12 @@ void NflogLayer::parseNextLayer()
 
 size_t NflogLayer::getHeaderLen() const
 {
-	size_t headerLen = 0;
-	NflogTLV currentTLV =  m_TlvReader.getFirstTLVRecord(
+	size_t headerLen = sizeof(nflog_header);
+	NflogTlv currentTLV =  m_TlvReader.getFirstTLVRecord(
 		getTlvsBasePtr(),
 		m_DataLen - sizeof(nflog_header));
 
-	while (currentTLV.getType() != static_cast<uint16_t> (NflogTlvType::NFULA_PAYLOAD))
+	while (!currentTLV.isNull() && currentTLV.getType() != static_cast<uint16_t> (NflogTlvType::NFULA_PAYLOAD))
 	{
 		headerLen += currentTLV.getTotalSize();
 		currentTLV = m_TlvReader.getNextTLVRecord(currentTLV, getTlvsBasePtr(), m_DataLen - sizeof(nflog_header));
@@ -96,7 +90,7 @@ size_t NflogLayer::getHeaderLen() const
 		headerLen += 2 * sizeof (uint16_t);
 	}
 	// nflog_header has not a form of TLV and contains 3 fields (family, resource_id, version)
-	return headerLen + sizeof(nflog_header);
+	return headerLen;
 }
 
 std::string NflogLayer::toString() const
