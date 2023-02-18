@@ -244,14 +244,15 @@ if(PCAPPP_INSTALL)
   set(CPACK_PACKAGE_NAME "PcapPlusPlus")
   set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
   set(CPACK_PACKAGE_MAINTAINER "seladb")
-  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.")
-  SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-  SET(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+      "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use.")
+  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+  set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 
   # Output a .tar.gz
   set(CPACK_GENERATOR "TGZ")
 
-  if (APPLE)
+  if(APPLE)
     set(CPACK_SYSTEM_NAME "Darwin-${CMAKE_SYSTEM_PROCESSOR}")
   endif()
 

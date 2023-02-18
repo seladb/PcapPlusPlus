@@ -31,11 +31,11 @@ jobs:
           git diff --exit-code
 
       - name: Configure PcapPlusPlus for Static analysis
-        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B $BUILD_DIR
+        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus and check any diff
         run: |
-          cmake --build $BUILD_DIR -j
+          cmake --build "$BUILD_DIR" -j
           git diff --exit-code
 
   linux:
@@ -80,10 +80,10 @@ jobs:
           printenv >> $GITHUB_ENV
 
       - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Test PcapPlusPlus
         run: |
@@ -122,6 +122,13 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+      - name: Package
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.BUILD_DIR }}/*.tar.gz
+
   dpdk:
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
@@ -140,10 +147,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B $BUILD_DIR
+        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Check AVX
         run: grep avx /proc/cpuinfo
@@ -175,7 +182,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B $BUILD_DIR
+          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B "$BUILD_DIR"
 
     steps:
       - name: Checkout code
@@ -185,7 +192,7 @@ jobs:
         run: ${{ matrix.configure }}
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Test Packet++
         run: |
@@ -234,10 +241,10 @@ jobs:
         # Ensure user have access to network devices instead of giving super-user right
         run: |
           sudo chmod a+rw /dev/bpf*
-          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Check architecture
         run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
@@ -287,6 +294,13 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+      - name: Package
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.BUILD_DIR }}/*.tar.gz
+
   mingw-w64:
     runs-on: windows-latest
     strategy:
@@ -327,13 +341,13 @@ jobs:
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
         # More than 2 jobs would make the build crash with OOM
         # cc1plus.exe: out of memory allocating 65536 bytes
-        run: cmake --build $BUILD_DIR -j 2
+        run: cmake --build "$BUILD_DIR" -j 2
 
       - name: Install tcpreplay
         run: ci\install_tcpreplay.bat
@@ -489,10 +503,10 @@ jobs:
       - name: Configure PcapPlusPlus
         run: |
           LIBPCAP_PATH=$(pwd)/libpcap-android
-          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B $BUILD_DIR
+          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
+        run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
         uses: actions/checkout@master
