@@ -77,7 +77,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         if: ${{ matrix.image }} == 'ubuntu2204-icpx'
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_CXX_COMPILER=icpx -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON -DCMAKE_CXX_COMPILER=icpx -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
