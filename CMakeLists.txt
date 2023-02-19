@@ -88,6 +88,7 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
 # Set C++11
 set(CMAKE_CXX_STANDARD 11)
@@ -241,30 +242,6 @@ if(PCAPPP_BUILD_TESTS
 endif()
 
 if(PCAPPP_INSTALL)
-  set(CPACK_PACKAGE_NAME "PcapPlusPlus")
-  set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
-  set(CPACK_PACKAGE_MAINTAINER "seladb")
-  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-      "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
-  )
-  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-  set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
-
-  # Output a .tar.gz
-  set(CPACK_GENERATOR "TGZ")
-
-  if(APPLE)
-    set(CPACK_SYSTEM_NAME "Darwin-${CMAKE_SYSTEM_PROCESSOR}")
-  elseif(LINUX)
-    # Easier for Packing but requires CMake 3.22
-    cmake_minimum_required(VERSION 3.22)
-    cmake_host_system_information(RESULT DISTRO_ID QUERY DISTRIB_ID)
-    cmake_host_system_information(RESULT DISTRO_VERSION_ID QUERY DISTRIB_VERSION_ID)
-    set(CPACK_SYSTEM_NAME "Linux-${DISTRO_ID}-${DISTRO_VERSION_ID}")
-  endif()
-
-  include(CPack)
-
   # Generate PKG-Config
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
                  @ONLY)
@@ -300,4 +277,34 @@ if(PCAPPP_INSTALL)
           "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
     COMPONENT devel
     DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+endif()
+
+if (PCAPPP_PACKAGE)
+  if (NOT PCAPPP_INSTALL)
+    message(SEND_ERROR "Packaging depends on PCAPP_INSTALL")
+  endif()
+
+  set(CPACK_PACKAGE_NAME "PcapPlusPlus")
+  set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
+  set(CPACK_PACKAGE_MAINTAINER "seladb")
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+      "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
+  )
+  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+  set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+
+  # Output a .tar.gz
+  set(CPACK_GENERATOR "TGZ")
+
+  if(APPLE)
+    set(CPACK_SYSTEM_NAME "Darwin-${CMAKE_SYSTEM_PROCESSOR}")
+  elseif(LINUX)
+    # Easier for Packing but requires CMake 3.22
+    cmake_minimum_required(VERSION 3.22)
+    cmake_host_system_information(RESULT DISTRO_ID QUERY DISTRIB_ID)
+    cmake_host_system_information(RESULT DISTRO_VERSION_ID QUERY DISTRIB_VERSION_ID)
+    set(CPACK_SYSTEM_NAME "Linux-${DISTRO_ID}-${DISTRO_VERSION_ID}")
+  endif()
+
+  include(CPack)
 endif()
