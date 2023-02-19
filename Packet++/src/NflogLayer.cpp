@@ -8,11 +8,15 @@
 #include "EndianPortable.h"
 
 #include <string.h>
-#include <iostream>
 
 
 namespace pcpp
 {
+	/** IPv4 protocol */
+	#define PCPP_WS_NFPROTO_IPV4		2
+	/** IPv6 protocol */
+	#define PCPP_WS_NFPROTO_IPV6		10
+
 
 uint8_t NflogLayer::getFamily()
 {
@@ -50,7 +54,7 @@ void NflogLayer::parseNextLayer()
 	}
 
 	uint8_t* payload = payloadInfo.getValue();
-	size_t payloadLen = payloadInfo.getTotalSize() - sizeof(nflog_tlv);
+	size_t payloadLen = payloadInfo.getTotalSize() - sizeof(uint16_t) * 2;
 
 	uint8_t family = getFamily();
 
@@ -96,6 +100,11 @@ size_t NflogLayer::getHeaderLen() const
 std::string NflogLayer::toString() const
 {
 	return "Linux Netfilter NFLOG";
+}
+
+bool NflogLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
+	return data && dataLen >= sizeof(nflog_header);
 }
 
 } // namespace pcpp

@@ -774,7 +774,9 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	}
 	else if (linkType == LINKTYPE_NFLOG)
 	{
-		return new NflogLayer((uint8_t*)rawData, rawDataLen, this);
+		return NflogLayer::isDataValid(rawData, rawDataLen)
+			? static_cast<Layer*>(new NflogLayer((uint8_t*)rawData, rawDataLen, this))
+			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 	}
 
 	// unknown link type

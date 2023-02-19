@@ -3,7 +3,6 @@
 
 #include "Layer.h"
 #include "TLVData.h"
-#include "GeneralUtils.h"
 
 /// @file
 
@@ -13,12 +12,6 @@
  */
 namespace pcpp
 {
-
-	/** IPv4 protocol */
-	#define PCPP_WS_NFPROTO_IPV4		2
-	/** IPv6 protocol */
-	#define PCPP_WS_NFPROTO_IPV6		10
-
 	/**
 	 * @struct nflog_header
 	 * Represents Nflog header
@@ -26,50 +19,19 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct nflog_header
 	{
+		/** A Linux AF_ value, so it's 2 for IPv4 and 10 for IPv6 */
 		uint8_t addressFamily;
+		/** The version field is 0 for the current version of the pseudo-header */
 		uint8_t version;
+		/** The network byte order (big-endian) */
 		uint16_t resourceId;
 	};
 #pragma pack(pop)
 
 	/**
-	 * @struct nflog_tlv
-	 * Represents Nflog tlv structure
-	 */
-#pragma pack(push, 1)
-	struct nflog_tlv
-	{
-		/** tlv length */
-		uint16_t tlvLength;
-
-		/** tlv type */
-		uint16_t tlvType;
-	};
-#pragma pack(pop)
-
-	/**
-	 * @struct nflog_packet_header
-	 * represents data of the first tlv by tlv type 1
-	*/
-#pragma pack(push, 1)
-	struct nflog_packet_header
-	{
-		/** e.g. ipv4, unknown, etc */
-		uint16_t hardwareProtocol;
-
-		/** local-in, local-out, post-routing, etc */
-		uint8_t netfilterHook;
-
-		/** one byte padding */
-		uint8_t padding;
-	};
-
-	/**
 	 * @enum NflogTlvType
 	 * Represents TLV types of NFLOG packets
 	*/
-#pragma pack(pop)
-
 	enum class NflogTlvType
 	{
 		/** the packet header structure */
@@ -225,7 +187,7 @@ namespace pcpp
 		uint16_t getResourceId();
 
 		/**
-		 * returns a pair of pointer to tlv data and the length of the tlv
+		 * Get a TLV object found with the input type. if no tlv is found, the internal value of the object will set to nullptr
 		 * @param[in] type type of tlv by using enum class defined as NflogTlvType
 		 * @return NflogTlv obtained by type
 		*/
@@ -245,13 +207,21 @@ namespace pcpp
 		size_t getHeaderLen() const;
 
 		/**
-		 * nothing to do for now
+		 * Does nothing for this layer
 		*/
 		void computeCalculateFields() {};
 
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
+
+		/**
+		* A static method that validates the input data
+		* @param[in] data The pointer to the beginning of a byte stream of an NFLOG packet
+		* @param[in] dataLen The length of the byte stream
+		* @return True if the data is valid and can represent an NFLOG packet
+		*/
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
 		uint8_t* getTlvsBasePtr() const { return m_Data + sizeof(nflog_header); }

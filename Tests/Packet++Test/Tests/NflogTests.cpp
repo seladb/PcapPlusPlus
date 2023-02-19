@@ -56,6 +56,5 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 	}
 
 	/// sum of all TLVs before payload + size of nflog_header + size of (recordLength + recordType) variables of payload TLV
-	int headerLen = 45;
-	PTF_ASSERT_EQUAL(nflogLayer->getHeaderLen(), headerLen, enum);
+	PTF_ASSERT_EQUAL(nflogLayer->getHeaderLen(), 45);
 }
