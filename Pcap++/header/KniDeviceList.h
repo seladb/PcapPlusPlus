@@ -1,6 +1,8 @@
 #ifndef PCAPPP_KNI_DEVICE_LIST
 #define PCAPPP_KNI_DEVICE_LIST
 
+// GCOVR_EXCL_START
+
 #include <vector>
 
 #include "KniDevice.h"
@@ -124,4 +126,7 @@ namespace pcpp
 		int m_KniUniqueId;
 	};
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
+
 #endif /* PCAPPP_KNI_DEVICE_LIST */

@@ -1,5 +1,6 @@
 env:
   BUILD_DIR: "build"
+  GCOVR_FLAGS: "--gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml"
 
 task:
   name: Test FreeBSD
@@ -31,12 +32,18 @@ task:
   container:
     image: seladb/ubuntu2004-zstd:latest
   configure_script:
-    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
   test_pcapplusplus_script:
+    - python3 -m pip install gcovr
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface eth0
+  coverage_report_script:
+    - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -v -f coverage.xml -F zstd -F ubuntu2004 -F unittest || true
 
 task:
   name: Test Zstd MacOS
@@ -46,15 +53,20 @@ task:
     - brew install zstd
     # Ensure user have access to network devices instead of giving super-user right
     - sudo chmod a+rw /dev/bpf*
-    - cmake -DLIGHT_PCAPNG_ZSTD=ON -S . -B Dist
+    - cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B Dist
   build_script:
     - cmake --build Dist -j 2
-  install_tcpreplay_script:
-    - brew install tcpreplay
+  install_tcpreplay_gcovr_script:
+    - brew install tcpreplay gcovr
   test_pcapplusplus_script:
     - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
     - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
+  coverage_report_script:
+    - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+    - curl -Os https://uploader.codecov.io/latest/macos/codecov
+    - chmod +x codecov
+    - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest || true
 
 task:
   name: Regression Tests Linux (Address Sanitizer)

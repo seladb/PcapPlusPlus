@@ -1,5 +1,7 @@
 #ifdef USE_PF_RING
 
+// GCOVR_EXCL_START
+
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include "PfRingDeviceList.h"
@@ -97,5 +99,7 @@ void PfRingDeviceList::calcPfRingVersion(void* ring)
 }
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* USE_PF_RING */

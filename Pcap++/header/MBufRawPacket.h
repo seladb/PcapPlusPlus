@@ -1,6 +1,8 @@
 #ifndef PCAPPP_MBUF_RAW_PACKET
 #define PCAPPP_MBUF_RAW_PACKET
 
+// GCOVR_EXCL_START
+
 #include <time.h>
 #include "Packet.h"
 #include "PointerVector.h"
@@ -214,5 +216,7 @@ namespace pcpp
 	typedef PointerVector<MBufRawPacket> MBufRawPacketVector;
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPPP_MBUF_RAW_PACKET */

@@ -1,5 +1,7 @@
 #ifdef USE_DPDK
 
+// GCOVR_EXCL_START
+
 #define LOG_MODULE PcapLogModuleDpdkDevice
 
 #define __STDC_LIMIT_MACROS
@@ -420,5 +422,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 }
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* USE_DPDK */

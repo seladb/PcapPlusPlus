@@ -1,5 +1,7 @@
 #ifdef USE_DPDK
 
+// GCOVR_EXCL_START
+
 #define LOG_MODULE PcapLogModuleDpdkDevice
 
 #define __STDC_LIMIT_MACROS
@@ -1436,5 +1438,7 @@ std::vector<std::string> DpdkDevice::rssHashFunctionMaskToString(uint64_t rssHFM
 
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* USE_DPDK */
