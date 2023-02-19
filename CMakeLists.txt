@@ -80,6 +80,7 @@ cmake_dependent_option(
   "PCAPPP_BUILD_EXAMPLES"
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
+option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 cmake_dependent_option(
   PCAPPP_BUILD_FUZZERS
   "Build Fuzzers binaries"
@@ -208,6 +209,13 @@ endif()
 if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
   add_link_options(-static)
+endif()
+
+# Disabled Android for now because ToyVPN build fails with coverage flags
+if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
+  add_compile_options(--coverage)
+  add_link_options(--coverage)
+  set(_PCAPPP_FIND_COVERAGE "find_dependency(Coverage)\n")
 endif()
 
 add_subdirectory(3rdParty)

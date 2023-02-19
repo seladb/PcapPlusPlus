@@ -7,6 +7,7 @@ on:
 
 env:
   BUILD_DIR: Dist
+  GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
 
 jobs:
   pre-commit:
@@ -72,7 +73,7 @@ jobs:
 
       - name: Configure PcapPlusPlus
         if: ${{ matrix.image }} != 'ubuntu2204-icpx'
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Configure PcapPlusPlus
         if: ${{ matrix.image }} == 'ubuntu2204-icpx'
@@ -111,6 +112,19 @@ jobs:
 
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: |
+          ${{ matrix.python }} -m pip install gcovr
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.image }},unittest
+          fail_ci_if_error: false
+          verbose: true
 
   dpdk:
     runs-on: ubuntu-20.04
@@ -224,7 +238,7 @@ jobs:
         # Ensure user have access to network devices instead of giving super-user right
         run: |
           sudo chmod a+rw /dev/bpf*
-          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B $BUILD_DIR
+          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -263,6 +277,19 @@ jobs:
       - name: Test Tutorials
         if: ${{ matrix.arch == 'x86_64' }}
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: |
+          python3 -m pip install gcovr
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.os-version }},unittest
+          fail_ci_if_error: false
+          verbose: true
 
   mingw-w64:
     runs-on: windows-latest
@@ -304,7 +331,7 @@ jobs:
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -S . -B $BUILD_DIR
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -325,6 +352,24 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
+
+      - name: Install Coverage Requirements
+        run: python3 -m pip install gcovr
+
+      - name: Process Coverage Files
+        shell: msys2 {0}
+        run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
+
+      - name: Create Coberture Report
+        run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.sys }},unittest
+          fail_ci_if_error: false
+          verbose: true
 
   visual-studio:
     strategy:
@@ -359,6 +404,11 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
 
+      - name: Setup OpenCppCoverage and add to PATH
+        run: |
+          choco install OpenCppCoverage -y
+          echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
+
       - name: Install WinPcap
         run: |
           ci\install_winpcap.bat
@@ -392,7 +442,7 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py
+          python ci\run_tests\run_tests_windows.py --coverage
 
       - name: Test Examples
         run: |
@@ -400,6 +450,14 @@ jobs:
           cd Tests\ExamplesTest
           python -m pip install -r requirements.txt
           python -m pytest --root-path=../../Dist/examples_bin
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
+          flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
+          fail_ci_if_error: false
+          verbose: true
 
   android:
     strategy:

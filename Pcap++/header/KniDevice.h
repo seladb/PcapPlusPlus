@@ -1,6 +1,8 @@
 #ifndef PCAPPP_KNI_DEVICE
 #define PCAPPP_KNI_DEVICE
 
+// GCOVR_EXCL_START
+
 #include <string>
 #include <atomic>
 
@@ -649,4 +651,7 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
+
 #endif /* PCAPPP_KNI_DEVICE */
