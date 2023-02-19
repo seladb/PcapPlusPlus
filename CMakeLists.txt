@@ -279,8 +279,8 @@ if(PCAPPP_INSTALL)
     DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 endif()
 
-if (PCAPPP_PACKAGE)
-  if (NOT PCAPPP_INSTALL)
+if(PCAPPP_PACKAGE)
+  if(NOT PCAPPP_INSTALL)
     message(SEND_ERROR "Packaging depends on PCAPP_INSTALL")
   endif()
 

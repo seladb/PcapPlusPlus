@@ -58,13 +58,13 @@ jobs:
           - image: ubuntu1804
             python: python3.8
             config-zstd: OFF
-#          - image: centos7
-#            python: python3.8
-#            test-flags: --test-args="-s"
-#            config-zstd: OFF
-          - image: fedora37
-            python: python3
+          - image: centos7
+            python: python3.8
+            test-flags: --test-args="-s"
             config-zstd: OFF
+#          - image: fedora37
+#            python: python3
+#           config-zstd: OFF
           - image: alpine317
             python: python3
             config-zstd: OFF
