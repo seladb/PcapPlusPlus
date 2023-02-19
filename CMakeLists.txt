@@ -211,6 +211,7 @@ if(MINGW)
   add_link_options(-static)
 endif()
 
+# Disabled Android for now because ToyVPN build fails with coverage flags
 if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
   add_compile_options(--coverage)
   add_link_options(--coverage)
