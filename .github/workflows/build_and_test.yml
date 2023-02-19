@@ -103,7 +103,7 @@ jobs:
         run: |
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
-      
+
       - name: Build Tutorials
         if: ${{ matrix.image }} == 'ubuntu2204-icpx'
         run: |
