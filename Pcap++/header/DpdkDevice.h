@@ -1,6 +1,8 @@
 #ifndef PCAPPP_DPDK_DEVICE
 #define PCAPPP_DPDK_DEVICE
 
+// GCOVR_EXCL_START
+
 #include <pthread.h>
 #include <time.h>
 #include <vector>
@@ -825,5 +827,7 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPPP_DPDK_DEVICE */
