@@ -46,6 +46,9 @@ jobs:
           - image: ubuntu2204
             python: python3
             config-zstd: OFF
+          - image: ubuntu2204-icpx
+            python: python3
+            config-zstd: OFF
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
@@ -68,7 +71,12 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
+        if: ${{ matrix.image }} != 'ubuntu2204-icpx'
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR
+
+      - name: Configure PcapPlusPlus
+        if: ${{ matrix.image }} == 'ubuntu2204-icpx'
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -S . -B $BUILD_DIR -DCMAKE_CXX_COMPILER=icpx
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -90,8 +98,15 @@ jobs:
         run: cmake --install $BUILD_DIR
 
       - name: Build Tutorials
+        if: ${{ matrix.image }} != 'ubuntu2204-icpx'
         run: |
           cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake --build build_examples -j
+      
+      - name: Build Tutorials
+        if: ${{ matrix.image }} == 'ubuntu2204-icpx'
+        run: |
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples -DCMAKE_CXX_COMPILER=icpx
           cmake --build build_examples -j
 
       - name: Test Tutorials
