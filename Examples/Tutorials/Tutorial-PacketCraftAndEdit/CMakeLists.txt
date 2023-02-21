@@ -14,4 +14,9 @@ else()
   file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/1_http_packet.pcap" DESTINATION "${PCAPPP_BINARY_TUTORIAL_DIR}")
 endif()
 
+# Set C++11
+set(CMAKE_CXX_STANDARD 11)
+# popen()/pclose() are not C++ standards
+set(CMAKE_CXX_EXTENSIONS ON)
+
 target_link_libraries("${PROJECT_NAME}" PUBLIC PcapPlusPlus::Pcap++)
