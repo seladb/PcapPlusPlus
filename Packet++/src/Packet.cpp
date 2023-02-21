@@ -4,6 +4,7 @@
 #include "EthLayer.h"
 #include "EthDot3Layer.h"
 #include "SllLayer.h"
+#include "NflogLayer.h"
 #include "NullLoopbackLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -769,6 +770,12 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	{
 		return IPv6Layer::isDataValid(rawData, rawDataLen)
 			? static_cast<Layer*>(new IPv6Layer((uint8_t*)rawData, rawDataLen, nullptr, this))
+			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
+	}
+	else if (linkType == LINKTYPE_NFLOG)
+	{
+		return NflogLayer::isDataValid(rawData, rawDataLen)
+			? static_cast<Layer*>(new NflogLayer((uint8_t*)rawData, rawDataLen, this))
 			: static_cast<Layer*>(new PayloadLayer((uint8_t*)rawData, rawDataLen, nullptr, this));
 	}
 

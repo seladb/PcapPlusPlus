@@ -293,6 +293,11 @@ namespace pcpp
 	const ProtocolType WakeOnLan = 0x200000000000;
 
 	/**
+	 * NFLOG (Linux Netfilter NFLOG) Protocol
+	 */
+	const ProtocolType NFLOG = 0x400000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer

@@ -17,6 +17,7 @@ add_executable(
   Tests/IPv4Tests.cpp
   Tests/IPv6Tests.cpp
   Tests/LLCTests.cpp
+  Tests/NflogTests.cpp
   Tests/NtpTests.cpp
   Tests/PacketTests.cpp
   Tests/PacketUtilsTests.cpp
