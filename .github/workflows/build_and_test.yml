@@ -74,11 +74,10 @@ jobs:
 
       - name: Test step
         run: |
-          source /opt/intel/oneapi/setvars.sh
+          . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
 
       - name: Configure PcapPlusPlus
-        shell: sh -l {0}
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
