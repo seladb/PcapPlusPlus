@@ -44,35 +44,36 @@ jobs:
     strategy:
       matrix:
         include:
-          #- image: ubuntu2204
-          #  python: python3
-          #  config-zstd: OFF
+          - image: ubuntu2204
+            python: python3
+            config-zstd: OFF
           - image: ubuntu2204-icpx
             python: python3
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-          #- image: ubuntu2004
-          #  python: python3
-          #  config-zstd: OFF
-          #- image: ubuntu1804
-          #  python: python3.8
-          #  config-zstd: OFF
-          #- image: centos7
-          #  python: python3.8
-          #  test-flags: --test-args="-s"
-          #  config-zstd: OFF
-          #- image: fedora34
-          #  python: python3
-          #  config-zstd: OFF
-          #- image: alpine315
-          #  python: python3
-          #  config-zstd: OFF
+          - image: ubuntu2004
+            python: python3
+            config-zstd: OFF
+          - image: ubuntu1804
+            python: python3.8
+            config-zstd: OFF
+          - image: centos7
+            python: python3.8
+            test-flags: --test-args="-s"
+            config-zstd: OFF
+          - image: fedora34
+            python: python3
+            config-zstd: OFF
+          - image: alpine315
+            python: python3
+            config-zstd: OFF
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Test step
+      - name: Setup Intel Compiler variables
+        if: ${{ matrix.image }} == 'ubuntu2204-icpx'
         run: |
           . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
