@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ additional-flags }} -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -96,7 +96,7 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON ${{ additional-flags }} -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON ${{ matrix.additional-flags }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
