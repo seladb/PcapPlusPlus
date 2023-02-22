@@ -73,10 +73,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Test step
-        run: echo "source /opt/intel/oneapi/setvars.sh" >> /root/.bash_profile
+        run: echo ". /opt/intel/oneapi/setvars.sh" >> /root/.profile
 
       - name: Configure PcapPlusPlus
-        shell: bash -l {0}
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
