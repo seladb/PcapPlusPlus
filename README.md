@@ -212,50 +212,51 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 9. VLAN
 10. VXLAN
 11. Wake on LAN (WoL)
+12. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
 
 ### Network Layer (L3)
 
-12. ARP
-13. GRE
-14. ICMP
-15. ICMPv6
-16. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
-17. IPv4
-18. IPv6
-19. MPLS
-20. NDP
-21. Raw IP (IPv4 & IPv6)
+13. ARP
+14. GRE
+15. ICMP
+16. ICMPv6
+17. IGMP (IGMPv1, IGMPv2 and IGMPv3 are supported)
+18. IPv4
+19. IPv6
+20. MPLS
+21. NDP
+22. Raw IP (IPv4 & IPv6)
 
 ### Transport Layer (L4)
 
-22. GTP (v1)
-23. IPSec AH & ESP - parsing only (no editing capabilities)
-24. TCP
-25. UDP
+23. GTP (v1)
+24. IPSec AH & ESP - parsing only (no editing capabilities)
+25. TCP
+26. UDP
 
 ### Session Layer (L5)
 
-26. SDP
-27. SIP
+27. SDP
+28. SIP
 
 ### Presentation Layer (L6)
 
-28. SSL/TLS - parsing only (no editing capabilities)
+29. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-29. BGP (v4)
-30. DHCP
-31. DHCPv6
-32. DNS
-33. FTP
-34. HTTP headers (request & response)
-35. NTP (v3, v4)
-36. Radius
-37. SOME/IP
-38. SSH - parsing only (no editing capabilities)
-39. Telnet - parsing only (no editing capabilities)
-40. Generic payload
+30. BGP (v4)
+31. DHCP
+32. DHCPv6
+33. DNS
+34. FTP
+35. HTTP headers (request & response)
+36. NTP (v3, v4)
+37. Radius
+38. SOME/IP
+39. SSH - parsing only (no editing capabilities)
+40. Telnet - parsing only (no editing capabilities)
+41. Generic payload
 
 ## DPDK And PF_RING Support
 
