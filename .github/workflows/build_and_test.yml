@@ -76,6 +76,7 @@ jobs:
         run: echo ". /opt/intel/oneapi/setvars.sh" >> /root/.profile
 
       - name: Configure PcapPlusPlus
+        shell: sh -l {0}
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
