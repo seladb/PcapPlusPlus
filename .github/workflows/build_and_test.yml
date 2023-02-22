@@ -73,7 +73,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Test step
-        run: echo ". /opt/intel/oneapi/setvars.sh" >> /root/.profile
+        run: |
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
 
       - name: Configure PcapPlusPlus
         shell: sh -l {0}
