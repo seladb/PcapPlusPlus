@@ -394,7 +394,7 @@ namespace pcpp
 			/** The request message length is longer than the server can process */
 			Sip513MessageTooLarge,
 			/** The server does not support the push notification service identified in a 'pn-provider' SIP URI parameter */
-			Sip555PusNotificationServiceNotSupported,
+			Sip555PushNotificationServiceNotSupported,
 			/** The server is unable or unwilling to meet some constraints specified in the offer */
 			Sip580PreconditionFailure,
 			/** All possible destinations are busy. Unlike the 486 response, this response indicates the destination knows there are no alternative destinations (such as a voicemail server) able to accept the call */

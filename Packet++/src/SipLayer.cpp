@@ -1159,7 +1159,7 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 
 		case '5':
 			if (statusCodeData[2] == '5')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip555PusNotificationServiceNotSupported);
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip555PushNotificationServiceNotSupported);
 			else
 				return SipResponseLayer::SipStatusCodeUnknown;
 
