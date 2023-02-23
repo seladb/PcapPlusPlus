@@ -510,7 +510,7 @@ std::string SipRequestLayer::toString() const
 
 
 
-const std::string StatusCodeEnumToString[74] = {
+const std::string StatusCodeEnumToString[77] = {
 		"Trying",
 		"Ringing",
 		"Call is Being Forwarded",
@@ -591,7 +591,7 @@ const std::string StatusCodeEnumToString[74] = {
 };
 
 
-const int StatusCodeEnumToInt[74] = {
+const int StatusCodeEnumToInt[77] = {
 		100,
 		180,
 		181,
