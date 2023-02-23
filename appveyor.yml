@@ -20,6 +20,8 @@ install:
   - cmd: ci\install_npcap.bat
   - cmd: python -m pip install --upgrade pip
   - cmd: ci\install_tcpreplay.bat
+  - cmd: choco install OpenCppCoverage -y
+  - cmd: set PATH="C:\\Program Files\\OpenCppCoverage";%PATH%
 
 before_build:
   - ps: cmake -A "$env:platform" -G "$env:compiler" -DPCAP_ROOT=C:\Npcap-sdk -S . -B "$env:BUILD_DIR"
@@ -29,8 +31,11 @@ build_script:
 
 test_script:
   - cmd: python -m pip install -r ci\run_tests\requirements.txt
-  - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets
+  - cmd: python ci\run_tests\run_tests_windows.py -s TestRawSockets --coverage
   - cmd: ci\find_ip.bat
   - cmd: cd Tests\ExamplesTest
   - cmd: python -m pip install -r requirements.txt
   - cmd: python -m pytest --interface %NetworkIP% --root-path=..\..\%BUILD_DIR%\examples_bin\%config%
+  - cmd: cd ..\..\
+  - ps: Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile codecov.exe
+  - cmd: .\codecov.exe -v -f ./Tests/Pcap++Test/Pcap++Coverage.xml -f ./Tests/Packet++Test/Packet++Coverage.xml -F vs2017 -F unittest -B %APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH% || ver>nul

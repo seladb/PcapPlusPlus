@@ -1,6 +1,8 @@
 #ifndef PCAPPP_DPDK_DEVICE_LIST
 #define PCAPPP_DPDK_DEVICE_LIST
 
+// GCOVR_EXCL_START
+
 #include "SystemUtils.h"
 #include "DpdkDevice.h"
 #include "Logger.h"
@@ -201,5 +203,7 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPPP_DPDK_DEVICE_LIST */

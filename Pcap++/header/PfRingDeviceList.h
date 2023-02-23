@@ -1,6 +1,8 @@
 #ifndef PCAPPP_PF_RING_DEVICE_LIST
 #define PCAPPP_PF_RING_DEVICE_LIST
 
+// GCOVR_EXCL_START
+
 #include "PfRingDevice.h"
 
 /// @file
@@ -63,5 +65,7 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+// GCOVR_EXCL_STOP
 
 #endif /* PCAPPP_PF_RING_DEVICE_LIST */

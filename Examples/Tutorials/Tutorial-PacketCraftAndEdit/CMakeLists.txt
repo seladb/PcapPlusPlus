@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 project(Tutorial-PacketCraftAndEdit)
 
+# Set C++11
+set(CMAKE_CXX_STANDARD 11)
+# popen()/pclose() are not C++ standards
+set(CMAKE_CXX_EXTENSIONS ON)
+
 add_executable("${PROJECT_NAME}" main.cpp)
 
 if(NOT TARGET PcapPlusPlus::Pcap++)
