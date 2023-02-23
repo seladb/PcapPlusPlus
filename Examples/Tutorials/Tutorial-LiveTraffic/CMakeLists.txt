@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 project(Tutorial-LiveTraffic)
 
+# Set C++11
+set(CMAKE_CXX_STANDARD 11)
+# popen()/pclose() are not C++ standards
+set(CMAKE_CXX_EXTENSIONS ON)
+
 add_executable("${PROJECT_NAME}" main.cpp)
 
 if(NOT TARGET PcapPlusPlus::Pcap++)
@@ -11,10 +16,5 @@ if(NOT TARGET PcapPlusPlus::Pcap++)
 else()
   set_target_properties("${PROJECT_NAME}" PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_TUTORIAL_DIR}")
 endif()
-
-# Set C++11
-set(CMAKE_CXX_STANDARD 11)
-# popen()/pclose() are not C++ standards
-set(CMAKE_CXX_EXTENSIONS ON)
 
 target_link_libraries("${PROJECT_NAME}" PUBLIC PcapPlusPlus::Pcap++)

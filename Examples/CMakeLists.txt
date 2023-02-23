@@ -4,6 +4,11 @@ project(PcapPlusPlusExamples)
 
 set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
+# Set C++11
+set(CMAKE_CXX_STANDARD 11)
+# popen()/pclose() are not C++ standards
+set(CMAKE_CXX_EXTENSIONS ON)
+
 if(TARGET Pcap++)
   # Are we building from the PcapPlusPlus project ??
   message(STATUS "Building Example from PcapPlusPlus project")
@@ -14,11 +19,6 @@ else()
   message(STATUS "Using Pcap++ ${PcapPlusPlus_VERSION}")
   message(STATUS "Include dir: ${PcapPlusPlus_INCLUDE_DIR}")
 endif()
-
-# Set C++11
-set(CMAKE_CXX_STANDARD 11)
-# popen()/pclose() are not C++ standards
-set(CMAKE_CXX_EXTENSIONS ON)
 
 add_subdirectory(Arping)
 add_subdirectory(ArpSpoofing)
