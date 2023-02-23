@@ -329,6 +329,8 @@ namespace pcpp
 			Sip423IntervalTooBrief,
 			/** The request's location content was malformed or otherwise unsatisfactory */
 			Sip424BadLocationInformation,
+			/** The server rejected a non-interactive emergency call, indicating that the request was malformed enough that no reasonable emergency response to the alert can be determined */
+			Sip425BadAlertMessage,
 			/** The server policy requires an Identity header, and one has not been provided */
 			Sip428UseIdentityHeader,
 			/** The server did not receive a valid Referred-By token on the request */
@@ -391,6 +393,8 @@ namespace pcpp
 			Sip505VersionNotSupported,
 			/** The request message length is longer than the server can process */
 			Sip513MessageTooLarge,
+			/** The server does not support the push notification service identified in a 'pn-provider' SIP URI parameter */
+			Sip555PusNotificationServiceNotSupported,
 			/** The server is unable or unwilling to meet some constraints specified in the offer */
 			Sip580PreconditionFailure,
 			/** All possible destinations are busy. Unlike the 486 response, this response indicates the destination knows there are no alternative destinations (such as a voicemail server) able to accept the call */
@@ -403,6 +407,8 @@ namespace pcpp
 			Sip606NotAcceptable,
 			/** The called party did not want this call from the calling party. Future attempts from the calling party are likely to be similarly rejected */
 			Sip607Unwanted,
+			/** An intermediary machine or process rejected the call attempt */
+			Sip608Rejected,
 			/** Unknown SIP status code */
 			SipStatusCodeUnknown
 		};

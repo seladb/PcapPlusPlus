@@ -1024,6 +1024,8 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip423IntervalTooBrief);
 			case '4':
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip424BadLocationInformation);
+			case '5':
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip425BadAlertMessage);
 			case '8':
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip428UseIdentityHeader);
 			case '9':
@@ -1155,6 +1157,14 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 
 			break;
 
+		case '5':
+			if (statusCodeData[2] == '5')
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip555PusNotificationServiceNotSupported);
+			else
+				return SipResponseLayer::SipStatusCodeUnknown;
+
+			break;
+
 		case '8':
 			if (statusCodeData[2] == '0')
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip580PreconditionFailure);
@@ -1184,6 +1194,8 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip606NotAcceptable);
 			case '7':
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip607Unwanted);
+			case '8':
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip608Rejected);
 			default:
 				return SipResponseLayer::SipStatusCodeUnknown;
 			};
