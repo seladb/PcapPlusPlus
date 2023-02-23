@@ -548,6 +548,7 @@ const std::string StatusCodeEnumToString[74] = {
 		"Session Interval Too Small",
 		"Interval Too Brief",
 		"Bad Location Information",
+		"Bad Alert Message",
 		"Use Identity Header",
 		"Provide Referrer Identity",
 		"Flow Failed",
@@ -579,12 +580,14 @@ const std::string StatusCodeEnumToString[74] = {
 		"Server Timeout",
 		"Version Not Supported",
 		"Message Too Large",
+		"Push Notification Service Not Supported",
 		"Precondition Failure",
 		"Busy Everywhere",
 		"Decline",
 		"Does Not Exist Anywhere",
 		"Not Acceptable",
-		"Unwanted"
+		"Unwanted",
+		"Rejected"
 };
 
 
@@ -624,6 +627,7 @@ const int StatusCodeEnumToInt[74] = {
 		420,
 		421,
 		422,
+		425,
 		423,
 		424,
 		428,
@@ -657,12 +661,14 @@ const int StatusCodeEnumToInt[74] = {
 		504,
 		505,
 		513,
+		555,
 		580,
 		600,
 		603,
 		604,
 		606,
-		607
+		607,
+		608
 };
 
 
