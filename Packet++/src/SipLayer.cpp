@@ -510,7 +510,7 @@ std::string SipRequestLayer::toString() const
 
 
 
-const std::string StatusCodeEnumToString[74] = {
+const std::string StatusCodeEnumToString[77] = {
 		"Trying",
 		"Ringing",
 		"Call is Being Forwarded",
@@ -548,6 +548,7 @@ const std::string StatusCodeEnumToString[74] = {
 		"Session Interval Too Small",
 		"Interval Too Brief",
 		"Bad Location Information",
+		"Bad Alert Message",
 		"Use Identity Header",
 		"Provide Referrer Identity",
 		"Flow Failed",
@@ -579,16 +580,18 @@ const std::string StatusCodeEnumToString[74] = {
 		"Server Timeout",
 		"Version Not Supported",
 		"Message Too Large",
+		"Push Notification Service Not Supported",
 		"Precondition Failure",
 		"Busy Everywhere",
 		"Decline",
 		"Does Not Exist Anywhere",
 		"Not Acceptable",
-		"Unwanted"
+		"Unwanted",
+		"Rejected"
 };
 
 
-const int StatusCodeEnumToInt[74] = {
+const int StatusCodeEnumToInt[77] = {
 		100,
 		180,
 		181,
@@ -624,6 +627,7 @@ const int StatusCodeEnumToInt[74] = {
 		420,
 		421,
 		422,
+		425,
 		423,
 		424,
 		428,
@@ -657,12 +661,14 @@ const int StatusCodeEnumToInt[74] = {
 		504,
 		505,
 		513,
+		555,
 		580,
 		600,
 		603,
 		604,
 		606,
-		607
+		607,
+		608
 };
 
 
@@ -1024,6 +1030,8 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip423IntervalTooBrief);
 			case '4':
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip424BadLocationInformation);
+			case '5':
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip425BadAlertMessage);
 			case '8':
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip428UseIdentityHeader);
 			case '9':
@@ -1155,6 +1163,14 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 
 			break;
 
+		case '5':
+			if (statusCodeData[2] == '5')
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip555PushNotificationServiceNotSupported);
+			else
+				return SipResponseLayer::SipStatusCodeUnknown;
+
+			break;
+
 		case '8':
 			if (statusCodeData[2] == '0')
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip580PreconditionFailure);
@@ -1184,6 +1200,8 @@ SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(ch
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip606NotAcceptable);
 			case '7':
 				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip607Unwanted);
+			case '8':
+				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip608Rejected);
 			default:
 				return SipResponseLayer::SipStatusCodeUnknown;
 			};
