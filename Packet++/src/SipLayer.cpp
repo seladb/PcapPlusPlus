@@ -292,7 +292,7 @@ SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t d
 
 void SipRequestFirstLine::parseVersion()
 {
-	if (m_SipRequest->getDataLen() < m_UriOffset)
+	if (m_SipRequest->getDataLen() < static_cast<size_t>(m_UriOffset))
 	{
 		m_Version = "";
 		m_VersionOffset = -1;
