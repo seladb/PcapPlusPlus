@@ -47,6 +47,10 @@ jobs:
           - image: ubuntu2204
             python: python3
             config-zstd: OFF
+          - image: ubuntu2204-icpx
+            python: python3
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
@@ -68,8 +72,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Setup Intel Compiler variables
+        if: contains(matrix.image, 'icpx')
+        run: |
+          . /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+
       - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -92,7 +102,7 @@ jobs:
 
       - name: Build Tutorials
         run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON ${{ matrix.additional-flags }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
