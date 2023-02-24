@@ -204,7 +204,7 @@ endif()
 if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall)
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
