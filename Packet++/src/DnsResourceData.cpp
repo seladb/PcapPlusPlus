@@ -34,7 +34,7 @@ void IDnsResourceData::encodeName(const std::string& decodedName, char* result, 
 }
 
 
-StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
+StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t, IDnsResource* dnsResource)
 {
 	char tempResult[256];
 	decodeName((const char*)dataPtr, tempResult, dnsResource);
@@ -59,7 +59,7 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	m_Data = IPv4Address(addrAsInt);
 }
 
-bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
+bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
 {
 	if (!m_Data.isValid())
 	{
@@ -83,7 +83,7 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	m_Data = IPv6Address((uint8_t*)dataPtr);
 }
 
-bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
+bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
 {
 	if (!m_Data.isValid())
 	{
@@ -96,7 +96,7 @@ bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 	return true;
 }
 
-MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
+MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t, IDnsResource* dnsResource)
 {
 	uint16_t preference = be16toh(*(uint16_t*)dataPtr);
 	char tempMX[256];
@@ -164,7 +164,7 @@ GenericDnsResourceData::GenericDnsResourceData(const std::string& dataAsHexStrin
 	}
 }
 
-GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& other)
+GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& other) : IDnsResourceData()
 {
 	m_DataLen = other.m_DataLen;
 
@@ -204,7 +204,7 @@ std::string GenericDnsResourceData::toString() const
 	return byteArrayToHexString(m_Data, m_DataLen);
 }
 
-bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
+bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
 {
 	if (m_DataLen == 0 || m_Data == nullptr)
 	{

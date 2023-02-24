@@ -205,7 +205,7 @@ namespace pcpp
 
 	bool ESPLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return dataLen >= sizeof(ipsec_esp);
+		return data && dataLen >= sizeof(ipsec_esp);
 	}
 }
 

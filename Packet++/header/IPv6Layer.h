@@ -271,7 +271,7 @@ namespace pcpp
 
 	bool IPv6Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return dataLen >= sizeof(ip6_hdr);
+		return data && dataLen >= sizeof(ip6_hdr);
 	}
 
 } // namespace pcpp
