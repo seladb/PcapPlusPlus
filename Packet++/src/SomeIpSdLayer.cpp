@@ -711,7 +711,7 @@ bool SomeIpSdLayer::addOptionIndex(uint32_t indexEntry, uint32_t indexOffset)
 		return true;
 	}
 
-	if (indexFirstOption + lenFirstOption + 1 == indexOffset)
+	if (static_cast<uint8_t>(indexFirstOption + lenFirstOption + 1) == indexOffset)
 	{
 		++hdrEntry->nrOpt1;
 		return true;
@@ -727,7 +727,7 @@ bool SomeIpSdLayer::addOptionIndex(uint32_t indexEntry, uint32_t indexOffset)
 		return true;
 	}
 
-	if (indexSecondOption + lenSecondOption + 1 == indexOffset)
+	if (static_cast<uint8_t>(indexSecondOption + lenSecondOption + 1) == indexOffset)
 	{
 		++hdrEntry->nrOpt2;
 		return true;
