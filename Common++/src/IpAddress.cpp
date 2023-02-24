@@ -77,7 +77,7 @@ namespace pcpp
 			return false;
 		}
 
-		uint32_t subnetMask = static_cast<uint32_t>(pow(2, subnetPrefix)) - 1;
+		uint32_t subnetMask = pow(2, subnetPrefix) - 1;
 
 		IPv4Address subnetAsIpAddr(subnetOnly);
 		IPv4Address maskAsIpAddr(subnetMask);
