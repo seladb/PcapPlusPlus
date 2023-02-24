@@ -213,14 +213,14 @@ if(MINGW)
   add_link_options(-static)
 endif()
 
-if(WIN32)
+if(PCAPPP_TARGET_COMPILER_MSVC)
   # Disable VS warnings
   # 4068: Unknown pragma
   # 4200: Nonstandard extension used : zero-sized array in struct/union
   # 4244: Conversion from 'type1' to 'type2', possible loss of data
   # 4267: Conversion from 'size_t' to 'type', possible loss of data
   add_definitions("/wd4267 /wd4244 /wd4200 /wd4068")
-endif(WIN32)
+endif()
 
 # Disabled Android for now because ToyVPN build fails with coverage flags
 if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
