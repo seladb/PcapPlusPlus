@@ -106,3 +106,4 @@ endif()
 
 set_property(TARGET Pcap++ PROPERTY OUTPUT_NAME "Pcap++")
 set_property(TARGET Pcap++ PROPERTY VERSION ${PCAPPP_VERSION})
+set_property(TARGET Pcap++ PROPERTY COMPILE_WARNING_AS_ERROR ON)
