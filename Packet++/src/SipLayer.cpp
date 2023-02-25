@@ -846,7 +846,7 @@ void SipResponseFirstLine::setVersion(const std::string& newVersion)
 
 SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::validateStatusCode(char* data, size_t dataLen, SipResponseLayer::SipResponseStatusCode potentialCode)
 {
-	if (data && dataLen && data[0] != ' ')
+	if (data && dataLen > 0 && data[0] != ' ')
 		return SipResponseLayer::SipStatusCodeUnknown;
 
 	return potentialCode;
