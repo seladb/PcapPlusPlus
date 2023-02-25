@@ -38,29 +38,14 @@ namespace pcpp
 	const ProtocolType IPv6 = 0x04;
 
 	/**
-	 * TPKT protocol
-	 */
-	const ProtocolType TPKT = 0x05;
-
-	/**
 	 * IP protocol (aggregation bitmask of IPv4 and IPv6 protocols)
 	 */
 	const ProtocolType IP = 0x06;
 
 	/**
-	 * COTP protocol
-	 */
-	const ProtocolType COTP = 0x07;
-
-	/**
 	 * TCP protocol
 	 */
 	const ProtocolType TCP = 0x08;
-
-	/**
-	 * * S7COMM protocol
-	 */
-	const ProtocolType S7COMM = 0x09;
 
 	/**
 	 * UDP protocol
@@ -306,6 +291,21 @@ namespace pcpp
 	 * Wake On LAN (WOL) Protocol
 	 */
 	const ProtocolType WakeOnLan = 0x200000000000;
+
+	/**
+	 * TPKT protocol
+	 */
+	const ProtocolType TPKT = 0x400000000000;
+
+	/**
+	 * COTP protocol
+	 */
+	const ProtocolType COTP = 0x800000000000;
+
+	/**
+	 * * S7COMM protocol
+	 */
+	const ProtocolType S7COMM = 0x1000000000000;
 
 	/**
 	 * An enum representing OSI model layers
