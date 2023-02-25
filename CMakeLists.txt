@@ -177,7 +177,7 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
-  # Disable deprecated warnings since DPDK warnings are treated as errors
+  # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
   add_definitions("-Wno-deprecated-declarations")
   set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
