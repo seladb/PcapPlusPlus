@@ -341,7 +341,7 @@ jobs:
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
@@ -380,6 +380,13 @@ jobs:
           flags: ${{ matrix.sys }},unittest
           fail_ci_if_error: false
           verbose: true
+
+      - name: Package
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.BUILD_DIR }}/*.tar.gz
 
   visual-studio:
     strategy:
@@ -441,7 +448,7 @@ jobs:
         if: matrix.use_zstd == true
 
       - name: Configure PcapPlusPlus
-        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B $env:BUILD_DIR
+        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DPCAPPP_PACKAGE=ON -S . -B $env:BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $env:BUILD_DIR -j
@@ -468,6 +475,13 @@ jobs:
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
           fail_ci_if_error: false
           verbose: true
+
+      - name: Package
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.BUILD_DIR }}/*.tar.gz
 
   android:
     strategy:
