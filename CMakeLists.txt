@@ -179,8 +179,6 @@ if(PCAPPP_USE_DPDK)
   add_definitions(-DUSE_DPDK)
   set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
-  # Disable deprecated warnings since DPDK warnings are treated as errors
-  add_definitions("-Wno-deprecated")
 endif()
 
 # Git Commit and Branch
@@ -206,7 +204,9 @@ endif()
 if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
-  add_compile_options(-Wall)
+  add_compile_options(-Wall) 
+  # Disable deprecated warnings since DPDK warnings are treated as errors
+  add_definitions("-Wno-deprecated")
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
