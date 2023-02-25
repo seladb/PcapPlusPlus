@@ -179,6 +179,8 @@ if(PCAPPP_USE_DPDK)
   add_definitions(-DUSE_DPDK)
   set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
+  # Disable deprecated warnings since DPDK warnings are treated as errors
+  add_definitions("-Wno-deprecated")
 endif()
 
 # Git Commit and Branch
