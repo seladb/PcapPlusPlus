@@ -177,6 +177,8 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
+  # Disable deprecated warnings since DPDK warnings are treated as errors
+  add_definitions("-Wno-deprecated-declarations")
   set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
@@ -204,9 +206,7 @@ endif()
 if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
-  add_compile_options(-Wall) 
-  # Disable deprecated warnings since DPDK warnings are treated as errors
-  add_definitions("-Wno-deprecated-declarations")
+  add_compile_options(-Wall)
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
