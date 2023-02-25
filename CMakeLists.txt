@@ -206,7 +206,7 @@ if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall) 
   # Disable deprecated warnings since DPDK warnings are treated as errors
-  add_definitions("-Wno-deprecated")
+  add_definitions("-Wno-deprecated-declarations")
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
