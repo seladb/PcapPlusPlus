@@ -34,11 +34,16 @@ void IDnsResourceData::encodeName(const std::string& decodedName, char* result, 
 }
 
 
-StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t, IDnsResource* dnsResource)
+StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 {
-	char tempResult[256];
-	decodeName((const char*)dataPtr, tempResult, dnsResource);
-	m_Data = tempResult;
+	if (dataPtr && dataLen > 0)
+	{
+		char tempResult[256];
+		decodeName((const char*)dataPtr, tempResult, dnsResource);
+		m_Data = tempResult;
+	}
+	else
+		PCPP_LOG_ERROR("Cannot decode name, dataPtr is NULL or length is 0");
 }
 
 bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
@@ -96,13 +101,18 @@ bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResourc
 	return true;
 }
 
-MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t, IDnsResource* dnsResource)
+MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 {
-	uint16_t preference = be16toh(*(uint16_t*)dataPtr);
-	char tempMX[256];
-	decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
-	m_Data.preference = preference;
-	m_Data.mailExchange = tempMX;
+	if (dataPtr && dataLen > 0)
+	{
+		uint16_t preference = be16toh(*(uint16_t*)dataPtr);
+		char tempMX[256];
+		decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
+		m_Data.preference = preference;
+		m_Data.mailExchange = tempMX;
+	}
+	else
+		PCPP_LOG_ERROR("Cannot decode name, dataPtr is NULL or length is 0");
 }
 
 MxDnsResourceData::MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange)
