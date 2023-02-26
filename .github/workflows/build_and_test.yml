@@ -62,9 +62,9 @@ jobs:
             python: python3.8
             test-flags: --test-args="-s"
             config-zstd: OFF
-#          - image: fedora37
-#            python: python3
-#           config-zstd: OFF
+          - image: fedora37
+            python: python3
+            config-zstd: OFF
           - image: alpine317
             python: python3
             config-zstd: OFF
