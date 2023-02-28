@@ -105,7 +105,7 @@ namespace pcpp
 
 		/**
 		 * A static method that checks whether a source or dest port match those associated with the S7COMM protocol
-		 * @param[in] value of the number to check
+		 * @param[in] type the value of the number to check
 		 * @return True if the source or dest port match those associated with the S7COMM protocol
 		 */
 		static bool isS7commPort(uint8_t type) { return type == 0x32; }

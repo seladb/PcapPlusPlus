@@ -81,10 +81,9 @@ namespace pcpp {
 		static bool isDataValid(const uint8_t *data, size_t dataSize) {	return data && dataSize; }
 
 		/**
-		 * A static method that checks whether a source or dest port match those associated with the COTP protocol
-		 * @param[in] portSrc Source port number to check
-	 	 * @param[in] portDst Dest port number to check
-	 	 * @return True if the source or dest port match those associated with the COTP protocol
+		 * A static method that checks whether a source or dest port match those associated with the COTP
+		 * @param[in] cotpType type of the COTP
+	 	 * @return True if the type matches that associated with the COTP
 		 */
 		static bool isCotpPort(uint8_t cotpType) { return cotpType == 0x06 || cotpType == 0xf0; }
 
