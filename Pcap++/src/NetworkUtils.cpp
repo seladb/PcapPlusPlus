@@ -41,7 +41,7 @@ struct ArpingReceivedData
 };
 
 
-static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie)
+static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice*, void* userCookie)
 {
 	// extract timestamp of packet
 	clock_t receiveTime = clock();
@@ -207,7 +207,7 @@ struct DNSReceivedData
 	double dnsResponseTime;
 };
 
-static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice* device, void* userCookie)
+static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*, void* userCookie)
 {
 	// extract timestamp of packet
 	clock_t receiveTime = clock();

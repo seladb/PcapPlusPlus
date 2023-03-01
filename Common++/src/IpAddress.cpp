@@ -63,10 +63,10 @@ namespace pcpp
 		uint32_t subnetPrefix;
 		try {
 			subnetPrefix = std::stoi(subnetPrefixStr);
-		} catch (const std::invalid_argument& e) {
+		} catch (const std::invalid_argument&) {
 			PCPP_LOG_ERROR("Subnet prefix in '" << subnet << "' must be an integer");
 			return false;
-		} catch (const std::out_of_range& e) {
+		} catch (const std::out_of_range&) {
 			PCPP_LOG_ERROR("Subnet prefix in '" << subnet << "' must be between 0 and 32");
 			return false;
 		}

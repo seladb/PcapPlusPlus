@@ -177,7 +177,7 @@ void IPv4Layer::initLayer()
 	m_TempHeaderExtension = 0;
 }
 
-void IPv4Layer::initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen)
+void IPv4Layer::initLayerInPacket(bool setTotalLenAsDataLen)
 {
 	m_Protocol = IPv4;
 	m_NumOfTrailingBytes = 0;
@@ -206,12 +206,12 @@ IPv4Layer::IPv4Layer()
 
 IPv4Layer::IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen) : Layer(data, dataLen, prevLayer, packet)
 {
-	initLayerInPacket(data, dataLen, prevLayer, packet, setTotalLenAsDataLen);
+	initLayerInPacket(setTotalLenAsDataLen);
 }
 
 IPv4Layer::IPv4Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
-	initLayerInPacket(data, dataLen, prevLayer, packet, true);
+	initLayerInPacket(true);
 }
 
 IPv4Layer::IPv4Layer(const IPv4Address& srcIP, const IPv4Address& dstIP)

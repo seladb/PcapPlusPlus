@@ -143,3 +143,4 @@ endif()
 
 set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "Packet++")
 set_property(TARGET Packet++ PROPERTY VERSION ${PCAPPP_VERSION})
+set_property(TARGET Packet++ PROPERTY COMPILE_WARNING_AS_ERROR ON)

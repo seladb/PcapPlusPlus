@@ -640,7 +640,7 @@ namespace pcpp
 		IPv4Option addOptionAt(const IPv4OptionBuilder& optionBuilder, int offset);
 		void adjustOptionsTrailer(size_t totalOptSize);
 		void initLayer();
-		void initLayerInPacket(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, bool setTotalLenAsDataLen);
+		void initLayerInPacket(bool setTotalLenAsDataLen);
 	};
 
 

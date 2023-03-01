@@ -177,6 +177,8 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
+  # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
+  add_definitions("-Wno-deprecated-declarations")
   set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
@@ -211,6 +213,12 @@ endif()
 if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
   add_link_options(-static)
+endif()
+
+if(PCAPPP_TARGET_COMPILER_MSVC)
+  # Disable VS warnings: Unknown pragma (4068), Zero-sized array in struct/union (4200), Possible loss of data (4244),
+  # Possible loss of data (4267)
+  add_definitions("/wd4068 /wd4200 /wd4244 /wd4267")
 endif()
 
 # Disabled Android for now because ToyVPN build fails with coverage flags

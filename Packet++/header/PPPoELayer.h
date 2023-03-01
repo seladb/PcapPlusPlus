@@ -426,12 +426,12 @@ namespace pcpp
 
 	bool PPPoESessionLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return dataLen >= sizeof(pppoe_header) + sizeof(uint16_t);
+		return data && dataLen >= sizeof(pppoe_header) + sizeof(uint16_t);
 	}
 
 	bool PPPoEDiscoveryLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return dataLen >= sizeof(pppoe_header);
+		return data && dataLen >= sizeof(pppoe_header);
 	}
 
 	// Copied from Wireshark: ppptypes.h
