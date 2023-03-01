@@ -557,7 +557,7 @@ namespace pcpp
 	bool DnsLayer::isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp)
 	{
 		size_t minSize = sizeof(dnshdr) + (dnsOverTcp ? sizeof(uint16_t) : 0);
-		return dataLen >= minSize;
+		return data && dataLen >= minSize;
 	}
 
 } // namespace pcpp
