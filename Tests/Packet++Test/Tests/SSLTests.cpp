@@ -260,7 +260,7 @@ PTF_TEST_CASE(SSLAlertParsingTest)
 
 
 /**
- * Testing: server-hello, change-cipher-spec, hello-request
+ * Testing: server-hello, change-cipher-spec, encrypted handshake message
  */
 PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 {
@@ -311,21 +311,11 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest)
 
 	handshakeLayer = multipleRecordsPacket.getNextLayerOfType<pcpp::SSLHandshakeLayer>(handshakeLayer);
 	PTF_ASSERT_NOT_NULL(handshakeLayer);
-	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 3);
-	pcpp::SSLHelloRequestMessage* helloRequest = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLHelloRequestMessage>();
-	PTF_ASSERT_NOT_NULL(helloRequest);
-	PTF_ASSERT_EQUAL(helloRequest->getHandshakeType(), pcpp::SSL_HELLO_REQUEST, enum);
-	PTF_ASSERT_EQUAL(helloRequest->getMessageLength(), 4);
-	pcpp::SSLHelloRequestMessage* helloRequest2 = handshakeLayer->getNextHandshakeMessageOfType<pcpp::SSLHelloRequestMessage>(helloRequest);
-	PTF_ASSERT_NOT_NULL(helloRequest2);
-	PTF_ASSERT_TRUE(helloRequest2 != helloRequest);
-	PTF_ASSERT_EQUAL(helloRequest2->getHandshakeType(), pcpp::SSL_HELLO_REQUEST, enum);
-	PTF_ASSERT_EQUAL(helloRequest2->getMessageLength(), 4);
-	helloRequest2 = handshakeLayer->getNextHandshakeMessageOfType<pcpp::SSLHelloRequestMessage>(helloRequest2);
-	PTF_ASSERT_NULL(helloRequest2);
-	PTF_ASSERT_NOT_NULL(handshakeLayer->getHandshakeMessageAt(2));
-	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessageAt(2)->getHandshakeType(), pcpp::SSL_HANDSHAKE_UNKNOWN, enum);
-	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessageAt(2)->getMessageLength(), 32);
+	PTF_ASSERT_EQUAL(handshakeLayer->getHandshakeMessagesCount(), 1);
+	pcpp::SSLUnknownMessage* unknownMessage = handshakeLayer->getHandshakeMessageOfType<pcpp::SSLUnknownMessage>();
+	PTF_ASSERT_NOT_NULL(unknownMessage);
+	PTF_ASSERT_EQUAL(unknownMessage->getHandshakeType(), pcpp::SSL_HANDSHAKE_UNKNOWN, enum);
+	PTF_ASSERT_EQUAL(unknownMessage->getMessageLength(), 40);
 } // SSLMultipleRecordParsingTest
 
 
