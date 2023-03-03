@@ -1229,18 +1229,15 @@ SSLHandshakeMessage* SSLHandshakeMessage::createHandshakeMessage(uint8_t* data, 
 
 	ssl_tls_handshake_layer* hsMsgHeader = (ssl_tls_handshake_layer*)data;
 
-	if (dataLen >= 16)
-	{
-		if (*(uint64_t*)data <= 0xFFFFFF || hsMsgHeader->length1 >= 1)
-			// possibly Encrypted Handshake Message
-			// used heuristic:
-			// - first 5 bytes of the handshake message are zeroes
-			// - or wrong message length is over 64K
-			// - handshake layer of more than 16 byte
-			// - or message type makes so sense (handled through the switch statement)
-			return new SSLUnknownMessage(data, dataLen, container);
-	}
-	
+	if (dataLen >= 16 && (be64toh(*(uint64_t*)data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
+		// possibly Encrypted Handshake Message
+		// used heuristic:
+		// - handshake layer of more than 16 byte
+		// - first 5 bytes of the handshake message are zeroes
+		// - or wrong message length is over 64K
+		// - or message type makes so sense (handled through the switch statement)
+		return new SSLUnknownMessage(data, dataLen, container);
+
 	switch (hsMsgHeader->handshakeType)
 	{
 	case SSL_CLIENT_HELLO:
