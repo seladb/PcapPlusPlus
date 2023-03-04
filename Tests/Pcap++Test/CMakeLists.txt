@@ -13,6 +13,7 @@ add_executable(
   Tests/PacketParsingTests.cpp
   Tests/PfRingTests.cpp
   Tests/RawSocketTests.cpp
+  Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp)
 
 target_link_libraries(
