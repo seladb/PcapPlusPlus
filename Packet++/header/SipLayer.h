@@ -667,9 +667,6 @@ namespace pcpp
 		SipResponseFirstLine(SipResponseLayer* sipResponse);
 		SipResponseFirstLine(SipResponseLayer* sipResponse,  const std::string& version, SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "");
 
-		static SipResponseLayer::SipResponseStatusCode validateStatusCode(char* data, size_t dataLen, SipResponseLayer::SipResponseStatusCode potentialCode);
-
-
 		SipResponseLayer* m_SipResponse;
 		std::string m_Version;
 		SipResponseLayer::SipResponseStatusCode m_StatusCode;
