@@ -101,3 +101,6 @@ PTF_TEST_CASE(TestKniDeviceSendReceive);
 
 // Implemented in RawSocketTests.cpp
 PTF_TEST_CASE(TestRawSockets);
+
+// Implemented in SystemUtilsTests.cpp
+PTF_TEST_CASE(TestSystemCoreUtils);
