@@ -287,6 +287,8 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 
+	PTF_RUN_TEST(TestSystemCoreUtils, "no_network;system_utils");
+
 	PTF_END_RUNNING_TESTS;
 }
 
