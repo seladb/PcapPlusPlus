@@ -193,7 +193,8 @@ catch(...)
 {
 	std::terminate();
 }
-SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t dataLen)
+
+SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(const char* data, size_t dataLen)
 {
 	if (!data || dataLen < 4)
 	{
@@ -854,15 +855,15 @@ void SipResponseFirstLine::setVersion(const std::string& newVersion)
 	m_Version = newVersion;
 }
 
-SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(char* data, size_t dataLen)
+SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
 {
-	// minimum data should be 12B long: "SIP/x.y XXX"
+	// minimum data should be 12B long: "SIP/x.y XXX "
 	if (!data || dataLen < 12)
 	{
 		return SipResponseLayer::SipStatusCodeUnknown;
 	}
 
-	char* statusCodeData = data + 8;
+	const char* statusCodeData = data + 8;
 	if (statusCodeData[3] != ' ')
 	{
 		return SipResponseLayer::SipStatusCodeUnknown;
@@ -943,11 +944,11 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse,  const
 	m_IsComplete = true;
 }
 
-std::string SipResponseFirstLine::parseVersion(char* data, size_t dataLen)
+std::string SipResponseFirstLine::parseVersion(const char* data, size_t dataLen)
 {
-	if (dataLen < 7) // "SIP/x.y"
+	if (!data || dataLen < 8) // "SIP/x.y "
 	{
-		PCPP_LOG_DEBUG("SIP response length < 7, cannot identify version");
+		PCPP_LOG_DEBUG("SIP response length < 8, cannot identify version");
 		return "";
 	}
 
