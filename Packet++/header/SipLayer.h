@@ -514,7 +514,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed SIP method
 		 */
-		static SipRequestLayer::SipMethod parseMethod(char* data, size_t dataLen);
+		static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the SIP request first line
@@ -621,7 +621,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed SIP status code as enum
 		 */
-		static SipResponseLayer::SipResponseStatusCode parseStatusCode(char* data, size_t dataLen);
+		static SipResponseLayer::SipResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
 
 		/**
 		 * A static method for parsing the SIP version out of raw data
@@ -629,7 +629,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed SIP version string or an empty string if version cannot be extracted
 		 */
-		static std::string parseVersion(char* data, size_t dataLen);
+		static std::string parseVersion(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the SIP response first line
@@ -666,9 +666,6 @@ namespace pcpp
 	private:
 		SipResponseFirstLine(SipResponseLayer* sipResponse);
 		SipResponseFirstLine(SipResponseLayer* sipResponse,  const std::string& version, SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "");
-
-		static SipResponseLayer::SipResponseStatusCode validateStatusCode(char* data, size_t dataLen, SipResponseLayer::SipResponseStatusCode potentialCode);
-
 
 		SipResponseLayer* m_SipResponse;
 		std::string m_Version;

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <exception>
 #include <utility>
+#include <unordered_map>
 
 namespace pcpp
 {
@@ -29,6 +30,23 @@ const std::string SipMethodEnumToString[14] = {
 		"REFER",
 		"MESSAGE",
 		"UPDATE"
+};
+
+const std::unordered_map<std::string, SipRequestLayer::SipMethod> SipMethodStringToEnum {
+	{"INVITE", SipRequestLayer::SipMethod::SipINVITE },
+	{"ACK", SipRequestLayer::SipMethod::SipACK },
+	{"BYE", SipRequestLayer::SipMethod::SipBYE },
+	{"CANCEL", SipRequestLayer::SipMethod::SipCANCEL },
+	{"REGISTER", SipRequestLayer::SipMethod::SipREGISTER },
+	{"PRACK", SipRequestLayer::SipMethod::SipPRACK },
+	{"OPTIONS", SipRequestLayer::SipMethod::SipOPTIONS },
+	{"SUBSCRIBE", SipRequestLayer::SipMethod::SipSUBSCRIBE },
+	{"NOTIFY", SipRequestLayer::SipMethod::SipNOTIFY },
+	{"PUBLISH", SipRequestLayer::SipMethod::SipPUBLISH },
+	{"INFO", SipRequestLayer::SipMethod::SipINFO },
+	{"REFER", SipRequestLayer::SipMethod::SipREFER },
+	{"MESSAGE", SipRequestLayer::SipMethod::SipMESSAGE },
+	{"UPDATE", SipRequestLayer::SipMethod::SipUPDATE },
 };
 
 
@@ -175,119 +193,31 @@ catch(...)
 {
 	std::terminate();
 }
-SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(char* data, size_t dataLen)
+
+SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(const char* data, size_t dataLen)
 {
-	if (dataLen < 4)
+	if (!data || dataLen < 4)
 	{
 		return SipRequestLayer::SipMethodUnknown;
 	}
 
-	switch (data[0])
+	size_t spaceIndex = 0;
+	while (spaceIndex < dataLen && data[spaceIndex] != ' ' )
 	{
-	case 'A':
-		if (data[1] == 'C' && data[2] == 'K' && data[3] == ' ')
-			return SipRequestLayer::SipACK;
-		else
-			return SipRequestLayer::SipMethodUnknown;
-		break;
+		spaceIndex++;
+	}
 
-	case 'B':
-		if (data[1] == 'Y' && data[2] == 'E' && data[3] == ' ')
-			return SipRequestLayer::SipBYE;
-		else
-			return SipRequestLayer::SipMethodUnknown;
-		break;
-
-	case 'C':
-		if (dataLen < 7)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'A' && data[2] == 'N' && data[3] == 'C' && data[4] == 'E' && data[5] == 'L' && data[6] == ' ')
-			return SipRequestLayer::SipCANCEL;
-		else
-			return SipRequestLayer::SipMethodUnknown;
-		break;
-
-	case 'O':
-		if (dataLen < 8)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'P' && data[2] == 'T' && data[3] == 'I' && data[4] == 'O' && data[5] == 'N' && data[6] == 'S' && data[7] == ' ')
-			return SipRequestLayer::SipOPTIONS;
-		else
-			return SipRequestLayer::SipMethodUnknown;
-		break;
-
-
-	case 'R':
-		if (dataLen < 6)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'E' && data[2] == 'F' && data[3] == 'E' && data[4] == 'R' && data[5] == ' ')
-			return SipRequestLayer::SipREFER;
-		else if (dataLen < 9)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'E' && data[2] == 'G' && data[3] == 'I' && data[4] == 'S' && data[5] == 'T' && data[6] == 'E' && data[7] == 'R' && data[8] == ' ')
-			return SipRequestLayer::SipREGISTER;
-		else
-			return SipRequestLayer::SipMethodUnknown;
-		break;
-
-	case 'P':
-		if (dataLen < 6)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'R' && data[2] == 'A' && data[3] == 'C' && data[4] == 'K' && data[5] == ' ')
-			return SipRequestLayer::SipPRACK;
-		else if (dataLen < 8)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'U' && data[2] == 'B' && data[3] == 'L' && data[4] == 'I' && data[5] == 'S' && data[6] == 'H' && data[7] == ' ')
-			return SipRequestLayer::SipPUBLISH;
-		break;
-
-	case 'S':
-		if (dataLen < 10)
-			return SipRequestLayer::SipMethodUnknown;
-
-		else if (data[1] == 'U' && data[2] == 'B' && data[3] == 'S' && data[4] == 'C' && data[5] == 'R' && data[6] == 'I' && data[7] == 'B' && data[8] == 'E' && data[9] == ' ')
-			return SipRequestLayer::SipSUBSCRIBE;
-		break;
-
-	case 'N':
-		if (dataLen < 7)
-			return SipRequestLayer::SipMethodUnknown;
-
-		else if (data[1] == 'O' && data[2] == 'T' && data[3] == 'I' && data[4] == 'F' && data[5] == 'Y' && data[6] == ' ')
-			return SipRequestLayer::SipNOTIFY;
-		break;
-
-	case 'I':
-		if (data[1] == 'N' && data[2] == 'F' && data[3] == 'O')
-			return SipRequestLayer::SipINFO;
-		else if (dataLen < 7)
-			return SipRequestLayer::SipMethodUnknown;
-		else if (data[1] == 'N' && data[2] == 'V' && data[3] == 'I' && data[4] == 'T' && data[5] == 'E' && data[6] == ' ')
-			return SipRequestLayer::SipINVITE;
-		break;
-
-	case 'M':
-		if (dataLen < 8)
-			return SipRequestLayer::SipMethodUnknown;
-
-		else if (data[1] == 'E' && data[2] == 'S' && data[3] == 'S' && data[4] == 'A' && data[5] == 'G' && data[6] == 'E' && data[7] == ' ')
-			return SipRequestLayer::SipMESSAGE;
-		break;
-
-	case 'U':
-		if (dataLen < 7)
-			return SipRequestLayer::SipMethodUnknown;
-
-		else if (data[1] == 'P' && data[2] == 'D' && data[3] == 'A' && data[4] == 'T' && data[5] == 'E' && data[6] == ' ')
-			return SipRequestLayer::SipUPDATE;
-		break;
-
-
-	default:
+	if (spaceIndex == 0 || spaceIndex == dataLen)
+	{
 		return SipRequestLayer::SipMethodUnknown;
 	}
 
-	return SipRequestLayer::SipMethodUnknown;
+	auto methodAdEnum = SipMethodStringToEnum.find(std::string(data, data + spaceIndex));
+	if (methodAdEnum == SipMethodStringToEnum.end())
+	{
+		return SipRequestLayer::SipMethodUnknown;
+	}
+	return methodAdEnum->second;
 }
 
 void SipRequestFirstLine::parseVersion()
@@ -672,6 +602,87 @@ const int StatusCodeEnumToInt[77] = {
 };
 
 
+const std::unordered_map<std::string, SipResponseLayer::SipResponseStatusCode> StatusCodeStringToEnumMap {
+	{"100", SipResponseLayer::SipResponseStatusCode::Sip100Trying },
+	{"180", SipResponseLayer::SipResponseStatusCode::Sip180Ringing },
+	{"181", SipResponseLayer::SipResponseStatusCode::Sip181CallisBeingForwarded },
+	{"182", SipResponseLayer::SipResponseStatusCode::Sip182Queued },
+	{"183", SipResponseLayer::SipResponseStatusCode::Sip183SessioninProgress },
+	{"199", SipResponseLayer::SipResponseStatusCode::Sip199EarlyDialogTerminated },
+	{"200", SipResponseLayer::SipResponseStatusCode::Sip200OK },
+	{"202", SipResponseLayer::SipResponseStatusCode::Sip202Accepted },
+	{"204", SipResponseLayer::SipResponseStatusCode::Sip204NoNotification },
+	{"300", SipResponseLayer::SipResponseStatusCode::Sip300MultipleChoices },
+	{"301", SipResponseLayer::SipResponseStatusCode::Sip301MovedPermanently },
+	{"302", SipResponseLayer::SipResponseStatusCode::Sip302MovedTemporarily },
+	{"305", SipResponseLayer::SipResponseStatusCode::Sip305UseProxy },
+	{"380", SipResponseLayer::SipResponseStatusCode::Sip380AlternativeService },
+	{"400", SipResponseLayer::SipResponseStatusCode::Sip400BadRequest },
+	{"401", SipResponseLayer::SipResponseStatusCode::Sip401Unauthorized },
+	{"402", SipResponseLayer::SipResponseStatusCode::Sip402PaymentRequired },
+	{"403", SipResponseLayer::SipResponseStatusCode::Sip403Forbidden },
+	{"404", SipResponseLayer::SipResponseStatusCode::Sip404NotFound },
+	{"405", SipResponseLayer::SipResponseStatusCode::Sip405MethodNotAllowed },
+	{"406", SipResponseLayer::SipResponseStatusCode::Sip406NotAcceptable },
+	{"407", SipResponseLayer::SipResponseStatusCode::Sip407ProxyAuthenticationRequired },
+	{"408", SipResponseLayer::SipResponseStatusCode::Sip408RequestTimeout },
+	{"409", SipResponseLayer::SipResponseStatusCode::Sip409Conflict },
+	{"410", SipResponseLayer::SipResponseStatusCode::Sip410Gone },
+	{"411", SipResponseLayer::SipResponseStatusCode::Sip411LengthRequired },
+	{"412", SipResponseLayer::SipResponseStatusCode::Sip412ConditionalRequestFailed },
+	{"413", SipResponseLayer::SipResponseStatusCode::Sip413RequestEntityTooLarge },
+	{"414", SipResponseLayer::SipResponseStatusCode::Sip414RequestURITooLong },
+	{"415", SipResponseLayer::SipResponseStatusCode::Sip415UnsupportedMediaType },
+	{"416", SipResponseLayer::SipResponseStatusCode::Sip416UnsupportedURIScheme },
+	{"417", SipResponseLayer::SipResponseStatusCode::Sip417UnknownResourcePriority },
+	{"420", SipResponseLayer::SipResponseStatusCode::Sip420BadExtension },
+	{"421", SipResponseLayer::SipResponseStatusCode::Sip421ExtensionRequired },
+	{"422", SipResponseLayer::SipResponseStatusCode::Sip422SessionIntervalTooSmall },
+	{"423", SipResponseLayer::SipResponseStatusCode::Sip423IntervalTooBrief },
+	{"424", SipResponseLayer::SipResponseStatusCode::Sip424BadLocationInformation },
+	{"425", SipResponseLayer::SipResponseStatusCode::Sip425BadAlertMessage },
+	{"428", SipResponseLayer::SipResponseStatusCode::Sip428UseIdentityHeader },
+	{"429", SipResponseLayer::SipResponseStatusCode::Sip429ProvideReferrerIdentity },
+	{"430", SipResponseLayer::SipResponseStatusCode::Sip430FlowFailed },
+	{"433", SipResponseLayer::SipResponseStatusCode::Sip433AnonymityDisallowed },
+	{"436", SipResponseLayer::SipResponseStatusCode::Sip436BadIdentityInfo },
+	{"437", SipResponseLayer::SipResponseStatusCode::Sip437UnsupportedCertificate },
+	{"438", SipResponseLayer::SipResponseStatusCode::Sip438InvalidIdentityHeader },
+	{"439", SipResponseLayer::SipResponseStatusCode::Sip439FirstHopLacksOutboundSupport },
+	{"440", SipResponseLayer::SipResponseStatusCode::Sip440MaxBreadthExceeded },
+	{"469", SipResponseLayer::SipResponseStatusCode::Sip469BadInfoPackage },
+	{"470", SipResponseLayer::SipResponseStatusCode::Sip470ConsentNeeded },
+	{"480", SipResponseLayer::SipResponseStatusCode::Sip480TemporarilyUnavailable },
+	{"481", SipResponseLayer::SipResponseStatusCode::Sip481Call_TransactionDoesNotExist },
+	{"482", SipResponseLayer::SipResponseStatusCode::Sip482LoopDetected },
+	{"483", SipResponseLayer::SipResponseStatusCode::Sip483TooManyHops },
+	{"484", SipResponseLayer::SipResponseStatusCode::Sip484AddressIncomplete },
+	{"485", SipResponseLayer::SipResponseStatusCode::Sip485Ambiguous },
+	{"486", SipResponseLayer::SipResponseStatusCode::Sip486BusyHere },
+	{"487", SipResponseLayer::SipResponseStatusCode::Sip487RequestTerminated },
+	{"488", SipResponseLayer::SipResponseStatusCode::Sip488NotAcceptableHere },
+	{"489", SipResponseLayer::SipResponseStatusCode::Sip489BadEvent },
+	{"491", SipResponseLayer::SipResponseStatusCode::Sip491RequestPending },
+	{"493", SipResponseLayer::SipResponseStatusCode::Sip493Undecipherable },
+	{"494", SipResponseLayer::SipResponseStatusCode::Sip494SecurityAgreementRequired },
+	{"500", SipResponseLayer::SipResponseStatusCode::Sip500ServerInternalError },
+	{"501", SipResponseLayer::SipResponseStatusCode::Sip501NotImplemented },
+	{"502", SipResponseLayer::SipResponseStatusCode::Sip502BadGateway },
+	{"503", SipResponseLayer::SipResponseStatusCode::Sip503ServiceUnavailable },
+	{"504", SipResponseLayer::SipResponseStatusCode::Sip504ServerTimeout },
+	{"505", SipResponseLayer::SipResponseStatusCode::Sip505VersionNotSupported },
+	{"513", SipResponseLayer::SipResponseStatusCode::Sip513MessageTooLarge },
+	{"555", SipResponseLayer::SipResponseStatusCode::Sip555PushNotificationServiceNotSupported },
+	{"580", SipResponseLayer::SipResponseStatusCode::Sip580PreconditionFailure },
+	{"600", SipResponseLayer::SipResponseStatusCode::Sip600BusyEverywhere },
+	{"603", SipResponseLayer::SipResponseStatusCode::Sip603Decline },
+	{"604", SipResponseLayer::SipResponseStatusCode::Sip604DoesNotExistAnywhere },
+	{"606", SipResponseLayer::SipResponseStatusCode::Sip606NotAcceptable },
+	{"607", SipResponseLayer::SipResponseStatusCode::Sip607Unwanted },
+	{"608", SipResponseLayer::SipResponseStatusCode::Sip608Rejected },
+};
+
+
 
 SipResponseLayer::SipResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : SipLayer(data, dataLen, prevLayer, packet)
 {
@@ -844,378 +855,26 @@ void SipResponseFirstLine::setVersion(const std::string& newVersion)
 	m_Version = newVersion;
 }
 
-SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::validateStatusCode(char* data, size_t dataLen, SipResponseLayer::SipResponseStatusCode potentialCode)
+SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
 {
-	if (data && dataLen > 0 && data[0] != ' ')
-		return SipResponseLayer::SipStatusCodeUnknown;
-
-	return potentialCode;
-}
-
-SipResponseLayer::SipResponseStatusCode SipResponseFirstLine::parseStatusCode(char* data, size_t dataLen)
-{
-	// minimum data should be 12B long: "SIP/x.y XXX"
-	if (dataLen < 12)
-		return SipResponseLayer::SipStatusCodeUnknown;
-
-	char* statusCodeData = data + 8;
-	size_t statusCodeDataLen = dataLen - 8;
-
-	switch (statusCodeData[0])
+	// minimum data should be 12B long: "SIP/x.y XXX "
+	if (!data || dataLen < 12)
 	{
-	case '1':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			if (statusCodeData[2] == '0')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip100Trying);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-		case '8':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip180Ringing);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip181CallisBeingForwarded);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip182Queued);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip183SessioninProgress);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-			};
-			break;
-
-		case '9':
-			if (statusCodeData[2] == '9')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip199EarlyDialogTerminated);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-			break;
-
-		default:
-			return SipResponseLayer::SipStatusCodeUnknown;
-		};
-
-		break;
-	case '2':
-		if (statusCodeData[1] == '0')
-		{
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip200OK);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip202Accepted);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip204NoNotification);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			};
-		}
-		else
-			return SipResponseLayer::SipStatusCodeUnknown;
-
-		break;
-
-	case '3':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip300MultipleChoices);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip301MovedPermanently);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip302MovedTemporarily);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip305UseProxy);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '8':
-			if (statusCodeData[2] == '0')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip380AlternativeService);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-
-		default:
-			return SipResponseLayer::SipStatusCodeUnknown;
-		};
-
-		break;
-
-	case '4':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip400BadRequest);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip401Unauthorized);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip402PaymentRequired);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip403Forbidden);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip404NotFound);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip405MethodNotAllowed);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip406NotAcceptable);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip407ProxyAuthenticationRequired);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip408RequestTimeout);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip409Conflict);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '1':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip410Gone);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip411LengthRequired);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip412ConditionalRequestFailed);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip413RequestEntityTooLarge);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip414RequestURITooLong);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip415UnsupportedMediaType);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip416UnsupportedURIScheme);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip417UnknownResourcePriority);
-			case '8':
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '2':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip420BadExtension);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip421ExtensionRequired);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip422SessionIntervalTooSmall);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip423IntervalTooBrief);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip424BadLocationInformation);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip425BadAlertMessage);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip428UseIdentityHeader);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip429ProvideReferrerIdentity);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '3':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip430FlowFailed);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip433AnonymityDisallowed);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip436BadIdentityInfo);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip437UnsupportedCertificate);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip438InvalidIdentityHeader);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip439FirstHopLacksOutboundSupport);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-			};
-
-			break;
-
-		case '4':
-			if (statusCodeData[2] == '0')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip440MaxBreadthExceeded);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-
-		case '6':
-			if (statusCodeData[2] == '9')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip469BadInfoPackage);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-
-		case '8':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip480TemporarilyUnavailable);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip481Call_TransactionDoesNotExist);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip482LoopDetected);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip483TooManyHops);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip484AddressIncomplete);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip485Ambiguous);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip486BusyHere);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip487RequestTerminated);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip488NotAcceptableHere);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip489BadEvent);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-			};
-
-			break;
-
-		case '9':
-			switch (statusCodeData[2])
-			{
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip491RequestPending);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip493Undecipherable);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip494SecurityAgreementRequired);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-			};
-
-			break;
-
-		default:
-			return SipResponseLayer::SipStatusCodeUnknown;
-		};
-
-		break;
-
-	case '5':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip500ServerInternalError);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip501NotImplemented);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip502BadGateway);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip503ServiceUnavailable);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip504ServerTimeout);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip505VersionNotSupported);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '1':
-			if (statusCodeData[2] == '3')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip513MessageTooLarge);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-
-		case '5':
-			if (statusCodeData[2] == '5')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip555PushNotificationServiceNotSupported);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-
-		case '8':
-			if (statusCodeData[2] == '0')
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip580PreconditionFailure);
-			else
-				return SipResponseLayer::SipStatusCodeUnknown;
-
-			break;
-
-		default:
-			return SipResponseLayer::SipStatusCodeUnknown;
-		};
-
-		break;
-
-	case '6':
-		if (statusCodeData[1] == '0')
-		{
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip600BusyEverywhere);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip603Decline);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip604DoesNotExistAnywhere);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip606NotAcceptable);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip607Unwanted);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, SipResponseLayer::Sip608Rejected);
-			default:
-				return SipResponseLayer::SipStatusCodeUnknown;
-			};
-		}
-		else
-			return SipResponseLayer::SipStatusCodeUnknown;
-
-		break;
-
-	default:
 		return SipResponseLayer::SipStatusCodeUnknown;
-	};
+	}
 
-	return SipResponseLayer::SipStatusCodeUnknown;
+	const char* statusCodeData = data + 8;
+	if (statusCodeData[3] != ' ')
+	{
+		return SipResponseLayer::SipStatusCodeUnknown;
+	}
+
+	auto codeAsEnum = StatusCodeStringToEnumMap.find(std::string(statusCodeData, 3));
+	if (codeAsEnum == StatusCodeStringToEnumMap.end())
+	{
+		return SipResponseLayer::SipStatusCodeUnknown;
+	}
+	return codeAsEnum->second;
 }
 
 SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_SipResponse(sipResponse)
@@ -1285,11 +944,11 @@ SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse,  const
 	m_IsComplete = true;
 }
 
-std::string SipResponseFirstLine::parseVersion(char* data, size_t dataLen)
+std::string SipResponseFirstLine::parseVersion(const char* data, size_t dataLen)
 {
-	if (dataLen < 7) // "SIP/x.y"
+	if (!data || dataLen < 8) // "SIP/x.y "
 	{
-		PCPP_LOG_DEBUG("SIP response length < 7, cannot identify version");
+		PCPP_LOG_DEBUG("SIP response length < 8, cannot identify version");
 		return "";
 	}
 
