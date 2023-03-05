@@ -2,8 +2,8 @@
 Summary:
 ========
 Total packets read:                   7451
-TLS ClientHello packets:              324
-Unique ClientHello TLS fingerprints:  13
+TLS ClientHello packets:              323
+Unique ClientHello TLS fingerprints:  12
 
 Top 10 ClientHello TLS fingerprints:
 ----------------------------------------------

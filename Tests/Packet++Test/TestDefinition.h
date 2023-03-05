@@ -114,6 +114,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsingTest);
 PTF_TEST_CASE(SSLMultipleRecordParsing2Test);
 PTF_TEST_CASE(SSLMultipleRecordParsing3Test);
 PTF_TEST_CASE(SSLMultipleRecordParsing4Test);
+PTF_TEST_CASE(SSLMultipleRecordParsing5Test);
 PTF_TEST_CASE(SSLPartialCertificateParseTest);
 PTF_TEST_CASE(SSLNewSessionTicketParseTest);
 PTF_TEST_CASE(SSLMalformedPacketParsing);
