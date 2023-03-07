@@ -572,7 +572,6 @@ namespace pcpp
 	private:
 		HttpRequestFirstLine(HttpRequestLayer* httpRequest);
 		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, const std::string& uri = "/");
-			//throw(HttpRequestFirstLineException); // Deprecated in C++17
 
 		void parseVersion();
 

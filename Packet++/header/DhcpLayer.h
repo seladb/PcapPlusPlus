@@ -7,17 +7,6 @@
 #include "MacAddress.h"
 #include <string.h>
 
-#ifndef PCPP_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define PCPP_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define PCPP_DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-#define PCPP_DEPRECATED
-#endif
-#endif
-
 /// @file
 
 /**
@@ -702,20 +691,10 @@ namespace pcpp
 		void setClientHardwareAddress(const MacAddress& addr);
 
 		/**
-		 * @deprecated Deprecated due to typo. Please use getMessageType()
-		 */
-		PCPP_DEPRECATED DhcpMessageType getMesageType() const { return getMessageType(); };
-
-		/**
 		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist the value of
 		 * ::DHCP_UNKNOWN_MSG_TYPE is returned
 		 */
 		DhcpMessageType getMessageType() const;
-
-		/**
-		 * @deprecated Deprecated due to typo. Please use setMessageType()
-		 */
-		bool setMesageType(DhcpMessageType msgType) { return setMessageType(msgType); };
 
 		/**
 		 * Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it sets the requested
