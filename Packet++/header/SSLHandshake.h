@@ -5,17 +5,6 @@
 #include "SSLCommon.h"
 #include "PointerVector.h"
 
-#ifndef PCPP_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define PCPP_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define PCPP_DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-#define PCPP_DEPRECATED
-#endif
-#endif
-
 /**
  * @file
  * See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
@@ -322,11 +311,6 @@ public:
 	virtual ~SSLHandshakeMessage() {}
 
 	/**
-	 * @deprecated Deprecated due to typo. Please use createHandshakeMessage()
-	 */
-	PCPP_DEPRECATED static SSLHandshakeMessage* createHandhakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container) { return createHandshakeMessage(data, dataLen, container);}
-
-	/**
 	 * A factory method for creating instances of handshake messages from raw data
 	 * @param[in] data The raw data containing 1 handshake message
 	 * @param[in] dataLen Raw data length in bytes
@@ -499,11 +483,6 @@ public:
 	int getExtensionCount() const;
 
 	/**
-	 * @deprecated Deprecated due to typo. Please use getExtensionsLength()
-	 */
-	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
-
-	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
 	 */
 	uint16_t getExtensionsLength() const;
@@ -673,11 +652,6 @@ public:
 	 * @return The number of extensions in this message
 	 */
 	int getExtensionCount() const;
-
-	/**
-	 * @deprecated Deprecated due to typo. Please use getExtensionLength()
-	 */
-	PCPP_DEPRECATED uint16_t getExtensionsLenth() const { return getExtensionsLength(); };
 
 	/**
 	 * @return The size (in bytes) of all extensions data in this message. Extracted from the "extensions length" field
