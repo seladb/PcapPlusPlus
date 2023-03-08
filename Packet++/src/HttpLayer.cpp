@@ -890,14 +890,6 @@ void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 	m_Version = newVersion;
 }
 
-HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode)
-{
-	if (dataLen < 1 || data[0] != ' ')
-		return HttpResponseLayer::HttpStatusCodeUnknown;
-
-	return potentialCode;
-}
-
 HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
 {
 	// minimum data should be 12B long: "HTTP/x.y XXX"

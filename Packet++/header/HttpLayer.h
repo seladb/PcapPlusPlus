@@ -693,9 +693,6 @@ namespace pcpp
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse);
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString = "");
 
-		static HttpResponseLayer::HttpResponseStatusCode validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode);
-
-
 		HttpResponseLayer* m_HttpResponse;
 		HttpVersion m_Version;
 		HttpResponseLayer::HttpResponseStatusCode m_StatusCode;
