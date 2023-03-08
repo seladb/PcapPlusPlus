@@ -165,6 +165,18 @@ const std::string MethodEnumToString[9] = {
 		"PATCH"
 };
 
+const std::unordered_map<std::string, HttpRequestLayer::HttpMethod> HttpMethodStringToEnum {
+		{"GET", HttpRequestLayer::HttpMethod::HttpGET },
+		{"HEAD", HttpRequestLayer::HttpMethod::HttpHEAD },
+		{"POST", HttpRequestLayer::HttpMethod::HttpPOST },
+		{"PUT", HttpRequestLayer::HttpMethod::HttpPUT },
+		{"DELETE", HttpRequestLayer::HttpMethod::HttpDELETE },
+		{"TRACE", HttpRequestLayer::HttpMethod::HttpTRACE },
+		{"OPTIONS", HttpRequestLayer::HttpMethod::HttpOPTIONS },
+		{"CONNECT", HttpRequestLayer::HttpMethod::HttpCONNECT },
+		{"PATCH", HttpRequestLayer::HttpMethod::HttpPATCH }
+};
+
 const std::string VersionEnumToString[3] = {
 		"0.9",
 		"1.0",
@@ -260,104 +272,30 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRe
 	}
 }
 
-HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_t dataLen)
+HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(const char* data, size_t dataLen)
 {
-	if (dataLen < 4)
+	if (!data || dataLen < 4)
 	{
 		return HttpRequestLayer::HttpMethodUnknown;
 	}
 
-	switch (data[0])
+	size_t spaceIndex = 0;
+	while (spaceIndex < dataLen && data[spaceIndex] != ' ' )
 	{
-	case 'G':
-		if (data[1] == 'E' && data[2] == 'T' && data[3] == ' ')
-			return HttpRequestLayer::HttpGET;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
+		spaceIndex++;
+	}
 
-	case 'D':
-		if (dataLen < 7)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'E' && data[2] == 'L' && data[3] == 'E' && data[4] == 'T' && data[5] == 'E' && data[6] == ' ')
-			return HttpRequestLayer::HttpDELETE;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'C':
-		if (dataLen < 8)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'O' && data[2] == 'N' && data[3] == 'N' && data[4] == 'E' && data[5] == 'C' && data[6] == 'T' && data[7] == ' ')
-			return HttpRequestLayer::HttpCONNECT;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'T':
-		if (dataLen < 6)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'R' && data[2] == 'A' && data[3] == 'C' && data[4] == 'E' && data[5] == ' ')
-			return HttpRequestLayer::HttpTRACE;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-
-	case 'H':
-		if (dataLen < 5)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'E' && data[2] == 'A' && data[3] == 'D' && data[4] == ' ')
-			return HttpRequestLayer::HttpHEAD;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'O':
-		if (dataLen < 8)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'P' && data[2] == 'T' && data[3] == 'I' && data[4] == 'O' && data[5] == 'N' && data[6] == 'S' && data[7] == ' ')
-			return HttpRequestLayer::HttpOPTIONS;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'P':
-		switch (data[1])
-		{
-		case 'U':
-			if (data[2] == 'T' && data[3] == ' ')
-				return HttpRequestLayer::HttpPUT;
-			else
-				return HttpRequestLayer::HttpMethodUnknown;
-			break;
-
-		case 'O':
-			if (dataLen < 5)
-				return HttpRequestLayer::HttpMethodUnknown;
-			else if (data[2] == 'S' && data[3] == 'T' && data[4] == ' ')
-				return HttpRequestLayer::HttpPOST;
-			else
-				return HttpRequestLayer::HttpMethodUnknown;
-			break;
-
-		case 'A':
-			if (dataLen < 6)
-				return HttpRequestLayer::HttpMethodUnknown;
-			else if (data[2] == 'T' && data[3] == 'C' && data[4] == 'H' && data[5] == ' ')
-				return HttpRequestLayer::HttpPATCH;
-			else
-				return HttpRequestLayer::HttpMethodUnknown;
-			break;
-
-		default:
-			return HttpRequestLayer::HttpMethodUnknown;
-		}
-		break;
-
-	default:
+	if (spaceIndex == 0 || spaceIndex == dataLen)
+	{
 		return HttpRequestLayer::HttpMethodUnknown;
 	}
+
+	auto methodAdEnum = HttpMethodStringToEnum.find(std::string(data, data + spaceIndex));
+	if (methodAdEnum == HttpMethodStringToEnum.end())
+	{
+		return HttpRequestLayer::HttpMethodUnknown;
+	}
+	return methodAdEnum->second;
 }
 
 void HttpRequestFirstLine::parseVersion()

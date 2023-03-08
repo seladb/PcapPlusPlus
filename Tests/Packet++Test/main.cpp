@@ -159,6 +159,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ResizeLayerTest, "packet;resize");
 	PTF_RUN_TEST(PrintPacketAndLayers, "packet;print");
 
+	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerEditTest, "http");

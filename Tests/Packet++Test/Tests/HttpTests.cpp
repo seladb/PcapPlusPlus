@@ -10,6 +10,36 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
+PTF_TEST_CASE(HttpRequestParseMethodTest)
+{
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(nullptr, 0), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("GET").c_str(), 3), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("OPTIONS").c_str(), 7), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+
+	std::vector<std::pair<std::string, pcpp::HttpRequestLayer::HttpMethod>> possibleMethods = {
+		{"GET", pcpp::HttpRequestLayer::HttpMethod::HttpGET },
+		{"HEAD", pcpp::HttpRequestLayer::HttpMethod::HttpHEAD },
+		{"POST", pcpp::HttpRequestLayer::HttpMethod::HttpPOST },
+		{"PUT", pcpp::HttpRequestLayer::HttpMethod::HttpPUT },
+		{"DELETE", pcpp::HttpRequestLayer::HttpMethod::HttpDELETE },
+		{"TRACE", pcpp::HttpRequestLayer::HttpMethod::HttpTRACE },
+		{"OPTIONS", pcpp::HttpRequestLayer::HttpMethod::HttpOPTIONS },
+		{"CONNECT", pcpp::HttpRequestLayer::HttpMethod::HttpCONNECT },
+		{"PATCH", pcpp::HttpRequestLayer::HttpMethod::HttpPATCH }
+	};
+
+	for (const std::pair<std::string, pcpp::HttpRequestLayer::HttpMethod> &method : possibleMethods )
+	{
+		std::string firstLine = method.first + " ";
+		PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(firstLine.c_str(), firstLine.length()), method.second, enum);
+	}
+
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("UNKNOWN ").c_str(), 8), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+} // HttpRequestParseMethodTest
+
+
+
 PTF_TEST_CASE(HttpRequestLayerParsingTest)
 {
 	// This is a basic parsing test

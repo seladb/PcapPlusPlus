@@ -536,7 +536,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed HTTP method
 		 */
-		static HttpRequestLayer::HttpMethod parseMethod(char* data, size_t dataLen);
+		static HttpRequestLayer::HttpMethod parseMethod(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the HTTP first line
