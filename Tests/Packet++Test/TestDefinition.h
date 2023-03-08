@@ -64,6 +64,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest);
 PTF_TEST_CASE(HttpRequestLayerCreationTest);
 PTF_TEST_CASE(HttpRequestLayerEditTest);
 PTF_TEST_CASE(HttpResponseParseStatusCodeTest);
+PTF_TEST_CASE(HttpResponseParseVersionTest);
 PTF_TEST_CASE(HttpResponseLayerParsingTest);
 PTF_TEST_CASE(HttpResponseLayerCreationTest);
 PTF_TEST_CASE(HttpResponseLayerEditTest);

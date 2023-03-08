@@ -183,6 +183,13 @@ const std::string VersionEnumToString[3] = {
 		"1.1"
 };
 
+const std::unordered_map<std::string, HttpVersion> HttpVersionStringToEnum {
+		{ "0.9", HttpVersion::ZeroDotNine },
+		{ "1.0", HttpVersion::OneDotZero },
+		{ "1.1", HttpVersion::OneDotOne }
+};
+
+
 HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_HttpRequest(httpRequest)
 {
 	m_Method = parseMethod((char*)m_HttpRequest->m_Data, m_HttpRequest->getDataLen());
@@ -320,26 +327,14 @@ void HttpRequestFirstLine::parseVersion()
 
 	//skip " HTTP/" (6 chars)
 	verPos += 6;
-	switch (verPos[0])
+	auto versionAsEnum = HttpVersionStringToEnum.find(std::string(verPos, verPos + 3));
+	if (versionAsEnum == HttpVersionStringToEnum.end())
 	{
-	case '0':
-		if (verPos[1] == '.' && verPos[2] == '9')
-			m_Version = ZeroDotNine;
-		else
-			m_Version = HttpVersionUnknown;
-		break;
-
-	case '1':
-		if (verPos[1] == '.' && verPos[2] == '0')
-			m_Version = OneDotZero;
-		else if (verPos[1] == '.' && verPos[2] == '1')
-			m_Version = OneDotOne;
-		else
-			m_Version = HttpVersionUnknown;
-		break;
-
-	default:
 		m_Version = HttpVersionUnknown;
+	}
+	else
+	{
+		m_Version = versionAsEnum->second;
 	}
 
 	m_VersionOffset = verPos - (char*)m_HttpRequest->m_Data;
@@ -989,9 +984,9 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 	m_IsComplete = true;
 }
 
-HttpVersion HttpResponseFirstLine::parseVersion(char* data, size_t dataLen)
+HttpVersion HttpResponseFirstLine::parseVersion(const char* data, size_t dataLen)
 {
-	if (dataLen < 8) // "HTTP/x.y"
+	if (!data || dataLen < 8) // "HTTP/x.y"
 	{
 		PCPP_LOG_DEBUG("HTTP response length < 8, cannot identify version");
 		return HttpVersionUnknown;
@@ -1003,28 +998,13 @@ HttpVersion HttpResponseFirstLine::parseVersion(char* data, size_t dataLen)
 		return HttpVersionUnknown;
 	}
 
-	char* verPos = data + 5;
-	switch (verPos[0])
+	const char* verPos = data + 5;
+	auto versionAsEnum = HttpVersionStringToEnum.find(std::string(verPos, verPos + 3));
+	if (versionAsEnum == HttpVersionStringToEnum.end())
 	{
-	case '0':
-		if (verPos[1] == '.' && verPos[2] == '9')
-			return ZeroDotNine;
-		else
-			return HttpVersionUnknown;
-		break;
-
-	case '1':
-		if (verPos[1] == '.' && verPos[2] == '0')
-			return OneDotZero;
-		else if (verPos[1] == '.' && verPos[2] == '1')
-			return OneDotOne;
-		else
-			return HttpVersionUnknown;
-		break;
-
-	default:
 		return HttpVersionUnknown;
 	}
+	return versionAsEnum->second;
 }
 
 } // namespace pcpp

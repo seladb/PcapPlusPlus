@@ -295,6 +295,34 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 
 
 
+PTF_TEST_CASE(HttpResponseParseVersionTest)
+{
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(nullptr, 0), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("1.1").c_str(), 3), pcpp::HttpVersion::HttpVersionUnknown, enum);
+
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("XTTP/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HXTP/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTXP/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTX/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTP 1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+
+	std::vector<std::pair<std::string, pcpp::HttpVersion>> possibleVersions = {
+		{ "0.9", pcpp::HttpVersion::ZeroDotNine },
+		{ "1.0", pcpp::HttpVersion::OneDotZero },
+		{ "1.1", pcpp::HttpVersion::OneDotOne }
+	};
+
+	for (const std::pair<std::string, pcpp::HttpVersion> &version : possibleVersions )
+	{
+		std::string firstLine = "HTTP/" + version.first;
+		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(firstLine.c_str(), firstLine.length()), version.second, enum);
+	}
+
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTP/2.0 ").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+} // HttpResponseParseVersionTest
+
+
+
 PTF_TEST_CASE(HttpResponseLayerParsingTest)
 {
 	// This is a basic parsing test

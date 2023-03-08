@@ -650,6 +650,14 @@ namespace pcpp
 		static HttpResponseLayer::HttpResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
 
 		/**
+		 * A static method for parsing the HTTP version out of raw first line data (e.g "HTTP/x.y")
+		 * @param[in] data The raw data
+		 * @param[in] dataLen The raw data length
+		 * @return The parsed HTTP status code as enum
+		 */
+		static HttpVersion parseVersion(const char* data, size_t dataLen);
+
+		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
 		int getSize() const { return m_FirstLineEndOffset; }
@@ -685,7 +693,6 @@ namespace pcpp
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse);
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString = "");
 
-		static HttpVersion parseVersion(char* data, size_t dataLen);
 		static HttpResponseLayer::HttpResponseStatusCode validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode);
 
 
