@@ -162,6 +162,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerCreationTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerEditTest, "http");
+	PTF_RUN_TEST(HttpResponseParseStatusCodeTest, "http");
 	PTF_RUN_TEST(HttpResponseLayerParsingTest, "http");
 	PTF_RUN_TEST(HttpResponseLayerCreationTest, "http");
 	PTF_RUN_TEST(HttpResponseLayerEditTest, "http");

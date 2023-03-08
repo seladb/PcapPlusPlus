@@ -318,7 +318,7 @@ namespace pcpp
 			/** 417 Expectation Failed */
 			Http417ExpectationFailed,
 			/** 418 I'm a teapot */
-			Http418Imateapot,
+			Http418ImATeapot,
 			/** 419 Authentication Timeout */
 			Http419AuthenticationTimeout,
 			/** 420 (various messages) */
@@ -647,7 +647,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed HTTP status code as enum
 		 */
-		static HttpResponseLayer::HttpResponseStatusCode parseStatusCode(char* data, size_t dataLen);
+		static HttpResponseLayer::HttpResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the HTTP first line
