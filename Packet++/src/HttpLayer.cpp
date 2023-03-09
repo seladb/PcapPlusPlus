@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <exception>
 #include <utility>
+#include <unordered_map>
 
 namespace pcpp
 {
@@ -164,11 +165,30 @@ const std::string MethodEnumToString[9] = {
 		"PATCH"
 };
 
+const std::unordered_map<std::string, HttpRequestLayer::HttpMethod> HttpMethodStringToEnum {
+		{"GET", HttpRequestLayer::HttpMethod::HttpGET },
+		{"HEAD", HttpRequestLayer::HttpMethod::HttpHEAD },
+		{"POST", HttpRequestLayer::HttpMethod::HttpPOST },
+		{"PUT", HttpRequestLayer::HttpMethod::HttpPUT },
+		{"DELETE", HttpRequestLayer::HttpMethod::HttpDELETE },
+		{"TRACE", HttpRequestLayer::HttpMethod::HttpTRACE },
+		{"OPTIONS", HttpRequestLayer::HttpMethod::HttpOPTIONS },
+		{"CONNECT", HttpRequestLayer::HttpMethod::HttpCONNECT },
+		{"PATCH", HttpRequestLayer::HttpMethod::HttpPATCH }
+};
+
 const std::string VersionEnumToString[3] = {
 		"0.9",
 		"1.0",
 		"1.1"
 };
+
+const std::unordered_map<std::string, HttpVersion> HttpVersionStringToEnum {
+		{ "0.9", HttpVersion::ZeroDotNine },
+		{ "1.0", HttpVersion::OneDotZero },
+		{ "1.1", HttpVersion::OneDotOne }
+};
+
 
 HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_HttpRequest(httpRequest)
 {
@@ -259,104 +279,30 @@ HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRe
 	}
 }
 
-HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(char* data, size_t dataLen)
+HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(const char* data, size_t dataLen)
 {
-	if (dataLen < 4)
+	if (!data || dataLen < 4)
 	{
 		return HttpRequestLayer::HttpMethodUnknown;
 	}
 
-	switch (data[0])
+	size_t spaceIndex = 0;
+	while (spaceIndex < dataLen && data[spaceIndex] != ' ' )
 	{
-	case 'G':
-		if (data[1] == 'E' && data[2] == 'T' && data[3] == ' ')
-			return HttpRequestLayer::HttpGET;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
+		spaceIndex++;
+	}
 
-	case 'D':
-		if (dataLen < 7)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'E' && data[2] == 'L' && data[3] == 'E' && data[4] == 'T' && data[5] == 'E' && data[6] == ' ')
-			return HttpRequestLayer::HttpDELETE;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'C':
-		if (dataLen < 8)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'O' && data[2] == 'N' && data[3] == 'N' && data[4] == 'E' && data[5] == 'C' && data[6] == 'T' && data[7] == ' ')
-			return HttpRequestLayer::HttpCONNECT;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'T':
-		if (dataLen < 6)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'R' && data[2] == 'A' && data[3] == 'C' && data[4] == 'E' && data[5] == ' ')
-			return HttpRequestLayer::HttpTRACE;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-
-	case 'H':
-		if (dataLen < 5)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'E' && data[2] == 'A' && data[3] == 'D' && data[4] == ' ')
-			return HttpRequestLayer::HttpHEAD;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'O':
-		if (dataLen < 8)
-			return HttpRequestLayer::HttpMethodUnknown;
-		else if (data[1] == 'P' && data[2] == 'T' && data[3] == 'I' && data[4] == 'O' && data[5] == 'N' && data[6] == 'S' && data[7] == ' ')
-			return HttpRequestLayer::HttpOPTIONS;
-		else
-			return HttpRequestLayer::HttpMethodUnknown;
-		break;
-
-	case 'P':
-		switch (data[1])
-		{
-		case 'U':
-			if (data[2] == 'T' && data[3] == ' ')
-				return HttpRequestLayer::HttpPUT;
-			else
-				return HttpRequestLayer::HttpMethodUnknown;
-			break;
-
-		case 'O':
-			if (dataLen < 5)
-				return HttpRequestLayer::HttpMethodUnknown;
-			else if (data[2] == 'S' && data[3] == 'T' && data[4] == ' ')
-				return HttpRequestLayer::HttpPOST;
-			else
-				return HttpRequestLayer::HttpMethodUnknown;
-			break;
-
-		case 'A':
-			if (dataLen < 6)
-				return HttpRequestLayer::HttpMethodUnknown;
-			else if (data[2] == 'T' && data[3] == 'C' && data[4] == 'H' && data[5] == ' ')
-				return HttpRequestLayer::HttpPATCH;
-			else
-				return HttpRequestLayer::HttpMethodUnknown;
-			break;
-
-		default:
-			return HttpRequestLayer::HttpMethodUnknown;
-		}
-		break;
-
-	default:
+	if (spaceIndex == 0 || spaceIndex == dataLen)
+	{
 		return HttpRequestLayer::HttpMethodUnknown;
 	}
+
+	auto methodAdEnum = HttpMethodStringToEnum.find(std::string(data, data + spaceIndex));
+	if (methodAdEnum == HttpMethodStringToEnum.end())
+	{
+		return HttpRequestLayer::HttpMethodUnknown;
+	}
+	return methodAdEnum->second;
 }
 
 void HttpRequestFirstLine::parseVersion()
@@ -381,26 +327,14 @@ void HttpRequestFirstLine::parseVersion()
 
 	//skip " HTTP/" (6 chars)
 	verPos += 6;
-	switch (verPos[0])
+	auto versionAsEnum = HttpVersionStringToEnum.find(std::string(verPos, verPos + 3));
+	if (versionAsEnum == HttpVersionStringToEnum.end())
 	{
-	case '0':
-		if (verPos[1] == '.' && verPos[2] == '9')
-			m_Version = ZeroDotNine;
-		else
-			m_Version = HttpVersionUnknown;
-		break;
-
-	case '1':
-		if (verPos[1] == '.' && verPos[2] == '0')
-			m_Version = OneDotZero;
-		else if (verPos[1] == '.' && verPos[2] == '1')
-			m_Version = OneDotOne;
-		else
-			m_Version = HttpVersionUnknown;
-		break;
-
-	default:
 		m_Version = HttpVersionUnknown;
+	}
+	else
+	{
+		m_Version = versionAsEnum->second;
 	}
 
 	m_VersionOffset = verPos - (char*)m_HttpRequest->m_Data;
@@ -683,6 +617,89 @@ const int StatusCodeEnumToInt[80] = {
 		599
 };
 
+const std::unordered_map<std::string, HttpResponseLayer::HttpResponseStatusCode> StatusCodeStringToEnumMap {
+	{"100", HttpResponseLayer::HttpResponseStatusCode::Http100Continue },
+	{"101", HttpResponseLayer::HttpResponseStatusCode::Http101SwitchingProtocols },
+	{"102", HttpResponseLayer::HttpResponseStatusCode::Http102Processing },
+	{"200", HttpResponseLayer::HttpResponseStatusCode::Http200OK },
+	{"201", HttpResponseLayer::HttpResponseStatusCode::Http201Created },
+	{"202", HttpResponseLayer::HttpResponseStatusCode::Http202Accepted },
+	{"203", HttpResponseLayer::HttpResponseStatusCode::Http203NonAuthoritativeInformation },
+	{"204", HttpResponseLayer::HttpResponseStatusCode::Http204NoContent },
+	{"205", HttpResponseLayer::HttpResponseStatusCode::Http205ResetContent },
+	{"206", HttpResponseLayer::HttpResponseStatusCode::Http206PartialContent },
+	{"207", HttpResponseLayer::HttpResponseStatusCode::Http207MultiStatus },
+	{"208", HttpResponseLayer::HttpResponseStatusCode::Http208AlreadyReported },
+	{"226", HttpResponseLayer::HttpResponseStatusCode::Http226IMUsed },
+	{"300", HttpResponseLayer::HttpResponseStatusCode::Http300MultipleChoices },
+	{"301", HttpResponseLayer::HttpResponseStatusCode::Http301MovedPermanently },
+	{"302", HttpResponseLayer::HttpResponseStatusCode::Http302 },
+	{"303", HttpResponseLayer::HttpResponseStatusCode::Http303SeeOther },
+	{"304", HttpResponseLayer::HttpResponseStatusCode::Http304NotModified },
+	{"305", HttpResponseLayer::HttpResponseStatusCode::Http305UseProxy },
+	{"306", HttpResponseLayer::HttpResponseStatusCode::Http306SwitchProxy },
+	{"307", HttpResponseLayer::HttpResponseStatusCode::Http307TemporaryRedirect },
+	{"308", HttpResponseLayer::HttpResponseStatusCode::Http308PermanentRedirect },
+	{"400", HttpResponseLayer::HttpResponseStatusCode::Http400BadRequest },
+	{"401", HttpResponseLayer::HttpResponseStatusCode::Http401Unauthorized },
+	{"402", HttpResponseLayer::HttpResponseStatusCode::Http402PaymentRequired },
+	{"403", HttpResponseLayer::HttpResponseStatusCode::Http403Forbidden },
+	{"404", HttpResponseLayer::HttpResponseStatusCode::Http404NotFound },
+	{"405", HttpResponseLayer::HttpResponseStatusCode::Http405MethodNotAllowed },
+	{"406", HttpResponseLayer::HttpResponseStatusCode::Http406NotAcceptable },
+	{"407", HttpResponseLayer::HttpResponseStatusCode::Http407ProxyAuthenticationRequired },
+	{"408", HttpResponseLayer::HttpResponseStatusCode::Http408RequestTimeout },
+	{"409", HttpResponseLayer::HttpResponseStatusCode::Http409Conflict },
+	{"410", HttpResponseLayer::HttpResponseStatusCode::Http410Gone },
+	{"411", HttpResponseLayer::HttpResponseStatusCode::Http411LengthRequired },
+	{"412", HttpResponseLayer::HttpResponseStatusCode::Http412PreconditionFailed },
+	{"413", HttpResponseLayer::HttpResponseStatusCode::Http413RequestEntityTooLarge },
+	{"414", HttpResponseLayer::HttpResponseStatusCode::Http414RequestURITooLong },
+	{"415", HttpResponseLayer::HttpResponseStatusCode::Http415UnsupportedMediaType },
+	{"416", HttpResponseLayer::HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable },
+	{"417", HttpResponseLayer::HttpResponseStatusCode::Http417ExpectationFailed },
+	{"418", HttpResponseLayer::HttpResponseStatusCode::Http418ImATeapot },
+	{"419", HttpResponseLayer::HttpResponseStatusCode::Http419AuthenticationTimeout },
+	{"420", HttpResponseLayer::HttpResponseStatusCode::Http420 },
+	{"422", HttpResponseLayer::HttpResponseStatusCode::Http422UnprocessableEntity },
+	{"423", HttpResponseLayer::HttpResponseStatusCode::Http423Locked },
+	{"424", HttpResponseLayer::HttpResponseStatusCode::Http424FailedDependency },
+	{"426", HttpResponseLayer::HttpResponseStatusCode::Http426UpgradeRequired },
+	{"428", HttpResponseLayer::HttpResponseStatusCode::Http428PreconditionRequired },
+	{"429", HttpResponseLayer::HttpResponseStatusCode::Http429TooManyRequests },
+	{"431", HttpResponseLayer::HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge },
+	{"440", HttpResponseLayer::HttpResponseStatusCode::Http440LoginTimeout },
+	{"444", HttpResponseLayer::HttpResponseStatusCode::Http444NoResponse },
+	{"449", HttpResponseLayer::HttpResponseStatusCode::Http449RetryWith },
+	{"450", HttpResponseLayer::HttpResponseStatusCode::Http450BlockedByWindowsParentalControls },
+	{"451", HttpResponseLayer::HttpResponseStatusCode::Http451 },
+	{"494", HttpResponseLayer::HttpResponseStatusCode::Http494RequestHeaderTooLarge },
+	{"495", HttpResponseLayer::HttpResponseStatusCode::Http495CertError },
+	{"496", HttpResponseLayer::HttpResponseStatusCode::Http496NoCert },
+	{"497", HttpResponseLayer::HttpResponseStatusCode::Http497HTTPtoHTTPS },
+	{"498", HttpResponseLayer::HttpResponseStatusCode::Http498TokenExpiredInvalid },
+	{"499", HttpResponseLayer::HttpResponseStatusCode::Http499 },
+	{"500", HttpResponseLayer::HttpResponseStatusCode::Http500InternalServerError },
+	{"501", HttpResponseLayer::HttpResponseStatusCode::Http501NotImplemented },
+	{"502", HttpResponseLayer::HttpResponseStatusCode::Http502BadGateway },
+	{"503", HttpResponseLayer::HttpResponseStatusCode::Http503ServiceUnavailable },
+	{"504", HttpResponseLayer::HttpResponseStatusCode::Http504GatewayTimeout },
+	{"505", HttpResponseLayer::HttpResponseStatusCode::Http505HTTPVersionNotSupported },
+	{"506", HttpResponseLayer::HttpResponseStatusCode::Http506VariantAlsoNegotiates },
+	{"507", HttpResponseLayer::HttpResponseStatusCode::Http507InsufficientStorage },
+	{"508", HttpResponseLayer::HttpResponseStatusCode::Http508LoopDetected },
+	{"509", HttpResponseLayer::HttpResponseStatusCode::Http509BandwidthLimitExceeded },
+	{"510", HttpResponseLayer::HttpResponseStatusCode::Http510NotExtended },
+	{"511", HttpResponseLayer::HttpResponseStatusCode::Http511NetworkAuthenticationRequired },
+	{"520", HttpResponseLayer::HttpResponseStatusCode::Http520OriginError },
+	{"521", HttpResponseLayer::HttpResponseStatusCode::Http521WebServerIsDown },
+	{"522", HttpResponseLayer::HttpResponseStatusCode::Http522ConnectionTimedOut },
+	{"523", HttpResponseLayer::HttpResponseStatusCode::Http523ProxyDeclinedRequest },
+	{"524", HttpResponseLayer::HttpResponseStatusCode::Http524aTimeoutOccurred },
+	{"598", HttpResponseLayer::HttpResponseStatusCode::Http598NetworkReadTimeoutError },
+	{"599", HttpResponseLayer::HttpResponseStatusCode::Http599NetworkConnectTimeoutError }
+};
+
 
 
 HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)  : HttpMessage(data, dataLen, prevLayer, packet)
@@ -873,370 +890,22 @@ void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 	m_Version = newVersion;
 }
 
-HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::validateStatusCode(char* data, size_t dataLen, HttpResponseLayer::HttpResponseStatusCode potentialCode)
+HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
 {
-	if (dataLen < 1 || data[0] != ' ')
-		return HttpResponseLayer::HttpStatusCodeUnknown;
-
-	return potentialCode;
-}
-
-HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(char* data, size_t dataLen)
-{
-	if (parseVersion(data, dataLen) == HttpVersionUnknown)
-		return HttpResponseLayer::HttpStatusCodeUnknown;
-
 	// minimum data should be 12B long: "HTTP/x.y XXX"
-	if (dataLen < 12)
-		return HttpResponseLayer::HttpStatusCodeUnknown;
-
-	char* statusCodeData = data + 9;
-	size_t statusCodeDataLen = dataLen - 9;
-
-	switch (statusCodeData[0])
+	if (!data || dataLen < 12)
 	{
-	case '1':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http100Continue);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http101SwitchingProtocols);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http102Processing);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		default:
-			return HttpResponseLayer::HttpStatusCodeUnknown;
-		};
-
-		break;
-	case '2':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http200OK);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http201Created);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http202Accepted);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http203NonAuthoritativeInformation);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http204NoContent);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http205ResetContent);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http206PartialContent);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http207MultiStatus);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http208AlreadyReported);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-
-			};
-
-			break;
-		case '2':
-			switch (statusCodeData[2])
-			{
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http226IMUsed);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		default:
-			return HttpResponseLayer::HttpStatusCodeUnknown;
-
-		};
-
-		break;
-
-	case '3':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http300MultipleChoices);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http301MovedPermanently);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http302);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http303SeeOther);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http304NotModified);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http305UseProxy);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http306SwitchProxy);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http307TemporaryRedirect);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http308PermanentRedirect);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-
-			};
-
-			break;
-
-		default:
-			return HttpResponseLayer::HttpStatusCodeUnknown;
-		};
-
-		break;
-
-	case '4':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http400BadRequest);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http401Unauthorized);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http402PaymentRequired);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http403Forbidden);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http404NotFound);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http405MethodNotAllowed);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http406NotAcceptable);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http407ProxyAuthenticationRequired);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http408RequestTimeout);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http409Conflict);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '1':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http410Gone);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http411LengthRequired);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http412PreconditionFailed);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http413RequestEntityTooLarge);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http414RequestURITooLong);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http415UnsupportedMediaType);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http416RequestedRangeNotSatisfiable);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http417ExpectationFailed);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http418Imateapot);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http419AuthenticationTimeout);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '2':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http420);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http422UnprocessableEntity);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http423Locked);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http424FailedDependency);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http426UpgradeRequired);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http428PreconditionRequired);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http429TooManyRequests);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '3':
-			return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http431RequestHeaderFieldsTooLarge);
-
-		case '4':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http440LoginTimeout);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http444NoResponse);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http449RetryWith);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		case '5':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http450BlockedByWindowsParentalControls);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http451);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		case '9':
-			switch (statusCodeData[2])
-			{
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http494RequestHeaderTooLarge);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http495CertError);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http496NoCert);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http497HTTPtoHTTPS);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http498TokenExpiredInvalid);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http499);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		default:
-			return HttpResponseLayer::HttpStatusCodeUnknown;
-		};
-
-		break;
-
-	case '5':
-		switch (statusCodeData[1])
-		{
-		case '0':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http500InternalServerError);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http501NotImplemented);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http502BadGateway);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http503ServiceUnavailable);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http504GatewayTimeout);
-			case '5':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http505HTTPVersionNotSupported);
-			case '6':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http506VariantAlsoNegotiates);
-			case '7':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http507InsufficientStorage);
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http508LoopDetected);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http509BandwidthLimitExceeded);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-
-			};
-
-			break;
-
-		case '1':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http510NotExtended);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http511NetworkAuthenticationRequired);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		case '2':
-			switch (statusCodeData[2])
-			{
-			case '0':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http520OriginError);
-			case '1':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http521WebServerIsDown);
-			case '2':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http522ConnectionTimedOut);
-			case '3':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http523ProxyDeclinedRequest);
-			case '4':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http524aTimeoutOccurred);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		case '9':
-			switch (statusCodeData[2])
-			{
-			case '8':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http598NetworkReadTimeoutError);
-			case '9':
-				return validateStatusCode(statusCodeData+3, statusCodeDataLen-3, HttpResponseLayer::Http599NetworkConnectTimeoutError);
-			default:
-				return HttpResponseLayer::HttpStatusCodeUnknown;
-			};
-
-			break;
-
-		default:
-			return HttpResponseLayer::HttpStatusCodeUnknown;
-		};
-
-		break;
-
-	default:
 		return HttpResponseLayer::HttpStatusCodeUnknown;
 	}
 
-	return HttpResponseLayer::HttpStatusCodeUnknown;
+	const char* statusCodeData = data + 9;
+
+	auto codeAsEnum = StatusCodeStringToEnumMap.find(std::string(statusCodeData, 3));
+	if (codeAsEnum == StatusCodeStringToEnumMap.end())
+	{
+		return HttpResponseLayer::HttpStatusCodeUnknown;
+	}
+	return codeAsEnum->second;
 }
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : m_HttpResponse(httpResponse)
@@ -1307,9 +976,9 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 	m_IsComplete = true;
 }
 
-HttpVersion HttpResponseFirstLine::parseVersion(char* data, size_t dataLen)
+HttpVersion HttpResponseFirstLine::parseVersion(const char* data, size_t dataLen)
 {
-	if (dataLen < 8) // "HTTP/x.y"
+	if (!data || dataLen < 8) // "HTTP/x.y"
 	{
 		PCPP_LOG_DEBUG("HTTP response length < 8, cannot identify version");
 		return HttpVersionUnknown;
@@ -1321,28 +990,13 @@ HttpVersion HttpResponseFirstLine::parseVersion(char* data, size_t dataLen)
 		return HttpVersionUnknown;
 	}
 
-	char* verPos = data + 5;
-	switch (verPos[0])
+	const char* verPos = data + 5;
+	auto versionAsEnum = HttpVersionStringToEnum.find(std::string(verPos, verPos + 3));
+	if (versionAsEnum == HttpVersionStringToEnum.end())
 	{
-	case '0':
-		if (verPos[1] == '.' && verPos[2] == '9')
-			return ZeroDotNine;
-		else
-			return HttpVersionUnknown;
-		break;
-
-	case '1':
-		if (verPos[1] == '.' && verPos[2] == '0')
-			return OneDotZero;
-		else if (verPos[1] == '.' && verPos[2] == '1')
-			return OneDotOne;
-		else
-			return HttpVersionUnknown;
-		break;
-
-	default:
 		return HttpVersionUnknown;
 	}
+	return versionAsEnum->second;
 }
 
 } // namespace pcpp
