@@ -78,7 +78,7 @@ jobs:
         run: |
           . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
-          sudo apt install llvm -y
+          apt install llvm -y
 
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B $BUILD_DIR
