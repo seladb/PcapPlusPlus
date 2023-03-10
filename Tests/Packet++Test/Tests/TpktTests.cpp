@@ -5,9 +5,10 @@
 #include "TpktLayer.h"
 #include <iostream>
 
-PTF_TEST_CASE(TpktPacketNoOptionsParsing) {
+PTF_TEST_CASE(TpktPacketNoOptionsParsing)
+{
 	timeval time;
-	gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tpkt.dat");
 
