@@ -217,8 +217,8 @@ endif()
 
 if(PCAPPP_TARGET_COMPILER_MSVC)
   # Disable VS warnings: Unknown pragma (4068), Zero-sized array in struct/union (4200), Possible loss of data (4244),
-  # Possible loss of data (4267)
-  add_definitions("/wd4068 /wd4200 /wd4244 /wd4267")
+  # Possible loss of data (4267), Character may not be represented (4819)
+  add_definitions("/wd4068 /wd4200 /wd4244 /wd4267 /wd4819")
 endif()
 
 # Disabled Android for now because ToyVPN build fails with coverage flags
