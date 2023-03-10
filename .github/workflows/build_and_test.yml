@@ -51,6 +51,7 @@ jobs:
             python: python3
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
+            additional-gcov-flags: --gcov-executable "llvm-cov gcov"
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
@@ -111,7 +112,7 @@ jobs:
       - name: Create Cobertura Report
         run: |
           ${{ matrix.python }} -m pip install gcovr
-          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@v3
