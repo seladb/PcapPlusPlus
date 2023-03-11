@@ -189,13 +189,13 @@ jobs:
             cmake -S . -B Dist
             cmake --build Dist -j 4
             ifconfig em0 promisc
-            python3 -m ensurepip
-            python3 -m pip install -r ci/run_tests/requirements.txt
-            python3 ci/run_tests/run_tests.py --interface em0
+            python3.9 -m ensurepip
+            python3.9 -m pip install -r ci/run_tests/requirements.txt
+            python3.9 ci/run_tests/run_tests.py --interface em0
             cd Tests/ExamplesTest
-            python3 -m ensurepip
-            python3 -m pip install -r requirements.txt
-            python3 -m pytest --interface vtnet0 --root-path=../../Dist/examples_bin
+            python3.9 -m ensurepip
+            python3.9 -m pip install -r requirements.txt
+            python3.9 -m pytest --interface vtnet0 --root-path=../../Dist/examples_bin
 
   pfring:
     if: ${{ false }}  # disable for now
