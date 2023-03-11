@@ -1,11 +1,10 @@
 name: "CodeQL"
 
 on:
-  push:
-    branches: [ "dev" ]
-  workflow_dispatch:
-  schedule:
-    - cron: '15 14 * * 1'
+  workflow_run:
+    workflows: ["Build and test"]
+    types:
+      - completed
 
 jobs:
   analyze:
