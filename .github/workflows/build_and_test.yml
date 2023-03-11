@@ -182,7 +182,7 @@ jobs:
         with:
           usesh: true
           prepare: |
-            pkg install -y bash cmake git-tiny gmake gsed libpcap tcpreplay
+            pkg install -y bash cmake git-tiny gmake gsed libpcap py39-pip tcpreplay
             # Ensure user have access to network devices instead of giving super-user right
             chmod a+rw /dev/bpf*
           run: |
