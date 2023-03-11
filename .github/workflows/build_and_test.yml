@@ -182,8 +182,8 @@ jobs:
             pkg install -y bash cmake git-tiny gmake gsed libpcap tcpreplay
             # Ensure user have access to network devices instead of giving super-user right
             chmod a+rw /dev/bpf*
-            cmake -S . -B Dist
           run: |
+            cmake -S . -B Dist
             cmake --build Dist -j
             ifconfig vtnet0 promisc
             python -m ensurepip
