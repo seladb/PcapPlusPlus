@@ -11,7 +11,6 @@ env:
 
 jobs:
   pre-commit:
-    if: ${{ false }}  # disable for now
     runs-on: ubuntu-latest
     container: seladb/alpine317
     steps:
@@ -40,7 +39,6 @@ jobs:
           git diff --exit-code
 
   linux:
-    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
     strategy:
@@ -124,7 +122,6 @@ jobs:
           verbose: true
 
   dpdk:
-    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     container: seladb/${{ matrix.image }}
     strategy:
@@ -198,7 +195,6 @@ jobs:
             python3.9 -m pytest --interface em0 --root-path=../../Dist/examples_bin
 
   pfring:
-    if: ${{ false }}  # disable for now
     runs-on: ubuntu-20.04
     container: seladb/ubuntu2004-pfring
     strategy:
@@ -238,7 +234,6 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
   macos:
-    if: ${{ false }}  # disable for now
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
@@ -318,7 +313,6 @@ jobs:
           verbose: true
 
   mingw-w64:
-    if: ${{ false }}  # disable for now
     runs-on: windows-latest
     strategy:
       matrix:
@@ -399,7 +393,6 @@ jobs:
           verbose: true
 
   visual-studio:
-    if: ${{ false }}  # disable for now
     strategy:
       matrix:
         include:
@@ -488,7 +481,6 @@ jobs:
           verbose: true
 
   android:
-    if: ${{ false }}  # disable for now
     strategy:
       matrix:
         include:
