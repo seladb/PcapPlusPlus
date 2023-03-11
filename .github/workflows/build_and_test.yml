@@ -195,7 +195,7 @@ jobs:
             cd Tests/ExamplesTest
             python3.9 -m ensurepip
             python3.9 -m pip install -r requirements.txt
-            python3.9 -m pytest --interface vtnet0 --root-path=../../Dist/examples_bin
+            python3.9 -m pytest --interface em0 --root-path=../../Dist/examples_bin
 
   pfring:
     if: ${{ false }}  # disable for now
