@@ -187,7 +187,7 @@ jobs:
             chmod a+rw /dev/bpf*
           run: |
             cmake -S . -B Dist
-            cmake --build Dist -j
+            cmake --build Dist -j 4
             ifconfig em0 promisc
             python3 -m ensurepip
             python3 -m pip install -r ci/run_tests/requirements.txt
