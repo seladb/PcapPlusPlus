@@ -9,7 +9,7 @@ endif()
 
 set_target_properties(ArpSpoofing PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
-if(BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS AND WIN32)
   add_custom_command(TARGET ArpSpoofing POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:ArpSpoofing> $<TARGET_FILE_DIR:ArpSpoofing>
     COMMAND_EXPAND_LISTS
@@ -21,8 +21,11 @@ if(PCAPPP_INSTALL)
     TARGETS ArpSpoofing
     EXPORT PcapPlusPlusTargets
     RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
-  install(
+
+  if(BUILD_SHARED_LIBS AND WIN32)
+    install(
       FILES $<TARGET_RUNTIME_DLLS:ArpSpoofing>
       DESTINATION ${PCAPPP_INSTALL_BINDIR}
-  )
+    )
+  endif()
 endif()
