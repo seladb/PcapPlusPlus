@@ -56,7 +56,6 @@ add_library(
   src/VlanLayer.cpp
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
-
   # Force hash-library pcapng to be link fully static
 )
 
@@ -133,7 +132,6 @@ endif()
 target_include_directories(
   Packet++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
-
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)

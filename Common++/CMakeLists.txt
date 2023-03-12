@@ -24,7 +24,6 @@ set(public_headers
     header/SystemUtils.h
     header/TablePrinter.h
     header/TimespecTimeval.h)
-
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 
@@ -38,7 +37,6 @@ endif()
 target_include_directories(
   Common++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
-
   # Don't link with EndianPortable and json as it won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>)
