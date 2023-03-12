@@ -3,7 +3,6 @@ project(Tutorial-PcapFiles)
 
 # Set C++11
 set(CMAKE_CXX_STANDARD 11)
-
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
 
