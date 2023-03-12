@@ -1,5 +1,5 @@
-#ifndef PCAPPP_MAC_ADDRESS
-#define PCAPPP_MAC_ADDRESS
+#ifndef PCAPPP_MACADDRESS
+#define PCAPPP_MACADDRESS
 
 #include "CommonExport.h"
 #include <stdint.h>
@@ -29,7 +29,7 @@ namespace pcpp
 	 */
 	class MacAddress
 	{
-	  public:
+	public:
 		/**
 		 * Default constructor for this class.
 		 * Initializes object to me MacAddress::Zero
@@ -37,29 +37,26 @@ namespace pcpp
 		MacAddress() : m_IsValid(true) { memset(m_Address, 0, sizeof(m_Address)); }
 
 		/**
-		 * A constructor that creates an instance of the class out of a byte array. The byte array length must be equal
-		 * or greater to 6 (as MAC address is 6-byte long)
-		 * @todo there is no verification array length >= 6. If this is not the case, address will read uninitialized
-		 * memory
+		 * A constructor that creates an instance of the class out of a byte array. The byte array length must be equal or greater to 6
+		 * (as MAC address is 6-byte long)
+		 * @todo there is no verification array length >= 6. If this is not the case, address will read uninitialized memory
 		 * @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
 		 */
-		MacAddress(const uint8_t *addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
+		MacAddress(const uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
 		 *  A constructor that creates an instance of the class out of a (char*) string.
-		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return
-		 * false
+		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
 		 *  @param[in] addr A pointer to the (char*) string
 		 */
-		MacAddress(const char *addr) { init(addr); }
+		MacAddress(const char* addr) { init(addr); }
 
 		/**
 		 *  A constructor that creates an instance of the class out of a std::string.
-		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return
-		 *false
-		 *	@param[in] addr A pointer to the string
+		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
+	 	 *	@param[in] addr A pointer to the string
 		 */
-		MacAddress(const std::string &addr) { init(addr.c_str()); }
+		MacAddress(const std::string& addr) { init(addr.c_str()); }
 
 		/**
 		 *  A constructor that creates an instance of 6 bytes representing the MAC address
@@ -70,24 +67,22 @@ namespace pcpp
 		 *  @param[in] fifthOctet Represent the fifth octet in the address
 		 *  @param[in] sixthOctet Represent the sixth octet in the address
 		 */
-		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
-						  uint8_t fifthOctet, uint8_t sixthOctet);
+		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
-		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6
-		 * (as MAC address is 6-byte long)
+		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6 (as MAC address is 6-byte long)
 		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
 		 */
-		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid{octets.size() == sizeof(m_Address)}
+		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof(m_Address) }
 		{
-			if (m_IsValid)
+			if(m_IsValid)
 			{
-#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t *>(m_Address, 6));
-#else
+				#if _MSC_VER >= 1800
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
-#endif
+				#endif
 			}
 			else
 				memset(m_Address, 0, sizeof(m_Address));
@@ -99,33 +94,29 @@ namespace pcpp
 		 * @param[in] other The object to compare with
 		 * @return True if addresses are equal, false otherwise
 		 */
-		bool operator==(const MacAddress &other) const
-		{
-			return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0;
-		}
+		bool operator==(const MacAddress& other) const { return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0; }
 
 		/**
 		 * Overload of the not-equal operator
 		 * @param[in] other The object to compare with
 		 * @return True if addresses are not equal, false otherwise
 		 */
-		bool operator!=(const MacAddress &other) const { return !operator==(other); }
+		bool operator!=(const MacAddress& other) const { return !operator==(other); }
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
 		 * Overload of the assignment operator
 		 */
-		MacAddress &operator=(std::initializer_list<uint8_t> octets)
+		MacAddress& operator=(std::initializer_list<uint8_t> octets)
 		{
 			m_IsValid = (octets.size() == sizeof m_Address);
-			if (m_IsValid)
+			if(m_IsValid)
 			{
-#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(),
-						  stdext::checked_array_iterator<uint8_t *>(m_Address, sizeof(m_Address)));
-#else
+				#if _MSC_VER >= 1800
+				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof(m_Address)));
+				#else
 				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
-#endif
+				#endif
 			}
 			return *this;
 		}
@@ -135,11 +126,11 @@ namespace pcpp
 		 * Returns the pointer to raw data
 		 * @return The pointer to raw data
 		 */
-		const uint8_t *getRawData() const { return m_Address; }
+		const uint8_t* getRawData() const { return m_Address; }
 
 		/**
-		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from
-		 * illegal input, for example: invalid string
+		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
+		 * invalid string
 		 * @return True if the address is valid, false otherwise
 		 */
 		bool isValid() const { return m_IsValid; }
@@ -151,11 +142,10 @@ namespace pcpp
 		std::string toString() const;
 
 		/**
-		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user
-		 * responsibility
+		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user responsibility
 		 * @param[in] arr A pointer to where array will be allocated
 		 */
-		void copyTo(uint8_t **arr) const
+		void copyTo(uint8_t** arr) const
 		{
 			*arr = new uint8_t[sizeof(m_Address)];
 			memcpy(*arr, m_Address, sizeof(m_Address));
@@ -166,21 +156,20 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 6 (the size of a MAC address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t *arr) const { memcpy(arr, m_Address, sizeof(m_Address)); }
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Address, sizeof(m_Address)); }
 
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		 */
 		PCAPPP_COMMON_API static MacAddress Zero;
 
-	  private:
+	private:
 		uint8_t m_Address[6];
 		bool m_IsValid;
-		void init(const char *addr);
+		void init(const char* addr);
 	};
 
-	MacAddress::MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
-						   uint8_t fifthOctet, uint8_t sixthOctet)
+	MacAddress::MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
 		: m_IsValid(true)
 	{
 		m_Address[0] = firstOctest;
@@ -193,10 +182,10 @@ namespace pcpp
 
 } // namespace pcpp
 
-inline std::ostream &operator<<(std::ostream &os, const pcpp::MacAddress &macAddress)
+inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
 {
 	os << macAddress.toString();
 	return os;
 }
 
-#endif // PCAPPP_MAC_ADDRESS
+#endif /* PCAPPP_MACADDRESS */
