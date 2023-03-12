@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SOMEIP_LAYER
 #define PACKETPP_SOMEIP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include <unordered_set>
 

@@ -1,6 +1,7 @@
 #ifndef PCAPPP_POINTER_VECTOR
 #define PCAPPP_POINTER_VECTOR
 
+#include "CommonExport.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>

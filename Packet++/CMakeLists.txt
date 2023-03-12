@@ -56,6 +56,7 @@ add_library(
   src/VlanLayer.cpp
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
+
   # Force hash-library pcapng to be link fully static
 )
 
@@ -91,6 +92,7 @@ set(public_headers
     header/NflogLayer.h
     header/NtpLayer.h
     header/Packet.h
+    header/PacketExport.h
     header/PacketTrailerLayer.h
     header/PacketUtils.h
     header/PayloadLayer.h
@@ -122,9 +124,16 @@ set(public_headers
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+if(WIN32 AND BUILD_SHARED_LIBS)
+  set_property(TARGET Packet++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  set_property(TARGET Packet++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  target_compile_definitions(Packet++ PUBLIC "PCPP_PACKET_BUILD_DLL")
+endif()
+
 target_include_directories(
   Packet++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
+
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)

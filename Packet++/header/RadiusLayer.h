@@ -1,6 +1,7 @@
 #ifndef PACKETPP_RADIUS_LAYER
 #define PACKETPP_RADIUS_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 

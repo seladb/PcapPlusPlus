@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SOMEIPSD_LAYER
 #define PACKETPP_SOMEIPSD_LAYER
 
+#include "PacketExport.h"
 #include "EndianPortable.h"
 #include "IpAddress.h"
 #include "Layer.h"

@@ -1,7 +1,9 @@
 #ifndef PCAPPP_PCAP_REMOTE_DEVICE
 #define PCAPPP_PCAP_REMOTE_DEVICE
 
+#include "PcapExport.h"
 #if defined(_WIN32)
+
 
 #include <vector>
 #include "PcapLiveDevice.h"

@@ -1,6 +1,7 @@
 #ifndef PACKETPP_LAYER
 #define PACKETPP_LAYER
 
+#include "PacketExport.h"
 #include <stdint.h>
 #include <stdio.h>
 #include "ProtocolType.h"

@@ -1,9 +1,10 @@
 #ifndef PACKETPP_NULL_LOOPBACK_LAYER
 #define PACKETPP_NULL_LOOPBACK_LAYER
 
-/// @file
-
+#include "PacketExport.h"
 #include "Layer.h"
+
+/// @file
 
 namespace pcpp
 {

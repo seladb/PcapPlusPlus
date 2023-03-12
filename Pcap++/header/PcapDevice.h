@@ -1,6 +1,7 @@
 #ifndef PCAPPP_PCAP_DEVICE
 #define PCAPPP_PCAP_DEVICE
 
+#include "PcapExport.h"
 #include "Device.h"
 
 // forward declaration for the pcap descriptor defined in pcap.h

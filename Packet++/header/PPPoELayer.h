@@ -1,6 +1,7 @@
 #ifndef PACKETPP_PPPOE_LAYER
 #define PACKETPP_PPPOE_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include <vector>

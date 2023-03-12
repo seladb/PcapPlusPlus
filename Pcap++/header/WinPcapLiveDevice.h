@@ -1,6 +1,7 @@
 #ifndef PCAPP_WINPCAP_LIVE_DEVICE
 #define PCAPP_WINPCAP_LIVE_DEVICE
 
+#include "PcapExport.h"
 #if defined(_WIN32)
 
 /// @file

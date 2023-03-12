@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include <time.h>
 #include "Packet.h"
 #include "PointerVector.h"

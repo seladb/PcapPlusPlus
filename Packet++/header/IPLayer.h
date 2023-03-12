@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IP_LAYER
 #define PACKETPP_IP_LAYER
 
+#include "PacketExport.h"
 #include "IpAddress.h"
 #include "Layer.h"
 

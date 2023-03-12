@@ -1,6 +1,7 @@
 #ifndef PACKETPP_HTTP_LAYER
 #define PACKETPP_HTTP_LAYER
 
+#include "PacketExport.h"
 #include "TextBasedProtocol.h"
 #include <string>
 #include <exception>

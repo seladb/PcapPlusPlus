@@ -1,6 +1,7 @@
 #ifndef PACKETPP_GTP_LAYER
 #define PACKETPP_GTP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SSH_LAYER
 #define PACKETPP_SSH_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /**

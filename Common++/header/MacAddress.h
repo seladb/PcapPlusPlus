@@ -1,6 +1,7 @@
-#ifndef PCAPPP_MACADDRESS
-#define PCAPPP_MACADDRESS
+#ifndef MAC_ADDRESS_H
+#define MAC_ADDRESS_H
 
+#include "CommonExport.h"
 #include <stdint.h>
 #include <string.h>
 #include <string>
@@ -159,7 +160,7 @@ namespace pcpp
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		 */
-		static MacAddress Zero;
+		PCAPPP_COMMON_API static MacAddress Zero;
 
 	private:
 		uint8_t m_Address[6];
@@ -186,4 +187,4 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAdd
 	return os;
 }
 
-#endif /* PCAPPP_MACADDRESS */
+#endif // MAC_ADDRESS_H

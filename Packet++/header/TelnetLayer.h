@@ -1,6 +1,7 @@
 #ifndef PACKETPP_TELNET_LAYER
 #define PACKETPP_TELNET_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

@@ -1,3 +1,7 @@
+#ifndef PCAPPP_TABLE_PRINTER
+#define PCAPPP_TABLE_PRINTER
+
+#include "CommonExport.h"
 #include <vector>
 
 /// @file
@@ -69,3 +73,5 @@ namespace pcpp
 	};
 
 }
+
+#endif /* PCAPPP_TABLE_PRINTER */

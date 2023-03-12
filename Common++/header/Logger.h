@@ -1,6 +1,7 @@
 #ifndef PCAPPP_LOGGER
 #define PCAPPP_LOGGER
 
+#include "CommonExport.h"
 #include <stdio.h>
 #include <iostream>
 #include <sstream>

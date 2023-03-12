@@ -1,6 +1,7 @@
-#ifndef PCAPPP_RAW_PACKET
-#define PCAPPP_RAW_PACKET
+#ifndef RAW_PACKET_H
+#define RAW_PACKET_H
 
+#include "PacketExport.h"
 #include <stdint.h>
 #ifdef _MSC_VER
 #include <WinSock2.h>
@@ -452,4 +453,4 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif
+#endif // RAW_PACKET_H

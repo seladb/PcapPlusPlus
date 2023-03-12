@@ -1,6 +1,7 @@
 #ifndef PACKETPP_ETH_DOT3_LAYER
 #define PACKETPP_ETH_DOT3_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "MacAddress.h"
 

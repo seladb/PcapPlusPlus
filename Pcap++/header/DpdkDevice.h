@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include <pthread.h>
 #include <time.h>
 #include <vector>

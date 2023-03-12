@@ -25,6 +25,7 @@ set(public_headers
     header/Device.h
     header/NetworkUtils.h
     header/PcapDevice.h
+    header/PcapExport.h
     header/PcapFileDevice.h
     header/PcapFilter.h
     header/PcapLiveDevice.h
@@ -64,6 +65,12 @@ if(WIN32)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
+
+if(WIN32 AND BUILD_SHARED_LIBS)
+  set_property(TARGET Pcap++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  set_property(TARGET Pcap++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  target_compile_definitions(Pcap++ PUBLIC "PCPP_PCAP_BUILD_DLL")
+endif()
 
 if(APPLE)
   target_link_libraries(Pcap++ PRIVATE "-framework CoreFoundation" "-framework SystemConfiguration")

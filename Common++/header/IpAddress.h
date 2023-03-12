@@ -1,6 +1,7 @@
 #ifndef PCAPPP_IP_ADDRESSES
 #define PCAPPP_IP_ADDRESSES
 
+#include "CommonExport.h"
 #include <stdint.h>
 #include <string.h>
 #include <string>
@@ -143,7 +144,7 @@ namespace pcpp
 		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
 		 * In order to check whether the address is zero the method isValid can be used
 		 */
-		static const IPv4Address Zero;
+		PCAPPP_COMMON_API static const IPv4Address Zero;
 
 		/**
 		 * A static values representing the lower and upper bound of IPv4 multicast ranges. The bounds are inclusive.
@@ -151,8 +152,8 @@ namespace pcpp
 		 * MulticastRangeUpperBound is initialized to "239.255.255.255".
 		 * In order to check whether the address is a multicast address the isMulticast method can be used.
 		 */
-		static const IPv4Address MulticastRangeLowerBound;
-		static const IPv4Address MulticastRangeUpperBound;
+		PCAPPP_COMMON_API static const IPv4Address MulticastRangeLowerBound;
+		PCAPPP_COMMON_API static const IPv4Address MulticastRangeUpperBound;
 
 	private:
 		uint8_t m_Bytes[4];
@@ -265,14 +266,14 @@ namespace pcpp
 		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
 		 * In order to check whether the address is zero the method isValid can be used
 		 */
-		static const IPv6Address Zero;
+		PCAPPP_COMMON_API static const IPv6Address Zero;
 
 		/**
 		 * A static value representing the lower bound of IPv6 multicast ranges. The bound is inclusive.
 		 * MulticastRangeLowerBound is initialized to "ff00:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0".
 		 * In order to check whether the address is a multicast address the isMulticast method can be used.
 		 */
-		static const IPv6Address MulticastRangeLowerBound;
+		PCAPPP_COMMON_API static const IPv6Address MulticastRangeLowerBound;
 
 	private:
 		uint8_t m_Bytes[16];

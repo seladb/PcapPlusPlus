@@ -1,11 +1,12 @@
 #ifndef PCAPPP_DEVICE
 #define PCAPPP_DEVICE
 
-/// @file
-
+#include "PcapExport.h"
 #include "PointerVector.h"
 #include "RawPacket.h"
 #include "PcapFilter.h"
+
+/// @file
 
 /**
 * \namespace pcpp

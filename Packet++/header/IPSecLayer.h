@@ -1,9 +1,10 @@
 #ifndef PACKETPP_IPSEC_LAYER
 #define PACKETPP_IPSEC_LAYER
 
-/// @file
-
+#include "PacketExport.h"
 #include "Layer.h"
+
+/// @file
 
 /**
  * \namespace pcpp

@@ -11,6 +11,7 @@ add_library(
   src/TablePrinter.cpp)
 
 set(public_headers
+    header/CommonExport.h
     header/GeneralUtils.h
     header/IpAddress.h
     header/IpUtils.h
@@ -27,9 +28,17 @@ set(public_headers
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 
+
+if(WIN32 AND BUILD_SHARED_LIBS)
+  set_property(TARGET Common++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  set_property(TARGET Common++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  target_compile_definitions(Common++ PUBLIC "PCPP_COMMON_BUILD_DLL")
+endif()
+
 target_include_directories(
   Common++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
+
   # Don't link with EndianPortable and json as it won't be exported
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
   PRIVATE $<TARGET_PROPERTY:json,INTERFACE_INCLUDE_DIRECTORIES>)

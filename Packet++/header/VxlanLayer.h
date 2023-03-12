@@ -1,6 +1,7 @@
 #ifndef PACKETPP_VXLAN_LAYER
 #define PACKETPP_VXLAN_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

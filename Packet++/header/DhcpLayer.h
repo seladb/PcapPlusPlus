@@ -1,6 +1,7 @@
 #ifndef PACKETPP_DHCP_LAYER
 #define PACKETPP_DHCP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include "IpAddress.h"

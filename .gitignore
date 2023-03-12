@@ -73,3 +73,9 @@ Examples/Tutorials/**/*.exe
 #venv
 .venv/**
 venv/**
+
+#CMake
+compile_commands.json
+
+#Clang
+.cache

@@ -1,6 +1,7 @@
 #ifndef PACKETPP_DNS_LAYER
 #define PACKETPP_DNS_LAYER
 
+#include "PacketExport.h"
 #include "DnsLayerEnums.h"
 #include "DnsResource.h"
 #include "DnsResourceData.h"

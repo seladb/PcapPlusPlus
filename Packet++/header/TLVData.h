@@ -1,6 +1,7 @@
 #ifndef PACKETPP_TLV_DATA
 #define PACKETPP_TLV_DATA
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "IpAddress.h"
 #include <string.h>

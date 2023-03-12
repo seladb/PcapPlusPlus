@@ -1,6 +1,7 @@
 #ifndef PCAPPP_PROTOCOL_TYPES
 #define PCAPPP_PROTOCOL_TYPES
 
+#include "PacketExport.h"
 #include <stdint.h>
 
 /// @file

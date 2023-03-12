@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IP_REASSEMBLY
 #define PACKETPP_IP_REASSEMBLY
 
+#include "PacketExport.h"
 #include "Packet.h"
 #include "LRUList.h"
 #include "IpAddress.h"

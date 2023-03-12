@@ -1,6 +1,7 @@
-#ifndef PACKETPP_SIP_LAYER
-#define PACKETPP_SIP_LAYER
+#ifndef SIP_LAYER_H
+#define SIP_LAYER_H
 
+#include "PacketExport.h"
 #include "TextBasedProtocol.h"
 
 /// @file
@@ -676,4 +677,4 @@ namespace pcpp
 
 }
 
-#endif // PACKETPP_SIP_LAYER
+#endif // SIP_LAYER_H

@@ -1,6 +1,7 @@
 #ifndef PCAPPP_NETWORK_UTILS
 #define PCAPPP_NETWORK_UTILS
 
+#include "PcapExport.h"
 #include "MacAddress.h"
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
@@ -37,7 +38,7 @@ namespace pcpp
 		/**
 		 * Default timeout used for several utilities. Currently set to 5 seconds
 		 */
-		static const int DefaultTimeout;
+		PCAPPP_PCAP_API static const int DefaultTimeout;
 
 		/**
 		 * Resolve the MAC address for a given IPv4 address. It's done using the ARP protocol: send an ARP request and interpret the response

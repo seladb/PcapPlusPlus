@@ -1,6 +1,7 @@
 #ifndef PCAPPP_LIVE_DEVICE_LIST
 #define PCAPPP_LIVE_DEVICE_LIST
 
+#include "PcapExport.h"
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include <vector>

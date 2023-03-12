@@ -1,6 +1,7 @@
 #ifndef PACKETPP_STP_LAYER
 #define PACKETPP_STP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "MacAddress.h"
 

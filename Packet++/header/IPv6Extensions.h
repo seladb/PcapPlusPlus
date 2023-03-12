@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IPV6_EXTENSION
 #define PACKETPP_IPV6_EXTENSION
 
+#include "PacketExport.h"
 #include <vector>
 #include "IpAddress.h"
 #include "Layer.h"

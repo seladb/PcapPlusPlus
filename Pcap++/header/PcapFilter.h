@@ -1,6 +1,7 @@
 #ifndef PCAPP_FILTER
 #define PCAPP_FILTER
 
+#include "PcapExport.h"
 #include <string>
 #include <vector>
 #include <memory>

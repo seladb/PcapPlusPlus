@@ -1,6 +1,7 @@
 #ifndef PACKETPP_PACKET_UTILS
 #define PACKETPP_PACKET_UTILS
 
+#include "PacketExport.h"
 #include "Packet.h"
 
 /// @file
