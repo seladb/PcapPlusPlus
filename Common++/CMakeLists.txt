@@ -27,7 +27,6 @@ set(public_headers
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})
 
-
 if(WIN32 AND BUILD_SHARED_LIBS)
   set_property(TARGET Common++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
   set_property(TARGET Common++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
