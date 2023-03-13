@@ -8,4 +8,4 @@ if(BUILD_SHARED_LIBS AND WIN32)
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:FuzzTarget> $<TARGET_FILE_DIR:FuzzTarget>
       COMMAND_EXPAND_LISTS)
-  endif()
+endif()
