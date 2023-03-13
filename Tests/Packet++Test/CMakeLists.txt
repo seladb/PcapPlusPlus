@@ -48,6 +48,14 @@ if(MSVC)
   target_link_libraries(Packet++Test PRIVATE Getopt-for-Visual-Studio)
 endif()
 
+if(BUILD_SHARED_LIBS AND WIN32)
+  add_custom_command(
+    TARGET Packet++Test
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:Packet++Test> $<TARGET_FILE_DIR:Packet++Test>
+    COMMAND_EXPAND_LISTS)
+endif()
+
 set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
