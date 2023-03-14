@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(memplumber CXX)
 
-add_library(memplumber memplumber.cpp)
+add_library(memplumber STATIC memplumber.cpp)
 
 
 # MAIN_PROJECT CHECK
@@ -17,10 +17,10 @@ option(MEMPLUMBER_DISABLE_BACKTRACE "Disable backtrace" OFF)
 option(MEMPLUMBER_BUILD_TESTS "Build Tests" ${MEMPLUMBER_MAIN_PROJECT})
 option(MEMPLUMBER_BUILD_EXAMPLES "Build Examples" ${MEMPLUMBER_MAIN_PROJECT})
 
-if(WIN32 AND BUILD_SHARED_LIBS)
-  set_property(TARGET memplumber PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-  set_property(TARGET memplumber PROPERTY POSITION_INDEPENDENT_CODE TRUE)
-endif()
+# if(WIN32 AND BUILD_SHARED_LIBS)
+#   set_property(TARGET memplumber PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+#   set_property(TARGET memplumber PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+# endif()
 
 if(MEMPLUMBER_COLLECT_STATIC_VAR_DATA)
   add_definitions(-DCOLLECT_STATIC_VAR_DATA)
