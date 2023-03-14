@@ -1,7 +1,6 @@
-#ifndef DNS_RESOURCE_H
-#define DNS_RESOURCE_H
+#ifndef PACKETPP_DNS_RESOURCE
+#define PACKETPP_DNS_RESOURCE
 
-#include "PacketExport.h"
 #include "DnsLayer.h"
 #include "DnsLayerEnums.h"
 #include "DnsResourceData.h"
@@ -235,4 +234,4 @@ namespace pcpp
 
 }
 
-#endif // DNS_RESOURCE_H
+#endif // PACKETPP_DNS_RESOURCE
