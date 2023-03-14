@@ -3,7 +3,6 @@
 
 // GCOVR_EXCL_START
 
-#include "PcapExport.h"
 #include "Device.h"
 #include "MacAddress.h"
 #include "SystemUtils.h"

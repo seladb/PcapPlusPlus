@@ -1,7 +1,6 @@
 #ifndef PACKETPP_ICMP_LAYER
 #define PACKETPP_ICMP_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "IPv4Layer.h"
 #ifdef _MSC_VER

@@ -1,7 +1,6 @@
 #ifndef PCAPPP_FILE_DEVICE
 #define PCAPPP_FILE_DEVICE
 
-#include "PcapExport.h"
 #include "PcapDevice.h"
 #include "RawPacket.h"
 #include <fstream>

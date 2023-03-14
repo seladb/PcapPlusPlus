@@ -1,7 +1,6 @@
 #ifndef PACKETPP_SLL_LAYER
 #define PACKETPP_SLL_LAYER
 
-#include "PacketExport.h"
 #include "MacAddress.h"
 #include "Layer.h"
 

@@ -1,7 +1,6 @@
 #ifndef PACKETPP_PACKET
 #define PACKETPP_PACKET
 
-#include "PacketExport.h"
 #include "RawPacket.h"
 #include "Layer.h"
 #include <vector>

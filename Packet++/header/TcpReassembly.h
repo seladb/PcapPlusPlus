@@ -1,7 +1,6 @@
 #ifndef PACKETPP_TCP_REASSEMBLY
 #define PACKETPP_TCP_REASSEMBLY
 
-#include "PacketExport.h"
 #include "Packet.h"
 #include "IpAddress.h"
 #include "PointerVector.h"

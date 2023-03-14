@@ -1,7 +1,6 @@
 #ifndef PCAPPP_IP_UTILS
 #define PCAPPP_IP_UTILS
 
-#include "CommonExport.h"
 #include <stdint.h>
 #ifdef __linux__
 #include <netinet/in.h>

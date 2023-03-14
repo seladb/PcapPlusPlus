@@ -2,7 +2,6 @@
 #ifndef PCAPPP_LIVE_DEVICE
 #define PCAPPP_LIVE_DEVICE
 
-#include "PcapExport.h"
 #include <atomic>
 #include <vector>
 #include <string.h>

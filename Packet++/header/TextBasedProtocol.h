@@ -1,7 +1,6 @@
 #ifndef PACKETPP_TEXT_BASED_PROTOCOL_LAYER
 #define PACKETPP_TEXT_BASED_PROTOCOL_LAYER
 
-#include "PacketExport.h"
 #include <map>
 #include "Layer.h"
 

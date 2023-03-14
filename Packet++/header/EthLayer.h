@@ -1,7 +1,6 @@
 #ifndef PACKETPP_ETH_LAYER
 #define PACKETPP_ETH_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "MacAddress.h"
 

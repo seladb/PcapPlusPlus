@@ -1,7 +1,6 @@
 #ifndef PACKETPP_UDP_LAYER
 #define PACKETPP_UDP_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

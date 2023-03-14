@@ -1,7 +1,6 @@
 #ifndef PCAPP_PCAP_REMOTE_DEVICE_LIST
 #define PCAPP_PCAP_REMOTE_DEVICE_LIST
 
-#include "PcapExport.h"
 #if defined(_WIN32)
 
 #include "IpAddress.h"

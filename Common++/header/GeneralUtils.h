@@ -1,7 +1,6 @@
 #ifndef PCAPPP_GENERAL_UTILS
 #define PCAPPP_GENERAL_UTILS
 
-#include "CommonExport.h"
 #include <string>
 #include <stdint.h>
 

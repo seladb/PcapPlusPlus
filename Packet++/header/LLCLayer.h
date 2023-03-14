@@ -1,7 +1,6 @@
 #ifndef PACKETPP_LLC_LAYER
 #define PACKETPP_LLC_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

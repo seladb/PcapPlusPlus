@@ -1,7 +1,6 @@
 #ifndef PACKETPP_VLAN_LAYER
 #define PACKETPP_VLAN_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "EthLayer.h"
 

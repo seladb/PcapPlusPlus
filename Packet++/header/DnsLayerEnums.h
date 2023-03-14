@@ -1,8 +1,6 @@
 #ifndef PACKETPP_DNS_LAYER_ENUMS
 #define PACKETPP_DNS_LAYER_ENUMS
 
-#include "PacketExport.h"
-
 /// @file
 
 /**

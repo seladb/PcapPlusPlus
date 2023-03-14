@@ -1,7 +1,6 @@
 #ifndef PACKETPP_ARP_LAYER
 #define PACKETPP_ARP_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "IpAddress.h"
 #include "MacAddress.h"

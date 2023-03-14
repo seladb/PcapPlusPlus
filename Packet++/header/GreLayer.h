@@ -1,7 +1,6 @@
 #ifndef PACKETPP_GRE_LAYER
 #define PACKETPP_GRE_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

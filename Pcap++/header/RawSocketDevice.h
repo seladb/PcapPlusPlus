@@ -3,7 +3,6 @@
 
 /// @file
 
-#include "PcapExport.h"
 #include "IpAddress.h"
 #include "Device.h"
 

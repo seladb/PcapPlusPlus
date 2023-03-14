@@ -1,7 +1,6 @@
 #ifndef PCAPPP_LRU_LIST
 #define PCAPPP_LRU_LIST
 
-#include "CommonExport.h"
 #include <map>
 #include <list>
 

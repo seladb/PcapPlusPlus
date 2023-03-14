@@ -1,7 +1,6 @@
 #ifndef PACKETPP_IPV6_LAYER
 #define PACKETPP_IPV6_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "IPLayer.h"
 #include "IPv6Extensions.h"

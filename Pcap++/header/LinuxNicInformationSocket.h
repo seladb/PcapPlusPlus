@@ -1,8 +1,6 @@
 #ifndef PCAPPP_LINUX_NIC_INFORMATION_SOCKET
 #define PCAPPP_LINUX_NIC_INFORMATION_SOCKET
 
-#include "PcapExport.h"
-
 struct ifreq;
 
 /**

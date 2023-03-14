@@ -1,7 +1,6 @@
 #ifndef PACKETPP_NDP_LAYER
 #define PACKETPP_NDP_LAYER
 
-#include "PacketExport.h"
 #include "IcmpV6Layer.h"
 #include "IpAddress.h"
 #include "Layer.h"

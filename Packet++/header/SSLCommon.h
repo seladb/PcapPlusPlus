@@ -1,7 +1,6 @@
 #ifndef PACKETPP_SSL_LAYER_COMMON
 #define PACKETPP_SSL_LAYER_COMMON
 
-#include "PacketExport.h"
 #include <string>
 #include <stdint.h>
 

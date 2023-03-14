@@ -1,7 +1,6 @@
 #ifndef PACKETPP_ICMPV6_LAYER
 #define PACKETPP_ICMPV6_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file

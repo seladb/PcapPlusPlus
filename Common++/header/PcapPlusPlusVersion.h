@@ -1,7 +1,6 @@
 #ifndef PCAPPP_VERSION_H
 #define PCAPPP_VERSION_H
 
-#include "CommonExport.h"
 #include <string>
 
 /// @file

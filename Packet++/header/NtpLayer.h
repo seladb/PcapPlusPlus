@@ -1,7 +1,6 @@
 #ifndef PACKETPP_NTP_LAYER
 #define PACKETPP_NTP_LAYER
 
-#include "PacketExport.h"
 #include "Logger.h"
 #include "Layer.h"
 #include "IpAddress.h"

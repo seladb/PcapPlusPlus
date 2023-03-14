@@ -1,7 +1,6 @@
 #ifndef PACKETPP_WAKEONLAN_LAYER
 #define PACKETPP_WAKEONLAN_LAYER
 
-#include "PacketExport.h"
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"

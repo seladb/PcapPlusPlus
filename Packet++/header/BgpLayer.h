@@ -1,7 +1,6 @@
 #ifndef PACKETPP_BGP_LAYER
 #define PACKETPP_BGP_LAYER
 
-#include "PacketExport.h"
 #include <vector>
 #include "Layer.h"
 #include "IpAddress.h"

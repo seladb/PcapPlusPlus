@@ -3,7 +3,6 @@
 
 // GCOVR_EXCL_START
 
-#include "PcapExport.h"
 #include "SystemUtils.h"
 #include "DpdkDevice.h"
 #include "Logger.h"

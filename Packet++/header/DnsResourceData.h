@@ -1,7 +1,6 @@
 #ifndef PACKETPP_DNS_RESOURCE_DATA
 #define PACKETPP_DNS_RESOURCE_DATA
 
-#include "PacketExport.h"
 #include "DnsResource.h"
 #include "IpAddress.h"
 #include <memory>

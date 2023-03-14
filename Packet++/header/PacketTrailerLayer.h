@@ -1,10 +1,9 @@
 #ifndef PACKETPP_PACKET_TRAILER_LAYER
 #define PACKETPP_PACKET_TRAILER_LAYER
 
-#include "PacketExport.h"
-#include "Layer.h"
-
 /// @file
+
+#include "Layer.h"
 
 namespace pcpp
 {

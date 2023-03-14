@@ -1,7 +1,6 @@
 #ifndef PACKETPP_DHCPV6_LAYER
 #define PACKETPP_DHCPV6_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 

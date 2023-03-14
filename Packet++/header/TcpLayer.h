@@ -1,7 +1,6 @@
 #ifndef PACKETPP_TCP_LAYER
 #define PACKETPP_TCP_LAYER
 
-#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include <string.h>
