@@ -412,6 +412,41 @@ namespace pcpp
 	};
 
 
+	class IPv4Network
+	{
+	public:
+		IPv4Network(const IPv4Address& address, uint8_t prefixLen);
+
+		IPv4Network(const IPv4Address& address, const std::string& subnetMask);
+
+		IPv4Network(const std::string& addressAndSubnet);
+
+		uint8_t getPrefixLen() const;
+
+		std::string getSubnetMask() const { return IPv4Address(m_Mask).toString(); }
+
+		IPv4Address getNetworkPrefix() const { return IPv4Address(m_NetworkPrefix); }
+
+		IPv4Address getLowestAddress() const;
+
+		IPv4Address getHighestAddress() const;
+
+		int getNumAddresses() const;
+
+		bool includes(const IPv4Address& address);
+
+		bool includes(const IPv4Network& network);
+
+	private:
+		uint32_t m_NetworkPrefix;
+		uint32_t m_Mask;
+
+		bool isValidSubnetMask(const std::string& subnetMask);
+		void initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen);
+		void initFromAddressAndSubnetMask(const IPv4Address& address, const std::string& subnetMask);
+	};
+
+
 	// implementation of inline methods
 
 	bool IPAddress::operator==(const IPAddress& rhs) const

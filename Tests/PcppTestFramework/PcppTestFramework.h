@@ -171,6 +171,33 @@
 		return; \
 	}
 
+#define PTF_ASSERT_RAISES(expression, exception_type, message) \
+	{ \
+		auto rightExceptionCaught = false; \
+		std::string messageCaught = ""; \
+		try { \
+			expression; \
+		} \
+		catch (const exception_type& e) { \
+			rightExceptionCaught = true; \
+			messageCaught = e.what(); \
+		} \
+		catch ( ... ) { /* do nothing */ } \
+		if (!rightExceptionCaught) { \
+			PTF_PRINT_ASSERTION("FAILED", "EXCEPTION RAISED") \
+				<< "   " << #exception_type << " not raised" << std::endl; \
+			ptfResult = PTF_RESULT_FAILED; \
+			return; \
+		} \
+		if (messageCaught != std::string(message)) { \
+			PTF_PRINT_ASSERTION("FAILED", "EXCEPTION RAISED") \
+				<< "   " << "Expected message: " << std::string(message) << std::endl \
+				<< "   " << "Message caught  : " << messageCaught << std::endl; \
+			ptfResult = PTF_RESULT_FAILED; \
+			return; \
+		} \
+	}
+
 #define PTF_NON_CRITICAL_EQUAL(actual, expected, ...) \
 	{ \
 		auto ptfActual = actual; \

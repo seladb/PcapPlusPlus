@@ -6,9 +6,11 @@
 #include <sstream>
 #include <stdexcept>
 #include <stdint.h>
+#include <bitset>
 #include "Logger.h"
 #include "IpUtils.h"
 #include "IpAddress.h"
+#include "EndianPortable.h"
 
 // for AF_INET, AF_INET6
 #if !defined(_WIN32)
@@ -177,5 +179,149 @@ namespace pcpp
 		return result;
 	}
 
+	const uint32_t AllOnes = pow(2, 32) - 1;
+
+	bool IPv4Network::isValidSubnetMask(const std::string& subnetMask)
+	{
+		if (subnetMask == "0.0.0.0")
+		{
+			return true;
+		}
+
+		auto mask = IPv4Address(subnetMask);
+		if (!mask.isValid())
+		{
+			return false;
+		}
+
+		uint32_t maskAsInt = be32toh(mask.toInt());
+		std::bitset<32> bitset(maskAsInt);
+		auto bitsetCount = bitset.count();
+
+		if (bitsetCount == 32)
+		{
+			return true;
+		}
+		else
+		{
+			return maskAsInt << bitsetCount == 0;
+		}
+	}
+
+	void IPv4Network::initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen)
+	{
+		m_Mask = be32toh(AllOnes ^ (prefixLen < 32 ? AllOnes >> prefixLen: 0));
+		m_NetworkPrefix = address.toInt() & m_Mask;
+	}
+
+	void IPv4Network::initFromAddressAndSubnetMask(const IPv4Address& address, const std::string& subnetMask)
+	{
+		IPv4Address subnetMaskAddr(subnetMask);
+		m_Mask = subnetMaskAddr.toInt();
+		m_NetworkPrefix = address.toInt() & m_Mask;
+	}
+
+	IPv4Network::IPv4Network(const IPv4Address& address, uint8_t prefixLen)
+	{
+		if (!address.isValid())
+		{
+			throw std::invalid_argument("address is not a valid IPv4 address");
+		}
+
+		if (prefixLen > 32)
+		{
+			throw std::invalid_argument("prefixLen must be an integer between 0 and 32");
+		}
+
+		initFromAddressAndPrefixLength(address, prefixLen);
+	}
+
+	IPv4Network::IPv4Network(const IPv4Address& address, const std::string& subnetMask)
+	{
+		if (!address.isValid())
+		{
+			throw std::invalid_argument("address is not a valid IPv4 address");
+		}
+
+		if (!isValidSubnetMask(subnetMask))
+		{
+			throw std::invalid_argument("subnetMask is not valid");
+		}
+
+		initFromAddressAndSubnetMask(address, subnetMask);
+	}
+
+	IPv4Network::IPv4Network(const std::string& addressAndSubnet)
+	{
+		std::stringstream stream(addressAndSubnet);
+		std::string networkPrefixStr, subnetStr;
+		std::getline(stream, networkPrefixStr, '/');
+		std::getline(stream, subnetStr);
+
+		if (subnetStr.empty())
+		{
+			throw std::invalid_argument("The input should be in the format of <address>/<subnetMask> or <address>/<prefixLength>");
+		}
+
+		auto networkPrefix = IPv4Address(networkPrefixStr);
+		if (!networkPrefix.isValid())
+		{
+			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix");
+		}
+
+		if (std::all_of(subnetStr.begin(), subnetStr.end(), ::isdigit))
+		{
+			uint32_t prefixLen = std::stoi(subnetStr);
+			if (prefixLen > 32)
+			{
+				throw std::invalid_argument("Prefix length must be an integer between 0 and 32");
+			}
+
+			initFromAddressAndPrefixLength(networkPrefix, prefixLen);
+		}
+		else
+		{
+			if (!isValidSubnetMask(subnetStr))
+			{
+				throw std::invalid_argument("Subnet mask is not valid");
+			}
+
+			initFromAddressAndSubnetMask(networkPrefix, subnetStr);
+		}
+	}
+
+	uint8_t IPv4Network::getPrefixLen() const
+	{
+		std::bitset<32> bitset(m_Mask);
+		return bitset.count();
+	}
+
+	IPv4Address IPv4Network::getLowestAddress() const
+	{
+		return m_NetworkPrefix;
+	}
+
+	IPv4Address IPv4Network::getHighestAddress() const
+	{
+		return m_NetworkPrefix | ~m_Mask;
+	}
+
+	int IPv4Network::getNumAddresses() const
+	{
+		std::bitset<32> bitset(~m_Mask);
+		return pow(2, bitset.count());
+	}
+
+	bool IPv4Network::includes(const IPv4Address& address)
+	{
+		return (address.toInt() & m_Mask) == m_NetworkPrefix;
+	}
+
+	bool IPv4Network::includes(const IPv4Network& network)
+	{
+		uint32_t lowestAddress = network.m_NetworkPrefix;
+		uint32_t highestAddress = network.m_NetworkPrefix | ~network.m_Mask;
+		return ((lowestAddress & m_Mask) == m_NetworkPrefix && (highestAddress & m_Mask) == m_NetworkPrefix);
+	}
 
 } // namespace pcpp
