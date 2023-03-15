@@ -73,7 +73,7 @@ static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetT
 		if (runMemLeakCheck) \
 		{ \
 			bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", configTagsToRun, false); \
-			/* MemPlumber::start(memAllocVerbose); */ \
+			MemPlumber::start(memAllocVerbose); \
 		} \
 		TestName(TestName##_result, verboseMode, showSkippedTests); \
 		if (runMemLeakCheck) \
