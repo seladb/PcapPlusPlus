@@ -20,12 +20,12 @@ repos:
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
 #      - id: clang-format
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.4
     hooks:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.9.16
+    rev: v1.13.23
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
