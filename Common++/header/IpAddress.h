@@ -7,6 +7,17 @@
 #include <algorithm>
 #include <ostream>
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /// @file
 
 
@@ -16,6 +27,8 @@
  */
 namespace pcpp
 {
+
+	class IPv4Network;
 
 	// The implementation of the classes is based on document N4771 "Working Draft, C++ Extensions for Networking"
 	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4771.pdf
@@ -110,6 +123,8 @@ namespace pcpp
 		 */
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
+		bool matchSubnet(const IPv4Network& subnet) const;
+
 		/**
 		 * Checks whether the address matches a subnet.
 		 * For example: if subnet is 10.1.1.1/24 and address is 10.1.1.9 then the method will return true
@@ -119,24 +134,14 @@ namespace pcpp
 		bool matchSubnet(const std::string& subnet) const;
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
-		 * (it'll be ignored if subnet mask is correct)
-		 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
+		 * @deprecated This method is deprecated, please use matchSubnet(const IPv4Network& subnet)
 		 */
-		bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
+		PCPP_DEPRECATED bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
-		 * (it'll be ignored if subnet mask is correct)
-		 * @param[in] subnetMask The subnet mask to compare the address with the subnet
+		 * @deprecated This method is deprecated, please use matchSubnet(const IPv4Network& subnet)
 		 */
-		bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
+		PCPP_DEPRECATED bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
 
 		/**
 		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
@@ -433,9 +438,9 @@ namespace pcpp
 
 		int getNumAddresses() const;
 
-		bool includes(const IPv4Address& address);
+		bool includes(const IPv4Address& address) const;
 
-		bool includes(const IPv4Network& network);
+		bool includes(const IPv4Network& network) const;
 
 	private:
 		uint32_t m_NetworkPrefix;

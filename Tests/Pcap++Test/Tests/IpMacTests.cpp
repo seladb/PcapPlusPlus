@@ -41,24 +41,29 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_TRUE(secondIPv4Address.isValid());
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
-	pcpp::IPv4Address ipv4Addr("10.0.0.4"), subnet1("10.0.0.0"), subnet2("10.10.0.0"), mask("255.255.255.0");
-	std::string maskedSubnet1("10.0.0.0/24"), maskedSubnet2("10.10.0.0/24");
-	std::string invalidMaskedSubnet1("aaaa"), invalidMaskedSubnet2("10.0.0.0"), invalidMaskedSubnet3("10.0.0.0/aa"), invalidMaskedSubnet4("10.0.0.0/33"), invalidMaskedSubnet5("999.999.1.1/24");
-	PTF_ASSERT_TRUE(ipv4Addr.isValid());
-	PTF_ASSERT_TRUE(subnet1.isValid());
-	PTF_ASSERT_TRUE(subnet2.isValid());
-	PTF_ASSERT_TRUE(mask.isValid());
-	PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(subnet1, mask));
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(subnet2, mask));
-	PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(maskedSubnet1));
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(maskedSubnet2));
+	// subnets
+	pcpp::IPv4Address ipv4Addr("10.0.0.4");
+	auto subnets = std::vector<std::tuple<std::string, std::string, std::string>>{
+			{"10.8.0.0", "8", "255.0.0.0"},
+			{"10.0.0.0", "24", "255.255.255.0"}
+	};
+	for (auto subnet : subnets)
+	{
+		std::string subnetWithPrefixAsString = std::get<0>(subnet) + "/" + std::get<1>(subnet);
+		std::string subnetWithMaskAsString = std::get<0>(subnet) + "/" + std::get<2>(subnet);
+		PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(subnetWithPrefixAsString));
+		PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(subnetWithMaskAsString));
+		PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(pcpp::IPv4Network(subnetWithPrefixAsString)));
+	}
+
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMaskedSubnet1));
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMaskedSubnet2));
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMaskedSubnet3));
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMaskedSubnet4));
-	PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMaskedSubnet5));
+	auto invalidMasks = std::vector<std::string>{"aaaa", "10.0.0.0", "10.0.0.0/aa", "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
+	for (auto invalidMask : invalidMasks)
+	{
+		PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMask));
+	}
 	pcpp::Logger::getInstance().enableLogs();
+
 
 	pcpp::IPv4Address badAddress(std::string("sdgdfgd"));
 	PTF_ASSERT_FALSE(badAddress.isValid());

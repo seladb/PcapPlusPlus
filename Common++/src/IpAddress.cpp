@@ -50,70 +50,56 @@ namespace pcpp
 	}
 
 
+	bool IPv4Address::matchSubnet(const IPv4Network& subnet) const
+	{
+		return subnet.includes(*this);
+	}
+
+
 	bool IPv4Address::matchSubnet(const std::string& subnet) const
 	{
-		std::stringstream ss(subnet);
-		std::string subnetOnly, subnetPrefixStr;
-		std::getline(ss, subnetOnly, '/');
-		std::getline(ss, subnetPrefixStr);
-
-		if (subnetPrefixStr.empty() || !std::all_of(subnetPrefixStr.begin(), subnetPrefixStr.end(), ::isdigit)) {
-			PCPP_LOG_ERROR("subnet prefix '" << subnetPrefixStr << "' must be an integer");
-			return false;
-		}
-
-		uint32_t subnetPrefix;
-		try {
-			subnetPrefix = std::stoi(subnetPrefixStr);
-		} catch (const std::invalid_argument&) {
-			PCPP_LOG_ERROR("Subnet prefix in '" << subnet << "' must be an integer");
-			return false;
-		} catch (const std::out_of_range&) {
-			PCPP_LOG_ERROR("Subnet prefix in '" << subnet << "' must be between 0 and 32");
-			return false;
-		}
-
-		if (subnetPrefix > 32)
+		try
 		{
-			PCPP_LOG_ERROR("Subnet prefix '" << subnetPrefix << "' must be between 0 and 32");
-			return false;
+			auto ipv4Network = IPv4Network(subnet);
+			return ipv4Network.includes(*this);
 		}
-
-		uint32_t subnetMask = pow(2, subnetPrefix) - 1;
-
-		IPv4Address subnetAsIpAddr(subnetOnly);
-		IPv4Address maskAsIpAddr(subnetMask);
-
-		if (!maskAsIpAddr.isValid() || !subnetAsIpAddr.isValid())
+		catch (const std::invalid_argument& e)
 		{
-			PCPP_LOG_ERROR("Subnet '" << subnet << "' is in illegal format");
+			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
-
-		return matchSubnet(subnetAsIpAddr, maskAsIpAddr);
 	}
 
 
 	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const
 	{
-		IPv4Address maskAsIpAddr(subnetMask);
-		if (!maskAsIpAddr.isValid())
+		try
 		{
-			PCPP_LOG_ERROR("Subnet mask '" << subnetMask << "' is in illegal format");
+			auto ipv4Network = IPv4Network(subnet, subnetMask);
+			return ipv4Network.includes(*this);
+		}
+		catch (const std::invalid_argument& e)
+		{
+			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
-
-		return matchSubnet(subnet, maskAsIpAddr);
 	}
 
 
 	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const
 	{
-		uint32_t subnetMaskAsUInt = subnetMask.toInt();
-		uint32_t thisAddrAfterMask = toInt() & subnetMaskAsUInt;
-		uint32_t subnetAddrAfterMask = subnet.toInt() & subnetMaskAsUInt;
-		return thisAddrAfterMask == subnetAddrAfterMask;
+		try
+		{
+			auto ipv4Network = IPv4Network(subnet, subnetMask.toString());
+			return ipv4Network.includes(*this);
+		}
+		catch (const std::invalid_argument& e)
+		{
+			PCPP_LOG_ERROR(e.what());
+			return false;
+		}
 	}
+
 
 	std::string IPv6Address::toString() const
 	{
@@ -312,12 +298,12 @@ namespace pcpp
 		return pow(2, bitset.count());
 	}
 
-	bool IPv4Network::includes(const IPv4Address& address)
+	bool IPv4Network::includes(const IPv4Address& address) const
 	{
 		return (address.toInt() & m_Mask) == m_NetworkPrefix;
 	}
 
-	bool IPv4Network::includes(const IPv4Network& network)
+	bool IPv4Network::includes(const IPv4Network& network) const
 	{
 		uint32_t lowestAddress = network.m_NetworkPrefix;
 		uint32_t highestAddress = network.m_NetworkPrefix | ~network.m_Mask;
