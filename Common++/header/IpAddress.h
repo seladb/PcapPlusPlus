@@ -544,7 +544,7 @@ namespace pcpp
 		bool includes(const IPv4Address& address) const;
 
 		/**
-		 * @param address An IPv4 network
+		 * @param network An IPv4 network
 		 * @return True is the input network is included within this network, false otherwise, for example:
 		 * 10.10.10.10/16 includes 10.10.10.10/24 but doesn't include 10.10.10.10/8
 		 */
