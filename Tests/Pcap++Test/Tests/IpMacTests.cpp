@@ -408,6 +408,7 @@ PTF_TEST_CASE(TestIPv4Network)
 
 	PTF_ASSERT_TRUE(ipv4Network.includes(pcpp::IPv4Address("172.16.192.15")));
 	PTF_ASSERT_FALSE(ipv4Network.includes(pcpp::IPv4Address("172.17.0.1")));
+	PTF_ASSERT_FALSE(ipv4Network.includes(pcpp::IPv4Address("invalid")));
 
 	PTF_ASSERT_EQUAL(ipv4Network.getLowestAddress(), pcpp::IPv4Address("172.16.0.0"));
 	PTF_ASSERT_EQUAL(ipv4Network.getHighestAddress(), pcpp::IPv4Address("172.16.255.255"));

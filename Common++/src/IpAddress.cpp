@@ -300,6 +300,10 @@ namespace pcpp
 
 	bool IPv4Network::includes(const IPv4Address& address) const
 	{
+		if (!address.isValid())
+		{
+			return false;
+		}
 		return (address.toInt() & m_Mask) == m_NetworkPrefix;
 	}
 
