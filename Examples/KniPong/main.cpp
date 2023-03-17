@@ -181,7 +181,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	{
 		EXIT_WITH_ERROR("One of provided IPs is not valid");
 	}
-	if (!outIp.matchSubnet(kniIp, pcpp::IPv4Address("255.255.255.0")))
+	if (!outIp.matchSubnet(pcpp::IPv4Network(kniIp, "255.255.255.0")))
 	{
 		EXIT_WITH_ERROR(
 			"Provided Virtual IP '" << outIp << "' is not in same required subnet '255.255.255.0' as KNI IP '" << kniIp << "'"

@@ -465,7 +465,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_TRUE(ipLayer->getSrcIPv4Address().matchSubnet(pcpp::IPv4Address(std::string("212.199.202.9")), std::string("255.255.255.0")));
+		PTF_ASSERT_TRUE(ipLayer->getSrcIPv4Address().matchSubnet(std::string("212.199.202.9/255.255.255.0")));
 	}
 
 	rawPacketVec.clear();
@@ -486,7 +486,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		pcpp::Packet packet(*iter);
 		PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv4));
 		pcpp::IPv4Layer* ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		PTF_ASSERT_TRUE(ipLayer->getSrcIPv4Address().matchSubnet(pcpp::IPv4Address(std::string("212.199.202.9")), std::string("255.255.255.0")));
+		PTF_ASSERT_TRUE(ipLayer->getSrcIPv4Address().matchSubnet(std::string("212.199.202.9/255.255.255.0")));
 	}
 	rawPacketVec.clear();
 
