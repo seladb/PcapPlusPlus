@@ -44,8 +44,8 @@ PTF_TEST_CASE(TestIPAddress)
 	// subnets
 	pcpp::IPv4Address ipv4Addr("10.0.0.4");
 	auto subnets = std::vector<std::tuple<std::string, std::string, std::string>>{
-			{"10.8.0.0", "8", "255.0.0.0"},
-			{"10.0.0.0", "24", "255.255.255.0"}
+		std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
+		std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}
 	};
 	for (auto subnet : subnets)
 	{
@@ -369,14 +369,14 @@ PTF_TEST_CASE(TestIPv4Network)
 	auto address = pcpp::IPv4Address(addressAsStr);
 
 	auto subnetsPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string>> {
-		{"255.255.255.255", 32, "192.168.10.100"},
-		{"255.255.255.0", 24, "192.168.10.0"},
-		{"255.255.0.0", 16, "192.168.0.0"},
-		{"255.240.0.0", 12, "192.160.0.0"},
-		{"255.0.0.0", 8, "192.0.0.0"},
-		{"192.0.0.0", 2, "192.0.0.0"},
-		{"128.0.0.0", 1, "128.0.0.0"},
-		{"0.0.0.0", 0, "0.0.0.0"}
+		std::tuple<std::string, uint8_t, std::string>{"255.255.255.255", 32, "192.168.10.100"},
+		std::tuple<std::string, uint8_t, std::string>{"255.255.255.0", 24, "192.168.10.0"},
+		std::tuple<std::string, uint8_t, std::string>{"255.255.0.0", 16, "192.168.0.0"},
+		std::tuple<std::string, uint8_t, std::string>{"255.240.0.0", 12, "192.160.0.0"},
+		std::tuple<std::string, uint8_t, std::string>{"255.0.0.0", 8, "192.0.0.0"},
+		std::tuple<std::string, uint8_t, std::string>{"192.0.0.0", 2, "192.0.0.0"},
+		std::tuple<std::string, uint8_t, std::string>{"128.0.0.0", 1, "128.0.0.0"},
+		std::tuple<std::string, uint8_t, std::string>{"0.0.0.0", 0, "0.0.0.0"}
 	};
 
 	for (auto subnetPrefixLenAndNetPrefix : subnetsPrefixLensAndNetPrefix)
