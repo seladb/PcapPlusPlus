@@ -294,7 +294,7 @@ namespace pcpp
 
 	int IPv4Network::getNumAddresses() const
 	{
-		std::bitset<64> bitset(~m_Mask);
+		std::bitset<32> bitset(static_cast<uint32_t>(~m_Mask));
 		return pow(2, bitset.count());
 	}
 
