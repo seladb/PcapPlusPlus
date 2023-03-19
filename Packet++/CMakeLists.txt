@@ -125,6 +125,9 @@ set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 if(WIN32 AND BUILD_SHARED_LIBS)
   set_property(TARGET Packet++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
   set_property(TARGET Packet++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    set_property(TARGET Packet++ PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
+  endif()
 endif()
 
 target_include_directories(

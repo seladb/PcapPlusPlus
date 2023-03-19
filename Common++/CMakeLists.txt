@@ -31,6 +31,9 @@ if(WIN32 AND BUILD_SHARED_LIBS)
   set_property(TARGET Common++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
   set_property(TARGET Common++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
   target_compile_definitions(Common++ PUBLIC "PCPP_COMMON_BUILD_DLL")
+  if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    set_property(TARGET Common++ PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebugDLL")
+  endif()
 endif()
 
 target_include_directories(
