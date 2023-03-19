@@ -279,6 +279,13 @@ if(PCAPPP_INSTALL)
     DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 endif()
 
+# For debug
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+
 if(PCAPPP_PACKAGE)
   if(NOT PCAPPP_INSTALL)
     message(SEND_ERROR "Packaging depends on PCAPP_INSTALL")
