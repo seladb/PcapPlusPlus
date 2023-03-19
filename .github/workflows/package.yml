@@ -168,7 +168,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.zip
 
   visual-studio:
     strategy:
@@ -233,7 +233,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.zip
 
   android:
     strategy:
