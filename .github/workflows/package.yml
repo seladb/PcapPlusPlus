@@ -61,9 +61,10 @@ jobs:
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload binaries to release
+        uses: actions/upload-release-asset@v1
         with:
-          path: ${{ env.BUILD_DIR }}/*.tar.gz
+          files: ${{ env.BUILD_DIR }}/*.tar.gz
 
   freebsd:
     runs-on: macos-12
@@ -83,6 +84,11 @@ jobs:
             cmake -S . -B Dist
             cmake --build Dist -j 4
             cmake --build "$BUILD_DIR" --target package
+
+      - name: Upload binaries to release
+        uses: actions/upload-release-asset@v1
+        with:
+          files: ${{ env.BUILD_DIR }}/*.tar.gz
 
   macos:
     runs-on: ${{ matrix.os-version }}
@@ -120,9 +126,10 @@ jobs:
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload binaries to release
+        uses: actions/upload-release-asset@v1
         with:
-          path: ${{ env.BUILD_DIR }}/*.tar.gz
+          files: ${{ env.BUILD_DIR }}/*.tar.gz
 
   mingw-w64:
     runs-on: windows-latest
@@ -176,9 +183,10 @@ jobs:
         shell: msys2 {0}
         run: cmake --build "$BUILD_DIR" --target package
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload binaries to release
+        uses: actions/upload-release-asset@v1
         with:
-          path: ${{ env.BUILD_DIR }}/*.zip
+          files: ${{ env.BUILD_DIR }}/*.tar.gz
 
   visual-studio:
     strategy:
@@ -243,9 +251,10 @@ jobs:
       - name: Package
         run: cmake --build "$env:BUILD_DIR" --target package
 
-      - uses: actions/upload-artifact@v3
+      - name: Upload binaries to release
+        uses: actions/upload-release-asset@v1
         with:
-          path: ${{ env.BUILD_DIR }}/*.zip
+          files: ${{ env.BUILD_DIR }}/*.tar.gz
 
   android:
     strategy:
