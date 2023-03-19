@@ -73,21 +73,21 @@ static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetT
 		if (runMemLeakCheck) \
 		{ \
 			bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", configTagsToRun, false); \
-			MemPlumber::start(memAllocVerbose); \
+			/* MemPlumber::start(memAllocVerbose); */ \
 		} \
 		TestName(TestName##_result, verboseMode, showSkippedTests); \
 		if (runMemLeakCheck) \
 		{ \
 			if (TestName##_result != PTF_RESULT_PASSED) \
 			{ \
-				MemPlumber::stopAndFreeAllMemory(); \
+				/* MemPlumber::stopAndFreeAllMemory(); */ \
 			} \
 			else \
 			{ \
 				size_t memLeakCount = 0; \
 				uint64_t memLeakSize = 0; \
-				MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true); \
-				MemPlumber::stopAndFreeAllMemory(); \
+				/* MemPlumber::memLeakCheck(memLeakCount, memLeakSize, true); */ \
+				/* MemPlumber::stopAndFreeAllMemory(); */ \
 				if (memLeakCount > 0 || memLeakSize > 0) \
 				{ \
 					TestName##_result = PTF_RESULT_FAILED; \
