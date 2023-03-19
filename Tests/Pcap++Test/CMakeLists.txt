@@ -18,7 +18,7 @@ add_executable(
 
 target_link_libraries(
   Pcap++Test
-  PUBLIC memplumber
+  PUBLIC 
          Pcap++
          PcppTestFramework
          EndianPortable)

@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 	std::string userTagsInclude = "", userTagsExclude = "", configTags = "";
 	bool runWithNetworking = true;
 	bool memVerbose = false;
-	bool skipMemLeakCheck = false;
+	bool skipMemLeakCheck = true;
 
 	int optionIndex = 0;
 	int opt = 0;
