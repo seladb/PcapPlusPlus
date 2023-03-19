@@ -62,9 +62,9 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   freebsd:
     runs-on: macos-12
@@ -86,9 +86,9 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   macos:
     runs-on: ${{ matrix.os-version }}
@@ -127,9 +127,9 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   mingw-w64:
     runs-on: windows-latest
@@ -184,9 +184,9 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   visual-studio:
     strategy:
@@ -252,9 +252,9 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   android:
     strategy:
