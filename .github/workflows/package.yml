@@ -64,6 +64,7 @@ jobs:
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   freebsd:
@@ -88,6 +89,7 @@ jobs:
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   macos:
@@ -129,6 +131,7 @@ jobs:
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   mingw-w64:
@@ -186,6 +189,7 @@ jobs:
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   visual-studio:
@@ -254,6 +258,7 @@ jobs:
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   android:
