@@ -16,27 +16,19 @@ jobs:
       matrix:
         include:
           - image: ubuntu2204
-            python: python3
             config-zstd: OFF
           - image: ubuntu2204-icpx
-            python: python3
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - image: ubuntu2004
-            python: python3
             config-zstd: OFF
           - image: ubuntu1804
-            python: python3.8
             config-zstd: OFF
           - image: centos7
-            python: python3.8
-            test-flags: --test-args="-s"
             config-zstd: OFF
           - image: fedora37
-            python: python3
             config-zstd: OFF
           - image: alpine317
-            python: python3
             config-zstd: OFF
 
     steps:
@@ -109,10 +101,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
-
       - name: Configure PcapPlusPlus
         run: |
           cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
@@ -152,11 +140,6 @@ jobs:
             mingw-w64-${{matrix.env}}-cmake
             mingw-w64-${{matrix.env}}-gcc
             mingw-w64-${{matrix.env}}-make
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
 
       - name: Install NPcap
         env:
