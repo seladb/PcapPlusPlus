@@ -281,9 +281,9 @@ endif()
 
 # For debug
 get_cmake_property(_variableNames VARIABLES)
-list (SORT _variableNames)
-foreach (_variableName ${_variableNames})
-    message(STATUS "${_variableName}=${${_variableName}}")
+list(SORT _variableNames)
+foreach(_variableName ${_variableNames})
+  message(STATUS "${_variableName}=${${_variableName}}")
 endforeach()
 
 if(PCAPPP_PACKAGE)
@@ -302,6 +302,13 @@ if(PCAPPP_PACKAGE)
 
   # used in CPackAdditionalInstall.cmake
   set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
+  set(CPACK_ADDITIONAL_EXAMPLE_APP
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/1_packet.pcap"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/CMakeLists.txt"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/main.cpp"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/Makefile.non_windows"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/Makefile.windows"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/README.md")
   set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
 
   # Default output a .tar.gz
@@ -321,8 +328,7 @@ if(PCAPPP_PACKAGE)
     )
   elseif(WIN32)
     set(CPACK_GENERATOR "ZIP")
-    set(CPACK_SYSTEM_NAME
-        "windows-${PCAPPP_TARGET_COMPILER}-${CMAKE_CXX_COMPILER_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
+    set(CPACK_SYSTEM_NAME "windows-${PCAPPP_TARGET_COMPILER}-${CMAKE_VS_PLATFORM_NAME}-${CMAKE_CXX_COMPILER_VERSION}")
   endif()
 
   include(CPack)
