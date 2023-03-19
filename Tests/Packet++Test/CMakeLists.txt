@@ -38,7 +38,7 @@ add_executable(
 
 target_link_libraries(
   Packet++Test
-  PUBLIC 
+  PUBLIC memplumber
          Packet++
          PcppTestFramework
          EndianPortable)
