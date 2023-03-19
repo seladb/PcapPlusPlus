@@ -62,7 +62,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.BUILD_DIR }}/*.tar.gz
 
@@ -86,7 +86,7 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.BUILD_DIR }}/*.tar.gz
 
@@ -127,7 +127,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.BUILD_DIR }}/*.tar.gz
 
@@ -184,7 +184,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.BUILD_DIR }}/*.tar.gz
 
@@ -252,7 +252,7 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --target package
 
       - name: Upload binaries to release
-        uses: actions/upload-release-asset@v1
+        uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.BUILD_DIR }}/*.tar.gz
 
