@@ -177,19 +177,15 @@ jobs:
           - os: "windows-2019"
             platform: "Visual Studio 16 2019"
             arch: "x64"
-            pcap_lib: "npcap"
           - os: windows-2019
             platform: "Visual Studio 16 2019"
             arch: Win32
-            pcap_lib: "winpcap"
           - os: windows-2022
             platform: "Visual Studio 17 2022"
             arch: "x64"
-            pcap_lib: "winpcap"
           - os: windows-2022
             platform: "Visual Studio 17 2022"
-            arch: "x64"
-            pcap_lib: "npcap"
+            arch: Win32
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -203,16 +199,6 @@ jobs:
         run: |
           ci\install_winpcap.bat
           echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'winpcap'
-
-      - name: Install NPcap
-        env:
-          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
-          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
-        run: |
-          ci\install_npcap.bat
-          echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'npcap'
 
       - name: Set Zstd
         run: |
