@@ -128,7 +128,7 @@ namespace pcpp
 		 */
 		const uint8_t* getRawData() const { return m_Address; }
 
-		/**static
+		/**
 		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
 		 * invalid string
 		 * @return True if the address is valid, false otherwise
