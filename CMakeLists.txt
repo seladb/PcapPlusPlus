@@ -306,8 +306,6 @@ if(PCAPPP_PACKAGE)
       "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/1_packet.pcap"
       "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/CMakeLists.txt"
       "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/main.cpp"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/Makefile.non_windows"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/Makefile.windows"
       "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/README.md")
   set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
 
