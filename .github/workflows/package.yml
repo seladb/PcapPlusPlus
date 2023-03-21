@@ -61,6 +61,12 @@ jobs:
 
   freebsd:
     runs-on: macos-12
+    strategy:
+      matrix:
+        include:
+          - freebsd-version: 12.3
+          - freebsd-version: 13.0
+          - freebsd-version: 13.1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -68,6 +74,7 @@ jobs:
       - name: Test in FreeBSD
         uses: vmactions/freebsd-vm@v0
         with:
+          release: ${{ matrix.freebsd-version }}
           envs: 'BUILD_DIR'
           usesh: true
           prepare: |
