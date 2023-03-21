@@ -3,7 +3,7 @@
 
 #include <iomanip>
 #include <iostream>
-// #include "memplumber.h"
+#include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
 #define _PTF_PRINT_TYPE_ACTUAL(exp, val) val

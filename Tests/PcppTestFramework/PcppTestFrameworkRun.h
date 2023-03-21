@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-// #include "memplumber.h"
+#include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
 static void __ptfSplitString(const std::string& input, std::vector<std::string>& result)
