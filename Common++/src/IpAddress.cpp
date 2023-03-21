@@ -165,8 +165,6 @@ namespace pcpp
 		return result;
 	}
 
-	const uint32_t AllOnes = pow(2, 32) - 1;
-
 	bool IPv4Network::isValidSubnetMask(const std::string& subnetMask)
 	{
 		if (subnetMask == "0.0.0.0")
@@ -196,7 +194,7 @@ namespace pcpp
 
 	void IPv4Network::initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen)
 	{
-		m_Mask = be32toh(AllOnes ^ (prefixLen < 32 ? AllOnes >> prefixLen: 0));
+		m_Mask = be32toh(0xffffffff ^ (prefixLen < 32 ? 0xffffffff >> prefixLen: 0));
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
 
