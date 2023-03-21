@@ -434,3 +434,89 @@ PTF_TEST_CASE(TestIPv4Network)
 		PTF_ASSERT_EQUAL(ipv4Network3.getNumAddresses(), pow(2, 32 - prefixLen));
 	}
 } // TestIPv4Network
+
+
+PTF_TEST_CASE(TestIPv6Network)
+{
+	// Invalid c'tor: IPv6 address + prefix len
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("invalid"), 1), std::invalid_argument, "address is not a valid IPv6 address");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), 129), std::invalid_argument, "prefixLen must be an integer between 0 and 128");
+
+	// Invalid c'tor: IPv6 address + subnet mask
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("invalid"), "ffff::"), std::invalid_argument, "address is not a valid IPv6 address");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "invalid"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ff10::"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ee00::"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "7f00::"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff::ffff"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "f000::0001"), std::invalid_argument, "subnetMask is not valid");
+
+	// Invalid c'tor: address + subnet in one string
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<subnetMask> or <address>/<prefixLength>");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid/32")), std::invalid_argument, "The input doesn't contain a valid IPv6 network prefix");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/32/24")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/255.255.0.0")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/130")), std::invalid_argument, "Prefix length must be an integer between 0 and 128");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/-1")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/invalid")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/a2cb:d625::")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/ffff::0001")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/0fff::")), std::invalid_argument, "Subnet mask is not valid");
+
+	// Valid c'tor
+	auto addressAsStr = std::string("39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746");
+	auto address = pcpp::IPv6Address(addressAsStr);
+
+	auto subnetsPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>> {
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 128, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", 1},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8", 125, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5740", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5747", 8},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:8000::", 65, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1:7fff:ffff:ffff:ffff", 9223372036854775808ULL},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff::", 64, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff::", 32, "39e1:f90e::", "39e1:f90e:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:e000::", 19, "39e1:e000::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:8000::", 17, "39e1:8000::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff::", 16, "39e1::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ff80::", 9, "3980::", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ff00::", 8, "3900::", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"fc00::", 6, "3800::", "3bff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"c000::", 2, "00::", "3fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"::", 0, "::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0}
+	};
+
+	for (auto subnetPrefixLenAndNetPrefix : subnetsPrefixLensAndNetPrefix)
+	{
+		// Valid c'tor: IPv6 address + subnet mask
+		pcpp::IPv6Network iPv6NetworkA(address, std::get<0>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkA.getPrefixLen(), std::get<1>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkA.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+
+		// Valid c'tor: IPv6 address + prefix len
+		pcpp::IPv6Network iPv6NetworkB(address, std::get<1>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkB.getSubnetMask(), std::get<0>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkB.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+
+		// Valid c'tor: address + subnet in one string
+		std::string addressAndSubnet = addressAsStr + "/" + std::get<0>(subnetPrefixLenAndNetPrefix);
+		pcpp::IPv6Network iPv6NetworkC(addressAndSubnet);
+		PTF_ASSERT_EQUAL(iPv6NetworkC.getPrefixLen(), std::get<1>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkC.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+
+		// Valid c'tor: address + prefix len in one string
+		std::string addressAndPrefixLen = addressAsStr + "/" + std::to_string(std::get<1>(subnetPrefixLenAndNetPrefix));
+		pcpp::IPv6Network iPv6NetworkD(addressAndPrefixLen);
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getSubnetMask(), std::get<0>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getLowestAddress(), pcpp::IPv6Address(std::get<2>(subnetPrefixLenAndNetPrefix)));
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getHighestAddress(), pcpp::IPv6Address(std::get<3>(subnetPrefixLenAndNetPrefix)));
+		auto expectedNumOfAddresses = std::get<4>(subnetPrefixLenAndNetPrefix);
+		if (expectedNumOfAddresses != 0)
+		{
+			PTF_ASSERT_EQUAL(iPv6NetworkD.getNumAddresses(), expectedNumOfAddresses);
+		}
+		else
+		{
+			PTF_ASSERT_RAISES(iPv6NetworkD.getNumAddresses(), std::out_of_range, "Number of addresses exceeds uint64_t");
+		}
+	}
+} // TestIPv6Network

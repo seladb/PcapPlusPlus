@@ -9,6 +9,7 @@ PTF_TEST_CASE(TestLRUList);
 PTF_TEST_CASE(TestGeneralUtils);
 PTF_TEST_CASE(TestGetMacAddress);
 PTF_TEST_CASE(TestIPv4Network);
+PTF_TEST_CASE(TestIPv6Network);
 
 // Implemented in LoggerTests.cpp
 PTF_TEST_CASE(TestLogger);

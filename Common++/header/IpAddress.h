@@ -559,6 +559,35 @@ namespace pcpp
 		void initFromAddressAndSubnetMask(const IPv4Address& address, const std::string& subnetMask);
 	};
 
+	class IPv6Network
+	{
+	public:
+		IPv6Network(const IPv6Address& address, uint8_t prefixLen);
+
+		IPv6Network(const IPv6Address& address, const std::string& subnetMask);
+
+		IPv6Network(const std::string& addressAndSubnet);
+
+		uint8_t getPrefixLen() const;
+
+		std::string getSubnetMask() const { return IPv6Address(m_Mask).toString(); }
+
+		IPv6Address getNetworkPrefix() const { return IPv6Address(m_NetworkPrefix); }
+
+		IPv6Address getLowestAddress() const;
+
+		IPv6Address getHighestAddress() const;
+
+		uint64_t getNumAddresses() const;
+
+	private:
+		uint8_t m_NetworkPrefix[16];
+		uint8_t m_Mask[16];
+
+		bool isValidSubnetMask(const std::string& subnetMask);
+		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
+		void initFromAddressAndSubnetMask(const IPv6Address& address, const std::string& subnetMask);
+	};
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
