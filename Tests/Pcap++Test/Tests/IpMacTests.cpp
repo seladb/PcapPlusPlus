@@ -352,6 +352,7 @@ PTF_TEST_CASE(TestIPv4Network)
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "255.255.0.255"), std::invalid_argument, "subnetMask is not valid");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "10.10.10.10"), std::invalid_argument, "subnetMask is not valid");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "0.255.255.255"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "127.255.255.255"), std::invalid_argument, "subnetMask is not valid");
 
 	// Invalid c'tor: address + subnet in one string
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<subnetMask> or <address>/<prefixLength>");
