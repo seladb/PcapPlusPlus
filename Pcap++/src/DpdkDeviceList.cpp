@@ -400,6 +400,54 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 	return true;
 }
 
+bool DpdkDeviceList::startDpdkWorkerThread(CoreMask coreMask, DpdkWorkerThread* worker)
+{
+	if (!isInitialized())
+	{
+		PCPP_LOG_ERROR("DpdkDeviceList not initialized");
+		return false;
+	}
+
+	CoreMask tempCoreMask = coreMask;
+	size_t numOfCoresInMask = 0;
+	int coreNum = 0;
+	while (tempCoreMask > 0)
+	{
+		if (tempCoreMask & 1)
+		{
+			if (!rte_lcore_is_enabled(coreNum))
+			{
+				PCPP_LOG_ERROR("Trying to use core #" << coreNum << " which isn't initialized by DPDK");
+				return false;
+			}
+
+			numOfCoresInMask++;
+		}
+		tempCoreMask = tempCoreMask >> 1;
+		coreNum++;
+	}
+
+	if (numOfCoresInMask == 0)
+	{
+		PCPP_LOG_ERROR("Number of cores in mask is 0");
+		return false;
+	}
+	m_WorkerThreads.clear();
+        int lcore_id,ret =0;
+        rte_eal_mp_remote_launch(dpdkWorkerThreadStart,worker, CALL_MASTER);
+        // RTE_LCORE_FOREACH_SLAVE(lcore_id) {
+        //         if (rte_eal_wait_lcore(lcore_id) < 0) {
+        //                 ret = -1;
+        //                 break;
+        //         }
+        // }
+	m_WorkerThreads.push_back(worker);
+
+
+
+	return true;
+}
+
 void DpdkDeviceList::stopDpdkWorkerThreads()
 {
 	if (m_WorkerThreads.empty())

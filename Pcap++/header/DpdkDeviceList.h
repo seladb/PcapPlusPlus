@@ -194,7 +194,7 @@ namespace pcpp
 		 * worker threads couldn't be run
 		 */
 		bool startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkWorkerThread*>& workerThreadsVec);
-
+		bool startDpdkWorkerThread(CoreMask coreMask, DpdkWorkerThread* worker);
 		/**
 		 * Assuming worker threads are running, this method orders them to stop by calling DpdkWorkerThread#stop(). Then it waits until
 		 * they stop running
