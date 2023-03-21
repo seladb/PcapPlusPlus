@@ -1,6 +1,7 @@
 #ifndef PACKETPP_PPPOE_LAYER
 #define PACKETPP_PPPOE_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include <vector>
@@ -114,7 +115,7 @@ namespace pcpp
 	 * @class PPPoESessionLayer
 	 * Describes the PPPoE session protocol
 	 */
-	class PPPoESessionLayer : public PPPoELayer
+	class PCAPPP_PACKET_API PPPoESessionLayer : public PPPoELayer
 	{
 	public:
 
@@ -274,7 +275,7 @@ namespace pcpp
 		 * A class for building PPPoE Tags. This builder receives the tag parameters in its c'tor,
 		 * builds the PPPoE Tag raw buffer and provides a build() method to get a PPPoETag object out of it
 		 */
-		class PPPoETagBuilder : public TLVRecordBuilder
+		class PCAPPP_PACKET_API PPPoETagBuilder : public TLVRecordBuilder
 		{
 		public:
 

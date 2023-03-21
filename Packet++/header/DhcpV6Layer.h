@@ -1,6 +1,7 @@
 #ifndef PACKETPP_DHCPV6_LAYER
 #define PACKETPP_DHCPV6_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 
@@ -276,7 +277,7 @@ namespace pcpp
 	 * @class DhcpV6Layer
 	 * Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol layer
 	 */
-	class DhcpV6Layer : public Layer
+	class PCAPPP_PACKET_API DhcpV6Layer : public Layer
 	{
 	public:
 

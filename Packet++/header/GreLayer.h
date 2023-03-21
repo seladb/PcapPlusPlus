@@ -1,6 +1,7 @@
 #ifndef PACKETPP_GRE_LAYER
 #define PACKETPP_GRE_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file
@@ -105,7 +106,7 @@ namespace pcpp
 	 * @class GreLayer
 	 * Abstract base class for GRE layers (GREv0Layer and GREv1Layer). Cannot be instantiated and contains common logic for derived classes
 	 */
-	class GreLayer : public Layer
+	class PCAPPP_PACKET_API GreLayer : public Layer
 	{
 	public:
 

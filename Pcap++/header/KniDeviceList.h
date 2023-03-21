@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include <vector>
 
 #include "KniDevice.h"
@@ -21,7 +22,7 @@ namespace pcpp
 	 * and holds the list of KniDevice instances.
 	 * As it's a singleton, it has only one active instance doesn't have a public c'tor.
 	 */
-	class KniDeviceList
+	class PCAPPP_PCAP_API KniDeviceList
 	{
 		KniDeviceList();
 

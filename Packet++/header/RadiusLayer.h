@@ -1,6 +1,7 @@
 #ifndef PACKETPP_RADIUS_LAYER
 #define PACKETPP_RADIUS_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 
@@ -165,7 +166,7 @@ namespace pcpp
 	 * @class RadiusLayer
 	 * Represents a RADIUS (Remote Authentication Dial-In User Service) protocol layer
 	 */
-	class RadiusLayer : public Layer
+	class PCAPPP_PACKET_API RadiusLayer : public Layer
 	{
 	private:
 

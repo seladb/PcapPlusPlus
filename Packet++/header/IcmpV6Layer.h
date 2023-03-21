@@ -1,6 +1,7 @@
 #ifndef PACKETPP_ICMPV6_LAYER
 #define PACKETPP_ICMPV6_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file
@@ -130,7 +131,7 @@ typedef struct icmpv6_echo_hdr : icmpv6hdr
  * @class IcmpV6Layer
  * Base class for ICMPv6 protocol layers which provides common logic for ICMPv6 messages.
  */
-class IcmpV6Layer : public Layer
+class PCAPPP_PACKET_API IcmpV6Layer : public Layer
 {
 public:
 	/**

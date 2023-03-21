@@ -1,6 +1,7 @@
 #ifndef PACKETPP_HTTP_LAYER
 #define PACKETPP_HTTP_LAYER
 
+#include "PacketExport.h"
 #include "TextBasedProtocol.h"
 #include <string>
 #include <exception>
@@ -67,7 +68,7 @@ namespace pcpp
 	 * @class HttpMessage
 	 * Represents a general HTTP message. It's an abstract class and cannot be instantiated. It's inherited by HttpRequestLayer and HttpResponseLayer
 	 */
-	class HttpMessage : public TextBasedProtocolMessage
+	class PCAPPP_PACKET_API HttpMessage : public TextBasedProtocolMessage
 	{
 	public:
 
@@ -490,7 +491,7 @@ namespace pcpp
 	 * of this class need in most cases to shorten or extend the data in HttpRequestLayer. These methods will return a false value if this
 	 * action failed
 	 */
-	class HttpRequestFirstLine
+	class PCAPPP_PACKET_API HttpRequestFirstLine
 	{
 		friend class HttpRequestLayer;
 	public:
@@ -601,7 +602,7 @@ namespace pcpp
 	 * of this class need in most cases to shorten or extend the data in HttpResponseLayer. These methods will return a false value if this
 	 * action failed
 	 */
-	class HttpResponseFirstLine
+	class PCAPPP_PACKET_API HttpResponseFirstLine
 	{
 		friend class HttpResponseLayer;
 	public:

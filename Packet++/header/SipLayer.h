@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SIP_LAYER
 #define PACKETPP_SIP_LAYER
 
+#include "PacketExport.h"
 #include "TextBasedProtocol.h"
 
 /// @file
@@ -71,7 +72,7 @@ namespace pcpp
 	 * @class SipLayer
 	 * Represents a general SIP message. It's an abstract class and cannot be instantiated. It's inherited by SipRequestLayer and SipResponseLayer
 	 */
-	class SipLayer : public TextBasedProtocolMessage
+	class PCAPPP_PACKET_API SipLayer : public TextBasedProtocolMessage
 	{
 	public:
 
@@ -474,7 +475,7 @@ namespace pcpp
 	 * Since SIP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So many "setter" methods
 	 * of this class may need to shorten or extend the data in SipRequestLayer. These methods will return a false value if this action failed
 	 */
-	class SipRequestFirstLine
+	class PCAPPP_PACKET_API SipRequestFirstLine
 	{
 		friend class SipRequestLayer;
 	public:
@@ -576,7 +577,7 @@ namespace pcpp
 	 * Since SIP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So most "setter" methods
 	 * of this class may need to shorten or extend the data in SipResponseLayer. These methods will return a false value if this action failed
 	 */
-	class SipResponseFirstLine
+	class PCAPPP_PACKET_API SipResponseFirstLine
 	{
 		friend class SipResponseLayer;
 	public:

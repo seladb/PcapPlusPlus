@@ -1,6 +1,7 @@
 #ifndef PACKETPP_VXLAN_LAYER
 #define PACKETPP_VXLAN_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file
@@ -70,7 +71,7 @@ namespace pcpp
 	 * @class VxlanLayer
 	 * Represents a VXLAN (Virtual eXtensible Local Area Network) protocol layer
 	 */
-	class VxlanLayer : public Layer
+	class PCAPPP_PACKET_API VxlanLayer : public Layer
 	{
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data

@@ -3,6 +3,7 @@
 
 #if defined(_WIN32)
 
+#include "PcapExport.h"
 #include <vector>
 #include "PcapLiveDevice.h"
 
@@ -76,7 +77,7 @@ namespace pcpp
 	 * are some are some implementation details, mainly in making the connection to the remote daemon, and the way the user can get the instance
 	 * of PcapRemoteDevice. For more details on that please refer to PcapRemoteDeviceList
 	 */
-	class PcapRemoteDevice : public PcapLiveDevice
+	class PCAPPP_PCAP_API PcapRemoteDevice : public PcapLiveDevice
 	{
 		friend class PcapRemoteDeviceList;
 	private:

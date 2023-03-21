@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SSH_LAYER
 #define PACKETPP_SSH_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /**
@@ -69,7 +70,7 @@ namespace pcpp
 	 * which takes raw data and creates an SSH message according to the heuristics described
 	 * in the SSHLayer.h file description
 	 */
-	class SSHLayer : public Layer
+	class PCAPPP_PACKET_API SSHLayer : public Layer
 	{
 	public:
 		/**
@@ -127,7 +128,7 @@ namespace pcpp
 	 * The message content is typically a string that contains the protocol version, software version and a few more details.
 	 * This string can be retrieved using the getIdentificationMessage() method
 	 */
-	class SSHIdentificationMessage : public SSHLayer
+	class PCAPPP_PACKET_API SSHIdentificationMessage : public SSHLayer
 	{
 	public:
 		/**
@@ -186,7 +187,7 @@ namespace pcpp
 	 * This class provides access to all of these values. The message content itself is not parse with the exception of SSHKeyExchangeInitMessage
 	 * which inherits from this class and provides parsing of the Key Exchange Init message.
 	 */
-	class SSHHandshakeMessage : public SSHLayer
+	class PCAPPP_PACKET_API SSHHandshakeMessage : public SSHLayer
 	{
 	public:
 		/**

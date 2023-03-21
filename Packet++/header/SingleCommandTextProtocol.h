@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER
 #define PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER
 
+#include "PacketExport.h"
 #include <sstream>
 #include "Layer.h"
 
@@ -16,7 +17,7 @@ namespace pcpp
 	/**
 	 * Class for single command text based protocol (FTP, SMTP) messages
 	 */
-	class SingleCommandTextProtocol : public Layer
+	class PCAPPP_PACKET_API SingleCommandTextProtocol : public Layer
 	{
 	private:
 		size_t getArgumentFieldOffset() const;

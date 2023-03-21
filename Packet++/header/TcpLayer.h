@@ -1,6 +1,7 @@
 #ifndef PACKETPP_TCP_LAYER
 #define PACKETPP_TCP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include <string.h>
@@ -326,7 +327,7 @@ namespace pcpp
 	 * @class TcpLayer
 	 * Represents a TCP (Transmission Control Protocol) protocol layer
 	 */
-	class TcpLayer : public Layer
+	class PCAPPP_PACKET_API TcpLayer : public Layer
 	{
 	public:
 		/**

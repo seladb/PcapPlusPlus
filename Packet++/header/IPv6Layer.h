@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IPV6_LAYER
 #define PACKETPP_IPV6_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "IPLayer.h"
 #include "IPv6Extensions.h"
@@ -53,7 +54,7 @@ namespace pcpp
 	 * @class IPv6Layer
 	 * Represents an IPv6 protocol layer
 	 */
-	class IPv6Layer : public Layer, public IPLayer
+	class PCAPPP_PACKET_API IPv6Layer : public Layer, public IPLayer
 	{
 	public:
 		/**

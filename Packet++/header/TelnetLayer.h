@@ -1,6 +1,7 @@
 #ifndef PACKETPP_TELNET_LAYER
 #define PACKETPP_TELNET_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file
@@ -15,7 +16,7 @@ namespace pcpp
 /**
  * Class for representing the Telnet Layer
  */
-class TelnetLayer : public Layer
+class PCAPPP_PACKET_API TelnetLayer : public Layer
 {
   private:
 	// Position iterator for next command

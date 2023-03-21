@@ -1,6 +1,7 @@
 #ifndef PACKETPP_NFLOG_LAYER
 #define PACKETPP_NFLOG_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 
@@ -148,7 +149,7 @@ namespace pcpp
 	 * @class NflogLayer
 	 * Represents an NFLOG protocol layer
 	 */
-	class NflogLayer : public Layer
+	class PCAPPP_PACKET_API NflogLayer : public Layer
 	{
 	public:
 		/**

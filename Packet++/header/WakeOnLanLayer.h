@@ -1,6 +1,7 @@
 #ifndef PACKETPP_WAKEONLAN_LAYER
 #define PACKETPP_WAKEONLAN_LAYER
 
+#include "PacketExport.h"
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"
@@ -16,7 +17,7 @@ namespace pcpp
 	/**
 	 * Class for representing the Wake on LAN Layer
 	 */
-	class WakeOnLanLayer : public Layer
+	class PCAPPP_PACKET_API WakeOnLanLayer : public Layer
 	{
 	  private:
 	  	void init(uint16_t len);

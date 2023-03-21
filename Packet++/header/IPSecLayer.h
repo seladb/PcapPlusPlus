@@ -3,6 +3,7 @@
 
 /// @file
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /**
@@ -49,7 +50,7 @@ namespace pcpp
 	 * @class AuthenticationHeaderLayer
 	 * Represents an IPSec AuthenticationHeader (AH) layer
 	 */
-	class AuthenticationHeaderLayer : public Layer
+	class PCAPPP_PACKET_API AuthenticationHeaderLayer : public Layer
 	{
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data
@@ -131,7 +132,7 @@ namespace pcpp
 	 * @class ESPLayer
 	 * Represents an IPSec Encapsulating Security Payload (ESP) layer
 	 */
-	class ESPLayer : public Layer
+	class PCAPPP_PACKET_API ESPLayer : public Layer
 	{
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data

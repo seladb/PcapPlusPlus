@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(memplumber CXX)
 
-add_library(memplumber memplumber.cpp)
+add_library(memplumber STATIC memplumber.cpp)
 
 
 # MAIN_PROJECT CHECK

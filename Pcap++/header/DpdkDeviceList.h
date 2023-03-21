@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include "SystemUtils.h"
 #include "DpdkDevice.h"
 #include "Logger.h"
@@ -71,7 +72,7 @@ namespace pcpp
 	 *    - it contains the list of DpdkDevice instances and enables access to them
 	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
 	 */
-	class DpdkDeviceList
+	class PCAPPP_PCAP_API DpdkDeviceList
 	{
 		friend class KniDeviceList;
 	private:

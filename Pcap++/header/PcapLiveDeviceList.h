@@ -1,6 +1,7 @@
 #ifndef PCAPPP_LIVE_DEVICE_LIST
 #define PCAPPP_LIVE_DEVICE_LIST
 
+#include "PcapExport.h"
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include <vector>
@@ -21,7 +22,7 @@ namespace pcpp
 	 * devices are initialized on startup and wrap the network interfaces installed on the machine. This class enables access to them through
 	 * their IP addresses or get a vector of all of them so the user can search them in some other way
 	 */
-	class PcapLiveDeviceList
+	class PCAPPP_PCAP_API PcapLiveDeviceList
 	{
 	private:
 		std::vector<PcapLiveDevice*> m_LiveDeviceList;

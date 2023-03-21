@@ -1,6 +1,7 @@
 #ifndef PACKETPP_FTP_LAYER
 #define PACKETPP_FTP_LAYER
 
+#include "PacketExport.h"
 #include "SingleCommandTextProtocol.h"
 
 /// @file
@@ -15,7 +16,7 @@ namespace pcpp
 	/**
 	 * Class for general FTP message
 	 */
-	class FtpLayer : public SingleCommandTextProtocol
+	class PCAPPP_PACKET_API FtpLayer : public SingleCommandTextProtocol
 	{
 	protected:
 		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
@@ -52,7 +53,7 @@ namespace pcpp
 	/**
 	 * Class for representing the request messages of FTP Layer
 	 */
-	class FtpRequestLayer : public FtpLayer
+	class PCAPPP_PACKET_API FtpRequestLayer : public FtpLayer
 	{
 	public:
 
@@ -278,7 +279,7 @@ namespace pcpp
 	/**
 	 * Class for representing the response messages of FTP Layer
 	 */
-	class FtpResponseLayer : public FtpLayer
+	class PCAPPP_PACKET_API FtpResponseLayer : public FtpLayer
 	{
 	public:
 

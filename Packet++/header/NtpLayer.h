@@ -1,6 +1,7 @@
 #ifndef PACKETPP_NTP_LAYER
 #define PACKETPP_NTP_LAYER
 
+#include "PacketExport.h"
 #include "Logger.h"
 #include "Layer.h"
 #include "IpAddress.h"
@@ -70,7 +71,7 @@ namespace pcpp
      @endverbatim
      *
 	 */
-    class NtpLayer : public Layer
+    class PCAPPP_PACKET_API NtpLayer : public Layer
     {
     private:
 #pragma pack(push, 1)

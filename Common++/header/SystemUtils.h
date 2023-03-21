@@ -50,141 +50,141 @@ namespace pcpp
 	 * @struct SystemCores
 	 * Contains static representation to all 32 cores and a static array to map core ID (integer) to a SystemCore struct
 	 */
-	struct SystemCores
+	struct PCAPPP_COMMON_API SystemCores
 	{
 		/**
 		 * Static representation of core #0
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core0;
+		static const SystemCore Core0;
 		/**
 		 * Static representation of core #1
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core1;
+		static const SystemCore Core1;
 		/**
 		 * Static representation of core #2
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core2;
+		static const SystemCore Core2;
 		/**
 		 * Static representation of core #3
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core3;
+		static const SystemCore Core3;
 		/**
 		 * Static representation of core #4
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core4;
+		static const SystemCore Core4;
 		/**
 		 * Static representation of core #5
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core5;
+		static const SystemCore Core5;
 		/**
 		 * Static representation of core #6
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core6;
+		static const SystemCore Core6;
 		/**
 		 * Static representation of core #7
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core7;
+		static const SystemCore Core7;
 		/**
 		 * Static representation of core #8
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core8;
+		static const SystemCore Core8;
 		/**
 		 * Static representation of core #9
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core9;
+		static const SystemCore Core9;
 		/**
 		 * Static representation of core #10
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core10;
+		static const SystemCore Core10;
 		/**
 		 * Static representation of core #11
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core11;
+		static const SystemCore Core11;
 		/**
 		 * Static representation of core #12
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core12;
+		static const SystemCore Core12;
 		/**
 		 * Static representation of core #13
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core13;
+		static const SystemCore Core13;
 		/**
 		 * Static representation of core #14
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core14;
+		static const SystemCore Core14;
 		/**
 		 * Static representation of core #15
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core15;
+		static const SystemCore Core15;
 		/**
 		 * Static representation of core #16
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core16;
+		static const SystemCore Core16;
 		/**
 		 * Static representation of core #17
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core17;
+		static const SystemCore Core17;
 		/**
 		 * Static representation of core #18
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core18;
+		static const SystemCore Core18;
 		/**
 		 * Static representation of core #19
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core19;
+		static const SystemCore Core19;
 		/**
 		 * Static representation of core #20
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core20;
+		static const SystemCore Core20;
 		/**
 		 * Static representation of core #21
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core21;
+		static const SystemCore Core21;
 		/**
 		 * Static representation of core #22
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core22;
+		static const SystemCore Core22;
 		/**
 		 * Static representation of core #23
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core23;
+		static const SystemCore Core23;
 		/**
 		 * Static representation of core #24
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core24;
+		static const SystemCore Core24;
 		/**
 		 * Static representation of core #25
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core25;
+		static const SystemCore Core25;
 		/**
 		 * Static representation of core #26
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core26;
+		static const SystemCore Core26;
 		/**
 		 * Static representation of core #27
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core27;
+		static const SystemCore Core27;
 		/**
 		 * Static representation of core #28
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core28;
+		static const SystemCore Core28;
 		/**
 		 * Static representation of core #29
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core29;
+		static const SystemCore Core29;
 		/**
 		 * Static representation of core #30
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core30;
+		static const SystemCore Core30;
 		/**
 		 * Static representation of core #31
 		 */
-		PCAPPP_COMMON_API static const SystemCore Core31;
+		static const SystemCore Core31;
 
 		/**
 		 * A static array for mapping core ID (integer) to the corresponding static SystemCore representation
 		 */
-		PCAPPP_COMMON_API static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
+		static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
 	};
 
 	typedef uint32_t CoreMask;
@@ -295,10 +295,10 @@ namespace pcpp
 	 * This class extracts the application name from the current running executable and stores it for usage of the application throughout its runtime.
 	 * This class should be initialized once in the beginning of the main() method using AppName#init() and from then on the app name could be retrieved using AppName#get()
 	 */
-	class AppName
+	class PCAPPP_COMMON_API AppName
 	{
 	private:
-		PCAPPP_COMMON_API static std::string m_AppName;
+		static std::string m_AppName;
 
 	public:
 		/**
@@ -350,7 +350,7 @@ namespace pcpp
 	 * A singleton class that provides callbacks for events that occur during application life-cycle such as ctrl+c pressed,
 	 * application closed, killed, etc.
 	 */
-	class ApplicationEventHandler
+	class PCAPPP_COMMON_API ApplicationEventHandler
 	{
 	public:
 		/**

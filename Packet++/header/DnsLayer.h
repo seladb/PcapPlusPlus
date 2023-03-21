@@ -1,6 +1,7 @@
 #ifndef PACKETPP_DNS_LAYER
 #define PACKETPP_DNS_LAYER
 
+#include "PacketExport.h"
 #include "DnsLayerEnums.h"
 #include "DnsResource.h"
 #include "DnsResourceData.h"
@@ -93,7 +94,7 @@ namespace pcpp
 	 * @class DnsLayer
 	 * Represents the DNS protocol layer
 	 */
-	class DnsLayer : public Layer
+	class PCAPPP_PACKET_API DnsLayer : public Layer
 	{
 		friend class IDnsResource;
 		friend class DnsQuery;

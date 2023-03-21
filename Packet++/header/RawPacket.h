@@ -1,6 +1,7 @@
 #ifndef PCAPPP_RAW_PACKET
 #define PCAPPP_RAW_PACKET
 
+#include "PacketExport.h"
 #include <stdint.h>
 #ifdef _MSC_VER
 #include <WinSock2.h>
@@ -249,7 +250,7 @@ namespace pcpp
 	 * every instance also holds a timestamp representing the time the packet was received by the NIC.
 	 * RawPacket instance isn't read only. The user can change the packet data, add or remove data, etc.
 	 */
-	class RawPacket
+	class PCAPPP_PACKET_API RawPacket
 	{
 	protected:
 		uint8_t* m_RawData;

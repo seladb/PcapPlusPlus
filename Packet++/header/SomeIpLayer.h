@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SOMEIP_LAYER
 #define PACKETPP_SOMEIP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include <unordered_set>
 
@@ -17,7 +18,7 @@ namespace pcpp
  * @class SomeIpLayer
  * Represents a SOME/IP protocol layer
  */
-class SomeIpLayer : public Layer
+class PCAPPP_PACKET_API SomeIpLayer : public Layer
 {
 public:
 	/**
@@ -357,7 +358,7 @@ private:
  * @class SomeIpTpLayer
  * Represents an SOME/IP Transport Protocol Layer
  */
-class SomeIpTpLayer : public SomeIpLayer
+class PCAPPP_PACKET_API SomeIpTpLayer : public SomeIpLayer
 {
 public:
 	/**

@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include <time.h>
 #include "Packet.h"
 #include "PointerVector.h"
@@ -42,7 +43,7 @@ namespace pcpp
 	 *      of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this capability so there is no way to
 	 *      access the mbufs linked to the mbuf wrapped by MBufRawPacket instance. I hope I'll be able to add this support in the future
 	 */
-	class MBufRawPacket : public RawPacket
+	class PCAPPP_PCAP_API MBufRawPacket : public RawPacket
 	{
 		friend class DpdkDevice;
 		friend class KniDevice;

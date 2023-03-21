@@ -27,7 +27,7 @@ namespace pcpp
 	 * @class MacAddress
 	 * Represents L2 MAC addresses. Can be constructed from string or a series of 6 byte octets
 	 */
-	class MacAddress
+	class PCAPPP_COMMON_API MacAddress
 	{
 	public:
 		/**
@@ -128,7 +128,7 @@ namespace pcpp
 		 */
 		const uint8_t* getRawData() const { return m_Address; }
 
-		/**
+		/**static
 		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
 		 * invalid string
 		 * @return True if the address is valid, false otherwise
@@ -161,7 +161,7 @@ namespace pcpp
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		 */
-		PCAPPP_COMMON_API static MacAddress Zero;
+		static MacAddress Zero;
 
 	private:
 		uint8_t m_Address[6];

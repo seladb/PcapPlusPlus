@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IGMP_LAYER
 #define PACKETPP_IGMP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "IpAddress.h"
 #include <vector>
@@ -158,7 +159,7 @@ enum IgmpType
  * only its child classes can be instantiated. The inherited classes represent the different versions of the protocol:
  * IGMPv1, IGMPv2 and IGMPv3
  */
-class IgmpLayer : public Layer
+class PCAPPP_PACKET_API IgmpLayer : public Layer
 {
 protected:
 

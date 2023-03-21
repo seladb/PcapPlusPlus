@@ -1,6 +1,7 @@
 #ifndef PCAPPP_LOGGER
 #define PCAPPP_LOGGER
 
+#include "CommonExport.h"
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
@@ -102,7 +103,7 @@ namespace pcpp
 	 *
 	 * Note: Logger#Info level logs are currently only used in DPDK devices to set DPDK log level to RTE_LOG_NOTICE.
 	 */
-	class Logger
+	class PCAPPP_COMMON_API Logger
 	{
 	public:
 		/**

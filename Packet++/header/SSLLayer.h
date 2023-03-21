@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SSL_LAYER
 #define PACKETPP_SSL_LAYER
 
+#include "PacketExport.h"
 #include "PointerVector.h"
 #include "Layer.h"
 #include "SSLCommon.h"
@@ -168,7 +169,7 @@ namespace pcpp
 	 * This class provides the common functionality used by all record types and also contains static methods for identifying
 	 * an creating SSL/TLS record type layers
 	 */
-	class SSLLayer : public Layer
+	class PCAPPP_PACKET_API SSLLayer : public Layer
 	{
 	public:
 

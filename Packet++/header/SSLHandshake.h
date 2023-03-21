@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SSL_HANDSHAKE_MESSAGE
 #define PACKETPP_SSL_HANDSHAKE_MESSAGE
 
+#include "PacketExport.h"
 #include <utility>
 #include "SSLCommon.h"
 #include "PointerVector.h"
@@ -27,7 +28,7 @@ namespace pcpp
  * getCipherSuiteByName() ). List of cipher-suite was taken from here:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
  */
-class SSLCipherSuite
+class PCAPPP_PACKET_API SSLCipherSuite
 {
 public:
 	/**
@@ -304,7 +305,7 @@ class SSLHandshakeLayer;
  * server-key-exchange, and server-hello-done messages (although it's not such a common case, most handshake layers
  * contain 1 handshake message only)
  */
-class SSLHandshakeMessage
+class PCAPPP_PACKET_API SSLHandshakeMessage
 {
 public:
 

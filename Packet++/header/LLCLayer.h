@@ -1,6 +1,7 @@
 #ifndef PACKETPP_LLC_LAYER
 #define PACKETPP_LLC_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file
@@ -31,7 +32,7 @@ namespace pcpp
 	 * @class LLCLayer
 	 * Represents Logical Link Control layer messages
 	 */
-	class LLCLayer : public Layer
+	class PCAPPP_PACKET_API LLCLayer : public Layer
 	{
 	public:
 

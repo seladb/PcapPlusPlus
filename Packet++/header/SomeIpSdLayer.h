@@ -1,6 +1,7 @@
 #ifndef PACKETPP_SOMEIPSD_LAYER
 #define PACKETPP_SOMEIPSD_LAYER
 
+#include "PacketExport.h"
 #include "EndianPortable.h"
 #include "IpAddress.h"
 #include "Layer.h"
@@ -367,7 +368,7 @@ private:
  * @class SomeIpSdEntry
  * Implementation of the SOME/IP-SD Service Entry and Eventgroup Entry Type
  */
-class SomeIpSdEntry
+class PCAPPP_PACKET_API SomeIpSdEntry
 {
 public:
 	friend class SomeIpSdLayer;
@@ -617,7 +618,7 @@ private:
  * @class SomeIpSdLayer
  * Implementation of the SOME/IP-SD protocol
  */
-class SomeIpSdLayer : public SomeIpLayer
+class PCAPPP_PACKET_API SomeIpSdLayer : public SomeIpLayer
 {
 public:
 	friend class SomeIpSdEntry;

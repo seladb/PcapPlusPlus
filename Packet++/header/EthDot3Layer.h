@@ -1,6 +1,7 @@
 #ifndef PACKETPP_ETH_DOT3_LAYER
 #define PACKETPP_ETH_DOT3_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "MacAddress.h"
 
@@ -33,7 +34,7 @@ namespace pcpp
 	 * @class EthDot3Layer
 	 * Represents an IEEE 802.3 Ethernet protocol layer
 	 */
-	class EthDot3Layer : public Layer
+	class PCAPPP_PACKET_API EthDot3Layer : public Layer
 	{
 	public:
 

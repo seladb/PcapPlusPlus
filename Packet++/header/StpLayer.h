@@ -1,6 +1,7 @@
 #ifndef PACKETPP_STP_LAYER
 #define PACKETPP_STP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "MacAddress.h"
 
@@ -124,7 +125,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class StpLayer
 	 * Represents an Spanning Tree Protocol Layer
 	 */
-	class StpLayer : public Layer
+	class PCAPPP_PACKET_API StpLayer : public Layer
 	{
 	  protected:
 		StpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
@@ -231,7 +232,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class StpTopologyChangeBPDULayer
 	 * Represents network topology change BPDU message of Spanning Tree Protocol
 	 */
-	class StpTopologyChangeBPDULayer : public StpLayer
+	class PCAPPP_PACKET_API StpTopologyChangeBPDULayer : public StpLayer
 	{
 	  protected:
 		explicit StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
@@ -289,7 +290,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class StpConfigurationBPDULayer
 	 * Represents configuration BPDU message of Spanning Tree Protocol
 	 */
-	class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
+	class PCAPPP_PACKET_API StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
 	{
 	  protected:
 		explicit StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen) {}
@@ -530,7 +531,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class RapidStpLayer
 	 * Represents Rapid Spanning Tree Protocol (RSTP)
 	 */
-	class RapidStpLayer : public StpConfigurationBPDULayer
+	class PCAPPP_PACKET_API RapidStpLayer : public StpConfigurationBPDULayer
 	{
 	  protected:
 		explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
@@ -603,7 +604,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class MultipleStpLayer
 	 * Represents Multiple Spanning Tree Protocol (MSTP). It has limited capabilities (no crafting / limited editing) over MSTI configuration
 	 */
-	class MultipleStpLayer : public RapidStpLayer
+	class PCAPPP_PACKET_API MultipleStpLayer : public RapidStpLayer
 	{
 	  public:
 		/**

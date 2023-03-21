@@ -91,6 +91,7 @@ set(public_headers
     header/NflogLayer.h
     header/NtpLayer.h
     header/Packet.h
+    header/PacketExport.h
     header/PacketTrailerLayer.h
     header/PacketUtils.h
     header/PayloadLayer.h
@@ -125,6 +126,7 @@ set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
 if(WIN32 AND BUILD_SHARED_LIBS)
   set_property(TARGET Packet++ PROPERTY WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
   set_property(TARGET Packet++ PROPERTY POSITION_INDEPENDENT_CODE TRUE)
+  target_compile_definitions(Packet++ PUBLIC "PCPP_PACKET_BUILD_DLL")
 endif()
 
 target_include_directories(

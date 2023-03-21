@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IPV6_EXTENSION
 #define PACKETPP_IPV6_EXTENSION
 
+#include "PacketExport.h"
 #include <vector>
 #include "IpAddress.h"
 #include "Layer.h"
@@ -194,7 +195,7 @@ namespace pcpp
 		 * extensions. This class does not create or modify IPv6 option records, but rather serves as a wrapper and
 		 * provides useful methods for retrieving data from them
 		 */
-		class IPv6Option : public TLVRecord<uint8_t, uint8_t>
+		class PCAPPP_PACKET_API IPv6Option : public TLVRecord<uint8_t, uint8_t>
 		{
 		public:
 

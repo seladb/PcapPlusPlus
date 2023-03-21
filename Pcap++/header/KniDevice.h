@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include <string>
 #include <atomic>
 
@@ -120,7 +121,7 @@ namespace pcpp
 	 *    that NO OTHER linux application is using KNI device when and after it is being
 	 *    destroyed otherwise Linux kernel may crush dramatically.
 	 */
-	class KniDevice : public IDevice
+	class PCAPPP_PCAP_API KniDevice : public IDevice
 	{
 		friend class KniDeviceList;
 		friend class MBufRawPacket;
@@ -629,7 +630,7 @@ namespace pcpp
 			bool init(const KniDeviceConfiguration& conf);
 		} m_DeviceInfo;
 		struct KniThread;
-		struct KniCapturing
+		struct PCAPPP_PCAP_API KniCapturing
 		{
 			OnKniPacketArriveCallback callback;
 			void* userCookie;
@@ -639,7 +640,7 @@ namespace pcpp
 			inline bool isRunning() const { return thread != NULL; }
 			void cleanup();
 		} m_Capturing;
-		struct KniRequests
+		struct PCAPPP_PCAP_API KniRequests
 		{
 			long sleepS;
 			long sleepNs;

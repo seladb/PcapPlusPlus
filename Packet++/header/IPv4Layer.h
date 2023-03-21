@@ -1,6 +1,7 @@
 #ifndef PACKETPP_IPV4_LAYER
 #define PACKETPP_IPV4_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include "IpAddress.h"
@@ -404,7 +405,7 @@ namespace pcpp
 	 * @class IPv4Layer
 	 * Represents an IPv4 protocol layer
 	 */
-	class IPv4Layer : public Layer, public IPLayer
+	class PCAPPP_PACKET_API IPv4Layer : public Layer, public IPLayer
 	{
 	public:
 		/**

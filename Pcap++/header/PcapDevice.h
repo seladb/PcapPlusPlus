@@ -1,6 +1,7 @@
 #ifndef PCAPPP_PCAP_DEVICE
 #define PCAPPP_PCAP_DEVICE
 
+#include "PcapExport.h"
 #include "Device.h"
 
 // forward declaration for the pcap descriptor defined in pcap.h
@@ -24,7 +25,7 @@ namespace pcpp
 	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and RemoteCapture.
 	 * This class is abstract and cannot be instantiated
 	 */
-	class IPcapDevice : public IDevice, public IFilterableDevice
+	class PCAPPP_PCAP_API IPcapDevice : public IDevice, public IFilterableDevice
 	{
 	protected:
 		pcap_t* m_PcapDescriptor;

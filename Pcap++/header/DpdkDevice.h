@@ -3,6 +3,7 @@
 
 // GCOVR_EXCL_START
 
+#include "PcapExport.h"
 #include <pthread.h>
 #include <time.h>
 #include <vector>
@@ -166,7 +167,7 @@ namespace pcpp
 	 *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
 	 *      supported by DpdkDevice
 	 */
-	class DpdkDevice : public IDevice
+	class PCAPPP_PCAP_API DpdkDevice : public IDevice
 	{
 		friend class DpdkDeviceList;
 		friend class MBufRawPacket;

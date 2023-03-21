@@ -1,6 +1,7 @@
 #ifndef PACKETPP_ICMP_LAYER
 #define PACKETPP_ICMP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "IPv4Layer.h"
 #ifdef _MSC_VER
@@ -376,7 +377,7 @@ namespace pcpp
 	 * @class IcmpLayer
 	 * Represents an ICMP protocol layer (for IPv4 only)
 	 */
-	class IcmpLayer : public Layer
+	class PCAPPP_PACKET_API IcmpLayer : public Layer
 	{
 	private:
 		icmp_echo_request m_EchoData;

@@ -1,6 +1,7 @@
 #ifndef PACKETPP_ETH_LAYER
 #define PACKETPP_ETH_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 #include "MacAddress.h"
 
@@ -71,7 +72,7 @@ namespace pcpp
 	 * @class EthLayer
 	 * Represents an Ethernet II protocol layer
 	 */
-	class EthLayer : public Layer
+	class PCAPPP_PACKET_API EthLayer : public Layer
 	{
 	public:
 		/**

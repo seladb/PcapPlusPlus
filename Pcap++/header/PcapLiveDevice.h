@@ -2,6 +2,7 @@
 #ifndef PCAPPP_LIVE_DEVICE
 #define PCAPPP_LIVE_DEVICE
 
+#include "PcapExport.h"
 #include <atomic>
 #include <vector>
 #include <string.h>
@@ -79,7 +80,7 @@ namespace pcpp
 	 * supplying a callback and a timeout to startCapture()
 	 * - Send packets back to the network. Sending the packets is done on the caller thread. No additional threads are created for this task
 	 */
-	class PcapLiveDevice : public IPcapDevice
+	class PCAPPP_PCAP_API PcapLiveDevice : public IPcapDevice
 	{
 		friend class PcapLiveDeviceList;
 	protected:

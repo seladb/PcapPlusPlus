@@ -3,6 +3,7 @@
 
 #if defined(_WIN32)
 
+#include "PcapExport.h"
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
 
@@ -25,7 +26,7 @@ namespace pcpp
 	 * by iterating the PcapRemoteDevice instances (through the PcapRemoteDeviceList#RemoteDeviceListIterator iterator)<BR>
 	 * Since Remote Capture is supported in WinPcap and Npcap only, this class is available in Windows only
 	 */
-	class PcapRemoteDeviceList
+	class PCAPPP_PCAP_API PcapRemoteDeviceList
 	{
 	private:
 		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;

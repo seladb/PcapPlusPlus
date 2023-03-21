@@ -1,6 +1,7 @@
 #ifndef PACKETPP_GTP_LAYER
 #define PACKETPP_GTP_LAYER
 
+#include "PacketExport.h"
 #include "Layer.h"
 
 /// @file
@@ -210,7 +211,7 @@ namespace pcpp
 	 * @class GtpV1Layer
 	 * A class representing the [GTP v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
 	 */
-	class GtpV1Layer : public Layer
+	class PCAPPP_PACKET_API GtpV1Layer : public Layer
 	{
 	private:
 		struct gtpv1_header_extra
@@ -230,7 +231,7 @@ namespace pcpp
 		 * @class GtpExtension
 		 * A class that represents [GTP header extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
 		 */
-		class GtpExtension
+		class PCAPPP_PACKET_API GtpExtension
 		{
 			friend class GtpV1Layer;
 

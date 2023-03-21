@@ -1,6 +1,7 @@
 #ifndef PCAPPP_FILE_DEVICE
 #define PCAPPP_FILE_DEVICE
 
+#include "PcapExport.h"
 #include "PcapDevice.h"
 #include "RawPacket.h"
 #include <fstream>
@@ -52,7 +53,7 @@ namespace pcpp
 	 * @class IFileReaderDevice
 	 * An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for file reader devices
 	 */
-	class IFileReaderDevice : public IFileDevice
+	class PCAPPP_PCAP_API IFileReaderDevice : public IFileDevice
 	{
 	protected:
 		uint32_t m_NumOfPacketsRead;
