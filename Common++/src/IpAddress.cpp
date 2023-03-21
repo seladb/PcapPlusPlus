@@ -292,10 +292,10 @@ namespace pcpp
 		return m_NetworkPrefix | ~m_Mask;
 	}
 
-	int IPv4Network::getNumAddresses() const
+	uint64_t IPv4Network::getTotalAddressCount() const
 	{
 		std::bitset<32> bitset(static_cast<uint32_t>(~m_Mask));
-		return pow(2, bitset.count());
+		return 1ULL << bitset.count();
 	}
 
 	bool IPv4Network::includes(const IPv4Address& address) const

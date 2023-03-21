@@ -533,9 +533,9 @@ namespace pcpp
 		IPv4Address getHighestAddress() const;
 
 		/**
-		 * @return The number of addresses in this network, for example: the number of addresses in 10.10.0.0/8 is 255
+		 * @return The number of addresses in this network, for example: the number of addresses in 10.10.0.0/8 is 256
 		 */
-		uint64_t getNumAddresses() const;
+		uint64_t getTotalAddressCount() const;
 
 		/**
 		 * @param address An IPv4 address
