@@ -22,7 +22,7 @@ namespace pcpp
 	 * and holds the list of KniDevice instances.
 	 * As it's a singleton, it has only one active instance doesn't have a public c'tor.
 	 */
-	class PCAPPP_PCAP_API KniDeviceList
+	class KniDeviceList
 	{
 		KniDeviceList();
 
@@ -72,7 +72,7 @@ namespace pcpp
 		 * @warning Initialization of Kni module depends on initialization of DPDK made by DpdkDeviceList
 		 * @return The singleton instance of KniDeviceList
 		 */
-		static KniDeviceList& getInstance();
+		PCAPPP_PCAP_API static KniDeviceList& getInstance();
 
 		/**
 		 * @return true if KNI module was initialized successfully false otherwise
@@ -114,13 +114,13 @@ namespace pcpp
 		 * KniCallbackVersion#CALLBACKS_OLD based on DPDK version used
 		 * @note MT SAFE
 		 */
-		static KniCallbackVersion callbackVersion();
+		PCAPPP_PCAP_API static KniCallbackVersion callbackVersion();
 		/**
 		 * Returns true if provided callback type is supported by used DPDK version
 		 * @note MT SAFE
 		 * @param[in] cbType One of KniCallbackType enum values
 		 */
-		static bool isCallbackSupported(const KniCallbackType cbType);
+		PCAPPP_PCAP_API static bool isCallbackSupported(const KniCallbackType cbType);
 	private:
 		std::vector<KniDevice*> m_Devices;
 		bool m_Initialized;

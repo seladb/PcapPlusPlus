@@ -43,11 +43,11 @@ namespace pcpp
 	 *      of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this capability so there is no way to
 	 *      access the mbufs linked to the mbuf wrapped by MBufRawPacket instance. I hope I'll be able to add this support in the future
 	 */
-	class PCAPPP_PCAP_API MBufRawPacket : public RawPacket
+	class MBufRawPacket : public RawPacket
 	{
 		friend class DpdkDevice;
 		friend class KniDevice;
-		static const int MBUF_DATA_SIZE;
+		PCAPPP_PCAP_API static const int MBUF_DATA_SIZE;
 
 	protected:
 		struct rte_mbuf* m_MBuf;

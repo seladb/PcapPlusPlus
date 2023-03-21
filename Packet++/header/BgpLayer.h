@@ -26,7 +26,7 @@ namespace pcpp
  * Represents Border Gateway Protocol (BGP) v4 protocol layer. This is an abstract class that cannot be instantiated,
  * and contains functionality which is common to all BGP message types.
  */
-class PCAPPP_PACKET_API BgpLayer : public Layer
+class BgpLayer : public Layer
 {
 public:
 
@@ -80,7 +80,7 @@ public:
 	 * @param[in] portDst Dest port number to check
 	 * @return True if the source or dest port match those associated with the BGP protocol
 	 */
-	static bool isBgpPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 179 || portDst == 179; }
+	PCAPPP_PACKET_API static bool isBgpPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 179 || portDst == 179; }
 
 	/**
 	 * A method that creates a BGP layer from packet raw data
@@ -92,7 +92,7 @@ public:
 	 * BgpOpenMessageLayer, BgpUpdateMessageLayer, BgpNotificationMessageLayer, BgpKeepaliveMessageLayer,
 	 * BgpRouteRefreshMessageLayer
 	 */
-	static BgpLayer* parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+	PCAPPP_PACKET_API static BgpLayer* parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 	// implement abstract methods
 

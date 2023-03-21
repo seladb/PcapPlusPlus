@@ -106,7 +106,7 @@ namespace pcpp
 	 * @class GreLayer
 	 * Abstract base class for GRE layers (GREv0Layer and GREv1Layer). Cannot be instantiated and contains common logic for derived classes
 	 */
-	class PCAPPP_PACKET_API GreLayer : public Layer
+	class GreLayer : public Layer
 	{
 	public:
 
@@ -119,7 +119,7 @@ namespace pcpp
 		 * @param[in] greDataLen Size of raw data
 		 * @return ::GREv0 or ::GREv1 values if raw data is GREv0 or GREv1 (accordingly) or ::UnknownProtocol otherwise
 		 */
-		static ProtocolType getGREVersion(uint8_t* greData, size_t greDataLen);
+		PCAPPP_PACKET_API static ProtocolType getGREVersion(uint8_t* greData, size_t greDataLen);
 
 		/**
 		 * Get sequence number value if field exists in layer

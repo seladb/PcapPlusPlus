@@ -94,7 +94,7 @@ namespace pcpp
 	 * @class DnsLayer
 	 * Represents the DNS protocol layer
 	 */
-	class PCAPPP_PACKET_API DnsLayer : public Layer
+	class DnsLayer : public Layer
 	{
 		friend class IDnsResource;
 		friend class DnsQuery;
@@ -434,7 +434,7 @@ namespace pcpp
 		 * @param[in] port The port number to be checked
 		 * @return True if the port is associated with the DNS protocol
 		 */
-		static inline bool isDnsPort(uint16_t port);
+		PCAPPP_PACKET_API static inline bool isDnsPort(uint16_t port);
 
 		/**
 		 * A static method that validates the input data
@@ -444,7 +444,7 @@ namespace pcpp
 		 * (which is also the default value)
 		 * @return True if the data is valid and can represent a DNS packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp = false);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp = false);
 
 	protected:
 		DnsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, size_t offsetAdjustment);

@@ -72,7 +72,7 @@ namespace pcpp
 	 * @class EthLayer
 	 * Represents an Ethernet II protocol layer
 	 */
-	class PCAPPP_PACKET_API EthLayer : public Layer
+	class EthLayer : public Layer
 	{
 	public:
 		/**
@@ -161,7 +161,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Ethernet II packet
 		 */
-		static bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t* data, size_t dataLen);
 	};
 
 } // namespace pcpp

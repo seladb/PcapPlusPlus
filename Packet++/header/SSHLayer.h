@@ -70,7 +70,7 @@ namespace pcpp
 	 * which takes raw data and creates an SSH message according to the heuristics described
 	 * in the SSHLayer.h file description
 	 */
-	class PCAPPP_PACKET_API SSHLayer : public Layer
+	class SSHLayer : public Layer
 	{
 	public:
 		/**
@@ -84,7 +84,7 @@ namespace pcpp
 		 * @return An instance of one of the classes that inherit SSHLayer as described in the
 		 * SSHLayer.h file description
 		 */
-		static SSHLayer* createSSHMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		PCAPPP_PACKET_API static SSHLayer* createSSHMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
 		 * A static method that takes src and dst ports and determines whether it's SSH traffic or not.
@@ -93,7 +93,7 @@ namespace pcpp
 		 * @return Currently the implementation is very simple and returns "true" if either src or dst ports
 		 * are equal to 22, "false" otherwise
 		 */
-		static bool isSSHPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 22 || portDst == 22; }
+		PCAPPP_PACKET_API static bool isSSHPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 22 || portDst == 22; }
 
 		// implement abstract methods
 
@@ -128,7 +128,7 @@ namespace pcpp
 	 * The message content is typically a string that contains the protocol version, software version and a few more details.
 	 * This string can be retrieved using the getIdentificationMessage() method
 	 */
-	class PCAPPP_PACKET_API SSHIdentificationMessage : public SSHLayer
+	class SSHIdentificationMessage : public SSHLayer
 	{
 	public:
 		/**
@@ -146,7 +146,7 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 * @return An instance of SSHIdentificationMessage or NULL if this is not an identification message
 		 */
-		static SSHIdentificationMessage* tryParse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		PCAPPP_PACKET_API static SSHIdentificationMessage* tryParse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		// implement abstract methods
 
@@ -187,7 +187,7 @@ namespace pcpp
 	 * This class provides access to all of these values. The message content itself is not parse with the exception of SSHKeyExchangeInitMessage
 	 * which inherits from this class and provides parsing of the Key Exchange Init message.
 	 */
-	class PCAPPP_PACKET_API SSHHandshakeMessage : public SSHLayer
+	class SSHHandshakeMessage : public SSHLayer
 	{
 	public:
 		/**
@@ -251,7 +251,7 @@ namespace pcpp
 		 * for Key Exchange Init message or SSHHandshakeMessage for any other message type. If parsing fails NULL
 		 * will be returned
 		 */
-		static SSHHandshakeMessage* tryParse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		PCAPPP_PACKET_API static SSHHandshakeMessage* tryParse(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		// implement abstract methods
 

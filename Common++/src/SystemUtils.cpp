@@ -1,4 +1,3 @@
-#include "CommonExport.h"
 #include "SystemUtils.h"
 #include "EndianPortable.h"
 
@@ -29,7 +28,7 @@
 #endif
 
 #ifdef _MSC_VER
-PCAPPP_COMMON_API int gettimeofday(struct timeval * tp, struct timezone * tzp)
+int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
 	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
 	static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);

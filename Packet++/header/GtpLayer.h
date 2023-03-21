@@ -211,7 +211,7 @@ namespace pcpp
 	 * @class GtpV1Layer
 	 * A class representing the [GTP v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
 	 */
-	class PCAPPP_PACKET_API GtpV1Layer : public Layer
+	class GtpV1Layer : public Layer
 	{
 	private:
 		struct gtpv1_header_extra
@@ -231,7 +231,7 @@ namespace pcpp
 		 * @class GtpExtension
 		 * A class that represents [GTP header extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
 		 */
-		class PCAPPP_PACKET_API GtpExtension
+		class GtpExtension
 		{
 			friend class GtpV1Layer;
 
@@ -244,7 +244,7 @@ namespace pcpp
 
 			void setNextHeaderType(uint8_t nextHeaderType);
 
-			static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
+			PCAPPP_PACKET_API static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
 
 		public:
 
@@ -343,7 +343,7 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as GTP v1 message (GTP-C or GTP-U)
 		 */
-		static bool isGTPv1(const uint8_t* data, size_t dataSize);
+		PCAPPP_PACKET_API static bool isGTPv1(const uint8_t* data, size_t dataSize);
 
 		/**
 		 * @return The GTP v1 common header structure. Notice this points directly to the data, so every change will change the actual packet data
@@ -430,7 +430,7 @@ namespace pcpp
 		 * @param[in] port The port number to be checked
 		 * @return True if the port matches those associated with the BGP protocol
 		 */
-		static bool isGTPv1Port(uint16_t port) { return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */; }
+		PCAPPP_PACKET_API static bool isGTPv1Port(uint16_t port) { return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */; }
 
 
 		// implement abstract methods

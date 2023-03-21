@@ -18,7 +18,7 @@ namespace pcpp
  * @class SomeIpLayer
  * Represents a SOME/IP protocol layer
  */
-class PCAPPP_PACKET_API SomeIpLayer : public Layer
+class SomeIpLayer : public Layer
 {
 public:
 	/**
@@ -129,7 +129,7 @@ public:
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored
 	 * @return Layer* A newly allocated layer
 	 */
-	static Layer* parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet);
+	PCAPPP_PACKET_API static Layer* parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 	/**
 	 * Get a pointer to the basic SOME/IP header. Notice this points directly to the data, so every change will change
@@ -143,25 +143,25 @@ public:
 	 * @param[in] port Port to check
 	 * @return true if SOME/IP protocol port, false if not
 	 */
-	static bool isSomeIpPort(uint16_t port);
+	PCAPPP_PACKET_API static bool isSomeIpPort(uint16_t port);
 
 	/**
 	 * Adds port to a list of ports where pcap checks for SOME/IP communication.
 	 * Each port must be removed at the end in order to have no memory leak.
 	 * @param[in] port Port to add
 	 */
-	static void addSomeIpPort(uint16_t port);
+	PCAPPP_PACKET_API static void addSomeIpPort(uint16_t port);
 
 	/**
 	 * Removes port from a list of ports where pcap checks for SOME/IP communication.
 	 * @param[in] port Port to remove
 	 */
-	static void removeSomeIpPort(uint16_t port);
+	PCAPPP_PACKET_API static void removeSomeIpPort(uint16_t port);
 
 	/**
 	 * Removes all ports from a list of ports where pcap checks for SOME/IP communication.
 	 */
-	static void removeAllSomeIpPorts();
+	PCAPPP_PACKET_API static void removeAllSomeIpPorts();
 
 	/**
 	 * Get the messageID
@@ -347,18 +347,18 @@ protected:
 	SomeIpLayer() {}
 
 private:
-	static const uint8_t SOMEIP_PROTOCOL_VERSION = 1;
+	PCAPPP_PACKET_API static const uint8_t SOMEIP_PROTOCOL_VERSION = 1;
 	virtual size_t getSomeIpHeaderLen() const { return sizeof(someiphdr); }
 
 	/* Using unordered_set since insertion and search should be almost constant time */
-	static std::unordered_set<uint16_t> m_SomeIpPorts;
+	PCAPPP_PACKET_API static std::unordered_set<uint16_t> m_SomeIpPorts;
 };
 
 /**
  * @class SomeIpTpLayer
  * Represents an SOME/IP Transport Protocol Layer
  */
-class PCAPPP_PACKET_API SomeIpTpLayer : public SomeIpLayer
+class SomeIpTpLayer : public SomeIpLayer
 {
 public:
 	/**
@@ -450,12 +450,12 @@ public:
 	std::string toString() const;
 
 private:
-	static const uint32_t SOMEIP_TP_MORE_FLAG_MASK = 0x01;
-	static const uint32_t SOMEIP_TP_OFFSET_MASK = 0xFFFFFFF0;
+	PCAPPP_PACKET_API static const uint32_t SOMEIP_TP_MORE_FLAG_MASK = 0x01;
+	PCAPPP_PACKET_API static const uint32_t SOMEIP_TP_OFFSET_MASK = 0xFFFFFFF0;
 
 	size_t getSomeIpHeaderLen() const { return sizeof(someiptphdr); }
 
-	static uint8_t setTpFlag(uint8_t messageType);
+	PCAPPP_PACKET_API static uint8_t setTpFlag(uint8_t messageType);
 };
 
 } // namespace pcpp

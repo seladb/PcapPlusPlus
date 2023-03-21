@@ -125,7 +125,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class StpLayer
 	 * Represents an Spanning Tree Protocol Layer
 	 */
-	class PCAPPP_PACKET_API StpLayer : public Layer
+	class StpLayer : public Layer
 	{
 	  protected:
 		StpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
@@ -142,14 +142,14 @@ typedef stp_tcn_bpdu stp_header;
 			m_Protocol = STP;
 		}
 
-		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
-		static uint64_t macAddressToID(const pcpp::MacAddress &addr);
+		PCAPPP_PACKET_API static pcpp::MacAddress IDtoMacAddress(uint64_t id);
+		PCAPPP_PACKET_API static uint64_t macAddressToID(const pcpp::MacAddress &addr);
 
 	  public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
-		static pcpp::MacAddress StpMulticastDstMAC;
+		PCAPPP_PACKET_API static pcpp::MacAddress StpMulticastDstMAC;
 		/// STP Uplink Fast protocol uses "01:00:0C:CD:CD:CD" as destination MAC
-		static pcpp::MacAddress StpUplinkFastMulticastDstMAC;
+		PCAPPP_PACKET_API static pcpp::MacAddress StpUplinkFastMulticastDstMAC;
 
 		/**
 		 * Get a pointer to base Spanning tree header
@@ -214,7 +214,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataLen);
 
 		/**
 		 * A method to create STP layer from existing packet
@@ -225,14 +225,14 @@ typedef stp_tcn_bpdu stp_header;
 		 * @return A newly allocated STP layer of one of the following types (according to the message type):
 		 * StpConfigurationBPDULayer, StpTopologyChangeBPDULayer, RapidStpLayer, MultipleStpLayer
 		 */
-		static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		PCAPPP_PACKET_API static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 	};
 
 	/**
 	 * @class StpTopologyChangeBPDULayer
 	 * Represents network topology change BPDU message of Spanning Tree Protocol
 	 */
-	class PCAPPP_PACKET_API StpTopologyChangeBPDULayer : public StpLayer
+	class StpTopologyChangeBPDULayer : public StpLayer
 	{
 	  protected:
 		explicit StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
@@ -283,14 +283,14 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_tcn_bpdu); }
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_tcn_bpdu); }
 	};
 
 	/**
 	 * @class StpConfigurationBPDULayer
 	 * Represents configuration BPDU message of Spanning Tree Protocol
 	 */
-	class PCAPPP_PACKET_API StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
+	class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
 	{
 	  protected:
 		explicit StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen) {}
@@ -521,7 +521,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataLen)
 		{
 			return data && dataLen >= sizeof(stp_conf_bpdu);
 		}
@@ -531,7 +531,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class RapidStpLayer
 	 * Represents Rapid Spanning Tree Protocol (RSTP)
 	 */
-	class PCAPPP_PACKET_API RapidStpLayer : public StpConfigurationBPDULayer
+	class RapidStpLayer : public StpConfigurationBPDULayer
 	{
 	  protected:
 		explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
@@ -594,7 +594,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataLen)
 		{
 			return data && dataLen >= sizeof(rstp_conf_bpdu);
 		}
@@ -604,7 +604,7 @@ typedef stp_tcn_bpdu stp_header;
 	 * @class MultipleStpLayer
 	 * Represents Multiple Spanning Tree Protocol (MSTP). It has limited capabilities (no crafting / limited editing) over MSTI configuration
 	 */
-	class PCAPPP_PACKET_API MultipleStpLayer : public RapidStpLayer
+	class MultipleStpLayer : public RapidStpLayer
 	{
 	  public:
 		/**
@@ -793,7 +793,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataLen)
 		{
 			return data && dataLen >= sizeof(mstp_conf_bpdu);
 		}

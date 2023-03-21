@@ -121,7 +121,7 @@ namespace pcpp
 	 *    that NO OTHER linux application is using KNI device when and after it is being
 	 *    destroyed otherwise Linux kernel may crush dramatically.
 	 */
-	class PCAPPP_PCAP_API KniDevice : public IDevice
+	class KniDevice : public IDevice
 	{
 		friend class KniDeviceList;
 		friend class MBufRawPacket;
@@ -630,23 +630,23 @@ namespace pcpp
 			bool init(const KniDeviceConfiguration& conf);
 		} m_DeviceInfo;
 		struct KniThread;
-		struct PCAPPP_PCAP_API KniCapturing
+		struct KniCapturing
 		{
 			OnKniPacketArriveCallback callback;
 			void* userCookie;
 			KniThread* thread;
 
-			static void runCapture(void* devicePointer, std::atomic<bool>& stopThread);
+			PCAPPP_PCAP_API static void runCapture(void* devicePointer, std::atomic<bool>& stopThread);
 			inline bool isRunning() const { return thread != NULL; }
 			void cleanup();
 		} m_Capturing;
-		struct PCAPPP_PCAP_API KniRequests
+		struct KniRequests
 		{
 			long sleepS;
 			long sleepNs;
 			KniThread* thread;
 
-			static void runRequests(void* devicePointer, std::atomic<bool>& stopThread);
+			PCAPPP_PCAP_API static void runRequests(void* devicePointer, std::atomic<bool>& stopThread);
 			void cleanup();
 		} m_Requests;
 	};

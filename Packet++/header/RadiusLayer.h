@@ -166,7 +166,7 @@ namespace pcpp
 	 * @class RadiusLayer
 	 * Represents a RADIUS (Remote Authentication Dial-In User Service) protocol layer
 	 */
-	class PCAPPP_PACKET_API RadiusLayer : public Layer
+	class RadiusLayer : public Layer
 	{
 	private:
 
@@ -239,7 +239,7 @@ namespace pcpp
 		 * @param[in] radiusMessageCode RADIUS message code
 		 * @return RADIUS message string
 		 */
-		static std::string getRadiusMessageString(uint8_t radiusMessageCode);
+		PCAPPP_PACKET_API static std::string getRadiusMessageString(uint8_t radiusMessageCode);
 
 		/**
 		 * @return The first RADIUS attribute in the packet. If there are no attributes the returned value will contain
@@ -305,13 +305,13 @@ namespace pcpp
 		 * @param[in] udpDataLen The payload data size
 		 * @return True if the data is valid and can represent the RADIUS packet
 		 */
-		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
 
 		/**
 		 * A static method that checks whether the port is considered as RADIUS
 		 * @param[in] port The port number to be checked
 		 */
-		static inline bool isRadiusPort(uint16_t port);
+		PCAPPP_PACKET_API static inline bool isRadiusPort(uint16_t port);
 
 		// implement abstract methods
 

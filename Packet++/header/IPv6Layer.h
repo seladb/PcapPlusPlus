@@ -54,7 +54,7 @@ namespace pcpp
 	 * @class IPv6Layer
 	 * Represents an IPv6 protocol layer
 	 */
-	class PCAPPP_PACKET_API IPv6Layer : public Layer, public IPLayer
+	class IPv6Layer : public Layer, public IPLayer
 	{
 	public:
 		/**
@@ -179,7 +179,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent the IPv6 packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 
 		// implement abstract methods

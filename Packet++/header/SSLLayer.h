@@ -169,7 +169,7 @@ namespace pcpp
 	 * This class provides the common functionality used by all record types and also contains static methods for identifying
 	 * an creating SSL/TLS record type layers
 	 */
-	class PCAPPP_PACKET_API SSLLayer : public Layer
+	class SSLLayer : public Layer
 	{
 	public:
 
@@ -177,7 +177,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as SSL/TLS
 		 * @param[in] port The port number to be checked
 		 */
-		static inline bool isSSLPort(uint16_t port);
+		PCAPPP_PACKET_API static inline bool isSSLPort(uint16_t port);
 
 		/**
 		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
@@ -206,7 +206,7 @@ namespace pcpp
 		 * for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check. This is an
 		 * optional parameter and its default is "false"
 		 */
-		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen, bool ignorePorts = false);
+		PCAPPP_PACKET_API static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen, bool ignorePorts = false);
 
 		/**
 		 * A static method that creates SSL/TLS layers by raw data. This method parses the raw data, finds if and which
@@ -219,7 +219,7 @@ namespace pcpp
 		 * @return A pointer to the newly created record layer. If no SSL/TLS record could be identified from the raw data
 		 * NULL is returned
 		 */
-		static SSLLayer* createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		PCAPPP_PACKET_API static SSLLayer* createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
 		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the actual packet data

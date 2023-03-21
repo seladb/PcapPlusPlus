@@ -17,7 +17,7 @@ namespace pcpp
 	/**
 	 * Class for single command text based protocol (FTP, SMTP) messages
 	 */
-	class PCAPPP_PACKET_API SingleCommandTextProtocol : public Layer
+	class SingleCommandTextProtocol : public Layer
 	{
 	private:
 		size_t getArgumentFieldOffset() const;
@@ -50,7 +50,7 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as single command text based message
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataSize);
 	};
 } // namespace pcpp
 

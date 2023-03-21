@@ -20,7 +20,7 @@ namespace pcpp
 	 * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING devices or find a specific
 	 * device by name
 	 */
-	class PCAPPP_PCAP_API PfRingDeviceList
+	class PfRingDeviceList
 	{
 	private:
 		std::vector<PfRingDevice*> m_PfRingDeviceList;
@@ -39,7 +39,7 @@ namespace pcpp
 		 * A static method that returns the singleton object for PfRingDeviceList
 		 * @return PfRingDeviceList singleton
 		 */
-		static PfRingDeviceList& getInstance()
+		PCAPPP_PCAP_API static PfRingDeviceList& getInstance()
 		{
 			static PfRingDeviceList instance;
 			return instance;

@@ -71,7 +71,7 @@ namespace pcpp
      @endverbatim
      *
 	 */
-    class PCAPPP_PACKET_API NtpLayer : public Layer
+    class NtpLayer : public Layer
     {
     private:
 #pragma pack(push, 1)
@@ -595,7 +595,7 @@ namespace pcpp
          * @param[in] val Value in NTP short format
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
-        static double convertFromShortFormat(const uint32_t val);
+        PCAPPP_PACKET_API static double convertFromShortFormat(const uint32_t val);
 
         /**
          * Convert NTP timestamp format to seconds from the Unix Epoch
@@ -603,7 +603,7 @@ namespace pcpp
          * @param[in] val Value in NTP timestamp format
          * @return Value in seconds from Unix Epoch (1 Jan 1970)
          */
-        static double convertFromTimestampFormat(const uint64_t val);
+        PCAPPP_PACKET_API static double convertFromTimestampFormat(const uint64_t val);
 
         /**
          * Convert seconds from the Unix Epoch to NTP short format
@@ -611,7 +611,7 @@ namespace pcpp
          * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
          * @return Value in NTP short format
          */
-        static uint32_t convertToShortFormat(const double val);
+        PCAPPP_PACKET_API static uint32_t convertToShortFormat(const double val);
 
         /**
          * Convert seconds from the Unix Epoch to NTP timestamp format
@@ -619,21 +619,21 @@ namespace pcpp
          * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
          * @return Value in NTP timestamp format
          */
-        static uint64_t convertToTimestampFormat(const double val);
+        PCAPPP_PACKET_API static uint64_t convertToTimestampFormat(const double val);
 
         /**
          * A static method to convert timestamp value to ISO8601 date time format
          * @param[in] timestamp Value in seconds from the Unix Epoch
          * @return std::string ISO8601 formatted string
          */
-        static std::string convertToIsoFormat(const double timestamp);
+        PCAPPP_PACKET_API static std::string convertToIsoFormat(const double timestamp);
 
         /**
          * A static method to convert timestamp value to ISO8601 date time format
          * @param[in] timestampInNTPformat Value in NTP timestamp format
          * @return std::string ISO8601 formatted string
          */
-        static std::string convertToIsoFormat(const uint64_t timestampInNTPformat);
+        PCAPPP_PACKET_API static std::string convertToIsoFormat(const uint64_t timestampInNTPformat);
 
         /**
 		 * A static method that takes a byte array and detects whether it is a NTP message
@@ -641,13 +641,13 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as NTP message
 		 */
-        static bool isDataValid(const uint8_t *data, size_t dataSize);
+        PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataSize);
 
         /**
 		 * A static method that checks whether the port is considered as NTP
 		 * @param[in] port The port number to be checked
 		 */
-        static bool isNTPPort(uint16_t port) { return port == 123; }
+        PCAPPP_PACKET_API static bool isNTPPort(uint16_t port) { return port == 123; }
 
         // overridden methods
 

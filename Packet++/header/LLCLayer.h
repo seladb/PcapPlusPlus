@@ -32,7 +32,7 @@ namespace pcpp
 	 * @class LLCLayer
 	 * Represents Logical Link Control layer messages
 	 */
-	class PCAPPP_PACKET_API LLCLayer : public Layer
+	class LLCLayer : public Layer
 	{
 	public:
 
@@ -88,7 +88,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an LLC packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataLen);
 	};
 
 } // namespace pcpp

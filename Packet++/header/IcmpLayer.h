@@ -377,7 +377,7 @@ namespace pcpp
 	 * @class IcmpLayer
 	 * Represents an ICMP protocol layer (for IPv4 only)
 	 */
-	class PCAPPP_PACKET_API IcmpLayer : public Layer
+	class IcmpLayer : public Layer
 	{
 	private:
 		icmp_echo_request m_EchoData;
@@ -679,7 +679,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent an ICMP packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 

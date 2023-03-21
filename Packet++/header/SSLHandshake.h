@@ -28,7 +28,7 @@ namespace pcpp
  * getCipherSuiteByName() ). List of cipher-suite was taken from here:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
  */
-class PCAPPP_PACKET_API SSLCipherSuite
+class SSLCipherSuite
 {
 public:
 	/**
@@ -82,14 +82,14 @@ public:
 	 * @param[in] id Cipher-suite ID
 	 * @return A cipher-suite instance matching this ID or NULL if ID not found
 	 */
-	static SSLCipherSuite* getCipherSuiteByID(uint16_t id);
+	PCAPPP_PACKET_API static SSLCipherSuite* getCipherSuiteByID(uint16_t id);
 
 	/**
 	 *  A static method that returns a cipher-suite instance by name
 	 *  @param[in] name Cipher-suite name (e.g "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA")
 	 *  @return A cipher-suite instance matching this name or NULL if name not found
 	 */
-	static SSLCipherSuite* getCipherSuiteByName(std::string name);
+	PCAPPP_PACKET_API static SSLCipherSuite* getCipherSuiteByName(std::string name);
 
 private:
 	uint16_t m_Id;
@@ -305,7 +305,7 @@ class SSLHandshakeLayer;
  * server-key-exchange, and server-hello-done messages (although it's not such a common case, most handshake layers
  * contain 1 handshake message only)
  */
-class PCAPPP_PACKET_API SSLHandshakeMessage
+class SSLHandshakeMessage
 {
 public:
 
@@ -318,7 +318,7 @@ public:
 	 * @param[in] container A pointer to the SSLHandshakeLayer instance which will contain the created message.
 	 * This parameter is required because the handshake message includes a pointer to its container
 	 */
-	static SSLHandshakeMessage* createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
+	PCAPPP_PACKET_API static SSLHandshakeMessage* createHandshakeMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
 	/**
 	 * @return The handshake message type

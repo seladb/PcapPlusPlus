@@ -25,7 +25,7 @@ namespace pcpp
 	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and RemoteCapture.
 	 * This class is abstract and cannot be instantiated
 	 */
-	class PCAPPP_PCAP_API IPcapDevice : public IDevice, public IFilterableDevice
+	class IPcapDevice : public IDevice, public IFilterableDevice
 	{
 	protected:
 		pcap_t* m_PcapDescriptor;
@@ -64,7 +64,7 @@ namespace pcpp
 		 * a wrapper for [pcap_lib_version()](https://www.tcpdump.org/manpages/pcap_lib_version.3pcap.html)
 		 * @return A string containing the pcap lib version information
 		 */
-		static std::string getPcapLibVersionInfo();
+		PCAPPP_PCAP_API static std::string getPcapLibVersionInfo();
 
 		/**
 		* Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any device instance
@@ -73,7 +73,7 @@ namespace pcpp
 		* @param[in] rawPacket A pointer to the raw packet to match the filter with
 		* @return True if raw packet matches the filter or false otherwise
 		*/
-		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
+		PCAPPP_PCAP_API static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
 
 		// implement abstract methods

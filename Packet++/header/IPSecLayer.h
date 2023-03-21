@@ -50,7 +50,7 @@ namespace pcpp
 	 * @class AuthenticationHeaderLayer
 	 * Represents an IPSec AuthenticationHeader (AH) layer
 	 */
-	class PCAPPP_PACKET_API AuthenticationHeaderLayer : public Layer
+	class AuthenticationHeaderLayer : public Layer
 	{
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data
@@ -98,7 +98,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent an AuthenticationHeader layer
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 
@@ -132,7 +132,7 @@ namespace pcpp
 	 * @class ESPLayer
 	 * Represents an IPSec Encapsulating Security Payload (ESP) layer
 	 */
-	class PCAPPP_PACKET_API ESPLayer : public Layer
+	class ESPLayer : public Layer
 	{
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data
@@ -161,7 +161,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent an ESP layer
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 

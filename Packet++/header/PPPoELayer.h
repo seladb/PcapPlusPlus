@@ -115,7 +115,7 @@ namespace pcpp
 	 * @class PPPoESessionLayer
 	 * Describes the PPPoE session protocol
 	 */
-	class PCAPPP_PACKET_API PPPoESessionLayer : public PPPoELayer
+	class PPPoESessionLayer : public PPPoELayer
 	{
 	public:
 
@@ -157,7 +157,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent a PPPoES packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// abstract methods implementation
 
@@ -275,7 +275,7 @@ namespace pcpp
 		 * A class for building PPPoE Tags. This builder receives the tag parameters in its c'tor,
 		 * builds the PPPoE Tag raw buffer and provides a build() method to get a PPPoETag object out of it
 		 */
-		class PCAPPP_PACKET_API PPPoETagBuilder : public TLVRecordBuilder
+		class PPPoETagBuilder : public TLVRecordBuilder
 		{
 		public:
 
@@ -396,7 +396,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent a PPPoED packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// abstract methods implementation
 

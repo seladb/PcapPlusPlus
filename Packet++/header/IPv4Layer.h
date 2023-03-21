@@ -405,7 +405,7 @@ namespace pcpp
 	 * @class IPv4Layer
 	 * Represents an IPv4 protocol layer
 	 */
-	class PCAPPP_PACKET_API IPv4Layer : public Layer, public IPLayer
+	class IPv4Layer : public Layer, public IPLayer
 	{
 	public:
 		/**
@@ -629,7 +629,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an IPv4 packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
 		int m_NumOfTrailingBytes;

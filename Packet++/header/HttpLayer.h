@@ -68,7 +68,7 @@ namespace pcpp
 	 * @class HttpMessage
 	 * Represents a general HTTP message. It's an abstract class and cannot be instantiated. It's inherited by HttpRequestLayer and HttpResponseLayer
 	 */
-	class PCAPPP_PACKET_API HttpMessage : public TextBasedProtocolMessage
+	class HttpMessage : public TextBasedProtocolMessage
 	{
 	public:
 
@@ -79,7 +79,7 @@ namespace pcpp
 		 * @param[in] port The port number to be checked
 		 * @return True if the port matches those associated with the HTTP protocol
 		 */
-		static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
+		PCAPPP_PACKET_API static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
 
 		// overridden methods
 
@@ -491,7 +491,7 @@ namespace pcpp
 	 * of this class need in most cases to shorten or extend the data in HttpRequestLayer. These methods will return a false value if this
 	 * action failed
 	 */
-	class PCAPPP_PACKET_API HttpRequestFirstLine
+	class HttpRequestFirstLine
 	{
 		friend class HttpRequestLayer;
 	public:
@@ -537,7 +537,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed HTTP method
 		 */
-		static HttpRequestLayer::HttpMethod parseMethod(const char* data, size_t dataLen);
+		PCAPPP_PACKET_API static HttpRequestLayer::HttpMethod parseMethod(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the HTTP first line
@@ -602,7 +602,7 @@ namespace pcpp
 	 * of this class need in most cases to shorten or extend the data in HttpResponseLayer. These methods will return a false value if this
 	 * action failed
 	 */
-	class PCAPPP_PACKET_API HttpResponseFirstLine
+	class HttpResponseFirstLine
 	{
 		friend class HttpResponseLayer;
 	public:
@@ -648,7 +648,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed HTTP status code as enum
 		 */
-		static HttpResponseLayer::HttpResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
+		PCAPPP_PACKET_API static HttpResponseLayer::HttpResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
 
 		/**
 		 * A static method for parsing the HTTP version out of raw first line data (e.g "HTTP/x.y")
@@ -656,7 +656,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed HTTP status code as enum
 		 */
-		static HttpVersion parseVersion(const char* data, size_t dataLen);
+		PCAPPP_PACKET_API static HttpVersion parseVersion(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the HTTP first line

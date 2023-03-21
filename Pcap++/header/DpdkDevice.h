@@ -167,7 +167,7 @@ namespace pcpp
 	 *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still not
 	 *      supported by DpdkDevice
 	 */
-	class PCAPPP_PCAP_API DpdkDevice : public IDevice
+	class DpdkDevice : public IDevice
 	{
 		friend class DpdkDeviceList;
 		friend class MBufRawPacket;
@@ -782,7 +782,7 @@ namespace pcpp
 		bool initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesToInit);
 		bool startDevice();
 
-		static int dpdkCaptureThreadMain(void* ptr);
+		PCAPPP_PCAP_API static int dpdkCaptureThreadMain(void* ptr);
 
 		void clearCoreConfiguration();
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
@@ -822,7 +822,7 @@ namespace pcpp
 		bool m_WasOpened;
 
 		 // RSS key used by the NIC for load balancing the packets between cores
-		static uint8_t m_RSSKey[40];
+		PCAPPP_PCAP_API static uint8_t m_RSSKey[40];
 
 		mutable DpdkDeviceStats m_PrevStats;
 	};

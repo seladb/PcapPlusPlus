@@ -277,7 +277,7 @@ namespace pcpp
 	 * @class DhcpV6Layer
 	 * Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol layer
 	 */
-	class PCAPPP_PACKET_API DhcpV6Layer : public Layer
+	class DhcpV6Layer : public Layer
 	{
 	public:
 
@@ -398,7 +398,7 @@ namespace pcpp
 		 * @param[in] port The port number to check
 		 * @return True if this is a DHCPv6 port number, false otherwise
 		 */
-		static inline bool isDhcpV6Port(uint16_t port);
+		PCAPPP_PACKET_API static inline bool isDhcpV6Port(uint16_t port);
 
 		/**
 		 * A static method that validates the input data
@@ -406,7 +406,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an DHCPv6 layer
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 

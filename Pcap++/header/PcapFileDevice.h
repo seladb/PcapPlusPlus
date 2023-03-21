@@ -53,7 +53,7 @@ namespace pcpp
 	 * @class IFileReaderDevice
 	 * An abstract class (cannot be instantiated, has a private c'tor) which is the parent class for file reader devices
 	 */
-	class PCAPPP_PCAP_API IFileReaderDevice : public IFileDevice
+	class IFileReaderDevice : public IFileDevice
 	{
 	protected:
 		uint32_t m_NumOfPacketsRead;
@@ -95,7 +95,7 @@ namespace pcpp
 		 * @param[in] fileName The file name to open
 		 * @return An instance of the reader to read the file. Notice you should free this instance when done using it
 		 */
-		static IFileReaderDevice* getReader(const std::string& fileName);
+		PCAPPP_PCAP_API static IFileReaderDevice* getReader(const std::string& fileName);
 	};
 
 

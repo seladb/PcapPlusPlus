@@ -16,7 +16,7 @@ namespace pcpp
 	/**
 	 * Class for general FTP message
 	 */
-	class PCAPPP_PACKET_API FtpLayer : public SingleCommandTextProtocol
+	class FtpLayer : public SingleCommandTextProtocol
 	{
 	protected:
 		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
@@ -28,7 +28,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as FTP
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isFtpPort(uint16_t port) { return port == 21; }
+		PCAPPP_PACKET_API static bool isFtpPort(uint16_t port) { return port == 21; }
 
 		// overridden methods
 
@@ -53,7 +53,7 @@ namespace pcpp
 	/**
 	 * Class for representing the request messages of FTP Layer
 	 */
-	class PCAPPP_PACKET_API FtpRequestLayer : public FtpLayer
+	class FtpRequestLayer : public FtpLayer
 	{
 	public:
 
@@ -259,14 +259,14 @@ namespace pcpp
 		 * @param[in] code Command code to convert
 		 * @return std::string Returns the command info as readable string
 		 */
-		static std::string getCommandInfo(FtpCommand code);
+		PCAPPP_PACKET_API static std::string getCommandInfo(FtpCommand code);
 
 		/**
 		 * Convert the command to readable string
 		 * @param[in] code Command code to convert
 		 * @return std::string Returns the command as readable string
 		 */
-		static std::string getCommandAsString(FtpCommand code);
+		PCAPPP_PACKET_API static std::string getCommandAsString(FtpCommand code);
 
 		// overridden methods
 
@@ -279,7 +279,7 @@ namespace pcpp
 	/**
 	 * Class for representing the response messages of FTP Layer
 	 */
-	class PCAPPP_PACKET_API FtpResponseLayer : public FtpLayer
+	class FtpResponseLayer : public FtpLayer
 	{
 	public:
 
@@ -457,7 +457,7 @@ namespace pcpp
 		 * @param[in] code Status code to convert
 		 * @return std::string Returns the status info as readable string
 		 */
-		static std::string getStatusCodeAsString(FtpStatusCode code);
+		PCAPPP_PACKET_API static std::string getStatusCodeAsString(FtpStatusCode code);
 
 		// overridden methods
 

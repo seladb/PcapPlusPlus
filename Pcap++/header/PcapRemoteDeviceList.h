@@ -26,7 +26,7 @@ namespace pcpp
 	 * by iterating the PcapRemoteDevice instances (through the PcapRemoteDeviceList#RemoteDeviceListIterator iterator)<BR>
 	 * Since Remote Capture is supported in WinPcap and Npcap only, this class is available in Windows only
 	 */
-	class PCAPPP_PCAP_API PcapRemoteDeviceList
+	class PcapRemoteDeviceList
 	{
 	private:
 		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
@@ -70,7 +70,7 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
-		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
+		PCAPPP_PCAP_API static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
 
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
@@ -84,7 +84,7 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
-		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+		PCAPPP_PCAP_API static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
 
 		/**
 		 * @return The IP address of the remote machine

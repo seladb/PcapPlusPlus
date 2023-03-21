@@ -77,7 +77,7 @@ namespace pcpp
 	 * are some are some implementation details, mainly in making the connection to the remote daemon, and the way the user can get the instance
 	 * of PcapRemoteDevice. For more details on that please refer to PcapRemoteDeviceList
 	 */
-	class PCAPPP_PCAP_API PcapRemoteDevice : public PcapLiveDevice
+	class PcapRemoteDevice : public PcapLiveDevice
 	{
 		friend class PcapRemoteDeviceList;
 	private:
@@ -93,7 +93,7 @@ namespace pcpp
 		// private assignment operator
 		PcapRemoteDevice& operator=(const PcapRemoteDevice& other);
 
-		static void* remoteDeviceCaptureThreadMain(void *ptr);
+		PCAPPP_PCAP_API static void* remoteDeviceCaptureThreadMain(void *ptr);
 
 		//overridden methods
 		ThreadStart getCaptureThreadStart();

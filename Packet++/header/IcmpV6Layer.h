@@ -131,7 +131,7 @@ typedef struct icmpv6_echo_hdr : icmpv6hdr
  * @class IcmpV6Layer
  * Base class for ICMPv6 protocol layers which provides common logic for ICMPv6 messages.
  */
-class PCAPPP_PACKET_API IcmpV6Layer : public Layer
+class IcmpV6Layer : public Layer
 {
 public:
 	/**
@@ -163,7 +163,7 @@ public:
 	 * @param[in] packet A pointer to the Packet instance where layer will be stored
 	 * @return Layer* A newly allocated ICMPv6 layer
 	 */
-	static Layer *parseIcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+	PCAPPP_PACKET_API static Layer *parseIcmpV6Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 	/**
 	 * @param[in] type Type to check

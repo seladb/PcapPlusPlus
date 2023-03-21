@@ -72,7 +72,7 @@ namespace pcpp
 	 * @class SipLayer
 	 * Represents a general SIP message. It's an abstract class and cannot be instantiated. It's inherited by SipRequestLayer and SipResponseLayer
 	 */
-	class PCAPPP_PACKET_API SipLayer : public TextBasedProtocolMessage
+	class SipLayer : public TextBasedProtocolMessage
 	{
 	public:
 
@@ -117,7 +117,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as SIP
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isSipPort(uint16_t port) { return port == 5060 || port == 5061; }
+		PCAPPP_PACKET_API static bool isSipPort(uint16_t port) { return port == 5060 || port == 5061; }
 
 	protected:
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
@@ -475,7 +475,7 @@ namespace pcpp
 	 * Since SIP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So many "setter" methods
 	 * of this class may need to shorten or extend the data in SipRequestLayer. These methods will return a false value if this action failed
 	 */
-	class PCAPPP_PACKET_API SipRequestFirstLine
+	class SipRequestFirstLine
 	{
 		friend class SipRequestLayer;
 	public:
@@ -515,7 +515,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed SIP method
 		 */
-		static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
+		PCAPPP_PACKET_API static SipRequestLayer::SipMethod parseMethod(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the SIP request first line
@@ -577,7 +577,7 @@ namespace pcpp
 	 * Since SIP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So most "setter" methods
 	 * of this class may need to shorten or extend the data in SipResponseLayer. These methods will return a false value if this action failed
 	 */
-	class PCAPPP_PACKET_API SipResponseFirstLine
+	class SipResponseFirstLine
 	{
 		friend class SipResponseLayer;
 	public:
@@ -621,7 +621,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed SIP status code as enum
 		 */
-		static SipResponseLayer::SipResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
+		PCAPPP_PACKET_API static SipResponseLayer::SipResponseStatusCode parseStatusCode(const char* data, size_t dataLen);
 
 		/**
 		 * A static method for parsing the SIP version out of raw data
@@ -629,7 +629,7 @@ namespace pcpp
 		 * @param[in] dataLen The raw data length
 		 * @return The parsed SIP version string or an empty string if version cannot be extracted
 		 */
-		static std::string parseVersion(const char* data, size_t dataLen);
+		PCAPPP_PACKET_API static std::string parseVersion(const char* data, size_t dataLen);
 
 		/**
 		 * @return The size in bytes of the SIP response first line

@@ -327,7 +327,7 @@ namespace pcpp
 	 * @class TcpLayer
 	 * Represents a TCP (Transmission Control Protocol) protocol layer
 	 */
-	class PCAPPP_PACKET_API TcpLayer : public Layer
+	class TcpLayer : public Layer
 	{
 	public:
 		/**
@@ -456,7 +456,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of byte stream
 		 * @return True if the data is valid and can represent a TCP packet
 		 */
-		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 

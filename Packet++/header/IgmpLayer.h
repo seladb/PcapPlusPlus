@@ -159,7 +159,7 @@ enum IgmpType
  * only its child classes can be instantiated. The inherited classes represent the different versions of the protocol:
  * IGMPv1, IGMPv2 and IGMPv3
  */
-class PCAPPP_PACKET_API IgmpLayer : public Layer
+class IgmpLayer : public Layer
 {
 protected:
 
@@ -211,7 +211,7 @@ public:
 	 * @return One of the values ::IGMPv1, ::IGMPv2, ::IGMPv3 according to detected IGMP version or ::UnknownProtocol if couldn't detect
 	 * IGMP version
 	 */
-	static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery);
+	PCAPPP_PACKET_API static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery);
 
 
 	// implement abstract methods

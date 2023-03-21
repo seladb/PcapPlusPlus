@@ -103,7 +103,7 @@ namespace pcpp
 	 *
 	 * Note: Logger#Info level logs are currently only used in DPDK devices to set DPDK log level to RTE_LOG_NOTICE.
 	 */
-	class PCAPPP_COMMON_API Logger
+	class Logger
 	{
 	public:
 		/**
@@ -132,7 +132,7 @@ namespace pcpp
 		 * @param[in] logLevel A log level enum
 		 * @return The log level as a string
 		 */
-		static std::string logLevelAsString(LogLevel logLevel);
+		PCAPPP_COMMON_API static std::string logLevelAsString(LogLevel logLevel);
 
 		/**
 		 * Get the log level for a certain module
@@ -212,7 +212,7 @@ namespace pcpp
 		 * @todo: make this singleton thread-safe/
 		 * @return a pointer to the Logger singleton
 		**/
-		static Logger& getInstance()
+		PCAPPP_COMMON_API static Logger& getInstance()
 		{
 			static Logger instance;
 			return instance;
@@ -227,7 +227,7 @@ namespace pcpp
 		// private c'tor - this class is a singleton
 		Logger();
 
-		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+		PCAPPP_COMMON_API static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 
 #define PCPP_LOG_DEBUG(message) do \

@@ -16,7 +16,7 @@ namespace pcpp
 /**
  * Class for representing the Telnet Layer
  */
-class PCAPPP_PACKET_API TelnetLayer : public Layer
+class TelnetLayer : public Layer
 {
   private:
 	// Position iterator for next command
@@ -300,20 +300,20 @@ class PCAPPP_PACKET_API TelnetLayer : public Layer
 	 * @param[in] val Value of the command
 	 * @return The Telnet Command as readable string
 	 */
-	static std::string getTelnetCommandAsString(TelnetCommand val);
+	PCAPPP_PACKET_API static std::string getTelnetCommandAsString(TelnetCommand val);
 
 	/**
 	 * Convert the Telnet option to readable string
 	 * @param[in] val Value of the option
 	 * @return The Telnet Option as readable string
 	 */
-	static std::string getTelnetOptionAsString(TelnetOption val);
+	PCAPPP_PACKET_API static std::string getTelnetOptionAsString(TelnetOption val);
 
 	/**
 	 * A static method that checks whether the port is considered as Telnet
 	 * @param[in] port The port number to be checked
 	 */
-	static bool isTelnetPort(uint16_t port)	{ return port == 23; }
+	PCAPPP_PACKET_API static bool isTelnetPort(uint16_t port)	{ return port == 23; }
 
 	/**
 	 * A static method that takes a byte array and detects whether it is a Telnet message
@@ -321,7 +321,7 @@ class PCAPPP_PACKET_API TelnetLayer : public Layer
 	 * @param[in] dataSize The byte array size (in bytes)
 	 * @return True if the data is identified as Telnet message
 	 */
-	static bool isDataValid(const uint8_t *data, size_t dataSize) {	return data && dataSize; }
+	PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataSize) {	return data && dataSize; }
 
 	// overridden methods
 

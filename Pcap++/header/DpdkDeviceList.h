@@ -72,14 +72,14 @@ namespace pcpp
 	 *    - it contains the list of DpdkDevice instances and enables access to them
 	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
 	 */
-	class PCAPPP_PCAP_API DpdkDeviceList
+	class DpdkDeviceList
 	{
 		friend class KniDeviceList;
 	private:
 		bool m_IsInitialized;
-		static bool m_IsDpdkInitialized;
-		static uint32_t m_MBufPoolSizePerDevice;
-		static CoreMask m_CoreMask;
+		PCAPPP_PCAP_API static bool m_IsDpdkInitialized;
+		PCAPPP_PCAP_API static uint32_t m_MBufPoolSizePerDevice;
+		PCAPPP_PCAP_API static CoreMask m_CoreMask;
 		std::vector<DpdkDevice*> m_DpdkDeviceList;
 		std::vector<DpdkWorkerThread*> m_WorkerThreads;
 
@@ -87,9 +87,9 @@ namespace pcpp
 
 		bool isInitialized() const { return (m_IsInitialized && m_IsDpdkInitialized); }
 		bool initDpdkDevices(uint32_t mBufPoolSizePerDevice);
-		static bool verifyHugePagesAndDpdkDriver();
+		PCAPPP_PCAP_API static bool verifyHugePagesAndDpdkDriver();
 
-		static int dpdkWorkerThreadStart(void* ptr);
+		PCAPPP_PCAP_API static int dpdkWorkerThreadStart(void* ptr);
 	public:
 
 		~DpdkDeviceList();
@@ -99,7 +99,7 @@ namespace pcpp
 		 * initDpdk() was not called or returned false this instance won't be initialized and DpdkDevices won't be initialized either
 		 * @return The singleton instance of DpdkDeviceList
 		 */
-		static DpdkDeviceList& getInstance()
+		PCAPPP_PCAP_API static DpdkDeviceList& getInstance()
 		{
 			static DpdkDeviceList instance;
 			if (!instance.isInitialized())
@@ -131,7 +131,7 @@ namespace pcpp
 		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
+		PCAPPP_PCAP_API static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
 
 		/**
 		 * Get a DpdkDevice by port ID

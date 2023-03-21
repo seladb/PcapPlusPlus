@@ -250,7 +250,7 @@ namespace pcpp
 	 * every instance also holds a timestamp representing the time the packet was received by the NIC.
 	 * RawPacket instance isn't read only. The user can change the packet data, add or remove data, etc.
 	 */
-	class PCAPPP_PACKET_API RawPacket
+	class RawPacket
 	{
 	protected:
 		uint8_t* m_RawData;
@@ -364,7 +364,7 @@ namespace pcpp
 		 * @param[in] linkTypeValue Link type integer value
 		 * @return True if the link type value is valid and can be casted into LinkLayerType enum, false otherwise
 		 */
-		static bool isLinkTypeValid(int linkTypeValue);
+		PCAPPP_PACKET_API static bool isLinkTypeValid(int linkTypeValue);
 
 		/**
 		 * Get raw data length in bytes

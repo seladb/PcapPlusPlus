@@ -22,7 +22,7 @@ namespace pcpp
 	 * devices are initialized on startup and wrap the network interfaces installed on the machine. This class enables access to them through
 	 * their IP addresses or get a vector of all of them so the user can search them in some other way
 	 */
-	class PCAPPP_PCAP_API PcapLiveDeviceList
+	class PcapLiveDeviceList
 	{
 	private:
 		std::vector<PcapLiveDevice*> m_LiveDeviceList;
@@ -43,7 +43,7 @@ namespace pcpp
 		 * The access method to the singleton
 		 * @return The singleton instance of this class
 		 */
-		static PcapLiveDeviceList& getInstance()
+		PCAPPP_PCAP_API static PcapLiveDeviceList& getInstance()
 		{
 			static PcapLiveDeviceList instance;
 			return instance;

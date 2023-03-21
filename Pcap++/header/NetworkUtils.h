@@ -21,7 +21,7 @@ namespace pcpp
 	 * This class bundles several network utilities that are very common and useful. These utilities use Pcap++ and Packet++ packet
 	 * crafting and processing capabilities. This class is a singleton and can be access by getInstance() only
 	 */
-	class PCAPPP_PCAP_API NetworkUtils
+	class NetworkUtils
 	{
 	public:
 
@@ -29,7 +29,7 @@ namespace pcpp
 		 * The access method to the singleton
 		 * @return The singleton instance of this class
 		 */
-		static NetworkUtils& getInstance()
+		PCAPPP_PCAP_API static NetworkUtils& getInstance()
 		{
 			static NetworkUtils instance;
 			return instance;
@@ -38,7 +38,7 @@ namespace pcpp
 		/**
 		 * Default timeout used for several utilities. Currently set to 5 seconds
 		 */
-		static const int DefaultTimeout;
+		PCAPPP_PCAP_API static const int DefaultTimeout;
 
 		/**
 		 * Resolve the MAC address for a given IPv4 address. It's done using the ARP protocol: send an ARP request and interpret the response

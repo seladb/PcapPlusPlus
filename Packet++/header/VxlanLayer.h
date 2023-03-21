@@ -71,7 +71,7 @@ namespace pcpp
 	 * @class VxlanLayer
 	 * Represents a VXLAN (Virtual eXtensible Local Area Network) protocol layer
 	 */
-	class PCAPPP_PACKET_API VxlanLayer : public Layer
+	class VxlanLayer : public Layer
 	{
 	public:
 		 /** A constructor that creates the layer from an existing packet raw data
@@ -115,7 +115,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as VxLAN
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isVxlanPort(uint16_t port) { return port == 4789; }
+		PCAPPP_PACKET_API static bool isVxlanPort(uint16_t port) { return port == 4789; }
 
 
 		// implement abstract methods

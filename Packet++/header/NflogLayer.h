@@ -149,7 +149,7 @@ namespace pcpp
 	 * @class NflogLayer
 	 * Represents an NFLOG protocol layer
 	 */
-	class PCAPPP_PACKET_API NflogLayer : public Layer
+	class NflogLayer : public Layer
 	{
 	public:
 		/**
@@ -222,7 +222,7 @@ namespace pcpp
 		* @param[in] dataLen The length of the byte stream
 		* @return True if the data is valid and can represent an NFLOG packet
 		*/
-		static bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
 		uint8_t* getTlvsBasePtr() const { return m_Data + sizeof(nflog_header); }

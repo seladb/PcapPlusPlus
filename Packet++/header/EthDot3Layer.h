@@ -34,7 +34,7 @@ namespace pcpp
 	 * @class EthDot3Layer
 	 * Represents an IEEE 802.3 Ethernet protocol layer
 	 */
-	class PCAPPP_PACKET_API EthDot3Layer : public Layer
+	class EthDot3Layer : public Layer
 	{
 	public:
 
@@ -122,7 +122,7 @@ namespace pcpp
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an IEEE 802.3 Eth packet
 		 */
-		static bool isDataValid(const uint8_t* data, size_t dataLen);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t* data, size_t dataLen);
 	};
 
 } // namespace pcpp

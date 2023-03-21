@@ -368,7 +368,7 @@ private:
  * @class SomeIpSdEntry
  * Implementation of the SOME/IP-SD Service Entry and Eventgroup Entry Type
  */
-class PCAPPP_PACKET_API SomeIpSdEntry
+class SomeIpSdEntry
 {
 public:
 	friend class SomeIpSdLayer;
@@ -611,14 +611,14 @@ private:
 	SomeIpSdEntry(const SomeIpSdEntry &) = delete;
 	SomeIpSdEntry &operator=(const SomeIpSdEntry &) = delete;
 
-	static const uint32_t SOMEIPSD_HDR_ENTRY_MASK_TTL = 0x00FFFFFF;
+	PCAPPP_PACKET_API static const uint32_t SOMEIPSD_HDR_ENTRY_MASK_TTL = 0x00FFFFFF;
 };
 
 /**
  * @class SomeIpSdLayer
  * Implementation of the SOME/IP-SD protocol
  */
-class PCAPPP_PACKET_API SomeIpSdLayer : public SomeIpLayer
+class SomeIpSdLayer : public SomeIpLayer
 {
 public:
 	friend class SomeIpSdEntry;
@@ -661,7 +661,7 @@ public:
 	 * @param[in] port Port to check
 	 * @return true if SOME/IP-SD protocol port, false if not
 	 */
-	static bool isSomeIpSdPort(uint16_t port) { return port == 30490; }
+	PCAPPP_PACKET_API static bool isSomeIpSdPort(uint16_t port) { return port == 30490; }
 
 	/**
 	 * Get the Flags of the layer

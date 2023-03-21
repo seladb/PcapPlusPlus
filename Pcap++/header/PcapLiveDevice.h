@@ -80,7 +80,7 @@ namespace pcpp
 	 * supplying a callback and a timeout to startCapture()
 	 * - Send packets back to the network. Sending the packets is done on the caller thread. No additional threads are created for this task
 	 */
-	class PCAPPP_PCAP_API PcapLiveDevice : public IPcapDevice
+	class PcapLiveDevice : public IPcapDevice
 	{
 		friend class PcapLiveDeviceList;
 	protected:
@@ -125,9 +125,9 @@ namespace pcpp
 		void captureThreadMain();
 		void statsThreadMain();
 
-		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
-		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		PCAPPP_PCAP_API static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		PCAPPP_PCAP_API static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		PCAPPP_PCAP_API static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 	public:
 
 		/**

@@ -27,7 +27,7 @@ namespace pcpp
 	 * @class MacAddress
 	 * Represents L2 MAC addresses. Can be constructed from string or a series of 6 byte octets
 	 */
-	class PCAPPP_COMMON_API MacAddress
+	class MacAddress
 	{
 	public:
 		/**
@@ -161,7 +161,7 @@ namespace pcpp
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		 */
-		static MacAddress Zero;
+		PCAPPP_COMMON_API static MacAddress Zero;
 
 	private:
 		uint8_t m_Address[6];

@@ -17,7 +17,7 @@ namespace pcpp
 	/**
 	 * Class for representing the Wake on LAN Layer
 	 */
-	class PCAPPP_PACKET_API WakeOnLanLayer : public Layer
+	class WakeOnLanLayer : public Layer
 	{
 	  private:
 	  	void init(uint16_t len);
@@ -136,7 +136,7 @@ namespace pcpp
 		 * A static method that checks whether the port is considered as Wake on LAN
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isWakeOnLanPort(uint16_t port) { return (port == 0) || (port == 7) || (port == 9); }
+		PCAPPP_PACKET_API static bool isWakeOnLanPort(uint16_t port) { return (port == 0) || (port == 7) || (port == 9); }
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a Wake on LAN message
@@ -144,7 +144,7 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as Wake on LAN message
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize);
+		PCAPPP_PACKET_API static bool isDataValid(const uint8_t *data, size_t dataSize);
 
 		// overridden methods
 
