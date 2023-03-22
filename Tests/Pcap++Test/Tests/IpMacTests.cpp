@@ -508,11 +508,11 @@ PTF_TEST_CASE(TestIPv6Network)
 		auto expectedNumOfAddresses = std::get<4>(subnetPrefixLenAndNetPrefix);
 		if (expectedNumOfAddresses != 0)
 		{
-			PTF_ASSERT_EQUAL(iPv6NetworkD.getNumAddresses(), expectedNumOfAddresses);
+			PTF_ASSERT_EQUAL(iPv6NetworkD.getTotalAddressCount(), expectedNumOfAddresses);
 		}
 		else
 		{
-			PTF_ASSERT_RAISES(iPv6NetworkD.getNumAddresses(), std::out_of_range, "Number of addresses exceeds uint64_t");
+			PTF_ASSERT_RAISES(iPv6NetworkD.getTotalAddressCount(), std::out_of_range, "Number of addresses exceeds uint64_t");
 		}
 	}
 } // TestIPv6Network

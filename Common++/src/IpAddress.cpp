@@ -386,6 +386,12 @@ namespace pcpp
 		return true;
 	}
 
+
+	// ~~~~~~~~~~~
+	// IPv6Network
+	// ~~~~~~~~~~~
+
+
 	void IPv6Network::initFromAddressAndPrefixLength(const IPv6Address &address, uint8_t prefixLen)
 	{
 		memset(m_Mask, 0, 16);
@@ -416,6 +422,7 @@ namespace pcpp
 		}
 	}
 
+
 	void IPv6Network::initFromAddressAndSubnetMask(const IPv6Address &address, const std::string &subnetMask)
 	{
 		IPv6Address subnetMaskAddr(subnetMask);
@@ -428,6 +435,7 @@ namespace pcpp
 			m_NetworkPrefix[byteIndex] &= m_Mask[byteIndex];
 		}
 	}
+
 
 	IPv6Network::IPv6Network(const IPv6Address &address, uint8_t prefixLen)
 	{
@@ -444,6 +452,7 @@ namespace pcpp
 		initFromAddressAndPrefixLength(address, prefixLen);
 	}
 
+
 	IPv6Network::IPv6Network(const IPv6Address &address, const std::string &subnetMask)
 	{
 		if (!address.isValid())
@@ -458,6 +467,7 @@ namespace pcpp
 
 		initFromAddressAndSubnetMask(address, subnetMask);
 	}
+
 
 	IPv6Network::IPv6Network(const std::string &addressAndSubnet)
 	{
@@ -499,6 +509,7 @@ namespace pcpp
 		}
 	}
 
+
 	uint8_t IPv6Network::getPrefixLen() const
 	{
 		uint8_t result = 0;
@@ -510,10 +521,12 @@ namespace pcpp
 		return result;
 	}
 
+
 	IPv6Address IPv6Network::getLowestAddress() const
 	{
 		return m_NetworkPrefix;
 	}
+
 
 	IPv6Address IPv6Network::getHighestAddress() const
 	{
@@ -527,7 +540,8 @@ namespace pcpp
 		return result;
 	}
 
-	uint64_t IPv6Network::getNumAddresses() const
+
+	uint64_t IPv6Network::getTotalAddressCount() const
 	{
 		int numOfBitset = 0;
 		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)

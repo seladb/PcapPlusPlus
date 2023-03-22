@@ -578,7 +578,7 @@ namespace pcpp
 
 		IPv6Address getHighestAddress() const;
 
-		uint64_t getNumAddresses() const;
+		uint64_t getTotalAddressCount() const;
 
 	private:
 		uint8_t m_NetworkPrefix[16];
