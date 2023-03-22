@@ -28,6 +28,11 @@ namespace pcpp
 	const IPv4Address IPv4Address::MulticastRangeUpperBound("239.255.255.255");
 	const IPv6Address IPv6Address::MulticastRangeLowerBound("ff00:0000:0000:0000:0000:0000:0000:0000");
 
+	// ~~~~~~~~~~~
+	// IPv4Address
+	// ~~~~~~~~~~~
+
+
 	std::string IPv4Address::toString() const
 	{
 		char addrBuffer[INET_ADDRSTRLEN];
@@ -37,6 +42,7 @@ namespace pcpp
 
 		return std::string();
 	}
+
 
 	bool IPv4Address::isMulticast() const
 	{
@@ -101,6 +107,11 @@ namespace pcpp
 	}
 
 
+	// ~~~~~~~~~~~
+	// IPv6Address
+	// ~~~~~~~~~~~
+
+
 	std::string IPv6Address::toString() const
 	{
 		char addrBuffer[INET6_ADDRSTRLEN];
@@ -111,10 +122,12 @@ namespace pcpp
 		return std::string();
 	}
 
+
 	bool IPv6Address::isMulticast() const
 	{
 		return !operator<(MulticastRangeLowerBound);
 	}
+
 
 	IPv6Address::IPv6Address(const std::string& addrAsString)
 	{
@@ -141,6 +154,7 @@ namespace pcpp
 		memcpy(*arr, m_Bytes, addrLen);
 	}
 
+
 	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
 	{
 		if(prefixLength == 0 || prefixLength > 128)
@@ -164,6 +178,12 @@ namespace pcpp
 		}
 		return result;
 	}
+
+
+	// ~~~~~~~~~~~
+	// IPv4Network
+	// ~~~~~~~~~~~
+
 
 	bool IPv4Network::isValidSubnetMask(const std::string& subnetMask)
 	{
@@ -192,11 +212,13 @@ namespace pcpp
 		}
 	}
 
+
 	void IPv4Network::initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen)
 	{
 		m_Mask = be32toh(0xffffffff ^ (prefixLen < 32 ? 0xffffffff >> prefixLen: 0));
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
+
 
 	void IPv4Network::initFromAddressAndSubnetMask(const IPv4Address& address, const std::string& subnetMask)
 	{
@@ -204,6 +226,7 @@ namespace pcpp
 		m_Mask = subnetMaskAddr.toInt();
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
+
 
 	IPv4Network::IPv4Network(const IPv4Address& address, uint8_t prefixLen)
 	{
@@ -220,6 +243,7 @@ namespace pcpp
 		initFromAddressAndPrefixLength(address, prefixLen);
 	}
 
+
 	IPv4Network::IPv4Network(const IPv4Address& address, const std::string& subnetMask)
 	{
 		if (!address.isValid())
@@ -234,6 +258,7 @@ namespace pcpp
 
 		initFromAddressAndSubnetMask(address, subnetMask);
 	}
+
 
 	IPv4Network::IPv4Network(const std::string& addressAndSubnet)
 	{
@@ -274,27 +299,32 @@ namespace pcpp
 		}
 	}
 
+
 	uint8_t IPv4Network::getPrefixLen() const
 	{
 		std::bitset<32> bitset(m_Mask);
 		return bitset.count();
 	}
 
+
 	IPv4Address IPv4Network::getLowestAddress() const
 	{
 		return m_NetworkPrefix;
 	}
+
 
 	IPv4Address IPv4Network::getHighestAddress() const
 	{
 		return m_NetworkPrefix | ~m_Mask;
 	}
 
+
 	uint64_t IPv4Network::getTotalAddressCount() const
 	{
 		std::bitset<32> bitset(static_cast<uint32_t>(~m_Mask));
 		return 1ULL << bitset.count();
 	}
+
 
 	bool IPv4Network::includes(const IPv4Address& address) const
 	{
@@ -304,6 +334,7 @@ namespace pcpp
 		}
 		return (address.toInt() & m_Mask) == m_NetworkPrefix;
 	}
+
 
 	bool IPv4Network::includes(const IPv4Network& network) const
 	{
