@@ -283,8 +283,8 @@ namespace pcpp
 		 * Another example: this method will return false for address d6e5:83dc:: and subnet which is one of:
 		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
 		 * @param[in] subnet A string in one of these formats:
-		 *  - <ipv6_address>/Y where <ipv6_address> is a valid IPv6 address and Y is a number between 0 and 128
-		 *  - <ipv6_address>/<ipv6_mask> where <ipv6_address> is a valid IPv6 address and <ipv6_mask> is a valid
+		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address and Y is a number between 0 and 128
+		 *  - IPV6_ADDRESS/IPV6_MASK where IPV6_ADDRESS is a valid IPv6 address and IPV6_MASK is a valid
 		 *    IPv6 subnet mask
 		 *	@return True if the address matches the subnet or false if it doesn't or if the subnet is invalid
 		 */
@@ -612,10 +612,10 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of a string representing the network prefix and
 		 * a prefix length or a subnet mask
 		 * @param addressAndSubnet A string in one of these formats:
-		 *  - <ipv6_address>/Y where <ipv6_address> is a valid IPv6 address representing the network prefix and Y is
+		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address representing the network prefix and Y is
 		 *    a number between 0 and 128 representing the network prefix
-		 *  - <ipv6_address>/<ipv6_mask> where <ipv6_address> is a valid IPv6 address representing the network prefix
-		 *    and <ipv6_mask> is a valid subnet mask
+		 *  - IPV6_ADDRESS/IPV6_MASK where IPV6_ADDRESS is a valid IPv6 address representing the network prefix
+		 *    and IPV6_MASK is a valid subnet mask
 		 *  For any invalid value std::invalid_argument is thrown
 		 */
 		IPv6Network(const std::string& addressAndSubnet);
