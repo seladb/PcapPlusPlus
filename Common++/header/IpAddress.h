@@ -30,6 +30,7 @@ namespace pcpp
 
 	// forward declarations
 	class IPv4Network;
+	class IPv6Network;
 
 	// The implementation of the classes is based on document N4771 "Working Draft, C++ Extensions for Networking"
 	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4771.pdf
@@ -268,13 +269,31 @@ namespace pcpp
 		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
 
 		/**
-		  * Checks whether the address matches a subnet.
-		  * For example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 64, and address is 2001:3CA1:010F:001A:121B:0000:0000:0010, then the method will return true
-		  * Another example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 70 and address is 2001:3CA1:010F:001A:121B:0000:0000:0010 then the method will return false
-		  * @param[in] subnet The subnet to be verified
-		  * @param[in] prefixLength How many bits to use in the mask
+		 * Checks whether the address matches a subnet.
+		 * @param subnet An IPv6Network subnet object
+		 * @return True if the address matches the subnet or false otherwise
+		 */
+		bool matchSubnet(const IPv6Network& subnet) const;
+
+		/**
+		 * Checks whether the address matches a subnet.
+		 * For example: this method will return true for address d6e5:83dc:0c58:bc5d:1449:5898:: and subnet
+		 * which is one of:
+		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
+		 * Another example: this method will return false for address d6e5:83dc:: and subnet which is one of:
+		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
+		 * @param[in] subnet A string in one of these formats:
+		 *  - <ipv6_address>/Y where <ipv6_address> is a valid IPv6 address and Y is a number between 0 and 128
+		 *  - <ipv6_address>/<ipv6_mask> where <ipv6_address> is a valid IPv6 address and <ipv6_mask> is a valid
+		 *    IPv6 subnet mask
+		 *	@return True if the address matches the subnet or false if it doesn't or if the subnet is invalid
+		 */
+		bool matchSubnet(const std::string& subnet) const;
+
+		/**
+		  * @deprecated This method is deprecated, please use matchSubnet(const IPv6Network& subnet)
 		  */
-		bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
+		PCPP_DEPRECATED bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
 
 		/**
 		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
@@ -579,6 +598,10 @@ namespace pcpp
 		IPv6Address getHighestAddress() const;
 
 		uint64_t getTotalAddressCount() const;
+
+		bool includes(const IPv6Address& address) const;
+
+		bool includes(const IPv6Network& network) const;
 
 	private:
 		uint8_t m_NetworkPrefix[16];

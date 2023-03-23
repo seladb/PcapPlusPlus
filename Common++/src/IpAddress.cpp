@@ -155,28 +155,39 @@ namespace pcpp
 	}
 
 
-	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
+	bool IPv6Address::matchSubnet(const IPv6Network& subnet) const
 	{
-		if(prefixLength == 0 || prefixLength > 128)
+		return subnet.includes(*this);
+	}
+
+
+	bool IPv6Address::matchSubnet(const std::string& subnet) const
+	{
+		try
 		{
-			PCPP_LOG_ERROR("subnet prefixLength '" << (int)prefixLength << "' illegal");
+			auto ipv6Network = IPv6Network(subnet);
+			return ipv6Network.includes(*this);
+		}
+		catch (const std::invalid_argument& e)
+		{
+			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
-		uint8_t compareByteCount = prefixLength / 8;
-		uint8_t compareBitCount = prefixLength % 8;
-		bool result = false;
-		const uint8_t* subnetBytes = subnet.toBytes();
-		if(compareByteCount > 0)
+	}
+
+
+	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
+	{
+		try
 		{
-			result = memcmp(subnetBytes, m_Bytes, compareByteCount) == 0;
+			auto ipv6Network = IPv6Network(subnet, prefixLength);
+			return ipv6Network.includes(*this);
 		}
-		if((result || prefixLength < 8) && compareBitCount > 0)
+		catch (const std::invalid_argument& e)
 		{
-			uint8_t subSubnetByte = subnetBytes[compareByteCount] >> (8 - compareBitCount);
-			uint8_t subThisByte =  m_Bytes[compareByteCount]  >> (8 - compareBitCount);
-			result = subSubnetByte == subThisByte;
+			PCPP_LOG_ERROR(e.what());
+			return false;
 		}
-		return result;
 	}
 
 
@@ -557,4 +568,27 @@ namespace pcpp
 		return 1ULL << numOfBitset;
 	}
 
+
+	bool IPv6Network::includes(const IPv6Address& address) const
+	{
+		if (!address.isValid())
+		{
+			return false;
+		}
+
+		uint8_t maskedBytes[16];
+		address.copyTo(maskedBytes);
+
+		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		{
+			maskedBytes[byteIndex] &= m_Mask[byteIndex];
+		}
+		return memcmp(m_NetworkPrefix, maskedBytes, 16) == 0;
+	}
+
+
+	bool IPv6Network::includes(const IPv6Network& network) const
+	{
+		return includes(network.getLowestAddress()) && includes(network.getHighestAddress());
+	}
 } // namespace pcpp
