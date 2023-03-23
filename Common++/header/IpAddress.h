@@ -511,7 +511,7 @@ namespace pcpp
 		uint8_t getPrefixLen() const;
 
 		/**
-		 * @return The prefix length, for example: the subnet mask of 10.10.10.10/8 is 255.0.0.0
+		 * @return The subnet mask, for example: the subnet mask of 10.10.10.10/8 is 255.0.0.0
 		 */
 		std::string getSubnetMask() const { return IPv4Address(m_Mask).toString(); }
 
@@ -533,7 +533,7 @@ namespace pcpp
 		IPv4Address getHighestAddress() const;
 
 		/**
-		 * @return The number of addresses in this network, for example: the number of addresses in 10.10.0.0/8 is 256
+		 * @return The number of addresses in this network, for example: the number of addresses in 10.10.0.0/24 is 256
 		 */
 		uint64_t getTotalAddressCount() const;
 
