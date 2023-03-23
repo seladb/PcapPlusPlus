@@ -2,7 +2,7 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '10 10 15 * *'
+    - cron: '10 10 25 * *'
 
 jobs:
   precommit-update:
