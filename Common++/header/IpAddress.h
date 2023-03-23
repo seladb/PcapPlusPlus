@@ -578,29 +578,92 @@ namespace pcpp
 		void initFromAddressAndSubnetMask(const IPv4Address& address, const std::string& subnetMask);
 	};
 
+
+	/**
+	 * @class IPv6Network
+	 * A class representing IPv6 network definition
+	 */
 	class IPv6Network
 	{
 	public:
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a prefix length
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param prefixLen A number between 0 and 128 representing the prefix length. If another value is provided
+		 * std::invalid_argument exception is thrown
+		 */
 		IPv6Network(const IPv6Address& address, uint8_t prefixLen);
 
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a subnet mask
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param subnetMask A string representing a subnet mask a valid IPv6 format, for example: ffff:ffff::.
+		 * Please notice that subnets that start with zeros are invalid, for example: 0:ffff::. The only subnet mask
+		 * starting with zeros that is valid is all zeros (::). If the subnet is invalid std::invalid_argument
+		 * exception is thrown
+		 */
 		IPv6Network(const IPv6Address& address, const std::string& subnetMask);
 
+		/**
+		 * A constructor that creates an instance of the class out of a string representing the network prefix and
+		 * a prefix length or a subnet mask
+		 * @param addressAndSubnet A string in one of these formats:
+		 *  - <ipv6_address>/Y where <ipv6_address> is a valid IPv6 address representing the network prefix and Y is
+		 *    a number between 0 and 128 representing the network prefix
+		 *  - <ipv6_address>/<ipv6_mask> where <ipv6_address> is a valid IPv6 address representing the network prefix
+		 *    and <ipv6_mask> is a valid subnet mask
+		 *  For any invalid value std::invalid_argument is thrown
+		 */
 		IPv6Network(const std::string& addressAndSubnet);
 
+		/**
+		 * @return The prefix length, for example: the prefix length of 3546::/ffff:: is 16
+		 */
 		uint8_t getPrefixLen() const;
 
+		/**
+		 * @return The subnet mask, for example: the subnet mask of 3546::/16 is ffff::
+		 */
 		std::string getSubnetMask() const { return IPv6Address(m_Mask).toString(); }
 
+		/**
+		 * @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::
+		*/
 		IPv6Address getNetworkPrefix() const { return IPv6Address(m_NetworkPrefix); }
 
+		/**
+		* @return The lowest IPv6 address in this network, for example: the lowest address in 3546::/16 is
+		* 3546::
+		*/
 		IPv6Address getLowestAddress() const;
 
+		/**
+		 * @return The highest IPv6 address in this network, for example: the highest address in 3546::/16 is
+		 * 3546:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+		 */
 		IPv6Address getHighestAddress() const;
 
+		/**
+		 * @return The number of addresses in this network, for example: the number of addresses in 16ff::/120 is 256.
+		 * If the number of addresses exceeds the size of uint64_t a std::out_of_range exception is thrown
+		 */
 		uint64_t getTotalAddressCount() const;
 
+		/**
+		 * @param address An IPv6 address
+		 * @return True is the address belongs to the network, false otherwise or if the address isn't valid
+		 */
 		bool includes(const IPv6Address& address) const;
 
+		/**
+		 * @param network An IPv6 network
+		 * @return True is the input network is included within this network, false otherwise, for example:
+		 * 3546::/64 includes 3546::/120 but doesn't include 3546::/16
+		 */
 		bool includes(const IPv6Network& network) const;
 
 	private:
