@@ -599,4 +599,13 @@ namespace pcpp
 	{
 		return includes(network.getLowestAddress()) && includes(network.getHighestAddress());
 	}
+
+
+	std::string IPv6Network::toString() const
+	{
+		std::ostringstream stream;
+		stream << getNetworkPrefix() << "/" << static_cast<int>(getPrefixLen());
+		return stream.str();
+	}
+
 } // namespace pcpp

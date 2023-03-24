@@ -672,6 +672,12 @@ namespace pcpp
 		 */
 		bool includes(const IPv6Network& network) const;
 
+		/**
+		 * @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
+		 * fda7:9f81:6c23:0275::/64
+		 */
+		std::string toString() const;
+
 	private:
 		uint8_t m_NetworkPrefix[16];
 		uint8_t m_Mask[16];
@@ -701,6 +707,12 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddre
 }
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
+{
+	os << network.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
 {
 	os << network.toString();
 	return os;

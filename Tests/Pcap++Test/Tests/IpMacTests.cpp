@@ -564,4 +564,10 @@ PTF_TEST_CASE(TestIPv6Network)
 	}
 
 	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Network(pcpp::IPv6Address("4447:3c98:ee01:fd0a:bf73:ad00:89ac:1a89"), 64)));
+
+	// to string
+	PTF_ASSERT_EQUAL(ipv6Network.toString(), "a88e:2765:5349:1f9::/64");
+	std::stringstream stream;
+	stream << ipv6Network;
+	PTF_ASSERT_EQUAL(stream.str(), "a88e:2765:5349:1f9::/64");
 } // TestIPv6Network
