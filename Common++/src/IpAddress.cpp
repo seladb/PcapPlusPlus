@@ -343,4 +343,11 @@ namespace pcpp
 		return ((lowestAddress & m_Mask) == m_NetworkPrefix && (highestAddress & m_Mask) == m_NetworkPrefix);
 	}
 
+	std::string IPv4Network::toString() const
+	{
+		std::ostringstream stream;
+		stream << getNetworkPrefix() << "/" << static_cast<int>(getPrefixLen());
+		return stream.str();
+	}
+
 } // namespace pcpp

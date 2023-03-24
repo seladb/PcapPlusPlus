@@ -550,6 +550,12 @@ namespace pcpp
 		 */
 		bool includes(const IPv4Network& network) const;
 
+		/**
+		 * @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
+		 * 192.168.0.0/16
+		 */
+		std::string toString() const;
+
 	private:
 		uint32_t m_NetworkPrefix;
 		uint32_t m_Mask;
@@ -576,6 +582,12 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Address& ipv6A
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddress)
 {
 	os << ipAddress.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
+{
+	os << network.toString();
 	return os;
 }
 
