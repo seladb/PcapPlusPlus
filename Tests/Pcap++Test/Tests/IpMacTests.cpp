@@ -450,6 +450,12 @@ PTF_TEST_CASE(TestIPv4Network)
 
 	auto ipv4Network2 = pcpp::IPv4Network(pcpp::IPv4Address("172.0.0.0"), 16);
 	PTF_ASSERT_FALSE(ipv4Network2.includes(pcpp::IPv4Network(pcpp::IPv4Address("172.17.0.1"), 8)));
+
+	// to string
+	PTF_ASSERT_EQUAL(ipv4Network.toString(), "172.16.0.0/16");
+	std::stringstream stream;
+	stream << ipv4Network;
+	PTF_ASSERT_EQUAL(stream.str(), "172.16.0.0/16");
 } // TestIPv4Network
 
 

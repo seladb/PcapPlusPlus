@@ -354,6 +354,19 @@ namespace pcpp
 		return ((lowestAddress & m_Mask) == m_NetworkPrefix && (highestAddress & m_Mask) == m_NetworkPrefix);
 	}
 
+	std::string IPv4Network::toString() const
+	{
+		std::ostringstream stream;
+		stream << getNetworkPrefix() << "/" << static_cast<int>(getPrefixLen());
+		return stream.str();
+	}
+
+
+	// ~~~~~~~~~~~
+	// IPv6Network
+	// ~~~~~~~~~~~
+
+
 	bool IPv6Network::isValidSubnetMask(const std::string &subnetMask)
 	{
 		bool isAllZeros = std::all_of(subnetMask.begin(), subnetMask.end(), [](const char &c){
@@ -396,11 +409,6 @@ namespace pcpp
 
 		return true;
 	}
-
-
-	// ~~~~~~~~~~~
-	// IPv6Network
-	// ~~~~~~~~~~~
 
 
 	void IPv6Network::initFromAddressAndPrefixLength(const IPv6Address &address, uint8_t prefixLen)
