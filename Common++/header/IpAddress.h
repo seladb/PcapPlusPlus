@@ -674,7 +674,7 @@ namespace pcpp
 
 		/**
 		 * @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
-		 * fda7:9f81:6c23:0275::/64
+		 * fda7:9f81:6c23:275::/64
 		 */
 		std::string toString() const;
 
