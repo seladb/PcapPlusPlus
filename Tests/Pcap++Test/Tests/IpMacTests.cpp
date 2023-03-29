@@ -41,26 +41,26 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_TRUE(secondIPv4Address.isValid());
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
-	// subnets
+	// networks
 	pcpp::IPv4Address ipv4Addr("10.0.0.4");
-	auto subnets = std::vector<std::tuple<std::string, std::string, std::string>>{
+	auto networks = std::vector<std::tuple<std::string, std::string, std::string>>{
 		std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
 		std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}
 	};
-	for (auto subnet : subnets)
+	for (auto network : networks)
 	{
-		std::string subnetWithPrefixAsString = std::get<0>(subnet) + "/" + std::get<1>(subnet);
-		std::string subnetWithMaskAsString = std::get<0>(subnet) + "/" + std::get<2>(subnet);
-		PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(subnetWithPrefixAsString));
-		PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(subnetWithMaskAsString));
-		PTF_ASSERT_TRUE(ipv4Addr.matchSubnet(pcpp::IPv4Network(subnetWithPrefixAsString)));
+		std::string networkWithPrefixAsString = std::get<0>(network) + "/" + std::get<1>(network);
+		std::string networkWithMaskAsString = std::get<0>(network) + "/" + std::get<2>(network);
+		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(networkWithMaskAsString));
+		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(pcpp::IPv4Network(networkWithPrefixAsString)));
 	}
 
 	pcpp::Logger::getInstance().suppressLogs();
 	auto invalidMasks = std::vector<std::string>{"aaaa", "10.0.0.0", "10.0.0.0/aa", "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
 	for (auto invalidMask : invalidMasks)
 	{
-		PTF_ASSERT_FALSE(ipv4Addr.matchSubnet(invalidMask));
+		PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
 	}
 	pcpp::Logger::getInstance().enableLogs();
 
@@ -345,31 +345,31 @@ PTF_TEST_CASE(TestIPv4Network)
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), -1), std::invalid_argument, "prefixLen must be an integer between 0 and 32");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), 33), std::invalid_argument, "prefixLen must be an integer between 0 and 32");
 
-	// Invalid c'tor: IPv4 address + subnet mask
+	// Invalid c'tor: IPv4 address + netmask
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("invalid"), "255.255.0.0"), std::invalid_argument, "address is not a valid IPv4 address");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "invalid"), std::invalid_argument, "subnetMask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "999.999.999.999"), std::invalid_argument, "subnetMask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "255.255.0.255"), std::invalid_argument, "subnetMask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "10.10.10.10"), std::invalid_argument, "subnetMask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "0.255.255.255"), std::invalid_argument, "subnetMask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "127.255.255.255"), std::invalid_argument, "subnetMask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "invalid"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "999.999.999.999"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "255.255.0.255"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "10.10.10.10"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "0.255.255.255"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "127.255.255.255"), std::invalid_argument, "netmask is not valid");
 
-	// Invalid c'tor: address + subnet in one string
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<subnetMask> or <address>/<prefixLength>");
+	// Invalid c'tor: address + netmask in one string
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid/255.255.255.0")), std::invalid_argument, "The input doesn't contain a valid IPv4 network prefix");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.255.0/24")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.255.0/24")), std::invalid_argument, "Netmask is not valid");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/33")), std::invalid_argument, "Prefix length must be an integer between 0 and 32");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/-1")), std::invalid_argument, "Subnet mask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/invalid")), std::invalid_argument, "Subnet mask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/999.999.999.999")), std::invalid_argument, "Subnet mask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.0.1")), std::invalid_argument, "Subnet mask is not valid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/0.0.255.255")), std::invalid_argument, "Subnet mask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/-1")), std::invalid_argument, "Netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/invalid")), std::invalid_argument, "Netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/999.999.999.999")), std::invalid_argument, "Netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.0.1")), std::invalid_argument, "Netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/0.0.255.255")), std::invalid_argument, "Netmask is not valid");
 
 	// Valid c'tor
 	auto addressAsStr = std::string("192.168.10.100");
 	auto address = pcpp::IPv4Address(addressAsStr);
 
-	auto subnetsPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>> {
+	auto networksPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>> {
 		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.255.255.255", 32, "192.168.10.100", "192.168.10.100", 1},
 		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.255.255.0", 24, "192.168.10.0", "192.168.10.255", 256},
 		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.255.0.0", 16, "192.168.0.0", "192.168.255.255", 65536},
@@ -380,33 +380,33 @@ PTF_TEST_CASE(TestIPv4Network)
 		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"0.0.0.0", 0, "0.0.0.0", "255.255.255.255", 4294967296}
 	};
 
-	for (auto subnetPrefixLenAndNetPrefix : subnetsPrefixLensAndNetPrefix)
+	for (auto networkPrefixLenAndNetPrefix : networksPrefixLensAndNetPrefix)
 	{
-		// Valid c'tor: IPv4 address + subnet mask
-		pcpp::IPv4Network iPv4NetworkA(address, std::get<0>(subnetPrefixLenAndNetPrefix));
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getPrefixLen(), std::get<1>(subnetPrefixLenAndNetPrefix));
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+		// Valid c'tor: IPv4 address + netmask
+		pcpp::IPv4Network iPv4NetworkA(address, std::get<0>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getPrefixLen(), std::get<1>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(networkPrefixLenAndNetPrefix));
 
 		// Valid c'tor: IPv4 address + prefix len
-		pcpp::IPv4Network iPv4NetworkB(address, std::get<1>(subnetPrefixLenAndNetPrefix));
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getSubnetMask(), std::get<0>(subnetPrefixLenAndNetPrefix));
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+		pcpp::IPv4Network iPv4NetworkB(address, std::get<1>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetmask(), std::get<0>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(networkPrefixLenAndNetPrefix));
 
-		// Valid c'tor: address + subnet in one string
-		std::string addressAndSubnet = addressAsStr + "/" + std::get<0>(subnetPrefixLenAndNetPrefix);
-		pcpp::IPv4Network iPv4NetworkC(addressAndSubnet);
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getPrefixLen(), std::get<1>(subnetPrefixLenAndNetPrefix));
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+		// Valid c'tor: address + netmask in one string
+		std::string addressAndNetwork = addressAsStr + "/" + std::get<0>(networkPrefixLenAndNetPrefix);
+		pcpp::IPv4Network iPv4NetworkC(addressAndNetwork);
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getPrefixLen(), std::get<1>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(networkPrefixLenAndNetPrefix));
 
 		// Valid c'tor: address + prefix len in one string
-		std::string addressAndPrefixLen = addressAsStr + "/" + std::to_string(std::get<1>(subnetPrefixLenAndNetPrefix));
+		std::string addressAndPrefixLen = addressAsStr + "/" + std::to_string(std::get<1>(networkPrefixLenAndNetPrefix));
 		pcpp::IPv4Network iPv4NetworkD(addressAndPrefixLen);
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getSubnetMask(), std::get<0>(subnetPrefixLenAndNetPrefix));
-		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetmask(), std::get<0>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(networkPrefixLenAndNetPrefix));
 
-		PTF_ASSERT_EQUAL(iPv4NetworkD.getLowestAddress(), pcpp::IPv4Address(std::get<2>(subnetPrefixLenAndNetPrefix)));
-		PTF_ASSERT_EQUAL(iPv4NetworkD.getHighestAddress(), pcpp::IPv4Address(std::get<3>(subnetPrefixLenAndNetPrefix)));
-		PTF_ASSERT_EQUAL(iPv4NetworkD.getTotalAddressCount(), std::get<4>(subnetPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkD.getLowestAddress(), pcpp::IPv4Address(std::get<2>(networkPrefixLenAndNetPrefix)));
+		PTF_ASSERT_EQUAL(iPv4NetworkD.getHighestAddress(), pcpp::IPv4Address(std::get<3>(networkPrefixLenAndNetPrefix)));
+		PTF_ASSERT_EQUAL(iPv4NetworkD.getTotalAddressCount(), std::get<4>(networkPrefixLenAndNetPrefix));
 	}
 
 	auto ipv4Network = pcpp::IPv4Network(pcpp::IPv4Address("172.16.1.1"), 16);

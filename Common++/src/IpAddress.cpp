@@ -56,17 +56,17 @@ namespace pcpp
 	}
 
 
-	bool IPv4Address::matchSubnet(const IPv4Network& subnet) const
+	bool IPv4Address::matchNetwork(const IPv4Network& network) const
 	{
-		return subnet.includes(*this);
+		return network.includes(*this);
 	}
 
 
-	bool IPv4Address::matchSubnet(const std::string& subnet) const
+	bool IPv4Address::matchNetwork(const std::string& network) const
 	{
 		try
 		{
-			auto ipv4Network = IPv4Network(subnet);
+			auto ipv4Network = IPv4Network(network);
 			return ipv4Network.includes(*this);
 		}
 		catch (const std::invalid_argument& e)
@@ -185,14 +185,14 @@ namespace pcpp
 	// ~~~~~~~~~~~
 
 
-	bool IPv4Network::isValidSubnetMask(const std::string& subnetMask)
+	bool IPv4Network::isValidNetmask(const std::string& netmask)
 	{
-		if (subnetMask == "0.0.0.0")
+		if (netmask == "0.0.0.0")
 		{
 			return true;
 		}
 
-		auto mask = IPv4Address(subnetMask);
+		auto mask = IPv4Address(netmask);
 		if (!mask.isValid())
 		{
 			return false;
@@ -220,10 +220,10 @@ namespace pcpp
 	}
 
 
-	void IPv4Network::initFromAddressAndSubnetMask(const IPv4Address& address, const std::string& subnetMask)
+	void IPv4Network::initFromAddressAndNetmask(const IPv4Address& address, const std::string& netmask)
 	{
-		IPv4Address subnetMaskAddr(subnetMask);
-		m_Mask = subnetMaskAddr.toInt();
+		IPv4Address netmaskAddr(netmask);
+		m_Mask = netmaskAddr.toInt();
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
 
@@ -244,32 +244,32 @@ namespace pcpp
 	}
 
 
-	IPv4Network::IPv4Network(const IPv4Address& address, const std::string& subnetMask)
+	IPv4Network::IPv4Network(const IPv4Address& address, const std::string& netmask)
 	{
 		if (!address.isValid())
 		{
 			throw std::invalid_argument("address is not a valid IPv4 address");
 		}
 
-		if (!isValidSubnetMask(subnetMask))
+		if (!isValidNetmask(netmask))
 		{
-			throw std::invalid_argument("subnetMask is not valid");
+			throw std::invalid_argument("netmask is not valid");
 		}
 
-		initFromAddressAndSubnetMask(address, subnetMask);
+		initFromAddressAndNetmask(address, netmask);
 	}
 
 
-	IPv4Network::IPv4Network(const std::string& addressAndSubnet)
+	IPv4Network::IPv4Network(const std::string& addressAndNetmask)
 	{
-		std::stringstream stream(addressAndSubnet);
-		std::string networkPrefixStr, subnetStr;
+		std::stringstream stream(addressAndNetmask);
+		std::string networkPrefixStr, netmaskStr;
 		std::getline(stream, networkPrefixStr, '/');
-		std::getline(stream, subnetStr);
+		std::getline(stream, netmaskStr);
 
-		if (subnetStr.empty())
+		if (netmaskStr.empty())
 		{
-			throw std::invalid_argument("The input should be in the format of <address>/<subnetMask> or <address>/<prefixLength>");
+			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
 		auto networkPrefix = IPv4Address(networkPrefixStr);
@@ -278,9 +278,9 @@ namespace pcpp
 			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix");
 		}
 
-		if (std::all_of(subnetStr.begin(), subnetStr.end(), ::isdigit))
+		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
 		{
-			uint32_t prefixLen = std::stoi(subnetStr);
+			uint32_t prefixLen = std::stoi(netmaskStr);
 			if (prefixLen > 32)
 			{
 				throw std::invalid_argument("Prefix length must be an integer between 0 and 32");
@@ -290,12 +290,12 @@ namespace pcpp
 		}
 		else
 		{
-			if (!isValidSubnetMask(subnetStr))
+			if (!isValidNetmask(netmaskStr))
 			{
-				throw std::invalid_argument("Subnet mask is not valid");
+				throw std::invalid_argument("Netmask is not valid");
 			}
 
-			initFromAddressAndSubnetMask(networkPrefix, subnetStr);
+			initFromAddressAndNetmask(networkPrefix, netmaskStr);
 		}
 	}
 
