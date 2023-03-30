@@ -130,7 +130,7 @@ PTF_TEST_CASE(DnsLayerParsingTest)
 		PTF_ASSERT_EQUAL(curAnswer->getTTL(), 117);
 		PTF_ASSERT_EQUAL(curAnswer->getName(), "www-google-analytics.L.google.com");
 		PTF_ASSERT_EQUAL(curAnswer->getDataLength(), 4);
-		PTF_ASSERT_TRUE(curAnswer->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress().matchSubnet(std::string("212.199.219.0/255.255.255.0")));
+		PTF_ASSERT_TRUE(curAnswer->getData().castAs<pcpp::IPv4DnsResourceData>()->getIpAddress().matchNetwork(std::string("212.199.219.0/255.255.255.0")));
 
 		curAnswer = dnsLayer->getNextAnswer(curAnswer);
 		answerCount++;
