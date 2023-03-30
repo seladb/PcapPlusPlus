@@ -2,7 +2,7 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '10 10 25 * *'
+    - cron: '10 10 1 * *'
 
 jobs:
   precommit-update:
@@ -47,15 +47,17 @@ jobs:
           ref: dev
       - name: Setup Python
         uses: actions/setup-python@v4
+        with:
+          python-version: "3.8.x"
       - name: Run update
         run: |
-            cd 3rdParty/OUIDataset
-            python3 create_oui_data.py
+            python3 3rdParty/OUIDataset/create_oui_data.py
+            mv -f PCPP_OUIDataset.json 3rdParty/OUIDataset/PCPP_OUIDataset.json
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
           author: GitHub <noreply@github.com>
-          add-paths: 3rdParty/OUILookup/PCPP_OUIDatabase.dat
+          add-paths: 3rdParty/OUIDataset/PCPP_OUIDataset.json
           commit-message: Auto OUI Database Update
           body: |
             Update OUI database to latest
