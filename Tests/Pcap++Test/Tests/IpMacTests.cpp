@@ -491,19 +491,19 @@ PTF_TEST_CASE(TestIPv6Network)
 	auto address = pcpp::IPv6Address(addressAsStr);
 
 	auto subnetsPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>> {
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 128, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", 1},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8", 125, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5740", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5747", 8},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:8000::", 65, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1:7fff:ffff:ffff:ffff", 9223372036854775808ULL},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff::", 64, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff::", 32, "39e1:f90e::", "39e1:f90e:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:e000::", 19, "39e1:e000::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:8000::", 17, "39e1:8000::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff::", 16, "39e1::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ff80::", 9, "3980::", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ff00::", 8, "3900::", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"fc00::", 6, "3800::", "3bff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"c000::", 2, "00::", "3fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"::", 0, "::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0}
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 128, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", 1},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8", 125, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5740", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5747", 8},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:8000::", 65, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1:7fff:ffff:ffff:ffff", 9223372036854775808ULL},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff::", 64, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:ffff::", 32, "39e1:f90e::", "39e1:f90e:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:e000::", 19, "39e1:e000::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff:8000::", 17, "39e1:8000::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ffff::", 16, "39e1::", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ff80::", 9, "3980::", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"ff00::", 8, "3900::", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"fc00::", 6, "3800::", "3bff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"c000::", 2, "00::", "3fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+			std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"::", 0, "::", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0}
 	};
 
 	for (auto subnetPrefixLenAndNetPrefix : subnetsPrefixLensAndNetPrefix)
