@@ -390,7 +390,7 @@ void TcpLayer::parseNextLayer()
 	else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet);
 	else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
-		m_NextLayer = TpktLayer::parseTpktLayer(payload, payloadLen, this, m_Packet);
+		m_NextLayer =  new TpktLayer(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }

@@ -18,7 +18,7 @@ namespace pcpp
 	 * Represents a TPKT protocol header
 	 */
 #pragma pack(push, 1)
-	typedef struct
+	struct tpkthdr
 	{
 		/** message version */
 		uint8_t version;
@@ -26,7 +26,7 @@ namespace pcpp
 		uint8_t reserved;
 		/** message length */
 		uint16_t length;
-	} tpkthdr;
+	};
 #pragma pack(pop)
 
 	/**
@@ -49,17 +49,24 @@ namespace pcpp
 			m_Protocol = TPKT;
 		}
 
-		TpktLayer(uint8_t version, uint16_t length);
+		/**
+		 * A constructor that allocates a new TPKT header
+		 * @param[in] version the value of the version
+		 * @param[in] length the value of the length
+		 */
+		TpktLayer(uint8_t version, uint16_t length)
+		{
+			m_DataLen = sizeof(tpkthdr);
+			m_Data = new uint8_t[m_DataLen];
+			memset(m_Data, 0, m_DataLen);
+			tpkthdr *tpktHdr = getTpktHeader();
+			tpktHdr->version = version;
+			tpktHdr->reserved = 0;
+			tpktHdr->length = htobe16(length);
+			m_Protocol = TPKT;
+		}
 
 		virtual ~TpktLayer() {}
-
-		/**
-		 * Get a pointer to the TPKT header. Data can be retrieved through the
-		 * other methods of this layer. Notice the return value points directly to the data, so every change will change
-		 * the actual packet data
-		 * @return A pointer to the @ref tpkthdr
-		 */
-		tpkthdr *getTpktHeader() const { return (tpkthdr *)m_Data; }
 
 		/**
 		 * @return TPKT reserved
@@ -77,6 +84,18 @@ namespace pcpp
 		uint16_t getLength() const;
 
 		/**
+		 * Set the value of the version
+		 * @param[in] version The value of the version
+		 */
+		void setVersion(uint8_t version) const;
+
+		/**
+		 * Set the value of the length
+		 * @param[in] length The value of the length
+		 */
+		void setLength(uint16_t length) const;
+
+		/**
 		 * @return Size of @ref tpkthdr
 		 */
 		size_t getHeaderLen() const override { return sizeof(tpkthdr); }
@@ -87,7 +106,7 @@ namespace pcpp
 		void computeCalculateFields() override {}
 
 		/**
-		 * Currently identifies the following next layer: PayloadLayer
+		 * Currently parses the rest of the packet as a generic payload (PayloadLayer)
 		 */
 		void parseNextLayer() override;
 
@@ -100,16 +119,6 @@ namespace pcpp
 		static bool isTpktPort(uint16_t portSrc, uint16_t portDst) { return portSrc == 102 || portDst == 102; }
 
 		/**
-		 * A method that creates a TPKT layer from packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored
-		 * @return A newly allocated TPKT layer
-		 */
-		static TpktLayer *parseTpktLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
-
-		/**
 		 * A static method that takes a byte array and detects whether it is a TPKT message
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
@@ -120,6 +129,15 @@ namespace pcpp
 		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelTransportLayer; }
+
+	  private:
+		/**
+		 * Get a pointer to the TPKT header. Data can be retrieved through the
+		 * other methods of this layer. Notice the return value points directly to the data, so every change will change
+		 * the actual packet data
+		 * @return A pointer to the @ref tpkthdr
+		 */
+		tpkthdr *getTpktHeader() const { return (tpkthdr *)m_Data; }
 	};
 
 } // namespace pcpp

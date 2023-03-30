@@ -8,21 +8,22 @@
 
 namespace pcpp
 {
-
 	uint8_t TpktLayer::getReserved() const { return getTpktHeader()->reserved; }
 
 	uint8_t TpktLayer::getVersion() const { return getTpktHeader()->version; }
 
 	uint16_t TpktLayer::getLength() const { return htobe16(getTpktHeader()->length); }
 
+	void TpktLayer::setLength(uint16_t length) const { getTpktHeader()->length = htobe16(length); }
+
+	void TpktLayer::setVersion(uint8_t version) const { getTpktHeader()->version = version; }
+
 	std::string TpktLayer::toString() const
 	{
 		std::ostringstream versionStream;
-		versionStream << getVersion();
-		std::ostringstream reservedStream;
-		reservedStream << getReserved();
+		versionStream << std::to_string(getVersion());
 		std::ostringstream lengthStream;
-		lengthStream << getLength();
+		lengthStream << std::to_string(getLength());
 
 		return "TPKT Layer, version: " + versionStream.str() + ", length: " + lengthStream.str();
 	}
@@ -36,11 +37,6 @@ namespace pcpp
 		uint8_t *payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-	}
-
-	TpktLayer *TpktLayer::parseTpktLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-	{
-		return new TpktLayer(data, dataLen, prevLayer, packet);
 	}
 
 } // namespace pcpp

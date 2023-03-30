@@ -229,5 +229,5 @@ PTF_TEST_CASE(WakeOnLanParsingTests);
 PTF_TEST_CASE(WakeOnLanCreationTests);
 PTF_TEST_CASE(WakeOnLanEditTests);
 
-//Implemented in TpktTests.cpp
+// Implemented in TpktTests.cpp
 PTF_TEST_CASE(TpktPacketNoOptionsParsing);

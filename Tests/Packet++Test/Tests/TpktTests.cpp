@@ -18,8 +18,21 @@ PTF_TEST_CASE(TpktPacketNoOptionsParsing)
 	auto tpktLayer = TpktPacketNoOptions.getLayerOfType<pcpp::TpktLayer>();
 	PTF_ASSERT_NOT_NULL(tpktLayer);
 
-	PTF_ASSERT_EQUAL(tpktLayer->getTpktHeader()->version, 3);
-	PTF_ASSERT_EQUAL(tpktLayer->getTpktHeader()->reserved, 0);
-	PTF_ASSERT_EQUAL(tpktLayer->getTpktHeader()->length, htobe16(607));
+	PTF_ASSERT_EQUAL(tpktLayer->getVersion(), 3);
+	PTF_ASSERT_EQUAL(tpktLayer->getReserved(), 0);
+	PTF_ASSERT_EQUAL(tpktLayer->getLength(), 607);
+
+	PTF_ASSERT_EQUAL(tpktLayer->toString(), "TPKT Layer, version: 3, length: 607");
+
+	pcpp::TpktLayer tpktLayerTest((uint8_t)8, (uint16_t)605);
+	PTF_ASSERT_EQUAL(tpktLayerTest.getVersion(), 8);
+	PTF_ASSERT_EQUAL(tpktLayerTest.getLength(), 605);
+	PTF_ASSERT_EQUAL(tpktLayerTest.toString(), "TPKT Layer, version: 8, length: 605");
+
+	tpktLayerTest.setVersion((uint8_t)10);
+	tpktLayerTest.setLength((uint16_t)602);
+	PTF_ASSERT_EQUAL(tpktLayerTest.getVersion(), 10);
+	PTF_ASSERT_EQUAL(tpktLayerTest.getLength(), 602);
+	PTF_ASSERT_EQUAL(tpktLayerTest.toString(), "TPKT Layer, version: 10, length: 602");
 
 } // TpktPacketNoOptionsParsing
