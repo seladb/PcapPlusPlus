@@ -3,7 +3,7 @@ on:
   push:
     branches: ["master", "dev"]
   pull_request:
-    branches: ["dev", "ip-networks"]
+    branches: ["dev"]
 
 env:
   BUILD_DIR: Dist
