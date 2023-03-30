@@ -521,19 +521,20 @@ namespace pcpp
 		IPv4Address getNetworkPrefix() const { return IPv4Address(m_NetworkPrefix); }
 
 		/**
-		 * @return The lowest IPv4 address in this network, for example: the lowest address in 10.10.10.10/16 is
-		 * 10.10.0.0
+		 * @return The lowest non-reserved IPv4 address in this network, for example: the lowest address
+		 * in 10.10.10.10/16 is 10.10.0.1
 		 */
 		IPv4Address getLowestAddress() const;
 
 		/**
-		 * @return The highest IPv4 address in this network, for example: the highest address in 10.10.10.10/16 is
-		 * 10.10.255.255
+		 * @return The highest non-reserved IPv4 address in this network, for example: the highest address
+		 * in 10.10.10.10/16 is 10.10.255.254
 		 */
 		IPv4Address getHighestAddress() const;
 
 		/**
-		 * @return The number of addresses in this network, for example: the number of addresses in 10.10.0.0/24 is 256
+		 * @return The number of addresses in this network including reserved addresses, for example:
+		 * the number of addresses in 10.10.0.0/24 is 256
 		 */
 		uint64_t getTotalAddressCount() const;
 

@@ -369,15 +369,15 @@ PTF_TEST_CASE(TestIPv4Network)
 	auto addressAsStr = std::string("192.168.10.100");
 	auto address = pcpp::IPv4Address(addressAsStr);
 
-	auto networksPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>> {
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.255.255.255", 32, "192.168.10.100", "192.168.10.100", 1},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.255.255.0", 24, "192.168.10.0", "192.168.10.255", 256},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.255.0.0", 16, "192.168.0.0", "192.168.255.255", 65536},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.240.0.0", 12, "192.160.0.0", "192.175.255.255", 1048576},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"255.0.0.0", 8, "192.0.0.0", "192.255.255.255", 16777216},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"192.0.0.0", 2, "192.0.0.0", "255.255.255.255", 1073741824},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"128.0.0.0", 1, "128.0.0.0", "255.255.255.255", 2147483648},
-		std::tuple<std::string, uint8_t, std::string, std::string, uint64_t>{"0.0.0.0", 0, "0.0.0.0", "255.255.255.255", 4294967296}
+	auto networksPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>> {
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.255.255.255", 32, "192.168.10.100", "192.168.10.100", "192.168.10.100", 1},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.255.255.0", 24, "192.168.10.0", "192.168.10.1", "192.168.10.254", 256},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.255.0.0", 16, "192.168.0.0", "192.168.0.1", "192.168.255.254", 65536},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.240.0.0", 12, "192.160.0.0", "192.160.0.1", "192.175.255.254", 1048576},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.0.0.0", 8, "192.0.0.0", "192.0.0.1", "192.255.255.254", 16777216},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"192.0.0.0", 2, "192.0.0.0", "192.0.0.1", "255.255.255.254", 1073741824},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"128.0.0.0", 1, "128.0.0.0", "128.0.0.1", "255.255.255.254", 2147483648},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"0.0.0.0", 0, "0.0.0.0", "0.0.0.1", "255.255.255.254", 4294967296}
 	};
 
 	for (auto networkPrefixLenAndNetPrefix : networksPrefixLensAndNetPrefix)
@@ -404,9 +404,9 @@ PTF_TEST_CASE(TestIPv4Network)
 		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetmask(), std::get<0>(networkPrefixLenAndNetPrefix));
 		PTF_ASSERT_EQUAL(iPv4NetworkA.getNetworkPrefix(), std::get<2>(networkPrefixLenAndNetPrefix));
 
-		PTF_ASSERT_EQUAL(iPv4NetworkD.getLowestAddress(), pcpp::IPv4Address(std::get<2>(networkPrefixLenAndNetPrefix)));
-		PTF_ASSERT_EQUAL(iPv4NetworkD.getHighestAddress(), pcpp::IPv4Address(std::get<3>(networkPrefixLenAndNetPrefix)));
-		PTF_ASSERT_EQUAL(iPv4NetworkD.getTotalAddressCount(), std::get<4>(networkPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv4NetworkD.getLowestAddress(), pcpp::IPv4Address(std::get<3>(networkPrefixLenAndNetPrefix)));
+		PTF_ASSERT_EQUAL(iPv4NetworkD.getHighestAddress(), pcpp::IPv4Address(std::get<4>(networkPrefixLenAndNetPrefix)));
+		PTF_ASSERT_EQUAL(iPv4NetworkD.getTotalAddressCount(), std::get<5>(networkPrefixLenAndNetPrefix));
 	}
 
 	auto ipv4Network = pcpp::IPv4Network(pcpp::IPv4Address("172.16.1.1"), 16);

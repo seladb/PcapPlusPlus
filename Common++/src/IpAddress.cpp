@@ -309,13 +309,16 @@ namespace pcpp
 
 	IPv4Address IPv4Network::getLowestAddress() const
 	{
-		return m_NetworkPrefix;
+		std::bitset<32> bitset(m_Mask);
+		return bitset.count() < 32 ? m_NetworkPrefix + htobe32(1) : m_NetworkPrefix;
 	}
 
 
 	IPv4Address IPv4Network::getHighestAddress() const
 	{
-		return m_NetworkPrefix | ~m_Mask;
+		auto tempAddress = static_cast<uint32_t >(m_NetworkPrefix | ~m_Mask);
+		std::bitset<32> bitset(m_Mask);
+		return bitset.count() < 32 ? tempAddress - htobe32(1) : tempAddress;
 	}
 
 
