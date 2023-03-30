@@ -7,6 +7,17 @@
 #include <algorithm>
 #include <ostream>
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /// @file
 
 
@@ -16,6 +27,9 @@
  */
 namespace pcpp
 {
+
+	// forward declarations
+	class IPv4Network;
 
 	// The implementation of the classes is based on document N4771 "Working Draft, C++ Extensions for Networking"
 	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4771.pdf
@@ -111,32 +125,34 @@ namespace pcpp
 		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.1/24 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.1.1/16 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet A string in X.X.X.X/Y format representing the masked subnet to compare with the address
+		 * Checks whether the address matches a network.
+		 * @param network An IPv4Network network
+		 * @return True if the address matches the network or false otherwise
 		 */
-		bool matchSubnet(const std::string& subnet) const;
+		bool matchNetwork(const IPv4Network& network) const;
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
-		 * (it'll be ignored if subnet mask is correct)
-		 * @param[in] subnetMask A string representing the subnet mask to compare the address with the subnet
+		 * Checks whether the address matches a network.
+		 * For example: this method will return true for address 10.1.1.9 and network which is one of:
+		 * 10.1.1.1/24, 10.1.1.1/255.255.255.0
+		 * Another example: this method will return false for address 11.1.1.9 and network which is one of:
+		 * 10.1.1.1/16, 10.1.1.1/255.255.0.0
+		 * @param[in] network A string in one of these formats:
+		 *  - X.X.X.X/Y where X.X.X.X is a valid IP address and Y is a number between 0 and 32
+		 *  - X.X.X.X/Y.Y.Y.Y where X.X.X.X is a valid IP address and Y.Y.Y.Y is a valid netmask
+		 *	@return True if the address matches the network or false if it doesn't or if the network is invalid
 		 */
-		bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
+		bool matchNetwork(const std::string& network) const;
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: if subnet is 10.1.1.X, subnet mask is 255.255.255.0 and address is 10.1.1.9 then the method will return true
-		 * Another example: if subnet is 10.1.X.X, subnet mask is 255.0.0.0 and address is 11.1.1.9 then the method will return false
-		 * @param[in] subnet The subnet to be verified. Notice it's an IPv4Address type, so subnets with don't-cares (like 10.0.0.X) must have some number
-		 * (it'll be ignored if subnet mask is correct)
-		 * @param[in] subnetMask The subnet mask to compare the address with the subnet
+		 * @deprecated This method is deprecated, please use matchNetwork(const IPv4Network& network)
 		 */
-		bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
+		PCPP_DEPRECATED bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
+
+		/**
+		 * @deprecated This method is deprecated, please use matchNetwork(const IPv4Network& network)
+		 */
+		PCPP_DEPRECATED bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
 
 		/**
 		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
@@ -279,10 +295,10 @@ namespace pcpp
 	}; // class IPv6Address
 
 
-	///**
-	// * @class IPAddress
-	// * The class is a version-independent representation for an IP address
-	// */
+	/**
+	 * @class IPAddress
+	 * The class is a version-independent representation for an IP address
+	 */
 	class IPAddress
 	{
 	public:
@@ -447,6 +463,109 @@ namespace pcpp
 		return *this;
 	}
 
+
+	/**
+	 * @class IPv4Network
+	 * A class representing IPv4 network definition
+	 */
+	class IPv4Network
+	{
+	public:
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a prefix length
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param prefixLen A number between 0 and 32 representing the prefix length. If another value is provided
+		 * std::invalid_argument exception is thrown
+		 */
+		IPv4Network(const IPv4Address& address, uint8_t prefixLen);
+
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a netmask
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param netmask A string representing a netmask in the format of X.X.X.X, for example: 255.255.0.0.
+		 * Please notice that netmasks that start with zeros are invalid, for example: 0.0.255.255. The only netmask
+		 * starting with zeros that is valid is 0.0.0.0. If the netmask is invalid std::invalid_argument
+		 * exception is thrown
+		 */
+		IPv4Network(const IPv4Address& address, const std::string& netmask);
+
+		/**
+		 * A constructor that creates an instance of the class out of a string representing the network prefix and
+		 * a prefix length or a netmask
+		 * @param addressAndNetmask A string in one of these formats:
+		 *  - X.X.X.X/Y where X.X.X.X is a valid IPv4 address representing the network prefix and Y is a number between
+		 *    0 and 32 representing the network prefix
+		 *  - X.X.X.X/Y.Y.Y.Y where X.X.X.X is a valid IPv4 address representing the network prefix and Y.Y.Y.Y is
+		 *    a valid netmask
+		 *  For any invalid value std::invalid_argument is thrown
+		 */
+		IPv4Network(const std::string& addressAndNetmask);
+
+		/**
+		 * @return The prefix length, for example: the prefix length of 10.10.10.10/255.0.0.0 is 8
+		 */
+		uint8_t getPrefixLen() const;
+
+		/**
+		 * @return The netmask, for example: the netmask of 10.10.10.10/8 is 255.0.0.0
+		 */
+		std::string getNetmask() const { return IPv4Address(m_Mask).toString(); }
+
+		/**
+		 * @return The network prefix, for example: the network prefix of 10.10.10.10/16 is 10.10.0.0
+		*/
+		IPv4Address getNetworkPrefix() const { return IPv4Address(m_NetworkPrefix); }
+
+		/**
+		 * @return The lowest non-reserved IPv4 address in this network, for example: the lowest address
+		 * in 10.10.10.10/16 is 10.10.0.1
+		 */
+		IPv4Address getLowestAddress() const;
+
+		/**
+		 * @return The highest non-reserved IPv4 address in this network, for example: the highest address
+		 * in 10.10.10.10/16 is 10.10.255.254
+		 */
+		IPv4Address getHighestAddress() const;
+
+		/**
+		 * @return The number of addresses in this network including reserved addresses, for example:
+		 * the number of addresses in 10.10.0.0/24 is 256
+		 */
+		uint64_t getTotalAddressCount() const;
+
+		/**
+		 * @param address An IPv4 address
+		 * @return True is the address belongs to the network, false otherwise or if the address isn't valid
+		 */
+		bool includes(const IPv4Address& address) const;
+
+		/**
+		 * @param network An IPv4 network
+		 * @return True is the input network is completely included within this network, false otherwise, for example:
+		 * 10.10.10.10/16 includes 10.10.10.10/24 but doesn't include 10.10.10.10/8
+		 */
+		bool includes(const IPv4Network& network) const;
+
+		/**
+		 * @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
+		 * 192.168.0.0/16
+		 */
+		std::string toString() const;
+
+	private:
+		uint32_t m_NetworkPrefix;
+		uint32_t m_Mask;
+
+		bool isValidNetmask(const std::string& netmask);
+		void initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen);
+		void initFromAddressAndNetmask(const IPv4Address& address, const std::string& netmask);
+	};
+
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
@@ -464,6 +583,12 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Address& ipv6A
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddress)
 {
 	os << ipAddress.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
+{
+	os << network.toString();
 	return os;
 }
 
