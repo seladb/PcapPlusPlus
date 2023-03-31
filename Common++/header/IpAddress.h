@@ -643,8 +643,8 @@ namespace pcpp
 		IPv6Address getNetworkPrefix() const { return IPv6Address(m_NetworkPrefix); }
 
 		/**
-		* @return The lowest IPv6 address in this network, for example: the lowest address in 3546::/16 is
-		* 3546::
+		* @return The lowest non-reserved IPv6 address in this network, for example: the lowest address in 3546::/16 is
+		* 3546::1
 		*/
 		IPv6Address getLowestAddress() const;
 
@@ -668,7 +668,7 @@ namespace pcpp
 
 		/**
 		 * @param network An IPv6 network
-		 * @return True is the input network is included within this network, false otherwise, for example:
+		 * @return True is the input network is completely included within this network, false otherwise, for example:
 		 * 3546::/64 includes 3546::/120 but doesn't include 3546::/16
 		 */
 		bool includes(const IPv6Network& network) const;

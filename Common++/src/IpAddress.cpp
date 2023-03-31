@@ -554,7 +554,15 @@ namespace pcpp
 
 	IPv6Address IPv6Network::getLowestAddress() const
 	{
-		return m_NetworkPrefix;
+		if (getPrefixLen() == 128)
+		{
+			return m_NetworkPrefix;
+		}
+
+		uint8_t lowestAddress[IPV6_ADDR_SIZE];
+		memcpy(lowestAddress, m_NetworkPrefix, IPV6_ADDR_SIZE);
+		lowestAddress[IPV6_ADDR_SIZE - 1]++;
+		return lowestAddress;
 	}
 
 
