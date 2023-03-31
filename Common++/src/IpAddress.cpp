@@ -371,9 +371,9 @@ namespace pcpp
 	// ~~~~~~~~~~~
 
 
-	bool IPv6Network::isValidSubnetMask(const std::string &subnetMask)
+	bool IPv6Network::isValidNetmask(const std::string &netmask)
 	{
-		bool isAllZeros = std::all_of(subnetMask.begin(), subnetMask.end(), [](const char &c){
+		bool isAllZeros = std::all_of(netmask.begin(), netmask.end(), [](const char &c){
 			return (c == '0' || c == ':');
 		});
 
@@ -382,7 +382,7 @@ namespace pcpp
 			return true;
 		}
 
-		auto mask = IPv6Address(subnetMask);
+		auto mask = IPv6Address(netmask);
 		if (!mask.isValid())
 		{
 			return false;
@@ -446,10 +446,10 @@ namespace pcpp
 	}
 
 
-	void IPv6Network::initFromAddressAndSubnetMask(const IPv6Address &address, const std::string &subnetMask)
+	void IPv6Network::initFromAddressAndNetmask(const IPv6Address &address, const std::string &netmask)
 	{
-		IPv6Address subnetMaskAddr(subnetMask);
-		subnetMaskAddr.copyTo(m_Mask);
+		IPv6Address netmaskAddr(netmask);
+		netmaskAddr.copyTo(m_Mask);
 
 		address.copyTo(m_NetworkPrefix);
 
@@ -476,33 +476,32 @@ namespace pcpp
 	}
 
 
-	IPv6Network::IPv6Network(const IPv6Address &address, const std::string &subnetMask)
+	IPv6Network::IPv6Network(const IPv6Address &address, const std::string &netmask)
 	{
 		if (!address.isValid())
 		{
 			throw std::invalid_argument("address is not a valid IPv6 address");
 		}
 
-		if (!isValidSubnetMask(subnetMask))
+		if (!isValidNetmask(netmask))
 		{
-			throw std::invalid_argument("subnetMask is not valid");
+			throw std::invalid_argument("netmask is not valid");
 		}
 
-		initFromAddressAndSubnetMask(address, subnetMask);
+		initFromAddressAndNetmask(address, netmask);
 	}
 
 
-	IPv6Network::IPv6Network(const std::string &addressAndSubnet)
+	IPv6Network::IPv6Network(const std::string &addressAndNetmask)
 	{
-		std::stringstream stream(addressAndSubnet);
-		std::string networkPrefixStr, subnetStr;
+		std::stringstream stream(addressAndNetmask);
+		std::string networkPrefixStr, netmaskStr;
 		std::getline(stream, networkPrefixStr, '/');
-		std::getline(stream, subnetStr);
+		std::getline(stream, netmaskStr);
 
-		if (subnetStr.empty())
+		if (netmaskStr.empty())
 		{
-			throw std::invalid_argument(
-					"The input should be in the format of <address>/<subnetMask> or <address>/<prefixLength>");
+			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
 		auto networkPrefix = IPv6Address(networkPrefixStr);
@@ -511,9 +510,9 @@ namespace pcpp
 			throw std::invalid_argument("The input doesn't contain a valid IPv6 network prefix");
 		}
 
-		if (std::all_of(subnetStr.begin(), subnetStr.end(), ::isdigit))
+		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
 		{
-			uint32_t prefixLen = std::stoi(subnetStr);
+			uint32_t prefixLen = std::stoi(netmaskStr);
 			if (prefixLen > 128)
 			{
 				throw std::invalid_argument("Prefix length must be an integer between 0 and 128");
@@ -523,12 +522,12 @@ namespace pcpp
 		}
 		else
 		{
-			if (!isValidSubnetMask(subnetStr))
+			if (!isValidNetmask(netmaskStr))
 			{
-				throw std::invalid_argument("Subnet mask is not valid");
+				throw std::invalid_argument("netmask is not valid");
 			}
 
-			initFromAddressAndSubnetMask(networkPrefix, subnetStr);
+			initFromAddressAndNetmask(networkPrefix, netmaskStr);
 		}
 	}
 

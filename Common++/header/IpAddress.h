@@ -605,27 +605,27 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
-		 * and a subnet mask
+		 * and a netmask
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		 * exception is thrown
-		 * @param subnetMask A string representing a subnet mask a valid IPv6 format, for example: ffff:ffff::.
-		 * Please notice that subnets that start with zeros are invalid, for example: 0:ffff::. The only subnet mask
-		 * starting with zeros that is valid is all zeros (::). If the subnet is invalid std::invalid_argument
+		 * @param netmask A string representing a netmask in valid IPv6 format, for example: ffff:ffff::.
+		 * Please notice that netmasks that start with zeros are invalid, for example: 0:ffff::. The only netmask
+		 * starting with zeros that is valid is all zeros (::). If the netmask is invalid std::invalid_argument
 		 * exception is thrown
 		 */
-		IPv6Network(const IPv6Address& address, const std::string& subnetMask);
+		IPv6Network(const IPv6Address& address, const std::string& netmask);
 
 		/**
 		 * A constructor that creates an instance of the class out of a string representing the network prefix and
-		 * a prefix length or a subnet mask
-		 * @param addressAndSubnet A string in one of these formats:
+		 * a prefix length or a netmask
+		 * @param addressAndNetmask A string in one of these formats:
 		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address representing the network prefix and Y is
 		 *    a number between 0 and 128 representing the network prefix
-		 *  - IPV6_ADDRESS/IPV6_MASK where IPV6_ADDRESS is a valid IPv6 address representing the network prefix
-		 *    and IPV6_MASK is a valid subnet mask
+		 *  - IPV6_ADDRESS/IPV6_NETMASK where IPV6_ADDRESS is a valid IPv6 address representing the network prefix
+		 *    and IPV6_NETMASK is a valid IPv6 netmask
 		 *  For any invalid value std::invalid_argument is thrown
 		 */
-		IPv6Network(const std::string& addressAndSubnet);
+		IPv6Network(const std::string& addressAndNetmask);
 
 		/**
 		 * @return The prefix length, for example: the prefix length of 3546::/ffff:: is 16
@@ -633,9 +633,9 @@ namespace pcpp
 		uint8_t getPrefixLen() const;
 
 		/**
-		 * @return The subnet mask, for example: the subnet mask of 3546::/16 is ffff::
+		 * @return The netmask, for example: the netmask of 3546::/16 is ffff::
 		 */
-		std::string getSubnetMask() const { return IPv6Address(m_Mask).toString(); }
+		std::string getNetmask() const { return IPv6Address(m_Mask).toString(); }
 
 		/**
 		 * @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::
@@ -683,9 +683,9 @@ namespace pcpp
 		uint8_t m_NetworkPrefix[16];
 		uint8_t m_Mask[16];
 
-		bool isValidSubnetMask(const std::string& subnetMask);
+		bool isValidNetmask(const std::string& netmask);
 		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
-		void initFromAddressAndSubnetMask(const IPv6Address& address, const std::string& subnetMask);
+		void initFromAddressAndNetmask(const IPv6Address& address, const std::string& netmask);
 	};
 } // namespace pcpp
 
