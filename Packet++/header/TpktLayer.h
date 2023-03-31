@@ -51,20 +51,10 @@ namespace pcpp
 
 		/**
 		 * A constructor that allocates a new TPKT header
-		 * @param[in] version the value of the version
-		 * @param[in] length the value of the length
+		 * @param[in] version Protocol version number
+		 * @param[in] length Packet length
 		 */
-		TpktLayer(uint8_t version, uint16_t length)
-		{
-			m_DataLen = sizeof(tpkthdr);
-			m_Data = new uint8_t[m_DataLen];
-			memset(m_Data, 0, m_DataLen);
-			tpkthdr *tpktHdr = getTpktHeader();
-			tpktHdr->version = version;
-			tpktHdr->reserved = 0;
-			tpktHdr->length = htobe16(length);
-			m_Protocol = TPKT;
-		}
+		TpktLayer(uint8_t version, uint16_t length);
 
 		virtual ~TpktLayer() {}
 

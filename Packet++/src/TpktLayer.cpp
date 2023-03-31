@@ -8,6 +8,18 @@
 
 namespace pcpp
 {
+	TpktLayer::TpktLayer(uint8_t version, uint16_t length)
+	{
+		m_DataLen = sizeof(tpkthdr);
+		m_Data = new uint8_t[m_DataLen];
+		memset(m_Data, 0, m_DataLen);
+		tpkthdr *tpktHdr = getTpktHeader();
+		tpktHdr->version = version;
+		tpktHdr->reserved = 0;
+		tpktHdr->length = htobe16(length);
+		m_Protocol = TPKT;
+	}
+
 	uint8_t TpktLayer::getReserved() const { return getTpktHeader()->reserved; }
 
 	uint8_t TpktLayer::getVersion() const { return getTpktHeader()->version; }

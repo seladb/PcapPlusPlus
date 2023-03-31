@@ -6,7 +6,7 @@
 #include "TpktLayer.h"
 #include <iostream>
 
-PTF_TEST_CASE(TpktPacketNoOptionsParsing)
+PTF_TEST_CASE(TpktLayerTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -35,4 +35,4 @@ PTF_TEST_CASE(TpktPacketNoOptionsParsing)
 	PTF_ASSERT_EQUAL(tpktLayerTest.getLength(), 602);
 	PTF_ASSERT_EQUAL(tpktLayerTest.toString(), "TPKT Layer, version: 10, length: 602");
 
-} // TpktPacketNoOptionsParsing
+} // TpktLayerTest
