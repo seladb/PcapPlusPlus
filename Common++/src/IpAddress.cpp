@@ -136,16 +136,6 @@ namespace pcpp
 	}
 
 
-	IPAddress::IPAddress(const std::string& addrAsString) : m_Type(IPv6AddressType), m_IPv6(addrAsString)
-	{
-		if (!m_IPv6.isValid()) // not IPv6
-		{
-			m_Type = IPv4AddressType;
-			m_IPv4 = IPv4Address(addrAsString);
-		}
-	}
-
-
 	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 	{
 		const size_t addrLen = sizeof(m_Bytes);
@@ -187,6 +177,21 @@ namespace pcpp
 		{
 			PCPP_LOG_ERROR(e.what());
 			return false;
+		}
+	}
+
+
+	// ~~~~~~~~~
+	// IPAddress
+	// ~~~~~~~~~
+
+
+	IPAddress::IPAddress(const std::string& addrAsString) : m_Type(IPv6AddressType), m_IPv6(addrAsString)
+	{
+		if (!m_IPv6.isValid()) // not IPv6
+		{
+			m_Type = IPv4AddressType;
+			m_IPv4 = IPv4Address(addrAsString);
 		}
 	}
 
@@ -371,6 +376,9 @@ namespace pcpp
 	// ~~~~~~~~~~~
 
 
+#define IPV6_ADDR_SIZE 16
+
+
 	bool IPv6Network::isValidNetmask(const std::string &netmask)
 	{
 		bool isAllZeros = std::all_of(netmask.begin(), netmask.end(), [](const char &c){
@@ -390,7 +398,7 @@ namespace pcpp
 
 		const uint8_t *addressAsBytes = mask.toBytes();
 		int expectingValue = 1;
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			auto curByte = addressAsBytes[byteIndex];
 			if (expectingValue == 1)
@@ -417,9 +425,9 @@ namespace pcpp
 
 	void IPv6Network::initFromAddressAndPrefixLength(const IPv6Address &address, uint8_t prefixLen)
 	{
-		memset(m_Mask, 0, 16);
+		memset(m_Mask, 0, IPV6_ADDR_SIZE);
 		int remainingPrefixLen = prefixLen;
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			if (remainingPrefixLen >= 8)
 			{
@@ -439,7 +447,7 @@ namespace pcpp
 
 		address.copyTo(m_NetworkPrefix);
 
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			m_NetworkPrefix[byteIndex] &= m_Mask[byteIndex];
 		}
@@ -453,7 +461,7 @@ namespace pcpp
 
 		address.copyTo(m_NetworkPrefix);
 
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			m_NetworkPrefix[byteIndex] &= m_Mask[byteIndex];
 		}
@@ -535,7 +543,7 @@ namespace pcpp
 	uint8_t IPv6Network::getPrefixLen() const
 	{
 		uint8_t result = 0;
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			std::bitset<8> bs(m_Mask[byteIndex]);
 			result += static_cast<uint8_t>(bs.count());
@@ -552,9 +560,9 @@ namespace pcpp
 
 	IPv6Address IPv6Network::getHighestAddress() const
 	{
-		uint8_t result[16];
+		uint8_t result[IPV6_ADDR_SIZE];
 
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			result[byteIndex] = m_NetworkPrefix[byteIndex] | ~m_Mask[byteIndex];
 		}
@@ -566,7 +574,7 @@ namespace pcpp
 	uint64_t IPv6Network::getTotalAddressCount() const
 	{
 		int numOfBitset = 0;
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			std::bitset<8> bitset(static_cast<uint8_t>(~m_Mask[byteIndex]));
 			numOfBitset += bitset.count();
@@ -587,14 +595,14 @@ namespace pcpp
 			return false;
 		}
 
-		uint8_t maskedBytes[16];
+		uint8_t maskedBytes[IPV6_ADDR_SIZE];
 		address.copyTo(maskedBytes);
 
-		for (auto byteIndex = 0; byteIndex < 16; byteIndex++)
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
 			maskedBytes[byteIndex] &= m_Mask[byteIndex];
 		}
-		return memcmp(m_NetworkPrefix, maskedBytes, 16) == 0;
+		return memcmp(m_NetworkPrefix, maskedBytes, IPV6_ADDR_SIZE) == 0;
 	}
 
 
