@@ -109,44 +109,44 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv6Address anotherBadIp6Address = badIp6Address;
 	PTF_ASSERT_FALSE(anotherBadIp6Address.isValid());
 
-	// subnets
+	// networks
 	pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff::0004");
 	pcpp::IPv6Address ipv6NetworkPrefix("2607:f0d0:1002:0051:fffe::");
-	auto ipv6SubnetsMatch = std::vector<std::tuple<uint8_t, std::string, std::string>>{
+	auto ipv6Networks = std::vector<std::tuple<uint8_t, std::string, std::string>>{
 		std::tuple<uint8_t, std::string, std::string>{64, "64", "ffff:ffff:ffff:ffff::"},
 		std::tuple<uint8_t, std::string, std::string>{32, "32", "ffff:ffff::"},
 		std::tuple<uint8_t, std::string, std::string>{79, "79", "ffff:ffff:ffff:ffff:fffe::"},
 		std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}
 	};
 
-	for (auto ipv6Subnet : ipv6SubnetsMatch)
+	for (auto ipv6Network : ipv6Networks)
 	{
-		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Subnet))));
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
-		std::string subnetWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Subnet);
-		std::string subnetWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Subnet);
-		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetWithPrefixAsString));
-		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetWithMaskAsString));
+		std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
+		std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithMaskAsString));
 	}
 
-	auto ipv6SubnetsNotMatch = std::vector<std::tuple<uint8_t, std::string, std::string>>{
+	auto ipv6NetworksNotMatch = std::vector<std::tuple<uint8_t, std::string, std::string>>{
 		std::tuple<uint8_t, std::string, std::string>{80, "80", "ffff:ffff:ffff:ffff:ffff::"},
 		std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}
 	};
 
-	for (auto ipv6Subnet : ipv6SubnetsNotMatch)
+	for (auto ipv6Network : ipv6NetworksNotMatch)
 	{
-		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Subnet))));
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
-		std::string subnetWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Subnet);
-		std::string subnetWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Subnet);
-		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetWithPrefixAsString));
-		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetWithMaskAsString));
+		std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
+		std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithMaskAsString));
 	}
 
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(ip6Addr2.matchSubnet("invalid"));
-	PTF_ASSERT_FALSE(ip6Addr2.matchSubnet("10.8.0.0/16"));
+	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("invalid"));
+	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("10.8.0.0/16"));
 	pcpp::Logger::getInstance().enableLogs();
 
 	// Test less-than comparison operator

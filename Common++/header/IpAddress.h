@@ -269,29 +269,29 @@ namespace pcpp
 		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * @param subnet An IPv6Network subnet object
-		 * @return True if the address matches the subnet or false otherwise
+		 * Checks whether the address matches a network.
+		 * @param network An IPv6Network network
+		 * @return True if the address matches the network or false otherwise
 		 */
-		bool matchSubnet(const IPv6Network& subnet) const;
+		bool matchNetwork(const IPv6Network& network) const;
 
 		/**
-		 * Checks whether the address matches a subnet.
-		 * For example: this method will return true for address d6e5:83dc:0c58:bc5d:1449:5898:: and subnet
+		 * Checks whether the address matches a network.
+		 * For example: this method will return true for address d6e5:83dc:0c58:bc5d:1449:5898:: and network
 		 * which is one of:
 		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
-		 * Another example: this method will return false for address d6e5:83dc:: and subnet which is one of:
+		 * Another example: this method will return false for address d6e5:83dc:: and network which is one of:
 		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
-		 * @param[in] subnet A string in one of these formats:
+		 * @param[in] network A string in one of these formats:
 		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address and Y is a number between 0 and 128
-		 *  - IPV6_ADDRESS/IPV6_MASK where IPV6_ADDRESS is a valid IPv6 address and IPV6_MASK is a valid
-		 *    IPv6 subnet mask
-		 *	@return True if the address matches the subnet or false if it doesn't or if the subnet is invalid
+		 *  - IPV6_ADDRESS/IPV6_NETMASK where IPV6_ADDRESS is a valid IPv6 address and IPV6_NETMASK is a valid
+		 *    IPv6 netmask
+		 *	@return True if the address matches the network or false if it doesn't or if the network is invalid
 		 */
-		bool matchSubnet(const std::string& subnet) const;
+		bool matchNetwork(const std::string& network) const;
 
 		/**
-		  * @deprecated This method is deprecated, please use matchSubnet(const IPv6Network& subnet)
+		  * @deprecated This method is deprecated, please use matchNetwork(const IPv6Network& network)
 		  */
 		PCPP_DEPRECATED bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
 

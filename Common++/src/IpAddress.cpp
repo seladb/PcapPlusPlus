@@ -155,17 +155,17 @@ namespace pcpp
 	}
 
 
-	bool IPv6Address::matchSubnet(const IPv6Network& subnet) const
+	bool IPv6Address::matchNetwork(const IPv6Network &network) const
 	{
-		return subnet.includes(*this);
+		return network.includes(*this);
 	}
 
 
-	bool IPv6Address::matchSubnet(const std::string& subnet) const
+	bool IPv6Address::matchNetwork(const std::string& network) const
 	{
 		try
 		{
-			auto ipv6Network = IPv6Network(subnet);
+			auto ipv6Network = IPv6Network(network);
 			return ipv6Network.includes(*this);
 		}
 		catch (const std::invalid_argument& e)
