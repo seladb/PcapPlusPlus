@@ -30,6 +30,7 @@ namespace pcpp
 
 	// forward declarations
 	class IPv4Network;
+	class IPv6Network;
 
 	// The implementation of the classes is based on document N4771 "Working Draft, C++ Extensions for Networking"
 	// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/n4771.pdf
@@ -268,13 +269,31 @@ namespace pcpp
 		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
 
 		/**
-		  * Checks whether the address matches a subnet.
-		  * For example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 64, and address is 2001:3CA1:010F:001A:121B:0000:0000:0010, then the method will return true
-		  * Another example: if subnet is 2001:3CA1:010F:001A::, prefixLength is 70 and address is 2001:3CA1:010F:001A:121B:0000:0000:0010 then the method will return false
-		  * @param[in] subnet The subnet to be verified
-		  * @param[in] prefixLength How many bits to use in the mask
+		 * Checks whether the address matches a network.
+		 * @param network An IPv6Network network
+		 * @return True if the address matches the network or false otherwise
+		 */
+		bool matchNetwork(const IPv6Network& network) const;
+
+		/**
+		 * Checks whether the address matches a network.
+		 * For example: this method will return true for address d6e5:83dc:0c58:bc5d:1449:5898:: and network
+		 * which is one of:
+		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
+		 * Another example: this method will return false for address d6e5:83dc:: and network which is one of:
+		 * d6e5:83dc:0c58:bc5d::/64, d6e5:83dc:0c58:bc5d::/ffff:ffff:ffff:ffff::
+		 * @param[in] network A string in one of these formats:
+		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address and Y is a number between 0 and 128
+		 *  - IPV6_ADDRESS/IPV6_NETMASK where IPV6_ADDRESS is a valid IPv6 address and IPV6_NETMASK is a valid
+		 *    IPv6 netmask
+		 *	@return True if the address matches the network or false if it doesn't or if the network is invalid
+		 */
+		bool matchNetwork(const std::string& network) const;
+
+		/**
+		  * @deprecated This method is deprecated, please use matchNetwork(const IPv6Network& network)
 		  */
-		bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
+		PCPP_DEPRECATED bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
 
 		/**
 		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
@@ -566,6 +585,108 @@ namespace pcpp
 		void initFromAddressAndNetmask(const IPv4Address& address, const std::string& netmask);
 	};
 
+
+	/**
+	 * @class IPv6Network
+	 * A class representing IPv6 network definition
+	 */
+	class IPv6Network
+	{
+	public:
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a prefix length
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param prefixLen A number between 0 and 128 representing the prefix length. If another value is provided
+		 * std::invalid_argument exception is thrown
+		 */
+		IPv6Network(const IPv6Address& address, uint8_t prefixLen);
+
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a netmask
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param netmask A string representing a netmask in valid IPv6 format, for example: ffff:ffff::.
+		 * Please notice that netmasks that start with zeros are invalid, for example: 0:ffff::. The only netmask
+		 * starting with zeros that is valid is all zeros (::). If the netmask is invalid std::invalid_argument
+		 * exception is thrown
+		 */
+		IPv6Network(const IPv6Address& address, const std::string& netmask);
+
+		/**
+		 * A constructor that creates an instance of the class out of a string representing the network prefix and
+		 * a prefix length or a netmask
+		 * @param addressAndNetmask A string in one of these formats:
+		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address representing the network prefix and Y is
+		 *    a number between 0 and 128 representing the network prefix
+		 *  - IPV6_ADDRESS/IPV6_NETMASK where IPV6_ADDRESS is a valid IPv6 address representing the network prefix
+		 *    and IPV6_NETMASK is a valid IPv6 netmask
+		 *  For any invalid value std::invalid_argument is thrown
+		 */
+		IPv6Network(const std::string& addressAndNetmask);
+
+		/**
+		 * @return The prefix length, for example: the prefix length of 3546::/ffff:: is 16
+		 */
+		uint8_t getPrefixLen() const;
+
+		/**
+		 * @return The netmask, for example: the netmask of 3546::/16 is ffff::
+		 */
+		std::string getNetmask() const { return IPv6Address(m_Mask).toString(); }
+
+		/**
+		 * @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::
+		*/
+		IPv6Address getNetworkPrefix() const { return IPv6Address(m_NetworkPrefix); }
+
+		/**
+		* @return The lowest non-reserved IPv6 address in this network, for example: the lowest address in 3546::/16 is
+		* 3546::1
+		*/
+		IPv6Address getLowestAddress() const;
+
+		/**
+		 * @return The highest IPv6 address in this network, for example: the highest address in 3546::/16 is
+		 * 3546:ffff:ffff:ffff:ffff:ffff:ffff:ffff
+		 */
+		IPv6Address getHighestAddress() const;
+
+		/**
+		 * @return The number of addresses in this network, for example: the number of addresses in 16ff::/120 is 256.
+		 * If the number of addresses exceeds the size of uint64_t a std::out_of_range exception is thrown
+		 */
+		uint64_t getTotalAddressCount() const;
+
+		/**
+		 * @param address An IPv6 address
+		 * @return True is the address belongs to the network, false otherwise or if the address isn't valid
+		 */
+		bool includes(const IPv6Address& address) const;
+
+		/**
+		 * @param network An IPv6 network
+		 * @return True is the input network is completely included within this network, false otherwise, for example:
+		 * 3546::/64 includes 3546::/120 but doesn't include 3546::/16
+		 */
+		bool includes(const IPv6Network& network) const;
+
+		/**
+		 * @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
+		 * fda7:9f81:6c23:275::/64
+		 */
+		std::string toString() const;
+
+	private:
+		uint8_t m_NetworkPrefix[16];
+		uint8_t m_Mask[16];
+
+		bool isValidNetmask(const std::string& netmask);
+		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
+		void initFromAddressAndNetmask(const IPv6Address& address, const std::string& netmask);
+	};
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
@@ -587,6 +708,12 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddre
 }
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
+{
+	os << network.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
 {
 	os << network.toString();
 	return os;
