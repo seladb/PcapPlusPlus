@@ -687,6 +687,159 @@ namespace pcpp
 		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
 		void initFromAddressAndNetmask(const IPv6Address& address, const std::string& netmask);
 	};
+
+
+	class IPNetwork
+	{
+	public:
+		IPNetwork(const IPAddress& address, uint8_t prefixLen)
+		{
+			if (address.isIPv4())
+			{
+				m_IPv4Network = new IPv4Network(address.getIPv4(), prefixLen);
+				m_IPv6Network = nullptr;
+			}
+			else
+			{
+				m_IPv6Network = new IPv6Network(address.getIPv6(), prefixLen);
+				m_IPv4Network = nullptr;
+			}
+		}
+
+		IPNetwork(const IPAddress& address, const std::string& netmask)
+		{
+			if (address.isIPv4())
+			{
+				m_IPv4Network = new IPv4Network(address.getIPv4(), netmask);
+				m_IPv6Network = nullptr;
+			}
+			else
+			{
+				m_IPv6Network = new IPv6Network(address.getIPv6(), netmask);
+				m_IPv4Network = nullptr;
+			}
+		}
+
+		IPNetwork(const std::string& addressAndNetmask)
+		{
+			try
+			{
+				m_IPv4Network = new IPv4Network(addressAndNetmask);
+				m_IPv6Network = nullptr;
+			}
+			catch (const std::invalid_argument& e)
+			{
+				m_IPv6Network = new IPv6Network(addressAndNetmask);
+				m_IPv4Network = nullptr;
+			}
+		}
+
+		~IPNetwork()
+		{
+			if (m_IPv4Network)
+			{
+				delete m_IPv4Network;
+			}
+
+			if (m_IPv6Network)
+			{
+				delete m_IPv6Network;
+			}
+		}
+
+		uint8_t getPrefixLen() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getPrefixLen() : m_IPv6Network->getPrefixLen());
+		}
+
+		std::string getNetmask() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getNetmask() : m_IPv6Network->getNetmask());
+		}
+
+		IPAddress getNetworkPrefix() const
+		{
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getNetworkPrefix()) : IPAddress(m_IPv6Network->getNetworkPrefix()));
+		}
+
+		IPAddress getLowestAddress() const
+		{
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getLowestAddress()) : IPAddress(m_IPv6Network->getLowestAddress()));
+		}
+
+		IPAddress getHighestAddress() const
+		{
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getHighestAddress()) : IPAddress(m_IPv6Network->getHighestAddress()));
+		}
+
+		uint64_t getTotalAddressCount() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getTotalAddressCount() : m_IPv6Network->getTotalAddressCount());
+		}
+
+		bool isIPv4Network() const
+		{
+			return m_IPv4Network != nullptr;
+		}
+
+		bool isIPv6Network() const
+		{
+			return m_IPv6Network != nullptr;
+		}
+
+		bool includes(const IPAddress& address) const
+		{
+			if (m_IPv4Network != nullptr)
+			{
+				if (address.isIPv6())
+				{
+					return false;
+				}
+
+				return m_IPv4Network->includes(address.getIPv4());
+			}
+			else
+			{
+				if (address.isIPv4())
+				{
+					return false;
+				}
+
+				return m_IPv6Network->includes(address.getIPv6());
+			}
+		}
+
+		bool includes(const IPNetwork& network) const
+		{
+			if (m_IPv4Network != nullptr)
+			{
+				if (network.isIPv6Network())
+				{
+					return false;
+				}
+
+				return m_IPv4Network->includes(*network.m_IPv4Network);
+			}
+			else
+			{
+				if (network.isIPv4Network())
+				{
+					return false;
+				}
+
+				return m_IPv6Network->includes(*network.m_IPv6Network);
+			}
+		}
+
+		std::string toString() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->toString() : m_IPv6Network->toString());
+		}
+
+	private:
+		IPv4Network* m_IPv4Network;
+		IPv6Network* m_IPv6Network;
+	};
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
@@ -714,6 +867,12 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& netwo
 }
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
+{
+	os << network.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network)
 {
 	os << network.toString();
 	return os;
