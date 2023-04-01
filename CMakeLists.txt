@@ -295,6 +295,7 @@ if(PCAPPP_PACKAGE)
   set(CPACK_PACKAGE_NAME "PcapPlusPlus")
   set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
   set(CPACK_PACKAGE_MAINTAINER "seladb")
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_MAINTAINER}")
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
       "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
   )
