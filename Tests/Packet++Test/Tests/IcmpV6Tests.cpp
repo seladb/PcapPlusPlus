@@ -10,6 +10,7 @@
 #include "NdpLayer.h"
 #include "Packet.h"
 #include "SystemUtils.h"
+#include "VlanLayer.h"
 #include <sstream>
 
 PTF_TEST_CASE(IcmpV6ParsingTest)
@@ -201,12 +202,13 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 
 	// Neighbor solicitation with source link-layer option
 	pcpp::IPv6Layer *ipv6SoliLayer = new pcpp::IPv6Layer(pcpp::IPv6Address("fd53:7cb8:383:4::67"), pcpp::IPv6Address("fd53:7cb8:383:2::1:117"));
+	ipv6SoliLayer->getIPv6Header()->hopLimit = 255;
 	pcpp::NDPNeighborSolicitationLayer *ndpSoliLayer = new pcpp::NDPNeighborSolicitationLayer(0, pcpp::IPv6Address("fd53:7cb8:383:2::1:117"), pcpp::MacAddress("00:54:af:e9:4d:80"));
 	pcpp::Packet neighSoliPacket(100);
 	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(ipv6SoliLayer, true));
 	PTF_ASSERT_TRUE(neighSoliPacket.addLayer(ndpSoliLayer, true));
 	neighSoliPacket.computeCalculateFields();
-	PTF_ASSERT_BUF_COMPARE(neighSoliPacket.getRawPacket()->getRawData()+40, buffer3+58, bufferLength3-62); // dat file contains frame with eth + vlan layer (14 + 4 bytes) and  trailing bytes (4 bytes)
+	PTF_ASSERT_BUF_COMPARE(neighSoliPacket.getRawPacket()->getRawData()+6, buffer3+24, bufferLength3-28); // dat file contains frame with eth + vlan layer (14 + 4 bytes) and  trailing bytes (4 bytes)
 
 	pcpp::NDPNeighborSolicitationLayer *neighSoliLayer = neighSoliPacket.getLayerOfType<pcpp::NDPNeighborSolicitationLayer>();
 	PTF_ASSERT_EQUAL(neighSoliLayer->getHeaderLen(), 32);
