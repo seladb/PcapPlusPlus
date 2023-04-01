@@ -232,31 +232,32 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 23. GTP (v1)
 24. IPSec AH & ESP - parsing only (no editing capabilities)
 25. TCP
-26. UDP
+26. TPKT
+27. UDP
 
 ### Session Layer (L5)
 
-27. SDP
-28. SIP
+28. SDP
+29. SIP
 
 ### Presentation Layer (L6)
 
-29. SSL/TLS - parsing only (no editing capabilities)
+30. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-30. BGP (v4)
-31. DHCP
-32. DHCPv6
-33. DNS
-34. FTP
-35. HTTP headers (request & response)
-36. NTP (v3, v4)
-37. Radius
-38. SOME/IP
-39. SSH - parsing only (no editing capabilities)
-40. Telnet - parsing only (no editing capabilities)
-41. Generic payload
+31. BGP (v4)
+32. DHCP
+33. DHCPv6
+34. DNS
+35. FTP
+36. HTTP headers (request & response)
+37. NTP (v3, v4)
+38. Radius
+39. SOME/IP
+40. SSH - parsing only (no editing capabilities)
+41. Telnet - parsing only (no editing capabilities)
+42. Generic payload
 
 ## DPDK And PF_RING Support
 
