@@ -299,8 +299,22 @@ if(PCAPPP_PACKAGE)
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
       "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
   )
-  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-  set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+
+  if (APPLE)
+    # Apple productbuild cannot handle .md or file without extension
+    # Use textutil to convert them to HTML
+    find_program(CONVERTER textutil)
+    if (NOT CONVERTER)
+      message(FATAL_ERROR "textutil executable not found")
+    endif()
+    execute_process(COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/LICENSE" -output "${CMAKE_BINARY_DIR}/LICENSE.html")
+    execute_process(COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/README.md" -output "${CMAKE_BINARY_DIR}/README.html")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/LICENSE.html")
+    set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.html")
+  else()
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+    set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+  endif()
 
   # used in CPackAdditionalInstall.cmake
   set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
