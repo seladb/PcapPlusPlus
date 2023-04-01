@@ -57,7 +57,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
     runs-on: macos-12
@@ -121,7 +121,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
   mingw-w64:
     runs-on: windows-latest
