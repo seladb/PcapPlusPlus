@@ -109,24 +109,45 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv6Address anotherBadIp6Address = badIp6Address;
 	PTF_ASSERT_FALSE(anotherBadIp6Address.isValid());
 
-	pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff:0000:0000:0004");
-	pcpp::IPv6Address subnetIp6Addr01("2607:f0d0:1002:0051::");
-	pcpp::IPv6Address subnetIp6Addr02("2607:f0d0:1002:0051:0011::");
+	// networks
+	pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff::0004");
+	pcpp::IPv6Address ipv6NetworkPrefix("2607:f0d0:1002:0051:fffe::");
+	auto ipv6Networks = std::vector<std::tuple<uint8_t, std::string, std::string>>{
+		std::tuple<uint8_t, std::string, std::string>{64, "64", "ffff:ffff:ffff:ffff::"},
+		std::tuple<uint8_t, std::string, std::string>{32, "32", "ffff:ffff::"},
+		std::tuple<uint8_t, std::string, std::string>{79, "79", "ffff:ffff:ffff:ffff:fffe::"},
+		std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}
+	};
+
+	for (auto ipv6Network : ipv6Networks)
+	{
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
+
+		std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
+		std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithMaskAsString));
+	}
+
+	auto ipv6NetworksNotMatch = std::vector<std::tuple<uint8_t, std::string, std::string>>{
+		std::tuple<uint8_t, std::string, std::string>{80, "80", "ffff:ffff:ffff:ffff:ffff::"},
+		std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}
+	};
+
+	for (auto ipv6Network : ipv6NetworksNotMatch)
+	{
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
+
+		std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
+		std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithMaskAsString));
+	}
 
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, 0));
+	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("invalid"));
+	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("10.8.0.0/16"));
 	pcpp::Logger::getInstance().enableLogs();
-	for(int i = 1; i <= 64; ++i)
-	{
-		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
-		PTF_ASSERT_TRUE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
-	}
-
-	for(int i = 65; i <= 127; ++i)
-	{
-		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr01, i));
-		PTF_ASSERT_FALSE(ip6Addr2.matchSubnet(subnetIp6Addr02, i));
-	}
 
 	// Test less-than comparison operator
 	pcpp::IPv4Address IpV4_1("1.1.1.1");
@@ -436,3 +457,117 @@ PTF_TEST_CASE(TestIPv4Network)
 	stream << ipv4Network;
 	PTF_ASSERT_EQUAL(stream.str(), "172.16.0.0/16");
 } // TestIPv4Network
+
+
+PTF_TEST_CASE(TestIPv6Network)
+{
+	// Invalid c'tor: IPv6 address + prefix len
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("invalid"), 1), std::invalid_argument, "address is not a valid IPv6 address");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), 129), std::invalid_argument, "prefixLen must be an integer between 0 and 128");
+
+	// Invalid c'tor: IPv6 address + netmask
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("invalid"), "ffff::"), std::invalid_argument, "address is not a valid IPv6 address");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "invalid"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ff10::"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ee00::"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "7f00::"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff::ffff"), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "f000::0001"), std::invalid_argument, "netmask is not valid");
+
+	// Invalid c'tor: address + netmask in one string
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid/32")), std::invalid_argument, "The input doesn't contain a valid IPv6 network prefix");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/32/24")), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/255.255.0.0")), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/130")), std::invalid_argument, "Prefix length must be an integer between 0 and 128");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/-1")), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/invalid")), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/a2cb:d625::")), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/ffff::0001")), std::invalid_argument, "netmask is not valid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/0fff::")), std::invalid_argument, "netmask is not valid");
+
+	// Valid c'tor
+	auto addressAsStr = std::string("39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746");
+	auto address = pcpp::IPv6Address(addressAsStr);
+
+	auto netmasksPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>> {
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 128, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", 1},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8", 125, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5740", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5741", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5747", 8},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:8000::", 65, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1::1", "39e1:f90e:14dd:f9a1:7fff:ffff:ffff:ffff", 9223372036854775808ULL},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff::", 64, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1::1", "39e1:f90e:14dd:f9a1:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff::", 32, "39e1:f90e::", "39e1:f90e::1", "39e1:f90e:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:e000::", 19, "39e1:e000::", "39e1:e000::1", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:8000::", 17, "39e1:8000::", "39e1:8000::1", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff::", 16, "39e1::", "39e1::1", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ff80::", 9, "3980::", "3980::1", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ff00::", 8, "3900::", "3900::1", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"fc00::", 6, "3800::", "3800::1", "3bff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"c000::", 2, "00::", "00::1", "3fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"::", 0, "::", "::1", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0}
+	};
+
+	for (auto netmaskPrefixLenAndNetPrefix : netmasksPrefixLensAndNetPrefix)
+	{
+		// Valid c'tor: IPv6 address + netmask
+		pcpp::IPv6Network iPv6NetworkA(address, std::get<0>(netmaskPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkA.getPrefixLen(), std::get<1>(netmaskPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkA.getNetworkPrefix(), std::get<2>(netmaskPrefixLenAndNetPrefix));
+
+		// Valid c'tor: IPv6 address + prefix len
+		pcpp::IPv6Network iPv6NetworkB(address, std::get<1>(netmaskPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkB.getNetmask(), std::get<0>(netmaskPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkB.getNetworkPrefix(), std::get<2>(netmaskPrefixLenAndNetPrefix));
+
+		// Valid c'tor: address + netmask in one string
+		std::string addressAndNetmask = addressAsStr + "/" + std::get<0>(netmaskPrefixLenAndNetPrefix);
+		pcpp::IPv6Network iPv6NetworkC(addressAndNetmask);
+		PTF_ASSERT_EQUAL(iPv6NetworkC.getPrefixLen(), std::get<1>(netmaskPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkC.getNetworkPrefix(), std::get<2>(netmaskPrefixLenAndNetPrefix));
+
+		// Valid c'tor: address + prefix len in one string
+		std::string addressAndPrefixLen = addressAsStr + "/" + std::to_string(std::get<1>(netmaskPrefixLenAndNetPrefix));
+		pcpp::IPv6Network iPv6NetworkD(addressAndPrefixLen);
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getNetmask(), std::get<0>(netmaskPrefixLenAndNetPrefix));
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getNetworkPrefix(), std::get<2>(netmaskPrefixLenAndNetPrefix));
+
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getLowestAddress(), pcpp::IPv6Address(std::get<3>(netmaskPrefixLenAndNetPrefix)));
+		PTF_ASSERT_EQUAL(iPv6NetworkD.getHighestAddress(), pcpp::IPv6Address(std::get<4>(netmaskPrefixLenAndNetPrefix)));
+		auto expectedNumOfAddresses = std::get<5>(netmaskPrefixLenAndNetPrefix);
+		if (expectedNumOfAddresses != 0)
+		{
+			PTF_ASSERT_EQUAL(iPv6NetworkD.getTotalAddressCount(), expectedNumOfAddresses);
+		}
+		else
+		{
+			PTF_ASSERT_RAISES(iPv6NetworkD.getTotalAddressCount(), std::out_of_range, "Number of addresses exceeds uint64_t");
+		}
+	}
+
+	auto ipv6Network = pcpp::IPv6Network(pcpp::IPv6Address("a88e:2765:5349:01f9:9a9a:a444:2739:2f4a"), 64);
+
+	PTF_ASSERT_TRUE(ipv6Network.includes(pcpp::IPv6Address("a88e:2765:5349:01f9::")));
+	PTF_ASSERT_TRUE(ipv6Network.includes(pcpp::IPv6Address("a88e:2765:5349:01f9:9a9a:a444:2739:2f4a")));
+	PTF_ASSERT_TRUE(ipv6Network.includes(pcpp::IPv6Address("a88e:2765:5349:01f9:ffff:ffff:ffff:ffff")));
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Address("a88e:2765:5349:01fa::")));
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Address("a88e:2765:5349:01f8::")));
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Address("a88e::")));
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Address("invalid")));
+
+	for (auto prefixLen = 0; prefixLen < 64; prefixLen++)
+	{
+		PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Network(pcpp::IPv6Address("a88e:2765:5349:01f9:9a9a:a444:2739:2f4a"), prefixLen)));
+	}
+
+	for (auto prefixLen = 64; prefixLen <= 128; prefixLen++)
+	{
+		PTF_ASSERT_TRUE(ipv6Network.includes(pcpp::IPv6Network(pcpp::IPv6Address("a88e:2765:5349:01f9:9a9a:a444:2739:2f4a"), prefixLen)));
+	}
+
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Network(pcpp::IPv6Address("4447:3c98:ee01:fd0a:bf73:ad00:89ac:1a89"), 64)));
+
+	// to string
+	PTF_ASSERT_EQUAL(ipv6Network.toString(), "a88e:2765:5349:1f9::/64");
+	std::stringstream stream;
+	stream << ipv6Network;
+	PTF_ASSERT_EQUAL(stream.str(), "a88e:2765:5349:1f9::/64");
+} // TestIPv6Network

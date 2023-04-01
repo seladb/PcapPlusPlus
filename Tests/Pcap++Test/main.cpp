@@ -205,6 +205,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestGeneralUtils, "no_network");
 	PTF_RUN_TEST(TestGetMacAddress, "mac");
 	PTF_RUN_TEST(TestIPv4Network, "no_network;ip");
+	PTF_RUN_TEST(TestIPv6Network, "no_network;ip");
 
 	PTF_RUN_TEST(TestLogger, "no_network;logger");
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");

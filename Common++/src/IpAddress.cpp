@@ -136,16 +136,6 @@ namespace pcpp
 	}
 
 
-	IPAddress::IPAddress(const std::string& addrAsString) : m_Type(IPv6AddressType), m_IPv6(addrAsString)
-	{
-		if (!m_IPv6.isValid()) // not IPv6
-		{
-			m_Type = IPv4AddressType;
-			m_IPv4 = IPv4Address(addrAsString);
-		}
-	}
-
-
 	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 	{
 		const size_t addrLen = sizeof(m_Bytes);
@@ -155,28 +145,54 @@ namespace pcpp
 	}
 
 
-	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
+	bool IPv6Address::matchNetwork(const IPv6Network &network) const
 	{
-		if(prefixLength == 0 || prefixLength > 128)
+		return network.includes(*this);
+	}
+
+
+	bool IPv6Address::matchNetwork(const std::string& network) const
+	{
+		try
 		{
-			PCPP_LOG_ERROR("subnet prefixLength '" << (int)prefixLength << "' illegal");
+			auto ipv6Network = IPv6Network(network);
+			return ipv6Network.includes(*this);
+		}
+		catch (const std::invalid_argument& e)
+		{
+			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
-		uint8_t compareByteCount = prefixLength / 8;
-		uint8_t compareBitCount = prefixLength % 8;
-		bool result = false;
-		const uint8_t* subnetBytes = subnet.toBytes();
-		if(compareByteCount > 0)
+	}
+
+
+	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
+	{
+		try
 		{
-			result = memcmp(subnetBytes, m_Bytes, compareByteCount) == 0;
+			auto ipv6Network = IPv6Network(subnet, prefixLength);
+			return ipv6Network.includes(*this);
 		}
-		if((result || prefixLength < 8) && compareBitCount > 0)
+		catch (const std::invalid_argument& e)
 		{
-			uint8_t subSubnetByte = subnetBytes[compareByteCount] >> (8 - compareBitCount);
-			uint8_t subThisByte =  m_Bytes[compareByteCount]  >> (8 - compareBitCount);
-			result = subSubnetByte == subThisByte;
+			PCPP_LOG_ERROR(e.what());
+			return false;
 		}
-		return result;
+	}
+
+
+	// ~~~~~~~~~
+	// IPAddress
+	// ~~~~~~~~~
+
+
+	IPAddress::IPAddress(const std::string& addrAsString) : m_Type(IPv6AddressType), m_IPv6(addrAsString)
+	{
+		if (!m_IPv6.isValid()) // not IPv6
+		{
+			m_Type = IPv4AddressType;
+			m_IPv4 = IPv4Address(addrAsString);
+		}
 	}
 
 
@@ -346,7 +362,265 @@ namespace pcpp
 		return ((lowestAddress & m_Mask) == m_NetworkPrefix && (highestAddress & m_Mask) == m_NetworkPrefix);
 	}
 
+
 	std::string IPv4Network::toString() const
+	{
+		std::ostringstream stream;
+		stream << getNetworkPrefix() << "/" << static_cast<int>(getPrefixLen());
+		return stream.str();
+	}
+
+
+	// ~~~~~~~~~~~
+	// IPv6Network
+	// ~~~~~~~~~~~
+
+
+#define IPV6_ADDR_SIZE 16
+
+
+	bool IPv6Network::isValidNetmask(const std::string &netmask)
+	{
+		bool isAllZeros = std::all_of(netmask.begin(), netmask.end(), [](const char &c){
+			return (c == '0' || c == ':');
+		});
+
+		if (isAllZeros)
+		{
+			return true;
+		}
+
+		auto mask = IPv6Address(netmask);
+		if (!mask.isValid())
+		{
+			return false;
+		}
+
+		const uint8_t *addressAsBytes = mask.toBytes();
+		int expectingValue = 1;
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			auto curByte = addressAsBytes[byteIndex];
+			if (expectingValue == 1)
+			{
+				if (curByte == 0xff)
+				{
+					continue;
+				}
+				std::bitset<8> bitset(curByte);
+				if (((curByte << bitset.count()) & 0xff) != 0)
+				{
+					return false;
+				}
+				expectingValue = 0;
+			} else if (expectingValue == 0 && curByte != 0)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	void IPv6Network::initFromAddressAndPrefixLength(const IPv6Address &address, uint8_t prefixLen)
+	{
+		memset(m_Mask, 0, IPV6_ADDR_SIZE);
+		int remainingPrefixLen = prefixLen;
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			if (remainingPrefixLen >= 8)
+			{
+				m_Mask[byteIndex] = 0xff;
+			}
+			else if (remainingPrefixLen > 0)
+			{
+				m_Mask[byteIndex] = 0xff << (8 - remainingPrefixLen);
+			}
+			else
+			{
+				break;
+			}
+
+			remainingPrefixLen -= 8;
+		}
+
+		address.copyTo(m_NetworkPrefix);
+
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			m_NetworkPrefix[byteIndex] &= m_Mask[byteIndex];
+		}
+	}
+
+
+	void IPv6Network::initFromAddressAndNetmask(const IPv6Address &address, const std::string &netmask)
+	{
+		IPv6Address netmaskAddr(netmask);
+		netmaskAddr.copyTo(m_Mask);
+
+		address.copyTo(m_NetworkPrefix);
+
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			m_NetworkPrefix[byteIndex] &= m_Mask[byteIndex];
+		}
+	}
+
+
+	IPv6Network::IPv6Network(const IPv6Address &address, uint8_t prefixLen)
+	{
+		if (!address.isValid())
+		{
+			throw std::invalid_argument("address is not a valid IPv6 address");
+		}
+
+		if (prefixLen > 128)
+		{
+			throw std::invalid_argument("prefixLen must be an integer between 0 and 128");
+		}
+
+		initFromAddressAndPrefixLength(address, prefixLen);
+	}
+
+
+	IPv6Network::IPv6Network(const IPv6Address &address, const std::string &netmask)
+	{
+		if (!address.isValid())
+		{
+			throw std::invalid_argument("address is not a valid IPv6 address");
+		}
+
+		if (!isValidNetmask(netmask))
+		{
+			throw std::invalid_argument("netmask is not valid");
+		}
+
+		initFromAddressAndNetmask(address, netmask);
+	}
+
+
+	IPv6Network::IPv6Network(const std::string &addressAndNetmask)
+	{
+		std::stringstream stream(addressAndNetmask);
+		std::string networkPrefixStr, netmaskStr;
+		std::getline(stream, networkPrefixStr, '/');
+		std::getline(stream, netmaskStr);
+
+		if (netmaskStr.empty())
+		{
+			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
+		}
+
+		auto networkPrefix = IPv6Address(networkPrefixStr);
+		if (!networkPrefix.isValid())
+		{
+			throw std::invalid_argument("The input doesn't contain a valid IPv6 network prefix");
+		}
+
+		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
+		{
+			uint32_t prefixLen = std::stoi(netmaskStr);
+			if (prefixLen > 128)
+			{
+				throw std::invalid_argument("Prefix length must be an integer between 0 and 128");
+			}
+
+			initFromAddressAndPrefixLength(networkPrefix, prefixLen);
+		}
+		else
+		{
+			if (!isValidNetmask(netmaskStr))
+			{
+				throw std::invalid_argument("netmask is not valid");
+			}
+
+			initFromAddressAndNetmask(networkPrefix, netmaskStr);
+		}
+	}
+
+
+	uint8_t IPv6Network::getPrefixLen() const
+	{
+		uint8_t result = 0;
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			std::bitset<8> bs(m_Mask[byteIndex]);
+			result += static_cast<uint8_t>(bs.count());
+		}
+		return result;
+	}
+
+
+	IPv6Address IPv6Network::getLowestAddress() const
+	{
+		if (getPrefixLen() == 128)
+		{
+			return m_NetworkPrefix;
+		}
+
+		uint8_t lowestAddress[IPV6_ADDR_SIZE];
+		memcpy(lowestAddress, m_NetworkPrefix, IPV6_ADDR_SIZE);
+		lowestAddress[IPV6_ADDR_SIZE - 1]++;
+		return lowestAddress;
+	}
+
+
+	IPv6Address IPv6Network::getHighestAddress() const
+	{
+		uint8_t result[IPV6_ADDR_SIZE];
+
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			result[byteIndex] = m_NetworkPrefix[byteIndex] | ~m_Mask[byteIndex];
+		}
+
+		return result;
+	}
+
+
+	uint64_t IPv6Network::getTotalAddressCount() const
+	{
+		int numOfBitset = 0;
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			std::bitset<8> bitset(static_cast<uint8_t>(~m_Mask[byteIndex]));
+			numOfBitset += bitset.count();
+		}
+
+		if (numOfBitset >= 64)
+		{
+			throw std::out_of_range("Number of addresses exceeds uint64_t");
+		}
+		return 1ULL << numOfBitset;
+	}
+
+
+	bool IPv6Network::includes(const IPv6Address& address) const
+	{
+		if (!address.isValid())
+		{
+			return false;
+		}
+
+		uint8_t maskedBytes[IPV6_ADDR_SIZE];
+		address.copyTo(maskedBytes);
+
+		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		{
+			maskedBytes[byteIndex] &= m_Mask[byteIndex];
+		}
+		return memcmp(m_NetworkPrefix, maskedBytes, IPV6_ADDR_SIZE) == 0;
+	}
+
+
+	bool IPv6Network::includes(const IPv6Network& network) const
+	{
+		return includes(network.getLowestAddress()) && includes(network.getHighestAddress());
+	}
+
+
+	std::string IPv6Network::toString() const
 	{
 		std::ostringstream stream;
 		stream << getNetworkPrefix() << "/" << static_cast<int>(getPrefixLen());
