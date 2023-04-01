@@ -12,6 +12,7 @@
 #include "SSHLayer.h"
 #include "DnsLayer.h"
 #include "TelnetLayer.h"
+#include "TpktLayer.h"
 #include "FtpLayer.h"
 #include "SomeIpLayer.h"
 #include "PacketUtils.h"
@@ -388,6 +389,8 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new FtpRequestLayer(payload, payloadLen, this, m_Packet);
 	else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet);
+	else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
+		m_NextLayer =  new TpktLayer(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
