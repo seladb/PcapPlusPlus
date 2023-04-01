@@ -52,6 +52,7 @@ add_library(
   src/TelnetLayer.cpp
   src/TextBasedProtocol.cpp
   src/TLVData.cpp
+  src/TpktLayer.cpp
   src/UdpLayer.cpp
   src/VlanLayer.cpp
   src/VxlanLayer.cpp
@@ -114,6 +115,7 @@ set(public_headers
     header/TelnetLayer.h
     header/TextBasedProtocol.h
     header/TLVData.h
+    header/TpktLayer.h
     header/UdpLayer.h
     header/VlanLayer.h
     header/VxlanLayer.h

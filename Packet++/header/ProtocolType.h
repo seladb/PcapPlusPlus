@@ -298,6 +298,11 @@ namespace pcpp
 	const ProtocolType NFLOG = 0x400000000000;
 
 	/**
+	 * TPKT protocol
+	 */
+	const ProtocolType TPKT = 0x800000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer
