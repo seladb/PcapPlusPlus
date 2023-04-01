@@ -12,6 +12,7 @@ endif()
 project(
   PcapPlusPlus
   DESCRIPTION "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets."
+  LANGUAGES CXX
   HOMEPAGE_URL "https://pcapplusplus.github.io/")
 
 # Include our custom CMake modules
