@@ -65,7 +65,6 @@ jobs:
       matrix:
         include:
           - freebsd-version: "12.3"
-          - freebsd-version: "13.0"
           - freebsd-version: "13.1"
     steps:
       - name: Checkout code
