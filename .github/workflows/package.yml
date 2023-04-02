@@ -155,6 +155,10 @@ jobs:
           ci\install_npcap.bat
           echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
 
+      - name: Debug Cmake
+        shell: msys2 {0}
+        run: cmake --system-information
+
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
