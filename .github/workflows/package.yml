@@ -157,22 +157,22 @@ jobs:
 
       - name: Debug Cmake
         shell: msys2 {0}
-        run: cmake --system-information
+        run: mingw-w64-${{matrix.env}}-cmake --system-information
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
+          mingw-w64-${{matrix.env}}-cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         shell: msys2 {0}
         # More than 2 jobs would make the build crash with OOM
         # cc1plus.exe: out of memory allocating 65536 bytes
-        run: cmake --build "$BUILD_DIR" -j 2
+        run: mingw-w64-${{matrix.env}}-cmake --build "$BUILD_DIR" -j 2
 
       - name: Package
         shell: msys2 {0}
-        run: cmake --build "$BUILD_DIR" --target package
+        run: mingw-w64-${{matrix.env}}-cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
