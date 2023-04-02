@@ -229,20 +229,16 @@ jobs:
     strategy:
       matrix:
         include:
-          - run-on-os: ubuntu-22.04
-            target: armeabi-v7a
+          - target: armeabi-v7a
             api-version: 30
-          - run-on-os: ubuntu-22.04
-            target: x86
+          - target: x86
             api-version: 30
-          - run-on-os: ubuntu-22.04
-            target: arm64-v8a
+          - target: arm64-v8a
             api-version: 30
-          - run-on-os: ubuntu-22.04
-            target: x86_64
+          - target: x86_64
             api-version: 30
 
-    runs-on: ${{ matrix.run-on-os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -272,4 +268,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: ${{ env.BUILD_DIR }}/*.zip
+          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
