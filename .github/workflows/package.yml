@@ -225,19 +225,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - run-on-os: ubuntu-20.04
+          - run-on-os: ubuntu-22.04
             target: armeabi-v7a
             api-version: 30
-          - run-on-os: ubuntu-20.04
+          - run-on-os: ubuntu-22.04
             target: x86
             api-version: 30
-          - run-on-os: macos-11
+          - run-on-os: ubuntu-22.04
             target: arm64-v8a
-            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
-          - run-on-os: macos-11
+          - run-on-os: ubuntu-22.04
             target: x86_64
-            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30
 
     runs-on: ${{ matrix.run-on-os }}
@@ -257,30 +255,17 @@ jobs:
           LIBPCAP_PATH=$(pwd)/libpcap-android
           cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B "$BUILD_DIR"
 
+      - name: Debug Cmake
+        run: cmake --system-information
+
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
-      - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@master
+      - name: Package
+        run: cmake --build "BUILD_DIR" --target package
+
+      - name: Upload binaries to release
+        uses: ncipollo/release-action@v1
         with:
-          repository: seladb/ToyVpn-PcapPlusPlus
-          path: ./ToyVpn-PcapPlusPlus
-          submodules: true
-
-      - name: Install locally PcapPlusPlus
-        # CMake install library in $prefix/lib ToyVpn want $prefix/$target/$api-version
-        run: |
-          TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
-          PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
-          PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
-          cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
-          mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
-          mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
-
-      - name: Build ToyVpn-PcapPlusPlus
-        working-directory: ./ToyVpn-PcapPlusPlus
-        run: |
-          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          allowUpdates: true
+          artifacts: ${{ env.BUILD_DIR }}/*.zip
