@@ -657,4 +657,17 @@ PTF_TEST_CASE(TestIPNetwork)
 	stream.str("");
 	stream << ipv6Network;
 	PTF_ASSERT_EQUAL(stream.str(), "4348:58d6::/32")
+
+	// copy c'tor
+	auto ipv4NetworkCopy = pcpp::IPNetwork(ipv4Network);
+	PTF_ASSERT_EQUAL(ipv4NetworkCopy.toString(), "10.1.2.0/24");
+
+	auto ipv6NetworkCopy = pcpp::IPNetwork(ipv6Network);
+	PTF_ASSERT_EQUAL(ipv6NetworkCopy.toString(), "4348:58d6::/32");
+
+	// assignment operator
+	ipv4NetworkCopy = ipv6Network;
+	PTF_ASSERT_EQUAL(ipv4NetworkCopy.toString(), "4348:58d6::/32");
+	ipv6NetworkCopy = ipv4Network;
+	PTF_ASSERT_EQUAL(ipv6NetworkCopy.toString(), "10.1.2.0/24");
 } // TestIPNetwork

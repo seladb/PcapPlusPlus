@@ -760,10 +760,30 @@ namespace pcpp
 				m_IPv4Network = new IPv4Network(addressAndNetmask);
 				m_IPv6Network = nullptr;
 			}
-			catch (const std::invalid_argument& e)
+			catch (const std::invalid_argument&)
 			{
 				m_IPv6Network = new IPv6Network(addressAndNetmask);
 				m_IPv4Network = nullptr;
+			}
+		}
+
+		/**
+		 * A copy c'tor for this class
+		 * @param other The instance to copy from
+		 */
+		IPNetwork(const IPNetwork& other)
+		{
+			m_IPv4Network = nullptr;
+			m_IPv6Network = nullptr;
+
+			if (other.m_IPv4Network)
+			{
+				m_IPv4Network = new IPv4Network(*other.m_IPv4Network);
+			}
+
+			if (other.m_IPv6Network)
+			{
+				m_IPv6Network = new IPv6Network(*other.m_IPv6Network);
 			}
 		}
 
@@ -781,6 +801,54 @@ namespace pcpp
 			{
 				delete m_IPv6Network;
 			}
+		}
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] other An instance of IPv4Network to assign
+		 * @return A reference to the assignee
+		 */
+		IPNetwork& operator=(const IPv4Network& other)
+		{
+			if (m_IPv4Network)
+			{
+				delete m_IPv4Network;
+				m_IPv4Network = nullptr;
+			}
+
+			if (m_IPv6Network)
+			{
+				delete m_IPv6Network;
+				m_IPv6Network = nullptr;
+			}
+
+			m_IPv4Network = new IPv4Network(other);
+
+			return *this;
+		}
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] other An instance of IPv6Network to assign
+		 * @return A reference to the assignee
+		 */
+		IPNetwork& operator=(const IPv6Network& other)
+		{
+			if (m_IPv4Network)
+			{
+				delete m_IPv4Network;
+				m_IPv4Network = nullptr;
+			}
+
+			if (m_IPv6Network)
+			{
+				delete m_IPv6Network;
+				m_IPv6Network = nullptr;
+			}
+
+			m_IPv6Network = new IPv6Network(other);
+
+			return *this;
 		}
 
 		/**
