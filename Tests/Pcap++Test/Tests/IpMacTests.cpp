@@ -571,3 +571,90 @@ PTF_TEST_CASE(TestIPv6Network)
 	stream << ipv6Network;
 	PTF_ASSERT_EQUAL(stream.str(), "a88e:2765:5349:1f9::/64");
 } // TestIPv6Network
+
+
+PTF_TEST_CASE(TestIPNetwork)
+{
+	auto networkInfos = std::vector<std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>> {
+		std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>{"192.168.1.1", pcpp::IPv4Address("192.168.1.1"), 16, "255.255.0.0", pcpp::IPv4Address("192.168.0.0"), 4, pcpp::IPv4Address("192.168.0.1"), pcpp::IPv4Address("192.168.255.254"), 65536},
+		std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>{"fe26:d0a1:beb6:5957:e77a:9983:ec84:b23e", pcpp::IPv6Address("fe26:d0a1:beb6:5957:e77a:9983:ec84:b23e"), 64, "ffff:ffff:ffff:ffff::", pcpp::IPv6Address("fe26:d0a1:beb6:5957::"), 6, pcpp::IPv6Address("fe26:d0a1:beb6:5957::1"), pcpp::IPv6Address("fe26:d0a1:beb6:5957:ffff:ffff:ffff:ffff"), 0}
+	};
+
+	for (auto networkInfo : networkInfos)
+	{
+		// Valid c'tor: IP address + netmask
+		pcpp::IPNetwork networkA(std::get<1>(networkInfo), std::get<3>(networkInfo));
+		PTF_ASSERT_EQUAL(networkA.getPrefixLen(), std::get<2>(networkInfo));
+		PTF_ASSERT_EQUAL(networkA.getNetworkPrefix(), std::get<4>(networkInfo));
+
+		// Valid c'tor: IP address + prefix len
+		pcpp::IPNetwork networkB(std::get<1>(networkInfo), std::get<2>(networkInfo));
+		PTF_ASSERT_EQUAL(networkB.getNetmask(), std::get<3>(networkInfo));
+		PTF_ASSERT_EQUAL(networkB.getNetworkPrefix(), std::get<4>(networkInfo));
+
+		// Valid c'tor: address + netmask in one string
+		pcpp::IPNetwork networkC(std::get<0>(networkInfo) + "/" + std::get<3>(networkInfo));
+		PTF_ASSERT_EQUAL(networkC.getPrefixLen(), std::get<2>(networkInfo));
+		PTF_ASSERT_EQUAL(networkC.getNetworkPrefix(), std::get<4>(networkInfo));
+
+		// Valid c'tor: address + prefix len in one string
+		pcpp::IPNetwork networkD(std::get<0>(networkInfo) + "/" + std::to_string(std::get<2>(networkInfo)));
+		PTF_ASSERT_EQUAL(networkD.getNetmask(), std::get<3>(networkInfo));
+		PTF_ASSERT_EQUAL(networkD.getNetworkPrefix(), std::get<4>(networkInfo));
+
+		if (std::get<5>(networkInfo) == 4)
+		{
+			PTF_ASSERT_TRUE(networkD.isIPv4Network());
+			PTF_ASSERT_FALSE(networkD.isIPv6Network());
+		}
+		else
+		{
+			PTF_ASSERT_TRUE(networkD.isIPv6Network());
+			PTF_ASSERT_FALSE(networkD.isIPv4Network());
+		}
+
+		PTF_ASSERT_EQUAL(networkD.getLowestAddress(), std::get<6>(networkInfo));
+		PTF_ASSERT_EQUAL(networkD.getHighestAddress(), std::get<7>(networkInfo));
+
+		if (std::get<8>(networkInfo) != 0)
+		{
+			PTF_ASSERT_EQUAL(networkD.getTotalAddressCount(), std::get<8>(networkInfo));
+		}
+		else
+		{
+			PTF_ASSERT_RAISES(networkD.getTotalAddressCount(), std::out_of_range, "Number of addresses exceeds uint64_t");
+		}
+	}
+
+	// test include
+	auto ipv4Network = pcpp::IPNetwork(pcpp::IPv4Address("10.1.2.3"), 24);
+
+	PTF_ASSERT_FALSE(ipv4Network.includes(pcpp::IPv6Address("4348:58d6:a1c3:3fec:1726:b1e4:30ae:fe2d")));
+	PTF_ASSERT_FALSE(ipv4Network.includes(pcpp::IPv4Address("10.1.3.1")));
+	PTF_ASSERT_TRUE(ipv4Network.includes(pcpp::IPv4Address("10.1.2.10")));
+
+	PTF_ASSERT_FALSE(ipv4Network.includes(pcpp::IPNetwork("4348::/16")));
+	PTF_ASSERT_FALSE(ipv4Network.includes(pcpp::IPNetwork("10.1.2.3/20")));
+	PTF_ASSERT_TRUE(ipv4Network.includes(pcpp::IPNetwork("10.1.2.3/25")));
+
+	auto ipv6Network = pcpp::IPNetwork(pcpp::IPv6Address("4348:58d6::"), 32);
+
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv4Address("10.1.2.10")));
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPv6Address("4348:58d7::")));
+	PTF_ASSERT_TRUE(ipv6Network.includes(pcpp::IPv6Address("4348:58d6:a1c3:3fec:1726:b1e4:30ae:fe2d")));
+
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPNetwork("10.1.2.3/20")));
+	PTF_ASSERT_FALSE(ipv6Network.includes(pcpp::IPNetwork("4348:58d6::/31")));
+	PTF_ASSERT_TRUE(ipv6Network.includes(pcpp::IPNetwork("4348:58d6:a1c3::/48")));
+
+	// to string
+	PTF_ASSERT_EQUAL(ipv4Network.toString(), "10.1.2.0/24");
+	std::stringstream stream;
+	stream << ipv4Network;
+	PTF_ASSERT_EQUAL(stream.str(), "10.1.2.0/24");
+
+	PTF_ASSERT_EQUAL(ipv6Network.toString(), "4348:58d6::/32");
+	stream.str("");
+	stream << ipv6Network;
+	PTF_ASSERT_EQUAL(stream.str(), "4348:58d6::/32")
+} // TestIPNetwork
