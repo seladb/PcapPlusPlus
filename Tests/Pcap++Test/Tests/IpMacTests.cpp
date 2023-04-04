@@ -670,4 +670,9 @@ PTF_TEST_CASE(TestIPNetwork)
 	PTF_ASSERT_EQUAL(ipv4NetworkCopy.toString(), "4348:58d6::/32");
 	ipv6NetworkCopy = ipv4Network;
 	PTF_ASSERT_EQUAL(ipv6NetworkCopy.toString(), "10.1.2.0/24");
+
+	ipv4Network = ipv6NetworkCopy;
+	PTF_ASSERT_EQUAL(ipv4Network.toString(), "10.1.2.0/24");
+	ipv6Network = ipv4NetworkCopy;
+	PTF_ASSERT_EQUAL(ipv6Network.toString(), "4348:58d6::/32");
 } // TestIPNetwork
