@@ -805,6 +805,23 @@ namespace pcpp
 
 		/**
 		 * Overload of an assignment operator.
+		 * @param[in] other An instance of IPNetwork to assign
+		 * @return A reference to the assignee
+		 */
+		IPNetwork& operator=(const IPNetwork& other)
+		{
+			if (other.isIPv4Network())
+			{
+				return this->operator=(*other.m_IPv4Network);
+			}
+			else
+			{
+				return this->operator=(*other.m_IPv6Network);
+			}
+		}
+
+		/**
+		 * Overload of an assignment operator.
 		 * @param[in] other An instance of IPv4Network to assign
 		 * @return A reference to the assignee
 		 */
