@@ -687,6 +687,322 @@ namespace pcpp
 		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
 		void initFromAddressAndNetmask(const IPv6Address& address, const std::string& netmask);
 	};
+
+
+	/**
+	 * @class IPNetwork
+	 * A class representing version independent IP network definition, both IPv4 and IPv6 are included
+	 */
+	class IPNetwork
+	{
+	public:
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a prefix length
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param prefixLen A number representing the prefix length. If the value isn't in the range allowed for the
+		 * network (0 - 32 for IPv4 networks or 0 - 128 for IPv6 networks) and std::invalid_argument exception is thrown
+		 */
+		IPNetwork(const IPAddress& address, uint8_t prefixLen)
+		{
+			if (address.isIPv4())
+			{
+				m_IPv4Network = new IPv4Network(address.getIPv4(), prefixLen);
+				m_IPv6Network = nullptr;
+			}
+			else
+			{
+				m_IPv6Network = new IPv6Network(address.getIPv6(), prefixLen);
+				m_IPv4Network = nullptr;
+			}
+		}
+
+		/**
+		 * A constructor that creates an instance of the class out of an address representing the network prefix
+		 * and a netmask
+		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
+		 * exception is thrown
+		 * @param netmask A string representing a netmask in valid format, for example: ffff:ffff:: for IPv6 networks
+		 * or 255.255.0.0 for IPv4 networks.
+		 * Please notice that netmasks that start with zeros are invalid, for example: 0:ffff:: or 0.255.255.255.
+		 * The only netmask starting with zeros that is valid is all zeros (:: or 0.0.0.0).
+		 * If the netmask is invalid std::invalid_argument exception is thrown
+		 */
+		IPNetwork(const IPAddress& address, const std::string& netmask)
+		{
+			if (address.isIPv4())
+			{
+				m_IPv4Network = new IPv4Network(address.getIPv4(), netmask);
+				m_IPv6Network = nullptr;
+			}
+			else
+			{
+				m_IPv6Network = new IPv6Network(address.getIPv6(), netmask);
+				m_IPv4Network = nullptr;
+			}
+		}
+
+		/**
+		 * A constructor that creates an instance of the class out of a string representing the network prefix and
+		 * a prefix length or a netmask
+		 * @param addressAndNetmask A string in one of these formats:
+		 *  - IP_ADDRESS/Y where IP_ADDRESS is a valid IP address representing the network prefix and Y is
+		 *    a number representing the network prefix
+		 *  - IP_ADDRESS/NETMASK where IP_ADDRESS is a valid IP address representing the network prefix and NETMASK
+		 *    is a valid netmask for this type of network (IPv4 or IPv6 network)
+		 *  For any invalid value std::invalid_argument is thrown
+		 */
+		IPNetwork(const std::string& addressAndNetmask)
+		{
+			try
+			{
+				m_IPv4Network = new IPv4Network(addressAndNetmask);
+				m_IPv6Network = nullptr;
+			}
+			catch (const std::invalid_argument&)
+			{
+				m_IPv6Network = new IPv6Network(addressAndNetmask);
+				m_IPv4Network = nullptr;
+			}
+		}
+
+		/**
+		 * A copy c'tor for this class
+		 * @param other The instance to copy from
+		 */
+		IPNetwork(const IPNetwork& other)
+		{
+			m_IPv4Network = nullptr;
+			m_IPv6Network = nullptr;
+
+			if (other.m_IPv4Network)
+			{
+				m_IPv4Network = new IPv4Network(*other.m_IPv4Network);
+			}
+
+			if (other.m_IPv6Network)
+			{
+				m_IPv6Network = new IPv6Network(*other.m_IPv6Network);
+			}
+		}
+
+		/**
+		 * A destructor for this class
+		 */
+		~IPNetwork()
+		{
+			if (m_IPv4Network)
+			{
+				delete m_IPv4Network;
+			}
+
+			if (m_IPv6Network)
+			{
+				delete m_IPv6Network;
+			}
+		}
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] other An instance of IPNetwork to assign
+		 * @return A reference to the assignee
+		 */
+		IPNetwork& operator=(const IPNetwork& other)
+		{
+			if (other.isIPv4Network())
+			{
+				return this->operator=(*other.m_IPv4Network);
+			}
+			else
+			{
+				return this->operator=(*other.m_IPv6Network);
+			}
+		}
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] other An instance of IPv4Network to assign
+		 * @return A reference to the assignee
+		 */
+		IPNetwork& operator=(const IPv4Network& other)
+		{
+			if (m_IPv4Network)
+			{
+				delete m_IPv4Network;
+				m_IPv4Network = nullptr;
+			}
+
+			if (m_IPv6Network)
+			{
+				delete m_IPv6Network;
+				m_IPv6Network = nullptr;
+			}
+
+			m_IPv4Network = new IPv4Network(other);
+
+			return *this;
+		}
+
+		/**
+		 * Overload of an assignment operator.
+		 * @param[in] other An instance of IPv6Network to assign
+		 * @return A reference to the assignee
+		 */
+		IPNetwork& operator=(const IPv6Network& other)
+		{
+			if (m_IPv4Network)
+			{
+				delete m_IPv4Network;
+				m_IPv4Network = nullptr;
+			}
+
+			if (m_IPv6Network)
+			{
+				delete m_IPv6Network;
+				m_IPv6Network = nullptr;
+			}
+
+			m_IPv6Network = new IPv6Network(other);
+
+			return *this;
+		}
+
+		/**
+		 * @return The prefix length, for example: the prefix length of 3546::/ffff:: is 16, the prefix length of
+		 * 10.10.10.10/255.0.0.0 is 8
+		 */
+		uint8_t getPrefixLen() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getPrefixLen() : m_IPv6Network->getPrefixLen());
+		}
+
+		/**
+ 		* @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is 255.0.0.0
+ 		*/
+		std::string getNetmask() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getNetmask() : m_IPv6Network->getNetmask());
+		}
+
+		/**
+		 * @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::, the network prefix
+		 * of 10.10.10.10/16 is 10.10.0.0
+		*/
+		IPAddress getNetworkPrefix() const
+		{
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getNetworkPrefix()) : IPAddress(m_IPv6Network->getNetworkPrefix()));
+		}
+
+		/**
+		* @return The lowest non-reserved IP address in this network, for example: the lowest address in 3546::/16 is
+		* 3546::1, the lowest address in 10.10.10.10/16 is 10.10.0.1
+		*/
+		IPAddress getLowestAddress() const
+		{
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getLowestAddress()) : IPAddress(m_IPv6Network->getLowestAddress()));
+		}
+
+		/**
+		 * @return The highest non-reserved IP address in this network, for example: the highest address in 3546::/16 is
+		 * 3546:ffff:ffff:ffff:ffff:ffff:ffff:ffff, the highest address in 10.10.10.10/16 is 10.10.255.254
+		 */
+		IPAddress getHighestAddress() const
+		{
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getHighestAddress()) : IPAddress(m_IPv6Network->getHighestAddress()));
+		}
+
+		/**
+		 * @return The number of addresses in this network, for example: the number of addresses in 16ff::/120 is 256,
+		 * the number of addresses in 10.10.0.0/24 is 256. If the number of addresses exceeds the size of uint64_t
+		 * a std::out_of_range exception is thrown
+		 */
+		uint64_t getTotalAddressCount() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getTotalAddressCount() : m_IPv6Network->getTotalAddressCount());
+		}
+
+		/**
+		 * @return True if this is an IPv4 network, false otherwise
+		 */
+		bool isIPv4Network() const
+		{
+			return m_IPv4Network != nullptr;
+		}
+
+		/**
+		 * @return True if this is an IPv6 network, false otherwise
+		 */
+		bool isIPv6Network() const
+		{
+			return m_IPv6Network != nullptr;
+		}
+
+		/**
+		 * @param address An IP address
+		 * @return True is the address belongs to the network, false otherwise or if the address isn't valid
+		 */
+		bool includes(const IPAddress& address) const
+		{
+			if (m_IPv4Network != nullptr)
+			{
+				if (address.isIPv6())
+				{
+					return false;
+				}
+
+				return m_IPv4Network->includes(address.getIPv4());
+			}
+			else
+			{
+				if (address.isIPv4())
+				{
+					return false;
+				}
+
+				return m_IPv6Network->includes(address.getIPv6());
+			}
+		}
+
+		/**
+		 * @param network An IP network
+		 * @return True is the input network is completely included within this network, false otherwise
+		 */
+		bool includes(const IPNetwork& network) const
+		{
+			if (m_IPv4Network != nullptr)
+			{
+				if (network.isIPv6Network())
+				{
+					return false;
+				}
+
+				return m_IPv4Network->includes(*network.m_IPv4Network);
+			}
+			else
+			{
+				if (network.isIPv4Network())
+				{
+					return false;
+				}
+
+				return m_IPv6Network->includes(*network.m_IPv6Network);
+			}
+		}
+
+		/**
+		 * @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
+		 * fda7:9f81:6c23:275::/64 or 192.168.0.0/16
+		 */
+		std::string toString() const
+		{
+			return (m_IPv4Network != nullptr ? m_IPv4Network->toString() : m_IPv6Network->toString());
+		}
+
+	private:
+		IPv4Network* m_IPv4Network;
+		IPv6Network* m_IPv6Network;
+	};
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
@@ -714,6 +1030,12 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& netwo
 }
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
+{
+	os << network.toString();
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network)
 {
 	os << network.toString();
 	return os;
