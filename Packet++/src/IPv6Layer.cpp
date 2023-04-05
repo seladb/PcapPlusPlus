@@ -291,6 +291,9 @@ void IPv6Layer::computeCalculateFields()
 		case ICMP:
 			nextHeader = PACKETPP_IPPROTO_ICMP;
 			break;
+		case ICMPv6:
+			nextHeader = PACKETPP_IPPROTO_ICMPV6;
+			break;
 		case GREv0:
 		case GREv1:
 			nextHeader = PACKETPP_IPPROTO_GRE;
