@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          apk update && apk add cppcheck python3-dev cargo
+          apk update && apk add cppcheck python3-dev rust cargo
           python3 -m pip install cmake-format
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
