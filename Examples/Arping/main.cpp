@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 	if (!dev->open())
 		EXIT_WITH_ERROR("Couldn't open interface device '" << dev->getName() << "'");
 
-	// verify source MAC is valud
+	// verify source MAC is valid
 	if (!sourceMac.isValid())
 		EXIT_WITH_ERROR("Source MAC address is invalid");
 
