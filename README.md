@@ -226,6 +226,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 20. MPLS
 21. NDP
 22. Raw IP (IPv4 & IPv6)
+23. VRRP (IPv4 & IPv6)
 
 ### Transport Layer (L4)
 
