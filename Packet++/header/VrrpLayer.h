@@ -517,7 +517,7 @@ namespace pcpp {
 				: VrrpLayer(data, dataLen, prevLayer, packet, VRRPv3, addressType) {}
 
 		/**
-		 * @param[in]addressType IP version of virtual IP address
+		 * @param[in] addressType IP version of virtual IP address
 		 * A constructor that allocates a new VRRPv3
 		 */
 		explicit VrrpV3Layer(IPAddress::AddressType addressType) : VrrpLayer(
