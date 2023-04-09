@@ -1,4 +1,3 @@
-#pragma clang diagnostic push
 #ifndef PACKETPP_VRRP_LAYER
 #define PACKETPP_VRRP_LAYER
 
@@ -557,5 +556,3 @@ namespace pcpp {
 }
 
 #endif // PACKETPP_VRRP_LAYER
-
-#pragma clang diagnostic pop

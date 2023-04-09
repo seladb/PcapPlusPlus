@@ -1,4 +1,3 @@
-#pragma clang diagnostic push
 #define LOG_MODULE PacketLogModuleVrrpLayer
 
 #include <SystemUtils.h>
@@ -532,4 +531,3 @@ namespace pcpp {
         return checksum;
     }
 }
-#pragma clang diagnostic pop
