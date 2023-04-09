@@ -53,30 +53,30 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 
     if (m_PrevLayer != nullptr)
     {
-        udpHdr->headerChecksum = 0;
-        PCPP_LOG_DEBUG("UDP data len = " << m_DataLen);
+  		udpHdr->headerChecksum = 0;
+		PCPP_LOG_DEBUG("UDP data len = " << m_DataLen);
 
-        if (m_PrevLayer->getProtocol() == IPv4)
-        {
-            IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
-            IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
+		if (m_PrevLayer->getProtocol() == IPv4)
+		{
+			IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
+			IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
 
-            checksumRes = pcpp::computePseudoHdrChecksum((uint8_t *) udpHdr, getDataLen(), IPAddress::IPv4AddressType,
-                                                         PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+			checksumRes = pcpp::computePseudoHdrChecksum((uint8_t *) udpHdr, getDataLen(), IPAddress::IPv4AddressType,
+														 PACKETPP_IPPROTO_UDP, srcIP, dstIP);
 
-            PCPP_LOG_DEBUG("calculated IPv4 UDP checksum = 0x" << std::uppercase << std::hex << checksumRes);
-        }
-        else if (m_PrevLayer->getProtocol() == IPv6)
-        {
-            IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
-            IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
+			PCPP_LOG_DEBUG("calculated IPv4 UDP checksum = 0x" << std::uppercase << std::hex << checksumRes);
+		}
+		else if (m_PrevLayer->getProtocol() == IPv6)
+		{
+			IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
+			IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
 
-            checksumRes = computePseudoHdrChecksum((uint8_t *) udpHdr, getDataLen(), IPAddress::IPv6AddressType,
-                                                   PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+			checksumRes = computePseudoHdrChecksum((uint8_t *) udpHdr, getDataLen(), IPAddress::IPv6AddressType,
+												   PACKETPP_IPPROTO_UDP, srcIP, dstIP);
 
-            PCPP_LOG_DEBUG("calculated IPv6 UDP checksum = 0xX" << std::uppercase << std::hex << checksumRes);
-        }
-    }
+			PCPP_LOG_DEBUG("calculated IPv6 UDP checksum = 0xX" << std::uppercase << std::hex << checksumRes);
+		}
+	}
 
 	if (checksumRes == 0)
 		checksumRes = 0xffff;

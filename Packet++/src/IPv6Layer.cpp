@@ -265,11 +265,11 @@ void IPv6Layer::parseNextLayer()
 		m_NextLayer = IcmpV6Layer::parseIcmpV6Layer(payload, payloadLen, this, m_Packet);
 		break;
 	}
-    case PACKETPP_IPPROTO_VRRP:
-        m_NextLayer = VrrpLayer::isDataValid(payloadLen)
-                ? VrrpLayer::parseVrrpLayer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType)
-                : static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
-        break;
+	case PACKETPP_IPPROTO_VRRP:
+		m_NextLayer = VrrpLayer::isDataValid(payloadLen)
+			? VrrpLayer::parseVrrpLayer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType)
+			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
@@ -303,9 +303,9 @@ void IPv6Layer::computeCalculateFields()
 		case GREv1:
 			nextHeader = PACKETPP_IPPROTO_GRE;
 			break;
-        case VRRPv3:
-            nextHeader = PACKETPP_IPPROTO_VRRP;
-            break;
+		case VRRPv3:
+			nextHeader = PACKETPP_IPPROTO_VRRP;
+			break;
 		default:
 			break;
 		}

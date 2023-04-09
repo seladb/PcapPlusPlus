@@ -30,6 +30,7 @@ void testSetUp();
 
 #define FILE_INTO_BUFFER(num) \
 	buffer##num
+
 #define READ_FILE_AND_CREATE_PACKET(num, filename) \
   READ_FILE_INTO_BUFFER(num, filename); \
 	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true)

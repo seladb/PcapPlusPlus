@@ -64,7 +64,7 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
 
 uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen, IPAddress::AddressType ipAddrType,
 								  uint8_t protocolType, IPAddress srcIPAddress,
-                                  IPAddress dstIPAddress)
+								  IPAddress dstIPAddress)
 {
 	PCPP_LOG_DEBUG("Compute pseudo header checksum.\n DataLen = " << dataLen << "IPAddrType = "
 				<< ipAddrType << "ProtocolType = " << protocolType << "SrcIP = " << srcIPAddress
@@ -99,12 +99,13 @@ uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen, IPAddress::A
 		checksumRes = computeChecksum(vec, 2);
 	} else {
 		PCPP_LOG_ERROR("Compute pseudo header checksum failed, for unknown IPAddrType = " << ipAddrType);
-    }
+	}
 
 	PCPP_LOG_DEBUG("Pseudo header checksum = 0xX" << std::uppercase << std::hex << checksumRes);
 
 	return checksumRes;
 }
+
 static const uint32_t FNV_PRIME = 16777619u;
 static const uint32_t OFFSET_BASIS = 2166136261u;
 
