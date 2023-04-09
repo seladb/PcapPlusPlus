@@ -287,7 +287,7 @@ namespace pcpp {
 
         /**
          * A method that gets version of this VRRP message
-         * @return One of the values ::Vrrp_Version_2, ::Vrrp_Version_2 according to detected VRRP version or ::Vrrp_Version_Unknown if couldn't detect
+         * @return One of the values ::Vrrp_Version_2 or ::Vrrp_Version_3
          * VRRP version
          */
         uint8_t getVersionFromData() const;
