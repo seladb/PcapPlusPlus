@@ -403,7 +403,7 @@ namespace pcpp {
 
         /**
          * Judge whether the IP address is valid
-         * @paramp[in] ipAddress IP address
+         * @param[in] ipAddress IP address
          * @return true if ipAddress is valid, otherwise return false.
          */
         bool isIPAddressValid(IPAddress &ipAddress) const;
