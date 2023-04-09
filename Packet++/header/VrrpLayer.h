@@ -186,7 +186,6 @@ namespace pcpp {
 
         /**
          * A constructor that allocates a new VRRP
-         * @param[in] version The version to set
          * @param[in] subProtocol The VRRP protocol
          */
         explicit VrrpLayer(ProtocolType subProtocol);
