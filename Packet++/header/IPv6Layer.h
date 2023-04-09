@@ -46,6 +46,37 @@ namespace pcpp
 		/** Destination address */
 		uint8_t ipDst[16];
 	};
+
+    /* IPv6 pseudo header
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |                                                               |
+       +                                                               +
+       |                                                               |
+       +                         Source Address                        +
+       |                                                               |
+       +                                                               +
+       |                                                               |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |                                                               |
+       +                                                               +
+       |                                                               |
+       +                      Destination Address                      +
+       |                                                               |
+       +                                                               +
+       |                                                               |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |                   Upper-Layer Packet Length                   |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |                      zero                     |  Next Header  |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     */
+    struct ip6_pseudo_header {
+        uint8_t ipSrc[16];
+        uint8_t ipDst[16];
+        uint32_t upperLen;
+        uint8_t zero[3];
+        uint8_t nextHeader;
+    };
 #pragma pack(pop)
 
 

@@ -55,6 +55,23 @@ namespace pcpp
 		uint32_t ipDst;
 		/*The options start here. */
 	};
+
+    /* IPv4 pseudo header
+    +--------+--------+--------+--------+
+    |           Source Address          |
+    +--------+--------+--------+--------+
+    |         Destination Address       |
+    +--------+--------+--------+--------+
+    |  Zero  |PROTOCOL|  Upper Length   |
+    +--------+--------+--------+--------+
+     */
+    struct ip4_pseudo_headr {
+        uint32_t ipSrc;
+        uint32_t ipDst;
+        uint8_t zero;
+        uint8_t proto;
+        uint16_t upperLen;
+    };
 #pragma pack(pop)
 
 	/**
@@ -100,6 +117,8 @@ namespace pcpp
 		PACKETPP_IPPROTO_NONE = 59,
 		/** IPv6 Destination options		*/
 		PACKETPP_IPPROTO_DSTOPTS = 60,
+        /** VRRP protocol */
+        PACKETPP_IPPROTO_VRRP = 112,
 		/** Raw IP packets			*/
 		PACKETPP_IPPROTO_RAW = 255,
 		/** Maximum value */

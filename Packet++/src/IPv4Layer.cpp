@@ -9,6 +9,7 @@
 #include "GreLayer.h"
 #include "IgmpLayer.h"
 #include "IPSecLayer.h"
+#include "VrrpLayer.h"
 #include "PacketUtils.h"
 #include <string.h>
 #include <sstream>
@@ -327,6 +328,11 @@ void IPv4Layer::parseNextLayer()
 			? static_cast<Layer*>(new IPv6Layer(payload, payloadLen, this, m_Packet))
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
+    case PACKETPP_IPPROTO_VRRP:
+        m_NextLayer = VrrpLayer::isDataValid(payloadLen)
+             ? VrrpLayer::parseVrrpLayer(payload, payloadLen, this, m_Packet, IPAddress::IPv4AddressType)
+             : static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+        break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
@@ -361,6 +367,10 @@ void IPv4Layer::computeCalculateFields()
 		case IGMPv3:
 			ipHdr->protocol = PACKETPP_IPPROTO_IGMP;
 			break;
+        case VRRPv2:
+        case VRRPv3:
+            ipHdr->protocol = PACKETPP_IPPROTO_VRRP;
+            break;
 		default:
 			break;
 		}

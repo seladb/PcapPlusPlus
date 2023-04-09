@@ -55,6 +55,7 @@ add_library(
   src/TpktLayer.cpp
   src/UdpLayer.cpp
   src/VlanLayer.cpp
+  src/VrrpLayer.cpp
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
   # Force hash-library pcapng to be link fully static
@@ -118,6 +119,7 @@ set(public_headers
     header/TpktLayer.h
     header/UdpLayer.h
     header/VlanLayer.h
+    header/VrrpLayer.h
     header/VxlanLayer.h
     header/WakeOnLanLayer.h)
 

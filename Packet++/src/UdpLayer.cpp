@@ -51,43 +51,32 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	uint16_t checksumRes = 0;
 	uint16_t currChecksumValue = udpHdr->headerChecksum;
 
-	if (m_PrevLayer != nullptr)
-	{
-		udpHdr->headerChecksum = 0;
-		ScalarBuffer<uint16_t> vec[2];
-		PCPP_LOG_DEBUG("data len =  " << m_DataLen);
-		vec[0].buffer = (uint16_t*)m_Data;
-		vec[0].len = m_DataLen;
+    if (m_PrevLayer != nullptr)
+    {
+        udpHdr->headerChecksum = 0;
+        PCPP_LOG_DEBUG("UDP data len = " << m_DataLen);
 
-		if (m_PrevLayer->getProtocol() == IPv4)
-		{
-			uint32_t srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address().toInt();
-			uint32_t dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address().toInt();
-			uint16_t pseudoHeader[6];
-			pseudoHeader[0] = srcIP >> 16;
-			pseudoHeader[1] = srcIP & 0xFFFF;
-			pseudoHeader[2] = dstIP >> 16;
-			pseudoHeader[3] = dstIP & 0xFFFF;
-			pseudoHeader[4] = 0xffff & udpHdr->length;
-			pseudoHeader[5] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
-			vec[1].buffer = pseudoHeader;
-			vec[1].len = 12;
-			checksumRes = computeChecksum(vec, 2);
-			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
-		}
-		else if (m_PrevLayer->getProtocol() == IPv6)
-		{
-			uint16_t pseudoHeader[18];
-			((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address().copyTo((uint8_t*)pseudoHeader);
-			((IPv6Layer*)m_PrevLayer)->getDstIPv6Address().copyTo((uint8_t*)(pseudoHeader+8));
-			pseudoHeader[16] = 0xffff & udpHdr->length;
-			pseudoHeader[17] = htobe16(0x00ff & PACKETPP_IPPROTO_UDP);
-			vec[1].buffer = pseudoHeader;
-			vec[1].len = 36;
-			checksumRes = computeChecksum(vec, 2);
-			PCPP_LOG_DEBUG("calculated checksum = 0x" << std::uppercase << std::hex << checksumRes);
-		}
-	}
+        if (m_PrevLayer->getProtocol() == IPv4)
+        {
+            IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
+            IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
+
+            checksumRes = pcpp::computePseudoHdrChecksum((uint8_t *) udpHdr, getDataLen(), IPAddress::IPv4AddressType,
+                                                         PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+
+            PCPP_LOG_DEBUG("calculated IPv4 UDP checksum = 0x" << std::uppercase << std::hex << checksumRes);
+        }
+        else if (m_PrevLayer->getProtocol() == IPv6)
+        {
+            IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
+            IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
+
+            checksumRes = computePseudoHdrChecksum((uint8_t *) udpHdr, getDataLen(), IPAddress::IPv6AddressType,
+                                                   PACKETPP_IPPROTO_UDP, srcIP, dstIP);
+
+            PCPP_LOG_DEBUG("calculated IPv6 UDP checksum = 0xX" << std::uppercase << std::hex << checksumRes);
+        }
+    }
 
 	if (checksumRes == 0)
 		checksumRes = 0xffff;
