@@ -354,7 +354,7 @@ namespace pcpp {
 			return false;
 		}
 
-		if (!shortenLayer(offset, packetLen - offset)) {
+		if (!shortenLayer((int)offset, packetLen - offset)) {
 			PCPP_LOG_ERROR("Cannot remove all virtual IP address(es), cannot shorted layer");
 			return false;
 		}

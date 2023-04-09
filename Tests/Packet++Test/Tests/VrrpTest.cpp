@@ -115,6 +115,9 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 	vrrpv2Layer.addIPAddress(ipv4Address2);
 	vrrpv2Layer.addIPAddress(ipv4Address3);
 
+	vrrpv2Layer.removeIPAddressAtIndex(2);
+	vrrpv2Layer.addIPAddress(ipv4Address3);
+
 	vrrpv2Packet.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
