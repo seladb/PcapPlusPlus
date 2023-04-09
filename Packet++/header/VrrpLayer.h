@@ -138,6 +138,9 @@ namespace pcpp {
         uint8_t *ipAddresses[];
     };
 
+    /**
+     * VRRP versions
+     */
     enum VrrpVersion {
         /** Unknown VRRP version */
         /** VRRP version 2 */
