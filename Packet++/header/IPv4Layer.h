@@ -55,23 +55,6 @@ namespace pcpp
 		uint32_t ipDst;
 		/*The options start here. */
 	};
-
-    /* IPv4 pseudo header
-    +--------+--------+--------+--------+
-    |           Source Address          |
-    +--------+--------+--------+--------+
-    |         Destination Address       |
-    +--------+--------+--------+--------+
-    |  Zero  |PROTOCOL|  Upper Length   |
-    +--------+--------+--------+--------+
-     */
-    struct ip4_pseudo_headr {
-        uint32_t ipSrc;
-        uint32_t ipDst;
-        uint8_t zero;
-        uint8_t proto;
-        uint16_t upperLen;
-    };
 #pragma pack(pop)
 
 	/**
