@@ -286,8 +286,8 @@ namespace pcpp {
         uint8_t getIPAddressLen() const;
 
         /**
-         * A method that gets version of this VRRP message
-         * @return One of the values ::Vrrp_Version_2 or ::Vrrp_Version_3
+         * A method that gets VRRP version
+         * @return VRRP version in this message.
          * VRRP version
          */
         uint8_t getVersionFromData() const;
