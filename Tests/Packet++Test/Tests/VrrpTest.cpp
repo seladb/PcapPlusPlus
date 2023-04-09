@@ -30,21 +30,31 @@ PTF_TEST_CASE(VrrpParsingTest) {
 	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(VRRP))
 	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(VRRPv2))
 	PTF_ASSERT_FALSE(vrrpv2Packet.isPacketOfType(VRRPv3))
+	pcpp::Logger::getInstance().suppressLogs();
+	Logger::getInstance().setLogLevel(pcpp::PacketLogModuleVrrpLayer, Logger::Debug);
 	PCPP_LOG_DEBUG(vrrpV2Layer->toString());
+	pcpp::Logger::getInstance().enableLogs();
 
 	auto *vrrpV3IPv4Layer = vrrpv3IPv4Packet.getLayerOfType<VrrpV3Layer>();
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(VRRPv2))
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(VRRPv3))
+	pcpp::Logger::getInstance().suppressLogs();
+	Logger::getInstance().setLogLevel(pcpp::PacketLogModuleVrrpLayer, Logger::Debug);
 	PCPP_LOG_DEBUG(vrrpV3IPv4Layer->toString());
+	pcpp::Logger::getInstance().enableLogs();
 
 	auto *vrrpV3IPv6Layer = vrrpv3IPv6Packet.getLayerOfType<VrrpV3Layer>();
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(VRRPv2))
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(VRRPv3))
+	pcpp::Logger::getInstance().suppressLogs();
+	Logger::getInstance().setLogLevel(pcpp::PacketLogModuleVrrpLayer, Logger::Debug);
 	PCPP_LOG_DEBUG(vrrpV3IPv6Layer->toString());
-
+	pcpp::Logger::getInstance().enableLogs();
 } // VrrpParsingTest
+
+
 
 PTF_TEST_CASE(VrrpCreateAndEditTest) {
 	timeval time = {};
