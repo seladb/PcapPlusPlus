@@ -208,6 +208,7 @@ namespace pcpp {
          * A static method that gets raw VRRP data (byte stream) and returns the version of this VRRP message
          * @param[in] data The VRRP raw data (byte stream)
          * @param[in] dataLen Raw data length
+         * @param[in] prevLayer A pointer to the previous layer
          * @param[in] packet A pointer to the Packet instance where layer will be stored in
          * @param[in] addressType IP address type
          * @return One of the values VRRP v2/v3 according to detected VRRP version or ::UnknownProtocol if couldn't detect
