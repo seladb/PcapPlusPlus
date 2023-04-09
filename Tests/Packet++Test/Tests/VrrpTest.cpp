@@ -84,6 +84,8 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
     vrrpv2Layer.addIPAddress(ipv4Address2);
     vrrpv2Layer.addIPAddress(ipv4Address3);
 
+    PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddresses().size(), 3)
+
     PTF_ASSERT_TRUE(vrrpv2Packet.addLayer(&ethLayer1))
     PTF_ASSERT_TRUE(vrrpv2Packet.addLayer(&ipLayer1))
     PTF_ASSERT_TRUE(vrrpv2Packet.addLayer(&vrrpv2Layer))
@@ -93,10 +95,16 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
     pcpp::Logger::getInstance().suppressLogs();
     PTF_ASSERT_FALSE(vrrpv2Layer.removeIPAddressAtIndex(1))
     pcpp::Logger::getInstance().enableLogs();
-    vrrpv2Packet.computeCalculateFields();
     vrrpv2Layer.addIPAddress(ipv4Address1);
     vrrpv2Layer.addIPAddress(ipv4Address2);
     vrrpv2Layer.addIPAddress(ipv4Address3);
+
+    vrrpv2Layer.removeAllIPAddresses();
+
+    vrrpv2Layer.addIPAddress(ipv4Address1);
+    vrrpv2Layer.addIPAddress(ipv4Address2);
+    vrrpv2Layer.addIPAddress(ipv4Address3);
+
     vrrpv2Packet.computeCalculateFields();
 
     PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
