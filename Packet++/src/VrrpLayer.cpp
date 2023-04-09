@@ -348,7 +348,7 @@ namespace pcpp {
     }
 
     bool VrrpLayer::removeAllIPAddresses() {
-        int offset = VRRP_PACKET_FIX_LEN;
+        size_t offset = VRRP_PACKET_FIX_LEN;
         size_t packetLen = getHeaderLen();
         if (packetLen <= offset) {
             return false;
