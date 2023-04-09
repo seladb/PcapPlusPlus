@@ -109,6 +109,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 
     PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
     PTF_ASSERT_BUF_COMPARE(vrrpv2Packet.getRawPacket()->getRawData(), buffer1, bufferLength1)
+    PCPP_LOG_DEBUG(vrrpv2Packet.toString());
 
     //VRRPv3 IPv4 Packet
     EthLayer ethLayer2(MacAddress("00:00:5e:00:01:01"), MacAddress("01:00:5e:00:00:12"));
@@ -163,6 +164,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 
     PTF_ASSERT_EQUAL(ipv6Packet.getRawPacket()->getRawDataLen(), bufferLength3)
     PTF_ASSERT_BUF_COMPARE(ipv6Packet.getRawPacket()->getRawData(), buffer3, bufferLength3)
+    PCPP_LOG_DEBUG(vrrpv3IPv6Layer.toString());
 
     FREE_FILE_INTO_BUFFER(1)
     FREE_FILE_INTO_BUFFER(2)
