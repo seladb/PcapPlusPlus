@@ -300,8 +300,7 @@ namespace pcpp {
 
         /**
          * A method that gets VRRP type
-         * @return VRRP type set in vrrp_packet#type as ::VrrpType enum. Notice that if vrrp_packet#type contains a value
-         * that doesn't appear in the ::VrrpType enum, ::VrrpType_Unknown will be returned
+         * @return VRRP type set in vrrp_packet#type as ::VrrpType enum.
          */
         VrrpType getType() const;
 
