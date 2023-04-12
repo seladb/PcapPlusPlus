@@ -19,35 +19,30 @@ namespace pcpp {
 		m_Data = new uint8_t[m_DataLen];
 		memset(m_Data, 0, m_DataLen);
 		m_Protocol = subProtocol;
-
-		getPacketPtr()->ipAddrCount = 0;
-		getPacketPtr()->version = getVersionFromData();
-
-		m_addressType = IPAddress::IPv4AddressType;
+		m_AddressType = IPAddress::IPv4AddressType;
 	}
 
-	bool VrrpLayer::isDataValid(size_t dataLen) {
-		return (dataLen > VRRP_PACKET_FIX_LEN);
-	}
+	ProtocolType VrrpLayer::getVersionFromData(uint8_t *data, size_t dataLen) {
+		if (dataLen <= VRRP_PACKET_FIX_LEN) {
+			return UnknownProtocol;
+		}
 
-	VrrpLayer *VrrpLayer::parseVrrpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet,
-										 IPAddress::AddressType addressType) {
 		auto *vrrpPacketCommon = (vrrp_packet *) data;
 		uint8_t version = vrrpPacketCommon->version;
-		switch (version) {
+		switch (version)
+		{
 			case Vrrp_Version_2:
-				return new VrrpV2Layer(data, dataLen, prevLayer, packet);
+				return VRRPv2;
 			case Vrrp_Version_3:
-				return new VrrpV3Layer(data, dataLen, prevLayer, packet, addressType);
-			default: {
-				return nullptr;
-			}
+				return VRRPv3;
+			default:
+				return UnknownProtocol;
 		}
 	}
 
 	void VrrpLayer::computeCalculateFields() {
 		// calculate and fill the checksum to packet
-		fillChecksum();
+		calculateAndSetChecksum();
 	}
 
 	uint8_t VrrpLayer::isIPv4Packet() const {
@@ -411,11 +406,11 @@ namespace pcpp {
 	}
 
 	IPAddress::AddressType VrrpLayer::getAddressType() const {
-		return m_addressType;
+		return m_AddressType;
 	}
 
 	void VrrpLayer::setAddressType(IPAddress::AddressType addressType) {
-		m_addressType = addressType;
+		m_AddressType = addressType;
 	}
 
 	/*************
@@ -433,7 +428,7 @@ namespace pcpp {
 		return toStr;
 	}
 
-	uint8_t VrrpV2Layer::getAdvInt() const {
+	uint16_t VrrpV2Layer::getAdvInt() const {
 		auto *packet = (vrrp_packet *) getData();
 		uint16_t authAdvInt = packet->authTypeAdvInt;
 		auto *authAdvIntPtr = (vrrpv2_auth_adv *) (&authAdvInt);
@@ -447,17 +442,9 @@ namespace pcpp {
 		return authAdvIntPtr->authType;
 	}
 
-	uint16_t VrrpV2Layer::fillChecksum() {
+	void VrrpV2Layer::calculateAndSetChecksum() {
 		auto *vrrpPacket = (vrrp_packet *) getData();
-		ScalarBuffer<uint16_t> buffer = {};
-		buffer.buffer = (uint16_t *) getData();
-		buffer.len = getHeaderLen();
-
-		vrrpPacket->checksum = 0;
-		uint16_t checksum = computeChecksum(&buffer, 1);
-		vrrpPacket->checksum = htobe16(checksum);
-
-		return checksum;
+		vrrpPacket->checksum = htobe16(calculateChecksum());
 	}
 
 	uint16_t VrrpV2Layer::calculateChecksum() const {
@@ -465,16 +452,15 @@ namespace pcpp {
 			return 0;
 		}
 
-		auto *vrrpPacketCopy = (vrrp_packet *) new uint8_t[getDataLen()];
-		memcpy(vrrpPacketCopy, getData(), getDataLen());
-
+		auto *vrrpPacket = (vrrp_packet *) getData();
 		ScalarBuffer<uint16_t> buffer = {};
-		buffer.buffer = (uint16_t *) vrrpPacketCopy;
+		buffer.buffer = (uint16_t *) vrrpPacket;
 		buffer.len = getHeaderLen();
 
-		vrrpPacketCopy->checksum = 0;
+		uint16_t currChecksumValue = vrrpPacket->checksum;
+		vrrpPacket->checksum = 0;
 		uint16_t checksum = computeChecksum(&buffer, 1);
-		delete[] vrrpPacketCopy;
+		vrrpPacket->checksum = currChecksumValue;
 
 		return checksum;
 	}
@@ -488,20 +474,18 @@ namespace pcpp {
 		return toStr;
 	}
 
-	uint8_t VrrpV3Layer::getAdvInt() const {
+	uint16_t VrrpV3Layer::getAdvInt() const {
 		auto *packet = (vrrp_packet *) getData();
 		uint16_t authAdvInt = packet->authTypeAdvInt;
 		auto *rsvdAdv = (vrrpv3_rsvd_adv *) (&authAdvInt);
 		return rsvdAdv->maxAdvInt;
 	}
 
-	uint16_t VrrpV3Layer::fillChecksum() {
+	void VrrpV3Layer::calculateAndSetChecksum() {
 		auto *vrrpPacket = (vrrp_packet *) getData();
 		uint16_t checksum = calculateChecksum();
 
 		vrrpPacket->checksum = htobe16(checksum);
-
-		return checksum;
 	}
 
 	uint16_t VrrpV3Layer::calculateChecksum() const {
@@ -511,22 +495,22 @@ namespace pcpp {
 			return 0;
 		}
 
-		auto *vrrpPacketCopy = (vrrp_packet *) new uint8_t[getDataLen()];
-		memcpy(vrrpPacketCopy, getData(), getDataLen());
-		vrrpPacketCopy->checksum = 0;
+		auto *vrrpPacket = (vrrp_packet *) getData();
+		uint16_t currChecksumValue = vrrpPacket->checksum;
+		vrrpPacket->checksum = 0;
 
 		pcpp::IPAddress srcIPAddr = ipLayer->getSrcIPAddress();
 		pcpp::IPAddress dstIPAddr = ipLayer->getDstIPAddress();
 		uint16_t checksum;
 		if (isIPv4Packet()) {
-			checksum = computePseudoHdrChecksum((uint8_t *) vrrpPacketCopy, getDataLen(), IPAddress::IPv4AddressType,
+			checksum = computePseudoHdrChecksum((uint8_t *) vrrpPacket, getDataLen(), IPAddress::IPv4AddressType,
 												PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
 		} else {
-			checksum = computePseudoHdrChecksum((uint8_t *) vrrpPacketCopy, getDataLen(), IPAddress::IPv6AddressType,
+			checksum = computePseudoHdrChecksum((uint8_t *) vrrpPacket, getDataLen(), IPAddress::IPv6AddressType,
 												PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
 		}
 
-		delete[]vrrpPacketCopy;
+		vrrpPacket->checksum = currChecksumValue;
 
 		return checksum;
 	}

@@ -2,7 +2,6 @@
 #define PACKETPP_VRRP_LAYER
 
 #include "Layer.h"
-#include "Logger.h"
 #include "IpAddress.h"
 #include <vector>
 
@@ -77,7 +76,7 @@ namespace pcpp {
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		|Version| Type  | Virtual Rtr ID|   Priority    |Count IPvX Addr|
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		|(varLenFlag) |     Max Adver Int     |          Checksum             |
+		|(varLenFlag) |     Max Adver Int     |          Checksum       |
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		|                                                               |
 		+                                                               +
@@ -142,7 +141,6 @@ namespace pcpp {
 	 * VRRP versions
 	 */
 	enum VrrpVersion {
-		/** Unknown VRRP version */
 		/** VRRP version 2 */
 		Vrrp_Version_2 = 2,
 
@@ -174,14 +172,14 @@ namespace pcpp {
 		*/
 		bool addIPAddressesAt(const std::vector<IPAddress> &ipAddresses, int offset);
 
-		IPAddress::AddressType m_addressType;
+		IPAddress::AddressType m_AddressType;
 
-	public:
+	protected:
 		VrrpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet, ProtocolType vrrpVer,
 				  IPAddress::AddressType addressType)
 				: Layer(data, dataLen, prevLayer, packet) {
 			m_Protocol = vrrpVer;
-			m_addressType = addressType;
+			m_AddressType = addressType;
 		}
 
 		/**
@@ -189,6 +187,8 @@ namespace pcpp {
 		 * @param[in] subProtocol The VRRP protocol
 		 */
 		explicit VrrpLayer(ProtocolType subProtocol);
+
+	public:
 
 		virtual ~VrrpLayer() {}
 
@@ -205,30 +205,18 @@ namespace pcpp {
 		void setAddressType(IPAddress::AddressType addressType);
 
 		/**
-		 * A static method that gets raw VRRP data (byte stream) and returns the version of this VRRP message
-		 * @param[in] data The VRRP raw data (byte stream)
-		 * @param[in] dataLen Raw data length
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 * @param[in] addressType IP address type
-		 * @return One of the values VRRP v2/v3 according to detected VRRP version or ::UnknownProtocol if couldn't detect
-		 * VRRP version
-		 */
-		static VrrpLayer *parseVrrpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet,
-										 IPAddress::AddressType addressType);
-
-		/**
 		 * A static method that validates the input data
+		 * @param[in] data The VRRP raw data (byte stream)
 		 * @param[in] dataLen The length of byte stream
-		 * @return True if the data is valid and can represent an VRRP layer
+		 * @return One of the values ::VRRPv2, ::VRRPv3 according to detected VRRP version or ::UnknownProtocol if couldn't detect
+	 	 * VRRP version
 		 */
-		static bool isDataValid(size_t dataLen);
+		static ProtocolType getVersionFromData(uint8_t *data, size_t dataLen);
 
 		/**
 		 * Fill the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum
-		 * @return The checksum result
 		 */
-		virtual uint16_t fillChecksum() = 0;
+		virtual void calculateAndSetChecksum() = 0;
 
 		/**
 		 * Calculate the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum
@@ -321,7 +309,7 @@ namespace pcpp {
 		* A method that gets (maximum) VRRP advertisement interval
 		* @return The (maximum) advertisement interval in this message
 		*/
-		virtual uint8_t getAdvInt() const = 0;
+		virtual uint16_t getAdvInt() const = 0;
 
 		/**
 		* A method that gets VRRP checksum
@@ -479,7 +467,7 @@ namespace pcpp {
 		* A method that gets VRRP advertisement interval
 		* @return The advertisement interval in this message
 		*/
-		uint8_t getAdvInt() const;
+		uint16_t getAdvInt() const;
 
 		/**
 		* A method that gets VRRP authentication type
@@ -488,10 +476,9 @@ namespace pcpp {
 		uint8_t getAuthType() const;
 
 		/**
-		* Fill the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum
-		* @return The checksum result
+		* Calculate and set the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum
 		*/
-		uint16_t fillChecksum();
+		void calculateAndSetChecksum();
 
 		/**
 		* Calculate the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum
@@ -511,7 +498,6 @@ namespace pcpp {
 		* @param[in] dataLen Size of the data in bytes
 		* @param[in] prevLayer A pointer to the previous layer
 		* @param[in] packet A pointer to the Packet instance where layer will be stored in
-		* @param[in] addressType IP address type
 		*/
 		VrrpV3Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet, IPAddress::AddressType addressType)
 				: VrrpLayer(data, dataLen, prevLayer, packet, VRRPv3, addressType) {}
@@ -541,13 +527,12 @@ namespace pcpp {
 		* A method that gets VRRP maximum advertisement interval
 		* @return The maximum advertisement interval in this message
 		*/
-		uint8_t getAdvInt() const;
+		uint16_t getAdvInt() const;
 
 		/**
 		* Fill the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum
-		* @return The checksum result
 		*/
-		uint16_t fillChecksum();
+		void calculateAndSetChecksum();
 
 		/**
 		* Calculate the checksum from header and data and possibly write the result to @ref vrrp_packet#checksum

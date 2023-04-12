@@ -247,6 +247,7 @@ void IPv4Layer::parseNextLayer()
 
 	ProtocolType greVer = UnknownProtocol;
 	ProtocolType igmpVer = UnknownProtocol;
+	ProtocolType vrrpVer = UnknownProtocol;
 	bool igmpQuery = false;
 
 	uint8_t ipVersion = 0;
@@ -329,10 +330,14 @@ void IPv4Layer::parseNextLayer()
 			: static_cast<Layer*>(new PayloadLayer(payload, payloadLen, this, m_Packet));
 		break;
 	case PACKETPP_IPPROTO_VRRP:
-		m_NextLayer = VrrpLayer::isDataValid(payloadLen)
-			? VrrpLayer::parseVrrpLayer(payload, payloadLen, this, m_Packet, IPAddress::IPv4AddressType)
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
-			break;
+		vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
+		if (vrrpVer == VRRPv2)
+			m_NextLayer = new VrrpV2Layer(payload, payloadLen, this, m_Packet);
+		else if (vrrpVer == VRRPv3)
+			m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, m_Packet, IPAddress::IPv4AddressType);
+		else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}

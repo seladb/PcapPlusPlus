@@ -8,7 +8,6 @@
 #include "GreLayer.h"
 #include "IPSecLayer.h"
 #include "IcmpV6Layer.h"
-#include "NdpLayer.h"
 #include "VrrpLayer.h"
 #include "Packet.h"
 #include <string.h>
@@ -218,6 +217,8 @@ void IPv6Layer::parseNextLayer()
 		nextHdr = getIPv6Header()->nextHeader;
 	}
 
+	ProtocolType vrrpVer;
+
 	switch (nextHdr)
 	{
 	case PACKETPP_IPPROTO_UDP:
@@ -266,9 +267,11 @@ void IPv6Layer::parseNextLayer()
 		break;
 	}
 	case PACKETPP_IPPROTO_VRRP:
-		m_NextLayer = VrrpLayer::isDataValid(payloadLen)
-			? VrrpLayer::parseVrrpLayer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType)
-			: static_cast<Layer *>(new PayloadLayer(payload, payloadLen, this, m_Packet));
+		vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
+		if (vrrpVer == VRRPv3)
+			m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType);
+		else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

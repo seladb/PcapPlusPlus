@@ -122,7 +122,9 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 
 	PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
 	PTF_ASSERT_BUF_COMPARE(vrrpv2Packet.getRawPacket()->getRawData(), buffer1, bufferLength1)
+	pcpp::Logger::getInstance().suppressLogs();
 	PCPP_LOG_DEBUG(vrrpv2Packet.toString());
+	pcpp::Logger::getInstance().enableLogs();
 
 	//VRRPv3 IPv4 Packet
 	EthLayer ethLayer2(MacAddress("00:00:5e:00:01:01"), MacAddress("01:00:5e:00:00:12"));
@@ -148,7 +150,9 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Packet.getRawPacket()->getRawDataLen(), bufferLength2)
 	PTF_ASSERT_BUF_COMPARE(vrrpv3IPv4Packet.getRawPacket()->getRawData(), buffer2, bufferLength2)
+	pcpp::Logger::getInstance().suppressLogs();
 	PCPP_LOG_DEBUG(vrrpv3IPv4Packet.toString());
+	pcpp::Logger::getInstance().enableLogs();
 
 	//VRRPv3 IPv6 Packet
 	EthLayer ethLayer3(MacAddress("00:00:5e:00:01:01"), MacAddress("01:00:5e:00:00:12"));
@@ -177,9 +181,12 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 
 	PTF_ASSERT_EQUAL(ipv6Packet.getRawPacket()->getRawDataLen(), bufferLength3)
 	PTF_ASSERT_BUF_COMPARE(ipv6Packet.getRawPacket()->getRawData(), buffer3, bufferLength3)
+	pcpp::Logger::getInstance().suppressLogs();
 	PCPP_LOG_DEBUG(vrrpv3IPv6Layer.toString());
+	pcpp::Logger::getInstance().enableLogs();
 
 	FREE_FILE_INTO_BUFFER(1)
 	FREE_FILE_INTO_BUFFER(2)
 	FREE_FILE_INTO_BUFFER(3)
+
 } // VrrpCreateAndEditTest

@@ -316,6 +316,7 @@ namespace pcpp
 	 * VRRP version 3 protocol
 	 */
 	const ProtocolType VRRPv3 = 0x2000000000000;
+
 	/**
 	 * An enum representing OSI model layers
 	 */
