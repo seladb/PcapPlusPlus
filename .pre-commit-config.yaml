@@ -25,7 +25,7 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.9.16
+    rev: v1.14.6
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
