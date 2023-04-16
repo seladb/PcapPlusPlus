@@ -363,7 +363,7 @@ namespace pcpp
 			uint64_t rxPacketsDroppedByHW;
 			/** Total number of erroneous packets */
 			uint64_t rxErroneousPackets;
-			/** Total number of RX mbuf allocation failuers */
+			/** Total number of RX mbuf allocation failures */
 			uint64_t rxMbufAlocFailed;
 		};
 
