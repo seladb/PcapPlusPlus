@@ -387,6 +387,8 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new FtpResponseLayer(payload, payloadLen, this, m_Packet);
 	else if (FtpLayer::isFtpPort(portDst) && FtpLayer::isDataValid(payload, payloadLen))
 		m_NextLayer = new FtpRequestLayer(payload, payloadLen, this, m_Packet);
+	else if (FtpLayer::isFtpDataPort(portDst))
+		m_NextLayer = new FtpDataLayer(payload, payloadLen, this, m_Packet);
 	else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet);
 	else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
