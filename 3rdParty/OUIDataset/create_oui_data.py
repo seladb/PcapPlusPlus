@@ -165,6 +165,7 @@ def main() -> None:
             ensure_ascii=False,
             cls=EnhancedJSONEncoder,
         )
+        out_file.write("\n")
 
 
 if __name__ == "__main__":
