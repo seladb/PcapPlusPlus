@@ -98,14 +98,14 @@ PTF_TEST_CASE(FtpParsingTests)
 		"Command not implemented");
 
 	// Test FTP Data
-	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/ftpData.dat");
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/ftp-data.dat");
 
 	pcpp::Packet ftpDataPacket(&rawPacket6);
 	pcpp::FtpDataLayer *ftpDataLayer = ftpDataPacket.getLayerOfType<pcpp::FtpDataLayer>();
 
 	PTF_ASSERT_NOT_NULL(ftpDataLayer);
 
-	PTF_ASSERT_EQUAL(ftpDataLayer->getDataLen(), 0);
+	PTF_ASSERT_EQUAL(ftpDataLayer->getDataLen(), 1452);
 	PTF_ASSERT_EQUAL(ftpDataLayer->toString(), "FTP Data");
 }
 

@@ -492,7 +492,7 @@ namespace pcpp
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const;
-	}
+	};
 } // namespace pcpp
 
 #endif /* PACKETPP_FTP_LAYER */
