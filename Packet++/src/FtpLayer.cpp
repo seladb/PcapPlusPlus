@@ -379,4 +379,9 @@ namespace pcpp
 		return "FTP Response: " + getStatusCodeString();
 	}
 
+	std::string FtpDataLayer::toString() const
+	{
+		return "FTP Data";
+	}
+
 } // namespace pcpp

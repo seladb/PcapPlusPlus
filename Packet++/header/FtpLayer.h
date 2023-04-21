@@ -2,6 +2,7 @@
 #define PACKETPP_FTP_LAYER
 
 #include "SingleCommandTextProtocol.h"
+#include "PayloadLayer.h"
 
 /// @file
 
@@ -24,10 +25,16 @@ namespace pcpp
 	public:
 
 		/**
-		 * A static method that checks whether the port is considered as FTP
+		 * A static method that checks whether the port is considered as FTP control
 		 * @param[in] port The port number to be checked
 		 */
 		static bool isFtpPort(uint16_t port) { return port == 21; }
+
+		/**
+		 * A static method that checks whether the port is considered as FTP data
+		 * @param[in] port The port number to be checked
+		 */
+		static bool isFtpDataPort(uint16_t port) { return port == 20; }
 
 		// overridden methods
 
@@ -459,6 +466,27 @@ namespace pcpp
 		static std::string getStatusCodeAsString(FtpStatusCode code);
 
 		// overridden methods
+
+		/**
+		 * @return Returns the protocol info as readable string
+		 */
+		std::string toString() const;
+	};
+
+	/**
+	 * Class for representing the data of FTP Layer
+	 */
+	class FtpDataLayer : public PayloadLayer
+	{
+	public:
+
+		/** A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		FtpDataLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : PayloadLayer(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
 
 		/**
 		 * @return Returns the protocol info as readable string
