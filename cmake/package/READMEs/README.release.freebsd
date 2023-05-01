@@ -1,0 +1,42 @@
+
+PcapPlusPlus web-site:  https://pcapplusplus.github.io/
+
+GitHub page:            https://github.com/seladb/PcapPlusPlus
+
+
+This package contains:
+----------------------
+
+ - PcapPlusPlus compiled libraries
+    - libCommon++.a
+    - libPacket++.a
+    - libPcap++.a
+ - PcapPlusPlus header files (under `header/`)
+ - Compiled examples (under `examples/`)
+ - Installation scripts (`install.sh` & `uninstall.sh`)
+ - Code example with a simple Makefile showing how to build applications using PcapPlusPlus compiled binaries (under `example-app/`)
+
+
+Installation:
+-------------
+
+ - For installing the package simply run: `sudo ./install.sh`
+
+
+Running the examples:
+---------------------
+
+ - Make sure you have libpcap installed (run `pkg install libpcap` to install it)
+ - You may need to run the executables as sudo
+
+
+In order to compile your application with these binaries you need to:
+---------------------------------------------------------------------
+
+ - Make sure you have libpcap developer pack installed (run `pkg install libpcap` to install it)
+ - Make sure the binaries match your OS version (for example: `pcapplusplus-22.05-freebsd-12.3-clang-4.2.1.tar.gz` pack may not work in FreeBSD 13.0)
+ - Make sure PcapPlusPlus is installed (see Installation section above)
+ - Include `/usr/local/etc/PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes and libs in relevant places in your Makefile 
+     - You may follow the example under `example-app/`
+
+

@@ -300,31 +300,6 @@ if(PCAPPP_PACKAGE)
       "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
   )
 
-  if (APPLE)
-    # Apple productbuild cannot handle .md or file without extension
-    # Use textutil to convert them to HTML
-    find_program(CONVERTER textutil)
-    if (NOT CONVERTER)
-      message(FATAL_ERROR "textutil executable not found")
-    endif()
-    execute_process(COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/LICENSE" -output "${CMAKE_BINARY_DIR}/LICENSE.html")
-    execute_process(COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/README.md" -output "${CMAKE_BINARY_DIR}/README.html")
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/LICENSE.html")
-    set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.html")
-  else()
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-    set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
-  endif()
-
-  # used in CPackAdditionalInstall.cmake
-  set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
-  set(CPACK_ADDITIONAL_EXAMPLE_APP
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/1_packet.pcap"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/CMakeLists.txt"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/main.cpp"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/README.md")
-  set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
-
   # Default output a .tar.gz
   set(CPACK_GENERATOR "TGZ")
 
@@ -344,22 +319,27 @@ if(PCAPPP_PACKAGE)
     "."
     PCAPP_CXX_COMPILER_VERSION)
 
+  set(_PCAPPP_PACKAGE_README_PATH "${CMAKE_SOURCE_DIR}/cmake/package/READMEs")
+  set(_PCAPPP_PACKAGE_README_OUTFILE "${CMAKE_BINARY_DIR}/README.release.md")
+
   if(ANDROID)
     set(CPACK_SYSTEM_NAME "android-${ANDROID_ABI}-${ANDROID_PLATFORM}")
+    set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.android")
   elseif(APPLE)
-    #set(CPACK_GENERATOR ${CPACK_GENERATOR};productbuild)
+    # set(CPACK_GENERATOR ${CPACK_GENERATOR};productbuild)
     set(CPACK_SYSTEM_NAME
         "macos-${CURRENT_OSX_VERSION}-${CMAKE_OSX_ARCHITECTURES}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}"
     )
+    set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.macos")
   elseif(LINUX)
     # Easier for Packing but requires CMake 3.22
     cmake_minimum_required(VERSION 3.22)
     cmake_host_system_information(RESULT DISTRO_ID QUERY DISTRIB_ID)
     cmake_host_system_information(RESULT DISTRO_VERSION_ID QUERY DISTRIB_VERSION_ID)
     if("${DISTRO_ID}" STREQUAL "ubuntu")
-      #set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
+      # set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
     elseif("${DISTRO_ID}" STREQUAL "centos")
-      #set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
+      # set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
     endif()
     set(CPACK_SYSTEM_NAME
         "${DISTRO_ID}-${DISTRO_VERSION_ID}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}-${CMAKE_SYSTEM_PROCESSOR}"
@@ -368,10 +348,50 @@ if(PCAPPP_PACKAGE)
     # Check MinGW before WIN32 as MinGW defines both
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_SYSTEM_NAME "mingw64-${PCAPPP_TARGET_COMPILER}-${CMAKE_VS_PLATFORM_NAME}-${PCAPP_CXX_COMPILER_VERSION}")
+    set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.win.mingw")
   elseif(WIN32)
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_SYSTEM_NAME "windows-${PCAPPP_TARGET_COMPILER}-${CMAKE_VS_PLATFORM_NAME}-${PCAPP_CXX_COMPILER_VERSION}")
+    set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.win.vs")
   endif()
+
+  # Generate output README
+  file(READ "${_PCAPPP_PACKAGE_README_PATH}/README.release.header" _CONTENT)
+  file(APPEND ${_PCAPPP_PACKAGE_README_OUTFILE} "${_CONTENT}")
+
+  if(_PCAPPP_PACKAGE_README_CUSTOM_PATH)
+    file(READ ${_PCAPPP_PACKAGE_README_CUSTOM_PATH} _CONTENT)
+    file(APPEND ${_PCAPPP_PACKAGE_README_OUTFILE} "${_CONTENT}")
+  endif()
+
+  file(READ "${_PCAPPP_PACKAGE_README_PATH}/release_notes.txt" _CONTENT)
+  file(APPEND ${_PCAPPP_PACKAGE_README_OUTFILE} "${_CONTENT}")
+
+  if(APPLE)
+    # Apple productbuild cannot handle .md or file without extension Use textutil to convert them to HTML
+    find_program(CONVERTER textutil)
+    if(NOT CONVERTER)
+      message(FATAL_ERROR "textutil executable not found")
+    endif()
+    execute_process(COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/LICENSE" -output
+                            "${CMAKE_BINARY_DIR}/LICENSE.html")
+    execute_process(COMMAND ${CONVERTER} -convert html "${_PCAPPP_PACKAGE_README_OUTFILE}" -output
+                            "${CMAKE_BINARY_DIR}/README.html")
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/LICENSE.html")
+    set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.html")
+  else()
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+    set(CPACK_RESOURCE_FILE_README "${_PCAPPP_PACKAGE_README_OUTFILE}")
+  endif()
+
+  # used in CPackAdditionalInstall.cmake
+  set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
+  set(CPACK_ADDITIONAL_EXAMPLE_APP
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/1_packet.pcap"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/CMakeLists.txt"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/main.cpp"
+      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/README.md")
+  set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
 
   include(CPack)
 endif()
