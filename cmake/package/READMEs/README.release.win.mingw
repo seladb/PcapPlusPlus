@@ -34,7 +34,5 @@ In order to compile your application with these binaries you need to:
      - Set `PCAPPLUSPLUS_HOME` to the folder where binaries are located
      - Set `MINGW_HOME` to the folder where MinGW-w64 is installed
      - Set `PCAP_SDK_HOME` to the folder where WinPcap/Npcap Developer's Pack is installed
- - Include `mk\PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile 
+ - Include `mk\PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile
      - You can follow the example under `example-app\`
-
-

@@ -30,7 +30,7 @@ Alternatively you can build and install PcapPlusPlus yourself, by entering PcapP
 
 After installation you can find:
 
- - PcapPlusPlus libraries in `/usr/local/lib` 
+ - PcapPlusPlus libraries in `/usr/local/lib`
  - PcapPlusPlus examples in `/usr/local/bin`
  - Header files in `/usr/local/include/pcapplusplus`
  - A template makefile in `/usr/local/etc`
@@ -56,7 +56,5 @@ In order to compile your application with these binaries you need to:
 
  - Make sure you have libpcap developer pack installed (in Ubuntu: install it using apt-get: `sudo apt-get install libpcap-dev`)
  - Make sure PcapPlusPlus is installed (see Installation section above)
- - Include `/usr/local/etc/PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile 
+ - Include `/usr/local/etc/PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile
      - You can follow the example under `example-app/`
-
-

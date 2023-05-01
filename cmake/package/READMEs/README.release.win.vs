@@ -48,5 +48,3 @@ In order to compile your application with these binaries you need to:
     - Go to "Configuration Properties" -> "General"
     - Open the drop down list next to "Windows SDK version" and choose the version installed on your machine
  - Build result will be in `ExampleProject\Debug` or `ExampleProject\Release` (according to chosen configuration)
-
-

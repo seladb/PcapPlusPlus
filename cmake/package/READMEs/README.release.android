@@ -35,5 +35,3 @@ Using these binaris in ToyVpn-PcapPlusPlus
  - [ToyVpn-PcapPlusPlus](https://github.com/seladb/ToyVpn-PcapPlusPlus) is an example project that demonstrates how PcapPlusPlus can be used in Android apps. It is built on top of Android's ToyVpn Example and adds a layer of network traffic analysis for the packets processed by ToyVPN
  - Copy the content of this package (everything under `include`, `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`) to `app/libs/pcapplusplus`
  - [ToyVpn-PcapPlusPlus's README file](https://github.com/seladb/ToyVpn-PcapPlusPlus/blob/master/README.md) contains detailed instructions on how to set up the app. You can of course skip the steps which show how to build PcapPlusPlus
-
-
