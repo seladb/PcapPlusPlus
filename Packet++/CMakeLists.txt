@@ -40,6 +40,7 @@ add_library(
   src/SingleCommandTextProtocol.cpp
   src/SipLayer.cpp
   src/SllLayer.cpp
+  src/Sll2Layer.cpp
   src/SomeIpLayer.cpp
   src/SomeIpSdLayer.cpp
   src/SSHLayer.cpp
@@ -103,6 +104,7 @@ set(public_headers
     header/SingleCommandTextProtocol.h
     header/SipLayer.h
     header/SllLayer.h
+    header/Sll2Layer.h
     header/SomeIpLayer.h
     header/SomeIpSdLayer.h
     header/SSHLayer.h

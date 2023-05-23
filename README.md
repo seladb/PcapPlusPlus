@@ -213,6 +213,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 10. VXLAN
 11. Wake on LAN (WoL)
 12. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
+13. SLL2 (Linux cooked capture v2)
 
 ### Network Layer (L3)
 

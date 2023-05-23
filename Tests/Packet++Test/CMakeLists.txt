@@ -25,6 +25,7 @@ add_executable(
   Tests/RadiusTests.cpp
   Tests/SipSdpTests.cpp
   Tests/SllNullLoopbackTests.cpp
+  Tests/Sll2Tests.cpp
   Tests/SomeIpSdTests.cpp
   Tests/SomeIpTests.cpp
   Tests/SSHTests.cpp

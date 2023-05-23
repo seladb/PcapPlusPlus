@@ -303,6 +303,11 @@ namespace pcpp
 	const ProtocolType TPKT = 0x800000000000;
 
 	/**
+	 * SLL2 protocol
+	 */
+	const ProtocolType SLL2 = 0x1000000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer

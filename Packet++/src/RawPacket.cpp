@@ -298,6 +298,7 @@ bool RawPacket::isLinkTypeValid(int linkTypeValue)
 		case LINKTYPE_ZWAVE_R3:
 		case LINKTYPE_WATTSTOPPER_DLM:
 		case LINKTYPE_ISO_14443:
+		case LINKTYPE_LINUX_SLL2:
 			return true;
 		default:
 			return false;

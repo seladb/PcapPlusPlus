@@ -95,6 +95,9 @@ PTF_TEST_CASE(SllPacketParsingTest);
 PTF_TEST_CASE(SllPacketCreationTest);
 PTF_TEST_CASE(NullLoopbackTest);
 
+// Implemented in Sll2Tests.cpp
+PTF_TEST_CASE(Sll2PacketParsingTest);
+
 // Implemented in NflogTests.cpp
 PTF_TEST_CASE(NflogPacketParsingTest);
 
