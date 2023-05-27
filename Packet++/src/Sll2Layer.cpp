@@ -14,6 +14,19 @@
 
 namespace pcpp
 {
+Sll2Layer::Sll2Layer(uint32_t interfaceIndexType, uint16_t ARPHRDType, uint8_t packetType)
+{
+	const size_t headerLen = sizeof(sll2_header);
+	m_DataLen = headerLen;
+	m_Data = new uint8_t[headerLen];
+	memset(m_Data, 0, headerLen);
+	sll2_header* sll2Hdr = (sll2_header*)m_Data;
+	sll2Hdr->packet_type = packetType;
+	sll2Hdr->ARPHRD_type = htobe16(ARPHRDType);
+	sll2Hdr->interface_index_type = htobe32(interfaceIndexType);
+	m_Protocol = SLL2;
+}
+
 bool Sll2Layer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 {
 	if (addrLength == 0 || addrLength > 8)
@@ -24,7 +37,7 @@ bool Sll2Layer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 
 	sll2_header* sll2Hdr = (sll2_header*)m_Data;
 	memcpy(sll2Hdr->link_layer_addr, addr, addrLength);
-	sll2Hdr->link_layer_addr_len = htobe16(addrLength);
+	sll2Hdr->link_layer_addr_len = addrLength;
 	return true;
 }
 

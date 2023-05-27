@@ -58,6 +58,14 @@ namespace pcpp
 		 */
 		Sll2Layer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = SLL2; }
 
+		/**
+		 * A constructor that creates a new SLL2 header and allocates the data
+		 * @param[in] interfaceIndexType The interface index type
+		 * @param[in] ARPHRDType The ARPHRD type
+		 * @param[in] packetType The packet type
+		 */
+		Sll2Layer(uint32_t interfaceIndexType, uint16_t ARPHRDType, uint8_t packetType);
+
 		~Sll2Layer() {}
 
 		/**
