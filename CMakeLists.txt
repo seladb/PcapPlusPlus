@@ -233,7 +233,9 @@ if(PCAPPP_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif()
 
-if(PCAPPP_BUILD_TESTS)
+if(PCAPPP_BUILD_TESTS
+   OR PCAPPP_BUILD_FUZZERS
+   OR PCAPPP_BUILD_EXAMPLES)
   include(CTest)
   add_subdirectory(Tests)
 endif()
