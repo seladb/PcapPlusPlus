@@ -238,10 +238,6 @@ if(PCAPPP_BUILD_TESTS)
   add_subdirectory(Tests)
 endif()
 
-if(PCAPPP_BUILD_FUZZERS)
-  add_subdirectory(Tests/Fuzzers)
-endif()
-
 if(PCAPPP_INSTALL)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "seladb")
   set(CPACK_PACKAGE_FILE_NAME PcapPlusPlus-${PCAPPP_VERSION})
