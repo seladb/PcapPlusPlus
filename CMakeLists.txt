@@ -81,7 +81,7 @@ cmake_dependent_option(
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
-option(PCAPPP_BUILD_FUZZERS "Build Tests" ${PCAPPP_BUILD_TESTS})
+option(PCAPPP_BUILD_FUZZERS "Build Tests" OFF)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
