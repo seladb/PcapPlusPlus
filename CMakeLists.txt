@@ -81,12 +81,7 @@ cmake_dependent_option(
   OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
-cmake_dependent_option(
-  PCAPPP_BUILD_FUZZERS
-  "Build Fuzzers binaries"
-  OFF
-  "PCAPPP_BUILD_TESTS"
-  OFF)
+option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -238,7 +233,9 @@ if(PCAPPP_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif()
 
-if(PCAPPP_BUILD_TESTS)
+if(PCAPPP_BUILD_TESTS
+   OR PCAPPP_BUILD_FUZZERS
+   OR PCAPPP_BUILD_EXAMPLES)
   include(CTest)
   add_subdirectory(Tests)
 endif()
