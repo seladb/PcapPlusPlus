@@ -631,6 +631,20 @@ uint32_t SomeIpSdLayer::addEntry(const SomeIpSdEntry &entry)
 	return getNumEntries() - 1;
 }
 
+bool SomeIpSdLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
+	if (!data)
+		return false;
+
+	if (dataLen < (sizeof(someipsdhdr) + sizeof(uint32_t)))
+		return false;
+
+	if (dataLen < (sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data)))
+		return false;
+
+	return true;
+}
+
 uint32_t SomeIpSdLayer::countOptions()
 {
 	size_t offsetOption = sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries() + sizeof(uint32_t);
@@ -768,7 +782,12 @@ SomeIpSdLayer::OptionPtr SomeIpSdLayer::parseOption(SomeIpSdOption::OptionType t
 
 size_t SomeIpSdLayer::getLenEntries() const
 {
-	return be32toh(*((uint32_t *)(m_Data + sizeof(someipsdhdr))));
+	return getLenEntries(m_Data);
+}
+
+size_t SomeIpSdLayer::getLenEntries(const uint8_t* data)
+{
+	return be32toh(*((uint32_t *)(data + sizeof(someipsdhdr))));
 }
 
 size_t SomeIpSdLayer::getLenOptions() const

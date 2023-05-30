@@ -663,6 +663,14 @@ public:
 	static bool isSomeIpSdPort(uint16_t port) { return port == 30490; }
 
 	/**
+	* The static method makes validation of input data
+	* @param[in] data The pointer to the beginning of byte stream of IP packet
+	* @param[in] dataLen The length of byte stream
+	* @return True if the data is valid and can represent the packet
+	*/
+	static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+	/**
 	 * Get the Flags of the layer
 	 * @return uint8_t Flags
 	 */
@@ -759,6 +767,7 @@ private:
 	bool addOptionIndex(uint32_t indexEntry, uint32_t indexOffset);
 	OptionPtr parseOption(SomeIpSdOption::OptionType type, size_t offset) const;
 
+	static size_t getLenEntries(const uint8_t* data);
 	size_t getLenEntries() const;
 	size_t getLenOptions() const;
 	void setLenEntries(uint32_t length);
