@@ -23,7 +23,7 @@ int dumpDataToPcapFile(const uint8_t *data, size_t size)
 	}
 
 	written = fwrite(data, 1, size, fd);
-	if (written != size)
+	if (static_cast<size_t>(written) != size)
 	{
 		std::cerr << "Error writing pcap file\n";
 		fclose(fd);
