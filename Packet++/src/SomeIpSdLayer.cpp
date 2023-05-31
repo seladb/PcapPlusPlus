@@ -633,14 +633,10 @@ uint32_t SomeIpSdLayer::addEntry(const SomeIpSdEntry &entry)
 
 bool SomeIpSdLayer::isDataValid(const uint8_t* data, size_t dataLen)
 {
-	if (!data)
+	if (!data || dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) || dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data))
+	{
 		return false;
-
-	if (dataLen < (sizeof(someipsdhdr) + sizeof(uint32_t)))
-		return false;
-
-	if (dataLen < (sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data)))
-		return false;
+	}
 
 	return true;
 }
