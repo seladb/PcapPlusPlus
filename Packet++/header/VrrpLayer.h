@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 	/**
 	For more info see:
 		https://datatracker.ietf.org/doc/html/rfc2338
@@ -98,7 +99,7 @@ namespace pcpp {
 		version: 4;
 #else
 		/** Version bits */
-		uint8_t verson:4,
+		uint8_t version:4,
 
 		/** Type */
 		type: 4;
@@ -148,7 +149,8 @@ namespace pcpp {
 	 * only its child classes can be instantiated. The inherited classes represent the different versions of the protocol:
 	 * VRRPv2 and VRRPv3
 	 */
-	class VrrpLayer : public Layer {
+	class VrrpLayer : public Layer
+	{
 	private:
 		bool addIPAddressesAt(const std::vector<IPAddress> &ipAddresses, int offset);
 
@@ -157,9 +159,9 @@ namespace pcpp {
 	protected:
 		VrrpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet, ProtocolType vrrpVer,
 				  IPAddress::AddressType addressType)
-				: Layer(data, dataLen, prevLayer, packet) {
+				: Layer(data, dataLen, prevLayer, packet), m_AddressType(addressType)
+		{
 			m_Protocol = vrrpVer;
-			m_AddressType = addressType;
 		}
 
 		/**
@@ -397,7 +399,8 @@ namespace pcpp {
 	 * @class VrrpV2Layer
 	 * Represents VRRPv2 (Virtual Router Redundancy Protocol ver 2) layer. This class represents all the different messages of VRRPv2
 	 */
-	class VrrpV2Layer : public VrrpLayer {
+	class VrrpV2Layer : public VrrpLayer
+	{
 	public:
 		/** A constructor that creates the layer from an existing packet raw data
 		* @param[in] data A pointer to the raw data
@@ -453,7 +456,8 @@ namespace pcpp {
 	 * @class VrrpV3Layer
 	 * Represents VRRPv3 (Virtual Router Redundancy Protocol ver 3) layer. This class represents all the different messages of VRRP
 	 */
-	class VrrpV3Layer : public VrrpLayer {
+	class VrrpV3Layer : public VrrpLayer
+	{
 	public:
 		/** A constructor that creates the layer from an existing packet raw data
 		* @param[in] data A pointer to the raw data
