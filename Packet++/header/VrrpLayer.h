@@ -154,7 +154,7 @@ namespace pcpp {
 		* A method that add IP Addresses to data offset
 		* @param ipAddresses [in] IP Address vector
 		* @param offset [in] Data offset
-		* @return ture if add successfully, false otherwise.
+		* @return true if add successfully, false otherwise.
 		*/
 		bool addIPAddressesAt(const std::vector<IPAddress> &ipAddresses, int offset);
 
@@ -336,7 +336,7 @@ namespace pcpp {
 		 * Add virtual IP address at a the end of the virtual IP address list. The vrrp_packet#ipAddressCount field will be
 		 * incremented accordingly
 		 * @param[in] ipAddresses A vector containing all the virtual IP address
-		 * @return ture if add successfully, false otherwise.
+		 * @return true if add successfully, false otherwise.
 		 */
 		bool addIPAddresses(const std::vector<IPAddress> &ipAddresses);
 
@@ -344,7 +344,7 @@ namespace pcpp {
 		 * Add a new virtual IP address at a the end of the virtual IP address list. The vrrp_packet#ipAddressCount field will be
 		 * incremented accordingly
 		 * @param[in] ipAddress A vector containing all the virtual IP address
-		 * @return ture if add successfully, false otherwise.
+		 * @return true if add successfully, false otherwise.
 		 */
 		bool addIPAddress(IPAddress &ipAddress);
 
