@@ -62,7 +62,7 @@ namespace pcpp {
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		|Version| Type  | Virtual Rtr ID|   Priority    |Count IPvX Addr|
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		|(varLenFlag) |     Max Adver Int     |          Checksum       |
+		|(rsvd) |     Max Adver Int     |          Checksum             |
 		+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		|                                                               |
 		+                                                               +
@@ -150,12 +150,6 @@ namespace pcpp {
 	 */
 	class VrrpLayer : public Layer {
 	private:
-		/**
-		* A method that add IP Addresses to data offset
-		* @param ipAddresses [in] IP Address vector
-		* @param offset [in] Data offset
-		* @return true if add successfully, false otherwise.
-		*/
 		bool addIPAddressesAt(const std::vector<IPAddress> &ipAddresses, int offset);
 
 		IPAddress::AddressType m_AddressType;
@@ -173,6 +167,10 @@ namespace pcpp {
 		 * @param[in] subProtocol The VRRP protocol
 		 */
 		explicit VrrpLayer(ProtocolType subProtocol);
+
+		vrrp_packet *getVrrpHeader() const { return (vrrp_packet *) m_Data; }
+
+		static std::string getAuthTypeDescByType(uint8_t authType);
 
 	public:
 
@@ -224,35 +222,14 @@ namespace pcpp {
 		void setPacket(vrrp_packet *packet);
 
 		/**
-		* A method that gets type name
-		* @return The VRRP type in this message
-		*/
-		std::string getTypeName() const;
-
-		/**
-		* A method that get priority description
 		* @return The VRRP priority description
 		*/
 		std::string getPriorityDesc() const;
 
 		/**
-		* A virtual method to get authentication type description by version
 		* @return The VRRP authentication type description
 		*/
 		virtual std::string getAuthTypeDesc() const = 0;
-
-		/**
-		* Get authentication type description
-		* @param[in] authType The authentication type
-		* @return The priority in this message
-		*/
-		static std::string getAuthTypeDescByType(uint8_t authType);
-
-		/**
-		 * Get a pointer to the raw VRRPv2/VRRPv3 header. Notice this points directly to the data, so every change will change the actual packet data
-		 * @return A pointer to the @ref vrrp_packet
-		 */
-		vrrp_packet *getPacketPtr() const { return (vrrp_packet *) m_Data; }
 
 		/**
 		 * A method that gets length of virtual address
@@ -280,10 +257,9 @@ namespace pcpp {
 		VrrpType getType() const;
 
 		/**
-		* A method that gets VRRP vrId
-		* @return The virtual router id in this message
+		* @return The virtual router id (vrId) in this message
 		*/
-		uint8_t getVrId() const;
+		uint8_t getVirtualRouterID() const;
 
 		/**
 		* A method that gets VRRP priority
