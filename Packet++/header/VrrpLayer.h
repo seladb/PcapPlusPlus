@@ -19,20 +19,6 @@ namespace pcpp {
 		https://datatracker.ietf.org/doc/html/rfc5798
 	*/
 
-#define VRRP_PRIO_STOP      0     /* priority to stop  */
-#define VRRP_PRIO_DFF       100   /* default priority */
-#define VRRP_PRIO_OWNER     255   /* priority of the ip owner */
-
-#define VRRP_AUTH_NONE      0     /* no authentication */
-#define VRRP_AUTH_SIMPLE    1     /* Simple Text Authentication [RFC 2338] */
-#define VRRP_AUTH_AH        2     /* IP Authentication Header [RFC 2338]  */
-#define VRRP_AUTH_MD5       3     /* Cisco VRRP MD5 authentication  */
-
-#define VRRP_PACKET_FIX_LEN 8
-#define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
-
-#define VRRP_PACKET_SET_AUTH_ADV_INT(authTypeAdvInt, authAdvInt) ((authTypeAdvInt) = *((uint16_t*)&(authAdvInt)))
-
 	/* VRRPv2 Packet Format
 		0                   1                   2                   3
 		0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1

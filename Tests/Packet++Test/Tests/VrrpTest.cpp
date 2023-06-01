@@ -85,9 +85,9 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 	v2Packet.vrId = 1;
 	v2Packet.priority = 100;
 	vrrpv2_auth_adv authAdv = {0};
-	authAdv.authType = VRRP_AUTH_NONE;
+	authAdv.authType = 0;
 	authAdv.advInt = 1;
-	VRRP_PACKET_SET_AUTH_ADV_INT(v2Packet.authTypeAdvInt, authAdv);
+	v2Packet.authTypeAdvInt = *((uint16_t*)&(authAdv));
 	vrrpv2Layer.setPacket(&v2Packet);
 
 	vrrpv2Layer.addIPAddress(ipv4Address1);

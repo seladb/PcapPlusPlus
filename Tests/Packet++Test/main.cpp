@@ -306,8 +306,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WakeOnLanCreationTests, "wol");
 	PTF_RUN_TEST(WakeOnLanEditTests, "wol");
 
-    PTF_RUN_TEST(VrrpParsingTest, "vrrp");
+	PTF_RUN_TEST(VrrpParsingTest, "vrrp");
 	PTF_RUN_TEST(VrrpCreateAndEditTest, "vrrp");
-	
+
 	PTF_END_RUNNING_TESTS;
 }
