@@ -79,7 +79,7 @@ Layer* SomeIpLayer::parseSomeIpLayer(uint8_t *data, size_t dataLen, Layer* prevL
 		return new PayloadLayer(data, dataLen, prevLayer, packet);
 	}
 
-	if (be16toh(hdr->serviceID) == 0xFFFF && be16toh(hdr->methodID) == 0x8100)
+	if (be16toh(hdr->serviceID) == 0xFFFF && be16toh(hdr->methodID) == 0x8100 && SomeIpSdLayer::isDataValid(data, dataLen))
 	{
 		return new SomeIpSdLayer(data, dataLen, prevLayer, packet);
 	}
