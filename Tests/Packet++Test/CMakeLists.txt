@@ -34,8 +34,8 @@ add_executable(
   Tests/TelnetTests.cpp
   Tests/TpktTests.cpp
   Tests/VlanMplsTests.cpp
-  Tests/WakeOnLanTests.cpp
   Tests/VrrpTest.cpp
+  Tests/WakeOnLanTests.cpp
   Utils/TestUtils.cpp)
 
 target_link_libraries(
