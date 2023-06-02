@@ -37,7 +37,7 @@ namespace pcpp {
 
 	ProtocolType VrrpLayer::getVersionFromData(uint8_t *data, size_t dataLen)
 	{
-		if (dataLen <= VRRP_PACKET_FIX_LEN)
+		if (!data || dataLen <= VRRP_PACKET_FIX_LEN)
 		{
 			return UnknownProtocol;
 		}
@@ -61,35 +61,14 @@ namespace pcpp {
 		calculateAndSetChecksum();
 	}
 
-	uint8_t VrrpLayer::isIPv4Packet() const
-	{
-		return (getAddressType() == IPAddress::IPv4AddressType);
-	}
-
-	uint8_t VrrpLayer::isIPv6Packet() const
-	{
-		return (getAddressType() == IPAddress::IPv6AddressType);
-	}
-
 	uint8_t VrrpLayer::getIPAddressLen() const
 	{
-		if (isIPv4Packet())
+		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
 			return 4;
 		}
-		else if (isIPv6Packet())
-		{
-			return 16;
-		}
-		else
-		{
-			return 0;
-		}
-	}
 
-	uint8_t VrrpLayer::getVersionFromData() const
-	{
-		return getVrrpHeader()->version;
+		return 16;
 	}
 
 	void VrrpLayer::setPacket(vrrp_packet *packet)
@@ -162,7 +141,12 @@ namespace pcpp {
 
 	VrrpType VrrpLayer::getType() const
 	{
-		return (VrrpType) (getVrrpHeader()->type);
+		if (getVrrpHeader()->type == VrrpType_Advertisement)
+		{
+			return VrrpType_Advertisement;
+		}
+
+		return VrrpType_Unknown;
 	}
 
 	uint8_t VrrpLayer::getVirtualRouterID() const
@@ -177,10 +161,10 @@ namespace pcpp {
 
 	uint16_t VrrpLayer::getChecksum() const
 	{
-		return getVrrpHeader()->checksum;
+		return be16toh(getVrrpHeader()->checksum);
 	}
 
-	uint16_t VrrpLayer::getIPAddressesCount() const
+	uint8_t VrrpLayer::getIPAddressesCount() const
 	{
 		return getVrrpHeader()->ipAddrCount;
 	}
@@ -261,7 +245,7 @@ namespace pcpp {
 			return false;
 		}
 
-		uint32_t ipAddressCount = getIPAddressesCount();
+		uint8_t ipAddressCount = getIPAddressesCount();
 		if (ipAddressCount + ipAddresses.size() > VRRP_PACKET_MAX_IP_ADDRESS_NUM)
 		{
 			PCPP_LOG_ERROR("Cannot add virtual IP address, for virtual IP address has already exceed maximum.");
@@ -541,7 +525,7 @@ namespace pcpp {
 		pcpp::IPAddress srcIPAddr = ipLayer->getSrcIPAddress();
 		pcpp::IPAddress dstIPAddr = ipLayer->getDstIPAddress();
 		uint16_t checksum;
-		if (isIPv4Packet())
+		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
 			checksum = computePseudoHdrChecksum((uint8_t *) vrrpHeader, getDataLen(), IPAddress::IPv4AddressType,
 												PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);

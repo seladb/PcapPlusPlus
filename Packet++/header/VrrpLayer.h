@@ -45,7 +45,8 @@ namespace pcpp
 	 * @struct vrrpv2_auth_adv
 	 * VRRPv2 authentication advertisement
 	 */
-	struct vrrpv2_auth_adv {
+	struct vrrpv2_auth_adv
+	{
 		/** The authentication type field identifies the authentication method being utilized */
 		uint8_t authType;
 
@@ -81,7 +82,8 @@ namespace pcpp
 	 * @struct vrrpv3_rsvd_adv
 	 * VRRPv3 maximum advertisement
 	 */
-	struct vrrpv3_rsvd_adv {
+	struct vrrpv3_rsvd_adv
+	{
 		/** This specifies Maximum Advertisement Interval indicates the time interval (in centi-seconds) between ADVERTISEMENTS.   */
 		uint16_t maxAdvInt;
 	};
@@ -90,7 +92,8 @@ namespace pcpp
 	 * @struct vrrp_packet
 	 * VRRP packet
 	 */
-	struct vrrp_packet {
+	struct vrrp_packet
+	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** Type */
 		uint8_t type: 4,
@@ -127,7 +130,8 @@ namespace pcpp
 	/**
 	 * VRRP versions
 	 */
-	enum VrrpVersion {
+	enum VrrpVersion
+	{
 		/** VRRP version 2 */
 		Vrrp_Version_2 = 2,
 
@@ -138,7 +142,11 @@ namespace pcpp
 	/**
 	 * VRRP message types
 	 */
-	enum VrrpType {
+	enum VrrpType
+	{
+		/** Unknown VRRP message */
+		VrrpType_Unknown = 0,
+
 		/** VRRP advertisement packet */
 		VrrpType_Advertisement = 1
 	};
@@ -153,6 +161,8 @@ namespace pcpp
 	{
 	private:
 		bool addIPAddressesAt(const std::vector<IPAddress> &ipAddresses, int offset);
+
+		uint8_t getIPAddressLen() const;
 
 		IPAddress::AddressType m_AddressType;
 
@@ -234,19 +244,6 @@ namespace pcpp
 		virtual std::string getAuthTypeDesc() const = 0;
 
 		/**
-		 * A method that gets length of virtual address
-		 * @return Virtual IP address length
-		 */
-		uint8_t getIPAddressLen() const;
-
-		/**
-		 * A method that gets VRRP version
-		 * @return VRRP version in this message.
-		 * VRRP version
-		 */
-		uint8_t getVersionFromData() const;
-
-		/**
 		* A method that gets VRRP version
 		* @return The version in this message
 		*/
@@ -285,7 +282,7 @@ namespace pcpp
 		 * A method that gets count of VRRP virtual IP addresses
 		 * @return The count of virtual IP addresses in this message
 		 */
-		uint16_t getIPAddressesCount() const;
+		uint8_t getIPAddressesCount() const;
 
 		/**
 		 * A method that gets VRRP virtual IP addresses
@@ -360,18 +357,6 @@ namespace pcpp
 		 * @return true if ipAddress is valid, otherwise return false.
 		 */
 		bool isIPAddressValid(IPAddress &ipAddress) const;
-
-		/**
-		 * Judge whether the packet is IPv4
-		 * @return IPv4 address of VRRP packet
-		 */
-		uint8_t isIPv4Packet() const;
-
-		/**
-		 * Judge whether the packet is IPv6
-		 * @return IPv6 address of VRRP packet
-		 */
-		uint8_t isIPv6Packet() const;
 
 		// implement abstract methods
 

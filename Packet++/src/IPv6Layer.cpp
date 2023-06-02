@@ -217,8 +217,6 @@ void IPv6Layer::parseNextLayer()
 		nextHdr = getIPv6Header()->nextHeader;
 	}
 
-	ProtocolType vrrpVer;
-
 	switch (nextHdr)
 	{
 	case PACKETPP_IPPROTO_UDP:
@@ -267,12 +265,14 @@ void IPv6Layer::parseNextLayer()
 		break;
 	}
 	case PACKETPP_IPPROTO_VRRP:
-		vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
+	{
+		auto vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
 		if (vrrpVer == VRRPv3)
 			m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
+	}
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
