@@ -135,8 +135,6 @@ namespace pcpp
 
 		vrrp_header *getVrrpHeader() const { return (vrrp_header *) m_Data; }
 
-		static std::string getAuthTypeDescByType(uint8_t authType);
-
 		void setAddressType(IPAddress::AddressType addressType);
 
 	public:
@@ -150,6 +148,21 @@ namespace pcpp
 
 			/** VRRP advertisement packet */
 			VrrpType_Advertisement = 1
+		};
+
+		/**
+		 * An enum describing VRRP special priority values
+		 */
+		enum VrrpPriority
+		{
+			/** Default priority for a backup VRRP router */
+			Default,
+			/** Current Master has stopped participating in VRRP */
+			Stop,
+			/** This VRRP router owns the virtual router's IP address(es) */
+			Owner,
+			/** Other priority */
+			Other
 		};
 
 		virtual ~VrrpLayer() {}
@@ -187,16 +200,6 @@ namespace pcpp
 		bool isChecksumCorrect() const;
 
 		/**
-		* @return The VRRP priority description
-		*/
-		std::string getPriorityDesc() const;
-
-		/**
-		* @return The VRRP authentication type description
-		*/
-		virtual std::string getAuthTypeDesc() const = 0;
-
-		/**
 		* A method that gets VRRP version
 		* @return The version in this message
 		*/
@@ -220,10 +223,14 @@ namespace pcpp
 		void setVirtualRouterID(uint8_t virtualRouterID);
 
 		/**
-		* A method that gets VRRP priority
 		* @return The priority in this message
 		*/
 		uint8_t getPriority() const;
+
+		/**
+		* @return An enum describing VRRP priority
+		*/
+		VrrpPriority getPriorityAsEnum() const;
 
 		/**
 		 * Set the priority
@@ -346,6 +353,23 @@ namespace pcpp
 		};
 
 	public:
+		/**
+		 * VRRP v2 authentication types
+		 */
+		enum class VrrpAuthType : uint8_t
+		{
+			/** No Authentication */
+			NoAuthentication = 0,
+			/** Simple Text Password */
+			SimpleTextPassword = 1,
+			/** IP Authentication Header */
+			IPAuthenticationHeader = 2,
+			/** Cisco VRRP MD5 Authentication */
+			MD5 = 3,
+			/** Other/Unknown Authentication Type */
+			Other = 4
+		};
+
 		/** A constructor that creates the layer from an existing packet raw data
 		* @param[in] data A pointer to the raw data
 		* @param[in] dataLen Size of the data in bytes
@@ -369,13 +393,6 @@ namespace pcpp
 		 */
 		~VrrpV2Layer() {}
 
-		// implement abstract methods
-
-		/**
-		* @return The VRRP authentication type description
-		*/
-		std::string getAuthTypeDesc() const;
-
 		/**
 		* A method that gets VRRP advertisement interval
 		* @return The advertisement interval in this message
@@ -395,10 +412,17 @@ namespace pcpp
 		uint8_t getAuthType() const;
 
 		/**
+		* @return The VRRP authentication type as enum
+		*/
+		VrrpAuthType getAuthTypeAsEnum() const;
+
+		/**
 		 * Set VRRP authentication type
 		 * @param authType value to set
 		 */
 		void setAuthType(uint8_t authType);
+
+		// implement abstract methods
 
 		/**
 		* Calculate and set the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
@@ -448,15 +472,6 @@ namespace pcpp
 		 */
 		~VrrpV3Layer() {}
 
-		// implement abstract methods
-
-
-		/**
-		 * A method that gets VRRP authentication type description
-		* @return The VRRP authentication type description
-		*/
-		std::string getAuthTypeDesc() const;
-
 		/**
 		* @return The maximum advertisement interval in this message
 		*/
@@ -467,6 +482,8 @@ namespace pcpp
 		 * @param maxAdvInt Value to set
 		 */
 		void setMaxAdvInt(uint16_t maxAdvInt);
+
+		// implement abstract methods
 
 		/**
 		* Fill the checksum from header and data and possibly write the result to @ref vrrp_header#checksum

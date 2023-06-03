@@ -11,13 +11,8 @@
 namespace pcpp {
 
 #define VRRP_PRIO_STOP      0     /* priority to stop  */
-#define VRRP_PRIO_DFF       100   /* default priority */
+#define VRRP_PRIO_DEF       100   /* default priority */
 #define VRRP_PRIO_OWNER     255   /* priority of the ip owner */
-
-#define VRRP_AUTH_NONE      0     /* no authentication */
-#define VRRP_AUTH_SIMPLE    1     /* Simple Text Authentication [RFC 2338] */
-#define VRRP_AUTH_AH        2     /* IP Authentication Header [RFC 2338]  */
-#define VRRP_AUTH_MD5       3     /* Cisco VRRP MD5 authentication  */
 
 #define VRRP_PACKET_FIX_LEN 8
 #define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
@@ -97,46 +92,22 @@ namespace pcpp {
 		return (calculateChecksum() == be16toh(vrrpHeader->checksum));
 	}
 
-	std::string VrrpLayer::getPriorityDesc() const
+	VrrpLayer::VrrpPriority VrrpLayer::getPriorityAsEnum() const
 	{
-		std::string priorityName;
-		if (getVrrpHeader()->priority == VRRP_PRIO_DFF)
+		switch (getVrrpHeader()->priority)
 		{
-			priorityName = "(Default priority for a backup VRRP router)";
-		}
-		else if (getPriority() == VRRP_PRIO_STOP)
-		{
-			priorityName = "(Current Master has stopped participating in VRRP)";
-		}
-		else if (getPriority() == VRRP_PRIO_OWNER)
-		{
-			priorityName = "(This VRRP router owns the virtual router's IP address(es))";
-		}
+			case VRRP_PRIO_DEF:
+				return VrrpLayer::VrrpPriority::Default;
 
-		return priorityName;
-	}
+			case VRRP_PRIO_STOP:
+				return VrrpLayer::VrrpPriority::Stop;
 
-	std::string VrrpLayer::getAuthTypeDescByType(uint8_t authType)
-	{
-		std::string priorityName;
-		if (authType == VRRP_AUTH_NONE)
-		{
-			priorityName = "No Authentication";
-		}
-		else if (authType == VRRP_AUTH_SIMPLE)
-		{
-			priorityName = "Simple Text Authentication [RFC 2338] / Reserved [RFC 3768]";
-		}
-		else if (authType == VRRP_AUTH_AH)
-		{
-			priorityName = "IP Authentication Header [RFC 2338] / Reserved [RFC 3768]";
-		}
-		else if (authType == VRRP_AUTH_MD5)
-		{
-			priorityName = "Cisco VRRP MD5 authentication";
-		}
+			case VRRP_PRIO_OWNER:
+				return VrrpLayer::VrrpPriority::Owner;
 
-		return priorityName;
+			default:
+				return VrrpLayer::VrrpPriority::Other;
+		}
 	}
 
 	std::string VrrpLayer::toString() const
@@ -460,16 +431,15 @@ namespace pcpp {
 		setAuthType(authType);
 	};
 
-	std::string VrrpV2Layer::getAuthTypeDesc() const
+	VrrpV2Layer::VrrpAuthType VrrpV2Layer::getAuthTypeAsEnum() const
 	{
-		std::string toStr;
+		auto authType = getAuthType();
+		if (authType > 3)
+		{
+			return VrrpAuthType::Other;
+		}
 
-		toStr += "\n\tAuth Type: " + getAuthTypeDescByType(getAuthType());
-		toStr += " (";
-		toStr += std::to_string(getAuthType());
-		toStr += ")";
-
-		return toStr;
+		return static_cast<VrrpAuthType>(authType);
 	}
 
 	uint8_t VrrpV2Layer::getAdvInt() const
@@ -533,13 +503,6 @@ namespace pcpp {
 		setAddressType(addressType);
 		setMaxAdvInt(maxAdvInt);
 	};
-
-	std::string VrrpV3Layer::getAuthTypeDesc() const
-	{
-		std::string toStr;
-
-		return toStr;
-	}
 
 	uint16_t VrrpV3Layer::getMaxAdvInt() const
 	{
