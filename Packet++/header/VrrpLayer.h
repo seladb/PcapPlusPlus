@@ -119,6 +119,8 @@ namespace pcpp
 
 		uint8_t getIPAddressLen() const;
 
+		bool isIPAddressValid(IPAddress &ipAddress) const;
+
 		IPAddress::AddressType m_AddressType;
 
 	protected:
@@ -134,6 +136,8 @@ namespace pcpp
 		vrrp_header *getVrrpHeader() const { return (vrrp_header *) m_Data; }
 
 		static std::string getAuthTypeDescByType(uint8_t authType);
+
+		void setAddressType(IPAddress::AddressType addressType);
 
 	public:
 		/**
@@ -155,12 +159,6 @@ namespace pcpp
 		* @return The VRRP IP Address type
 		*/
 		IPAddress::AddressType getAddressType() const;
-
-		/**
-		* A method that set IP Address type
-		* @param addressType [in] IP Address type
-		*/
-		void setAddressType(IPAddress::AddressType addressType);
 
 		/**
 		 * A static method that validates the input data
@@ -311,13 +309,6 @@ namespace pcpp
 		 * @return true if get successfully, otherwise return false.
 		 */
 		bool getIPAddressFromData(uint8_t *data, IPAddress &ipAddress) const;
-
-		/**
-		 * Judge whether the IP address is valid
-		 * @param[in] ipAddress IP address
-		 * @return true if ipAddress is valid, otherwise return false.
-		 */
-		bool isIPAddressValid(IPAddress &ipAddress) const;
 
 		// implement abstract methods
 

@@ -22,8 +22,8 @@ namespace pcpp {
 #define VRRP_PACKET_FIX_LEN 8
 #define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
 
-#define VRRP_V2_VERSION       2
-#define VRRP_V3_VERSION       3
+#define VRRP_V2_VERSION     2
+#define VRRP_V3_VERSION     3
 
 	/*************
 	 * VrrpLayer
@@ -423,12 +423,12 @@ namespace pcpp {
 	{
 		if (ipAddress.isIPv6() && (getProtocol() != VRRPv3))
 		{
-			PCPP_LOG_ERROR("Only VRRPv3 support IPv6 virtual address.");
+			PCPP_LOG_ERROR("Only VRRPv3 support IPv6 virtual address");
 			return false;
 		}
 		if (ipAddress.getType() != getAddressType())
 		{
-			PCPP_LOG_ERROR("IP address version is not equal to layer's.");
+			PCPP_LOG_ERROR("IP address version is not equal to layer's");
 			return false;
 		}
 		if (!ipAddress.isValid())
@@ -456,7 +456,6 @@ namespace pcpp {
 
 	VrrpV2Layer::VrrpV2Layer(uint8_t virtualRouterId, uint8_t priority, uint8_t advInt, uint8_t authType) : VrrpLayer(VRRPv2, virtualRouterId, priority)
 	{
-		setAddressType(IPAddress::IPv4AddressType);
 		setAdvInt(advInt);
 		setAuthType(authType);
 	};
