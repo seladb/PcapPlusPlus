@@ -107,30 +107,6 @@ namespace pcpp
 	};
 
 	/**
-	 * VRRP versions
-	 */
-	enum VrrpVersion
-	{
-		/** VRRP version 2 */
-		Vrrp_Version_2 = 2,
-
-		/** VRRP version 3 */
-		Vrrp_Version_3 = 3
-	};
-
-	/**
-	 * VRRP message types
-	 */
-	enum VrrpType
-	{
-		/** Unknown VRRP message */
-		VrrpType_Unknown = 0,
-
-		/** VRRP advertisement packet */
-		VrrpType_Advertisement = 1
-	};
-
-	/**
 	 * @class VrrpLayer
 	 * A base class for all VRRP (Virtual Router Redundancy Protocol) protocol classes. This is an abstract class and cannot be instantiated,
 	 * only its child classes can be instantiated. The inherited classes represent the different versions of the protocol:
@@ -160,6 +136,17 @@ namespace pcpp
 		static std::string getAuthTypeDescByType(uint8_t authType);
 
 	public:
+		/**
+		 * VRRP message types
+		 */
+		enum VrrpType
+		{
+			/** Unknown VRRP message */
+			VrrpType_Unknown = 0,
+
+			/** VRRP advertisement packet */
+			VrrpType_Advertisement = 1
+		};
 
 		virtual ~VrrpLayer() {}
 

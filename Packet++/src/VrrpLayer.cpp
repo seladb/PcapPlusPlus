@@ -22,6 +22,9 @@ namespace pcpp {
 #define VRRP_PACKET_FIX_LEN 8
 #define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255
 
+#define VRRP_V2_VERSION       2
+#define VRRP_V3_VERSION       3
+
 	/*************
 	 * VrrpLayer
 	 *************/
@@ -36,11 +39,11 @@ namespace pcpp {
 		auto vrrpHeader = getVrrpHeader();
 		if (subProtocol == VRRPv2)
 		{
-			vrrpHeader->version = 2;
+			vrrpHeader->version = VRRP_V2_VERSION;
 		}
 		else if (subProtocol == VRRPv3)
 		{
-			vrrpHeader->version = 3;
+			vrrpHeader->version = VRRP_V3_VERSION;
 		}
 		vrrpHeader->type = static_cast<uint8_t>(VrrpType::VrrpType_Advertisement);
 		setVirtualRouterID(virtualRouterId);
@@ -58,9 +61,9 @@ namespace pcpp {
 		uint8_t version = vrrpPacketCommon->version;
 		switch (version)
 		{
-			case Vrrp_Version_2:
+			case VRRP_V2_VERSION:
 				return VRRPv2;
-			case Vrrp_Version_3:
+			case VRRP_V3_VERSION:
 				return VRRPv3;
 			default:
 				return UnknownProtocol;
@@ -146,7 +149,7 @@ namespace pcpp {
 		return getVrrpHeader()->version;
 	}
 
-	VrrpType VrrpLayer::getType() const
+	VrrpLayer::VrrpType VrrpLayer::getType() const
 	{
 		if (getVrrpHeader()->type == VrrpType_Advertisement)
 		{
