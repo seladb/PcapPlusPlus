@@ -2,9 +2,8 @@
 
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "EndianPortable.h"
-#include "Packet.h"
 #include "Logger.h"
+#include "Packet.h"
 #include "EthLayer.h"
 #include "VrrpLayer.h"
 #include "IPv4Layer.h"
@@ -12,7 +11,6 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
-using namespace pcpp;
 
 PTF_TEST_CASE(VrrpParsingTest)
 {
@@ -23,36 +21,53 @@ PTF_TEST_CASE(VrrpParsingTest)
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/VRRP-V3-IPv4.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/VRRP-V3-IPv6.dat");
 
-	Packet vrrpv2Packet(&rawPacket1);
-	Packet vrrpv3IPv4Packet(&rawPacket2);
-	Packet vrrpv3IPv6Packet(&rawPacket3);
+	pcpp::Packet vrrpv2Packet(&rawPacket1);
+	pcpp::Packet vrrpv3IPv4Packet(&rawPacket2);
+	pcpp::Packet vrrpv3IPv6Packet(&rawPacket3);
 
-	auto *vrrpV2Layer = vrrpv2Packet.getLayerOfType<VrrpV2Layer>();
-	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(VRRP))
-	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(VRRPv2))
-	PTF_ASSERT_FALSE(vrrpv2Packet.isPacketOfType(VRRPv3))
-	pcpp::Logger::getInstance().suppressLogs();
-	Logger::getInstance().setLogLevel(pcpp::PacketLogModuleVrrpLayer, Logger::Debug);
-	PCPP_LOG_DEBUG(vrrpV2Layer->toString());
-	pcpp::Logger::getInstance().enableLogs();
+	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(pcpp::VRRP))
+	PTF_ASSERT_TRUE(vrrpv2Packet.isPacketOfType(pcpp::VRRPv2))
+	PTF_ASSERT_FALSE(vrrpv2Packet.isPacketOfType(pcpp::VRRPv3))
+	auto vrrpV2Layer = vrrpv2Packet.getLayerOfType<pcpp::VrrpV2Layer>();
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getType(), pcpp::VrrpLayer::VrrpType::VrrpType_Advertisement, enum)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getVersion(), 2)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getVirtualRouterID(), 1)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getPriority(), 100);
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Default, enum)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getAddressType(), pcpp::IPAddress::IPv4AddressType, enum)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getIPAddressesCount(), 3)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getAuthType(), 0)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::NoAuthentication, enumclass)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getAdvInt(), 1)
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getChecksum(), 0x38fa)
 
-	auto *vrrpV3IPv4Layer = vrrpv3IPv4Packet.getLayerOfType<VrrpV3Layer>();
-	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(VRRP))
-	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(VRRPv2))
-	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(VRRPv3))
-	pcpp::Logger::getInstance().suppressLogs();
-	Logger::getInstance().setLogLevel(pcpp::PacketLogModuleVrrpLayer, Logger::Debug);
-	PCPP_LOG_DEBUG(vrrpV3IPv4Layer->toString());
-	pcpp::Logger::getInstance().enableLogs();
+	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
+	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
+	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv3))
+	auto vrrpV3IPv4Layer = vrrpv3IPv4Packet.getLayerOfType<pcpp::VrrpV3Layer>();
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getType(), pcpp::VrrpLayer::VrrpType::VrrpType_Advertisement, enum)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getVersion(), 3)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getVirtualRouterID(), 1)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getPriority(), 100);
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Default, enum)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getAddressType(), pcpp::IPAddress::IPv4AddressType, enum)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getIPAddressesCount(), 2)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getMaxAdvInt(), 1)
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getChecksum(), 0x484d)
 
-	auto *vrrpV3IPv6Layer = vrrpv3IPv6Packet.getLayerOfType<VrrpV3Layer>();
-	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(VRRP))
-	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(VRRPv2))
-	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(VRRPv3))
-	pcpp::Logger::getInstance().suppressLogs();
-	Logger::getInstance().setLogLevel(pcpp::PacketLogModuleVrrpLayer, Logger::Debug);
-	PCPP_LOG_DEBUG(vrrpV3IPv6Layer->toString());
-	pcpp::Logger::getInstance().enableLogs();
+	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
+	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv2))
+	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv3))
+	auto vrrpV3IPv6Layer = vrrpv3IPv6Packet.getLayerOfType<pcpp::VrrpV3Layer>();
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getType(), pcpp::VrrpLayer::VrrpType::VrrpType_Advertisement, enum)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getVersion(), 3)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getVirtualRouterID(), 1)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getPriority(), 100);
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Default, enum)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getAddressType(), pcpp::IPAddress::IPv6AddressType, enum)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getIPAddressesCount(), 3)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getMaxAdvInt(), 1)
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getChecksum(), 0x1071)
 } // VrrpParsingTest
 
 
@@ -67,20 +82,20 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	READ_FILE_INTO_BUFFER(3, "PacketExamples/VRRP-V3-IPv6.dat")
 
 	// VRRP virtual IP addresses
-	IPAddress ipv4Address1("192.168.0.1");
-	IPAddress ipv4Address2("192.168.0.2");
-	IPAddress ipv4Address3("192.168.0.3");
-	IPAddress ipv6Address1("fe80::254");
-	IPAddress ipv6Address2("2001:db8::1");
-	IPAddress ipv6Address3("2001:db8::2");
+	pcpp::IPAddress ipv4Address1("192.168.0.1");
+	pcpp::IPAddress ipv4Address2("192.168.0.2");
+	pcpp::IPAddress ipv4Address3("192.168.0.3");
+	pcpp::IPAddress ipv6Address1("fe80::254");
+	pcpp::IPAddress ipv6Address2("2001:db8::1");
+	pcpp::IPAddress ipv6Address3("2001:db8::2");
 
 	// VRRPv2 v2Packet
-	EthLayer ethLayer1(MacAddress("00:00:5e:00:01:01"), MacAddress("01:00:5e:00:00:12"));
-	IPv4Layer ipLayer1(IPv4Address("192.168.0.30"), IPv4Address("224.0.0.18"));
+	pcpp::EthLayer ethLayer1(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
+	pcpp::IPv4Layer ipLayer1(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipLayer1.getIPv4Header()->timeToLive = 255;
 
-	Packet vrrpv2Packet(1);
-	VrrpV2Layer vrrpv2Layer(1, 100, 1);
+	pcpp::Packet vrrpv2Packet(1);
+	pcpp::VrrpV2Layer vrrpv2Layer(1, 100, 1);
 
 	vrrpv2Layer.addIPAddress(ipv4Address1);
 	vrrpv2Layer.addIPAddress(ipv4Address2);
@@ -114,17 +129,14 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 
 	PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
 	PTF_ASSERT_BUF_COMPARE(vrrpv2Packet.getRawPacket()->getRawData(), buffer1, bufferLength1)
-	pcpp::Logger::getInstance().suppressLogs();
-	PCPP_LOG_DEBUG(vrrpv2Packet.toString());
-	pcpp::Logger::getInstance().enableLogs();
 
 	//VRRPv3 IPv4 Packet
-	EthLayer ethLayer2(MacAddress("00:00:5e:00:01:01"), MacAddress("01:00:5e:00:00:12"));
-	IPv4Layer ipv4Layer(IPv4Address("192.168.0.30"), IPv4Address("224.0.0.18"));
+	pcpp::EthLayer ethLayer2(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
+	pcpp::IPv4Layer ipv4Layer(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipv4Layer.getIPv4Header()->timeToLive = 255;
 
-	Packet vrrpv3IPv4Packet(1);
-	VrrpV3Layer vrrpv3IPv4Layer(IPAddress::IPv4AddressType, 1 ,100, 1);
+	pcpp::Packet vrrpv3IPv4Packet(1);
+	pcpp::VrrpV3Layer vrrpv3IPv4Layer(pcpp::IPAddress::IPv4AddressType, 1 ,100, 1);
 
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address1);
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address2);
@@ -135,19 +147,16 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Packet.getRawPacket()->getRawDataLen(), bufferLength2)
 	PTF_ASSERT_BUF_COMPARE(vrrpv3IPv4Packet.getRawPacket()->getRawData(), buffer2, bufferLength2)
-	pcpp::Logger::getInstance().suppressLogs();
-	PCPP_LOG_DEBUG(vrrpv3IPv4Packet.toString());
-	pcpp::Logger::getInstance().enableLogs();
 
 	//VRRPv3 IPv6 Packet
-	EthLayer ethLayer3(MacAddress("00:00:5e:00:01:01"), MacAddress("01:00:5e:00:00:12"));
-	IPv6Layer ipv6Layer(IPv6Address("fe80::1"), IPv6Address("ff02::12"));
+	pcpp::EthLayer ethLayer3(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
+	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("fe80::1"), pcpp::IPv6Address("ff02::12"));
 	ipv6Layer.getIPv6Header()->hopLimit = 255;
 
-	Packet ipv6Packet(1);
-	VrrpV3Layer vrrpv3IPv6Layer(IPAddress::IPv6AddressType, 1, 100, 1);
+	pcpp::Packet ipv6Packet(1);
+	pcpp::VrrpV3Layer vrrpv3IPv6Layer(pcpp::IPAddress::IPv6AddressType, 1, 100, 1);
 
-	std::vector<IPAddress> ipAddresses;
+	std::vector<pcpp::IPAddress> ipAddresses;
 	ipAddresses.push_back(ipv6Address1);
 	ipAddresses.push_back(ipv6Address2);
 	ipAddresses.push_back(ipv6Address3);
@@ -159,9 +168,6 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 
 	PTF_ASSERT_EQUAL(ipv6Packet.getRawPacket()->getRawDataLen(), bufferLength3)
 	PTF_ASSERT_BUF_COMPARE(ipv6Packet.getRawPacket()->getRawData(), buffer3, bufferLength3)
-	pcpp::Logger::getInstance().suppressLogs();
-	PCPP_LOG_DEBUG(vrrpv3IPv6Layer.toString());
-	pcpp::Logger::getInstance().enableLogs();
 
 	FREE_FILE_INTO_BUFFER(1)
 	FREE_FILE_INTO_BUFFER(2)

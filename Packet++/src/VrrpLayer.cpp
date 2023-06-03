@@ -166,7 +166,7 @@ namespace pcpp {
 		uint8_t ipAddrCount = getIPAddressesCount();
 		uint8_t *ipAddressesPtr = getFirstIPAddress();
 		size_t ipAddressLen = getIPAddressLen();
-		if ((ipAddrCount == 0) || (ipAddressesPtr == nullptr) || (ipAddressLen == 0))
+		if ((ipAddrCount == 0) || (ipAddressesPtr == nullptr))
 		{
 			return ipAddressesVec;
 		}
@@ -189,11 +189,6 @@ namespace pcpp {
 	uint8_t *VrrpLayer::getFirstIPAddress() const
 	{
 		size_t ipAddressLen = getIPAddressLen();
-		if (ipAddressLen == 0)
-		{
-			PCPP_LOG_ERROR("Cannot get first virtual IP address, for ip address length is invalid.");
-			return nullptr;
-		}
 
 		// check if there are virtual IP address at all
 		if (getHeaderLen() <= VRRP_PACKET_FIX_LEN + ipAddressLen)
@@ -213,11 +208,6 @@ namespace pcpp {
 		}
 
 		size_t ipAddressLen = getIPAddressLen();
-		if (ipAddressLen == 0)
-		{
-			PCPP_LOG_ERROR("Cannot get next virtual IP address, for ip address length is invalid.");
-			return nullptr;
-		}
 
 		// prev virtual IP address was the last virtual IP address
 		if (ipAddress + ipAddressLen - m_Data >= (int) getHeaderLen())
@@ -299,11 +289,6 @@ namespace pcpp {
 		}
 
 		size_t ipAddressLen = getIPAddressLen();
-		if (ipAddressLen == 0)
-		{
-			PCPP_LOG_ERROR("Cannot remove IP address, for ip address length is invalid.");
-			return false;
-		}
 
 		size_t offset = VRRP_PACKET_FIX_LEN;
 		uint8_t *curIpAddress = getFirstIPAddress();
@@ -354,11 +339,6 @@ namespace pcpp {
 	void VrrpLayer::copyIPAddressToData(uint8_t *data, const IPAddress &ipAddress) const
 	{
 		size_t ipAddressLen = getIPAddressLen();
-		if (ipAddressLen == 0)
-		{
-			PCPP_LOG_ERROR("Cannot copy virtual IP address to data, for ip address length is invalid.");
-			return;
-		}
 
 		if (ipAddress.isIPv4())
 		{
@@ -429,7 +409,7 @@ namespace pcpp {
 	{
 		setAdvInt(advInt);
 		setAuthType(authType);
-	};
+	}
 
 	VrrpV2Layer::VrrpAuthType VrrpV2Layer::getAuthTypeAsEnum() const
 	{
@@ -502,13 +482,13 @@ namespace pcpp {
 	{
 		setAddressType(addressType);
 		setMaxAdvInt(maxAdvInt);
-	};
+	}
 
 	uint16_t VrrpV3Layer::getMaxAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
 		auto rsvdAdv = (vrrpv3_rsvd_adv *) (&authAdvInt);
-		return rsvdAdv->maxAdvInt;
+		return be16toh(rsvdAdv->maxAdvInt);
 	}
 
 	void VrrpV3Layer::setMaxAdvInt(uint16_t maxAdvInt)
