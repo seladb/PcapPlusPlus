@@ -14,7 +14,8 @@
 
 using namespace pcpp;
 
-PTF_TEST_CASE(VrrpParsingTest) {
+PTF_TEST_CASE(VrrpParsingTest)
+{
 	timeval time = {};
 	gettimeofday(&time, nullptr);
 
@@ -56,7 +57,8 @@ PTF_TEST_CASE(VrrpParsingTest) {
 
 
 
-PTF_TEST_CASE(VrrpCreateAndEditTest) {
+PTF_TEST_CASE(VrrpCreateAndEditTest)
+{
 	timeval time = {};
 	gettimeofday(&time, nullptr);
 
@@ -78,17 +80,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 	ipLayer1.getIPv4Header()->timeToLive = 255;
 
 	Packet vrrpv2Packet(1);
-	VrrpV2Layer vrrpv2Layer;
-	vrrp_packet v2Packet = {0};
-	v2Packet.version = Vrrp_Version_2;
-	v2Packet.type = VrrpType_Advertisement;
-	v2Packet.vrId = 1;
-	v2Packet.priority = 100;
-	vrrpv2_auth_adv authAdv = {0};
-	authAdv.authType = 0;
-	authAdv.advInt = 1;
-	v2Packet.authTypeAdvInt = *((uint16_t*)&(authAdv));
-	vrrpv2Layer.setPacket(&v2Packet);
+	VrrpV2Layer vrrpv2Layer(1, 100, 1);
 
 	vrrpv2Layer.addIPAddress(ipv4Address1);
 	vrrpv2Layer.addIPAddress(ipv4Address2);
@@ -132,14 +124,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 	ipv4Layer.getIPv4Header()->timeToLive = 255;
 
 	Packet vrrpv3IPv4Packet(1);
-	VrrpV3Layer vrrpv3IPv4Layer(IPAddress::IPv4AddressType);
-	vrrp_packet v3IPv4Packet = {0};
-	v3IPv4Packet.version = Vrrp_Version_3;
-	v3IPv4Packet.type = VrrpType_Advertisement;
-	v3IPv4Packet.vrId = 1;
-	v3IPv4Packet.priority = 100;
-	v3IPv4Packet.authTypeAdvInt = htobe16(1);
-	vrrpv3IPv4Layer.setPacket(&v3IPv4Packet);
+	VrrpV3Layer vrrpv3IPv4Layer(IPAddress::IPv4AddressType, 1 ,100, 1);
 
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address1);
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address2);
@@ -160,14 +145,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest) {
 	ipv6Layer.getIPv6Header()->hopLimit = 255;
 
 	Packet ipv6Packet(1);
-	VrrpV3Layer vrrpv3IPv6Layer(IPAddress::IPv6AddressType);
-	vrrp_packet v3IPv6Packet = {0};
-	v3IPv6Packet.version = Vrrp_Version_3;
-	v3IPv6Packet.type = VrrpType_Advertisement;
-	v3IPv6Packet.vrId = 1;
-	v3IPv6Packet.priority = 100;
-	v3IPv6Packet.authTypeAdvInt = htobe16(1);
-	vrrpv3IPv6Layer.setPacket(&v3IPv6Packet);
+	VrrpV3Layer vrrpv3IPv6Layer(IPAddress::IPv6AddressType, 1, 100, 1);
 
 	std::vector<IPAddress> ipAddresses;
 	ipAddresses.push_back(ipv6Address1);

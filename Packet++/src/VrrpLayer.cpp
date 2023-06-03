@@ -26,13 +26,25 @@ namespace pcpp {
 	 * VrrpLayer
 	 *************/
 
-	VrrpLayer::VrrpLayer(ProtocolType subProtocol)
+	VrrpLayer::VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority)
 	{
 		m_DataLen = VRRP_PACKET_FIX_LEN;
 		m_Data = new uint8_t[m_DataLen];
 		memset(m_Data, 0, m_DataLen);
 		m_Protocol = subProtocol;
 		m_AddressType = IPAddress::IPv4AddressType;
+		auto vrrpHeader = getVrrpHeader();
+		if (subProtocol == VRRPv2)
+		{
+			vrrpHeader->version = 2;
+		}
+		else if (subProtocol == VRRPv3)
+		{
+			vrrpHeader->version = 3;
+		}
+		vrrpHeader->type = static_cast<uint8_t>(VrrpType::VrrpType_Advertisement);
+		setVirtualRouterID(virtualRouterId);
+		setPriority(priority);
 	}
 
 	ProtocolType VrrpLayer::getVersionFromData(uint8_t *data, size_t dataLen)
@@ -42,7 +54,7 @@ namespace pcpp {
 			return UnknownProtocol;
 		}
 
-		auto *vrrpPacketCommon = (vrrp_packet *) data;
+		auto *vrrpPacketCommon = (vrrp_header *) data;
 		uint8_t version = vrrpPacketCommon->version;
 		switch (version)
 		{
@@ -69,11 +81,6 @@ namespace pcpp {
 		}
 
 		return 16;
-	}
-
-	void VrrpLayer::setPacket(vrrp_packet *packet)
-	{
-		memcpy(m_Data, packet, sizeof(vrrp_packet));
 	}
 
 	bool VrrpLayer::isChecksumCorrect() const
@@ -154,9 +161,19 @@ namespace pcpp {
 		return getVrrpHeader()->vrId;
 	}
 
+	void VrrpLayer::setVirtualRouterID(uint8_t virtualRouterID)
+	{
+		getVrrpHeader()->vrId = virtualRouterID;
+	}
+
 	uint8_t VrrpLayer::getPriority() const
 	{
 		return getVrrpHeader()->priority;
+	}
+
+	void VrrpLayer::setPriority(uint8_t priority)
+	{
+		getVrrpHeader()->priority = priority;
 	}
 
 	uint16_t VrrpLayer::getChecksum() const
@@ -434,6 +451,13 @@ namespace pcpp {
 	 * Vrrpv2Layer
 	 *************/
 
+	VrrpV2Layer::VrrpV2Layer(uint8_t virtualRouterId, uint8_t priority, uint8_t advInt, uint8_t authType) : VrrpLayer(VRRPv2, virtualRouterId, priority)
+	{
+		setAddressType(IPAddress::IPv4AddressType);
+		setAdvInt(advInt);
+		setAuthType(authType);
+	};
+
 	std::string VrrpV2Layer::getAuthTypeDesc() const
 	{
 		std::string toStr;
@@ -446,11 +470,17 @@ namespace pcpp {
 		return toStr;
 	}
 
-	uint16_t VrrpV2Layer::getAdvInt() const
+	uint8_t VrrpV2Layer::getAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto *authAdvIntPtr = (vrrpv2_auth_adv *) (&authAdvInt);
+		auto authAdvIntPtr = (vrrpv2_auth_adv *) (&authAdvInt);
 		return authAdvIntPtr->advInt;
+	}
+
+	void VrrpV2Layer::setAdvInt(uint8_t advInt)
+	{
+		auto authAdvIntPtr = (vrrpv2_auth_adv *)&getVrrpHeader()->authTypeAdvInt;
+		authAdvIntPtr->advInt = advInt;
 	}
 
 	uint8_t VrrpV2Layer::getAuthType() const
@@ -458,6 +488,12 @@ namespace pcpp {
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
 		auto *authAdvIntPtr = (vrrpv2_auth_adv *) (&authAdvInt);
 		return authAdvIntPtr->authType;
+	}
+
+	void VrrpV2Layer::setAuthType(uint8_t authType)
+	{
+		auto authAdvIntPtr = (vrrpv2_auth_adv *)&getVrrpHeader()->authTypeAdvInt;
+		authAdvIntPtr->authType = authType;
 	}
 
 	void VrrpV2Layer::calculateAndSetChecksum()
@@ -488,6 +524,14 @@ namespace pcpp {
 	/*************
 	 * Vrrpv3Layer
 	 *************/
+
+	VrrpV3Layer::VrrpV3Layer(IPAddress::AddressType addressType, uint8_t virtualRouterId, uint8_t priority, uint16_t maxAdvInt) : VrrpLayer(
+			VRRPv3, virtualRouterId, priority)
+	{
+		setAddressType(addressType);
+		setMaxAdvInt(maxAdvInt);
+	};
+
 	std::string VrrpV3Layer::getAuthTypeDesc() const
 	{
 		std::string toStr;
@@ -495,11 +539,21 @@ namespace pcpp {
 		return toStr;
 	}
 
-	uint16_t VrrpV3Layer::getAdvInt() const
+	uint16_t VrrpV3Layer::getMaxAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto *rsvdAdv = (vrrpv3_rsvd_adv *) (&authAdvInt);
+		auto rsvdAdv = (vrrpv3_rsvd_adv *) (&authAdvInt);
 		return rsvdAdv->maxAdvInt;
+	}
+
+	void VrrpV3Layer::setMaxAdvInt(uint16_t maxAdvInt)
+	{
+		if (maxAdvInt > 0xfff)
+		{
+			throw std::invalid_argument("maxAdvInt must not exceed 12 bits length");
+		}
+		auto rsvdAdv = (vrrpv3_rsvd_adv *)&getVrrpHeader()->authTypeAdvInt;
+		rsvdAdv->maxAdvInt = htobe16(maxAdvInt);
 	}
 
 	void VrrpV3Layer::calculateAndSetChecksum()
