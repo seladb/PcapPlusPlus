@@ -40,6 +40,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::NoAuthentication, enumclass)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getChecksum(), 0x38fa)
+	PTF_ASSERT_TRUE(vrrpV2Layer->isChecksumCorrect())
 
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
@@ -54,6 +55,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getIPAddressesCount(), 2)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getMaxAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getChecksum(), 0x484d)
+	PTF_ASSERT_TRUE(vrrpV3IPv4Layer->isChecksumCorrect())
 
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv2))
@@ -68,6 +70,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getIPAddressesCount(), 3)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getMaxAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getChecksum(), 0x1071)
+	PTF_ASSERT_TRUE(vrrpV3IPv6Layer->isChecksumCorrect())
 } // VrrpParsingTest
 
 

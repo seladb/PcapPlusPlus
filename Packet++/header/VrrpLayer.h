@@ -183,23 +183,6 @@ namespace pcpp
 		static ProtocolType getVersionFromData(uint8_t *data, size_t dataLen);
 
 		/**
-		 * Fill the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
-		 */
-		virtual void calculateAndSetChecksum() = 0;
-
-		/**
-		 * Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
-		 * @return The checksum result
-		 */
-		virtual uint16_t calculateChecksum() const = 0;
-
-		/**
-		 * A method that validates the VRRP layer checksum
-		 * @return True if the checksum is correct
-		 */
-		bool isChecksumCorrect() const;
-
-		/**
 		* A method that gets VRRP version
 		* @return The version in this message
 		*/
@@ -207,7 +190,7 @@ namespace pcpp
 
 		/**
 		 * A method that gets VRRP type
-		 * @return VRRP type set in vrrp_header#type as ::VrrpType enum.
+		 * @return VRRP type set in vrrp_header#type as VrrpLayer::VrrpType enum.
 		 */
 		VrrpType getType() const;
 
@@ -243,6 +226,23 @@ namespace pcpp
 		* @return The checksum in this message
 		*/
 		uint16_t getChecksum() const;
+
+		/**
+		 * Fill the checksum from header and data and write the result to @ref vrrp_header#checksum
+		 */
+		void calculateAndSetChecksum();
+
+		/**
+		 * Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
+		 * @return The checksum result
+		 */
+		virtual uint16_t calculateChecksum() const = 0;
+
+		/**
+		 * A method that validates the VRRP layer checksum
+		 * @return True if the checksum is correct
+		 */
+		bool isChecksumCorrect() const;
 
 		/**
 		 * A method that gets count of VRRP virtual IP addresses
@@ -425,15 +425,10 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		* Calculate and set the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
-		*/
-		void calculateAndSetChecksum();
-
-		/**
 		* Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
 		* @return The checksum result
 		*/
-		uint16_t calculateChecksum() const;
+		uint16_t calculateChecksum() const override;
 	};
 
 	/**
@@ -486,15 +481,10 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		* Fill the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
-		*/
-		void calculateAndSetChecksum();
-
-		/**
 		* Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
 		* @return The checksum result
 		*/
-		uint16_t calculateChecksum() const;
+		uint16_t calculateChecksum() const override;
 	};
 }
 

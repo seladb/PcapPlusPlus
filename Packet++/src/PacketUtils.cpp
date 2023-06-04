@@ -75,7 +75,8 @@ uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen, IPAddress::A
 	vec[0].buffer = (uint16_t *) dataPtr;
 	vec[0].len = dataLen;
 
-	if (ipAddrType == IPAddress::IPv4AddressType) {
+	if (ipAddrType == IPAddress::IPv4AddressType)
+	{
 		uint32_t srcIP = srcIPAddress.getIPv4().toInt();
 		uint32_t dstIP = dstIPAddress.getIPv4().toInt();
 		uint16_t pseudoHeader[6];
@@ -88,7 +89,9 @@ uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen, IPAddress::A
 		vec[1].buffer = pseudoHeader;
 		vec[1].len = 12;
 		checksumRes = computeChecksum(vec, 2);
-	} else if (ipAddrType == IPAddress::IPv6AddressType) {
+	}
+	else if (ipAddrType == IPAddress::IPv6AddressType)
+	{
 		uint16_t pseudoHeader[18];
 		srcIPAddress.getIPv6().copyTo((uint8_t *) pseudoHeader);
 		dstIPAddress.getIPv6().copyTo((uint8_t *) (pseudoHeader + 8));
@@ -97,7 +100,9 @@ uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen, IPAddress::A
 		vec[1].buffer = pseudoHeader;
 		vec[1].len = 36;
 		checksumRes = computeChecksum(vec, 2);
-	} else {
+	}
+	else
+	{
 		PCPP_LOG_ERROR("Compute pseudo header checksum failed, for unknown IPAddrType = " << ipAddrType);
 	}
 

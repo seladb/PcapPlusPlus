@@ -155,6 +155,11 @@ namespace pcpp {
 		return be16toh(getVrrpHeader()->checksum);
 	}
 
+	void VrrpLayer::calculateAndSetChecksum()
+	{
+		getVrrpHeader()->checksum = htobe16(calculateChecksum());
+	}
+
 	uint8_t VrrpLayer::getIPAddressesCount() const
 	{
 		return getVrrpHeader()->ipAddrCount;
@@ -448,11 +453,6 @@ namespace pcpp {
 		authAdvIntPtr->authType = authType;
 	}
 
-	void VrrpV2Layer::calculateAndSetChecksum()
-	{
-		getVrrpHeader()->checksum = htobe16(calculateChecksum());
-	}
-
 	uint16_t VrrpV2Layer::calculateChecksum() const
 	{
 		if ((getData() == nullptr) || (getDataLen() == 0))
@@ -499,13 +499,6 @@ namespace pcpp {
 		}
 		auto rsvdAdv = (vrrpv3_rsvd_adv *)&getVrrpHeader()->authTypeAdvInt;
 		rsvdAdv->maxAdvInt = htobe16(maxAdvInt);
-	}
-
-	void VrrpV3Layer::calculateAndSetChecksum()
-	{
-		uint16_t checksum = calculateChecksum();
-
-		getVrrpHeader()->checksum = htobe16(checksum);
 	}
 
 	uint16_t VrrpV3Layer::calculateChecksum() const
