@@ -168,46 +168,33 @@ namespace pcpp {
 	std::vector<IPAddress> VrrpLayer::getIPAddresses() const
 	{
 		std::vector<IPAddress> ipAddressesVec;
-		uint8_t ipAddrCount = getIPAddressesCount();
-		uint8_t *ipAddressesPtr = getFirstIPAddress();
-		size_t ipAddressLen = getIPAddressLen();
-		if ((ipAddrCount == 0) || (ipAddressesPtr == nullptr))
+		auto ipAddressesPtr = getFirstIPAddressPtr();
+		while (ipAddressesPtr != nullptr)
 		{
-			return ipAddressesVec;
-		}
-
-		for (int i = 0; i < ipAddrCount; i++)
-		{
-			IPAddress ipAddress;
-			if (!getIPAddressFromData(ipAddressesPtr, ipAddress))
-			{
-				continue;
-			}
-
+			IPAddress ipAddress = getIPAddressFromData(ipAddressesPtr);
 			ipAddressesVec.push_back(ipAddress);
-			ipAddressesPtr += ipAddressLen;
+			ipAddressesPtr = getNextIPAddressPtr(ipAddressesPtr);
 		}
 
 		return ipAddressesVec;
 	}
 
-	uint8_t *VrrpLayer::getFirstIPAddress() const
+	uint8_t* VrrpLayer::getFirstIPAddressPtr() const
 	{
 		size_t ipAddressLen = getIPAddressLen();
 
 		// check if there are virtual IP address at all
 		if (getHeaderLen() <= VRRP_PACKET_FIX_LEN + ipAddressLen)
 		{
-			PCPP_LOG_ERROR("Cannot get first virtual IP address, for length(" << getHeaderLen() << ") is too short.");
 			return nullptr;
 		}
 
 		return (m_Data + VRRP_PACKET_FIX_LEN);
 	}
 
-	uint8_t *VrrpLayer::getNextIPAddress(uint8_t *ipAddress) const
+	uint8_t *VrrpLayer::getNextIPAddressPtr(uint8_t* ipAddressPtr) const
 	{
-		if (ipAddress == nullptr)
+		if (ipAddressPtr == nullptr)
 		{
 			return nullptr;
 		}
@@ -215,12 +202,12 @@ namespace pcpp {
 		size_t ipAddressLen = getIPAddressLen();
 
 		// prev virtual IP address was the last virtual IP address
-		if (ipAddress + ipAddressLen - m_Data >= (int) getHeaderLen())
+		if (ipAddressPtr + ipAddressLen - m_Data >= (int) getHeaderLen())
 		{
 			return nullptr;
 		}
 
-		return (ipAddress + ipAddressLen);
+		return (ipAddressPtr + ipAddressLen);
 	}
 
 	bool VrrpLayer::addIPAddressesAt(const std::vector<IPAddress> &ipAddresses, int offset)
@@ -296,10 +283,10 @@ namespace pcpp {
 		size_t ipAddressLen = getIPAddressLen();
 
 		size_t offset = VRRP_PACKET_FIX_LEN;
-		uint8_t *curIpAddress = getFirstIPAddress();
+		auto curIpAddressPtr = getFirstIPAddressPtr();
 		for (int i = 0; i < index; i++)
 		{
-			if (curIpAddress == nullptr)
+			if (curIpAddressPtr == nullptr)
 			{
 				PCPP_LOG_ERROR("Cannot remove virtual IP address at index "
 									   << index << ", cannot find virtual IP address at index " << i);
@@ -307,7 +294,7 @@ namespace pcpp {
 			}
 
 			offset += ipAddressLen;
-			curIpAddress = getNextIPAddress(curIpAddress);
+			curIpAddressPtr = getNextIPAddressPtr(curIpAddressPtr);
 		}
 
 		if (!shortenLayer((int) offset, ipAddressLen))
@@ -355,24 +342,16 @@ namespace pcpp {
 		}
 	}
 
-	bool VrrpLayer::getIPAddressFromData(uint8_t *data, IPAddress &ipAddress) const
+	IPAddress VrrpLayer::getIPAddressFromData(uint8_t *data) const
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			IPv4Address ipv4Address(*((uint32_t *) data));
-			ipAddress = ipv4Address;
-		}
-		else if (getAddressType() == IPAddress::IPv6AddressType)
-		{
-			IPv6Address ipv6Address(data);
-			ipAddress = ipv6Address;
+			return IPv4Address(*((uint32_t *) data));
 		}
 		else
 		{
-			return false;
+			return IPv6Address(data);
 		}
-
-		return true;
 	}
 
 	bool VrrpLayer::isIPAddressValid(IPAddress &ipAddress) const

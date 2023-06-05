@@ -121,6 +121,14 @@ namespace pcpp
 
 		bool isIPAddressValid(IPAddress &ipAddress) const;
 
+		uint8_t* getFirstIPAddressPtr() const;
+
+		uint8_t* getNextIPAddressPtr(uint8_t* ipAddressPtr) const;
+
+		IPAddress getIPAddressFromData(uint8_t *data) const;
+
+		void copyIPAddressToData(uint8_t *data, const IPAddress &ipAddress) const;
+
 		IPAddress::AddressType m_AddressType;
 
 	protected:
@@ -257,23 +265,6 @@ namespace pcpp
 		std::vector<IPAddress> getIPAddresses() const;
 
 		/**
-		 * A method that gets first VRRP virtual IP address
-		 * @return A pointer to the first virtual IP address or NULL if no virtual IP address exist. Notice the return value is a pointer to the real data,
-		 * so changes in the return value will affect the packet data
-		 */
-		uint8_t *getFirstIPAddress() const;
-
-		/**
-		 * Get the virtual IP address that comes next to a given virtual IP address. If "ipAddress" is NULL then NULL will be returned.
-		 * If "ipAddress" is the last virtual IP address or if it is out of layer bounds NULL will be returned also. Notice the return value is a
-		 * pointer to the real data casted to IPAddress type (as opposed to a copy of the option data). So changes in the return
-		 * value will affect the packet data
-		 * @param[in] ipAddress The virtual IP address to start searching from
-		 * @return The next virtual IP address or NULL if "ipAddress" is NULL, last or out of layer bounds
-		 */
-		uint8_t *getNextIPAddress(uint8_t *ipAddress) const;
-
-		/**
 		 * Add virtual IP address at a the end of the virtual IP address list. The vrrp_header#ipAddressCount field will be
 		 * incremented accordingly
 		 * @param[in] ipAddresses A vector containing all the virtual IP address
@@ -303,19 +294,6 @@ namespace pcpp
 		 * will be printed to log
 		 */
 		bool removeAllIPAddresses();
-
-		/**
-		 * Copy IP address to data
-		 * @param[in] data A data pointer
-		 * @param[in] ipAddress IP address
-		 */
-		void copyIPAddressToData(uint8_t *data, const IPAddress &ipAddress) const;
-
-		/**
-		 * Get IP address from data
-		 * @return true if get successfully, otherwise return false.
-		 */
-		bool getIPAddressFromData(uint8_t *data, IPAddress &ipAddress) const;
 
 		// implement abstract methods
 
@@ -449,6 +427,7 @@ namespace pcpp
 		* @param[in] dataLen Size of the data in bytes
 		* @param[in] prevLayer A pointer to the previous layer
 		* @param[in] packet A pointer to the Packet instance where layer will be stored in
+		* @param[in] addressType The IP address type to set for this layer
 		*/
 		VrrpV3Layer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet, IPAddress::AddressType addressType)
 				: VrrpLayer(data, dataLen, prevLayer, packet, VRRPv3, addressType) {}

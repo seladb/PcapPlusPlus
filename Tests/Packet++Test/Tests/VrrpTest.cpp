@@ -35,12 +35,20 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getPriority(), 100);
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Default, enum)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAddressType(), pcpp::IPAddress::IPv4AddressType, enum)
-	PTF_ASSERT_EQUAL(vrrpV2Layer->getIPAddressesCount(), 3)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAuthType(), 0)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::NoAuthentication, enumclass)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getChecksum(), 0x38fa)
 	PTF_ASSERT_TRUE(vrrpV2Layer->isChecksumCorrect())
+	PTF_ASSERT_EQUAL(vrrpV2Layer->getIPAddressesCount(), 3)
+	auto ipAddressVec = vrrpV2Layer->getIPAddresses();
+	std::vector<pcpp::IPAddress> expectedIpAddressVec = {
+		pcpp::IPAddress("192.168.0.1"),
+		pcpp::IPAddress("192.168.0.2"),
+		pcpp::IPAddress("192.168.0.3")
+	};
+	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
+
 
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
@@ -52,10 +60,16 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getPriority(), 100);
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Default, enum)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getAddressType(), pcpp::IPAddress::IPv4AddressType, enum)
-	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getIPAddressesCount(), 2)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getMaxAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getChecksum(), 0x484d)
 	PTF_ASSERT_TRUE(vrrpV3IPv4Layer->isChecksumCorrect())
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getIPAddressesCount(), 2)
+	ipAddressVec = vrrpV3IPv4Layer->getIPAddresses();
+	expectedIpAddressVec = {
+		pcpp::IPAddress("192.168.0.1"),
+		pcpp::IPAddress("192.168.0.2")
+	};
+	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
 
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRPv2))
@@ -71,6 +85,13 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getMaxAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getChecksum(), 0x1071)
 	PTF_ASSERT_TRUE(vrrpV3IPv6Layer->isChecksumCorrect())
+	ipAddressVec = vrrpV3IPv6Layer->getIPAddresses();
+	expectedIpAddressVec = {
+		pcpp::IPAddress("fe80::254"),
+		pcpp::IPAddress("2001:db8::1"),
+		pcpp::IPAddress("2001:db8::2")
+	};
+	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
 } // VrrpParsingTest
 
 
