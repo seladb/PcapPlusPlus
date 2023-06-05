@@ -218,6 +218,15 @@ namespace pcpp {
 			return false;
 		}
 
+		for (auto ipAddress: ipAddresses)
+		{
+			if (!isIPAddressValid(ipAddress))
+			{
+				PCPP_LOG_ERROR("Cannot add virtual IP address, for IP address is invalid.");
+				return false;
+			}
+		}
+
 		uint8_t ipAddressCount = getIPAddressesCount();
 		if (ipAddressCount + ipAddresses.size() > VRRP_PACKET_MAX_IP_ADDRESS_NUM)
 		{
@@ -242,13 +251,7 @@ namespace pcpp {
 		uint8_t *newIpAddresses = getData() + offset;
 		for (auto ipAddress: ipAddresses)
 		{
-			if (!isIPAddressValid(ipAddress))
-			{
-				PCPP_LOG_ERROR("Cannot add virtual IP address, for IP address is invalid.");
-				return false;
-			}
 			copyIPAddressToData(newIpAddresses + ipAddrOffset, ipAddress);
-
 			ipAddrOffset += ipAddrLen;
 		}
 
@@ -348,10 +351,8 @@ namespace pcpp {
 		{
 			return IPv4Address(*((uint32_t *) data));
 		}
-		else
-		{
-			return IPv6Address(data);
-		}
+
+		return IPv6Address(data);
 	}
 
 	bool VrrpLayer::isIPAddressValid(IPAddress &ipAddress) const

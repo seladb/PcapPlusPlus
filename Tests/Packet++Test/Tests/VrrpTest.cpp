@@ -17,6 +17,10 @@ PTF_TEST_CASE(VrrpParsingTest)
 	timeval time = {};
 	gettimeofday(&time, nullptr);
 
+	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(nullptr, 0), pcpp::UnknownProtocol);
+	uint8_t fakeBuffer[10] = {0xb4,0xaf,0x98,0x1a, 0xb4,0xaf,0x98,0x1a, 0x98,0x1a};
+	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(fakeBuffer, 8), pcpp::UnknownProtocol);
+
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/VRRP-V2.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/VRRP-V3-IPv4.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/VRRP-V3-IPv6.dat");
@@ -147,9 +151,14 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_FALSE(vrrpv2Layer.removeIPAddressAtIndex(1))
 	pcpp::Logger::getInstance().enableLogs();
 
-	vrrpv2Layer.addIPAddress(ipv4Address1);
-	vrrpv2Layer.addIPAddress(ipv4Address2);
-	vrrpv2Layer.addIPAddress(ipv4Address3);
+	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address1))
+	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address2))
+	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address3))
+
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(pcpp::IPv4Address("invalid")))
+	PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv6Address1))
+	pcpp::Logger::getInstance().enableLogs();
 
 	vrrpv2Layer.removeIPAddressAtIndex(1);
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddressesCount(), 2)
@@ -165,6 +174,11 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	};
 	PTF_ASSERT_TRUE(ipAddresses == expectedIpAddresses)
 
+	vrrpv2Layer.setAuthType(1);
+	PTF_ASSERT_EQUAL(vrrpv2Layer.getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::SimpleTextPassword, enumclass)
+	vrrpv2Layer.setAuthType(10);
+	PTF_ASSERT_EQUAL(vrrpv2Layer.getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::Other, enumclass)
+
 
 	//VRRPv3 IPv4 Packet
 	pcpp::EthLayer ethLayer2(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
@@ -179,10 +193,27 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.addLayer(&ethLayer2))
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.addLayer(&ipv4Layer))
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.addLayer(&vrrpv3IPv4Layer))
+
 	vrrpv3IPv4Packet.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Packet.getRawPacket()->getRawDataLen(), bufferLength2)
 	PTF_ASSERT_BUF_COMPARE(vrrpv3IPv4Packet.getRawPacket()->getRawData(), buffer2, bufferLength2)
+
+	vrrpv3IPv4Layer.setPriority(0);
+	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Stop)
+	vrrpv3IPv4Layer.setPriority(255);
+	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Owner)
+	vrrpv3IPv4Layer.setPriority(54);
+	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Other)
+
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(vrrpv3IPv4Layer.addIPAddress(ipv6Address1))
+	pcpp::Logger::getInstance().enableLogs();
+
+	vrrpv3IPv4Layer.getData()[0] = 0x55;
+	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getType(), pcpp::VrrpLayer::VrrpType::VrrpType_Unknown)
+
+	PTF_ASSERT_RAISES(vrrpv3IPv4Layer.setMaxAdvInt(0x1234), std::invalid_argument, "maxAdvInt must not exceed 12 bits length")
 
 
 	//VRRPv3 IPv6 Packet

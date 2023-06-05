@@ -163,11 +163,11 @@ namespace pcpp
 		 */
 		enum VrrpPriority
 		{
-			/** Default priority for a backup VRRP router */
+			/** Default priority for a backup VRRP router (value of 100) */
 			Default,
-			/** Current Master has stopped participating in VRRP */
+			/** Current Master has stopped participating in VRRP (value of 0) */
 			Stop,
-			/** This VRRP router owns the virtual router's IP address(es) */
+			/** This VRRP router owns the virtual router's IP address(es) (value of 255) */
 			Owner,
 			/** Other priority */
 			Other
