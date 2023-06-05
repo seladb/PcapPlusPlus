@@ -40,6 +40,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getChecksum(), 0x38fa)
 	PTF_ASSERT_TRUE(vrrpV2Layer->isChecksumCorrect())
+	PTF_ASSERT_EQUAL(vrrpV2Layer->toString(), "VRRP v2 Layer, virtual router ID: 1, IP address count: 3")
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getIPAddressesCount(), 3)
 	auto ipAddressVec = vrrpV2Layer->getIPAddresses();
 	std::vector<pcpp::IPAddress> expectedIpAddressVec = {
@@ -63,6 +64,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getMaxAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getChecksum(), 0x484d)
 	PTF_ASSERT_TRUE(vrrpV3IPv4Layer->isChecksumCorrect())
+	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->toString(), "VRRP v3 Layer, virtual router ID: 1, IP address count: 2")
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getIPAddressesCount(), 2)
 	ipAddressVec = vrrpV3IPv4Layer->getIPAddresses();
 	expectedIpAddressVec = {
@@ -85,6 +87,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getMaxAdvInt(), 1)
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->getChecksum(), 0x1071)
 	PTF_ASSERT_TRUE(vrrpV3IPv6Layer->isChecksumCorrect())
+	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->toString(), "VRRP v3 Layer, virtual router ID: 1, IP address count: 3")
 	ipAddressVec = vrrpV3IPv6Layer->getIPAddresses();
 	expectedIpAddressVec = {
 		pcpp::IPAddress("fe80::254"),
@@ -132,27 +135,36 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_TRUE(vrrpv2Packet.addLayer(&vrrpv2Layer))
 
 	vrrpv2Packet.computeCalculateFields();
-	PTF_ASSERT_TRUE(vrrpv2Layer.removeAllIPAddresses())
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(vrrpv2Layer.removeIPAddressAtIndex(1))
-	pcpp::Logger::getInstance().enableLogs();
-	vrrpv2Layer.addIPAddress(ipv4Address1);
-	vrrpv2Layer.addIPAddress(ipv4Address2);
-	vrrpv2Layer.addIPAddress(ipv4Address3);
-
-	vrrpv2Layer.removeAllIPAddresses();
-
-	vrrpv2Layer.addIPAddress(ipv4Address1);
-	vrrpv2Layer.addIPAddress(ipv4Address2);
-	vrrpv2Layer.addIPAddress(ipv4Address3);
-
-	vrrpv2Layer.removeIPAddressAtIndex(2);
-	vrrpv2Layer.addIPAddress(ipv4Address3);
-
-	vrrpv2Packet.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(vrrpv2Packet.getRawPacket()->getRawDataLen(), bufferLength1)
 	PTF_ASSERT_BUF_COMPARE(vrrpv2Packet.getRawPacket()->getRawData(), buffer1, bufferLength1)
+
+	PTF_ASSERT_TRUE(vrrpv2Layer.removeAllIPAddresses())
+	PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddressesCount(), 0)
+	auto ipAddresses = vrrpv2Layer.getIPAddresses();
+	PTF_ASSERT_TRUE(ipAddresses.empty());
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(vrrpv2Layer.removeIPAddressAtIndex(1))
+	pcpp::Logger::getInstance().enableLogs();
+
+	vrrpv2Layer.addIPAddress(ipv4Address1);
+	vrrpv2Layer.addIPAddress(ipv4Address2);
+	vrrpv2Layer.addIPAddress(ipv4Address3);
+
+	vrrpv2Layer.removeIPAddressAtIndex(1);
+	PTF_ASSERT_EQUAL(vrrpv2Layer.getIPAddressesCount(), 2)
+	PTF_ASSERT_FALSE(vrrpv2Layer.isChecksumCorrect())
+
+	vrrpv2Layer.addIPAddress(ipv4Address2);
+
+	ipAddresses = vrrpv2Layer.getIPAddresses();
+	std::vector<pcpp::IPAddress> expectedIpAddresses = {
+		ipv4Address1,
+		ipv4Address3,
+		ipv4Address2,
+	};
+	PTF_ASSERT_TRUE(ipAddresses == expectedIpAddresses)
+
 
 	//VRRPv3 IPv4 Packet
 	pcpp::EthLayer ethLayer2(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
@@ -172,6 +184,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Packet.getRawPacket()->getRawDataLen(), bufferLength2)
 	PTF_ASSERT_BUF_COMPARE(vrrpv3IPv4Packet.getRawPacket()->getRawData(), buffer2, bufferLength2)
 
+
 	//VRRPv3 IPv6 Packet
 	pcpp::EthLayer ethLayer3(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("fe80::1"), pcpp::IPv6Address("ff02::12"));
@@ -180,7 +193,7 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	pcpp::Packet ipv6Packet(1);
 	pcpp::VrrpV3Layer vrrpv3IPv6Layer(pcpp::IPAddress::IPv6AddressType, 1, 100, 1);
 
-	std::vector<pcpp::IPAddress> ipAddresses;
+	ipAddresses.clear();
 	ipAddresses.push_back(ipv6Address1);
 	ipAddresses.push_back(ipv6Address2);
 	ipAddresses.push_back(ipv6Address3);

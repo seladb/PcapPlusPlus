@@ -278,7 +278,7 @@ namespace pcpp
 		 * @param[in] ipAddress A vector containing all the virtual IP address
 		 * @return true if add successfully, false otherwise.
 		 */
-		bool addIPAddress(IPAddress &ipAddress);
+		bool addIPAddress(const IPAddress &ipAddress);
 
 		/**
 		 * Remove a virtual IP address at a certain index. The vrrp_header#ipAddressCount field will be decremented accordingly
@@ -300,21 +300,21 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (VRRP layer is always last)
 		 */
-		void parseNextLayer() {}
+		void parseNextLayer() override {}
 
 		/**
 		 * Calculate the VRRP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * @return The message size in bytes which include the size of the basic header + the size of the IP address(es)
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const override { return m_DataLen; }
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelNetworkLayer; }
 	};
 
 	/**

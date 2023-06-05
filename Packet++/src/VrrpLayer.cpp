@@ -262,7 +262,7 @@ namespace pcpp {
 		return addIPAddressesAt(ipAddresses, (int) getHeaderLen());
 	}
 
-	bool VrrpLayer::addIPAddress(IPAddress &ipAddress)
+	bool VrrpLayer::addIPAddress(const IPAddress &ipAddress)
 	{
 		std::vector<IPAddress> ipAddresses;
 		ipAddresses.push_back(ipAddress);
