@@ -19,7 +19,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 
 	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(nullptr, 0), pcpp::UnknownProtocol);
 	uint8_t fakeBuffer[10] = {0xb4,0xaf,0x98,0x1a, 0xb4,0xaf,0x98,0x1a, 0x98,0x1a};
-	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(fakeBuffer, 8), pcpp::UnknownProtocol);
+	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(fakeBuffer, 10), pcpp::UnknownProtocol);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/VRRP-V2.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/VRRP-V3-IPv4.dat");
@@ -173,6 +173,16 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 		ipv4Address2,
 	};
 	PTF_ASSERT_TRUE(ipAddresses == expectedIpAddresses)
+
+	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddresses(std::vector<pcpp::IPAddress>()))
+
+	for (int i = 0; i < 255 - 3; i++)
+	{
+		PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address1))
+	}
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv4Address1))
+	pcpp::Logger::getInstance().enableLogs();
 
 	vrrpv2Layer.setAuthType(1);
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::SimpleTextPassword, enumclass)

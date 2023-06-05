@@ -227,8 +227,7 @@ namespace pcpp {
 			}
 		}
 
-		uint8_t ipAddressCount = getIPAddressesCount();
-		if (ipAddressCount + ipAddresses.size() > VRRP_PACKET_MAX_IP_ADDRESS_NUM)
+		if (getIPAddressesCount() + ipAddresses.size() > VRRP_PACKET_MAX_IP_ADDRESS_NUM)
 		{
 			PCPP_LOG_ERROR("Cannot add virtual IP address, for virtual IP address has already exceed maximum.");
 			return false;
@@ -238,9 +237,9 @@ namespace pcpp {
 		size_t ipAddressesLen = ipAddrLen * ipAddresses.size();
 		if (ipAddressesLen == 0)
 		{
-			PCPP_LOG_ERROR("Cannot add virtual IP address, for ip address length is invalid.");
-			return false;
+			return true;
 		}
+
 		if (!extendLayer(offset, ipAddressesLen))
 		{
 			PCPP_LOG_ERROR("Cannot add virtual IP address, cannot extend layer");
