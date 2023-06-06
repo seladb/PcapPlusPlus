@@ -8,9 +8,8 @@
 #include "GreLayer.h"
 #include "IPSecLayer.h"
 #include "IcmpV6Layer.h"
-#include "NdpLayer.h"
+#include "VrrpLayer.h"
 #include "Packet.h"
-#include "PacketUtils.h"
 #include <string.h>
 #include "EndianPortable.h"
 
@@ -265,6 +264,15 @@ void IPv6Layer::parseNextLayer()
 		m_NextLayer = IcmpV6Layer::parseIcmpV6Layer(payload, payloadLen, this, m_Packet);
 		break;
 	}
+	case PACKETPP_IPPROTO_VRRP:
+	{
+		auto vrrpVer = VrrpLayer::getVersionFromData(payload, payloadLen);
+		if (vrrpVer == VRRPv3)
+			m_NextLayer = new VrrpV3Layer(payload, payloadLen, this, m_Packet, IPAddress::IPv6AddressType);
+		else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		break;
+	}
 	default:
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		return;
@@ -297,6 +305,9 @@ void IPv6Layer::computeCalculateFields()
 		case GREv0:
 		case GREv1:
 			nextHeader = PACKETPP_IPPROTO_GRE;
+			break;
+		case VRRPv3:
+			nextHeader = PACKETPP_IPPROTO_VRRP;
 			break;
 		default:
 			break;
