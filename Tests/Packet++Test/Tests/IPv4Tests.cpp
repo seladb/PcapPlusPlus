@@ -526,4 +526,3 @@ PTF_TEST_CASE(IPv4UdpChecksum)
 		PTF_ASSERT_EQUAL(udpLayer->getUdpHeader()->headerChecksum, packetChecksum, hex);
 	}
 } // Ipv4UdpChecksum
-

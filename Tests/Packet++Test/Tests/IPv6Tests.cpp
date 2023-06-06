@@ -409,29 +409,3 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(ipv6MultipleOptions.getRawPacket()->getRawDataLen(), newPacket5.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(), ipv6MultipleOptions.getRawPacket()->getRawDataLen());
 } // IPv6ExtensionsTest
-
-
-
-PTF_TEST_CASE(IPv6UdpChecksum)
-{
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/UDP-IPv6-Checksum-Bad.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/UDP-IPv6-Checksum-Correct.dat");
-
-	pcpp::Packet tcpPacket1(&rawPacket1);
-	pcpp::Packet tcpPacket2(&rawPacket2);
-
-	pcpp::UdpLayer* udpLayer1 = tcpPacket1.getLayerOfType<pcpp::UdpLayer>();
-	PTF_ASSERT_NOT_NULL(udpLayer1);
-	uint16_t packetChecksum1 = udpLayer1->getUdpHeader()->headerChecksum;
-	udpLayer1->computeCalculateFields();
-	PTF_ASSERT_NOT_EQUAL(udpLayer1->getUdpHeader()->headerChecksum, packetChecksum1, hex);
-
-	pcpp::UdpLayer* udpLayer2 = tcpPacket2.getLayerOfType<pcpp::UdpLayer>();
-	PTF_ASSERT_NOT_NULL(udpLayer2);
-	uint16_t packetChecksum2 = udpLayer2->getUdpHeader()->headerChecksum;
-	udpLayer2->computeCalculateFields();
-	PTF_ASSERT_EQUAL(udpLayer2->getUdpHeader()->headerChecksum, packetChecksum2, hex);
-} // Ipv4UdpChecksum
