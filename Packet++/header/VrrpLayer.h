@@ -69,7 +69,7 @@ namespace pcpp
 
 	/**
 	 * @struct vrrp_header
-	 * VRRP packet
+	 * VRRP generic header
 	 */
 	struct vrrp_header
 	{
@@ -154,7 +154,7 @@ namespace pcpp
 			/** Unknown VRRP message */
 			VrrpType_Unknown = 0,
 
-			/** VRRP advertisement packet */
+			/** VRRP advertisement message */
 			VrrpType_Advertisement = 1
 		};
 
@@ -176,28 +176,25 @@ namespace pcpp
 		virtual ~VrrpLayer() {}
 
 		/**
-		* A method that get IP Address type
 		* @return The VRRP IP Address type
 		*/
 		IPAddress::AddressType getAddressType() const;
 
 		/**
 		 * A static method that validates the input data
-		 * @param[in] data The VRRP raw data (byte stream)
-		 * @param[in] dataLen The length of byte stream
+		 * @param[in] data VRRP raw data (byte stream)
+		 * @param[in] dataLen The length of the byte stream
 		 * @return One of the values ::VRRPv2, ::VRRPv3 according to detected VRRP version or ::UnknownProtocol if couldn't detect
 	 	 * VRRP version
 		 */
 		static ProtocolType getVersionFromData(uint8_t *data, size_t dataLen);
 
 		/**
-		* A method that gets VRRP version
-		* @return The version in this message
+		* @return VRRP version of this message
 		*/
 		uint8_t getVersion() const;
 
 		/**
-		 * A method that gets VRRP type
 		 * @return VRRP type set in vrrp_header#type as VrrpLayer::VrrpType enum.
 		 */
 		VrrpType getType() const;
@@ -230,8 +227,7 @@ namespace pcpp
 		void setPriority(uint8_t priority);
 
 		/**
-		* A method that gets VRRP checksum
-		* @return The checksum in this message
+		* @return VRRP checksum of this message
 		*/
 		uint16_t getChecksum() const;
 
@@ -241,42 +237,39 @@ namespace pcpp
 		void calculateAndSetChecksum();
 
 		/**
-		 * Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
+		 * Calculate the checksum from header and data and write the result to @ref vrrp_header#checksum
 		 * @return The checksum result
 		 */
 		virtual uint16_t calculateChecksum() const = 0;
 
 		/**
-		 * A method that validates the VRRP layer checksum
-		 * @return True if the checksum is correct
+		 * @return True if VRRP checksum is correct
 		 */
 		bool isChecksumCorrect() const;
 
 		/**
-		 * A method that gets count of VRRP virtual IP addresses
-		 * @return The count of virtual IP addresses in this message
+		 * @return The count of VRRP virtual IP addresses in this message
 		 */
 		uint8_t getIPAddressesCount() const;
 
 		/**
-		 * A method that gets VRRP virtual IP addresses
-		 * @return The virtual IP addresses in this message
+		 * @return A list of the virtual IP addresses in this message
 		 */
 		std::vector<IPAddress> getIPAddresses() const;
 
 		/**
-		 * Add virtual IP address at a the end of the virtual IP address list. The vrrp_header#ipAddressCount field will be
+		 * Add a list of virtual IP addresses at a the end of the virtual IP address list. The vrrp_header#ipAddressCount field will be
 		 * incremented accordingly
 		 * @param[in] ipAddresses A vector containing all the virtual IP address
-		 * @return true if add successfully, false otherwise.
+		 * @return true if added successfully, false otherwise
 		 */
 		bool addIPAddresses(const std::vector<IPAddress> &ipAddresses);
 
 		/**
-		 * Add a new virtual IP address at a the end of the virtual IP address list. The vrrp_header#ipAddressCount field will be
+		 * Add a virtual IP address at a the end of the virtual IP address list. The vrrp_header#ipAddressCount field will be
 		 * incremented accordingly
-		 * @param[in] ipAddress A vector containing all the virtual IP address
-		 * @return true if add successfully, false otherwise.
+		 * @param[in] ipAddress Virtual IP address to add
+		 * @return true if add successfully, false otherwise
 		 */
 		bool addIPAddress(const IPAddress &ipAddress);
 
@@ -372,8 +365,7 @@ namespace pcpp
 		~VrrpV2Layer() {}
 
 		/**
-		* A method that gets VRRP advertisement interval
-		* @return The advertisement interval in this message
+		* @return The VRRP advertisement interval in this message
 		*/
 		uint8_t getAdvInt() const;
 
@@ -384,7 +376,6 @@ namespace pcpp
 		void setAdvInt(uint8_t advInt);
 
 		/**
-		* A method that gets VRRP authentication type
 		* @return The authentication type in this message
 		*/
 		uint8_t getAuthType() const;
@@ -403,7 +394,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		* Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
+		* Calculate the checksum from header and data and write the result to @ref vrrp_header#checksum
 		* @return The checksum result
 		*/
 		uint16_t calculateChecksum() const override;
@@ -460,7 +451,7 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		* Calculate the checksum from header and data and possibly write the result to @ref vrrp_header#checksum
+		* Calculate the checksum from header and data and write the result to @ref vrrp_header#checksum
 		* @return The checksum result
 		*/
 		uint16_t calculateChecksum() const override;
