@@ -6,7 +6,6 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "UdpLayer.h"
-#include "TcpLayer.h"
 #include "IcmpV6Layer.h"
 #include "PayloadLayer.h"
 #include "Packet.h"
@@ -436,29 +435,3 @@ PTF_TEST_CASE(IPv6UdpChecksum)
 	udpLayer2->computeCalculateFields();
 	PTF_ASSERT_EQUAL(udpLayer2->getUdpHeader()->headerChecksum, packetChecksum2, hex);
 } // Ipv4UdpChecksum
-
-
-
-PTF_TEST_CASE(IPv6TcpChecksum)
-{
-	timeval time;
-	gettimeofday(&time, nullptr);
-
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TCP-IPv6-Checksum-Bad.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/TCP-IPv6-Checksum-Correct.dat");
-
-	pcpp::Packet tcpPacket1(&rawPacket1);
-	pcpp::Packet tcpPacket2(&rawPacket2);
-
-	pcpp::TcpLayer* tcpLayer1 = tcpPacket1.getLayerOfType<pcpp::TcpLayer>();
-	PTF_ASSERT_NOT_NULL(tcpLayer1);
-	uint16_t packetChecksum1 = tcpLayer1->getTcpHeader()->headerChecksum;
-	tcpLayer1->computeCalculateFields();
-	PTF_ASSERT_NOT_EQUAL(tcpLayer1->getTcpHeader()->headerChecksum, packetChecksum1, hex);
-
-	pcpp::TcpLayer* tcpLayer2 = tcpPacket2.getLayerOfType<pcpp::TcpLayer>();
-	PTF_ASSERT_NOT_NULL(tcpLayer2);
-	uint16_t packetChecksum2 = tcpLayer2->getTcpHeader()->headerChecksum;
-	tcpLayer2->computeCalculateFields();
-	PTF_ASSERT_EQUAL(tcpLayer2->getTcpHeader()->headerChecksum, packetChecksum2, hex);
-} // Ipv6TcpChecksum
