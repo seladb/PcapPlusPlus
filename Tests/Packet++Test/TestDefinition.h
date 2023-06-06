@@ -24,14 +24,11 @@ PTF_TEST_CASE(IPv4FragmentationTest);
 PTF_TEST_CASE(IPv4OptionsParsingTest);
 PTF_TEST_CASE(IPv4OptionsEditTest);
 PTF_TEST_CASE(IPv4UdpChecksum);
-PTF_TEST_CASE(IPv4TcpChecksum);
 
 // Implemented in IPv6Tests.cpp
 PTF_TEST_CASE(IPv6UdpPacketParseAndCreate);
 PTF_TEST_CASE(IPv6FragmentationTest);
 PTF_TEST_CASE(IPv6ExtensionsTest);
-PTF_TEST_CASE(IPv6UdpChecksum);
-PTF_TEST_CASE(IPv6TcpChecksum);
 
 // Implemented in TcpTests.cpp
 PTF_TEST_CASE(TcpPacketNoOptionsParsing);
