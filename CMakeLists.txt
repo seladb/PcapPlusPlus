@@ -176,7 +176,6 @@ if(PCAPPP_USE_DPDK)
   add_definitions(-DUSE_DPDK)
   # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
   add_definitions("-Wno-deprecated-declarations")
-  set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
 
@@ -190,7 +189,6 @@ if(PCAPPP_USE_PF_RING)
     message(FATAL_ERROR "Specify PF_RING Library with -DPF_RING_ROOT=<PF_RING_PATH>")
   endif()
   add_definitions(-DUSE_PF_RING)
-  set(_PCAPPP_FIND_PF_RING "find_dependency(PF_RING)\n")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -249,8 +247,29 @@ if(PCAPPP_INSTALL)
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
   # CMake helpers to compile Pcap++ with CMake
+  if(PCAPPP_USE_PF_RING)
+    set(_PCAPPP_FIND_PF_RING "find_dependency(PF_RING)\n")
+    install(
+      FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindPF_RING.cmake"
+      COMPONENT devel
+      DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+  endif()
+
+  if(PCAPPP_USE_DPDK)
+    set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
+    install(
+      FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindDPDK.cmake"
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindNUMA.cmake"
+      COMPONENT devel
+      DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+  endif()
+
   if(LIGHT_PCAPNG_ZSTD)
-    set(_PCAPPP_FIND_ZSTD "if(NOT ZSTD_FOUND)\n  find_dependency(ZSTD)\nendif()")
+    set(_PCAPPP_FIND_ZSTD "if(NOT ZSTD_FOUND)\nfind_dependency(ZSTD)\nendif()")
+    install(
+      FILES "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
+      COMPONENT devel
+      DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
   endif()
 
   install(
@@ -269,13 +288,8 @@ if(PCAPPP_INSTALL)
 
   # CMake helpers to compile Pcap++ with CMake
   install(
-    DIRECTORY "${PROJECT_SOURCE_DIR}/cmake/modules"
-    COMPONENT devel
-    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
-  install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
-          "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
     COMPONENT devel
     DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 endif()
