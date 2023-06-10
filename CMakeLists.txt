@@ -19,8 +19,12 @@ project(
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
-include(DetectCompiler)
+include(PcapPlusPlusUtils)
 include(GNUInstallDirs)
+
+# Setup CMake
+pcapp_detect_compiler(PCAPPP_TARGET)
+
 # LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
 if(UNIX
    AND NOT APPLE
@@ -247,29 +251,22 @@ if(PCAPPP_INSTALL)
   install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 
   # CMake helpers to compile Pcap++ with CMake
+  pcapp_install_cmake_module(PCAP)
+
   if(PCAPPP_USE_PF_RING)
     set(_PCAPPP_FIND_PF_RING "find_dependency(PF_RING)\n")
-    install(
-      FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindPF_RING.cmake"
-      COMPONENT devel
-      DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    pcapp_install_cmake_module(PF_RING)
   endif()
 
   if(PCAPPP_USE_DPDK)
     set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
-    install(
-      FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindDPDK.cmake"
-            "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/FindNUMA.cmake"
-      COMPONENT devel
-      DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    pcapp_install_cmake_module(DPDK)
+    pcapp_install_cmake_module(NUMA)
   endif()
 
   if(LIGHT_PCAPNG_ZSTD)
     set(_PCAPPP_FIND_ZSTD "if(NOT ZSTD_FOUND)\nfind_dependency(ZSTD)\nendif()")
-    install(
-      FILES "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/LightPcapNg/LightPcapNg/cmake/FindZSTD.cmake"
-      COMPONENT devel
-      DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    pcapp_install_cmake_module(ZSTD)
   endif()
 
   install(
