@@ -40,6 +40,7 @@ function(pcapp_detect_compiler TARGET)
 endfunction()
 
 function(pcapp_install_cmake_module MODULE)
+  set(_PCAPPP_CONFIG_DEPENDENCY "${_PCAPPP_CONFIG_DEPENDENCY}if(NOT ${MODULE}_FOUND)\nfind_dependency(${MODULE})\nendif()\n" PARENT_SCOPE)
   install(
     FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/Find${MODULE}.cmake"
     COMPONENT devel

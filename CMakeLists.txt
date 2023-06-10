@@ -254,18 +254,15 @@ if(PCAPPP_INSTALL)
   pcapp_install_cmake_module(PCAP)
 
   if(PCAPPP_USE_PF_RING)
-    set(_PCAPPP_FIND_PF_RING "find_dependency(PF_RING)\n")
     pcapp_install_cmake_module(PF_RING)
   endif()
 
   if(PCAPPP_USE_DPDK)
-    set(_PCAPPP_FIND_DPDK "find_dependency(DPDK)\n")
     pcapp_install_cmake_module(DPDK)
     pcapp_install_cmake_module(NUMA)
   endif()
 
   if(LIGHT_PCAPNG_ZSTD)
-    set(_PCAPPP_FIND_ZSTD "if(NOT ZSTD_FOUND)\nfind_dependency(ZSTD)\nendif()")
     pcapp_install_cmake_module(ZSTD)
   endif()
 
