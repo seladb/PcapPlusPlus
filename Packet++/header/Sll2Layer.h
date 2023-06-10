@@ -26,7 +26,7 @@ namespace pcpp
 		/** The interface index field is a signed integer in network byte 
 		 * order and contains the 1-based index of the interface on which the packet was observed 
 		 **/
-		int32_t interface_index_type;
+		int32_t interface_index;
 		/** Contains a Linux ARPHRD_ value for the link-layer device type */
 		uint16_t ARPHRD_type;
 		/** Specifies whether packet was: specifically sent to us by somebody else (value=0);
@@ -40,6 +40,25 @@ namespace pcpp
 		 *  meaningful is specified by the link-layer address length field
 		 **/
 		uint8_t link_layer_addr[8];
+
+		uint16_t getProtocolType() const;
+		void setProtocolType(uint16_t protocolType);
+
+		uint16_t getReservedType() const;
+		void setReservedType(uint16_t reservedType);
+
+		int32_t getInterfaceIndex() const;
+		void setInterfaceIndex(int32_t interfaceIndex);
+
+		uint16_t getArphrdType() const;
+		void setArphrdType(uint16_t arphrdType);
+
+		uint8_t getPacketType() const;
+		void setPacketType(uint8_t packetType);
+
+		uint8_t getLinkLayerAddrLen() const;
+		const uint8_t *getLinkLayerAddr() const;
+		void setLinkLayerAddr(uint8_t * linkLayerAddr, int linkLayerAddrLen);
 	};
 #pragma pack(pop)
 
@@ -87,7 +106,7 @@ namespace pcpp
 		 * @param[in] macAddr MAC address to set
 		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		 */
-		bool setMacAddressAsLinkLayer(MacAddress macAddr);
+		bool setMacAddressAsLinkLayer(MacAddress const& macAddr);
 
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
@@ -105,6 +124,14 @@ namespace pcpp
 		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
 		void computeCalculateFields();
+
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an IEEE 802.3 Eth packet
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an IEEE 802.3 Eth packet
+		 */
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		std::string toString() const;
 

@@ -734,7 +734,7 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	{
 		return new SllLayer((uint8_t*)rawData, rawDataLen, this);
 	}
-	else if (linkType == LINKTYPE_LINUX_SLL2)
+	else if (linkType == LINKTYPE_LINUX_SLL2 && Sll2Layer::isDataValid(rawData, rawDataLen))
 	{
 		return new Sll2Layer((uint8_t*)rawData, rawDataLen, this);
 	}

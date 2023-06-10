@@ -208,12 +208,13 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 5. Packet trailer (a.k.a footer or padding)
 6. PPPoE
 7. SLL (Linux cooked capture)
-8. STP
-9. VLAN
-10. VXLAN
-11. Wake on LAN (WoL)
-12. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
-13. SLL2 (Linux cooked capture v2)
+8. SLL2 (Linux cooked capture v2)
+9. STP
+10. VLAN
+11. VXLAN
+12. Wake on LAN (WoL)
+13. NFLOG (Linux Netfilter NFLOG) - parsing only (no editing capabilities)
+
 
 ### Network Layer (L3)
 

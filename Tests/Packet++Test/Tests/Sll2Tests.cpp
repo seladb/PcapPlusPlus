@@ -19,20 +19,19 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	pcpp::Packet sll2Packet(&rawPacket1);
 
 	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
-	PTF_ASSERT_EQUAL(sll2Packet.getFirstLayer()->getProtocol(), pcpp::SLL2, enum);
 	pcpp::Sll2Layer* sll2Layer = sll2Packet.getLayerOfType<pcpp::Sll2Layer>();
 	PTF_ASSERT_NOT_NULL(sll2Layer->getNextLayer());
 	PTF_ASSERT_EQUAL(sll2Layer->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
 	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
 	PTF_ASSERT_NOT_NULL(sll2Layer);
 	PTF_ASSERT_EQUAL(sll2Layer, sll2Packet.getFirstLayer(), ptr);
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->protocol_type, htobe16(PCPP_ETHERTYPE_IP));
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->interface_index_type, htobe32(20));
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->ARPHRD_type, htobe16(1));
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->packet_type, 4);
+	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getProtocolType(), htobe16(PCPP_ETHERTYPE_IP));
+	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getInterfaceIndex(), htobe32(20));
+	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getArphrdType(), htobe16(1));
+	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getPacketType(), 4);
 	PTF_ASSERT_EQUAL(sll2Layer->getHeaderLen(), 20);
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->link_layer_addr_len, 6);
-	pcpp::MacAddress macAddrFromPacket(sll2Layer->getSll2Header()->link_layer_addr);
+	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getLinkLayerAddrLen(), 6);
+	pcpp::MacAddress macAddrFromPacket(sll2Layer->getSll2Header()->getLinkLayerAddr());
 	pcpp::MacAddress macAddrRef("d2:cf:c2:50:15:ea");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 } // Sll2PacketParsingTest

@@ -203,7 +203,7 @@ bool RawPacket::setPacketTimeStamp(timespec timestamp)
 
 bool RawPacket::isLinkTypeValid(int linkTypeValue)
 {
-	if (linkTypeValue < 0 || linkTypeValue > 264)
+	if ((linkTypeValue < 0 || linkTypeValue > 264) && linkTypeValue != 276)
 		return false;
 
 	switch (static_cast<LinkLayerType>(linkTypeValue))

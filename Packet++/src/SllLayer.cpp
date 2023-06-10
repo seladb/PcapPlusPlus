@@ -29,20 +29,20 @@ SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType)
 
 bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 {
-	if (addrLength == 0 || addrLength > 8)
+	if (addr == nullptr || addrLength == 0 || addrLength > 8)
 	{
 		PCPP_LOG_ERROR("Address length is out of bounds, it must be between 1 and 8");
 		return false;
 	}
 
-	sll_header* sllHdr = (sll_header*)m_Data;
+	sll_header* sllHdr = getSllHeader();
 	memcpy(sllHdr->link_layer_addr, addr, addrLength);
 	sllHdr->link_layer_addr_len = htobe16(addrLength);
 
 	return true;
 }
 
-bool SllLayer::setMacAddressAsLinkLayer(MacAddress macAddr)
+bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
 {
 	if (!macAddr.isValid())
 	{

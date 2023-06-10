@@ -21,27 +21,26 @@ Sll2Layer::Sll2Layer(uint32_t interfaceIndexType, uint16_t ARPHRDType, uint8_t p
 	m_Data = new uint8_t[headerLen];
 	memset(m_Data, 0, headerLen);
 	sll2_header* sll2Hdr = (sll2_header*)m_Data;
-	sll2Hdr->packet_type = packetType;
-	sll2Hdr->ARPHRD_type = htobe16(ARPHRDType);
-	sll2Hdr->interface_index_type = htobe32(interfaceIndexType);
+	sll2Hdr->setPacketType(packetType);
+	sll2Hdr->setArphrdType(htobe16(ARPHRDType));
+	sll2Hdr->setInterfaceIndex(htobe32(interfaceIndexType));
 	m_Protocol = SLL2;
 }
 
 bool Sll2Layer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 {
-	if (addrLength == 0 || addrLength > 8)
+	if (addr == nullptr || addrLength == 0 || addrLength > 8)
 	{
 		PCPP_LOG_ERROR("Address length is out of bounds, it must be between 1 and 8");
 		return false;
 	}
 
-	sll2_header* sll2Hdr = (sll2_header*)m_Data;
-	memcpy(sll2Hdr->link_layer_addr, addr, addrLength);
-	sll2Hdr->link_layer_addr_len = addrLength;
+	sll2_header* sll2Hdr = getSll2Header();
+	sll2Hdr->setLinkLayerAddr(addr, addrLength);
 	return true;
 }
 
-bool Sll2Layer::setMacAddressAsLinkLayer(MacAddress macAddr)
+bool Sll2Layer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
 {
 	if (!macAddr.isValid())
 	{
@@ -126,9 +125,79 @@ void Sll2Layer::computeCalculateFields()
 	}
 }
 
+bool Sll2Layer::isDataValid(const uint8_t* data, size_t dataLen)
+{
+	return data && dataLen >= sizeof(sll2_header);
+}
+
 std::string Sll2Layer::toString() const
 {
 	return "Linux cooked header v2";
 }
 
+uint16_t sll2_header::getProtocolType() const
+{
+	return protocol_type;
+}
+
+void sll2_header::setProtocolType(uint16_t protocolType)
+{
+	protocol_type = protocolType;
+}
+
+uint16_t sll2_header::getReservedType() const
+{
+	return reserved_type;
+}
+
+void sll2_header::setReservedType(uint16_t reservedType)
+{
+	reserved_type = reservedType;
+}
+
+int32_t sll2_header::getInterfaceIndex() const
+{
+	return interface_index;
+}
+
+void sll2_header::setInterfaceIndex(int32_t interfaceIndex)
+{
+	interface_index = interfaceIndex;
+}
+
+uint16_t sll2_header::getArphrdType() const
+{
+	return ARPHRD_type;
+}
+
+void sll2_header::setArphrdType(uint16_t arphrdType)
+{
+	ARPHRD_type = arphrdType;
+}
+
+uint8_t sll2_header::getPacketType() const
+{
+	return packet_type;
+}
+
+void sll2_header::setPacketType(uint8_t packetType)
+{
+	packet_type = packetType;
+}
+
+uint8_t sll2_header::getLinkLayerAddrLen() const
+{
+	return link_layer_addr_len;
+}
+
+const uint8_t *sll2_header::getLinkLayerAddr() const
+{
+	return link_layer_addr;
+}
+
+void sll2_header::setLinkLayerAddr(uint8_t * linkLayerAddr, int linkLayerAddrLen)
+{
+	link_layer_addr_len = linkLayerAddrLen;
+	memcpy(link_layer_addr, linkLayerAddr, linkLayerAddrLen);
+}
 } // namespace pcpp
