@@ -368,7 +368,8 @@ if(PCAPPP_PACKAGE)
   file(READ "${_PCAPPP_PACKAGE_README_PATH}/release_notes.txt" _CONTENT)
   file(APPEND ${_PCAPPP_PACKAGE_README_OUTFILE} "${_CONTENT}")
 
-  if(APPLE)
+  # As we only generate .TGZ for the moment keep it to False
+  if(FALSE)
     # Apple productbuild cannot handle .md or file without extension Use textutil to convert them to HTML
     find_program(CONVERTER textutil)
     if(NOT CONVERTER)
