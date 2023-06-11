@@ -201,8 +201,7 @@ if(PCAPPP_TARGET_COMPILER_MSVC)
   add_definitions("/wd4068 /wd4200 /wd4244 /wd4267 /wd4819")
 endif()
 
-# Disabled Android for now because ToyVPN build fails with coverage flags
-if(PCAPPP_BUILD_COVERAGE AND NOT ANDROID)
+if(PCAPPP_BUILD_COVERAGE)
   add_compile_options(--coverage)
   add_link_options(--coverage)
   set(_PCAPPP_FIND_COVERAGE "find_dependency(Coverage)\n")

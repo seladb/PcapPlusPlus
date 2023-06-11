@@ -99,7 +99,10 @@ jobs:
           ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
 
       - name: Check installation
-        run: cmake --install $BUILD_DIR
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install $BUILD_DIR
 
       - name: Build Tutorials
         run: |
@@ -159,7 +162,10 @@ jobs:
           if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
 
       - name: Check installation
-        run: cmake --install $BUILD_DIR
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install $BUILD_DIR
 
       - name: Build Tutorials
         run: |
@@ -198,7 +204,10 @@ jobs:
           Bin/Pcap++Test -n
 
       - name: Check installation
-        run: cmake --install $BUILD_DIR
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install $BUILD_DIR
 
       - name: Build Tutorials
         run: |
@@ -262,7 +271,10 @@ jobs:
           python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
 
       - name: Check installation
-        run: cmake --install $BUILD_DIR
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install $BUILD_DIR
 
       - name: Build Tutorials
         run: |
@@ -507,6 +519,8 @@ jobs:
           TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
           PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
           PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
           cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
           mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
