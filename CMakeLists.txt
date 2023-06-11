@@ -389,10 +389,10 @@ if(PCAPPP_PACKAGE)
   # used in CPackAdditionalInstall.cmake
   set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
   set(CPACK_ADDITIONAL_EXAMPLE_APP
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/1_packet.pcap"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/CMakeLists.txt"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/main.cpp"
-      "${CMAKE_SOURCE_DIR}/Examples/Tutorials/Tutorial-HelloWorld/README.md")
+      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/1_packet.pcap"
+      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/CMakeLists.txt"
+      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/main.cpp"
+      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/README.md")
   set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
 
   include(CPack)
