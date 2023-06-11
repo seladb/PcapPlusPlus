@@ -41,9 +41,7 @@ set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
 # Build options enable sanitizers
 set(PCAPPP_ALLOWED_SANITIZERS "" "AddressSanitizer" "MemorySanitizer" "ThreadSanitizer" "UndefinedBehaviorSanitizer")
-set(PCAPPP_USE_SANITIZER
-    ""
-    CACHE STRING "Compile with a sanitizer")
+set(PCAPPP_USE_SANITIZER "" CACHE STRING "Compile with a sanitizer")
 set_property(CACHE PCAPPP_USE_SANITIZER PROPERTY STRINGS ${PCAPPP_ALLOWED_SANITIZERS})
 
 if(NOT PCAPPP_USE_SANITIZER IN_LIST PCAPPP_ALLOWED_SANITIZERS)
@@ -183,15 +181,11 @@ if(PCAPPP_USE_PF_RING)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE
-      "Release"
-      CACHE STRING "Choose the type of build." FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-if(PCAPPP_TARGET_COMPILER_CLANG
-   OR PCAPPP_TARGET_COMPILER_GCC
-   OR PCAPPP_TARGET_COMPILER_INTEL)
+if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall)
 endif()
 
@@ -224,9 +218,7 @@ if(PCAPPP_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif()
 
-if(PCAPPP_BUILD_TESTS
-   OR PCAPPP_BUILD_FUZZERS
-   OR PCAPPP_BUILD_EXAMPLES)
+if(PCAPPP_BUILD_TESTS OR PCAPPP_BUILD_FUZZERS OR PCAPPP_BUILD_EXAMPLES)
   include(CTest)
   add_subdirectory(Tests)
 endif()
@@ -253,26 +245,19 @@ if(PCAPPP_INSTALL)
     pcapp_install_cmake_module(ZSTD)
   endif()
 
-  install(
-    EXPORT PcapPlusPlusTargets
-    DESTINATION ${PCAPPP_INSTALL_CMAKEDIR}
-    NAMESPACE PcapPlusPlus::)
+  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake" INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 
-  write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
-    VERSION ${PCAPPP_VERSION}
-    COMPATIBILITY AnyNewerVersion)
+  write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
+                                   VERSION ${PCAPPP_VERSION} COMPATIBILITY AnyNewerVersion)
 
   # CMake helpers to compile Pcap++ with CMake
-  install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
-    COMPONENT devel
-    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
+                "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake" COMPONENT devel
+          DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
 endif()
 
 if(PCAPPP_PACKAGE)
@@ -334,7 +319,7 @@ if(PCAPPP_PACKAGE)
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.win.mingw")
   elseif(WIN32)
     set(CPACK_GENERATOR "ZIP")
-    set(CPACK_SYSTEM_NAME "windows-${PCAPPP_TARGET_COMPILER}-${CMAKE_VS_PLATFORM_NAME}-${PCAPP_CXX_COMPILER_VERSION}")
+    set(CPACK_SYSTEM_NAME "windows-${PCAPPP_TARGET_COMPILER}-${CMAKE_VS_PLATFORM_NAME}-vs${MSVC_YEAR}")
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.win.vs")
   endif()
 
