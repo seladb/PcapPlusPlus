@@ -39,12 +39,7 @@ add_executable(
   Tests/WakeOnLanTests.cpp
   Utils/TestUtils.cpp)
 
-target_link_libraries(
-  Packet++Test
-  PUBLIC memplumber
-         Packet++
-         PcppTestFramework
-         EndianPortable)
+target_link_libraries(Packet++Test PUBLIC memplumber Packet++ PcppTestFramework EndianPortable)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio

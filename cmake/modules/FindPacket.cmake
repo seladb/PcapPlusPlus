@@ -65,11 +65,7 @@ find_library(Packet_LIBRARY NAMES Packet packet NAMES_PER_DIR)
 
 # Set Packet_FOUND to TRUE if Packet_INCLUDE_DIR and Packet_LIBRARY are TRUE.
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  Packet
-  DEFAULT_MSG
-  Packet_INCLUDE_DIR
-  Packet_LIBRARY)
+find_package_handle_standard_args(Packet DEFAULT_MSG Packet_INCLUDE_DIR Packet_LIBRARY)
 
 mark_as_advanced(Packet_INCLUDE_DIR Packet_LIBRARY)
 

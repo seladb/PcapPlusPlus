@@ -40,21 +40,13 @@ set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
 set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
 # Build options enable sanitizers
-set(PCAPPP_ALLOWED_SANITIZERS
-    ""
-    "AddressSanitizer"
-    "MemorySanitizer"
-    "ThreadSanitizer"
-    "UndefinedBehaviorSanitizer")
+set(PCAPPP_ALLOWED_SANITIZERS "" "AddressSanitizer" "MemorySanitizer" "ThreadSanitizer" "UndefinedBehaviorSanitizer")
 set(PCAPPP_USE_SANITIZER
     ""
     CACHE STRING "Compile with a sanitizer")
 set_property(CACHE PCAPPP_USE_SANITIZER PROPERTY STRINGS ${PCAPPP_ALLOWED_SANITIZERS})
 
-if(NOT
-   PCAPPP_USE_SANITIZER
-   IN_LIST
-   PCAPPP_ALLOWED_SANITIZERS)
+if(NOT PCAPPP_USE_SANITIZER IN_LIST PCAPPP_ALLOWED_SANITIZERS)
   message(FATAL_ERROR "PCAPPP_USE_SANITIZER must be one of ${PCAPPP_ALLOWED_SANITIZERS}")
 endif()
 
@@ -78,12 +70,7 @@ endif()
 
 # Build options (Turn on Examples and Tests if it's the main project)
 option(PCAPPP_BUILD_EXAMPLES "Build Examples" ${PCAPPP_MAIN_PROJECT})
-cmake_dependent_option(
-  PCAPPP_BUILD_TUTORIALS
-  "Build Tutorials"
-  OFF
-  "PCAPPP_BUILD_EXAMPLES"
-  OFF)
+cmake_dependent_option(PCAPPP_BUILD_TUTORIALS "Build Tutorials" OFF "PCAPPP_BUILD_EXAMPLES" OFF)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
@@ -305,20 +292,12 @@ if(PCAPPP_PACKAGE)
   set(CPACK_GENERATOR "TGZ")
 
   # Remove the tweak for Compiler Version
-  string(
-    REPLACE "."
-            ";"
-            VERSION_LIST
-            ${CMAKE_CXX_COMPILER_VERSION})
+  string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
   list(LENGTH VERSION_LIST CMAKE_CXX_COMPILER_VERSION_LENGTH)
   if(${CMAKE_CXX_COMPILER_VERSION_LENGTH} GREATER 3)
     list(POP_BACK VERSION_LIST)
   endif()
-  list(
-    JOIN
-    VERSION_LIST
-    "."
-    PCAPP_CXX_COMPILER_VERSION)
+  list(JOIN VERSION_LIST "." PCAPP_CXX_COMPILER_VERSION)
 
   set(_PCAPPP_PACKAGE_README_PATH "${CMAKE_SOURCE_DIR}/cmake/package/READMEs")
   set(_PCAPPP_PACKAGE_README_OUTFILE "${CMAKE_BINARY_DIR}/README.release.md")
@@ -392,10 +371,8 @@ if(PCAPPP_PACKAGE)
   # used in CPackAdditionalInstall.cmake
   set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
   set(CPACK_ADDITIONAL_EXAMPLE_APP
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/1_packet.pcap"
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/CMakeLists.txt"
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/main.cpp"
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/README.md")
+      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/1_packet.pcap" "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/CMakeLists.txt"
+      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/main.cpp" "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/README.md")
   set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
 
   include(CPack)

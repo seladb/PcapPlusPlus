@@ -43,11 +43,7 @@ if(PCAPPP_USE_DPDK)
 endif()
 
 if(PCAPPP_USE_PF_RING)
-  list(
-    APPEND
-    public_headers
-    header/PfRingDevice.h
-    header/PfRingDeviceList.h)
+  list(APPEND public_headers header/PfRingDevice.h header/PfRingDeviceList.h)
 endif()
 
 if(LINUX)
@@ -55,12 +51,7 @@ if(LINUX)
 endif()
 
 if(WIN32)
-  list(
-    APPEND
-    public_headers
-    header/WinPcapLiveDevice.h
-    header/PcapRemoteDevice.h
-    header/PcapRemoteDeviceList.h)
+  list(APPEND public_headers header/WinPcapLiveDevice.h header/PcapRemoteDevice.h header/PcapRemoteDeviceList.h)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
@@ -81,14 +72,8 @@ target_include_directories(
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
           $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>)
 
-target_link_libraries(
-  Pcap++
-  PUBLIC Common++
-         Packet++
-         $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
-         $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
-         PCAP::PCAP
-         Threads::Threads)
+target_link_libraries(Pcap++ PUBLIC Common++ Packet++ $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
+                                    $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK> PCAP::PCAP Threads::Threads)
 
 if(LIGHT_PCAPNG_ZSTD)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)

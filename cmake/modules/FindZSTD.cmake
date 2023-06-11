@@ -65,24 +65,9 @@ mark_as_advanced(ZSTD_INCLUDE_DIR)
 if(ZSTD_INCLUDE_DIR AND EXISTS "${ZSTD_INCLUDE_DIR}/zstd.h")
   file(STRINGS "${ZSTD_INCLUDE_DIR}/zstd.h" ZSTD_H REGEX "^#define ZSTD_VERSION_.*$")
 
-  string(
-    REGEX
-    REPLACE "^.*ZSTD_VERSION_MAJOR  *([0-9]+).*$"
-            "\\1"
-            ZSTD_MAJOR_VERSION
-            "${ZSTD_H}")
-  string(
-    REGEX
-    REPLACE "^.*ZSTD_VERSION_MINOR  *([0-9]+).*$"
-            "\\1"
-            ZSTD_MINOR_VERSION
-            "${ZSTD_H}")
-  string(
-    REGEX
-    REPLACE "^.*ZSTD_VERSION_RELEASE  *([0-9]+).*$"
-            "\\1"
-            ZSTD_PATCH_VERSION
-            "${ZSTD_H}")
+  string(REGEX REPLACE "^.*ZSTD_VERSION_MAJOR  *([0-9]+).*$" "\\1" ZSTD_MAJOR_VERSION "${ZSTD_H}")
+  string(REGEX REPLACE "^.*ZSTD_VERSION_MINOR  *([0-9]+).*$" "\\1" ZSTD_MINOR_VERSION "${ZSTD_H}")
+  string(REGEX REPLACE "^.*ZSTD_VERSION_RELEASE  *([0-9]+).*$" "\\1" ZSTD_PATCH_VERSION "${ZSTD_H}")
   set(ZSTD_VERSION_STRING "${ZSTD_MAJOR_VERSION}.${ZSTD_MINOR_VERSION}.${ZSTD_PATCH_VERSION}")
 endif()
 

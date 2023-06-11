@@ -16,12 +16,7 @@ add_executable(
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp)
 
-target_link_libraries(
-  Pcap++Test
-  PUBLIC memplumber
-         Pcap++
-         PcppTestFramework
-         EndianPortable)
+target_link_libraries(Pcap++Test PUBLIC memplumber Pcap++ PcppTestFramework EndianPortable)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio

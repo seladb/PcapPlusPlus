@@ -50,11 +50,7 @@ endif()
 find_library(PCAP_LIBRARY NAMES pcap wpcap)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  PCAP
-  DEFAULT_MSG
-  PCAP_LIBRARY
-  PCAP_INCLUDE_DIR)
+find_package_handle_standard_args(PCAP DEFAULT_MSG PCAP_LIBRARY PCAP_INCLUDE_DIR)
 
 # If Pcap is not found as this level no need to continue
 if(NOT PCAP_FOUND)
