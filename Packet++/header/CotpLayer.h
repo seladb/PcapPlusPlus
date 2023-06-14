@@ -7,6 +7,10 @@
 namespace pcpp
 {
 
+/**
+ * @struct cotphdr
+ * Represents a COTP protocol header
+ */
 #pragma pack(push, 1)
 	typedef struct
 	{
