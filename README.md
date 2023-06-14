@@ -234,7 +234,8 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 25. IPSec AH & ESP - parsing only (no editing capabilities)
 26. TCP
 27. TPKT
-28. UDP
+28. COTP
+29. UDP
 
 ### Session Layer (L5)
 
