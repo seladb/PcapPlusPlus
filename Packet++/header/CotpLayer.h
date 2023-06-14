@@ -7,10 +7,6 @@
 namespace pcpp
 {
 
-/**
- * @struct cotphdr
- * Represents a COTP protocol header
- */
 #pragma pack(push, 1)
 	typedef struct
 	{
@@ -23,10 +19,6 @@ namespace pcpp
 	} cotphdr;
 #pragma pack(pop)
 
-	/**
-	 * @class CotpLayer
-	 * Represents a COTP (Connection Oriented Transport Protocol)
-	 */
 	class CotpLayer : public Layer
 	{
 	  public:
@@ -47,7 +39,7 @@ namespace pcpp
 		 * A constructor that allocates a new COTP header
 		 * @param[in] length Packet length
 		 * @param[in] pdu_type Protocol PDU type number
-		 * @param[in] tpdu_number Protocol TPDU number
+		 * @param[in] pdu_type Protocol TPDU number
 		 */
 		CotpLayer(uint8_t length, uint8_t pdu_type, uint8_t tpdu_number);
 
@@ -108,14 +100,6 @@ namespace pcpp
 		 */
 		static bool isCotpPort(uint8_t cotpType) { return cotpType == 0x06 || cotpType == 0xf0; }
 
-		/**
-	 	 * A method that creates a COTP layer from packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored
-		 * @return A newly allocated COTP layer
-		 */
 		static CotpLayer *parseCotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 		/**
@@ -126,7 +110,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t *data, size_t dataSize) { return data && dataSize >= sizeof(cotphdr); }
 
-		std::string toString() const override;
+		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelSesionLayer; }
 
