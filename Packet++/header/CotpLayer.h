@@ -7,26 +7,18 @@
 namespace pcpp
 {
 
-/**
- * @struct cotphdr
- * Represents a COTP protocol header
- */
 #pragma pack(push, 1)
 	typedef struct
 	{
 		/** length */
 		uint8_t length;
 		/** PDU type identifier */
-		uint8_t pduType ;
+		uint8_t pdu_type;
 		/** TPDU number sequence*/
-		uint8_t tpduNumber;
+		uint8_t tpdu_number;
 	} cotphdr;
 #pragma pack(pop)
 
-	/**
-	 * @class CotpLayer
-	 * Represents a COTP (Connection Oriented Transport Protocol)
-	 */
 	class CotpLayer : public Layer
 	{
 	  public:
@@ -45,9 +37,11 @@ namespace pcpp
 
 		/**
 		 * A constructor that allocates a new COTP header
-		 * @param[in] tpduNumber Protocol TPDU number
+		 * @param[in] length Packet length
+		 * @param[in] pdu_type Protocol PDU type number
+		 * @param[in] pdu_type Protocol TPDU number
 		 */
-		explicit CotpLayer(uint8_t tpduNumber);
+		CotpLayer(uint8_t length, uint8_t pdu_type, uint8_t tpdu_number);
 
 		virtual ~CotpLayer() {}
 
@@ -59,12 +53,12 @@ namespace pcpp
 		/**
 		 * @return COTP PDU type
 		 */
-		uint8_t getPduType() const;
+		uint8_t getPdu_type() const;
 
 		/**
 		 * @return COTP TPDU number
 		 */
-		uint8_t getTpduNumber() const;
+		uint8_t getTpdu_number() const;
 
 		/**
 		 * @return Size of @ref cotphdr
@@ -79,15 +73,15 @@ namespace pcpp
 
 		/**
 		 * Set the value of the version
-		 * @param[in] pduType The number of the PDU type
+		 * @param[in] pdu_type The number of the PDU type
 		 */
-		void setPduType(uint8_t pduType) const;
+		void setPdu_type(uint8_t pdu_type) const;
 
 		/**
 		 * Set the value of the version
-		 * @param[in] tpduNumber The value of the TPDU number
+		 * @param[in] tpdu_number The value of the TPDU number
 		 */
-		void setTpduNumber(uint8_t tpduNumber) const;
+		void setTpdu_number(uint8_t tpdu_number) const;
 
 		/**
 		 * Does nothing for this layer
@@ -100,28 +94,25 @@ namespace pcpp
 		void parseNextLayer() override;
 
 		/**
-	 	 * A method that creates a COTP layer from packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored
-		 * @return A newly allocated COTP layer
+		 * A static method that checks whether a source or dest port match those associated with the COTP protocol
+		 * @param[in] cotpType data type with special numbers to check
+		 * @return True if the number match that associated with the COTP protocol
 		 */
+		static bool isCotpPort(uint8_t cotpType) { return cotpType == 0x06 || cotpType == 0xf0; }
+
 		static CotpLayer *parseCotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a COTP
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
-		 * @param[in] cotpType The type of the COTP
-		 * @param[in] length The length of the COTP
 		 * @return True if the data size is greater or equal than the size of cotphdr
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize, uint8_t cotpType, uint8_t length) { return data && dataSize >= sizeof(cotphdr) && cotpType == 0xf0 && length == 2; }
+		static bool isDataValid(const uint8_t *data, size_t dataSize) { return data && dataSize >= sizeof(cotphdr); }
 
-		std::string toString() const override;
+		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const override { return OsiModelTransportLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelSesionLayer; }
 
 	  private:
 		/**
