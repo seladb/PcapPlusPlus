@@ -1,6 +1,11 @@
 #include "TpktLayer.h"
 #include "CotpLayer.h"
 #include "EndianPortable.h"
+<<<<<<< HEAD
+=======
+#include "TcpLayer.h"
+#include "CotpLayer.h"
+>>>>>>> 77464cb5 (create COTP)
 #include "PayloadLayer.h"
 #include "TcpLayer.h"
 #include <iostream>
