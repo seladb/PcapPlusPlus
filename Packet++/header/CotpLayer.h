@@ -23,6 +23,10 @@ namespace pcpp
 	} cotphdr;
 #pragma pack(pop)
 
+	/**
+	 * @class CotpLayer
+	 * Represents a COTP (Connection Oriented Transport Protocol)
+	 */
 	class CotpLayer : public Layer
 	{
 	  public:
@@ -104,6 +108,14 @@ namespace pcpp
 		 */
 		static bool isCotpPort(uint8_t cotpType) { return cotpType == 0x06 || cotpType == 0xf0; }
 
+		/**
+	 	 * A method that creates a COTP layer from packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored
+		 * @return A newly allocated COTP layer
+		 */
 		static CotpLayer *parseCotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 		/**
