@@ -47,7 +47,7 @@ namespace pcpp
 		 * A constructor that allocates a new COTP header
 		 * @param[in] length Packet length
 		 * @param[in] pdu_type Protocol PDU type number
-		 * @param[in] pdu_type Protocol TPDU number
+		 * @param[in] tpdu_number Protocol TPDU number
 		 */
 		CotpLayer(uint8_t length, uint8_t pdu_type, uint8_t tpdu_number);
 
