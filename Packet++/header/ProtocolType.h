@@ -318,9 +318,10 @@ namespace pcpp
 	const ProtocolType VRRPv3 = 0x2000000000000;
 
 	/**
-	 * COTP 3 protocol
+     * COTP protocol
 	 */
-	const ProtocolType COTP = 0x4000000000000;
+	const ProtocolType COTP = 0x900000000000;
+
 	/**
 	 * An enum representing OSI model layers
 	 */
