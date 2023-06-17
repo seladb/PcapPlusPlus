@@ -5,21 +5,17 @@ extend-exclude = [  "*.toml",
                     "ci/",
                     "Dist/",
                     "mk/",
+                    "3rdParty",
                     "Tests/ExamplesTest/expected_output/",
                     "Tests/ExamplesTest/pcap_examples/",
                     "Tests/Packet++Test/PacketExamples/",
                     "Tests/Pcap++Test/PcapExamples/",
-                    "3rdParty/OUIDataset/PCPP_OUIDataset.json",
-                    "3rdParty/json/"
                  ]
 
 [default.extend-identifiers]
 SSLSymetricEncryptionAlgorithm = "SSLSymetricEncryptionAlgorithm"
-# These identifiers below are coming from deprecated functions can be removed at future releases
-getMesageType = "getMesageType"
-setMesageType = "setMesageType"
-getExtensionsLenth = "getExtensionsLenth"
-createHandhakeMessage = "createHandhakeMessage"
+OsiModelSesionLayer = "OsiModelSesionLayer"
+Sip181CallisBeingForwarded = "Sip181CallisBeingForwarded"
 
 [default.extend-words]
 ue = "ue"
@@ -31,6 +27,8 @@ gost = "gost"
 ba = "ba"
 lengt = "lengt"
 referer = "referer"
+allo = "allo"
+pinter = "pinter"
 
 [type.make]
 extend-glob = []
