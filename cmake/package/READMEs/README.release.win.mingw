@@ -7,32 +7,42 @@ GitHub page:            https://github.com/seladb/PcapPlusPlus
 This package contains:
 ----------------------
 
- - PcapPlusPlus compiled libraries for MinGW-w64
+ - PcapPlusPlus compiled libraries for MinGW-w64 (under `lib\`)
     - Common++.lib
     - Packet++.lib
     - Pcap++.lib
- - PcapPlusPlus header files (under `header\`)
- - Compiled examples (under `examples\`)
- - A makefile that should be included when compiling your app with PcapPlusPlus (`mk\PcapPlusPlus.mk`)
- - Code example with a simple Makefile showing how to build applications using PcapPlusPlus compiled binaries (under `example-app\`)
+ - PcapPlusPlus header files (under `include\pcapplusplus`)
+ - Compiled examples (under `bin\`)
+ - Code example with a simple CMake file showing how to build applications with PcapPlusPlus (under `example-app\`)
+ - CMake files required to build your application with PcapPlusPlus (under `lib\cmake\pcapplusplus`)
 
+
+Using PcapPlusPlus in your project:
+-----------------------------------
+
+ - Make sure you have MinGW-w64 installed with a gcc/g++ version matching the compiled binaries
+ - You may have to put MinGW-w64 directory in your `PATH` environment variable
+ - Make sure you have WinPcap, Npcap or Wireshark installed
+ - Make sure you have WinPcap or Npcap Developer's pack installed (WinPcap Dev Pack can be downloaded from https://www.winpcap.org/devel.htm, Npcap SDK can be downloaded from https://nmap.org/npcap/#download)
+ - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` and `PCAP_ROOT=<WinPcap_OR_Npcap_DIR>`
+   when running CMake, for example:
+   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR> -DPCAP_ROOT=<WinPcap_OR_Npcap_DIR>`
+ - If your application uses Makefiles, you can create variables in your Makefile to point to the header and lib directories
+   in the package. Here is an example:
+   ```
+   PCAP_ROOT := <WinPcap_OR_Npcap_DIR>
+   PCAPPLUSPLUS_ROOT := <PACKAGE_DIR>
+   PCAPPLUSPLUS_INCLUDES := $(PCAPPLUSPLUS_ROOT)/include/pcapplusplus
+   PCAPPLUSPLUS_LIBS_DIR := $(PCAPPLUSPLUS_ROOT)/lib
+   PCAPPLUSPLUS_LIBS := -lPcap++ -lPacket++ -lCommon++ -lwpcap -lPacket -lws2_32 -liphlpapi
+
+   # All Target
+   all:
+      g++.exe -I$(PCAPPLUSPLUS_INCLUDES) -c -o main.o main.cpp
+      g++.exe -L$(PCAPPLUSPLUS_LIBS_DIR) -L$(PCAP_ROOT) -static-libgcc -static-libstdc++ -o PcapPlusPlusTestApp.exe main.o $(PCAPPLUSPLUS_LIBS)
+   ```
 
 Running the examples:
 ---------------------
 
  - Make sure you have WinPcap, Npcap or Wireshark installed
-
-
-In order to compile your application with these binaries you need to:
----------------------------------------------------------------------
-
- - Make sure you have MinGW-w64 installed with a gcc/g++ version matching the compiled binaries (for example: `pcapplusplus-22.11-windows-mingw-w64-gcc-8.1.0.zip` pack might not work well with MinGW-w64 12.2.0)
- - You may have to put MinGW-w64 directory in your `PATH` environment variable
- - Make sure you have WinPcap, Npcap or Wireshark installed
- - Make sure you have WinPcap or Npcap Developer's pack installed (WinPcap Dev Pack can be downloaded from https://www.winpcap.org/devel.htm, Npcap SDK can be downloaded from https://nmap.org/npcap/#download)
- - Update `mk\PcapPlusPlus.mk` file:
-     - Set `PCAPPLUSPLUS_HOME` to the folder where binaries are located
-     - Set `MINGW_HOME` to the folder where MinGW-w64 is installed
-     - Set `PCAP_SDK_HOME` to the folder where WinPcap/Npcap Developer's Pack is installed
- - Include `mk\PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes, libs, etc. to your Makefile
-     - You can follow the example under `example-app\`
