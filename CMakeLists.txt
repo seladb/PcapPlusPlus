@@ -223,10 +223,12 @@ if(PCAPPP_BUILD_TESTS OR PCAPPP_BUILD_FUZZERS OR PCAPPP_BUILD_EXAMPLES)
 endif()
 
 if(PCAPPP_INSTALL)
-  # Generate PKG-Config
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
-                 @ONLY)
-  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+  # Generate PKG-Config for non WIN32 system
+  if (NOT WIN32)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+                   @ONLY)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+  endif()
 
   # CMake helpers to compile Pcap++ with CMake
   pcapp_install_cmake_module(PCAP)
