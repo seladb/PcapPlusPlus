@@ -85,24 +85,6 @@ set(CMAKE_CXX_STANDARD 11)
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
 
-# Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
-if(WIN32)
-  if(NOT PCAP_ROOT)
-    message(FATAL_ERROR "Please specify Npcap/WinPcap SDK directory with -DPCAP_ROOT=<PCAP_SDK_PATH>")
-  endif()
-  if(NOT Packet_ROOT)
-    set(Packet_ROOT ${PCAP_ROOT})
-  endif()
-endif()
-
-# Do we need Packet Packages on Windows ?
-if(WIN32)
-  find_package(Packet)
-  if(NOT Packet_FOUND)
-    message(FATAL_ERROR "Please specify Packet library -DPacket_ROOT=<NPCAP_SDK_PATH>")
-  endif()
-endif()
-
 find_package(PCAP)
 if(NOT PCAP_FOUND)
   if(WIN32)
@@ -224,7 +206,7 @@ endif()
 
 if(PCAPPP_INSTALL)
   # Generate PKG-Config for non WIN32 system
-  if (NOT WIN32)
+  if(NOT WIN32)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
                    @ONLY)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
