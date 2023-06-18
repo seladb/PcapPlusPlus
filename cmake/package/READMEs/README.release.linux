@@ -7,20 +7,33 @@ GitHub page:            https://github.com/seladb/PcapPlusPlus
 This package contains:
 ----------------------
 
- - PcapPlusPlus compiled libraries
+ - PcapPlusPlus compiled libraries (under `lib/`)
     - libCommon++.a
     - libPacket++.a
     - libPcap++.a
- - PcapPlusPlus header files (under `header/`)
- - Compiled examples (under `examples/`)
- - Installation scripts (`install.sh` & `uninstall.sh`)
- - Code example with a simple Makefile showing how to build applications using PcapPlusPlus compiled binaries (under `example-app/`)
+ - PcapPlusPlus header files (under `include/pcapplusplus/`)
+ - Compiled examples (under `bin/`)
+ - Code example with a simple CMake file showing how to build applications with PcapPlusPlus (under `example-app/`)
+ - CMake files required to build your application with PcapPlusPlus (under `lib/cmake/pcapplusplus`)
+ - pkg-config information you can use to build your application with PcapPlusPlus (under `lib/pkgconfig`)
 
 
-Installation:
--------------
+Using PcapPlusPlus in your project:
+-----------------------------------
 
- - For installing the package simply run: `sudo ./install.sh`
+ - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` when running CMake, for example:
+   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR>`
+ - If your application uses Makefiles, you can use pkg-config with `PcapPlusPlus.pc`:
+   1. Edit `PcapPlusPlus.pc` and replace `prefix` with the package path, for example:
+      `prefix="<PACKAGE_DIR>"`
+   2. Use pkg-config in your Makefile, for example:
+      ```
+      all:
+         g++ `pkg-config --cflags PcapPlusPlus` -c -o main.o main.cpp
+         g++ -o MyApp main.o `pkg-config --libs PcapPlusPlus`
+      ```
+   3. When running `make` remember to set pkg-config path so it can find `PcapPlusPlus.pc`, for example:
+      `PKG_CONFIG_PATH=<PACKAGE_DIR>/lib/pkgconfig make`
 
 
 Running the examples:
@@ -28,14 +41,3 @@ Running the examples:
 
  - Make sure you have libpcap installed (it should come built-in with most Linux distributions)
  - You may need to run the executables as sudo
-
-
-In order to compile your application with these binaries you need to:
----------------------------------------------------------------------
-
- - Make sure you have libpcap developer pack installed (in Ubuntu: install it using apt-get: `sudo apt-get install libpcap-dev`)
- - Make sure the binaries match your OS (for example: `pcapplusplus-22.11-ubuntu-20.04-gcc-9.tar.gz` pack may not work in Ubuntu 18.04)
- - Make sure your gcc/g++ version matches the compiled binaries version (for example: `pcapplusplus-22.11-ubuntu-20.04-gcc-9.tar.gz` pack may not work with gcc 4.9)
- - Make sure PcapPlusPlus is installed (see Installation section above)
- - Include `/usr/local/etc/PcapPlusPlus.mk` in your Makefile and add PcapPlusPlus includes and libs in relevant places in your Makefile
-     - You may follow the example under `example-app/`
