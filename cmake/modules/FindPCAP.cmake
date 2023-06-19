@@ -40,9 +40,8 @@ find_library(PCAP_LIBRARY NAMES pcap wpcap)
 # If wpcap is found we also need Packet lib
 get_filename_component(PCAP_LIBRARY_NAME_WE ${PCAP_LIBRARY} NAME_WE)
 if(PCAP_LIBRARY_NAME_WE STREQUAL "wpcap")
-  # wpcap required Packet lib (admit that it is at the same place)
-  # find_library(PACKET_LIBRARY NAMES Packet HINTS ${PCAP_LIBRARY})
-  # set(PCAP_LIBRARY ${PCAP_LIBRARY} ${PACKET_LIBRARY})
+  # wpcap required Packet lib (admit that it is at the same place) find_library(PACKET_LIBRARY NAMES Packet HINTS
+  # ${PCAP_LIBRARY}) set(PCAP_LIBRARY ${PCAP_LIBRARY} ${PACKET_LIBRARY})
 endif()
 
 include(FindPackageHandleStandardArgs)
