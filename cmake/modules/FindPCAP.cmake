@@ -9,7 +9,7 @@
 # to be set before calling find_package:
 #
 # Imported Targets:
-#  PCAP::PCAP                The libpcap library, if found (wpcap and Packet on Windows)
+#  PCAP::PCAP                The libpcap library, if found
 #
 # Variables defined by this module:
 #
@@ -19,11 +19,20 @@
 #                            library e.g. required by pf_ring's libpcap)
 #  HAVE_PCAP_IMMEDIATE_MODE  If the version of libpcap found supports immediate mode
 #  HAVE_PCAP_DIRECTION       If the version of libpcap found support for setting direction
+#
+# Hints and Backward Compatibility
+# ================================
+#
+# To tell this module where to look, a user may set the environment variable
+# PCAP_ROOT to point cmake to the *root* of a directory with include and lib
+# subdirectories for packet.dll (e.g WpdPack or npcap-sdk). Alternatively,
+# PCAP_ROOT may also be set from cmake command line or GUI (e.g cmake
+# -DPCAP_ROOT=C:\path\to\packet [...])
 # ~~~
 
 find_path(PCAP_INCLUDE_DIR NAMES pcap/pcap.h pcap.h PATH_SUFFIXES include Include)
 
-# The 64-bit wpcap.lib is located under /x64
+# The 64-bit Wpcap.lib is located under /x64
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
   #
   # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries. The
@@ -37,17 +46,10 @@ endif()
 
 find_library(PCAP_LIBRARY NAMES pcap wpcap)
 
-# If wpcap is found we also need Packet lib
-get_filename_component(PCAP_LIBRARY_NAME_WE ${PCAP_LIBRARY} NAME_WE)
-if(PCAP_LIBRARY_NAME_WE STREQUAL "wpcap")
-  # wpcap required Packet lib (admit that it is at the same place) find_library(PACKET_LIBRARY NAMES Packet HINTS
-  # ${PCAP_LIBRARY}) set(PCAP_LIBRARY ${PCAP_LIBRARY} ${PACKET_LIBRARY})
-endif()
-
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(PCAP DEFAULT_MSG PCAP_LIBRARY PCAP_INCLUDE_DIR)
 
-# If pcap or wpcap is not found as this level no need to continue
+# If Pcap is not found as this level no need to continue
 if(NOT PCAP_FOUND)
   return()
 endif()
