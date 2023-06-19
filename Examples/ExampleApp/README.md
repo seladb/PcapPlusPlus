@@ -1,8 +1,11 @@
 PcapPlusPlus Example Application
 ================================
 
-This folder contains the source code and a Visual Studio solution of a simple application that uses PcapPlusPlus.
+This folder contains the source code and a CMake file of a simple application that uses PcapPlusPlus.
 
 The code is based on the "Hello World" application in PcapPlusPlus Tutorials (https://pcapplusplus.github.io/docs/tutorials/intro#writing-a-simple-app-including-a-makefile).
 
-In order to compile this application please follow the steps in README.release (the part that explains how to compile the application).
+In order to build the application please use the following parameters in CMake command:
+
+ - `-DPcapPlusPlus_DIR=<PACKAGE_DIR>` - where `PACKAGE_DIR` is PcapPlusPlus release package
+ - `-DPCAP_ROOT=<WinPcap_OR_Npcap_DIR>` - ONLY REQUIRED ON WINDOWS, `WinPcap_OR_Npcap_DIR` is WinPcap/Npcap SDK path
