@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 	// ~~~~~~~~~~~~~~~
 
 	// create a new Ethernet layer
-	pcpp::EthLayer newEthernetLayer(pcpp::MacAddress("00:50:43:11:22:33"), pcpp::MacAddress("aa:bb:cc:dd:ee"));
+	pcpp::EthLayer newEthernetLayer(pcpp::MacAddress("00:50:43:11:22:33"), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
 
 	// create a new IPv4 layer
 	pcpp::IPv4Layer newIPLayer(pcpp::IPv4Address("192.168.1.1"), pcpp::IPv4Address("10.0.0.1"));
