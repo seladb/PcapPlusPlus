@@ -35,6 +35,17 @@ void ArpLayer::computeCalculateFields()
 		MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
 }
 
+bool ArpLayer::isRequest() const
+{
+	return be16toh(getArpHeader()->opcode) == pcpp::ArpOpcode::ARP_REQUEST;
+}
+
+
+bool ArpLayer::isReply() const
+{
+	return be16toh(getArpHeader()->opcode) == pcpp::ArpOpcode::ARP_REPLY;
+}
+
 std::string ArpLayer::toString() const
 {
 	if (be16toh(getArpHeader()->opcode) == ARP_REQUEST)

@@ -109,6 +109,8 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->hardwareSize, 6);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->protocolSize, 4);
 	PTF_ASSERT_EQUAL(arpLayer->getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY));
+	PTF_ASSERT_EQUAL(arpLayer->isReply(), true);
+	PTF_ASSERT_EQUAL(arpLayer->isRequest(), false);
 	PTF_ASSERT_EQUAL(arpLayer->getSenderIpAddr(), pcpp::IPv4Address("10.0.0.138"));
 	PTF_ASSERT_EQUAL(arpLayer->getTargetMacAddress(), pcpp::MacAddress("6c:f0:49:b2:de:6e"));
 } // EthAndArpPacketParsing

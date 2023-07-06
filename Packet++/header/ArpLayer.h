@@ -131,6 +131,16 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
+		/**
+		 * Is this packet an ARP request?
+		 */
+		bool isRequest() const;
+
+		/**
+		 * Is this packet an ARP reply?
+		 */
+		bool isReply() const;
+
 		std::string toString() const;
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
