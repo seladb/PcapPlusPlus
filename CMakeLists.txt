@@ -231,6 +231,9 @@ if(PCAPPP_INSTALL)
 
   # CMake helpers to compile Pcap++ with CMake
   pcapp_install_cmake_module(PCAP)
+  if (WIN32)
+    pcapp_install_cmake_module(Packet)
+  endif()
 
   if(PCAPPP_USE_PF_RING)
     pcapp_install_cmake_module(PF_RING)
