@@ -220,6 +220,10 @@ endif()
 if(PCAPPP_INSTALL)
   # Generate PKG-Config for non WIN32 system
   if(NOT WIN32)
+    if(APPLE)
+      # Add System and CoreFoundation libs on MacOS
+      set(PCAPPP_PKGCONFIG_EXTRA_LIBS "-framework SystemConfiguration -framework CoreFoundation")
+    endif()
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
                    @ONLY)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
