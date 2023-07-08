@@ -318,7 +318,7 @@ namespace pcpp
 	const ProtocolType VRRPv3 = 0x2000000000000;
 
 	/**
-     * COTP protocol
+	 * COTP protocol
 	 */
 	const ProtocolType COTP = 0x900000000000;
 
