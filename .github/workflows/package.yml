@@ -230,7 +230,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - target: "armeabi-v7a x86 arm64-v8a x86_64"
+          - targets: "armeabi-v7a x86 arm64-v8a x86_64"
             api-version: 30
 
     runs-on: ubuntu-latest
@@ -248,7 +248,7 @@ jobs:
       - name: Configure and Build PcapPlusPlus
         run: |
           LIBPCAP_PATH=$(pwd)/libpcap-android
-          for TARGET in ${TARGETS}; do \
+          for TARGET in ${{ matrix.targets }}; do \
             export LOCAL_BUILD_DIR="${BUILD_DIR}/${TARGET}/${{ matrix.api-version }}"; \
             cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${TARGET}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${TARGET}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"; \
             cmake --build "$LOCAL_BUILD_DIR" -j ;\
