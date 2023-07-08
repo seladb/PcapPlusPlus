@@ -17,9 +17,9 @@ namespace pcpp
 		/** length */
 		uint8_t length;
 		/** PDU type identifier */
-		uint8_t pdu_type;
+		uint8_t pduType ;
 		/** TPDU number sequence*/
-		uint8_t tpdu_number;
+		uint8_t tpduNumber;
 	} cotphdr;
 #pragma pack(pop)
 
@@ -46,10 +46,10 @@ namespace pcpp
 		/**
 		 * A constructor that allocates a new COTP header
 		 * @param[in] length Packet length
-		 * @param[in] pdu_type Protocol PDU type number
-		 * @param[in] tpdu_number Protocol TPDU number
+		 * @param[in] pduType Protocol PDU type number
+		 * @param[in] tpduNumber Protocol TPDU number
 		 */
-		CotpLayer(uint8_t length, uint8_t pdu_type, uint8_t tpdu_number);
+		CotpLayer(uint8_t length, uint8_t pduType, uint8_t tpduNumber);
 
 		virtual ~CotpLayer() {}
 
@@ -61,12 +61,12 @@ namespace pcpp
 		/**
 		 * @return COTP PDU type
 		 */
-		uint8_t getPdu_type() const;
+		uint8_t getPduType() const;
 
 		/**
 		 * @return COTP TPDU number
 		 */
-		uint8_t getTpdu_number() const;
+		uint8_t getTpduNumber() const;
 
 		/**
 		 * @return Size of @ref cotphdr
@@ -81,15 +81,15 @@ namespace pcpp
 
 		/**
 		 * Set the value of the version
-		 * @param[in] pdu_type The number of the PDU type
+		 * @param[in] pduType The number of the PDU type
 		 */
-		void setPdu_type(uint8_t pdu_type) const;
+		void setPduType(uint8_t pduType) const;
 
 		/**
 		 * Set the value of the version
-		 * @param[in] tpdu_number The value of the TPDU number
+		 * @param[in] tpduNumber The value of the TPDU number
 		 */
-		void setTpdu_number(uint8_t tpdu_number) const;
+		void setTpduNumber(uint8_t tpduNumber) const;
 
 		/**
 		 * Does nothing for this layer
