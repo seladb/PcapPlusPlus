@@ -72,8 +72,15 @@ target_include_directories(
   PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
           $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>)
 
-target_link_libraries(Pcap++ PUBLIC Common++ Packet++ $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
-                                    $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK> PCAP::PCAP Threads::Threads)
+target_link_libraries(
+  Pcap++
+  PUBLIC Common++
+         Packet++
+         $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
+         $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
+         PCAP::PCAP
+         $<$<BOOL:${WIN32}>:Packet::Packet>
+         Threads::Threads)
 
 if(LIGHT_PCAPNG_ZSTD)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)
