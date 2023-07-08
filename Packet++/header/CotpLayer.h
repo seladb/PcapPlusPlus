@@ -47,7 +47,7 @@ namespace pcpp
 		 * A constructor that allocates a new COTP header
 		 * @param[in] tpduNumber Protocol TPDU number
 		 */
-		CotpLayer(uint8_t tpduNumber);
+		explicit CotpLayer(uint8_t tpduNumber);
 
 		virtual ~CotpLayer() {}
 
@@ -121,7 +121,7 @@ namespace pcpp
 
 		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelTransportLayer; }
 
 	  private:
 		/**
