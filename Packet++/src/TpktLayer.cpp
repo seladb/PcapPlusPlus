@@ -1,13 +1,8 @@
 #include "TpktLayer.h"
-#include "CotpLayer.h"
 #include "EndianPortable.h"
-<<<<<<< HEAD
-=======
 #include "TcpLayer.h"
 #include "CotpLayer.h"
->>>>>>> 77464cb5 (create COTP)
 #include "PayloadLayer.h"
-#include "TcpLayer.h"
 #include <iostream>
 #include <sstream>
 #include <string.h>
@@ -54,14 +49,13 @@ namespace pcpp
 
 		uint8_t *payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
+
 		uint8_t length = payload[0];
 		uint8_t cotpType = payload[1];
 
-		if (CotpLayer::isDataValid(payload, payloadLen, cotpType, length))
-		{
+		if (CotpLayer::isDataValid(payload, payloadLen, cotpType, length)) {
 			m_NextLayer = CotpLayer::parseCotpLayer(payload, payloadLen, this, m_Packet);
-		}
-		else
+		} else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 

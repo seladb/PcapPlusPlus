@@ -17,7 +17,7 @@ namespace pcpp
 		/** length */
 		uint8_t length;
 		/** PDU type identifier */
-		uint8_t pduType ;
+		uint8_t pduType;
 		/** TPDU number sequence*/
 		uint8_t tpduNumber;
 	} cotphdr;
@@ -47,7 +47,11 @@ namespace pcpp
 		 * A constructor that allocates a new COTP header
 		 * @param[in] tpduNumber Protocol TPDU number
 		 */
+<<<<<<< HEAD
 		explicit CotpLayer(uint8_t tpduNumber);
+=======
+		CotpLayer(uint8_t tpduNumber);
+>>>>>>> 5c1c5dca (Remove unnecessary elements, modify to check the values (type, length), modify the values in tests)
 
 		virtual ~CotpLayer() {}
 
@@ -100,7 +104,7 @@ namespace pcpp
 		void parseNextLayer() override;
 
 		/**
-	 	 * A method that creates a COTP layer from packet raw data
+		 * A method that creates a COTP layer from packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -117,7 +121,10 @@ namespace pcpp
 		 * @param[in] length The length of the COTP
 		 * @return True if the data size is greater or equal than the size of cotphdr
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize, uint8_t cotpType, uint8_t length) { return data && dataSize >= sizeof(cotphdr) && cotpType == 0xf0 && length == 2; }
+		static bool isDataValid(const uint8_t *data, size_t dataSize, uint8_t cotpType, uint8_t length)
+		{
+			return data && dataSize >= sizeof(cotphdr) && cotpType == 0xf0 && length == 2;
+		}
 
 		std::string toString() const override;
 
