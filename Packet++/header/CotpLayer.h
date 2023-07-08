@@ -45,11 +45,9 @@ namespace pcpp
 
 		/**
 		 * A constructor that allocates a new COTP header
-		 * @param[in] length Packet length
-		 * @param[in] pduType Protocol PDU type number
 		 * @param[in] tpduNumber Protocol TPDU number
 		 */
-		CotpLayer(uint8_t length, uint8_t pduType, uint8_t tpduNumber);
+		CotpLayer(uint8_t tpduNumber);
 
 		virtual ~CotpLayer() {}
 
@@ -102,13 +100,6 @@ namespace pcpp
 		void parseNextLayer() override;
 
 		/**
-		 * A static method that checks whether a source or dest port match those associated with the COTP protocol
-		 * @param[in] cotpType data type with special numbers to check
-		 * @return True if the number match that associated with the COTP protocol
-		 */
-		static bool isCotpPort(uint8_t cotpType) { return cotpType == 0x06 || cotpType == 0xf0; }
-
-		/**
 	 	 * A method that creates a COTP layer from packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
@@ -122,13 +113,15 @@ namespace pcpp
 		 * A static method that takes a byte array and detects whether it is a COTP
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
+		 * @param[in] cotpType The type of the COTP
+		 * @param[in] length The length of the COTP
 		 * @return True if the data size is greater or equal than the size of cotphdr
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize) { return data && dataSize >= sizeof(cotphdr); }
+		static bool isDataValid(const uint8_t *data, size_t dataSize, uint8_t cotpType, uint8_t length) { return data && dataSize >= sizeof(cotphdr) && cotpType == 0xf0 && length == 2; }
 
 		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const override { return OsiModelSesionLayer; }
+		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 
 	  private:
 		/**

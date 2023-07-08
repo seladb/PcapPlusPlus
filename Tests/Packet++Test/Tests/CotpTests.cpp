@@ -22,9 +22,9 @@ PTF_TEST_CASE(CotpLayerTest)
 	PTF_ASSERT_EQUAL(cotpLayer->getTpduNumber(), 0x80);
 	PTF_ASSERT_EQUAL(cotpLayer->toString(), "Cotp Layer");
 
-	pcpp::CotpLayer cotpLayerTest((uint8_t)3, (uint8_t)200, (uint8_t)120);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getLength(), 0x03);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getPduType(), 0xc8);
+	pcpp::CotpLayer cotpLayerTest((uint8_t)120);
+	PTF_ASSERT_EQUAL(cotpLayerTest.getLength(), 0x02);
+	PTF_ASSERT_EQUAL(cotpLayerTest.getPduType(), 0x0f);
 	PTF_ASSERT_EQUAL(cotpLayerTest.getTpduNumber(), 0x78);
 	PTF_ASSERT_EQUAL(cotpLayerTest.toString(), "Cotp Layer");
 

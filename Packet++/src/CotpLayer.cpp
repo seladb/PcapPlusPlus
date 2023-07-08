@@ -8,15 +8,15 @@
 namespace pcpp
 {
 
-	pcpp::CotpLayer::CotpLayer(uint8_t length, uint8_t pduType, uint8_t tpduNumber)
+	pcpp::CotpLayer::CotpLayer(uint8_t tpduNumber)
 	{
 		const size_t headerLen = sizeof(cotphdr);
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 		cotphdr *cotpHdr = (cotphdr *)m_Data;
-		cotpHdr->length = length;
-		cotpHdr->pduType = pduType;
+		cotpHdr->length = 0x02;
+		cotpHdr->pduType = 0x0f;
 		cotpHdr->tpduNumber = tpduNumber;
 		m_Protocol = COTP;
 	}
@@ -25,26 +25,11 @@ namespace pcpp
 
 	std::string CotpLayer::toString() const
 	{
-		std::ostringstream lengthStream;
-		lengthStream << std::to_string(getLength());
-		std::ostringstream pduTypeStream;
-		pduTypeStream << std::to_string(getPduType());
-		std::ostringstream tpduNumberStream;
-		tpduNumberStream << std::to_string(getTpduNumber());
-
 		return "Cotp Layer";
 	}
 
 	CotpLayer *CotpLayer::parseCotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 	{
-		if (dataLen < sizeof(cotphdr))
-			return NULL;
-
-		cotphdr *cotpHdr = (cotphdr *)data;
-
-		// illegal header data - length is too small
-		if (be16toh(cotpHdr->length) < static_cast<uint16_t>(sizeof(cotphdr)))
-			return NULL;
 		return new CotpLayer(data, dataLen, prevLayer, packet);
 	}
 
