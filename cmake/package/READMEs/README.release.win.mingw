@@ -26,7 +26,7 @@ Using PcapPlusPlus in your project:
  - Make sure you have WinPcap or Npcap Developer's pack installed (WinPcap Dev Pack can be downloaded from https://www.winpcap.org/devel.htm, Npcap SDK can be downloaded from https://nmap.org/npcap/#download)
  - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` and `PCAP_ROOT=<WinPcap_OR_Npcap_DIR>`
    when running CMake, for example:
-   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR> -DPCAP_ROOT=<WinPcap_OR_Npcap_DIR>`
+   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR> -DPCAP_ROOT=<WinPcap_OR_Npcap_DIR> -DPacket_ROOT=<WinPcap_OR_Npcap_DIR>`
  - If your application uses Makefiles, you can create variables in your Makefile to point to the header and lib directories
    in the package. Here is an example:
    ```
