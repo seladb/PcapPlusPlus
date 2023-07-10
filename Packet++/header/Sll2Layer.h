@@ -26,7 +26,7 @@ namespace pcpp
 		/** The interface index field is a signed integer in network byte 
 		 * order and contains the 1-based index of the interface on which the packet was observed 
 		 **/
-		int32_t interface_index;
+		uint32_t interface_index;
 		/** Contains a Linux ARPHRD_ value for the link-layer device type */
 		uint16_t ARPHRD_type;
 		/** Specifies whether packet was: specifically sent to us by somebody else (value=0);
@@ -40,25 +40,6 @@ namespace pcpp
 		 *  meaningful is specified by the link-layer address length field
 		 **/
 		uint8_t link_layer_addr[8];
-
-		uint16_t getProtocolType() const;
-		void setProtocolType(uint16_t protocolType);
-
-		uint16_t getReservedType() const;
-		void setReservedType(uint16_t reservedType);
-
-		int32_t getInterfaceIndex() const;
-		void setInterfaceIndex(int32_t interfaceIndex);
-
-		uint16_t getArphrdType() const;
-		void setArphrdType(uint16_t arphrdType);
-
-		uint8_t getPacketType() const;
-		void setPacketType(uint8_t packetType);
-
-		uint8_t getLinkLayerAddrLen() const;
-		const uint8_t *getLinkLayerAddr() const;
-		void setLinkLayerAddr(uint8_t * linkLayerAddr, int linkLayerAddrLen);
 	};
 #pragma pack(pop)
 
@@ -102,11 +83,17 @@ namespace pcpp
 		bool setLinkLayerAddr(uint8_t* addr, size_t addrLength);
 
 		/**
+		 * Get a MAC address in the link layer address field
+		 * @return return macAddress pointer was set successfully, null pointer if d MAC address isn't valid or if set failed
+		 */
+		MacAddress getLinkLayerAsMacAddress();
+
+		/**
 		 * Set a MAC address in the link layer address field
 		 * @param[in] macAddr MAC address to set
 		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		 */
-		bool setMacAddressAsLinkLayer(MacAddress const& macAddr);
+		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
 
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
@@ -132,6 +119,84 @@ namespace pcpp
 		 * @return True if the data is valid and can represent an IEEE 802.3 Eth packet
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
+
+		/**
+		 * Get a protocol type of this layer
+		 * @return protocol type
+		 */
+		uint16_t getProtocolType() const;
+
+		/**
+		 * Set protocol type of this layer
+		 * @param[in] protocol type to set
+		 */
+		void setProtocolType(uint16_t protocolType);
+
+		/**
+		 * Get reversed type of this layer
+		 * @return reversed type
+		 */
+		uint16_t getReservedType() const;
+
+		/**
+		 * Set reversed type of this layer
+		 * @param[in] reversed type to set
+		 */
+		void setReservedType(uint16_t reservedType);
+
+		/**
+		 * Get interface index of this layer
+		 * @return interface index
+		 */
+		int32_t getInterfaceIndex() const;
+
+		/**
+		 * Set interface index of this layer
+		 */
+		void setInterfaceIndex(uint32_t interfaceIndex);
+
+		/**
+		 * Get arphrd type of this layer
+		 * @return arphrd type
+		 */
+		uint16_t getArphrdType() const;
+
+		/**
+		 * Set arphrd type of this layer
+		 * @param[in] arphrd type to set
+		 */
+		void setArphrdType(uint16_t arphrdType);
+
+		/**
+		 * Get packet type of this layer
+		 * @return packet type
+		 */
+		uint8_t getPacketType() const;
+
+		/**
+		 * Set packet type of this layer
+		 * @param[in] packet type to set
+		 */
+		void setPacketType(uint8_t packetType);
+
+		/**
+		 * Get link layer address length
+		 * @return link layer address length
+		 */
+		uint8_t getLinkLayerAddrLen() const;
+
+		/**
+		 * Get link layer address data pointer
+		 * @return link layer address data pointer
+		 */
+		const uint8_t *getLinkLayerAddr() const;
+
+		/**
+		 * Set packet type of this layer
+		 * @param[in] link layer address data pointer to set
+		 * @param[in] link layer address length to set
+		 */
+		void setLinkLayerAddr(uint8_t* linkLayerAddr, int linkLayerAddrLen);
 
 		std::string toString() const;
 

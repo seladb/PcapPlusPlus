@@ -305,7 +305,7 @@ namespace pcpp
 	/**
 	 * SLL2 protocol
 	 */
-	const ProtocolType SLL2 = 0x1000000000000;
+	const ProtocolType SLL2 = 0x4000000000000;
 
 	/**
 	 * An enum representing OSI model layers

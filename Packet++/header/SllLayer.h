@@ -81,7 +81,7 @@ namespace pcpp
 		 * @param[in] macAddr MAC address to set
 		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		 */
-		bool setMacAddressAsLinkLayer(MacAddress const& macAddr);
+		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
 
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,

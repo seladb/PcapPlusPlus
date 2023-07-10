@@ -14,7 +14,7 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/Sll2Packet.dat", pcpp::LINKTYPE_LINUX_SLL2);
+	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "../PacketExamples/Sll2Packet.dat", pcpp::LINKTYPE_LINUX_SLL2);
 
 	pcpp::Packet sll2Packet(&rawPacket1);
 
@@ -25,13 +25,13 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	PTF_ASSERT_TRUE(sll2Packet.isPacketOfType(pcpp::SLL2));
 	PTF_ASSERT_NOT_NULL(sll2Layer);
 	PTF_ASSERT_EQUAL(sll2Layer, sll2Packet.getFirstLayer(), ptr);
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getProtocolType(), htobe16(PCPP_ETHERTYPE_IP));
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getInterfaceIndex(), htobe32(20));
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getArphrdType(), htobe16(1));
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getPacketType(), 4);
+	PTF_ASSERT_EQUAL(sll2Layer->getProtocolType(), PCPP_ETHERTYPE_IP);
+	PTF_ASSERT_EQUAL(sll2Layer->getInterfaceIndex(), 20);
+	PTF_ASSERT_EQUAL(sll2Layer->getArphrdType(), 1);
+	PTF_ASSERT_EQUAL(sll2Layer->getPacketType(), 4);
 	PTF_ASSERT_EQUAL(sll2Layer->getHeaderLen(), 20);
-	PTF_ASSERT_EQUAL(sll2Layer->getSll2Header()->getLinkLayerAddrLen(), 6);
-	pcpp::MacAddress macAddrFromPacket(sll2Layer->getSll2Header()->getLinkLayerAddr());
+	PTF_ASSERT_EQUAL(sll2Layer->getLinkLayerAddrLen(), 6);
+	pcpp::MacAddress macAddrFromPacket(sll2Layer->getLinkLayerAddr());
 	pcpp::MacAddress macAddrRef("d2:cf:c2:50:15:ea");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 } // Sll2PacketParsingTest
@@ -40,8 +40,6 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 {
 	pcpp::Sll2Layer sll2Layer(20, 1, 4);
 	sll2Layer.setMacAddressAsLinkLayer(pcpp::MacAddress("d2:cf:c2:50:15:ea"));
-	sll2Layer.getSll2Header()->link_layer_addr[6] = 0x00;
-	sll2Layer.getSll2Header()->link_layer_addr[7] = 0x00;
 
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("7.249.151.114")),
 							pcpp::IPv4Address("116.63.66.108"));
@@ -61,7 +59,7 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	PTF_ASSERT_TRUE(sllPacket.addLayer(&tcpLayer));
 	sllPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "PacketExamples/Sll2Packet.dat");
+	READ_FILE_INTO_BUFFER(1, "../PacketExamples/Sll2Packet.dat");
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), 60);
 	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, 52);
 
