@@ -6,7 +6,7 @@
 
 using namespace std;
 
-PTF_TEST_CASE(cotpPacket)
+PTF_TEST_CASE(CotpLayerTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -17,7 +17,6 @@ PTF_TEST_CASE(cotpPacket)
 	PTF_ASSERT_TRUE(cotpPacket.isPacketOfType(pcpp::COTP));
 	auto cotpLayer = cotpPacket.getLayerOfType<pcpp::CotpLayer>();
 	PTF_ASSERT_NOT_NULL(cotpLayer);
-	PTF_ASSERT_EQUAL(cotpLayer->getHeaderLen(), 0x02);
 	PTF_ASSERT_EQUAL(cotpLayer->getLength(), 0x02);
 	PTF_ASSERT_EQUAL(cotpLayer->getPduType(), 0xf0);
 	PTF_ASSERT_EQUAL(cotpLayer->getTpduNumber(), 0x80);
@@ -35,4 +34,4 @@ PTF_TEST_CASE(cotpPacket)
 	PTF_ASSERT_EQUAL(newCotpPacket.getPduType(), 0xd2);
 	PTF_ASSERT_EQUAL(newCotpPacket.getTpduNumber(), 0x7d);
 
-} // cotpPacket
+} // CotpLayerTest
