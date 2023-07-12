@@ -53,7 +53,7 @@ namespace pcpp
 		uint8_t length = payload[0];
 		uint8_t cotpType = payload[1];
 
-		if (CotpLayer::isDataValid(payload, payloadLen, cotpType, length)) {
+		if (CotpLayer::isDataValid(payload, payloadLen)) {
 			m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
 		} else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
