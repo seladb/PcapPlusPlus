@@ -21,16 +21,9 @@ namespace pcpp
 		m_Protocol = COTP;
 	}
 
-	void CotpLayer::computeCalculateFields() {}
-
 	std::string CotpLayer::toString() const
 	{
 		return "Cotp Layer";
-	}
-
-	CotpLayer *CotpLayer::parseCotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-	{
-		return new CotpLayer(data, dataLen, prevLayer, packet);
 	}
 
 	uint8_t CotpLayer::getLength() const { return getCotpHeader()->length; }
@@ -38,9 +31,20 @@ namespace pcpp
 	uint8_t CotpLayer::getPduType() const { return getCotpHeader()->pduType; }
 
 	uint8_t CotpLayer::getTpduNumber() const { return getCotpHeader()->tpduNumber; }
+
 	void CotpLayer::setLength(uint8_t length) const { getCotpHeader()->length = length; }
+
 	void CotpLayer::setPduType(uint8_t pduType) const { getCotpHeader()->pduType = pduType; }
+
 	void CotpLayer::setTpduNumber(uint8_t tpduNumber) const { getCotpHeader()->tpduNumber = tpduNumber; }
+
+	static bool CotpLayer::isDataValid(const uint8_t *data, size_t dataSize)
+	{
+		if (!data || dataSize < sizeof(cotphdr))
+			return false;
+
+		return  data[1] == 0xf0 && data[0] == 2;
+	}
 
 	void CotpLayer::parseNextLayer()
 	{

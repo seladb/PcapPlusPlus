@@ -92,7 +92,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() override;
+		void computeCalculateFields() override {}
 
 		/**
 		 * Currently parses the rest of the packet as a generic payload (PayloadLayer)
@@ -100,36 +100,18 @@ namespace pcpp
 		void parseNextLayer() override;
 
 		/**
-	 	 * A method that creates a COTP layer from packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored
-		 * @return A newly allocated COTP layer
-		 */
-		static CotpLayer *parseCotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
-
-		/**
 		 * A static method that takes a byte array and detects whether it is a COTP
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
-		 * @param[in] cotpType The type of the COTP
-		 * @param[in] length The length of the COTP
 		 * @return True if the data size is greater or equal than the size of cotphdr
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize, uint8_t cotpType, uint8_t length) { return data && dataSize >= sizeof(cotphdr) && cotpType == 0xf0 && length == 2; }
+		static bool isDataValid(const uint8_t *data, size_t dataSize);
 
 		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelTransportLayer; }
 
 	  private:
-		/**
-		 * Get a pointer to the COTP header. Data can be retrieved through the
-		 * other methods of this layer. Notice the return value points directly to the data, so every change will change
-		 * the actual packet data
-		 * @return A pointer to the @ref cotphdr
-		 */
 		cotphdr *getCotpHeader() const { return (cotphdr *)m_Data; }
 	};
 

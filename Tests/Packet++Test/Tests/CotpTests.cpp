@@ -13,27 +13,26 @@ PTF_TEST_CASE(CotpLayerTest)
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/cotp.dat");
 
-	pcpp::Packet CotpLayerTest(&rawPacket1);
+	pcpp::Packet CotpLayerTest(&cotpPacket);
 	PTF_ASSERT_TRUE(CotpLayerTest.isPacketOfType(pcpp::COTP));
 	auto cotpLayer = CotpLayerTest.getLayerOfType<pcpp::CotpLayer>();
 	PTF_ASSERT_NOT_NULL(cotpLayer);
+	PTF_ASSERT_EQUAL(cotpLayer->getHeaderLen(), 0x02);
 	PTF_ASSERT_EQUAL(cotpLayer->getLength(), 0x02);
 	PTF_ASSERT_EQUAL(cotpLayer->getPduType(), 0xf0);
 	PTF_ASSERT_EQUAL(cotpLayer->getTpduNumber(), 0x80);
 	PTF_ASSERT_EQUAL(cotpLayer->toString(), "Cotp Layer");
 
-	pcpp::CotpLayer cotpLayerTest((uint8_t)120);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getLength(), 0x02);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getPduType(), 0x0f);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getTpduNumber(), 0x78);
-	PTF_ASSERT_EQUAL(cotpLayerTest.toString(), "Cotp Layer");
+	pcpp::CotpLayer newCotpLayer(120);
+	PTF_ASSERT_EQUAL(newCotpLayer.getLength(), 0x02);
+	PTF_ASSERT_EQUAL(newCotpLayer.getPduType(), 0x0f);
+	PTF_ASSERT_EQUAL(newCotpLayer.getTpduNumber(), 0x78);
 
-	cotpLayerTest.setLength((uint8_t)4);
-	cotpLayerTest.setPduType((uint8_t)210);
-	cotpLayerTest.setTpduNumber((uint8_t)125);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getLength(), 0x04);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getPduType(), 0xd2);
-	PTF_ASSERT_EQUAL(cotpLayerTest.getTpduNumber(), 0x7d);
-	PTF_ASSERT_EQUAL(cotpLayerTest.toString(), "Cotp Layer");
+	newCotpLayer.setLength((uint8_t)4);
+	newCotpLayer.setPduType((uint8_t)210);
+	newCotpLayer.setTpduNumber((uint8_t)125);
+	PTF_ASSERT_EQUAL(newCotpLayer.getLength(), 0x04);
+	PTF_ASSERT_EQUAL(newCotpLayer.getPduType(), 0xd2);
+	PTF_ASSERT_EQUAL(newCotpLayer.getTpduNumber(), 0x7d);
 
 } // CotpLayerTest
