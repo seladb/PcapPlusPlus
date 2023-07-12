@@ -11,7 +11,7 @@ PTF_TEST_CASE(CotpLayerTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/cotp.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tpkt_cotp.dat");
 
 	pcpp::Packet cotpPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(cotpPacket.isPacketOfType(pcpp::COTP));
