@@ -38,7 +38,7 @@ namespace pcpp
 
 	void CotpLayer::setTpduNumber(uint8_t tpduNumber) const { getCotpHeader()->tpduNumber = tpduNumber; }
 
-	static bool CotpLayer::isDataValid(const uint8_t *data, size_t dataSize)
+	bool CotpLayer::isDataValid(const uint8_t *data, size_t dataSize)
 	{
 		if (!data || dataSize < sizeof(cotphdr))
 			return false;
