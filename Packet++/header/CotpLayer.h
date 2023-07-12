@@ -105,7 +105,7 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data size is greater or equal than the size of cotphdr
 		 */
-		bool isDataValid(const uint8_t *data, size_t dataSize);
+		static bool isDataValid(const uint8_t *data, size_t dataSize);
 
 		std::string toString() const override;
 
