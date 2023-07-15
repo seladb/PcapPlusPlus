@@ -10,7 +10,7 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   - repo: https://github.com/pocc/pre-commit-hooks
@@ -25,7 +25,7 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.15.0
+    rev: v1.16.1
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
