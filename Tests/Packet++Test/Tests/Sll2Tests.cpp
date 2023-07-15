@@ -14,7 +14,7 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "../PacketExamples/Sll2Packet.dat", pcpp::LINKTYPE_LINUX_SLL2);
+	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/Sll2Packet.dat", pcpp::LINKTYPE_LINUX_SLL2);
 
 	pcpp::Packet sll2Packet(&rawPacket1);
 
@@ -59,7 +59,7 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	PTF_ASSERT_TRUE(sllPacket.addLayer(&tcpLayer));
 	sllPacket.computeCalculateFields();
 
-	READ_FILE_INTO_BUFFER(1, "../PacketExamples/Sll2Packet.dat");
+	READ_FILE_INTO_BUFFER(1, "PacketExamples/Sll2Packet.dat");
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), 60);
 	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, 52);
 
