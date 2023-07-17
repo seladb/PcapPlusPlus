@@ -153,7 +153,7 @@ def main() -> None:
         if line[0] in ["#", "\n"]:
             continue
 
-        if line_elements := parse_mac_and_vendor(line.split("\t")):
+        if line_elements := parse_mac_and_vendor([word for word in line.split("\t") if word.strip()]):
             update_oui_dataset(oui_dataset, line_elements)
 
     with open(args.output_file, "w", encoding="utf8") as out_file:
