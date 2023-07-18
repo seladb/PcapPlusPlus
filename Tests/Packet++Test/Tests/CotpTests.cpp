@@ -17,12 +17,15 @@ PTF_TEST_CASE(CotpLayerTest)
 	PTF_ASSERT_TRUE(cotpPacket.isPacketOfType(pcpp::COTP));
 	auto cotpLayer = cotpPacket.getLayerOfType<pcpp::CotpLayer>();
 	PTF_ASSERT_NOT_NULL(cotpLayer);
+	PTF_ASSERT_EQUAL(cotpLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload, enum);
+	PTF_ASSERT_EQUAL(cotpLayer->getHeaderLen(), 3);
 	PTF_ASSERT_EQUAL(cotpLayer->getLength(), 0x02);
 	PTF_ASSERT_EQUAL(cotpLayer->getPduType(), 0xf0);
 	PTF_ASSERT_EQUAL(cotpLayer->getTpduNumber(), 0x80);
 	PTF_ASSERT_EQUAL(cotpLayer->toString(), "Cotp Layer");
 
 	pcpp::CotpLayer newCotpPacket(120);
+	PTF_ASSERT_EQUAL(newCotpPacket.getHeaderLen(), 3);
 	PTF_ASSERT_EQUAL(newCotpPacket.getLength(), 0x02);
 	PTF_ASSERT_EQUAL(newCotpPacket.getPduType(), 0x0f);
 	PTF_ASSERT_EQUAL(newCotpPacket.getTpduNumber(), 0x78);
