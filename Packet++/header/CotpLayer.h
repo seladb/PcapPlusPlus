@@ -103,7 +103,7 @@ namespace pcpp
 		 * A static method that takes a byte array and detects whether it is a COTP
 		 * @param[in] data A byte array
 		 * @param[in] dataSize The byte array size (in bytes)
-		 * @return True if the data size is greater or equal than the size of cotphdr
+		 * @return True if the data looks like a valid COTP layer
 		 */
 		static bool isDataValid(const uint8_t *data, size_t dataSize);
 
