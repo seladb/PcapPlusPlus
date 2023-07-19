@@ -11,7 +11,7 @@ PTF_TEST_CASE(TpktLayerTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tpkt.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/tpkt_cotp.dat");
 
 	pcpp::Packet TpktPacketNoOptions(&rawPacket1);
 	PTF_ASSERT_TRUE(TpktPacketNoOptions.isPacketOfType(pcpp::TPKT));

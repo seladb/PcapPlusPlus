@@ -96,7 +96,7 @@ namespace pcpp
 		void computeCalculateFields() override {}
 
 		/**
-		 * Currently parses the rest of the packet as a generic payload (PayloadLayer)
+		 * Currently parses the rest of the packet as a COTP protocol or generic payload (PayloadLayer)
 		 */
 		void parseNextLayer() override;
 

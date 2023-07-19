@@ -3,6 +3,7 @@ add_library(
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
   src/BgpLayer.cpp
+  src/CotpLayer.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
   src/DnsLayer.cpp
@@ -64,6 +65,7 @@ add_library(
 set(public_headers
     header/ArpLayer.h
     header/BgpLayer.h
+    header/CotpLayer.h
     header/DhcpLayer.h
     header/DhcpV6Layer.h
     header/DnsLayerEnums.h

@@ -309,5 +309,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(VrrpParsingTest, "vrrp");
 	PTF_RUN_TEST(VrrpCreateAndEditTest, "vrrp");
 
+	PTF_RUN_TEST(CotpLayerTest, "cotp");
+
 	PTF_END_RUNNING_TESTS;
 }
