@@ -7,6 +7,7 @@
 #include "Packet.h"
 #include "Sll2Layer.h"
 #include "TcpLayer.h"
+#include "SystemUtils.h"
 #include "UdpLayer.h"
 
 PTF_TEST_CASE(Sll2PacketParsingTest)

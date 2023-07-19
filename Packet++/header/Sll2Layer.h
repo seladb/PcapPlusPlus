@@ -128,7 +128,7 @@ namespace pcpp
 
 		/**
 		 * Set protocol type of this layer
-		 * @param[in] protocol type to set
+		 * @param[in] protocolType type to set
 		 */
 		void setProtocolType(uint16_t protocolType);
 
@@ -140,7 +140,7 @@ namespace pcpp
 
 		/**
 		 * Set reversed type of this layer
-		 * @param[in] reversed type to set
+		 * @param[in] reservedType reserved type to set
 		 */
 		void setReservedType(uint16_t reservedType);
 
@@ -152,6 +152,7 @@ namespace pcpp
 
 		/**
 		 * Set interface index of this layer
+		 * @param[in] interfaceIndex interface index to set
 		 */
 		void setInterfaceIndex(uint32_t interfaceIndex);
 
@@ -163,7 +164,7 @@ namespace pcpp
 
 		/**
 		 * Set arphrd type of this layer
-		 * @param[in] arphrd type to set
+		 * @param[in] arphrdType arphrd type to set
 		 */
 		void setArphrdType(uint16_t arphrdType);
 
@@ -175,7 +176,7 @@ namespace pcpp
 
 		/**
 		 * Set packet type of this layer
-		 * @param[in] packet type to set
+		 * @param[in] packetType packet type to set
 		 */
 		void setPacketType(uint8_t packetType);
 
@@ -193,8 +194,8 @@ namespace pcpp
 
 		/**
 		 * Set packet type of this layer
-		 * @param[in] link layer address data pointer to set
-		 * @param[in] link layer address length to set
+		 * @param[in] linkLayerAddr link layer address data pointer to set
+		 * @param[in] linkLayerAddrLen link layer address length
 		 */
 		void setLinkLayerAddr(uint8_t* linkLayerAddr, int linkLayerAddrLen);
 
