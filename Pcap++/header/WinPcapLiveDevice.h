@@ -39,6 +39,7 @@ namespace pcpp
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie);
 		bool startCapture(RawPacketVector& capturedPacketsVector) { return PcapLiveDevice::startCapture(capturedPacketsVector); }
 
+		using PcapLiveDevice::sendPackets;
 		virtual int sendPackets(RawPacket* rawPacketsArr, int arrLength);
 
 		/**

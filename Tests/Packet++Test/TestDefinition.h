@@ -235,3 +235,10 @@ PTF_TEST_CASE(WakeOnLanEditTests);
 
 // Implemented in TpktTests.cpp
 PTF_TEST_CASE(TpktLayerTest);
+
+// Implemented in VrrpTests.cpp
+PTF_TEST_CASE(VrrpParsingTest);
+PTF_TEST_CASE(VrrpCreateAndEditTest);
+
+//Implemented in CotpTests.cpp
+PTF_TEST_CASE(CotpLayerTest);
