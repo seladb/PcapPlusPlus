@@ -1,6 +1,7 @@
 #include "TpktLayer.h"
 #include "EndianPortable.h"
 #include "TcpLayer.h"
+#include "CotpLayer.h"
 #include "PayloadLayer.h"
 #include <iostream>
 #include <sstream>
@@ -48,7 +49,11 @@ namespace pcpp
 
 		uint8_t *payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+
+		if (CotpLayer::isDataValid(payload, payloadLen)) {
+			m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
+		} else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 
 } // namespace pcpp

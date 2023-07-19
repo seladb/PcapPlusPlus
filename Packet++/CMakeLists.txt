@@ -3,6 +3,7 @@ add_library(
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
   src/BgpLayer.cpp
+  src/CotpLayer.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
   src/DnsLayer.cpp
@@ -56,6 +57,7 @@ add_library(
   src/TpktLayer.cpp
   src/UdpLayer.cpp
   src/VlanLayer.cpp
+  src/VrrpLayer.cpp
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
   # Force hash-library pcapng to be link fully static
@@ -64,6 +66,7 @@ add_library(
 set(public_headers
     header/ArpLayer.h
     header/BgpLayer.h
+    header/CotpLayer.h
     header/DhcpLayer.h
     header/DhcpV6Layer.h
     header/DnsLayerEnums.h
@@ -120,6 +123,7 @@ set(public_headers
     header/TpktLayer.h
     header/UdpLayer.h
     header/VlanLayer.h
+    header/VrrpLayer.h
     header/VxlanLayer.h
     header/WakeOnLanLayer.h)
 

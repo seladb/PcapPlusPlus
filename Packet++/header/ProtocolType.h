@@ -302,6 +302,26 @@ namespace pcpp
 	 */
 	const ProtocolType TPKT = 0x800000000000;
 
+ 	/**
+	 * VRRP protocol
+	 */
+	const ProtocolType VRRP = 0x3000000000000;
+
+	/**
+	 * VRRP version 2 protocol
+	 */
+	const ProtocolType VRRPv2 = 0x1000000000000;
+
+	/**
+	 * VRRP version 3 protocol
+	 */
+	const ProtocolType VRRPv3 = 0x2000000000000;
+
+	/**
+	 * COTP protocol
+	 */
+	const ProtocolType COTP = 0x900000000000;
+
 	/**
 	 * SLL2 protocol
 	 */
