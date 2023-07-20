@@ -23,8 +23,8 @@ namespace pcpp
 		uint16_t protocol_type;
 		/** The "Reserved (MBZ)" field is reserved, and must be set to zero */
 		uint16_t reserved_type;
-		/** The interface index field is a signed integer in network byte 
-		 * order and contains the 1-based index of the interface on which the packet was observed 
+		/** The interface index field is a signed integer in network byte
+		 * order and contains the 1-based index of the interface on which the packet was observed
 		 **/
 		uint32_t interface_index;
 		/** Contains a Linux ARPHRD_ value for the link-layer device type */
