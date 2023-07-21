@@ -23,6 +23,7 @@ Sll2Layer::Sll2Layer(uint32_t interfaceIndex, uint16_t ARPHRDType, uint8_t packe
 	setPacketType(packetType);
 	setArphrdType(ARPHRDType);
 	setInterfaceIndex(interfaceIndex);
+	setReservedType(0);
 	m_Protocol = SLL2;
 }
 
@@ -44,7 +45,7 @@ MacAddress Sll2Layer::getLinkLayerAsMacAddress() {
 	if (data == nullptr || dataLen == 0 || dataLen > 8) {
 		return MacAddress::Zero;
 	}
-	return *new MacAddress(data);
+	return MacAddress(data);
 }
 
 bool Sll2Layer::setMacAddressAsLinkLayer(const MacAddress& macAddr)
@@ -164,7 +165,7 @@ void Sll2Layer::setReservedType(uint16_t reservedType)
 	getSll2Header()->reserved_type = htobe16(reservedType);
 }
 
-int32_t Sll2Layer::getInterfaceIndex() const
+uint32_t Sll2Layer::getInterfaceIndex() const
 {
 	return be32toh(getSll2Header()->interface_index);
 }

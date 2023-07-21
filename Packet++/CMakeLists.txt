@@ -40,8 +40,8 @@ add_library(
   src/SdpLayer.cpp
   src/SingleCommandTextProtocol.cpp
   src/SipLayer.cpp
-  src/SllLayer.cpp
   src/Sll2Layer.cpp
+  src/SllLayer.cpp
   src/SomeIpLayer.cpp
   src/SomeIpSdLayer.cpp
   src/SSHLayer.cpp

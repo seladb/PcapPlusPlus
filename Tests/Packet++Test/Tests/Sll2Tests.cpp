@@ -32,14 +32,17 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	PTF_ASSERT_EQUAL(sll2Layer->getPacketType(), 4);
 	PTF_ASSERT_EQUAL(sll2Layer->getHeaderLen(), 20);
 	PTF_ASSERT_EQUAL(sll2Layer->getLinkLayerAddrLen(), 6);
+	PTF_ASSERT_EQUAL(sll2Layer->getReservedType(), 0);
 	pcpp::MacAddress macAddrFromPacket(sll2Layer->getLinkLayerAddr());
 	pcpp::MacAddress macAddrRef("d2:cf:c2:50:15:ea");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
+	PTF_ASSERT_EQUAL(macAddrRef, sll2Layer->getLinkLayerAsMacAddress());
 } // Sll2PacketParsingTest
 
 PTF_TEST_CASE(Sll2PacketCreationTest)
 {
 	pcpp::Sll2Layer sll2Layer(20, 1, 4);
+	sll2Layer.setProtocolType(PCPP_ETHERTYPE_IP);
 	sll2Layer.setMacAddressAsLinkLayer(pcpp::MacAddress("d2:cf:c2:50:15:ea"));
 
 	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("7.249.151.114")),

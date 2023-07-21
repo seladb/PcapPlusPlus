@@ -56,7 +56,7 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		Sll2Layer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet) { m_Protocol = SLL2; }
+		Sll2Layer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet) { m_Protocol = SLL2; }
 
 		/**
 		 * A constructor that creates a new SLL2 header and allocates the data
@@ -148,7 +148,7 @@ namespace pcpp
 		 * Get interface index of this layer
 		 * @return interface index
 		 */
-		int32_t getInterfaceIndex() const;
+		uint32_t getInterfaceIndex() const;
 
 		/**
 		 * Set interface index of this layer
