@@ -38,7 +38,7 @@ StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t data
 {
 	if (dataPtr && dataLen > 0)
 	{
-		char tempResult[256];
+		char tempResult[4096];
 		decodeName((const char*)dataPtr, tempResult, dnsResource);
 		m_Data = tempResult;
 	}
@@ -106,7 +106,7 @@ MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResou
 	if (dataPtr && dataLen > 0)
 	{
 		uint16_t preference = be16toh(*(uint16_t*)dataPtr);
-		char tempMX[256];
+		char tempMX[4096];
 		decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 		m_Data.preference = preference;
 		m_Data.mailExchange = tempMX;
@@ -219,6 +219,12 @@ bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsReso
 	if (m_DataLen == 0 || m_Data == nullptr)
 	{
 		PCPP_LOG_ERROR("Input data is null or illegal");
+		return false;
+	}
+
+	if (arrLength < m_DataLen)
+	{
+		PCPP_LOG_ERROR("Input data len to small|current:" << arrLength << "|require" << m_DataLen);
 		return false;
 	}
 
