@@ -345,7 +345,7 @@ void TcpLayer::parseNextLayer()
 
 	if (HttpMessage::isHttpPort(portDst) && HttpRequestFirstLine::parseMethod((char*)payload, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
 		m_NextLayer = new HttpRequestLayer(payload, payloadLen, this, m_Packet);
-	else if (HttpMessage::isHttpPort(portSrc) && HttpResponseFirstLine::parseVersion((char*)payload, payloadLen) != HttpVersion::HttpVersionUnknown && HttpResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != HttpResponseLayer::HttpStatusCodeUnknown)
+	else if (HttpMessage::isHttpPort(portSrc) && HttpResponseFirstLine::parseVersion((char*)payload, payloadLen) != HttpVersion::HttpVersionUnknown && HttpResponseFirstLine::parseStatusCode((char*)payload, payloadLen) != HttpResponseStatusCode::HttpStatusCodeUnknown)
 		m_NextLayer = new HttpResponseLayer(payload, payloadLen, this, m_Packet);
 	else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
 		m_NextLayer = SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet);
