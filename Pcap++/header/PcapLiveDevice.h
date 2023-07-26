@@ -212,6 +212,12 @@ namespace pcpp
 			int snapshotLength;
 
 			/**
+			 * Set extra information. For some types of device, extra information might be required. Such a case is when opening a NFLOG 
+			 * device and setting a different NFLOG group. If no extra information is required, this configuration is ignored.
+			*/
+			unsigned int extra;
+
+			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
 			 * @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means set timeout of
@@ -226,13 +232,14 @@ namespace pcpp
 			 * to capture all the data available from the packet.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
-				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0)
+				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int extra = 0)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
 				this->direction = direction;
 				this->snapshotLength = snapshotLength;
+				this->extra = extra;
 			}
 		};
 
