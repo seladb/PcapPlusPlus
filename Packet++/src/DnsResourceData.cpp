@@ -222,12 +222,6 @@ bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsReso
 		return false;
 	}
 
-	if (arrLength < m_DataLen)
-	{
-		PCPP_LOG_ERROR("Input data len to small|current:" << arrLength << "|require" << m_DataLen);
-		return false;
-	}
-
 	arrLength = m_DataLen;
 	memcpy(arr, m_Data, m_DataLen);
 	return true;
