@@ -212,7 +212,7 @@ namespace pcpp
 			int snapshotLength;
 
 			/**
-			 * Set extra information. For some types of device, extra information might be required. Such a case is when opening a NFLOG 
+			 * Set extra information. For some types of device, extra information might be required. Such a case is when opening a NFLOG
 			 * device and setting a different NFLOG group. If no extra information is required, this configuration is ignored.
 			*/
 			unsigned int extra;
