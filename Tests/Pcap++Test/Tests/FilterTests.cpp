@@ -814,4 +814,11 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	}
 	PTF_ASSERT_EQUAL(validCounter, 62);
 	rawPacketVec.clear();
+
+
+// pcpp::LINKTYPE_LINUX_SLL2 layer
+	pcpp::PcapFileReaderDevice fileReaderDev4(SLL2_PCAP_PATH);
+	PTF_ASSERT_TRUE(fileReaderDev4.open());
+	fileReaderDev4.getNextPackets(rawPacketVec);
+	fileReaderDev4.close();
 } // TestPcapFilters_LinkLayer
