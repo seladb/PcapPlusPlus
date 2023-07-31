@@ -212,10 +212,10 @@ namespace pcpp
 			int snapshotLength;
 
 			/**
-			 * Set extra information. For some types of device, extra information might be required. Such a case is when opening a NFLOG
-			 * device and setting a different NFLOG group. If no extra information is required, this configuration is ignored.
+			 * Set NFLOG group. Which NFLOG group to be listened to when connecting to NFLOG device. If device is not of type NFLOG this 
+			 * attribute is ignored.
 			*/
-			unsigned int extra;
+			unsigned int nflogGroup;
 
 			/**
 			 * A c'tor for this struct
@@ -230,18 +230,17 @@ namespace pcpp
 			 * A snapshot length of 262144 should be big enough for maximum-size Linux loopback packets (65549) and some USB packets
 			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
 			 * to capture all the data available from the packet.
-			 * @param[in] extra Extra information for specific devices. Default value is 0. This value is used when a device needs to be
-			 * provided with some extra information. If such information is not required, this configuration shall be ignored.
+			 * @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
-				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int extra = 0)
+				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
 				this->direction = direction;
 				this->snapshotLength = snapshotLength;
-				this->extra = extra;
+				this->nflogGroup = nflogGroup;
 			}
 		};
 
