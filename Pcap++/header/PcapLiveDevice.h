@@ -212,7 +212,7 @@ namespace pcpp
 			int snapshotLength;
 
 			/**
-			 * Set NFLOG group. Which NFLOG group to be listened to when connecting to NFLOG device. If device is not of type NFLOG this 
+			 * Set NFLOG group. Which NFLOG group to be listened to when connecting to NFLOG device. If device is not of type NFLOG this
 			 * attribute is ignored.
 			*/
 			unsigned int nflogGroup;
