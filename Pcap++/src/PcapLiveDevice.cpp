@@ -317,9 +317,13 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	// It's not possible to have two open instances of the same NFLOG device:group
 	if (m_Name == NFLOG_IFACE)
+	{
 		m_PcapSendDescriptor = nullptr;
+	}
 	else
+	{
 		m_PcapSendDescriptor = doOpen(config);
+	}
 
 	if (m_PcapDescriptor == nullptr || (m_Name != NFLOG_IFACE && m_PcapSendDescriptor == nullptr))
 	{
