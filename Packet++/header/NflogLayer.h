@@ -112,12 +112,7 @@ namespace pcpp
 			if(recordRawData == nullptr)
 				m_Data = nullptr;
 			else
-			{
-				// to pass from some unknown paddings after tlv with type NFULA_PREFIX
-				while (*recordRawData == 0)
-					recordRawData += 1;
 				m_Data = (NflogTLVRawData*)recordRawData;
-			}
 		}
 
 		/**
