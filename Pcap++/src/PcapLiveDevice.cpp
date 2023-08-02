@@ -44,6 +44,7 @@
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
 #endif
 
+static const char *NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
 namespace pcpp
@@ -202,7 +203,14 @@ void PcapLiveDevice::statsThreadMain()
 pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 {
 	char errbuf[PCAP_ERRBUF_SIZE] = {'\0'};
-	pcap_t* pcap = pcap_create(m_Name.c_str(), errbuf);
+	std::string device_name = m_Name;
+
+	if (device_name == NFLOG_IFACE)
+	{
+		device_name += ":" + std::to_string(config.nflogGroup & 0xffff);
+	}
+
+	pcap_t* pcap = pcap_create(device_name.c_str(), errbuf);
 	if (!pcap)
 	{
 		PCPP_LOG_ERROR(errbuf);
@@ -306,8 +314,18 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 	}
 
 	m_PcapDescriptor = doOpen(config);
-	m_PcapSendDescriptor = doOpen(config);
-	if (m_PcapDescriptor == nullptr || m_PcapSendDescriptor == nullptr)
+
+	// It's not possible to have two open instances of the same NFLOG device:group
+	if (m_Name == NFLOG_IFACE)
+	{
+		m_PcapSendDescriptor = nullptr;
+	}
+	else
+	{
+		m_PcapSendDescriptor = doOpen(config);
+	}
+
+	if (m_PcapDescriptor == nullptr || (m_Name != NFLOG_IFACE && m_PcapSendDescriptor == nullptr))
 	{
 		m_DeviceOpened = false;
 		return false;
