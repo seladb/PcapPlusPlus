@@ -104,6 +104,18 @@ namespace pcpp
 		size_t getTotalSize() const { return m_Data->recordLen; }
 
 		/**
+		 * @return The total size of the TLV record (in bytes) aligned by 4
+		 */
+		size_t getTotalSizeAligned() const
+		{
+			// as in https://github.com/the-tcpdump-group/libpcap/blob/766b607d60d8038087b49fc4cf433dac3dcdb49c/pcap-util.c#L371-L374
+			uint16_t size = m_Data->recordLen;
+			if (size % 4 != 0)
+				size += 4 - size % 4;
+			return size;
+		}
+
+		/**
 		 * Assign a pointer to the TLV record raw data (byte array)
 		 * @param[in] recordRawData A pointer to the TLV record raw data
 		 */

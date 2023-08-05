@@ -202,6 +202,11 @@ namespace pcpp
 		virtual size_t getTotalSize() const = 0;
 
 		/**
+		 * @return The total size of the TLV record (in bytes) aligned by 4
+		 */
+		virtual size_t getTotalSizeAligned() const { return getTotalSize(); }
+
+		/**
 		 * @return The size of the record value (meaning the size of the 'V' part in TLV)
 		 */
 		virtual size_t getDataSize() const = 0;
@@ -288,7 +293,15 @@ namespace pcpp
 			if (record.isNull())
 				return resRec;
 
-			resRec.assign(record.getRecordBasePtr() + record.getTotalSize());
+			// record pointer is out-bounds of the TLV records memory
+			if ((record.getRecordBasePtr() - tlvDataBasePtr) < 0)
+				return resRec;
+
+			// record pointer is out-bounds of the TLV records memory
+			if (record.getRecordBasePtr() - tlvDataBasePtr + (int)record.getTotalSizeAligned() >= (int)tlvDataLen)
+				return resRec;
+
+			resRec.assign(record.getRecordBasePtr() + record.getTotalSizeAligned());
 			if (resRec.getTotalSize() == 0)
 				resRec.assign(NULL);
 
