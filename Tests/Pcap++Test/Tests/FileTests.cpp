@@ -165,6 +165,7 @@ PTF_TEST_CASE(TestPcapSll2FileReadWrite)
 	pcpp::PcapFileReaderDevice readerDev(SLL2_PCAP_PATH);
 	pcpp::PcapFileWriterDevice writerDev(SLL2_PCAP_WRITE_PATH, pcpp::LINKTYPE_LINUX_SLL2);
 	PTF_ASSERT_TRUE(readerDev.open());
+	// SLL2 is not supported in all libpcap versions
 	auto canOpenWriterDevice = writerDev.open();
 	pcpp::RawPacket rawPacket;
 	int packetCount = 0;
