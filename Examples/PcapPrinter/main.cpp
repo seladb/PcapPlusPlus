@@ -86,6 +86,8 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 		return "IEEE 802.5 Token Ring";
 	else if (linkLayer == pcpp::LINKTYPE_LINUX_SLL)
 		return "Linux cooked capture";
+	else if (linkLayer == pcpp::LINKTYPE_LINUX_SLL2)
+		return "Linux cooked capture v2";
 	else if (linkLayer == pcpp::LINKTYPE_NULL)
 		return "Null/Loopback";
 	else if (linkLayer == pcpp::LINKTYPE_RAW || linkLayer == pcpp::LINKTYPE_DLT_RAW1 || linkLayer == pcpp::LINKTYPE_DLT_RAW2)

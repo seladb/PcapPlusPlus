@@ -160,6 +160,57 @@ PTF_TEST_CASE(TestPcapSllFileReadWrite)
 
 
 
+PTF_TEST_CASE(TestPcapSll2FileReadWrite)
+{
+	pcpp::PcapFileReaderDevice readerDev(SLL2_PCAP_PATH);
+	pcpp::PcapFileWriterDevice writerDev(SLL2_PCAP_WRITE_PATH, pcpp::LINKTYPE_LINUX_SLL2);
+	PTF_ASSERT_TRUE(readerDev.open());
+	// SLL2 is not supported in all libpcap versions
+	auto canOpenWriterDevice = writerDev.open();
+	pcpp::RawPacket rawPacket;
+	int packetCount = 0;
+	int sll2Count = 0;
+	int ipCount = 0;
+
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		packetCount++;
+		pcpp::Packet packet(&rawPacket);
+		if (packet.isPacketOfType(pcpp::SLL2))
+			sll2Count++;
+		if (packet.isPacketOfType(pcpp::IP))
+			ipCount++;
+
+		if (canOpenWriterDevice)
+		{
+			PTF_ASSERT_TRUE(writerDev.writePacket(rawPacket));
+		}
+	}
+
+	pcpp::IPcapDevice::PcapStats readerStatistics;
+
+	readerDev.getStatistics(readerStatistics);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsRecv, 3);
+	PTF_ASSERT_EQUAL((uint32_t)readerStatistics.packetsDrop, 0);
+
+	if (canOpenWriterDevice)
+	{
+		pcpp::IPcapDevice::PcapStats writerStatistics;
+		writerDev.getStatistics(writerStatistics);
+		PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsRecv, 3);
+		PTF_ASSERT_EQUAL((uint32_t)writerStatistics.packetsDrop, 0);
+		writerDev.close();
+	}
+
+	PTF_ASSERT_EQUAL(packetCount, 3);
+	PTF_ASSERT_EQUAL(sll2Count, 3);
+	PTF_ASSERT_EQUAL(ipCount, 3);
+
+	readerDev.close();
+} // TestPcapSll2FileReadWrite
+
+
+
 PTF_TEST_CASE(TestPcapRawIPFileReadWrite)
 {
 	pcpp::Logger::getInstance().suppressLogs();

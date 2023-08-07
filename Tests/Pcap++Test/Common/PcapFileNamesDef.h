@@ -24,3 +24,5 @@
 #define EXAMPLE_LINKTYPE_IPV6 "PcapExamples/linktype_ipv6.pcap"
 #define EXAMPLE_LINKTYPE_IPV4 "PcapExamples/linktype_ipv4.pcap"
 #define EXAMPLE_SOLARIS_SNOOP "PcapExamples/solaris.snoop"
+#define SLL2_PCAP_PATH "PcapExamples/sll2.pcap"
+#define SLL2_PCAP_WRITE_PATH "PcapExamples/sll2_copy.pcap"

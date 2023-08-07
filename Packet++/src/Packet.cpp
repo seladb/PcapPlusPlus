@@ -4,6 +4,7 @@
 #include "EthLayer.h"
 #include "EthDot3Layer.h"
 #include "SllLayer.h"
+#include "Sll2Layer.h"
 #include "NflogLayer.h"
 #include "NullLoopbackLayer.h"
 #include "IPv4Layer.h"
@@ -732,6 +733,10 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 	else if (linkType == LINKTYPE_LINUX_SLL)
 	{
 		return new SllLayer((uint8_t*)rawData, rawDataLen, this);
+	}
+	else if (linkType == LINKTYPE_LINUX_SLL2 && Sll2Layer::isDataValid(rawData, rawDataLen))
+	{
+		return new Sll2Layer((uint8_t*)rawData, rawDataLen, this);
 	}
 	else if (linkType == LINKTYPE_NULL)
 	{

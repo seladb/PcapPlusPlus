@@ -320,7 +320,12 @@ namespace pcpp
 	/**
 	 * COTP protocol
 	 */
-	const ProtocolType COTP = 0x900000000000;
+	const ProtocolType COTP = 0x4000000000000;
+
+	/**
+	 * SLL2 protocol
+	 */
+	const ProtocolType SLL2 = 0x8000000000000;
 
 	/**
 	 * An enum representing OSI model layers

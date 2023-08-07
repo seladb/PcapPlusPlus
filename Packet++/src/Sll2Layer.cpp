@@ -1,6 +1,6 @@
-#define LOG_MODULE PacketLogModuleSllLayer
+#define LOG_MODULE PacketLogModuleSll2Layer
 
-#include "SllLayer.h"
+#include "Sll2Layer.h"
 #include "Logger.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
@@ -14,20 +14,19 @@
 
 namespace pcpp
 {
-
-SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType)
+Sll2Layer::Sll2Layer(uint32_t interfaceIndex, uint16_t ARPHRDType, uint8_t packetType)
 {
-	const size_t headerLen = sizeof(sll_header);
+	const size_t headerLen = sizeof(sll2_header);
 	m_DataLen = headerLen;
 	m_Data = new uint8_t[headerLen];
 	memset(m_Data, 0, headerLen);
-	sll_header* sllHdr = (sll_header*)m_Data;
-	sllHdr->packet_type = htobe16(packetType);
-	sllHdr->ARPHRD_type = htobe16(ARPHRDType);
-	m_Protocol = SLL;
+	setPacketType(packetType);
+	setArphrdType(ARPHRDType);
+	setInterfaceIndex(interfaceIndex);
+	m_Protocol = SLL2;
 }
 
-bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
+bool Sll2Layer::setLinkLayerAddr(const uint8_t* addr, size_t addrLength)
 {
 	if (addr == nullptr || addrLength == 0 || addrLength > 8)
 	{
@@ -35,14 +34,21 @@ bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 		return false;
 	}
 
-	sll_header* sllHdr = getSllHeader();
-	memcpy(sllHdr->link_layer_addr, addr, addrLength);
-	sllHdr->link_layer_addr_len = htobe16(addrLength);
-
+	getSll2Header()->link_layer_addr_len = addrLength;
+	memcpy(getSll2Header()->link_layer_addr, addr, addrLength);
 	return true;
 }
 
-bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
+MacAddress Sll2Layer::getLinkLayerAsMacAddress() {
+	const uint8_t* data = getLinkLayerAddr();
+	uint8_t dataLen = getLinkLayerAddrLen();
+	if (data == nullptr || dataLen == 0 || dataLen > 8) {
+		return MacAddress::Zero;
+	}
+	return MacAddress(data);
+}
+
+bool Sll2Layer::setMacAddressAsLinkLayer(const MacAddress& macAddr)
 {
 	if (!macAddr.isValid())
 	{
@@ -55,15 +61,15 @@ bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
 	return setLinkLayerAddr(macAddrAsArr, 6);
 }
 
-void SllLayer::parseNextLayer()
+void Sll2Layer::parseNextLayer()
 {
-	if (m_DataLen <= sizeof(sll_header))
+	if (m_DataLen <= sizeof(sll2_header))
 		return;
 
-	uint8_t* payload = m_Data + sizeof(sll_header);
-	size_t payloadLen = m_DataLen - sizeof(sll_header);
+	uint8_t* payload = m_Data + sizeof(sll2_header);
+	size_t payloadLen = m_DataLen - sizeof(sll2_header);
 
-	sll_header* hdr = getSllHeader();
+	sll2_header* hdr = getSll2Header();
 	switch (be16toh(hdr->protocol_type))
 	{
 	case PCPP_ETHERTYPE_IP:
@@ -102,12 +108,12 @@ void SllLayer::parseNextLayer()
 
 }
 
-void SllLayer::computeCalculateFields()
+void Sll2Layer::computeCalculateFields()
 {
 	if (m_NextLayer == nullptr)
 		return;
 
-	sll_header* hdr = getSllHeader();
+	sll2_header* hdr = getSll2Header();
 	switch (m_NextLayer->getProtocol())
 	{
 		case IPv4:
@@ -127,9 +133,64 @@ void SllLayer::computeCalculateFields()
 	}
 }
 
-std::string SllLayer::toString() const
+bool Sll2Layer::isDataValid(const uint8_t* data, size_t dataLen)
 {
-	return "Linux cooked header";
+	return data && dataLen >= sizeof(sll2_header);
+}
+
+std::string Sll2Layer::toString() const
+{
+	return "Linux cooked header v2";
+}
+
+uint16_t Sll2Layer::getProtocolType() const
+{
+	return be16toh(getSll2Header()->protocol_type);
+}
+
+void Sll2Layer::setProtocolType(uint16_t protocolType)
+{
+	getSll2Header()->protocol_type = htobe16(protocolType);
+}
+
+uint32_t Sll2Layer::getInterfaceIndex() const
+{
+	return be32toh(getSll2Header()->interface_index);
+}
+
+void Sll2Layer::setInterfaceIndex(uint32_t interfaceIndex)
+{
+	getSll2Header()->interface_index = htobe32(interfaceIndex);
+}
+
+uint16_t Sll2Layer::getArphrdType() const
+{
+	return be16toh(getSll2Header()->ARPHRD_type);
+}
+
+void Sll2Layer::setArphrdType(uint16_t arphrdType)
+{
+	getSll2Header()->ARPHRD_type = htobe16(arphrdType);
+}
+
+uint8_t Sll2Layer::getPacketType() const
+{
+	return getSll2Header()->packet_type;
+}
+
+void Sll2Layer::setPacketType(uint8_t packetType)
+{
+	getSll2Header()->packet_type = packetType;
+}
+
+uint8_t Sll2Layer::getLinkLayerAddrLen() const
+{
+	return getSll2Header()->link_layer_addr_len;
+}
+
+const uint8_t *Sll2Layer::getLinkLayerAddr() const
+{
+	return getSll2Header()->link_layer_addr;
 }
 
 } // namespace pcpp
