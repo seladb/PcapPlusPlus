@@ -235,7 +235,9 @@ namespace pcpp
 		/** Formats for WattStopper Digital Lighting Management (DLM) and Legrand Nitoo Open protocol common packet structure captures */
 		LINKTYPE_WATTSTOPPER_DLM = 263,
 		/** Messages between ISO 14443 contactless smartcards (Proximity Integrated Circuit Card, PICC) and card readers (Proximity Coupling Device, PCD), with the message format specified by the PCAP format for ISO14443 specification */
-		LINKTYPE_ISO_14443 = 264
+		LINKTYPE_ISO_14443 = 264,
+		/** Linux "cooked" capture encapsulation v2 */
+		LINKTYPE_LINUX_SLL2 = 276
 	};
 
 	/**
