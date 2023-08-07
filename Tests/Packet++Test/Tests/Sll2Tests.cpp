@@ -9,6 +9,7 @@
 #include "TcpLayer.h"
 #include "SystemUtils.h"
 #include "UdpLayer.h"
+#include "Logger.h"
 
 PTF_TEST_CASE(Sll2PacketParsingTest)
 {
@@ -32,12 +33,12 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	PTF_ASSERT_EQUAL(sll2Layer->getPacketType(), 4);
 	PTF_ASSERT_EQUAL(sll2Layer->getHeaderLen(), 20);
 	PTF_ASSERT_EQUAL(sll2Layer->getLinkLayerAddrLen(), 6);
-	PTF_ASSERT_EQUAL(sll2Layer->getReservedType(), 0);
 	pcpp::MacAddress macAddrFromPacket(sll2Layer->getLinkLayerAddr());
 	pcpp::MacAddress macAddrRef("d2:cf:c2:50:15:ea");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 	PTF_ASSERT_EQUAL(macAddrRef, sll2Layer->getLinkLayerAsMacAddress());
 } // Sll2PacketParsingTest
+
 
 PTF_TEST_CASE(Sll2PacketCreationTest)
 {
@@ -66,6 +67,12 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/Sll2Packet.dat");
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), 60);
 	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, 52);
+
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(nullptr, 0));
+	uint8_t tempBuf[] = { 0x0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 };
+	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(tempBuf, 9));
+	pcpp::Logger::getInstance().enableLogs();
 
 	delete [] buffer1;
 } // Sll2PacketCreationTest

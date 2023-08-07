@@ -22,7 +22,7 @@ namespace pcpp
 		/** Contains an Ethernet protocol type of the next layer */
 		uint16_t protocol_type;
 		/** The "Reserved (MBZ)" field is reserved, and must be set to zero */
-		uint16_t reserved_type;
+		uint16_t reserved;
 		/** The interface index field is a signed integer in network byte
 		 * order and contains the 1-based index of the interface on which the packet was observed
 		 **/
@@ -60,11 +60,11 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates a new SLL2 header and allocates the data
-		 * @param[in] interfaceIndexType The interface index type
+		 * @param[in] interfaceIndex The interface index
 		 * @param[in] ARPHRDType The ARPHRD type
 		 * @param[in] packetType The packet type
 		 */
-		Sll2Layer(uint32_t interfaceIndexType, uint16_t ARPHRDType, uint8_t packetType);
+		Sll2Layer(uint32_t interfaceIndex, uint16_t ARPHRDType, uint8_t packetType);
 
 		~Sll2Layer() {}
 
@@ -73,44 +73,6 @@ namespace pcpp
 		 * @return A pointer to the sll2_header
 		 */
 		sll2_header* getSll2Header() const { return (sll2_header*)m_Data; }
-
-		/**
-		 * A setter for the link layer address field
-		 * @param[in] addr The address to set. Memory will be copied to packet
-		 * @param[in] addrLength Address length, must be lower or equal to 8 (which is max length for SLL2 address)
-		 * @return True if address was set successfully, or false of addrLength is out of bounds (0 or larger than 8)
-		 */
-		bool setLinkLayerAddr(uint8_t* addr, size_t addrLength);
-
-		/**
-		 * Get a MAC address in the link layer address field
-		 * @return return macAddress pointer was set successfully, null pointer if d MAC address isn't valid or if set failed
-		 */
-		MacAddress getLinkLayerAsMacAddress();
-
-		/**
-		 * Set a MAC address in the link layer address field
-		 * @param[in] macAddr MAC address to set
-		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
-		 */
-		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
-
-		/**
-		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
-		 * MplsLayer.
-		 * Otherwise sets PayloadLayer
-		 */
-		void parseNextLayer();
-
-		/**
-		 * @return Size of sll2_header
-		 */
-		size_t getHeaderLen() const { return sizeof(sll2_header); }
-
-		/**
-		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
-		 */
-		void computeCalculateFields();
 
 		/**
 		 * A static method that validates the input data
@@ -131,18 +93,6 @@ namespace pcpp
 		 * @param[in] protocolType type to set
 		 */
 		void setProtocolType(uint16_t protocolType);
-
-		/**
-		 * Get reversed type of this layer
-		 * @return reversed type
-		 */
-		uint16_t getReservedType() const;
-
-		/**
-		 * Set reversed type of this layer
-		 * @param[in] reservedType reserved type to set
-		 */
-		void setReservedType(uint16_t reservedType);
 
 		/**
 		 * Get interface index of this layer
@@ -190,14 +140,47 @@ namespace pcpp
 		 * Get link layer address data pointer
 		 * @return link layer address data pointer
 		 */
-		const uint8_t *getLinkLayerAddr() const;
+		const uint8_t* getLinkLayerAddr() const;
 
 		/**
-		 * Set packet type of this layer
-		 * @param[in] linkLayerAddr link layer address data pointer to set
-		 * @param[in] linkLayerAddrLen link layer address length
+		 * A setter for the link layer address field
+		 * @param[in] addr The address to set. Memory will be copied to packet
+		 * @param[in] addrLength Address length, must be lower or equal to 8 (which is max length for SLL2 address)
+		 * @return True if address was set successfully, or false of addrLength is out of bounds (0 or larger than 8)
 		 */
-		void setLinkLayerAddr(uint8_t* linkLayerAddr, int linkLayerAddrLen);
+		bool setLinkLayerAddr(const uint8_t* addr, size_t addrLength);
+
+		/**
+		 * Get a MAC address in the link layer address field
+		 * @return return macAddress pointer was set successfully, null pointer if d MAC address isn't valid or if set failed
+		 */
+		MacAddress getLinkLayerAsMacAddress();
+
+		/**
+		 * Set a MAC address in the link layer address field
+		 * @param[in] macAddr MAC address to set
+		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
+		 */
+		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
+
+		// implement abstract methods
+
+		/**
+		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
+		 * MplsLayer.
+		 * Otherwise sets PayloadLayer
+		 */
+		void parseNextLayer();
+
+		/**
+		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
+		 */
+		void computeCalculateFields();
+
+		/**
+		 * @return Size of sll2_header
+		 */
+		size_t getHeaderLen() const { return sizeof(sll2_header); }
 
 		std::string toString() const;
 
