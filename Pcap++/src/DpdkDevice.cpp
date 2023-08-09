@@ -50,9 +50,11 @@ namespace pcpp
 #define DPDK_COFIG_JUMBO_FRAME			0 /**< Jumbo Frame Support disabled */
 #define DPDK_COFIG_HW_STRIP_CRC			0 /**< CRC stripped by hardware disabled */
 #if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
-#define DPDK_CONFIG_MQ_MODE				ETH_RSS
+#define DPDK_CONFIG_MQ_RSS				ETH_RSS
+#define DPDK_CONFIG_MQ_NO_RSS			ETH_MQ_RX_NONE
 #else
-#define DPDK_CONFIG_MQ_MODE				RTE_ETH_MQ_RX_RSS
+#define DPDK_CONFIG_MQ_RSS				RTE_ETH_MQ_RX_RSS
+#define DPDK_CONFIG_MQ_NO_RSS			RTE_ETH_MQ_RX_NONE
 #endif
 
 
@@ -259,7 +261,15 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	portConf.rxmode.jumbo_frame = DPDK_COFIG_JUMBO_FRAME;
 	portConf.rxmode.hw_strip_crc = DPDK_COFIG_HW_STRIP_CRC;
 #endif
-	portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_MODE;
+	if (m_Config.rssHashFunction == RSS_NONE)
+	{
+		portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_NO_RSS;
+	}
+	else
+	{
+		portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_RSS;
+	}
+
 	portConf.rx_adv_conf.rss_conf.rss_key = m_Config.rssKey;
 	portConf.rx_adv_conf.rss_conf.rss_key_len = m_Config.rssKeyLength;
 	portConf.rx_adv_conf.rss_conf.rss_hf = convertRssHfToDpdkRssHf(getConfiguredRssHashFunction());
