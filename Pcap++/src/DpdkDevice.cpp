@@ -261,6 +261,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	portConf.rxmode.jumbo_frame = DPDK_COFIG_JUMBO_FRAME;
 	portConf.rxmode.hw_strip_crc = DPDK_COFIG_HW_STRIP_CRC;
 #endif
+	// Enable RSS only if hardware supports it and the user wants to use it
 	if (m_Config.rssHashFunction == RSS_NONE)
 	{
 		portConf.rxmode.mq_mode = DPDK_CONFIG_MQ_NO_RSS;
