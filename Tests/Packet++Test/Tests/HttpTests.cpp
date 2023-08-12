@@ -198,13 +198,14 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 
 PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 {
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(nullptr, 0), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(nullptr, 0), pcpp::HttpResponseStatusCode::HttpStatusCodeError);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3), pcpp::HttpResponseStatusCode::HttpStatusCodeError);
 
 	std::vector<pcpp::HttpResponseStatusCode> possibleStatusCodes = {
 		pcpp::HttpResponseStatusCode::Http100Continue,
 		pcpp::HttpResponseStatusCode::Http101SwitchingProtocols,
 		pcpp::HttpResponseStatusCode::Http102Processing,
+		pcpp::HttpResponseStatusCode::Http103EarlyHints,
 		pcpp::HttpResponseStatusCode::Http200OK,
 		pcpp::HttpResponseStatusCode::Http201Created,
 		pcpp::HttpResponseStatusCode::Http202Accepted,
@@ -217,11 +218,10 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 		pcpp::HttpResponseStatusCode::Http226IMUsed,
 		pcpp::HttpResponseStatusCode::Http300MultipleChoices,
 		pcpp::HttpResponseStatusCode::Http301MovedPermanently,
-		pcpp::HttpResponseStatusCode::Http302,
+		pcpp::HttpResponseStatusCode::Http302Found,
 		pcpp::HttpResponseStatusCode::Http303SeeOther,
 		pcpp::HttpResponseStatusCode::Http304NotModified,
 		pcpp::HttpResponseStatusCode::Http305UseProxy,
-		pcpp::HttpResponseStatusCode::Http306SwitchProxy,
 		pcpp::HttpResponseStatusCode::Http307TemporaryRedirect,
 		pcpp::HttpResponseStatusCode::Http308PermanentRedirect,
 		pcpp::HttpResponseStatusCode::Http400BadRequest,
@@ -242,27 +242,15 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 		pcpp::HttpResponseStatusCode::Http415UnsupportedMediaType,
 		pcpp::HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable,
 		pcpp::HttpResponseStatusCode::Http417ExpectationFailed,
-		pcpp::HttpResponseStatusCode::Http418ImATeapot,
-		pcpp::HttpResponseStatusCode::Http419AuthenticationTimeout,
-		pcpp::HttpResponseStatusCode::Http420,
+		pcpp::HttpResponseStatusCode::Http421MisdirectedRequest,
 		pcpp::HttpResponseStatusCode::Http422UnprocessableEntity,
 		pcpp::HttpResponseStatusCode::Http423Locked,
 		pcpp::HttpResponseStatusCode::Http424FailedDependency,
+		pcpp::HttpResponseStatusCode::Http425TooEarly,
 		pcpp::HttpResponseStatusCode::Http426UpgradeRequired,
 		pcpp::HttpResponseStatusCode::Http428PreconditionRequired,
 		pcpp::HttpResponseStatusCode::Http429TooManyRequests,
 		pcpp::HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge,
-		pcpp::HttpResponseStatusCode::Http440LoginTimeout,
-		pcpp::HttpResponseStatusCode::Http444NoResponse,
-		pcpp::HttpResponseStatusCode::Http449RetryWith,
-		pcpp::HttpResponseStatusCode::Http450BlockedByWindowsParentalControls,
-		pcpp::HttpResponseStatusCode::Http451,
-		pcpp::HttpResponseStatusCode::Http494RequestHeaderTooLarge,
-		pcpp::HttpResponseStatusCode::Http495CertError,
-		pcpp::HttpResponseStatusCode::Http496NoCert,
-		pcpp::HttpResponseStatusCode::Http497HTTPtoHTTPS,
-		pcpp::HttpResponseStatusCode::Http498TokenExpiredInvalid,
-		pcpp::HttpResponseStatusCode::Http499,
 		pcpp::HttpResponseStatusCode::Http500InternalServerError,
 		pcpp::HttpResponseStatusCode::Http501NotImplemented,
 		pcpp::HttpResponseStatusCode::Http502BadGateway,
@@ -274,14 +262,7 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 		pcpp::HttpResponseStatusCode::Http508LoopDetected,
 		pcpp::HttpResponseStatusCode::Http509BandwidthLimitExceeded,
 		pcpp::HttpResponseStatusCode::Http510NotExtended,
-		pcpp::HttpResponseStatusCode::Http511NetworkAuthenticationRequired,
-		pcpp::HttpResponseStatusCode::Http520OriginError,
-		pcpp::HttpResponseStatusCode::Http521WebServerIsDown,
-		pcpp::HttpResponseStatusCode::Http522ConnectionTimedOut,
-		pcpp::HttpResponseStatusCode::Http523ProxyDeclinedRequest,
-		pcpp::HttpResponseStatusCode::Http524aTimeoutOccurred,
-		pcpp::HttpResponseStatusCode::Http598NetworkReadTimeoutError,
-		pcpp::HttpResponseStatusCode::Http599NetworkConnectTimeoutError
+		pcpp::HttpResponseStatusCode::Http511NetworkAuthenticationRequired
 	};
 
 	for (const auto &statusCode : possibleStatusCodes )
@@ -290,7 +271,12 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 499").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 599").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeError, enum);
 } // HttpResponseParseStatusCodeTest
 
 

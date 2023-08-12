@@ -452,6 +452,7 @@ const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatus
     {HttpResponseStatusCode::Http100Continue, "Continue"},
     {HttpResponseStatusCode::Http101SwitchingProtocols, "Switching Protocols"},
     {HttpResponseStatusCode::Http102Processing, "Processing"},
+    {HttpResponseStatusCode::Http103EarlyHints, "Early Hints"},
     {HttpResponseStatusCode::Http200OK, "OK"},
     {HttpResponseStatusCode::Http201Created, "Created"},
     {HttpResponseStatusCode::Http202Accepted, "Accepted"},
@@ -464,11 +465,10 @@ const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatus
     {HttpResponseStatusCode::Http226IMUsed, "IM Used"},
     {HttpResponseStatusCode::Http300MultipleChoices, "Multiple Choices"},
     {HttpResponseStatusCode::Http301MovedPermanently, "Moved Permanently"},
-    {HttpResponseStatusCode::Http302, "Found"},
+    {HttpResponseStatusCode::Http302Found, "Found"},
     {HttpResponseStatusCode::Http303SeeOther, "See Other"},
     {HttpResponseStatusCode::Http304NotModified, "Not Modified"},
     {HttpResponseStatusCode::Http305UseProxy, "Use Proxy"},
-    {HttpResponseStatusCode::Http306SwitchProxy, "Switch Proxy"},
     {HttpResponseStatusCode::Http307TemporaryRedirect, "Temporary Redirect"},
     {HttpResponseStatusCode::Http308PermanentRedirect, "Permanent Redirect"},
     {HttpResponseStatusCode::Http400BadRequest, "Bad Request"},
@@ -489,27 +489,15 @@ const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatus
     {HttpResponseStatusCode::Http415UnsupportedMediaType, "Unsupported Media Type"},
     {HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable"},
     {HttpResponseStatusCode::Http417ExpectationFailed, "Expectation Failed"},
-    {HttpResponseStatusCode::Http418ImATeapot, "I'm a teapot"},
-    {HttpResponseStatusCode::Http419AuthenticationTimeout, "Authentication Timeout"},
-    {HttpResponseStatusCode::Http420, "Method Failure"},
+    {HttpResponseStatusCode::Http421MisdirectedRequest, "Misdirected Request"},
     {HttpResponseStatusCode::Http422UnprocessableEntity, "Unprocessable Entity"},
     {HttpResponseStatusCode::Http423Locked, "Locked"},
     {HttpResponseStatusCode::Http424FailedDependency, "Failed Dependency"},
+    {HttpResponseStatusCode::Http425TooEarly, "Too Early"},
     {HttpResponseStatusCode::Http426UpgradeRequired, "Upgrade Required"},
     {HttpResponseStatusCode::Http428PreconditionRequired, "Precondition Required"},
     {HttpResponseStatusCode::Http429TooManyRequests, "Too Many Requests"},
     {HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge, "Request Header Fields Too Large"},
-    {HttpResponseStatusCode::Http440LoginTimeout, "Login Timeout"},
-    {HttpResponseStatusCode::Http444NoResponse, "No Response"},
-    {HttpResponseStatusCode::Http449RetryWith, "Retry With"},
-    {HttpResponseStatusCode::Http450BlockedByWindowsParentalControls, "Blocked by Windows Parental Controls"},
-    {HttpResponseStatusCode::Http451, "Unavailable For Legal Reasons"},
-    {HttpResponseStatusCode::Http494RequestHeaderTooLarge, "Request Header Too Large"},
-    {HttpResponseStatusCode::Http495CertError, "Cert Error"},
-    {HttpResponseStatusCode::Http496NoCert, "No Cert"},
-    {HttpResponseStatusCode::Http497HTTPtoHTTPS, "HTTP to HTTPS"},
-    {HttpResponseStatusCode::Http498TokenExpiredInvalid, "Token expired/invalid"},
-    {HttpResponseStatusCode::Http499, "Client Closed Request"},
     {HttpResponseStatusCode::Http500InternalServerError, "Internal Server Error"},
     {HttpResponseStatusCode::Http501NotImplemented, "Not Implemented"},
     {HttpResponseStatusCode::Http502BadGateway, "Bad Gateway"},
@@ -522,13 +510,12 @@ const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatus
     {HttpResponseStatusCode::Http509BandwidthLimitExceeded, "Bandwidth Limit Exceeded"},
     {HttpResponseStatusCode::Http510NotExtended, "Not Extended"},
     {HttpResponseStatusCode::Http511NetworkAuthenticationRequired, "Network Authentication Required"},
-    {HttpResponseStatusCode::Http520OriginError, "Origin Error"},
-    {HttpResponseStatusCode::Http521WebServerIsDown, "Web server is down"},
-    {HttpResponseStatusCode::Http522ConnectionTimedOut, "Connection timed out"},
-    {HttpResponseStatusCode::Http523ProxyDeclinedRequest, "Proxy Declined Request"},
-    {HttpResponseStatusCode::Http524aTimeoutOccurred, "A timeout occurred"},
-    {HttpResponseStatusCode::Http598NetworkReadTimeoutError, "Network read timeout error"},
-    {HttpResponseStatusCode::Http599NetworkConnectTimeoutError, "Network connect timeout error"}
+    {HttpResponseStatusCode::HttpStatus1xxCodeUnknown, "1XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus2xxCodeUnknown, "2XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus3xxCodeUnknown, "3XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus4xxCodeUnknown, "4XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus5xxCodeUnknown, "5XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatusCodeError, "Status Code Error"},
 };
 
 HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)  : HttpMessage(data, dataLen, prevLayer, packet)
@@ -637,7 +624,7 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
 	const int statusStringOffset = 13;
-	if (m_StatusCode != HttpResponseStatusCode::HttpStatusCodeUnknown)
+	if (!m_StatusCode.isUnsupportedCode())
 	{
 		int statusStringEndOffset = m_FirstLineEndOffset - 2;
 		if ((*(m_HttpResponse->m_Data + statusStringEndOffset)) != '\r')
@@ -652,9 +639,9 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 
 bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString)
 {
-	if (newStatusCode == HttpResponseStatusCode::HttpStatusCodeUnknown)
+	if (m_StatusCode.isUnsupportedCode()) 
 	{
-		PCPP_LOG_ERROR("Requested status code is HttpStatusCodeUnknown");
+		PCPP_LOG_ERROR("Requested status code is " + m_StatusCode.toString() + statusCodeExplanationStringMap.at(m_StatusCode));
 		return false;
 	}
 
@@ -715,7 +702,7 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 	// minimum data should be 12B long: "HTTP/x.y XXX"
 	if (!data || dataLen < 12)
 	{
-		return HttpResponseStatusCode::HttpStatusCodeUnknown;
+		return HttpResponseStatusCode::HttpStatusCodeError;
 	}
 
 	const char* statusCodeData = data + 9;
@@ -725,7 +712,29 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 			return pair.first;
 		}
 	}
-	return HttpResponseStatusCode::HttpStatusCodeUnknown;
+	
+	int firstCodeNumber = statusCodeData[0] - '0';
+	switch(firstCodeNumber) {
+	case 1:{
+		return HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
+	}
+	case 2:{
+		return HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
+	}
+	case 3:{
+		return HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
+	}
+	case 4:{
+		return HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
+	}
+	case 5:{
+		return HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
+	}
+	default:
+	{
+		return HttpResponseStatusCode::HttpStatusCodeError;
+	}
+	}
 }
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : m_HttpResponse(httpResponse)
@@ -733,7 +742,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	m_Version = parseVersion((char*)m_HttpResponse->m_Data, m_HttpResponse->getDataLen());
 	if (m_Version == HttpVersionUnknown)
 	{
-		m_StatusCode = HttpResponseStatusCode::HttpStatusCodeUnknown;
+		m_StatusCode = HttpResponseStatusCode::HttpStatusCodeError;
 	}
 	else
 	{
@@ -756,7 +765,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
 	{
 		std::string version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
-		int statusCode = (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeUnknown ? 0 : m_StatusCode.toInt());
+		int statusCode = (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeError ? 0 : m_StatusCode.toInt());
 		PCPP_LOG_DEBUG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
 	}
 }
@@ -764,9 +773,9 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
-	if (statusCode == HttpResponseStatusCode::HttpStatusCodeUnknown)
+	if (m_StatusCode.isUnsupportedCode())
 	{
-		m_Exception.setMessage("Status code supplied was HttpStatusCodeUnknown");
+		m_Exception.setMessage("Status code supplied was " + statusCodeExplanationStringMap.at(m_StatusCode));
 		throw m_Exception;
 	}
 

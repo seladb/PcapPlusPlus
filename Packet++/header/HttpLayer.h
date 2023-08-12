@@ -223,6 +223,10 @@ namespace pcpp
 			Http101SwitchingProtocols = 101,
 			/** 102 Processing */
 			Http102Processing = 102,
+			/** 103 Early Hints */
+			Http103EarlyHints = 103,
+			/** 104-199 Unassigned */
+
 			/** 200 OK */
 			Http200OK= 200,
 			/** 201 Created */
@@ -241,26 +245,30 @@ namespace pcpp
 			Http207MultiStatus = 207,
 			/** 208 Already Reported */
 			Http208AlreadyReported = 208,
+			/** 229-225 Unassigned */
 			/** 226 IM Used */
 			Http226IMUsed = 226,
+			/** 227-299 Unassigned */
+			
 			/** 300 Multiple Choices */
 			Http300MultipleChoices = 300,
 			/** 301 Moved Permanently */
 			Http301MovedPermanently = 301,
-			/** 302 (various messages) */
-			Http302 = 302,
+			/** 302 Found */
+			Http302Found = 302,
 			/** 303 See Other */
 			Http303SeeOther = 303,
 			/** 304 Not Modified */
 			Http304NotModified = 304,
 			/** 305 Use Proxy */
 			Http305UseProxy = 305,
-			/** 306 Switch Proxy */
-			Http306SwitchProxy = 306,
+			/** 306 Unused */
 			/** 307 Temporary Redirect */
 			Http307TemporaryRedirect = 307,
 			/** 308 Permanent Redirect, */
 			Http308PermanentRedirect = 308,
+			/** 309-399 Unassigned */
+
 			/** 400 Bad Request */
 			Http400BadRequest = 400,
 			/** 401 Unauthorized */
@@ -297,48 +305,30 @@ namespace pcpp
 			Http416RequestedRangeNotSatisfiable = 416,
 			/** 417 Expectation Failed */
 			Http417ExpectationFailed = 417,
-			/** 418 I'm a teapot */
-			Http418ImATeapot = 418,
-			/** 419 Authentication Timeout */
-			Http419AuthenticationTimeout = 419,
-			/** 420 (various messages) */
-			Http420 = 420,
+			/** 418 Unused **/
+			/** 419-420 unassigned **/
+			/** 421 Misdirected Request */
+			Http421MisdirectedRequest = 421,
 			/** 422 Unprocessable Entity */
 			Http422UnprocessableEntity = 422,
 			/** 423 Locked */
 			Http423Locked = 423,
 			/** 424 Failed Dependency */
 			Http424FailedDependency = 424,
+			/** 425 Too Early */
+			Http425TooEarly = 425,
 			/** 426 Upgrade Required */
 			Http426UpgradeRequired = 426,
+			/** 427 Unassigned */
 			/** 428 Precondition Required */
 			Http428PreconditionRequired = 428,
 			/** 429 Too Many Requests */
 			Http429TooManyRequests = 429,
+			/** 430 Unassigned */
 			/** 431 Request Header Fields Too Large */
 			Http431RequestHeaderFieldsTooLarge = 431,
-			/** 440 Login Timeout */
-			Http440LoginTimeout = 440,
-			/** 444 No Response */
-			Http444NoResponse = 444,
-			/** 449 Retry With */
-			Http449RetryWith = 449,
-			/** 450 Blocked by Windows Parental Controls */
-			Http450BlockedByWindowsParentalControls = 450,
-			/** 451 (various messages) */
-			Http451 = 451,
-			/** 494 Request Header Too Large */
-			Http494RequestHeaderTooLarge = 494,
-			/** 495 Cert Error */
-			Http495CertError = 495,
-			/** 496 No Cert */
-			Http496NoCert = 496,
-			/** 497 HTTP to HTTPS */
-			Http497HTTPtoHTTPS = 497,
-			/** 498 Token expired/invalid */
-			Http498TokenExpiredInvalid = 498,
-			/** 499 (various messages) */
-			Http499 = 499,
+			/** 432-499 unassigned **/
+			
 			/** 500 Internal Server Error */
 			Http500InternalServerError = 500,
 			/** 501 Not Implemented */
@@ -363,22 +353,15 @@ namespace pcpp
 			Http510NotExtended = 510,
 			/** 511 Network Authentication Required */
 			Http511NetworkAuthenticationRequired = 511,
-			/** 520 Origin Error */
-			Http520OriginError = 520,
-			/** 521 Web server is down */
-			Http521WebServerIsDown = 521,
-			/** 522 Connection timed out */
-			Http522ConnectionTimedOut = 522,
-			/** 523 Proxy Declined Request */
-			Http523ProxyDeclinedRequest = 523,
-			/** 524 A timeout occurred */
-			Http524aTimeoutOccurred = 524,
-			/** 598 Network read timeout error */
-			Http598NetworkReadTimeoutError = 598,
-			/** 599 Network connect timeout error */
-			Http599NetworkConnectTimeoutError = 599,
+			/** 512-599 unassigned **/
+			
 			/** Unknown status code */
-			HttpStatusCodeUnknown = 999999
+			HttpStatus1xxCodeUnknown = 900001, // 1xx: Informational - Request received, continuing process
+			HttpStatus2xxCodeUnknown = 900002, // 2xx: Success - The action was successfully received, understood, and accepted
+			HttpStatus3xxCodeUnknown = 900003, // 3xx: Redirection - Further action must be taken in order to complete the request
+			HttpStatus4xxCodeUnknown = 900004, // 4xx: Client Error - The request contains bad syntax or cannot be fulfilled
+			HttpStatus5xxCodeUnknown = 900005, // 5xx: Server Error - The server failed to fulfill an apparently valid request
+			HttpStatusCodeError = 999999, // other arbitrary number
 		};
 
 		HttpResponseStatusCode() = default;
@@ -399,6 +382,10 @@ namespace pcpp
 
 		int toInt() const {
 			return m_value;
+		}
+
+		bool isUnsupportedCode() const {
+			return m_value > 599; // any unknown or error code has an extreme large enum value
 		}
 		
 		constexpr bool operator==(const HttpResponseStatusCode &other) const { return m_value == other.m_value; }
@@ -702,8 +689,8 @@ namespace pcpp
 		/**
 		 * @class HttpResponseFirstLineException
 		 * This exception can be thrown while constructing HttpResponseFirstLine (the constructor is private, so the construction happens
-		 * only in HttpResponseLayer). This kind of exception will be thrown if trying to construct with HTTP status code of
-		 * HttpResponseLayer#HttpStatusCodeUnknown or with undefined HTTP version ::HttpVersionUnknown
+		 * only in HttpResponseLayer). This kind of exception will be thrown if trying to construct with a HTTP status code that is not in
+		 * HttpResponseStatusCode or with undefined HTTP version ::HttpVersionUnknown
 		 */
 		class HttpResponseFirstLineException : public std::exception
 		{

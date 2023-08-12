@@ -177,7 +177,7 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 		
 		if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http200OK) {
 			http200OKCounter++;
-		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http302) {
+		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http302Found) {
 			http302Counter++;
 		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http304NotModified ) {
 			http304NotModifiedCounter++;
