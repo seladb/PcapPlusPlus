@@ -493,6 +493,7 @@ const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatus
     {HttpResponseStatusCode::Http418ImATeapot, "I'm a teapot"},
     {HttpResponseStatusCode::Http419AuthenticationTimeout, "Authentication Timeout"},
     {HttpResponseStatusCode::Http420, "(various messages)"},
+    {HttpResponseStatusCode::Http421MisdirectedRequest, "Misdirected Request"},
     {HttpResponseStatusCode::Http422UnprocessableEntity, "Unprocessable Entity"},
     {HttpResponseStatusCode::Http423Locked, "Locked"},
     {HttpResponseStatusCode::Http424FailedDependency, "Failed Dependency"},
@@ -726,29 +727,32 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		return HttpResponseStatusCode::HttpStatusCodeError;
 	}
 
-	const char* statusCodeData = data + 9;
+	std::string statusCodeDataString(data[9], 3);
+
+	if(statusCodeDataString.size() != 3) {
+		return HttpResponseStatusCode::HttpStatusCodeError;
+	}
 
 	for(const auto& pair : statusCodeExplanationStringMap) {
-		if(int(pair.first) == std::stoi(std::string(statusCodeData, 3))) {
+		if(int(pair.first) == std::stoi(statusCodeDataString)) {
 			return pair.first;
 		}
 	}
-	
-	int firstCodeNumber = statusCodeData[0] - '0';
-	switch(firstCodeNumber) {
-	case 1:{
+
+	switch(statusCodeDataString[0]) {
+	case '1':{
 		return HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
 	}
-	case 2:{
+	case '2':{
 		return HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
 	}
-	case 3:{
+	case '3':{
 		return HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
 	}
-	case 4:{
+	case '4':{
 		return HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
 	}
-	case 5:{
+	case '5':{
 		return HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
 	}
 	default:
