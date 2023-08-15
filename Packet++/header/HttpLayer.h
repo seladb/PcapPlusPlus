@@ -462,7 +462,10 @@ namespace pcpp
 	class HttpResponseLayer : public HttpMessage
 	{
 		friend class HttpResponseFirstLine;
-	public:	
+	public:
+		// backward compatibility
+		using HttpResponseStatusCode = pcpp::HttpResponseStatusCode;
+
 		 /** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
