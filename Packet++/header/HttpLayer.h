@@ -245,7 +245,7 @@ namespace pcpp
 			Http207MultiStatus = 207,
 			/** 208 Already Reported */
 			Http208AlreadyReported = 208,
-			/** 229-225 Unassigned */
+			/** 209-225 Unassigned */
 			/** 226 IM Used */
 			Http226IMUsed = 226,
 			/** 227-299 Unassigned */
@@ -254,15 +254,16 @@ namespace pcpp
 			Http300MultipleChoices = 300,
 			/** 301 Moved Permanently */
 			Http301MovedPermanently = 301,
-			/** 302 Found */
-			Http302Found = 302,
+			/** 302 (various messages) */
+			Http302 = 302,
 			/** 303 See Other */
 			Http303SeeOther = 303,
 			/** 304 Not Modified */
 			Http304NotModified = 304,
 			/** 305 Use Proxy */
 			Http305UseProxy = 305,
-			/** 306 Unused */
+			/** 306 Switch Proxy */
+			Http306SwitchProxy = 306,
 			/** 307 Temporary Redirect */
 			Http307TemporaryRedirect = 307,
 			/** 308 Permanent Redirect, */
@@ -305,8 +306,12 @@ namespace pcpp
 			Http416RequestedRangeNotSatisfiable = 416,
 			/** 417 Expectation Failed */
 			Http417ExpectationFailed = 417,
-			/** 418 Unused **/
-			/** 419-420 unassigned **/
+			/** 418 I'm a teapot **/
+			Http418ImATeapot = 418,
+			/** 419 Authentication Timeout */
+			Http419AuthenticationTimeout = 419,
+			/** 420 (various messages) */
+			Http420 = 420,
 			/** 421 Misdirected Request */
 			Http421MisdirectedRequest = 421,
 			/** 422 Unprocessable Entity */
@@ -327,7 +332,32 @@ namespace pcpp
 			/** 430 Unassigned */
 			/** 431 Request Header Fields Too Large */
 			Http431RequestHeaderFieldsTooLarge = 431,
-			/** 432-499 unassigned **/
+			/** 432-439 unassigned **/
+			/** 440 Login Timeout */
+			Http440LoginTimeout = 440,
+			/** 441-443 unassigned **/
+			/** 444 No Response */
+			Http444NoResponse = 444,
+			/** 445-448 unassigned **/
+			/** 449 Retry With */
+			Http449RetryWith = 449,
+			/** 450 Blocked by Windows Parental Controls */
+			Http450BlockedByWindowsParentalControls = 450,
+			/** 451 (various messages) */
+			Http451 = 451,
+			/** 452-493 unassigned **/
+			/** 494 Request Header Too Large */
+			Http494RequestHeaderTooLarge = 494,
+			/** 495 Cert Error */
+			Http495CertError = 495,
+			/** 496 No Cert */
+			Http496NoCert = 496,
+			/** 497 HTTP to HTTPS */
+			Http497HTTPtoHTTPS = 497,
+			/** 498 Token expired/invalid */
+			Http498TokenExpiredInvalid = 498,
+			/** 499 (various messages) */
+			Http499 = 499,
 			
 			/** 500 Internal Server Error */
 			Http500InternalServerError = 500,
@@ -353,7 +383,22 @@ namespace pcpp
 			Http510NotExtended = 510,
 			/** 511 Network Authentication Required */
 			Http511NetworkAuthenticationRequired = 511,
-			/** 512-599 unassigned **/
+			/** 512-519 unassigned **/
+			/** 520 Origin Error */
+			Http520OriginError = 520,
+			/** 521 Web server is down */
+			Http521WebServerIsDown = 521,
+			/** 522 Connection timed out */
+			Http522ConnectionTimedOut = 522,
+			/** 523 Proxy Declined Request */
+			Http523ProxyDeclinedRequest = 523,
+			/** 524 A timeout occurred */
+			Http524aTimeoutOccurred = 524,
+			/** 525-597 unassigned **/
+			/** 598 Network read timeout error */
+			Http598NetworkReadTimeoutError = 598,
+			/** 599 Network connect timeout error */
+			Http599NetworkConnectTimeoutError = 599,
 			
 			/** Unknown status code */
 			HttpStatus1xxCodeUnknown = 900001, // 1xx: Informational - Request received, continuing process
@@ -381,7 +426,7 @@ namespace pcpp
 		}
 
 		int toInt() const {
-			return m_value;
+			return static_cast<int>(m_value);
 		}
 
 		bool isUnsupportedCode() const {
