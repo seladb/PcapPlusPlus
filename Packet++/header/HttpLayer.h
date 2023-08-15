@@ -249,7 +249,7 @@ namespace pcpp
 			/** 226 IM Used */
 			Http226IMUsed = 226,
 			/** 227-299 Unassigned */
-			
+
 			/** 300 Multiple Choices */
 			Http300MultipleChoices = 300,
 			/** 301 Moved Permanently */
@@ -358,7 +358,7 @@ namespace pcpp
 			Http498TokenExpiredInvalid = 498,
 			/** 499 (various messages) */
 			Http499 = 499,
-			
+
 			/** 500 Internal Server Error */
 			Http500InternalServerError = 500,
 			/** 501 Not Implemented */
@@ -399,7 +399,7 @@ namespace pcpp
 			Http598NetworkReadTimeoutError = 598,
 			/** 599 Network connect timeout error */
 			Http599NetworkConnectTimeoutError = 599,
-			
+
 			/** Unknown status code */
 			HttpStatus1xxCodeUnknown = 900001, // 1xx: Informational - Request received, continuing process
 			HttpStatus2xxCodeUnknown = 900002, // 2xx: Success - The action was successfully received, understood, and accepted
@@ -411,7 +411,7 @@ namespace pcpp
 
 		HttpResponseStatusCode() = default;
 		constexpr HttpResponseStatusCode(Value statusCode) : m_value(statusCode) { }
-		
+
 		constexpr operator Value() const { return m_value; }
 		explicit operator bool() const = delete;
 
@@ -432,7 +432,7 @@ namespace pcpp
 		bool isUnsupportedCode() const {
 			return m_value > 599; // any unknown or error code has an extreme large enum value
 		}
-		
+
 		constexpr bool operator==(const HttpResponseStatusCode &other) const { return m_value == other.m_value; }
 		constexpr bool operator!=(const HttpResponseStatusCode &other) const { return m_value != other.m_value; }
 

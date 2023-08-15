@@ -661,7 +661,7 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 
 bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString)
 {
-	if (m_StatusCode.isUnsupportedCode()) 
+	if (m_StatusCode.isUnsupportedCode())
 	{
 		PCPP_LOG_ERROR("Requested status code is " + m_StatusCode.toString() + statusCodeExplanationStringMap.at(m_StatusCode));
 		return false;

@@ -174,7 +174,7 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 
 		pcpp::HttpResponseLayer* httpResLayer = packet.getLayerOfType<pcpp::HttpResponseLayer>();
 		PTF_ASSERT_NOT_NULL(httpResLayer->getFirstLine());
-		
+
 		if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http200OK) {
 			http200OKCounter++;
 		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http302) {
