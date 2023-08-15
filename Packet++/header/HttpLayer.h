@@ -439,7 +439,7 @@ namespace pcpp
 		constexpr bool operator==(const Value &otherValue) const { return m_value == otherValue; }
 		constexpr bool operator!=(const Value &otherValue) const { return m_value != otherValue; }
 	private:
-  		Value m_value;
+  		Value m_value = HttpStatusCodeError;
 	};
 
 	// -------- Class HttpResponseLayer -----------------

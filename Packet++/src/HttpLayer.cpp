@@ -794,9 +794,9 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
-	if (m_StatusCode.isUnsupportedCode())
+	if (statusCode.isUnsupportedCode())
 	{
-		m_Exception.setMessage("Status code supplied was " + statusCodeExplanationStringMap.at(m_StatusCode));
+		m_Exception.setMessage("Status code supplied was " + statusCodeExplanationStringMap.at(statusCode));
 		throw m_Exception;
 	}
 
@@ -812,9 +812,9 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 	m_Version = version;
 
 	if(statusCodeString == "") {
-		statusCodeString = statusCodeExplanationStringMap.at(statusCode);
+		statusCodeString = statusCodeExplanationStringMap.at(m_StatusCode);
 	}
-	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + statusCode.toString() + " " +  statusCodeString +  "\r\n";
+	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +  statusCodeString +  "\r\n";
 
 	m_FirstLineEndOffset = firstLine.length();
 
