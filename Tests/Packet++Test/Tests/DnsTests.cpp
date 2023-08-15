@@ -473,7 +473,19 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT_BUF_COMPARE(dnsEdit7Packet.getRawPacket()->getRawData(), buffer7, bufferLength7);
 } // DnsLayerResourceCreationTest
 
+PTF_TEST_CASE(DnsLayerAddDnsKeyTest)
+{
 
+	// data length overflow 256
+	const std::string dnskey = "AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3+/4RgWOq7HrxRixHlFlExOLAJr5emLvN7SWXgnLh4+B5xQ \
+lNVz8Og8kvArMtNROxVQuCaSnIDdD5LKyWbRd2n9WGe2R8PzgCmr3EgVLrjyBxWezF0jLHwVN8efS3rCj/EWgvIWgb9tarpVUDK/b58Da+sqqls3eNbuv7pr+eoZG+Sr \
+DK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws9555KrUB5qihylGa8subX2Nn6UwNR1AkUTV74bU=";
+
+	pcpp::DnsLayer dnsLayer;
+	pcpp::GenericDnsResourceData genericData(reinterpret_cast<const uint8_t*>(dnskey.c_str()), dnskey.size());
+	const auto* additional = dnsLayer.addAnswer("github.com", pcpp::DNS_TYPE_DNSKEY, pcpp::DNS_CLASS_IN, 32, &genericData);
+	PTF_ASSERT_NOT_NULL(additional);
+}
 
 PTF_TEST_CASE(DnsLayerEditTest)
 {

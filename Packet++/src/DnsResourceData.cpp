@@ -150,7 +150,7 @@ bool MxDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*
 	return true;
 }
 
-GenericDnsResourceData::GenericDnsResourceData(uint8_t* dataPtr, size_t dataLen)
+GenericDnsResourceData::GenericDnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 {
 	m_Data = nullptr;
 	m_DataLen = 0;
@@ -218,7 +218,7 @@ bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsReso
 {
 	if (m_DataLen == 0 || m_Data == nullptr)
 	{
-		PCPP_LOG_ERROR("Input data is null or illegal");
+		PCPP_LOG_ERROR("Input data is null or illegal" << "|m_DataLen:" << m_DataLen);
 		return false;
 	}
 

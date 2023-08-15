@@ -561,7 +561,7 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 DnsQuery* DnsLayer::addQuery(const std::string& name, DnsType dnsType, DnsClass dnsClass)
 {
 	// create new query on temporary buffer
-	uint8_t newQueryRawData[4096];
+	uint8_t newQueryRawData[256];
 	DnsQuery* newQuery = new DnsQuery(newQueryRawData);
 
 	newQuery->setDnsClass(dnsClass);
