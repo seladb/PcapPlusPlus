@@ -727,11 +727,7 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		return HttpResponseStatusCode::HttpStatusCodeError;
 	}
 
-	std::string statusCodeDataString(data[9], 3);
-
-	if(statusCodeDataString.size() != 3) {
-		return HttpResponseStatusCode::HttpStatusCodeError;
-	}
+	std::string statusCodeDataString(data + 9, 3);
 
 	for(const auto& pair : statusCodeExplanationStringMap) {
 		if(int(pair.first) == std::stoi(statusCodeDataString)) {
