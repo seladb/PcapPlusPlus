@@ -142,7 +142,6 @@ namespace pcpp
 		/**
 		 * A method that parses the class instance into BPF string format
 		 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
-		 * @return No return value
 		 */
 		virtual void parseToString(std::string& result) = 0;
 
@@ -179,7 +178,6 @@ namespace pcpp
 		 * A method that parses the class instance into BPF string format
 		 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
 		 * If the filter is not valid the result will be an empty string
-		 * @return No return value
 		 */
 		virtual void parseToString(std::string& result);
 
