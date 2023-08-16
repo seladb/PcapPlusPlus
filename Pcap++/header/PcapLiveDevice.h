@@ -45,7 +45,7 @@ namespace pcpp
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 * @return True when main thread should stop blocking or false otherwise
 	 */
-	typedef bool (*OnPacketArrivesStopBlocking)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userData);
+	typedef bool (*OnPacketArrivesStopBlocking)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userCookie);
 
 
 	/**
