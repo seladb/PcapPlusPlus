@@ -12,7 +12,7 @@ namespace pcpp
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
 	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(nullptr)
 {
-	char decodedName[256];
+	char decodedName[4096];
 	m_NameLength = decodeName((const char*)getRawData(), decodedName);
 	if (m_NameLength > 0)
 		m_DecodedName = decodedName;
@@ -83,8 +83,8 @@ size_t IDnsResource::decodeName(const char* encodedName, char* result, int itera
 				return 0;
 			}
 
-			char tempResult[256];
-			memset(tempResult, 0, 256);
+			char tempResult[4096];
+			memset(tempResult, 0, sizeof(tempResult));
 			int i = 0;
 			decodeName((const char*)(m_DnsLayer->m_Data + offsetInLayer), tempResult, iteration+1);
 			while (tempResult[i] != 0 && decodedNameLength < 255)
@@ -224,7 +224,7 @@ void IDnsResource::setDnsClass(DnsClass newClass)
 
 bool IDnsResource::setName(const std::string& newName)
 {
-	char encodedName[256];
+	char encodedName[4096];
 	size_t encodedNameLen = 0;
 	encodeName(newName, encodedName, encodedNameLen);
 	if (m_DnsLayer != nullptr)
@@ -345,7 +345,7 @@ bool DnsResource::setData(IDnsResourceData* data)
 {
 	// convert data to byte array according to the DNS type
 	size_t dataLength = 0;
-	uint8_t dataAsByteArr[256];
+	uint8_t dataAsByteArr[4096];
 
 	if (data == nullptr)
 	{

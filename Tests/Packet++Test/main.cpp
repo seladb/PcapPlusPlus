@@ -182,6 +182,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(DnsLayerRemoveResourceTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpParsingTest, "dns");
 	PTF_RUN_TEST(DnsOverTcpCreationTest, "dns");
+	PTF_RUN_TEST(DnsLayerAddDnsKeyTest, "dns");
 
 	PTF_RUN_TEST(IcmpParsingTest, "icmp");
 	PTF_RUN_TEST(IcmpCreationTest, "icmp");
