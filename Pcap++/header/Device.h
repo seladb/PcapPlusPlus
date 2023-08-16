@@ -41,7 +41,6 @@ namespace pcpp
 
 		/**
 		 * Close the device
-		 * @return No return value
 		 */
 		virtual void close() = 0;
 
