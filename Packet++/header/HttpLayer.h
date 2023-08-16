@@ -210,11 +210,15 @@ namespace pcpp
 	// -------- Class HttpResponseStatusCode -----------------
 
 	/**
-	 * Class for the enum of HTTP response status codes
+	 * @struct HttpResponseStatusCode
+	 * @brief The enum wrapper class of HTTP response status codes
 	 */
 	class HttpResponseStatusCode
 	{
 	public:
+		/**
+		 * @brief Define enum types and the corresponding int values
+		 */
 		enum Value: int
 		{
 			/** 100 Continue*/
@@ -415,12 +419,19 @@ namespace pcpp
 		constexpr operator Value() const { return m_value; }
 		explicit operator bool() const = delete;
 
+		/**
+	 	 * @struct HttpResponseStatusCodeHash
+		 * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
+		 */
 		struct HttpResponseStatusCodeHash {
 			size_t operator()(const HttpResponseStatusCode& status) const {
 				return std::hash<int>()(static_cast<int>(status));
 			}
 		};
 
+		/**
+		 * @brief A pointer to the first line instance for this message
+		 */
 		std::string toString() const {
 			return std::to_string(m_value);
 		}
@@ -429,8 +440,12 @@ namespace pcpp
 			return static_cast<int>(m_value);
 		}
 
+		/**
+		 * @return If this HttpResponseStatusCode a valid code
+		 * @note Any unknown or error code has an extreme large enum value
+		 */
 		bool isUnsupportedCode() const {
-			return m_value > 599; // any unknown or error code has an extreme large enum value
+			return m_value > 599;
 		}
 
 		constexpr bool operator==(const HttpResponseStatusCode &other) const { return m_value == other.m_value; }
