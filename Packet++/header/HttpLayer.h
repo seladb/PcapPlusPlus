@@ -414,6 +414,7 @@ namespace pcpp
 		};
 
 		HttpResponseStatusCode() = default;
+		// cppcheck-suppress noExplicitConstructor
 		constexpr HttpResponseStatusCode(Value statusCode) : m_value(statusCode) { }
 
 		constexpr operator Value() const { return m_value; }
