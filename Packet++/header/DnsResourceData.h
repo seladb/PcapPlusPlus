@@ -363,7 +363,7 @@ namespace pcpp
 		 * copied from this byte array to the object
 		 * @param[in] dataLen The byte array size
 		 */
-		GenericDnsResourceData(uint8_t* dataPtr, size_t dataLen);
+		GenericDnsResourceData(const uint8_t* dataPtr, size_t dataLen);
 
 		/**
 		 * A c'tor for this class

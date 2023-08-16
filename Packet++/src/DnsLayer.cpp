@@ -475,7 +475,7 @@ DnsResource* DnsLayer::addResource(DnsResourceType resType, const std::string& n
 		uint32_t ttl, IDnsResourceData* data)
 {
 	// create new query on temporary buffer
-	uint8_t newResourceRawData[256];
+	uint8_t newResourceRawData[4096];
 	memset(newResourceRawData, 0, sizeof(newResourceRawData));
 
 	DnsResource* newResource = new DnsResource(newResourceRawData, resType);
