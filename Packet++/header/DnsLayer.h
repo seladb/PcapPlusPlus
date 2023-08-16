@@ -420,7 +420,6 @@ namespace pcpp
 
 		/**
 		 * Does nothing for this layer
-		 * @return No return value
 		 */
 		virtual void computeCalculateFields() {}
 

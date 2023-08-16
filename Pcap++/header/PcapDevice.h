@@ -54,7 +54,6 @@ namespace pcpp
 		/**
 		 * Get statistics from the device
 		 * @param[out] stats An object containing the stats
-		 * @return No return value
 		 */
 		virtual void getStatistics(PcapStats& stats) const = 0;
 
