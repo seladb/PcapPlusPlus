@@ -3,6 +3,7 @@ add_library(
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
   src/BgpLayer.cpp
+  src/CotpLayer.cpp
   src/DhcpLayer.cpp
   src/DhcpV6Layer.cpp
   src/DnsLayer.cpp
@@ -39,6 +40,7 @@ add_library(
   src/SdpLayer.cpp
   src/SingleCommandTextProtocol.cpp
   src/SipLayer.cpp
+  src/Sll2Layer.cpp
   src/SllLayer.cpp
   src/SomeIpLayer.cpp
   src/SomeIpSdLayer.cpp
@@ -64,6 +66,7 @@ add_library(
 set(public_headers
     header/ArpLayer.h
     header/BgpLayer.h
+    header/CotpLayer.h
     header/DhcpLayer.h
     header/DhcpV6Layer.h
     header/DnsLayerEnums.h
@@ -104,6 +107,7 @@ set(public_headers
     header/SingleCommandTextProtocol.h
     header/SipLayer.h
     header/SllLayer.h
+    header/Sll2Layer.h
     header/SomeIpLayer.h
     header/SomeIpSdLayer.h
     header/SSHLayer.h

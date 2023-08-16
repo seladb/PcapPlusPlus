@@ -212,6 +212,12 @@ namespace pcpp
 			int snapshotLength;
 
 			/**
+			 * Set NFLOG group. Which NFLOG group to be listened to when connecting to NFLOG device. If device is not of type NFLOG this
+			 * attribute is ignored.
+			*/
+			unsigned int nflogGroup;
+
+			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
 			 * @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means set timeout of
@@ -224,15 +230,17 @@ namespace pcpp
 			 * A snapshot length of 262144 should be big enough for maximum-size Linux loopback packets (65549) and some USB packets
 			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
 			 * to capture all the data available from the packet.
+			 * @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
-				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0)
+				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
 				this->packetBufferSize = packetBufferSize;
 				this->direction = direction;
 				this->snapshotLength = snapshotLength;
+				this->nflogGroup = nflogGroup;
 			}
 		};
 

@@ -210,7 +210,11 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(SllPacketParsingTest, "sll");
 	PTF_RUN_TEST(SllPacketCreationTest, "sll");
+
 	PTF_RUN_TEST(NullLoopbackTest, "null_loopback");
+
+	PTF_RUN_TEST(Sll2PacketParsingTest, "sll2");
+	PTF_RUN_TEST(Sll2PacketCreationTest, "sll2");
 
 	PTF_RUN_TEST(NflogPacketParsingTest, "nflog");
 
@@ -308,6 +312,8 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(VrrpParsingTest, "vrrp");
 	PTF_RUN_TEST(VrrpCreateAndEditTest, "vrrp");
+
+	PTF_RUN_TEST(CotpLayerTest, "cotp");
 
 	PTF_END_RUNNING_TESTS;
 }
