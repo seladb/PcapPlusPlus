@@ -419,7 +419,7 @@ namespace pcpp
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum
 		 */
-		constexpr HttpResponseStatusCode(Value statusCode) : m_value(statusCode) { }
+		constexpr HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from int
@@ -427,7 +427,7 @@ namespace pcpp
 		explicit HttpResponseStatusCode(const int &statusCodeNumber);
 
  		// Allow switch and comparisons.
-		constexpr operator Value() const { return m_value; }
+		constexpr operator Value() const { return m_Value; }
 		// Prevent usage: if(httpResponseStatusCode)
 		explicit operator bool() const = delete;
 
@@ -436,7 +436,7 @@ namespace pcpp
 		 */
 		std::string toString() const
 		{
-			return std::to_string(m_value);
+			return std::to_string(m_Value);
 		}
 
 		/**
@@ -444,7 +444,7 @@ namespace pcpp
 		 */
 		int toInt() const
 		{
-			return static_cast<int>(m_value);
+			return static_cast<int>(m_Value);
 		}
 
 		/**
@@ -453,11 +453,11 @@ namespace pcpp
 		 */
 		bool isUnsupportedCode() const
 		{
-			return m_value > 599;
+			return m_Value > 599;
 		}
 
 	private:
-  		Value m_value = HttpStatusCodeUnknown;
+  		Value m_Value = HttpStatusCodeUnknown;
 	};
 
 	// -------- Class HttpResponseLayer -----------------
