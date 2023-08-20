@@ -452,8 +452,10 @@ void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
  * @struct HttpResponseStatusCodeHash
  * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
  */
-struct HttpResponseStatusCodeHash {
-	size_t operator()(const HttpResponseStatusCode& status) const {
+struct HttpResponseStatusCodeHash
+{
+	size_t operator()(const HttpResponseStatusCode& status) const
+	{
 		return std::hash<int>()(static_cast<int>(status));
 	}
 };
@@ -547,7 +549,7 @@ const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatus
     {HttpResponseStatusCode::HttpStatus3xxCodeUnknown, "3XX Status Code Unknown"},
     {HttpResponseStatusCode::HttpStatus4xxCodeUnknown, "4XX Status Code Unknown"},
     {HttpResponseStatusCode::HttpStatus5xxCodeUnknown, "5XX Status Code Unknown"},
-    {HttpResponseStatusCode::HttpStatusCodeError, "Status Code Error"},
+    {HttpResponseStatusCode::HttpStatusCodeUnknown, "Status Code Unknown"},
 };
 
 HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)  : HttpMessage(data, dataLen, prevLayer, packet)
@@ -734,18 +736,21 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 	// minimum data should be 12B long: "HTTP/x.y XXX"
 	if (!data || dataLen < 12)
 	{
-		return HttpResponseStatusCode::HttpStatusCodeError;
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
 	std::string statusCodeDataString(data + 9, 3);
 
-	for(const auto& pair : statusCodeExplanationStringMap) {
-		if(int(pair.first) == std::stoi(statusCodeDataString)) {
+	for(const auto& pair : statusCodeExplanationStringMap)
+	{
+		if(int(pair.first) == std::stoi(statusCodeDataString))
+		{
 			return pair.first;
 		}
 	}
 
-	switch(statusCodeDataString[0]) {
+	switch(statusCodeDataString[0])
+	{
 	case '1':{
 		return HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
 	}
@@ -763,7 +768,7 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 	}
 	default:
 	{
-		return HttpResponseStatusCode::HttpStatusCodeError;
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 	}
 }
@@ -773,7 +778,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	m_Version = parseVersion((char*)m_HttpResponse->m_Data, m_HttpResponse->getDataLen());
 	if (m_Version == HttpVersionUnknown)
 	{
-		m_StatusCode = HttpResponseStatusCode::HttpStatusCodeError;
+		m_StatusCode = HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 	else
 	{
@@ -796,7 +801,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
 	{
 		std::string version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
-		int statusCode = (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeError ? 0 : m_StatusCode.toInt());
+		int statusCode = (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeUnknown ? 0 : m_StatusCode.toInt());
 		PCPP_LOG_DEBUG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
 	}
 }

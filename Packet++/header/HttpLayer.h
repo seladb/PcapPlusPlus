@@ -410,27 +410,31 @@ namespace pcpp
 			HttpStatus3xxCodeUnknown = 900003, // 3xx: Redirection - Further action must be taken in order to complete the request
 			HttpStatus4xxCodeUnknown = 900004, // 4xx: Client Error - The request contains bad syntax or cannot be fulfilled
 			HttpStatus5xxCodeUnknown = 900005, // 5xx: Server Error - The server failed to fulfill an apparently valid request
-			HttpStatusCodeError = 999999, // other arbitrary number
+			HttpStatusCodeUnknown = 999999, // other arbitrary number
 		};
 
 		HttpResponseStatusCode() = default;
 		// cppcheck-suppress noExplicitConstructor
 		constexpr HttpResponseStatusCode(Value statusCode) : m_value(statusCode) { }
 
+ 		// Allow switch and comparisons.
 		constexpr operator Value() const { return m_value; }
+		// Prevent usage: if(httpResponseStatusCode)
 		explicit operator bool() const = delete;
 
 		/**
 		 * @brief get status code number as string
 		 */
-		std::string toString() const {
+		std::string toString() const
+		{
 			return std::to_string(m_value);
 		}
 
 		/**
 		 * @brief get status code number as int
 		 */
-		int toInt() const {
+		int toInt() const
+		{
 			return static_cast<int>(m_value);
 		}
 
@@ -438,17 +442,13 @@ namespace pcpp
 		 * @return If this HttpResponseStatusCode a valid code
 		 * @note Any unknown or error code has an extreme large enum value
 		 */
-		bool isUnsupportedCode() const {
+		bool isUnsupportedCode() const
+		{
 			return m_value > 599;
 		}
 
-		constexpr bool operator==(const HttpResponseStatusCode &other) const { return m_value == other.m_value; }
-		constexpr bool operator!=(const HttpResponseStatusCode &other) const { return m_value != other.m_value; }
-
-		constexpr bool operator==(const Value &otherValue) const { return m_value == otherValue; }
-		constexpr bool operator!=(const Value &otherValue) const { return m_value != otherValue; }
 	private:
-  		Value m_value = HttpStatusCodeError;
+  		Value m_value = HttpStatusCodeUnknown;
 	};
 
 	// -------- Class HttpResponseLayer -----------------
