@@ -421,22 +421,15 @@ namespace pcpp
 		explicit operator bool() const = delete;
 
 		/**
-	 	 * @struct HttpResponseStatusCodeHash
-		 * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
-		 */
-		struct HttpResponseStatusCodeHash {
-			size_t operator()(const HttpResponseStatusCode& status) const {
-				return std::hash<int>()(static_cast<int>(status));
-			}
-		};
-
-		/**
-		 * @brief A pointer to the first line instance for this message
+		 * @brief get status code number as string
 		 */
 		std::string toString() const {
 			return std::to_string(m_value);
 		}
 
+		/**
+		 * @brief get status code number as int
+		 */
 		int toInt() const {
 			return static_cast<int>(m_value);
 		}

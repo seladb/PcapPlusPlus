@@ -448,7 +448,17 @@ void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
 
 // -------- Class HttpResponseLayer -----------------
 
-const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatusCode::HttpResponseStatusCodeHash> statusCodeExplanationStringMap = {
+/**
+ * @struct HttpResponseStatusCodeHash
+ * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
+ */
+struct HttpResponseStatusCodeHash {
+	size_t operator()(const HttpResponseStatusCode& status) const {
+		return std::hash<int>()(static_cast<int>(status));
+	}
+};
+
+const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatusCodeHash> statusCodeExplanationStringMap = {
     {HttpResponseStatusCode::Http100Continue, "Continue"},
     {HttpResponseStatusCode::Http101SwitchingProtocols, "Switching Protocols"},
     {HttpResponseStatusCode::Http102Processing, "Processing"},
