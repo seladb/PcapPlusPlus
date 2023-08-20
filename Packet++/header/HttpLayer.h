@@ -414,8 +414,17 @@ namespace pcpp
 		};
 
 		HttpResponseStatusCode() = default;
+
 		// cppcheck-suppress noExplicitConstructor
+		/**
+		 * @brief Construct HttpResponseStatusCode from Value enum
+		 */
 		constexpr HttpResponseStatusCode(Value statusCode) : m_value(statusCode) { }
+
+		/**
+		 * @brief Construct HttpResponseStatusCode from int
+		 */
+		explicit HttpResponseStatusCode(const int &statusCodeNumber);
 
  		// Allow switch and comparisons.
 		constexpr operator Value() const { return m_value; }

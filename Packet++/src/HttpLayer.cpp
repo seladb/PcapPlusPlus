@@ -448,6 +448,122 @@ void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
 
 // -------- Class HttpResponseLayer -----------------
 
+static const std::unordered_map<int, HttpResponseStatusCode> intStatusCodeMap = {
+	{100, HttpResponseStatusCode::Http100Continue},
+	{101, HttpResponseStatusCode::Http101SwitchingProtocols},
+	{102, HttpResponseStatusCode::Http102Processing},
+	{103, HttpResponseStatusCode::Http103EarlyHints},
+	{200, HttpResponseStatusCode::Http200OK},
+	{201, HttpResponseStatusCode::Http201Created},
+	{202, HttpResponseStatusCode::Http202Accepted},
+	{203, HttpResponseStatusCode::Http203NonAuthoritativeInformation},
+	{204, HttpResponseStatusCode::Http204NoContent},
+	{205, HttpResponseStatusCode::Http205ResetContent},
+	{206, HttpResponseStatusCode::Http206PartialContent},
+	{207, HttpResponseStatusCode::Http207MultiStatus},
+	{208, HttpResponseStatusCode::Http208AlreadyReported},
+	{226, HttpResponseStatusCode::Http226IMUsed},
+	{300, HttpResponseStatusCode::Http300MultipleChoices},
+	{301, HttpResponseStatusCode::Http301MovedPermanently},
+	{302, HttpResponseStatusCode::Http302},
+	{303, HttpResponseStatusCode::Http303SeeOther},
+	{304, HttpResponseStatusCode::Http304NotModified},
+	{305, HttpResponseStatusCode::Http305UseProxy},
+	{306, HttpResponseStatusCode::Http306SwitchProxy},
+	{307, HttpResponseStatusCode::Http307TemporaryRedirect},
+	{308, HttpResponseStatusCode::Http308PermanentRedirect},
+	{400, HttpResponseStatusCode::Http400BadRequest},
+	{401, HttpResponseStatusCode::Http401Unauthorized},
+	{402, HttpResponseStatusCode::Http402PaymentRequired},
+	{403, HttpResponseStatusCode::Http403Forbidden},
+	{404, HttpResponseStatusCode::Http404NotFound},
+	{405, HttpResponseStatusCode::Http405MethodNotAllowed},
+	{406, HttpResponseStatusCode::Http406NotAcceptable},
+	{407, HttpResponseStatusCode::Http407ProxyAuthenticationRequired},
+	{408, HttpResponseStatusCode::Http408RequestTimeout},
+	{409, HttpResponseStatusCode::Http409Conflict},
+	{410, HttpResponseStatusCode::Http410Gone},
+	{411, HttpResponseStatusCode::Http411LengthRequired},
+	{412, HttpResponseStatusCode::Http412PreconditionFailed},
+	{413, HttpResponseStatusCode::Http413RequestEntityTooLarge},
+	{414, HttpResponseStatusCode::Http414RequestURITooLong},
+	{415, HttpResponseStatusCode::Http415UnsupportedMediaType},
+	{416, HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable},
+	{417, HttpResponseStatusCode::Http417ExpectationFailed},
+	{418, HttpResponseStatusCode::Http418ImATeapot},
+	{419, HttpResponseStatusCode::Http419AuthenticationTimeout},
+	{420, HttpResponseStatusCode::Http420},
+	{421, HttpResponseStatusCode::Http421MisdirectedRequest},
+	{422, HttpResponseStatusCode::Http422UnprocessableEntity},
+	{423, HttpResponseStatusCode::Http423Locked},
+	{424, HttpResponseStatusCode::Http424FailedDependency},
+	{425, HttpResponseStatusCode::Http425TooEarly},
+	{426, HttpResponseStatusCode::Http426UpgradeRequired},
+	{428, HttpResponseStatusCode::Http428PreconditionRequired},
+	{429, HttpResponseStatusCode::Http429TooManyRequests},
+	{431, HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge},
+	{440, HttpResponseStatusCode::Http440LoginTimeout},
+	{444, HttpResponseStatusCode::Http444NoResponse},
+	{449, HttpResponseStatusCode::Http449RetryWith},
+	{450, HttpResponseStatusCode::Http450BlockedByWindowsParentalControls},
+	{451, HttpResponseStatusCode::Http451},
+	{494, HttpResponseStatusCode::Http494RequestHeaderTooLarge},
+	{495, HttpResponseStatusCode::Http495CertError},
+	{496, HttpResponseStatusCode::Http496NoCert},
+	{497, HttpResponseStatusCode::Http497HTTPtoHTTPS},
+	{498, HttpResponseStatusCode::Http498TokenExpiredInvalid},
+	{499, HttpResponseStatusCode::Http499},
+	{500, HttpResponseStatusCode::Http500InternalServerError},
+	{501, HttpResponseStatusCode::Http501NotImplemented},
+	{502, HttpResponseStatusCode::Http502BadGateway},
+	{503, HttpResponseStatusCode::Http503ServiceUnavailable},
+	{504, HttpResponseStatusCode::Http504GatewayTimeout},
+	{505, HttpResponseStatusCode::Http505HTTPVersionNotSupported},
+	{506, HttpResponseStatusCode::Http506VariantAlsoNegotiates},
+	{507, HttpResponseStatusCode::Http507InsufficientStorage},
+	{508, HttpResponseStatusCode::Http508LoopDetected},
+	{509, HttpResponseStatusCode::Http509BandwidthLimitExceeded},
+	{510, HttpResponseStatusCode::Http510NotExtended},
+	{511, HttpResponseStatusCode::Http511NetworkAuthenticationRequired},
+	{520, HttpResponseStatusCode::Http520OriginError},
+	{521, HttpResponseStatusCode::Http521WebServerIsDown},
+	{522, HttpResponseStatusCode::Http522ConnectionTimedOut},
+	{523, HttpResponseStatusCode::Http523ProxyDeclinedRequest},
+	{524, HttpResponseStatusCode::Http524aTimeoutOccurred},
+	{598, HttpResponseStatusCode::Http598NetworkReadTimeoutError},
+	{599, HttpResponseStatusCode::Http599NetworkConnectTimeoutError},
+};
+
+HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber)
+{
+	if(intStatusCodeMap.find(statusCodeNumber) != intStatusCodeMap.end())
+	{
+		m_value = intStatusCodeMap.at(statusCodeNumber);
+		return;
+	}
+
+	if(statusCodeNumber >= 100 && statusCodeNumber <= 199)
+	{
+		m_value = HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 200 && statusCodeNumber <= 299)
+	{
+		m_value = HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 300 && statusCodeNumber <= 399)
+	{
+		m_value = HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 400 && statusCodeNumber <= 499)
+	{
+		m_value = HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 500 && statusCodeNumber <= 599)
+	{
+		m_value = HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
+	}
+}
+
 /**
  * @struct HttpResponseStatusCodeHash
  * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
@@ -460,7 +576,7 @@ struct HttpResponseStatusCodeHash
 	}
 };
 
-const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatusCodeHash> statusCodeExplanationStringMap = {
+static const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatusCodeHash> statusCodeExplanationStringMap = {
     {HttpResponseStatusCode::Http100Continue, "Continue"},
     {HttpResponseStatusCode::Http101SwitchingProtocols, "Switching Protocols"},
     {HttpResponseStatusCode::Http102Processing, "Processing"},
@@ -739,38 +855,8 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
-	std::string statusCodeDataString(data + 9, 3);
-
-	for(const auto& pair : statusCodeExplanationStringMap)
-	{
-		if(int(pair.first) == std::stoi(statusCodeDataString))
-		{
-			return pair.first;
-		}
-	}
-
-	switch(statusCodeDataString[0])
-	{
-	case '1':{
-		return HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
-	}
-	case '2':{
-		return HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
-	}
-	case '3':{
-		return HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
-	}
-	case '4':{
-		return HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
-	}
-	case '5':{
-		return HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
-	}
-	default:
-	{
-		return HttpResponseStatusCode::HttpStatusCodeUnknown;
-	}
-	}
+	int statusCodeInt = std::stoi(std::string(data + 9, 3));
+	return HttpResponseStatusCode(statusCodeInt);
 }
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : m_HttpResponse(httpResponse)
