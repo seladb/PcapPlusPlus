@@ -136,7 +136,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t *data, size_t dataSize);
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
