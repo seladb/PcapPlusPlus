@@ -259,11 +259,14 @@ namespace pcpp
 		 */
 		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
-			// In most cases tlvDataLen is not zero and the size is correct therefore the overhead is not significant if the checks will be done later
 			TLVRecordType resRec(tlvDataBasePtr); // for NRVO optimization
 
+			// resRec pointer is out-bounds of the TLV records memory
+			if (resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
+				resRec.assign(NULL);
+
 			// check if there are records at all and the total size is not zero
-			if (tlvDataLen == 0 || resRec.getTotalSize() == 0)
+			if (!resRec.isNull() && (tlvDataLen == 0 || resRec.getTotalSize() == 0))
 				resRec.assign(NULL);
 
 			return resRec;
@@ -285,16 +288,16 @@ namespace pcpp
 			if (record.isNull())
 				return resRec;
 
-			// record pointer is out-bounds of the TLV records memory
-			if ((record.getRecordBasePtr() - tlvDataBasePtr) < 0)
-				return resRec;
-
-			// record pointer is out-bounds of the TLV records memory
-			if (record.getRecordBasePtr() - tlvDataBasePtr + (int)record.getTotalSize() >= (int)tlvDataLen)
-				return resRec;
-
 			resRec.assign(record.getRecordBasePtr() + record.getTotalSize());
 			if (resRec.getTotalSize() == 0)
+				resRec.assign(NULL);
+
+			// resRec pointer is out-bounds of the TLV records memory
+			if ((resRec.getRecordBasePtr() - tlvDataBasePtr) < 0)
+				resRec.assign(NULL);
+
+			// resRec pointer is out-bounds of the TLV records memory
+			if (!resRec.isNull() && resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
 				resRec.assign(NULL);
 
 			return resRec;

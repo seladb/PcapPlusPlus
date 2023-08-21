@@ -737,7 +737,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 {
 	// check if matchPacketWithFilter work properly for packets with different LinkLayerType
 
-// pcpp::LINKTYPE_DLT_RAW1 layer
+	// pcpp::LINKTYPE_DLT_RAW1 layer
 	pcpp::PcapFileReaderDevice fileReaderDev1(RAW_IP_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev1.open());
 	pcpp::RawPacketVector rawPacketVec;
@@ -764,7 +764,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	rawPacketVec.clear();
 
 
-// pcpp::LINKTYPE_LINUX_SLL layer
+	// pcpp::LINKTYPE_LINUX_SLL layer
 	pcpp::PcapFileReaderDevice fileReaderDev2(SLL_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	fileReaderDev2.getNextPackets(rawPacketVec);
@@ -790,7 +790,7 @@ PTF_TEST_CASE(TestPcapFilters_LinkLayer)
 	rawPacketVec.clear();
 
 
-// pcpp::LINKTYPE_ETHERNET layer
+	// pcpp::LINKTYPE_ETHERNET layer
 	pcpp::PcapNgFileReaderDevice fileReaderDev3(EXAMPLE_PCAPNG_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev3.open());
 	fileReaderDev3.getNextPackets(rawPacketVec);
