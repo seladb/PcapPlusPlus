@@ -1,13 +1,14 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "SystemUtils.h"
+#include "EndianPortable.h"
 #include "Packet.h"
 #include "S7commLayer.h"
+#include "SystemUtils.h"
+#include <stdio.h>
 
 PTF_TEST_CASE(S7commLayerTest) {
     timeval time;
 	gettimeofday(&time, nullptr);
-
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/S7comm.dat");
 
     pcpp::Packet S7commLayerTest(&rawPacket1);
