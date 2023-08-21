@@ -74,7 +74,7 @@ namespace pcpp
 		return v && ((v & (v - 1)) == 0);
 	}
 
-	// Only works for alignement with power of 2
+	// Only works for alignment with power of 2
 	static int align(int number, int alignment)
 	{
 		int mask = alignment - 1;
