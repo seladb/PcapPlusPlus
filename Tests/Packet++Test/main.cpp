@@ -316,5 +316,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(CotpLayerTest, "cotp");
 
+	PTF_RUN_TEST(S7commLayerTest, "s7comm");
+
 	PTF_END_RUNNING_TESTS;
 }

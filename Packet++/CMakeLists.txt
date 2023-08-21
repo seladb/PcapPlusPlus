@@ -37,6 +37,7 @@ add_library(
   src/PPPoELayer.cpp
   src/RadiusLayer.cpp
   src/RawPacket.cpp
+  src/S7commLayer.cpp
   src/SdpLayer.cpp
   src/SingleCommandTextProtocol.cpp
   src/SipLayer.cpp
@@ -103,6 +104,7 @@ set(public_headers
     header/ProtocolType.h
     header/RadiusLayer.h
     header/RawPacket.h
+    header/S7commLayer.h
     header/SdpLayer.h
     header/SingleCommandTextProtocol.h
     header/SipLayer.h

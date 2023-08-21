@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include "S7commLayer.h"
 
 namespace pcpp
 {
@@ -21,10 +22,7 @@ namespace pcpp
 		m_Protocol = COTP;
 	}
 
-	std::string CotpLayer::toString() const
-	{
-		return "Cotp Layer";
-	}
+	std::string CotpLayer::toString() const { return "Cotp Layer"; }
 
 	uint8_t CotpLayer::getLength() const { return getCotpHeader()->length; }
 
@@ -43,7 +41,7 @@ namespace pcpp
 		if (!data || dataSize < sizeof(cotphdr))
 			return false;
 
-		return  data[1] == 0xf0 && data[0] == 2;
+		return data[1] == 0xf0 && data[0] == 2;
 	}
 
 	void CotpLayer::parseNextLayer()
@@ -55,6 +53,9 @@ namespace pcpp
 		uint8_t *payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		if (S7commLayer::isDataValid(payload, payloadLen))
+			m_NextLayer = new S7commLayer(payload, payloadLen, this, m_Packet);
+		else
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 } // namespace pcpp

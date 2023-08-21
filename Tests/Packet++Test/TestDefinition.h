@@ -243,3 +243,6 @@ PTF_TEST_CASE(VrrpCreateAndEditTest);
 
 //Implemented in CotpTests.cpp
 PTF_TEST_CASE(CotpLayerTest);
+
+//Implemented in S7commTests.cpp
+PTF_TEST_CASE(S7commLayerTest);
