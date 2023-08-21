@@ -7,7 +7,7 @@
 
 PTF_TEST_CASE(S7commLayerTest) {
     timeval time;
-    gettimeofday(&time, NULL);
+	gettimeofday(&time, nullptr);
 
     READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/S7comm.dat");
 
