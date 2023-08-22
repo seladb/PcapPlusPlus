@@ -330,7 +330,7 @@ namespace pcpp
 	/**
 	 * S7COMM protocol
 	 */
-	const ProtocolType S7COMM = 0x9000000000000;
+	const ProtocolType S7COMM = 0x10000000000000;
 
 	/**
 	 * An enum representing OSI model layers
