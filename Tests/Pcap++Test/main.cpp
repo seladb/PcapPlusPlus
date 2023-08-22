@@ -262,8 +262,10 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestDpdkDeviceWorkerThreads, "dpdk");
 	PTF_RUN_TEST(TestDpdkMbufRawPacket, "dpdk");
 
-	PTF_RUN_TEST(TestKniDevice, "dpdk;kni;skip_mem_leak_check");
-	PTF_RUN_TEST(TestKniDeviceSendReceive, "dpdk;kni;skip_mem_leak_check");
+	#if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
+		PTF_RUN_TEST(TestKniDevice, "dpdk;kni;skip_mem_leak_check");
+		PTF_RUN_TEST(TestKniDeviceSendReceive, "dpdk;kni;skip_mem_leak_check");
+	#endif
 
 	PTF_RUN_TEST(TestTcpReassemblySanity, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");

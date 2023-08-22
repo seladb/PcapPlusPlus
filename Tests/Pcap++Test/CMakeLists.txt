@@ -1,5 +1,4 @@
-add_executable(
-  Pcap++Test
+set(SOURCES
   Common/TestUtils.cpp
   main.cpp
   Tests/DpdkTests.cpp
@@ -7,7 +6,6 @@ add_executable(
   Tests/FilterTests.cpp
   Tests/IPFragmentationTests.cpp
   Tests/IpMacTests.cpp
-  Tests/KniTests.cpp
   Tests/LiveDeviceTests.cpp
   Tests/LoggerTests.cpp
   Tests/PacketParsingTests.cpp
@@ -15,6 +13,17 @@ add_executable(
   Tests/RawSocketTests.cpp
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp)
+
+if(DPDK_VERSION VERSION_LESS "22.11")
+  set(SOURCES
+    ${SOURCES}
+    Tests/KniTests.cpp)
+endif()
+
+add_executable(
+  Pcap++Test
+  ${SOURCES}
+)
 
 target_link_libraries(
   Pcap++Test

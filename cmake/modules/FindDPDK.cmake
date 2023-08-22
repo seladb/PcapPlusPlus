@@ -69,6 +69,27 @@ if(DPDK_FOUND)
     message("Version: ${DPDK_VERSION}")
     message("-----------")
   endif()
+
+  find_package_handle_standard_args(
+    DPDK
+    REQUIRED_VARS DPDK_INCLUDE_DIRS DPDK_LIBRARIES
+    VERSION_VAR DPDK_VERSION)
+
+  if(NOT TARGET DPDK::DPDK)
+    add_library(DPDK::DPDK INTERFACE IMPORTED)
+    find_package(Threads QUIET)
+    set_target_properties(
+      DPDK::DPDK
+      PROPERTIES INTERFACE_LINK_LIBRARIES "${DPDK_LINK_LIBRARIES}"
+                INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}"
+                INTERFACE_COMPILE_OPTIONS "${DPDK_CFLAGS_OTHER}")
+  endif()
+
+  if(DPDK_DEBUG)
+    include(CMakePrintHelpers)
+    cmake_print_properties(TARGETS DPDK::DPDK PROPERTIES INTERFACE_LINK_LIBRARIES INTERFACE_COMPILE_OPTIONS
+                                                        INTERFACE_INCLUDE_DIRECTORIES)
+  endif()
 else()
   message("DPDK not found with pkg-config trying legacy mode")
 
@@ -98,7 +119,6 @@ else()
     APPEND
     _DPDK_LOOK_FOR_LIBS
     net
-    kni
     ethdev
     mbuf
     eal
@@ -111,6 +131,20 @@ else()
     bus_pci
     bus_vdev
     mempool_ring)
+
+  if(DPDK_VERSION VERSION_GREATER_EQUAL "23.07")
+    list(
+      APPEND
+      _DPDK_LOOK_FOR_LIBS
+      pdcp)
+  endif()
+
+  if(DPDK_VERSION VERSION_LESS "22.11")
+    list(
+      APPEND
+      _DPDK_LOOK_FOR_LIBS
+    kni)
+  endif()
 
   if(DPDK_VERSION VERSION_LESS "20.11")
     list(
@@ -173,25 +207,27 @@ else()
     message("Version: ${DPDK_VERSION}")
     message("-----------")
   endif()
+
+  find_package_handle_standard_args(
+    DPDK
+    REQUIRED_VARS DPDK_INCLUDE_DIRS DPDK_LIBRARIES
+    VERSION_VAR DPDK_VERSION)
+
+  if(NOT TARGET DPDK::DPDK)
+    add_library(DPDK::DPDK INTERFACE IMPORTED)
+    find_package(Threads QUIET)
+    set_target_properties(
+      DPDK::DPDK
+      PROPERTIES INTERFACE_LINK_LIBRARIES "${DPDK_LIBRARIES}"
+                INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}"
+                INTERFACE_COMPILE_OPTIONS "${DPDK_CFLAGS_OTHER}")
+  endif()
+
+  if(DPDK_DEBUG)
+    include(CMakePrintHelpers)
+    cmake_print_properties(TARGETS DPDK::DPDK PROPERTIES INTERFACE_LINK_LIBRARIES INTERFACE_COMPILE_OPTIONS
+                                                        INTERFACE_INCLUDE_DIRECTORIES)
+  endif()
 endif()
 
-find_package_handle_standard_args(
-  DPDK
-  REQUIRED_VARS DPDK_INCLUDE_DIRS DPDK_LIBRARIES
-  VERSION_VAR DPDK_VERSION)
 
-if(NOT TARGET DPDK::DPDK)
-  add_library(DPDK::DPDK INTERFACE IMPORTED)
-  find_package(Threads QUIET)
-  set_target_properties(
-    DPDK::DPDK
-    PROPERTIES INTERFACE_LINK_LIBRARIES "${DPDK_LIBRARIES}"
-               INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}"
-               INTERFACE_COMPILE_OPTIONS "${DPDK_CFLAGS_OTHER}")
-endif()
-
-if(DPDK_DEBUG)
-  include(CMakePrintHelpers)
-  cmake_print_properties(TARGETS DPDK::DPDK PROPERTIES INTERFACE_LINK_LIBRARIES INTERFACE_COMPILE_OPTIONS
-                                                       INTERFACE_INCLUDE_DIRECTORIES)
-endif()

@@ -44,7 +44,10 @@ endif()
 if(PCAPPP_USE_DPDK)
   add_subdirectory(DpdkExample-FilterTraffic)
   add_subdirectory(DpdkBridge)
-  add_subdirectory(KniPong)
+
+  if(DPDK_VERSION VERSION_LESS "22.11")
+    add_subdirectory(KniPong)
+  endif()
 endif()
 
 if(PCAPPP_USE_PF_RING)
