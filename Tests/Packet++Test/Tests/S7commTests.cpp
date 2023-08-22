@@ -22,6 +22,7 @@ PTF_TEST_CASE(S7commLayerTest) {
     PTF_ASSERT_EQUAL(s7commLayer->getPduRef(), 0xfd0b);
     PTF_ASSERT_EQUAL(s7commLayer->getParamLength(), 12);
     PTF_ASSERT_EQUAL(s7commLayer->getDataLength(), 212);
+	PTF_ASSERT_EQUAL(s7commLayer->toString(), "S7comm Layer, msg_type: 7, pdu_ref: 64779, param_length: 12, data_length: 212");
 
 	pcpp::S7commLayer newS7commPacket(0x09, 0xfd0c, 13, 213);
 
