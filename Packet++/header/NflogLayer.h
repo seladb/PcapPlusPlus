@@ -3,6 +3,7 @@
 
 #include "Layer.h"
 #include "TLVData.h"
+#include "GeneralUtils.h"
 
 /// @file
 
@@ -70,17 +71,6 @@ namespace pcpp
  		NFULA_HWLEN					= 17,
 	};
 
-	static constexpr bool is_powerof2(int v) {
-		return v && ((v & (v - 1)) == 0);
-	}
-
-	// Only works for alignment with power of 2
-	static int align(int number, int alignment)
-	{
-		int mask = alignment - 1;
-		return (number + mask) & ~mask;
-	}
-
 	/**
 	 * @class NflogTlv
 	 * A wrapper class for NFLOG TLV fields. This class does not create or modify TLVs related to NFLOG, but rather
@@ -115,7 +105,7 @@ namespace pcpp
 		size_t getTotalSize() const
 		{
 			// as in https://github.com/the-tcpdump-group/libpcap/blob/766b607d60d8038087b49fc4cf433dac3dcdb49c/pcap-util.c#L371-L374
-			return align(m_Data->recordLen, 4);
+			return align<4>(m_Data->recordLen);
 		}
 
 		/**
