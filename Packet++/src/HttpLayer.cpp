@@ -538,29 +538,29 @@ HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber)
 {
 	if(intStatusCodeMap.find(statusCodeNumber) != intStatusCodeMap.end())
 	{
-		m_value = intStatusCodeMap.at(statusCodeNumber);
+		m_Value = intStatusCodeMap.at(statusCodeNumber);
 		return;
 	}
 
 	if(statusCodeNumber >= 100 && statusCodeNumber <= 199)
 	{
-		m_value = HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
+		m_Value = HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
 	}
 	else if (statusCodeNumber >= 200 && statusCodeNumber <= 299)
 	{
-		m_value = HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
+		m_Value = HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
 	}
 	else if (statusCodeNumber >= 300 && statusCodeNumber <= 399)
 	{
-		m_value = HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
+		m_Value = HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
 	}
 	else if (statusCodeNumber >= 400 && statusCodeNumber <= 499)
 	{
-		m_value = HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
+		m_Value = HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
 	}
 	else if (statusCodeNumber >= 500 && statusCodeNumber <= 599)
 	{
-		m_value = HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
+		m_Value = HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
 	}
 }
 
