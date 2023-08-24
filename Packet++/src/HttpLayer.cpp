@@ -862,6 +862,7 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
+	// cppcheck-suppress containerOutOfBounds
 	int statusCodeInt = codeString[0] * 100 + codeString[1] * 10 + codeString[2];
 	return HttpResponseStatusCode(statusCodeInt);
 }
