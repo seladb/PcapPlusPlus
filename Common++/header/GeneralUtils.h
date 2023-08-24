@@ -52,24 +52,16 @@ namespace pcpp
 	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen);
 
 	/**
-	 * Is the number power of 2?
-	 * @param[in] v The number.
-	 * @return True if it is.
-	*/
-	static constexpr bool is_powerof2(int v) {
-		return v && ((v & (v - 1)) == 0);
-	}
-
-	/**
 	 * Calculates alignment.
-	 * @param[in] Given number.
-	 * @return The aligned number.
+	 * @param[in] number Given number
+	 * @return The aligned number
 	*/
 	template <int alignment>
 	static int align(int number)
 	{
 		// Only works for alignment with power of 2
-		static_assert(is_powerof2(alignment), "Alignment must be a power of 2");
+		constexpr bool isPowerOfTwo = alignment && ((alignment & (alignment - 1)) == 0);
+		static_assert(isPowerOfTwo, "Alignment must be a power of 2");
 		int mask = alignment - 1;
 		return (number + mask) & ~mask;
 	}
