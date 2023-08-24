@@ -789,9 +789,9 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 
 bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString)
 {
-	if (m_StatusCode.isUnsupportedCode())
+	if (newStatusCode.isUnsupportedCode())
 	{
-		PCPP_LOG_ERROR("Requested status code is " + m_StatusCode.toString() + statusCodeExplanationStringMap.at(m_StatusCode));
+		PCPP_LOG_ERROR("Requested status code is " << newStatusCode.toString() << ":" << statusCodeExplanationStringMap.at(newStatusCode));
 		return false;
 	}
 
