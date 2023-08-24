@@ -572,7 +572,7 @@ struct HttpResponseStatusCodeHash
 {
 	size_t operator()(const HttpResponseStatusCode& status) const
 	{
-		return std::hash<int>()(static_cast<int>(status));
+		return static_cast<int>(status);
 	}
 };
 
