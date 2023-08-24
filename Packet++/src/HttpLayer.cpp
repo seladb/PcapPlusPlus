@@ -855,7 +855,14 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
-	int statusCodeInt = std::stoi(std::string(data + 9, 3));
+	std::string codeString = std::string(data + 9, 3);
+
+	if(!codeString.empty() && std::find_if(codeString.begin(), codeString.end(), [](unsigned char c){ return !std::isdigit(c); }) == codeString.end())
+	{
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
+	}
+
+	int statusCodeInt = codeString[0] * 100 + codeString[1] * 10 + codeString[2];
 	return HttpResponseStatusCode(statusCodeInt);
 }
 
