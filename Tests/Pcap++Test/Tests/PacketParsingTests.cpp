@@ -152,7 +152,9 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 	int packetCount = 0;
 	int httpResponsePackets = 0;
 
-	int statusCodes[80];
+	int http200OKCounter = 0;
+	int http302Counter = 0;
+	int http304NotModifiedCounter = 0;
 
 	int textHtmlCount = 0;
 	int imageCount = 0;
@@ -160,8 +162,6 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 	int chunkedCount = 0;
 
 	int bigResponses = 0;
-
-	memset(statusCodes, 0, 80*sizeof(int));
 
 	while (readerDev.getNextPacket(rawPacket))
 	{
@@ -174,7 +174,14 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 
 		pcpp::HttpResponseLayer* httpResLayer = packet.getLayerOfType<pcpp::HttpResponseLayer>();
 		PTF_ASSERT_NOT_NULL(httpResLayer->getFirstLine());
-		statusCodes[httpResLayer->getFirstLine()->getStatusCode()]++;
+
+		if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http200OK) {
+			http200OKCounter++;
+		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http302) {
+			http302Counter++;
+		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http304NotModified ) {
+			http304NotModifiedCounter++;
+		}
 
 		pcpp::HeaderField* contentTypeField = httpResLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 		if (contentTypeField != nullptr)
@@ -213,11 +220,11 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080)
 	PTF_ASSERT_EQUAL(httpResponsePackets, 682);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 200
-	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http200OK], 592);
+	PTF_ASSERT_EQUAL(http200OKCounter, 592);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 302
-	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http302], 15);
+	PTF_ASSERT_EQUAL(http302Counter, 15);
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.response.code == 304
-	PTF_ASSERT_EQUAL(statusCodes[pcpp::HttpResponseLayer::Http304NotModified], 26);
+	PTF_ASSERT_EQUAL(http304NotModifiedCounter, 26);
 
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type == "text/html"
 	PTF_ASSERT_EQUAL(textHtmlCount, 38);
