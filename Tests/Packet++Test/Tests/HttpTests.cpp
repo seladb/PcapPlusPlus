@@ -201,96 +201,105 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(nullptr, 0), pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown);
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3), pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown);
 
-	std::vector<std::pair<std::string, pcpp::HttpResponseLayer::HttpResponseStatusCode>> possibleStatusCodes = {
-		{"100", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http100Continue },
-		{"101", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http101SwitchingProtocols },
-		{"102", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http102Processing },
-		{"200", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http200OK },
-		{"201", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http201Created },
-		{"202", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http202Accepted },
-		{"203", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http203NonAuthoritativeInformation },
-		{"204", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http204NoContent },
-		{"205", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http205ResetContent },
-		{"206", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http206PartialContent },
-		{"207", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http207MultiStatus },
-		{"208", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http208AlreadyReported },
-		{"226", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http226IMUsed },
-		{"300", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http300MultipleChoices },
-		{"301", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http301MovedPermanently },
-		{"302", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http302 },
-		{"303", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http303SeeOther },
-		{"304", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http304NotModified },
-		{"305", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http305UseProxy },
-		{"306", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http306SwitchProxy },
-		{"307", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http307TemporaryRedirect },
-		{"308", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http308PermanentRedirect },
-		{"400", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http400BadRequest },
-		{"401", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http401Unauthorized },
-		{"402", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http402PaymentRequired },
-		{"403", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http403Forbidden },
-		{"404", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http404NotFound },
-		{"405", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http405MethodNotAllowed },
-		{"406", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http406NotAcceptable },
-		{"407", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http407ProxyAuthenticationRequired },
-		{"408", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http408RequestTimeout },
-		{"409", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http409Conflict },
-		{"410", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http410Gone },
-		{"411", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http411LengthRequired },
-		{"412", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http412PreconditionFailed },
-		{"413", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http413RequestEntityTooLarge },
-		{"414", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http414RequestURITooLong },
-		{"415", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http415UnsupportedMediaType },
-		{"416", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable },
-		{"417", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http417ExpectationFailed },
-		{"418", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http418ImATeapot },
-		{"419", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http419AuthenticationTimeout },
-		{"420", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http420 },
-		{"422", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http422UnprocessableEntity },
-		{"423", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http423Locked },
-		{"424", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http424FailedDependency },
-		{"426", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http426UpgradeRequired },
-		{"428", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http428PreconditionRequired },
-		{"429", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http429TooManyRequests },
-		{"431", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge },
-		{"440", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http440LoginTimeout },
-		{"444", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http444NoResponse },
-		{"449", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http449RetryWith },
-		{"450", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http450BlockedByWindowsParentalControls },
-		{"451", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http451 },
-		{"494", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http494RequestHeaderTooLarge },
-		{"495", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http495CertError },
-		{"496", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http496NoCert },
-		{"497", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http497HTTPtoHTTPS },
-		{"498", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http498TokenExpiredInvalid },
-		{"499", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http499 },
-		{"500", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http500InternalServerError },
-		{"501", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http501NotImplemented },
-		{"502", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http502BadGateway },
-		{"503", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http503ServiceUnavailable },
-		{"504", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http504GatewayTimeout },
-		{"505", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http505HTTPVersionNotSupported },
-		{"506", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http506VariantAlsoNegotiates },
-		{"507", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http507InsufficientStorage },
-		{"508", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http508LoopDetected },
-		{"509", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http509BandwidthLimitExceeded },
-		{"510", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http510NotExtended },
-		{"511", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http511NetworkAuthenticationRequired },
-		{"520", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http520OriginError },
-		{"521", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http521WebServerIsDown },
-		{"522", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http522ConnectionTimedOut },
-		{"523", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http523ProxyDeclinedRequest },
-		{"524", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http524aTimeoutOccurred },
-		{"598", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http598NetworkReadTimeoutError },
-		{"599", pcpp::HttpResponseLayer::HttpResponseStatusCode::Http599NetworkConnectTimeoutError }
+	std::vector<pcpp::HttpResponseStatusCode> possibleStatusCodes = {
+		pcpp::HttpResponseStatusCode::Http100Continue,
+		pcpp::HttpResponseStatusCode::Http101SwitchingProtocols,
+		pcpp::HttpResponseStatusCode::Http102Processing,
+		pcpp::HttpResponseStatusCode::Http103EarlyHints,
+		pcpp::HttpResponseStatusCode::Http200OK,
+		pcpp::HttpResponseStatusCode::Http201Created,
+		pcpp::HttpResponseStatusCode::Http202Accepted,
+		pcpp::HttpResponseStatusCode::Http203NonAuthoritativeInformation,
+		pcpp::HttpResponseStatusCode::Http204NoContent,
+		pcpp::HttpResponseStatusCode::Http205ResetContent,
+		pcpp::HttpResponseStatusCode::Http206PartialContent,
+		pcpp::HttpResponseStatusCode::Http207MultiStatus,
+		pcpp::HttpResponseStatusCode::Http208AlreadyReported,
+		pcpp::HttpResponseStatusCode::Http226IMUsed,
+		pcpp::HttpResponseStatusCode::Http300MultipleChoices,
+		pcpp::HttpResponseStatusCode::Http301MovedPermanently,
+		pcpp::HttpResponseStatusCode::Http302,
+		pcpp::HttpResponseStatusCode::Http303SeeOther,
+		pcpp::HttpResponseStatusCode::Http304NotModified,
+		pcpp::HttpResponseStatusCode::Http305UseProxy,
+		pcpp::HttpResponseStatusCode::Http306SwitchProxy,
+		pcpp::HttpResponseStatusCode::Http307TemporaryRedirect,
+		pcpp::HttpResponseStatusCode::Http308PermanentRedirect,
+		pcpp::HttpResponseStatusCode::Http400BadRequest,
+		pcpp::HttpResponseStatusCode::Http401Unauthorized,
+		pcpp::HttpResponseStatusCode::Http402PaymentRequired,
+		pcpp::HttpResponseStatusCode::Http403Forbidden,
+		pcpp::HttpResponseStatusCode::Http404NotFound,
+		pcpp::HttpResponseStatusCode::Http405MethodNotAllowed,
+		pcpp::HttpResponseStatusCode::Http406NotAcceptable,
+		pcpp::HttpResponseStatusCode::Http407ProxyAuthenticationRequired,
+		pcpp::HttpResponseStatusCode::Http408RequestTimeout,
+		pcpp::HttpResponseStatusCode::Http409Conflict,
+		pcpp::HttpResponseStatusCode::Http410Gone,
+		pcpp::HttpResponseStatusCode::Http411LengthRequired,
+		pcpp::HttpResponseStatusCode::Http412PreconditionFailed,
+		pcpp::HttpResponseStatusCode::Http413RequestEntityTooLarge,
+		pcpp::HttpResponseStatusCode::Http414RequestURITooLong,
+		pcpp::HttpResponseStatusCode::Http415UnsupportedMediaType,
+		pcpp::HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable,
+		pcpp::HttpResponseStatusCode::Http417ExpectationFailed,
+		pcpp::HttpResponseStatusCode::Http418ImATeapot,
+		pcpp::HttpResponseStatusCode::Http419AuthenticationTimeout,
+		pcpp::HttpResponseStatusCode::Http420,
+		pcpp::HttpResponseStatusCode::Http421MisdirectedRequest,
+		pcpp::HttpResponseStatusCode::Http422UnprocessableEntity,
+		pcpp::HttpResponseStatusCode::Http423Locked,
+		pcpp::HttpResponseStatusCode::Http424FailedDependency,
+		pcpp::HttpResponseStatusCode::Http425TooEarly,
+		pcpp::HttpResponseStatusCode::Http426UpgradeRequired,
+		pcpp::HttpResponseStatusCode::Http428PreconditionRequired,
+		pcpp::HttpResponseStatusCode::Http429TooManyRequests,
+		pcpp::HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge,
+		pcpp::HttpResponseStatusCode::Http440LoginTimeout,
+		pcpp::HttpResponseStatusCode::Http444NoResponse,
+		pcpp::HttpResponseStatusCode::Http449RetryWith,
+		pcpp::HttpResponseStatusCode::Http450BlockedByWindowsParentalControls,
+		pcpp::HttpResponseStatusCode::Http451,
+		pcpp::HttpResponseStatusCode::Http494RequestHeaderTooLarge,
+		pcpp::HttpResponseStatusCode::Http495CertError,
+		pcpp::HttpResponseStatusCode::Http496NoCert,
+		pcpp::HttpResponseStatusCode::Http497HTTPtoHTTPS,
+		pcpp::HttpResponseStatusCode::Http498TokenExpiredInvalid,
+		pcpp::HttpResponseStatusCode::Http499,
+		pcpp::HttpResponseStatusCode::Http500InternalServerError,
+		pcpp::HttpResponseStatusCode::Http501NotImplemented,
+		pcpp::HttpResponseStatusCode::Http502BadGateway,
+		pcpp::HttpResponseStatusCode::Http503ServiceUnavailable,
+		pcpp::HttpResponseStatusCode::Http504GatewayTimeout,
+		pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported,
+		pcpp::HttpResponseStatusCode::Http506VariantAlsoNegotiates,
+		pcpp::HttpResponseStatusCode::Http507InsufficientStorage,
+		pcpp::HttpResponseStatusCode::Http508LoopDetected,
+		pcpp::HttpResponseStatusCode::Http509BandwidthLimitExceeded,
+		pcpp::HttpResponseStatusCode::Http510NotExtended,
+		pcpp::HttpResponseStatusCode::Http511NetworkAuthenticationRequired,
+		pcpp::HttpResponseStatusCode::Http520OriginError,
+		pcpp::HttpResponseStatusCode::Http521WebServerIsDown,
+		pcpp::HttpResponseStatusCode::Http522ConnectionTimedOut,
+		pcpp::HttpResponseStatusCode::Http523ProxyDeclinedRequest,
+		pcpp::HttpResponseStatusCode::Http524aTimeoutOccurred,
+		pcpp::HttpResponseStatusCode::Http598NetworkReadTimeoutError,
+		pcpp::HttpResponseStatusCode::Http599NetworkConnectTimeoutError,
 	};
 
-	for (const std::pair<std::string, pcpp::HttpResponseLayer::HttpResponseStatusCode> &statusCode : possibleStatusCodes )
+	for (const auto &statusCode : possibleStatusCodes )
 	{
-		std::string firstLine = "HTTP/x.y " + statusCode.first;
-		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode.second, enum);
+		std::string firstLine = "HTTP/x.y " + statusCode.toString();
+		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600").c_str(), 12), pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
 } // HttpResponseParseStatusCodeTest
 
 
@@ -339,7 +348,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 	pcpp::HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	PTF_ASSERT_NOT_NULL(responseLayer);
 
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseLayer::Http200OK, enum);
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseStatusCode::Http200OK, enum);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getVersion(), pcpp::OneDotOne, enum);
 
 	pcpp::HeaderField* contentLengthField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
@@ -367,7 +376,7 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 	pcpp::IPv4Layer ip4Layer(*sampleHttpPacket.getLayerOfType<pcpp::IPv4Layer>());
 	pcpp::TcpLayer tcpLayer(*sampleHttpPacket.getLayerOfType<pcpp::TcpLayer>());
 
-	pcpp::HttpResponseLayer httpResponse(pcpp::OneDotOne, pcpp::HttpResponseLayer::Http200OK);
+	pcpp::HttpResponseLayer httpResponse(pcpp::OneDotOne, pcpp::HttpResponseStatusCode::Http200OK);
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/5.0"));
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/6.0"));
@@ -431,8 +440,8 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->isComplete());
 	responseLayer->getFirstLine()->setVersion(pcpp::OneDotOne);
-	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseLayer::Http505HTTPVersionNotSupported));
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseLayer::Http505HTTPVersionNotSupported, enum);
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported));
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported, enum);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported");
 
@@ -442,7 +451,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
 
-	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseLayer::Http413RequestEntityTooLarge, "This is a test"));
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode::Http413RequestEntityTooLarge, "This is a test"));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test");
 
