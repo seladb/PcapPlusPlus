@@ -38,14 +38,14 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 		pcpp::NflogTlvType::NFULA_PAYLOAD
 	};
 
-	int optSizes[6] = {8, 5, 8, 8, 8, 65};
+	int optSizes[6] = {8, 8, 8, 8, 8, 68};
 	std::string optDataAsHexString[6] = {
 		"0800010000000300",
-		"05000a0000",
+		"05000a0000000000",
 		"0800050000000002",
 		"08000b0000000000",
 		"08000e0000000000",
-		"410009004500003d021040004011208f0a00020f0a000203a542003500294156c04e0100000100000000000003777777076578616d706c65036e65740000010001"
+		"410009004500003d021040004011208f0a00020f0a000203a542003500294156c04e0100000100000000000003777777076578616d706c65036e657400000100012f0a31"
 	};
 
 	for (int i = 0; i < 6; i++) {
@@ -56,5 +56,5 @@ PTF_TEST_CASE(NflogPacketParsingTest)
 	}
 
 	/// sum of all TLVs before payload + size of nflog_header + size of (recordLength + recordType) variables of payload TLV
-	PTF_ASSERT_EQUAL(nflogLayer->getHeaderLen(), 45);
+	PTF_ASSERT_EQUAL(nflogLayer->getHeaderLen(), 48);
 }
