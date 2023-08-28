@@ -527,11 +527,7 @@ void DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
 	linkStatus.linkUp = link.link_status;
 	linkStatus.linkSpeedMbps = (unsigned) link.link_speed;
 
-#if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
-	linkStatus.linkDuplex = (link.link_duplex == ETH_LINK_FULL_DUPLEX) ? LinkStatus::FULL_DUPLEX : LinkStatus::HALF_DUPLEX;
-#else
 	linkStatus.linkDuplex = (link.link_duplex == RTE_ETH_LINK_FULL_DUPLEX) ? LinkStatus::FULL_DUPLEX : LinkStatus::HALF_DUPLEX;
-#endif
 }
 
 
@@ -1211,130 +1207,65 @@ uint64_t DpdkDevice::convertRssHfToDpdkRssHf(uint64_t rssHF) const
 
 	uint64_t dpdkRssHF = 0;
 
-#if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
 	if ((rssHF & RSS_IPV4) != 0)
-		dpdkRssHF |= ETH_RSS_IPV4;
+		dpdkRssHF |= RTE_ETH_RSS_IPV4;
 
 	if ((rssHF & RSS_FRAG_IPV4) != 0)
-		dpdkRssHF |= ETH_RSS_FRAG_IPV4;
+		dpdkRssHF |= RTE_ETH_RSS_FRAG_IPV4;
 
 	if ((rssHF & RSS_NONFRAG_IPV4_TCP) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_TCP;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV4_TCP;
 
 	if ((rssHF & RSS_NONFRAG_IPV4_UDP) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_UDP;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV4_UDP;
 
 	if ((rssHF & RSS_NONFRAG_IPV4_SCTP) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_SCTP;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV4_SCTP;
 
 	if ((rssHF & RSS_NONFRAG_IPV4_OTHER) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV4_OTHER;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV4_OTHER;
 
 	if ((rssHF & RSS_IPV6) != 0)
-		dpdkRssHF |= ETH_RSS_IPV6;
+		dpdkRssHF |= RTE_ETH_RSS_IPV6;
 
 	if ((rssHF & RSS_FRAG_IPV6) != 0)
-		dpdkRssHF |= ETH_RSS_FRAG_IPV6;
+		dpdkRssHF |= RTE_ETH_RSS_FRAG_IPV6;
 
 	if ((rssHF & RSS_NONFRAG_IPV6_TCP) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_TCP;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV6_TCP;
 
 	if ((rssHF & RSS_NONFRAG_IPV6_UDP) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_UDP;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV6_UDP;
 
 	if ((rssHF & RSS_NONFRAG_IPV6_SCTP) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_SCTP;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV6_SCTP;
 
 	if ((rssHF & RSS_NONFRAG_IPV6_OTHER) != 0)
-		dpdkRssHF |= ETH_RSS_NONFRAG_IPV6_OTHER;
+		dpdkRssHF |= RTE_ETH_RSS_NONFRAG_IPV6_OTHER;
 
 	if ((rssHF & RSS_L2_PAYLOAD) != 0)
-		dpdkRssHF |= ETH_RSS_L2_PAYLOAD;
+		dpdkRssHF |= RTE_ETH_RSS_L2_PAYLOAD;
 
 	if ((rssHF & RSS_IPV6_EX) != 0)
-		dpdkRssHF |= ETH_RSS_IPV6_EX;
+		dpdkRssHF |= RTE_ETH_RSS_IPV6_EX;
 
 	if ((rssHF & RSS_IPV6_TCP_EX) != 0)
-		dpdkRssHF |= ETH_RSS_IPV6_TCP_EX;
+		dpdkRssHF |= RTE_ETH_RSS_IPV6_TCP_EX;
 
 	if ((rssHF & RSS_IPV6_UDP_EX) != 0)
-		dpdkRssHF |= ETH_RSS_IPV6_UDP_EX;
+		dpdkRssHF |= RTE_ETH_RSS_IPV6_UDP_EX;
 
 	if ((rssHF & RSS_PORT) != 0)
-		dpdkRssHF |= ETH_RSS_PORT;
+		dpdkRssHF |= RTE_ETH_RSS_PORT;
 
 	if ((rssHF & RSS_VXLAN) != 0)
-		dpdkRssHF |= ETH_RSS_VXLAN;
+		dpdkRssHF |= RTE_ETH_RSS_VXLAN;
 
 	if ((rssHF & RSS_GENEVE) != 0)
-		dpdkRssHF |= ETH_RSS_GENEVE;
+		dpdkRssHF |= RTE_ETH_RSS_GENEVE;
 
 	if ((rssHF & RSS_NVGRE) != 0)
-		dpdkRssHF |= ETH_RSS_NVGRE;
-
-#else
-
-	if ((rssHF & RSS_IPV4) != 0)
-		dpdkRssHF |= RSS_IPV4;
-
-	if ((rssHF & RSS_FRAG_IPV4) != 0)
-		dpdkRssHF |= RSS_FRAG_IPV4;
-
-	if ((rssHF & RSS_NONFRAG_IPV4_TCP) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV4_TCP;
-
-	if ((rssHF & RSS_NONFRAG_IPV4_UDP) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV4_UDP;
-
-	if ((rssHF & RSS_NONFRAG_IPV4_SCTP) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV4_SCTP;
-
-	if ((rssHF & RSS_NONFRAG_IPV4_OTHER) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV4_OTHER;
-
-	if ((rssHF & RSS_IPV6) != 0)
-		dpdkRssHF |= RSS_IPV6;
-
-	if ((rssHF & RSS_FRAG_IPV6) != 0)
-		dpdkRssHF |= RSS_FRAG_IPV6;
-
-	if ((rssHF & RSS_NONFRAG_IPV6_TCP) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV6_TCP;
-
-	if ((rssHF & RSS_NONFRAG_IPV6_UDP) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV6_UDP;
-
-	if ((rssHF & RSS_NONFRAG_IPV6_SCTP) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV6_SCTP;
-
-	if ((rssHF & RSS_NONFRAG_IPV6_OTHER) != 0)
-		dpdkRssHF |= RSS_NONFRAG_IPV6_OTHER;
-
-	if ((rssHF & RSS_L2_PAYLOAD) != 0)
-		dpdkRssHF |= RSS_L2_PAYLOAD;
-
-	if ((rssHF & RSS_IPV6_EX) != 0)
-		dpdkRssHF |= RSS_IPV6_EX;
-
-	if ((rssHF & RSS_IPV6_TCP_EX) != 0)
-		dpdkRssHF |= RSS_IPV6_TCP_EX;
-
-	if ((rssHF & RSS_IPV6_UDP_EX) != 0)
-		dpdkRssHF |= RSS_IPV6_UDP_EX;
-
-	if ((rssHF & RSS_PORT) != 0)
-		dpdkRssHF |= RSS_PORT;
-
-	if ((rssHF & RSS_VXLAN) != 0)
-		dpdkRssHF |= RSS_VXLAN;
-
-	if ((rssHF & RSS_GENEVE) != 0)
-		dpdkRssHF |= RSS_GENEVE;
-
-	if ((rssHF & RSS_NVGRE) != 0)
-		dpdkRssHF |= RSS_NVGRE;
-#endif
-
+		dpdkRssHF |= RTE_ETH_RSS_NVGRE;
 
 	return dpdkRssHF;
 }
@@ -1343,130 +1274,65 @@ uint64_t DpdkDevice::convertDpdkRssHfToRssHf(uint64_t dpdkRssHF) const
 {
 	uint64_t rssHF = 0;
 
-#if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
-	if ((dpdkRssHF & ETH_RSS_IPV4) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_IPV4) != 0)
 		rssHF |= RSS_IPV4;
 
-	if ((dpdkRssHF & ETH_RSS_FRAG_IPV4) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_FRAG_IPV4) != 0)
 		rssHF |= RSS_FRAG_IPV4;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_TCP) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV4_TCP) != 0)
 		rssHF |= RSS_NONFRAG_IPV4_TCP;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_UDP) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV4_UDP) != 0)
 		rssHF |= RSS_NONFRAG_IPV4_UDP;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_SCTP) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV4_SCTP) != 0)
 		rssHF |= RSS_NONFRAG_IPV4_SCTP;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV4_OTHER) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV4_OTHER) != 0)
 		rssHF |= RSS_NONFRAG_IPV4_OTHER;
 
-	if ((dpdkRssHF & ETH_RSS_IPV6) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_IPV6) != 0)
 		rssHF |= RSS_IPV6;
 
-	if ((dpdkRssHF & ETH_RSS_FRAG_IPV6) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_FRAG_IPV6) != 0)
 		rssHF |= RSS_FRAG_IPV6;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_TCP) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV6_TCP) != 0)
 		rssHF |= RSS_NONFRAG_IPV6_TCP;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_UDP) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV6_UDP) != 0)
 		rssHF |= RSS_NONFRAG_IPV6_UDP;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_SCTP) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV6_SCTP) != 0)
 		rssHF |= RSS_NONFRAG_IPV6_SCTP;
 
-	if ((dpdkRssHF & ETH_RSS_NONFRAG_IPV6_OTHER) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NONFRAG_IPV6_OTHER) != 0)
 		rssHF |= RSS_NONFRAG_IPV6_OTHER;
 
-	if ((dpdkRssHF & ETH_RSS_L2_PAYLOAD) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_L2_PAYLOAD) != 0)
 		rssHF |= RSS_L2_PAYLOAD;
 
-	if ((dpdkRssHF & ETH_RSS_IPV6_EX) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_IPV6_EX) != 0)
 		rssHF |= RSS_IPV6_EX;
 
-	if ((dpdkRssHF & ETH_RSS_IPV6_TCP_EX) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_IPV6_TCP_EX) != 0)
 		rssHF |= RSS_IPV6_TCP_EX;
 
-	if ((dpdkRssHF & ETH_RSS_IPV6_UDP_EX) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_IPV6_UDP_EX) != 0)
 		rssHF |= RSS_IPV6_UDP_EX;
 
-	if ((dpdkRssHF & ETH_RSS_PORT) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_PORT) != 0)
 		rssHF |= RSS_PORT;
 
-	if ((dpdkRssHF & ETH_RSS_VXLAN) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_VXLAN) != 0)
 		rssHF |= RSS_VXLAN;
 
-	if ((dpdkRssHF & ETH_RSS_GENEVE) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_GENEVE) != 0)
 		rssHF |= RSS_GENEVE;
 
-	if ((dpdkRssHF & ETH_RSS_NVGRE) != 0)
+	if ((dpdkRssHF & RTE_ETH_RSS_NVGRE) != 0)
 		rssHF |= RSS_NVGRE;
-
-#else
-
-	if ((dpdkRssHF & RSS_IPV4) != 0)
-		rssHF |= RSS_IPV4;
-
-	if ((dpdkRssHF & RSS_FRAG_IPV4) != 0)
-		rssHF |= RSS_FRAG_IPV4;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV4_TCP) != 0)
-		rssHF |= RSS_NONFRAG_IPV4_TCP;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV4_UDP) != 0)
-		rssHF |= RSS_NONFRAG_IPV4_UDP;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV4_SCTP) != 0)
-		rssHF |= RSS_NONFRAG_IPV4_SCTP;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV4_OTHER) != 0)
-		rssHF |= RSS_NONFRAG_IPV4_OTHER;
-
-	if ((dpdkRssHF & RSS_IPV6) != 0)
-		rssHF |= RSS_IPV6;
-
-	if ((dpdkRssHF & RSS_FRAG_IPV6) != 0)
-		rssHF |= RSS_FRAG_IPV6;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV6_TCP) != 0)
-		rssHF |= RSS_NONFRAG_IPV6_TCP;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV6_UDP) != 0)
-		rssHF |= RSS_NONFRAG_IPV6_UDP;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV6_SCTP) != 0)
-		rssHF |= RSS_NONFRAG_IPV6_SCTP;
-
-	if ((dpdkRssHF & RSS_NONFRAG_IPV6_OTHER) != 0)
-		rssHF |= RSS_NONFRAG_IPV6_OTHER;
-
-	if ((dpdkRssHF & RSS_L2_PAYLOAD) != 0)
-		rssHF |= RSS_L2_PAYLOAD;
-
-	if ((dpdkRssHF & RSS_IPV6_EX) != 0)
-		rssHF |= RSS_IPV6_EX;
-
-	if ((dpdkRssHF & RSS_IPV6_TCP_EX) != 0)
-		rssHF |= RSS_IPV6_TCP_EX;
-
-	if ((dpdkRssHF & RSS_IPV6_UDP_EX) != 0)
-		rssHF |= RSS_IPV6_UDP_EX;
-
-	if ((dpdkRssHF & RSS_PORT) != 0)
-		rssHF |= RSS_PORT;
-
-	if ((dpdkRssHF & RSS_VXLAN) != 0)
-		rssHF |= RSS_VXLAN;
-
-	if ((dpdkRssHF & RSS_GENEVE) != 0)
-		rssHF |= RSS_GENEVE;
-
-	if ((dpdkRssHF & RSS_NVGRE) != 0)
-		rssHF |= RSS_NVGRE;
-
-#endif
 
 	return rssHF;
 }

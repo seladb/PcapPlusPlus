@@ -18,7 +18,7 @@ set(SOURCES
   # Force light pcapng to be link fully static
   $<TARGET_OBJECTS:light_pcapng>)
 
-if(DPDK_VERSION VERSION_LESS "22.11")
+if(DPDK_VERSION VERSION_LESS "23.11")
   set(SOURCES
     ${SOURCES}
     $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDevice.cpp>
