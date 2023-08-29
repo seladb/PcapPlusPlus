@@ -247,15 +247,17 @@ jobs:
 
       - name: Configure and Build PcapPlusPlus
         run: |
-          LIBPCAP_PATH=$(pwd)/libpcap-android
+          LIBPCAP_PATH="$(pwd)/libpcap-android"
+          COMBINE_PACKAGE_DIR="pcapplusplus-22.11+-android"
+          mkdir -p "${COMBINE_PACKAGE_DIR}"
           for TARGET in ${{ matrix.targets }}; do \
-            export LOCAL_BUILD_DIR="${BUILD_DIR}/${TARGET}/${{ matrix.api-version }}"; \
-            cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${TARGET}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${TARGET}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"; \
-            cmake --build "$LOCAL_BUILD_DIR" -j ;\
+            export LIB_DIR="${TARGET}/${{ matrix.api-version }}"; \
+            export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"; \
+            cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${TARGET}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${TARGET}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"; \
+            cmake --build "$LOCAL_BUILD_DIR" -j --target package; \
+            tar -xvf ${LOCAL_BUILD_DIR}/*.tar.gz --strip-components=1 --directory "${COMBINE_PACKAGE_DIR}"; \
           done
-
-      - name: Package
-        run: cmake --build "$BUILD_DIR" --target package
+          tar -czvf "${BUILD_DIR}/${COMBINE_PACKAGE_DIR}.tar.gz" -C "${COMBINE_PACKAGE_DIR}" .
 
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
