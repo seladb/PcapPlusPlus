@@ -203,7 +203,7 @@ bool RawPacket::setPacketTimeStamp(timespec timestamp)
 
 bool RawPacket::isLinkTypeValid(int linkTypeValue)
 {
-	if (linkTypeValue < 0 || linkTypeValue > 264)
+	if ((linkTypeValue < 0 || linkTypeValue > 264) && linkTypeValue != 276)
 		return false;
 
 	switch (static_cast<LinkLayerType>(linkTypeValue))
@@ -298,6 +298,7 @@ bool RawPacket::isLinkTypeValid(int linkTypeValue)
 		case LINKTYPE_ZWAVE_R3:
 		case LINKTYPE_WATTSTOPPER_DLM:
 		case LINKTYPE_ISO_14443:
+		case LINKTYPE_LINUX_SLL2:
 			return true;
 		default:
 			return false;

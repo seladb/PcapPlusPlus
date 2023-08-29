@@ -309,7 +309,6 @@ namespace pcpp
 		/**
 		 * Set the message type for this layer
 		 * @param[in] messageType The message type to set
-		 * @return No return value
 		 */
 		void setMessageType(DhcpV6MessageType messageType);
 
@@ -321,7 +320,6 @@ namespace pcpp
 		/**
 		 * Set the transaction ID for this DHCPv6 message
 		 * @param[in] transactionId The transaction ID value to set
-		 * @return No return value
 		 */
 		void setTransactionID(uint32_t transactionId) const;
 

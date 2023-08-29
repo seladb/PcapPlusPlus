@@ -48,7 +48,6 @@ namespace pcpp
 		/**
 		 * An abstract method that must be implemented by child class. It's the indication for the worker to stop running. After
 		 * this method is called the caller expects the worker to stop running as fast as possible
-		 * @return No return value
 		 */
 		virtual void stop() = 0;
 

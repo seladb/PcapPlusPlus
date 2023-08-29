@@ -84,6 +84,7 @@ PTF_TEST_CASE(DnsLayerEditTest);
 PTF_TEST_CASE(DnsLayerRemoveResourceTest);
 PTF_TEST_CASE(DnsOverTcpParsingTest);
 PTF_TEST_CASE(DnsOverTcpCreationTest);
+PTF_TEST_CASE(DnsLayerAddDnsKeyTest);
 
 // Implemented in IcmpTests.cpp
 PTF_TEST_CASE(IcmpParsingTest);
@@ -94,6 +95,10 @@ PTF_TEST_CASE(IcmpEditTest);
 PTF_TEST_CASE(SllPacketParsingTest);
 PTF_TEST_CASE(SllPacketCreationTest);
 PTF_TEST_CASE(NullLoopbackTest);
+
+// Implemented in Sll2Tests.cpp
+PTF_TEST_CASE(Sll2PacketParsingTest);
+PTF_TEST_CASE(Sll2PacketCreationTest);
 
 // Implemented in NflogTests.cpp
 PTF_TEST_CASE(NflogPacketParsingTest);
