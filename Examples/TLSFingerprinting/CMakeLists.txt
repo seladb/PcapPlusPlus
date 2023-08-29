@@ -11,5 +11,8 @@ set_target_properties(TLSFingerprinting PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${P
                                                    RUNTIME_OUTPUT_NAME "TLSFingerprinting")
 
 if(PCAPPP_INSTALL)
-  install(TARGETS TLSFingerprinting EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(
+    TARGETS TLSFingerprinting
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
 endif()

@@ -43,7 +43,11 @@ if(PCAPPP_USE_DPDK)
 endif()
 
 if(PCAPPP_USE_PF_RING)
-  list(APPEND public_headers header/PfRingDevice.h header/PfRingDeviceList.h)
+  list(
+    APPEND
+    public_headers
+    header/PfRingDevice.h
+    header/PfRingDeviceList.h)
 endif()
 
 if(LINUX)
@@ -51,7 +55,12 @@ if(LINUX)
 endif()
 
 if(WIN32)
-  list(APPEND public_headers header/WinPcapLiveDevice.h header/PcapRemoteDevice.h header/PcapRemoteDeviceList.h)
+  list(
+    APPEND
+    public_headers
+    header/WinPcapLiveDevice.h
+    header/PcapRemoteDevice.h
+    header/PcapRemoteDeviceList.h)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})

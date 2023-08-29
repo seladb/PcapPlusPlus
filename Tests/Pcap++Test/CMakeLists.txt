@@ -16,7 +16,12 @@ add_executable(
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp)
 
-target_link_libraries(Pcap++Test PUBLIC memplumber Pcap++ PcppTestFramework EndianPortable)
+target_link_libraries(
+  Pcap++Test
+  PUBLIC memplumber
+         Pcap++
+         PcppTestFramework
+         EndianPortable)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
@@ -27,4 +32,7 @@ set_property(TARGET Pcap++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURREN
 set_property(TARGET Pcap++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set_property(TARGET Pcap++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 
-add_test(NAME Pcap++Test COMMAND $<TARGET_FILE:Pcap++Test> -n WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
+add_test(
+  NAME Pcap++Test
+  COMMAND $<TARGET_FILE:Pcap++Test> -n
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)

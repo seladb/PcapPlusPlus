@@ -18,22 +18,40 @@ function(DPDK_READ_VERSION DPDK_VERSION DPDK_VERSION_FILE)
   endif()
 
   file(READ "${DPDK_VERSION_FILE}" DPDK_VERSION_STR)
-  string(REGEX MATCH "#define RTE_VER_YEAR ([0-9]+)" _ ${DPDK_VERSION_STR})
+  string(
+    REGEX MATCH
+          "#define RTE_VER_YEAR ([0-9]+)"
+          _
+          ${DPDK_VERSION_STR})
   set(DPDK_VERSION_MAJOR ${CMAKE_MATCH_1})
 
-  string(REGEX MATCH "#define RTE_VER_MONTH ([0-9]+)" _ ${DPDK_VERSION_STR})
+  string(
+    REGEX MATCH
+          "#define RTE_VER_MONTH ([0-9]+)"
+          _
+          ${DPDK_VERSION_STR})
   set(DPDK_VERSION_MINOR ${CMAKE_MATCH_1})
 
-  string(REGEX MATCH "#define RTE_VER_MINOR ([0-9]+)" _ ${DPDK_VERSION_STR})
+  string(
+    REGEX MATCH
+          "#define RTE_VER_MINOR ([0-9]+)"
+          _
+          ${DPDK_VERSION_STR})
   set(DPDK_VERSION_PATCH ${CMAKE_MATCH_1})
 
-  set(DPDK_VERSION "${DPDK_VERSION_MAJOR}.${DPDK_VERSION_MINOR}.${DPDK_VERSION_PATCH}" PARENT_SCOPE)
+  set(DPDK_VERSION
+      "${DPDK_VERSION_MAJOR}.${DPDK_VERSION_MINOR}.${DPDK_VERSION_PATCH}"
+      PARENT_SCOPE)
 endfunction()
 
 # Try to find DPDK with pkg-config first!
 find_package(PkgConfig QUIET)
 if(PKG_CONFIG_FOUND)
-  pkg_check_modules(DPDK QUIET IMPORTED_TARGET libdpdk>=18.11)
+  pkg_check_modules(
+    DPDK
+    QUIET
+    IMPORTED_TARGET
+    libdpdk>=18.11)
 endif()
 
 # We found using Pkg-Config!
@@ -113,7 +131,12 @@ else()
   # Check that all libraries exists
   foreach(lib ${_DPDK_LOOK_FOR_LIBS})
     # Regarding the build system used make or meson the librte_pmd_vmxnet3 could be named librte_pmd_vmxnet3_uio
-    find_library(rte_${lib} NAMES rte_${lib} rte_${lib}_uio NAMES_PER_DIR REQUIRED)
+    find_library(
+      rte_${lib}
+      NAMES rte_${lib}
+            rte_${lib}_uio
+            NAMES_PER_DIR
+            REQUIRED)
     list(APPEND DPDK_LIBRARIES ${rte_${lib}})
 
     get_filename_component(_DPDK_LIBRARY_DIR ${rte_${lib}} PATH)
@@ -152,14 +175,18 @@ else()
   endif()
 endif()
 
-find_package_handle_standard_args(DPDK REQUIRED_VARS DPDK_INCLUDE_DIRS DPDK_LIBRARIES VERSION_VAR DPDK_VERSION)
+find_package_handle_standard_args(
+  DPDK
+  REQUIRED_VARS DPDK_INCLUDE_DIRS DPDK_LIBRARIES
+  VERSION_VAR DPDK_VERSION)
 
 if(NOT TARGET DPDK::DPDK)
   add_library(DPDK::DPDK INTERFACE IMPORTED)
   find_package(Threads QUIET)
   set_target_properties(
     DPDK::DPDK
-    PROPERTIES INTERFACE_LINK_LIBRARIES "${DPDK_LIBRARIES}" INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}"
+    PROPERTIES INTERFACE_LINK_LIBRARIES "${DPDK_LIBRARIES}"
+               INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}"
                INTERFACE_COMPILE_OPTIONS "${DPDK_CFLAGS_OTHER}")
 endif()
 

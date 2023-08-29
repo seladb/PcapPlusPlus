@@ -37,12 +37,21 @@ This module defines the following variables:
 set(ZSTD_NAMES zstd zstd_static)
 set(ZSTD_NAMES_DEBUG zstdd zstd_staticd)
 
-find_path(ZSTD_INCLUDE_DIR NAMES zstd.h PATH_SUFFIXES include)
+find_path(
+  ZSTD_INCLUDE_DIR
+  NAMES zstd.h
+  PATH_SUFFIXES include)
 
 # Allow ZSTD_LIBRARY to be set manually, as the location of the zstd library
 if(NOT ZSTD_LIBRARY)
-  find_library(ZSTD_LIBRARY_RELEASE NAMES ${ZSTD_NAMES} PATH_SUFFIXES lib)
-  find_library(ZSTD_LIBRARY_DEBUG NAMES ${ZSTD_NAMES_DEBUG} PATH_SUFFIXES lib)
+  find_library(
+    ZSTD_LIBRARY_RELEASE
+    NAMES ${ZSTD_NAMES}
+    PATH_SUFFIXES lib)
+  find_library(
+    ZSTD_LIBRARY_DEBUG
+    NAMES ${ZSTD_NAMES_DEBUG}
+    PATH_SUFFIXES lib)
 
   include(SelectLibraryConfigurations)
   select_library_configurations(ZSTD)
@@ -56,14 +65,32 @@ mark_as_advanced(ZSTD_INCLUDE_DIR)
 if(ZSTD_INCLUDE_DIR AND EXISTS "${ZSTD_INCLUDE_DIR}/zstd.h")
   file(STRINGS "${ZSTD_INCLUDE_DIR}/zstd.h" ZSTD_H REGEX "^#define ZSTD_VERSION_.*$")
 
-  string(REGEX REPLACE "^.*ZSTD_VERSION_MAJOR  *([0-9]+).*$" "\\1" ZSTD_MAJOR_VERSION "${ZSTD_H}")
-  string(REGEX REPLACE "^.*ZSTD_VERSION_MINOR  *([0-9]+).*$" "\\1" ZSTD_MINOR_VERSION "${ZSTD_H}")
-  string(REGEX REPLACE "^.*ZSTD_VERSION_RELEASE  *([0-9]+).*$" "\\1" ZSTD_PATCH_VERSION "${ZSTD_H}")
+  string(
+    REGEX
+    REPLACE "^.*ZSTD_VERSION_MAJOR  *([0-9]+).*$"
+            "\\1"
+            ZSTD_MAJOR_VERSION
+            "${ZSTD_H}")
+  string(
+    REGEX
+    REPLACE "^.*ZSTD_VERSION_MINOR  *([0-9]+).*$"
+            "\\1"
+            ZSTD_MINOR_VERSION
+            "${ZSTD_H}")
+  string(
+    REGEX
+    REPLACE "^.*ZSTD_VERSION_RELEASE  *([0-9]+).*$"
+            "\\1"
+            ZSTD_PATCH_VERSION
+            "${ZSTD_H}")
   set(ZSTD_VERSION_STRING "${ZSTD_MAJOR_VERSION}.${ZSTD_MINOR_VERSION}.${ZSTD_PATCH_VERSION}")
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ZSTD REQUIRED_VARS ZSTD_LIBRARY ZSTD_INCLUDE_DIR VERSION_VAR ZSTD_VERSION_STRING)
+find_package_handle_standard_args(
+  ZSTD
+  REQUIRED_VARS ZSTD_LIBRARY ZSTD_INCLUDE_DIR
+  VERSION_VAR ZSTD_VERSION_STRING)
 
 if(ZSTD_FOUND)
   set(ZSTD_INCLUDE_DIRS ${ZSTD_INCLUDE_DIR})
@@ -77,12 +104,18 @@ if(ZSTD_FOUND)
     set_target_properties(ZSTD::ZSTD PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_INCLUDE_DIRS}")
 
     if(ZSTD_LIBRARY_RELEASE)
-      set_property(TARGET ZSTD::ZSTD APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+      set_property(
+        TARGET ZSTD::ZSTD
+        APPEND
+        PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
       set_target_properties(ZSTD::ZSTD PROPERTIES IMPORTED_LOCATION_RELEASE "${ZSTD_LIBRARY_RELEASE}")
     endif()
 
     if(ZSTD_LIBRARY_DEBUG)
-      set_property(TARGET ZSTD::ZSTD APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+      set_property(
+        TARGET ZSTD::ZSTD
+        APPEND
+        PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
       set_target_properties(ZSTD::ZSTD PROPERTIES IMPORTED_LOCATION_DEBUG "${ZSTD_LIBRARY_DEBUG}")
     endif()
 

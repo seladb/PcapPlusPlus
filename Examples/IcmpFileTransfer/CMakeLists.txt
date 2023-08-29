@@ -10,7 +10,10 @@ endif()
 set_target_properties(IcmpFileTransfer-catcher PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
 if(PCAPPP_INSTALL)
-  install(TARGETS IcmpFileTransfer-catcher EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(
+    TARGETS IcmpFileTransfer-catcher
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
 endif()
 
 add_executable(IcmpFileTransfer-pitcher Common.cpp IcmpFileTransfer-pitcher.cpp)
@@ -25,5 +28,8 @@ endif()
 set_target_properties(IcmpFileTransfer-pitcher PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
 if(PCAPPP_INSTALL)
-  install(TARGETS IcmpFileTransfer-pitcher EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(
+    TARGETS IcmpFileTransfer-pitcher
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
 endif()

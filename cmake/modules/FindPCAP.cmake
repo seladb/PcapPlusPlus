@@ -30,7 +30,10 @@
 # -DPCAP_ROOT=C:\path\to\packet [...])
 # ~~~
 
-find_path(PCAP_INCLUDE_DIR NAMES pcap/pcap.h pcap.h PATH_SUFFIXES include Include)
+find_path(
+  PCAP_INCLUDE_DIR
+  NAMES pcap/pcap.h pcap.h
+  PATH_SUFFIXES include Include)
 
 # The 64-bit Wpcap.lib is located under /x64
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -47,7 +50,11 @@ endif()
 find_library(PCAP_LIBRARY NAMES pcap wpcap)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(PCAP DEFAULT_MSG PCAP_LIBRARY PCAP_INCLUDE_DIR)
+find_package_handle_standard_args(
+  PCAP
+  DEFAULT_MSG
+  PCAP_LIBRARY
+  PCAP_INCLUDE_DIR)
 
 # If Pcap is not found as this level no need to continue
 if(NOT PCAP_FOUND)
@@ -70,7 +77,9 @@ if(NOT PCAP_LINKS_SOLO)
   if(THREADS_FOUND AND PCAP_NEEDS_THREADS)
     set(_tmp ${PCAP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
     list(REMOVE_DUPLICATES _tmp)
-    set(PCAP_LIBRARY ${_tmp} CACHE STRING "Libraries needed to link against libpcap" FORCE)
+    set(PCAP_LIBRARY
+        ${_tmp}
+        CACHE STRING "Libraries needed to link against libpcap" FORCE)
   else(THREADS_FOUND AND PCAP_NEEDS_THREADS)
     message(FATAL_ERROR "Couldn't determine how to link against libpcap")
   endif(THREADS_FOUND AND PCAP_NEEDS_THREADS)
@@ -85,8 +94,11 @@ set(CMAKE_REQUIRED_LIBRARIES)
 # create IMPORTED target for libpcap dependency
 if(NOT TARGET PCAP::PCAP)
   add_library(PCAP::PCAP IMPORTED SHARED)
-  set_target_properties(PCAP::PCAP PROPERTIES IMPORTED_LOCATION ${PCAP_LIBRARY} IMPORTED_IMPLIB ${PCAP_LIBRARY}
-                                              INTERFACE_INCLUDE_DIRECTORIES ${PCAP_INCLUDE_DIR})
+  set_target_properties(
+    PCAP::PCAP
+    PROPERTIES IMPORTED_LOCATION ${PCAP_LIBRARY}
+               IMPORTED_IMPLIB ${PCAP_LIBRARY}
+               INTERFACE_INCLUDE_DIRECTORIES ${PCAP_INCLUDE_DIR})
 endif()
 
 mark_as_advanced(PCAP_INCLUDE_DIR PCAP_LIBRARY)

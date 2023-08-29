@@ -10,5 +10,8 @@ endif()
 set_target_properties(Arping PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
 if(PCAPPP_INSTALL)
-  install(TARGETS Arping EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(
+    TARGETS Arping
+    EXPORT PcapPlusPlusTargets
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
 endif()
