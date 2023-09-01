@@ -9,3 +9,4 @@ In order to build the application please use the following parameters in CMake c
 
  - `-DPcapPlusPlus_DIR=<PACKAGE_DIR>` - where `PACKAGE_DIR` is PcapPlusPlus release package
  - `-DPCAP_ROOT=<WinPcap_OR_Npcap_DIR>` - ONLY REQUIRED ON WINDOWS, `WinPcap_OR_Npcap_DIR` is WinPcap/Npcap SDK path
+ - `-DPacket_ROOT=<WinPcap_OR_Npcap_DIR>` - ONLY REQUIRED ON WINDOWS, `WinPcap_OR_Npcap_DIR` is WinPcap/Npcap SDK path
