@@ -265,7 +265,7 @@ jobs:
           export PACKAGE_FILE=$(ls ${LOCAL_BUILD_DIR} | grep pcapplusplus)
           export PACKAGE_DIR=$(basename ${PACKAGE_FILE%} .tar.gz)
           export COMBINED_PACKAGE_DIR=$(echo "$PACKAGE_DIR" | cut -f1,2,3 -d'-')
-          
+
           tar -xvf "${LOCAL_BUILD_DIR}/${PACKAGE_FILE}"
           mv "${PACKAGE_DIR}" "${COMBINED_PACKAGE_DIR}"
           find . -name example-app -type d -exec rm -r {} +
