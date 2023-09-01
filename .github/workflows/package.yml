@@ -226,11 +226,17 @@ jobs:
           allowUpdates: true
           artifacts: ${{ env.BUILD_DIR }}/*.zip
 
-  android:
+  android-build:
     strategy:
       matrix:
         include:
-          - targets: "armeabi-v7a x86 arm64-v8a x86_64"
+          - target: "armeabi-v7a"
+            api-version: 30
+          - target: "x86"
+            api-version: 30
+          - target: "arm64-v8a"
+            api-version: 30
+          - target: "x86_64"
             api-version: 30
 
     runs-on: ubuntu-latest
@@ -248,19 +254,50 @@ jobs:
       - name: Configure and Build PcapPlusPlus
         run: |
           LIBPCAP_PATH="$(pwd)/libpcap-android"
-          COMBINE_PACKAGE_DIR="pcapplusplus-22.11+-android"
-          mkdir -p "${COMBINE_PACKAGE_DIR}"
-          for TARGET in ${{ matrix.targets }}; do \
-            export LIB_DIR="${TARGET}/${{ matrix.api-version }}"; \
-            export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"; \
-            cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${TARGET}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${TARGET}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"; \
-            cmake --build "$LOCAL_BUILD_DIR" -j --target package; \
-            tar -xvf ${LOCAL_BUILD_DIR}/*.tar.gz --strip-components=1 --directory "${COMBINE_PACKAGE_DIR}"; \
-          done
-          tar -czvf "${BUILD_DIR}/${COMBINE_PACKAGE_DIR}.tar.gz" -C "${COMBINE_PACKAGE_DIR}" .
+          export LIB_DIR="${{ matrix.target }}/${{ matrix.api-version }}"
+          export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"
+          cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version }}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"
+          cmake --build "$LOCAL_BUILD_DIR" -j --target package
 
+      - name: Prepare package
+        run: |
+          export LOCAL_BUILD_DIR="${BUILD_DIR}/${{ matrix.target }}/${{ matrix.api-version }}"
+          export PACKAGE_FILE=$(ls ${LOCAL_BUILD_DIR} | grep pcapplusplus)
+          export PACKAGE_DIR=$(basename ${PACKAGE_FILE%} .tar.gz)
+          export COMBINED_PACKAGE_DIR=$(echo "$PACKAGE_DIR" | cut -f1,2,3 -d'-')
+          
+          tar -xvf "${LOCAL_BUILD_DIR}/${PACKAGE_FILE}"
+          mv "${PACKAGE_DIR}" "${COMBINED_PACKAGE_DIR}"
+          find . -name example-app -type d -exec rm -r {} +
+          find . -name cmake -type d -exec rm -r {} +
+          find . -name pkgconfig -type d -exec rm -r {} +
+          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* ${COMBINED_PACKAGE_DIR}/include/
+          rmdir ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/
+          mkdir -p android-package
+          mv ${COMBINED_PACKAGE_DIR} android-package
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: android-package
+          if-no-files-found: error
+          path: android-package
+
+  android-package:
+    needs: android-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: android-package
+
+      - name: Package into archive
+        run: |
+          export PACKAGE_DIR=$(ls | grep pcapplusplus)
+          echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
+          tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
       - name: Upload binaries to release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: ${{ env.PACKAGE_DIR }}.tar.gz
