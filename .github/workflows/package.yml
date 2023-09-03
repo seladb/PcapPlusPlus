@@ -90,20 +90,17 @@ jobs:
           artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
 
   macos:
-    runs-on: ${{ matrix.os-version }}
+    runs-on: macos-12
     strategy:
       matrix:
-        os-version: [macos-11, macos-12]
+        xcode-version: [14.2.0, 13.4.1]
         arch: [x86_64, arm64]
-        # Handle ZSTD build by Cirrus CI
-        # config-zstd: [ON, OFF]
-        config-zstd: [OFF]
-        exclude:
-          # excludes ZSTD on Arm64
-          - arch: arm64
-            config-zstd: ON
 
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "${{ matrix.xcode-version }}"
+
       - name: Checkout code
         uses: actions/checkout@v3
 
