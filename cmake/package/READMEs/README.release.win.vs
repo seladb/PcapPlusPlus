@@ -33,7 +33,7 @@ In order to compile your application with these binaries you need to:
  - Make sure you have WinPcap or Npcap Developer's pack installed (WinPcap Dev Pack can be downloaded from https://www.winpcap.org/devel.htm, Npcap SDK can be downloaded from https://nmap.org/npcap/#download)
  - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>`, `PCAP_ROOT=<WinPcap_OR_Npcap_DIR>` and `Packet_ROOT=<WinPcap_OR_Npcap_DIR>``
    when running CMake. For example: if you downloaded the package for VS 2019, x64 and Release, you need to run the following commands:
-   - `cmake -A x64 -G "Visual Studio 16 2019" -DPcapPlusPlus_ROOT=<PACKAGE_DIR> -DPCAP_ROOT=<WinPcap_OR_Npcap_DIR> -DPacket_ROOT=<WinPcap_OR_Npcap_DIR> -S . -B build`
+   - `cmake -A x64 -G "Visual Studio 16 2019"  -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR> -DPCAP_ROOT=<WinPcap_OR_Npcap_DIR> -DPacket_ROOT=<WinPcap_OR_Npcap_DIR>`
    - `cmake --build build --config Release`
 
 
