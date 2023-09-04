@@ -21,9 +21,13 @@ include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
 include(PcapPlusPlusUtils)
 include(GNUInstallDirs)
+include(TargetArch)
 
 # Setup CMake
 pcapp_detect_compiler(PCAPPP_TARGET)
+
+# Get architecture
+target_architecture(PCAPP_TARGET_ARCHITECTURE)
 
 # LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
 if(UNIX
@@ -354,7 +358,8 @@ if(PCAPPP_PACKAGE)
   elseif(MINGW)
     # Check MinGW before WIN32 as MinGW defines both
     set(CPACK_GENERATOR "ZIP")
-    set(CPACK_SYSTEM_NAME "windows-mingw64-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}")
+    set(CPACK_SYSTEM_NAME
+        "windows-mingw64-${PCAPP_TARGET_ARCHITECTURE}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}")
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.win.mingw")
   elseif(WIN32)
     set(CPACK_GENERATOR "ZIP")
