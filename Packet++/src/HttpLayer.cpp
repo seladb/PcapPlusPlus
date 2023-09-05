@@ -448,259 +448,225 @@ void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
 
 // -------- Class HttpResponseLayer -----------------
 
-
-
-const std::string StatusCodeEnumToString[80] = {
-		"Continue",
-		"Switching Protocols",
-		"Processing",
-		"OK",
-		"Created",
-		"Accepted",
-		"Non-Authoritative Information",
-		"No Content",
-		"Reset Content",
-		"Partial Content",
-		"Multi-Status",
-		"Already Reported",
-		"IM Used",
-		"Multiple Choices",
-		"Moved Permanently",
-		"Found",
-		"See Other",
-		"Not Modified",
-		"Use Proxy",
-		"Switch Proxy",
-		"Temporary Redirect",
-		"Permanent Redirect",
-		"Bad Request",
-		"Unauthorized",
-		"Payment Required",
-		"Forbidden",
-		"Not Found",
-		"Method Not Allowed",
-		"Not Acceptable",
-		"Proxy Authentication Required",
-		"Request Timeout",
-		"Conflict",
-		"Gone",
-		"Length Required",
-		"Precondition Failed",
-		"Request Entity Too Large",
-		"Request-URI Too Long",
-		"Unsupported Media Type",
-		"Requested Range Not Satisfiable",
-		"Expectation Failed",
-		"I'm a teapot",
-		"Authentication Timeout",
-		"Method Failure",
-		"Unprocessable Entity",
-		"Locked",
-		"Failed Dependency",
-		"Upgrade Required",
-		"Precondition Required",
-		"Too Many Requests",
-		"Request Header Fields Too Large",
-		"Login Timeout",
-		"No Response",
-		"Retry With",
-		"Blocked by Windows Parental Controls",
-		"Unavailable For Legal Reasons",
-		"Request Header Too Large",
-		"Cert Error",
-		"No Cert",
-		"HTTP to HTTPS",
-		"Token expired/invalid",
-		"Client Closed Request",
-		"Internal Server Error",
-		"Not Implemented",
-		"Bad Gateway",
-		"Service Unavailable",
-		"Gateway Timeout",
-		"HTTP Version Not Supported",
-		"Variant Also Negotiates",
-		"Insufficient Storage",
-		"Loop Detected",
-		"Bandwidth Limit Exceeded",
-		"Not Extended",
-		"Network Authentication Required",
-		"Origin Error",
-		"Web server is down",
-		"Connection timed out",
-		"Proxy Declined Request",
-		"A timeout occurred",
-		"Network read timeout error",
-		"Network connect timeout error"
+static const std::unordered_map<int, HttpResponseStatusCode> intStatusCodeMap = {
+	{100, HttpResponseStatusCode::Http100Continue},
+	{101, HttpResponseStatusCode::Http101SwitchingProtocols},
+	{102, HttpResponseStatusCode::Http102Processing},
+	{103, HttpResponseStatusCode::Http103EarlyHints},
+	{200, HttpResponseStatusCode::Http200OK},
+	{201, HttpResponseStatusCode::Http201Created},
+	{202, HttpResponseStatusCode::Http202Accepted},
+	{203, HttpResponseStatusCode::Http203NonAuthoritativeInformation},
+	{204, HttpResponseStatusCode::Http204NoContent},
+	{205, HttpResponseStatusCode::Http205ResetContent},
+	{206, HttpResponseStatusCode::Http206PartialContent},
+	{207, HttpResponseStatusCode::Http207MultiStatus},
+	{208, HttpResponseStatusCode::Http208AlreadyReported},
+	{226, HttpResponseStatusCode::Http226IMUsed},
+	{300, HttpResponseStatusCode::Http300MultipleChoices},
+	{301, HttpResponseStatusCode::Http301MovedPermanently},
+	{302, HttpResponseStatusCode::Http302},
+	{303, HttpResponseStatusCode::Http303SeeOther},
+	{304, HttpResponseStatusCode::Http304NotModified},
+	{305, HttpResponseStatusCode::Http305UseProxy},
+	{306, HttpResponseStatusCode::Http306SwitchProxy},
+	{307, HttpResponseStatusCode::Http307TemporaryRedirect},
+	{308, HttpResponseStatusCode::Http308PermanentRedirect},
+	{400, HttpResponseStatusCode::Http400BadRequest},
+	{401, HttpResponseStatusCode::Http401Unauthorized},
+	{402, HttpResponseStatusCode::Http402PaymentRequired},
+	{403, HttpResponseStatusCode::Http403Forbidden},
+	{404, HttpResponseStatusCode::Http404NotFound},
+	{405, HttpResponseStatusCode::Http405MethodNotAllowed},
+	{406, HttpResponseStatusCode::Http406NotAcceptable},
+	{407, HttpResponseStatusCode::Http407ProxyAuthenticationRequired},
+	{408, HttpResponseStatusCode::Http408RequestTimeout},
+	{409, HttpResponseStatusCode::Http409Conflict},
+	{410, HttpResponseStatusCode::Http410Gone},
+	{411, HttpResponseStatusCode::Http411LengthRequired},
+	{412, HttpResponseStatusCode::Http412PreconditionFailed},
+	{413, HttpResponseStatusCode::Http413RequestEntityTooLarge},
+	{414, HttpResponseStatusCode::Http414RequestURITooLong},
+	{415, HttpResponseStatusCode::Http415UnsupportedMediaType},
+	{416, HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable},
+	{417, HttpResponseStatusCode::Http417ExpectationFailed},
+	{418, HttpResponseStatusCode::Http418ImATeapot},
+	{419, HttpResponseStatusCode::Http419AuthenticationTimeout},
+	{420, HttpResponseStatusCode::Http420},
+	{421, HttpResponseStatusCode::Http421MisdirectedRequest},
+	{422, HttpResponseStatusCode::Http422UnprocessableEntity},
+	{423, HttpResponseStatusCode::Http423Locked},
+	{424, HttpResponseStatusCode::Http424FailedDependency},
+	{425, HttpResponseStatusCode::Http425TooEarly},
+	{426, HttpResponseStatusCode::Http426UpgradeRequired},
+	{428, HttpResponseStatusCode::Http428PreconditionRequired},
+	{429, HttpResponseStatusCode::Http429TooManyRequests},
+	{431, HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge},
+	{440, HttpResponseStatusCode::Http440LoginTimeout},
+	{444, HttpResponseStatusCode::Http444NoResponse},
+	{449, HttpResponseStatusCode::Http449RetryWith},
+	{450, HttpResponseStatusCode::Http450BlockedByWindowsParentalControls},
+	{451, HttpResponseStatusCode::Http451},
+	{494, HttpResponseStatusCode::Http494RequestHeaderTooLarge},
+	{495, HttpResponseStatusCode::Http495CertError},
+	{496, HttpResponseStatusCode::Http496NoCert},
+	{497, HttpResponseStatusCode::Http497HTTPtoHTTPS},
+	{498, HttpResponseStatusCode::Http498TokenExpiredInvalid},
+	{499, HttpResponseStatusCode::Http499},
+	{500, HttpResponseStatusCode::Http500InternalServerError},
+	{501, HttpResponseStatusCode::Http501NotImplemented},
+	{502, HttpResponseStatusCode::Http502BadGateway},
+	{503, HttpResponseStatusCode::Http503ServiceUnavailable},
+	{504, HttpResponseStatusCode::Http504GatewayTimeout},
+	{505, HttpResponseStatusCode::Http505HTTPVersionNotSupported},
+	{506, HttpResponseStatusCode::Http506VariantAlsoNegotiates},
+	{507, HttpResponseStatusCode::Http507InsufficientStorage},
+	{508, HttpResponseStatusCode::Http508LoopDetected},
+	{509, HttpResponseStatusCode::Http509BandwidthLimitExceeded},
+	{510, HttpResponseStatusCode::Http510NotExtended},
+	{511, HttpResponseStatusCode::Http511NetworkAuthenticationRequired},
+	{520, HttpResponseStatusCode::Http520OriginError},
+	{521, HttpResponseStatusCode::Http521WebServerIsDown},
+	{522, HttpResponseStatusCode::Http522ConnectionTimedOut},
+	{523, HttpResponseStatusCode::Http523ProxyDeclinedRequest},
+	{524, HttpResponseStatusCode::Http524aTimeoutOccurred},
+	{598, HttpResponseStatusCode::Http598NetworkReadTimeoutError},
+	{599, HttpResponseStatusCode::Http599NetworkConnectTimeoutError},
 };
 
+HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber)
+{
+	if(intStatusCodeMap.find(statusCodeNumber) != intStatusCodeMap.end())
+	{
+		m_Value = intStatusCodeMap.at(statusCodeNumber);
+		return;
+	}
 
-const int StatusCodeEnumToInt[80] = {
-		100,
-		101,
-		102,
-		200,
-		201,
-		202,
-		203,
-		204,
-		205,
-		206,
-		207,
-		208,
-		226,
-		300,
-		301,
-		302,
-		303,
-		304,
-		305,
-		306,
-		307,
-		308,
-		400,
-		401,
-		402,
-		403,
-		404,
-		405,
-		406,
-		407,
-		408,
-		409,
-		410,
-		411,
-		412,
-		413,
-		414,
-		415,
-		416,
-		417,
-		418,
-		419,
-		420,
-		422,
-		423,
-		424,
-		426,
-		428,
-		429,
-		431,
-		440,
-		444,
-		449,
-		450,
-		451,
-		494,
-		495,
-		496,
-		497,
-		498,
-		499,
-		500,
-		501,
-		502,
-		503,
-		504,
-		505,
-		506,
-		507,
-		508,
-		509,
-		510,
-		511,
-		520,
-		521,
-		522,
-		523,
-		524,
-		598,
-		599
+	if(statusCodeNumber >= 100 && statusCodeNumber <= 199)
+	{
+		m_Value = HttpResponseStatusCode::HttpStatus1xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 200 && statusCodeNumber <= 299)
+	{
+		m_Value = HttpResponseStatusCode::HttpStatus2xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 300 && statusCodeNumber <= 399)
+	{
+		m_Value = HttpResponseStatusCode::HttpStatus3xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 400 && statusCodeNumber <= 499)
+	{
+		m_Value = HttpResponseStatusCode::HttpStatus4xxCodeUnknown;
+	}
+	else if (statusCodeNumber >= 500 && statusCodeNumber <= 599)
+	{
+		m_Value = HttpResponseStatusCode::HttpStatus5xxCodeUnknown;
+	}
+}
+
+/**
+ * @struct HttpResponseStatusCodeHash
+ * @brief The helper structure for hash HttpResponseStatusCode while using std::unordered_map
+ */
+struct HttpResponseStatusCodeHash
+{
+	size_t operator()(const HttpResponseStatusCode& status) const
+	{
+		return static_cast<int>(status);
+	}
 };
 
-const std::unordered_map<std::string, HttpResponseLayer::HttpResponseStatusCode> StatusCodeStringToEnumMap {
-	{"100", HttpResponseLayer::HttpResponseStatusCode::Http100Continue },
-	{"101", HttpResponseLayer::HttpResponseStatusCode::Http101SwitchingProtocols },
-	{"102", HttpResponseLayer::HttpResponseStatusCode::Http102Processing },
-	{"200", HttpResponseLayer::HttpResponseStatusCode::Http200OK },
-	{"201", HttpResponseLayer::HttpResponseStatusCode::Http201Created },
-	{"202", HttpResponseLayer::HttpResponseStatusCode::Http202Accepted },
-	{"203", HttpResponseLayer::HttpResponseStatusCode::Http203NonAuthoritativeInformation },
-	{"204", HttpResponseLayer::HttpResponseStatusCode::Http204NoContent },
-	{"205", HttpResponseLayer::HttpResponseStatusCode::Http205ResetContent },
-	{"206", HttpResponseLayer::HttpResponseStatusCode::Http206PartialContent },
-	{"207", HttpResponseLayer::HttpResponseStatusCode::Http207MultiStatus },
-	{"208", HttpResponseLayer::HttpResponseStatusCode::Http208AlreadyReported },
-	{"226", HttpResponseLayer::HttpResponseStatusCode::Http226IMUsed },
-	{"300", HttpResponseLayer::HttpResponseStatusCode::Http300MultipleChoices },
-	{"301", HttpResponseLayer::HttpResponseStatusCode::Http301MovedPermanently },
-	{"302", HttpResponseLayer::HttpResponseStatusCode::Http302 },
-	{"303", HttpResponseLayer::HttpResponseStatusCode::Http303SeeOther },
-	{"304", HttpResponseLayer::HttpResponseStatusCode::Http304NotModified },
-	{"305", HttpResponseLayer::HttpResponseStatusCode::Http305UseProxy },
-	{"306", HttpResponseLayer::HttpResponseStatusCode::Http306SwitchProxy },
-	{"307", HttpResponseLayer::HttpResponseStatusCode::Http307TemporaryRedirect },
-	{"308", HttpResponseLayer::HttpResponseStatusCode::Http308PermanentRedirect },
-	{"400", HttpResponseLayer::HttpResponseStatusCode::Http400BadRequest },
-	{"401", HttpResponseLayer::HttpResponseStatusCode::Http401Unauthorized },
-	{"402", HttpResponseLayer::HttpResponseStatusCode::Http402PaymentRequired },
-	{"403", HttpResponseLayer::HttpResponseStatusCode::Http403Forbidden },
-	{"404", HttpResponseLayer::HttpResponseStatusCode::Http404NotFound },
-	{"405", HttpResponseLayer::HttpResponseStatusCode::Http405MethodNotAllowed },
-	{"406", HttpResponseLayer::HttpResponseStatusCode::Http406NotAcceptable },
-	{"407", HttpResponseLayer::HttpResponseStatusCode::Http407ProxyAuthenticationRequired },
-	{"408", HttpResponseLayer::HttpResponseStatusCode::Http408RequestTimeout },
-	{"409", HttpResponseLayer::HttpResponseStatusCode::Http409Conflict },
-	{"410", HttpResponseLayer::HttpResponseStatusCode::Http410Gone },
-	{"411", HttpResponseLayer::HttpResponseStatusCode::Http411LengthRequired },
-	{"412", HttpResponseLayer::HttpResponseStatusCode::Http412PreconditionFailed },
-	{"413", HttpResponseLayer::HttpResponseStatusCode::Http413RequestEntityTooLarge },
-	{"414", HttpResponseLayer::HttpResponseStatusCode::Http414RequestURITooLong },
-	{"415", HttpResponseLayer::HttpResponseStatusCode::Http415UnsupportedMediaType },
-	{"416", HttpResponseLayer::HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable },
-	{"417", HttpResponseLayer::HttpResponseStatusCode::Http417ExpectationFailed },
-	{"418", HttpResponseLayer::HttpResponseStatusCode::Http418ImATeapot },
-	{"419", HttpResponseLayer::HttpResponseStatusCode::Http419AuthenticationTimeout },
-	{"420", HttpResponseLayer::HttpResponseStatusCode::Http420 },
-	{"422", HttpResponseLayer::HttpResponseStatusCode::Http422UnprocessableEntity },
-	{"423", HttpResponseLayer::HttpResponseStatusCode::Http423Locked },
-	{"424", HttpResponseLayer::HttpResponseStatusCode::Http424FailedDependency },
-	{"426", HttpResponseLayer::HttpResponseStatusCode::Http426UpgradeRequired },
-	{"428", HttpResponseLayer::HttpResponseStatusCode::Http428PreconditionRequired },
-	{"429", HttpResponseLayer::HttpResponseStatusCode::Http429TooManyRequests },
-	{"431", HttpResponseLayer::HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge },
-	{"440", HttpResponseLayer::HttpResponseStatusCode::Http440LoginTimeout },
-	{"444", HttpResponseLayer::HttpResponseStatusCode::Http444NoResponse },
-	{"449", HttpResponseLayer::HttpResponseStatusCode::Http449RetryWith },
-	{"450", HttpResponseLayer::HttpResponseStatusCode::Http450BlockedByWindowsParentalControls },
-	{"451", HttpResponseLayer::HttpResponseStatusCode::Http451 },
-	{"494", HttpResponseLayer::HttpResponseStatusCode::Http494RequestHeaderTooLarge },
-	{"495", HttpResponseLayer::HttpResponseStatusCode::Http495CertError },
-	{"496", HttpResponseLayer::HttpResponseStatusCode::Http496NoCert },
-	{"497", HttpResponseLayer::HttpResponseStatusCode::Http497HTTPtoHTTPS },
-	{"498", HttpResponseLayer::HttpResponseStatusCode::Http498TokenExpiredInvalid },
-	{"499", HttpResponseLayer::HttpResponseStatusCode::Http499 },
-	{"500", HttpResponseLayer::HttpResponseStatusCode::Http500InternalServerError },
-	{"501", HttpResponseLayer::HttpResponseStatusCode::Http501NotImplemented },
-	{"502", HttpResponseLayer::HttpResponseStatusCode::Http502BadGateway },
-	{"503", HttpResponseLayer::HttpResponseStatusCode::Http503ServiceUnavailable },
-	{"504", HttpResponseLayer::HttpResponseStatusCode::Http504GatewayTimeout },
-	{"505", HttpResponseLayer::HttpResponseStatusCode::Http505HTTPVersionNotSupported },
-	{"506", HttpResponseLayer::HttpResponseStatusCode::Http506VariantAlsoNegotiates },
-	{"507", HttpResponseLayer::HttpResponseStatusCode::Http507InsufficientStorage },
-	{"508", HttpResponseLayer::HttpResponseStatusCode::Http508LoopDetected },
-	{"509", HttpResponseLayer::HttpResponseStatusCode::Http509BandwidthLimitExceeded },
-	{"510", HttpResponseLayer::HttpResponseStatusCode::Http510NotExtended },
-	{"511", HttpResponseLayer::HttpResponseStatusCode::Http511NetworkAuthenticationRequired },
-	{"520", HttpResponseLayer::HttpResponseStatusCode::Http520OriginError },
-	{"521", HttpResponseLayer::HttpResponseStatusCode::Http521WebServerIsDown },
-	{"522", HttpResponseLayer::HttpResponseStatusCode::Http522ConnectionTimedOut },
-	{"523", HttpResponseLayer::HttpResponseStatusCode::Http523ProxyDeclinedRequest },
-	{"524", HttpResponseLayer::HttpResponseStatusCode::Http524aTimeoutOccurred },
-	{"598", HttpResponseLayer::HttpResponseStatusCode::Http598NetworkReadTimeoutError },
-	{"599", HttpResponseLayer::HttpResponseStatusCode::Http599NetworkConnectTimeoutError }
+static const std::unordered_map<HttpResponseStatusCode, std::string, HttpResponseStatusCodeHash> statusCodeExplanationStringMap = {
+    {HttpResponseStatusCode::Http100Continue, "Continue"},
+    {HttpResponseStatusCode::Http101SwitchingProtocols, "Switching Protocols"},
+    {HttpResponseStatusCode::Http102Processing, "Processing"},
+    {HttpResponseStatusCode::Http103EarlyHints, "Early Hints"},
+    {HttpResponseStatusCode::Http200OK, "OK"},
+    {HttpResponseStatusCode::Http201Created, "Created"},
+    {HttpResponseStatusCode::Http202Accepted, "Accepted"},
+    {HttpResponseStatusCode::Http203NonAuthoritativeInformation, "Non-Authoritative Information"},
+    {HttpResponseStatusCode::Http204NoContent, "No Content"},
+    {HttpResponseStatusCode::Http205ResetContent, "Reset Content"},
+    {HttpResponseStatusCode::Http206PartialContent, "Partial Content"},
+    {HttpResponseStatusCode::Http207MultiStatus, "Multi-Status"},
+    {HttpResponseStatusCode::Http208AlreadyReported, "Already Reported"},
+    {HttpResponseStatusCode::Http226IMUsed, "IM Used"},
+    {HttpResponseStatusCode::Http300MultipleChoices, "Multiple Choices"},
+    {HttpResponseStatusCode::Http301MovedPermanently, "Moved Permanently"},
+    {HttpResponseStatusCode::Http302, "(various messages)"},
+    {HttpResponseStatusCode::Http303SeeOther, "See Other"},
+    {HttpResponseStatusCode::Http304NotModified, "Not Modified"},
+    {HttpResponseStatusCode::Http305UseProxy, "Use Proxy"},
+    {HttpResponseStatusCode::Http306SwitchProxy, "Switch Proxy"},
+    {HttpResponseStatusCode::Http307TemporaryRedirect, "Temporary Redirect"},
+    {HttpResponseStatusCode::Http308PermanentRedirect, "Permanent Redirect"},
+    {HttpResponseStatusCode::Http400BadRequest, "Bad Request"},
+    {HttpResponseStatusCode::Http401Unauthorized, "Unauthorized"},
+    {HttpResponseStatusCode::Http402PaymentRequired, "Payment Required"},
+    {HttpResponseStatusCode::Http403Forbidden, "Forbidden"},
+    {HttpResponseStatusCode::Http404NotFound, "Not Found"},
+    {HttpResponseStatusCode::Http405MethodNotAllowed, "Method Not Allowed"},
+    {HttpResponseStatusCode::Http406NotAcceptable, "Not Acceptable"},
+    {HttpResponseStatusCode::Http407ProxyAuthenticationRequired, "Proxy Authentication Required"},
+    {HttpResponseStatusCode::Http408RequestTimeout, "Request Timeout"},
+    {HttpResponseStatusCode::Http409Conflict, "Conflict"},
+    {HttpResponseStatusCode::Http410Gone, "Gone"},
+    {HttpResponseStatusCode::Http411LengthRequired, "Length Required"},
+    {HttpResponseStatusCode::Http412PreconditionFailed, "Precondition Failed"},
+    {HttpResponseStatusCode::Http413RequestEntityTooLarge, "Request Entity Too Large"},
+    {HttpResponseStatusCode::Http414RequestURITooLong, "Request-URI Too Long"},
+    {HttpResponseStatusCode::Http415UnsupportedMediaType, "Unsupported Media Type"},
+    {HttpResponseStatusCode::Http416RequestedRangeNotSatisfiable, "Requested Range Not Satisfiable"},
+    {HttpResponseStatusCode::Http417ExpectationFailed, "Expectation Failed"},
+    {HttpResponseStatusCode::Http418ImATeapot, "I'm a teapot"},
+    {HttpResponseStatusCode::Http419AuthenticationTimeout, "Authentication Timeout"},
+    {HttpResponseStatusCode::Http420, "(various messages)"},
+    {HttpResponseStatusCode::Http421MisdirectedRequest, "Misdirected Request"},
+    {HttpResponseStatusCode::Http422UnprocessableEntity, "Unprocessable Entity"},
+    {HttpResponseStatusCode::Http423Locked, "Locked"},
+    {HttpResponseStatusCode::Http424FailedDependency, "Failed Dependency"},
+    {HttpResponseStatusCode::Http425TooEarly, "Too Early"},
+    {HttpResponseStatusCode::Http426UpgradeRequired, "Upgrade Required"},
+    {HttpResponseStatusCode::Http428PreconditionRequired, "Precondition Required"},
+    {HttpResponseStatusCode::Http429TooManyRequests, "Too Many Requests"},
+    {HttpResponseStatusCode::Http431RequestHeaderFieldsTooLarge, "Request Header Fields Too Large"},
+    {HttpResponseStatusCode::Http440LoginTimeout, "Login Timeout"},
+    {HttpResponseStatusCode::Http444NoResponse, "No Response"},
+    {HttpResponseStatusCode::Http449RetryWith, "Retry With"},
+    {HttpResponseStatusCode::Http450BlockedByWindowsParentalControls, "Blocked by Windows Parental Controls"},
+    {HttpResponseStatusCode::Http451, "(various messages)"},
+    {HttpResponseStatusCode::Http494RequestHeaderTooLarge, "Request Header Too Large"},
+    {HttpResponseStatusCode::Http495CertError, "Cert Error"},
+    {HttpResponseStatusCode::Http496NoCert, "No Cert"},
+    {HttpResponseStatusCode::Http497HTTPtoHTTPS, "HTTP to HTTPS"},
+    {HttpResponseStatusCode::Http498TokenExpiredInvalid, "Token expired/invalid"},
+    {HttpResponseStatusCode::Http499, "(various messages)"},
+    {HttpResponseStatusCode::Http500InternalServerError, "Internal Server Error"},
+    {HttpResponseStatusCode::Http501NotImplemented, "Not Implemented"},
+    {HttpResponseStatusCode::Http502BadGateway, "Bad Gateway"},
+    {HttpResponseStatusCode::Http503ServiceUnavailable, "Service Unavailable"},
+    {HttpResponseStatusCode::Http504GatewayTimeout, "Gateway Timeout"},
+    {HttpResponseStatusCode::Http505HTTPVersionNotSupported, "HTTP Version Not Supported"},
+    {HttpResponseStatusCode::Http506VariantAlsoNegotiates, "Variant Also Negotiates"},
+    {HttpResponseStatusCode::Http507InsufficientStorage, "Insufficient Storage"},
+    {HttpResponseStatusCode::Http508LoopDetected, "Loop Detected"},
+    {HttpResponseStatusCode::Http509BandwidthLimitExceeded, "Bandwidth Limit Exceeded"},
+    {HttpResponseStatusCode::Http510NotExtended, "Not Extended"},
+    {HttpResponseStatusCode::Http511NetworkAuthenticationRequired, "Network Authentication Required"},
+    {HttpResponseStatusCode::Http520OriginError, "Origin Error"},
+    {HttpResponseStatusCode::Http521WebServerIsDown, "Web server is down"},
+    {HttpResponseStatusCode::Http522ConnectionTimedOut, "Connection timed out"},
+    {HttpResponseStatusCode::Http523ProxyDeclinedRequest, "Proxy Declined Request"},
+    {HttpResponseStatusCode::Http524aTimeoutOccurred, "A timeout occurred"},
+    {HttpResponseStatusCode::Http598NetworkReadTimeoutError, "Network read timeout error"},
+    {HttpResponseStatusCode::Http599NetworkConnectTimeoutError, "Network connect timeout error"},
+    {HttpResponseStatusCode::HttpStatus1xxCodeUnknown, "1XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus2xxCodeUnknown, "2XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus3xxCodeUnknown, "3XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus4xxCodeUnknown, "4XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatus5xxCodeUnknown, "5XX Status Code Unknown"},
+    {HttpResponseStatusCode::HttpStatusCodeUnknown, "Status Code Unknown"},
 };
-
-
 
 HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)  : HttpMessage(data, dataLen, prevLayer, packet)
 {
@@ -710,7 +676,7 @@ HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevL
 	parseFields();
 }
 
-HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString)
+HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
 	m_Protocol = HTTPResponse;
 	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, std::move(statusCodeString));
@@ -796,26 +762,19 @@ std::string HttpResponseLayer::toString() const
 }
 
 
-
-
-
-
-
-
 // -------- Class HttpResponseFirstLine -----------------
-
 
 
 int HttpResponseFirstLine::getStatusCodeAsInt() const
 {
-	return StatusCodeEnumToInt[m_StatusCode];
+	return m_StatusCode.toInt();
 }
 
 std::string HttpResponseFirstLine::getStatusCodeString() const
 {
 	std::string result;
 	const int statusStringOffset = 13;
-	if (m_StatusCode != HttpResponseLayer::HttpStatusCodeUnknown)
+	if (!m_StatusCode.isUnsupportedCode())
 	{
 		int statusStringEndOffset = m_FirstLineEndOffset - 2;
 		if ((*(m_HttpResponse->m_Data + statusStringEndOffset)) != '\r')
@@ -828,11 +787,11 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 	return result;
 }
 
-bool HttpResponseFirstLine::setStatusCode(HttpResponseLayer::HttpResponseStatusCode newStatusCode, std::string statusCodeString)
+bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString)
 {
-	if (newStatusCode == HttpResponseLayer::HttpStatusCodeUnknown)
+	if (newStatusCode.isUnsupportedCode())
 	{
-		PCPP_LOG_ERROR("Requested status code is HttpStatusCodeUnknown");
+		PCPP_LOG_ERROR("Requested status code is " << newStatusCode.toString() << ":" << statusCodeExplanationStringMap.at(newStatusCode));
 		return false;
 	}
 
@@ -840,7 +799,7 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseLayer::HttpResponseStatusC
 
 	size_t statusStringOffset = 13;
 	if (statusCodeString == "")
-		statusCodeString = StatusCodeEnumToString[newStatusCode];
+		statusCodeString = statusCodeExplanationStringMap.at(newStatusCode);
 	int lengthDifference = statusCodeString.length() - getStatusCodeString().length();
 	if (lengthDifference > 0)
 	{
@@ -867,9 +826,7 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseLayer::HttpResponseStatusC
 	memcpy(m_HttpResponse->m_Data+statusStringOffset, statusCodeString.c_str(), statusCodeString.length());
 
 	// change status code
-	std::ostringstream statusCodeAsString;
-	statusCodeAsString << StatusCodeEnumToInt[newStatusCode];
-	memcpy(m_HttpResponse->m_Data+9, statusCodeAsString.str().c_str(), 3);
+	memcpy(m_HttpResponse->m_Data+9, newStatusCode.toString().c_str(), 3);
 
 	m_StatusCode = newStatusCode;
 
@@ -890,22 +847,22 @@ void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 	m_Version = newVersion;
 }
 
-HttpResponseLayer::HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
+HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
 {
 	// minimum data should be 12B long: "HTTP/x.y XXX"
 	if (!data || dataLen < 12)
 	{
-		return HttpResponseLayer::HttpStatusCodeUnknown;
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
-	const char* statusCodeData = data + 9;
+	std::string codeString = std::string(data + 9, 3);
 
-	auto codeAsEnum = StatusCodeStringToEnumMap.find(std::string(statusCodeData, 3));
-	if (codeAsEnum == StatusCodeStringToEnumMap.end())
+	if(codeString.empty() || (std::find_if(codeString.begin(), codeString.end(), [](unsigned char c){ return !std::isdigit(c); }) != codeString.end()))
 	{
-		return HttpResponseLayer::HttpStatusCodeUnknown;
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
-	return codeAsEnum->second;
+
+	return HttpResponseStatusCode(std::stoi(codeString));
 }
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : m_HttpResponse(httpResponse)
@@ -913,7 +870,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	m_Version = parseVersion((char*)m_HttpResponse->m_Data, m_HttpResponse->getDataLen());
 	if (m_Version == HttpVersionUnknown)
 	{
-		m_StatusCode = HttpResponseLayer::HttpStatusCodeUnknown;
+		m_StatusCode = HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 	else
 	{
@@ -936,17 +893,17 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 	if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
 	{
 		std::string version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
-		int statusCode = (m_StatusCode == HttpResponseLayer::HttpStatusCodeUnknown ? 0 : StatusCodeEnumToInt[m_StatusCode]);
+		int statusCode = (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeUnknown ? 0 : m_StatusCode.toInt());
 		PCPP_LOG_DEBUG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString() << "'");
 	}
 }
 
 
-HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseLayer::HttpResponseStatusCode statusCode, std::string statusCodeString)
+HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString)
 {
-	if (statusCode == HttpResponseLayer::HttpStatusCodeUnknown)
+	if (statusCode.isUnsupportedCode())
 	{
-		m_Exception.setMessage("Status code supplied was HttpStatusCodeUnknown");
+		m_Exception.setMessage("Status code supplied was " + statusCodeExplanationStringMap.at(statusCode));
 		throw m_Exception;
 	}
 
@@ -961,11 +918,10 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 	m_StatusCode = statusCode;
 	m_Version = version;
 
-	std::ostringstream statusCodeAsString;
-	statusCodeAsString << StatusCodeEnumToInt[m_StatusCode];
-	if (statusCodeString == "")
-		statusCodeString = StatusCodeEnumToString[m_StatusCode];
-	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + statusCodeAsString.str() + " " +  statusCodeString +  "\r\n";
+	if(statusCodeString == "") {
+		statusCodeString = statusCodeExplanationStringMap.at(m_StatusCode);
+	}
+	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +  statusCodeString +  "\r\n";
 
 	m_FirstLineEndOffset = firstLine.length();
 

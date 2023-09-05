@@ -29,20 +29,6 @@ namespace pcpp
 
 	std::string S7commLayer::toString() const
 	{
-		//        std::ostringstream msgTypeStream;
-		//        msgTypeStream << getMsgType();
-		//        std::ostringstream pduRefStream;
-		//        pduRefStream << getPduRef();
-		//        std::ostringstream paramLengthStream;
-		//        paramLengthStream << getParamLength();
-		//        std::ostringstream dataLengthStream;
-		//        dataLengthStream << getDataLength();
-
-		//        return "S7comm Layer, msg_type: " + msgTypeStream.str() +
-		//               ", pdu_ref: " + pduRefStream.str() +
-		//               ", param_length: " + paramLengthStream.str() +
-		//               ", data_length: " + dataLengthStream.str();
-
 		std::ostringstream str;
 		str << "S7comm Layer, "
 			<< "msg_type: " << std::to_string(getMsgType())
