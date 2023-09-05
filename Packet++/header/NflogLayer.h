@@ -3,6 +3,7 @@
 
 #include "Layer.h"
 #include "TLVData.h"
+#include "GeneralUtils.h"
 
 /// @file
 
@@ -101,7 +102,11 @@ namespace pcpp
 		/**
 		 * @return recordLen attribute in NflogTLVRawData
 		 */
-		size_t getTotalSize() const { return m_Data->recordLen; }
+		size_t getTotalSize() const
+		{
+			// as in https://github.com/the-tcpdump-group/libpcap/blob/766b607d60d8038087b49fc4cf433dac3dcdb49c/pcap-util.c#L371-L374
+			return align<4>(m_Data->recordLen);
+		}
 
 		/**
 		 * Assign a pointer to the TLV record raw data (byte array)
@@ -109,15 +114,7 @@ namespace pcpp
 		 */
 		void assign(uint8_t* recordRawData)
 		{
-			if(recordRawData == nullptr)
-				m_Data = nullptr;
-			else
-			{
-				// to pass from some unknown paddings after tlv with type NFULA_PREFIX
-				while (*recordRawData == 0)
-					recordRawData += 1;
-				m_Data = (NflogTLVRawData*)recordRawData;
-			}
+			m_Data = (NflogTLVRawData*)recordRawData;
 		}
 
 		/**

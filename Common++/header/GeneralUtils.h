@@ -50,6 +50,21 @@ namespace pcpp
 	 * @return A pointer to the beginning of the substring, or NULL if the substring is not found
 	 */
 	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen);
+
+	/**
+	 * Calculates alignment.
+	 * @param[in] number Given number
+	 * @return The aligned number
+	*/
+	template <int alignment>
+	static int align(int number)
+	{
+		// Only works for alignment with power of 2
+		constexpr bool isPowerOfTwo = alignment && ((alignment & (alignment - 1)) == 0);
+		static_assert(isPowerOfTwo, "Alignment must be a power of 2");
+		int mask = alignment - 1;
+		return (number + mask) & ~mask;
+	}
 }
 
 #endif // PCAPPP_GENERAL_UTILS
