@@ -139,12 +139,10 @@ else()
       pdcp)
   endif()
 
-  if(DPDK_VERSION VERSION_LESS "23.11")
-    list(
-      APPEND
-      _DPDK_LOOK_FOR_LIBS
-    kni)
-  endif()
+  list(
+    APPEND
+    _DPDK_LOOK_FOR_LIBS
+  kni)
 
   if(DPDK_VERSION VERSION_LESS "20.11")
     list(

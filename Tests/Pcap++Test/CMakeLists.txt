@@ -14,11 +14,9 @@ set(SOURCES
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp)
 
-if(DPDK_VERSION VERSION_LESS "23.11")
-  set(SOURCES
-    ${SOURCES}
-    Tests/KniTests.cpp)
-endif()
+set(SOURCES
+${SOURCES}
+Tests/KniTests.cpp)
 
 add_executable(
   Pcap++Test

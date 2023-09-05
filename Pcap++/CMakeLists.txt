@@ -1,6 +1,8 @@
 set(SOURCES
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
+  $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDevice.cpp>
+  $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDeviceList.cpp>
   $<$<BOOL:${LINUX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
   src/NetworkUtils.cpp
@@ -17,13 +19,6 @@ set(SOURCES
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
   # Force light pcapng to be link fully static
   $<TARGET_OBJECTS:light_pcapng>)
-
-if(DPDK_VERSION VERSION_LESS "23.11")
-  set(SOURCES
-    ${SOURCES}
-    $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDevice.cpp>
-    $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDeviceList.cpp>)
-endif()
 
 add_library(
   Pcap++
