@@ -534,8 +534,13 @@ static const std::unordered_map<int, HttpResponseStatusCode> intStatusCodeMap = 
 	{599, HttpResponseStatusCode::Http599NetworkConnectTimeoutError},
 };
 
-HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber)
+HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber, const std::string statusMessage)
 {
+	if(statusMessage != "")
+	{
+		m_CustomizedMessage = statusMessage;
+	}
+	
 	if(intStatusCodeMap.find(statusCodeNumber) != intStatusCodeMap.end())
 	{
 		m_Value = intStatusCodeMap.at(statusCodeNumber);
@@ -668,6 +673,24 @@ static const std::unordered_map<HttpResponseStatusCode, std::string, HttpRespons
     {HttpResponseStatusCode::HttpStatusCodeUnknown, "Status Code Unknown"},
 };
 
+HttpResponseStatusCode::HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage) : m_Value(statusCode)
+{
+	if(statusMessage == "") {
+		m_CustomizedMessage = statusCodeExplanationStringMap.at(statusCode);
+	} else {
+		m_CustomizedMessage = statusMessage;
+	}
+}
+
+std::string HttpResponseStatusCode::getMessage() const
+{
+	if(m_CustomizedMessage != "")
+	{
+		return m_CustomizedMessage;
+	}
+	return statusCodeExplanationStringMap.at(m_Value);
+}
+
 HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)  : HttpMessage(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = HTTPResponse;
@@ -772,19 +795,13 @@ int HttpResponseFirstLine::getStatusCodeAsInt() const
 
 std::string HttpResponseFirstLine::getStatusCodeString() const
 {
-	std::string result;
-	const int statusStringOffset = 13;
 	if (!m_StatusCode.isUnsupportedCode())
 	{
-		int statusStringEndOffset = m_FirstLineEndOffset - 2;
-		if ((*(m_HttpResponse->m_Data + statusStringEndOffset)) != '\r')
-			statusStringEndOffset++;
-		result.assign((char*)(m_HttpResponse->m_Data + statusStringOffset), statusStringEndOffset-statusStringOffset);
+		return m_StatusCode.getMessage();
 	}
 
 	//else first line is illegal, return empty string
-
-	return result;
+	return "";
 }
 
 bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString)
@@ -797,10 +814,11 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, 
 
 	//extend or shorten layer
 
+	HttpResponseStatusCode newStatusCodeWithMessage(newStatusCode, statusCodeString);
+
 	size_t statusStringOffset = 13;
-	if (statusCodeString == "")
-		statusCodeString = statusCodeExplanationStringMap.at(newStatusCode);
-	int lengthDifference = statusCodeString.length() - getStatusCodeString().length();
+
+	int lengthDifference = newStatusCodeWithMessage.getMessage().length() - getStatusCodeString().length();
 	if (lengthDifference > 0)
 	{
 		if (!m_HttpResponse->extendLayer(statusStringOffset, lengthDifference))
@@ -823,12 +841,12 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, 
 		m_HttpResponse->shiftFieldsOffset(m_HttpResponse->getFirstField(), lengthDifference);
 
 	// copy status string
-	memcpy(m_HttpResponse->m_Data+statusStringOffset, statusCodeString.c_str(), statusCodeString.length());
+	memcpy(m_HttpResponse->m_Data+statusStringOffset, newStatusCodeWithMessage.getMessage().c_str(), newStatusCodeWithMessage.getMessage().length());
 
 	// change status code
 	memcpy(m_HttpResponse->m_Data+9, newStatusCode.toString().c_str(), 3);
 
-	m_StatusCode = newStatusCode;
+	m_StatusCode = newStatusCodeWithMessage;
 
 	m_FirstLineEndOffset += lengthDifference;
 
@@ -855,14 +873,31 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
-	std::string codeString = std::string(data + 9, 3);
+	const std::string codeString = std::string(data + 9, 3);
 
 	if(codeString.empty() || (std::find_if(codeString.begin(), codeString.end(), [](unsigned char c){ return !std::isdigit(c); }) != codeString.end()))
 	{
 		return HttpResponseStatusCode::HttpStatusCodeUnknown;
 	}
 
-	return HttpResponseStatusCode(std::stoi(codeString));
+	constexpr size_t messageOffset = 13;  // expect "HTTP/x.y XXX YYY", YYY starts from 13
+	size_t offset = messageOffset;
+	bool isMessageFound = false;
+	while(offset < dataLen)
+	{
+		if(data[offset] == '\n')
+		{
+			isMessageFound = true;
+			break;
+		}
+		offset++;
+	}
+	std::string messageString = isMessageFound ? std::string(data + messageOffset, offset - messageOffset) : "";
+	if(messageString.back() == '\r')
+	{
+		messageString.pop_back();
+	}
+	return HttpResponseStatusCode(std::stoi(codeString), messageString);
 }
 
 HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : m_HttpResponse(httpResponse)
@@ -915,13 +950,10 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 
 	m_HttpResponse = httpResponse;
 
-	m_StatusCode = statusCode;
+	m_StatusCode = HttpResponseStatusCode(statusCode, statusCodeString);
 	m_Version = version;
 
-	if(statusCodeString == "") {
-		statusCodeString = statusCodeExplanationStringMap.at(m_StatusCode);
-	}
-	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +  statusCodeString +  "\r\n";
+	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +  m_StatusCode.getMessage() +  "\r\n";
 
 	m_FirstLineEndOffset = firstLine.length();
 

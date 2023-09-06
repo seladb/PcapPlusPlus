@@ -59,6 +59,12 @@ namespace pcpp
 #define PCPP_HTTP_SERVER_FIELD				"Server"
 
 
+	// -------- classes to be defined later -----------------
+
+
+	class HttpRequestFirstLine;
+	class HttpResponseFirstLine;
+
 
 	// -------- Class HttpMessage -----------------
 
@@ -99,12 +105,6 @@ namespace pcpp
 		char getHeaderFieldNameValueSeparator() const { return ':'; }
 		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
-
-
-
-
-	class HttpRequestFirstLine;
-
 
 
 	// -------- Class HttpRequestLayer -----------------
@@ -419,12 +419,17 @@ namespace pcpp
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum
 		 */
-		constexpr HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
+		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
 
 		/**
-		 * @brief Construct HttpResponseStatusCode from int
+		 * @brief Construct HttpResponseStatusCode from the code number and the customized message
 		 */
-		explicit HttpResponseStatusCode(const int &statusCodeNumber);
+		explicit HttpResponseStatusCode(const int &statusCodeNumber, const std::string statusMessage = "");
+
+		/**
+		 * @brief Construct HttpResponseStatusCode from Value enum and the customized message
+		 */
+		explicit HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage);
 
  		// Allow switch and comparisons.
 		constexpr operator Value() const { return m_Value; }
@@ -448,6 +453,11 @@ namespace pcpp
 		}
 
 		/**
+		 * @brief get status code message, e.g. "OK", "Not Found"
+		 */
+		std::string getMessage() const;
+
+		/**
 		 * @return If this HttpResponseStatusCode a valid code
 		 * @note Any unknown or error code has an extreme large enum value
 		 */
@@ -457,13 +467,13 @@ namespace pcpp
 		}
 
 	private:
+		friend class HttpResponseFirstLine;
+
   		Value m_Value = HttpStatusCodeUnknown;
+		std::string m_CustomizedMessage;
 	};
 
 	// -------- Class HttpResponseLayer -----------------
-
-	class HttpResponseFirstLine;
-
 
 	/**
 	 * @class HttpResponseLayer

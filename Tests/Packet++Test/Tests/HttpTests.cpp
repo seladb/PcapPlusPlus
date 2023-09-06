@@ -9,7 +9,7 @@
 #include "HttpLayer.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
-
+#include <iostream>
 PTF_TEST_CASE(HttpRequestParseMethodTest)
 {
 	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(nullptr, 0), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
@@ -300,6 +300,18 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+
+
+	// test getMessage()
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 200").c_str(), 12).getMessage(), "OK");
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 404").c_str(), 12).getMessage(), "Not Found");
+
+	std::string testLine;
+	testLine = "HTTP/x.y 404 My Not Found\r\n";
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found");
+	testLine = "HTTP/x.y 404 My Not Found Not Finished";
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "Not Found");
+
 } // HttpResponseParseStatusCodeTest
 
 
@@ -440,10 +452,13 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->isComplete());
 	responseLayer->getFirstLine()->setVersion(pcpp::OneDotOne);
+
+	// original status code is 404 Not Found
 	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported, enum);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505);
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported");
+
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported"); // customized message from packet
 
 	PTF_ASSERT_NOT_NULL(responseLayer->setContentLength(345));
 
