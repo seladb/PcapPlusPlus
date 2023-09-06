@@ -38,7 +38,7 @@ task:
   test_pcapplusplus_script:
     - python3 -m pip install gcovr
     - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface eth0
+    - python3 ci/run_tests/run_tests.py --interface eth0 --use-sudo
   coverage_report_script:
     - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
