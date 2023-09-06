@@ -36,10 +36,9 @@ task:
   build_script:
     - cmake --build Dist -j 2
   test_pcapplusplus_script:
-    - apt update && apt install sudo
     - python3 -m pip install gcovr
     - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface eth0 --use-sudo
+    - python3 ci/run_tests/run_tests.py --interface eth0 --test-args="-n"
   coverage_report_script:
     - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/linux/codecov
