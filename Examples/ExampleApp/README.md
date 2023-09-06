@@ -7,6 +7,6 @@ The code is based on the "Hello World" application in PcapPlusPlus Tutorials (ht
 
 In order to build the application please use the following parameters in CMake command:
 
- - `-DPcapPlusPlus_DIR=<PACKAGE_DIR>` - where `PACKAGE_DIR` is PcapPlusPlus release package
+ - `-DPcapPlusPlus_ROOT=<PACKAGE_DIR>` - where `PACKAGE_DIR` is PcapPlusPlus package path
  - `-DPCAP_ROOT=<WinPcap_OR_Npcap_DIR>` - ONLY REQUIRED ON WINDOWS, `WinPcap_OR_Npcap_DIR` is WinPcap/Npcap SDK path
  - `-DPacket_ROOT=<WinPcap_OR_Npcap_DIR>` - ONLY REQUIRED ON WINDOWS, `WinPcap_OR_Npcap_DIR` is WinPcap/Npcap SDK path
