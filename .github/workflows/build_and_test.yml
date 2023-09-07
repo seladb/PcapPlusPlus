@@ -60,6 +60,7 @@ jobs:
             config-zstd: OFF
           - image: centos7
             python: python3.8
+            # TODO: TestLoggerMultiThread sometimes fail in CI so we exclude it for now, need to look into it
             test-flags: --pcap-test-args="-s -x TestLoggerMultiThread"
             config-zstd: OFF
           - image: fedora34
