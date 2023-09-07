@@ -23,14 +23,6 @@
 namespace pcpp
 {
 
-static timeval timespecToTimeval(const timespec& in)
-{
-	timeval out;
-	TIMESPEC_TO_TIMEVAL(&out, &in);
-	return out;
-}
-
-
 TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie, OnTcpConnectionStart onConnectionStartCallback, OnTcpConnectionEnd onConnectionEndCallback, const TcpReassemblyConfiguration &config)
 {
 	m_OnMessageReadyCallback = onMessageReadyCallback;
@@ -114,7 +106,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	uint32_t flowKey = hash5Tuple(&tcpData);
 
 	// time stamp for this packet
-	timeval currTime = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
+	const auto currTime = tcpData.getRawPacket()->getPacketTimeStamp();
 
 	// find the connection in the connection map
 	ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
@@ -155,7 +147,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 		else if (currTime.tv_sec == tcpReassemblyData->connData.endTime.tv_sec)
 		{
-			if (currTime.tv_usec > tcpReassemblyData->connData.endTime.tv_usec)
+			if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
 			{
 				tcpReassemblyData->connData.setEndTime(currTime);
 				m_ConnectionInfo[flowKey].setEndTime(currTime);
@@ -163,7 +155,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		}
 	}
 
-	timeval timestampOfTheReceivedPacket = currTime;
+	const auto timestampOfTheReceivedPacket = currTime;
 	int8_t sideIndex = -1;
 	bool first = false;
 

@@ -89,9 +89,9 @@ struct ConnectionData
 	/** A 4-byte hash key representing the connection */
 	uint32_t flowKey;
 	/** Start TimeStamp of the connection */
-	timeval startTime;
+	timespec startTime;
 	/** End TimeStamp of the connection */
-	timeval endTime;
+	timespec endTime;
 
 	/**
 	 * A c'tor for this struct that basically zeros all members
@@ -102,13 +102,13 @@ struct ConnectionData
 	 * Set startTime of Connection
 	 * @param[in] startTimeValue integer value
 	 */
-	void setStartTime(const timeval &startTimeValue) { startTime = startTimeValue; }
+	void setStartTime(const timespec &startTimeValue) { startTime = startTimeValue; }
 
 	/**
 	 * Set endTime of Connection
 	 * @param[in] endTimeValue integer value
 	 */
-	void setEndTime(const timeval &endTimeValue) { endTime = endTimeValue; }
+	void setEndTime(const timespec &endTimeValue) { endTime = endTimeValue; }
 };
 
 
@@ -131,7 +131,7 @@ public:
 	 * @param[in] connData TCP connection information for this TCP data
 	 * @param[in] timestamp when this packet was received
 	 */
-	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData, timeval timestamp)
+	TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData, timespec timestamp)
 		: m_Data(tcpData), m_DataLen(tcpDataLength), m_MissingBytes(missingBytes), m_Connection(connData), m_Timestamp(timestamp)
 	{
 	}
@@ -166,18 +166,25 @@ public:
 	 */
 	const ConnectionData& getConnectionData() const { return m_Connection; }
 
-	/**
+	/** 
+	 * DEPRECATED
 	 * A getter for the timestamp of this packet
 	 * @return The const timeval object with timestamp of this packet
 	 */
-	timeval getTimeStamp() const { return m_Timestamp; }
+	timeval getTimeStamp() const { timeval out; { (&out)->tv_sec = (&m_Timestamp)->tv_sec; (&out)->tv_usec = (&m_Timestamp)->tv_nsec / 1000; }; return out; }
+
+	/** 
+	 * A getter for the timestamp of this packet
+	 * @return The const timespec object with timestamp of this packet
+	 */
+	timespec getTimeSpec() const { return m_Timestamp; }
 
 private:
 	const uint8_t* m_Data;
 	size_t m_DataLen;
 	size_t m_MissingBytes;
 	const ConnectionData& m_Connection;
-	timeval m_Timestamp;
+	timespec m_Timestamp;
 };
 
 
@@ -401,7 +408,7 @@ private:
 		uint32_t sequence;
 		size_t dataLength;
 		uint8_t* data;
-		timeval timestamp;
+		timespec timestamp;
 
 		TcpFragment() : sequence(0), dataLength(0), data(NULL) {}
 		~TcpFragment() { delete [] data; }

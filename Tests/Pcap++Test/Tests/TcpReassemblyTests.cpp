@@ -298,9 +298,9 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP, expectedDstIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1491516383);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 915793);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 915793);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
@@ -737,9 +737,9 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	PTF_ASSERT_EQUAL(iterConn1->second.dstPort, 80);
 	PTF_ASSERT_EQUAL(iterConn1->second.flowKey, results.flowKeysList[0]);
 	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_sec, 1361916156);
-	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_usec, 677488);
+	PTF_ASSERT_EQUAL(iterConn1->second.startTime.tv_nsec, 677488);
 	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_sec, 1361916156);
-	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_usec, 766111);
+	PTF_ASSERT_EQUAL(iterConn1->second.endTime.tv_nsec, 766111);
 
 	// test the return of invalid connection flowKey
 	pcpp::ConnectionData dummyConn;
@@ -792,9 +792,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP, expectedDstIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551796);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 702602);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 702602);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
@@ -834,9 +834,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35995);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 526632);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream4.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
@@ -854,9 +854,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35999);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 526632);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 
 	iter++;
 
@@ -872,9 +872,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP2);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 40426);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 526632);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream3.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
@@ -892,9 +892,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35997);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551795);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 526632);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 526632);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream2.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 } // TestTcpReassemblyIPv6MultConns
@@ -936,9 +936,9 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP, expectedDstIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1147551796);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 702602);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 702602);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
@@ -1079,9 +1079,9 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.dstIP, expectedDstIP);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_sec, 1491516383);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_usec, 915793);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.startTime.tv_nsec, 915793);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
-	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
+	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_nsec, 0);
 
 	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
