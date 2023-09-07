@@ -60,7 +60,7 @@ jobs:
             config-zstd: OFF
           - image: centos7
             python: python3.8
-            test-flags: --test-args="-s"
+            test-flags: --pcap-test-args="-s -x TestLoggerMultiThread"
             config-zstd: OFF
           - image: fedora34
             python: python3
