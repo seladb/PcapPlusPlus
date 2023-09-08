@@ -540,7 +540,7 @@ HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber, cons
 	{
 		m_CustomizedMessage = statusMessage;
 	}
-	
+
 	if(intStatusCodeMap.find(statusCodeNumber) != intStatusCodeMap.end())
 	{
 		m_Value = intStatusCodeMap.at(statusCodeNumber);

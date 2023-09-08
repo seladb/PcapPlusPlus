@@ -309,10 +309,10 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 	std::string testLine;
 	testLine = "HTTP/x.y 404 My Not Found\r\n";
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found");
-	
+
 	testLine = "HTTP/x.y 404 My Not Found 2\n";
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found 2");
-	
+
 	testLine = "HTTP/x.y 404 Not Finished";
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
 
