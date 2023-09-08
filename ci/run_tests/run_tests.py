@@ -8,22 +8,24 @@ PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pc
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--interface", type=str, required=True, help="interface to use")
     parser.add_argument(
-        "--interface", "-i", type=str, required=True, help="interface to use"
+        "--use-sudo", action="store_true", help="use sudo when running tests"
     )
     parser.add_argument(
-        "--use-sudo", "-s", action="store_true", help="use sudo when running tests"
-    )
-    parser.add_argument(
-        "--test-args",
-        "-t",
+        "--packet-test-args",
         type=str,
         default="",
-        help="test arguments",
+        help="packet++ test arguments",
+    )
+    parser.add_argument(
+        "--pcap-test-args",
+        type=str,
+        default="",
+        help="pcap++ test arguments",
     )
     parser.add_argument(
         "--tcpreplay-dir",
-        "-d",
         type=str,
         default=None,
         help="tcpreplay directory",
@@ -41,7 +43,9 @@ def main():
 
         use_sudo = ["sudo"] if args.use_sudo else []
         completed_process = subprocess.run(
-            use_sudo + [os.path.join("Bin", "Packet++Test")] + args.test_args.split(),
+            use_sudo
+            + [os.path.join("Bin", "Packet++Test")]
+            + args.packet_test_args.split(),
             cwd="Tests/Packet++Test",
         )
         if completed_process.returncode != 0:
@@ -50,7 +54,7 @@ def main():
         completed_process = subprocess.run(
             use_sudo
             + [os.path.join("Bin", "Pcap++Test"), "-i", ip_address]
-            + args.test_args.split(),
+            + args.pcap_test_args.split(),
             cwd="Tests/Pcap++Test",
         )
         if completed_process.returncode != 0:
