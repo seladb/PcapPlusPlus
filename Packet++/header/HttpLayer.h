@@ -431,7 +431,7 @@ namespace pcpp
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum and the customized message
-		 * @param[in] statusCodeNumber the status code enum
+		 * @param[in] statusCode the status code enum
 		 * @param[in] statusMessage the status message, optional
 		 */
 		explicit HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage);
