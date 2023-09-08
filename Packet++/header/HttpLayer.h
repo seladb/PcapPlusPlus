@@ -418,16 +418,21 @@ namespace pcpp
 		// cppcheck-suppress noExplicitConstructor
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum
+		 * @param[in] statusCode the status code enum
 		 */
 		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from the code number and the customized message
+		 * @param[in] statusCodeNumber the status code in number, e.g. 200, 404
+		 * @param[in] statusMessage the status message, optional
 		 */
-		explicit HttpResponseStatusCode(const int &statusCodeNumber, const std::string statusMessage = "");
+		explicit HttpResponseStatusCode(const int &statusCodeNumber, const std::string& statusMessage = "");
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum and the customized message
+		 * @param[in] statusCodeNumber the status code enum
+		 * @param[in] statusMessage the status message, optional
 		 */
 		explicit HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage);
 
@@ -456,7 +461,6 @@ namespace pcpp
 		 * @brief get status code message, e.g. "OK", "Not Found"
 		 */
 		std::string getMessage() const;
-
 		/**
 		 * @return If this HttpResponseStatusCode a valid code
 		 * @note Any unknown or error code has an extreme large enum value
@@ -467,8 +471,6 @@ namespace pcpp
 		}
 
 	private:
-		friend class HttpResponseFirstLine;
-
   		Value m_Value = HttpStatusCodeUnknown;
 		std::string m_CustomizedMessage;
 	};

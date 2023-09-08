@@ -534,7 +534,7 @@ static const std::unordered_map<int, HttpResponseStatusCode> intStatusCodeMap = 
 	{599, HttpResponseStatusCode::Http599NetworkConnectTimeoutError},
 };
 
-HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber, const std::string statusMessage)
+HttpResponseStatusCode::HttpResponseStatusCode(const int &statusCodeNumber, const std::string& statusMessage)
 {
 	if(statusMessage != "")
 	{
@@ -675,9 +675,7 @@ static const std::unordered_map<HttpResponseStatusCode, std::string, HttpRespons
 
 HttpResponseStatusCode::HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage) : m_Value(statusCode)
 {
-	if(statusMessage == "") {
-		m_CustomizedMessage = statusCodeExplanationStringMap.at(statusCode);
-	} else {
+	if(statusMessage != "") {
 		m_CustomizedMessage = statusMessage;
 	}
 }
@@ -817,8 +815,9 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, 
 	HttpResponseStatusCode newStatusCodeWithMessage(newStatusCode, statusCodeString);
 
 	size_t statusStringOffset = 13;
+	auto newStatusCodeMessage = newStatusCodeWithMessage.getMessage();
 
-	int lengthDifference = newStatusCodeWithMessage.getMessage().length() - getStatusCodeString().length();
+	int lengthDifference = newStatusCodeMessage.length() - getStatusCodeString().length();
 	if (lengthDifference > 0)
 	{
 		if (!m_HttpResponse->extendLayer(statusStringOffset, lengthDifference))
@@ -841,7 +840,7 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, 
 		m_HttpResponse->shiftFieldsOffset(m_HttpResponse->getFirstField(), lengthDifference);
 
 	// copy status string
-	memcpy(m_HttpResponse->m_Data+statusStringOffset, newStatusCodeWithMessage.getMessage().c_str(), newStatusCodeWithMessage.getMessage().length());
+	memcpy(m_HttpResponse->m_Data+statusStringOffset, newStatusCodeMessage.c_str(), newStatusCodeMessage.length());
 
 	// change status code
 	memcpy(m_HttpResponse->m_Data+9, newStatusCode.toString().c_str(), 3);
@@ -892,11 +891,22 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 		}
 		offset++;
 	}
-	std::string messageString = isMessageFound ? std::string(data + messageOffset, offset - messageOffset) : "";
+
+	if(!isMessageFound)
+	{
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
+	}
+
+	std::string messageString(data + messageOffset, offset - messageOffset);
 	if(messageString.back() == '\r')
 	{
 		messageString.pop_back();
 	}
+	if(messageString.empty())
+	{
+		return HttpResponseStatusCode::HttpStatusCodeUnknown;
+	}
+
 	return HttpResponseStatusCode(std::stoi(codeString), messageString);
 }
 

@@ -289,29 +289,38 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 
 	for (const auto &statusCode : possibleStatusCodes )
 	{
-		std::string firstLine = "HTTP/x.y " + statusCode.toString();
+		std::string firstLine = "HTTP/x.y " + statusCode.toString() + " zzz\n";
 		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600").c_str(), 12), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600 zzz\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
 
 
 	// test getMessage()
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 200").c_str(), 12).getMessage(), "OK");
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 404").c_str(), 12).getMessage(), "Not Found");
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 200 OK\n").c_str(), 17).getMessage(), "OK");
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 404 Not Found\n").c_str(), 24).getMessage(), "Not Found");
 
 	std::string testLine;
 	testLine = "HTTP/x.y 404 My Not Found\r\n";
 	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found");
-	testLine = "HTTP/x.y 404 My Not Found Not Finished";
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "Not Found");
+	
+	testLine = "HTTP/x.y 404 My Not Found 2\n";
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found 2");
+	
+	testLine = "HTTP/x.y 404 Not Finished";
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
 
+	testLine = "HTTP/x.y 404\n"; // no status message
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
+
+	testLine = "HTTP/x.y 404 \n"; // no status message
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
 } // HttpResponseParseStatusCodeTest
 
 
