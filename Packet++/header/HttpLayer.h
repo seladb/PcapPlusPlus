@@ -437,7 +437,7 @@ namespace pcpp
 		explicit HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage);
 
  		// Allow switch and comparisons.
-		constexpr operator Value() const { return m_Value; }
+		operator Value() const { return m_Value; }
 		// Prevent usage: if(httpResponseStatusCode)
 		explicit operator bool() const = delete;
 
