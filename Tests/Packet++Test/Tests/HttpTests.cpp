@@ -475,7 +475,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
 
-	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode::Http413RequestEntityTooLarge, "This is a test"));
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode(pcpp::HttpResponseStatusCode::Http413RequestEntityTooLarge, "This is a test")));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test");
 
