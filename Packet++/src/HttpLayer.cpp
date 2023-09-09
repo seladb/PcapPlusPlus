@@ -809,6 +809,11 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 	return "";
 }
 
+bool HttpResponseFirstLine::setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString)
+{
+	return setStatusCode(HttpResponseStatusCode(newStatusCode, statusCodeString));
+}
+
 bool HttpResponseFirstLine::setStatusCode(const HttpResponseStatusCode& newStatusCode)
 {
 	if (newStatusCode.isUnsupportedCode())
@@ -903,7 +908,7 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 	}
 
 	std::string messageString(data + messageOffset, offset - messageOffset);
-	if(messageString.back() == '\r')
+	if(!messageString.empty() && messageString.back() == '\r')
 	{
 		messageString.pop_back();
 	}

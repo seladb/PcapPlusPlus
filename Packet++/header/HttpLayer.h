@@ -736,6 +736,15 @@ namespace pcpp
 		/**
 		 * Set the status code
 		 * @param[in] newStatusCode The new status code to set
+		 * @param[in] statusCodeString An optional parameter: set a non-default status code message (e.g "Bla Bla" instead of "Not Found"). If
+		 * this parameter isn't supplied or supplied as empty string (""), the default message for the status code will be set
+		 * @return True if setting the status code was completed successfully, false otherwise
+		 */
+		PCPP_DEPRECATED bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
+
+		/**
+		 * Set the status code
+		 * @param[in] newStatusCode The new status code to set
 		 * @return True if setting the status code was completed successfully, false otherwise
 		 */
 		bool setStatusCode(const HttpResponseStatusCode& newStatusCode);
