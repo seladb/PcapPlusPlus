@@ -9,4 +9,4 @@ if ! command -v cmake-format; then
     exit 1
 fi
 
-find "${ROOTPATH}" \( -name '*.cmake' -o -name 'CMakeLists.txt' \) -not -path "*/3rdParty/*" -exec echo 'Formatting:' {} ';' -exec cmake-format -i {} ';'
+find "${ROOTPATH}" -type f \( -name '*.cmake' -o -name 'CMakeLists.txt' \) -not -path "*/3rdParty/*" -exec echo 'Formatting:' {} ';' -exec cmake-format -i {} ';'

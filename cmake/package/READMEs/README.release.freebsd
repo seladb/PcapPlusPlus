@@ -1,0 +1,45 @@
+
+PcapPlusPlus web-site:  https://pcapplusplus.github.io/
+
+GitHub page:            https://github.com/seladb/PcapPlusPlus
+
+
+This package contains:
+----------------------
+
+ - PcapPlusPlus compiled libraries (under `lib/`)
+    - libCommon++.a
+    - libPacket++.a
+    - libPcap++.a
+ - PcapPlusPlus header files (under `include/pcapplusplus/`)
+ - Compiled examples (under `bin/`)
+ - Code example with a simple CMake file showing how to build applications with PcapPlusPlus (under `example-app/`)
+ - CMake files required to build your application with PcapPlusPlus (under `lib/cmake/pcapplusplus`)
+ - pkg-config information you can use to build your application with PcapPlusPlus (under `lib/pkgconfig`)
+
+
+Using PcapPlusPlus in your project:
+-----------------------------------
+
+ - Make sure you have libpcap developer pack installed (or run `pkg install libpcap` to install it)
+ - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` when running CMake, for example:
+   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR>`
+ - If your application uses Makefiles, you can use `pkgconf` (the FreeBSD equivalent for pkg-config) with `PcapPlusPlus.pc`
+   1. Make sure you have it installed, otherwise install it with `pkg install pkgconf`
+   2. Edit `PcapPlusPlus.pc` and replace `prefix` with the package path, for example:
+      `prefix="<PACKAGE_DIR>"`
+   3. Use `pkgconf` in your Makefile, for example:
+      ```
+      all:
+         g++ `pkgconf --cflags PcapPlusPlus` -c -o main.o main.cpp
+         g++ -o MyApp main.o `pkgconf --libs PcapPlusPlus`
+      ```
+   4. When running `make` remember to set `pkgconf` path so it can find `PcapPlusPlus.pc`, for example:
+      `PKG_CONFIG_PATH=<PACKAGE_DIR>/lib/pkgconfig make`
+
+
+Running the examples:
+---------------------
+
+ - Make sure you have libpcap developer pack installed (or run `pkg install libpcap` to install it)
+ - You may need to run the executables as sudo

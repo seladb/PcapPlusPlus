@@ -1,0 +1,50 @@
+
+PcapPlusPlus web-site:  https://pcapplusplus.github.io/
+
+GitHub page:            https://github.com/seladb/PcapPlusPlus
+
+
+This package contains:
+----------------------
+
+ - PcapPlusPlus compiled libraries for MinGW-w64 (under `lib\`)
+    - Common++.lib
+    - Packet++.lib
+    - Pcap++.lib
+ - PcapPlusPlus header files (under `include\pcapplusplus`)
+ - Compiled examples (under `bin\`)
+ - Code example with a simple CMake file showing how to build applications with PcapPlusPlus (under `example-app\`)
+ - CMake files required to build your application with PcapPlusPlus (under `lib\cmake\pcapplusplus`)
+
+
+Using PcapPlusPlus in your project:
+-----------------------------------
+
+ - Make sure you have MinGW-w64 installed with a gcc/g++ version matching the compiled binaries. The best place to download MinGW-w64 is
+   through MSYS2 or directly from here: https://www.mingw-w64.org/downloads/#mingw-builds
+ - You may have to put MinGW-w64 directory in your `PATH` environment variable
+ - Make sure you have WinPcap, Npcap or Wireshark installed
+ - Make sure you have WinPcap or Npcap Developer's pack installed (WinPcap Dev Pack can be downloaded from https://www.winpcap.org/devel.htm, Npcap SDK can be downloaded from https://nmap.org/npcap/#download)
+ - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>`, `PCAP_ROOT=<WinPcap_OR_Npcap_DIR>` and `Packet_ROOT=<WinPcap_OR_Npcap_DIR>``
+   when running CMake, for example:
+   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR> -DPCAP_ROOT=<WinPcap_OR_Npcap_DIR> -DPacket_ROOT=<WinPcap_OR_Npcap_DIR>`
+ - If your application uses Makefiles, you can create variables in your Makefile to point to the header and lib directories
+   in the package. Here is an example:
+   ```
+   PCAP_ROOT := <WinPcap_OR_Npcap_DIR>
+   PCAPPLUSPLUS_ROOT := <PACKAGE_DIR>
+   PCAPPLUSPLUS_INCLUDES := $(PCAPPLUSPLUS_ROOT)/include/pcapplusplus
+   PCAPPLUSPLUS_LIBS_DIR := $(PCAPPLUSPLUS_ROOT)/lib
+   PCAPPLUSPLUS_LIBS := -lPcap++ -lPacket++ -lCommon++ -lwpcap -lPacket -lws2_32 -liphlpapi
+
+   # All Target
+   all:
+      g++.exe -I$(PCAPPLUSPLUS_INCLUDES) -c -o main.o main.cpp
+      g++.exe -L$(PCAPPLUSPLUS_LIBS_DIR) -L$(PCAP_ROOT) -static-libgcc -static-libstdc++ -o PcapPlusPlusTestApp.exe main.o $(PCAPPLUSPLUS_LIBS)
+   ```
+
+
+Running the examples:
+---------------------
+
+ - Make sure you have WinPcap, Npcap or Wireshark installed

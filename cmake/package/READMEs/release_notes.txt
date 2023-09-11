@@ -1,0 +1,50 @@
+Release notes (changes from v22.05)
+-----------------------------------
+
+ - PcapPlusPlus officially moved to C++11! (thanks @clementperon !)
+ - Remove the `pthreads` dependency and replace it with C++11 `std::thread` (thanks @clementperon !)
+ - Stop supporting MinGW32 on Windows since it doesn't support `std::thread`. MinGW-w64 and Visual Studio support remains unchanged
+ - New protocols:
+   - Telnet (thanks @egecetin !)
+   - FTP (thanks @egecetin !)
+   - ICMPv6 (thanks @kolbex !)
+   - NDP (thanks @kolbex !)
+   - LLC (thanks @egecetin !)
+   - STP (thanks @egecetin !)
+   - SOME/IP (thanks @kolbex !)
+   - Wake on LAN (WoL) (thanks @egecetin !)
+ - DPDK 21.11 support
+ - Better support for DPDK `i40e` NICs
+ - DPDK set up - add an option to get `RTE_SDK` from the command line or from an environment variable
+ - Handle unilateral RST in TCP reassembly (thanks @neilstephens !)
+ - Retrieve live device IPv6 address if available (thanks @jafar75 !)
+ - Add `.zst` file extension support for pcapng files compressed with Zstd
+ - Internal tooling:
+   - Auto pre-commit monthly update (thanks @egecetin !)
+   - Add memory sanitizer regressions check (thanks @sashashura !)
+   - Add CodeQL SAST and remove LGTM which is being deprecated (thanks @sashashura !)
+   - Support multiple packets in fuzzing tests (thanks @sashashura !)
+   - Revamped README.md (thanks @egecetin !)
+ - Tons of bug fixes and minor improvements (thanks @clementperon, @egecetin, @sashashura, @szokovacs, @kayoub5, @bladchan, @npc144, @AlienX2001, @cswindle !)
+
+Collaborators
+-------------
+
+ - @clementperon
+ - @egecetin
+ 
+Contributors
+------------
+
+ - @kolbex
+ - @sashashura
+ - @neilstephens
+ - @jafar75
+ - @kayoub5
+ - @szokovacs
+ - @bladchan
+ - @npc144
+ - @AlienX2001
+ - @cswindle
+
+**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v22.05...v22.11
