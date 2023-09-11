@@ -20,7 +20,8 @@ This package contains:
 Using PcapPlusPlus in your project:
 -----------------------------------
 
- - Make sure you have MinGW-w64 installed with a gcc/g++ version matching the compiled binaries
+ - Make sure you have MinGW-w64 installed with a gcc/g++ version matching the compiled binaries. The best place to download MinGW-w64 is
+   through MSYS2 or directly from here: https://www.mingw-w64.org/downloads/#mingw-builds
  - You may have to put MinGW-w64 directory in your `PATH` environment variable
  - Make sure you have WinPcap, Npcap or Wireshark installed
  - Make sure you have WinPcap or Npcap Developer's pack installed (WinPcap Dev Pack can be downloaded from https://www.winpcap.org/devel.htm, Npcap SDK can be downloaded from https://nmap.org/npcap/#download)
