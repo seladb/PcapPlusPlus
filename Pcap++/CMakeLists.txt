@@ -71,7 +71,7 @@ elseif(WIN32)
   target_compile_definitions(Pcap++ PUBLIC -DHAVE_REMOTE)
   target_compile_definitions(Pcap++ PUBLIC -DWPCAP)
   target_link_libraries(Pcap++ PRIVATE ws2_32 iphlpapi)
-  target_link_libraries(Pcap++ PUBLIC ${Packet_LIBRARY})
+  target_link_libraries(Pcap++ PUBLIC Packet::Packet)
 endif()
 
 target_include_directories(
