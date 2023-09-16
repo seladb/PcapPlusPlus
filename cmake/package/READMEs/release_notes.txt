@@ -1,50 +1,74 @@
-Release notes (changes from v22.05)
+Release notes (changes from v22.11)
 -----------------------------------
 
- - PcapPlusPlus officially moved to C++11! (thanks @clementperon !)
- - Remove the `pthreads` dependency and replace it with C++11 `std::thread` (thanks @clementperon !)
- - Stop supporting MinGW32 on Windows since it doesn't support `std::thread`. MinGW-w64 and Visual Studio support remains unchanged
+ - PcapPlusPlus moved from a custom build system to CMake! (thanks @clementperon !)
+ - Added IP/IPv4/IPv6 network classes to better support netmask and subnets
+ - Add support for opening NFLOG live device (thanks @MrPeck !)
+ - MAC address OUI Lookup (thanks @egecetin !)
+ - Intel oneAPI compiler support (icpx) (thanks @egecetin !)
+ - DPDK improvements:
+   - Properly support no RSS mode in `DpdkDevice`
+   - Make DPDK app name configurable (thanks @szokovacs !)
+   - More generic search of DPDK KNI kernel module in `setup_dpdk.py`
  - New protocols:
-   - Telnet (thanks @egecetin !)
-   - FTP (thanks @egecetin !)
-   - ICMPv6 (thanks @kolbex !)
-   - NDP (thanks @kolbex !)
-   - LLC (thanks @egecetin !)
-   - STP (thanks @egecetin !)
-   - SOME/IP (thanks @kolbex !)
-   - Wake on LAN (WoL) (thanks @egecetin !)
- - DPDK 21.11 support
- - Better support for DPDK `i40e` NICs
- - DPDK set up - add an option to get `RTE_SDK` from the command line or from an environment variable
- - Handle unilateral RST in TCP reassembly (thanks @neilstephens !)
- - Retrieve live device IPv6 address if available (thanks @jafar75 !)
- - Add `.zst` file extension support for pcapng files compressed with Zstd
- - Internal tooling:
-   - Auto pre-commit monthly update (thanks @egecetin !)
-   - Add memory sanitizer regressions check (thanks @sashashura !)
-   - Add CodeQL SAST and remove LGTM which is being deprecated (thanks @sashashura !)
-   - Support multiple packets in fuzzing tests (thanks @sashashura !)
-   - Revamped README.md (thanks @egecetin !)
- - Tons of bug fixes and minor improvements (thanks @clementperon, @egecetin, @sashashura, @szokovacs, @kayoub5, @bladchan, @npc144, @AlienX2001, @cswindle !)
+   - NFLOG (Linux Netfilter NFLOG) (thanks @jafar75 !)
+   - SLL2 (Linux cooked capture v2) (thanks @jiangjiongyu !)
+   - TPKT (thanks @wivien19 !)
+   - COTP (thanks @wivien19 !)
+   - VRRP (thanks @wangchong2023 !)
+ - Existing protocols improvements:
+   - HTTP - refactor and improve `HttpResponseStatusCode` (thanks @tigercosmos !)
+   - SSL/TLS - better detection of possible encrypted handshake messages (thanks @axmahr !)
+   - DNS - support parsing of resources with larger data (thanks @aengusjiang !)
+   - STP - add editing/crafting support (thanks @egecetin !)
+   - ARP - add `isRequest` and `isReply` methods (thanks @tigercosmos !)
+   - FTP-DATA support (thanks @egecetin !)
+   - NTP - support Kiss of Death (thanks @egecetin !)
+   - SIP - refactor status codes + add a few missing ones
+ - Modernize the codebase to use `nullptr` instead of `NULL` (thanks @clementperon !)
+ - Remove usage of unsupported `pcap_compile_nopcap()` (thanks @yushijinhun !)
+ - Internal tools:
+   - Codecov integration for coverage reports (thanks @egecetin !)
+   - Enable Clang-Tidy (thanks @clementperon !)
+   - Enable `cppcheck` (thanks @egecetin !)
+   - Improve the test framework
+   - Increase test coverage
+ - Remove deprecated methods (due to typos):
+   - `DhcpLayer::getMesageType()` -> replaced by `DhcpLayer::getMessageType()`
+   - `DhcpLayer::setMesageType()` -> replaced by `DhcpLayer::setMesasgeType()`
+   - `SSLHandshakeMessage::createHandhakeMessage()` -> replaced by `SSLHandshakeMessage::createHandshakeMessage()`
+   - `SSLClientHelloMessage::getExtensionsLenth()` -> replaced by `SSLClientHelloMessage::getExtensionsLength()`
+   - `SSLServerHelloMessage::getExtensionsLenth()` -> replaced by `SSLServerHelloMessage::getExtensionsLength()`
+ - Tons of bug fixes, security fixes, major and minor improvements (thanks @egecetin, @clementperon, @sashashura, @tigercosmos, @kolbex, @traversebitree, @JasMetzger, @tbhaxor, @yishai1999, @aengusjiang, @Heysunk, @jpcofr !)
+
 
 Collaborators
 -------------
 
  - @clementperon
  - @egecetin
- 
+
+
 Contributors
 ------------
 
- - @kolbex
  - @sashashura
- - @neilstephens
+ - @tigercosmos
+ - @wivien19
  - @jafar75
- - @kayoub5
+ - @MrPeck
  - @szokovacs
- - @bladchan
- - @npc144
- - @AlienX2001
- - @cswindle
+ - @axmahr
+ - @yishai1999
+ - @traversebitree
+ - @jiangjiongyu
+ - @wangchong2023
+ - @kolbex
+ - @JasMetzger
+ - @yushijinhun
+ - @aengusjiang
+ - @tbhaxor
+ - @Heysunk
+ - @jpcofr
 
-**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v22.05...v22.11
+**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v22.11...v23.09
