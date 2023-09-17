@@ -6,7 +6,7 @@ STATS SUMMARY
 General stats
 -------------
 
-Sample time:                                      0.002 [Seconds]
+Sample time:                                      0.001 [Seconds]
 Number of HTTP packets:                             222 [Packets]
 Rate of HTTP packets:                             0.000 [Packets/sec]
 Number of HTTP flows:                                 9 [Flows]

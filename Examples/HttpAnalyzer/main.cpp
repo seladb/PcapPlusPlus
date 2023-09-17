@@ -31,7 +31,6 @@
 #include <iostream>
 #include <sstream>
 
-
 #define EXIT_WITH_ERROR(reason) do { \
 	printUsage(); \
 	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
@@ -123,12 +122,11 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	const std::vector<pcpp::PcapLiveDevice*>& liveDevices = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
-	{
-		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+	for(const auto& device : liveDevices){
+		std::cout << "    -> Name: '" << device->getName() << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -136,13 +134,7 @@ void listInterfaces()
 
 void printStatsHeadline(const std::string &description)
 {
-	std::string underline;
-	for (size_t i = 0; i < description.length(); i++)
-	{
-		underline += "-";
-	}
-
-	std::cout << std::endl << description << std::endl << underline << std::endl << std::endl;
+	std::cout << std::endl << description << std::endl << std::string(description.length(),'-') << std::endl << std::endl;
 }
 
 
@@ -169,81 +161,65 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 /**
  * Print the method count table
  */
-void printMethods(HttpRequestStats& reqStatscollector)
+void printMethods(const HttpRequestStats& reqStatscollector)
 {
 	// create the table
-	std::vector<std::string> columnNames;
-	columnNames.push_back("Method");
-	columnNames.push_back("Count");
-	std::vector<int> columnsWidths;
-	columnsWidths.push_back(9);
-	columnsWidths.push_back(5);
+	std::vector<std::string> columnNames = {"Method", "Count"};
+	std::vector<int> columnsWidths = {9, 5};
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
-
 	// go over the method count table and print each method and count
-	for(std::map<pcpp::HttpRequestLayer::HttpMethod, int>::iterator iter = reqStatscollector.methodCount.begin();
-			iter != reqStatscollector.methodCount.end();
-			iter++)
+	for (auto iter : reqStatscollector.methodCount)
 	{
 		std::stringstream values;
 
-		switch (iter->first)
+		switch (iter.first)
 		{
 		case pcpp::HttpRequestLayer::HttpGET:
-			values << "GET" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpGET];
-			printer.printRow(values.str(), '|');
+			values << "GET" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpGET);
 			break;
 		case pcpp::HttpRequestLayer::HttpPOST:
-			values << "POST" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpPOST];
-			printer.printRow(values.str(), '|');
+			values << "POST" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPOST);
 			break;
 		case pcpp::HttpRequestLayer::HttpCONNECT:
-			values << "CONNECT" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpCONNECT];
-			printer.printRow(values.str(), '|');
+			values << "CONNECT" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpCONNECT);
 			break;
 		case pcpp::HttpRequestLayer::HttpDELETE:
-			values << "DELETE" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpDELETE];
-			printer.printRow(values.str(), '|');
+			values << "DELETE" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpDELETE);
 			break;
 		case pcpp::HttpRequestLayer::HttpHEAD:
-			values << "HEAD" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpHEAD];
-			printer.printRow(values.str(), '|');
+			values << "HEAD" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpHEAD);
 			break;
 		case pcpp::HttpRequestLayer::HttpOPTIONS:
-			values << "OPTIONS" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpOPTIONS];
-			printer.printRow(values.str(), '|');
+			values << "OPTIONS" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpOPTIONS);
 			break;
 		case pcpp::HttpRequestLayer::HttpPATCH:
-			values << "PATCH" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpPATCH];
-			printer.printRow(values.str(), '|');
+			values << "PATCH" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPATCH);
 			break;
 		case pcpp::HttpRequestLayer::HttpPUT:
-			values << "PUT" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpPUT];
-			printer.printRow(values.str(), '|');
+			values << "PUT" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPUT);
 			break;
 		case pcpp::HttpRequestLayer::HttpTRACE:
-			values << "TRACE" << "|" << reqStatscollector.methodCount[pcpp::HttpRequestLayer::HttpTRACE];
-			printer.printRow(values.str(), '|');
+			values << "TRACE" << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpTRACE);
 			break;
 		default:
 			break;
 		}
 
+		if(iter.first != pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown)
+		{
+			printer.printRow(values.str(), '|');
+		}
+
 	}
 }
-
 
 /**
  * An auxiliary method for sorting the hostname count map. Used only in printHostnames()
  */
-bool hostnameComparer(const std::pair<std::string, int>& first, const std::pair<std::string, int>& second)
+bool hostnameComparer(const std::pair<std::string, int>& leftHost, const std::pair<std::string, int>& rightHost)
 {
-	if (first.second == second.second)
-	{
-		return first.first > second.first;
-	}
-	return first.second > second.second;
+	return  leftHost.second > rightHost.second || (leftHost.second == rightHost.second && leftHost.first > rightHost.first);
 }
 
 /**
@@ -252,26 +228,21 @@ bool hostnameComparer(const std::pair<std::string, int>& first, const std::pair<
 void printHostnames(HttpRequestStats& reqStatscollector)
 {
 	// create the table
-	std::vector<std::string> columnNames;
-	columnNames.push_back("Hostname");
-	columnNames.push_back("Count");
-	std::vector<int> columnsWidths;
-	columnsWidths.push_back(40);
-	columnsWidths.push_back(5);
+	std::vector<std::string> columnNames = {"Hostname", "Count"};
+	std::vector<int> columnsWidths = {40, 5};
+
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the hostname count map so the most popular hostnames will be first
 	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<std::string, int> > map2vec(reqStatscollector.hostnameCount.begin(), reqStatscollector.hostnameCount.end());
-	std::sort(map2vec.begin(),map2vec.end(), &hostnameComparer);
+	std::sort(map2vec.begin(), map2vec.end(), &hostnameComparer);
 
 	// go over all items (hostname + count) in the sorted vector and print them
-	for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
-			iter != map2vec.end();
-			iter++)
+	for(const auto& hostname : map2vec)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << hostname.first << "|" << hostname.second;
 		printer.printRow(values.str(), '|');
 	}
 }
@@ -280,24 +251,20 @@ void printHostnames(HttpRequestStats& reqStatscollector)
 /**
  * Print the status code count table
  */
-void printStatusCodes(HttpResponseStats& resStatscollector)
+void printStatusCodes(const HttpResponseStats& resStatscollector)
 {
 	// create the table
-	std::vector<std::string> columnNames;
-	columnNames.push_back("Status Code");
-	columnNames.push_back("Count");
-	std::vector<int> columnsWidths;
-	columnsWidths.push_back(28);
-	columnsWidths.push_back(5);
+	std::vector<std::string> columnNames = {"Status Code", "Count"};
+	std::vector<int> columnsWidths = {28, 5};
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
-	// go over the status code map and print each item
-	for(std::map<std::string, int>::iterator iter = resStatscollector.statusCodeCount.begin();
-			iter != resStatscollector.statusCodeCount.end();
-			iter++)
+	// prints the status codes in lexical order
+  std::vector<std::pair<std::string, int>> map2vec(resStatscollector.statusCodeCount.begin(), resStatscollector.statusCodeCount.end());
+  std::sort(map2vec.begin(), map2vec.end(), [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) { return left.first < right.first; });
+  for(const auto& statusCodeStat : map2vec)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << statusCodeStat.first << "|" << statusCodeStat.second;
 		printer.printRow(values.str(), '|');
 	}
 }
@@ -306,24 +273,20 @@ void printStatusCodes(HttpResponseStats& resStatscollector)
 /**
  * Print the content-type count table
  */
-void printContentTypes(HttpResponseStats& resStatscollector)
+void printContentTypes(const HttpResponseStats& resStatscollector)
 {
 	// create the table
-	std::vector<std::string> columnNames;
-	columnNames.push_back("Content-type");
-	columnNames.push_back("Count");
-	std::vector<int> columnsWidths;
-	columnsWidths.push_back(30);
-	columnsWidths.push_back(5);
+	std::vector<std::string> columnNames = {"Content-type", "Count"};
+	std::vector<int> columnsWidths = {30, 5};
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
-	// go over the status code map and print each item
-	for(std::map<std::string, int>::iterator iter = resStatscollector.contentTypeCount.begin();
-			iter != resStatscollector.contentTypeCount.end();
-			iter++)
+	// prints the content-types in lexical order
+  std::vector<std::pair<std::string, int>> map2vec(resStatscollector.contentTypeCount.begin(), resStatscollector.contentTypeCount.end());
+  std::sort(map2vec.begin(), map2vec.end(), [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) { return left.first < right.first; });
+	for(const auto &contentTypeStat : map2vec)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << contentTypeStat.first << "|" << contentTypeStat.second;
 		printer.printRow(values.str(), '|');
 	}
 }

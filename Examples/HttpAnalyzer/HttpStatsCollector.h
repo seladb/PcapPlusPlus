@@ -1,6 +1,7 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
+#include <functional>
 #include <sstream>
 #include "HttpLayer.h"
 #include "TcpLayer.h"
@@ -8,6 +9,7 @@
 #include "PayloadLayer.h"
 #include "PacketUtils.h"
 #include "SystemUtils.h"
+
 
 /**
  * An auxiliary struct for encapsulating rate stats
@@ -89,10 +91,10 @@ struct HttpMessageStats
  */
 struct HttpRequestStats : HttpMessageStats
 {
-	std::map<pcpp::HttpRequestLayer::HttpMethod, int> methodCount; // a map for counting the different HTTP methods seen in traffic
-	std::map<std::string, int> hostnameCount; // a map for counting the hostnames seen in traffic
+	std::unordered_map<pcpp::HttpRequestLayer::HttpMethod, int, std::hash<int> > methodCount; // a map for counting the different HTTP methods seen in traffic
+	std::unordered_map<std::string, int> hostnameCount; // a map for counting the hostnames seen in traffic
 
-	void clear()
+	void clear() override
 	{
 		HttpMessageStats::clear();
 		methodCount.clear();
@@ -106,13 +108,13 @@ struct HttpRequestStats : HttpMessageStats
  */
 struct HttpResponseStats : HttpMessageStats
 {
-	std::map<std::string, int> statusCodeCount; // a map for counting the different status codes seen in traffic
-	std::map<std::string, int> contentTypeCount; // a map for counting the content-types seen in traffic
+	std::unordered_map<std::string, int> statusCodeCount; // a map for counting the different status codes seen in traffic
+	std::unordered_map<std::string, int> contentTypeCount; // a map for counting the content-types seen in traffic
 	int numOfMessagesWithContentLength; // total number of responses containing the "content-length" field
 	int totalContentLengthSize; // total body size extracted by responses containing "content-length" field
 	double averageContentLengthSize; // average body size
 
-	void clear()
+	void clear() override
 	{
 		HttpMessageStats::clear();
 		numOfMessagesWithContentLength = 0;
@@ -461,7 +463,7 @@ private:
 	HttpResponseStats m_ResponseStats;
 	HttpResponseStats m_PrevResponseStats;
 
-	std::map<uint32_t, HttpFlowData> m_FlowTable;
+	std::unordered_map<uint32_t, HttpFlowData> m_FlowTable;
 
 	double m_LastCalcRateTime;
 	double m_StartTime;
