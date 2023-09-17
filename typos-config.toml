@@ -16,6 +16,12 @@ extend-exclude = [  "*.toml",
 SSLSymetricEncryptionAlgorithm = "SSLSymetricEncryptionAlgorithm"
 OsiModelSesionLayer = "OsiModelSesionLayer"
 Sip181CallisBeingForwarded = "Sip181CallisBeingForwarded"
+# These identifiers below are coming from deprecated functions which is mentioned in cmake/package/READMEs/release_notes.txt
+# They can be removed in next release (first release after v23.09) when the release notes are changed.
+getMesageType = "getMesageType"
+setMesageType = "setMesageType"
+getExtensionsLenth = "getExtensionsLenth"
+createHandhakeMessage = "createHandhakeMessage"
 
 [default.extend-words]
 ue = "ue"
