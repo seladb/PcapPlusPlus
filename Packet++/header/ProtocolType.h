@@ -328,6 +328,11 @@ namespace pcpp
 	const ProtocolType SLL2 = 0x8000000000000;
 
 	/**
+	 * SMTP protocol
+	 */
+	const ProtocolType SMTP = 0x10000000000000;
+
+	/**
 	 * An enum representing OSI model layers
 	 */
 	enum OsiModelLayer

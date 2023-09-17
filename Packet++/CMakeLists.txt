@@ -42,6 +42,7 @@ add_library(
   src/SipLayer.cpp
   src/Sll2Layer.cpp
   src/SllLayer.cpp
+  src/SmtpLayer.cpp
   src/SomeIpLayer.cpp
   src/SomeIpSdLayer.cpp
   src/SSHLayer.cpp
