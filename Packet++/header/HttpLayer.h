@@ -523,6 +523,7 @@ namespace pcpp
 		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK", 404 is usually "Not Found", etc.
 		 * But the user can set a non-default status code string and it will be written in the header first line. Empty string ("") means using the
 		 * default status code string
+		 * @deprecated Use other constructors instead.
 		 */
 		PCPP_DEPRECATED explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
 
@@ -739,6 +740,7 @@ namespace pcpp
 		 * @param[in] statusCodeString An optional parameter: set a non-default status code message (e.g "Bla Bla" instead of "Not Found"). If
 		 * this parameter isn't supplied or supplied as empty string (""), the default message for the status code will be set
 		 * @return True if setting the status code was completed successfully, false otherwise
+	     * @deprecated Use other constructors instead.
 		 */
 		PCPP_DEPRECATED bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
 
