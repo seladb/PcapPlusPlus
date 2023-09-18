@@ -28,6 +28,20 @@ namespace pcpp
 	} s7commhdr;
 #pragma pack(pop)
 
+/**
+ * @struct s7comm_ack_data_hdr
+ * Represents a S7COMM protocol with Ack-Data header
+ */
+#pragma pack(push, 1)
+	struct s7comm_ack_data_hdr : s7commhdr
+	{
+		/** error class */
+		uint8_t error_class;
+		/** error code */
+		uint8_t error_code;
+	};
+#pragma pack(pop)
+
 	/**
 	 * @class S7commLayer
 	 * Represents a S7COMM (S7 Communication7) protocol
@@ -42,7 +56,8 @@ namespace pcpp
 		 * @param[in] param_length The length of the parameter field
 		 * @param[in] data_length The length of the data field
 		 */
-		S7commLayer(uint8_t msg_type, uint16_t pdu_ref, uint16_t param_length, uint16_t data_length);
+		S7commLayer(uint8_t msg_type, uint16_t pdu_ref, uint16_t param_length, uint16_t data_length,
+					uint8_t error_class = 0, uint8_t error_code = 0);
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -90,6 +105,15 @@ namespace pcpp
 		uint16_t getDataLength() const;
 
 		/**
+		 * @return S7comm error code
+		 */
+		uint8_t getErrorCode() const;
+		/**
+		 * @return S7comm error class
+		 */
+		uint8_t getErrorClass() const;
+
+		/**
 		 * Set the value of the message type
 		 * @param[in] msg_type The value of the message type
 		 */
@@ -112,6 +136,17 @@ namespace pcpp
 		 * @param[in] data_length The value of the data length
 		 */
 		void setDataLength(uint16_t data_length) const;
+
+		/**
+		 * Set the value of the error code
+		 * @param[in] error_code The value of the error code
+		 */
+		void setErrorCode(uint8_t error_code) const;
+		/**
+		 * Set the value of the error class
+		 * @param[in] error_class The value of the error class
+		 */
+		void setErrorClass(uint8_t error_class) const;
 
 		/**
 		 * @return Size of @ref s7commhdr
@@ -140,10 +175,33 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
-
 	  private:
 		s7commhdr *getS7commHeader() const { return (s7commhdr *)m_Data; }
+
+		s7comm_ack_data_hdr *getS7commAckDataHeader() const
+		{
+			if (getS7commHeader()->msg_type == 0x03)
+			{
+				return (s7comm_ack_data_hdr *)m_Data;
+			}
+			return nullptr;
+		}
+	};
+	class S7CommParameter
+	{
+		friend class S7commLayer;
+
+	  public:
+		S7CommParameter() {}
+		uint8_t *getData() { return m_Data; }
+		size_t getDataLength() const { return m_DataLen; }
+		S7CommParameter *getParameter() const;
+
+	  private:
+		S7CommParameter(uint8_t *data, size_t dataLen) : m_Data(data), m_DataLen(dataLen) {}
+		uint8_t *m_Data;
+		size_t m_DataLen;
 	};
 
-} // namespace pcpp
+}; // namespace pcpp
 #endif // PCAPPLUSPLUS_S7COMMLAYER_H
