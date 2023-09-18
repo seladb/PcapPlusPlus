@@ -467,8 +467,7 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported, enum);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505);
 
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported"); // customized message from packet
-
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported");
 	PTF_ASSERT_NOT_NULL(responseLayer->setContentLength(345));
 
 	std::string expectedHttpResponse("HTTP/1.1 505 HTTP Version Not Supported\r\nContent-Length: 345\r\n");
