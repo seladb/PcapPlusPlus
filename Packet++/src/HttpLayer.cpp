@@ -675,7 +675,8 @@ static const std::unordered_map<HttpResponseStatusCode, std::string, HttpRespons
 
 HttpResponseStatusCode::HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage) : m_Value(statusCode)
 {
-	if(statusMessage != "") {
+	if(statusMessage != "")
+	{
 		m_CustomizedMessage = statusMessage;
 	}
 }
