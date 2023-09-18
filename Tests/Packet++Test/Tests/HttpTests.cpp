@@ -293,13 +293,13 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600 any message\n").c_str(), 18), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
 
 
 	// test getMessage()
