@@ -4,7 +4,6 @@
 
 namespace pcpp
 {
-
 	// ----------------- Class SmtpRequestLayer -----------------
 	bool SmtpRequestLayer::setCommand(SmtpCommand code) { return setCommandInternal(getCommandAsString(code)); }
 

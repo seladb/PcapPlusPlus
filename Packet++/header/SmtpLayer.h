@@ -12,7 +12,6 @@
  */
 namespace pcpp
 {
-
 	/**
 	 * Class for general SMTP message
 	 */
@@ -182,60 +181,60 @@ namespace pcpp
 		 */
 		enum class SmtpStatusCode : int
 		{
-		/// System status, or system help reply
-		SYSTEM_STATUS = 211,
-		/// Help message
-		HELP_MESSAGE = 214,
-		/// Server ready
-		SERVER_READY = 220,
-		/// Server closing transmission channel
-		SERVER_CLOSE = 221,
-		/// Requested mail action okay, completed
-		COMMAND_COMPLETE = 250,
-		/// User not local; will forward
-		FORWARD_PATH = 251,
-		/// Cannot VRFY user, but will accept message and attempt delivery
-		CANNOT_VERIFY = 252,
-		/// Server challenge
-		SERVER_CHALLENGE = 334,
-		/// Start mail input
-		START_MAIL = 354,
-		/// Service not available, closing transmission channel
-		SERVER_UNAVAILABLE = 421,
-		/// Requested mail action not taken: mailbox unavailable (mailbox busy or temporarily blocked)
-		MAILBOX_UNAVAILABLE_TEMP = 450,
-		/// Requested action aborted: local error in processing
-		SERVER_ABORT_LOCAL = 451,
-		/// Requested action not taken: insufficient system storage
-		SERVER_ABORT_STORAGE = 452,
-		/// Server unable to accommodate parameters
-		PARAM_NOT_ACCOMMODATED = 455,
-		/// Syntax error, command unrecognized
-		SYNTAXX_ERROR_CMD = 500,
-		/// Syntax error in parameters or arguments
-		SYNTAX_ERROR_PARAM = 501,
-		/// Command not implemented
-		CMD_NOT_IMPLEMENTED = 502,
-		/// Bad sequence of commands
-		BAD_CMD_SEQUENCE = 503,
-		/// Command parameter not implemented
-		PARAM_NOT_IMPLEMENTED = 504,
-		/// Server does not accept mail
-		NOT_ACCEPT = 521,
-		/// Encryption needed
-		ENCRYPT_NEED = 523,
-		/// Requested action not taken: mailbox unavailable (mailbox not found)
-		MAILBOX_UNAVAILABLE = 550,
-		/// User not local
-		USER_NOT_LOCAL = 551,
-		/// Requested mail action aborted: exceeded storage allocation
-		EXCEED_STORAGE = 552,
-		/// Requested action not taken: mailbox name not allowed
-		NAME_NOT_ALLOWED = 553,
-		/// Transaction failed
-		TRANSACTION_FAIL = 554,
-		/// Domain does not accept mail
-		DOMAIN_NOT_ACCEPT = 556
+			/// System status, or system help reply
+			SYSTEM_STATUS = 211,
+			/// Help message
+			HELP_MESSAGE = 214,
+			/// Server ready
+			SERVER_READY = 220,
+			/// Server closing transmission channel
+			SERVER_CLOSE = 221,
+			/// Requested mail action okay, completed
+			COMMAND_COMPLETE = 250,
+			/// User not local; will forward
+			FORWARD_PATH = 251,
+			/// Cannot VRFY user, but will accept message and attempt delivery
+			CANNOT_VERIFY = 252,
+			/// Server challenge
+			SERVER_CHALLENGE = 334,
+			/// Start mail input
+			START_MAIL = 354,
+			/// Service not available, closing transmission channel
+			SERVER_UNAVAILABLE = 421,
+			/// Requested mail action not taken: mailbox unavailable (mailbox busy or temporarily blocked)
+			MAILBOX_UNAVAILABLE_TEMP = 450,
+			/// Requested action aborted: local error in processing
+			SERVER_ABORT_LOCAL = 451,
+			/// Requested action not taken: insufficient system storage
+			SERVER_ABORT_STORAGE = 452,
+			/// Server unable to accommodate parameters
+			PARAM_NOT_ACCOMMODATED = 455,
+			/// Syntax error, command unrecognized
+			SYNTAXX_ERROR_CMD = 500,
+			/// Syntax error in parameters or arguments
+			SYNTAX_ERROR_PARAM = 501,
+			/// Command not implemented
+			CMD_NOT_IMPLEMENTED = 502,
+			/// Bad sequence of commands
+			BAD_CMD_SEQUENCE = 503,
+			/// Command parameter not implemented
+			PARAM_NOT_IMPLEMENTED = 504,
+			/// Server does not accept mail
+			NOT_ACCEPT = 521,
+			/// Encryption needed
+			ENCRYPT_NEED = 523,
+			/// Requested action not taken: mailbox unavailable (mailbox not found)
+			MAILBOX_UNAVAILABLE = 550,
+			/// User not local
+			USER_NOT_LOCAL = 551,
+			/// Requested mail action aborted: exceeded storage allocation
+			EXCEED_STORAGE = 552,
+			/// Requested action not taken: mailbox name not allowed
+			NAME_NOT_ALLOWED = 553,
+			/// Transaction failed
+			TRANSACTION_FAIL = 554,
+			/// Domain does not accept mail
+			DOMAIN_NOT_ACCEPT = 556
 		};
 
 		/** A constructor that creates the layer from an existing packet raw data
