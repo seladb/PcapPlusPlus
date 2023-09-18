@@ -697,10 +697,17 @@ HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevL
 	parseFields();
 }
 
-HttpResponseLayer::HttpResponseLayer(HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString)
+HttpResponseLayer::HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString)
 {
 	m_Protocol = HTTPResponse;
-	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode, std::move(statusCodeString));
+	m_FirstLine = new HttpResponseFirstLine(this, version, HttpResponseStatusCode(statusCode, statusCodeString));
+	m_FieldsOffset = m_FirstLine->getSize();
+}
+
+HttpResponseLayer::HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode)
+{
+	m_Protocol = HTTPResponse;
+	m_FirstLine = new HttpResponseFirstLine(this, version, statusCode);
 	m_FieldsOffset = m_FirstLine->getSize();
 }
 
@@ -802,7 +809,12 @@ std::string HttpResponseFirstLine::getStatusCodeString() const
 	return "";
 }
 
-bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString)
+bool HttpResponseFirstLine::setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString)
+{
+	return setStatusCode(HttpResponseStatusCode(newStatusCode, statusCodeString));
+}
+
+bool HttpResponseFirstLine::setStatusCode(const HttpResponseStatusCode& newStatusCode)
 {
 	if (newStatusCode.isUnsupportedCode())
 	{
@@ -812,10 +824,8 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, 
 
 	//extend or shorten layer
 
-	HttpResponseStatusCode newStatusCodeWithMessage(newStatusCode, statusCodeString);
-
 	size_t statusStringOffset = 13;
-	auto newStatusCodeMessage = newStatusCodeWithMessage.getMessage();
+	auto newStatusCodeMessage = newStatusCode.getMessage();
 
 	int lengthDifference = newStatusCodeMessage.length() - getStatusCodeString().length();
 	if (lengthDifference > 0)
@@ -845,7 +855,7 @@ bool HttpResponseFirstLine::setStatusCode(HttpResponseStatusCode newStatusCode, 
 	// change status code
 	memcpy(m_HttpResponse->m_Data+9, newStatusCode.toString().c_str(), 3);
 
-	m_StatusCode = newStatusCodeWithMessage;
+	m_StatusCode = newStatusCode;
 
 	m_FirstLineEndOffset += lengthDifference;
 
@@ -898,7 +908,7 @@ HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, 
 	}
 
 	std::string messageString(data + messageOffset, offset - messageOffset);
-	if(messageString.back() == '\r')
+	if(!messageString.empty() && messageString.back() == '\r')
 	{
 		messageString.pop_back();
 	}
@@ -944,7 +954,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : 
 }
 
 
-HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString)
+HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, const HttpResponseStatusCode& statusCode)
 {
 	if (statusCode.isUnsupportedCode())
 	{
@@ -960,7 +970,7 @@ HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse,  H
 
 	m_HttpResponse = httpResponse;
 
-	m_StatusCode = HttpResponseStatusCode(statusCode, statusCodeString);
+	m_StatusCode = statusCode;
 	m_Version = version;
 
 	std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +  m_StatusCode.getMessage() +  "\r\n";
