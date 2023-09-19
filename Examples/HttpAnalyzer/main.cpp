@@ -168,8 +168,13 @@ void printMethods(const HttpRequestStats& reqStatscollector)
 	std::vector<int> columnsWidths = {9, 5};
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
+  // Copy elements to a vector
+  std::vector<std::pair<pcpp::HttpRequestLayer::HttpMethod, int>> map2vec(reqStatscollector.methodCount.begin(), reqStatscollector.methodCount.end());
+  std::sort(map2vec.begin(), map2vec.end(),
+    [](const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& left,
+      const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& right) { return left.first < right.first; });
 	// go over the method count table and print each method and count
-	for (auto iter : reqStatscollector.methodCount)
+	for (auto iter : map2vec)
 	{
 		std::stringstream values;
 
