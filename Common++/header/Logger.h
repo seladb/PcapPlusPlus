@@ -73,6 +73,7 @@ namespace pcpp
 		PacketLogModuleSomeIpLayer, ///< SomeIpLayer module (Packet++)
 		PacketLogModuleSomeIpSdLayer, ///< SomeIpSdLayer module (Packet++)
 		PacketLogModuleWakeOnLanLayer, ///< WakeOnLanLayer module (Packet++)
+		PacketLogModuleSmtpLayer, ///< SmtpLayer module (Packet++)
 		PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)
 		PcapLogModuleRemoteDevice, ///< WinPcapRemoteDevice module (Pcap++)
 		PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)

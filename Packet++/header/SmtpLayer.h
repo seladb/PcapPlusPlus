@@ -95,7 +95,27 @@ namespace pcpp
 			/// Send mail to terminal or to mailbox
 			SOML = ('S') | ('O' << 8) | ('M' << 16) | ('L' << 24),
 			/// Send mail to terminal and mailbox
-			SAML = ('S') | ('A' << 8) | ('M' << 16) | ('L' << 24)
+			SAML = ('S') | ('A' << 8) | ('M' << 16) | ('L' << 24),
+			///
+			TLS = ('T' << 8) | ('L' << 16) | ('S' << 24),
+			/// Start TLS handshake
+			STLS = ('S') | ('T' << 8) | ('L' << 16) | ('S' << 24),
+			/// Authenticate client and server
+			AUTH = ('A') | ('U' << 8) | ('T' << 16) | ('H' << 24),
+			/// Reverse the role of sender and receiver
+			ATRN = ('A') | ('T' << 8) | ('R' << 16) | ('N' << 24),
+			/// Submit mail contents
+			BDAT = ('B') | ('D' << 8) | ('A' << 16) | ('T' << 24),
+			/// Request to start SMTP queue processing
+			ETRN = ('E') | ('T' << 8) | ('R' << 16) | ('N' << 24),
+			/// Release status of the channel
+			XADR = ('X') | ('A' << 8) | ('D' << 16) | ('R' << 24),
+			/// Release status of the circuit checking facility
+			XCIR = ('X') | ('C' << 8) | ('I' << 16) | ('R' << 24),
+			/// Release status of the number of messages in channel queues
+			XSTA = ('X') | ('S' << 8) | ('T' << 16) | ('A' << 24),
+			/// Release status of whether a compiled configuration and character set are in use
+			XGEN = ('X') | ('G' << 8) | ('E' << 16) | ('N' << 24),
 		};
 
 		/** A constructor that creates the layer from an existing packet raw data

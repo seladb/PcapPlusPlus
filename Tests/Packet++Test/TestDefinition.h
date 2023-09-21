@@ -241,5 +241,10 @@ PTF_TEST_CASE(TpktLayerTest);
 PTF_TEST_CASE(VrrpParsingTest);
 PTF_TEST_CASE(VrrpCreateAndEditTest);
 
-//Implemented in CotpTests.cpp
+// Implemented in CotpTests.cpp
 PTF_TEST_CASE(CotpLayerTest);
+
+// Implemented in SmtpTests.cpp
+PTF_TEST_CASE(SmtpParsingTests);
+PTF_TEST_CASE(SmtpCreationTests);
+PTF_TEST_CASE(SmtpEditTests);
