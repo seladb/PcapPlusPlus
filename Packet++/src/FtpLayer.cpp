@@ -53,13 +53,13 @@ namespace pcpp
 		switch (code)
 		{
 		case FtpCommand::ABOR:
-			return "Abort an active file transfer.";
+			return "Abort an active file transfer";
 		case FtpCommand::ACCT:
-			return "Account information.";
+			return "Account information";
 		case FtpCommand::ADAT:
 			return "Authentication/Security Data";
 		case FtpCommand::ALLO:
-			return "Allocate sufficient disk space to receive a file.";
+			return "Allocate sufficient disk space to receive a file";
 		case FtpCommand::APPE:
 			return "Append (with create)";
 		case FtpCommand::AUTH:
@@ -69,98 +69,98 @@ namespace pcpp
 		case FtpCommand::CCC:
 			return "Clear Command Channel";
 		case FtpCommand::CDUP:
-			return "Change to Parent Directory.";
+			return "Change to Parent Directory";
 		case FtpCommand::CONF:
 			return "Confidentiality Protection Command";
 		case FtpCommand::CSID:
 			return "Client / Server Identification";
 		case FtpCommand::CWD:
-			return "Change working directory.";
+			return "Change working directory";
 		case FtpCommand::DELE:
-			return "Delete file.";
+			return "Delete file";
 		case FtpCommand::DSIZ:
 			return "Get the directory size";
 		case FtpCommand::ENC:
 			return "Privacy Protected Channel";
 		case FtpCommand::EPRT:
-			return "Specifies an extended address and port to which the server should connect.";
+			return "Specifies an extended address and port to which the server should connect";
 		case FtpCommand::EPSV:
-			return "Enter extended passive mode.";
+			return "Enter extended passive mode";
 		case FtpCommand::FEAT:
-			return "Get the feature list implemented by the server.";
+			return "Get the feature list implemented by the server";
 		case FtpCommand::HELP:
-			return "Returns usage documentation on a command if specified, else a general help document is returned.";
+			return "Returns usage documentation on a command if specified, else a general help document is returned";
 		case FtpCommand::HOST:
-			return "Identify desired virtual host on server, by name.";
+			return "Identify desired virtual host on server, by name";
 		case FtpCommand::LANG:
 			return "Language Negotiation";
 		case FtpCommand::LIST:
 			return "Returns information of a file or directory if specified, else information of the current working "
-				"directory is returned.";
+				"directory is returned";
 		case FtpCommand::LPRT:
-			return "Specifies a long address and port to which the server should connect.";
+			return "Specifies a long address and port to which the server should connect";
 		case FtpCommand::LPSV:
-			return "Enter long passive mode.";
+			return "Enter long passive mode";
 		case FtpCommand::MDTM:
-			return "Return the last-modified time of a specified file.";
+			return "Return the last-modified time of a specified file";
 		case FtpCommand::MFCT:
-			return "Modify the creation time of a file.";
+			return "Modify the creation time of a file";
 		case FtpCommand::MFF:
-			return "Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).";
+			return "Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file)";
 		case FtpCommand::MFMT:
-			return "Modify the last modification time of a file.";
+			return "Modify the last modification time of a file";
 		case FtpCommand::MIC:
 			return "Integrity Protected Command";
 		case FtpCommand::MKD:
-			return "Make directory.";
+			return "Make directory";
 		case FtpCommand::MLSD:
-			return "Lists the contents of a directory in a standardized machine-readable format.";
+			return "Lists the contents of a directory in a standardized machine-readable format";
 		case FtpCommand::MLST:
 			return "Provides data about exactly the object named on its command line in a standardized "
-				"machine-readable format.";
+				"machine-readable format";
 		case FtpCommand::MODE:
-			return "Sets the transfer mode (Stream, Block, or Compressed).";
+			return "Sets the transfer mode (Stream, Block, or Compressed)";
 		case FtpCommand::NLST:
-			return "Returns a list of file names in a specified directory.";
+			return "Returns a list of file names in a specified directory";
 		case FtpCommand::NOOP:
-			return "No operation (dummy packet; used mostly on keepalives).";
+			return "No operation (dummy packet; used mostly on keepalives)";
 		case FtpCommand::OPTS:
-			return "Select options for a feature (for example OPTS UTF8 ON).";
+			return "Select options for a feature (for example OPTS UTF8 ON)";
 		case FtpCommand::PASS:
-			return "Authentication password.";
+			return "Authentication password";
 		case FtpCommand::PASV:
-			return "Enter passive mode.";
+			return "Enter passive mode";
 		case FtpCommand::PBSZ:
 			return "Protection Buffer Size";
 		case FtpCommand::PORT:
-			return "Specifies an address and port to which the server should connect.";
+			return "Specifies an address and port to which the server should connect";
 		case FtpCommand::PROT:
-			return "Data Channel Protection Level.";
+			return "Data Channel Protection Level";
 		case FtpCommand::PWD:
-			return "Print working directory. Returns the current directory of the host.";
+			return "Print working directory. Returns the current directory of the host";
 		case FtpCommand::QUIT:
-			return "Disconnect.";
+			return "Disconnect";
 		case FtpCommand::REIN:
-			return "Re initializes the connection.";
+			return "Re initializes the connection";
 		case FtpCommand::REST:
-			return "Restart transfer from the specified point.";
+			return "Restart transfer from the specified point";
 		case FtpCommand::RETR:
 			return "Retrieve a copy of the file";
 		case FtpCommand::RMD:
-			return "Remove a directory.";
+			return "Remove a directory";
 		case FtpCommand::RMDA:
 			return "Remove a directory tree";
 		case FtpCommand::RNFR:
-			return "Rename from.";
+			return "Rename from";
 		case FtpCommand::RNTO:
-			return "Rename to.";
+			return "Rename to";
 		case FtpCommand::SITE:
 			return "Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE "
-				"HELP output for complete list of supported commands.";
+				"HELP output for complete list of supported commands";
 		case FtpCommand::SIZE:
-			return "Return the size of a file.";
+			return "Return the size of a file";
 		case FtpCommand::SMNT:
-			return "Mount file structure.";
+			return "Mount file structure";
 		case FtpCommand::SPSV:
 			return "Use single port passive mode (only one TCP port number for both control connections and "
 				"passive-mode data connections)";
@@ -169,17 +169,17 @@ namespace pcpp
 		case FtpCommand::STOR:
 			return "Accept the data and to store the data as a file at the server site";
 		case FtpCommand::STOU:
-			return "Store file uniquely.";
+			return "Store file uniquely";
 		case FtpCommand::STRU:
-			return "Set file transfer structure.";
+			return "Set file transfer structure";
 		case FtpCommand::SYST:
-			return "Return system type.";
+			return "Return system type";
 		case FtpCommand::THMB:
 			return "Get a thumbnail of a remote image file";
 		case FtpCommand::TYPE:
-			return "Sets the transfer mode (ASCII/Binary).";
+			return "Sets the transfer mode (ASCII/Binary)";
 		case FtpCommand::USER:
-			return "Authentication username.";
+			return "Authentication username";
 		case FtpCommand::XCUP:
 			return "Change to the parent of the current working directory";
 		case FtpCommand::XMKD:
