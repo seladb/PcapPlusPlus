@@ -104,7 +104,15 @@ namespace pcpp
 
 	S7CommParameter *S7CommParameter::getParameter() const
 	{
-		auto m_Parameter = nullptr;
+		S7CommParameter * m_Parameter = nullptr;
+
+		size_t parameterLen = getDataLength();
+
+		uint8_t *payload = m_Data + parameterLen;
+		size_t payloadLen = m_DataLen - parameterLen;
+
+		m_Parameter = new S7CommParameter(payload, payloadLen);
+
 		// If m_Parameter is still nullptr - get the parameter data and index and create it
 		return m_Parameter;
 	}

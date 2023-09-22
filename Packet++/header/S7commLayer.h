@@ -41,7 +41,21 @@ namespace pcpp
 		uint8_t error_code;
 	};
 #pragma pack(pop)
+	class S7CommParameter
+	{
+		friend class S7commLayer;
 
+	  public:
+		S7CommParameter() {}
+		uint8_t *getData() { return m_Data; }
+		size_t getDataLength() const { return m_DataLen; }
+		S7CommParameter *getParameter() const;
+
+	  private:
+		S7CommParameter(uint8_t *data, size_t dataLen) : m_Data(data), m_DataLen(dataLen) {}
+		uint8_t *m_Data;
+		size_t m_DataLen;
+	};
 	/**
 	 * @class S7commLayer
 	 * Represents a S7COMM (S7 Communication7) protocol
@@ -192,21 +206,7 @@ namespace pcpp
 			}
 			return nullptr;
 		}
-	};
-	class S7CommParameter
-	{
-		friend class S7commLayer;
-
-	  public:
-		S7CommParameter() {}
-		uint8_t *getData() { return m_Data; }
-		size_t getDataLength() const { return m_DataLen; }
-		S7CommParameter *getParameter() const;
-
-	  private:
-		S7CommParameter(uint8_t *data, size_t dataLen) : m_Data(data), m_DataLen(dataLen) {}
-		uint8_t *m_Data;
-		size_t m_DataLen;
+		S7CommParameter* m_Parameter;
 	};
 
 };	   // namespace pcpp
