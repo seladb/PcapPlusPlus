@@ -211,7 +211,7 @@ namespace pcpp
 		case SmtpStatusCode::DOMAIN_NOT_ACCEPT:
 			return "Domain does not accept mail";
 		default:
-			return "Unknown Status Code";
+			return "Unknown status code";
 		}
 	}
 
