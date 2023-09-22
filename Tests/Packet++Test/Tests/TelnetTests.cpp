@@ -38,22 +38,22 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 					pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption);
 
 	// Check iteration
-	pcpp::TelnetLayer::TelnetCommand vCommand[] = {
+	std::vector<pcpp::TelnetLayer::TelnetCommand> vCommand = {
 		pcpp::TelnetLayer::TelnetCommand::WillPerform,	  pcpp::TelnetLayer::TelnetCommand::DoPerform,
 		pcpp::TelnetLayer::TelnetCommand::DoPerform,	  pcpp::TelnetLayer::TelnetCommand::DoPerform,
 		pcpp::TelnetLayer::TelnetCommand::DoPerform,	  pcpp::TelnetLayer::TelnetCommand::DoPerform,
 		pcpp::TelnetLayer::TelnetCommand::Subnegotiation, pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd};
-	pcpp::TelnetLayer::TelnetOption vOptions[] = {pcpp::TelnetLayer::TelnetOption::SuppressGoAhead,
-												  pcpp::TelnetLayer::TelnetOption::TerminalType,
-												  pcpp::TelnetLayer::TelnetOption::NegotiateAboutWindowSize,
-												  pcpp::TelnetLayer::TelnetOption::TerminalSpeed,
-												  pcpp::TelnetLayer::TelnetOption::RemoteFlowControl,
-												  pcpp::TelnetLayer::TelnetOption::Linemode,
-												  pcpp::TelnetLayer::TelnetOption::Linemode,
-												  pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption};
-	std::string vCommandString[] = {"Will Perform", "Do Perform", "Do Perform",		"Do Perform",
-									"Do Perform",	"Do Perform", "Subnegotiation", "Subnegotiation End"};
-	std::string vOptionString[] = {
+	std::vector<pcpp::TelnetLayer::TelnetOption> vOptions = {pcpp::TelnetLayer::TelnetOption::SuppressGoAhead,
+															 pcpp::TelnetLayer::TelnetOption::TerminalType,
+															 pcpp::TelnetLayer::TelnetOption::NegotiateAboutWindowSize,
+															 pcpp::TelnetLayer::TelnetOption::TerminalSpeed,
+															 pcpp::TelnetLayer::TelnetOption::RemoteFlowControl,
+															 pcpp::TelnetLayer::TelnetOption::Linemode,
+															 pcpp::TelnetLayer::TelnetOption::Linemode,
+															 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption};
+	std::vector<std::string> vCommandString = {"Will Perform", "Do Perform", "Do Perform",	   "Do Perform",
+											   "Do Perform",   "Do Perform", "Subnegotiation", "Subnegotiation End"};
+	std::vector<std::string> vOptionString = {
 		"Suppress Go Ahead", "Terminal Type", "Negotiate About Window Size", "Terminal Speed", "Remote Flow Control",
 		"Line mode",		 "Line mode",	  "No option for this command"};
 
@@ -101,12 +101,12 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer2->getDataAsString(), "@");
 	PTF_ASSERT_EQUAL(telnetLayer2->getTotalNumberOfCommands(), 3);
 
-	pcpp::TelnetLayer::TelnetCommand vCommand2[] = {pcpp::TelnetLayer::TelnetCommand::DoPerform,
-													pcpp::TelnetLayer::TelnetCommand::WillPerform,
-													pcpp::TelnetLayer::TelnetCommand::EndOfRecordCommand};
-	pcpp::TelnetLayer::TelnetOption vOptions2[] = {pcpp::TelnetLayer::TelnetOption::TransmitBinary,
-												   pcpp::TelnetLayer::TelnetOption::TransmitBinary,
-												   pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption};
+	std::vector<pcpp::TelnetLayer::TelnetCommand> vCommand2 = {pcpp::TelnetLayer::TelnetCommand::DoPerform,
+															   pcpp::TelnetLayer::TelnetCommand::WillPerform,
+															   pcpp::TelnetLayer::TelnetCommand::EndOfRecordCommand};
+	std::vector<pcpp::TelnetLayer::TelnetOption> vOptions2 = {pcpp::TelnetLayer::TelnetOption::TransmitBinary,
+															  pcpp::TelnetLayer::TelnetOption::TransmitBinary,
+															  pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption};
 
 	size_t ctr2 = 0;
 	size_t length2 = 0;
