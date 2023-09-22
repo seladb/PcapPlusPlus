@@ -6,23 +6,26 @@
 #include "SystemUtils.h"
 #include <stdio.h>
 
-PTF_TEST_CASE(S7commLayerTest) {
-    timeval time;
+PTF_TEST_CASE(S7commLayerTest)
+{
+	timeval time;
 	gettimeofday(&time, nullptr);
-    READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/S7comm.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/S7comm.dat");
 
-    pcpp::Packet S7commLayerTest(&rawPacket1);
-    PTF_ASSERT_TRUE(S7commLayerTest.isPacketOfType(pcpp::S7COMM));
-    auto *s7commLayer = S7commLayerTest.getLayerOfType<pcpp::S7commLayer>();
-    PTF_ASSERT_NOT_NULL(s7commLayer);
+	pcpp::Packet S7commLayerTest(&rawPacket1);
+	PTF_ASSERT_TRUE(S7commLayerTest.isPacketOfType(pcpp::S7COMM));
+	auto *s7commLayer = S7commLayerTest.getLayerOfType<pcpp::S7commLayer>();
+	PTF_ASSERT_NOT_NULL(s7commLayer);
 
-    PTF_ASSERT_EQUAL(s7commLayer->getProtocolId(), 0x32);
-    PTF_ASSERT_EQUAL(s7commLayer->getMsgType(), 0x07);
-    PTF_ASSERT_EQUAL(s7commLayer->getReserved(), htobe16(0));
-    PTF_ASSERT_EQUAL(s7commLayer->getPduRef(), 0xfd0b);
-    PTF_ASSERT_EQUAL(s7commLayer->getParamLength(), 12);
-    PTF_ASSERT_EQUAL(s7commLayer->getDataLength(), 212);
-	PTF_ASSERT_EQUAL(s7commLayer->toString(), "S7comm Layer, msg_type: 7, pdu_ref: 64779, param_length: 12, data_length: 212");
+	PTF_ASSERT_EQUAL(s7commLayer->getProtocolId(), 0x32);
+	PTF_ASSERT_EQUAL(s7commLayer->getMsgType(), 0x07);
+	PTF_ASSERT_EQUAL(s7commLayer->getReserved(), htobe16(0));
+	PTF_ASSERT_EQUAL(s7commLayer->getPduRef(), 0xfd0b);
+	PTF_ASSERT_EQUAL(s7commLayer->getParamLength(), 12);
+	PTF_ASSERT_EQUAL(s7commLayer->getDataLength(), 212);
+	PTF_ASSERT_EQUAL(s7commLayer->getHeaderLen(), 0xea);
+	PTF_ASSERT_EQUAL(s7commLayer->toString(),
+					 "S7comm Layer, msg_type: 7, pdu_ref: 64779, param_length: 12, data_length: 212");
 
 	pcpp::S7commLayer newS7commPacket(0x09, 0xfd0c, 13, 213);
 
@@ -30,7 +33,6 @@ PTF_TEST_CASE(S7commLayerTest) {
 	PTF_ASSERT_EQUAL(newS7commPacket.getPduRef(), 0xfd0c);
 	PTF_ASSERT_EQUAL(newS7commPacket.getParamLength(), 13);
 	PTF_ASSERT_EQUAL(newS7commPacket.getDataLength(), 213);
-
 
 	newS7commPacket.setMsgType(0x06);
 	newS7commPacket.setPduRef(0xfd0a);
@@ -56,8 +58,11 @@ PTF_TEST_CASE(S7commLayerTest) {
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getDataLength(), 68);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getErrorClass(), 0x00);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getErrorCode(), 0x00);
+	PTF_ASSERT_EQUAL(s7commErrorLayer->getHeaderLen(), 0x52);
 
-	PTF_ASSERT_EQUAL(s7commErrorLayer->toString(), "S7comm Layer, msg_type: 3, pdu_ref: 0, param_length: 2, data_length: 68, error class: 0, error code: 0");
+	PTF_ASSERT_EQUAL(
+		s7commErrorLayer->toString(),
+		"S7comm Layer, msg_type: 3, pdu_ref: 0, param_length: 2, data_length: 68, error class: 0, error code: 0");
 
 	s7commErrorLayer->setErrorCode(0x06);
 	s7commErrorLayer->setErrorClass(0x07);

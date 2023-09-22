@@ -151,7 +151,13 @@ namespace pcpp
 		/**
 		 * @return Size of @ref s7commhdr
 		 */
-		size_t getHeaderLen() const override { return sizeof(s7commhdr); }
+		size_t getHeaderLen() const override
+		{
+			if (getS7commHeader()->msg_type == 0x03)
+				return sizeof(s7comm_ack_data_hdr) + getParamLength() + getDataLength();
+
+			return sizeof(s7commhdr) + getParamLength() + getDataLength();
+		}
 
 		/**
 		 * Does nothing for this layer
@@ -203,5 +209,5 @@ namespace pcpp
 		size_t m_DataLen;
 	};
 
-}; // namespace pcpp
+};	   // namespace pcpp
 #endif // PCAPPLUSPLUS_S7COMMLAYER_H
