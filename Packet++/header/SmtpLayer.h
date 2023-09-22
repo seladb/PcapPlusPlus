@@ -68,38 +68,38 @@ namespace pcpp
 		{
 			/// Unknown command
 			UNK,
-			/// Sender identification
-			HELO = ('H') | ('E' << 8) | ('L' << 16) | ('O' << 24),
-			/// Originator of the mail
-			MAIL = ('M') | ('A' << 8) | ('I' << 16) | ('L' << 24),
-			/// Mail recipient
-			RCPT = ('R') | ('C' << 8) | ('P' << 16) | ('T' << 24),
-			/// Beginning of mail
+			/// Starting mail body
 			DATA = ('D') | ('A' << 8) | ('T' << 16) | ('A' << 24),
-			/// Close connection
-			QUIT = ('Q') | ('U' << 8) | ('I' << 16) | ('T' << 24),
-			/// Abort mail transaction
-			RSET = ('R') | ('S' << 8) | ('E' << 16) | ('T' << 24),
-			/// Verify username
-			VRFY = ('V') | ('R' << 8) | ('F' << 16) | ('Y' << 24),
+			/// Initiate conversation
+			EHLO = ('E') | ('H' << 8) | ('L' << 16) | ('O' << 24),
+			/// Expand the mailing list
+			EXPN = ('E') | ('X' << 8) | ('P' << 16) | ('N' << 24),
+			/// Initiate conversation
+			HELO = ('H') | ('E' << 8) | ('L' << 16) | ('O' << 24),
+			/// Ask information
+			HELP = ('H') | ('E' << 8) | ('L' << 16) | ('P' << 24),
+			/// Sender indication
+			MAIL = ('M') | ('A' << 8) | ('I' << 16) | ('L' << 24),
 			/// No operation
 			NOOP = ('N') | ('O' << 8) | ('O' << 16) | ('P' << 24),
+			/// Close conversation
+			QUIT = ('Q') | ('U' << 8) | ('I' << 16) | ('T' << 24),
+			/// Receiver indication
+			RCPT = ('R') | ('C' << 8) | ('P' << 16) | ('T' << 24),
+			/// Abort transaction
+			RSET = ('R') | ('S' << 8) | ('E' << 16) | ('T' << 24),
+			/// Identify user
+			VRFY = ('V') | ('R' << 8) | ('F' << 16) | ('Y' << 24),
+			/// Start TLS handshake
+			STARTTLS = ('S') | ('T' << 8) | ('L' << 16) | ('S' << 24),
 			/// Reverse the role of sender and receiver
 			TURN = ('T') | ('U' << 8) | ('R' << 16) | ('N' << 24),
-			/// Expand mailing list
-			EXPN = ('E') | ('X' << 8) | ('P' << 16) | ('N' << 24),
-			/// System specific documentation
-			HELP = ('H') | ('E' << 8) | ('L' << 16) | ('P' << 24),
 			/// Send mail to terminal
 			SEND = ('S') | ('E' << 8) | ('N' << 16) | ('D' << 24),
 			/// Send mail to terminal or to mailbox
 			SOML = ('S') | ('O' << 8) | ('M' << 16) | ('L' << 24),
 			/// Send mail to terminal and mailbox
 			SAML = ('S') | ('A' << 8) | ('M' << 16) | ('L' << 24),
-			///
-			TLS = ('T' << 8) | ('L' << 16) | ('S' << 24),
-			/// Start TLS handshake
-			STLS = ('S') | ('T' << 8) | ('L' << 16) | ('S' << 24),
 			/// Authenticate client and server
 			AUTH = ('A') | ('U' << 8) | ('T' << 16) | ('H' << 24),
 			/// Reverse the role of sender and receiver
@@ -115,7 +115,7 @@ namespace pcpp
 			/// Release status of the number of messages in channel queues
 			XSTA = ('X') | ('S' << 8) | ('T' << 16) | ('A' << 24),
 			/// Release status of whether a compiled configuration and character set are in use
-			XGEN = ('X') | ('G' << 8) | ('E' << 16) | ('N' << 24),
+			XGEN = ('X') | ('G' << 8) | ('E' << 16) | ('N' << 24)
 		};
 
 		/** A constructor that creates the layer from an existing packet raw data
@@ -205,47 +205,61 @@ namespace pcpp
 			SYSTEM_STATUS = 211,
 			/// Help message
 			HELP_MESSAGE = 214,
-			/// Server ready
-			SERVER_READY = 220,
-			/// Server closing transmission channel
-			SERVER_CLOSE = 221,
+			/// <domain> Service ready
+			SERVICE_READY = 220,
+			/// <domain> Service closing transmission channel
+			SERVICE_CLOSE = 221,
+			/// Authentication successful
+			AUTH_SUCCESS = 235,
 			/// Requested mail action okay, completed
-			COMMAND_COMPLETE = 250,
-			/// User not local; will forward
-			FORWARD_PATH = 251,
+			COMPLETED = 250,
+			/// User not local; will forward to <forward-path>
+			WILL_FORWARD = 251,
 			/// Cannot VRFY user, but will accept message and attempt delivery
 			CANNOT_VERIFY = 252,
-			/// Server challenge
-			SERVER_CHALLENGE = 334,
-			/// Start mail input
-			START_MAIL = 354,
-			/// Service not available, closing transmission channel
-			SERVER_UNAVAILABLE = 421,
-			/// Requested mail action not taken: mailbox unavailable (mailbox busy or temporarily blocked)
+			/// AUTH input
+			AUTH_INPUT = 334,
+			/// Start mail input; end with <CRLF>.<CRLF>
+			MAIL_INPUT = 354,
+			/// <domain> Service not available, closing transmission channel
+			SERVICE_UNAVAILABLE = 421,
+			/// A password transition is needed
+			PASS_NEEDED = 432,
+			/// Requested mail action not taken: mailbox unavailable (mail busy or temporarily blocked)
 			MAILBOX_UNAVAILABLE_TEMP = 450,
 			/// Requested action aborted: local error in processing
-			SERVER_ABORT_LOCAL = 451,
+			ABORT_LOCAL_ERROR = 451,
 			/// Requested action not taken: insufficient system storage
-			SERVER_ABORT_STORAGE = 452,
-			/// Server unable to accommodate parameters
-			PARAM_NOT_ACCOMMODATED = 455,
+			INSUFFICIENT_STORAGE = 452,
+			/// Temporary authenticaion failed
+			TEMP_AUTH_FAILED = 454,
+			/// Server unable to accomodate parameters
+			PARAM_NOT_ACCOMODATED = 455,
 			/// Syntax error, command unrecognized
-			SYNTAXX_ERROR_CMD = 500,
+			CMD_NOT_RECOGNIZED = 500,
 			/// Syntax error in parameters or arguments
 			SYNTAX_ERROR_PARAM = 501,
 			/// Command not implemented
 			CMD_NOT_IMPLEMENTED = 502,
 			/// Bad sequence of commands
-			BAD_CMD_SEQUENCE = 503,
+			CMD_BAD_SEQUENCE = 503,
 			/// Command parameter not implemented
 			PARAM_NOT_IMPLEMENTED = 504,
 			/// Server does not accept mail
-			NOT_ACCEPT = 521,
+			MAIL_NOT_ACCEPTED = 521,
 			/// Encryption needed
 			ENCRYPT_NEED = 523,
-			/// Requested action not taken: mailbox unavailable (mailbox not found)
+			/// Authentication required
+			AUTH_REQUIRED = 530,
+			/// Authentication mechanism is too weak
+			AUTH_TOO_WEAK = 534,
+			/// Authentication credentials invalid
+			AUTH_CRED_INVALID = 535,
+			/// Encryption required for requested authentication mechanism
+			ENCRYPT_REQUIRED = 538,
+			/// Requested action not taken: mailbox unavailable
 			MAILBOX_UNAVAILABLE = 550,
-			/// User not local
+			/// User not local; please try <forward-path>
 			USER_NOT_LOCAL = 551,
 			/// Requested mail action aborted: exceeded storage allocation
 			EXCEED_STORAGE = 552,
