@@ -1,0 +1,45 @@
+
+PcapPlusPlus web-site:  https://pcapplusplus.github.io/
+
+GitHub page:            https://github.com/seladb/PcapPlusPlus
+
+
+This package contains:
+----------------------
+
+ - PcapPlusPlus compiled libraries (under `lib/`)
+    - libCommon++.a
+    - libPacket++.a
+    - libPcap++.a
+ - PcapPlusPlus header files (under `include/pcapplusplus/`)
+ - Compiled examples (under `bin/`)
+ - Code example with a simple CMake file showing how to build applications with PcapPlusPlus (under `example-app/`)
+ - CMake files required to build your application with PcapPlusPlus (under `lib/cmake/pcapplusplus`)
+ - pkg-config information you can use to build your application with PcapPlusPlus (under `lib/pkgconfig`)
+
+
+Using PcapPlusPlus in your project:
+-----------------------------------
+
+ - Make sure you have libpcap developer pack installed (it should come with Xcode)
+ - If your application uses CMake, you can add `PcapPlusPlus_ROOT=<PACKAGE_DIR>` when running CMake, for example:
+   `cmake -S . -B build -DPcapPlusPlus_ROOT=<PACKAGE_DIR>`
+ - If your application uses Makefiles, you can use pkg-config with `PcapPlusPlus.pc`:
+   1. Make sure pkg-config for macOS is installed. If it's not you can install it with Homebrew: https://formulae.brew.sh/formula/pkg-config
+   2. Edit `PcapPlusPlus.pc` and replace `prefix` with the package path, for example:
+      `prefix="<PACKAGE_DIR>"`
+   3. Use pkg-config in your Makefile, for example:
+      ```
+      all:
+         g++ `pkg-config --cflags PcapPlusPlus` -c -o main.o main.cpp
+         g++ -o MyApp main.o `pkg-config --libs PcapPlusPlus`
+      ```
+   4. When running `make` remember to set pkg-config path so it can find `PcapPlusPlus.pc`, for example:
+      `PKG_CONFIG_PATH=<PACKAGE_DIR>/lib/pkgconfig make`
+
+
+Running the examples:
+---------------------
+
+ - Make sure you have libpcap installed (or install it with Homebrew: https://formulae.brew.sh/formula/libpcap)
+ - You may need to run the executables as sudo
