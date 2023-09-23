@@ -231,10 +231,10 @@ namespace pcpp
 			ABORT_LOCAL_ERROR = 451,
 			/// Requested action not taken: insufficient system storage
 			INSUFFICIENT_STORAGE = 452,
-			/// Temporary authenticaion failed
+			/// Temporary authentication failed
 			TEMP_AUTH_FAILED = 454,
-			/// Server unable to accomodate parameters
-			PARAM_NOT_ACCOMODATED = 455,
+			/// Server unable to accommodate parameters
+			PARAM_NOT_ACCOMMODATED = 455,
 			/// Syntax error, command unrecognized
 			CMD_NOT_RECOGNIZED = 500,
 			/// Syntax error in parameters or arguments

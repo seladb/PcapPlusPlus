@@ -173,9 +173,9 @@ namespace pcpp
 		case SmtpStatusCode::INSUFFICIENT_STORAGE:
 			return "Requested action not taken: insufficient system storage";
 		case SmtpStatusCode::TEMP_AUTH_FAILED:
-			return "Temporary authenticaion failed";
-		case SmtpStatusCode::PARAM_NOT_ACCOMODATED:
-			return "Server unable to accomodate parameters";
+			return "Temporary authentication failed";
+		case SmtpStatusCode::PARAM_NOT_ACCOMMODATED:
+			return "Server unable to accommodate parameters";
 		case SmtpStatusCode::CMD_NOT_RECOGNIZED:
 			return "Syntax error, command unrecognized";
 		case SmtpStatusCode::SYNTAX_ERROR_PARAM:
