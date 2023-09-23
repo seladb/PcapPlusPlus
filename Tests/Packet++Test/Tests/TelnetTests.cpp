@@ -112,9 +112,9 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 		pcpp::TelnetLayer::TelnetCommand::DoPerform,
 		pcpp::TelnetLayer::TelnetCommand::WillPerform,
 		pcpp::TelnetLayer::TelnetCommand::EndOfRecordCommand};
-	
+
 	std::vector<pcpp::TelnetLayer::TelnetOption> vOptions2 = {
-		pcpp::TelnetLayer::TelnetOption::TransmitBinary,								  
+		pcpp::TelnetLayer::TelnetOption::TransmitBinary,
 		pcpp::TelnetLayer::TelnetOption::TransmitBinary,
 		pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption};
 
