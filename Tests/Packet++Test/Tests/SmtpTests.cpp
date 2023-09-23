@@ -162,12 +162,47 @@ PTF_TEST_CASE(SmtpCreationTests)
 	gettimeofday(&time, nullptr);
 
 	// Request
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
 
-	// Response packet
+	pcpp::Packet smtpPacket1(&rawPacket1);
 
-	// Multiline
+	pcpp::EthLayer ethLayer1(*smtpPacket1.getLayerOfType<pcpp::EthLayer>());
+	pcpp::IPv4Layer ipv4Layer1(*smtpPacket1.getLayerOfType<pcpp::IPv4Layer>());
+	pcpp::TcpLayer tcpLayer1(*smtpPacket1.getLayerOfType<pcpp::TcpLayer>());
 
-	// IPv6
+	pcpp::SmtpRequestLayer smtpReqLayer1(pcpp::SmtpRequestLayer::SmtpCommand::AUTH, "LOGIN");
+
+	pcpp::Packet craftedPacket1;
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ethLayer1));
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&ipv4Layer1));
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&tcpLayer1));
+	PTF_ASSERT_TRUE(craftedPacket1.addLayer(&smtpReqLayer1));
+
+	PTF_ASSERT_EQUAL(bufferLength1, craftedPacket1.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(buffer1, craftedPacket1.getRawPacket()->getRawData(), bufferLength1);
+
+	// Response multiline
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpMultiLine.dat");
+
+	pcpp::Packet smtpPacket2(&rawPacket2);
+
+	pcpp::EthLayer ethLayer2(*smtpPacket2.getLayerOfType<pcpp::EthLayer>());
+	pcpp::IPv4Layer ipv4Layer2(*smtpPacket2.getLayerOfType<pcpp::IPv4Layer>());
+	pcpp::TcpLayer tcpLayer2(*smtpPacket2.getLayerOfType<pcpp::TcpLayer>());
+
+	pcpp::SmtpResponseLayer smtpRespLayer1(
+		pcpp::SmtpResponseLayer::SmtpStatusCode::SERVICE_READY,
+		"xc90.websitewelcome.com ESMTP Exim 4.69 #1 Mon, 05 Oct 2009 01:05:54 -0500 \r\n220-We do not authorize the "
+		"use of this system to transport unsolicited, \r\n220 and/or bulk e-mail.");
+
+	pcpp::Packet craftedPacket2;
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ethLayer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&ipv4Layer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&tcpLayer2));
+	PTF_ASSERT_TRUE(craftedPacket2.addLayer(&smtpRespLayer1));
+
+	PTF_ASSERT_EQUAL(bufferLength2, craftedPacket2.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(buffer2, craftedPacket2.getRawPacket()->getRawData(), bufferLength2);
 }
 
 PTF_TEST_CASE(SmtpEditTests)
@@ -180,6 +215,4 @@ PTF_TEST_CASE(SmtpEditTests)
 	// Response packet
 
 	// Multiline
-
-	// IPv6
 }
