@@ -5,6 +5,17 @@
 #include <string>
 #include <exception>
 
+#ifndef PCPP_DEPRECATED
+#if defined(__GNUC__) || defined(__clang__)
+#define PCPP_DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define PCPP_DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
+#define PCPP_DEPRECATED
+#endif
+#endif
+
 /// @file
 
 /**
@@ -59,6 +70,12 @@ namespace pcpp
 #define PCPP_HTTP_SERVER_FIELD				"Server"
 
 
+	// -------- classes to be defined later -----------------
+
+
+	class HttpRequestFirstLine;
+	class HttpResponseFirstLine;
+
 
 	// -------- Class HttpMessage -----------------
 
@@ -99,12 +116,6 @@ namespace pcpp
 		char getHeaderFieldNameValueSeparator() const { return ':'; }
 		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
 	};
-
-
-
-
-	class HttpRequestFirstLine;
-
 
 
 	// -------- Class HttpRequestLayer -----------------
@@ -418,16 +429,26 @@ namespace pcpp
 		// cppcheck-suppress noExplicitConstructor
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum
+		 * @param[in] statusCode the status code enum
 		 */
-		constexpr HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
+		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
 
 		/**
-		 * @brief Construct HttpResponseStatusCode from int
+		 * @brief Construct HttpResponseStatusCode from the code number and the customized message
+		 * @param[in] statusCodeNumber the status code in number, e.g. 200, 404
+		 * @param[in] statusMessage the status message, optional, leave empty to use a default message
 		 */
-		explicit HttpResponseStatusCode(const int &statusCodeNumber);
+		explicit HttpResponseStatusCode(const int &statusCodeNumber, const std::string& statusMessage = "");
+
+		/**
+		 * @brief Construct HttpResponseStatusCode from Value enum and the customized message
+		 * @param[in] statusCode the status code enum
+		 * @param[in] statusMessage the customized status message, optional
+		 */
+		explicit HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage);
 
  		// Allow switch and comparisons.
-		constexpr operator Value() const { return m_Value; }
+		operator Value() const { return m_Value; }
 		// Prevent usage: if(httpResponseStatusCode)
 		explicit operator bool() const = delete;
 
@@ -448,6 +469,10 @@ namespace pcpp
 		}
 
 		/**
+		 * @brief get status code message, e.g. "OK", "Not Found"
+		 */
+		std::string getMessage() const;
+		/**
 		 * @return If this HttpResponseStatusCode a valid code
 		 * @note Any unknown or error code has an extreme large enum value
 		 */
@@ -458,12 +483,10 @@ namespace pcpp
 
 	private:
   		Value m_Value = HttpStatusCodeUnknown;
+		std::string m_CustomizedMessage;
 	};
 
 	// -------- Class HttpResponseLayer -----------------
-
-	class HttpResponseFirstLine;
-
 
 	/**
 	 * @class HttpResponseLayer
@@ -500,8 +523,17 @@ namespace pcpp
 		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK", 404 is usually "Not Found", etc.
 		 * But the user can set a non-default status code string and it will be written in the header first line. Empty string ("") means using the
 		 * default status code string
+		 * @deprecated Use other constructors instead.
 		 */
-		HttpResponseLayer(HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString = "");
+		PCPP_DEPRECATED explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
+
+		/**
+		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
+		 * The user can then add fields using addField() methods
+		 * @param[in] version HTTP version to be used
+		 * @param[in] statusCode Status code to be used
+		 */
+		explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode);
 
 		virtual ~HttpResponseLayer();
 
@@ -708,8 +740,16 @@ namespace pcpp
 		 * @param[in] statusCodeString An optional parameter: set a non-default status code message (e.g "Bla Bla" instead of "Not Found"). If
 		 * this parameter isn't supplied or supplied as empty string (""), the default message for the status code will be set
 		 * @return True if setting the status code was completed successfully, false otherwise
+	     * @deprecated Use the other overload instead.
 		 */
-		bool setStatusCode(HttpResponseStatusCode newStatusCode, std::string statusCodeString = "");
+		PCPP_DEPRECATED bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
+
+		/**
+		 * Set the status code
+		 * @param[in] newStatusCode The new status code to set
+		 * @return True if setting the status code was completed successfully, false otherwise
+		 */
+		bool setStatusCode(const HttpResponseStatusCode& newStatusCode);
 
 		/**
 		 * @return The HTTP version
@@ -773,7 +813,7 @@ namespace pcpp
 
 	private:
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse);
-		HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, HttpResponseStatusCode statusCode, std::string statusCodeString = "");
+		HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, const HttpResponseStatusCode& statusCode);
 
 		HttpResponseLayer* m_HttpResponse;
 		HttpVersion m_Version;
