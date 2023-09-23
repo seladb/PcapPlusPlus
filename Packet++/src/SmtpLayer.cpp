@@ -147,9 +147,9 @@ namespace pcpp
 		case SmtpStatusCode::HELP_MESSAGE:
 			return "Help message";
 		case SmtpStatusCode::SERVICE_READY:
-			return "<domain> Service ready";
+			return "Service ready";
 		case SmtpStatusCode::SERVICE_CLOSE:
-			return "<domain> Service closing transmission channel";
+			return "Service closing transmission channel";
 		case SmtpStatusCode::AUTH_SUCCESS:
 			return "Authentication successful";
 		case SmtpStatusCode::COMPLETED:
@@ -163,7 +163,7 @@ namespace pcpp
 		case SmtpStatusCode::MAIL_INPUT:
 			return "Start mail input; end with <CRLF>.<CRLF>";
 		case SmtpStatusCode::SERVICE_UNAVAILABLE:
-			return "<domain> Service not available, closing transmission channel";
+			return "Service not available, closing transmission channel";
 		case SmtpStatusCode::PASS_NEEDED:
 			return "A password transition is needed";
 		case SmtpStatusCode::MAILBOX_UNAVAILABLE_TEMP:
