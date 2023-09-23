@@ -28,21 +28,25 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer->getNumberOfCommands(pcpp::TelnetLayer::TelnetCommand::DoPerform), 5);
 	PTF_ASSERT_EQUAL(telnetLayer->getNumberOfCommands(pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd), 1);
 
-	PTF_ASSERT_TRUE(telnetLayer->getFirstCommand() == pcpp::TelnetLayer::TelnetCommand::WillPerform);
+	PTF_ASSERT_EQUAL(telnetLayer->getFirstCommand(), pcpp::TelnetLayer::TelnetCommand::WillPerform, enumclass);
 
-	PTF_ASSERT_TRUE(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::WillPerform) ==
-					pcpp::TelnetLayer::TelnetOption::SuppressGoAhead);
-	PTF_ASSERT_TRUE(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::DoPerform) ==
-					pcpp::TelnetLayer::TelnetOption::TerminalType);
-	PTF_ASSERT_TRUE(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::AreYouThere) ==
-					pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption);
+	PTF_ASSERT_EQUAL(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::WillPerform),
+					 pcpp::TelnetLayer::TelnetOption::SuppressGoAhead, enumclass);
+	PTF_ASSERT_EQUAL(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::DoPerform),
+					 pcpp::TelnetLayer::TelnetOption::TerminalType, enumclass);
+	PTF_ASSERT_EQUAL(telnetLayer->getOption(pcpp::TelnetLayer::TelnetCommand::AreYouThere),
+					 pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
 
 	// Check iteration
 	std::vector<pcpp::TelnetLayer::TelnetCommand> vCommand = {
-		pcpp::TelnetLayer::TelnetCommand::WillPerform,	  pcpp::TelnetLayer::TelnetCommand::DoPerform,
-		pcpp::TelnetLayer::TelnetCommand::DoPerform,	  pcpp::TelnetLayer::TelnetCommand::DoPerform,
-		pcpp::TelnetLayer::TelnetCommand::DoPerform,	  pcpp::TelnetLayer::TelnetCommand::DoPerform,
-		pcpp::TelnetLayer::TelnetCommand::Subnegotiation, pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd};
+		pcpp::TelnetLayer::TelnetCommand::WillPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::Subnegotiation,
+		pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd};
 	std::vector<pcpp::TelnetLayer::TelnetOption> vOptions = {pcpp::TelnetLayer::TelnetOption::SuppressGoAhead,
 															 pcpp::TelnetLayer::TelnetOption::TerminalType,
 															 pcpp::TelnetLayer::TelnetOption::NegotiateAboutWindowSize,
@@ -63,12 +67,12 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	while (commandVal != pcpp::TelnetLayer::TelnetCommand::TelnetCommandEndOfPacket)
 	{
 		// Check command
-		PTF_ASSERT_TRUE(commandVal == vCommand[ctr]);
+		PTF_ASSERT_EQUAL(commandVal, vCommand[ctr], enumclass);
 		PTF_ASSERT_EQUAL(telnetLayer->getTelnetCommandAsString(commandVal), vCommandString[ctr]);
 
 		// Check option
 		pcpp::TelnetLayer::TelnetOption option = telnetLayer->getOption();
-		PTF_ASSERT_TRUE(option == vOptions[ctr]);
+		PTF_ASSERT_EQUAL(option, vOptions[ctr], enumclass);
 		PTF_ASSERT_EQUAL(telnetLayer->getTelnetOptionAsString(option), vOptionString[ctr]);
 
 		// Check option data
@@ -113,8 +117,8 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	pcpp::TelnetLayer::TelnetCommand commandVal2 = telnetLayer2->getNextCommand();
 	while (commandVal2 != pcpp::TelnetLayer::TelnetCommand::TelnetCommandEndOfPacket)
 	{
-		PTF_ASSERT_TRUE(commandVal2 == vCommand2[ctr2]);
-		PTF_ASSERT_TRUE(telnetLayer2->getOption() == vOptions2[ctr2]);
+		PTF_ASSERT_EQUAL(commandVal2, vCommand2[ctr2], enumclass);
+		PTF_ASSERT_EQUAL(telnetLayer2->getOption(), vOptions2[ctr2], enumclass);
 
 		// Check option data
 		PTF_ASSERT_NULL(telnetLayer2->getOptionData(length2));
@@ -142,10 +146,10 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 	PTF_ASSERT_EQUAL(telnetLayer3->getNumberOfCommands(pcpp::TelnetLayer::TelnetCommand::Subnegotiation), 1);
 	PTF_ASSERT_EQUAL(telnetLayer3->getNumberOfCommands(pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd), 1);
 
-	PTF_ASSERT_TRUE(telnetLayer3->getOption(pcpp::TelnetLayer::TelnetCommand::Subnegotiation) ==
-					pcpp::TelnetLayer::TelnetOption::AuthenticationOption);
-	PTF_ASSERT_TRUE(telnetLayer3->getOption(pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd) ==
-					pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption);
+	PTF_ASSERT_EQUAL(telnetLayer3->getOption(pcpp::TelnetLayer::TelnetCommand::Subnegotiation),
+					pcpp::TelnetLayer::TelnetOption::AuthenticationOption, enumclass);
+	PTF_ASSERT_EQUAL(telnetLayer3->getOption(pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd),
+					pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption, enumclass);
 	PTF_ASSERT_EQUAL(telnetLayer3->toString(), "Telnet Control");
 
 	// Commands
