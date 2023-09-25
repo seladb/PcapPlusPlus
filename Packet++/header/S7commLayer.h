@@ -49,7 +49,6 @@ namespace pcpp
 		S7CommParameter() {}
 		uint8_t *getData() { return m_Data; }
 		size_t getDataLength() const { return m_DataLen; }
-		S7CommParameter *getParameter() const;
 
 	  private:
 		S7CommParameter(uint8_t *data, size_t dataLen) : m_Data(data), m_DataLen(dataLen) {}
@@ -126,6 +125,8 @@ namespace pcpp
 		 * @return S7comm error class
 		 */
 		uint8_t getErrorClass() const;
+
+		S7CommParameter *getParameter() const;
 
 		/**
 		 * Set the value of the message type
