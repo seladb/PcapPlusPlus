@@ -52,16 +52,16 @@ namespace pcpp
 	std::string S7commLayer::toString() const
 	{
 		std::ostringstream str;
-		std::string error = "";
+		std::string error;
 		if (getMsgType() == 0x03)
 		{
-			error = ", error class: " + std::to_string(getErrorClass()) + ", error code: " + std::to_string(getErrorCode());
+			error =
+				", error class: " + std::to_string(getErrorClass()) + ", error code: " + std::to_string(getErrorCode());
 		}
 		str << "S7comm Layer, "
 			<< "msg_type: " << std::to_string(getMsgType()) << ", pdu_ref: " << std::to_string(getPduRef())
 			<< ", param_length: " << std::to_string(getParamLength())
-			<< ", data_length: " << std::to_string(getDataLength())
-			<< error;
+			<< ", data_length: " << std::to_string(getDataLength()) << error;
 
 		return str.str();
 	}
@@ -92,28 +92,30 @@ namespace pcpp
 
 	uint8_t S7commLayer::getErrorClass() const { return getS7commAckDataHeader()->error_class; }
 
-	void S7commLayer::setParamLength(uint16_t param_length) const{getS7commHeader()->param_length = htobe16(param_length);}
+	void S7commLayer::setParamLength(uint16_t param_length) const
+	{
+		getS7commHeader()->param_length = htobe16(param_length);
+	}
 
 	void S7commLayer::setPduRef(uint16_t pdu_ref) const { getS7commHeader()->pdu_ref = htobe16(pdu_ref); }
 
-	void S7commLayer::setDataLength(uint16_t data_length) const{getS7commHeader()->data_length = htobe16(data_length);}
+	void S7commLayer::setDataLength(uint16_t data_length) const
+	{
+		getS7commHeader()->data_length = htobe16(data_length);
+	}
 
 	void S7commLayer::setErrorCode(uint8_t error_code) const { getS7commAckDataHeader()->error_code = error_code; }
 
 	void S7commLayer::setErrorClass(uint8_t error_class) const { getS7commAckDataHeader()->error_class = error_class; }
 
-	S7CommParameter *S7CommParameter::getParameter() const
+	S7CommParameter *S7commLayer::getParameter() const
 	{
-		S7CommParameter * m_Parameter = nullptr;
+		S7CommParameter *m_Parameter = nullptr;
 
-		size_t parameterLen = getDataLength();
-
-		uint8_t *payload = m_Data + parameterLen;
-		size_t payloadLen = m_DataLen - parameterLen;
+		uint8_t *payload = m_Data + getHeaderLen() - getParamLength() -getDataLen();//- getHeaderLen() + parameterLen; //;+ parameterLen;
+		size_t payloadLen = m_DataLen - getHeaderLen() + getParamLength() + getDataLength();
 
 		m_Parameter = new S7CommParameter(payload, payloadLen);
-
-		// If m_Parameter is still nullptr - get the parameter data and index and create it
 		return m_Parameter;
 	}
 
