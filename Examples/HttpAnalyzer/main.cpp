@@ -168,11 +168,11 @@ void printMethods(const HttpRequestStats& reqStatscollector)
 	std::vector<int> columnsWidths = {9, 5};
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
-  // Copy elements to a vector
-  std::vector<std::pair<pcpp::HttpRequestLayer::HttpMethod, int>> map2vec(reqStatscollector.methodCount.begin(), reqStatscollector.methodCount.end());
-  std::sort(map2vec.begin(), map2vec.end(),
-    [](const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& left,
-      const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& right) { return left.first < right.first; });
+	// Copy elements to a vector
+	std::vector<std::pair<pcpp::HttpRequestLayer::HttpMethod, int>> map2vec(reqStatscollector.methodCount.begin(), reqStatscollector.methodCount.end());
+	std::sort(map2vec.begin(), map2vec.end(),
+		[](const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& left,
+			const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& right) { return left.first < right.first; });
 	// go over the method count table and print each method and count
 	for (auto iter : map2vec)
 	{
@@ -224,7 +224,7 @@ void printMethods(const HttpRequestStats& reqStatscollector)
  */
 bool hostnameComparer(const std::pair<std::string, int>& leftHost, const std::pair<std::string, int>& rightHost)
 {
-	return  leftHost.second > rightHost.second || (leftHost.second == rightHost.second && leftHost.first > rightHost.first);
+	return leftHost.second > rightHost.second || (leftHost.second == rightHost.second && leftHost.first < rightHost.first);
 }
 
 /**
@@ -264,9 +264,9 @@ void printStatusCodes(const HttpResponseStats& resStatscollector)
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// prints the status codes in lexical order
-  std::vector<std::pair<std::string, int>> map2vec(resStatscollector.statusCodeCount.begin(), resStatscollector.statusCodeCount.end());
-  std::sort(map2vec.begin(), map2vec.end(), [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) { return left.first < right.first; });
-  for(const auto& statusCodeStat : map2vec)
+	std::vector<std::pair<std::string, int>> map2vec(resStatscollector.statusCodeCount.begin(), resStatscollector.statusCodeCount.end());
+	std::sort(map2vec.begin(), map2vec.end(), [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) { return left.first < right.first; });
+	for(const auto& statusCodeStat : map2vec)
 	{
 		std::stringstream values;
 		values << statusCodeStat.first << "|" << statusCodeStat.second;
@@ -286,8 +286,8 @@ void printContentTypes(const HttpResponseStats& resStatscollector)
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// prints the content-types in lexical order
-  std::vector<std::pair<std::string, int>> map2vec(resStatscollector.contentTypeCount.begin(), resStatscollector.contentTypeCount.end());
-  std::sort(map2vec.begin(), map2vec.end(), [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) { return left.first < right.first; });
+	std::vector<std::pair<std::string, int>> map2vec(resStatscollector.contentTypeCount.begin(), resStatscollector.contentTypeCount.end());
+	std::sort(map2vec.begin(), map2vec.end(), [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) { return left.first < right.first; });
 	for(const auto &contentTypeStat : map2vec)
 	{
 		std::stringstream values;
