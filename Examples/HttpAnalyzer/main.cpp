@@ -224,7 +224,7 @@ void printMethods(const HttpRequestStats& reqStatscollector)
  */
 bool hostnameComparer(const std::pair<std::string, int>& leftHost, const std::pair<std::string, int>& rightHost)
 {
-	return  leftHost.second > rightHost.second || (leftHost.second == rightHost.second && leftHost.first > rightHost.first);
+	return leftHost.second > rightHost.second || (leftHost.second == rightHost.second && leftHost.first > rightHost.first);
 }
 
 /**
