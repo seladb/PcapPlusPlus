@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+
 #include <functional>
 #include <sstream>
 #include "HttpLayer.h"
@@ -9,7 +10,6 @@
 #include "PayloadLayer.h"
 #include "PacketUtils.h"
 #include "SystemUtils.h"
-
 
 /**
  * An auxiliary struct for encapsulating rate stats
