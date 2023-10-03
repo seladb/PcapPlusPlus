@@ -42,7 +42,7 @@ class TelnetLayer : public Layer
 	/**
 	 * Telnet Command Indicator
 	 */
-	enum TelnetCommand
+	enum class TelnetCommand : int
 	{
 		/// Indicator to parser reached end of packet
 		TelnetCommandEndOfPacket = -1,
@@ -103,7 +103,7 @@ class TelnetLayer : public Layer
 	/**
 	 * Telnet Options
 	 */
-	enum TelnetOption
+	enum class TelnetOption : int
 	{
 		/// Internal return for no option detected
 		TelnetOptionNoOption = -1,

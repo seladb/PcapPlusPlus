@@ -11,20 +11,20 @@
  */
 namespace pcpp
 {
-	#define PCAPPLUSPLUS_VERSION "22.11+"
+	#define PCAPPLUSPLUS_VERSION "23.09+"
 	#define PCAPPLUSPLUS_VERSION_OFFICIAL "non-official release"
 
 	#define PCAPPLUSPLUS_VERSION_FULL "v" PCAPPLUSPLUS_VERSION " (" PCAPPLUSPLUS_VERSION_OFFICIAL ")"
 
 	/**
-	 * @return PcapPlusPlus current version, e.g: 22.11. Notice that for non-official releases (which were pulled from GitHub) the version will end with a '+'.
-	 * For example: '22.11+' means non-official release but '22.11' means official release
+	 * @return PcapPlusPlus current version, e.g: 23.09. Notice that for non-official releases (which were pulled from GitHub) the version will end with a '+'.
+	 * For example: '23.09+' means non-official release but '23.09' means official release
 	 */
 	inline std::string getPcapPlusPlusVersion() { return PCAPPLUSPLUS_VERSION; }
 
 	/**
-	 * @return PcapPlusPlus long version string which includes the version and info whether it's an official or non-official release. For example: "v22.11+ (non-official release)"
-	 * or "v22.11 (official release)"
+	 * @return PcapPlusPlus long version string which includes the version and info whether it's an official or non-official release. For example: "v23.09+ (non-official release)"
+	 * or "v23.09 (official release)"
 	 */
 	inline std::string getPcapPlusPlusVersionFull() { return PCAPPLUSPLUS_VERSION_FULL; }
 
