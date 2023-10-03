@@ -173,6 +173,7 @@ void printMethods(const HttpRequestStats& reqStatscollector)
 	std::sort(map2vec.begin(), map2vec.end(),
 		[](const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& left,
 			const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& right) { return left.second > right.second; });
+
 	// go over the method count table, print each method and the aggregated figure
 	for (auto iter : map2vec)
 	{
@@ -215,7 +216,6 @@ void printMethods(const HttpRequestStats& reqStatscollector)
 		{
 			printer.printRow(values.str(), '|');
 		}
-
 	}
 }
 
