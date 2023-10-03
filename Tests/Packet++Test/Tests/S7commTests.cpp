@@ -4,7 +4,6 @@
 #include "Packet.h"
 #include "S7commLayer.h"
 #include "SystemUtils.h"
-#include <stdio.h>
 
 PTF_TEST_CASE(S7commLayerTest)
 {
@@ -26,8 +25,10 @@ PTF_TEST_CASE(S7commLayerTest)
 	PTF_ASSERT_EQUAL(s7commLayer->getHeaderLen(), 0xea);
 	PTF_ASSERT_EQUAL(s7commLayer->toString(),
 					 "S7comm Layer, msg_type: 7, pdu_ref: 64779, param_length: 12, data_length: 212");
-	std::cout << (s7commLayer->getParameter()->getDataLength()) << std::endl;
-	std::cout << (s7commLayer->getParameter()->getData()) << std::endl;
+
+	PTF_ASSERT_EQUAL(s7commLayer->getParameter()->getDataLength(), 12);
+	uint8_t expectedParameterData[] = { 0x00, 0x01, 0x12, 0x08, 0x12, 0x84, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00 };
+	PTF_ASSERT_BUF_COMPARE(s7commLayer->getParameter()->getData(), expectedParameterData, 12);
 
 	pcpp::S7commLayer newS7commPacket(0x09, 0xfd0c, 13, 213);
 

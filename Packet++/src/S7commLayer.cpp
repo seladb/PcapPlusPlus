@@ -102,16 +102,24 @@ namespace pcpp
 
 	void S7commLayer::setErrorClass(uint8_t error_class) const { getS7commAckDataHeader()->error_class = error_class; }
 
-	S7CommParameter *S7commLayer::getParameter() const
+	const S7CommParameter *S7commLayer::getParameter()
 	{
-		S7CommParameter *m_Parameter = nullptr;
-
-		uint8_t *payload = m_Data + getHeaderLen() - getParamLength() -getDataLen();//- getHeaderLen() + parameterLen; //;+ parameterLen;
-		size_t payloadLen = m_DataLen - getHeaderLen() + getParamLength() + getDataLength();
-
-		m_Parameter = new S7CommParameter(payload, payloadLen);
+		if (!m_Parameter)
+		{
+			uint8_t *payload = m_Data + getS7commHeaderLength();
+			m_Parameter = new S7CommParameter(payload, getParamLength());
+		}
 
 		return m_Parameter;
+	}
+
+	size_t S7commLayer::getS7commHeaderLength() const
+	{
+		if (getS7commHeader()->msg_type == 0x03)
+		{
+			return sizeof(s7comm_ack_data_hdr);
+		}
+		return sizeof(s7commhdr);
 	}
 
 } // namespace pcpp
