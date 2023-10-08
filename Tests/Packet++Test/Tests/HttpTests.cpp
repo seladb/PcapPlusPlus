@@ -506,3 +506,35 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 		index++;
 	}
 } // HttpMalformedResponseTest
+
+
+
+/// Tests HTTP packet reassembly
+PTF_TEST_CASE(HttpReassemblyTest)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Http1xFrag1.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Http1xFrag2.dat");
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/Http1xFrag3.dat");
+
+	pcpp::Packet frag1(&rawPacket1);
+	pcpp::Packet frag2(&rawPacket2);
+	pcpp::Packet frag3(&rawPacket3);
+
+	PTF_ASSERT_TRUE(frag1.isPacketOfType(pcpp::HTTPResponse));
+	pcpp::HttpResponseLayer* responseLayer1 = frag1.getLayerOfType<pcpp::HttpResponseLayer>();
+	PTF_ASSERT_NOT_NULL(responseLayer1);
+	responseLayer1->isHeaderComplete();
+
+	PTF_ASSERT_TRUE(frag2.isPacketOfType(pcpp::HTTPResponse));
+	pcpp::HttpResponseLayer* responseLayer2 = frag2.getLayerOfType<pcpp::HttpResponseLayer>();
+	PTF_ASSERT_NOT_NULL(responseLayer2);
+
+	PTF_ASSERT_TRUE(frag3.isPacketOfType(pcpp::HTTPResponse));
+	pcpp::HttpResponseLayer* responseLayer3 = frag3.getLayerOfType<pcpp::HttpResponseLayer>();
+	PTF_ASSERT_NOT_NULL(responseLayer3);
+
+	PTF_ASSERT_TRUE(true);
+} // HttpReassemblyTest

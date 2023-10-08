@@ -15,6 +15,7 @@ add_library(
   src/GreLayer.cpp
   src/GtpLayer.cpp
   src/HttpLayer.cpp
+  src/HttpReassembly.cpp
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
   src/IgmpLayer.cpp
@@ -79,6 +80,7 @@ set(public_headers
     header/GreLayer.h
     header/GtpLayer.h
     header/HttpLayer.h
+    header/HttpReassembly.h
     header/IcmpLayer.h
     header/IcmpV6Layer.h
     header/IgmpLayer.h
