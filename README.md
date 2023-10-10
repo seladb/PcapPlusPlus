@@ -250,7 +250,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 ### Application Layer (L7)
 
-34.  BGP (v4)
+34. BGP (v4)
 35. DHCP
 36. DHCPv6
 37. DNS
