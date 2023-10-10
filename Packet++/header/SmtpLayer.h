@@ -205,9 +205,9 @@ namespace pcpp
 			SYSTEM_STATUS = 211,
 			/// Help message
 			HELP_MESSAGE = 214,
-			/// Service ready
+			/// <domain> Service ready
 			SERVICE_READY = 220,
-			/// Service closing transmission channel
+			/// <domain> Service closing transmission channel
 			SERVICE_CLOSE = 221,
 			/// Authentication successful
 			AUTH_SUCCESS = 235,
@@ -221,7 +221,7 @@ namespace pcpp
 			AUTH_INPUT = 334,
 			/// Start mail input; end with <CRLF>.<CRLF>
 			MAIL_INPUT = 354,
-			/// Service not available, closing transmission channel
+			/// <domain> Service not available, closing transmission channel
 			SERVICE_UNAVAILABLE = 421,
 			/// A password transition is needed
 			PASS_NEEDED = 432,
