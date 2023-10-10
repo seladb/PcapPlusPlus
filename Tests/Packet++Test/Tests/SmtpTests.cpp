@@ -21,7 +21,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	pcpp::SmtpRequestLayer *smtpLayer1 = smtpPacket1.getLayerOfType<pcpp::SmtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer1);
-	PTF_ASSERT_EQUAL(int(smtpLayer1->getCommand()), int(pcpp::SmtpRequestLayer::SmtpCommand::AUTH));
+	PTF_ASSERT_EQUAL(smtpLayer1->getCommand(), pcpp::SmtpRequestLayer::SmtpCommand::AUTH, enumclass);
 	PTF_ASSERT_EQUAL(smtpLayer1->getCommandString(), "AUTH");
 	PTF_ASSERT_EQUAL(smtpLayer1->getCommandOption(), "LOGIN");
 	PTF_ASSERT_EQUAL(smtpLayer1->toString(), "SMTP Request: AUTH");
@@ -34,7 +34,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	pcpp::SmtpResponseLayer *smtpLayer2 = smtpPacket2.getLayerOfType<pcpp::SmtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer2);
-	PTF_ASSERT_EQUAL(int(smtpLayer2->getStatusCode()), int(pcpp::SmtpResponseLayer::SmtpStatusCode::AUTH_INPUT));
+	PTF_ASSERT_EQUAL(smtpLayer2->getStatusCode(), pcpp::SmtpResponseLayer::SmtpStatusCode::AUTH_INPUT, enumclass);
 	PTF_ASSERT_EQUAL(smtpLayer2->getStatusCodeString(), "334");
 	PTF_ASSERT_EQUAL(smtpLayer2->getStatusOption(), "VXNlcm5hbWU6");
 	PTF_ASSERT_EQUAL(smtpLayer2->toString(), "SMTP Response: 334");
@@ -47,7 +47,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	pcpp::SmtpResponseLayer *smtpLayer3 = smtpPacket3.getLayerOfType<pcpp::SmtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer3);
-	PTF_ASSERT_EQUAL(int(smtpLayer3->getStatusCode()), int(pcpp::SmtpResponseLayer::SmtpStatusCode::SERVICE_READY));
+	PTF_ASSERT_EQUAL(smtpLayer3->getStatusCode(), pcpp::SmtpResponseLayer::SmtpStatusCode::SERVICE_READY, enumclass);
 	PTF_ASSERT_EQUAL(smtpLayer3->getStatusCodeString(), "220");
 	PTF_ASSERT_EQUAL(
 		smtpLayer3->getStatusOption(),
@@ -63,7 +63,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	pcpp::SmtpResponseLayer *smtpLayer4 = smtpPacket4.getLayerOfType<pcpp::SmtpResponseLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer4);
-	PTF_ASSERT_EQUAL(int(smtpLayer4->getStatusCode()), int(pcpp::SmtpResponseLayer::SmtpStatusCode::SERVICE_READY));
+	PTF_ASSERT_EQUAL(smtpLayer4->getStatusCode(), pcpp::SmtpResponseLayer::SmtpStatusCode::SERVICE_READY, enumclass);
 	PTF_ASSERT_EQUAL(smtpLayer4->getStatusCodeString(), "220");
 	PTF_ASSERT_EQUAL(smtpLayer4->getStatusOption(), "mx.google.com ESMTP m17si1051593vck.2 - gsmtp");
 	PTF_ASSERT_EQUAL(smtpLayer4->toString(), "SMTP Response: 220");
@@ -211,8 +211,40 @@ PTF_TEST_CASE(SmtpEditTests)
 	gettimeofday(&time, nullptr);
 
 	// Request
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpCommandEdited.dat");
 
-	// Response packet
+	pcpp::Packet smtpPacket1(&rawPacket1);
 
-	// Multiline
+	pcpp::SmtpRequestLayer *smtpLayer1 = smtpPacket1.getLayerOfType<pcpp::SmtpRequestLayer>();
+
+	PTF_ASSERT_NOT_NULL(smtpLayer1);
+	smtpLayer1->setCommand(pcpp::SmtpRequestLayer::SmtpCommand::EHLO);
+	smtpLayer1->setCommandOption("Test Option");
+	smtpPacket1.computeCalculateFields();
+
+	pcpp::Packet smtpEditedPacket1(&rawPacket2);
+
+	PTF_ASSERT_EQUAL(smtpPacket1.getRawPacket()->getRawDataLen(), smtpEditedPacket1.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(smtpPacket1.getRawPacket()->getRawData(), smtpEditedPacket1.getRawPacket()->getRawData(),
+						   smtpPacket1.getRawPacket()->getRawDataLen());
+
+	// Response multiline
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/smtpMultiLine.dat");
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/smtpMultiLineEdited.dat");
+
+	pcpp::Packet smtpPacket2(&rawPacket3);
+
+	pcpp::SmtpResponseLayer *smtpLayer2 = smtpPacket2.getLayerOfType<pcpp::SmtpResponseLayer>();
+
+	PTF_ASSERT_NOT_NULL(smtpLayer2);
+	smtpLayer2->setStatusCode(pcpp::SmtpResponseLayer::SmtpStatusCode::ABORT_LOCAL_ERROR);
+	smtpLayer2->setStatusOption("Test Option Line 1\r\n451 Test Option Line 2");
+	smtpPacket2.computeCalculateFields();
+
+	pcpp::Packet smtpEditedPacket2(&rawPacket4);
+
+	PTF_ASSERT_EQUAL(smtpPacket2.getRawPacket()->getRawDataLen(), smtpEditedPacket2.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(smtpPacket2.getRawPacket()->getRawData(), smtpEditedPacket2.getRawPacket()->getRawData(),
+						   smtpPacket2.getRawPacket()->getRawDataLen());
 }
