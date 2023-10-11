@@ -27,7 +27,7 @@ PTF_TEST_CASE(S7commLayerTest)
 					 "S7comm Layer, msg_type: 7, pdu_ref: 64779, param_length: 12, data_length: 212");
 
 	PTF_ASSERT_EQUAL(s7commLayer->getParameter()->getDataLength(), 12);
-	uint8_t expectedParameterData[] = { 0x00, 0x01, 0x12, 0x08, 0x12, 0x84, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00 };
+	uint8_t expectedParameterData[] = {0x00, 0x01, 0x12, 0x08, 0x12, 0x84, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00};
 	PTF_ASSERT_BUF_COMPARE(s7commLayer->getParameter()->getData(), expectedParameterData, 12);
 
 	pcpp::S7commLayer newS7commPacket(0x09, 0xfd0c, 13, 213);
@@ -47,7 +47,7 @@ PTF_TEST_CASE(S7commLayerTest)
 	PTF_ASSERT_EQUAL(newS7commPacket.getParamLength(), 15);
 	PTF_ASSERT_EQUAL(newS7commPacket.getDataLength(), 215);
 
-	/*READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/s7comm_error_code.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/s7comm_error_code.dat");
 
 	pcpp::Packet S7commLayerErrorTest(&rawPacket2);
 	PTF_ASSERT_TRUE(S7commLayerErrorTest.isPacketOfType(pcpp::S7COMM));
@@ -71,7 +71,7 @@ PTF_TEST_CASE(S7commLayerTest)
 	s7commErrorLayer->setErrorClass(0x07);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getErrorClass(), 0x07);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getErrorCode(), 0x06);
-	//pcpp::S7CommParameter* param = s7commErrorLayer;//->getParameter();
-	//std::cout << s7commErrorLayer->getParameter()->getData() << std::endl;
-	//PTF_ASSERT_EQUAL(param, 0x0401);*/
+	PTF_ASSERT_EQUAL(s7commErrorLayer->getParameter()->getDataLength(), 2);
+	uint8_t expectedErrorParameterData[] = {0x04, 0x01};
+	PTF_ASSERT_BUF_COMPARE(s7commErrorLayer->getParameter()->getData(), expectedErrorParameterData, 2);
 } // S7commLayerTest

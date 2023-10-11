@@ -41,13 +41,27 @@ namespace pcpp
 		uint8_t error_code;
 	};
 #pragma pack(pop)
+
+	/**
+	 * @class S7CommParameter
+	 * Represents a S7COMM (S7 Communication7) protocol Parameter
+	 */
 	class S7CommParameter
 	{
 		friend class S7commLayer;
 
 	  public:
 		S7CommParameter() {}
+
+		virtual ~S7CommParameter() {}
+
+		/**
+		 * @return The data of the Parameter
+		 */
 		uint8_t *getData() const { return m_Data; }
+		/**
+		 * @return The length of the Parameter data
+		 */
 		size_t getDataLength() const { return m_DataLen; }
 
 	  private:
@@ -57,7 +71,7 @@ namespace pcpp
 	};
 	/**
 	 * @class S7commLayer
-	 * Represents a S7COMM (S7 Communication7) protocol
+	 * Represents a S7COMM (S7 Communication) protocol
 	 */
 	class S7commLayer : public Layer
 	{
@@ -68,6 +82,8 @@ namespace pcpp
 		 * @param[in] pdu_ref Link responses to their requests
 		 * @param[in] param_length The length of the parameter field
 		 * @param[in] data_length The length of the data field
+		 * @param[in] error_class The value of the error class
+		 * @param[in] error_code The value of the error code
 		 */
 		S7commLayer(uint8_t msg_type, uint16_t pdu_ref, uint16_t param_length, uint16_t data_length,
 					uint8_t error_class = 0, uint8_t error_code = 0);
@@ -83,9 +99,10 @@ namespace pcpp
 			: Layer(data, dataLen, prevLayer, packet)
 		{
 			m_Protocol = S7COMM;
+			m_Parameter = nullptr;
 		}
 
-		virtual ~S7commLayer() {}
+		virtual ~S7commLayer() { delete m_Parameter; }
 
 		/**
 		 * @return S7comm protocol id
@@ -210,7 +227,7 @@ namespace pcpp
 
 		size_t getS7commHeaderLength() const;
 
-		S7CommParameter* m_Parameter;
+		S7CommParameter *m_Parameter = nullptr;
 	};
 
 };	   // namespace pcpp
