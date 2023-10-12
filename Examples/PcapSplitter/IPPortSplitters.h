@@ -214,26 +214,6 @@ protected:
 	}
 
 	/**
-	 * An auxiliary method for extracting packet's IPv4/IPv6 source address as string
-	 */
-	std::string getSrcIPString(pcpp::Packet& packet)
-	{
-		if (packet.isPacketOfType(pcpp::IP))
-			return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().toString();
-		return "miscellaneous";
-	}
-
-	/**
-	 * An auxiliary method for extracting packet's IPv4/IPv6 dest address string
-	 */
-	std::string getDstIPString(pcpp::Packet& packet)
-	{
-		if (packet.isPacketOfType(pcpp::IP))
-			return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().toString();
-		return "miscellaneous";
-	}
-
-	/**
 	 * An auxiliary method to indicate whether an IPv4/IPv6 source address is multicast or not
 	 */
 	bool isSrcIPMulticast(pcpp::Packet& packet)
@@ -251,30 +231,6 @@ protected:
 		if (packet.isPacketOfType(pcpp::IP))
 			return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().isMulticast();
 		return false;
-	}
-
-	/**
-	 * An auxiliary method for replacing '.' and ':' in IPv4/IPv6 addresses with '-'
-	 */
-	std::string hyphenIP(std::string ipVal)
-	{
-		// for IPv4 - replace '.' with '-'
-		int loc = ipVal.find(".");
-		while (loc >= 0)
-		{
-			ipVal.replace(loc, 1, "-");
-			loc = ipVal.find(".");
-		}
-
-		// for IPv6 - replace ':' with '-'
-		loc = ipVal.find(":");
-		while (loc >= 0)
-		{
-			ipVal.replace(loc, 1, "-");
-			loc = ipVal.find(":");
-		}
-
-		return ipVal;
 	}
 };
 
