@@ -515,9 +515,9 @@ PTF_TEST_CASE(HttpReassemblyTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/Http1xFrag1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/Http1xFrag2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/Http1xFrag3.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/HTTP1_chunk_1.dat");
+	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/HTTP1_chunk_2.dat");
+	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/HTTP1_chunk_3.dat");
 
 	pcpp::Packet frag1(&rawPacket1);
 	pcpp::Packet frag2(&rawPacket2);
