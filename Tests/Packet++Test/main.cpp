@@ -169,6 +169,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(HttpResponseLayerCreationTest, "http");
 	PTF_RUN_TEST(HttpResponseLayerEditTest, "http");
 	PTF_RUN_TEST(HttpMalformedResponseTest, "http");
+	PTF_RUN_TEST(HttpReassemblyTest, "http");
 
 	PTF_RUN_TEST(PPPoESessionLayerParsingTest, "pppoe");
 	PTF_RUN_TEST(PPPoESessionLayerCreationTest, "pppoe");
