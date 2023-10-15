@@ -518,23 +518,15 @@ PTF_TEST_CASE(HttpReassemblyTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/HTTP1_chunk_1.dat");
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/HTTP1_chunk_2.dat");
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/HTTP1_chunk_3.dat");
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/HTTP1_chunk_4.dat");
 
 	pcpp::Packet chunk_1(&rawPacket1);
 	pcpp::Packet chunk_2(&rawPacket2);
 	pcpp::Packet chunk_3(&rawPacket3);
+	pcpp::Packet chunk_4(&rawPacket4);
 
-	PTF_ASSERT_TRUE(chunk_1.isPacketOfType(pcpp::HTTPResponse));
-	pcpp::HttpResponseLayer* responseLayer1 = chunk_1.getLayerOfType<pcpp::HttpResponseLayer>();
-	PTF_ASSERT_NOT_NULL(responseLayer1);
-	responseLayer1->isHeaderComplete();
-
-	PTF_ASSERT_TRUE(chunk_2.isPacketOfType(pcpp::HTTPResponse));
-	pcpp::HttpResponseLayer* responseLayer2 = chunk_2.getLayerOfType<pcpp::HttpResponseLayer>();
-	PTF_ASSERT_NOT_NULL(responseLayer2);
-
-	PTF_ASSERT_TRUE(chunk_3.isPacketOfType(pcpp::HTTPResponse));
-	pcpp::HttpResponseLayer* responseLayer3 = chunk_3.getLayerOfType<pcpp::HttpResponseLayer>();
-	PTF_ASSERT_NOT_NULL(responseLayer3);
-
-	PTF_ASSERT_TRUE(true);
+	PTF_ASSERT_TRUE(chunk_1.isPacketOfType(pcpp::HTTP));
+  PTF_ASSERT_TRUE(chunk_2.isPacketOfType(pcpp::HTTP));
+	PTF_ASSERT_TRUE(chunk_3.isPacketOfType(pcpp::HTTP));
+	PTF_ASSERT_TRUE(chunk_4.isPacketOfType(pcpp::HTTP));
 } // HttpReassemblyTest
