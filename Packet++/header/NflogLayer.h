@@ -59,7 +59,7 @@ namespace pcpp
  		NFULA_UID					= 11,
 		/** sequence number of packets on this NFLOG socket */
  		NFULA_SEQ					= 12,
-		/** sequence number of pakets on all NFLOG sockets */
+		/** sequence number of packets on all NFLOG sockets */
  		NFULA_SEQ_GLOBAL			= 13,
 		/** GID owning socket on which packet was sent/received */
  		NFULA_GID					= 14,

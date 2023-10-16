@@ -20,7 +20,7 @@ Every code contribution to this project is highly valued and appreciated. I enco
 - After you're done writing your code, please make sure that:
    - You added unit-tests for all of the new code, either on `Tests/Packet++Test` or `Tests/Pcap++Test` (whichever makes sense)
    - PcapPlusPlus compiles successfully on your machine, including all unit-tests and examples
-   - Unit-tests pass succssfully on your machine (both `Tests/Packet++Test` and `Tests/Pcap++Test`)
+   - Unit-tests pass successfully on your machine (both `Tests/Packet++Test` and `Tests/Pcap++Test`)
    - All new APIs are well documented using Doxygen (please use @ for keywords)
    - Make sure that pre-commit hooks are passing by using `pre-commit run --all-files`. For pre-commit hooks you need to install `cppcheck` on your system. Recommended and tested version is 2.7. You can install by using:
      - For Linux (apt) `sudo apt install cppcheck`

@@ -666,7 +666,7 @@ namespace pcpp
 		 * @param[in] onPacketsArrive The user callback which will be invoked each time a burst of packets is captured by the device
 		 * @param[in] onPacketsArriveUserCookie The user callback is invoked with this cookie as a parameter. It can be used to pass
 		 * information from the user application to the callback
-		 * @param coreMask The core-mask for creating the cpature threads
+		 * @param coreMask The core-mask for creating the capture threads
 		 * @return True if all capture threads started successfully or false if device is already in capture mode, not all cores in the core-mask are
 		 * available to DPDK, there are not enough opened RX queues to match all cores in the core-mask, or if thread invocation failed. In
 		 * all of these cases an appropriate error message will be printed
