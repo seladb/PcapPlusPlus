@@ -103,6 +103,8 @@ option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" O
 set(CMAKE_CXX_STANDARD 11)
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
+# Set Position Independent Code for static libraries
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
 if(WIN32
