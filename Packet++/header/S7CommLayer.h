@@ -1,5 +1,5 @@
-#ifndef PCAPPLUSPLUS_S7COMMLAYER_H
-#define PCAPPLUSPLUS_S7COMMLAYER_H
+#ifndef PCAPPLUSPLUS_S7CommLayer_H
+#define PCAPPLUSPLUS_S7CommLayer_H
 
 #include "EthLayer.h"
 #include "Layer.h"
@@ -14,41 +14,41 @@ namespace pcpp
 	typedef struct
 	{
 		/** protocol id */
-		uint8_t protocol_id;
+		uint8_t protocolId;
 		/** message type */
-		uint8_t msg_type;
+		uint8_t msgType;
 		/** redundancy identification (reserved) */
 		uint16_t reserved;
 		/** protocol data unit reference */
-		uint16_t pdu_ref;
+		uint16_t pduRef;
 		/** parameter length */
-		uint16_t param_length;
+		uint16_t paramLength;
 		/** data length */
-		uint16_t data_length;
+		uint16_t dataLength;
 	} s7commhdr;
 #pragma pack(pop)
 
 /**
  * @struct s7comm_ack_data_hdr
- * Represents a S7COMM protocol with Ack-Data header
+ * Represents a S7COMM protocol header with Ack-Data header
  */
 #pragma pack(push, 1)
 	struct s7comm_ack_data_hdr : s7commhdr
 	{
 		/** error class */
-		uint8_t error_class;
+		uint8_t errorClass;
 		/** error code */
-		uint8_t error_code;
+		uint8_t errorCode;
 	};
 #pragma pack(pop)
 
 	/**
 	 * @class S7CommParameter
-	 * Represents a S7COMM (S7 Communication7) protocol Parameter
+	 * Represents a S7COMM (S7 Communication) protocol Parameter
 	 */
 	class S7CommParameter
 	{
-		friend class S7commLayer;
+		friend class S7CommLayer;
 
 	  public:
 		S7CommParameter() {}
@@ -70,23 +70,23 @@ namespace pcpp
 		size_t m_DataLen;
 	};
 	/**
-	 * @class S7commLayer
+	 * @class S7CommLayer
 	 * Represents a S7COMM (S7 Communication) protocol
 	 */
-	class S7commLayer : public Layer
+	class S7CommLayer : public Layer
 	{
 	  public:
 		/**
 		 * A constructor that allocates a new S7comm header
-		 * @param[in] msg_type The general type of the message
-		 * @param[in] pdu_ref Link responses to their requests
-		 * @param[in] param_length The length of the parameter field
-		 * @param[in] data_length The length of the data field
-		 * @param[in] error_class The value of the error class
-		 * @param[in] error_code The value of the error code
+		 * @param[in] msgType The general type of the message
+		 * @param[in] pduRef Link responses to their requests
+		 * @param[in] paramLength The length of the parameter field
+		 * @param[in] dataLength The length of the data field
+		 * @param[in] errorClass The value of the error class
+		 * @param[in] errorCode The value of the error code
 		 */
-		S7commLayer(uint8_t msg_type, uint16_t pdu_ref, uint16_t param_length, uint16_t data_length,
-					uint8_t error_class = 0, uint8_t error_code = 0);
+		S7CommLayer(uint8_t msgType, uint16_t pduRef, uint16_t paramLength, uint16_t dataLength, uint8_t errorClass = 0,
+					uint8_t errorCode = 0);
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -95,14 +95,18 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		S7commLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
+		S7CommLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 			: Layer(data, dataLen, prevLayer, packet)
 		{
 			m_Protocol = S7COMM;
 			m_Parameter = nullptr;
 		}
 
-		virtual ~S7commLayer() { delete m_Parameter; }
+		virtual ~S7CommLayer()
+		{
+			if (!m_Parameter)
+				delete m_Parameter;
+		}
 
 		/**
 		 * @return S7comm protocol id
@@ -113,11 +117,6 @@ namespace pcpp
 		 * @return S7comm message type
 		 */
 		uint8_t getMsgType() const;
-
-		/**
-		 * @return S7comm reserved
-		 */
-		uint16_t getReserved() const;
 
 		/**
 		 * @return S7comm PDU ref
@@ -138,66 +137,64 @@ namespace pcpp
 		 * @return S7comm error code
 		 */
 		uint8_t getErrorCode() const;
+
 		/**
 		 * @return S7comm error class
 		 */
 		uint8_t getErrorClass() const;
 
+		/**
+		 * @return S7comm parameter
+		 */
 		const S7CommParameter *getParameter();
 
 		/**
 		 * Set the value of the message type
-		 * @param[in] msg_type The value of the message type
+		 * @param[in] msgType The value of the message type
 		 */
-		void setMsgType(uint8_t msg_type) const;
+		void setMsgType(uint8_t msgType) const;
 
 		/**
 		 * Set the value of the PDU ref
-		 * @param[in] pdu_ref The value of the PDU ref
+		 * @param[in] pduRef The value of the PDU ref
 		 */
-		void setPduRef(uint16_t pdu_ref) const;
+		void setPduRef(uint16_t pduRef) const;
 
 		/**
 		 * Set the value of the parameter length
-		 * @param[in] param_length The value of the parameter length
+		 * @param[in] paramLength The value of the parameter length
 		 */
-		void setParamLength(uint16_t param_length) const;
+		void setParamLength(uint16_t paramLength) const;
 
 		/**
 		 * Set the value of the data length
-		 * @param[in] data_length The value of the data length
+		 * @param[in] dataLength The value of the data length
 		 */
-		void setDataLength(uint16_t data_length) const;
+		void setDataLength(uint16_t dataLength) const;
 
 		/**
 		 * Set the value of the error code
-		 * @param[in] error_code The value of the error code
+		 * @param[in] errorCode The value of the error code
 		 */
-		void setErrorCode(uint8_t error_code) const;
+		void setErrorCode(uint8_t errorCode) const;
 		/**
 		 * Set the value of the error class
-		 * @param[in] error_class The value of the error class
+		 * @param[in] errorClass The value of the error class
 		 */
-		void setErrorClass(uint8_t error_class) const;
+		void setErrorClass(uint8_t errorClass) const;
 
 		/**
-		 * @return Size of @ref s7commhdr
+		 * @return Size of S7CommLayer
 		 */
-		size_t getHeaderLen() const override
-		{
-			if (getS7commHeader()->msg_type == 0x03)
-				return sizeof(s7comm_ack_data_hdr) + getParamLength() + getDataLength();
-
-			return sizeof(s7commhdr) + getParamLength() + getDataLength();
-		}
+		size_t getHeaderLen() const override { return m_DataLen; }
 
 		/**
-		 * Does nothing for this layer
+		 * Does nothing for this layer (S7CommLayer is always last)
 		 */
 		void computeCalculateFields() override {}
 
 		/**
-		 * Does nothing for this layer
+		 * Does nothing for this layer (S7CommLayer is always last)
 		 */
 		void parseNextLayer() override {}
 
@@ -218,7 +215,7 @@ namespace pcpp
 
 		s7comm_ack_data_hdr *getS7commAckDataHeader() const
 		{
-			if (getS7commHeader()->msg_type == 0x03)
+			if (getS7commHeader()->msgType == 0x03)
 			{
 				return (s7comm_ack_data_hdr *)m_Data;
 			}
@@ -227,8 +224,8 @@ namespace pcpp
 
 		size_t getS7commHeaderLength() const;
 
-		S7CommParameter *m_Parameter = nullptr;
+		S7CommParameter *m_Parameter;
 	};
 
 };	   // namespace pcpp
-#endif // PCAPPLUSPLUS_S7COMMLAYER_H
+#endif // PCAPPLUSPLUS_S7CommLayer_H

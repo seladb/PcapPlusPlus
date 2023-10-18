@@ -1,39 +1,35 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <getopt.h>
+#include "../../Tests/Packet++Test/Utils/TestUtils.h"
+#include "Logger.h"
 #include "PcapPlusPlusVersion.h"
 #include "PcppTestFrameworkRun.h"
 #include "TestDefinition.h"
-#include "Logger.h"
-#include "../../Tests/Packet++Test/Utils/TestUtils.h"
+#include <getopt.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-static struct option PacketTestOptions[] =
-{
-	{"include-tags",  required_argument, nullptr, 't'},
-	{"exclude-tags",  required_argument, nullptr, 'x'},
-	{"show-skipped-tests", no_argument, nullptr, 'w' },
-	{"mem-verbose", no_argument, nullptr, 'm' },
-	{"verbose", no_argument, nullptr, 'v' },
-	{"skip-mem-leak-check", no_argument, nullptr, 's' },
-	{"help", no_argument, nullptr, 'h' },
-	{nullptr, 0, nullptr, 0}
-};
+static struct option PacketTestOptions[] = {{"include-tags", required_argument, nullptr, 't'},
+											{"exclude-tags", required_argument, nullptr, 'x'},
+											{"show-skipped-tests", no_argument, nullptr, 'w'},
+											{"mem-verbose", no_argument, nullptr, 'm'},
+											{"verbose", no_argument, nullptr, 'v'},
+											{"skip-mem-leak-check", no_argument, nullptr, 's'},
+											{"help", no_argument, nullptr, 'h'},
+											{nullptr, 0, nullptr, 0}};
 
 void printUsage()
 {
 	std::cout << "Usage: Packet++Test [-t tags] [-m] [-s] [-v] [-h]\n\n"
-			<< "Flags:\n"
-			<< "-t --include-tags        A list of semicolon separated tags for tests to run\n"
-			<< "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
-			<< "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
-			<< "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
-			<< "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
-			<< "-s --skip-mem-leak-check Skip memory leak check\n"
-			<< "-h --help                Display this help message and exit\n";
+			  << "Flags:\n"
+			  << "-t --include-tags        A list of semicolon separated tags for tests to run\n"
+			  << "-x --exclude-tags        A list of semicolon separated tags for tests to exclude\n"
+			  << "-w --show-skipped-tests  Show tests that are skipped. Default is to hide them in tests results\n"
+			  << "-v --verbose             Run in verbose mode (emits more output in several tests)\n"
+			  << "-m --mem-verbose         Output information about each memory allocation and deallocation\n"
+			  << "-s --skip-mem-leak-check Skip memory leak check\n"
+			  << "-h --help                Display this help message and exit\n";
 }
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	int optionIndex = 0;
 	int opt = 0;
@@ -41,48 +37,50 @@ int main(int argc, char* argv[])
 	bool memVerbose = false;
 	bool skipMemLeakCheck = false;
 
-	while((opt = getopt_long(argc, argv, "msvwht:x:", PacketTestOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "msvwht:x:", PacketTestOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
-			case 0:
-				break;
-			case 't':
-				userTagsInclude = optarg;
-				break;
-			case 'x':
-				userTagsExclude = optarg;
-				break;
-			case 's':
-				skipMemLeakCheck = true;
-				break;
-			case 'm':
-				memVerbose = true;
-				break;
-			case 'w':
-				PTF_SHOW_SKIPPED_TESTS(true);
-				break;
-			case 'v':
-				PTF_SET_VERBOSE_MODE(true);
-				break;
-			case 'h':
-				printUsage();
-				exit(0);
-			default:
-				printUsage();
-				exit(-1);
+		case 0:
+			break;
+		case 't':
+			userTagsInclude = optarg;
+			break;
+		case 'x':
+			userTagsExclude = optarg;
+			break;
+		case 's':
+			skipMemLeakCheck = true;
+			break;
+		case 'm':
+			memVerbose = true;
+			break;
+		case 'w':
+			PTF_SHOW_SKIPPED_TESTS(true);
+			break;
+		case 'v':
+			PTF_SET_VERBOSE_MODE(true);
+			break;
+		case 'h':
+			printUsage();
+			exit(0);
+		default:
+			printUsage();
+			exit(-1);
 		}
 	}
 
 	std::cout << "PcapPlusPlus version: " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-	<< "Built: " << pcpp::getBuildDateTime() << std::endl
-	<< "Built from: " << pcpp::getGitInfo() << std::endl;
+			  << "Built: " << pcpp::getBuildDateTime() << std::endl
+			  << "Built from: " << pcpp::getGitInfo() << std::endl;
 
-	#ifdef NDEBUG
+#ifdef NDEBUG
 	skipMemLeakCheck = true;
-	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:" << std::endl
-	<< "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
-	#endif
+	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks "
+				 "like a memory leak:"
+			  << std::endl
+			  << "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
+#endif
 
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
 	pcpp::Logger::getInstance();
@@ -316,7 +314,7 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(CotpLayerTest, "cotp");
 
-	PTF_RUN_TEST(S7commLayerTest, "s7comm");
+	PTF_RUN_TEST(S7CommLayerTest, "s7comm");
 
 	PTF_END_RUNNING_TESTS;
 }

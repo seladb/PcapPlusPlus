@@ -2,35 +2,33 @@
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
 #include "Packet.h"
-#include "S7commLayer.h"
+#include "S7CommLayer.h"
 #include "SystemUtils.h"
 
-PTF_TEST_CASE(S7commLayerTest)
+PTF_TEST_CASE(S7CommLayerTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/S7comm.dat");
 
-	pcpp::Packet S7commLayerTest(&rawPacket1);
-	PTF_ASSERT_TRUE(S7commLayerTest.isPacketOfType(pcpp::S7COMM));
-	auto *s7commLayer = S7commLayerTest.getLayerOfType<pcpp::S7commLayer>();
-	PTF_ASSERT_NOT_NULL(s7commLayer);
+	pcpp::Packet S7CommLayerTest(&rawPacket1);
+	PTF_ASSERT_TRUE(S7CommLayerTest.isPacketOfType(pcpp::S7COMM));
+	auto *S7CommLayer = S7CommLayerTest.getLayerOfType<pcpp::S7CommLayer>();
+	PTF_ASSERT_NOT_NULL(S7CommLayer);
 
-	PTF_ASSERT_EQUAL(s7commLayer->getProtocolId(), 0x32);
-	PTF_ASSERT_EQUAL(s7commLayer->getMsgType(), 0x07);
-	PTF_ASSERT_EQUAL(s7commLayer->getReserved(), htobe16(0));
-	PTF_ASSERT_EQUAL(s7commLayer->getPduRef(), 0xfd0b);
-	PTF_ASSERT_EQUAL(s7commLayer->getParamLength(), 12);
-	PTF_ASSERT_EQUAL(s7commLayer->getDataLength(), 212);
-	PTF_ASSERT_EQUAL(s7commLayer->getHeaderLen(), 0xea);
-	PTF_ASSERT_EQUAL(s7commLayer->toString(),
-					 "S7comm Layer, msg_type: 7, pdu_ref: 64779, param_length: 12, data_length: 212");
+	PTF_ASSERT_EQUAL(S7CommLayer->getProtocolId(), 0x32);
+	PTF_ASSERT_EQUAL(S7CommLayer->getMsgType(), 0x07);
+	PTF_ASSERT_EQUAL(S7CommLayer->getPduRef(), 0xfd0b);
+	PTF_ASSERT_EQUAL(S7CommLayer->getParamLength(), 12);
+	PTF_ASSERT_EQUAL(S7CommLayer->getDataLength(), 212);
+	PTF_ASSERT_EQUAL(S7CommLayer->getHeaderLen(), 0xea);
+	PTF_ASSERT_EQUAL(S7CommLayer->toString(), "S7Comm Layer, Job Request");
 
-	PTF_ASSERT_EQUAL(s7commLayer->getParameter()->getDataLength(), 12);
+	PTF_ASSERT_EQUAL(S7CommLayer->getParameter()->getDataLength(), 12);
 	uint8_t expectedParameterData[] = {0x00, 0x01, 0x12, 0x08, 0x12, 0x84, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00};
-	PTF_ASSERT_BUF_COMPARE(s7commLayer->getParameter()->getData(), expectedParameterData, 12);
+	PTF_ASSERT_BUF_COMPARE(S7CommLayer->getParameter()->getData(), expectedParameterData, 12);
 
-	pcpp::S7commLayer newS7commPacket(0x09, 0xfd0c, 13, 213);
+	pcpp::S7CommLayer newS7commPacket(0x09, 0xfd0c, 13, 213);
 
 	PTF_ASSERT_EQUAL(newS7commPacket.getMsgType(), 0x09);
 	PTF_ASSERT_EQUAL(newS7commPacket.getPduRef(), 0xfd0c);
@@ -49,13 +47,12 @@ PTF_TEST_CASE(S7commLayerTest)
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/s7comm_error_code.dat");
 
-	pcpp::Packet S7commLayerErrorTest(&rawPacket2);
-	PTF_ASSERT_TRUE(S7commLayerErrorTest.isPacketOfType(pcpp::S7COMM));
-	auto *s7commErrorLayer = S7commLayerErrorTest.getLayerOfType<pcpp::S7commLayer>();
+	pcpp::Packet S7CommLayerErrorTest(&rawPacket2);
+	PTF_ASSERT_TRUE(S7CommLayerErrorTest.isPacketOfType(pcpp::S7COMM));
+	auto *s7commErrorLayer = S7CommLayerErrorTest.getLayerOfType<pcpp::S7CommLayer>();
 	PTF_ASSERT_NOT_NULL(s7commErrorLayer);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getProtocolId(), 0x32);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getMsgType(), 0x03);
-	PTF_ASSERT_EQUAL(s7commErrorLayer->getReserved(), htobe16(0));
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getPduRef(), 0x0000);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getParamLength(), 2);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getDataLength(), 68);
@@ -63,9 +60,7 @@ PTF_TEST_CASE(S7commLayerTest)
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getErrorCode(), 0x00);
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getHeaderLen(), 0x52);
 
-	PTF_ASSERT_EQUAL(
-		s7commErrorLayer->toString(),
-		"S7comm Layer, msg_type: 3, pdu_ref: 0, param_length: 2, data_length: 68, error class: 0, error code: 0");
+	PTF_ASSERT_EQUAL(s7commErrorLayer->toString(), "S7Comm Layer, Job Request");
 
 	s7commErrorLayer->setErrorCode(0x06);
 	s7commErrorLayer->setErrorClass(0x07);
@@ -74,4 +69,4 @@ PTF_TEST_CASE(S7commLayerTest)
 	PTF_ASSERT_EQUAL(s7commErrorLayer->getParameter()->getDataLength(), 2);
 	uint8_t expectedErrorParameterData[] = {0x04, 0x01};
 	PTF_ASSERT_BUF_COMPARE(s7commErrorLayer->getParameter()->getData(), expectedErrorParameterData, 2);
-} // S7commLayerTest
+} // S7CommLayerTest

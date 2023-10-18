@@ -241,8 +241,8 @@ PTF_TEST_CASE(TpktLayerTest);
 PTF_TEST_CASE(VrrpParsingTest);
 PTF_TEST_CASE(VrrpCreateAndEditTest);
 
-//Implemented in CotpTests.cpp
+// Implemented in CotpTests.cpp
 PTF_TEST_CASE(CotpLayerTest);
 
-//Implemented in S7commTests.cpp
-PTF_TEST_CASE(S7commLayerTest);
+// Implemented in S7commTests.cpp
+PTF_TEST_CASE(S7CommLayerTest);

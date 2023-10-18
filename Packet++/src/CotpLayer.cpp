@@ -1,10 +1,10 @@
 #include "../header/CotpLayer.h"
 #include "EndianPortable.h"
+#include "S7CommLayer.h"
 #include <PayloadLayer.h>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include "S7commLayer.h"
 
 namespace pcpp
 {
@@ -53,8 +53,8 @@ namespace pcpp
 		uint8_t *payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		if (S7commLayer::isDataValid(payload, payloadLen))
-			m_NextLayer = new S7commLayer(payload, payloadLen, this, m_Packet);
+		if (S7CommLayer::isDataValid(payload, payloadLen))
+			m_NextLayer = new S7CommLayer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
