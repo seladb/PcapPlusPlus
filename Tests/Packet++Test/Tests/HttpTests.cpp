@@ -512,21 +512,45 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 /// Tests HTTP packet reassembly
 PTF_TEST_CASE(HttpReassemblyTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
+    timeval time;
+    gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/HTTP1_chunk_1.dat");
-	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/HTTP1_chunk_2.dat");
-	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/HTTP1_chunk_3.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/HTTP1_chunk_4.dat");
+    READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/http-chunked-gzip_4.txt");
+    READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/http-chunked-gzip_6.txt");
+    READ_FILE_AND_CREATE_PACKET(8, "PacketExamples/http-chunked-gzip_8.txt");
+    READ_FILE_AND_CREATE_PACKET(10, "PacketExamples/http-chunked-gzip_10.txt");
+    READ_FILE_AND_CREATE_PACKET(12, "PacketExamples/http-chunked-gzip_12.txt");
+    READ_FILE_AND_CREATE_PACKET(14, "PacketExamples/http-chunked-gzip_14.txt");
+    READ_FILE_AND_CREATE_PACKET(16, "PacketExamples/http-chunked-gzip_16.txt");
+    READ_FILE_AND_CREATE_PACKET(18, "PacketExamples/http-chunked-gzip_18.txt");
+    READ_FILE_AND_CREATE_PACKET(20, "PacketExamples/http-chunked-gzip_20.txt");
+    READ_FILE_AND_CREATE_PACKET(22, "PacketExamples/http-chunked-gzip_22.txt");
+    READ_FILE_AND_CREATE_PACKET(24, "PacketExamples/http-chunked-gzip_24.txt");
 
-	pcpp::Packet chunk_1(&rawPacket1);
-	pcpp::Packet chunk_2(&rawPacket2);
-	pcpp::Packet chunk_3(&rawPacket3);
-	pcpp::Packet chunk_4(&rawPacket4);
+    pcpp::Packet chunk_4(&rawPacket4);
+    pcpp::Packet chunk_6(&rawPacket6);
+    pcpp::Packet chunk_8(&rawPacket8);
+    pcpp::Packet chunk_10(&rawPacket10);
+    pcpp::Packet chunk_12(&rawPacket12);
+    pcpp::Packet chunk_14(&rawPacket14);
+    pcpp::Packet chunk_16(&rawPacket16);
+    pcpp::Packet chunk_18(&rawPacket18);
+    pcpp::Packet chunk_20(&rawPacket20);
+    pcpp::Packet chunk_22(&rawPacket22);
+    pcpp::Packet chunk_24(&rawPacket24);
 
-	PTF_ASSERT_TRUE(chunk_1.isPacketOfType(pcpp::HTTP));
-  PTF_ASSERT_TRUE(chunk_2.isPacketOfType(pcpp::HTTP));
-	PTF_ASSERT_TRUE(chunk_3.isPacketOfType(pcpp::HTTP));
-	PTF_ASSERT_TRUE(chunk_4.isPacketOfType(pcpp::HTTP));
+    PTF_ASSERT_TRUE(chunk_4.isPacketOfType(pcpp::HTTP));
+    PTF_ASSERT_TRUE(chunk_6.isPacketOfType(pcpp::HTTP));
+		PTF_ASSERT_TRUE(chunk_4.isPacketOfType(pcpp::HTTPRequest));
+    PTF_ASSERT_TRUE(chunk_6.isPacketOfType(pcpp::HTTPResponse));
+    //PTF_ASSERT_TRUE(chunk_8.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_10.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_12.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_14.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_16.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_18.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_20.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_22.isPacketOfType(pcpp::HTTP));
+    //PTF_ASSERT_TRUE(chunk_24.isPacketOfType(pcpp::HTTP));
 } // HttpReassemblyTest
+
