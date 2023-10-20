@@ -104,7 +104,6 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	//init all other members
 	m_CaptureThreadStarted = false;
 	m_StatsThreadStarted = false;
-	m_IsLoopback = false;
 	m_StopThread = false;
 	m_CaptureThread = {};
 	m_StatsThread = {};
