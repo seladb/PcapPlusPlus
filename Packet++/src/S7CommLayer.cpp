@@ -20,7 +20,7 @@ namespace pcpp
 			m_DataLen = headerLen;
 			m_Data = new uint8_t[headerLen];
 			memset(m_Data, 0, headerLen);
-			s7comm_ack_data_hdr *ack_d = (s7comm_ack_data_hdr *)m_Data;
+			auto *ack_d = (s7comm_ack_data_hdr *)m_Data;
 			ack_d->protocolId = 0x32;
 			ack_d->msgType = msgType;
 			ack_d->reserved = 0x0000;
@@ -36,7 +36,7 @@ namespace pcpp
 			m_DataLen = headerLen;
 			m_Data = new uint8_t[headerLen];
 			memset(m_Data, 0, headerLen);
-			s7commhdr *s7commHdr = (s7commhdr *)m_Data;
+			auto *s7commHdr = (s7commhdr *)m_Data;
 			s7commHdr->protocolId = 0x32;
 			s7commHdr->msgType = msgType;
 			s7commHdr->reserved = 0x0000;
