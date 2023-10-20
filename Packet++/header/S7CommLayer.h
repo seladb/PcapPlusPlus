@@ -1,5 +1,5 @@
-#ifndef PCAPPLUSPLUS_S7CommLayer_H
-#define PCAPPLUSPLUS_S7CommLayer_H
+#ifndef PACKETPP_S7COMM_LAYER
+#define PACKETPP_S7COMM_LAYER
 
 #include "EthLayer.h"
 #include "Layer.h"
@@ -75,7 +75,7 @@ namespace pcpp
 	 */
 	class S7CommLayer : public Layer
 	{
-	  public:
+	public:
 		/**
 		 * A constructor that allocates a new S7comm header
 		 * @param[in] msgType The general type of the message
@@ -210,7 +210,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
-	  private:
+	private:
 		s7commhdr *getS7commHeader() const { return (s7commhdr *)m_Data; }
 
 		s7comm_ack_data_hdr *getS7commAckDataHeader() const
@@ -227,5 +227,6 @@ namespace pcpp
 		S7CommParameter *m_Parameter;
 	};
 
-};	   // namespace pcpp
-#endif // PCAPPLUSPLUS_S7CommLayer_H
+} // namespace pcpp
+
+#endif // PACKETPP_S7COMM_LAYER

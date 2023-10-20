@@ -1,5 +1,4 @@
 #include "EndianPortable.h"
-#include "TpktLayer.h"
 
 #include "S7CommLayer.h"
 #include "TcpLayer.h"
