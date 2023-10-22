@@ -133,10 +133,9 @@ jobs:
       matrix:
         image:
           [
+            ubuntu2204-dpdk2211,
             ubuntu2004-dpdk2111,
             ubuntu2004-dpdk2011,
-            ubuntu2004-dpdk1911,
-            ubuntu2004-dpdk1811,
           ]
 
     steps:
