@@ -293,6 +293,9 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestSystemCoreUtils, "no_network;system_utils");
 
+	PTF_RUN_TEST(TestXdpDevice, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceSendPackets, "xdp");
+
 	PTF_END_RUNNING_TESTS;
 }
 

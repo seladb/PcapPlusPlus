@@ -87,6 +87,7 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
+option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 
 # Set C++11
@@ -189,6 +190,10 @@ if(PCAPPP_USE_PF_RING)
   endif()
   add_definitions(-DUSE_PF_RING)
   set(_PCAPPP_FIND_PF_RING "find_dependency(PF_RING)\n")
+endif()
+
+if(PCAPPP_USE_XDP)
+  add_definitions(-DUSE_XDP)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)

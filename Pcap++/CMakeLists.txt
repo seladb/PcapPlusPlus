@@ -16,6 +16,7 @@ add_library(
   $<$<BOOL:${WIN32}>:src/PcapRemoteDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDeviceList.cpp>
+  $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
   # Force light pcapng to be link fully static
@@ -48,6 +49,13 @@ if(PCAPPP_USE_PF_RING)
     public_headers
     header/PfRingDevice.h
     header/PfRingDeviceList.h)
+endif()
+
+if(PCAPPP_USE_XDP)
+  list(
+    APPEND
+    public_headers
+    header/XdpDevice.h)
 endif()
 
 if(LINUX)
@@ -87,6 +95,7 @@ target_link_libraries(
          Packet++
          $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
          $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
+         $<$<BOOL:${PCAPPP_USE_XDP}>:bpf>
          PCAP::PCAP
          Threads::Threads)
 

@@ -81,6 +81,7 @@ namespace pcpp
 		PcapLogModuleMBufRawPacket, ///< MBufRawPacket module (Pcap++)
 		PcapLogModuleDpdkDevice, ///< DpdkDevice module (Pcap++)
 		PcapLogModuleKniDevice, ///< KniDevice module (Pcap++)
+		PcapLogModuleXdpDevice, ///< XdpDevice module (Pcap++)
 		NetworkUtils, ///< NetworkUtils module (Pcap++)
 		NumOfLogModules
 	};

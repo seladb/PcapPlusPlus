@@ -348,6 +348,8 @@ namespace pcpp
 		 */
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
+		bool initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET);
+
 		/**
 		 * Get raw data pointer
 		 * @return A read-only pointer to the raw data
