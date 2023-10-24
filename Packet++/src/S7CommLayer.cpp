@@ -45,6 +45,7 @@ namespace pcpp
 			s7commHdr->dataLength = htobe16(dataLength);
 		}
 
+		m_Parameter = nullptr;
 		m_Protocol = S7COMM;
 	}
 
@@ -52,7 +53,7 @@ namespace pcpp
 	{
 		std::ostringstream str;
 
-		str << "S7Comm Layer, Job Request";
+		str << "S7Comm Layer";
 
 		return str.str();
 	}
@@ -80,11 +81,6 @@ namespace pcpp
 	uint8_t S7CommLayer::getErrorCode() const { return getS7commAckDataHeader()->errorCode; }
 
 	uint8_t S7CommLayer::getErrorClass() const { return getS7commAckDataHeader()->errorClass; }
-
-	void S7CommLayer::setParamLength(uint16_t paramLength) const
-	{
-		getS7commHeader()->paramLength = htobe16(paramLength);
-	}
 
 	void S7CommLayer::setPduRef(uint16_t pduRef) const { getS7commHeader()->pduRef = htobe16(pduRef); }
 

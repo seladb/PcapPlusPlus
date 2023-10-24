@@ -75,7 +75,7 @@ namespace pcpp
 	 */
 	class S7CommLayer : public Layer
 	{
-	public:
+	  public:
 		/**
 		 * A constructor that allocates a new S7comm header
 		 * @param[in] msgType The general type of the message
@@ -104,7 +104,7 @@ namespace pcpp
 
 		virtual ~S7CommLayer()
 		{
-			if (!m_Parameter)
+			if (m_Parameter)
 				delete m_Parameter;
 		}
 
@@ -161,12 +161,6 @@ namespace pcpp
 		void setPduRef(uint16_t pduRef) const;
 
 		/**
-		 * Set the value of the parameter length
-		 * @param[in] paramLength The value of the parameter length
-		 */
-		void setParamLength(uint16_t paramLength) const;
-
-		/**
 		 * Set the value of the data length
 		 * @param[in] dataLength The value of the data length
 		 */
@@ -210,7 +204,7 @@ namespace pcpp
 
 		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
-	private:
+	  private:
 		s7commhdr *getS7commHeader() const { return (s7commhdr *)m_Data; }
 
 		s7comm_ack_data_hdr *getS7commAckDataHeader() const
