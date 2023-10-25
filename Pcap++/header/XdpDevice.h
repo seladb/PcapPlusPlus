@@ -51,8 +51,33 @@ namespace pcpp
 			}
 		};
 
-		explicit XdpDevice(std::string interfaceName) :
-			m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_Capturing(false), m_Umem(nullptr), m_SocketInfo(nullptr) {}
+		struct XdpDeviceStats
+		{
+			timespec timestamp;
+			uint64_t rxPackets;
+			uint64_t rxPacketsPerSec;
+			uint64_t rxBytes;
+			uint64_t rxBytesPerSec;
+			uint64_t rxDroppedTotalPackets;
+			uint64_t rxDroppedInvalidPackets;
+			uint64_t rxDroppedRxRingFullPackets;
+			uint64_t rxDroppedFillRingPackets;
+			uint64_t txSentPackets;
+			uint64_t txSentPacketsPerSec;
+			uint64_t txSentBytes;
+			uint64_t txSentBytesPerSec;
+			uint64_t txCompletedPackets;
+			uint64_t txCompletedPacketsPerSec;
+			uint64_t txDroppedInvalidPackets;
+			uint64_t rxRingId;
+			uint64_t txRingId;
+			uint64_t fqRingId;
+			uint64_t cqRingId;
+			uint64_t umemAllocatedFrames;
+			uint64_t umemFreeFrames;
+		};
+
+		explicit XdpDevice(std::string interfaceName);
 
 		~XdpDevice() override;
 
@@ -77,6 +102,8 @@ namespace pcpp
 
 		XdpDeviceConfiguration* getConfig() const { return m_Config; }
 
+		XdpDeviceStats getStatistics();
+
 	private:
 		class XdpUmem
 		{
@@ -96,6 +123,8 @@ namespace pcpp
 
 			void setData(uint64_t addr, const uint8_t* data, size_t dataLen);
 
+			inline size_t getFreeFrameCount() { return m_FreeFrames.size(); }
+
 			inline void* getInfo() { return m_UmemInfo; }
 
 		private:
@@ -106,11 +135,23 @@ namespace pcpp
 			std::vector<uint64_t> m_FreeFrames;
 		};
 
+		struct XdpPrevDeviceStats
+		{
+			timespec timestamp;
+			uint64_t rxPackets;
+			uint64_t rxBytes;
+			uint64_t txSentPackets;
+			uint64_t txSentBytes;
+			uint64_t txCompletedPackets;
+		};
+
 		std::string m_InterfaceName;
 		XdpDeviceConfiguration* m_Config;
 		bool m_Capturing;
   		XdpUmem* m_Umem;
 		void* m_SocketInfo;
+		XdpDeviceStats m_Stats;
+		XdpPrevDeviceStats m_PrevStats;
 
 		void sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt, const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 		bool populateFillRing(uint32_t count, uint32_t rxId = 0);
@@ -119,6 +160,7 @@ namespace pcpp
 		bool configureSocket();
 		bool initUmem();
 		bool initConfig();
+		bool getSocketStats();
 	};
 }
 

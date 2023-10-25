@@ -2,7 +2,6 @@
 #include "XdpDevice.h"
 #include "PcapFileDevice.h"
 #include "Packet.h"
-#include <unistd.h>
 
 
 #if USE_XDP
@@ -10,13 +9,6 @@
 void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
 {
 	printf("**** Callback called for %d packets\n", packetCount);
-//	for (uint32_t i = 0; i < packetCount; i++)
-//	{
-//		printf("got raw packet with size %d\n", packets[i].getRawDataLen());
-//	}
-//	printf("\n");
-//	sleep(3);
-
 	for (uint32_t i = 0; i < packetCount; i++)
 	{
 		pcpp::Packet parsePacket(&packets[i]);
@@ -39,6 +31,22 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 	{
 		device->stopCapture();
 	}
+
+	auto stats = device->getStatistics();
+	std::cout
+		<< "RX packets: " << stats.rxPackets << std::endl
+		<< "RX bytes: " << stats.rxBytes << std::endl
+		<< "TX sent packets: " << stats.txSentPackets << std::endl
+		<< "TX sent bytes: " << stats.txSentBytes << std::endl
+		<< "TX completed packets: " << stats.txCompletedPackets << std::endl
+		<< "RX dropped packets: " << stats.rxDroppedTotalPackets << std::endl
+		<< "TX dropped invalid packets: " << stats.txDroppedInvalidPackets << std::endl
+		<< "RX ring id: " << stats.rxRingId << std::endl
+		<< "TX ring id: " << stats.txRingId << std::endl
+		<< "Fill ring id: " << stats.fqRingId << std::endl
+		<< "Completion ring id: " << stats.cqRingId << std::endl
+		<< "UMEM free frames: " << stats.umemFreeFrames << std::endl
+		<< "UMEM allocated frames: " << stats.umemAllocatedFrames << std::endl;
 }
 
 #endif // USE_XDP
@@ -63,7 +71,7 @@ PTF_TEST_CASE(TestXdpDevice)
 
 	device.startCapture(onPacketsArrive, &cycles, 0);
 #else
-	PTF_SKIP_TEST("DPDK not configured");
+	PTF_SKIP_TEST("XDP not configured");
 #endif
 } // TestXdpDevice
 
@@ -71,18 +79,43 @@ PTF_TEST_CASE(TestXdpDevice)
 PTF_TEST_CASE(TestXdpDeviceSendPackets)
 {
 #if USE_XDP
+	pcpp::XdpDevice device("enp0s3");
 	pcpp::PcapFileReaderDevice reader("PcapExamples/one_http_stream_fin.pcap");
 	PTF_ASSERT_TRUE(reader.open());
 	pcpp::RawPacketVector packets;
 	reader.getNextPackets(packets);
-	pcpp::XdpDevice device("enp0s3");
-	PTF_ASSERT_TRUE(device.open());
-	for (int i = 0; i < 10; i++)
+
+	for (int x = 0; x < 5; x++)
 	{
-		device.sendPackets(packets, true);
-		sleep(1);
+		PTF_ASSERT_TRUE(device.open());
+		for (int i = 0; i < 100; i++)
+		{
+			device.sendPackets(packets);
+			//		sleep(1);
+
+			auto stats = device.getStatistics();
+			std::cout
+				<< "RX packets: " << stats.rxPackets << std::endl
+				<< "RX bytes: " << stats.rxBytes << std::endl
+				<< "TX sent packets: " << stats.txSentPackets << std::endl
+				<< "TX sent packets per sec: " << stats.txSentPacketsPerSec << std::endl
+				<< "TX sent bytes: " << stats.txSentBytes << std::endl
+				<< "TX sent bytes per sec: " << stats.txSentBytesPerSec << std::endl
+				<< "TX completed packets: " << stats.txCompletedPackets << std::endl
+				<< "TX completed packets per sec: " << stats.txCompletedPacketsPerSec << std::endl
+				<< "RX dropped packets: " << stats.rxDroppedTotalPackets << std::endl
+				<< "TX dropped invalid packets: " << stats.txDroppedInvalidPackets << std::endl
+				<< "RX ring id: " << stats.rxRingId << std::endl
+				<< "TX ring id: " << stats.txRingId << std::endl
+				<< "Fill ring id: " << stats.fqRingId << std::endl
+				<< "Completion ring id: " << stats.cqRingId << std::endl
+				<< "UMEM free frames: " << stats.umemFreeFrames << std::endl
+				<< "UMEM allocated frames: " << stats.umemAllocatedFrames << std::endl;
+		}
+		device.close();
+
 	}
 #else
-	PTF_SKIP_TEST("DPDK not configured");
+	PTF_SKIP_TEST("XDP not configured");
 #endif
 } // TestXdpDeviceSendPackets

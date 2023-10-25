@@ -9,14 +9,11 @@
 #include <net/if.h>
 #include <sys/mman.h>
 #include <unistd.h>
-//#include <xdp/libxdp.h>
 #include <functional>
 #include <poll.h>
 
 namespace pcpp
 {
-
-	//TODO: add stats
 
 struct xsk_umem_info {
 	struct xsk_ring_prod fq;
@@ -89,7 +86,6 @@ const uint8_t* XdpDevice::XdpUmem::getDataPtr(uint64_t addr) const
 void XdpDevice::XdpUmem::setData(uint64_t addr, const uint8_t* data, size_t dataLen)
 {
 	auto dataPtr = static_cast<uint8_t*>(xsk_umem__get_data(m_Buffer, addr));
-	//TODO: return true if memcpy succeeds
 	memcpy(dataPtr, data, dataLen);
 }
 
@@ -108,8 +104,6 @@ std::pair<bool, std::vector<uint64_t>> XdpDevice::XdpUmem::allocateFrames(uint32
 		m_FreeFrames.pop_back();
 	}
 
-//	std::cout << "allocating frame " << std::hex << frame << std::dec << std::endl;
-//	std::cout << "remaining frames: " << m_FreeFrames.size() << std::endl << std::endl;
 	return {true, result};
 }
 
@@ -117,9 +111,6 @@ void XdpDevice::XdpUmem::freeFrame(uint64_t addr)
 {
 	auto frame = (uint64_t )((addr / m_FrameSize) * m_FrameSize);
 	m_FreeFrames.push_back(frame);
-
-//	std::cout << "free frame " << std::hex << frame << std::dec << std::endl;
-//	std::cout << "remaining frames: " << m_FreeFrames.size() << std::endl << std::endl;
 }
 
 //bool XdpDevice::loadProgram(const std::string& filename)
@@ -157,6 +148,11 @@ void XdpDevice::XdpUmem::freeFrame(uint64_t addr)
 //
 //	return true;
 //}
+
+XdpDevice::XdpDevice(std::string interfaceName) :
+	m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_Capturing(false), m_Umem(nullptr), m_SocketInfo(nullptr)
+{
+}
 
 XdpDevice::~XdpDevice()
 {
@@ -204,7 +200,8 @@ void XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 			continue;
 		}
 
-		printf("rxId = %d\n", rxId);
+		m_Stats.rxPackets += receivedPacketsCount;
+
 		RawPacket rawPacketsArr[receivedPacketsCount];
 
 		for (uint32_t i = 0; i < receivedPacketsCount; i++)
@@ -217,12 +214,15 @@ void XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 			clock_gettime(CLOCK_REALTIME, &ts);
 			rawPacketsArr[i].initWithRawData(data, static_cast<int>(len), ts);
 
+			m_Stats.rxBytes += len;
+
 			m_Umem->freeFrame(addr);
 		}
 
 		onPacketsArrive(rawPacketsArr, receivedPacketsCount, this, onPacketsArriveUserCookie);
 
 		xsk_ring_cons__release(&socketInfo->rx, receivedPacketsCount);
+		m_Stats.rxRingId = rxId + receivedPacketsCount;
 
 		if (!populateFillRing(receivedPacketsCount, rxId))
 		{
@@ -276,18 +276,24 @@ void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketA
 		}
 	}
 
+	uint64_t sentBytes = 0;
 	for (uint32_t i = 0; i < packetCount; i++)
 	{
 		uint64_t frame = frameResponse.second[i];
 		m_Umem->setData(frame, getPacketAt(i).getRawData(), getPacketAt(i).getRawDataLen());
 
-		printf("txId = %d\n", txId+i);
 		struct xdp_desc* txDesc = xsk_ring_prod__tx_desc(&socketInfo->tx, txId + i);
 		txDesc->addr = frame;
 		txDesc->len = getPacketAt(i).getRawDataLen();
+
+		sentBytes += txDesc->len;
+
 	}
 
 	xsk_ring_prod__submit(&socketInfo->tx, packetCount);
+	m_Stats.txSentPackets += packetCount;
+	m_Stats.txSentBytes += sentBytes;
+	m_Stats.txRingId = txId + packetCount;
 	std::cout << "submitted " << packetCount << " packets to tx" << std::endl;
 
 	if (waitForTxCompletion)
@@ -363,10 +369,11 @@ bool XdpDevice::populateFillRing(const std::vector<uint64_t>& addresses, uint32_
 
 	for (uint32_t i = 0; i < count; i++)
 	{
-		*xsk_ring_prod__fill_addr(&umem->fq, rxId++) = addresses[i];
+		*xsk_ring_prod__fill_addr(&umem->fq, rxId + i) = addresses[i];
 	}
 
 	xsk_ring_prod__submit(&umem->fq, count);
+	m_Stats.fqRingId = rxId + count;
 
 	return true;
 }
@@ -394,8 +401,10 @@ uint32_t XdpDevice::checkCompletionRing()
 		}
 
 		xsk_ring_cons__release(&umemInfo->cq, completedCount);
+		m_Stats.cqRingId = cqId + completedCount;
 	}
 
+	m_Stats.txCompletedPackets += completedCount;
 	return completedCount;
 }
 
@@ -534,6 +543,9 @@ bool XdpDevice::open()
 		return false;
 	}
 
+	memset(&m_Stats, 0, sizeof(m_Stats));
+	memset(&m_PrevStats, 0 ,sizeof(m_PrevStats));
+
 	m_DeviceOpened = true;
 	return m_DeviceOpened;
 }
@@ -556,6 +568,66 @@ void XdpDevice::close()
 		m_Config = nullptr;
 		m_Umem = nullptr;
 	}
+}
+
+bool XdpDevice::getSocketStats()
+{
+	auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
+	int fd = xsk_socket__fd(socketInfo->xsk);
+
+	struct xdp_statistics socketStats;
+	socklen_t optlen = sizeof(socketStats);
+
+	int err = getsockopt(fd, SOL_XDP, XDP_STATISTICS, &socketStats, &optlen);
+	if (err)
+	{
+		PCPP_LOG_ERROR("Error getting stats from socket, return error: " << err);
+		return false;
+	}
+
+	if (optlen != sizeof(struct xdp_statistics))
+	{
+		PCPP_LOG_ERROR("Error getting stats from socket: optlen (" << optlen << ") != expected size (" << sizeof(struct xdp_statistics) << ")");
+		return false;
+	}
+
+	m_Stats.rxDroppedInvalidPackets = socketStats.rx_invalid_descs;
+	m_Stats.rxDroppedRxRingFullPackets = socketStats.rx_ring_full;
+	m_Stats.rxDroppedFillRingPackets = socketStats.rx_fill_ring_empty_descs;
+	m_Stats.rxDroppedTotalPackets = m_Stats.rxDroppedFillRingPackets + m_Stats.rxDroppedRxRingFullPackets + m_Stats.rxDroppedInvalidPackets + socketStats.rx_dropped;
+	m_Stats.txDroppedInvalidPackets = socketStats.tx_invalid_descs;
+
+	return true;
+}
+
+#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
+
+XdpDevice::XdpDeviceStats XdpDevice::getStatistics()
+{
+	timespec timestamp;
+	clock_gettime(CLOCK_MONOTONIC, &timestamp);
+
+	m_Stats.timestamp = timestamp;
+	getSocketStats();
+
+	double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1000000000.0;
+	m_Stats.rxPacketsPerSec = static_cast<uint64_t>((m_Stats.rxPackets - m_PrevStats.rxPackets) / secsElapsed);
+	m_Stats.rxBytesPerSec = static_cast<uint64_t>((m_Stats.rxBytes - m_PrevStats.rxBytes) / secsElapsed);
+	m_Stats.txSentPacketsPerSec = static_cast<uint64_t>((m_Stats.txSentPackets - m_PrevStats.txSentPackets) / secsElapsed);
+	m_Stats.txSentBytesPerSec = static_cast<uint64_t>((m_Stats.txSentBytes - m_PrevStats.txSentBytes) / secsElapsed);
+	m_Stats.txCompletedPacketsPerSec = static_cast<uint64_t>((m_Stats.txCompletedPackets - m_PrevStats.txCompletedPackets) / secsElapsed);
+
+	m_Stats.umemFreeFrames = m_Umem->getFreeFrameCount();
+	m_Stats.umemAllocatedFrames = m_Umem->getFrameCount() - m_Stats.umemFreeFrames;
+
+	m_PrevStats.timestamp = timestamp;
+	m_PrevStats.rxPackets = m_Stats.rxPackets;
+	m_PrevStats.rxBytes = m_Stats.rxBytes;
+	m_PrevStats.txSentPackets = m_Stats.txSentPackets;
+	m_PrevStats.txSentBytes = m_Stats.txSentBytes;
+	m_PrevStats.txCompletedPackets = m_Stats.txCompletedPackets;
+
+	return m_Stats;
 }
 
 }
