@@ -10,6 +10,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <functional>
+#include <algorithm>
 #include <poll.h>
 
 namespace pcpp
@@ -112,42 +113,6 @@ void XdpDevice::XdpUmem::freeFrame(uint64_t addr)
 	auto frame = (uint64_t )((addr / m_FrameSize) * m_FrameSize);
 	m_FreeFrames.push_back(frame);
 }
-
-//bool XdpDevice::loadProgram(const std::string& filename)
-//{
-//	char errmsg[1024];
-//	int err;
-////	bool opt_frags = false;
-//
-//	auto xdp_prog = xdp_program__open_file(filename.c_str(), NULL, NULL);
-//	err = libxdp_get_error(xdp_prog);
-//	if (err) {
-//		libxdp_strerror(err, errmsg, sizeof(errmsg));
-//		fprintf(stderr, "ERROR: program loading failed: %s\n", errmsg);
-//		return false;
-//	}
-//
-////	err = xdp_program__set_xdp_frags_support(xdp_prog, opt_frags);
-////	if (err) {
-////		libxdp_strerror(err, errmsg, sizeof(errmsg));
-////		fprintf(stderr, "ERROR: Enable frags support failed: %s\n", errmsg);
-////		return false;
-////	}
-//
-//	auto opt_ifindex = if_nametoindex(m_InterfaceName.c_str());
-//	xdp_attach_mode attachMode = XDP_MODE_SKB;
-//	err = xdp_program__attach(xdp_prog, opt_ifindex, attachMode, 0);
-//	if (err) {
-//		libxdp_strerror(err, errmsg, sizeof(errmsg));
-//		fprintf(stderr, "ERROR: attaching program failed: %s\n", errmsg);
-//		return false;
-//	}
-//
-//
-//	m_Prog = xdp_prog;
-//
-//	return true;
-//}
 
 XdpDevice::XdpDevice(std::string interfaceName) :
 	m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_Capturing(false), m_Umem(nullptr), m_SocketInfo(nullptr)
@@ -523,22 +488,10 @@ bool XdpDevice::open()
 		return false;
 	}
 
-	if (!initConfig())
-	{
-		return false;
-	}
-
-	if (!initUmem())
-	{
-		return false;
-	}
-
-	if (!populateFillRing(m_Umem->getFrameCount() / 2))
-	{
-		return false;
-	}
-
-	if (!configureSocket())
+	if (!(initConfig() &&
+		  initUmem() &&
+		  populateFillRing(std::min(m_Config->fillRingSize, static_cast<uint32_t>(m_Config->umemNumFrames / 2))) &&
+		  configureSocket()))
 	{
 		return false;
 	}
