@@ -154,7 +154,6 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 	PTF_ASSERT_GREATER_THAN(stats.fqRingId, 0);
 	PTF_ASSERT_EQUAL(stats.txRingId, 0);
 	PTF_ASSERT_EQUAL(stats.cqRingId, 0);
-
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
@@ -163,6 +162,7 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 
 PTF_TEST_CASE(TestXdpDeviceSendPackets)
 {
+#if USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
@@ -195,11 +195,15 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 
 	stats = device.getStatistics();
 	PTF_ASSERT_NOT_EQUAL(stats.txSentPackets, stats.txCompletedPackets);
+#else
+	PTF_SKIP_TEST("XDP not configured");
+#endif
 } // TestXdpDeviceSendPackets
 
 
 PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 {
+#if USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
@@ -217,11 +221,15 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 	device.startCapture(onPacketsArrive, &numPackets, 20000);
 
 	PTF_ASSERT_EQUAL(numPackets, 5);
+#else
+	PTF_SKIP_TEST("XDP not configured");
+#endif
 } // TestXdpDeviceNonDefaultConfig
 
 
 PTF_TEST_CASE(TestXdpDeviceInvalidConfig)
 {
+#if USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
@@ -289,6 +297,9 @@ PTF_TEST_CASE(TestXdpDeviceInvalidConfig)
 	PTF_ASSERT_FALSE(device.open(config));
 
 	pcpp::Logger::getInstance().enableLogs();
+#else
+	PTF_SKIP_TEST("XDP not configured");
+#endif
 } // TestXdpDeviceInvalidConfig
 
 
