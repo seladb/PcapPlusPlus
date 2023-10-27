@@ -62,6 +62,7 @@ namespace pcpp
 			uint64_t rxDroppedInvalidPackets;
 			uint64_t rxDroppedRxRingFullPackets;
 			uint64_t rxDroppedFillRingPackets;
+			uint64_t rxPollTimeout;
 			uint64_t txSentPackets;
 			uint64_t txSentPacketsPerSec;
 			uint64_t txSentBytes;

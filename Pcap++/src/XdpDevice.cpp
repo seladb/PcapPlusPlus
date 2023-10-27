@@ -34,6 +34,7 @@ struct xsk_socket_info
 #define DEFAULT_FILL_RING_SIZE       (XSK_RING_PROD__DEFAULT_NUM_DESCS *2)
 #define DEFAULT_COMPLETION_RING_SIZE XSK_RING_PROD__DEFAULT_NUM_DESCS
 #define DEFAULT_BATCH_SIZE           64
+#define IS_POWER_OF_TWO(num)         (num && ((num & (num - 1)) == 0))
 
 
 XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize, uint32_t fillRingSize, uint32_t completionRingSize)
@@ -117,6 +118,8 @@ void XdpDevice::XdpUmem::freeFrame(uint64_t addr)
 XdpDevice::XdpDevice(std::string interfaceName) :
 	m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_Capturing(false), m_Umem(nullptr), m_SocketInfo(nullptr)
 {
+	memset(&m_Stats, 0, sizeof(m_Stats));
+	memset(&m_PrevStats, 0, sizeof(m_PrevStats));
 }
 
 XdpDevice::~XdpDevice()
@@ -150,6 +153,7 @@ void XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 		auto pollResult = poll(pollFds, 1, timeoutMS);
 		if (pollResult == 0 && timeoutMS != 0)
 		{
+			m_Stats.rxPollTimeout++;
 			return;
 		}
 		if (pollResult < 0)
@@ -411,11 +415,6 @@ bool XdpDevice::configureSocket()
 
 bool XdpDevice::initUmem()
 {
-	if (m_Umem)
-	{
-		return true;
-	}
-
 	if (m_Config->umemFrameSize < MINIMUM_UMEM_FRAME_SIZE)
 	{
 		PCPP_LOG_ERROR("UMEM frame size has to be larger than " << MINIMUM_UMEM_FRAME_SIZE);
@@ -439,6 +438,18 @@ bool XdpDevice::initConfig()
 	uint32_t rxSize = m_Config->rxSize ? m_Config->rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
 	uint32_t txSize = m_Config->txSize ? m_Config->txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
 	uint32_t batchSize = m_Config->rxTxBatchSize ? m_Config->rxTxBatchSize : DEFAULT_BATCH_SIZE;
+
+	if (m_Config->umemFrameSize != getpagesize())
+	{
+		PCPP_LOG_ERROR("UMEM frame size must match the memory page size (" << getpagesize() << ")");
+		return false;
+	}
+
+	if (!(IS_POWER_OF_TWO(fillRingSize) && IS_POWER_OF_TWO(completionRingSize) && IS_POWER_OF_TWO(rxSize) && IS_POWER_OF_TWO(txSize)))
+	{
+		PCPP_LOG_ERROR("All ring sizes (fill ring, completion ring, rx ring, tx ring) should be a power of two");
+		return false;
+	}
 
 	if (fillRingSize > numFrames)
 	{
@@ -493,6 +504,16 @@ bool XdpDevice::open()
 		  populateFillRing(std::min(m_Config->fillRingSize, static_cast<uint32_t>(m_Config->umemNumFrames / 2))) &&
 		  configureSocket()))
 	{
+		if (m_Umem)
+		{
+			delete m_Umem;
+			m_Umem = nullptr;
+		}
+		if (m_Config)
+		{
+			delete m_Config;
+			m_Config = nullptr;
+		}
 		return false;
 	}
 
@@ -561,7 +582,18 @@ XdpDevice::XdpDeviceStats XdpDevice::getStatistics()
 	clock_gettime(CLOCK_MONOTONIC, &timestamp);
 
 	m_Stats.timestamp = timestamp;
-	getSocketStats();
+
+	if (m_DeviceOpened)
+	{
+		getSocketStats();
+		m_Stats.umemFreeFrames = m_Umem->getFreeFrameCount();
+		m_Stats.umemAllocatedFrames = m_Umem->getFrameCount() - m_Stats.umemFreeFrames;
+	}
+	else
+	{
+		m_Stats.umemFreeFrames = 0;
+		m_Stats.umemAllocatedFrames = 0;
+	}
 
 	double secsElapsed = (double)nanosec_gap(m_PrevStats.timestamp, timestamp) / 1000000000.0;
 	m_Stats.rxPacketsPerSec = static_cast<uint64_t>((m_Stats.rxPackets - m_PrevStats.rxPackets) / secsElapsed);
@@ -569,9 +601,6 @@ XdpDevice::XdpDeviceStats XdpDevice::getStatistics()
 	m_Stats.txSentPacketsPerSec = static_cast<uint64_t>((m_Stats.txSentPackets - m_PrevStats.txSentPackets) / secsElapsed);
 	m_Stats.txSentBytesPerSec = static_cast<uint64_t>((m_Stats.txSentBytes - m_PrevStats.txSentBytes) / secsElapsed);
 	m_Stats.txCompletedPacketsPerSec = static_cast<uint64_t>((m_Stats.txCompletedPackets - m_PrevStats.txCompletedPackets) / secsElapsed);
-
-	m_Stats.umemFreeFrames = m_Umem->getFreeFrameCount();
-	m_Stats.umemAllocatedFrames = m_Umem->getFrameCount() - m_Stats.umemFreeFrames;
 
 	m_PrevStats.timestamp = timestamp;
 	m_PrevStats.rxPackets = m_Stats.rxPackets;
