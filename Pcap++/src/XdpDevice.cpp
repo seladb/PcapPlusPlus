@@ -127,12 +127,12 @@ XdpDevice::~XdpDevice()
 	close();
 }
 
-void XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
+bool XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
 {
-	if (!m_SocketInfo)
+	if (!m_DeviceOpened)
 	{
-		PCPP_LOG_ERROR("XDP socket is not open");
-		return;
+		PCPP_LOG_ERROR("Device is not open");
+		return false;
 	}
 
 	auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
@@ -154,12 +154,12 @@ void XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 		if (pollResult == 0 && timeoutMS != 0)
 		{
 			m_Stats.rxPollTimeout++;
-			return;
+			return true;
 		}
 		if (pollResult < 0)
 		{
 			PCPP_LOG_ERROR("poll() returned an error: " << errno);
-			return;
+			return false;
 		}
 
 		uint32_t receivedPacketsCount = xsk_ring_cons__peek(&socketInfo->rx, m_Config->rxTxBatchSize, &rxId);
@@ -198,6 +198,8 @@ void XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 			m_Capturing = false;
 		}
 	}
+
+	return true;
 }
 
 void XdpDevice::stopCapture()
@@ -205,12 +207,12 @@ void XdpDevice::stopCapture()
 	m_Capturing = false;
 }
 
-void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt, const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
+bool XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt, const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
 {
-	if (!m_SocketInfo)
+	if (!m_DeviceOpened)
 	{
-		PCPP_LOG_ERROR("XDP socket is not open");
-		return;
+		PCPP_LOG_ERROR("Device is not open");
+		return false;
 	}
 
 	auto socketInfo = static_cast<xsk_socket_info *>(m_SocketInfo);
@@ -223,7 +225,7 @@ void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketA
 	auto frameResponse = m_Umem->allocateFrames(packetCount);
 	if (!frameResponse.first)
 	{
-		return;
+		return false;
 	}
 
 	if (xsk_ring_prod__reserve(&socketInfo->tx, packetCount, &txId) < packetCount)
@@ -233,7 +235,7 @@ void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketA
 			m_Umem->freeFrame(frame);
 		}
 		PCPP_LOG_ERROR("Cannot reserve " << packetCount << " tx slots");
-		return;
+		return false;
 	}
 
 	for (uint32_t i = 0; i < packetCount; i++)
@@ -241,7 +243,7 @@ void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketA
 		if (getPacketAt(i).getRawDataLen() > m_Umem->getFrameSize())
 		{
 			PCPP_LOG_ERROR("Cannot send packets with data length (" << getPacketAt(i).getRawDataLen() << ") greater than UMEM frame size (" << m_Umem->getFrameSize() << ")");
-			return;
+			return false;
 		}
 	}
 
@@ -263,7 +265,6 @@ void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketA
 	m_Stats.txSentPackets += packetCount;
 	m_Stats.txSentBytes += sentBytes;
 	m_Stats.txRingId = txId + packetCount;
-	std::cout << "submitted " << packetCount << " packets to tx" << std::endl;
 
 	if (waitForTxCompletion)
 	{
@@ -281,27 +282,29 @@ void XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketA
 			if (pollResult == 0 && waitForTxCompletionTimeoutMS != 0)
 			{
 				PCPP_LOG_ERROR("Wait for TX completion timed out");
-				return;
+				return false;
 			}
 			if (pollResult < 0)
 			{
 				PCPP_LOG_ERROR("poll() returned an error: " << errno);
-				return;
+				return false;
 			}
 
 			completedPackets += checkCompletionRing();
 		}
 	}
+
+	return true;
 }
 
-void XdpDevice::sendPackets(const RawPacketVector& packets, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
+bool XdpDevice::sendPackets(const RawPacketVector& packets, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
 {
-	sendPackets([&](uint32_t i) { return *packets.at(static_cast<int>(i)); }, [&]() { return packets.size(); }, waitForTxCompletion, waitForTxCompletionTimeoutMS);
+	return sendPackets([&](uint32_t i) { return *packets.at(static_cast<int>(i)); }, [&]() { return packets.size(); }, waitForTxCompletion, waitForTxCompletionTimeoutMS);
 }
 
-void XdpDevice::sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
+bool XdpDevice::sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
 {
-	sendPackets([&](uint32_t i) { return packets[i]; }, [&]() { return static_cast<uint32_t>(packetCount); }, waitForTxCompletion, waitForTxCompletionTimeoutMS);
+	return sendPackets([&](uint32_t i) { return packets[i]; }, [&]() { return static_cast<uint32_t>(packetCount); }, waitForTxCompletion, waitForTxCompletionTimeoutMS);
 }
 
 bool XdpDevice::populateFillRing(uint32_t count, uint32_t rxId)
@@ -362,7 +365,6 @@ uint32_t XdpDevice::checkCompletionRing()
 
 	if (completedCount)
 	{
-		printf("completed tx of %d packets\n", completedCount);
 		for (uint32_t i = 0; i < completedCount; i++)
 		{
 			uint64_t addr = *xsk_ring_cons__comp_addr(&umemInfo->cq, cqId + i);
@@ -415,12 +417,6 @@ bool XdpDevice::configureSocket()
 
 bool XdpDevice::initUmem()
 {
-	if (m_Config->umemFrameSize < MINIMUM_UMEM_FRAME_SIZE)
-	{
-		PCPP_LOG_ERROR("UMEM frame size has to be larger than " << MINIMUM_UMEM_FRAME_SIZE);
-		return false;
-	}
-
 	m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize, m_Config->fillRingSize, m_Config->completionRingSize);
 	return true;
 }

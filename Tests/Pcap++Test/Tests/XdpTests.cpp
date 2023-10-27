@@ -128,7 +128,7 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 					4096, 4096,4096,2048,2048,2048,64));
 
 	int numPackets = 0;
-	device.startCapture(onPacketsArrive, &numPackets, 20000);
+	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &numPackets, 20000));
 
 	auto stats = device.getStatistics();
 	PTF_ASSERT_GREATER_THAN(stats.umemAllocatedFrames, 0);
@@ -154,6 +154,10 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 	PTF_ASSERT_GREATER_THAN(stats.fqRingId, 0);
 	PTF_ASSERT_EQUAL(stats.txRingId, 0);
 	PTF_ASSERT_EQUAL(stats.cqRingId, 0);
+
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(device.startCapture(onPacketsArrive, nullptr));
+	pcpp::Logger::getInstance().enableLogs();
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
@@ -174,7 +178,7 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 
 	PTF_ASSERT_TRUE(device.open());
 
-	device.sendPackets(packets, true);
+	PTF_ASSERT_TRUE(device.sendPackets(packets, true));
 
 	auto stats = device.getStatistics();
 	PTF_ASSERT_EQUAL(stats.rxPackets, 0);
@@ -191,10 +195,16 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 	PTF_ASSERT_GREATER_THAN(stats.txRingId, 0);
 	PTF_ASSERT_GREATER_THAN(stats.cqRingId, 0);
 
-	device.sendPackets(packets);
+	PTF_ASSERT_TRUE(device.sendPackets(packets));
 
 	stats = device.getStatistics();
 	PTF_ASSERT_NOT_EQUAL(stats.txSentPackets, stats.txCompletedPackets);
+
+	device.close();
+
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(device.sendPackets(packets));
+	pcpp::Logger::getInstance().enableLogs();
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
@@ -218,7 +228,7 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 					 1000, 4096,512,512,512,512,20));
 
 	int numPackets = 0;
-	device.startCapture(onPacketsArrive, &numPackets, 20000);
+	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &numPackets, 20000));
 
 	PTF_ASSERT_EQUAL(numPackets, 5);
 #else

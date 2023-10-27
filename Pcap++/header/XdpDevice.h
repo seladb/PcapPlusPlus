@@ -94,12 +94,12 @@ namespace pcpp
 		 */
 		void close() override;
 
-		void startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
+		bool startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
 
 		void stopCapture();
 
-		void sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
-		void sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
+		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
+		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 
 		XdpDeviceConfiguration* getConfig() const { return m_Config; }
 
@@ -154,7 +154,7 @@ namespace pcpp
 		XdpDeviceStats m_Stats;
 		XdpPrevDeviceStats m_PrevStats;
 
-		void sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt, const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
+		bool sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt, const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 		bool populateFillRing(uint32_t count, uint32_t rxId = 0);
 		bool populateFillRing(const std::vector<uint64_t>& addresses, uint32_t rxId);
 		uint32_t checkCompletionRing();
