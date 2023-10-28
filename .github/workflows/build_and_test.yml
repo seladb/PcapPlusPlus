@@ -533,3 +533,39 @@ jobs:
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
           chmod +x gradlew
           ./gradlew assembleDebug
+
+  xdp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
+
+      - name: Build PcapPlusPlus
+        run: cmake --build $BUILD_DIR -j
+
+      - name: Test PcapPlusPlus
+        run: |
+          python -m pip install -U pip
+          python  -m pip install -r ci/run_tests/requirements.txt
+          python  ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
+
+      - name: Create Cobertura Report
+        run: |
+          python -m pip install gcovr
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: xdp,unittest
+          fail_ci_if_error: false
+          verbose: true
