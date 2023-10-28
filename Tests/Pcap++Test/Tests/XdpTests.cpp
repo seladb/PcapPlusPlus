@@ -11,24 +11,6 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 #if USE_XDP
 
-void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
-{
-	int* totalPacketCount = static_cast<int*>(userCookie);
-
-	for (uint32_t i = 0; i < packetCount; i++)
-	{
-		if (packets[i].getRawDataLen() > 0)
-		{
-			(*totalPacketCount)++;
-		}
-	}
-
-	if (*totalPacketCount >= 5)
-	{
-		device->stopCapture();
-	}
-}
-
 void onPacketsArriveTemp(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
 {
 	printf("**** Callback called for %d packets\n", packetCount);
@@ -128,6 +110,24 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 					4096, 4096,4096,2048,2048,2048,64));
 
 	int numPackets = 0;
+
+	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie) -> void {
+		int* totalPacketCount = static_cast<int*>(userCookie);
+
+		for (uint32_t i = 0; i < packetCount; i++)
+		{
+			if (packets[i].getRawDataLen() > 0)
+			{
+				(*totalPacketCount)++;
+			}
+		}
+
+		if (*totalPacketCount >= 5)
+		{
+			device->stopCapture();
+		}
+	};
+
 	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &numPackets, 20000));
 
 	auto stats = device.getStatistics();
@@ -228,6 +228,24 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 					 1000, 4096,512,512,512,512,20));
 
 	int numPackets = 0;
+
+	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie) -> void {
+		int* totalPacketCount = static_cast<int*>(userCookie);
+
+		for (uint32_t i = 0; i < packetCount; i++)
+		{
+			if (packets[i].getRawDataLen() > 0)
+			{
+				(*totalPacketCount)++;
+			}
+		}
+
+		if (*totalPacketCount >= 5)
+		{
+			device->stopCapture();
+		}
+	};
+
 	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &numPackets, 20000));
 
 	PTF_ASSERT_EQUAL(numPackets, 5);
@@ -381,9 +399,3 @@ PTF_TEST_CASE(TestXdpDeviceSendPacketsTemp)
 	PTF_SKIP_TEST("XDP not configured");
 #endif
 } // TestXdpDeviceSendPackets
-
-
-PTF_TEST_CASE(TestXdpDeviceInvalidConfiguration)
-{
-
-} // TestXdpDeviceInvalidConfiguration
