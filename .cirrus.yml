@@ -61,7 +61,7 @@ task:
   test_pcapplusplus_script:
     - python3 -m ensurepip
     - python3 -m pip install -r ci/run_tests/requirements.txt
-    - python3 ci/run_tests/run_tests.py --interface en0 --test-args="-x TestPcapLiveDeviceSpecialCfg"
+    - python3 ci/run_tests/run_tests.py --interface en0 --pcap-test-args="-x TestPcapLiveDeviceSpecialCfg"
   coverage_report_script:
     - gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
     - curl -Os https://uploader.codecov.io/latest/macos/codecov

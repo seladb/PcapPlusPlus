@@ -298,6 +298,6 @@ We would very much appreciate any contribution to this project. If you're intere
 
 ## License
 
-PcapPlusPlus is released under the [Unlicense license](https://unlicense.org/).
+PcapPlusPlus is released under the [Unlicense license](https://choosealicense.com/licenses/unlicense/).
 
-[![GitHub](https://img.shields.io/github/license/seladb/PcapPlusPlus?style=flat&color=blue&logo=unlicense)](https://unlicense.org/)
+[![GitHub](https://img.shields.io/github/license/seladb/PcapPlusPlus?style=flat&color=blue&logo=unlicense)](https://choosealicense.com/licenses/unlicense/)
