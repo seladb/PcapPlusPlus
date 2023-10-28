@@ -10,29 +10,6 @@ env:
   GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
 
 jobs:
-  xdp:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
-
-      - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
-
-      - name: Build PcapPlusPlus
-        run: cmake --build $BUILD_DIR -j
-
-      - name: Test PcapPlusPlus
-        run: |
-          python -m pip install -U pip
-          python  -m pip install -r ci/run_tests/requirements.txt
-          python  ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
-
 #  pre-commit:
 #    runs-on: ubuntu-latest
 #    container: seladb/alpine317
@@ -556,3 +533,26 @@ jobs:
 #          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
 #          chmod +x gradlew
 #          ./gradlew assembleDebug
+
+  xdp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
+
+      - name: Build PcapPlusPlus
+        run: cmake --build $BUILD_DIR -j
+
+      - name: Test PcapPlusPlus
+        run: |
+          python -m pip install -U pip
+          python  -m pip install -r ci/run_tests/requirements.txt
+          python  ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
