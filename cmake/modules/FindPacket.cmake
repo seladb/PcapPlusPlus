@@ -68,10 +68,17 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
   Packet
   DEFAULT_MSG
-  Packet_INCLUDE_DIR
-  Packet_LIBRARY)
+  Packet_LIBRARY
+  Packet_INCLUDE_DIR)
+
+# create IMPORTED target for libpcap dependency
+if(NOT TARGET Packet::Packet)
+  add_library(Packet::Packet IMPORTED SHARED)
+  set_target_properties(
+    Packet::Packet
+    PROPERTIES IMPORTED_LOCATION ${Packet_LIBRARY}
+               IMPORTED_IMPLIB ${Packet_LIBRARY}
+               INTERFACE_INCLUDE_DIRECTORIES ${Packet_INCLUDE_DIR})
+endif()
 
 mark_as_advanced(Packet_INCLUDE_DIR Packet_LIBRARY)
-
-set(Packet_INCLUDE_DIRS ${Packet_INCLUDE_DIR})
-set(Packet_LIBRARIES ${Packet_LIBRARY})

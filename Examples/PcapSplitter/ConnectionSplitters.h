@@ -145,4 +145,72 @@ public:
 
 		return m_FlowTable[hash];
 	}
+
+	void updateStringStream(std::ostringstream & sstream, const std::string & srcIp, uint16_t srcPort, const std::string & dstIp, uint16_t dstPort)
+	{
+		sstream << hyphenIP(srcIp)
+		        << "_"
+		        << srcPort
+		        << "-"
+		        << hyphenIP(dstIp)
+		        << "_"
+		        << dstPort;
+	}
+
+	/**
+	 * Re-implement Splitter's getFileName() method, this time with the IPs/Ports/protocol value
+	 */
+	std::string getFileName(pcpp::Packet& packet, const std::string &outputPcapBasePath, int fileNumber)
+	{
+		std::ostringstream sstream;
+
+		// if it's not a TCP or UDP packet, put it in file #0
+		if (!packet.isPacketOfType(pcpp::TCP) && !packet.isPacketOfType(pcpp::UDP))
+		{
+			return Splitter::getFileName(packet, outputPcapBasePath, fileNumber);
+		}
+
+		sstream << "connection-";
+
+		if (packet.isPacketOfType(pcpp::TCP))
+		{
+			// extract TCP layer
+			pcpp::TcpLayer* tcpLayer = packet.getLayerOfType<pcpp::TcpLayer>();
+			if (tcpLayer != nullptr)
+			{
+				uint16_t srcPort = tcpLayer->getSrcPort();
+				uint16_t dstPort = tcpLayer->getDstPort();
+
+				sstream << "tcp_";
+
+				if ((tcpLayer->getTcpHeader()->synFlag == 1) && (tcpLayer->getTcpHeader()->ackFlag == 0))
+				{
+					updateStringStream(sstream, getSrcIPString(packet), srcPort, getDstIPString(packet), dstPort);
+				} else if (((tcpLayer->getTcpHeader()->synFlag == 1) &&
+					        (tcpLayer->getTcpHeader()->ackFlag == 1)
+					       ) || (srcPort < dstPort) )
+				{
+					updateStringStream(sstream, getDstIPString(packet), dstPort, getSrcIPString(packet), srcPort);
+				} else
+				{
+					updateStringStream(sstream, getSrcIPString(packet), srcPort, getDstIPString(packet), dstPort);
+				}
+				return outputPcapBasePath + sstream.str();
+			}
+		}
+		else if (packet.isPacketOfType(pcpp::UDP))
+		{
+			// for UDP packets, decide the server port by the lower port
+			pcpp::UdpLayer* udpLayer = packet.getLayerOfType<pcpp::UdpLayer>();
+			if (udpLayer != nullptr)
+			{
+				sstream << "udp_";
+				updateStringStream(sstream, getSrcIPString(packet), udpLayer->getSrcPort(), getDstIPString(packet), udpLayer->getDstPort());
+				return outputPcapBasePath + sstream.str();
+			}
+		}
+
+		// if reached here, return 'miscellaneous'
+		return outputPcapBasePath + "miscellaneous";
+	}
 };

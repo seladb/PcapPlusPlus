@@ -14,7 +14,7 @@ namespace pcpp
 bool TelnetLayer::isDataField(uint8_t *pos) const
 {
 	// "FF FF" means data
-	return pos[0] != InterpretAsCommand || pos[1] == InterpretAsCommand;
+	return pos[0] != static_cast<int>(TelnetCommand::InterpretAsCommand) || pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand);
 }
 
 bool TelnetLayer::isCommandField(uint8_t *pos) const
@@ -33,14 +33,14 @@ size_t TelnetLayer::distanceToNextIAC(uint8_t *startPos, size_t maxLength)
 		if (addition)
 			addition += 2;
 
-		pos = (uint8_t *)memchr(startPos + currentOffset + 1, InterpretAsCommand, maxLength - currentOffset);
+		pos = (uint8_t *)memchr(startPos + currentOffset + 1, static_cast<int>(TelnetCommand::InterpretAsCommand), maxLength - currentOffset);
 		if (pos)
 			addition += pos - (startPos + currentOffset);
 		else
 			addition += maxLength - currentOffset;
 		currentOffset = currentOffset + addition;
 		// "FF FF" means data continue
-	} while (pos && (pos[1] == InterpretAsCommand) && (currentOffset < maxLength));
+	} while (pos && (pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (currentOffset < maxLength));
 
 	return addition;
 }
@@ -48,13 +48,13 @@ size_t TelnetLayer::distanceToNextIAC(uint8_t *startPos, size_t maxLength)
 size_t TelnetLayer::getFieldLen(uint8_t *startPos, size_t maxLength)
 {
 	// Check first byte is IAC
-	if (startPos && (startPos[0] == InterpretAsCommand) && (maxLength >= 2))
+	if (startPos && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
 	{
 		// If subnegotiation parse until next IAC
-		if (startPos[1] == Subnegotiation)
+		if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
 			return distanceToNextIAC(startPos, maxLength);
 		// Only WILL, WONT, DO, DONT have option. Ref http://pcmicro.com/netfoss/telnet.html
-		else if (startPos[1] >= WillPerform && startPos[1] <= DontPerform)
+		else if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) && startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
 			return 3;
 		return 2;
 	}
@@ -97,14 +97,14 @@ uint8_t *TelnetLayer::getNextCommandField(uint8_t *pos, size_t len)
 
 int16_t TelnetLayer::getSubCommand(uint8_t *pos, size_t len)
 {
-	if (len < 3 || pos[1] < Subnegotiation)
-		return TelnetOptionNoOption;
+	if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
+		return static_cast<int>(TelnetOption::TelnetOptionNoOption);
 	return pos[2];
 }
 
 uint8_t *TelnetLayer::getCommandData(uint8_t *pos, size_t &len)
 {
-	if (pos[1] == Subnegotiation && len > 3)
+	if (pos[1] == static_cast<int>(TelnetCommand::Subnegotiation) && len > 3)
 	{
 		len -= 3;
 		return &pos[3];
@@ -161,11 +161,11 @@ size_t TelnetLayer::getTotalNumberOfCommands()
 
 size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
 {
-	if (command < 0)
+	if (static_cast<int>(command) < 0)
 		return 0;
 
 	size_t ctr = 0;
-	if (isCommandField(m_Data) && m_Data[1] == command)
+	if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
 		++ctr;
 
 	uint8_t *pos = m_Data;
@@ -173,7 +173,7 @@ size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
 	{
 		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
-		if (pos && pos[1] == command)
+		if (pos && pos[1] == static_cast<int>(command))
 			++ctr;
 	}
 
@@ -190,7 +190,7 @@ TelnetLayer::TelnetCommand TelnetLayer::getFirstCommand()
 	uint8_t *pos = getNextCommandField(m_Data, m_DataLen);
 	if (pos)
 		return static_cast<TelnetCommand>(pos[1]);
-	return TelnetCommandEndOfPacket;
+	return TelnetCommand::TelnetCommandEndOfPacket;
 }
 
 TelnetLayer::TelnetCommand TelnetLayer::getNextCommand()
@@ -209,7 +209,7 @@ TelnetLayer::TelnetCommand TelnetLayer::getNextCommand()
 		return static_cast<TelnetLayer::TelnetCommand>(pos[1]);
 	}
 	lastPositionOffset = SIZE_MAX;
-	return TelnetCommandEndOfPacket;
+	return TelnetCommand::TelnetCommandEndOfPacket;
 }
 
 TelnetLayer::TelnetOption TelnetLayer::getOption()
@@ -217,19 +217,19 @@ TelnetLayer::TelnetOption TelnetLayer::getOption()
 	if (lastPositionOffset < m_DataLen)
 		return static_cast<TelnetOption>(getSubCommand(
 			&m_Data[lastPositionOffset], getFieldLen(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset)));
-	return TelnetOptionNoOption;
+	return TelnetOption::TelnetOptionNoOption;
 }
 
 TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command)
 {
 	// Check input
-	if (command < 0)
+	if (static_cast<int>(command) < 0)
 	{
 		PCPP_LOG_ERROR("Command type can't be negative");
-		return TelnetOptionNoOption;
+		return TelnetOption::TelnetOptionNoOption;
 	}
 
-	if (isCommandField(m_Data) && m_Data[1] == command)
+	if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
 		return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
 
 	uint8_t *pos = m_Data;
@@ -238,12 +238,12 @@ TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command)
 		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 
-		if (pos && pos[1] == command)
+		if (pos && pos[1] == static_cast<int>(command))
 			return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - offset)));
 	}
 
 	PCPP_LOG_DEBUG("Can't find requested command");
-	return TelnetOptionNoOption;
+	return TelnetOption::TelnetOptionNoOption;
 }
 
 uint8_t *TelnetLayer::getOptionData(size_t &length)
@@ -262,14 +262,14 @@ uint8_t *TelnetLayer::getOptionData(size_t &length)
 uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
 {
 	// Check input
-	if (command < 0)
+	if (static_cast<int>(command) < 0)
 	{
 		PCPP_LOG_ERROR("Command type can't be negative");
 		length = 0;
 		return nullptr;
 	}
 
-	if (isCommandField(m_Data) && m_Data[1] == command)
+	if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
 	{
 		size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
 		uint8_t *posBuffer = getCommandData(m_Data, lenBuffer);
@@ -284,7 +284,7 @@ uint8_t *TelnetLayer::getOptionData(TelnetCommand command, size_t &length)
 		size_t offset = pos - m_Data;
 		pos = getNextCommandField(pos, m_DataLen - offset);
 
-		if (pos && pos[1] == command)
+		if (pos && pos[1] == static_cast<int>(command))
 		{
 			size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
 			uint8_t *posBuffer = getCommandData(m_Data, lenBuffer);
@@ -303,47 +303,47 @@ std::string TelnetLayer::getTelnetCommandAsString(TelnetCommand val)
 {
 	switch (val)
 	{
-	case TelnetCommandEndOfPacket:
+	case TelnetCommand::TelnetCommandEndOfPacket:
 		return "Reached end of packet while parsing";
-	case EndOfFile:
+	case TelnetCommand::EndOfFile:
 		return "End of File";
-	case Suspend:
+	case TelnetCommand::Suspend:
 		return "Suspend current process";
-	case Abort:
+	case TelnetCommand::Abort:
 		return "Abort Process";
-	case EndOfRecordCommand:
+	case TelnetCommand::EndOfRecordCommand:
 		return "End of Record";
-	case SubnegotiationEnd:
+	case TelnetCommand::SubnegotiationEnd:
 		return "Subnegotiation End";
-	case NoOperation:
+	case TelnetCommand::NoOperation:
 		return "No Operation";
-	case DataMark:
+	case TelnetCommand::DataMark:
 		return "Data Mark";
-	case Break:
+	case TelnetCommand::Break:
 		return "Break";
-	case InterruptProcess:
+	case TelnetCommand::InterruptProcess:
 		return "Interrupt Process";
-	case AbortOutput:
+	case TelnetCommand::AbortOutput:
 		return "Abort Output";
-	case AreYouThere:
+	case TelnetCommand::AreYouThere:
 		return "Are You There";
-	case EraseCharacter:
+	case TelnetCommand::EraseCharacter:
 		return "Erase Character";
-	case EraseLine:
+	case TelnetCommand::EraseLine:
 		return "Erase Line";
-	case GoAhead:
+	case TelnetCommand::GoAhead:
 		return "Go Ahead";
-	case Subnegotiation:
+	case TelnetCommand::Subnegotiation:
 		return "Subnegotiation";
-	case WillPerform:
+	case TelnetCommand::WillPerform:
 		return "Will Perform";
-	case WontPerform:
+	case TelnetCommand::WontPerform:
 		return "Wont Perform";
-	case DoPerform:
+	case TelnetCommand::DoPerform:
 		return "Do Perform";
-	case DontPerform:
+	case TelnetCommand::DontPerform:
 		return "Dont Perform";
-	case InterpretAsCommand:
+	case TelnetCommand::InterpretAsCommand:
 		return "Interpret As Command";
 	default:
 		return "Unknown Command";
@@ -354,115 +354,115 @@ std::string TelnetLayer::getTelnetOptionAsString(TelnetOption val)
 {
 	switch (val)
 	{
-	case TelnetOptionNoOption:
+	case TelnetOption::TelnetOptionNoOption:
 		return "No option for this command";
-	case TransmitBinary:
+	case TelnetOption::TransmitBinary:
 		return "Binary Transmission";
-	case Echo:
+	case TelnetOption::Echo:
 		return "Echo";
-	case Reconnection:
+	case TelnetOption::Reconnection:
 		return "Reconnection";
-	case SuppressGoAhead:
+	case TelnetOption::SuppressGoAhead:
 		return "Suppress Go Ahead";
-	case ApproxMsgSizeNegotiation:
+	case TelnetOption::ApproxMsgSizeNegotiation:
 		return "Negotiate approximate message size";
-	case Status:
+	case TelnetOption::Status:
 		return "Status";
-	case TimingMark:
+	case TelnetOption::TimingMark:
 		return "Timing Mark";
-	case RemoteControlledTransAndEcho:
+	case TelnetOption::RemoteControlledTransAndEcho:
 		return "Remote Controlled Transmission and Echo";
-	case OutputLineWidth:
+	case TelnetOption::OutputLineWidth:
 		return "Output Line Width";
-	case OutputPageSize:
+	case TelnetOption::OutputPageSize:
 		return "Output Page Size";
-	case OutputCarriageReturnDisposition:
+	case TelnetOption::OutputCarriageReturnDisposition:
 		return "Negotiate About Output Carriage-Return Disposition";
-	case OutputHorizontalTabStops:
+	case TelnetOption::OutputHorizontalTabStops:
 		return "Negotiate About Output Horizontal Tabstops";
-	case OutputHorizontalTabDisposition:
+	case TelnetOption::OutputHorizontalTabDisposition:
 		return "Negotiate About Output Horizontal Tab Disposition";
-	case OutputFormfeedDisposition:
+	case TelnetOption::OutputFormfeedDisposition:
 		return "Negotiate About Output Formfeed Disposition";
-	case OutputVerticalTabStops:
+	case TelnetOption::OutputVerticalTabStops:
 		return "Negotiate About Vertical Tabstops";
-	case OutputVerticalTabDisposition:
+	case TelnetOption::OutputVerticalTabDisposition:
 		return "Negotiate About Output Vertcial Tab Disposition";
-	case OutputLinefeedDisposition:
+	case TelnetOption::OutputLinefeedDisposition:
 		return "Negotiate About Output Linefeed Disposition";
-	case ExtendedASCII:
+	case TelnetOption::ExtendedASCII:
 		return "Extended ASCII";
-	case Logout:
+	case TelnetOption::Logout:
 		return "Logout";
-	case ByteMacro:
+	case TelnetOption::ByteMacro:
 		return "Byte Macro";
-	case DataEntryTerminal:
+	case TelnetOption::DataEntryTerminal:
 		return "Data Entry Terminal";
-	case SUPDUP:
+	case TelnetOption::SUPDUP:
 		return "SUPDUP";
-	case SUPDUPOutput:
+	case TelnetOption::SUPDUPOutput:
 		return "SUPDUP Output";
-	case SendLocation:
+	case TelnetOption::SendLocation:
 		return "Send Location";
-	case TerminalType:
+	case TelnetOption::TerminalType:
 		return "Terminal Type";
-	case EndOfRecordOption:
+	case TelnetOption::EndOfRecordOption:
 		return "End Of Record";
-	case TACACSUserIdentification:
+	case TelnetOption::TACACSUserIdentification:
 		return "TACACS User Identification";
-	case OutputMarking:
+	case TelnetOption::OutputMarking:
 		return "Output Marking";
-	case TerminalLocationNumber:
+	case TelnetOption::TerminalLocationNumber:
 		return "Terminal Location Number";
-	case Telnet3270Regime:
+	case TelnetOption::Telnet3270Regime:
 		return "Telnet 3270 Regime";
-	case X3Pad:
+	case TelnetOption::X3Pad:
 		return "X3 Pad";
-	case NegotiateAboutWindowSize:
+	case TelnetOption::NegotiateAboutWindowSize:
 		return "Negotiate About Window Size";
-	case TerminalSpeed:
+	case TelnetOption::TerminalSpeed:
 		return "Terminal Speed";
-	case RemoteFlowControl:
+	case TelnetOption::RemoteFlowControl:
 		return "Remote Flow Control";
-	case Linemode:
+	case TelnetOption::Linemode:
 		return "Line mode";
-	case XDisplayLocation:
+	case TelnetOption::XDisplayLocation:
 		return "X Display Location";
-	case EnvironmentOption:
+	case TelnetOption::EnvironmentOption:
 		return "Environment Option";
-	case AuthenticationOption:
+	case TelnetOption::AuthenticationOption:
 		return "Authentication Option";
-	case EncryptionOption:
+	case TelnetOption::EncryptionOption:
 		return "Encryption Option";
-	case NewEnvironmentOption:
+	case TelnetOption::NewEnvironmentOption:
 		return "New Environment Option";
-	case TN3270E:
+	case TelnetOption::TN3270E:
 		return "TN3270E";
-	case XAuth:
+	case TelnetOption::XAuth:
 		return "X Server Authentication";
-	case Charset:
+	case TelnetOption::Charset:
 		return "Charset";
-	case TelnetRemoteSerialPort:
+	case TelnetOption::TelnetRemoteSerialPort:
 		return "Telnet Remote Serial Port";
-	case ComPortControlOption:
+	case TelnetOption::ComPortControlOption:
 		return "Com Port Control Option";
-	case TelnetSuppressLocalEcho:
+	case TelnetOption::TelnetSuppressLocalEcho:
 		return "Telnet Suppress Local Echo";
-	case TelnetStartTLS:
+	case TelnetOption::TelnetStartTLS:
 		return "Telnet Start TLS";
-	case Kermit:
+	case TelnetOption::Kermit:
 		return "Kermit";
-	case SendURL:
+	case TelnetOption::SendURL:
 		return "Send URL";
-	case ForwardX:
+	case TelnetOption::ForwardX:
 		return "Forward X Server";
-	case TelOptPragmaLogon:
+	case TelnetOption::TelOptPragmaLogon:
 		return "Telnet Option Pragma Logon";
-	case TelOptSSPILogon:
+	case TelnetOption::TelOptSSPILogon:
 		return "Telnet Option SSPI Logon";
-	case TelOptPragmaHeartbeat:
+	case TelnetOption::TelOptPragmaHeartbeat:
 		return "Telnet Option Pragma Heartbeat";
-	case ExtendedOptions:
+	case TelnetOption::ExtendedOptions:
 		return "Extended option list";
 	default:
 		return "Unknown Option";
