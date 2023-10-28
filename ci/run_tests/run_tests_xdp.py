@@ -24,8 +24,7 @@ def main():
 
     completed_process = subprocess.run(
         use_sudo
-        + [os.path.join("Bin", "Pcap++Test"), "-i", ip_address, "-t", "xdp"]
-        + args.test_args.split(),
+        + [os.path.join("Bin", "Pcap++Test"), "-i", ip_address, "-t", "xdp"],
         cwd="Tests/Pcap++Test",
         )
     if completed_process.returncode != 0:
