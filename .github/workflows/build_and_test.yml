@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install libbpf-dev
+          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
