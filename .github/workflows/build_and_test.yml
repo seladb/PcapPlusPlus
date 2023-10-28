@@ -21,16 +21,17 @@ jobs:
         run: |
           sudo apt update && sudo apt -y install libpcap-dev libbpf-dev
 
-      - name: Check python version
-        run: |
-          python -V
-          python3 -V
-
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
+
+      - name: Test PcapPlusPlus
+        run: |
+          python -m pip install -U pip
+          python  -m pip install -r ci/run_tests/requirements.txt
+          python  ci/run_tests/run_tests_xdp.py --interface eth0 --use-sudo
 
 #  pre-commit:
 #    runs-on: ubuntu-latest
