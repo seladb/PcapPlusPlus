@@ -21,6 +21,11 @@ jobs:
         run: |
           sudo apt update && sudo apt -y install libpcap-dev libbpf-dev
 
+      - name: Check python version
+        run: |
+          python -V
+          python3 -V
+
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
 
