@@ -1,0 +1,72 @@
+name: PcapPlusPlus build Examples with vcpkg
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at 00:00 UTC
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Vcpkg
+      run: |
+        git clone https://github.com/clementperon/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+
+    - name: Install PcapPlusPlus with Vcpkg
+      id: vcpkg_setup
+      continue-on-error: true
+      run: |
+        .\vcpkg\vcpkg install pcapplusplus
+
+    - name: Build and Test PcapPlusPlus examples
+      if: steps.vcpkg_setup.outcome == 'success'
+      run: |
+        cmake -DCMAKE_TOOLCHAIN_FILE="../vcpkg/scripts/buildsystems/vcpkg.cmake" -S Examples -B build
+        cmake --build build --config Release
+
+    - name: Upload artifact on vcpkg failure
+      if: steps.vcpkg_setup.outcome == 'failure'
+      uses: actions/upload-artifact@v3
+      with:
+        name: vcpkg-failure-log
+        path: vcpkg/buildtrees/pcapplusplus
+
+  build-linux-macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Vcpkg
+      run: |
+        git clone https://github.com/clementperon/vcpkg.git
+        ./vcpkg/bootstrap-vcpkg.sh
+
+    - name: Install PcapPlusPlus with Vcpkg
+      id: vcpkg_setup
+      continue-on-error: true
+      run: |
+        ./vcpkg/vcpkg install pcapplusplus
+
+    - name: Build and Test PcapPlusPlus examples
+      if: steps.vcpkg_setup.outcome == 'success'
+      run: |
+        cmake -DCMAKE_TOOLCHAIN_FILE="../vcpkg/scripts/buildsystems/vcpkg.cmake" -S Examples -B build
+        cmake --build build
+
+    - name: Upload artifact on vcpkg failure
+      if: steps.vcpkg_setup.outcome == 'failure'
+      uses: actions/upload-artifact@v3
+      with:
+        name: vcpkg-failure-log
+        path: vcpkg/buildtrees/pcapplusplus
