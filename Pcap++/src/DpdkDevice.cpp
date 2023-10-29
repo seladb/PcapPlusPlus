@@ -50,9 +50,11 @@ namespace pcpp
 #define DPDK_COFIG_JUMBO_FRAME			0 /**< Jumbo Frame Support disabled */
 #define DPDK_COFIG_HW_STRIP_CRC			0 /**< CRC stripped by hardware disabled */
 #if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
+#define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX	ETH_LINK_FULL_DUPLEX
 #define DPDK_CONFIG_MQ_RSS			ETH_RSS
 #define DPDK_CONFIG_MQ_NO_RSS			ETH_MQ_RX_NONE
 #else
+#define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX	RTE_ETH_LINK_FULL_DUPLEX
 #define DPDK_CONFIG_MQ_RSS			RTE_ETH_MQ_RX_RSS
 #define DPDK_CONFIG_MQ_NO_RSS			RTE_ETH_MQ_RX_NONE
 #endif
@@ -562,7 +564,7 @@ void DpdkDevice::getLinkStatus(LinkStatus& linkStatus) const
 	rte_eth_link_get((uint8_t) m_Id, &link);
 	linkStatus.linkUp = link.link_status;
 	linkStatus.linkSpeedMbps = (unsigned) link.link_speed;
-	linkStatus.linkDuplex = (link.link_duplex == ETH_LINK_FULL_DUPLEX) ? LinkStatus::FULL_DUPLEX : LinkStatus::HALF_DUPLEX;
+	linkStatus.linkDuplex = (link.link_duplex == DPDK_CONFIG_ETH_LINK_FULL_DUPLEX) ? LinkStatus::FULL_DUPLEX : LinkStatus::HALF_DUPLEX;
 }
 
 
