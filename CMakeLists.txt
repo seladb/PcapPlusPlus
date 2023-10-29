@@ -190,7 +190,7 @@ if(PCAPPP_USE_DPDK)
 
   # Check in case user force KNI but it's not available
   if(PCAPPP_USE_DPDK_KNI)
-    if (NOT HAVE_DPDK_RTE_KNI)
+    if(NOT HAVE_DPDK_RTE_KNI)
       message(FATAL_ERROR "DPDK library doesn't have KNI support!")
     endif()
     add_definitions(-DUSE_DPDK_KNI)
