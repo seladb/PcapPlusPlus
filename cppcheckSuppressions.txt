@@ -1,4 +1,5 @@
 *:3rdParty/*
+*:Examples/3rdParty/*
 
 ConfigurationNotChecked:*
 ctuOneDefinitionRuleViolation:Examples/*

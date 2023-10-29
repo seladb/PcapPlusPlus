@@ -20,6 +20,8 @@ else()
   message(STATUS "Include dir: ${PcapPlusPlus_INCLUDE_DIR}")
 endif()
 
+add_subdirectory(3rdParty)
+
 add_subdirectory(Arping)
 add_subdirectory(ArpSpoofing)
 add_subdirectory(DNSResolver)
