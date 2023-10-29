@@ -37,9 +37,15 @@ if(PCAPPP_USE_DPDK)
     public_headers
     header/DpdkDevice.h
     header/DpdkDeviceList.h
-    $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:header/KniDevice.h>
-    $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:header/KniDeviceList.h>
     header/MBufRawPacket.h)
+endif()
+
+if(PCAPPP_USE_DPDK_KNI)
+  list(
+    APPEND
+    public_headers
+    header/KniDevice.h
+    header/KniDeviceList.h)
 endif()
 
 if(PCAPPP_USE_PF_RING)
