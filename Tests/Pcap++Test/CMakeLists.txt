@@ -1,6 +1,5 @@
 add_executable(
   Pcap++Test
-  $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:Tests/KniTests.cpp>
   Common/TestUtils.cpp
   main.cpp
   Tests/DpdkTests.cpp
@@ -8,6 +7,7 @@ add_executable(
   Tests/FilterTests.cpp
   Tests/IPFragmentationTests.cpp
   Tests/IpMacTests.cpp
+  Tests/KniTests.cpp
   Tests/LiveDeviceTests.cpp
   Tests/LoggerTests.cpp
   Tests/PacketParsingTests.cpp
