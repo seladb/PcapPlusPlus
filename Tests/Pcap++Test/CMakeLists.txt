@@ -7,7 +7,7 @@ add_executable(
   Tests/FilterTests.cpp
   Tests/IPFragmentationTests.cpp
   Tests/IpMacTests.cpp
-  Tests/KniTests.cpp
+  $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:Tests/KniTests.cpp>
   Tests/LiveDeviceTests.cpp
   Tests/LoggerTests.cpp
   Tests/PacketParsingTests.cpp
