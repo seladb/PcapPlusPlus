@@ -57,6 +57,15 @@ void onPacketsArriveTemp(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::
 		<< "UMEM allocated frames: " << stats.umemAllocatedFrames << std::endl;
 }
 
+struct XdpPacketData
+{
+	int packetCount;
+	int byteCount;
+	uint64_t latestTimestamp;
+
+	XdpPacketData() : packetCount(0), byteCount(0), latestTimestamp(0) {}
+};
+
 bool assertConfig(const pcpp::XdpDevice::XdpDeviceConfiguration* config,
 				  const pcpp::XdpDevice::XdpDeviceConfiguration::AttachMode expectedAttachMode,
 				  const uint16_t expectedUmemNumFrames,
@@ -109,26 +118,36 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 					pcpp::XdpDevice::XdpDeviceConfiguration::AutoMode,
 					4096, 4096,4096,2048,2048,2048,64));
 
-	int numPackets = 0;
+	XdpPacketData packetData;
 
 	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie) -> void {
-		int* totalPacketCount = static_cast<int*>(userCookie);
+		auto packetData = static_cast<XdpPacketData*>(userCookie);
 
 		for (uint32_t i = 0; i < packetCount; i++)
 		{
 			if (packets[i].getRawDataLen() > 0)
 			{
-				(*totalPacketCount)++;
+				packetData->packetCount++;
+				packetData->byteCount += packets[i].getRawDataLen();
+				packetData->latestTimestamp = 1000*1000*1000*packets[i].getPacketTimeStamp().tv_sec + packets[i].getPacketTimeStamp().tv_nsec;
 			}
 		}
 
-		if (*totalPacketCount >= 5)
+		if (packetData->packetCount >= 5)
 		{
 			device->stopCapture();
 		}
 	};
 
-	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &numPackets, 20000));
+	timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+
+	uint64_t curTimestamp = 1000*1000*1000*ts.tv_sec + ts.tv_nsec;
+
+	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &packetData, 20000));
+
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(packetData.packetCount, 5);
+	PTF_ASSERT_GREATER_THAN(packetData.latestTimestamp, curTimestamp);
 
 	auto stats = device.getStatistics();
 	PTF_ASSERT_GREATER_THAN(stats.umemAllocatedFrames, 0);
@@ -138,8 +157,8 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 
 	stats = device.getStatistics();
 
-	PTF_ASSERT_EQUAL(stats.rxPackets, 5);
-	PTF_ASSERT_GREATER_THAN(stats.rxBytes, 0);
+	PTF_ASSERT_EQUAL(stats.rxPackets, packetData.packetCount);
+	PTF_ASSERT_EQUAL(stats.rxBytes, packetData.byteCount);
 	PTF_ASSERT_EQUAL(stats.rxDroppedTotalPackets, 0);
 	PTF_ASSERT_EQUAL(stats.txSentPackets, 0);
 	PTF_ASSERT_EQUAL(stats.txSentBytes, 0);
