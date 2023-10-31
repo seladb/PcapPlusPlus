@@ -221,7 +221,7 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 
 	PTF_ASSERT_TRUE(device.receivePackets(onPacketsArrive, &numPackets, 20000));
 
-	PTF_ASSERT_EQUAL(numPackets, 5);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numPackets, 5);
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif

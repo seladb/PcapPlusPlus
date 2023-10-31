@@ -4,7 +4,6 @@
 /// @file
 
 #include "Device.h"
-
 #include <utility>
 #include <functional>
 
@@ -131,30 +130,57 @@ namespace pcpp
 			}
 		};
 
+		/**
+		 * @struct XdpDeviceStats
+		 * A container for XDP device statistics
+		 */
 		struct XdpDeviceStats
 		{
+			/** The timestamp when the stats were collected */
 			timespec timestamp;
+			/** Number of packets received */
 			uint64_t rxPackets;
+			/** Packets received per second. Measured from to the previous time stats were collected */
 			uint64_t rxPacketsPerSec;
+			/** Number of bytes received */
 			uint64_t rxBytes;
+			/** Bytes per second received. Measured from to the previous time stats were collected */
 			uint64_t rxBytesPerSec;
+			/** Total number of dropped RX packets */
 			uint64_t rxDroppedTotalPackets;
+			/** RX packets dropped due to invalid descriptor */
 			uint64_t rxDroppedInvalidPackets;
+			/** RX packets dropped due to RX ring being full */
 			uint64_t rxDroppedRxRingFullPackets;
+			/** Failed RX packets to retrieve item from fill ring */
 			uint64_t rxDroppedFillRingPackets;
+			/** Number of poll() timeouts */
 			uint64_t rxPollTimeout;
+			/** Number of packets sent from the application */
 			uint64_t txSentPackets;
+			/** Packets sent from the app per second. Measured from to the previous time stats were collected */
 			uint64_t txSentPacketsPerSec;
+			/** Number of bytes sent from the application */
 			uint64_t txSentBytes;
+			/** Bytes per second sent from the app. Measured from to the previous time stats were collected */
 			uint64_t txSentBytesPerSec;
+			/** Number of completed sent packets, meaning packets that were confirmed as sent by the kernel */
 			uint64_t txCompletedPackets;
+			/** Completed sent packets per second. Measured from to the previous time stats were collected */
 			uint64_t txCompletedPacketsPerSec;
+			/** TX packets dropped due to invalid descriptor */
 			uint64_t txDroppedInvalidPackets;
+			/** Current RX ring ID */
 			uint64_t rxRingId;
+			/** Current TX ring ID */
 			uint64_t txRingId;
+			/** Current fill ring ID */
 			uint64_t fqRingId;
+			/** Current completion ring ID */
 			uint64_t cqRingId;
+			/** Number of UMEM frames that are currently allocated */
 			uint64_t umemAllocatedFrames;
+			/** Number of UMEM frames that are currently free (not allocated) */
 			uint64_t umemFreeFrames;
 		};
 
@@ -171,15 +197,18 @@ namespace pcpp
 		~XdpDevice() override;
 
 		/**
-		 * Open the device with default configuration (call getConfig() after opening the device to get the
-		 * current configuration).
-		 * This method ..................................................
+		 * Open the device with the default configuration. Call getConfig() after opening the device to get the
+		 * current configuration.
+		 * This method initializes the UMEM, creates and configures the AF_XDP socket. If it succeeds the socket is
+		 * ready to receive and send packets.
 		 * @return True if device was opened successfully, false otherwise
 		 */
 		bool open() override;
 
 		/**
 		 * Open the device with custom configuration set by the user.
+		 * This method initializes the UMEM, creates and configures the AF_XDP socket. If it succeeds the socket is
+		 * ready to receive and send packets.
 		 * @param[in] config The configuration to use to open the device
 		 * @return True if device was opened successfully, false otherwise
 		 */
