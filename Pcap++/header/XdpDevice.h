@@ -215,15 +215,56 @@ namespace pcpp
 		bool open(const XdpDeviceConfiguration& config);
 
 		/**
-		 * Close the device. This method closes the AF_XDP socket and frees the UMEM that was initialized for it.
+		 * Close the device. This method closes the AF_XDP socket and frees the UMEM that was allocated for it.
 		 */
 		void close() override;
 
+		/**
+		 * Start receiving packets. In order to use this method the device should be open. Note that this method is
+		 * blocking and will only return if:
+		 * - stopReceivePackets() was called from within the user callback
+		 * - timeoutMS passed without receiving any packets
+		 * - Some error occurred (an error log will be printed)
+		 * @param[in] onPacketsArrive A callback to be called when packets are received
+		 * @param[in] onPacketsArriveUserCookie The callback is invoked with this cookie as a parameter. It can be used
+		 * to pass information from the user application to the callback
+		 * @param[in] timeoutMS Timeout in milliseconds to stop if no packets are received. The default value is 5000 ms
+		 * @return True if stop receiving packets because stopReceivePackets() was called or because timeoutMS passed,
+		 * or false if an error occurred.
+		 */
 		bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
 
+		/**
+		 * Stop receiving packets. Call this method from within the callback passed to receivePackets() whenever you
+		 * want to stop receiving packets.
+		 */
 		void stopReceivePackets();
 
+		/**
+		 * Send packets.
+		 * @param[in] packets A vector of packet pointers to send
+		 * @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
+		 * this method will wait until the number of packets in the completion ring is equal or greater to the number
+		 * of packets sent. The default value is false
+		 * @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
+		 * this timeout. The default value is 5000 ms
+		 * @return True if all packets were sent, and if waitForTxCompletion is true - all sent packets were confirmed.
+		 * Returns false if an error occurred or if poll timed out.
+		 */
 		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
+
+		/**
+		 * Send packets.
+		 * @param[in] packets An array of raw packets to send
+		 * @param[in] packetCount The length of the packet array
+		 * @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
+		 * this method will wait until the number of packets in the completion ring is equal or greater to the number
+		 * of packets sent. The default value is false
+		 * @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
+		 * this timeout. The default value is 5000 ms
+		 * @return True if all packets were sent, and if waitForTxCompletion is true - all sent packets were confirmed.
+		 * Returns false if an error occurred or if poll timed out.
+		 */
 		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 
 		/**

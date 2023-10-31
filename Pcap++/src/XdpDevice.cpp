@@ -153,11 +153,13 @@ bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsA
 		if (pollResult == 0 && timeoutMS != 0)
 		{
 			m_Stats.rxPollTimeout++;
+			m_ReceivingPackets = false;
 			return true;
 		}
 		if (pollResult < 0)
 		{
 			PCPP_LOG_ERROR("poll() returned an error: " << errno);
+			m_ReceivingPackets = false;
 			return false;
 		}
 
