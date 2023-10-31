@@ -1,39 +1,119 @@
 #ifndef PCAPPP_XDP_DEVICE
 #define PCAPPP_XDP_DEVICE
 
+/// @file
+
 #include "Device.h"
 
 #include <utility>
 #include <functional>
 
+/**
+* \namespace pcpp
+* \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
+	/**
+	 * @class XdpDevice
+	 * A class for using AF_XDP (XSK) sockets.
+	 *
+	 * It provides methods for configuring and initializing an AF_XDP socket, then send and receive packets through it.
+	 * It also provides a method for gathering statistics from the sockets.
+	 */
 	class XdpDevice : public IDevice
 	{
 	public:
+
+		/**
+		 * @typedef OnPacketsArrive
+		 * The callback that is called whenever packets a received in the socket
+		 * @param[in] packets An array of the raw packets received
+		 * @param[in] packetCount The number of packets received
+		 * @param[in] device The XdpDevice packets are received from (represents the AF_XDP socket)
+		 * @param[in] userCookie A pointer to an object set by the user when receive packet started
+		 */
 		typedef void (*OnPacketsArrive)(RawPacket packets[], uint32_t packetCount, XdpDevice* device, void* userCookie);
 
+		/**
+		 * @struct XdpDeviceConfiguration
+		 * A struct containing the configuration parameters available for opening an XDP device
+		 */
 		struct XdpDeviceConfiguration
 		{
+			/**
+			 * @enum AttachMode
+			 * AF_XDP operation mode
+			 */
 			enum AttachMode
 			{
+				/** A fallback mode that works for any network device. Use it if the network driver doesn't have support for XDP */
 				SkbMode = 1,
+				/** Use this mode if the network driver has support for XDP */
 				DriverMode = 2,
+				/** Automatically detect whether driver mode is supported, otherwise fallback to SKB mode */
 				AutoMode = 3
 			};
 
+			/** AF_XDP operation mode */
 			AttachMode attachMode;
+
+			/**
+			 * UMEM is a region of virtual contiguous memory, divided into equal-sized frames.
+			 * This parameter determines the number of frames that will be allocated.
+			 **/
 			uint16_t umemNumFrames;
+
+			/**
+			 * UMEM is a region of virtual contiguous memory, divided into equal-sized frames.
+			 * This parameter determines the frame size that will be allocated.
+			 * NOTE: the frame size should be equal to the memory page size (use getpagesize() to determine this size)
+			 **/
 			uint16_t umemFrameSize;
+
+			/**
+			 * The size of the fill ring used by the AF_XDP socket. This size should be a power of two
+			 * and less or equal to the total number of UMUM frames
+			 */
 			uint32_t fillRingSize;
+
+			/**
+			 * The size of the completion ring used by the AF_XDP socket. This size should be a power of two
+			 * and less or equal to the total number of UMUM frames
+			 */
 			uint32_t completionRingSize;
+
+			/**
+			 * The size of the RX ring used by the AF_XDP socket. This size should be a power of two
+			 * and less or equal to the total number of UMUM frames
+			 */
 			uint32_t rxSize;
+
+			/**
+			 * The size of the TX ring used by the AF_XDP socket. This size should be a power of two
+			 * and less or equal to the total number of UMUM frames
+			 */
 			uint32_t txSize;
+
+			/**
+			 * The max number of packets to be received or sent in one batch
+			 */
 			uint16_t rxTxBatchSize;
 
+			/**
+			 * A c'tor for this struct. Each parameter has a default value described below.
+			 * @param[in] attachMode AF_XDP operation mode. The fault is auto mode
+			 * @param[in] umemNumFrames Number of UMEM frames to allocate. The default value is 4096
+			 * @param[in] umemFrameSize The size of each UMEM frame. The default value is getpagesize()
+			 * @param[in] fillRingSize The size of the fill ring used by the AF_XDP socket. The default value is 4096
+			 * @param[in] completionRingSize The size of the completion ring used by the AF_XDP socket. The default value is 2048
+			 * @param[in] rxSize The size of the RX ring used by the AF_XDP socket. The default value is 2048
+			 * @param[in] txSize The size of the TX ring used by the AF_XDP socket. The default value is 2048
+			 * @param[in] rxTxBatchSize The max number of packets to be received or sent in one batch. The default value is 64
+			 */
 			explicit XdpDeviceConfiguration(AttachMode attachMode = AutoMode,
 											uint16_t umemNumFrames = 0,
-											uint16_t umemFrameSize = 1 << 12,
+											uint16_t umemFrameSize = 0,
 								   			uint32_t fillRingSize = 0,
 											uint32_t completionRingSize = 0,
 											uint32_t rxSize = 0,
@@ -78,31 +158,53 @@ namespace pcpp
 			uint64_t umemFreeFrames;
 		};
 
+		/**
+		 * A c'tor for this class. Please note that calling this c'tor doesn't initialize the AF_XDP socket. In order to
+		 * set up the socket call open().
+		 * @param[in] interfaceName The interface name to open the AF_XDP socket on
+		 */
 		explicit XdpDevice(std::string interfaceName);
 
+		/**
+		 * A d'tor for this class. It closes the device if open.
+		 */
 		~XdpDevice() override;
 
 		/**
-		 * Open the device
+		 * Open the device with default configuration (call getConfig() after opening the device to get the
+		 * current configuration).
+		 * This method ..................................................
 		 * @return True if device was opened successfully, false otherwise
 		 */
 		bool open() override;
+
+		/**
+		 * Open the device with custom configuration set by the user.
+		 * @param[in] config The configuration to use to open the device
+		 * @return True if device was opened successfully, false otherwise
+		 */
 		bool open(const XdpDeviceConfiguration& config);
 
 		/**
-		 * Close the device
+		 * Close the device. This method closes the AF_XDP socket and frees the UMEM that was initialized for it.
 		 */
 		void close() override;
 
-		bool startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
+		bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
 
-		void stopCapture();
+		void stopReceivePackets();
 
 		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 
+		/**
+		 * @return A pointer to the current device configuration. If the device is not open nullptr is returned
+		 */
 		XdpDeviceConfiguration* getConfig() const { return m_Config; }
 
+		/**
+		 * @return Current device statistics
+		 */
 		XdpDeviceStats getStatistics();
 
 	private:
@@ -148,7 +250,7 @@ namespace pcpp
 
 		std::string m_InterfaceName;
 		XdpDeviceConfiguration* m_Config;
-		bool m_Capturing;
+		bool m_ReceivingPackets;
   		XdpUmem* m_Umem;
 		void* m_SocketInfo;
 		XdpDeviceStats m_Stats;

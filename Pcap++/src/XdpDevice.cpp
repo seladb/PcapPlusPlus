@@ -30,8 +30,7 @@ struct xsk_socket_info
 };
 
 #define DEFAULT_UMEM_NUM_FRAMES      (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
-#define MINIMUM_UMEM_FRAME_SIZE      2048
-#define DEFAULT_FILL_RING_SIZE       (XSK_RING_PROD__DEFAULT_NUM_DESCS *2)
+#define DEFAULT_FILL_RING_SIZE       (XSK_RING_PROD__DEFAULT_NUM_DESCS * 2)
 #define DEFAULT_COMPLETION_RING_SIZE XSK_RING_PROD__DEFAULT_NUM_DESCS
 #define DEFAULT_BATCH_SIZE           64
 #define IS_POWER_OF_TWO(num)         (num && ((num & (num - 1)) == 0))
@@ -116,7 +115,7 @@ void XdpDevice::XdpUmem::freeFrame(uint64_t addr)
 }
 
 XdpDevice::XdpDevice(std::string interfaceName) :
-	m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_Capturing(false), m_Umem(nullptr), m_SocketInfo(nullptr)
+	m_InterfaceName(std::move(interfaceName)), m_Config(nullptr), m_ReceivingPackets(false), m_Umem(nullptr), m_SocketInfo(nullptr)
 {
 	memset(&m_Stats, 0, sizeof(m_Stats));
 	memset(&m_PrevStats, 0, sizeof(m_PrevStats));
@@ -127,7 +126,7 @@ XdpDevice::~XdpDevice()
 	close();
 }
 
-bool XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
+bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS)
 {
 	if (!m_DeviceOpened)
 	{
@@ -137,7 +136,7 @@ bool XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 
 	auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
 
-	m_Capturing = true;
+	m_ReceivingPackets = true;
 	uint32_t rxId = 0;
 
 	pollfd pollFds[1];
@@ -146,7 +145,7 @@ bool XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 		.events = POLLIN
 	};
 
-	while (m_Capturing)
+	while (m_ReceivingPackets)
 	{
 		checkCompletionRing();
 
@@ -195,16 +194,16 @@ bool XdpDevice::startCapture(OnPacketsArrive onPacketsArrive, void* onPacketsArr
 
 		if (!populateFillRing(receivedPacketsCount, rxId))
 		{
-			m_Capturing = false;
+			m_ReceivingPackets = false;
 		}
 	}
 
 	return true;
 }
 
-void XdpDevice::stopCapture()
+void XdpDevice::stopReceivePackets()
 {
-	m_Capturing = false;
+	m_ReceivingPackets = false;
 }
 
 bool XdpDevice::sendPackets(const std::function<RawPacket(uint32_t)>& getPacketAt, const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion, int waitForTxCompletionTimeoutMS)
@@ -429,13 +428,14 @@ bool XdpDevice::initConfig()
 	}
 
 	uint16_t numFrames = m_Config->umemNumFrames ? m_Config->umemNumFrames : DEFAULT_UMEM_NUM_FRAMES;
+	uint16_t frameSize = m_Config->umemFrameSize ? m_Config->umemFrameSize : getpagesize();
 	uint32_t fillRingSize = m_Config->fillRingSize ? m_Config->fillRingSize : DEFAULT_FILL_RING_SIZE;
 	uint32_t completionRingSize = m_Config->completionRingSize ? m_Config->completionRingSize : DEFAULT_COMPLETION_RING_SIZE;
 	uint32_t rxSize = m_Config->rxSize ? m_Config->rxSize : XSK_RING_CONS__DEFAULT_NUM_DESCS;
 	uint32_t txSize = m_Config->txSize ? m_Config->txSize : XSK_RING_PROD__DEFAULT_NUM_DESCS;
 	uint32_t batchSize = m_Config->rxTxBatchSize ? m_Config->rxTxBatchSize : DEFAULT_BATCH_SIZE;
 
-	if (m_Config->umemFrameSize != getpagesize())
+	if (frameSize != getpagesize())
 	{
 		PCPP_LOG_ERROR("UMEM frame size must match the memory page size (" << getpagesize() << ")");
 		return false;
@@ -478,6 +478,7 @@ bool XdpDevice::initConfig()
 	}
 
 	m_Config->umemNumFrames = numFrames;
+	m_Config->umemFrameSize = frameSize;
 	m_Config->fillRingSize = fillRingSize;
 	m_Config->completionRingSize = completionRingSize;
 	m_Config->rxSize = rxSize;

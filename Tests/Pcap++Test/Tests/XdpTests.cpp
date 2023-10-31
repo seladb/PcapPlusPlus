@@ -56,7 +56,7 @@ std::string getDeviceName()
 
 #endif // USE_XDP
 
-PTF_TEST_CASE(TestXdpDeviceCapturePackets)
+PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 {
 #if USE_XDP
 	std::string devName = getDeviceName();
@@ -89,7 +89,7 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 
 		if (packetData->packetCount >= 5)
 		{
-			device->stopCapture();
+			device->stopReceivePackets();
 		}
 	};
 
@@ -98,7 +98,7 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 
 	uint64_t curTimestamp = 1000*1000*1000*ts.tv_sec + ts.tv_nsec;
 
-	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &packetData, 20000));
+	PTF_ASSERT_TRUE(device.receivePackets(onPacketsArrive, &packetData, 20000));
 
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(packetData.packetCount, 5);
 	PTF_ASSERT_GREATER_THAN(packetData.latestTimestamp, curTimestamp);
@@ -129,12 +129,12 @@ PTF_TEST_CASE(TestXdpDeviceCapturePackets)
 	PTF_ASSERT_EQUAL(stats.cqRingId, 0);
 
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(device.startCapture(onPacketsArrive, nullptr));
+	PTF_ASSERT_FALSE(device.receivePackets(onPacketsArrive, nullptr));
 	pcpp::Logger::getInstance().enableLogs();
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
-} // TestXdpDeviceCapturePackets
+} // TestXdpDeviceReceivePackets
 
 
 PTF_TEST_CASE(TestXdpDeviceSendPackets)
@@ -215,11 +215,11 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 
 		if (*totalPacketCount >= 5)
 		{
-			device->stopCapture();
+			device->stopReceivePackets();
 		}
 	};
 
-	PTF_ASSERT_TRUE(device.startCapture(onPacketsArrive, &numPackets, 20000));
+	PTF_ASSERT_TRUE(device.receivePackets(onPacketsArrive, &numPackets, 20000));
 
 	PTF_ASSERT_EQUAL(numPackets, 5);
 #else
