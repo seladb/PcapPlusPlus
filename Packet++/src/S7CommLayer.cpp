@@ -84,8 +84,6 @@ namespace pcpp
 
 	void S7CommLayer::setPduRef(uint16_t pduRef) const { getS7commHeader()->pduRef = htobe16(pduRef); }
 
-	void S7CommLayer::setDataLength(uint16_t dataLength) const { getS7commHeader()->dataLength = htobe16(dataLength); }
-
 	void S7CommLayer::setErrorCode(uint8_t errorCode) const { getS7commAckDataHeader()->errorCode = errorCode; }
 
 	void S7CommLayer::setErrorClass(uint8_t errorClass) const { getS7commAckDataHeader()->errorClass = errorClass; }

@@ -161,12 +161,6 @@ namespace pcpp
 		void setPduRef(uint16_t pduRef) const;
 
 		/**
-		 * Set the value of the data length
-		 * @param[in] dataLength The value of the data length
-		 */
-		void setDataLength(uint16_t dataLength) const;
-
-		/**
 		 * Set the value of the error code
 		 * @param[in] errorCode The value of the error code
 		 */
