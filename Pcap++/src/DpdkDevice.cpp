@@ -529,8 +529,10 @@ void DpdkDevice::setDeviceInfo()
 	rte_eal_pci_device_name(&(portInfo.pci_dev->addr), pciName, 30);
 	#endif
 	m_PciAddress = std::string(pciName);
-#else // 18.05 forward
+#elif (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11) // before 22.11
 	m_PciAddress = std::string(portInfo.device->name);
+#else // 22.11 forward
+	m_PciAddress = std::string(rte_dev_name(portInfo.device));
 #endif
 
 	PCPP_LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_rx_queues << " RX queues");
