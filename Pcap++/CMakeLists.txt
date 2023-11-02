@@ -52,10 +52,7 @@ if(PCAPPP_USE_PF_RING)
 endif()
 
 if(PCAPPP_USE_XDP)
-  list(
-    APPEND
-    public_headers
-    header/XdpDevice.h)
+  list(APPEND public_headers header/XdpDevice.h)
 endif()
 
 if(LINUX)
