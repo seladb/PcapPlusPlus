@@ -255,7 +255,7 @@ namespace pcpp
 		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 
 		/**
-		 * Send and array of packets.
+		 * Send an array of packets.
 		 * @param[in] packets An array of raw packets to send
 		 * @param[in] packetCount The length of the packet array
 		 * @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
