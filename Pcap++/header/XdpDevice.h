@@ -15,10 +15,11 @@ namespace pcpp
 {
 	/**
 	 * @class XdpDevice
-	 * A class for using AF_XDP (XSK) sockets.
+	 * A class wrapping the main functionality of using AF_XDP (XSK) sockets
+	 * which are optimized for high performance packet processing.
 	 *
-	 * It provides methods for configuring and initializing an AF_XDP socket, then send and receive packets through it.
-	 * It also provides a method for gathering statistics from the sockets.
+	 * It provides methods for configuring and initializing an AF_XDP socket, and then send and receive packets through it.
+	 * It also provides a method for gathering statistics from the socket.
 	 */
 	class XdpDevice : public IDevice
 	{
@@ -26,11 +27,11 @@ namespace pcpp
 
 		/**
 		 * @typedef OnPacketsArrive
-		 * The callback that is called whenever packets a received in the socket
+		 * The callback that is called whenever packets are received on the socket
 		 * @param[in] packets An array of the raw packets received
 		 * @param[in] packetCount The number of packets received
 		 * @param[in] device The XdpDevice packets are received from (represents the AF_XDP socket)
-		 * @param[in] userCookie A pointer to an object set by the user when receive packet started
+		 * @param[in] userCookie A pointer to an object set by the user when receivePackets() started
 		 */
 		typedef void (*OnPacketsArrive)(RawPacket packets[], uint32_t packetCount, XdpDevice* device, void* userCookie);
 
@@ -59,7 +60,7 @@ namespace pcpp
 
 			/**
 			 * UMEM is a region of virtual contiguous memory, divided into equal-sized frames.
-			 * This parameter determines the number of frames that will be allocated.
+			 * This parameter determines the number of frames that will be allocated as pert of the UMEM.
 			 **/
 			uint16_t umemNumFrames;
 
@@ -72,25 +73,25 @@ namespace pcpp
 
 			/**
 			 * The size of the fill ring used by the AF_XDP socket. This size should be a power of two
-			 * and less or equal to the total number of UMUM frames
+			 * and less or equal to the total number of UMEM frames
 			 */
 			uint32_t fillRingSize;
 
 			/**
 			 * The size of the completion ring used by the AF_XDP socket. This size should be a power of two
-			 * and less or equal to the total number of UMUM frames
+			 * and less or equal to the total number of UMEM frames
 			 */
 			uint32_t completionRingSize;
 
 			/**
 			 * The size of the RX ring used by the AF_XDP socket. This size should be a power of two
-			 * and less or equal to the total number of UMUM frames
+			 * and less or equal to the total number of UMEM frames
 			 */
 			uint32_t rxSize;
 
 			/**
 			 * The size of the TX ring used by the AF_XDP socket. This size should be a power of two
-			 * and less or equal to the total number of UMUM frames
+			 * and less or equal to the total number of UMEM frames
 			 */
 			uint32_t txSize;
 
@@ -101,9 +102,9 @@ namespace pcpp
 
 			/**
 			 * A c'tor for this struct. Each parameter has a default value described below.
-			 * @param[in] attachMode AF_XDP operation mode. The fault is auto mode
+			 * @param[in] attachMode AF_XDP operation mode. The default value is auto mode
 			 * @param[in] umemNumFrames Number of UMEM frames to allocate. The default value is 4096
-			 * @param[in] umemFrameSize The size of each UMEM frame. The default value is getpagesize()
+			 * @param[in] umemFrameSize The size of each UMEM frame. The default value is equal to getpagesize()
 			 * @param[in] fillRingSize The size of the fill ring used by the AF_XDP socket. The default value is 4096
 			 * @param[in] completionRingSize The size of the completion ring used by the AF_XDP socket. The default value is 2048
 			 * @param[in] rxSize The size of the RX ring used by the AF_XDP socket. The default value is 2048
@@ -178,7 +179,7 @@ namespace pcpp
 			uint64_t fqRingId;
 			/** Current completion ring ID */
 			uint64_t cqRingId;
-			/** Number of UMEM frames that are currently allocated */
+			/** Number of UMEM frames that are currently in-use (allocated) */
 			uint64_t umemAllocatedFrames;
 			/** Number of UMEM frames that are currently free (not allocated) */
 			uint64_t umemFreeFrames;
@@ -192,24 +193,24 @@ namespace pcpp
 		explicit XdpDevice(std::string interfaceName);
 
 		/**
-		 * A d'tor for this class. It closes the device if open.
+		 * A d'tor for this class. It closes the device if it's open.
 		 */
 		~XdpDevice() override;
 
 		/**
-		 * Open the device with the default configuration. Call getConfig() after opening the device to get the
+		 * Open the device with default configuration. Call getConfig() after opening the device to get the
 		 * current configuration.
-		 * This method initializes the UMEM, creates and configures the AF_XDP socket. If it succeeds the socket is
-		 * ready to receive and send packets.
+		 * This method initializes the UMEM, and then creates and configures the AF_XDP socket. If it succeeds the
+		 * socket is ready to receive and send packets.
 		 * @return True if device was opened successfully, false otherwise
 		 */
 		bool open() override;
 
 		/**
 		 * Open the device with custom configuration set by the user.
-		 * This method initializes the UMEM, creates and configures the AF_XDP socket. If it succeeds the socket is
-		 * ready to receive and send packets.
-		 * @param[in] config The configuration to use to open the device
+		 * This method initializes the UMEM, and then creates and configures the AF_XDP socket. If it succeeds the
+		 * socket is ready to receive and send packets.
+		 * @param[in] config The configuration to use for opening the device
 		 * @return True if device was opened successfully, false otherwise
 		 */
 		bool open(const XdpDeviceConfiguration& config);
@@ -221,7 +222,7 @@ namespace pcpp
 
 		/**
 		 * Start receiving packets. In order to use this method the device should be open. Note that this method is
-		 * blocking and will only return if:
+		 * blocking and will return if:
 		 * - stopReceivePackets() was called from within the user callback
 		 * - timeoutMS passed without receiving any packets
 		 * - Some error occurred (an error log will be printed)
@@ -229,7 +230,7 @@ namespace pcpp
 		 * @param[in] onPacketsArriveUserCookie The callback is invoked with this cookie as a parameter. It can be used
 		 * to pass information from the user application to the callback
 		 * @param[in] timeoutMS Timeout in milliseconds to stop if no packets are received. The default value is 5000 ms
-		 * @return True if stop receiving packets because stopReceivePackets() was called or because timeoutMS passed,
+		 * @return True if stopped receiving packets because stopReceivePackets() was called or because timeoutMS passed,
 		 * or false if an error occurred.
 		 */
 		bool receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsArriveUserCookie, int timeoutMS = 5000);
@@ -241,20 +242,20 @@ namespace pcpp
 		void stopReceivePackets();
 
 		/**
-		 * Send packets.
+		 * Send a vector of packet pointers.
 		 * @param[in] packets A vector of packet pointers to send
 		 * @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
 		 * this method will wait until the number of packets in the completion ring is equal or greater to the number
-		 * of packets sent. The default value is false
+		 * of packets that were sent. The default value is false
 		 * @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
 		 * this timeout. The default value is 5000 ms
-		 * @return True if all packets were sent, and if waitForTxCompletion is true - all sent packets were confirmed.
+		 * @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
 		 * Returns false if an error occurred or if poll timed out.
 		 */
 		bool sendPackets(const RawPacketVector& packets, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 
 		/**
-		 * Send packets.
+		 * Send and array of packets.
 		 * @param[in] packets An array of raw packets to send
 		 * @param[in] packetCount The length of the packet array
 		 * @param[in] waitForTxCompletion Wait for confirmation from the kernel that packets were sent. If set to true
@@ -262,13 +263,13 @@ namespace pcpp
 		 * of packets sent. The default value is false
 		 * @param[in] waitForTxCompletionTimeoutMS If waitForTxCompletion is set to true, poll the completion ring with
 		 * this timeout. The default value is 5000 ms
-		 * @return True if all packets were sent, and if waitForTxCompletion is true - all sent packets were confirmed.
+		 * @return True if all packets were sent, or if waitForTxCompletion is true - all sent packets were confirmed.
 		 * Returns false if an error occurred or if poll timed out.
 		 */
 		bool sendPackets(RawPacket packets[], size_t packetCount, bool waitForTxCompletion = false, int waitForTxCompletionTimeoutMS = 5000);
 
 		/**
-		 * @return A pointer to the current device configuration. If the device is not open nullptr is returned
+		 * @return A pointer to the current device configuration. If the device is not open this method returns nullptr
 		 */
 		XdpDeviceConfiguration* getConfig() const { return m_Config; }
 
