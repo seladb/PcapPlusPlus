@@ -14,7 +14,9 @@
 #include "MBufRawPacket.h"
 #include "Logger.h"
 #include "DpdkDevice.h"
+#ifdef USE_DPDK_KNI
 #include "KniDevice.h"
+#endif
 
 #include <string>
 #include <stdint.h>
@@ -73,10 +75,12 @@ bool MBufRawPacket::init(DpdkDevice* device)
 	return init(device->m_MBufMempool);
 }
 
+#ifdef USE_DPDK_KNI
 bool MBufRawPacket::init(KniDevice* device)
 {
 	return init(device->m_MBufMempool);
 }
+#endif
 
 bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool)
 {
@@ -105,10 +109,12 @@ bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* de
 	return initFromRawPacket(rawPacket, device->m_MBufMempool);
 }
 
+#ifdef USE_DPDK_KNI
 bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, KniDevice* device)
 {
 	return initFromRawPacket(rawPacket, device->m_MBufMempool);
 }
+#endif
 
 MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 {
