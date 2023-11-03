@@ -95,6 +95,12 @@ option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
+cmake_dependent_option(
+  PCAPPP_USE_DPDK_KNI
+  "Add KNI Support to Pcap++"
+  OFF
+  "PCAPPP_USE_DPDK"
+  OFF)
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
@@ -182,6 +188,15 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
+
+  # Check in case user force KNI but it's not available
+  if(PCAPPP_USE_DPDK_KNI)
+    if(NOT HAVE_DPDK_RTE_KNI)
+      message(FATAL_ERROR "DPDK library doesn't have KNI support!")
+    endif()
+    add_definitions(-DUSE_DPDK_KNI)
+  endif()
+
   # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
   add_definitions("-Wno-deprecated-declarations")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)

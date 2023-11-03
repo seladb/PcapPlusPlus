@@ -18,7 +18,9 @@ namespace pcpp
 {
 
 	class DpdkDevice;
+#ifdef USE_DPDK_KNI
 	class KniDevice;
+#endif
 
 	#define MBUFRAWPACKET_OBJECT_TYPE 1
 
@@ -45,7 +47,9 @@ namespace pcpp
 	class MBufRawPacket : public RawPacket
 	{
 		friend class DpdkDevice;
+#ifdef USE_DPDK_KNI
 		friend class KniDevice;
+#endif
 		static const int MBUF_DATA_SIZE;
 
 	protected:
@@ -88,6 +92,8 @@ namespace pcpp
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool init(DpdkDevice* device);
+
+#ifdef USE_DPDK_KNI
 		/**
 		 * @brief Initialize an instance of this class from KniDevice.
 		 * Initialization includes allocating an mbuf from the pool that resides in KniDevice.
@@ -98,6 +104,7 @@ namespace pcpp
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool init(KniDevice* device);
+#endif
 
 		/**
 		 * @brief Initialize an instance of this class and copies the content of a RawPacket object.
@@ -111,6 +118,8 @@ namespace pcpp
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool initFromRawPacket(const RawPacket* rawPacket, DpdkDevice* device);
+
+#ifdef USE_DPDK_KNI
 		/**
 		 * @brief Initialize an instance of this class and copies the content of a RawPacket object.
 		 * Initialization includes allocating an mbuf from the pool that resides in provided KniDevice,
@@ -123,6 +132,7 @@ namespace pcpp
 		 * already attached) or if allocating an mbuf from the pool failed for some reason
 		 */
 		bool initFromRawPacket(const RawPacket* rawPacket, KniDevice* device);
+#endif
 
 		/**
 		 * @return A pointer to the DPDK mbuf stored in this object

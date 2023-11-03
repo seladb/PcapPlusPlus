@@ -2,17 +2,13 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
 
-#ifdef USE_DPDK
+#ifdef USE_DPDK_KNI
 #include "KniDeviceList.h"
 #include "PcapFileDevice.h"
 #include "RawSocketDevice.h"
 #include "SystemUtils.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
-#endif
-
-#ifdef USE_DPDK
-#ifdef __linux__
 
 #define KNI_TEST_NAME "tkni"
 
@@ -101,13 +97,12 @@ class KniDeviceTeardown
 		}
 };
 
-#endif // LINUX
-#endif // USE_DPDK
+#endif // USE_DPDK_KNI
 
 
 PTF_TEST_CASE(TestKniDevice)
 {
-#if defined(USE_DPDK) && defined(__linux__)
+#ifdef USE_DPDK_KNI
 
 	if (PcapTestGlobalArgs.kniIp == "")
 	{
@@ -271,16 +266,14 @@ PTF_TEST_CASE(TestKniDevice)
 
 
 #else
-	PTF_SKIP_TEST("DPDK not configured");
+	PTF_SKIP_TEST("DPDK and DPDK_KNI not configured");
 #endif
 } // TestKniDevice
 
 
-
-
 PTF_TEST_CASE(TestKniDeviceSendReceive)
 {
-#if defined(USE_DPDK) && defined(__linux__)
+#ifdef USE_DPDK_KNI
 
 	if (PcapTestGlobalArgs.kniIp == "")
 	{
@@ -477,7 +470,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	fileReaderDev.close();
 
 #else
-	PTF_SKIP_TEST("DPDK not configured");
+	PTF_SKIP_TEST("DPDK and DPDK_KNI not configured");
 #endif
 
 } // TestKniDeviceSendReceive

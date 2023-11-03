@@ -188,6 +188,10 @@ if(NOT TARGET DPDK::DPDK)
     PROPERTIES INTERFACE_LINK_LIBRARIES "${DPDK_LIBRARIES}"
                INTERFACE_INCLUDE_DIRECTORIES "${DPDK_INCLUDE_DIRS}"
                INTERFACE_COMPILE_OPTIONS "${DPDK_CFLAGS_OTHER}")
+
+  # At this steps DPDK is found check if KNI is supported
+  include(CheckIncludeFiles)
+  check_include_files(rte_kni.h HAVE_DPDK_RTE_KNI)
 endif()
 
 if(DPDK_DEBUG)
