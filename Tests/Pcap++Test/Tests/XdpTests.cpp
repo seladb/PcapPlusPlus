@@ -9,7 +9,7 @@
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-#if USE_XDP
+#ifdef USE_XDP
 
 struct XdpPacketData
 {
@@ -58,7 +58,7 @@ std::string getDeviceName()
 
 PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 {
-#if USE_XDP
+#ifdef USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
@@ -139,7 +139,7 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 
 PTF_TEST_CASE(TestXdpDeviceSendPackets)
 {
-#if USE_XDP
+#ifdef USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
@@ -186,7 +186,7 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 
 PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 {
-#if USE_XDP
+#ifdef USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
@@ -230,7 +230,7 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 
 PTF_TEST_CASE(TestXdpDeviceInvalidConfig)
 {
-#if USE_XDP
+#ifdef USE_XDP
 	std::string devName = getDeviceName();
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
