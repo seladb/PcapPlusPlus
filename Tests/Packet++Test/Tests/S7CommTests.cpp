@@ -22,7 +22,7 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	PTF_ASSERT_EQUAL(S7CommLayer->getParamLength(), 12);
 	PTF_ASSERT_EQUAL(S7CommLayer->getDataLength(), 212);
 	PTF_ASSERT_EQUAL(S7CommLayer->getHeaderLen(), 234);
-	PTF_ASSERT_EQUAL(S7CommLayer->toString(), "S7Comm Layer");
+	PTF_ASSERT_EQUAL(S7CommLayer->toString(), "S7Comm Layer, Userdata");
 
 	PTF_ASSERT_EQUAL(S7CommLayer->getParameter()->getDataLength(), 12);
 	uint8_t expectedParameterData[] = {0, 1, 18, 8, 18, 132, 1, 1, 0, 0, 0, 0};
@@ -43,7 +43,7 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	PTF_ASSERT_EQUAL(s7commLayer->getErrorCode(), 0);
 	PTF_ASSERT_EQUAL(s7commLayer->getHeaderLen(), 82);
 
-	PTF_ASSERT_EQUAL(s7commLayer->toString(), "S7Comm Layer");
+	PTF_ASSERT_EQUAL(s7commLayer->toString(), "S7Comm Layer, Ack-Data");
 
 	s7commLayer->setErrorCode(6);
 	s7commLayer->setErrorClass(7);
@@ -58,16 +58,22 @@ PTF_TEST_CASE(S7CommLayerCreationTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
-	pcpp::S7CommLayer newS7commPacket(9, 64780, 13, 213);
+	pcpp::S7CommLayer newS7commPacket(1, 64780, 13, 213);
 
-	PTF_ASSERT_EQUAL(newS7commPacket.getMsgType(), 9);
+	PTF_ASSERT_EQUAL(newS7commPacket.getMsgType(), 1);
 	PTF_ASSERT_EQUAL(newS7commPacket.getPduRef(), 64780);
 	PTF_ASSERT_EQUAL(newS7commPacket.getParamLength(), 13);
 	PTF_ASSERT_EQUAL(newS7commPacket.getDataLength(), 213);
+	PTF_ASSERT_EQUAL(newS7commPacket.toString(), "S7Comm Layer, Job Request");
 
 	newS7commPacket.setMsgType(6);
 	newS7commPacket.setPduRef(64778);
 
 	PTF_ASSERT_EQUAL(newS7commPacket.getMsgType(), 6);
 	PTF_ASSERT_EQUAL(newS7commPacket.getPduRef(), 64778);
+	PTF_ASSERT_EQUAL(newS7commPacket.toString(), "S7Comm Layer, Unknown message");
+
+	newS7commPacket.setMsgType(2);
+	PTF_ASSERT_EQUAL(newS7commPacket.toString(), "S7Comm Layer, Ack");
+
 } // S7CommLayerCreationTest
