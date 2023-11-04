@@ -324,7 +324,7 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	auto const devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	auto const& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 
