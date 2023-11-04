@@ -53,7 +53,7 @@
 
 
 // unless the user chooses otherwise - default number of concurrent used file descriptors is 500
- #define DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES 500
+constexpr int DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES = 500;
 
 static struct option TcpAssemblyOptions[] =
 {
@@ -328,7 +328,7 @@ void listInterfaces()
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 
-	for (const auto interface : devList)
+	for (const auto& interface : devList)
 	{
 		std::cout << "    -> Name: '" << interface->getName() << "'   IP address: " << interface->getIPv4Address().toString() << std::endl;
 	}
