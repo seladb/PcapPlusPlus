@@ -208,10 +208,11 @@ public:
 
 
 /**
- * A struct to contain all data save on a specific connection. It contains the file streams to write to and also stats data on the connection
+ * A class to contain all data save on a specific connection. It contains the file streams to write to and also stats data on the connection
  */
-struct TcpReassemblyData
+class TcpReassemblyData
 {
+public:
 	// pointer to 2 file stream - one for each side of the connection. If the user chooses to write both sides to the same file (which is the default), only one file stream is used (index 0)
 	std::ostream* fileStreams[2];
 
