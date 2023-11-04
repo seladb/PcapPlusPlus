@@ -53,7 +53,7 @@
 
 
 // unless the user chooses otherwise - default number of concurrent used file descriptors is 500
-constexpr int DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES = 500;
+ #define DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES 500
 
 static struct option TcpAssemblyOptions[] =
 {
