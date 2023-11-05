@@ -5,7 +5,7 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        exclude_types: [md]
+        args: [--markdown-linebreak-ext=md]
       - id: check-case-conflict
       - id: end-of-file-fixer
       - id: mixed-line-ending
