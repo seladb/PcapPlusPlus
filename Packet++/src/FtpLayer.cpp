@@ -205,7 +205,13 @@ namespace pcpp
 	{
 		std::stringstream oss;
 		for (size_t idx = 0; idx < 4; ++idx)
-			oss << char((int(code) >> (8 * idx)) & UINT8_MAX);
+		{
+			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
+			if (val) // Dont push if it is a null character
+			{
+				oss << val;
+			}
+		}
 		return oss.str();
 	}
 
