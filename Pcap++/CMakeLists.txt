@@ -2,8 +2,8 @@ add_library(
   Pcap++
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
-  $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDevice.cpp>
-  $<$<BOOL:${PCAPPP_USE_DPDK}>:src/KniDeviceList.cpp>
+  $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDevice.cpp>
+  $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDeviceList.cpp>
   $<$<BOOL:${LINUX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
   src/NetworkUtils.cpp
@@ -35,11 +35,17 @@ if(PCAPPP_USE_DPDK)
   list(
     APPEND
     public_headers
-    header/KniDevice.h
-    header/DpdkDeviceList.h
-    header/KniDeviceList.h
     header/DpdkDevice.h
+    header/DpdkDeviceList.h
     header/MBufRawPacket.h)
+endif()
+
+if(PCAPPP_USE_DPDK_KNI)
+  list(
+    APPEND
+    public_headers
+    header/KniDevice.h
+    header/KniDeviceList.h)
 endif()
 
 if(PCAPPP_USE_PF_RING)

@@ -131,20 +131,19 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        image:
-          [
-            ubuntu2004-dpdk2111,
-            ubuntu2004-dpdk2011,
-            ubuntu2004-dpdk1911,
-            ubuntu2004-dpdk1811,
-          ]
+        include:
+          - image: ubuntu2204-dpdk2211
+          - image: ubuntu2004-dpdk2111
+            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
+          - image: ubuntu2004-dpdk2011
+            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON -S . -B "$BUILD_DIR"
+        run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j

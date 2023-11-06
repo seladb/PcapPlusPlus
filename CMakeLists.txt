@@ -1,7 +1,7 @@
 # We need 3.12 or later, so that we can set policy CMP0074; see below.
 cmake_minimum_required(VERSION 3.12)
 
-set(PCAPPP_VERSION "22.11+")
+set(PCAPPP_VERSION "23.09+")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
@@ -95,6 +95,12 @@ option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 option(PCAPPP_USE_DPDK "Setup PcapPlusPlus with DPDK. In this case you must also set DPDK_ROOT")
+cmake_dependent_option(
+  PCAPPP_USE_DPDK_KNI
+  "Add KNI Support to Pcap++"
+  OFF
+  "PCAPPP_USE_DPDK"
+  OFF)
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
@@ -103,6 +109,8 @@ option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" O
 set(CMAKE_CXX_STANDARD 11)
 # popen()/pclose() are not C++ standards
 set(CMAKE_CXX_EXTENSIONS ON)
+# Set Position Independent Code for static libraries
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
 if(WIN32
@@ -179,6 +187,15 @@ if(PCAPPP_USE_DPDK)
     message(FATAL_ERROR "Specify DPDK Library with -DDPDK_ROOT=<DPDK_PATH>")
   endif()
   add_definitions(-DUSE_DPDK)
+
+  # Check in case user force KNI but it's not available
+  if(PCAPPP_USE_DPDK_KNI)
+    if(NOT HAVE_DPDK_RTE_KNI)
+      message(FATAL_ERROR "DPDK library doesn't have KNI support!")
+    endif()
+    add_definitions(-DUSE_DPDK_KNI)
+  endif()
+
   # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
   add_definitions("-Wno-deprecated-declarations")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
