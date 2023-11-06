@@ -258,11 +258,12 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 39. HTTP headers (request & response)
 40. NTP (v3, v4)
 41. Radius
-42. SMTP
-43. SOME/IP
-44. SSH - parsing only (no editing capabilities)
-45. Telnet - parsing only (no editing capabilities)
-46. Generic payload
+42. S7 Communication (S7comm)
+43. SMTP
+44. SOME/IP
+45. SSH - parsing only (no editing capabilities)
+46. Telnet - parsing only (no editing capabilities)
+47. Generic payload
 
 ## DPDK And PF_RING Support
 
