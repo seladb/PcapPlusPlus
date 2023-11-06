@@ -250,7 +250,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 ### Application Layer (L7)
 
-34.  BGP (v4)
+34. BGP (v4)
 35. DHCP
 36. DHCPv6
 37. DNS
@@ -258,10 +258,11 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 39. HTTP headers (request & response)
 40. NTP (v3, v4)
 41. Radius
-42. SOME/IP
-43. SSH - parsing only (no editing capabilities)
-44. Telnet - parsing only (no editing capabilities)
-45. Generic payload
+42. S7 Communication (S7comm)
+43. SOME/IP
+44. SSH - parsing only (no editing capabilities)
+45. Telnet - parsing only (no editing capabilities)
+46. Generic payload
 
 ## DPDK And PF_RING Support
 
