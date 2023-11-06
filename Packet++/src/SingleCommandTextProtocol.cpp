@@ -5,6 +5,8 @@
 
 #define ASCII_HYPHEN 0x2d
 #define ASCII_SPACE 0x20
+#define MAX_COMMAND_LENGTH 9 // From SMTP command "STARTTLS" + 1 byte hyphen or space
+#define MIN_PACKET_LENGTH 2 // CRLF
 
 namespace pcpp
 {
@@ -12,18 +14,22 @@ namespace pcpp
 	size_t SingleCommandTextProtocol::getArgumentFieldOffset() const
 	{
 		size_t maxLen;
-		if (m_DataLen < 5)
+		if (m_DataLen < MAX_COMMAND_LENGTH)
 			maxLen = m_DataLen;
 		else
-			maxLen = 5;
+			maxLen = MAX_COMMAND_LENGTH;
 
-		// Find <SP> if exists
-		uint8_t *pos = (uint8_t *)memchr(m_Data, ASCII_SPACE, maxLen);
+		// To correctly detect multi-line packets with the option containing a space in
+		// the first MAX_CONTENT_LENGTH bytes, search the hyphen first otherwise it thinks
+		// the space in option as a command delimiter
+
+		// Find Hyphen "-" if exists
+		uint8_t *pos = (uint8_t *)memchr(m_Data, ASCII_HYPHEN, maxLen);
 		if (pos)
 			return pos - m_Data;
 
-		// Find Hyphen "-" if exists
-		pos = (uint8_t *)memchr(m_Data, ASCII_HYPHEN, maxLen);
+		// Find <SP> if exists
+		pos = (uint8_t *)memchr(m_Data, ASCII_SPACE, maxLen);
 		if (pos)
 			return pos - m_Data;
 
@@ -47,8 +53,8 @@ namespace pcpp
 
 	SingleCommandTextProtocol::SingleCommandTextProtocol(const std::string &command, const std::string &option)
 	{
-		m_Data = new uint8_t[6];
-		m_DataLen = 6;
+		m_Data = new uint8_t[MIN_PACKET_LENGTH];
+		m_DataLen = MIN_PACKET_LENGTH;
 		if (!command.empty())
 			setCommandInternal(command);
 		if (!option.empty())
@@ -130,7 +136,7 @@ namespace pcpp
 
 	bool SingleCommandTextProtocol::isDataValid(const uint8_t *data, size_t dataSize)
 	{
-		if (data == nullptr || dataSize < 6)
+		if (data == nullptr || dataSize < MIN_PACKET_LENGTH)
 			return false;
 
 		std::string payload = std::string((char *)data, dataSize);

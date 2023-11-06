@@ -64,7 +64,7 @@ namespace pcpp
 		/**
 		 * Enum for SMTP command codes
 		 */
-		enum class SmtpCommand : int
+		enum class SmtpCommand : uint64_t
 		{
 			/// Unknown command
 			UNK,
@@ -91,7 +91,8 @@ namespace pcpp
 			/// Identify user
 			VRFY = ('V') | ('R' << 8) | ('F' << 16) | ('Y' << 24),
 			/// Start TLS handshake
-			STARTTLS = ('S') | ('T' << 8) | ('L' << 16) | ('S' << 24),
+			STARTTLS = (('S') | ('T' << 8) | ('A' << 16) | ('R' << 24) |
+					static_cast<uint64_t>(('T') | ('T' << 8) | ('L' << 16) | ('S' << 24)) << 32),
 			/// Reverse the role of sender and receiver
 			TURN = ('T') | ('U' << 8) | ('R' << 16) | ('N' << 24),
 			/// Send mail to terminal

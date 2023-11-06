@@ -2,6 +2,8 @@
 
 #include "SmtpLayer.h"
 
+#include <algorithm>
+
 namespace pcpp
 {
 	// ----------------- Class SmtpRequestLayer -----------------
@@ -98,8 +100,14 @@ namespace pcpp
 	std::string SmtpRequestLayer::getCommandAsString(SmtpCommand code)
 	{
 		std::stringstream oss;
-		for (size_t idx = 0; idx < 4; ++idx)
-			oss << char((int(code) >> (8 * idx)) & UINT8_MAX);
+		for (size_t idx = 0; idx < 8; ++idx)
+		{
+			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
+			if (val) // Dont push if it is a null character
+			{
+				oss << val;
+			}
+		}
 		return oss.str();
 	}
 

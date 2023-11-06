@@ -16,7 +16,6 @@ PTF_TEST_CASE(SmtpParsingTests)
 
 	// Command
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
-
 	pcpp::Packet smtpPacket1(&rawPacket1);
 	pcpp::SmtpRequestLayer *smtpLayer1 = smtpPacket1.getLayerOfType<pcpp::SmtpRequestLayer>();
 
@@ -29,7 +28,6 @@ PTF_TEST_CASE(SmtpParsingTests)
 
 	// Response packet
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpResponse.dat");
-
 	pcpp::Packet smtpPacket2(&rawPacket2);
 	pcpp::SmtpResponseLayer *smtpLayer2 = smtpPacket2.getLayerOfType<pcpp::SmtpResponseLayer>();
 
@@ -42,7 +40,6 @@ PTF_TEST_CASE(SmtpParsingTests)
 
 	// Multiline
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/smtpMultiLine.dat");
-
 	pcpp::Packet smtpPacket3(&rawPacket3);
 	pcpp::SmtpResponseLayer *smtpLayer3 = smtpPacket3.getLayerOfType<pcpp::SmtpResponseLayer>();
 
@@ -58,7 +55,6 @@ PTF_TEST_CASE(SmtpParsingTests)
 
 	// IPv6
 	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/smtpIpv6.dat");
-
 	pcpp::Packet smtpPacket4(&rawPacket4);
 	pcpp::SmtpResponseLayer *smtpLayer4 = smtpPacket4.getLayerOfType<pcpp::SmtpResponseLayer>();
 
@@ -163,7 +159,6 @@ PTF_TEST_CASE(SmtpCreationTests)
 
 	// Request
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/smtpCommand.dat");
-
 	pcpp::Packet smtpPacket1(&rawPacket1);
 
 	pcpp::EthLayer ethLayer1(*smtpPacket1.getLayerOfType<pcpp::EthLayer>());
@@ -183,7 +178,6 @@ PTF_TEST_CASE(SmtpCreationTests)
 
 	// Response multiline
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpMultiLine.dat");
-
 	pcpp::Packet smtpPacket2(&rawPacket2);
 
 	pcpp::EthLayer ethLayer2(*smtpPacket2.getLayerOfType<pcpp::EthLayer>());
@@ -215,7 +209,6 @@ PTF_TEST_CASE(SmtpEditTests)
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/smtpCommandEdited.dat");
 
 	pcpp::Packet smtpPacket1(&rawPacket1);
-
 	pcpp::SmtpRequestLayer *smtpLayer1 = smtpPacket1.getLayerOfType<pcpp::SmtpRequestLayer>();
 
 	PTF_ASSERT_NOT_NULL(smtpLayer1);
@@ -224,24 +217,21 @@ PTF_TEST_CASE(SmtpEditTests)
 	smtpPacket1.computeCalculateFields();
 
 	pcpp::Packet smtpEditedPacket1(&rawPacket2);
-
 	PTF_ASSERT_EQUAL(smtpPacket1.getRawPacket()->getRawDataLen(), smtpEditedPacket1.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(smtpPacket1.getRawPacket()->getRawData(), smtpEditedPacket1.getRawPacket()->getRawData(),
 						   smtpPacket1.getRawPacket()->getRawDataLen());
 
 	// Response multiline
 	READ_FILE_AND_CREATE_PACKET(3, "PacketExamples/smtpMultiLine.dat");
-	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/smtpMultiLineEdited.dat");
-
 	pcpp::Packet smtpPacket2(&rawPacket3);
 
 	pcpp::SmtpResponseLayer *smtpLayer2 = smtpPacket2.getLayerOfType<pcpp::SmtpResponseLayer>();
-
 	PTF_ASSERT_NOT_NULL(smtpLayer2);
 	smtpLayer2->setStatusCode(pcpp::SmtpResponseLayer::SmtpStatusCode::ABORT_LOCAL_ERROR);
 	smtpLayer2->setStatusOption("Test Option Line 1\r\n451 Test Option Line 2");
 	smtpPacket2.computeCalculateFields();
 
+	READ_FILE_AND_CREATE_PACKET(4, "PacketExamples/smtpMultiLineEdited.dat");
 	pcpp::Packet smtpEditedPacket2(&rawPacket4);
 
 	PTF_ASSERT_EQUAL(smtpPacket2.getRawPacket()->getRawDataLen(), smtpEditedPacket2.getRawPacket()->getRawDataLen());
