@@ -5,6 +5,7 @@
 #include "S7CommLayer.h"
 #include "SystemUtils.h"
 
+
 PTF_TEST_CASE(S7CommLayerParsingTest)
 {
 	timeval time;
@@ -54,26 +55,33 @@ PTF_TEST_CASE(S7CommLayerParsingTest)
 	PTF_ASSERT_BUF_COMPARE(s7commLayer->getParameter()->getData(), expectedErrorParameterData, 2);
 } // S7CommLayerParsingTest
 
+
 PTF_TEST_CASE(S7CommLayerCreationTest)
 {
-	timeval time;
-	gettimeofday(&time, nullptr);
-	pcpp::S7CommLayer newS7commPacket(1, 64780, 13, 213);
+	pcpp::S7CommLayer newS7commLayer(1, 64780, 12, 212);
 
-	PTF_ASSERT_EQUAL(newS7commPacket.getMsgType(), 1);
-	PTF_ASSERT_EQUAL(newS7commPacket.getPduRef(), 64780);
-	PTF_ASSERT_EQUAL(newS7commPacket.getParamLength(), 13);
-	PTF_ASSERT_EQUAL(newS7commPacket.getDataLength(), 213);
-	PTF_ASSERT_EQUAL(newS7commPacket.toString(), "S7Comm Layer, Job Request");
+	PTF_ASSERT_EQUAL(newS7commLayer.getMsgType(), 1);
+	PTF_ASSERT_EQUAL(newS7commLayer.getPduRef(), 64780);
+	PTF_ASSERT_EQUAL(newS7commLayer.getParamLength(), 12);
+	PTF_ASSERT_EQUAL(newS7commLayer.getDataLength(), 212);
+	PTF_ASSERT_EQUAL(newS7commLayer.getHeaderLen(), 234);
+	PTF_ASSERT_EQUAL(newS7commLayer.toString(), "S7Comm Layer, Job Request");
 
-	newS7commPacket.setMsgType(6);
-	newS7commPacket.setPduRef(64778);
+	newS7commLayer.setMsgType(6);
+	newS7commLayer.setPduRef(64778);
 
-	PTF_ASSERT_EQUAL(newS7commPacket.getMsgType(), 6);
-	PTF_ASSERT_EQUAL(newS7commPacket.getPduRef(), 64778);
-	PTF_ASSERT_EQUAL(newS7commPacket.toString(), "S7Comm Layer, Unknown message");
+	PTF_ASSERT_EQUAL(newS7commLayer.getMsgType(), 6);
+	PTF_ASSERT_EQUAL(newS7commLayer.getPduRef(), 64778);
+	PTF_ASSERT_EQUAL(newS7commLayer.toString(), "S7Comm Layer, Unknown message");
 
-	newS7commPacket.setMsgType(2);
-	PTF_ASSERT_EQUAL(newS7commPacket.toString(), "S7Comm Layer, Ack");
+	newS7commLayer.setMsgType(2);
+	PTF_ASSERT_EQUAL(newS7commLayer.toString(), "S7Comm Layer, Ack");
 
+	pcpp::S7CommLayer newS7commLayer2(3, 0, 2, 68, 0x81, 2);
+
+	PTF_ASSERT_EQUAL(newS7commLayer2.getMsgType(), 3);
+	PTF_ASSERT_EQUAL(newS7commLayer2.getErrorClass(), 0x81);
+	PTF_ASSERT_EQUAL(newS7commLayer2.getErrorCode(), 2);
+	PTF_ASSERT_EQUAL(newS7commLayer2.getHeaderLen(), 82);
+	PTF_ASSERT_EQUAL(newS7commLayer2.toString(), "S7Comm Layer, Ack-Data");
 } // S7CommLayerCreationTest

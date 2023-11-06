@@ -13,7 +13,8 @@ namespace pcpp
 	S7CommLayer::S7CommLayer(uint8_t msgType, uint16_t pduRef, uint16_t paramLength, uint16_t dataLength,
 							 uint8_t errorClass, uint8_t errorCode)
 	{
-		size_t headerLen = sizeof(s7comm_ack_data_hdr) + paramLength + dataLength;
+		size_t basicHeaderLen = msgType == 0x03 ? sizeof(s7comm_ack_data_hdr) : sizeof(s7commhdr);
+		size_t headerLen = basicHeaderLen + paramLength + dataLength;
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
@@ -48,22 +49,24 @@ namespace pcpp
 	std::string S7CommLayer::toString() const
 	{
 		std::ostringstream str;
+		str << "S7Comm Layer, ";
+
 		switch (getS7commHeader()->msgType)
 		{
 		case 0x01:
-			str << "S7Comm Layer, Job Request";
+			str << "Job Request";
 			break;
 		case 0x02:
-			str << "S7Comm Layer, Ack";
+			str << "Ack";
 			break;
 		case 0x03:
-			str << "S7Comm Layer, Ack-Data";
+			str << "Ack-Data";
 			break;
 		case 0x07:
-			str << "S7Comm Layer, Userdata";
+			str << "Userdata";
 			break;
 		default:
-			str << "S7Comm Layer, Unknown message";
+			str << "Unknown message";
 		}
 
 		return str.str();
