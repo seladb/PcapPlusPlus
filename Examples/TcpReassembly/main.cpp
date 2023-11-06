@@ -208,11 +208,10 @@ public:
 
 
 /**
- * A class to contain all data save on a specific connection. It contains the file streams to write to and also stats data on the connection
+ * A struct to contain all data save on a specific connection. It contains the file streams to write to and also stats data on the connection
  */
-class TcpReassemblyData
+struct TcpReassemblyData
 {
-public:
 	// pointer to 2 file stream - one for each side of the connection. If the user chooses to write both sides to the same file (which is the default), only one file stream is used (index 0)
 	std::ostream* fileStreams[2];
 
@@ -329,7 +328,7 @@ void listInterfaces()
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 
-	for (const auto& interface : devList)
+	for (auto& interface : devList)
 	{
 		std::cout << "    -> Name: '" << interface->getName() << "'   IP address: " << interface->getIPv4Address().toString() << std::endl;
 	}
