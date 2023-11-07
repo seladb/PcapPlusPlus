@@ -328,9 +328,9 @@ void listInterfaces()
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 
-	for (auto& interface : devList)
+	for (auto dev : devList)
 	{
-		std::cout << "    -> Name: '" << interface->getName() << "'   IP address: " << interface->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
