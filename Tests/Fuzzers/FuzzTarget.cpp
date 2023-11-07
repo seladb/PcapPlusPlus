@@ -53,18 +53,22 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	pcpp::RawPacket& rawPacket = *packets.front();
 	do
 	{
-		pcpp::Packet parsedPacket(&rawPacket);
-		parsedPacket.toString();
-		auto layer = parsedPacket.getFirstLayer();
-		while (layer != NULL)
+		// go deeper only for .pcap and .pcapng format
+		// for .snoop we are only fuzzing the reader
+		if (0 == strcmp(FILE_EXT, ".pcap") || 0 == strcmp(FILE_EXT, ".pcapng"))
 		{
-			std::cout << layer->toString() << std::endl;
-			layer->getHeaderLen();
-			readParsedPacket(parsedPacket, layer);
-			layer = layer->getNextLayer();
+			pcpp::Packet parsedPacket(&rawPacket);
+			parsedPacket.toString();
+			auto layer = parsedPacket.getFirstLayer();
+			while (layer != NULL)
+			{
+				std::cout << layer->toString() << std::endl;
+				layer->getHeaderLen();
+				readParsedPacket(parsedPacket, layer);
+				layer = layer->getNextLayer();
+			}
+			parsedPacket.computeCalculateFields();
 		}
-		parsedPacket.computeCalculateFields();
-
 	} while (reader->getNextPacket(rawPacket));
 
 	reader->close();
