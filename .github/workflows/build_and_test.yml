@@ -10,528 +10,528 @@ env:
   GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    container: seladb/alpine317
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          apk update && apk add cppcheck python3-dev
-          python3 -m pip install cmake-format
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - uses: pre-commit/action@v3.0.0
-
-      - name: CMake format
-        run: |
-          ./ci/cmake-format-all.sh
-          git diff --exit-code
-
-      - name: Configure PcapPlusPlus for Static analysis
-        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus and check any diff
-        run: |
-          cmake --build "$BUILD_DIR" -j
-          git diff --exit-code
-
-  linux:
-    runs-on: ubuntu-20.04
-    container: seladb/${{ matrix.image }}
-    strategy:
-      matrix:
-        include:
-          - image: ubuntu2204
-            python: python3
-            config-zstd: OFF
-          - image: ubuntu2204-icpx
-            python: python3
-            config-zstd: OFF
-            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-            additional-gcov-flags: --gcov-executable "llvm-cov gcov"
-          - image: ubuntu2004
-            python: python3
-            config-zstd: OFF
-          - image: ubuntu1804
-            python: python3.8
-            config-zstd: OFF
-          - image: centos7
-            python: python3.8
-            # TODO: TestLoggerMultiThread sometimes fail in CI so we exclude it for now, need to look into it
-            test-flags: --pcap-test-args="-s -x TestLoggerMultiThread"
-            config-zstd: OFF
-          - image: fedora37
-            python: python3
-            config-zstd: OFF
-          - image: alpine317
-            python: python3
-            config-zstd: OFF
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Intel Compiler variables
-        if: contains(matrix.image, 'icpx')
-        run: |
-          . /opt/intel/oneapi/setvars.sh
-          printenv >> $GITHUB_ENV
-
-      - name: Configure PcapPlusPlus
-        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Test PcapPlusPlus
-        run: |
-          ${{ matrix.python }} -m pip install -U pip
-          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
-          ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
-
-      - name: Test Examples
-        run: |
-          cd Tests/ExamplesTest
-          ${{ matrix.python }} -m pip install -U pip
-          ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
-
-      - name: Check installation
-        run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
-
-      - name: Build Tutorials
-        run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON ${{ matrix.additional-flags }} -S Examples -B build_examples
-          cmake --build build_examples -j
-
-      - name: Test Tutorials
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-      - name: Create Cobertura Report
-        run: |
-          ${{ matrix.python }} -m pip install gcovr
-          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.image }},unittest
-          fail_ci_if_error: false
-          verbose: true
-
-  dpdk:
-    runs-on: ubuntu-20.04
-    container: seladb/${{ matrix.image }}
-    strategy:
-      matrix:
-        include:
-          - image: ubuntu2204-dpdk2211
-          - image: ubuntu2004-dpdk2111
-            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
-          - image: ubuntu2004-dpdk2011
-            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Check AVX
-        run: grep avx /proc/cpuinfo
-
-      - name: Test Packet++
-        run: |
-          cd Tests/Packet++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
-
-      - name: Test Pcap++
-        run: |
-          cd Tests/Pcap++Test
-          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
-
-      - name: Check installation
-        run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
-
-      - name: Build Tutorials
-        run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
-          cmake --build build_examples -j
-
-      - name: Test Tutorials
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-  pfring:
-    runs-on: ubuntu-20.04
-    container: seladb/ubuntu2004-pfring
-    strategy:
-      matrix:
-        include:
-          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B "$BUILD_DIR"
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Configure PcapPlusPlus
-        run: ${{ matrix.configure }}
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Test Packet++
-        run: |
-          cd Tests/Packet++Test
-          Bin/Packet++Test
-
-      - name: Test Pcap++
-        run: |
-          cd Tests/Pcap++Test
-          Bin/Pcap++Test -n
-
-      - name: Check installation
-        run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
-
-      - name: Build Tutorials
-        run: |
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPF_RING_ROOT="/PF_RING" -S Examples -B build_examples
-          cmake --build build_examples -j
-
-      - name: Test Tutorials
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-  macos:
-    runs-on: ${{ matrix.os-version }}
-    strategy:
-      matrix:
-        os-version: [macos-11, macos-12]
-        arch: [x86_64, arm64]
-        # Handle ZSTD build by Cirrus CI
-        # config-zstd: [ON, OFF]
-        config-zstd: [OFF]
-        exclude:
-          # excludes ZSTD on Arm64
-          - arch: arm64
-            config-zstd: ON
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
-
-      - name: Configure PcapPlusPlus
-        # Ensure user have access to network devices instead of giving super-user right
-        run: |
-          sudo chmod a+rw /dev/bpf*
-          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Check architecture
-        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
-
-      - name: Install Tcpreplay
-        run: brew install tcpreplay
-
-      - name: Test PcapPlusPlus
-        # We can't run cross compiled binaries
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          python -m pip install -U pip
-          python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface en0
-
-      - name: Test Examples
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          cd Tests/ExamplesTest
-          python -m pip install -U pip
-          python -m pip install -r requirements.txt
-          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
-
-      - name: Check installation
-        run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
-
-      - name: Build Tutorials
-        run: |
-          mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
-          cmake --build build_examples -j
-
-      - name: Test Tutorials
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-      - name: Create Cobertura Report
-        run: |
-          python3 -m pip install gcovr
-          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.os-version }},unittest
-          fail_ci_if_error: false
-          verbose: true
-
-  mingw-w64:
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        include:
-          - env: i686
-            sys: mingw32
-          - env: x86_64
-            sys: mingw64
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{matrix.sys}}
-          install: >-
-            git
-            mingw-w64-${{matrix.env}}-cmake
-            mingw-w64-${{matrix.env}}-gcc
-            mingw-w64-${{matrix.env}}-make
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
-
-      - name: Install NPcap
-        env:
-          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
-          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
-        run: |
-          ci\install_npcap.bat
-          echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
-
-      - name: Configure PcapPlusPlus
-        shell: msys2 {0}
-        run: |
-          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        shell: msys2 {0}
-        # More than 2 jobs would make the build crash with OOM
-        # cc1plus.exe: out of memory allocating 65536 bytes
-        run: cmake --build "$BUILD_DIR" -j 2
-
-      - name: Install tcpreplay
-        run: ci\install_tcpreplay.bat
-
-      - name: Test PcapPlusPlus
-        run: |
-          python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py
-
-      - name: Test Examples
-        run: |
-          cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
-          python -m pytest --root-path=../../Dist/examples_bin
-
-      - name: Install Coverage Requirements
-        run: python3 -m pip install gcovr
-
-      - name: Process Coverage Files
-        shell: msys2 {0}
-        run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
-
-      - name: Create Coberture Report
-        run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.sys }},unittest
-          fail_ci_if_error: false
-          verbose: true
-
-  visual-studio:
-    strategy:
-      matrix:
-        include:
-          - os: "windows-2019"
-            platform: "Visual Studio 16 2019"
-            arch: "x64"
-            pcap_lib: "npcap"
-          - os: windows-2019
-            platform: "Visual Studio 16 2019"
-            arch: Win32
-            pcap_lib: "winpcap"
-          - os: windows-2022
-            platform: "Visual Studio 17 2022"
-            arch: "x64"
-            pcap_lib: "winpcap"
-          - os: windows-2022
-            platform: "Visual Studio 17 2022"
-            arch: "x64"
-            pcap_lib: "npcap"
-
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.8.x"
-
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1
-
-      - name: Setup OpenCppCoverage and add to PATH
-        run: |
-          choco install OpenCppCoverage -y
-          echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
-
-      - name: Install WinPcap
-        run: |
-          ci\install_winpcap.bat
-          echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'winpcap'
-
-      - name: Install NPcap
-        env:
-          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
-          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
-        run: |
-          ci\install_npcap.bat
-          echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
-        if: matrix.pcap_lib == 'npcap'
-
-      - name: Set Zstd
-        run: |
-          ci\install_zstd.bat
-          echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
-        if: matrix.use_zstd == true
-
-      - name: Configure PcapPlusPlus
-        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B "$env:BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build $env:BUILD_DIR -j
-
-      - name: Install tcpreplay
-        run: ci\install_tcpreplay.bat
-
-      - name: Test PcapPlusPlus
-        run: |
-          python -m pip install -r ci\run_tests\requirements.txt
-          python ci\run_tests\run_tests_windows.py --coverage
-
-      - name: Test Examples
-        run: |
-          move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
-          cd Tests\ExamplesTest
-          python -m pip install -r requirements.txt
-          python -m pytest --root-path=../../Dist/examples_bin
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
-          flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
-          fail_ci_if_error: false
-          verbose: true
-
-  android:
-    strategy:
-      matrix:
-        include:
-          - run-on-os: ubuntu-20.04
-            target: armeabi-v7a
-            api-version: 30
-          - run-on-os: ubuntu-20.04
-            target: x86
-            api-version: 30
-          - run-on-os: macos-11
-            target: arm64-v8a
-            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
-            api-version: 30
-          - run-on-os: macos-11
-            target: x86_64
-            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
-            api-version: 30
-
-    runs-on: ${{ matrix.run-on-os }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Checkout lipbcap for Android
-        uses: actions/checkout@main
-        with:
-          repository: seladb/libpcap-android
-          path: ./libpcap-android
-
-      - name: Configure PcapPlusPlus
-        run: |
-          LIBPCAP_PATH=$(pwd)/libpcap-android
-          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@master
-        with:
-          repository: seladb/ToyVpn-PcapPlusPlus
-          path: ./ToyVpn-PcapPlusPlus
-          submodules: true
-
-      - name: Install locally PcapPlusPlus
-        # CMake install library in $prefix/lib ToyVpn want $prefix/$target/$api-version
-        run: |
-          TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
-          PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
-          PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
-          mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
-          mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
-
-      - name: Build ToyVpn-PcapPlusPlus
-        working-directory: ./ToyVpn-PcapPlusPlus
-        run: |
-          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
-          chmod +x gradlew
-          ./gradlew assembleDebug
+#  pre-commit:
+#    runs-on: ubuntu-latest
+#    container: seladb/alpine317
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Install dependencies
+#        run: |
+#          apk update && apk add cppcheck python3-dev
+#          python3 -m pip install cmake-format
+#          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+#
+#      - uses: pre-commit/action@v3.0.0
+#
+#      - name: CMake format
+#        run: |
+#          ./ci/cmake-format-all.sh
+#          git diff --exit-code
+#
+#      - name: Configure PcapPlusPlus for Static analysis
+#        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus and check any diff
+#        run: |
+#          cmake --build "$BUILD_DIR" -j
+#          git diff --exit-code
+#
+#  linux:
+#    runs-on: ubuntu-20.04
+#    container: seladb/${{ matrix.image }}
+#    strategy:
+#      matrix:
+#        include:
+#          - image: ubuntu2204
+#            python: python3
+#            config-zstd: OFF
+#          - image: ubuntu2204-icpx
+#            python: python3
+#            config-zstd: OFF
+#            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
+#            additional-gcov-flags: --gcov-executable "llvm-cov gcov"
+#          - image: ubuntu2004
+#            python: python3
+#            config-zstd: OFF
+#          - image: ubuntu1804
+#            python: python3.8
+#            config-zstd: OFF
+#          - image: centos7
+#            python: python3.8
+#            # TODO: TestLoggerMultiThread sometimes fail in CI so we exclude it for now, need to look into it
+#            test-flags: --pcap-test-args="-s -x TestLoggerMultiThread"
+#            config-zstd: OFF
+#          - image: fedora37
+#            python: python3
+#            config-zstd: OFF
+#          - image: alpine317
+#            python: python3
+#            config-zstd: OFF
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Setup Intel Compiler variables
+#        if: contains(matrix.image, 'icpx')
+#        run: |
+#          . /opt/intel/oneapi/setvars.sh
+#          printenv >> $GITHUB_ENV
+#
+#      - name: Configure PcapPlusPlus
+#        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build "$BUILD_DIR" -j
+#
+#      - name: Test PcapPlusPlus
+#        run: |
+#          ${{ matrix.python }} -m pip install -U pip
+#          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
+#          ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
+#
+#      - name: Test Examples
+#        run: |
+#          cd Tests/ExamplesTest
+#          ${{ matrix.python }} -m pip install -U pip
+#          ${{ matrix.python }} -m pip install -r requirements.txt
+#          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
+#
+#      - name: Check installation
+#        run: |
+#          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+#          cmake --build "$BUILD_DIR" -j
+#          cmake --install $BUILD_DIR
+#
+#      - name: Build Tutorials
+#        run: |
+#          cmake -DPCAPPP_BUILD_TUTORIALS=ON ${{ matrix.additional-flags }} -S Examples -B build_examples
+#          cmake --build build_examples -j
+#
+#      - name: Test Tutorials
+#        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+#
+#      - name: Create Cobertura Report
+#        run: |
+#          ${{ matrix.python }} -m pip install gcovr
+#          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
+#
+#      - name: Upload Coverage Results
+#        uses: codecov/codecov-action@v3
+#        with:
+#          files: ./coverage.xml
+#          flags: ${{ matrix.image }},unittest
+#          fail_ci_if_error: false
+#          verbose: true
+#
+#  dpdk:
+#    runs-on: ubuntu-20.04
+#    container: seladb/${{ matrix.image }}
+#    strategy:
+#      matrix:
+#        include:
+#          - image: ubuntu2204-dpdk2211
+#          - image: ubuntu2004-dpdk2111
+#            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
+#          - image: ubuntu2004-dpdk2011
+#            additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Configure PcapPlusPlus
+#        run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build "$BUILD_DIR" -j
+#
+#      - name: Check AVX
+#        run: grep avx /proc/cpuinfo
+#
+#      - name: Test Packet++
+#        run: |
+#          cd Tests/Packet++Test
+#          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Packet++Test; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Packet++Test; fi
+#
+#      - name: Test Pcap++
+#        run: |
+#          cd Tests/Pcap++Test
+#          if [ -n "$(grep avx512 /proc/cpuinfo)" ]; then Bin/Pcap++Test -n; else echo AVX-512 SUPPORT NOT FOUND, CANNOT RUN Pcap++Test; fi
+#
+#      - name: Check installation
+#        run: |
+#          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+#          cmake --build "$BUILD_DIR" -j
+#          cmake --install $BUILD_DIR
+#
+#      - name: Build Tutorials
+#        run: |
+#          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+#          cmake --build build_examples -j
+#
+#      - name: Test Tutorials
+#        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+#
+#  pfring:
+#    runs-on: ubuntu-20.04
+#    container: seladb/ubuntu2004-pfring
+#    strategy:
+#      matrix:
+#        include:
+#          - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B "$BUILD_DIR"
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Configure PcapPlusPlus
+#        run: ${{ matrix.configure }}
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build "$BUILD_DIR" -j
+#
+#      - name: Test Packet++
+#        run: |
+#          cd Tests/Packet++Test
+#          Bin/Packet++Test
+#
+#      - name: Test Pcap++
+#        run: |
+#          cd Tests/Pcap++Test
+#          Bin/Pcap++Test -n
+#
+#      - name: Check installation
+#        run: |
+#          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+#          cmake --build "$BUILD_DIR" -j
+#          cmake --install $BUILD_DIR
+#
+#      - name: Build Tutorials
+#        run: |
+#          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DPF_RING_ROOT="/PF_RING" -S Examples -B build_examples
+#          cmake --build build_examples -j
+#
+#      - name: Test Tutorials
+#        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+#
+#  macos:
+#    runs-on: ${{ matrix.os-version }}
+#    strategy:
+#      matrix:
+#        os-version: [macos-11, macos-12]
+#        arch: [x86_64, arm64]
+#        # Handle ZSTD build by Cirrus CI
+#        # config-zstd: [ON, OFF]
+#        config-zstd: [OFF]
+#        exclude:
+#          # excludes ZSTD on Arm64
+#          - arch: arm64
+#            config-zstd: ON
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: "3.8.x"
+#
+#      - name: Configure PcapPlusPlus
+#        # Ensure user have access to network devices instead of giving super-user right
+#        run: |
+#          sudo chmod a+rw /dev/bpf*
+#          cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build "$BUILD_DIR" -j
+#
+#      - name: Check architecture
+#        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
+#
+#      - name: Install Tcpreplay
+#        run: brew install tcpreplay
+#
+#      - name: Test PcapPlusPlus
+#        # We can't run cross compiled binaries
+#        if: ${{ matrix.arch == 'x86_64' }}
+#        run: |
+#          python -m pip install -U pip
+#          python -m pip install -r ci/run_tests/requirements.txt
+#          python ci/run_tests/run_tests.py --interface en0
+#
+#      - name: Test Examples
+#        if: ${{ matrix.arch == 'x86_64' }}
+#        run: |
+#          cd Tests/ExamplesTest
+#          python -m pip install -U pip
+#          python -m pip install -r requirements.txt
+#          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
+#
+#      - name: Check installation
+#        run: |
+#          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+#          cmake --build "$BUILD_DIR" -j
+#          cmake --install $BUILD_DIR
+#
+#      - name: Build Tutorials
+#        run: |
+#          mkdir -p build_examples
+#          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+#          cmake --build build_examples -j
+#
+#      - name: Test Tutorials
+#        if: ${{ matrix.arch == 'x86_64' }}
+#        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+#
+#      - name: Create Cobertura Report
+#        run: |
+#          python3 -m pip install gcovr
+#          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+#
+#      - name: Upload Coverage Results
+#        uses: codecov/codecov-action@v3
+#        with:
+#          files: ./coverage.xml
+#          flags: ${{ matrix.os-version }},unittest
+#          fail_ci_if_error: false
+#          verbose: true
+#
+#  mingw-w64:
+#    runs-on: windows-latest
+#    strategy:
+#      matrix:
+#        include:
+#          - env: i686
+#            sys: mingw32
+#          - env: x86_64
+#            sys: mingw64
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Setup MSYS2
+#        uses: msys2/setup-msys2@v2
+#        with:
+#          msystem: ${{matrix.sys}}
+#          install: >-
+#            git
+#            mingw-w64-${{matrix.env}}-cmake
+#            mingw-w64-${{matrix.env}}-gcc
+#            mingw-w64-${{matrix.env}}-make
+#
+#      - name: Setup Python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: "3.8.x"
+#
+#      - name: Install NPcap
+#        env:
+#          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+#          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+#        run: |
+#          ci\install_npcap.bat
+#          echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+#
+#      - name: Configure PcapPlusPlus
+#        shell: msys2 {0}
+#        run: |
+#          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        shell: msys2 {0}
+#        # More than 2 jobs would make the build crash with OOM
+#        # cc1plus.exe: out of memory allocating 65536 bytes
+#        run: cmake --build "$BUILD_DIR" -j 2
+#
+#      - name: Install tcpreplay
+#        run: ci\install_tcpreplay.bat
+#
+#      - name: Test PcapPlusPlus
+#        run: |
+#          python -m pip install -r ci\run_tests\requirements.txt
+#          python ci\run_tests\run_tests_windows.py
+#
+#      - name: Test Examples
+#        run: |
+#          cd Tests\ExamplesTest
+#          python -m pip install -r requirements.txt
+#          python -m pytest --root-path=../../Dist/examples_bin
+#
+#      - name: Install Coverage Requirements
+#        run: python3 -m pip install gcovr
+#
+#      - name: Process Coverage Files
+#        shell: msys2 {0}
+#        run: find . -name "*.gcno" -exec gcov -b -l -p -c {} +
+#
+#      - name: Create Coberture Report
+#        run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
+#
+#      - name: Upload Coverage Results
+#        uses: codecov/codecov-action@v3
+#        with:
+#          files: ./coverage.xml
+#          flags: ${{ matrix.sys }},unittest
+#          fail_ci_if_error: false
+#          verbose: true
+#
+#  visual-studio:
+#    strategy:
+#      matrix:
+#        include:
+#          - os: "windows-2019"
+#            platform: "Visual Studio 16 2019"
+#            arch: "x64"
+#            pcap_lib: "npcap"
+#          - os: windows-2019
+#            platform: "Visual Studio 16 2019"
+#            arch: Win32
+#            pcap_lib: "winpcap"
+#          - os: windows-2022
+#            platform: "Visual Studio 17 2022"
+#            arch: "x64"
+#            pcap_lib: "winpcap"
+#          - os: windows-2022
+#            platform: "Visual Studio 17 2022"
+#            arch: "x64"
+#            pcap_lib: "npcap"
+#
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: "3.8.x"
+#
+#      - name: Add MSBuild to PATH
+#        uses: microsoft/setup-msbuild@v1
+#
+#      - name: Setup OpenCppCoverage and add to PATH
+#        run: |
+#          choco install OpenCppCoverage -y
+#          echo "C:\Program Files\OpenCppCoverage" >> $env:GITHUB_PATH
+#
+#      - name: Install WinPcap
+#        run: |
+#          ci\install_winpcap.bat
+#          echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
+#        if: matrix.pcap_lib == 'winpcap'
+#
+#      - name: Install NPcap
+#        env:
+#          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+#          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+#        run: |
+#          ci\install_npcap.bat
+#          echo "PCAP_SDK_DIR=C:\Npcap-sdk" >> $env:GITHUB_ENV
+#        if: matrix.pcap_lib == 'npcap'
+#
+#      - name: Set Zstd
+#        run: |
+#          ci\install_zstd.bat
+#          echo "ZSTD_HOME_PARAM=-z C:\zstd" >> $env:GITHUB_ENV
+#        if: matrix.use_zstd == true
+#
+#      - name: Configure PcapPlusPlus
+#        run: cmake -A ${{ matrix.arch }} -G "${{ matrix.platform }}" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -S . -B "$env:BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build $env:BUILD_DIR -j
+#
+#      - name: Install tcpreplay
+#        run: ci\install_tcpreplay.bat
+#
+#      - name: Test PcapPlusPlus
+#        run: |
+#          python -m pip install -r ci\run_tests\requirements.txt
+#          python ci\run_tests\run_tests_windows.py --coverage
+#
+#      - name: Test Examples
+#        run: |
+#          move ".\Dist\examples_bin\Debug\*" ".\Dist\examples_bin\"
+#          cd Tests\ExamplesTest
+#          python -m pip install -r requirements.txt
+#          python -m pytest --root-path=../../Dist/examples_bin
+#
+#      - name: Upload Coverage Results
+#        uses: codecov/codecov-action@v3
+#        with:
+#          files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
+#          flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
+#          fail_ci_if_error: false
+#          verbose: true
+#
+#  android:
+#    strategy:
+#      matrix:
+#        include:
+#          - run-on-os: ubuntu-20.04
+#            target: armeabi-v7a
+#            api-version: 30
+#          - run-on-os: ubuntu-20.04
+#            target: x86
+#            api-version: 30
+#          - run-on-os: macos-11
+#            target: arm64-v8a
+#            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
+#            api-version: 30
+#          - run-on-os: macos-11
+#            target: x86_64
+#            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+#            api-version: 30
+#
+#    runs-on: ${{ matrix.run-on-os }}
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Checkout lipbcap for Android
+#        uses: actions/checkout@main
+#        with:
+#          repository: seladb/libpcap-android
+#          path: ./libpcap-android
+#
+#      - name: Configure PcapPlusPlus
+#        run: |
+#          LIBPCAP_PATH=$(pwd)/libpcap-android
+#          cmake -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S . -B "$BUILD_DIR"
+#
+#      - name: Build PcapPlusPlus
+#        run: cmake --build "$BUILD_DIR" -j
+#
+#      - name: Checkout ToyVpn-PcapPlusPlus
+#        uses: actions/checkout@master
+#        with:
+#          repository: seladb/ToyVpn-PcapPlusPlus
+#          path: ./ToyVpn-PcapPlusPlus
+#          submodules: true
+#
+#      - name: Install locally PcapPlusPlus
+#        # CMake install library in $prefix/lib ToyVpn want $prefix/$target/$api-version
+#        run: |
+#          TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
+#          PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
+#          PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
+#          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+#          cmake --build "$BUILD_DIR" -j
+#          cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
+#          mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
+#          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
+#          mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
+#
+#      - name: Build ToyVpn-PcapPlusPlus
+#        working-directory: ./ToyVpn-PcapPlusPlus
+#        run: |
+#          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+#          chmod +x gradlew
+#          ./gradlew assembleDebug
 
   xdp:
     runs-on: ubuntu-latest
