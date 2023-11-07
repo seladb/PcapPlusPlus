@@ -6,16 +6,16 @@
 #  BPF_LIBRARIES    - The libraries needed to use libbpf
 
 find_package(PkgConfig QUIET)
-pkg_check_modules(PC_BPF libbpf)
+pkg_check_modules(PC_LIBBPF libbpf)
 
 find_path(BPF_INCLUDE_DIR
   NAMES bpf/bpf.h
-  HINTS ${PC_BPF_INCLUDE_DIRS})
+  HINTS ${PC_LIBBPF_INCLUDE_DIRS})
 
 find_library(
   BPF_LIBRARY
   NAMES bpf
-  HINTS ${PC_BPF_LIBRARY_DIRS})
+  HINTS ${PC_LIBBPF_LIBRARY_DIRS})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
