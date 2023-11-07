@@ -215,6 +215,10 @@ if(PCAPPP_USE_PF_RING)
 endif()
 
 if(PCAPPP_USE_XDP)
+  find_package(BPF)
+  if(NOT BPF_FOUND)
+    message(FATAL_ERROR "libbpf not found!")
+  endif()
   add_definitions(-DUSE_XDP)
 endif()
 
