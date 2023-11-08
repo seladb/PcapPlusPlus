@@ -15,10 +15,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	if (tmpFile.empty())
 		tmpFile = tmpName + FILE_EXT;
 
-	if (dumpDataToPcapFile(data, size, tmpFile.c_str()) < 0)
+	if (dumpDataToPcapFile(data, size, tmpFile.c_str()) != 0)
 	{
 		std::cerr << "Can't Dump buffer to the '" << tmpFile << "' file!!!!\n";
-		return 1;
+		return -1;
 	}
 
 	pcpp::Logger::getInstance().suppressLogs();
@@ -27,7 +27,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 	if (!reader->open())
 	{
 		std::cerr << "Error opening the '" << tmpFile << "' file\n";
-		return 1;
+		return -1;
 	}
 
 	pcpp::IPcapDevice::PcapStats stats;
