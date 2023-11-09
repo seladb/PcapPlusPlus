@@ -23,7 +23,6 @@
 
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <unordered_map>
 #include <iostream>
 #include <fstream>
@@ -110,7 +109,7 @@ public:
 	 * A method getting connection parameters as input and returns a filename and file path as output.
 	 * The filename is constructed by the IPs (src and dst) and the TCP ports (src and dst)
 	 */
-	std::string getFileName(pcpp::ConnectionData connData, int side, bool separareSides)
+	std::string getFileName(pcpp::ConnectionData connData, int side, bool useSeparateSides) const
 	{
 		std::stringstream stream;
 
@@ -126,7 +125,7 @@ public:
 		std::replace(destIP.begin(), destIP.end(), ':', '_');
 
 		// side == 0 means data is sent from client->server
-		if (side <= 0 || separareSides == false)
+		if (side <= 0 || !useSeparateSides)
 			stream << sourceIP << '.' << connData.srcPort << '-' << destIP << '.' << connData.dstPort;
 		else // side == 1 means data is sent from server->client
 			stream << destIP << '.' << connData.dstPort << '-' << sourceIP << '.' << connData.srcPort;
@@ -140,7 +139,7 @@ public:
 	 * Open a file stream. Inputs are the filename to open and a flag indicating whether to append to an existing file or overwrite it.
 	 * Return value is a pointer to the new file stream
 	 */
-	std::ostream* openFileStream(const std::string &fileName, bool reopen)
+	std::ostream* openFileStream(const std::string &fileName, bool reopen) const
 	{
 		// if the user chooses to write only to console, don't open anything and return std::cout
 		if (writeToConsole)
@@ -157,13 +156,13 @@ public:
 	/**
 	 * Close a file stream
 	 */
-	void closeFileSteam(std::ostream* fileStream)
+	void closeFileSteam(std::ostream* fileStream) const
 	{
 		// if the user chooses to write only to console - do nothing and return
 		if (!writeToConsole)
 		{
 			// close the file stream
-			std::ofstream* fstream = (std::ofstream*)fileStream;
+			auto fstream = (std::ofstream*)fileStream;
 			fstream->close();
 
 			// free the memory of the file stream
@@ -493,7 +492,7 @@ static void onApplicationInterrupted(void* cookie)
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* tcpReassemblyCookie)
 {
 	// get a pointer to the TCP reassembly instance and feed the packet arrived to it
-	pcpp::TcpReassembly* tcpReassembly = (pcpp::TcpReassembly*)tcpReassemblyCookie;
+	auto tcpReassembly = (pcpp::TcpReassembly*)tcpReassemblyCookie;
 	tcpReassembly->reassemblePacket(packet);
 }
 
@@ -597,7 +596,7 @@ int main(int argc, char* argv[])
 	size_t maxOpenFiles = DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES;
 
 	int optionIndex = 0;
-	int opt = 0;
+	int opt;
 
 	while((opt = getopt_long(argc, argv, "i:r:o:e:f:mcsvhl", TcpAssemblyOptions, &optionIndex)) != -1)
 	{
@@ -632,7 +631,6 @@ int main(int argc, char* argv[])
 			case 'h':
 				printUsage();
 				exit(0);
-				break;
 			case 'v':
 				printAppVersion();
 				break;
