@@ -373,20 +373,20 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 		if (result == 1)
 		{
 			// find the connection from the flow key
-			auto iter2 = connMgr->find(flowKeyToCloseFiles);
-			if (iter2 != connMgr->end())
+			auto flow2 = connMgr->find(flowKeyToCloseFiles);
+			if (flow2 != connMgr->end())
 			{
 				// close files on both sides (if they're open)
 				for (int index = 0; index < 2; index++)
 				{
-					if (iter2->second.fileStreams[index] != nullptr)
+					if (flow2->second.fileStreams[index] != nullptr)
 					{
 						// close the file
-						GlobalConfig::getInstance().closeFileSteam(iter2->second.fileStreams[index]);
-						iter2->second.fileStreams[index] = nullptr;
+						GlobalConfig::getInstance().closeFileSteam(flow2->second.fileStreams[index]);
+						flow2->second.fileStreams[index] = nullptr;
 
 						// set the reopen flag to true to indicate that next time this file will be opened it will be opened in append mode (and not overwrite mode)
-						iter2->second.reopenFileStreams[index] = true;
+						flow2->second.reopenFileStreams[index] = true;
 					}
 				}
 			}
