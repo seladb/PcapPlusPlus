@@ -205,13 +205,13 @@ bool SnoopFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	if(packetSize > 15000) {
 		return false;
 	}
-	char* packetData = new char[packetSize];
-	m_snoopFile.read(packetData, packetSize);
+	std::unique_ptr<char[]> packetData(new char[packetSize]);
+	m_snoopFile.read(packetData.get(), packetSize);
 	if(!m_snoopFile) {
 		return false;
 	}
 	timespec ts = { static_cast<time_t>(be32toh(snoop_packet_header.time_sec)), static_cast<long>(be32toh(snoop_packet_header.time_usec)) * 1000 };
-	if (!rawPacket.setRawData((const uint8_t*)packetData, packetSize, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType)))
+	if (!rawPacket.setRawData((const uint8_t*)packetData.release(), packetSize, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType)))
 	{
 		PCPP_LOG_ERROR("Couldn't set data to raw packet");
 		return false;
