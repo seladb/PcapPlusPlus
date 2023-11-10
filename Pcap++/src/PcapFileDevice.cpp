@@ -439,6 +439,8 @@ std::string PcapNgFileReaderDevice::getOS() const
 	}
 
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+	if (fileInfo == nullptr)
+		return "";
 	char* res = fileInfo->os_desc;
 	size_t len = fileInfo->os_desc_size;
 	if (len == 0 || res == nullptr)
@@ -456,6 +458,8 @@ std::string PcapNgFileReaderDevice::getHardware() const
 	}
 
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+	if (fileInfo == nullptr)
+		return "";
 	char* res = fileInfo->hardware_desc;
 	size_t len = fileInfo->hardware_desc_size;
 	if (len == 0 || res == nullptr)
@@ -473,6 +477,8 @@ std::string PcapNgFileReaderDevice::getCaptureApplication() const
 	}
 
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+	if (fileInfo == nullptr)
+		return "";
 	char* res = fileInfo->user_app_desc;
 	size_t len = fileInfo->user_app_desc_size;
 	if (len == 0 || res == nullptr)
@@ -490,6 +496,8 @@ std::string PcapNgFileReaderDevice::getCaptureFileComment() const
 	}
 
 	light_pcapng_file_info* fileInfo = light_pcang_get_file_info((light_pcapng_t*)m_LightPcapNg);
+	if (fileInfo == nullptr)
+		return "";
 	char* res = fileInfo->file_comment;
 	size_t len = fileInfo->file_comment_size;
 	if (len == 0 || res == nullptr)

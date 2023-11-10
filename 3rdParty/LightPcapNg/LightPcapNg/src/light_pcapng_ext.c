@@ -558,7 +558,8 @@ void light_pcapng_close(light_pcapng_t *pcapng)
 		light_flush(pcapng->file);
 		light_close(pcapng->file);
 	}
-	light_free_file_info(pcapng->file_info);
+	if (pcapng->file_info != NULL)
+		light_free_file_info(pcapng->file_info);
 	free(pcapng);
 }
 
