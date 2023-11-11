@@ -163,7 +163,14 @@ namespace pcpp
 		/**
 		 * Free the memory of the TLV record raw data
 		 */
-		void purgeRecordData() { if (!isNull()) delete [] m_Data; }
+		void purgeRecordData()
+		{
+			if (!isNull())
+			{
+				delete [] m_Data;
+				m_Data = nullptr;
+			}
+		}
 
 		/**
 		 * A templated method to retrieve the record data as a certain type T. For example, if record data is 4B long
