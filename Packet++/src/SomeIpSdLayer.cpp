@@ -635,7 +635,7 @@ bool SomeIpSdLayer::isDataValid(const uint8_t* data, size_t dataLen)
 {
 	if (!data ||
 		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) ||
-		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data) ||
+		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data) + sizeof(uint32_t) ||
 		dataLen < be32toh(*((uint32_t *)(data + sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data)))))
 	{
 		return false;
