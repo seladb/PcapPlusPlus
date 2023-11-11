@@ -313,12 +313,32 @@ namespace pcpp
 		 */
 		IPv4OptionTypes getIPv4OptionType() const
 		{
-			if (m_Data == nullptr)
-				return IPV4OPT_Unknown;
-
-			return (IPv4OptionTypes)m_Data->recordType;
+			return getIPv4OptionType(m_Data);
 		}
 
+		/**
+		 * Assign a pointer to the TLV record raw data (byte array)
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 * @param[in] tlvDataLen The size of the TLV record raw data
+		 * @return True if data is valid and can be assigned
+		 */
+		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+		{
+			auto data = (TLVRawData*)recordRawData;
+			if (data == nullptr)
+				return false;
+
+			if (tlvDataLen < sizeof(TLVRawData::recordType))
+				return false;
+
+			if (getIPv4OptionType(data) == (uint8_t)IPV4OPT_EndOfOptionsList || data->recordType == (uint8_t)IPV4OPT_NOP)
+				return true;
+
+			if (tlvDataLen < sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen))
+				return false;
+
+			return true;
+		}
 
 		// implement abstract methods
 
@@ -342,6 +362,18 @@ namespace pcpp
 				return (size_t)0;
 
 			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
+		}
+
+	private:
+		/**
+		 * @return IPv4 option type casted as pcpp::IPv4OptionTypes enum
+		 */
+		static IPv4OptionTypes getIPv4OptionType(const TLVRawData* data)
+		{
+			if (data == nullptr)
+				return IPV4OPT_Unknown;
+
+			return (IPv4OptionTypes)data->recordType;
 		}
 	};
 

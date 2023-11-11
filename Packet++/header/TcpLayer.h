@@ -222,6 +222,30 @@ namespace pcpp
 			return (TcpOptionType)m_Data->recordType;
 		}
 
+		/**
+		 * Assign a pointer to the TLV record raw data (byte array)
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 * @param[in] tlvDataLen The size of the TLV record raw data
+		 * @return True if data is valid and can be assigned
+		 */
+		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+		{
+			auto data = (TLVRawData*)recordRawData;
+			if (data == nullptr)
+				return false;
+
+			if (tlvDataLen < sizeof(TLVRawData::recordType))
+				return false;
+
+			if (data->recordType == (uint8_t)PCPP_TCPOPT_NOP || data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
+				return true;
+
+			if (tlvDataLen < sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen))
+				return false;
+
+			return true;
+		}
+
 		// implement abstract methods
 
 		size_t getTotalSize() const
