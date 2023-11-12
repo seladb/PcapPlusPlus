@@ -713,7 +713,21 @@ bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<pr
 
 	if (newNlriDataLen > curNlriDataLen)
 	{
-		bool res = extendLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriDataLen - curNlriDataLen);
+		const size_t headerLen = getHeaderLen();
+		const size_t minLen = sizeof(bgp_common_header) + 2*sizeof(uint16_t);
+		if (headerLen < minLen)
+		{
+			bool res = extendLayer(headerLen, sizeof(uint16_t));
+			if (!res)
+			{
+				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
+				return res;
+			}
+			*(uint16_t*)(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t)) = 0;
+			getBasicHeader()->length = htobe16(be16toh(getBasicHeader()->length) + sizeof(uint16_t));
+		}
+
+		bool res = extendLayer(minLen + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriDataLen - curNlriDataLen);
 		if (!res)
 		{
 			PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
