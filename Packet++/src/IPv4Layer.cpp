@@ -290,9 +290,15 @@ void IPv4Layer::parseNextLayer()
 	case PACKETPP_IPPROTO_GRE:
 		greVer = GreLayer::getGREVersion(payload, payloadLen);
 		if (greVer == GREv0)
-			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
+		{
+			if (GREv0Layer::isDataValid(payload, payloadLen))
+				m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
+		}
 		else if (greVer == GREv1)
-			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
+		{
+			if (GREv1Layer::isDataValid(payload, payloadLen))
+				m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
+		}
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		break;
