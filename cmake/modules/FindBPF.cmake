@@ -30,8 +30,6 @@ find_package_handle_standard_args(
 
 if(BPF_FOUND AND NOT TARGET BPF::BPF)
   add_library(BPF::BPF INTERFACE IMPORTED)
-  set_target_properties(
-    BPF::BPF
-    PROPERTIES INTERFACE_LINK_LIBRARIES "${BPF_LIBRARIES}"
-               INTERFACE_INCLUDE_DIRECTORIES "${BPF_INCLUDE_DIRS}")
+  set_target_properties(BPF::BPF PROPERTIES INTERFACE_LINK_LIBRARIES "${BPF_LIBRARIES}" INTERFACE_INCLUDE_DIRECTORIES
+                                                                                        "${BPF_INCLUDE_DIRS}")
 endif()
