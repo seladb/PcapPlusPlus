@@ -340,6 +340,14 @@ public:
 	BgpUpdateMessageLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : BgpLayer(data, dataLen, prevLayer, packet) {}
 
 	/**
+	* A static method that takes a byte array and detects whether it is a BgpUpdateMessage
+	* @param[in] data A byte array
+	* @param[in] dataSize The byte array size (in bytes)
+	* @return True if the data looks like a valid BgpUpdateMessage layer
+	*/
+	static bool isDataValid(const uint8_t *data, size_t dataSize);
+
+	/**
 	 * A c'tor that creates a new BGP UPDATE message
 	 * @param[in] withdrawnRoutes A vector of withdrawn routes data. If left empty (which is the default value) no withdrawn route information will be written to the message
 	 * @param[in] pathAttributes A vector of path attributes data. If left empty (which is the default value) no path attribute information will be written to the message

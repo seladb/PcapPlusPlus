@@ -44,7 +44,7 @@ BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLaye
 	case 1: // OPEN
 		return new BgpOpenMessageLayer(data, dataLen, prevLayer, packet);
 	case 2: // UPDATE
-		return new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet);
+		return BgpUpdateMessageLayer::isDataValid(data, dataLen) ? new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet) : nullptr;
 	case 3: // NOTIFICATION
 		return new BgpNotificationMessageLayer(data, dataLen, prevLayer, packet);
 	case 4: // KEEPALIVE
@@ -703,6 +703,26 @@ void BgpUpdateMessageLayer::getNetworkLayerReachabilityInfo(std::vector<prefix_a
 	parsePrefixAndIPData(dataPtr, nlriSize, nlri);
 }
 
+bool BgpUpdateMessageLayer::isDataValid(const uint8_t *data, size_t dataSize)
+{
+	if (data == nullptr || dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t))
+		return false;
+
+	uint16_t messageLen = be16toh(((bgp_common_header*)data)->length);
+	if (dataSize < messageLen)
+		return false;
+
+	uint16_t withdrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header)));
+	if (dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t) + withdrLen)
+		return false;
+
+	uint16_t attrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen));
+	if (dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t) + withdrLen + attrLen)
+		return false;
+
+	return true;
+}
+
 bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri)
 {
 	uint8_t newNlriData[1500];
@@ -713,21 +733,7 @@ bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<pr
 
 	if (newNlriDataLen > curNlriDataLen)
 	{
-		const size_t headerLen = getHeaderLen();
-		const size_t minLen = sizeof(bgp_common_header) + 2*sizeof(uint16_t);
-		if (headerLen < minLen)
-		{
-			bool res = extendLayer(headerLen, sizeof(uint16_t));
-			if (!res)
-			{
-				PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
-				return res;
-			}
-			*(uint16_t*)(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t)) = 0;
-			getBasicHeader()->length = htobe16(be16toh(getBasicHeader()->length) + sizeof(uint16_t));
-		}
-
-		bool res = extendLayer(minLen + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriDataLen - curNlriDataLen);
+		bool res = extendLayer(sizeof(bgp_common_header) + 2*sizeof(uint16_t) + curWithdrawnRoutesDataLen + curPathAttributesDataLen, newNlriDataLen - curNlriDataLen);
 		if (!res)
 		{
 			PCPP_LOG_ERROR("Couldn't extend BGP update layer to include the additional NLRI data");
