@@ -108,3 +108,9 @@ PTF_TEST_CASE(TestRawSockets);
 
 // Implemented in SystemUtilsTests.cpp
 PTF_TEST_CASE(TestSystemCoreUtils);
+
+// Implemented in XdpTest.cpp
+PTF_TEST_CASE(TestXdpDeviceReceivePackets);
+PTF_TEST_CASE(TestXdpDeviceSendPackets);
+PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig);
+PTF_TEST_CASE(TestXdpDeviceInvalidConfig);

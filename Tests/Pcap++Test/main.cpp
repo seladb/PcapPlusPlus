@@ -293,6 +293,11 @@ int main(int argc, char* argv[])
 
 	PTF_RUN_TEST(TestSystemCoreUtils, "no_network;system_utils");
 
+	PTF_RUN_TEST(TestXdpDeviceReceivePackets, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceSendPackets, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceNonDefaultConfig, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceInvalidConfig, "xdp");
+
 	PTF_END_RUNNING_TESTS;
 }
 

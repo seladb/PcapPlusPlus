@@ -14,7 +14,8 @@ add_executable(
   Tests/PfRingTests.cpp
   Tests/RawSocketTests.cpp
   Tests/SystemUtilsTests.cpp
-  Tests/TcpReassemblyTests.cpp)
+  Tests/TcpReassemblyTests.cpp
+  Tests/XdpTests.cpp)
 
 target_link_libraries(
   Pcap++Test

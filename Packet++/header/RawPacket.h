@@ -349,6 +349,18 @@ namespace pcpp
 		virtual bool setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET, int frameLength = -1);
 
 		/**
+		 * Initialize a raw packet with data. The main difference between this method and setRawData() is that setRawData()
+		 * is meant for replacing the data in an existing raw packet, whereas this method is meant to be used right after
+		 * constructing a raw packet using the default c'tor, before setting any data
+		 * @param pRawData A pointer to the new raw data
+		 * @param rawDataLen The new raw data length in bytes
+		 * @param timestamp The timestamp packet was received by the NIC (in nsec precision)
+		 * @param layerType The link layer type for this raw data
+		 * @return True if raw data was set successfully, false otherwise
+		 */
+		bool initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType = LINKTYPE_ETHERNET);
+
+		/**
 		 * Get raw data pointer
 		 * @return A read-only pointer to the raw data
 		 */
