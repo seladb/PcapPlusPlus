@@ -289,9 +289,9 @@ void IPv4Layer::parseNextLayer()
 		break;
 	case PACKETPP_IPPROTO_GRE:
 		greVer = GreLayer::getGREVersion(payload, payloadLen);
-		if (greVer == GREv0)
+		if (greVer == GREv0 && GREv0Layer::isDataValid(payload, payloadLen))
 			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
-		else if (greVer == GREv1)
+		else if (greVer == GREv1 && GREv1Layer::isDataValid(payload, payloadLen))
 			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
