@@ -30,13 +30,14 @@ size_t BgpLayer::getHeaderLen() const
 
 BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 {
-	if (dataLen < sizeof(bgp_common_header))
+	if (data == nullptr || dataLen < sizeof(bgp_common_header))
 		return nullptr;
 
 	bgp_common_header* bgpHeader = (bgp_common_header*)data;
 
 	// illegal header data - length is too small
-	if (be16toh(bgpHeader->length) < static_cast<uint16_t>(sizeof(bgp_common_header)))
+	uint16_t messageLen = be16toh(bgpHeader->length);
+	if (dataLen < messageLen || messageLen < static_cast<uint16_t>(sizeof(bgp_common_header)))
 		return nullptr;
 
 	switch (bgpHeader->messageType)
@@ -705,11 +706,7 @@ void BgpUpdateMessageLayer::getNetworkLayerReachabilityInfo(std::vector<prefix_a
 
 bool BgpUpdateMessageLayer::isDataValid(const uint8_t *data, size_t dataSize)
 {
-	if (data == nullptr || dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t))
-		return false;
-
-	uint16_t messageLen = be16toh(((bgp_common_header*)data)->length);
-	if (dataSize < messageLen)
+	if (dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t))
 		return false;
 
 	uint16_t withdrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header)));
