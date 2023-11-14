@@ -276,6 +276,16 @@ namespace pcpp
 		 */
 		bool unsetKey();
 
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an GREv0 layer
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an GREv0 layer
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(gre_basic_header);
+		}
 
 		// implement abstract methods
 
@@ -350,6 +360,16 @@ namespace pcpp
 		 */
 		bool unsetAcknowledgmentNum();
 
+		/**
+		 * A static method that validates the input data
+		 * @param[in] data The pointer to the beginning of a byte stream of an GREv1 layer
+		 * @param[in] dataLen The length of the byte stream
+		 * @return True if the data is valid and can represent an GREv1 layer
+		 */
+		static inline bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(gre1_header);
+		}
 
 		// implement abstract methods
 
