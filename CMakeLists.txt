@@ -102,6 +102,7 @@ cmake_dependent_option(
   "PCAPPP_USE_DPDK"
   OFF)
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
+option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
@@ -211,6 +212,14 @@ if(PCAPPP_USE_PF_RING)
     message(FATAL_ERROR "Specify PF_RING Library with -DPF_RING_ROOT=<PF_RING_PATH>")
   endif()
   add_definitions(-DUSE_PF_RING)
+endif()
+
+if(PCAPPP_USE_XDP)
+  find_package(BPF)
+  if(NOT BPF_FOUND)
+    message(FATAL_ERROR "libbpf not found!")
+  endif()
+  add_definitions(-DUSE_XDP)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
