@@ -769,6 +769,7 @@ private:
 
 	static size_t getLenEntries(const uint8_t* data);
 	size_t getLenEntries() const;
+	static size_t getLenOptions(const uint8_t* data);
 	size_t getLenOptions() const;
 	void setLenEntries(uint32_t length);
 	void setLenOptions(uint32_t length);
