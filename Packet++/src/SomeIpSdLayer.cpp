@@ -439,7 +439,7 @@ void SomeIpSdEntry::initStdFields(EntryType type, uint16_t serviceID, uint16_t i
 SomeIpSdLayer::SomeIpSdLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 	: SomeIpLayer(data, dataLen, prevLayer, packet)
 {
-	m_NumOptions = countOptions();
+	countOptions(&m_NumOptions, data);
 }
 
 SomeIpSdLayer::SomeIpSdLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientID, uint16_t sessionID,
@@ -636,14 +636,22 @@ bool SomeIpSdLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	if (!data ||
 		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) ||
 		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data) + sizeof(uint32_t) ||
-		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data) + sizeof(uint32_t) + getLenOptions(data))
+		dataLen < sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data) + sizeof(uint32_t) + getLenOptions(data) ||
+		!countOptions(nullptr, data))
 	{
 		return false;
 	}
 
+	return true;
+}
+
+bool SomeIpSdLayer::countOptions(uint32_t* count, const uint8_t* data)
+{
 	size_t offsetOption = sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries(data) + sizeof(uint32_t);
 	size_t lenOptions = getLenOptions(data);
 	uint32_t len = 0;
+
+	if (count != nullptr) *count = 0;
 	while (len < lenOptions)
 	{
 		if (len + sizeof(uint16_t) + 3 * sizeof(uint8_t) > lenOptions)
@@ -651,27 +659,12 @@ bool SomeIpSdLayer::isDataValid(const uint8_t* data, size_t dataLen)
 
 		uint32_t lenOption = be16toh(*((uint16_t *)(data + offsetOption + len))) + 3 * sizeof(uint8_t);
 		len += lenOption;
-		if (len > lenOptions) // the last must be equal to lenOptions
+		if (len > lenOptions) // the last one must be equal to lenOptions
 			return false;
-	}
 
+		if (count != nullptr) ++(*count);
+	}
 	return true;
-}
-
-uint32_t SomeIpSdLayer::countOptions()
-{
-	size_t offsetOption = sizeof(someipsdhdr) + sizeof(uint32_t) + getLenEntries() + sizeof(uint32_t);
-	size_t lenOptions = getLenOptions();
-	uint32_t len = 0;
-
-	uint32_t numOptions = 0;
-	while (len < lenOptions)
-	{
-		uint32_t lenOption = be16toh(*((uint16_t *)(m_Data + offsetOption + len))) + 3 * sizeof(uint8_t);
-		len += lenOption;
-		++numOptions;
-	}
-	return numOptions;
 }
 
 uint32_t SomeIpSdLayer::findOption(const SomeIpSdOption &option)
