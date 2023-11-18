@@ -11,6 +11,7 @@ MA_L = 0
 MA_M = 1
 MA_S = 2
 
+
 @dataclass
 class LineElements:
     mac_short: str
@@ -60,12 +61,14 @@ def parse_args():
     )
     return parser.parse_args()
 
+
 def convert_line(line: str) -> list:
     line = line.replace("{", "[")
-    line = line.replace("}","]")
+    line = line.replace("}", "]")
     line = line.replace("],\n", "]")
 
     return eval(line)
+
 
 def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
     if len(line_parts) < 3:
@@ -79,7 +82,7 @@ def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
         return LineElements(mac_short=mac_short, vendor=vendor)
     elif 6 < len(mac_element) < 11:
         mac_short = mac_element[:6].lower().strip()
-        mac_long = format(mac_element.lower().strip(), '0<12')
+        mac_long = format(mac_element.lower().strip(), "0<12")
         mac_mask = 28 if (len(mac_element) == 8) else 36
         vendor = line_parts[2].strip()
         return LineElements(
