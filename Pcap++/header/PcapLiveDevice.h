@@ -87,6 +87,7 @@ namespace pcpp
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
+		int m_PcapSelectableFd = -1; // the selectable fd got from `pcap_get_selectable_fd`
 		std::string m_Name;
 		std::string m_Description;
 		bool m_IsLoopback;
@@ -402,13 +403,14 @@ namespace pcpp
 		 * @param[in] userCookie A pointer to a user provided object. This object will be transferred to the onPacketArrives callback
 		 * each time it is called. This cookie is very useful for transferring objects that give context to the capture callback, for example:
 		 * objects that counts packets, manages flow state or manages the application state according to the packet that was captured
-		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback
+		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback.
+		 * The precision of `timeout` is millisecond, e.g. 2.345 seconds means 2345 milliseconds.
 		 * If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep blocking until the user frees it via
 		 * the onPacketArrives callback
 		 * @return -1 if timeout expired, 1 if blocking was stopped via onPacketArrives callback or 0 if an error occurred (such as device
 		 * not open etc.). When returning 0 an appropriate error message is printed to log
 		 */
-		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout);
+		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout);
 
 		/**
 		 * Stop a currently running packet capture. This method terminates gracefully both packet capture thread and periodic stats collection

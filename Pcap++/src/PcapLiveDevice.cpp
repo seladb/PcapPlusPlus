@@ -14,6 +14,7 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <sstream>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
@@ -30,6 +31,7 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <poll.h>
 #endif // if defined(_WIN32)
 #if defined(__APPLE__) || defined(__FreeBSD__)
 #include <net/if_dl.h>
@@ -330,6 +332,8 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 		return false;
 	}
 
+	m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
+
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' opened");
 
 	m_DeviceOpened = true;
@@ -466,8 +470,10 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 }
 
 
-int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout)
+int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout)
 {
+	const int timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
+
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
@@ -488,13 +494,15 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = onPacketArrives;
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
-	long startTimeSec = 0, startTimeNSec = 0;
-	clockGetTime(startTimeSec, startTimeNSec);
+	auto startTime = std::chrono::steady_clock::now();
 
-	long curTimeSec = 0;
-
+	std::chrono::_V2::steady_clock::time_point currentTime;
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
+
+#if defined(_WIN32)
+	// TDB
+#endif
 
 	if (timeout <= 0)
 	{
@@ -502,15 +510,21 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		{
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
 		}
-		curTimeSec = startTimeSec + timeout;
 	}
 	else
 	{
-		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
+
+		struct pollfd pcapPollFd;
+		memset(&pcapPollFd, 0, sizeof(pcapPollFd));
+		pcapPollFd.fd = m_PcapSelectableFd;
+		pcapPollFd.events = POLLIN;
+
+		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() <= timeout)
 		{
-			long curTimeNSec = 0;
+
+			
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-			clockGetTime(curTimeSec, curTimeNSec);
+			currentTime = std::chrono::steady_clock::now();
 		}
 	}
 
