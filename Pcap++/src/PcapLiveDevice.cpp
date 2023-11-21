@@ -520,7 +520,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 	auto startTime = std::chrono::steady_clock::now();
 
-	std::chrono::_V2::steady_clock::time_point currentTime;
+	auto currentTime = startTime;
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
@@ -553,7 +553,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		
 		currentTime = std::chrono::steady_clock::now();
 
-		if(timeoutMs >= 0 && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() >= timeoutMs)
+		if(timeoutMs >= 0 && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() > timeoutMs)
 		{
 			break;
 		}
@@ -566,7 +566,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() >= timeoutMs)
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() > timeoutMs)
 	{
 		return -1;
 	}
