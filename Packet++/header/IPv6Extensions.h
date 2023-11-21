@@ -230,7 +230,7 @@ namespace pcpp
 				if (data->recordType == Pad0OptionType)
 					return true;
 
-				return tlvDataLen >= sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen);
+				return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 			}
 
 			// implement abstract methods

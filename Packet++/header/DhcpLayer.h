@@ -487,7 +487,7 @@ namespace pcpp
 			if (data->recordType == (uint8_t)DHCPOPT_END || data->recordType == (uint8_t)DHCPOPT_PAD)
 				return true;
 
-			return tlvDataLen >= sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen);
+			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
 
 		// implement abstract methods
