@@ -334,10 +334,7 @@ namespace pcpp
 			if (getIPv4OptionType(data) == (uint8_t)IPV4OPT_EndOfOptionsList || data->recordType == (uint8_t)IPV4OPT_NOP)
 				return true;
 
-			if (tlvDataLen < sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen))
-				return false;
-
-			return true;
+			return tlvDataLen >= sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen);
 		}
 
 		// implement abstract methods
