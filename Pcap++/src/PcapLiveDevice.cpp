@@ -536,11 +536,11 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		if(m_usePoll)
 		{
 			int ready = poll(&pcapPollFd, 1, shortIntervalMs); // wait for few milliseconds
-			if(ready)
+			if(ready > 0)
 			{
 				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
 			}
-			else if(ready == -1)
+			else if(ready < 0)
 			{
 				PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
 				return -1;
