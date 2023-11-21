@@ -110,14 +110,7 @@ IPv6TLVOptionHeader::IPv6Option IPv6TLVOptionHeader::IPv6TLVOptionBuilder::build
 	if (m_RecType != IPv6TLVOptionHeader::IPv6Option::Pad0OptionType)
 	{
 		recordBuffer[0] = recType;
-#if defined(__GNUC__) &&  __GNUC__ >= 10
-	#pragma GCC diagnostic push
-	#pragma GCC diagnostic ignored "-Wstringop-overflow"
-#endif
 		recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
-#if defined(__GNUC__) &&  __GNUC__ >= 10
-	#pragma GCC diagnostic pop
-#endif
 		if (m_RecValueLen > 0)
 			memcpy(recordBuffer+2, m_RecValue, m_RecValueLen);
 	}
