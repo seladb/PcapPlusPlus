@@ -348,8 +348,6 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 		return false;
 	}
 
-	m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
-
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' opened");
 
 	m_DeviceOpened = true;
@@ -359,6 +357,7 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 		PCPP_LOG_ERROR("Windows doesn't support poll(), ignore usePoll=true");
 #else
 		m_usePoll = true;
+		m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
 #endif
 	}
 
@@ -524,18 +523,20 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
+#if !defined(_WIN32)
 	struct pollfd pcapPollFd;
 	memset(&pcapPollFd, 0, sizeof(pcapPollFd));
 	pcapPollFd.fd = m_PcapSelectableFd;
 	pcapPollFd.events = POLLIN;
-
-	constexpr int shortIntervalMs = 10;
+	constexpr int pollShortIntervalMs = 10;
+#endif
 
 	while (!m_StopThread)
 	{
 		if(m_usePoll)
 		{
-			int ready = poll(&pcapPollFd, 1, shortIntervalMs); // wait for few milliseconds
+#if !defined(_WIN32)
+			int ready = poll(&pcapPollFd, 1, pollShortIntervalMs); // only wait for few milliseconds, so we can check if the outer while is timeout
 			if(ready > 0)
 			{
 				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
@@ -545,6 +546,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 				PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
 				return -1;
 			}
+#endif
 		}
 		else
 		{
