@@ -182,13 +182,6 @@ else()
   endif()
 endif()
 
-if(PCAPPP_TARGET_COMPILER_CLANG
-   OR PCAPPP_TARGET_COMPILER_GCC
-   OR PCAPPP_TARGET_COMPILER_INTEL)
-  # Disable deprecated warnings since warnings are treated as errors
-  add_definitions("-Wno-deprecated-declarations")
-endif()
-
 if(PCAPPP_USE_DPDK)
   find_package(DPDK)
   if(NOT DPDK_FOUND)
@@ -204,6 +197,8 @@ if(PCAPPP_USE_DPDK)
     add_definitions(-DUSE_DPDK_KNI)
   endif()
 
+  # Disable deprecated warnings when DPDK enabled since warnings are treated as errors
+  add_definitions("-Wno-deprecated-declarations")
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/setup_dpdk.py" "${CMAKE_CURRENT_BINARY_DIR}" COPYONLY)
 endif()
 
@@ -248,8 +243,8 @@ endif()
 
 if(PCAPPP_TARGET_COMPILER_MSVC)
   # Disable VS warnings: Unknown pragma (4068), Zero-sized array in struct/union (4200), Possible loss of data (4244),
-  # Possible loss of data (4267), Character may not be represented (4819), Deprecated (4996)
-  add_definitions("/wd4068 /wd4200 /wd4244 /wd4267 /wd4819 /wd4996")
+  # Possible loss of data (4267), Character may not be represented (4819)
+  add_definitions("/wd4068 /wd4200 /wd4244 /wd4267 /wd4819")
 endif()
 
 if(PCAPPP_BUILD_COVERAGE)
