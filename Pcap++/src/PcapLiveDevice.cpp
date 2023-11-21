@@ -550,7 +550,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		{
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesAndStopBlockingMode, (uint8_t*)this);
 		}
-		
+
 		currentTime = std::chrono::steady_clock::now();
 
 		if(timeoutMs >= 0 && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() > timeoutMs)
