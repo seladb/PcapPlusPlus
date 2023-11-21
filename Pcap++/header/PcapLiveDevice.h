@@ -239,6 +239,7 @@ namespace pcpp
 			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
 			 * to capture all the data available from the packet.
 			 * @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
+			 * @param[in] usePoll use `poll` implementation for `startCaptureBlockingMode` on Unix-like system. Default value is false.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
 				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false)
