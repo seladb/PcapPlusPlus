@@ -517,7 +517,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	while (!m_StopThread)
 	{
 		int64_t timePassedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
-		
+
 		// if given timeout is greater than 0, we check if it is timeout
 		if(timeoutMs > 0 && timePassedMs >= timeoutMs)
 		{
