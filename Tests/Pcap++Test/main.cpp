@@ -229,6 +229,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapLiveDeviceNoNetworking, "no_network;live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceStatsMode, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceBlockingModePollTimeout, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceSpecialCfg, "live_device");
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
 	PTF_RUN_TEST(TestSendPacket, "live_device;send");
