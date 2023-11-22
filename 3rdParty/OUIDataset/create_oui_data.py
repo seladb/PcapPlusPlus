@@ -1,15 +1,12 @@
 import argparse
 from dataclasses import dataclass, asdict, is_dataclass
 import json
+import re
 from typing import Optional
 import urllib.request
 
 MANUF_URL = "https://gitlab.com/wireshark/wireshark/-/raw/master/epan/manuf-data.c"
-MANUF_FILENAME = "manuf.dat"
-
-MA_L = 0
-MA_M = 1
-MA_S = 2
+REGEX_PATTERN = r"\{\s*((?:0x[0-9A-Fa-f]{2}\s*,\s*){2}0x[0-9A-Fa-f]{2})\s*\},\s*(\"[^\"]*\"),\s*(\"[^\"]*\")"
 
 
 @dataclass
@@ -62,28 +59,33 @@ def parse_args():
     return parser.parse_args()
 
 
-def convert_line(line: str) -> list:
-    line = line.replace("{", "[")
-    line = line.replace("}", "]")
-    line = line.replace("],\n", "]")
+def convert_line(line: str) -> list[str]:
+    match_result = re.findall(REGEX_PATTERN, line)
 
-    return eval(line)
+    if len(match_result) < 1:
+        return None
+    if len(match_result[0]) != 3:
+        return None
+
+    return (
+        "".join(format(int(s.strip(), 16), "02x") for s in match_result[0][0].split(",")),
+        match_result[0][1][1:len(match_result[0][1])-1],
+        match_result[0][2][1:len(match_result[0][2])-1],
+    )
 
 
 def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
     if len(line_parts) < 3:
         return None
 
-    mac_element = "".join(format(x, "02x") for x in line_parts[0])
-
-    if len(mac_element) == 6:
-        mac_short = mac_element.lower().strip()
+    if len(line_parts[0]) == 6:
+        mac_short = line_parts[0].lower().strip()
         vendor = line_parts[2].strip()
         return LineElements(mac_short=mac_short, vendor=vendor)
-    elif 6 < len(mac_element) < 11:
-        mac_short = mac_element[:6].lower().strip()
-        mac_long = format(mac_element.lower().strip(), "0<12")
-        mac_mask = 28 if (len(mac_element) == 8) else 36
+    elif 6 < len(line_parts[0]) < 11:
+        mac_short = line_parts[0][:6].lower().strip()
+        mac_long = format(line_parts[0].lower().strip(), "0<12")
+        mac_mask = 28 if (len(line_parts[0]) == 8) else 36
         vendor = line_parts[2].strip()
         return LineElements(
             mac_short=mac_short, vendor=vendor, mac_long=mac_long, mac_mask=mac_mask
@@ -158,8 +160,9 @@ def main() -> None:
         if line.startswith(("//", "/*", " *", "*/", "\n", "\r\n", "static", "};")):
             continue
 
-        if line_elements := parse_mac_and_vendor(convert_line(line)):
-            update_oui_dataset(oui_dataset, line_elements)
+        if line_elements := convert_line(line):
+            if line_elements := parse_mac_and_vendor(convert_line(line)):
+                update_oui_dataset(oui_dataset, line_elements)
 
     with open(args.output_file, "w", encoding="utf8") as out_file:
         json.dump(
