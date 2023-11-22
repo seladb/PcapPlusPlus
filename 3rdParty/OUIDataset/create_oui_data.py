@@ -62,9 +62,7 @@ def parse_args():
 def convert_line(line: str) -> list[str]:
     match_result = re.findall(REGEX_PATTERN, line)
 
-    if len(match_result) < 1:
-        return None
-    if len(match_result[0]) != 3:
+    if len(match_result) < 1 or len(match_result[0]) < 3:
         return None
 
     return (
