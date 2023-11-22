@@ -495,8 +495,6 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout)
 {
-	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
-
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
@@ -517,26 +515,35 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = onPacketArrives;
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
-	auto startTime = std::chrono::steady_clock::now();
-
-	auto currentTime = startTime;
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
+
+	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
+	auto startTime = std::chrono::steady_clock::now();
+	bool isTimeout = false;
 
 #if !defined(_WIN32)
 	struct pollfd pcapPollFd;
 	memset(&pcapPollFd, 0, sizeof(pcapPollFd));
 	pcapPollFd.fd = m_PcapSelectableFd;
 	pcapPollFd.events = POLLIN;
-	constexpr int pollShortIntervalMs = 10;
+	int64_t pollTimeoutMs = timeoutMs;
 #endif
 
 	while (!m_StopThread)
 	{
+		int64_t timePassedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
+		if(timeoutMs >= 0 && timePassedMs >= timeoutMs)
+		{
+			isTimeout= true;
+			break;
+		}
+
 		if(m_usePoll)
 		{
 #if !defined(_WIN32)
-			int ready = poll(&pcapPollFd, 1, pollShortIntervalMs); // only wait for few milliseconds, so we can check if the outer while is timeout
+			pollTimeoutMs -= timePassedMs; // the timeout of poll should be >= 0, and we can guarantee that based on the previous logic.
+			int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
 			if(ready > 0)
 			{
 				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
@@ -552,23 +559,14 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		{
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesAndStopBlockingMode, (uint8_t*)this);
 		}
-
-		currentTime = std::chrono::steady_clock::now();
-
-		if(timeoutMs >= 0 && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() > timeoutMs)
-		{
-			break;
-		}
 	}
 
 	m_CaptureThreadStarted = false;
-
 	m_StopThread = false;
-
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() > timeoutMs)
+	if (isTimeout)
 	{
 		return -1;
 	}
