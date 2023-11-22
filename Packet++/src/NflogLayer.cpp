@@ -88,7 +88,7 @@ size_t NflogLayer::getHeaderLen() const
 		headerLen += currentTLV.getTotalSize();
 		currentTLV = m_TlvReader.getNextTLVRecord(currentTLV, getTlvsBasePtr(), m_DataLen - sizeof(nflog_header));
 	}
-	if (currentTLV.getType() == static_cast<uint16_t> (NflogTlvType::NFULA_PAYLOAD))
+	if (!currentTLV.isNull() && currentTLV.getType() == static_cast<uint16_t> (NflogTlvType::NFULA_PAYLOAD))
 	{
 		// for the length and type of the payload TLV
 		headerLen += 2 * sizeof (uint16_t);
