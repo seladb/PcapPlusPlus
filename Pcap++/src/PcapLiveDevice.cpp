@@ -517,7 +517,9 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	while (!m_StopThread)
 	{
 		int64_t timePassedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
-		if(timeoutMs >= 0 && timePassedMs >= timeoutMs)
+		
+		// if given timeout is greater than 0, we check if it is timeout
+		if(timeoutMs > 0 && timePassedMs >= timeoutMs)
 		{
 			isTimeout= true;
 			break;
@@ -526,7 +528,17 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		if(m_usePoll)
 		{
 #if !defined(_WIN32)
-			pollTimeoutMs -= timePassedMs; // the timeout of poll should be >= 0, and we can guarantee that based on the previous logic.
+			pollTimeoutMs -= timePassedMs;
+			if(timeoutMs <= 0)
+			{
+				// set to blocking mode
+				pollTimeoutMs = -1; 
+			}
+			else if(pollTimeoutMs <= 0)
+			{
+				// if given timeout > 0, and no remaining time for poll
+				continue;
+			}
 			int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
 			if(ready > 0)
 			{
