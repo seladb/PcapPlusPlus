@@ -8,6 +8,7 @@ import urllib.request
 MANUF_URL = "https://gitlab.com/wireshark/wireshark/-/raw/master/epan/manuf-data.c"
 REGEX_PATTERN = r"\{\s*((?:0x[0-9A-Fa-f]{2}\s*,\s*){2}(?:0x[0-9A-Fa-f]{2}\s*,\s*)*0x[0-9A-Fa-f]{2})\s*\},\s*(\"(?:[^\"\\]|\\.)*\"),\s*(\"(?:[^\"\\]|\\.)*\")"
 
+
 @dataclass
 class LineElements:
     mac_short: str
@@ -67,9 +68,11 @@ def convert_line(line: str) -> list[str]:
         return None
 
     return (
-        "".join(format(int(s.strip(), 16), "02x") for s in match_result[0][0].split(",")),
-        match_result[0][1][1:len(match_result[0][1])-1].replace('\\',''),
-        match_result[0][2][1:len(match_result[0][2])-1].replace('\\',''),
+        "".join(
+            format(int(s.strip(), 16), "02x") for s in match_result[0][0].split(",")
+        ),
+        match_result[0][1][1 : len(match_result[0][1]) - 1].replace("\\", ""),
+        match_result[0][2][1 : len(match_result[0][2]) - 1].replace("\\", ""),
     )
 
 
