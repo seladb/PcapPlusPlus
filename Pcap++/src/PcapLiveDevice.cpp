@@ -504,7 +504,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
 	auto startTime = std::chrono::steady_clock::now();
-	bool isTimeout = false;
+	int64_t timePassedMs = 0;
 
 #if !defined(_WIN32)
 	struct pollfd pcapPollFd;
@@ -516,12 +516,11 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 	while (!m_StopThread)
 	{
-		int64_t timePassedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
+		timePassedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
 
 		// if given timeout is greater than 0, we check if it is timeout
 		if(timeoutMs > 0 && timePassedMs >= timeoutMs)
 		{
-			isTimeout= true;
 			break;
 		}
 
@@ -560,7 +559,9 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (isTimeout)
+	// we don't use a flag to record if it is timeout in the while-loop because we may got a "stop" call while running the onPacketArrive callback.
+	// check if it is timeout again at the end of the whole function.
+	if (timeoutMs > 0 && timePassedMs >= timeoutMs)
 	{
 		return -1;
 	}
