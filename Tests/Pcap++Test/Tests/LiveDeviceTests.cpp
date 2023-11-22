@@ -491,7 +491,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 
 	// set timeout to 1ms, poll will get timeout with no packets and `startCaptureBlockingMode` also timeout
 	int packetCount = 0;
-	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeout, &packetCount, 0.001), 1);
+	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeout, &packetCount, 0.001), -1);
 	PTF_ASSERT_EQUAL(packetCount, 0);
 
 	liveDev->close();

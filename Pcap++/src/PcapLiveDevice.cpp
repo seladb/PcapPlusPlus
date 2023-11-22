@@ -156,7 +156,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 
-void PcapLiveDevice::onPacketArrivesAndStopBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
+void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == nullptr)
@@ -171,22 +171,6 @@ void PcapLiveDevice::onPacketArrivesAndStopBlockingMode(uint8_t* user, const str
 		if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
 			pThis->m_StopThread = true;
 }
-
-void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
-{
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
-	if (pThis == nullptr)
-	{
-		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
-		return;
-	}
-
-	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
-
-	if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
-		pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie);
-}
-
 
 void PcapLiveDevice::captureThreadMain()
 {
@@ -557,7 +541,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		}
 		else
 		{
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesAndStopBlockingMode, (uint8_t*)this);
+			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
 		}
 	}
 
