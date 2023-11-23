@@ -75,7 +75,7 @@ def convert_line(line: str) -> list[str]:
 
 
 def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
-    if len(line_parts) < 3:
+    if line_parts == None or len(line_parts) < 3:
         return None
 
     if len(line_parts[0]) == 6:
@@ -160,9 +160,8 @@ def main() -> None:
         if line.startswith(("//", "/*", " *", "*/", "\n", "\r\n", "static", "};")):
             continue
 
-        if line_elements := convert_line(line):
-            if line_elements := parse_mac_and_vendor(convert_line(line)):
-                update_oui_dataset(oui_dataset, line_elements)
+        if line_elements := parse_mac_and_vendor(convert_line(line)):
+            update_oui_dataset(oui_dataset, line_elements)
 
     with open(args.output_file, "w", encoding="utf8") as out_file:
         json.dump(
