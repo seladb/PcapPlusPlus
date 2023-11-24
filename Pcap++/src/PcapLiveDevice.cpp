@@ -156,7 +156,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
 }
 
-void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
+void PcapLiveDevice::onPacketArrivesAndStopBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
 	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
 	if (pThis == nullptr)
@@ -171,6 +171,22 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 		if (pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie))
 			pThis->m_StopThread = true;
 }
+
+void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
+{
+	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	if (pThis == nullptr)
+	{
+		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
+		return;
+	}
+
+	RawPacket rawPacket(packet, pkthdr->caplen, pkthdr->ts, false, pThis->getLinkType());
+
+	if (pThis->m_cbOnPacketArrivesBlockingMode != nullptr)
+		pThis->m_cbOnPacketArrivesBlockingMode(&rawPacket, pThis, pThis->m_cbOnPacketArrivesBlockingModeUserCookie);
+}
+
 
 void PcapLiveDevice::captureThreadMain()
 {
@@ -338,6 +354,14 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	m_DeviceOpened = true;
 
+	if(config.usePoll) {
+#if defined(_WIN32)
+		PCPP_LOG_ERROR("Windows doesn't support poll(), ignore usePoll=true");
+#else
+		m_usePoll = true;
+#endif
+	}
+
 	return true;
 }
 
@@ -472,7 +496,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout)
 {
-	const int timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
+	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
 
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
@@ -500,31 +524,38 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
-#if defined(_WIN32)
-	// TDB
-#endif
+	struct pollfd pcapPollFd;
+	memset(&pcapPollFd, 0, sizeof(pcapPollFd));
+	pcapPollFd.fd = m_PcapSelectableFd;
+	pcapPollFd.events = POLLIN;
 
-	if (timeout <= 0)
+	constexpr int shortIntervalMs = 10;
+
+	while (!m_StopThread)
 	{
-		while (!m_StopThread)
+		if(m_usePoll)
 		{
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			int ready = poll(&pcapPollFd, 1, shortIntervalMs); // wait for few milliseconds
+			if(ready)
+			{
+				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			}
+			else if(ready == -1)
+			{
+				PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
+				return -1;
+			}
 		}
-	}
-	else
-	{
-
-		struct pollfd pcapPollFd;
-		memset(&pcapPollFd, 0, sizeof(pcapPollFd));
-		pcapPollFd.fd = m_PcapSelectableFd;
-		pcapPollFd.events = POLLIN;
-
-		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() <= timeout)
+		else
 		{
+			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesAndStopBlockingMode, (uint8_t*)this);
+		}
+		
+		currentTime = std::chrono::steady_clock::now();
 
-			
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-			currentTime = std::chrono::steady_clock::now();
+		if(timeoutMs >= 0 && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() >= timeoutMs)
+		{
+			break;
 		}
 	}
 
@@ -535,8 +566,10 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (curTimeSec > (startTimeSec + timeout))
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() >= timeoutMs)
+	{
 		return -1;
+	}
 	return 1;
 }
 

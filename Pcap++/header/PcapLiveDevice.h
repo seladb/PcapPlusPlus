@@ -110,6 +110,7 @@ namespace pcpp
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
+		bool m_usePoll = false; // use poll() for Unix-like system. Set in DeviceConfiguration.
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
@@ -128,6 +129,7 @@ namespace pcpp
 		static void onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
+		static void onPacketArrivesAndStopBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 	public:
 
 		/**
@@ -218,6 +220,11 @@ namespace pcpp
 			*/
 			unsigned int nflogGroup;
 
+
+			/// @brief In Unix-like system, use poll() for blocking mode.
+			bool usePoll = false;
+
+
 			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
@@ -234,7 +241,7 @@ namespace pcpp
 			 * @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
-				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0)
+				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
@@ -242,6 +249,7 @@ namespace pcpp
 				this->direction = direction;
 				this->snapshotLength = snapshotLength;
 				this->nflogGroup = nflogGroup;
+				this->usePoll = usePoll;
 			}
 		};
 
