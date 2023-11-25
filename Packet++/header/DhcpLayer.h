@@ -469,6 +469,26 @@ namespace pcpp
 			memcpy(m_Data->recordValue + valueOffset, stringValue.data(), len);
 		}
 
+		/**
+		 * Check if a pointer can be assigned to the TLV record data
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 * @param[in] tlvDataLen The size of the TLV record raw data
+		 * @return True if data is valid and can be assigned
+		 */
+		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+		{
+			auto data = (TLVRawData*)recordRawData;
+			if (data == nullptr)
+				return false;
+
+			if (tlvDataLen < sizeof(TLVRawData::recordType))
+				return false;
+
+			if (data->recordType == (uint8_t)DHCPOPT_END || data->recordType == (uint8_t)DHCPOPT_PAD)
+				return true;
+
+			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
+		}
 
 		// implement abstract methods
 
