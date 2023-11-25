@@ -29,41 +29,41 @@ namespace pcpp
 		uint16_t
 		/** Recursion desired flag */
 			recursionDesired:1,
-		/**	Truncated flag */
+		/** Truncated flag */
 			truncation:1,
-		/**	Authoritative answer flag */
+		/** Authoritative answer flag */
 			authoritativeAnswer:1,
 		/** Operation Code */
 			opcode:4,
-		/**	Query/Response flag */
+		/** Query/Response flag */
 			queryOrResponse:1,
 		/** Return Code */
 			responseCode:4,
 		/** Checking disabled flag */
 			checkingDisabled:1,
-		/**	Authenticated data flag */
+		/** Authenticated data flag */
 			authenticData:1,
-		/**	Zero flag (Reserved) */
+		/** Zero flag (Reserved) */
 			zero:1,
-		/**	Recursion available flag */
+		/** Recursion available flag */
 			recursionAvailable:1;
 #elif (BYTE_ORDER == BIG_ENDIAN)
 		uint16_t
-		/**	Query/Response flag */
+		/** Query/Response flag */
 			queryOrResponse:1,
 		/** Operation Code */
 			opcode:4,
-		/**	Authoritative answer flag */
+		/** Authoritative answer flag */
 			authoritativeAnswer:1,
-		/**	Truncated flag */
+		/** Truncated flag */
 			truncation:1,
 		/** Recursion desired flag */
 			recursionDesired:1,
-		/**	Recursion available flag */
+		/** Recursion available flag */
 			recursionAvailable:1,
-		/**	Zero flag (Reserved) */
+		/** Zero flag (Reserved) */
 			zero:1,
-		/**	Authenticated data flag */
+		/** Authenticated data flag */
 			authenticData:1,
 		/** Checking disabled flag */
 			checkingDisabled:1,

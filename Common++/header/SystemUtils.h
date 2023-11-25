@@ -28,8 +28,9 @@ namespace pcpp
 	{
 		/**
 		 * Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
-		 * For example: in core #0 the right-most bit will be set (meaning the number 0x01);
-		 * 				in core #5 the 5th right-most bit will be set (meaning the number 0x20)...
+		 * For example:
+		 * - In core #0 the right-most bit will be set (meaning the number 0x01);
+		 * - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
 		 */
 		uint32_t Mask;
 
