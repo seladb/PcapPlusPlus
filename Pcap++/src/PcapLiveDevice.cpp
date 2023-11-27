@@ -524,17 +524,14 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			break;
 		}
 
-		if(m_usePoll)
+		if(timeoutMs > 0 && m_usePoll)
 		{
+			// only use poll when timeout is set greater than 0 (non-blocking mode)
 #if !defined(_WIN32)
 			pollTimeoutMs -= timePassedMs;
-			if(timeoutMs <= 0)
+			if(pollTimeoutMs <= 0)
 			{
-				pollTimeoutMs = -1; // set to blocking mode
-			}
-			else if(pollTimeoutMs <= 0)
-			{
-				continue; // if given timeout > 0, and no remaining time for poll
+				continue; // run out of time, and we shouldn't give pollTimeoutMs a negative number
 			}
 			int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
 			if(ready > 0)
