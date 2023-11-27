@@ -481,6 +481,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32)
+	const char* iptablesAddInputDrop = "sudo iptables -A INPUT -i eth0 -j DROP";
+	const char* iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o eth0 -j DROP";
+	std::system(iptablesAddInputDrop);
+	std::system(iptablesAddOutputDrop);
+
 	// open device
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	pcpp::PcapLiveDevice::DeviceConfiguration defaultConfig;
@@ -489,13 +494,17 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	PTF_ASSERT_TRUE(liveDev->open(defaultConfig));
 	DeviceTeardown devTeardown(liveDev);
 
-	// set timeout to 1ms, poll will get timeout with no packets and `startCaptureBlockingMode` also timeout
 	int packetCount = 0;
-	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeout, &packetCount, 0.001), -1);
+	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2), -1);
 	PTF_ASSERT_EQUAL(packetCount, 0);
 
 	liveDev->close();
 	PTF_ASSERT_FALSE(liveDev->isOpened());
+
+	const char* iptablesDeleteInputDrop = "sudo iptables -D INPUT -i eth0 -j DROP";
+	const char* iptablesDeleteOutputDrop = "sudo iptables -D OUTPUT -o eth0 -j DROP";
+	std::system(iptablesDeleteInputDrop);
+	std::system(iptablesDeleteOutputDrop);
 #endif
 } // TestPcapLiveDeviceBlockingMode
 

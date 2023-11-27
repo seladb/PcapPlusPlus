@@ -504,7 +504,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
 	auto startTime = std::chrono::steady_clock::now();
-	int64_t timePassedMs = 0;
+	auto currentTime = startTime;
 
 #if !defined(_WIN32)
 	struct pollfd pcapPollFd;
@@ -514,40 +514,41 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	int64_t pollTimeoutMs = timeoutMs;
 #endif
 
-	while (!m_StopThread)
+	if(timeoutMs <= 0)
 	{
-		timePassedMs = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
-
-		// if given timeout is greater than 0, we check if it is timeout
-		if(timeoutMs > 0 && timePassedMs >= timeoutMs)
-		{
-			break;
-		}
-
-		if(timeoutMs > 0 && m_usePoll)
-		{
-			// only use poll when timeout is set greater than 0 (non-blocking mode)
-#if !defined(_WIN32)
-			pollTimeoutMs -= timePassedMs;
-			if(pollTimeoutMs <= 0)
-			{
-				continue; // run out of time, and we shouldn't give pollTimeoutMs a negative number
-			}
-			int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
-			if(ready > 0)
-			{
-				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-			}
-			else if(ready < 0)
-			{
-				PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
-				return -1;
-			}
-#endif
-		}
-		else
+		while (!m_StopThread)
 		{
 			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+		}
+	}
+	else
+	{
+		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() <= timeoutMs )
+		{
+			if(m_usePoll)
+			{
+#if !defined(_WIN32)
+				pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
+				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
+				int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
+				if(ready > 0)
+				{
+					pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+					currentTime = std::chrono::steady_clock::now();
+				}
+				else if(ready < 0)
+				{
+					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
+					return -1;
+				}
+#endif
+			}
+			else
+			{
+				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+				currentTime = std::chrono::steady_clock::now();
+			}
+
 		}
 	}
 
@@ -556,9 +557,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	// we don't use a flag to record if it is timeout in the while-loop because we may got a "stop" call while running the onPacketArrive callback.
-	// check if it is timeout again at the end of the whole function.
-	if (timeoutMs > 0 && timePassedMs >= timeoutMs)
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() > timeoutMs )
 	{
 		return -1;
 	}
