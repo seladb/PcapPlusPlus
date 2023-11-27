@@ -511,7 +511,6 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	memset(&pcapPollFd, 0, sizeof(pcapPollFd));
 	pcapPollFd.fd = m_PcapSelectableFd;
 	pcapPollFd.events = POLLIN;
-	int64_t pollTimeoutMs = timeoutMs;
 #endif
 
 	if(timeoutMs <= 0)
@@ -528,7 +527,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			if(m_usePoll)
 			{
 #if !defined(_WIN32)
-				pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
+				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
 				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
 				int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
 				if(ready > 0)
