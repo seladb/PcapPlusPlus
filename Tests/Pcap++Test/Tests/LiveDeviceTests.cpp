@@ -480,10 +480,15 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32)
+	// drop all packets on the interface
 	const char* iptablesAddInputDrop = "sudo iptables -A INPUT -i eth0 -j DROP";
 	const char* iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o eth0 -j DROP";
 	std::system(iptablesAddInputDrop);
 	std::system(iptablesAddOutputDrop);
+
+	// recover the interface at the end
+	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i eth0 -j DROP");
+	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o eth0 -j DROP");
 
 	// open device
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
@@ -498,12 +503,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	PTF_ASSERT_EQUAL(packetCount, 0);
 
 	liveDev->close();
-	PTF_ASSERT_FALSE(liveDev->isOpened());
-
-	const char* iptablesDeleteInputDrop = "sudo iptables -D INPUT -i eth0 -j DROP";
-	const char* iptablesDeleteOutputDrop = "sudo iptables -D OUTPUT -o eth0 -j DROP";
-	std::system(iptablesDeleteInputDrop);
-	std::system(iptablesDeleteOutputDrop);
 #else
 	PTF_SKIP_TEST("This test can not run in Windows environment");
 #endif

@@ -336,20 +336,18 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	m_DeviceOpened = true;
 
-	if(config.usePoll)
+	if(!config.usePoll)
+	{
+		m_UsePoll = false;
+		m_PcapSelectableFd = -1;
+	}
+	else
 	{
 #if !defined(_WIN32)
 		m_UsePoll = true;
 		m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
 #else
 		PCPP_LOG_ERROR("Windows doesn't support poll(), ignoring the `usePoll` parameter");
-#endif
-	}
-	else
-	{
-#if !defined(_WIN32)
-		m_UsePoll = false;
-		m_PcapSelectableFd = -1;
 #endif
 	}
 

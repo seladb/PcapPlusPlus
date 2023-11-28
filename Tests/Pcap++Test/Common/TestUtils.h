@@ -36,6 +36,30 @@ public:
 	}
 };
 
+class SystemCommandTeardown
+{
+private:
+	std::string m_command;
+	bool m_CancelTeardown;
+
+public:
+
+	explicit SystemCommandTeardown(const std::string& command) : m_command(command) , m_CancelTeardown(false) {}
+
+	~SystemCommandTeardown()
+	{
+		if (!m_CancelTeardown)
+		{
+			std::system(m_command.c_str());
+		}
+	}
+
+	void cancelTeardown()
+	{
+		m_CancelTeardown = true;
+	}
+};
+
 bool sendURLRequest(const std::string &url);
 
 bool readPcapIntoPacketVec(const std::string& pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg);
