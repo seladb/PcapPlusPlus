@@ -197,7 +197,7 @@ namespace pcpp
 	 */
 	class SmtpResponseLayer : public SmtpLayer
 	{
-	  public:
+	public:
 		/**
 		 * Enum for SMTP response codes
 		 */
