@@ -17,7 +17,7 @@ namespace pcpp
 	 */
 	class SmtpLayer : public SingleCommandTextProtocol
 	{
-	  protected:
+	protected:
 		SmtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
 			: SingleCommandTextProtocol(data, dataLen, prevLayer, packet)
 		{
@@ -29,10 +29,11 @@ namespace pcpp
 			m_Protocol = SMTP;
 		};
 
-	  public:
+	public:
 		/**
 		 * A static method that checks whether the port is considered as SMTP control
 		 * @param[in] port The port number to be checked
+		 * @return True if this an SMTP port (25 or 587)
 		 */
 		static bool isSmtpPort(uint16_t port) { return port == 25 || port == 587; }
 
@@ -60,7 +61,7 @@ namespace pcpp
 	 */
 	class SmtpRequestLayer : public SmtpLayer
 	{
-	  public:
+	public:
 		/**
 		 * Enum for SMTP command codes
 		 */
@@ -151,7 +152,7 @@ namespace pcpp
 
 		/**
 		 * Get the command of request message as string
-		 * @return std::string Value of the command as string
+		 * @return Value of the command as string
 		 */
 		std::string getCommandString() const;
 
@@ -165,21 +166,21 @@ namespace pcpp
 		/**
 		 * Get the command argument of request message
 		 * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
-		 * @return std::string Value of command argument
+		 * @return Value of command argument
 		 */
 		std::string getCommandOption(bool removeEscapeCharacters = true) const;
 
 		/**
 		 * Convert the command info to readable string
 		 * @param[in] code Command code to convert
-		 * @return std::string Returns the command info as readable string
+		 * @return Returns the command info as readable string
 		 */
 		static std::string getCommandInfo(SmtpCommand code);
 
 		/**
 		 * Convert the command to readable string
 		 * @param[in] code Command code to convert
-		 * @return std::string Returns the command as readable string
+		 * @return Returns the command as readable string
 		 */
 		static std::string getCommandAsString(SmtpCommand code);
 
@@ -304,7 +305,7 @@ namespace pcpp
 
 		/**
 		 * Get the status code of response message as string
-		 * @return std::string Value of the status code as string
+		 * @return Value of the status code as string
 		 */
 		std::string getStatusCodeString() const;
 
@@ -318,14 +319,14 @@ namespace pcpp
 		/**
 		 * Get the argument of response message
 		 * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
-		 * @return std::string Value of argument
+		 * @return Value of argument
 		 */
 		std::string getStatusOption(bool removeEscapeCharacters = true) const;
 
 		/**
 		 * Convert the status code to readable string
 		 * @param[in] code Status code to convert
-		 * @return std::string Returns the status info as readable string
+		 * @return Returns the status info as readable string
 		 */
 		static std::string getStatusCodeAsString(SmtpStatusCode code);
 

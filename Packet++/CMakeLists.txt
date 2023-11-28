@@ -111,6 +111,7 @@ set(public_headers
     header/SipLayer.h
     header/SllLayer.h
     header/Sll2Layer.h
+    header/SmtpLayer.h
     header/SomeIpLayer.h
     header/SomeIpSdLayer.h
     header/SSHLayer.h
