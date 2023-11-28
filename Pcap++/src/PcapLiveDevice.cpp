@@ -66,8 +66,8 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
-		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
+	IPcapDevice(), m_PcapSelectableFd(-1), m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -336,12 +336,20 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	m_DeviceOpened = true;
 
-	if(config.usePoll) {
-#if defined(_WIN32)
-		PCPP_LOG_ERROR("Windows doesn't support poll(), ignore usePoll=true");
-#else
-		m_usePoll = true;
+	if(config.usePoll)
+	{
+#if !defined(_WIN32)
+		m_UsePoll = true;
 		m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
+#else
+		PCPP_LOG_ERROR("Windows doesn't support poll(), ignoring the `usePoll` parameter");
+#endif
+	}
+	else
+	{
+#if !defined(_WIN32)
+		m_UsePoll = false;
+		m_PcapSelectableFd = -1;
 #endif
 	}
 
@@ -524,7 +532,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() <= timeoutMs )
 		{
-			if(m_usePoll)
+			if(m_UsePoll)
 			{
 #if !defined(_WIN32)
 				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
@@ -533,21 +541,22 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 				if(ready > 0)
 				{
 					pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-					currentTime = std::chrono::steady_clock::now();
 				}
 				else if(ready < 0)
 				{
 					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
 					return -1;
 				}
+#else
+				PCPP_LOG_ERROR("Windows doesn't support poll()");
+				return 0;
 #endif
 			}
 			else
 			{
 				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-				currentTime = std::chrono::steady_clock::now();
 			}
-
+			currentTime = std::chrono::steady_clock::now();
 		}
 	}
 

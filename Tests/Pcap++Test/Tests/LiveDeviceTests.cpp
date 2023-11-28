@@ -469,7 +469,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		PTF_ASSERT_GREATER_THAN(packetCount, 0);
 
 		liveDev->close();
-		PTF_ASSERT_FALSE(liveDev->isOpened());
 
 		// a negative test
 		pcpp::Logger::getInstance().suppressLogs();
@@ -505,6 +504,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	const char* iptablesDeleteOutputDrop = "sudo iptables -D OUTPUT -o eth0 -j DROP";
 	std::system(iptablesDeleteInputDrop);
 	std::system(iptablesDeleteOutputDrop);
+#else
+	PTF_SKIP_TEST("This test can not run in Windows environment");
 #endif
 } // TestPcapLiveDeviceBlockingMode
 

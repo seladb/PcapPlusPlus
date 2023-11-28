@@ -87,7 +87,7 @@ namespace pcpp
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
-		int m_PcapSelectableFd = -1; // the selectable fd got from `pcap_get_selectable_fd`
+		int m_PcapSelectableFd;
 		std::string m_Name;
 		std::string m_Description;
 		bool m_IsLoopback;
@@ -110,7 +110,7 @@ namespace pcpp
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
-		bool m_usePoll = false; // use poll() for Unix-like system. Set in DeviceConfiguration.
+		bool m_UsePoll;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
@@ -221,8 +221,8 @@ namespace pcpp
 			unsigned int nflogGroup;
 
 
-			/// @brief In Unix-like system, use poll() for blocking mode.
-			bool usePoll = false;
+			/// In Unix-like system, use poll() for blocking mode.
+			bool usePoll;
 
 
 			/**
@@ -239,7 +239,7 @@ namespace pcpp
 			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
 			 * to capture all the data available from the packet.
 			 * @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
-			 * @param[in] usePoll use `poll` implementation for `startCaptureBlockingMode` on Unix-like system. Default value is false.
+			 * @param[in] usePoll use `poll()` when capturing packets in blocking more (`startCaptureBlockingMode()`) on Unix-like system. Default value is false.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
 				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false)
@@ -414,8 +414,8 @@ namespace pcpp
 		 * objects that counts packets, manages flow state or manages the application state according to the packet that was captured
 		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback.
 		 * The precision of `timeout` is millisecond, e.g. 2.345 seconds means 2345 milliseconds.
-		 * If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep blocking until the user frees it via
-		 * the onPacketArrives callback
+		 * If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep handling packets until the `onPacketArrives`
+		 * callback returns `true`.
 		 * @return -1 if timeout expired, 1 if blocking was stopped via onPacketArrives callback or 0 if an error occurred (such as device
 		 * not open etc.). When returning 0 an appropriate error message is printed to log
 		 */
