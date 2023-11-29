@@ -1,9 +1,5 @@
 #include "TestUtils.h"
 #include <stdlib.h>
-#include <cstring>
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <fstream>
 #include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"
@@ -13,6 +9,12 @@
 #endif
 #ifdef USE_DPDK
 #include "DpdkDeviceList.h"
+#endif
+#if !defined(_WIN32)
+#include <cstring>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
@@ -123,23 +125,27 @@ std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::stri
     void *addrPtr = nullptr;
 
     // Get the list of all network interfaces
-    if (getifaddrs(&ifAddrStruct) == -1) {
+    if (getifaddrs(&ifAddrStruct) == -1)
+	{
         errorMessage = "Error getting interface addresses";
         return "";
     }
 
     // Iterate through the list of interfaces
-    for (ifa = ifAddrStruct; ifa != nullptr; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr == nullptr) {
+    for (ifa = ifAddrStruct; ifa != nullptr; ifa = ifa->ifa_next)
+	{
+        if (ifa->ifa_addr == nullptr)
+		{
             continue;
         }
 
         // Check for the desired address family (IPv4 or IPv6)
-        if (ifa->ifa_addr->sa_family == AF_INET) {
+        if (ifa->ifa_addr->sa_family == AF_INET)
+		{
             addrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
-        } else if (ifa->ifa_addr->sa_family == AF_INET6) {
-            addrPtr = &((struct sockaddr_in6 *)ifa->ifa_addr)->sin6_addr;
-        } else {
+        }
+		else
+		{
             continue; // Skip unsupported address families
         }
 
@@ -148,7 +154,8 @@ std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::stri
         inet_ntop(ifa->ifa_addr->sa_family, addrPtr, addrStr, sizeof(addrStr));
 
         // Compare the current IP address with the target IP address
-        if (strcmp(addrStr, ipAddress.c_str()) == 0) {
+        if (strcmp(addrStr, ipAddress.c_str()) == 0)
+		{
 			return std::string(ifa->ifa_name);
         }
     }
