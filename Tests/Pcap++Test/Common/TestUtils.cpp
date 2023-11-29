@@ -15,6 +15,7 @@
 #include <ifaddrs.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/socket.h>
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
