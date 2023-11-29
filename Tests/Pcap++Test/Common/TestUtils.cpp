@@ -122,7 +122,6 @@ void testSetUp()
 std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::string& errorMessage) {
 	struct ifaddrs *ifAddrStruct = nullptr;
     struct ifaddrs *ifa = nullptr;
-    void *addrPtr = nullptr;
 
     // Get the list of all network interfaces
     if (getifaddrs(&ifAddrStruct) == -1)
@@ -139,10 +138,10 @@ std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::stri
             continue;
         }
 
-        // Check for the desired address family (IPv4 or IPv6)
+		struct sockaddr_in *ipv4;
         if (ifa->ifa_addr->sa_family == AF_INET)
 		{
-            addrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+			ipv4 = reinterpret_cast<struct sockaddr_in *>(ifa->ifa_addr);
         }
 		else
 		{
@@ -151,7 +150,7 @@ std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::stri
 
         // Convert the IP address to a string for comparison
         char addrStr[INET6_ADDRSTRLEN];
-        inet_ntop(ifa->ifa_addr->sa_family, addrPtr, addrStr, sizeof(addrStr));
+        inet_ntop(ifa->ifa_addr->sa_family, &(ipv4->sin_addr), addrStr, sizeof(addrStr));
 
         // Compare the current IP address with the target IP address
         if (strcmp(addrStr, ipAddress.c_str()) == 0)
