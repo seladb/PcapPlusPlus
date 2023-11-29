@@ -481,7 +481,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32)
 	std::string errorMessage;
-	auto interfaceName = findInterfaceNameByIpAddress(PcapTestGlobalArgs.ipToSendReceivePackets.c_str(), errorMessage);
+	auto interfaceName = findInterfaceNameByIpAddress(PcapTestGlobalArgs.ipToSendReceivePackets, errorMessage);
 	if(interfaceName.empty())
 	{
 		throw std::runtime_error(errorMessage);
