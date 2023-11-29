@@ -480,22 +480,29 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32)
+	std::string errorMessage;
+	auto interfaceName = findInterfaceNameByIpAddress(PcapTestGlobalArgs.ipToSendReceivePackets.c_str(), errorMessage);
+	if(interfaceName.empty())
+	{
+		throw std::runtime_error(errorMessage);
+	}
+
 	// drop all packets on the interface
-	const char* iptablesAddInputDrop = "sudo iptables -A INPUT -i eth0 -j DROP";
-	const char* iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o eth0 -j DROP";
-	std::system(iptablesAddInputDrop);
-	std::system(iptablesAddOutputDrop);
+	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
+	std::system(iptablesAddInputDrop.c_str());
+	std::system(iptablesAddOutputDrop.c_str());
 
 	// recover the interface at the end
-	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i eth0 -j DROP");
-	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o eth0 -j DROP");
+	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
+	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
 
 	// open device
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	pcpp::PcapLiveDevice::DeviceConfiguration defaultConfig;
-	defaultConfig.usePoll = true;
+	pcpp::PcapLiveDevice::DeviceConfiguration newConfig;
+	newConfig.usePoll = true;
 
-	PTF_ASSERT_TRUE(liveDev->open(defaultConfig));
+	PTF_ASSERT_TRUE(liveDev->open(newConfig));
 	DeviceTeardown devTeardown(liveDev);
 
 	int packetCount = 0;
