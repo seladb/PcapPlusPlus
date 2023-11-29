@@ -528,6 +528,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	}
 	else
 	{
+		std::cerr << "duration before while: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() << std::endl;
 		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() <= timeoutMs )
 		{
 			if(m_UsePoll)
@@ -535,16 +536,28 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 #if !defined(_WIN32)
 				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
 				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
+
+				std::cerr << "poll should wait for: " <<  pollTimeoutMs << std::endl;
+
 				int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
+
+				std::cerr << "duration just after poll: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()  - startTime).count() << std::endl;
+
 				if(ready > 0)
 				{
 					pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+
 				}
 				else if(ready < 0)
 				{
 					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
 					return -1;
+				} else {
+					std::cerr << "we don't have pacekt" << std::endl;
 				}
+
+				std::cerr << "duration just after if(ready > 0): " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()  - startTime).count() << std::endl;
+
 #else
 				PCPP_LOG_ERROR("Windows doesn't support poll()");
 				return 0;
