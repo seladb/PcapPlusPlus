@@ -420,9 +420,9 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	newGroupRecord->numOfSources = htobe16(sourceAddresses.size());
 
 	int srcAddrOffset = 0;
-	for (std::vector<IPv4Address>::const_iterator iter = sourceAddresses.begin(); iter != sourceAddresses.end(); iter++)
+	for (auto iter : sourceAddresses)
 	{
-		memcpy(newGroupRecord->sourceAddresses + srcAddrOffset, iter->toBytes(), sizeof(uint32_t));
+		memcpy(newGroupRecord->sourceAddresses + srcAddrOffset, iter.toBytes(), sizeof(uint32_t));
 		srcAddrOffset += sizeof(uint32_t);
 	}
 

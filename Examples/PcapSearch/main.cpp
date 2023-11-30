@@ -270,16 +270,16 @@ void searchDirectories(const std::string &directory, bool includeSubDirectories,
 
 	// when we get to here we already covered all sub-directories and collected all the files in this directory that are required for search
 	// go over each such file and search its packets to find the search criteria
-	for (std::vector<std::string>::iterator iter = pcapList.begin(); iter != pcapList.end(); iter++)
+	for (auto iter : pcapList)
 	{
 		// do the actual search
-		int packetsFound = searchPcap(*iter, searchCriteria, detailedReportFile);
+		int packetsFound = searchPcap(iter, searchCriteria, detailedReportFile);
 
 		// add to total matched packets
 		totalFilesSearched++;
 		if (packetsFound > 0)
 		{
-			std::cout << packetsFound << " packets found in '" << *iter << "'" << std::endl;
+			std::cout << packetsFound << " packets found in '" << iter << "'" << std::endl;
 			totalPacketsFound += packetsFound;
 		}
 	}

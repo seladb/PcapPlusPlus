@@ -936,16 +936,16 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
+	for(auto addrIter : m_Addresses)
 	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter->addr, addrAsString);
+			internal::sockaddr2string(addrIter.addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
 
-		in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
+		in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
@@ -960,16 +960,15 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end();
-		 addrIter++)
+	for (auto addrIter : m_Addresses)
 	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter->addr, addrAsString);
+			internal::sockaddr2string(addrIter.addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
-		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter->addr);
+		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");

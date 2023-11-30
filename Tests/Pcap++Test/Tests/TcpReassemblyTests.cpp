@@ -183,9 +183,9 @@ static bool tcpReassemblyTest(std::vector<pcpp::RawPacket>& packetStream, TcpRea
 	else
 		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyMsgReadyCallback, &results);
 
-	for (std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	for (auto iter : packetStream)
 	{
-		pcpp::Packet packet(&(*iter));
+		pcpp::Packet packet(&iter);
 		tcpReassembly->reassemblePacket(packet);
 	}
 
@@ -668,9 +668,9 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 
 	int statusIndex = 0;
 
-	for (std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	for (auto iter : packetStream)
 	{
-		pcpp::Packet packet(&(*iter));
+		pcpp::Packet packet(&iter);
 		pcpp::TcpReassembly::ReassemblyStatus status = tcpReassembly.reassemblePacket(packet);
 		PTF_ASSERT_EQUAL(status, expectedStatuses[statusIndex++], enum);
 	}
@@ -690,7 +690,7 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_1_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	iter++;
+	++iter;
 
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
@@ -701,7 +701,7 @@ PTF_TEST_CASE(TestTcpReassemblyMultipleConns)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/three_http_streams_conn_2_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	iter++;
+	++iter;
 
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
@@ -840,7 +840,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream4.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	iter++;
+	++iter;
 
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 10);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
@@ -858,7 +858,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_sec, 0);
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.endTime.tv_usec, 0);
 
-	iter++;
+	++iter;
 
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 2);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 1);
@@ -878,7 +878,7 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_ipv6_http_stream3.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, iter->second.reassembledData);
 
-	iter++;
+	++iter;
 
 	PTF_ASSERT_EQUAL(iter->second.numOfDataPackets, 13);
 	PTF_ASSERT_EQUAL(iter->second.numOfMessagesFromSide[0], 4);
@@ -961,9 +961,9 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 
 	packetStream.pop_back();
 
-	for(std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	for(auto iter : packetStream)
 	{
-		pcpp::Packet packet(&(*iter));
+		pcpp::Packet packet(&iter);
 		tcpReassembly.reassemblePacket(packet);
 	}
 
@@ -1020,9 +1020,9 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
 	std::vector<pcpp::RawPacket> packetStream;
 	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/unidirectional_tcp_stream_with_missing_packet.pcap", packetStream, errMsg));
 
-	for(std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	for(auto iter : packetStream)
 	{
-		pcpp::Packet packet(&(*iter));
+		pcpp::Packet packet(&iter);
 		tcpReassembly1.reassemblePacket(packet);
 		tcpReassembly2.reassemblePacket(packet);
 	}
@@ -1104,9 +1104,9 @@ PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup) // TestTcpReassemblyDisableBas
 	std::swap(packetStream[13], packetStream[18]);
 
 	TcpReassemblyMultipleConnStats tcpReassemblyResults;
-	for (std::vector<pcpp::RawPacket>::iterator iter = packetStream.begin(); iter != packetStream.end(); iter++)
+	for (auto iter : packetStream)
 	{
-		pcpp::Packet packet(&(*iter));
+		pcpp::Packet packet(&iter);
 		tcpReassembly1.reassemblePacket(packet);
 		tcpReassembly2.reassemblePacket(packet);
 	}
