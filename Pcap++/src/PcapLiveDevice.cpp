@@ -550,7 +550,6 @@ void PcapLiveDevice::stopCapture()
 		PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_Name << "'");
 	}
 
-	multiPlatformSleep(1);
 	m_StopThread = false;
 }
 
