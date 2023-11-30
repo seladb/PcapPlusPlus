@@ -171,13 +171,13 @@ namespace pcpp
 	 * A class representing all of the non-encrypted SSH handshake messages.
 	 * An handshake message typically has the following structure:
 	 *
-		@verbatim
-		0         1         2         3         4         5         6
-		+---------+---------+---------+---------+---------+---------+-----------     ---------+
-		|            Packet Length              | Padding | Message |  Message  ....  Padding |
-		|                                       | Length  |  Type   |  Content  ....          |
-		+---------------------------------------+---------+---------+-----------     ---------+
-		@endverbatim
+	 @verbatim
+	 0         1         2         3         4         5         6
+	 +---------+---------+---------+---------+---------+---------+-----------     ---------+
+	 |            Packet Length              | Padding | Message |  Message  ....  Padding |
+	 |                                       | Length  |  Type   |  Content  ....          |
+	 +---------------------------------------+---------+---------+-----------     ---------+
+	 @endverbatim
 	 *
 	 * The first 4 bytes hold the packet length, followed by 1 byte that holds the padding length (which comes at the end of the message),
 	 * then 1 byte that holds the message type (which can be of type SSHHandshakeMessage#SSHHandshakeMessageType) and then the message content.
