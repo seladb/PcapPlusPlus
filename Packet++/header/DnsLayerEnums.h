@@ -70,7 +70,7 @@ namespace pcpp
 		DNS_TYPE_GPOS,
 		/** IPv6 address record */
 		DNS_TYPE_AAAA,
-		/**	Location record */
+		/** Location record */
 		DNS_TYPE_LOC,
 		/** Obsolete record */
 		DNS_TYPE_NXT,

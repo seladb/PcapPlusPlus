@@ -43,27 +43,27 @@ namespace pcpp
 		MacAddress(const uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
-		 *  A constructor that creates an instance of the class out of a (char*) string.
-		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
-		 *  @param[in] addr A pointer to the (char*) string
+		 * A constructor that creates an instance of the class out of a (char*) string.
+		 * If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
+		 * @param[in] addr A pointer to the (char*) string
 		 */
 		MacAddress(const char* addr) { init(addr); }
 
 		/**
-		 *  A constructor that creates an instance of the class out of a std::string.
-		 *  If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
-	 	 *	@param[in] addr A pointer to the string
+		 * A constructor that creates an instance of the class out of a std::string.
+		 * If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
+	 	 * @param[in] addr A pointer to the string
 		 */
 		MacAddress(const std::string& addr) { init(addr.c_str()); }
 
 		/**
-		 *  A constructor that creates an instance of 6 bytes representing the MAC address
-		 *  @param[in] firstOctest Represent the first octet in the address
-		 *  @param[in] secondOctet Represent the second octet in the address
-		 *  @param[in] thirdOctet Represent the third octet in the address
-		 *  @param[in] fourthOctet Represent the fourth octet in the address
-		 *  @param[in] fifthOctet Represent the fifth octet in the address
-		 *  @param[in] sixthOctet Represent the sixth octet in the address
+		 * A constructor that creates an instance of 6 bytes representing the MAC address
+		 * @param[in] firstOctest Represent the first octet in the address
+		 * @param[in] secondOctet Represent the second octet in the address
+		 * @param[in] thirdOctet Represent the third octet in the address
+		 * @param[in] fourthOctet Represent the fourth octet in the address
+		 * @param[in] fifthOctet Represent the fifth octet in the address
+		 * @param[in] sixthOctet Represent the sixth octet in the address
 		 */
 		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
 

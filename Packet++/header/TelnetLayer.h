@@ -320,7 +320,7 @@ class TelnetLayer : public Layer
 	 * @param[in] dataSize The byte array size (in bytes)
 	 * @return True if the data is identified as Telnet message
 	 */
-	static bool isDataValid(const uint8_t *data, size_t dataSize) {	return data && dataSize; }
+	static bool isDataValid(const uint8_t *data, size_t dataSize) { return data && dataSize; }
 
 	// overridden methods
 
