@@ -74,15 +74,15 @@ public:
 		while (!m_Stop)
 		{
 			// go over all DPDK devices configured for this worker/core
-			for (InputDataConfig::iterator iter = m_WorkerConfig.InDataCfg.begin(); iter != m_WorkerConfig.InDataCfg.end(); iter++)
+			for (auto iter : m_WorkerConfig.InDataCfg)
 			{
 				// for each DPDK device go over all RX queues configured for this worker/core
-				for (std::vector<int>::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); iter2++)
+				for (auto iter2 = iter.second)
 				{
-					pcpp::DpdkDevice* dev = iter->first;
+					pcpp::DpdkDevice* dev = iter.first;
 
 					// receive packets from network on the specified DPDK device and RX queue
-					uint16_t packetsReceived = dev->receivePackets(packetArr, MAX_RECEIVE_BURST, *iter2);
+					uint16_t packetsReceived = dev->receivePackets(packetArr, MAX_RECEIVE_BURST, iter2);
 
 					for (int i = 0; i < packetsReceived; i++)
 					{
@@ -96,7 +96,7 @@ public:
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
 						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
-						std::map<uint32_t, bool>::const_iterator iter3 = m_FlowTable.find(hash);
+						auto iter3 = m_FlowTable.find(hash);
 
 						// if packet belongs to an already existing flow
 						if (iter3 != m_FlowTable.end() && iter3->second)

@@ -149,9 +149,9 @@ IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>
 
 	size_t totalSize = sizeof(uint16_t); // nextHeader + headerLen
 
-	for (std::vector<IPv6TLVOptionBuilder>::const_iterator iter = options.begin(); iter != options.end(); iter++)
+	for (auto iter : options)
 	{
-		IPv6Option option = iter->build();
+		IPv6Option option = iter.build();
 		totalSize += option.getTotalSize();
 		option.purgeRecordData();
 	}
@@ -166,9 +166,9 @@ IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>
 
 	size_t offset = sizeof(uint16_t);
 
-	for (std::vector<IPv6TLVOptionBuilder>::const_iterator iter = options.begin(); iter != options.end(); iter++)
+	for (auto iter : options)
 	{
-		IPv6Option option = iter->build();
+		IPv6Option option = iter.build();
 		memcpy(getDataPtr() + offset, option.getRecordBasePtr(), option.getTotalSize());
 		offset += option.getTotalSize();
 		option.purgeRecordData();

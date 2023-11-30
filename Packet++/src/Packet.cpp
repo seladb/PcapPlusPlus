@@ -793,9 +793,9 @@ std::string Packet::toString(bool timeAsLocalTime) const
 	std::vector<std::string> stringList;
 	std::string result;
 	toStringList(stringList, timeAsLocalTime);
-	for (std::vector<std::string>::iterator iter = stringList.begin(); iter != stringList.end(); iter++)
+	for (auto iter : stringList)
 	{
-		result += *iter + '\n';
+		result += iter + '\n';
 	}
 
 	return result;

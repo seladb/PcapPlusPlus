@@ -76,9 +76,9 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (auto iter : devList)
 	{
-		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << iter->getName() << "'   IP address: " << iter->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -189,11 +189,11 @@ int main(int argc, char* argv[])
 	{
 		const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-		for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+		for (auto iter : devList)
 		{
-			if ((*iter)->getDefaultGateway().isValid())
+			if (iter->getDefaultGateway().isValid())
 			{
-				dev = *iter;
+				dev = iter;
 				break;
 			}
 		}

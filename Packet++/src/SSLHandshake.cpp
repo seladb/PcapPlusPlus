@@ -1502,9 +1502,9 @@ SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generate
 	if (supportedGroupsExt != nullptr)
 	{
 		std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
-		for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
-			if (GreaseSet.find(*iter) == GreaseSet.end())
-				result.supportedGroups.push_back(*iter);
+		for (auto iter : supportedGroups)
+			if (GreaseSet.find(iter) == GreaseSet.end())
+				result.supportedGroups.push_back(iter);
 	}
 
 	// extract EC point formats
@@ -1536,36 +1536,36 @@ std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
 
 	// add cipher suites
 	bool firstCipher = true;
-	for (std::vector<uint16_t>::const_iterator iter = cipherSuites.begin(); iter != cipherSuites.end(); iter++)
+	for (auto iter : cipherSuites)
 	{
-		tlsFingerprint << (firstCipher ? "" : "-") << *iter;
+		tlsFingerprint << (firstCipher ? "" : "-") << iter;
 		firstCipher = false;
 	}
 	tlsFingerprint << ",";
 
 	// add extensions
 	bool firstExtension = true;
-	for (std::vector<uint16_t>::const_iterator iter = extensions.begin(); iter != extensions.end(); iter++)
+	for (auto iter : extensions)
 	{
-		tlsFingerprint << (firstExtension ? "" : "-") << *iter;
+		tlsFingerprint << (firstExtension ? "" : "-") << iter;
 		firstExtension = false;
 	}
 	tlsFingerprint << ",";
 
 	// add supported groups
 	bool firstGroup = true;
-	for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
+	for (auto iter : supportedGroups)
 	{
-		tlsFingerprint << (firstGroup ? "" : "-") << (*iter);
+		tlsFingerprint << (firstGroup ? "" : "-") << iter;
 		firstGroup = false;
 	}
 	tlsFingerprint << ",";
 
 	// add EC point formats
 	bool firstPointFormat = true;
-	for (std::vector<uint8_t>::iterator iter = ecPointFormats.begin(); iter != ecPointFormats.end(); iter++)
+	for (auto iter : ecPointFormats)
 	{
-		tlsFingerprint << (firstPointFormat ? "" : "-") << (int)(*iter);
+		tlsFingerprint << (firstPointFormat ? "" : "-") << (int)iter;
 		firstPointFormat = false;
 	}
 
@@ -1793,9 +1793,9 @@ std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toString()
 
 	// add extensions
 	bool firstExtension = true;
-	for (std::vector<uint16_t>::const_iterator iter = extensions.begin(); iter != extensions.end(); iter++)
+	for (auto iter : extensions)
 	{
-		tlsFingerprint << (firstExtension ? "" : "-") << *iter;
+		tlsFingerprint << (firstExtension ? "" : "-") << iter;
 		firstExtension = false;
 	}
 

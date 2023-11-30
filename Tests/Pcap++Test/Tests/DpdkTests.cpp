@@ -485,25 +485,25 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 			PTF_ASSERT_EQUAL(res.size(), 0);
 			if (PTF_IS_VERBOSE_MODE)
 			{
-				for (std::map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> >::iterator iter = res.begin(); iter != res.end(); iter++)
+				for (auto iter = res)
 				{
-					PTF_PRINT_VERBOSE("Same flow exists in core " << firstCoreId << " and core " << secondCoreId << ". Flow key = " << iter->first);
+					PTF_PRINT_VERBOSE("Same flow exists in core " << firstCoreId << " and core " << secondCoreId << ". Flow key = " << iter.first);
 					std::ostringstream stream;
-					stream << "Core" << firstCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
+					stream << "Core" << firstCoreId << "_Flow_" << std::hex << iter.first << ".pcap";
 					pcpp::PcapFileWriterDevice writerDev(stream.str());
 					writerDev.open();
-					writerDev.writePackets(iter->second.first);
+					writerDev.writePackets(iter.second.first);
 					writerDev.close();
 
 					std::ostringstream stream2;
-					stream2 << "Core" << secondCoreId << "_Flow_" << std::hex << iter->first << ".pcap";
+					stream2 << "Core" << secondCoreId << "_Flow_" << std::hex << iter.first << ".pcap";
 					pcpp::PcapFileWriterDevice writerDev2(stream2.str());
 					writerDev2.open();
-					writerDev2.writePackets(iter->second.second);
+					writerDev2.writePackets(iter.second.second);
 					writerDev2.close();
 
-					iter->second.first.clear();
-					iter->second.second.clear();
+					iter.second.first.clear();
+					iter.second.second.clear();
 
 				}
 			}
@@ -513,10 +513,10 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 		if (PTF_IS_VERBOSE_MODE)
 		{
-			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[firstCoreId].FlowKeys.begin(); iter != packetDataMultiThread[firstCoreId].FlowKeys.end(); iter++)
+			for(auto iter : packetDataMultiThread[firstCoreId].FlowKeys)
 			{
-				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter->first << "; Value=" << std::dec << iter->second.size());
-				iter->second.clear();
+				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter.first << "; Value=" << std::dec << iter.second.size());
+				iter.second.clear();
 			}
 		}
 
@@ -804,9 +804,9 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// that total amount of packets received by all threads is greater than zero
 
 	int packetCount = 0;
-	for (std::vector<pcpp::DpdkWorkerThread*>::iterator iter = workerThreadVec.begin(); iter != workerThreadVec.end(); iter++)
+	for (auto iter : workerThreadVec)
 	{
-		DpdkTestWorkerThread* thread = (DpdkTestWorkerThread*)(*iter);
+		DpdkTestWorkerThread* thread = (DpdkTestWorkerThread*)iter;
 		PTF_ASSERT_TRUE(thread->threadRanAndStopped());
 		packetCount += thread->getPacketCount();
 		PTF_PRINT_VERBOSE("Worker thread on core " << thread->getCoreId() << " captured " << thread->getPacketCount() << " packets");

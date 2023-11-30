@@ -135,12 +135,12 @@ void listPfRingDevices()
 	pcpp::Logger::getInstance().suppressLogs();
 
 	const std::vector<pcpp::PfRingDevice*>& devList = pcpp::PfRingDeviceList::getInstance().getPfRingDevicesList();
-	for (std::vector<pcpp::PfRingDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (auto iter : devList)
 	{
 		std::ostringstream interfaceIndex;
-		if ((*iter)->getInterfaceIndex() <= 9999)
+		if (iter->getInterfaceIndex() <= 9999)
 		{
-			interfaceIndex << (*iter)->getInterfaceIndex();
+			interfaceIndex << iter->getInterfaceIndex();
 		}
 		else
 		{
@@ -148,11 +148,11 @@ void listPfRingDevices()
 		}
 
 		std::cout
-			<< "    -> Name: " << std::left << std::setw(8) << (*iter)->getDeviceName()
+			<< "    -> Name: " << std::left << std::setw(8) << iter->getDeviceName()
 			<< " Index: " << std::setw(5) << interfaceIndex.str()
-			<< " MAC address: " << std::setw(19) << ((*iter)->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : (*iter)->getMacAddress().toString())
-			<< " Available RX channels: " << std::setw(3) << (int)(*iter)->getTotalNumOfRxChannels()
-			<< " MTU: " << (*iter)->getMtu()
+			<< " MAC address: " << std::setw(19) << (iter->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : iter->getMacAddress().toString())
+			<< " Available RX channels: " << std::setw(3) << (int)iter->getTotalNumOfRxChannels()
+			<< " MTU: " << iter->getMtu()
 			<< std::endl;
 	}
 

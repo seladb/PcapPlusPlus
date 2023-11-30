@@ -64,9 +64,9 @@ DpdkDeviceList::DpdkDeviceList()
 
 DpdkDeviceList::~DpdkDeviceList()
 {
-	for (std::vector<DpdkDevice*>::iterator iter = m_DpdkDeviceList.begin(); iter != m_DpdkDeviceList.end(); iter++)
+	for (auto iter : m_DpdkDeviceList)
 	{
-		delete (*iter);
+		delete iter;
 	}
 
 	m_DpdkDeviceList.clear();
@@ -223,10 +223,10 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) co
 		return NULL;
 	}
 
-	for (std::vector<DpdkDevice*>::const_iterator iter = m_DpdkDeviceList.begin(); iter != m_DpdkDeviceList.end(); iter++)
+	for (auto iter : m_DpdkDeviceList)
 	{
-		if ((*iter)->getPciAddress() == pciAddr)
-			return (*iter);
+		if (iter->getPciAddress() == pciAddr)
+			return iter;
 	}
 
 	return NULL;
@@ -369,7 +369,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 
 	m_WorkerThreads.clear();
 	uint32_t index = 0;
-	std::vector<DpdkWorkerThread*>::iterator iter = workerThreadsVec.begin();
+	auto iter = workerThreadsVec.begin();
 	while (iter != workerThreadsVec.end())
 	{
 		SystemCore core = SystemCores::IdToSystemCore[index];
@@ -382,19 +382,19 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 		int err = rte_eal_remote_launch(dpdkWorkerThreadStart, *iter, core.Id);
 		if (err != 0)
 		{
-			for (std::vector<DpdkWorkerThread*>::iterator iter2 = workerThreadsVec.begin(); iter2 != iter; iter2++)
+			for (auto iter2 : workerThreadsVec)
 			{
-				(*iter)->stop();
-				rte_eal_wait_lcore((*iter)->getCoreId());
-				PCPP_LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
+				iter->stop();
+				rte_eal_wait_lcore(iter->getCoreId());
+				PCPP_LOG_DEBUG("Thread on core [" << iter->getCoreId() << "] stopped");
 			}
 			PCPP_LOG_ERROR("Cannot create worker thread #" << core.Id << ". Error was: [" << strerror(err) << "]");
 			return false;
 		}
-		m_WorkerThreads.push_back(*iter);
+		m_WorkerThreads.push_back(iter);
 
-		index++;
-		iter++;
+		++index;
+		++iter;
 	}
 
 	return true;
@@ -408,11 +408,11 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 		return;
 	}
 
-	for (std::vector<DpdkWorkerThread*>::iterator iter = m_WorkerThreads.begin(); iter != m_WorkerThreads.end(); iter++)
+	for (auto iter : m_WorkerThreads)
 	{
-		(*iter)->stop();
-		rte_eal_wait_lcore((*iter)->getCoreId());
-		PCPP_LOG_DEBUG("Thread on core [" << (*iter)->getCoreId() << "] stopped");
+		iter->stop();
+		rte_eal_wait_lcore(iter->getCoreId());
+		PCPP_LOG_DEBUG("Thread on core [" << iter->getCoreId() << "] stopped");
 	}
 
 	m_WorkerThreads.clear();

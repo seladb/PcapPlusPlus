@@ -120,11 +120,11 @@ bool SdpLayer::addMediaDescription(const std::string& mediaType, uint16_t mediaP
 	}
 
 
-	for (std::vector<std::string>::iterator iter = mediaAttributes.begin(); iter != mediaAttributes.end(); iter++)
+	for (auto iter : mediaAttributes)
 	{
-		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, *iter) == nullptr)
+		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, iter) == nullptr)
 		{
-			PCPP_LOG_ERROR("Failed to add media attribute '" << *iter << "'");
+			PCPP_LOG_ERROR("Failed to add media attribute '" << iter << "'");
 			return false;
 		}
 	}

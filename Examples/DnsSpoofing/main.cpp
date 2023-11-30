@@ -128,9 +128,9 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (auto iter : devList)
 	{
-		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << iter->getName() << "'   IP address: " << iter->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -172,9 +172,9 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		bool hostMatch = false;
 
 		// go over all hosts in dnsHostsToSpoof list and see if current query matches one of them
-		for (std::vector<std::string>::iterator iter = args->dnsHostsToSpoof.begin(); iter != args->dnsHostsToSpoof.end(); iter++)
+		for (auto iter : args->dnsHostsToSpoof)
 		{
-			if (dnsLayer->getQuery(*iter, false) != nullptr)
+			if (dnsLayer->getQuery(iter, false) != nullptr)
 			{
 				hostMatch = true;
 				break;
@@ -288,12 +288,10 @@ void onApplicationInterrupted(void* cookie)
 		std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 		// go over all items (hosts + count) in the sorted vector and print them
-		for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
-				iter != map2vec.end();
-				iter++)
+		for(auto iter : map2vec)
 		{
 			std::stringstream values;
-			values << iter->first << "|" << iter->second;
+			values << iter.first << "|" << iter.second;
 			printer.printRow(values.str(), '|');
 		}
 	}

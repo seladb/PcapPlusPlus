@@ -89,9 +89,9 @@ void TablePrinter::printSeparator()
 	}
 
 	int totalLen = 0;
-	for (std::vector<int>::iterator iter = m_ColumnWidths.begin(); iter != m_ColumnWidths.end(); iter++)
+	for (auto iter : m_ColumnWidths)
 	{
-		totalLen += 2 + (*iter) + 1;
+		totalLen += 2 + iter + 1;
 	}
 
 	totalLen++;

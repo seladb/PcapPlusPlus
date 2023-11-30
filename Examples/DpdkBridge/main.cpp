@@ -112,9 +112,9 @@ void listDpdkPorts()
 
 	// go over all available DPDK devices and print info for each one
 	std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
-	for (std::vector<pcpp::DpdkDevice*>::iterator iter = deviceList.begin(); iter != deviceList.end(); iter++)
+	for (auto iter : deviceList)
 	{
-		pcpp::DpdkDevice* dev = *iter;
+		pcpp::DpdkDevice* dev = iter;
 		std::cout << "   "
 			<< " Port #" << dev->getDeviceId() << ":"
 			<< " MAC address='" << dev->getMacAddress() << "';"
@@ -311,22 +311,22 @@ int main(int argc, char* argv[])
 
 	// collect the list of DPDK devices
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
-	for (std::vector<int>::iterator iter = dpdkPortVec.begin(); iter != dpdkPortVec.end(); iter++)
+	for (auto iter : dpdkPortVec)
 	{
-		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(*iter);
+		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
 		if (dev == NULL)
 		{
-			EXIT_WITH_ERROR("DPDK device for port " << *iter << " doesn't exist");
+			EXIT_WITH_ERROR("DPDK device for port " << iter << " doesn't exist");
 		}
 		dpdkDevicesToUse.push_back(dev);
 	}
 
 	// go over all devices and open them
-	for (std::vector<pcpp::DpdkDevice*>::iterator iter = dpdkDevicesToUse.begin(); iter != dpdkDevicesToUse.end(); iter++)
+	for (auto iter : dpdkDevicesToUse)
 	{
-		if (!(*iter)->openMultiQueues(queueQuantity, 1))
+		if (!iter->openMultiQueues(queueQuantity, 1))
 		{
-			EXIT_WITH_ERROR("Couldn't open DPDK device #" << (*iter)->getDeviceId() << ", PMD '" << (*iter)->getPMDName() << "'");
+			EXIT_WITH_ERROR("Couldn't open DPDK device #" << iter->getDeviceId() << ", PMD '" << iter->getPMDName() << "'");
 		}
 	}
 

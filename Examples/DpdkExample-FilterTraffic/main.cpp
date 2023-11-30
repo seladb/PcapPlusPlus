@@ -136,9 +136,9 @@ void listDpdkPorts()
 
 	// go over all available DPDK devices and print info for each one
 	std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
-	for (std::vector<pcpp::DpdkDevice*>::iterator iter = deviceList.begin(); iter != deviceList.end(); iter++)
+	for (auto iter : deviceList)
 	{
-		pcpp::DpdkDevice* dev = *iter;
+		pcpp::DpdkDevice* dev = iter;
 		std::cout << "   "
 			<< " Port #" << dev->getDeviceId() << ":"
 			<< " MAC address='" << dev->getMacAddress() << "';"
@@ -160,11 +160,11 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 	// create a list of pairs of DpdkDevice and RX queues for all RX queues in all requested devices
 	int totalNumOfRxQueues = 0;
 	std::vector<std::pair<pcpp::DpdkDevice*, int> > deviceAndRxQVec;
-	for (std::vector<pcpp::DpdkDevice*>::iterator iter = dpdkDevicesToUse.begin(); iter != dpdkDevicesToUse.end(); iter++)
+	for (auto iter : dpdkDevicesToUse)
 	{
 		for (int rxQueueIndex = 0; rxQueueIndex < rxQueues; rxQueueIndex++)
 		{
-			std::pair<pcpp::DpdkDevice*, int> curPair(*iter, rxQueueIndex);
+			std::pair<pcpp::DpdkDevice*, int> curPair(iter, rxQueueIndex);
 			deviceAndRxQVec.push_back(curPair);
 		}
 		totalNumOfRxQueues += rxQueues;
@@ -177,10 +177,10 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 	// prepare the configuration for every core: divide the devices and RX queue for each device with the various cores
 	int i = 0;
 	std::vector<std::pair<pcpp::DpdkDevice*, int> >::iterator pairVecIter = deviceAndRxQVec.begin();
-	for (std::vector<pcpp::SystemCore>::iterator iter = coresToUse.begin(); iter != coresToUse.end(); iter++)
+	for (auto iter : coresToUse)
 	{
-		std::cout << "Using core " << (int)iter->Id << std::endl;
-		workerConfigArr[i].CoreId = iter->Id;
+		std::cout << "Using core " << (int)iter.Id << std::endl;
+		workerConfigArr[i].CoreId = iter.Id;
 		workerConfigArr[i].WriteMatchedPacketsToFile = writePacketsToDisk;
 
 		std::stringstream packetFileName;
@@ -193,23 +193,23 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 			if (pairVecIter == deviceAndRxQVec.end())
 				break;
 			workerConfigArr[i].InDataCfg[pairVecIter->first].push_back(pairVecIter->second);
-			pairVecIter++;
+			++pairVecIter;
 		}
 		if (rxQueuesRemainder > 0 && (pairVecIter != deviceAndRxQVec.end()))
 		{
 			workerConfigArr[i].InDataCfg[pairVecIter->first].push_back(pairVecIter->second);
-			pairVecIter++;
+			++pairVecIter;
 			rxQueuesRemainder--;
 		}
 
 		// print configuration for core
 		std::cout << "   Core configuration:" << std::endl;
-		for (InputDataConfig::iterator iter2 = workerConfigArr[i].InDataCfg.begin(); iter2 != workerConfigArr[i].InDataCfg.end(); iter2++)
+		for (auto iter2 : workerConfigArr[i].InDataCfg)
 		{
-			std::cout << "      DPDK device#" << iter2->first->getDeviceId() << ": ";
-			for (std::vector<int>::iterator iter3 = iter2->second.begin(); iter3 != iter2->second.end(); iter3++)
+			std::cout << "      DPDK device#" << iter2.first->getDeviceId() << ": ";
+			for (auto iter3 : iter2.second)
 			{
-				std::cout << "RX-Queue#" << *iter3 << ";  ";
+				std::cout << "RX-Queue#" << iter3 << ";  ";
 			}
 			std::cout << std::endl;
 		}
@@ -250,9 +250,9 @@ void onApplicationInterrupted(void* cookie)
 
 	// print final stats for every worker thread plus sum of all threads and free worker threads memory
 	PacketStats aggregatedStats;
-	for (std::vector<pcpp::DpdkWorkerThread*>::iterator iter = args->workerThreadsVector->begin(); iter != args->workerThreadsVector->end(); iter++)
+	for (auto iter : *(args->workerThreadsVector))
 	{
-		AppWorkerThread* thread = (AppWorkerThread*)(*iter);
+		AppWorkerThread* thread = (AppWorkerThread*)(iter);
 		PacketStats threadStats = thread->getStats();
 		aggregatedStats.collectStats(threadStats);
 		printer.printRow(threadStats.getStatValuesAsString("|"), '|');
@@ -489,39 +489,39 @@ int main(int argc, char* argv[])
 
 	// collect the list of DPDK devices
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
-	for (std::vector<int>::iterator iter = dpdkPortVec.begin(); iter != dpdkPortVec.end(); iter++)
+	for (auto iter : dpdkPortVec)
 	{
-		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(*iter);
+		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
 		if (dev == NULL)
 		{
-			EXIT_WITH_ERROR("DPDK device for port " << *iter << " doesn't exist");
+			EXIT_WITH_ERROR("DPDK device for port " << iter << " doesn't exist");
 		}
 		dpdkDevicesToUse.push_back(dev);
 	}
 
 	// go over all devices and open them
-	for (std::vector<pcpp::DpdkDevice*>::iterator iter = dpdkDevicesToUse.begin(); iter != dpdkDevicesToUse.end(); iter++)
+	for (auto iter : dpdkDevicesToUse)
 	{
-		if (rxQueues > (*iter)->getTotalNumOfRxQueues())
+		if (rxQueues > iter->getTotalNumOfRxQueues())
 		{
-			EXIT_WITH_ERROR("Number of RX errors cannot exceed the max allowed by the device which is " << (*iter)->getTotalNumOfRxQueues());
+			EXIT_WITH_ERROR("Number of RX errors cannot exceed the max allowed by the device which is " << iter->getTotalNumOfRxQueues());
 		}
-		if (txQueues > (*iter)->getTotalNumOfTxQueues())
+		if (txQueues > iter->getTotalNumOfTxQueues())
 		{
-			EXIT_WITH_ERROR("Number of TX errors cannot exceed the max allowed by the device which is " << (*iter)->getTotalNumOfTxQueues());
+			EXIT_WITH_ERROR("Number of TX errors cannot exceed the max allowed by the device which is " << iter->getTotalNumOfTxQueues());
 		}
-		if (!(*iter)->openMultiQueues(rxQueues, txQueues))
+		if (!iter->openMultiQueues(rxQueues, txQueues))
 		{
-			EXIT_WITH_ERROR("Couldn't open DPDK device #" << (*iter)->getDeviceId() << ", PMD '" << (*iter)->getPMDName() << "'");
+			EXIT_WITH_ERROR("Couldn't open DPDK device #" << iter->getDeviceId() << ", PMD '" << iter->getPMDName() << "'");
 		}
 		std::cout
-			<< "Opened device #" << (*iter)->getDeviceId()
+			<< "Opened device #" << iter->getDeviceId()
 			<< " with " << rxQueues << " RX queues and " << txQueues << " TX queues."
 			<< " RSS hash functions:" << std::endl;
-		std::vector<std::string> rssHashFunctions = (*iter)->rssHashFunctionMaskToString((*iter)->getConfiguredRssHashFunction());
-		for(std::vector<std::string>::iterator it = rssHashFunctions.begin(); it != rssHashFunctions.end(); ++it)
+		std::vector<std::string> rssHashFunctions = iter->rssHashFunctionMaskToString(iter->getConfiguredRssHashFunction());
+		for(auto it : rssHashFunctions)
 		{
-			std::cout << "   " << (*it) << std::endl;
+			std::cout << "   " << it << std::endl;
 		}
 	}
 
@@ -541,7 +541,7 @@ int main(int argc, char* argv[])
 	// create worker thread for every core
 	std::vector<pcpp::DpdkWorkerThread*> workerThreadVec;
 	int i = 0;
-	for (std::vector<pcpp::SystemCore>::iterator iter = coresToUse.begin(); iter != coresToUse.end(); iter++)
+	for (auto iter = coresToUse.begin(); iter != coresToUse.end(); iter++)
 	{
 		AppWorkerThread* newWorker = new AppWorkerThread(workerConfigArr[i], matchingEngine);
 		workerThreadVec.push_back(newWorker);

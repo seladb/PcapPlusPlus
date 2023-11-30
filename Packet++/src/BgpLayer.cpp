@@ -163,26 +163,26 @@ size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional
 
 	size_t dataLen = 0;
 
-	for (std::vector<optional_parameter>::const_iterator iter = optionalParams.begin(); iter != optionalParams.end(); iter++)
+	for (auto iter : optionalParams)
 	{
-		if (iter->length > 32)
+		if (iter.length > 32)
 		{
-			PCPP_LOG_ERROR("Illegal optional parameter length " << (int)iter->length << ", must be 32 bytes or less");
+			PCPP_LOG_ERROR("Illegal optional parameter length " << (int)iter.length << ", must be 32 bytes or less");
 			break; // illegal value
 		}
 
-		size_t curDataSize = 2*sizeof(uint8_t) + (size_t)iter->length;
+		size_t curDataSize = 2*sizeof(uint8_t) + (size_t)iter.length;
 
 		if (dataLen + curDataSize > maxByteArrSize)
 		{
 			break;
 		}
 
-		resultByteArr[0] = iter->type;
-		resultByteArr[1] = iter->length;
-		if (iter->length > 0)
+		resultByteArr[0] = iter.type;
+		resultByteArr[1] = iter.length;
+		if (iter.length > 0)
 		{
-			memcpy(resultByteArr + 2*sizeof(uint8_t), iter->value, iter->length);
+			memcpy(resultByteArr + 2*sizeof(uint8_t), iter.value, iter.length);
 		}
 
 		dataLen += curDataSize;
@@ -416,13 +416,13 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
 
 	size_t dataLen = 0;
 
-	for (std::vector<prefix_and_ip>::const_iterator iter = prefixAndIpData.begin(); iter != prefixAndIpData.end(); iter++)
+	for (auto iter : prefixAndIpData)
 	{
 		uint8_t curData[5];
-		curData[0] = iter->prefix;
+		curData[0] = iter.prefix;
 		size_t curDataSize = 1;
-		const uint8_t* octets = iter->ipAddr.toBytes();
-		if (iter->prefix == 32)
+		const uint8_t* octets = iter.ipAddr.toBytes();
+		if (iter.prefix == 32)
 		{
 			curDataSize += 4;
 			curData[1] = octets[0];
@@ -430,27 +430,27 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
 			curData[3] = octets[2];
 			curData[4] = octets[3];
 		}
-		else if (iter->prefix == 24)
+		else if (iter.prefix == 24)
 		{
 			curDataSize += 3;
 			curData[1] = octets[0];
 			curData[2] = octets[1];
 			curData[3] = octets[2];
 		}
-		else if (iter->prefix == 16)
+		else if (iter.prefix == 16)
 		{
 			curDataSize += 2;
 			curData[1] = octets[0];
 			curData[2] = octets[1];
 		}
-		else if (iter->prefix == 8)
+		else if (iter.prefix == 8)
 		{
 			curDataSize += 1;
 			curData[1] = octets[0];
 		}
 		else
 		{
-			PCPP_LOG_ERROR("Illegal prefix value " << (int)iter->prefix);
+			PCPP_LOG_ERROR("Illegal prefix value " << (int)iter.prefix);
 			break; // illegal value
 		}
 
@@ -477,27 +477,27 @@ size_t BgpUpdateMessageLayer::pathAttributesToByteArray(const std::vector<path_a
 
 	size_t dataLen = 0;
 
-	for (std::vector<path_attribute>::const_iterator iter = pathAttributes.begin(); iter != pathAttributes.end(); iter++)
+	for (auto iter : pathAttributes)
 	{
-		if (iter->length > 32)
+		if (iter.length > 32)
 		{
-			PCPP_LOG_ERROR("Illegal path attribute length " << (int)iter->length);
+			PCPP_LOG_ERROR("Illegal path attribute length " << (int)iter.length);
 			break; // illegal value
 		}
 
-		size_t curDataSize = 3*sizeof(uint8_t) + (size_t)iter->length;
+		size_t curDataSize = 3*sizeof(uint8_t) + (size_t)iter.length;
 
 		if (dataLen + curDataSize > maxByteArrSize)
 		{
 			break;
 		}
 
-		resultByteArr[0] = iter->flags;
-		resultByteArr[1] = iter->type;
-		resultByteArr[2] = iter->length;
-		if (iter->length > 0)
+		resultByteArr[0] = iter.flags;
+		resultByteArr[1] = iter.type;
+		resultByteArr[2] = iter.length;
+		if (iter.length > 0)
 		{
-			memcpy(resultByteArr + 3*sizeof(uint8_t), iter->data, iter->length);
+			memcpy(resultByteArr + 3*sizeof(uint8_t), iter.data, iter.length);
 		}
 
 		dataLen += curDataSize;
