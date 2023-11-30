@@ -128,9 +128,9 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (auto iter : devList)
 	{
-		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << iter->getName() << "'   IP address: " << iter->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -256,9 +256,7 @@ void printCommonTLSFingerprints(const std::map<std::string, uint64_t>& tlsFinger
 	std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 	// go over all items (fingerprints + count) in the sorted vector and print them
-	for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
-			iter != map2vec.end();
-			iter++)
+	for(auto iter = map2vec.begin(); iter != map2vec.end(); ++iter)
 	{
 		if (iter - map2vec.begin() >= printCountItems)
 			break;
