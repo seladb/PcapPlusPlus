@@ -174,7 +174,7 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 // tcpReassemblyTest()
 // ~~~~~~~~~~~~~~~~~~~
 
-static bool tcpReassemblyTest(std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results, bool monitorOpenCloseConns, bool closeConnsManually)
+static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results, bool monitorOpenCloseConns, bool closeConnsManually)
 {
 	pcpp::TcpReassembly* tcpReassembly = nullptr;
 
