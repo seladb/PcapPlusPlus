@@ -312,13 +312,12 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 	std::vector<pcpp::PcapLiveDevice*> devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
 
-	for(auto iter : devList)
+	auto iter = std::find_if(devList.begin(), devList.end(), [](const pcpp::PcapLiveDevice *dev) {
+		return !dev->getLoopback() && dev->getIPv4Address() != pcpp::IPv4Address::Zero;
+	});
+	if (iter != devList.end())
 	{
-		if (!iter->getLoopback() && iter->getIPv4Address() != pcpp::IPv4Address::Zero)
-		{
-			liveDev = iter;
-			break;
-		}
+		liveDev = *iter;
 	}
 
 	PTF_ASSERT_NOT_NULL(liveDev);

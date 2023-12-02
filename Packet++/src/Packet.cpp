@@ -793,7 +793,7 @@ std::string Packet::toString(bool timeAsLocalTime) const
 {
 	std::vector<std::string> stringList;
 	toStringList(stringList, timeAsLocalTime);
-	return std::accumulate(stringList.begin(), stringList.end(), "",
+	return std::accumulate(stringList.begin(), stringList.end(), std::string(),
 						   [](std::string a, const std::string &b) { return std::move(a) + b + '\n'; });
 }
 
