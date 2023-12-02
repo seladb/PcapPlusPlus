@@ -30,9 +30,9 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 
 PcapLiveDeviceList::~PcapLiveDeviceList()
 {
-	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(auto devIter : m_LiveDeviceList)
 	{
-		delete (*devIter);
+		delete devIter;
 	}
 }
 
@@ -231,19 +231,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAdd
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(auto devIter : m_LiveDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
-		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
+		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
+		for(auto addrIter : devIter->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter->addr, addrAsString);
+				internal::sockaddr2string(addrIter.addr, addrAsString);
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
+			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
@@ -253,7 +253,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			if (currAddr->s_addr == ipAddr.toInt())
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return (*devIter);
+				return devIter;
 			}
 		}
 	}
@@ -264,19 +264,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(auto devIter : m_LiveDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
-		for(std::vector<pcap_addr_t>::iterator addrIter = (*devIter)->m_Addresses.begin(); addrIter != (*devIter)->m_Addresses.end(); addrIter++)
+		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
+		for(auto addrIter : devIter->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter->addr, addrAsString);
+				internal::sockaddr2string(addrIter.addr, addrAsString);
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter->addr);
+			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
@@ -289,7 +289,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
 				delete [] addrAsArr;
-				return (*devIter);
+				return devIter;
 			}
 
 			delete [] addrAsArr;
@@ -316,10 +316,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(std::vector<PcapLiveDevice*>::const_iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(auto devIter : m_LiveDeviceList)
 	{
-		if (name == (*devIter)->getName())
-			return (*devIter);
+		if (name == devIter->getName())
+			return devIter;
 	}
 
 	return nullptr;
@@ -345,9 +345,9 @@ PcapLiveDeviceList* PcapLiveDeviceList::clone()
 
 void PcapLiveDeviceList::reset()
 {
-	for(std::vector<PcapLiveDevice*>::iterator devIter = m_LiveDeviceList.begin(); devIter != m_LiveDeviceList.end(); devIter++)
+	for(auto devIter : m_LiveDeviceList)
 	{
-		delete (*devIter);
+		delete devIter;
 	}
 
 	m_LiveDeviceList.clear();

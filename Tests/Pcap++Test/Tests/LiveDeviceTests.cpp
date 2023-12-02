@@ -154,11 +154,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	PTF_ASSERT_FALSE(devList.empty());
 
 	pcpp::IPv4Address defaultGateway = pcpp::IPv4Address::Zero;
-	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for(auto iter : devList)
 	{
-		PTF_ASSERT_FALSE((*iter)->getName().empty());
+		PTF_ASSERT_FALSE(iter->getName().empty());
 		if (defaultGateway == pcpp::IPv4Address::Zero)
-			defaultGateway = (*iter)->getDefaultGateway();
+			defaultGateway = iter->getDefaultGateway();
 	}
 
 	PTF_ASSERT_NOT_EQUAL(defaultGateway, pcpp::IPv4Address::Zero);
@@ -172,9 +172,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
 
-	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for(auto iter : devList)
 	{
-		PTF_ASSERT_FALSE((*iter)->getName().empty());
+		PTF_ASSERT_FALSE(iter->getName().empty());
 	}
 
 	pcpp::PcapLiveDeviceList *clonedDevList = pcpp::PcapLiveDeviceList::getInstance().clone();
@@ -183,8 +183,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	std::vector<pcpp::PcapLiveDevice*> clonedDevListVector = clonedDevList->getPcapLiveDevicesList();
 	PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());
 
-	std::vector<pcpp::PcapLiveDevice*>::iterator iterCloned = clonedDevListVector.begin();
-	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++, iterCloned++)
+	auto iterCloned = clonedDevListVector.begin();
+	for(auto iter = devList.begin(); iter != devList.end(); ++iter, ++iterCloned)
 	{
 		PTF_ASSERT_EQUAL((*iter)->getName(), (*iterCloned)->getName());
 	}
@@ -312,11 +312,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 	std::vector<pcpp::PcapLiveDevice*> devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
 
-	for(std::vector<pcpp::PcapLiveDevice*>::iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for(auto iter : devList)
 	{
-		if (!(*iter)->getLoopback() && (*iter)->getIPv4Address() != pcpp::IPv4Address::Zero)
+		if (!iter->getLoopback() && iter->getIPv4Address() != pcpp::IPv4Address::Zero)
 		{
-			liveDev = *iter;
+			liveDev = iter;
 			break;
 		}
 	}

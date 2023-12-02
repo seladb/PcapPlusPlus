@@ -344,10 +344,10 @@ icmp_router_advertisement* IcmpLayer::setRouterAdvertisementData(uint8_t code, u
 	header->header->addressEntrySize = 2;
 
 	icmp_router_address_structure* curPos = (icmp_router_address_structure*)((uint8_t*)header->header + sizeof(icmp_router_advertisement_hdr));
-	for (std::vector<icmp_router_address_structure>::const_iterator iter = routerAddresses.begin(); iter != routerAddresses.end(); iter++)
+	for (auto iter : routerAddresses)
 	{
-		curPos->routerAddress = iter->routerAddress;
-		curPos->preferenceLevel = iter->preferenceLevel;
+		curPos->routerAddress = iter.routerAddress;
+		curPos->preferenceLevel = iter.preferenceLevel;
 		curPos += 1;
 	}
 

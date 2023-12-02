@@ -1,6 +1,7 @@
 #ifndef PCPP_TEST_FRAMEWORK_RUN
 #define PCPP_TEST_FRAMEWORK_RUN
 
+#include <algorithm>
 #include <vector>
 #include <iomanip>
 #include <iostream>
@@ -32,14 +33,11 @@ static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetT
 	__ptfSplitString(tagSet, tagSetVec);
 	__ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
 
-	for (std::vector<std::string>::const_iterator tagSetToCompareWithIter = tagSetToCompareWithVec.begin(); tagSetToCompareWithIter != tagSetToCompareWithVec.end(); tagSetToCompareWithIter++)
+	for (auto tagSetToCompareWithIter : tagSetToCompareWithVec)
 	{
-		for (std::vector<std::string>::const_iterator tagSetIter = tagSetVec.begin(); tagSetIter != tagSetVec.end(); tagSetIter++)
+		if (std::any_of(tagSetVec.begin(), tagSetVec.end(), [tagSetToCompareWithIter](const std::string &val){ return val == tagSetToCompareWithIter;}))
 		{
-			if (*tagSetIter == *tagSetToCompareWithIter)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 
