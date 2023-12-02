@@ -14,6 +14,7 @@
 #include "Logger.h"
 #include "EndianPortable.h"
 #include <string.h>
+#include <numeric>
 #include <typeinfo>
 #include <sstream>
 #ifdef _MSC_VER
@@ -791,14 +792,9 @@ Layer* Packet::createFirstLayer(LinkLayerType linkType)
 std::string Packet::toString(bool timeAsLocalTime) const
 {
 	std::vector<std::string> stringList;
-	std::string result;
 	toStringList(stringList, timeAsLocalTime);
-	for (auto iter : stringList)
-	{
-		result += iter + '\n';
-	}
-
-	return result;
+	return std::accumulate(stringList.begin(), stringList.end(), "",
+						   [](std::string a, const std::string &b) { return std::move(a) + b + '\n'; });
 }
 
 void Packet::toStringList(std::vector<std::string>& result, bool timeAsLocalTime) const
