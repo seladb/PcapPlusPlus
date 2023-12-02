@@ -26,18 +26,22 @@ namespace pcpp
 
 	std::string SmtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
 	{
-		if (removeEscapeCharacters)
+		std::string option = getCommandOptionInternal();
+		if (!removeEscapeCharacters)
 		{
-			std::stringstream ss;
-			std::string field = getCommandOptionInternal();
-			for (size_t idx = 0; idx < field.size(); ++idx)
-			{
-				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
-					ss << field.c_str()[idx];
-			}
-			return ss.str();
+			return option;
 		}
-		return getCommandOptionInternal();
+
+		std::string optionWithEscapeChars;
+		for (char ch : option)
+		{
+			if (ch < 127 && ch > 31)
+			{
+				optionWithEscapeChars.push_back(ch);
+			}
+		}
+
+		return optionWithEscapeChars;
 	}
 
 	std::string SmtpRequestLayer::getCommandInfo(SmtpCommand code)
@@ -132,18 +136,22 @@ namespace pcpp
 
 	std::string SmtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const
 	{
-		if (removeEscapeCharacters)
+		std::string option = getCommandOptionInternal();
+		if (!removeEscapeCharacters)
 		{
-			std::stringstream ss;
-			std::string field = getCommandOptionInternal();
-			for (size_t idx = 0; idx < field.size(); ++idx)
-			{
-				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
-					ss << field.c_str()[idx];
-			}
-			return ss.str();
+			return option;
 		}
-		return getCommandOptionInternal();
+
+		std::string optionWithEscapeChars;
+		for (char ch : option)
+		{
+			if (ch < 127 && ch > 31)
+			{
+				optionWithEscapeChars.push_back(ch);
+			}
+		}
+
+		return optionWithEscapeChars;
 	}
 
 	std::string SmtpResponseLayer::getStatusCodeAsString(SmtpStatusCode code)
