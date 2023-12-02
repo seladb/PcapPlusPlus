@@ -344,7 +344,7 @@ icmp_router_advertisement* IcmpLayer::setRouterAdvertisementData(uint8_t code, u
 	header->header->addressEntrySize = 2;
 
 	icmp_router_address_structure* curPos = (icmp_router_address_structure*)((uint8_t*)header->header + sizeof(icmp_router_advertisement_hdr));
-	for (auto iter : routerAddresses)
+	for (const auto &iter : routerAddresses)
 	{
 		curPos->routerAddress = iter.routerAddress;
 		curPos->preferenceLevel = iter.preferenceLevel;

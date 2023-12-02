@@ -56,7 +56,7 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
-			for (auto iter : other)
+			for (const auto iter : other)
 			{
 				T* objCopy = new T(*iter);
 				m_Vector.push_back(objCopy);

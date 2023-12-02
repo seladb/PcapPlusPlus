@@ -128,7 +128,7 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (auto iter : devList)
+	for (const auto &iter : devList)
 	{
 		std::cout << "    -> Name: '" << iter->getName() << "'   IP address: " << iter->getIPv4Address().toString() << std::endl;
 	}
@@ -172,7 +172,7 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		bool hostMatch = false;
 
 		// go over all hosts in dnsHostsToSpoof list and see if current query matches one of them
-		for (auto iter : args->dnsHostsToSpoof)
+		for (const auto &iter : args->dnsHostsToSpoof)
 		{
 			if (dnsLayer->getQuery(iter, false) != nullptr)
 			{
@@ -288,7 +288,7 @@ void onApplicationInterrupted(void* cookie)
 		std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 		// go over all items (hosts + count) in the sorted vector and print them
-		for(auto iter : map2vec)
+		for(const auto &iter : map2vec)
 		{
 			std::stringstream values;
 			values << iter.first << "|" << iter.second;

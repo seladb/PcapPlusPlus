@@ -166,7 +166,7 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 			// print layer by layer by layer as we want to add a few spaces before each layer
 			std::vector<std::string> packetLayers;
 			parsedPacket.toStringList(packetLayers);
-			for (auto iter : packetLayers)
+			for (const auto &iter : packetLayers)
 				(*detailedReportFile) << "\n    " << iter;
 			(*detailedReportFile) << std::endl;
 		}
@@ -270,7 +270,7 @@ void searchDirectories(const std::string &directory, bool includeSubDirectories,
 
 	// when we get to here we already covered all sub-directories and collected all the files in this directory that are required for search
 	// go over each such file and search its packets to find the search criteria
-	for (auto iter : pcapList)
+	for (const auto &iter : pcapList)
 	{
 		// do the actual search
 		int packetsFound = searchPcap(iter, searchCriteria, detailedReportFile);

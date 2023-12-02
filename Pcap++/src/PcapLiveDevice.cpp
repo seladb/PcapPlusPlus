@@ -936,7 +936,7 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(auto addrIter : m_Addresses)
+	for(const auto &addrIter : m_Addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
@@ -960,7 +960,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (auto addrIter : m_Addresses)
+	for (const auto &addrIter : m_Addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{

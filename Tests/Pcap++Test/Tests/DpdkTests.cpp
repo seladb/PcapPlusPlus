@@ -485,7 +485,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 			PTF_ASSERT_EQUAL(res.size(), 0);
 			if (PTF_IS_VERBOSE_MODE)
 			{
-				for (auto iter = res)
+				for (const auto &iter : res)
 				{
 					PTF_PRINT_VERBOSE("Same flow exists in core " << firstCoreId << " and core " << secondCoreId << ". Flow key = " << iter.first);
 					std::ostringstream stream;
@@ -513,7 +513,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 
 		if (PTF_IS_VERBOSE_MODE)
 		{
-			for(auto iter : packetDataMultiThread[firstCoreId].FlowKeys)
+			for(const auto &iter : packetDataMultiThread[firstCoreId].FlowKeys)
 			{
 				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter.first << "; Value=" << std::dec << iter.second.size());
 				iter.second.clear();
@@ -804,7 +804,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 	// that total amount of packets received by all threads is greater than zero
 
 	int packetCount = 0;
-	for (auto iter : workerThreadVec)
+	for (const auto &iter : workerThreadVec)
 	{
 		DpdkTestWorkerThread* thread = (DpdkTestWorkerThread*)iter;
 		PTF_ASSERT_TRUE(thread->threadRanAndStopped());

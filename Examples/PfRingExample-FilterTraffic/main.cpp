@@ -135,7 +135,7 @@ void listPfRingDevices()
 	pcpp::Logger::getInstance().suppressLogs();
 
 	const std::vector<pcpp::PfRingDevice*>& devList = pcpp::PfRingDeviceList::getInstance().getPfRingDevicesList();
-	for (auto iter : devList)
+	for (const auto &iter : devList)
 	{
 		std::ostringstream interfaceIndex;
 		if (iter->getInterfaceIndex() <= 9999)

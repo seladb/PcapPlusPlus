@@ -33,7 +33,7 @@ static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetT
 	__ptfSplitString(tagSet, tagSetVec);
 	__ptfSplitString(tagSetToCompareWith, tagSetToCompareWithVec);
 
-	for (auto tagSetToCompareWithIter : tagSetToCompareWithVec)
+	for (const auto &tagSetToCompareWithIter : tagSetToCompareWithVec)
 	{
 		if (std::any_of(tagSetVec.begin(), tagSetVec.end(), [tagSetToCompareWithIter](const std::string &val){ return val == tagSetToCompareWithIter;}))
 		{

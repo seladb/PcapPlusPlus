@@ -124,7 +124,7 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (auto iter : devList)
+	for (const auto &iter : devList)
 	{
 		std::cout << "    -> Name: '" << iter->getName() << "'   IP address: " << iter->getIPv4Address().toString() << std::endl;
 	}
@@ -211,7 +211,7 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 	std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(auto iter : map2vec)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
 		values << iter.first << "|" << iter.second;
@@ -240,7 +240,7 @@ void printVersions(std::map<uint16_t, int>& versionMap, const std::string& headl
 	std::sort(map2vec.begin(),map2vec.end(), &uint16CountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(auto iter : map2vec)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
 		values << pcpp::SSLVersion(iter.first).toString() << "|" << iter.second;
@@ -269,7 +269,7 @@ void printCipherSuites(ServerHelloStats& serverHelloStats)
 	std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(auto iter : map2vec)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
 		values << iter.first << "|" << iter.second;
@@ -295,7 +295,7 @@ void printPorts(SSLGeneralStats& stats)
 	std::sort(map2vec.begin(),map2vec.end(), &uint16CountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(auto iter : map2vec)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
 		values << iter.first << "|" << iter.second;

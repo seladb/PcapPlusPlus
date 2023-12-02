@@ -76,7 +76,7 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (auto iter : devList)
+	for (const auto &iter : devList)
 	{
 		std::cout << "    -> Name: '" << iter->getName() << "'   IP address: " << iter->getIPv4Address().toString() << std::endl;
 	}

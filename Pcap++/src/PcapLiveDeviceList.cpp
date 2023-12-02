@@ -30,7 +30,7 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 
 PcapLiveDeviceList::~PcapLiveDeviceList()
 {
-	for(auto devIter : m_LiveDeviceList)
+	for(const auto &devIter : m_LiveDeviceList)
 	{
 		delete devIter;
 	}
@@ -231,10 +231,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAdd
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(auto devIter : m_LiveDeviceList)
+	for(const auto &devIter : m_LiveDeviceList)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
-		for(auto addrIter : devIter->m_Addresses)
+		for(const auto &addrIter : devIter->m_Addresses)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
@@ -264,10 +264,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(auto devIter : m_LiveDeviceList)
+	for(const auto &devIter : m_LiveDeviceList)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
-		for(auto addrIter : devIter->m_Addresses)
+		for(const auto &addrIter : devIter->m_Addresses)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
@@ -316,7 +316,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(auto devIter : m_LiveDeviceList)
+	for(const auto &devIter : m_LiveDeviceList)
 	{
 		if (name == devIter->getName())
 			return devIter;

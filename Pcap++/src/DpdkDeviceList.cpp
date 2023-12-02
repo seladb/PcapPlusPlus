@@ -223,7 +223,7 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) co
 		return NULL;
 	}
 
-	for (auto iter : m_DpdkDeviceList)
+	for (const auto &iter : m_DpdkDeviceList)
 	{
 		if (iter->getPciAddress() == pciAddr)
 			return iter;
@@ -382,7 +382,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 		int err = rte_eal_remote_launch(dpdkWorkerThreadStart, *iter, core.Id);
 		if (err != 0)
 		{
-			for (auto iter2 : workerThreadsVec)
+			for (const auto &iter2 : workerThreadsVec)
 			{
 				iter->stop();
 				rte_eal_wait_lcore(iter->getCoreId());
@@ -408,7 +408,7 @@ void DpdkDeviceList::stopDpdkWorkerThreads()
 		return;
 	}
 
-	for (auto iter : m_WorkerThreads)
+	for (const auto &iter : m_WorkerThreads)
 	{
 		iter->stop();
 		rte_eal_wait_lcore(iter->getCoreId());

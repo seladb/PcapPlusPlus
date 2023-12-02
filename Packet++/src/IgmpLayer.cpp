@@ -420,7 +420,7 @@ igmpv3_group_record* IgmpV3ReportLayer::addGroupRecordAt(uint8_t recordType, con
 	newGroupRecord->numOfSources = htobe16(sourceAddresses.size());
 
 	int srcAddrOffset = 0;
-	for (auto iter : sourceAddresses)
+	for (const auto &iter : sourceAddresses)
 	{
 		memcpy(newGroupRecord->sourceAddresses + srcAddrOffset, iter.toBytes(), sizeof(uint32_t));
 		srcAddrOffset += sizeof(uint32_t);

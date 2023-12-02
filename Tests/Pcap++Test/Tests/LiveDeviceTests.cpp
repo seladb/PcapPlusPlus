@@ -154,7 +154,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	PTF_ASSERT_FALSE(devList.empty());
 
 	pcpp::IPv4Address defaultGateway = pcpp::IPv4Address::Zero;
-	for(auto iter : devList)
+	for(const auto &iter : devList)
 	{
 		PTF_ASSERT_FALSE(iter->getName().empty());
 		if (defaultGateway == pcpp::IPv4Address::Zero)
@@ -172,7 +172,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
 
-	for(auto iter : devList)
+	for(const auto &iter : devList)
 	{
 		PTF_ASSERT_FALSE(iter->getName().empty());
 	}

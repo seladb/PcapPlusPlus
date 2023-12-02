@@ -136,7 +136,7 @@ void listDpdkPorts()
 
 	// go over all available DPDK devices and print info for each one
 	std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
-	for (auto iter : deviceList)
+	for (const auto &iter : deviceList)
 	{
 		pcpp::DpdkDevice* dev = iter;
 		std::cout << "   "
@@ -160,7 +160,7 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 	// create a list of pairs of DpdkDevice and RX queues for all RX queues in all requested devices
 	int totalNumOfRxQueues = 0;
 	std::vector<std::pair<pcpp::DpdkDevice*, int> > deviceAndRxQVec;
-	for (auto iter : dpdkDevicesToUse)
+	for (const auto &iter : dpdkDevicesToUse)
 	{
 		for (int rxQueueIndex = 0; rxQueueIndex < rxQueues; rxQueueIndex++)
 		{
@@ -177,7 +177,7 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 	// prepare the configuration for every core: divide the devices and RX queue for each device with the various cores
 	int i = 0;
 	std::vector<std::pair<pcpp::DpdkDevice*, int> >::iterator pairVecIter = deviceAndRxQVec.begin();
-	for (auto iter : coresToUse)
+	for (const auto &iter : coresToUse)
 	{
 		std::cout << "Using core " << (int)iter.Id << std::endl;
 		workerConfigArr[i].CoreId = iter.Id;
@@ -204,10 +204,10 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 
 		// print configuration for core
 		std::cout << "   Core configuration:" << std::endl;
-		for (auto iter2 : workerConfigArr[i].InDataCfg)
+		for (const auto &iter2 : workerConfigArr[i].InDataCfg)
 		{
 			std::cout << "      DPDK device#" << iter2.first->getDeviceId() << ": ";
-			for (auto iter3 : iter2.second)
+			for (const auto &iter3 : iter2.second)
 			{
 				std::cout << "RX-Queue#" << iter3 << ";  ";
 			}
@@ -250,7 +250,7 @@ void onApplicationInterrupted(void* cookie)
 
 	// print final stats for every worker thread plus sum of all threads and free worker threads memory
 	PacketStats aggregatedStats;
-	for (auto iter : *(args->workerThreadsVector))
+	for (const auto &iter : *(args->workerThreadsVector))
 	{
 		AppWorkerThread* thread = (AppWorkerThread*)(iter);
 		PacketStats threadStats = thread->getStats();
@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
 
 	// collect the list of DPDK devices
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
-	for (auto iter : dpdkPortVec)
+	for (const auto &iter : dpdkPortVec)
 	{
 		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
 		if (dev == NULL)
@@ -500,7 +500,7 @@ int main(int argc, char* argv[])
 	}
 
 	// go over all devices and open them
-	for (auto iter : dpdkDevicesToUse)
+	for (const auto &iter : dpdkDevicesToUse)
 	{
 		if (rxQueues > iter->getTotalNumOfRxQueues())
 		{
@@ -519,7 +519,7 @@ int main(int argc, char* argv[])
 			<< " with " << rxQueues << " RX queues and " << txQueues << " TX queues."
 			<< " RSS hash functions:" << std::endl;
 		std::vector<std::string> rssHashFunctions = iter->rssHashFunctionMaskToString(iter->getConfiguredRssHashFunction());
-		for(auto it : rssHashFunctions)
+		for(const auto &it : rssHashFunctions)
 		{
 			std::cout << "   " << it << std::endl;
 		}
@@ -541,7 +541,7 @@ int main(int argc, char* argv[])
 	// create worker thread for every core
 	std::vector<pcpp::DpdkWorkerThread*> workerThreadVec;
 	int i = 0;
-	for (auto iter = coresToUse.begin(); iter != coresToUse.end(); iter++)
+	for (auto iter = coresToUse.begin(); iter != coresToUse.end(); ++iter)
 	{
 		AppWorkerThread* newWorker = new AppWorkerThread(workerConfigArr[i], matchingEngine);
 		workerThreadVec.push_back(newWorker);

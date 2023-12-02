@@ -446,7 +446,7 @@ int main(int argc, char* argv[])
 		outputFiles[fileNum]->writePacket(*parsedPacket.getRawPacket());
 
 		// if splitter wants us to close files - go over the file numbers and close them
-		for (auto it : filesToClose)
+		for (const auto &it : filesToClose)
 		{
 			// check if that file number is in the map
 			if (outputFiles.find(it) != outputFiles.end())
@@ -473,7 +473,7 @@ int main(int argc, char* argv[])
 	delete splitter;
 
 	// close the writer files which are still open
-	for(auto it : outputFiles)
+	for(const auto &it : outputFiles)
 	{
 		if (it.second != NULL)
 		{

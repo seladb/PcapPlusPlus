@@ -163,7 +163,7 @@ size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional
 
 	size_t dataLen = 0;
 
-	for (auto iter : optionalParams)
+	for (const auto &iter : optionalParams)
 	{
 		if (iter.length > 32)
 		{
@@ -416,7 +416,7 @@ size_t BgpUpdateMessageLayer::prefixAndIPDataToByteArray(const std::vector<prefi
 
 	size_t dataLen = 0;
 
-	for (auto iter : prefixAndIpData)
+	for (const auto &iter : prefixAndIpData)
 	{
 		uint8_t curData[5];
 		curData[0] = iter.prefix;
@@ -477,7 +477,7 @@ size_t BgpUpdateMessageLayer::pathAttributesToByteArray(const std::vector<path_a
 
 	size_t dataLen = 0;
 
-	for (auto iter : pathAttributes)
+	for (const auto &iter : pathAttributes)
 	{
 		if (iter.length > 32)
 		{

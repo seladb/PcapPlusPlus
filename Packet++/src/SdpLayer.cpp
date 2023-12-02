@@ -120,7 +120,7 @@ bool SdpLayer::addMediaDescription(const std::string& mediaType, uint16_t mediaP
 	}
 
 
-	for (auto iter : mediaAttributes)
+	for (const auto &iter : mediaAttributes)
 	{
 		if (addField(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, iter) == nullptr)
 		{

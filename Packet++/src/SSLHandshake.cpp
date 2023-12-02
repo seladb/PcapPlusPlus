@@ -1502,7 +1502,7 @@ SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generate
 	if (supportedGroupsExt != nullptr)
 	{
 		std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
-		for (auto iter : supportedGroups)
+		for (const auto &iter : supportedGroups)
 			if (GreaseSet.find(iter) == GreaseSet.end())
 				result.supportedGroups.push_back(iter);
 	}
@@ -1536,7 +1536,7 @@ std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
 
 	// add cipher suites
 	bool firstCipher = true;
-	for (auto iter : cipherSuites)
+	for (const auto &iter : cipherSuites)
 	{
 		tlsFingerprint << (firstCipher ? "" : "-") << iter;
 		firstCipher = false;
@@ -1545,7 +1545,7 @@ std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
 
 	// add extensions
 	bool firstExtension = true;
-	for (auto iter : extensions)
+	for (const auto &iter : extensions)
 	{
 		tlsFingerprint << (firstExtension ? "" : "-") << iter;
 		firstExtension = false;
@@ -1554,7 +1554,7 @@ std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
 
 	// add supported groups
 	bool firstGroup = true;
-	for (auto iter : supportedGroups)
+	for (const auto &iter : supportedGroups)
 	{
 		tlsFingerprint << (firstGroup ? "" : "-") << iter;
 		firstGroup = false;
@@ -1793,7 +1793,7 @@ std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toString()
 
 	// add extensions
 	bool firstExtension = true;
-	for (auto iter : extensions)
+	for (const auto &iter : extensions)
 	{
 		tlsFingerprint << (firstExtension ? "" : "-") << iter;
 		firstExtension = false;

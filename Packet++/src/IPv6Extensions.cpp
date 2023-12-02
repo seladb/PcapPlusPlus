@@ -149,7 +149,7 @@ IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>
 
 	size_t totalSize = sizeof(uint16_t); // nextHeader + headerLen
 
-	for (auto iter : options)
+	for (const auto &iter : options)
 	{
 		IPv6Option option = iter.build();
 		totalSize += option.getTotalSize();
@@ -166,7 +166,7 @@ IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>
 
 	size_t offset = sizeof(uint16_t);
 
-	for (auto iter : options)
+	for (const auto &iter : options)
 	{
 		IPv6Option option = iter.build();
 		memcpy(getDataPtr() + offset, option.getRecordBasePtr(), option.getTotalSize());

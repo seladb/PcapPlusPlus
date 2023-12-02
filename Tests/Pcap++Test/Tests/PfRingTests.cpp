@@ -346,7 +346,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 			PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
 			PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
 			PTF_PRINT_VERBOSE("Total flows: " << packetDataMultiThread[i].FlowKeys.size());
-			for(auto iter : packetDataMultiThread[i].FlowKeys)
+			for(const auto &iter : packetDataMultiThread[i].FlowKeys)
 			{
 				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter.first << "; Value=" << std::dec << iter.second.size());
 			}

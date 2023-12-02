@@ -112,7 +112,7 @@ void listDpdkPorts()
 
 	// go over all available DPDK devices and print info for each one
 	std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
-	for (auto iter : deviceList)
+	for (const auto &iter : deviceList)
 	{
 		pcpp::DpdkDevice* dev = iter;
 		std::cout << "   "
@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
 
 	// collect the list of DPDK devices
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
-	for (auto iter : dpdkPortVec)
+	for (const auto &iter : dpdkPortVec)
 	{
 		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
 		if (dev == NULL)
@@ -322,7 +322,7 @@ int main(int argc, char* argv[])
 	}
 
 	// go over all devices and open them
-	for (auto iter : dpdkDevicesToUse)
+	for (const auto &iter : dpdkDevicesToUse)
 	{
 		if (!iter->openMultiQueues(queueQuantity, 1))
 		{
