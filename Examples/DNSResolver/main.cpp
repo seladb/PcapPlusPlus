@@ -189,13 +189,11 @@ int main(int argc, char* argv[])
 	{
 		const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
-		for (auto iter : devList)
+		auto iter = std::find_if(devList.begin(), devList.end(),
+								 [](pcpp::PcapLiveDevice *dev) { return dev->getDefaultGateway().isValid(); });
+		if (iter != devList.end())
 		{
-			if (iter->getDefaultGateway().isValid())
-			{
-				dev = iter;
-				break;
-			}
+			dev = *iter;
 		}
 
 		if (dev == nullptr)
