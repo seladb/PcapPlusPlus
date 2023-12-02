@@ -146,7 +146,7 @@ namespace pcpp
 
 		/**
 		 * Get the command of request message
-		 * @return SmtpCommand Value of the command
+		 * @return Value of the command
 		 */
 		SmtpCommand getCommand() const;
 
@@ -299,7 +299,7 @@ namespace pcpp
 
 		/**
 		 * Get the status code of response message
-		 * @return SmtpStatusCode Value of the status code
+		 * @return Value of the status code
 		 */
 		SmtpStatusCode getStatusCode() const;
 
