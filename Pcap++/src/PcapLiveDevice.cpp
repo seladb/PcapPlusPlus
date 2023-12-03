@@ -529,7 +529,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	else
 	{
 		std::cerr << "duration before while: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() << std::endl;
-		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() <= timeoutMs )
+		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() < timeoutMs )
 		{
 			if(m_UsePoll)
 			{
@@ -576,7 +576,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() > timeoutMs )
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() >= timeoutMs )
 	{
 		return -1;
 	}
