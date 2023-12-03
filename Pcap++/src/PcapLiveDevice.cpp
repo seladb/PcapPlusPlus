@@ -32,6 +32,7 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <poll.h>
+#include <pcap/pcap.h>
 #endif // if defined(_WIN32)
 #if defined(__APPLE__) || defined(__FreeBSD__)
 #include <net/if_dl.h>
@@ -178,12 +179,22 @@ void PcapLiveDevice::captureThreadMain()
 	if (m_CaptureCallbackMode)
 	{
 		while (!m_StopThread)
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this);
+		{
+			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this) < 0)
+			{
+				PCPP_LOG_ERROR(std::string("Error in pcap_dispatch: ") + pcap_geterr(m_PcapDescriptor));
+			}
+		}
 	}
 	else
 	{
 		while (!m_StopThread)
-			pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this);
+		{
+			if(pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this) < 0)
+			{
+				PCPP_LOG_ERROR(std::string("Error in pcap_dispatch: ") + pcap_geterr(m_PcapDescriptor));
+			}
+		}
 	}
 	PCPP_LOG_DEBUG("Ended capture thread for device '" << m_Name << "'");
 }
@@ -523,12 +534,14 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread)
 		{
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) < 0)
+			{
+				PCPP_LOG_ERROR(std::string("Error in pcap_dispatch: ") + pcap_geterr(m_PcapDescriptor));
+			}
 		}
 	}
 	else
 	{
-		std::cerr << "duration before while: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() << std::endl;
 		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() < timeoutMs )
 		{
 			if(m_UsePoll)
@@ -537,27 +550,20 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
 				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
 
-				std::cerr << "poll should wait for: " <<  pollTimeoutMs << std::endl;
-
 				int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
-
-				std::cerr << "duration just after poll: " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()  - startTime).count() << std::endl;
 
 				if(ready > 0)
 				{
-					pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-
+					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) < 0)
+					{
+						PCPP_LOG_ERROR(std::string("Error in pcap_dispatch: ") + pcap_geterr(m_PcapDescriptor));
+					}
 				}
 				else if(ready < 0)
 				{
 					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
 					return -1;
-				} else {
-					std::cerr << "we don't have pacekt" << std::endl;
 				}
-
-				std::cerr << "duration just after if(ready > 0): " <<  std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now()  - startTime).count() << std::endl;
-
 #else
 				PCPP_LOG_ERROR("Windows doesn't support poll()");
 				return 0;
@@ -565,7 +571,11 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			}
 			else
 			{
-				pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) < 0)
+				{
+					PCPP_LOG_ERROR(std::string("Error in pcap_dispatch: ") + pcap_geterr(m_PcapDescriptor));
+					return 0;
+				}
 			}
 			currentTime = std::chrono::steady_clock::now();
 		}
