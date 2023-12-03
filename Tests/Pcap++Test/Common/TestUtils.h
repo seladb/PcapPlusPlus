@@ -51,7 +51,10 @@ public:
 		if (!m_CancelTeardown)
 		{
 			if(std::system(m_command.c_str()) < 0)
+			{
+				// cppcheck-suppress exceptThrowInDestructor
 				throw std::runtime_error("failed to run: " + m_command);
+			}
 		}
 	}
 
