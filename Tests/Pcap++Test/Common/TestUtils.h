@@ -50,7 +50,8 @@ public:
 	{
 		if (!m_CancelTeardown)
 		{
-			std::system(m_command.c_str());
+			if(std::system(m_command.c_str()) < 0)
+				throw std::runtime_error("failed to run: " + m_command);
 		}
 	}
 
