@@ -115,7 +115,13 @@ namespace pcpp
 		return oss.str();
 	}
 
-	std::string SmtpRequestLayer::toString() const { return "SMTP Request: " + getCommandString(); }
+	std::string SmtpRequestLayer::toString() const
+	{
+		std::string cmd = getCommandString();
+		if (cmd.length())
+			return "SMTP Request: " + cmd;
+		return "SMTP Request";
+	}
 
 	// ----------------- Class SmtpResponseLayer -----------------
 	bool SmtpResponseLayer::setStatusCode(SmtpStatusCode code)
@@ -231,6 +237,12 @@ namespace pcpp
 		}
 	}
 
-	std::string SmtpResponseLayer::toString() const { return "SMTP Response: " + getStatusCodeString(); }
+	std::string SmtpResponseLayer::toString() const
+	{
+		std::string option = getStatusCodeString();
+		if (option.length())
+			return "SMTP Response: " + getStatusCodeString();
+		return "SMTP Response";
+	}
 
 } // namespace pcpp
