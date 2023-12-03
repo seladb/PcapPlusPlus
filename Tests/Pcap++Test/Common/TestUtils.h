@@ -46,7 +46,7 @@ public:
 
 	explicit SystemCommandTeardown(const std::string& command) : m_command(command) , m_CancelTeardown(false) {}
 
-	~SystemCommandTeardown()
+	~SystemCommandTeardown() noexcept(false)
 	{
 		if (!m_CancelTeardown)
 		{

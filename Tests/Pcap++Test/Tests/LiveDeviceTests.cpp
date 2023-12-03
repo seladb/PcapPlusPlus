@@ -496,7 +496,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
 
 	// open device
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	pcpp::PcapLiveDevice::DeviceConfiguration newConfig;
 	newConfig.usePoll = true;
 
