@@ -23,20 +23,28 @@ namespace pcpp
 		// the first MAX_CONTENT_LENGTH bytes, search the both of hyphen and space to take
 		// correct command delimiter
 
-		// Find Hyphen "-" if exists
-		uint8_t *posHyphen = (uint8_t *)memchr(m_Data, ASCII_HYPHEN, maxLen);
-		uint8_t *posSpace = (uint8_t *)memchr(m_Data, ASCII_SPACE, maxLen);
+		std::string field(reinterpret_cast<char*>(m_Data), maxLen);
 
-		if (posHyphen == nullptr && posSpace == nullptr) // No delimiter
-			return m_DataLen - 1;
+		size_t posHyphen = field.find_first_of(ASCII_HYPHEN);
+		size_t posSpace = field.find_first_of(ASCII_SPACE);
+		size_t posCRLF = field.rfind("\r\n");
+
+		// No delimiter or packet end
+		if (posHyphen == std::string::npos && posSpace == std::string::npos && posCRLF == std::string::npos)
+			return 0;
 		// Hyphen not found while <SP> exists or both found but <SP> detected earlier
-		if ((posHyphen == nullptr && posSpace) || (posSpace && posHyphen && posSpace < posHyphen))
-			return posSpace - m_Data;
+		else if ((posHyphen == std::string::npos && posSpace != std::string::npos) ||
+			(posSpace != std::string::npos && posHyphen != std::string::npos && posSpace < posHyphen))
+			return posSpace;
 		// <SP> not found while hyphen exists or both found but hyphen detected earlier
-		if ((posSpace == nullptr && posHyphen) || (posSpace && posHyphen && posHyphen < posSpace))
-			return posHyphen - m_Data;
+		else if ((posSpace == std::string::npos && posHyphen != std::string::npos) ||
+			(posSpace != std::string::npos && posHyphen != std::string::npos && posHyphen < posSpace))
+			return posHyphen;
+		// If nothing found but there is a CRLF it is a only command packet
+		else if (posCRLF != std::string::npos)
+			return posCRLF;
 
-		return m_DataLen - 1;
+		return 0;
 	}
 
 	void SingleCommandTextProtocol::setDelimiter(bool hyphen)
@@ -49,9 +57,9 @@ namespace pcpp
 
 	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
 	{
-		size_t firstPos = value.find_first_of("\r\n");
-		size_t lastPos = value.find_last_of("\r\n");
-		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos - 1);
+		size_t firstPos = value.find("\r\n");
+		size_t lastPos = value.rfind("\r\n");
+		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos);
 	}
 
 	SingleCommandTextProtocol::SingleCommandTextProtocol(const std::string &command, const std::string &option)
@@ -89,7 +97,7 @@ namespace pcpp
 
 	bool SingleCommandTextProtocol::setCommandOptionInternal(std::string value)
 	{
-		size_t lastPos = value.find_last_of("\r\n");
+		size_t lastPos = value.rfind("\r\n");
 		if (lastPos == std::string::npos || lastPos != value.size() - 2)
 			value += "\r\n";
 
@@ -143,7 +151,7 @@ namespace pcpp
 			return false;
 
 		std::string payload = std::string((char *)data, dataSize);
-		return payload.find_last_of("\r\n") == dataSize - 1;
+		return payload.rfind("\r\n") == dataSize - 2;
 	}
 
 } // namespace pcpp
