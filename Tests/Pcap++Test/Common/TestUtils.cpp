@@ -10,13 +10,6 @@
 #ifdef USE_DPDK
 #include "DpdkDeviceList.h"
 #endif
-#if !defined(_WIN32)
-#include <cstring>
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -118,52 +111,3 @@ void testSetUp()
 	}
 	#endif
 }
-
-#if !defined(_WIN32)
-std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::string& errorMessage) {
-	struct ifaddrs *ifAddrStruct = nullptr;
-    struct ifaddrs *ifa = nullptr;
-
-    // Get the list of all network interfaces
-    if (getifaddrs(&ifAddrStruct) == -1)
-	{
-        errorMessage = "Error getting interface addresses";
-        return "";
-    }
-
-    // Iterate through the list of interfaces
-    for (ifa = ifAddrStruct; ifa != nullptr; ifa = ifa->ifa_next)
-	{
-        if (ifa->ifa_addr == nullptr)
-		{
-            continue;
-        }
-
-		struct sockaddr_in *ipv4;
-        if (ifa->ifa_addr->sa_family == AF_INET)
-		{
-			ipv4 = reinterpret_cast<struct sockaddr_in *>(ifa->ifa_addr);
-        }
-		else
-		{
-            continue; // Skip unsupported address families
-        }
-
-        // Convert the IP address to a string for comparison
-        char addrStr[INET6_ADDRSTRLEN];
-        inet_ntop(ifa->ifa_addr->sa_family, &(ipv4->sin_addr), addrStr, sizeof(addrStr));
-
-        // Compare the current IP address with the target IP address
-        if (strcmp(addrStr, ipAddress.c_str()) == 0)
-		{
-			return std::string(ifa->ifa_name);
-        }
-    }
-
-    // Free the allocated memory for the list of interfaces
-    freeifaddrs(ifAddrStruct);
-
-	errorMessage = "No match interface name for the IP address";
-	return "";
-}
-#endif

@@ -92,11 +92,3 @@ void intersectMaps(
 }
 
 void testSetUp();
-
-#if !defined(_WIN32)
-/// Find the interface name from the IP address
-/// @param[in] ipAddress the given IP address
-/// @param[out] errorMessage the error message
-/// @return non-empty string represented the interface name of the given IP address; otherwise the empty string
-std::string findInterfaceNameByIpAddress(const std::string& ipAddress, std::string& errorMessage);
-#endif

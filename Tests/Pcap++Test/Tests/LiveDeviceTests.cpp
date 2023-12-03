@@ -480,12 +480,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32)
-	std::string errorMessage;
-	auto interfaceName = findInterfaceNameByIpAddress(PcapTestGlobalArgs.ipToSendReceivePackets, errorMessage);
-	if(interfaceName.empty())
-	{
-		throw std::runtime_error(errorMessage);
-	}
+	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	auto interfaceName = liveDev->getName();
 
 	// drop all packets on the interface
 	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
