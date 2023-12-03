@@ -574,7 +574,6 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) < 0)
 				{
 					PCPP_LOG_ERROR(std::string("Error in pcap_dispatch: ") + pcap_geterr(m_PcapDescriptor));
-					return 0;
 				}
 			}
 			currentTime = std::chrono::steady_clock::now();
