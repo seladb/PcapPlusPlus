@@ -562,9 +562,10 @@ namespace pcpp
 		 * The content-length field value. The method supports several cases:
 		 * - If the "Content-Length" field exists - the method will only replace the existing value with the new value
 		 * - If the "Content-Length" field doesn't exist - the method will create this field and put the value in it. Here are also 2 cases:
-		 * 		- If prevFieldName is specified - the new "Content-Length" field will be created after it
-		 * 		- If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the last field before
-		 * 		  end-of-header field
+		 *   - If prevFieldName is specified - the new "Content-Length" field will be created after it
+		 *   - If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the last field before
+		 *     end-of-header field
+		 *
 		 * @param[in] contentLength The content length value to set
 		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be created after it
 		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason

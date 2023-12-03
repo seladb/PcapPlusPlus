@@ -11,6 +11,33 @@
 #define LOG_MODULE UndefinedLogModule
 #endif
 
+// Use __FILE_NAME__ to avoid leaking complete full path
+#ifdef __FILE_NAME__
+#define PCAPPP_FILENAME __FILE_NAME__
+#else
+#define PCAPPP_FILENAME __FILE__
+#endif
+
+#define PCPP_LOG(level, message) do \
+	{ \
+		std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream(); \
+		(*sstream) << message; \
+		pcpp::Logger::getInstance().internalPrintLogMessage(sstream, level, PCAPPP_FILENAME, __FUNCTION__, __LINE__); \
+	} while(0)
+
+#define PCPP_LOG_DEBUG(message) do \
+	{ \
+		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
+		{ \
+			PCPP_LOG(pcpp::Logger::Debug, message); \
+		} \
+	} while(0)
+
+#define PCPP_LOG_ERROR(message) do \
+	{ \
+		PCPP_LOG(pcpp::Logger::Error, message); \
+	} while (0)
+
 /// @file
 
 /**
@@ -82,6 +109,7 @@ namespace pcpp
 		PcapLogModuleMBufRawPacket, ///< MBufRawPacket module (Pcap++)
 		PcapLogModuleDpdkDevice, ///< DpdkDevice module (Pcap++)
 		PcapLogModuleKniDevice, ///< KniDevice module (Pcap++)
+		PcapLogModuleXdpDevice, ///< XdpDevice module (Pcap++)
 		NetworkUtils, ///< NetworkUtils module (Pcap++)
 		NumOfLogModules
 	};
@@ -230,24 +258,6 @@ namespace pcpp
 
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
-
-#define PCPP_LOG_DEBUG(message) do \
-	{ \
-		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
-		{ \
-			std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream(); \
-			(*sstream) << message; \
-			pcpp::Logger::getInstance().internalPrintLogMessage(sstream, pcpp::Logger::Debug, __FILE__, __FUNCTION__, __LINE__); \
-		} \
-	} while(0)
-
-#define PCPP_LOG_ERROR(message) do \
-	{ \
-        std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream(); \
-  		(*sstream) << message; \
-		pcpp::Logger::getInstance().internalPrintLogMessage(sstream, pcpp::Logger::Error, __FILE__, __FUNCTION__, __LINE__); \
-	} while (0)
-
 } // namespace pcpp
 
 #endif /* PCAPPP_LOGGER */

@@ -62,47 +62,47 @@ namespace pcpp
 	 */
 	enum IPProtocolTypes
 	{
-		/** Dummy protocol for TCP		*/
+		/** Dummy protocol for TCP */
 		PACKETPP_IPPROTO_IP = 0,
-		/** IPv6 Hop-by-Hop options		*/
+		/** IPv6 Hop-by-Hop options */
 		PACKETPP_IPPROTO_HOPOPTS = 0,
-		/** Internet Control Message Protocol	*/
+		/** Internet Control Message Protocol */
 		PACKETPP_IPPROTO_ICMP = 1,
 		/** Internet Gateway Management Protocol */
 		PACKETPP_IPPROTO_IGMP = 2,
 		/** IPIP tunnels (older KA9Q tunnels use 94) */
 		PACKETPP_IPPROTO_IPIP = 4,
-		/** Transmission Control Protocol	*/
+		/** Transmission Control Protocol */
 		PACKETPP_IPPROTO_TCP = 6,
-		/** Exterior Gateway Protocol		*/
+		/** Exterior Gateway Protocol */
 		PACKETPP_IPPROTO_EGP = 8,
-		/** PUP protocol				*/
+		/** PUP protocol */
 		PACKETPP_IPPROTO_PUP = 12,
-		/** User Datagram Protocol		*/
+		/** User Datagram Protocol */
 		PACKETPP_IPPROTO_UDP = 17,
-		/** XNS IDP protocol			*/
+		/** XNS IDP protocol */
 		PACKETPP_IPPROTO_IDP = 22,
-		/** IPv6 header				*/
+		/** IPv6 header */
 		PACKETPP_IPPROTO_IPV6 = 41,
-		/** IPv6 Routing header			*/
+		/** IPv6 Routing header */
 		PACKETPP_IPPROTO_ROUTING = 43,
-		/** IPv6 fragmentation header		*/
+		/** IPv6 fragmentation header */
 		PACKETPP_IPPROTO_FRAGMENT = 44,
 		/** GRE protocol */
 		PACKETPP_IPPROTO_GRE = 47,
-		/** encapsulating security payload	*/
+		/** encapsulating security payload */
 		PACKETPP_IPPROTO_ESP = 50,
-		/** authentication header		*/
+		/** authentication header */
 		PACKETPP_IPPROTO_AH = 51,
-		/** ICMPv6				*/
+		/** ICMPv6 */
 		PACKETPP_IPPROTO_ICMPV6 = 58,
-		/** IPv6 no next header			*/
+		/** IPv6 no next header */
 		PACKETPP_IPPROTO_NONE = 59,
-		/** IPv6 Destination options		*/
+		/** IPv6 Destination options */
 		PACKETPP_IPPROTO_DSTOPTS = 60,
 		/** VRRP protocol */
 		PACKETPP_IPPROTO_VRRP = 112,
-		/** Raw IP packets			*/
+		/** Raw IP packets */
 		PACKETPP_IPPROTO_RAW = 255,
 		/** Maximum value */
 		PACKETPP_IPPROTO_MAX
@@ -313,12 +313,29 @@ namespace pcpp
 		 */
 		IPv4OptionTypes getIPv4OptionType() const
 		{
-			if (m_Data == nullptr)
-				return IPV4OPT_Unknown;
-
-			return (IPv4OptionTypes)m_Data->recordType;
+			return getIPv4OptionType(m_Data);
 		}
 
+		/**
+		 * Check if a pointer can be assigned to the TLV record data
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 * @param[in] tlvDataLen The size of the TLV record raw data
+		 * @return True if data is valid and can be assigned
+		 */
+		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+		{
+			auto data = (TLVRawData*)recordRawData;
+			if (data == nullptr)
+				return false;
+
+			if (tlvDataLen < sizeof(TLVRawData::recordType))
+				return false;
+
+			if (getIPv4OptionType(data) == (uint8_t)IPV4OPT_EndOfOptionsList || data->recordType == (uint8_t)IPV4OPT_NOP)
+				return true;
+
+			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
+		}
 
 		// implement abstract methods
 
@@ -342,6 +359,18 @@ namespace pcpp
 				return (size_t)0;
 
 			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
+		}
+
+	private:
+		/**
+		 * @return IPv4 option type casted as pcpp::IPv4OptionTypes enum
+		 */
+		static IPv4OptionTypes getIPv4OptionType(const TLVRawData* data)
+		{
+			if (data == nullptr)
+				return IPV4OPT_Unknown;
+
+			return (IPv4OptionTypes)data->recordType;
 		}
 	};
 

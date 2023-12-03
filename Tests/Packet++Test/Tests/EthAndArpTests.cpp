@@ -20,8 +20,8 @@ PTF_TEST_CASE(OUILookup)
 	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("70:B3:D5:2A:B0:00"), "NASA Johnson Space Center");
 	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("70:B3:D5:2A:BF:FF"), "NASA Johnson Space Center");
 	// CIDR 28
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("f4:0e:11:f0:00:00"), "Private");
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("f4:0e:11:ff:ff:ff"), "Private");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("68:79:12:40:00:00"), "McDonald's Corporation");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("68:79:12:4f:ff:ff"), "McDonald's Corporation");
 	// Short
 	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("00:08:55:01:01:01"), "NASA-Goddard Space Flight Center");
 }

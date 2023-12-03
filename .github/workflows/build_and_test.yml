@@ -532,3 +532,99 @@ jobs:
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
           chmod +x gradlew
           ./gradlew assembleDebug
+
+  xdp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
+
+      - name: Build PcapPlusPlus
+        run: cmake --build $BUILD_DIR -j
+
+      - name: Test PcapPlusPlus
+        run: |
+          python -m pip install -U pip
+          python  -m pip install -r ci/run_tests/requirements.txt
+          python  ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
+
+      - name: Create Cobertura Report
+        run: |
+          python -m pip install gcovr
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: xdp,unittest
+          fail_ci_if_error: false
+          verbose: true
+
+  test_regressions:
+    name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        sanitizer: [address, undefined, memory]
+        engine: [libfuzzer]
+    container:
+      image: gcr.io/oss-fuzz-base/base-builder
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install prerequisites
+        run: |
+          apt-get update && apt-get install -y cmake autoconf flex bison
+          cd ..
+          cp -r PcapPlusPlus/ $SRC/PcapPlusPlus
+          git clone --depth=1 https://github.com/the-tcpdump-group/libpcap.git $SRC/libpcap
+          cd $SRC/PcapPlusPlus/
+      - name: Compile fuzzer
+        run: |
+          export FUZZING_LANGUAGE=c
+          export ARCHITECTURE=x86_64
+          export FUZZING_ENGINE=${{ matrix.engine }}
+          export SANITIZER=${{ matrix.sanitizer }}
+          $SRC/PcapPlusPlus/Tests/Fuzzers/ossfuzz.sh
+      - name: Check for regressions
+        run: |
+          export BINARY="$OUT/FuzzTarget"
+          export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+          Tests/Fuzzers/RegressionTests/run_tests.sh
+
+  Fuzzing:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        sanitizer: [address, undefined, memory]
+    steps:
+    - name: Build Fuzzers
+      id: build
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@master
+      with:
+        oss-fuzz-project-name: 'pcapplusplus'
+        dry-run: false
+        sanitizer: ${{ matrix.sanitizer }}
+    - name: Run Fuzzers
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@master
+      with:
+        oss-fuzz-project-name: 'pcapplusplus'
+        fuzz-seconds: 600
+        dry-run: false
+        sanitizer: ${{ matrix.sanitizer }}
+    - name: Upload Crash
+      uses: actions/upload-artifact@v1
+      if: failure() && steps.build.outcome == 'success'
+      with:
+        name: artifacts
+        path: ./out/artifacts

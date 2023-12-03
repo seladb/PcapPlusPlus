@@ -244,7 +244,7 @@ public:
 
 private:
 	void initLayer(uint8_t code, const IPv6Address &targetIP);
-	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data;	}
+	ndpneighborsolicitationhdr *getNdpHeader() const { return (ndpneighborsolicitationhdr *)m_Data; }
 	size_t getNdpHeaderLen() const { return sizeof(ndpneighborsolicitationhdr);	};
 };
 
@@ -363,7 +363,7 @@ public:
 
 private:
 	void initLayer(uint8_t code, const IPv6Address &targetIP, bool routerFlag, bool unicastFlag, bool overrideFlag);
-	ndpneighboradvertisementhdr *getNdpHeader() const {	return (ndpneighboradvertisementhdr *)m_Data; }
+	ndpneighboradvertisementhdr *getNdpHeader() const { return (ndpneighboradvertisementhdr *)m_Data; }
 	size_t getNdpHeaderLen() const { return sizeof(ndpneighboradvertisementhdr); };
 };
 

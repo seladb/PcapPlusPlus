@@ -30,13 +30,14 @@ size_t BgpLayer::getHeaderLen() const
 
 BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 {
-	if (dataLen < sizeof(bgp_common_header))
+	if (data == nullptr || dataLen < sizeof(bgp_common_header))
 		return nullptr;
 
 	bgp_common_header* bgpHeader = (bgp_common_header*)data;
 
 	// illegal header data - length is too small
-	if (be16toh(bgpHeader->length) < static_cast<uint16_t>(sizeof(bgp_common_header)))
+	uint16_t messageLen = be16toh(bgpHeader->length);
+	if (dataLen < messageLen || messageLen < static_cast<uint16_t>(sizeof(bgp_common_header)))
 		return nullptr;
 
 	switch (bgpHeader->messageType)
@@ -44,7 +45,7 @@ BgpLayer* BgpLayer::parseBgpLayer(uint8_t* data, size_t dataLen, Layer* prevLaye
 	case 1: // OPEN
 		return new BgpOpenMessageLayer(data, dataLen, prevLayer, packet);
 	case 2: // UPDATE
-		return new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet);
+		return BgpUpdateMessageLayer::isDataValid(data, dataLen) ? new BgpUpdateMessageLayer(data, dataLen, prevLayer, packet) : nullptr;
 	case 3: // NOTIFICATION
 		return new BgpNotificationMessageLayer(data, dataLen, prevLayer, packet);
 	case 4: // KEEPALIVE
@@ -701,6 +702,22 @@ void BgpUpdateMessageLayer::getNetworkLayerReachabilityInfo(std::vector<prefix_a
 
 	uint8_t* dataPtr = m_Data + sizeof(bgp_common_header) + 2*sizeof(uint16_t) + getWithdrawnRoutesLength() + getPathAttributesLength();
 	parsePrefixAndIPData(dataPtr, nlriSize, nlri);
+}
+
+bool BgpUpdateMessageLayer::isDataValid(const uint8_t *data, size_t dataSize)
+{
+	if (dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t))
+		return false;
+
+	uint16_t withdrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header)));
+	if (dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t) + withdrLen)
+		return false;
+
+	uint16_t attrLen = be16toh(*(uint16_t*)(data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrLen));
+	if (dataSize < sizeof(bgp_common_header) + 2*sizeof(uint16_t) + withdrLen + attrLen)
+		return false;
+
+	return true;
 }
 
 bool BgpUpdateMessageLayer::setNetworkLayerReachabilityInfo(const std::vector<prefix_and_ip>& nlri)
