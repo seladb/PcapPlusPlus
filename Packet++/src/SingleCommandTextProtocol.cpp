@@ -20,18 +20,21 @@ namespace pcpp
 			maxLen = MAX_COMMAND_LENGTH;
 
 		// To correctly detect multi-line packets with the option containing a space in
-		// the first MAX_CONTENT_LENGTH bytes, search the hyphen first otherwise it thinks
-		// the space in option as a command delimiter
+		// the first MAX_CONTENT_LENGTH bytes, search the both of hyphen and space to take
+		// correct command delimiter
 
 		// Find Hyphen "-" if exists
-		uint8_t *pos = (uint8_t *)memchr(m_Data, ASCII_HYPHEN, maxLen);
-		if (pos)
-			return pos - m_Data;
+		uint8_t *posHyphen = (uint8_t *)memchr(m_Data, ASCII_HYPHEN, maxLen);
+		uint8_t *posSpace = (uint8_t *)memchr(m_Data, ASCII_SPACE, maxLen);
 
-		// Find <SP> if exists
-		pos = (uint8_t *)memchr(m_Data, ASCII_SPACE, maxLen);
-		if (pos)
-			return pos - m_Data;
+		if (posHyphen == nullptr && posSpace == nullptr) // No delimiter
+			return m_DataLen - 1;
+		// Hyphen not found while <SP> exists or both found but <SP> detected earlier
+		if ((posHyphen == nullptr && posSpace) || (posSpace && posHyphen && posSpace < posHyphen))
+			return posSpace - m_Data;
+		// <SP> not found while hyphen exists or both found but hyphen detected earlier
+		if ((posSpace == nullptr && posHyphen) || (posSpace && posHyphen && posHyphen < posSpace))
+			return posHyphen - m_Data;
 
 		return m_DataLen - 1;
 	}
