@@ -74,6 +74,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install Apt Packages
+        run: |
+          sudo apt update
+          sudo apt install -y iptables
+
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
         run: |
