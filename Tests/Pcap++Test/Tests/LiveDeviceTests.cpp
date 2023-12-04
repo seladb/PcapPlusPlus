@@ -485,14 +485,14 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	auto interfaceName = liveDev->getName();
 
 	// drop all packets on the interface
-	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
-	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
+	auto iptablesAddInputDrop = "iptables -A INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesAddOutputDrop = "iptables -A OUTPUT -o " + interfaceName + " -j DROP";
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
 
 	// recover the interface at the end
-	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
-	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
+	SystemCommandTeardown iptablesDeleteInputDrop("iptables -D INPUT -i " + interfaceName + " -j DROP");
+	SystemCommandTeardown iptablesDeleteOutputDrop("iptables -D OUTPUT -o " + interfaceName + " -j DROP");
 
 	// open device
 	pcpp::PcapLiveDevice::DeviceConfiguration newConfig;
@@ -537,8 +537,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	auto interfaceName = liveDev->getName();
 
 	// drop all packets on the interface
-	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
-	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
+	auto iptablesAddInputDrop = "iptables -A INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesAddOutputDrop = "iptables -A OUTPUT -o " + interfaceName + " -j DROP";
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
 
@@ -571,8 +571,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	PTF_ASSERT_TRUE(status == std::future_status::timeout);
 
 	// restore the interface to let the callback receive packets so the thread can be jointed.
-	auto iptablesDeleteInputDrop = "sudo iptables -D INPUT -i " + interfaceName + " -j DROP";
-	auto iptablesDeleteOutputDrop = "sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP";
+	auto iptablesDeleteInputDrop = "iptables -D INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesDeleteOutputDrop = "iptables -D OUTPUT -o " + interfaceName + " -j DROP";
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesDeleteInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesDeleteOutputDrop.c_str()), 0);
 
