@@ -79,7 +79,7 @@ jobs:
           envs: 'BUILD_DIR'
           usesh: true
           prepare: |
-            pkg install -y bash cmake git-tiny gmake gsed libpcap py39-pip
+            pkg install -y bash cmake git-tiny gmake gsed libpcap py39-pip iptables
           run: |
             cmake -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
             cmake --build "$BUILD_DIR" -j 4
