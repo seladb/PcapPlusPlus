@@ -77,7 +77,7 @@ jobs:
       - name: Install Apt Packages
         run: |
           apt update
-          apt install -y iptables
+          apt install -y iptables sudo
 
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
