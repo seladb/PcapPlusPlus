@@ -511,7 +511,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 #endif
 } // TestPcapLiveDeviceBlockingMode
 
-PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollNotTimeout)
+PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 {
 #if !defined(_WIN32)
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
