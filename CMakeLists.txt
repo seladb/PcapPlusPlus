@@ -236,7 +236,7 @@ if(PCAPPP_TARGET_COMPILER_CLANG
 endif()
 
 if(PCAPPP_BUILD_FUZZERS)
-  add_compile_options(-Wno-error)
+  add_compile_options(-w)
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
