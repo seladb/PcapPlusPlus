@@ -555,7 +555,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	// the function doesn't timeout
 	PTF_ASSERT_TRUE(status == std::future_status::timeout);
 
-    thread.detach(); // kill the thread directly
+	// restore the interface to let the callback receive packets so the thread can be jointed.
+	iptablesDeleteInputDrop.~SystemCommandTeardown();
+	iptablesDeleteOutputDrop.~SystemCommandTeardown();
+
+    thread.join(); // make sure it is joined
 
 	PTF_ASSERT_EQUAL(packetCount, 0);
 	liveDev->close();
