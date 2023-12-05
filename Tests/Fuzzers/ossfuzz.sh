@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 TARGETS_DIR=build/
 
 # Build libpcap
