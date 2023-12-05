@@ -177,7 +177,7 @@ void PcapLiveDevice::captureThreadMain()
 	{
 		while (!m_StopThread)
 		{
-			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this) == -1)
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				m_StopThread = true;
@@ -188,7 +188,7 @@ void PcapLiveDevice::captureThreadMain()
 	{
 		while (!m_StopThread)
 		{
-			if (pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this) == -1)
+			if (pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				m_StopThread = true;
@@ -514,7 +514,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread)
 		{
-			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				pcapDispatchError = true;
@@ -528,7 +528,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
 		{
 			long curTimeNSec = 0;
-			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				pcapDispatchError = true;
