@@ -179,7 +179,7 @@ void PcapLiveDevice::captureThreadMain()
 		{
 			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this) == -1)
 			{
-				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				m_StopThread = true;
 			}
 		}
@@ -190,7 +190,7 @@ void PcapLiveDevice::captureThreadMain()
 		{
 			if (pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this) == -1)
 			{
-				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				m_StopThread = true;
 			}
 		}
@@ -508,13 +508,16 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
+	bool pcapDispatchError = false;
+
 	if (timeout <= 0)
 	{
 		while (!m_StopThread)
 		{
 			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
 			{
-				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				pcapDispatchError = true;
 				m_StopThread = true;
 			}
 		}
@@ -527,7 +530,8 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			long curTimeNSec = 0;
 			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
 			{
-				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				pcapDispatchError = true;
 				m_StopThread = true;
 			}
 			clockGetTime(curTimeSec, curTimeNSec);
@@ -540,6 +544,11 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
+
+	if (pcapDispatchError)
+	{
+		return 0;
+	}
 
 	if (curTimeSec > (startTimeSec + timeout))
 		return -1;
