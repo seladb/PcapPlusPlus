@@ -486,10 +486,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	// drop all packets on the interface
 	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
 	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
-	if(std::system(iptablesAddInputDrop.c_str()) < 0)
-		throw std::runtime_error("failed to run: " + iptablesAddInputDrop);
-	if(std::system(iptablesAddOutputDrop.c_str()) < 0)
-		throw std::runtime_error("failed to run: " + iptablesAddOutputDrop);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
 
 	// recover the interface at the end
 	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
