@@ -176,12 +176,24 @@ void PcapLiveDevice::captureThreadMain()
 	if (m_CaptureCallbackMode)
 	{
 		while (!m_StopThread)
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this);
+		{
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this) == -1)
+			{
+				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				m_StopThread = true;
+			}
+		}
 	}
 	else
 	{
 		while (!m_StopThread)
-			pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this);
+		{
+			if (pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this) == -1)
+			{
+				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				m_StopThread = true;
+			}
+		}
 	}
 	PCPP_LOG_DEBUG("Ended capture thread for device '" << m_Name << "'");
 }
@@ -500,7 +512,11 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread)
 		{
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+			{
+				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				m_StopThread = true;
+			}
 		}
 		curTimeSec = startTimeSec + timeout;
 	}
@@ -509,7 +525,11 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
 		{
 			long curTimeNSec = 0;
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+			{
+				PCPP_LOG_ERROR(pcap_geterr(m_PcapDescriptor));
+				m_StopThread = true;
+			}
 			clockGetTime(curTimeSec, curTimeNSec);
 		}
 	}
