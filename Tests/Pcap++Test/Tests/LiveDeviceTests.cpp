@@ -11,6 +11,7 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
+#include <future>
 #if defined(_WIN32)
 #include "PcapRemoteDevice.h"
 #include "PcapRemoteDeviceList.h"
@@ -504,6 +505,59 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2), -1);
 	PTF_ASSERT_EQUAL(packetCount, 0);
 
+	liveDev->close();
+#else
+	PTF_SKIP_TEST("This test can not run in Windows environment");
+#endif
+} // TestPcapLiveDeviceBlockingMode
+
+PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollNotTimeout)
+{
+#if !defined(_WIN32)
+	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	auto interfaceName = liveDev->getName();
+
+	// drop all packets on the interface
+	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
+
+	// recover the interface at the end
+	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
+	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
+
+	// open device
+	pcpp::PcapLiveDevice::DeviceConfiguration newConfig;
+	newConfig.usePoll = false; // explicitly mention not using poll
+
+	PTF_ASSERT_TRUE(liveDev->open(newConfig));
+	DeviceTeardown devTeardown(liveDev);
+
+	int packetCount = 0;
+
+	auto func = [&]() -> int
+	{
+		return liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2);
+	};
+
+	// test it not timeout after 2 seconds
+	std::packaged_task<int()> task(func);
+
+    std::future<int> future = task.get_future();
+
+    // Start a new thread to execute `startCaptureBlockingMode` and to test it timeout
+    std::thread thread(std::move(task));
+
+    // Wait for the function to finish or the timeout to occur
+    auto status = future.wait_for(std::chrono::milliseconds(2100)); // a little bit more than 2 seconds
+
+	// the function doesn't timeout
+	PTF_ASSERT_TRUE(status == std::future_status::timeout);
+
+    thread.detach(); // kill the thread directly
+
+	PTF_ASSERT_EQUAL(packetCount, 0);
 	liveDev->close();
 #else
 	PTF_SKIP_TEST("This test can not run in Windows environment");
