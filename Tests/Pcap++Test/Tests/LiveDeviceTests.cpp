@@ -544,13 +544,13 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	// test it not timeout after 2 seconds
 	std::packaged_task<int()> task(func);
 
-    std::future<int> future = task.get_future();
+	std::future<int> future = task.get_future();
 
-    // Start a new thread to execute `startCaptureBlockingMode` and to test it timeout
-    std::thread thread(std::move(task));
+	// Start a new thread to execute `startCaptureBlockingMode` and to test it timeout
+	std::thread thread(std::move(task));
 
-    // Wait for the function to finish or the timeout to occur
-    auto status = future.wait_for(std::chrono::milliseconds(3000)); // already wait for 3 seconds, and we know `startCaptureBlockingMode` is still blocking
+	// Wait for the function to finish or the timeout to occur
+	auto status = future.wait_for(std::chrono::milliseconds(3000)); // already wait for 3 seconds, and we know `startCaptureBlockingMode` is still blocking
 
 	// the function doesn't timeout
 	PTF_ASSERT_TRUE(status == std::future_status::timeout);
@@ -559,7 +559,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	iptablesDeleteInputDrop.~SystemCommandTeardown();
 	iptablesDeleteOutputDrop.~SystemCommandTeardown();
 
-    thread.join(); // make sure it is joined
+	thread.join(); // make sure it is joined
 
 	PTF_ASSERT_EQUAL(packetCount, 0);
 	liveDev->close();
