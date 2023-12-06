@@ -235,6 +235,10 @@ if(PCAPPP_TARGET_COMPILER_CLANG
   add_compile_options(-Wall)
 endif()
 
+if(PCAPPP_BUILD_FUZZERS)
+  add_compile_options(-w)
+endif()
+
 # Static linking GCC/Threads for minGW (Windows + GNU)
 if(MINGW)
   add_link_options(-static-libgcc -static-libstdc++)
