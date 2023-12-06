@@ -502,9 +502,28 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 	DeviceTeardown devTeardown(liveDev);
 
 	int packetCount = 0;
-	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2), -1);
-	PTF_ASSERT_EQUAL(packetCount, 0);
 
+	auto func = [&]() -> int
+	{
+		return liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2); // ideally, it should timeout after 2 seconds
+	};
+
+	// test if it will get timeout after 2 seconds
+	std::packaged_task<int()> task(func);
+
+	std::future<int> future = task.get_future();
+
+	// Start a new thread to execute `startCaptureBlockingMode` and to test it timeout
+	std::thread thread(std::move(task));
+
+	// Wait for the function to finish or the timeout to occur
+	auto status = future.wait_for(std::chrono::milliseconds(2050)); // a little bit more than 2000ms, to check it is timeout
+
+	// the function got a timeout, due to it is still blocking
+	PTF_ASSERT_TRUE(status == std::future_status::ready);
+
+	PTF_ASSERT_EQUAL(future.get(), -1); // function timeout correctly
+	PTF_ASSERT_EQUAL(packetCount, 0);
 	liveDev->close();
 #else
 	PTF_SKIP_TEST("This test can not run in Windows environment");
