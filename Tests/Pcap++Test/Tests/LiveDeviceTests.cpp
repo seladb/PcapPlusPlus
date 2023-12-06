@@ -550,7 +550,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
     std::thread thread(std::move(task));
 
     // Wait for the function to finish or the timeout to occur
-    auto status = future.wait_for(std::chrono::milliseconds(2100)); // a little bit more than 2 seconds
+    auto status = future.wait_for(std::chrono::milliseconds(3000)); // already wait for 3 seconds, and we know `startCaptureBlockingMode` is still blocking
 
 	// the function doesn't timeout
 	PTF_ASSERT_TRUE(status == std::future_status::timeout);
