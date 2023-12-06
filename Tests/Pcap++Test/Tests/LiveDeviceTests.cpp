@@ -523,10 +523,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
 
-	// recover the interface at the end
-	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
-	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
-
 	// open device
 	pcpp::PcapLiveDevice::DeviceConfiguration newConfig;
 	newConfig.usePoll = false; // explicitly mention not using poll
@@ -556,8 +552,10 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	PTF_ASSERT_TRUE(status == std::future_status::timeout);
 
 	// restore the interface to let the callback receive packets so the thread can be jointed.
-	iptablesDeleteInputDrop.~SystemCommandTeardown();
-	iptablesDeleteOutputDrop.~SystemCommandTeardown();
+	auto iptablesDeleteInputDrop = "sudo iptables -D INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesDeleteOutputDrop = "sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP";
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesDeleteInputDrop.c_str()), 0);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesDeleteOutputDrop.c_str()), 0);
 
 	thread.join(); // make sure it is joined
 
