@@ -538,7 +538,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 
 	auto func = [&]() -> int
 	{
-		return liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2);
+		return liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, &packetCount, 2); // ideally, it should timeout after 2 seconds
 	};
 
 	// test it not timeout after 2 seconds
