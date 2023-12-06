@@ -37,6 +37,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking);
 PTF_TEST_CASE(TestPcapLiveDeviceStatsMode);
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode);
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout);
+PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll);
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg);
 PTF_TEST_CASE(TestWinPcapLiveDevice);
 PTF_TEST_CASE(TestSendPacket);
