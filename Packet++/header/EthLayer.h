@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct ether_header
  * Represents an Ethernet II header
  */
 #pragma pack(push, 1)
-struct ether_header {
+struct ether_header
+{
     /** Destination MAC */
     uint8_t dstMac[6];
     /** Source MAC */
@@ -68,7 +70,8 @@ struct ether_header {
  * @class EthLayer
  * Represents an Ethernet II protocol layer
  */
-class EthLayer : public Layer {
+class EthLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -78,7 +81,8 @@ class EthLayer : public Layer {
    * stored in
    */
     EthLayer(uint8_t* data, size_t dataLen, Packet* packet)
-        : Layer(data, dataLen, NULL, packet) {
+        : Layer(data, dataLen, NULL, packet)
+    {
         m_Protocol = Ethernet;
     }
 
@@ -91,7 +95,8 @@ class EthLayer : public Layer {
    * stored in
    */
     EthLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = Ethernet;
     }
 
@@ -118,7 +123,8 @@ class EthLayer : public Layer {
    * Get the source MAC address
    * @return The source MAC address
    */
-    inline MacAddress getSourceMac() const {
+    inline MacAddress getSourceMac() const
+    {
         return MacAddress(getEthHeader()->srcMac);
     }
 
@@ -126,7 +132,8 @@ class EthLayer : public Layer {
    * Set source MAC address
    * @param sourceMac Source MAC to set
    */
-    inline void setSourceMac(const MacAddress& sourceMac) {
+    inline void setSourceMac(const MacAddress& sourceMac)
+    {
         sourceMac.copyTo(getEthHeader()->srcMac);
     }
 
@@ -134,7 +141,8 @@ class EthLayer : public Layer {
    * Get the destination MAC address
    * @return The destination MAC address
    */
-    inline MacAddress getDestMac() const {
+    inline MacAddress getDestMac() const
+    {
         return MacAddress(getEthHeader()->dstMac);
     }
 
@@ -142,7 +150,8 @@ class EthLayer : public Layer {
    * Set destination MAC address
    * @param destMac Destination MAC to set
    */
-    inline void setDestMac(const MacAddress& destMac) {
+    inline void setDestMac(const MacAddress& destMac)
+    {
         destMac.copyTo(getEthHeader()->dstMac);
     }
 

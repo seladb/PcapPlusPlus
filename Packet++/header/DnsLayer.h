@@ -12,7 +12,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct dnshdr
@@ -20,7 +21,8 @@ namespace pcpp {
  * include the DNS data (queries, answers, authorities and additional records)
  */
 #pragma pack(push, 1)
-struct dnshdr {
+struct dnshdr
+{
     /** DNS query identification */
     uint16_t transactionID;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -89,7 +91,8 @@ class IDnsResourceData;
  * @class DnsLayer
  * Represents the DNS protocol layer
  */
-class DnsLayer : public Layer {
+class DnsLayer : public Layer
+{
     friend class IDnsResource;
     friend class DnsQuery;
     friend class DnsResource;
@@ -586,7 +589,8 @@ class DnsLayer : public Layer {
  * implementation doesn't support this use-case and assumes the whole message
  * fits in a single packet.
  */
-class DnsOverTcpLayer : public DnsLayer {
+class DnsOverTcpLayer : public DnsLayer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -635,8 +639,10 @@ class DnsOverTcpLayer : public DnsLayer {
 
 // implementation of inline methods
 
-bool DnsLayer::isDnsPort(uint16_t port) {
-    switch (port) {
+bool DnsLayer::isDnsPort(uint16_t port)
+{
+    switch (port)
+    {
     case 53:
     case 5353:
     case 5355:
@@ -647,7 +653,8 @@ bool DnsLayer::isDnsPort(uint16_t port) {
 }
 
 bool DnsLayer::isDataValid(const uint8_t* data, size_t dataLen,
-                           bool dnsOverTcp) {
+                           bool dnsOverTcp)
+{
     size_t minSize = sizeof(dnshdr) + (dnsOverTcp ? sizeof(uint16_t) : 0);
     return data && dataLen >= minSize;
 }

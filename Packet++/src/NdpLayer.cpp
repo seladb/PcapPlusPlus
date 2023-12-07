@@ -3,13 +3,15 @@
 #include "NdpLayer.h"
 #include "Logger.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
 /*
  *	NdpOptionBuilder
  */
 
-NdpOption NdpOptionBuilder::build() const {
+NdpOption NdpOptionBuilder::build() const
+{
     size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
     size_t padding = (8 - (optionSize % 8)) %
                      8; // Padding bytes for a option with 8 byte boundary
@@ -29,35 +31,42 @@ NdpOption NdpOptionBuilder::build() const {
  *	NDPLayerBase
  */
 
-size_t NDPLayerBase::getNdpOptionCount() const {
+size_t NDPLayerBase::getNdpOptionCount() const
+{
     return m_OptionReader.getTLVRecordCount(getNdpOptionsBasePtr(),
                                             getHeaderLen() - getNdpHeaderLen());
 }
 
-NdpOption NDPLayerBase::getFirstNdpOption() const {
+NdpOption NDPLayerBase::getFirstNdpOption() const
+{
     return m_OptionReader.getFirstTLVRecord(getNdpOptionsBasePtr(),
                                             getHeaderLen() - getNdpHeaderLen());
 }
 
-NdpOption NDPLayerBase::getNextNdpOption(NdpOption& option) const {
+NdpOption NDPLayerBase::getNextNdpOption(NdpOption& option) const
+{
     return m_OptionReader.getNextTLVRecord(option, getNdpOptionsBasePtr(),
                                            getHeaderLen() - getNdpHeaderLen());
 }
 
-NdpOption NDPLayerBase::getNdpOption(NDPNeighborOptionTypes option) const {
+NdpOption NDPLayerBase::getNdpOption(NDPNeighborOptionTypes option) const
+{
     return m_OptionReader.getTLVRecord((uint8_t)option, getNdpOptionsBasePtr(),
                                        getHeaderLen() - getNdpHeaderLen());
 }
 
-NdpOption NDPLayerBase::addNdpOption(const NdpOptionBuilder& optionBuilder) {
+NdpOption NDPLayerBase::addNdpOption(const NdpOptionBuilder& optionBuilder)
+{
     return addNdpOptionAt(optionBuilder, getHeaderLen());
 }
 
 NdpOption NDPLayerBase::addNdpOptionAt(const NdpOptionBuilder& optionBuilder,
-                                       int offset) {
+                                       int offset)
+{
     NdpOption newOption = optionBuilder.build();
 
-    if (newOption.isNull()) {
+    if (newOption.isNull())
+    {
         PCPP_LOG_ERROR("Cannot build new option of type "
                        << (int)newOption.getType());
         return newOption;
@@ -65,7 +74,8 @@ NdpOption NDPLayerBase::addNdpOptionAt(const NdpOptionBuilder& optionBuilder,
 
     size_t sizeToExtend = newOption.getTotalSize();
 
-    if (!extendLayer(offset, sizeToExtend)) {
+    if (!extendLayer(offset, sizeToExtend))
+    {
         PCPP_LOG_ERROR("Could not extend NdpLayer in [" << sizeToExtend
                                                         << "] bytes");
         newOption.purgeRecordData();
@@ -84,7 +94,8 @@ NdpOption NDPLayerBase::addNdpOptionAt(const NdpOptionBuilder& optionBuilder,
     return NdpOption(newOptPtr);
 }
 
-bool NDPLayerBase::removeAllNdpOptions() {
+bool NDPLayerBase::removeAllNdpOptions()
+{
     int offset = getNdpHeaderLen();
     if (!shortenLayer(offset, getHeaderLen() - offset))
         return false;
@@ -98,12 +109,14 @@ bool NDPLayerBase::removeAllNdpOptions() {
  */
 
 NDPNeighborSolicitationLayer::NDPNeighborSolicitationLayer(
-    uint8_t code, const IPv6Address& targetIP) {
+    uint8_t code, const IPv6Address& targetIP)
+{
     initLayer(code, targetIP);
 }
 
 NDPNeighborSolicitationLayer::NDPNeighborSolicitationLayer(
-    uint8_t code, const IPv6Address& targetIP, const MacAddress& srcMac) {
+    uint8_t code, const IPv6Address& targetIP, const MacAddress& srcMac)
+{
     initLayer(code, targetIP);
     this->addNdpOption(pcpp::NdpOptionBuilder(
         pcpp::NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER,
@@ -111,7 +124,8 @@ NDPNeighborSolicitationLayer::NDPNeighborSolicitationLayer(
 }
 
 void NDPNeighborSolicitationLayer::initLayer(uint8_t code,
-                                             const IPv6Address& targetIP) {
+                                             const IPv6Address& targetIP)
+{
     m_DataLen = sizeof(ndpneighborsolicitationhdr);
     m_Data = new uint8_t[m_DataLen];
     memset(m_Data, 0, m_DataLen);
@@ -124,24 +138,28 @@ void NDPNeighborSolicitationLayer::initLayer(uint8_t code,
     memcpy(pHdr->targetIP, targetIP.toBytes(), 16);
 }
 
-bool NDPNeighborSolicitationLayer::hasLinkLayerAddress() const {
+bool NDPNeighborSolicitationLayer::hasLinkLayerAddress() const
+{
     NdpOption option =
         this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
     return option.isNull() ? false : true;
 }
 
-MacAddress NDPNeighborSolicitationLayer::getLinkLayerAddress() const {
+MacAddress NDPNeighborSolicitationLayer::getLinkLayerAddress() const
+{
     NdpOption option =
         this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
 
-    if (option.isNull()) {
+    if (option.isNull())
+    {
         return MacAddress::Zero;
     }
 
     return MacAddress(option.getValue());
 }
 
-std::string NDPNeighborSolicitationLayer::toString() const {
+std::string NDPNeighborSolicitationLayer::toString() const
+{
     std::ostringstream typeStream;
     typeStream << "ICMPv6 Layer, Neighbor Solicitation Message, TargetIP: " +
                       getTargetIP().toString();
@@ -158,7 +176,8 @@ std::string NDPNeighborSolicitationLayer::toString() const {
 
 NDPNeighborAdvertisementLayer::NDPNeighborAdvertisementLayer(
     uint8_t code, const IPv6Address& targetIP, const MacAddress& targetMac,
-    bool routerFlag, bool unicastFlag, bool overrideFlag) {
+    bool routerFlag, bool unicastFlag, bool overrideFlag)
+{
     initLayer(code, targetIP, routerFlag, unicastFlag, overrideFlag);
     this->addNdpOption(pcpp::NdpOptionBuilder(
         pcpp::NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER,
@@ -167,14 +186,16 @@ NDPNeighborAdvertisementLayer::NDPNeighborAdvertisementLayer(
 
 NDPNeighborAdvertisementLayer::NDPNeighborAdvertisementLayer(
     uint8_t code, const IPv6Address& targetIP, bool routerFlag,
-    bool unicastFlag, bool overrideFlag) {
+    bool unicastFlag, bool overrideFlag)
+{
     initLayer(code, targetIP, routerFlag, unicastFlag, overrideFlag);
 }
 
 void NDPNeighborAdvertisementLayer::initLayer(uint8_t code,
                                               const IPv6Address& targetIP,
                                               bool routerFlag, bool unicastFlag,
-                                              bool overrideFlag) {
+                                              bool overrideFlag)
+{
     m_DataLen = sizeof(ndpneighboradvertisementhdr);
     m_Data = new uint8_t[m_DataLen];
     memset(m_Data, 0, m_DataLen);
@@ -191,24 +212,28 @@ void NDPNeighborAdvertisementLayer::initLayer(uint8_t code,
     memcpy(pHdr->targetIP, targetIP.toBytes(), 16);
 }
 
-bool NDPNeighborAdvertisementLayer::hasTargetMacInfo() const {
+bool NDPNeighborAdvertisementLayer::hasTargetMacInfo() const
+{
     NdpOption option =
         this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
     return option.isNull() ? false : true;
 }
 
-MacAddress NDPNeighborAdvertisementLayer::getTargetMac() const {
+MacAddress NDPNeighborAdvertisementLayer::getTargetMac() const
+{
     NdpOption option =
         this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 
-    if (option.isNull()) {
+    if (option.isNull())
+    {
         return MacAddress::Zero;
     }
 
     return MacAddress(option.getValue());
 }
 
-std::string NDPNeighborAdvertisementLayer::toString() const {
+std::string NDPNeighborAdvertisementLayer::toString() const
+{
     std::ostringstream typeStream;
     typeStream << "ICMPv6 Layer, Neighbor Advertisement Message, TargetIP: "
                << getTargetIP().toString();

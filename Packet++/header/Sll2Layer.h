@@ -10,13 +10,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @struct sll2_header
  * Represents SLL2 header
  */
 #pragma pack(push, 1)
-struct sll2_header {
+struct sll2_header
+{
     /** Contains an Ethernet protocol type of the next layer */
     uint16_t protocol_type;
     /** The "Reserved (MBZ)" field is reserved, and must be set to zero */
@@ -49,7 +51,8 @@ struct sll2_header {
  * @class Sll2Layer
  * Represents an SLL2 (Linux cooked capture) protocol layer
  */
-class Sll2Layer : public Layer {
+class Sll2Layer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -59,7 +62,8 @@ class Sll2Layer : public Layer {
    * stored in
    */
     Sll2Layer(uint8_t* data, size_t dataLen, Packet* packet)
-        : Layer(data, dataLen, nullptr, packet) {
+        : Layer(data, dataLen, nullptr, packet)
+    {
         m_Protocol = SLL2;
     }
 

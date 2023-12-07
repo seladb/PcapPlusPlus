@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class PfRingDeviceList
@@ -19,7 +20,8 @@ namespace pcpp {
  * class the user can iterate all PF_RING devices or find a specific device by
  * name
  */
-class PfRingDeviceList {
+class PfRingDeviceList
+{
   private:
     std::vector<PfRingDevice*> m_PfRingDeviceList;
     std::string m_PfRingVersion;
@@ -38,7 +40,8 @@ class PfRingDeviceList {
    * A static method that returns the singleton object for PfRingDeviceList
    * @return PfRingDeviceList singleton
    */
-    static PfRingDeviceList& getInstance() {
+    static PfRingDeviceList& getInstance()
+    {
         static PfRingDeviceList instance;
         return instance;
     }
@@ -47,7 +50,8 @@ class PfRingDeviceList {
    * Return a list of all available PF_RING devices
    * @return a list of all available PF_RING devices
    */
-    const std::vector<PfRingDevice*>& getPfRingDevicesList() const {
+    const std::vector<PfRingDevice*>& getPfRingDevicesList() const
+    {
         return m_PfRingDeviceList;
     }
 

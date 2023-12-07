@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class TLVRecord
  * A wrapper class for a Type-Length-Value (TLV) record. This class does not
@@ -22,10 +23,12 @@ namespace pcpp {
  * differently in different protocols
  */
 template <typename TRecType, typename TRecLen>
-class TLVRecord {
+class TLVRecord
+{
   protected:
     /** A struct representing the TLV construct */
-    struct TLVRawData {
+    struct TLVRawData
+    {
         /** Record type */
         TRecType recordType;
         /** Record length in bytes */
@@ -69,7 +72,8 @@ class TLVRecord {
    * @param[in] tlvDataLen The size of the TLV record raw data
    * @return True if data is valid and can be assigned
    */
-    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen) {
+    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+    {
         return recordRawData != nullptr &&
                tlvDataLen >=
                    (sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen));
@@ -81,7 +85,8 @@ class TLVRecord {
    * it both the old and the new instance will point to the same TLV raw data
    * @param[in] other The TLVRecord instance to assign
    */
-    TLVRecord& operator=(const TLVRecord& other) {
+    TLVRecord& operator=(const TLVRecord& other)
+    {
         m_Data = other.m_Data;
         return *this;
     }
@@ -93,7 +98,8 @@ class TLVRecord {
    * @param[in] rhs The object to compare to
    * @return True if both objects are equal, false otherwise
    */
-    bool operator==(const TLVRecord& rhs) const {
+    bool operator==(const TLVRecord& rhs) const
+    {
         if (m_Data == rhs.m_Data)
             return true;
 
@@ -116,7 +122,8 @@ class TLVRecord {
     /**
    * @return The type field of the record (the 'T' in __Type__-Length-Value)
    */
-    TRecType getType() const {
+    TRecType getType() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -127,7 +134,8 @@ class TLVRecord {
    * @return A pointer to the value of the record as byte array (the 'V' in
    * Type-Length- __Value__)
    */
-    uint8_t* getValue() const {
+    uint8_t* getValue() const
+    {
         if (m_Data == nullptr)
             return nullptr;
 
@@ -152,8 +160,10 @@ class TLVRecord {
     /**
    * Free the memory of the TLV record raw data
    */
-    void purgeRecordData() {
-        if (!isNull()) {
+    void purgeRecordData()
+    {
+        if (!isNull())
+        {
             delete[] m_Data;
             m_Data = nullptr;
         }
@@ -172,7 +182,8 @@ class TLVRecord {
    * @return The record data as type T
    */
     template <typename T>
-    T getValueAs(size_t offset = 0) const {
+    T getValueAs(size_t offset = 0) const
+    {
         if (getDataSize() - offset < sizeof(T))
             return 0;
 
@@ -194,7 +205,8 @@ class TLVRecord {
    * larger than the record data size
    */
     template <typename T>
-    bool setValue(T newValue, int valueOffset = 0) {
+    bool setValue(T newValue, int valueOffset = 0)
+    {
         if (getDataSize() < sizeof(T))
             return false;
 
@@ -221,7 +233,8 @@ class TLVRecord {
  * template class that expects template argument class derived from TLVRecord.
  */
 template <typename TLVRecordType>
-class TLVRecordReader {
+class TLVRecordReader
+{
   private:
     mutable size_t m_RecordCount;
 
@@ -234,7 +247,8 @@ class TLVRecordReader {
     /**
    * A default copy c'tor for this class
    */
-    TLVRecordReader(const TLVRecordReader& other) {
+    TLVRecordReader(const TLVRecordReader& other)
+    {
         m_RecordCount = other.m_RecordCount;
     }
 
@@ -247,7 +261,8 @@ class TLVRecordReader {
    * Overload of the assignment operator for this class
    * @param[in] other The TLVRecordReader instance to assign
    */
-    TLVRecordReader& operator=(const TLVRecordReader& other) {
+    TLVRecordReader& operator=(const TLVRecordReader& other)
+    {
         m_RecordCount = other.m_RecordCount;
         return *this;
     }
@@ -262,7 +277,8 @@ class TLVRecordReader {
    * TLVRecordType.isNull() will return true
    */
     TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr,
-                                    size_t tlvDataLen) const {
+                                    size_t tlvDataLen) const
+    {
         TLVRecordType resRec(NULL); // for NRVO optimization
         if (!TLVRecordType::canAssign(tlvDataBasePtr, tlvDataLen))
             return resRec;
@@ -293,7 +309,8 @@ class TLVRecordReader {
    */
     TLVRecordType getNextTLVRecord(TLVRecordType& record,
                                    const uint8_t* tlvDataBasePtr,
-                                   size_t tlvDataLen) const {
+                                   size_t tlvDataLen) const
+    {
         TLVRecordType resRec(NULL); // for NRVO optimization
 
         if (record.isNull())
@@ -333,10 +350,13 @@ class TLVRecordReader {
    * returned, meaning TLVRecordType.isNull() will return true
    */
     TLVRecordType getTLVRecord(uint32_t recordType, uint8_t* tlvDataBasePtr,
-                               size_t tlvDataLen) const {
+                               size_t tlvDataLen) const
+    {
         TLVRecordType curRec = getFirstTLVRecord(tlvDataBasePtr, tlvDataLen);
-        while (!curRec.isNull()) {
-            if (curRec.getType() == recordType) {
+        while (!curRec.isNull())
+        {
+            if (curRec.getType() == recordType)
+            {
                 return curRec;
             }
 
@@ -358,13 +378,15 @@ class TLVRecordReader {
    * @param[in] tlvDataLen The TLV data byte stream length
    * @return The TLV record count
    */
-    size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const {
+    size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
+    {
         if (m_RecordCount != (size_t)-1)
             return m_RecordCount;
 
         m_RecordCount = 0;
         TLVRecordType curRec = getFirstTLVRecord(tlvDataBasePtr, tlvDataLen);
-        while (!curRec.isNull()) {
+        while (!curRec.isNull())
+        {
             m_RecordCount++;
             curRec = getNextTLVRecord(curRec, tlvDataBasePtr, tlvDataLen);
         }
@@ -380,7 +402,8 @@ class TLVRecordReader {
    * positive number, or a negative number if records were removed
    * @param[in] changedBy Number of records that were added or removed
    */
-    void changeTLVRecordCount(int changedBy) {
+    void changeTLVRecordCount(int changedBy)
+    {
         if (m_RecordCount != (size_t)-1)
             m_RecordCount += changedBy;
     }
@@ -398,7 +421,8 @@ class TLVRecordReader {
  * each protocol. This class only provides the common infrastructure that will
  * be used by them
  */
-class TLVRecordBuilder {
+class TLVRecordBuilder
+{
   protected:
     TLVRecordBuilder();
 

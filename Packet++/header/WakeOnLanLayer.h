@@ -11,11 +11,13 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * Class for representing the Wake on LAN Layer
  */
-class WakeOnLanLayer : public Layer {
+class WakeOnLanLayer : public Layer
+{
   private:
     void init(uint16_t len);
 
@@ -25,7 +27,8 @@ class WakeOnLanLayer : public Layer {
    * Wake On LAN protocol header
    */
 #pragma pack(push, 1)
-    struct wol_header {
+    struct wol_header
+    {
         /// Sync stream (FF FF FF FF FF FF)
         uint8_t sync[6];
         /// Target MAC address repeated 16 times
@@ -43,7 +46,8 @@ class WakeOnLanLayer : public Layer {
    */
     WakeOnLanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer,
                    Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = WakeOnLan;
     }
 
@@ -139,7 +143,8 @@ class WakeOnLanLayer : public Layer {
    * A static method that checks whether the port is considered as Wake on LAN
    * @param[in] port The port number to be checked
    */
-    static bool isWakeOnLanPort(uint16_t port) {
+    static bool isWakeOnLanPort(uint16_t port)
+    {
         return (port == 0) || (port == 7) || (port == 9);
     }
 

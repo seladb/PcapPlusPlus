@@ -14,14 +14,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct ssl_tls_record_layer
  * The common part of all SSL/TLS messages
  */
 #pragma pack(push, 1)
-struct ssl_tls_record_layer {
+struct ssl_tls_record_layer
+{
     /** Message (record) type (one of ::SSLRecordType) */
     uint8_t recordType;
     /** Message (record) version (one of SSLVersion::SSLVersionEnum) */
@@ -36,7 +38,8 @@ struct ssl_tls_record_layer {
  * The common part of all SSL/TLS handshake message types
  */
 #pragma pack(push, 1)
-struct ssl_tls_handshake_layer {
+struct ssl_tls_handshake_layer
+{
     /** Type of the handshake message (one of ::SSLHandshakeType) */
     uint8_t handshakeType;
     /** Length of the message. Length is 3-Byte long, This is the MSB byte */
@@ -51,7 +54,8 @@ struct ssl_tls_handshake_layer {
  * The common header part of client-hello and server-hello handshake messages
  */
 #pragma pack(push, 1)
-struct ssl_tls_client_server_hello : ssl_tls_handshake_layer {
+struct ssl_tls_client_server_hello : ssl_tls_handshake_layer
+{
     /** SSL/TLS handshake version (one of SSLVersion::SSLVersionEnum) */
     uint16_t handshakeVersion;
     /** 32-bytes random number */
@@ -64,7 +68,8 @@ struct ssl_tls_client_server_hello : ssl_tls_handshake_layer {
  * SSL/TLS change-cipher-spec message structure
  */
 #pragma pack(push, 1)
-struct ssl_tls_change_cipher_spec {
+struct ssl_tls_change_cipher_spec
+{
     /** Unused byte */
     uint8_t changeCipherSpec;
 };
@@ -75,7 +80,8 @@ struct ssl_tls_change_cipher_spec {
  * SSL/TLS alert message structure
  */
 #pragma pack(push, 1)
-struct ssl_tls_alert {
+struct ssl_tls_alert
+{
     /** Alert level (one of ::SSLAlertLevel) */
     uint8_t alertLevel;
     /** Alert description (one of ::SSLAlertDescription) */
@@ -86,7 +92,8 @@ struct ssl_tls_alert {
 /**
  * SSL/TLS message types
  */
-enum SSLRecordType {
+enum SSLRecordType
+{
     /** Change-cipher-spec message */
     SSL_CHANGE_CIPHER_SPEC = 20,
     /** SSL alert message */
@@ -104,12 +111,14 @@ enum SSLRecordType {
  * This class wraps the numeric value and provides methods to convert it into an
  * enum, string, etc.
  */
-class SSLVersion {
+class SSLVersion
+{
   public:
     /**
    * SSL/TLS versions enum
    */
-    enum SSLVersionEnum {
+    enum SSLVersionEnum
+    {
         /** SSL 2.0 */
         SSL2 = 0x0200,
         /** SSL 3.0 */
@@ -165,7 +174,8 @@ class SSLVersion {
    * @param[in] sslVersionValue The numeric value representing this SSL/TLS
    * version. For example: for TLS 1.2 this would be 0x0303.
    */
-    explicit SSLVersion(uint16_t sslVersionValue) {
+    explicit SSLVersion(uint16_t sslVersionValue)
+    {
         m_SSLVersionValue = sslVersionValue;
     }
 
@@ -208,7 +218,8 @@ class SSLVersion {
 /**
  * SSL/TLS handshake message types
  */
-enum SSLHandshakeType {
+enum SSLHandshakeType
+{
     /** Hello-request message type */
     SSL_HELLO_REQUEST = 0,
     /** Client-hello message type */
@@ -244,7 +255,8 @@ enum SSLHandshakeType {
 /**
  * SSL/TLS alert levels
  */
-enum SSLAlertLevel {
+enum SSLAlertLevel
+{
     /** Warning level alert */
     SSL_ALERT_LEVEL_WARNING = 1,
     /** Fatal level alert */
@@ -256,7 +268,8 @@ enum SSLAlertLevel {
 /**
  * SSL/TLS alert description types
  */
-enum SSLAlertDescription {
+enum SSLAlertDescription
+{
     /** Close notify alert */
     SSL_ALERT_CLOSE_NOTIFY = 0,
     /** Unexpected message alert */
@@ -314,7 +327,8 @@ enum SSLAlertDescription {
 /**
  * SSL/TLS key exchange algorithms
  */
-enum SSLKeyExchangeAlgorithm {
+enum SSLKeyExchangeAlgorithm
+{
     /** NULL value */
     SSL_KEYX_NULL,
     /** RSA (Rivest-Shamir-Adleman) */
@@ -346,7 +360,8 @@ enum SSLKeyExchangeAlgorithm {
 /**
  * SSL/TLS authentication algorithms
  */
-enum SSLAuthenticationAlgorithm {
+enum SSLAuthenticationAlgorithm
+{
     /** NULL value */
     SSL_AUTH_NULL,
     /** RSA (Rivest-Shamir-Adleman) */
@@ -378,7 +393,8 @@ enum SSLAuthenticationAlgorithm {
 /**
  * SSL/TLS symmetric encryption algorithms
  */
-enum SSLSymetricEncryptionAlgorithm {
+enum SSLSymetricEncryptionAlgorithm
+{
     /** NULL value */
     SSL_SYM_NULL,
     /** RC4_40 */
@@ -460,7 +476,8 @@ enum SSLSymetricEncryptionAlgorithm {
 /**
  * SSL/TLS hashing algorithms
  */
-enum SSLHashingAlgorithm {
+enum SSLHashingAlgorithm
+{
     /** NULL value */
     SSL_HASH_NULL,
     /** Message-Digest Algorithm */
@@ -486,7 +503,8 @@ enum SSLHashingAlgorithm {
 /**
  * SSL/TLS extension types
  */
-enum SSLExtensionType {
+enum SSLExtensionType
+{
     /** Server Name Indication extension */
     SSL_EXT_SERVER_NAME = 0,
     /** Maximum Fragment Length Negotiation extension */
@@ -568,7 +586,8 @@ enum SSLExtensionType {
 /**
  * SSL/TLS client certificate types
  */
-enum SSLClientCertificateType {
+enum SSLClientCertificateType
+{
     /** RSA_SIGN */
     SSL_CCT_RSA_SIGN = 1,
     /** DSS_SIGN */

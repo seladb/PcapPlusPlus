@@ -15,13 +15,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * An enum representing the available option types for Neighbor Discovery in
  * IPv6 (see RFC 4861)
  */
-enum class NDPNeighborOptionTypes : int {
+enum class NDPNeighborOptionTypes : int
+{
     NDP_OPTION_SOURCE_LINK_LAYER = 1,
     NDP_OPTION_TARGET_LINK_LAYER = 2,
     NDP_OPTION_PREFIX_INFORMATION = 3,
@@ -36,7 +38,8 @@ enum class NDPNeighborOptionTypes : int {
  * option records, but rather serves as a wrapper and provides useful methods
  * for retrieving data from them
  */
-class NdpOption : public TLVRecord<uint8_t, uint8_t> {
+class NdpOption : public TLVRecord<uint8_t, uint8_t>
+{
   public:
     /**
    * A c'tor for this class that gets a pointer to the option raw data (byte
@@ -54,7 +57,8 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t> {
    * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum. If the
    * data is null a value of NDP_OPTION_UNKNOWN is returned
    */
-    NDPNeighborOptionTypes getNdpOptionType() const {
+    NDPNeighborOptionTypes getNdpOptionType() const
+    {
         if (m_Data == nullptr)
             return NDPNeighborOptionTypes::NDP_OPTION_UNKNOWN;
 
@@ -63,14 +67,16 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t> {
 
     // implement abstract methods
 
-    size_t getTotalSize() const {
+    size_t getTotalSize() const
+    {
         if (m_Data == nullptr)
             return (size_t)0;
 
         return (size_t)m_Data->recordLen * 8;
     }
 
-    size_t getDataSize() const {
+    size_t getDataSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -85,7 +91,8 @@ class NdpOption : public TLVRecord<uint8_t, uint8_t> {
  * parameters in its c'tor, builds the NDP option raw buffer and provides a
  * build() method to get a NdpOption object out of it
  */
-class NdpOptionBuilder : public TLVRecordBuilder {
+class NdpOptionBuilder : public TLVRecordBuilder
+{
   public:
     /**
    * A c'tor for building NDP options which their value is a byte array. The
@@ -113,7 +120,8 @@ class NdpOptionBuilder : public TLVRecordBuilder {
  * @class NDPLayerBase
  * Represents a base for NDP packet types
  */
-class NDPLayerBase : public IcmpV6Layer {
+class NDPLayerBase : public IcmpV6Layer
+{
   public:
     virtual ~NDPLayerBase() {}
 
@@ -176,7 +184,8 @@ class NDPLayerBase : public IcmpV6Layer {
     TLVRecordReader<NdpOption> m_OptionReader;
 
     virtual size_t getNdpHeaderLen() const = 0;
-    virtual uint8_t* getNdpOptionsBasePtr() const {
+    virtual uint8_t* getNdpOptionsBasePtr() const
+    {
         return m_Data + getNdpHeaderLen();
     };
     NdpOption addNdpOptionAt(const NdpOptionBuilder& optionBuilder, int offset);
@@ -186,14 +195,16 @@ class NDPLayerBase : public IcmpV6Layer {
  * @class NDPNeighborSolicitationLayer
  * Represents a NDP Neighbor Solicitation protocol layer
  */
-class NDPNeighborSolicitationLayer : public NDPLayerBase {
+class NDPNeighborSolicitationLayer : public NDPLayerBase
+{
   public:
     /**
    * @struct ndpneighborsolicitationhdr
    * Represents neighbor solicitation message format
    */
 #pragma pack(push, 1)
-    struct ndpneighborsolicitationhdr : icmpv6hdr {
+    struct ndpneighborsolicitationhdr : icmpv6hdr
+    {
         /** Reserved */
         uint32_t reserved;
         /** Target address - Target address of solicitation message */
@@ -237,7 +248,8 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase {
    * @return Get the IP address specified as the target IP address in the
    * solicitation message
    */
-    IPv6Address getTargetIP() const {
+    IPv6Address getTargetIP() const
+    {
         return IPv6Address(getNdpHeader()->targetIP);
     };
 
@@ -257,7 +269,8 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase {
 
   private:
     void initLayer(uint8_t code, const IPv6Address& targetIP);
-    ndpneighborsolicitationhdr* getNdpHeader() const {
+    ndpneighborsolicitationhdr* getNdpHeader() const
+    {
         return (ndpneighborsolicitationhdr*)m_Data;
     }
     size_t getNdpHeaderLen() const { return sizeof(ndpneighborsolicitationhdr); };
@@ -267,14 +280,16 @@ class NDPNeighborSolicitationLayer : public NDPLayerBase {
  * @class NDPNeighborAdvertisementLayer
  * Represents a NDP Neighbor Advertisement protocol layer
  */
-class NDPNeighborAdvertisementLayer : public NDPLayerBase {
+class NDPNeighborAdvertisementLayer : public NDPLayerBase
+{
   public:
     /**
    * @struct ndpneighboradvertisementhdr
    * Represents neighbor advertisement message format
    */
 #pragma pack(push, 1)
-    struct ndpneighboradvertisementhdr : icmpv6hdr {
+    struct ndpneighboradvertisementhdr : icmpv6hdr
+    {
 #if (BYTE_ORDER == LITTLE_ENDIAN)
         uint32_t
             /** Unused field */
@@ -359,7 +374,8 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase {
     /**
    * @return Get the target IP address
    */
-    IPv6Address getTargetIP() const {
+    IPv6Address getTargetIP() const
+    {
         return IPv6Address(getNdpHeader()->targetIP);
     }
 
@@ -389,10 +405,12 @@ class NDPNeighborAdvertisementLayer : public NDPLayerBase {
   private:
     void initLayer(uint8_t code, const IPv6Address& targetIP, bool routerFlag,
                    bool unicastFlag, bool overrideFlag);
-    ndpneighboradvertisementhdr* getNdpHeader() const {
+    ndpneighboradvertisementhdr* getNdpHeader() const
+    {
         return (ndpneighboradvertisementhdr*)m_Data;
     }
-    size_t getNdpHeaderLen() const {
+    size_t getNdpHeaderLen() const
+    {
         return sizeof(ndpneighboradvertisementhdr);
     };
 };

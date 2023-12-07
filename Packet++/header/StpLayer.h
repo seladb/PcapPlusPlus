@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct stp_tcn_bpdu
  * Represents payload of network changes announcements of BPDU
  */
 #pragma pack(push, 1)
-struct stp_tcn_bpdu {
+struct stp_tcn_bpdu
+{
     /// Protocol ID. Fixed at 0x0, which represents IEEE 802.1d
     uint16_t protoId;
     /// Protocol version. 0x0 for STP, 0x2 for RSTP, 0x3 for MSTP
@@ -35,7 +37,8 @@ typedef stp_tcn_bpdu stp_header;
  * Represents payload configuration of BPDU for STP
  */
 #pragma pack(push, 1)
-struct stp_conf_bpdu : stp_tcn_bpdu {
+struct stp_conf_bpdu : stp_tcn_bpdu
+{
     /// Flag for indicate purpose of BPDU
     uint8_t flag;
     /// Root bridge ID
@@ -62,7 +65,8 @@ struct stp_conf_bpdu : stp_tcn_bpdu {
  * Represents payload configuration of BPDU for Rapid STP (RSTP)
  */
 #pragma pack(push, 1)
-struct rstp_conf_bpdu : stp_conf_bpdu {
+struct rstp_conf_bpdu : stp_conf_bpdu
+{
     /// Version1 length. The value is 0x0
     uint8_t version1Len;
 };
@@ -73,7 +77,8 @@ struct rstp_conf_bpdu : stp_conf_bpdu {
  * Represents payload configuration of BPDU for Multiple STP (MSTP)
  */
 #pragma pack(push, 1)
-struct mstp_conf_bpdu : rstp_conf_bpdu {
+struct mstp_conf_bpdu : rstp_conf_bpdu
+{
     /// Version3 length.
     uint16_t version3Len;
     /// Configuration id format selector
@@ -99,7 +104,8 @@ struct mstp_conf_bpdu : rstp_conf_bpdu {
  * MSTP can contain 0 to 64 MSTI messages.
  */
 #pragma pack(push, 1)
-struct msti_conf_msg {
+struct msti_conf_msg
+{
     /// MSTI flags
     uint8_t flags;
     /// Regional root switching id (Priority (4 bits) + ID (12 bits) + Regional
@@ -120,14 +126,17 @@ struct msti_conf_msg {
  * @class StpLayer
  * Represents an Spanning Tree Protocol Layer
  */
-class StpLayer : public Layer {
+class StpLayer : public Layer
+{
   protected:
     StpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = STP;
     }
 
-    explicit StpLayer(size_t dataLen) {
+    explicit StpLayer(size_t dataLen)
+    {
         m_DataLen = dataLen;
         m_Data = new uint8_t[dataLen];
         memset(m_Data, 0, dataLen);
@@ -229,7 +238,8 @@ class StpLayer : public Layer {
  * @class StpTopologyChangeBPDULayer
  * Represents network topology change BPDU message of Spanning Tree Protocol
  */
-class StpTopologyChangeBPDULayer : public StpLayer {
+class StpTopologyChangeBPDULayer : public StpLayer
+{
   protected:
     explicit StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
 
@@ -272,7 +282,8 @@ class StpTopologyChangeBPDULayer : public StpLayer {
     /**
    * @return Returns the protocol info as readable string
    */
-    std::string toString() const {
+    std::string toString() const
+    {
         return "Spanning Tree Topology Change Notification";
     }
 
@@ -283,7 +294,8 @@ class StpTopologyChangeBPDULayer : public StpLayer {
    * @param[in] dataLen The length of the byte stream
    * @return True if the data is valid and can represent an Spanning Tree packet
    */
-    static bool isDataValid(const uint8_t* data, size_t dataLen) {
+    static bool isDataValid(const uint8_t* data, size_t dataLen)
+    {
         return data && dataLen >= sizeof(stp_tcn_bpdu);
     }
 };
@@ -292,7 +304,8 @@ class StpTopologyChangeBPDULayer : public StpLayer {
  * @class StpConfigurationBPDULayer
  * Represents configuration BPDU message of Spanning Tree Protocol
  */
-class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer {
+class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
+{
   protected:
     explicit StpConfigurationBPDULayer(size_t dataLen)
         : StpTopologyChangeBPDULayer(dataLen) {}
@@ -375,7 +388,8 @@ class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer {
    * Returns the system identifier of root bridge
    * @return System identifier of root bridge
    */
-    pcpp::MacAddress getRootSystemID() const {
+    pcpp::MacAddress getRootSystemID() const
+    {
         return IDtoMacAddress(getRootId());
     }
 
@@ -437,7 +451,8 @@ class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer {
    * Returns the system identifier of bridge
    * @return System identifier of bridge
    */
-    pcpp::MacAddress getBridgeSystemID() const {
+    pcpp::MacAddress getBridgeSystemID() const
+    {
         return IDtoMacAddress(getBridgeId());
     }
 
@@ -529,7 +544,8 @@ class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer {
    * @param[in] dataLen The length of the byte stream
    * @return True if the data is valid and can represent an Spanning Tree packet
    */
-    static bool isDataValid(const uint8_t* data, size_t dataLen) {
+    static bool isDataValid(const uint8_t* data, size_t dataLen)
+    {
         return data && dataLen >= sizeof(stp_conf_bpdu);
     }
 };
@@ -538,7 +554,8 @@ class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer {
  * @class RapidStpLayer
  * Represents Rapid Spanning Tree Protocol (RSTP)
  */
-class RapidStpLayer : public StpConfigurationBPDULayer {
+class RapidStpLayer : public StpConfigurationBPDULayer
+{
   protected:
     explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
 
@@ -565,7 +582,8 @@ class RapidStpLayer : public StpConfigurationBPDULayer {
    * Get a pointer to Rapid STP header
    * @return A pointer to Rapid STP header
    */
-    rstp_conf_bpdu* getRstpConfHeader() const {
+    rstp_conf_bpdu* getRstpConfHeader() const
+    {
         return (rstp_conf_bpdu*)(m_Data);
     }
 
@@ -579,7 +597,8 @@ class RapidStpLayer : public StpConfigurationBPDULayer {
    * Returns the length of version1 field
    * @param[in] value Length of the version1 field
    */
-    void setVersion1Len(uint8_t value) {
+    void setVersion1Len(uint8_t value)
+    {
         getRstpConfHeader()->version1Len = value;
     }
 
@@ -605,7 +624,8 @@ class RapidStpLayer : public StpConfigurationBPDULayer {
    * @param[in] dataLen The length of the byte stream
    * @return True if the data is valid and can represent an Spanning Tree packet
    */
-    static bool isDataValid(const uint8_t* data, size_t dataLen) {
+    static bool isDataValid(const uint8_t* data, size_t dataLen)
+    {
         return data && dataLen >= sizeof(rstp_conf_bpdu);
     }
 };
@@ -615,7 +635,8 @@ class RapidStpLayer : public StpConfigurationBPDULayer {
  * Represents Multiple Spanning Tree Protocol (MSTP). It has limited
  * capabilities (no crafting / limited editing) over MSTI configuration
  */
-class MultipleStpLayer : public RapidStpLayer {
+class MultipleStpLayer : public RapidStpLayer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -657,7 +678,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * Returns the configuration ID format selector
    * @return Configuration ID of format selector
    */
-    uint8_t getMstConfigurationFormatSelector() const {
+    uint8_t getMstConfigurationFormatSelector() const
+    {
         return getMstpHeader()->mstConfigFormatSelector;
     }
 
@@ -665,7 +687,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * Sets the configuration ID format selector
    * @param[in] value Configuration ID of format selector
    */
-    void setMstConfigurationFormatSelector(uint8_t value) {
+    void setMstConfigurationFormatSelector(uint8_t value)
+    {
         getMstpHeader()->mstConfigFormatSelector = value;
     }
 
@@ -699,7 +722,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * always 16 bytes long.
    * @return A pointer to configuration digest
    */
-    uint8_t* getMstConfigDigest() const {
+    uint8_t* getMstConfigDigest() const
+    {
         return getMstpHeader()->mstConfigDigest;
     }
 
@@ -764,7 +788,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * Returns the system identifier of CIST bridge
    * @return System identifier of CIST bridge
    */
-    pcpp::MacAddress getCISTBridgeSystemID() const {
+    pcpp::MacAddress getCISTBridgeSystemID() const
+    {
         return IDtoMacAddress(getCISTBridgeId());
     }
 
@@ -784,7 +809,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * Returns the remaining hop count
    * @param[in] value Value of remaining hop count
    */
-    void setRemainingHopCount(uint8_t value) {
+    void setRemainingHopCount(uint8_t value)
+    {
         getMstpHeader()->remainId = value;
     }
 
@@ -792,7 +818,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * Returns the total number of MSTI configuration messages
    * @return Number of MSTI configuration messages. Can be between 0 and 64.
    */
-    uint8_t getNumberOfMSTIConfMessages() const {
+    uint8_t getNumberOfMSTIConfMessages() const
+    {
         return (getVersion3Len() - (sizeof(mstp_conf_bpdu) -
                                     sizeof(rstp_conf_bpdu) - sizeof(uint16_t))) /
                sizeof(msti_conf_msg);
@@ -824,7 +851,8 @@ class MultipleStpLayer : public RapidStpLayer {
    * @param[in] dataLen The length of the byte stream
    * @return True if the data is valid and can represent an Spanning Tree packet
    */
-    static bool isDataValid(const uint8_t* data, size_t dataLen) {
+    static bool isDataValid(const uint8_t* data, size_t dataLen)
+    {
         return data && dataLen >= sizeof(mstp_conf_bpdu);
     }
 };

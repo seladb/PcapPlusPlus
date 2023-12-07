@@ -14,14 +14,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct iphdr
  * Represents an IPv4 protocol header
  */
 #pragma pack(push, 1)
-struct iphdr {
+struct iphdr
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** IP header length, has the value of 5 for IPv4 */
     uint8_t internetHeaderLength : 4,
@@ -62,7 +64,8 @@ struct iphdr {
 /**
  * An enum for all possible IPv4 and IPv6 protocol types
  */
-enum IPProtocolTypes {
+enum IPProtocolTypes
+{
     /** Dummy protocol for TCP */
     PACKETPP_IPPROTO_IP = 0,
     /** IPv6 Hop-by-Hop options */
@@ -112,7 +115,8 @@ enum IPProtocolTypes {
 /**
  * An enum for supported IPv4 option types
  */
-enum IPv4OptionTypes {
+enum IPv4OptionTypes
+{
     /** End of Options List */
     IPV4OPT_EndOfOptionsList = 0,
     /** No Operation */
@@ -165,11 +169,13 @@ enum IPv4OptionTypes {
  * A struct representing a parsed value of the IPv4 timestamp option. This
  * struct is used returned in IPv4OptionData#getTimestampOptionValue() method
  */
-struct IPv4TimestampOptionValue {
+struct IPv4TimestampOptionValue
+{
     /**
    * An enum for IPv4 timestamp option types
    */
-    enum TimestampType {
+    enum TimestampType
+    {
         /** Value containing only timestamps */
         TimestampOnly = 0,
         /** Value containing both timestamps and IPv4 addresses */
@@ -196,7 +202,8 @@ struct IPv4TimestampOptionValue {
    * Clear the structure. Clean the timestamps and IP addresses vectors and set
    * the type as IPv4TimestampOptionValue#Unknown
    */
-    void clear() {
+    void clear()
+    {
         type = IPv4TimestampOptionValue::Unknown;
         timestamps.clear();
         ipAddresses.clear();
@@ -209,7 +216,8 @@ struct IPv4TimestampOptionValue {
  * option records, but rather serves as a wrapper and provides useful methods
  * for retrieving data from them
  */
-class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
+class IPv4Option : public TLVRecord<uint8_t, uint8_t>
+{
   public:
     /**
    * A c'tor for this class that gets a pointer to the option raw data (byte
@@ -234,7 +242,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
    * returned
    * @return A vector of IPv4 addresses parsed from the IPv4 option value
    */
-    std::vector<IPv4Address> getValueAsIpList() const {
+    std::vector<IPv4Address> getValueAsIpList() const
+    {
         std::vector<IPv4Address> res;
 
         if (m_Data == nullptr)
@@ -246,7 +255,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
 
         uint8_t valueOffset = (uint8_t)(1);
 
-        while ((size_t)valueOffset < dataSize) {
+        while ((size_t)valueOffset < dataSize)
+        {
             uint32_t curValue;
             memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
             if (curValue == 0)
@@ -272,7 +282,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
    * invalid an empty result is returned
    * @return A structured containing the IPv4 timestamp value
    */
-    IPv4TimestampOptionValue getTimestampOptionValue() const {
+    IPv4TimestampOptionValue getTimestampOptionValue() const
+    {
         IPv4TimestampOptionValue res;
         res.clear();
 
@@ -291,7 +302,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
         uint8_t valueOffset = (uint8_t)(2);
         bool readIPAddr = (res.type == IPv4TimestampOptionValue::TimestampAndIP);
 
-        while ((size_t)valueOffset < dataSize) {
+        while ((size_t)valueOffset < dataSize)
+        {
             uint32_t curValue;
             memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
             if (curValue == 0)
@@ -314,7 +326,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
     /**
    * @return IPv4 option type casted as pcpp::IPv4OptionTypes enum
    */
-    IPv4OptionTypes getIPv4OptionType() const {
+    IPv4OptionTypes getIPv4OptionType() const
+    {
         return getIPv4OptionType(m_Data);
     }
 
@@ -324,7 +337,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
    * @param[in] tlvDataLen The size of the TLV record raw data
    * @return True if data is valid and can be assigned
    */
-    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen) {
+    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+    {
         auto data = (TLVRawData*)recordRawData;
         if (data == nullptr)
             return false;
@@ -341,7 +355,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
 
     // implement abstract methods
 
-    size_t getTotalSize() const {
+    size_t getTotalSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -352,7 +367,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
         return (size_t)m_Data->recordLen;
     }
 
-    size_t getDataSize() const {
+    size_t getDataSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -367,7 +383,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
     /**
    * @return IPv4 option type casted as pcpp::IPv4OptionTypes enum
    */
-    static IPv4OptionTypes getIPv4OptionType(const TLVRawData* data) {
+    static IPv4OptionTypes getIPv4OptionType(const TLVRawData* data)
+    {
         if (data == nullptr)
             return IPV4OPT_Unknown;
 
@@ -381,7 +398,8 @@ class IPv4Option : public TLVRecord<uint8_t, uint8_t> {
  * option parameters in its c'tor, builds the IPv4 option raw buffer and
  * provides a build() method to get a IPv4Option object out of it
  */
-class IPv4OptionBuilder : public TLVRecordBuilder {
+class IPv4OptionBuilder : public TLVRecordBuilder
+{
   private:
     bool m_BuilderParamsValid;
 
@@ -398,7 +416,8 @@ class IPv4OptionBuilder : public TLVRecordBuilder {
    */
     IPv4OptionBuilder(IPv4OptionTypes optionType, const uint8_t* optionValue,
                       uint8_t optionValueLen)
-        : TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) {
+        : TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen)
+    {
         m_BuilderParamsValid = true;
     }
 
@@ -409,7 +428,8 @@ class IPv4OptionBuilder : public TLVRecordBuilder {
    * @param[in] optionValue A 2-byte option value
    */
     IPv4OptionBuilder(IPv4OptionTypes optionType, uint16_t optionValue)
-        : TLVRecordBuilder((uint8_t)optionType, optionValue) {
+        : TLVRecordBuilder((uint8_t)optionType, optionValue)
+    {
         m_BuilderParamsValid = true;
     }
 
@@ -444,7 +464,8 @@ class IPv4OptionBuilder : public TLVRecordBuilder {
  * @class IPv4Layer
  * Represents an IPv4 protocol layer
  */
-class IPv4Layer : public Layer, public IPLayer {
+class IPv4Layer : public Layer, public IPLayer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -525,7 +546,8 @@ class IPv4Layer : public Layer, public IPLayer {
    * Set the source IP address
    * @param[in] ipAddr The IP address to set
    */
-    void setSrcIPv4Address(const IPv4Address& ipAddr) {
+    void setSrcIPv4Address(const IPv4Address& ipAddr)
+    {
         getIPv4Header()->ipSrc = ipAddr.toInt();
     }
 
@@ -547,7 +569,8 @@ class IPv4Layer : public Layer, public IPLayer {
    * Set the dest IP address
    * @param[in] ipAddr The IP address to set
    */
-    void setDstIPv4Address(const IPv4Address& ipAddr) {
+    void setDstIPv4Address(const IPv4Address& ipAddr)
+    {
         getIPv4Header()->ipDst = ipAddr.toInt();
     }
 
@@ -676,7 +699,8 @@ class IPv4Layer : public Layer, public IPLayer {
     /**
    * @return Size of IPv4 header (including IPv4 options if exist)
    */
-    size_t getHeaderLen() const {
+    size_t getHeaderLen() const
+    {
         return (size_t)((uint16_t)(getIPv4Header()->internetHeaderLength) * 4) +
                m_TempHeaderExtension;
     }
@@ -719,7 +743,8 @@ class IPv4Layer : public Layer, public IPLayer {
 
 // implementation of inline methods
 
-bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
     return dataLen >= sizeof(iphdr) && hdr->ipVersion == 4 &&
            hdr->internetHeaderLength >= 5;

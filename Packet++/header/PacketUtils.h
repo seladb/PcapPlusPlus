@@ -10,12 +10,14 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * A struct that represent a single buffer
  */
 template <typename T>
-struct ScalarBuffer {
+struct ScalarBuffer
+{
     /**
    * The pointer to the buffer
    */

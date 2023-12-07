@@ -57,8 +57,10 @@ int inet_pton(int af, const char* src, void* dst);
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
-namespace internal {
+namespace pcpp
+{
+namespace internal
+{
 /**
  * Extract IPv4 address from sockaddr
  * @param[in] sa - input sockaddr

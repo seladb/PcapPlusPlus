@@ -20,7 +20,8 @@
 #define MAX_KNI_DEVICES 4
 #endif
 
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * ===================
@@ -28,9 +29,11 @@ namespace pcpp {
  * ===================
  */
 
-static inline bool checkKniDriver() {
+static inline bool checkKniDriver()
+{
     std::string execResult = executeShellCommand("lsmod | grep -s rte_kni");
-    if (execResult == "") {
+    if (execResult == "")
+    {
         PCPP_LOG_ERROR(
             "rte_kni driver isn't loaded, DPDK KNI module cannot be initialized");
         return false;
@@ -40,18 +43,22 @@ static inline bool checkKniDriver() {
 }
 
 KniDeviceList::KniDeviceList()
-    : m_Devices(), m_Initialized(true), m_KniUniqueId(0) {
+    : m_Devices(), m_Initialized(true), m_KniUniqueId(0)
+{
     m_Devices.reserve(MAX_KNI_DEVICES);
-    if (!checkKniDriver()) {
+    if (!checkKniDriver())
+    {
         m_Initialized = false;
         return;
     }
-    if (!DpdkDeviceList::getInstance().isInitialized()) {
+    if (!DpdkDeviceList::getInstance().isInitialized())
+    {
         m_Initialized = false;
         return;
     }
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
-    if (rte_kni_init(MAX_KNI_DEVICES) < 0) {
+    if (rte_kni_init(MAX_KNI_DEVICES) < 0)
+    {
         PCPP_LOG_ERROR("Failed to initialize DPDK KNI module");
         m_Initialized = false;
     }
@@ -60,33 +67,39 @@ KniDeviceList::KniDeviceList()
 #endif
 }
 
-KniDeviceList::~KniDeviceList() {
+KniDeviceList::~KniDeviceList()
+{
     for (size_t i = 0; i < m_Devices.size(); ++i)
         delete m_Devices[i];
     rte_kni_close();
 }
 
-KniDeviceList& KniDeviceList::getInstance() {
+KniDeviceList& KniDeviceList::getInstance()
+{
     static KniDeviceList g_KniDeviceList;
     return g_KniDeviceList;
 }
 
 KniDevice*
 KniDeviceList::createDevice(const KniDevice::KniDeviceConfiguration& config,
-                            const size_t mempoolSize) {
+                            const size_t mempoolSize)
+{
     if (!isInitialized())
         return NULL;
     KniDevice* kniDevice = getDeviceByName(std::string(config.name));
-    if (kniDevice != NULL) {
+    if (kniDevice != NULL)
+    {
         PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same name: '"
                        << config.name << "'");
         PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or "
                        "KniDeviceList::getDeviceByPort.");
         return NULL;
     }
-    if (config.portId != UINT16_MAX) {
+    if (config.portId != UINT16_MAX)
+    {
         kniDevice = getDeviceByPort(config.portId);
-        if (kniDevice != NULL) {
+        if (kniDevice != NULL)
+        {
             PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: "
                            << config.portId);
             PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or "
@@ -99,20 +112,23 @@ KniDeviceList::createDevice(const KniDevice::KniDeviceConfiguration& config,
     return kniDevice;
 }
 
-void KniDeviceList::destroyDevice(KniDevice* kniDevice) {
+void KniDeviceList::destroyDevice(KniDevice* kniDevice)
+{
     m_Devices.erase(std::remove(m_Devices.begin(), m_Devices.end(), kniDevice),
                     m_Devices.end());
     delete kniDevice;
 }
 
-KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId) {
+KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
+{
     //? Linear search here is optimal for low count of devices.
     //? We assume that no one will create large count of devices or will rapidly
     //search them. ? Same for <getDeviceByName> function
     KniDevice* kniDevice = NULL;
     if (!isInitialized())
         return kniDevice;
-    for (size_t i = 0; i < m_Devices.size(); ++i) {
+    for (size_t i = 0; i < m_Devices.size(); ++i)
+    {
         kniDevice = m_Devices[i];
         if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
             return kniDevice;
@@ -120,11 +136,13 @@ KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId) {
     return kniDevice = NULL;
 }
 
-KniDevice* KniDeviceList::getDeviceByName(const std::string& name) {
+KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
+{
     KniDevice* kniDevice = NULL;
     if (!isInitialized())
         return kniDevice;
-    for (size_t i = 0; i < m_Devices.size(); ++i) {
+    for (size_t i = 0; i < m_Devices.size(); ++i)
+    {
         kniDevice = m_Devices[i];
         if (kniDevice && kniDevice->m_DeviceInfo.name == name)
             return kniDevice;
@@ -132,7 +150,8 @@ KniDevice* KniDeviceList::getDeviceByName(const std::string& name) {
     return kniDevice = NULL;
 }
 
-KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion() {
+KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()
+{
 #if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
     return KniDeviceList::CALLBACKS_NEW;
 #else
@@ -140,8 +159,10 @@ KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion() {
 #endif
 }
 
-bool KniDeviceList::isCallbackSupported(const KniCallbackType cbType) {
-    switch (cbType) {
+bool KniDeviceList::isCallbackSupported(const KniCallbackType cbType)
+{
+    switch (cbType)
+    {
     case KniDeviceList::CALLBACK_MTU:
         /* fall through */
     case KniDeviceList::CALLBACK_LINK:

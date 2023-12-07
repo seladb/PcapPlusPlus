@@ -17,13 +17,15 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp);
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct SystemCore
  * Represents data of 1 CPU core. Current implementation supports up to 32 cores
  */
-struct SystemCore {
+struct SystemCore
+{
     /**
    * Core position in a 32-bit mask. For each core this attribute holds a 4B
    * integer where only 1 bit is set, according to the core ID. For example:
@@ -49,7 +51,8 @@ struct SystemCore {
  * Contains static representation to all 32 cores and a static array to map core
  * ID (integer) to a SystemCore struct
  */
-struct SystemCores {
+struct SystemCores
+{
     /**
    * Static representation of core #0
    */
@@ -297,7 +300,8 @@ uint32_t netToHost32(uint32_t net);
  * AppName#init() and from then on the app name could be retrieved using
  * AppName#get()
  */
-class AppName {
+class AppName
+{
   private:
     static std::string m_AppName;
 
@@ -309,8 +313,10 @@ class AppName {
    * @param[in] argv The argv param from main()
    */
     // cppcheck-suppress constParameter
-    static void init(int argc, char* argv[]) {
-        if (argc == 0) {
+    static void init(int argc, char* argv[])
+    {
+        if (argc == 0)
+        {
             m_AppName.clear();
             return;
         }
@@ -319,19 +325,22 @@ class AppName {
 
         // remove Linux/Unix path
         size_t lastPos = m_AppName.rfind('/');
-        if (lastPos != std::string::npos) {
+        if (lastPos != std::string::npos)
+        {
             m_AppName = m_AppName.substr(lastPos + 1);
         }
 
         // remove Windows path
         lastPos = m_AppName.rfind('\\');
-        if (lastPos != std::string::npos) {
+        if (lastPos != std::string::npos)
+        {
             m_AppName = m_AppName.substr(lastPos + 1);
         }
 
         // remove file extension
         lastPos = m_AppName.rfind('.');
-        if (lastPos != std::string::npos) {
+        if (lastPos != std::string::npos)
+        {
             m_AppName.resize(lastPos);
         }
     }
@@ -348,7 +357,8 @@ class AppName {
  * application life-cycle such as ctrl+c pressed, application closed, killed,
  * etc.
  */
-class ApplicationEventHandler {
+class ApplicationEventHandler
+{
   public:
     /**
    * @typedef EventHandlerCallback
@@ -363,7 +373,8 @@ class ApplicationEventHandler {
    * retrieve its instance
    * @return The singleton instance of ApplicationEventHandler
    */
-    static ApplicationEventHandler& getInstance() {
+    static ApplicationEventHandler& getInstance()
+    {
         static ApplicationEventHandler instance;
         return instance;
     }

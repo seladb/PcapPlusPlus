@@ -23,7 +23,8 @@ typedef struct pcap_addr pcap_addr_t;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 class PcapLiveDevice;
 
@@ -97,7 +98,8 @@ typedef void* (*ThreadStart)(void*);
  * - Send packets back to the network. Sending the packets is done on the caller
  * thread. No additional threads are created for this task
  */
-class PcapLiveDevice : public IPcapDevice {
+class PcapLiveDevice : public IPcapDevice
+{
     friend class PcapLiveDeviceList;
 
   protected:
@@ -157,7 +159,8 @@ class PcapLiveDevice : public IPcapDevice {
     /**
    * The type of the live device
    */
-    enum LiveDeviceType {
+    enum LiveDeviceType
+    {
         /** libPcap live device */
         LibPcapDevice,
         /** WinPcap/Npcap live device */
@@ -169,7 +172,8 @@ class PcapLiveDevice : public IPcapDevice {
     /**
    * Device capturing mode
    */
-    enum DeviceMode {
+    enum DeviceMode
+    {
         /** Only packets that their destination is this NIC are captured */
         Normal = 0,
         /** All packets that arrive to the NIC are captured, even packets that their
@@ -181,7 +185,8 @@ class PcapLiveDevice : public IPcapDevice {
    * Set direction for capturing packets (you can read more here:
    * <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>)
    */
-    enum PcapDirection {
+    enum PcapDirection
+    {
         /** Capture traffics both incoming and outgoing */
         PCPP_INOUT = 0,
         /** Only capture incoming traffics */
@@ -196,7 +201,8 @@ class PcapLiveDevice : public IPcapDevice {
    * All parameters have default values so the user isn't expected to set all
    * parameters or understand exactly how they work
    */
-    struct DeviceConfiguration {
+    struct DeviceConfiguration
+    {
         /** Indicates whether to open the device in promiscuous or normal mode */
         DeviceMode mode;
 
@@ -267,7 +273,8 @@ class PcapLiveDevice : public IPcapDevice {
                                      int packetBufferSize = 0,
                                      PcapDirection direction = PCPP_INOUT,
                                      int snapshotLength = 0,
-                                     unsigned int nflogGroup = 0) {
+                                     unsigned int nflogGroup = 0)
+        {
             this->mode = mode;
             this->packetBufferTimeoutMs = packetBufferTimeoutMs;
             this->packetBufferSize = packetBufferSize;

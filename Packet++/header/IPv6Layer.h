@@ -12,14 +12,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct ip6_hdr
  * Represents IPv6 protocol header
  */
 #pragma pack(push, 1)
-struct ip6_hdr {
+struct ip6_hdr
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** Traffic class */
     uint8_t trafficClass : 4,
@@ -51,7 +53,8 @@ struct ip6_hdr {
  * @class IPv6Layer
  * Represents an IPv6 protocol layer
  */
-class IPv6Layer : public Layer, public IPLayer {
+class IPv6Layer : public Layer, public IPLayer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -119,7 +122,8 @@ class IPv6Layer : public Layer, public IPLayer {
    * Set the source IP address
    * @param[in] ipAddr The IP address to set
    */
-    void setSrcIPv6Address(const IPv6Address& ipAddr) {
+    void setSrcIPv6Address(const IPv6Address& ipAddr)
+    {
         ipAddr.copyTo(getIPv6Header()->ipSrc);
     }
 
@@ -127,7 +131,8 @@ class IPv6Layer : public Layer, public IPLayer {
    * Set the dest IP address
    * @param[in] ipAddr The IP address to set
    */
-    void setDstIPv6Address(const IPv6Address& ipAddr) {
+    void setDstIPv6Address(const IPv6Address& ipAddr)
+    {
         ipAddr.copyTo(getIPv6Header()->ipDst);
     }
 
@@ -241,7 +246,8 @@ class IPv6Layer : public Layer, public IPLayer {
 };
 
 template <class TIPv6Extension>
-TIPv6Extension* IPv6Layer::getExtensionOfType() const {
+TIPv6Extension* IPv6Layer::getExtensionOfType() const
+{
     IPv6Extension* curExt = m_FirstExtension;
     while (curExt != NULL && dynamic_cast<TIPv6Extension*>(curExt) == NULL)
         curExt = curExt->getNextHeader();
@@ -250,9 +256,11 @@ TIPv6Extension* IPv6Layer::getExtensionOfType() const {
 }
 
 template <class TIPv6Extension>
-TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader) {
+TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader)
+{
     int offsetToAddHeader = (int)getHeaderLen();
-    if (!extendLayer(offsetToAddHeader, extensionHeader.getExtensionLen())) {
+    if (!extendLayer(offsetToAddHeader, extensionHeader.getExtensionLen()))
+    {
         return NULL;
     }
 
@@ -260,14 +268,17 @@ TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader) {
         new TIPv6Extension(this, (size_t)offsetToAddHeader);
     (*newHeader) = extensionHeader;
 
-    if (m_FirstExtension != NULL) {
+    if (m_FirstExtension != NULL)
+    {
         newHeader->getBaseHeader()->nextHeader =
             m_LastExtension->getBaseHeader()->nextHeader;
         m_LastExtension->getBaseHeader()->nextHeader =
             newHeader->getExtensionType();
         m_LastExtension->setNextHeader(newHeader);
         m_LastExtension = newHeader;
-    } else {
+    }
+    else
+    {
         m_FirstExtension = newHeader;
         m_LastExtension = newHeader;
         newHeader->getBaseHeader()->nextHeader = getIPv6Header()->nextHeader;
@@ -281,7 +292,8 @@ TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader) {
 
 // implementation of inline methods
 
-bool IPv6Layer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool IPv6Layer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return data && dataLen >= sizeof(ip6_hdr);
 }
 

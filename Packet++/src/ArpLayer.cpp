@@ -5,12 +5,14 @@
 #include "EthLayer.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr,
                    const MacAddress& targetMacAddr,
                    const IPv4Address& senderIpAddr,
-                   const IPv4Address& targetIpAddr) {
+                   const IPv4Address& targetIpAddr)
+{
     const size_t headerLen = sizeof(arphdr);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -25,7 +27,8 @@ ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr,
     arpHeader->senderIpAddr = senderIpAddr.toInt();
 }
 
-void ArpLayer::computeCalculateFields() {
+void ArpLayer::computeCalculateFields()
+{
     arphdr* arpHeader = getArpHeader();
     arpHeader->hardwareType = htobe16(1); // Ethernet
     arpHeader->hardwareSize = 6;
@@ -35,19 +38,25 @@ void ArpLayer::computeCalculateFields() {
         MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
 }
 
-bool ArpLayer::isRequest() const {
+bool ArpLayer::isRequest() const
+{
     return be16toh(getArpHeader()->opcode) == pcpp::ArpOpcode::ARP_REQUEST;
 }
 
-bool ArpLayer::isReply() const {
+bool ArpLayer::isReply() const
+{
     return be16toh(getArpHeader()->opcode) == pcpp::ArpOpcode::ARP_REPLY;
 }
 
-std::string ArpLayer::toString() const {
-    if (be16toh(getArpHeader()->opcode) == ARP_REQUEST) {
+std::string ArpLayer::toString() const
+{
+    if (be16toh(getArpHeader()->opcode) == ARP_REQUEST)
+    {
         return "ARP Layer, ARP request, who has " + getTargetIpAddr().toString() +
                " ? Tell " + getSenderIpAddr().toString();
-    } else {
+    }
+    else
+    {
         return "ARP Layer, ARP reply, " + getSenderIpAddr().toString() + " is at " +
                getSenderMacAddress().toString();
     }

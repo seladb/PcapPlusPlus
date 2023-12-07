@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class XdpDevice
  * A class wrapping the main functionality of using AF_XDP (XSK) sockets
@@ -21,7 +22,8 @@ namespace pcpp {
  * then send and receive packets through it. It also provides a method for
  * gathering statistics from the socket.
  */
-class XdpDevice : public IDevice {
+class XdpDevice : public IDevice
+{
   public:
     /**
    * @typedef OnPacketsArrive
@@ -41,12 +43,14 @@ class XdpDevice : public IDevice {
    * A struct containing the configuration parameters available for opening an
    * XDP device
    */
-    struct XdpDeviceConfiguration {
+    struct XdpDeviceConfiguration
+    {
         /**
      * @enum AttachMode
      * AF_XDP operation mode
      */
-        enum AttachMode {
+        enum AttachMode
+        {
             /** A fallback mode that works for any network device. Use it if the
          network driver doesn't have support for XDP */
             SkbMode = 1,
@@ -131,7 +135,8 @@ class XdpDevice : public IDevice {
                                         uint32_t fillRingSize = 0,
                                         uint32_t completionRingSize = 0,
                                         uint32_t rxSize = 0, uint32_t txSize = 0,
-                                        uint16_t rxTxBatchSize = 0) {
+                                        uint16_t rxTxBatchSize = 0)
+        {
             this->attachMode = attachMode;
             this->umemNumFrames = umemNumFrames;
             this->umemFrameSize = umemFrameSize;
@@ -147,7 +152,8 @@ class XdpDevice : public IDevice {
    * @struct XdpDeviceStats
    * A container for XDP device statistics
    */
-    struct XdpDeviceStats {
+    struct XdpDeviceStats
+    {
         /** The timestamp when the stats were collected */
         timespec timestamp;
         /** Number of packets received */
@@ -313,7 +319,8 @@ class XdpDevice : public IDevice {
     XdpDeviceStats getStatistics();
 
   private:
-    class XdpUmem {
+    class XdpUmem
+    {
       public:
         explicit XdpUmem(uint16_t numFrames, uint16_t frameSize,
                          uint32_t fillRingSize, uint32_t completionRingSize);
@@ -343,7 +350,8 @@ class XdpDevice : public IDevice {
         std::vector<uint64_t> m_FreeFrames;
     };
 
-    struct XdpPrevDeviceStats {
+    struct XdpPrevDeviceStats
+    {
         timespec timestamp;
         uint64_t rxPackets;
         uint64_t rxBytes;

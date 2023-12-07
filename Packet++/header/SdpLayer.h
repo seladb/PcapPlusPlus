@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /** Protocol version (v) */
 #define PCPP_SDP_PROTOCOL_VERSION_FIELD "v"
@@ -58,7 +59,8 @@ namespace pcpp {
  * more details about SDP structure please refer to its Wikipedia page:
  * https://en.wikipedia.org/wiki/Session_Description_Protocol
  */
-class SdpLayer : public TextBasedProtocolMessage {
+class SdpLayer : public TextBasedProtocolMessage
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -113,7 +115,8 @@ class SdpLayer : public TextBasedProtocolMessage {
    * assignment operator and doesn't add anything else
    * @param[in] other The instance to copy from
    */
-    SdpLayer& operator=(const SdpLayer& other) {
+    SdpLayer& operator=(const SdpLayer& other)
+    {
         TextBasedProtocolMessage::operator=(other);
         return *this;
     }

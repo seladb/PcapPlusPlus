@@ -20,7 +20,8 @@ typedef struct __pfring pfring;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 class PfRingDevice;
 
@@ -34,11 +35,13 @@ typedef void (*OnPfRingPacketsArriveCallback)(RawPacket* packets,
  * @class PfRingDevice
  * A class representing a PF_RING port
  */
-class PfRingDevice : public IDevice, public IFilterableDevice {
+class PfRingDevice : public IDevice, public IFilterableDevice
+{
     friend class PfRingDeviceList;
 
   private:
-    struct CoreConfiguration {
+    struct CoreConfiguration
+    {
         std::thread RxThread;
         pfring* Channel;
         bool IsInUse;
@@ -70,7 +73,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
 
     int openSingleRxChannel(const char* deviceName, pfring** ring);
 
-    bool getIsHwClockEnable() {
+    bool getIsHwClockEnable()
+    {
         setPfRingDeviceAttributes();
         return m_HwClockEnabled;
     }
@@ -89,7 +93,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
    * An enum representing the type of packet distribution between different RX
    * channels
    */
-    enum ChannelDistribution {
+    enum ChannelDistribution
+    {
         /**
      * Packets are distributed between channels in a round-robin manner
      */
@@ -105,7 +110,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
    * @struct PfRingStats
    * A container for PfRingDevice statistics
    */
-    struct PfRingStats {
+    struct PfRingStats
+    {
         /** Number of packets received */
         uint64_t recv;
         /** Number of packets dropped */
@@ -121,7 +127,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
    * Get the MAC address of the current device
    * @return The MAC address of the current device
    */
-    MacAddress getMacAddress() {
+    MacAddress getMacAddress()
+    {
         setPfRingDeviceAttributes();
         return m_MacAddress;
     }
@@ -130,7 +137,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
    * Get PF_RING interface index of the current device
    * @return PF_RING interface index of the current device
    */
-    int getInterfaceIndex() {
+    int getInterfaceIndex()
+    {
         setPfRingDeviceAttributes();
         return m_InterfaceIndex;
     }
@@ -139,7 +147,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
    * Get MTU of the current device
    * @return Upon success return the device MTU, 0 otherwise
    */
-    int getMtu() {
+    int getMtu()
+    {
         setPfRingDeviceAttributes();
         return m_DeviceMTU;
     }
@@ -150,7 +159,8 @@ class PfRingDevice : public IDevice, public IFilterableDevice {
    * this in PF_RING documentation
    * @return True if device supports hardware timestamping, false otherwise
    */
-    bool isHwClockEnabledForDevice() {
+    bool isHwClockEnabledForDevice()
+    {
         setPfRingDeviceAttributes();
         return m_HwClockEnabled;
     }

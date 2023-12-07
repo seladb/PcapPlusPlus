@@ -9,7 +9,8 @@
 #include <stdlib.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -31,7 +32,8 @@ static struct option DNSResolverOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -70,7 +72,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -81,7 +84,8 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     const std::vector<pcpp::PcapLiveDevice*>& devList =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
@@ -89,7 +93,8 @@ void listInterfaces() {
               << "Network interfaces:" << std::endl;
     for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter =
              devList.begin();
-         iter != devList.end(); iter++) {
+         iter != devList.end(); iter++)
+    {
         std::cout << "    -> Name: '" << (*iter)->getName()
                   << "'   IP address: " << (*iter)->getIPv4Address().toString()
                   << std::endl;
@@ -101,7 +106,8 @@ void listInterfaces() {
  * The callback to be called when application is terminated by ctrl-c. Stops the
  * endless while loop
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     auto device = (pcpp::PcapLiveDevice*)cookie;
     device->close();
 }
@@ -109,7 +115,8 @@ void onApplicationInterrupted(void* cookie) {
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::string hostname;
@@ -124,46 +131,58 @@ int main(int argc, char* argv[]) {
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "i:d:g:s:t:hvl", DNSResolverOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
-        case 0: {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
+        case 0:
+        {
             break;
         }
-        case 'h': {
+        case 'h':
+        {
             printUsage();
             exit(0);
         }
-        case 'v': {
+        case 'v':
+        {
             printAppVersion();
             break;
         }
-        case 'l': {
+        case 'l':
+        {
             listInterfaces();
             exit(0);
         }
-        case 'i': {
+        case 'i':
+        {
             interfaceNameOrIP = optarg;
             interfaceNameOrIPProvided = true;
             break;
         }
-        case 'd': {
+        case 'd':
+        {
             dnsServerIP = pcpp::IPv4Address(static_cast<char const*>(optarg));
             break;
         }
-        case 'g': {
+        case 'g':
+        {
             gatewayIP = pcpp::IPv4Address(static_cast<char const*>(optarg));
             break;
         }
-        case 's': {
+        case 's':
+        {
             hostname = optarg;
             hostnameProvided = true;
             break;
         }
-        case 't': {
+        case 't':
+        {
             timeoutSec = atoi(optarg);
             break;
         }
-        default: {
+        default:
+        {
             printUsage();
             exit(1);
         }
@@ -178,7 +197,8 @@ int main(int argc, char* argv[]) {
     pcpp::PcapLiveDevice* dev = nullptr;
 
     // if interface name or IP was provided - find the device accordingly
-    if (interfaceNameOrIPProvided) {
+    if (interfaceNameOrIPProvided)
+    {
         dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
             interfaceNameOrIP);
         if (dev == nullptr)
@@ -186,14 +206,17 @@ int main(int argc, char* argv[]) {
     }
     // if interface name or IP was not provided - find a device that has a default
     // gateway
-    else {
+    else
+    {
         const std::vector<pcpp::PcapLiveDevice*>& devList =
             pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
         for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter =
                  devList.begin();
-             iter != devList.end(); iter++) {
-            if ((*iter)->getDefaultGateway().isValid()) {
+             iter != devList.end(); iter++)
+        {
+            if ((*iter)->getDefaultGateway().isValid())
+            {
                 dev = *iter;
                 break;
             }

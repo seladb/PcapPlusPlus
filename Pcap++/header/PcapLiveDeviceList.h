@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class PcapLiveDeviceList
@@ -22,7 +23,8 @@ namespace pcpp {
  * addresses or get a vector of all of them so the user can search them in some
  * other way
  */
-class PcapLiveDeviceList {
+class PcapLiveDeviceList
+{
   private:
     std::vector<PcapLiveDevice*> m_LiveDeviceList;
 
@@ -43,7 +45,8 @@ class PcapLiveDeviceList {
    * The access method to the singleton
    * @return The singleton instance of this class
    */
-    static PcapLiveDeviceList& getInstance() {
+    static PcapLiveDeviceList& getInstance()
+    {
         static PcapLiveDeviceList instance;
         return instance;
     }
@@ -52,7 +55,8 @@ class PcapLiveDeviceList {
    * @return A vector containing pointers to all live devices currently
    * installed on the machine
    */
-    const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const {
+    const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const
+    {
         return m_LiveDeviceList;
     }
 

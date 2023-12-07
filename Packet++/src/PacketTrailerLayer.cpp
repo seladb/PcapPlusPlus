@@ -3,13 +3,16 @@
 #include <sstream>
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-std::string PacketTrailerLayer::getTrailerDataAsHexString() const {
+std::string PacketTrailerLayer::getTrailerDataAsHexString() const
+{
     return byteArrayToHexString(m_Data, m_DataLen, m_DataLen + 4);
 }
 
-std::string PacketTrailerLayer::toString() const {
+std::string PacketTrailerLayer::toString() const
+{
     std::ostringstream dataLenStream;
     dataLenStream << m_DataLen;
 

@@ -12,7 +12,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class KniDeviceList
@@ -21,7 +22,8 @@ namespace pcpp {
  * As it's a singleton, it has only one active instance doesn't have a public
  * c'tor.
  */
-class KniDeviceList {
+class KniDeviceList
+{
     KniDeviceList();
 
     /**
@@ -43,7 +45,8 @@ class KniDeviceList {
     /**
    * Callback related constants for KNI device
    */
-    enum KniCallbackVersion {
+    enum KniCallbackVersion
+    {
         /** Reports that DPDK supports only KniDevice#KniIoctlCallbacks callback
        structure */
         CALLBACKS_NEW = 0,
@@ -54,7 +57,8 @@ class KniDeviceList {
     /**
    * Various callback types supported by KNI device
    */
-    enum KniCallbackType {
+    enum KniCallbackType
+    {
         /** KniDevice#KniIoctlCallbacks#change_mtu and
        KniDevice#KniOldIoctlCallbacks#change_mtu callback */
         CALLBACK_MTU,

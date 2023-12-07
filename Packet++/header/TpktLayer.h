@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct tpkthdr
  * Represents a TPKT protocol header
  */
 #pragma pack(push, 1)
-struct tpkthdr {
+struct tpkthdr
+{
     /** message version */
     uint8_t version;
     /** message reserved */
@@ -31,7 +33,8 @@ struct tpkthdr {
  * @class TpktLayer
  * Represents a TPKT (Transport Service on top of the TCP) protocol layer
  */
-class TpktLayer : public Layer {
+class TpktLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -42,7 +45,8 @@ class TpktLayer : public Layer {
    * stored in
    */
     TpktLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = TPKT;
     }
 
@@ -106,7 +110,8 @@ class TpktLayer : public Layer {
    * @return True if the source or dest port match those associated with the
    * TPKT protocol
    */
-    static bool isTpktPort(uint16_t portSrc, uint16_t portDst) {
+    static bool isTpktPort(uint16_t portSrc, uint16_t portDst)
+    {
         return portSrc == 102 || portDst == 102;
     }
 
@@ -117,13 +122,15 @@ class TpktLayer : public Layer {
    * @param[in] dataSize The byte array size (in bytes)
    * @return True if the data size is greater or equal than the size of tpkthdr
    */
-    static bool isDataValid(const uint8_t* data, size_t dataSize) {
+    static bool isDataValid(const uint8_t* data, size_t dataSize)
+    {
         return data && dataSize >= sizeof(tpkthdr);
     }
 
     std::string toString() const override;
 
-    OsiModelLayer getOsiModelLayer() const override {
+    OsiModelLayer getOsiModelLayer() const override
+    {
         return OsiModelTransportLayer;
     }
 

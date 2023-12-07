@@ -16,7 +16,8 @@
 #include "SystemUtils.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 #define RAW_SOCKET_BUFFER_LEN 65536
 
@@ -28,19 +29,22 @@ namespace pcpp {
 #define SIO_RCVALL 0x98000001
 #endif // SIO_RCVALL
 
-class WinSockInitializer {
+class WinSockInitializer
+{
   private:
     static bool m_IsInitialized;
 
   public:
-    static void initialize() {
+    static void initialize()
+    {
         if (m_IsInitialized)
             return;
 
         // Load Winsock
         WSADATA wsaData;
         int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
-        if (res != 0) {
+        if (res != 0)
+        {
             PCPP_LOG_ERROR("WSAStartup failed with error code: " << res);
             m_IsInitialized = false;
         }
@@ -53,7 +57,8 @@ bool WinSockInitializer::m_IsInitialized = false;
 
 #endif // defined(_WIN32)
 
-struct SocketContainer {
+struct SocketContainer
+{
 #if defined(_WIN32)
     SOCKET fd;
 #elif defined(__linux__)
@@ -64,7 +69,8 @@ struct SocketContainer {
 };
 
 RawSocketDevice::RawSocketDevice(const IPAddress& interfaceIP)
-    : IDevice(), m_Socket(nullptr) {
+    : IDevice(), m_Socket(nullptr)
+{
 #if defined(_WIN32)
 
     WinSockInitializer::initialize();
@@ -88,10 +94,12 @@ RawSocketDevice::~RawSocketDevice() { close(); }
 
 RawSocketDevice::RecvPacketResult
 RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
-                               int timeout) {
+                               int timeout)
+{
 #if defined(_WIN32)
 
-    if (!isOpened()) {
+    if (!isOpened())
+    {
         PCPP_LOG_ERROR("Device is not open");
         return RecvError;
     }
@@ -114,7 +122,8 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
     // recvfrom(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0, (struct
     // sockaddr*)&sockAddr,(socklen_t*)&sockAddrLen);
     int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
-    if (bufferLen < 0) {
+    if (bufferLen < 0)
+    {
         delete[] buffer;
         int errorCode = 0;
         RecvPacketResult error = getError(errorCode);
@@ -126,7 +135,8 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
         return error;
     }
 
-    if (bufferLen > 0) {
+    if (bufferLen > 0)
+    {
         timeval time;
         gettimeofday(&time, NULL);
         rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time,
@@ -140,7 +150,8 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
 
 #elif defined(__linux__)
 
-    if (!isOpened()) {
+    if (!isOpened())
+    {
         PCPP_LOG_ERROR("Device is not open");
         return RecvError;
     }
@@ -155,13 +166,15 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
 
     // set blocking or non-blocking flag
     int flags = fcntl(fd, F_GETFL, 0);
-    if (flags == -1) {
+    if (flags == -1)
+    {
         delete[] buffer;
         PCPP_LOG_ERROR("Cannot get socket flags");
         return RecvError;
     }
     flags = (blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK));
-    if (fcntl(fd, F_SETFL, flags) != 0) {
+    if (fcntl(fd, F_SETFL, flags) != 0)
+    {
         delete[] buffer;
         PCPP_LOG_ERROR("Cannot set socket non-blocking flag");
         return RecvError;
@@ -175,7 +188,8 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
                sizeof(timeoutVal));
 
     int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
-    if (bufferLen < 0) {
+    if (bufferLen < 0)
+    {
         delete[] buffer;
         int errorCode = errno;
         RecvPacketResult error = getError(errorCode);
@@ -187,7 +201,8 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
         return error;
     }
 
-    if (bufferLen > 0) {
+    if (bufferLen > 0)
+    {
         timeval time;
         gettimeofday(&time, NULL);
         rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time,
@@ -208,8 +223,10 @@ RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
 }
 
 int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout,
-                                    int& failedRecv) {
-    if (!isOpened()) {
+                                    int& failedRecv)
+{
+    if (!isOpened())
+    {
         PCPP_LOG_ERROR("Device is not open");
         return 0;
     }
@@ -222,12 +239,16 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout,
 
     long timeoutSec = curSec + timeout;
 
-    while (curSec < timeoutSec) {
+    while (curSec < timeoutSec)
+    {
         RawPacket* rawPacket = new RawPacket();
-        if (receivePacket(*rawPacket, true, timeoutSec - curSec) == RecvSuccess) {
+        if (receivePacket(*rawPacket, true, timeoutSec - curSec) == RecvSuccess)
+        {
             packetVec.pushBack(rawPacket);
             packetCount++;
-        } else {
+        }
+        else
+        {
             failedRecv++;
             delete rawPacket;
         }
@@ -238,7 +259,8 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout,
     return packetCount;
 }
 
-bool RawSocketDevice::sendPacket(const RawPacket* rawPacket) {
+bool RawSocketDevice::sendPacket(const RawPacket* rawPacket)
+{
 #if defined(_WIN32)
 
     PCPP_LOG_ERROR(
@@ -247,13 +269,15 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket) {
 
 #elif defined(__linux__)
 
-    if (!isOpened()) {
+    if (!isOpened())
+    {
         PCPP_LOG_ERROR("Device is not open");
         return false;
     }
 
     Packet packet((RawPacket*)rawPacket, OsiModelDataLinkLayer);
-    if (!packet.isPacketOfType(pcpp::Ethernet)) {
+    if (!packet.isPacketOfType(pcpp::Ethernet))
+    {
         PCPP_LOG_ERROR("Can't send non-Ethernet packets");
         return false;
     }
@@ -273,7 +297,8 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket) {
 
     if (::sendto(fd, ((RawPacket*)rawPacket)->getRawData(),
                  ((RawPacket*)rawPacket)->getRawDataLen(), 0,
-                 (struct sockaddr*)&addr, sizeof(addr)) == -1) {
+                 (struct sockaddr*)&addr, sizeof(addr)) == -1)
+    {
         PCPP_LOG_ERROR("Failed to send packet. Error was: '" << strerror(errno)
                                                              << "'");
         return false;
@@ -289,7 +314,8 @@ bool RawSocketDevice::sendPacket(const RawPacket* rawPacket) {
 #endif
 }
 
-int RawSocketDevice::sendPackets(const RawPacketVector& packetVec) {
+int RawSocketDevice::sendPackets(const RawPacketVector& packetVec)
+{
 #if defined(_WIN32)
 
     PCPP_LOG_ERROR(
@@ -298,7 +324,8 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec) {
 
 #elif defined(__linux__)
 
-    if (!isOpened()) {
+    if (!isOpened())
+    {
         PCPP_LOG_ERROR("Device is not open");
         return 0;
     }
@@ -315,9 +342,11 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec) {
     int sendCount = 0;
 
     for (RawPacketVector::ConstVectorIterator iter = packetVec.begin();
-         iter != packetVec.end(); iter++) {
+         iter != packetVec.end(); iter++)
+    {
         Packet packet(*iter, OsiModelDataLinkLayer);
-        if (!packet.isPacketOfType(pcpp::Ethernet)) {
+        if (!packet.isPacketOfType(pcpp::Ethernet))
+        {
             PCPP_LOG_DEBUG("Can't send non-Ethernet packets");
             continue;
         }
@@ -327,7 +356,8 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec) {
         dstMac.copyTo((uint8_t*)&(addr.sll_addr));
 
         if (::sendto(fd, (*iter)->getRawData(), (*iter)->getRawDataLen(), 0,
-                     (struct sockaddr*)&addr, sizeof(addr)) == -1) {
+                     (struct sockaddr*)&addr, sizeof(addr)) == -1)
+        {
             PCPP_LOG_DEBUG("Failed to send packet. Error was: '" << strerror(errno)
                                                                  << "'");
             continue;
@@ -346,17 +376,20 @@ int RawSocketDevice::sendPackets(const RawPacketVector& packetVec) {
 #endif
 }
 
-bool RawSocketDevice::open() {
+bool RawSocketDevice::open()
+{
 #if defined(_WIN32)
 
-    if (!m_InterfaceIP.isValid()) {
+    if (!m_InterfaceIP.isValid())
+    {
         PCPP_LOG_ERROR("IP address is not valid");
         return false;
     }
 
     int family = (m_SockFamily == IPv4 ? AF_INET : AF_INET6);
     SOCKET fd = socket(family, SOCK_RAW, IPPROTO_IP);
-    if ((int)fd == SOCKET_ERROR) {
+    if ((int)fd == SOCKET_ERROR)
+    {
         int error = WSAGetLastError();
         std::string additionalMessage = "";
         if (error == WSAEACCES)
@@ -373,11 +406,13 @@ bool RawSocketDevice::open() {
     struct sockaddr_in6 localAddrIPv6;
     size_t localAddrSize = 0;
 
-    if (m_SockFamily == IPv4) {
+    if (m_SockFamily == IPv4)
+    {
         localAddrIPv4.sin_family = family;
         int res = inet_pton(family, m_InterfaceIP.toString().c_str(),
                             &localAddrIPv4.sin_addr.s_addr);
-        if (res <= 0) {
+        if (res <= 0)
+        {
             PCPP_LOG_ERROR(
                 "inet_pton failed, probably IP address provided is in bad format");
             closesocket(fd);
@@ -386,11 +421,14 @@ bool RawSocketDevice::open() {
         localAddrIPv4.sin_port = 0; // Any local port will do
         localAddr = &localAddrIPv4;
         localAddrSize = sizeof(localAddrIPv4);
-    } else {
+    }
+    else
+    {
         localAddrIPv6.sin6_family = family;
         int res = inet_pton(AF_INET6, m_InterfaceIP.toString().c_str(),
                             &localAddrIPv6.sin6_addr.s6_addr);
-        if (res <= 0) {
+        if (res <= 0)
+        {
             PCPP_LOG_ERROR(
                 "inet_pton failed, probably IP address provided is in bad format");
             closesocket(fd);
@@ -402,7 +440,8 @@ bool RawSocketDevice::open() {
         localAddrSize = sizeof(localAddrIPv6);
     }
 
-    if (bind(fd, (struct sockaddr*)localAddr, localAddrSize) == SOCKET_ERROR) {
+    if (bind(fd, (struct sockaddr*)localAddr, localAddrSize) == SOCKET_ERROR)
+    {
         PCPP_LOG_ERROR("Failed to bind to interface. Error code was '"
                        << WSAGetLastError() << "'");
         closesocket(fd);
@@ -412,7 +451,8 @@ bool RawSocketDevice::open() {
     int n = 1;
     DWORD dwBytesRet;
     if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), NULL, 0, &dwBytesRet, NULL,
-                 NULL) == SOCKET_ERROR) {
+                 NULL) == SOCKET_ERROR)
+    {
         PCPP_LOG_ERROR("Call to WSAIotcl(" << std::hex << SIO_RCVALL
                                            << ") failed with error code "
                                            << WSAGetLastError());
@@ -433,13 +473,15 @@ bool RawSocketDevice::open() {
     PCPP_LOG_ERROR("Raw sockets aren't supported in Android API < 24");
     return false;
 #else
-    if (!m_InterfaceIP.isValid()) {
+    if (!m_InterfaceIP.isValid())
+    {
         PCPP_LOG_ERROR("IP address is not valid");
         return false;
     }
 
     int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
-    if (fd < 0) {
+    if (fd < 0)
+    {
         PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << errno);
         return false;
     }
@@ -450,25 +492,32 @@ bool RawSocketDevice::open() {
     std::string ifaceName = "";
     int ifaceIndex = -1;
     for (struct ifaddrs* curAddr = addrs; curAddr != NULL;
-         curAddr = curAddr->ifa_next) {
-        if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP)) {
-            if (curAddr->ifa_addr->sa_family == AF_INET) {
+         curAddr = curAddr->ifa_next)
+    {
+        if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP))
+        {
+            if (curAddr->ifa_addr->sa_family == AF_INET)
+            {
                 struct sockaddr_in* sockAddr =
                     (struct sockaddr_in*)(curAddr->ifa_addr);
                 char addrAsCharArr[32];
                 inet_ntop(curAddr->ifa_addr->sa_family, (void*)&(sockAddr->sin_addr),
                           addrAsCharArr, sizeof(addrAsCharArr));
-                if (!strcmp(m_InterfaceIP.toString().c_str(), addrAsCharArr)) {
+                if (!strcmp(m_InterfaceIP.toString().c_str(), addrAsCharArr))
+                {
                     ifaceName = curAddr->ifa_name;
                     ifaceIndex = if_nametoindex(curAddr->ifa_name);
                 }
-            } else if (curAddr->ifa_addr->sa_family == AF_INET6) {
+            }
+            else if (curAddr->ifa_addr->sa_family == AF_INET6)
+            {
                 struct sockaddr_in6* sockAddr =
                     (struct sockaddr_in6*)(curAddr->ifa_addr);
                 char addrAsCharArr[40];
                 inet_ntop(curAddr->ifa_addr->sa_family, (void*)&(sockAddr->sin6_addr),
                           addrAsCharArr, sizeof(addrAsCharArr));
-                if (!strcmp(m_InterfaceIP.toString().c_str(), addrAsCharArr)) {
+                if (!strcmp(m_InterfaceIP.toString().c_str(), addrAsCharArr))
+                {
                     ifaceName = curAddr->ifa_name;
                     ifaceIndex = if_nametoindex(curAddr->ifa_name);
                 }
@@ -477,7 +526,8 @@ bool RawSocketDevice::open() {
     }
     freeifaddrs(addrs);
 
-    if (ifaceName == "" || ifaceIndex < 0) {
+    if (ifaceName == "" || ifaceIndex < 0)
+    {
         PCPP_LOG_ERROR("Cannot detect interface name or index from IP address");
         ::close(fd);
         return false;
@@ -488,7 +538,8 @@ bool RawSocketDevice::open() {
     memset(&ifr, 0, sizeof(ifr));
     snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
     if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, (void*)&ifr, sizeof(ifr)) ==
-        -1) {
+        -1)
+    {
         PCPP_LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "'");
         ::close(fd);
         return false;
@@ -512,8 +563,10 @@ bool RawSocketDevice::open() {
 #endif
 }
 
-void RawSocketDevice::close() {
-    if (m_Socket != nullptr && isOpened()) {
+void RawSocketDevice::close()
+{
+    if (m_Socket != nullptr && isOpened())
+    {
         SocketContainer* sockContainer = (SocketContainer*)m_Socket;
 #if defined(_WIN32)
         closesocket(sockContainer->fd);
@@ -527,7 +580,8 @@ void RawSocketDevice::close() {
 }
 
 RawSocketDevice::RecvPacketResult
-RawSocketDevice::getError(int& errorCode) const {
+RawSocketDevice::getError(int& errorCode) const
+{
 #if defined(_WIN32)
     errorCode = WSAGetLastError();
     if (errorCode == WSAEWOULDBLOCK)

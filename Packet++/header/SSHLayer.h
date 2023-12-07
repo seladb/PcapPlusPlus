@@ -80,7 +80,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class SSHLayer
@@ -89,7 +90,8 @@ namespace pcpp {
  * method is createSSHMessage() which takes raw data and creates an SSH message
  * according to the heuristics described in the SSHLayer.h file description
  */
-class SSHLayer : public Layer {
+class SSHLayer : public Layer
+{
   public:
     /**
    * A static method that takes raw packet data and uses the heuristics
@@ -115,7 +117,8 @@ class SSHLayer : public Layer {
    * @return Currently the implementation is very simple and returns "true" if
    * either src or dst ports are equal to 22, "false" otherwise
    */
-    static bool isSSHPort(uint16_t portSrc, uint16_t portDst) {
+    static bool isSSHPort(uint16_t portSrc, uint16_t portDst)
+    {
         return portSrc == 22 || portDst == 22;
     }
 
@@ -137,7 +140,8 @@ class SSHLayer : public Layer {
   protected:
     // protected c'tor, this class cannot be instantiated
     SSHLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = SSH;
     }
 
@@ -155,7 +159,8 @@ class SSHLayer : public Layer {
  * software version and a few more details. This string can be retrieved using
  * the getIdentificationMessage() method
  */
-class SSHIdentificationMessage : public SSHLayer {
+class SSHIdentificationMessage : public SSHLayer
+{
   public:
     /**
    * @return The SSH identification message which is typically the content of
@@ -224,12 +229,14 @@ class SSHIdentificationMessage : public SSHLayer {
  * which inherits from this class and provides parsing of the Key Exchange Init
  message.
  */
-class SSHHandshakeMessage : public SSHLayer {
+class SSHHandshakeMessage : public SSHLayer
+{
   public:
     /**
    * An enum that represents SSH non-encrypted message types
    */
-    enum SSHHandshakeMessageType {
+    enum SSHHandshakeMessageType
+    {
         /** Key Exchange Init message */
         SSH_MSG_KEX_INIT = 20,
         /** New Keys message */
@@ -307,7 +314,8 @@ class SSHHandshakeMessage : public SSHLayer {
  * An internal struct representing the SSH handshake message header
  */
 #pragma pack(push, 1)
-    struct ssh_message_base {
+    struct ssh_message_base
+    {
         uint32_t packetLength;
         uint8_t paddingLength;
         uint8_t messageCode;
@@ -322,7 +330,8 @@ class SSHHandshakeMessage : public SSHLayer {
                         Packet* packet)
         : SSHLayer(data, dataLen, prevLayer, packet) {}
 
-    ssh_message_base* getMsgBaseHeader() const {
+    ssh_message_base* getMsgBaseHeader() const
+    {
         return (ssh_message_base*)m_Data;
     }
 };
@@ -334,7 +343,8 @@ class SSHHandshakeMessage : public SSHLayer {
  * key exchange, encryption, MAC and compression. This class provides methods to
  * access these details
  */
-class SSHKeyExchangeInitMessage : public SSHHandshakeMessage {
+class SSHKeyExchangeInitMessage : public SSHHandshakeMessage
+{
   public:
     /**
    * A c'tor for this class that accepts raw message data. Please avoid using it
@@ -385,7 +395,8 @@ class SSHKeyExchangeInitMessage : public SSHHandshakeMessage {
    * algorithms (also known as ciphers) from the client to the server. Can be
    * empty if the value is missing or the message is malformed
    */
-    std::string getEncryptionAlgorithmsClientToServer() {
+    std::string getEncryptionAlgorithmsClientToServer()
+    {
         return getFieldValue(2);
     }
 
@@ -394,7 +405,8 @@ class SSHKeyExchangeInitMessage : public SSHHandshakeMessage {
    * algorithms (also known as ciphers) from the server to the client. Can be
    * empty if the value is missing or the message is malformed
    */
-    std::string getEncryptionAlgorithmsServerToClient() {
+    std::string getEncryptionAlgorithmsServerToClient()
+    {
         return getFieldValue(3);
     }
 
@@ -417,7 +429,8 @@ class SSHKeyExchangeInitMessage : public SSHHandshakeMessage {
    * the client to the server. Can be empty if the value is missing or the
    * message is malformed
    */
-    std::string getCompressionAlgorithmsClientToServer() {
+    std::string getCompressionAlgorithmsClientToServer()
+    {
         return getFieldValue(6);
     }
 
@@ -426,7 +439,8 @@ class SSHKeyExchangeInitMessage : public SSHHandshakeMessage {
    * the server to the client. Can be empty if the value is missing or the
    * message is malformed
    */
-    std::string getCompressionAlgorithmsServerToClient() {
+    std::string getCompressionAlgorithmsServerToClient()
+    {
         return getFieldValue(7);
     }
 
@@ -469,7 +483,8 @@ class SSHKeyExchangeInitMessage : public SSHHandshakeMessage {
  * message types, according to the heuristics described in the SSHLayer.h file
  * description, is considered as an encrypted message.
  */
-class SSHEncryptedMessage : public SSHLayer {
+class SSHEncryptedMessage : public SSHLayer
+{
   public:
     /**
    * A c'tor for this class that accepts raw message data. Please avoid using it

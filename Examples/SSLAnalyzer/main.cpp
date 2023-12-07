@@ -35,7 +35,8 @@
 #include <string.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -62,7 +63,8 @@ static struct option SSLAnalyzerOptions[] = {
     {"version", no_argument, nullptr, 'v'},
     {nullptr, 0, nullptr, 0}};
 
-struct SSLPacketArrivedData {
+struct SSLPacketArrivedData
+{
     SSLStatsCollector* statsCollector;
     pcpp::PcapFileWriterDevice* pcapWriter;
 };
@@ -70,7 +72,8 @@ struct SSLPacketArrivedData {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout << std::endl
               << "Usage: PCAP file mode:" << std::endl
               << "----------------------" << std::endl
@@ -117,7 +120,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -128,7 +132,8 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     const std::vector<pcpp::PcapLiveDevice*>& devList =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
@@ -136,7 +141,8 @@ void listInterfaces() {
               << "Network interfaces:" << std::endl;
     for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter =
              devList.begin();
-         iter != devList.end(); iter++) {
+         iter != devList.end(); iter++)
+    {
         std::cout << "    -> Name: '" << (*iter)->getName()
                   << "'   IP address: " << (*iter)->getIPv4Address().toString()
                   << std::endl;
@@ -144,9 +150,11 @@ void listInterfaces() {
     exit(0);
 }
 
-void printStatsHeadline(const std::string& description) {
+void printStatsHeadline(const std::string& description)
+{
     std::string underline;
-    for (size_t i = 0; i < description.length(); i++) {
+    for (size_t i = 0; i < description.length(); i++)
+    {
         underline += "-";
     }
 
@@ -160,7 +168,8 @@ void printStatsHeadline(const std::string& description) {
  * packet capture callback - called whenever a packet arrives
  */
 void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
-                     void* cookie) {
+                     void* cookie)
+{
     // parse the packet
     pcpp::Packet parsedPacket(packet);
 
@@ -170,7 +179,8 @@ void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
     data->statsCollector->collectStats(&parsedPacket);
 
     // if needed - write the packet to the output pcap file
-    if (data->pcapWriter != nullptr) {
+    if (data->pcapWriter != nullptr)
+    {
         data->pcapWriter->writePacket(*packet);
     }
 }
@@ -180,8 +190,10 @@ void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
  * printServerNames() and in printCipherSuites()
  */
 bool stringCountComparer(const std::pair<std::string, int>& first,
-                         const std::pair<std::string, int>& second) {
-    if (first.second == second.second) {
+                         const std::pair<std::string, int>& second)
+{
+    if (first.second == second.second)
+    {
         return first.first > second.first;
     }
     return first.second > second.second;
@@ -191,8 +203,10 @@ bool stringCountComparer(const std::pair<std::string, int>& first,
  * An auxiliary method for sorting the uint16_t count map. Used in printPorts()
  */
 bool uint16CountComparer(std::pair<uint16_t, int> first,
-                         std::pair<uint16_t, int> second) {
-    if (first.second == second.second) {
+                         std::pair<uint16_t, int> second)
+{
+    if (first.second == second.second)
+    {
         return first.first > second.first;
     }
     return first.second > second.second;
@@ -202,7 +216,8 @@ bool uint16CountComparer(std::pair<uint16_t, int> first,
  * Print the server-name count map to a table sorted by popularity (most popular
  * names will be first)
  */
-void printServerNames(ClientHelloStats& clientHelloStatsCollector) {
+void printServerNames(ClientHelloStats& clientHelloStatsCollector)
+{
     // create the table
     std::vector<std::string> columnNames;
     columnNames.push_back("Hostname");
@@ -223,7 +238,8 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector) {
     // go over all items (names + count) in the sorted vector and print them
     for (std::vector<std::pair<std::string, int>>::iterator iter =
              map2vec.begin();
-         iter != map2vec.end(); iter++) {
+         iter != map2vec.end(); iter++)
+    {
         std::stringstream values;
         values << iter->first << "|" << iter->second;
         printer.printRow(values.str(), '|');
@@ -234,7 +250,8 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector) {
  * Print SSL record version map
  */
 void printVersions(std::map<uint16_t, int>& versionMap,
-                   const std::string& headline) {
+                   const std::string& headline)
+{
     // create the table
     std::vector<std::string> columnNames;
     columnNames.push_back(headline);
@@ -253,7 +270,8 @@ void printVersions(std::map<uint16_t, int>& versionMap,
 
     // go over all items (names + count) in the sorted vector and print them
     for (std::vector<std::pair<uint16_t, int>>::iterator iter = map2vec.begin();
-         iter != map2vec.end(); iter++) {
+         iter != map2vec.end(); iter++)
+    {
         std::stringstream values;
         values << pcpp::SSLVersion(iter->first).toString() << "|" << iter->second;
         printer.printRow(values.str(), '|');
@@ -264,7 +282,8 @@ void printVersions(std::map<uint16_t, int>& versionMap,
  * Print used cipher-suite map to a table sorted by popularity (most popular
  * cipher-suite will be first)
  */
-void printCipherSuites(ServerHelloStats& serverHelloStats) {
+void printCipherSuites(ServerHelloStats& serverHelloStats)
+{
     // create the table
     std::vector<std::string> columnNames;
     columnNames.push_back("Cipher-suite");
@@ -285,14 +304,16 @@ void printCipherSuites(ServerHelloStats& serverHelloStats) {
     // go over all items (names + count) in the sorted vector and print them
     for (std::vector<std::pair<std::string, int>>::iterator iter =
              map2vec.begin();
-         iter != map2vec.end(); iter++) {
+         iter != map2vec.end(); iter++)
+    {
         std::stringstream values;
         values << iter->first << "|" << iter->second;
         printer.printRow(values.str(), '|');
     }
 }
 
-void printPorts(SSLGeneralStats& stats) {
+void printPorts(SSLGeneralStats& stats)
+{
     // create the table
     std::vector<std::string> columnNames;
     columnNames.push_back("SSL/TLS ports");
@@ -311,7 +332,8 @@ void printPorts(SSLGeneralStats& stats) {
 
     // go over all items (names + count) in the sorted vector and print them
     for (std::vector<std::pair<uint16_t, int>>::iterator iter = map2vec.begin();
-         iter != map2vec.end(); iter++) {
+         iter != map2vec.end(); iter++)
+    {
         std::stringstream values;
         values << iter->first << "|" << iter->second;
         printer.printRow(values.str(), '|');
@@ -322,7 +344,8 @@ void printPorts(SSLGeneralStats& stats) {
  * Print a summary of all statistics collected by the SSLStatsCollector. Should
  * be called when traffic capture was finished
  */
-void printStatsSummary(SSLStatsCollector& collector) {
+void printStatsSummary(SSLStatsCollector& collector)
+{
     printStatsHeadline("General stats");
     PRINT_STAT_LINE("Sample time", collector.getGeneralStats().sampleTime,
                     "Seconds");
@@ -374,7 +397,8 @@ void printStatsSummary(SSLStatsCollector& collector) {
 /**
  * Print the current rates. Should be called periodically during traffic capture
  */
-void printCurrentRates(SSLStatsCollector& collector) {
+void printCurrentRates(SSLStatsCollector& collector)
+{
     printStatsHeadline("Current SSL rates");
     PRINT_STAT_LINE("Rate of SSL packets",
                     collector.getGeneralStats().sslPacketRate.currentRate,
@@ -397,7 +421,8 @@ void printCurrentRates(SSLStatsCollector& collector) {
  * The callback to be called when application is terminated by ctrl-c. Stops the
  * endless while loop
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     bool* shouldStop = (bool*)cookie;
     *shouldStop = true;
 }
@@ -405,7 +430,8 @@ void onApplicationInterrupted(void* cookie) {
 /**
  * activate SSL/TLS analysis from pcap file
  */
-void analyzeSSLFromPcapFile(const std::string& pcapFileName) {
+void analyzeSSLFromPcapFile(const std::string& pcapFileName)
+{
     // open input file (pcap or pcapng file)
     pcpp::IFileReaderDevice* reader =
         pcpp::IFileReaderDevice::getReader(pcapFileName);
@@ -417,7 +443,8 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName) {
     // for collecting stats
     SSLStatsCollector collector;
     pcpp::RawPacket rawPacket;
-    while (reader->getNextPacket(rawPacket)) {
+    while (reader->getNextPacket(rawPacket))
+    {
         pcpp::Packet parsedPacket(&rawPacket);
         collector.collectStats(&parsedPacket);
     }
@@ -441,7 +468,8 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName) {
  */
 void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev,
                                bool printRatesPeriodically, int printRatePeriod,
-                               const std::string& savePacketsToFileName) {
+                               const std::string& savePacketsToFileName)
+{
     // open the device
     if (!dev->open())
         EXIT_WITH_ERROR("Could not open the device");
@@ -460,7 +488,8 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev,
     pcpp::OrFilter orFilter(portFilterVec);
 
     // set the filter for the device
-    if (!dev->setFilter(orFilter)) {
+    if (!dev->setFilter(orFilter))
+    {
         std::string filterAsString;
         orFilter.parseToString(filterAsString);
         EXIT_WITH_ERROR("Couldn't set the filter '" << filterAsString
@@ -469,9 +498,11 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev,
 
     // if needed to save the captured packets to file - open a writer device
     pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
-    if (savePacketsToFileName != "") {
+    if (savePacketsToFileName != "")
+    {
         pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
-        if (!pcapWriter->open()) {
+        if (!pcapWriter->open())
+        {
             EXIT_WITH_ERROR("Could not open pcap file for writing");
         }
     }
@@ -488,11 +519,13 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev,
     pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(
         onApplicationInterrupted, &shouldStop);
 
-    while (!shouldStop) {
+    while (!shouldStop)
+    {
         pcpp::multiPlatformSleep(printRatePeriod);
 
         // calculate rates
-        if (printRatesPeriodically) {
+        if (printRatesPeriodically)
+        {
             collector.calcRates();
             printCurrentRates(collector);
         }
@@ -513,7 +546,8 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev,
     printStatsSummary(collector);
 
     // close and free the writer device
-    if (pcapWriter != nullptr) {
+    if (pcapWriter != nullptr)
+    {
         pcapWriter->close();
         delete pcapWriter;
     }
@@ -522,7 +556,8 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev,
 /**
  * main method of this utility
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::string interfaceNameOrIP = "";
@@ -536,8 +571,10 @@ int main(int argc, char* argv[]) {
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "i:f:o:r:hvld", SSLAnalyzerOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'i':
@@ -576,9 +613,11 @@ int main(int argc, char* argv[]) {
         EXIT_WITH_ERROR("Neither interface nor input pcap file were provided");
 
     // analyze in pcap file mode
-    if (readPacketsFromPcapFileName != "") {
+    if (readPacketsFromPcapFileName != "")
+    {
         analyzeSSLFromPcapFile(readPacketsFromPcapFileName);
-    } else // analyze in live traffic mode
+    }
+    else // analyze in live traffic mode
     {
         // extract pcap live device by interface name or IP address
         pcpp::PcapLiveDevice* dev =

@@ -10,11 +10,13 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * DHCPv6 message types
  */
-enum DhcpV6MessageType {
+enum DhcpV6MessageType
+{
     /** Unknown message type */
     DHCPV6_UNKNOWN_MSG_TYPE = 0,
     /** Solicit message type (Client to Server) */
@@ -53,7 +55,8 @@ enum DhcpV6MessageType {
  * - https://datatracker.ietf.org/doc/html/rfc6607
  * - https://datatracker.ietf.org/doc/html/rfc8520
  */
-enum DhcpV6OptionType {
+enum DhcpV6OptionType
+{
     /** Unknown option type */
     DHCPV6_OPT_UNKNOWN = 0,
     /** Client Identifier (DUID of client) */
@@ -193,7 +196,8 @@ enum DhcpV6OptionType {
  * option records, but rather serves as a wrapper and provides useful methods
  * for setting and retrieving data to/from them
  */
-class DhcpV6Option : public TLVRecord<uint16_t, uint16_t> {
+class DhcpV6Option : public TLVRecord<uint16_t, uint16_t>
+{
   public:
     /**
    * A c'tor for this class that gets a pointer to the option raw data (byte
@@ -229,7 +233,8 @@ class DhcpV6Option : public TLVRecord<uint16_t, uint16_t> {
  * parameters in its c'tor, builds the DHCPv6 option raw buffer and provides a
  * build() method to get a DhcpV6Option object out of it
  */
-class DhcpV6OptionBuilder : public TLVRecordBuilder {
+class DhcpV6OptionBuilder : public TLVRecordBuilder
+{
   public:
     /**
    * A c'tor for building DHCPv6 options from a string representing the hex
@@ -267,7 +272,8 @@ class DhcpV6OptionBuilder : public TLVRecordBuilder {
  * @struct dhcpv6_header
  * Represents the basic DHCPv6 protocol header
  */
-struct dhcpv6_header {
+struct dhcpv6_header
+{
     /** DHCPv6 message type */
     uint8_t messageType;
     /** DHCPv6 transaction ID (first byte) */
@@ -283,7 +289,8 @@ struct dhcpv6_header {
  * Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol
  * layer
  */
-class DhcpV6Layer : public Layer {
+class DhcpV6Layer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -458,11 +465,13 @@ class DhcpV6Layer : public Layer {
 
 // implementation of inline methods
 
-bool DhcpV6Layer::isDhcpV6Port(uint16_t port) {
+bool DhcpV6Layer::isDhcpV6Port(uint16_t port)
+{
     return (port == 546) || (port == 547);
 }
 
-bool DhcpV6Layer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool DhcpV6Layer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return data && dataLen >= sizeof(dhcpv6_header);
 }
 

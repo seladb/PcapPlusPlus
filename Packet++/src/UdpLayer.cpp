@@ -20,9 +20,11 @@
 #include <sstream>
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst) {
+UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst)
+{
     const size_t headerLen = sizeof(udphdr);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -33,24 +35,29 @@ UdpLayer::UdpLayer(uint16_t portSrc, uint16_t portDst) {
     m_Protocol = UDP;
 }
 
-uint16_t UdpLayer::getSrcPort() const {
+uint16_t UdpLayer::getSrcPort() const
+{
     return be16toh(getUdpHeader()->portSrc);
 }
 
-uint16_t UdpLayer::getDstPort() const {
+uint16_t UdpLayer::getDstPort() const
+{
     return be16toh(getUdpHeader()->portDst);
 }
 
-uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket) {
+uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
+{
     udphdr* udpHdr = (udphdr*)m_Data;
     uint16_t checksumRes = 0;
     uint16_t currChecksumValue = udpHdr->headerChecksum;
 
-    if (m_PrevLayer != nullptr) {
+    if (m_PrevLayer != nullptr)
+    {
         udpHdr->headerChecksum = 0;
         PCPP_LOG_DEBUG("UDP data len = " << m_DataLen);
 
-        if (m_PrevLayer->getProtocol() == IPv4) {
+        if (m_PrevLayer->getProtocol() == IPv4)
+        {
             IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
             IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
 
@@ -60,7 +67,9 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket) {
 
             PCPP_LOG_DEBUG("calculated IPv4 UDP checksum = 0x"
                            << std::uppercase << std::hex << checksumRes);
-        } else if (m_PrevLayer->getProtocol() == IPv6) {
+        }
+        else if (m_PrevLayer->getProtocol() == IPv6)
+        {
             IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
             IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
 
@@ -84,7 +93,8 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket) {
     return checksumRes;
 }
 
-void UdpLayer::parseNextLayer() {
+void UdpLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(udphdr))
         return;
 
@@ -102,7 +112,8 @@ void UdpLayer::parseNextLayer() {
     else if (DnsLayer::isDataValid(udpData, udpDataLen) &&
              (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
         m_NextLayer = new DnsLayer(udpData, udpDataLen, this, m_Packet);
-    else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc)) {
+    else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
+    {
         if (SipRequestFirstLine::parseMethod((char*)udpData, udpDataLen) !=
             SipRequestLayer::SipMethodUnknown)
             m_NextLayer = new SipRequestLayer(udpData, udpDataLen, this, m_Packet);
@@ -114,9 +125,10 @@ void UdpLayer::parseNextLayer() {
             m_NextLayer = new SipResponseLayer(udpData, udpDataLen, this, m_Packet);
         else
             m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
-    } else if ((RadiusLayer::isRadiusPort(portDst) ||
-                RadiusLayer::isRadiusPort(portSrc)) &&
-               RadiusLayer::isDataValid(udpData, udpDataLen))
+    }
+    else if ((RadiusLayer::isRadiusPort(portDst) ||
+              RadiusLayer::isRadiusPort(portSrc)) &&
+             RadiusLayer::isDataValid(udpData, udpDataLen))
         m_NextLayer = new RadiusLayer(udpData, udpDataLen, this, m_Packet);
     else if ((GtpV1Layer::isGTPv1Port(portDst) ||
               GtpV1Layer::isGTPv1Port(portSrc)) &&
@@ -140,13 +152,15 @@ void UdpLayer::parseNextLayer() {
         m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }
 
-void UdpLayer::computeCalculateFields() {
+void UdpLayer::computeCalculateFields()
+{
     udphdr* udpHdr = (udphdr*)m_Data;
     udpHdr->length = htobe16(m_DataLen);
     calculateChecksum(true);
 }
 
-std::string UdpLayer::toString() const {
+std::string UdpLayer::toString() const
+{
     std::ostringstream srcPortStream;
     srcPortStream << getSrcPort();
     std::ostringstream dstPortStream;

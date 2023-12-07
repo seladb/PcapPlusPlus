@@ -4,14 +4,16 @@
 #include "EthLayer.h"
 #include "Layer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct cotphdr
  * Represents a COTP protocol header
  */
 #pragma pack(push, 1)
-typedef struct {
+typedef struct
+{
     /** length */
     uint8_t length;
     /** PDU type identifier */
@@ -25,7 +27,8 @@ typedef struct {
  * @class CotpLayer
  * Represents a COTP (Connection Oriented Transport Protocol)
  */
-class CotpLayer : public Layer {
+class CotpLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -36,7 +39,8 @@ class CotpLayer : public Layer {
    * stored in
    */
     CotpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = COTP;
     }
 
@@ -107,7 +111,8 @@ class CotpLayer : public Layer {
 
     std::string toString() const override;
 
-    OsiModelLayer getOsiModelLayer() const override {
+    OsiModelLayer getOsiModelLayer() const override
+    {
         return OsiModelTransportLayer;
     }
 

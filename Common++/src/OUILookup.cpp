@@ -5,16 +5,19 @@
 
 #include <fstream>
 
-namespace pcpp {
+namespace pcpp
+{
 
 template <typename T>
-int64_t OUILookup::internalParser(T& jsonData) {
+int64_t OUILookup::internalParser(T& jsonData)
+{
     // Clear all entries before adding
     vendorMap.clear();
 
     int64_t ctrRead = 0;
     nlohmann::json parsedJson = nlohmann::json::parse(jsonData);
-    for (const auto& line : parsedJson.items()) {
+    for (const auto& line : parsedJson.items())
+    {
         if (!(line.value().is_object()))
             continue;
         auto val = line.value().get<nlohmann::json>();
@@ -22,21 +25,26 @@ int64_t OUILookup::internalParser(T& jsonData) {
             continue;
 
         std::vector<MaskedFilter> vLocalMaskedFilter;
-        if (val.contains("maskedFilters") && val["maskedFilters"].is_array()) {
+        if (val.contains("maskedFilters") && val["maskedFilters"].is_array())
+        {
             // Iterate through masked filters
-            for (const auto& entry : val["maskedFilters"]) {
+            for (const auto& entry : val["maskedFilters"])
+            {
                 if (!entry.is_object())
                     continue;
                 auto subVal = entry.get<nlohmann::json>();
                 if (subVal.contains("mask") && subVal.contains("vendors") &&
                     subVal["mask"].is_number_integer() &&
-                    subVal["vendors"].is_object()) {
+                    subVal["vendors"].is_object())
+                {
                     int maskValue = subVal["mask"].get<int>();
                     vLocalMaskedFilter.push_back({maskValue, {}});
 
                     // Parse masked filter
-                    for (const auto& subentry : subVal["vendors"].items()) {
-                        if (subentry.value().is_string()) {
+                    for (const auto& subentry : subVal["vendors"].items())
+                    {
+                        if (subentry.value().is_string())
+                        {
                             vLocalMaskedFilter.back().vendorMap.insert(
                                 {std::stoull(subentry.key()), subentry.value()});
                             ++ctrRead;
@@ -55,12 +63,14 @@ int64_t OUILookup::internalParser(T& jsonData) {
     return ctrRead;
 }
 
-int64_t OUILookup::initOUIDatabaseFromJson(const std::string& path) {
+int64_t OUILookup::initOUIDatabaseFromJson(const std::string& path)
+{
     std::ifstream dataFile;
 
     // Open database
     dataFile.open(path);
-    if (!dataFile.is_open()) {
+    if (!dataFile.is_open())
+    {
         PCPP_LOG_ERROR(std::string("Can't open OUI database: ") + strerror(errno));
         return -1;
     }
@@ -69,7 +79,8 @@ int64_t OUILookup::initOUIDatabaseFromJson(const std::string& path) {
     return internalParser(dataFile);
 }
 
-std::string OUILookup::getVendorName(const pcpp::MacAddress& addr) {
+std::string OUILookup::getVendorName(const pcpp::MacAddress& addr)
+{
     if (vendorMap.empty())
         PCPP_LOG_DEBUG("Vendor map is empty");
 
@@ -86,7 +97,8 @@ std::string OUILookup::getVendorName(const pcpp::MacAddress& addr) {
     if (itr == vendorMap.end())
         return "Unknown";
 
-    for (const auto& entry : itr->second.maskedFilter) {
+    for (const auto& entry : itr->second.maskedFilter)
+    {
         uint64_t maskValue = ~((1 << (48 - entry.mask)) - 1);
         uint64_t bufferAddr = macAddr & maskValue;
 

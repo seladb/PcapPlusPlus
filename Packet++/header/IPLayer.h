@@ -10,7 +10,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class IPLayer
  * This is an interface (abstract class) implemented in the IP layers (IPv4Layer
@@ -20,7 +21,8 @@ namespace pcpp {
  * you're only interested in printing the IP address the IP type shouldn't
  * matter.
  */
-class IPLayer {
+class IPLayer
+{
   protected:
     IPLayer() {}
 

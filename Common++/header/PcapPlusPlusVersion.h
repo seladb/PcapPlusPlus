@@ -9,7 +9,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 #define PCAPPLUSPLUS_VERSION "23.09+"
 #define PCAPPLUSPLUS_VERSION_OFFICIAL "non-official release"
 
@@ -29,14 +30,16 @@ inline std::string getPcapPlusPlusVersion() { return PCAPPLUSPLUS_VERSION; }
  * whether it's an official or non-official release. For example: "v23.09+
  * (non-official release)" or "v23.09 (official release)"
  */
-inline std::string getPcapPlusPlusVersionFull() {
+inline std::string getPcapPlusPlusVersionFull()
+{
     return PCAPPLUSPLUS_VERSION_FULL;
 }
 
 /**
  * @return The build date and time in a format of "Mmm dd yyyy hh:mm:ss"
  */
-inline std::string getBuildDateTime() {
+inline std::string getBuildDateTime()
+{
     return std::string(__DATE__) + " " + std::string(__TIME__);
 }
 

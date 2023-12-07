@@ -57,7 +57,8 @@
  * @namespace pcpp
  * @brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /** IP reassembly mechanism default capacity. If concurrent packet volume
  * exceeds this numbers, packets will start to be dropped in a LRU manner
@@ -79,7 +80,8 @@ namespace pcpp {
  * - IPReassembly#removePacket() - remove all data that is currently stored for
  * a packet, including the reassembled data that was gathered so far
  */
-class IPReassembly {
+class IPReassembly
+{
   public:
     /**
    * @class PacketKey
@@ -87,7 +89,8 @@ class IPReassembly {
    * packet. This class cannot be instantiated or copied, only its derived
    * classes can
    */
-    class PacketKey {
+    class PacketKey
+    {
       public:
         /**
      * A default virtual d'tor
@@ -123,7 +126,8 @@ class IPReassembly {
    * Represents a key that can uniquely identify IPv4 packets. The key comprises
    * of source IPv4 address, dest IPv4 address and IP ID
    */
-    class IPv4PacketKey : public PacketKey {
+    class IPv4PacketKey : public PacketKey
+    {
       public:
         /**
      * A default c'tor which zeros all members
@@ -152,7 +156,8 @@ class IPReassembly {
      * Assignment operator for this class
      * @param[in] other The instance to assign from
      */
-        IPv4PacketKey& operator=(const IPv4PacketKey& other) {
+        IPv4PacketKey& operator=(const IPv4PacketKey& other)
+        {
             m_IpID = other.m_IpID;
             m_SrcIP = other.m_SrcIP;
             m_DstIP = other.m_DstIP;
@@ -215,7 +220,8 @@ class IPReassembly {
    * comprises of source IPv6 address, dest IPv6 address and fragment ID (which
    * resides in the IPv6 fragmentation extension)
    */
-    class IPv6PacketKey : public PacketKey {
+    class IPv6PacketKey : public PacketKey
+    {
       public:
         /**
      * A default c'tor which zeros all members
@@ -245,7 +251,8 @@ class IPReassembly {
      * Assignment operator for this class
      * @param[in] other The instance to assign from
      */
-        IPv6PacketKey& operator=(const IPv6PacketKey& other) {
+        IPv6PacketKey& operator=(const IPv6PacketKey& other)
+        {
             m_FragmentID = other.m_FragmentID;
             m_SrcIP = other.m_SrcIP;
             m_DstIP = other.m_DstIP;
@@ -320,7 +327,8 @@ class IPReassembly {
     /**
    * An enum representing the status returned from processing a fragment
    */
-    enum ReassemblyStatus {
+    enum ReassemblyStatus
+    {
         /** The processed packet isn't of type IPv4 or IPv6 */
         NON_IP_PACKET = 0x00,
         /** The processed packet isn't a fragment */
@@ -501,12 +509,14 @@ class IPReassembly {
     size_t getCurrentCapacity() const { return m_FragmentMap.size(); }
 
   private:
-    struct IPFragment {
+    struct IPFragment
+    {
         uint16_t fragmentOffset;
         bool lastFragment;
         uint8_t* fragmentData;
         size_t fragmentDataLen;
-        IPFragment() {
+        IPFragment()
+        {
             fragmentOffset = 0;
             lastFragment = false;
             fragmentData = NULL;
@@ -515,23 +525,27 @@ class IPReassembly {
         ~IPFragment() { delete[] fragmentData; }
     };
 
-    struct IPFragmentData {
+    struct IPFragmentData
+    {
         uint16_t currentOffset;
         RawPacket* data;
         bool deleteData;
         uint32_t fragmentID;
         PacketKey* packetKey;
         PointerVector<IPFragment> outOfOrderFragments;
-        IPFragmentData(PacketKey* pktKey, uint32_t fragId) {
+        IPFragmentData(PacketKey* pktKey, uint32_t fragId)
+        {
             currentOffset = 0;
             data = NULL;
             deleteData = true;
             fragmentID = fragId;
             packetKey = pktKey;
         }
-        ~IPFragmentData() {
+        ~IPFragmentData()
+        {
             delete packetKey;
-            if (deleteData && data != NULL) {
+            if (deleteData && data != NULL)
+            {
                 delete data;
             }
         }

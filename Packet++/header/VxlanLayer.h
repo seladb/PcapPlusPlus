@@ -5,14 +5,16 @@
 
 /// @file
 
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct vxlan_header
  * Represents a VXLAN protocol header
  */
 #pragma pack(push, 1)
-struct vxlan_header {
+struct vxlan_header
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** Reserved bits */
     uint16_t reserved6_8 : 3;
@@ -67,7 +69,8 @@ struct vxlan_header {
  * @class VxlanLayer
  * Represents a VXLAN (Virtual eXtensible Local Area Network) protocol layer
  */
-class VxlanLayer : public Layer {
+class VxlanLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -77,7 +80,8 @@ class VxlanLayer : public Layer {
    * stored in
    */
     VxlanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = VXLAN;
     }
 

@@ -31,7 +31,8 @@ static struct option IcmpFTOptions[] = {
     {nullptr, no_argument, nullptr, no_argument}};
 
 #define EXIT_WITH_ERROR_PRINT_USAGE(reason)           \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage(thisSide, otherSide);              \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -39,7 +40,8 @@ static struct option IcmpFTOptions[] = {
         exit(1);                                      \
     } while (0)
 
-void printUsage(const std::string& thisSide, const std::string& otherSide) {
+void printUsage(const std::string& thisSide, const std::string& otherSide)
+{
     std::string messagesPerSecShort =
         (thisSide == "pitcher") ? "[-p messages_per_sec] " : "";
     std::string messagesPerSecLong =
@@ -89,7 +91,8 @@ void printUsage(const std::string& thisSide, const std::string& otherSide) {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -100,7 +103,8 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     const std::vector<pcpp::PcapLiveDevice*>& devList =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
@@ -108,7 +112,8 @@ void listInterfaces() {
               << "Network interfaces:" << std::endl;
     for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter =
              devList.begin();
-         iter != devList.end(); iter++) {
+         iter != devList.end(); iter++)
+    {
         std::cout << "    -> Name: '" << (*iter)->getName()
                   << "'   IP address: " << (*iter)->getIPv4Address().toString()
                   << std::endl;
@@ -122,7 +127,8 @@ void readCommandLineArguments(int argc, char* argv[],
                               bool& receiver, pcpp::IPv4Address& myIP,
                               pcpp::IPv4Address& otherSideIP,
                               std::string& fileNameToSend, int& packetsPerSec,
-                              size_t& blockSize) {
+                              size_t& blockSize)
+{
     std::string interfaceNameOrIP;
     std::string otherSideIPAsString;
     fileNameToSend.clear();
@@ -137,8 +143,10 @@ void readCommandLineArguments(int argc, char* argv[],
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "i:d:s:rp:b:hvl", IcmpFTOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'i':
@@ -186,7 +194,8 @@ void readCommandLineArguments(int argc, char* argv[],
                                                       << " interface name or IP");
 
     pcpp::IPv4Address interfaceIP(interfaceNameOrIP);
-    if (!interfaceIP.isValid()) {
+    if (!interfaceIP.isValid())
+    {
         pcpp::PcapLiveDevice* dev =
             pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(
                 interfaceNameOrIP);
@@ -194,7 +203,8 @@ void readCommandLineArguments(int argc, char* argv[],
             EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
 
         myIP = dev->getIPv4Address();
-    } else
+    }
+    else
         myIP = interfaceIP;
 
     // validate pitcher/catcher IP address
@@ -237,7 +247,8 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr,
                      pcpp::MacAddress dstMacAddr, pcpp::IPv4Address srcIPAddr,
                      pcpp::IPv4Address dstIPAddr, size_t icmpMsgId,
                      uint64_t msgType, uint8_t* data, size_t dataLen,
-                     bool sendRequest) {
+                     bool sendRequest)
+{
     // a static variable that holds an incrementing IP ID
     static uint16_t ipID = 0x1234;
 
@@ -280,7 +291,8 @@ bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr,
                      const pcpp::MacAddress dstMacAddr,
                      pcpp::IPv4Address srcIPAddr,
                      const pcpp::IPv4Address dstIPAddr, size_t icmpMsgId,
-                     uint64_t msgType, uint8_t* data, size_t dataLen) {
+                     uint64_t msgType, uint8_t* data, size_t dataLen)
+{
     return sendIcmpMessage(dev, srcMacAddr, dstMacAddr, srcIPAddr, dstIPAddr,
                            icmpMsgId, msgType, data, dataLen, true);
 }
@@ -288,16 +300,19 @@ bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr,
 bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr,
                       pcpp::MacAddress dstMacAddr, pcpp::IPv4Address srcIPAddr,
                       pcpp::IPv4Address dstIPAddr, size_t icmpMsgId,
-                      uint64_t msgType, uint8_t* data, size_t dataLen) {
+                      uint64_t msgType, uint8_t* data, size_t dataLen)
+{
     return sendIcmpMessage(dev, srcMacAddr, dstMacAddr, srcIPAddr, dstIPAddr,
                            icmpMsgId, msgType, data, dataLen, false);
 }
 
-std::string getFileNameFromPath(const std::string& filePath) {
+std::string getFileNameFromPath(const std::string& filePath)
+{
     // find the last "\\" or "/" (depends on the os) - where path ends and
     // filename starts
     size_t i = filePath.rfind(SEPARATOR, filePath.length());
-    if (i != std::string::npos) {
+    if (i != std::string::npos)
+    {
         // extract filename from path
         return filePath.substr(i + 1, filePath.length() - i);
     }

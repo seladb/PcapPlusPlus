@@ -16,7 +16,8 @@
 #define ONE_MBYTE 1048576
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
                   << std::endl;                       \
@@ -24,7 +25,8 @@
     } while (0)
 
 #define EXIT_WITH_ERROR_AND_RUN_COMMAND(reason, command) \
-    do {                                                 \
+    do                                                   \
+    {                                                    \
         command;                                         \
         std::cout << std::endl                           \
                   << "ERROR: " << reason << std::endl    \

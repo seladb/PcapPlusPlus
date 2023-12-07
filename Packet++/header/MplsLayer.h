@@ -9,23 +9,29 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class MplsLayer
  * Represents a MPLS (Multi-Protocol Label Switching) layer
  */
-class MplsLayer : public Layer {
+class MplsLayer : public Layer
+{
   private:
 #pragma pack(push, 1)
-    struct mpls_header {
+    struct mpls_header
+    {
         uint16_t hiLabel;
         uint8_t misc;
         uint8_t ttl;
     };
 #pragma pack(pop)
 
-    mpls_header* getMplsHeader() const { return (mpls_header*)m_Data; }
+    mpls_header* getMplsHeader() const
+    {
+        return (mpls_header*)m_Data;
+    }
 
   public:
     /** A constructor that creates the layer from an existing packet raw data
@@ -36,7 +42,8 @@ class MplsLayer : public Layer {
    * stored in
    */
     MplsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = MPLS;
     }
 

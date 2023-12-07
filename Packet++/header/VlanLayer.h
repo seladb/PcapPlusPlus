@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct vlan_header
  * Represents a VLAN header
  */
 #pragma pack(push, 1)
-struct vlan_header {
+struct vlan_header
+{
     /**
    @verbatim
    0               1               2
@@ -37,7 +39,8 @@ struct vlan_header {
  * @class VlanLayer
  * Represents a VLAN tunnel layer
  */
-class VlanLayer : public Layer {
+class VlanLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -47,7 +50,8 @@ class VlanLayer : public Layer {
    * stored in
    */
     VlanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = VLAN;
     }
 

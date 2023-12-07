@@ -20,7 +20,8 @@
 #include <sstream>
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 #define TCPOPT_DUMMY 0xff
 
@@ -28,8 +29,10 @@ namespace pcpp {
 /// TcpOptionBuilder
 /// ~~~~~~~~~~~~~~~~
 
-TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType) {
-    switch (optionType) {
+TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
+{
+    switch (optionType)
+    {
     case EOL:
         init((uint8_t)PCPP_TCPOPT_EOL, nullptr, 0);
         break;
@@ -40,13 +43,16 @@ TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType) {
     }
 }
 
-TcpOption TcpOptionBuilder::build() const {
+TcpOption TcpOptionBuilder::build() const
+{
     uint8_t recType = static_cast<uint8_t>(m_RecType);
     size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
     if (recType == (uint8_t)PCPP_TCPOPT_EOL ||
-        recType == (uint8_t)PCPP_TCPOPT_NOP) {
-        if (m_RecValueLen != 0) {
+        recType == (uint8_t)PCPP_TCPOPT_NOP)
+    {
+        if (m_RecValueLen != 0)
+        {
             PCPP_LOG_ERROR("TCP NOP and TCP EOL options are 1-byte long and don't "
                            "have option value. Tried to set option value of size "
                            << m_RecValueLen);
@@ -59,7 +65,8 @@ TcpOption TcpOptionBuilder::build() const {
     uint8_t* recordBuffer = new uint8_t[optionSize];
     memset(recordBuffer, 0, optionSize);
     recordBuffer[0] = recType;
-    if (optionSize > 1) {
+    if (optionSize > 1)
+    {
         recordBuffer[1] = static_cast<uint8_t>(optionSize);
         if (optionSize > 2 && m_RecValue != nullptr)
             memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
@@ -72,25 +79,30 @@ TcpOption TcpOptionBuilder::build() const {
 /// TcpLayer
 /// ~~~~~~~~
 
-uint16_t TcpLayer::getSrcPort() const {
+uint16_t TcpLayer::getSrcPort() const
+{
     return be16toh(getTcpHeader()->portSrc);
 }
 
-uint16_t TcpLayer::getDstPort() const {
+uint16_t TcpLayer::getDstPort() const
+{
     return be16toh(getTcpHeader()->portDst);
 }
 
-TcpOption TcpLayer::getTcpOption(TcpOptionType option) const {
+TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
+{
     return m_OptionReader.getTLVRecord((uint8_t)option, getOptionsBasePtr(),
                                        getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::getFirstTcpOption() const {
+TcpOption TcpLayer::getFirstTcpOption() const
+{
     return m_OptionReader.getFirstTLVRecord(getOptionsBasePtr(),
                                             getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const {
+TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const
+{
     TcpOption nextOpt = m_OptionReader.getNextTLVRecord(
         tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
     if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
@@ -99,24 +111,31 @@ TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const {
     return nextOpt;
 }
 
-size_t TcpLayer::getTcpOptionCount() const {
+size_t TcpLayer::getTcpOptionCount() const
+{
     return m_OptionReader.getTLVRecordCount(getOptionsBasePtr(),
                                             getHeaderLen() - sizeof(tcphdr));
 }
 
-TcpOption TcpLayer::addTcpOption(const TcpOptionBuilder& optionBuilder) {
+TcpOption TcpLayer::addTcpOption(const TcpOptionBuilder& optionBuilder)
+{
     return addTcpOptionAt(optionBuilder, getHeaderLen() - m_NumOfTrailingBytes);
 }
 
 TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder,
-                                      TcpOptionType prevOptionType) {
+                                      TcpOptionType prevOptionType)
+{
     int offset = 0;
 
-    if (prevOptionType == TCPOPT_Unknown) {
+    if (prevOptionType == TCPOPT_Unknown)
+    {
         offset = sizeof(tcphdr);
-    } else {
+    }
+    else
+    {
         TcpOption prevOpt = getTcpOption(prevOptionType);
-        if (prevOpt.isNull()) {
+        if (prevOpt.isNull())
+        {
             PCPP_LOG_ERROR("Previous option of type "
                            << (int)prevOptionType
                            << " not found, cannot add a new TCP option");
@@ -129,16 +148,19 @@ TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder,
     return addTcpOptionAt(optionBuilder, offset);
 }
 
-bool TcpLayer::removeTcpOption(TcpOptionType optionType) {
+bool TcpLayer::removeTcpOption(TcpOptionType optionType)
+{
     TcpOption opt = getTcpOption(optionType);
-    if (opt.isNull()) {
+    if (opt.isNull())
+    {
         return false;
     }
 
     // calculate total TCP option size
     TcpOption curOpt = getFirstTcpOption();
     size_t totalOptSize = 0;
-    while (!curOpt.isNull()) {
+    while (!curOpt.isNull())
+    {
         totalOptSize += curOpt.getTotalSize();
         curOpt = getNextTcpOption(curOpt);
     }
@@ -146,7 +168,8 @@ bool TcpLayer::removeTcpOption(TcpOptionType optionType) {
 
     int offset = opt.getRecordBasePtr() - m_Data;
 
-    if (!shortenLayer(offset, opt.getTotalSize())) {
+    if (!shortenLayer(offset, opt.getTotalSize()))
+    {
         return false;
     }
 
@@ -157,7 +180,8 @@ bool TcpLayer::removeTcpOption(TcpOptionType optionType) {
     return true;
 }
 
-bool TcpLayer::removeAllTcpOptions() {
+bool TcpLayer::removeAllTcpOptions()
+{
     int offset = sizeof(tcphdr);
 
     if (!shortenLayer(offset, getHeaderLen() - offset))
@@ -170,7 +194,8 @@ bool TcpLayer::removeAllTcpOptions() {
 }
 
 TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder,
-                                   int offset) {
+                                   int offset)
+{
     TcpOption newOption = optionBuilder.build();
     if (newOption.isNull())
         return newOption;
@@ -178,7 +203,8 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder,
     // calculate total TCP option size
     TcpOption curOpt = getFirstTcpOption();
     size_t totalOptSize = 0;
-    while (!curOpt.isNull()) {
+    while (!curOpt.isNull())
+    {
         totalOptSize += curOpt.getTotalSize();
         curOpt = getNextTcpOption(curOpt);
     }
@@ -186,7 +212,8 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder,
 
     size_t sizeToExtend = newOption.getTotalSize();
 
-    if (!extendLayer(offset, sizeToExtend)) {
+    if (!extendLayer(offset, sizeToExtend))
+    {
         PCPP_LOG_ERROR("Could not extend TcpLayer in [" << sizeToExtend
                                                         << "] bytes");
         newOption.purgeRecordData();
@@ -207,7 +234,8 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder,
     return TcpOption(newOptPtr);
 }
 
-void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize) {
+void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize)
+{
     int newNumberOfTrailingBytes = 0;
     while ((totalOptSize + newNumberOfTrailingBytes) % 4 != 0)
         newNumberOfTrailingBytes++;
@@ -228,16 +256,19 @@ void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize) {
         (sizeof(tcphdr) + totalOptSize + m_NumOfTrailingBytes) / 4;
 }
 
-uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket) {
+uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
+{
     tcphdr* tcpHdr = getTcpHeader();
     uint16_t checksumRes = 0;
     uint16_t currChecksumValue = tcpHdr->headerChecksum;
 
-    if (m_PrevLayer != nullptr) {
+    if (m_PrevLayer != nullptr)
+    {
         tcpHdr->headerChecksum = 0;
         PCPP_LOG_DEBUG("TCP data len = " << m_DataLen);
 
-        if (m_PrevLayer->getProtocol() == IPv4) {
+        if (m_PrevLayer->getProtocol() == IPv4)
+        {
             IPv4Address srcIP = ((IPv4Layer*)m_PrevLayer)->getSrcIPv4Address();
             IPv4Address dstIP = ((IPv4Layer*)m_PrevLayer)->getDstIPv4Address();
 
@@ -247,7 +278,9 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket) {
 
             PCPP_LOG_DEBUG("calculated IPv4 TCP checksum = 0x"
                            << std::uppercase << std::hex << checksumRes);
-        } else if (m_PrevLayer->getProtocol() == IPv6) {
+        }
+        else if (m_PrevLayer->getProtocol() == IPv6)
+        {
             IPv6Address srcIP = ((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address();
             IPv6Address dstIP = ((IPv6Layer*)m_PrevLayer)->getDstIPv6Address();
 
@@ -268,7 +301,8 @@ uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket) {
     return checksumRes;
 }
 
-void TcpLayer::initLayer() {
+void TcpLayer::initLayer()
+{
     m_DataLen = sizeof(tcphdr);
     m_Data = new uint8_t[m_DataLen];
     memset(m_Data, 0, m_DataLen);
@@ -279,29 +313,34 @@ void TcpLayer::initLayer() {
 
 TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer,
                    Packet* packet)
-    : Layer(data, dataLen, prevLayer, packet) {
+    : Layer(data, dataLen, prevLayer, packet)
+{
     m_Protocol = TCP;
     m_NumOfTrailingBytes = 0;
 }
 
 TcpLayer::TcpLayer() { initLayer(); }
 
-TcpLayer::TcpLayer(uint16_t portSrc, uint16_t portDst) {
+TcpLayer::TcpLayer(uint16_t portSrc, uint16_t portDst)
+{
     initLayer();
     getTcpHeader()->portDst = htobe16(portDst);
     getTcpHeader()->portSrc = htobe16(portSrc);
 }
 
-void TcpLayer::copyLayerData(const TcpLayer& other) {
+void TcpLayer::copyLayerData(const TcpLayer& other)
+{
     m_OptionReader = other.m_OptionReader;
     m_NumOfTrailingBytes = other.m_NumOfTrailingBytes;
 }
 
-TcpLayer::TcpLayer(const TcpLayer& other) : Layer(other) {
+TcpLayer::TcpLayer(const TcpLayer& other) : Layer(other)
+{
     copyLayerData(other);
 }
 
-TcpLayer& TcpLayer::operator=(const TcpLayer& other) {
+TcpLayer& TcpLayer::operator=(const TcpLayer& other)
+{
     Layer::operator=(other);
 
     copyLayerData(other);
@@ -309,7 +348,8 @@ TcpLayer& TcpLayer::operator=(const TcpLayer& other) {
     return *this;
 }
 
-void TcpLayer::parseNextLayer() {
+void TcpLayer::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen <= headerLen)
         return;
@@ -332,7 +372,8 @@ void TcpLayer::parseNextLayer() {
     else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
         m_NextLayer =
             SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet);
-    else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc)) {
+    else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
+    {
         if (SipRequestFirstLine::parseMethod((char*)payload, payloadLen) !=
             SipRequestLayer::SipMethodUnknown)
             m_NextLayer = new SipRequestLayer(payload, payloadLen, this, m_Packet);
@@ -342,11 +383,14 @@ void TcpLayer::parseNextLayer() {
             m_NextLayer = new SipResponseLayer(payload, payloadLen, this, m_Packet);
         else
             m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-    } else if (BgpLayer::isBgpPort(portSrc, portDst)) {
+    }
+    else if (BgpLayer::isBgpPort(portSrc, portDst))
+    {
         m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
         if (!m_NextLayer)
             m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
-    } else if (SSHLayer::isSSHPort(portSrc, portDst))
+    }
+    else if (SSHLayer::isSSHPort(portSrc, portDst))
         m_NextLayer =
             SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet);
     else if (DnsLayer::isDataValid(payload, payloadLen, true) &&
@@ -375,27 +419,33 @@ void TcpLayer::parseNextLayer() {
         m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
 
-void TcpLayer::computeCalculateFields() {
+void TcpLayer::computeCalculateFields()
+{
     tcphdr* tcpHdr = getTcpHeader();
 
     tcpHdr->dataOffset = getHeaderLen() >> 2;
     calculateChecksum(true);
 }
 
-std::string TcpLayer::toString() const {
+std::string TcpLayer::toString() const
+{
     tcphdr* hdr = getTcpHeader();
     std::string result = "TCP Layer, ";
-    if (hdr->synFlag) {
+    if (hdr->synFlag)
+    {
         if (hdr->ackFlag)
             result += "[SYN, ACK], ";
         else
             result += "[SYN], ";
-    } else if (hdr->finFlag) {
+    }
+    else if (hdr->finFlag)
+    {
         if (hdr->ackFlag)
             result += "[FIN, ACK], ";
         else
             result += "[FIN], ";
-    } else if (hdr->ackFlag)
+    }
+    else if (hdr->ackFlag)
         result += "[ACK], ";
 
     std::ostringstream srcPortStream;

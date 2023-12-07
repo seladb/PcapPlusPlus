@@ -9,14 +9,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct udphdr
  * Represents an UDP protocol header
  */
 #pragma pack(push, 1)
-struct udphdr {
+struct udphdr
+{
     /** Source port */
     uint16_t portSrc;
     /** Destination port */
@@ -32,7 +34,8 @@ struct udphdr {
  * @class UdpLayer
  * Represents an UDP (User Datagram Protocol) protocol layer
  */
-class UdpLayer : public Layer {
+class UdpLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -43,7 +46,8 @@ class UdpLayer : public Layer {
    * stored in
    */
     UdpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = UDP;
     }
 

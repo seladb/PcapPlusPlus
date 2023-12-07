@@ -90,7 +90,8 @@ struct rte_kni;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 class KniDevice;
 class KniDeviceList;
 
@@ -130,7 +131,8 @@ typedef bool (*OnKniPacketArriveCallback)(MBufRawPacket* packets,
  * assure that NO OTHER linux application is using KNI device when and after it
  * is being destroyed otherwise Linux kernel may crush dramatically.
  */
-class KniDevice : public IDevice {
+class KniDevice : public IDevice
+{
     friend class KniDeviceList;
     friend class MBufRawPacket;
 
@@ -138,7 +140,8 @@ class KniDevice : public IDevice {
     /**
    * Various link related constants for KNI device
    */
-    enum KniLinkState {
+    enum KniLinkState
+    {
         /** Returned by KNI functions if DPDK version used don't support link setup
        capability */
         LINK_NOT_SUPPORTED = -2,
@@ -152,7 +155,8 @@ class KniDevice : public IDevice {
     /**
    * Various information related constants for KNI device
    */
-    enum KniInfoState {
+    enum KniInfoState
+    {
         /** Used to identify intent to obtain cached version of KNI device
        information */
         INFO_CACHED = 0,
@@ -162,7 +166,8 @@ class KniDevice : public IDevice {
     /**
    * Promiscuous mode related constants for KNI device
    */
-    enum KniPromiscuousMode {
+    enum KniPromiscuousMode
+    {
         /** Used to DISABLE promiscuous mode on KNI device */
         PROMISC_DISABLE = 0,
         /** Used to ENABLE promiscuous mode on KNI device */
@@ -180,7 +185,8 @@ class KniDevice : public IDevice {
    * maintainers of KNI device feature MUST refer to rte_kni_ops structure in
    * rte_kni.h header file of DPDK to track the difference in signatures
    */
-    struct KniIoctlCallbacks {
+    struct KniIoctlCallbacks
+    {
         /**
      * Pointer to function of changing MTU.
      * Must return 0 in case of success or negative error code
@@ -217,7 +223,8 @@ class KniDevice : public IDevice {
    * Or if You are sure that DPDK version used is lower than 17.11.
    * If some callback is not provided (NULL) the request will always succeeds.
    */
-    struct KniOldIoctlCallbacks {
+    struct KniOldIoctlCallbacks
+    {
         /**
      * Pointer to function of changing MTU.
      * Must return 0 in case of success or negative error code
@@ -236,7 +243,8 @@ class KniDevice : public IDevice {
    * Usage of callbacks member or oldCallbacks member is defined by
    * result of KniDeviceList#callbackVersion
    */
-    struct KniDeviceConfiguration {
+    struct KniDeviceConfiguration
+    {
         /**
      * Name used to display device in system.
      * Must not interfere with already existing network interfaces.
@@ -244,7 +252,8 @@ class KniDevice : public IDevice {
      * systems)
      */
         std::string name;
-        union {
+        union
+        {
             KniIoctlCallbacks* callbacks;
             KniOldIoctlCallbacks* oldCallbacks;
         };
@@ -295,7 +304,8 @@ class KniDevice : public IDevice {
     /**
    * Indicates whether the KNI device was initialized successfully
    */
-    inline bool isInitialized() const {
+    inline bool isInitialized() const
+    {
         return !(m_Device == NULL || m_MBufMempool == NULL);
     }
     /**
@@ -695,7 +705,8 @@ class KniDevice : public IDevice {
   private:
     struct rte_kni* m_Device;
     struct rte_mempool* m_MBufMempool;
-    struct KniDeviceInfo {
+    struct KniDeviceInfo
+    {
         LinuxNicInformationSocket soc;
         KniLinkState link;
         KniPromiscuousMode promisc;
@@ -707,7 +718,8 @@ class KniDevice : public IDevice {
         bool init(const KniDeviceConfiguration& conf);
     } m_DeviceInfo;
     struct KniThread;
-    struct KniCapturing {
+    struct KniCapturing
+    {
         OnKniPacketArriveCallback callback;
         void* userCookie;
         KniThread* thread;
@@ -716,7 +728,8 @@ class KniDevice : public IDevice {
         inline bool isRunning() const { return thread != NULL; }
         void cleanup();
     } m_Capturing;
-    struct KniRequests {
+    struct KniRequests
+    {
         long sleepS;
         long sleepNs;
         KniThread* thread;

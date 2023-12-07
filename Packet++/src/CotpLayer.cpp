@@ -6,9 +6,11 @@
 #include <iostream>
 #include <sstream>
 
-namespace pcpp {
+namespace pcpp
+{
 
-pcpp::CotpLayer::CotpLayer(uint8_t tpduNumber) {
+pcpp::CotpLayer::CotpLayer(uint8_t tpduNumber)
+{
     const size_t headerLen = sizeof(cotphdr);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -28,26 +30,31 @@ uint8_t CotpLayer::getPduType() const { return getCotpHeader()->pduType; }
 
 uint8_t CotpLayer::getTpduNumber() const { return getCotpHeader()->tpduNumber; }
 
-void CotpLayer::setLength(uint8_t length) const {
+void CotpLayer::setLength(uint8_t length) const
+{
     getCotpHeader()->length = length;
 }
 
-void CotpLayer::setPduType(uint8_t pduType) const {
+void CotpLayer::setPduType(uint8_t pduType) const
+{
     getCotpHeader()->pduType = pduType;
 }
 
-void CotpLayer::setTpduNumber(uint8_t tpduNumber) const {
+void CotpLayer::setTpduNumber(uint8_t tpduNumber) const
+{
     getCotpHeader()->tpduNumber = tpduNumber;
 }
 
-bool CotpLayer::isDataValid(const uint8_t* data, size_t dataSize) {
+bool CotpLayer::isDataValid(const uint8_t* data, size_t dataSize)
+{
     if (!data || dataSize < sizeof(cotphdr))
         return false;
 
     return data[1] == 0xf0 && data[0] == 2;
 }
 
-void CotpLayer::parseNextLayer() {
+void CotpLayer::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen <= headerLen)
         return;

@@ -31,7 +31,8 @@
 #include <KniDeviceList.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
                   << std::endl;                       \
@@ -44,9 +45,11 @@
 #define DEFAULT_KNI_NAME "pcppkni0"
 #define DEFAULT_PORT 62604
 
-namespace {
+namespace
+{
 
-struct KniPongArgs {
+struct KniPongArgs
+{
     std::string kniIp;
     std::string outIp;
     std::string kniName;
@@ -55,12 +58,14 @@ struct KniPongArgs {
 
 typedef int linuxFd;
 
-struct LinuxSocket {
+struct LinuxSocket
+{
     inline operator int() const { return m_Socket; }
     linuxFd m_Socket;
 };
 
-struct PacketStats {
+struct PacketStats
+{
     unsigned long totalPackets;
     unsigned long udpPacketsIn;
     unsigned long udpPacketsOutFail;
@@ -73,7 +78,8 @@ static bool doContinue = true;
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -84,7 +90,8 @@ void printAppVersion() {
 /**
  * Print application usage
  */
-inline void printUsage() {
+inline void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -113,7 +120,8 @@ inline void printUsage() {
         << std::endl;
 }
 
-inline void parseArgs(int argc, char* argv[], KniPongArgs& args) {
+inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
+{
     struct option KniPongOptions[] = {{"src", required_argument, NULL, 's'},
                                       {"dst", required_argument, NULL, 'd'},
                                       {"name", optional_argument, NULL, 'n'},
@@ -126,8 +134,10 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args) {
     int optionIndex = 0;
     int opt = 0;
     while ((opt = getopt_long(argc, argv, "s:d:n:p:hv", KniPongOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 's':
@@ -145,33 +155,41 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args) {
         case 'v':
             printAppVersion();
             break;
-        case 'h': {
+        case 'h':
+        {
             printUsage();
             std::exit(0);
-        } break;
-        default: {
+        }
+        break;
+        default:
+        {
             printUsage();
             exit(1);
-        } break;
+        }
+        break;
         }
     }
     // Default name for KNI device:
     if (args.kniName.empty())
         args.kniName = DEFAULT_KNI_NAME;
-    if (args.kniIp.empty()) {
+    if (args.kniIp.empty())
+    {
         printUsage();
         EXIT_WITH_ERROR("IP for KNI device not provided");
     }
-    if (args.outIp.empty()) {
+    if (args.outIp.empty())
+    {
         printUsage();
         EXIT_WITH_ERROR("Virtual IP for communication not provided");
     }
     pcpp::IPv4Address kniIp = args.kniIp;
     pcpp::IPv4Address outIp = args.outIp;
-    if (!(kniIp.isValid() && outIp.isValid())) {
+    if (!(kniIp.isValid() && outIp.isValid()))
+    {
         EXIT_WITH_ERROR("One of provided IPs is not valid");
     }
-    if (!outIp.matchNetwork(pcpp::IPv4Network(kniIp, "255.255.255.0"))) {
+    if (!outIp.matchNetwork(pcpp::IPv4Network(kniIp, "255.255.255.0")))
+    {
         EXIT_WITH_ERROR(
             "Provided Virtual IP '"
             << outIp
@@ -183,7 +201,8 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args) {
 /**
  * Simple dummy callbacks that always yields success for Linux Kernel
  */
-struct KniDummyCallbacks {
+struct KniDummyCallbacks
+{
     static int changeMtuNew(uint16_t, unsigned int) { return 0; }
     static int changeMtuOld(uint8_t, unsigned int) { return 0; }
     static int configNetworkIfNew(uint16_t, uint8_t) { return 0; }
@@ -194,7 +213,8 @@ struct KniDummyCallbacks {
     static pcpp::KniDevice::KniIoctlCallbacks cbNew;
     static pcpp::KniDevice::KniOldIoctlCallbacks cbOld;
 
-    static void setCallbacks() {
+    static void setCallbacks()
+    {
         cbNew.change_mtu = changeMtuNew;
         cbNew.config_network_if = configNetworkIfNew;
         cbNew.config_mac_address = configMacAddress;
@@ -209,7 +229,8 @@ pcpp::KniDevice::KniOldIoctlCallbacks KniDummyCallbacks::cbOld;
 /**
  * Setup IP of net device by calling the ip unix utility
  */
-inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName) {
+inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
+{
     std::ostringstream command;
     command << "ip a add " << ip << "/24 dev " << kniName;
     pcpp::executeShellCommand(command.str());
@@ -222,7 +243,8 @@ inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName) {
 /**
  * KNI device setup routine
  */
-inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args) {
+inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args)
+{
     {
         // Setup DPDK
         pcpp::CoreMask cm = 0x3;
@@ -237,9 +259,12 @@ inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args) {
     devConfig.name = args.kniName;
     KniDummyCallbacks::setCallbacks();
     if (pcpp::KniDeviceList::callbackVersion() ==
-        pcpp::KniDeviceList::CALLBACKS_NEW) {
+        pcpp::KniDeviceList::CALLBACKS_NEW)
+    {
         devConfig.callbacks = &KniDummyCallbacks::cbNew;
-    } else {
+    }
+    else
+    {
         devConfig.oldCallbacks = &KniDummyCallbacks::cbOld;
     }
     devConfig.bindKthread = false;
@@ -268,10 +293,15 @@ inline pcpp::KniDevice* setupKniDevice(const KniPongArgs& args) {
 /**
  * Open UDP socket for communication with KNI device
  */
-inline LinuxSocket setupLinuxSocket(const KniPongArgs& args) { // Open socket
-    enum { INVALID_FD = -1 };
+inline LinuxSocket setupLinuxSocket(const KniPongArgs& args)
+{ // Open socket
+    enum
+    {
+        INVALID_FD = -1
+    };
     LinuxSocket sock;
-    if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD) {
+    if ((sock.m_Socket = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_FD)
+    {
         int old_errno = errno;
         EXIT_WITH_ERROR("Could not open socket"
                         << std::endl
@@ -283,7 +313,8 @@ inline LinuxSocket setupLinuxSocket(const KniPongArgs& args) { // Open socket
     egress.sin_family = AF_INET;
     egress.sin_addr.s_addr = inet_addr(args.kniIp.c_str());
     egress.sin_port = pcpp::hostToNet16(args.kniPort);
-    if (bind(sock, (struct sockaddr*)&egress, sizeof(egress)) == -1) {
+    if (bind(sock, (struct sockaddr*)&egress, sizeof(egress)) == -1)
+    {
         int old_errno = errno;
         close(sock);
         EXIT_WITH_ERROR("Could not bind socket"
@@ -297,7 +328,8 @@ inline LinuxSocket setupLinuxSocket(const KniPongArgs& args) { // Open socket
 /**
  * Handle all ARP requests on KNI interface: map all IPs to same MAC
  */
-inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer) {
+inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
+{
     pcpp::MacAddress rndMac("00:42:43:74:11:54");
     pcpp::EthLayer* ethernetLayer = NULL;
     pcpp::arphdr arpHdr;
@@ -337,7 +369,8 @@ inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer) {
  * Handle all UDP packets as a packet carying a "ping" string to "pong" to with
  * same string. Handle only packets that are of type: Eth / Ip / Udp / Payload.
  */
-inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer) {
+inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
+{
     pcpp::EthLayer* ethernetLayer = NULL;
     pcpp::IPv4Layer* ipLayer = NULL;
 
@@ -385,16 +418,19 @@ inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer) {
  * Process burst of packets
  */
 bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets,
-                  pcpp::KniDevice* kni, void* cookie) {
+                  pcpp::KniDevice* kni, void* cookie)
+{
     PacketStats* packetStats = (PacketStats*)cookie;
     pcpp::Packet packet;
     pcpp::ArpLayer* arpLayer = NULL;
     pcpp::UdpLayer* udpLayer = NULL;
 
     packetStats->totalPackets += numOfPackets;
-    for (uint32_t i = 0; i < numOfPackets; ++i) {
+    for (uint32_t i = 0; i < numOfPackets; ++i)
+    {
         packet.setRawPacket(packets + i, false);
-        if ((arpLayer = packet.getLayerOfType<pcpp::ArpLayer>()) != NULL) {
+        if ((arpLayer = packet.getLayerOfType<pcpp::ArpLayer>()) != NULL)
+        {
             ++packetStats->arpPacketsIn;
             processArp(packet, arpLayer);
             // Packet is ready to be sent -> have no fields to recalculate
@@ -404,7 +440,8 @@ bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets,
             continue;
         }
 
-        if ((udpLayer = packet.getLayerOfType<pcpp::UdpLayer>()) != NULL) {
+        if ((udpLayer = packet.getLayerOfType<pcpp::UdpLayer>()) != NULL)
+        {
             ++packetStats->udpPacketsIn;
             //! Warning (echo-Mike): DO NOT normalize next logic statement it relays
             //! on short circuiting
@@ -423,13 +460,15 @@ bool processBurst(pcpp::MBufRawPacket packets[], uint32_t numOfPackets,
 /**
  * Connect UDP socket to other IP:port pair derived from our args
  */
-void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args) {
+void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args)
+{
     struct sockaddr_in ingress;
     std::memset(&ingress, 0, sizeof(ingress));
     ingress.sin_family = AF_INET;
     ingress.sin_addr.s_addr = inet_addr(args.outIp.c_str());
     ingress.sin_port = pcpp::hostToNet16(args.kniPort);
-    if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1) {
+    if (connect(sock, (struct sockaddr*)&ingress, sizeof(ingress)) == -1)
+    {
         int old_errno = errno;
         close(sock);
         EXIT_WITH_ERROR("Could not connect socket"
@@ -441,7 +480,8 @@ void connectUDPSocket(const LinuxSocket& sock, const KniPongArgs& args) {
 /**
  * Reworked fillbuf from netcat. See description in pingPongProcess
  */
-ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos) {
+ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
+{
     size_t num = IO_BUFF_SIZE - buffPos;
     ssize_t n;
 
@@ -457,7 +497,8 @@ ssize_t fillbuf(linuxFd fd, unsigned char buff[], size_t& buffPos) {
 /**
  * Reworked drainbuf from netcat. See description in pingPongProcess
  */
-ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos) {
+ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos)
+{
     ssize_t n;
     ssize_t adjust;
 
@@ -485,7 +526,8 @@ ssize_t drainbuf(linuxFd fd, unsigned char buff[], size_t& buffPos) {
  *  - *Hobbit* <hobbit@avian.org>
  *  See: http://man7.org/linux/man-pages/man1/ncat.1.html
  */
-void pingPongProcess(const LinuxSocket& sock) {
+void pingPongProcess(const LinuxSocket& sock)
+{
 
     struct pollfd pfd[4];
     const int POLL_STDIN = 0, POLL_NETOUT = 1, POLL_NETIN = 2, POLL_STDOUT = 3;
@@ -510,10 +552,12 @@ void pingPongProcess(const LinuxSocket& sock) {
     pfd[POLL_STDOUT].fd = STDOUT_FILENO;
     pfd[POLL_STDOUT].events = 0;
 
-    while (doContinue) {
+    while (doContinue)
+    {
         /* both inputs are gone, buffers are empty, we are done */
         if (pfd[POLL_STDIN].fd == -1 && pfd[POLL_NETIN].fd == -1 &&
-            ttybuffPos == 0 && netbuffPos == 0) {
+            ttybuffPos == 0 && netbuffPos == 0)
+        {
             return;
         }
         /* both outputs are gone, we can't continue */
@@ -524,9 +568,11 @@ void pingPongProcess(const LinuxSocket& sock) {
         int num_fds = poll(pfd, 4, DEFAULT_POLL_TIMEOUT);
 
         /* treat poll errors */
-        if (num_fds == -1) {
+        if (num_fds == -1)
+        {
             int old_errno = errno;
-            if (old_errno != EINTR) {
+            if (old_errno != EINTR)
+            {
                 close(sock);
                 EXIT_WITH_ERROR("poll returned an error"
                                 << std::endl
@@ -535,28 +581,34 @@ void pingPongProcess(const LinuxSocket& sock) {
             continue;
         }
 
-        if (num_fds == 0) {
+        if (num_fds == 0)
+        {
             continue;
         }
 
         /* treat socket error conditions */
-        for (n = 0; n < 4; ++n) {
-            if (pfd[n].revents & (POLLERR | POLLNVAL)) {
+        for (n = 0; n < 4; ++n)
+        {
+            if (pfd[n].revents & (POLLERR | POLLNVAL))
+            {
                 pfd[n].fd = -1;
             }
         }
         /* reading is possible after HUP */
         if (pfd[POLL_STDIN].events & POLLIN && pfd[POLL_STDIN].revents & POLLHUP &&
-            !(pfd[POLL_STDIN].revents & POLLIN)) {
+            !(pfd[POLL_STDIN].revents & POLLIN))
+        {
             pfd[POLL_STDIN].fd = -1;
         }
 
         if (pfd[POLL_NETIN].events & POLLIN && pfd[POLL_NETIN].revents & POLLHUP &&
-            !(pfd[POLL_NETIN].revents & POLLIN)) {
+            !(pfd[POLL_NETIN].revents & POLLIN))
+        {
             pfd[POLL_NETIN].fd = -1;
         }
 
-        if (pfd[POLL_NETOUT].revents & POLLHUP) {
+        if (pfd[POLL_NETOUT].revents & POLLHUP)
+        {
             pfd[POLL_NETOUT].fd = -1;
         }
         /* if HUP, stop watching stdout */
@@ -566,14 +618,16 @@ void pingPongProcess(const LinuxSocket& sock) {
         if (pfd[POLL_NETOUT].fd == -1)
             pfd[POLL_STDIN].fd = -1;
         /* if no stdout, stop watching net in */
-        if (pfd[POLL_STDOUT].fd == -1) {
+        if (pfd[POLL_STDOUT].fd == -1)
+        {
             if (pfd[POLL_NETIN].fd != -1)
                 shutdown(pfd[POLL_NETIN].fd, SHUT_RD);
             pfd[POLL_NETIN].fd = -1;
         }
 
         /* try to read from stdin */
-        if (pfd[POLL_STDIN].revents & POLLIN && ttybuffPos < IO_BUFF_SIZE) {
+        if (pfd[POLL_STDIN].revents & POLLIN && ttybuffPos < IO_BUFF_SIZE)
+        {
             ret = fillbuf(pfd[POLL_STDIN].fd, ttybuff, ttybuffPos);
             if (ret == WANT_POLLIN)
                 pfd[POLL_STDIN].events = POLLIN;
@@ -587,7 +641,8 @@ void pingPongProcess(const LinuxSocket& sock) {
                 pfd[POLL_STDIN].events = 0;
         }
         /* try to write to network */
-        if (pfd[POLL_NETOUT].revents & POLLOUT && ttybuffPos > 0) {
+        if (pfd[POLL_NETOUT].revents & POLLOUT && ttybuffPos > 0)
+        {
             ret = drainbuf(pfd[POLL_NETOUT].fd, ttybuff, ttybuffPos);
             if (ret == WANT_POLLOUT)
                 pfd[POLL_NETOUT].events = POLLOUT;
@@ -601,14 +656,16 @@ void pingPongProcess(const LinuxSocket& sock) {
                 pfd[POLL_STDIN].events = POLLIN;
         }
         /* try to read from network */
-        if (pfd[POLL_NETIN].revents & POLLIN && netbuffPos < IO_BUFF_SIZE) {
+        if (pfd[POLL_NETIN].revents & POLLIN && netbuffPos < IO_BUFF_SIZE)
+        {
             ret = fillbuf(pfd[POLL_NETIN].fd, netbuff, netbuffPos);
             if (ret == WANT_POLLIN)
                 pfd[POLL_NETIN].events = POLLIN;
             else if (ret == -1)
                 pfd[POLL_NETIN].fd = -1;
             /* eof on net in - remove from pfd */
-            if (ret == 0) {
+            if (ret == 0)
+            {
                 shutdown(pfd[POLL_NETIN].fd, SHUT_RD);
                 pfd[POLL_NETIN].fd = -1;
             }
@@ -620,7 +677,8 @@ void pingPongProcess(const LinuxSocket& sock) {
                 pfd[POLL_NETIN].events = 0;
         }
         /* try to write to stdout */
-        if (pfd[POLL_STDOUT].revents & POLLOUT && netbuffPos > 0) {
+        if (pfd[POLL_STDOUT].revents & POLLOUT && netbuffPos > 0)
+        {
             ret = drainbuf(pfd[POLL_STDOUT].fd, netbuff, netbuffPos);
             if (ret == WANT_POLLOUT)
                 pfd[POLL_STDOUT].events = POLLOUT;
@@ -635,11 +693,13 @@ void pingPongProcess(const LinuxSocket& sock) {
         }
 
         /* stdin gone and queue empty? */
-        if (pfd[POLL_STDIN].fd == -1 && ttybuffPos == 0) {
+        if (pfd[POLL_STDIN].fd == -1 && ttybuffPos == 0)
+        {
             pfd[POLL_NETOUT].fd = -1;
         }
         /* net in gone and queue empty? */
-        if (pfd[POLL_NETIN].fd == -1 && netbuffPos == 0) {
+        if (pfd[POLL_NETIN].fd == -1 && netbuffPos == 0)
+        {
             pfd[POLL_STDOUT].fd = -1;
         }
     }
@@ -652,7 +712,8 @@ extern "C" void signal_handler(int) { doContinue = false; }
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     PacketStats packetStats;
     std::memset(&packetStats, 0, sizeof(packetStats));
     KniPongArgs args;
@@ -661,7 +722,8 @@ int main(int argc, char* argv[]) {
     parseArgs(argc, argv, args);
     pcpp::KniDevice* device = setupKniDevice(args);
     LinuxSocket sock = setupLinuxSocket(args);
-    if (!device->startCapture(processBurst, &packetStats)) {
+    if (!device->startCapture(processBurst, &packetStats))
+    {
         close(sock);
         EXIT_WITH_ERROR("Could not start capture thread on KNI device");
     }

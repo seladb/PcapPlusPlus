@@ -39,14 +39,16 @@ struct bpf_program;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 // Forward Declaration - used in GeneralFilter
 class RawPacket;
 
 /**
  * An enum that contains direction (source or destination)
  */
-typedef enum {
+typedef enum
+{
     /** Source */
     SRC,
     /** Destination */
@@ -58,7 +60,8 @@ typedef enum {
 /**
  * Supported operators enum
  */
-typedef enum {
+typedef enum
+{
     /** Equals */
     EQUALS,
     /** Not equals */
@@ -78,7 +81,8 @@ typedef enum {
  * A wrapper class for BPF filtering. Enables setting a BPF filter and matching
  * it against a packet
  */
-class BpfFilterWrapper {
+class BpfFilterWrapper
+{
   private:
     std::string m_FilterStr;
     LinkLayerType m_LinkType;
@@ -146,7 +150,8 @@ class BpfFilterWrapper {
  * hence cannot be instantiated.<BR> For deeper understanding of the filter
  * concept please refer to PcapFilter.h
  */
-class GeneralFilter {
+class GeneralFilter
+{
   protected:
     BpfFilterWrapper m_BpfWrapper;
 
@@ -179,7 +184,8 @@ class GeneralFilter {
  * This class can be loaded with a BPF filter string and then can be used to
  * verify the string is valid.<BR>
  */
-class BPFStringFilter : public GeneralFilter {
+class BPFStringFilter : public GeneralFilter
+{
   private:
     const std::string m_FilterStr;
 
@@ -210,7 +216,8 @@ class BPFStringFilter : public GeneralFilter {
  * direction (source or destination). This class cannot be instantiated<BR> For
  * deeper understanding of the filter concept please refer to PcapFilter.h
  */
-class IFilterWithDirection : public GeneralFilter {
+class IFilterWithDirection : public GeneralFilter
+{
   private:
     Direction m_Dir;
 
@@ -234,7 +241,8 @@ class IFilterWithDirection : public GeneralFilter {
  * class cannot be instantiated<BR> For deeper understanding of the filter
  * concept please refer to PcapFilter.h
  */
-class IFilterWithOperator : public GeneralFilter {
+class IFilterWithOperator : public GeneralFilter
+{
   private:
     FilterOperator m_Operator;
 
@@ -258,7 +266,8 @@ class IFilterWithOperator : public GeneralFilter {
  * please refer to PcapFilter.h
  * @todo Add IPv6 filtering support
  */
-class IPFilter : public IFilterWithDirection {
+class IPFilter : public IFilterWithDirection
+{
   private:
     std::string m_Address;
     std::string m_IPv4Mask;
@@ -329,7 +338,8 @@ class IPFilter : public IFilterWithDirection {
    * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4
    * format (i.e x.x.x.x), otherwise parsing this filter will fail
    */
-    void setMask(const std::string& ipv4Mask) {
+    void setMask(const std::string& ipv4Mask)
+    {
         m_IPv4Mask = ipv4Mask;
         m_Len = 0;
     }
@@ -338,7 +348,8 @@ class IPFilter : public IFilterWithDirection {
    * Set the subnet
    * @param[in] len The subnet to use (e.g "/24")
    */
-    void setLen(int len) {
+    void setLen(int len)
+    {
         m_IPv4Mask = "";
         m_Len = len;
     }
@@ -350,7 +361,8 @@ class IPFilter : public IFilterWithDirection {
  * example: "filter only IPv4 traffic which IP ID is greater than 1234"<BR> For
  * deeper understanding of the filter concept please refer to PcapFilter.h
  */
-class IPv4IDFilter : public IFilterWithOperator {
+class IPv4IDFilter : public IFilterWithOperator
+{
   private:
     uint16_t m_IpID;
 
@@ -380,7 +392,8 @@ class IPv4IDFilter : public IFilterWithOperator {
  * is less than 60B"<BR> For deeper understanding of the filter concept please
  * refer to PcapFilter.h
  */
-class IPv4TotalLengthFilter : public IFilterWithOperator {
+class IPv4TotalLengthFilter : public IFilterWithOperator
+{
   private:
     uint16_t m_TotalLength;
 
@@ -409,7 +422,8 @@ class IPv4TotalLengthFilter : public IFilterWithOperator {
  * or "src port 12345"<BR> For deeper understanding of the filter concept please
  * refer to PcapFilter.h
  */
-class PortFilter : public IFilterWithDirection {
+class PortFilter : public IFilterWithDirection
+{
   private:
     std::string m_Port;
     void portToString(uint16_t portAsInt);
@@ -439,7 +453,8 @@ class PortFilter : public IFilterWithDirection {
  * 2000<BR> For deeper understanding of the filter concept please refer to
  * PcapFilter.h
  */
-class PortRangeFilter : public IFilterWithDirection {
+class PortRangeFilter : public IFilterWithDirection
+{
   private:
     uint16_t m_FromPort;
     uint16_t m_ToPort;
@@ -476,7 +491,8 @@ class PortRangeFilter : public IFilterWithDirection {
  * src 12:34:56:78:90:12" or "ether dst "10:29:38:47:56:10:29"<BR> For deeper
  * understanding of the filter concept please refer to PcapFilter.h
  */
-class MacAddressFilter : public IFilterWithDirection {
+class MacAddressFilter : public IFilterWithDirection
+{
   private:
     MacAddress m_MacAddress;
 
@@ -506,7 +522,8 @@ class MacAddressFilter : public IFilterWithDirection {
  * VLAN tags, etc.<BR> For deeper understanding of the filter concept please
  * refer to PcapFilter.h
  */
-class EtherTypeFilter : public GeneralFilter {
+class EtherTypeFilter : public GeneralFilter
+{
   private:
     uint16_t m_EtherType;
 
@@ -536,7 +553,8 @@ class EtherTypeFilter : public GeneralFilter {
  * PcapFilter.h
  * @todo add some methods: "addFilter", "removeFilter", "clearAllFilter"
  */
-class AndFilter : public GeneralFilter {
+class AndFilter : public GeneralFilter
+{
   private:
     std::vector<GeneralFilter*> m_FilterList;
 
@@ -580,7 +598,8 @@ class AndFilter : public GeneralFilter {
  * PcapFilter.h
  * @todo add some methods: "addFilter", "removeFilter", "clearAllFilter"
  */
-class OrFilter : public GeneralFilter {
+class OrFilter : public GeneralFilter
+{
   private:
     std::vector<GeneralFilter*> m_FilterList;
 
@@ -612,7 +631,8 @@ class OrFilter : public GeneralFilter {
  * A class for creating a filter which is inverse to another filter<BR>
  * For deeper understanding of the filter concept please refer to PcapFilter.h
  */
-class NotFilter : public GeneralFilter {
+class NotFilter : public GeneralFilter
+{
   private:
     GeneralFilter* m_FilterToInverse;
 
@@ -623,7 +643,8 @@ class NotFilter : public GeneralFilter {
    * @param[in] filterToInverse A pointer to filter which the created filter be
    * the inverse of
    */
-    explicit NotFilter(GeneralFilter* filterToInverse) {
+    explicit NotFilter(GeneralFilter* filterToInverse)
+    {
         m_FilterToInverse = filterToInverse;
     }
 
@@ -634,7 +655,8 @@ class NotFilter : public GeneralFilter {
    * @param[in] filterToInverse A pointer to filter which the created filter be
    * the inverse of
    */
-    void setFilter(GeneralFilter* filterToInverse) {
+    void setFilter(GeneralFilter* filterToInverse)
+    {
         m_FilterToInverse = filterToInverse;
     }
 };
@@ -649,7 +671,8 @@ class NotFilter : public GeneralFilter {
  * supported). <BR> For deeper understanding of the filter concept please refer
  * to PcapFilter.h
  */
-class ProtoFilter : public GeneralFilter {
+class ProtoFilter : public GeneralFilter
+{
   private:
     ProtocolType m_Proto;
 
@@ -679,7 +702,8 @@ class ProtoFilter : public GeneralFilter {
  * filter only ARP packets with the relevant opcode will be received <BR> For
  * deeper understanding of the filter concept please refer to PcapFilter.h
  */
-class ArpFilter : public GeneralFilter {
+class ArpFilter : public GeneralFilter
+{
   private:
     ArpOpcode m_OpCode;
 
@@ -706,7 +730,8 @@ class ArpFilter : public GeneralFilter {
  * <BR> For deeper understanding of the filter concept please refer to
  * PcapFilter.h
  */
-class VlanFilter : public GeneralFilter {
+class VlanFilter : public GeneralFilter
+{
   private:
     uint16_t m_VlanID;
 
@@ -732,12 +757,14 @@ class VlanFilter : public GeneralFilter {
  * them <BR> For deeper understanding of the filter concept please refer to
  * PcapFilter.h
  */
-class TcpFlagsFilter : public GeneralFilter {
+class TcpFlagsFilter : public GeneralFilter
+{
   public:
     /**
    * An enum of all TCP flags that can be use in the filter
    */
-    enum TcpFlags {
+    enum TcpFlags
+    {
         /** TCP FIN flag */
         tcpFin = 1,
         /** TCP SYN flag */
@@ -757,7 +784,8 @@ class TcpFlagsFilter : public GeneralFilter {
    * all flags defined in the filter or match packets that contain at least one
    * of the flags defined in the filter
    */
-    enum MatchOptions {
+    enum MatchOptions
+    {
         /** Match only packets that contain all flags defined in the filter */
         MatchAll,
         /** Match packets that contain at least one of the flags defined in the
@@ -792,7 +820,8 @@ class TcpFlagsFilter : public GeneralFilter {
    * @param[in] matchOption The match option: TcpFlagsFilter::MatchAll or
    * TcpFlagsFilter::MatchOneAtLeast
    */
-    void setTcpFlagsBitMask(uint8_t tcpFlagBitMask, MatchOptions matchOption) {
+    void setTcpFlagsBitMask(uint8_t tcpFlagBitMask, MatchOptions matchOption)
+    {
         m_TcpFlagsBitMask = tcpFlagBitMask;
         m_MatchOption = matchOption;
     }
@@ -805,7 +834,8 @@ class TcpFlagsFilter : public GeneralFilter {
  * A class for filtering TCP packets that matches TCP window-size criteria <BR>
  * For deeper understanding of the filter concept please refer to PcapFilter.h
  */
-class TcpWindowSizeFilter : public IFilterWithOperator {
+class TcpWindowSizeFilter : public IFilterWithOperator
+{
   private:
     uint16_t m_WindowSize;
 
@@ -833,7 +863,8 @@ class TcpWindowSizeFilter : public IFilterWithOperator {
  * A class for filtering UDP packets that matches UDP length criteria <BR>
  * For deeper understanding of the filter concept please refer to PcapFilter.h
  */
-class UdpLengthFilter : public IFilterWithOperator {
+class UdpLengthFilter : public IFilterWithOperator
+{
   private:
     uint16_t m_Length;
 

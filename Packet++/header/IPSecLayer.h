@@ -9,13 +9,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @struct ipsec_authentication_header
  * Represents IPSec AuthenticationHeader (AH) structure
  */
 #pragma pack(push, 1)
-struct ipsec_authentication_header {
+struct ipsec_authentication_header
+{
     /** Type of the next header */
     uint8_t nextHeader;
     /** The length of the Authentication Header in 4-octet units, minus 2 */
@@ -34,7 +36,8 @@ struct ipsec_authentication_header {
  * Represents IPSec Encapsulating Security Payload (ESP) structure
  */
 #pragma pack(push, 1)
-struct ipsec_esp {
+struct ipsec_esp
+{
     /** Security Parameters Index */
     uint32_t spi;
     /** Sequence Number */
@@ -46,7 +49,8 @@ struct ipsec_esp {
  * @class AuthenticationHeaderLayer
  * Represents an IPSec AuthenticationHeader (AH) layer
  */
-class AuthenticationHeaderLayer : public Layer {
+class AuthenticationHeaderLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -57,7 +61,8 @@ class AuthenticationHeaderLayer : public Layer {
    */
     AuthenticationHeaderLayer(uint8_t* data, size_t dataLen, Layer* prevLayer,
                               Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = AuthenticationHeader;
     }
 
@@ -66,7 +71,8 @@ class AuthenticationHeaderLayer : public Layer {
    * data, so every change will change the actual packet data
    * @return A pointer to the ipsec_authentication_header
    */
-    ipsec_authentication_header* getAHHeader() const {
+    ipsec_authentication_header* getAHHeader() const
+    {
         return (ipsec_authentication_header*)m_Data;
     }
 
@@ -136,7 +142,8 @@ class AuthenticationHeaderLayer : public Layer {
  * @class ESPLayer
  * Represents an IPSec Encapsulating Security Payload (ESP) layer
  */
-class ESPLayer : public Layer {
+class ESPLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -146,7 +153,8 @@ class ESPLayer : public Layer {
    * stored in
    */
     ESPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = ESP;
     }
 
@@ -201,7 +209,8 @@ class ESPLayer : public Layer {
 // implementation of inline methods
 
 bool AuthenticationHeaderLayer::isDataValid(const uint8_t* data,
-                                            size_t dataLen) {
+                                            size_t dataLen)
+{
     if (dataLen < sizeof(ipsec_authentication_header))
         return false;
 
@@ -212,7 +221,8 @@ bool AuthenticationHeaderLayer::isDataValid(const uint8_t* data,
     return true;
 }
 
-bool ESPLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool ESPLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return data && dataLen >= sizeof(ipsec_esp);
 }
 } // namespace pcpp

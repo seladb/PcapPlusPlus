@@ -6,7 +6,8 @@
 #include "Logger.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 #define SSH_LAYER_BASE_STRING "SSH Layer"
 
@@ -15,7 +16,8 @@ namespace pcpp {
 // ----------------
 
 SSHLayer* SSHLayer::createSSHMessage(uint8_t* data, size_t dataLen,
-                                     Layer* prevLayer, Packet* packet) {
+                                     Layer* prevLayer, Packet* packet)
+{
     SSHIdentificationMessage* sshIdnetMsg =
         SSHIdentificationMessage::tryParse(data, dataLen, prevLayer, packet);
     if (sshIdnetMsg != nullptr)
@@ -29,7 +31,8 @@ SSHLayer* SSHLayer::createSSHMessage(uint8_t* data, size_t dataLen,
     return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 }
 
-void SSHLayer::parseNextLayer() {
+void SSHLayer::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen <= headerLen)
         return;
@@ -44,7 +47,8 @@ void SSHLayer::parseNextLayer() {
 SSHIdentificationMessage* SSHIdentificationMessage::tryParse(uint8_t* data,
                                                              size_t dataLen,
                                                              Layer* prevLayer,
-                                                             Packet* packet) {
+                                                             Packet* packet)
+{
     // Payload must be at least as long as the string "SSH-"
     if (dataLen < 5)
         return nullptr;
@@ -57,14 +61,16 @@ SSHIdentificationMessage* SSHIdentificationMessage::tryParse(uint8_t* data,
     return nullptr;
 }
 
-std::string SSHIdentificationMessage::getIdentificationMessage() {
+std::string SSHIdentificationMessage::getIdentificationMessage()
+{
     // check if message ends with "\r\n" or just with "\n"
     size_t identMsgEOL = (m_Data[m_DataLen - 2] == 0x0d ? 2 : 1);
     return std::string(reinterpret_cast<const char*>(m_Data),
                        m_DataLen - identMsgEOL);
 }
 
-std::string SSHIdentificationMessage::toString() const {
+std::string SSHIdentificationMessage::toString() const
+{
     return std::string(SSH_LAYER_BASE_STRING) + ", " + "Identification message";
 }
 
@@ -73,7 +79,8 @@ std::string SSHIdentificationMessage::toString() const {
 // ---------------------------
 
 SSHHandshakeMessage::SSHHandshakeMessageType
-SSHHandshakeMessage::getMessageType() const {
+SSHHandshakeMessage::getMessageType() const
+{
     uint8_t messageCode = getMsgBaseHeader()->messageCode;
     if (messageCode == 20 || messageCode == 21 ||
         (messageCode >= 30 && messageCode <= 34))
@@ -82,8 +89,10 @@ SSHHandshakeMessage::getMessageType() const {
     return SSHHandshakeMessage::SSH_MSG_UNKNOWN;
 }
 
-std::string SSHHandshakeMessage::getMessageTypeStr() const {
-    switch (getMessageType()) {
+std::string SSHHandshakeMessage::getMessageTypeStr() const
+{
+    switch (getMessageType())
+    {
     case SSHHandshakeMessage::SSH_MSG_KEX_INIT:
         return "Key Exchange Init";
     case SSHHandshakeMessage::SSH_MSG_NEW_KEYS:
@@ -103,25 +112,30 @@ std::string SSHHandshakeMessage::getMessageTypeStr() const {
     }
 }
 
-uint8_t* SSHHandshakeMessage::getSSHHandshakeMessage() const {
+uint8_t* SSHHandshakeMessage::getSSHHandshakeMessage() const
+{
     return m_Data + sizeof(SSHHandshakeMessage::ssh_message_base);
 }
 
-size_t SSHHandshakeMessage::getSSHHandshakeMessageLength() const {
+size_t SSHHandshakeMessage::getSSHHandshakeMessageLength() const
+{
     uint32_t length = be32toh(getMsgBaseHeader()->packetLength);
     return static_cast<size_t>(length) - getMsgBaseHeader()->paddingLength -
            sizeof(uint8_t) * 2;
 }
 
-size_t SSHHandshakeMessage::getPaddingLength() const {
+size_t SSHHandshakeMessage::getPaddingLength() const
+{
     return getMsgBaseHeader()->paddingLength;
 }
 
-size_t SSHHandshakeMessage::getHeaderLen() const {
+size_t SSHHandshakeMessage::getHeaderLen() const
+{
     return (size_t)be32toh(getMsgBaseHeader()->packetLength) + sizeof(uint32_t);
 }
 
-std::string SSHHandshakeMessage::toString() const {
+std::string SSHHandshakeMessage::toString() const
+{
     return std::string(SSH_LAYER_BASE_STRING) + ", " +
            "Handshake Message: " + getMessageTypeStr();
 }
@@ -129,8 +143,10 @@ std::string SSHHandshakeMessage::toString() const {
 SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data,
                                                    size_t dataLen,
                                                    Layer* prevLayer,
-                                                   Packet* packet) {
-    if (dataLen < sizeof(SSHHandshakeMessage::ssh_message_base)) {
+                                                   Packet* packet)
+{
+    if (dataLen < sizeof(SSHHandshakeMessage::ssh_message_base))
+    {
         PCPP_LOG_DEBUG(
             "Data length is smaller than the minimum size of an SSH handshake "
             "message. It's probably not an SSH handshake message");
@@ -141,27 +157,31 @@ SSHHandshakeMessage* SSHHandshakeMessage::tryParse(uint8_t* data,
         (SSHHandshakeMessage::ssh_message_base*)data;
 
     uint32_t msgLength = be32toh(msgBase->packetLength);
-    if (msgLength + sizeof(uint32_t) > dataLen) {
+    if (msgLength + sizeof(uint32_t) > dataLen)
+    {
         PCPP_LOG_DEBUG("Message size is larger than layer size. It's probably not "
                        "an SSH handshake message");
         return nullptr;
     }
 
-    if (msgBase->paddingLength > msgLength) {
+    if (msgBase->paddingLength > msgLength)
+    {
         PCPP_LOG_DEBUG("Message padding is larger than message size. It's probably "
                        "not an SSH handshake message");
         return nullptr;
     }
 
     if (msgBase->messageCode != 20 && msgBase->messageCode != 21 &&
-        (msgBase->messageCode < 30 || msgBase->messageCode > 49)) {
+        (msgBase->messageCode < 30 || msgBase->messageCode > 49))
+    {
         PCPP_LOG_DEBUG("Unknown message type "
                        << (int)msgBase->messageCode
                        << ". It's probably not an SSH handshake message");
         return nullptr;
     }
 
-    switch (msgBase->messageCode) {
+    switch (msgBase->messageCode)
+    {
     case SSHHandshakeMessage::SSH_MSG_KEX_INIT:
         return new SSHKeyExchangeInitMessage(data, dataLen, prevLayer, packet);
     default:
@@ -178,17 +198,20 @@ SSHKeyExchangeInitMessage::SSHKeyExchangeInitMessage(uint8_t* data,
                                                      Layer* prevLayer,
                                                      Packet* packet)
     : SSHHandshakeMessage(data, dataLen, prevLayer, packet),
-      m_OffsetsInitialized(false) {
+      m_OffsetsInitialized(false)
+{
     memset(m_FieldOffsets, 0, 11 * sizeof(size_t));
 }
 
-void SSHKeyExchangeInitMessage::parseMessageAndInitOffsets() {
+void SSHKeyExchangeInitMessage::parseMessageAndInitOffsets()
+{
     m_OffsetsInitialized = true;
     if (m_DataLen <= sizeof(ssh_message_base) + 16)
         return;
 
     size_t offset = sizeof(ssh_message_base) + 16;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++)
+    {
         if (offset + sizeof(uint32_t) >= m_DataLen)
             return;
 
@@ -209,7 +232,8 @@ void SSHKeyExchangeInitMessage::parseMessageAndInitOffsets() {
     m_FieldOffsets[10] = offset;
 }
 
-std::string SSHKeyExchangeInitMessage::getFieldValue(int fieldOffsetIndex) {
+std::string SSHKeyExchangeInitMessage::getFieldValue(int fieldOffsetIndex)
+{
     if (!m_OffsetsInitialized)
         parseMessageAndInitOffsets();
 
@@ -223,14 +247,16 @@ std::string SSHKeyExchangeInitMessage::getFieldValue(int fieldOffsetIndex) {
         (size_t)fieldLength);
 }
 
-uint8_t* SSHKeyExchangeInitMessage::getCookie() {
+uint8_t* SSHKeyExchangeInitMessage::getCookie()
+{
     if (m_DataLen < sizeof(ssh_message_base) + 16)
         return nullptr;
 
     return m_Data + sizeof(ssh_message_base);
 }
 
-std::string SSHKeyExchangeInitMessage::getCookieAsHexStream() {
+std::string SSHKeyExchangeInitMessage::getCookieAsHexStream()
+{
     uint8_t* cookie = getCookie();
     if (cookie == nullptr)
         return "";
@@ -238,7 +264,8 @@ std::string SSHKeyExchangeInitMessage::getCookieAsHexStream() {
     return byteArrayToHexString(cookie, 16);
 }
 
-bool SSHKeyExchangeInitMessage::isFirstKexPacketFollows() {
+bool SSHKeyExchangeInitMessage::isFirstKexPacketFollows()
+{
     if (!m_OffsetsInitialized)
         parseMessageAndInitOffsets();
 
@@ -252,7 +279,8 @@ bool SSHKeyExchangeInitMessage::isFirstKexPacketFollows() {
 // SSHEncryptedMessage methods
 // ---------------------------
 
-std::string SSHEncryptedMessage::toString() const {
+std::string SSHEncryptedMessage::toString() const
+{
     return std::string(SSH_LAYER_BASE_STRING) + ", " + "Encrypted Message";
 }
 

@@ -7,8 +7,10 @@
 #include <sstream>
 #include <string.h>
 
-namespace pcpp {
-TpktLayer::TpktLayer(uint8_t version, uint16_t length) {
+namespace pcpp
+{
+TpktLayer::TpktLayer(uint8_t version, uint16_t length)
+{
     m_DataLen = sizeof(tpkthdr);
     m_Data = new uint8_t[m_DataLen];
     memset(m_Data, 0, m_DataLen);
@@ -23,19 +25,23 @@ uint8_t TpktLayer::getReserved() const { return getTpktHeader()->reserved; }
 
 uint8_t TpktLayer::getVersion() const { return getTpktHeader()->version; }
 
-uint16_t TpktLayer::getLength() const {
+uint16_t TpktLayer::getLength() const
+{
     return htobe16(getTpktHeader()->length);
 }
 
-void TpktLayer::setLength(uint16_t length) const {
+void TpktLayer::setLength(uint16_t length) const
+{
     getTpktHeader()->length = htobe16(length);
 }
 
-void TpktLayer::setVersion(uint8_t version) const {
+void TpktLayer::setVersion(uint8_t version) const
+{
     getTpktHeader()->version = version;
 }
 
-std::string TpktLayer::toString() const {
+std::string TpktLayer::toString() const
+{
     std::ostringstream versionStream;
     versionStream << std::to_string(getVersion());
     std::ostringstream lengthStream;
@@ -45,7 +51,8 @@ std::string TpktLayer::toString() const {
            ", length: " + lengthStream.str();
 }
 
-void TpktLayer::parseNextLayer() {
+void TpktLayer::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen <= headerLen)
         return;
@@ -53,9 +60,11 @@ void TpktLayer::parseNextLayer() {
     uint8_t* payload = m_Data + headerLen;
     size_t payloadLen = m_DataLen - headerLen;
 
-    if (CotpLayer::isDataValid(payload, payloadLen)) {
+    if (CotpLayer::isDataValid(payload, payloadLen))
+    {
         m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
-    } else
+    }
+    else
         m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
 

@@ -12,10 +12,12 @@
 #include <sstream>
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority,
-                     uint16_t etherType) {
+                     uint16_t etherType)
+{
     const size_t headerLen = sizeof(vlan_header);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -29,34 +31,41 @@ VlanLayer::VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority,
     vlanHeader->etherType = htobe16(etherType);
 }
 
-uint16_t VlanLayer::getVlanID() const {
+uint16_t VlanLayer::getVlanID() const
+{
     return be16toh(getVlanHeader()->vlan) & 0xFFF;
 }
 
-uint8_t VlanLayer::getCFI() const {
+uint8_t VlanLayer::getCFI() const
+{
     return ((be16toh(getVlanHeader()->vlan) >> 12) & 1);
 }
 
-uint8_t VlanLayer::getPriority() const {
+uint8_t VlanLayer::getPriority() const
+{
     return (be16toh(getVlanHeader()->vlan) >> 13) & 7;
 }
 
-void VlanLayer::setVlanID(uint16_t id) {
+void VlanLayer::setVlanID(uint16_t id)
+{
     getVlanHeader()->vlan =
         htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF));
 }
 
-void VlanLayer::setCFI(bool cfi) {
+void VlanLayer::setCFI(bool cfi)
+{
     getVlanHeader()->vlan = htobe16(
         (be16toh(getVlanHeader()->vlan) & (~(1 << 12))) | ((cfi & 1) << 12));
 }
 
-void VlanLayer::setPriority(uint8_t priority) {
+void VlanLayer::setPriority(uint8_t priority)
+{
     getVlanHeader()->vlan = htobe16(
         (be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13));
 }
 
-void VlanLayer::parseNextLayer() {
+void VlanLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(vlan_header))
         return;
 
@@ -64,7 +73,8 @@ void VlanLayer::parseNextLayer() {
     size_t payloadLen = m_DataLen - sizeof(vlan_header);
 
     vlan_header* hdr = getVlanHeader();
-    switch (be16toh(hdr->etherType)) {
+    switch (be16toh(hdr->etherType))
+    {
     case PCPP_ETHERTYPE_IP:
         m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
                           ? static_cast<Layer*>(
@@ -115,11 +125,13 @@ void VlanLayer::parseNextLayer() {
     }
 }
 
-void VlanLayer::computeCalculateFields() {
+void VlanLayer::computeCalculateFields()
+{
     if (m_NextLayer == nullptr)
         return;
 
-    switch (m_NextLayer->getProtocol()) {
+    switch (m_NextLayer->getProtocol())
+    {
     case IPv4:
         getVlanHeader()->etherType = htobe16(PCPP_ETHERTYPE_IP);
         break;
@@ -137,7 +149,8 @@ void VlanLayer::computeCalculateFields() {
     }
 }
 
-std::string VlanLayer::toString() const {
+std::string VlanLayer::toString() const
+{
     std::ostringstream cfiStream;
     cfiStream << (int)getCFI();
     std::ostringstream priStream;

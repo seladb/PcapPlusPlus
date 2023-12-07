@@ -7,7 +7,8 @@
 /**
  * Splits a pcap file by number of packets
  */
-class PacketCountSplitter : public Splitter {
+class PacketCountSplitter : public Splitter
+{
   private:
     int m_PacketCount;
     int m_MaxPacketsPerFile;
@@ -16,7 +17,8 @@ class PacketCountSplitter : public Splitter {
     /**
    * A c'tor for this class which gets the packet count for each split file
    */
-    explicit PacketCountSplitter(int maxPacketsPerFile) {
+    explicit PacketCountSplitter(int maxPacketsPerFile)
+    {
         m_PacketCount = 0;
         m_MaxPacketsPerFile = maxPacketsPerFile;
     }
@@ -25,7 +27,8 @@ class PacketCountSplitter : public Splitter {
    * Return the current file number if its packet count didn't reach the limit,
    * or else return the next file number and close the current file
    */
-    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) {
+    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+    {
         // check the current file number
         int curFile = m_PacketCount / m_MaxPacketsPerFile;
         // increment packet count
@@ -42,8 +45,10 @@ class PacketCountSplitter : public Splitter {
     /**
    * Make sure packet count is a positive number
    */
-    bool isSplitterParamLegal(std::string& errorString) {
-        if (m_MaxPacketsPerFile < 1) {
+    bool isSplitterParamLegal(std::string& errorString)
+    {
+        if (m_MaxPacketsPerFile < 1)
+        {
             errorString =
                 "max packets per file must be be a positive number greater than 0";
             return false;
@@ -56,7 +61,8 @@ class PacketCountSplitter : public Splitter {
 /**
  * Splits a pcap file by number of byte in each file
  */
-class FileSizeSplitter : public Splitter {
+class FileSizeSplitter : public Splitter
+{
   private:
     uint64_t m_TotalSize;
     uint64_t m_MaxBytesPerFile;
@@ -69,7 +75,8 @@ class FileSizeSplitter : public Splitter {
    * A c'tor for this class which gets the file size in bytes for each split
    * file
    */
-    explicit FileSizeSplitter(uint64_t maxBytesPerFile) {
+    explicit FileSizeSplitter(uint64_t maxBytesPerFile)
+    {
         m_TotalSize = 0;
         // each file size contains a pcap header with size of PCAP_FILE_HEADER_SIZE
         m_MaxBytesPerFile = maxBytesPerFile - PCAP_FILE_HEADER_SIZE;
@@ -79,7 +86,8 @@ class FileSizeSplitter : public Splitter {
    * Return the current file number if its size didn't reach the file size
    * limit, or else return the next file number and close the current file
    */
-    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) {
+    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+    {
         // check the current file
         int prevFile = m_TotalSize / m_MaxBytesPerFile;
         // add the current packet size and packet header
@@ -97,8 +105,10 @@ class FileSizeSplitter : public Splitter {
    * Each file size must be at least in size of PCAP_FILE_HEADER_SIZE +
    * PCAP_PACKET_HEADER_SIZE
    */
-    bool isSplitterParamLegal(std::string& errorString) {
-        if (m_MaxBytesPerFile < PCAP_PACKET_HEADER_SIZE + 1) {
+    bool isSplitterParamLegal(std::string& errorString)
+    {
+        if (m_MaxBytesPerFile < PCAP_PACKET_HEADER_SIZE + 1)
+        {
             errorString =
                 "max bytes per file must be be a positive number greater than 48";
             return false;
@@ -112,7 +122,8 @@ class FileSizeSplitter : public Splitter {
  * Splits a pcap file into two files: one that contains all packets matching a
  * given BPF filter and one that contains the rest of the packets
  */
-class BpfCriteriaSplitter : public Splitter {
+class BpfCriteriaSplitter : public Splitter
+{
   private:
     std::string m_BpfFilter;
     pcpp::BPFStringFilter filter;
@@ -124,7 +135,8 @@ class BpfCriteriaSplitter : public Splitter {
     /**
    * Return file #0 if packet matches the BPF filer, and file #1 if it's not
    */
-    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) {
+    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+    {
         if (pcpp::IPcapDevice::matchPacketWithFilter(filter, packet.getRawPacket()))
             return 0;
         return 1;
@@ -136,7 +148,8 @@ class BpfCriteriaSplitter : public Splitter {
    */
     std::string getFileName(pcpp::Packet& packet,
                             const std::string& outputPcapBasePath,
-                            int fileNumber) {
+                            int fileNumber)
+    {
         if (fileNumber == 0)
             return outputPcapBasePath + "match-bpf";
         else
@@ -146,8 +159,10 @@ class BpfCriteriaSplitter : public Splitter {
     /**
    * Verifies the BPF filter set in the c'tor is a valid BPF filter
    */
-    bool isSplitterParamLegal(std::string& errorString) {
-        if (m_BpfFilter == "") {
+    bool isSplitterParamLegal(std::string& errorString)
+    {
+        if (m_BpfFilter == "")
+        {
             errorString = "No BPF filter was set or set an empty one";
             return false;
         }
@@ -165,7 +180,8 @@ class BpfCriteriaSplitter : public Splitter {
  * Split a pcap file to an arbitrary number of files in a round-robin manner,
  * each read packet to the next file in line
  */
-class RoundRobinSplitter : public SplitterWithMaxFiles {
+class RoundRobinSplitter : public SplitterWithMaxFiles
+{
   public:
     explicit RoundRobinSplitter(int numOfFiles)
         : SplitterWithMaxFiles(numOfFiles) {}
@@ -174,15 +190,18 @@ class RoundRobinSplitter : public SplitterWithMaxFiles {
    * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes
    * care of the round-robin method
    */
-    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose) {
+    int getFileNumber(pcpp::Packet& packet, std::vector<int>& filesToClose)
+    {
         return getNextFileNumber(filesToClose);
     }
 
     /**
    * Number of files must be a positive integer
    */
-    bool isSplitterParamLegal(std::string& errorString) {
-        if (m_MaxFiles < 1) {
+    bool isSplitterParamLegal(std::string& errorString)
+    {
+        if (m_MaxFiles < 1)
+        {
             errorString = "number of files must be a positive integer";
             return false;
         }

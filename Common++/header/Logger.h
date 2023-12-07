@@ -19,7 +19,8 @@
 #endif
 
 #define PCPP_LOG(level, message)                                      \
-    do {                                                              \
+    do                                                                \
+    {                                                                 \
         std::ostringstream* sstream =                                 \
             pcpp::Logger::getInstance().internalCreateLogStream();    \
         (*sstream) << message;                                        \
@@ -27,16 +28,19 @@
             sstream, level, PCAPPP_FILENAME, __FUNCTION__, __LINE__); \
     } while (0)
 
-#define PCPP_LOG_DEBUG(message)                                       \
-    do {                                                              \
-        if (pcpp::Logger::getInstance().logsEnabled() &&              \
-            pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) { \
-            PCPP_LOG(pcpp::Logger::Debug, message);                   \
-        }                                                             \
+#define PCPP_LOG_DEBUG(message)                                     \
+    do                                                              \
+    {                                                               \
+        if (pcpp::Logger::getInstance().logsEnabled() &&            \
+            pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
+        {                                                           \
+            PCPP_LOG(pcpp::Logger::Debug, message);                 \
+        }                                                           \
     } while (0)
 
 #define PCPP_LOG_ERROR(message)                 \
-    do {                                        \
+    do                                          \
+    {                                           \
         PCPP_LOG(pcpp::Logger::Error, message); \
     } while (0)
 
@@ -46,12 +50,14 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * An enum representing all PcapPlusPlus modules
  */
-enum LogModule {
+enum LogModule
+{
     UndefinedLogModule,
     CommonLogModuleIpUtils,                        ///< IP Utils module (Common++)
     CommonLogModuleTablePrinter,                   ///< Table printer module (Common++)
@@ -137,13 +143,15 @@ enum LogModule {
  * Note: Logger#Info level logs are currently only used in DPDK devices to set
  * DPDK log level to RTE_LOG_NOTICE.
  */
-class Logger {
+class Logger
+{
   public:
     /**
    * An enum representing the log level. Currently 3 log levels are supported:
    * Error, Info and Debug. Info is the default log level
    */
-    enum LogLevel {
+    enum LogLevel
+    {
         Error, ///< Error log level
         Info,  ///< Info log level
         Debug  ///< Debug log level
@@ -184,7 +192,8 @@ class Logger {
    * @param[in] module PcapPlusPlus module
    * @param[in] level The log level to set the module to
    */
-    void setLogLevel(LogModule module, LogLevel level) {
+    void setLogLevel(LogModule module, LogLevel level)
+    {
         m_LogModulesArray[module] = level;
     }
 
@@ -193,7 +202,8 @@ class Logger {
    * @param[in] module PcapPlusPlus module
    * @return True if this module log level is "debug". False otherwise
    */
-    bool isDebugEnabled(LogModule module) const {
+    bool isDebugEnabled(LogModule module) const
+    {
         return m_LogModulesArray[module] == Debug;
     }
 
@@ -201,7 +211,8 @@ class Logger {
    * Set all PcapPlusPlus modules to a certain log level
    * @param[in] level The log level to set all modules to
    */
-    void setAllModulesToLogLevel(LogLevel level) {
+    void setAllModulesToLogLevel(LogLevel level)
+    {
         for (int i = 1; i < NumOfLogModules; i++)
             m_LogModulesArray[i] = level;
     }
@@ -240,7 +251,8 @@ class Logger {
     bool logsEnabled() const { return m_LogsEnabled; }
 
     template <class T>
-    Logger& operator<<(const T& msg) {
+    Logger& operator<<(const T& msg)
+    {
         (*m_LogStream) << msg;
         return *this;
     }
@@ -259,7 +271,8 @@ class Logger {
    * @todo: make this singleton thread-safe/
    * @return a pointer to the Logger singleton
    **/
-    static Logger& getInstance() {
+    static Logger& getInstance()
+    {
         static Logger instance;
         return instance;
     }

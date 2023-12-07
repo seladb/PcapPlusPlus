@@ -14,7 +14,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 // forward declarations
 class DnsLayer;
 class IDnsResourceData;
@@ -27,7 +28,8 @@ class DnsResourceDataPtr;
  * record, etc. The DnsLayer holds an instance of (inherited type of) this class
  * for each DNS record in the DNS packet
  */
-class IDnsResource {
+class IDnsResource
+{
   protected:
     friend class DnsLayer;
     friend class IDnsResourceData;
@@ -127,7 +129,8 @@ class IDnsResource {
  * @class DnsQuery
  * Representing a DNS query record
  */
-class DnsQuery : public IDnsResource {
+class DnsQuery : public IDnsResource
+{
     friend class DnsLayer;
 
   private:
@@ -148,7 +151,8 @@ class DnsQuery : public IDnsResource {
  * @class DnsResource
  * Representing DNS record other than DNS query
  */
-class DnsResource : public IDnsResource {
+class DnsResource : public IDnsResource
+{
     friend class DnsLayer;
 
   private:
@@ -156,7 +160,8 @@ class DnsResource : public IDnsResource {
 
     DnsResource(DnsLayer* dnsLayer, size_t offsetInLayer,
                 DnsResourceType resourceType)
-        : IDnsResource(dnsLayer, offsetInLayer) {
+        : IDnsResource(dnsLayer, offsetInLayer)
+    {
         m_ResourceType = resourceType;
     }
 
@@ -251,7 +256,8 @@ class DnsResource : public IDnsResource {
     void setCustomDnsClass(uint16_t customValue);
 
     // implementation of abstract methods
-    virtual size_t getSize() const {
+    virtual size_t getSize() const
+    {
         return m_NameLength + 3 * sizeof(uint16_t) + sizeof(uint32_t) +
                getDataLength();
     }

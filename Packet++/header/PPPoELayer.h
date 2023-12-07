@@ -12,14 +12,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct pppoe_header
  * Represents an PPPoE protocol header
  */
 #pragma pack(push, 1)
-struct pppoe_header {
+struct pppoe_header
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** PPPoE version */
     uint8_t version : 4,
@@ -47,12 +49,14 @@ struct pppoe_header {
  * An abstract class that describes the PPPoE protocol. Contains common data and
  * logic of the two types of PPPoE packets: PPPoE session and PPPoE discovery
  */
-class PPPoELayer : public Layer {
+class PPPoELayer : public Layer
+{
   public:
     /**
    * PPPoE possible codes
    */
-    enum PPPoECode {
+    enum PPPoECode
+    {
         /** PPPoE session code */
         PPPOE_CODE_SESSION = 0x00,
         /** PPPoE discovery PADO */
@@ -109,7 +113,8 @@ class PPPoELayer : public Layer {
  * @class PPPoESessionLayer
  * Describes the PPPoE session protocol
  */
-class PPPoESessionLayer : public PPPoELayer {
+class PPPoESessionLayer : public PPPoELayer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -122,7 +127,8 @@ class PPPoESessionLayer : public PPPoELayer {
    */
     PPPoESessionLayer(uint8_t* data, size_t dataLen, Layer* prevLayer,
                       Packet* packet)
-        : PPPoELayer(data, dataLen, prevLayer, packet) {
+        : PPPoELayer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = PPPoESession;
     }
 
@@ -138,7 +144,8 @@ class PPPoESessionLayer : public PPPoELayer {
     PPPoESessionLayer(uint8_t version, uint8_t type, uint16_t sessionId,
                       uint16_t pppNextProtocol)
         : PPPoELayer(version, type, PPPoELayer::PPPOE_CODE_SESSION, sessionId,
-                     sizeof(uint16_t)) {
+                     sizeof(uint16_t))
+    {
         setPPPNextProtocol(pppNextProtocol);
     }
 
@@ -178,7 +185,8 @@ class PPPoESessionLayer : public PPPoELayer {
     /**
    * @return Size of @ref pppoe_header
    */
-    virtual size_t getHeaderLen() const {
+    virtual size_t getHeaderLen() const
+    {
         return sizeof(pppoe_header) + sizeof(uint16_t);
     }
 
@@ -189,12 +197,14 @@ class PPPoESessionLayer : public PPPoELayer {
  * @class PPPoEDiscoveryLayer
  * Describes the PPPoE discovery protocol
  */
-class PPPoEDiscoveryLayer : public PPPoELayer {
+class PPPoEDiscoveryLayer : public PPPoELayer
+{
   public:
     /**
    * PPPoE tag types
    */
-    enum PPPoETagTypes {
+    enum PPPoETagTypes
+    {
         /** End-Of-List tag type*/
         PPPOE_TAG_EOL = 0x0000,
         /** Service-Name tag type*/
@@ -237,7 +247,8 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
    * @class PPPoETag
    * Represents a PPPoE tag and its data
    */
-    class PPPoETag : public TLVRecord<uint16_t, uint16_t> {
+    class PPPoETag : public TLVRecord<uint16_t, uint16_t>
+    {
       public:
         /**
      * A c'tor that gets a pointer to the tag raw data (byte array)
@@ -260,7 +271,8 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
      * a string
      * @return The tag data as string
      */
-        std::string getValueAsString() const {
+        std::string getValueAsString() const
+        {
             size_t dataSize = getDataSize();
             if (dataSize < 1)
                 return "";
@@ -281,7 +293,8 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
    * in its c'tor, builds the PPPoE Tag raw buffer and provides a build() method
    * to get a PPPoETag object out of it
    */
-    class PPPoETagBuilder : public TLVRecordBuilder {
+    class PPPoETagBuilder : public TLVRecordBuilder
+    {
       public:
         /**
      * A c'tor for building a PPPoE Tag which has no value (tag len is zero).
@@ -330,7 +343,8 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
    */
     PPPoEDiscoveryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer,
                         Packet* packet)
-        : PPPoELayer(data, dataLen, prevLayer, packet) {
+        : PPPoELayer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = PPPoEDiscovery;
         m_DataLen = getHeaderLen();
     }
@@ -345,7 +359,8 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
    */
     PPPoEDiscoveryLayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code,
                         uint16_t sessionId)
-        : PPPoELayer(version, type, code, sessionId) {
+        : PPPoELayer(version, type, code, sessionId)
+    {
         m_Protocol = PPPoEDiscovery;
     }
 
@@ -437,7 +452,8 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
    */
     virtual size_t getHeaderLen() const;
 
-    virtual std::string toString() const {
+    virtual std::string toString() const
+    {
         return "PPP-over-Ethernet Discovery (" +
                codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")";
     }
@@ -454,11 +470,13 @@ class PPPoEDiscoveryLayer : public PPPoELayer {
 
 // implementation of inline methods
 
-bool PPPoESessionLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool PPPoESessionLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return data && dataLen >= sizeof(pppoe_header) + sizeof(uint16_t);
 }
 
-bool PPPoEDiscoveryLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool PPPoEDiscoveryLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return data && dataLen >= sizeof(pppoe_header);
 }
 

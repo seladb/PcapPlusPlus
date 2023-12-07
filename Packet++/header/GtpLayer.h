@@ -9,14 +9,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 #pragma pack(push, 1)
 /**
  * @struct gtpv1_header
  * GTP v1 common message header
  */
-struct gtpv1_header {
+struct gtpv1_header
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** A 1-bit value that states whether there is a N-PDU number optional field
    */
@@ -70,7 +72,8 @@ struct gtpv1_header {
  * All of the message types except for #GtpV1_GPDU are considered GTP-C
  * messages. #GtpV1_GPDU is considered a GTP-U message
  */
-enum GtpV1MessageType {
+enum GtpV1MessageType
+{
     /** GTPv1 Message Type Unknown */
     GtpV1_MessageTypeUnknown = 0,
     /** Echo Request */
@@ -216,9 +219,11 @@ enum GtpV1MessageType {
  * A class representing the [GTP
  * v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
  */
-class GtpV1Layer : public Layer {
+class GtpV1Layer : public Layer
+{
   private:
-    struct gtpv1_header_extra {
+    struct gtpv1_header_extra
+    {
         uint16_t sequenceNumber;
         uint8_t npduNumber;
         uint8_t nextExtensionHeader;
@@ -235,7 +240,8 @@ class GtpV1Layer : public Layer {
    * A class that represents [GTP header
    * extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
    */
-    class GtpExtension {
+    class GtpExtension
+    {
         friend class GtpV1Layer;
 
       private:
@@ -327,7 +333,8 @@ class GtpV1Layer : public Layer {
    * stored in
    */
     GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = GTPv1;
     }
 
@@ -466,7 +473,8 @@ class GtpV1Layer : public Layer {
    * @param[in] port The port number to be checked
    * @return True if the port matches those associated with the BGP protocol
    */
-    static bool isGTPv1Port(uint16_t port) {
+    static bool isGTPv1Port(uint16_t port)
+    {
         return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */;
     }
 

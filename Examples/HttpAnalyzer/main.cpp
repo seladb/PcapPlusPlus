@@ -37,7 +37,8 @@
 #include <string.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -65,7 +66,8 @@ static struct option HttpAnalyzerOptions[] = {
     {"version", no_argument, nullptr, 'v'},
     {nullptr, 0, nullptr, 0}};
 
-struct HttpPacketArrivedData {
+struct HttpPacketArrivedData
+{
     HttpStatsCollector* statsCollector;
     pcpp::PcapFileWriterDevice* pcapWriter;
 };
@@ -73,7 +75,8 @@ struct HttpPacketArrivedData {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage: PCAP file mode:" << std::endl
@@ -123,7 +126,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -134,13 +138,15 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     const std::vector<pcpp::PcapLiveDevice*>& liveDevices =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
     std::cout << std::endl
               << "Network interfaces:" << std::endl;
-    for (const auto& device : liveDevices) {
+    for (const auto& device : liveDevices)
+    {
         std::cout << "    -> Name: '" << device->getName()
                   << "'   IP address: " << device->getIPv4Address().toString()
                   << std::endl;
@@ -148,7 +154,8 @@ void listInterfaces() {
     exit(0);
 }
 
-void printStatsHeadline(const std::string& description) {
+void printStatsHeadline(const std::string& description)
+{
     std::cout << std::endl
               << description << std::endl
               << std::string(description.length(), '-') << std::endl
@@ -159,7 +166,8 @@ void printStatsHeadline(const std::string& description) {
  * packet capture callback - called whenever a packet arrives
  */
 void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
-                      void* cookie) {
+                      void* cookie)
+{
     // parse the packet
     pcpp::Packet parsedPacket(packet);
 
@@ -169,7 +177,8 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
     data->statsCollector->collectStats(&parsedPacket);
 
     // if needed - write the packet to the output pcap file
-    if (data->pcapWriter != nullptr) {
+    if (data->pcapWriter != nullptr)
+    {
         data->pcapWriter->writePacket(*packet);
     }
 }
@@ -177,7 +186,8 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
 /**
  * Print the method count table
  */
-void printMethods(const HttpRequestStats& reqStatscollector) {
+void printMethods(const HttpRequestStats& reqStatscollector)
+{
     // create the table
     std::vector<std::string> columnNames = {"Method", "Count"};
     std::vector<int> columnsWidths = {9, 5};
@@ -195,10 +205,12 @@ void printMethods(const HttpRequestStats& reqStatscollector) {
         });
 
     // go over the method count table, print each method and the aggregated figure
-    for (auto iter : map2vec) {
+    for (auto iter : map2vec)
+    {
         std::stringstream values;
 
-        switch (iter.first) {
+        switch (iter.first)
+        {
         case pcpp::HttpRequestLayer::HttpGET:
             values << "GET"
                    << "|"
@@ -257,7 +269,8 @@ void printMethods(const HttpRequestStats& reqStatscollector) {
             break;
         }
 
-        if (iter.first != pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown) {
+        if (iter.first != pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown)
+        {
             printer.printRow(values.str(), '|');
         }
     }
@@ -268,7 +281,8 @@ void printMethods(const HttpRequestStats& reqStatscollector) {
  * printHostnames()
  */
 bool hostnameComparer(const std::pair<std::string, int>& leftHost,
-                      const std::pair<std::string, int>& rightHost) {
+                      const std::pair<std::string, int>& rightHost)
+{
     return leftHost.second > rightHost.second ||
            (leftHost.second == rightHost.second &&
             leftHost.first > rightHost.first);
@@ -278,7 +292,8 @@ bool hostnameComparer(const std::pair<std::string, int>& leftHost,
  * Print the hostname count map to a table sorted by popularity (most popular
  * hostnames will be first)
  */
-void printHostnames(HttpRequestStats& reqStatscollector) {
+void printHostnames(HttpRequestStats& reqStatscollector)
+{
     // create the table
     std::vector<std::string> columnNames = {"Hostname", "Count"};
     std::vector<int> columnsWidths = {40, 5};
@@ -294,7 +309,8 @@ void printHostnames(HttpRequestStats& reqStatscollector) {
     std::sort(map2vec.begin(), map2vec.end(), &hostnameComparer);
 
     // go over all items (hostname + count) in the sorted vector and print them
-    for (const auto& hostname : map2vec) {
+    for (const auto& hostname : map2vec)
+    {
         std::stringstream values;
         values << hostname.first << "|" << hostname.second;
         printer.printRow(values.str(), '|');
@@ -304,7 +320,8 @@ void printHostnames(HttpRequestStats& reqStatscollector) {
 /**
  * Print the status code count table
  */
-void printStatusCodes(const HttpResponseStats& resStatscollector) {
+void printStatusCodes(const HttpResponseStats& resStatscollector)
+{
     // create the table
     std::vector<std::string> columnNames = {"Status Code", "Count"};
     std::vector<int> columnsWidths = {28, 5};
@@ -319,7 +336,8 @@ void printStatusCodes(const HttpResponseStats& resStatscollector) {
                  const std::pair<std::string, int>& right) {
                   return left.first < right.first;
               });
-    for (const auto& statusCodeStat : map2vec) {
+    for (const auto& statusCodeStat : map2vec)
+    {
         std::stringstream values;
         values << statusCodeStat.first << "|" << statusCodeStat.second;
         printer.printRow(values.str(), '|');
@@ -329,7 +347,8 @@ void printStatusCodes(const HttpResponseStats& resStatscollector) {
 /**
  * Print the content-type count table
  */
-void printContentTypes(const HttpResponseStats& resStatscollector) {
+void printContentTypes(const HttpResponseStats& resStatscollector)
+{
     // create the table
     std::vector<std::string> columnNames = {"Content-type", "Count"};
     std::vector<int> columnsWidths = {30, 5};
@@ -344,7 +363,8 @@ void printContentTypes(const HttpResponseStats& resStatscollector) {
                  const std::pair<std::string, int>& right) {
                   return left.first < right.first;
               });
-    for (const auto& contentTypeStat : map2vec) {
+    for (const auto& contentTypeStat : map2vec)
+    {
         std::stringstream values;
         values << contentTypeStat.first << "|" << contentTypeStat.second;
         printer.printRow(values.str(), '|');
@@ -355,7 +375,8 @@ void printContentTypes(const HttpResponseStats& resStatscollector) {
  * Print a summary of all statistics collected by the HttpStatsCollector. Should
  * be called when traffic capture was finished
  */
-void printStatsSummary(HttpStatsCollector& collector) {
+void printStatsSummary(HttpStatsCollector& collector)
+{
     printStatsHeadline("General stats");
     PRINT_STAT_LINE("Sample time", collector.getGeneralStats().sampleTime,
                     "Seconds");
@@ -442,7 +463,8 @@ void printStatsSummary(HttpStatsCollector& collector) {
 /**
  * Print the current rates. Should be called periodically during traffic capture
  */
-void printCurrentRates(HttpStatsCollector& collector) {
+void printCurrentRates(HttpStatsCollector& collector)
+{
     printStatsHeadline("Current HTTP rates");
     PRINT_STAT_LINE("Rate of HTTP packets",
                     collector.getGeneralStats().httpPacketRate.currentRate,
@@ -468,7 +490,8 @@ void printCurrentRates(HttpStatsCollector& collector) {
  * The callback to be called when application is terminated by ctrl-c. Stops the
  * endless while loop
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     bool* shouldStop = (bool*)cookie;
     *shouldStop = true;
 }
@@ -477,7 +500,8 @@ void onApplicationInterrupted(void* cookie) {
  * activate HTTP analysis from pcap file
  */
 void analyzeHttpFromPcapFile(const std::string& pcapFileName,
-                             uint16_t dstPort) {
+                             uint16_t dstPort)
+{
     // open input file (pcap or pcapng file)
     pcpp::IFileReaderDevice* reader =
         pcpp::IFileReaderDevice::getReader(pcapFileName);
@@ -494,7 +518,8 @@ void analyzeHttpFromPcapFile(const std::string& pcapFileName,
     // for collecting stats
     HttpStatsCollector collector(dstPort);
     pcpp::RawPacket rawPacket;
-    while (reader->getNextPacket(rawPacket)) {
+    while (reader->getNextPacket(rawPacket))
+    {
         pcpp::Packet parsedPacket(&rawPacket);
         collector.collectStats(&parsedPacket);
     }
@@ -520,7 +545,8 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev,
                                 bool printRatesPeriodically,
                                 int printRatePeriod,
                                 const std::string& savePacketsToFileName,
-                                uint16_t dstPort) {
+                                uint16_t dstPort)
+{
     // open the device
     if (!dev->open())
         EXIT_WITH_ERROR("Could not open the device");
@@ -531,9 +557,11 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev,
 
     // if needed to save the captured packets to file - open a writer device
     pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
-    if (savePacketsToFileName != "") {
+    if (savePacketsToFileName != "")
+    {
         pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
-        if (!pcapWriter->open()) {
+        if (!pcapWriter->open())
+        {
             EXIT_WITH_ERROR("Could not open pcap file for writing");
         }
     }
@@ -550,11 +578,13 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev,
     pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(
         onApplicationInterrupted, &shouldStop);
 
-    while (!shouldStop) {
+    while (!shouldStop)
+    {
         pcpp::multiPlatformSleep(printRatePeriod);
 
         // calculate rates
-        if (printRatesPeriodically) {
+        if (printRatesPeriodically)
+        {
             collector.calcRates();
             printCurrentRates(collector);
         }
@@ -575,7 +605,8 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev,
     printStatsSummary(collector);
 
     // close and free the writer device
-    if (pcapWriter != nullptr) {
+    if (pcapWriter != nullptr)
+    {
         pcapWriter->close();
         delete pcapWriter;
     }
@@ -584,7 +615,8 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev,
 /**
  * main method of this utility
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::string interfaceNameOrIP = "";
@@ -599,8 +631,10 @@ int main(int argc, char* argv[]) {
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "i:p:f:o:r:hvld", HttpAnalyzerOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'i':
@@ -647,9 +681,11 @@ int main(int argc, char* argv[]) {
         EXIT_WITH_ERROR("Please input a number between 0 to 65535");
 
     // analyze in pcap file mode
-    if (readPacketsFromPcapFileName != "") {
+    if (readPacketsFromPcapFileName != "")
+    {
         analyzeHttpFromPcapFile(readPacketsFromPcapFileName, nPort);
-    } else // analyze in live traffic mode
+    }
+    else // analyze in live traffic mode
     {
         pcpp::PcapLiveDevice* dev =
             pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(

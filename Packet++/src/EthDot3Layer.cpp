@@ -3,11 +3,13 @@
 #include "LLCLayer.h"
 #include "PayloadLayer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
 EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac,
                            const MacAddress& destMac, uint16_t length)
-    : Layer() {
+    : Layer()
+{
     const size_t headerLen = sizeof(ether_dot3_header);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -20,7 +22,8 @@ EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac,
     m_Protocol = Ethernet;
 }
 
-void EthDot3Layer::parseNextLayer() {
+void EthDot3Layer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(ether_dot3_header))
         return;
 
@@ -33,13 +36,16 @@ void EthDot3Layer::parseNextLayer() {
         m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
 
-std::string EthDot3Layer::toString() const {
+std::string EthDot3Layer::toString() const
+{
     return "IEEE 802.3 Ethernet, Src: " + getSourceMac().toString() +
            ", Dst: " + getDestMac().toString();
 }
 
-bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen) {
-    if (dataLen >= sizeof(ether_dot3_header)) {
+bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen)
+{
+    if (dataLen >= sizeof(ether_dot3_header))
+    {
         /**
      * LSAPs: ... Such a length must, when considered as an
      * unsigned integer, be less than 0x5DC or it could be mistaken as
@@ -49,7 +55,9 @@ bool EthDot3Layer::isDataValid(const uint8_t* data, size_t dataLen) {
      * More: IEEE Std 802.3 Clause 3.2.6
      */
         return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }

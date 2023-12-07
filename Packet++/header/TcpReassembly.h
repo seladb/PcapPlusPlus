@@ -111,13 +111,15 @@
  * @namespace pcpp
  * @brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct ConnectionData
  * Represents basic TCP/UDP + IP connection data
  */
-struct ConnectionData {
+struct ConnectionData
+{
     /** Source IP address */
     IPAddress srcIP;
     /** Destination IP address */
@@ -143,7 +145,8 @@ struct ConnectionData {
    * Set startTime of Connection
    * @param[in] startTimeValue integer value
    */
-    void setStartTime(const timeval& startTimeValue) {
+    void setStartTime(const timeval& startTimeValue)
+    {
         startTime = startTimeValue;
     }
 
@@ -163,7 +166,8 @@ class TcpReassembly;
  * pieces: each instance of it contains a piece of data, usually extracted from
  * a single packet, as well as information about the connection
  */
-class TcpStreamData {
+class TcpStreamData
+{
   public:
     /**
    * A c'tor for this class that get data from outside and set the internal
@@ -229,7 +233,8 @@ class TcpStreamData {
  * @struct TcpReassemblyConfiguration
  * A structure for configuring the TcpReassembly class
  */
-struct TcpReassemblyConfiguration {
+struct TcpReassemblyConfiguration
+{
     /** The flag indicating whether to remove the connection data after a
    * connection is closed */
     bool removeConnInfo;
@@ -293,12 +298,14 @@ struct TcpReassemblyConfiguration {
  * documentation at the top of TcpReassembly.h for understanding how to use this
  * class
  */
-class TcpReassembly {
+class TcpReassembly
+{
   public:
     /**
    * An enum for connection end reasons
    */
-    enum ConnectionEndReason {
+    enum ConnectionEndReason
+    {
         /** Connection ended because of FIN or RST packet */
         TcpReassemblyConnectionClosedByFIN_RST,
         /** Connection ended manually by the user */
@@ -308,7 +315,8 @@ class TcpReassembly {
     /**
    * An enum for providing reassembly status for each processed packet
    */
-    enum ReassemblyStatus {
+    enum ReassemblyStatus
+    {
         /**
      * The processed packet contains valid TCP payload, and its payload is
      * processed by `OnMessageReadyCallback` callback function. The packet may
@@ -492,7 +500,8 @@ class TcpReassembly {
    * @return A map of all connections managed. Notice this map is constant and
    * cannot be changed by the user
    */
-    const ConnectionInfoList& getConnectionInformation() const {
+    const ConnectionInfoList& getConnectionInformation() const
+    {
         return m_ConnectionInfo;
     }
 
@@ -516,7 +525,8 @@ class TcpReassembly {
     uint32_t purgeClosedConnections(uint32_t maxNumToClean = 0);
 
   private:
-    struct TcpFragment {
+    struct TcpFragment
+    {
         uint32_t sequence;
         size_t dataLength;
         uint8_t* data;
@@ -526,7 +536,8 @@ class TcpReassembly {
         ~TcpFragment() { delete[] data; }
     };
 
-    struct TcpOneSideData {
+    struct TcpOneSideData
+    {
         IPAddress srcIP;
         uint16_t srcPort;
         uint32_t sequence;
@@ -536,7 +547,8 @@ class TcpReassembly {
         TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false) {}
     };
 
-    struct TcpReassemblyData {
+    struct TcpReassemblyData
+    {
         bool closed;
         int8_t numOfSides;
         int8_t prevSide;

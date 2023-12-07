@@ -11,7 +11,8 @@
 #include "stdlib.h"
 #include <iostream>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     // Packet Editing
     // ~~~~~~~~~~~~~~
 
@@ -21,20 +22,23 @@ int main(int argc, char* argv[]) {
         pcpp::IFileReaderDevice::getReader("1_http_packet.pcap");
 
     // verify that a reader interface was indeed created
-    if (reader == nullptr) {
+    if (reader == nullptr)
+    {
         std::cerr << "Cannot determine reader for file type" << std::endl;
         return 1;
     }
 
     // open the reader for reading
-    if (!reader->open()) {
+    if (!reader->open())
+    {
         std::cerr << "Cannot open input.pcap for reading" << std::endl;
         return 1;
     }
 
     // read the first (and only) packet from the file
     pcpp::RawPacket rawPacket;
-    if (!reader->getNextPacket(rawPacket)) {
+    if (!reader->getNextPacket(rawPacket))
+    {
         std::cerr << "Couldn't read the first packet in the file" << std::endl;
         return 1;
     }

@@ -9,14 +9,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct gre_basic_header
  * Represents GRE basic protocol header (common for GREv0 and GREv1)
  */
 #pragma pack(push, 1)
-struct gre_basic_header {
+struct gre_basic_header
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** Number of additional encapsulations which are permitted. 0 is the default
    * value */
@@ -72,7 +74,8 @@ struct gre_basic_header {
  * Represents GREv1 protocol header
  */
 #pragma pack(push, 1)
-struct gre1_header : gre_basic_header {
+struct gre1_header : gre_basic_header
+{
     /** Size of the payload not including the GRE header */
     uint16_t payloadLength;
     /** Contains the Peer's Call ID for the session to which this packet belongs
@@ -86,7 +89,8 @@ struct gre1_header : gre_basic_header {
  * Represents PPP layer that comes after GREv1 as part of PPTP protocol
  */
 #pragma pack(push, 1)
-struct ppp_pptp_header {
+struct ppp_pptp_header
+{
     /** Broadcast address */
     uint8_t address;
     /** Control byte */
@@ -101,7 +105,8 @@ struct ppp_pptp_header {
  * Abstract base class for GRE layers (GREv0Layer and GREv1Layer). Cannot be
  * instantiated and contains common logic for derived classes
  */
-class GreLayer : public Layer {
+class GreLayer : public Layer
+{
   public:
     virtual ~GreLayer() {}
 
@@ -167,7 +172,8 @@ class GreLayer : public Layer {
 
     GreLayer() {}
 
-    enum GreField {
+    enum GreField
+    {
         GreChecksumOrRouting = 0,
         GreKey = 1,
         GreSeq = 2,
@@ -187,7 +193,8 @@ class GreLayer : public Layer {
  * includes routing information it won't be parse correctly. I didn't add it
  * because of lack of time, but if you need it please tell me and I'll add it
  */
-class GREv0Layer : public GreLayer {
+class GREv0Layer : public GreLayer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -197,7 +204,8 @@ class GREv0Layer : public GreLayer {
    * stored in
    */
     GREv0Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : GreLayer(data, dataLen, prevLayer, packet) {
+        : GreLayer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = GREv0;
     }
 
@@ -304,7 +312,8 @@ class GREv0Layer : public GreLayer {
    * @param[in] dataLen The length of the byte stream
    * @return True if the data is valid and can represent an GREv0 layer
    */
-    static inline bool isDataValid(const uint8_t* data, size_t dataLen) {
+    static inline bool isDataValid(const uint8_t* data, size_t dataLen)
+    {
         return data && dataLen >= sizeof(gre_basic_header);
     }
 
@@ -324,7 +333,8 @@ class GREv0Layer : public GreLayer {
  * @class GREv1Layer
  * Represents a GRE version 1 protocol
  */
-class GREv1Layer : public GreLayer {
+class GREv1Layer : public GreLayer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -334,7 +344,8 @@ class GREv1Layer : public GreLayer {
    * stored in
    */
     GREv1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : GreLayer(data, dataLen, prevLayer, packet) {
+        : GreLayer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = GREv1;
     }
 
@@ -398,7 +409,8 @@ class GREv1Layer : public GreLayer {
    * @param[in] dataLen The length of the byte stream
    * @return True if the data is valid and can represent an GREv1 layer
    */
-    static inline bool isDataValid(const uint8_t* data, size_t dataLen) {
+    static inline bool isDataValid(const uint8_t* data, size_t dataLen)
+    {
         return data && dataLen >= sizeof(gre1_header);
     }
 
@@ -419,7 +431,8 @@ class GREv1Layer : public GreLayer {
  * Represent a PPP (point-to-point) protocol header that comes after GREv1
  * header, as part of PPTP - Point-to-Point Tunneling Protocol
  */
-class PPP_PPTPLayer : public Layer {
+class PPP_PPTPLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -431,7 +444,8 @@ class PPP_PPTPLayer : public Layer {
    * stored in
    */
     PPP_PPTPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = PPP_PPTP;
     }
 
@@ -449,7 +463,8 @@ class PPP_PPTPLayer : public Layer {
    * data, so every change will change the actual packet data
    * @return A pointer to the @ref ppp_pptp_header
    */
-    ppp_pptp_header* getPPP_PPTPHeader() const {
+    ppp_pptp_header* getPPP_PPTPHeader() const
+    {
         return (ppp_pptp_header*)m_Data;
     }
 

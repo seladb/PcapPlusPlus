@@ -19,7 +19,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class BgpLayer
@@ -27,12 +28,14 @@ namespace pcpp {
  * abstract class that cannot be instantiated, and contains functionality which
  * is common to all BGP message types.
  */
-class BgpLayer : public Layer {
+class BgpLayer : public Layer
+{
   public:
     /**
    * An enum representing BGP message types
    */
-    enum BgpMessageType {
+    enum BgpMessageType
+    {
         /** BGP OPEN message */
         Open = 1,
         /** BGP UPDATE message */
@@ -50,7 +53,8 @@ class BgpLayer : public Layer {
  * Represents the common fields of a BGP 4 message
  */
 #pragma pack(push, 1)
-    struct bgp_common_header {
+    struct bgp_common_header
+    {
         /** 16-octet marker */
         uint8_t marker[16];
         /** Total length of the message, including the header */
@@ -80,7 +84,8 @@ class BgpLayer : public Layer {
    * @return True if the source or dest port match those associated with the BGP
    * protocol
    */
-    static bool isBgpPort(uint16_t portSrc, uint16_t portDst) {
+    static bool isBgpPort(uint16_t portSrc, uint16_t portDst)
+    {
         return portSrc == 179 || portDst == 179;
     }
 
@@ -129,11 +134,13 @@ class BgpLayer : public Layer {
     // protected c'tors, this class cannot be instantiated by users
     BgpLayer() {}
     BgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = BGP;
     }
 
-    bgp_common_header* getBasicHeader() const {
+    bgp_common_header* getBasicHeader() const
+    {
         return (bgp_common_header*)m_Data;
     }
 
@@ -144,14 +151,16 @@ class BgpLayer : public Layer {
  * @class BgpOpenMessageLayer
  * Represents a BGP v4 OPEN message
  */
-class BgpOpenMessageLayer : public BgpLayer {
+class BgpOpenMessageLayer : public BgpLayer
+{
   public:
 /**
  * @struct bgp_open_message
  * BGP OPEN message structure
  */
 #pragma pack(push, 1)
-    typedef struct bgp_open_message : bgp_common_header {
+    typedef struct bgp_open_message : bgp_common_header
+    {
         /** BGP version number */
         uint8_t version;
         /** Autonomous System number of the sender */
@@ -170,7 +179,8 @@ class BgpOpenMessageLayer : public BgpLayer {
    * @struct optional_parameter
    * A structure that represents BGP OPEN message optional parameters
    */
-    struct optional_parameter {
+    struct optional_parameter
+    {
         /** Parameter type */
         uint8_t type;
         /** Parameter length */
@@ -224,14 +234,16 @@ class BgpOpenMessageLayer : public BgpLayer {
    * data, so any change will modify the actual packet data
    * @return A pointer to a bgp_open_message structure containing the data
    */
-    bgp_open_message* getOpenMsgHeader() const {
+    bgp_open_message* getOpenMsgHeader() const
+    {
         return (bgp_open_message*)m_Data;
     }
 
     /**
    * @return The BGP identifier as IPv4Address object
    */
-    IPv4Address getBgpId() const {
+    IPv4Address getBgpId() const
+    {
         return IPv4Address(getOpenMsgHeader()->bgpId);
     }
 
@@ -295,7 +307,8 @@ class BgpOpenMessageLayer : public BgpLayer {
  * @class BgpUpdateMessageLayer
  * Represents a BGP v4 UPDATE message
  */
-class BgpUpdateMessageLayer : public BgpLayer {
+class BgpUpdateMessageLayer : public BgpLayer
+{
   public:
     /**
    * @struct prefix_and_ip
@@ -303,7 +316,8 @@ class BgpUpdateMessageLayer : public BgpLayer {
    * information. It's used to represent BGP Withdrawn Routes and Network Layer
    * Reachability Information (NLRI)
    */
-    struct prefix_and_ip {
+    struct prefix_and_ip
+    {
         /** IPv4 address mask, must contain one of the values: 8, 16, 24, 32 */
         uint8_t prefix;
         /** IPv4 address */
@@ -327,7 +341,8 @@ class BgpUpdateMessageLayer : public BgpLayer {
    * @struct path_attribute
    * A structure that represents BGP OPEN message Path Attributes information
    */
-    struct path_attribute {
+    struct path_attribute
+    {
         /** Path attribute flags */
         uint8_t flags;
         /** Path attribute type */
@@ -400,7 +415,8 @@ class BgpUpdateMessageLayer : public BgpLayer {
    * the data, so any change will modify the actual packet data
    * @return A pointer to a bgp_common_header structure containing the data
    */
-    bgp_common_header* getBasicMsgHeader() const {
+    bgp_common_header* getBasicMsgHeader() const
+    {
         return (bgp_common_header*)m_Data;
     }
 
@@ -525,14 +541,16 @@ class BgpUpdateMessageLayer : public BgpLayer {
  * @class BgpNotificationMessageLayer
  * Represents a BGP v4 NOTIFICATION message
  */
-class BgpNotificationMessageLayer : public BgpLayer {
+class BgpNotificationMessageLayer : public BgpLayer
+{
   public:
 /**
  * @struct bgp_notification_message
  * BGP NOTIFICATION message structure
  */
 #pragma pack(push, 1)
-    typedef struct bgp_notification_message : bgp_common_header {
+    typedef struct bgp_notification_message : bgp_common_header
+    {
         /** BGP notification error code */
         uint8_t errorCode;
         /** BGP notification error sub-code */
@@ -590,7 +608,8 @@ class BgpNotificationMessageLayer : public BgpLayer {
    * @return A pointer to a bgp_notification_message structure containing the
    * data
    */
-    bgp_notification_message* getNotificationMsgHeader() const {
+    bgp_notification_message* getNotificationMsgHeader() const
+    {
         return (bgp_notification_message*)m_Data;
     }
 
@@ -657,7 +676,8 @@ class BgpNotificationMessageLayer : public BgpLayer {
  * @class BgpKeepaliveMessageLayer
  * Represents a BGP v4 KEEPALIVE message
  */
-class BgpKeepaliveMessageLayer : public BgpLayer {
+class BgpKeepaliveMessageLayer : public BgpLayer
+{
   public:
     /**
    * @typedef bgp_keepalive_message
@@ -687,7 +707,8 @@ class BgpKeepaliveMessageLayer : public BgpLayer {
    * the data, so any change will modify the actual packet data
    * @return A pointer to a bgp_keepalive_message structure containing the data
    */
-    bgp_keepalive_message* getKeepaliveHeader() const {
+    bgp_keepalive_message* getKeepaliveHeader() const
+    {
         return (bgp_keepalive_message*)getBasicHeader();
     }
 
@@ -700,14 +721,16 @@ class BgpKeepaliveMessageLayer : public BgpLayer {
  * @class BgpRouteRefreshMessageLayer
  * Represents a BGP v4 ROUTE-REFRESH message
  */
-class BgpRouteRefreshMessageLayer : public BgpLayer {
+class BgpRouteRefreshMessageLayer : public BgpLayer
+{
   public:
 /**
  * @struct bgp_route_refresh_message
  * BGP ROUTE-REFRESH message structure
  */
 #pragma pack(push, 1)
-    typedef struct bgp_route_refresh_message : bgp_common_header {
+    typedef struct bgp_route_refresh_message : bgp_common_header
+    {
         /** Address Family Identifier */
         uint16_t afi;
         /** Reserved field */
@@ -744,7 +767,8 @@ class BgpRouteRefreshMessageLayer : public BgpLayer {
    * @return A pointer to a bgp_route_refresh_message structure containing the
    * data
    */
-    bgp_route_refresh_message* getRouteRefreshHeader() const {
+    bgp_route_refresh_message* getRouteRefreshHeader() const
+    {
         return (bgp_route_refresh_message*)getBasicHeader();
     }
 

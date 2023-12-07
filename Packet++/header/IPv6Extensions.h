@@ -12,7 +12,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class IPv6Extension
@@ -20,14 +21,16 @@ namespace pcpp {
  * meaning it cannot be instantiated or copied (has private c'tor and copy
  * c'tor)
  */
-class IPv6Extension {
+class IPv6Extension
+{
     friend class IPv6Layer;
 
   public:
     /**
    * An enum representing all supported IPv6 extension types
    */
-    enum IPv6ExtensionType {
+    enum IPv6ExtensionType
+    {
         /** Hop-By-Hop extension type */
         IPv6HopByHop = 0,
         /** Routing extension type */
@@ -46,7 +49,8 @@ class IPv6Extension {
    * @return The size of extension in bytes, meaning (for most extensions): 8 *
    * ([headerLen field] + 1)
    */
-    virtual size_t getExtensionLen() const {
+    virtual size_t getExtensionLen() const
+    {
         return 8 * (getBaseHeader()->headerLen + 1);
     }
 
@@ -67,7 +71,8 @@ class IPv6Extension {
     IPv6Extension* getNextHeader() const { return m_NextHeader; }
 
   protected:
-    struct ipv6_ext_base_header {
+    struct ipv6_ext_base_header
+    {
         uint8_t nextHeader;
         uint8_t headerLen;
     };
@@ -89,7 +94,8 @@ class IPv6Extension {
 
     void initShadowPtr(size_t size);
 
-    ipv6_ext_base_header* getBaseHeader() const {
+    ipv6_ext_base_header* getBaseHeader() const
+    {
         return (ipv6_ext_base_header*)getDataPtr();
     }
 
@@ -109,7 +115,8 @@ class IPv6Extension {
  * Represents an IPv6 fragmentation extension header and allows easy access to
  * all fragmentation parameters
  */
-class IPv6FragmentationHeader : public IPv6Extension {
+class IPv6FragmentationHeader : public IPv6Extension
+{
     friend class IPv6Layer;
 
   public:
@@ -117,7 +124,8 @@ class IPv6FragmentationHeader : public IPv6Extension {
    * @struct ipv6_frag_header
    * A struct representing IPv6 fragmentation header
    */
-    struct ipv6_frag_header {
+    struct ipv6_frag_header
+    {
         /** Next header type */
         uint8_t nextHeader;
         /** Fragmentation header size is fixed 8 bytes, so len is always zero */
@@ -148,7 +156,8 @@ class IPv6FragmentationHeader : public IPv6Extension {
    * data
    * @return A pointer to the @ref ipv6_frag_header
    */
-    ipv6_frag_header* getFragHeader() const {
+    ipv6_frag_header* getFragHeader() const
+    {
         return (ipv6_frag_header*)getDataPtr();
     }
 
@@ -176,7 +185,8 @@ class IPv6FragmentationHeader : public IPv6Extension {
 
   private:
     IPv6FragmentationHeader(IDataContainer* dataContainer, size_t offset)
-        : IPv6Extension(dataContainer, offset) {
+        : IPv6Extension(dataContainer, offset)
+    {
         m_ExtType = IPv6Fragmentation;
     }
 };
@@ -187,7 +197,8 @@ class IPv6FragmentationHeader : public IPv6Extension {
  * access to these options and their data as well as methods to create new
  * options. Notice this class is abstract and cannot be instantiated
  */
-class IPv6TLVOptionHeader : public IPv6Extension {
+class IPv6TLVOptionHeader : public IPv6Extension
+{
     friend class IPv6Layer;
 
   public:
@@ -198,7 +209,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
    * modify IPv6 option records, but rather serves as a wrapper and provides
    * useful methods for retrieving data from them
    */
-    class IPv6Option : public TLVRecord<uint8_t, uint8_t> {
+    class IPv6Option : public TLVRecord<uint8_t, uint8_t>
+    {
       public:
         static const uint8_t Pad0OptionType = 0;
         static const uint8_t PadNOptionType = 1;
@@ -221,7 +233,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
      * @param[in] tlvDataLen The size of the TLV record raw data
      * @return True if data is valid and can be assigned
      */
-        static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen) {
+        static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+        {
             auto data = (TLVRawData*)recordRawData;
             if (data == nullptr)
                 return false;
@@ -237,7 +250,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
 
         // implement abstract methods
 
-        size_t getTotalSize() const {
+        size_t getTotalSize() const
+        {
             if (m_Data == nullptr)
                 return 0;
 
@@ -247,7 +261,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
             return (size_t)(m_Data->recordLen + sizeof(uint16_t));
         }
 
-        size_t getDataSize() const {
+        size_t getDataSize() const
+        {
             if (m_Data == nullptr || m_Data->recordType == Pad0OptionType)
                 return 0;
 
@@ -261,7 +276,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
    * receives the option parameters in its c'tor, builds the option raw buffer
    * and provides a method to build a IPv6Option object out of it
    */
-    class IPv6TLVOptionBuilder : public TLVRecordBuilder {
+    class IPv6TLVOptionBuilder : public TLVRecordBuilder
+    {
       public:
         /**
      * A c'tor for building IPv6 TLV options which their value is a byte array.
@@ -306,7 +322,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
      * IPv6TLVOptionBuilder
      * @param[in] other The instance to assign from
      */
-        IPv6TLVOptionBuilder& operator=(const IPv6TLVOptionBuilder& other) {
+        IPv6TLVOptionBuilder& operator=(const IPv6TLVOptionBuilder& other)
+        {
             TLVRecordBuilder::operator=(other);
             return *this;
         }
@@ -364,7 +381,8 @@ class IPv6TLVOptionHeader : public IPv6Extension {
  * Represents IPv6 Hop-By-Hop extension header and allows easy access to all of
  * its data including the TLV options stored
  */
-class IPv6HopByHopHeader : public IPv6TLVOptionHeader {
+class IPv6HopByHopHeader : public IPv6TLVOptionHeader
+{
     friend class IPv6Layer;
 
   public:
@@ -377,13 +395,15 @@ class IPv6HopByHopHeader : public IPv6TLVOptionHeader {
    * data. Notice this vector is read-only and its content won't be modified
    */
     explicit IPv6HopByHopHeader(const std::vector<IPv6TLVOptionBuilder>& options)
-        : IPv6TLVOptionHeader(options) {
+        : IPv6TLVOptionHeader(options)
+    {
         m_ExtType = IPv6HopByHop;
     }
 
   private:
     IPv6HopByHopHeader(IDataContainer* dataContainer, size_t offset)
-        : IPv6TLVOptionHeader(dataContainer, offset) {
+        : IPv6TLVOptionHeader(dataContainer, offset)
+    {
         m_ExtType = IPv6HopByHop;
     }
 };
@@ -393,7 +413,8 @@ class IPv6HopByHopHeader : public IPv6TLVOptionHeader {
  * Represents IPv6 destination extension header and allows easy access to all of
  * its data including the TLV options stored in it
  */
-class IPv6DestinationHeader : public IPv6TLVOptionHeader {
+class IPv6DestinationHeader : public IPv6TLVOptionHeader
+{
     friend class IPv6Layer;
 
   public:
@@ -407,13 +428,15 @@ class IPv6DestinationHeader : public IPv6TLVOptionHeader {
    */
     explicit IPv6DestinationHeader(
         const std::vector<IPv6TLVOptionBuilder>& options)
-        : IPv6TLVOptionHeader(options) {
+        : IPv6TLVOptionHeader(options)
+    {
         m_ExtType = IPv6Destination;
     }
 
   private:
     IPv6DestinationHeader(IDataContainer* dataContainer, size_t offset)
-        : IPv6TLVOptionHeader(dataContainer, offset) {
+        : IPv6TLVOptionHeader(dataContainer, offset)
+    {
         m_ExtType = IPv6Destination;
     }
 };
@@ -423,7 +446,8 @@ class IPv6DestinationHeader : public IPv6TLVOptionHeader {
  * Represents IPv6 routing extension header and allows easy access to all of its
  * data
  */
-class IPv6RoutingHeader : public IPv6Extension {
+class IPv6RoutingHeader : public IPv6Extension
+{
     friend class IPv6Layer;
 
   public:
@@ -431,7 +455,8 @@ class IPv6RoutingHeader : public IPv6Extension {
    * @struct ipv6_routing_header
    * A struct representing the fixed part of the IPv6 routing extension header
    */
-    struct ipv6_routing_header {
+    struct ipv6_routing_header
+    {
         /** Next header type */
         uint8_t nextHeader;
         /** The length of this header, in multiples of 8 octets, not including the
@@ -468,7 +493,8 @@ class IPv6RoutingHeader : public IPv6Extension {
    * packet data
    * @return A pointer to the @ref ipv6_routing_header
    */
-    ipv6_routing_header* getRoutingHeader() const {
+    ipv6_routing_header* getRoutingHeader() const
+    {
         return (ipv6_routing_header*)getDataPtr();
     }
 
@@ -503,7 +529,8 @@ class IPv6RoutingHeader : public IPv6Extension {
 
   private:
     IPv6RoutingHeader(IDataContainer* dataContainer, size_t offset)
-        : IPv6Extension(dataContainer, offset) {
+        : IPv6Extension(dataContainer, offset)
+    {
         m_ExtType = IPv6Routing;
     }
 };
@@ -513,7 +540,8 @@ class IPv6RoutingHeader : public IPv6Extension {
  * Represents IPv6 authentication header extension (used in IPSec protocol) and
  * allows easy access to all of its data
  */
-class IPv6AuthenticationHeader : public IPv6Extension {
+class IPv6AuthenticationHeader : public IPv6Extension
+{
     friend class IPv6Layer;
 
   public:
@@ -522,7 +550,8 @@ class IPv6AuthenticationHeader : public IPv6Extension {
    * A struct representing the fixed part of the IPv6 authentication header
    * extension
    */
-    struct ipv6_authentication_header {
+    struct ipv6_authentication_header
+    {
         /** Next header type */
         uint8_t nextHeader;
         /** The length of this Authentication Header in 4-octet units, minus 2. For
@@ -565,7 +594,8 @@ class IPv6AuthenticationHeader : public IPv6Extension {
    * actual packet data
    * @return A pointer to the @ref ipv6_authentication_header
    */
-    ipv6_authentication_header* getAuthHeader() const {
+    ipv6_authentication_header* getAuthHeader() const
+    {
         return (ipv6_authentication_header*)getDataPtr();
     }
 
@@ -589,13 +619,15 @@ class IPv6AuthenticationHeader : public IPv6Extension {
    * (ipv6_authentication_header#headerLen + 2) ]
    * @return The length of this extension
    */
-    size_t getExtensionLen() const {
+    size_t getExtensionLen() const
+    {
         return 4 * (getBaseHeader()->headerLen + 2);
     }
 
   private:
     IPv6AuthenticationHeader(IDataContainer* dataContainer, size_t offset)
-        : IPv6Extension(dataContainer, offset) {
+        : IPv6Extension(dataContainer, offset)
+    {
         m_ExtType = IPv6AuthenticationHdr;
     }
 };

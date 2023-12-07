@@ -196,7 +196,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class SSLLayer
@@ -206,7 +207,8 @@ namespace pcpp {
  * all record types and also contains static methods for identifying an creating
  * SSL/TLS record type layers
  */
-class SSLLayer : public Layer {
+class SSLLayer : public Layer
+{
   public:
     /**
    * A static method that checks whether the port is considered as SSL/TLS
@@ -267,7 +269,8 @@ class SSLLayer : public Layer {
    * data, so every change will change the actual packet data
    * @return A pointer to the @ref ssl_tls_record_layer
    */
-    ssl_tls_record_layer* getRecordLayer() const {
+    ssl_tls_record_layer* getRecordLayer() const
+    {
         return (ssl_tls_record_layer*)m_Data;
     }
 
@@ -300,7 +303,8 @@ class SSLLayer : public Layer {
 
   protected:
     SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = SSL;
     }
 
@@ -360,7 +364,8 @@ class SSLLayer : public Layer {
  version,length        |                           |
  @endverbatim
  */
-class SSLHandshakeLayer : public SSLLayer {
+class SSLHandshakeLayer : public SSLLayer
+{
   public:
     /**
    * C'tor for this class that creates the layer from an existing packet raw
@@ -429,7 +434,8 @@ class SSLHandshakeLayer : public SSLLayer {
  * Represents SSL/TLS change-cipher-spec layer. This layer has no additional
  * fields besides common fields described in SSLLayer
  */
-class SSLChangeCipherSpecLayer : public SSLLayer {
+class SSLChangeCipherSpecLayer : public SSLLayer
+{
   public:
     /**
    * C'tor for this class that creates the layer from an existing packet raw
@@ -461,7 +467,8 @@ class SSLChangeCipherSpecLayer : public SSLLayer {
  * Represents SSL/TLS alert layer. Inherits from SSLLayer and adds parsing
  * functionality such as retrieving the alert level and description
  */
-class SSLAlertLayer : public SSLLayer {
+class SSLAlertLayer : public SSLLayer
+{
   public:
     /**
    * C'tor for this class that creates the layer from an existing packet raw
@@ -505,7 +512,8 @@ class SSLAlertLayer : public SSLLayer {
  * encrypted data transferred from client to server and vice-versa after the
  * SSL/TLS handshake was completed successfully
  */
-class SSLApplicationDataLayer : public SSLLayer {
+class SSLApplicationDataLayer : public SSLLayer
+{
   public:
     /**
    * C'tor for this class that creates the layer from an existing packet raw
@@ -546,9 +554,11 @@ class SSLApplicationDataLayer : public SSLLayer {
 }; // class SSLApplicationDataLayer
 
 template <class THandshakeMessage>
-THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const {
+THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const
+{
     size_t vecSize = m_MessageList.size();
-    for (size_t i = 0; i < vecSize; i++) {
+    for (size_t i = 0; i < vecSize; i++)
+    {
         SSLHandshakeMessage* curElem =
             const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
         if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
@@ -561,12 +571,14 @@ THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const {
 
 template <class THandshakeMessage>
 THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(
-    const SSLHandshakeMessage* after) const {
+    const SSLHandshakeMessage* after) const
+{
     size_t vecSize = m_MessageList.size();
     size_t afterIndex;
 
     // find the index of "after"
-    for (afterIndex = 0; afterIndex < vecSize; afterIndex++) {
+    for (afterIndex = 0; afterIndex < vecSize; afterIndex++)
+    {
         SSLHandshakeMessage* curElem =
             const_cast<SSLHandshakeMessage*>(m_MessageList.at(afterIndex));
         if (curElem == after)
@@ -577,7 +589,8 @@ THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(
     if (afterIndex == vecSize)
         return NULL;
 
-    for (size_t i = afterIndex + 1; i < vecSize; i++) {
+    for (size_t i = afterIndex + 1; i < vecSize; i++)
+    {
         SSLHandshakeMessage* curElem =
             const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
         if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
@@ -590,11 +603,13 @@ THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(
 
 // implementation of inline methods
 
-bool SSLLayer::isSSLPort(uint16_t port) {
+bool SSLLayer::isSSLPort(uint16_t port)
+{
     if (port == 443) // HTTPS, this is likely case
         return true;
 
-    switch (port) {
+    switch (port)
+    {
     case 261: // NSIIOPS
     case 448: // DDM-SSL
     case 465: // SMTPS

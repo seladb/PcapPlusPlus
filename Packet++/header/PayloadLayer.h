@@ -9,13 +9,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class PayloadLayer
  * Represents a generic or unknown layer or a packet payload
  */
-class PayloadLayer : public Layer {
+class PayloadLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -25,7 +27,8 @@ class PayloadLayer : public Layer {
    * stored in
    */
     PayloadLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = GenericPayload;
     }
 

@@ -13,7 +13,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 // Visual studio has always been stupid about returning something useful for
 // __cplusplus Only recently was this fixed - and even then it requires a
@@ -39,7 +40,8 @@ class IDnsResource;
  * store different type of DNS RR data and implement these methods accordingly
  * (for example: IPv4/IPv6 addresses, MX data, hostnames, raw byte data etc.)
  */
-class IDnsResourceData {
+class IDnsResourceData
+{
   protected:
     // unimplemented private copy c'tor
     IDnsResourceData(const IDnsResourceData& other);
@@ -62,7 +64,8 @@ class IDnsResourceData {
    * @return True if this instance is of the requested type, false otherwise
    */
     template <class IDnsResourceDataType>
-    bool isTypeOf() const {
+    bool isTypeOf() const
+    {
         return dynamic_cast<const IDnsResourceDataType*>(this) != NULL;
     }
 
@@ -73,7 +76,8 @@ class IDnsResourceData {
    * NULL if this instance isn't of this type
    */
     template <class IDnsResourceDataType>
-    IDnsResourceDataType* castAs() {
+    IDnsResourceDataType* castAs()
+    {
         return dynamic_cast<IDnsResourceDataType*>(this);
     }
 
@@ -103,7 +107,8 @@ class IDnsResourceData {
  * A smart pointer class that holds pointers of type IDnsResourceData. This
  * object is used in DnsResource#getData()
  */
-class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData) {
+class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData)
+{
   public:
     /**
    * A c'tor to this class
@@ -121,7 +126,9 @@ class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData) {
 #if __cplusplus <= 199711L && \
     _MSC_VER < 1800 // Maybe this can be 1600 for VS2010
     DnsResourceDataPtr(const DnsResourceDataPtr& other)
-        : PCPP_SMART_PTR(IDnsResourceData)((DnsResourceDataPtr&)other) {}
+        : PCPP_SMART_PTR(IDnsResourceData)((DnsResourceDataPtr&)other)
+    {
+    }
 #endif
 
     /**
@@ -132,7 +139,8 @@ class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData) {
    * otherwise
    */
     template <class IDnsResourceDataType>
-    bool isTypeOf() const {
+    bool isTypeOf() const
+    {
         return get()->isTypeOf<IDnsResourceDataType>();
     }
 
@@ -144,7 +152,8 @@ class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData) {
    * NULL if it isn't of this type
    */
     template <class IDnsResourceDataType>
-    IDnsResourceDataType* castAs() {
+    IDnsResourceDataType* castAs()
+    {
         return get()->castAs<IDnsResourceDataType>();
     }
 };
@@ -154,7 +163,8 @@ class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData) {
  * A class that represents DNS RR string data, mainly used in DNS RRs that store
  * hostnames (like CNAME, DNAME, NS, etc.)
  */
-class StringDnsResourceData : public IDnsResourceData {
+class StringDnsResourceData : public IDnsResourceData
+{
   private:
     std::string m_Data;
 
@@ -188,7 +198,8 @@ class StringDnsResourceData : public IDnsResourceData {
    * @return True if the string data is the same in both objects, false
    * otherwise
    */
-    bool operator==(const StringDnsResourceData& other) const {
+    bool operator==(const StringDnsResourceData& other) const
+    {
         return m_Data == other.m_Data;
     }
 
@@ -204,7 +215,8 @@ class StringDnsResourceData : public IDnsResourceData {
  * A class that represents DNS RR IPv4 data, mainly used in DNS RRs of type
  * ::DNS_TYPE_A
  */
-class IPv4DnsResourceData : public IDnsResourceData {
+class IPv4DnsResourceData : public IDnsResourceData
+{
   private:
     IPv4Address m_Data;
 
@@ -238,7 +250,8 @@ class IPv4DnsResourceData : public IDnsResourceData {
    * @return True if IPv4 addresses are the same in both objects, false
    * otherwise
    */
-    bool operator==(const IPv4DnsResourceData& other) const {
+    bool operator==(const IPv4DnsResourceData& other) const
+    {
         return m_Data == other.m_Data;
     }
 
@@ -259,7 +272,8 @@ class IPv4DnsResourceData : public IDnsResourceData {
  * A class that represents DNS RR IPv6 data, mainly used in DNS RRs of type
  * ::DNS_TYPE_AAAA
  */
-class IPv6DnsResourceData : public IDnsResourceData {
+class IPv6DnsResourceData : public IDnsResourceData
+{
   private:
     IPv6Address m_Data;
 
@@ -293,7 +307,8 @@ class IPv6DnsResourceData : public IDnsResourceData {
    * @return True if IPv6 addresses are the same in both objects, false
    * otherwise
    */
-    bool operator==(const IPv6DnsResourceData& other) const {
+    bool operator==(const IPv6DnsResourceData& other) const
+    {
         return m_Data == other.m_Data;
     }
 
@@ -314,12 +329,14 @@ class IPv6DnsResourceData : public IDnsResourceData {
  * A class that represents DNS RR mail exchange (MX) data, used in DNS RRs of
  * type ::DNS_TYPE_MX
  */
-class MxDnsResourceData : public IDnsResourceData {
+class MxDnsResourceData : public IDnsResourceData
+{
   public:
     /**
    * A struct that represents mail exchange (MX) data
    */
-    struct MxData {
+    struct MxData
+    {
         /** Preference value */
         uint16_t preference;
         /** Mail exchange hostname */
@@ -399,7 +416,8 @@ class MxDnsResourceData : public IDnsResourceData {
  * A class that represents generic DNS RR data which cannot be represented in
  * any of the other classes. It stores the DNS RR data as byte array
  */
-class GenericDnsResourceData : public IDnsResourceData {
+class GenericDnsResourceData : public IDnsResourceData
+{
   private:
     uint8_t* m_Data;
     size_t m_DataLen;
@@ -426,7 +444,8 @@ class GenericDnsResourceData : public IDnsResourceData {
    */
     GenericDnsResourceData(const GenericDnsResourceData& other);
 
-    ~GenericDnsResourceData() {
+    ~GenericDnsResourceData()
+    {
         if (m_Data != NULL)
             delete[] m_Data;
     }

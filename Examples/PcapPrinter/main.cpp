@@ -32,7 +32,8 @@ static struct option PcapPrinterOptions[] = {
     {nullptr, 0, nullptr, 0}};
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -43,7 +44,8 @@ static struct option PcapPrinterOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -74,7 +76,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -82,7 +85,8 @@ void printAppVersion() {
     exit(0);
 }
 
-std::string linkLayerToString(pcpp::LinkLayerType linkLayer) {
+std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
+{
 
     if (linkLayer == pcpp::LINKTYPE_ETHERNET)
         return "Ethernet";
@@ -96,7 +100,8 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer) {
         return "Null/Loopback";
     else if (linkLayer == pcpp::LINKTYPE_RAW ||
              linkLayer == pcpp::LINKTYPE_DLT_RAW1 ||
-             linkLayer == pcpp::LINKTYPE_DLT_RAW2) {
+             linkLayer == pcpp::LINKTYPE_DLT_RAW2)
+    {
         std::ostringstream stream;
         stream << "Raw IP (" << linkLayer << ")";
         return stream.str();
@@ -110,26 +115,32 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer) {
 /**
  * print file summary based on the reader type
  */
-std::string printFileSummary(pcpp::IFileReaderDevice* reader) {
+std::string printFileSummary(pcpp::IFileReaderDevice* reader)
+{
     std::ostringstream stream;
     stream << "File summary:" << std::endl;
     stream << "~~~~~~~~~~~~~" << std::endl;
     stream << "   File name: " << reader->getFileName() << std::endl;
     stream << "   File size: " << reader->getFileSize() << " bytes" << std::endl;
 
-    if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr) {
+    if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+    {
         pcpp::PcapFileReaderDevice* pcapReader =
             dynamic_cast<pcpp::PcapFileReaderDevice*>(reader);
         pcpp::LinkLayerType linkLayer = pcapReader->getLinkLayerType();
         stream << "   Link layer type: " << linkLayerToString(linkLayer)
                << std::endl;
-    } else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != nullptr) {
+    }
+    else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != nullptr)
+    {
         pcpp::SnoopFileReaderDevice* snoopReader =
             dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader);
         pcpp::LinkLayerType linkLayer = snoopReader->getLinkLayerType();
         stream << "   Link layer type: " << linkLayerToString(linkLayer)
                << std::endl;
-    } else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr) {
+    }
+    else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
+    {
         pcpp::PcapNgFileReaderDevice* pcapNgReader =
             dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);
         if (pcapNgReader->getOS() != "")
@@ -157,12 +168,14 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader) {
  * print all requested packets in a pcap/snoop file
  */
 int printPcapPackets(pcpp::IFileReaderDevice* reader, std::ostream* out,
-                     int packetCount) {
+                     int packetCount)
+{
     // read packets from the file until end-of-file or until reached user
     // requested packet count
     int packetCountSoFar = 0;
     pcpp::RawPacket rawPacket;
-    while (reader->getNextPacket(rawPacket) && packetCountSoFar != packetCount) {
+    while (reader->getNextPacket(rawPacket) && packetCountSoFar != packetCount)
+    {
         // parse the raw packet into a parsed packet
         pcpp::Packet parsedPacket(&rawPacket);
 
@@ -180,14 +193,16 @@ int printPcapPackets(pcpp::IFileReaderDevice* reader, std::ostream* out,
  * print all requested packets in a pcap-ng file
  */
 int printPcapNgPackets(pcpp::PcapNgFileReaderDevice* reader, std::ostream* out,
-                       int packetCount) {
+                       int packetCount)
+{
     // read packets from the file until end-of-file or until reached user
     // requested packet count
     int packetCountSoFar = 0;
     pcpp::RawPacket rawPacket;
     std::string packetComment = "";
     while (reader->getNextPacket(rawPacket, packetComment) &&
-           packetCountSoFar != packetCount) {
+           packetCountSoFar != packetCount)
+    {
         // print packet comment if exists
         if (packetComment != "")
             (*out) << "Packet Comment: " << packetComment << std::endl;
@@ -210,7 +225,8 @@ int printPcapNgPackets(pcpp::PcapNgFileReaderDevice* reader, std::ostream* out,
 /**
  * main method of this utility
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::string inputPcapFileName = "";
@@ -226,8 +242,10 @@ int main(int argc, char* argv[]) {
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "o:c:i:svh", PcapPrinterOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'o':
@@ -255,11 +273,13 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (optind < argc) {
+    if (optind < argc)
+    {
         inputPcapFileName = argv[optind];
     }
 
-    if (inputPcapFileName == "") {
+    if (inputPcapFileName == "")
+    {
         EXIT_WITH_ERROR("Input file name was not given");
     }
 
@@ -268,7 +288,8 @@ int main(int argc, char* argv[]) {
     std::ofstream of;
     std::ostream* out = &std::cout;
 
-    if (outputPcapFileName != "") {
+    if (outputPcapFileName != "")
+    {
         of.open(outputPcapFileName.c_str());
         out = &of;
     }
@@ -277,14 +298,17 @@ int main(int argc, char* argv[]) {
     pcpp::IFileReaderDevice* reader =
         pcpp::IFileReaderDevice::getReader(inputPcapFileName);
 
-    if (!reader->open()) {
+    if (!reader->open())
+    {
         delete reader;
         EXIT_WITH_ERROR("Error opening input pcap file\n");
     }
 
     // set a filter if provided
-    if (filter != "") {
-        if (!reader->setFilter(filter)) {
+    if (filter != "")
+    {
+        if (!reader->setFilter(filter))
+        {
             delete reader;
             EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
         }
@@ -294,7 +318,8 @@ int main(int argc, char* argv[]) {
     (*out) << printFileSummary(reader);
 
     // if requested to print only file summary - exit
-    if (printOnlySummary) {
+    if (printOnlySummary)
+    {
         delete reader;
         exit(0);
     }
@@ -302,19 +327,23 @@ int main(int argc, char* argv[]) {
     int printedPacketCount = 0;
 
     // if the file is a pcap file
-    if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr) {
+    if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+    {
         // print all requested packets in the pcap file
         pcpp::PcapFileReaderDevice* pcapReader =
             dynamic_cast<pcpp::PcapFileReaderDevice*>(reader);
         printedPacketCount = printPcapPackets(pcapReader, out, packetCount);
-    } else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != nullptr) {
+    }
+    else if (dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader) != nullptr)
+    {
         // print all requested packets in the pcap file
         pcpp::SnoopFileReaderDevice* snoopReader =
             dynamic_cast<pcpp::SnoopFileReaderDevice*>(reader);
         printedPacketCount = printPcapPackets(snoopReader, out, packetCount);
     }
     // if the file is a pcap-ng file
-    else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr) {
+    else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
+    {
         // print all requested packets in the pcap-ng file
         pcpp::PcapNgFileReaderDevice* pcapNgReader =
             dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader);

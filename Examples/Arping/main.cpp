@@ -19,7 +19,8 @@
 #include <stdlib.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -44,7 +45,8 @@ static struct option ArpingOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout << std::endl
               << "Usage:" << std::endl
               << "------" << std::endl
@@ -76,7 +78,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -87,7 +90,8 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     const std::vector<pcpp::PcapLiveDevice*>& devList =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
@@ -95,7 +99,8 @@ void listInterfaces() {
               << "Network interfaces:" << std::endl;
     for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter =
              devList.begin();
-         iter != devList.end(); iter++) {
+         iter != devList.end(); iter++)
+    {
         std::cout << "    -> Name: '" << (*iter)->getName()
                   << "'   IP address: " << (*iter)->getIPv4Address().toString()
                   << std::endl;
@@ -107,7 +112,8 @@ void listInterfaces() {
  * The callback to be called when application is terminated by ctrl-c. Stops the
  * endless while loop
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     auto shouldStop = (bool*)cookie;
     *shouldStop = true;
 }
@@ -115,7 +121,8 @@ void onApplicationInterrupted(void* cookie) {
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     int maxTries = DEFAULT_MAX_TRIES;
@@ -130,8 +137,10 @@ int main(int argc, char* argv[]) {
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "i:s:S:T:c:hvlw:", ArpingOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'i':
@@ -185,12 +194,14 @@ int main(int argc, char* argv[]) {
     pcpp::PcapLiveDevice* dev = nullptr;
 
     // Search interface by name or IP
-    if (!ifaceNameOrIP.empty()) {
+    if (!ifaceNameOrIP.empty())
+    {
         dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(
             ifaceNameOrIP);
         if (dev == nullptr)
             EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
-    } else
+    }
+    else
         EXIT_WITH_ERROR("Interface name or IP empty");
 
     // open device in promiscuous mode
@@ -230,18 +241,21 @@ int main(int argc, char* argv[]) {
     pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(
         onApplicationInterrupted, &shouldStop);
 
-    while (i <= maxTries && !shouldStop) {
+    while (i <= maxTries && !shouldStop)
+    {
         // use the getMacAddress utility to send an ARP request and resolve the MAC
         // address
         pcpp::MacAddress result = pcpp::NetworkUtils::getInstance().getMacAddress(
             targetIP, dev, arpResponseTimeMS, sourceMac, sourceIP, timeoutSec);
 
         // failed fetching MAC address
-        if (result == pcpp::MacAddress::Zero) {
+        if (result == pcpp::MacAddress::Zero)
+        {
             // PcapPlusPlus logger saves the last internal error message
             std::cout << "Arping  index=" << i << " : "
                       << pcpp::Logger::getInstance().getLastError() << std::endl;
-        } else // Succeeded fetching MAC address
+        }
+        else // Succeeded fetching MAC address
         {
             // output ARP ping data
             std::cout.precision(3);

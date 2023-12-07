@@ -23,12 +23,14 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * An enum for HTTP version
  */
-enum HttpVersion {
+enum HttpVersion
+{
     /** HTTP/0.9 */
     ZeroDotNine,
     /** HTTP/1.0 */
@@ -80,7 +82,8 @@ class HttpResponseFirstLine;
  * Represents a general HTTP message. It's an abstract class and cannot be
  * instantiated. It's inherited by HttpRequestLayer and HttpResponseLayer
  */
-class HttpMessage : public TextBasedProtocolMessage {
+class HttpMessage : public TextBasedProtocolMessage
+{
   public:
     virtual ~HttpMessage() {}
 
@@ -109,7 +112,8 @@ class HttpMessage : public TextBasedProtocolMessage {
         : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
     HttpMessage() : TextBasedProtocolMessage() {}
     HttpMessage(const HttpMessage& other) : TextBasedProtocolMessage(other) {}
-    HttpMessage& operator=(const HttpMessage& other) {
+    HttpMessage& operator=(const HttpMessage& other)
+    {
         TextBasedProtocolMessage::operator=(other);
         return *this;
     }
@@ -137,14 +141,16 @@ class HttpMessage : public TextBasedProtocolMessage {
  * PcapPlusPlus can indicate that HTTP request header is complete or not(doesn't
  * end with "\r\n\r\n" or "\n\n") using HttpMessage#isHeaderComplete()
  */
-class HttpRequestLayer : public HttpMessage {
+class HttpRequestLayer : public HttpMessage
+{
     friend class HttpRequestFirstLine;
 
   public:
     /**
    * HTTP request methods
    */
-    enum HttpMethod {
+    enum HttpMethod
+    {
         /** GET */
         HttpGET,
         /** HEAD */
@@ -235,12 +241,14 @@ class HttpRequestLayer : public HttpMessage {
  * @struct HttpResponseStatusCode
  * @brief The enum wrapper class of HTTP response status codes
  */
-class HttpResponseStatusCode {
+class HttpResponseStatusCode
+{
   public:
     /**
    * @brief Define enum types and the corresponding int values
    */
-    enum Value : int {
+    enum Value : int
+    {
         /** 100 Continue*/
         Http100Continue = 100,
         /** 101 Switching Protocols*/
@@ -517,7 +525,8 @@ class HttpResponseStatusCode {
  * PcapPlusPlus can indicate that HTTP response header is complete or not
  * (doesn't end with "\r\n\r\n" or "\n\n") using HttpMessage#isHeaderComplete()
  */
-class HttpResponseLayer : public HttpMessage {
+class HttpResponseLayer : public HttpMessage
+{
     friend class HttpResponseFirstLine;
 
   public:
@@ -640,7 +649,8 @@ class HttpResponseLayer : public HttpMessage {
  * need in most cases to shorten or extend the data in HttpRequestLayer. These
  * methods will return a false value if this action failed
  */
-class HttpRequestFirstLine {
+class HttpRequestFirstLine
+{
     friend class HttpRequestLayer;
 
   public:
@@ -714,7 +724,8 @@ class HttpRequestFirstLine {
    * construct with HTTP method of HttpRequestLayer#HttpMethodUnknown or with
    * undefined HTTP version ::HttpVersionUnknown
    */
-    class HttpRequestFirstLineException : public std::exception {
+    class HttpRequestFirstLineException : public std::exception
+    {
       public:
         ~HttpRequestFirstLineException() throw() {}
         void setMessage(const std::string& message) { m_Message = message; }
@@ -758,7 +769,8 @@ class HttpRequestFirstLine {
  * cases to shorten or extend the data in HttpResponseLayer. These methods will
  * return a false value if this action failed
  */
-class HttpResponseFirstLine {
+class HttpResponseFirstLine
+{
     friend class HttpResponseLayer;
 
   public:
@@ -852,7 +864,8 @@ class HttpResponseFirstLine {
    * construct with a HTTP status code that is not in HttpResponseStatusCode or
    * with undefined HTTP version ::HttpVersionUnknown
    */
-    class HttpResponseFirstLineException : public std::exception {
+    class HttpResponseFirstLineException : public std::exception
+    {
       public:
         ~HttpResponseFirstLineException() throw() {}
         void setMessage(const std::string& message) { m_Message = message; }

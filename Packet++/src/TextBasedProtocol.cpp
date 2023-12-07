@@ -6,10 +6,12 @@
 #include <string.h>
 #include <utility>
 
-namespace pcpp {
+namespace pcpp
+{
 
 // this implementation of strnlen is required since mingw doesn't have strnlen
-size_t tbp_my_own_strnlen(const char* s, size_t maxlen) {
+size_t tbp_my_own_strnlen(const char* s, size_t maxlen)
+{
     if (s == nullptr || maxlen == 0)
         return 0;
 
@@ -30,15 +32,18 @@ TextBasedProtocolMessage::TextBasedProtocolMessage(uint8_t* data,
 
 TextBasedProtocolMessage::TextBasedProtocolMessage(
     const TextBasedProtocolMessage& other)
-    : Layer(other) {
+    : Layer(other)
+{
     copyDataFrom(other);
 }
 
 TextBasedProtocolMessage&
-TextBasedProtocolMessage::operator=(const TextBasedProtocolMessage& other) {
+TextBasedProtocolMessage::operator=(const TextBasedProtocolMessage& other)
+{
     Layer::operator=(other);
     HeaderField* curField = m_FieldList;
-    while (curField != nullptr) {
+    while (curField != nullptr)
+    {
         HeaderField* temp = curField;
         curField = curField->getNextField();
         delete temp;
@@ -50,15 +55,18 @@ TextBasedProtocolMessage::operator=(const TextBasedProtocolMessage& other) {
 }
 
 void TextBasedProtocolMessage::copyDataFrom(
-    const TextBasedProtocolMessage& other) {
+    const TextBasedProtocolMessage& other)
+{
     // copy field list
-    if (other.m_FieldList != nullptr) {
+    if (other.m_FieldList != nullptr)
+    {
         m_FieldList = new HeaderField(*(other.m_FieldList));
         HeaderField* curField = m_FieldList;
         curField->attachToTextBasedProtocolMessage(
             this, other.m_FieldList->m_NameOffsetInMessage);
         HeaderField* curOtherField = other.m_FieldList;
-        while (curOtherField->getNextField() != nullptr) {
+        while (curOtherField->getNextField() != nullptr)
+        {
             HeaderField* newField = new HeaderField(*(curOtherField->getNextField()));
             newField->attachToTextBasedProtocolMessage(
                 this, curOtherField->getNextField()->m_NameOffsetInMessage);
@@ -68,7 +76,9 @@ void TextBasedProtocolMessage::copyDataFrom(
         }
 
         m_LastField = curField;
-    } else {
+    }
+    else
+    {
         m_FieldList = nullptr;
         m_LastField = nullptr;
     }
@@ -77,13 +87,15 @@ void TextBasedProtocolMessage::copyDataFrom(
 
     // copy map
     for (HeaderField* field = m_FieldList; field != nullptr;
-         field = field->getNextField()) {
+         field = field->getNextField())
+    {
         m_FieldNameToFieldMap.insert(
             std::pair<std::string, HeaderField*>(field->getFieldName(), field));
     }
 }
 
-void TextBasedProtocolMessage::parseFields() {
+void TextBasedProtocolMessage::parseFields()
+{
     char nameValueSeparator = getHeaderFieldNameValueSeparator();
     bool spacesAllowedBetweenNameAndValue =
         spacesAllowedBetweenHeaderFieldNameAndValue();
@@ -116,11 +128,13 @@ void TextBasedProtocolMessage::parseFields() {
     // a.) \r\n\r\n or \n\n marking the end of the header
     // b.) the end of the packet
     while (!curField->isEndOfHeader() &&
-           curOffset + curField->getFieldSize() < m_DataLen) {
+           curOffset + curField->getFieldSize() < m_DataLen)
+    {
         curOffset += curField->getFieldSize();
         HeaderField* newField = new HeaderField(this, curOffset, nameValueSeparator,
                                                 spacesAllowedBetweenNameAndValue);
-        if (newField->getFieldSize() > 0) {
+        if (newField->getFieldSize() > 0)
+        {
             PCPP_LOG_DEBUG("Added new field: name='"
                            << newField->getFieldName() << "'; offset in packet="
                            << newField->m_NameOffsetInMessage
@@ -133,7 +147,9 @@ void TextBasedProtocolMessage::parseFields() {
                            ::tolower);
             m_FieldNameToFieldMap.insert(
                 std::pair<std::string, HeaderField*>(fieldName, newField));
-        } else {
+        }
+        else
+        {
             delete newField;
             break;
         }
@@ -142,8 +158,10 @@ void TextBasedProtocolMessage::parseFields() {
     m_LastField = curField;
 }
 
-TextBasedProtocolMessage::~TextBasedProtocolMessage() {
-    while (m_FieldList != nullptr) {
+TextBasedProtocolMessage::~TextBasedProtocolMessage()
+{
+    while (m_FieldList != nullptr)
+    {
         HeaderField* temp = m_FieldList;
         m_FieldList = m_FieldList->getNextField();
         delete temp;
@@ -151,18 +169,21 @@ TextBasedProtocolMessage::~TextBasedProtocolMessage() {
 }
 
 HeaderField* TextBasedProtocolMessage::addField(const std::string& fieldName,
-                                                const std::string& fieldValue) {
+                                                const std::string& fieldValue)
+{
     HeaderField newField(fieldName, fieldValue,
                          getHeaderFieldNameValueSeparator(),
                          spacesAllowedBetweenHeaderFieldNameAndValue());
     return addField(newField);
 }
 
-HeaderField* TextBasedProtocolMessage::addField(const HeaderField& newField) {
+HeaderField* TextBasedProtocolMessage::addField(const HeaderField& newField)
+{
     return insertField(m_LastField, newField);
 }
 
-HeaderField* TextBasedProtocolMessage::addEndOfHeader() {
+HeaderField* TextBasedProtocolMessage::addEndOfHeader()
+{
     HeaderField endOfHeaderField(PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER, "", '\0',
                                  false);
     return insertField(m_LastField, endOfHeaderField);
@@ -171,7 +192,8 @@ HeaderField* TextBasedProtocolMessage::addEndOfHeader() {
 HeaderField*
 TextBasedProtocolMessage::insertField(HeaderField* prevField,
                                       const std::string& fieldName,
-                                      const std::string& fieldValue) {
+                                      const std::string& fieldValue)
+{
     HeaderField newField(fieldName, fieldValue,
                          getHeaderFieldNameValueSeparator(),
                          spacesAllowedBetweenHeaderFieldNameAndValue());
@@ -181,10 +203,14 @@ TextBasedProtocolMessage::insertField(HeaderField* prevField,
 HeaderField*
 TextBasedProtocolMessage::insertField(std::string prevFieldName,
                                       const std::string& fieldName,
-                                      const std::string& fieldValue) {
-    if (prevFieldName == "") {
+                                      const std::string& fieldValue)
+{
+    if (prevFieldName == "")
+    {
         return insertField(nullptr, fieldName, fieldValue);
-    } else {
+    }
+    else
+    {
         HeaderField* prevField = getFieldByName(prevFieldName);
         if (prevField == nullptr)
             return nullptr;
@@ -195,14 +221,17 @@ TextBasedProtocolMessage::insertField(std::string prevFieldName,
 
 HeaderField*
 TextBasedProtocolMessage::insertField(HeaderField* prevField,
-                                      const HeaderField& newField) {
-    if (newField.m_TextBasedProtocolMessage != nullptr) {
+                                      const HeaderField& newField)
+{
+    if (newField.m_TextBasedProtocolMessage != nullptr)
+    {
         PCPP_LOG_ERROR("This field is already associated with another message");
         return nullptr;
     }
 
     if (prevField != nullptr &&
-        prevField->getFieldName() == PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER) {
+        prevField->getFieldName() == PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER)
+    {
         PCPP_LOG_ERROR("Cannot add a field after end of header");
         return nullptr;
     }
@@ -216,7 +245,8 @@ TextBasedProtocolMessage::insertField(HeaderField* prevField,
 
     // extend layer to make room for the new field. Field will be added just
     // before the last field
-    if (!extendLayer(newFieldOffset, newFieldToAdd->getFieldSize())) {
+    if (!extendLayer(newFieldOffset, newFieldToAdd->getFieldSize()))
+    {
         PCPP_LOG_ERROR("Cannot extend layer to insert the header");
         delete newFieldToAdd;
         return nullptr;
@@ -237,10 +267,13 @@ TextBasedProtocolMessage::insertField(HeaderField* prevField,
     newFieldToAdd->attachToTextBasedProtocolMessage(this, newFieldOffset);
 
     // insert field into fields link list
-    if (prevField == nullptr) {
+    if (prevField == nullptr)
+    {
         newFieldToAdd->setNextField(m_FieldList);
         m_FieldList = newFieldToAdd;
-    } else {
+    }
+    else
+    {
         newFieldToAdd->setNextField(prevField->getNextField());
         prevField->setNextField(newFieldToAdd);
     }
@@ -259,7 +292,8 @@ TextBasedProtocolMessage::insertField(HeaderField* prevField,
     return newFieldToAdd;
 }
 
-bool TextBasedProtocolMessage::removeField(std::string fieldName, int index) {
+bool TextBasedProtocolMessage::removeField(std::string fieldName, int index)
+{
     std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(),
                    ::tolower);
 
@@ -271,8 +305,10 @@ bool TextBasedProtocolMessage::removeField(std::string fieldName, int index) {
     range = m_FieldNameToFieldMap.equal_range(fieldName);
     int i = 0;
     for (std::multimap<std::string, HeaderField*>::iterator iter = range.first;
-         iter != range.second; ++iter) {
-        if (i == index) {
+         iter != range.second; ++iter)
+    {
+        if (i == index)
+        {
             fieldToRemove = iter->second;
             break;
         }
@@ -282,17 +318,20 @@ bool TextBasedProtocolMessage::removeField(std::string fieldName, int index) {
 
     if (fieldToRemove != nullptr)
         return removeField(fieldToRemove);
-    else {
+    else
+    {
         PCPP_LOG_ERROR("Cannot find field '" << fieldName << "'");
         return false;
     }
 }
 
-bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove) {
+bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove)
+{
     if (fieldToRemove == nullptr)
         return true;
 
-    if (fieldToRemove->m_TextBasedProtocolMessage != this) {
+    if (fieldToRemove->m_TextBasedProtocolMessage != this)
+    {
         PCPP_LOG_ERROR("Field isn't associated with this message");
         return false;
     }
@@ -301,7 +340,8 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove) {
 
     // shorten layer and delete this field
     if (!shortenLayer(fieldToRemove->m_NameOffsetInMessage,
-                      fieldToRemove->getFieldSize())) {
+                      fieldToRemove->getFieldSize()))
+    {
         PCPP_LOG_ERROR("Cannot shorten layer");
         return false;
     }
@@ -322,7 +362,8 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove) {
     // update fields link list
     if (fieldToRemove == m_FieldList)
         m_FieldList = m_FieldList->getNextField();
-    else {
+    else
+    {
         curField = m_FieldList;
         while (curField->getNextField() != fieldToRemove)
             curField = curField->getNextField();
@@ -331,10 +372,12 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove) {
     }
 
     // re-calculate m_LastField if needed
-    if (fieldToRemove == m_LastField) {
+    if (fieldToRemove == m_LastField)
+    {
         if (m_FieldList == nullptr)
             m_LastField = nullptr;
-        else {
+        else
+        {
             curField = m_FieldList;
             while (curField->getNextField() != nullptr)
                 curField = curField->getNextField();
@@ -350,8 +393,10 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove) {
         range;
     range = m_FieldNameToFieldMap.equal_range(fieldName);
     for (std::multimap<std::string, HeaderField*>::iterator iter = range.first;
-         iter != range.second; ++iter) {
-        if (iter->second == fieldToRemove) {
+         iter != range.second; ++iter)
+    {
+        if (iter->second == fieldToRemove)
+        {
             m_FieldNameToFieldMap.erase(iter);
             break;
         }
@@ -363,7 +408,8 @@ bool TextBasedProtocolMessage::removeField(HeaderField* fieldToRemove) {
     return true;
 }
 
-bool TextBasedProtocolMessage::isHeaderComplete() const {
+bool TextBasedProtocolMessage::isHeaderComplete() const
+{
     if (m_LastField == nullptr)
         return false;
 
@@ -372,8 +418,10 @@ bool TextBasedProtocolMessage::isHeaderComplete() const {
 }
 
 void TextBasedProtocolMessage::shiftFieldsOffset(HeaderField* fromField,
-                                                 int numOfBytesToShift) {
-    while (fromField != nullptr) {
+                                                 int numOfBytesToShift)
+{
+    while (fromField != nullptr)
+    {
         fromField->m_NameOffsetInMessage += numOfBytesToShift;
         if (fromField->m_ValueOffsetInMessage != -1)
             fromField->m_ValueOffsetInMessage += numOfBytesToShift;
@@ -382,7 +430,8 @@ void TextBasedProtocolMessage::shiftFieldsOffset(HeaderField* fromField,
 }
 
 HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName,
-                                                      int index) const {
+                                                      int index) const
+{
     std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(),
                    ::tolower);
 
@@ -393,7 +442,8 @@ HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName,
     int i = 0;
     for (std::multimap<std::string, HeaderField*>::const_iterator iter =
              range.first;
-         iter != range.second; ++iter) {
+         iter != range.second; ++iter)
+    {
         if (i == index)
             return iter->second;
 
@@ -403,11 +453,13 @@ HeaderField* TextBasedProtocolMessage::getFieldByName(std::string fieldName,
     return nullptr;
 }
 
-int TextBasedProtocolMessage::getFieldCount() const {
+int TextBasedProtocolMessage::getFieldCount() const
+{
     int result = 0;
 
     HeaderField* curField = getFirstField();
-    while (curField != nullptr) {
+    while (curField != nullptr)
+    {
         if (!curField->isEndOfHeader())
             result++;
         curField = curField->getNextField();
@@ -416,7 +468,8 @@ int TextBasedProtocolMessage::getFieldCount() const {
     return result;
 }
 
-void TextBasedProtocolMessage::parseNextLayer() {
+void TextBasedProtocolMessage::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen <= headerLen)
         return;
@@ -425,11 +478,13 @@ void TextBasedProtocolMessage::parseNextLayer() {
                                    this, m_Packet);
 }
 
-size_t TextBasedProtocolMessage::getHeaderLen() const {
+size_t TextBasedProtocolMessage::getHeaderLen() const
+{
     return m_LastField->m_NameOffsetInMessage + m_LastField->m_FieldSize;
 }
 
-void TextBasedProtocolMessage::computeCalculateFields() {
+void TextBasedProtocolMessage::computeCalculateFields()
+{
     // nothing to do for now
 }
 
@@ -442,7 +497,8 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
       m_TextBasedProtocolMessage(TextBasedProtocolMessage),
       m_NameOffsetInMessage(offsetInMessage), m_NextField(nullptr),
       m_NameValueSeparator(nameValueSeparator),
-      m_SpacesAllowedBetweenNameAndValue(spacesAllowedBetweenNameAndValue) {
+      m_SpacesAllowedBetweenNameAndValue(spacesAllowedBetweenNameAndValue)
+{
     char* fieldData =
         (char*)(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
     char* fieldEndPtr = (char*)memchr(fieldData, '\n',
@@ -455,14 +511,16 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
     else
         m_FieldSize = fieldEndPtr - fieldData + 1;
 
-    if (m_FieldSize == 0 || (*fieldData) == '\r' || (*fieldData) == '\n') {
+    if (m_FieldSize == 0 || (*fieldData) == '\r' || (*fieldData) == '\n')
+    {
         m_FieldNameSize = -1;
         m_ValueOffsetInMessage = -1;
         m_FieldValueSize = -1;
         m_FieldNameSize = -1;
         m_IsEndOfHeaderField = true;
         return;
-    } else
+    }
+    else
         m_IsEndOfHeaderField = false;
 
     char* fieldValuePtr = (char*)memchr(fieldData, nameValueSeparator,
@@ -471,11 +529,14 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
     // could not find the position of the separator, meaning field value position
     // is unknown
     if (fieldValuePtr == nullptr ||
-        (fieldEndPtr != nullptr && fieldValuePtr >= fieldEndPtr)) {
+        (fieldEndPtr != nullptr && fieldValuePtr >= fieldEndPtr))
+    {
         m_ValueOffsetInMessage = -1;
         m_FieldValueSize = -1;
         m_FieldNameSize = m_FieldSize;
-    } else {
+    }
+    else
+    {
         m_FieldNameSize = fieldValuePtr - fieldData;
         // Header field looks like this: <field_name>[separator]<zero or more
         // spaces><field_Value> So fieldValuePtr give us the position of the
@@ -485,19 +546,22 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
         // reached the end of the packet and value start offset wasn't found
         if ((size_t)(fieldValuePtr -
                      (char*)(m_TextBasedProtocolMessage->m_Data)) >=
-            m_TextBasedProtocolMessage->getDataLen()) {
+            m_TextBasedProtocolMessage->getDataLen())
+        {
             m_ValueOffsetInMessage = -1;
             m_FieldValueSize = -1;
             return;
         }
 
-        if (spacesAllowedBetweenNameAndValue) {
+        if (spacesAllowedBetweenNameAndValue)
+        {
             // advance fieldValuePtr 1 byte forward while didn't get to end of packet
             // and fieldValuePtr points to a space char
             while (
                 (size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) <
                     m_TextBasedProtocolMessage->getDataLen() &&
-                (*fieldValuePtr) == ' ') {
+                (*fieldValuePtr) == ' ')
+            {
                 fieldValuePtr++;
             }
         }
@@ -505,10 +569,13 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
         // reached the end of the packet and value start offset wasn't found
         if ((size_t)(fieldValuePtr -
                      (char*)(m_TextBasedProtocolMessage->m_Data)) >=
-            m_TextBasedProtocolMessage->getDataLen()) {
+            m_TextBasedProtocolMessage->getDataLen())
+        {
             m_ValueOffsetInMessage = -1;
             m_FieldValueSize = -1;
-        } else {
+        }
+        else
+        {
             m_ValueOffsetInMessage =
                 fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data;
             // couldn't find the end of the field, so assuming the field value length
@@ -517,7 +584,8 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
                 m_FieldValueSize = (char*)(m_TextBasedProtocolMessage->m_Data +
                                            m_TextBasedProtocolMessage->getDataLen()) -
                                    fieldValuePtr;
-            else {
+            else
+            {
                 m_FieldValueSize = fieldEndPtr - fieldValuePtr;
                 // if field ends with \r\n, decrease the value length by 1
                 if ((*(--fieldEndPtr)) == '\r')
@@ -529,14 +597,16 @@ HeaderField::HeaderField(TextBasedProtocolMessage* TextBasedProtocolMessage,
 
 HeaderField::HeaderField(const std::string& name, const std::string& value,
                          char nameValueSeparator,
-                         bool spacesAllowedBetweenNameAndValue) {
+                         bool spacesAllowedBetweenNameAndValue)
+{
     m_NameValueSeparator = nameValueSeparator;
     m_SpacesAllowedBetweenNameAndValue = spacesAllowedBetweenNameAndValue;
     initNewField(std::move(name), std::move(value));
 }
 
 void HeaderField::initNewField(const std::string& name,
-                               const std::string& value) {
+                               const std::string& value)
+{
     m_TextBasedProtocolMessage = nullptr;
     m_NameOffsetInMessage = 0;
     m_NextField = nullptr;
@@ -579,19 +649,22 @@ void HeaderField::initNewField(const std::string& name,
         m_IsEndOfHeaderField = true;
 }
 
-HeaderField::~HeaderField() {
+HeaderField::~HeaderField()
+{
     if (m_NewFieldData != nullptr)
         delete[] m_NewFieldData;
 }
 
 HeaderField::HeaderField(const HeaderField& other)
-    : m_NameValueSeparator('\0'), m_SpacesAllowedBetweenNameAndValue(false) {
+    : m_NameValueSeparator('\0'), m_SpacesAllowedBetweenNameAndValue(false)
+{
     m_NameValueSeparator = other.m_NameValueSeparator;
     m_SpacesAllowedBetweenNameAndValue = other.m_SpacesAllowedBetweenNameAndValue;
     initNewField(other.getFieldName(), other.getFieldValue());
 }
 
-HeaderField& HeaderField::operator=(const HeaderField& other) {
+HeaderField& HeaderField::operator=(const HeaderField& other)
+{
     m_NameValueSeparator = other.m_NameValueSeparator;
     m_SpacesAllowedBetweenNameAndValue = other.m_SpacesAllowedBetweenNameAndValue;
     if (m_NewFieldData != nullptr)
@@ -601,20 +674,23 @@ HeaderField& HeaderField::operator=(const HeaderField& other) {
     return (*this);
 }
 
-char* HeaderField::getData() const {
+char* HeaderField::getData() const
+{
     if (m_TextBasedProtocolMessage == nullptr)
         return (char*)m_NewFieldData;
     else
         return (char*)(m_TextBasedProtocolMessage->m_Data);
 }
 
-void HeaderField::setNextField(HeaderField* nextField) {
+void HeaderField::setNextField(HeaderField* nextField)
+{
     m_NextField = nextField;
 }
 
 HeaderField* HeaderField::getNextField() const { return m_NextField; }
 
-std::string HeaderField::getFieldName() const {
+std::string HeaderField::getFieldName() const
+{
     std::string result;
 
     if (m_FieldNameSize != (size_t)-1)
@@ -625,7 +701,8 @@ std::string HeaderField::getFieldName() const {
     return result;
 }
 
-std::string HeaderField::getFieldValue() const {
+std::string HeaderField::getFieldValue() const
+{
     std::string result;
     if (m_ValueOffsetInMessage != -1)
         result.assign((const char*)(((HeaderField*)this)->getData() +
@@ -634,9 +711,11 @@ std::string HeaderField::getFieldValue() const {
     return result;
 }
 
-bool HeaderField::setFieldValue(const std::string& newValue) {
+bool HeaderField::setFieldValue(const std::string& newValue)
+{
     // Field isn't linked with any message yet
-    if (m_TextBasedProtocolMessage == nullptr) {
+    if (m_TextBasedProtocolMessage == nullptr)
+    {
         std::string name = getFieldName();
         delete[] m_NewFieldData;
         initNewField(name, newValue);
@@ -646,17 +725,21 @@ bool HeaderField::setFieldValue(const std::string& newValue) {
     std::string curValue = getFieldValue();
     int lengthDifference = newValue.length() - curValue.length();
     // new value is longer than current value
-    if (lengthDifference > 0) {
+    if (lengthDifference > 0)
+    {
         if (!m_TextBasedProtocolMessage->extendLayer(m_ValueOffsetInMessage,
-                                                     lengthDifference)) {
+                                                     lengthDifference))
+        {
             PCPP_LOG_ERROR("Could not extend layer");
             return false;
         }
     }
     // new value is shorter than current value
-    else if (lengthDifference < 0) {
+    else if (lengthDifference < 0)
+    {
         if (!m_TextBasedProtocolMessage->shortenLayer(m_ValueOffsetInMessage,
-                                                      0 - lengthDifference)) {
+                                                      0 - lengthDifference))
+        {
             PCPP_LOG_ERROR("Could not shorten layer");
             return false;
         }
@@ -678,14 +761,17 @@ bool HeaderField::setFieldValue(const std::string& newValue) {
 }
 
 void HeaderField::attachToTextBasedProtocolMessage(
-    TextBasedProtocolMessage* message, int fieldOffsetInMessage) {
+    TextBasedProtocolMessage* message, int fieldOffsetInMessage)
+{
     if (m_TextBasedProtocolMessage != nullptr &&
-        m_TextBasedProtocolMessage != message) {
+        m_TextBasedProtocolMessage != message)
+    {
         PCPP_LOG_ERROR("Header field already associated with another message");
         return;
     }
 
-    if (m_NewFieldData == nullptr) {
+    if (m_NewFieldData == nullptr)
+    {
         PCPP_LOG_ERROR("Header field doesn't have new field data");
         return;
     }

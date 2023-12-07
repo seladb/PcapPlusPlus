@@ -35,7 +35,8 @@
 #include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -57,7 +58,8 @@ static struct option DnsSpoofingOptions[] = {
  * A struct that holds all counters that are collected during application
  * runtime
  */
-struct DnsSpoofStats {
+struct DnsSpoofStats
+{
     int numOfSpoofedDnsRequests;
     std::map<std::string, int> spoofedHosts;
 
@@ -67,7 +69,8 @@ struct DnsSpoofStats {
 /**
  * A struct that holds all arguments passed to handleDnsRequest()
  */
-struct DnsSpoofingArgs {
+struct DnsSpoofingArgs
+{
     pcpp::IPAddress dnsServer;
     std::vector<std::string> dnsHostsToSpoof;
     DnsSpoofStats stats;
@@ -79,7 +82,8 @@ struct DnsSpoofingArgs {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout << std::endl
               << "Usage:" << std::endl
               << "------" << std::endl
@@ -132,7 +136,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -143,7 +148,8 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     const std::vector<pcpp::PcapLiveDevice*>& devList =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
@@ -151,7 +157,8 @@ void listInterfaces() {
               << "Network interfaces:" << std::endl;
     for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter =
              devList.begin();
-         iter != devList.end(); iter++) {
+         iter != devList.end(); iter++)
+    {
         std::cout << "    -> Name: '" << (*iter)->getName()
                   << "'   IP address: " << (*iter)->getIPv4Address().toString()
                   << std::endl;
@@ -165,7 +172,8 @@ void listInterfaces() {
  * sends it back to the network
  */
 void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
-                      void* cookie) {
+                      void* cookie)
+{
     DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
 
     // create a parsed packet from the raw packet
@@ -198,15 +206,18 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
         return;
 
     // empty dnsHostsToSpoof means spoofing all hosts
-    if (!args->dnsHostsToSpoof.empty()) {
+    if (!args->dnsHostsToSpoof.empty())
+    {
         bool hostMatch = false;
 
         // go over all hosts in dnsHostsToSpoof list and see if current query
         // matches one of them
         for (std::vector<std::string>::iterator iter =
                  args->dnsHostsToSpoof.begin();
-             iter != args->dnsHostsToSpoof.end(); iter++) {
-            if (dnsLayer->getQuery(*iter, false) != nullptr) {
+             iter != args->dnsHostsToSpoof.end(); iter++)
+        {
+            if (dnsLayer->getQuery(*iter, false) != nullptr)
+            {
                 hostMatch = true;
                 break;
             }
@@ -227,11 +238,14 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
     pcpp::IPAddress srcIP = ipLayer->getSrcIPAddress();
     pcpp::IPv4Layer* ip4Layer = dynamic_cast<pcpp::IPv4Layer*>(ipLayer);
     pcpp::IPv6Layer* ip6Layer = dynamic_cast<pcpp::IPv6Layer*>(ipLayer);
-    if (ip4Layer != nullptr) {
+    if (ip4Layer != nullptr)
+    {
         ip4Layer->setSrcIPv4Address(ip4Layer->getDstIPv4Address());
         ip4Layer->setDstIPv4Address(srcIP.getIPv4());
         ip4Layer->getIPv4Header()->ipId = 0;
-    } else {
+    }
+    else
+    {
         ip6Layer->setSrcIPv6Address(ip6Layer->getDstIPv6Address());
         ip6Layer->setDstIPv6Address(srcIP.getIPv6());
     }
@@ -243,12 +257,15 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
 
     // add DNS response
     dnsLayer->getDnsHeader()->queryOrResponse = 1;
-    if (args->dnsServer.isIPv4()) {
+    if (args->dnsServer.isIPv4())
+    {
         pcpp::IPv4DnsResourceData dnsServer(args->dnsServer.getIPv4());
         if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_A,
                                  pcpp::DNS_CLASS_IN, 1, &dnsServer))
             return;
-    } else {
+    }
+    else
+    {
         pcpp::IPv6DnsResourceData dnsServer(args->dnsServer.getIPv6());
         if (!dnsLayer->addAnswer(dnsQuery->getName(), pcpp::DNS_TYPE_AAAA,
                                  pcpp::DNS_CLASS_IN, 1, &dnsServer))
@@ -270,8 +287,10 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
  * summary of spoofed hosts
  */
 bool stringCountComparer(const std::pair<std::string, int>& first,
-                         const std::pair<std::string, int>& second) {
-    if (first.second == second.second) {
+                         const std::pair<std::string, int>& second)
+{
+    if (first.second == second.second)
+    {
         return first.first > second.first;
     }
     return first.second > second.second;
@@ -281,12 +300,16 @@ bool stringCountComparer(const std::pair<std::string, int>& first,
  * A callback for application interrupted event (ctrl+c): print DNS spoofing
  * summary
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     DnsSpoofingArgs* args = (DnsSpoofingArgs*)cookie;
-    if (args->stats.spoofedHosts.size() == 0) {
+    if (args->stats.spoofedHosts.size() == 0)
+    {
         std::cout << std::endl
                   << "Application closing. No hosts were spoofed." << std::endl;
-    } else {
+    }
+    else
+    {
         std::cout << std::endl
                   << "Summary of spoofed hosts:" << std::endl
                   << "-------------------------" << std::endl
@@ -316,7 +339,8 @@ void onApplicationInterrupted(void* cookie) {
         // go over all items (hosts + count) in the sorted vector and print them
         for (std::vector<std::pair<std::string, int>>::iterator iter =
                  map2vec.begin();
-             iter != map2vec.end(); iter++) {
+             iter != map2vec.end(); iter++)
+        {
             std::stringstream values;
             values << iter->first << "|" << iter->second;
             printer.printRow(values.str(), '|');
@@ -331,17 +355,21 @@ void onApplicationInterrupted(void* cookie) {
  */
 void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer,
                    const pcpp::IPAddress& clientIP,
-                   const std::vector<std::string>& dnsHostsToSpoof) {
+                   const std::vector<std::string>& dnsHostsToSpoof)
+{
     // open device
     if (!dev->open())
         EXIT_WITH_ERROR("Cannot open capture device");
 
     // set a filter to capture only DNS requests and client IP if provided
     pcpp::PortFilter dnsPortFilter(53, pcpp::DST);
-    if (!clientIP.isValid()) {
+    if (!clientIP.isValid())
+    {
         if (!dev->setFilter(dnsPortFilter))
             EXIT_WITH_ERROR("Cannot set DNS filter for device");
-    } else {
+    }
+    else
+    {
         pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
         std::vector<pcpp::GeneralFilter*> filterForAnd;
         filterForAnd.push_back(&dnsPortFilter);
@@ -366,7 +394,8 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer,
         onApplicationInterrupted, &args);
 
     // run an endless loop until ctrl+c is pressed
-    while (!args.shouldStop) {
+    while (!args.shouldStop)
+    {
         std::cout << "Spoofed " << args.stats.numOfSpoofedDnsRequests
                   << " DNS requests so far" << std::endl;
         pcpp::multiPlatformSleep(5);
@@ -376,7 +405,8 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer,
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     int optionIndex = 0;
@@ -392,37 +422,47 @@ int main(int argc, char* argv[]) {
     std::vector<std::string> hostList;
 
     while ((opt = getopt_long(argc, argv, "i:d:c:o:hvl", DnsSpoofingOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
-        case 0: {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
+        case 0:
+        {
             break;
         }
-        case 'h': {
+        case 'h':
+        {
             printUsage();
             exit(0);
         }
-        case 'v': {
+        case 'v':
+        {
             printAppVersion();
             break;
         }
-        case 'l': {
+        case 'l':
+        {
             listInterfaces();
             exit(0);
         }
-        case 'i': {
+        case 'i':
+        {
             interfaceNameOrIP = optarg;
             break;
         }
-        case 'd': {
+        case 'd':
+        {
             dnsServer = pcpp::IPAddress(static_cast<char const*>(optarg));
             break;
         }
-        case 'c': {
+        case 'c':
+        {
             clientIP = pcpp::IPAddress(static_cast<char const*>(optarg));
             clientIpSet = true;
             break;
         }
-        case 'o': {
+        case 'o':
+        {
             std::string input = optarg;
             std::istringstream stream(input);
             std::string token;
@@ -431,7 +471,8 @@ int main(int argc, char* argv[]) {
                 hostList.push_back(token);
             break;
         }
-        default: {
+        default:
+        {
             printUsage();
             exit(1);
         }
@@ -441,7 +482,8 @@ int main(int argc, char* argv[]) {
     pcpp::PcapLiveDevice* dev = nullptr;
 
     // check if interface argument is IP or name and extract the device
-    if (interfaceNameOrIP.empty()) {
+    if (interfaceNameOrIP.empty())
+    {
         EXIT_WITH_ERROR("Interface name or IP weren't provided. Please use the -i "
                         "switch or -h for help");
     }

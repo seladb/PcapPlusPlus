@@ -10,7 +10,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * Convert a byte array into a string of hex characters. For example: for the
  * array { 0xaa, 0x2b, 0x10 } the string "aa2b10" will be returned
@@ -66,7 +67,8 @@ char* cross_platform_memmem(const char* haystack, size_t haystackLen,
  * @return The aligned number
  */
 template <int alignment>
-static int align(int number) {
+static int align(int number)
+{
     // Only works for alignment with power of 2
     constexpr bool isPowerOfTwo =
         alignment && ((alignment & (alignment - 1)) == 0);

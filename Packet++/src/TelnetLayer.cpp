@@ -8,23 +8,28 @@
 
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-bool TelnetLayer::isDataField(uint8_t* pos) const {
+bool TelnetLayer::isDataField(uint8_t* pos) const
+{
     // "FF FF" means data
     return pos[0] != static_cast<int>(TelnetCommand::InterpretAsCommand) ||
            pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand);
 }
 
-bool TelnetLayer::isCommandField(uint8_t* pos) const {
+bool TelnetLayer::isCommandField(uint8_t* pos) const
+{
     return !isDataField(pos);
 }
 
-size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength) {
+size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength)
+{
     uint8_t* pos = nullptr;
     size_t addition = 0;
     size_t currentOffset = 0;
-    do {
+    do
+    {
         // If it is second turn position should be adjusted to after second FF
         if (addition)
             addition += 2;
@@ -45,11 +50,13 @@ size_t TelnetLayer::distanceToNextIAC(uint8_t* startPos, size_t maxLength) {
     return addition;
 }
 
-size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength) {
+size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)
+{
     // Check first byte is IAC
     if (startPos &&
         (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) &&
-        (maxLength >= 2)) {
+        (maxLength >= 2))
+    {
         // If subnegotiation parse until next IAC
         if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
             return distanceToNextIAC(startPos, maxLength);
@@ -63,9 +70,11 @@ size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength) {
     return distanceToNextIAC(startPos, maxLength);
 }
 
-uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len) {
+uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len)
+{
     size_t offset = 0;
-    while (offset < len) {
+    while (offset < len)
+    {
         // Move to next field
         size_t length = getFieldLen(pos, len - offset);
         pos += length;
@@ -78,9 +87,11 @@ uint8_t* TelnetLayer::getNextDataField(uint8_t* pos, size_t len) {
     return nullptr;
 }
 
-uint8_t* TelnetLayer::getNextCommandField(uint8_t* pos, size_t len) {
+uint8_t* TelnetLayer::getNextCommandField(uint8_t* pos, size_t len)
+{
     size_t offset = 0;
-    while (offset < len) {
+    while (offset < len)
+    {
         // Move to next field
         size_t length = getFieldLen(pos, len - offset);
         pos += length;
@@ -93,14 +104,17 @@ uint8_t* TelnetLayer::getNextCommandField(uint8_t* pos, size_t len) {
     return nullptr;
 }
 
-int16_t TelnetLayer::getSubCommand(uint8_t* pos, size_t len) {
+int16_t TelnetLayer::getSubCommand(uint8_t* pos, size_t len)
+{
     if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
         return static_cast<int>(TelnetOption::TelnetOptionNoOption);
     return pos[2];
 }
 
-uint8_t* TelnetLayer::getCommandData(uint8_t* pos, size_t& len) {
-    if (pos[1] == static_cast<int>(TelnetCommand::Subnegotiation) && len > 3) {
+uint8_t* TelnetLayer::getCommandData(uint8_t* pos, size_t& len)
+{
+    if (pos[1] == static_cast<int>(TelnetCommand::Subnegotiation) && len > 3)
+    {
         len -= 3;
         return &pos[3];
     }
@@ -108,22 +122,26 @@ uint8_t* TelnetLayer::getCommandData(uint8_t* pos, size_t& len) {
     return nullptr;
 }
 
-std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters) {
+std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters)
+{
     uint8_t* dataPos = nullptr;
     if (isDataField(m_Data))
         dataPos = m_Data;
     else
         dataPos = getNextDataField(m_Data, m_DataLen);
 
-    if (!dataPos) {
+    if (!dataPos)
+    {
         PCPP_LOG_DEBUG("Packet does not have a data field");
         return std::string();
     }
 
     // Convert to string
-    if (removeEscapeCharacters) {
+    if (removeEscapeCharacters)
+    {
         std::stringstream ss;
-        for (size_t idx = 0; idx < m_DataLen - (dataPos - m_Data) + 1; ++idx) {
+        for (size_t idx = 0; idx < m_DataLen - (dataPos - m_Data) + 1; ++idx)
+        {
             if (int(dataPos[idx]) < 127 && int(dataPos[idx]) > 31) // From SPACE to ~
                 ss << dataPos[idx];
         }
@@ -132,13 +150,15 @@ std::string TelnetLayer::getDataAsString(bool removeEscapeCharacters) {
     return std::string((char*)m_Data, m_DataLen);
 }
 
-size_t TelnetLayer::getTotalNumberOfCommands() {
+size_t TelnetLayer::getTotalNumberOfCommands()
+{
     size_t ctr = 0;
     if (isCommandField(m_Data))
         ++ctr;
 
     uint8_t* pos = m_Data;
-    while (pos != nullptr) {
+    while (pos != nullptr)
+    {
         size_t offset = pos - m_Data;
         pos = getNextCommandField(pos, m_DataLen - offset);
         if (pos)
@@ -148,7 +168,8 @@ size_t TelnetLayer::getTotalNumberOfCommands() {
     return ctr;
 }
 
-size_t TelnetLayer::getNumberOfCommands(TelnetCommand command) {
+size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
+{
     if (static_cast<int>(command) < 0)
         return 0;
 
@@ -157,7 +178,8 @@ size_t TelnetLayer::getNumberOfCommands(TelnetCommand command) {
         ++ctr;
 
     uint8_t* pos = m_Data;
-    while (pos != nullptr) {
+    while (pos != nullptr)
+    {
         size_t offset = pos - m_Data;
         pos = getNextCommandField(pos, m_DataLen - offset);
         if (pos && pos[1] == static_cast<int>(command))
@@ -167,7 +189,8 @@ size_t TelnetLayer::getNumberOfCommands(TelnetCommand command) {
     return ctr;
 }
 
-TelnetLayer::TelnetCommand TelnetLayer::getFirstCommand() {
+TelnetLayer::TelnetCommand TelnetLayer::getFirstCommand()
+{
     // If starts with command
     if (isCommandField(m_Data))
         return static_cast<TelnetCommand>(m_Data[1]);
@@ -179,8 +202,10 @@ TelnetLayer::TelnetCommand TelnetLayer::getFirstCommand() {
     return TelnetCommand::TelnetCommandEndOfPacket;
 }
 
-TelnetLayer::TelnetCommand TelnetLayer::getNextCommand() {
-    if (lastPositionOffset == SIZE_MAX) {
+TelnetLayer::TelnetCommand TelnetLayer::getNextCommand()
+{
+    if (lastPositionOffset == SIZE_MAX)
+    {
         lastPositionOffset = 0;
         if (isCommandField(m_Data))
             return static_cast<TelnetLayer::TelnetCommand>(m_Data[1]);
@@ -188,7 +213,8 @@ TelnetLayer::TelnetCommand TelnetLayer::getNextCommand() {
 
     uint8_t* pos = getNextCommandField(&m_Data[lastPositionOffset],
                                        m_DataLen - lastPositionOffset);
-    if (pos) {
+    if (pos)
+    {
         lastPositionOffset = pos - m_Data;
         return static_cast<TelnetLayer::TelnetCommand>(pos[1]);
     }
@@ -196,7 +222,8 @@ TelnetLayer::TelnetCommand TelnetLayer::getNextCommand() {
     return TelnetCommand::TelnetCommandEndOfPacket;
 }
 
-TelnetLayer::TelnetOption TelnetLayer::getOption() {
+TelnetLayer::TelnetOption TelnetLayer::getOption()
+{
     if (lastPositionOffset < m_DataLen)
         return static_cast<TelnetOption>(
             getSubCommand(&m_Data[lastPositionOffset],
@@ -205,9 +232,11 @@ TelnetLayer::TelnetOption TelnetLayer::getOption() {
     return TelnetOption::TelnetOptionNoOption;
 }
 
-TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command) {
+TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command)
+{
     // Check input
-    if (static_cast<int>(command) < 0) {
+    if (static_cast<int>(command) < 0)
+    {
         PCPP_LOG_ERROR("Command type can't be negative");
         return TelnetOption::TelnetOptionNoOption;
     }
@@ -217,7 +246,8 @@ TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command) {
             getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
 
     uint8_t* pos = m_Data;
-    while (pos != nullptr) {
+    while (pos != nullptr)
+    {
         size_t offset = pos - m_Data;
         pos = getNextCommandField(pos, m_DataLen - offset);
 
@@ -230,8 +260,10 @@ TelnetLayer::TelnetOption TelnetLayer::getOption(TelnetCommand command) {
     return TelnetOption::TelnetOptionNoOption;
 }
 
-uint8_t* TelnetLayer::getOptionData(size_t& length) {
-    if (lastPositionOffset < m_DataLen) {
+uint8_t* TelnetLayer::getOptionData(size_t& length)
+{
+    if (lastPositionOffset < m_DataLen)
+    {
         size_t lenBuffer = getFieldLen(&m_Data[lastPositionOffset],
                                        m_DataLen - lastPositionOffset);
         uint8_t* posBuffer = getCommandData(&m_Data[lastPositionOffset], lenBuffer);
@@ -242,15 +274,18 @@ uint8_t* TelnetLayer::getOptionData(size_t& length) {
     return nullptr;
 }
 
-uint8_t* TelnetLayer::getOptionData(TelnetCommand command, size_t& length) {
+uint8_t* TelnetLayer::getOptionData(TelnetCommand command, size_t& length)
+{
     // Check input
-    if (static_cast<int>(command) < 0) {
+    if (static_cast<int>(command) < 0)
+    {
         PCPP_LOG_ERROR("Command type can't be negative");
         length = 0;
         return nullptr;
     }
 
-    if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command)) {
+    if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
+    {
         size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
         uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
 
@@ -259,11 +294,13 @@ uint8_t* TelnetLayer::getOptionData(TelnetCommand command, size_t& length) {
     }
 
     uint8_t* pos = m_Data;
-    while (pos != nullptr) {
+    while (pos != nullptr)
+    {
         size_t offset = pos - m_Data;
         pos = getNextCommandField(pos, m_DataLen - offset);
 
-        if (pos && pos[1] == static_cast<int>(command)) {
+        if (pos && pos[1] == static_cast<int>(command))
+        {
             size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
             uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
 
@@ -277,8 +314,10 @@ uint8_t* TelnetLayer::getOptionData(TelnetCommand command, size_t& length) {
     return nullptr;
 }
 
-std::string TelnetLayer::getTelnetCommandAsString(TelnetCommand val) {
-    switch (val) {
+std::string TelnetLayer::getTelnetCommandAsString(TelnetCommand val)
+{
+    switch (val)
+    {
     case TelnetCommand::TelnetCommandEndOfPacket:
         return "Reached end of packet while parsing";
     case TelnetCommand::EndOfFile:
@@ -326,8 +365,10 @@ std::string TelnetLayer::getTelnetCommandAsString(TelnetCommand val) {
     }
 }
 
-std::string TelnetLayer::getTelnetOptionAsString(TelnetOption val) {
-    switch (val) {
+std::string TelnetLayer::getTelnetOptionAsString(TelnetOption val)
+{
+    switch (val)
+    {
     case TelnetOption::TelnetOptionNoOption:
         return "No option for this command";
     case TelnetOption::TransmitBinary:
@@ -443,7 +484,8 @@ std::string TelnetLayer::getTelnetOptionAsString(TelnetOption val) {
     }
 }
 
-std::string TelnetLayer::toString() const {
+std::string TelnetLayer::toString() const
+{
     if (isDataField(m_Data))
         return "Telnet Data";
     return "Telnet Control";

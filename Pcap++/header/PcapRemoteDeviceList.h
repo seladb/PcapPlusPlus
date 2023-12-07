@@ -12,7 +12,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class PcapRemoteDeviceList
@@ -30,7 +31,8 @@ namespace pcpp {
  * Capture is supported in WinPcap and Npcap only, this class is available in
  * Windows only
  */
-class PcapRemoteDeviceList {
+class PcapRemoteDeviceList
+{
   private:
     std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
     IPAddress m_RemoteMachineIpAddress;
@@ -114,7 +116,8 @@ class PcapRemoteDeviceList {
     /**
    * @return The IP address of the remote machine
    */
-    IPAddress getRemoteMachineIpAddress() const {
+    IPAddress getRemoteMachineIpAddress() const
+    {
         return m_RemoteMachineIpAddress;
     }
 
@@ -162,7 +165,8 @@ class PcapRemoteDeviceList {
    * @return A const iterator object pointing to the first PcapRemoteDevice in
    * list
    */
-    ConstRemoteDeviceListIterator begin() const {
+    ConstRemoteDeviceListIterator begin() const
+    {
         return m_RemoteDeviceList.begin();
     }
 

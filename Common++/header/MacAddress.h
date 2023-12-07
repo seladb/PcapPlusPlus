@@ -18,14 +18,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class MacAddress
  * Represents L2 MAC addresses. Can be constructed from string or a series of 6
  * byte octets
  */
-class MacAddress {
+class MacAddress
+{
   public:
     /**
    * Default constructor for this class.
@@ -42,7 +44,8 @@ class MacAddress {
    * @param[in] addr A pointer to the byte array containing 6 bytes representing
    * the MAC address
    */
-    MacAddress(const uint8_t* addr) : m_IsValid(true) {
+    MacAddress(const uint8_t* addr) : m_IsValid(true)
+    {
         memcpy(m_Address, addr, sizeof(m_Address));
     }
 
@@ -84,15 +87,18 @@ class MacAddress {
    * representing the MAC address
    */
     MacAddress(std::initializer_list<uint8_t> octets)
-        : m_IsValid{octets.size() == sizeof(m_Address)} {
-        if (m_IsValid) {
+        : m_IsValid{octets.size() == sizeof(m_Address)}
+    {
+        if (m_IsValid)
+        {
 #if _MSC_VER >= 1800
             std::copy(octets.begin(), octets.end(),
                       stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
 #else
             std::copy(octets.begin(), octets.end(), std::begin(m_Address));
 #endif
-        } else
+        }
+        else
             memset(m_Address, 0, sizeof(m_Address));
     }
 #endif
@@ -102,7 +108,8 @@ class MacAddress {
    * @param[in] other The object to compare with
    * @return True if addresses are equal, false otherwise
    */
-    bool operator==(const MacAddress& other) const {
+    bool operator==(const MacAddress& other) const
+    {
         return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0;
     }
 
@@ -117,9 +124,11 @@ class MacAddress {
     /**
    * Overload of the assignment operator
    */
-    MacAddress& operator=(std::initializer_list<uint8_t> octets) {
+    MacAddress& operator=(std::initializer_list<uint8_t> octets)
+    {
         m_IsValid = (octets.size() == sizeof m_Address);
-        if (m_IsValid) {
+        if (m_IsValid)
+        {
 #if _MSC_VER >= 1800
             std::copy(octets.begin(), octets.end(),
                       stdext::checked_array_iterator<uint8_t*>(m_Address,
@@ -157,7 +166,8 @@ class MacAddress {
    * deallocation is user responsibility
    * @param[in] arr A pointer to where array will be allocated
    */
-    void copyTo(uint8_t** arr) const {
+    void copyTo(uint8_t** arr) const
+    {
         *arr = new uint8_t[sizeof(m_Address)];
         memcpy(*arr, m_Address, sizeof(m_Address));
     }
@@ -185,7 +195,8 @@ class MacAddress {
 MacAddress::MacAddress(uint8_t firstOctest, uint8_t secondOctet,
                        uint8_t thirdOctet, uint8_t fourthOctet,
                        uint8_t fifthOctet, uint8_t sixthOctet)
-    : m_IsValid(true) {
+    : m_IsValid(true)
+{
     m_Address[0] = firstOctest;
     m_Address[1] = secondOctet;
     m_Address[2] = thirdOctet;
@@ -197,7 +208,8 @@ MacAddress::MacAddress(uint8_t firstOctest, uint8_t secondOctet,
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os,
-                                const pcpp::MacAddress& macAddress) {
+                                const pcpp::MacAddress& macAddress)
+{
     os << macAddress.toString();
     return os;
 }

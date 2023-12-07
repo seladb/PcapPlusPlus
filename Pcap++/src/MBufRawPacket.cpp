@@ -26,7 +26,8 @@
 #define MBUF_DATA_SIZE_DEFINE RTE_MBUF_DEFAULT_DATAROOM
 #endif
 
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * ===================
@@ -36,25 +37,31 @@ namespace pcpp {
 
 const int MBufRawPacket::MBUF_DATA_SIZE = MBUF_DATA_SIZE_DEFINE;
 
-MBufRawPacket::~MBufRawPacket() {
-    if (m_MBuf != NULL && m_FreeMbuf) {
+MBufRawPacket::~MBufRawPacket()
+{
+    if (m_MBuf != NULL && m_FreeMbuf)
+    {
         rte_pktmbuf_free(m_MBuf);
     }
 }
 
-bool MBufRawPacket::init(struct rte_mempool* mempool) {
-    if (m_MBuf != NULL) {
+bool MBufRawPacket::init(struct rte_mempool* mempool)
+{
+    if (m_MBuf != NULL)
+    {
         PCPP_LOG_ERROR("MBufRawPacket already initialized");
         return false;
     }
 
-    if (mempool == NULL) {
+    if (mempool == NULL)
+    {
         PCPP_LOG_ERROR("Could not initialize MBufRawPacket no mempool provided");
         return false;
     }
 
     m_MBuf = rte_pktmbuf_alloc(mempool);
-    if (m_MBuf == NULL) {
+    if (m_MBuf == NULL)
+    {
         PCPP_LOG_ERROR("Couldn't allocate mbuf");
         return false;
     }
@@ -63,25 +70,29 @@ bool MBufRawPacket::init(struct rte_mempool* mempool) {
     return true;
 }
 
-bool MBufRawPacket::init(DpdkDevice* device) {
+bool MBufRawPacket::init(DpdkDevice* device)
+{
     return init(device->m_MBufMempool);
 }
 
 #ifdef USE_DPDK_KNI
-bool MBufRawPacket::init(KniDevice* device) {
+bool MBufRawPacket::init(KniDevice* device)
+{
     return init(device->m_MBufMempool);
 }
 #endif
 
 bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket,
-                                      struct rte_mempool* mempool) {
+                                      struct rte_mempool* mempool)
+{
     if (!init(mempool))
         return false;
 
     m_RawPacketSet = false;
 
     // mbuf is allocated with length of 0, need to adjust it to the size of other
-    if (rte_pktmbuf_append(m_MBuf, rawPacket->getRawDataLen()) == NULL) {
+    if (rte_pktmbuf_append(m_MBuf, rawPacket->getRawDataLen()) == NULL)
+    {
         PCPP_LOG_ERROR("Couldn't append " << rawPacket->getRawDataLen()
                                           << " bytes to mbuf");
         return false;
@@ -96,18 +107,21 @@ bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket,
 }
 
 bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket,
-                                      DpdkDevice* device) {
+                                      DpdkDevice* device)
+{
     return initFromRawPacket(rawPacket, device->m_MBufMempool);
 }
 
 #ifdef USE_DPDK_KNI
 bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket,
-                                      KniDevice* device) {
+                                      KniDevice* device)
+{
     return initFromRawPacket(rawPacket, device->m_MBufMempool);
 }
 #endif
 
-MBufRawPacket::MBufRawPacket(const MBufRawPacket& other) {
+MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
+{
     m_DeleteRawDataAtDestructor = false;
     m_MBuf = NULL;
     m_RawDataLen = 0;
@@ -116,13 +130,15 @@ MBufRawPacket::MBufRawPacket(const MBufRawPacket& other) {
     m_Mempool = other.m_Mempool;
 
     rte_mbuf* newMbuf = rte_pktmbuf_alloc(m_Mempool);
-    if (newMbuf == NULL) {
+    if (newMbuf == NULL)
+    {
         PCPP_LOG_ERROR("Couldn't allocate mbuf");
         return;
     }
 
     // mbuf is allocated with length of 0, need to adjust it to the size of other
-    if (rte_pktmbuf_append(newMbuf, other.m_RawDataLen) == NULL) {
+    if (rte_pktmbuf_append(newMbuf, other.m_RawDataLen) == NULL)
+    {
         PCPP_LOG_ERROR("Couldn't append " << other.m_RawDataLen
                                           << " bytes to mbuf");
         return;
@@ -135,21 +151,28 @@ MBufRawPacket::MBufRawPacket(const MBufRawPacket& other) {
     copyDataFrom(other, false);
 }
 
-MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other) {
-    if (m_MBuf == NULL) {
+MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other)
+{
+    if (m_MBuf == NULL)
+    {
         PCPP_LOG_ERROR("MBufRawPacket isn't initialized");
         return *this;
     }
 
     // adjust the size of the mbuf to the new data
-    if (m_RawDataLen < other.m_RawDataLen) {
-        if (rte_pktmbuf_append(m_MBuf, other.m_RawDataLen - m_RawDataLen) == NULL) {
+    if (m_RawDataLen < other.m_RawDataLen)
+    {
+        if (rte_pktmbuf_append(m_MBuf, other.m_RawDataLen - m_RawDataLen) == NULL)
+        {
             PCPP_LOG_ERROR("Couldn't append " << (other.m_RawDataLen - m_RawDataLen)
                                               << " bytes to mbuf");
             return *this;
         }
-    } else if (m_RawDataLen > other.m_RawDataLen) {
-        if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - other.m_RawDataLen) == NULL) {
+    }
+    else if (m_RawDataLen > other.m_RawDataLen)
+    {
+        if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - other.m_RawDataLen) == NULL)
+        {
             PCPP_LOG_ERROR("Couldn't remove " << m_RawDataLen - other.m_RawDataLen
                                               << " bytes to mbuf");
             return *this;
@@ -165,30 +188,39 @@ MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other) {
 
 bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen,
                                timespec timestamp, LinkLayerType layerType,
-                               int frameLength) {
-    if (rawDataLen > MBUF_DATA_SIZE) {
+                               int frameLength)
+{
+    if (rawDataLen > MBUF_DATA_SIZE)
+    {
         PCPP_LOG_ERROR("Cannot set raw data which length is larger than mBuf max "
                        "size. mBuf max length: "
                        << MBUF_DATA_SIZE << "; requested length: " << rawDataLen);
         return false;
     }
 
-    if (m_MBuf == NULL) {
-        if (!(init(m_Mempool))) {
+    if (m_MBuf == NULL)
+    {
+        if (!(init(m_Mempool)))
+        {
             PCPP_LOG_ERROR("Couldn't allocate new mBuf");
             return false;
         }
     }
 
     // adjust the size of the mbuf to the new data
-    if (m_RawDataLen < rawDataLen) {
-        if (rte_pktmbuf_append(m_MBuf, rawDataLen - m_RawDataLen) == NULL) {
+    if (m_RawDataLen < rawDataLen)
+    {
+        if (rte_pktmbuf_append(m_MBuf, rawDataLen - m_RawDataLen) == NULL)
+        {
             PCPP_LOG_ERROR("Couldn't append " << (rawDataLen - m_RawDataLen)
                                               << " bytes to mbuf");
             return false;
         }
-    } else if (m_RawDataLen > rawDataLen) {
-        if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - rawDataLen) == NULL) {
+    }
+    else if (m_RawDataLen > rawDataLen)
+    {
+        if (rte_pktmbuf_adj(m_MBuf, m_RawDataLen - rawDataLen) == NULL)
+        {
             PCPP_LOG_ERROR("Couldn't remove " << (m_RawDataLen - rawDataLen)
                                               << " bytes to mbuf");
             return false;
@@ -207,8 +239,10 @@ bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen,
     return true;
 }
 
-void MBufRawPacket::clear() {
-    if (m_MBuf != NULL && m_FreeMbuf) {
+void MBufRawPacket::clear()
+{
+    if (m_MBuf != NULL && m_FreeMbuf)
+    {
         rte_pktmbuf_free(m_MBuf);
     }
 
@@ -220,15 +254,18 @@ void MBufRawPacket::clear() {
 }
 
 void MBufRawPacket::appendData(const uint8_t* dataToAppend,
-                               size_t dataToAppendLen) {
-    if (m_MBuf == NULL) {
+                               size_t dataToAppendLen)
+{
+    if (m_MBuf == NULL)
+    {
         PCPP_LOG_ERROR(
             "MBufRawPacket not initialized. Please call the init() method");
         return; // TODO: need to return false here or something
     }
 
     char* startOfNewlyAppendedData = rte_pktmbuf_append(m_MBuf, dataToAppendLen);
-    if (startOfNewlyAppendedData == NULL) {
+    if (startOfNewlyAppendedData == NULL)
+    {
         PCPP_LOG_ERROR("Couldn't append "
                        << dataToAppendLen
                        << " bytes to RawPacket - not enough room in mBuf");
@@ -241,15 +278,18 @@ void MBufRawPacket::appendData(const uint8_t* dataToAppend,
 }
 
 void MBufRawPacket::insertData(int atIndex, const uint8_t* dataToInsert,
-                               size_t dataToInsertLen) {
-    if (m_MBuf == NULL) {
+                               size_t dataToInsertLen)
+{
+    if (m_MBuf == NULL)
+    {
         PCPP_LOG_ERROR(
             "MBufRawPacket not initialized. Please call the init() method");
         return; // TODO: need to return false here or something
     }
 
     char* startOfNewlyAppendedData = rte_pktmbuf_append(m_MBuf, dataToInsertLen);
-    if (startOfNewlyAppendedData == NULL) {
+    if (startOfNewlyAppendedData == NULL)
+    {
         PCPP_LOG_ERROR("Couldn't append "
                        << dataToInsertLen
                        << " bytes to RawPacket - not enough room in mBuf");
@@ -261,8 +301,10 @@ void MBufRawPacket::insertData(int atIndex, const uint8_t* dataToInsert,
     PCPP_LOG_DEBUG("Inserted " << dataToInsertLen << " bytes to MBufRawPacket");
 }
 
-bool MBufRawPacket::removeData(int atIndex, size_t numOfBytesToRemove) {
-    if (m_MBuf == NULL) {
+bool MBufRawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
+{
+    if (m_MBuf == NULL)
+    {
         PCPP_LOG_ERROR(
             "MBufRawPacket not initialized. Please call the init() method");
         return false;
@@ -271,7 +313,8 @@ bool MBufRawPacket::removeData(int atIndex, size_t numOfBytesToRemove) {
     if (!RawPacket::removeData(atIndex, numOfBytesToRemove))
         return false;
 
-    if (rte_pktmbuf_trim(m_MBuf, numOfBytesToRemove) != 0) {
+    if (rte_pktmbuf_trim(m_MBuf, numOfBytesToRemove) != 0)
+    {
         PCPP_LOG_ERROR("Couldn't trim the mBuf");
         return false;
     }
@@ -282,8 +325,10 @@ bool MBufRawPacket::removeData(int atIndex, size_t numOfBytesToRemove) {
     return true;
 }
 
-bool MBufRawPacket::reallocateData(size_t newBufferLength) {
-    if ((int)newBufferLength < m_RawDataLen) {
+bool MBufRawPacket::reallocateData(size_t newBufferLength)
+{
+    if ((int)newBufferLength < m_RawDataLen)
+    {
         PCPP_LOG_ERROR("Cannot reallocate mBuf raw packet to a smaller size. "
                        "Current data length: "
                        << m_RawDataLen
@@ -291,7 +336,8 @@ bool MBufRawPacket::reallocateData(size_t newBufferLength) {
         return false;
     }
 
-    if (newBufferLength > MBUF_DATA_SIZE) {
+    if (newBufferLength > MBUF_DATA_SIZE)
+    {
         PCPP_LOG_ERROR("Cannot reallocate mBuf raw packet to a size larger than "
                        "mBuf data. mBuf max length: "
                        << MBUF_DATA_SIZE
@@ -304,11 +350,13 @@ bool MBufRawPacket::reallocateData(size_t newBufferLength) {
     return true;
 }
 
-void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp) {
+void MBufRawPacket::setMBuf(struct rte_mbuf* mBuf, timespec timestamp)
+{
     if (m_MBuf != NULL && m_FreeMbuf)
         rte_pktmbuf_free(m_MBuf);
 
-    if (mBuf == NULL) {
+    if (mBuf == NULL)
+    {
         PCPP_LOG_ERROR("mbuf to set is NULL");
         return;
     }

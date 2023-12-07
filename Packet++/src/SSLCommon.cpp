@@ -2,18 +2,21 @@
 
 #include "SSLCommon.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
 // -------------------------
 // SSLVersion methods
 // -------------------------
 
-SSLVersion::SSLVersionEnum SSLVersion::asEnum(bool countTlsDraftsAs1_3) {
+SSLVersion::SSLVersionEnum SSLVersion::asEnum(bool countTlsDraftsAs1_3)
+{
     if (m_SSLVersionValue >= 0x0300 && m_SSLVersionValue <= 0x0304)
         return static_cast<SSLVersion::SSLVersionEnum>(m_SSLVersionValue);
 
     if ((m_SSLVersionValue >= 0x7f0e && m_SSLVersionValue <= 0x7f1c) ||
-        m_SSLVersionValue == 0xfb17 || m_SSLVersionValue == 0xfb1a) {
+        m_SSLVersionValue == 0xfb17 || m_SSLVersionValue == 0xfb1a)
+    {
         if (countTlsDraftsAs1_3)
             return SSLVersion::TLS1_3;
         else
@@ -26,10 +29,12 @@ SSLVersion::SSLVersionEnum SSLVersion::asEnum(bool countTlsDraftsAs1_3) {
     return SSLVersion::Unknown;
 }
 
-std::string SSLVersion::toString(bool countTlsDraftsAs1_3) {
+std::string SSLVersion::toString(bool countTlsDraftsAs1_3)
+{
     SSLVersionEnum enumValue = asEnum(countTlsDraftsAs1_3);
 
-    switch (enumValue) {
+    switch (enumValue)
+    {
     case SSLVersion::TLS1_3:
         return "TLS 1.3";
     case SSLVersion::TLS1_2:

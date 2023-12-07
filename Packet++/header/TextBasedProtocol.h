@@ -6,7 +6,8 @@
 
 /// @file
 
-namespace pcpp {
+namespace pcpp
+{
 
 /** End of header */
 #define PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER ""
@@ -30,7 +31,8 @@ class TextBasedProtocolMessage;
  * HeaderField instance of its own which name and values are an empty string
  * ("") or pcpp::PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER
  */
-class HeaderField {
+class HeaderField
+{
     friend class TextBasedProtocolMessage;
 
   public:
@@ -123,7 +125,8 @@ class HeaderField {
  * requests and responses). It is the base class for all those layers. This
  * class is not meant to be instantiated, hence the protected c'tor
  */
-class TextBasedProtocolMessage : public Layer {
+class TextBasedProtocolMessage : public Layer
+{
     friend class HeaderField;
 
   public:
@@ -155,7 +158,8 @@ class TextBasedProtocolMessage : public Layer {
    * @return The field after prevField or NULL if prevField is the last field.
    * If prevField is NULL, this method will return NULL
    */
-    HeaderField* getNextField(HeaderField* prevField) const {
+    HeaderField* getNextField(HeaderField* prevField) const
+    {
         if (prevField != NULL)
             return prevField->getNextField();
         else

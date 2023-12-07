@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /** A vector of pointers to RawPacket */
 typedef PointerVector<RawPacket> RawPacketVector;
 
@@ -21,7 +22,8 @@ typedef PointerVector<RawPacket> RawPacketVector;
  * as the root class for all devices. This is an abstract class that cannot be
  * instantiated
  */
-class IDevice {
+class IDevice
+{
   protected:
     bool m_DeviceOpened;
 
@@ -55,7 +57,8 @@ class IDevice {
  * on the BPF filtering syntax. This is an abstract class that cannot be
  * instantiated
  */
-class IFilterableDevice {
+class IFilterableDevice
+{
   protected:
     // c'tor should not be public
     IFilterableDevice() {}
@@ -70,7 +73,8 @@ class IFilterableDevice {
    * format
    * @return True if filter set successfully, false otherwise
    */
-    virtual bool setFilter(GeneralFilter& filter) {
+    virtual bool setFilter(GeneralFilter& filter)
+    {
         std::string filterAsString;
         filter.parseToString(filterAsString);
         return setFilter(filterAsString);

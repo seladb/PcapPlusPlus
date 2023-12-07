@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
      * @class NtpLayer
      * Represents a NTP (Network Time Protocol) layer
@@ -72,10 +73,12 @@ namespace pcpp {
  @endverbatim
  *
      */
-class NtpLayer : public Layer {
+class NtpLayer : public Layer
+{
   private:
 #pragma pack(push, 1)
-    struct ntp_header {
+    struct ntp_header
+    {
 #if (BYTE_ORDER == LITTLE_ENDIAN)
         /// 3-bit integer representing the mode
         uint8_t mode : 3,
@@ -124,7 +127,8 @@ class NtpLayer : public Layer {
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-    struct ntp_v3_auth {
+    struct ntp_v3_auth
+    {
         /// An integer identifying the cryptographic key used to generate the
         /// message-authentication code
         uint32_t keyID;
@@ -135,7 +139,8 @@ class NtpLayer : public Layer {
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-    struct ntp_v4_auth_md5 {
+    struct ntp_v4_auth_md5
+    {
         /// 32-bit unsigned integer used by the client and server to designate a
         /// secret 128-bit MD5 key.
         uint32_t keyID;
@@ -145,7 +150,8 @@ class NtpLayer : public Layer {
 #pragma pack(pop)
 
 #pragma pack(push, 1)
-    struct ntp_v4_auth_sha1 {
+    struct ntp_v4_auth_sha1
+    {
         /// 32-bit unsigned integer used by the client and server to designate a
         /// secret 160-bit SHA1 key.
         uint32_t keyID;
@@ -154,14 +160,18 @@ class NtpLayer : public Layer {
     };
 #pragma pack(pop)
 
-    ntp_header* getNtpHeader() const { return (ntp_header*)m_Data; }
+    ntp_header* getNtpHeader() const
+    {
+        return (ntp_header*)m_Data;
+    }
 
   public:
     /**
    * Warning of an impending leap second to be inserted or deleted in the last
    * minute of the current month
    */
-    enum LeapIndicator {
+    enum LeapIndicator
+    {
         /// Normal, no leap second
         NoWarning = 0,
         /// Last minute of the day has 61 seconds
@@ -175,7 +185,8 @@ class NtpLayer : public Layer {
     /**
    * Representing the NTP association modes
    */
-    enum Mode {
+    enum Mode
+    {
         /// Reserved variable
         Reserved = 0,
         /// Symmetrically active
@@ -198,7 +209,8 @@ class NtpLayer : public Layer {
    * 32-bit code identifying the particular server or reference clock.
    * The interpretation depends on the value in the stratum field.
    */
-    enum class ClockSource : uint32_t {
+    enum class ClockSource : uint32_t
+    {
         // NTPv4
 
         /// Geosynchronous Orbit Environment Satellite
@@ -290,7 +302,8 @@ class NtpLayer : public Layer {
     /**
    * 32-bit Kiss of Death (KoD) codes
    */
-    enum class KissODeath : uint32_t {
+    enum class KissODeath : uint32_t
+    {
         /// The association belongs to a anycast server
         ACST = ('A') | ('C' << 8) | ('S' << 16) | ('T' << 24),
         /// Server authentication failed
@@ -333,7 +346,8 @@ class NtpLayer : public Layer {
    * stored in
    */
     NtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = NTP;
     }
 

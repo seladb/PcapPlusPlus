@@ -13,14 +13,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct dhcp_header
  * Represents a DHCP protocol header
  */
 #pragma pack(push, 1)
-struct dhcp_header {
+struct dhcp_header
+{
     /** BootP opcode */
     uint8_t opCode;
     /** Hardware type, set to 1 (Ethernet) by default */
@@ -59,7 +61,8 @@ struct dhcp_header {
 /**
  * BootP opcodes
  */
-enum BootpOpCodes {
+enum BootpOpCodes
+{
     /** BootP request */
     DHCP_BOOTREQUEST = 1,
     /** BootP reply */
@@ -69,7 +72,8 @@ enum BootpOpCodes {
 /**
  * DHCP message types
  */
-enum DhcpMessageType {
+enum DhcpMessageType
+{
     /** Unknown message type */
     DHCP_UNKNOWN_MSG_TYPE = 0,
     /** Discover message type */
@@ -93,7 +97,8 @@ enum DhcpMessageType {
 /**
  * DHCP option types.
  */
-enum DhcpOptionTypes {
+enum DhcpOptionTypes
+{
     /** Unknown option type */
     DHCPOPT_UNKNOWN = -1,
     /** Pad */
@@ -396,7 +401,8 @@ enum DhcpOptionTypes {
  * option records, but rather serves as a wrapper and provides useful methods
  * for setting and retrieving data to/from them
  */
-class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
+class DhcpOption : public TLVRecord<uint8_t, uint8_t>
+{
   public:
     /**
    * A c'tor for this class that gets a pointer to the option raw data (byte
@@ -426,7 +432,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
    * bytes long and you want to set the IP address in the 4 last bytes then use
    * this method like this: setValueIpAddr(your_addr, 16)
    */
-    void setValueIpAddr(const IPv4Address& addr, int valueOffset = 0) {
+    void setValueIpAddr(const IPv4Address& addr, int valueOffset = 0)
+    {
         setValue<uint32_t>(addr.toInt(), valueOffset);
     }
 
@@ -440,7 +447,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
    * option data
    * @return DHCP option data as string
    */
-    std::string getValueAsString(int valueOffset = 0) const {
+    std::string getValueAsString(int valueOffset = 0) const
+    {
         if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
             return "";
 
@@ -458,7 +466,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
    * bytes long and you want to set a 6 char-long string in the 6 last bytes
    * then use this method like this: setValueString("string", 14)
    */
-    void setValueString(const std::string& stringValue, int valueOffset = 0) {
+    void setValueString(const std::string& stringValue, int valueOffset = 0)
+    {
         // calculate the maximum length of the destination buffer
         size_t len = (size_t)m_Data->recordLen - (size_t)valueOffset;
 
@@ -476,7 +485,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
    * @param[in] tlvDataLen The size of the TLV record raw data
    * @return True if data is valid and can be assigned
    */
-    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen) {
+    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+    {
         auto data = (TLVRawData*)recordRawData;
         if (data == nullptr)
             return false;
@@ -493,7 +503,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
 
     // implement abstract methods
 
-    size_t getTotalSize() const {
+    size_t getTotalSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -504,7 +515,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
         return sizeof(uint8_t) * 2 + (size_t)m_Data->recordLen;
     }
 
-    size_t getDataSize() const {
+    size_t getDataSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -522,7 +534,8 @@ class DhcpOption : public TLVRecord<uint8_t, uint8_t> {
  * parameters in its c'tor, builds the DHCP option raw buffer and provides a
  * build() method to get a DhcpOption object out of it
  */
-class DhcpOptionBuilder : public TLVRecordBuilder {
+class DhcpOptionBuilder : public TLVRecordBuilder
+{
   public:
     /**
    * A c'tor for building DHCP options which their value is a byte array. The
@@ -594,7 +607,8 @@ class DhcpOptionBuilder : public TLVRecordBuilder {
    * @param[in] other The instance to assign from
    * @return A reference to the assignee
    */
-    DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other) {
+    DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other)
+    {
         TLVRecordBuilder::operator=(other);
         return *this;
     }
@@ -610,7 +624,8 @@ class DhcpOptionBuilder : public TLVRecordBuilder {
  * @class DhcpLayer
  * Represents a DHCP (Dynamic Host Configuration Protocol) protocol layer
  */
-class DhcpLayer : public Layer {
+class DhcpLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -651,7 +666,8 @@ class DhcpLayer : public Layer {
     /**
    * @return The BootP opcode of this message
    */
-    BootpOpCodes getOpCode() const {
+    BootpOpCodes getOpCode() const
+    {
         return (BootpOpCodes)getDhcpHeader()->opCode;
     }
 
@@ -659,7 +675,8 @@ class DhcpLayer : public Layer {
    * @return The client IPv4 address (as extracted from
    * dhcp_header#clientIpAddress converted to IPv4Address object)
    */
-    IPv4Address getClientIpAddress() const {
+    IPv4Address getClientIpAddress() const
+    {
         return getDhcpHeader()->clientIpAddress;
     }
 
@@ -667,7 +684,8 @@ class DhcpLayer : public Layer {
    * Set the client IPv4 address in dhcp_header#clientIpAddress
    * @param[in] addr The IPv4 address to set
    */
-    void setClientIpAddress(const IPv4Address& addr) {
+    void setClientIpAddress(const IPv4Address& addr)
+    {
         getDhcpHeader()->clientIpAddress = addr.toInt();
     }
 
@@ -675,7 +693,8 @@ class DhcpLayer : public Layer {
    * @return The server IPv4 address (as extracted from
    * dhcp_header#serverIpAddress converted to IPv4Address object)
    */
-    IPv4Address getServerIpAddress() const {
+    IPv4Address getServerIpAddress() const
+    {
         return getDhcpHeader()->serverIpAddress;
     }
 
@@ -683,7 +702,8 @@ class DhcpLayer : public Layer {
    * Set the server IPv4 address in dhcp_header#serverIpAddress
    * @param[in] addr The IPv4 address to set
    */
-    void setServerIpAddress(const IPv4Address& addr) {
+    void setServerIpAddress(const IPv4Address& addr)
+    {
         getDhcpHeader()->serverIpAddress = addr.toInt();
     }
 
@@ -691,7 +711,8 @@ class DhcpLayer : public Layer {
    * @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress
    * converted to IPv4Address object)
    */
-    IPv4Address getYourIpAddress() const {
+    IPv4Address getYourIpAddress() const
+    {
         return getDhcpHeader()->yourIpAddress;
     }
 
@@ -699,7 +720,8 @@ class DhcpLayer : public Layer {
    * Set your IPv4 address in dhcp_header#yourIpAddress
    * @param[in] addr The IPv4 address to set
    */
-    void setYourIpAddress(const IPv4Address& addr) {
+    void setYourIpAddress(const IPv4Address& addr)
+    {
         getDhcpHeader()->yourIpAddress = addr.toInt();
     }
 
@@ -707,7 +729,8 @@ class DhcpLayer : public Layer {
    * @return Gateway IPv4 address (as extracted from
    * dhcp_header#gatewayIpAddress converted to IPv4Address object)
    */
-    IPv4Address getGatewayIpAddress() const {
+    IPv4Address getGatewayIpAddress() const
+    {
         return getDhcpHeader()->gatewayIpAddress;
     }
 
@@ -715,7 +738,8 @@ class DhcpLayer : public Layer {
    * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
    * @param[in] addr The IPv4 address to set
    */
-    void setGatewayIpAddress(const IPv4Address& addr) {
+    void setGatewayIpAddress(const IPv4Address& addr)
+    {
         getDhcpHeader()->gatewayIpAddress = addr.toInt();
     }
 

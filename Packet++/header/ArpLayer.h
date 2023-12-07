@@ -11,14 +11,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct arphdr
  * Represents an ARP protocol header
  */
 #pragma pack(push, 1)
-struct arphdr {
+struct arphdr
+{
     /** Hardware type (HTYPE) */
     uint16_t hardwareType;
     /** Protocol type (PTYPE). The permitted PTYPE values share a numbering space
@@ -47,7 +49,8 @@ struct arphdr {
 /**
  * An enum for ARP message type
  */
-enum ArpOpcode {
+enum ArpOpcode
+{
     ARP_REQUEST = 0x0001, ///< ARP request
     ARP_REPLY = 0x0002    ///< ARP reply (response)
 };
@@ -57,7 +60,8 @@ enum ArpOpcode {
  * Represents an ARP protocol layer. Currently only IPv4 ARP messages are
  * supported
  */
-class ArpLayer : public Layer {
+class ArpLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -68,7 +72,8 @@ class ArpLayer : public Layer {
    * stored in
    */
     ArpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = ARP;
         m_DataLen = sizeof(arphdr);
     }
@@ -102,7 +107,8 @@ class ArpLayer : public Layer {
    * Get the sender hardware address (SHA) in the form of MacAddress
    * @return A MacAddress containing the sender hardware address (SHA)
    */
-    inline MacAddress getSenderMacAddress() const {
+    inline MacAddress getSenderMacAddress() const
+    {
         return MacAddress(getArpHeader()->senderMacAddr);
     }
 
@@ -110,7 +116,8 @@ class ArpLayer : public Layer {
    * Get the target hardware address (THA) in the form of MacAddress
    * @return A MacAddress containing the target hardware address (THA)
    */
-    inline MacAddress getTargetMacAddress() const {
+    inline MacAddress getTargetMacAddress() const
+    {
         return MacAddress(getArpHeader()->targetMacAddr);
     }
 
@@ -118,7 +125,8 @@ class ArpLayer : public Layer {
    * Get the sender protocol address (SPA) in the form of IPv4Address
    * @return An IPv4Address containing the sender protocol address (SPA)
    */
-    inline IPv4Address getSenderIpAddr() const {
+    inline IPv4Address getSenderIpAddr() const
+    {
         return getArpHeader()->senderIpAddr;
     }
 
@@ -126,7 +134,8 @@ class ArpLayer : public Layer {
    * Get the target protocol address (TPA) in the form of IPv4Address
    * @return An IPv4Address containing the target protocol address (TPA)
    */
-    inline IPv4Address getTargetIpAddr() const {
+    inline IPv4Address getTargetIpAddr() const
+    {
         return getArpHeader()->targetIpAddr;
     }
 

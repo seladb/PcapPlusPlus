@@ -14,7 +14,8 @@ struct rte_mempool;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 class DpdkDevice;
 #ifdef USE_DPDK_KNI
@@ -51,7 +52,8 @@ class KniDevice;
  * there is no way to access the mbufs linked to the mbuf wrapped by
  * MBufRawPacket instance. I hope I'll be able to add this support in the future
  */
-class MBufRawPacket : public RawPacket {
+class MBufRawPacket : public RawPacket
+{
     friend class DpdkDevice;
 #ifdef USE_DPDK_KNI
     friend class KniDevice;
@@ -77,7 +79,8 @@ class MBufRawPacket : public RawPacket {
    * MBufRawPacket (which requires an empty c'tor)
    */
     MBufRawPacket()
-        : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_FreeMbuf(true) {
+        : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_FreeMbuf(true)
+    {
         m_DeleteRawDataAtDestructor = false;
     }
 
@@ -168,7 +171,8 @@ class MBufRawPacket : public RawPacket {
     /**
    * @return MBufRawPacket object type
    */
-    virtual inline uint8_t getObjectType() const {
+    virtual inline uint8_t getObjectType() const
+    {
         return MBUFRAWPACKET_OBJECT_TYPE;
     }
 

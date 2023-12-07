@@ -11,13 +11,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @struct nflog_header
  * Represents Nflog header
  */
 #pragma pack(push, 1)
-struct nflog_header {
+struct nflog_header
+{
     /** A Linux AF_ value, so it's 2 for IPv4 and 10 for IPv6 */
     uint8_t addressFamily;
     /** The version field is 0 for the current version of the pseudo-header */
@@ -31,7 +33,8 @@ struct nflog_header {
  * @enum NflogTlvType
  * Represents TLV types of NFLOG packets
  */
-enum class NflogTlvType {
+enum class NflogTlvType
+{
     /** the packet header structure */
     NFULA_PACKET_HDR = 1,
     /** packet mark from skbuff */
@@ -75,9 +78,11 @@ enum class NflogTlvType {
  * TLVs related to NFLOG, but rather serves as a wrapper and provides useful
  * methods for setting and retrieving data to/from them
  */
-class NflogTlv {
+class NflogTlv
+{
   private:
-    struct NflogTLVRawData {
+    struct NflogTLVRawData
+    {
         /** Record length in bytes */
         uint16_t recordLen;
         /** Record type */
@@ -98,7 +103,8 @@ class NflogTlv {
     /**
    * @return recordLen attribute in NflogTLVRawData
    */
-    size_t getTotalSize() const {
+    size_t getTotalSize() const
+    {
         // as in
         // https://github.com/the-tcpdump-group/libpcap/blob/766b607d60d8038087b49fc4cf433dac3dcdb49c/pcap-util.c#L371-L374
         return align<4>(m_Data->recordLen);
@@ -108,7 +114,8 @@ class NflogTlv {
    * Assign a pointer to the TLV record raw data (byte array)
    * @param[in] recordRawData A pointer to the TLV record raw data
    */
-    void assign(uint8_t* recordRawData) {
+    void assign(uint8_t* recordRawData)
+    {
         m_Data = (NflogTLVRawData*)recordRawData;
     }
 
@@ -118,7 +125,8 @@ class NflogTlv {
    * @param[in] tlvDataLen The size of the TLV record raw data
    * * @return True if data is valid and can be assigned
    */
-    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen) {
+    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+    {
         return recordRawData != nullptr &&
                tlvDataLen >= sizeof(NflogTLVRawData::recordLen);
     }
@@ -149,7 +157,8 @@ class NflogTlv {
  * @class NflogLayer
  * Represents an NFLOG protocol layer
  */
-class NflogLayer : public Layer {
+class NflogLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -159,7 +168,8 @@ class NflogLayer : public Layer {
    * stored in
    */
     NflogLayer(uint8_t* data, size_t dataLen, Packet* packet)
-        : Layer(data, dataLen, NULL, packet) {
+        : Layer(data, dataLen, NULL, packet)
+    {
         m_Protocol = NFLOG;
     }
 

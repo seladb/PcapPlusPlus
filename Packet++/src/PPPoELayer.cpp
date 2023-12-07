@@ -9,14 +9,16 @@
 #include <map>
 #include <sstream>
 
-namespace pcpp {
+namespace pcpp
+{
 
 /// PPPoELayer
 /// ~~~~~~~~~~
 
 PPPoELayer::PPPoELayer(uint8_t version, uint8_t type,
                        PPPoELayer::PPPoECode code, uint16_t sessionId,
-                       size_t additionalBytesToAllocate) {
+                       size_t additionalBytesToAllocate)
+{
     const size_t dataLen = sizeof(pppoe_header) + additionalBytesToAllocate;
     m_DataLen = dataLen;
     m_Data = new uint8_t[dataLen];
@@ -30,7 +32,8 @@ PPPoELayer::PPPoELayer(uint8_t version, uint8_t type,
     pppoeHdr->payloadLength = 0;
 }
 
-void PPPoELayer::computeCalculateFields() {
+void PPPoELayer::computeCalculateFields()
+{
     pppoe_header* pppoeHdr = (pppoe_header*)m_Data;
     pppoeHdr->payloadLength = htobe16(m_DataLen - sizeof(pppoe_header));
 }
@@ -38,7 +41,8 @@ void PPPoELayer::computeCalculateFields() {
 /// PPPoESessionLayer
 /// ~~~~~~~~~~~~~~~~~
 
-void PPPoESessionLayer::parseNextLayer() {
+void PPPoESessionLayer::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen <= headerLen)
         return;
@@ -46,7 +50,8 @@ void PPPoESessionLayer::parseNextLayer() {
     uint8_t* payload = m_Data + headerLen;
     size_t payloadLen = m_DataLen - headerLen;
 
-    switch (getPPPNextProtocol()) {
+    switch (getPPPNextProtocol())
+    {
     case PCPP_PPP_IP:
         m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
                           ? static_cast<Layer*>(
@@ -67,8 +72,10 @@ void PPPoESessionLayer::parseNextLayer() {
     }
 }
 
-uint16_t PPPoESessionLayer::getPPPNextProtocol() const {
-    if (m_DataLen < getHeaderLen()) {
+uint16_t PPPoESessionLayer::getPPPNextProtocol() const
+{
+    if (m_DataLen < getHeaderLen())
+    {
         PCPP_LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
         return 0;
     }
@@ -77,8 +84,10 @@ uint16_t PPPoESessionLayer::getPPPNextProtocol() const {
     return be16toh(pppNextProto);
 }
 
-void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol) {
-    if (m_DataLen < getHeaderLen()) {
+void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
+{
+    if (m_DataLen < getHeaderLen())
+    {
         PCPP_LOG_ERROR("ERROR: size of layer is smaller then PPPoE session header");
         return;
     }
@@ -87,7 +96,8 @@ void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol) {
     *pppProto = htobe16(nextProtocol);
 }
 
-std::map<uint16_t, std::string> createPPPNextProtoToStringMap() {
+std::map<uint16_t, std::string> createPPPNextProtoToStringMap()
+{
     std::map<uint16_t, std::string> tempMap;
     tempMap[PCPP_PPP_PADDING] = "Padding Protocol";
     tempMap[PCPP_PPP_ROHC_SCID] = "ROHC small-CID";
@@ -230,13 +240,15 @@ std::map<uint16_t, std::string> createPPPNextProtoToStringMap() {
 const std::map<uint16_t, std::string> PPPNextProtoToString =
     createPPPNextProtoToStringMap();
 
-std::string PPPoESessionLayer::toString() const {
+std::string PPPoESessionLayer::toString() const
+{
     std::map<uint16_t, std::string>::const_iterator iter =
         PPPNextProtoToString.find(getPPPNextProtocol());
     std::string nextProtocol;
     if (iter != PPPNextProtoToString.end())
         nextProtocol = iter->second;
-    else {
+    else
+    {
         std::ostringstream stream;
         stream << "Unknown (0x" << std::hex << getPPPNextProtocol() << ")";
         nextProtocol = stream.str();
@@ -249,21 +261,24 @@ std::string PPPoESessionLayer::toString() const {
 /// ~~~~~~~~~~~~~~~~~~~
 
 PPPoEDiscoveryLayer::PPPoETagTypes
-PPPoEDiscoveryLayer::PPPoETag::getType() const {
+PPPoEDiscoveryLayer::PPPoETag::getType() const
+{
     if (m_Data == nullptr)
         return PPPoEDiscoveryLayer::PPPoETagTypes::PPPOE_TAG_EOL;
 
     return (PPPoEDiscoveryLayer::PPPoETagTypes)be16toh(m_Data->recordType);
 }
 
-size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const {
+size_t PPPoEDiscoveryLayer::PPPoETag::getTotalSize() const
+{
     if (m_Data == nullptr)
         return 0;
 
     return 2 * sizeof(uint16_t) + be16toh(m_Data->recordLen);
 }
 
-size_t PPPoEDiscoveryLayer::PPPoETag::getDataSize() const {
+size_t PPPoEDiscoveryLayer::PPPoETag::getDataSize() const
+{
     if (m_Data == nullptr)
         return 0;
 
@@ -271,7 +286,8 @@ size_t PPPoEDiscoveryLayer::PPPoETag::getDataSize() const {
 }
 
 PPPoEDiscoveryLayer::PPPoETag
-PPPoEDiscoveryLayer::PPPoETagBuilder::build() const {
+PPPoEDiscoveryLayer::PPPoETagBuilder::build() const
+{
     size_t tagSize = 2 * sizeof(uint16_t) + m_RecValueLen;
     uint8_t* recordBuffer = new uint8_t[tagSize];
     uint16_t tagTypeVal = htobe16(static_cast<uint16_t>(m_RecType));
@@ -285,40 +301,47 @@ PPPoEDiscoveryLayer::PPPoETagBuilder::build() const {
 }
 
 PPPoEDiscoveryLayer::PPPoETag
-PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const {
+PPPoEDiscoveryLayer::getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const
+{
     return m_TagReader.getTLVRecord(static_cast<uint32_t>(tagType),
                                     getTagBasePtr(),
                                     m_DataLen - sizeof(pppoe_header));
 }
 
-PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getFirstTag() const {
+PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getFirstTag() const
+{
     return m_TagReader.getFirstTLVRecord(getTagBasePtr(),
                                          m_DataLen - sizeof(pppoe_header));
 }
 
 PPPoEDiscoveryLayer::PPPoETag PPPoEDiscoveryLayer::getNextTag(
-    const PPPoEDiscoveryLayer::PPPoETag& tag) const {
+    const PPPoEDiscoveryLayer::PPPoETag& tag) const
+{
     return m_TagReader.getNextTLVRecord(
         const_cast<PPPoEDiscoveryLayer::PPPoETag&>(tag), getTagBasePtr(),
         m_DataLen - sizeof(pppoe_header));
 }
 
-int PPPoEDiscoveryLayer::getTagCount() const {
+int PPPoEDiscoveryLayer::getTagCount() const
+{
     return m_TagReader.getTLVRecordCount(getTagBasePtr(),
                                          m_DataLen - sizeof(pppoe_header));
 }
 
 PPPoEDiscoveryLayer::PPPoETag
-PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilder& tagBuilder, int offset) {
+PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilder& tagBuilder, int offset)
+{
     PPPoETag newTag = tagBuilder.build();
-    if (newTag.isNull()) {
+    if (newTag.isNull())
+    {
         PCPP_LOG_ERROR("Cannot build new tag of type " << (int)newTag.getType());
         return newTag;
     }
 
     size_t sizeToExtend = newTag.getTotalSize();
 
-    if (!extendLayer(offset, sizeToExtend)) {
+    if (!extendLayer(offset, sizeToExtend))
+    {
         PCPP_LOG_ERROR("Could not extend PPPoEDiscoveryLayer in [" << sizeToExtend
                                                                    << "] bytes");
         newTag.purgeRecordData();
@@ -340,14 +363,18 @@ PPPoEDiscoveryLayer::addTagAt(const PPPoETagBuilder& tagBuilder, int offset) {
 
 PPPoEDiscoveryLayer::PPPoETag
 PPPoEDiscoveryLayer::addTagAfter(const PPPoETagBuilder& tagBuilder,
-                                 PPPoETagTypes prevTagType) {
+                                 PPPoETagTypes prevTagType)
+{
     int offset = 0;
 
     PPPoETag prevTag = getTag(prevTagType);
 
-    if (prevTag.isNull()) {
+    if (prevTag.isNull())
+    {
         offset = getHeaderLen();
-    } else {
+    }
+    else
+    {
         offset = prevTag.getRecordBasePtr() + prevTag.getTotalSize() - m_Data;
     }
 
@@ -355,11 +382,13 @@ PPPoEDiscoveryLayer::addTagAfter(const PPPoETagBuilder& tagBuilder,
 }
 
 PPPoEDiscoveryLayer::PPPoETag
-PPPoEDiscoveryLayer::addTag(const PPPoETagBuilder& tagBuilder) {
+PPPoEDiscoveryLayer::addTag(const PPPoETagBuilder& tagBuilder)
+{
     return addTagAt(tagBuilder, getHeaderLen());
 }
 
-size_t PPPoEDiscoveryLayer::getHeaderLen() const {
+size_t PPPoEDiscoveryLayer::getHeaderLen() const
+{
     size_t payloadLen =
         sizeof(pppoe_header) + be16toh(getPPPoEHeader()->payloadLength);
     if (payloadLen > m_DataLen)
@@ -369,9 +398,11 @@ size_t PPPoEDiscoveryLayer::getHeaderLen() const {
 }
 
 bool PPPoEDiscoveryLayer::removeTag(
-    PPPoEDiscoveryLayer::PPPoETagTypes tagType) {
+    PPPoEDiscoveryLayer::PPPoETagTypes tagType)
+{
     PPPoEDiscoveryLayer::PPPoETag tagToRemove = getTag(tagType);
-    if (tagToRemove.isNull()) {
+    if (tagToRemove.isNull())
+    {
         PCPP_LOG_ERROR("Couldn't find tag");
         return false;
     }
@@ -380,7 +411,8 @@ bool PPPoEDiscoveryLayer::removeTag(
 
     uint16_t tagTotalSize = tagToRemove.getTotalSize();
 
-    if (!shortenLayer(offset, tagTotalSize)) {
+    if (!shortenLayer(offset, tagTotalSize))
+    {
         return false;
     }
 
@@ -390,10 +422,12 @@ bool PPPoEDiscoveryLayer::removeTag(
     return true;
 }
 
-bool PPPoEDiscoveryLayer::removeAllTags() {
+bool PPPoEDiscoveryLayer::removeAllTags()
+{
     size_t tagCount = getTagCount();
     int offset = sizeof(pppoe_header);
-    if (!shortenLayer(offset, m_DataLen - offset)) {
+    if (!shortenLayer(offset, m_DataLen - offset))
+    {
         return false;
     }
     m_TagReader.changeTLVRecordCount(0 - tagCount);
@@ -401,8 +435,10 @@ bool PPPoEDiscoveryLayer::removeAllTags() {
     return true;
 }
 
-std::string PPPoEDiscoveryLayer::codeToString(PPPoECode code) const {
-    switch (code) {
+std::string PPPoEDiscoveryLayer::codeToString(PPPoECode code) const
+{
+    switch (code)
+    {
     case PPPoELayer::PPPOE_CODE_SESSION:
         return std::string("PPPoE Session");
     case PPPoELayer::PPPOE_CODE_PADO:

@@ -6,15 +6,19 @@
 #include "TcpLayer.h"
 #include "UdpLayer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
-uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize) {
+uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize)
+{
     uint32_t sum = 0;
-    for (size_t i = 0; i < vecSize; i++) {
+    for (size_t i = 0; i < vecSize; i++)
+    {
         uint32_t localSum = 0;
 
         // vec len is in bytes
-        for (size_t j = 0; j < vec[i].len / 2; j++) {
+        for (size_t j = 0; j < vec[i].len / 2; j++)
+        {
             PCPP_LOG_DEBUG("Value to add = 0x" << std::uppercase << std::hex
                                                << vec[i].buffer[j]);
             localSum += vec[i].buffer[j];
@@ -23,7 +27,8 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize) {
                                       << std::hex << localSum);
 
         // check if there is one byte left
-        if (vec[i].len % 2) {
+        if (vec[i].len % 2)
+        {
             // access to the last byte using an uint8_t pointer
             uint8_t* vecBytes = (uint8_t*)vec[i].buffer;
             uint8_t lastByte = vecBytes[vec[i].len - 1];
@@ -39,7 +44,8 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize) {
         }
 
         // carry count is added to the sum
-        while (localSum >> 16) {
+        while (localSum >> 16)
+        {
             localSum = (localSum & 0xffff) + (localSum >> 16);
         }
         PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase
@@ -47,7 +53,8 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize) {
         sum += localSum;
     }
 
-    while (sum >> 16) {
+    while (sum >> 16)
+    {
         sum = (sum & 0xffff) + (sum >> 16);
     }
     PCPP_LOG_DEBUG("Sum before invert = " << sum << ", 0x" << std::uppercase
@@ -67,7 +74,8 @@ uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize) {
 uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen,
                                   IPAddress::AddressType ipAddrType,
                                   uint8_t protocolType, IPAddress srcIPAddress,
-                                  IPAddress dstIPAddress) {
+                                  IPAddress dstIPAddress)
+{
     PCPP_LOG_DEBUG("Compute pseudo header checksum.\n DataLen = "
                    << dataLen << "IPAddrType = " << ipAddrType
                    << "ProtocolType = " << protocolType
@@ -78,7 +86,8 @@ uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen,
     vec[0].buffer = (uint16_t*)dataPtr;
     vec[0].len = dataLen;
 
-    if (ipAddrType == IPAddress::IPv4AddressType) {
+    if (ipAddrType == IPAddress::IPv4AddressType)
+    {
         uint32_t srcIP = srcIPAddress.getIPv4().toInt();
         uint32_t dstIP = dstIPAddress.getIPv4().toInt();
         uint16_t pseudoHeader[6];
@@ -91,7 +100,9 @@ uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen,
         vec[1].buffer = pseudoHeader;
         vec[1].len = 12;
         checksumRes = computeChecksum(vec, 2);
-    } else if (ipAddrType == IPAddress::IPv6AddressType) {
+    }
+    else if (ipAddrType == IPAddress::IPv6AddressType)
+    {
         uint16_t pseudoHeader[18];
         srcIPAddress.getIPv6().copyTo((uint8_t*)pseudoHeader);
         dstIPAddress.getIPv6().copyTo((uint8_t*)(pseudoHeader + 8));
@@ -100,7 +111,9 @@ uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen,
         vec[1].buffer = pseudoHeader;
         vec[1].len = 36;
         checksumRes = computeChecksum(vec, 2);
-    } else {
+    }
+    else
+    {
         PCPP_LOG_ERROR(
             "Compute pseudo header checksum failed, for unknown IPAddrType = "
             << ipAddrType);
@@ -115,10 +128,13 @@ uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen,
 static const uint32_t FNV_PRIME = 16777619u;
 static const uint32_t OFFSET_BASIS = 2166136261u;
 
-uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize) {
+uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
+{
     uint32_t hash = OFFSET_BASIS;
-    for (size_t i = 0; i < vecSize; ++i) {
-        for (size_t j = 0; j < vec[i].len; ++j) {
+    for (size_t i = 0; i < vecSize; ++i)
+    {
+        for (size_t j = 0; j < vec[i].len; ++j)
+        {
             hash *= FNV_PRIME;
             hash ^= vec[i].buffer[j];
         }
@@ -126,14 +142,16 @@ uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize) {
     return hash;
 }
 
-uint32_t fnvHash(uint8_t* buffer, size_t bufSize) {
+uint32_t fnvHash(uint8_t* buffer, size_t bufSize)
+{
     ScalarBuffer<uint8_t> scalarBuf;
     scalarBuf.buffer = buffer;
     scalarBuf.len = bufSize;
     return fnvHash(&scalarBuf, 1);
 }
 
-uint32_t hash5Tuple(Packet* packet, bool const& directionUnique) {
+uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
+{
     if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
         return 0;
 
@@ -151,16 +169,20 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique) {
 
     TcpLayer* tcpLayer =
         packet->getLayerOfType<TcpLayer>(true); // lookup in reverse order
-    if (tcpLayer != nullptr) {
+    if (tcpLayer != nullptr)
+    {
         portSrc = tcpLayer->getTcpHeader()->portSrc;
         portDst = tcpLayer->getTcpHeader()->portDst;
-    } else {
+    }
+    else
+    {
         UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>(true);
         portSrc = udpLayer->getUdpHeader()->portSrc;
         portDst = udpLayer->getUdpHeader()->portDst;
     }
 
-    if (!directionUnique) {
+    if (!directionUnique)
+    {
         if (portDst < portSrc)
             srcPosition = 1;
     }
@@ -171,7 +193,8 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique) {
     vec[1 - srcPosition].len = 2;
 
     IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
-    if (ipv4Layer != nullptr) {
+    if (ipv4Layer != nullptr)
+    {
         if (portSrc == portDst &&
             ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
             srcPosition = 1;
@@ -182,7 +205,9 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique) {
         vec[3 - srcPosition].len = 4;
         vec[4].buffer = &(ipv4Layer->getIPv4Header()->protocol);
         vec[4].len = 1;
-    } else {
+    }
+    else
+    {
         IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
         if (portSrc == portDst && (uint64_t)ipv6Layer->getIPv6Header()->ipDst <
                                       (uint64_t)ipv6Layer->getIPv6Header()->ipSrc)
@@ -199,14 +224,16 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique) {
     return pcpp::fnvHash(vec, 5);
 }
 
-uint32_t hash2Tuple(Packet* packet) {
+uint32_t hash2Tuple(Packet* packet)
+{
     if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
         return 0;
 
     ScalarBuffer<uint8_t> vec[2];
 
     IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
-    if (ipv4Layer != nullptr) {
+    if (ipv4Layer != nullptr)
+    {
         int srcPosition = 0;
         if (ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
             srcPosition = 1;
@@ -215,7 +242,9 @@ uint32_t hash2Tuple(Packet* packet) {
         vec[0 + srcPosition].len = 4;
         vec[1 - srcPosition].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipDst;
         vec[1 - srcPosition].len = 4;
-    } else {
+    }
+    else
+    {
         IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
         int srcPosition = 0;
         if ((uint64_t)ipv6Layer->getIPv6Header()->ipDst <

@@ -9,12 +9,14 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * An enum representing the available ICMPv6 message types
  */
-enum class ICMPv6MessageType : int {
+enum class ICMPv6MessageType : int
+{
     /** Unknown ICMPv6 message */
     ICMPv6_UNKNOWN_MESSAGE = 0,
     /** Destination Unreachable Message */
@@ -98,7 +100,8 @@ enum class ICMPv6MessageType : int {
  * Represents an ICMPv6 protocol header
  */
 #pragma pack(push, 1)
-struct icmpv6hdr {
+struct icmpv6hdr
+{
     /** Type of the message. Values in the range from 0 to 127 (high-order bit is
   0) indicate an error message, while values in the range from 128 to 255
   (high-order bit is 1) indicate an information message. */
@@ -117,7 +120,8 @@ struct icmpv6hdr {
  * ICMP echo request/reply message structure
  */
 #pragma pack(push, 1)
-typedef struct icmpv6_echo_hdr : icmpv6hdr {
+typedef struct icmpv6_echo_hdr : icmpv6hdr
+{
     /** the echo request identifier */
     uint16_t id;
     /** the echo request sequence number */
@@ -130,7 +134,8 @@ typedef struct icmpv6_echo_hdr : icmpv6hdr {
  * Base class for ICMPv6 protocol layers which provides common logic for ICMPv6
  * messages.
  */
-class IcmpV6Layer : public Layer {
+class IcmpV6Layer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -141,7 +146,8 @@ class IcmpV6Layer : public Layer {
    * in
    */
     IcmpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = ICMPv6;
     }
 
@@ -173,7 +179,8 @@ class IcmpV6Layer : public Layer {
    * @param[in] type Type to check
    * @return True if the layer if of the given type, false otherwise
    */
-    bool isMessageOfType(ICMPv6MessageType type) const {
+    bool isMessageOfType(ICMPv6MessageType type) const
+    {
         return getMessageType() == type;
     }
 
@@ -223,12 +230,14 @@ class IcmpV6Layer : public Layer {
  * @class ICMPv6EchoLayer
  * Represents an ICMPv6 echo request/reply protocol layer
  */
-class ICMPv6EchoLayer : public IcmpV6Layer {
+class ICMPv6EchoLayer : public IcmpV6Layer
+{
   public:
     /**
    * An enum representing ICMPv6 echo message types
    */
-    enum ICMPv6EchoType {
+    enum ICMPv6EchoType
+    {
         /** Echo Request Type */
         REQUEST,
         /** Echo Reply Type */

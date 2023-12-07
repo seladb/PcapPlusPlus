@@ -63,7 +63,8 @@ static struct option DpdkBridgeOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -107,7 +108,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -118,11 +120,13 @@ void printAppVersion() {
 /**
  * Print to console all available DPDK ports. Used by the -l switch
  */
-void listDpdkPorts() {
+void listDpdkPorts()
+{
     pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
 
     // initialize DPDK
-    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, DEFAULT_MBUF_POOL_SIZE)) {
+    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, DEFAULT_MBUF_POOL_SIZE))
+    {
         EXIT_WITH_ERROR("couldn't initialize DPDK");
     }
 
@@ -132,7 +136,8 @@ void listDpdkPorts() {
     std::vector<pcpp::DpdkDevice*> deviceList =
         pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
     for (std::vector<pcpp::DpdkDevice*>::iterator iter = deviceList.begin();
-         iter != deviceList.end(); iter++) {
+         iter != deviceList.end(); iter++)
+    {
         pcpp::DpdkDevice* dev = *iter;
         std::cout << "   "
                   << " Port #" << dev->getDeviceId() << ":"
@@ -142,7 +147,8 @@ void listDpdkPorts() {
     }
 }
 
-struct DpdkBridgeArgs {
+struct DpdkBridgeArgs
+{
     bool shouldStop;
     std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector;
 
@@ -153,7 +159,8 @@ struct DpdkBridgeArgs {
  * The callback to be called when application is terminated by ctrl-c. Do
  * cleanup and print summary stats
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     DpdkBridgeArgs* args = (DpdkBridgeArgs*)cookie;
 
     std::cout << std::endl
@@ -169,7 +176,8 @@ void onApplicationInterrupted(void* cookie) {
 /**
  * Extract and print traffic stats from a device
  */
-void printStats(pcpp::DpdkDevice* device) {
+void printStats(pcpp::DpdkDevice* device)
+{
     pcpp::DpdkDevice::DpdkDeviceStats stats;
     device->getStatistics(stats);
 
@@ -216,7 +224,8 @@ void printStats(pcpp::DpdkDevice* device) {
  * At program termination worker threads are stopped, statistics are collected
  * from them and printed to console
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::vector<int> dpdkPortVec;
@@ -231,58 +240,72 @@ int main(int argc, char* argv[]) {
     uint16_t queueQuantity = DEFAULT_QUEUE_QUANTITY;
 
     while ((opt = getopt_long(argc, argv, "d:c:m:q:hvl", DpdkBridgeOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
-        case 0: {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
+        case 0:
+        {
             break;
         }
-        case 'c': {
+        case 'c':
+        {
             coreMaskToUse = atoi(optarg);
             break;
         }
-        case 'd': {
+        case 'd':
+        {
             std::string portListAsString = std::string(optarg);
             std::stringstream stream(portListAsString);
             std::string portAsString;
             int port;
             // break comma-separated string into string list
-            while (getline(stream, portAsString, ',')) {
+            while (getline(stream, portAsString, ','))
+            {
                 char c;
                 std::stringstream stream2(portAsString);
                 stream2 >> port;
-                if (stream2.fail() || stream2.get(c)) {
+                if (stream2.fail() || stream2.get(c))
+                {
                     // not an integer
                     EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK ports list is invalid");
                 }
                 dpdkPortVec.push_back(port);
             }
             // verify list contains two ports
-            if (dpdkPortVec.size() != 2) {
+            if (dpdkPortVec.size() != 2)
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK list must contain two values");
             }
             break;
         }
-        case 'm': {
+        case 'm':
+        {
             mBufPoolSize = atoi(optarg);
             break;
         }
-        case 'q': {
+        case 'q':
+        {
             queueQuantity = atoi(optarg);
             break;
         }
-        case 'h': {
+        case 'h':
+        {
             printUsage();
             exit(0);
         }
-        case 'l': {
+        case 'l':
+        {
             listDpdkPorts();
             exit(0);
         }
-        case 'v': {
+        case 'v':
+        {
             printAppVersion();
             break;
         }
-        default: {
+        default:
+        {
             printUsage();
             exit(0);
         }
@@ -290,7 +313,8 @@ int main(int argc, char* argv[]) {
     }
 
     // verify list is not empty
-    if (dpdkPortVec.empty()) {
+    if (dpdkPortVec.empty())
+    {
         EXIT_WITH_ERROR_AND_PRINT_USAGE(
             "DPDK ports list is empty. Please use the -d switch");
     }
@@ -301,12 +325,14 @@ int main(int argc, char* argv[]) {
 
     // need minimum of 3 cores to start - 1 management core + 1 (or more) worker
     // thread(s)
-    if (coresToUse.size() < 3) {
+    if (coresToUse.size() < 3)
+    {
         EXIT_WITH_ERROR("Needed minimum of 3 cores to start the application");
     }
 
     // initialize DPDK
-    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, mBufPoolSize)) {
+    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, mBufPoolSize))
+    {
         EXIT_WITH_ERROR("Couldn't initialize DPDK");
     }
 
@@ -323,10 +349,12 @@ int main(int argc, char* argv[]) {
     // collect the list of DPDK devices
     std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
     for (std::vector<int>::iterator iter = dpdkPortVec.begin();
-         iter != dpdkPortVec.end(); iter++) {
+         iter != dpdkPortVec.end(); iter++)
+    {
         pcpp::DpdkDevice* dev =
             pcpp::DpdkDeviceList::getInstance().getDeviceByPort(*iter);
-        if (dev == NULL) {
+        if (dev == NULL)
+        {
             EXIT_WITH_ERROR("DPDK device for port " << *iter << " doesn't exist");
         }
         dpdkDevicesToUse.push_back(dev);
@@ -335,8 +363,10 @@ int main(int argc, char* argv[]) {
     // go over all devices and open them
     for (std::vector<pcpp::DpdkDevice*>::iterator iter =
              dpdkDevicesToUse.begin();
-         iter != dpdkDevicesToUse.end(); iter++) {
-        if (!(*iter)->openMultiQueues(queueQuantity, 1)) {
+         iter != dpdkDevicesToUse.end(); iter++)
+    {
+        if (!(*iter)->openMultiQueues(queueQuantity, 1))
+        {
             EXIT_WITH_ERROR("Couldn't open DPDK device #"
                             << (*iter)->getDeviceId() << ", PMD '"
                             << (*iter)->getPMDName() << "'");
@@ -361,7 +391,8 @@ int main(int argc, char* argv[]) {
 
     // start all worker threads
     if (!pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(
-            coreMaskToUse, workerThreadVec)) {
+            coreMaskToUse, workerThreadVec))
+    {
         EXIT_WITH_ERROR("Couldn't start worker threads");
     }
 
@@ -376,13 +407,15 @@ int main(int argc, char* argv[]) {
     int statsCounter = 1;
 
     // Keep running while flag is on
-    while (!args.shouldStop) {
+    while (!args.shouldStop)
+    {
         // Sleep for 1 second
         sleep(1);
 
         // Print stats every COLLECT_STATS_EVERY_SEC seconds
         // cppcheck-suppress moduloofone
-        if (counter % COLLECT_STATS_EVERY_SEC == 0) {
+        if (counter % COLLECT_STATS_EVERY_SEC == 0)
+        {
             // Clear screen and move to top left
             std::cout << "\033[2J\033[1;1H";
 

@@ -9,13 +9,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @struct llc_header
  * Logical Link Control (LLC) header
  */
 #pragma pack(push, 1)
-struct llc_header {
+struct llc_header
+{
     /// Destination Service Access Point
     uint8_t dsap,
         /// Source Service Access Point
@@ -29,7 +31,8 @@ struct llc_header {
  * @class LLCLayer
  * Represents Logical Link Control layer messages
  */
-class LLCLayer : public Layer {
+class LLCLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -40,7 +43,8 @@ class LLCLayer : public Layer {
    * stored in
    */
     LLCLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = LLC;
     }
 

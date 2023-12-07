@@ -42,7 +42,8 @@
 #include <unordered_map>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -78,7 +79,8 @@ static struct option TcpAssemblyOptions[] = {
  * A singleton class containing the configuration as requested by the user. This
  * singleton is used throughout the application
  */
-class GlobalConfig {
+class GlobalConfig
+{
   private:
     /**
    * A private c'tor (as this is a singleton)
@@ -118,7 +120,8 @@ class GlobalConfig {
    * and the TCP ports (src and dst)
    */
     std::string getFileName(pcpp::ConnectionData connData, int side,
-                            bool useSeparateSides) const {
+                            bool useSeparateSides) const
+    {
         std::stringstream stream;
 
         // if user chooses to write to a directory other than the current directory
@@ -150,7 +153,8 @@ class GlobalConfig {
    * whether to append to an existing file or overwrite it. Return value is a
    * pointer to the new file stream
    */
-    std::ostream* openFileStream(const std::string& fileName, bool reopen) const {
+    std::ostream* openFileStream(const std::string& fileName, bool reopen) const
+    {
         // if the user chooses to write only to console, don't open anything and
         // return std::cout
         if (writeToConsole)
@@ -167,9 +171,11 @@ class GlobalConfig {
     /**
    * Close a file stream
    */
-    void closeFileSteam(std::ostream* fileStream) const {
+    void closeFileSteam(std::ostream* fileStream) const
+    {
         // if the user chooses to write only to console - do nothing and return
-        if (!writeToConsole) {
+        if (!writeToConsole)
+        {
             // close the file stream
             auto fstream = (std::ofstream*)fileStream;
             fstream->close();
@@ -182,7 +188,8 @@ class GlobalConfig {
     /**
    * Return a pointer to the least-recently-used (LRU) list of connections
    */
-    pcpp::LRUList<uint32_t>* getRecentConnsWithActivity() {
+    pcpp::LRUList<uint32_t>* getRecentConnsWithActivity()
+    {
         // This is a lazy implementation - the instance isn't created until the user
         // requests it for the first time. the side of the LRU list is determined by
         // the max number of allowed open files at any point in time. Default is
@@ -198,7 +205,8 @@ class GlobalConfig {
     /**
    * The singleton implementation of this class
    */
-    static GlobalConfig& getInstance() {
+    static GlobalConfig& getInstance()
+    {
         static GlobalConfig instance;
         return instance;
     }
@@ -213,7 +221,8 @@ class GlobalConfig {
  * A struct to contain all data save on a specific connection. It contains the
  * file streams to write to and also stats data on the connection
  */
-struct TcpReassemblyData {
+struct TcpReassemblyData
+{
     // pointer to 2 file stream - one for each side of the connection. If the user
     // chooses to write both sides to the same file (which is the default), only
     // one file stream is used (index 0)
@@ -236,7 +245,8 @@ struct TcpReassemblyData {
     /**
    * the default c'tor
    */
-    TcpReassemblyData() {
+    TcpReassemblyData()
+    {
         fileStreams[0] = nullptr;
         fileStreams[1] = nullptr;
         clear();
@@ -245,7 +255,8 @@ struct TcpReassemblyData {
     /**
    * The default d'tor
    */
-    ~TcpReassemblyData() {
+    ~TcpReassemblyData()
+    {
         // close files on both sides if open
         if (fileStreams[0] != nullptr)
             GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
@@ -257,14 +268,17 @@ struct TcpReassemblyData {
     /**
    * Clear all data (put 0, false or nullptr - whatever relevant for each field)
    */
-    void clear() {
+    void clear()
+    {
         // for the file stream - close them if they're not null
-        if (fileStreams[0] != nullptr) {
+        if (fileStreams[0] != nullptr)
+        {
             GlobalConfig::getInstance().closeFileSteam(fileStreams[0]);
             fileStreams[0] = nullptr;
         }
 
-        if (fileStreams[1] != nullptr) {
+        if (fileStreams[1] != nullptr)
+        {
             GlobalConfig::getInstance().closeFileSteam(fileStreams[1]);
             fileStreams[1] = nullptr;
         }
@@ -287,7 +301,8 @@ typedef std::unordered_map<uint32_t, TcpReassemblyData> TcpReassemblyConnMgr;
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -332,7 +347,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -343,14 +359,16 @@ void printAppVersion() {
 /**
  * Go over all interfaces and output their names
  */
-void listInterfaces() {
+void listInterfaces()
+{
     auto const& devList =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
     std::cout << std::endl
               << "Network interfaces:" << std::endl;
 
-    for (auto dev : devList) {
+    for (auto dev : devList)
+    {
         std::cout << "    -> Name: '" << dev->getName()
                   << "'   IP address: " << dev->getIPv4Address().toString()
                   << std::endl;
@@ -364,13 +382,15 @@ void listInterfaces() {
  */
 static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex,
                                           const pcpp::TcpStreamData& tcpData,
-                                          void* userCookie) {
+                                          void* userCookie)
+{
     // extract the connection manager from the user cookie
     auto connMgr = (TcpReassemblyConnMgr*)userCookie;
 
     // check if this flow already appears in the connection manager. If not add it
     auto flow = connMgr->find(tcpData.getConnectionData().flowKey);
-    if (flow == connMgr->end()) {
+    if (flow == connMgr->end())
+    {
         connMgr->insert(std::make_pair(tcpData.getConnectionData().flowKey,
                                        TcpReassemblyData()));
         flow = connMgr->find(tcpData.getConnectionData().flowKey);
@@ -387,7 +407,8 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex,
 
     // if the file stream on the relevant side isn't open yet (meaning it's the
     // first data on this connection)
-    if (flow->second.fileStreams[side] == nullptr) {
+    if (flow->second.fileStreams[side] == nullptr)
+    {
         // add the flow key of this connection to the list of open connections. If
         // the return value isn't nullptr it means that there are too many open
         // files and we need to close the connection with least recently used
@@ -399,13 +420,17 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex,
 
         // if result equals to 1 it means we need to close the open files in this
         // connection (the one with the least recently used files)
-        if (result == 1) {
+        if (result == 1)
+        {
             // find the connection from the flow key
             auto flow2 = connMgr->find(flowKeyToCloseFiles);
-            if (flow2 != connMgr->end()) {
+            if (flow2 != connMgr->end())
+            {
                 // close files on both sides (if they're open)
-                for (int index = 0; index < 2; index++) {
-                    if (flow2->second.fileStreams[index] != nullptr) {
+                for (int index = 0; index < 2; index++)
+                {
+                    if (flow2->second.fileStreams[index] != nullptr)
+                    {
                         // close the file
                         GlobalConfig::getInstance().closeFileSteam(
                             flow2->second.fileStreams[index]);
@@ -434,7 +459,8 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex,
 
     // if this messages comes on a different side than previous message seen on
     // this connection
-    if (sideIndex != flow->second.curSide) {
+    if (sideIndex != flow->second.curSide)
+    {
         // count number of message in each side
         flow->second.numOfMessagesFromSide[sideIndex]++;
 
@@ -458,7 +484,8 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex,
  */
 static void
 tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& connectionData,
-                                     void* userCookie) {
+                                     void* userCookie)
+{
     // get a pointer to the connection manager
     auto connMgr = (TcpReassemblyConnMgr*)userCookie;
 
@@ -466,7 +493,8 @@ tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& connectionData,
     auto connectionMngr = connMgr->find(connectionData.flowKey);
 
     // assuming it's a new connection
-    if (connectionMngr == connMgr->end()) {
+    if (connectionMngr == connMgr->end())
+    {
         // add it to the connection manager
         connMgr->insert(
             std::make_pair(connectionData.flowKey, TcpReassemblyData()));
@@ -480,7 +508,8 @@ tcpReassemblyConnectionStartCallback(const pcpp::ConnectionData& connectionData,
  */
 static void tcpReassemblyConnectionEndCallback(
     const pcpp::ConnectionData& connectionData,
-    pcpp::TcpReassembly::ConnectionEndReason reason, void* userCookie) {
+    pcpp::TcpReassembly::ConnectionEndReason reason, void* userCookie)
+{
     // get a pointer to the connection manager
     auto connMgr = (TcpReassemblyConnMgr*)userCookie;
 
@@ -492,7 +521,8 @@ static void tcpReassemblyConnectionEndCallback(
         return;
 
     // write a metadata file if required by the user
-    if (GlobalConfig::getInstance().writeMetadata) {
+    if (GlobalConfig::getInstance().writeMetadata)
+    {
         std::string fileName =
             GlobalConfig::getInstance().getFileName(connectionData, 0, false) +
             "-metadata.txt";
@@ -530,7 +560,8 @@ static void tcpReassemblyConnectionEndCallback(
  * The callback to be called when application is terminated by ctrl-c. Stops the
  * endless while loop
  */
-static void onApplicationInterrupted(void* cookie) {
+static void onApplicationInterrupted(void* cookie)
+{
     bool* shouldStop = (bool*)cookie;
     *shouldStop = true;
 }
@@ -540,7 +571,8 @@ static void onApplicationInterrupted(void* cookie) {
  * (in live device capturing mode)
  */
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
-                            void* tcpReassemblyCookie) {
+                            void* tcpReassemblyCookie)
+{
     // get a pointer to the TCP reassembly instance and feed the packet arrived to
     // it
     auto tcpReassembly = (pcpp::TcpReassembly*)tcpReassemblyCookie;
@@ -552,7 +584,8 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
  */
 void doTcpReassemblyOnPcapFile(const std::string& fileName,
                                pcpp::TcpReassembly& tcpReassembly,
-                               const std::string& bpfFilter = "") {
+                               const std::string& bpfFilter = "")
+{
     // open input file (pcap or pcapng file)
     pcpp::IFileReaderDevice* reader =
         pcpp::IFileReaderDevice::getReader(fileName);
@@ -562,7 +595,8 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName,
         EXIT_WITH_ERROR("Cannot open pcap/pcapng file");
 
     // set BPF filter if set by the user
-    if (!bpfFilter.empty()) {
+    if (!bpfFilter.empty())
+    {
         if (!reader->setFilter(bpfFilter))
             EXIT_WITH_ERROR("Cannot set BPF filter to pcap file");
     }
@@ -572,7 +606,8 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName,
     // run in a loop that reads one packet from the file in each iteration and
     // feeds it to the TCP reassembly instance
     pcpp::RawPacket rawPacket;
-    while (reader->getNextPacket(rawPacket)) {
+    while (reader->getNextPacket(rawPacket))
+    {
         tcpReassembly.reassemblePacket(&rawPacket);
     }
 
@@ -597,13 +632,15 @@ void doTcpReassemblyOnPcapFile(const std::string& fileName,
  */
 void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev,
                                   pcpp::TcpReassembly& tcpReassembly,
-                                  const std::string& bpfFilter = "") {
+                                  const std::string& bpfFilter = "")
+{
     // try to open device
     if (!dev->open())
         EXIT_WITH_ERROR("Cannot open interface");
 
     // set BPF filter if set by the user
-    if (!bpfFilter.empty()) {
+    if (!bpfFilter.empty())
+    {
         if (!dev->setFilter(bpfFilter))
             EXIT_WITH_ERROR("Cannot set BPF filter to interface");
     }
@@ -639,7 +676,8 @@ void doTcpReassemblyOnLiveTraffic(pcpp::PcapLiveDevice* dev,
 /**
  * main method of this utility
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::string interfaceNameOrIP;
@@ -655,8 +693,10 @@ int main(int argc, char* argv[]) {
     int opt;
 
     while ((opt = getopt_long(argc, argv, "i:r:o:e:f:mcsvhl", TcpAssemblyOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'i':
@@ -722,9 +762,11 @@ int main(int argc, char* argv[]) {
                                       tcpReassemblyConnectionEndCallback);
 
     // analyze in pcap file mode
-    if (!inputPcapFileName.empty()) {
+    if (!inputPcapFileName.empty())
+    {
         doTcpReassemblyOnPcapFile(inputPcapFileName, tcpReassembly, bpfFilter);
-    } else // analyze in live traffic mode
+    }
+    else // analyze in live traffic mode
     {
         // extract pcap live device by interface name or IP address
         pcpp::PcapLiveDevice* dev =

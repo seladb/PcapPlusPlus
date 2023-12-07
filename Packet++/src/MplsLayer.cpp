@@ -9,10 +9,12 @@
 #include <sstream>
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl,
-                     uint8_t experimentalUseValue, bool bottomOfStack) {
+                     uint8_t experimentalUseValue, bool bottomOfStack)
+{
     const size_t headerLen = sizeof(mpls_header);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -25,24 +27,29 @@ MplsLayer::MplsLayer(uint32_t mplsLabel, uint8_t ttl,
     setBottomOfStack(bottomOfStack);
 }
 
-bool MplsLayer::isBottomOfStack() const {
+bool MplsLayer::isBottomOfStack() const
+{
     return (getMplsHeader()->misc & 0x01);
 }
 
-void MplsLayer::setBottomOfStack(bool val) {
+void MplsLayer::setBottomOfStack(bool val)
+{
     if (!val)
         getMplsHeader()->misc &= 0xFE;
     else
         getMplsHeader()->misc |= 0x1;
 }
 
-uint8_t MplsLayer::getExperimentalUseValue() const {
+uint8_t MplsLayer::getExperimentalUseValue() const
+{
     return ((getMplsHeader()->misc & 0x0E) >> 1);
 }
 
-bool MplsLayer::setExperimentalUseValue(uint8_t val) {
+bool MplsLayer::setExperimentalUseValue(uint8_t val)
+{
     // exp value is only 3 bits
-    if (val > 7) {
+    if (val > 7)
+    {
         PCPP_LOG_ERROR("Set ExperimentalUse value got an illegal value: "
                        << (int)val << ". Value must be lower than 8");
         return false;
@@ -61,13 +68,16 @@ bool MplsLayer::setExperimentalUseValue(uint8_t val) {
     return true;
 }
 
-uint32_t MplsLayer::getMplsLabel() const {
+uint32_t MplsLayer::getMplsLabel() const
+{
     return (htobe16(getMplsHeader()->hiLabel) << 4) |
            ((getMplsHeader()->misc & 0xF0) >> 4);
 }
 
-bool MplsLayer::setMplsLabel(uint32_t label) {
-    if (label > 0xFFFFF) {
+bool MplsLayer::setMplsLabel(uint32_t label)
+{
+    if (label > 0xFFFFF)
+    {
         PCPP_LOG_ERROR("MPLS label mustn't exceed 20 bits which is the value "
                        "0xffff. Got a parameter with the value 0x"
                        << std::hex << label);
@@ -95,7 +105,8 @@ bool MplsLayer::setMplsLabel(uint32_t label) {
     return true;
 }
 
-void MplsLayer::parseNextLayer() {
+void MplsLayer::parseNextLayer()
+{
     size_t headerLen = getHeaderLen();
     if (m_DataLen < headerLen + 1)
         return;
@@ -103,13 +114,15 @@ void MplsLayer::parseNextLayer() {
     uint8_t* payload = m_Data + sizeof(mpls_header);
     size_t payloadLen = m_DataLen - sizeof(mpls_header);
 
-    if (!isBottomOfStack()) {
+    if (!isBottomOfStack())
+    {
         m_NextLayer = new MplsLayer(payload, payloadLen, this, m_Packet);
         return;
     }
 
     uint8_t nextNibble = (*((uint8_t*)(m_Data + headerLen)) & 0xF0) >> 4;
-    switch (nextNibble) {
+    switch (nextNibble)
+    {
     case 4:
         m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
                           ? static_cast<Layer*>(
@@ -129,14 +142,17 @@ void MplsLayer::parseNextLayer() {
     }
 }
 
-void MplsLayer::computeCalculateFields() {
+void MplsLayer::computeCalculateFields()
+{
     Layer* nextLayer = getNextLayer();
-    if (nextLayer != nullptr) {
+    if (nextLayer != nullptr)
+    {
         setBottomOfStack((nextLayer->getProtocol() != MPLS));
     }
 }
 
-std::string MplsLayer::toString() const {
+std::string MplsLayer::toString() const
+{
     std::ostringstream labelStream;
     labelStream << getMplsLabel();
     std::ostringstream expStream;

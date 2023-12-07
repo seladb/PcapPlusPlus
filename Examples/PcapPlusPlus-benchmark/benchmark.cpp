@@ -32,20 +32,23 @@ using namespace pcpp;
 
 size_t count = 0;
 
-bool handle_dns(Packet& packet) {
+bool handle_dns(Packet& packet)
+{
     if (!packet.isPacketOfType(DNS))
         return true;
 
     DnsLayer* dnsLayer = packet.getLayerOfType<DnsLayer>();
 
     DnsQuery* query = dnsLayer->getFirstQuery();
-    while (query != nullptr) {
+    while (query != nullptr)
+    {
         count++;
         query = dnsLayer->getNextQuery(query);
     }
 
     DnsResource* answer = dnsLayer->getFirstAnswer();
-    while (answer != nullptr) {
+    while (answer != nullptr)
+    {
         count++;
         answer = dnsLayer->getNextAnswer(answer);
     }
@@ -53,13 +56,16 @@ bool handle_dns(Packet& packet) {
     return true;
 }
 
-bool handle_packet(Packet& packet) {
+bool handle_packet(Packet& packet)
+{
     count++;
     return true;
 }
 
-int main(int argc, char* argv[]) {
-    if (argc != 4) {
+int main(int argc, char* argv[])
+{
+    if (argc != 4)
+    {
         std::cout << "Usage: " << *argv
                   << " <input-file> <dns|packet> <repetitions>\n";
         return 1;
@@ -68,22 +74,28 @@ int main(int argc, char* argv[]) {
     int total_runs = std::stoi(argv[3]);
     size_t total_packets = 0;
     std::vector<std::chrono::high_resolution_clock::duration> durations;
-    for (int i = 0; i < total_runs; ++i) {
+    for (int i = 0; i < total_runs; ++i)
+    {
         count = 0;
         PcapFileReaderDevice reader(argv[1]);
         reader.open();
         std::chrono::high_resolution_clock::time_point start;
-        if (input_type == "dns") {
+        if (input_type == "dns")
+        {
             start = std::chrono::high_resolution_clock::now();
             RawPacket rawPacket;
-            while (reader.getNextPacket(rawPacket)) {
+            while (reader.getNextPacket(rawPacket))
+            {
                 Packet packet(&rawPacket);
                 handle_dns(packet);
             }
-        } else {
+        }
+        else
+        {
             start = std::chrono::high_resolution_clock::now();
             RawPacket rawPacket;
-            while (reader.getNextPacket(rawPacket)) {
+            while (reader.getNextPacket(rawPacket))
+            {
                 Packet packet(&rawPacket, pcpp::TCP);
                 handle_packet(packet);
             }

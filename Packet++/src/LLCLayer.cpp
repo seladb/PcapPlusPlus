@@ -5,9 +5,11 @@
 #include "StpLayer.h"
 #include <iostream>
 
-namespace pcpp {
+namespace pcpp
+{
 
-LLCLayer::LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control) {
+LLCLayer::LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control)
+{
     m_DataLen = sizeof(llc_header);
     m_Data = new uint8_t[sizeof(llc_header)];
     memset(m_Data, 0, sizeof(llc_header));
@@ -21,7 +23,8 @@ LLCLayer::LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control) {
     header->control = control;
 }
 
-void LLCLayer::parseNextLayer() {
+void LLCLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(llc_header))
         return;
 
@@ -30,7 +33,8 @@ void LLCLayer::parseNextLayer() {
     size_t payloadLen = m_DataLen - sizeof(llc_header);
 
     if (hdr->dsap == 0x42 && hdr->ssap == 0x42 &&
-        StpLayer::isDataValid(payload, payloadLen)) {
+        StpLayer::isDataValid(payload, payloadLen))
+    {
         m_NextLayer = StpLayer::parseStpLayer(payload, payloadLen, this, m_Packet);
         if (!m_NextLayer)
             m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
@@ -41,7 +45,8 @@ void LLCLayer::parseNextLayer() {
 
 std::string LLCLayer::toString() const { return "Logical Link Control"; }
 
-bool LLCLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool LLCLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return dataLen >= sizeof(llc_header) && !(data[0] == 0xFF && data[1] == 0xFF);
 }
 

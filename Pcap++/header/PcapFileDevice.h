@@ -15,14 +15,16 @@ typedef struct pcap_dumper pcap_dumper_t;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class IFileDevice
  * An abstract class (cannot be instantiated, has a private c'tor) which is the
  * parent class for all file devices
  */
-class IFileDevice : public IPcapDevice {
+class IFileDevice : public IPcapDevice
+{
   protected:
     std::string m_FileName;
 
@@ -48,7 +50,8 @@ class IFileDevice : public IPcapDevice {
  * An abstract class (cannot be instantiated, has a private c'tor) which is the
  * parent class for file reader devices
  */
-class IFileReaderDevice : public IFileDevice {
+class IFileReaderDevice : public IFileDevice
+{
   protected:
     uint32_t m_NumOfPacketsRead;
     uint32_t m_NumOfPacketsNotParsed;
@@ -101,7 +104,8 @@ class IFileReaderDevice : public IFileDevice {
  * A class for opening a pcap file in read-only mode. This class enable to open
  * the file and read all packets, packet-by-packet
  */
-class PcapFileReaderDevice : public IFileReaderDevice {
+class PcapFileReaderDevice : public IFileReaderDevice
+{
   private:
     LinkLayerType m_PcapLinkLayerType;
 
@@ -164,13 +168,15 @@ class PcapFileReaderDevice : public IFileReaderDevice {
  * A class for opening a snoop file in read-only mode. This class enable to open
  * the file and read all packets, packet-by-packet
  */
-class SnoopFileReaderDevice : public IFileReaderDevice {
+class SnoopFileReaderDevice : public IFileReaderDevice
+{
   private:
 #pragma pack(1)
     /*
    * File format header.
    */
-    typedef struct {
+    typedef struct
+    {
         uint64_t identification_pattern;
         uint32_t version_number;
         uint32_t datalink_type;
@@ -179,7 +185,8 @@ class SnoopFileReaderDevice : public IFileReaderDevice {
     /*
    * Packet record header.
    */
-    typedef struct {
+    typedef struct
+    {
         uint32_t original_length;      /* original packet length */
         uint32_t included_length;      /* saved packet length */
         uint32_t packet_record_length; /* total record length */
@@ -256,7 +263,8 @@ class SnoopFileReaderDevice : public IFileReaderDevice {
  * A class for opening a pcap-ng file in read-only mode. This class enable to
  * open the file and read all packets, packet-by-packet
  */
-class PcapNgFileReaderDevice : public IFileReaderDevice {
+class PcapNgFileReaderDevice : public IFileReaderDevice
+{
   private:
     void* m_LightPcapNg;
     BpfFilterWrapper m_BpfWrapper;
@@ -379,7 +387,8 @@ class PcapNgFileReaderDevice : public IFileReaderDevice {
  * An abstract class (cannot be instantiated, has a private c'tor) which is the
  * parent class for file writer devices
  */
-class IFileWriterDevice : public IFileDevice {
+class IFileWriterDevice : public IFileDevice
+{
   protected:
     uint32_t m_NumOfPacketsWritten;
     uint32_t m_NumOfPacketsNotWritten;
@@ -408,7 +417,8 @@ class IFileWriterDevice : public IFileDevice {
  * append mode where packets are written at the end of the pcap file instead of
  * running it over
  */
-class PcapFileWriterDevice : public IFileWriterDevice {
+class PcapFileWriterDevice : public IFileWriterDevice
+{
   private:
     pcap_dumper_t* m_PcapDumpHandler;
     LinkLayerType m_PcapLinkLayerType;
@@ -516,7 +526,8 @@ class PcapFileWriterDevice : public IFileWriterDevice {
  * overriding it. This capabilities are part of the pcap-ng standard but aren't
  * supported in most tools and libraries
  */
-class PcapNgFileWriterDevice : public IFileWriterDevice {
+class PcapNgFileWriterDevice : public IFileWriterDevice
+{
   private:
     void* m_LightPcapNg;
     int m_CompressionLevel;

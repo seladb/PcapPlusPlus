@@ -13,15 +13,18 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-struct xsk_umem_info {
+struct xsk_umem_info
+{
     struct xsk_ring_prod fq;
     struct xsk_ring_cons cq;
     struct xsk_umem* umem;
 };
 
-struct xsk_socket_info {
+struct xsk_socket_info
+{
     struct xsk_ring_cons rx;
     struct xsk_ring_prod tx;
     struct xsk_socket* xsk;
@@ -35,10 +38,12 @@ struct xsk_socket_info {
 
 XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize,
                             uint32_t fillRingSize,
-                            uint32_t completionRingSize) {
+                            uint32_t completionRingSize)
+{
     size_t bufferSize = numFrames * frameSize;
 
-    if (posix_memalign(&m_Buffer, getpagesize(), bufferSize)) {
+    if (posix_memalign(&m_Buffer, getpagesize(), bufferSize))
+    {
         throw std::runtime_error("Could not allocate buffer memory for UMEM");
     }
 
@@ -54,7 +59,8 @@ XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize,
 
     int ret = xsk_umem__create(&umem->umem, m_Buffer, bufferSize, &umem->fq,
                                &umem->cq, &cfg);
-    if (ret) {
+    if (ret)
+    {
         throw std::runtime_error(
             "Could not allocate UMEM - xsk_umem__create() returned " +
             std::to_string(ret));
@@ -62,7 +68,8 @@ XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize,
 
     m_UmemInfo = umem;
 
-    for (uint16_t i = 0; i < numFrames; i++) {
+    for (uint16_t i = 0; i < numFrames; i++)
+    {
         m_FreeFrames.push_back(i * frameSize);
     }
 
@@ -70,31 +77,37 @@ XdpDevice::XdpUmem::XdpUmem(uint16_t numFrames, uint16_t frameSize,
     m_FrameCount = numFrames;
 }
 
-XdpDevice::XdpUmem::~XdpUmem() {
+XdpDevice::XdpUmem::~XdpUmem()
+{
     xsk_umem__delete(static_cast<xsk_umem_info*>(m_UmemInfo)->umem);
     free(m_Buffer);
 }
 
-const uint8_t* XdpDevice::XdpUmem::getDataPtr(uint64_t addr) const {
+const uint8_t* XdpDevice::XdpUmem::getDataPtr(uint64_t addr) const
+{
     return static_cast<const uint8_t*>(xsk_umem__get_data(m_Buffer, addr));
 }
 
 void XdpDevice::XdpUmem::setData(uint64_t addr, const uint8_t* data,
-                                 size_t dataLen) {
+                                 size_t dataLen)
+{
     auto dataPtr = static_cast<uint8_t*>(xsk_umem__get_data(m_Buffer, addr));
     memcpy(dataPtr, data, dataLen);
 }
 
 std::pair<bool, std::vector<uint64_t>>
-XdpDevice::XdpUmem::allocateFrames(uint32_t count) {
-    if (m_FreeFrames.size() < count) {
+XdpDevice::XdpUmem::allocateFrames(uint32_t count)
+{
+    if (m_FreeFrames.size() < count)
+    {
         PCPP_LOG_ERROR("Not enough frames to allocate. Requested: "
                        << count << ", available: " << m_FreeFrames.size());
         return {false, {}};
     }
 
     std::vector<uint64_t> result;
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < count; i++)
+    {
         result.push_back(m_FreeFrames.back());
         m_FreeFrames.pop_back();
     }
@@ -102,14 +115,16 @@ XdpDevice::XdpUmem::allocateFrames(uint32_t count) {
     return {true, result};
 }
 
-void XdpDevice::XdpUmem::freeFrame(uint64_t addr) {
+void XdpDevice::XdpUmem::freeFrame(uint64_t addr)
+{
     auto frame = (uint64_t)((addr / m_FrameSize) * m_FrameSize);
     m_FreeFrames.push_back(frame);
 }
 
 XdpDevice::XdpDevice(std::string interfaceName)
     : m_InterfaceName(std::move(interfaceName)), m_Config(nullptr),
-      m_ReceivingPackets(false), m_Umem(nullptr), m_SocketInfo(nullptr) {
+      m_ReceivingPackets(false), m_Umem(nullptr), m_SocketInfo(nullptr)
+{
     memset(&m_Stats, 0, sizeof(m_Stats));
     memset(&m_PrevStats, 0, sizeof(m_PrevStats));
 }
@@ -117,8 +132,10 @@ XdpDevice::XdpDevice(std::string interfaceName)
 XdpDevice::~XdpDevice() { close(); }
 
 bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive,
-                               void* onPacketsArriveUserCookie, int timeoutMS) {
-    if (!m_DeviceOpened) {
+                               void* onPacketsArriveUserCookie, int timeoutMS)
+{
+    if (!m_DeviceOpened)
+    {
         PCPP_LOG_ERROR("Device is not open");
         return false;
     }
@@ -131,16 +148,19 @@ bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive,
     pollfd pollFds[1];
     pollFds[0] = {.fd = xsk_socket__fd(socketInfo->xsk), .events = POLLIN};
 
-    while (m_ReceivingPackets) {
+    while (m_ReceivingPackets)
+    {
         checkCompletionRing();
 
         auto pollResult = poll(pollFds, 1, timeoutMS);
-        if (pollResult == 0 && timeoutMS != 0) {
+        if (pollResult == 0 && timeoutMS != 0)
+        {
             m_Stats.rxPollTimeout++;
             m_ReceivingPackets = false;
             return true;
         }
-        if (pollResult < 0) {
+        if (pollResult < 0)
+        {
             PCPP_LOG_ERROR("poll() returned an error: " << errno);
             m_ReceivingPackets = false;
             return false;
@@ -149,7 +169,8 @@ bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive,
         uint32_t receivedPacketsCount =
             xsk_ring_cons__peek(&socketInfo->rx, m_Config->rxTxBatchSize, &rxId);
 
-        if (!receivedPacketsCount) {
+        if (!receivedPacketsCount)
+        {
             continue;
         }
 
@@ -157,7 +178,8 @@ bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive,
 
         RawPacket rawPacketsArr[receivedPacketsCount];
 
-        for (uint32_t i = 0; i < receivedPacketsCount; i++) {
+        for (uint32_t i = 0; i < receivedPacketsCount; i++)
+        {
             uint64_t addr = xsk_ring_cons__rx_desc(&socketInfo->rx, rxId + i)->addr;
             uint32_t len = xsk_ring_cons__rx_desc(&socketInfo->rx, rxId + i)->len;
 
@@ -177,7 +199,8 @@ bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive,
         xsk_ring_cons__release(&socketInfo->rx, receivedPacketsCount);
         m_Stats.rxRingId = rxId + receivedPacketsCount;
 
-        if (!populateFillRing(receivedPacketsCount, rxId)) {
+        if (!populateFillRing(receivedPacketsCount, rxId))
+        {
             m_ReceivingPackets = false;
         }
     }
@@ -190,8 +213,10 @@ void XdpDevice::stopReceivePackets() { m_ReceivingPackets = false; }
 bool XdpDevice::sendPackets(
     const std::function<RawPacket(uint32_t)>& getPacketAt,
     const std::function<uint32_t()>& getPacketCount, bool waitForTxCompletion,
-    int waitForTxCompletionTimeoutMS) {
-    if (!m_DeviceOpened) {
+    int waitForTxCompletionTimeoutMS)
+{
+    if (!m_DeviceOpened)
+    {
         PCPP_LOG_ERROR("Device is not open");
         return false;
     }
@@ -204,21 +229,26 @@ bool XdpDevice::sendPackets(
     uint32_t packetCount = getPacketCount();
 
     auto frameResponse = m_Umem->allocateFrames(packetCount);
-    if (!frameResponse.first) {
+    if (!frameResponse.first)
+    {
         return false;
     }
 
     if (xsk_ring_prod__reserve(&socketInfo->tx, packetCount, &txId) <
-        packetCount) {
-        for (auto frame : frameResponse.second) {
+        packetCount)
+    {
+        for (auto frame : frameResponse.second)
+        {
             m_Umem->freeFrame(frame);
         }
         PCPP_LOG_ERROR("Cannot reserve " << packetCount << " tx slots");
         return false;
     }
 
-    for (uint32_t i = 0; i < packetCount; i++) {
-        if (getPacketAt(i).getRawDataLen() > m_Umem->getFrameSize()) {
+    for (uint32_t i = 0; i < packetCount; i++)
+    {
+        if (getPacketAt(i).getRawDataLen() > m_Umem->getFrameSize())
+        {
             PCPP_LOG_ERROR("Cannot send packets with data length ("
                            << getPacketAt(i).getRawDataLen()
                            << ") greater than UMEM frame size ("
@@ -228,7 +258,8 @@ bool XdpDevice::sendPackets(
     }
 
     uint64_t sentBytes = 0;
-    for (uint32_t i = 0; i < packetCount; i++) {
+    for (uint32_t i = 0; i < packetCount; i++)
+    {
         uint64_t frame = frameResponse.second[i];
         m_Umem->setData(frame, getPacketAt(i).getRawData(),
                         getPacketAt(i).getRawDataLen());
@@ -245,19 +276,23 @@ bool XdpDevice::sendPackets(
     m_Stats.txSentBytes += sentBytes;
     m_Stats.txRingId = txId + packetCount;
 
-    if (waitForTxCompletion) {
+    if (waitForTxCompletion)
+    {
         uint32_t completedPackets = checkCompletionRing();
 
         pollfd pollFds[1];
         pollFds[0] = {.fd = xsk_socket__fd(socketInfo->xsk), .events = POLLOUT};
 
-        while (completedPackets < packetCount) {
+        while (completedPackets < packetCount)
+        {
             auto pollResult = poll(pollFds, 1, waitForTxCompletionTimeoutMS);
-            if (pollResult == 0 && waitForTxCompletionTimeoutMS != 0) {
+            if (pollResult == 0 && waitForTxCompletionTimeoutMS != 0)
+            {
                 PCPP_LOG_ERROR("Wait for TX completion timed out");
                 return false;
             }
-            if (pollResult < 0) {
+            if (pollResult < 0)
+            {
                 PCPP_LOG_ERROR("poll() returned an error: " << errno);
                 return false;
             }
@@ -271,7 +306,8 @@ bool XdpDevice::sendPackets(
 
 bool XdpDevice::sendPackets(const RawPacketVector& packets,
                             bool waitForTxCompletion,
-                            int waitForTxCompletionTimeoutMS) {
+                            int waitForTxCompletionTimeoutMS)
+{
     return sendPackets(
         [&](uint32_t i) { return *packets.at(static_cast<int>(i)); },
         [&]() { return packets.size(); }, waitForTxCompletion,
@@ -280,21 +316,26 @@ bool XdpDevice::sendPackets(const RawPacketVector& packets,
 
 bool XdpDevice::sendPackets(RawPacket packets[], size_t packetCount,
                             bool waitForTxCompletion,
-                            int waitForTxCompletionTimeoutMS) {
+                            int waitForTxCompletionTimeoutMS)
+{
     return sendPackets([&](uint32_t i) { return packets[i]; },
                        [&]() { return static_cast<uint32_t>(packetCount); },
                        waitForTxCompletion, waitForTxCompletionTimeoutMS);
 }
 
-bool XdpDevice::populateFillRing(uint32_t count, uint32_t rxId) {
+bool XdpDevice::populateFillRing(uint32_t count, uint32_t rxId)
+{
     auto frameResponse = m_Umem->allocateFrames(count);
-    if (!frameResponse.first) {
+    if (!frameResponse.first)
+    {
         return false;
     }
 
     bool result = populateFillRing(frameResponse.second, rxId);
-    if (!result) {
-        for (auto frame : frameResponse.second) {
+    if (!result)
+    {
+        for (auto frame : frameResponse.second)
+        {
             m_Umem->freeFrame(frame);
         }
     }
@@ -303,18 +344,21 @@ bool XdpDevice::populateFillRing(uint32_t count, uint32_t rxId) {
 }
 
 bool XdpDevice::populateFillRing(const std::vector<uint64_t>& addresses,
-                                 uint32_t rxId) {
+                                 uint32_t rxId)
+{
     auto umem = static_cast<xsk_umem_info*>(m_Umem->getInfo());
     auto count = static_cast<uint32_t>(addresses.size());
 
     uint32_t ret = xsk_ring_prod__reserve(&umem->fq, count, &rxId);
-    if (ret != count) {
+    if (ret != count)
+    {
         PCPP_LOG_ERROR(
             "xsk_ring_prod__reserve returned: " << ret << "; expected: " << count);
         return false;
     }
 
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < count; i++)
+    {
         *xsk_ring_prod__fill_addr(&umem->fq, rxId + i) = addresses[i];
     }
 
@@ -324,20 +368,24 @@ bool XdpDevice::populateFillRing(const std::vector<uint64_t>& addresses,
     return true;
 }
 
-uint32_t XdpDevice::checkCompletionRing() {
+uint32_t XdpDevice::checkCompletionRing()
+{
     uint32_t cqId = 0;
     auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
 
     auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
-    if (xsk_ring_prod__needs_wakeup(&socketInfo->tx)) {
+    if (xsk_ring_prod__needs_wakeup(&socketInfo->tx))
+    {
         sendto(xsk_socket__fd(socketInfo->xsk), NULL, 0, MSG_DONTWAIT, NULL, 0);
     }
 
     uint32_t completedCount =
         xsk_ring_cons__peek(&umemInfo->cq, m_Config->rxTxBatchSize, &cqId);
 
-    if (completedCount) {
-        for (uint32_t i = 0; i < completedCount; i++) {
+    if (completedCount)
+    {
+        for (uint32_t i = 0; i < completedCount; i++)
+        {
             uint64_t addr = *xsk_ring_cons__comp_addr(&umemInfo->cq, cqId + i);
             m_Umem->freeFrame(addr);
         }
@@ -350,7 +398,8 @@ uint32_t XdpDevice::checkCompletionRing() {
     return completedCount;
 }
 
-bool XdpDevice::configureSocket() {
+bool XdpDevice::configureSocket()
+{
     auto socketInfo = new xsk_socket_info();
 
     auto umemInfo = static_cast<xsk_umem_info*>(m_Umem->getInfo());
@@ -361,18 +410,22 @@ bool XdpDevice::configureSocket() {
     xskConfig.libbpf_flags = 0;
     xskConfig.xdp_flags = 0;
     xskConfig.bind_flags = 0;
-    if (m_Config->attachMode == XdpDeviceConfiguration::SkbMode) {
+    if (m_Config->attachMode == XdpDeviceConfiguration::SkbMode)
+    {
         xskConfig.xdp_flags = XDP_FLAGS_SKB_MODE;
         xskConfig.bind_flags &= ~XDP_ZEROCOPY;
         xskConfig.bind_flags |= XDP_COPY;
-    } else if (m_Config->attachMode == XdpDeviceConfiguration::DriverMode) {
+    }
+    else if (m_Config->attachMode == XdpDeviceConfiguration::DriverMode)
+    {
         xskConfig.xdp_flags = XDP_FLAGS_DRV_MODE;
     }
 
     int ret = xsk_socket__create(&socketInfo->xsk, m_InterfaceName.c_str(), 0,
                                  umemInfo->umem, &socketInfo->rx, &socketInfo->tx,
                                  &xskConfig);
-    if (ret) {
+    if (ret)
+    {
         PCPP_LOG_ERROR("xsk_socket__create returned an error: " << ret);
         delete socketInfo;
         return false;
@@ -382,14 +435,17 @@ bool XdpDevice::configureSocket() {
     return true;
 }
 
-bool XdpDevice::initUmem() {
+bool XdpDevice::initUmem()
+{
     m_Umem = new XdpUmem(m_Config->umemNumFrames, m_Config->umemFrameSize,
                          m_Config->fillRingSize, m_Config->completionRingSize);
     return true;
 }
 
-bool XdpDevice::initConfig() {
-    if (!m_Config) {
+bool XdpDevice::initConfig()
+{
+    if (!m_Config)
+    {
         m_Config = new XdpDeviceConfiguration();
     }
 
@@ -409,20 +465,23 @@ bool XdpDevice::initConfig() {
     uint32_t batchSize =
         m_Config->rxTxBatchSize ? m_Config->rxTxBatchSize : DEFAULT_BATCH_SIZE;
 
-    if (frameSize != getpagesize()) {
+    if (frameSize != getpagesize())
+    {
         PCPP_LOG_ERROR("UMEM frame size must match the memory page size ("
                        << getpagesize() << ")");
         return false;
     }
 
     if (!(IS_POWER_OF_TWO(fillRingSize) && IS_POWER_OF_TWO(completionRingSize) &&
-          IS_POWER_OF_TWO(rxSize) && IS_POWER_OF_TWO(txSize))) {
+          IS_POWER_OF_TWO(rxSize) && IS_POWER_OF_TWO(txSize)))
+    {
         PCPP_LOG_ERROR("All ring sizes (fill ring, completion ring, rx ring, tx "
                        "ring) should be a power of two");
         return false;
     }
 
-    if (fillRingSize > numFrames) {
+    if (fillRingSize > numFrames)
+    {
         PCPP_LOG_ERROR(
             "Fill ring size ("
             << fillRingSize
@@ -431,7 +490,8 @@ bool XdpDevice::initConfig() {
         return false;
     }
 
-    if (completionRingSize > numFrames) {
+    if (completionRingSize > numFrames)
+    {
         PCPP_LOG_ERROR(
             "Completion ring size ("
             << completionRingSize
@@ -440,7 +500,8 @@ bool XdpDevice::initConfig() {
         return false;
     }
 
-    if (rxSize > numFrames) {
+    if (rxSize > numFrames)
+    {
         PCPP_LOG_ERROR(
             "RX size ("
             << rxSize
@@ -449,7 +510,8 @@ bool XdpDevice::initConfig() {
         return false;
     }
 
-    if (txSize > numFrames) {
+    if (txSize > numFrames)
+    {
         PCPP_LOG_ERROR(
             "TX size ("
             << txSize
@@ -458,7 +520,8 @@ bool XdpDevice::initConfig() {
         return false;
     }
 
-    if (batchSize > rxSize || batchSize > txSize) {
+    if (batchSize > rxSize || batchSize > txSize)
+    {
         PCPP_LOG_ERROR("RX/TX batch size ("
                        << batchSize
                        << ") must be lower or equal to RX/TX ring size");
@@ -476,8 +539,10 @@ bool XdpDevice::initConfig() {
     return true;
 }
 
-bool XdpDevice::open() {
-    if (m_DeviceOpened) {
+bool XdpDevice::open()
+{
+    if (m_DeviceOpened)
+    {
         PCPP_LOG_ERROR("Device already opened");
         return false;
     }
@@ -486,12 +551,15 @@ bool XdpDevice::open() {
           populateFillRing(
               std::min(m_Config->fillRingSize,
                        static_cast<uint32_t>(m_Config->umemNumFrames / 2))) &&
-          configureSocket())) {
-        if (m_Umem) {
+          configureSocket()))
+    {
+        if (m_Umem)
+        {
             delete m_Umem;
             m_Umem = nullptr;
         }
-        if (m_Config) {
+        if (m_Config)
+        {
             delete m_Config;
             m_Config = nullptr;
         }
@@ -505,13 +573,16 @@ bool XdpDevice::open() {
     return m_DeviceOpened;
 }
 
-bool XdpDevice::open(const XdpDeviceConfiguration& config) {
+bool XdpDevice::open(const XdpDeviceConfiguration& config)
+{
     m_Config = new XdpDeviceConfiguration(config);
     return open();
 }
 
-void XdpDevice::close() {
-    if (m_DeviceOpened) {
+void XdpDevice::close()
+{
+    if (m_DeviceOpened)
+    {
         auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
         xsk_socket__delete(socketInfo->xsk);
         m_DeviceOpened = false;
@@ -522,7 +593,8 @@ void XdpDevice::close() {
     }
 }
 
-bool XdpDevice::getSocketStats() {
+bool XdpDevice::getSocketStats()
+{
     auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
     int fd = xsk_socket__fd(socketInfo->xsk);
 
@@ -530,12 +602,14 @@ bool XdpDevice::getSocketStats() {
     socklen_t optlen = sizeof(socketStats);
 
     int err = getsockopt(fd, SOL_XDP, XDP_STATISTICS, &socketStats, &optlen);
-    if (err) {
+    if (err)
+    {
         PCPP_LOG_ERROR("Error getting stats from socket, return error: " << err);
         return false;
     }
 
-    if (optlen != sizeof(struct xdp_statistics)) {
+    if (optlen != sizeof(struct xdp_statistics))
+    {
         PCPP_LOG_ERROR("Error getting stats from socket: optlen ("
                        << optlen << ") != expected size ("
                        << sizeof(struct xdp_statistics) << ")");
@@ -556,18 +630,22 @@ bool XdpDevice::getSocketStats() {
 #define nanosec_gap(begin, end) \
     ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
 
-XdpDevice::XdpDeviceStats XdpDevice::getStatistics() {
+XdpDevice::XdpDeviceStats XdpDevice::getStatistics()
+{
     timespec timestamp;
     clock_gettime(CLOCK_MONOTONIC, &timestamp);
 
     m_Stats.timestamp = timestamp;
 
-    if (m_DeviceOpened) {
+    if (m_DeviceOpened)
+    {
         getSocketStats();
         m_Stats.umemFreeFrames = m_Umem->getFreeFrameCount();
         m_Stats.umemAllocatedFrames =
             m_Umem->getFrameCount() - m_Stats.umemFreeFrames;
-    } else {
+    }
+    else
+    {
         m_Stats.umemFreeFrames = 0;
         m_Stats.umemAllocatedFrames = 0;
     }

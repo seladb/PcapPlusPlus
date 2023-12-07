@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class NetworkUtils
@@ -20,13 +21,15 @@ namespace pcpp {
  * capabilities. This class is a singleton and can be access by getInstance()
  * only
  */
-class NetworkUtils {
+class NetworkUtils
+{
   public:
     /**
    * The access method to the singleton
    * @return The singleton instance of this class
    */
-    static NetworkUtils& getInstance() {
+    static NetworkUtils& getInstance()
+    {
         static NetworkUtils instance;
         return instance;
     }

@@ -9,9 +9,11 @@
 #include "pcap.h"
 #include "pfring.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
-PfRingDeviceList::PfRingDeviceList() {
+PfRingDeviceList::PfRingDeviceList()
+{
     m_PfRingVersion = "";
 
     FILE* fd = popen("lsmod | grep pf_ring", "r");
@@ -30,15 +32,18 @@ PfRingDeviceList::PfRingDeviceList() {
     char errbuf[PCAP_ERRBUF_SIZE];
     PCPP_LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");
     int err = pcap_findalldevs(&interfaceList, errbuf);
-    if (err < 0) {
+    if (err < 0)
+    {
         PCPP_LOG_ERROR("Error searching for PF_RING devices: " << errbuf);
     }
 
     pcap_if_t* currInterface = interfaceList;
-    while (currInterface != NULL) {
+    while (currInterface != NULL)
+    {
         uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
         pfring* ring = pfring_open(currInterface->name, 128, flags);
-        if (ring != NULL) {
+        if (ring != NULL)
+        {
             if (m_PfRingVersion == "")
                 calcPfRingVersion(ring);
             pfring_close(ring);
@@ -54,20 +59,24 @@ PfRingDeviceList::PfRingDeviceList() {
     pcap_freealldevs(interfaceList);
 }
 
-PfRingDeviceList::~PfRingDeviceList() {
+PfRingDeviceList::~PfRingDeviceList()
+{
     for (std::vector<PfRingDevice*>::iterator devIter =
              m_PfRingDeviceList.begin();
-         devIter != m_PfRingDeviceList.end(); devIter++) {
+         devIter != m_PfRingDeviceList.end(); devIter++)
+    {
         delete (*devIter);
     }
 }
 
 PfRingDevice*
-PfRingDeviceList::getPfRingDeviceByName(const std::string& devName) const {
+PfRingDeviceList::getPfRingDeviceByName(const std::string& devName) const
+{
     PCPP_LOG_DEBUG("Searching all live devices...");
     for (std::vector<PfRingDevice*>::const_iterator devIter =
              m_PfRingDeviceList.begin();
-         devIter != m_PfRingDeviceList.end(); devIter++) {
+         devIter != m_PfRingDeviceList.end(); devIter++)
+    {
         if ((*devIter)->getDeviceName() == devName)
             return (*devIter);
     }
@@ -76,10 +85,12 @@ PfRingDeviceList::getPfRingDeviceByName(const std::string& devName) const {
     return NULL;
 }
 
-void PfRingDeviceList::calcPfRingVersion(void* ring) {
+void PfRingDeviceList::calcPfRingVersion(void* ring)
+{
     pfring* ringPtr = (pfring*)ring;
     uint32_t version;
-    if (pfring_version(ringPtr, &version) < 0) {
+    if (pfring_version(ringPtr, &version) < 0)
+    {
         PCPP_LOG_ERROR(
             "Couldn't retrieve PF_RING version, pfring_version returned an error");
         return;

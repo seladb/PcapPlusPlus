@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
 For more info see:
         https://datatracker.ietf.org/doc/html/rfc2338
@@ -70,7 +71,8 @@ For more info see:
  * @struct vrrp_header
  * VRRP generic header
  */
-struct vrrp_header {
+struct vrrp_header
+{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
     /** Type */
     uint8_t type : 4,
@@ -117,7 +119,8 @@ struct vrrp_header {
  * classes can be instantiated. The inherited classes represent the different
  * versions of the protocol: VRRPv2 and VRRPv3
  */
-class VrrpLayer : public Layer {
+class VrrpLayer : public Layer
+{
   private:
     bool addIPAddressesAt(const std::vector<IPAddress>& ipAddresses, int offset);
 
@@ -138,7 +141,8 @@ class VrrpLayer : public Layer {
   protected:
     VrrpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
               ProtocolType vrrpVer, IPAddress::AddressType addressType)
-        : Layer(data, dataLen, prevLayer, packet), m_AddressType(addressType) {
+        : Layer(data, dataLen, prevLayer, packet), m_AddressType(addressType)
+    {
         m_Protocol = vrrpVer;
     }
 
@@ -153,7 +157,8 @@ class VrrpLayer : public Layer {
     /**
    * VRRP message types
    */
-    enum VrrpType {
+    enum VrrpType
+    {
         /** Unknown VRRP message */
         VrrpType_Unknown = 0,
 
@@ -164,7 +169,8 @@ class VrrpLayer : public Layer {
     /**
    * An enum describing VRRP special priority values
    */
-    enum VrrpPriority {
+    enum VrrpPriority
+    {
         /** Default priority for a backup VRRP router (value of 100) */
         Default,
         /** Current Master has stopped participating in VRRP (value of 0) */
@@ -317,7 +323,8 @@ class VrrpLayer : public Layer {
 
     std::string toString() const override;
 
-    OsiModelLayer getOsiModelLayer() const override {
+    OsiModelLayer getOsiModelLayer() const override
+    {
         return OsiModelNetworkLayer;
     }
 };
@@ -327,9 +334,11 @@ class VrrpLayer : public Layer {
  * Represents VRRPv2 (Virtual Router Redundancy Protocol ver 2) layer. This
  * class represents all the different messages of VRRPv2
  */
-class VrrpV2Layer : public VrrpLayer {
+class VrrpV2Layer : public VrrpLayer
+{
   private:
-    struct vrrpv2_auth_adv {
+    struct vrrpv2_auth_adv
+    {
         uint8_t authType;
         uint8_t advInt;
     };
@@ -338,7 +347,8 @@ class VrrpV2Layer : public VrrpLayer {
     /**
    * VRRP v2 authentication types
    */
-    enum class VrrpAuthType : uint8_t {
+    enum class VrrpAuthType : uint8_t
+    {
         /** No Authentication */
         NoAuthentication = 0,
         /** Simple Text Password */
@@ -419,9 +429,11 @@ class VrrpV2Layer : public VrrpLayer {
  * Represents VRRPv3 (Virtual Router Redundancy Protocol ver 3) layer. This
  * class represents all the different messages of VRRP
  */
-class VrrpV3Layer : public VrrpLayer {
+class VrrpV3Layer : public VrrpLayer
+{
   private:
-    struct vrrpv3_rsvd_adv {
+    struct vrrpv3_rsvd_adv
+    {
         uint16_t maxAdvInt;
     };
 

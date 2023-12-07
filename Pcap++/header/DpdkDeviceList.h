@@ -18,7 +18,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class DpdkWorkerThread
@@ -34,7 +35,8 @@ namespace pcpp {
  * that it must implement the 3 abstract methods stated in this class-interface
  * for start running, stop running and get the core ID the worker is running on.
  */
-class DpdkWorkerThread {
+class DpdkWorkerThread
+{
   public:
     /**
    * A virtual d'tor. Can be overridden by child class if needed
@@ -79,7 +81,8 @@ class KniDeviceList;
  *    - it has methods to start and stop worker threads. See more details in
  * startDpdkWorkerThreads()
  */
-class DpdkDeviceList {
+class DpdkDeviceList
+{
     friend class KniDeviceList;
 
   private:
@@ -92,7 +95,8 @@ class DpdkDeviceList {
 
     DpdkDeviceList();
 
-    bool isInitialized() const {
+    bool isInitialized() const
+    {
         return (m_IsInitialized && m_IsDpdkInitialized);
     }
     bool initDpdkDevices(uint32_t mBufPoolSizePerDevice);
@@ -110,7 +114,8 @@ class DpdkDeviceList {
    * initialized either
    * @return The singleton instance of DpdkDeviceList
    */
-    static DpdkDeviceList& getInstance() {
+    static DpdkDeviceList& getInstance()
+    {
         static DpdkDeviceList instance;
         if (!instance.isInitialized())
             instance.initDpdkDevices(DpdkDeviceList::m_MBufPoolSizePerDevice);
@@ -172,7 +177,8 @@ class DpdkDeviceList {
     /**
    * @return A vector of all DpdkDevice instances
    */
-    const std::vector<DpdkDevice*>& getDpdkDeviceList() const {
+    const std::vector<DpdkDevice*>& getDpdkDeviceList() const
+    {
         return m_DpdkDeviceList;
     }
 

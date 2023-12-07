@@ -18,11 +18,13 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * Types of protocols that can be referenced in SOME/IP-SD
  */
-enum SomeIpSdProtocolType : uint8_t {
+enum SomeIpSdProtocolType : uint8_t
+{
     /** TCP */
     SD_TCP = 0x06,
     /** UDP */
@@ -35,14 +37,16 @@ class SomeIpSdLayer;
  * @class SomeIpSdOption
  * Base class of the SOME/IP-SD options. Cannot be instantiated.
  */
-class SomeIpSdOption {
+class SomeIpSdOption
+{
   public:
     friend class SomeIpSdLayer;
 
     /**
    * Types of options currently available for the SOME/IP-SD protocol
    */
-    enum class OptionType : uint8_t {
+    enum class OptionType : uint8_t
+    {
         /** Unknown Option Type */
         Unknown = 0x00,
         /** Configuration Option */
@@ -68,7 +72,8 @@ class SomeIpSdOption {
    * Represents the common base for SOME/IP-SD header options
    */
 #pragma pack(push, 1)
-    struct someipsdhdroptionsbase {
+    struct someipsdhdroptionsbase
+    {
         /** Length - excluding the 16 bit Length field and the 8 bit type flag */
         uint16_t length;
         /** Type */
@@ -133,14 +138,16 @@ class SomeIpSdOption {
  * Implements the following SOME/IP-SD Options: IPv4 Endpoint, IPv4 Multicast,
  * IPv4 SD Endpoint
  */
-class SomeIpSdIPv4Option : public SomeIpSdOption {
+class SomeIpSdIPv4Option : public SomeIpSdOption
+{
   public:
     friend class SomeIpSdLayer;
 
     /**
    * Types of options which are implemented with this class
    */
-    enum IPv4OptionType {
+    enum IPv4OptionType
+    {
         /** IPv4 Endpoint Option */
         IPv4Endpoint,
         /** IPv4 Multicast Option */
@@ -190,7 +197,8 @@ class SomeIpSdIPv4Option : public SomeIpSdOption {
    * Represents the IPv4 option types for the SOME/IP-SD header
    */
 #pragma pack(push, 1)
-    struct someipsdhdroptionsipv4 : someipsdhdroptionsbase {
+    struct someipsdhdroptionsipv4 : someipsdhdroptionsbase
+    {
         /* IPv4-Address field */
         uint32_t ipv4Address;
         /* Reserved */
@@ -209,14 +217,16 @@ class SomeIpSdIPv4Option : public SomeIpSdOption {
  * Implements the following SOME/IP-SD Options: IPv6 Endpoint, IPv6 Multicast,
  * IPv6 SD Endpoint
  */
-class SomeIpSdIPv6Option : public SomeIpSdOption {
+class SomeIpSdIPv6Option : public SomeIpSdOption
+{
   public:
     friend class SomeIpSdLayer;
 
     /**
    * Types of options which are implemented with this class
    */
-    enum IPv6OptionType {
+    enum IPv6OptionType
+    {
         /** IPv6 Endpoint Option */
         IPv6Endpoint,
         /** IPv6 Multicast Option */
@@ -266,7 +276,8 @@ class SomeIpSdIPv6Option : public SomeIpSdOption {
    * Represents the IPv6 option types for the SOME/IP-SD header
    */
 #pragma pack(push, 1)
-    struct someipsdhdroptionsipv6 : someipsdhdroptionsbase {
+    struct someipsdhdroptionsipv6 : someipsdhdroptionsbase
+    {
         /* IPv6-Address field */
         uint8_t ipv6Address[16];
         /* Reserved */
@@ -284,7 +295,8 @@ class SomeIpSdIPv6Option : public SomeIpSdOption {
  * @class SomeIpSdConfigurationOption
  * Implements the Configuration option of SOME/IP-SD protocol
  */
-class SomeIpSdConfigurationOption : public SomeIpSdOption {
+class SomeIpSdConfigurationOption : public SomeIpSdOption
+{
   public:
     friend class SomeIpSdLayer;
 
@@ -313,7 +325,8 @@ class SomeIpSdConfigurationOption : public SomeIpSdOption {
  * @class SomeIpSdLoadBalancingOption
  * Implements the Load Balancing option of SOME/IP-SD protocol
  */
-class SomeIpSdLoadBalancingOption : public SomeIpSdOption {
+class SomeIpSdLoadBalancingOption : public SomeIpSdOption
+{
   public:
     friend class SomeIpSdLayer;
 
@@ -350,7 +363,8 @@ class SomeIpSdLoadBalancingOption : public SomeIpSdOption {
    * Represents the Load Balancing option header for SOME/IP-SD
    */
 #pragma pack(push, 1)
-    struct someipsdhdroptionsload : someipsdhdroptionsbase {
+    struct someipsdhdroptionsload : someipsdhdroptionsbase
+    {
         /* Priority field */
         uint16_t priority;
         /* Weight field */
@@ -363,14 +377,16 @@ class SomeIpSdLoadBalancingOption : public SomeIpSdOption {
  * @class SomeIpSdEntry
  * Implementation of the SOME/IP-SD Service Entry and Eventgroup Entry Type
  */
-class SomeIpSdEntry {
+class SomeIpSdEntry
+{
   public:
     friend class SomeIpSdLayer;
 
     /**
    * Types of entries that can occur in SOME/IP-SD
    */
-    enum class EntryType : uint8_t {
+    enum class EntryType : uint8_t
+    {
         /** Find Service */
         FindService,
         /** Offer Service */
@@ -394,7 +410,8 @@ class SomeIpSdEntry {
    * Represents the Service Entry Type and Eventgroup Entry Type
    */
 #pragma pack(push, 1)
-    struct someipsdhdrentry {
+    struct someipsdhdrentry
+    {
         /** Type */
         uint8_t type;
         /** Index 1st option */
@@ -584,7 +601,8 @@ class SomeIpSdEntry {
    * These are the entry types used by SOME/IP-SD. They cannot be used for
    * parameter passing since the values are not unique.
    */
-    enum class TypeInternal : uint8_t {
+    enum class TypeInternal : uint8_t
+    {
         /** Find Service */
         FindService_Internal = 0x00,
         /** Offer Service / Stop Offer Service */
@@ -613,7 +631,8 @@ class SomeIpSdEntry {
  * @class SomeIpSdLayer
  * Implementation of the SOME/IP-SD protocol
  */
-class SomeIpSdLayer : public SomeIpLayer {
+class SomeIpSdLayer : public SomeIpLayer
+{
   public:
     friend class SomeIpSdEntry;
 
@@ -747,7 +766,8 @@ class SomeIpSdLayer : public SomeIpLayer {
    * Represents an SOME/IP-SD protocol header
    */
 #pragma pack(push, 1)
-    struct someipsdhdr : someiphdr {
+    struct someipsdhdr : someiphdr
+    {
         /** Flags (8 bit) */
         uint8_t flags;
         /** Reserved1 field (Bits 0-7 of 24-bits reserved field) */

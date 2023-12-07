@@ -7,7 +7,8 @@ struct ifreq;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class LinuxNicInformationSocket
  * Simple wrapper over Linux socket for making the information
@@ -24,7 +25,8 @@ namespace pcpp {
  * @note Usage of this class requires the inclusion of <sys/ioctl.h> and
  * <net/if.h> Linux headers
  */
-class LinuxNicInformationSocket {
+class LinuxNicInformationSocket
+{
   public:
     /**
    * Simple type rename for convenience

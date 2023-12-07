@@ -18,7 +18,8 @@
  */
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
                   << std::endl;                       \
@@ -26,7 +27,8 @@
     } while (0)
 
 #define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason)       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -42,7 +44,8 @@ typedef std::map<pcpp::DpdkDevice*, std::vector<int>> InputDataConfig;
  * - Whether to send matched packets to TX DPDK port and/or save them to a pcap
  * file
  */
-struct AppWorkerConfig {
+struct AppWorkerConfig
+{
     uint32_t CoreId;
     InputDataConfig InDataCfg;
     pcpp::DpdkDevice* SendPacketsTo;
@@ -57,7 +60,8 @@ struct AppWorkerConfig {
 /**
  * Collect and analyze packet and flow statistics
  */
-struct PacketStats {
+struct PacketStats
+{
   public:
     uint8_t WorkerId;
 
@@ -80,7 +84,8 @@ struct PacketStats {
           HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0),
           MatchedPackets(0) {}
 
-    void collectStats(pcpp::Packet& packet) {
+    void collectStats(pcpp::Packet& packet)
+    {
         PacketCount++;
         if (packet.isPacketOfType(pcpp::Ethernet))
             EthCount++;
@@ -98,7 +103,8 @@ struct PacketStats {
             HttpCount++;
     }
 
-    void collectStats(const PacketStats& stats) {
+    void collectStats(const PacketStats& stats)
+    {
         PacketCount += stats.PacketCount;
         EthCount += stats.EthCount;
         ArpCount += stats.ArpCount;
@@ -113,7 +119,8 @@ struct PacketStats {
         MatchedPackets += stats.MatchedPackets;
     }
 
-    void clear() {
+    void clear()
+    {
         WorkerId = MAX_NUM_OF_CORES + 1;
         PacketCount = 0;
         EthCount = 0;
@@ -128,7 +135,8 @@ struct PacketStats {
         MatchedPackets = 0;
     }
 
-    std::string getStatValuesAsString(const std::string& delimiter) {
+    std::string getStatValuesAsString(const std::string& delimiter)
+    {
         std::stringstream values;
         if (WorkerId == MAX_NUM_OF_CORES + 1)
             values << "Total" << delimiter;
@@ -150,7 +158,8 @@ struct PacketStats {
     }
 
     static void getStatsColumns(std::vector<std::string>& columnNames,
-                                std::vector<int>& columnWidths) {
+                                std::vector<int>& columnWidths)
+    {
         columnNames.clear();
         columnWidths.clear();
 

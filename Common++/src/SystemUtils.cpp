@@ -28,7 +28,8 @@
 #endif
 
 #ifdef _MSC_VER
-int gettimeofday(struct timeval* tp, struct timezone* tzp) {
+int gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
     // Note: some broken versions only have 8 trailing zero's, the correct epoch
     // has 9 trailing zero's
     static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
@@ -48,7 +49,8 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp) {
 }
 #endif
 
-namespace pcpp {
+namespace pcpp
+{
 
 const SystemCore SystemCores::Core0 = {0x01, 0};
 const SystemCore SystemCores::Core1 = {0x02, 1};
@@ -96,7 +98,8 @@ const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] = {
     SystemCores::Core27, SystemCores::Core28, SystemCores::Core29,
     SystemCores::Core30, SystemCores::Core31};
 
-int getNumOfCores() {
+int getNumOfCores()
+{
 #if defined(_WIN32)
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
@@ -106,30 +109,36 @@ int getNumOfCores() {
 #endif
 }
 
-CoreMask getCoreMaskForAllMachineCores() {
+CoreMask getCoreMaskForAllMachineCores()
+{
     int numOfCores = getNumOfCores() < 32 ? getNumOfCores() : 32;
     CoreMask result = 0;
-    for (int i = 0; i < numOfCores; i++) {
+    for (int i = 0; i < numOfCores; i++)
+    {
         result = result | SystemCores::IdToSystemCore[i].Mask;
     }
 
     return result;
 }
 
-CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores) {
+CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores)
+{
     CoreMask result = 0;
     for (std::vector<SystemCore>::iterator iter = cores.begin();
-         iter != cores.end(); iter++) {
+         iter != cores.end(); iter++)
+    {
         result |= iter->Mask;
     }
 
     return result;
 }
 
-CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds) {
+CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds)
+{
     CoreMask result = 0;
     for (std::vector<int>::iterator iter = coreIds.begin(); iter != coreIds.end();
-         iter++) {
+         iter++)
+    {
         result |= SystemCores::IdToSystemCore[*iter].Mask;
     }
 
@@ -137,10 +146,13 @@ CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds) {
 }
 
 void createCoreVectorFromCoreMask(CoreMask coreMask,
-                                  std::vector<SystemCore>& resultVec) {
+                                  std::vector<SystemCore>& resultVec)
+{
     int i = 0;
-    while (coreMask != 0) {
-        if (1 & coreMask) {
+    while (coreMask != 0)
+    {
+        if (1 & coreMask)
+        {
             resultVec.push_back(SystemCores::IdToSystemCore[i]);
         }
 
@@ -149,13 +161,15 @@ void createCoreVectorFromCoreMask(CoreMask coreMask,
     }
 }
 
-std::string executeShellCommand(const std::string& command) {
+std::string executeShellCommand(const std::string& command)
+{
     FILE* pipe = POPEN(command.c_str(), "r");
     if (!pipe)
         return "ERROR";
     char buffer[128];
     std::string result = "";
-    while (!feof(pipe)) {
+    while (!feof(pipe))
+    {
         if (fgets(buffer, 128, pipe) != nullptr)
             result += buffer;
     }
@@ -163,7 +177,8 @@ std::string executeShellCommand(const std::string& command) {
     return result;
 }
 
-bool directoryExists(const std::string& dirPath) {
+bool directoryExists(const std::string& dirPath)
+{
     struct stat info;
 
     if (stat(dirPath.c_str(), &info) != 0)
@@ -174,7 +189,8 @@ bool directoryExists(const std::string& dirPath) {
         return false;
 }
 
-int clockGetTime(long& sec, long& nsec) {
+int clockGetTime(long& sec, long& nsec)
+{
     sec = 0;
     nsec = 0;
 
@@ -187,16 +203,19 @@ int clockGetTime(long& sec, long& nsec) {
 
     LARGE_INTEGER count;
 
-    if (clock_gettime_first_time) {
+    if (clock_gettime_first_time)
+    {
         clock_gettime_first_time = 0;
 
-        if (0 == QueryPerformanceFrequency(&clock_gettime_counts_per_sec)) {
+        if (0 == QueryPerformanceFrequency(&clock_gettime_counts_per_sec))
+        {
             clock_gettime_counts_per_sec.QuadPart = 0;
         }
     }
 
     if ((clock_gettime_counts_per_sec.QuadPart <= 0) ||
-        (0 == QueryPerformanceCounter(&count))) {
+        (0 == QueryPerformanceCounter(&count)))
+    {
         return -1;
     }
 
@@ -225,7 +244,8 @@ int clockGetTime(long& sec, long& nsec) {
 
     timespec ts;
     int res = clock_gettime(CLOCK_REALTIME, &ts);
-    if (res == 0) {
+    if (res == 0)
+    {
         sec = ts.tv_sec;
         nsec = ts.tv_nsec;
     }
@@ -234,7 +254,8 @@ int clockGetTime(long& sec, long& nsec) {
 #endif
 }
 
-void multiPlatformSleep(uint32_t seconds) {
+void multiPlatformSleep(uint32_t seconds)
+{
 #if defined(_WIN32)
     Sleep(seconds * 1000);
 #else
@@ -242,7 +263,8 @@ void multiPlatformSleep(uint32_t seconds) {
 #endif
 }
 
-void multiPlatformMSleep(uint32_t milliseconds) {
+void multiPlatformMSleep(uint32_t milliseconds)
+{
 #if defined(_WIN32)
     Sleep(milliseconds);
 #else
@@ -261,10 +283,13 @@ uint32_t netToHost32(uint32_t net) { return be32toh(net); }
 std::string AppName::m_AppName;
 
 #if defined(_WIN32)
-int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType) {
-    switch (fdwCtrlType) {
+int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType)
+{
+    switch (fdwCtrlType)
+    {
     case CTRL_C_EVENT:
-    case CTRL_BREAK_EVENT: {
+    case CTRL_BREAK_EVENT:
+    {
         if (ApplicationEventHandler::getInstance()
                 .m_ApplicationInterruptedHandler != NULL)
             ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
@@ -281,9 +306,12 @@ int ApplicationEventHandler::handlerRoutine(unsigned long fdwCtrlType) {
 
 static std::mutex UnixLinuxHandlerRoutineMutex;
 
-void ApplicationEventHandler::handlerRoutine(int signum) {
-    switch (signum) {
-    case SIGINT: {
+void ApplicationEventHandler::handlerRoutine(int signum)
+{
+    switch (signum)
+    {
+    case SIGINT:
+    {
         // Most calls are unsafe in a signal handler, and this includes printf(). In
         // particular, if the signal is caught while inside printf() it may be
         // called twice at the same time which might not be a good idea The way to
@@ -302,7 +330,8 @@ void ApplicationEventHandler::handlerRoutine(int signum) {
 
         return;
     }
-    default: {
+    default:
+    {
         return;
     }
     }
@@ -311,10 +340,13 @@ void ApplicationEventHandler::handlerRoutine(int signum) {
 
 ApplicationEventHandler::ApplicationEventHandler()
     : m_ApplicationInterruptedHandler(nullptr),
-      m_ApplicationInterruptedCookie(nullptr) {}
+      m_ApplicationInterruptedCookie(nullptr)
+{
+}
 
 void ApplicationEventHandler::onApplicationInterrupted(
-    EventHandlerCallback handler, void* cookie) {
+    EventHandlerCallback handler, void* cookie)
+{
     m_ApplicationInterruptedHandler = handler;
     m_ApplicationInterruptedCookie = cookie;
 

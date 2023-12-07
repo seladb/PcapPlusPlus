@@ -9,12 +9,14 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * Class for representing the Telnet Layer
  */
-class TelnetLayer : public Layer {
+class TelnetLayer : public Layer
+{
   private:
     // Position iterator for next command
     size_t lastPositionOffset;
@@ -40,7 +42,8 @@ class TelnetLayer : public Layer {
     /**
    * Telnet Command Indicator
    */
-    enum class TelnetCommand : int {
+    enum class TelnetCommand : int
+    {
         /// Indicator to parser reached end of packet
         TelnetCommandEndOfPacket = -1,
 
@@ -107,7 +110,8 @@ class TelnetLayer : public Layer {
     /**
    * Telnet Options
    */
-    enum class TelnetOption : int {
+    enum class TelnetOption : int
+    {
         /// Internal return for no option detected
         TelnetOptionNoOption = -1,
 
@@ -243,7 +247,8 @@ class TelnetLayer : public Layer {
    * stored in
    */
     TelnetLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = Telnet;
         lastPositionOffset = SIZE_MAX;
     };
@@ -347,7 +352,8 @@ class TelnetLayer : public Layer {
    * @param[in] dataSize The byte array size (in bytes)
    * @return True if the data is identified as Telnet message
    */
-    static bool isDataValid(const uint8_t* data, size_t dataSize) {
+    static bool isDataValid(const uint8_t* data, size_t dataSize)
+    {
         return data && dataSize;
     }
 

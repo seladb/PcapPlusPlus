@@ -5,20 +5,23 @@
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     // use the IFileReaderDevice interface to automatically identify file type
     // (pcap/pcap-ng) and create an interface instance that both readers implement
     pcpp::IFileReaderDevice* reader =
         pcpp::IFileReaderDevice::getReader("input.pcap");
 
     // verify that a reader interface was indeed created
-    if (reader == nullptr) {
+    if (reader == nullptr)
+    {
         std::cerr << "Cannot determine reader for file type" << std::endl;
         return 1;
     }
 
     // open the reader for reading
-    if (!reader->open()) {
+    if (!reader->open())
+    {
         std::cerr << "Cannot open input.pcap for reading" << std::endl;
         return 1;
     }
@@ -28,7 +31,8 @@ int main(int argc, char* argv[]) {
     pcpp::PcapFileWriterDevice pcapWriter("output.pcap", pcpp::LINKTYPE_ETHERNET);
 
     // try to open the file for writing
-    if (!pcapWriter.open()) {
+    if (!pcapWriter.open())
+    {
         std::cerr << "Cannot open output.pcap for writing" << std::endl;
         return 1;
     }
@@ -38,14 +42,16 @@ int main(int argc, char* argv[]) {
     pcpp::PcapNgFileWriterDevice pcapNgWriter("output.pcapng");
 
     // try to open the file for writing
-    if (!pcapNgWriter.open()) {
+    if (!pcapNgWriter.open())
+    {
         std::cerr << "Cannot open output.pcapng for writing" << std::endl;
         return 1;
     }
 
     // set a BPF filter for the reader - only packets that match the filter will
     // be read
-    if (!reader->setFilter("net 98.138.19.88")) {
+    if (!reader->setFilter("net 98.138.19.88"))
+    {
         std::cerr << "Cannot set filter for file reader" << std::endl;
         return 1;
     }
@@ -55,7 +61,8 @@ int main(int argc, char* argv[]) {
 
     // a while loop that will continue as long as there are packets in the input
     // file matching the BPF filter
-    while (reader->getNextPacket(rawPacket)) {
+    while (reader->getNextPacket(rawPacket))
+    {
         // write each packet to both writers
         pcapWriter.writePacket(rawPacket);
         pcapNgWriter.writePacket(rawPacket);

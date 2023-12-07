@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct sll_header
  * Represents SLL header
  */
 #pragma pack(push, 1)
-struct sll_header {
+struct sll_header
+{
     /** Specifies whether packet was: specifically sent to us by somebody else
    *(value=0); broadcast by somebody else (value=1); multicast, but not
    *broadcast, by somebody else (value=2); sent to somebody else by somebody
@@ -43,7 +45,8 @@ struct sll_header {
  * @class SllLayer
  * Represents an SLL (Linux cooked capture) protocol layer
  */
-class SllLayer : public Layer {
+class SllLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -53,7 +56,8 @@ class SllLayer : public Layer {
    * stored in
    */
     SllLayer(uint8_t* data, size_t dataLen, Packet* packet)
-        : Layer(data, dataLen, nullptr, packet) {
+        : Layer(data, dataLen, nullptr, packet)
+    {
         m_Protocol = SLL;
     }
 

@@ -9,7 +9,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @typedef ProtocolType
  * Representing all protocols supported by PcapPlusPlus
@@ -336,7 +337,8 @@ const ProtocolType S7COMM = 0x10000000000000;
 /**
  * An enum representing OSI model layers
  */
-enum OsiModelLayer {
+enum OsiModelLayer
+{
     /** Physical layer (layer 1) */
     OsiModelPhysicalLayer = 1,
     /** Data link layer (layer 2) */

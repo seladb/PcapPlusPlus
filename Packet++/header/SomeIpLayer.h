@@ -10,18 +10,21 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class SomeIpLayer
  * Represents a SOME/IP protocol layer
  */
-class SomeIpLayer : public Layer {
+class SomeIpLayer : public Layer
+{
   public:
     /**
    * SOME/IP message types
    */
-    enum class MsgType : uint8_t {
+    enum class MsgType : uint8_t
+    {
         /** A request expecting a response (even void) */
         REQUEST = 0x00,
         /** Acknowledgment for REQUEST(optional) */
@@ -59,7 +62,8 @@ class SomeIpLayer : public Layer {
    * Represents a SOME/IP protocol header
    */
 #pragma pack(push, 1)
-    struct someiphdr {
+    struct someiphdr
+    {
         /** Service ID */
         uint16_t serviceID;
         /** Method ID. Most significant bit 0 when E2E communication. 1 when SOME/IP
@@ -92,7 +96,8 @@ class SomeIpLayer : public Layer {
    * stored in
    */
     SomeIpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = SomeIP;
     }
 
@@ -321,7 +326,8 @@ class SomeIpLayer : public Layer {
     /**
    * @return The size in bytes of the payload
    */
-    size_t getPduPayloadSize() const {
+    size_t getPduPayloadSize() const
+    {
         return getHeaderLen() - getSomeIpHeaderLen();
     }
 
@@ -329,7 +335,8 @@ class SomeIpLayer : public Layer {
    * Get the Length of the SOME/IP header inc payload
    * @return size_t
    */
-    size_t getHeaderLen() const {
+    size_t getHeaderLen() const
+    {
         return sizeof(uint32_t) * 2 + getLengthField();
     }
 
@@ -370,14 +377,16 @@ class SomeIpLayer : public Layer {
  * @class SomeIpTpLayer
  * Represents an SOME/IP Transport Protocol Layer
  */
-class SomeIpTpLayer : public SomeIpLayer {
+class SomeIpTpLayer : public SomeIpLayer
+{
   public:
     /**
    * @struct someiptphdr
    * Represents an SOME/IP-TP protocol header.
    */
 #pragma pack(push, 1)
-    struct someiptphdr : someiphdr {
+    struct someiptphdr : someiphdr
+    {
         /** Contains the offset and the more segments flag. 28 bit offset field
      * measured in 16 bytes + 3 bit reserved + 1 bit more segments flag */
         uint32_t offsetAndFlag;

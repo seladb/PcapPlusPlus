@@ -5,7 +5,8 @@
 
 #include "Layer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class PacketTrailerLayer
  * A class for representing packet tailer (a.k.a footer or padding) which refers
@@ -34,7 +35,8 @@ namespace pcpp {
  *
  * It also contains method to extract the trailer data
  */
-class PacketTrailerLayer : public Layer {
+class PacketTrailerLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -45,7 +47,8 @@ class PacketTrailerLayer : public Layer {
    */
     PacketTrailerLayer(uint8_t* data, size_t dataLen, Layer* prevLayer,
                        Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = PacketTrailer;
     }
 

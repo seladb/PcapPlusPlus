@@ -5,7 +5,8 @@
 
 #include "Layer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
 /** IPv4 protocol **/
 #define PCPP_BSD_AF_INET 2
@@ -28,7 +29,8 @@ namespace pcpp {
  * @class NullLoopbackLayer
  * Represents a NULL/Loopback layer
  */
-class NullLoopbackLayer : public Layer {
+class NullLoopbackLayer : public Layer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -37,7 +39,8 @@ class NullLoopbackLayer : public Layer {
    * stored in
    */
     NullLoopbackLayer(uint8_t* data, size_t dataLen, Packet* packet)
-        : Layer(data, dataLen, NULL, packet) {
+        : Layer(data, dataLen, NULL, packet)
+    {
         m_Protocol = NULL_LOOPBACK;
     }
 

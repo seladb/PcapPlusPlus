@@ -87,7 +87,8 @@ struct rte_eth_dev_tx_buffer;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 #define DPDK_MAX_RX_QUEUES 16
 #define DPDK_MAX_TX_QUEUES 16
@@ -100,7 +101,8 @@ class DpdkDevice;
  * An enum describing all PMD (poll mode driver) types supported by DPDK. For
  * more info about these PMDs please visit the DPDK web-site
  */
-enum DpdkPMDType {
+enum DpdkPMDType
+{
     /** Unknown PMD type */
     PMD_UNKNOWN,
     /** Link Bonding for 1GbE and 10GbE ports to allow the aggregation of multiple
@@ -206,7 +208,8 @@ typedef void (*OnDpdkPacketsArriveCallback)(MBufRawPacket* packets,
  *    - It's not possible to set or change NIC load-balancing method. DPDK
  * provides this capability but it's still not supported by DpdkDevice
  */
-class DpdkDevice : public IDevice {
+class DpdkDevice : public IDevice
+{
     friend class DpdkDeviceList;
     friend class MBufRawPacket;
 
@@ -215,7 +218,8 @@ class DpdkDevice : public IDevice {
    * An enum describing all RSS (Receive Side Scaling) hash functions supported
    * in DPDK. Notice not all PMDs support all types of hash functions
    */
-    enum DpdkRssHashFunction {
+    enum DpdkRssHashFunction
+    {
         /** No RSS */
         RSS_NONE = 0,
         /** IPv4 based flow */
@@ -270,7 +274,8 @@ class DpdkDevice : public IDevice {
    * DpdkDevice. All of these parameters have default values so the user doesn't
    * have to use these parameters or understand exactly what is their effect
    */
-    struct DpdkDeviceConfiguration {
+    struct DpdkDeviceConfiguration
+    {
         /**
      * When configuring a DPDK RX queue, DPDK creates descriptors it will use
      * for receiving packets from the network to this RX queue. This parameter
@@ -344,7 +349,8 @@ class DpdkDevice : public IDevice {
                                          uint16_t flushTxBufferTimeout = 100,
                                          uint64_t rssHashFunction = RSS_DEFAULT,
                                          uint8_t* rssKey = DpdkDevice::m_RSSKey,
-                                         uint8_t rssKeyLength = 40) {
+                                         uint8_t rssKeyLength = 40)
+        {
             this->receiveDescriptorsNumber = receiveDescriptorsNumber;
             this->transmitDescriptorsNumber = transmitDescriptorsNumber;
             this->flushTxBufferTimeout = flushTxBufferTimeout;
@@ -359,9 +365,11 @@ class DpdkDevice : public IDevice {
    * A struct that contains the link status of a DpdkDevice (DPDK port).
    * Returned from DpdkDevice#getLinkStatus()
    */
-    struct LinkStatus {
+    struct LinkStatus
+    {
         /** Enum for describing link duplex */
-        enum LinkDuplex {
+        enum LinkDuplex
+        {
             /** Full duplex */
             FULL_DUPLEX,
             /** Half duplex */
@@ -380,7 +388,8 @@ class DpdkDevice : public IDevice {
    * @struct RxTxStats
    * A container for RX/TX statistics
    */
-    struct RxTxStats {
+    struct RxTxStats
+    {
         /** Total number of packets */
         uint64_t packets;
         /** Total number of successfully received bytes */
@@ -395,7 +404,8 @@ class DpdkDevice : public IDevice {
    * @struct DpdkDeviceStats
    * A container for DpdkDevice statistics
    */
-    struct DpdkDeviceStats {
+    struct DpdkDeviceStats
+    {
         /** DpdkDevice ID */
         uint8_t devId;
         /** The timestamp of when the stats were written */
@@ -945,11 +955,13 @@ class DpdkDevice : public IDevice {
     void close();
 
   private:
-    struct DpdkCoreConfiguration {
+    struct DpdkCoreConfiguration
+    {
         int RxQueueId;
         bool IsCoreInUse;
 
-        void clear() {
+        void clear()
+        {
             RxQueueId = -1;
             IsCoreInUse = false;
         }

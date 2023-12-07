@@ -12,11 +12,13 @@
 #include "WakeOnLanLayer.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac,
                    uint16_t etherType)
-    : Layer() {
+    : Layer()
+{
     const size_t headerLen = sizeof(ether_header);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -29,7 +31,8 @@ EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac,
     m_Protocol = Ethernet;
 }
 
-void EthLayer::parseNextLayer() {
+void EthLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(ether_header))
         return;
 
@@ -37,7 +40,8 @@ void EthLayer::parseNextLayer() {
     uint8_t* payload = m_Data + sizeof(ether_header);
     size_t payloadLen = m_DataLen - sizeof(ether_header);
 
-    switch (be16toh(hdr->etherType)) {
+    switch (be16toh(hdr->etherType))
+    {
     case PCPP_ETHERTYPE_IP:
         m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
                           ? static_cast<Layer*>(
@@ -91,11 +95,13 @@ void EthLayer::parseNextLayer() {
     }
 }
 
-void EthLayer::computeCalculateFields() {
+void EthLayer::computeCalculateFields()
+{
     if (m_NextLayer == nullptr)
         return;
 
-    switch (m_NextLayer->getProtocol()) {
+    switch (m_NextLayer->getProtocol())
+    {
     case IPv4:
         getEthHeader()->etherType = htobe16(PCPP_ETHERTYPE_IP);
         break;
@@ -113,13 +119,16 @@ void EthLayer::computeCalculateFields() {
     }
 }
 
-std::string EthLayer::toString() const {
+std::string EthLayer::toString() const
+{
     return "Ethernet II Layer, Src: " + getSourceMac().toString() +
            ", Dst: " + getDestMac().toString();
 }
 
-bool EthLayer::isDataValid(const uint8_t* data, size_t dataLen) {
-    if (dataLen >= sizeof(ether_header)) {
+bool EthLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
+    if (dataLen >= sizeof(ether_header))
+    {
         /**
      * Ethertypes: These are 16-bit identifiers appearing as the initial
      * two octets after the MAC destination and source (or after a
@@ -130,7 +139,9 @@ bool EthLayer::isDataValid(const uint8_t* data, size_t dataLen) {
      * More: IEEE Std 802.3 Clause 3.2.6
      */
         return be16toh(*(uint16_t*)(data + 12)) >= (uint16_t)0x0600;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }

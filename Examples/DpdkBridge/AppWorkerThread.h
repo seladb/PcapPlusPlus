@@ -14,7 +14,8 @@
  * loop is interrupted only when the thread is asked to stop (calling its stop()
  * method)
  */
-class AppWorkerThread : public pcpp::DpdkWorkerThread {
+class AppWorkerThread : public pcpp::DpdkWorkerThread
+{
   private:
     AppWorkerConfig& m_WorkerConfig;
     bool m_Stop;
@@ -25,13 +26,15 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
         : m_WorkerConfig(workerConfig), m_Stop(true),
           m_CoreId(MAX_NUM_OF_CORES + 1) {}
 
-    virtual ~AppWorkerThread() {
+    virtual ~AppWorkerThread()
+    {
         // do nothing
     }
 
     // implement abstract methods
 
-    bool run(uint32_t coreId) {
+    bool run(uint32_t coreId)
+    {
         m_CoreId = coreId;
         m_Stop = false;
         pcpp::DpdkDevice* rxDevice = m_WorkerConfig.RxDevice;
@@ -39,7 +42,8 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
 
         // if no DPDK devices were assigned to this worker/core don't enter the main
         // loop and exit
-        if (!rxDevice || !txDevice) {
+        if (!rxDevice || !txDevice)
+        {
             return true;
         }
 
@@ -47,13 +51,16 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
         pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
         // main loop, runs until be told to stop
-        while (!m_Stop) {
-            for (uint16_t i = 0; i < m_WorkerConfig.RxQueues; i++) {
+        while (!m_Stop)
+        {
+            for (uint16_t i = 0; i < m_WorkerConfig.RxQueues; i++)
+            {
                 // receive packets from network on the specified DPDK device
                 uint16_t packetsReceived =
                     rxDevice->receivePackets(packetArr, MAX_RECEIVE_BURST, i);
 
-                if (packetsReceived > 0) {
+                if (packetsReceived > 0)
+                {
                     // send packets to TX port
                     txDevice->sendPackets(packetArr, packetsReceived, 0);
                 }
@@ -61,7 +68,8 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
         }
 
         // free packet array (frees all mbufs as well)
-        for (int i = 0; i < MAX_RECEIVE_BURST; i++) {
+        for (int i = 0; i < MAX_RECEIVE_BURST; i++)
+        {
             if (packetArr[i] != NULL)
                 delete packetArr[i];
         }
@@ -69,7 +77,8 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
         return true;
     }
 
-    void stop() {
+    void stop()
+    {
         // assign the stop flag which will cause the main loop to end
         m_Stop = true;
     }

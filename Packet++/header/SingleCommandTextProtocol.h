@@ -10,12 +10,14 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * Class for single command text based protocol (FTP, SMTP) messages
  */
-class SingleCommandTextProtocol : public Layer {
+class SingleCommandTextProtocol : public Layer
+{
   private:
     size_t getArgumentFieldOffset() const;
     void setDelimiter(bool hyphen);

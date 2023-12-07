@@ -15,7 +15,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class SSLCipherSuite
@@ -28,7 +29,8 @@ namespace pcpp {
  * taken from here:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
  */
-class SSLCipherSuite {
+class SSLCipherSuite
+{
   public:
     /**
    * A c'tor for this class, should never be used by a user
@@ -108,7 +110,8 @@ class SSLCipherSuite {
  * extensions. This class provides capabilities such as getting the extension
  * type, length and viewing the extension data as raw (byte array)
  */
-class SSLExtension {
+class SSLExtension
+{
   public:
     /**
    * C'tor for this class
@@ -150,7 +153,8 @@ class SSLExtension {
    * @struct SSLExtensionStruct
    * Represents the common fields of the extension
    */
-    struct SSLExtensionStruct {
+    struct SSLExtensionStruct
+    {
         /** Extension type */
         uint16_t extensionType;
         /** Extension length */
@@ -161,7 +165,8 @@ class SSLExtension {
 
     uint8_t* m_RawData;
 
-    SSLExtensionStruct* getExtensionStruct() const {
+    SSLExtensionStruct* getExtensionStruct() const
+    {
         return (SSLExtensionStruct*)m_RawData;
     }
 };
@@ -171,7 +176,8 @@ class SSLExtension {
  * Represents SSL/TLS Server Name Indication extension. Inherits from
  * SSLExtension and add parsing of the hostname written in the extension data
  */
-class SSLServerNameIndicationExtension : public SSLExtension {
+class SSLServerNameIndicationExtension : public SSLExtension
+{
   public:
     /**
    * C'tor for this class
@@ -192,7 +198,8 @@ class SSLServerNameIndicationExtension : public SSLExtension {
  * adds parsing of the list of supported versions mentioned in the extension
  * data
  */
-class SSLSupportedVersionsExtension : public SSLExtension {
+class SSLSupportedVersionsExtension : public SSLExtension
+{
   public:
     /**
    * C'tor for this class
@@ -212,7 +219,8 @@ class SSLSupportedVersionsExtension : public SSLExtension {
  * adds parsing of the supported groups (Elliptic Curves) mentioned in the
  * extension data
  */
-class TLSSupportedGroupsExtension : public SSLExtension {
+class TLSSupportedGroupsExtension : public SSLExtension
+{
   public:
     /**
    * C'tor for this class
@@ -232,7 +240,8 @@ class TLSSupportedGroupsExtension : public SSLExtension {
  * SSLExtension and adds parsing of the EC point formats mentioned in the
  * extension data
  */
-class TLSECPointFormatExtension : public SSLExtension {
+class TLSECPointFormatExtension : public SSLExtension
+{
   public:
     /**
    * C'tor for this class
@@ -254,7 +263,8 @@ class TLSECPointFormatExtension : public SSLExtension {
  * raw data and returns general info as data as raw, length, etc. In the future
  * I may add full parsing of the certificate
  */
-class SSLx509Certificate {
+class SSLx509Certificate
+{
   public:
     /**
    * C'tor for this class
@@ -304,7 +314,8 @@ class SSLHandshakeLayer;
  * server-hello-done messages (although it's not such a common case, most
  * handshake layers contain 1 handshake message only)
  */
-class SSLHandshakeMessage {
+class SSLHandshakeMessage
+{
   public:
     virtual ~SSLHandshakeMessage() {}
 
@@ -367,7 +378,8 @@ class SSLHandshakeMessage {
  * and adds parsing of all fields of this message including the message
  * extensions, cipher-suite list, etc.
  */
-class SSLClientHelloMessage : public SSLHandshakeMessage {
+class SSLClientHelloMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * @struct ClientHelloTLSFingerprint
@@ -378,7 +390,8 @@ class SSLClientHelloMessage : public SSLHandshakeMessage {
    * SSLClientHelloMessage#generateTLSFingerprint(). This struct contains
    * methods to extract the TLS fingerprint itself: toString() and toMD5()
    */
-    struct ClientHelloTLSFingerprint {
+    struct ClientHelloTLSFingerprint
+    {
         /** TLS version */
         uint16_t tlsVersion;
         /** A list of Cipher Suite IDs */
@@ -439,7 +452,8 @@ class SSLClientHelloMessage : public SSLHandshakeMessage {
    * messages. Notice this points directly to the data, so every change will
    * change the actual packet data
    */
-    ssl_tls_client_server_hello* getClientHelloHeader() const {
+    ssl_tls_client_server_hello* getClientHelloHeader() const
+    {
         return (ssl_tls_client_server_hello*)m_Data;
     }
 
@@ -579,7 +593,8 @@ class SSLClientHelloMessage : public SSLHandshakeMessage {
  * SSLHandshakeMessage and adds parsing of all fields of this message including
  * the message extensions, cipher-suite, etc.
  */
-class SSLServerHelloMessage : public SSLHandshakeMessage {
+class SSLServerHelloMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * @struct ServerHelloTLSFingerprint
@@ -589,7 +604,8 @@ class SSLServerHelloMessage : public SSLHandshakeMessage {
    * SSLServerHelloMessage#generateTLSFingerprint(). This struct contains
    * methods to extract the TLS fingerprint itself: toString() and toMD5()
    */
-    struct ServerHelloTLSFingerprint {
+    struct ServerHelloTLSFingerprint
+    {
         /** TLS version */
         uint16_t tlsVersion;
         /** Cipher Suite ID */
@@ -639,7 +655,8 @@ class SSLServerHelloMessage : public SSLHandshakeMessage {
    * messages. Notice this points directly to the data, so every change will
    * change the actual packet data
    */
-    ssl_tls_client_server_hello* getServerHelloHeader() const {
+    ssl_tls_client_server_hello* getServerHelloHeader() const
+    {
         return (ssl_tls_client_server_hello*)m_Data;
     }
 
@@ -782,7 +799,8 @@ class SSLServerHelloMessage : public SSLHandshakeMessage {
  * in the following packets) won't be recognized as SSLCertificateMessage
  * messages
  */
-class SSLCertificateMessage : public SSLHandshakeMessage {
+class SSLCertificateMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -830,7 +848,8 @@ class SSLCertificateMessage : public SSLHandshakeMessage {
  * additional payload except for the common payload described in
  * SSLHandshakeMessage
  */
-class SSLHelloRequestMessage : public SSLHandshakeMessage {
+class SSLHelloRequestMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -857,7 +876,8 @@ class SSLHelloRequestMessage : public SSLHandshakeMessage {
  * SSLHandshakeMessage and adds parsing functionality such as getting the server
  * key exchange params as raw data (parsing of this may be added in the future)
  */
-class SSLServerKeyExchangeMessage : public SSLHandshakeMessage {
+class SSLServerKeyExchangeMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -902,7 +922,8 @@ class SSLServerKeyExchangeMessage : public SSLHandshakeMessage {
  * SSLHandshakeMessage and adds parsing functionality such as getting the server
  * key exchange params as raw data (parsing of this may be added in the future)
  */
-class SSLClientKeyExchangeMessage : public SSLHandshakeMessage {
+class SSLClientKeyExchangeMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -947,7 +968,8 @@ class SSLClientKeyExchangeMessage : public SSLHandshakeMessage {
  * SSLHandshakeMessage and adds parsing functionality such as retrieving client
  * certificate types and authority data
  */
-class SSLCertificateRequestMessage : public SSLHandshakeMessage {
+class SSLCertificateRequestMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -1000,7 +1022,8 @@ class SSLCertificateRequestMessage : public SSLHandshakeMessage {
  * additional payload except for the common payload described in
  * SSLHandshakeMessage
  */
-class SSLServerHelloDoneMessage : public SSLHandshakeMessage {
+class SSLServerHelloDoneMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -1028,7 +1051,8 @@ class SSLServerHelloDoneMessage : public SSLHandshakeMessage {
  * hash data as raw data (parsing may be added in the future)
  * @todo This message type wasn't tested in unit-tests
  */
-class SSLCertificateVerifyMessage : public SSLHandshakeMessage {
+class SSLCertificateVerifyMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -1074,7 +1098,8 @@ class SSLCertificateVerifyMessage : public SSLHandshakeMessage {
  * hash data as raw data (parsing may be added in the future)
  * @todo This message type wasn't tested in unit-tests
  */
-class SSLFinishedMessage : public SSLHandshakeMessage {
+class SSLFinishedMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -1119,7 +1144,8 @@ class SSLFinishedMessage : public SSLHandshakeMessage {
  * SSLHandshakeMessage and adds parsing functionality such as retrieving session
  * ticket data as raw data (parsing may be added in the future)
  */
-class SSLNewSessionTicketMessage : public SSLHandshakeMessage {
+class SSLNewSessionTicketMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -1166,7 +1192,8 @@ class SSLNewSessionTicketMessage : public SSLHandshakeMessage {
  * so the length of this message will always be the size counted from message
  * start until the end of the layer
  */
-class SSLUnknownMessage : public SSLHandshakeMessage {
+class SSLUnknownMessage : public SSLHandshakeMessage
+{
   public:
     /**
    * C'tor for this class. Currently only in use in
@@ -1201,9 +1228,11 @@ class SSLUnknownMessage : public SSLHandshakeMessage {
 };
 
 template <class TExtension>
-TExtension* SSLClientHelloMessage::getExtensionOfType() const {
+TExtension* SSLClientHelloMessage::getExtensionOfType() const
+{
     size_t vecSize = m_ExtensionList.size();
-    for (size_t i = 0; i < vecSize; i++) {
+    for (size_t i = 0; i < vecSize; i++)
+    {
         SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
         if (dynamic_cast<TExtension*>(curElem) != NULL)
             return (TExtension*)curElem;
@@ -1213,9 +1242,11 @@ TExtension* SSLClientHelloMessage::getExtensionOfType() const {
 }
 
 template <class TExtension>
-TExtension* SSLServerHelloMessage::getExtensionOfType() const {
+TExtension* SSLServerHelloMessage::getExtensionOfType() const
+{
     size_t vecSize = m_ExtensionList.size();
-    for (size_t i = 0; i < vecSize; i++) {
+    for (size_t i = 0; i < vecSize; i++)
+    {
         SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
         if (dynamic_cast<TExtension*>(curElem) != NULL)
             return (TExtension*)curElem;

@@ -2,14 +2,17 @@
 
 #include "FtpLayer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 
 // ----------------- Class FtpRequestLayer -----------------
-bool FtpRequestLayer::setCommand(FtpCommand code) {
+bool FtpRequestLayer::setCommand(FtpCommand code)
+{
     return setCommandInternal(getCommandAsString(code));
 }
 
-FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const {
+FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
+{
     size_t val = 0;
     std::string field = getCommandString();
 
@@ -19,20 +22,25 @@ FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const {
     return static_cast<FtpCommand>(val);
 }
 
-std::string FtpRequestLayer::getCommandString() const {
+std::string FtpRequestLayer::getCommandString() const
+{
     return getCommandInternal();
 }
 
-bool FtpRequestLayer::setCommandOption(const std::string& value) {
+bool FtpRequestLayer::setCommandOption(const std::string& value)
+{
     return setCommandOptionInternal(value);
 }
 
 std::string
-FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const {
-    if (removeEscapeCharacters) {
+FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
+{
+    if (removeEscapeCharacters)
+    {
         std::stringstream ss;
         std::string field = getCommandOptionInternal();
-        for (size_t idx = 0; idx < field.size(); ++idx) {
+        for (size_t idx = 0; idx < field.size(); ++idx)
+        {
             if (int(field.c_str()[idx]) < 127 &&
                 int(field.c_str()[idx]) > 31) // From SPACE to ~
                 ss << field.c_str()[idx];
@@ -42,8 +50,10 @@ FtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const {
     return getCommandOptionInternal();
 }
 
-std::string FtpRequestLayer::getCommandInfo(FtpCommand code) {
-    switch (code) {
+std::string FtpRequestLayer::getCommandInfo(FtpCommand code)
+{
+    switch (code)
+    {
     case FtpCommand::ABOR:
         return "Abort an active file transfer";
     case FtpCommand::ACCT:
@@ -203,9 +213,11 @@ std::string FtpRequestLayer::getCommandInfo(FtpCommand code) {
     }
 }
 
-std::string FtpRequestLayer::getCommandAsString(FtpCommand code) {
+std::string FtpRequestLayer::getCommandAsString(FtpCommand code)
+{
     std::stringstream oss;
-    for (size_t idx = 0; idx < 4; ++idx) {
+    for (size_t idx = 0; idx < 4; ++idx)
+    {
         char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
         if (val) // Dont push if it is a null character
         {
@@ -215,35 +227,43 @@ std::string FtpRequestLayer::getCommandAsString(FtpCommand code) {
     return oss.str();
 }
 
-std::string FtpRequestLayer::toString() const {
+std::string FtpRequestLayer::toString() const
+{
     return "FTP Request: " + getCommandString();
 }
 
 // ----------------- Class FtpResponseLayer -----------------
-bool FtpResponseLayer::setStatusCode(FtpStatusCode code) {
+bool FtpResponseLayer::setStatusCode(FtpStatusCode code)
+{
     std::ostringstream oss;
     oss << int(code);
     return setCommandInternal(oss.str());
 }
 
-FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const {
+FtpResponseLayer::FtpStatusCode FtpResponseLayer::getStatusCode() const
+{
     return static_cast<FtpStatusCode>(atoi(getCommandInternal().c_str()));
 }
 
-std::string FtpResponseLayer::getStatusCodeString() const {
+std::string FtpResponseLayer::getStatusCodeString() const
+{
     return getCommandInternal();
 }
 
-bool FtpResponseLayer::setStatusOption(const std::string& value) {
+bool FtpResponseLayer::setStatusOption(const std::string& value)
+{
     return setCommandOptionInternal(value);
 }
 
 std::string
-FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const {
-    if (removeEscapeCharacters) {
+FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const
+{
+    if (removeEscapeCharacters)
+    {
         std::stringstream ss;
         std::string field = getCommandOptionInternal();
-        for (size_t idx = 0; idx < field.size(); ++idx) {
+        for (size_t idx = 0; idx < field.size(); ++idx)
+        {
             if (int(field.c_str()[idx]) < 127 &&
                 int(field.c_str()[idx]) > 31) // From SPACE to ~
                 ss << field.c_str()[idx];
@@ -253,8 +273,10 @@ FtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const {
     return getCommandOptionInternal();
 }
 
-std::string FtpResponseLayer::getStatusCodeAsString(FtpStatusCode code) {
-    switch (code) {
+std::string FtpResponseLayer::getStatusCodeAsString(FtpStatusCode code)
+{
+    switch (code)
+    {
     case FtpStatusCode::RESTART_MARKER:
         return "Restart marker reply";
     case FtpStatusCode::SERVICE_READY_IN_MIN:
@@ -372,7 +394,8 @@ std::string FtpResponseLayer::getStatusCodeAsString(FtpStatusCode code) {
     }
 }
 
-std::string FtpResponseLayer::toString() const {
+std::string FtpResponseLayer::toString() const
+{
     return "FTP Response: " + getStatusCodeString();
 }
 

@@ -3,10 +3,12 @@
 #include "EthLayer.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
 VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag,
-                       bool setPolicyAppliedFlag, bool setDontLearnFlag) {
+                       bool setPolicyAppliedFlag, bool setDontLearnFlag)
+{
     const size_t headerLen = sizeof(vxlan_header);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -31,17 +33,20 @@ VxlanLayer::VxlanLayer(uint32_t vni, uint16_t groupPolicyID, bool setGbpFlag,
         vxlanHeader->dontLearnFlag = 1;
 }
 
-uint32_t VxlanLayer::getVNI() const {
+uint32_t VxlanLayer::getVNI() const
+{
     return (be32toh(getVxlanHeader()->vni) >> 8);
 }
 
-void VxlanLayer::setVNI(uint32_t vni) {
+void VxlanLayer::setVNI(uint32_t vni)
+{
     getVxlanHeader()->vni = htobe32(vni << 8);
 }
 
 std::string VxlanLayer::toString() const { return "VXLAN Layer"; }
 
-void VxlanLayer::parseNextLayer() {
+void VxlanLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(vxlan_header))
         return;
 

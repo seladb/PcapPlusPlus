@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class PointerVector
@@ -22,7 +23,8 @@ namespace pcpp {
  * freeing objects once they're removed from it
  */
 template <typename T>
-class PointerVector {
+class PointerVector
+{
   public:
     /**
    * Iterator object that is used for iterating all elements in the vector
@@ -44,9 +46,11 @@ class PointerVector {
    * A destructor for this class. The destructor frees all elements that are
    * binded to the vector
    */
-    ~PointerVector() {
+    ~PointerVector()
+    {
         for (VectorIterator iter = m_Vector.begin(); iter != m_Vector.end();
-             iter++) {
+             iter++)
+        {
             delete (*iter);
         }
     }
@@ -56,9 +60,11 @@ class PointerVector {
    * inside it are copied, meaning the new vector will contain pointers to
    * copied elements, not pointers to the elements of the original vector
    */
-    PointerVector(const PointerVector& other) {
+    PointerVector(const PointerVector& other)
+    {
         for (ConstVectorIterator iter = other.begin(); iter != other.end();
-             iter++) {
+             iter++)
+        {
             T* objCopy = new T(**iter);
             m_Vector.push_back(objCopy);
         }
@@ -67,9 +73,11 @@ class PointerVector {
     /**
    * Clears all elements of the vector while freeing them
    */
-    void clear() {
+    void clear()
+    {
         for (VectorIterator iter = m_Vector.begin(); iter != m_Vector.end();
-             iter++) {
+             iter++)
+        {
             delete (*iter);
         }
 
@@ -126,7 +134,8 @@ class PointerVector {
    * @return An iterator pointing to the new location of the element that
    * followed the last element erased by the function call
    */
-    VectorIterator erase(VectorIterator position) {
+    VectorIterator erase(VectorIterator position)
+    {
         delete (*position);
         return m_Vector.erase(position);
     }
@@ -137,7 +146,8 @@ class PointerVector {
    * @return A pointer to the element which is no longer managed by the vector.
    * It's user responsibility to free it
    */
-    T* getAndRemoveFromVector(VectorIterator& position) {
+    T* getAndRemoveFromVector(VectorIterator& position)
+    {
         T* result = (*position);
         VectorIterator tempPos = position;
         tempPos = m_Vector.erase(tempPos);

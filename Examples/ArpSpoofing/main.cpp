@@ -15,7 +15,8 @@
 #include <stdlib.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -34,7 +35,8 @@ static struct option L3FwdOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout << std::endl
               << "Usage:" << std::endl
               << "------" << std::endl
@@ -59,7 +61,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -68,7 +71,8 @@ void printAppVersion() {
 }
 
 pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr,
-                               pcpp::PcapLiveDevice* pDevice) {
+                               pcpp::PcapLiveDevice* pDevice)
+{
     // Create an ARP packet and change its fields
     pcpp::Packet arpRequest(500);
 
@@ -85,7 +89,8 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr,
 
     // setup arp reply filter
     pcpp::ArpFilter arpFilter(pcpp::ARP_REPLY);
-    if (!pDevice->setFilter(arpFilter)) {
+    if (!pDevice->setFilter(arpFilter))
+    {
         std::cerr << "Could not set ARP filter on device" << std::endl;
         return pcpp::MacAddress("");
     }
@@ -97,7 +102,8 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr,
     pcpp::multiPlatformSleep(2);
     pDevice->stopCapture();
 
-    if (capturedPackets.size() < 1) {
+    if (capturedPackets.size() < 1)
+    {
         std::cerr
             << "No arp reply was captured. Couldn't retrieve MAC address for IP "
             << ipAddr << std::endl;
@@ -106,7 +112,8 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr,
 
     // parse arp reply and extract the MAC address
     pcpp::Packet arpReply(capturedPackets.front());
-    if (arpReply.isPacketOfType(pcpp::ARP)) {
+    if (arpReply.isPacketOfType(pcpp::ARP))
+    {
         return arpReply.getLayerOfType<pcpp::ArpLayer>()->getSenderMacAddress();
     }
     std::cerr
@@ -117,17 +124,20 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr,
 
 void doArpSpoofing(pcpp::PcapLiveDevice* pDevice,
                    const pcpp::IPv4Address& gatewayAddr,
-                   const pcpp::IPv4Address& victimAddr) {
+                   const pcpp::IPv4Address& victimAddr)
+{
     // Get the gateway MAC address
     pcpp::MacAddress gatewayMacAddr = getMacAddress(gatewayAddr, pDevice);
-    if (!gatewayMacAddr.isValid()) {
+    if (!gatewayMacAddr.isValid())
+    {
         EXIT_WITH_ERROR("Failed to find gateway MAC address");
     }
     std::cout << "Got gateway MAC address: " << gatewayMacAddr << std::endl;
 
     // Get the victim MAC address
     pcpp::MacAddress victimMacAddr = getMacAddress(victimAddr, pDevice);
-    if (!victimMacAddr.isValid()) {
+    if (!victimMacAddr.isValid())
+    {
         EXIT_WITH_ERROR("Failed to find victim MAC address");
     }
     std::cout << "Got victim MAC address: " << victimMacAddr << std::endl;
@@ -158,7 +168,8 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice,
     std::cout << "Sending ARP replies to victim and to gateway every 5 seconds..."
               << std::endl
               << std::endl;
-    while (1) {
+    while (1)
+    {
         pDevice->sendPacket(&gwArpReply);
         std::cout << "Sent ARP reply: " << gatewayAddr
                   << " [gateway] is at MAC address " << deviceMacAddress << " [me]"
@@ -171,7 +182,8 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice,
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     // Get arguments from user for incoming interface and outgoing interface
@@ -180,8 +192,10 @@ int main(int argc, char* argv[]) {
     int optionIndex = 0;
     int opt = 0;
     while ((opt = getopt_long(argc, argv, "i:c:g:hv", L3FwdOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'i':
@@ -207,7 +221,8 @@ int main(int argc, char* argv[]) {
     }
 
     // Both incoming and outgoing interfaces must be provided by user
-    if (iface == "" || victim == "" || gateway == "") {
+    if (iface == "" || victim == "" || gateway == "")
+    {
         EXIT_WITH_ERROR(
             "Please specify both interface IP, victim IP and gateway IP");
     }
@@ -221,20 +236,24 @@ int main(int argc, char* argv[]) {
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
 
     // Verifying interface is valid
-    if (pIfaceDevice == nullptr) {
+    if (pIfaceDevice == nullptr)
+    {
         EXIT_WITH_ERROR("Cannot find interface");
     }
 
-    if (!victimAddr.isValid()) {
+    if (!victimAddr.isValid())
+    {
         EXIT_WITH_ERROR("Victim address is not valid");
     }
 
-    if (!gatewayAddr.isValid()) {
+    if (!gatewayAddr.isValid())
+    {
         EXIT_WITH_ERROR("Gateway address is not valid");
     }
 
     // Opening interface device
-    if (!pIfaceDevice->open()) {
+    if (!pIfaceDevice->open())
+    {
         EXIT_WITH_ERROR("Cannot open interface");
     }
 

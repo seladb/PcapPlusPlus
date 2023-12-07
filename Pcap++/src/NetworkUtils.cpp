@@ -23,11 +23,13 @@
 
 #define DNS_PORT 53
 
-namespace pcpp {
+namespace pcpp
+{
 
 const int NetworkUtils::DefaultTimeout = 5;
 
-struct ArpingReceivedData {
+struct ArpingReceivedData
+{
     std::mutex& mutex;
     std::condition_variable& cond;
     IPv4Address ipAddr;
@@ -37,7 +39,8 @@ struct ArpingReceivedData {
 };
 
 static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice*,
-                              void* userCookie) {
+                              void* userCookie)
+{
     // extract timestamp of packet
     clock_t receiveTime = clock();
 
@@ -83,14 +86,17 @@ static void arpPacketReceived(RawPacket* rawPacket, PcapLiveDevice*,
 MacAddress
 NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device,
                             double& arpResponseTimeMS, MacAddress sourceMac,
-                            IPv4Address sourceIP, int arpTimeout) const {
+                            IPv4Address sourceIP, int arpTimeout) const
+{
     MacAddress result = MacAddress::Zero;
 
     // open the device if not already opened
     bool closeDeviceAtTheEnd = false;
-    if (!device->isOpened()) {
+    if (!device->isOpened())
+    {
         closeDeviceAtTheEnd = true;
-        if (!device->open()) {
+        if (!device->open())
+        {
             PCPP_LOG_ERROR("Cannot open device");
             return result;
         }
@@ -114,12 +120,14 @@ NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device,
 
     ArpLayer arpLayer(ARP_REQUEST, sourceMac, destMac, sourceIP, ipAddr);
 
-    if (!arpRequest.addLayer(&ethLayer)) {
+    if (!arpRequest.addLayer(&ethLayer))
+    {
         PCPP_LOG_ERROR("Couldn't build Eth layer for ARP request");
         return result;
     }
 
-    if (!arpRequest.addLayer(&arpLayer)) {
+    if (!arpRequest.addLayer(&arpLayer))
+    {
         PCPP_LOG_ERROR("Couldn't build ARP layer for ARP request");
         return result;
     }
@@ -128,7 +136,8 @@ NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device,
 
     // set a filter for the interface to intercept only ARP response packets
     ArpFilter arpFilter(ARP_REPLY);
-    if (!device->setFilter(arpFilter)) {
+    if (!device->setFilter(arpFilter))
+    {
         PCPP_LOG_ERROR("Couldn't set ARP filter for device");
         return result;
     }
@@ -168,7 +177,8 @@ NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device,
     device->stopCapture();
 
     // check if timeout expired
-    if (res == std::cv_status::timeout) {
+    if (res == std::cv_status::timeout)
+    {
         PCPP_LOG_ERROR("ARP request time out");
         return result;
     }
@@ -184,7 +194,8 @@ NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* device,
     return result;
 }
 
-struct DNSReceivedData {
+struct DNSReceivedData
+{
     std::mutex& mutex;
     std::condition_variable& cond;
     std::string hostname;
@@ -196,7 +207,8 @@ struct DNSReceivedData {
 };
 
 static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*,
-                                void* userCookie) {
+                                void* userCookie)
+{
     // extract timestamp of packet
     clock_t receiveTime = clock();
 
@@ -221,7 +233,8 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*,
     if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1 /* DNS response */
         || dnsResponseLayer->getDnsHeader()->numberOfAnswers < htobe16(1) ||
         dnsResponseLayer->getDnsHeader()->transactionID !=
-            htobe16(data->transactionID)) {
+            htobe16(data->transactionID))
+    {
         return;
     }
 
@@ -238,11 +251,13 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*,
 
     DnsResource* dnsAnswer = nullptr;
 
-    while (true) {
+    while (true)
+    {
         dnsAnswer = dnsResponseLayer->getAnswer(hostToFind, true);
 
         // if response doesn't contain hostname or cname - return
-        if (dnsAnswer == nullptr) {
+        if (dnsAnswer == nullptr)
+        {
             PCPP_LOG_DEBUG("DNS answer doesn't contain hostname '" << hostToFind
                                                                    << "'");
             return;
@@ -251,14 +266,16 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*,
         DnsType dnsType = dnsAnswer->getDnsType();
         // if answer contains IPv4 resolving - break the loop and return the IP
         // address
-        if (dnsType == DNS_TYPE_A) {
+        if (dnsType == DNS_TYPE_A)
+        {
             PCPP_LOG_DEBUG("Found IPv4 resolving for hostname '" << hostToFind
                                                                  << "'");
             break;
         }
         // if answer contains a cname - continue to search this cname in the packet
         // - hopefully find the IP resolving
-        else if (dnsType == DNS_TYPE_CNAME) {
+        else if (dnsType == DNS_TYPE_CNAME)
+        {
             PCPP_LOG_DEBUG("Got a DNS response for hostname '"
                            << hostToFind << "' with CNAME '"
                            << dnsAnswer->getData()->toString() << "'");
@@ -266,7 +283,8 @@ static void dnsResponseReceived(RawPacket* rawPacket, PcapLiveDevice*,
         }
         // if answer is of type other than A or CNAME (for example AAAA - IPv6) -
         // type is not supported - return
-        else {
+        else
+        {
             PCPP_LOG_DEBUG("Got a DNS response with type which is not A or CNAME");
             return;
         }
@@ -291,14 +309,17 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
                                          double& dnsResponseTimeMS,
                                          uint32_t& dnsTTL, int dnsTimeout,
                                          IPv4Address dnsServerIP,
-                                         IPv4Address gatewayIP) const {
+                                         IPv4Address gatewayIP) const
+{
     IPv4Address result = IPv4Address::Zero;
 
     // open the device if not already opened
     bool closeDeviceAtTheEnd = false;
-    if (!device->isOpened()) {
+    if (!device->isOpened())
+    {
         closeDeviceAtTheEnd = true;
-        if (!device->open()) {
+        if (!device->open())
+        {
             PCPP_LOG_ERROR("Cannot open device");
             return result;
         }
@@ -307,11 +328,13 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
     // first - resolve gateway MAC address
 
     // if gateway IP wasn't provided - try to find the default gateway
-    if (gatewayIP == IPv4Address::Zero) {
+    if (gatewayIP == IPv4Address::Zero)
+    {
         gatewayIP = device->getDefaultGateway();
     }
 
-    if (!gatewayIP.isValid() || gatewayIP == IPv4Address::Zero) {
+    if (!gatewayIP.isValid() || gatewayIP == IPv4Address::Zero)
+    {
         PCPP_LOG_ERROR(
             "Gateway address isn't valid or couldn't find default gateway");
         return result;
@@ -321,7 +344,8 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
     double arpResTime;
     MacAddress gatewayMacAddress = getMacAddress(gatewayIP, device, arpResTime);
 
-    if (gatewayMacAddress == MacAddress::Zero) {
+    if (gatewayMacAddress == MacAddress::Zero)
+    {
         PCPP_LOG_ERROR("Couldn't resolve gateway MAC address");
         return result;
     }
@@ -331,11 +355,13 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
 
     // validate DNS server IP. If it wasn't provided - set the system-configured
     // DNS server
-    if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0) {
+    if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0)
+    {
         dnsServerIP = device->getDnsServers().at(0);
     }
 
-    if (!dnsServerIP.isValid()) {
+    if (!dnsServerIP.isValid())
+    {
         PCPP_LOG_ERROR("DNS server IP isn't valid");
         return result;
     }
@@ -364,7 +390,8 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
 
     // add all layers to packet
     if (!dnsRequest.addLayer(&ethLayer) || !dnsRequest.addLayer(&ipLayer) ||
-        !dnsRequest.addLayer(&udpLayer) || !dnsRequest.addLayer(&dnsLayer)) {
+        !dnsRequest.addLayer(&udpLayer) || !dnsRequest.addLayer(&dnsLayer))
+    {
         PCPP_LOG_ERROR("Couldn't construct DNS query");
         return result;
     }
@@ -373,7 +400,8 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
 
     // set a DNS response filter on the device
     PortFilter dnsResponseFilter(53, SRC);
-    if (!device->setFilter(dnsResponseFilter)) {
+    if (!device->setFilter(dnsResponseFilter))
+    {
         PCPP_LOG_ERROR("Couldn't set DNS response filter");
         return result;
     }
@@ -412,7 +440,8 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname,
     device->stopCapture();
 
     // check if timeout expired
-    if (res == std::cv_status::timeout) {
+    if (res == std::cv_status::timeout)
+    {
         PCPP_LOG_ERROR("DNS request time out");
         return result;
     }

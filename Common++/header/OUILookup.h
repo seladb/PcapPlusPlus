@@ -9,7 +9,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class OUILookup
  * Provides vendor name matching functionality from MAC addresses. It uses an
@@ -20,20 +21,23 @@ namespace pcpp {
  * entries, should modify 3rdParty/OUILookup/PCPP_OUIDatabase.json file and call
  * to initOUIDatabaseFromJson() function to renew the internal data.
  */
-class OUILookup {
+class OUILookup
+{
   private:
     /**
    * MAC addresses with mask values. For example for a MAC address
    * "XX:XX:XX:XX:X0:00/36" the first element will be 36, and the second element
    * will be unsigned integer equivalent of "XX:XX:XX:XX:X0:00" and vendor name.
    */
-    struct MaskedFilter {
+    struct MaskedFilter
+    {
         int mask;
         std::unordered_map<uint64_t, std::string> vendorMap;
     };
 
     /// Vendors for MAC addresses and mask filters if exists
-    struct VendorData {
+    struct VendorData
+    {
         std::string vendorName;
         std::vector<MaskedFilter> maskedFilter;
     };

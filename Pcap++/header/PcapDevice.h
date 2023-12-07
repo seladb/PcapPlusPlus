@@ -14,7 +14,8 @@ struct pcap_pkthdr;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 // Forward Declaration - required for IPcapDevice::matchPacketWithFilter
 class GeneralFilter;
 
@@ -24,7 +25,8 @@ class GeneralFilter;
  * files, libPcap, WinPcap/Npcap and RemoteCapture. This class is abstract and
  * cannot be instantiated
  */
-class IPcapDevice : public IDevice, public IFilterableDevice {
+class IPcapDevice : public IDevice, public IFilterableDevice
+{
   protected:
     pcap_t* m_PcapDescriptor;
 
@@ -36,7 +38,8 @@ class IPcapDevice : public IDevice, public IFilterableDevice {
    * @struct PcapStats
    * A container for pcap device statistics
    */
-    struct PcapStats {
+    struct PcapStats
+    {
         /** Number of packets received */
         uint64_t packetsRecv;
         /** Number of packets dropped */

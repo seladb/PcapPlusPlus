@@ -18,7 +18,8 @@
  * The base splitter class. All type of splitters inherit from it. It's a
  * virtual abstract class that doesn't implement any logic
  */
-class Splitter {
+class Splitter
+{
   public:
     /**
    * A method that gets a packet and returns:
@@ -46,7 +47,8 @@ class Splitter {
    */
     virtual std::string getFileName(pcpp::Packet& packet,
                                     const std::string& outputPcapBasePath,
-                                    int fileNumber) {
+                                    int fileNumber)
+    {
         std::ostringstream sstream;
         sstream << std::setw(4) << std::setfill('0') << fileNumber;
         return outputPcapBasePath.c_str() + sstream.str();
@@ -71,7 +73,8 @@ class Splitter {
  * packet will be written to a file that left the LRU list, this file will be
  * put back in the LRU list, re-opened and packet will be appended to that file
  */
-class SplitterWithMaxFiles : public Splitter {
+class SplitterWithMaxFiles : public Splitter
+{
     // in order to support all OS's, the maximum number of concurrent open file is
     // set to 250
     static const int MAX_NUMBER_OF_CONCURRENT_OPEN_FILES = 250;
@@ -88,7 +91,8 @@ class SplitterWithMaxFiles : public Splitter {
    * returns it in filesToClose vector. The application will take care of
    * closing that file
    */
-    void writingToFile(int fileNum, std::vector<int>& filesToClose) {
+    void writingToFile(int fileNum, std::vector<int>& filesToClose)
+    {
         int fileToClose;
         if (m_LRUFileList.put(fileNum, &fileToClose) == 1)
             filesToClose.push_back(fileToClose);
@@ -103,7 +107,8 @@ class SplitterWithMaxFiles : public Splitter {
    * full it pulls out the least recently used file and returns it in
    * filesToClose vector. The application will take care of closing that file
    */
-    int getNextFileNumber(std::vector<int>& filesToClose) {
+    int getNextFileNumber(std::vector<int>& filesToClose)
+    {
         int nextFile = 0;
 
         // zero or negative m_MaxFiles means no limit
@@ -117,7 +122,8 @@ class SplitterWithMaxFiles : public Splitter {
 
         // put the next file in the LRU list
         int fileToClose;
-        if (m_LRUFileList.put(nextFile, &fileToClose) == 1) {
+        if (m_LRUFileList.put(nextFile, &fileToClose) == 1)
+        {
             // if a file is pulled out of the LRU list - return it
             filesToClose.push_back(fileToClose);
         }
@@ -130,7 +136,8 @@ class SplitterWithMaxFiles : public Splitter {
    * files limit
    */
     explicit SplitterWithMaxFiles(int maxFiles, int firstFileNumber = 0)
-        : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES) {
+        : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+    {
         m_MaxFiles = maxFiles;
         m_NextFile = firstFileNumber;
     }
@@ -143,12 +150,14 @@ class SplitterWithMaxFiles : public Splitter {
    * UNLIMITED_FILES_MAGIC_NUMBER it means there is no limit. Else it verifies
    * the limit is a positive number
    */
-    bool isSplitterParamLegal(std::string& errorString) {
+    bool isSplitterParamLegal(std::string& errorString)
+    {
         // unlimited number of output files
         if (m_MaxFiles == UNLIMITED_FILES_MAGIC_NUMBER)
             return true;
 
-        if (m_MaxFiles <= 0) {
+        if (m_MaxFiles <= 0)
+        {
             errorString = "max number of file must be a positive number";
             return false;
         }
@@ -166,7 +175,8 @@ class SplitterWithMaxFiles : public Splitter {
  * inherits SplitterWithMaxFiles so it supports having or not having a limit on
  * the number of output files
  */
-class ValueBasedSplitter : public SplitterWithMaxFiles {
+class ValueBasedSplitter : public SplitterWithMaxFiles
+{
   protected:
     // A flow table that keeps track of all flows (a flow is usually identified by
     // 5-tuple)
@@ -186,10 +196,12 @@ class ValueBasedSplitter : public SplitterWithMaxFiles {
    * A helper method that gets the packet value and returns the file to write it
    * to, and also a file to close if the LRU list is full
    */
-    int getFileNumberForValue(uint32_t value, std::vector<int>& filesToClose) {
+    int getFileNumberForValue(uint32_t value, std::vector<int>& filesToClose)
+    {
         // search the value in the value-to-file map. If it's there, return the file
         // number
-        if (m_ValueToFileTable.find(value) != m_ValueToFileTable.end()) {
+        if (m_ValueToFileTable.find(value) != m_ValueToFileTable.end())
+        {
             // if value was already seen, follow the same file number
             return m_ValueToFileTable[value];
         }
@@ -205,7 +217,8 @@ class ValueBasedSplitter : public SplitterWithMaxFiles {
  * An auxiliary method for extracting packet's IPv4/IPv6 source address as
  * string
  */
-std::string getSrcIPString(pcpp::Packet& packet) {
+std::string getSrcIPString(pcpp::Packet& packet)
+{
     if (packet.isPacketOfType(pcpp::IP))
         return packet.getLayerOfType<pcpp::IPLayer>()->getSrcIPAddress().toString();
     return "miscellaneous";
@@ -214,7 +227,8 @@ std::string getSrcIPString(pcpp::Packet& packet) {
 /**
  * An auxiliary method for extracting packet's IPv4/IPv6 dest address string
  */
-std::string getDstIPString(pcpp::Packet& packet) {
+std::string getDstIPString(pcpp::Packet& packet)
+{
     if (packet.isPacketOfType(pcpp::IP))
         return packet.getLayerOfType<pcpp::IPLayer>()->getDstIPAddress().toString();
     return "miscellaneous";
@@ -223,17 +237,20 @@ std::string getDstIPString(pcpp::Packet& packet) {
 /**
  * An auxiliary method for replacing '.' and ':' in IPv4/IPv6 addresses with '-'
  */
-std::string hyphenIP(std::string ipVal) {
+std::string hyphenIP(std::string ipVal)
+{
     // for IPv4 - replace '.' with '-'
     int loc = ipVal.find(".");
-    while (loc >= 0) {
+    while (loc >= 0)
+    {
         ipVal.replace(loc, 1, "-");
         loc = ipVal.find(".");
     }
 
     // for IPv6 - replace ':' with '-'
     loc = ipVal.find(":");
-    while (loc >= 0) {
+    while (loc >= 0)
+    {
         ipVal.replace(loc, 1, "-");
         loc = ipVal.find(":");
     }

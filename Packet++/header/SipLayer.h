@@ -9,7 +9,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 // some popular SIP header fields
 
 /** From field */
@@ -70,7 +71,8 @@ namespace pcpp {
  * Represents a general SIP message. It's an abstract class and cannot be
  * instantiated. It's inherited by SipRequestLayer and SipResponseLayer
  */
-class SipLayer : public TextBasedProtocolMessage {
+class SipLayer : public TextBasedProtocolMessage
+{
   public:
     /**
    * The length of the body of many SIP response messages is determined by a SIP
@@ -131,7 +133,8 @@ class SipLayer : public TextBasedProtocolMessage {
         : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
     SipLayer() : TextBasedProtocolMessage() {}
     SipLayer(const SipLayer& other) : TextBasedProtocolMessage(other) {}
-    SipLayer& operator=(const SipLayer& other) {
+    SipLayer& operator=(const SipLayer& other)
+    {
         TextBasedProtocolMessage::operator=(other);
         return *this;
     }
@@ -155,14 +158,16 @@ class SipRequestFirstLine;
  * identified as SIP request layer. You can find out whether the header is
  * complete by using SipLayer#isHeaderComplete()
  */
-class SipRequestLayer : public SipLayer {
+class SipRequestLayer : public SipLayer
+{
     friend class SipRequestFirstLine;
 
   public:
     /**
    * SIP request methods
    */
-    enum SipMethod {
+    enum SipMethod
+    {
         /** INVITE */
         SipINVITE,
         /** ACK */
@@ -261,7 +266,8 @@ class SipResponseFirstLine;
  * identified as SIP response layer. You can find out whether the header is
  * complete by using SipLayer#isHeaderComplete()
  */
-class SipResponseLayer : public SipLayer {
+class SipResponseLayer : public SipLayer
+{
     friend class SipResponseFirstLine;
 
   public:
@@ -269,7 +275,8 @@ class SipResponseLayer : public SipLayer {
    * Enum for SIP response status codes. List is taken from Wikipedia:
    * https://en.wikipedia.org/wiki/List_of_SIP_response_codes
    */
-    enum SipResponseStatusCode {
+    enum SipResponseStatusCode
+    {
         /** Extended search being performed may take a significant time so a forking
        proxy must send a 100 Trying response */
         Sip100Trying,
@@ -578,7 +585,8 @@ class SipResponseLayer : public SipLayer {
  * class may need to shorten or extend the data in SipRequestLayer. These
  * methods will return a false value if this action failed
  */
-class SipRequestFirstLine {
+class SipRequestFirstLine
+{
     friend class SipRequestLayer;
 
   public:
@@ -645,7 +653,8 @@ class SipRequestFirstLine {
    * with SIP method of SipRequestLayer#SipMethodUnknown or with empty SIP
    * version
    */
-    class SipRequestFirstLineException : public std::exception {
+    class SipRequestFirstLineException : public std::exception
+    {
       public:
         ~SipRequestFirstLineException() throw() {}
         void setMessage(const std::string& message) { m_Message = message; }
@@ -687,14 +696,16 @@ class SipRequestFirstLine {
  * this class may need to shorten or extend the data in SipResponseLayer. These
  * methods will return a false value if this action failed
  */
-class SipResponseFirstLine {
+class SipResponseFirstLine
+{
     friend class SipResponseLayer;
 
   public:
     /**
    * @return The status code as SipResponseLayer#SipResponseStatusCode enum
    */
-    SipResponseLayer::SipResponseStatusCode getStatusCode() const {
+    SipResponseLayer::SipResponseStatusCode getStatusCode() const
+    {
         return m_StatusCode;
     }
 
@@ -771,7 +782,8 @@ class SipResponseFirstLine {
    * construct with SIP status code of SipResponseLayer#SipStatusCodeUnknown or
    * with an empty SIP version
    */
-    class SipResponseFirstLineException : public std::exception {
+    class SipResponseFirstLineException : public std::exception
+    {
       public:
         ~SipResponseFirstLineException() throw() {}
         void setMessage(const std::string& message) { m_Message = message; }

@@ -18,7 +18,8 @@
  */
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
                   << std::endl;                       \
@@ -26,7 +27,8 @@
     } while (0)
 
 #define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason)       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -39,7 +41,8 @@
  * - Which DPDK port to receive packets from
  * - Which DPDK port to send packets to
  */
-struct AppWorkerConfig {
+struct AppWorkerConfig
+{
     uint32_t CoreId;
     pcpp::DpdkDevice* RxDevice;
     uint16_t RxQueues;

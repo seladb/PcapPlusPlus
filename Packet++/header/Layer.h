@@ -12,7 +12,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class IDataContainer
@@ -20,7 +21,8 @@ namespace pcpp {
  * pointer to a buffer data. The Layer class is an example of such object, hence
  * it inherits this interface
  */
-class IDataContainer {
+class IDataContainer
+{
   public:
     /**
    * Get a pointer to the data
@@ -73,7 +75,8 @@ class Packet;
  @endverbatim
  *
 */
-class Layer : public IDataContainer {
+class Layer : public IDataContainer
+{
     friend class Packet;
 
   public:
@@ -145,7 +148,8 @@ class Layer : public IDataContainer {
 
     // implement abstract methods
 
-    uint8_t* getDataPtr(size_t offset = 0) const {
+    uint8_t* getDataPtr(size_t offset = 0) const
+    {
         return (uint8_t*)(m_Data + offset);
     }
 
@@ -209,7 +213,8 @@ class Layer : public IDataContainer {
 
 } // namespace pcpp
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer) {
+inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)
+{
     os << layer.toString();
     return os;
 }

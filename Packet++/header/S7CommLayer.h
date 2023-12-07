@@ -4,13 +4,15 @@
 #include "EthLayer.h"
 #include "Layer.h"
 
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @struct s7commhdr
  * Represents a S7COMM protocol header
  */
 #pragma pack(push, 1)
-typedef struct {
+typedef struct
+{
     /** protocol id */
     uint8_t protocolId;
     /** message type */
@@ -31,7 +33,8 @@ typedef struct {
  * Represents a S7COMM protocol header with Ack-Data header
  */
 #pragma pack(push, 1)
-struct s7comm_ack_data_hdr : s7commhdr {
+struct s7comm_ack_data_hdr : s7commhdr
+{
     /** error class */
     uint8_t errorClass;
     /** error code */
@@ -43,7 +46,8 @@ struct s7comm_ack_data_hdr : s7commhdr {
  * @class S7CommParameter
  * Represents a S7COMM (S7 Communication) protocol Parameter
  */
-class S7CommParameter {
+class S7CommParameter
+{
     friend class S7CommLayer;
 
   public:
@@ -70,7 +74,8 @@ class S7CommParameter {
  * @class S7CommLayer
  * Represents a S7COMM (S7 Communication) protocol
  */
-class S7CommLayer : public Layer {
+class S7CommLayer : public Layer
+{
   public:
     /**
    * A constructor that allocates a new S7comm header
@@ -95,12 +100,14 @@ class S7CommLayer : public Layer {
    * stored in
    */
     S7CommLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = S7COMM;
         m_Parameter = nullptr;
     }
 
-    virtual ~S7CommLayer() {
+    virtual ~S7CommLayer()
+    {
         if (m_Parameter)
             delete m_Parameter;
     }
@@ -193,15 +200,18 @@ class S7CommLayer : public Layer {
 
     std::string toString() const override;
 
-    OsiModelLayer getOsiModelLayer() const override {
+    OsiModelLayer getOsiModelLayer() const override
+    {
         return OsiModelApplicationLayer;
     }
 
   private:
     s7commhdr* getS7commHeader() const { return (s7commhdr*)m_Data; }
 
-    s7comm_ack_data_hdr* getS7commAckDataHeader() const {
-        if (getS7commHeader()->msgType == 0x03) {
+    s7comm_ack_data_hdr* getS7commAckDataHeader() const
+    {
+        if (getS7commHeader()->msgType == 0x03)
+        {
             return (s7comm_ack_data_hdr*)m_Data;
         }
         return nullptr;

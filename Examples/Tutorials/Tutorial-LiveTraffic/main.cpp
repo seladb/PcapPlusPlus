@@ -5,7 +5,8 @@
 /**
  * A struct for collecting packet statistics
  */
-struct PacketStats {
+struct PacketStats
+{
     int ethPacketCount;
     int ipv4PacketCount;
     int ipv6PacketCount;
@@ -18,7 +19,8 @@ struct PacketStats {
     /**
    * Clear all stats
    */
-    void clear() {
+    void clear()
+    {
         ethPacketCount = 0;
         ipv4PacketCount = 0;
         ipv6PacketCount = 0;
@@ -38,7 +40,8 @@ struct PacketStats {
     /**
    * Collect stats from a packet
    */
-    void consumePacket(pcpp::Packet& packet) {
+    void consumePacket(pcpp::Packet& packet)
+    {
         if (packet.isPacketOfType(pcpp::Ethernet))
             ethPacketCount++;
         if (packet.isPacketOfType(pcpp::IPv4))
@@ -60,7 +63,8 @@ struct PacketStats {
     /**
    * Print stats to console
    */
-    void printToConsole() {
+    void printToConsole()
+    {
         std::cout << "Ethernet packet count: " << ethPacketCount << std::endl
                   << "IPv4 packet count:     " << ipv4PacketCount << std::endl
                   << "IPv6 packet count:     " << ipv6PacketCount << std::endl
@@ -77,7 +81,8 @@ struct PacketStats {
  * is captured
  */
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
-                            void* cookie) {
+                            void* cookie)
+{
     // extract the stats object form the cookie
     PacketStats* stats = (PacketStats*)cookie;
 
@@ -94,7 +99,8 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev,
  */
 static bool onPacketArrivesBlockingMode(pcpp::RawPacket* packet,
                                         pcpp::PcapLiveDevice* dev,
-                                        void* cookie) {
+                                        void* cookie)
+{
     // extract the stats object form the cookie
     PacketStats* stats = (PacketStats*)cookie;
 
@@ -111,7 +117,8 @@ static bool onPacketArrivesBlockingMode(pcpp::RawPacket* packet,
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     // IPv4 address of the interface we want to sniff
     std::string interfaceIPAddr = "10.0.0.1";
 
@@ -119,7 +126,8 @@ int main(int argc, char* argv[]) {
     pcpp::PcapLiveDevice* dev =
         pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
             interfaceIPAddr);
-    if (dev == nullptr) {
+    if (dev == nullptr)
+    {
         std::cerr << "Cannot find interface with IPv4 address of '"
                   << interfaceIPAddr << "'" << std::endl;
         return 1;
@@ -146,7 +154,8 @@ int main(int argc, char* argv[]) {
                   << std::endl;
 
     // open the device before start capturing/sending packets
-    if (!dev->open()) {
+    if (!dev->open())
+    {
         std::cerr << "Cannot open device" << std::endl;
         return 1;
     }
@@ -199,7 +208,8 @@ int main(int argc, char* argv[]) {
 
     // go over the packet vector and feed all packets to the stats object
     for (pcpp::RawPacketVector::ConstVectorIterator iter = packetVec.begin();
-         iter != packetVec.end(); iter++) {
+         iter != packetVec.end(); iter++)
+    {
         // parse raw packet
         pcpp::Packet parsedPacket(*iter);
 
@@ -242,9 +252,11 @@ int main(int argc, char* argv[]) {
 
     // go over the vector of packets and send them one by one
     for (pcpp::RawPacketVector::ConstVectorIterator iter = packetVec.begin();
-         iter != packetVec.end(); iter++) {
+         iter != packetVec.end(); iter++)
+    {
         // send the packet. If fails exit the application
-        if (!dev->sendPacket(**iter)) {
+        if (!dev->sendPacket(**iter))
+        {
             std::cerr << "Couldn't send packet" << std::endl;
             return 1;
         }

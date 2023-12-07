@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class Packet
@@ -26,7 +27,8 @@ namespace pcpp {
  * TcpLayer -> HttpRequestLayer <BR> Packet instance isn't read only. The user
  * can add or remove layers, update current layer, etc.
  */
-class Packet {
+class Packet
+{
     friend class Layer;
 
   private:
@@ -209,7 +211,8 @@ class Packet {
    * @return True if everything went well or false otherwise (an appropriate
    * error log message will be printed in such cases)
    */
-    bool addLayer(Layer* newLayer, bool ownInPacket = false) {
+    bool addLayer(Layer* newLayer, bool ownInPacket = false)
+    {
         return insertLayer(m_LastLayer, newLayer, ownInPacket);
     }
 
@@ -370,7 +373,8 @@ class Packet {
    * @param[in] protocolType The protocol type to search
    * @return True if the packet contains the protocol, false otherwise
    */
-    bool isPacketOfType(ProtocolType protocolType) const {
+    bool isPacketOfType(ProtocolType protocolType) const
+    {
         return m_ProtocolTypes & protocolType;
     }
 
@@ -424,8 +428,10 @@ class Packet {
 // implementation of inline methods
 
 template <class TLayer>
-TLayer* Packet::getLayerOfType(bool reverse) const {
-    if (!reverse) {
+TLayer* Packet::getLayerOfType(bool reverse) const
+{
+    if (!reverse)
+    {
         if (dynamic_cast<TLayer*>(getFirstLayer()) != NULL)
             return dynamic_cast<TLayer*>(getFirstLayer());
 
@@ -440,12 +446,14 @@ TLayer* Packet::getLayerOfType(bool reverse) const {
 }
 
 template <class TLayer>
-TLayer* Packet::getNextLayerOfType(Layer* curLayer) const {
+TLayer* Packet::getNextLayerOfType(Layer* curLayer) const
+{
     if (curLayer == NULL)
         return NULL;
 
     curLayer = curLayer->getNextLayer();
-    while ((curLayer != NULL) && (dynamic_cast<TLayer*>(curLayer) == NULL)) {
+    while ((curLayer != NULL) && (dynamic_cast<TLayer*>(curLayer) == NULL))
+    {
         curLayer = curLayer->getNextLayer();
     }
 
@@ -453,12 +461,14 @@ TLayer* Packet::getNextLayerOfType(Layer* curLayer) const {
 }
 
 template <class TLayer>
-TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const {
+TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const
+{
     if (curLayer == NULL)
         return NULL;
 
     curLayer = curLayer->getPrevLayer();
-    while (curLayer != NULL && dynamic_cast<TLayer*>(curLayer) == NULL) {
+    while (curLayer != NULL && dynamic_cast<TLayer*>(curLayer) == NULL)
+    {
         curLayer = curLayer->getPrevLayer();
     }
 
@@ -467,7 +477,8 @@ TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const {
 
 } // namespace pcpp
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet) {
+inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet)
+{
     os << packet.toString();
     return os;
 }

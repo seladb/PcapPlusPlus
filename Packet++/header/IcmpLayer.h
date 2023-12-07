@@ -16,14 +16,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct icmphdr
  * Represents ICMP basic protocol header (common for all ICMP message types)
  */
 #pragma pack(push, 1)
-typedef struct icmphdr {
+typedef struct icmphdr
+{
     /** message type */
     uint8_t type;
     /** message code */
@@ -36,7 +38,8 @@ typedef struct icmphdr {
 /**
  * An enum of all supported ICMP message types
  */
-enum IcmpMessageType {
+enum IcmpMessageType
+{
     /** ICMP echo (ping) reply message */
     ICMP_ECHO_REPLY = 0,
     /** ICMP destination unreachable message */
@@ -76,7 +79,8 @@ enum IcmpMessageType {
  * Documentation is taken from Wikipedia:
  * https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol
  */
-enum IcmpDestUnreachableCodes {
+enum IcmpDestUnreachableCodes
+{
     /** Network unreachable error */
     IcmpNetworkUnreachable = 0,
     /** Host unreachable error */
@@ -125,7 +129,8 @@ enum IcmpDestUnreachableCodes {
  * ICMP echo (ping) request/reply message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_echo_hdr : icmphdr {
+typedef struct icmp_echo_hdr : icmphdr
+{
     /** the echo (ping) request identifier */
     uint16_t id;
     /** the echo (ping) request sequence number */
@@ -139,7 +144,8 @@ typedef struct icmp_echo_hdr : icmphdr {
  * @struct icmp_echo_request
  * ICMP echo (ping) request/reply message structure
  */
-typedef struct icmp_echo_request {
+typedef struct icmp_echo_request
+{
     /** a pointer to the header data */
     icmp_echo_hdr* header;
     /** most echo requests/replies contain some payload data. This is the data
@@ -161,7 +167,8 @@ typedef icmp_echo_request icmp_echo_reply;
  * ICMP timestamp request message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_timestamp_request : icmphdr {
+typedef struct icmp_timestamp_request : icmphdr
+{
     /** the timestamp request identifier */
     uint16_t id;
     /** the timestamp request sequence number */
@@ -189,7 +196,8 @@ typedef icmp_timestamp_request icmp_timestamp_reply;
  * ICMP destination unreachable message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_destination_unreachable : icmphdr {
+typedef struct icmp_destination_unreachable : icmphdr
+{
     /** unused 2 bytes */
     uint16_t unused;
     /** contains the MTU of the next-hop network if a code 4 error occurs */
@@ -202,7 +210,8 @@ typedef struct icmp_destination_unreachable : icmphdr {
  * ICMP time-to-live exceeded message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_time_exceeded : icmphdr {
+typedef struct icmp_time_exceeded : icmphdr
+{
     /** unused 4 bytes */
     uint32_t unused;
 } icmp_time_exceeded;
@@ -219,7 +228,8 @@ typedef icmp_time_exceeded icmp_source_quench;
  * ICMP parameter problem message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_param_problem : icmphdr {
+typedef struct icmp_param_problem : icmphdr
+{
     /** in the case of an invalid IP header (Code 0), this field indicates the
    * byte offset of the error in the header */
     uint8_t pointer;
@@ -241,7 +251,8 @@ typedef icmphdr icmp_router_solicitation;
  * ICMP redirect message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_redirect : icmphdr {
+typedef struct icmp_redirect : icmphdr
+{
     /** an IPv4 address of the gateway to which the redirection should be sent */
     uint32_t gatewayAddress;
 } icmp_redirect;
@@ -253,7 +264,8 @@ typedef struct icmp_redirect : icmphdr {
  * (icmp_router_advertisement)
  */
 #pragma pack(push, 1)
-struct icmp_router_address_structure {
+struct icmp_router_address_structure
+{
     /** the IPv4 address of the advertised router */
     uint32_t routerAddress;
     /** The preferability of the router address as a default router address,
@@ -282,7 +294,8 @@ struct icmp_router_address_structure {
  * ICMP router advertisement message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_router_advertisement_hdr : icmphdr {
+typedef struct icmp_router_advertisement_hdr : icmphdr
+{
     /** the number of router advertisements in this message. Each advertisement
    * contains one router address/preference level pair */
     uint8_t advertisementCount;
@@ -300,7 +313,8 @@ typedef struct icmp_router_advertisement_hdr : icmphdr {
  * @struct icmp_router_advertisement
  * ICMP router advertisement message structure
  */
-struct icmp_router_advertisement {
+struct icmp_router_advertisement
+{
     /** a pointer to the header data on the packet */
     icmp_router_advertisement_hdr* header;
 
@@ -320,7 +334,8 @@ struct icmp_router_advertisement {
  * ICMP address mask request message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_address_mask_request : icmphdr {
+typedef struct icmp_address_mask_request : icmphdr
+{
     /** the address mask request identifier */
     uint16_t id;
     /** the address mask request sequence */
@@ -341,7 +356,8 @@ typedef icmp_address_mask_request icmp_address_mask_reply;
  * ICMP information request message structure
  */
 #pragma pack(push, 1)
-typedef struct icmp_info_request : icmphdr {
+typedef struct icmp_info_request : icmphdr
+{
     /** the information request identifier */
     uint16_t id;
     /** the information request sequence */
@@ -359,7 +375,8 @@ typedef icmp_info_request icmp_info_reply;
  * @class IcmpLayer
  * Represents an ICMP protocol layer (for IPv4 only)
  */
-class IcmpLayer : public Layer {
+class IcmpLayer : public Layer
+{
   private:
     icmp_echo_request m_EchoData;
     mutable icmp_router_advertisement m_RouterAdvData;
@@ -382,7 +399,8 @@ class IcmpLayer : public Layer {
    */
     // cppcheck-suppress uninitMemberVar
     IcmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = ICMP;
     }
 
@@ -411,7 +429,8 @@ class IcmpLayer : public Layer {
    * @param[in] type Type to check
    * @return True if the layer if of the given type, false otherwise
    */
-    bool isMessageOfType(IcmpMessageType type) const {
+    bool isMessageOfType(IcmpMessageType type) const
+    {
         return getMessageType() == type;
     }
 
@@ -766,7 +785,8 @@ class IcmpLayer : public Layer {
 
 // implementation of inline methods
 
-bool IcmpLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool IcmpLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     if (dataLen < sizeof(icmphdr))
         return false;
 

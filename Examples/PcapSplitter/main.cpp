@@ -83,7 +83,8 @@ static struct option PcapSplitterOptions[] = {
     {nullptr, 0, nullptr, 0}};
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -111,7 +112,8 @@ static struct option PcapSplitterOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -246,7 +248,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -259,7 +262,8 @@ void printAppVersion() {
  * file path, for example: for the input '/home/myuser/mypcap.pcap' -> return
  * value will be 'mypcap'
  */
-std::string getFileNameWithoutExtension(const std::string& path) {
+std::string getFileNameWithoutExtension(const std::string& path)
+{
     // if path is empty, return an empty string
     if (path == "")
         return "";
@@ -267,7 +271,8 @@ std::string getFileNameWithoutExtension(const std::string& path) {
     // find the last "\\" or "/" (depends on the os) - where path ends and
     // filename starts
     size_t i = path.rfind(SEPARATOR, path.length());
-    if (i != std::string::npos) {
+    if (i != std::string::npos)
+    {
         // extract filename from path
         std::string fileNameWithExtension = path.substr(i + 1, path.length() - i);
 
@@ -279,7 +284,8 @@ std::string getFileNameWithoutExtension(const std::string& path) {
         return fileNameWithExtension;
     }
     // filename without a path
-    else {
+    else
+    {
         // from the file name - remove the extension (the part after the ".")
         i = path.rfind('.', path.length());
         if (i != std::string::npos)
@@ -295,7 +301,8 @@ std::string getFileNameWithoutExtension(const std::string& path) {
 /**
  * main method of this utility
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::string inputPcapFileName = "";
@@ -314,8 +321,10 @@ int main(int argc, char* argv[]) {
     int opt = 0;
 
     while ((opt = getopt_long(argc, argv, "f:o:m:p:i:vh", PcapSplitterOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
         case 0:
             break;
         case 'f':
@@ -346,72 +355,97 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (inputPcapFileName == "") {
+    if (inputPcapFileName == "")
+    {
         EXIT_WITH_ERROR("Input file name was not given");
     }
 
-    if (outputPcapDir == "") {
+    if (outputPcapDir == "")
+    {
         EXIT_WITH_ERROR("Output directory name was not given");
     }
 
-    if (!pcpp::directoryExists(outputPcapDir)) {
+    if (!pcpp::directoryExists(outputPcapDir))
+    {
         EXIT_WITH_ERROR("Output directory doesn't exist");
     }
 
-    if (method == "") {
+    if (method == "")
+    {
         EXIT_WITH_ERROR("Split method was not given");
     }
 
     Splitter* splitter = nullptr;
 
     // decide of the splitter to use, according to the user's choice
-    if (method == SPLIT_BY_FILE_SIZE) {
+    if (method == SPLIT_BY_FILE_SIZE)
+    {
         uint64_t paramAsUint64 = (paramWasSet ? strtoull(param, nullptr, 10) : 0);
         splitter = new FileSizeSplitter(paramAsUint64);
-    } else if (method == SPLIT_BY_PACKET_COUNT) {
+    }
+    else if (method == SPLIT_BY_PACKET_COUNT)
+    {
         int paramAsInt = (paramWasSet ? atoi(param) : 0);
         splitter = new PacketCountSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_IP_CLIENT) {
+    }
+    else if (method == SPLIT_BY_IP_CLIENT)
+    {
         int paramAsInt =
             (paramWasSet ? atoi(param)
                          : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
         splitter = new ClientIPSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_IP_SERVER) {
+    }
+    else if (method == SPLIT_BY_IP_SERVER)
+    {
         int paramAsInt =
             (paramWasSet ? atoi(param)
                          : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
         splitter = new ServerIPSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_SERVER_PORT) {
+    }
+    else if (method == SPLIT_BY_SERVER_PORT)
+    {
         int paramAsInt =
             (paramWasSet ? atoi(param)
                          : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
         splitter = new ServerPortSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_CLIENT_PORT) {
+    }
+    else if (method == SPLIT_BY_CLIENT_PORT)
+    {
         int paramAsInt =
             (paramWasSet ? atoi(param)
                          : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
         splitter = new ClientPortSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_2_TUPLE) {
+    }
+    else if (method == SPLIT_BY_2_TUPLE)
+    {
         int paramAsInt =
             (paramWasSet ? atoi(param)
                          : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
         splitter = new TwoTupleSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_5_TUPLE) {
+    }
+    else if (method == SPLIT_BY_5_TUPLE)
+    {
         int paramAsInt =
             (paramWasSet ? atoi(param)
                          : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
         splitter = new FiveTupleSplitter(paramAsInt);
-    } else if (method == SPLIT_BY_BPF_FILTER) {
+    }
+    else if (method == SPLIT_BY_BPF_FILTER)
+    {
         splitter = new BpfCriteriaSplitter(std::string(param));
-    } else if (method == SPLIT_BY_ROUND_ROBIN) {
+    }
+    else if (method == SPLIT_BY_ROUND_ROBIN)
+    {
         int paramAsInt = (paramWasSet ? atoi(param) : 0);
         splitter = new RoundRobinSplitter(paramAsInt);
-    } else
+    }
+    else
         EXIT_WITH_ERROR("Unknown method '" << method << "'");
 
     // verify splitter param is legal, otherwise return an error
     std::string errorStr;
-    if (!splitter->isSplitterParamLegal(errorStr)) {
+    if (!splitter->isSplitterParamLegal(errorStr))
+    {
         delete splitter;
         EXIT_WITH_ERROR(errorStr);
     }
@@ -428,12 +462,14 @@ int main(int argc, char* argv[]) {
     bool isReaderPcapng =
         (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr);
 
-    if (reader == nullptr || !reader->open()) {
+    if (reader == nullptr || !reader->open())
+    {
         EXIT_WITH_ERROR("Error opening input pcap file");
     }
 
     // set a filter if provided
-    if (filter != "") {
+    if (filter != "")
+    {
         if (!reader->setFilter(filter))
             EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
     }
@@ -451,7 +487,8 @@ int main(int argc, char* argv[]) {
     std::map<int, pcpp::IFileWriterDevice*> outputFiles;
 
     // read all packets from input file, for each packet do:
-    while (reader->getNextPacket(rawPacket)) {
+    while (reader->getNextPacket(rawPacket))
+    {
         // parse the raw packet into a parsed packet
         pcpp::Packet parsedPacket(&rawPacket);
 
@@ -462,17 +499,21 @@ int main(int argc, char* argv[]) {
 
         // if file number is seen for the first time (meaning it's the first packet
         // written to it)
-        if (outputFiles.find(fileNum) == outputFiles.end()) {
+        if (outputFiles.find(fileNum) == outputFiles.end())
+        {
             // get file name from the splitter and add the .pcap extension
             std::string fileName =
                 splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) +
                 outputFileExtenison;
 
             // create a new IFileWriterDevice for this file
-            if (isReaderPcapng) {
+            if (isReaderPcapng)
+            {
                 // if reader is pcapng, create a pcapng writer
                 outputFiles[fileNum] = new pcpp::PcapNgFileWriterDevice(fileName);
-            } else {
+            }
+            else
+            {
                 // if reader is pcap, create a pcap writer
                 outputFiles[fileNum] = new pcpp::PcapFileWriterDevice(
                     fileName, rawPacket.getLinkLayerType());
@@ -488,17 +529,21 @@ int main(int argc, char* argv[]) {
         // if file number exists in the map but PcapFileWriterDevice is null it
         // means this file was open once and then closed. In this case we need to
         // re-open the PcapFileWriterDevice in append mode
-        else if (outputFiles[fileNum] == nullptr) {
+        else if (outputFiles[fileNum] == nullptr)
+        {
             // get file name from the splitter and add the .pcap extension
             std::string fileName =
                 splitter->getFileName(parsedPacket, outputPcapFileName, fileNum) +
                 outputFileExtenison;
 
             // re-create the IFileWriterDevice object
-            if (isReaderPcapng) {
+            if (isReaderPcapng)
+            {
                 // if reader is pcapng, create a pcapng writer
                 outputFiles[fileNum] = new pcpp::PcapNgFileWriterDevice(fileName);
-            } else {
+            }
+            else
+            {
                 // if reader is pcap, create a pcap writer
                 outputFiles[fileNum] = new pcpp::PcapFileWriterDevice(
                     fileName, rawPacket.getLinkLayerType());
@@ -515,9 +560,11 @@ int main(int argc, char* argv[]) {
         // if splitter wants us to close files - go over the file numbers and close
         // them
         for (std::vector<int>::iterator it = filesToClose.begin();
-             it != filesToClose.end(); it++) {
+             it != filesToClose.end(); it++)
+        {
             // check if that file number is in the map
-            if (outputFiles.find(*it) != outputFiles.end()) {
+            if (outputFiles.find(*it) != outputFiles.end())
+            {
                 // close the writer
                 outputFiles[*it]->close();
 
@@ -543,8 +590,10 @@ int main(int argc, char* argv[]) {
     // close the writer files which are still open
     for (std::map<int, pcpp::IFileWriterDevice*>::iterator it =
              outputFiles.begin();
-         it != outputFiles.end(); ++it) {
-        if (it->second != NULL) {
+         it != outputFiles.end(); ++it)
+    {
+        if (it->second != NULL)
+        {
             it->second->close();
             delete it->second;
         }

@@ -14,7 +14,8 @@
 #include <string.h>
 
 #define EXIT_WITH_ERROR(reason)                       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         printUsage();                                 \
         std::cout << std::endl                        \
                   << "ERROR: " << reason << std::endl \
@@ -35,7 +36,8 @@ static struct option FragUtilOptions[] = {
 /**
  * A struct for collecting stats during the fragmentation process
  */
-struct FragStats {
+struct FragStats
+{
     int totalPacketsRead;
     int ipv4Packets;
     int ipv6Packets;
@@ -53,7 +55,8 @@ struct FragStats {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -92,7 +95,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -104,7 +108,8 @@ void printAppVersion() {
  * Set fragment parameters in an IPv4 fragment packet
  */
 void setIPv4FragmentParams(pcpp::IPv4Layer* fragIpLayer, size_t fragOffset,
-                           bool lastFrag) {
+                           bool lastFrag)
+{
     // calculate the fragment offset field
     uint16_t fragOffsetValue = pcpp::hostToNet16((uint16_t)(fragOffset / 8));
 
@@ -124,7 +129,8 @@ void setIPv4FragmentParams(pcpp::IPv4Layer* fragIpLayer, size_t fragOffset,
  * fragmentation parameters
  */
 void setIPv6FragmentParams(pcpp::IPv6Layer* fragIpLayer, size_t fragOffset,
-                           bool lastFrag, uint32_t fragId) {
+                           bool lastFrag, uint32_t fragId)
+{
     pcpp::IPv6FragmentationHeader fragHeader(fragId, fragOffset, lastFrag);
     fragIpLayer->addExtension<pcpp::IPv6FragmentationHeader>(fragHeader);
 }
@@ -133,9 +139,11 @@ void setIPv6FragmentParams(pcpp::IPv6Layer* fragIpLayer, size_t fragOffset,
  * Generate a 4-byte positive random number. Used for generating IPv6 fragment
  * ID
  */
-uint32_t generateRandomNumber() {
+uint32_t generateRandomNumber()
+{
     uint32_t result = 0;
-    for (int i = 4; i > 0; i--) {
+    for (int i = 4; i > 0; i--)
+    {
         uint8_t randomNum = (uint8_t)rand() % 256;
         result += (uint32_t)pow(randomNum, i);
     }
@@ -154,7 +162,8 @@ uint32_t generateRandomNumber() {
  */
 void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket,
                                     size_t fragmentSize,
-                                    pcpp::RawPacketVector& resultFragments) {
+                                    pcpp::RawPacketVector& resultFragments)
+{
     // parse raw packet
     pcpp::Packet packet(rawPacket);
 
@@ -175,7 +184,8 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket,
 
     // if packet payload size is less than the requested fragment size, don't
     // fragment and return
-    if (ipLayer->getLayerPayloadSize() <= fragmentSize) {
+    if (ipLayer->getLayerPayloadSize() <= fragmentSize)
+    {
         pcpp::RawPacket* copyOfRawPacket = new pcpp::RawPacket(*rawPacket);
         resultFragments.pushBack(copyOfRawPacket);
         return;
@@ -187,13 +197,15 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket,
     // go over the payload and create fragments until reaching the end of the
     // payload
     size_t curOffset = 0;
-    while (curOffset < ipLayer->getLayerPayloadSize()) {
+    while (curOffset < ipLayer->getLayerPayloadSize())
+    {
         bool lastFrag = false;
         size_t curFragSize = fragmentSize;
 
         // check if this is the last fragment by comparing the size of the rest of
         // the payload to the requested fragment size
-        if (ipLayer->getLayerPayloadSize() - curOffset <= fragmentSize) {
+        if (ipLayer->getLayerPayloadSize() - curOffset <= fragmentSize)
+        {
             curFragSize = ipLayer->getLayerPayloadSize() - curOffset;
             lastFrag = true;
         }
@@ -249,25 +261,30 @@ void processPackets(pcpp::IFileReaderDevice* reader,
                     pcpp::IFileWriterDevice* writer, int fragSize,
                     bool filterByBpf, const std::string& bpfFilter,
                     bool filterByIpID, std::map<uint16_t, bool> ipIDs,
-                    bool copyAllPacketsToOutputFile, FragStats& stats) {
+                    bool copyAllPacketsToOutputFile, FragStats& stats)
+{
     stats.clear();
 
     pcpp::RawPacket rawPacket;
     pcpp::BPFStringFilter filter(bpfFilter);
 
     // read all packet from input file
-    while (reader->getNextPacket(rawPacket)) {
+    while (reader->getNextPacket(rawPacket))
+    {
         stats.totalPacketsRead++;
 
         // as default - set the packet as marked for fragmentation
         bool fragPacket = true;
 
         // if user requested to filter by BPF
-        if (filterByBpf) {
+        if (filterByBpf)
+        {
             // check if packet matches the BPF filter supplied by the user
-            if (pcpp::IPcapDevice::matchPacketWithFilter(filter, &rawPacket)) {
+            if (pcpp::IPcapDevice::matchPacketWithFilter(filter, &rawPacket))
+            {
                 stats.ipPacketsMatchBpfFilter++;
-            } else // if not - set the packet as not marked for fragmentation
+            }
+            else // if not - set the packet as not marked for fragmentation
             {
                 fragPacket = false;
             }
@@ -277,29 +294,36 @@ void processPackets(pcpp::IFileReaderDevice* reader,
 
         // check if packet is of type IPv4
         pcpp::Packet parsedPacket(&rawPacket);
-        if (parsedPacket.isPacketOfType(pcpp::IPv4)) {
+        if (parsedPacket.isPacketOfType(pcpp::IPv4))
+        {
             ipProto = pcpp::IPv4;
             stats.ipv4Packets++;
-        } else if (parsedPacket.isPacketOfType(
-                       pcpp::IPv6)) // check if packet is of type IPv6
+        }
+        else if (parsedPacket.isPacketOfType(
+                     pcpp::IPv6)) // check if packet is of type IPv6
         {
             ipProto = pcpp::IPv6;
             stats.ipv6Packets++;
-        } else // if not - set the packet as not marked for fragmentation
+        }
+        else // if not - set the packet as not marked for fragmentation
         {
             fragPacket = false;
         }
 
         // if user requested to filter by IP ID (relevant only for IPv4 packets)
-        if (filterByIpID) {
+        if (filterByIpID)
+        {
             // get the IPv4 layer
             pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
-            if (ipLayer != nullptr) {
+            if (ipLayer != nullptr)
+            {
                 // check if packet ID matches one of the IP IDs requested by the user
                 if (ipIDs.find(pcpp::netToHost16(ipLayer->getIPv4Header()->ipId)) !=
-                    ipIDs.end()) {
+                    ipIDs.end())
+                {
                     stats.ipv4PacketsMatchIpIDs++;
-                } else // if not - set the packet as not marked for fragmentation
+                }
+                else // if not - set the packet as not marked for fragmentation
                 {
                     fragPacket = false;
                 }
@@ -307,16 +331,19 @@ void processPackets(pcpp::IFileReaderDevice* reader,
         }
 
         // if packet passed all filters and marked for fragmentation
-        if (fragPacket) {
+        if (fragPacket)
+        {
             // call the method who splits the packet into fragments
             pcpp::RawPacketVector resultFrags;
             splitIPPacketToFragmentsBySize(&rawPacket, (size_t)fragSize, resultFrags);
 
             // if result list contains only 1 packet it means packet wasn't fragmented
             // - update stats accordingly
-            if (resultFrags.size() == 1) {
+            if (resultFrags.size() == 1)
+            {
                 stats.ipPacketsUnderSize++;
-            } else if (resultFrags.size() > 1) // packet was fragmented
+            }
+            else if (resultFrags.size() > 1) // packet was fragmented
             {
                 if (ipProto == pcpp::IPv4)
                     stats.ipv4PacketsFragmented++;
@@ -326,14 +353,16 @@ void processPackets(pcpp::IFileReaderDevice* reader,
 
             // write the result fragments if either: (1) packet was indeed fragmented,
             // or (2) user requested to write all packet to output file
-            if (resultFrags.size() > 1 || copyAllPacketsToOutputFile) {
+            if (resultFrags.size() > 1 || copyAllPacketsToOutputFile)
+            {
                 writer->writePackets(resultFrags);
                 stats.totalPacketsWritten += resultFrags.size();
             }
         }
         // even if packet didn't pass the filters but user requested to write all
         // packet to output file, write it
-        else if (copyAllPacketsToOutputFile) {
+        else if (copyAllPacketsToOutputFile)
+        {
             writer->writePacket(rawPacket);
             stats.totalPacketsWritten++;
         }
@@ -343,7 +372,8 @@ void processPackets(pcpp::IFileReaderDevice* reader,
 /**
  * A method for printing fragmentation process stats
  */
-void printStats(const FragStats& stats, bool filterByIpID, bool filterByBpf) {
+void printStats(const FragStats& stats, bool filterByIpID, bool filterByBpf)
+{
     std::ostringstream stream;
     stream << "Summary:\n";
     stream << "========\n";
@@ -374,7 +404,8 @@ void printStats(const FragStats& stats, bool filterByIpID, bool filterByBpf) {
 /**
  * main method of the application
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     int optionIndex = 0;
@@ -389,16 +420,21 @@ int main(int argc, char* argv[]) {
     bool copyAllPacketsToOutputFile = false;
 
     while ((opt = getopt_long(argc, argv, "o:s:d:f:ahv", FragUtilOptions,
-                              &optionIndex)) != -1) {
-        switch (opt) {
-        case 0: {
+                              &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
+        case 0:
+        {
             break;
         }
-        case 'o': {
+        case 'o':
+        {
             outputFile = optarg;
             break;
         }
-        case 's': {
+        case 's':
+        {
             fragSize = atoi(optarg);
             if (fragSize < 1)
                 EXIT_WITH_ERROR("Fragment size must be a positive integer");
@@ -406,7 +442,8 @@ int main(int argc, char* argv[]) {
                 EXIT_WITH_ERROR("Fragment size must divide by 8");
             break;
         }
-        case 'd': {
+        case 'd':
+        {
             filterByIpID = true;
             // read the IP ID list into the map
             ipIDMap.clear();
@@ -414,7 +451,8 @@ int main(int argc, char* argv[]) {
             std::stringstream stream(ipIDsAsString);
             std::string ipIDStr;
             // break comma-separated string into string list
-            while (std::getline(stream, ipIDStr, ',')) {
+            while (std::getline(stream, ipIDStr, ','))
+            {
                 // convert the IP ID to uint16_t
                 uint16_t ipID = (uint16_t)atoi(ipIDStr.c_str());
                 // add the IP ID into the map if it doesn't already exist
@@ -422,12 +460,14 @@ int main(int argc, char* argv[]) {
             }
 
             // verify list is not empty
-            if (ipIDMap.empty()) {
+            if (ipIDMap.empty())
+            {
                 EXIT_WITH_ERROR("Couldn't parse IP ID list");
             }
             break;
         }
-        case 'f': {
+        case 'f':
+        {
             filterByBpfFilter = true;
             bpfFilter = optarg;
             pcpp::BPFStringFilter filter(bpfFilter);
@@ -435,15 +475,18 @@ int main(int argc, char* argv[]) {
                 EXIT_WITH_ERROR("Illegal BPF filter");
             break;
         }
-        case 'a': {
+        case 'a':
+        {
             copyAllPacketsToOutputFile = true;
             break;
         }
-        case 'h': {
+        case 'h':
+        {
             printUsage();
             exit(0);
         }
-        case 'v': {
+        case 'v':
+        {
             printAppVersion();
             break;
         }
@@ -456,13 +499,16 @@ int main(int argc, char* argv[]) {
     int paramIndex = -1;
 
     // go over user params and look the input file
-    for (int i = optind; i < argc; i++) {
+    for (int i = optind; i < argc; i++)
+    {
         paramIndex++;
         if (paramIndex > expectedParams)
             EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
 
-        switch (paramIndex) {
-        case 0: {
+        switch (paramIndex)
+        {
+        case 0:
+        {
             inputFile = argv[i];
             break;
         }
@@ -472,15 +518,18 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (inputFile == "") {
+    if (inputFile == "")
+    {
         EXIT_WITH_ERROR("Input file name was not given");
     }
 
-    if (outputFile == "") {
+    if (outputFile == "")
+    {
         EXIT_WITH_ERROR("Output file name was not given");
     }
 
-    if (fragSize < 0) {
+    if (fragSize < 0)
+    {
         EXIT_WITH_ERROR("Need to choose fragment size using the '-s' flag");
     }
 
@@ -488,23 +537,30 @@ int main(int argc, char* argv[]) {
     pcpp::IFileReaderDevice* reader =
         pcpp::IFileReaderDevice::getReader(inputFile);
 
-    if (!reader->open()) {
+    if (!reader->open())
+    {
         EXIT_WITH_ERROR("Error opening input file");
     }
 
     // create a writer device for output file in the same file type as input file
     pcpp::IFileWriterDevice* writer = nullptr;
 
-    if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr) {
+    if (dynamic_cast<pcpp::PcapFileReaderDevice*>(reader) != nullptr)
+    {
         writer = new pcpp::PcapFileWriterDevice(
             outputFile, ((pcpp::PcapFileReaderDevice*)reader)->getLinkLayerType());
-    } else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr) {
+    }
+    else if (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr)
+    {
         writer = new pcpp::PcapNgFileWriterDevice(outputFile);
-    } else {
+    }
+    else
+    {
         EXIT_WITH_ERROR("Cannot determine input file type");
     }
 
-    if (!writer->open()) {
+    if (!writer->open())
+    {
         EXIT_WITH_ERROR("Error opening output file");
     }
 

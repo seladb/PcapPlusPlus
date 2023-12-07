@@ -11,14 +11,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct tcphdr
  * Represents an TCP protocol header
  */
 #pragma pack(push, 1)
-struct tcphdr {
+struct tcphdr
+{
     /** Source TCP port */
     uint16_t portSrc;
     /** Destination TCP port */
@@ -84,7 +86,8 @@ struct tcphdr {
 /**
  * TCP options types
  */
-enum TcpOptionType {
+enum TcpOptionType
+{
     /** Padding */
     PCPP_TCPOPT_NOP = 1,
     /** End of options */
@@ -192,7 +195,8 @@ enum TcpOptionType {
  * option records, but rather serves as a wrapper and provides useful methods
  * for retrieving data from them
  */
-class TcpOption : public TLVRecord<uint8_t, uint8_t> {
+class TcpOption : public TLVRecord<uint8_t, uint8_t>
+{
   public:
     /**
    * A c'tor for this class that gets a pointer to the option raw data (byte
@@ -210,7 +214,8 @@ class TcpOption : public TLVRecord<uint8_t, uint8_t> {
    * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is
    * null a value of ::TCPOPT_Unknown is returned
    */
-    TcpOptionType getTcpOptionType() const {
+    TcpOptionType getTcpOptionType() const
+    {
         if (m_Data == nullptr)
             return TCPOPT_Unknown;
 
@@ -223,7 +228,8 @@ class TcpOption : public TLVRecord<uint8_t, uint8_t> {
    * @param[in] tlvDataLen The size of the TLV record raw data
    * @return True if data is valid and can be assigned
    */
-    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen) {
+    static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+    {
         auto data = (TLVRawData*)recordRawData;
         if (data == nullptr)
             return false;
@@ -240,7 +246,8 @@ class TcpOption : public TLVRecord<uint8_t, uint8_t> {
 
     // implement abstract methods
 
-    size_t getTotalSize() const {
+    size_t getTotalSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -251,7 +258,8 @@ class TcpOption : public TLVRecord<uint8_t, uint8_t> {
         return (size_t)m_Data->recordLen;
     }
 
-    size_t getDataSize() const {
+    size_t getDataSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -269,14 +277,16 @@ class TcpOption : public TLVRecord<uint8_t, uint8_t> {
  * parameters in its c'tor, builds the TCP option raw buffer and provides a
  * build() method to get a TcpOption object out of it
  */
-class TcpOptionBuilder : public TLVRecordBuilder {
+class TcpOptionBuilder : public TLVRecordBuilder
+{
 
   public:
     /**
    * An enum to describe NOP and EOL TCP options. Used in one of this class's
    * c'tors
    */
-    enum NopEolOptionTypes {
+    enum NopEolOptionTypes
+    {
         /** NOP TCP option */
         NOP,
         /** EOL TCP option */
@@ -342,7 +352,8 @@ class TcpOptionBuilder : public TLVRecordBuilder {
  * @class TcpLayer
  * Represents a TCP (Transmission Control Protocol) protocol layer
  */
-class TcpLayer : public Layer {
+class TcpLayer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -522,7 +533,8 @@ class TcpLayer : public Layer {
 
 // implementation of inline methods
 
-bool TcpLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool TcpLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     const tcphdr* hdr = reinterpret_cast<const tcphdr*>(data);
     return dataLen >= sizeof(tcphdr) &&
            hdr->dataOffset >= 5 /* the minimum TCP header size */

@@ -6,11 +6,13 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * A class for printing tables in command-line
  */
-class TablePrinter {
+class TablePrinter
+{
   public:
     /**
    * C'tor - get column names and column widths

@@ -16,7 +16,8 @@
  * them are activated using DpdkDeviceList::startDpdkWorkerThreads (see
  * main.cpp)
  */
-class AppWorkerThread : public pcpp::DpdkWorkerThread {
+class AppWorkerThread : public pcpp::DpdkWorkerThread
+{
   private:
     AppWorkerConfig& m_WorkerConfig;
     bool m_Stop;
@@ -29,10 +30,12 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
     AppWorkerThread(AppWorkerConfig& workerConfig,
                     PacketMatchingEngine& matchingEngine)
         : m_WorkerConfig(workerConfig), m_Stop(true),
-          m_CoreId(MAX_NUM_OF_CORES + 1), m_PacketMatchingEngine(matchingEngine) {
+          m_CoreId(MAX_NUM_OF_CORES + 1), m_PacketMatchingEngine(matchingEngine)
+    {
     }
 
-    virtual ~AppWorkerThread() {
+    virtual ~AppWorkerThread()
+    {
         // do nothing
     }
 
@@ -40,7 +43,8 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
 
     // implement abstract methods
 
-    bool run(uint32_t coreId) {
+    bool run(uint32_t coreId)
+    {
         m_CoreId = coreId;
         m_Stop = false;
         m_Stats.WorkerId = coreId;
@@ -49,17 +53,20 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
 
         // if needed, create the pcap file writer which all matched packets will be
         // written into
-        if (m_WorkerConfig.WriteMatchedPacketsToFile) {
+        if (m_WorkerConfig.WriteMatchedPacketsToFile)
+        {
             pcapWriter = new pcpp::PcapFileWriterDevice(
                 m_WorkerConfig.PathToWritePackets.c_str());
-            if (!pcapWriter->open()) {
+            if (!pcapWriter->open())
+            {
                 EXIT_WITH_ERROR("Couldn't open pcap writer device");
             }
         }
 
         // if no DPDK devices were assigned to this worker/core don't enter the main
         // loop and exit
-        if (m_WorkerConfig.InDataCfg.size() == 0) {
+        if (m_WorkerConfig.InDataCfg.size() == 0)
+        {
             return true;
         }
 
@@ -68,14 +75,17 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
 
         // main loop, runs until be told to stop
         // cppcheck-suppress knownConditionTrueFalse
-        while (!m_Stop) {
+        while (!m_Stop)
+        {
             // go over all DPDK devices configured for this worker/core
             for (InputDataConfig::iterator iter = m_WorkerConfig.InDataCfg.begin();
-                 iter != m_WorkerConfig.InDataCfg.end(); iter++) {
+                 iter != m_WorkerConfig.InDataCfg.end(); iter++)
+            {
                 // for each DPDK device go over all RX queues configured for this
                 // worker/core
                 for (std::vector<int>::iterator iter2 = iter->second.begin();
-                     iter2 != iter->second.end(); iter2++) {
+                     iter2 != iter->second.end(); iter2++)
+                {
                     pcpp::DpdkDevice* dev = iter->first;
 
                     // receive packets from network on the specified DPDK device and RX
@@ -83,7 +93,8 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
                     uint16_t packetsReceived =
                         dev->receivePackets(packetArr, MAX_RECEIVE_BURST, *iter2);
 
-                    for (int i = 0; i < packetsReceived; i++) {
+                    for (int i = 0; i < packetsReceived; i++)
+                    {
                         // parse packet
                         pcpp::Packet parsedPacket(packetArr[i]);
 
@@ -99,32 +110,41 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
                             m_FlowTable.find(hash);
 
                         // if packet belongs to an already existing flow
-                        if (iter3 != m_FlowTable.end() && iter3->second) {
+                        if (iter3 != m_FlowTable.end() && iter3->second)
+                        {
                             packetMatched = true;
-                        } else // packet belongs to a new flow
+                        }
+                        else // packet belongs to a new flow
                         {
                             packetMatched = m_PacketMatchingEngine.isMatched(parsedPacket);
-                            if (packetMatched) {
+                            if (packetMatched)
+                            {
                                 // put new flow in flow table
                                 m_FlowTable[hash] = true;
 
                                 // collect stats
-                                if (parsedPacket.isPacketOfType(pcpp::TCP)) {
+                                if (parsedPacket.isPacketOfType(pcpp::TCP))
+                                {
                                     m_Stats.MatchedTcpFlows++;
-                                } else if (parsedPacket.isPacketOfType(pcpp::UDP)) {
+                                }
+                                else if (parsedPacket.isPacketOfType(pcpp::UDP))
+                                {
                                     m_Stats.MatchedUdpFlows++;
                                 }
                             }
                         }
 
-                        if (packetMatched) {
+                        if (packetMatched)
+                        {
                             // send packet to TX port if needed
-                            if (sendPacketsTo != NULL) {
+                            if (sendPacketsTo != NULL)
+                            {
                                 sendPacketsTo->sendPacket(*packetArr[i], 0);
                             }
 
                             // save packet to file if needed
-                            if (pcapWriter != NULL) {
+                            if (pcapWriter != NULL)
+                            {
                                 pcapWriter->writePacket(*packetArr[i]);
                             }
 
@@ -136,20 +156,23 @@ class AppWorkerThread : public pcpp::DpdkWorkerThread {
         }
 
         // free packet array (frees all mbufs as well)
-        for (int i = 0; i < MAX_RECEIVE_BURST; i++) {
+        for (int i = 0; i < MAX_RECEIVE_BURST; i++)
+        {
             if (packetArr[i] != NULL)
                 delete packetArr[i];
         }
 
         // close and delete pcap file writer
-        if (pcapWriter != NULL) {
+        if (pcapWriter != NULL)
+        {
             delete pcapWriter;
         }
 
         return true;
     }
 
-    void stop() {
+    void stop()
+    {
         // assign the stop flag which will cause the main loop to end
         m_Stop = true;
     }

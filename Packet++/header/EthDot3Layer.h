@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct ether_dot3_header
  * Represents an IEEE 802.3 Ethernet header
  */
 #pragma pack(push, 1)
-struct ether_dot3_header {
+struct ether_dot3_header
+{
     /** Destination MAC */
     uint8_t dstMac[6];
     /** Source MAC */
@@ -31,7 +33,8 @@ struct ether_dot3_header {
  * @class EthDot3Layer
  * Represents an IEEE 802.3 Ethernet protocol layer
  */
-class EthDot3Layer : public Layer {
+class EthDot3Layer : public Layer
+{
   public:
     /**
    * A constructor that creates the layer from an existing packet raw data
@@ -42,7 +45,8 @@ class EthDot3Layer : public Layer {
    * stored in
    */
     EthDot3Layer(uint8_t* data, size_t dataLen, Packet* packet)
-        : Layer(data, dataLen, NULL, packet) {
+        : Layer(data, dataLen, NULL, packet)
+    {
         m_Protocol = EthernetDot3;
     }
 
@@ -55,7 +59,8 @@ class EthDot3Layer : public Layer {
    * stored in
    */
     EthDot3Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = EthernetDot3;
     }
 
@@ -76,7 +81,8 @@ class EthDot3Layer : public Layer {
    * data, so every change will change the actual packet data
    * @return A pointer to the ether_header
    */
-    ether_dot3_header* getEthHeader() const {
+    ether_dot3_header* getEthHeader() const
+    {
         return (ether_dot3_header*)m_Data;
     }
 
@@ -90,7 +96,8 @@ class EthDot3Layer : public Layer {
    * Set source MAC address
    * @param sourceMac Source MAC to set
    */
-    void setSourceMac(const MacAddress& sourceMac) {
+    void setSourceMac(const MacAddress& sourceMac)
+    {
         sourceMac.copyTo(getEthHeader()->srcMac);
     }
 
@@ -104,7 +111,8 @@ class EthDot3Layer : public Layer {
    * Set destination MAC address
    * @param destMac Destination MAC to set
    */
-    void setDestMac(const MacAddress& destMac) {
+    void setDestMac(const MacAddress& destMac)
+    {
         destMac.copyTo(getEthHeader()->dstMac);
     }
 

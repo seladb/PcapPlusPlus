@@ -5,9 +5,11 @@
 #include "TimespecTimeval.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-void RawPacket::init(bool deleteRawDataAtDestructor) {
+void RawPacket::init(bool deleteRawDataAtDestructor)
+{
     m_RawData = nullptr;
     m_RawDataLen = 0;
     m_FrameLength = 0;
@@ -17,7 +19,8 @@ void RawPacket::init(bool deleteRawDataAtDestructor) {
 }
 
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp,
-                     bool deleteRawDataAtDestructor, LinkLayerType layerType) {
+                     bool deleteRawDataAtDestructor, LinkLayerType layerType)
+{
     timespec nsec_time;
     TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
     init(deleteRawDataAtDestructor);
@@ -26,26 +29,32 @@ RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp,
 
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen,
                      timespec timestamp, bool deleteRawDataAtDestructor,
-                     LinkLayerType layerType) {
+                     LinkLayerType layerType)
+{
     init(deleteRawDataAtDestructor);
     setRawData(pRawData, rawDataLen, timestamp, layerType);
 }
 
 RawPacket::RawPacket() { init(); }
 
-RawPacket::~RawPacket() {
-    if (m_DeleteRawDataAtDestructor) {
+RawPacket::~RawPacket()
+{
+    if (m_DeleteRawDataAtDestructor)
+    {
         delete[] m_RawData;
     }
 }
 
-RawPacket::RawPacket(const RawPacket& other) {
+RawPacket::RawPacket(const RawPacket& other)
+{
     m_RawData = nullptr;
     copyDataFrom(other, true);
 }
 
-RawPacket& RawPacket::operator=(const RawPacket& other) {
-    if (this != &other) {
+RawPacket& RawPacket::operator=(const RawPacket& other)
+{
+    if (this != &other)
+    {
         if (m_RawData != nullptr)
             delete[] m_RawData;
 
@@ -57,13 +66,15 @@ RawPacket& RawPacket::operator=(const RawPacket& other) {
     return *this;
 }
 
-void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData) {
+void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
+{
     if (!other.m_RawPacketSet)
         return;
 
     m_TimeStamp = other.m_TimeStamp;
 
-    if (allocateData) {
+    if (allocateData)
+    {
         m_DeleteRawDataAtDestructor = true;
         m_RawData = new uint8_t[other.m_RawDataLen];
         m_RawDataLen = other.m_RawDataLen;
@@ -77,7 +88,8 @@ void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData) {
 
 bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen,
                            timeval timestamp, LinkLayerType layerType,
-                           int frameLength) {
+                           int frameLength)
+{
     timespec nsec_time;
     TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
     return setRawData(pRawData, rawDataLen, nsec_time, layerType, frameLength);
@@ -85,11 +97,13 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen,
 
 bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen,
                            timespec timestamp, LinkLayerType layerType,
-                           int frameLength) {
+                           int frameLength)
+{
     if (frameLength == -1)
         frameLength = rawDataLen;
     m_FrameLength = frameLength;
-    if (m_RawData != nullptr && m_DeleteRawDataAtDestructor) {
+    if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
+    {
         delete[] m_RawData;
     }
 
@@ -102,12 +116,14 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen,
 }
 
 bool RawPacket::initWithRawData(const uint8_t* pRawData, int rawDataLen,
-                                timespec timestamp, LinkLayerType layerType) {
+                                timespec timestamp, LinkLayerType layerType)
+{
     init(false);
     return setRawData(pRawData, rawDataLen, timestamp, layerType);
 }
 
-void RawPacket::clear() {
+void RawPacket::clear()
+{
     if (m_RawData != nullptr)
         delete[] m_RawData;
 
@@ -118,14 +134,16 @@ void RawPacket::clear() {
 }
 
 void RawPacket::appendData(const uint8_t* dataToAppend,
-                           size_t dataToAppendLen) {
+                           size_t dataToAppendLen)
+{
     memcpy((uint8_t*)m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
     m_RawDataLen += dataToAppendLen;
     m_FrameLength = m_RawDataLen;
 }
 
 void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert,
-                           size_t dataToInsertLen) {
+                           size_t dataToInsertLen)
+{
     // memmove copies data as if there was an intermediate buffer in between - so
     // it allows for copying processes on overlapping src/dest ptrs if insertData
     // is called with atIndex == m_RawDataLen, then no data is being moved. The
@@ -133,7 +151,8 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert,
     memmove((uint8_t*)m_RawData + atIndex + dataToInsertLen,
             (uint8_t*)m_RawData + atIndex, m_RawDataLen - atIndex);
 
-    if (dataToInsert != nullptr) {
+    if (dataToInsert != nullptr)
+    {
         // insert data
         memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
     }
@@ -142,11 +161,13 @@ void RawPacket::insertData(int atIndex, const uint8_t* dataToInsert,
     m_FrameLength = m_RawDataLen;
 }
 
-bool RawPacket::reallocateData(size_t newBufferLength) {
+bool RawPacket::reallocateData(size_t newBufferLength)
+{
     if ((int)newBufferLength == m_RawDataLen)
         return true;
 
-    if ((int)newBufferLength < m_RawDataLen) {
+    if ((int)newBufferLength < m_RawDataLen)
+    {
         PCPP_LOG_ERROR(
             "Cannot reallocate raw packet to a smaller size. Current data length: "
             << m_RawDataLen << "; requested length: " << newBufferLength);
@@ -165,8 +186,10 @@ bool RawPacket::reallocateData(size_t newBufferLength) {
     return true;
 }
 
-bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove) {
-    if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen) {
+bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove)
+{
+    if ((atIndex + (int)numOfBytesToRemove) > m_RawDataLen)
+    {
         PCPP_LOG_ERROR("Remove section is out of raw packet bound");
         return false;
     }
@@ -187,22 +210,26 @@ bool RawPacket::removeData(int atIndex, size_t numOfBytesToRemove) {
     return true;
 }
 
-bool RawPacket::setPacketTimeStamp(timeval timestamp) {
+bool RawPacket::setPacketTimeStamp(timeval timestamp)
+{
     timespec nsec_time;
     TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
     return setPacketTimeStamp(nsec_time);
 }
 
-bool RawPacket::setPacketTimeStamp(timespec timestamp) {
+bool RawPacket::setPacketTimeStamp(timespec timestamp)
+{
     m_TimeStamp = timestamp;
     return true;
 }
 
-bool RawPacket::isLinkTypeValid(int linkTypeValue) {
+bool RawPacket::isLinkTypeValid(int linkTypeValue)
+{
     if ((linkTypeValue < 0 || linkTypeValue > 264) && linkTypeValue != 276)
         return false;
 
-    switch (static_cast<LinkLayerType>(linkTypeValue)) {
+    switch (static_cast<LinkLayerType>(linkTypeValue))
+    {
     case LINKTYPE_ETHERNET:
     case LINKTYPE_LINUX_SLL:
     case LINKTYPE_RAW:

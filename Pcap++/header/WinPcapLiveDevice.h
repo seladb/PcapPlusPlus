@@ -11,7 +11,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class WinPcapLiveDevice
@@ -21,7 +22,8 @@ namespace pcpp {
  * from differences between libpcap and WinPcap/Npcap. Please see the reference
  * for PcapLiveDevice for more details
  */
-class WinPcapLiveDevice : public PcapLiveDevice {
+class WinPcapLiveDevice : public PcapLiveDevice
+{
     friend class PcapLiveDeviceList;
 
   protected:
@@ -46,7 +48,8 @@ class WinPcapLiveDevice : public PcapLiveDevice {
     bool startCapture(int intervalInSecondsToUpdateStats,
                       OnStatsUpdateCallback onStatsUpdate,
                       void* onStatsUpdateUserCookie);
-    bool startCapture(RawPacketVector& capturedPacketsVector) {
+    bool startCapture(RawPacketVector& capturedPacketsVector)
+    {
         return PcapLiveDevice::startCapture(capturedPacketsVector);
     }
 
@@ -71,7 +74,8 @@ class WinPcapLiveDevice : public PcapLiveDevice {
    * from the application to return (see also
    * setMinAmountOfDataToCopyFromKernelToApplication())
    */
-    int getMinAmountOfDataToCopyFromKernelToApplication() const {
+    int getMinAmountOfDataToCopyFromKernelToApplication() const
+    {
         return m_MinAmountOfDataToCopyFromKernelToApplication;
     }
 };

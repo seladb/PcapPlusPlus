@@ -12,17 +12,20 @@
 
 // IcmpV6Layer
 
-namespace pcpp {
+namespace pcpp
+{
 
 Layer* IcmpV6Layer::parseIcmpV6Layer(uint8_t* data, size_t dataLen,
-                                     Layer* prevLayer, Packet* packet) {
+                                     Layer* prevLayer, Packet* packet)
+{
     if (dataLen < sizeof(icmpv6hdr))
         return new PayloadLayer(data, dataLen, prevLayer, packet);
 
     icmpv6hdr* hdr = (icmpv6hdr*)data;
     ICMPv6MessageType messageType = static_cast<ICMPv6MessageType>(hdr->type);
 
-    switch (messageType) {
+    switch (messageType)
+    {
     case ICMPv6MessageType::ICMPv6_ECHO_REQUEST:
     case ICMPv6MessageType::ICMPv6_ECHO_REPLY:
         return new ICMPv6EchoLayer(data, dataLen, prevLayer, packet);
@@ -38,7 +41,8 @@ Layer* IcmpV6Layer::parseIcmpV6Layer(uint8_t* data, size_t dataLen,
 }
 
 IcmpV6Layer::IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code,
-                         const uint8_t* data, size_t dataLen) {
+                         const uint8_t* data, size_t dataLen)
+{
     m_DataLen = sizeof(icmpv6hdr) + dataLen;
     m_Data = new uint8_t[m_DataLen];
     memset(m_Data, 0, m_DataLen);
@@ -52,19 +56,22 @@ IcmpV6Layer::IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code,
         memcpy(m_Data + sizeof(icmpv6hdr), data, dataLen);
 }
 
-ICMPv6MessageType IcmpV6Layer::getMessageType() const {
+ICMPv6MessageType IcmpV6Layer::getMessageType() const
+{
     return static_cast<ICMPv6MessageType>(getIcmpv6Header()->type);
 }
 
 uint8_t IcmpV6Layer::getCode() const { return getIcmpv6Header()->code; }
 
-uint16_t IcmpV6Layer::getChecksum() const {
+uint16_t IcmpV6Layer::getChecksum() const
+{
     return be16toh(getIcmpv6Header()->checksum);
 }
 
 void IcmpV6Layer::computeCalculateFields() { calculateChecksum(); }
 
-void IcmpV6Layer::calculateChecksum() {
+void IcmpV6Layer::calculateChecksum()
+{
     /* Pseudo header of 40 bytes which is composed as follows(in order):
   - 16 bytes for the source address
   - 16 bytes for the destination address
@@ -74,7 +81,8 @@ void IcmpV6Layer::calculateChecksum() {
 
     getIcmpv6Header()->checksum = 0;
 
-    if (m_PrevLayer != nullptr) {
+    if (m_PrevLayer != nullptr)
+    {
         ScalarBuffer<uint16_t> vec[2];
 
         vec[0].buffer = (uint16_t*)m_Data;
@@ -101,7 +109,8 @@ void IcmpV6Layer::calculateChecksum() {
     }
 }
 
-std::string IcmpV6Layer::toString() const {
+std::string IcmpV6Layer::toString() const
+{
     std::ostringstream typeStream;
     typeStream << (int)getMessageType();
     return "ICMPv6 Layer, Message type: " + typeStream.str();
@@ -113,7 +122,8 @@ std::string IcmpV6Layer::toString() const {
 
 ICMPv6EchoLayer::ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id,
                                  uint16_t sequence, const uint8_t* data,
-                                 size_t dataLen) {
+                                 size_t dataLen)
+{
     m_DataLen = sizeof(icmpv6_echo_hdr) + dataLen;
     m_Data = new uint8_t[m_DataLen];
     memset(m_Data, 0, m_DataLen);
@@ -121,7 +131,8 @@ ICMPv6EchoLayer::ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id,
 
     icmpv6_echo_hdr* header = getEchoHeader();
 
-    switch (echoType) {
+    switch (echoType)
+    {
     case REPLY:
         header->type = static_cast<uint8_t>(ICMPv6MessageType::ICMPv6_ECHO_REPLY);
         break;
@@ -140,15 +151,18 @@ ICMPv6EchoLayer::ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id,
         memcpy(getEchoDataPtr(), data, dataLen);
 }
 
-uint16_t ICMPv6EchoLayer::getIdentifier() const {
+uint16_t ICMPv6EchoLayer::getIdentifier() const
+{
     return be16toh(getEchoHeader()->id);
 }
 
-uint16_t ICMPv6EchoLayer::getSequenceNr() const {
+uint16_t ICMPv6EchoLayer::getSequenceNr() const
+{
     return be16toh(getEchoHeader()->sequence);
 }
 
-std::string ICMPv6EchoLayer::toString() const {
+std::string ICMPv6EchoLayer::toString() const
+{
     std::ostringstream typeStream;
     typeStream << (int)getMessageType();
     return "ICMPv6 Layer, Echo Request/Reply Message (type: " + typeStream.str() +

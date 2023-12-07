@@ -5,22 +5,26 @@
 #include "Packet.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-Layer::~Layer() {
+Layer::~Layer()
+{
     if (!isAllocatedToPacket())
         delete[] m_Data;
 }
 
 Layer::Layer(const Layer& other)
     : m_Packet(nullptr), m_Protocol(other.m_Protocol), m_NextLayer(nullptr),
-      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false) {
+      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
+{
     m_DataLen = other.getHeaderLen();
     m_Data = new uint8_t[other.m_DataLen];
     memcpy(m_Data, other.m_Data, other.m_DataLen);
 }
 
-Layer& Layer::operator=(const Layer& other) {
+Layer& Layer::operator=(const Layer& other)
+{
     if (this == &other)
         return *this;
 
@@ -41,14 +45,18 @@ Layer& Layer::operator=(const Layer& other) {
 
 void Layer::copyData(uint8_t* toArr) const { memcpy(toArr, m_Data, m_DataLen); }
 
-bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend) {
-    if (m_Data == nullptr) {
+bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend)
+{
+    if (m_Data == nullptr)
+    {
         PCPP_LOG_ERROR("Layer's data is NULL");
         return false;
     }
 
-    if (m_Packet == nullptr) {
-        if ((size_t)offsetInLayer > m_DataLen) {
+    if (m_Packet == nullptr)
+    {
+        if ((size_t)offsetInLayer > m_DataLen)
+        {
             PCPP_LOG_ERROR("Requested offset is larger than data length");
             return false;
         }
@@ -66,14 +74,18 @@ bool Layer::extendLayer(int offsetInLayer, size_t numOfBytesToExtend) {
     return m_Packet->extendLayer(this, offsetInLayer, numOfBytesToExtend);
 }
 
-bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten) {
-    if (m_Data == nullptr) {
+bool Layer::shortenLayer(int offsetInLayer, size_t numOfBytesToShorten)
+{
+    if (m_Data == nullptr)
+    {
         PCPP_LOG_ERROR("Layer's data is NULL");
         return false;
     }
 
-    if (m_Packet == nullptr) {
-        if ((size_t)offsetInLayer >= m_DataLen) {
+    if (m_Packet == nullptr)
+    {
+        if ((size_t)offsetInLayer >= m_DataLen)
+        {
             PCPP_LOG_ERROR("Requested offset is larger than data length");
             return false;
         }

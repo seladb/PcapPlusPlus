@@ -16,13 +16,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * An enum describing all known link layer type. Taken from:
  * http://www.tcpdump.org/linktypes.html .
  */
-enum LinkLayerType {
+enum LinkLayerType
+{
     /** BSD loopback encapsulation */
     LINKTYPE_NULL = 0,
     /** IEEE 802.3 Ethernet */
@@ -284,7 +286,8 @@ enum LinkLayerType {
  * instance isn't read only. The user can change the packet data, add or remove
  * data, etc.
  */
-class RawPacket {
+class RawPacket
+{
   protected:
     uint8_t* m_RawData;
     int m_RawDataLen;

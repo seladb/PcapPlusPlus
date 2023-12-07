@@ -9,21 +9,27 @@
 
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 /** IPv4 protocol */
 #define PCPP_WS_NFPROTO_IPV4 2
 /** IPv6 protocol */
 #define PCPP_WS_NFPROTO_IPV6 10
 
-uint8_t NflogLayer::getFamily() { return getNflogHeader()->addressFamily; }
+uint8_t NflogLayer::getFamily()
+{
+    return getNflogHeader()->addressFamily;
+}
 
 uint8_t NflogLayer::getVersion() { return getNflogHeader()->version; }
 
-uint16_t NflogLayer::getResourceId() {
+uint16_t NflogLayer::getResourceId()
+{
     return be16toh(getNflogHeader()->resourceId);
 }
 
-NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const {
+NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const
+{
     NflogTlv tlv =
         m_TlvReader.getTLVRecord(static_cast<uint32_t>(type), getTlvsBasePtr(),
                                  m_DataLen - sizeof(nflog_header));
@@ -31,11 +37,13 @@ NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const {
     return tlv;
 }
 
-void NflogLayer::parseNextLayer() {
+void NflogLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(nflog_header))
         return;
     auto payloadInfo = getTlvByType(NflogTlvType::NFULA_PAYLOAD);
-    if (payloadInfo.isNull()) {
+    if (payloadInfo.isNull())
+    {
         return;
     }
 
@@ -44,7 +52,8 @@ void NflogLayer::parseNextLayer() {
 
     uint8_t family = getFamily();
 
-    switch (family) {
+    switch (family)
+    {
     case PCPP_WS_NFPROTO_IPV4:
         m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
                           ? static_cast<Layer*>(
@@ -64,21 +73,24 @@ void NflogLayer::parseNextLayer() {
     }
 }
 
-size_t NflogLayer::getHeaderLen() const {
+size_t NflogLayer::getHeaderLen() const
+{
     size_t headerLen = sizeof(nflog_header);
     NflogTlv currentTLV = m_TlvReader.getFirstTLVRecord(
         getTlvsBasePtr(), m_DataLen - sizeof(nflog_header));
 
     while (!currentTLV.isNull() &&
            currentTLV.getType() !=
-               static_cast<uint16_t>(NflogTlvType::NFULA_PAYLOAD)) {
+               static_cast<uint16_t>(NflogTlvType::NFULA_PAYLOAD))
+    {
         headerLen += currentTLV.getTotalSize();
         currentTLV = m_TlvReader.getNextTLVRecord(currentTLV, getTlvsBasePtr(),
                                                   m_DataLen - sizeof(nflog_header));
     }
     if (!currentTLV.isNull() &&
         currentTLV.getType() ==
-            static_cast<uint16_t>(NflogTlvType::NFULA_PAYLOAD)) {
+            static_cast<uint16_t>(NflogTlvType::NFULA_PAYLOAD))
+    {
         // for the length and type of the payload TLV
         headerLen += 2 * sizeof(uint16_t);
     }
@@ -89,7 +101,8 @@ size_t NflogLayer::getHeaderLen() const {
 
 std::string NflogLayer::toString() const { return "Linux Netfilter NFLOG"; }
 
-bool NflogLayer::isDataValid(const uint8_t* data, size_t dataLen) {
+bool NflogLayer::isDataValid(const uint8_t* data, size_t dataLen)
+{
     return data && dataLen >= sizeof(nflog_header);
 }
 

@@ -19,23 +19,28 @@
 #include <resolv.h>
 #endif
 
-namespace pcpp {
+namespace pcpp
+{
 
 PcapLiveDeviceList::PcapLiveDeviceList() { init(); }
 
-PcapLiveDeviceList::~PcapLiveDeviceList() {
+PcapLiveDeviceList::~PcapLiveDeviceList()
+{
     for (std::vector<PcapLiveDevice*>::iterator devIter =
              m_LiveDeviceList.begin();
-         devIter != m_LiveDeviceList.end(); devIter++) {
+         devIter != m_LiveDeviceList.end(); devIter++)
+    {
         delete (*devIter);
     }
 }
 
-void PcapLiveDeviceList::init() {
+void PcapLiveDeviceList::init()
+{
     pcap_if_t* interfaceList;
     char errbuf[PCAP_ERRBUF_SIZE];
     int err = pcap_findalldevs(&interfaceList, errbuf);
-    if (err < 0) {
+    if (err < 0)
+    {
         PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
     }
 
@@ -43,7 +48,8 @@ void PcapLiveDeviceList::init() {
         "Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
 
     pcap_if_t* currInterface = interfaceList;
-    while (currInterface != nullptr) {
+    while (currInterface != nullptr)
+    {
 #if defined(_WIN32)
         PcapLiveDevice* dev =
             new WinPcapLiveDevice(currInterface, true, true, true);
@@ -60,7 +66,8 @@ void PcapLiveDeviceList::init() {
     pcap_freealldevs(interfaceList);
 }
 
-void PcapLiveDeviceList::setDnsServers() {
+void PcapLiveDeviceList::setDnsServers()
+{
 #if defined(_WIN32)
     FIXED_INFO* fixedInfo;
     ULONG ulOutBufLen;
@@ -73,14 +80,16 @@ void PcapLiveDeviceList::setDnsServers() {
 
     dwRetVal = GetNetworkParams(fixedInfo, &ulOutBufLen);
     uint8_t* buf2 = new uint8_t[ulOutBufLen];
-    if (ERROR_BUFFER_OVERFLOW == dwRetVal) {
+    if (ERROR_BUFFER_OVERFLOW == dwRetVal)
+    {
         fixedInfo = (FIXED_INFO*)buf2;
     }
 
     if ((dwRetVal = GetNetworkParams(fixedInfo, &ulOutBufLen)) != 0)
         PCPP_LOG_ERROR("Call to GetNetworkParams failed. Return Value: "
                        << std::hex << dwRetVal);
-    else {
+    else
+    {
         m_DnsServers.push_back(
             IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
         int i = 1;
@@ -88,7 +97,8 @@ void PcapLiveDeviceList::setDnsServers() {
                        << i++ << ": " << fixedInfo->DnsServerList.IpAddress.String);
 
         pIPAddr = fixedInfo->DnsServerList.Next;
-        while (pIPAddr) {
+        while (pIPAddr)
+        {
             m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
             PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": "
                                                      << pIPAddr->IpAddress.String);
@@ -102,7 +112,8 @@ void PcapLiveDeviceList::setDnsServers() {
     std::string command =
         "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
     std::string nmcliExists = executeShellCommand(command);
-    if (nmcliExists != "") {
+    if (nmcliExists != "")
+    {
         PCPP_LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
         return;
     }
@@ -123,7 +134,8 @@ void PcapLiveDeviceList::setDnsServers() {
         command = "nmcli dev show | grep IP4.DNS";
 
     std::string dnsServersInfo = executeShellCommand(command);
-    if (dnsServersInfo == "") {
+    if (dnsServersInfo == "")
+    {
         PCPP_LOG_DEBUG(
             "Error retrieving DNS server list: call to nmcli gave no output");
         return;
@@ -132,7 +144,8 @@ void PcapLiveDeviceList::setDnsServers() {
     std::istringstream stream(dnsServersInfo);
     std::string line;
     int i = 1;
-    while (std::getline(stream, line)) {
+    while (std::getline(stream, line))
+    {
         std::istringstream lineStream(line);
         std::string headline;
         std::string dnsIP;
@@ -143,7 +156,8 @@ void PcapLiveDeviceList::setDnsServers() {
             continue;
 
         if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) ==
-            m_DnsServers.end()) {
+            m_DnsServers.end())
+        {
             m_DnsServers.push_back(dnsIPAddr);
             PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
         }
@@ -152,7 +166,8 @@ void PcapLiveDeviceList::setDnsServers() {
 
     SCDynamicStoreRef dynRef = SCDynamicStoreCreate(
         kCFAllocatorSystemDefault, CFSTR("iked"), nullptr, nullptr);
-    if (dynRef == nullptr) {
+    if (dynRef == nullptr)
+    {
         PCPP_LOG_DEBUG(
             "Couldn't set DNS server list: failed to retrieve SCDynamicStore");
         return;
@@ -161,7 +176,8 @@ void PcapLiveDeviceList::setDnsServers() {
     CFDictionaryRef dnsDict = (CFDictionaryRef)SCDynamicStoreCopyValue(
         dynRef, CFSTR("State:/Network/Global/DNS"));
 
-    if (dnsDict == nullptr) {
+    if (dnsDict == nullptr)
+    {
         PCPP_LOG_DEBUG(
             "Couldn't set DNS server list: failed to get DNS dictionary");
         CFRelease(dynRef);
@@ -171,7 +187,8 @@ void PcapLiveDeviceList::setDnsServers() {
     CFArrayRef serverAddresses =
         (CFArrayRef)CFDictionaryGetValue(dnsDict, CFSTR("ServerAddresses"));
 
-    if (serverAddresses == nullptr) {
+    if (serverAddresses == nullptr)
+    {
         PCPP_LOG_DEBUG(
             "Couldn't set DNS server list: server addresses array is null");
         CFRelease(dynRef);
@@ -180,7 +197,8 @@ void PcapLiveDeviceList::setDnsServers() {
     }
 
     CFIndex count = CFArrayGetCount(serverAddresses);
-    for (CFIndex i = 0; i < count; i++) {
+    for (CFIndex i = 0; i < count; i++)
+    {
         CFStringRef serverAddress =
             (CFStringRef)CFArrayGetValueAtIndex(serverAddresses, i);
 
@@ -203,7 +221,8 @@ void PcapLiveDeviceList::setDnsServers() {
 
     res_init();
 
-    for (int i = 0; i < _res.nscount; i++) {
+    for (int i = 0; i < _res.nscount; i++)
+    {
         sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
         if (saddr == NULL)
             continue;
@@ -217,40 +236,49 @@ void PcapLiveDeviceList::setDnsServers() {
 }
 
 PcapLiveDevice*
-PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr) const {
-    if (ipAddr.getType() == IPAddress::IPv4AddressType) {
+PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr) const
+{
+    if (ipAddr.getType() == IPAddress::IPv4AddressType)
+    {
         return getPcapLiveDeviceByIp(ipAddr.getIPv4());
-    } else // IPAddress::IPv6AddressType
+    }
+    else // IPAddress::IPv6AddressType
     {
         return getPcapLiveDeviceByIp(ipAddr.getIPv6());
     }
 }
 
 PcapLiveDevice*
-PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const {
+PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
+{
     PCPP_LOG_DEBUG("Searching all live devices...");
     for (std::vector<PcapLiveDevice*>::const_iterator devIter =
              m_LiveDeviceList.begin();
-         devIter != m_LiveDeviceList.end(); devIter++) {
+         devIter != m_LiveDeviceList.end(); devIter++)
+    {
         PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name
                                             << "'. Searching all addresses...");
         for (std::vector<pcap_addr_t>::iterator addrIter =
                  (*devIter)->m_Addresses.begin();
-             addrIter != (*devIter)->m_Addresses.end(); addrIter++) {
+             addrIter != (*devIter)->m_Addresses.end(); addrIter++)
+        {
             if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) &&
-                addrIter->addr != nullptr) {
+                addrIter->addr != nullptr)
+            {
                 char addrAsString[INET6_ADDRSTRLEN];
                 internal::sockaddr2string(addrIter->addr, addrAsString);
                 PCPP_LOG_DEBUG("Searching address " << addrAsString);
             }
 
             in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
-            if (currAddr == nullptr) {
+            if (currAddr == nullptr)
+            {
                 PCPP_LOG_DEBUG("Address is NULL");
                 continue;
             }
 
-            if (currAddr->s_addr == ipAddr.toInt()) {
+            if (currAddr->s_addr == ipAddr.toInt())
+            {
                 PCPP_LOG_DEBUG("Found matched address!");
                 return (*devIter);
             }
@@ -261,25 +289,30 @@ PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const {
 }
 
 PcapLiveDevice*
-PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const {
+PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
+{
     PCPP_LOG_DEBUG("Searching all live devices...");
     for (std::vector<PcapLiveDevice*>::const_iterator devIter =
              m_LiveDeviceList.begin();
-         devIter != m_LiveDeviceList.end(); devIter++) {
+         devIter != m_LiveDeviceList.end(); devIter++)
+    {
         PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name
                                             << "'. Searching all addresses...");
         for (std::vector<pcap_addr_t>::iterator addrIter =
                  (*devIter)->m_Addresses.begin();
-             addrIter != (*devIter)->m_Addresses.end(); addrIter++) {
+             addrIter != (*devIter)->m_Addresses.end(); addrIter++)
+        {
             if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) &&
-                addrIter->addr != nullptr) {
+                addrIter->addr != nullptr)
+            {
                 char addrAsString[INET6_ADDRSTRLEN];
                 internal::sockaddr2string(addrIter->addr, addrAsString);
                 PCPP_LOG_DEBUG("Searching address " << addrAsString);
             }
 
             in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter->addr);
-            if (currAddr == nullptr) {
+            if (currAddr == nullptr)
+            {
                 PCPP_LOG_DEBUG("Address is NULL");
                 continue;
             }
@@ -287,7 +320,8 @@ PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const {
             uint8_t* addrAsArr;
             size_t addrLen;
             ip6Addr.copyTo(&addrAsArr, addrLen);
-            if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0) {
+            if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+            {
                 PCPP_LOG_DEBUG("Found matched address!");
                 delete[] addrAsArr;
                 return (*devIter);
@@ -301,9 +335,11 @@ PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const {
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(
-    const std::string& ipAddrAsString) const {
+    const std::string& ipAddrAsString) const
+{
     IPAddress ipAddr(ipAddrAsString);
-    if (!ipAddr.isValid()) {
+    if (!ipAddr.isValid())
+    {
         PCPP_LOG_ERROR("IP address illegal");
         return nullptr;
     }
@@ -313,11 +349,13 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(
 }
 
 PcapLiveDevice*
-PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const {
+PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
+{
     PCPP_LOG_DEBUG("Searching all live devices...");
     for (std::vector<PcapLiveDevice*>::const_iterator devIter =
              m_LiveDeviceList.begin();
-         devIter != m_LiveDeviceList.end(); devIter++) {
+         devIter != m_LiveDeviceList.end(); devIter++)
+    {
         if (name == (*devIter)->getName())
             return (*devIter);
     }
@@ -326,23 +364,30 @@ PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const {
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(
-    const std::string& ipOrName) const {
+    const std::string& ipOrName) const
+{
     IPAddress interfaceIP(ipOrName);
-    if (interfaceIP.isValid()) {
+    if (interfaceIP.isValid())
+    {
         return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
-    } else {
+    }
+    else
+    {
         return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName);
     }
 }
 
-PcapLiveDeviceList* PcapLiveDeviceList::clone() {
+PcapLiveDeviceList* PcapLiveDeviceList::clone()
+{
     return new PcapLiveDeviceList;
 }
 
-void PcapLiveDeviceList::reset() {
+void PcapLiveDeviceList::reset()
+{
     for (std::vector<PcapLiveDevice*>::iterator devIter =
              m_LiveDeviceList.begin();
-         devIter != m_LiveDeviceList.end(); devIter++) {
+         devIter != m_LiveDeviceList.end(); devIter++)
+    {
         delete (*devIter);
     }
 

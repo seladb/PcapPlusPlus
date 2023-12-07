@@ -12,9 +12,11 @@
 #include "VlanLayer.h"
 #include <string.h>
 
-namespace pcpp {
+namespace pcpp
+{
 
-SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType) {
+SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType)
+{
     const size_t headerLen = sizeof(sll_header);
     m_DataLen = headerLen;
     m_Data = new uint8_t[headerLen];
@@ -25,8 +27,10 @@ SllLayer::SllLayer(uint16_t packetType, uint16_t ARPHRDType) {
     m_Protocol = SLL;
 }
 
-bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength) {
-    if (addr == nullptr || addrLength == 0 || addrLength > 8) {
+bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
+{
+    if (addr == nullptr || addrLength == 0 || addrLength > 8)
+    {
         PCPP_LOG_ERROR(
             "Address length is out of bounds, it must be between 1 and 8");
         return false;
@@ -39,8 +43,10 @@ bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength) {
     return true;
 }
 
-bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr) {
-    if (!macAddr.isValid()) {
+bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
+{
+    if (!macAddr.isValid())
+    {
         PCPP_LOG_ERROR("MAC address is not valid");
         return false;
     }
@@ -50,7 +56,8 @@ bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr) {
     return setLinkLayerAddr(macAddrAsArr, 6);
 }
 
-void SllLayer::parseNextLayer() {
+void SllLayer::parseNextLayer()
+{
     if (m_DataLen <= sizeof(sll_header))
         return;
 
@@ -58,7 +65,8 @@ void SllLayer::parseNextLayer() {
     size_t payloadLen = m_DataLen - sizeof(sll_header);
 
     sll_header* hdr = getSllHeader();
-    switch (be16toh(hdr->protocol_type)) {
+    switch (be16toh(hdr->protocol_type))
+    {
     case PCPP_ETHERTYPE_IP:
         m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
                           ? static_cast<Layer*>(
@@ -104,12 +112,14 @@ void SllLayer::parseNextLayer() {
     }
 }
 
-void SllLayer::computeCalculateFields() {
+void SllLayer::computeCalculateFields()
+{
     if (m_NextLayer == nullptr)
         return;
 
     sll_header* hdr = getSllHeader();
-    switch (m_NextLayer->getProtocol()) {
+    switch (m_NextLayer->getProtocol())
+    {
     case IPv4:
         hdr->protocol_type = htobe16(PCPP_ETHERTYPE_IP);
         break;

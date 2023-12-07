@@ -14,7 +14,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @class LRUList
@@ -26,7 +27,8 @@ namespace pcpp {
  * comes in. All actions on this LRU list are O(1)
  */
 template <typename T>
-class LRUList {
+class LRUList
+{
   public:
     typedef typename std::list<T>::iterator ListIterator;
     typedef typename std::map<T, ListIterator>::iterator MapIterator;
@@ -52,7 +54,8 @@ class LRUList {
    * list already reached its max size and deletedValue is not NULL the value of
    * deleted element is copied into the place the deletedValue points to.
    */
-    int put(const T& element, T* deletedValue = NULL) {
+    int put(const T& element, T* deletedValue = NULL)
+    {
         m_CacheItemsList.push_front(element);
 
         // Inserting a new element. If an element with an equivalent key already
@@ -66,7 +69,8 @@ class LRUList {
             pair.first->second = m_CacheItemsList.begin();
         }
 
-        if (m_CacheItemsMap.size() > m_MaxSize) {
+        if (m_CacheItemsMap.size() > m_MaxSize)
+        {
             ListIterator lruIter = m_CacheItemsList.end();
             lruIter--;
 
@@ -101,7 +105,8 @@ class LRUList {
    * happens
    * @param[in] element The element to erase
    */
-    void eraseElement(const T& element) {
+    void eraseElement(const T& element)
+    {
         MapIterator iter = m_CacheItemsMap.find(element);
         if (iter == m_CacheItemsMap.end())
             return;

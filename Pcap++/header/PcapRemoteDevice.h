@@ -14,7 +14,8 @@ struct pcap_rmtauth;
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct PcapRemoteAuthentication
@@ -24,7 +25,8 @@ namespace pcpp {
  * can (but not must) be given to PcapRemoteDeviceList when initiating a
  * connection to the remote daemon
  */
-struct PcapRemoteAuthentication {
+struct PcapRemoteAuthentication
+{
   public:
     /**
    * A constructor that sets username and password
@@ -33,7 +35,8 @@ struct PcapRemoteAuthentication {
    */
     PcapRemoteAuthentication(const std::string& username,
                              const std::string& password)
-        : userName(username) {
+        : userName(username)
+    {
         this->password = password;
     }
 
@@ -94,7 +97,8 @@ struct PcapRemoteAuthentication {
  * and the way the user can get the instance of PcapRemoteDevice. For more
  * details on that please refer to PcapRemoteDeviceList
  */
-class PcapRemoteDevice : public PcapLiveDevice {
+class PcapRemoteDevice : public PcapLiveDevice
+{
     friend class PcapRemoteDeviceList;
 
   private:
@@ -126,7 +130,8 @@ class PcapRemoteDevice : public PcapLiveDevice {
    * @return The IP address of the remote machine where packets are transmitted
    * from the remote machine to the client machine
    */
-    IPAddress getRemoteMachineIpAddress() const {
+    IPAddress getRemoteMachineIpAddress() const
+    {
         return m_RemoteMachineIpAddress;
     }
 

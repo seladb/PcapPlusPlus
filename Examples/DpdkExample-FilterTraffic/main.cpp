@@ -75,7 +75,8 @@ static struct option FilterTrafficOptions[] = {
 /**
  * Print application usage
  */
-void printUsage() {
+void printUsage()
+{
     std::cout
         << std::endl
         << "Usage:" << std::endl
@@ -160,7 +161,8 @@ void printUsage() {
 /**
  * Print application version
  */
-void printAppVersion() {
+void printAppVersion()
+{
     std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull()
               << std::endl
               << "Built: " << pcpp::getBuildDateTime() << std::endl
@@ -171,11 +173,13 @@ void printAppVersion() {
 /**
  * Print to console all available DPDK ports. Used by the -l switch
  */
-void listDpdkPorts() {
+void listDpdkPorts()
+{
     pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
 
     // initialize DPDK
-    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, DEFAULT_MBUF_POOL_SIZE)) {
+    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, DEFAULT_MBUF_POOL_SIZE))
+    {
         EXIT_WITH_ERROR("couldn't initialize DPDK");
     }
 
@@ -185,7 +189,8 @@ void listDpdkPorts() {
     std::vector<pcpp::DpdkDevice*> deviceList =
         pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
     for (std::vector<pcpp::DpdkDevice*>::iterator iter = deviceList.begin();
-         iter != deviceList.end(); iter++) {
+         iter != deviceList.end(); iter++)
+    {
         pcpp::DpdkDevice* dev = *iter;
         std::cout << "   "
                   << " Port #" << dev->getDeviceId() << ":"
@@ -206,15 +211,18 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
                               const std::string& packetFilePath,
                               pcpp::DpdkDevice* sendPacketsTo,
                               AppWorkerConfig workerConfigArr[],
-                              int workerConfigArrLen, uint16_t rxQueues) {
+                              int workerConfigArrLen, uint16_t rxQueues)
+{
     // create a list of pairs of DpdkDevice and RX queues for all RX queues in all
     // requested devices
     int totalNumOfRxQueues = 0;
     std::vector<std::pair<pcpp::DpdkDevice*, int>> deviceAndRxQVec;
     for (std::vector<pcpp::DpdkDevice*>::iterator iter =
              dpdkDevicesToUse.begin();
-         iter != dpdkDevicesToUse.end(); iter++) {
-        for (int rxQueueIndex = 0; rxQueueIndex < rxQueues; rxQueueIndex++) {
+         iter != dpdkDevicesToUse.end(); iter++)
+    {
+        for (int rxQueueIndex = 0; rxQueueIndex < rxQueues; rxQueueIndex++)
+        {
             std::pair<pcpp::DpdkDevice*, int> curPair(*iter, rxQueueIndex);
             deviceAndRxQVec.push_back(curPair);
         }
@@ -232,7 +240,8 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
     std::vector<std::pair<pcpp::DpdkDevice*, int>>::iterator pairVecIter =
         deviceAndRxQVec.begin();
     for (std::vector<pcpp::SystemCore>::iterator iter = coresToUse.begin();
-         iter != coresToUse.end(); iter++) {
+         iter != coresToUse.end(); iter++)
+    {
         std::cout << "Using core " << (int)iter->Id << std::endl;
         workerConfigArr[i].CoreId = iter->Id;
         workerConfigArr[i].WriteMatchedPacketsToFile = writePacketsToDisk;
@@ -243,14 +252,16 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
         workerConfigArr[i].PathToWritePackets = packetFileName.str();
 
         workerConfigArr[i].SendPacketsTo = sendPacketsTo;
-        for (int rxQIndex = 0; rxQIndex < numOfRxQueuesPerCore; rxQIndex++) {
+        for (int rxQIndex = 0; rxQIndex < numOfRxQueuesPerCore; rxQIndex++)
+        {
             if (pairVecIter == deviceAndRxQVec.end())
                 break;
             workerConfigArr[i].InDataCfg[pairVecIter->first].push_back(
                 pairVecIter->second);
             pairVecIter++;
         }
-        if (rxQueuesRemainder > 0 && (pairVecIter != deviceAndRxQVec.end())) {
+        if (rxQueuesRemainder > 0 && (pairVecIter != deviceAndRxQVec.end()))
+        {
             workerConfigArr[i].InDataCfg[pairVecIter->first].push_back(
                 pairVecIter->second);
             pairVecIter++;
@@ -260,22 +271,26 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
         // print configuration for core
         std::cout << "   Core configuration:" << std::endl;
         for (InputDataConfig::iterator iter2 = workerConfigArr[i].InDataCfg.begin();
-             iter2 != workerConfigArr[i].InDataCfg.end(); iter2++) {
+             iter2 != workerConfigArr[i].InDataCfg.end(); iter2++)
+        {
             std::cout << "      DPDK device#" << iter2->first->getDeviceId() << ": ";
             for (std::vector<int>::iterator iter3 = iter2->second.begin();
-                 iter3 != iter2->second.end(); iter3++) {
+                 iter3 != iter2->second.end(); iter3++)
+            {
                 std::cout << "RX-Queue#" << *iter3 << ";  ";
             }
             std::cout << std::endl;
         }
-        if (workerConfigArr[i].InDataCfg.size() == 0) {
+        if (workerConfigArr[i].InDataCfg.size() == 0)
+        {
             std::cout << "      None" << std::endl;
         }
         i++;
     }
 }
 
-struct FilterTrafficArgs {
+struct FilterTrafficArgs
+{
     bool shouldStop;
     std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector;
 
@@ -286,7 +301,8 @@ struct FilterTrafficArgs {
  * The callback to be called when application is terminated by ctrl-c. Do
  * cleanup and print summary stats
  */
-void onApplicationInterrupted(void* cookie) {
+void onApplicationInterrupted(void* cookie)
+{
     FilterTrafficArgs* args = (FilterTrafficArgs*)cookie;
 
     std::cout << std::endl
@@ -307,7 +323,8 @@ void onApplicationInterrupted(void* cookie) {
     PacketStats aggregatedStats;
     for (std::vector<pcpp::DpdkWorkerThread*>::iterator iter =
              args->workerThreadsVector->begin();
-         iter != args->workerThreadsVector->end(); iter++) {
+         iter != args->workerThreadsVector->end(); iter++)
+    {
         AppWorkerThread* thread = (AppWorkerThread*)(*iter);
         PacketStats threadStats = thread->getStats();
         aggregatedStats.collectStats(threadStats);
@@ -327,7 +344,8 @@ void onApplicationInterrupted(void* cookie) {
  * At program termination worker threads are stopped, statistics are collected
  * from them and printed to console
  */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     pcpp::AppName::init(argc, argv);
 
     std::vector<int> dpdkPortVec;
@@ -355,22 +373,28 @@ int main(int argc, char* argv[]) {
     uint16_t txQueues = 1;
 
     while ((opt = getopt_long(argc, argv, "d:c:s:f:m:i:I:p:P:o:r:t:hvl",
-                              FilterTrafficOptions, &optionIndex)) != -1) {
-        switch (opt) {
-        case 0: {
+                              FilterTrafficOptions, &optionIndex)) != -1)
+    {
+        switch (opt)
+        {
+        case 0:
+        {
             break;
         }
-        case 'd': {
+        case 'd':
+        {
             std::string portListAsString = std::string(optarg);
             std::stringstream stream(portListAsString);
             std::string portAsString;
             int port;
             // break comma-separated string into string list
-            while (getline(stream, portAsString, ',')) {
+            while (getline(stream, portAsString, ','))
+            {
                 char c;
                 std::stringstream stream2(portAsString);
                 stream2 >> port;
-                if (stream2.fail() || stream2.get(c)) {
+                if (stream2.fail() || stream2.get(c))
+                {
                     // not an integer
                     EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK ports list is invalid");
                 }
@@ -378,109 +402,135 @@ int main(int argc, char* argv[]) {
             }
 
             // verify list is not empty
-            if (dpdkPortVec.empty()) {
+            if (dpdkPortVec.empty())
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE("DPDK ports list is empty");
             }
             break;
         }
-        case 's': {
+        case 's':
+        {
             sendPacketsToPort = atoi(optarg);
             break;
         }
-        case 'c': {
+        case 'c':
+        {
             coreMaskToUse = atoi(optarg);
             break;
         }
-        case 'f': {
+        case 'f':
+        {
             packetFilePath = std::string(optarg);
             writePacketsToDisk = true;
-            if (packetFilePath.empty()) {
+            if (packetFilePath.empty())
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE("Filename to write packets is empty");
             }
             break;
         }
-        case 'm': {
+        case 'm':
+        {
             mBufPoolSize = atoi(optarg);
             break;
         }
-        case 'i': {
+        case 'i':
+        {
             srcIPToMatch = pcpp::IPv4Address(optarg);
-            if (!srcIPToMatch.isValid()) {
+            if (!srcIPToMatch.isValid())
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE(
                     "Source IP to match isn't a valid IP address");
             }
             break;
         }
-        case 'I': {
+        case 'I':
+        {
             dstIPToMatch = pcpp::IPv4Address(optarg);
-            if (!dstIPToMatch.isValid()) {
+            if (!dstIPToMatch.isValid())
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE(
                     "Destination IP to match isn't a valid IP address");
             }
             break;
         }
-        case 'p': {
+        case 'p':
+        {
             int ret = atoi(optarg);
-            if (ret <= 0 || ret > 65535) {
+            if (ret <= 0 || ret > 65535)
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE(
                     "Source port to match isn't a valid TCP/UDP port");
             }
             srcPortToMatch = ret;
             break;
         }
-        case 'P': {
+        case 'P':
+        {
             int ret = atoi(optarg);
-            if (ret <= 0 || ret > 65535) {
+            if (ret <= 0 || ret > 65535)
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE(
                     "Destination port to match isn't a valid TCP/UDP port");
             }
             dstPortToMatch = ret;
             break;
         }
-        case 'o': {
+        case 'o':
+        {
             std::string protocol = std::string(optarg);
             if (protocol == "TCP")
                 protocolToMatch = pcpp::TCP;
             else if (protocol == "UDP")
                 protocolToMatch = pcpp::UDP;
-            else {
+            else
+            {
                 EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
             }
             break;
         }
-        case 'r': {
+        case 'r':
+        {
             rxQueues = atoi(optarg);
-            if (rxQueues == 0) {
+            if (rxQueues == 0)
+            {
                 EXIT_WITH_ERROR("Cannot open the device with 0 RX queues");
             }
-            if (rxQueues > MAX_QUEUES) {
+            if (rxQueues > MAX_QUEUES)
+            {
                 EXIT_WITH_ERROR("The number of RX queues cannot exceed " << MAX_QUEUES);
             }
             break;
         }
-        case 't': {
+        case 't':
+        {
             txQueues = atoi(optarg);
-            if (txQueues == 0) {
+            if (txQueues == 0)
+            {
                 EXIT_WITH_ERROR("Cannot open the device with 0 TX queues");
             }
-            if (txQueues > MAX_QUEUES) {
+            if (txQueues > MAX_QUEUES)
+            {
                 EXIT_WITH_ERROR("The number of TX queues cannot exceed " << MAX_QUEUES);
             }
             break;
         }
-        case 'h': {
+        case 'h':
+        {
             printUsage();
             exit(0);
         }
-        case 'v': {
+        case 'v':
+        {
             printAppVersion();
             break;
         }
-        case 'l': {
+        case 'l':
+        {
             listDpdkPorts();
             exit(0);
         }
-        default: {
+        default:
+        {
             printUsage();
             exit(0);
         }
@@ -488,7 +538,8 @@ int main(int argc, char* argv[]) {
     }
 
     // verify list is not empty
-    if (dpdkPortVec.empty()) {
+    if (dpdkPortVec.empty())
+    {
         EXIT_WITH_ERROR_AND_PRINT_USAGE(
             "DPDK ports list is empty. Please use the -d switch");
     }
@@ -499,12 +550,14 @@ int main(int argc, char* argv[]) {
 
     // need minimum of 2 cores to start - 1 management core + 1 (or more) worker
     // thread(s)
-    if (coresToUse.size() < 2) {
+    if (coresToUse.size() < 2)
+    {
         EXIT_WITH_ERROR("Needed minimum of 2 cores to start the application");
     }
 
     // initialize DPDK
-    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, mBufPoolSize)) {
+    if (!pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, mBufPoolSize))
+    {
         EXIT_WITH_ERROR("Couldn't initialize DPDK");
     }
 
@@ -521,10 +574,12 @@ int main(int argc, char* argv[]) {
     // collect the list of DPDK devices
     std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
     for (std::vector<int>::iterator iter = dpdkPortVec.begin();
-         iter != dpdkPortVec.end(); iter++) {
+         iter != dpdkPortVec.end(); iter++)
+    {
         pcpp::DpdkDevice* dev =
             pcpp::DpdkDeviceList::getInstance().getDeviceByPort(*iter);
-        if (dev == NULL) {
+        if (dev == NULL)
+        {
             EXIT_WITH_ERROR("DPDK device for port " << *iter << " doesn't exist");
         }
         dpdkDevicesToUse.push_back(dev);
@@ -533,18 +588,22 @@ int main(int argc, char* argv[]) {
     // go over all devices and open them
     for (std::vector<pcpp::DpdkDevice*>::iterator iter =
              dpdkDevicesToUse.begin();
-         iter != dpdkDevicesToUse.end(); iter++) {
-        if (rxQueues > (*iter)->getTotalNumOfRxQueues()) {
+         iter != dpdkDevicesToUse.end(); iter++)
+    {
+        if (rxQueues > (*iter)->getTotalNumOfRxQueues())
+        {
             EXIT_WITH_ERROR("Number of RX errors cannot exceed the max allowed by "
                             "the device which is "
                             << (*iter)->getTotalNumOfRxQueues());
         }
-        if (txQueues > (*iter)->getTotalNumOfTxQueues()) {
+        if (txQueues > (*iter)->getTotalNumOfTxQueues())
+        {
             EXIT_WITH_ERROR("Number of TX errors cannot exceed the max allowed by "
                             "the device which is "
                             << (*iter)->getTotalNumOfTxQueues());
         }
-        if (!(*iter)->openMultiQueues(rxQueues, txQueues)) {
+        if (!(*iter)->openMultiQueues(rxQueues, txQueues))
+        {
             EXIT_WITH_ERROR("Couldn't open DPDK device #"
                             << (*iter)->getDeviceId() << ", PMD '"
                             << (*iter)->getPMDName() << "'");
@@ -556,7 +615,8 @@ int main(int argc, char* argv[]) {
             (*iter)->rssHashFunctionMaskToString(
                 (*iter)->getConfiguredRssHashFunction());
         for (std::vector<std::string>::iterator it = rssHashFunctions.begin();
-             it != rssHashFunctions.end(); ++it) {
+             it != rssHashFunctions.end(); ++it)
+        {
             std::cout << "   " << (*it) << std::endl;
         }
     }
@@ -565,7 +625,8 @@ int main(int argc, char* argv[]) {
     pcpp::DpdkDevice* sendPacketsTo =
         pcpp::DpdkDeviceList::getInstance().getDeviceByPort(sendPacketsToPort);
     if (sendPacketsTo != NULL && !sendPacketsTo->isOpened() &&
-        !sendPacketsTo->open()) {
+        !sendPacketsTo->open())
+    {
         EXIT_WITH_ERROR("Could not open port#" << sendPacketsToPort
                                                << " for sending matched packets");
     }
@@ -584,7 +645,8 @@ int main(int argc, char* argv[]) {
     std::vector<pcpp::DpdkWorkerThread*> workerThreadVec;
     int i = 0;
     for (std::vector<pcpp::SystemCore>::iterator iter = coresToUse.begin();
-         iter != coresToUse.end(); iter++) {
+         iter != coresToUse.end(); iter++)
+    {
         AppWorkerThread* newWorker =
             new AppWorkerThread(workerConfigArr[i], matchingEngine);
         workerThreadVec.push_back(newWorker);
@@ -593,7 +655,8 @@ int main(int argc, char* argv[]) {
 
     // start all worker threads
     if (!pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(
-            coreMaskToUse, workerThreadVec)) {
+            coreMaskToUse, workerThreadVec))
+    {
         EXIT_WITH_ERROR("Couldn't start worker threads");
     }
 
@@ -604,7 +667,8 @@ int main(int argc, char* argv[]) {
         onApplicationInterrupted, &args);
 
     // infinite loop (until program is terminated)
-    while (!args.shouldStop) {
+    while (!args.shouldStop)
+    {
         sleep(5);
     }
 }

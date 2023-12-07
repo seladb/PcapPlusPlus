@@ -10,7 +10,8 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 /**
  * @class RawSocketDevice
  * A class that wraps the raw socket functionality. A raw socket is a network
@@ -45,12 +46,14 @@ namespace pcpp {
  * IP address or network interface, so you can create multiple instances of this
  * class and bind all of them to the same interface and IP address.
  */
-class RawSocketDevice : public IDevice {
+class RawSocketDevice : public IDevice
+{
   public:
     /**
    * An enum for reporting packet receive results
    */
-    enum RecvPacketResult {
+    enum RecvPacketResult
+    {
         /** Receive success */
         RecvSuccess = 0,
         /** Receive timeout - timeout expired without any packets being captured */
@@ -177,9 +180,12 @@ class RawSocketDevice : public IDevice {
     virtual void close();
 
   private:
-    enum SocketFamily { Ethernet = 0,
-                        IPv4 = 1,
-                        IPv6 = 2 };
+    enum SocketFamily
+    {
+        Ethernet = 0,
+        IPv4 = 1,
+        IPv6 = 2
+    };
 
     SocketFamily m_SockFamily;
     void* m_Socket;

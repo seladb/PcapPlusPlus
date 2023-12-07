@@ -10,19 +10,23 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * Class for general FTP message
  */
-class FtpLayer : public SingleCommandTextProtocol {
+class FtpLayer : public SingleCommandTextProtocol
+{
   protected:
     FtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) {
+        : SingleCommandTextProtocol(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = FTP;
     };
     FtpLayer(const std::string& command, const std::string& option)
-        : SingleCommandTextProtocol(command, option) {
+        : SingleCommandTextProtocol(command, option)
+    {
         m_Protocol = FTP;
     };
 
@@ -61,12 +65,14 @@ class FtpLayer : public SingleCommandTextProtocol {
 /**
  * Class for representing the request messages of FTP Layer
  */
-class FtpRequestLayer : public FtpLayer {
+class FtpRequestLayer : public FtpLayer
+{
   public:
     /**
    * Enum for FTP command codes
    */
-    enum class FtpCommand : int {
+    enum class FtpCommand : int
+    {
         /// Unknown command
         UNK,
         /// Abort an active file transfer.
@@ -300,12 +306,14 @@ class FtpRequestLayer : public FtpLayer {
 /**
  * Class for representing the response messages of FTP Layer
  */
-class FtpResponseLayer : public FtpLayer {
+class FtpResponseLayer : public FtpLayer
+{
   public:
     /**
    * Enum for FTP response codes
    */
-    enum class FtpStatusCode : int {
+    enum class FtpStatusCode : int
+    {
         /// Unknown status code
         UNKNOWN,
         /// Restart marker reply
@@ -494,7 +502,8 @@ class FtpResponseLayer : public FtpLayer {
 /**
  * Class for representing the data of FTP Layer
  */
-class FtpDataLayer : public PayloadLayer {
+class FtpDataLayer : public PayloadLayer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -504,7 +513,8 @@ class FtpDataLayer : public PayloadLayer {
    * stored in
    */
     FtpDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : PayloadLayer(data, dataLen, prevLayer, packet) {
+        : PayloadLayer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = FTP;
     };
 

@@ -11,13 +11,15 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct igmp_header
  * IGMPv1 and IGMPv2 basic protocol header
  */
-struct igmp_header {
+struct igmp_header
+{
     /** Indicates the message type. The enum for message type is pcpp::IgmpType */
     uint8_t type;
     /** Specifies the time limit for the corresponding report. The field has a
@@ -35,7 +37,8 @@ struct igmp_header {
  * @struct igmpv3_query_header
  * IGMPv3 membership query basic header
  */
-struct igmpv3_query_header {
+struct igmpv3_query_header
+{
     /** IGMP message type. Should always have value of membership query
    * (::IgmpType_MembershipQuery)  */
     uint8_t type;
@@ -61,7 +64,8 @@ struct igmpv3_query_header {
  * @struct igmpv3_report_header
  * IGMPv3 membership report basic header
  */
-struct igmpv3_report_header {
+struct igmpv3_report_header
+{
     /** IGMP message type. Should always have value of IGMPv3 membership report
    * (::IgmpType_MembershipReportV3)  */
     uint8_t type;
@@ -82,7 +86,8 @@ struct igmpv3_report_header {
  * membership in a single multicast group on the interface from which the Report
  * is sent. Relevant only for IGMPv3 membership report messages
  */
-struct igmpv3_group_record {
+struct igmpv3_group_record
+{
     /** Group record type */
     uint8_t recordType;
     /** Contains the length of the Auxiliary Data field in this Group Record. A
@@ -125,7 +130,8 @@ struct igmpv3_group_record {
 /**
  * IGMP message types
  */
-enum IgmpType {
+enum IgmpType
+{
     /** Unknown message type */
     IgmpType_Unknown = 0,
     /** IGMP Membership Query */
@@ -163,11 +169,13 @@ enum IgmpType {
  * classes can be instantiated. The inherited classes represent the different
  * versions of the protocol: IGMPv1, IGMPv2 and IGMPv3
  */
-class IgmpLayer : public Layer {
+class IgmpLayer : public Layer
+{
   protected:
     IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
               ProtocolType igmpVer)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = igmpVer;
     }
 
@@ -248,7 +256,8 @@ class IgmpLayer : public Layer {
  * Represents IGMPv1 (Internet Group Management Protocol ver 1) layer. This
  * class represents all the different messages of IGMPv1
  */
-class IgmpV1Layer : public IgmpLayer {
+class IgmpV1Layer : public IgmpLayer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -289,7 +298,8 @@ class IgmpV1Layer : public IgmpLayer {
  * Represents IGMPv2 (Internet Group Management Protocol ver 2) layer. This
  * class represents all the different messages of IGMPv2
  */
-class IgmpV2Layer : public IgmpLayer {
+class IgmpV2Layer : public IgmpLayer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -332,7 +342,8 @@ class IgmpV2Layer : public IgmpLayer {
  * Represents an IGMPv3 (Internet Group Management Protocol ver 3) membership
  * query message
  */
-class IgmpV3QueryLayer : public IgmpLayer {
+class IgmpV3QueryLayer : public IgmpLayer
+{
   public:
     /** A constructor that creates the layer from an existing packet raw data
    * @param[in] data A pointer to the raw data
@@ -364,7 +375,8 @@ class IgmpV3QueryLayer : public IgmpLayer {
    * directly to the data, so every change will change the actual packet data
    * @return A pointer to the @ref igmpv3_query_header
    */
-    igmpv3_query_header* getIgmpV3QueryHeader() const {
+    igmpv3_query_header* getIgmpV3QueryHeader() const
+    {
         return (igmpv3_query_header*)m_Data;
     }
 
@@ -438,7 +450,8 @@ class IgmpV3QueryLayer : public IgmpLayer {
  * Represents an IGMPv3 (Internet Group Management Protocol ver 3) membership
  * report message
  */
-class IgmpV3ReportLayer : public IgmpLayer {
+class IgmpV3ReportLayer : public IgmpLayer
+{
   private:
     igmpv3_group_record*
     addGroupRecordAt(uint8_t recordType, const IPv4Address& multicastAddress,
@@ -469,7 +482,8 @@ class IgmpV3ReportLayer : public IgmpLayer {
    * data
    * @return A pointer to the @ref igmpv3_report_header
    */
-    igmpv3_report_header* getReportHeader() const {
+    igmpv3_report_header* getReportHeader() const
+    {
         return (igmpv3_report_header*)m_Data;
     }
 

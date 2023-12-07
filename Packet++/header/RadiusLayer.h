@@ -10,14 +10,16 @@
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
  */
-namespace pcpp {
+namespace pcpp
+{
 
 /**
  * @struct radius_header
  * Represents a RADIUS protocol header
  */
 #pragma pack(push, 1)
-struct radius_header {
+struct radius_header
+{
     /** RADIUS message code */
     uint8_t code;
     /** RADIUS message ID */
@@ -36,7 +38,8 @@ struct radius_header {
  * RADIUS attribute records, but rather serves as a wrapper and provides useful
  * methods for retrieving data from them
  */
-class RadiusAttribute : public TLVRecord<uint8_t, uint8_t> {
+class RadiusAttribute : public TLVRecord<uint8_t, uint8_t>
+{
   public:
     /**
    * A c'tor for this class that gets a pointer to the attribute raw data (byte
@@ -52,14 +55,16 @@ class RadiusAttribute : public TLVRecord<uint8_t, uint8_t> {
 
     // implement abstract methods
 
-    size_t getTotalSize() const {
+    size_t getTotalSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
         return (size_t)m_Data->recordLen;
     }
 
-    size_t getDataSize() const {
+    size_t getDataSize() const
+    {
         if (m_Data == nullptr)
             return 0;
 
@@ -73,7 +78,8 @@ class RadiusAttribute : public TLVRecord<uint8_t, uint8_t> {
  * parameters in its c'tor, builds the RADIUS attribute raw buffer and provides
  * a build() method to get a RadiusAttribute object out of it
  */
-class RadiusAttributeBuilder : public TLVRecordBuilder {
+class RadiusAttributeBuilder : public TLVRecordBuilder
+{
   public:
     /**
    * A c'tor for building RADIUS attributes which their value is a byte array.
@@ -145,7 +151,8 @@ class RadiusAttributeBuilder : public TLVRecordBuilder {
    * RadiusAttributeBuilder
    * @param[in] other The instance to assign from
    */
-    RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other) {
+    RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other)
+    {
         TLVRecordBuilder::operator=(other);
         return *this;
     }
@@ -162,11 +169,13 @@ class RadiusAttributeBuilder : public TLVRecordBuilder {
  * Represents a RADIUS (Remote Authentication Dial-In User Service) protocol
  * layer
  */
-class RadiusLayer : public Layer {
+class RadiusLayer : public Layer
+{
   private:
     TLVRecordReader<RadiusAttribute> m_AttributeReader;
 
-    uint8_t* getAttributesBasePtr() const {
+    uint8_t* getAttributesBasePtr() const
+    {
         return m_Data + sizeof(radius_header);
     }
 
@@ -183,7 +192,8 @@ class RadiusLayer : public Layer {
    * stored in
    */
     RadiusLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-        : Layer(data, dataLen, prevLayer, packet) {
+        : Layer(data, dataLen, prevLayer, packet)
+    {
         m_Protocol = Radius;
     }
 
@@ -358,8 +368,10 @@ class RadiusLayer : public Layer {
 
 // implementation of inline methods
 
-bool RadiusLayer::isRadiusPort(uint16_t port) {
-    switch (port) {
+bool RadiusLayer::isRadiusPort(uint16_t port)
+{
+    switch (port)
+    {
     case 1812:
     case 1813:
     case 3799:
