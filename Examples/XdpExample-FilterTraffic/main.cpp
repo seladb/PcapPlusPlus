@@ -11,10 +11,15 @@
 #include <thread>
 
 #define EXIT_WITH_ERROR(reason) do { \
-	/*printUsage();*/ \
 	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while(0)
+
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
+	/*printUsage();*/ \
+	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
+	exit(1); \
+	} while (0)
 
 struct PacketStats
 {
@@ -35,7 +40,9 @@ public:
 	int matchedUdpFlows;
 	int matchedPacketCount;
 
-	PacketStats() : packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0), httpCount(0), dnsCount(0), sslCount(0), totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0), matchedPacketCount(0) {}
+	PacketStats() : packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0),
+					httpCount(0), dnsCount(0), sslCount(0),
+					totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0), matchedPacketCount(0) {}
 
 	void collectStats(pcpp::Packet& packet)
 	{
@@ -76,8 +83,13 @@ struct PacketCaptureArgs
 };
 
 static struct option XdpFilterTrafficOptions[] = {
-	{"interface",  required_argument, nullptr, 'i'},
+	{"interface",  required_argument, nullptr, 'n'},
 	{"save-matched-packets", required_argument, nullptr, 'f'},
+	{"match-source-ip", required_argument, nullptr, 'i'},
+	{"match-dest-ip", required_argument, nullptr, 'I'},
+	{"match-source-port", required_argument, nullptr, 'p'},
+	{"match-dest-port", required_argument, nullptr, 'P'},
+	{"match-protocol", required_argument, nullptr, 'r'},
 };
 
 void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
@@ -206,7 +218,7 @@ int main(int argc, char* argv[])
 
 	std::string writePacketsToFileName;
 
-	while((opt = getopt_long(argc, argv, "i:f:", XdpFilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "n:f:i:I:p:P:r:", XdpFilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -214,7 +226,7 @@ int main(int argc, char* argv[])
 			{
 				break;
 			}
-			case 'i':
+			case 'n':
 			{
 				interfaceName = std::string(optarg);
 				break;
@@ -222,6 +234,61 @@ int main(int argc, char* argv[])
 			case 'f':
 			{
 				writePacketsToFileName = std::string(optarg);
+				break;
+			}
+			case 'i':
+			{
+				srcIPToMatch = pcpp::IPv4Address(optarg);
+				if (!srcIPToMatch.isValid())
+				{
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
+				}
+				break;
+			}
+			case 'I':
+			{
+				dstIPToMatch = pcpp::IPv4Address(optarg);
+				if (!dstIPToMatch.isValid())
+				{
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
+				}
+				break;
+			}
+			case 'p':
+			{
+				int ret = std::stoi(optarg);
+				if (ret <= 0 || ret > 65535)
+				{
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
+				}
+				srcPortToMatch = ret;
+				break;
+			}
+			case 'P':
+			{
+				int ret = std::stoi(optarg);
+				if (ret <= 0 || ret > 65535)
+				{
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
+				}
+				dstPortToMatch = ret;
+				break;
+			}
+			case 'r':
+			{
+				std::string protocol = std::string(optarg);
+				if (protocol == "TCP")
+				{
+					protocolToMatch = pcpp::TCP;
+				}
+				else if (protocol == "UDP")
+				{
+					protocolToMatch = pcpp::UDP;
+				}
+				else
+				{
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
+				}
 				break;
 			}
 			default:
