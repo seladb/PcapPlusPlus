@@ -1,0 +1,37 @@
+name: lint
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '34 17 * * *'
+
+jobs:
+
+  clang_format_check:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        path:
+          - 'Common++'
+          - 'Pcap++'
+          - 'Packet++'
+          - 'Examples++'
+
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: event name
+        run: |
+          echo "github.event_name: ${{ github.event_name }}"
+
+      - name: Run clang-format style check for C/C++/Protobuf programs.
+        uses: jidicula/clang-format-action@v4.11.0
+        with:
+          clang-format-version: '14'
+          check-path: ${{ matrix.path }}
+          fallback-style: 'LLVM' # optional
+
