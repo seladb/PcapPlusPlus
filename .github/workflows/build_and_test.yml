@@ -545,7 +545,7 @@ jobs:
           sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
+        run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
