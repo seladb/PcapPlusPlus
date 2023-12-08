@@ -478,6 +478,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	}
 } // TestPcapLiveDeviceBlockingMode
 
+#define MANUAL_TEST 1
+
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32) and defined(MANUAL_TEST)
@@ -521,6 +523,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 
 	// the function got a timeout, due to it is still blocking
 	PTF_ASSERT_TRUE(status == std::future_status::ready);
+
+	thread.join(); // make sure it is joined
 
 	PTF_ASSERT_EQUAL(future.get(), -1); // function timeout correctly
 	PTF_ASSERT_EQUAL(packetCount, 0);
