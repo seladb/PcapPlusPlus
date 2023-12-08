@@ -553,6 +553,10 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			if(m_UsePoll)
 			{
 #if !defined(_WIN32)
+				// Be careful when you modify the code related to `poll` in this block
+				// Some tests are not supported to run on CIs: `TestPcapLiveDeviceBlockingModePollTimeout`, `TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll`
+				// Please turn on `MANUAL_TEST` flag and at least ensure that it works on your machine
+
 				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
 				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
 

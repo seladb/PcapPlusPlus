@@ -480,19 +480,19 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
-#if !defined(_WIN32)
+#if !defined(_WIN32) and defined(MANUAL_TEST)
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	auto interfaceName = liveDev->getName();
 
 	// drop all packets on the interface
-	auto iptablesAddInputDrop = "/usr/bin/sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
-	auto iptablesAddOutputDrop = "/usr/bin/sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
+	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
 
 	// recover the interface at the end
-	SystemCommandTeardown iptablesDeleteInputDrop("/usr/bin/sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
-	SystemCommandTeardown iptablesDeleteOutputDrop("/usr/bin/sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
+	SystemCommandTeardown iptablesDeleteInputDrop("sudo iptables -D INPUT -i " + interfaceName + " -j DROP");
+	SystemCommandTeardown iptablesDeleteOutputDrop("sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP");
 
 	// open device
 	pcpp::PcapLiveDevice::DeviceConfiguration newConfig;
@@ -532,13 +532,13 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 {
-#if !defined(_WIN32)
+#if !defined(_WIN32) and defined(MANUAL_TEST)
 	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	auto interfaceName = liveDev->getName();
 
 	// drop all packets on the interface
-	auto iptablesAddInputDrop = "/usr/bin/sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
-	auto iptablesAddOutputDrop = "/usr/bin/sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
+	auto iptablesAddInputDrop = "sudo iptables -A INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesAddOutputDrop = "sudo iptables -A OUTPUT -o " + interfaceName + " -j DROP";
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesAddOutputDrop.c_str()), 0);
 
@@ -571,8 +571,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll)
 	PTF_ASSERT_TRUE(status == std::future_status::timeout);
 
 	// restore the interface to let the callback receive packets so the thread can be jointed.
-	auto iptablesDeleteInputDrop = "/usr/bin/sudo iptables -D INPUT -i " + interfaceName + " -j DROP";
-	auto iptablesDeleteOutputDrop = "/usr/bin/sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP";
+	auto iptablesDeleteInputDrop = "sudo iptables -D INPUT -i " + interfaceName + " -j DROP";
+	auto iptablesDeleteOutputDrop = "sudo iptables -D OUTPUT -o " + interfaceName + " -j DROP";
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesDeleteInputDrop.c_str()), 0);
 	PTF_ASSERT_GREATER_OR_EQUAL_THAN(std::system(iptablesDeleteOutputDrop.c_str()), 0);
 
