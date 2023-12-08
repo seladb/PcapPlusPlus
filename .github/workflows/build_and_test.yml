@@ -58,26 +58,21 @@ jobs:
           - image: ubuntu1804
             python: python3.8
             config-zstd: OFF
-          # - image: centos7
-          #   python: python3.8
-          #   # TODO: TestLoggerMultiThread sometimes fail in CI so we exclude it for now, need to look into it
-          #   test-flags: --pcap-test-args="-s -x TestLoggerMultiThread"
-          #   config-zstd: OFF
-          # - image: fedora37
-          #   python: python3
-          #   config-zstd: OFF
-          # - image: alpine317
-          #   python: python3
-          #   config-zstd: OFF
+          - image: centos7
+            python: python3.8
+            # TODO: TestLoggerMultiThread sometimes fail in CI so we exclude it for now, need to look into it
+            test-flags: --pcap-test-args="-s -x TestLoggerMultiThread"
+            config-zstd: OFF
+          - image: fedora37
+            python: python3
+            config-zstd: OFF
+          - image: alpine317
+            python: python3
+            config-zstd: OFF
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Install Apt Packages
-        run: |
-          apt update
-          apt install -y iptables sudo
 
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
@@ -547,7 +542,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay iptables
+          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
@@ -588,7 +583,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install prerequisites
         run: |
-          apt-get update && apt-get install -y cmake autoconf flex bison iptables
+          apt-get update && apt-get install -y cmake autoconf flex bison
           cd ..
           cp -r PcapPlusPlus/ $SRC/PcapPlusPlus
           git clone --depth=1 https://github.com/the-tcpdump-group/libpcap.git $SRC/libpcap
