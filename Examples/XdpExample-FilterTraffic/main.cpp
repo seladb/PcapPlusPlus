@@ -69,7 +69,7 @@ public:
 };
 
 /**
- * A struct that holds all arguments passed to capture threads: packetArrived()
+ * A struct that holds all arguments passed to the capture thread
  */
 struct PacketCaptureArgs
 {
@@ -78,12 +78,14 @@ struct PacketCaptureArgs
 	std::unordered_map<uint32_t, bool> flowTable;
 	pcpp::XdpDevice* sendPacketsTo;
 	pcpp::PcapFileWriterDevice* pcapWriter;
+	bool stopCapture;
 
-	PacketCaptureArgs() : packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr) {}
+	PacketCaptureArgs() : packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr), stopCapture(false) {}
 };
 
 static struct option XdpFilterTrafficOptions[] = {
 	{"interface",  required_argument, nullptr, 'n'},
+	{"send-matched-packets", required_argument, nullptr, 's'},
 	{"save-matched-packets", required_argument, nullptr, 'f'},
 	{"match-source-ip", required_argument, nullptr, 'i'},
 	{"match-dest-ip", required_argument, nullptr, 'I'},
@@ -95,6 +97,13 @@ static struct option XdpFilterTrafficOptions[] = {
 void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
 {
 	auto args = reinterpret_cast<PacketCaptureArgs*>(userCookie);
+	if (args->stopCapture)
+	{
+		device->stopReceivePackets();
+		return;
+	}
+
+	pcpp::RawPacketVector packetsToSend;
 
 	for (uint32_t i = 0; i < packetCount; i++)
 	{
@@ -150,11 +159,10 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 		if (packetMatched)
 		{
 			// send packet to TX port if needed
-			// TODO
-//			if (args->sendPacketsTo != nullptr)
-//			{
-//				args->sendPacketsTo->sendPackets(packet);
-//			}
+			if (args->sendPacketsTo != nullptr)
+			{
+				packetsToSend.pushBack(new pcpp::RawPacket(packets[i]));
+			}
 
 			// save packet to file if needed
 			if (args->pcapWriter != nullptr)
@@ -163,6 +171,11 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 			}
 			args->packetStats->matchedPacketCount++;
 		}
+	}
+
+	if (args->sendPacketsTo != nullptr && packetsToSend.size() > 0)
+	{
+		args->sendPacketsTo->sendPackets(packetsToSend, true);
 	}
 }
 
@@ -203,7 +216,6 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats)
 int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
-	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted([](void*){}, nullptr);
 
 	int optionIndex = 0;
 	int opt;
@@ -217,8 +229,9 @@ int main(int argc, char* argv[])
 	pcpp::ProtocolType protocolToMatch = pcpp::UnknownProtocol;
 
 	std::string writePacketsToFileName;
+	std::string sendInterfaceName;
 
-	while((opt = getopt_long(argc, argv, "n:f:i:I:p:P:r:", XdpFilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "n:f:s:i:I:p:P:r:", XdpFilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -234,6 +247,11 @@ int main(int argc, char* argv[])
 			case 'f':
 			{
 				writePacketsToFileName = std::string(optarg);
+				break;
+			}
+			case 's':
+			{
+				sendInterfaceName = std::string(optarg);
 				break;
 			}
 			case 'i':
@@ -322,6 +340,25 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Error opening the device");
 	}
 
+	pcpp::XdpDevice* sendDev = nullptr;
+	if (!sendInterfaceName.empty())
+	{
+		if (sendInterfaceName == interfaceName)
+		{
+			sendDev = &dev;
+		}
+		else
+		{
+			sendDev = new pcpp::XdpDevice(sendInterfaceName);
+			if (!sendDev->open())
+			{
+				dev.close();
+				delete sendDev;
+				EXIT_WITH_ERROR("Error opening send device");
+			}
+		}
+	}
+
 	// create the matching engine instance
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 	PacketStats packetStats;
@@ -330,7 +367,7 @@ int main(int argc, char* argv[])
 	PacketCaptureArgs args;
 	args.packetStats = &packetStats;
 	args.matchingEngine = &matchingEngine;
-	args.sendPacketsTo = nullptr; //TODO
+	args.sendPacketsTo = sendDev;
 	args.pcapWriter = pcapWriter;
 
 	std::promise<void> exitSignal;
@@ -338,7 +375,9 @@ int main(int argc, char* argv[])
 
 	std::thread collectStatsThread(&collectStats, std::move(futureObj), &packetStats);
 
-	auto res = dev.receivePackets(onPacketsArrive, &args, 0);
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted([](void* args){reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true;}, &args);
+
+	auto res = dev.receivePackets(onPacketsArrive, &args, -1);
 
 	exitSignal.set_value();
 
@@ -346,10 +385,24 @@ int main(int argc, char* argv[])
 
 	dev.close();
 
+	std::vector<std::string> additionalStats;
 	if (pcapWriter)
 	{
+		pcpp::IPcapDevice::PcapStats stats;
+		pcapWriter->getStatistics(stats);
+		additionalStats.push_back("Wrote " + std::to_string(stats.packetsRecv) + " packets to '" + pcapWriter->getFileName() + "'");
 		pcapWriter->close();
 		delete pcapWriter;
+	}
+
+	if (sendDev != nullptr)
+	{
+		additionalStats.push_back("Sent " + std::to_string(sendDev->getStatistics().txCompletedPackets) + " packets to '" + sendInterfaceName + "'");
+		if (sendInterfaceName != interfaceName)
+		{
+			sendDev->close();
+			delete sendDev;
+		}
 	}
 
 	if (!res)
@@ -358,4 +411,8 @@ int main(int argc, char* argv[])
 	}
 
 	printStats(&packetStats);
+	for (const auto& additionalStat : additionalStats)
+	{
+		std::cout << additionalStat << std::endl;
+	}
 }
