@@ -478,8 +478,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	}
 } // TestPcapLiveDeviceBlockingMode
 
-#define MANUAL_TEST 1
-
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModePollTimeout)
 {
 #if !defined(_WIN32) and defined(MANUAL_TEST)
