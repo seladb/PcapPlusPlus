@@ -394,7 +394,7 @@ bool DpdkDeviceList::startDpdkWorkerThreads(CoreMask coreMask, std::vector<DpdkW
 			PCPP_LOG_ERROR("Cannot create worker thread #" << core.Id << ". Error was: [" << strerror(err) << "]");
 			return false;
 		}
-		m_WorkerThreads.push_back(iter);
+		m_WorkerThreads.push_back(*iter);
 
 		++index;
 		++iter;

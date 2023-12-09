@@ -69,7 +69,7 @@ PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	auto devIter = std::find_if(m_PfRingDeviceList.begin(), m_PfRingDeviceList.end(),
-								[&devName](const PfRingDevice *dev) { return dev->getName() == devName; });
+								[&devName](const PfRingDevice *dev) { return dev->getDeviceName() == devName; });
 
 	if (devIter == m_PfRingDeviceList.end())
 	{
