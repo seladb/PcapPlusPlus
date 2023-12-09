@@ -37,9 +37,9 @@ IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vect
 	m_RecValue[curOffset++] = 0; // init pointer value
 
 	bool firstZero = false;
-	for (const auto &iter : ipList)
+	for (const auto &ipAddr : ipList)
 	{
-		uint32_t ipAddrAsInt = iter.toInt();
+		uint32_t ipAddrAsInt = ipAddr.toInt();
 
 		if (!firstZero)
 			m_RecValue[0] += (uint8_t)4;

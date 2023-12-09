@@ -147,10 +147,10 @@ CoreMask getCoreMaskForAllMachineCores()
 CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores)
 {
 	CoreMask result = 0;
-	for (const auto &iter : cores)
+	for (const auto &core : cores)
 	{
 		// cppcheck-suppress useStlAlgorithm
-		result |= iter.Mask;
+		result |= core.Mask;
 	}
 
 	return result;
@@ -159,10 +159,10 @@ CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores)
 CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds)
 {
 	CoreMask result = 0;
-	for (const auto &iter : coreIds)
+	for (const auto &coreId : coreIds)
 	{
 		// cppcheck-suppress useStlAlgorithm
-		result |= SystemCores::IdToSystemCore[iter].Mask;
+		result |= SystemCores::IdToSystemCore[coreId].Mask;
 	}
 
 	return result;

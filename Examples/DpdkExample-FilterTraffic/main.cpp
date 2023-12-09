@@ -136,9 +136,8 @@ void listDpdkPorts()
 
 	// go over all available DPDK devices and print info for each one
 	std::vector<pcpp::DpdkDevice*> deviceList = pcpp::DpdkDeviceList::getInstance().getDpdkDeviceList();
-	for (const auto &iter : deviceList)
+	for (const auto &dev : deviceList)
 	{
-		pcpp::DpdkDevice* dev = iter;
 		std::cout << "   "
 			<< " Port #" << dev->getDeviceId() << ":"
 			<< " MAC address='" << dev->getMacAddress() << "';"
@@ -177,10 +176,10 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 	// prepare the configuration for every core: divide the devices and RX queue for each device with the various cores
 	int i = 0;
 	std::vector<std::pair<pcpp::DpdkDevice*, int> >::iterator pairVecIter = deviceAndRxQVec.begin();
-	for (const auto &iter : coresToUse)
+	for (const auto &core : coresToUse)
 	{
-		std::cout << "Using core " << (int)iter.Id << std::endl;
-		workerConfigArr[i].CoreId = iter.Id;
+		std::cout << "Using core " << (int)core.Id << std::endl;
+		workerConfigArr[i].CoreId = core.Id;
 		workerConfigArr[i].WriteMatchedPacketsToFile = writePacketsToDisk;
 
 		std::stringstream packetFileName;
@@ -489,39 +488,39 @@ int main(int argc, char* argv[])
 
 	// collect the list of DPDK devices
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
-	for (const auto &iter : dpdkPortVec)
+	for (const auto &port : dpdkPortVec)
 	{
-		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
+		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(port);
 		if (dev == NULL)
 		{
-			EXIT_WITH_ERROR("DPDK device for port " << iter << " doesn't exist");
+			EXIT_WITH_ERROR("DPDK device for port " << port << " doesn't exist");
 		}
 		dpdkDevicesToUse.push_back(dev);
 	}
 
 	// go over all devices and open them
-	for (const auto &iter : dpdkDevicesToUse)
+	for (const auto &dev : dpdkDevicesToUse)
 	{
-		if (rxQueues > iter->getTotalNumOfRxQueues())
+		if (rxQueues > dev->getTotalNumOfRxQueues())
 		{
-			EXIT_WITH_ERROR("Number of RX errors cannot exceed the max allowed by the device which is " << iter->getTotalNumOfRxQueues());
+			EXIT_WITH_ERROR("Number of RX errors cannot exceed the max allowed by the device which is " << dev->getTotalNumOfRxQueues());
 		}
-		if (txQueues > iter->getTotalNumOfTxQueues())
+		if (txQueues > dev->getTotalNumOfTxQueues())
 		{
-			EXIT_WITH_ERROR("Number of TX errors cannot exceed the max allowed by the device which is " << iter->getTotalNumOfTxQueues());
+			EXIT_WITH_ERROR("Number of TX errors cannot exceed the max allowed by the device which is " << dev->getTotalNumOfTxQueues());
 		}
-		if (!iter->openMultiQueues(rxQueues, txQueues))
+		if (!dev->openMultiQueues(rxQueues, txQueues))
 		{
-			EXIT_WITH_ERROR("Couldn't open DPDK device #" << iter->getDeviceId() << ", PMD '" << iter->getPMDName() << "'");
+			EXIT_WITH_ERROR("Couldn't open DPDK device #" << dev->getDeviceId() << ", PMD '" << dev->getPMDName() << "'");
 		}
 		std::cout
-			<< "Opened device #" << iter->getDeviceId()
+			<< "Opened device #" << dev->getDeviceId()
 			<< " with " << rxQueues << " RX queues and " << txQueues << " TX queues."
 			<< " RSS hash functions:" << std::endl;
-		std::vector<std::string> rssHashFunctions = iter->rssHashFunctionMaskToString(iter->getConfiguredRssHashFunction());
-		for(const auto &it : rssHashFunctions)
+		std::vector<std::string> rssHashFunctions = dev->rssHashFunctionMaskToString(dev->getConfiguredRssHashFunction());
+		for(const auto &hashFunc : rssHashFunctions)
 		{
-			std::cout << "   " << it << std::endl;
+			std::cout << "   " << hashFunc << std::endl;
 		}
 	}
 

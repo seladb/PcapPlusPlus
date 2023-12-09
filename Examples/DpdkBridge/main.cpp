@@ -311,22 +311,22 @@ int main(int argc, char* argv[])
 
 	// collect the list of DPDK devices
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
-	for (const auto &iter : dpdkPortVec)
+	for (const auto &port : dpdkPortVec)
 	{
 		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
 		if (dev == NULL)
 		{
-			EXIT_WITH_ERROR("DPDK device for port " << iter << " doesn't exist");
+			EXIT_WITH_ERROR("DPDK device for port " << port << " doesn't exist");
 		}
 		dpdkDevicesToUse.push_back(dev);
 	}
 
 	// go over all devices and open them
-	for (const auto &iter : dpdkDevicesToUse)
+	for (const auto &dev : dpdkDevicesToUse)
 	{
-		if (!iter->openMultiQueues(queueQuantity, 1))
+		if (!dev->openMultiQueues(queueQuantity, 1))
 		{
-			EXIT_WITH_ERROR("Couldn't open DPDK device #" << iter->getDeviceId() << ", PMD '" << iter->getPMDName() << "'");
+			EXIT_WITH_ERROR("Couldn't open DPDK device #" << dev->getDeviceId() << ", PMD '" << dev->getPMDName() << "'");
 		}
 	}
 
