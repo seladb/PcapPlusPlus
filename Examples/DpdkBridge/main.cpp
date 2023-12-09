@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
 	std::vector<pcpp::DpdkDevice*> dpdkDevicesToUse;
 	for (const auto &port : dpdkPortVec)
 	{
-		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(iter);
+		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(port);
 		if (dev == NULL)
 		{
 			EXIT_WITH_ERROR("DPDK device for port " << port << " doesn't exist");
