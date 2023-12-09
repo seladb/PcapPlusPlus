@@ -48,23 +48,21 @@ namespace pcpp
 	 * Each layer holds a pointer to the relevant place in the packet. The layer sees all the data from this pointer forward until the
 	 * end of the packet. Here is an example packet showing this concept:
 	 *
-	  @verbatim
+	 @verbatim
+	 ====================================================
+	 |Eth       |IPv4       |TCP       |Packet          |
+	 |Header    |Header     |Header    |Payload         |
+	 ====================================================
 
-	  ====================================================
-	  |Eth       |IPv4       |TCP       |Packet          |
-	  |Header    |Header     |Header    |Payload         |
-	  ====================================================
-
-	  |--------------------------------------------------|
-	  EthLayer data
-				 |---------------------------------------|
-				 IPv4Layer data
-							 |---------------------------|
-							 TcpLayer data
-										|----------------|
-										PayloadLayer data
-
-	  @endverbatim
+	 |--------------------------------------------------|
+ 	 EthLayer data
+	            |---------------------------------------|
+	            IPv4Layer data
+	                        |---------------------------|
+	                        TcpLayer data
+	                                   |----------------|
+	                                   PayloadLayer data
+	 @endverbatim
 	 *
 	*/
 	class Layer : public IDataContainer

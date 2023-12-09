@@ -761,7 +761,7 @@ private:
 
 	uint32_t m_NumOptions;
 
-	uint32_t countOptions();
+	static bool countOptions(uint32_t& count, const uint8_t* data);
 	uint32_t findOption(const SomeIpSdOption &option);
 	void addOption(const SomeIpSdOption &option);
 	bool addOptionIndex(uint32_t indexEntry, uint32_t indexOffset);
@@ -769,6 +769,7 @@ private:
 
 	static size_t getLenEntries(const uint8_t* data);
 	size_t getLenEntries() const;
+	static size_t getLenOptions(const uint8_t* data);
 	size_t getLenOptions() const;
 	void setLenEntries(uint32_t length);
 	void setLenOptions(uint32_t length);
