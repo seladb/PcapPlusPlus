@@ -107,7 +107,7 @@ uint16_t SdpLayer::getMediaPort(const std::string& mediaType) const
 	return 0;
 }
 
-bool SdpLayer::addMediaDescription(const std::string& mediaType, uint16_t mediaPort, const std::string& mediaProtocol, const std::string& mediaFormat, std::vector<std::string> mediaAttributes)
+bool SdpLayer::addMediaDescription(const std::string& mediaType, uint16_t mediaPort, const std::string& mediaProtocol, const std::string& mediaFormat, const std::vector<std::string> &mediaAttributes)
 {
 	std::stringstream portStream;
 	portStream << mediaPort;
