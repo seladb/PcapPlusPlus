@@ -545,7 +545,7 @@ jobs:
           sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_XDP=ON -S . -B $BUILD_DIR
+        run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
 
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
@@ -568,3 +568,35 @@ jobs:
           flags: xdp,unittest
           fail_ci_if_error: false
           verbose: true
+
+  test_regressions:
+    name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        sanitizer: [address, undefined, memory]
+        engine: [libfuzzer]
+    container:
+      image: gcr.io/oss-fuzz-base/base-builder
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install prerequisites
+        run: |
+          apt-get update && apt-get install -y cmake autoconf flex bison
+          cd ..
+          cp -r PcapPlusPlus/ $SRC/PcapPlusPlus
+          git clone --depth=1 https://github.com/the-tcpdump-group/libpcap.git $SRC/libpcap
+          cd $SRC/PcapPlusPlus/
+      - name: Compile fuzzer
+        run: |
+          export FUZZING_LANGUAGE=c
+          export ARCHITECTURE=x86_64
+          export FUZZING_ENGINE=${{ matrix.engine }}
+          export SANITIZER=${{ matrix.sanitizer }}
+          $SRC/PcapPlusPlus/Tests/Fuzzers/ossfuzz.sh
+      - name: Check for regressions
+        run: |
+          export BINARY="$OUT/FuzzTarget"
+          export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
+          Tests/Fuzzers/RegressionTests/run_tests.sh

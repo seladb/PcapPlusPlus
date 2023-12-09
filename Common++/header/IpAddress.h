@@ -141,7 +141,7 @@ namespace pcpp
 		 * @param[in] network A string in one of these formats:
 		 *  - X.X.X.X/Y where X.X.X.X is a valid IP address and Y is a number between 0 and 32
 		 *  - X.X.X.X/Y.Y.Y.Y where X.X.X.X is a valid IP address and Y.Y.Y.Y is a valid netmask
-		 *	@return True if the address matches the network or false if it doesn't or if the network is invalid
+		 * @return True if the address matches the network or false if it doesn't or if the network is invalid
 		 */
 		bool matchNetwork(const std::string& network) const;
 
@@ -286,7 +286,7 @@ namespace pcpp
 		 *  - IPV6_ADDRESS/Y where IPV6_ADDRESS is a valid IPv6 address and Y is a number between 0 and 128
 		 *  - IPV6_ADDRESS/IPV6_NETMASK where IPV6_ADDRESS is a valid IPv6 address and IPV6_NETMASK is a valid
 		 *    IPv6 netmask
-		 *	@return True if the address matches the network or false if it doesn't or if the network is invalid
+		 * @return True if the address matches the network or false if it doesn't or if the network is invalid
 		 */
 		bool matchNetwork(const std::string& network) const;
 

@@ -1,11 +1,12 @@
 import argparse
 from dataclasses import dataclass, asdict, is_dataclass
 import json
+import re
 from typing import Optional
 import urllib.request
 
-MANUF_URL = "https://gitlab.com/wireshark/wireshark/-/raw/master/manuf"
-MANUF_FILENAME = "manuf.dat"
+MANUF_URL = "https://gitlab.com/wireshark/wireshark/-/raw/master/epan/manuf-data.c"
+REGEX_PATTERN = r"\{\s*((?:0x[0-9A-Fa-f]{2}\s*,\s*){2}(?:0x[0-9A-Fa-f]{2}\s*,\s*)*0x[0-9A-Fa-f]{2})\s*\},\s*(\"(?:[^\"\\]|\\.)*\"),\s*(\"(?:[^\"\\]|\\.)*\")"
 
 
 @dataclass
@@ -58,28 +59,34 @@ def parse_args():
     return parser.parse_args()
 
 
-def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
-    if len(line_parts) < 2:
+def convert_line(line: str) -> list[str]:
+    match_result = re.findall(REGEX_PATTERN, line)
+
+    if len(match_result) < 1 or len(match_result[0]) < 3:
         return None
 
-    mac_element = line_parts[0]
+    return (
+        "".join(
+            format(int(s.strip(), 16), "02x") for s in match_result[0][0].split(",")
+        ),
+        match_result[0][1][1 : len(match_result[0][1]) - 1].replace("\\", ""),
+        match_result[0][2][1 : len(match_result[0][2]) - 1].replace("\\", ""),
+    )
 
-    if len(mac_element) == 8:
-        mac_short = mac_element.lower().strip()
-        vendor = (
-            line_parts[1].strip() if len(line_parts) == 2 else line_parts[2].strip()
-        )
+
+def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
+    if line_parts == None or len(line_parts) < 3:
+        return None
+
+    if len(line_parts[0]) == 6:
+        mac_short = line_parts[0].lower().strip()
+        vendor = line_parts[2].strip()
         return LineElements(mac_short=mac_short, vendor=vendor)
-    elif 8 < len(mac_element) < 21:
-        mac_with_mask = mac_element.split("/")
-        if len(mac_with_mask) != 2:
-            return None
-        mac_short = mac_with_mask[0][:8].lower().strip()
-        mac_long = mac_with_mask[0].lower().strip()
-        mac_mask = int(mac_with_mask[1])
-        vendor = (
-            line_parts[1].strip() if len(line_parts) == 2 else line_parts[2].strip()
-        )
+    elif 6 < len(line_parts[0]) < 11:
+        mac_short = line_parts[0][:6].lower().strip()
+        mac_long = format(line_parts[0].lower().strip(), "0<12")
+        mac_mask = 28 if (len(line_parts[0]) == 8) else 36
+        vendor = line_parts[2].strip()
         return LineElements(
             mac_short=mac_short, vendor=vendor, mac_long=mac_long, mac_mask=mac_mask
         )
@@ -150,12 +157,10 @@ def main() -> None:
         if isinstance(line, bytes):
             line = line.decode("utf-8")
 
-        if line[0] in ["#", "\n"]:
+        if line.startswith(("//", "/*", " *", "*/", "\n", "\r\n", "static", "};")):
             continue
 
-        if line_elements := parse_mac_and_vendor(
-            [word for word in line.split("\t") if word.strip()]
-        ):
+        if line_elements := parse_mac_and_vendor(convert_line(line)):
             update_oui_dataset(oui_dataset, line_elements)
 
     with open(args.output_file, "w", encoding="utf8") as out_file:
