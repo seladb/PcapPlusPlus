@@ -223,13 +223,16 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) co
 		return NULL;
 	}
 
-	for (const auto &dev : m_DpdkDeviceList)
+	auto devIter = std::find_if(m_DpdkDeviceList.begin(), m_DpdkDeviceList.end(),
+								[&pciAddr](const DpdkDevice *dev) { return dev->getPciAddress() == pciAddr; });
+
+	if (devIter == m_DpdkDeviceList.end())
 	{
-		if (dev->getPciAddress() == pciAddr)
-			return dev;
+		PCPP_LOG_DEBUG("Found no DPDK devices with PCI address '" << pciAddr << "'");
+		return nullptr;
 	}
 
-	return NULL;
+	return *devIter;
 }
 
 bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()

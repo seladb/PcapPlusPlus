@@ -316,13 +316,16 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(const auto &devIter : m_LiveDeviceList)
+	auto devIter = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
+								[&name](const PcapLiveDevice *dev) { return dev->getName() == name; });
+
+	if (devIter == m_LiveDeviceList.end())
 	{
-		if (name == devIter->getName())
-			return devIter;
+		PCPP_LOG_DEBUG("Found no live device with name '" << name << "'");
+		return nullptr;
 	}
 
-	return nullptr;
+	return *devIter;
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const

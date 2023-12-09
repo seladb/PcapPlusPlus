@@ -68,14 +68,16 @@ PfRingDeviceList::~PfRingDeviceList()
 PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(const auto &devIter : m_PfRingDeviceList)
+	auto devIter = std::find_if(m_PfRingDeviceList.begin(), m_PfRingDeviceList.end(),
+								[&devName](const PfRingDevice *dev) { return dev->getName() == devName; });
+
+	if (devIter == m_PfRingDeviceList.end())
 	{
-		if (devIter->getDeviceName() == devName)
-			return devIter;
+		PCPP_LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
+		return nullptr;
 	}
 
-	PCPP_LOG_DEBUG("Found no PF_RING devices with name '" << devName << "'");
-	return NULL;
+	return *devIter;
 }
 
 void PfRingDeviceList::calcPfRingVersion(void* ring)
