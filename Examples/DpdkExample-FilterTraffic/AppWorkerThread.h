@@ -77,7 +77,7 @@ public:
 			for (const auto &iter : m_WorkerConfig.InDataCfg)
 			{
 				// for each DPDK device go over all RX queues configured for this worker/core
-				for (const auto &iter2 = iter.second)
+				for (const auto &iter2 : iter.second)
 				{
 					pcpp::DpdkDevice* dev = iter.first;
 

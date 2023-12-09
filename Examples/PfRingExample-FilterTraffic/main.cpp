@@ -150,7 +150,7 @@ void listPfRingDevices()
 		std::cout
 			<< "    -> Name: " << std::left << std::setw(8) << dev->getDeviceName()
 			<< " Index: " << std::setw(5) << interfaceIndex.str()
-			<< " MAC address: " << std::setw(19) << (dev->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : iter->getMacAddress().toString())
+			<< " MAC address: " << std::setw(19) << (dev->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : dev->getMacAddress().toString())
 			<< " Available RX channels: " << std::setw(3) << (int)dev->getTotalNumOfRxChannels()
 			<< " MTU: " << dev->getMtu()
 			<< std::endl;
