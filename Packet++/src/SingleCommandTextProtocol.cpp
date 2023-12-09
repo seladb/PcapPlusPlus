@@ -23,7 +23,7 @@ namespace pcpp
 		// the first MAX_CONTENT_LENGTH bytes, search the both of hyphen and space to take
 		// correct command delimiter
 
-		std::string field(reinterpret_cast<char*>(m_Data), maxLen);
+		std::string field(reinterpret_cast<char *>(m_Data), maxLen);
 
 		size_t posHyphen = field.find_first_of(ASCII_HYPHEN);
 		size_t posSpace = field.find_first_of(ASCII_SPACE);
@@ -32,14 +32,9 @@ namespace pcpp
 		// No delimiter or packet end
 		if (posHyphen == std::string::npos && posSpace == std::string::npos && posCRLF == std::string::npos)
 			return 0;
-		// Hyphen not found while <SP> exists or both found but <SP> detected earlier
-		else if ((posHyphen == std::string::npos && posSpace != std::string::npos) ||
-			(posSpace != std::string::npos && posHyphen != std::string::npos && posSpace < posHyphen))
-			return posSpace;
-		// <SP> not found while hyphen exists or both found but hyphen detected earlier
-		else if ((posSpace == std::string::npos && posHyphen != std::string::npos) ||
-			(posSpace != std::string::npos && posHyphen != std::string::npos && posHyphen < posSpace))
-			return posHyphen;
+		// Both hyphen and space found
+		else if (posHyphen != std::string::npos || posSpace != std::string::npos)
+			return std::min(posSpace, posHyphen);
 		// If nothing found but there is a CRLF it is a only command packet
 		else if (posCRLF != std::string::npos)
 			return posCRLF;
@@ -55,7 +50,7 @@ namespace pcpp
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
 	}
 
-	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
+	bool SingleCommandTextProtocol::hyphenRequired(const std::string &value)
 	{
 		size_t firstPos = value.find("\r\n");
 		size_t lastPos = value.rfind("\r\n");
@@ -140,10 +135,7 @@ namespace pcpp
 		return "";
 	}
 
-	bool SingleCommandTextProtocol::isMultiLine() const
-	{
-		return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN;
-	}
+	bool SingleCommandTextProtocol::isMultiLine() const { return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN; }
 
 	bool SingleCommandTextProtocol::isDataValid(const uint8_t *data, size_t dataSize)
 	{
