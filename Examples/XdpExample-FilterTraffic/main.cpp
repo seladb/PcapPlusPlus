@@ -1,9 +1,11 @@
 #include "PacketMatchingEngine.h"
 #include "SystemUtils.h"
+#include "PcapPlusPlusVersion.h"
 #include "PacketUtils.h"
 #include "TablePrinter.h"
 #include "XdpDevice.h"
 #include "PcapFileDevice.h"
+#include "PcapLiveDeviceList.h"
 #include <getopt.h>
 #include <unordered_map>
 #include <future>
@@ -16,7 +18,7 @@
 	} while(0)
 
 #define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
-	/*printUsage();*/ \
+	printUsage(); \
 	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
 	exit(1); \
 	} while (0)
@@ -92,6 +94,9 @@ static struct option XdpFilterTrafficOptions[] = {
 	{"match-source-port", required_argument, nullptr, 'p'},
 	{"match-dest-port", required_argument, nullptr, 'P'},
 	{"match-protocol", required_argument, nullptr, 'r'},
+	{"help", no_argument, nullptr, 'h'},
+	{"version", no_argument, nullptr, 'v'},
+	{"list-interfaces", no_argument, nullptr, 'l'}
 };
 
 void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
@@ -213,6 +218,64 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats)
 	}
 }
 
+/**
+ * Print application usage
+ */
+void printUsage()
+{
+	std::cout << std::endl
+			  << "Usage:" << std::endl
+			  << "------" << std::endl
+			  << pcpp::AppName::get() << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL] -n INTERFACE_NAME" << std::endl
+			  << std::endl
+			  << "Options:" << std::endl
+			  << std::endl
+			  << "    -h|--help                                  : Displays this help message and exits" << std::endl
+			  << "    -v|--version                               : Displays the current version and exits" << std::endl
+			  << "    -l|--list                                  : Print the list of network interfaces and exit" << std::endl
+			  << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive packets from." << std::endl
+			  << "                                                 To see all available interfaces use the -l switch" << std::endl
+			  << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to." << std::endl
+			  << "                                                 The app will open another AF_XDP socket for sending packets." << std::endl
+			  << "                                                 Note: this interface can be the same one used to receive packets." << std::endl
+			  << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH." << std::endl
+			  << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
+			  << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
+			  << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
+			  << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
+			  << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'" << std::endl
+			  << std::endl;
+}
+
+
+/**
+ * Print application version
+ */
+void printAppVersion()
+{
+	std::cout
+		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+		<< "Built: " << pcpp::getBuildDateTime() << std::endl
+		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	exit(0);
+}
+
+/**
+ * Go over all interfaces and output their names
+ */
+void listInterfaces()
+{
+	std::cout << std::endl << "Network interfaces:" << std::endl;
+	for(const auto& device : pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList())
+	{
+		if (device->getIPv4Address() != pcpp::IPv4Address::Zero)
+		{
+			std::cout << "    -> Name: '" << device->getName() << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
+		}
+	}
+	exit(0);
+}
+
 int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
@@ -231,7 +294,7 @@ int main(int argc, char* argv[])
 	std::string writePacketsToFileName;
 	std::string sendInterfaceName;
 
-	while((opt = getopt_long(argc, argv, "n:f:s:i:I:p:P:r:", XdpFilterTrafficOptions, &optionIndex)) != -1)
+	while((opt = getopt_long(argc, argv, "n:f:s:i:I:p:P:r:vhl", XdpFilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
@@ -309,9 +372,24 @@ int main(int argc, char* argv[])
 				}
 				break;
 			}
+			case 'h':
+			{
+				printUsage();
+				exit(0);
+			}
+			case 'v':
+			{
+				printAppVersion();
+				break;
+			}
+			case 'l':
+			{
+				listInterfaces();
+				exit(0);
+			}
 			default:
 			{
-				//			printUsage();
+				printUsage();
 				exit(0);
 			}
 		}
