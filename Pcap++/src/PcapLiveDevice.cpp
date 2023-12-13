@@ -538,7 +538,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread)
 		{
-			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				shouldReturnError = true;
@@ -560,7 +560,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 				if(ready > 0)
 				{
-					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 					{
 						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 						shouldReturnError = true;
@@ -581,7 +581,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			}
 			else
 			{
-				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
+				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 					shouldReturnError = true;
