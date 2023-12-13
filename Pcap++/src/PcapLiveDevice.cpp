@@ -532,16 +532,16 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	pcapPollFd.events = POLLIN;
 #endif
 
-	bool pcapDispatchError = false;
+	bool shouldReturnError = false;
 
 	if(timeoutMs <= 0)
 	{
 		while (!m_StopThread)
 		{
-			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) < 0)
+			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
-				pcapDispatchError = true;
+				shouldReturnError = true;
 				m_StopThread = true;
 			}
 		}
@@ -553,10 +553,6 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			if(m_UsePoll)
 			{
 #if !defined(_WIN32)
-				// Be careful when you modify the code related to `poll` in this block
-				// Some tests are not supported to run on CIs: `TestPcapLiveDeviceBlockingModePollTimeout`, `TestPcapLiveDeviceBlockingModeNotTimeoutWithoutPoll`
-				// Please turn on `MANUAL_TEST` flag and at least ensure that it works on your machine
-
 				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
 				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
 
@@ -567,18 +563,20 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
 					{
 						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
-						pcapDispatchError = true;
+						shouldReturnError = true;
 						m_StopThread = true;
 					}
 				}
 				else if(ready < 0)
 				{
 					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
-					return -1;
+					shouldReturnError = true;
+					m_StopThread = true;
 				}
 #else
 				PCPP_LOG_ERROR("Windows doesn't support poll()");
-				return 0;
+				shouldReturnError = true;
+				m_StopThread = true;
 #endif
 			}
 			else
@@ -586,7 +584,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
-					pcapDispatchError = true;
+					shouldReturnError = true;
 					m_StopThread = true;
 				}
 			}
@@ -599,7 +597,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (pcapDispatchError)
+	if (shouldReturnError)
 	{
 		return 0;
 	}

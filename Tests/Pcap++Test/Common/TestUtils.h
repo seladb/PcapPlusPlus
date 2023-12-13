@@ -36,34 +36,6 @@ public:
 	}
 };
 
-class SystemCommandTeardown
-{
-private:
-	std::string m_command;
-	bool m_CancelTeardown;
-
-public:
-
-	explicit SystemCommandTeardown(const std::string& command) : m_command(command) , m_CancelTeardown(false) {}
-
-	~SystemCommandTeardown() noexcept(false)
-	{
-		if (!m_CancelTeardown)
-		{
-			if(std::system(m_command.c_str()) < 0)
-			{
-				// cppcheck-suppress exceptThrowInDestructor
-				throw std::runtime_error("failed to run: " + m_command);
-			}
-		}
-	}
-
-	void cancelTeardown()
-	{
-		m_CancelTeardown = true;
-	}
-};
-
 bool sendURLRequest(const std::string &url);
 
 bool readPcapIntoPacketVec(const std::string& pcapFileName, std::vector<pcpp::RawPacket>& packetStream, std::string& errMsg);
