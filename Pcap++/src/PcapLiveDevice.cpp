@@ -14,6 +14,7 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <sstream>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
@@ -30,6 +31,8 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <poll.h>
+#include <pcap/pcap.h>
 #endif // if defined(_WIN32)
 #if defined(__APPLE__) || defined(__FreeBSD__)
 #include <net/if_dl.h>
@@ -64,8 +67,8 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
-		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
+	IPcapDevice(), m_PcapSelectableFd(-1), m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -346,6 +349,21 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	m_DeviceOpened = true;
 
+	if(!config.usePoll)
+	{
+		m_UsePoll = false;
+		m_PcapSelectableFd = -1;
+	}
+	else
+	{
+#if !defined(_WIN32)
+		m_UsePoll = true;
+		m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
+#else
+		PCPP_LOG_ERROR("Windows doesn't support poll(), ignoring the `usePoll` parameter");
+#endif
+	}
+
 	return true;
 }
 
@@ -478,7 +496,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 }
 
 
-int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout)
+int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
@@ -500,58 +518,94 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesBlockingMode = onPacketArrives;
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
-	long startTimeSec = 0, startTimeNSec = 0;
-	clockGetTime(startTimeSec, startTimeNSec);
-
-	long curTimeSec = 0;
-
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
-	bool pcapDispatchError = false;
+	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
+	auto startTime = std::chrono::steady_clock::now();
+	auto currentTime = startTime;
 
-	if (timeout <= 0)
+#if !defined(_WIN32)
+	struct pollfd pcapPollFd;
+	memset(&pcapPollFd, 0, sizeof(pcapPollFd));
+	pcapPollFd.fd = m_PcapSelectableFd;
+	pcapPollFd.events = POLLIN;
+#endif
+
+	bool shouldReturnError = false;
+
+	if(timeoutMs <= 0)
 	{
 		while (!m_StopThread)
 		{
-			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
-				pcapDispatchError = true;
+				shouldReturnError = true;
 				m_StopThread = true;
 			}
 		}
-		curTimeSec = startTimeSec + timeout;
 	}
 	else
 	{
-		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
+		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() < timeoutMs )
 		{
-			long curTimeNSec = 0;
-			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+			if(m_UsePoll)
 			{
-				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
-				pcapDispatchError = true;
+#if !defined(_WIN32)
+				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
+				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
+
+				int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
+
+				if(ready > 0)
+				{
+					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+					{
+						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+						shouldReturnError = true;
+						m_StopThread = true;
+					}
+				}
+				else if(ready < 0)
+				{
+					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
+					shouldReturnError = true;
+					m_StopThread = true;
+				}
+#else
+				PCPP_LOG_ERROR("Windows doesn't support poll()");
+				shouldReturnError = true;
 				m_StopThread = true;
+#endif
 			}
-			clockGetTime(curTimeSec, curTimeNSec);
+			else
+			{
+				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+					shouldReturnError = true;
+					m_StopThread = true;
+				}
+			}
+			currentTime = std::chrono::steady_clock::now();
 		}
 	}
 
 	m_CaptureThreadStarted = false;
-
 	m_StopThread = false;
-
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (pcapDispatchError)
+	if (shouldReturnError)
 	{
 		return 0;
 	}
 
-	if (curTimeSec > (startTimeSec + timeout))
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() >= timeoutMs )
+	{
 		return -1;
+	}
 	return 1;
 }
 
