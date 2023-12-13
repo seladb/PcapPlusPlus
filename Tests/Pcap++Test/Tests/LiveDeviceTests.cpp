@@ -11,7 +11,6 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
-#include <future>
 #if defined(_WIN32)
 #include "PcapRemoteDevice.h"
 #include "PcapRemoteDeviceList.h"
