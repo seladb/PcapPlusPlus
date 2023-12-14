@@ -1,3 +1,13 @@
+/**
+* Filter Traffic AF_XDP example application
+* =========================================
+*
+* This application demonstrates PcapPlusPlus AF_XDP APIs.
+* Please read the README.md file for more information.
+*
+* You can also run `XdpTrafficFilter -h` for modes of operation and parameters.
+*/
+
 #include "PacketMatchingEngine.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
