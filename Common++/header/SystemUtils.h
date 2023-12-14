@@ -207,7 +207,7 @@ namespace pcpp
 	 * @param[in] cores A vector of SystemCore instances
 	 * @return A core mask representing these cores
 	 */
-	CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores);
+	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore> &cores);
 
 
 	/**
@@ -215,7 +215,7 @@ namespace pcpp
 	 * @param[in] coreIds A vector of core IDs
 	 * @return A core mask representing these cores
 	 */
-	CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds);
+	CoreMask createCoreMaskFromCoreIds(const std::vector<int> &coreIds);
 
 
 	/**
