@@ -89,12 +89,8 @@ void TablePrinter::printSeparator()
 		return;
 	}
 
-	int totalLen = std::accumulate(m_ColumnWidths.begin(), m_ColumnWidths.end(), m_ColumnWidths.size() * 3) + 1;
-
-	for (int index = 0; index < totalLen; index++)
-		std::cout << "-";
-
-	std::cout << std::endl;
+	auto totalLen = std::accumulate(m_ColumnWidths.begin(), m_ColumnWidths.end(), m_ColumnWidths.size() * 3) + 1;
+	std::cout << std::string(totalLen, '-') << std::endl;
 }
 
 void TablePrinter::closeTable()
