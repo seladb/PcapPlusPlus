@@ -1019,7 +1019,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 		std::ostringstream layerStream;
 		layerStream << *layer;
 		PTF_ASSERT_EQUAL(layerStream.str(), *iter);
-		iter++;
+		++iter;
 	}
 	PTF_ASSERT_TRUE(iter == expectedLayerStrings.end());
 
