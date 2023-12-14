@@ -93,7 +93,7 @@ void printUsage()
 		<< std::endl
 		<< "    -h|--help                                  : Displays this help message and exits" << std::endl
 		<< "    -v|--version                               : Displays the current version and exits" << std::endl
-		<< "    -l|--list                                  : Print the list of PF_RING devices and exists" << std::endl
+		<< "    -l|--list                                  : Print the list of PF_RING devices and exit" << std::endl
 		<< "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from." << std::endl
 		<< "                                                 To see all available interfaces use the -l switch" << std::endl
 		<< "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to" << std::endl

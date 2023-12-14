@@ -158,9 +158,14 @@ bool XdpDevice::receivePackets(OnPacketsArrive onPacketsArrive, void* onPacketsA
 		}
 		if (pollResult < 0)
 		{
-			PCPP_LOG_ERROR("poll() returned an error: " << errno);
 			m_ReceivingPackets = false;
-			return false;
+			if (errno != EINTR)
+			{
+				PCPP_LOG_ERROR("poll() returned an error: " << errno);
+				return false;
+			}
+
+			return true;
 		}
 
 		uint32_t receivedPacketsCount = xsk_ring_cons__peek(&socketInfo->rx, m_Config->rxTxBatchSize, &rxId);

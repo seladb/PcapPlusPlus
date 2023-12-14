@@ -52,3 +52,7 @@ endif()
 if(PCAPPP_USE_PF_RING)
   add_subdirectory(PfRingExample-FilterTraffic)
 endif()
+
+if(PCAPPP_USE_XDP)
+  add_subdirectory(XdpExample-FilterTraffic)
+endif()
