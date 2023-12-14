@@ -66,7 +66,7 @@ namespace pcpp
 			if (m_CacheItemsMap.size() > m_MaxSize)
 			{
 				ListIterator lruIter = m_CacheItemsList.end();
-				lruIter--;
+				--lruIter;
 
 				if (deletedValue != NULL)
 #if __cplusplus > 199711L || _MSC_VER >= 1800
