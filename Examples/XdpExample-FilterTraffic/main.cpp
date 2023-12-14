@@ -23,6 +23,9 @@
 	exit(1); \
 	} while (0)
 
+/**
+ * A struct to collect packet stats
+ */
 struct PacketStats
 {
 public:
@@ -46,6 +49,9 @@ public:
 					httpCount(0), dnsCount(0), sslCount(0),
 					totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0), matchedPacketCount(0) {}
 
+	/**
+	 * Collect stats per packet
+	 */
 	void collectStats(pcpp::Packet& packet)
 	{
 		packetCount++;
@@ -71,7 +77,7 @@ public:
 };
 
 /**
- * A struct that holds all arguments passed to the capture thread
+ * A struct that holds all arguments passed to the packet capture callback
  */
 struct PacketCaptureArgs
 {
@@ -99,9 +105,14 @@ static struct option XdpFilterTrafficOptions[] = {
 	{"list-interfaces", no_argument, nullptr, 'l'}
 };
 
+/**
+ * A callback to handle packets that were received on the AF_XDP socket
+ */
 void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie)
 {
 	auto args = reinterpret_cast<PacketCaptureArgs*>(userCookie);
+
+	// if the user asked to interrupt the app, stop receiving packets
 	if (args->stopCapture)
 	{
 		device->stopReceivePackets();
@@ -110,6 +121,7 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 
 	pcpp::RawPacketVector packetsToSend;
 
+	// go over all received packets
 	for (uint32_t i = 0; i < packetCount; i++)
 	{
 		// parse packet
@@ -163,9 +175,9 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 
 		if (packetMatched)
 		{
-			// send packet to TX port if needed
 			if (args->sendPacketsTo != nullptr)
 			{
+				// add packet to the vector of packets to send
 				packetsToSend.pushBack(new pcpp::RawPacket(packets[i]));
 			}
 
@@ -178,16 +190,20 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 		}
 	}
 
+	// send packets if there are packets to send and a send device was configured
 	if (args->sendPacketsTo != nullptr && packetsToSend.size() > 0)
 	{
 		args->sendPacketsTo->sendPackets(packetsToSend, true);
 	}
 }
 
-void printStats(PacketStats* packetStats)
+/**
+ * Print the stats in a table
+ */
+void printStats(PacketStats* packetStats, pcpp::XdpDevice::XdpDeviceStats* rxDeviceStats, pcpp::XdpDevice::XdpDeviceStats* txDeviceStats)
 {
 	std::vector<std::string> columnNames = {"Stat", "Count"};
-	std::vector<int> columnsWidths = {21, 5};
+	std::vector<int> columnsWidths = {21, 10};
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	printer.printRow("Eth count|" + std::to_string(packetStats->ethCount), '|');
@@ -207,14 +223,54 @@ void printStats(PacketStats* packetStats)
 	printer.printSeparator();
 	printer.printRow("Matched packet count|" + std::to_string(packetStats->matchedPacketCount), '|');
 	printer.printRow("Total packet count|" + std::to_string(packetStats->packetCount), '|');
+	printer.printSeparator();
+	printer.printRow("RX packets|" + std::to_string(rxDeviceStats->rxPackets), '|');
+	printer.printRow("RX packets/sec|" + std::to_string(rxDeviceStats->rxPacketsPerSec), '|');
+	printer.printRow("RX bytes|" + std::to_string(rxDeviceStats->rxBytes), '|');
+	printer.printRow("RX bytes/sec|" + std::to_string(rxDeviceStats->rxBytesPerSec), '|');
+	if (txDeviceStats)
+	{
+		printer.printRow("TX packets|" + std::to_string(txDeviceStats->txCompletedPackets), '|');
+		printer.printRow("TX packets/sec|" + std::to_string(txDeviceStats->txCompletedPacketsPerSec), '|');
+		printer.printRow("TX bytes|" + std::to_string(txDeviceStats->txSentBytes), '|');
+		printer.printRow("TX bytes/sec|" + std::to_string(txDeviceStats->txSentBytesPerSec), '|');
+	}
 	printer.closeTable();
 }
 
-void collectStats(std::future<void> futureObj, PacketStats* packetStats)
+/**
+ * Collect stats thread runner
+ */
+void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::XdpDevice* dev, pcpp::XdpDevice* sendDev)
 {
+	// run in an endless loop until the signal is received and print stats every 1 sec
 	while (futureObj.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout)
 	{
-		printStats(packetStats);
+		// collect RX stats
+		auto rxStats = dev->getStatistics();
+
+		pcpp::XdpDevice::XdpDeviceStats* txStats = nullptr;
+
+		if (sendDev)
+		{
+			// if send socket is different from receive socket, collect stats from the send socket
+			if (sendDev != dev)
+			{
+				txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
+			}
+			else // send and receive sockets are the same
+			{
+				txStats = &rxStats;
+			}
+		}
+
+		// print RX and (maybe) TX stats in a table
+		printStats(packetStats, &rxStats, txStats);
+
+		if (txStats != &rxStats)
+		{
+			delete txStats;
+		}
 	}
 }
 
@@ -400,6 +456,7 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Interface name was not provided");
 	}
 
+	// open the pcap writer if needed
 	pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
 	if (!writePacketsToFileName.empty())
 	{
@@ -411,22 +468,25 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	// open the XDP device
 	pcpp::XdpDevice dev(interfaceName);
-
 	if (!dev.open())
 	{
 		EXIT_WITH_ERROR("Error opening the device");
 	}
 
+	// open the XDP device to send packets if needed
 	pcpp::XdpDevice* sendDev = nullptr;
 	if (!sendInterfaceName.empty())
 	{
+		// send and receive devices might be the same
 		if (sendInterfaceName == interfaceName)
 		{
 			sendDev = &dev;
 		}
 		else
 		{
+			// if they are not the same, open another AF_XDP socket for the send device
 			sendDev = new pcpp::XdpDevice(sendInterfaceName);
 			if (!sendDev->open())
 			{
@@ -441,28 +501,33 @@ int main(int argc, char* argv[])
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 	PacketStats packetStats;
 
-	// prepare packet capture configuration
+	// prepare configuration
 	PacketCaptureArgs args;
 	args.packetStats = &packetStats;
 	args.matchingEngine = &matchingEngine;
 	args.sendPacketsTo = sendDev;
 	args.pcapWriter = pcapWriter;
 
+	// create future and promise instances to signal the stats collection threads when to stop
 	std::promise<void> exitSignal;
 	std::future<void> futureObj = exitSignal.get_future();
 
-	std::thread collectStatsThread(&collectStats, std::move(futureObj), &packetStats);
+	// create and run a stats collection thread
+	std::thread collectStatsThread(&collectStats, std::move(futureObj), &packetStats, &dev, sendDev);
 
+	// add an handler for app interrupted signal, i.e ctrl+c
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted([](void* args){reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true;}, &args);
 
+	// start receiving packets on the AF_XDP socket
 	auto res = dev.receivePackets(onPacketsArrive, &args, -1);
 
-	exitSignal.set_value();
+	// user clicked ctrl+c, prepare to shut the app down
 
+	// signal the stats collection thread to stop and wait for it to stop
+	exitSignal.set_value();
 	collectStatsThread.join();
 
-	dev.close();
-
+	// close the pcap writer if needed
 	std::vector<std::string> additionalStats;
 	if (pcapWriter)
 	{
@@ -473,9 +538,15 @@ int main(int argc, char* argv[])
 		delete pcapWriter;
 	}
 
+	pcpp::XdpDevice::XdpDeviceStats* txStats = nullptr;
+
+	// close the send XDP device if needed
 	if (sendDev != nullptr)
 	{
-		additionalStats.push_back("Sent " + std::to_string(sendDev->getStatistics().txCompletedPackets) + " packets to '" + sendInterfaceName + "'");
+		// collect final TX stats
+		txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
+
+		// if the send and receive devices are the same - no need to close the device again
 		if (sendInterfaceName != interfaceName)
 		{
 			sendDev->close();
@@ -483,14 +554,24 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (!res)
-	{
-		EXIT_WITH_ERROR("Something went wrong while receiving packets");
-	}
+	// collect final RX stats
+	pcpp::XdpDevice::XdpDeviceStats rxStats = dev.getStatistics();
 
-	printStats(&packetStats);
+	// close the XDP device
+	dev.close();
+
+	// print final stats
+	printStats(&packetStats, &rxStats, txStats);
+	delete txStats;
+
 	for (const auto& additionalStat : additionalStats)
 	{
 		std::cout << additionalStat << std::endl;
+	}
+
+	// exit with an error if there was an error receiving packets
+	if (!res)
+	{
+		EXIT_WITH_ERROR("Something went wrong while receiving packets");
 	}
 }
