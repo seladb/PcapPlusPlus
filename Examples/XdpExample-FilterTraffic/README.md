@@ -4,7 +4,7 @@ Filter Traffic AF_XDP example application
 This application demonstrates PcapPlusPlus AF_XDP APIs.
 
 It opens an AF_XDP socket, receives all packets on the socket and matches them by user-defined matching criteria such as source/dest IP, source/dest TCP/UDP port and more.
-Matched packets can be sent to another AF_XDP socket (or to the same socket), and/or be saved to a pcap file. 
+Matched packets can be sent to another AF_XDP socket (or to the same socket), and/or be saved to a pcap file.
 
 In addition, the application collect statistics on received, sent and matched packets: total RX/TX, number of packets per protocol, number of matched flows and number of matched packets.
 
