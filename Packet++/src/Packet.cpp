@@ -467,9 +467,6 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 
 	curLayer = m_FirstLayer;
 
-	// a flag to be set if there is another layer in this packet with the same protocol
-	bool anotherLayerWithSameProtocolExists = false;
-
 	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
 	while (curLayer != nullptr)
 	{
