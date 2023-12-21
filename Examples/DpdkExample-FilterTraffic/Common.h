@@ -40,15 +40,14 @@ typedef std::map<pcpp::DpdkDevice*, std::vector<int> > InputDataConfig;
  */
 struct AppWorkerConfig
 {
-	uint32_t CoreId;
-	InputDataConfig InDataCfg;
-	pcpp::DpdkDevice* SendPacketsTo;
-	bool WriteMatchedPacketsToFile;
-	std::string PathToWritePackets;
+	uint32_t coreId;
+	InputDataConfig inDataCfg;
+	pcpp::DpdkDevice* sendPacketsTo;
+	bool writeMatchedPacketsToFile;
+	std::string pathToWritePackets;
 
-	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), SendPacketsTo(NULL), WriteMatchedPacketsToFile(false), PathToWritePackets("")
-	{
-	}
+	AppWorkerConfig() : coreId(MAX_NUM_OF_CORES+1), sendPacketsTo(nullptr),
+	                    writeMatchedPacketsToFile(false), pathToWritePackets("") {}
 };
 
 

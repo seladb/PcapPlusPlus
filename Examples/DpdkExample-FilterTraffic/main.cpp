@@ -175,31 +175,31 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 	for (const auto &core : coresToUse)
 	{
 		std::cout << "Using core " << (int)core.Id << std::endl;
-		workerConfigArr[i].CoreId = core.Id;
-		workerConfigArr[i].WriteMatchedPacketsToFile = writePacketsToDisk;
+		workerConfigArr[i].coreId = core.Id;
+		workerConfigArr[i].writeMatchedPacketsToFile = writePacketsToDisk;
 
 		std::stringstream packetFileName;
-		packetFileName << packetFilePath << "Core" << workerConfigArr[i].CoreId << ".pcap";
-		workerConfigArr[i].PathToWritePackets = packetFileName.str();
+		packetFileName << packetFilePath << "Core" << workerConfigArr[i].coreId << ".pcap";
+		workerConfigArr[i].pathToWritePackets = packetFileName.str();
 
-		workerConfigArr[i].SendPacketsTo = sendPacketsTo;
+		workerConfigArr[i].sendPacketsTo = sendPacketsTo;
 		for (int rxQIndex = 0; rxQIndex < numOfRxQueuesPerCore; rxQIndex++)
 		{
 			if (pairVecIter == deviceAndRxQVec.end())
 				break;
-			workerConfigArr[i].InDataCfg[pairVecIter->first].push_back(pairVecIter->second);
+			workerConfigArr[i].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
 			++pairVecIter;
 		}
 		if (rxQueuesRemainder > 0 && (pairVecIter != deviceAndRxQVec.end()))
 		{
-			workerConfigArr[i].InDataCfg[pairVecIter->first].push_back(pairVecIter->second);
+			workerConfigArr[i].inDataCfg[pairVecIter->first].push_back(pairVecIter->second);
 			++pairVecIter;
 			rxQueuesRemainder--;
 		}
 
 		// print configuration for core
 		std::cout << "   Core configuration:" << std::endl;
-		for (const auto &iter2 : workerConfigArr[i].InDataCfg)
+		for (const auto &iter2 : workerConfigArr[i].inDataCfg)
 		{
 			std::cout << "      DPDK device#" << iter2.first->getDeviceId() << ": ";
 			for (const auto &iter3 : iter2.second)
@@ -208,7 +208,7 @@ void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse, 
 			}
 			std::cout << std::endl;
 		}
-		if (workerConfigArr[i].InDataCfg.size() == 0)
+		if (workerConfigArr[i].inDataCfg.size() == 0)
 		{
 			std::cout << "      None" << std::endl;
 		}
