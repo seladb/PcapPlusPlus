@@ -23,7 +23,6 @@
 #include "AppWorkerThread.h"
 
 #include "DpdkDeviceList.h"
-#include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
 #include "SystemUtils.h"
@@ -32,13 +31,10 @@
 
 #include <vector>
 #include <iostream>
-#include <iomanip>
 #include <stdlib.h>
-#include <signal.h>
 #include <getopt.h>
 #include <string>
 #include <sstream>
-#include <algorithm>
 #include <unistd.h>
 
 
@@ -229,6 +225,34 @@ struct FilterTrafficArgs
 	FilterTrafficArgs() : shouldStop(false), workerThreadsVector(NULL) {}
 };
 
+
+/**
+ * Print thread stats in a table
+ */
+void printStats(const PacketStats& threadStats, const std::string& columnName)
+{
+	std::vector<std::string> columnNames = {columnName, "Count"};
+	std::vector<int> columnsWidths = {21, 10};
+	pcpp::TablePrinter printer(columnNames, columnsWidths);
+
+	printer.printRow("Eth count|" + std::to_string(threadStats.ethCount), '|');
+	printer.printRow("ARP count|" + std::to_string(threadStats.arpCount), '|');
+	printer.printRow("IPv4 count|" + std::to_string(threadStats.ipv4Count), '|');
+	printer.printRow("IPv6 count|" + std::to_string(threadStats.ipv6Count), '|');
+	printer.printRow("TCP count|" + std::to_string(threadStats.tcpCount), '|');
+	printer.printRow("UDP count|" + std::to_string(threadStats.udpCount), '|');
+	printer.printRow("HTTP count|" + std::to_string(threadStats.httpCount), '|');
+	printer.printRow("DNS count|" + std::to_string(threadStats.dnsCount), '|');
+	printer.printRow("TLS count|" + std::to_string(threadStats.tlsCount), '|');
+	printer.printSeparator();
+	printer.printRow("Matched TCP flows|" + std::to_string(threadStats.matchedTcpFlows), '|');
+	printer.printRow("Matched UDP flows|" + std::to_string(threadStats.matchedUdpFlows), '|');
+	printer.printSeparator();
+	printer.printRow("Matched packet count|" + std::to_string(threadStats.matchedPackets), '|');
+	printer.printRow("Total packet count|" + std::to_string(threadStats.packetCount), '|');
+}
+
+
 /**
  * The callback to be called when application is terminated by ctrl-c. Do cleanup and print summary stats
  */
@@ -241,25 +265,37 @@ void onApplicationInterrupted(void* cookie)
 	// stop worker threads
 	pcpp::DpdkDeviceList::getInstance().stopDpdkWorkerThreads();
 
-	// create table printer
-	std::vector<std::string> columnNames;
-	std::vector<int> columnWidths;
-	PacketStats::getStatsColumns(columnNames, columnWidths);
-	pcpp::TablePrinter printer(columnNames, columnWidths);
-
 	// print final stats for every worker thread plus sum of all threads and free worker threads memory
 	PacketStats aggregatedStats;
+	std::vector<PacketStats> threadStatsVec;
 	for (const auto &iter : *(args->workerThreadsVector))
 	{
 		AppWorkerThread* thread = (AppWorkerThread*)(iter);
 		PacketStats threadStats = thread->getStats();
 		aggregatedStats.collectStats(threadStats);
-		printer.printRow(threadStats.getStatValuesAsString("|"), '|');
+		threadStatsVec.push_back(threadStats);
 		delete thread;
 	}
 
-	printer.printSeparator();
-	printer.printRow(aggregatedStats.getStatValuesAsString("|"), '|');
+	// print stats for every worker threads
+	for (auto threadStats : threadStatsVec)
+	{
+		// no need to print table if no packets were received
+		if (threadStats.packetCount == 0)
+		{
+			std::cout << "Core #" << std::to_string(threadStats.workerId) << " - no packets received" << std::endl;
+			continue;
+		}
+
+		printStats(threadStats, "Core #" + std::to_string(threadStats.workerId) + " Stat");
+		std::cout << std::endl;
+	}
+
+	// print aggregated stats if packets were received
+	if (aggregatedStats.packetCount != 0)
+	{
+		printStats(aggregatedStats, "Aggregated Stats");
+	}
 
 	args->shouldStop = true;
 }
@@ -284,7 +320,7 @@ int main(int argc, char* argv[])
 	int sendPacketsToPort = -1;
 
 	int optionIndex = 0;
-	int opt = 0;
+	int opt;
 
 	uint32_t mBufPoolSize = DEFAULT_MBUF_POOL_SIZE;
 

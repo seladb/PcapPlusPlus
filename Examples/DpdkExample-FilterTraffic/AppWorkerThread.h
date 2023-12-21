@@ -46,7 +46,7 @@ public:
 	{
 		m_CoreId = coreId;
 		m_Stop = false;
-		m_Stats.WorkerId = coreId;
+		m_Stats.workerId = coreId;
 		pcpp::DpdkDevice* sendPacketsTo = m_WorkerConfig.SendPacketsTo;
 		pcpp::PcapFileWriterDevice* pcapWriter = NULL;
 
@@ -92,7 +92,7 @@ public:
 						// collect packet statistics
 						m_Stats.collectStats(parsedPacket);
 
-						bool packetMatched = false;
+						bool packetMatched;
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
 						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
@@ -114,11 +114,11 @@ public:
 								//collect stats
 								if (parsedPacket.isPacketOfType(pcpp::TCP))
 								{
-									m_Stats.MatchedTcpFlows++;
+									m_Stats.matchedTcpFlows++;
 								}
 								else if (parsedPacket.isPacketOfType(pcpp::UDP))
 								{
-									m_Stats.MatchedUdpFlows++;
+									m_Stats.matchedUdpFlows++;
 								}
 
 							}
@@ -138,7 +138,7 @@ public:
 								pcapWriter->writePacket(*packetArr[i]);
 							}
 
-							m_Stats.MatchedPackets++;
+							m_Stats.matchedPackets++;
 						}
 					}
 				}
