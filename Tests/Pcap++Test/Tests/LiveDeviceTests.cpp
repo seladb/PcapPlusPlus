@@ -65,6 +65,31 @@ static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pc
 	return false;
 }
 
+static bool packetArrivesBlockingModeStartCaptureUsingLambda(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
+{
+	pcpp::Logger::getInstance().suppressLogs();
+	if (dev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 5) != 0)
+		return false;
+
+	auto packetArrivesLambda = [](pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDevice, void* userCookie)
+	{
+		(*(int*)userCookie)++;
+	};
+
+	int temp = 0;
+	if (dev->startCapture(packetArrivesLambda, &temp) != 0)
+		return false;
+
+	pcpp::Logger::getInstance().enableLogs();
+
+	int* packetCount = (int*)userCookie;
+	if ((*packetCount) == 5)
+		return true;
+
+	(*packetCount)++;
+	return false;
+}
+
 static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
 	// shouldn't do anything

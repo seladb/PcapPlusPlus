@@ -6,6 +6,7 @@
 #include <vector>
 #include <string.h>
 #include <thread>
+#include <functional>
 
 #include "IpAddress.h"
 #include "Packet.h"
@@ -35,7 +36,7 @@ namespace pcpp
 	 * @param[in] pDevice A pointer to the PcapLiveDevice instance
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 */
-	typedef void (*OnPacketArrivesCallback)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userCookie);
+	using OnPacketArrivesCallback = std::function<void(RawPacket*, PcapLiveDevice*, void*)>;
 
 	/**
 	 * @typedef OnPacketArrivesStopBlocking
@@ -45,7 +46,7 @@ namespace pcpp
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 * @return True when main thread should stop blocking or false otherwise
 	 */
-	typedef bool (*OnPacketArrivesStopBlocking)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userCookie);
+	using OnPacketArrivesStopBlocking = std::function<bool(RawPacket*, PcapLiveDevice*, void*)>;
 
 
 	/**
@@ -54,7 +55,7 @@ namespace pcpp
 	 * @param[in] stats A reference to the most updated stats
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 */
-	typedef void (*OnStatsUpdateCallback)(IPcapDevice::PcapStats& stats, void* userCookie);
+	using OnStatsUpdateCallback = std::function<void(IPcapDevice::PcapStats&, void*)>;
 
 	// for internal use only
 	typedef void* (*ThreadStart)(void*);
