@@ -46,14 +46,14 @@ public:
 	{
 		m_CoreId = coreId;
 		m_Stop = false;
-		m_Stats.WorkerId = coreId;
-		pcpp::DpdkDevice* sendPacketsTo = m_WorkerConfig.SendPacketsTo;
+		m_Stats.workerId = coreId;
+		pcpp::DpdkDevice* sendPacketsTo = m_WorkerConfig.sendPacketsTo;
 		pcpp::PcapFileWriterDevice* pcapWriter = NULL;
 
 		// if needed, create the pcap file writer which all matched packets will be written into
-		if (m_WorkerConfig.WriteMatchedPacketsToFile)
+		if (m_WorkerConfig.writeMatchedPacketsToFile)
 		{
-			pcapWriter = new pcpp::PcapFileWriterDevice(m_WorkerConfig.PathToWritePackets.c_str());
+			pcapWriter = new pcpp::PcapFileWriterDevice(m_WorkerConfig.pathToWritePackets.c_str());
 			if (!pcapWriter->open())
 			{
 				EXIT_WITH_ERROR("Couldn't open pcap writer device");
@@ -61,7 +61,7 @@ public:
 		}
 
 		// if no DPDK devices were assigned to this worker/core don't enter the main loop and exit
-		if (m_WorkerConfig.InDataCfg.size() == 0)
+		if (m_WorkerConfig.inDataCfg.size() == 0)
 		{
 			return true;
 		}
@@ -74,7 +74,7 @@ public:
 		while (!m_Stop)
 		{
 			// go over all DPDK devices configured for this worker/core
-			for (const auto &iter : m_WorkerConfig.InDataCfg)
+			for (const auto &iter : m_WorkerConfig.inDataCfg)
 			{
 				// for each DPDK device go over all RX queues configured for this worker/core
 				for (const auto &iter2 : iter.second)
@@ -92,7 +92,7 @@ public:
 						// collect packet statistics
 						m_Stats.collectStats(parsedPacket);
 
-						bool packetMatched = false;
+						bool packetMatched;
 
 						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
 						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
@@ -114,11 +114,11 @@ public:
 								//collect stats
 								if (parsedPacket.isPacketOfType(pcpp::TCP))
 								{
-									m_Stats.MatchedTcpFlows++;
+									m_Stats.matchedTcpFlows++;
 								}
 								else if (parsedPacket.isPacketOfType(pcpp::UDP))
 								{
-									m_Stats.MatchedUdpFlows++;
+									m_Stats.matchedUdpFlows++;
 								}
 
 							}
@@ -138,7 +138,7 @@ public:
 								pcapWriter->writePacket(*packetArr[i]);
 							}
 
-							m_Stats.MatchedPackets++;
+							m_Stats.matchedPackets++;
 						}
 					}
 				}
