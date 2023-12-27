@@ -30,19 +30,17 @@ namespace pcpp
 	class PcapLiveDevice;
 
 	/**
-	 * @typedef OnPacketArrivesCallback
 	 * A callback that is called when a packet is captured by PcapLiveDevice
-	 * @param[in] pPacket A pointer to the raw packet
-	 * @param[in] pDevice A pointer to the PcapLiveDevice instance
+	 * @param[in] packet A pointer to the raw packet
+	 * @param[in] device A pointer to the PcapLiveDevice instance
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 */
 	using OnPacketArrivesCallback = std::function<void(RawPacket*, PcapLiveDevice*, void*)>;
 
 	/**
-	 * @typedef OnPacketArrivesStopBlocking
 	 * A callback that is called when a packet is captured by PcapLiveDevice
-	 * @param[in] pPacket A pointer to the raw packet
-	 * @param[in] pDevice A pointer to the PcapLiveDevice instance
+	 * @param[in] packet A pointer to the raw packet
+	 * @param[in] device A pointer to the PcapLiveDevice instance
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 * @return True when main thread should stop blocking or false otherwise
 	 */
@@ -50,7 +48,6 @@ namespace pcpp
 
 
 	/**
-	 * @typedef OnStatsUpdateCallback
 	 * A callback that is called periodically for stats collection if user asked to start packet capturing with periodic stats collection
 	 * @param[in] stats A reference to the most updated stats
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
