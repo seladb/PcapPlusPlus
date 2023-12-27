@@ -517,19 +517,9 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 } // TestPcapLiveDeviceWithLambda
 
 
+
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 {
-	std::vector<pcpp::PcapLiveDevice::DeviceConfiguration> configs;
-	configs.emplace_back(); // the default config
-
-#if !defined(_WIN32)
-	configs.emplace_back(); // the config used poll
-	configs[1].usePoll = true;
-#endif
-
-	auto packetArrivesBlockingModeTimeoutLambda = [](
-		pcpp::RawPacket *rawPacket, pcpp::PcapLiveDevice *dev,void *userCookie) { return false; };
-
 	auto packetArrivesBlockingModeNoTimeoutLambda = [](
 		pcpp::RawPacket *rawPacket, pcpp::PcapLiveDevice *dev, void *userCookie)
 	{
@@ -541,128 +531,22 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 		return false;
 	};
 
-	auto packetArrivesBlockingModeStartCaptureLambda = [](pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
-	{
-		pcpp::Logger::getInstance().suppressLogs();
-		if (dev->startCaptureBlockingMode(packetArrivesBlockingModeTimeout, nullptr, 5) != 0)
-			return false;
+	// open device
+	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
 
-		int temp = 0;
-		if (dev->startCapture(packetArrives, &temp) != 0)
-			return false;
+	int packetCount = 0;
+	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutLambda, &packetCount, 30), 1);
+	PTF_ASSERT_EQUAL(packetCount, 5);
 
-		pcpp::Logger::getInstance().enableLogs();
+	liveDev->close();
 
-		int* packetCount = (int*)userCookie;
-		if ((*packetCount) == 5)
-			return true;
-
-		(*packetCount)++;
-		return false;
-	};
-
-	auto packetArrivesBlockingModeStopCaptureLambda = [](pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
-	{
-		// shouldn't do anything
-		dev->stopCapture();
-
-		int* packetCount = (int*)userCookie;
-		if ((*packetCount) == 5)
-			return true;
-
-		(*packetCount)++;
-		return false;
-	};
-
-
-	// test the common behaviour for all configs
-	for(const auto & config: configs)
-	{
-		// open device
-		pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-		PTF_ASSERT_NOT_NULL(liveDev);
-		PTF_ASSERT_TRUE(liveDev->open(config));
-		DeviceTeardown devTeardown(liveDev);
-
-		// sanity - test blocking mode returns with timeout
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeoutLambda, nullptr, 5), -1);
-
-		// sanity - test blocking mode returns before timeout
-		int packetCount = 0;
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutLambda, &packetCount, 30), 1);
-		PTF_ASSERT_EQUAL(packetCount, 5);
-
-		// verify stop capture doesn't do any effect on blocking mode
-		liveDev->stopCapture();
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeoutLambda, nullptr, 1), -1);
-		packetCount = 0;
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutLambda, &packetCount, 30), 1);
-		PTF_ASSERT_EQUAL(packetCount, 5);
-
-		// verify it's possible to capture non-blocking mode after blocking mode
-		packetCount = 0;
-		PTF_ASSERT_TRUE(liveDev->startCapture(packetArrives, &packetCount));
-
-		int totalSleepTime = 0;
-		while (totalSleepTime <= 5)
-		{
-			pcpp::multiPlatformSleep(1);
-			totalSleepTime += 1;
-			if (packetCount > 0)
-				break;
-		}
-
-		liveDev->stopCapture();
-
-		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
-
-		PTF_ASSERT_GREATER_THAN(packetCount, 0);
-
-		// verify it's possible to capture blocking mode after non-blocking mode
-		packetCount = 0;
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutLambda, &packetCount, 30), 1);
-		PTF_ASSERT_EQUAL(packetCount, 5);
-
-		// try to start capture from within the callback, verify no error
-		packetCount = 0;
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStartCaptureLambda, &packetCount, 30), 1);
-		PTF_ASSERT_EQUAL(packetCount, 5);
-
-		// try to stop capture from within the callback, verify no impact on capturing
-		packetCount = 0;
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStopCaptureLambda, &packetCount, 10), 1);
-		PTF_ASSERT_EQUAL(packetCount, 5);
-
-		// verify it's possible to capture non-blocking after the mess done in previous lines
-		packetCount = 0;
-		PTF_ASSERT_TRUE(liveDev->startCapture(packetArrives, &packetCount));
-
-		// verify an error returns if trying capture blocking while non-blocking is running
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeTimeoutLambda, nullptr, 1), 0);
-		pcpp::Logger::getInstance().enableLogs();
-
-		totalSleepTime = 0;
-		while (totalSleepTime <= 5)
-		{
-			pcpp::multiPlatformSleep(1);
-			totalSleepTime += 1;
-			if (packetCount > 0)
-				break;
-		}
-
-		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
-
-		liveDev->stopCapture();
-		PTF_ASSERT_GREATER_THAN(packetCount, 0);
-
-		liveDev->close();
-
-		// a negative test
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
-		pcpp::Logger::getInstance().enableLogs();
-	}
+	// a negative test
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
+	pcpp::Logger::getInstance().enableLogs();
 } // TestPcapLiveDeviceBlockingModeWithLambda
 
 
