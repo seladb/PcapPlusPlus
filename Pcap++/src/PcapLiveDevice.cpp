@@ -426,12 +426,12 @@ PcapLiveDevice* PcapLiveDevice::clone()
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
 {
-	return startCapture(onPacketArrives, onPacketArrivesUserCookie, 0, nullptr, nullptr);
+	return startCapture(std::move(onPacketArrives), onPacketArrivesUserCookie, 0, nullptr, nullptr);
 }
 
 bool PcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	return startCapture(nullptr, nullptr, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
+	return startCapture(nullptr, nullptr, intervalInSecondsToUpdateStats, std::move(onStatsUpdate), onStatsUpdateUserCookie);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
@@ -451,7 +451,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
 
 	m_CaptureCallbackMode = true;
-	m_cbOnPacketArrives = onPacketArrives;
+	m_cbOnPacketArrives = std::move(onPacketArrives);
 	m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
 
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
@@ -460,7 +460,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 
 	if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 	{
-		m_cbOnStatsUpdate = onStatsUpdate;
+		m_cbOnStatsUpdate = std::move(onStatsUpdate);
 		m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
 		m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
 		m_StatsThreadStarted = true;
@@ -515,7 +515,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesUserCookie = nullptr;
 	m_cbOnStatsUpdateUserCookie = nullptr;
 
-	m_cbOnPacketArrivesBlockingMode = onPacketArrives;
+	m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
 
 	m_CaptureThreadStarted = true;
