@@ -477,6 +477,78 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 } // TestPcapLiveDeviceBlockingMode
 
 
+PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
+{
+	pcpp::PcapLiveDevice* liveDev = nullptr;
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
+	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
+	int packetCount = 0;
+	int numOfTimeStatsWereInvoked = 0;
+
+	auto packetArrivesLambda = [](pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDevice, void* userCookie)
+	{
+		(*(int*)userCookie)++;
+	};
+
+	auto statsUpdateLambda = [](pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
+	{
+		(*(int*)userCookie)++;
+	};
+
+	PTF_ASSERT_TRUE(liveDev->startCapture(packetArrivesLambda , (void*)&packetCount, 1, statsUpdateLambda, (void*)&numOfTimeStatsWereInvoked));
+	int totalSleepTime = 0;
+	while (totalSleepTime <= 20)
+	{
+		pcpp::multiPlatformSleep(2);
+		totalSleepTime += 2;
+		if (packetCount > 0)
+			break;
+	}
+
+	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+
+	liveDev->stopCapture();
+	PTF_ASSERT_GREATER_THAN(packetCount, 0);
+	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-2);
+} // TestPcapLiveDeviceWithLambda
+
+
+
+PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
+{
+	auto packetArrivesBlockingModeNoTimeoutLambda = [](
+		pcpp::RawPacket *rawPacket, pcpp::PcapLiveDevice *dev, void *userCookie)
+	{
+		int *packetCount = (int *)userCookie;
+		if ((*packetCount) == 5)
+			return true;
+
+		(*packetCount)++;
+		return false;
+	};
+
+	// open device
+	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	PTF_ASSERT_NOT_NULL(liveDev);
+	PTF_ASSERT_TRUE(liveDev->open());
+	DeviceTeardown devTeardown(liveDev);
+
+	int packetCount = 0;
+	PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeNoTimeoutLambda, &packetCount, 30), 1);
+	PTF_ASSERT_EQUAL(packetCount, 5);
+
+	liveDev->close();
+
+	// a negative test
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(liveDev->startCapture(packetArrives, &packetCount));
+	pcpp::Logger::getInstance().enableLogs();
+} // TestPcapLiveDeviceBlockingModeWithLambda
+
 
 
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
