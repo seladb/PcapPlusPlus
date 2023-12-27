@@ -464,6 +464,11 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStartCapture, &packetCount, 30), 1);
 		PTF_ASSERT_EQUAL(packetCount, 5);
 
+		// try to start capture from within the callback, verify no error
+		packetCount = 0;
+		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStartCaptureUsingLambda, &packetCount, 30), 1);
+		PTF_ASSERT_EQUAL(packetCount, 5);
+
 		// try to stop capture from within the callback, verify no impact on capturing
 		packetCount = 0;
 		PTF_ASSERT_EQUAL(liveDev->startCaptureBlockingMode(packetArrivesBlockingModeStopCapture, &packetCount, 10), 1);
