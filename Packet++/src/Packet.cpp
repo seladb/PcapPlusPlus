@@ -30,7 +30,6 @@ Packet::Packet(size_t maxPacketLen) :
 	m_RawPacket(nullptr),
 	m_FirstLayer(nullptr),
 	m_LastLayer(nullptr),
-	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(maxPacketLen),
 	m_FreeRawPacket(true),
 	m_CanReallocateData(true)
@@ -46,7 +45,6 @@ Packet::Packet(uint8_t* buffer, size_t bufferSize) :
 	m_RawPacket(nullptr),
 	m_FirstLayer(nullptr),
 	m_LastLayer(nullptr),
-	m_ProtocolTypes(UnknownProtocol),
 	m_MaxPacketLen(bufferSize),
 	m_FreeRawPacket(true),
 	m_CanReallocateData(false)
@@ -57,13 +55,12 @@ Packet::Packet(uint8_t* buffer, size_t bufferSize) :
 	m_RawPacket = new RawPacket(buffer, 0, time, false, LINKTYPE_ETHERNET);
 }
 
-void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil, OsiModelLayer parseUntilLayer)
 {
 	destructPacketData();
 
 	m_FirstLayer = nullptr;
 	m_LastLayer = nullptr;
-	m_ProtocolTypes = UnknownProtocol;
 	m_MaxPacketLen = rawPacket->getRawDataLen();
 	m_FreeRawPacket = freeRawPacket;
 	m_RawPacket = rawPacket;
@@ -77,9 +74,8 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 
 	m_LastLayer = m_FirstLayer;
 	Layer* curLayer = m_FirstLayer;
-	while (curLayer != nullptr && (curLayer->getProtocol() & parseUntil) == 0 && curLayer->getOsiModelLayer() <= parseUntilLayer)
+	while (curLayer != nullptr && (parseUntil == UnknownProtocol || !curLayer->isMemberOfProtocolFamily(parseUntil)) && curLayer->getOsiModelLayer() <= parseUntilLayer)
 	{
-		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->parseNextLayer();
 		curLayer->m_IsAllocatedInPacket = true;
 		curLayer = curLayer->getNextLayer();
@@ -87,9 +83,8 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 			m_LastLayer = curLayer;
 	}
 
-	if (curLayer != nullptr && (curLayer->getProtocol() & parseUntil) != 0)
+	if (curLayer != nullptr && curLayer->isMemberOfProtocolFamily(parseUntil))
 	{
-		m_ProtocolTypes |= curLayer->getProtocol();
 		curLayer->m_IsAllocatedInPacket = true;
 	}
 
@@ -116,7 +111,6 @@ void Packet::setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType
 			trailerLayer->m_IsAllocatedInPacket = true;
 			m_LastLayer->setNextLayer(trailerLayer);
 			m_LastLayer = trailerLayer;
-			m_ProtocolTypes |= trailerLayer->getProtocol();
 		}
 	}
 }
@@ -134,7 +128,16 @@ Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
 	m_FreeRawPacket = false;
 	m_RawPacket = nullptr;
 	m_FirstLayer = nullptr;
-	setRawPacket(rawPacket, false, parseUntil, OsiModelLayerUnknown);
+	auto parseUntilFamily = static_cast<ProtocolTypeFamily>(parseUntil);
+	setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
+}
+
+Packet::Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
+{
+	m_FreeRawPacket = false;
+	m_RawPacket = nullptr;
+	m_FirstLayer = nullptr;
+	setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
 }
 
 Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
@@ -176,7 +179,6 @@ void Packet::copyDataFrom(const Packet& other)
 	m_RawPacket = new RawPacket(*(other.m_RawPacket));
 	m_FreeRawPacket = true;
 	m_MaxPacketLen = other.m_MaxPacketLen;
-	m_ProtocolTypes = other.m_ProtocolTypes;
 	m_FirstLayer = createFirstLayer(m_RawPacket->getLinkLayerType());
 	m_LastLayer = m_FirstLayer;
 	m_CanReallocateData = true;
@@ -323,8 +325,6 @@ bool Packet::insertLayer(Layer* prevLayer, Layer* newLayer, bool ownInPacket)
 		curLayer = curLayer->getNextLayer();
 	}
 
-	// add layer protocol to protocol collection
-	m_ProtocolTypes |= newLayer->getProtocol();
 	return true;
 }
 
@@ -467,9 +467,6 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 
 	curLayer = m_FirstLayer;
 
-	// a flag to be set if there is another layer in this packet with the same protocol
-	bool anotherLayerWithSameProtocolExists = false;
-
 	// go over all layers from the first layer to the last layer and set the data ptr and data length for each one
 	while (curLayer != nullptr)
 	{
@@ -484,10 +481,6 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 		else
 			curLayer->m_DataLen = dataLen - packetTrailerLen;
 
-		// check if current layer's protocol is the same as removed layer protocol and set the flag accordingly
-		if (curLayer->getProtocol() == layer->getProtocol())
-			anotherLayerWithSameProtocolExists = true;
-
 		// advance data ptr and data length
 		dataPtr += curLayer->getHeaderLen();
 		dataLen -= curLayer->getHeaderLen();
@@ -495,10 +488,6 @@ bool Packet::removeLayer(Layer* layer, bool tryToDelete)
 		// move to next layer
 		curLayer = curLayer->getNextLayer();
 	}
-
-	// remove layer protocol from protocol list if necessary
-	if (!anotherLayerWithSameProtocolExists)
-		m_ProtocolTypes &= ~((uint64_t)layer->getProtocol());
 
 	// if layer was allocated by this packet and tryToDelete flag is set, delete it
 	if (tryToDelete && layer->m_IsAllocatedInPacket)
@@ -535,6 +524,36 @@ Layer* Packet::getLayerOfType(ProtocolType layerType, int index) const
 
 	return curLayer;
 }
+
+	bool Packet::isPacketOfType(ProtocolType protocolType) const
+	{
+		Layer* curLayer = getFirstLayer();
+		while (curLayer != nullptr)
+		{
+			if (curLayer->getProtocol() == protocolType)
+			{
+				return true;
+			}
+			curLayer = curLayer->getNextLayer();
+		}
+
+		return false;
+	}
+
+	bool Packet::isPacketOfType(ProtocolTypeFamily protocolTypeFamily) const
+	{
+		Layer* curLayer = getFirstLayer();
+		while (curLayer != nullptr)
+		{
+			if (curLayer->isMemberOfProtocolFamily(protocolTypeFamily))
+			{
+				return true;
+			}
+			curLayer = curLayer->getNextLayer();
+		}
+
+		return false;
+	}
 
 bool Packet::extendLayer(Layer* layer, int offsetInLayer, size_t numOfBytesToExtend)
 {

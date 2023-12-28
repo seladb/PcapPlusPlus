@@ -90,6 +90,13 @@ namespace pcpp
 		ProtocolType getProtocol() const { return m_Protocol; }
 
 		/**
+		 * Check if the layer's protocol matches a protocol family
+		 * @param protocolTypeFamily The protocol family to check
+		 * @return True if the layer's protocol matches the protocol family, false otherwise
+		 */
+		bool isMemberOfProtocolFamily(ProtocolTypeFamily protocolTypeFamily) const;
+
+		/**
 		 * @return A pointer to the layer raw data. In most cases it'll be a pointer to the first byte of the header
 		 */
 		uint8_t* getData() const { return m_Data; }

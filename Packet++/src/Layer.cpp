@@ -41,6 +41,17 @@ Layer& Layer::operator=(const Layer& other)
 	return *this;
 }
 
+bool Layer::isMemberOfProtocolFamily(ProtocolTypeFamily protocolTypeFamily) const
+{
+	auto protocolToFamily = static_cast<ProtocolTypeFamily>(m_Protocol);
+	return (m_Protocol != UnknownProtocol &&
+	       (protocolToFamily == (protocolTypeFamily & 0xff) ||
+	        protocolToFamily << 8 == (protocolTypeFamily & 0xff00) ||
+	        protocolToFamily << 16 == (protocolTypeFamily & 0xff0000) ||
+	        protocolToFamily << 24 == (protocolTypeFamily & 0xff000000)));
+}
+
+
 void Layer::copyData(uint8_t* toArr) const
 {
 	memcpy(toArr, m_Data, m_DataLen);
