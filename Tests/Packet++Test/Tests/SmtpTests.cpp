@@ -25,7 +25,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer1->getCommandString(), "AUTH");
 	PTF_ASSERT_EQUAL(smtpLayer1->getCommandOption(), "LOGIN");
 	PTF_ASSERT_EQUAL(smtpLayer1->getCommandOption(false), "LOGIN");
-	PTF_ASSERT_EQUAL(smtpLayer1->toString(), "SMTP request layer, command: AUTH");
+	PTF_ASSERT_EQUAL(smtpLayer1->toString(), "SMTP request layer, command: Authenticate client and server");
 	PTF_ASSERT_FALSE(smtpLayer1->isMultiLine());
 
 	// Response packet
@@ -39,7 +39,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer2->getStatusCodeString(), "334");
 	PTF_ASSERT_EQUAL(smtpLayer2->getStatusOption(), "VXNlcm5hbWU6");
 	PTF_ASSERT_EQUAL(smtpLayer2->getStatusOption(false), "VXNlcm5hbWU6");
-	PTF_ASSERT_EQUAL(smtpLayer2->toString(), "SMTP response layer, status code: 334");
+	PTF_ASSERT_EQUAL(smtpLayer2->toString(), "SMTP response layer, status code: AUTH input");
 	PTF_ASSERT_FALSE(smtpLayer2->isMultiLine());
 
 	// Multiline
@@ -60,7 +60,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 		"xc90.websitewelcome.com ESMTP Exim 4.69 #1 Mon, 05 Oct 2009 01:05:54 -0500 \r\n"
 		"220-We do not authorize the use of this system to transport unsolicited, \r\n220 and/or bulk e-mail."
 	)
-	PTF_ASSERT_EQUAL(smtpLayer3->toString(), "SMTP response layer, status code: 220");
+	PTF_ASSERT_EQUAL(smtpLayer3->toString(), "SMTP response layer, status code: Service ready");
 	PTF_ASSERT_TRUE(smtpLayer3->isMultiLine());
 
 	// IPv6
@@ -74,7 +74,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer4->getStatusCodeString(), "220");
 	PTF_ASSERT_EQUAL(smtpLayer4->getStatusOption(), "mx.google.com ESMTP m17si1051593vck.2 - gsmtp");
 	PTF_ASSERT_EQUAL(smtpLayer4->getStatusOption(false), "mx.google.com ESMTP m17si1051593vck.2 - gsmtp");
-	PTF_ASSERT_EQUAL(smtpLayer4->toString(), "SMTP response layer, status code: 220");
+	PTF_ASSERT_EQUAL(smtpLayer4->toString(), "SMTP response layer, status code: Service ready");
 	PTF_ASSERT_FALSE(smtpLayer4->isMultiLine());
 
 	// Command descriptions
