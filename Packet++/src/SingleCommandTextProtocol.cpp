@@ -130,8 +130,10 @@ namespace pcpp
 
 	std::string SingleCommandTextProtocol::getCommandOptionInternal() const
 	{
+		// We don't want to get delimiter so add 1 for start, and we don't want to trailing newline characters so remove 2 and
+		// remove 1 because of addition from start point
 		if (getArgumentFieldOffset() != (m_DataLen - 1))
-			return std::string((char *)&m_Data[getArgumentFieldOffset() + 1], m_DataLen - getArgumentFieldOffset() - 2);
+			return std::string((char *)&m_Data[getArgumentFieldOffset() + 1], m_DataLen - getArgumentFieldOffset() - 2 - 1);
 		return "";
 	}
 

@@ -117,10 +117,7 @@ namespace pcpp
 
 	std::string SmtpRequestLayer::toString() const
 	{
-		std::string cmd = getCommandString();
-		if (cmd.length())
-			return "SMTP Request: " + cmd;
-		return "SMTP Request";
+		return "SMTP request layer, command: " + getCommandAsString(getCommand());
 	}
 
 	// ----------------- Class SmtpResponseLayer -----------------
@@ -239,10 +236,7 @@ namespace pcpp
 
 	std::string SmtpResponseLayer::toString() const
 	{
-		std::string option = getStatusCodeString();
-		if (option.length())
-			return "SMTP Response: " + getStatusCodeString();
-		return "SMTP Response";
+		return "SMTP response layer, status code: " + getStatusCodeString();
 	}
 
 } // namespace pcpp
