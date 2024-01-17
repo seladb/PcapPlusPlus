@@ -178,6 +178,8 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 	// stop the capturing thread
 	device->stopCapture();
 
+	std::cout << "after stop capture" << std::endl;
+
 	// check if timeout expired
 	if (res == std::cv_status::timeout)
 	{
@@ -185,13 +187,24 @@ MacAddress NetworkUtils::getMacAddress(IPv4Address ipAddr, PcapLiveDevice* devic
 		return result;
 	}
 
+	std::cout << "before close device" << std::endl;
 	if (closeDeviceAtTheEnd)
+	{
+		std::cout << "closing device" << std::endl;
 		device->close();
+		std::cout << "device closed" << std::endl;
+	}
 	else
+	{
+		std::cout << "closing clear filter" << std::endl;
 		device->clearFilter();
+		std::cout << "clear filter done" << std::endl;
+	}
 
 	result = data.result;
 	arpResponseTimeMS = data.arpResponseTime;
+
+	std::cout << "returning" << std::endl;
 
 	return result;
 }
