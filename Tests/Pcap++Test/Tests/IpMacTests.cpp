@@ -318,6 +318,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
 #else
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
+	std::cout << pcpp::executeShellCommand("arp -a") << std::endl;
 #endif
 
 	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "");
