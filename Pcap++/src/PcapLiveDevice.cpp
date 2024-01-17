@@ -180,11 +180,13 @@ void PcapLiveDevice::captureThreadMain()
 	{
 		while (!m_StopThread)
 		{
+			std::cout << "before pcap_dispatch" << std::endl;
 			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
 				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
 				m_StopThread = true;
 			}
+			std::cout << "after pcap_dispatch" << std::endl;
 		}
 	}
 	else
