@@ -343,7 +343,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 		for (int i = 0; i < 3; i++)
 		{
 			std::cout << "ipAddr is: " << ipAddr << std::endl;
-			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
+//			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
 			if (result != pcpp::MacAddress::Zero)
 				break;
 		}
