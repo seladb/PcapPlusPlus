@@ -341,7 +341,7 @@ namespace pcpp
 	/*
 	 * SMTP protocol
 	 */
-	const ProtocolType SMTP = 0x20000000000000;
+	const ProtocolType SMTP = 54;
 
 	/**
 	 * An enum representing OSI model layers
