@@ -591,31 +591,47 @@ namespace pcpp
 
 	/**
 	 * @class ProtoFilter
-	 * A class for filtering traffic by protocol. Notice not all protocols are supported, only the following are supported:
-	 * ::TCP, ::UDP, ::ICMP, ::VLAN, ::IPv4, ::IPv6, ::ARP, ::Ethernet, ::GRE (distinguish between ::GREv0 and ::GREv1 is not supported),
-	 * ::IGMP (distinguish between ::IGMPv1, ::IGMPv2 and ::IGMPv3 is not supported). <BR>
+	 * A class for filtering traffic by protocol. Notice not all protocols are supported, only the following protocol are supported:
+	 * ::TCP, ::UDP, ::ICMP, ::VLAN, ::IPv4, ::IPv6, ::ARP, ::Ethernet.
+	 * In addition, the following protocol families are supported: ::GRE (distinguish between ::GREv0 and ::GREv1 is not supported),
+	 * ::IGMP (distinguish between ::IGMPv1, ::IGMPv2 and ::IGMPv3 is not supported).
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class ProtoFilter : public GeneralFilter
 	{
 	private:
-		ProtocolType m_Proto;
+		ProtocolTypeFamily m_ProtoFamily;
 	public:
 		/**
-		 * A constructor that gets the protocol and creates the filter
+		 * A constructor that gets a protocol and creates the filter
 		 * @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note not all protocols are
 		 * supported. List of supported protocols is found in the class description
 		 */
-		explicit ProtoFilter(ProtocolType proto) : m_Proto(proto) {}
+		explicit ProtoFilter(ProtocolType proto) : m_ProtoFamily(proto) {}
+
+		/**
+		 * A constructor that gets a protocol family and creates the filter
+		 * @param[in] protoFamily The protocol family to filter, only packets matching this protocol will be received. Please note not all protocols are
+		 * supported. List of supported protocols is found in the class description
+		 */
+		explicit ProtoFilter(ProtocolTypeFamily protoFamily) : m_ProtoFamily(protoFamily) {}
 
 		void parseToString(std::string& result);
 
 		/**
 		 * Set the protocol to filter with
-		 * @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note not all protocols are
+		 * @param[in] proto The protocol to filter, only packets matching this protocol will be received. Please note not all protocol families are
 		 * supported. List of supported protocols is found in the class description
 		 */
-		void setProto(ProtocolType proto) { m_Proto = proto; }
+		void setProto(ProtocolType proto) { m_ProtoFamily = proto; }
+
+		/**
+		 * Set the protocol family to filter with
+		 * @param[in] protoFamily The protocol family to filter, only packets matching this protocol will be received. Please note not all protocol families are
+		 * supported. List of supported protocols is found in the class description
+		 */
+		void setProto(ProtocolTypeFamily protoFamily) { m_ProtoFamily = protoFamily; }
 	};
 
 

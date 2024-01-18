@@ -40,15 +40,14 @@ typedef std::map<pcpp::DpdkDevice*, std::vector<int> > InputDataConfig;
  */
 struct AppWorkerConfig
 {
-	uint32_t CoreId;
-	InputDataConfig InDataCfg;
-	pcpp::DpdkDevice* SendPacketsTo;
-	bool WriteMatchedPacketsToFile;
-	std::string PathToWritePackets;
+	uint32_t coreId;
+	InputDataConfig inDataCfg;
+	pcpp::DpdkDevice* sendPacketsTo;
+	bool writeMatchedPacketsToFile;
+	std::string pathToWritePackets;
 
-	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), SendPacketsTo(NULL), WriteMatchedPacketsToFile(false), PathToWritePackets("")
-	{
-	}
+	AppWorkerConfig() : coreId(MAX_NUM_OF_CORES+1), sendPacketsTo(nullptr),
+	                    writeMatchedPacketsToFile(false), pathToWritePackets("") {}
 };
 
 
@@ -58,115 +57,84 @@ struct AppWorkerConfig
 struct PacketStats
 {
 public:
-	uint8_t WorkerId;
+	uint8_t workerId;
 
-	int PacketCount;
-	int EthCount;
-	int ArpCount;
-	int Ip4Count;
-	int Ip6Count;
-	int TcpCount;
-	int UdpCount;
-	int HttpCount;
+	int packetCount;
+	int ethCount;
+	int arpCount;
+	int ipv4Count;
+	int ipv6Count;
+	int tcpCount;
+	int udpCount;
+	int httpCount;
+	int dnsCount;
+	int tlsCount;
 
-	int MatchedTcpFlows;
-	int MatchedUdpFlows;
-	int MatchedPackets;
+	int matchedTcpFlows;
+	int matchedUdpFlows;
+	int matchedPackets;
 
-	PacketStats() : WorkerId(MAX_NUM_OF_CORES+1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0), TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0) {}
+	PacketStats() : workerId(MAX_NUM_OF_CORES+1), packetCount(0), ethCount(0), arpCount(0), ipv4Count(0), ipv6Count(0),
+	                tcpCount(0), udpCount(0), httpCount(0), dnsCount(0), tlsCount(0),
+					matchedTcpFlows(0), matchedUdpFlows(0), matchedPackets(0) {}
 
 	void collectStats(pcpp::Packet& packet)
 	{
-		PacketCount++;
+		packetCount++;
 		if (packet.isPacketOfType(pcpp::Ethernet))
-			EthCount++;
+			ethCount++;
 		if (packet.isPacketOfType(pcpp::ARP))
-			ArpCount++;
+			arpCount++;
 		if (packet.isPacketOfType(pcpp::IPv4))
-			Ip4Count++;
+			ipv4Count++;
 		if (packet.isPacketOfType(pcpp::IPv6))
-			Ip6Count++;
+			ipv6Count++;
 		if (packet.isPacketOfType(pcpp::TCP))
-			TcpCount++;
+			tcpCount++;
 		if (packet.isPacketOfType(pcpp::UDP))
-			UdpCount++;
+			udpCount++;
 		if (packet.isPacketOfType(pcpp::HTTP))
-			HttpCount++;
+			httpCount++;
+		if (packet.isPacketOfType(pcpp::DNS))
+			dnsCount++;
+		if (packet.isPacketOfType(pcpp::SSL))
+			tlsCount++;
 	}
 
 	void collectStats(const PacketStats& stats)
 	{
-		PacketCount += stats.PacketCount;
-		EthCount += stats.EthCount;
-		ArpCount += stats.ArpCount;
-		Ip4Count += stats.Ip4Count;
-		Ip6Count += stats.Ip6Count;
-		TcpCount += stats.TcpCount;
-		UdpCount += stats.UdpCount;
-		HttpCount += stats.HttpCount;
+		packetCount += stats.packetCount;
+		ethCount += stats.ethCount;
+		arpCount += stats.arpCount;
+		ipv4Count += stats.ipv4Count;
+		ipv6Count += stats.ipv6Count;
+		tcpCount += stats.tcpCount;
+		udpCount += stats.udpCount;
+		httpCount += stats.httpCount;
+		dnsCount += stats.dnsCount;
+		tlsCount += stats.tlsCount;
 
-		MatchedTcpFlows += stats.MatchedTcpFlows;
-		MatchedUdpFlows += stats.MatchedUdpFlows;
-		MatchedPackets += stats.MatchedPackets;
+		matchedTcpFlows += stats.matchedTcpFlows;
+		matchedUdpFlows += stats.matchedUdpFlows;
+		matchedPackets += stats.matchedPackets;
 	}
 
-	void clear() { WorkerId = MAX_NUM_OF_CORES+1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; MatchedTcpFlows = 0; MatchedUdpFlows = 0; MatchedPackets = 0; }
-
-	std::string getStatValuesAsString(const std::string &delimiter)
+	void clear()
 	{
-		std::stringstream values;
-		if (WorkerId == MAX_NUM_OF_CORES+1)
-			values << "Total" << delimiter;
-		else
-			values << (int)WorkerId << delimiter;
-		values << PacketCount << delimiter;
-		values << EthCount << delimiter;
-		values << ArpCount << delimiter;
-		values << Ip4Count << delimiter;
-		values << Ip6Count << delimiter;
-		values << TcpCount << delimiter;
-		values << UdpCount << delimiter;
-		values << HttpCount << delimiter;
-		values << MatchedTcpFlows << delimiter;
-		values << MatchedUdpFlows << delimiter;
-		values << MatchedPackets;
+		workerId = MAX_NUM_OF_CORES+1;
+		packetCount = 0;
+		ethCount = 0;
+		arpCount = 0;
+		ipv4Count = 0;
+		ipv6Count = 0;
+		tcpCount = 0;
+		udpCount = 0;
+		httpCount = 0;
+		dnsCount = 0;
+		tlsCount = 0;
 
-		return values.str();
-	}
-
-	static void getStatsColumns(std::vector<std::string>& columnNames, std::vector<int>& columnWidths)
-	{
-		columnNames.clear();
-		columnWidths.clear();
-
-	    static const int narrowColumnWidth = 11;
-	    static const int wideColumnWidth = 18;
-
-		columnNames.push_back("Core ID");
-		columnNames.push_back("Packet Cnt");
-		columnNames.push_back("Eth Cnt");
-		columnNames.push_back("ARP Cnt");
-		columnNames.push_back("IPv4 Cnt");
-		columnNames.push_back("IPv6 Cnt");
-		columnNames.push_back("TCP Cnt");
-		columnNames.push_back("UDP Cnt");
-		columnNames.push_back("HTTP Cnt");
-		columnNames.push_back("Matched TCP Flows");
-		columnNames.push_back("Matched UDP Flows");
-		columnNames.push_back("Matched Packets");
-
-		columnWidths.push_back(7);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(narrowColumnWidth);
-		columnWidths.push_back(wideColumnWidth);
-		columnWidths.push_back(wideColumnWidth);
-		columnWidths.push_back(wideColumnWidth);
-
+		matchedTcpFlows = 0;
+		matchedUdpFlows = 0;
+		matchedPackets = 0;
 	}
 };
