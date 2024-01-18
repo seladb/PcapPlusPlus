@@ -77,6 +77,31 @@ PTF_TEST_CASE(SmtpParsingTests)
 	PTF_ASSERT_EQUAL(smtpLayer4->toString(), "SMTP response layer, status code: Service ready");
 	PTF_ASSERT_FALSE(smtpLayer4->isMultiLine());
 
+	// Username and Password packets. They should return Unknown since there is no command in packets
+	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/smtpUser.dat");
+	pcpp::Packet smtpPacket5(&rawPacket5);
+	auto *smtpLayer5 = smtpPacket5.getLayerOfType<pcpp::SmtpRequestLayer>();
+	
+	PTF_ASSERT_EQUAL(smtpLayer5->getHeaderLen(), 30);
+	PTF_ASSERT_EQUAL(smtpLayer5->getCommand(), pcpp::SmtpRequestLayer::SmtpCommand::UNK, enumclass);
+	PTF_ASSERT_EQUAL(smtpLayer5->getCommandString(), "");
+	PTF_ASSERT_EQUAL(smtpLayer5->getCommandOption(), "Z3VycGFydGFwQHBhdHJpb3RzLmlu");
+	PTF_ASSERT_EQUAL(smtpLayer5->getCommandOption(false), "Z3VycGFydGFwQHBhdHJpb3RzLmlu");
+	PTF_ASSERT_EQUAL(smtpLayer5->toString(), "SMTP request layer, command: Unknown command");
+	PTF_ASSERT_FALSE(smtpLayer5->isMultiLine());
+
+	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/smtpPassword.dat");
+	pcpp::Packet smtpPacket6(&rawPacket6);
+	auto *smtpLayer6 = smtpPacket6.getLayerOfType<pcpp::SmtpRequestLayer>();
+	
+	PTF_ASSERT_EQUAL(smtpLayer6->getHeaderLen(), 18);
+	PTF_ASSERT_EQUAL(smtpLayer6->getCommand(), pcpp::SmtpRequestLayer::SmtpCommand::UNK, enumclass);
+	PTF_ASSERT_EQUAL(smtpLayer6->getCommandString(), "");
+	PTF_ASSERT_EQUAL(smtpLayer6->getCommandOption(), "cHVuamFiQDEyMw==");
+	PTF_ASSERT_EQUAL(smtpLayer6->getCommandOption(false), "cHVuamFiQDEyMw==");
+	PTF_ASSERT_EQUAL(smtpLayer6->toString(), "SMTP request layer, command: Unknown command");
+	PTF_ASSERT_FALSE(smtpLayer6->isMultiLine());
+
 	// Command descriptions
 	std::vector<std::pair<pcpp::SmtpRequestLayer::SmtpCommand, std::string>> possibleCommandCodes = {
 		{static_cast<pcpp::SmtpRequestLayer::SmtpCommand>(0), "Unknown command"},
