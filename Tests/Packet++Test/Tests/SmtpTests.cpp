@@ -81,7 +81,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/smtpUser.dat");
 	pcpp::Packet smtpPacket5(&rawPacket5);
 	auto *smtpLayer5 = smtpPacket5.getLayerOfType<pcpp::SmtpRequestLayer>();
-	
+
 	PTF_ASSERT_EQUAL(smtpLayer5->getHeaderLen(), 30);
 	PTF_ASSERT_EQUAL(smtpLayer5->getCommand(), pcpp::SmtpRequestLayer::SmtpCommand::UNK, enumclass);
 	PTF_ASSERT_EQUAL(smtpLayer5->getCommandString(), "");
@@ -93,7 +93,7 @@ PTF_TEST_CASE(SmtpParsingTests)
 	READ_FILE_AND_CREATE_PACKET(6, "PacketExamples/smtpPassword.dat");
 	pcpp::Packet smtpPacket6(&rawPacket6);
 	auto *smtpLayer6 = smtpPacket6.getLayerOfType<pcpp::SmtpRequestLayer>();
-	
+
 	PTF_ASSERT_EQUAL(smtpLayer6->getHeaderLen(), 18);
 	PTF_ASSERT_EQUAL(smtpLayer6->getCommand(), pcpp::SmtpRequestLayer::SmtpCommand::UNK, enumclass);
 	PTF_ASSERT_EQUAL(smtpLayer6->getCommandString(), "");
