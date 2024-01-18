@@ -318,7 +318,6 @@ PTF_TEST_CASE(TestGetMacAddress)
 	ipsInArpTableAsString.erase(std::remove(ipsInArpTableAsString.begin(), ipsInArpTableAsString.end(), ' '), ipsInArpTableAsString.end() ) ;
 #else
 	ipsInArpTableAsString = pcpp::executeShellCommand("arp -a | awk '{print $2}' | sed 's/.$//; s/^.//'");
-	std::cout << pcpp::executeShellCommand("arp -a") << std::endl;
 #endif
 
 	PTF_ASSERT_NOT_EQUAL(ipsInArpTableAsString, "");
@@ -327,7 +326,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 	pcpp::MacAddress result = pcpp::MacAddress::Zero;
 	std::stringstream sstream(ipsInArpTableAsString);
 	std::string ip;
-	double time = 10;
+	double time = -1;
 	bool foundValidIpAddr = false;
 	while (std::getline(sstream, ip, '\n'))
 	{
@@ -343,7 +342,6 @@ PTF_TEST_CASE(TestGetMacAddress)
 
 		for (int i = 0; i < 3; i++)
 		{
-			std::cout << "ipAddr is: " << ipAddr << std::endl;
 			result = pcpp::NetworkUtils::getInstance().getMacAddress(ipAddr, liveDev, time);
 			if (result != pcpp::MacAddress::Zero)
 				break;
