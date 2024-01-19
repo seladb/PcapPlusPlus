@@ -2,6 +2,7 @@
 #include "Logger.h"
 
 #include <string.h>
+#include <algorithm>
 
 #define ASCII_HYPHEN 0x2d
 #define ASCII_SPACE 0x20

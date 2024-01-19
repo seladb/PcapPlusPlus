@@ -30,7 +30,6 @@ namespace pcpp
 		RawPacket* m_RawPacket;
 		Layer* m_FirstLayer;
 		Layer* m_LastLayer;
-		uint64_t m_ProtocolTypes;
 		size_t m_MaxPacketLen;
 		bool m_FreeRawPacket;
 		bool m_CanReallocateData;
@@ -77,10 +76,21 @@ namespace pcpp
 		 * are created and linked to each other in the right order. In this overload of the constructor the user can specify whether to free
 		 * the instance of raw packet when the Packet is free or not. This constructor should be used to parse the packet up to a certain layer
 		 * @param[in] rawPacket A pointer to the raw packet
-		 * @param[in] parseUntil Optional parameter. Parse the packet until you reach a certain protocol (inclusive). Can be useful for cases when you need to parse only up to a
+		 * @param[in] parseUntil Parse the packet until you reach a certain protocol (inclusive). Can be useful for cases when you need to parse only up to a
 		 * certain layer and want to avoid the performance impact and memory consumption of parsing the whole packet
 		 */
-		Packet(RawPacket* rawPacket, ProtocolType parseUntil);
+		explicit Packet(RawPacket* rawPacket, ProtocolType parseUntil);
+
+		/**
+		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
+		 * When using this constructor a pointer to the RawPacket is saved (data isn't copied) and the RawPacket is parsed, meaning all layers
+		 * are created and linked to each other in the right order. In this overload of the constructor the user can specify whether to free
+		 * the instance of raw packet when the Packet is free or not. This constructor should be used to parse the packet up to a certain layer
+		 * @param[in] rawPacket A pointer to the raw packet
+		 * @param[in] parseUntilFamily Parse the packet until you reach a certain protocol family (inclusive). Can be useful for cases when you need to parse only up to a
+		 * certain layer and want to avoid the performance impact and memory consumption of parsing the whole packet
+		 */
+		explicit Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily);
 
 		/**
 		 * A constructor for creating a packet out of already allocated RawPacket. Very useful when parsing packets that came from the network.
@@ -91,7 +101,7 @@ namespace pcpp
 		 * @param[in] parseUntilLayer Optional parameter. Parse the packet until you reach a certain layer in the OSI model (inclusive). Can be useful for cases when you need to
 		 * parse only up to a certain OSI layer (for example transport layer) and want to avoid the performance impact and memory consumption of parsing the whole packet
 		 */
-		Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
+		explicit Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer);
 
 		/**
 		 * A destructor for this class. Frees all layers allocated by this instance (Notice: it doesn't free layers that weren't allocated by this
@@ -131,7 +141,7 @@ namespace pcpp
 		 * @param[in] parseUntilLayer Parse the packet until certain layer in OSI model. Can be useful for cases when you need to parse only up to a certain layer and want to avoid the
 		 * performance impact and memory consumption of parsing the whole packet. Default value is ::OsiModelLayerUnknown which means don't take this parameter into account
 		 */
-		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+		void setRawPacket(RawPacket* rawPacket, bool freeRawPacket, ProtocolTypeFamily parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * Get a pointer to the Packet's RawPacket in a read-only manner
@@ -286,11 +296,18 @@ namespace pcpp
 		TLayer* getPrevLayerOfType(Layer* startLayer) const;
 
 		/**
-		 * Check whether the packet contains a certain protocol
+		 * Check whether the packet contains a layer of a certain protocol
 		 * @param[in] protocolType The protocol type to search
-		 * @return True if the packet contains the protocol, false otherwise
+		 * @return True if the packet contains a layer of a certain protocol, false otherwise
 		 */
-		bool isPacketOfType(ProtocolType protocolType) const { return m_ProtocolTypes & protocolType; }
+		bool isPacketOfType(ProtocolType protocolType) const;
+
+		/**
+		* Check whether the packet contains a layer of a certain protocol family
+		* @param[in] protocolTypeFamily The protocol type family to search
+		 * @return True if the packet contains a layer of a certain protocol family, false otherwise
+		 */
+		bool isPacketOfType(ProtocolTypeFamily protocolTypeFamily) const;
 
 		/**
 		 * Each layer can have fields that can be calculate automatically from other fields using Layer#computeCalculateFields(). This method forces all layers to calculate these
