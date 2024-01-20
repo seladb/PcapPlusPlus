@@ -176,6 +176,8 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 void PcapLiveDevice::captureThreadMain()
 {
 	PCPP_LOG_DEBUG("Started capture thread for device '" << m_Name << "'");
+	m_CaptureThreadStarted = true;
+
 	if (m_CaptureCallbackMode)
 	{
 		while (!m_StopThread)
@@ -455,7 +457,12 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
 
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
-	m_CaptureThreadStarted = true;
+
+	// Wait thread to be start
+	// C++20 = m_CaptureThreadStarted.wait(true);
+	while (m_CaptureThreadStarted != true) {
+		std::this_thread::yield();
+	}
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
@@ -478,7 +485,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 		return false;
 	}
 
-	if (m_CaptureThreadStarted)
+	if (captureActive())
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return false;
@@ -489,7 +496,12 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 	m_CaptureCallbackMode = false;
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
-	m_CaptureThreadStarted = true;
+	// Wait thread to be start
+	// C++20 = m_CaptureThreadStarted.wait(true);
+	while (m_CaptureThreadStarted != true) {
+		std::this_thread::yield();
+	}
+
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	return true;
@@ -504,7 +516,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		return 0;
 	}
 
-	if (m_CaptureThreadStarted)
+	if (captureActive())
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return 0;
