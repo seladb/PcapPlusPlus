@@ -100,7 +100,7 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
     if (strncmp(version, prefix, strlen(prefix)) == 0) {
         version += strlen(prefix);
     }
-    printf(\"%s\\n\", version);
+    printf(\"%s\", version);
     return 0;
   }
   ")
