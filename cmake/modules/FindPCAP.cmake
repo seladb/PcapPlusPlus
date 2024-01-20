@@ -49,15 +49,8 @@ endif()
 
 find_library(PCAP_LIBRARY NAMES pcap wpcap)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  PCAP
-  DEFAULT_MSG
-  PCAP_LIBRARY
-  PCAP_INCLUDE_DIR)
-
 # If Pcap is not found as this level no need to continue
-if(NOT PCAP_FOUND)
+if(NOT PCAP_LIBRARY OR NOT PCAP_INCLUDE_DIR)
   return()
 endif()
 
@@ -89,7 +82,53 @@ include(CheckFunctionExists)
 set(CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARY})
 check_function_exists(pcap_set_immediate_mode HAVE_PCAP_IMMEDIATE_MODE)
 check_function_exists(pcap_setdirection HAVE_PCAP_DIRECTION)
+check_function_exists(pcap_lib_version HAVE_PCAP_LIB_VERSION)
 set(CMAKE_REQUIRED_LIBRARIES)
+
+# Check libPCAP version
+if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
+  # Simple C code to extract the libpcap version
+  set(PCAP_VERSION_CODE
+      "
+  #include <stdio.h>
+  #include <string.h>
+  #include <pcap/pcap.h>
+
+  int main() {
+    const char* version = pcap_lib_version();
+    const char* prefix = \"libpcap version \";
+    if (strncmp(version, prefix, strlen(prefix)) == 0) {
+        version += strlen(prefix);
+    }
+    printf(\"%s\\n\", version);
+    return 0;
+  }
+  ")
+
+  # Write the code to a temporary file
+  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.c")
+  file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
+
+  # Try to compile and run the program
+  try_run(
+    RUN_RESULT_VAR
+    COMPILE_RESULT_VAR
+    "${CMAKE_BINARY_DIR}"
+    "${detect_pcap_version_file}"
+    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PCAP_INCLUDE_DIR}" LINK_LIBRARIES ${PCAP_LIBRARY}
+    RUN_OUTPUT_VARIABLE PCAP_VERSION_OUTPUT)
+
+  # If successful, parse the output to get the version string
+  if(COMPILE_RESULT_VAR AND RUN_RESULT_VAR EQUAL 0)
+    set(PCAP_VERSION ${PCAP_VERSION_OUTPUT})
+  endif()
+endif()
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+  PCAP
+  REQUIRED_VARS PCAP_LIBRARY PCAP_INCLUDE_DIR
+  VERSION_VAR PCAP_VERSION)
 
 # create IMPORTED target for libpcap dependency
 if(NOT TARGET PCAP::PCAP)
