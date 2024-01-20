@@ -39,9 +39,15 @@
 #include <sys/sysctl.h>
 #endif
 
-// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
+// TODO: FIX FreeBSD
+// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail.
+// A value of 1ms first solve the issue but since Jan. 2024 an issue
+// seems to make pcap_breakloop() to not properly break pcap_dispatch()
+// After multiple test a 10ms is the minimum to fix pcap_breakloop().
 // On Linux and Windows this is not the case so we keep the -1 value
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__FreeBSD__)
+#define LIBPCAP_OPEN_LIVE_TIMEOUT 10
+#elif defined(__APPLE__)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
