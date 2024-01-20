@@ -3,7 +3,7 @@ import argparse
 import subprocess
 import netifaces as ni
 
-TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
+TCPREPLAY_PATH = "tcpreplay-4.4.2-win"
 PCAP_FILE_PATH = os.path.abspath(
     os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 )
