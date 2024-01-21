@@ -1,5 +1,4 @@
-#ifndef DUMP_TO_FILE_H
-#define DUMP_TO_FILE_H
+#pragma once
 
 #include <iostream>
 
@@ -29,4 +28,3 @@ static int dumpDataToPcapFile(const uint8_t *data, size_t size, const char* path
 	return 0;
 }
 
-#endif // DUMP_TO_FILE_H

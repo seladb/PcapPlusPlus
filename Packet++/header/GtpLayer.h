@@ -1,5 +1,4 @@
-#ifndef PACKETPP_GTP_LAYER
-#define PACKETPP_GTP_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -459,4 +458,3 @@ namespace pcpp
 	};
 }
 
-#endif //PACKETPP_GTP_LAYER

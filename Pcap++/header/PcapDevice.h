@@ -1,5 +1,4 @@
-#ifndef PCAPPP_PCAP_DEVICE
-#define PCAPPP_PCAP_DEVICE
+#pragma once
 
 #include "Device.h"
 
@@ -96,4 +95,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif // PCAPPP_PCAP_DEVICE

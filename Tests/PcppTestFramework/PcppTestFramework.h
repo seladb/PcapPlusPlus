@@ -1,5 +1,4 @@
-#ifndef PCPP_TEST_FRAMEWORK
-#define PCPP_TEST_FRAMEWORK
+#pragma once
 
 #include <iomanip>
 #include <iostream>
@@ -233,4 +232,3 @@
 		return; \
 	}
 
-#endif // PCPP_TEST_FRAMEWORK

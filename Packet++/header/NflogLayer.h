@@ -1,5 +1,4 @@
-#ifndef PACKETPP_NFLOG_LAYER
-#define PACKETPP_NFLOG_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -239,4 +238,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_NFLOG_LAYER */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TCP_LAYER
-#define PACKETPP_TCP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -524,4 +523,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_TCP_LAYER */

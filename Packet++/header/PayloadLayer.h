@@ -1,5 +1,4 @@
-#ifndef PACKETPP_PAYLOAD_LAYER
-#define PACKETPP_PAYLOAD_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -91,4 +90,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_PAYLOAD_LAYER */

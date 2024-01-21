@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IP_LAYER
-#define PACKETPP_IP_LAYER
+#pragma once
 
 #include "IpAddress.h"
 #include "Layer.h"
@@ -43,4 +42,3 @@ namespace pcpp
 	};
 }
 
-#endif // PACKETPP_IP_LAYER

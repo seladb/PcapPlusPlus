@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IPSEC_LAYER
-#define PACKETPP_IPSEC_LAYER
+#pragma once
 
 /// @file
 
@@ -209,4 +208,3 @@ namespace pcpp
 	}
 }
 
-#endif // PACKETPP_IPSEC_LAYER

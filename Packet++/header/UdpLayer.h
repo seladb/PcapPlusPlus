@@ -1,5 +1,4 @@
-#ifndef PACKETPP_UDP_LAYER
-#define PACKETPP_UDP_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -102,4 +101,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_UDP_LAYER */

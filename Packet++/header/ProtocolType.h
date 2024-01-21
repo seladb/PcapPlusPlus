@@ -1,5 +1,4 @@
-#ifndef PCAPPP_PROTOCOL_TYPES
-#define PCAPPP_PROTOCOL_TYPES
+#pragma once
 
 #include <stdint.h>
 
@@ -363,4 +362,3 @@ namespace pcpp
 
 } //namespace pcpp
 
-#endif

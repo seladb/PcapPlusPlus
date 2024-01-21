@@ -1,5 +1,4 @@
-#ifndef PACKETPP_VLAN_LAYER
-#define PACKETPP_VLAN_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "EthLayer.h"
@@ -134,4 +133,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_VLAN_LAYER */

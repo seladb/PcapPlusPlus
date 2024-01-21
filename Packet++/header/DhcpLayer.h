@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DHCP_LAYER
-#define PACKETPP_DHCP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -823,4 +822,3 @@ namespace pcpp
 	};
 }
 
-#endif /* PACKETPP_DHCP_LAYER */

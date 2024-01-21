@@ -1,5 +1,4 @@
-#ifndef PCAPPP_MACADDRESS
-#define PCAPPP_MACADDRESS
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
@@ -186,4 +185,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAdd
 	return os;
 }
 
-#endif /* PCAPPP_MACADDRESS */

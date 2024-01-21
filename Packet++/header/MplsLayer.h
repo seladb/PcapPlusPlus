@@ -1,5 +1,4 @@
-#ifndef PACKETPP_MPLS_LAYER
-#define PACKETPP_MPLS_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -123,4 +122,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_MPLS_LAYER */

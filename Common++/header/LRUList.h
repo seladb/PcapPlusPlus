@@ -1,5 +1,4 @@
-#ifndef PCAPPP_LRU_LIST
-#define PCAPPP_LRU_LIST
+#pragma once
 
 #include <map>
 #include <list>
@@ -132,4 +131,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PCAPPP_LRU_LIST */

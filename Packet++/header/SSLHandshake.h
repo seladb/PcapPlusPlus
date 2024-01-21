@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SSL_HANDSHAKE_MESSAGE
-#define PACKETPP_SSL_HANDSHAKE_MESSAGE
+#pragma once
 
 #include <utility>
 #include "SSLCommon.h"
@@ -1141,4 +1140,3 @@ TExtension* SSLServerHelloMessage::getExtensionOfType() const
 
 } // namespace pcpp
 
-#endif /* PACKETPP_SSL_HANDSHAKE_MESSAGE */

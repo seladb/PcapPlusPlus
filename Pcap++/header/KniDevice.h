@@ -1,5 +1,4 @@
-#ifndef PCAPPP_KNI_DEVICE
-#define PCAPPP_KNI_DEVICE
+#pragma once
 
 // GCOVR_EXCL_START
 
@@ -654,4 +653,3 @@ namespace pcpp
 
 // GCOVR_EXCL_STOP
 
-#endif /* PCAPPP_KNI_DEVICE */

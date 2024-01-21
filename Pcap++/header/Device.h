@@ -1,5 +1,4 @@
-#ifndef PCAPPP_DEVICE
-#define PCAPPP_DEVICE
+#pragma once
 
 /// @file
 
@@ -95,4 +94,3 @@ namespace pcpp
 	};
 }
 
-#endif // PCAPPP_DEVICE

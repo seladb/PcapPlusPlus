@@ -1,5 +1,4 @@
-#ifndef PACKETPP_NTP_LAYER
-#define PACKETPP_NTP_LAYER
+#pragma once
 
 #include "Logger.h"
 #include "Layer.h"
@@ -674,4 +673,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_NTP_LAYER */

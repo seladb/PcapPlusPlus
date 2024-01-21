@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SDP_LAYER
-#define PACKETPP_SDP_LAYER
+#pragma once
 
 #include "IpAddress.h"
 #include "TextBasedProtocol.h"
@@ -166,4 +165,3 @@ namespace pcpp
 	};
 }
 
-#endif // PACKETPP_SDP_LAYER

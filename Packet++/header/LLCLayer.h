@@ -1,5 +1,4 @@
-#ifndef PACKETPP_LLC_LAYER
-#define PACKETPP_LLC_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -92,4 +91,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_LLC_LAYER */

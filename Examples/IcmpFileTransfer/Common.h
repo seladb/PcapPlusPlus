@@ -1,5 +1,4 @@
-#ifndef COMMON_H_
-#define COMMON_H_
+#pragma once
 
 #include "MacAddress.h"
 #include "IpAddress.h"
@@ -71,4 +70,3 @@ bool sendIcmpResponse(pcpp::PcapLiveDevice* dev,
  */
 std::string getFileNameFromPath(const std::string& filePath);
 
-#endif /* COMMON_H_ */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_PACKET
-#define PACKETPP_PACKET
+#pragma once
 
 #include "RawPacket.h"
 #include "Layer.h"
@@ -406,4 +405,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet)
 	return os;
 }
 
-#endif /* PACKETPP_PACKET */

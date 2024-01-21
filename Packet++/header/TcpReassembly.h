@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TCP_REASSEMBLY
-#define PACKETPP_TCP_REASSEMBLY
+#pragma once
 
 #include "Packet.h"
 #include "IpAddress.h"
@@ -457,4 +456,3 @@ private:
 
 }
 
-#endif /* PACKETPP_TCP_REASSEMBLY */

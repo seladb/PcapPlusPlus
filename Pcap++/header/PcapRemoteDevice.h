@@ -1,5 +1,4 @@
-#ifndef PCAPPP_PCAP_REMOTE_DEVICE
-#define PCAPPP_PCAP_REMOTE_DEVICE
+#pragma once
 
 #if defined(_WIN32)
 
@@ -144,4 +143,3 @@ namespace pcpp
 
 #endif // _WIN32
 
-#endif /* PCAPPP_PCAP_REMOTE_DEVICE */

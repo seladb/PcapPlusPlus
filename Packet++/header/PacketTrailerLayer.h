@@ -1,5 +1,4 @@
-#ifndef PACKETPP_PACKET_TRAILER_LAYER
-#define PACKETPP_PACKET_TRAILER_LAYER
+#pragma once
 
 /// @file
 
@@ -81,4 +80,3 @@ namespace pcpp
 
 }
 
-#endif // PACKETPP_PACKET_TRAILER_LAYER

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TEXT_BASED_PROTOCOL_LAYER
-#define PACKETPP_TEXT_BASED_PROTOCOL_LAYER
+#pragma once
 
 #include <map>
 #include "Layer.h"
@@ -260,4 +259,3 @@ protected:
 }
 
 
-#endif // PACKETPP_TEXT_BASED_PROTOCOL_LAYER

@@ -1,5 +1,4 @@
-#ifndef PCAPPP_IP_UTILS
-#define PCAPPP_IP_UTILS
+#pragma once
 
 #include <stdint.h>
 #ifdef __linux__
@@ -88,4 +87,3 @@ namespace pcpp
 		uint32_t in_addr2int(in_addr inAddr);
 	} // namespace internal
 } // namespace pcpp
-#endif

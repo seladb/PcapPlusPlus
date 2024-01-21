@@ -1,5 +1,4 @@
-#ifndef PCAPPP_LOGGER
-#define PCAPPP_LOGGER
+#pragma once
 
 #include <stdio.h>
 #include <iostream>
@@ -259,4 +258,3 @@ namespace pcpp
 	};
 } // namespace pcpp
 
-#endif /* PCAPPP_LOGGER */

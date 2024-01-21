@@ -1,5 +1,4 @@
-#ifndef READ_PARSED_PACKET_H
-#define READ_PARSED_PACKET_H
+#pragma once
 
 #include <Packet.h>
 #include <IPv4Layer.h>
@@ -519,4 +518,3 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
     }
 }
 
-#endif // READ_PARSED_PACKET_H

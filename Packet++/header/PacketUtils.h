@@ -1,5 +1,4 @@
-#ifndef PACKETPP_PACKET_UTILS
-#define PACKETPP_PACKET_UTILS
+#pragma once
 
 #include "Packet.h"
 #include "IpAddress.h"
@@ -88,4 +87,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_PACKET_UTILS */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_VRRP_LAYER
-#define PACKETPP_VRRP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "IpAddress.h"
@@ -458,4 +457,3 @@ namespace pcpp
 	};
 }
 
-#endif // PACKETPP_VRRP_LAYER

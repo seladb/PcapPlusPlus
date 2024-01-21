@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DNS_LAYER_ENUMS
-#define PACKETPP_DNS_LAYER_ENUMS
+#pragma once
 
 /// @file
 
@@ -156,4 +155,3 @@ namespace pcpp
 
 }
 
-#endif // PACKETPP_DNS_LAYER_ENUMS

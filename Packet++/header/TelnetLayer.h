@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TELNET_LAYER
-#define PACKETPP_TELNET_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -348,4 +347,3 @@ class TelnetLayer : public Layer
 
 } // namespace pcpp
 
-#endif /* PACKETPP_TELNET_LAYER */

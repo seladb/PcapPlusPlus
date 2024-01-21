@@ -1,5 +1,4 @@
-#ifndef PACKETPP_NULL_LOOPBACK_LAYER
-#define PACKETPP_NULL_LOOPBACK_LAYER
+#pragma once
 
 /// @file
 
@@ -89,4 +88,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_NULL_LOOPBACK_LAYER */

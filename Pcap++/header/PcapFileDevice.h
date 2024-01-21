@@ -1,5 +1,4 @@
-#ifndef PCAPPP_FILE_DEVICE
-#define PCAPPP_FILE_DEVICE
+#pragma once
 
 #include "PcapDevice.h"
 #include "RawPacket.h"
@@ -591,4 +590,3 @@ namespace pcpp
 
 }// namespace pcpp
 
-#endif

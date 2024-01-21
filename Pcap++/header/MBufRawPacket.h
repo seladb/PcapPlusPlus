@@ -1,5 +1,4 @@
-#ifndef PCAPPP_MBUF_RAW_PACKET
-#define PCAPPP_MBUF_RAW_PACKET
+#pragma once
 
 // GCOVR_EXCL_START
 
@@ -229,4 +228,3 @@ namespace pcpp
 
 // GCOVR_EXCL_STOP
 
-#endif /* PCAPPP_MBUF_RAW_PACKET */

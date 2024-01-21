@@ -1,5 +1,4 @@
-#ifndef PCAPPP_NETWORK_UTILS
-#define PCAPPP_NETWORK_UTILS
+#pragma once
 
 #include "MacAddress.h"
 #include "IpAddress.h"
@@ -87,4 +86,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PCAPPP_NETWORK_UTILS */

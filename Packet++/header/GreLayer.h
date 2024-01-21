@@ -1,5 +1,4 @@
-#ifndef PACKETPP_GRE_LAYER
-#define PACKETPP_GRE_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -443,4 +442,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif /* PACKETPP_GRE_LAYER */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_VXLAN_LAYER
-#define PACKETPP_VXLAN_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -142,4 +141,3 @@ namespace pcpp
 
 }
 
-#endif // PACKETPP_VXLAN_LAYER

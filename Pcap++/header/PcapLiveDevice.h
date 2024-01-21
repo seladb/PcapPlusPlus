@@ -1,6 +1,5 @@
 //TODO: replace all these defines with #pragma once
-#ifndef PCAPPP_LIVE_DEVICE
-#define PCAPPP_LIVE_DEVICE
+#pragma once
 
 #include <atomic>
 #include <vector>
@@ -577,4 +576,3 @@ namespace pcpp
 
 } // namespace pcpp
 
-#endif

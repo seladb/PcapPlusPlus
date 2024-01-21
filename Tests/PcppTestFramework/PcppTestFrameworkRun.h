@@ -1,5 +1,4 @@
-#ifndef PCPP_TEST_FRAMEWORK_RUN
-#define PCPP_TEST_FRAMEWORK_RUN
+#pragma once
 
 #include <algorithm>
 #include <vector>
@@ -123,4 +122,3 @@ static bool showSkippedTests = false;
 
 #define PTF_SHOW_SKIPPED_TESTS(flag) showSkippedTests = flag
 
-#endif // PCPP_TEST_FRAMEWORK_RUN
