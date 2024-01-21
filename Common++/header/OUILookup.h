@@ -1,3 +1,5 @@
+#pragma once
+
 #include "MacAddress.h"
 
 #include <unordered_map>

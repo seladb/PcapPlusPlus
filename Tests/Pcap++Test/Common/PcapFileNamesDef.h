@@ -1,3 +1,4 @@
+#pragma once
 
 #define EXAMPLE_PCAP_WRITE_PATH "PcapExamples/example_copy.pcap"
 #define EXAMPLE_PCAP_PATH "PcapExamples/example.pcap"
