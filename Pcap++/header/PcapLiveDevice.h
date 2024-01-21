@@ -1,4 +1,3 @@
-//TODO: replace all these defines with #pragma once
 #pragma once
 
 #include <atomic>
