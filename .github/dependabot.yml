@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "monthly"
     target-branch: "dev"
-    labels:
+    labels
     - "automated-pr"
 
   - package-ecosystem: "pip"
