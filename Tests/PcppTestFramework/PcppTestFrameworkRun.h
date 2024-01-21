@@ -121,4 +121,3 @@ static bool verboseMode = false;
 static bool showSkippedTests = false;
 
 #define PTF_SHOW_SKIPPED_TESTS(flag) showSkippedTests = flag
-

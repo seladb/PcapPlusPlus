@@ -517,4 +517,3 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
         }
     }
 }
-

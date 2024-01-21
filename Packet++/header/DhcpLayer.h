@@ -821,4 +821,3 @@ namespace pcpp
 		DhcpOption addOptionAt(const DhcpOptionBuilder& optionBuilder, int offset);
 	};
 }
-

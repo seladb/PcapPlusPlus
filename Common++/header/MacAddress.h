@@ -184,4 +184,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAdd
 	os << macAddress.toString();
 	return os;
 }
-

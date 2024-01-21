@@ -49,4 +49,3 @@ namespace pcpp
 	std::string getGitInfo();
 
 }
-

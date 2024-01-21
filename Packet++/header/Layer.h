@@ -197,4 +197,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer &layer)
 	os << layer.toString();
 	return os;
 }
-

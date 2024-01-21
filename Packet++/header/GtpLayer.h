@@ -457,4 +457,3 @@ namespace pcpp
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 	};
 }
-

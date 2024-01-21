@@ -231,4 +231,3 @@
 		ptfResult = PTF_RESULT_SKIPPED; \
 		return; \
 	}
-

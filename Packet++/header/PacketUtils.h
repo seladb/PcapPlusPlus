@@ -86,4 +86,3 @@ namespace pcpp
 	uint32_t hash2Tuple(Packet* packet);
 
 } // namespace pcpp
-

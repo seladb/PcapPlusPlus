@@ -51,4 +51,3 @@ namespace pcpp
 		static bool isDataValid(const uint8_t *data, size_t dataSize);
 	};
 } // namespace pcpp
-

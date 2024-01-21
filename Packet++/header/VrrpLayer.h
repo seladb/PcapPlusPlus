@@ -456,4 +456,3 @@ namespace pcpp
 		uint16_t calculateChecksum() const override;
 	};
 }
-

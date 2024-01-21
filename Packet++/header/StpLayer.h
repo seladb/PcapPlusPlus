@@ -797,4 +797,3 @@ typedef stp_tcn_bpdu stp_header;
 		}
 	};
 } // namespace pcpp
-

@@ -257,4 +257,3 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 } // namespace pcpp
-

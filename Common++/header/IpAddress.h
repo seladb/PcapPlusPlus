@@ -1039,4 +1039,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network
 	os << network.toString();
 	return os;
 }
-

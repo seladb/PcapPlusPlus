@@ -65,4 +65,3 @@ namespace pcpp
 		return (number + mask) & ~mask;
 	}
 }
-

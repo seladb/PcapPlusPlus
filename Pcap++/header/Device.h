@@ -93,4 +93,3 @@ namespace pcpp
 		virtual bool clearFilter() = 0;
 	};
 }
-

@@ -69,4 +69,3 @@ bool sendIcmpResponse(pcpp::PcapLiveDevice* dev,
  * for example: for the input '/home/myuser/mypcap.pcap' -> return value will be 'mypcap.pcap'
  */
 std::string getFileNameFromPath(const std::string& filePath);
-
