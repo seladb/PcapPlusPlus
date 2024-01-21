@@ -4,5 +4,14 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    target-branch: "dev"
+    labels:
+    - "automated-pr"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
     labels:
     - "automated-pr"
