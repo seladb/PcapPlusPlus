@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DHCP_LAYER
-#define PACKETPP_DHCP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -822,5 +821,3 @@ namespace pcpp
 		DhcpOption addOptionAt(const DhcpOptionBuilder& optionBuilder, int offset);
 	};
 }
-
-#endif /* PACKETPP_DHCP_LAYER */

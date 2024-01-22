@@ -1,5 +1,4 @@
-#ifndef PACKETPP_BGP_LAYER
-#define PACKETPP_BGP_LAYER
+#pragma once
 
 #include <vector>
 #include "Layer.h"
@@ -674,5 +673,3 @@ public:
 };
 
 }
-
-#endif //PACKETPP_BGP_LAYER

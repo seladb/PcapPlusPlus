@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SOMEIP_LAYER
-#define PACKETPP_SOMEIP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include <unordered_set>
@@ -458,4 +457,3 @@ private:
 };
 
 } // namespace pcpp
-#endif /* PACKETPP_SOMEIP_LAYER */

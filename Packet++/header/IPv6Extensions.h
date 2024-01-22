@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IPV6_EXTENSION
-#define PACKETPP_IPV6_EXTENSION
+#pragma once
 
 #include <vector>
 #include "IpAddress.h"
@@ -556,5 +555,3 @@ namespace pcpp
 	};
 
 }
-
-#endif // PACKETPP_IPV6_EXTENSION

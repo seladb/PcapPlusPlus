@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SSL_LAYER
-#define PACKETPP_SSL_LAYER
+#pragma once
 
 #include "PointerVector.h"
 #include "Layer.h"
@@ -551,5 +550,3 @@ namespace pcpp
 	} // isSSLPort
 
 } // namespace pcpp
-
-#endif /* PACKETPP_SSL_LAYER */

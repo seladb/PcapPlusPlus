@@ -1,5 +1,4 @@
-#ifndef PACKETPP_ETH_DOT3_LAYER
-#define PACKETPP_ETH_DOT3_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "MacAddress.h"
@@ -125,5 +124,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // PACKETPP_ETH_DOT3_LAYER

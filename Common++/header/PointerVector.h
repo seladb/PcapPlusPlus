@@ -1,5 +1,4 @@
-#ifndef PCAPPP_POINTER_VECTOR
-#define PCAPPP_POINTER_VECTOR
+#pragma once
 
 #include <stdio.h>
 #include <stdint.h>
@@ -170,5 +169,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PCAPPP_POINTER_VECTOR */

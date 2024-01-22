@@ -1,5 +1,4 @@
-#ifndef PACKETPP_NDP_LAYER
-#define PACKETPP_NDP_LAYER
+#pragma once
 
 #include "IcmpV6Layer.h"
 #include "IpAddress.h"
@@ -368,4 +367,3 @@ private:
 };
 
 } // namespace pcpp
-#endif /* PACKETPP_NDP_LAYER */

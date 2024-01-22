@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SOMEIPSD_LAYER
-#define PACKETPP_SOMEIPSD_LAYER
+#pragma once
 
 #include "EndianPortable.h"
 #include "IpAddress.h"
@@ -776,4 +775,3 @@ private:
 };
 
 } // namespace pcpp
-#endif /* PACKETPP_SOMEIPSD_LAYER */
