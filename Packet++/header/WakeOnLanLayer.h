@@ -1,5 +1,4 @@
-#ifndef PACKETPP_WAKEONLAN_LAYER
-#define PACKETPP_WAKEONLAN_LAYER
+#pragma once
 
 #include "IpAddress.h"
 #include "Layer.h"
@@ -169,5 +168,3 @@ namespace pcpp
 		std::string toString() const;
 	};
 } // namespace pcpp
-
-#endif /* PACKETPP_WAKEONLAN_LAYER */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SSH_LAYER
-#define PACKETPP_SSH_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -426,5 +425,3 @@ namespace pcpp
 	};
 
 }
-
-#endif // PACKETPP_SSH_LAYER

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SIP_LAYER
-#define PACKETPP_SIP_LAYER
+#pragma once
 
 #include "TextBasedProtocol.h"
 
@@ -675,5 +674,3 @@ namespace pcpp
 	};
 
 }
-
-#endif // PACKETPP_SIP_LAYER

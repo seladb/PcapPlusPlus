@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IGMP_LAYER
-#define PACKETPP_IGMP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "IpAddress.h"
@@ -510,5 +509,3 @@ public:
 };
 
 }
-
-#endif // PACKETPP_IGMP_LAYER

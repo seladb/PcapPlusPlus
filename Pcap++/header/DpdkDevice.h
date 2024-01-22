@@ -1,5 +1,4 @@
-#ifndef PCAPPP_DPDK_DEVICE
-#define PCAPPP_DPDK_DEVICE
+#pragma once
 
 // GCOVR_EXCL_START
 
@@ -829,5 +828,3 @@ namespace pcpp
 } // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* PCAPPP_DPDK_DEVICE */

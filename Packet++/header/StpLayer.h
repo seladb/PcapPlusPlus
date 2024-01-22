@@ -1,5 +1,4 @@
-#ifndef PACKETPP_STP_LAYER
-#define PACKETPP_STP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "MacAddress.h"
@@ -798,5 +797,3 @@ typedef stp_tcn_bpdu stp_header;
 		}
 	};
 } // namespace pcpp
-
-#endif /* PACKETPP_STP_LAYER */

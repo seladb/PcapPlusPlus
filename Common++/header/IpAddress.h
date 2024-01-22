@@ -1,5 +1,4 @@
-#ifndef PCAPPP_IP_ADDRESSES
-#define PCAPPP_IP_ADDRESSES
+#pragma once
 
 #include <stdint.h>
 #include <string.h>
@@ -1040,5 +1039,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network
 	os << network.toString();
 	return os;
 }
-
-#endif /* PCAPPP_IPADDRESS */

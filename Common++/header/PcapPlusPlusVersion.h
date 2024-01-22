@@ -1,5 +1,4 @@
-#ifndef PCAPPP_VERSION_H
-#define PCAPPP_VERSION_H
+#pragma once
 
 #include <string>
 
@@ -50,5 +49,3 @@ namespace pcpp
 	std::string getGitInfo();
 
 }
-
-#endif /* PCAPPP_VERSION_H */

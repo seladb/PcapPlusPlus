@@ -1,5 +1,4 @@
-#ifndef PACKETPP_ICMPV6_LAYER
-#define PACKETPP_ICMPV6_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -279,4 +278,3 @@ private:
 };
 
 } // namespace pcpp
-#endif /* PACKETPP_ICMPV6_LAYER */

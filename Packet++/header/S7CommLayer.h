@@ -1,5 +1,4 @@
-#ifndef PACKETPP_S7COMM_LAYER
-#define PACKETPP_S7COMM_LAYER
+#pragma once
 
 #include "EthLayer.h"
 #include "Layer.h"
@@ -216,5 +215,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // PACKETPP_S7COMM_LAYER
