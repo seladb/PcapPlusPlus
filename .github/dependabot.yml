@@ -15,3 +15,11 @@ updates:
     target-branch: "dev"
     labels:
     - "automated-pr"
+
+  - package-ecosystem: "pip"
+    directory: "/ci/run_tests"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    labels:
+    - "automated-pr"
