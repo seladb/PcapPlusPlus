@@ -9,7 +9,7 @@ updates:
     - "automated-pr"
 
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/Tests/ExamplesTest"
     schedule:
       interval: "monthly"
     target-branch: "dev"
