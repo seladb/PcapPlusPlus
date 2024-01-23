@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TLV_DATA
-#define PACKETPP_TLV_DATA
+#pragma once
 
 #include "Layer.h"
 #include "IpAddress.h"
@@ -430,4 +429,3 @@ namespace pcpp
 		void copyData(const TLVRecordBuilder& other);
 	};
 }
-#endif // PACKETPP_TLV_DATA

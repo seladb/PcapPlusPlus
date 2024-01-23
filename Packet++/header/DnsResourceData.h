@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DNS_RESOURCE_DATA
-#define PACKETPP_DNS_RESOURCE_DATA
+#pragma once
 
 #include "DnsResource.h"
 #include "IpAddress.h"
@@ -395,5 +394,3 @@ namespace pcpp
 	};
 
 }
-
-#endif // PACKETPP_DNS_RESOURCE_DATA

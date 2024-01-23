@@ -73,3 +73,6 @@ Examples/Tutorials/**/*.exe
 #venv
 .venv/**
 venv/**
+
+#MacOS system files
+**/.DS_Store

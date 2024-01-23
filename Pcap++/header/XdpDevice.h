@@ -1,5 +1,4 @@
-#ifndef PCAPPP_XDP_DEVICE
-#define PCAPPP_XDP_DEVICE
+#pragma once
 
 /// @file
 
@@ -337,5 +336,3 @@ namespace pcpp
 		bool getSocketStats();
 	};
 }
-
-#endif // PCAPPP_XDP_DEVICE

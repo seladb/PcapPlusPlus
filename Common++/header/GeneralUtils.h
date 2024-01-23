@@ -1,5 +1,4 @@
-#ifndef PCAPPP_GENERAL_UTILS
-#define PCAPPP_GENERAL_UTILS
+#pragma once
 
 #include <string>
 #include <stdint.h>
@@ -66,5 +65,3 @@ namespace pcpp
 		return (number + mask) & ~mask;
 	}
 }
-
-#endif // PCAPPP_GENERAL_UTILS

@@ -1,5 +1,4 @@
-#ifndef PCAPPLUSPLUS_COTPLAYER_H
-#define PCAPPLUSPLUS_COTPLAYER_H
+#pragma once
 
 #include "EthLayer.h"
 #include "Layer.h"
@@ -116,5 +115,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // PCAPPLUSPLUS_COTPLAYER_H

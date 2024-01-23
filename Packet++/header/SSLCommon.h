@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SSL_LAYER_COMMON
-#define PACKETPP_SSL_LAYER_COMMON
+#pragma once
 
 #include <string>
 #include <stdint.h>
@@ -608,5 +607,3 @@ namespace pcpp
 	};
 
 } //namespace pcpp
-
-#endif // PACKETPP_SSL_LAYER_COMMON

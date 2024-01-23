@@ -1,5 +1,4 @@
-#ifndef PCAPPP_LIVE_DEVICE_LIST
-#define PCAPPP_LIVE_DEVICE_LIST
+#pragma once
 
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
@@ -117,5 +116,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif

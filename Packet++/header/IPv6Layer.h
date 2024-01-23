@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IPV6_LAYER
-#define PACKETPP_IPV6_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "IPLayer.h"
@@ -275,5 +274,3 @@ namespace pcpp
 	}
 
 } // namespace pcpp
-
-#endif /* PACKETPP_IPV6_LAYER */
