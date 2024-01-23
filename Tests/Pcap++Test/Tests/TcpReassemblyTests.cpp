@@ -41,7 +41,7 @@ struct TcpReassemblyStats
 struct TcpReassemblyMultipleConnStats
 {
 	typedef std::vector<uint32_t> FlowKeysList;
-	typedef std::map<uint32_t, TcpReassemblyStats> Stats;
+	typedef std::unordered_map<uint32_t, TcpReassemblyStats> Stats;
 
 	Stats stats;
 	FlowKeysList flowKeysList;

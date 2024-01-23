@@ -1,5 +1,5 @@
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
@@ -234,7 +234,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
 		int fragSize,
 		bool filterByBpf, const std::string& bpfFilter,
-		bool filterByIpID, std::map<uint16_t, bool> ipIDs,
+		bool filterByIpID, std::unordered_map<uint16_t, bool> ipIDs,
 		bool copyAllPacketsToOutputFile,
 		FragStats& stats)
 {
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
 	bool filterByBpfFilter = false;
 	std::string bpfFilter = "";
 	bool filterByIpID = false;
-	std::map<uint16_t, bool> ipIDMap;
+	std::unordered_map<uint16_t, bool> ipIDMap;
 	bool copyAllPacketsToOutputFile = false;
 
 	while((opt = getopt_long(argc, argv, "o:s:d:f:ahv", FragUtilOptions, &optionIndex)) != -1)
