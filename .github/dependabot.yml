@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    labels:
+    - "automated-pr"
+
+  - package-ecosystem: "pip"
+    directory: "/Tests/ExamplesTest"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    labels:
+    - "automated-pr"
+
+  - package-ecosystem: "pip"
+    directory: "/ci/run_tests"
+    schedule:
+      interval: "monthly"
+    target-branch: "dev"
+    labels:
+    - "automated-pr"
