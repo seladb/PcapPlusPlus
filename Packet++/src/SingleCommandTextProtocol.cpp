@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <regex>
 
 #define ASCII_HYPHEN 0x2d
 #define ASCII_SPACE 0x20
@@ -137,7 +138,13 @@ namespace pcpp
 		// and we don't want to trailing newline characters so remove 2 and remove addition from start point
 		int addition = offset ? 1 : 0;
 		if (offset != (m_DataLen - 1))
-			return std::string((char *)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
+		{
+			auto option = std::string((char *)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
+
+			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
+			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
+			return std::regex_replace(option, std::regex(getCommandInternal() + "-|" + getCommandInternal() + " "), "");
+		}
 		return "";
 	}
 
