@@ -143,7 +143,8 @@ namespace pcpp
 
 			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
 			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
-			return std::regex_replace(option, std::regex(getCommandInternal() + "-|" + getCommandInternal() + " "), std::string());
+			std::regex reg(std::regex(getCommandInternal() + "-|" + getCommandInternal() + " "));
+			return std::regex_replace(option, reg, std::string());
 		}
 		return "";
 	}
