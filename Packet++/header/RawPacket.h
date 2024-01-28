@@ -1,5 +1,4 @@
-#ifndef PCAPPP_RAW_PACKET
-#define PCAPPP_RAW_PACKET
+#pragma once
 
 #include <stdint.h>
 #ifdef _MSC_VER
@@ -465,5 +464,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IPV4_LAYER
-#define PACKETPP_IPV4_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -684,5 +683,3 @@ namespace pcpp
 	}
 
 } // namespace pcpp
-
-#endif /* PACKETPP_IPV4_LAYER */

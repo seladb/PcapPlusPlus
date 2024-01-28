@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DNS_RESOURCE
-#define PACKETPP_DNS_RESOURCE
+#pragma once
 
 #include "DnsLayer.h"
 #include "DnsLayerEnums.h"
@@ -233,5 +232,3 @@ namespace pcpp
 	};
 
 }
-
-#endif // PACKETPP_DNS_RESOURCE

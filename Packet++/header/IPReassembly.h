@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IP_REASSEMBLY
-#define PACKETPP_IP_REASSEMBLY
+#pragma once
 
 #include "Packet.h"
 #include "LRUList.h"
@@ -458,5 +457,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // PACKETPP_IP_REASSEMBLY

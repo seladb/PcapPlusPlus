@@ -1,5 +1,4 @@
-#ifndef PCAPPP_LOGGER
-#define PCAPPP_LOGGER
+#pragma once
 
 #include <stdio.h>
 #include <iostream>
@@ -258,5 +257,3 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
 	};
 } // namespace pcpp
-
-#endif /* PCAPPP_LOGGER */

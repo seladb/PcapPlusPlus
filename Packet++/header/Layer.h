@@ -1,5 +1,4 @@
-#ifndef PACKETPP_LAYER
-#define PACKETPP_LAYER
+#pragma once
 
 #include <stdint.h>
 #include <stdio.h>
@@ -198,5 +197,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer &layer)
 	os << layer.toString();
 	return os;
 }
-
-#endif /* PACKETPP_LAYER */

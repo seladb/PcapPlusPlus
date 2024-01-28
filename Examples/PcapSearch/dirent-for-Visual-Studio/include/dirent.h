@@ -7,8 +7,7 @@
  * under the MIT license.  For all details and documentation, see
  * https://github.com/tronkko/dirent
  */
-#ifndef DIRENT_H
-#define DIRENT_H
+#pragma once
 
 /*
  * Include windows.h without Windows Sockets 1.1 to prevent conflicts with
@@ -925,4 +924,3 @@ dirent_set_errno(
 #ifdef __cplusplus
 }
 #endif
-#endif /*DIRENT_H*/

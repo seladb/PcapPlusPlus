@@ -1,5 +1,4 @@
-#ifndef PACKETPP_HTTP_LAYER
-#define PACKETPP_HTTP_LAYER
+#pragma once
 
 #include "TextBasedProtocol.h"
 #include <string>
@@ -825,5 +824,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PACKETPP_HTTP_LAYER */
