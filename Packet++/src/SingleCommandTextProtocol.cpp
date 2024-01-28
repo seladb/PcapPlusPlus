@@ -3,7 +3,7 @@
 
 #include <string.h>
 #include <algorithm>
-#include <regex>
+#include <vector>
 
 #define ASCII_HYPHEN 0x2d
 #define ASCII_SPACE 0x20
@@ -143,8 +143,19 @@ namespace pcpp
 
 			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
 			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
-			std::regex reg(std::regex(getCommandInternal() + "-|" + getCommandInternal() + " "));
-			return std::regex_replace(option, reg, std::string());
+			std::vector<std::string> vDelim;
+			vDelim.push_back(getCommandInternal() + "-");
+			vDelim.push_back(getCommandInternal() + " ");
+
+			for (const auto &delim : vDelim)
+			{
+				size_t pos = 0;
+				while ((pos = option.find(delim, pos)) != std::string::npos)
+				{
+					option.replace(pos, delim.length(), "");
+				}
+			}
+			return option;
 		}
 		return "";
 	}
