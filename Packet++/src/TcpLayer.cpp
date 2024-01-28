@@ -33,12 +33,12 @@ TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
 {
 	switch (optionType)
 	{
-	case EOL:
-		init((uint8_t)PCPP_TCPOPT_EOL, nullptr, 0);
+	case NopEolOptionTypes::EOL:
+		init((uint8_t)TcpOptionType::PCPP_TCPOPT_EOL, nullptr, 0);
 		break;
-	case NOP:
+	case NopEolOptionTypes::NOP:
 	default:
-		init((uint8_t)PCPP_TCPOPT_NOP, nullptr, 0);
+		init((uint8_t)TcpOptionType::PCPP_TCPOPT_NOP, nullptr, 0);
 		break;
 	}
 }
@@ -48,7 +48,7 @@ TcpOption TcpOptionBuilder::build() const
 	uint8_t recType = static_cast<uint8_t>(m_RecType);
 	size_t optionSize = m_RecValueLen + 2*sizeof(uint8_t);
 
-	if (recType == (uint8_t)PCPP_TCPOPT_EOL || recType == (uint8_t)PCPP_TCPOPT_NOP)
+	if (recType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL || recType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP)
 	{
 		if (m_RecValueLen != 0)
 		{
@@ -121,7 +121,7 @@ TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, Tcp
 {
 	int offset = 0;
 
-	if (prevOptionType == TCPOPT_Unknown)
+	if (prevOptionType == TcpOptionType::TCPOPT_Unknown)
 	{
 		offset = sizeof(tcphdr);
 	}

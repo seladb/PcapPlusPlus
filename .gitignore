@@ -76,3 +76,6 @@ venv/**
 
 #MacOS system files
 **/.DS_Store
+
+#custom
+private

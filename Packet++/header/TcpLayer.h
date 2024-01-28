@@ -84,7 +84,7 @@ namespace pcpp
 	/**
 	 * TCP options types
 	 */
-	enum TcpOptionType
+	enum class TcpOptionType
 	{
 		/** Padding */
 		PCPP_TCPOPT_NOP =       1,
@@ -216,7 +216,7 @@ namespace pcpp
 		TcpOptionType getTcpOptionType() const
 		{
 			if (m_Data == nullptr)
-				return TCPOPT_Unknown;
+				return TcpOptionType::TCPOPT_Unknown;
 
 			return (TcpOptionType)m_Data->recordType;
 		}
@@ -236,7 +236,7 @@ namespace pcpp
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
 				return false;
 
-			if (data->recordType == (uint8_t)PCPP_TCPOPT_NOP || data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
+			if (data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP || data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL)
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -249,7 +249,7 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (m_Data->recordType == (uint8_t)PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
+			if (m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL)
 				return sizeof(uint8_t);
 
 			return (size_t)m_Data->recordLen;
@@ -260,7 +260,7 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (m_Data->recordType == (uint8_t)PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)PCPP_TCPOPT_EOL)
+			if (m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL)
 				return 0;
 
 			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
@@ -281,7 +281,7 @@ namespace pcpp
 		/**
 		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		 */
-		enum NopEolOptionTypes
+		enum class NopEolOptionTypes
 		{
 			/** NOP TCP option */
 			NOP,
@@ -444,7 +444,7 @@ namespace pcpp
 		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
-		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TCPOPT_Unknown);
+		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TcpOptionType::TCPOPT_Unknown);
 
 		/**
 		 * Remove an existing TCP option from the layer. TCP option is found by type
