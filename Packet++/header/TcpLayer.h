@@ -98,9 +98,9 @@ namespace pcpp
 		TCPOPT_SACK_PERM =      4,
 		/** SACK Block */
 		PCPP_TCPOPT_SACK =      5,
-		/** Echo (obsoleted by option ::PCPP_TCPOPT_TIMESTAMP) */
+		/** Echo (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHO =           6,
-		/** Echo Reply (obsoleted by option ::PCPP_TCPOPT_TIMESTAMP) */
+		/** Echo Reply (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHOREPLY =      7,
 		/** TCP Timestamps */
 		PCPP_TCPOPT_TIMESTAMP = 8,
@@ -211,7 +211,7 @@ namespace pcpp
 
 		/**
 		 * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is null a value
-		 * of ::TCPOPT_Unknown is returned
+		 * of TcpOptionType::TCPOPT_Unknown is returned
 		 */
 		TcpOptionType getTcpOptionType() const
 		{
@@ -439,7 +439,7 @@ namespace pcpp
 		 * Add a new TCP option after an existing one
 		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be added
 		 * @param[in] prevOptionType The TCP option which the newly added option should come after. This is an optional parameter which
-		 * gets a default value of ::TCPOPT_Unknown if omitted, which means the new option will be added as the first option in the layer
+		 * gets a default value of TcpOptionType::TCPOPT_Unknown if omitted, which means the new option will be added as the first option in the layer
 		 * @return A TcpOption object containing the newly added TCP option data or logical NULL
 		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
