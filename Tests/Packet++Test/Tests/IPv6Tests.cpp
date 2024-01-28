@@ -19,6 +19,8 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/IPv6UdpPacket.dat");
 
 	pcpp::Packet ip6UdpPacket(&rawPacket1);
+	PTF_ASSERT_TRUE(ip6UdpPacket.isPacketOfType(pcpp::IPv6));
+	PTF_ASSERT_TRUE(ip6UdpPacket.isPacketOfType(pcpp::IP));
 	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_FALSE(ip6UdpPacket.isPacketOfType(pcpp::TCP));
 	pcpp::IPv6Layer* ipv6Layer = nullptr;
