@@ -1,5 +1,4 @@
-#ifndef PCAPP_FILTER
-#define PCAPP_FILTER
+#pragma once
 
 #include <string>
 #include <vector>
@@ -813,5 +812,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif

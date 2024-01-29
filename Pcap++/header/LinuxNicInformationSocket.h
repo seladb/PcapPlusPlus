@@ -1,5 +1,4 @@
-#ifndef PCAPPP_LINUX_NIC_INFORMATION_SOCKET
-#define PCAPPP_LINUX_NIC_INFORMATION_SOCKET
+#pragma once
 
 struct ifreq;
 
@@ -71,4 +70,3 @@ namespace pcpp
 		LinuxSocket m_Socket;
 	};
 } // namespace pcpp
-#endif /* PCAPPP_LINUX_NIC_INFORMATION_SOCKET */

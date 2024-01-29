@@ -1,5 +1,6 @@
 /// these conversion macros are not defined on some of the platforms, including
 /// Windows
+#pragma once
 
 #ifndef TIMEVAL_TO_TIMESPEC
 #define TIMEVAL_TO_TIMESPEC(tv, ts) {                                   \

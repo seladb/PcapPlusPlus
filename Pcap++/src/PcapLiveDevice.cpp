@@ -39,9 +39,15 @@
 #include <sys/sysctl.h>
 #endif
 
-// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
+// TODO: FIX FreeBSD
+// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail.
+// A value of 1ms first solve the issue but since Jan. 2024 an issue
+// seems to make pcap_breakloop() to not properly break pcap_dispatch()
+// After multiple test a 10ms is the minimum to fix pcap_breakloop().
 // On Linux and Windows this is not the case so we keep the -1 value
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__FreeBSD__)
+#define LIBPCAP_OPEN_LIVE_TIMEOUT 10
+#elif defined(__APPLE__)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
@@ -176,6 +182,8 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 void PcapLiveDevice::captureThreadMain()
 {
 	PCPP_LOG_DEBUG("Started capture thread for device '" << m_Name << "'");
+	m_CaptureThreadStarted = true;
+
 	if (m_CaptureCallbackMode)
 	{
 		while (!m_StopThread)
@@ -455,7 +463,12 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
 
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
-	m_CaptureThreadStarted = true;
+
+	// Wait thread to be start
+	// C++20 = m_CaptureThreadStarted.wait(true);
+	while (m_CaptureThreadStarted != true) {
+		std::this_thread::yield();
+	}
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
@@ -478,7 +491,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 		return false;
 	}
 
-	if (m_CaptureThreadStarted)
+	if (captureActive())
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return false;
@@ -489,7 +502,12 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 	m_CaptureCallbackMode = false;
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
-	m_CaptureThreadStarted = true;
+	// Wait thread to be start
+	// C++20 = m_CaptureThreadStarted.wait(true);
+	while (m_CaptureThreadStarted != true) {
+		std::this_thread::yield();
+	}
+
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	return true;
@@ -504,7 +522,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		return 0;
 	}
 
-	if (m_CaptureThreadStarted)
+	if (captureActive())
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return 0;

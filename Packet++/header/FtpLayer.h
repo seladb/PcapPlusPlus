@@ -1,5 +1,4 @@
-#ifndef PACKETPP_FTP_LAYER
-#define PACKETPP_FTP_LAYER
+#pragma once
 
 #include "SingleCommandTextProtocol.h"
 #include "PayloadLayer.h"
@@ -494,5 +493,3 @@ namespace pcpp
 		std::string toString() const;
 	};
 } // namespace pcpp
-
-#endif /* PACKETPP_FTP_LAYER */

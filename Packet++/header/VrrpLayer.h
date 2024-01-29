@@ -1,5 +1,4 @@
-#ifndef PACKETPP_VRRP_LAYER
-#define PACKETPP_VRRP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "IpAddress.h"
@@ -457,5 +456,3 @@ namespace pcpp
 		uint16_t calculateChecksum() const override;
 	};
 }
-
-#endif // PACKETPP_VRRP_LAYER

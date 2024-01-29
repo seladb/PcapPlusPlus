@@ -1,5 +1,4 @@
-#ifndef PACKETPP_PPPOE_LAYER
-#define PACKETPP_PPPOE_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -704,5 +703,3 @@ namespace pcpp
 #define PCPP_PPP_PRPNIAP		0xc481
 
 } // namespace pcpp
-
-#endif /* PACKETPP_PPPOE_LAYER */

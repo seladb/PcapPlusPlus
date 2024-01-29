@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER
-#define PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER
+#pragma once
 
 #include <sstream>
 #include "Layer.h"
@@ -52,5 +51,3 @@ namespace pcpp
 		static bool isDataValid(const uint8_t *data, size_t dataSize);
 	};
 } // namespace pcpp
-
-#endif /* PACKETPP_SINGLE_COMMAND_TEXT_PROTOCOL_LAYER */

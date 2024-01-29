@@ -1,5 +1,4 @@
-#ifndef PCAPPP_SYSTEM_UTILS
-#define PCAPPP_SYSTEM_UTILS
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -392,5 +391,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PCAPPP_SYSTEM_UTILS */

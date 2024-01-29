@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DHCPV6_LAYER
-#define PACKETPP_DHCPV6_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -449,4 +448,3 @@ namespace pcpp
 	}
 
 }
-# endif // PACKETPP_DHCPV6_LAYER

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TPKT_LAYER
-#define PACKETPP_TPKT_LAYER
+#pragma once
 
 #include "EthLayer.h"
 #include "Layer.h"
@@ -131,4 +130,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-#endif // PACKETPP_TPKT_LAYER

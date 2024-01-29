@@ -1,5 +1,4 @@
-#ifndef PCAPPP_DEVICE
-#define PCAPPP_DEVICE
+#pragma once
 
 /// @file
 
@@ -94,5 +93,3 @@ namespace pcpp
 		virtual bool clearFilter() = 0;
 	};
 }
-
-#endif // PCAPPP_DEVICE
