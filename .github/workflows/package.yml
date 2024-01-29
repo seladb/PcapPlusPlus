@@ -66,8 +66,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - freebsd-version: "12.3"
-          - freebsd-version: "13.1"
+          - freebsd-version: "13.2"
+          - freebsd-version: "14.0"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
