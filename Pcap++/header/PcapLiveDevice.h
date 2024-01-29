@@ -92,10 +92,14 @@ namespace pcpp
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
 		std::thread m_CaptureThread;
-		bool m_CaptureThreadStarted;
 		std::thread m_StatsThread;
 		bool m_StatsThreadStarted;
+
+		// Should be set to true by the Caller for the Callee
 		std::atomic<bool> m_StopThread;
+		// Should be set to true by the Callee for the Caller
+		std::atomic<bool> m_CaptureThreadStarted;
+
 		OnPacketArrivesCallback m_cbOnPacketArrives;
 		void* m_cbOnPacketArrivesUserCookie;
 		OnStatsUpdateCallback m_cbOnStatsUpdate;
