@@ -30,7 +30,7 @@
 #include <dirent.h>
 #include <utility>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <Logger.h>
 #include <PcapPlusPlusVersion.h>
 #include <SystemUtils.h>
@@ -201,7 +201,7 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
  * search criteria. This method outputs how many directories were searched, how many files were searched and how many packets were matched
  */
 void searchDirectories(const std::string &directory, bool includeSubDirectories, const std::string &searchCriteria, std::ofstream* detailedReportFile,
-		std::map<std::string, bool> extensionsToSearch,
+		std::unordered_map<std::string, bool> extensionsToSearch,
 		int& totalDirSearched, int& totalFilesSearched, int& totalPacketsFound)
 {
 	// open the directory
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
 
 	std::string detailedReportFileName = "";
 
-	std::map<std::string, bool> extensionsToSearch;
+	std::unordered_map<std::string, bool> extensionsToSearch;
 
 	// the default (unless set otherwise) is to search in '.pcap' and '.pcapng' extensions
 	extensionsToSearch["pcap"] = true;

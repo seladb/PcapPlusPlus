@@ -21,7 +21,7 @@ private:
 	uint32_t m_CoreId;
 	PacketStats m_Stats;
 	PacketMatchingEngine& m_PacketMatchingEngine;
-	std::map<uint32_t, bool> m_FlowTable;
+	std::unordered_map<uint32_t, bool> m_FlowTable;
 
 public:
 	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine) :

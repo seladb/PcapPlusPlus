@@ -2,7 +2,7 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <map>
+#include <unordered_map>
 #include <stdlib.h>
 #include <sstream>
 
@@ -33,7 +33,7 @@ struct DpdkPacketData
 	int UdpCount;
 	int HttpCount;
 
-	std::map<uint32_t, pcpp::RawPacketVector> FlowKeys;
+	std::unordered_map<uint32_t, pcpp::RawPacketVector> FlowKeys;
 
 	DpdkPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0), TcpCount(0), UdpCount(0), HttpCount(0) {}
 	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; FlowKeys.clear(); }
@@ -480,7 +480,7 @@ PTF_TEST_CASE(TestDpdkMultiThread)
 			if ((pcpp::SystemCores::IdToSystemCore[secondCoreId].Mask & coreMask) == 0)
 				continue;
 
-			std::map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> > res;
+			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> > res;
 			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
 			PTF_ASSERT_EQUAL(res.size(), 0);
 			if (PTF_IS_VERBOSE_MODE)

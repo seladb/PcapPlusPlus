@@ -6,7 +6,7 @@
 #include <SystemUtils.h>
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <iomanip>
 #include <iostream>
@@ -30,7 +30,7 @@
 	exit(1); \
 	} while(0)
 
-typedef std::map<pcpp::DpdkDevice*, std::vector<int> > InputDataConfig;
+typedef std::unordered_map<pcpp::DpdkDevice*, std::vector<int> > InputDataConfig;
 
 
 /**

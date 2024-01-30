@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "IpAddress.h"
 #include "PointerVector.h"
+#include <unordered_map>
 #include <map>
 #include <list>
 #include <time.h>
@@ -307,7 +308,7 @@ public:
 	/**
 	 * The type for storing the connection information
 	 */
-	typedef std::map<uint32_t, ConnectionData> ConnectionInfoList;
+	typedef std::unordered_map<uint32_t, ConnectionData> ConnectionInfoList;
 
 	/**
 	 * @typedef OnTcpMessageReady
@@ -428,7 +429,7 @@ private:
 		TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1) {}
 	};
 
-	typedef std::map<uint32_t, TcpReassemblyData> ConnectionList;
+	typedef std::unordered_map<uint32_t, TcpReassemblyData> ConnectionList;
 	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 
 	OnTcpMessageReady m_OnMessageReadyCallback;

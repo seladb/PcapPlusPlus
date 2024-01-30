@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <sstream>
 #include <utility>
-#include <map>
+#include <unordered_map>
 #if !defined(_WIN32)
 #include <errno.h>
 #endif
@@ -59,7 +59,7 @@ static struct option DnsSpoofingOptions[] =
 struct DnsSpoofStats
 {
 	int numOfSpoofedDnsRequests;
-	std::map<std::string, int> spoofedHosts;
+	std::unordered_map<std::string, int> spoofedHosts;
 
 	DnsSpoofStats() : numOfSpoofedDnsRequests(0) {}
 };
@@ -283,7 +283,7 @@ void onApplicationInterrupted(void* cookie)
 		pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 		// sort the spoofed hosts map so the most spoofed hosts will be first
-		// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+		// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 		std::vector<std::pair<std::string, int> > map2vec(args->stats.spoofedHosts.begin(), args->stats.spoofedHosts.end());
 		std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
