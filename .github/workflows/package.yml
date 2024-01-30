@@ -275,7 +275,7 @@ jobs:
           mkdir -p android-package
           mv ${COMBINED_PACKAGE_DIR} android-package
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: android-package
           if-no-files-found: error
