@@ -49,7 +49,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
-#include <map>
+#include <unordered_map>
 #include <RawPacket.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
 	pcpp::RawPacket rawPacket;
 
 	// prepare a map of file number to IFileWriterDevice
-	std::map<int, pcpp::IFileWriterDevice*> outputFiles;
+	std::unordered_map<int, pcpp::IFileWriterDevice*> outputFiles;
 
 	// read all packets from input file, for each packet do:
 	while (reader->getNextPacket(rawPacket))

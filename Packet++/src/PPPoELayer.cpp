@@ -5,7 +5,7 @@
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "Logger.h"
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include "EndianPortable.h"
 
@@ -94,9 +94,9 @@ void PPPoESessionLayer::setPPPNextProtocol(uint16_t nextProtocol)
 	*pppProto = htobe16(nextProtocol);
 }
 
-std::map<uint16_t, std::string> createPPPNextProtoToStringMap()
+std::unordered_map<uint16_t, std::string> createPPPNextProtoToStringMap()
 {
-	std::map<uint16_t, std::string> tempMap;
+	std::unordered_map<uint16_t, std::string> tempMap;
 	tempMap[PCPP_PPP_PADDING] =     "Padding Protocol";
 	tempMap[PCPP_PPP_ROHC_SCID] =   "ROHC small-CID";
 	tempMap[PCPP_PPP_ROHC_LCID] =   "ROHC large-CID";
@@ -233,11 +233,11 @@ std::map<uint16_t, std::string> createPPPNextProtoToStringMap()
 	return tempMap;
 }
 
-const std::map<uint16_t, std::string> PPPNextProtoToString = createPPPNextProtoToStringMap();
+const std::unordered_map<uint16_t, std::string> PPPNextProtoToString = createPPPNextProtoToStringMap();
 
 std::string PPPoESessionLayer::toString() const
 {
-	std::map<uint16_t, std::string>::const_iterator iter = PPPNextProtoToString.find(getPPPNextProtocol());
+	std::unordered_map<uint16_t, std::string>::const_iterator iter = PPPNextProtoToString.find(getPPPNextProtocol());
 	std::string nextProtocol;
 	if (iter != PPPNextProtoToString.end())
 		nextProtocol = iter->second;

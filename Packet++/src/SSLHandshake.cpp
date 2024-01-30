@@ -4,7 +4,7 @@
 #include "md5.h"
 #include <string.h>
 #include <sstream>
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <utility>
 #include "Logger.h"
@@ -349,9 +349,9 @@ static const SSLCipherSuite Cipher328 = SSLCipherSuite(0x1304, SSL_KEYX_NULL, SS
 static const SSLCipherSuite Cipher329 = SSLCipherSuite(0x1305, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM_8, SSL_HASH_SHA256, "TLS_AES_128_CCM_8_SHA256");
 
 
-static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
+static std::unordered_map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 {
-	std::map<uint16_t, SSLCipherSuite*> result;
+	std::unordered_map<uint16_t, SSLCipherSuite*> result;
 
 	result[0x0000] = (SSLCipherSuite*)&Cipher1;
 	result[0x0001] = (SSLCipherSuite*)&Cipher2;
@@ -699,9 +699,9 @@ static uint32_t hashString(std::string str)
 	return h;
 }
 
-static std::map<uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
+static std::unordered_map<uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
 {
-	std::map<uint32_t, SSLCipherSuite*> result;
+	std::unordered_map<uint32_t, SSLCipherSuite*> result;
 
 	result[0x9F180F43] = (SSLCipherSuite*)&Cipher1;
 	result[0x97D9341F] = (SSLCipherSuite*)&Cipher2;
@@ -1042,15 +1042,15 @@ std::set<uint16_t> createGreaseSet()
 	return std::set<uint16_t>(greaseExtensions, greaseExtensions + 16);
 }
 
-static const std::map<uint16_t, SSLCipherSuite*> CipherSuiteIdToObjectMap = createCipherSuiteIdToObjectMap();
+static const std::unordered_map<uint16_t, SSLCipherSuite*> CipherSuiteIdToObjectMap = createCipherSuiteIdToObjectMap();
 
-static const std::map<uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
+static const std::unordered_map<uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
 
 static const std::set<uint16_t> GreaseSet = createGreaseSet();
 
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 {
-	std::map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
+	std::unordered_map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
 	if (pos == CipherSuiteIdToObjectMap.end())
 		return nullptr;
 	else
@@ -1060,7 +1060,7 @@ SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 {
 	uint32_t nameHash = hashString(std::move(name));
-	std::map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
+	std::unordered_map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
 	if (pos == CipherSuiteStringToObjectMap.end())
 		return nullptr;
 	else

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include "TcpLayer.h"
 #include "IPv4Layer.h"
@@ -35,8 +35,8 @@ struct SSLGeneralStats
 	double sampleTime; // total stats collection time
 	int numOfHandshakeCompleteFlows; // number of flows which handshake was complete
 	int numOfFlowsWithAlerts; // number of flows that were terminated because of SSL/TLS alert
-	std::map<uint16_t, int> sslVersionCount; // number of flows per SSL/TLS version
-	std::map<uint16_t, int> sslPortCount; // number of flows per TCP port
+	std::unordered_map<uint16_t, int> sslVersionCount; // number of flows per SSL/TLS version
+	std::unordered_map<uint16_t, int> sslPortCount; // number of flows per TCP port
 
 	void clear()
 	{
@@ -67,7 +67,7 @@ struct ClientHelloStats
 {
 	int numOfMessages; // total number of client-hello messages
 	Rate messageRate; // rate of client-hello messages
-	std::map<std::string, int> serverNameCount; // a map for counting the server names seen in traffic
+	std::unordered_map<std::string, int> serverNameCount; // a map for counting the server names seen in traffic
 
 	virtual ~ClientHelloStats() {}
 
@@ -87,7 +87,7 @@ struct ServerHelloStats
 {
 	int numOfMessages; // total number of server-hello messages
 	Rate messageRate; // rate of server-hello messages
-	std::map<std::string, int> cipherSuiteCount; // count of the different chosen cipher-suites
+	std::unordered_map<std::string, int> cipherSuiteCount; // count of the different chosen cipher-suites
 
 	virtual ~ServerHelloStats() {}
 
@@ -378,7 +378,7 @@ private:
 	ServerHelloStats m_ServerHelloStats;
 	ServerHelloStats m_PrevServerHelloStats;
 
-	std::map<uint32_t, SSLFlowData> m_FlowTable;
+	std::unordered_map<uint32_t, SSLFlowData> m_FlowTable;
 
 	double m_LastCalcRateTime;
 	double m_StartTime;
