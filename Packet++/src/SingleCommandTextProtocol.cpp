@@ -143,9 +143,8 @@ namespace pcpp
 
 			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
 			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
-			std::vector<std::string> vDelim;
-			vDelim.push_back(getCommandInternal() + "-");
-			vDelim.push_back(getCommandInternal() + " ");
+			auto code = getCommandInternal();
+			auto vDelim = std::vector<std::string> {code + " ", code + "-"};
 
 			for (const auto &delim : vDelim)
 			{
