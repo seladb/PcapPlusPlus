@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
+    paths:
+      - '.github/package.yml'
 
 env:
   BUILD_DIR: Dist
@@ -54,6 +57,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -86,6 +90,7 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -119,6 +124,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -179,6 +185,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -218,6 +225,7 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
       - name: Upload binaries to release
+        if: github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -296,6 +304,7 @@ jobs:
           echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
       - name: Upload binaries to release
+        if: github.event_name != 'pull_request'
         uses: ncipollo/release-action@v1
         with:
           draft: true
