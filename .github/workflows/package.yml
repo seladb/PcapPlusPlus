@@ -6,7 +6,7 @@ on:
       - '*'
   pull_request:
     paths:
-      - '.github/package.yml'
+      - '.github/workflows/package.yml'
 
 env:
   BUILD_DIR: Dist
