@@ -248,3 +248,8 @@ PTF_TEST_CASE(CotpLayerTest);
 // Implemented in S7commTests.cpp
 PTF_TEST_CASE(S7CommLayerParsingTest);
 PTF_TEST_CASE(S7CommLayerCreationTest);
+
+// Implemented in SmtpTests.cpp
+PTF_TEST_CASE(SmtpParsingTests);
+PTF_TEST_CASE(SmtpCreationTests);
+PTF_TEST_CASE(SmtpEditTests);
