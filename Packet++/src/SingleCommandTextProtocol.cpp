@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <vector>
 
 #define ASCII_HYPHEN 0x2d
 #define ASCII_SPACE 0x20
@@ -131,8 +132,30 @@ namespace pcpp
 
 	std::string SingleCommandTextProtocol::getCommandOptionInternal() const
 	{
-		if (getArgumentFieldOffset() != (m_DataLen - 1))
-			return std::string((char *)&m_Data[getArgumentFieldOffset() + 1], m_DataLen - getArgumentFieldOffset() - 2);
+		size_t offset = getArgumentFieldOffset();
+
+		// We don't want to get delimiter so add 1 for start unless there is no command,
+		// and we don't want to trailing newline characters so remove 2 and remove addition from start point
+		int addition = offset ? 1 : 0;
+		if (offset != (m_DataLen - 1))
+		{
+			auto option = std::string((char *)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
+
+			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
+			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
+			auto code = getCommandInternal();
+			auto vDelim = std::vector<std::string> {code + " ", code + "-"};
+
+			for (const auto &delim : vDelim)
+			{
+				size_t pos = 0;
+				while ((pos = option.find(delim, pos)) != std::string::npos)
+				{
+					option.replace(pos, delim.length(), "");
+				}
+			}
+			return option;
+		}
 		return "";
 	}
 
