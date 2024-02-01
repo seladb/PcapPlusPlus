@@ -119,7 +119,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.0.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
@@ -292,7 +292,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.0.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.os-version }},unittest
@@ -372,7 +372,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.0.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -460,7 +460,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.0.0
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -562,7 +562,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.0.0
         with:
           files: ./coverage.xml
           flags: xdp,unittest
