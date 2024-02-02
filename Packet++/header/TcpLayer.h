@@ -153,7 +153,7 @@ namespace pcpp
 #define PCPP_TCPOLEN_SACK_PERM      2
 	/** pcpp::TcpOptionType::PCPP_TCPOPT_SACK length */
 #define PCPP_TCPOLEN_SACK_MIN       2
-	/** pcpp:TcpOptionType:::TCPOPT_ECHO length */
+	/** pcpp:TcpOptionType::TCPOPT_ECHO length */
 #define PCPP_TCPOLEN_ECHO           6
 	/** pcpp::TcpOptionType::TCPOPT_ECHOREPLY length */
 #define PCPP_TCPOLEN_ECHOREPLY      6
