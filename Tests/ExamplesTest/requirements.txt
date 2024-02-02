@@ -1,7 +1,7 @@
-attrs==21.4.0
+attrs==23.2.0
 iniconfig==2.0.0
 py==1.11.0
-pyparsing==3.0.7
-pytest==6.2.5
-scapy==2.4.5
+pyparsing==3.1.1
+pytest==8.0.0
+scapy==2.5.0
 toml==0.10.2
