@@ -53,9 +53,9 @@ std::string printTcpOptionType(pcpp::TcpOptionType optionType)
 {
 	switch (optionType)
 	{
-	case pcpp::PCPP_TCPOPT_NOP:
+	case pcpp::TcpOptionType::PCPP_TCPOPT_NOP:
 		return "NOP";
-	case pcpp::PCPP_TCPOPT_TIMESTAMP:
+	case pcpp::TcpOptionType::PCPP_TCPOPT_TIMESTAMP:
 		return "Timestamp";
 	default:
 		return "Other";

@@ -84,7 +84,7 @@ namespace pcpp
 	/**
 	 * TCP options types
 	 */
-	enum class TcpOptionType
+	enum class TcpOptionType : uint8_t
 	{
 		/** Padding */
 		PCPP_TCPOPT_NOP =       1,
@@ -141,51 +141,51 @@ namespace pcpp
 
 	// TCP option lengths
 
-	/** pcpp::PCPP_TCPOPT_NOP length */
+	/** pcpp::TcpOptionType::PCPP_TCPOPT_NOP length */
 #define PCPP_TCPOLEN_NOP            1
-	/** pcpp::PCPP_TCPOPT_EOL length */
+	/** pcpp::TcpOptionType::PCPP_TCPOPT_EOL length */
 #define PCPP_TCPOLEN_EOL            1
-	/** pcpp::TCPOPT_MSS length */
+	/** pcpp::TcpOptionType::TCPOPT_MSS length */
 #define PCPP_TCPOLEN_MSS            4
-	/** pcpp::PCPP_TCPOPT_WINDOW length */
+	/** pcpp::TcpOptionType::PCPP_TCPOPT_WINDOW length */
 #define PCPP_TCPOLEN_WINDOW         3
-	/** pcpp::TCPOPT_SACK_PERM length */
+	/** pcpp::TcpOptionType::TCPOPT_SACK_PERM length */
 #define PCPP_TCPOLEN_SACK_PERM      2
-	/** pcpp::PCPP_TCPOPT_SACK length */
+	/** pcpp::TcpOptionType::PCPP_TCPOPT_SACK length */
 #define PCPP_TCPOLEN_SACK_MIN       2
-	/** pcpp::TCPOPT_ECHO length */
+	/** pcpp:TcpOptionType:::TCPOPT_ECHO length */
 #define PCPP_TCPOLEN_ECHO           6
-	/** pcpp::TCPOPT_ECHOREPLY length */
+	/** pcpp::TcpOptionType::TCPOPT_ECHOREPLY length */
 #define PCPP_TCPOLEN_ECHOREPLY      6
-	/** pcpp::PCPP_TCPOPT_TIMESTAMP length */
+	/** pcpp::TcpOptionType::PCPP_TCPOPT_TIMESTAMP length */
 #define PCPP_TCPOLEN_TIMESTAMP     10
-	/** pcpp::TCPOPT_CC length */
+	/** pcpp::TcpOptionType::TCPOPT_CC length */
 #define PCPP_TCPOLEN_CC             6
-	/** pcpp::TCPOPT_CCNEW length */
+	/** pcpp::TcpOptionType::TCPOPT_CCNEW length */
 #define PCPP_TCPOLEN_CCNEW          6
-	/** pcpp::TCPOPT_CCECHO length */
+	/** pcpp::TcpOptionType::TCPOPT_CCECHO length */
 #define PCPP_TCPOLEN_CCECHO         6
-	/** pcpp::TCPOPT_MD5 length */
+	/** pcpp::TcpOptionType::TCPOPT_MD5 length */
 #define PCPP_TCPOLEN_MD5           18
-	/** pcpp::TCPOPT_MPTCP length */
+	/** pcpp::TcpOptionType::TCPOPT_MPTCP length */
 #define PCPP_TCPOLEN_MPTCP_MIN      8
-	/** pcpp::TCPOPT_SCPS length */
+	/** pcpp::TcpOptionType::TCPOPT_SCPS length */
 #define PCPP_TCPOLEN_SCPS           4
-	/** pcpp::TCPOPT_SNACK length */
+	/** pcpp::TcpOptionType::TCPOPT_SNACK length */
 #define PCPP_TCPOLEN_SNACK          6
-	/** pcpp::TCPOPT_RECBOUND length */
+	/** pcpp::TcpOptionType::TCPOPT_RECBOUND length */
 #define PCPP_TCPOLEN_RECBOUND       2
-	/** pcpp::TCPOPT_CORREXP length */
+	/** pcpp::TcpOptionType::TCPOPT_CORREXP length */
 #define PCPP_TCPOLEN_CORREXP        2
-	/** pcpp::TCPOPT_QS length */
+	/** pcpp::TcpOptionType::TCPOPT_QS length */
 #define PCPP_TCPOLEN_QS             8
-	/** pcpp::TCPOPT_USER_TO length */
+	/** pcpp::TcpOptionType::TCPOPT_USER_TO length */
 #define PCPP_TCPOLEN_USER_TO        4
-	/** pcpp::TCPOPT_RVBD_PROBE length */
+	/** pcpp::TcpOptionType::TCPOPT_RVBD_PROBE length */
 #define PCPP_TCPOLEN_RVBD_PROBE_MIN 3
-	/** pcpp::TCPOPT_RVBD_TRPY length */
+	/** pcpp::TcpOptionType::TCPOPT_RVBD_TRPY length */
 #define PCPP_TCPOLEN_RVBD_TRPY_MIN 16
-	/** pcpp::TCPOPT_EXP_FD and pcpp::TCPOPT_EXP_FE length */
+	/** pcpp::TcpOptionType::TCPOPT_EXP_FD and pcpp::TcpOptionType::TCPOPT_EXP_FE length */
 #define PCPP_TCPOLEN_EXP_MIN        2
 
 
@@ -218,7 +218,7 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return TcpOptionType::TCPOPT_Unknown;
 
-			return (TcpOptionType)m_Data->recordType;
+			return static_cast<TcpOptionType>(m_Data->recordType);
 		}
 
 		/**
@@ -281,7 +281,7 @@ namespace pcpp
 		/**
 		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		 */
-		enum class NopEolOptionTypes
+		enum class NopEolOptionTypes : uint8_t
 		{
 			/** NOP TCP option */
 			NOP,

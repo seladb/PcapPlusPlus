@@ -77,5 +77,7 @@ venv/**
 #MacOS system files
 **/.DS_Store
 
-#custom
 private
+
+CMakeCache.txt
+CMakeFiles
