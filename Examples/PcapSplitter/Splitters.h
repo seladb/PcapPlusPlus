@@ -9,7 +9,7 @@
 #include "UdpLayer.h"
 #include "DnsLayer.h"
 #include "PacketUtils.h"
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
@@ -166,9 +166,9 @@ class ValueBasedSplitter : public SplitterWithMaxFiles
 {
 protected:
 	// A flow table that keeps track of all flows (a flow is usually identified by 5-tuple)
-	std::map<uint32_t, int> m_FlowTable;
+	std::unordered_map<uint32_t, int> m_FlowTable;
 	// a map between the relevant packet value (e.g client-ip) and the file to write the packet to
-	std::map<uint32_t, int> m_ValueToFileTable;
+	std::unordered_map<uint32_t, int> m_ValueToFileTable;
 
 	/**
 	 * A protected c'tor for this class that only propagate the maxFiles to its ancestor

@@ -4,7 +4,7 @@
 #include "LRUList.h"
 #include "IpAddress.h"
 #include "PointerVector.h"
-#include <map>
+#include <unordered_map>
 
 /**
  * @file
@@ -448,7 +448,7 @@ namespace pcpp
 		};
 
 		LRUList<uint32_t> m_PacketLRU;
-		std::map<uint32_t, IPFragmentData*> m_FragmentMap;
+		std::unordered_map<uint32_t, IPFragmentData*> m_FragmentMap;
 		OnFragmentsClean m_OnFragmentsCleanCallback;
 		void* m_CallbackUserCookie;
 

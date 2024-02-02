@@ -239,7 +239,7 @@ void printHostnames(HttpRequestStats& reqStatscollector)
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the hostname count map so the most popular hostnames will be first
-	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<std::string, int> > map2vec(reqStatscollector.hostnameCount.begin(), reqStatscollector.hostnameCount.end());
 	std::sort(map2vec.begin(), map2vec.end(), &hostnameComparer);
 

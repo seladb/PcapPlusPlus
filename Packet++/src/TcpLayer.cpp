@@ -15,6 +15,7 @@
 #include "TpktLayer.h"
 #include "FtpLayer.h"
 #include "SomeIpLayer.h"
+#include "SmtpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -380,6 +381,10 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet);
 	else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
 		m_NextLayer =  new TpktLayer(payload, payloadLen, this, m_Packet);
+	else if (SmtpLayer::isSmtpPort(portSrc) && SmtpLayer::isDataValid(payload, payloadLen))
+		m_NextLayer = new SmtpResponseLayer(payload, payloadLen, this, m_Packet);
+	else if (SmtpLayer::isSmtpPort(portDst) && SmtpLayer::isDataValid(payload, payloadLen))
+		m_NextLayer = new SmtpRequestLayer(payload, payloadLen, this, m_Packet);
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }
