@@ -189,6 +189,7 @@ namespace pcpp
 #define PCPP_TCPOLEN_EXP_MIN        2
 
 
+
 	/**
 	 * @class TcpOption
 	 * A wrapper class for TCP options. This class does not create or modify TCP option records, but rather
@@ -215,10 +216,7 @@ namespace pcpp
 		 */
 		TcpOptionType getTcpOptionType() const
 		{
-			if (m_Data == nullptr)
-				return TcpOptionType::TCPOPT_Unknown;
-
-			return static_cast<TcpOptionType>(m_Data->recordType);
+			return getTcpOptionType(m_Data);
 		}
 
 		/**
@@ -229,14 +227,15 @@ namespace pcpp
 		 */
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
-			auto data = (TLVRawData*)recordRawData;
+			const auto* data = reinterpret_cast<const TLVRawData*>(recordRawData);
 			if (data == nullptr)
 				return false;
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
 				return false;
 
-			if (data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP || data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL)
+			const auto recordType = getTcpOptionType(data);
+			if (recordType == TcpOptionType::PCPP_TCPOPT_NOP || recordType == TcpOptionType::PCPP_TCPOPT_EOL)
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -249,10 +248,11 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL)
+			const auto recordType = getTcpOptionType(m_Data);
+			if (recordType == TcpOptionType::PCPP_TCPOPT_NOP || recordType == TcpOptionType::PCPP_TCPOPT_EOL)
 				return sizeof(uint8_t);
 
-			return (size_t)m_Data->recordLen;
+			return static_cast<size_t>(m_Data->recordLen);
 		}
 
 		size_t getDataSize() const
@@ -260,10 +260,20 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_NOP || m_Data->recordType == (uint8_t)TcpOptionType::PCPP_TCPOPT_EOL)
+			const auto recordType = getTcpOptionType(m_Data);
+			if (recordType == TcpOptionType::PCPP_TCPOPT_NOP || recordType == TcpOptionType::PCPP_TCPOPT_EOL)
 				return 0;
 
-			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
+			return static_cast<size_t>(m_Data->recordLen) - (2*sizeof(uint8_t));
+		}
+
+	private:
+		static TcpOptionType getTcpOptionType(const TLVRawData* optionRawData)
+		{
+			if (optionRawData == nullptr)
+				return TcpOptionType::TCPOPT_Unknown;
+
+			return static_cast<TcpOptionType>(optionRawData->recordType);
 		}
 	};
 
@@ -520,5 +530,4 @@ namespace pcpp
 			&& hdr->dataOffset >= 5 /* the minimum TCP header size */
 			&& dataLen >= hdr->dataOffset * sizeof(uint32_t);
 	}
-
 } // namespace pcpp
