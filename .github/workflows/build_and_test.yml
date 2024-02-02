@@ -410,7 +410,7 @@ jobs:
           python-version: "3.8.x"
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1
+        uses: microsoft/setup-msbuild@v2
 
       - name: Setup OpenCppCoverage and add to PATH
         run: |
