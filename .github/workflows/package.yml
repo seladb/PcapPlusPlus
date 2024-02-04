@@ -6,6 +6,7 @@ on:
       - '*'
   pull_request:
     paths:
+      # Also run this workflow when this package.yml is update by a PR
       - '.github/workflows/package.yml'
 
 env:
@@ -66,7 +67,7 @@ jobs:
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
