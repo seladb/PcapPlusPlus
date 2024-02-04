@@ -297,7 +297,8 @@ void EtherTypeFilter::parseToString(std::string& result)
 	result = "ether proto " + stream.str();
 }
 
-AndFilter::AndFilter(std::vector<GeneralFilter*>& filters)
+CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters, std::string compositeDelimiter)
+	: m_CompositeDelimiter(std::move(compositeDelimiter))
 {
 	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
 	{
@@ -305,7 +306,24 @@ AndFilter::AndFilter(std::vector<GeneralFilter*>& filters)
 	}
 }
 
-void AndFilter::setFilters(std::vector<GeneralFilter*>& filters)
+void CompositeFilter::removeFilter(GeneralFilter* filter)
+{
+	std::vector<GeneralFilter*>::iterator it = m_FilterList.begin();
+	for (; it != m_FilterList.end(); ++it)
+	{
+		if (*it == filter)
+		{
+			break;
+		}
+	}
+
+	if (it != m_FilterList.end())
+	{
+		m_FilterList.erase(it);
+	}
+}
+
+void CompositeFilter::setFilters(std::vector<GeneralFilter*>& filters)
 {
 	m_FilterList.clear();
 
@@ -315,7 +333,7 @@ void AndFilter::setFilters(std::vector<GeneralFilter*>& filters)
 	}
 }
 
-void AndFilter::parseToString(std::string& result)
+void CompositeFilter::parseToString(std::string& result)
 {
 	result.clear();
 	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
@@ -325,30 +343,7 @@ void AndFilter::parseToString(std::string& result)
 		result += '(' + innerFilter + ')';
 		if (m_FilterList.back() != *it)
 		{
-			result += " and ";
-		}
-	}
-}
-
-OrFilter::OrFilter(std::vector<GeneralFilter*>& filters)
-{
-	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
-	{
-		m_FilterList.push_back(*it);
-	}
-}
-
-void OrFilter::parseToString(std::string& result)
-{
-	result.clear();
-	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
-	{
-		std::string innerFilter;
-		(*it)->parseToString(innerFilter);
-		result += '(' + innerFilter + ')';
-		if (m_FilterList.back() != *it)
-		{
-			result += " or ";
+			result += m_CompositeDelimiter;
 		}
 	}
 }

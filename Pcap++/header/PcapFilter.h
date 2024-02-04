@@ -484,43 +484,80 @@ namespace pcpp
 
 
 	/**
-	 * @class AndFilter
-	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2 filters are: "IPv4 address =
-	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _AND_ TCP port dst = 80"<BR>
-	 * This class follows the composite design pattern<BR>
+	 * @class CompositeFilter
+	 * A class for connecting several filters into one filter using a delimiter between them. For example: if the 2 filters are: "IPv4 address =
+	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _DELIMITER_ TCP port dst = 80"<BR>
+	 * The primary use for this filter is to provide base functionality for composite filters such as AndFilter and OrFilter.<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
-	 * @todo add some methods: "addFilter", "removeFilter", "clearAllFilter"
 	 */
-	class AndFilter : public GeneralFilter
+	class CompositeFilter : public GeneralFilter
 	{
 	private:
+		std::string m_CompositeDelimiter;
 		std::vector<GeneralFilter*> m_FilterList;
 	public:
-
 		/**
-		 * An empty constructor for this class. Use addFilter() to add filters to the and condition
+		 * A constructor that sets the composite delimiter. Use addFilter() to add filters to the composite filter.
+		 * @param[in] compositeDelimiter A delimiter to add between different filters.
 		 */
-		AndFilter() {}
+		CompositeFilter(std::string compositeDelimiter) : m_CompositeDelimiter(std::move(compositeDelimiter)){};
 
 		/**
-		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
+		 * A constructor that gets a list of pointers to filters and creates one filter from all filters 
 		 * @param[in] filters The list of pointers to filters
+		 * @param[in] compositeDelimiter A delimiter to add between different filters.
 		 */
-		explicit AndFilter(std::vector<GeneralFilter*>& filters);
+		explicit CompositeFilter(std::vector<GeneralFilter*>& filters, std::string compositeDelimiter);
 
 		/**
-		 * Add filter to the and condition
+		 * Add filter to the composite filter
 		 * @param[in] filter The filter to add
 		 */
 		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
 
 		/**
+		 * Removes the first matching filter from the composite filter
+		 * @param[in] filter The filter to remove
+		 */
+		void removeFilter(GeneralFilter* filter);
+		
+		/**
 		 * Remove the current filters and set new ones
 		 * @param[in] filters The new filters to set. The previous ones will be removed
 		 */
 		void setFilters(std::vector<GeneralFilter*>& filters);
+		
+		/**
+		 * Remove all filters from the composite filter.
+		 */
+		void clearAllFilters() { m_FilterList.clear(); }
 
 		void parseToString(std::string& result);
+	};
+
+
+
+	/**
+	 * @class AndFilter
+	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2 filters are: "IPv4 address =
+	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _AND_ TCP port dst = 80"<BR>
+	 * This class follows the composite design pattern<BR>
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
+	 */
+	class AndFilter : public CompositeFilter
+	{
+	public:
+
+		/**
+		 * An empty constructor for this class. Use addFilter() to add filters to the and condition
+		 */
+		AndFilter() : CompositeFilter(" and ") {}
+
+		/**
+		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
+		 * @param[in] filters The list of pointers to filters
+		 */
+		explicit AndFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " and ") {}
 	};
 
 
@@ -531,32 +568,21 @@ namespace pcpp
 	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _OR_ TCP port dst = 80"<BR>
 	 * This class follows the composite design pattern<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
-	 * @todo add some methods: "addFilter", "removeFilter", "clearAllFilter"
 	 */
-	class OrFilter : public GeneralFilter
+	class OrFilter : public CompositeFilter
 	{
-	private:
-		std::vector<GeneralFilter*> m_FilterList;
 	public:
 
 		/**
 		 * An empty constructor for this class. Use addFilter() to add filters to the or condition
 		 */
-		OrFilter() {}
+		OrFilter() : CompositeFilter(" or ") {}
 
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
-		explicit OrFilter(std::vector<GeneralFilter*>& filters);
-
-		/**
-		 * Add filter to the or condition
-		 * @param[in] filter The filter to add
-		 */
-		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
-
-		void parseToString(std::string& result);
+		explicit OrFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " or ") {};
 	};
 
 
