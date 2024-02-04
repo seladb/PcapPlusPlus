@@ -1142,9 +1142,8 @@ PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 		timeval t = tcpReassemblyResults.timestamps[i];
 		std::string expected;
 		expectedOutput>>expected;
-		//TODO: Change to atoll to stoll after switching to C++11
-		int expUsec = atoll(expected.c_str())%1000000;
-		int expSec = atoll(expected.c_str())/1000000;
+		const int expUsec = std::stoll(expected)%1000000;
+		const int expSec = std::stoll(expected)/1000000;
 		PTF_ASSERT_EQUAL(t.tv_usec,expUsec);
 		PTF_ASSERT_EQUAL(t.tv_sec, expSec);
 	}

@@ -51,7 +51,7 @@ static csv_entry_t *make_csv_entry(const char *csv_line)
 	e->count = 0;
 
 	for (; it != reg_end; it++) {
-		unsigned long long value = atoll(it->str().c_str());
+		const auto value = std::stoll(it->str());
 		e->entries.push_back(value);
 		e->original_values.push_back(value);
 		e->count++;
