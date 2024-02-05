@@ -24,7 +24,7 @@ jobs:
             config-zstd: OFF
           - image: ubuntu1804
             config-zstd: OFF
-          - image: centos7
+          - image: rhel93
             config-zstd: OFF
           - image: fedora37
             config-zstd: OFF
