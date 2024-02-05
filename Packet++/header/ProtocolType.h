@@ -337,6 +337,11 @@ namespace pcpp
 	 */
 	const ProtocolType S7COMM = 53;
 
+	/*
+	 * SMTP protocol
+	 */
+	const ProtocolType SMTP = 54;
+
 	/**
 	 * An enum representing OSI model layers
 	 */

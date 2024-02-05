@@ -1,5 +1,5 @@
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
@@ -96,7 +96,7 @@ void printAppVersion()
  */
 void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
 		bool filterByBpf, const std::string& bpfFilter,
-		bool filterByIpID, std::map<uint32_t, bool> fragIDs,
+		bool filterByIpID, std::unordered_map<uint32_t, bool> fragIDs,
 		bool copyAllPacketsToOutputFile,
 		DefragStats& stats)
 {
@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
 	bool filterByBpfFilter = false;
 	std::string bpfFilter = "";
 	bool filterByFragID = false;
-	std::map<uint32_t, bool> fragIDMap;
+	std::unordered_map<uint32_t, bool> fragIDMap;
 	bool copyAllPacketsToOutputFile = false;
 
 

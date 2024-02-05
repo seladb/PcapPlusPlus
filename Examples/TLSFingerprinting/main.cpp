@@ -8,7 +8,7 @@
  * You can also run `TLSFingerprinting -h` for modes of operation and parameters.
  */
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -222,8 +222,8 @@ struct TLSFingerprintingStats
 	uint64_t numOfPacketsTotal;
 	uint64_t numOfCHPackets;
 	uint64_t numOfSHPackets;
-	std::map<std::string, uint64_t> chFingerprints;
-	std::map<std::string, uint64_t> shFingerprints;
+	std::unordered_map<std::string, uint64_t> chFingerprints;
+	std::unordered_map<std::string, uint64_t> shFingerprints;
 };
 
 struct HandlePacketData
@@ -239,7 +239,7 @@ struct HandlePacketData
 /**
  * Print cipher-suite map in a table sorted by number of occurrences (most common cipher-suite will be first)
  */
-void printCommonTLSFingerprints(const std::map<std::string, uint64_t>& tlsFingerprintMap, int printCountItems)
+void printCommonTLSFingerprints(const std::unordered_map<std::string, uint64_t>& tlsFingerprintMap, int printCountItems)
 {
 	// create the table
 	std::vector<std::string> columnNames;
@@ -251,7 +251,7 @@ void printCommonTLSFingerprints(const std::map<std::string, uint64_t>& tlsFinger
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the TLS fingerprint map so the most popular will be first
-	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<std::string, int> > map2vec(tlsFingerprintMap.begin(), tlsFingerprintMap.end());
 	std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 

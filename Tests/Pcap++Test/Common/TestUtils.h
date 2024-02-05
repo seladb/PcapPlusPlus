@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include "RawPacket.h"
 #include "Device.h"
 
@@ -46,12 +46,12 @@ uint8_t* readFileIntoBuffer(const std::string &filename, int& bufferLength);
 
 template<typename KeyType, typename LeftValue, typename RightValue>
 void intersectMaps(
-	const std::map<KeyType, LeftValue> & left,
-	const std::map<KeyType, RightValue> & right,
-	std::map<KeyType, std::pair<LeftValue, RightValue> >& result)
+	const std::unordered_map<KeyType, LeftValue> & left,
+	const std::unordered_map<KeyType, RightValue> & right,
+	std::unordered_map<KeyType, std::pair<LeftValue, RightValue> >& result)
 {
-	typename std::map<KeyType, LeftValue>::const_iterator il = left.begin();
-	typename std::map<KeyType, RightValue>::const_iterator ir = right.begin();
+	typename std::unordered_map<KeyType, LeftValue>::const_iterator il = left.begin();
+	typename std::unordered_map<KeyType, RightValue>::const_iterator ir = right.begin();
 	while (il != left.end() && ir != right.end())
 	{
 			if (il->first < ir->first)
