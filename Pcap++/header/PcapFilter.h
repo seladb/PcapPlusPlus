@@ -500,14 +500,14 @@ namespace pcpp
 		 * A constructor that sets the composite delimiter. Use addFilter() to add filters to the composite filter.
 		 * @param[in] compositeDelimiter A delimiter to add between different filters.
 		 */
-		explicit CompositeFilter(std::string compositeDelimiter) : m_CompositeDelimiter(std::move(compositeDelimiter)){};
+		explicit CompositeFilter(const std::string& compositeDelimiter) : m_CompositeDelimiter(compositeDelimiter){};
 
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters
 		 * @param[in] filters The list of pointers to filters
 		 * @param[in] compositeDelimiter A delimiter to add between different filters.
 		 */
-		explicit CompositeFilter(std::vector<GeneralFilter*>& filters, std::string compositeDelimiter);
+		explicit CompositeFilter(std::vector<GeneralFilter*>& filters, const std::string& compositeDelimiter);
 
 		/**
 		 * Add filter to the composite filter

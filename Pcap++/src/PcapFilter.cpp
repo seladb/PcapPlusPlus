@@ -297,8 +297,8 @@ void EtherTypeFilter::parseToString(std::string& result)
 	result = "ether proto " + stream.str();
 }
 
-CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters, std::string compositeDelimiter)
-	: m_CompositeDelimiter(std::move(compositeDelimiter))
+CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters, const std::string& compositeDelimiter)
+	: m_CompositeDelimiter(compositeDelimiter)
 {
 	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
 	{
