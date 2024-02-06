@@ -308,8 +308,7 @@ CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters, const std
 
 void CompositeFilter::removeFilter(GeneralFilter* filter)
 {
-	std::vector<GeneralFilter*>::iterator it = m_FilterList.begin();
-	for (; it != m_FilterList.end(); ++it)
+	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 	{
 		if (*it == filter)
 		{
