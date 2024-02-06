@@ -313,13 +313,9 @@ void CompositeFilter::removeFilter(GeneralFilter* filter)
 	{
 		if (*it == filter)
 		{
+			m_FilterList.erase(it);
 			break;
 		}
-	}
-
-	if (it != m_FilterList.end())
-	{
-		m_FilterList.erase(it);
 	}
 }
 
