@@ -551,13 +551,13 @@ namespace pcpp
 		/**
 		 * An empty constructor for this class. Use addFilter() to add filters to the and condition
 		 */
-		AndFilter() : CompositeFilter(" and ") {}
+		AndFilter();
 
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
-		explicit AndFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " and ") {}
+		explicit AndFilter(std::vector<GeneralFilter*>& filters);
 	};
 
 
@@ -576,13 +576,13 @@ namespace pcpp
 		/**
 		 * An empty constructor for this class. Use addFilter() to add filters to the or condition
 		 */
-		OrFilter() : CompositeFilter(" or ") {}
+		OrFilter();
 
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
-		explicit OrFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " or ") {};
+		explicit OrFilter(std::vector<GeneralFilter *> &filters);
 	};
 
 

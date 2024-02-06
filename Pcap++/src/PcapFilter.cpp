@@ -344,6 +344,14 @@ void CompositeFilter::parseToString(std::string& result)
 	}
 }
 
+AndFilter::AndFilter() : CompositeFilter(" and ") {}
+
+AndFilter::AndFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " and ") {}
+
+OrFilter::OrFilter() : CompositeFilter(" or ") {}
+
+OrFilter::OrFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " or "){};
+
 void NotFilter::parseToString(std::string& result)
 {
 	std::string innerFilterAsString;
