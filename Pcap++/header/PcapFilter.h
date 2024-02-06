@@ -582,7 +582,7 @@ namespace pcpp
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
 		 * @param[in] filters The list of pointers to filters
 		 */
-		explicit OrFilter(std::vector<GeneralFilter *> &filters);
+		explicit OrFilter(std::vector<GeneralFilter*> &filters);
 	};
 
 

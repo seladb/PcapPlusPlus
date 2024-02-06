@@ -662,7 +662,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	{
 		pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
 		protoFilter.setProto(pcpp::UDP);
-		std::vector<pcpp::GeneralFilter *> filterVec;
+		std::vector<pcpp::GeneralFilter*> filterVec;
 		filterVec.push_back(&ipFilter);
 		filterVec.push_back(&protoFilter);
 		pcpp::CompositeFilter compositeFilter(filterVec, " and ");
@@ -692,7 +692,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
 	protoFilter.setProto(pcpp::UDP);
-	std::vector<pcpp::GeneralFilter *> filterVec;
+	std::vector<pcpp::GeneralFilter*> filterVec;
 	filterVec.push_back(&ipFilter);
 	filterVec.push_back(&protoFilter);
 	pcpp::AndFilter andFilter(filterVec);
