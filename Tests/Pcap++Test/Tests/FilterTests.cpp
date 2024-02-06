@@ -659,39 +659,40 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	//------------------------------
 	// Composite filter - Proto + IP
 	//------------------------------
-	pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
-	protoFilter.setProto(pcpp::UDP);
-	std::vector<pcpp::GeneralFilter*> filterVec;
-	filterVec.push_back(&ipFilter);
-	filterVec.push_back(&protoFilter);
-	pcpp::CompositeFilter compositeFilter(filterVec, " and ");
-	compositeFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
+	{
+		pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
+		protoFilter.setProto(pcpp::UDP);
+		std::vector<pcpp::GeneralFilter *> filterVec;
+		filterVec.push_back(&ipFilter);
+		filterVec.push_back(&protoFilter);
+		pcpp::CompositeFilter compositeFilter(filterVec, " and ");
+		compositeFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
 
-	compositeFilter.removeFilter(&ipFilter);
-	compositeFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(udp)");
+		compositeFilter.removeFilter(&ipFilter);
+		compositeFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(udp)");
 
-	compositeFilter.addFilter(&ipFilter);
-	compositeFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)")
+		compositeFilter.addFilter(&ipFilter);
+		compositeFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)")
 
-	compositeFilter.clearAllFilters();
-	compositeFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "")
+		compositeFilter.clearAllFilters();
+		compositeFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "")
 
-	compositeFilter.setFilters(filterVec);
-	compositeFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
+		compositeFilter.setFilters(filterVec);
+		compositeFilter.parseToString(filterAsString);
+		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
+	}
 
 	//-----------------------
 	//And filter - Proto + IP
 	//-----------------------
 
-	ipFilter.setAddr("10.0.0.6");
-	ipFilter.setDirection(pcpp::SRC);
+	pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
 	protoFilter.setProto(pcpp::UDP);
-	filterVec.clear();
+	std::vector<pcpp::GeneralFilter *> filterVec;
 	filterVec.push_back(&ipFilter);
 	filterVec.push_back(&protoFilter);
 	pcpp::AndFilter andFilter(filterVec);
