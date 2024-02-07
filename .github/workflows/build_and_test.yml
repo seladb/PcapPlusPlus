@@ -215,11 +215,11 @@ jobs:
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
-  macos:
+  macos-x86:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        os-version: [macos-11, macos-12]
+        os-version: [macos-12, macos-13]
         arch: [x86_64, arm64]
         # Handle ZSTD build by Cirrus CI
         # config-zstd: [ON, OFF]
@@ -235,7 +235,8 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.8.x"
+          # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+          python-version: "3.12.x"
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
@@ -282,6 +283,80 @@ jobs:
 
       - name: Test Tutorials
         if: ${{ matrix.arch == 'x86_64' }}
+        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
+      - name: Create Cobertura Report
+        run: |
+          python3 -m pip install gcovr
+          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
+
+      - name: Upload Coverage Results
+        uses: codecov/codecov-action@v3.1.4
+        with:
+          files: ./coverage.xml
+          flags: ${{ matrix.os-version }},unittest
+          fail_ci_if_error: false
+          verbose: true
+
+  macos-m1:
+    runs-on: ${{ matrix.os-version }}
+    strategy:
+      matrix:
+        os-version: [macos-14]
+        arch: [arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v5
+        with:
+          # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+          python-version: "3.12.x"
+
+      - name: Configure PcapPlusPlus
+        # Ensure user have access to network devices instead of giving super-user right
+        # Seems macos-14 has more strict file permission
+        run: |
+          sudo chmod a+rw /dev/bpf*
+          sudo chmod a+rw /usr/local 
+          cmake -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
+      - name: Check architecture
+        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
+
+      - name: Install Tcpreplay
+        run: brew install tcpreplay
+
+      - name: Test PcapPlusPlus
+        run: |
+          python -m pip install -U pip
+          python -m pip install -r ci/run_tests/requirements.txt
+          python ci/run_tests/run_tests.py --interface en0
+
+      - name: Test Examples
+        run: |
+          cd Tests/ExamplesTest
+          python -m pip install -U pip
+          python -m pip install -r requirements.txt
+          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
+
+      - name: Check installation
+        run: |
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
+          cmake --build "$BUILD_DIR" -j
+          cmake --install $BUILD_DIR
+
+      - name: Build Tutorials
+        run: |
+          mkdir -p build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+          cmake --build build_examples -j
+
+      - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
