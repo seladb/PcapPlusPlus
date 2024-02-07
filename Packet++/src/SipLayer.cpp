@@ -89,7 +89,13 @@ void SipLayer::parseNextLayer()
 	size_t headerLen = getHeaderLen();
 	if (getContentLength() > 0)
 	{
-		m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		HeaderField *contentTypeField = getFieldByName(PCPP_SIP_CONTENT_TYPE_FIELD);
+		std::string contentType = contentTypeField->getFieldValue();
+		if (contentType.find("application/sdp") != std::string::npos) {
+			m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		} else {
+			m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		}
 	}
 	else
 	{
