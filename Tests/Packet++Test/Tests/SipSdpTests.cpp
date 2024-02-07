@@ -648,6 +648,18 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 } // SdpLayerParsingTest
 
 
+PTF_TEST_CASE(NotSdpLayerParseingTest)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_not_sdp.dat");
+
+	pcpp::Packet notSdpPacket(&rawPacket1);
+
+	PTF_ASSERT_FALSE(notSdpPacket.isPacketOfType(pcpp::SDP));
+} // NotSdpLayerParseingTest
+
 
 PTF_TEST_CASE(SdpLayerCreationTest)
 {
