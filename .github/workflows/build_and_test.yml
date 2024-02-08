@@ -236,7 +236,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-          python-version: "3.12.x"
+          python-version: "3.12"
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
@@ -311,7 +311,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-          python-version: "3.12.x"
+          python-version: "3.12"
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
