@@ -303,7 +303,6 @@ jobs:
     strategy:
       matrix:
         os-version: [macos-14]
-        arch: [arm64]
 
     steps:
       - name: Checkout code
@@ -320,7 +319,7 @@ jobs:
         run: |
           sudo chmod a+rw /dev/bpf*
           sudo chmod a+rw /usr/local
-          cmake -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+          cmake -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
@@ -348,12 +347,12 @@ jobs:
         run: |
           cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
           cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
+          cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
