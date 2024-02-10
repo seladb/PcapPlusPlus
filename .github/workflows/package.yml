@@ -28,7 +28,7 @@ jobs:
             config-zstd: OFF
           - image: ubuntu1804
             config-zstd: OFF
-          - image: centos7
+          - image: rhel93
             config-zstd: OFF
           - image: fedora37
             config-zstd: OFF
@@ -284,7 +284,7 @@ jobs:
           mkdir -p android-package
           mv ${COMBINED_PACKAGE_DIR} android-package
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: android-package
           if-no-files-found: error
@@ -295,7 +295,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: android-package
 
