@@ -297,8 +297,7 @@ void EtherTypeFilter::parseToString(std::string& result)
 	result = "ether proto " + stream.str();
 }
 
-CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters, const std::string& compositeDelimiter)
-	: m_CompositeDelimiter(compositeDelimiter)
+CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters)
 {
 	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
 	{
@@ -327,29 +326,6 @@ void CompositeFilter::setFilters(std::vector<GeneralFilter*>& filters)
 		m_FilterList.push_back(*it);
 	}
 }
-
-void CompositeFilter::parseToString(std::string& result)
-{
-	result.clear();
-	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
-	{
-		std::string innerFilter;
-		(*it)->parseToString(innerFilter);
-		result += '(' + innerFilter + ')';
-		if (m_FilterList.back() != *it)
-		{
-			result += m_CompositeDelimiter;
-		}
-	}
-}
-
-AndFilter::AndFilter() : CompositeFilter(" and ") {}
-
-AndFilter::AndFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " and ") {}
-
-OrFilter::OrFilter() : CompositeFilter(" or ") {}
-
-OrFilter::OrFilter(std::vector<GeneralFilter*>& filters) : CompositeFilter(filters, " or "){};
 
 void NotFilter::parseToString(std::string& result)
 {

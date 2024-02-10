@@ -485,29 +485,24 @@ namespace pcpp
 
 	/**
 	 * @class CompositeFilter
-	 * A class for connecting several filters into one filter using a delimiter between them. For example: if the 2 filters are: "IPv4 address =
-	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _DELIMITER_ TCP port dst = 80"<BR>
-	 * The primary use for this filter is to provide base functionality for composite filters such as AndFilter and OrFilter.<BR>
+	 * The base class for all filter classes composed of several other filters. This class is virtual and abstract, hence cannot be instantiated.<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class CompositeFilter : public GeneralFilter
 	{
-	private:
-		std::string m_CompositeDelimiter;
+	protected:
 		std::vector<GeneralFilter*> m_FilterList;
 	public:
 		/**
-		 * A constructor that sets the composite delimiter. Use addFilter() to add filters to the composite filter.
-		 * @param[in] compositeDelimiter A delimiter to add between different filters.
+		 * An empty constructor for this class. Use addFilter() to add filters to the composite filter.
 		 */
-		explicit CompositeFilter(const std::string& compositeDelimiter) : m_CompositeDelimiter(compositeDelimiter){};
+		CompositeFilter() {};
 
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters
 		 * @param[in] filters The list of pointers to filters
-		 * @param[in] compositeDelimiter A delimiter to add between different filters.
 		 */
-		explicit CompositeFilter(std::vector<GeneralFilter*>& filters, const std::string& compositeDelimiter);
+		explicit CompositeFilter(std::vector<GeneralFilter*>& filters);
 
 		/**
 		 * Add filter to the composite filter
@@ -531,61 +526,73 @@ namespace pcpp
 		 * Remove all filters from the composite filter.
 		 */
 		void clearAllFilters() { m_FilterList.clear(); }
-
-		void parseToString(std::string& result);
 	};
 
+	/**
+	 * Supported composite logic filter operators enum
+	 */
+	enum class CompositeLogicFilterOp
+	{
+		/** Logical AND operation */
+		AND,
+		/** Logical OR operation */
+		OR,
+	};
 
+	/**
+	 * Returns the delimiter for joining filter strings for the composite logic filter operation.
+	 * @return A string li
+	 */
+	template <CompositeLogicFilterOp op> constexpr const char *getCompositeLogicOpDelimiter()
+	{
+		// Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when C++17 is the minimum supported standard.
+		static_assert(false, "Unsupported composite logic filter operation.");
+	};
+	template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND>() { return " and "; };
+	template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR>() { return " or "; };
+
+	/**
+	 * A class for connecting several filters into one filter with logical operation between them.
+	 */
+	template <CompositeLogicFilterOp op>
+	class CompositeLogicFilter : public CompositeFilter
+	{
+	public:
+		using CompositeFilter::CompositeFilter;
+
+		void parseToString(std::string& result)
+		{
+			result.clear();
+			for (std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
+			{
+				std::string innerFilter;
+				(*it)->parseToString(innerFilter);
+				result += '(' + innerFilter + ')';
+				if (m_FilterList.back() != *it)
+				{
+					result += getCompositeLogicOpDelimiter<op>();
+				}
+			}
+		}
+	};
 
 	/**
 	 * @class AndFilter
-	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2 filters are: "IPv4 address =
-	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _AND_ TCP port dst = 80"<BR>
-	 * This class follows the composite design pattern<BR>
-	 * For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2
+	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
+	 * _AND_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
+	 * filter concept please refer to PcapFilter.h
 	 */
-	class AndFilter : public CompositeFilter
-	{
-	public:
-
-		/**
-		 * An empty constructor for this class. Use addFilter() to add filters to the and condition
-		 */
-		AndFilter();
-
-		/**
-		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
-		 * @param[in] filters The list of pointers to filters
-		 */
-		explicit AndFilter(std::vector<GeneralFilter*>& filters);
-	};
-
-
+	using AndFilter = CompositeLogicFilter<CompositeLogicFilterOp::AND>;
 
 	/**
 	 * @class OrFilter
-	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2 filters are: "IPv4 address =
-	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _OR_ TCP port dst = 80"<BR>
-	 * This class follows the composite design pattern<BR>
-	 * For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2
+	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
+	 * _OR_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
+	 * filter concept please refer to PcapFilter.h
 	 */
-	class OrFilter : public CompositeFilter
-	{
-	public:
-
-		/**
-		 * An empty constructor for this class. Use addFilter() to add filters to the or condition
-		 */
-		OrFilter();
-
-		/**
-		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
-		 * @param[in] filters The list of pointers to filters
-		 */
-		explicit OrFilter(std::vector<GeneralFilter*> &filters);
-	};
-
-
+	using OrFilter = CompositeLogicFilter<CompositeLogicFilterOp::OR>;
 
 	/**
 	 * @class NotFilter
