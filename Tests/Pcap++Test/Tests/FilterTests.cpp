@@ -665,7 +665,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 		std::vector<pcpp::GeneralFilter*> filterVec;
 		filterVec.push_back(&ipFilter);
 		filterVec.push_back(&protoFilter);
-		pcpp::CompositeFilter compositeFilter(filterVec, " and ");
+		pcpp::CompositeLogicFilter<pcpp::CompositeLogicFilterOp::AND> compositeFilter(filterVec);
 		compositeFilter.parseToString(filterAsString);
 		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
 
