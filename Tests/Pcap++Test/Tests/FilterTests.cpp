@@ -657,7 +657,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	rawPacketVec.clear();
 
 	//------------------------------
-	// Composite filter - Proto + IP
+	// Composite logic filter - Proto + IP
 	//------------------------------
 	{
 		pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
