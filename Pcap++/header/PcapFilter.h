@@ -565,7 +565,7 @@ namespace pcpp
 		void parseToString(std::string& result)
 		{
 			result.clear();
-			for (auto it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
+			for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
 			{
 				std::string innerFilter;
 				(*it)->parseToString(innerFilter);

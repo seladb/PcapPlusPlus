@@ -301,7 +301,7 @@ CompositeFilter::CompositeFilter(const std::vector<GeneralFilter*> &filters) : m
 
 void CompositeFilter::removeFilter(GeneralFilter* filter)
 {
-	for(auto it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
+	for(auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
 	{
 		if (*it == filter)
 		{
