@@ -297,13 +297,7 @@ void EtherTypeFilter::parseToString(std::string& result)
 	result = "ether proto " + stream.str();
 }
 
-CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters)
-{
-	for(auto it = filters.begin(); it != filters.end(); ++it)
-	{
-		m_FilterList.push_back(*it);
-	}
-}
+CompositeFilter::CompositeFilter(std::vector<GeneralFilter*> &filters) : m_FilterList(filters) {}
 
 void CompositeFilter::removeFilter(GeneralFilter* filter)
 {
@@ -319,12 +313,7 @@ void CompositeFilter::removeFilter(GeneralFilter* filter)
 
 void CompositeFilter::setFilters(std::vector<GeneralFilter*>& filters)
 {
-	m_FilterList.clear();
-	
-	for(auto it = filters.begin(); it != filters.end(); ++it)
-	{
-		m_FilterList.push_back(*it);
-	}
+	m_FilterList = filters;
 }
 
 void NotFilter::parseToString(std::string& result)
