@@ -95,7 +95,7 @@ void SipLayer::parseNextLayer()
 			contentType = contentTypeField->getFieldValue();
 	}
 
-	if (contentType.find("application/sdp") != std::string::npos) 
+	if (contentType.find("application/sdp") != std::string::npos)
 	{
 		m_NextLayer = new SdpLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	}

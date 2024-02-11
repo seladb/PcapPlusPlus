@@ -648,7 +648,7 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 } // SdpLayerParsingTest
 
 
-PTF_TEST_CASE(NotSdpLayerParseingTest)
+PTF_TEST_CASE(SipNotSdpLayerParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -657,9 +657,15 @@ PTF_TEST_CASE(NotSdpLayerParseingTest)
 
 	pcpp::Packet notSdpPacket(&rawPacket1);
 
-	PTF_ASSERT_FALSE(notSdpPacket.isPacketOfType(pcpp::SDP));
-} // NotSdpLayerParseingTest
+	PTF_ASSERT_TRUE(notSdpPacket.isPacketOfType(pcpp::SIP));
+	pcpp::SipRequestLayer* sipLayer = notSdpPacket.getLayerOfType<pcpp::SipRequestLayer>();
+	PTF_ASSERT_EQUAL(sipLayer->getContentLength(), 273);
 
+	pcpp::Layer* nextLayer = sipLayer->getNextLayer();
+	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::GenericPayload);
+
+	PTF_ASSERT_FALSE(notSdpPacket.isPacketOfType(pcpp::SDP));
+} // SipNotSdpLayerParsingTest
 
 PTF_TEST_CASE(SdpLayerCreationTest)
 {
