@@ -552,8 +552,9 @@ namespace pcpp
 	}
 
 	/**
-	 * @class CompositeFilter
-	 * A class for connecting several filters into one filter with logical operation between them.
+	 * @class CompositeLogicFilter
+	 * A class for connecting several filters into one filter with logical operation between them.<BR>
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	template <CompositeLogicFilterOp op>
 	class CompositeLogicFilter : public CompositeFilter
