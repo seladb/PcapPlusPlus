@@ -502,7 +502,7 @@ namespace pcpp
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters
 		 * @param[in] filters The list of pointers to filters
 		 */
-		explicit CompositeFilter(std::vector<GeneralFilter*>& filters);
+		explicit CompositeFilter(const std::vector<GeneralFilter*>& filters);
 
 		/**
 		 * Add filter to the composite filter
@@ -520,7 +520,7 @@ namespace pcpp
 		 * Remove the current filters and set new ones
 		 * @param[in] filters The new filters to set. The previous ones will be removed
 		 */
-		void setFilters(std::vector<GeneralFilter*>& filters);
+		void setFilters(const std::vector<GeneralFilter*>& filters);
 
 		/**
 		 * Remove all filters from the composite filter.
@@ -552,6 +552,7 @@ namespace pcpp
 	template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR>() { return " or "; };
 
 	/**
+	 * @class CompositeFilter
 	 * A class for connecting several filters into one filter with logical operation between them.
 	 */
 	template <CompositeLogicFilterOp op>
