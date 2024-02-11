@@ -539,18 +539,22 @@ namespace pcpp
 		OR,
 	};
 
-	/**
-	 * Returns the delimiter for joining filter strings for the composite logic filter operation.
-	 * @return A string li
-	 */
-	template <CompositeLogicFilterOp op> constexpr const char *getCompositeLogicOpDelimiter()
+	namespace detail
 	{
-		// Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when C++17 is the minimum supported standard.
-		static_assert(false, "Unsupported composite logic filter operation.");
-	};
-	template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND>() { return " and "; };
-	template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR>() { return " or "; };
-
+		/**
+		 * Returns the delimiter for joining filter strings for the composite logic filter operation.
+		 * @return A string li
+		 */
+		template <CompositeLogicFilterOp op> constexpr const char *getCompositeLogicOpDelimiter()
+		{
+			// Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when
+			// C++17 is the minimum supported standard.
+			static_assert(false, "Unsupported composite logic filter operation.");
+		};
+		template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND>() { return " and "; };
+		template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR>() { return " or "; };
+	}
+	
 	/**
 	 * @class CompositeFilter
 	 * A class for connecting several filters into one filter with logical operation between them.
@@ -571,7 +575,7 @@ namespace pcpp
 				result += '(' + innerFilter + ')';
 				if (m_FilterList.back() != *it)
 				{
-					result += getCompositeLogicOpDelimiter<op>();
+					result += detail::getCompositeLogicOpDelimiter<op>();
 				}
 			}
 		}
