@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
+    paths:
+      # Also run this workflow when this package.yml is update by a PR
+      - '.github/workflows/package.yml'
 
 env:
   BUILD_DIR: Dist
@@ -54,6 +58,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -62,7 +67,7 @@ jobs:
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -86,6 +91,7 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -119,6 +125,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -179,6 +186,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -218,6 +226,7 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -296,6 +305,7 @@ jobs:
           echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
