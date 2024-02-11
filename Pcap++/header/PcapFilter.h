@@ -563,7 +563,7 @@ namespace pcpp
 		void parseToString(std::string& result)
 		{
 			result.clear();
-			for (std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
+			for (auto it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 			{
 				std::string innerFilter;
 				(*it)->parseToString(innerFilter);

@@ -299,7 +299,7 @@ void EtherTypeFilter::parseToString(std::string& result)
 
 CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters)
 {
-	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
+	for(auto it = filters.begin(); it != filters.end(); ++it)
 	{
 		m_FilterList.push_back(*it);
 	}
@@ -307,7 +307,7 @@ CompositeFilter::CompositeFilter(std::vector<GeneralFilter*>& filters)
 
 void CompositeFilter::removeFilter(GeneralFilter* filter)
 {
-	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
+	for(auto it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
 	{
 		if (*it == filter)
 		{
@@ -320,8 +320,8 @@ void CompositeFilter::removeFilter(GeneralFilter* filter)
 void CompositeFilter::setFilters(std::vector<GeneralFilter*>& filters)
 {
 	m_FilterList.clear();
-
-	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
+	
+	for(auto it = filters.begin(); it != filters.end(); ++it)
 	{
 		m_FilterList.push_back(*it);
 	}
