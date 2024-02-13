@@ -73,7 +73,8 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-void DpdkDeviceList::setDpdkInitVerify(bool verify) {
+void DpdkDeviceList::setDpdkInitVerify(bool verify)
+{
 	m_DpdkInitVerify = verify;
 }
 
@@ -92,7 +93,8 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 		}
 	}
 
-	if (m_DpdkInitVerify) {
+	if (m_DpdkInitVerify)
+	{
 		if (!verifyHugePagesAndDpdkDriver())
 		{
 			return false;
