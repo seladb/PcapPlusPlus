@@ -14,7 +14,7 @@ env:
 
 jobs:
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -38,6 +38,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
