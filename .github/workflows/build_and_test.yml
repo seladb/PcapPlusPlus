@@ -17,11 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
       - name: Install dependencies
         run: |
           apk update && apk add cppcheck python3-dev
           python3 -m pip install cmake-format
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - uses: pre-commit/action@v3.0.0
 
@@ -39,7 +42,7 @@ jobs:
           git diff --exit-code
 
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -71,6 +74,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
@@ -125,7 +132,7 @@ jobs:
           verbose: true
 
   dpdk:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -174,7 +181,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
   pfring:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/ubuntu2004-pfring
     strategy:
       matrix:
