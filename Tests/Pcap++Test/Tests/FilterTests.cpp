@@ -656,36 +656,6 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	}
 	rawPacketVec.clear();
 
-	//------------------------------
-	// Composite logic filter - Proto + IP
-	//------------------------------
-	{
-		pcpp::IPFilter ipFilter("10.0.0.6", pcpp::SRC);
-		protoFilter.setProto(pcpp::UDP);
-		std::vector<pcpp::GeneralFilter*> filterVec;
-		filterVec.push_back(&ipFilter);
-		filterVec.push_back(&protoFilter);
-		pcpp::CompositeLogicFilter<pcpp::CompositeLogicFilterOp::AND> compositeFilter(filterVec);
-		compositeFilter.parseToString(filterAsString);
-		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
-
-		compositeFilter.removeFilter(&ipFilter);
-		compositeFilter.parseToString(filterAsString);
-		PTF_ASSERT_EQUAL(filterAsString, "(udp)");
-
-		compositeFilter.addFilter(&ipFilter);
-		compositeFilter.parseToString(filterAsString);
-		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)")
-
-		compositeFilter.clearAllFilters();
-		compositeFilter.parseToString(filterAsString);
-		PTF_ASSERT_EQUAL(filterAsString, "")
-
-		compositeFilter.setFilters(filterVec);
-		compositeFilter.parseToString(filterAsString);
-		PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)")
-	}
-
 	//-----------------------
 	//And filter - Proto + IP
 	//-----------------------
@@ -697,6 +667,23 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	filterVec.push_back(&protoFilter);
 	pcpp::AndFilter andFilter(filterVec);
 	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)");
+
+	andFilter.removeFilter(&ipFilter);
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(udp)");
+
+	andFilter.addFilter(&ipFilter);
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
+
+	andFilter.clearAllFilters();
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "");
+
+	andFilter.setFilters(filterVec);
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(andFilter));
