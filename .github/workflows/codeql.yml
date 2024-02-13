@@ -10,7 +10,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/ubuntu2204
     permissions:
       security-events: write
