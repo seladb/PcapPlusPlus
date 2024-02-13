@@ -544,7 +544,7 @@ namespace pcpp
 		/* Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when C++17 is the minimum supported standard.*/
 		/**
 		 * Returns the delimiter for joining filter strings for the composite logic filter operation.
-		 * @return A string li
+		 * @return A string literal to place between the different filter strings to produce a composite expression.
 		 */
 		template <CompositeLogicFilterOp op> constexpr const char *getCompositeLogicOpDelimiter() = delete;
 		template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND>() { return " and "; };
