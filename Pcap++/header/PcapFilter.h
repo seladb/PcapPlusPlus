@@ -496,7 +496,7 @@ namespace pcpp
 		/**
 		 * An empty constructor for this class. Use addFilter() to add filters to the composite filter.
 		 */
-		CompositeFilter() {};
+		CompositeFilter() = default;
 
 		/**
 		 * A constructor that gets a list of pointers to filters and creates one filter from all filters
