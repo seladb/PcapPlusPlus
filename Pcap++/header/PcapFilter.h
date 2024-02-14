@@ -570,7 +570,7 @@ namespace pcpp
 				std::string innerFilter;
 				(*it)->parseToString(innerFilter);
 				result += '(' + innerFilter + ')';
-				if (m_FilterList.back() != *it)
+				if (m_FilterList.cend() - 1 != it)
 				{
 					result += detail::getCompositeLogicOpDelimiter<op>();
 				}
