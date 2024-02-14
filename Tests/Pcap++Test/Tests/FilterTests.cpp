@@ -677,6 +677,12 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	andFilter.parseToString(filterAsString);
 	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
 
+	{
+		pcpp::OrFilter externalFilter;
+		andFilter.removeFilter(&externalFilter);
+		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
+	}
+
 	andFilter.clearAllFilters();
 	andFilter.parseToString(filterAsString);
 	PTF_ASSERT_EQUAL(filterAsString, "");
