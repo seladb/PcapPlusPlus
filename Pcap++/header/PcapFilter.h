@@ -579,7 +579,6 @@ namespace pcpp
 	};
 
 	/**
-	 * @class AndFilter
 	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2
 	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
 	 * _AND_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
@@ -588,7 +587,6 @@ namespace pcpp
 	using AndFilter = CompositeLogicFilter<CompositeLogicFilterOp::AND>;
 
 	/**
-	 * @class OrFilter
 	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2
 	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
 	 * _OR_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
