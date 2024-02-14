@@ -562,7 +562,7 @@ namespace pcpp
 	public:
 		using CompositeFilter::CompositeFilter;
 
-		void parseToString(std::string& result)
+		void parseToString(std::string& result) override
 		{
 			result.clear();
 			for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
