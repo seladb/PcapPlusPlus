@@ -150,6 +150,7 @@ PTF_TEST_CASE(SipResponseLayerParsingTest);
 PTF_TEST_CASE(SipResponseLayerCreationTest);
 PTF_TEST_CASE(SipResponseLayerEditTest);
 PTF_TEST_CASE(SdpLayerParsingTest);
+PTF_TEST_CASE(SipNotSdpLayerParsingTest);
 PTF_TEST_CASE(SdpLayerCreationTest);
 PTF_TEST_CASE(SdpLayerEditTest);
 
