@@ -729,6 +729,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	pcpp::OrFilter orFilter(filterVec);
 
 	orFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1))");
 
 	PTF_ASSERT_TRUE(fileReaderDev3.open());
 	PTF_ASSERT_TRUE(fileReaderDev3.setFilter(orFilter));
