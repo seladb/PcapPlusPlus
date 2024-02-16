@@ -1,7 +1,7 @@
 :: Install WinPcap Runtime
 git submodule update --init --recursive
 :: use our fork to prevent the repository from being deleted
-git clone https://github.com/tigercosmos/winpcap-installer
+git clone https://github.com/PcapPlusPlus/winpcap-installer
 winpcap-installer\winpcap-truesight-meter-4.1.3.exe /S
 rmdir winpcap-installer /s /q
 
