@@ -4,13 +4,17 @@ on:
   push:
     tags:
       - '*'
+  pull_request:
+    paths:
+      # Also run this workflow when this package.yml is update by a PR
+      - '.github/workflows/package.yml'
 
 env:
   BUILD_DIR: Dist
 
 jobs:
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -24,7 +28,7 @@ jobs:
             config-zstd: OFF
           - image: ubuntu1804
             config-zstd: OFF
-          - image: centos7
+          - image: rhel93
             config-zstd: OFF
           - image: fedora37
             config-zstd: OFF
@@ -34,6 +38,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
@@ -54,6 +62,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -62,7 +71,7 @@ jobs:
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -86,6 +95,7 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -119,6 +129,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -179,6 +190,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -218,6 +230,7 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true
@@ -275,7 +288,7 @@ jobs:
           mkdir -p android-package
           mv ${COMBINED_PACKAGE_DIR} android-package
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: android-package
           if-no-files-found: error
@@ -286,7 +299,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: android-package
 
@@ -296,6 +309,7 @@ jobs:
           echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
       - name: Upload binaries to release
+        if: github.ref_type == 'tag'
         uses: ncipollo/release-action@v1
         with:
           draft: true

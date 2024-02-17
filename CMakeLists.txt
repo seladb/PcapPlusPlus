@@ -203,8 +203,22 @@ if(PCAPPP_USE_DPDK)
 endif()
 
 # Git Commit and Branch
-add_compile_definitions(GIT_COMMIT="${GIT_HASH}")
-add_compile_definitions(GIT_BRANCH="${GIT_BRANCH}")
+find_package(Git)
+if(Git_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE PCAPPP_GIT_COMMIT)
+  string(STRIP "${PCAPPP_GIT_COMMIT}" PCAPPP_GIT_COMMIT)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE PCAPPP_GIT_BRANCH)
+  string(STRIP "${PCAPPP_GIT_BRANCH}" PCAPPP_GIT_BRANCH)
+  message(STATUS "Building from commit:${PCAPPP_GIT_COMMIT} on branch:${PCAPPP_GIT_BRANCH}")
+  add_compile_definitions(GIT_COMMIT="${PCAPPP_GIT_COMMIT}")
+  add_compile_definitions(GIT_BRANCH="${PCAPPP_GIT_BRANCH}")
+endif()
 
 if(PCAPPP_USE_PF_RING)
   find_package(PF_RING)
@@ -377,7 +391,7 @@ if(PCAPPP_PACKAGE)
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.linux")
     if("${DISTRO_ID}" STREQUAL "ubuntu")
       # set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
-    elseif("${DISTRO_ID}" STREQUAL "centos")
+    elseif("${DISTRO_ID}" STREQUAL "centos" OR "${DISTRO_ID}" STREQUAL "rhel")
       # set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
     elseif("${DISTRO_ID}" STREQUAL "freebsd")
       set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.freebsd")

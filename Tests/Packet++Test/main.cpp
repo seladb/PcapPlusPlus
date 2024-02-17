@@ -239,6 +239,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SipResponseLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerCreationTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerEditTest, "sip");
+	PTF_RUN_TEST(SipNotSdpLayerParsingTest, "sip");
 	PTF_RUN_TEST(SdpLayerParsingTest, "sdp");
 	PTF_RUN_TEST(SdpLayerCreationTest, "sdp");
 	PTF_RUN_TEST(SdpLayerEditTest, "sdp");
