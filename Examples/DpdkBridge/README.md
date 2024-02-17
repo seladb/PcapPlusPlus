@@ -2,7 +2,7 @@ DPDK Bridge example application
 ===============================
 
 This application demonstrates how to create a bridge between two network devices using PcapPlusPlus DPDK APIs.
-It listens to two DPDK ports (a.k.a DPDK devices), and forwards all the traffic received on one port to the other, acting like a L2 bridge.
+It listens to two DPDK ports (a.k.a. DPDK devices), and forwards all the traffic received on one port to the other, acting like a L2 bridge.
 
 The application is very similar to [DPDK's L2 forwarding example](https://doc.dpdk.org/guides/sample_app_ug/l2_forward_real_virtual.html)
 and demonstrates how to achieve the same functionality with PcapPlusPlus using less and easier to understand C++ code.
@@ -12,9 +12,10 @@ one for receiving packets on NIC#1 and sending them to NIC#2, and another for re
 
 Important:
 ----------
-- This application runs only on Linux (DPDK is not supported on Windows and Mac OS X)
+- This application runs only on Linux (DPDK is not supported on non-Linux platforms)
+- In order to build this application follow the instructions on how to build PcapPlusPlus with DPDK
 - This application (like all applications using DPDK) should be run as 'sudo'
-- In order to test this application you need an envorinment where the bridge is connected directly (back-to-back) to the two machines the
+- In order to test this application you need an environment where the bridge is connected directly (back-to-back) to the two machines the
   bridge wants to connect
 
 

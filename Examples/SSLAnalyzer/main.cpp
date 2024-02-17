@@ -124,9 +124,9 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (const auto &dev : devList)
 	{
-		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -206,17 +206,15 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the server-name count map so the most popular names will be first
-	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<std::string, int> > map2vec(clientHelloStatsCollector.serverNameCount.begin(), clientHelloStatsCollector.serverNameCount.end());
 	std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
-			iter != map2vec.end();
-			iter++)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << iter.first << "|" << iter.second;
 		printer.printRow(values.str(), '|');
 	}
 }
@@ -225,7 +223,7 @@ void printServerNames(ClientHelloStats& clientHelloStatsCollector)
 /**
  * Print SSL record version map
  */
-void printVersions(std::map<uint16_t, int>& versionMap, const std::string& headline)
+void printVersions(std::unordered_map<uint16_t, int>& versionMap, const std::string& headline)
 {
 	// create the table
 	std::vector<std::string> columnNames;
@@ -237,17 +235,15 @@ void printVersions(std::map<uint16_t, int>& versionMap, const std::string& headl
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the version map so the most popular version will be first
-	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<uint16_t, int> > map2vec(versionMap.begin(), versionMap.end());
 	std::sort(map2vec.begin(),map2vec.end(), &uint16CountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(std::vector<std::pair<uint16_t, int> >::iterator iter = map2vec.begin();
-			iter != map2vec.end();
-			iter++)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
-		values << pcpp::SSLVersion(iter->first).toString() << "|" << iter->second;
+		values << pcpp::SSLVersion(iter.first).toString() << "|" << iter.second;
 		printer.printRow(values.str(), '|');
 	}
 }
@@ -268,17 +264,15 @@ void printCipherSuites(ServerHelloStats& serverHelloStats)
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the cipher-suite count map so the most popular names will be first
-	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<std::string, int> > map2vec(serverHelloStats.cipherSuiteCount.begin(), serverHelloStats.cipherSuiteCount.end());
 	std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
-			iter != map2vec.end();
-			iter++)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << iter.first << "|" << iter.second;
 		printer.printRow(values.str(), '|');
 	}
 }
@@ -296,17 +290,15 @@ void printPorts(SSLGeneralStats& stats)
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	// sort the port count map so the most popular names will be first
-	// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+	// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 	std::vector<std::pair<uint16_t, int> > map2vec(stats.sslPortCount.begin(), stats.sslPortCount.end());
 	std::sort(map2vec.begin(),map2vec.end(), &uint16CountComparer);
 
 	// go over all items (names + count) in the sorted vector and print them
-	for(std::vector<std::pair<uint16_t, int> >::iterator iter = map2vec.begin();
-			iter != map2vec.end();
-			iter++)
+	for(const auto &iter : map2vec)
 	{
 		std::stringstream values;
-		values << iter->first << "|" << iter->second;
+		values << iter.first << "|" << iter.second;
 		printer.printRow(values.str(), '|');
 	}
 }

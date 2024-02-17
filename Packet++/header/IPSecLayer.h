@@ -1,5 +1,4 @@
-#ifndef PACKETPP_IPSEC_LAYER
-#define PACKETPP_IPSEC_LAYER
+#pragma once
 
 /// @file
 
@@ -208,5 +207,3 @@ namespace pcpp
 		return data && dataLen >= sizeof(ipsec_esp);
 	}
 }
-
-#endif // PACKETPP_IPSEC_LAYER

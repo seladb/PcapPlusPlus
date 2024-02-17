@@ -112,6 +112,12 @@ bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec tim
 	return true;
 }
 
+bool RawPacket::initWithRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType)
+{
+	init(false);
+	return setRawData(pRawData, rawDataLen, timestamp, layerType);
+}
+
 void RawPacket::clear()
 {
 	if (m_RawData != nullptr)

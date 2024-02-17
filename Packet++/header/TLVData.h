@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TLV_DATA
-#define PACKETPP_TLV_DATA
+#pragma once
 
 #include "Layer.h"
 #include "IpAddress.h"
@@ -70,10 +69,18 @@ namespace pcpp
 		 */
 		void assign(uint8_t* recordRawData)
 		{
-			if(recordRawData == NULL)
-				m_Data = NULL;
-			else
-				m_Data = (TLVRawData*)recordRawData;
+			m_Data = (TLVRawData*)recordRawData;
+		}
+
+		/**
+		 * Check if a pointer can be assigned to the TLV record data
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 * @param[in] tlvDataLen The size of the TLV record raw data
+		 * @return True if data is valid and can be assigned
+		 */
+		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+		{
+			return recordRawData != nullptr && tlvDataLen >= (sizeof(TLVRawData::recordType) + sizeof(TLVRawData::recordLen));
 		}
 
 		/**
@@ -155,7 +162,14 @@ namespace pcpp
 		/**
 		 * Free the memory of the TLV record raw data
 		 */
-		void purgeRecordData() { if (!isNull()) delete [] m_Data; }
+		void purgeRecordData()
+		{
+			if (!isNull())
+			{
+				delete [] m_Data;
+				m_Data = nullptr;
+			}
+		}
 
 		/**
 		 * A templated method to retrieve the record data as a certain type T. For example, if record data is 4B long
@@ -259,8 +273,11 @@ namespace pcpp
 		 */
 		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
-			TLVRecordType resRec(tlvDataBasePtr); // for NRVO optimization
+			TLVRecordType resRec(NULL); // for NRVO optimization
+			if (!TLVRecordType::canAssign(tlvDataBasePtr, tlvDataLen))
+				return resRec;
 
+			resRec.assign(tlvDataBasePtr);
 			// resRec pointer is out-bounds of the TLV records memory
 			if (resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
 				resRec.assign(NULL);
@@ -288,7 +305,11 @@ namespace pcpp
 			if (record.isNull())
 				return resRec;
 
+			if (!TLVRecordType::canAssign(record.getRecordBasePtr() + record.getTotalSize(), tlvDataBasePtr - record.getRecordBasePtr() + tlvDataLen - record.getTotalSize()))
+				return resRec;
+
 			resRec.assign(record.getRecordBasePtr() + record.getTotalSize());
+
 			if (resRec.getTotalSize() == 0)
 				resRec.assign(NULL);
 
@@ -408,4 +429,3 @@ namespace pcpp
 		void copyData(const TLVRecordBuilder& other);
 	};
 }
-#endif // PACKETPP_TLV_DATA

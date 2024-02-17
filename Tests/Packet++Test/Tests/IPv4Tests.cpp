@@ -69,6 +69,7 @@ PTF_TEST_CASE(IPv4PacketParsing)
 	pcpp::Packet ip4Packet(&rawPacket1);
 	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::EthLayer>());
+	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IP));
 	PTF_ASSERT_TRUE(ip4Packet.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_NOT_NULL(ip4Packet.getLayerOfType<pcpp::IPv4Layer>());
 

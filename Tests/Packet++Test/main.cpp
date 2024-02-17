@@ -157,7 +157,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(ParsePartialPacketTest, "packet;partial_packet");
 	PTF_RUN_TEST(PacketTrailerTest, "packet;packet_trailer");
 	PTF_RUN_TEST(ResizeLayerTest, "packet;resize");
-	PTF_RUN_TEST(PrintPacketAndLayers, "packet;print");
+	PTF_RUN_TEST(PrintPacketAndLayersTest, "packet;print");
+	PTF_RUN_TEST(ProtocolFamilyMembershipTest, "packet");
 
 	PTF_RUN_TEST(HttpRequestParseMethodTest, "http");
 	PTF_RUN_TEST(HttpRequestLayerParsingTest, "http");
@@ -239,6 +240,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SipResponseLayerParsingTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerCreationTest, "sip");
 	PTF_RUN_TEST(SipResponseLayerEditTest, "sip");
+	PTF_RUN_TEST(SipNotSdpLayerParsingTest, "sip");
 	PTF_RUN_TEST(SdpLayerParsingTest, "sdp");
 	PTF_RUN_TEST(SdpLayerCreationTest, "sdp");
 	PTF_RUN_TEST(SdpLayerEditTest, "sdp");
@@ -316,6 +318,13 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(VrrpCreateAndEditTest, "vrrp");
 
 	PTF_RUN_TEST(CotpLayerTest, "cotp");
+
+	PTF_RUN_TEST(S7CommLayerParsingTest, "s7comm");
+	PTF_RUN_TEST(S7CommLayerCreationTest, "s7comm");
+
+	PTF_RUN_TEST(SmtpParsingTests, "smtp");
+	PTF_RUN_TEST(SmtpCreationTests, "smtp");
+	PTF_RUN_TEST(SmtpEditTests, "smtp");
 
 	PTF_END_RUNNING_TESTS;
 }

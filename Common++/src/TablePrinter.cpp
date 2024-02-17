@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <iterator>
+#include <numeric>
 #include <utility>
 #include "TablePrinter.h"
 #include "Logger.h"
@@ -88,18 +89,8 @@ void TablePrinter::printSeparator()
 		return;
 	}
 
-	int totalLen = 0;
-	for (std::vector<int>::iterator iter = m_ColumnWidths.begin(); iter != m_ColumnWidths.end(); iter++)
-	{
-		totalLen += 2 + (*iter) + 1;
-	}
-
-	totalLen++;
-
-	for (int index = 0; index < totalLen; index++)
-		std::cout << "-";
-
-	std::cout << std::endl;
+	auto totalLen = std::accumulate(m_ColumnWidths.begin(), m_ColumnWidths.end(), m_ColumnWidths.size() * 3) + 1;
+	std::cout << std::string(totalLen, '-') << std::endl;
 }
 
 void TablePrinter::closeTable()

@@ -49,7 +49,7 @@
 #include <sstream>
 #include <string>
 #include <iomanip>
-#include <map>
+#include <unordered_map>
 #include <RawPacket.h>
 #include <Packet.h>
 #include <PcapFileDevice.h>
@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
 	pcpp::RawPacket rawPacket;
 
 	// prepare a map of file number to IFileWriterDevice
-	std::map<int, pcpp::IFileWriterDevice*> outputFiles;
+	std::unordered_map<int, pcpp::IFileWriterDevice*> outputFiles;
 
 	// read all packets from input file, for each packet do:
 	while (reader->getNextPacket(rawPacket))
@@ -446,21 +446,21 @@ int main(int argc, char* argv[])
 		outputFiles[fileNum]->writePacket(*parsedPacket.getRawPacket());
 
 		// if splitter wants us to close files - go over the file numbers and close them
-		for (std::vector<int>::iterator it = filesToClose.begin(); it != filesToClose.end(); it++)
+		for (const auto &fileId : filesToClose)
 		{
 			// check if that file number is in the map
-			if (outputFiles.find(*it) != outputFiles.end())
+			if (outputFiles.find(fileId) != outputFiles.end())
 			{
 				// close the writer
-				outputFiles[*it]->close();
+				outputFiles[fileId]->close();
 
 				// free the writer memory and put null in the map record
-				delete outputFiles[*it];
-				outputFiles[*it] = nullptr;
+				delete outputFiles[fileId];
+				outputFiles[fileId] = nullptr;
 			}
 		}
 
-		packetCountSoFar++;
+		++packetCountSoFar;
 	}
 
 	std::cout << "Finished. Read and written " << packetCountSoFar << " packets to " << numOfFiles << " files" << std::endl;
@@ -473,12 +473,12 @@ int main(int argc, char* argv[])
 	delete splitter;
 
 	// close the writer files which are still open
-	for(std::map<int, pcpp::IFileWriterDevice*>::iterator it = outputFiles.begin(); it != outputFiles.end(); ++it)
+	for(const auto &it : outputFiles)
 	{
-		if (it->second != NULL)
+		if (it.second != NULL)
 		{
-			it->second->close();
-			delete it->second;
+			it.second->close();
+			delete it.second;
 		}
 	}
 

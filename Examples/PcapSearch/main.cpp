@@ -30,7 +30,7 @@
 #include <dirent.h>
 #include <utility>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <Logger.h>
 #include <PcapPlusPlusVersion.h>
 #include <SystemUtils.h>
@@ -166,8 +166,8 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
 			// print layer by layer by layer as we want to add a few spaces before each layer
 			std::vector<std::string> packetLayers;
 			parsedPacket.toStringList(packetLayers);
-			for (std::vector<std::string>::iterator iter = packetLayers.begin(); iter != packetLayers.end(); iter++)
-				(*detailedReportFile) << "\n    " << (*iter);
+			for (const auto &layer : packetLayers)
+				(*detailedReportFile) << "\n    " << layer;
 			(*detailedReportFile) << std::endl;
 		}
 
@@ -201,7 +201,7 @@ int searchPcap(const std::string& pcapFilePath, std::string searchCriteria, std:
  * search criteria. This method outputs how many directories were searched, how many files were searched and how many packets were matched
  */
 void searchDirectories(const std::string &directory, bool includeSubDirectories, const std::string &searchCriteria, std::ofstream* detailedReportFile,
-		std::map<std::string, bool> extensionsToSearch,
+		std::unordered_map<std::string, bool> extensionsToSearch,
 		int& totalDirSearched, int& totalFilesSearched, int& totalPacketsFound)
 {
 	// open the directory
@@ -270,16 +270,16 @@ void searchDirectories(const std::string &directory, bool includeSubDirectories,
 
 	// when we get to here we already covered all sub-directories and collected all the files in this directory that are required for search
 	// go over each such file and search its packets to find the search criteria
-	for (std::vector<std::string>::iterator iter = pcapList.begin(); iter != pcapList.end(); iter++)
+	for (const auto &iter : pcapList)
 	{
 		// do the actual search
-		int packetsFound = searchPcap(*iter, searchCriteria, detailedReportFile);
+		int packetsFound = searchPcap(iter, searchCriteria, detailedReportFile);
 
 		// add to total matched packets
 		totalFilesSearched++;
 		if (packetsFound > 0)
 		{
-			std::cout << packetsFound << " packets found in '" << *iter << "'" << std::endl;
+			std::cout << packetsFound << " packets found in '" << iter << "'" << std::endl;
 			totalPacketsFound += packetsFound;
 		}
 	}
@@ -302,7 +302,7 @@ int main(int argc, char* argv[])
 
 	std::string detailedReportFileName = "";
 
-	std::map<std::string, bool> extensionsToSearch;
+	std::unordered_map<std::string, bool> extensionsToSearch;
 
 	// the default (unless set otherwise) is to search in '.pcap' and '.pcapng' extensions
 	extensionsToSearch["pcap"] = true;

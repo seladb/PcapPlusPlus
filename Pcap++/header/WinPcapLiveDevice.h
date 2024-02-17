@@ -1,5 +1,4 @@
-#ifndef PCAPP_WINPCAP_LIVE_DEVICE
-#define PCAPP_WINPCAP_LIVE_DEVICE
+#pragma once
 
 #if defined(_WIN32)
 
@@ -61,5 +60,3 @@ namespace pcpp
 } // namespace pcpp
 
 #endif // _WIN32
-
-#endif /* PCAPP_WINPCAP_LIVE_DEVICE */

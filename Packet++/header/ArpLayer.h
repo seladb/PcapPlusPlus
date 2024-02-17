@@ -1,5 +1,4 @@
-#ifndef PACKETPP_ARP_LAYER
-#define PACKETPP_ARP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "IpAddress.h"
@@ -147,4 +146,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-#endif /* PACKETPP_ARP_LAYER */

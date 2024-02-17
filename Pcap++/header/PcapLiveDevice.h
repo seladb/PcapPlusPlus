@@ -1,11 +1,10 @@
-//TODO: replace all these defines with #pragma once
-#ifndef PCAPPP_LIVE_DEVICE
-#define PCAPPP_LIVE_DEVICE
+#pragma once
 
 #include <atomic>
 #include <vector>
 #include <string.h>
 #include <thread>
+#include <functional>
 
 #include "IpAddress.h"
 #include "Packet.h"
@@ -29,32 +28,29 @@ namespace pcpp
 	class PcapLiveDevice;
 
 	/**
-	 * @typedef OnPacketArrivesCallback
 	 * A callback that is called when a packet is captured by PcapLiveDevice
-	 * @param[in] pPacket A pointer to the raw packet
-	 * @param[in] pDevice A pointer to the PcapLiveDevice instance
+	 * @param[in] packet A pointer to the raw packet
+	 * @param[in] device A pointer to the PcapLiveDevice instance
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 */
-	typedef void (*OnPacketArrivesCallback)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userCookie);
+	using OnPacketArrivesCallback = std::function<void(RawPacket*, PcapLiveDevice*, void*)>;
 
 	/**
-	 * @typedef OnPacketArrivesStopBlocking
 	 * A callback that is called when a packet is captured by PcapLiveDevice
-	 * @param[in] pPacket A pointer to the raw packet
-	 * @param[in] pDevice A pointer to the PcapLiveDevice instance
+	 * @param[in] packet A pointer to the raw packet
+	 * @param[in] device A pointer to the PcapLiveDevice instance
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 * @return True when main thread should stop blocking or false otherwise
 	 */
-	typedef bool (*OnPacketArrivesStopBlocking)(RawPacket* pPacket, PcapLiveDevice* pDevice, void* userCookie);
+	using OnPacketArrivesStopBlocking = std::function<bool(RawPacket*, PcapLiveDevice*, void*)>;
 
 
 	/**
-	 * @typedef OnStatsUpdateCallback
 	 * A callback that is called periodically for stats collection if user asked to start packet capturing with periodic stats collection
 	 * @param[in] stats A reference to the most updated stats
 	 * @param[in] userCookie A pointer to the object put by the user when packet capturing stared
 	 */
-	typedef void (*OnStatsUpdateCallback)(IPcapDevice::PcapStats& stats, void* userCookie);
+	using OnStatsUpdateCallback = std::function<void(IPcapDevice::PcapStats&, void*)>;
 
 	// for internal use only
 	typedef void* (*ThreadStart)(void*);
@@ -87,6 +83,7 @@ namespace pcpp
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
+		int m_PcapSelectableFd;
 		std::string m_Name;
 		std::string m_Description;
 		bool m_IsLoopback;
@@ -95,10 +92,14 @@ namespace pcpp
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
 		std::thread m_CaptureThread;
-		bool m_CaptureThreadStarted;
 		std::thread m_StatsThread;
 		bool m_StatsThreadStarted;
+
+		// Should be set to true by the Caller for the Callee
 		std::atomic<bool> m_StopThread;
+		// Should be set to true by the Callee for the Caller
+		std::atomic<bool> m_CaptureThreadStarted;
+
 		OnPacketArrivesCallback m_cbOnPacketArrives;
 		void* m_cbOnPacketArrivesUserCookie;
 		OnStatsUpdateCallback m_cbOnStatsUpdate;
@@ -109,6 +110,7 @@ namespace pcpp
 		RawPacketVector* m_CapturedPackets;
 		bool m_CaptureCallbackMode;
 		LinkLayerType m_LinkType;
+		bool m_UsePoll;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
@@ -217,6 +219,11 @@ namespace pcpp
 			*/
 			unsigned int nflogGroup;
 
+
+			/// In Unix-like system, use poll() for blocking mode.
+			bool usePoll;
+
+
 			/**
 			 * A c'tor for this struct
 			 * @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
@@ -231,9 +238,10 @@ namespace pcpp
 			 * captured with USBPcap (> 131072, < 262144). A snapshot length of 65535 should be sufficient, on most if not all networks,
 			 * to capture all the data available from the packet.
 			 * @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
+			 * @param[in] usePoll use `poll()` when capturing packets in blocking more (`startCaptureBlockingMode()`) on Unix-like system. Default value is false.
 			*/
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0, int packetBufferSize = 0,
-				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0)
+				                PcapDirection direction = PCPP_INOUT, int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
@@ -241,6 +249,7 @@ namespace pcpp
 				this->direction = direction;
 				this->snapshotLength = snapshotLength;
 				this->nflogGroup = nflogGroup;
+				this->usePoll = usePoll;
 			}
 		};
 
@@ -402,13 +411,14 @@ namespace pcpp
 		 * @param[in] userCookie A pointer to a user provided object. This object will be transferred to the onPacketArrives callback
 		 * each time it is called. This cookie is very useful for transferring objects that give context to the capture callback, for example:
 		 * objects that counts packets, manages flow state or manages the application state according to the packet that was captured
-		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback
-		 * If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep blocking until the user frees it via
-		 * the onPacketArrives callback
+		 * @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the onPacketArrives callback.
+		 * The precision of `timeout` is millisecond, e.g. 2.345 seconds means 2345 milliseconds.
+		 * If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep handling packets until the `onPacketArrives`
+		 * callback returns `true`.
 		 * @return -1 if timeout expired, 1 if blocking was stopped via onPacketArrives callback or 0 if an error occurred (such as device
 		 * not open etc.). When returning 0 an appropriate error message is printed to log
 		 */
-		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout);
+		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout);
 
 		/**
 		 * Stop a currently running packet capture. This method terminates gracefully both packet capture thread and periodic stats collection
@@ -568,5 +578,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif

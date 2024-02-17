@@ -1,5 +1,4 @@
-#ifndef PCAPPLUSPLUS_COTPLAYER_H
-#define PCAPPLUSPLUS_COTPLAYER_H
+#pragma once
 
 #include "EthLayer.h"
 #include "Layer.h"
@@ -95,7 +94,7 @@ namespace pcpp
 		void computeCalculateFields() override {}
 
 		/**
-		 * Currently parses the rest of the packet as a generic payload (PayloadLayer)
+		 * Currently parses the rest of the packet as a S7COMM or generic payload (PayloadLayer)
 		 */
 		void parseNextLayer() override;
 
@@ -116,5 +115,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // PCAPPLUSPLUS_COTPLAYER_H

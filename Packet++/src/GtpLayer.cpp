@@ -1,6 +1,6 @@
 #define LOG_MODULE PacketLogModuleGtpLayer
 
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include "Logger.h"
 #include "GtpLayer.h"
@@ -441,9 +441,9 @@ GtpV1MessageType GtpV1Layer::getMessageType() const
 	return (GtpV1MessageType)header->messageType;
 }
 
-std::map<uint8_t, std::string> createGtpV1MessageTypeToStringMap()
+std::unordered_map<uint8_t, std::string> createGtpV1MessageTypeToStringMap()
 {
-	std::map<uint8_t, std::string> tempMap;
+	std::unordered_map<uint8_t, std::string> tempMap;
 
 	tempMap[0] = "GTPv1 Message Type Unknown";
 	tempMap[1] = "Echo Request";
@@ -518,7 +518,7 @@ std::map<uint8_t, std::string> createGtpV1MessageTypeToStringMap()
 	return tempMap;
 }
 
-const std::map<uint8_t, std::string> GTPv1MsgTypeToStringMap = createGtpV1MessageTypeToStringMap();
+const std::unordered_map<uint8_t, std::string> GTPv1MsgTypeToStringMap = createGtpV1MessageTypeToStringMap();
 
 std::string GtpV1Layer::getMessageTypeAsString() const
 {
@@ -529,7 +529,7 @@ std::string GtpV1Layer::getMessageTypeAsString() const
 		return GTPv1MsgTypeToStringMap.find(0)->second;
 	}
 
-	std::map<uint8_t, std::string>::const_iterator iter = GTPv1MsgTypeToStringMap.find(header->messageType);
+	std::unordered_map<uint8_t, std::string>::const_iterator iter = GTPv1MsgTypeToStringMap.find(header->messageType);
 	if (iter != GTPv1MsgTypeToStringMap.end())
 	{
 		return iter->second;

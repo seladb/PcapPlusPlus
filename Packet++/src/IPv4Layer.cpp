@@ -37,9 +37,9 @@ IPv4OptionBuilder::IPv4OptionBuilder(IPv4OptionTypes optionType, const std::vect
 	m_RecValue[curOffset++] = 0; // init pointer value
 
 	bool firstZero = false;
-	for (std::vector<IPv4Address>::const_iterator iter = ipList.begin(); iter != ipList.end(); iter++)
+	for (const auto &ipAddr : ipList)
 	{
-		uint32_t ipAddrAsInt = iter->toInt();
+		uint32_t ipAddrAsInt = ipAddr.toInt();
 
 		if (!firstZero)
 			m_RecValue[0] += (uint8_t)4;
@@ -289,9 +289,9 @@ void IPv4Layer::parseNextLayer()
 		break;
 	case PACKETPP_IPPROTO_GRE:
 		greVer = GreLayer::getGREVersion(payload, payloadLen);
-		if (greVer == GREv0)
+		if (greVer == GREv0 && GREv0Layer::isDataValid(payload, payloadLen))
 			m_NextLayer = new GREv0Layer(payload, payloadLen, this, m_Packet);
-		else if (greVer == GREv1)
+		else if (greVer == GREv1 && GREv1Layer::isDataValid(payload, payloadLen))
 			m_NextLayer = new GREv1Layer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);

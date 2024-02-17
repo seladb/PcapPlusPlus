@@ -1,5 +1,4 @@
-#ifndef PACKETPP_GTP_LAYER
-#define PACKETPP_GTP_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -458,5 +457,3 @@ namespace pcpp
 		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
 	};
 }
-
-#endif //PACKETPP_GTP_LAYER

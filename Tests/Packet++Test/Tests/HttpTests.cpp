@@ -53,6 +53,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 	pcpp::Packet httpPacket(&rawPacket1);
 
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTPRequest));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTP));
 	pcpp::HttpRequestLayer* requestLayer = httpPacket.getLayerOfType<pcpp::HttpRequestLayer>();
 	PTF_ASSERT_NOT_NULL(requestLayer);
 
@@ -366,6 +367,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 	pcpp::Packet httpPacket(&rawPacket1);
 
 	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTPResponse));
+	PTF_ASSERT_TRUE(httpPacket.isPacketOfType(pcpp::HTTP));
 	pcpp::HttpResponseLayer* responseLayer = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	PTF_ASSERT_NOT_NULL(responseLayer);
 

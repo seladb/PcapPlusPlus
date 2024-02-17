@@ -1,5 +1,4 @@
-#ifndef PCAPPP_POINTER_VECTOR
-#define PCAPPP_POINTER_VECTOR
+#pragma once
 
 #include <stdio.h>
 #include <stdint.h>
@@ -44,9 +43,9 @@ namespace pcpp
 		 */
 		~PointerVector()
 		{
-			for (VectorIterator iter = m_Vector.begin(); iter != m_Vector.end(); iter++)
+			for (auto iter : m_Vector)
 			{
-				delete (*iter);
+				delete iter;
 			}
 		}
 
@@ -56,9 +55,9 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
-			for (ConstVectorIterator iter = other.begin(); iter != other.end(); iter++)
+			for (const auto iter : other)
 			{
-				T* objCopy = new T(**iter);
+				T* objCopy = new T(*iter);
 				m_Vector.push_back(objCopy);
 			}
 		}
@@ -68,9 +67,9 @@ namespace pcpp
 		 */
 		void clear()
 		{
-			for (VectorIterator iter = m_Vector.begin(); iter != m_Vector.end(); iter++)
+			for (auto iter : m_Vector)
 			{
-				delete (*iter);
+				delete iter;
 			}
 
 			m_Vector.clear();
@@ -170,5 +169,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PCAPPP_POINTER_VECTOR */

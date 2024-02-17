@@ -25,7 +25,7 @@ struct PfRingPacketData
 	int IpCount;
 	int TcpCount;
 	int UdpCount;
-	std::map<uint32_t, pcpp::RawPacketVector> FlowKeys;
+	std::unordered_map<uint32_t, pcpp::RawPacketVector> FlowKeys;
 
 	PfRingPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0) {}
 	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; IpCount = 0; TcpCount = 0; UdpCount = 0; FlowKeys.clear(); }
@@ -346,11 +346,9 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 			PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
 			PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
 			PTF_PRINT_VERBOSE("Total flows: " << packetDataMultiThread[i].FlowKeys.size());
-			for(std::map<uint32_t, pcpp::RawPacketVector>::iterator iter = packetDataMultiThread[i].FlowKeys.begin();
-				iter != packetDataMultiThread[i].FlowKeys.end();
-				iter++)
+			for(const auto &iter : packetDataMultiThread[i].FlowKeys)
 			{
-				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter->first << "; Value=" << std::dec << iter->second.size());
+				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter.first << "; Value=" << std::dec << iter.second.size());
 			}
 		}
 
@@ -365,7 +363,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	{
 		for (int secondCoreId = firstCoreId+1; secondCoreId < totalnumOfCores; secondCoreId++)
 		{
-			std::map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> > res;
+			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> > res;
 			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
 			PTF_ASSERT_EQUAL(res.size(), 0);
 		}

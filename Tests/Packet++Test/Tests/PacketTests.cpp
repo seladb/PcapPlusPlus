@@ -973,7 +973,7 @@ PTF_TEST_CASE(ResizeLayerTest)
 } // ResizeLayerTest
 
 
-PTF_TEST_CASE(PrintPacketAndLayers)
+PTF_TEST_CASE(PrintPacketAndLayersTest)
 {
 	timeval time;
 	time.tv_sec = 1634026009;
@@ -1019,7 +1019,7 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 		std::ostringstream layerStream;
 		layerStream << *layer;
 		PTF_ASSERT_EQUAL(layerStream.str(), *iter);
-		iter++;
+		++iter;
 	}
 	PTF_ASSERT_TRUE(iter == expectedLayerStrings.end());
 
@@ -1041,3 +1041,26 @@ PTF_TEST_CASE(PrintPacketAndLayers)
 	packet.toStringList(packetAsStringList);
 	PTF_ASSERT_TRUE(packetAsStringList == expectedLayerStrings);
 } // PrintPacketAndLayer
+
+
+PTF_TEST_CASE(ProtocolFamilyMembershipTest)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TwoHttpRequests1.dat");
+
+	pcpp::Packet packet(&rawPacket1);
+
+	auto ipV4Layer = packet.getLayerOfType<pcpp::IPv4Layer>();
+	PTF_ASSERT_TRUE(ipV4Layer->isMemberOfProtocolFamily(pcpp::IP));
+	PTF_ASSERT_TRUE(ipV4Layer->isMemberOfProtocolFamily(pcpp::IPv4));
+	PTF_ASSERT_FALSE(ipV4Layer->isMemberOfProtocolFamily(pcpp::IPv6));
+	PTF_ASSERT_FALSE(ipV4Layer->isMemberOfProtocolFamily(pcpp::HTTP));
+
+	auto httpLayer = packet.getLayerOfType<pcpp::HttpRequestLayer>();
+	PTF_ASSERT_TRUE(httpLayer->isMemberOfProtocolFamily(pcpp::HTTP));
+	PTF_ASSERT_TRUE(httpLayer->isMemberOfProtocolFamily(pcpp::HTTPRequest));
+	PTF_ASSERT_FALSE(httpLayer->isMemberOfProtocolFamily(pcpp::HTTPResponse));
+	PTF_ASSERT_FALSE(httpLayer->isMemberOfProtocolFamily(pcpp::IP));
+}

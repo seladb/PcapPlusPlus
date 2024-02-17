@@ -1,5 +1,4 @@
-#ifndef PCAPPP_SYSTEM_UTILS
-#define PCAPPP_SYSTEM_UTILS
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -28,8 +27,9 @@ namespace pcpp
 	{
 		/**
 		 * Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
-		 * For example: in core #0 the right-most bit will be set (meaning the number 0x01);
-		 * 				in core #5 the 5th right-most bit will be set (meaning the number 0x20)...
+		 * For example:
+		 * - In core #0 the right-most bit will be set (meaning the number 0x01);
+		 * - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
 		 */
 		uint32_t Mask;
 
@@ -206,7 +206,7 @@ namespace pcpp
 	 * @param[in] cores A vector of SystemCore instances
 	 * @return A core mask representing these cores
 	 */
-	CoreMask createCoreMaskFromCoreVector(std::vector<SystemCore> cores);
+	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore> &cores);
 
 
 	/**
@@ -214,7 +214,7 @@ namespace pcpp
 	 * @param[in] coreIds A vector of core IDs
 	 * @return A core mask representing these cores
 	 */
-	CoreMask createCoreMaskFromCoreIds(std::vector<int> coreIds);
+	CoreMask createCoreMaskFromCoreIds(const std::vector<int> &coreIds);
 
 
 	/**
@@ -391,5 +391,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PCAPPP_SYSTEM_UTILS */

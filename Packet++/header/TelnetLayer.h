@@ -1,5 +1,4 @@
-#ifndef PACKETPP_TELNET_LAYER
-#define PACKETPP_TELNET_LAYER
+#pragma once
 
 #include "Layer.h"
 
@@ -320,7 +319,7 @@ class TelnetLayer : public Layer
 	 * @param[in] dataSize The byte array size (in bytes)
 	 * @return True if the data is identified as Telnet message
 	 */
-	static bool isDataValid(const uint8_t *data, size_t dataSize) {	return data && dataSize; }
+	static bool isDataValid(const uint8_t *data, size_t dataSize) { return data && dataSize; }
 
 	// overridden methods
 
@@ -347,5 +346,3 @@ class TelnetLayer : public Layer
 };
 
 } // namespace pcpp
-
-#endif /* PACKETPP_TELNET_LAYER */

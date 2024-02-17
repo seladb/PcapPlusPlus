@@ -102,6 +102,7 @@ cmake_dependent_option(
   "PCAPPP_USE_DPDK"
   OFF)
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
+option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_PACKAGE "Package Pcap++ could require a recent version of CMake" OFF)
 
@@ -202,8 +203,22 @@ if(PCAPPP_USE_DPDK)
 endif()
 
 # Git Commit and Branch
-add_compile_definitions(GIT_COMMIT="${GIT_HASH}")
-add_compile_definitions(GIT_BRANCH="${GIT_BRANCH}")
+find_package(Git)
+if(Git_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE PCAPPP_GIT_COMMIT)
+  string(STRIP "${PCAPPP_GIT_COMMIT}" PCAPPP_GIT_COMMIT)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE PCAPPP_GIT_BRANCH)
+  string(STRIP "${PCAPPP_GIT_BRANCH}" PCAPPP_GIT_BRANCH)
+  message(STATUS "Building from commit:${PCAPPP_GIT_COMMIT} on branch:${PCAPPP_GIT_BRANCH}")
+  add_compile_definitions(GIT_COMMIT="${PCAPPP_GIT_COMMIT}")
+  add_compile_definitions(GIT_BRANCH="${PCAPPP_GIT_BRANCH}")
+endif()
 
 if(PCAPPP_USE_PF_RING)
   find_package(PF_RING)
@@ -211,6 +226,14 @@ if(PCAPPP_USE_PF_RING)
     message(FATAL_ERROR "Specify PF_RING Library with -DPF_RING_ROOT=<PF_RING_PATH>")
   endif()
   add_definitions(-DUSE_PF_RING)
+endif()
+
+if(PCAPPP_USE_XDP)
+  find_package(BPF)
+  if(NOT BPF_FOUND)
+    message(FATAL_ERROR "libbpf not found!")
+  endif()
+  add_definitions(-DUSE_XDP)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -224,6 +247,10 @@ if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall)
+endif()
+
+if(PCAPPP_BUILD_FUZZERS)
+  add_compile_options(-w)
 endif()
 
 # Static linking GCC/Threads for minGW (Windows + GNU)
@@ -364,7 +391,7 @@ if(PCAPPP_PACKAGE)
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.linux")
     if("${DISTRO_ID}" STREQUAL "ubuntu")
       # set(CPACK_GENERATOR ${CPACK_GENERATOR};DEB)
-    elseif("${DISTRO_ID}" STREQUAL "centos")
+    elseif("${DISTRO_ID}" STREQUAL "centos" OR "${DISTRO_ID}" STREQUAL "rhel")
       # set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
     elseif("${DISTRO_ID}" STREQUAL "freebsd")
       set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.freebsd")

@@ -310,7 +310,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 	IPFragmentData* fragData = nullptr;
 
 	// check whether this packet already exists in the map
-	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+	std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
 
 	// this is the first fragment seen for this packet
 	if (iter == m_FragmentMap.end())
@@ -499,7 +499,7 @@ Packet* IPReassembly::getCurrentPacket(const PacketKey& key)
 	uint32_t hash = key.getHashValue();
 
 	// look for this hash value in the map
-	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+	std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
 
 	// hash was found
 	if (iter != m_FragmentMap.end())
@@ -556,7 +556,7 @@ void IPReassembly::removePacket(const PacketKey& key)
 	uint32_t hash = key.getHashValue();
 
 	// look for this hash value in the map
-	std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
+	std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(hash);
 
 	// hash was found
 	if (iter != m_FragmentMap.end())
@@ -578,7 +578,7 @@ void IPReassembly::addNewFragment(uint32_t hash, IPFragmentData* fragData)
 	if (m_PacketLRU.put(hash, &packetRemoved) == 1) // this means LRU list was full and the least recently used item was removed
 	{
 		// remove this item from the fragment map
-		std::map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
+		std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
 		IPFragmentData* dataRemoved = iter->second;
 
 		PacketKey* key = nullptr;

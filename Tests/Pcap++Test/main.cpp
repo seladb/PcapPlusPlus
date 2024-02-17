@@ -229,6 +229,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapLiveDeviceNoNetworking, "no_network;live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceStatsMode, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceBlockingMode, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceWithLambda, "live_device");
+	PTF_RUN_TEST(TestPcapLiveDeviceBlockingModeWithLambda, "live_device");
 	PTF_RUN_TEST(TestPcapLiveDeviceSpecialCfg, "live_device");
 	PTF_RUN_TEST(TestWinPcapLiveDevice, "live_device;winpcap");
 	PTF_RUN_TEST(TestSendPacket, "live_device;send");
@@ -292,6 +294,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestRawSockets, "raw_sockets");
 
 	PTF_RUN_TEST(TestSystemCoreUtils, "no_network;system_utils");
+
+	PTF_RUN_TEST(TestXdpDeviceReceivePackets, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceSendPackets, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceNonDefaultConfig, "xdp");
+	PTF_RUN_TEST(TestXdpDeviceInvalidConfig, "xdp");
 
 	PTF_END_RUNNING_TESTS;
 }

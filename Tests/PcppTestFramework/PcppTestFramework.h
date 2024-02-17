@@ -1,5 +1,4 @@
-#ifndef PCPP_TEST_FRAMEWORK
-#define PCPP_TEST_FRAMEWORK
+#pragma once
 
 #include <iomanip>
 #include <iostream>
@@ -232,5 +231,3 @@
 		ptfResult = PTF_RESULT_SKIPPED; \
 		return; \
 	}
-
-#endif // PCPP_TEST_FRAMEWORK

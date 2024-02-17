@@ -1,5 +1,4 @@
-#ifndef PACKETPP_LAYER
-#define PACKETPP_LAYER
+#pragma once
 
 #include <stdint.h>
 #include <stdio.h>
@@ -48,23 +47,21 @@ namespace pcpp
 	 * Each layer holds a pointer to the relevant place in the packet. The layer sees all the data from this pointer forward until the
 	 * end of the packet. Here is an example packet showing this concept:
 	 *
-	  @verbatim
+	 @verbatim
+	 ====================================================
+	 |Eth       |IPv4       |TCP       |Packet          |
+	 |Header    |Header     |Header    |Payload         |
+	 ====================================================
 
-	  ====================================================
-	  |Eth       |IPv4       |TCP       |Packet          |
-	  |Header    |Header     |Header    |Payload         |
-	  ====================================================
-
-	  |--------------------------------------------------|
-	  EthLayer data
-				 |---------------------------------------|
-				 IPv4Layer data
-							 |---------------------------|
-							 TcpLayer data
-										|----------------|
-										PayloadLayer data
-
-	  @endverbatim
+	 |--------------------------------------------------|
+ 	 EthLayer data
+	            |---------------------------------------|
+	            IPv4Layer data
+	                        |---------------------------|
+	                        TcpLayer data
+	                                   |----------------|
+	                                   PayloadLayer data
+	 @endverbatim
 	 *
 	*/
 	class Layer : public IDataContainer
@@ -90,6 +87,13 @@ namespace pcpp
 		 * @return The protocol enum
 		 */
 		ProtocolType getProtocol() const { return m_Protocol; }
+
+		/**
+		 * Check if the layer's protocol matches a protocol family
+		 * @param protocolTypeFamily The protocol family to check
+		 * @return True if the layer's protocol matches the protocol family, false otherwise
+		 */
+		bool isMemberOfProtocolFamily(ProtocolTypeFamily protocolTypeFamily) const;
 
 		/**
 		 * @return A pointer to the layer raw data. In most cases it'll be a pointer to the first byte of the header
@@ -193,5 +197,3 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer &layer)
 	os << layer.toString();
 	return os;
 }
-
-#endif /* PACKETPP_LAYER */

@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <sstream>
 #include <utility>
-#include <map>
+#include <unordered_map>
 #if !defined(_WIN32)
 #include <errno.h>
 #endif
@@ -59,7 +59,7 @@ static struct option DnsSpoofingOptions[] =
 struct DnsSpoofStats
 {
 	int numOfSpoofedDnsRequests;
-	std::map<std::string, int> spoofedHosts;
+	std::unordered_map<std::string, int> spoofedHosts;
 
 	DnsSpoofStats() : numOfSpoofedDnsRequests(0) {}
 };
@@ -128,9 +128,9 @@ void listInterfaces()
 	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (std::vector<pcpp::PcapLiveDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (const auto &dev : devList)
 	{
-		std::cout << "    -> Name: '" << (*iter)->getName() << "'   IP address: " << (*iter)->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString() << std::endl;
 	}
 	exit(0);
 }
@@ -172,9 +172,9 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		bool hostMatch = false;
 
 		// go over all hosts in dnsHostsToSpoof list and see if current query matches one of them
-		for (std::vector<std::string>::iterator iter = args->dnsHostsToSpoof.begin(); iter != args->dnsHostsToSpoof.end(); iter++)
+		for (const auto &host : args->dnsHostsToSpoof)
 		{
-			if (dnsLayer->getQuery(*iter, false) != nullptr)
+			if (dnsLayer->getQuery(host, false) != nullptr)
 			{
 				hostMatch = true;
 				break;
@@ -283,17 +283,15 @@ void onApplicationInterrupted(void* cookie)
 		pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 		// sort the spoofed hosts map so the most spoofed hosts will be first
-		// since it's not possible to sort a std::map you must copy it to a std::vector and sort it then
+		// since it's not possible to sort a std::unordered_map you must copy it to a std::vector and sort it then
 		std::vector<std::pair<std::string, int> > map2vec(args->stats.spoofedHosts.begin(), args->stats.spoofedHosts.end());
 		std::sort(map2vec.begin(),map2vec.end(), &stringCountComparer);
 
 		// go over all items (hosts + count) in the sorted vector and print them
-		for(std::vector<std::pair<std::string, int> >::iterator iter = map2vec.begin();
-				iter != map2vec.end();
-				iter++)
+		for(const auto &iter : map2vec)
 		{
 			std::stringstream values;
-			values << iter->first << "|" << iter->second;
+			values << iter.first << "|" << iter.second;
 			printer.printRow(values.str(), '|');
 		}
 	}

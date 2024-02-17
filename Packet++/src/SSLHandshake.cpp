@@ -4,7 +4,7 @@
 #include "md5.h"
 #include <string.h>
 #include <sstream>
-#include <map>
+#include <unordered_map>
 #include <set>
 #include <utility>
 #include "Logger.h"
@@ -349,9 +349,9 @@ static const SSLCipherSuite Cipher328 = SSLCipherSuite(0x1304, SSL_KEYX_NULL, SS
 static const SSLCipherSuite Cipher329 = SSLCipherSuite(0x1305, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM_8, SSL_HASH_SHA256, "TLS_AES_128_CCM_8_SHA256");
 
 
-static std::map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
+static std::unordered_map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 {
-	std::map<uint16_t, SSLCipherSuite*> result;
+	std::unordered_map<uint16_t, SSLCipherSuite*> result;
 
 	result[0x0000] = (SSLCipherSuite*)&Cipher1;
 	result[0x0001] = (SSLCipherSuite*)&Cipher2;
@@ -699,9 +699,9 @@ static uint32_t hashString(std::string str)
 	return h;
 }
 
-static std::map<uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
+static std::unordered_map<uint32_t, SSLCipherSuite*> createCipherSuiteStringToObjectMap()
 {
-	std::map<uint32_t, SSLCipherSuite*> result;
+	std::unordered_map<uint32_t, SSLCipherSuite*> result;
 
 	result[0x9F180F43] = (SSLCipherSuite*)&Cipher1;
 	result[0x97D9341F] = (SSLCipherSuite*)&Cipher2;
@@ -1042,15 +1042,15 @@ std::set<uint16_t> createGreaseSet()
 	return std::set<uint16_t>(greaseExtensions, greaseExtensions + 16);
 }
 
-static const std::map<uint16_t, SSLCipherSuite*> CipherSuiteIdToObjectMap = createCipherSuiteIdToObjectMap();
+static const std::unordered_map<uint16_t, SSLCipherSuite*> CipherSuiteIdToObjectMap = createCipherSuiteIdToObjectMap();
 
-static const std::map<uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
+static const std::unordered_map<uint32_t, SSLCipherSuite*> CipherSuiteStringToObjectMap = createCipherSuiteStringToObjectMap();
 
 static const std::set<uint16_t> GreaseSet = createGreaseSet();
 
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 {
-	std::map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
+	std::unordered_map<uint16_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteIdToObjectMap.find(id);
 	if (pos == CipherSuiteIdToObjectMap.end())
 		return nullptr;
 	else
@@ -1060,7 +1060,7 @@ SSLCipherSuite* SSLCipherSuite::getCipherSuiteByID(uint16_t id)
 SSLCipherSuite* SSLCipherSuite::getCipherSuiteByName(std::string name)
 {
 	uint32_t nameHash = hashString(std::move(name));
-	std::map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
+	std::unordered_map<uint32_t, SSLCipherSuite*>::const_iterator pos = CipherSuiteStringToObjectMap.find(nameHash);
 	if (pos == CipherSuiteStringToObjectMap.end())
 		return nullptr;
 	else
@@ -1402,7 +1402,7 @@ uint16_t SSLClientHelloMessage::getCipherSuiteID(int index, bool& isValid) const
 	}
 
 	size_t cipherSuiteStartOffset = sizeof(ssl_tls_client_server_hello) + sizeof(uint8_t) + getSessionIDLength() + sizeof(uint16_t);
-	if (cipherSuiteStartOffset + sizeof(uint16_t) > m_DataLen)
+	if (cipherSuiteStartOffset + sizeof(uint16_t) * (index + 1) > m_DataLen)
 	{
 		isValid = false;
 		return 0;
@@ -1502,9 +1502,9 @@ SSLClientHelloMessage::ClientHelloTLSFingerprint SSLClientHelloMessage::generate
 	if (supportedGroupsExt != nullptr)
 	{
 		std::vector<uint16_t> supportedGroups = supportedGroupsExt->getSupportedGroups();
-		for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
-			if (GreaseSet.find(*iter) == GreaseSet.end())
-				result.supportedGroups.push_back(*iter);
+		for (const auto &iter : supportedGroups)
+			if (GreaseSet.find(iter) == GreaseSet.end())
+				result.supportedGroups.push_back(iter);
 	}
 
 	// extract EC point formats
@@ -1536,36 +1536,36 @@ std::string SSLClientHelloMessage::ClientHelloTLSFingerprint::toString()
 
 	// add cipher suites
 	bool firstCipher = true;
-	for (std::vector<uint16_t>::const_iterator iter = cipherSuites.begin(); iter != cipherSuites.end(); iter++)
+	for (const auto &iter : cipherSuites)
 	{
-		tlsFingerprint << (firstCipher ? "" : "-") << *iter;
+		tlsFingerprint << (firstCipher ? "" : "-") << iter;
 		firstCipher = false;
 	}
 	tlsFingerprint << ",";
 
 	// add extensions
 	bool firstExtension = true;
-	for (std::vector<uint16_t>::const_iterator iter = extensions.begin(); iter != extensions.end(); iter++)
+	for (const auto &iter : extensions)
 	{
-		tlsFingerprint << (firstExtension ? "" : "-") << *iter;
+		tlsFingerprint << (firstExtension ? "" : "-") << iter;
 		firstExtension = false;
 	}
 	tlsFingerprint << ",";
 
 	// add supported groups
 	bool firstGroup = true;
-	for (std::vector<uint16_t>::const_iterator iter = supportedGroups.begin(); iter != supportedGroups.end(); iter++)
+	for (const auto &iter : supportedGroups)
 	{
-		tlsFingerprint << (firstGroup ? "" : "-") << (*iter);
+		tlsFingerprint << (firstGroup ? "" : "-") << iter;
 		firstGroup = false;
 	}
 	tlsFingerprint << ",";
 
 	// add EC point formats
 	bool firstPointFormat = true;
-	for (std::vector<uint8_t>::iterator iter = ecPointFormats.begin(); iter != ecPointFormats.end(); iter++)
+	for (auto iter : ecPointFormats)
 	{
-		tlsFingerprint << (firstPointFormat ? "" : "-") << (int)(*iter);
+		tlsFingerprint << (firstPointFormat ? "" : "-") << (int)iter;
 		firstPointFormat = false;
 	}
 
@@ -1793,9 +1793,9 @@ std::string SSLServerHelloMessage::ServerHelloTLSFingerprint::toString()
 
 	// add extensions
 	bool firstExtension = true;
-	for (std::vector<uint16_t>::const_iterator iter = extensions.begin(); iter != extensions.end(); iter++)
+	for (const auto &iter : extensions)
 	{
-		tlsFingerprint << (firstExtension ? "" : "-") << *iter;
+		tlsFingerprint << (firstExtension ? "" : "-") << iter;
 		firstExtension = false;
 	}
 

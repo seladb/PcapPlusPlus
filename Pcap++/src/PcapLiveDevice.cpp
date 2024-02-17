@@ -14,6 +14,7 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 #include <sstream>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
@@ -30,15 +31,23 @@
 #include <arpa/inet.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <poll.h>
+#include <pcap/pcap.h>
 #endif // if defined(_WIN32)
 #if defined(__APPLE__) || defined(__FreeBSD__)
 #include <net/if_dl.h>
 #include <sys/sysctl.h>
 #endif
 
-// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail so value of 1ms is set here.
+// TODO: FIX FreeBSD
+// On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail.
+// A value of 1ms first solve the issue but since Jan. 2024 an issue
+// seems to make pcap_breakloop() to not properly break pcap_dispatch()
+// After multiple test a 10ms is the minimum to fix pcap_breakloop().
 // On Linux and Windows this is not the case so we keep the -1 value
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__FreeBSD__)
+#define LIBPCAP_OPEN_LIVE_TIMEOUT 10
+#elif defined(__APPLE__)
 #define LIBPCAP_OPEN_LIVE_TIMEOUT 1
 #else
 #define LIBPCAP_OPEN_LIVE_TIMEOUT -1
@@ -64,8 +73,8 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : IPcapDevice(),
-		m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero)
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
+	IPcapDevice(), m_PcapSelectableFd(-1), m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -173,15 +182,29 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 void PcapLiveDevice::captureThreadMain()
 {
 	PCPP_LOG_DEBUG("Started capture thread for device '" << m_Name << "'");
+	m_CaptureThreadStarted = true;
+
 	if (m_CaptureCallbackMode)
 	{
 		while (!m_StopThread)
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, (uint8_t*)this);
+		{
+			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
+			{
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				m_StopThread = true;
+			}
+		}
 	}
 	else
 	{
 		while (!m_StopThread)
-			pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, (uint8_t*)this);
+		{
+			if (pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, reinterpret_cast<uint8_t*>(this)) == -1)
+			{
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				m_StopThread = true;
+			}
+		}
 	}
 	PCPP_LOG_DEBUG("Ended capture thread for device '" << m_Name << "'");
 }
@@ -334,6 +357,21 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 
 	m_DeviceOpened = true;
 
+	if(!config.usePoll)
+	{
+		m_UsePoll = false;
+		m_PcapSelectableFd = -1;
+	}
+	else
+	{
+#if !defined(_WIN32)
+		m_UsePoll = true;
+		m_PcapSelectableFd = pcap_get_selectable_fd(m_PcapSendDescriptor);
+#else
+		PCPP_LOG_ERROR("Windows doesn't support poll(), ignoring the `usePoll` parameter");
+#endif
+	}
+
 	return true;
 }
 
@@ -396,12 +434,12 @@ PcapLiveDevice* PcapLiveDevice::clone()
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
 {
-	return startCapture(onPacketArrives, onPacketArrivesUserCookie, 0, nullptr, nullptr);
+	return startCapture(std::move(onPacketArrives), onPacketArrivesUserCookie, 0, nullptr, nullptr);
 }
 
 bool PcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	return startCapture(nullptr, nullptr, intervalInSecondsToUpdateStats, onStatsUpdate, onStatsUpdateUserCookie);
+	return startCapture(nullptr, nullptr, intervalInSecondsToUpdateStats, std::move(onStatsUpdate), onStatsUpdateUserCookie);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
@@ -421,16 +459,21 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	m_IntervalToUpdateStats = intervalInSecondsToUpdateStats;
 
 	m_CaptureCallbackMode = true;
-	m_cbOnPacketArrives = onPacketArrives;
+	m_cbOnPacketArrives = std::move(onPacketArrives);
 	m_cbOnPacketArrivesUserCookie = onPacketArrivesUserCookie;
 
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
-	m_CaptureThreadStarted = true;
+
+	// Wait thread to be start
+	// C++20 = m_CaptureThreadStarted.wait(true);
+	while (m_CaptureThreadStarted != true) {
+		std::this_thread::yield();
+	}
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 	{
-		m_cbOnStatsUpdate = onStatsUpdate;
+		m_cbOnStatsUpdate = std::move(onStatsUpdate);
 		m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
 		m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
 		m_StatsThreadStarted = true;
@@ -448,7 +491,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 		return false;
 	}
 
-	if (m_CaptureThreadStarted)
+	if (captureActive())
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return false;
@@ -459,14 +502,19 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 
 	m_CaptureCallbackMode = false;
 	m_CaptureThread = std::thread(&pcpp::PcapLiveDevice::captureThreadMain, this);
-	m_CaptureThreadStarted = true;
+	// Wait thread to be start
+	// C++20 = m_CaptureThreadStarted.wait(true);
+	while (m_CaptureThreadStarted != true) {
+		std::this_thread::yield();
+	}
+
 	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	return true;
 }
 
 
-int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, int timeout)
+int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
@@ -474,7 +522,7 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 		return 0;
 	}
 
-	if (m_CaptureThreadStarted)
+	if (captureActive())
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
 		return 0;
@@ -485,44 +533,97 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	m_cbOnPacketArrivesUserCookie = nullptr;
 	m_cbOnStatsUpdateUserCookie = nullptr;
 
-	m_cbOnPacketArrivesBlockingMode = onPacketArrives;
+	m_cbOnPacketArrivesBlockingMode = std::move(onPacketArrives);
 	m_cbOnPacketArrivesBlockingModeUserCookie = userCookie;
-
-	long startTimeSec = 0, startTimeNSec = 0;
-	clockGetTime(startTimeSec, startTimeNSec);
-
-	long curTimeSec = 0;
 
 	m_CaptureThreadStarted = true;
 	m_StopThread = false;
 
-	if (timeout <= 0)
+	const int64_t timeoutMs = timeout * 1000; // timeout unit is seconds, let's change it to milliseconds
+	auto startTime = std::chrono::steady_clock::now();
+	auto currentTime = startTime;
+
+#if !defined(_WIN32)
+	struct pollfd pcapPollFd;
+	memset(&pcapPollFd, 0, sizeof(pcapPollFd));
+	pcapPollFd.fd = m_PcapSelectableFd;
+	pcapPollFd.events = POLLIN;
+#endif
+
+	bool shouldReturnError = false;
+
+	if(timeoutMs <= 0)
 	{
 		while (!m_StopThread)
 		{
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
+			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+			{
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				shouldReturnError = true;
+				m_StopThread = true;
+			}
 		}
-		curTimeSec = startTimeSec + timeout;
 	}
 	else
 	{
-		while (!m_StopThread && curTimeSec <= (startTimeSec + timeout))
+		while (!m_StopThread && std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() < timeoutMs )
 		{
-			long curTimeNSec = 0;
-			pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, (uint8_t*)this);
-			clockGetTime(curTimeSec, curTimeNSec);
+			if(m_UsePoll)
+			{
+#if !defined(_WIN32)
+				int64_t pollTimeoutMs = timeoutMs - std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count();
+				pollTimeoutMs = std::max(pollTimeoutMs, (int64_t)0); // poll will be in blocking mode if negative value
+
+				int ready = poll(&pcapPollFd, 1, pollTimeoutMs); // wait the packets until timeout
+
+				if(ready > 0)
+				{
+					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+					{
+						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+						shouldReturnError = true;
+						m_StopThread = true;
+					}
+				}
+				else if(ready < 0)
+				{
+					PCPP_LOG_ERROR("poll() got error '" <<  strerror(errno) << "'");
+					shouldReturnError = true;
+					m_StopThread = true;
+				}
+#else
+				PCPP_LOG_ERROR("Windows doesn't support poll()");
+				shouldReturnError = true;
+				m_StopThread = true;
+#endif
+			}
+			else
+			{
+				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+				{
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+					shouldReturnError = true;
+					m_StopThread = true;
+				}
+			}
+			currentTime = std::chrono::steady_clock::now();
 		}
 	}
 
 	m_CaptureThreadStarted = false;
-
 	m_StopThread = false;
-
 	m_cbOnPacketArrivesBlockingMode = nullptr;
 	m_cbOnPacketArrivesBlockingModeUserCookie = nullptr;
 
-	if (curTimeSec > (startTimeSec + timeout))
+	if (shouldReturnError)
+	{
+		return 0;
+	}
+
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime  - startTime).count() >= timeoutMs )
+	{
 		return -1;
+	}
 	return 1;
 }
 
@@ -550,7 +651,6 @@ void PcapLiveDevice::stopCapture()
 		PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_Name << "'");
 	}
 
-	multiPlatformSleep(1);
 	m_StopThread = false;
 }
 
@@ -936,16 +1036,16 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end(); addrIter++)
+	for(const auto &addrIter : m_Addresses)
 	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter->addr, addrAsString);
+			internal::sockaddr2string(addrIter.addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
 
-		in_addr* currAddr = internal::sockaddr2in_addr(addrIter->addr);
+		in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
@@ -960,16 +1060,15 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (std::vector<pcap_addr_t>::const_iterator addrIter = m_Addresses.begin(); addrIter != m_Addresses.end();
-		 addrIter++)
+	for (const auto &addrIter : m_Addresses)
 	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter->addr != nullptr)
+		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
 			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter->addr, addrAsString);
+			internal::sockaddr2string(addrIter.addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
-		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter->addr);
+		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");

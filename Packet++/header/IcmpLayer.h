@@ -1,5 +1,4 @@
-#ifndef PACKETPP_ICMP_LAYER
-#define PACKETPP_ICMP_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "IPv4Layer.h"
@@ -751,5 +750,3 @@ namespace pcpp
 	}
 
 } // namespace pcpp
-
-#endif /* PACKETPP_ICMP_LAYER */

@@ -1,11 +1,10 @@
-#ifndef PACKETPP_IP_REASSEMBLY
-#define PACKETPP_IP_REASSEMBLY
+#pragma once
 
 #include "Packet.h"
 #include "LRUList.h"
 #include "IpAddress.h"
 #include "PointerVector.h"
-#include <map>
+#include <unordered_map>
 
 /**
  * @file
@@ -449,7 +448,7 @@ namespace pcpp
 		};
 
 		LRUList<uint32_t> m_PacketLRU;
-		std::map<uint32_t, IPFragmentData*> m_FragmentMap;
+		std::unordered_map<uint32_t, IPFragmentData*> m_FragmentMap;
 		OnFragmentsClean m_OnFragmentsCleanCallback;
 		void* m_CallbackUserCookie;
 
@@ -458,5 +457,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif // PACKETPP_IP_REASSEMBLY

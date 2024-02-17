@@ -40,7 +40,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <getopt.h>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <unistd.h>
 
@@ -70,7 +70,7 @@ struct CaptureThreadArgs
 {
 	PacketStats* packetStatArr;
 	PacketMatchingEngine* matchingEngine;
-	std::map<uint32_t, bool>* flowTables;
+	std::unordered_map<uint32_t, bool>* flowTables;
 	pcpp::PfRingDevice* sendPacketsTo;
 	pcpp::PcapFileWriterDevice** pcapWriters;
 
@@ -93,7 +93,7 @@ void printUsage()
 		<< std::endl
 		<< "    -h|--help                                  : Displays this help message and exits" << std::endl
 		<< "    -v|--version                               : Displays the current version and exits" << std::endl
-		<< "    -l|--list                                  : Print the list of PF_RING devices and exists" << std::endl
+		<< "    -l|--list                                  : Print the list of PF_RING devices and exit" << std::endl
 		<< "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from." << std::endl
 		<< "                                                 To see all available interfaces use the -l switch" << std::endl
 		<< "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to" << std::endl
@@ -135,12 +135,12 @@ void listPfRingDevices()
 	pcpp::Logger::getInstance().suppressLogs();
 
 	const std::vector<pcpp::PfRingDevice*>& devList = pcpp::PfRingDeviceList::getInstance().getPfRingDevicesList();
-	for (std::vector<pcpp::PfRingDevice*>::const_iterator iter = devList.begin(); iter != devList.end(); iter++)
+	for (const auto &dev : devList)
 	{
 		std::ostringstream interfaceIndex;
-		if ((*iter)->getInterfaceIndex() <= 9999)
+		if (dev->getInterfaceIndex() <= 9999)
 		{
-			interfaceIndex << (*iter)->getInterfaceIndex();
+			interfaceIndex << dev->getInterfaceIndex();
 		}
 		else
 		{
@@ -148,11 +148,11 @@ void listPfRingDevices()
 		}
 
 		std::cout
-			<< "    -> Name: " << std::left << std::setw(8) << (*iter)->getDeviceName()
+			<< "    -> Name: " << std::left << std::setw(8) << dev->getDeviceName()
 			<< " Index: " << std::setw(5) << interfaceIndex.str()
-			<< " MAC address: " << std::setw(19) << ((*iter)->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : (*iter)->getMacAddress().toString())
-			<< " Available RX channels: " << std::setw(3) << (int)(*iter)->getTotalNumOfRxChannels()
-			<< " MTU: " << (*iter)->getMtu()
+			<< " MAC address: " << std::setw(19) << (dev->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : dev->getMacAddress().toString())
+			<< " Available RX channels: " << std::setw(3) << (int)dev->getTotalNumOfRxChannels()
+			<< " MTU: " << dev->getMtu()
 			<< std::endl;
 	}
 
@@ -181,7 +181,7 @@ void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t thre
 
 		// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
 		uint32_t hash = pcpp::hash5Tuple(&packet);
-		std::map<uint32_t, bool>::const_iterator iter = args->flowTables[threadId].find(hash);
+		std::unordered_map<uint32_t, bool>::const_iterator iter = args->flowTables[threadId].find(hash);
 
 		// if packet belongs to an already existing flow
 		if (iter !=args->flowTables[threadId].end() && iter->second)
@@ -419,7 +419,7 @@ int main(int argc, char* argv[])
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 
 	// create a flow table for each core
-	std::map<uint32_t, bool> flowTables[totalNumOfCores];
+	std::unordered_map<uint32_t, bool> flowTables[totalNumOfCores];
 
 	pcpp::PcapFileWriterDevice** pcapWriters = NULL;
 

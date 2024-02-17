@@ -58,7 +58,7 @@ private:
 
 	// a flow table for saving TCP state per flow. Currently the only data that is saved is whether
 	// the last packet seen on the flow was a TCP SYN packet
-	std::map<uint32_t, bool> m_TcpFlowTable;
+	std::unordered_map<uint32_t, bool> m_TcpFlowTable;
 
 	/**
 	 * A utility method that takes a packet and returns true if it's a TCP SYN packet

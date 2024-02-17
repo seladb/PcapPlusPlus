@@ -36,6 +36,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone);
 PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking);
 PTF_TEST_CASE(TestPcapLiveDeviceStatsMode);
 PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode);
+PTF_TEST_CASE(TestPcapLiveDeviceWithLambda);
+PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda);
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg);
 PTF_TEST_CASE(TestWinPcapLiveDevice);
 PTF_TEST_CASE(TestSendPacket);
@@ -108,3 +110,9 @@ PTF_TEST_CASE(TestRawSockets);
 
 // Implemented in SystemUtilsTests.cpp
 PTF_TEST_CASE(TestSystemCoreUtils);
+
+// Implemented in XdpTest.cpp
+PTF_TEST_CASE(TestXdpDeviceReceivePackets);
+PTF_TEST_CASE(TestXdpDeviceSendPackets);
+PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig);
+PTF_TEST_CASE(TestXdpDeviceInvalidConfig);

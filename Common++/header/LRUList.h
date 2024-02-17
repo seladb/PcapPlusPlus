@@ -1,7 +1,6 @@
-#ifndef PCAPPP_LRU_LIST
-#define PCAPPP_LRU_LIST
+#pragma once
 
-#include <map>
+#include <unordered_map>
 #include <list>
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
@@ -30,7 +29,7 @@ namespace pcpp
 	public:
 
 		typedef typename std::list<T>::iterator ListIterator;
-		typedef typename std::map<T, ListIterator>::iterator MapIterator;
+		typedef typename std::unordered_map<T, ListIterator>::iterator MapIterator;
 
 		/**
 		 * A c'tor for this class
@@ -66,7 +65,7 @@ namespace pcpp
 			if (m_CacheItemsMap.size() > m_MaxSize)
 			{
 				ListIterator lruIter = m_CacheItemsList.end();
-				lruIter--;
+				--lruIter;
 
 				if (deletedValue != NULL)
 #if __cplusplus > 199711L || _MSC_VER >= 1800
@@ -126,10 +125,8 @@ namespace pcpp
 
 	private:
 		std::list<T> m_CacheItemsList;
-		std::map<T, ListIterator> m_CacheItemsMap;
+		std::unordered_map<T, ListIterator> m_CacheItemsMap;
 		size_t m_MaxSize;
 	};
 
 } // namespace pcpp
-
-#endif /* PCAPPP_LRU_LIST */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SLL_LAYER
-#define PACKETPP_SLL_LAYER
+#pragma once
 
 #include "MacAddress.h"
 #include "Layer.h"
@@ -106,5 +105,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PACKETPP_SLL_LAYER */

@@ -1,5 +1,4 @@
-#ifndef PACKETPP_VLAN_LAYER
-#define PACKETPP_VLAN_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "EthLayer.h"
@@ -21,13 +20,13 @@ namespace pcpp
 	struct vlan_header
 	{
 		/**
-		   @verbatim
-		   0                 1
-		   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5
-		   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		   |Prio |C|         VLAN ID     |
-		   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		   @endverbatim
+		 @verbatim
+		 0               1               2
+		 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 |Prio |C|         VLAN ID       |
+		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		 @endverbatim
 		 */
 		uint16_t vlan;
 		/** Ethernet type for next layer */
@@ -133,5 +132,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PACKETPP_VLAN_LAYER */

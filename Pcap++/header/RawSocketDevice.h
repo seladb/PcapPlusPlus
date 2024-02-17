@@ -1,5 +1,4 @@
-#ifndef PCAPPP_RAW_SOCKET_DEVICE
-#define PCAPPP_RAW_SOCKET_DEVICE
+#pragma once
 
 /// @file
 
@@ -160,5 +159,3 @@ namespace pcpp
 
 	};
 }
-
-#endif // PCAPPP_RAW_SOCKET_DEVICE

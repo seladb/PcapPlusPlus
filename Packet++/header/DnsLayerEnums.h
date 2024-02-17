@@ -1,5 +1,4 @@
-#ifndef PACKETPP_DNS_LAYER_ENUMS
-#define PACKETPP_DNS_LAYER_ENUMS
+#pragma once
 
 /// @file
 
@@ -70,7 +69,7 @@ namespace pcpp
 		DNS_TYPE_GPOS,
 		/** IPv6 address record */
 		DNS_TYPE_AAAA,
-		/**	Location record */
+		/** Location record */
 		DNS_TYPE_LOC,
 		/** Obsolete record */
 		DNS_TYPE_NXT,
@@ -155,5 +154,3 @@ namespace pcpp
 	};
 
 }
-
-#endif // PACKETPP_DNS_LAYER_ENUMS

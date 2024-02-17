@@ -47,7 +47,7 @@ PTF_TEST_CASE(FtpParsingTests)
 	PTF_ASSERT_NOT_NULL(ftpLayer3);
 	PTF_ASSERT_EQUAL(int(ftpLayer3->getStatusCode()), int(pcpp::FtpResponseLayer::FtpStatusCode::SYSTEM_STATUS));
 	PTF_ASSERT_EQUAL(ftpLayer3->getStatusCodeString(), "211");
-	PTF_ASSERT_EQUAL(ftpLayer3->getStatusOption(), "Extensions supported: CLNT MDTM PASV REST STREAM SIZE211 End.");
+	PTF_ASSERT_EQUAL(ftpLayer3->getStatusOption(), "Extensions supported: CLNT MDTM PASV REST STREAM SIZEEnd.");
 	PTF_ASSERT_EQUAL(ftpLayer3->toString(), "FTP Response: 211");
 	PTF_ASSERT_TRUE(ftpLayer3->isMultiLine());
 

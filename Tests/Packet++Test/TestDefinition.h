@@ -56,7 +56,8 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest);
 PTF_TEST_CASE(ParsePartialPacketTest);
 PTF_TEST_CASE(PacketTrailerTest);
 PTF_TEST_CASE(ResizeLayerTest);
-PTF_TEST_CASE(PrintPacketAndLayers);
+PTF_TEST_CASE(PrintPacketAndLayersTest);
+PTF_TEST_CASE(ProtocolFamilyMembershipTest);
 
 // Implemented in HttpTests.cpp
 PTF_TEST_CASE(HttpRequestParseMethodTest);
@@ -150,6 +151,7 @@ PTF_TEST_CASE(SipResponseLayerParsingTest);
 PTF_TEST_CASE(SipResponseLayerCreationTest);
 PTF_TEST_CASE(SipResponseLayerEditTest);
 PTF_TEST_CASE(SdpLayerParsingTest);
+PTF_TEST_CASE(SipNotSdpLayerParsingTest);
 PTF_TEST_CASE(SdpLayerCreationTest);
 PTF_TEST_CASE(SdpLayerEditTest);
 
@@ -242,5 +244,14 @@ PTF_TEST_CASE(TpktLayerTest);
 PTF_TEST_CASE(VrrpParsingTest);
 PTF_TEST_CASE(VrrpCreateAndEditTest);
 
-//Implemented in CotpTests.cpp
+// Implemented in CotpTests.cpp
 PTF_TEST_CASE(CotpLayerTest);
+
+// Implemented in S7commTests.cpp
+PTF_TEST_CASE(S7CommLayerParsingTest);
+PTF_TEST_CASE(S7CommLayerCreationTest);
+
+// Implemented in SmtpTests.cpp
+PTF_TEST_CASE(SmtpParsingTests);
+PTF_TEST_CASE(SmtpCreationTests);
+PTF_TEST_CASE(SmtpEditTests);

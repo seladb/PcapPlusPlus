@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SDP_LAYER
-#define PACKETPP_SDP_LAYER
+#pragma once
 
 #include "IpAddress.h"
 #include "TextBasedProtocol.h"
@@ -149,7 +148,7 @@ namespace pcpp
 		 * translated into a 'media-attribute' field (a=)
 		 * @return True if all fields were added properly or false if at least one field was failed to be added
 		 */
-		bool addMediaDescription(const std::string& mediaType, uint16_t mediaPort, const std::string& mediaProtocol, const std::string& mediaFormat, std::vector<std::string> mediaAttributes);
+		bool addMediaDescription(const std::string& mediaType, uint16_t mediaPort, const std::string& mediaProtocol, const std::string& mediaFormat, const std::vector<std::string> &mediaAttributes);
 
 		// overridden methods
 
@@ -165,5 +164,3 @@ namespace pcpp
 
 	};
 }
-
-#endif // PACKETPP_SDP_LAYER

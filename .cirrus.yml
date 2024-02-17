@@ -6,8 +6,8 @@ task:
   name: Test FreeBSD
   freebsd_instance:
     matrix:
-      image_family: freebsd-12-3
-      image_family: freebsd-13-1
+      image_family: freebsd-13-2
+      image_family: freebsd-14-0
   install_script:
     - pkg install -y bash cmake git gmake gsed libpcap tcpreplay
   configure_script:
@@ -67,49 +67,6 @@ task:
     - curl -Os https://uploader.codecov.io/latest/macos/codecov
     - chmod +x codecov
     - ./codecov -v -f coverage.xml -F zstd -F macos-ventura -F unittest || true
-
-task:
-  name: Regression Tests Linux (Address Sanitizer)
-  container:
-    image: gcr.io/oss-fuzz-base/base-clang
-  configure_script:
-    - apt-get update && apt-get install -y cmake git libpcap-dev
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=AddressSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
-  build_script:
-    - cmake --build $BUILD_DIR -j 2
-  test_script:
-    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
-    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
-    - Tests/Fuzzers/RegressionTests/run_tests.sh
-
-# Compilation failed due too issue w/ MemPlumber
-# task:
-#   name: Regression Tests Linux (Memory Sanitizer)
-#   container:
-#     image: gcr.io/oss-fuzz-base/base-clang
-#   configure_script:
-#     - apt-get update && apt-get install -y cmake git libpcap-dev
-#     - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=MemorySanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
-#   build_script:
-#     - cmake --build $BUILD_DIR -j 2
-#   test_script:
-#     - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
-#     - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
-#     - Tests/Fuzzers/RegressionTests/run_tests.sh
-
-task:
-  name: Regression Tests Linux (Undefined Behavior Sanitizer)
-  container:
-    image: gcr.io/oss-fuzz-base/base-clang
-  configure_script:
-    - apt-get update && apt-get install -y cmake git libpcap-dev
-    - cmake -S . -B $BUILD_DIR -DPCAPPP_USE_SANITIZER=UndefinedBehaviorSanitizer -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_EXAMPLES=OFF
-  build_script:
-    - cmake --build $BUILD_DIR -j 2
-  test_script:
-    - export BINARY="$BUILD_DIR/Tests/Fuzzers/FuzzTarget"
-    - export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
-    - Tests/Fuzzers/RegressionTests/run_tests.sh
 
 task:
   name: Build Doxygen Documentation

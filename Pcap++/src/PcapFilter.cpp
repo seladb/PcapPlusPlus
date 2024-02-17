@@ -364,7 +364,7 @@ void ProtoFilter::parseToString(std::string& result)
 {
 	std::ostringstream stream;
 
-	switch (m_Proto)
+	switch (m_ProtoFamily)
 	{
 	case TCP:
 		result = "tcp";

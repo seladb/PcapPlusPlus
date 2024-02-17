@@ -1,5 +1,4 @@
-#ifndef PACKETPP_NFLOG_LAYER
-#define PACKETPP_NFLOG_LAYER
+#pragma once
 
 #include "Layer.h"
 #include "TLVData.h"
@@ -118,6 +117,17 @@ namespace pcpp
 		}
 
 		/**
+		 * Check if a pointer can be assigned to the TLV record data
+		 * @param[in] recordRawData A pointer to the TLV record raw data
+		 * @param[in] tlvDataLen The size of the TLV record raw data
+		 * * @return True if data is valid and can be assigned
+		 */
+		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
+		{
+			return recordRawData != nullptr && tlvDataLen >= sizeof(NflogTLVRawData::recordLen);
+		}
+
+		/**
 		 * @return True if the TLV record raw data is nullptr, false otherwise
 		 */
 		bool isNull() const
@@ -227,5 +237,3 @@ namespace pcpp
 	};
 
 } // namespace pcpp
-
-#endif /* PACKETPP_NFLOG_LAYER */

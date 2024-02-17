@@ -1,5 +1,4 @@
-#ifndef PACKETPP_SOMEIPSD_LAYER
-#define PACKETPP_SOMEIPSD_LAYER
+#pragma once
 
 #include "EndianPortable.h"
 #include "IpAddress.h"
@@ -7,7 +6,7 @@
 #include "SomeIpLayer.h"
 #include <cstring>
 #include <iterator>
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <stdexcept>
 #include <vector>
@@ -761,7 +760,7 @@ private:
 
 	uint32_t m_NumOptions;
 
-	uint32_t countOptions();
+	static bool countOptions(uint32_t& count, const uint8_t* data);
 	uint32_t findOption(const SomeIpSdOption &option);
 	void addOption(const SomeIpSdOption &option);
 	bool addOptionIndex(uint32_t indexEntry, uint32_t indexOffset);
@@ -769,10 +768,10 @@ private:
 
 	static size_t getLenEntries(const uint8_t* data);
 	size_t getLenEntries() const;
+	static size_t getLenOptions(const uint8_t* data);
 	size_t getLenOptions() const;
 	void setLenEntries(uint32_t length);
 	void setLenOptions(uint32_t length);
 };
 
 } // namespace pcpp
-#endif /* PACKETPP_SOMEIPSD_LAYER */
