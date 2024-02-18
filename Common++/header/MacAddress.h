@@ -42,7 +42,7 @@ namespace pcpp
 		MacAddress(const uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
-		 * @brief Constructor that initializes an instance of the class from a (char*) string representing a MAC address.
+		 * Constructor that initializes an instance of the class from a (char*) string representing a MAC address.
 		 * If the string does not represent a valid MAC address, the instance will be marked as invalid, causing isValid() to return false.
 		 * The constructor supports two formats for the MAC address:
 		 *   (1) String format with ":" delimiter, e.g., "ff:ff:ff:ff:ff:ff".
