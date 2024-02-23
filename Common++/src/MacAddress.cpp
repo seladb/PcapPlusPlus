@@ -27,13 +27,13 @@ void MacAddress::init(const char* addr)
 	}
 
 	// The address is in string format
-    int values[6];
+    unsigned int values[6];
     if (sscanf(addr, "%x:%x:%x:%x:%x:%x", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5]) == 6)
 	{
         // Successfully parsed the MAC address
         for (int i = 0; i < 6; ++i)
 		{
-            m_Address[i] = static_cast<unsigned int>(values[i]);
+            m_Address[i] = values[i];
         }
 
 		// check the end of the string
