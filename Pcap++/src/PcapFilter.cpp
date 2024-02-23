@@ -297,60 +297,23 @@ void EtherTypeFilter::parseToString(std::string& result)
 	result = "ether proto " + stream.str();
 }
 
-AndFilter::AndFilter(std::vector<GeneralFilter*>& filters)
-{
-	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
-	{
-		m_FilterList.push_back(*it);
-	}
-}
+CompositeFilter::CompositeFilter(const std::vector<GeneralFilter*>& filters) : m_FilterList(filters) {}
 
-void AndFilter::setFilters(std::vector<GeneralFilter*>& filters)
+void CompositeFilter::removeFilter(GeneralFilter* filter)
 {
-	m_FilterList.clear();
-
-	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
+	for(auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
 	{
-		m_FilterList.push_back(*it);
-	}
-}
-
-void AndFilter::parseToString(std::string& result)
-{
-	result.clear();
-	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
-	{
-		std::string innerFilter;
-		(*it)->parseToString(innerFilter);
-		result += '(' + innerFilter + ')';
-		if (m_FilterList.back() != *it)
+		if (*it == filter)
 		{
-			result += " and ";
+			m_FilterList.erase(it);
+			break;
 		}
 	}
 }
 
-OrFilter::OrFilter(std::vector<GeneralFilter*>& filters)
+void CompositeFilter::setFilters(const std::vector<GeneralFilter*>& filters)
 {
-	for(std::vector<GeneralFilter*>::iterator it = filters.begin(); it != filters.end(); ++it)
-	{
-		m_FilterList.push_back(*it);
-	}
-}
-
-void OrFilter::parseToString(std::string& result)
-{
-	result.clear();
-	for(std::vector<GeneralFilter*>::iterator it = m_FilterList.begin(); it != m_FilterList.end(); ++it)
-	{
-		std::string innerFilter;
-		(*it)->parseToString(innerFilter);
-		result += '(' + innerFilter + ')';
-		if (m_FilterList.back() != *it)
-		{
-			result += " or ";
-		}
-	}
+	m_FilterList = filters;
 }
 
 void NotFilter::parseToString(std::string& result)
