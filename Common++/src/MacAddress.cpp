@@ -17,30 +17,37 @@ std::string MacAddress::toString() const
 
 void MacAddress::init(const char* addr)
 {
-	const unsigned int addrLen = sizeof m_Address;
-	unsigned int i = 0;
-
-	for(; *addr != 0 && i < addrLen; ++i)
+	// Check if the address is in string format or bytes format
+	if(addr[2] != ':')
 	{
-		char byte[3];
-		memset(byte, 0, sizeof byte);
-		byte[0] = *addr++;
-		if(*addr == '\0') break;
-		byte[1] = *addr++;
-		if(*addr != '\0') // holds the ":" char or end of string
-			++addr; // ignore the ":" char
-		m_Address[i] = static_cast<uint8_t>(strtol(byte, nullptr, 16));
-
-		// The strtol function returns zero value in two cases: when an error occurs or the string '00' is converted.
-		// This code verifies that it's the second case.
-		if(m_Address[i] == 0 && (byte[0] != '0' || byte[1] != '0'))
-		{
-			m_IsValid = false;
-			return;
-		}
+		// The address is in bytes format
+		memcpy(m_Address, addr, sizeof(m_Address));
+		m_IsValid = true;
+		return;
 	}
 
-	m_IsValid = (i == addrLen && *addr == '\0');
+	// The address is in string format
+    int values[6];
+    if (sscanf(addr, "%x:%x:%x:%x:%x:%x", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5]) == 6)
+	{
+        // Successfully parsed the MAC address
+        for (int i = 0; i < 6; ++i)
+		{
+            m_Address[i] = static_cast<unsigned int>(values[i]);
+        }
+
+		// check the end of the string
+		if (addr[17] == '\0')
+		{
+			m_IsValid = true;
+			return;
+		}
+    }
+
+	// Failed to parse the MAC address
+	memset(m_Address, 0, sizeof(m_Address));
+	m_IsValid = false;
+	return;
 }
 
 } // namespace pcpp

@@ -211,6 +211,11 @@ PTF_TEST_CASE(TestMacAddress)
 	PTF_ASSERT_TRUE(macAddr4.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr4);
 
+	char addrAsArr2[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
+	pcpp::MacAddress macAddr5(addrAsArr2);
+	PTF_ASSERT_TRUE(macAddr5.isValid());
+	PTF_ASSERT_EQUAL(macAddr1, macAddr5);
+
 	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
 	std::ostringstream oss;
 	oss << macAddr1;
