@@ -84,7 +84,7 @@ namespace pcpp
 	/**
 	 * TCP options types
 	 */
-	enum TcpOptionType : uint8_t
+	enum PCPP_DEPRECATED_MSG("Use enum class TcpOptionKind instead") TcpOptionType : uint8_t
 	{
 		/** Padding */
 		PCPP_TCPOPT_NOP =       1,
@@ -101,6 +101,63 @@ namespace pcpp
 		/** Echo (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHO =           6,
 		/** Echo Reply (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP) */
+		TCPOPT_ECHOREPLY =      7,
+		/** TCP Timestamps */
+		PCPP_TCPOPT_TIMESTAMP = 8,
+		/** CC (obsolete) */
+		TCPOPT_CC =             11,
+		/** CC.NEW (obsolete) */
+		TCPOPT_CCNEW =          12,
+		/** CC.ECHO(obsolete) */
+		TCPOPT_CCECHO =         13,
+		/** MD5 Signature Option */
+		TCPOPT_MD5 =            19,
+		/** Multipath TCP */
+		TCPOPT_MPTCP =          0x1e,
+		/** SCPS Capabilities */
+		TCPOPT_SCPS =           20,
+		/** SCPS SNACK */
+		TCPOPT_SNACK =          21,
+		/** SCPS Record Boundary */
+		TCPOPT_RECBOUND =       22,
+		/** SCPS Corruption Experienced */
+		TCPOPT_CORREXP =        23,
+		/** Quick-Start Response */
+		TCPOPT_QS =             27,
+		/** User Timeout Option (also, other known unauthorized use) */
+		TCPOPT_USER_TO =        28,
+		/** RFC3692-style Experiment 1 (also improperly used for shipping products) */
+		TCPOPT_EXP_FD =         0xfd,
+		/** RFC3692-style Experiment 2 (also improperly used for shipping products) */
+		TCPOPT_EXP_FE =         0xfe,
+		/** Riverbed probe option, non IANA registered option number */
+		TCPOPT_RVBD_PROBE =     76,
+		/** Riverbed transparency option, non IANA registered option number */
+		TCPOPT_RVBD_TRPY =      78,
+		/** Unknown option */
+		TCPOPT_Unknown =        255
+	};
+
+	/**
+	 * TCP options types
+	 */
+	enum class TcpOptionKind : uint8_t
+	{
+		/** Padding */
+		PCPP_TCPOPT_NOP =       1,
+		/** End of options */
+		PCPP_TCPOPT_EOL =       0,
+		/** Segment size negotiating */
+		TCPOPT_MSS =          	2,
+		/** Window scaling */
+		PCPP_TCPOPT_WINDOW =    3,
+		/** SACK Permitted */
+		TCPOPT_SACK_PERM =      4,
+		/** SACK Block */
+		PCPP_TCPOPT_SACK =      5,
+		/** Echo (obsoleted by option TcpOptionKind::PCPP_TCPOPT_TIMESTAMP) */
+		TCPOPT_ECHO =           6,
+		/** Echo Reply (obsoleted by option TcpOptionKind::PCPP_TCPOPT_TIMESTAMP) */
 		TCPOPT_ECHOREPLY =      7,
 		/** TCP Timestamps */
 		PCPP_TCPOPT_TIMESTAMP = 8,
@@ -208,7 +265,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		~TcpOption() { }
+		~TcpOption() = default;
 
 		/**
 		 * @return TCP option type casted as pcpp::TcpOptionType enum. If the data is null a value
@@ -217,6 +274,15 @@ namespace pcpp
 		TcpOptionType getTcpOptionType() const
 		{
 			return getTcpOptionType(m_Data);
+		}
+
+		/**
+		 * @return TCP option type casted as pcpp::TcpOptionKind enum. If the data is null a value
+		 * of TcpOptionKind::TCPOPT_Unknown is returned
+		 */
+		TcpOptionKind getTcpOptionKind() const
+		{
+			return getTcpOptionKind(m_Data);
 		}
 
 		/**
@@ -234,8 +300,8 @@ namespace pcpp
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
 				return false;
 
-			const auto recordType = getTcpOptionType(data);
-			if (recordType == TcpOptionType::PCPP_TCPOPT_NOP || recordType == TcpOptionType::PCPP_TCPOPT_EOL)
+			const auto recordType = getTcpOptionKind(data);
+			if (recordType == TcpOptionKind::PCPP_TCPOPT_NOP || recordType == TcpOptionKind::PCPP_TCPOPT_EOL)
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -248,8 +314,8 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			const auto recordType = getTcpOptionType(m_Data);
-			if (recordType == TcpOptionType::PCPP_TCPOPT_NOP || recordType == TcpOptionType::PCPP_TCPOPT_EOL)
+			const auto recordType = getTcpOptionKind(m_Data);
+			if (recordType == TcpOptionKind::PCPP_TCPOPT_NOP || recordType == TcpOptionKind::PCPP_TCPOPT_EOL)
 				return sizeof(uint8_t);
 
 			return static_cast<size_t>(m_Data->recordLen);
@@ -260,8 +326,8 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			const auto recordType = getTcpOptionType(m_Data);
-			if (recordType == TcpOptionType::PCPP_TCPOPT_NOP || recordType == TcpOptionType::PCPP_TCPOPT_EOL)
+			const auto recordType = getTcpOptionKind(m_Data);
+			if (recordType == TcpOptionKind::PCPP_TCPOPT_NOP || recordType == TcpOptionKind::PCPP_TCPOPT_EOL)
 				return 0;
 
 			return static_cast<size_t>(m_Data->recordLen) - (2*sizeof(uint8_t));
@@ -274,6 +340,14 @@ namespace pcpp
 				return TcpOptionType::TCPOPT_Unknown;
 
 			return static_cast<TcpOptionType>(optionRawData->recordType);
+		}
+
+		static TcpOptionKind getTcpOptionKind(const TLVRawData* optionRawData)
+		{
+			if (optionRawData == nullptr)
+				return TcpOptionKind::TCPOPT_Unknown;
+
+			return static_cast<TcpOptionKind>(optionRawData->recordType);
 		}
 	};
 
@@ -291,7 +365,18 @@ namespace pcpp
 		/**
 		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		 */
-		enum NopEolOptionTypes : uint8_t
+		enum PCPP_DEPRECATED_MSG("Use enum class NopEolOptionKind instead") NopEolOptionTypes : uint8_t
+		{
+			/** NOP TCP option */
+			NOP,
+			/** EOL TCP option */
+			EOL
+		};
+
+				/**
+		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
+		 */
+		enum class NopEolOptionKind : uint8_t
 		{
 			/** NOP TCP option */
 			NOP,
@@ -310,6 +395,16 @@ namespace pcpp
 			TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen) {}
 
 		/**
+		 * A c'tor for building TCP options which their value is a byte array. The TcpOption object can be later
+		 * retrieved by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in any way.
+		 * @param[in] optionValueLen Option value length in bytes
+		 */
+		TcpOptionBuilder(TcpOptionKind optionType, const uint8_t* optionValue, uint8_t optionValueLen) :
+			TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue, optionValueLen) {}
+
+		/**
 		 * A c'tor for building TCP options which have a 1-byte value. The TcpOption object can be later retrieved
 		 * by calling build()
 		 * @param[in] optionType TCP option type
@@ -317,6 +412,16 @@ namespace pcpp
 		 */
 		TcpOptionBuilder(TcpOptionType optionType, uint8_t optionValue) :
 			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
+
+
+		/**
+		 * A c'tor for building TCP options which have a 1-byte value. The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A 1-byte option value
+		 */
+		TcpOptionBuilder(TcpOptionKind optionType, uint8_t optionValue) :
+			TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue) {}
 
 		/**
 		 * A c'tor for building TCP options which have a 2-byte value. The TcpOption object can be later retrieved
@@ -328,6 +433,15 @@ namespace pcpp
 			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
 
 		/**
+		 * A c'tor for building TCP options which have a 2-byte value. The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A 2-byte option value
+		 */
+		TcpOptionBuilder(TcpOptionKind optionType, uint16_t optionValue) :
+			TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue) {}
+
+		/**
 		 * A c'tor for building TCP options which have a 4-byte value. The TcpOption object can be later retrieved
 		 * by calling build()
 		 * @param[in] optionType TCP option type
@@ -337,12 +451,29 @@ namespace pcpp
 			TLVRecordBuilder((uint8_t)optionType, optionValue) {}
 
 		/**
+		 * A c'tor for building TCP options which have a 4-byte value. The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType TCP option type
+		 * @param[in] optionValue A 4-byte option value
+		 */
+		TcpOptionBuilder(TcpOptionKind optionType, uint32_t optionValue) :
+			TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue) {}
+
+		/**
 		 * A c'tor for building TCP NOP and EOL options. These option types are special in that they contain only 1 byte
 		 * which is the TCP option type (NOP or EOL). The TcpOption object can be later retrieved
 		 * by calling build()
 		 * @param[in] optionType An enum value indicating which option type to build (NOP or EOL)
 		 */
 		explicit TcpOptionBuilder(NopEolOptionTypes optionType);
+
+		/**
+		 * A c'tor for building TCP NOP and EOL options. These option types are special in that they contain only 1 byte
+		 * which is the TCP option type (NOP or EOL). The TcpOption object can be later retrieved
+		 * by calling build()
+		 * @param[in] optionType An enum value indicating which option type to build (NOP or EOL)
+		 */
+		explicit TcpOptionBuilder(NopEolOptionKind optionType);
 
 		/**
 		 * Build the TcpOption object out of the parameters defined in the c'tor
@@ -380,7 +511,7 @@ namespace pcpp
 		 */
 		TcpLayer(uint16_t portSrc, uint16_t portDst);
 
-		~TcpLayer() {}
+		~TcpLayer() = default;
 
 		/**
 		 * A copy constructor that copy the entire header from the other TcpLayer (including TCP options)
@@ -415,6 +546,14 @@ namespace pcpp
 		 * (TcpOption#isNull() == true) if no such option found
 		 */
 		TcpOption getTcpOption(TcpOptionType option) const;
+
+		/**
+		 * Get a TCP option by type
+		 * @param[in] option TCP option type to retrieve
+		 * @return An TcpOption object that contains the first option that matches this type, or logical NULL
+		 * (TcpOption#isNull() == true) if no such option found
+		 */
+		TcpOption getTcpOption(TcpOptionKind option) const;
 
 		/**
 		 * @return The first TCP option in the packet. If the current layer contains no options the returned value will contain
@@ -454,7 +593,18 @@ namespace pcpp
 		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
-		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TcpOptionType::TCPOPT_Unknown);
+		PCPP_DEPRECATED_MSG("Use insertTcpOptionAfter instead") TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TcpOptionType::TCPOPT_Unknown);
+
+		/**
+		 * Add a new TCP option after an existing one
+		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be added
+		 * @param[in] prevOptionType The TCP option which the newly added option should come after. This is an optional parameter which
+		 * gets a default value of TcpOptionType::TCPOPT_Unknown if omitted, which means the new option will be added as the first option in the layer
+		 * @return A TcpOption object containing the newly added TCP option data or logical NULL
+		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		 * printed to log
+		 */
+		TcpOption insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionKind prevOptionType = TcpOptionKind::TCPOPT_Unknown);
 
 		/**
 		 * Remove an existing TCP option from the layer. TCP option is found by type
@@ -463,6 +613,14 @@ namespace pcpp
 		 * will be written to log)
 		 */
 		bool removeTcpOption(TcpOptionType optionType);
+
+		/**
+		 * Remove an existing TCP option from the layer. TCP option is found by type
+		 * @param[in] optionType The TCP option type to remove
+		 * @return True if TCP option was removed or false if type wasn't found or if removal failed (in each case a proper error
+		 * will be written to log)
+		 */
+		bool removeTcpOption(TcpOptionKind optionType);
 
 		/**
 		 * Remove all TCP options in this layer
