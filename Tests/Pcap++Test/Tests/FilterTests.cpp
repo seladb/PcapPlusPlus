@@ -656,7 +656,6 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	}
 	rawPacketVec.clear();
 
-
 	//-----------------------
 	//And filter - Proto + IP
 	//-----------------------
@@ -668,6 +667,29 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	filterVec.push_back(&protoFilter);
 	pcpp::AndFilter andFilter(filterVec);
 	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)");
+
+	andFilter.addFilter(&ipFilter);
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp) and (ip and src net 10.0.0.6)");
+
+	andFilter.removeFilter(&ipFilter);
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
+
+	{
+		pcpp::OrFilter externalFilter;
+		andFilter.removeFilter(&externalFilter);
+		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
+	}
+
+	andFilter.clearAllFilters();
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "");
+
+	andFilter.setFilters(filterVec);
+	andFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(andFilter));
@@ -707,6 +729,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	pcpp::OrFilter orFilter(filterVec);
 
 	orFilter.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1))");
 
 	PTF_ASSERT_TRUE(fileReaderDev3.open());
 	PTF_ASSERT_TRUE(fileReaderDev3.setFilter(orFilter));
