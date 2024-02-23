@@ -84,7 +84,7 @@ namespace pcpp
 	/**
 	 * TCP options types
 	 */
-	enum class TcpOptionType : uint8_t
+	enum TcpOptionType : uint8_t
 	{
 		/** Padding */
 		PCPP_TCPOPT_NOP =       1,
@@ -291,7 +291,7 @@ namespace pcpp
 		/**
 		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		 */
-		enum class NopEolOptionTypes : uint8_t
+		enum NopEolOptionTypes : uint8_t
 		{
 			/** NOP TCP option */
 			NOP,
