@@ -283,16 +283,16 @@ jobs:
           find . -name example-app -type d -exec rm -r {} +
           find . -name cmake -type d -exec rm -r {} +
           find . -name pkgconfig -type d -exec rm -r {} +
-          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* ${COMBINED_PACKAGE_DIR}/include/
-          rmdir ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/
-          mkdir -p android-package
-          mv ${COMBINED_PACKAGE_DIR} android-package
+          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* "${COMBINED_PACKAGE_DIR}/include/"
+          rmdir "${COMBINED_PACKAGE_DIR}/include/pcapplusplus/"
+          mkdir -p "android-package"
+          mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: android-package
-          if-no-files-found: error
           path: android-package
+          name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
+          if-no-files-found: error
 
   android-package:
     needs: android-build
@@ -301,7 +301,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: android-package
+          pattern: android-package-*
+          merge-multiple: true
 
       - name: Package into archive
         run: |
