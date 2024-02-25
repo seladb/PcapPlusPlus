@@ -187,7 +187,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 
 void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 {
-	if (m_Len == 0)
+	if (m_Len == NO_Len_VALUE)
 		return;
 
 	// Handle the length

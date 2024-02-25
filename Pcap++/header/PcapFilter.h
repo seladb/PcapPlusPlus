@@ -243,6 +243,9 @@ namespace pcpp
 	class IPFilter : public IFilterWithDirection
 	{
 	private:
+		static constexpr int NO_Len_VALUE = 0;
+		static constexpr const char* NO_IPv4Mask_VALUE = "";
+
 		IPAddress m_Address;
 		std::string m_IPv4Mask;
 		int m_Len;
@@ -257,7 +260,7 @@ namespace pcpp
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir) : IPFilter(IPAddress(ipAddress), dir) {}
 
-		IPFilter(IPAddress ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(""), m_Len(0) {}
+		IPFilter(IPAddress ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(NO_IPv4Mask_VALUE), m_Len(NO_Len_VALUE) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -270,7 +273,7 @@ namespace pcpp
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IPFilter(IPv4Address(ipAddress), dir, ipv4Mask) {}
 
-		IPFilter(IPv4Address ipAddress, Direction dir, const std::string &ipv4Mask) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+		IPFilter(IPv4Address ipAddress, Direction dir, const std::string &ipv4Mask) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(ipv4Mask), m_Len(NO_Len_VALUE) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
@@ -283,7 +286,7 @@ namespace pcpp
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, int len) : IPFilter(IPAddress(ipAddress), dir, len) {}
 
-		IPFilter(IPAddress ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(""), m_Len(len) {}
+		IPFilter(IPAddress ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(NO_IPv4Mask_VALUE), m_Len(len) {}
 
 		void parseToString(std::string& result) override;
 
@@ -300,7 +303,7 @@ namespace pcpp
 		 */
 		void setMask(const std::string& ipv4Mask) { this->clearLen(); m_IPv4Mask = ipv4Mask; }
 
-		void clearMask() { m_IPv4Mask = ""; }
+		void clearMask() { m_IPv4Mask = NO_IPv4Mask_VALUE; }
 
 		/**
 		 * Set the subnet
@@ -308,7 +311,7 @@ namespace pcpp
 		 */
 		void setLen(int len) { this->clearMask(); m_Len = len; }
 
-		void clearLen() { m_Len = 0; }
+		void clearLen() { m_Len = NO_Len_VALUE; }
 	};
 
 
