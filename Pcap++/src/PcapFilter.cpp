@@ -155,7 +155,7 @@ std::string IFilterWithOperator::parseOperator()
 
 void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const
 {
-	if (m_IPv4Mask.empty())
+	if (!hasMask())
 		return;
 
 	// Handle the mask

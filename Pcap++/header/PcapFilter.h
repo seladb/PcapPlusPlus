@@ -251,6 +251,8 @@ namespace pcpp
 		int m_Len;
 		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
 		void convertToIPAddressWithLen(std::string& ipAddrmodified) const;
+
+		bool hasMask() const { return !m_IPv4Mask.empty(); }
 	public:
 		/**
 		 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)
@@ -299,7 +301,7 @@ namespace pcpp
 
 		void setAddr(const IPAddress &ipAddress)
 		{
-			if (!ipAddress.isIPv4() && !m_IPv4Mask.empty())
+			if (!ipAddress.isIPv4() && hasMask())
 			{
 				// TODO: What exception type to throw here?
 				throw std::runtime_error("Attempting to set non-IPv4 address while an IPv4 mask is set. "
