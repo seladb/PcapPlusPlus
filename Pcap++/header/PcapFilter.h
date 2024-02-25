@@ -297,11 +297,34 @@ namespace pcpp
 		 */
 		void setAddr(const std::string& ipAddress) { m_Address = std::move(IPAddress(ipAddress)); }
 
+		void setAddr(const IPAddress &ipAddress)
+		{
+			if (!ipAddress.isIPv4() && !m_IPv4Mask.empty())
+			{
+				// TODO: What exception type to throw here?
+				throw std::runtime_error("Attempting to set non-IPv4 address while an IPv4 mask is set. "
+										 "Please clear the mask before setting a non-IPv4 address.");
+			}
+
+			m_Address = ipAddress;
+		}
+
 		/**
 		 * Set the IPv4 mask
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		void setMask(const std::string& ipv4Mask) { this->clearLen(); m_IPv4Mask = ipv4Mask; }
+		void setMask(const std::string& ipv4Mask)
+		{
+			if (!m_Address.isIPv4())
+			{
+				// TODO: What exception type to throw here?
+				throw std::runtime_error("Attempting to set an IPv4 mask on non-IPv4 address. "
+										 "Please set an IPv4 address before setting the mask.");
+			}
+			
+			this->clearLen();
+			m_IPv4Mask = ipv4Mask;
+		}
 
 		void clearMask() { m_IPv4Mask = NO_IPv4Mask_VALUE; }
 
