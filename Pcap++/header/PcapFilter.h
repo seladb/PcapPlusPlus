@@ -323,7 +323,7 @@ namespace pcpp
 				throw std::runtime_error("Attempting to set an IPv4 mask on non-IPv4 address. "
 										 "Please set an IPv4 address before setting the mask.");
 			}
-			
+
 			this->clearLen();
 			m_IPv4Mask = ipv4Mask;
 		}
