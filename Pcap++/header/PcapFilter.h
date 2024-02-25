@@ -243,7 +243,7 @@ namespace pcpp
 	class IPFilter : public IFilterWithDirection
 	{
 	private:
-		std::string m_Address;
+		IPAddress m_Address;
 		std::string m_IPv4Mask;
 		int m_Len;
 		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
@@ -255,7 +255,9 @@ namespace pcpp
 		 * written to log and parsing this filter will fail
 		 * @param[in] dir The address direction to filter (source or destination)
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir) : IPFilter(IPAddress(ipAddress), dir) {}
+
+		IPFilter(IPAddress ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(""), m_Len(0) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -266,7 +268,9 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IPFilter(IPv4Address(ipAddress), dir, ipv4Mask) {}
+
+		IPFilter(IPv4Address ipAddress, Direction dir, const std::string &ipv4Mask) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(ipv4Mask), m_Len(0) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
@@ -277,7 +281,9 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
+		IPFilter(const std::string& ipAddress, Direction dir, int len) : IPFilter(IPAddress(ipAddress), dir, len) {}
+
+		IPFilter(IPAddress ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(std::move(ipAddress)), m_IPv4Mask(""), m_Len(len) {}
 
 		void parseToString(std::string& result) override;
 

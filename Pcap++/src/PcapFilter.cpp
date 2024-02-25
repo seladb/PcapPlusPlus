@@ -163,8 +163,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// The following code lines verify both ipAddress and ipv4Mask are valid IPv4 addresses
 	// The IPv4 limitation comes from the fact libPcap/WinPcap/Npcap doesn't support mask for IPv6 addresses
 
-	IPv4Address ipAddr(m_Address);
-	if (!ipAddr.isValid())
+	if (!(m_Address.isIPv4() && m_Address.isValid()))
 	{
 		PCPP_LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
 		mask.clear();
@@ -182,7 +181,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// If all addresses are IPv4 valid addresses, make sure ipAddress matches the mask. If it's not, mask the address with the mask
 	// The reason for doing that is libPcap/WinPcap/Npcap doesn't allow filtering an IP address that doesn't match the mask
 
-	uint32_t addrAsIntAfterMask = ipAddr.toInt() & maskAsAddr.toInt();
+	uint32_t addrAsIntAfterMask = m_Address.getIPv4().toInt() & maskAsAddr.toInt();
 	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
 }
 
@@ -214,7 +213,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 void IPFilter::parseToString(std::string& result)
 {
 	std::string dir;
-	std::string ipAddr = m_Address;
+	std::string ipAddr = m_Address.toString();
 	std::string mask = m_IPv4Mask;
 	convertToIPAddressWithMask(ipAddr, mask);
 	convertToIPAddressWithLen(ipAddr);
