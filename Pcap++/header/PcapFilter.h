@@ -295,7 +295,7 @@ namespace pcpp
 		 * @param[in] ipAddress The IPv4 address to build the filter with. If this address is not a valid IPv4 address an error will be
 		 * written to log and parsing this filter will fail
 		 */
-		void setAddr(const std::string& ipAddress) { m_Address = ipAddress; }
+		void setAddr(const std::string& ipAddress) { m_Address = std::move(IPAddress(ipAddress)); }
 
 		/**
 		 * Set the IPv4 mask
