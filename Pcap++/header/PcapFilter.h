@@ -298,13 +298,17 @@ namespace pcpp
 		 * Set the IPv4 mask
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		void setMask(const std::string& ipv4Mask) { m_IPv4Mask = ipv4Mask; m_Len = 0; }
+		void setMask(const std::string& ipv4Mask) { this->clearLen(); m_IPv4Mask = ipv4Mask; }
+
+		void clearMask() { m_IPv4Mask = ""; }
 
 		/**
 		 * Set the subnet
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		void setLen(int len) { m_IPv4Mask = ""; m_Len = len; }
+		void setLen(int len) { this->clearMask(); m_Len = len; }
+
+		void clearLen() { m_Len = 0; }
 	};
 
 
