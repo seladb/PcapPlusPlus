@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
+#include <mutex>
 
 /// @file
 
@@ -13,13 +14,23 @@
 namespace pcpp
 {
 
+    /**
+	 * @struct nullMutex
+     * A struct containing standard mutex operation but does not perform any action.
+	 * This mutex is used when the user decides PointerVector not be thread safe which be default
+	*/
+    struct nullMutex {
+		void lock() const {}
+		void unlock() const {}
+	};
+
 	/**
 	 * @class PointerVector
 	 * A template class for representing a std::vector of pointers. Once (a pointer to) an element is added to this vector,
 	 * the element responsibility moves to the vector, meaning the PointerVector will free the object once it's removed from the vector
 	 * This class wraps std::vector and adds the capability of freeing objects once they're removed from it
 	 */
-	template<typename T>
+	template<typename T, typename Mutex=pcpp::nullMutex>
 	class PointerVector
 	{
 	public:
@@ -43,6 +54,7 @@ namespace pcpp
 		 */
 		~PointerVector()
 		{
+			std::lock_guard<Mutex> lk(m_Mutex);
 			for (auto iter : m_Vector)
 			{
 				delete iter;
@@ -55,6 +67,7 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
+			std::lock_guard<Mutex> lk(m_Mutex);
 			for (const auto iter : other)
 			{
 				T* objCopy = new T(*iter);
@@ -67,6 +80,7 @@ namespace pcpp
 		 */
 		void clear()
 		{
+			std::lock_guard<Mutex> lk(m_Mutex);
 			for (auto iter : m_Vector)
 			{
 				delete iter;
@@ -78,31 +92,51 @@ namespace pcpp
 		/**
 		 * Add a new (pointer to an) element to the vector
 		 */
-		void pushBack(T* element) { m_Vector.push_back(element); }
+		void pushBack(T* element)
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			m_Vector.push_back(element);
+		}
 
 		/**
 		 * Get the first element of the vector
 		 * @return An iterator object pointing to the first element of the vector
 		 */
-		VectorIterator begin() { return m_Vector.begin(); }
+		VectorIterator begin()
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			return m_Vector.begin();
+		}
 
 		/**
 		 * Get the first element of a constant vector
 		 * @return A const iterator object pointing to the first element of the vector
 		 */
-		ConstVectorIterator begin() const { return m_Vector.begin(); }
+		ConstVectorIterator begin() const
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			return m_Vector.begin();
+		}
 
 		/**
 		 * Get the last element of the vector
 		 * @return An iterator object pointing to the last element of the vector
 		 */
-		VectorIterator end() { return m_Vector.end(); }
+		VectorIterator end()
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			return m_Vector.end();
+		}
 
 		/**
 		 * Get the last element of a constant vector
 		 * @return A const iterator object pointing to the last element of the vector
 		 */
-		ConstVectorIterator end() const { return m_Vector.end(); }
+		ConstVectorIterator end() const
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			return m_Vector.end();
+		}
 
 
 		//inline size_t size() { return m_Vector.size(); }
@@ -111,13 +145,21 @@ namespace pcpp
 		 * Get number of elements in the vector
 		 * @return The number of elements in the vector
 		 */
-		size_t size() const { return m_Vector.size(); }
+		size_t size() const
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			return m_Vector.size();
+		}
 
 		/**
 		 * Returns a pointer of the first element in the vector
 		 * @return A pointer of the first element in the vector
 		 */
-		T* front() { return m_Vector.front(); }
+		T* front()
+		{
+			std::lock_guard<Mutex> lk(m_Mutex);
+			return m_Vector.front();
+		}
 
 		/**
 		 * Removes from the vector a single element (position). Once the element is erased, it's also freed
@@ -126,6 +168,7 @@ namespace pcpp
 		 */
 		VectorIterator erase(VectorIterator position)
 		{
+			std::lock_guard<Mutex> lk(m_Mutex);
 			delete (*position);
 			return m_Vector.erase(position);
 		}
@@ -139,7 +182,10 @@ namespace pcpp
 		{
 			T* result = (*position);
 			VectorIterator tempPos = position;
-			tempPos = m_Vector.erase(tempPos);
+			{
+				std::lock_guard<Mutex> lk(m_Mutex);
+			    tempPos = m_Vector.erase(tempPos);
+			}
 			position = tempPos;
 			return result;
 		}
@@ -151,6 +197,7 @@ namespace pcpp
 		 */
 		T* at(int index)
 		{
+			std::lock_guard<Mutex> lk(m_Mutex);
 			return m_Vector.at(index);
 		}
 
@@ -161,11 +208,13 @@ namespace pcpp
 		 */
 		const T* at(int index) const
 		{
+			std::lock_guard<Mutex> lk(m_Mutex);
 			return m_Vector.at(index);
 		}
 
 	private:
 		std::vector<T*> m_Vector;
+		mutable Mutex m_Mutex;
 	};
 
 } // namespace pcpp
