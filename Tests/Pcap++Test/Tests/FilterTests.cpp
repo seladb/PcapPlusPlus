@@ -471,6 +471,9 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	rawPacketVec.clear();
 
+	ipFilterWithMask.clearMask();
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9");
 
 	ipFilterWithMask.setLen(24);
 	ipFilterWithMask.setAddr("212.199.202.9");
@@ -492,6 +495,9 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	}
 	rawPacketVec.clear();
 
+	ipFilterWithMask.clearLen();
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9");
 
 	//-------------
 	//Port range
