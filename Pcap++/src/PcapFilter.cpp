@@ -223,9 +223,7 @@ void IPFilter::parseToString(std::string& result)
 		result += " mask " + mask;
 	else if (m_Len > 0)
 	{
-		std::ostringstream stream;
-		stream << m_Len;
-		result += '/' + stream.str();
+		result += '/' + std::to_string(m_Len);
 	}
 }
 
