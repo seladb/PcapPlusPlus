@@ -500,9 +500,9 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9");
 
 	// IPv6 tests
-	
+
 	ipFilterWithMask.setMask("255.255.255.0");
-	PTF_ASSERT_RAISES(ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF"), std::runtime_error, 
+	PTF_ASSERT_RAISES(ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF"), std::runtime_error,
 		"Attempting to set non-IPv4 address while an IPv4 mask is set. Please clear the mask before setting a non-IPv4 address.");
 	ipFilterWithMask.clearMask();
 
