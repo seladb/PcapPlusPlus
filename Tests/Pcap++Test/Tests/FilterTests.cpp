@@ -453,6 +453,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	//-------------------------
 	pcpp::IPFilter ipFilterWithMask("212.199.202.9", pcpp::SRC, "255.255.255.0");
 	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.0 mask 255.255.255.0");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(ipFilterWithMask));
@@ -474,6 +475,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	ipFilterWithMask.setLen(24);
 	ipFilterWithMask.setAddr("212.199.202.9");
 	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.0/24");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(ipFilterWithMask));
