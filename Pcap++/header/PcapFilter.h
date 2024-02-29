@@ -296,7 +296,7 @@ namespace pcpp
 		 */
 		void setAddr(const std::string& ipAddress) { this->setAddr(IPAddress(ipAddress)); }
 
-		void setAddr(const IPAddress &ipAddress)
+		void setAddr(const IPAddress& ipAddress)
 		{
 			if (!ipAddress.isIPv4() && hasMask())
 			{
@@ -331,7 +331,7 @@ namespace pcpp
 		 * Set the subnet
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		void setLen(int len) { this->clearMask(); m_Len = len; }
+		void setLen(const int len) { this->clearMask(); m_Len = len; }
 
 		void clearLen() { m_Len = 0; }
 	};
