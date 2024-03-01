@@ -178,7 +178,7 @@ namespace pcpp
 		 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
 		 * If the filter is not valid the result will be an empty string
 		 */
-		virtual void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		* Verify the filter is valid
@@ -279,7 +279,7 @@ namespace pcpp
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the IPv4 address
@@ -321,7 +321,7 @@ namespace pcpp
 		 */
 		IPv4IDFilter(uint16_t ipID, FilterOperator op) : IFilterWithOperator(op), m_IpID(ipID) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the IP ID to filter
@@ -350,7 +350,7 @@ namespace pcpp
 		 */
 		IPv4TotalLengthFilter(uint16_t totalLength, FilterOperator op) : IFilterWithOperator(op), m_TotalLength(totalLength) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the total length value
@@ -379,7 +379,7 @@ namespace pcpp
 		 */
 		PortFilter(uint16_t port, Direction dir);
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the port
@@ -410,7 +410,7 @@ namespace pcpp
 		 */
 		PortRangeFilter(uint16_t fromPort, uint16_t toPort, Direction dir) : IFilterWithDirection(dir), m_FromPort(fromPort), m_ToPort(toPort) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the lower end of the port range
@@ -444,7 +444,7 @@ namespace pcpp
 		 */
 		MacAddressFilter(MacAddress address, Direction dir) : IFilterWithDirection(dir), m_MacAddress(address) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the MAC address
@@ -472,7 +472,7 @@ namespace pcpp
 		 */
 		explicit EtherTypeFilter(uint16_t etherType) : m_EtherType(etherType) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the EtherType value
@@ -610,7 +610,7 @@ namespace pcpp
 		 */
 		explicit NotFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set a filter to create an inverse filter from
@@ -649,7 +649,7 @@ namespace pcpp
 		 */
 		explicit ProtoFilter(ProtocolTypeFamily protoFamily) : m_ProtoFamily(protoFamily) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the protocol to filter with
@@ -685,7 +685,7 @@ namespace pcpp
 		 */
 		explicit ArpFilter(ArpOpcode opCode) : m_OpCode(opCode) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the ARP opcode
@@ -713,7 +713,7 @@ namespace pcpp
 		 */
 		explicit VlanFilter(uint16_t vlanId) : m_VlanID(vlanId) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the VLAN ID of the filter
@@ -783,7 +783,7 @@ namespace pcpp
 		 */
 		void setTcpFlagsBitMask(uint8_t tcpFlagBitMask, MatchOptions matchOption) { m_TcpFlagsBitMask = tcpFlagBitMask; m_MatchOption = matchOption; }
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 	};
 
 
@@ -806,7 +806,7 @@ namespace pcpp
 		 */
 		TcpWindowSizeFilter(uint16_t windowSize, FilterOperator op) : IFilterWithOperator(op), m_WindowSize(windowSize) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set window-size value
@@ -835,7 +835,7 @@ namespace pcpp
 		 */
 		UdpLengthFilter(uint16_t length, FilterOperator op) : IFilterWithOperator(op), m_Length(length) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set length value

@@ -205,7 +205,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
 		uint32_t addrAsInt = ipAddr.getIPv4().toInt();
-		uint32_t mask = ((uint32_t) - 1) >> ((sizeof(uint32_t) * 8) - m_Len);
+		uint32_t mask = static_cast<uint32_t>(-1) >> ((sizeof(uint32_t) * 8) - m_Len);
 		addrAsInt &= mask;
 		ipAddrmodified = IPv4Address(addrAsInt).toString();
 	}
@@ -271,9 +271,9 @@ void PortRangeFilter::parseToString(std::string& result)
 	parseDirection(dir);
 
 	std::ostringstream fromPortStream;
-	fromPortStream << (int)m_FromPort;
+	fromPortStream << static_cast<int>(m_FromPort);
 	std::ostringstream toPortStream;
-	toPortStream << (int)m_ToPort;
+	toPortStream << static_cast<int>(m_ToPort);
 
 	result = dir + " portrange " + fromPortStream.str() + '-' + toPortStream.str();
 }
@@ -410,7 +410,7 @@ void TcpFlagsFilter::parseToString(std::string& result)
 	else //m_MatchOption == MatchAll
 	{
 		std::ostringstream stream;
-		stream << (int)m_TcpFlagsBitMask;
+		stream << static_cast<int>(m_TcpFlagsBitMask);
 		result += " = " + stream.str();
 	}
 }
