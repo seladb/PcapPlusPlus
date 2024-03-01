@@ -49,13 +49,13 @@ std::string printTcpFlags(pcpp::TcpLayer* tcpLayer)
 	return result;
 }
 
-std::string printTcpOptionType(pcpp::TcpOptionType optionType)
+std::string printTcpOptionKind(pcpp::TcpOptionKind optionType)
 {
 	switch (optionType)
 	{
-	case pcpp::TcpOptionType::PCPP_TCPOPT_NOP:
+	case pcpp::TcpOptionKind::PCPP_TCPOPT_NOP:
 		return "NOP";
-	case pcpp::TcpOptionType::PCPP_TCPOPT_TIMESTAMP:
+	case pcpp::TcpOptionKind::PCPP_TCPOPT_TIMESTAMP:
 		return "Timestamp";
 	default:
 		return "Other";
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
 	std::cout << "TCP options: ";
 	for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull(); tcpOption = tcpLayer->getNextTcpOption(tcpOption))
 	{
-		std::cout << printTcpOptionType(tcpOption.getTcpOptionType()) << " ";
+		std::cout << printTcpOptionKind(tcpOption.getTcpOptionKind()) << " ";
 	}
 	std::cout << std::endl;
 
