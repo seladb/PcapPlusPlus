@@ -55,16 +55,26 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
-			for (const auto iter : other)
+			try
 			{
-				T* objCopy = new T(*iter);
-				try
+				for (const auto iter : other)
 				{
-					m_Vector.push_back(objCopy);
+					T* objCopy = new T(*iter);
+					try
+					{
+						m_Vector.push_back(objCopy);
+					}
+					catch (const std::exception&)
+					{
+						delete objCopy;
+					}
 				}
-				catch (const std::exception&)
+			}
+			catch (const std::exception&) 
+			{
+				for (auto obj : m_Vector)
 				{
-					delete objCopy;
+					delete obj;
 				}
 			}
 		}
