@@ -4,6 +4,7 @@
 #include "EthLayer.h"
 #include "VlanLayer.h"
 #include "IPv4Layer.h"
+#include "IPv6Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
 #include "PcapLiveDeviceList.h"
@@ -516,6 +517,47 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	ipFilterWithMask.setLen(42);
 	ipFilterWithMask.parseToString(filterAsString);
 	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff/42");
+
+	if(true) {
+		//ipFilterWithMask.setAddr("2001:db9:0:12::1");
+		//ipFilterWithMask.setAddr("::1");
+		ipFilterWithMask.setAddr("0000:0000:0000:0000:0000:0000:0000:0001");
+		ipFilterWithMask.clearLen();
+		ipFilterWithMask.clearMask();
+		pcpp::PcapFileReaderDevice fileReaderDev5(EXAMPLE_PCAP_IPV6_PATH);
+
+		PTF_ASSERT_TRUE(fileReaderDev5.open());
+		PTF_ASSERT_TRUE(fileReaderDev5.setFilter(ipFilterWithMask));
+		fileReaderDev5.getNextPackets(rawPacketVec);
+		fileReaderDev5.close();
+
+		PTF_ASSERT_EQUAL(rawPacketVec.size(), 5);
+		for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+		{
+			pcpp::Packet packet(*iter);
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv6));
+			pcpp::IPv6Layer *ipLayer = packet.getLayerOfType<pcpp::IPv6Layer>();
+			PTF_ASSERT_TRUE(ipLayer->getSrcIPv6Address().matchNetwork("2001:db9:0:12::1"));
+		}
+		rawPacketVec.clear();
+
+		ipFilterWithMask.setLen(64);
+
+		PTF_ASSERT_TRUE(fileReaderDev5.open());
+		PTF_ASSERT_TRUE(fileReaderDev5.setFilter(ipFilterWithMask));
+		fileReaderDev5.getNextPackets(rawPacketVec);
+		fileReaderDev5.close();
+
+		PTF_ASSERT_EQUAL(rawPacketVec.size(), 10);
+		for (pcpp::RawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end(); iter++)
+		{
+			pcpp::Packet packet(*iter);
+			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv6));
+			pcpp::IPv6Layer *ipLayer = packet.getLayerOfType<pcpp::IPv6Layer>();
+			PTF_ASSERT_TRUE(ipLayer->getSrcIPv6Address().matchNetwork("2001:db9:0:12::1/64"));
+		}
+		rawPacketVec.clear();
+	}
 
 	//-------------
 	//Port range
