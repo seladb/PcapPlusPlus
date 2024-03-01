@@ -67,6 +67,7 @@ namespace pcpp
 					catch (const std::exception&)
 					{
 						delete objCopy;
+						throw;
 					}
 				}
 			}
@@ -76,6 +77,7 @@ namespace pcpp
 				{
 					delete obj;
 				}
+				throw;
 			}
 		}
 
