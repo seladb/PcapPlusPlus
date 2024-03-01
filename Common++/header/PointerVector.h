@@ -58,7 +58,14 @@ namespace pcpp
 			for (const auto iter : other)
 			{
 				T* objCopy = new T(*iter);
-				m_Vector.push_back(objCopy);
+				try
+				{
+					m_Vector.push_back(objCopy);
+				}
+				catch (const std::exception&)
+				{
+					delete objCopy;
+				}
 			}
 		}
 
