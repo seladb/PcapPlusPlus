@@ -71,7 +71,7 @@ namespace pcpp
 					}
 				}
 			}
-			catch (const std::exception&) 
+			catch (const std::exception&)
 			{
 				for (auto obj : m_Vector)
 				{
