@@ -442,8 +442,11 @@ char *light_pcapng_to_string(light_pcapng pcapng)
 
 uint32_t *light_pcapng_to_memory(const light_pcapng pcapng, size_t *size)
 {
+   if (size == NULL) { // PCPP patch
+      return NULL;
+   }
    if (pcapng == NULL) {
-      if (size != NULL) { *size = 0; } // PCPP patch
+      *size = 0;
 		return NULL;
 	}
 
