@@ -120,19 +120,28 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 
 void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatewayAddr, const pcpp::IPv4Address& victimAddr)
 {
+	pcpp::MacAddress gatewayMacAddr;
+
 	// Get the gateway MAC address
-	pcpp::MacAddress gatewayMacAddr = getMacAddress(gatewayAddr, pDevice);
-	if (!gatewayMacAddr.isValid())
+	try
 	{
-		EXIT_WITH_ERROR("Failed to find gateway MAC address");
+		gatewayMacAddr = getMacAddress(gatewayAddr, pDevice);
+	}
+	catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Failed to find gateway MAC address: " << e.what());
 	}
 	std::cout << "Got gateway MAC address: " << gatewayMacAddr << std::endl;
 
 	// Get the victim MAC address
-	pcpp::MacAddress victimMacAddr = getMacAddress(victimAddr, pDevice);
-	if (!victimMacAddr.isValid())
+	pcpp::MacAddress victimMacAddr;
+	try
 	{
-		EXIT_WITH_ERROR("Failed to find victim MAC address");
+		victimMacAddr = getMacAddress(victimAddr, pDevice);
+	}
+	catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Failed to find victim MAC address: " << e.what());
 	}
 	std::cout << "Got victim MAC address: " << victimMacAddr << std::endl;
 

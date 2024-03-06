@@ -100,7 +100,7 @@ PTF_TEST_CASE(WakeOnLanEditTests)
 	pcpp::WakeOnLanLayer *wolLayer3 = wolPacketEdited2.getLayerOfType<pcpp::WakeOnLanLayer>();
 	PTF_ASSERT_NOT_NULL(wolLayer3);
 
-	wolLayer1->setTargetAddr("00:90:27:85:cf:01");
+	wolLayer1->setTargetAddr(pcpp::MacAddress("00:90:27:85:cf:01"));
 	PTF_ASSERT_EQUAL(wolLayer1->getDataLen(), wolLayer3->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(wolLayer1->getDataPtr(), wolLayer3->getDataPtr(), wolLayer3->getDataLen());
 }

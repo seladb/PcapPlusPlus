@@ -31,7 +31,7 @@ namespace pcpp
 		 * Default constructor for this class.
 		 * Initializes object to me MacAddress::Zero
 		 */
-		MacAddress() : m_IsValid(true) { memset(m_Address, 0, sizeof(m_Address)); }
+		MacAddress() = default;
 
 		/**
 		 * A constructor that creates an instance of the class out of a byte array. The byte array length must be equal or greater to 6
@@ -39,24 +39,14 @@ namespace pcpp
 		 * @todo there is no verification array length >= 6. If this is not the case, address will read uninitialized memory
 		 * @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
 		 */
-		MacAddress(const uint8_t* addr) : m_IsValid(true) { memcpy(m_Address, addr, sizeof(m_Address)); }
-
-		/**
-		 * Constructor that initializes an instance of the class from a (char*) string representing a MAC address.
-		 * If the string does not represent a valid MAC address, the instance will be marked as invalid, causing isValid() to return false.
-		 * The constructor supports two formats for the MAC address:
-		 *   (1) String format with ":" delimiter, e.g., "ff:ff:ff:ff:ff:ff".
-		 *   (2) Bytes format, represented as a pointer to the 6-bytes long MAC address.
-		 * @param[in] addr A pointer to the (char*) MAC address string or a pointer to the (char*) bytes of the MAC address.
-		 */
-		MacAddress(const char* addr) { init(addr); }
+		explicit MacAddress(const uint8_t* addr) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of a std::string.
 		 * If the string doesn't represent a valid MAC address, instance will be invalid, meaning isValid() will return false
 	 	 * @param[in] addr A pointer to the string
 		 */
-		MacAddress(const std::string& addr) { init(addr.c_str()); }
+		MacAddress(const std::string& addr);
 
 		/**
 		 * A constructor that creates an instance of 6 bytes representing the MAC address
@@ -67,25 +57,32 @@ namespace pcpp
 		 * @param[in] fifthOctet Represent the fifth octet in the address
 		 * @param[in] sixthOctet Represent the sixth octet in the address
 		 */
-		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet);
+		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
+		{
+			m_Address[0] = firstOctest;
+			m_Address[1] = secondOctet;
+			m_Address[2] = thirdOctet;
+			m_Address[3] = fourthOctet;
+			m_Address[4] = fifthOctet;
+			m_Address[5] = sixthOctet;
+		}
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 		/**
 		 * A constructor that creates an instance out of the initializer list. The length of the list must be equal to 6 (as MAC address is 6-byte long)
 		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
 		 */
-		MacAddress(std::initializer_list<uint8_t> octets) : m_IsValid { octets.size() == sizeof(m_Address) }
+		MacAddress(std::initializer_list<uint8_t> octets)
 		{
-			if(m_IsValid)
+			if(octets.size() != sizeof m_Address)
 			{
-				#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
-				#else
-				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
-				#endif
+				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
-			else
-				memset(m_Address, 0, sizeof(m_Address));
+			#if _MSC_VER >= 1800
+			std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, 6));
+			#else
+			std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+			#endif
 		}
 #endif
 
@@ -109,15 +106,17 @@ namespace pcpp
 		 */
 		MacAddress& operator=(std::initializer_list<uint8_t> octets)
 		{
-			m_IsValid = (octets.size() == sizeof m_Address);
-			if(m_IsValid)
+			if(octets.size() != sizeof m_Address)
 			{
-				#if _MSC_VER >= 1800
-				std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof(m_Address)));
-				#else
-				std::copy(octets.begin(), octets.end(), std::begin(m_Address));
-				#endif
+				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
+
+			#if _MSC_VER >= 1800
+			std::copy(octets.begin(), octets.end(), stdext::checked_array_iterator<uint8_t*>(m_Address, sizeof(m_Address)));
+			#else
+			std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+			#endif
+
 			return *this;
 		}
 #endif
@@ -127,13 +126,6 @@ namespace pcpp
 		 * @return The pointer to raw data
 		 */
 		const uint8_t* getRawData() const { return m_Address; }
-
-		/**
-		 * Get an indication whether the MAC address is valid. An address can be invalid if it was constructed from illegal input, for example:
-		 * invalid string
-		 * @return True if the address is valid, false otherwise
-		 */
-		bool isValid() const { return m_IsValid; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -164,22 +156,8 @@ namespace pcpp
 		static MacAddress Zero;
 
 	private:
-		uint8_t m_Address[6];
-		bool m_IsValid;
-		void init(const char* addr);
+		uint8_t m_Address[6] = {0};
 	};
-
-	MacAddress::MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
-		: m_IsValid(true)
-	{
-		m_Address[0] = firstOctest;
-		m_Address[1] = secondOctet;
-		m_Address[2] = thirdOctet;
-		m_Address[3] = fourthOctet;
-		m_Address[4] = fifthOctet;
-		m_Address[5] = sixthOctet;
-	}
-
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)

@@ -197,23 +197,18 @@ PTF_TEST_CASE(TestIPAddress)
 PTF_TEST_CASE(TestMacAddress)
 {
 	pcpp::MacAddress macAddr1(0x11,0x2,0x33,0x4,0x55,0x6);
-	PTF_ASSERT_TRUE(macAddr1.isValid());
 	pcpp::MacAddress macAddr2(0x11,0x2,0x33,0x4,0x55,0x6);
-	PTF_ASSERT_TRUE(macAddr2.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr2);
 
 	pcpp::MacAddress macAddr3(std::string("11:02:33:04:55:06"));
-	PTF_ASSERT_TRUE(macAddr3.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr3);
 
 	uint8_t addrAsArr[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
 	pcpp::MacAddress macAddr4(addrAsArr);
-	PTF_ASSERT_TRUE(macAddr4.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr4);
 
 	char addrAsArr2[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
 	pcpp::MacAddress macAddr5(addrAsArr2);
-	PTF_ASSERT_TRUE(macAddr5.isValid());
 	PTF_ASSERT_EQUAL(macAddr1, macAddr5);
 
 	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
@@ -237,26 +232,19 @@ PTF_TEST_CASE(TestMacAddress)
 
 	#if __cplusplus > 199711L || _MSC_VER >= 1800
 	pcpp::MacAddress macCpp11Valid { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
-	pcpp::MacAddress macCpp11Wrong { 0xBB, 0xBB, 0xBB, 0xBB, 0xBB };
-	PTF_ASSERT_TRUE(macCpp11Valid.isValid());
-	PTF_ASSERT_FALSE(macCpp11Wrong.isValid());
+	PTF_ASSERT_RAISES(pcpp::MacAddress({ 0xBB, 0xBB, 0xBB, 0xBB, 0xBB }), std::invalid_argument, "Invalid initializer list size, should be 6");
 	#endif
 
 	pcpp::MacAddress mac6(macAddr1);
-	PTF_ASSERT_TRUE(mac6.isValid());
 	PTF_ASSERT_EQUAL(mac6, macAddr1);
 	mac6 = macAddr2;
-	PTF_ASSERT_TRUE(mac6.isValid());
 	PTF_ASSERT_EQUAL(mac6, macAddr2);
 
-	pcpp::MacAddress macWithZero("aa:aa:00:aa:00:aa");
-	pcpp::MacAddress macWrong1("aa:aa:aa:aa:aa:aa:bb:bb:bb:bb");
-	pcpp::MacAddress macWrong2("aa:aa:aa");
-	pcpp::MacAddress macWrong3("aa:aa:aa:ZZ:aa:aa");
-	PTF_ASSERT_TRUE(macWithZero.isValid());
-	PTF_ASSERT_FALSE(macWrong1.isValid());
-	PTF_ASSERT_FALSE(macWrong2.isValid());
-	PTF_ASSERT_FALSE(macWrong3.isValid());
+	pcpp::MacAddress macWithZero("aa:aa:00:aa:00:aa"); // valid
+	PTF_ASSERT_RAISES(pcpp::MacAddress("aa:aa:aa:aa:aa:aa:bb:bb:bb:bb"), std::invalid_argument, "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
+	PTF_ASSERT_RAISES(pcpp::MacAddress("aa:aa:aa"), std::invalid_argument, "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
+	PTF_ASSERT_RAISES(pcpp::MacAddress("aa:aa:aa:ZZ:aa:aa"), std::invalid_argument, "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
+	PTF_ASSERT_RAISES(pcpp::MacAddress("aa:aa:aa:aa:aa:aa:"), std::invalid_argument, "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
 } // TestMacAddress
 
 

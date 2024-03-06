@@ -128,8 +128,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	if (calculateMacAddress)
 	{
 		setDeviceMacAddress();
-		if (m_MacAddress.isValid())
-			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
+		PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
 	}
 }
 

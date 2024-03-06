@@ -15,15 +15,15 @@ PTF_TEST_CASE(OUILookup)
 	pcpp::OUILookup lookupEngineJson;
 	PTF_ASSERT_GREATER_THAN(lookupEngineJson.initOUIDatabaseFromJson("../../3rdParty/OUIDataset/PCPP_OUIDataset.json"), 0);
 
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("aa:aa:aa:aa:aa:aa"), "Unknown");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("aa:aa:aa:aa:aa:aa")), "Unknown");
 	// CIDR 36
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("70:B3:D5:2A:B0:00"), "NASA Johnson Space Center");
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("70:B3:D5:2A:BF:FF"), "NASA Johnson Space Center");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("70:B3:D5:2A:B0:00")), "NASA Johnson Space Center");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("70:B3:D5:2A:BF:FF")), "NASA Johnson Space Center");
 	// CIDR 28
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("68:79:12:40:00:00"), "McDonald's Corporation");
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("68:79:12:4f:ff:ff"), "McDonald's Corporation");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("68:79:12:40:00:00")), "McDonald's Corporation");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("68:79:12:4f:ff:ff")), "McDonald's Corporation");
 	// Short
-	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName("00:08:55:01:01:01"), "NASA-Goddard Space Flight Center");
+	PTF_ASSERT_EQUAL(lookupEngineJson.getVendorName(pcpp::MacAddress("00:08:55:01:01:01")), "NASA-Goddard Space Flight Center");
 }
 
 PTF_TEST_CASE(EthPacketCreation)

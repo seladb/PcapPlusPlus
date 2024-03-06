@@ -15,39 +15,20 @@ std::string MacAddress::toString() const
 	return std::string(str);
 }
 
-void MacAddress::init(const char* addr)
+MacAddress::MacAddress(const std::string& address)
 {
-	// Check if the address is in string format or bytes format
-	if(addr[2] != ':')
-	{
-		// The address is in bytes format
-		memcpy(m_Address, addr, sizeof(m_Address));
-		m_IsValid = true;
-		return;
-	}
-
-	// The address is in string format
     unsigned int values[6];
-    if (sscanf(addr, "%x:%x:%x:%x:%x:%x", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5]) == 6)
+    if (sscanf(address.c_str(), "%x:%x:%x:%x:%x:%x", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5]) == 6)
 	{
-        // Successfully parsed the MAC address
         for (int i = 0; i < 6; ++i)
 		{
             m_Address[i] = values[i];
         }
-
-		// check the end of the string
-		if (addr[17] == '\0')
-		{
-			m_IsValid = true;
-			return;
-		}
     }
-
-	// Failed to parse the MAC address
-	memset(m_Address, 0, sizeof(m_Address));
-	m_IsValid = false;
-	return;
+	else
+	{
+		throw std::invalid_argument("Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
+	}
 }
 
 } // namespace pcpp
