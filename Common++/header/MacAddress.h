@@ -31,7 +31,7 @@ namespace pcpp
 		 * Default constructor for this class.
 		 * Initializes object to me MacAddress::Zero
 		 */
-		MacAddress() = default;
+		MacAddress() {};
 
 		/**
 		 * A constructor that creates an instance of the class out of a byte array. The byte array length must be equal or greater to 6

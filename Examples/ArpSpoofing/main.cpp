@@ -91,7 +91,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	if (!pDevice->setFilter(arpFilter))
 	{
 		std::cerr << "Could not set ARP filter on device" << std::endl;
-		return pcpp::MacAddress("");
+		return pcpp::MacAddress::Zero;
 	}
 
 	//send the arp request and wait for arp reply
@@ -104,7 +104,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	if (capturedPackets.size() < 1)
 	{
 		std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << std::endl;
-		return pcpp::MacAddress("");
+		return pcpp::MacAddress::Zero;
 	}
 
 	//parse arp reply and extract the MAC address
@@ -114,7 +114,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 		return arpReply.getLayerOfType<pcpp::ArpLayer>()->getSenderMacAddress();
 	}
 	std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << std::endl;
-	return pcpp::MacAddress("");
+	return pcpp::MacAddress::Zero;
 }
 
 
