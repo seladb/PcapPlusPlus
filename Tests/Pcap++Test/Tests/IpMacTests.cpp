@@ -207,9 +207,9 @@ PTF_TEST_CASE(TestMacAddress)
 	pcpp::MacAddress macAddr4(addrAsArr);
 	PTF_ASSERT_EQUAL(macAddr1, macAddr4);
 
-	char addrAsArr2[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
-	pcpp::MacAddress macAddr5(addrAsArr2);
-	PTF_ASSERT_EQUAL(macAddr1, macAddr5);
+	// verify if some one try to use char[6] or char* to express MAC address in bytes
+	char invalidCharArrayAddress[6] = { 0x11, 0x2, 0x33, 0x4, 0x55, 0x6 };
+	PTF_ASSERT_RAISES(pcpp::MacAddress{invalidCharArrayAddress}, std::invalid_argument, "Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
 
 	PTF_ASSERT_EQUAL(macAddr1.toString(), "11:02:33:04:55:06");
 	std::ostringstream oss;
