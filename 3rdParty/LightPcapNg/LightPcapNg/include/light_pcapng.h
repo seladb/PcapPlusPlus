@@ -63,10 +63,11 @@ extern "C" {
 #define LIGHT_OUT_OF_MEMORY    -2
 #define LIGHT_INVALID_ARGUMENT -3
 #define LIGHT_NOT_FOUND        -4
-#define LIGHT_FAILURE          -5
+#define LIGHT_BAD_STREAM       -5
+#define LIGHT_FAILURE          -6
 
 /////////////////////////////// STANDARD PCAPNG STRUCTURES & FUNCTIONS ///////////////////////////////
-
+typedef struct _light_pcapng_stream *light_pcapng_stream;
 typedef struct _light_pcapng *light_pcapng;
 typedef struct _light_option *light_option;
 
@@ -91,6 +92,10 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 void light_read_record(light_file fd, light_pcapng *record);
 
 void light_pcapng_release(light_pcapng pcapng);
+
+light_pcapng_stream light_open_stream(const char *file_name);
+light_pcapng light_read_stream(light_pcapng_stream pcapng);
+int light_close_stream(light_pcapng_stream pcapng);
 
 // For Debugging Purposes
 char *light_pcapng_to_string(light_pcapng pcapng);
