@@ -29,7 +29,7 @@ namespace pcpp
 	public:
 		/**
 		 * Default constructor for this class.
-		 * Initializes object to me MacAddress::Zero
+		 * Initializes the address as 00:00:00:00:00:00.
 		 */
 		MacAddress() {};
 
