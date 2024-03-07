@@ -731,6 +731,28 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 } // TestPcapNgFileReadWriteAdv
 
 
+
+PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces)
+{
+	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_INTERFACES_PATH);
+	PTF_ASSERT_TRUE(readerDev.open());
+	pcpp::RawPacket rawPacket;
+	int packetCount = 0;
+	while (readerDev.getNextPacket(rawPacket))
+	{
+		packetCount++;
+		PTF_ASSERT_EQUAL(rawPacket.getLinkLayerType(), 0xFFFF);
+		const timespec timestamp = rawPacket.getPacketTimeStamp();
+		PTF_ASSERT_EQUAL(timestamp.tv_sec, 0);
+		PTF_ASSERT_EQUAL(timestamp.tv_nsec, 0);
+	}
+	PTF_ASSERT_EQUAL(packetCount, 1);
+	readerDev.close();
+	PTF_ASSERT_FALSE(readerDev.isOpened());
+} // TestPcapNgFileTooManyInterfaces
+
+
+
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6)
 {
 	pcpp::PcapFileReaderDevice readerDev(EXAMPLE_LINKTYPE_IPV6);
