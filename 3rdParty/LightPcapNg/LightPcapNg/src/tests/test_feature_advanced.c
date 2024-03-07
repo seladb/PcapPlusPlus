@@ -96,6 +96,10 @@ static void cleanup()
 int main(int argc, const char **args) {
 	int i, j;
 	FILE *features_csv = fopen("features/unscaled.csv", "w");
+	FILE *features_raw = fopen("features/raw.dat", "w");
+	uint64_t *min_features = NULL;
+	uint64_t *max_features = NULL;
+	uint64_t **feature_table = NULL;
 
 	if (compile_features() != 0) {
 		fprintf(stderr, "Unable to compile features!\n");
@@ -105,6 +109,15 @@ int main(int argc, const char **args) {
 	if (extract_features() != 0) {
 		fprintf(stderr, "Unable to extract function pointers!\n");
 		return EXIT_FAILURE;
+	}
+
+	min_features = calloc(feature_count, sizeof(uint64_t));
+	memset(min_features, -1, feature_count * sizeof(uint64_t));
+
+	max_features = calloc(feature_count, sizeof(uint64_t));
+	feature_table = calloc(argc - 1, sizeof(uint64_t *));
+	for (i = 0; i < argc - 1; ++i) {
+		feature_table[i] = calloc(feature_count, sizeof(uint64_t));
 	}
 
 	fprintf(features_csv, "address1, address2");
@@ -134,6 +147,9 @@ int main(int argc, const char **args) {
 							source[0], source[1], source[2], source[3],
 							destination[0], destination[1], destination[2], destination[3]);
 				}
+				else if (*label == 6) {
+					fprintf(features_csv, "ipv6, ipv6");
+				}
 				else {
 					fprintf(features_csv, "unknown, unknown");
 				}
@@ -148,6 +164,21 @@ int main(int argc, const char **args) {
 			for (j = 0; j < feature_count; ++j) {
 				feature_values[j] = features[j](pcapng);
 				fprintf(features_csv, ", %lu", feature_values[j]);
+
+				// Save for later.
+				feature_table[i - 1][j] = feature_values[j];
+
+				if (feature_values[j] == -1) {
+					// Invalid value.
+					continue;
+				}
+
+				if (min_features[j] > feature_table[i - 1][j]) {
+					min_features[j] = feature_table[i - 1][j];
+				}
+				if (max_features[j] < feature_table[i - 1][j]) {
+					max_features[j] = feature_table[i - 1][j];
+				}
 			}
 			fprintf(features_csv, "\n");
 
@@ -165,6 +196,28 @@ int main(int argc, const char **args) {
 	}
 
 	fclose(features_csv);
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	printf("Start exporting double features!\n");
+
+	fprintf(features_raw, "%% %d features\n", feature_count);
+	fprintf(features_raw, "%% %d items\n", argc - 1);
+
+	for (i = 0; i < argc - 1; ++i) {
+		for (j = 0; j < feature_count; ++j) {
+			if (feature_table[i][j] == -1) {
+				// Invalid feature.
+				fprintf(features_raw, "%.6lf ", 0.0);
+			}
+			else {
+				double f = (double)(feature_table[i][j] - min_features[j]) / (max_features[j] - min_features[j]);
+				fprintf(features_raw, "%.6lf ", f);
+			}
+		}
+		fprintf(features_raw, "\n");
+	}
+	fclose(features_raw);
+
 	cleanup();
 
 	return EXIT_SUCCESS;
