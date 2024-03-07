@@ -49,16 +49,16 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of 6 bytes representing the MAC address
-		 * @param[in] firstOctest Represent the first octet in the address
+		 * @param[in] firstOctet Represent the first octet in the address
 		 * @param[in] secondOctet Represent the second octet in the address
 		 * @param[in] thirdOctet Represent the third octet in the address
 		 * @param[in] fourthOctet Represent the fourth octet in the address
 		 * @param[in] fifthOctet Represent the fifth octet in the address
 		 * @param[in] sixthOctet Represent the sixth octet in the address
 		 */
-		inline MacAddress(uint8_t firstOctest, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
+		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
 		{
-			m_Address[0] = firstOctest;
+			m_Address[0] = firstOctet;
 			m_Address[1] = secondOctet;
 			m_Address[2] = thirdOctet;
 			m_Address[3] = fourthOctet;
