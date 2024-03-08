@@ -734,6 +734,7 @@ PTF_TEST_CASE(TestPcapNgFileReadWriteAdv)
 
 PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces)
 {
+	pcpp::Logger::getInstance().suppressLogs();
 	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_INTERFACES_PATH);
 	PTF_ASSERT_TRUE(readerDev.open());
 	pcpp::RawPacket rawPacket;

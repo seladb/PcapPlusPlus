@@ -412,6 +412,7 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		packet_header->captured_length = epb->capture_packet_length;
 		packet_header->original_length = epb->original_capture_length;
 
+		/// PCPP patch begin
 		if (epb->interface_id < pcapng->file_info->interface_block_count)
 		{
 			uint64_t timestamp = epb->timestamp_high;
@@ -441,6 +442,7 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 			packet_header->timestamp.tv_nsec = 0;
 			packet_header->data_link = 0xFFFF;
 		}
+		/// PCPP patch end
 
 		*packet_data = (uint8_t*)epb->packet_data;
 	}
