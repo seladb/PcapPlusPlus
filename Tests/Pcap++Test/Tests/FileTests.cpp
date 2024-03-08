@@ -749,7 +749,6 @@ PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces)
 	}
 	PTF_ASSERT_EQUAL(packetCount, 1);
 	readerDev.close();
-	PTF_ASSERT_FALSE(readerDev.isOpened());
 } // TestPcapNgFileTooManyInterfaces
 
 

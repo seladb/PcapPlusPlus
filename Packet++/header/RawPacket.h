@@ -237,7 +237,7 @@ namespace pcpp
 		LINKTYPE_ISO_14443 = 264,
 		/** Linux "cooked" capture encapsulation v2 */
 		LINKTYPE_LINUX_SLL2 = 276,
-		/** is set if interface ID for a packet of a pcapng file is too high */
+		/** Set if interface ID for a packet of a pcapng file is too high */
 		LINKTYPE_INVALID = 0xFFFF
 	};
 
