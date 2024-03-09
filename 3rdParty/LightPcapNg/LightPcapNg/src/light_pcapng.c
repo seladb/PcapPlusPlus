@@ -442,6 +442,14 @@ char *light_pcapng_to_string(light_pcapng pcapng)
 
 uint32_t *light_pcapng_to_memory(const light_pcapng pcapng, size_t *size)
 {
+   if (size == NULL) { // PCPP patch
+      return NULL;
+   }
+   if (pcapng == NULL) {
+      *size = 0;
+		return NULL;
+	}
+
    light_pcapng iterator = pcapng;
    size_t bytes = light_get_size(pcapng);
    uint32_t *block_mem = calloc(bytes, 1);
