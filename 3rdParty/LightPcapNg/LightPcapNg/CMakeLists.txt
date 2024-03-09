@@ -77,3 +77,8 @@ add_executable (test_read_write_packets.test
     src/tests/test_read_write_packets.c
     )
 target_link_libraries(test_read_write_packets.test light_pcapng_static)
+
+add_executable (test_split.test
+    src/tests/test_split.c
+    )
+target_link_libraries(test_split.test light_pcapng_static)
