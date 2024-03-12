@@ -742,8 +742,9 @@ PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces)
 	while (readerDev.getNextPacket(rawPacket))
 	{
 		packetCount++;
-		PTF_ASSERT_EQUAL(rawPacket.getLinkLayerType(), 0xFFFF);
+		PTF_ASSERT_EQUAL(rawPacket.getLinkLayerType(), pcpp::LINKTYPE_INVALID, enum);
 		const timespec timestamp = rawPacket.getPacketTimeStamp();
+		pcpp::Logger::getInstance().enableLogs();
 		PTF_ASSERT_EQUAL(timestamp.tv_sec, 0);
 		PTF_ASSERT_EQUAL(timestamp.tv_nsec, 0);
 	}

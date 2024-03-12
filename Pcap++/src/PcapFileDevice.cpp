@@ -387,7 +387,10 @@ bool PcapNgFileReaderDevice::getNextPacket(RawPacket& rawPacket, std::string& pa
 	memcpy(myPacketData, pktData, pktHeader.captured_length);
 	const LinkLayerType linkType = static_cast<LinkLayerType>(pktHeader.data_link);
 	if (linkType == LinkLayerType::LINKTYPE_INVALID)
-		PCPP_LOG_ERROR("Link layer type of packet could not be determined because interface ID exceeds the number of parsed IDBs");
+	{
+		PCPP_LOG_ERROR("Link layer type of raw packet could not be determined");
+	}
+
 	if (!rawPacket.setRawData(myPacketData, pktHeader.captured_length, pktHeader.timestamp, linkType, pktHeader.original_length))
 	{
 		PCPP_LOG_ERROR("Couldn't set data to raw packet");
