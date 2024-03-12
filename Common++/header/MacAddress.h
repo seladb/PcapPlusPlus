@@ -31,7 +31,7 @@ namespace pcpp
 		 * Default constructor for this class.
 		 * Initializes the address as 00:00:00:00:00:00.
 		 */
-		MacAddress() {};
+		MacAddress() {}
 
 		/**
 		 * A constructor that creates an instance of the class out of a byte array. The byte array length 6 (as MAC address is 6-byte long),
@@ -43,9 +43,18 @@ namespace pcpp
 		/**
 		 * A constructor that creates an instance of the class out of a std::string.
 		 * If the string doesn't represent a valid MAC address, the constructor throws.
-	 	 * @param[in] addr A pointer to the string
+	 	 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
 		 */
 		explicit MacAddress(const std::string& addr);
+
+		/**
+		 * A template constructor that creates an instance of the class out of a string convertible to std::string.
+		 * If the string doesn't represent a valid MAC address, the constructor throws.
+		 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
+		 */
+		template<typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
+		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr)) {};
+
 
 		/**
 		 * A constructor that creates an instance of 6 bytes representing the MAC address

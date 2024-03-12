@@ -118,13 +118,13 @@ PTF_TEST_CASE(StpConfigurationEditTests)
 	PTF_ASSERT_NOT_NULL(stpConfLayerTgt2);
 
 	// Set fields
-	stpConfLayerOrig->setRootSystemID(pcpp::MacAddress("AA:BB:CC:DD:EE:FF"));
+	stpConfLayerOrig->setRootSystemID("AA:BB:CC:DD:EE:FF");
 	stpConfLayerOrig->setRootPriority(20480);
 	stpConfLayerOrig->setRootSystemIDExtension(7);
 
 	stpConfLayerOrig->setBridgePriority(28672);
 	stpConfLayerOrig->setBridgeSystemIDExtension(11);
-	stpConfLayerOrig->setBridgeSystemID(pcpp::MacAddress("FF:EE:DD:CC:BB:AA"));
+	stpConfLayerOrig->setBridgeSystemID("FF:EE:DD:CC:BB:AA");
 
 	PTF_ASSERT_BUF_COMPARE(stpConfLayerOrig->getData(), stpConfLayerTgt2->getData(), stpConfLayerOrig->getHeaderLen());
 } // StpConfigurationEditTests
@@ -451,7 +451,7 @@ PTF_TEST_CASE(MultipleStpEditTests)
 
 	stpMultipleLayerOrig->setCISTBridgePriority(24576);
 	stpMultipleLayerOrig->setCISTBridgeSystemIDExtension(5);
-	stpMultipleLayerOrig->setCISTBridgeSystemID(pcpp::MacAddress("FF:EE:DD:CC:BB:AA"));
+	stpMultipleLayerOrig->setCISTBridgeSystemID("FF:EE:DD:CC:BB:AA");
 
 	PTF_ASSERT_EQUAL(stpMultipleLayerOrig->getDataLen(), stpMultipleLayerTgt2->getDataLen());
 	PTF_ASSERT_BUF_COMPARE(stpMultipleLayerOrig->getData(), stpMultipleLayerTgt2->getData(), stpMultipleLayerTgt2->getDataLen());
