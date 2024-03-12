@@ -24,6 +24,7 @@ PTF_TEST_CASE(TestPcapRawIPFileReadWrite);
 PTF_TEST_CASE(TestPcapFileAppend);
 PTF_TEST_CASE(TestPcapNgFileReadWrite);
 PTF_TEST_CASE(TestPcapNgFileReadWriteAdv);
+PTF_TEST_CASE(TestPcapNgFileTooManyInterfaces);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4);
 PTF_TEST_CASE(TestSolarisSnoopFileRead);
