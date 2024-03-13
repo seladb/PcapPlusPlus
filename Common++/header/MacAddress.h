@@ -83,7 +83,7 @@ namespace pcpp
 		 */
 		MacAddress(std::initializer_list<uint8_t> octets)
 		{
-			if(octets.size() != sizeof m_Address)
+			if(octets.size() != sizeof(m_Address))
 			{
 				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
@@ -116,7 +116,7 @@ namespace pcpp
 		 */
 		MacAddress& operator=(std::initializer_list<uint8_t> octets)
 		{
-			if(octets.size() != sizeof m_Address)
+			if(octets.size() != sizeof(m_Address))
 			{
 				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
