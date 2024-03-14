@@ -74,6 +74,7 @@ namespace pcpp
 		friend class KniDeviceList;
 	private:
 		bool m_IsInitialized;
+		static bool m_DpdkInitVerify;
 		static bool m_IsDpdkInitialized;
 		static uint32_t m_MBufPoolSizePerDevice;
 		static CoreMask m_CoreMask;
@@ -172,6 +173,13 @@ namespace pcpp
 		 * @return True if action succeeded, false otherwise
 		 */
 		bool writeDpdkLogToFile(FILE* logFile);
+
+		/**
+		 * Disable/Enable initial verification of hugespages and loaded kernel modules by initDpdk()
+		 * Will not disable DPDK EAL checks
+		 * @param[in] verify boolean value
+		 */
+		static void setDpdkInitVerify(bool verify);
 
 		/**
 		 * There are two ways to capture packets using DpdkDevice: one of them is using worker threads and the other way is setting
