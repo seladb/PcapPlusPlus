@@ -136,9 +136,11 @@ int main(int argc, char* argv[])
 				ifaceNameOrIpProvided = true;
 				break;
 			case 's':
-				try {
+				try
+				{
 					sourceMac = pcpp::MacAddress(optarg);
-				} catch (std::exception& e) {
+				}
+				catch (std::exception& e) {
 					EXIT_WITH_ERROR("Source MAC address is not valid");
 				}
 				break;
