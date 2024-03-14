@@ -80,7 +80,7 @@ namespace pcpp
 		 * A constructor that creates an instance out of the initializer list.
 		 * The byte list length should be 6 (as MAC address is 6-byte long).
 		 * If the list is invalid, the constructor throws an exception.
-		 * @param[in] addr An initializer list containing the values of type uint8_t representing the MAC address
+		 * @param[in] octets An initializer list containing the values of type uint8_t representing the MAC address
 		 */
 		MacAddress(std::initializer_list<uint8_t> octets)
 		{
