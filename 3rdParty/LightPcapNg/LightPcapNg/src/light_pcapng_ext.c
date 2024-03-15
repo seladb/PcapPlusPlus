@@ -411,27 +411,38 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 		packet_header->interface_id = epb->interface_id;
 		packet_header->captured_length = epb->capture_packet_length;
 		packet_header->original_length = epb->original_capture_length;
-		uint64_t timestamp = epb->timestamp_high;
-		timestamp = timestamp << 32;
-		timestamp += epb->timestamp_low;
-		double timestamp_res = pcapng->file_info->timestamp_resolution[epb->interface_id];
-		uint64_t packet_secs = timestamp * timestamp_res;
-		if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+
+		/// PCPP patch begin
+		if (epb->interface_id < pcapng->file_info->interface_block_count)
 		{
-			packet_header->timestamp.tv_sec = packet_secs;
-			packet_header->timestamp.tv_nsec =
-					(timestamp - (packet_secs / timestamp_res))	// number of time units less than seconds
-					* timestamp_res								// shift . to the left to get 0.{previous_number}
-					* 1000000000;								// get the nanoseconds
+			uint64_t timestamp = epb->timestamp_high;
+			timestamp = timestamp << 32;
+			timestamp += epb->timestamp_low;
+			double timestamp_res = pcapng->file_info->timestamp_resolution[epb->interface_id];
+			uint64_t packet_secs = timestamp * timestamp_res;
+			if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+			{
+				packet_header->timestamp.tv_sec = packet_secs;
+				packet_header->timestamp.tv_nsec =
+						(timestamp - (packet_secs / timestamp_res))	// number of time units less than seconds
+						* timestamp_res								// shift . to the left to get 0.{previous_number}
+						* 1000000000;								// get the nanoseconds
+			}
+			else
+			{
+				packet_header->timestamp.tv_sec = 0;
+				packet_header->timestamp.tv_nsec = 0;
+			}
+
+			packet_header->data_link = pcapng->file_info->link_types[epb->interface_id];
 		}
 		else
 		{
 			packet_header->timestamp.tv_sec = 0;
 			packet_header->timestamp.tv_nsec = 0;
+			packet_header->data_link = 0xFFFF;
 		}
-
-		if (epb->interface_id < pcapng->file_info->interface_block_count)
-			packet_header->data_link = pcapng->file_info->link_types[epb->interface_id];
+		/// PCPP patch end
 
 		*packet_data = (uint8_t*)epb->packet_data;
 	}

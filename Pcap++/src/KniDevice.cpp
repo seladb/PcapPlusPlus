@@ -345,10 +345,8 @@ bool KniDevice::setLinkState(KniLinkState state)
 	return true;
 }
 
-bool KniDevice::setMacAddress(MacAddress mac)
+bool KniDevice::setMacAddress(const MacAddress& mac)
 {
-	if (!mac.isValid())
-		return false;
 	struct ifreq req;
 	std::memset(&req, 0, sizeof(req));
 	req.ifr_hwaddr.sa_family = ARPHRD_ETHER;
