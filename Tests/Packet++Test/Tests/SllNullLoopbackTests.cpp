@@ -58,9 +58,9 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	tcpLayer.getTcpHeader()->ackNumber = htobe32(0x7633e977);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
 	tcpLayer.getTcpHeader()->windowSize = htobe16(4098);
-	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionKind::NOP)).isNotNull());
-	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionKind::NOP)).isNotNull());
-	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionKind::PCPP_TCPOPT_TIMESTAMP, nullptr, PCPP_TCPOLEN_TIMESTAMP-2));
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::NOP)).isNotNull());
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::NOP)).isNotNull());
+	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::PCPP_TCPOPT_TIMESTAMP, nullptr, PCPP_TCPOLEN_TIMESTAMP-2));
 	PTF_ASSERT_TRUE(tsOption.isNotNull());
 	tsOption.setValue<uint32_t>(htobe32(0x0402383b));
 	tsOption.setValue<uint32_t>(htobe32(0x03ff37f5), 4);

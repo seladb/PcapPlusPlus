@@ -207,7 +207,7 @@ static void readParsedPacket(pcpp::Packet parsedPacket, pcpp::Layer* layer)
         if (auto tcpLayer = dynamic_cast<pcpp::TcpLayer*>(layer))
         {
             auto tcpLayer2 (*tcpLayer);
-            tcpLayer2.insertTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionKind::NOP), pcpp::TcpOptionKind::PCPP_TCPOPT_NOP);
+            tcpLayer2.insertTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::NOP), pcpp::TcpOptionEnumType::PCPP_TCPOPT_NOP);
         }
     }
     if (parsedPacket.isPacketOfType(pcpp::SDP))

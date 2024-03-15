@@ -18,6 +18,7 @@
 #include "SmtpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
+#include "DeprecationMacros.h"
 #include <string.h>
 #include <sstream>
 
@@ -44,14 +45,14 @@ TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
 	}
 }
 
-TcpOptionBuilder::TcpOptionBuilder(NopEolOptionKind optionType)
+TcpOptionBuilder::TcpOptionBuilder(NopEolOptionEnumType optionType)
 {
 	switch (optionType)
 	{
-	case NopEolOptionKind::EOL:
+	case NopEolOptionEnumType::EOL:
 		init(static_cast<uint8_t>(PCPP_TCPOPT_EOL), nullptr, 0);
 		break;
-	case NopEolOptionKind::NOP:
+	case NopEolOptionEnumType::NOP:
 	default:
 		init(static_cast<uint8_t>(PCPP_TCPOPT_NOP), nullptr, 0);
 		break;
@@ -103,12 +104,7 @@ uint16_t TcpLayer::getDstPort() const
 	return be16toh(getTcpHeader()->portDst);
 }
 
-TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
-{
-	return m_OptionReader.getTLVRecord(static_cast<uint8_t>(option), getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
-}
-
-TcpOption TcpLayer::getTcpOption(TcpOptionKind option) const
+TcpOption TcpLayer::getTcpOption(TcpOptionEnumType option) const
 {
 	return m_OptionReader.getTLVRecord(static_cast<uint8_t>(option), getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
@@ -137,11 +133,11 @@ TcpOption TcpLayer::addTcpOption(const TcpOptionBuilder& optionBuilder)
 	return addTcpOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
 }
 
-TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType)
+TcpOption TcpLayer::insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType)
 {
 	int offset = 0;
 
-	if (prevOptionType == TcpOptionType::TCPOPT_Unknown)
+	if (prevOptionType == TcpOptionEnumType::TCPOPT_Unknown)
 	{
 		offset = sizeof(tcphdr);
 	}
@@ -160,63 +156,7 @@ TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, Tcp
 	return addTcpOptionAt(optionBuilder, offset);
 }
 
-TcpOption TcpLayer::insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionKind prevOptionType)
-{
-	int offset = 0;
-
-	if (prevOptionType == TcpOptionKind::TCPOPT_Unknown)
-	{
-		offset = sizeof(tcphdr);
-	}
-	else
-	{
-		TcpOption prevOpt = getTcpOption(prevOptionType);
-		if (prevOpt.isNull())
-		{
-			PCPP_LOG_ERROR("Previous option of type " << static_cast<int>(prevOptionType) << " not found, cannot add a new TCP option");
-			return TcpOption(nullptr);
-		}
-
-		offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
-	}
-
-	return addTcpOptionAt(optionBuilder, offset);
-}
-
-bool TcpLayer::removeTcpOption(TcpOptionType optionType)
-{
-	TcpOption opt = getTcpOption(optionType);
-	if (opt.isNull())
-	{
-		return false;
-	}
-
-	// calculate total TCP option size
-	TcpOption curOpt = getFirstTcpOption();
-	size_t totalOptSize = 0;
-	while (!curOpt.isNull())
-	{
-		totalOptSize += curOpt.getTotalSize();
-		curOpt = getNextTcpOption(curOpt);
-	}
-	totalOptSize -= opt.getTotalSize();
-
-
-	int offset = opt.getRecordBasePtr() - m_Data;
-
-	if (!shortenLayer(offset, opt.getTotalSize()))
-	{
-		return false;
-	}
-
-	adjustTcpOptionTrailer(totalOptSize);
-
-	m_OptionReader.changeTLVRecordCount(-1);
-
-	return true;
-}
-
-bool TcpLayer::removeTcpOption(TcpOptionKind optionType)
+bool TcpLayer::removeTcpOption(TcpOptionEnumType optionType)
 {
 	TcpOption opt = getTcpOption(optionType);
 	if (opt.isNull())
@@ -505,5 +445,73 @@ std::string TcpLayer::toString() const
 
 	return result;
 }
+
+/// ~~~~~~~~
+/// TcpLayer Deprecated Code
+/// ~~~~~~~~
+
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_DEPRECATED
+TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType)
+{
+	int offset = 0;
+
+	if (prevOptionType == TcpOptionType::TCPOPT_Unknown)
+	{
+		offset = sizeof(tcphdr);
+	}
+	else
+	{
+		TcpOption prevOpt = getTcpOption(prevOptionType);
+		if (prevOpt.isNull())
+		{
+			PCPP_LOG_ERROR("Previous option of type " << static_cast<int>(prevOptionType) << " not found, cannot add a new TCP option");
+			return TcpOption(nullptr);
+		}
+
+		offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
+	}
+
+	return addTcpOptionAt(optionBuilder, offset);
+}
+
+TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
+{
+	return m_OptionReader.getTLVRecord(static_cast<uint8_t>(option), getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
+}
+
+bool TcpLayer::removeTcpOption(TcpOptionType optionType)
+{
+	TcpOption opt = getTcpOption(optionType);
+	if (opt.isNull())
+	{
+		return false;
+	}
+
+	// calculate total TCP option size
+	TcpOption curOpt = getFirstTcpOption();
+	size_t totalOptSize = 0;
+	while (!curOpt.isNull())
+	{
+		totalOptSize += curOpt.getTotalSize();
+		curOpt = getNextTcpOption(curOpt);
+	}
+	totalOptSize -= opt.getTotalSize();
+
+
+	int offset = opt.getRecordBasePtr() - m_Data;
+
+	if (!shortenLayer(offset, opt.getTotalSize()))
+	{
+		return false;
+	}
+
+	adjustTcpOptionTrailer(totalOptSize);
+
+	m_OptionReader.changeTLVRecordCount(-1);
+
+	return true;
+}
+DISABLE_WARNING_POP
 
 } // namespace pcpp
