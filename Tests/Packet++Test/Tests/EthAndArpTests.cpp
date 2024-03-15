@@ -119,7 +119,7 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 PTF_TEST_CASE(ArpPacketCreation)
 {
 	pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
-	pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff:");
+	pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
 
 	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address("10.0.0.1"), pcpp::IPv4Address("10.0.0.138"));

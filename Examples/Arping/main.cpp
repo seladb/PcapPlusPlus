@@ -136,7 +136,13 @@ int main(int argc, char* argv[])
 				ifaceNameOrIpProvided = true;
 				break;
 			case 's':
-				sourceMac = pcpp::MacAddress(optarg);
+				try
+				{
+					sourceMac = pcpp::MacAddress(optarg);
+				}
+				catch (std::exception& e) {
+					EXIT_WITH_ERROR("Source MAC address is not valid");
+				}
 				break;
 			case 'S':
 				sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
@@ -195,16 +201,12 @@ int main(int argc, char* argv[])
 	if (!dev->open())
 		EXIT_WITH_ERROR("Couldn't open interface device '" << dev->getName() << "'");
 
-	// verify source MAC is valid
-	if (!sourceMac.isValid())
-		EXIT_WITH_ERROR("Source MAC address is invalid");
-
 	// if source MAC not provided - use the interface MAC address
 	if (sourceMac == pcpp::MacAddress::Zero)
 		sourceMac = dev->getMacAddress();
 
 	// if source MAC is still invalid, it means it couldn't be extracted from interface
-	if (!sourceMac.isValid() || sourceMac == pcpp::MacAddress::Zero)
+	if (sourceMac == pcpp::MacAddress::Zero)
 		EXIT_WITH_ERROR("MAC address couldn't be extracted from interface");
 
 	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
