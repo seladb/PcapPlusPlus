@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "MacAddress.h"
 
@@ -15,32 +14,18 @@ std::string MacAddress::toString() const
 	return std::string(str);
 }
 
-void MacAddress::init(const char* addr)
+MacAddress::MacAddress(const std::string& address)
 {
-	const unsigned int addrLen = sizeof m_Address;
-	unsigned int i = 0;
-
-	for(; *addr != 0 && i < addrLen; ++i)
+	constexpr size_t validMacAddressLength = 17;
+	unsigned int values[6];
+	if (address.size() != validMacAddressLength || sscanf(address.c_str(), "%x:%x:%x:%x:%x:%x", &values[0], &values[1], &values[2], &values[3], &values[4], &values[5]) != 6)
 	{
-		char byte[3];
-		memset(byte, 0, sizeof byte);
-		byte[0] = *addr++;
-		if(*addr == '\0') break;
-		byte[1] = *addr++;
-		if(*addr != '\0') // holds the ":" char or end of string
-			++addr; // ignore the ":" char
-		m_Address[i] = static_cast<uint8_t>(strtol(byte, nullptr, 16));
-
-		// The strtol function returns zero value in two cases: when an error occurs or the string '00' is converted.
-		// This code verifies that it's the second case.
-		if(m_Address[i] == 0 && (byte[0] != '0' || byte[1] != '0'))
-		{
-			m_IsValid = false;
-			return;
-		}
+		throw std::invalid_argument("Invalid MAC address format, should be xx:xx:xx:xx:xx:xx");
 	}
-
-	m_IsValid = (i == addrLen && *addr == '\0');
+	for (int i = 0; i < 6; ++i)
+	{
+		m_Address[i] = values[i];
+	}
 }
 
 } // namespace pcpp

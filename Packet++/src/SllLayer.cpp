@@ -44,12 +44,6 @@ bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
 
 bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
 {
-	if (!macAddr.isValid())
-	{
-		PCPP_LOG_ERROR("MAC address is not valid");
-		return false;
-	}
-
 	uint8_t macAddrAsArr[6];
 	macAddr.copyTo(macAddrAsArr);
 	return setLinkLayerAddr(macAddrAsArr, 6);

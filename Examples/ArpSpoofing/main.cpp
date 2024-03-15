@@ -91,7 +91,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	if (!pDevice->setFilter(arpFilter))
 	{
 		std::cerr << "Could not set ARP filter on device" << std::endl;
-		return pcpp::MacAddress("");
+		return pcpp::MacAddress::Zero;
 	}
 
 	//send the arp request and wait for arp reply
@@ -104,7 +104,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	if (capturedPackets.size() < 1)
 	{
 		std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << std::endl;
-		return pcpp::MacAddress("");
+		return pcpp::MacAddress::Zero;
 	}
 
 	//parse arp reply and extract the MAC address
@@ -114,25 +114,34 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 		return arpReply.getLayerOfType<pcpp::ArpLayer>()->getSenderMacAddress();
 	}
 	std::cerr << "No arp reply was captured. Couldn't retrieve MAC address for IP " << ipAddr << std::endl;
-	return pcpp::MacAddress("");
+	return pcpp::MacAddress::Zero;
 }
 
 
 void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatewayAddr, const pcpp::IPv4Address& victimAddr)
 {
+	pcpp::MacAddress gatewayMacAddr;
+
 	// Get the gateway MAC address
-	pcpp::MacAddress gatewayMacAddr = getMacAddress(gatewayAddr, pDevice);
-	if (!gatewayMacAddr.isValid())
+	try
 	{
-		EXIT_WITH_ERROR("Failed to find gateway MAC address");
+		gatewayMacAddr = getMacAddress(gatewayAddr, pDevice);
+	}
+	catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Failed to find gateway MAC address: " << e.what());
 	}
 	std::cout << "Got gateway MAC address: " << gatewayMacAddr << std::endl;
 
 	// Get the victim MAC address
-	pcpp::MacAddress victimMacAddr = getMacAddress(victimAddr, pDevice);
-	if (!victimMacAddr.isValid())
+	pcpp::MacAddress victimMacAddr;
+	try
 	{
-		EXIT_WITH_ERROR("Failed to find victim MAC address");
+		victimMacAddr = getMacAddress(victimAddr, pDevice);
+	}
+	catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Failed to find victim MAC address: " << e.what());
 	}
 	std::cout << "Got victim MAC address: " << victimMacAddr << std::endl;
 
