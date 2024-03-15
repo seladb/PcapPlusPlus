@@ -290,7 +290,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	}
 
 	// verify num of RX queues is power of 2 for virtual devices
-	if (isVirtal()) {
+	if (isVirtual()) {
 		bool isRxQueuePowerOfTwo = !(numOfRxQueues == 0) && !(numOfRxQueues & (numOfRxQueues - 1));
 		if (!isRxQueuePowerOfTwo)
 		{
