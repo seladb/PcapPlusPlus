@@ -3,13 +3,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <string>
-
-#if __cplusplus > 199711L || _MSC_VER >= 1800
 #include <initializer_list>
 #include <algorithm>
 #include <iterator>
 #include <ostream>
-#endif
 
 /// @file
 
