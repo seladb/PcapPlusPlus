@@ -49,11 +49,11 @@ namespace pcpp
 #ifdef USE_DPDK_KNI
 		friend class KniDevice;
 #endif
-		static const int MBUF_DATA_SIZE;
 
 	protected:
 		struct rte_mbuf* m_MBuf;
 		struct rte_mempool* m_Mempool;
+		int m_MbufDataSize;
 		bool m_FreeMbuf;
 
 		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp);

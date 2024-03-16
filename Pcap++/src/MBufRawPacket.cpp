@@ -22,10 +22,6 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#ifndef MBUF_DATA_SIZE_DEFINE
-#	define MBUF_DATA_SIZE_DEFINE RTE_MBUF_DEFAULT_DATAROOM
-#endif
-
 namespace pcpp
 {
 
@@ -34,8 +30,6 @@ namespace pcpp
  * Class MBufRawPacket
  * ===================
  */
-
-const int MBufRawPacket::MBUF_DATA_SIZE = MBUF_DATA_SIZE_DEFINE;
 
 MBufRawPacket::~MBufRawPacket()
 {
@@ -72,6 +66,7 @@ bool MBufRawPacket::init(struct rte_mempool* mempool)
 
 bool MBufRawPacket::init(DpdkDevice* device)
 {
+	m_MbufDataSize = device->m_MbufDataSize;
 	return init(device->m_MBufMempool);
 }
 
@@ -124,6 +119,7 @@ MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	m_RawPacketSet = false;
 	m_RawData = NULL;
 	m_Mempool = other.m_Mempool;
+	m_MbufDataSize = other.m_MbufDataSize;
 
 	rte_mbuf* newMbuf = rte_pktmbuf_alloc(m_Mempool);
 	if (newMbuf == NULL)
@@ -181,9 +177,9 @@ MBufRawPacket& MBufRawPacket::operator=(const MBufRawPacket& other)
 
 bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType, int frameLength)
 {
-	if (rawDataLen > MBUF_DATA_SIZE)
+	if (rawDataLen > m_MbufDataSize)
 	{
-		PCPP_LOG_ERROR("Cannot set raw data which length is larger than mBuf max size. mBuf max length: " << MBUF_DATA_SIZE << "; requested length: " << rawDataLen);
+		PCPP_LOG_ERROR("Cannot set raw data which length is larger than mBuf max size. mBuf max length: " << m_MbufDataSize << "; requested length: " << rawDataLen);
 		return false;
 	}
 
@@ -310,9 +306,9 @@ bool MBufRawPacket::reallocateData(size_t newBufferLength)
 		return false;
 	}
 
-	if (newBufferLength > MBUF_DATA_SIZE)
+	if ((int)newBufferLength > m_MbufDataSize)
 	{
-		PCPP_LOG_ERROR("Cannot reallocate mBuf raw packet to a size larger than mBuf data. mBuf max length: " << MBUF_DATA_SIZE << "; requested length: " << newBufferLength);
+		PCPP_LOG_ERROR("Cannot reallocate mBuf raw packet to a size larger than mBuf data. mBuf max length: " << m_MbufDataSize << "; requested length: " << newBufferLength);
 		return false;
 	}
 
