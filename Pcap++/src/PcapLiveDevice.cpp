@@ -1048,7 +1048,15 @@ void PcapLiveDevice::setDefaultGateway()
 	// erase string after gateway IP address
 	ifaceInfo.resize(ifaceInfo.find(' ', 0));
 
-	m_DefaultGateway = IPv4Address(ifaceInfo);
+	try
+	{
+		m_DefaultGateway = IPv4Address(ifaceInfo);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
+		m_DefaultGateway = IPv4Address::Zero;
+	}
 #endif
 }
 
