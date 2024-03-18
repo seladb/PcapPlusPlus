@@ -66,7 +66,7 @@ namespace pcpp
 		 * an mbuf the user should call the init() method. Without calling init() the instance of this class is not usable.
 		 * This c'tor can be used for initializing an array of MBufRawPacket (which requires an empty c'tor)
 		 */
-		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
+		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_MbufDataSize(0), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
 
 		/**
 		 * A d'tor for this class. Once called it frees the mbuf attached to it (returning it back to the mbuf pool it was allocated from)
