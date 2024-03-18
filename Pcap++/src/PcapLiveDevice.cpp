@@ -74,7 +74,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
-	IPcapDevice(), m_PcapSelectableFd(-1), m_MacAddress(""), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+	IPcapDevice(), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -128,8 +128,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 	if (calculateMacAddress)
 	{
 		setDeviceMacAddress();
-		if (m_MacAddress.isValid())
-			PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
+		PCPP_LOG_DEBUG("   MAC addr: " << m_MacAddress);
 	}
 }
 

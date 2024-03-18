@@ -353,7 +353,7 @@ namespace pcpp
 		 * @param[in] mac New MAC address of KNI device
 		 * @return true if desired MAC address is set, false if not and some error occurred (debug info is printed)
 		 */
-		bool setMacAddress(MacAddress mac);
+		bool setMacAddress(const MacAddress& mac);
 		/**
 		 * @brief Sets MTU of KNI device.
 		 * Unconditionally changes MTU of KNI device.
