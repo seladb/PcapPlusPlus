@@ -244,7 +244,7 @@ namespace pcpp
 		IPv4Address	networkPrefix;
 		try
 		{
-			networkPrefix = std::move(IPv4Address(networkPrefixStr));
+			networkPrefix = IPv4Address(networkPrefixStr);
 		}
 		catch (const std::invalid_argument& e) {
 			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix: " + std::string(e.what()));
@@ -446,7 +446,7 @@ namespace pcpp
 		IPv6Address	networkPrefix;
 		try
 		{
-			networkPrefix = std::move(IPv6Address(networkPrefixStr));
+			networkPrefix = IPv6Address(networkPrefixStr);
 		} catch (const std::invalid_argument& e)
 		{
 			throw std::invalid_argument("The input doesn't contain a valid IPv6 network prefix: " + std::string(e.what()));

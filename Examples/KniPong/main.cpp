@@ -180,7 +180,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	pcpp::IPv4Address outIp;
 	try
 	{
-		pcpp::IPv4Address kniIp = std::move(pcpp::IPv4Address(args.kniIp));
+		kniIp = std::move(pcpp::IPv4Address(args.kniIp));
 	}
 	catch (const std::exception& e)
 	{
@@ -188,7 +188,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	}
 	try
 	{
-		pcpp::IPv4Address outIp = std::move(pcpp::IPv4Address(args.outIp));
+		outIp = std::move(pcpp::IPv4Address(args.outIp));
 	}
 	catch (const std::exception& e)
 	{

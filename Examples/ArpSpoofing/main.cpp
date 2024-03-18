@@ -235,21 +235,24 @@ int main(int argc, char* argv[])
 	try
 	{
 		ifaceAddr = std::move(pcpp::IPv4Address(iface));
-	} catch (std::exception& e)
+	}
+	catch (const std::exception&)
 	{
 		EXIT_WITH_ERROR("Interface address is not valid");
 	}
 	try
 	{
 		victimAddr = std::move(pcpp::IPv4Address(victim));
-	} catch (std::exception& e)
+	}
+	catch (const std::exception&)
 	{
 		EXIT_WITH_ERROR("Victim address is not valid");
 	}
 	try
 	{
 		gatewayAddr = std::move(pcpp::IPv4Address(gateway));
-	} catch (std::exception& e)
+	}
+	catch (const std::exception&)
 	{
 		EXIT_WITH_ERROR("Gateway address is not valid");
 	}

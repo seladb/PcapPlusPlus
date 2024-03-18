@@ -159,7 +159,7 @@ void PcapLiveDeviceList::setDnsServers()
 		IPv4Address dnsIPAddr;
 		try
 		{
-			dnsIPAddr = std::move(IPv4Address(dnsIP));
+			dnsIPAddr = IPv4Address(dnsIP);
 		}
 		catch(const std::exception& e)
 		{
