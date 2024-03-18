@@ -220,7 +220,15 @@ namespace pcpp
 
 	IPv4Network::IPv4Network(const IPv4Address& address, const std::string& netmask)
 	{
-		IPv4Address netmaskAddr(netmask);
+		IPv4Address netmaskAddr;
+		try
+		{
+			netmaskAddr = IPv4Address(netmask);
+		}
+		catch(const std::exception&)
+		{
+			throw std::invalid_argument("netmask is not valid");
+		}
 		if (!isValidNetmask(netmaskAddr))
 		{
 			throw std::invalid_argument("netmask is not valid");
@@ -422,7 +430,15 @@ namespace pcpp
 
 	IPv6Network::IPv6Network(const IPv6Address &address, const std::string &netmask)
 	{
-		IPv6Address netmaskAddr(netmask);
+		IPv6Address netmaskAddr;
+		try
+		{
+			netmaskAddr = IPv6Address(netmask);
+		}
+		catch(const std::exception&)
+		{
+			throw std::invalid_argument("netmask is not valid");
+		}
 		if (!isValidNetmask(netmaskAddr))
 		{
 			throw std::invalid_argument("netmask is not valid");
