@@ -766,7 +766,7 @@ PTF_TEST_CASE(TestMtuSize)
 	// Construct a packet within the MTU and assert that it should send
 	// Source and destination addresses are somewhat arbitrary. Only important thing is that the packet is valid
 	pcpp::EthLayer smallEthernetLayer(liveDev->getMacAddress(), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
-	
+
 	pcpp::IPv4Address remoteIpAddress;
 	try
 	{

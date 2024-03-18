@@ -394,7 +394,7 @@ int main(int argc, char* argv[])
 				break;
 			}
 			case 'i':
-			{	
+			{
 				try
 				{
 					srcIPToMatch = std::move(pcpp::IPv4Address(optarg));

@@ -320,7 +320,7 @@ PTF_TEST_CASE(TestGetMacAddress)
 		}
 		catch (std::exception& e)
 		{
-			continue;	
+			continue;
 		}
 
 		if (ipAddr == liveDev->getIPv4Address())

@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
 				}
 				catch(const std::exception& e)
 				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");	
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
 				}
 				break;
 			}
@@ -325,7 +325,7 @@ int main(int argc, char* argv[])
 				}
 				catch(const std::exception& e)
 				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");	
+					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
 				}
 				break;
 			}

@@ -338,7 +338,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer(), firstAnswer, ptr);
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getNextAnswer(firstAnswer), secondAnswer, ptr);
 
-	PTF_ASSERT_RAISES(pcpp::IPv4DnsResourceData(std::string("256.249.90.238")), std::invalid_argument, "Not a valid IPv4 address"); 
+	PTF_ASSERT_RAISES(pcpp::IPv4DnsResourceData(std::string("256.249.90.238")), std::invalid_argument, "Not a valid IPv4 address");
 
 	pcpp::DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
