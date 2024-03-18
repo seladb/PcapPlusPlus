@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
 			{
 				try
 				{
-					srcIPToMatch = std::move(pcpp::IPv4Address(optarg));
+					srcIPToMatch = pcpp::IPv4Address(optarg);
 				}
 				catch(const std::exception& e)
 				{
@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
 			{
 				try
 				{
-					dstIPToMatch = std::move(pcpp::IPv4Address(optarg));
+					dstIPToMatch = pcpp::IPv4Address(optarg);
 				}
 				catch(const std::exception& e)
 				{

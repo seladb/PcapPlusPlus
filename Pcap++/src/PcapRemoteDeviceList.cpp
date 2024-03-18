@@ -72,7 +72,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& i
 
 	try
 	{
-		ipAddr = std::move(IPAddress(ipAddrAsString));
+		ipAddr = IPAddress(ipAddrAsString);
 	}
 	catch (std::exception& e)
 	{

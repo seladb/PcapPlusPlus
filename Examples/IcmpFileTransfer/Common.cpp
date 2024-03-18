@@ -171,7 +171,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	pcpp::IPv4Address interfaceIP;
 	try
 	{
-		interfaceIP = std::move(pcpp::IPv4Address(interfaceNameOrIP));
+		interfaceIP = pcpp::IPv4Address(interfaceNameOrIP);
 		myIP = interfaceIP;
 	}
 	catch(const std::exception& e)
@@ -190,7 +190,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	pcpp::IPv4Address tempIP;
 	try
 	{
-		tempIP = std::move(pcpp::IPv4Address(otherSideIPAsString));
+		tempIP = pcpp::IPv4Address(otherSideIPAsString);
 	}
 	catch(const std::exception& e)
 	{

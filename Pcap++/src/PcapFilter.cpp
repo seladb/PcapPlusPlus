@@ -178,7 +178,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	IPv4Address maskAsAddr;
 	try
 	{
-		maskAsAddr = IPv4Address(m_IPv4Mask));
+		maskAsAddr = IPv4Address(m_IPv4Mask);
 	}
 	catch(const std::exception& e)
 	{
@@ -206,7 +206,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 	IPAddress ipAddr;
 	try
 	{
-		ipAddr = std::move(IPAddress(ipAddrmodified));
+		ipAddr = IPAddress(ipAddrmodified);
 	}
 	catch(const std::exception& e)
 	{

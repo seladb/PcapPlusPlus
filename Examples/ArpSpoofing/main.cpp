@@ -234,7 +234,7 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		ifaceAddr = std::move(pcpp::IPv4Address(iface));
+		ifaceAddr = pcpp::IPv4Address(iface);
 	}
 	catch (const std::exception&)
 	{
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-		victimAddr = std::move(pcpp::IPv4Address(victim));
+		victimAddr = pcpp::IPv4Address(victim);
 	}
 	catch (const std::exception&)
 	{
@@ -250,7 +250,7 @@ int main(int argc, char* argv[])
 	}
 	try
 	{
-		gatewayAddr = std::move(pcpp::IPv4Address(gateway));
+		gatewayAddr = pcpp::IPv4Address(gateway);
 	}
 	catch (const std::exception&)
 	{

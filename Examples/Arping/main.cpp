@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 			case 's':
 				try
 				{
-					sourceMac = std::move(pcpp::MacAddress(optarg));
+					sourceMac = pcpp::MacAddress(optarg);
 				}
 				catch (std::exception& e) {
 					EXIT_WITH_ERROR("Source MAC address is not valid");
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 			case 'S':
 				try
 				{
-					sourceIP = std::move(pcpp::IPv4Address(static_cast<char const *>(optarg)));
+					sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				}
 				catch(const std::exception& e)
 				{
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 			case 'T':
 				try
 				{
-					targetIP = std::move(pcpp::IPv4Address(static_cast<char const *>(optarg)));
+					targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				}
 				catch(const std::exception& e)
 				{
