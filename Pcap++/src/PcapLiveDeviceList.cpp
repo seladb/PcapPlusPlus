@@ -85,11 +85,11 @@ void PcapLiveDeviceList::setDnsServers()
 		fixedInfo = (FIXED_INFO *)buf2;
 	}
 
-	int dnsServerCounter = 0;
 	if ((dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen )) != 0)
 		PCPP_LOG_ERROR("Call to GetNetworkParams failed. Return Value: " << std::hex << dwRetVal);
 	else
 	{
+		int dnsServerCounter = 0;
 		try
 		{
 			m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
