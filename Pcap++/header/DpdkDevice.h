@@ -804,7 +804,7 @@ namespace pcpp
 		int m_Id;
 		MacAddress m_MacAddress;
 		uint16_t m_DeviceMtu;
-		uint16_t m_MbufDataSize;
+		uint16_t m_MBufDataSize;
 		struct rte_mempool* m_MBufMempool;
 		struct rte_eth_dev_tx_buffer** m_TxBuffers;
 		uint64_t m_TxBufferDrainTsc;

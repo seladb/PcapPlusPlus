@@ -66,7 +66,7 @@ bool MBufRawPacket::init(struct rte_mempool* mempool)
 
 bool MBufRawPacket::init(DpdkDevice* device)
 {
-	m_MbufDataSize = device->m_MbufDataSize;
+	m_MbufDataSize = device->m_MBufDataSize;
 	return init(device->m_MBufMempool);
 }
 

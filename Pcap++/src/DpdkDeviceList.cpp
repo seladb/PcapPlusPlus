@@ -73,7 +73,7 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mMbufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
 {
 	char **initDpdkArgvBuffer;
 
@@ -159,12 +159,12 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	m_IsDpdkInitialized = true;
 
 	m_MBufPoolSizePerDevice = mBufPoolSizePerDevice;
-	m_MBufDataSize = mMbufDataSize;
+	m_MBufDataSize = mBufDataSize;
 	DpdkDeviceList::getInstance().setDpdkLogLevel(Logger::Info);
 	return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice, m_MBufDataSize);
 }
 
-bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mMbufDataSize)
+bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize)
 {
 	if (!m_IsDpdkInitialized)
 	{
@@ -192,7 +192,7 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mM
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
-		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice, mMbufDataSize);
+		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize);
 		PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 		m_DpdkDeviceList.push_back(newDevice);
 	}
