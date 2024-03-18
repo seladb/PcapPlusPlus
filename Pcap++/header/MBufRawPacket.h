@@ -53,7 +53,7 @@ namespace pcpp
 	protected:
 		struct rte_mbuf* m_MBuf;
 		struct rte_mempool* m_Mempool;
-		int m_MbufDataSize;
+		uint16_t m_MbufDataSize;
 		bool m_FreeMbuf;
 
 		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp);

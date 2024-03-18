@@ -113,8 +113,8 @@ uint8_t DpdkDevice::m_RSSKey[40] = {
 		0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A,
 	};
 
-DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, int32_t mMbufDataSize)
-	: m_Id(port), m_MacAddress(MacAddress::Zero), m_MbufDataSize(mMbufDataSize == -1 ? RTE_MBUF_DEFAULT_BUF_SIZE : mMbufDataSize)
+DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mMbufDataSize)
+	: m_Id(port), m_MacAddress(MacAddress::Zero), m_MbufDataSize(mMbufDataSize < 1 ? RTE_MBUF_DEFAULT_BUF_SIZE : mMbufDataSize)
 {
 	std::ostringstream deviceNameStream;
 	deviceNameStream << "DPDK_" << m_Id;

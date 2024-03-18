@@ -76,6 +76,7 @@ namespace pcpp
 		bool m_IsInitialized;
 		static bool m_IsDpdkInitialized;
 		static uint32_t m_MBufPoolSizePerDevice;
+		static uint16_t m_MBufDataSize;
 		static CoreMask m_CoreMask;
 		std::vector<DpdkDevice*> m_DpdkDeviceList;
 		std::vector<DpdkWorkerThread*> m_WorkerThreads;
@@ -83,7 +84,7 @@ namespace pcpp
 		DpdkDeviceList();
 
 		bool isInitialized() const { return (m_IsInitialized && m_IsDpdkInitialized); }
-		bool initDpdkDevices(uint32_t mBufPoolSizePerDevice);
+		bool initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mMbufDataSize);
 		static bool verifyHugePagesAndDpdkDriver();
 
 		static int dpdkWorkerThreadStart(void* ptr);
@@ -100,7 +101,7 @@ namespace pcpp
 		{
 			static DpdkDeviceList instance;
 			if (!instance.isInitialized())
-				instance.initDpdkDevices(DpdkDeviceList::m_MBufPoolSizePerDevice);
+				instance.initDpdkDevices(DpdkDeviceList::m_MBufPoolSizePerDevice,DpdkDeviceList::m_MBufDataSize);
 
 			return instance;
 		}
@@ -128,7 +129,7 @@ namespace pcpp
 		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
+		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mMbufDataSize = 0, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
 
 		/**
 		 * Get a DpdkDevice by port ID

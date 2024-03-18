@@ -773,13 +773,7 @@ namespace pcpp
 			DpdkCoreConfiguration() : RxQueueId(-1), IsCoreInUse(false) {}
 		};
 
-		/**
-		 * Initialize DPDK device
-		 * @param[in] port RSS hash functions mask to check. This mask should be built from values in DpdkRssHashFunction enum
-		 * @param[in] mBufPoolSize The number of elements in the mbuf pool. The optimum size (in terms of memory usage) for a mempool is when n is a power of two minus one: n = (2^q - 1).
-		 * @param[in] mMbufDataSize Size of data buffer in each mbuf. When the default value is -1, we will take the value RTE_MBUF_DEFAULT_BUF_SIZE
-		 */
-		DpdkDevice(int port, uint32_t mBufPoolSize, int32_t mMbufDataSize = -1);
+		DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mMbufDataSize);
 		bool initMemPool(struct rte_mempool*& memPool, const char* mempoolName, uint32_t mBufPoolSize);
 
 		bool configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues);
@@ -810,7 +804,7 @@ namespace pcpp
 		int m_Id;
 		MacAddress m_MacAddress;
 		uint16_t m_DeviceMtu;
-		int32_t m_MbufDataSize;
+		uint16_t m_MbufDataSize;
 		struct rte_mempool* m_MBufMempool;
 		struct rte_eth_dev_tx_buffer** m_TxBuffers;
 		uint64_t m_TxBufferDrainTsc;
