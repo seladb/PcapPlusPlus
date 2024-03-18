@@ -163,18 +163,26 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	// The following code lines verify both ipAddress and ipv4Mask are valid IPv4 addresses
 	// The IPv4 limitation comes from the fact libPcap/WinPcap/Npcap doesn't support mask for IPv6 addresses
 
-	IPv4Address ipAddr(m_Address);
-	if (!ipAddr.isValid())
+	IPv4Address ipAddr;
+	try
 	{
-		PCPP_LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
+		ipAddr = std::move(IPv4Address(m_Address));
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Invalid IP address '" << m_Address << "', setting the mask to an empty value");
 		mask.clear();
 		return;
 	}
 
-	IPv4Address maskAsAddr(m_IPv4Mask);
-	if (!maskAsAddr.isValid())
+	IPv4Address maskAsAddr;
+	try
 	{
-		PCPP_LOG_ERROR("Invalid IPv4 mask. Setting the mask to an empty");
+		maskAsAddr = std::move(IPv4Address(m_IPv4Mask));
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Invalid IPv4 mask '" << m_IPv4Mask << "', setting the mask to an empty value");
 		mask.clear();
 		return;
 	}
@@ -195,8 +203,12 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 
 	// The following code lines verify IP address is valid (IPv4 or IPv6)
 
-	IPAddress ipAddr = IPAddress(ipAddrmodified);
-	if (!ipAddr.isValid())
+	IPAddress ipAddr;
+	try
+	{
+		ipAddr = std::move(IPAddress(ipAddrmodified));
+	}
+	catch(const std::exception& e)
 	{
 		PCPP_LOG_ERROR("Invalid IP address '" << ipAddrmodified << "', setting len to zero");
 		return;

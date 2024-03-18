@@ -168,8 +168,13 @@ void readCommandLineArguments(int argc, char* argv[],
 	if (interfaceNameOrIP.empty())
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide " << thisSide << " interface name or IP");
 
-	pcpp::IPv4Address interfaceIP(interfaceNameOrIP);
-	if (!interfaceIP.isValid())
+	pcpp::IPv4Address interfaceIP;
+	try
+	{
+		interfaceIP = std::move(pcpp::IPv4Address(interfaceNameOrIP));
+		myIP = interfaceIP;
+	}
+	catch(const std::exception& e)
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == nullptr)
@@ -177,16 +182,20 @@ void readCommandLineArguments(int argc, char* argv[],
 
 		myIP = dev->getIPv4Address();
 	}
-	else
-		myIP = interfaceIP;
 
 	// validate pitcher/catcher IP address
 	if (otherSideIPAsString.empty())
 		EXIT_WITH_ERROR_PRINT_USAGE("Please provide " << otherSide << " IP address");
 
-	pcpp::IPv4Address tempIP = pcpp::IPv4Address(otherSideIPAsString);
-	if (!tempIP.isValid())
+	pcpp::IPv4Address tempIP;
+	try
+	{
+		tempIP = std::move(pcpp::IPv4Address(otherSideIPAsString));
+	}
+	catch(const std::exception& e)
+	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Invalid " << otherSide << " IP address");
+	}
 	otherSideIP = tempIP;
 
 	// verify only one of sender and receiver switches are set

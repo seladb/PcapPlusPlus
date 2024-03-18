@@ -21,7 +21,6 @@ extern PcapTestArgs PcapTestGlobalArgs;
 PTF_TEST_CASE(TestIPAddress)
 {
 	pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
-	PTF_ASSERT_TRUE(ip4Addr.isValid());
 	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
 	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4");
 	{
@@ -38,7 +37,6 @@ PTF_TEST_CASE(TestIPAddress)
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004));
 	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
 	secondIPv4Address = ip4AddrFromIpAddr;
-	PTF_ASSERT_TRUE(secondIPv4Address.isValid());
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
 	// networks
@@ -64,15 +62,11 @@ PTF_TEST_CASE(TestIPAddress)
 	}
 	pcpp::Logger::getInstance().enableLogs();
 
-
-	pcpp::IPv4Address badAddress(std::string("sdgdfgd"));
-	PTF_ASSERT_FALSE(badAddress.isValid());
-	pcpp::IPv4Address anotherBadAddress = pcpp::IPv4Address(std::string("321.123.1000.1"));
-	PTF_ASSERT_FALSE(anotherBadAddress.isValid());
+	PTF_ASSERT_RAISES(pcpp::IPv4Address("invalid"), std::invalid_argument, "Not a valid IPv4 address");
+	PTF_ASSERT_RAISES(pcpp::IPv4Address("321.123.1000.1"), std::invalid_argument, "Not a valid IPv4 address");
 
 	std::string ip6AddrString("2607:f0d0:1002:51::4");
 	pcpp::IPAddress ip6Addr = pcpp::IPAddress(ip6AddrString);
-	PTF_ASSERT_TRUE(ip6Addr.isValid());
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
 	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
 	{
@@ -95,7 +89,6 @@ PTF_TEST_CASE(TestIPAddress)
 	}
 
 	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
-	PTF_ASSERT_TRUE(ip6Addr.isValid());
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
 	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
 	pcpp::IPv6Address secondIPv6Address(std::string("2607:f0d0:1002:52::5"));
@@ -103,11 +96,8 @@ PTF_TEST_CASE(TestIPAddress)
 	secondIPv6Address = ip6AddrFromIpAddr;
 	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr, secondIPv6Address);
 
-	char badIp6AddressStr[] = "lasdfklsdkfdls";
-	pcpp::IPv6Address badIp6Address(badIp6AddressStr);
-	PTF_ASSERT_FALSE(badIp6Address.isValid());
-	pcpp::IPv6Address anotherBadIp6Address = badIp6Address;
-	PTF_ASSERT_FALSE(anotherBadIp6Address.isValid());
+	PTF_ASSERT_RAISES(pcpp::IPv6Address("invalid"), std::invalid_argument, "Not a valid IPv6 address");
+	PTF_ASSERT_RAISES(pcpp::IPv6Address("zzzz:2222:1002:0051:0000:0000:0000:0004"), std::invalid_argument, "Not a valid IPv6 address");
 
 	// networks
 	pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff::0004");
@@ -323,9 +313,15 @@ PTF_TEST_CASE(TestGetMacAddress)
 	bool foundValidIpAddr = false;
 	while (std::getline(sstream, ip, '\n'))
 	{
-		pcpp::IPv4Address ipAddr(ip);
-		if (!ipAddr.isValid())
-			continue;
+		pcpp::IPv4Address ipAddr;
+		try
+		{
+			ipAddr = std::move(pcpp::IPv4Address(ip));
+		}
+		catch (std::exception& e)
+		{
+			continue;	
+		}
 
 		if (ipAddr == liveDev->getIPv4Address())
 			continue;

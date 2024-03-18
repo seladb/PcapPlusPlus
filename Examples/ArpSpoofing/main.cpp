@@ -228,9 +228,31 @@ int main(int argc, char* argv[])
 	}
 
 	//Currently supports only IPv4 addresses
-	pcpp::IPv4Address ifaceAddr(iface);
-	pcpp::IPv4Address victimAddr(victim);
-	pcpp::IPv4Address gatewayAddr(gateway);
+	pcpp::IPv4Address ifaceAddr;
+	pcpp::IPv4Address victimAddr;
+	pcpp::IPv4Address gatewayAddr;
+
+	try
+	{
+		ifaceAddr = std::move(pcpp::IPv4Address(iface));
+	} catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Interface address is not valid");
+	}
+	try
+	{
+		victimAddr = std::move(pcpp::IPv4Address(victim));
+	} catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Victim address is not valid");
+	}
+	try
+	{
+		gatewayAddr = std::move(pcpp::IPv4Address(gateway));
+	} catch (std::exception& e)
+	{
+		EXIT_WITH_ERROR("Gateway address is not valid");
+	}
 
 	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
 
@@ -238,16 +260,6 @@ int main(int argc, char* argv[])
 	if (pIfaceDevice == nullptr)
 	{
 		EXIT_WITH_ERROR("Cannot find interface");
-	}
-
-	if (!victimAddr.isValid())
-	{
-		EXIT_WITH_ERROR("Victim address is not valid");
-	}
-
-	if (!gatewayAddr.isValid())
-	{
-		EXIT_WITH_ERROR("Gateway address is not valid");
 	}
 
 	//Opening interface device

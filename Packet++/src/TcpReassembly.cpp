@@ -72,7 +72,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		return NonIpPacket;
 
 	// in real traffic the IP addresses cannot be an unspecified
-	if (!srcIP.isValid() || !dstIP.isValid())
+	if (srcIP.isZero() || dstIP.isZero())
 		return NonIpPacket;
 
 

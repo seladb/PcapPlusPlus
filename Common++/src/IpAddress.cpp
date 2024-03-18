@@ -52,7 +52,9 @@ namespace pcpp
 	IPv4Address::IPv4Address(const std::string& addrAsString)
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
-			memset(m_Bytes, 0, sizeof(m_Bytes));
+		{
+			throw std::invalid_argument("Not a valid IPv4 address");
+		}
 	}
 
 
@@ -67,36 +69,6 @@ namespace pcpp
 		try
 		{
 			auto ipv4Network = IPv4Network(network);
-			return ipv4Network.includes(*this);
-		}
-		catch (const std::invalid_argument& e)
-		{
-			PCPP_LOG_ERROR(e.what());
-			return false;
-		}
-	}
-
-
-	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const
-	{
-		try
-		{
-			auto ipv4Network = IPv4Network(subnet, subnetMask);
-			return ipv4Network.includes(*this);
-		}
-		catch (const std::invalid_argument& e)
-		{
-			PCPP_LOG_ERROR(e.what());
-			return false;
-		}
-	}
-
-
-	bool IPv4Address::matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const
-	{
-		try
-		{
-			auto ipv4Network = IPv4Network(subnet, subnetMask.toString());
 			return ipv4Network.includes(*this);
 		}
 		catch (const std::invalid_argument& e)
@@ -132,7 +104,9 @@ namespace pcpp
 	IPv6Address::IPv6Address(const std::string& addrAsString)
 	{
 		if(inet_pton(AF_INET6, addrAsString.data(), m_Bytes) <= 0)
-			memset(m_Bytes, 0, sizeof(m_Bytes));
+		{
+			throw std::invalid_argument("Not a valid IPv6 address");
+		}
 	}
 
 
@@ -166,32 +140,28 @@ namespace pcpp
 	}
 
 
-	bool IPv6Address::matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const
-	{
-		try
-		{
-			auto ipv6Network = IPv6Network(subnet, prefixLength);
-			return ipv6Network.includes(*this);
-		}
-		catch (const std::invalid_argument& e)
-		{
-			PCPP_LOG_ERROR(e.what());
-			return false;
-		}
-	}
-
-
 	// ~~~~~~~~~
 	// IPAddress
 	// ~~~~~~~~~
 
 
-	IPAddress::IPAddress(const std::string& addrAsString) : m_Type(IPv6AddressType), m_IPv6(addrAsString)
+	IPAddress::IPAddress(const std::string& addrAsString)
 	{
-		if (!m_IPv6.isValid()) // not IPv6
+		struct sockaddr_in sa_in;
+		struct sockaddr_in6 sa_in6;
+		if (inet_pton(AF_INET, addrAsString.data(), &(sa_in.sin_addr)) > 0)
 		{
 			m_Type = IPv4AddressType;
 			m_IPv4 = IPv4Address(addrAsString);
+		}
+		else if (inet_pton(AF_INET6, addrAsString.data(), &(sa_in6.sin6_addr)) > 0)
+		{
+			m_Type = IPv6AddressType;
+			m_IPv6 = IPv6Address(addrAsString);
+		}
+		else
+		{
+			throw std::invalid_argument("Not a valid IP address");
 		}
 	}
 
@@ -201,20 +171,14 @@ namespace pcpp
 	// ~~~~~~~~~~~
 
 
-	bool IPv4Network::isValidNetmask(const std::string& netmask)
+	bool IPv4Network::isValidNetmask(const IPv4Address&	maskAddress)
 	{
-		if (netmask == "0.0.0.0")
+		if (maskAddress == IPv4Address::Zero)
 		{
 			return true;
 		}
 
-		auto mask = IPv4Address(netmask);
-		if (!mask.isValid())
-		{
-			return false;
-		}
-
-		uint32_t maskAsInt = be32toh(mask.toInt());
+		uint32_t maskAsInt = be32toh(maskAddress.toInt());
 		std::bitset<32> bitset(maskAsInt);
 		auto bitsetCount = bitset.count();
 
@@ -236,21 +200,15 @@ namespace pcpp
 	}
 
 
-	void IPv4Network::initFromAddressAndNetmask(const IPv4Address& address, const std::string& netmask)
+	void IPv4Network::initFromAddressAndNetmask(const IPv4Address& address, const IPv4Address& netmaskAddress)
 	{
-		IPv4Address netmaskAddr(netmask);
-		m_Mask = netmaskAddr.toInt();
+		m_Mask = netmaskAddress.toInt();
 		m_NetworkPrefix = address.toInt() & m_Mask;
 	}
 
 
 	IPv4Network::IPv4Network(const IPv4Address& address, uint8_t prefixLen)
 	{
-		if (!address.isValid())
-		{
-			throw std::invalid_argument("address is not a valid IPv4 address");
-		}
-
 		if (prefixLen > 32)
 		{
 			throw std::invalid_argument("prefixLen must be an integer between 0 and 32");
@@ -262,17 +220,12 @@ namespace pcpp
 
 	IPv4Network::IPv4Network(const IPv4Address& address, const std::string& netmask)
 	{
-		if (!address.isValid())
-		{
-			throw std::invalid_argument("address is not a valid IPv4 address");
-		}
-
-		if (!isValidNetmask(netmask))
+		IPv4Address netmaskAddr(netmask);
+		if (!isValidNetmask(netmaskAddr))
 		{
 			throw std::invalid_argument("netmask is not valid");
 		}
-
-		initFromAddressAndNetmask(address, netmask);
+		initFromAddressAndNetmask(address, netmaskAddr);
 	}
 
 
@@ -288,10 +241,13 @@ namespace pcpp
 			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
-		auto networkPrefix = IPv4Address(networkPrefixStr);
-		if (!networkPrefix.isValid())
+		IPv4Address	networkPrefix;
+		try
 		{
-			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix");
+			networkPrefix = std::move(IPv4Address(networkPrefixStr));
+		}
+		catch (const std::invalid_argument& e) {
+			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix: " + std::string(e.what()));
 		}
 
 		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
@@ -306,12 +262,12 @@ namespace pcpp
 		}
 		else
 		{
-			if (!isValidNetmask(netmaskStr))
+			IPv4Address netmaskAddr(netmaskStr);
+			if (!isValidNetmask(netmaskAddr))
 			{
 				throw std::invalid_argument("Netmask is not valid");
 			}
-
-			initFromAddressAndNetmask(networkPrefix, netmaskStr);
+			initFromAddressAndNetmask(networkPrefix, netmaskAddr);
 		}
 	}
 
@@ -347,10 +303,6 @@ namespace pcpp
 
 	bool IPv4Network::includes(const IPv4Address& address) const
 	{
-		if (!address.isValid())
-		{
-			return false;
-		}
 		return (address.toInt() & m_Mask) == m_NetworkPrefix;
 	}
 
@@ -379,24 +331,14 @@ namespace pcpp
 #define IPV6_ADDR_SIZE 16
 
 
-	bool IPv6Network::isValidNetmask(const std::string &netmask)
+	bool IPv6Network::isValidNetmask(const IPv6Address& netmask)
 	{
-		bool isAllZeros = std::all_of(netmask.begin(), netmask.end(), [](const char &c){
-			return (c == '0' || c == ':');
-		});
-
-		if (isAllZeros)
+		if(netmask == IPv6Address::Zero)
 		{
 			return true;
 		}
 
-		auto mask = IPv6Address(netmask);
-		if (!mask.isValid())
-		{
-			return false;
-		}
-
-		const uint8_t *addressAsBytes = mask.toBytes();
+		const uint8_t *addressAsBytes = netmask.toBytes();
 		int expectingValue = 1;
 		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
 		{
@@ -454,9 +396,8 @@ namespace pcpp
 	}
 
 
-	void IPv6Network::initFromAddressAndNetmask(const IPv6Address &address, const std::string &netmask)
+	void IPv6Network::initFromAddressAndNetmask(const IPv6Address &address, const IPv6Address& netmaskAddr)
 	{
-		IPv6Address netmaskAddr(netmask);
 		netmaskAddr.copyTo(m_Mask);
 
 		address.copyTo(m_NetworkPrefix);
@@ -470,11 +411,6 @@ namespace pcpp
 
 	IPv6Network::IPv6Network(const IPv6Address &address, uint8_t prefixLen)
 	{
-		if (!address.isValid())
-		{
-			throw std::invalid_argument("address is not a valid IPv6 address");
-		}
-
 		if (prefixLen > 128)
 		{
 			throw std::invalid_argument("prefixLen must be an integer between 0 and 128");
@@ -486,17 +422,12 @@ namespace pcpp
 
 	IPv6Network::IPv6Network(const IPv6Address &address, const std::string &netmask)
 	{
-		if (!address.isValid())
-		{
-			throw std::invalid_argument("address is not a valid IPv6 address");
-		}
-
-		if (!isValidNetmask(netmask))
+		IPv6Address netmaskAddr(netmask);
+		if (!isValidNetmask(netmaskAddr))
 		{
 			throw std::invalid_argument("netmask is not valid");
 		}
-
-		initFromAddressAndNetmask(address, netmask);
+		initFromAddressAndNetmask(address, netmaskAddr);
 	}
 
 
@@ -512,12 +443,14 @@ namespace pcpp
 			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
-		auto networkPrefix = IPv6Address(networkPrefixStr);
-		if (!networkPrefix.isValid())
+		IPv6Address	networkPrefix;
+		try
 		{
-			throw std::invalid_argument("The input doesn't contain a valid IPv6 network prefix");
+			networkPrefix = std::move(IPv6Address(networkPrefixStr));
+		} catch (const std::invalid_argument& e)
+		{
+			throw std::invalid_argument("The input doesn't contain a valid IPv6 network prefix: " + std::string(e.what()));
 		}
-
 		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
 		{
 			uint32_t prefixLen = std::stoi(netmaskStr);
@@ -530,12 +463,12 @@ namespace pcpp
 		}
 		else
 		{
-			if (!isValidNetmask(netmaskStr))
+			IPv6Address netmaskAddr(netmaskStr);
+			if (!isValidNetmask(netmaskAddr))
 			{
 				throw std::invalid_argument("netmask is not valid");
 			}
-
-			initFromAddressAndNetmask(networkPrefix, netmaskStr);
+			initFromAddressAndNetmask(networkPrefix, netmaskAddr);
 		}
 	}
 
@@ -598,11 +531,6 @@ namespace pcpp
 
 	bool IPv6Network::includes(const IPv6Address& address) const
 	{
-		if (!address.isValid())
-		{
-			return false;
-		}
-
 		uint8_t maskedBytes[IPV6_ADDR_SIZE];
 		address.copyTo(maskedBytes);
 

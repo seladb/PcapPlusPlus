@@ -175,12 +175,26 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 		printUsage();
 		EXIT_WITH_ERROR("Virtual IP for communication not provided");
 	}
-	pcpp::IPv4Address kniIp = args.kniIp;
-	pcpp::IPv4Address outIp = args.outIp;
-	if (!(kniIp.isValid() && outIp.isValid()))
+
+	pcpp::IPv4Address kniIp;
+	pcpp::IPv4Address outIp;
+	try
 	{
-		EXIT_WITH_ERROR("One of provided IPs is not valid");
+		pcpp::IPv4Address kniIp = std::move(pcpp::IPv4Address(args.kniIp));
 	}
+	catch (const std::exception& e)
+	{
+		EXIT_WITH_ERROR("kniIp is not valid");
+	}
+	try
+	{
+		pcpp::IPv4Address outIp = std::move(pcpp::IPv4Address(args.outIp));
+	}
+	catch (const std::exception& e)
+	{
+		EXIT_WITH_ERROR("outIp is not valid");
+	}
+
 	if (!outIp.matchNetwork(pcpp::IPv4Network(kniIp, "255.255.255.0")))
 	{
 		EXIT_WITH_ERROR(
