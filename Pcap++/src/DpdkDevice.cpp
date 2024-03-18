@@ -113,8 +113,8 @@ uint8_t DpdkDevice::m_RSSKey[40] = {
 		0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A, 0x6D, 0x5A,
 	};
 
-DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize)
-	: m_Id(port), m_MacAddress(MacAddress::Zero)
+DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mBufDataSize)
+	: m_Id(port), m_MacAddress(MacAddress::Zero), m_MBufDataSize(mBufDataSize < 1 ? RTE_MBUF_DEFAULT_BUF_SIZE : mBufDataSize)
 {
 	std::ostringstream deviceNameStream;
 	deviceNameStream << "DPDK_" << m_Id;
@@ -422,7 +422,7 @@ bool DpdkDevice::initMemPool(struct rte_mempool*& memPool, const char* mempoolNa
 	bool ret = false;
 
 	// create mbuf pool
-	memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id());
+	memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, m_MBufDataSize, rte_socket_id());
 	if (memPool == NULL)
 	{
 		PCPP_LOG_ERROR("Failed to create packets memory pool for port " << m_Id << ", pool name: " << mempoolName << ". Error was: '" << rte_strerror(rte_errno) << "' [Error code: " << rte_errno << "]");
