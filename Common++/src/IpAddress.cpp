@@ -241,7 +241,7 @@ namespace pcpp
 			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
-		IPv4Address	networkPrefix;
+		IPv4Address networkPrefix;
 		try
 		{
 			networkPrefix = IPv4Address(networkPrefixStr);
