@@ -13,13 +13,12 @@
  */
 namespace pcpp
 {
-
-    /**
-	 * @struct nullMutex
-     * A struct containing standard mutex operation but does not perform any action.
-	 * This mutex is used when the user decides PointerVector not be thread safe which be default
+	/**
+ 	* @struct nullMutex
+ 	* A struct containing standard mutex operation but does not perform any action.
+ 	* This mutex is used when the user decides PointerVector not be thread safe which be default
 	*/
-    struct nullMutex {
+	struct nullMutex {
 		void lock() const {}
 		void unlock() const {}
 	};
@@ -67,7 +66,7 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
-			std::lock_guard<Mutex> lk(m_Mutex);
+			std::lock_guard<Mutex> lk(other.m_Mutex);
 			for (const auto iter : other)
 			{
 				T* objCopy = new T(*iter);
@@ -184,7 +183,7 @@ namespace pcpp
 			VectorIterator tempPos = position;
 			{
 				std::lock_guard<Mutex> lk(m_Mutex);
-			    tempPos = m_Vector.erase(tempPos);
+				tempPos = m_Vector.erase(tempPos);
 			}
 			position = tempPos;
 			return result;
