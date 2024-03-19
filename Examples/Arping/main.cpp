@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
 				}
 				catch(const std::exception& e)
 				{
-					EXIT_WITH_ERROR("Source IP address is not valid");
+					EXIT_WITH_ERROR("Target IP is not valid");
 				}
 				targetIpProvided = true;
 				break;

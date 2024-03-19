@@ -214,7 +214,14 @@ int main(int argc, char* argv[])
 		double responseTime = 0;
 		uint32_t dnsTTL = 0;
 		pcpp::IPv4Address resultIP = pcpp::NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
-		std::cout << std::endl << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL << "  time=" << (int)responseTime << "ms" << std::endl;
+		if (resultIP == pcpp::IPv4Address::Zero)
+		{
+			std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
+		}
+		else
+		{
+			std::cout << std::endl << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL << "  time=" << (int)responseTime << "ms" << std::endl;
+		}
 	}
 	catch (const std::exception& e)
 	{
