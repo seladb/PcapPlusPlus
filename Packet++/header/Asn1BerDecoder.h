@@ -63,8 +63,6 @@ namespace pcpp
 	class Asn1BerRecord
 	{
 	public:
-		Asn1BerRecord(const uint8_t* data, size_t dataLen);
-
 		size_t getValueLength() const { return m_ValueLength; }
 		size_t getTotalLength() const { return m_TotalLength; }
 		std::string getValueAsString() const;
@@ -73,31 +71,28 @@ namespace pcpp
 		BerTagType getBerTagType() const { return m_BerTagType; }
 		Asn1TagType getAsn1TagType() const { return m_Asn1TagType; }
 
-		bool isValid() const { return m_IsValid; }
+		std::vector<Asn1BerRecord> getChildren() const { return m_Children; };
 
-		std::vector<Asn1BerRecord> getChildren() const;
+		static Asn1BerRecord decode(const uint8_t* data, size_t dataLen);
 
 	private:
 		BerTagClass m_TagClass = BerTagClass::Universal;
 		BerTagType m_BerTagType = BerTagType::Primitive;
-		Asn1TagType m_Asn1TagType;
+		Asn1TagType m_Asn1TagType = Asn1TagType::EndOfContent;
 
-		const uint8_t* m_Value;
+		const uint8_t* m_Value = nullptr;
 		size_t m_ValueLength = 0;
 		size_t m_TotalLength = 0;
 
-		bool m_IsValid = true;
 		std::vector<Asn1BerRecord> m_Children;
 
-//		bool hasMoreAfterValue = false;
-
 		Asn1BerRecord() = default;
-
-		void decode(const uint8_t* data, size_t dataLen, bool allowConstructedIfMultipleTlvs);
 
 		int decodeTag(const uint8_t* data, size_t dataLen);
 
 		int decodeLength(const uint8_t* data, size_t dataLen);
+
+		void decodeChildren();
 	};
 
 }

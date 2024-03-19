@@ -1,72 +1,40 @@
 #include "Asn1BerDecoder.h"
 #include "GeneralUtils.h"
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 namespace pcpp {
-
-	Asn1BerRecord::Asn1BerRecord(const uint8_t* data, size_t dataLen)
-	{
-		decode(data, dataLen, true);
-	}
 
 	std::string Asn1BerRecord::getValueAsString() const
 	{
 		return byteArrayToHexString(m_Value, m_ValueLength);
 	}
 
-	std::vector<Asn1BerRecord> Asn1BerRecord::getChildren() const
+	Asn1BerRecord Asn1BerRecord::decode(const uint8_t* data, size_t dataLen)
 	{
-		return m_Children;
-	}
-
-	void Asn1BerRecord::decode(const uint8_t* data, size_t dataLen, const bool allowConstructedIfMultipleTlvs)
-	{
-		auto tagLen = decodeTag(data, dataLen);
-		if (!m_IsValid)
-		{
-			return;
-		}
+		Asn1BerRecord decodedRecord;
+		auto tagLen = decodedRecord.decodeTag(data, dataLen);
 
 		if (dataLen - tagLen < 0)
 		{
-			m_IsValid = false;
-			return;
+			throw std::invalid_argument("Cannot decode ASN.1 BER record, data is shorter than tag len");
 		}
 
-		auto lengthLen = decodeLength(data + tagLen, dataLen - tagLen);
-		if (!m_IsValid)
+		auto lengthLen = decodedRecord.decodeLength(data + tagLen, dataLen - tagLen);
+
+		if (dataLen - tagLen - lengthLen - decodedRecord.m_ValueLength < 0)
 		{
-			return;
+			throw std::invalid_argument("Cannot decode ASN.1 BER record, data doesn't contain the entire record");
 		}
 
-		if (dataLen - tagLen - lengthLen - m_ValueLength < 0)
-		{
-			m_IsValid = false;
-			return;
-		}
+		decodedRecord.m_TotalLength = tagLen + lengthLen + decodedRecord.m_ValueLength;
 
-		m_TotalLength = tagLen + lengthLen + m_ValueLength;
+		decodedRecord.m_Value = data + tagLen + lengthLen;
 
-		m_Value = data + tagLen + lengthLen;
-		auto value = m_Value;
-		auto valueLen = m_ValueLength;
+		decodedRecord.decodeChildren();
 
-		if (m_BerTagType == BerTagType::Constructed && m_ValueLength)
-		{
-			while (valueLen > 0)
-			{
-				Asn1BerRecord childTag;
-				childTag.decode(value, valueLen, false);
-				if (!childTag.isValid())
-				{
-					break;
-				}
-				value += childTag.getTotalLength();
-				valueLen -= childTag.getTotalLength();
-				m_Children.push_back(childTag);
-			}
-		}
+		return decodedRecord;
+
 		// TODO
 
 //		else if (!isValidTlv) {
@@ -123,8 +91,7 @@ namespace pcpp {
 	{
 		if (dataLen < 1)
 		{
-			m_IsValid = false;
-			return -1;
+			throw std::invalid_argument("Cannot decode ASN.1 BER record tag");
 		}
 
 		// Check first 2 bits
@@ -174,15 +141,11 @@ namespace pcpp {
 	{
 		if (dataLen < 1)
 		{
-			m_IsValid = false;
-			return 0;
+			throw std::invalid_argument("Cannot decode ASN.1 BER record length");
 		}
 
-		std::cout << "first byte: " << "0x" << std::hex << (int)data[0] << std::dec << std::endl;
 		// Check 8th bit
 		auto lengthForm = data[0] & 0x80;
-
-		std::cout << "lengthForm: " << (int)lengthForm << std::endl;
 
 		auto numberLengthBytes = 1;
 
@@ -192,17 +155,13 @@ namespace pcpp {
 		if (lengthForm != 0)
 		{
 			auto additionalLengthBytes = data[0] & 0x7F;
-			std::cout << "additionalLengthBytes: " << (int)additionalLengthBytes << std::endl;
-			if (dataLen < additionalLengthBytes + 1)
+			if (static_cast<int>(dataLen) < additionalLengthBytes + 1)
 			{
-				m_IsValid = false;
-				return 0;
+				throw std::invalid_argument("Cannot decode ASN.1 BER record length");
 			}
 			for (auto index = additionalLengthBytes; index > 0; --index)
 			{
-				std::cout << "byte: " << "0x" << std::hex << (int)data[index] << std::dec << std::endl;
 				m_ValueLength += data[index] * static_cast<int>(std::pow(256, (additionalLengthBytes - index)));
-				std::cout << "m_ValueLength temp: " << (int)m_ValueLength << std::endl;
 			}
 			numberLengthBytes += additionalLengthBytes;
 		}
@@ -211,7 +170,25 @@ namespace pcpp {
 			m_ValueLength = data[0];
 		}
 
-		std::cout << "m_ValueLength: " << (int)m_ValueLength << std::endl;
 		return numberLengthBytes;
+	}
+
+	void Asn1BerRecord::decodeChildren()
+	{
+		if (m_BerTagType != BerTagType::Constructed || !m_ValueLength)
+		{
+			return;
+		}
+
+		auto value = m_Value;
+		auto valueLen = m_ValueLength;
+
+		while (valueLen > 0)
+		{
+			auto childTag = Asn1BerRecord::decode(value, valueLen);
+			value += childTag.getTotalLength();
+			valueLen -= childTag.getTotalLength();
+			m_Children.push_back(childTag);
+		}
 	}
 }
