@@ -293,6 +293,7 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 	if (numOfRxQueues == 0)
 	{
 		PCPP_LOG_ERROR("Num of RX queues must be nonzero.");
+		return false;
 	}
 
 	// verify num of RX queues is power of 2 for virtual devices
