@@ -215,9 +215,9 @@
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
 		} \
-		if (messageCaught.find(std::string(message)) == std::string::npos) { \
+		if (messageCaught.find(std::string(message_included)) == std::string::npos) { \
 			PTF_PRINT_ASSERTION("FAILED", "EXCEPTION RAISED") \
-				<< "   " << "Expected message: " << std::string(message) << std::endl \
+				<< "   " << "Expected message includes: " << std::string(message_included) << std::endl \
 				<< "   " << "Message caught  : " << messageCaught << std::endl; \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
