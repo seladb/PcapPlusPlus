@@ -1,6 +1,7 @@
 add_executable(
   Packet++Test
   main.cpp
+  Tests/Asn1BerTests.cpp
   Tests/BgpTests.cpp
   Tests/CotpTests.cpp
   Tests/DhcpTests.cpp

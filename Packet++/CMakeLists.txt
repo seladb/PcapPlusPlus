@@ -2,6 +2,7 @@ add_library(
   Packet++
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
+  src/Asn1BerDecoder.cpp
   src/BgpLayer.cpp
   src/CotpLayer.cpp
   src/DhcpLayer.cpp
@@ -67,6 +68,7 @@ add_library(
 
 set(public_headers
     header/ArpLayer.h
+    header/Asn1BerDecoder.h
     header/BgpLayer.h
     header/CotpLayer.h
     header/DhcpLayer.h
