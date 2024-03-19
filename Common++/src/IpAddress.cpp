@@ -53,7 +53,7 @@ namespace pcpp
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
 		{
-			throw std::invalid_argument("Not a valid IPv4 address");
+			throw std::invalid_argument("Not a valid IPv4 address:" + addrAsString);
 		}
 	}
 
@@ -105,7 +105,7 @@ namespace pcpp
 	{
 		if(inet_pton(AF_INET6, addrAsString.data(), m_Bytes) <= 0)
 		{
-			throw std::invalid_argument("Not a valid IPv6 address");
+			throw std::invalid_argument("Not a valid IPv6 address: " + addrAsString);
 		}
 	}
 
@@ -161,7 +161,7 @@ namespace pcpp
 		}
 		else
 		{
-			throw std::invalid_argument("Not a valid IP address");
+			throw std::invalid_argument("Not a valid IP address: " + addrAsString);
 		}
 	}
 
@@ -479,7 +479,15 @@ namespace pcpp
 		}
 		else
 		{
-			IPv6Address netmaskAddr(netmaskStr);
+			IPv6Address netmaskAddr;
+			try
+			{
+				netmaskAddr = IPv6Address(netmaskStr);
+			}
+			catch(const std::exception&)
+			{
+				throw std::invalid_argument("netmask is not valid");
+			}
 			if (!isValidNetmask(netmaskAddr))
 			{
 				throw std::invalid_argument("netmask is not valid");

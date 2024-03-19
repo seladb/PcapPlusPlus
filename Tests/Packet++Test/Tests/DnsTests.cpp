@@ -338,7 +338,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer(), firstAnswer, ptr);
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getNextAnswer(firstAnswer), secondAnswer, ptr);
 
-	PTF_ASSERT_RAISES(pcpp::IPv4DnsResourceData(std::string("256.249.90.238")), std::invalid_argument, "Not a valid IPv4 address");
+	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4DnsResourceData(std::string("256.249.90.238")), std::invalid_argument, "Not a valid IPv4 address");
 
 	pcpp::DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
@@ -387,7 +387,7 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2");
 
-	PTF_ASSERT_RAISES(pcpp::IPv6DnsResourceData(std::string("##80::5a1f:aaff:fe4f:3f9d")), std::invalid_argument, "Not a valid IPv6 address");
+	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6DnsResourceData(std::string("##80::5a1f:aaff:fe4f:3f9d")), std::invalid_argument, "Not a valid IPv6 address");
 
 	authority = dnsLayer6.addAuthority(authority);
 	pcpp::Logger::getInstance().suppressLogs();
