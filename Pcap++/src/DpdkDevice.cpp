@@ -289,10 +289,16 @@ bool DpdkDevice::configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues)
 		return false;
 	}
 
+	// verify num of RX queues is nonzero
+	if (numOfRxQueues == 0)
+	{
+		PCPP_LOG_ERROR("Num of RX queues must be nonzero.");
+	}
+
 	// verify num of RX queues is power of 2 for virtual devices
 	if (isVirtual())
 	{
-		bool isRxQueuePowerOfTwo = !(numOfRxQueues == 0) && !(numOfRxQueues & (numOfRxQueues - 1));
+		bool isRxQueuePowerOfTwo = !(numOfRxQueues & (numOfRxQueues - 1));
 		if (!isRxQueuePowerOfTwo)
 		{
 			PCPP_LOG_ERROR("Num of RX queues must be power of 2 when device is virtual (because of DPDK limitation). Attempted to open device with " << numOfRxQueues << " RX queues");
