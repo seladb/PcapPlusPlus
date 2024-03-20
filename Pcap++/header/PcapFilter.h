@@ -243,11 +243,13 @@ namespace pcpp
 	class IPFilter : public IFilterWithDirection
 	{
 	private:
-		std::string m_Address;
+		IPAddress m_Address;
 		std::string m_IPv4Mask;
 		int m_Len;
 		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
 		void convertToIPAddressWithLen(std::string& ipAddrmodified) const;
+
+		bool hasMask() const { return !m_IPv4Mask.empty(); }
 	public:
 		/**
 		 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)
@@ -255,7 +257,9 @@ namespace pcpp
 		 * written to log and parsing this filter will fail
 		 * @param[in] dir The address direction to filter (source or destination)
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir) : IPFilter(IPAddress(ipAddress), dir) {}
+
+		IPFilter(const IPAddress& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -266,7 +270,9 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IPFilter(IPv4Address(ipAddress), dir, ipv4Mask) {}
+
+		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string &ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
@@ -277,7 +283,9 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
+		IPFilter(const std::string& ipAddress, Direction dir, int len) : IPFilter(IPAddress(ipAddress), dir, len) {}
+
+		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
 
 		void parseToString(std::string& result) override;
 
@@ -286,19 +294,46 @@ namespace pcpp
 		 * @param[in] ipAddress The IPv4 address to build the filter with. If this address is not a valid IPv4 address an error will be
 		 * written to log and parsing this filter will fail
 		 */
-		void setAddr(const std::string& ipAddress) { m_Address = ipAddress; }
+		void setAddr(const std::string& ipAddress) { this->setAddr(IPAddress(ipAddress)); }
+
+		void setAddr(const IPAddress& ipAddress)
+		{
+			if (!ipAddress.isIPv4() && hasMask())
+			{
+				// TODO: What exception type to throw here?
+				throw std::runtime_error("Attempting to set non-IPv4 address while an IPv4 mask is set. "
+										 "Please clear the mask before setting a non-IPv4 address.");
+			}
+
+			m_Address = ipAddress;
+		}
 
 		/**
 		 * Set the IPv4 mask
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
 		 */
-		void setMask(const std::string& ipv4Mask) { m_IPv4Mask = ipv4Mask; m_Len = 0; }
+		void setMask(const std::string& ipv4Mask)
+		{
+			if (!m_Address.isIPv4())
+			{
+				// TODO: What exception type to throw here?
+				throw std::runtime_error("Attempting to set an IPv4 mask on non-IPv4 address. "
+										 "Please set an IPv4 address before setting the mask.");
+			}
+
+			this->clearLen();
+			m_IPv4Mask = ipv4Mask;
+		}
+
+		void clearMask() { m_IPv4Mask = ""; }
 
 		/**
 		 * Set the subnet
 		 * @param[in] len The subnet to use (e.g "/24")
 		 */
-		void setLen(int len) { m_IPv4Mask = ""; m_Len = len; }
+		void setLen(const int len) { this->clearMask(); m_Len = len; }
+
+		void clearLen() { m_Len = 0; }
 	};
 
 
