@@ -516,9 +516,12 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						}
 					}
 
-
-					// remove fragment from list
-					tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + index);
+					// fragment might be delete after calling m_OnMessageReadyCallback (eg. call TcpReassembly::closeConnection in m_OnMessageReadyCallback), so we need to check if it's already deleted 
+					if (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() != 0)
+					{
+						// remove fragment from list
+						tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + index);
+					}
 
 					foundSomething = true;
 
@@ -557,8 +560,12 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						PCPP_LOG_DEBUG("Found a fragment in the out-of-order list which doesn't contain any new data, ignoring it. Fragment size is " << curTcpFrag->dataLength << " on side " << sideIndex);
 					}
 
-					// delete fragment from list
-					tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + index);
+					// fragment might be delete after calling m_OnMessageReadyCallback (eg. call TcpReassembly::closeConnection in m_OnMessageReadyCallback), so we need to check if it's already deleted 
+					if (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() != 0)
+					{
+						// delete fragment from list
+						tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + index);
+					}
 
 					continue;
 				}
@@ -639,8 +646,12 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 			}
 
-			// remove fragment from list
-			tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + closestSequenceFragIndex);
+			// fragment might be delete after calling m_OnMessageReadyCallback (eg. call TcpReassembly::closeConnection in m_OnMessageReadyCallback), so we need to check if it's already deleted 
+			if (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() != 0)
+			{
+				// remove fragment from list
+				tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + closestSequenceFragIndex);
+			}
 
 			PCPP_LOG_DEBUG("Calling checkOutOfOrderFragments again from the start");
 
