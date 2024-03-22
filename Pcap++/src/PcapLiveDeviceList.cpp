@@ -95,7 +95,7 @@ void PcapLiveDeviceList::setDnsServers()
 			m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
 			PCPP_LOG_DEBUG("Default DNS server IP #" << dnsServerCounter++ << ": " << fixedInfo->DnsServerList.IpAddress.String);
 		}
-		catch(const std::exception& e)
+		catch(const std::exception&)
 		{
 			PCPP_LOG_DEBUG("Failed to parse default DNS server IP address: " << fixedInfo->DnsServerList.IpAddress.String);
 		}
@@ -108,7 +108,7 @@ void PcapLiveDeviceList::setDnsServers()
 				m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
 				PCPP_LOG_DEBUG("Default DNS server IP #" << dnsServerCounter++ << ": " << pIPAddr->IpAddress.String);
 			}
-			catch(const std::exception& e)
+			catch(const std::exception&)
 			{
 				PCPP_LOG_DEBUG("Failed to parse DNS server IP address" << pIPAddr->IpAddress.String);
 			}
@@ -349,7 +349,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 	{
 		ipAddr = IPAddress(ipAddrAsString);
 	}
-	catch(const std::exception& e)
+	catch(const std::exception&)
 	{
 		PCPP_LOG_ERROR("IP address is not valid");
 		return nullptr;
@@ -383,7 +383,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::strin
 		interfaceIP = IPAddress(ipOrName);
 		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
 	}
-	catch (std::exception& e)
+	catch (std::exception&)
 	{
 		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName);
 	}

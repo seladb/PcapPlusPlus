@@ -168,7 +168,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	{
 		ipAddr = IPv4Address(m_Address);
 	}
-	catch(const std::exception& e)
+	catch(const std::exception&)
 	{
 		PCPP_LOG_ERROR("Invalid IP address '" << m_Address << "', setting the mask to an empty value");
 		mask.clear();
@@ -180,7 +180,7 @@ void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::stri
 	{
 		maskAsAddr = IPv4Address(m_IPv4Mask);
 	}
-	catch(const std::exception& e)
+	catch(const std::exception&)
 	{
 		PCPP_LOG_ERROR("Invalid IPv4 mask '" << m_IPv4Mask << "', setting the mask to an empty value");
 		mask.clear();
@@ -208,7 +208,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 	{
 		ipAddr = IPAddress(ipAddrmodified);
 	}
-	catch(const std::exception& e)
+	catch(const std::exception&)
 	{
 		PCPP_LOG_ERROR("Invalid IP address '" << ipAddrmodified << "', setting len to zero");
 		return;
