@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <memory>
+#include "PointerVector.h"
 
 namespace pcpp
 {
@@ -19,7 +20,7 @@ namespace pcpp
 		Constructed
 	};
 
-	enum class Asn1TagType : uint8_t
+	enum class Asn1UniversalTagType : uint8_t
 	{
 		EndOfContent = 0,
 		Boolean = 1,
@@ -57,7 +58,8 @@ namespace pcpp
 		DateTime = 33,
 		Duration = 34,
 		OidIri = 35,
-		RelativeOidIri = 36
+		RelativeOidIri = 36,
+		NotApplicable = 255
 	};
 
 	class Asn1BerRecord
@@ -65,34 +67,117 @@ namespace pcpp
 	public:
 		size_t getValueLength() const { return m_ValueLength; }
 		size_t getTotalLength() const { return m_TotalLength; }
-		std::string getValueAsString() const;
+
+		virtual const uint8_t* getRawValue() const { return m_Value; }
 
 		BerTagClass getTagClass() const { return m_TagClass; }
 		BerTagType getBerTagType() const { return m_BerTagType; }
-		Asn1TagType getAsn1TagType() const { return m_Asn1TagType; }
+		Asn1UniversalTagType getAsn1UniversalTagType() const;
+		uint8_t getTagType() const { return m_TagType; }
 
-		std::vector<Asn1BerRecord> getChildren() const { return m_Children; };
+		template <class Asn1BerRecordType>
+		const Asn1BerRecordType* castAs() const { return dynamic_cast<const Asn1BerRecordType*>(this); }
 
-		static Asn1BerRecord decode(const uint8_t* data, size_t dataLen);
+		static std::unique_ptr<Asn1BerRecord> decode(const uint8_t* data, size_t dataLen);
 
-	private:
+		virtual ~Asn1BerRecord() = default;
+
+	protected:
+		const uint8_t* m_Value = nullptr;
 		BerTagClass m_TagClass = BerTagClass::Universal;
 		BerTagType m_BerTagType = BerTagType::Primitive;
-		Asn1TagType m_Asn1TagType = Asn1TagType::EndOfContent;
+		uint8_t m_TagType = 0;
 
-		const uint8_t* m_Value = nullptr;
 		size_t m_ValueLength = 0;
 		size_t m_TotalLength = 0;
 
-		std::vector<Asn1BerRecord> m_Children;
-
 		Asn1BerRecord() = default;
 
-		int decodeTag(const uint8_t* data, size_t dataLen);
+		static Asn1BerRecord* decodeInternal(const uint8_t* data, size_t dataLen);
 
+		virtual void additionalDecode() {};
+
+		static Asn1BerRecord* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen);
 		int decodeLength(const uint8_t* data, size_t dataLen);
-
-		void decodeChildren();
 	};
 
+	class Asn1BerConstructedRecord : public Asn1BerRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		PointerVector<Asn1BerRecord> m_Children;
+
+	protected:
+		Asn1BerConstructedRecord() = default;
+		void additionalDecode() override;
+
+	public:
+		const PointerVector<Asn1BerRecord>& getChildren() const { return m_Children; };
+	};
+
+	class Asn1SequenceRecord : public Asn1BerConstructedRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		Asn1SequenceRecord() = default;
+	};
+
+	class Asn1SetRecord : public Asn1BerConstructedRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		Asn1SetRecord() = default;
+	};
+
+	class Asn1IntegerRecord : public Asn1BerRecord
+	{
+		friend class Asn1BerRecord;
+
+	protected:
+		Asn1IntegerRecord() = default;
+
+	public:
+		int getValue() const;
+	};
+
+	class Asn1EnumeratedRecord : public Asn1IntegerRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		Asn1EnumeratedRecord() = default;
+	};
+
+	class Asn1OctetStringRecord : public Asn1BerRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		Asn1OctetStringRecord() = default;
+
+	public:
+		std::string getValue() const;
+	};
+
+	class Asn1BooleanRecord : public Asn1BerRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		Asn1BooleanRecord() = default;
+
+	public:
+		bool getValue() const;
+	};
+
+	class Asn1NullRecord : public Asn1BerRecord
+	{
+		friend class Asn1BerRecord;
+
+	private:
+		Asn1NullRecord() = default;
+	};
 }

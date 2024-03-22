@@ -1,37 +1,38 @@
 #include "Asn1BerDecoder.h"
 #include "GeneralUtils.h"
+#include "EndianPortable.h"
 #include <iostream>
 #include <cmath>
 
 namespace pcpp {
-
-	std::string Asn1BerRecord::getValueAsString() const
+	std::unique_ptr<Asn1BerRecord> Asn1BerRecord::decode(const uint8_t* data, size_t dataLen)
 	{
-		return byteArrayToHexString(m_Value, m_ValueLength);
+		auto record = decodeInternal(data, dataLen);
+		return std::unique_ptr<Asn1BerRecord>(record);
 	}
 
-	Asn1BerRecord Asn1BerRecord::decode(const uint8_t* data, size_t dataLen)
+	Asn1BerRecord* Asn1BerRecord::decodeInternal(const uint8_t* data, size_t dataLen)
 	{
-		Asn1BerRecord decodedRecord;
-		auto tagLen = decodedRecord.decodeTag(data, dataLen);
-
-		if (dataLen - tagLen < 0)
+		int tagLen = 1;
+		if (dataLen < static_cast<size_t>(tagLen))
 		{
 			throw std::invalid_argument("Cannot decode ASN.1 BER record, data is shorter than tag len");
 		}
 
-		auto lengthLen = decodedRecord.decodeLength(data + tagLen, dataLen - tagLen);
+		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen);
 
-		if (dataLen - tagLen - lengthLen - decodedRecord.m_ValueLength < 0)
+		auto lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
+
+		if (dataLen - tagLen - lengthLen - decodedRecord->m_ValueLength < 0)
 		{
 			throw std::invalid_argument("Cannot decode ASN.1 BER record, data doesn't contain the entire record");
 		}
 
-		decodedRecord.m_TotalLength = tagLen + lengthLen + decodedRecord.m_ValueLength;
+		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
 
-		decodedRecord.m_Value = data + tagLen + lengthLen;
+		decodedRecord->m_Value = data + tagLen + lengthLen;
 
-		decodedRecord.decodeChildren();
+		decodedRecord->additionalDecode();
 
 		return decodedRecord;
 
@@ -87,41 +88,129 @@ namespace pcpp {
 //		}
 	}
 
-	int Asn1BerRecord::decodeTag(const uint8_t* data, size_t dataLen)
+	Asn1UniversalTagType Asn1BerRecord::getAsn1UniversalTagType() const
+	{
+		if (m_TagClass == BerTagClass::Universal)
+		{
+			return static_cast<Asn1UniversalTagType>(m_TagType);
+		}
+
+		return Asn1UniversalTagType::NotApplicable;
+	}
+
+	Asn1BerRecord* Asn1BerRecord::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < 1)
 		{
 			throw std::invalid_argument("Cannot decode ASN.1 BER record tag");
 		}
 
+		BerTagClass tagClass = BerTagClass::Universal;
+
 		// Check first 2 bits
 		auto tagClassBits = data[0] & 0xc0;
 		if (tagClassBits == 0)
 		{
-			m_TagClass = BerTagClass::Universal;
+			tagClass = BerTagClass::Universal;
 		}
 		else if ((tagClassBits & 0xc0) == 0xc0)
 		{
-			m_TagClass = BerTagClass::Private;
+			tagClass = BerTagClass::Private;
 		}
 		else if ((tagClassBits & 0x80) == 0x80)
 		{
-			m_TagClass = BerTagClass::ContextSpecific;
+			tagClass = BerTagClass::ContextSpecific;
 		}
 		else if ((tagClassBits & 0x40) == 0x40)
 		{
-			m_TagClass = BerTagClass::Application;
+			tagClass = BerTagClass::Application;
 		}
 
 		// Check bit 6
 		auto tagTypeBits = data[0] & 0x20;
-		m_BerTagType = (tagTypeBits == 0 ? BerTagType::Primitive : BerTagType::Constructed);
+		BerTagType berTagType = (tagTypeBits == 0 ? BerTagType::Primitive : BerTagType::Constructed);
 
 		// Check last 5 bits
 		auto tagType = data[0] & 0x1f;
-		m_Asn1TagType = static_cast<Asn1TagType>(tagType);
 
-		return 1;
+		Asn1BerRecord* newRecord;
+
+		if (berTagType == BerTagType::Constructed)
+		{
+			if (tagClass == BerTagClass::Universal)
+			{
+				switch (static_cast<Asn1UniversalTagType>(tagType))
+				{
+					case Asn1UniversalTagType::Sequence:
+					{
+						newRecord = new Asn1SequenceRecord();
+						break;
+					}
+					case Asn1UniversalTagType::Set:
+					{
+						newRecord = new Asn1SetRecord();
+						break;
+					}
+					default:
+					{
+						newRecord = new Asn1BerConstructedRecord();
+					}
+				}
+			}
+			else
+			{
+				newRecord = new Asn1BerConstructedRecord();
+			}
+		}
+		else
+		{
+			if (tagClass == BerTagClass::Universal)
+			{
+				auto asn1UniversalTagType = static_cast<Asn1UniversalTagType>(tagType);
+				switch (asn1UniversalTagType)
+				{
+					case Asn1UniversalTagType::Integer:
+					{
+						newRecord = new Asn1IntegerRecord();
+						break;
+					}
+					case Asn1UniversalTagType::Enumerated:
+					{
+						newRecord = new Asn1EnumeratedRecord();
+						break;
+					}
+					case Asn1UniversalTagType::OctetString:
+					{
+						newRecord = new Asn1OctetStringRecord();
+						break;
+					}
+					case Asn1UniversalTagType::Boolean:
+					{
+						newRecord = new Asn1BooleanRecord();
+						break;
+					}
+					case Asn1UniversalTagType::Null:
+					{
+						newRecord = new Asn1NullRecord();
+						break;
+					}
+					default:
+					{
+						newRecord = new Asn1BerRecord();
+					}
+				}
+			}
+			else
+			{
+				newRecord = new Asn1BerRecord();
+			}
+		}
+
+		newRecord->m_TagClass = tagClass;
+		newRecord->m_BerTagType = berTagType;
+		newRecord->m_TagType = tagType;
+
+		return newRecord;
 		// TODO
 //		// Check if the tag is using more than one byte
 //		if (tagNumber >= 31)
@@ -173,9 +262,9 @@ namespace pcpp {
 		return numberLengthBytes;
 	}
 
-	void Asn1BerRecord::decodeChildren()
+	void Asn1BerConstructedRecord::additionalDecode()
 	{
-		if (m_BerTagType != BerTagType::Constructed || !m_ValueLength)
+		if (!m_ValueLength)
 		{
 			return;
 		}
@@ -185,10 +274,50 @@ namespace pcpp {
 
 		while (valueLen > 0)
 		{
-			auto childTag = Asn1BerRecord::decode(value, valueLen);
-			value += childTag.getTotalLength();
-			valueLen -= childTag.getTotalLength();
-			m_Children.push_back(childTag);
+			auto childTag = Asn1BerRecord::decodeInternal(value, valueLen);
+			value += childTag->getTotalLength();
+			valueLen -= childTag->getTotalLength();
+
+			m_Children.pushBack(childTag);
 		}
+	}
+
+	int Asn1IntegerRecord::getValue() const
+	{
+		switch (m_ValueLength)
+		{
+			case 1:
+			{
+				return *(uint8_t*)m_Value;
+			}
+			case 2:
+			{
+				return be16toh(*(uint16_t*)m_Value);
+			}
+			case 3:
+			{
+				uint8_t tempData[4] = {0};
+				memcpy(tempData + 1, m_Value, 3);
+				return be32toh(*(uint32_t*)tempData);
+			}
+			case 4:
+			{
+				return be32toh(*(uint32_t*)m_Value);
+			}
+			default:
+			{
+				throw std::runtime_error("An integer ASN.1 record of more than 4 bytes is not supported");
+			}
+		}
+	}
+
+	std::string Asn1OctetStringRecord::getValue() const
+	{
+		return {m_Value, m_Value + m_ValueLength};
+	}
+
+	bool Asn1BooleanRecord::getValue() const
+	{
+		return m_Value[0] != 0;
 	}
 }
