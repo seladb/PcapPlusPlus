@@ -150,105 +150,105 @@ namespace pcpp
 	enum class TcpOptionEnumType : uint8_t
 	{
 		/** Padding */
-		PCPP_TCPOPT_NOP =       1,
+		NOP =            1,
 		/** End of options */
-		PCPP_TCPOPT_EOL =       0,
+		EOL =            0,
 		/** Segment size negotiating */
-		TCPOPT_MSS =          	2,
+		MSS =          	 2,
 		/** Window scaling */
-		PCPP_TCPOPT_WINDOW =    3,
+		WINDOW =         3,
 		/** SACK Permitted */
-		TCPOPT_SACK_PERM =      4,
+		SACK_PERM =      4,
 		/** SACK Block */
-		PCPP_TCPOPT_SACK =      5,
-		/** Echo (obsoleted by option TcpOptionEnumType::PCPP_TCPOPT_TIMESTAMP) */
-		TCPOPT_ECHO =           6,
-		/** Echo Reply (obsoleted by option TcpOptionEnumType::PCPP_TCPOPT_TIMESTAMP) */
-		TCPOPT_ECHOREPLY =      7,
+		SACK =           5,
+		/** Echo (obsoleted by option TcpOptionEnumType::TIMESTAMP) */
+		ECHO =           6,
+		/** Echo Reply (obsoleted by option TcpOptionEnumType::TIMESTAMP) */
+		ECHOREPLY =      7,
 		/** TCP Timestamps */
-		PCPP_TCPOPT_TIMESTAMP = 8,
+		TIMESTAMP =      8,
 		/** CC (obsolete) */
-		TCPOPT_CC =             11,
+		CC =             11,
 		/** CC.NEW (obsolete) */
-		TCPOPT_CCNEW =          12,
+		CCNEW =          12,
 		/** CC.ECHO(obsolete) */
-		TCPOPT_CCECHO =         13,
+		CCECHO =         13,
 		/** MD5 Signature Option */
-		TCPOPT_MD5 =            19,
+		MD5 =            19,
 		/** Multipath TCP */
-		TCPOPT_MPTCP =          0x1e,
+		MPTCP =          0x1e,
 		/** SCPS Capabilities */
-		TCPOPT_SCPS =           20,
+		SCPS =           20,
 		/** SCPS SNACK */
-		TCPOPT_SNACK =          21,
+		SNACK =          21,
 		/** SCPS Record Boundary */
-		TCPOPT_RECBOUND =       22,
+		RECBOUND =       22,
 		/** SCPS Corruption Experienced */
-		TCPOPT_CORREXP =        23,
+		CORREXP =        23,
 		/** Quick-Start Response */
-		TCPOPT_QS =             27,
+		QS =             27,
 		/** User Timeout Option (also, other known unauthorized use) */
-		TCPOPT_USER_TO =        28,
+		USER_TO =        28,
 		/** RFC3692-style Experiment 1 (also improperly used for shipping products) */
-		TCPOPT_EXP_FD =         0xfd,
+		EXP_FD =         0xfd,
 		/** RFC3692-style Experiment 2 (also improperly used for shipping products) */
-		TCPOPT_EXP_FE =         0xfe,
+		EXP_FE =         0xfe,
 		/** Riverbed probe option, non IANA registered option number */
-		TCPOPT_RVBD_PROBE =     76,
+		RVBD_PROBE =     76,
 		/** Riverbed transparency option, non IANA registered option number */
-		TCPOPT_RVBD_TRPY =      78,
+		RVBD_TRPY =      78,
 		/** Unknown option */
-		TCPOPT_Unknown =        255
+		Unknown =        255
 	};
 
 
 	// TCP option lengths
 
-	/** pcpp::TcpOptionType::PCPP_TCPOPT_NOP length */
+	/** pcpp::TcpOptionEnumType::NOP length */
 #define PCPP_TCPOLEN_NOP            1
-	/** pcpp::TcpOptionType::PCPP_TCPOPT_EOL length */
+	/** pcpp::TcpOptionEnumType::EOL length */
 #define PCPP_TCPOLEN_EOL            1
-	/** pcpp::TcpOptionType::TCPOPT_MSS length */
+	/** pcpp::TcpOptionEnumType::MSS length */
 #define PCPP_TCPOLEN_MSS            4
-	/** pcpp::TcpOptionType::PCPP_TCPOPT_WINDOW length */
+	/** pcpp::TcpOptionEnumType::WINDOW length */
 #define PCPP_TCPOLEN_WINDOW         3
-	/** pcpp::TcpOptionType::TCPOPT_SACK_PERM length */
+	/** pcpp::TcpOptionEnumType::SACK_PERM length */
 #define PCPP_TCPOLEN_SACK_PERM      2
-	/** pcpp::TcpOptionType::PCPP_TCPOPT_SACK length */
+	/** pcpp::TcpOptionEnumType::SACK length */
 #define PCPP_TCPOLEN_SACK_MIN       2
-	/** pcpp:TcpOptionType::TCPOPT_ECHO length */
+	/** pcpp:TcpOptionEnumType::ECHO length */
 #define PCPP_TCPOLEN_ECHO           6
-	/** pcpp::TcpOptionType::TCPOPT_ECHOREPLY length */
+	/** pcpp::TcpOptionEnumType::ECHOREPLY length */
 #define PCPP_TCPOLEN_ECHOREPLY      6
-	/** pcpp::TcpOptionType::PCPP_TCPOPT_TIMESTAMP length */
+	/** pcpp::TcpOptionEnumType::TIMESTAMP length */
 #define PCPP_TCPOLEN_TIMESTAMP     10
-	/** pcpp::TcpOptionType::TCPOPT_CC length */
+	/** pcpp::TcpOptionEnumType::CC length */
 #define PCPP_TCPOLEN_CC             6
-	/** pcpp::TcpOptionType::TCPOPT_CCNEW length */
+	/** pcpp::TcpOptionEnumType::CCNEW length */
 #define PCPP_TCPOLEN_CCNEW          6
-	/** pcpp::TcpOptionType::TCPOPT_CCECHO length */
+	/** pcpp::TcpOptionEnumType::CCECHO length */
 #define PCPP_TCPOLEN_CCECHO         6
-	/** pcpp::TcpOptionType::TCPOPT_MD5 length */
+	/** pcpp::TcpOptionEnumType::MD5 length */
 #define PCPP_TCPOLEN_MD5           18
-	/** pcpp::TcpOptionType::TCPOPT_MPTCP length */
+	/** pcpp::TcpOptionEnumType::MPTCP length */
 #define PCPP_TCPOLEN_MPTCP_MIN      8
-	/** pcpp::TcpOptionType::TCPOPT_SCPS length */
+	/** pcpp::TcpOptionEnumType::SCPS length */
 #define PCPP_TCPOLEN_SCPS           4
-	/** pcpp::TcpOptionType::TCPOPT_SNACK length */
+	/** pcpp::TcpOptionEnumType::SNACK length */
 #define PCPP_TCPOLEN_SNACK          6
-	/** pcpp::TcpOptionType::TCPOPT_RECBOUND length */
+	/** pcpp::TcpOptionEnumType::RECBOUND length */
 #define PCPP_TCPOLEN_RECBOUND       2
-	/** pcpp::TcpOptionType::TCPOPT_CORREXP length */
+	/** pcpp::TcpOptionEnumType::CORREXP length */
 #define PCPP_TCPOLEN_CORREXP        2
-	/** pcpp::TcpOptionType::TCPOPT_QS length */
+	/** pcpp::TcpOptionEnumType::QS length */
 #define PCPP_TCPOLEN_QS             8
-	/** pcpp::TcpOptionType::TCPOPT_USER_TO length */
+	/** pcpp::TcpOptionEnumType::USER_TO length */
 #define PCPP_TCPOLEN_USER_TO        4
-	/** pcpp::TcpOptionType::TCPOPT_RVBD_PROBE length */
+	/** pcpp::TcpOptionEnumType::RVBD_PROBE length */
 #define PCPP_TCPOLEN_RVBD_PROBE_MIN 3
-	/** pcpp::TcpOptionType::TCPOPT_RVBD_TRPY length */
+	/** pcpp::TcpOptionEnumType::RVBD_TRPY length */
 #define PCPP_TCPOLEN_RVBD_TRPY_MIN 16
-	/** pcpp::TcpOptionType::TCPOPT_EXP_FD and pcpp::TcpOptionType::TCPOPT_EXP_FE length */
+	/** pcpp::TcpOptionEnumType::EXP_FD and pcpp::TcpOptionEnumType::EXP_FE length */
 #define PCPP_TCPOLEN_EXP_MIN        2
 
 
@@ -284,7 +284,7 @@ namespace pcpp
 
 		/**
 		 * @return TCP option type casted as pcpp::TcpOptionEnumType enum. If the data is null a value
-		 * of TcpOptionEnumType::TCPOPT_Unknown is returned
+		 * of TcpOptionEnumType::Unknown is returned
 		 */
 		TcpOptionEnumType getTcpOptionEnumType() const
 		{
@@ -307,7 +307,7 @@ namespace pcpp
 				return false;
 
 			const auto recordType = getTcpOptionEnumType(data);
-			if (recordType == TcpOptionEnumType::PCPP_TCPOPT_NOP || recordType == TcpOptionEnumType::PCPP_TCPOPT_EOL)
+			if (recordType == TcpOptionEnumType::NOP || recordType == TcpOptionEnumType::EOL)
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -321,7 +321,7 @@ namespace pcpp
 				return 0;
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
-			if (recordType == TcpOptionEnumType::PCPP_TCPOPT_NOP || recordType == TcpOptionEnumType::PCPP_TCPOPT_EOL)
+			if (recordType == TcpOptionEnumType::NOP || recordType == TcpOptionEnumType::EOL)
 				return sizeof(uint8_t);
 
 			return static_cast<size_t>(m_Data->recordLen);
@@ -333,7 +333,7 @@ namespace pcpp
 				return 0;
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
-			if (recordType == TcpOptionEnumType::PCPP_TCPOPT_NOP || recordType == TcpOptionEnumType::PCPP_TCPOPT_EOL)
+			if (recordType == TcpOptionEnumType::NOP || recordType == TcpOptionEnumType::EOL)
 				return 0;
 
 			return static_cast<size_t>(m_Data->recordLen) - (2*sizeof(uint8_t));
@@ -351,7 +351,7 @@ namespace pcpp
 		static TcpOptionEnumType getTcpOptionEnumType(const TLVRawData* optionRawData)
 		{
 			if (optionRawData == nullptr)
-				return TcpOptionEnumType::TCPOPT_Unknown;
+				return TcpOptionEnumType::Unknown;
 
 			return static_cast<TcpOptionEnumType>(optionRawData->recordType);
 		}
@@ -578,7 +578,7 @@ namespace pcpp
 		TcpOption addTcpOption(const TcpOptionBuilder& optionBuilder);
 
 		/**
-		 * @deprecated This method is deprecated, please use insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::TCPOPT_Unknown)
+		 * @deprecated This method is deprecated, please use insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown)
 		 */
 		PCPP_DEPRECATED_MSG("Use insertTcpOptionAfter instead")
 		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TcpOptionType::TCPOPT_Unknown);
@@ -587,12 +587,12 @@ namespace pcpp
 		 * Add a new TCP option after an existing one
 		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be added
 		 * @param[in] prevOptionType The TCP option which the newly added option should come after. This is an optional parameter which
-		 * gets a default value of TcpOptionType::TCPOPT_Unknown if omitted, which means the new option will be added as the first option in the layer
+		 * gets a default value of TcpOptionType::Unknown if omitted, which means the new option will be added as the first option in the layer
 		 * @return A TcpOption object containing the newly added TCP option data or logical NULL
 		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
-		TcpOption insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::TCPOPT_Unknown);
+		TcpOption insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown);
 
 		/**
 		 * Remove an existing TCP option from the layer. TCP option is found by type
@@ -677,3 +677,5 @@ namespace pcpp
 			&& dataLen >= hdr->dataOffset * sizeof(uint32_t);
 	}
 } // namespace pcpp
+
+#undef PCPP_DEPRECATED_TCP_OPTION_TYPE

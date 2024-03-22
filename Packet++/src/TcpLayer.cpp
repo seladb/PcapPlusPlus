@@ -38,14 +38,14 @@ TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
 	case EOL:
 		init(static_cast<uint8_t>(PCPP_TCPOPT_EOL), nullptr, 0);
 		break;
-	case NopEolOptionTypes::NOP:
+	case NOP:
 	default:
 		init(static_cast<uint8_t>(PCPP_TCPOPT_NOP), nullptr, 0);
 		break;
 	}
 }
 
-TcpOptionBuilder::TcpOptionBuilder(NopEolOptionEnumType optionType)
+TcpOptionBuilder::TcpOptionBuilder(const NopEolOptionEnumType optionType)
 {
 	switch (optionType)
 	{
@@ -104,7 +104,7 @@ uint16_t TcpLayer::getDstPort() const
 	return be16toh(getTcpHeader()->portDst);
 }
 
-TcpOption TcpLayer::getTcpOption(TcpOptionEnumType option) const
+TcpOption TcpLayer::getTcpOption(const TcpOptionEnumType option) const
 {
 	return m_OptionReader.getTLVRecord(static_cast<uint8_t>(option), getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 }
@@ -133,17 +133,17 @@ TcpOption TcpLayer::addTcpOption(const TcpOptionBuilder& optionBuilder)
 	return addTcpOptionAt(optionBuilder, getHeaderLen()-m_NumOfTrailingBytes);
 }
 
-TcpOption TcpLayer::insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType)
+TcpOption TcpLayer::insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, const TcpOptionEnumType prevOptionType)
 {
 	int offset = 0;
 
-	if (prevOptionType == TcpOptionEnumType::TCPOPT_Unknown)
+	if (prevOptionType == TcpOptionEnumType::Unknown)
 	{
 		offset = sizeof(tcphdr);
 	}
 	else
 	{
-		TcpOption prevOpt = getTcpOption(prevOptionType);
+		const TcpOption prevOpt = getTcpOption(prevOptionType);
 		if (prevOpt.isNull())
 		{
 			PCPP_LOG_ERROR("Previous option of type " << static_cast<int>(prevOptionType) << " not found, cannot add a new TCP option");
@@ -156,9 +156,9 @@ TcpOption TcpLayer::insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, 
 	return addTcpOptionAt(optionBuilder, offset);
 }
 
-bool TcpLayer::removeTcpOption(TcpOptionEnumType optionType)
+bool TcpLayer::removeTcpOption(const TcpOptionEnumType optionType)
 {
-	TcpOption opt = getTcpOption(optionType);
+	const TcpOption opt = getTcpOption(optionType);
 	if (opt.isNull())
 	{
 		return false;
@@ -191,7 +191,7 @@ bool TcpLayer::removeTcpOption(TcpOptionEnumType optionType)
 
 bool TcpLayer::removeAllTcpOptions()
 {
-	int offset = sizeof(tcphdr);
+	const int offset = sizeof(tcphdr);
 
 	if (!shortenLayer(offset, getHeaderLen()-offset))
 		return false;
@@ -202,7 +202,7 @@ bool TcpLayer::removeAllTcpOptions()
 	return true;
 }
 
-TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int offset)
+TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, const int offset)
 {
 	TcpOption newOption = optionBuilder.build();
 	if (newOption.isNull())
@@ -240,7 +240,7 @@ TcpOption TcpLayer::addTcpOptionAt(const TcpOptionBuilder& optionBuilder, int of
 	return TcpOption(newOptPtr);
 }
 
-void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize)
+void TcpLayer::adjustTcpOptionTrailer(const size_t totalOptSize)
 {
 	int newNumberOfTrailingBytes = 0;
 	while ((totalOptSize + newNumberOfTrailingBytes) % 4 != 0)
@@ -259,7 +259,7 @@ void TcpLayer::adjustTcpOptionTrailer(size_t totalOptSize)
 	getTcpHeader()->dataOffset = (sizeof(tcphdr) + totalOptSize + m_NumOfTrailingBytes)/4;
 }
 
-uint16_t TcpLayer::calculateChecksum(bool writeResultToPacket)
+uint16_t TcpLayer::calculateChecksum(const bool writeResultToPacket)
 {
 	tcphdr* tcpHdr = getTcpHeader();
 	uint16_t checksumRes = 0;
@@ -310,7 +310,7 @@ void TcpLayer::initLayer()
 	getTcpHeader()->dataOffset = sizeof(tcphdr)/4;
 }
 
-TcpLayer::TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
+TcpLayer::TcpLayer(uint8_t* data, const size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 {
 	m_Protocol = TCP;
 	m_NumOfTrailingBytes = 0;
@@ -321,7 +321,7 @@ TcpLayer::TcpLayer()
 	initLayer();
 }
 
-TcpLayer::TcpLayer(uint16_t portSrc, uint16_t portDst)
+TcpLayer::TcpLayer(const uint16_t portSrc, const uint16_t portDst)
 {
 	initLayer();
 	getTcpHeader()->portDst = htobe16(portDst);
