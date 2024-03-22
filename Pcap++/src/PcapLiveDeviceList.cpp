@@ -252,7 +252,7 @@ void PcapLiveDeviceList::setDnsServers()
 		}
 		catch(const std::exception& e)
 		{
-			PCPP_LOG_DEBUG("Failed to parse DNS server IP address" << internal::in_addr2string(*inaddr) << ": " << e.what());
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address" << internal::in_addr2int(*inaddr) << ": " << e.what());
 		}
 	}
 
