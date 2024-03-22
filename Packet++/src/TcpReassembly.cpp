@@ -484,23 +484,23 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 	{
 		PCPP_LOG_DEBUG("Starting first iteration of checkOutOfOrderFragments - looking for fragments that match the current sequence or have smaller sequence");
 
-		int index = 0;
 		foundSomething = false;
-
+		auto it = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin();
+		
 		do
 		{
-			index = 0;
+			
 			foundSomething = false;
 
 			// first fragment list iteration - go over the whole fragment list and see if can find fragments that match the current sequence
 			// or have smaller sequence but have big enough payload to get new data
-			while (index < (int)tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size())
+			while (it != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
 			{
-				TcpFragment* curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.at(index);
-
 				// if fragment sequence matches the current sequence
-				if (curTcpFrag->sequence == tcpReassemblyData->twoSides[sideIndex].sequence)
+				if ((*it)->sequence == tcpReassemblyData->twoSides[sideIndex].sequence)
 				{
+					// pop the fragment from fragment list
+					auto curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.getAndRemoveFromVector(it);
 					// update sequence
 					tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength;
 					if (curTcpFrag->data != nullptr)
@@ -516,12 +516,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						}
 					}
 
-					// fragment might be delete after calling m_OnMessageReadyCallback (eg. call TcpReassembly::closeConnection in m_OnMessageReadyCallback), so we need to check if it's already deleted 
-					if (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() != 0)
-					{
-						// remove fragment from list
-						tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + index);
-					}
+					delete curTcpFrag;
 
 					foundSomething = true;
 
@@ -529,8 +524,10 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 
 				// if fragment sequence has lower sequence than the current sequence
-				if (SEQ_LT(curTcpFrag->sequence, tcpReassemblyData->twoSides[sideIndex].sequence))
+				if (SEQ_LT((*it)->sequence, tcpReassemblyData->twoSides[sideIndex].sequence))
 				{
+					// pop the fragment from fragment list
+					auto curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.getAndRemoveFromVector(it);
 					// check if it still has new data
 					uint32_t newSequence = curTcpFrag->sequence + curTcpFrag->dataLength;
 
@@ -560,18 +557,13 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						PCPP_LOG_DEBUG("Found a fragment in the out-of-order list which doesn't contain any new data, ignoring it. Fragment size is " << curTcpFrag->dataLength << " on side " << sideIndex);
 					}
 
-					// fragment might be delete after calling m_OnMessageReadyCallback (eg. call TcpReassembly::closeConnection in m_OnMessageReadyCallback), so we need to check if it's already deleted 
-					if (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() != 0)
-					{
-						// delete fragment from list
-						tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + index);
-					}
+					delete curTcpFrag;
 
 					continue;
 				}
 
-				//if got to here it means the fragment has higher sequence than current sequence, increment index and continue
-				index++;
+				//if got to here it means the fragment has higher sequence than current sequence, increment it and continue
+				it++;
 			}
 
 			// if managed to find new segment, do the search all over again
@@ -593,30 +585,30 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 		uint32_t closestSequence = 0xffffffff;
 		bool closestSequenceDefined = false;
-		int closestSequenceFragIndex = -1;
-		index = 0;
+		auto closestSequenceFragIt = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end();
+		it = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin();
 
-		while (index < (int)tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size())
+		while (it != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
 		{
 			// extract segment at current index
-			TcpFragment* curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.at(index);
+			TcpFragment* curTcpFrag = *it;
 
 			// check if its sequence is closer than current closest sequence
 			if (!closestSequenceDefined || SEQ_LT(curTcpFrag->sequence, closestSequence))
 			{
 				closestSequence = curTcpFrag->sequence;
-				closestSequenceFragIndex = index;
+				closestSequenceFragIt = it;
 				closestSequenceDefined = true;
 			}
 
-			index++;
+			it++;
 		}
 
 		// this means fragment list is not empty at this stage
-		if (closestSequenceFragIndex > -1)
+		if (closestSequenceFragIt != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
 		{
 			// get the fragment with the closest sequence
-			TcpFragment* curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.at(closestSequenceFragIndex);
+			TcpFragment* curTcpFrag = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.getAndRemoveFromVector(closestSequenceFragIt);
 
 			// calculate number of missing bytes
 			uint32_t missingDataLen = curTcpFrag->sequence - tcpReassemblyData->twoSides[sideIndex].sequence;
@@ -646,12 +638,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 			}
 
-			// fragment might be delete after calling m_OnMessageReadyCallback (eg. call TcpReassembly::closeConnection in m_OnMessageReadyCallback), so we need to check if it's already deleted 
-			if (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() != 0)
-			{
-				// remove fragment from list
-				tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.erase(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin() + closestSequenceFragIndex);
-			}
+			delete curTcpFrag;
 
 			PCPP_LOG_DEBUG("Calling checkOutOfOrderFragments again from the start");
 
