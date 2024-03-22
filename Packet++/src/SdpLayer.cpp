@@ -85,10 +85,9 @@ IPv4Address SdpLayer::getOwnerIPv4Address() const
 	if (tokens[3] != "IN" || tokens[4] != "IP4")
 		return IPv4Address::Zero;
 
-	IPv4Address ipAddress;
 	try
 	{
-		ipAddress = IPv4Address(tokens[5]);
+		return IPv4Address(tokens[5]);
 	}
 	catch (const std::exception&)
 	{

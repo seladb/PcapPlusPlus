@@ -1078,10 +1078,9 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 			continue;
 		}
 
-		IPv4Address ipAddress;
 		try
 		{
-			ipAddress = IPv4Address(currAddr->s_addr);
+			return IPv4Address(currAddr->s_addr);
 		}
 		catch (const std::exception&)
 		{
