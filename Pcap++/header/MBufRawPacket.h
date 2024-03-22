@@ -49,11 +49,11 @@ namespace pcpp
 #ifdef USE_DPDK_KNI
 		friend class KniDevice;
 #endif
-		static const int MBUF_DATA_SIZE;
 
 	protected:
 		struct rte_mbuf* m_MBuf;
 		struct rte_mempool* m_Mempool;
+		uint16_t m_MbufDataSize;
 		bool m_FreeMbuf;
 
 		void setMBuf(struct rte_mbuf* mBuf, timespec timestamp);
@@ -66,7 +66,7 @@ namespace pcpp
 		 * an mbuf the user should call the init() method. Without calling init() the instance of this class is not usable.
 		 * This c'tor can be used for initializing an array of MBufRawPacket (which requires an empty c'tor)
 		 */
-		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
+		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_MbufDataSize(0), m_FreeMbuf(true) { m_DeleteRawDataAtDestructor = false; }
 
 		/**
 		 * A d'tor for this class. Once called it frees the mbuf attached to it (returning it back to the mbuf pool it was allocated from)
