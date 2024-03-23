@@ -171,7 +171,7 @@ namespace pcpp
 	// ~~~~~~~~~~~
 
 
-	bool IPv4Network::isValidNetmask(const IPv4Address&	maskAddress)
+	bool IPv4Network::isValidNetmask(const IPv4Address& maskAddress)
 	{
 		if (maskAddress == IPv4Address::Zero)
 		{
@@ -459,7 +459,7 @@ namespace pcpp
 			throw std::invalid_argument("The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
-		IPv6Address	networkPrefix;
+		IPv6Address networkPrefix;
 		try
 		{
 			networkPrefix = IPv6Address(networkPrefixStr);
