@@ -346,6 +346,26 @@ namespace pcpp {
 		return numberLengthBytes;
 	}
 
+	Asn1GenericRecord::Asn1GenericRecord(BerTagClass tagClass, BerTagType berTagType, uint8_t tagType, const uint8_t* value, size_t valueLen)
+	{
+		m_TagType = tagType;
+		m_TagClass = tagClass;
+		m_BerTagType = berTagType;
+		m_Value = new uint8_t[valueLen];
+		m_FreeValueOnDestruction = true;
+		memcpy(m_Value, value, valueLen);
+		m_ValueLength = valueLen;
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	Asn1GenericRecord::~Asn1GenericRecord()
+	{
+		if (m_Value && m_FreeValueOnDestruction)
+		{
+			delete m_Value;
+		}
+	}
+
 	void Asn1GenericRecord::decodeValue(uint8_t* data)
 	{
 		m_Value = data;
@@ -356,6 +376,17 @@ namespace pcpp {
 		return {m_Value, m_Value + m_ValueLength};
 	}
 
+	Asn1BerConstructedRecord::Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*> children)
+	{
+		m_TagType = tagType;
+		m_TagClass = tagClass;
+		m_BerTagType = BerTagType::Constructed;
+		//TODO
+//		for (auto record : children)
+//		{
+//			m_Children.pushBack()
+//		}
+	}
 	void Asn1BerConstructedRecord::decodeValue(uint8_t* data)
 	{
 		if (!(data || m_ValueLength))
@@ -491,6 +522,18 @@ namespace pcpp {
 		return result;
 	}
 
+	Asn1EnumeratedRecord::Asn1EnumeratedRecord(uint32_t value) : Asn1IntegerRecord(value)
+	{
+		m_TagType = static_cast<uint8_t>(Asn1UniversalTagType::Enumerated);
+	}
+
+	Asn1OctetStringRecord::Asn1OctetStringRecord(const std::string& value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::OctetString))
+	{
+		m_Value = value;
+		m_ValueLength = value.size();
+		m_TotalLength = m_ValueLength + 2;
+	}
+
 	void Asn1OctetStringRecord::decodeValue(uint8_t* data)
 	{
 		m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
@@ -501,6 +544,13 @@ namespace pcpp {
 		return {m_Value.begin(), m_Value.end()};
 	}
 
+	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Boolean))
+	{
+		m_Value = value;
+		m_ValueLength = 1;
+		m_TotalLength = 3;
+	}
+
 	void Asn1BooleanRecord::decodeValue(uint8_t* data)
 	{
 		m_Value = data[0] != 0;
@@ -508,7 +558,13 @@ namespace pcpp {
 
 	std::vector<uint8_t> Asn1BooleanRecord::encodeValue() const
 	{
-		uint8_t byte = (m_Value ? 0x00 : 0xff);
+		uint8_t byte = (m_Value ? 0xff : 0x00);
 		return { byte };
+	}
+
+	Asn1NullRecord::Asn1NullRecord() : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Null))
+	{
+		m_ValueLength = 0;
+		m_TotalLength = 2;
 	}
 }

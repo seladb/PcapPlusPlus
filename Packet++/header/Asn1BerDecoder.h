@@ -109,6 +109,8 @@ namespace pcpp
 		friend class Asn1BerRecord;
 
 	public:
+		Asn1GenericRecord(BerTagClass tagClass, BerTagType berTagType, uint8_t tagType, const uint8_t* value, size_t valueLen);
+		virtual ~Asn1GenericRecord();
 		const uint8_t* getValue() const { return m_Value; }
 
 	protected:
@@ -119,6 +121,7 @@ namespace pcpp
 
 	private:
 		uint8_t* m_Value;
+		bool m_FreeValueOnDestruction = false;
 	};
 
 	class Asn1BerConstructedRecord : public Asn1BerRecord
@@ -126,6 +129,7 @@ namespace pcpp
 		friend class Asn1BerRecord;
 
 	public:
+		Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*> children);
 		const PointerVector<Asn1BerRecord>& getChildren() const { return m_Children; };
 
 	protected:
@@ -185,15 +189,19 @@ namespace pcpp
 	{
 		friend class Asn1BerRecord;
 
+	public:
+		Asn1EnumeratedRecord(uint32_t value);
+
 	private:
 		Asn1EnumeratedRecord() = default;
 	};
 
-	class Asn1OctetStringRecord : public Asn1BerRecord
+	class Asn1OctetStringRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1BerRecord;
 
 	public:
+		Asn1OctetStringRecord(const std::string& value);
 		std::string getValue() const { return m_Value; };
 
 	protected:
@@ -207,12 +215,13 @@ namespace pcpp
 
 	};
 
-	class Asn1BooleanRecord : public Asn1BerRecord
+	class Asn1BooleanRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1BerRecord;
 
 	public:
 		bool getValue() const { return m_Value; };
+		Asn1BooleanRecord(bool value);
 
 	protected:
 		void decodeValue(uint8_t* data) override;
@@ -224,15 +233,15 @@ namespace pcpp
 		bool m_Value;
 	};
 
-	class Asn1NullRecord : public Asn1BerRecord
+	class Asn1NullRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1BerRecord;
+
+	public:
+		Asn1NullRecord();
 
 	protected:
 		void decodeValue(uint8_t* data) override {}
 		std::vector<uint8_t> encodeValue() const override { return {}; }
-
-	private:
-		Asn1NullRecord() = default;
 	};
 }
