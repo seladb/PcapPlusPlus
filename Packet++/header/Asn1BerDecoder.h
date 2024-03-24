@@ -68,8 +68,6 @@ namespace pcpp
 		size_t getValueLength() const { return m_ValueLength; }
 		size_t getTotalLength() const { return m_TotalLength; }
 
-		virtual const uint8_t* getRawValue() const { return m_Value; }
-
 		BerTagClass getTagClass() const { return m_TagClass; }
 		BerTagType getBerTagType() const { return m_BerTagType; }
 		Asn1UniversalTagType getAsn1UniversalTagType() const;
@@ -78,12 +76,13 @@ namespace pcpp
 		template <class Asn1BerRecordType>
 		const Asn1BerRecordType* castAs() const { return dynamic_cast<const Asn1BerRecordType*>(this); }
 
+		std::vector<uint8_t> encode();
+
 		static std::unique_ptr<Asn1BerRecord> decode(const uint8_t* data, size_t dataLen);
 
 		virtual ~Asn1BerRecord() = default;
 
 	protected:
-		const uint8_t* m_Value = nullptr;
 		BerTagClass m_TagClass = BerTagClass::Universal;
 		BerTagType m_BerTagType = BerTagType::Primitive;
 		uint8_t m_TagType = 0;
@@ -95,25 +94,48 @@ namespace pcpp
 
 		static Asn1BerRecord* decodeInternal(const uint8_t* data, size_t dataLen);
 
-		virtual void additionalDecode() {};
+		virtual void decodeValue(uint8_t* data) = 0;
+		virtual std::vector<uint8_t> encodeValue() const = 0;
 
 		static Asn1BerRecord* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen);
 		int decodeLength(const uint8_t* data, size_t dataLen);
+
+		uint8_t encodeTag();
+		std::vector<uint8_t> encodeLength() const;
+	};
+
+	class Asn1GenericRecord : public Asn1BerRecord
+	{
+		friend class Asn1BerRecord;
+
+	public:
+		const uint8_t* getValue() const { return m_Value; }
+
+	protected:
+		Asn1GenericRecord() = default;
+
+		void decodeValue(uint8_t* data) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		uint8_t* m_Value;
 	};
 
 	class Asn1BerConstructedRecord : public Asn1BerRecord
 	{
 		friend class Asn1BerRecord;
 
-	private:
-		PointerVector<Asn1BerRecord> m_Children;
+	public:
+		const PointerVector<Asn1BerRecord>& getChildren() const { return m_Children; };
 
 	protected:
 		Asn1BerConstructedRecord() = default;
-		void additionalDecode() override;
 
-	public:
-		const PointerVector<Asn1BerRecord>& getChildren() const { return m_Children; };
+		void decodeValue(uint8_t* data) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		PointerVector<Asn1BerRecord> m_Children;
 	};
 
 	class Asn1SequenceRecord : public Asn1BerConstructedRecord
@@ -132,15 +154,31 @@ namespace pcpp
 		Asn1SetRecord() = default;
 	};
 
-	class Asn1IntegerRecord : public Asn1BerRecord
+	class Asn1PrimitiveRecord : public Asn1BerRecord
 	{
 		friend class Asn1BerRecord;
 
 	protected:
-		Asn1IntegerRecord() = default;
+		Asn1PrimitiveRecord() = default;
+		explicit Asn1PrimitiveRecord(uint8_t tagType);
+	};
+
+	class Asn1IntegerRecord : public Asn1PrimitiveRecord
+	{
+		friend class Asn1BerRecord;
 
 	public:
-		int getValue() const;
+		Asn1IntegerRecord(uint32_t value);
+		uint32_t getValue() const { return m_Value; }
+
+	protected:
+		Asn1IntegerRecord() = default;
+
+		void decodeValue(uint8_t* data) override;
+		std::vector<uint8_t> encodeValue() const override;
+
+	private:
+		uint32_t m_Value;
 	};
 
 	class Asn1EnumeratedRecord : public Asn1IntegerRecord
@@ -155,27 +193,44 @@ namespace pcpp
 	{
 		friend class Asn1BerRecord;
 
+	public:
+		std::string getValue() const { return m_Value; };
+
+	protected:
+		void decodeValue(uint8_t* data) override;
+		std::vector<uint8_t> encodeValue() const override;
+
 	private:
+		std::string m_Value;
+
 		Asn1OctetStringRecord() = default;
 
-	public:
-		std::string getValue() const;
 	};
 
 	class Asn1BooleanRecord : public Asn1BerRecord
 	{
 		friend class Asn1BerRecord;
 
+	public:
+		bool getValue() const { return m_Value; };
+
+	protected:
+		void decodeValue(uint8_t* data) override;
+		std::vector<uint8_t> encodeValue() const override;
+
 	private:
 		Asn1BooleanRecord() = default;
 
-	public:
-		bool getValue() const;
+		bool m_Value;
 	};
 
 	class Asn1NullRecord : public Asn1BerRecord
 	{
 		friend class Asn1BerRecord;
+
+	protected:
+		void decodeValue(uint8_t* data) override {}
+		std::vector<uint8_t> encodeValue() const override { return {}; }
 
 	private:
 		Asn1NullRecord() = default;

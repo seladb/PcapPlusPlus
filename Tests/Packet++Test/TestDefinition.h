@@ -257,3 +257,4 @@ PTF_TEST_CASE(SmtpEditTests);
 
 // Implemented in Asn1BerTests.cpp
 PTF_TEST_CASE(Asn1BerDecodingTest);
+PTF_TEST_CASE(Asn1BerEncodingTest);

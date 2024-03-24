@@ -11,6 +11,84 @@ namespace pcpp {
 		return std::unique_ptr<Asn1BerRecord>(record);
 	}
 
+	uint8_t Asn1BerRecord::encodeTag()
+	{
+		uint8_t tagByte;
+
+		switch (m_TagClass)
+		{
+			case BerTagClass::Private:
+			{
+				tagByte = 0xc0;
+				break;
+			}
+			case BerTagClass::ContextSpecific:
+			{
+				tagByte = 0x80;
+				break;
+			}
+			case BerTagClass::Application:
+			{
+				tagByte = 0x40;
+				break;
+			}
+			default:
+			{
+				tagByte = 0;
+				break;
+			}
+		}
+
+		if (m_BerTagType == BerTagType::Constructed)
+		{
+			tagByte |= 0x20;
+		}
+
+		auto tagType = m_TagType & 0x1f;
+		tagByte |= tagType;
+
+		return tagByte;
+	}
+
+	std::vector<uint8_t> Asn1BerRecord::encodeLength() const
+	{
+		std::vector<uint8_t> result;
+
+		if (m_ValueLength < 128)
+		{
+			result.push_back(static_cast<uint8_t>(m_ValueLength));
+			return result;
+		}
+
+		// Assuming the size is always 4 bytes
+		auto valueLen = static_cast<uint32_t>(m_ValueLength);
+
+		uint8_t firstByte = 0x80 | sizeof(valueLen);
+		result.push_back(firstByte);
+
+		result.push_back((m_ValueLength >> 24) & 0xff);
+		result.push_back((m_ValueLength >> 16) & 0xff);
+		result.push_back((m_ValueLength >> 8) & 0xff);
+		result.push_back(m_ValueLength & 0xff);
+
+		return result;
+	}
+
+	std::vector<uint8_t> Asn1BerRecord::encode()
+	{
+		std::vector<uint8_t> result;
+
+		result.push_back(encodeTag());
+
+		auto lengthBytes = encodeLength();
+		result.insert(result.end(), lengthBytes.begin(), lengthBytes.end());
+
+		auto encodedValue = encodeValue();
+		result.insert(result.end(), encodedValue.begin(), encodedValue.end());
+
+		return result;
+	}
+
 	Asn1BerRecord* Asn1BerRecord::decodeInternal(const uint8_t* data, size_t dataLen)
 	{
 		int tagLen = 1;
@@ -30,9 +108,15 @@ namespace pcpp {
 
 		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
 
-		decodedRecord->m_Value = data + tagLen + lengthLen;
-
-		decodedRecord->additionalDecode();
+		try
+		{
+			decodedRecord->decodeValue((uint8_t*)data + tagLen + lengthLen);
+		}
+		catch (...)
+		{
+			delete decodedRecord;
+			throw;
+		}
 
 		return decodedRecord;
 
@@ -196,13 +280,13 @@ namespace pcpp {
 					}
 					default:
 					{
-						newRecord = new Asn1BerRecord();
+						newRecord = new Asn1GenericRecord();
 					}
 				}
 			}
 			else
 			{
-				newRecord = new Asn1BerRecord();
+				newRecord = new Asn1GenericRecord();
 			}
 		}
 
@@ -262,14 +346,24 @@ namespace pcpp {
 		return numberLengthBytes;
 	}
 
-	void Asn1BerConstructedRecord::additionalDecode()
+	void Asn1GenericRecord::decodeValue(uint8_t* data)
 	{
-		if (!m_ValueLength)
+		m_Value = data;
+	}
+
+	std::vector<uint8_t> Asn1GenericRecord::encodeValue() const
+	{
+		return {m_Value, m_Value + m_ValueLength};
+	}
+
+	void Asn1BerConstructedRecord::decodeValue(uint8_t* data)
+	{
+		if (!(data || m_ValueLength))
 		{
 			return;
 		}
 
-		auto value = m_Value;
+		auto value = data;
 		auto valueLen = m_ValueLength;
 
 		while (valueLen > 0)
@@ -282,27 +376,68 @@ namespace pcpp {
 		}
 	}
 
-	int Asn1IntegerRecord::getValue() const
+	std::vector<uint8_t> Asn1BerConstructedRecord::encodeValue() const
+	{
+		//TODO
+		return {};
+	}
+
+	Asn1PrimitiveRecord::Asn1PrimitiveRecord(uint8_t tagType) : Asn1BerRecord()
+	{
+		m_TagType = tagType;
+		m_TagClass = BerTagClass::Universal;
+		m_BerTagType = BerTagType::Primitive;
+	}
+
+	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Integer))
+	{
+		m_Value = value;
+
+		if (m_Value <= std::pow(2, sizeof(uint8_t) * 8))
+		{
+			m_ValueLength = sizeof(uint8_t);
+		}
+		else if (value <= std::pow(2, sizeof(uint16_t) * 8))
+		{
+			m_ValueLength = sizeof(uint16_t);
+		}
+		else if (value <= std::pow(2, 3 * 8))
+		{
+			m_ValueLength = 3;
+		}
+		else
+		{
+			m_ValueLength = sizeof(uint32_t);
+		}
+
+		m_TotalLength = m_ValueLength + 2;
+	}
+
+	void Asn1IntegerRecord::decodeValue(uint8_t* data)
 	{
 		switch (m_ValueLength)
 		{
 			case 1:
 			{
-				return *(uint8_t*)m_Value;
+				m_Value = *(uint8_t*)data;
+				break;
 			}
 			case 2:
 			{
-				return be16toh(*(uint16_t*)m_Value);
+				m_Value = be16toh(*(uint16_t*)data);
+				break;
 			}
 			case 3:
 			{
 				uint8_t tempData[4] = {0};
-				memcpy(tempData + 1, m_Value, 3);
-				return be32toh(*(uint32_t*)tempData);
+				memcpy(tempData + 1, data, 3);
+				m_Value = be32toh(*(uint32_t*)tempData);
+				break;
 			}
 			case 4:
 			{
-				return be32toh(*(uint32_t*)m_Value);
+				m_Value = be32toh(*(uint32_t*)data);
+				break;
 			}
 			default:
 			{
@@ -311,13 +446,69 @@ namespace pcpp {
 		}
 	}
 
-	std::string Asn1OctetStringRecord::getValue() const
+	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
 	{
-		return {m_Value, m_Value + m_ValueLength};
+		std::vector<uint8_t> result;
+		result.reserve(m_ValueLength);
+
+		switch (m_ValueLength)
+		{
+			case 1:
+			{
+				result.push_back(static_cast<uint8_t>(m_Value));
+				break;
+			}
+			case 2:
+			{
+				uint8_t tempArr[sizeof(uint16_t)];
+				auto hostValue = htobe16(static_cast<uint16_t>(m_Value));
+				memcpy(tempArr, &hostValue, m_ValueLength);
+				std::copy(tempArr, tempArr + m_ValueLength, std::back_inserter(result));
+				break;
+			}
+			case 3:
+			{
+				uint8_t tempArr[sizeof(uint32_t)];
+				auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
+				memcpy(tempArr, &hostValue, sizeof(uint32_t));
+				std::copy(tempArr + 1, tempArr + m_ValueLength + 1, std::back_inserter(result));
+				break;
+			}
+			case 4:
+			{
+				uint8_t tempArr[sizeof(uint32_t)];
+				auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
+				memcpy(tempArr, &hostValue, m_ValueLength);
+				std::copy(tempArr, tempArr + m_ValueLength, std::back_inserter(result));
+				break;
+			}
+			default:
+			{
+				throw std::runtime_error("Integer value of more than 4 bytes is not supported");
+			}
+		}
+
+		return result;
 	}
 
-	bool Asn1BooleanRecord::getValue() const
+	void Asn1OctetStringRecord::decodeValue(uint8_t* data)
 	{
-		return m_Value[0] != 0;
+		m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
+	}
+
+	std::vector<uint8_t> Asn1OctetStringRecord::encodeValue() const
+	{
+		return {m_Value.begin(), m_Value.end()};
+	}
+
+	void Asn1BooleanRecord::decodeValue(uint8_t* data)
+	{
+		m_Value = data[0] != 0;
+	}
+
+	std::vector<uint8_t> Asn1BooleanRecord::encodeValue() const
+	{
+		uint8_t byte = (m_Value ? 0x00 : 0xff);
+		return { byte };
 	}
 }

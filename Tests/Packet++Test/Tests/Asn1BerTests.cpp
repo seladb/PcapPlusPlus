@@ -17,7 +17,8 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 13);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
-		auto recordValue = std::string(record->getRawValue(), record->getRawValue() + record->getValueLength());
+		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
+		auto recordValue = std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
 		PTF_ASSERT_EQUAL(recordValue, "objectclass");
 	}
 
@@ -81,14 +82,7 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 	{
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("020502540be400", data, 20);
-		auto record = pcpp::Asn1BerRecord::decode(data, dataLen);
-
-		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::BerTagClass::Universal, enumclass);
-		PTF_ASSERT_EQUAL(record->getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
-		PTF_ASSERT_EQUAL(record->getTotalLength(), 7);
-		PTF_ASSERT_EQUAL(record->getValueLength(), 5);
-		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), std::runtime_error, "An integer ASN.1 record of more than 4 bytes is not supported");
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, dataLen), std::runtime_error, "An integer ASN.1 record of more than 4 bytes is not supported");
 	}
 
 	// Enumerated
@@ -215,3 +209,83 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(children.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 	}
 }; // Asn1BerDecodingTest
+
+
+PTF_TEST_CASE(Asn1BerEncodingTest)
+{
+	// Integer 1 byte
+	{
+		pcpp::Asn1IntegerRecord record(6);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record.getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
+		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 3);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 1);
+		PTF_ASSERT_EQUAL(record.getValue(), 6);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("020106", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Integer 2 bytes
+	{
+		pcpp::Asn1IntegerRecord record(1000);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record.getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
+		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
+		PTF_ASSERT_EQUAL(record.getValue(), 1000);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("020203e8", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Integer 3 bytes
+	{
+		pcpp::Asn1IntegerRecord record(100000);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record.getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
+		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 5);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 3);
+		PTF_ASSERT_EQUAL(record.castAs<pcpp::Asn1IntegerRecord>()->getValue(), 100000);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("02030186a0", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Integer 4 bytes
+	{
+		pcpp::Asn1IntegerRecord record(100000000);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record.getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
+		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 6);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 4);
+		PTF_ASSERT_EQUAL(record.castAs<pcpp::Asn1IntegerRecord>()->getValue(), 100000000);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("020405f5e100", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+}
