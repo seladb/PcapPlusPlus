@@ -5,9 +5,9 @@
 #include <cmath>
 
 namespace pcpp {
-	std::unique_ptr<Asn1BerRecord> Asn1BerRecord::decode(const uint8_t* data, size_t dataLen)
+	std::unique_ptr<Asn1BerRecord> Asn1BerRecord::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		auto record = decodeInternal(data, dataLen);
+		auto record = decodeInternal(data, dataLen ,lazy);
 		return std::unique_ptr<Asn1BerRecord>(record);
 	}
 
@@ -61,9 +61,7 @@ namespace pcpp {
 		}
 
 		// Assuming the size is always 4 bytes
-		auto valueLen = static_cast<uint32_t>(m_ValueLength);
-
-		uint8_t firstByte = 0x80 | sizeof(valueLen);
+		uint8_t firstByte = 0x80 | sizeof(uint32_t);
 		result.push_back(firstByte);
 
 		result.push_back((m_ValueLength >> 24) & 0xff);
@@ -89,7 +87,7 @@ namespace pcpp {
 		return result;
 	}
 
-	Asn1BerRecord* Asn1BerRecord::decodeInternal(const uint8_t* data, size_t dataLen)
+	Asn1BerRecord* Asn1BerRecord::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
 	{
 		int tagLen = 1;
 		if (dataLen < static_cast<size_t>(tagLen))
@@ -108,14 +106,22 @@ namespace pcpp {
 
 		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
 
-		try
+		if (!lazy)
 		{
-			decodedRecord->decodeValue((uint8_t*)data + tagLen + lengthLen);
+			try
+			{
+				decodedRecord->decodeValue((uint8_t*)data + tagLen + lengthLen, lazy);
+			}
+			catch (...)
+			{
+				delete decodedRecord;
+				throw;
+			}
+
 		}
-		catch (...)
+		else
 		{
-			delete decodedRecord;
-			throw;
+			decodedRecord->m_EncodedValue = (uint8_t*)data + tagLen + lengthLen;
 		}
 
 		return decodedRecord;
@@ -346,6 +352,15 @@ namespace pcpp {
 		return numberLengthBytes;
 	}
 
+	void Asn1BerRecord::decodeValueIfNeeded()
+	{
+		if (m_EncodedValue != nullptr)
+		{
+			decodeValue(m_EncodedValue, true);
+			m_EncodedValue = nullptr;
+		}
+	}
+
 	Asn1GenericRecord::Asn1GenericRecord(BerTagClass tagClass, BerTagType berTagType, uint8_t tagType, const uint8_t* value, size_t valueLen)
 	{
 		m_TagType = tagType;
@@ -366,7 +381,7 @@ namespace pcpp {
 		}
 	}
 
-	void Asn1GenericRecord::decodeValue(uint8_t* data)
+	void Asn1GenericRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		m_Value = data;
 	}
@@ -386,7 +401,7 @@ namespace pcpp {
 		for (auto record : subRecords)
 		{
 			auto encodedRecord = record->encode();
-			auto copyRecord = Asn1BerRecord::decode(encodedRecord.data(), encodedRecord.size());
+			auto copyRecord = Asn1BerRecord::decode(encodedRecord.data(), encodedRecord.size(), false);
 			m_SubRecords.pushBack(copyRecord.release());
 			recordValueLength += encodedRecord.size();
 		}
@@ -395,7 +410,7 @@ namespace pcpp {
 		m_TotalLength = recordValueLength + 2;
 	}
 
-	void Asn1BerConstructedRecord::decodeValue(uint8_t* data)
+	void Asn1BerConstructedRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		if (!(data || m_ValueLength))
 		{
@@ -407,7 +422,7 @@ namespace pcpp {
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1BerRecord::decodeInternal(value, valueLen);
+			auto subRecord = Asn1BerRecord::decodeInternal(value, valueLen, lazy);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
@@ -467,7 +482,7 @@ namespace pcpp {
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t* data)
+	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		switch (m_ValueLength)
 		{
@@ -557,7 +572,7 @@ namespace pcpp {
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1OctetStringRecord::decodeValue(uint8_t* data)
+	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
 	}
@@ -574,7 +589,7 @@ namespace pcpp {
 		m_TotalLength = 3;
 	}
 
-	void Asn1BooleanRecord::decodeValue(uint8_t* data)
+	void Asn1BooleanRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		m_Value = data[0] != 0;
 	}

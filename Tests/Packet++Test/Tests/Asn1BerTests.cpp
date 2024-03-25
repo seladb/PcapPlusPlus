@@ -82,7 +82,7 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 	{
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("020502540be400", data, 20);
-		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, dataLen), std::runtime_error, "An integer ASN.1 record of more than 4 bytes is not supported");
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, dataLen, false), std::runtime_error, "An integer ASN.1 record of more than 4 bytes is not supported");
 	}
 
 	// Enumerated
