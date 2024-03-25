@@ -376,17 +376,25 @@ namespace pcpp {
 		return {m_Value, m_Value + m_ValueLength};
 	}
 
-	Asn1BerConstructedRecord::Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*> children)
+	Asn1BerConstructedRecord::Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*>& subRecords)
 	{
 		m_TagType = tagType;
 		m_TagClass = tagClass;
 		m_BerTagType = BerTagType::Constructed;
-		//TODO
-//		for (auto record : children)
-//		{
-//			m_Children.pushBack()
-//		}
+
+		size_t recordValueLength = 0;
+		for (auto record : subRecords)
+		{
+			auto encodedRecord = record->encode();
+			auto copyRecord = Asn1BerRecord::decode(encodedRecord.data(), encodedRecord.size());
+			m_SubRecords.pushBack(copyRecord.release());
+			recordValueLength += encodedRecord.size();
+		}
+
+		m_ValueLength = recordValueLength;
+		m_TotalLength = recordValueLength + 2;
 	}
+
 	void Asn1BerConstructedRecord::decodeValue(uint8_t* data)
 	{
 		if (!(data || m_ValueLength))
@@ -399,19 +407,34 @@ namespace pcpp {
 
 		while (valueLen > 0)
 		{
-			auto childTag = Asn1BerRecord::decodeInternal(value, valueLen);
-			value += childTag->getTotalLength();
-			valueLen -= childTag->getTotalLength();
+			auto subRecord = Asn1BerRecord::decodeInternal(value, valueLen);
+			value += subRecord->getTotalLength();
+			valueLen -= subRecord->getTotalLength();
 
-			m_Children.pushBack(childTag);
+			m_SubRecords.pushBack(subRecord);
 		}
 	}
 
 	std::vector<uint8_t> Asn1BerConstructedRecord::encodeValue() const
 	{
-		//TODO
-		return {};
+		std::vector<uint8_t> result;
+		result.reserve(m_ValueLength);
+
+		for (auto record : m_SubRecords)
+		{
+			auto encodedRecord = record->encode();
+			result.insert(result.end(), std::make_move_iterator(encodedRecord.begin()), std::make_move_iterator(encodedRecord.end()));
+		}
+		return result;
 	}
+
+	Asn1SequenceRecord::Asn1SequenceRecord(const std::vector<Asn1BerRecord*>& subRecords)
+		: Asn1BerConstructedRecord(BerTagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Sequence), subRecords)
+	{}
+
+	Asn1SetRecord::Asn1SetRecord(const std::vector<Asn1BerRecord*>& subRecords)
+			: Asn1BerConstructedRecord(BerTagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
+	{}
 
 	Asn1PrimitiveRecord::Asn1PrimitiveRecord(uint8_t tagType) : Asn1BerRecord()
 	{

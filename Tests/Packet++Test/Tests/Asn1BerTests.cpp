@@ -167,10 +167,10 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 10);
 
-		auto& children = record->castAs<pcpp::Asn1SequenceRecord>()->getChildren();
-		PTF_ASSERT_EQUAL(children.size(), 2);
-		PTF_ASSERT_EQUAL(children.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
-		PTF_ASSERT_EQUAL(children.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		auto& subRecords = record->castAs<pcpp::Asn1SequenceRecord>()->getSubRecords();
+		PTF_ASSERT_EQUAL(subRecords.size(), 2);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 	}
 
 	// Set
@@ -185,10 +185,10 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 10);
 
-		auto& children = record->castAs<pcpp::Asn1SetRecord>()->getChildren();
-		PTF_ASSERT_EQUAL(children.size(), 2);
-		PTF_ASSERT_EQUAL(children.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
-		PTF_ASSERT_EQUAL(children.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
+		auto& subRecords = record->castAs<pcpp::Asn1SetRecord>()->getSubRecords();
+		PTF_ASSERT_EQUAL(subRecords.size(), 2);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
 	}
 
 	// Application constructed
@@ -203,10 +203,10 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 10);
 
-		auto& children = record->castAs<pcpp::Asn1BerConstructedRecord>()->getChildren();
-		PTF_ASSERT_EQUAL(children.size(), 2);
-		PTF_ASSERT_EQUAL(children.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
-		PTF_ASSERT_EQUAL(children.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		auto& subRecords = record->castAs<pcpp::Asn1BerConstructedRecord>()->getSubRecords();
+		PTF_ASSERT_EQUAL(subRecords.size(), 2);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 	}
 }; // Asn1BerDecodingTest
 
@@ -395,5 +395,55 @@ PTF_TEST_CASE(Asn1BerEncodingTest)
 		auto encodedValue = record.encode();
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Sequence
+	{
+		pcpp::Asn1OctetStringRecord octestStringRecord("abcd");
+		pcpp::Asn1IntegerRecord integerRecord(1000);
+		pcpp::Asn1SequenceRecord record({ &octestStringRecord, &integerRecord});
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record.getBerTagType(), pcpp::BerTagType::Constructed, enumclass);
+		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Sequence, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 12);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 10);
+
+		auto& subRecords = record.getSubRecords();
+		PTF_ASSERT_EQUAL(subRecords.size(), 2);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("300a040461626364020203e8", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
+	// Set
+	{
+		pcpp::Asn1OctetStringRecord octestStringRecord("abcd");
+		pcpp::Asn1IntegerRecord integerRecord(1000);
+		pcpp::Asn1SetRecord record({ &integerRecord, &octestStringRecord });
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record.getBerTagType(), pcpp::BerTagType::Constructed, enumclass);
+		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Set, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 12);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 10);
+
+		auto& subRecords = record.getSubRecords();
+		PTF_ASSERT_EQUAL(subRecords.size(), 2);
+		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
+		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("310a020203e8040461626364", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
 	}
 }

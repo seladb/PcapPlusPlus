@@ -74,7 +74,15 @@ namespace pcpp
 		uint8_t getTagType() const { return m_TagType; }
 
 		template <class Asn1BerRecordType>
-		const Asn1BerRecordType* castAs() const { return dynamic_cast<const Asn1BerRecordType*>(this); }
+		const Asn1BerRecordType* castAs() const
+		{
+			auto result = dynamic_cast<const Asn1BerRecordType*>(this);
+			if (result == nullptr)
+			{
+				throw std::runtime_error("Cast failed, instance isn't of the requested type");
+			}
+			return result;
+		}
 
 		std::vector<uint8_t> encode();
 
@@ -129,8 +137,8 @@ namespace pcpp
 		friend class Asn1BerRecord;
 
 	public:
-		Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*> children);
-		const PointerVector<Asn1BerRecord>& getChildren() const { return m_Children; };
+		Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*>& subRecords);
+		const PointerVector<Asn1BerRecord>& getSubRecords() const { return m_SubRecords; };
 
 	protected:
 		Asn1BerConstructedRecord() = default;
@@ -139,12 +147,15 @@ namespace pcpp
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
-		PointerVector<Asn1BerRecord> m_Children;
+		PointerVector<Asn1BerRecord> m_SubRecords;
 	};
 
 	class Asn1SequenceRecord : public Asn1BerConstructedRecord
 	{
 		friend class Asn1BerRecord;
+
+	public:
+		Asn1SequenceRecord(const std::vector<Asn1BerRecord*>& subRecords);
 
 	private:
 		Asn1SequenceRecord() = default;
@@ -153,6 +164,9 @@ namespace pcpp
 	class Asn1SetRecord : public Asn1BerConstructedRecord
 	{
 		friend class Asn1BerRecord;
+
+	public:
+		Asn1SetRecord(const std::vector<Asn1BerRecord*>& subRecords);
 
 	private:
 		Asn1SetRecord() = default;
