@@ -53,9 +53,9 @@ std::string printTcpOptionEnumType(pcpp::TcpOptionEnumType optionType)
 {
 	switch (optionType)
 	{
-	case pcpp::TcpOptionEnumType::PCPP_TCPOPT_NOP:
+	case pcpp::TcpOptionEnumType::NOP:
 		return "NOP";
-	case pcpp::TcpOptionEnumType::PCPP_TCPOPT_TIMESTAMP:
+	case pcpp::TcpOptionEnumType::TIMESTAMP:
 		return "Timestamp";
 	default:
 		return "Other";
