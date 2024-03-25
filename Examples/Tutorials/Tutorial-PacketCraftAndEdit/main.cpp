@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 	// add URG flag
 	tcpLayer->getTcpHeader()->urgFlag = 1;
 	// add MSS TCP option
-	tcpLayer->insertTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::TCPOPT_MSS, (uint16_t)1460));
+	tcpLayer->insertTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::MSS, (uint16_t)1460));
 
 	// let's get the HTTP layer
 	pcpp::HttpRequestLayer* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
