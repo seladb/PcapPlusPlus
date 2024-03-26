@@ -484,7 +484,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 	{
 		PCPP_LOG_DEBUG("Starting first iteration of checkOutOfOrderFragments - looking for fragments that match the current sequence or have smaller sequence");
 
-		auto it = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin();
+		PointerVector<TcpFragment>::VectorIterator it;
 		foundSomething = false;
 		
 		do
