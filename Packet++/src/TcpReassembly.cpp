@@ -486,7 +486,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 		PointerVector<TcpFragment>::VectorIterator it;
 		foundSomething = false;
-		
+
 		do
 		{
 			it = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin();
