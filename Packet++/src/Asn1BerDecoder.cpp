@@ -89,18 +89,23 @@ namespace pcpp {
 
 	Asn1BerRecord* Asn1BerRecord::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		int tagLen = 1;
-		if (dataLen < static_cast<size_t>(tagLen))
+		int tagLen;
+		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
+
+		int lengthLen;
+		try
 		{
-			throw std::invalid_argument("Cannot decode ASN.1 BER record, data is shorter than tag len");
+			lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
+		}
+		catch (...)
+		{
+			delete decodedRecord;
+			throw;
 		}
 
-		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen);
-
-		auto lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
-
-		if (dataLen - tagLen - lengthLen - decodedRecord->m_ValueLength < 0)
+		if (static_cast<int>(dataLen) - tagLen - lengthLen - static_cast<int>(decodedRecord->m_ValueLength) < 0)
 		{
+			delete decodedRecord;
 			throw std::invalid_argument("Cannot decode ASN.1 BER record, data doesn't contain the entire record");
 		}
 
@@ -125,57 +130,6 @@ namespace pcpp {
 		}
 
 		return decodedRecord;
-
-		// TODO
-
-//		else if (!isValidTlv) {
-//			if (allowConstructedIfMultipleTlvs)
-//			{
-//				if (currentReadIndex != tlv.size() && currentReadIndex != tlv.size() + 2)
-//				{
-//					const int lengthInt = tlv.size();
-//					if (lengthInt > 0)
-//					{
-//						isValidTlv = true;
-//
-//						// this is a group of tags, so we add them as children and consider this a constructed tag
-//						children.push_back(*this);
-//
-//						int currentReadIndexChildren = currentReadIndex;
-//						while (currentReadIndexChildren < lengthInt)
-//						{
-//							Asn1BerRecord nextTag;
-//							nextTag.decode(tlv.substr(currentReadIndexChildren), false);
-//							if (nextTag.isValidTlv)
-//							{
-//								children.push_back(nextTag);
-//							}
-//							currentReadIndexChildren += nextTag.currentReadIndex;
-//						}
-//
-//						// If nothing else in the TLV was considered valid, we go back to having the first valid TLV as the only one
-//						if (children.size() > 1)
-//						{
-//							tagType = BerTagType::CONSTRUCTED;
-//
-//							tag.clear();
-//							value = tlv;
-//							length.clear();
-//							tagClass = BerTagClass::UNIVERSAL;
-//						}
-//						else
-//						{
-//							children.clear();
-//							isValidTlv = false;
-//						}
-//					}
-//				}
-//			}
-//			else if (hasMoreAfterValue)
-//			{
-//				isValidTlv = true; // this is part of a group of tags not inside a constructed tag, so we consider this as valid and will continue to evalute the rest of the tlv
-//			}
-//		}
 	}
 
 	Asn1UniversalTagType Asn1BerRecord::getAsn1UniversalTagType() const
@@ -188,12 +142,14 @@ namespace pcpp {
 		return Asn1UniversalTagType::NotApplicable;
 	}
 
-	Asn1BerRecord* Asn1BerRecord::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen)
+	Asn1BerRecord* Asn1BerRecord::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen)
 	{
 		if (dataLen < 1)
 		{
 			throw std::invalid_argument("Cannot decode ASN.1 BER record tag");
 		}
+
+		tagLen = 1;
 
 		BerTagClass tagClass = BerTagClass::Universal;
 
@@ -222,6 +178,21 @@ namespace pcpp {
 
 		// Check last 5 bits
 		auto tagType = data[0] & 0x1f;
+		if (tagType == 0x1f)
+		{
+			if (dataLen < 2)
+			{
+				throw std::invalid_argument("Cannot decode ASN.1 BER record tag");
+			}
+
+			if ((data[1] & 0x80) != 0)
+			{
+				throw std::invalid_argument("ASN.1 BER tags with value larger than 127 are not supported");
+			}
+
+			tagType = data[1] & 0x7f;
+			tagLen = 2;
+		}
 
 		Asn1BerRecord* newRecord;
 
@@ -301,19 +272,6 @@ namespace pcpp {
 		newRecord->m_TagType = tagType;
 
 		return newRecord;
-		// TODO
-//		// Check if the tag is using more than one byte
-//		if (tagNumber >= 31)
-//		{
-//			for (auto i = 1; i < 1000; i++)
-//				// Check first bit
-//				const bool hasNextByte = data[i] & 0x80;
-//				if (!hasNextByte)
-//				{
-//					break;
-//				}
-//			}
-//		}
 	}
 
 	int Asn1BerRecord::decodeLength(const uint8_t* data, size_t dataLen)

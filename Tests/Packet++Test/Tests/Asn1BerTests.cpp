@@ -208,6 +208,51 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 	}
+
+	// Tag > 30
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("1f23076d7976616c7565", data, 20);
+		auto record = pcpp::Asn1BerRecord::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record->getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
+		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::OidIri, enumclass);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 10);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 7);
+		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
+		auto recordValue = std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
+		PTF_ASSERT_EQUAL(recordValue, "myvalue");
+	}
+
+	// Tag > 127
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("1f8100076d7976616c7565", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, dataLen), std::invalid_argument, "ASN.1 BER tags with value larger than 127 are not supported");
+	}
+
+	// Not enough data to parse tag
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("1f8100076d7976616c7565", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, 0), std::invalid_argument, "Cannot decode ASN.1 BER record tag");
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, 1), std::invalid_argument, "Cannot decode ASN.1 BER record tag");
+	}
+
+	// Not enough data to parse length
+	{
+		uint8_t data[20];
+		pcpp::hexStringToByteArray("0500", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, 1), std::invalid_argument, "Cannot decode ASN.1 BER record length");
+	}
+
+	// Incomplete record - doesn't contain the entire value
+	{
+		uint8_t data[20];
+		pcpp::hexStringToByteArray("0a022000", data, 20);
+		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, 3), std::invalid_argument, "Cannot decode ASN.1 BER record, data doesn't contain the entire record");
+	}
 }; // Asn1BerDecodingTest
 
 
@@ -446,4 +491,4 @@ PTF_TEST_CASE(Asn1BerEncodingTest)
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
 	}
-}
+} // Asn1BerEncodingTest
