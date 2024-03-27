@@ -253,6 +253,14 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		pcpp::hexStringToByteArray("0a022000", data, 20);
 		PTF_ASSERT_RAISES(pcpp::Asn1BerRecord::decode(data, 3), std::invalid_argument, "Cannot decode ASN.1 BER record, data doesn't contain the entire record");
 	}
+
+	// Cast as the wrong type
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("0a022000", data, 20);
+		auto record = pcpp::Asn1BerRecord::decode(data, dataLen);
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1BooleanRecord>(), std::runtime_error, "Cast failed, instance isn't of the requested type");
+	}
 }; // Asn1BerDecodingTest
 
 
