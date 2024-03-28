@@ -128,6 +128,13 @@ namespace pcpp
 		bool matchNetwork(const std::string& network) const;
 
 		/**
+		 * A static method that checks whether a string represents a valid IPv4 address
+		 * @param[in] addrAsString The std::string representation of the address
+		 * @return True if the address is valid, false otherwise
+		 */
+		static bool isValidIPv4Address(const std::string& addrAsString);
+
+		/**
 		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0".
 		 */
 		static const IPv4Address Zero;
@@ -254,6 +261,13 @@ namespace pcpp
 		 * @return True if the address matches the network or false if it doesn't or if the network is invalid
 		 */
 		bool matchNetwork(const std::string& network) const;
+
+		/**
+		 * A static method that checks whether a string represents a valid IPv6 address
+		 * @param[in] addrAsString The std::string representation of the address
+		 * @return True if the address is valid, false otherwise
+		 */
+		static bool isValidIPv6Address(const std::string& addrAsString);
 
 		/**
 		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0".

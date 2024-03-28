@@ -78,6 +78,12 @@ namespace pcpp
 		}
 	}
 
+	bool IPv4Address::isValidIPv4Address(const std::string& addrAsString)
+	{
+		struct sockaddr_in sa_in;
+		return inet_pton(AF_INET, addrAsString.data(), &(sa_in.sin_addr)) > 0;
+	}
+
 
 	// ~~~~~~~~~~~
 	// IPv6Address
@@ -139,6 +145,12 @@ namespace pcpp
 		}
 	}
 
+	bool IPv6Address::isValidIPv6Address(const std::string& addrAsString)
+	{
+		struct sockaddr_in6 sa_in6;
+		return inet_pton(AF_INET6, addrAsString.data(), &(sa_in6.sin6_addr)) > 0;
+	}
+
 
 	// ~~~~~~~~~
 	// IPAddress
@@ -147,14 +159,12 @@ namespace pcpp
 
 	IPAddress::IPAddress(const std::string& addrAsString)
 	{
-		struct sockaddr_in sa_in;
-		struct sockaddr_in6 sa_in6;
-		if (inet_pton(AF_INET, addrAsString.data(), &(sa_in.sin_addr)) > 0)
+		if (IPv4Address::isValidIPv4Address(addrAsString))
 		{
 			m_Type = IPv4AddressType;
 			m_IPv4 = IPv4Address(addrAsString);
 		}
-		else if (inet_pton(AF_INET6, addrAsString.data(), &(sa_in6.sin6_addr)) > 0)
+		else if (IPv6Address::isValidIPv6Address(addrAsString))
 		{
 			m_Type = IPv6AddressType;
 			m_IPv6 = IPv6Address(addrAsString);
