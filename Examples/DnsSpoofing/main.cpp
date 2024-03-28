@@ -315,9 +315,9 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 	std::vector<pcpp::GeneralFilter*> filterForAnd;
 	filterForAnd.push_back(&dnsPortFilter);
 
+	pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
 	if(!clientIP.isZero())
 	{
-		pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
 		filterForAnd.push_back(&clientIpFilter);
 	}
 
