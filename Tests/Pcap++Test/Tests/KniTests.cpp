@@ -286,7 +286,6 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	unsigned int counter = 0;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
 	pcpp::IPv4Address kniIp = PcapTestGlobalArgs.kniIp;
-	PTF_ASSERT_TRUE(kniIp.isValid());
 
 	// KNI device setup
 	std::ostringstream deviceName;

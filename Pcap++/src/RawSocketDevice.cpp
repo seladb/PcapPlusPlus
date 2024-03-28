@@ -366,12 +366,6 @@ bool RawSocketDevice::open()
 {
 #if defined(_WIN32)
 
-	if (!m_InterfaceIP.isValid())
-	{
-		PCPP_LOG_ERROR("IP address is not valid");
-		return false;
-	}
-
 	int family = (m_SockFamily == IPv4 ? AF_INET : AF_INET6);
 	SOCKET fd = socket(family, SOCK_RAW, IPPROTO_IP);
 	if ((int)fd == SOCKET_ERROR)
@@ -448,11 +442,6 @@ bool RawSocketDevice::open()
 	PCPP_LOG_ERROR("Raw sockets aren't supported in Android API < 24");
 	return false;
 #else
-	if (!m_InterfaceIP.isValid())
-	{
-		PCPP_LOG_ERROR("IP address is not valid");
-		return false;
-	}
 
 	int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
 	if (fd < 0)

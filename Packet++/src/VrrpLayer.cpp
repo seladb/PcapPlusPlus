@@ -366,11 +366,6 @@ namespace pcpp {
 			PCPP_LOG_ERROR("IP address version is not equal to layer's");
 			return false;
 		}
-		if (!ipAddress.isValid())
-		{
-			PCPP_LOG_ERROR("IP address is invalid.");
-			return false;
-		}
 
 		return true;
 	}

@@ -21,8 +21,7 @@ IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxRes
 	m_Protocol = igmpVer;
 
 	setType(type);
-	if (groupAddr.isValid())
-		setGroupAddress(groupAddr);
+	setGroupAddress(groupAddr);
 
 	getIgmpHeader()->maxResponseTime = maxResponseTime;
 }
