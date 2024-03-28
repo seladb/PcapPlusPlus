@@ -53,7 +53,7 @@ namespace pcpp
 	{
 		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
 		{
-			throw std::invalid_argument("Not a valid IPv4 address:" + addrAsString);
+			throw std::invalid_argument("Not a valid IPv4 address: " + addrAsString);
 		}
 	}
 
@@ -254,7 +254,8 @@ namespace pcpp
 		{
 			networkPrefix = IPv4Address(networkPrefixStr);
 		}
-		catch (const std::invalid_argument& e) {
+		catch (const std::invalid_argument& e)
+		{
 			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix: " + std::string(e.what()));
 		}
 
@@ -270,7 +271,15 @@ namespace pcpp
 		}
 		else
 		{
-			IPv4Address netmaskAddr(netmaskStr);
+			IPv4Address netmaskAddr;
+			try
+			{
+				netmaskAddr = IPv4Address(netmaskStr);
+			}
+			catch (const std::invalid_argument& e)
+			{
+				throw std::invalid_argument("Netmask is not valid: " + std::string(e.what()));
+			}
 			if (!isValidNetmask(netmaskAddr))
 			{
 				throw std::invalid_argument("Netmask is not valid");

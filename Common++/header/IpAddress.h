@@ -128,8 +128,7 @@ namespace pcpp
 		bool matchNetwork(const std::string& network) const;
 
 		/**
-		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
-		 * Notice this value can be omitted in the user code because the default constructor creates an instance with the zero-initialized address.
+		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0".
 		 */
 		static const IPv4Address Zero;
 
@@ -257,8 +256,7 @@ namespace pcpp
 		bool matchNetwork(const std::string& network) const;
 
 		/**
-		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
-		 * Notice this value can be omitted in the user code because the default constructor creates an instance with the zero-initialized address.
+		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0".
 		 */
 		static const IPv6Address Zero;
 
