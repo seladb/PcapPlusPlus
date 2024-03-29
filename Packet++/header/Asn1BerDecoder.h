@@ -237,7 +237,7 @@ namespace pcpp
 		friend class Asn1BerRecord;
 
 	public:
-		bool getValue()  { decodeValueIfNeeded(); return m_Value; };
+		bool getValue() { decodeValueIfNeeded(); return m_Value; };
 		explicit Asn1BooleanRecord(bool value);
 
 	protected:

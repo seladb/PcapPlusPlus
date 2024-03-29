@@ -225,6 +225,22 @@ PTF_TEST_CASE(Asn1BerDecodingTest)
 		PTF_ASSERT_EQUAL(recordValue, "myvalue");
 	}
 
+	// Unknown tag
+	{
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("1f28076d7976616c7565", data, 20);
+		auto record = pcpp::Asn1BerRecord::decode(data, dataLen);
+
+		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::BerTagClass::Universal, enumclass);
+		PTF_ASSERT_EQUAL(record->getBerTagType(), pcpp::BerTagType::Primitive, enumclass);
+		PTF_ASSERT_EQUAL(record->getTagType(), 40);
+		PTF_ASSERT_EQUAL(record->getTotalLength(), 10);
+		PTF_ASSERT_EQUAL(record->getValueLength(), 7);
+		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
+		auto recordValue = std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
+		PTF_ASSERT_EQUAL(recordValue, "myvalue");
+	}
+
 	// Tag > 127
 	{
 		uint8_t data[20];
