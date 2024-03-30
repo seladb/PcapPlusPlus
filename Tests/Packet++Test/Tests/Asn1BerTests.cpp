@@ -1,5 +1,5 @@
 #include "../TestDefinition.h"
-#include "Asn1BerDecoder.h"
+#include "Asn1BerCodec.h"
 #include "RawPacket.h"
 #include "GeneralUtils.h"
 #include <functional>

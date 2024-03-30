@@ -1,4 +1,4 @@
-#include "Asn1BerDecoder.h"
+#include "Asn1BerCodec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
 #include <iostream>
