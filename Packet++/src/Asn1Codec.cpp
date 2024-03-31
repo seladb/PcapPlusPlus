@@ -1,4 +1,4 @@
-#include "Asn1BerCodec.h"
+#include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
 #include <iostream>
@@ -106,7 +106,7 @@ namespace pcpp {
 		if (static_cast<int>(dataLen) - tagLen - lengthLen - static_cast<int>(decodedRecord->m_ValueLength) < 0)
 		{
 			delete decodedRecord;
-			throw std::invalid_argument("Cannot decode ASN.1 BER record, data doesn't contain the entire record");
+			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
 		}
 
 		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
@@ -146,7 +146,7 @@ namespace pcpp {
 	{
 		if (dataLen < 1)
 		{
-			throw std::invalid_argument("Cannot decode ASN.1 BER record tag");
+			throw std::invalid_argument("Cannot decode ASN.1 record tag");
 		}
 
 		tagLen = 1;
@@ -182,12 +182,12 @@ namespace pcpp {
 		{
 			if (dataLen < 2)
 			{
-				throw std::invalid_argument("Cannot decode ASN.1 BER record tag");
+				throw std::invalid_argument("Cannot decode ASN.1 record tag");
 			}
 
 			if ((data[1] & 0x80) != 0)
 			{
-				throw std::invalid_argument("ASN.1 BER tags with value larger than 127 are not supported");
+				throw std::invalid_argument("ASN.1 tags with value larger than 127 are not supported");
 			}
 
 			tagType = data[1] & 0x7f;
@@ -278,7 +278,7 @@ namespace pcpp {
 	{
 		if (dataLen < 1)
 		{
-			throw std::invalid_argument("Cannot decode ASN.1 BER record length");
+			throw std::invalid_argument("Cannot decode ASN.1 record length");
 		}
 
 		// Check 8th bit
@@ -294,7 +294,7 @@ namespace pcpp {
 			auto additionalLengthBytes = data[0] & 0x7F;
 			if (static_cast<int>(dataLen) < additionalLengthBytes + 1)
 			{
-				throw std::invalid_argument("Cannot decode ASN.1 BER record length");
+				throw std::invalid_argument("Cannot decode ASN.1 record length");
 			}
 			for (auto index = additionalLengthBytes; index > 0; --index)
 			{

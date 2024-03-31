@@ -255,6 +255,6 @@ PTF_TEST_CASE(SmtpParsingTests);
 PTF_TEST_CASE(SmtpCreationTests);
 PTF_TEST_CASE(SmtpEditTests);
 
-// Implemented in Asn1BerTests.cpp
-PTF_TEST_CASE(Asn1BerDecodingTest);
-PTF_TEST_CASE(Asn1BerEncodingTest);
+// Implemented in Asn1Tests.cpp
+PTF_TEST_CASE(Asn1DecodingTest);
+PTF_TEST_CASE(Asn1EncodingTest);
