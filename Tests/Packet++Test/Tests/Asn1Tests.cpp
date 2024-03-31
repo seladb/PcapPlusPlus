@@ -217,7 +217,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::OidIri, enumclass);
+		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::ObjectIdentifierIRI, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 10);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 7);
 		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();

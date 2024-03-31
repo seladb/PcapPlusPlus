@@ -17,54 +17,103 @@ namespace pcpp
 	 */
 	enum class Asn1TagClass : uint8_t
 	{
+		/** The Universal tag class */
 		Universal,
+		/** The Application tag class */
 		Application,
+		/** The Context-Specific tag class */
 		ContextSpecific,
+		/** The Private tag class */
 		Private
 	};
 
+	/**
+	 * An enum for representing ASN.1 Universal tag types
+	 */
 	enum class Asn1UniversalTagType : uint8_t
 	{
+		/** The reserved identifier for the End-of-Contents marker in an indefinite length encoding */
 		EndOfContent = 0,
+		/** The universal tag type for Boolean */
 		Boolean = 1,
+		/** The universal tag type for Integer */
 		Integer = 2,
+		/** The universal tag type for Bit String */
 		BitString = 3,
+		/** The universal tag type for Octet String */
 		OctetString = 4,
+		/** The universal tag type for Null */
 		Null = 5,
+		/** The universal tag type for Object Identifier */
 		ObjectIdentifier = 6,
+		/** The universal tag type for Object Descriptor */
 		ObjectDescriptor = 7,
+		/** The universal tag type for External */
 		External = 8,
+		/** The universal tag type for Real */
 		Real = 9,
+		/** The universal tag type for Enumerated */
 		Enumerated = 10,
+		/** The universal tag type for Embedded-PDV */
 		EmbeddedPDV = 11,
+		/** The universal tag type for UTF8 String */
 		UTF8String = 12,
-		RelativeOID = 13,
+		/** The universal tag type for Relative Object Identifier */
+		RelativeObjectIdentifier = 13,
+		/** The universal tag type for Time */
 		Time = 14,
+		/** A reserved value */
 		Reserved = 15,
+		/** The universal tag type Sequence */
 		Sequence = 16,
+		/** The universal tag type for Set */
 		Set = 17,
+		/** The universal tag type for Numeric String */
 		NumericString = 18,
+		/** The universal tag type for Printable String */
 		PrintableString = 19,
+		/** The universal tag type for T61String */
 		T61String = 20,
+		/** The universal tag type for Videotex String */
 		VideotexString = 21,
+		/** The universal tag type for IA5String */
 		IA5String = 22,
+		/** The universal tag type for UTC time */
 		UTCTime = 23,
+		/** The universal tag type for Generalized time */
 		GeneralizedTime = 24,
+		/** The universal tag type for GraphicString */
 		GraphicString = 25,
+		/** The universal tag type for VisibleString */
 		VisibleString = 26,
+		/** The universal tag type for GeneralString */
 		GeneralString = 27,
+		/** The universal tag type for UniversalString */
 		UniversalString = 28,
+		/** The universal tag type for CharacterString */
 		CharacterString = 29,
+		/** The universal tag type for BMPString */
 		BMPString = 30,
+		/** The universal tag type for Date */
 		Date = 31,
+		/** The universal tag type for Time of Day */
 		TimeOfDay = 32,
+		/** The universal tag type for Date-Time */
 		DateTime = 33,
+		/** The universal tag type for Duration */
 		Duration = 34,
-		OidIri = 35,
-		RelativeOidIri = 36,
+		/** The universal tag type for Object Identifier Internationalized Resource Identifier (IRI) */
+		ObjectIdentifierIRI = 35,
+		/** The universal tag type for Relative Object Identifier Internationalized Resource Identifier (IRI) */
+		RelativeObjectIdentifierIRI = 36,
+		/** A non-applicable value */
 		NotApplicable = 255
 	};
 
+	/**
+	 * @class Asn1Record
+	 * This class represents an ASN.1 record, as described in ITU-T Recommendation X.680
+	 */
 	class Asn1Record
 	{
 	public:
@@ -118,6 +167,11 @@ namespace pcpp
 		std::vector<uint8_t> encodeLength() const;
 	};
 
+	/**
+	 * @class Asn1GenericRecord
+	 * This class represents a generic ASN.1 record, either of an unknown type or of a known type that doesn't
+	 * have a parser yet
+	 */
 	class Asn1GenericRecord : public Asn1Record
 	{
 		friend class Asn1Record;
