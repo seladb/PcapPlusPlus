@@ -5,29 +5,29 @@
 #include <cmath>
 
 namespace pcpp {
-	std::unique_ptr<Asn1BerRecord> Asn1BerRecord::decode(const uint8_t* data, size_t dataLen, bool lazy)
+	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
 		auto record = decodeInternal(data, dataLen ,lazy);
-		return std::unique_ptr<Asn1BerRecord>(record);
+		return std::unique_ptr<Asn1Record>(record);
 	}
 
-	uint8_t Asn1BerRecord::encodeTag()
+	uint8_t Asn1Record::encodeTag()
 	{
 		uint8_t tagByte;
 
 		switch (m_TagClass)
 		{
-			case BerTagClass::Private:
+			case Asn1TagClass::Private:
 			{
 				tagByte = 0xc0;
 				break;
 			}
-			case BerTagClass::ContextSpecific:
+			case Asn1TagClass::ContextSpecific:
 			{
 				tagByte = 0x80;
 				break;
 			}
-			case BerTagClass::Application:
+			case Asn1TagClass::Application:
 			{
 				tagByte = 0x40;
 				break;
@@ -39,7 +39,7 @@ namespace pcpp {
 			}
 		}
 
-		if (m_BerTagType == BerTagType::Constructed)
+		if (m_IsConstructed)
 		{
 			tagByte |= 0x20;
 		}
@@ -50,7 +50,7 @@ namespace pcpp {
 		return tagByte;
 	}
 
-	std::vector<uint8_t> Asn1BerRecord::encodeLength() const
+	std::vector<uint8_t> Asn1Record::encodeLength() const
 	{
 		std::vector<uint8_t> result;
 
@@ -72,7 +72,7 @@ namespace pcpp {
 		return result;
 	}
 
-	std::vector<uint8_t> Asn1BerRecord::encode()
+	std::vector<uint8_t> Asn1Record::encode()
 	{
 		std::vector<uint8_t> result;
 
@@ -87,7 +87,7 @@ namespace pcpp {
 		return result;
 	}
 
-	Asn1BerRecord* Asn1BerRecord::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
+	Asn1Record* Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
 	{
 		int tagLen;
 		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
@@ -132,9 +132,9 @@ namespace pcpp {
 		return decodedRecord;
 	}
 
-	Asn1UniversalTagType Asn1BerRecord::getAsn1UniversalTagType() const
+	Asn1UniversalTagType Asn1Record::getAsn1UniversalTagType() const
 	{
-		if (m_TagClass == BerTagClass::Universal)
+		if (m_TagClass == Asn1TagClass::Universal)
 		{
 			return static_cast<Asn1UniversalTagType>(m_TagType);
 		}
@@ -142,7 +142,7 @@ namespace pcpp {
 		return Asn1UniversalTagType::NotApplicable;
 	}
 
-	Asn1BerRecord* Asn1BerRecord::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen)
+	Asn1Record* Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen)
 	{
 		if (dataLen < 1)
 		{
@@ -151,30 +151,30 @@ namespace pcpp {
 
 		tagLen = 1;
 
-		BerTagClass tagClass = BerTagClass::Universal;
+		Asn1TagClass tagClass = Asn1TagClass::Universal;
 
 		// Check first 2 bits
 		auto tagClassBits = data[0] & 0xc0;
 		if (tagClassBits == 0)
 		{
-			tagClass = BerTagClass::Universal;
+			tagClass = Asn1TagClass::Universal;
 		}
 		else if ((tagClassBits & 0xc0) == 0xc0)
 		{
-			tagClass = BerTagClass::Private;
+			tagClass = Asn1TagClass::Private;
 		}
 		else if ((tagClassBits & 0x80) == 0x80)
 		{
-			tagClass = BerTagClass::ContextSpecific;
+			tagClass = Asn1TagClass::ContextSpecific;
 		}
 		else if ((tagClassBits & 0x40) == 0x40)
 		{
-			tagClass = BerTagClass::Application;
+			tagClass = Asn1TagClass::Application;
 		}
 
 		// Check bit 6
 		auto tagTypeBits = data[0] & 0x20;
-		BerTagType berTagType = (tagTypeBits == 0 ? BerTagType::Primitive : BerTagType::Constructed);
+		bool isConstructed = (tagTypeBits != 0);
 
 		// Check last 5 bits
 		auto tagType = data[0] & 0x1f;
@@ -194,11 +194,11 @@ namespace pcpp {
 			tagLen = 2;
 		}
 
-		Asn1BerRecord* newRecord;
+		Asn1Record* newRecord;
 
-		if (berTagType == BerTagType::Constructed)
+		if (isConstructed)
 		{
-			if (tagClass == BerTagClass::Universal)
+			if (tagClass == Asn1TagClass::Universal)
 			{
 				switch (static_cast<Asn1UniversalTagType>(tagType))
 				{
@@ -214,18 +214,18 @@ namespace pcpp {
 					}
 					default:
 					{
-						newRecord = new Asn1BerConstructedRecord();
+						newRecord = new Asn1ConstructedRecord();
 					}
 				}
 			}
 			else
 			{
-				newRecord = new Asn1BerConstructedRecord();
+				newRecord = new Asn1ConstructedRecord();
 			}
 		}
 		else
 		{
-			if (tagClass == BerTagClass::Universal)
+			if (tagClass == Asn1TagClass::Universal)
 			{
 				auto asn1UniversalTagType = static_cast<Asn1UniversalTagType>(tagType);
 				switch (asn1UniversalTagType)
@@ -268,13 +268,13 @@ namespace pcpp {
 		}
 
 		newRecord->m_TagClass = tagClass;
-		newRecord->m_BerTagType = berTagType;
+		newRecord->m_IsConstructed = isConstructed;
 		newRecord->m_TagType = tagType;
 
 		return newRecord;
 	}
 
-	int Asn1BerRecord::decodeLength(const uint8_t* data, size_t dataLen)
+	int Asn1Record::decodeLength(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < 1)
 		{
@@ -310,7 +310,7 @@ namespace pcpp {
 		return numberLengthBytes;
 	}
 
-	void Asn1BerRecord::decodeValueIfNeeded()
+	void Asn1Record::decodeValueIfNeeded()
 	{
 		if (m_EncodedValue != nullptr)
 		{
@@ -319,11 +319,11 @@ namespace pcpp {
 		}
 	}
 
-	Asn1GenericRecord::Asn1GenericRecord(BerTagClass tagClass, BerTagType berTagType, uint8_t tagType, const uint8_t* value, size_t valueLen)
+	Asn1GenericRecord::Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen)
 	{
 		m_TagType = tagType;
 		m_TagClass = tagClass;
-		m_BerTagType = berTagType;
+		m_IsConstructed = isConstructed;
 		m_Value = new uint8_t[valueLen];
 		m_FreeValueOnDestruction = true;
 		memcpy(m_Value, value, valueLen);
@@ -349,17 +349,17 @@ namespace pcpp {
 		return {m_Value, m_Value + m_ValueLength};
 	}
 
-	Asn1BerConstructedRecord::Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*>& subRecords)
+	Asn1ConstructedRecord::Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords)
 	{
 		m_TagType = tagType;
 		m_TagClass = tagClass;
-		m_BerTagType = BerTagType::Constructed;
+		m_IsConstructed = true;
 
 		size_t recordValueLength = 0;
 		for (auto record : subRecords)
 		{
 			auto encodedRecord = record->encode();
-			auto copyRecord = Asn1BerRecord::decode(encodedRecord.data(), encodedRecord.size(), false);
+			auto copyRecord = Asn1Record::decode(encodedRecord.data(), encodedRecord.size(), false);
 			m_SubRecords.pushBack(copyRecord.release());
 			recordValueLength += encodedRecord.size();
 		}
@@ -368,7 +368,7 @@ namespace pcpp {
 		m_TotalLength = recordValueLength + 2;
 	}
 
-	void Asn1BerConstructedRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1ConstructedRecord::decodeValue(uint8_t* data, bool lazy)
 	{
 		if (!(data || m_ValueLength))
 		{
@@ -380,7 +380,7 @@ namespace pcpp {
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1BerRecord::decodeInternal(value, valueLen, lazy);
+			auto subRecord = Asn1Record::decodeInternal(value, valueLen, lazy);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
@@ -388,7 +388,7 @@ namespace pcpp {
 		}
 	}
 
-	std::vector<uint8_t> Asn1BerConstructedRecord::encodeValue() const
+	std::vector<uint8_t> Asn1ConstructedRecord::encodeValue() const
 	{
 		std::vector<uint8_t> result;
 		result.reserve(m_ValueLength);
@@ -401,19 +401,19 @@ namespace pcpp {
 		return result;
 	}
 
-	Asn1SequenceRecord::Asn1SequenceRecord(const std::vector<Asn1BerRecord*>& subRecords)
-		: Asn1BerConstructedRecord(BerTagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Sequence), subRecords)
+	Asn1SequenceRecord::Asn1SequenceRecord(const std::vector<Asn1Record*>& subRecords)
+		: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Sequence), subRecords)
 	{}
 
-	Asn1SetRecord::Asn1SetRecord(const std::vector<Asn1BerRecord*>& subRecords)
-			: Asn1BerConstructedRecord(BerTagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
+	Asn1SetRecord::Asn1SetRecord(const std::vector<Asn1Record*>& subRecords)
+			: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
 	{}
 
-	Asn1PrimitiveRecord::Asn1PrimitiveRecord(uint8_t tagType) : Asn1BerRecord()
+	Asn1PrimitiveRecord::Asn1PrimitiveRecord(uint8_t tagType) : Asn1Record()
 	{
 		m_TagType = tagType;
-		m_TagClass = BerTagClass::Universal;
-		m_BerTagType = BerTagType::Primitive;
+		m_TagClass = Asn1TagClass::Universal;
+		m_IsConstructed = false;
 	}
 
 	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Integer))

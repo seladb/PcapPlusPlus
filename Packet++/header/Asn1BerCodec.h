@@ -4,20 +4,23 @@
 #include <memory>
 #include "PointerVector.h"
 
+/// @file
+
+/**
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
-	enum class BerTagClass : uint8_t
+	/**
+	 * An enum for representing ASN.1 tag class
+	 */
+	enum class Asn1TagClass : uint8_t
 	{
 		Universal,
 		Application,
 		ContextSpecific,
 		Private
-	};
-
-	enum class BerTagType : uint8_t
-	{
-		Primitive,
-		Constructed
 	};
 
 	enum class Asn1UniversalTagType : uint8_t
@@ -62,21 +65,21 @@ namespace pcpp
 		NotApplicable = 255
 	};
 
-	class Asn1BerRecord
+	class Asn1Record
 	{
 	public:
 		size_t getValueLength() const { return m_ValueLength; }
 		size_t getTotalLength() const { return m_TotalLength; }
 
-		BerTagClass getTagClass() const { return m_TagClass; }
-		BerTagType getBerTagType() const { return m_BerTagType; }
+		Asn1TagClass getTagClass() const { return m_TagClass; }
+		bool isConstructed() const { return m_IsConstructed; }
 		Asn1UniversalTagType getAsn1UniversalTagType() const;
 		uint8_t getTagType() const { return m_TagType; }
 
-		template <class Asn1BerRecordType>
-		Asn1BerRecordType* castAs()
+		template <class Asn1RecordType>
+		Asn1RecordType* castAs()
 		{
-			auto result = dynamic_cast<Asn1BerRecordType*>(this);
+			auto result = dynamic_cast<Asn1RecordType*>(this);
 			if (result == nullptr)
 			{
 				throw std::runtime_error("Cast failed, instance isn't of the requested type");
@@ -86,13 +89,13 @@ namespace pcpp
 
 		std::vector<uint8_t> encode();
 
-		static std::unique_ptr<Asn1BerRecord> decode(const uint8_t* data, size_t dataLen, bool lazy = true);
+		static std::unique_ptr<Asn1Record> decode(const uint8_t* data, size_t dataLen, bool lazy = true);
 
-		virtual ~Asn1BerRecord() = default;
+		virtual ~Asn1Record() = default;
 
 	protected:
-		BerTagClass m_TagClass = BerTagClass::Universal;
-		BerTagType m_BerTagType = BerTagType::Primitive;
+		Asn1TagClass m_TagClass = Asn1TagClass::Universal;
+		bool m_IsConstructed = false;
 		uint8_t m_TagType = 0;
 
 		size_t m_ValueLength = 0;
@@ -100,14 +103,14 @@ namespace pcpp
 
 		uint8_t* m_EncodedValue = nullptr;
 
-		Asn1BerRecord() = default;
+		Asn1Record() = default;
 
-		static Asn1BerRecord* decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
+		static Asn1Record* decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
 
 		virtual void decodeValue(uint8_t* data, bool lazy) = 0;
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 
-		static Asn1BerRecord* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen);
+		static Asn1Record* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen);
 		int decodeLength(const uint8_t* data, size_t dataLen);
 		void decodeValueIfNeeded();
 
@@ -115,12 +118,12 @@ namespace pcpp
 		std::vector<uint8_t> encodeLength() const;
 	};
 
-	class Asn1GenericRecord : public Asn1BerRecord
+	class Asn1GenericRecord : public Asn1Record
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
-		Asn1GenericRecord(BerTagClass tagClass, BerTagType berTagType, uint8_t tagType, const uint8_t* value, size_t valueLen);
+		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
 		~Asn1GenericRecord() override;
 		const uint8_t* getValue() { decodeValueIfNeeded(); return m_Value; }
 
@@ -135,49 +138,49 @@ namespace pcpp
 		bool m_FreeValueOnDestruction = false;
 	};
 
-	class Asn1BerConstructedRecord : public Asn1BerRecord
+	class Asn1ConstructedRecord : public Asn1Record
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
-		Asn1BerConstructedRecord(BerTagClass tagClass, uint8_t tagType, const std::vector<Asn1BerRecord*>& subRecords);
-		PointerVector<Asn1BerRecord>& getSubRecords() { decodeValueIfNeeded(); return m_SubRecords; };
+		Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords);
+		PointerVector<Asn1Record>& getSubRecords() { decodeValueIfNeeded(); return m_SubRecords; };
 
 	protected:
-		Asn1BerConstructedRecord() = default;
+		Asn1ConstructedRecord() = default;
 
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
-		PointerVector<Asn1BerRecord> m_SubRecords;
+		PointerVector<Asn1Record> m_SubRecords;
 	};
 
-	class Asn1SequenceRecord : public Asn1BerConstructedRecord
+	class Asn1SequenceRecord : public Asn1ConstructedRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
-		explicit Asn1SequenceRecord(const std::vector<Asn1BerRecord*>& subRecords);
+		explicit Asn1SequenceRecord(const std::vector<Asn1Record*>& subRecords);
 
 	private:
 		Asn1SequenceRecord() = default;
 	};
 
-	class Asn1SetRecord : public Asn1BerConstructedRecord
+	class Asn1SetRecord : public Asn1ConstructedRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
-		explicit Asn1SetRecord(const std::vector<Asn1BerRecord*>& subRecords);
+		explicit Asn1SetRecord(const std::vector<Asn1Record*>& subRecords);
 
 	private:
 		Asn1SetRecord() = default;
 	};
 
-	class Asn1PrimitiveRecord : public Asn1BerRecord
+	class Asn1PrimitiveRecord : public Asn1Record
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	protected:
 		Asn1PrimitiveRecord() = default;
@@ -186,7 +189,7 @@ namespace pcpp
 
 	class Asn1IntegerRecord : public Asn1PrimitiveRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
 		explicit Asn1IntegerRecord(uint32_t value);
@@ -204,7 +207,7 @@ namespace pcpp
 
 	class Asn1EnumeratedRecord : public Asn1IntegerRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
 		explicit Asn1EnumeratedRecord(uint32_t value);
@@ -215,7 +218,7 @@ namespace pcpp
 
 	class Asn1OctetStringRecord : public Asn1PrimitiveRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
 		explicit Asn1OctetStringRecord(const std::string& value);
@@ -234,7 +237,7 @@ namespace pcpp
 
 	class Asn1BooleanRecord : public Asn1PrimitiveRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
 		bool getValue() { decodeValueIfNeeded(); return m_Value; };
@@ -252,7 +255,7 @@ namespace pcpp
 
 	class Asn1NullRecord : public Asn1PrimitiveRecord
 	{
-		friend class Asn1BerRecord;
+		friend class Asn1Record;
 
 	public:
 		Asn1NullRecord();
