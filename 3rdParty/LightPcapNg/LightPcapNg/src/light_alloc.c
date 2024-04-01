@@ -54,8 +54,16 @@ light_pcapng light_alloc_block(uint32_t block_type, const uint32_t *block_body, 
 
 	PADD32(block_body_length, &actual_size);
 
+	// ---> PCPP patch
+	// keep the original implementation, since it is not clear why the upstream code was changed, and the original implementation is working fine
+	// check the upstream code for more details: https://github.com/rvelea/LightPcapNg/pull/6
+
+	// pcapng_block->block_total_length = actual_size + 2 * sizeof(pcapng_block->block_total_length) + sizeof(pcapng_block->block_type); // This value MUST be a multiple of 4.
+	// block_body_size = actual_size;
+
 	pcapng_block->block_total_length = actual_size; // This value MUST be a multiple of 4.
 	block_body_size = actual_size - 2 * sizeof(pcapng_block->block_total_length) - sizeof(pcapng_block->block_type);
+	// <--- end of PCPP patch
 
 	if (block_body_size > 0) {
 		pcapng_block->block_body = calloc(1, block_body_size);

@@ -69,8 +69,27 @@ namespace pcpp
 			std::lock_guard<Mutex> lk(other.m_Mutex);
 			for (const auto iter : other)
 			{
-				T* objCopy = new T(*iter);
-				m_Vector.push_back(objCopy);
+				for (const auto iter : other)
+				{
+					T* objCopy = new T(*iter);
+					try
+					{
+						m_Vector.push_back(objCopy);
+					}
+					catch (const std::exception&)
+					{
+						delete objCopy;
+						throw;
+					}
+				}
+			}
+			catch (const std::exception&)
+			{
+				for (auto obj : m_Vector)
+				{
+					delete obj;
+				}
+				throw;
 			}
 		}
 
