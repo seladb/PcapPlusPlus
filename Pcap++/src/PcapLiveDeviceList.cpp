@@ -110,7 +110,7 @@ void PcapLiveDeviceList::setDnsServers()
 			}
 			catch(const std::exception&)
 			{
-				PCPP_LOG_DEBUG("Failed to parse DNS server IP address" << pIPAddr->IpAddress.String);
+				PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << pIPAddr->IpAddress.String);
 			}
 			pIPAddr = pIPAddr -> Next;
 		}
@@ -163,21 +163,14 @@ void PcapLiveDeviceList::setDnsServers()
 		}
 		catch(const std::exception& e)
 		{
-			PCPP_LOG_DEBUG("Failed to parse DNS server IP address" << dnsIP << ": " << e.what());
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << dnsIP << ": " << e.what());
 			continue;
 		}
 
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
 		{
-			try
-			{
-				m_DnsServers.push_back(dnsIPAddr);
-				PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
-			}
-			catch(const std::exception& e)
-			{
-				PCPP_LOG_DEBUG("Failed to add DNS server IP address" << dnsIP << ": " << e.what());
-			}
+			m_DnsServers.push_back(dnsIPAddr);
+			PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
 		}
 	}
 #elif defined(__APPLE__)
@@ -226,7 +219,7 @@ void PcapLiveDeviceList::setDnsServers()
 		}
 		catch(const std::exception& e)
 		{
-			PCPP_LOG_DEBUG("Failed to parse DNS server IP address " << serverAddressCString << ": " << e.what());
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << serverAddressCString << ": " << e.what());
 		}
 	}
 
@@ -240,10 +233,10 @@ void PcapLiveDeviceList::setDnsServers()
 	for (int i = 0; i < _res.nscount; i++)
 	{
 		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
-		if (saddr == NULL)
+		if (saddr == nullptr)
 			continue;
 		in_addr* inaddr = internal::sockaddr2in_addr(saddr);
-		if (inaddr == NULL)
+		if (inaddr == nullptr)
 			continue;
 
 		try
@@ -252,7 +245,7 @@ void PcapLiveDeviceList::setDnsServers()
 		}
 		catch(const std::exception& e)
 		{
-			PCPP_LOG_DEBUG("Failed to parse DNS server IP address " << internal::in_addr2int(*inaddr) << ": " << e.what());
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << internal::in_addr2int(*inaddr) << ": " << e.what());
 		}
 	}
 
@@ -289,7 +282,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
-				PCPP_LOG_DEBUG("Address is NULL");
+				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 
@@ -322,7 +315,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
-				PCPP_LOG_DEBUG("Address is NULL");
+				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 

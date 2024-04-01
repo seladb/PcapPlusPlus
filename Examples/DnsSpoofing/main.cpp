@@ -451,11 +451,11 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 	// verify DNS server IP is a valid IPv4 address
-	if (dnsServer == pcpp::IPv4Address::Zero || dnsServer == pcpp::IPv6Address::Zero)
+	if (dnsServer.isZero())
 		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IPv4 address");
 
 	// verify client IP is valid if set
-	if (clientIpSet && (clientIP == pcpp::IPv4Address::Zero || clientIP == pcpp::IPv6Address::Zero))
+	if (clientIpSet && clientIP.isZero())
 		EXIT_WITH_ERROR("Client IP to spoof is invalid");
 
 	doDnsSpoofing(dev, dnsServer, clientIP, hostList);

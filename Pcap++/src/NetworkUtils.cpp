@@ -337,17 +337,15 @@ IPv4Address NetworkUtils::getIPv4Address(const std::string& hostname, PcapLiveDe
 		dnsTimeout = NetworkUtils::DefaultTimeout;
 
 	// validate DNS server IP. If it wasn't provided - set the system-configured DNS server
+	if (dnsServerIP == IPv4Address::Zero && device->getDnsServers().size() > 0)
+	{
+		dnsServerIP = device->getDnsServers().at(0);
+	}
+
 	if (dnsServerIP == IPv4Address::Zero)
 	{
-		if (device->getDnsServers().size() > 0)
-		{
-			dnsServerIP = device->getDnsServers().at(0);
-		}
-		else
-		{
-			PCPP_LOG_ERROR("DNS server IP wasn't provided and couldn't find system-configured DNS server");
-			return result;
-		}
+		PCPP_LOG_ERROR("DNS server IP wasn't provided and couldn't find system-configured DNS server");
+		return result;
 	}
 
 	// create DNS request

@@ -37,7 +37,17 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 PTF_TEST_CASE(TestPcapFiltersLive)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+
+	pcpp::IPv4Address ipToSearch;
+	try
+	{
+		ipToSearch = pcpp::IPv4Address(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	}
+	catch(const std::exception& e)
+	{
+		PTF_FAIL_TEST(e.what());
+	}
+
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 
