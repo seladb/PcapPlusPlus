@@ -221,7 +221,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 PTF_TEST_CASE(TestPcapLiveDevice)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-		
+
 	pcpp::IPv4Address ipToSearch;
 	try
 	{
@@ -274,7 +274,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 {
 	// Test of clone device should be same with original
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-		
+
 	pcpp::IPv4Address ipToSearch;
 	try
 	{
@@ -500,7 +500,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-		
+
 	pcpp::IPv4Address ipToSearch;
 	try
 	{
@@ -696,7 +696,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 PTF_TEST_CASE(TestSendPacket)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-		
+
 	pcpp::IPv4Address ipToSearch;
 	try
 	{
@@ -758,7 +758,7 @@ PTF_TEST_CASE(TestSendPacket)
 PTF_TEST_CASE(TestSendPackets)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-		
+
 	pcpp::IPv4Address ipToSearch;
 	try
 	{
@@ -807,7 +807,7 @@ PTF_TEST_CASE(TestSendPackets)
 PTF_TEST_CASE(TestMtuSize)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-	
+
 	pcpp::IPv4Address ipToSearch;
 	try
 	{
@@ -817,7 +817,7 @@ PTF_TEST_CASE(TestMtuSize)
 	{
 		PTF_FAIL_TEST(e.what());
 	}
-	
+
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
