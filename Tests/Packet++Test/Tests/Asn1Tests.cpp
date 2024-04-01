@@ -14,7 +14,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::ContextSpecific, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 13);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
 		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
@@ -30,7 +30,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 1);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 6);
@@ -44,7 +44,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 2);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
@@ -58,7 +58,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 5);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 3);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 100000);
@@ -72,7 +72,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 6);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 4);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 10000000);
@@ -93,7 +93,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Enumerated, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Enumerated, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 2);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1EnumeratedRecord>()->getValue(), 8192);
@@ -107,7 +107,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Boolean, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Boolean, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 1);
 		PTF_ASSERT_TRUE(record->castAs<pcpp::Asn1BooleanRecord>()->getValue());
@@ -121,7 +121,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Boolean, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Boolean, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 1);
 		PTF_ASSERT_FALSE(record->castAs<pcpp::Asn1BooleanRecord>()->getValue());
@@ -135,7 +135,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::OctetString, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::OctetString, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 19);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 17);
 		PTF_ASSERT_EQUAL(record->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "subschemaSubentry");
@@ -149,7 +149,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Null, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Null, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 2);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 0);
 		PTF_ASSERT_NOT_NULL(record->castAs<pcpp::Asn1NullRecord>());
@@ -163,7 +163,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_TRUE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Sequence, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Sequence, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 10);
 
@@ -181,7 +181,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_TRUE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Set, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::Set, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 10);
 
@@ -199,7 +199,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Application, enumclass);
 		PTF_ASSERT_TRUE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 10);
 
@@ -217,7 +217,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 		PTF_ASSERT_EQUAL(record->getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record->isConstructed());
-		PTF_ASSERT_EQUAL(record->getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::ObjectIdentifierIRI, enumclass);
+		PTF_ASSERT_EQUAL(record->getUniversalTagType(), pcpp::Asn1UniversalTagType::ObjectIdentifierIRI, enumclass);
 		PTF_ASSERT_EQUAL(record->getTotalLength(), 10);
 		PTF_ASSERT_EQUAL(record->getValueLength(), 7);
 		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
@@ -289,7 +289,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::ContextSpecific, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 13);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 11);
 		auto recordValue = std::string(record.getValue(), record.getValue() + record.getValueLength());
@@ -309,7 +309,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 1);
 		PTF_ASSERT_EQUAL(record.getValue(), 6);
@@ -328,7 +328,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
 		PTF_ASSERT_EQUAL(record.getValue(), 1000);
@@ -347,7 +347,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 5);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 3);
 		PTF_ASSERT_EQUAL(record.getValue(), 100000);
@@ -366,7 +366,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Integer, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 6);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 4);
 		PTF_ASSERT_EQUAL(record.getValue(), 100000000);
@@ -385,7 +385,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Enumerated, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Enumerated, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 4);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 2);
 		PTF_ASSERT_EQUAL(record.getValue(), 8192);
@@ -404,7 +404,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::OctetString, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::OctetString, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 19);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 17);
 		PTF_ASSERT_EQUAL(record.getValue(), "subschemaSubentry");
@@ -423,7 +423,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Boolean, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Boolean, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 3);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 1);
 		PTF_ASSERT_TRUE(record.getValue());
@@ -454,7 +454,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Null, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Null, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 2);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 0);
 
@@ -474,7 +474,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_TRUE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Sequence, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Sequence, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 10);
 
@@ -499,7 +499,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_TRUE(record.isConstructed());
-		PTF_ASSERT_EQUAL(record.getAsn1UniversalTagType(), pcpp::Asn1UniversalTagType::Set, enumclass);
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::Set, enumclass);
 		PTF_ASSERT_EQUAL(record.getTotalLength(), 12);
 		PTF_ASSERT_EQUAL(record.getValueLength(), 10);
 

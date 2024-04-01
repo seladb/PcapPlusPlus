@@ -112,19 +112,60 @@ namespace pcpp
 
 	/**
 	 * @class Asn1Record
-	 * This class represents an ASN.1 record, as described in ITU-T Recommendation X.680
+	 * Represents an ASN.1 record, as described in ITU-T Recommendation X.680
 	 */
 	class Asn1Record
 	{
 	public:
-		size_t getValueLength() const { return m_ValueLength; }
-		size_t getTotalLength() const { return m_TotalLength; }
+		/**
+		 * A static method to decode a byte array into an Asn1Record
+		 * @param data A byte array to decode
+		 * @param dataLen The byte array length
+		 * @param lazy Use lazy decoding, set to true by default. Lazy decoding entails delaying the decoding
+		 * of the record value until it is accessed
+		 * @return A smart pointer to the decoded ASN.1 record. If the byte stream is not a valid ASN.1 record
+		 * an exception is thrown
+		 */
+		static std::unique_ptr<Asn1Record> decode(const uint8_t* data, size_t dataLen, bool lazy = true);
 
+		/**
+		 * Encode this record and convert it to a byte stream
+		 * @return A vector of bytes representing the record
+		 */
+		std::vector<uint8_t> encode();
+
+		/**
+		 * @return The ASN.1 tag class
+		 */
 		Asn1TagClass getTagClass() const { return m_TagClass; }
+
+		/**
+		 * @return True if it's a constructed record, or false if it's a primitive record
+		 */
 		bool isConstructed() const { return m_IsConstructed; }
-		Asn1UniversalTagType getAsn1UniversalTagType() const;
+
+		/**
+		 * @return The ASN.1 Universal tag type if the record is of class Universal, otherwise Asn1UniversalTagType#NotApplicable
+		 */
+		Asn1UniversalTagType getUniversalTagType() const;
 		uint8_t getTagType() const { return m_TagType; }
 
+		/**
+		 * @return The length of the record value
+		 */
+		size_t getValueLength() const { return m_ValueLength; }
+
+		/**
+		 * @return The total length of the record
+		 */
+		size_t getTotalLength() const { return m_TotalLength; }
+
+		/**
+		 * A templated method that accepts a class derived from Asn1Record as its template argument and attempts
+		 * to cast the current instance to that type
+		 * @tparam Asn1RecordType The type to cast to
+		 * @return A pointer to the type after casting
+		 */
 		template <class Asn1RecordType>
 		Asn1RecordType* castAs()
 		{
@@ -135,10 +176,6 @@ namespace pcpp
 			}
 			return result;
 		}
-
-		std::vector<uint8_t> encode();
-
-		static std::unique_ptr<Asn1Record> decode(const uint8_t* data, size_t dataLen, bool lazy = true);
 
 		virtual ~Asn1Record() = default;
 
@@ -169,8 +206,8 @@ namespace pcpp
 
 	/**
 	 * @class Asn1GenericRecord
-	 * This class represents a generic ASN.1 record, either of an unknown type or of a known type that doesn't
-	 * have a parser yet
+	 * Represents a generic ASN.1 record, either of an unknown type or of a known type that doesn't
+	 * have a dedicated parser yet
 	 */
 	class Asn1GenericRecord : public Asn1Record
 	{
@@ -192,6 +229,10 @@ namespace pcpp
 		bool m_FreeValueOnDestruction = false;
 	};
 
+	/**
+	 * @class Asn1ConstructedRecord
+	 * Represents a constructed ASN.1 record, meaning a record that has sub-records
+	 */
 	class Asn1ConstructedRecord : public Asn1Record
 	{
 		friend class Asn1Record;
@@ -210,6 +251,10 @@ namespace pcpp
 		PointerVector<Asn1Record> m_SubRecords;
 	};
 
+	/**
+	 * @class Asn1SequenceRecord
+	 * Represents an ASN.1 record with a value of type Sequence
+	 */
 	class Asn1SequenceRecord : public Asn1ConstructedRecord
 	{
 		friend class Asn1Record;
@@ -221,6 +266,10 @@ namespace pcpp
 		Asn1SequenceRecord() = default;
 	};
 
+	/**
+	 * @class Asn1SetRecord
+	 * Represents an ASN.1 record with a value of type Set
+	 */
 	class Asn1SetRecord : public Asn1ConstructedRecord
 	{
 		friend class Asn1Record;
@@ -232,6 +281,11 @@ namespace pcpp
 		Asn1SetRecord() = default;
 	};
 
+	/**
+	 * @class Asn1PrimitiveRecord
+	 * Represents a primitive ASN.1 record, meaning a record that doesn't have sub-records.
+	 * This is an abstract class that cannot be instantiated
+	 */
 	class Asn1PrimitiveRecord : public Asn1Record
 	{
 		friend class Asn1Record;
@@ -241,6 +295,10 @@ namespace pcpp
 		explicit Asn1PrimitiveRecord(uint8_t tagType);
 	};
 
+	/**
+	 * @class Asn1IntegerRecord
+	 * Represents an ASN.1 record with a value of type Integer
+	 */
 	class Asn1IntegerRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1Record;
@@ -259,6 +317,10 @@ namespace pcpp
 		uint32_t m_Value = 0;
 	};
 
+	/**
+	 * @class Asn1EnumeratedRecord
+	 * Represents an ASN.1 record with a value of type Enumerated
+	 */
 	class Asn1EnumeratedRecord : public Asn1IntegerRecord
 	{
 		friend class Asn1Record;
@@ -270,6 +332,10 @@ namespace pcpp
 		Asn1EnumeratedRecord() = default;
 	};
 
+	/**
+	 * @class Asn1OctetStringRecord
+	 * Represents an ASN.1 record with a value of type Octet String
+	 */
 	class Asn1OctetStringRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1Record;
@@ -286,9 +352,12 @@ namespace pcpp
 		std::string m_Value;
 
 		Asn1OctetStringRecord() = default;
-
 	};
 
+	/**
+	 * @class Asn1BooleanRecord
+	 * Represents an ASN.1 record with a value of type Boolean
+	 */
 	class Asn1BooleanRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1Record;
@@ -307,6 +376,10 @@ namespace pcpp
 		bool m_Value = false;
 	};
 
+	/**
+	 * @class Asn1NullRecord
+	 * Represents an ASN.1 record with a value of type Null
+	 */
 	class Asn1NullRecord : public Asn1PrimitiveRecord
 	{
 		friend class Asn1Record;

@@ -132,7 +132,7 @@ namespace pcpp {
 		return decodedRecord;
 	}
 
-	Asn1UniversalTagType Asn1Record::getAsn1UniversalTagType() const
+	Asn1UniversalTagType Asn1Record::getUniversalTagType() const
 	{
 		if (m_TagClass == Asn1TagClass::Universal)
 		{
