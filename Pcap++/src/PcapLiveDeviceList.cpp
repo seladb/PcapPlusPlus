@@ -344,7 +344,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 	}
 	catch(const std::exception&)
 	{
-		PCPP_LOG_ERROR("IP address is not valid");
+		PCPP_LOG_ERROR("IP address is not valid: " + ipAddrAsString);
 		return nullptr;
 	}
 

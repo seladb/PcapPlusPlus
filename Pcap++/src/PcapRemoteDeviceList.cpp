@@ -76,7 +76,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& i
 	}
 	catch (std::exception& e)
 	{
-		PCPP_LOG_ERROR("IP address no valid: " << e.what());
+		PCPP_LOG_ERROR("IP address no valid: " + ipAddrAsString);
 		return nullptr;
 	}
 
