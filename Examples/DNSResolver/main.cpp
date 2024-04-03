@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
 			std::cout << std::endl << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL << "  time=" << (int)responseTime << "ms" << std::endl;
 		}
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 		std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
 	}

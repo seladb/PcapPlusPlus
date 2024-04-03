@@ -389,7 +389,7 @@ int main(int argc, char* argv[])
 				{
 					srcIPToMatch = pcpp::IPv4Address(optarg);
 				}
-				catch(const std::exception& e)
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
 				}
@@ -401,7 +401,7 @@ int main(int argc, char* argv[])
 				{
 					dstIPToMatch = pcpp::IPv4Address(optarg);
 				}
-				catch(const std::exception& e)
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
 				}

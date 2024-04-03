@@ -174,7 +174,7 @@ void readCommandLineArguments(int argc, char* argv[],
 		interfaceIP = pcpp::IPv4Address(interfaceNameOrIP);
 		myIP = interfaceIP;
 	}
-	catch(const std::exception& e)
+	catch(const std::exception&)
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == nullptr)
@@ -192,7 +192,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	{
 		tempIP = pcpp::IPv4Address(otherSideIPAsString);
 	}
-	catch(const std::exception& e)
+	catch(const std::exception&)
 	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Invalid " << otherSide << " IP address");
 	}

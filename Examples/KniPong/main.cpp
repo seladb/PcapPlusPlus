@@ -182,7 +182,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	{
 		kniIp = pcpp::IPv4Address(args.kniIp);
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 		EXIT_WITH_ERROR("Cannot assign an invalid IPv4 address to the KNI device");
 	}
@@ -190,7 +190,7 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	{
 		outIp = pcpp::IPv4Address(args.outIp);
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 		EXIT_WITH_ERROR("Cannot assign an invalid IPv4 address as the virtual address");
 	}

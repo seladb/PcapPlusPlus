@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 				{
 					sourceMac = pcpp::MacAddress(optarg);
 				}
-				catch (std::exception& e) {
+				catch (std::exception&) {
 					EXIT_WITH_ERROR("Source MAC address is not valid");
 				}
 				break;
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 				{
 					sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				}
-				catch(const std::exception& e)
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR("Source IP address is not valid");
 				}
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 				{
 					targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
 				}
-				catch(const std::exception& e)
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR("Target IP is not valid");
 				}

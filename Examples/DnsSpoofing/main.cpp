@@ -401,7 +401,7 @@ int main(int argc, char* argv[])
 				{
 					dnsServer = pcpp::IPAddress(static_cast<char const *>(optarg));
 				}
-				catch(const std::exception& e)
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IP address");
 				}
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
 				{
 					clientIP = pcpp::IPAddress(static_cast<char const *>(optarg));
 				}
-				catch(const std::exception& e)
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR("Client IP to spoof is invalid");
 				}
