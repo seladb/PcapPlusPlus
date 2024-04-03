@@ -259,13 +259,13 @@ int main(int argc, char* argv[])
 
 	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
 
-	//Verifying interface is valid
+	// Verifying interface is valid
 	if (pIfaceDevice == nullptr)
 	{
 		EXIT_WITH_ERROR("Cannot find interface");
 	}
 
-	//Opening interface device
+	// Opening interface device
 	if (!pIfaceDevice->open())
 	{
 		EXIT_WITH_ERROR("Cannot open interface");
