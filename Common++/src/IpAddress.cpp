@@ -237,11 +237,11 @@ namespace pcpp
 		}
 		catch(const std::exception&)
 		{
-			throw std::invalid_argument("netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid: " + netmask);
 		}
 		if (!isValidNetmask(netmaskAddr))
 		{
-			throw std::invalid_argument("netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid: " + netmask);
 		}
 		initFromAddressAndNetmask(address, netmaskAddr);
 	}
@@ -456,11 +456,11 @@ namespace pcpp
 		}
 		catch(const std::exception&)
 		{
-			throw std::invalid_argument("netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid: " + netmask);
 		}
 		if (!isValidNetmask(netmaskAddr))
 		{
-			throw std::invalid_argument("netmask is not valid " + netmask);
+			throw std::invalid_argument("Netmask is not valid " + netmask);
 		}
 		initFromAddressAndNetmask(address, netmaskAddr);
 	}
@@ -505,11 +505,11 @@ namespace pcpp
 			}
 			catch(const std::exception&)
 			{
-				throw std::invalid_argument("netmask is not valid " + netmaskStr);
+				throw std::invalid_argument("Netmask is not valid " + netmaskStr);
 			}
 			if (!isValidNetmask(netmaskAddr))
 			{
-				throw std::invalid_argument("netmask is not valid " + netmaskStr);
+				throw std::invalid_argument("Netmask is not valid " + netmaskStr);
 			}
 			initFromAddressAndNetmask(networkPrefix, netmaskAddr);
 		}
