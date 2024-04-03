@@ -258,14 +258,3 @@
 		ptfResult = PTF_RESULT_SKIPPED; \
 		return; \
 	}
-
-#define PTF_FAIL_TEST(why) \
-	{ \
-		if (printVerbose) { \
-			std::cout << std::left << std::setw(35) << __FUNCTION__ << ": " \
-			<< "FAILED (" << why << ")" \
-			<< std::endl; \
-		} \
-		ptfResult = PTF_RESULT_SKIPPED; \
-		return; \
-	}
