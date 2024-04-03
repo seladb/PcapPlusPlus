@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <stdexcept>
 #include "PointerVector.h"
 
 /// @file
