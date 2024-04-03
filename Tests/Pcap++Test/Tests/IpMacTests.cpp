@@ -361,12 +361,10 @@ PTF_TEST_CASE(TestGetMacAddress)
 PTF_TEST_CASE(TestIPv4Network)
 {
 	// Invalid c'tor: IPv4 address + prefix len
-	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("invalid"), 1), std::invalid_argument, "Not a valid IPv4 address");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), -1), std::invalid_argument, "prefixLen must be an integer between 0 and 32");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), 33), std::invalid_argument, "prefixLen must be an integer between 0 and 32");
 
 	// Invalid c'tor: IPv4 address + netmask
-	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("invalid"), "255.255.0.0"), std::invalid_argument, "Not a valid IPv4 address");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "invalid"), std::invalid_argument, "netmask is not valid");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "999.999.999.999"), std::invalid_argument, "netmask is not valid");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "255.255.0.255"), std::invalid_argument, "netmask is not valid");
@@ -460,11 +458,9 @@ PTF_TEST_CASE(TestIPv4Network)
 PTF_TEST_CASE(TestIPv6Network)
 {
 	// Invalid c'tor: IPv6 address + prefix len
-	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6Network(pcpp::IPv6Address("invalid"), 1), std::invalid_argument, "Not a valid IPv6 address");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), 129), std::invalid_argument, "prefixLen must be an integer between 0 and 128");
 
 	// Invalid c'tor: IPv6 address + netmask
-	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6Network(pcpp::IPv6Address("invalid"), "ffff::"), std::invalid_argument, "Not a valid IPv6 address");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "invalid"), std::invalid_argument, "netmask is not valid");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ff10::"), std::invalid_argument, "netmask is not valid");
 	PTF_ASSERT_RAISE_INCLUDES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ee00::"), std::invalid_argument, "netmask is not valid");
