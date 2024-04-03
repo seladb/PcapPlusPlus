@@ -3,6 +3,7 @@
 #include "RawPacket.h"
 #include "GeneralUtils.h"
 #include <functional>
+#include <cstring>
 
 PTF_TEST_CASE(Asn1DecodingTest)
 {
@@ -251,7 +252,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 	// Not enough data to parse tag
 	{
 		uint8_t data[20];
-		auto dataLen = pcpp::hexStringToByteArray("1f8100076d7976616c7565", data, 20);
+		pcpp::hexStringToByteArray("1f8100076d7976616c7565", data, 20);
 		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, 0), std::invalid_argument, "Cannot decode ASN.1 record tag");
 		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, 1), std::invalid_argument, "Cannot decode ASN.1 record tag");
 	}
