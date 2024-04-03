@@ -288,17 +288,7 @@ PTF_TEST_CASE(TestGeneralUtils)
 PTF_TEST_CASE(TestGetMacAddress)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-
-	pcpp::IPv4Address ipToSearch;
-	try
-	{
-		ipToSearch = pcpp::IPv4Address(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	}
-	catch(const std::exception& e)
-	{
-		PTF_FAIL_TEST(e.what());
-	}
-
+	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
@@ -374,7 +364,7 @@ PTF_TEST_CASE(TestIPv4Network)
 
 	// Invalid c'tor: address + netmask in one string
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid/255.255.255.0")), std::invalid_argument, "The input doesn't contain a valid IPv4 network prefix: 255.255.255.0");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid/255.255.255.0")), std::invalid_argument, "The input doesn't contain a valid IPv4 network prefix: invalid");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.255.0/24")), std::invalid_argument, "Netmask is not valid: 255.255.255.0/24");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/33")), std::invalid_argument, "Prefix length must be an integer between 0 and 32");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/-1")), std::invalid_argument, "Netmask is not valid: -1");
@@ -470,7 +460,7 @@ PTF_TEST_CASE(TestIPv6Network)
 
 	// Invalid c'tor: address + netmask in one string
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid/32")), std::invalid_argument, "The input doesn't contain a valid IPv6 network prefix: 32");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid/32")), std::invalid_argument, "The input doesn't contain a valid IPv6 network prefix: invalid");
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/32/24")), std::invalid_argument, "Netmask is not valid: 32/24");
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/255.255.0.0")), std::invalid_argument, "Netmask is not valid: 255.255.0.0");
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/130")), std::invalid_argument, "Prefix length must be an integer between 0 and 128");
