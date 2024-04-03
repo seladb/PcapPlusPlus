@@ -148,6 +148,10 @@ namespace pcpp
 		 * @return The ASN.1 Universal tag type if the record is of class Universal, otherwise Asn1UniversalTagType#NotApplicable
 		 */
 		Asn1UniversalTagType getUniversalTagType() const;
+
+		/**
+		 * @return The ASN.1 tag type value
+		 */
 		uint8_t getTagType() const { return m_TagType; }
 
 		/**
@@ -214,8 +218,21 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a generic record
+		 * @param tagClass The record tag class
+		 * @param isConstructed A flag to indicate if the record is constructed or primitive
+		 * @param tagType The record tag type value
+		 * @param value A byte array of the tag value
+		 * @param valueLen The length of the value byte array
+		 */
 		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
+
 		~Asn1GenericRecord() override;
+
+		/**
+		 * @return A pointer to the tag value
+		 */
 		const uint8_t* getValue() { decodeValueIfNeeded(); return m_Value; }
 
 	protected:
@@ -231,14 +248,25 @@ namespace pcpp
 
 	/**
 	 * @class Asn1ConstructedRecord
-	 * Represents a constructed ASN.1 record, meaning a record that has sub-records
+	 * Represents a constructed ASN.1 record, which is a record that has sub-records
 	 */
 	class Asn1ConstructedRecord : public Asn1Record
 	{
 		friend class Asn1Record;
 
 	public:
-		Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords);
+		/**
+		 * A constructor to create a constructed record
+		 * @param tagClass The record tag class
+		 * @param tagType The record tag type value
+		 * @param subRecords A list of sub-records to assign as the record value
+		 */
+		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords);
+
+		/**
+		 * @return A reference to the list of sub-records. It's important to note that any modifications made to
+		 * this list will directly affect the internal structure
+		 */
 		PointerVector<Asn1Record>& getSubRecords() { decodeValueIfNeeded(); return m_SubRecords; };
 
 	protected:
@@ -260,6 +288,10 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a record of type Sequence
+		 * @param subRecords A list of sub-records to assign as the record value
+		 */
 		explicit Asn1SequenceRecord(const std::vector<Asn1Record*>& subRecords);
 
 	private:
@@ -275,6 +307,10 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a record of type Set
+		 * @param subRecords A list of sub-records to assign as the record value
+		 */
 		explicit Asn1SetRecord(const std::vector<Asn1Record*>& subRecords);
 
 	private:
@@ -304,7 +340,15 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a record of type Integer
+		 * @param value An integer to set as the record value
+		 */
 		explicit Asn1IntegerRecord(uint32_t value);
+
+		/**
+		 * @return The integer value of this record
+		 */
 		uint32_t getValue() { decodeValueIfNeeded(); return m_Value; }
 
 	protected:
@@ -326,6 +370,10 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a record of type Enumerated
+		 * @param value An integer to set as the record value
+		 */
 		explicit Asn1EnumeratedRecord(uint32_t value);
 
 	private:
@@ -341,7 +389,15 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a record of type Octet String
+		 * @param value A string to set as the record value
+		 */
 		explicit Asn1OctetStringRecord(const std::string& value);
+
+		/**
+		 * @return The string value of this record
+		 */
 		std::string getValue() { decodeValueIfNeeded(); return m_Value; };
 
 	protected:
@@ -363,8 +419,16 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
-		bool getValue() { decodeValueIfNeeded(); return m_Value; };
+		/**
+		 * A constructor to create a record of type Boolean
+		 * @param value A boolean to set as the record value
+		 */
 		explicit Asn1BooleanRecord(bool value);
+
+		/**
+		 * @return The boolean value of this record
+		 */
+		bool getValue() { decodeValueIfNeeded(); return m_Value; };
 
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
@@ -385,6 +449,9 @@ namespace pcpp
 		friend class Asn1Record;
 
 	public:
+		/**
+		 * A constructor to create a record of type Null
+		 */
 		Asn1NullRecord();
 
 	protected:
