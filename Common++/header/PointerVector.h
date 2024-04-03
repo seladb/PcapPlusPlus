@@ -66,7 +66,8 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
-			try {
+			try 
+			{
 				std::lock_guard<Mutex> lk(other.m_Mutex);
 				for (const auto iter : other)
 					{
