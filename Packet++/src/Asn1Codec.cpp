@@ -1,8 +1,11 @@
+#define LOG_MODULE PacketLogModuleAsn1Codec
+
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
 #include <iostream>
 #include <cmath>
+#include <cstring>
 
 namespace pcpp {
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
