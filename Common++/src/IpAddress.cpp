@@ -264,7 +264,7 @@ namespace pcpp
 		{
 			networkPrefix = IPv4Address(networkPrefixStr);
 		}
-		catch (const std::invalid_argument& e)
+		catch (const std::invalid_argument&)
 		{
 			throw std::invalid_argument("The input doesn't contain a valid IPv4 network prefix: " + networkPrefixStr);
 		}
@@ -286,7 +286,7 @@ namespace pcpp
 			{
 				netmaskAddr = IPv4Address(netmaskStr);
 			}
-			catch (const std::invalid_argument& e)
+			catch (const std::invalid_argument&)
 			{
 				throw std::invalid_argument("Netmask is not valid: " + netmaskStr);
 			}
@@ -482,7 +482,7 @@ namespace pcpp
 		try
 		{
 			networkPrefix = IPv6Address(networkPrefixStr);
-		} catch (const std::invalid_argument& e)
+		} catch (const std::invalid_argument&)
 		{
 			throw std::invalid_argument("The input doesn't contain a valid IPv6 network prefix: " + networkPrefixStr);
 		}
