@@ -67,7 +67,6 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	}
 	catch(const std::exception& e)
 	{
-		m_Data = IPv4Address::Zero;
 		PCPP_LOG_ERROR("Cannot convert uint32_t to IPv4 address: " << e.what());
 	}
 }
@@ -89,11 +88,10 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 
 	try
 	{
-		m_Data = IPv6Address((uint8_t*)dataPtr);
+		m_Data = IPv6Address(dataPtr);
 	}
 	catch(const std::exception& e)
 	{
-		m_Data = IPv6Address::Zero;
 		PCPP_LOG_ERROR("Cannot convert uint8_t* to IPv6 address: " << e.what());
 	}
 }
