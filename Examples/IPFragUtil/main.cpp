@@ -205,7 +205,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 		newFrag.removeAllLayersAfter(fragIpLayer);
 
 		// create a new PayloadLayer with the fragmented data and add it to the new fragment packet
-		pcpp::PayloadLayer newPayload(ipLayer->getLayerPayload() + curOffset, curFragSize, false);
+		pcpp::PayloadLayer newPayload(ipLayer->getLayerPayload() + curOffset, curFragSize);
 		newFrag.addLayer(&newPayload);
 
 		// set fragment parameters in IPv4/6 layer
