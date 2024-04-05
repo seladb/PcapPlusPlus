@@ -774,7 +774,7 @@ PTF_TEST_CASE(TestMtuSize)
 	}
 	catch (...)
 	{
-		remoteIpAddress = ipToSearch;
+		remoteIpAddress = pcpp::IPv4Address::Zero;
 	}
 	pcpp::IPv4Layer smallIPLayer(ipToSearch, remoteIpAddress);
 	// Port 9 is the discard protocol

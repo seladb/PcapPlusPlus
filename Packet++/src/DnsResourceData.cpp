@@ -61,14 +61,7 @@ IPv4DnsResourceData::IPv4DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 	}
 
 	uint32_t addrAsInt = *(uint32_t*)dataPtr;
-	try
-	{
-		m_Data = IPv4Address(addrAsInt);
-	}
-	catch(const std::exception& e)
-	{
-		PCPP_LOG_ERROR("Cannot convert uint32_t to IPv4 address: " << e.what());
-	}
+	m_Data = IPv4Address(addrAsInt);
 }
 
 bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
@@ -86,14 +79,7 @@ IPv6DnsResourceData::IPv6DnsResourceData(const uint8_t* dataPtr, size_t dataLen)
 		return;
 	}
 
-	try
-	{
-		m_Data = IPv6Address(dataPtr);
-	}
-	catch(const std::exception& e)
-	{
-		PCPP_LOG_ERROR("Cannot convert uint8_t* to IPv6 address: " << e.what());
-	}
+	m_Data = IPv6Address(dataPtr);
 }
 
 bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const

@@ -370,10 +370,9 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
 {
-	IPAddress interfaceIP;
 	try
 	{
-		interfaceIP = IPAddress(ipOrName);
+		IPAddress interfaceIP = IPAddress(ipOrName);
 		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
 	}
 	catch (std::exception&)

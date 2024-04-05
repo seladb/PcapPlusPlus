@@ -156,7 +156,6 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	PTF_ASSERT_TRUE(vrrpv2Layer.addIPAddress(ipv4Address3))
 
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_RAISES(vrrpv2Layer.addIPAddress(pcpp::IPv4Address("invalid")), std::invalid_argument, "Not a valid IPv4 address: invalid");
 	PTF_ASSERT_FALSE(vrrpv2Layer.addIPAddress(ipv6Address1))
 	pcpp::Logger::getInstance().enableLogs();
 
@@ -216,7 +215,6 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	vrrpv3IPv4Layer.setPriority(54);
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getPriorityAsEnum(), pcpp::VrrpLayer::VrrpPriority::Other)
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_RAISES(vrrpv3IPv4Layer.addIPAddress(pcpp::IPAddress("invalid")), std::invalid_argument, "Not a valid IP address: invalid");
 	PTF_ASSERT_FALSE(vrrpv3IPv4Layer.addIPAddress(ipv6Address1))
 	pcpp::Logger::getInstance().enableLogs();
 
