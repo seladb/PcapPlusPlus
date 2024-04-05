@@ -14,11 +14,11 @@
 namespace pcpp
 {
 	/**
- 	* @struct nullMutex
+ 	* @struct NullMutex
  	* A struct containing standard mutex operation but does not perform any action.
  	* This mutex is used when the user decides PointerVector not be thread safe which be default
 	*/
-	struct nullMutex {
+	struct NullMutex {
 		void lock() const {}
 		void unlock() const {}
 	};
@@ -29,7 +29,7 @@ namespace pcpp
 	 * the element responsibility moves to the vector, meaning the PointerVector will free the object once it's removed from the vector
 	 * This class wraps std::vector and adds the capability of freeing objects once they're removed from it
 	 */
-	template<typename T, typename Mutex=pcpp::nullMutex>
+	template<typename T, typename Mutex=pcpp::NullMutex>
 	class PointerVector
 	{
 	public:
@@ -66,22 +66,22 @@ namespace pcpp
 		 */
 		PointerVector(const PointerVector& other)
 		{
-			try 
+			try
 			{
 				std::lock_guard<Mutex> lk(other.m_Mutex);
 				for (const auto iter : other)
+				{
+					T* objCopy = new T(*iter);
+					try
 					{
-						T* objCopy = new T(*iter);
-						try
-						{
-							m_Vector.push_back(objCopy);
-						}
-						catch (const std::exception&)
-						{
-							delete objCopy;
-							throw;
-						}
+						m_Vector.push_back(objCopy);
 					}
+					catch (const std::exception&)
+					{
+						delete objCopy;
+						throw;
+					}
+				}
 			} 
 			catch (const std::exception&)
 			{
