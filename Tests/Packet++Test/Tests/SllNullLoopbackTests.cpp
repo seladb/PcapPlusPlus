@@ -133,7 +133,7 @@ PTF_TEST_CASE(NullLoopbackTest)
 	pcpp::UdpLayer newUdpLayer(55369, 8612);
 
 	uint8_t payload[] = { 0x42, 0x4a, 0x4e, 0x42, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	pcpp::PayloadLayer newPayloadLayer(payload, 16, false);
+	pcpp::PayloadLayer newPayloadLayer(payload, 16);
 
 	pcpp::Packet newNullPacket(1);
 	PTF_ASSERT_TRUE(newNullPacket.addLayer(&newNullLoopbackLayer));
