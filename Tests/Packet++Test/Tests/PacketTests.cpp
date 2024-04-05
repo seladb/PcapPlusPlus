@@ -36,7 +36,7 @@ PTF_TEST_CASE(InsertDataToPacket)
 	ip4Layer.getIPv4Header()->protocol = pcpp::PACKETPP_IPPROTO_TCP;
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
-	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	pcpp::PayloadLayer payloadLayer(payload, 10);
 
 	// create the packet
 	pcpp::Packet ip4Packet(1);
@@ -119,7 +119,7 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	PTF_ASSERT_TRUE(newPacket->addLayer(&ip4Layer));
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
-	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	pcpp::PayloadLayer payloadLayer(payload, 10);
 	PTF_ASSERT_TRUE(newPacket->addLayer(&payloadLayer));
 
 	pcpp::Logger::getInstance().suppressLogs();
@@ -256,7 +256,7 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_TRUE(testPacket.addLayer(&ip4Layer));
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
-	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	pcpp::PayloadLayer payloadLayer(payload, 10);
 	PTF_ASSERT_TRUE(testPacket.addLayer(&payloadLayer));
 
 
@@ -819,7 +819,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 
 	// add layer after trailer (result with an error)
 	uint8_t payload[4] = { 0x1, 0x2, 0x3, 0x4 };
-	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer(new pcpp::PayloadLayer(payload, 4, false));
+	std::unique_ptr<pcpp::PayloadLayer> newPayloadLayer(new pcpp::PayloadLayer(payload, 4));
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(trailerIPv4Packet.addLayer(newPayloadLayer.get(), true));
 	pcpp::Logger::getInstance().enableLogs();
@@ -923,7 +923,7 @@ PTF_TEST_CASE(PacketTrailerTest)
 PTF_TEST_CASE(ResizeLayerTest)
 {
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
-	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	pcpp::PayloadLayer payloadLayer(payload, 10);
 
     // Creating a packet
     pcpp::Packet packet(1500);

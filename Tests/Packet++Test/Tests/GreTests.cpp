@@ -177,7 +177,7 @@ PTF_TEST_CASE(GreCreationTest)
 	pppLayer.getPPP_PPTPHeader()->protocol = htobe16(PCPP_PPP_CCP);
 
 	uint8_t data[4] = { 0x06, 0x04, 0x00, 0x04 };
-	pcpp::PayloadLayer payloadLayer(data, 4, true);
+	pcpp::PayloadLayer payloadLayer(data, 4);
 
 	pcpp::Packet grev1Packet(1);
 	PTF_ASSERT_TRUE(grev1Packet.addLayer(&ethLayer));

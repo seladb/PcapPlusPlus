@@ -234,7 +234,7 @@ PTF_TEST_CASE(TcpPacketCreation)
 	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), 5);
 
 	uint8_t payloadData[9] = { 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82 };
-	pcpp::PayloadLayer payloadLayer(payloadData, 9, true);
+	pcpp::PayloadLayer payloadLayer(payloadData, 9);
 
 	pcpp::Packet tcpPacket(1);
 	tcpPacket.addLayer(&ethLayer);
