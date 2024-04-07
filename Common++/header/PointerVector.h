@@ -27,7 +27,8 @@ namespace pcpp
 	 * @class PointerVector
 	 * A template class for representing a std::vector of pointers. Once (a pointer to) an element is added to this vector,
 	 * the element responsibility moves to the vector, meaning the PointerVector will free the object once it's removed from the vector
-	 * This class wraps std::vector and adds the capability of freeing objects once they're removed from it
+	 * This class wraps std::vector and adds the capability of freeing objects once they're removed from it. By default NullMutex is used
+	 * but when user wants the PointerVector to be thread safe; they need to pass the mutex as  the template argument to PointerVector
 	 */
 	template<typename T, typename Mutex=pcpp::NullMutex>
 	class PointerVector
