@@ -494,7 +494,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 			// first fragment list iteration - go over the whole fragment list and see if can find fragments that match the current sequence
 			// or have smaller sequence but have big enough payload to get new data
-			while (it != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
+			while (it != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end() && (tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() > 0))
 			{
 				// if fragment sequence matches the current sequence
 				if ((*it)->sequence == tcpReassemblyData->twoSides[sideIndex].sequence)
