@@ -14,6 +14,7 @@ add_library(
   src/FtpLayer.cpp
   src/GreLayer.cpp
   src/GtpLayer.cpp
+  src/GvcpLayer.cpp
   src/HttpLayer.cpp
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
@@ -80,6 +81,7 @@ set(public_headers
     header/FtpLayer.h
     header/GreLayer.h
     header/GtpLayer.h
+    header/GvcpLayer.h
     header/HttpLayer.h
     header/IcmpLayer.h
     header/IcmpV6Layer.h

@@ -342,6 +342,11 @@ namespace pcpp
 	 */
 	const ProtocolType SMTP = 54;
 
+	/*
+	 * GVCP protocol
+	 */
+	const ProtocolType Gvcp = 55;
+
 	/**
 	 * An enum representing OSI model layers
 	 */

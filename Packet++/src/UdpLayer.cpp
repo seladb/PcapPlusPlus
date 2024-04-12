@@ -12,6 +12,7 @@
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "GvcpLayer.h"
 #include "NtpLayer.h"
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
@@ -128,6 +129,13 @@ void UdpLayer::parseNextLayer()
 		m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
 	else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 		m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
+	else if (GvcpLayer::isGvcpPort(portSrc) || GvcpLayer::isGvcpPort(portDst) )
+	{
+		if(GvcpLayer::verifyRequest(udpData))
+			m_NextLayer = new GvcpRequestLayer(udpData, udpDataLen, this, m_Packet);
+		else
+			m_NextLayer = new GvcpAcknowledgeLayer(udpData, udpDataLen, this, m_Packet);
+	}
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 }
