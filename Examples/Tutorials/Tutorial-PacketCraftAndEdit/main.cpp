@@ -19,19 +19,19 @@ int main(int argc, char* argv[])
 
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-    std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("1_http_packet.pcap"));
+    	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("1_http_packet.pcap"));
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
 	{
-		std::cerr << "Cannot determine reader for file type\n";
+		std::cerr << "Cannot determine reader for file type" << std::endl;
 		return 1;
 	}
 
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading\n";
+		std::cerr << "Cannot open input.pcap for reading" << std::endl;
 		return 1;
 	}
 
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 	pcpp::RawPacket rawPacket;
 	if (!reader->getNextPacket(rawPacket))
 	{
-		std::cerr << "Couldn't read the first packet in the file\n";
+		std::cerr << "Couldn't read the first packet in the file" << std::endl;
 		return 1;
 	}
 
@@ -99,9 +99,9 @@ int main(int argc, char* argv[])
 	// write the modified packet to a pcap file
 	pcpp::PcapFileWriterDevice writer("1_modified_packet.pcap");
 	if (writer.open()) {
-        writer.writePacket(*(parsedPacket.getRawPacket()));
-        writer.close();
-    }
+		writer.writePacket(*(parsedPacket.getRawPacket()));
+		writer.close();
+	}
 
 
 	// Packet Creation
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 	// write the new packet to a pcap file
 	pcpp::PcapFileWriterDevice writer2("1_new_packet.pcap");
 	if (writer2.open()) {
-        writer2.writePacket(*(newPacket.getRawPacket()));
-        writer2.close();
-    }
+		writer2.writePacket(*(newPacket.getRawPacket()));
+		writer2.close();
+	}
 }

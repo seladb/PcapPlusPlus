@@ -17,18 +17,19 @@ bool keepRunning = true;
 void onApplicationInterrupted(void* cookie)
 {
 	keepRunning = false;
-    std::cout << "\nShutting down...\n";
+	std::cout << std::endl << "Shutting down..." << std::endl;
 }
 
 
 void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 {
-	pcpp::DpdkDevice::DpdkDeviceStats rxStats, txStats;
+	pcpp::DpdkDevice::DpdkDeviceStats rxStats;
+	pcpp::DpdkDevice::DpdkDeviceStats txStats;
 	rxDevice->getStatistics(rxStats);
 	txDevice->getStatistics(txStats);
 
 	std::vector<std::string> columnNames = {" ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec"};
-    std::vector<int> columnLengths = {10, 15, 15, 15, 15};
+    	std::vector<int> columnLengths = {10, 15, 15, 15, 15};
 
 	pcpp::TablePrinter printer(columnNames, columnLengths);
 
@@ -52,30 +53,30 @@ int main(int argc, char* argv[])
 	pcpp::DpdkDeviceList::initDpdk(coreMaskToUse, MBUF_POOL_SIZE);
 
 	// Find DPDK devices
-	auto* device1 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_1);
+	pcpp::DpdkDevice* device1 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_1);
 	if (device1 == nullptr)
 	{
-		std::cerr << "Cannot find device1 with port '" << DEVICE_ID_1 << "'\n";
+		std::cerr << "Cannot find device1 with port '" << DEVICE_ID_1 << "'" << std::endl;
 		return 1;
 	}
 
-	auto* device2 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_2);
+	pcpp::DpdkDevice* device2 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_2);
 	if (device2 == nullptr)
 	{
-		std::cerr << "Cannot find device2 with port '" << DEVICE_ID_2 << "'\n";
+		std::cerr << "Cannot find device2 with port '" << DEVICE_ID_2 << "'" << std::endl;
 		return 1;
 	}
 
 	// Open DPDK devices
 	if (!device1->openMultiQueues(1, 1))
 	{
-		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'\n";
+		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'" << std::endl;
 		return 1;
 	}
 
 	if (!device2->openMultiQueues(1, 1))
 	{
-		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'\n";
+		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'" << std::endl;
 		return 1;
 	}
 
@@ -91,7 +92,7 @@ int main(int argc, char* argv[])
 	// Start capture in async mode
 	if (!pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(workersCoreMask, workers))
 	{
-		std::cerr << "Couldn't start worker threads\n";
+		std::cerr << "Couldn't start worker threads" << std::endl;
 		return 1;
 	}
 
@@ -110,14 +111,21 @@ int main(int argc, char* argv[])
 			// Clear screen and move to top left
 			std::cout << "\033[2J\033[1;1H";
 
-			std::cout << "Stats #" << statsCounter++ << "\n==========\n\n";
+			std::cout
+				<< "Stats #" << statsCounter++ << std::endl
+				<< "==========" << std::endl
+				<< std::endl;
 
 			// Print stats of traffic going from Device1 to Device2
-			std::cout << "\nDevice1->Device2 stats:\n\n";
+			std::cout << std::endl
+				<< "Device1->Device2 stats:" << std::endl
+				<< std::endl;
 			printStats(device1, device2);
 
 			// Print stats of traffic going from Device2 to Device1
-			std::cout << "\nDevice2->Device1 stats:\n\n";
+			std::cout << std::endl
+				<< "Device2->Device1 stats:" << std::endl
+				<< std::endl;
 			printStats(device2, device1);
 		}
 		counter++;

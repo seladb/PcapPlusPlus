@@ -15,14 +15,14 @@ int main(int argc, char* argv[])
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
 	{
-		std::cerr << "Cannot determine reader for file type\n";
+		std::cerr << "Cannot determine reader for file type" << std::endl;
 		return 1;
 	}
 
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading\n";
+		std::cerr << "Cannot open input.pcap for reading" << std::endl;
 		return 1;
 	}
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	// try to open the file for writing
 	if (!pcapWriter.open())
 	{
-		std::cerr << "Cannot open output.pcap for writing\n";
+		std::cerr << "Cannot open output.pcap for writing" << std::endl;
 		return 1;
 	}
 
@@ -44,14 +44,14 @@ int main(int argc, char* argv[])
 	// try to open the file for writing
 	if (!pcapNgWriter.open())
 	{
-		std::cerr << "Cannot open output.pcapng for writing\n";
+		std::cerr << "Cannot open output.pcapng for writing" << std::endl;
 		return 1;
 	}
 
 	// set a BPF filter for the reader - only packets that match the filter will be read
 	if (!reader->setFilter("net 98.138.19.88"))
 	{
-		std::cerr << "Cannot set filter for file reader\n";
+		std::cerr << "Cannot set filter for file reader" << std::endl;
 		return 1;
 	}
 
@@ -68,17 +68,17 @@ int main(int argc, char* argv[])
 	}
 
 	// Use lambda to simplify statistics output
-    auto printStats = [](const std::string& writerName, const pcpp::IPcapDevice::PcapStats& stats) {
-        std::cout << "Written " << stats.packetsRecv << " packets successfully to " << writerName
-                  << " and " << stats.packetsDrop << " packets could not be written\n";
-    };
+	auto printStats = [](const std::string& writerName, const pcpp::IPcapDevice::PcapStats& stats) {
+		std::cout << "Written " << stats.packetsRecv << " packets successfully to " << writerName
+			<< " and " << stats.packetsDrop << " packets could not be written" << std::endl;
+	};
 
 	// create the stats object
 	pcpp::IPcapDevice::PcapStats stats;
 
 	// read stats from reader and print them
 	reader->getStatistics(stats);
-	std::cout << "Read " << stats.packetsRecv << " packets successfully and " << stats.packetsDrop << " packets could not be read\n";
+	std::cout << "Read " << stats.packetsRecv << " packets successfully and " << stats.packetsDrop << " packets could not be read" << std::endl;
 
 	// read stats from pcap writer and print them
 	pcapWriter.getStatistics(stats);
@@ -95,6 +95,5 @@ int main(int argc, char* argv[])
 	pcapWriter.close();
 	pcapNgWriter.close();
 
-	// No need to delete reader, unique_ptr will handle that
-    return 0;
+    	return 0;
 }
