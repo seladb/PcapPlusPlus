@@ -1,3 +1,4 @@
+#include <memory>
 #include <iostream>
 #include "stdlib.h"
 #include "PcapFileDevice.h"
@@ -9,19 +10,19 @@ int main(int argc, char* argv[])
 {
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader("input.pcap");
+	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("input.pcap"));
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
 	{
-		std::cerr << "Cannot determine reader for file type" << std::endl;
+		std::cerr << "Cannot determine reader for file type\n";
 		return 1;
 	}
 
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading" << std::endl;
+		std::cerr << "Cannot open input.pcap for reading\n";
 		return 1;
 	}
 
@@ -32,7 +33,7 @@ int main(int argc, char* argv[])
 	// try to open the file for writing
 	if (!pcapWriter.open())
 	{
-		std::cerr << "Cannot open output.pcap for writing" << std::endl;
+		std::cerr << "Cannot open output.pcap for writing\n";
 		return 1;
 	}
 
@@ -43,14 +44,14 @@ int main(int argc, char* argv[])
 	// try to open the file for writing
 	if (!pcapNgWriter.open())
 	{
-		std::cerr << "Cannot open output.pcapng for writing" << std::endl;
+		std::cerr << "Cannot open output.pcapng for writing\n";
 		return 1;
 	}
 
 	// set a BPF filter for the reader - only packets that match the filter will be read
 	if (!reader->setFilter("net 98.138.19.88"))
 	{
-		std::cerr << "Cannot set filter for file reader" << std::endl;
+		std::cerr << "Cannot set filter for file reader\n";
 		return 1;
 	}
 
@@ -66,20 +67,26 @@ int main(int argc, char* argv[])
 		pcapNgWriter.writePacket(rawPacket);
 	}
 
+	// Use lambda to simplify statistics output
+    auto printStats = [](const std::string& writerName, const pcpp::IPcapDevice::PcapStats& stats) {
+        std::cout << "Written " << stats.packetsRecv << " packets successfully to " << writerName
+                  << " and " << stats.packetsDrop << " packets could not be written\n";
+    };
+
 	// create the stats object
 	pcpp::IPcapDevice::PcapStats stats;
 
 	// read stats from reader and print them
 	reader->getStatistics(stats);
-	std::cout << "Read " << stats.packetsRecv << " packets successfully and " << stats.packetsDrop << " packets could not be read" << std::endl;
+	std::cout << "Read " << stats.packetsRecv << " packets successfully and " << stats.packetsDrop << " packets could not be read\n";
 
 	// read stats from pcap writer and print them
 	pcapWriter.getStatistics(stats);
-	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap writer and " << stats.packetsDrop << " packets could not be written" << std::endl;
+	printStats("pcap writer", stats);
 
 	// read stats from pcap-ng writer and print them
 	pcapNgWriter.getStatistics(stats);
-	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap-ng writer and " << stats.packetsDrop << " packets could not be written" << std::endl;
+	printStats("pcap-ng writer", stats);
 
 	// close reader
 	reader->close();
@@ -88,6 +95,6 @@ int main(int argc, char* argv[])
 	pcapWriter.close();
 	pcapNgWriter.close();
 
-	// free reader memory because it was created by pcpp::IFileReaderDevice::getReader()
-	delete reader;
+	// No need to delete reader, unique_ptr will handle that
+    return 0;
 }

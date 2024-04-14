@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include "stdlib.h"
 #include "SystemUtils.h"
 #include "Packet.h"
@@ -18,19 +19,19 @@ int main(int argc, char* argv[])
 
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader("1_http_packet.pcap");
+    std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("1_http_packet.pcap"));
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
 	{
-		std::cerr << "Cannot determine reader for file type" << std::endl;
+		std::cerr << "Cannot determine reader for file type\n";
 		return 1;
 	}
 
 	// open the reader for reading
 	if (!reader->open())
 	{
-		std::cerr << "Cannot open input.pcap for reading" << std::endl;
+		std::cerr << "Cannot open input.pcap for reading\n";
 		return 1;
 	}
 
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 	pcpp::RawPacket rawPacket;
 	if (!reader->getNextPacket(rawPacket))
 	{
-		std::cerr << "Couldn't read the first packet in the file" << std::endl;
+		std::cerr << "Couldn't read the first packet in the file\n";
 		return 1;
 	}
 
@@ -49,12 +50,12 @@ int main(int argc, char* argv[])
 	pcpp::Packet parsedPacket(&rawPacket);
 
 	// now let's get the Ethernet layer
-	pcpp::EthLayer* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
+	auto* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 	// change the source dest MAC address
 	ethernetLayer->setDestMac(pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
 
 	// let's get the IPv4 layer
-	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
+	auto* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	// change source IP address
 	ipLayer->setSrcIPv4Address(pcpp::IPv4Address("1.1.1.1"));
 	// change IP ID
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
 	ipLayer->getIPv4Header()->timeToLive = 12;
 
 	// let's get the TCP layer
-	pcpp::TcpLayer* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
+	auto* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
 	// change source port
 	tcpLayer->getTcpHeader()->portSrc = pcpp::hostToNet16(12345);
 	// add URG flag
@@ -72,7 +73,7 @@ int main(int argc, char* argv[])
 	tcpLayer->addTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TCPOPT_MSS, (uint16_t)1460));
 
 	// let's get the HTTP layer
-	pcpp::HttpRequestLayer* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
+	auto* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
 	// change the request method from GET to TRACE
 	httpRequestLayer->getFirstLine()->setMethod(pcpp::HttpRequestLayer::HttpTRACE);
 	// change host to www.google.com
@@ -97,9 +98,10 @@ int main(int argc, char* argv[])
 
 	// write the modified packet to a pcap file
 	pcpp::PcapFileWriterDevice writer("1_modified_packet.pcap");
-	writer.open();
-	writer.writePacket(*(parsedPacket.getRawPacket()));
-	writer.close();
+	if (writer.open()) {
+        writer.writePacket(*(parsedPacket.getRawPacket()));
+        writer.close();
+    }
 
 
 	// Packet Creation
@@ -134,7 +136,8 @@ int main(int argc, char* argv[])
 
 	// write the new packet to a pcap file
 	pcpp::PcapFileWriterDevice writer2("1_new_packet.pcap");
-	writer2.open();
-	writer2.writePacket(*(newPacket.getRawPacket()));
-	writer2.close();
+	if (writer2.open()) {
+        writer2.writePacket(*(newPacket.getRawPacket()));
+        writer2.close();
+    }
 }
