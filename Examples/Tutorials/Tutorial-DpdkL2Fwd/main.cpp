@@ -87,7 +87,11 @@ int main(int argc, char* argv[])
 	workers.emplace_back(new L2FwdWorkerThread(device2, device1));
 
 	// Create core mask - use core 1 and 2 for the two threads
-	int workersCoreMask = 0x06; // Binary 110, using cores 1 and 2
+	int workersCoreMask = 0;
+	for (int i = 1; i <= 2; i++)
+	{
+		workersCoreMask = workersCoreMask | (1 << i);
+	}
 
 	// Start capture in async mode
 	if (!pcpp::DpdkDeviceList::getInstance().startDpdkWorkerThreads(workersCoreMask, workers))

@@ -184,7 +184,8 @@ int main(int argc, char* argv[])
 	dev->stopCapture();
 
 	// go over the packet vector and feed all packets to the stats object
-	for (const auto& packet : packetVec) {
+	for (const auto& packet : packetVec)
+	{
 		pcpp::Packet parsedPacket(packet);
 		stats.consumePacket(parsedPacket);
 	}
@@ -224,7 +225,8 @@ int main(int argc, char* argv[])
 		return dev->sendPacket(*packet);
 	});
 
-	if (!allSent) {
+	if (!allSent)
+	{
 		std::cerr << "Couldn't send packet" << std::endl;
 		return 1;
 	}

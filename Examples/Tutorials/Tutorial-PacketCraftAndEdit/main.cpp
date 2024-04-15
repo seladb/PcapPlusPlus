@@ -98,7 +98,8 @@ int main(int argc, char* argv[])
 
 	// write the modified packet to a pcap file
 	pcpp::PcapFileWriterDevice writer("1_modified_packet.pcap");
-	if (writer.open()) {
+	if (writer.open())
+	{
 		writer.writePacket(*(parsedPacket.getRawPacket()));
 		writer.close();
 	}
@@ -136,7 +137,8 @@ int main(int argc, char* argv[])
 
 	// write the new packet to a pcap file
 	pcpp::PcapFileWriterDevice writer2("1_new_packet.pcap");
-	if (writer2.open()) {
+	if (writer2.open())
+	{
 		writer2.writePacket(*(newPacket.getRawPacket()));
 		writer2.close();
 	}
