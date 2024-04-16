@@ -9,13 +9,21 @@ env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
 
+permissions:
+  contents: read
+
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     container: seladb/alpine317
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -26,7 +34,7 @@ jobs:
           apk update && apk add cppcheck python3-dev
           python3 -m pip install cmake-format
 
-      - uses: pre-commit/action@v3.0.1
+      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
       - name: CMake format
         run: |
@@ -72,8 +80,13 @@ jobs:
             config-zstd: OFF
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -124,7 +137,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
@@ -144,8 +157,13 @@ jobs:
             additional-flags: -DPCAPPP_USE_DPDK_KNI=ON
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
@@ -189,8 +207,13 @@ jobs:
           - configure: cmake -DPCAPPP_USE_PF_RING=ON -DPF_RING_ROOT="/PF_RING" -S . -B "$BUILD_DIR"
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -237,10 +260,15 @@ jobs:
             config-zstd: ON
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
 
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -298,7 +326,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./coverage.xml
           flags: ${{ matrix.os-version }},unittest
@@ -312,10 +340,15 @@ jobs:
         os-version: [macos-14]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
 
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -371,7 +404,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./coverage.xml
           flags: ${{ matrix.os-version }},unittest
@@ -389,11 +422,16 @@ jobs:
             sys: mingw64
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@cc11e9188b693c2b100158c3322424c4cc1dadea # v2.22.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -403,7 +441,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: "3.8.x"
 
@@ -451,7 +489,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -481,15 +519,20 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
 
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
           python-version: "3.8.x"
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
 
       - name: Setup OpenCppCoverage and add to PATH
         run: |
@@ -539,7 +582,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -568,11 +611,16 @@ jobs:
     runs-on: ${{ matrix.run-on-os }}
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@main
+        uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017 # main
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -586,7 +634,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@master
+        uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -616,8 +664,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Install dependencies
         run: |
@@ -641,7 +694,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@v3.1.6
+        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
         with:
           files: ./coverage.xml
           flags: xdp,unittest
@@ -659,7 +712,12 @@ jobs:
     container:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
-      - uses: actions/checkout@v4
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Install prerequisites
         run: |
           apt-get update && apt-get install -y cmake autoconf flex bison
