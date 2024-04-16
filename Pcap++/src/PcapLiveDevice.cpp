@@ -859,6 +859,7 @@ void PcapLiveDevice::setDeviceMtu()
 	}
 
 	m_DeviceMtu = ifr.ifr_mtu;
+	::close(socketfd);
 #endif
 }
 
@@ -914,6 +915,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
 	m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+	::close(socketfd);
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 	int	mib[6];
 	size_t len;
