@@ -37,7 +37,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -63,7 +63,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           draft: true
           allowUpdates: true
@@ -79,10 +79,10 @@ jobs:
           - freebsd-version: "14.0"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@v1
+        uses: vmactions/freebsd-vm@f8be330398166d1eb0601f01353839d4052367b2 # v1.0.7
         with:
           release: ${{ matrix.freebsd-version }}
           envs: 'BUILD_DIR'
@@ -96,7 +96,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           draft: true
           allowUpdates: true
@@ -111,12 +111,12 @@ jobs:
         arch: [x86_64, arm64]
 
     steps:
-      - uses: maxim-lobanov/setup-xcode@v1
+      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
           xcode-version: "${{ matrix.xcode-version }}"
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Configure PcapPlusPlus
         run: |
@@ -130,7 +130,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           draft: true
           allowUpdates: true
@@ -149,10 +149,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@cc11e9188b693c2b100158c3322424c4cc1dadea # v2.22.0
         with:
           msystem: ${{matrix.sys}}
           update: true
@@ -191,7 +191,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           draft: true
           allowUpdates: true
@@ -208,10 +208,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
 
       - name: Install WinPcap
         run: |
@@ -231,7 +231,7 @@ jobs:
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           draft: true
           allowUpdates: true
@@ -255,10 +255,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@main
+        uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017 # main
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -288,7 +288,7 @@ jobs:
           mkdir -p "android-package"
           mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           path: android-package
           name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
@@ -299,7 +299,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
         with:
           pattern: android-package-*
           merge-multiple: true
@@ -311,7 +311,7 @@ jobs:
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           draft: true
           allowUpdates: true
