@@ -36,6 +36,11 @@ jobs:
             config-zstd: OFF
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -78,6 +83,11 @@ jobs:
           - freebsd-version: "13.2"
           - freebsd-version: "14.0"
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -111,6 +121,11 @@ jobs:
         arch: [x86_64, arm64]
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "${{ matrix.xcode-version }}"
@@ -148,6 +163,11 @@ jobs:
             sys: mingw64
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -207,6 +227,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -254,6 +279,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -299,6 +329,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: actions/download-artifact@v4
         with:
           pattern: android-package-*

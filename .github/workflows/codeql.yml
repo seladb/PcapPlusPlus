@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: '15 14 * * 1'
 
+permissions:
+  contents: read
+
 jobs:
   analyze:
     name: Analyze
@@ -21,6 +24,11 @@ jobs:
         language: [ 'cpp' ]
 
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@v2
+      with:
+        egress-policy: audit
+
     - name: Checkout repository
       uses: actions/checkout@v3
 

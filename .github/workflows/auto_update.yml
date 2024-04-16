@@ -4,11 +4,19 @@ on:
   schedule:
     - cron: '10 10 15 * *'
 
+permissions:
+  contents: read
+
 jobs:
   precommit-update:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -42,6 +50,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
