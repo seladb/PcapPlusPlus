@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 		const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 		auto iter = std::find_if(devList.begin(), devList.end(),
-								 [](pcpp::PcapLiveDevice *dev) { return dev->getDefaultGateway().isValid(); });
+								 [](pcpp::PcapLiveDevice *dev) { return dev->getDefaultGateway() != pcpp::IPv4Address::Zero; });
 		if (iter != devList.end())
 		{
 			dev = *iter;
@@ -208,15 +208,23 @@ int main(int argc, char* argv[])
 	// make sure the app closes the device upon termination
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, dev);
 
-	// find the IPv4 address for provided hostname
-	double responseTime = 0;
-	uint32_t dnsTTL = 0;
-	pcpp::IPv4Address resultIP = pcpp::NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
-
-	// print resolved IPv4 address if found
-	if (!resultIP.isValid())
+	try
+	{
+		// find the IPv4 address for provided hostname
+		double responseTime = 0;
+		uint32_t dnsTTL = 0;
+		pcpp::IPv4Address resultIP = pcpp::NetworkUtils::getInstance().getIPv4Address(hostname, dev, responseTime, dnsTTL, timeoutSec, dnsServerIP, gatewayIP);
+		if (resultIP == pcpp::IPv4Address::Zero)
+		{
+			std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
+		}
+		else
+		{
+			std::cout << std::endl << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL << "  time=" << (int)responseTime << "ms" << std::endl;
+		}
+	}
+	catch (const std::exception&)
+	{
 		std::cout << std::endl << "Could not resolve hostname [" << hostname << "]" << std::endl;
-	else
-		std::cout << std::endl << "IP address of [" << hostname << "] is: " << resultIP << "  DNS-TTL=" << dnsTTL << "  time=" << (int)responseTime << "ms" << std::endl;
-
+	}
 }

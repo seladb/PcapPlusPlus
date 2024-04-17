@@ -18,12 +18,6 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
-	if (!ipAddress.isValid())
-	{
-		PCPP_LOG_ERROR("IP address is NULL or not valid");
-		return NULL;
-	}
-
 	PCPP_LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -74,11 +68,16 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
 {
-	IPAddress ipAddr = IPAddress(ipAddrAsString);
-	if (!ipAddr.isValid())
+	IPAddress ipAddr;
+
+	try
 	{
-		PCPP_LOG_ERROR("IP address no valid");
-		return NULL;
+		ipAddr = IPAddress(ipAddrAsString);
+	}
+	catch (std::exception&)
+	{
+		PCPP_LOG_ERROR("IP address no valid: " + ipAddrAsString);
+		return nullptr;
 	}
 
 	PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
@@ -87,11 +86,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& i
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
 {
-	if (!ipAddr.isValid())
-	{
-		PCPP_LOG_ERROR("IP address not valid");
-		return NULL;
-	}
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
 		return getRemoteDeviceByIP(ipAddr.getIPv4());
@@ -177,12 +171,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 
 void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress& ipAddress)
 {
-	if (!ipAddress.isValid())
-	{
-		PCPP_LOG_ERROR("Trying to set an invalid IP address to PcapRemoteDeviceList");
-		return;
-	}
-
 	m_RemoteMachineIpAddress = ipAddress;
 }
 
