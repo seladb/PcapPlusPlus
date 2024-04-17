@@ -972,7 +972,17 @@ void PcapLiveDevice::setDefaultGateway()
 		while (curAdapterInfo != NULL)
 		{
 			if (m_Name.find(curAdapterInfo->AdapterName) != std::string::npos)
-				m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
+			{
+				try
+				{
+					m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
+				}
+				catch(const std::exception& e)
+				{
+					PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
+				}
+				break;
+			}
 
 			curAdapterInfo = curAdapterInfo->Next;
 		}
@@ -1008,7 +1018,14 @@ void PcapLiveDevice::setDefaultGateway()
 		std::stringstream interfaceGatewayStream;
 		interfaceGatewayStream << std::hex << interfaceGateway;
 		interfaceGatewayStream >> interfaceGatewayIPInt;
-		m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+		try
+		{
+			m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+		}
+		catch(const std::exception& e)
+		{
+			PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
+		}
 	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 	std::string command = "netstat -nr | grep default | grep " + m_Name;
@@ -1029,7 +1046,14 @@ void PcapLiveDevice::setDefaultGateway()
 	// erase string after gateway IP address
 	ifaceInfo.resize(ifaceInfo.find(' ', 0));
 
-	m_DefaultGateway = IPv4Address(ifaceInfo);
+	try
+	{
+		m_DefaultGateway = IPv4Address(ifaceInfo);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< ifaceInfo << ": " << e.what());
+	}
 #endif
 }
 
@@ -1051,7 +1075,14 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 			continue;
 		}
 
-		return IPv4Address(currAddr->s_addr);
+		try
+		{
+			return IPv4Address(currAddr->s_addr);
+		}
+		catch (const std::exception&)
+		{
+			continue;
+		}
 	}
 
 	return IPv4Address::Zero;
