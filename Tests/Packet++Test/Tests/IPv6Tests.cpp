@@ -52,7 +52,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	pcpp::Layer* afterIpv6Layer = pUdpLayer->getNextLayer();
 	uint8_t* payloadData = new uint8_t[afterIpv6Layer->getDataLen()];
 	afterIpv6Layer->copyData(payloadData);
-	pcpp::PayloadLayer payloadLayer(payloadData, afterIpv6Layer->getDataLen(), true);
+	pcpp::PayloadLayer payloadLayer(payloadData, afterIpv6Layer->getDataLen());
 
 	pcpp::Packet ip6UdpPacketNew(1);
 	PTF_ASSERT_TRUE(ip6UdpPacketNew.addLayer(&ethLayer));

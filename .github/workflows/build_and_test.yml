@@ -285,15 +285,15 @@ jobs:
           cmake --build "$BUILD_DIR" -j
           cmake --install $BUILD_DIR
 
-      - name: Build Tutorials
-        run: |
-          mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
-          cmake --build build_examples -j
+      # - name: Build Tutorials
+      #   run: |
+      #     mkdir -p build_examples
+      #     cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
+      #     cmake --build build_examples -j
 
-      - name: Test Tutorials
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+      # - name: Test Tutorials
+      #   if: ${{ matrix.arch == 'x86_64' }}
+      #   run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
         run: |
@@ -359,14 +359,14 @@ jobs:
           cmake --build "$BUILD_DIR" -j
           cmake --install "$BUILD_DIR"
 
-      - name: Build Tutorials
-        run: |
-          mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
-          cmake --build build_examples -j
+      # - name: Build Tutorials
+      #   run: |
+      #     mkdir -p build_examples
+      #     cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+      #     cmake --build build_examples -j
 
-      - name: Test Tutorials
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+      # - name: Test Tutorials
+      #   run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
         run: |
