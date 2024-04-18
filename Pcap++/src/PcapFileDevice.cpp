@@ -258,7 +258,10 @@ bool PcapFileReaderDevice::open()
 		m_DeviceOpened = false;
 		return false;
 	}
+
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_Precision = pcap_get_tstamp_precision(m_PcapDescriptor);
+#endif
 
 	int linkLayer = pcap_datalink(m_PcapDescriptor);
 	if (!RawPacket::isLinkTypeValid(linkLayer))
@@ -303,24 +306,16 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
-	if (m_Precision == PCAP_TSTAMP_PRECISION_NANO)
+
+#if defined(PCAP_TSTAMP_PRECISION_NANO) 
+	timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec * (m_Precision == PCAP_TSTAMP_PRECISION_NANO ? 1 : 1000))}; // because we opened with nano second precision 'tv_usec' is actually nanos
+#else
+	struct timeval ts = pkthdr.ts;
+#endif
+	if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
 	{
-		timespec ts = {	pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec)}; // because we opened with nano second precision 'tv_usec' is actually nanos
-		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType),
-								  pkthdr.len))
-		{
-			PCPP_LOG_ERROR("Couldn't set data to raw packet");
-			return false;
-		}
-	}
-	else
-	{
-		struct timeval ts = pkthdr.ts;
-		if (!rawPacket.setRawData(pMyPacketData, pkthdr.caplen, ts, static_cast<LinkLayerType>(m_PcapLinkLayerType), pkthdr.len))
-		{
-			PCPP_LOG_ERROR("Couldn't set data to raw packet");
-			return false;
-		}
+		PCPP_LOG_ERROR("Couldn't set data to raw packet");
+		return false;
 	}
 
 	m_NumOfPacketsRead++;
@@ -542,7 +537,11 @@ PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLaye
 	m_NumOfPacketsWritten = 0;
 	m_PcapLinkLayerType = linkLayerType;
 	m_AppendMode = false;
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_Precision = nanoPrecision ? PCAP_TSTAMP_PRECISION_NANO : PCAP_TSTAMP_PRECISION_MICRO;
+#else
+	m_Precision = -1;
+#endif
 	m_File = nullptr;
 }
 
@@ -633,7 +632,11 @@ bool PcapFileWriterDevice::open()
 	m_NumOfPacketsNotWritten = 0;
 	m_NumOfPacketsWritten = 0;
 
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_PcapDescriptor = pcap_open_dead_with_tstamp_precision(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE, m_Precision);
+#else
+	m_PcapDescriptor = pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE);
+#endif
 	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName << "': pcap_open_dead returned NULL");
