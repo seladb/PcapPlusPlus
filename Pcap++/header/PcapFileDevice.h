@@ -42,7 +42,7 @@ namespace pcpp
 		/**
 		 * Close the file
 		 */
-		virtual void close();
+		void close() override;
 	};
 
 
@@ -433,7 +433,7 @@ namespace pcpp
 		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
 		 * (an error will be printed to log)
 		 */
-		virtual bool open();
+		bool open() override;
 
 		/**
 		 * Same as open(), but enables to open the file in append mode in which packets will be appended to the file

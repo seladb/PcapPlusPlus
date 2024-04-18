@@ -754,12 +754,12 @@ namespace pcpp
 		 * @return True if the device was opened successfully, false if device is already opened, if RX/TX queues configuration failed or of DPDK port
 		 * configuration and startup failed
 		 */
-		bool open() { return openMultiQueues(1, 1); };
+		bool open() override { return openMultiQueues(1, 1); };
 
 		/**
 		 * Close the DpdkDevice. When device is closed it's not possible work with it
 		 */
-		void close();
+		void close() override;
 
 	private:
 
