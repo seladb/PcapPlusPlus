@@ -279,7 +279,6 @@ int main(int argc, char* argv[])
 	std::cout << "Results:" << std::endl;
 	stats.printToConsole();
 
-
 	// close the device before application ends
 	dev->close();
 }

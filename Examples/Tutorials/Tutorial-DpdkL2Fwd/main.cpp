@@ -29,7 +29,7 @@ void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 	txDevice->getStatistics(txStats);
 
 	std::vector<std::string> columnNames = {" ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec"};
-    	std::vector<int> columnLengths = {10, 15, 15, 15, 15};
+	std::vector<int> columnLengths = {10, 15, 15, 15, 15};
 
 	pcpp::TablePrinter printer(columnNames, columnLengths);
 
