@@ -103,6 +103,7 @@ namespace pcpp
 	class PcapFileReaderDevice : public IFileReaderDevice
 	{
 	private:
+		int m_Precision;
 		LinkLayerType m_PcapLinkLayerType;
 
 		// private copy c'tor
@@ -384,6 +385,7 @@ namespace pcpp
 		pcap_dumper_t* m_PcapDumpHandler;
 		LinkLayerType m_PcapLinkLayerType;
 		bool m_AppendMode;
+		int m_Precision;
 		FILE* m_File;
 
 		// private copy c'tor
@@ -398,8 +400,9 @@ namespace pcpp
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
 		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
+		 * @param[in] nanoPrecision A boolean indicating whether to write timestamps in nano-precision. If set to false, timestamps will be written in micro-precision
 		 */
-		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
+		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET, bool nanoPrecision = false);
 
 		/**
 		 * A destructor for this class
