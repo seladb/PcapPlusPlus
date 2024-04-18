@@ -194,11 +194,6 @@ size_t BgpOpenMessageLayer::optionalParamsToByteArray(const std::vector<optional
 
 void BgpOpenMessageLayer::setBgpId(const IPv4Address& newBgpId)
 {
-	if (!newBgpId.isValid())
-	{
-		return;
-	}
-
 	bgp_open_message* msgHdr = getOpenMsgHeader();
 	if (msgHdr == nullptr)
 	{

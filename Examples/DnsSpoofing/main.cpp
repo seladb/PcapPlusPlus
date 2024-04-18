@@ -311,22 +311,20 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 
 	// set a filter to capture only DNS requests and client IP if provided
 	pcpp::PortFilter dnsPortFilter(53, pcpp::DST);
-	if (!clientIP.isValid())
-	{
-		if (!dev->setFilter(dnsPortFilter))
-			EXIT_WITH_ERROR("Cannot set DNS filter for device");
-	}
-	else
-	{
-		pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
-		std::vector<pcpp::GeneralFilter*> filterForAnd;
-		filterForAnd.push_back(&dnsPortFilter);
-		filterForAnd.push_back(&clientIpFilter);
-		pcpp::AndFilter andFilter(filterForAnd);
 
-		if (!dev->setFilter(andFilter))
-			EXIT_WITH_ERROR("Cannot set DNS and client IP filter for device");
+	std::vector<pcpp::GeneralFilter*> filterForAnd;
+	filterForAnd.push_back(&dnsPortFilter);
+
+	pcpp::IPFilter clientIpFilter(clientIP.toString(), pcpp::SRC);
+	if(!clientIP.isZero())
+	{
+		filterForAnd.push_back(&clientIpFilter);
 	}
+
+	pcpp::AndFilter andFilter(filterForAnd);
+
+	if (!dev->setFilter(andFilter))
+		EXIT_WITH_ERROR("Cannot set DNS and client IP filter for device");
 
 	// make args for callback
 	DnsSpoofingArgs args;
@@ -399,12 +397,26 @@ int main(int argc, char* argv[])
 			}
 			case 'd':
 			{
-				dnsServer = pcpp::IPAddress(static_cast<char const *>(optarg));
+				try
+				{
+					dnsServer = pcpp::IPAddress(static_cast<char const *>(optarg));
+				}
+				catch(const std::exception&)
+				{
+					EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IP address");
+				}
 				break;
 			}
 			case 'c':
 			{
-				clientIP = pcpp::IPAddress(static_cast<char const *>(optarg));
+				try
+				{
+					clientIP = pcpp::IPAddress(static_cast<char const *>(optarg));
+				}
+				catch(const std::exception&)
+				{
+					EXIT_WITH_ERROR("Client IP to spoof is invalid");
+				}
 				clientIpSet = true;
 				break;
 			}
@@ -439,11 +451,11 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 
 	// verify DNS server IP is a valid IPv4 address
-	if (dnsServer == pcpp::IPv4Address::Zero ||  !dnsServer.isValid())
+	if (dnsServer.isZero())
 		EXIT_WITH_ERROR("Spoof DNS server IP provided is empty or not a valid IPv4 address");
 
 	// verify client IP is valid if set
-	if (clientIpSet && !clientIP.isValid())
+	if (clientIpSet && clientIP.isZero())
 		EXIT_WITH_ERROR("Client IP to spoof is invalid");
 
 	doDnsSpoofing(dev, dnsServer, clientIP, hostList);
