@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 		<< "   Interface MTU:         " << dev->getMtu() << std::endl; // get interface MTU
 
 	if (!dev->getDnsServers().empty())
-	{	
+	{
 		std::cout << "   DNS server:            " << dev->getDnsServers().front() << std::endl;
 	}
 
