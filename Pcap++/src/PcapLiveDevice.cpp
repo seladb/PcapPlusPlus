@@ -850,16 +850,28 @@ void PcapLiveDevice::setDeviceMtu()
 	memset(&ifr, 0, sizeof(ifr));
 	strncpy(ifr.ifr_name, m_Name.c_str(), sizeof(ifr.ifr_name) - 1);
 
-	int socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (ioctl(socketfd, SIOCGIFMTU, &ifr) == -1)
+	int socketfd = -1;
+	try
 	{
-		PCPP_LOG_DEBUG("Error in retrieving MTU: ioctl() returned -1");
+		socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+		if (ioctl(socketfd, SIOCGIFMTU, &ifr) == -1)
+		{
+			PCPP_LOG_DEBUG("Error in retrieving MTU: ioctl() returned -1");
+			m_DeviceMtu = 0;
+			return;
+		}
+		m_DeviceMtu = ifr.ifr_mtu;
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error in retrieving MTU: " << e.what());
 		m_DeviceMtu = 0;
-		return;
 	}
 
-	m_DeviceMtu = ifr.ifr_mtu;
-	::close(socketfd);
+	if(socketfd != -1)
+	{
+		::close(socketfd);
+	}
 #endif
 }
 
@@ -907,15 +919,28 @@ void PcapLiveDevice::setDeviceMacAddress()
 	memset(&ifr, 0, sizeof(ifr));
 	strncpy(ifr.ifr_name, m_Name.c_str(), sizeof(ifr.ifr_name) - 1);
 
-	int socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (ioctl(socketfd, SIOCGIFHWADDR, &ifr) == -1)
+
+	int socketfd = -1;
+	try
 	{
-		PCPP_LOG_DEBUG("Error in retrieving MAC address: ioctl() returned -1");
-		return;
+		socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+		if (ioctl(socketfd, SIOCGIFHWADDR, &ifr) == -1)
+		{
+			PCPP_LOG_DEBUG("Error in retrieving MAC address: ioctl() returned -1");
+			return;
+		}
+
+		m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error in retrieving MAC address: " << e.what());
 	}
 
-	m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
-	::close(socketfd);
+	if(socketfd != -1)
+	{
+		::close(socketfd);
+	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 	int	mib[6];
 	size_t len;
