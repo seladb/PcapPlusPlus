@@ -88,7 +88,7 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
  */
 static bool onPacketArrivesBlockingMode(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
-	// extract the stats object form the cookie
+	// extract the stats object from the cookie
 	auto* stats = static_cast<PacketStats*>(cookie);
 
 	// parsed the raw packet
@@ -131,7 +131,9 @@ int main(int argc, char* argv[])
 		<< "   Interface MTU:         " << dev->getMtu() << std::endl; // get interface MTU
 
 	if (!dev->getDnsServers().empty())
-        	std::cout << "   DNS server:            " << dev->getDnsServers().front() << std::endl;
+	{	
+		std::cout << "   DNS server:            " << dev->getDnsServers().front() << std::endl;
+	}
 
 	// open the device before start capturing/sending packets
 	if (!dev->open())
