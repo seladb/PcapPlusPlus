@@ -306,8 +306,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
-
-#if defined(PCAP_TSTAMP_PRECISION_NANO) 
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
 	timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec * (m_Precision == PCAP_TSTAMP_PRECISION_NANO ? 1 : 1000))}; // because we opened with nano second precision 'tv_usec' is actually nanos
 #else
 	struct timeval ts = pkthdr.ts;
@@ -317,7 +316,6 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 		PCPP_LOG_ERROR("Couldn't set data to raw packet");
 		return false;
 	}
-
 	m_NumOfPacketsRead++;
 	return true;
 }
@@ -540,6 +538,7 @@ PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLaye
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_Precision = nanoPrecision ? PCAP_TSTAMP_PRECISION_NANO : PCAP_TSTAMP_PRECISION_MICRO;
 #else
+	PCPP_LOG_ERROR("PcapFileWriterDevice was compiled without nano precision support which requires libpcap > 1.5.1. Please recompile PcapPlusPlus with nano precision support to use this feature. Using default precision");
 	m_Precision = -1;
 #endif
 	m_File = nullptr;
