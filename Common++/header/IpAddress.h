@@ -6,17 +6,6 @@
 #include <algorithm>
 #include <ostream>
 
-#ifndef PCPP_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define PCPP_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define PCPP_DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-#define PCPP_DEPRECATED
-#endif
-#endif
-
 /// @file
 
 
@@ -42,15 +31,15 @@ namespace pcpp
 	{
 	public:
 		/**
-		 * A default constructor that creates an instance of the class with unspecified/zero address
+		 * A default constructor that creates an instance of the class with the zero-initialized address
 		 */
-		IPv4Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
+		IPv4Address() = default;
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
+		IPv4Address(const uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte array.
@@ -59,8 +48,8 @@ namespace pcpp
 		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
 
 		/**
-		 * A constructor that creates an instance of the class out of std::string value
-		 * If the string doesn't represent a valid IPv4 address, an instance will store an unspecified address
+		 * A constructor that creates an instance of the class out of std::string value.
+		 * If the string doesn't represent a valid IPv4 address, an exception is thrown.
 		 * @param[in] addrAsString The std::string representation of the address
 		 */
 		IPv4Address(const std::string& addrAsString);
@@ -87,12 +76,6 @@ namespace pcpp
 		 * @return True if an address is multicast
 		 */
 		bool isMulticast() const;
-
-		/**
-		 * Determine whether the address is valid (it's not an unspecified/zero)
-		 * @return True if an address is not unspecified/zero
-		 */
-		bool isValid() const { return toInt() != 0; }
 
 		/**
 		 * Overload of the equal-to operator
@@ -145,19 +128,14 @@ namespace pcpp
 		bool matchNetwork(const std::string& network) const;
 
 		/**
-		 * @deprecated This method is deprecated, please use matchNetwork(const IPv4Network& network)
+		 * A static method that checks whether a string represents a valid IPv4 address
+		 * @param[in] addrAsString The std::string representation of the address
+		 * @return True if the address is valid, false otherwise
 		 */
-		PCPP_DEPRECATED bool matchSubnet(const IPv4Address& subnet, const std::string& subnetMask) const;
+		static bool isValidIPv4Address(const std::string& addrAsString);
 
 		/**
-		 * @deprecated This method is deprecated, please use matchNetwork(const IPv4Network& network)
-		 */
-		PCPP_DEPRECATED bool matchSubnet(const IPv4Address& subnet, const IPv4Address& subnetMask) const;
-
-		/**
-		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0"
-		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
-		 * In order to check whether the address is zero the method isValid can be used
+		 * A static value representing a zero value of IPv4 address, meaning address of value "0.0.0.0".
 		 */
 		static const IPv4Address Zero;
 
@@ -171,7 +149,7 @@ namespace pcpp
 		static const IPv4Address MulticastRangeUpperBound;
 
 	private:
-		uint8_t m_Bytes[4];
+		uint8_t m_Bytes[4] = {0};
 	}; // class IPv4Address
 
 
@@ -192,9 +170,9 @@ namespace pcpp
 	{
 	public:
 		/**
-		 * A default constructor that creates an instance of the class with unspecified/zero address
+		 * A default constructor that creates an instance of the class with the zero-initialized address.
 		 */
-		IPv6Address() { memset(m_Bytes, 0, sizeof(m_Bytes)); }
+		IPv6Address() = default;
 
 		/**
 		 * A constructor that creates an instance of the class out of 16-byte array.
@@ -203,8 +181,8 @@ namespace pcpp
 		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
 
 		/**
-		 * A constructor that creates an instance of the class out of std::string value
-		 * If the string doesn't represent a valid IPv6 address, an instance will store an unspecified address
+		 * A constructor that creates an instance of the class out of std::string value.
+		 * If the string doesn't represent a valid IPv6 address, an exception is thrown.
 		 * @param[in] addrAsString The std::string representation of the address
 		 */
 		IPv6Address(const std::string& addrAsString);
@@ -225,11 +203,6 @@ namespace pcpp
 		 * @return True if an address is multicast
 		 */
 		bool isMulticast() const;
-
-		/**
-		 * Determine whether the address is unspecified
-		 */
-		bool isValid() const { return *this != Zero; }
 
 		/**
 		 * Overload of the equal-to operator
@@ -290,14 +263,14 @@ namespace pcpp
 		bool matchNetwork(const std::string& network) const;
 
 		/**
-		  * @deprecated This method is deprecated, please use matchNetwork(const IPv6Network& network)
-		  */
-		PCPP_DEPRECATED bool matchSubnet(const IPv6Address& subnet, uint8_t prefixLength) const;
+		 * A static method that checks whether a string represents a valid IPv6 address
+		 * @param[in] addrAsString The std::string representation of the address
+		 * @return True if the address is valid, false otherwise
+		 */
+		static bool isValidIPv6Address(const std::string& addrAsString);
 
 		/**
-		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0"
-		 * Notice this value can be omitted in the user code because the default constructor creates an instance with an unspecified/zero address.
-		 * In order to check whether the address is zero the method isValid can be used
+		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0".
 		 */
 		static const IPv6Address Zero;
 
@@ -309,7 +282,7 @@ namespace pcpp
 		static const IPv6Address MulticastRangeLowerBound;
 
 	private:
-		uint8_t m_Bytes[16];
+		uint8_t m_Bytes[16] = {0};
 	}; // class IPv6Address
 
 
@@ -386,11 +359,6 @@ namespace pcpp
 		std::string toString() const { return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();	}
 
 		/**
-		 * @return Determine whether the address is unspecified
-		 */
-		bool isValid() const { return (getType() == IPv4AddressType) ? m_IPv4.isValid() : m_IPv6.isValid(); }
-
-		/**
 		 * @return Determine whether the object contains an IP version 4 address
 		 */
 		bool isIPv4() const { return getType() == IPv4AddressType; }
@@ -417,6 +385,11 @@ namespace pcpp
 		 * @return The const reference to IPv6Address instance
 		 */
 		const IPv6Address& getIPv6() const { return m_IPv6; }
+
+		/**
+		 * @return True if the address is zero, false otherwise
+		 */
+		bool isZero() const { return (getType() == IPv4AddressType) ? m_IPv4 == IPv4Address::Zero : m_IPv6 == IPv6Address::Zero; }
 
 		/**
 		 * Overload of the equal-to operator
@@ -579,9 +552,9 @@ namespace pcpp
 		uint32_t m_NetworkPrefix;
 		uint32_t m_Mask;
 
-		bool isValidNetmask(const std::string& netmask);
+		bool isValidNetmask(const IPv4Address& netmaskAddress);
 		void initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen);
-		void initFromAddressAndNetmask(const IPv4Address& address, const std::string& netmask);
+		void initFromAddressAndNetmask(const IPv4Address& address, const IPv4Address& netmaskAddress);
 	};
 
 
@@ -682,9 +655,9 @@ namespace pcpp
 		uint8_t m_NetworkPrefix[16];
 		uint8_t m_Mask[16];
 
-		bool isValidNetmask(const std::string& netmask);
+		bool isValidNetmask(const IPv6Address& netmaskAddress);
 		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
-		void initFromAddressAndNetmask(const IPv6Address& address, const std::string& netmask);
+		void initFromAddressAndNetmask(const IPv6Address& address, const IPv6Address& netmaskAddress);
 	};
 
 

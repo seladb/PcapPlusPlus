@@ -25,7 +25,7 @@ PTF_TEST_CASE(IPv4PacketCreation)
 
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
-	pcpp::PayloadLayer payloadLayer(payload, 10, true);
+	pcpp::PayloadLayer payloadLayer(payload, 10);
 
 
 	pcpp::Packet ip4Packet(1);
