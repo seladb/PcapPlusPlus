@@ -461,7 +461,7 @@ namespace pcpp
 		 * Get statistics of packets written so far.
 		 * @param[out] stats The stats struct where stats are returned
 		 */
-		virtual void getStatistics(PcapStats& stats) const;
+		void getStatistics(PcapStats& stats) const override;
 	};
 
 
