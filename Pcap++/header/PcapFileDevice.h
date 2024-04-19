@@ -414,7 +414,7 @@ namespace pcpp
 		 * or if the packet link layer type is different than the one defined for the file
 		 * (in all cases, an error will be printed to log)
 		 */
-		bool writePacket(RawPacket const& packet);
+		bool writePacket(RawPacket const& packet) override;
 
 		/**
 		 * Write multiple RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change
@@ -423,7 +423,7 @@ namespace pcpp
 		 * @return True if all packets were written successfully to the file. False will be returned if the file isn't opened (also, an error
 		 * log will be printed) or if at least one of the packets wasn't written successfully to the file
 		 */
-		bool writePackets(const RawPacketVector& packets);
+		bool writePackets(const RawPacketVector& packets) override;
 
 		//override methods
 
@@ -445,12 +445,12 @@ namespace pcpp
 		 * different from current file link type. In case appendMode is set to false, please refer to open() for return
 		 * values
 		 */
-		bool open(bool appendMode);
+		bool open(bool appendMode) override;
 
 		/**
 		 * Flush and close the pacp file
 		 */
-		virtual void close();
+		void close() override;
 
 		/**
 		 * Flush packets to disk.
