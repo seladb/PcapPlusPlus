@@ -4,8 +4,13 @@
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
 #include <iostream>
-#include <cmath>
 #include <cstring>
+#include <cmath>
+#include <limits>
+
+#if defined(_WIN32)
+#undef max
+#endif
 
 namespace pcpp {
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
@@ -118,7 +123,7 @@ namespace pcpp {
 		{
 			try
 			{
-				decodedRecord->decodeValue((uint8_t*)data + tagLen + lengthLen, lazy);
+				decodedRecord->decodeValue(const_cast<uint8_t*>(data) + tagLen + lengthLen, lazy);
 			}
 			catch (...)
 			{
@@ -129,7 +134,7 @@ namespace pcpp {
 		}
 		else
 		{
-			decodedRecord->m_EncodedValue = (uint8_t*)data + tagLen + lengthLen;
+			decodedRecord->m_EncodedValue = const_cast<uint8_t*>(data) + tagLen + lengthLen;
 		}
 
 		return decodedRecord;
@@ -412,22 +417,22 @@ namespace pcpp {
 			: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
 	{}
 
-	Asn1PrimitiveRecord::Asn1PrimitiveRecord(uint8_t tagType) : Asn1Record()
+	Asn1PrimitiveRecord::Asn1PrimitiveRecord(Asn1UniversalTagType tagType) : Asn1Record()
 	{
-		m_TagType = tagType;
+		m_TagType = static_cast<uint8_t >(tagType);
 		m_TagClass = Asn1TagClass::Universal;
 		m_IsConstructed = false;
 	}
 
-	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Integer))
+	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
 	{
 		m_Value = value;
 
-		if (m_Value <= std::pow(2, sizeof(uint8_t) * 8))
+		if (m_Value <= std::numeric_limits<uint8_t>::max())
 		{
 			m_ValueLength = sizeof(uint8_t);
 		}
-		else if (value <= std::pow(2, sizeof(uint16_t) * 8))
+		else if (value <= std::numeric_limits<uint16_t>::max())
 		{
 			m_ValueLength = sizeof(uint16_t);
 		}
@@ -449,7 +454,7 @@ namespace pcpp {
 		{
 			case 1:
 			{
-				m_Value = *(uint8_t*)data;
+				m_Value = *data;
 				break;
 			}
 			case 2:
@@ -526,7 +531,7 @@ namespace pcpp {
 		m_TagType = static_cast<uint8_t>(Asn1UniversalTagType::Enumerated);
 	}
 
-	Asn1OctetStringRecord::Asn1OctetStringRecord(const std::string& value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::OctetString))
+	Asn1OctetStringRecord::Asn1OctetStringRecord(const std::string& value) : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString)
 	{
 		m_Value = value;
 		m_ValueLength = value.size();
@@ -543,7 +548,7 @@ namespace pcpp {
 		return {m_Value.begin(), m_Value.end()};
 	}
 
-	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Boolean))
+	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean)
 	{
 		m_Value = value;
 		m_ValueLength = 1;
@@ -561,7 +566,7 @@ namespace pcpp {
 		return { byte };
 	}
 
-	Asn1NullRecord::Asn1NullRecord() : Asn1PrimitiveRecord(static_cast<uint8_t>(Asn1UniversalTagType::Null))
+	Asn1NullRecord::Asn1NullRecord() : Asn1PrimitiveRecord(Asn1UniversalTagType::Null)
 	{
 		m_ValueLength = 0;
 		m_TotalLength = 2;

@@ -276,7 +276,7 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("0a022000", data, 20);
 		auto record = pcpp::Asn1Record::decode(data, dataLen);
-		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1BooleanRecord>(), std::runtime_error, "Cast failed, instance isn't of the requested type");
+		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1BooleanRecord>(), std::bad_cast, "bad cast");
 	}
 }; // Asn1DecodingTest
 

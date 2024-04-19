@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <typeinfo>
 #include <stdexcept>
 #include "PointerVector.h"
 
@@ -177,7 +178,7 @@ namespace pcpp
 			auto result = dynamic_cast<Asn1RecordType*>(this);
 			if (result == nullptr)
 			{
-				throw std::runtime_error("Cast failed, instance isn't of the requested type");
+				throw std::bad_cast();
 			}
 			return result;
 		}
@@ -329,7 +330,7 @@ namespace pcpp
 
 	protected:
 		Asn1PrimitiveRecord() = default;
-		explicit Asn1PrimitiveRecord(uint8_t tagType);
+		explicit Asn1PrimitiveRecord(Asn1UniversalTagType tagType);
 	};
 
 	/**
