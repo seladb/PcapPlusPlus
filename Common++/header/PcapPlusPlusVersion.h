@@ -37,10 +37,17 @@ namespace pcpp
 	/**
 	 * @return The build date and time in a format of "Mmm dd yyyy hh:mm:ss"
 	 */
+#if PCAPPP_BUILD_REPRODUCTIBLE
+	inline std::string getBuildDateTime()
+	{
+		return " ";
+	}
+#else
 	inline std::string getBuildDateTime()
 	{
 		return std::string(__DATE__) + " " + std::string(__TIME__);
 	}
+#endif
 
 	/**
 	 * @return The Git commit (revision) the binaries are built from
