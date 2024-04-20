@@ -30,7 +30,7 @@ namespace pcpp
 	/**
 	 * @return The build date and time in a format of "Mmm dd yyyy hh:mm:ss"
 	 */
-#if PCAPPP_BUILD_REPRODUCTIBLE
+#if PCAPPP_BUILD_REPRODUCIBLE
 	inline std::string getBuildDateTime() { return std::string("") + " " + std::string(""); }
 #else
 	inline std::string getBuildDateTime() { return std::string(__DATE__) + " " + std::string(__TIME__); }
