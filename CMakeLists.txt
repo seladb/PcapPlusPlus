@@ -260,10 +260,10 @@ if(PCAPPP_TARGET_COMPILER_CLANG
   add_compile_options(-Wall)
 endif()
 
-if (PCAPPP_BUILD_REPRODUCIBLE)
+if(PCAPPP_BUILD_REPRODUCIBLE)
   add_definitions(-DPCAPPP_BUILD_REPRODUCIBLE)
   if(APPLE)
-    if (NOT $ENV{ZERO_AR_DATE})
+    if(NOT $ENV{ZERO_AR_DATE})
       message(FATAL_ERROR "You need to set `export ZERO_AR_DATE=1`")
     endif()
   elseif(MSVC)
