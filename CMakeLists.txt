@@ -101,7 +101,7 @@ cmake_dependent_option(
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
-option(PCAPPP_BUILD_REPRODUCTIBLE "Build a reproductible version" OFF)
+option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -260,16 +260,17 @@ if(PCAPPP_TARGET_COMPILER_CLANG
   add_compile_options(-Wall)
 endif()
 
-if (PCAPPP_BUILD_REPRODUCTIBLE)
-  add_definitions(-DPCAPPP_BUILD_REPRODUCTIBLE)
-  # We should not use __DATE__ nor __TIME__ in case of reproductible build
-  add_compile_options($<$<BOOL:${PCAPPP_TARGET_COMPILER_GCC}>:-Wdate-time>)
+if (PCAPPP_BUILD_REPRODUCIBLE)
+  add_definitions(-DPCAPPP_BUILD_REPRODUCIBLE)
   if(APPLE)
     if (NOT $ENV{ZERO_AR_DATE})
       message(FATAL_ERROR "You need to set `export ZERO_AR_DATE=1`")
     endif()
+  elseif(MSVC)
+    add_link_options(/Brepro)
   else()
-    add_link_options(-D)
+    # We should not use __DATE__ nor __TIME__ in case of reproducible build
+    add_compile_options(-Wdate-time)
   endif()
 endif()
 
