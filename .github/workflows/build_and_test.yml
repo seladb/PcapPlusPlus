@@ -4,6 +4,8 @@ on:
     branches: ["master", "dev"]
   pull_request:
     branches: ["dev"]
+  schedule:
+    - cron: '0 0 * * *'
 
 env:
   BUILD_DIR: Dist
