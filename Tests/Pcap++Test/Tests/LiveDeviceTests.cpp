@@ -766,7 +766,17 @@ PTF_TEST_CASE(TestMtuSize)
 	// Construct a packet within the MTU and assert that it should send
 	// Source and destination addresses are somewhat arbitrary. Only important thing is that the packet is valid
 	pcpp::EthLayer smallEthernetLayer(liveDev->getMacAddress(), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
-	pcpp::IPv4Layer smallIPLayer(ipToSearch, pcpp::IPv4Address(PcapTestGlobalArgs.remoteIp.c_str()));
+
+	pcpp::IPv4Address remoteIpAddress;
+	try
+	{
+		remoteIpAddress = pcpp::IPv4Address(PcapTestGlobalArgs.remoteIp.c_str());
+	}
+	catch (...)
+	{
+		remoteIpAddress = pcpp::IPv4Address::Zero;
+	}
+	pcpp::IPv4Layer smallIPLayer(ipToSearch, remoteIpAddress);
 	// Port 9 is the discard protocol
 	pcpp::UdpLayer smallUdpLayer(12345, 9);
 
@@ -780,7 +790,7 @@ PTF_TEST_CASE(TestMtuSize)
 	size_t smallDataLen = liveDev->getMtu() - (smallIPLayer.getDataLen());
 	uint8_t* smallData = new uint8_t[smallDataLen];
 	memset(smallData, 0xFF, smallDataLen);
-	pcpp::PayloadLayer smallPayload(smallData, smallDataLen, false);
+	pcpp::PayloadLayer smallPayload(smallData, smallDataLen);
 	smallPacket.addLayer(&smallPayload);
 
 	// Check the size of the small Packet
@@ -798,7 +808,7 @@ PTF_TEST_CASE(TestMtuSize)
 
 	// Construct a packet larger than the MTU and assert that it doesn't send
 	pcpp::EthLayer largeEthernetLayer(liveDev->getMacAddress(), pcpp::MacAddress("aa:bb:cc:dd:ee:ff"));
-	pcpp::IPv4Layer largeIPLayer(ipToSearch, pcpp::IPv4Address(PcapTestGlobalArgs.remoteIp.c_str()));
+	pcpp::IPv4Layer largeIPLayer(ipToSearch, remoteIpAddress);
 	// Port 9 is the discard protocol
 	pcpp::UdpLayer largeUdpLayer(12345, 9);
 
@@ -812,7 +822,7 @@ PTF_TEST_CASE(TestMtuSize)
 	size_t largeDataLen = liveDev->getMtu() - largeIPLayer.getDataLen() + 1;
 	uint8_t* largeData = new uint8_t[largeDataLen];
 	memset(largeData, 0xFF, largeDataLen);
-	pcpp::PayloadLayer largePayload(largeData, largeDataLen, false);
+	pcpp::PayloadLayer largePayload(largeData, largeDataLen);
 	largePacket.addLayer(&largePayload);
 
 	// Check the size of the large Packet

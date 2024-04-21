@@ -307,8 +307,11 @@ int main(int argc, char* argv[])
 			}
 			case 'i':
 			{
-				srcIPToMatch = pcpp::IPv4Address(optarg);
-				if (!srcIPToMatch.isValid())
+				try
+				{
+					srcIPToMatch = pcpp::IPv4Address(optarg);
+				}
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
 				}
@@ -316,8 +319,11 @@ int main(int argc, char* argv[])
 			}
 			case 'I':
 			{
-				dstIPToMatch = pcpp::IPv4Address(optarg);
-				if (!dstIPToMatch.isValid())
+				try
+				{
+					dstIPToMatch = pcpp::IPv4Address(optarg);
+				}
+				catch(const std::exception&)
 				{
 					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
 				}

@@ -4,16 +4,12 @@
 #include "SystemUtils.h"
 #include "DpdkDeviceList.h"
 #include "TablePrinter.h"
-
 #include "WorkerThread.h"
-
 
 #define MBUF_POOL_SIZE 16*1024-1
 #define DEVICE_ID_1 0
 #define DEVICE_ID_2 1
-
 #define COLLECT_STATS_EVERY_SEC 2
-
 
 // Keep running flag
 bool keepRunning = true;
@@ -32,19 +28,8 @@ void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 	rxDevice->getStatistics(rxStats);
 	txDevice->getStatistics(txStats);
 
-	std::vector<std::string> columnNames;
-	columnNames.push_back(" ");
-	columnNames.push_back("Total Packets");
-	columnNames.push_back("Packets/sec");
-	columnNames.push_back("Bytes");
-	columnNames.push_back("Bits/sec");
-
-	std::vector<int> columnLengths;
-	columnLengths.push_back(10);
-	columnLengths.push_back(15);
-	columnLengths.push_back(15);
-	columnLengths.push_back(15);
-	columnLengths.push_back(15);
+	std::vector<std::string> columnNames = {" ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec"};
+	std::vector<int> columnLengths = {10, 15, 15, 15, 15};
 
 	pcpp::TablePrinter printer(columnNames, columnLengths);
 
@@ -69,14 +54,14 @@ int main(int argc, char* argv[])
 
 	// Find DPDK devices
 	pcpp::DpdkDevice* device1 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_1);
-	if (device1 == NULL)
+	if (device1 == nullptr)
 	{
 		std::cerr << "Cannot find device1 with port '" << DEVICE_ID_1 << "'" << std::endl;
 		return 1;
 	}
 
 	pcpp::DpdkDevice* device2 = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(DEVICE_ID_2);
-	if (device2 == NULL)
+	if (device2 == nullptr)
 	{
 		std::cerr << "Cannot find device2 with port '" << DEVICE_ID_2 << "'" << std::endl;
 		return 1;
@@ -97,8 +82,9 @@ int main(int argc, char* argv[])
 
 	// Create worker threads
 	std::vector<pcpp::DpdkWorkerThread*> workers;
-	workers.push_back(new L2FwdWorkerThread(device1, device2));
-	workers.push_back(new L2FwdWorkerThread(device2, device1));
+	// Constructs a DpdkWorkerThread* directly within the vector's storage
+	workers.emplace_back(new L2FwdWorkerThread(device1, device2));
+	workers.emplace_back(new L2FwdWorkerThread(device2, device1));
 
 	// Create core mask - use core 1 and 2 for the two threads
 	int workersCoreMask = 0;
