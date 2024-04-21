@@ -585,7 +585,7 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 
 
 
-PTF_TEST_CASE(TestTcpReassemblyOutOfOrderManuallyCloseConnOnMesgReady)
+PTF_TEST_CASE(TestTcpReassemblyOutOfOrderWithManualClose)
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
