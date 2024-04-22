@@ -505,7 +505,7 @@ namespace pcpp {
 			{
 				uint8_t tempArr[sizeof(uint32_t)];
 				auto hostValue = htobe32(static_cast<uint32_t>(m_Value));
-				memcpy(tempArr, &hostValue, sizeof(uint32_t));
+				memcpy(tempArr, &hostValue, m_ValueLength + 1);
 				std::copy(tempArr + 1, tempArr + m_ValueLength + 1, std::back_inserter(result));
 				break;
 			}
