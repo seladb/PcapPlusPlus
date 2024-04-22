@@ -27,8 +27,8 @@ namespace pcpp
 	enum class GvcpCommand : uint16_t
 	{
 		// Discovery Protocol Control
-		DiscoverdCmd = 0x0002,
-		DiscoverdAck = 0x0003,
+		DiscoveredCmd = 0x0002,
+		DiscoveredAck = 0x0003,
 		ForceIpCmd = 0x0004,
 		ForceIpAck = 0x0005,
 
@@ -214,13 +214,13 @@ namespace pcpp
 		 * @brief Get the header object
 		 * @return GvcpRequestHeader* A pointer to the header object
 		 */
-		GvcpRequestHeader *getHeader() const { return m_Header; }
+		GvcpRequestHeader *getGvcpHeader() const { return m_Header; }
 
 		// implement Layer's abstract methods
 		std::string toString() const override { return ""; };
 
 		// implement Layer's abstract methods
-		size_t getHeaderLen() const { return sizeof(GvcpRequestHeader); }
+		size_t getHeaderLen() const override { return sizeof(GvcpRequestHeader); }
 
 	  private:
 		GvcpRequestHeader *m_Header;
@@ -253,16 +253,15 @@ namespace pcpp
 		 * @brief Get the header object
 		 * @return GvcpAckHeader* A pointer to the header object
 		 */
-		GvcpAckHeader *getHeader() const { return m_Header; }
+		GvcpAckHeader *getGvcpHeader() const { return m_Header; }
 
 		// implement Layer's abstract methods
 		std::string toString() const override { return ""; };
 
 		// implement Layer's abstract methods
-		size_t getHeaderLen() const { return sizeof(GvcpAckHeader); }
+		size_t getHeaderLen() const override { return sizeof(GvcpAckHeader); }
 
 	  private:
 		GvcpAckHeader *m_Header;
-		uint8_t *m_Data;
 	};
 } // namespace pcpp
