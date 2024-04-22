@@ -14,7 +14,7 @@ env:
 
 jobs:
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -38,6 +38,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
       - name: Setup Intel Compiler variables
         if: contains(matrix.image, 'icpx')
@@ -279,16 +283,16 @@ jobs:
           find . -name example-app -type d -exec rm -r {} +
           find . -name cmake -type d -exec rm -r {} +
           find . -name pkgconfig -type d -exec rm -r {} +
-          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* ${COMBINED_PACKAGE_DIR}/include/
-          rmdir ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/
-          mkdir -p android-package
-          mv ${COMBINED_PACKAGE_DIR} android-package
+          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* "${COMBINED_PACKAGE_DIR}/include/"
+          rmdir "${COMBINED_PACKAGE_DIR}/include/pcapplusplus/"
+          mkdir -p "android-package"
+          mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: android-package
-          if-no-files-found: error
           path: android-package
+          name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
+          if-no-files-found: error
 
   android-package:
     needs: android-build
@@ -297,7 +301,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: android-package
+          pattern: android-package-*
+          merge-multiple: true
 
       - name: Package into archive
         run: |

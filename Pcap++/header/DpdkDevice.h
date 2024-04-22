@@ -754,12 +754,12 @@ namespace pcpp
 		 * @return True if the device was opened successfully, false if device is already opened, if RX/TX queues configuration failed or of DPDK port
 		 * configuration and startup failed
 		 */
-		bool open() { return openMultiQueues(1, 1); };
+		bool open() override { return openMultiQueues(1, 1); };
 
 		/**
 		 * Close the DpdkDevice. When device is closed it's not possible work with it
 		 */
-		void close();
+		void close() override;
 
 	private:
 
@@ -773,7 +773,7 @@ namespace pcpp
 			DpdkCoreConfiguration() : RxQueueId(-1), IsCoreInUse(false) {}
 		};
 
-		DpdkDevice(int port, uint32_t mBufPoolSize);
+		DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mMbufDataSize);
 		bool initMemPool(struct rte_mempool*& memPool, const char* mempoolName, uint32_t mBufPoolSize);
 
 		bool configurePort(uint8_t numOfRxQueues, uint8_t numOfTxQueues);
@@ -804,6 +804,7 @@ namespace pcpp
 		int m_Id;
 		MacAddress m_MacAddress;
 		uint16_t m_DeviceMtu;
+		uint16_t m_MBufDataSize;
 		struct rte_mempool* m_MBufMempool;
 		struct rte_eth_dev_tx_buffer** m_TxBuffers;
 		uint64_t m_TxBufferDrainTsc;

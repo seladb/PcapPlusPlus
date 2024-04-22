@@ -178,7 +178,7 @@ namespace pcpp
 		 * @param[out] result An empty string that the parsing will be written into. If the string isn't empty, its content will be overridden
 		 * If the filter is not valid the result will be an empty string
 		 */
-		virtual void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		* Verify the filter is valid
@@ -279,7 +279,7 @@ namespace pcpp
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the IPv4 address
@@ -321,7 +321,7 @@ namespace pcpp
 		 */
 		IPv4IDFilter(uint16_t ipID, FilterOperator op) : IFilterWithOperator(op), m_IpID(ipID) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the IP ID to filter
@@ -350,7 +350,7 @@ namespace pcpp
 		 */
 		IPv4TotalLengthFilter(uint16_t totalLength, FilterOperator op) : IFilterWithOperator(op), m_TotalLength(totalLength) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the total length value
@@ -379,7 +379,7 @@ namespace pcpp
 		 */
 		PortFilter(uint16_t port, Direction dir);
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the port
@@ -410,7 +410,7 @@ namespace pcpp
 		 */
 		PortRangeFilter(uint16_t fromPort, uint16_t toPort, Direction dir) : IFilterWithDirection(dir), m_FromPort(fromPort), m_ToPort(toPort) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the lower end of the port range
@@ -444,7 +444,7 @@ namespace pcpp
 		 */
 		MacAddressFilter(MacAddress address, Direction dir) : IFilterWithDirection(dir), m_MacAddress(address) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the MAC address
@@ -472,7 +472,7 @@ namespace pcpp
 		 */
 		explicit EtherTypeFilter(uint16_t etherType) : m_EtherType(etherType) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the EtherType value
@@ -484,82 +484,115 @@ namespace pcpp
 
 
 	/**
-	 * @class AndFilter
-	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2 filters are: "IPv4 address =
-	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _AND_ TCP port dst = 80"<BR>
-	 * This class follows the composite design pattern<BR>
+	 * @class CompositeFilter
+	 * The base class for all filter classes composed of several other filters. This class is virtual and abstract, hence cannot be instantiated.<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
-	 * @todo add some methods: "addFilter", "removeFilter", "clearAllFilter"
 	 */
-	class AndFilter : public GeneralFilter
+	class CompositeFilter : public GeneralFilter
 	{
-	private:
+	protected:
 		std::vector<GeneralFilter*> m_FilterList;
 	public:
-
 		/**
-		 * An empty constructor for this class. Use addFilter() to add filters to the and condition
+		 * An empty constructor for this class. Use addFilter() to add filters to the composite filter.
 		 */
-		AndFilter() {}
+		CompositeFilter() = default;
 
 		/**
-		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "and" between them
+		 * A constructor that gets a list of pointers to filters and creates one filter from all filters
 		 * @param[in] filters The list of pointers to filters
 		 */
-		explicit AndFilter(std::vector<GeneralFilter*>& filters);
+		explicit CompositeFilter(const std::vector<GeneralFilter*>& filters);
 
 		/**
-		 * Add filter to the and condition
+		 * Add filter to the composite filter
 		 * @param[in] filter The filter to add
 		 */
 		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
+
+		/**
+		 * Removes the first matching filter from the composite filter
+		 * @param[in] filter The filter to remove
+		 */
+		void removeFilter(GeneralFilter* filter);
 
 		/**
 		 * Remove the current filters and set new ones
 		 * @param[in] filters The new filters to set. The previous ones will be removed
 		 */
-		void setFilters(std::vector<GeneralFilter*>& filters);
+		void setFilters(const std::vector<GeneralFilter*>& filters);
 
-		void parseToString(std::string& result);
+		/**
+		 * Remove all filters from the composite filter.
+		 */
+		void clearAllFilters() { m_FilterList.clear(); }
 	};
-
-
 
 	/**
-	 * @class OrFilter
-	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2 filters are: "IPv4 address =
-	 * x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x _OR_ TCP port dst = 80"<BR>
-	 * This class follows the composite design pattern<BR>
-	 * For deeper understanding of the filter concept please refer to PcapFilter.h
-	 * @todo add some methods: "addFilter", "removeFilter", "clearAllFilter"
+	 * Supported composite logic filter operators enum
 	 */
-	class OrFilter : public GeneralFilter
+	enum class CompositeLogicFilterOp
 	{
-	private:
-		std::vector<GeneralFilter*> m_FilterList;
-	public:
-
-		/**
-		 * An empty constructor for this class. Use addFilter() to add filters to the or condition
-		 */
-		OrFilter() {}
-
-		/**
-		 * A constructor that gets a list of pointers to filters and creates one filter from all filters with logical "or" between them
-		 * @param[in] filters The list of pointers to filters
-		 */
-		explicit OrFilter(std::vector<GeneralFilter*>& filters);
-
-		/**
-		 * Add filter to the or condition
-		 * @param[in] filter The filter to add
-		 */
-		void addFilter(GeneralFilter* filter) { m_FilterList.push_back(filter); }
-
-		void parseToString(std::string& result);
+		/** Logical AND operation */
+		AND,
+		/** Logical OR operation */
+		OR,
 	};
 
+	namespace detail
+	{
+		/* Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when C++17 is the minimum supported standard.*/
+		/**
+		 * Returns the delimiter for joining filter strings for the composite logic filter operation.
+		 * @return A string literal to place between the different filter strings to produce a composite expression.
+		 */
+		template <CompositeLogicFilterOp op> constexpr const char *getCompositeLogicOpDelimiter() = delete;
+		template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::AND>() { return " and "; };
+		template <> constexpr const char *getCompositeLogicOpDelimiter<CompositeLogicFilterOp::OR>() { return " or "; };
+	}
 
+	/**
+	 * @class CompositeLogicFilter
+	 * A class for connecting several filters into one filter with logical operation between them.<BR>
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
+	 */
+	template <CompositeLogicFilterOp op>
+	class CompositeLogicFilter : public CompositeFilter
+	{
+	public:
+		using CompositeFilter::CompositeFilter;
+
+		void parseToString(std::string& result) override
+		{
+			result.clear();
+			for (auto it = m_FilterList.cbegin(); it != m_FilterList.cend(); ++it)
+			{
+				std::string innerFilter;
+				(*it)->parseToString(innerFilter);
+				result += '(' + innerFilter + ')';
+				if (m_FilterList.cend() - 1 != it)
+				{
+					result += detail::getCompositeLogicOpDelimiter<op>();
+				}
+			}
+		}
+	};
+
+	/**
+	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2
+	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
+	 * _AND_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
+	 * filter concept please refer to PcapFilter.h
+	 */
+	using AndFilter = CompositeLogicFilter<CompositeLogicFilterOp::AND>;
+
+	/**
+	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2
+	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
+	 * _OR_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
+	 * filter concept please refer to PcapFilter.h
+	 */
+	using OrFilter = CompositeLogicFilter<CompositeLogicFilterOp::OR>;
 
 	/**
 	 * @class NotFilter
@@ -577,7 +610,7 @@ namespace pcpp
 		 */
 		explicit NotFilter(GeneralFilter* filterToInverse) { m_FilterToInverse = filterToInverse; }
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set a filter to create an inverse filter from
@@ -616,7 +649,7 @@ namespace pcpp
 		 */
 		explicit ProtoFilter(ProtocolTypeFamily protoFamily) : m_ProtoFamily(protoFamily) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the protocol to filter with
@@ -652,7 +685,7 @@ namespace pcpp
 		 */
 		explicit ArpFilter(ArpOpcode opCode) : m_OpCode(opCode) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the ARP opcode
@@ -680,7 +713,7 @@ namespace pcpp
 		 */
 		explicit VlanFilter(uint16_t vlanId) : m_VlanID(vlanId) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set the VLAN ID of the filter
@@ -750,7 +783,7 @@ namespace pcpp
 		 */
 		void setTcpFlagsBitMask(uint8_t tcpFlagBitMask, MatchOptions matchOption) { m_TcpFlagsBitMask = tcpFlagBitMask; m_MatchOption = matchOption; }
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 	};
 
 
@@ -773,7 +806,7 @@ namespace pcpp
 		 */
 		TcpWindowSizeFilter(uint16_t windowSize, FilterOperator op) : IFilterWithOperator(op), m_WindowSize(windowSize) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set window-size value
@@ -802,7 +835,7 @@ namespace pcpp
 		 */
 		UdpLengthFilter(uint16_t length, FilterOperator op) : IFilterWithOperator(op), m_Length(length) {}
 
-		void parseToString(std::string& result);
+		void parseToString(std::string& result) override;
 
 		/**
 		 * Set length value

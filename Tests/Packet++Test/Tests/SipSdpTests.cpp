@@ -201,7 +201,7 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&sipReqLayer));
 
 	pcpp::SipRequestLayer* samplePacketSipLayer = sipReqSamplePacket.getLayerOfType<pcpp::SipRequestLayer>();
-	auto payloadLayer = new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize(), true);
+	auto payloadLayer = new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize());
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(payloadLayer, true));
 
 	newSipPacket.computeCalculateFields();
@@ -648,6 +648,24 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 } // SdpLayerParsingTest
 
 
+PTF_TEST_CASE(SipNotSdpLayerParsingTest)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/sip_not_sdp.dat");
+
+	pcpp::Packet notSdpPacket(&rawPacket1);
+
+	PTF_ASSERT_TRUE(notSdpPacket.isPacketOfType(pcpp::SIP));
+	pcpp::SipRequestLayer* sipLayer = notSdpPacket.getLayerOfType<pcpp::SipRequestLayer>();
+	PTF_ASSERT_EQUAL(sipLayer->getContentLength(), 273);
+
+	pcpp::Layer* nextLayer = sipLayer->getNextLayer();
+	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::GenericPayload);
+
+	PTF_ASSERT_FALSE(notSdpPacket.isPacketOfType(pcpp::SDP));
+} // SipNotSdpLayerParsingTest
 
 PTF_TEST_CASE(SdpLayerCreationTest)
 {

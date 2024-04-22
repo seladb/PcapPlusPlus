@@ -175,17 +175,29 @@ inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 		printUsage();
 		EXIT_WITH_ERROR("Virtual IP for communication not provided");
 	}
-	pcpp::IPv4Address kniIp = args.kniIp;
-	pcpp::IPv4Address outIp = args.outIp;
-	if (!(kniIp.isValid() && outIp.isValid()))
+
+	pcpp::IPv4Address kniIp;
+	pcpp::IPv4Address outIp;
+	try
 	{
-		EXIT_WITH_ERROR("One of provided IPs is not valid");
+		kniIp = pcpp::IPv4Address(args.kniIp);
 	}
+	catch (const std::exception&)
+	{
+		EXIT_WITH_ERROR("Cannot assign an invalid IPv4 address to the KNI device");
+	}
+	try
+	{
+		outIp = pcpp::IPv4Address(args.outIp);
+	}
+	catch (const std::exception&)
+	{
+		EXIT_WITH_ERROR("Cannot assign an invalid IPv4 address as the virtual address");
+	}
+
 	if (!outIp.matchNetwork(pcpp::IPv4Network(kniIp, "255.255.255.0")))
 	{
-		EXIT_WITH_ERROR(
-			"Provided Virtual IP '" << outIp << "' is not in same required subnet '255.255.255.0' as KNI IP '" << kniIp << "'"
-		);
+		EXIT_WITH_ERROR("Provided Virtual IP '" << outIp << "' is not in same required subnet '255.255.255.0' as KNI IP '" << kniIp << "'");
 	}
 }
 

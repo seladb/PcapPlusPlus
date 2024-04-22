@@ -11,5 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: marocchino/validate-dependabot@v2
+      - uses: marocchino/validate-dependabot@v3
         id: validate

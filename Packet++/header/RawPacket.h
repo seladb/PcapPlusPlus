@@ -236,7 +236,9 @@ namespace pcpp
 		/** Messages between ISO 14443 contactless smartcards (Proximity Integrated Circuit Card, PICC) and card readers (Proximity Coupling Device, PCD), with the message format specified by the PCAP format for ISO14443 specification */
 		LINKTYPE_ISO_14443 = 264,
 		/** Linux "cooked" capture encapsulation v2 */
-		LINKTYPE_LINUX_SLL2 = 276
+		LINKTYPE_LINUX_SLL2 = 276,
+		/** Set if interface ID for a packet of a pcapng file is too high */
+		LINKTYPE_INVALID = 0xFFFF
 	};
 
 	/**

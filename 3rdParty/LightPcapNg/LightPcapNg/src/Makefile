@@ -3,12 +3,14 @@ INCLUDE = $(ROOT_DIR)/include
 HEADERS = $(INCLUDE)/light_pcapng.h $(INCLUDE)/light_special.h $(INCLUDE)/light_debug.h \
 	$(INCLUDE)/light_platform.h $(INCLUDE)/light_internal.h $(INCLUDE)/light_util.h $(INCLUDE)/light_types.h
 SOURCES = light_io.c light_pcapng.c light_pcapng_cont.c light_platform.c light_manipulate.c light_internal.c light_alloc.c \
-	light_advanced.c light_option.c
+	light_advanced.c light_option.c light_pcapng_ext.c
 OBJECTS = $(SOURCES:.c=.o)
 PRECOMPILED = $(HEADERS:.h=.gch)
 
 TESTS = tests/test_read.c tests/test_read_write.c tests/test_mem.c tests/test_histogram.c tests/test_subcapture.c \
-	tests/test_feature.c tests/test_flow.c tests/test_feature_advanced.c
+	tests/test_feature.c tests/test_flow.c tests/test_feature_advanced.c tests/test_read_packets.c tests/test_read_write_packets.c \
+	tests/test_split.c
+
 TESTE = $(TESTS:.c=.test)
 
 LDFLAGS = -ldl

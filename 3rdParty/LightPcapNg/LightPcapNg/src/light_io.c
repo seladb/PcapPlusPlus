@@ -38,11 +38,17 @@ light_pcapng light_read_from_path(const char *file_name)
 	DCHECK_ASSERT_EXP(fd != NULL, "could not open file", return NULL);
 
 	size = light_size(fd);
-	DCHECK_INT(size, 0, light_stop);
+	// DCHECK_INT(size, 0, light_stop);
 
 	memory = calloc(size, 1);
+	if (memory == NULL) {
+		fprintf(stderr, "Unable to alloc %zu bytes\n", size);
+		light_close(fd);
+		return NULL;
+	}
 
-	DCHECK_INT(light_read(fd, memory, size), size - 1, light_stop);
+	// DCHECK_INT(light_read(fd, memory, size), size - 1, light_stop);
+	light_read(fd, memory, size);
 
 	head = light_read_from_memory(memory, size);
 
@@ -76,4 +82,79 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 	}
 
 	return written > 0 ? LIGHT_SUCCESS : LIGHT_FAILURE;
+}
+
+
+light_pcapng_stream light_open_stream(const char *file_name)
+{
+	light_pcapng_stream pcapng = calloc(1, sizeof(struct _light_pcapng_stream));
+	pcapng->stream.fd = light_open(file_name, LIGHT_OREAD);
+
+	if (pcapng->stream.fd == NULL) {
+		free(pcapng);
+		return NULL;
+	}
+
+	pcapng->valid = 1;
+	return pcapng;
+}
+
+light_pcapng light_read_stream(light_pcapng_stream pcapng)
+{
+	uint32_t block_type = 0;
+	uint32_t block_total_length = 0;
+	uint32_t *block_data = NULL;
+
+	if (pcapng == NULL || !pcapng->valid) {
+		return NULL;
+	}
+
+	if (pcapng->current_block) {
+		light_pcapng_release(pcapng->current_block);
+		pcapng->current_block = NULL;
+	}
+
+	if (light_read(pcapng->stream.fd, &block_type, sizeof(block_type)) == -1 ||
+			light_read(pcapng->stream.fd, &block_total_length, sizeof(block_total_length)) == -1) {
+		pcapng->valid = 0;
+		return NULL;
+	}
+
+	block_data = malloc(block_total_length);
+	if (block_data == NULL) {
+		pcapng->valid = 0;
+		return NULL;
+	}
+
+	block_data[0] = block_type;
+	block_data[1] = block_total_length;
+
+	if (light_read(pcapng->stream.fd, &block_data[2], block_total_length - 2 * sizeof(uint32_t)) == -1) {
+		free(block_data);
+		pcapng->valid = 0;
+		return NULL;
+	}
+
+	pcapng->current_block = light_read_from_memory(block_data, block_total_length);
+	free(block_data);
+
+	return pcapng->current_block;
+}
+
+int light_close_stream(light_pcapng_stream pcapng)
+{
+	if (pcapng == NULL) {
+		return LIGHT_BAD_STREAM;
+	}
+
+	if (pcapng->current_block) {
+		light_pcapng_release(pcapng->current_block);
+		pcapng->current_block = NULL;
+	}
+
+	light_close(pcapng->stream.fd);
+	pcapng->valid = 0;
+	free(pcapng);
+
+	return LIGHT_SUCCESS;
 }

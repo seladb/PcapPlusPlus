@@ -89,15 +89,29 @@ void PcapLiveDeviceList::setDnsServers()
 		PCPP_LOG_ERROR("Call to GetNetworkParams failed. Return Value: " << std::hex << dwRetVal);
 	else
 	{
-		m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
-		int i = 1;
-		PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << fixedInfo->DnsServerList.IpAddress.String);
+		int dnsServerCounter = 0;
+		try
+		{
+			m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
+			PCPP_LOG_DEBUG("Default DNS server IP #" << dnsServerCounter++ << ": " << fixedInfo->DnsServerList.IpAddress.String);
+		}
+		catch(const std::exception&)
+		{
+			PCPP_LOG_DEBUG("Failed to parse default DNS server IP address: " << fixedInfo->DnsServerList.IpAddress.String);
+		}
 
 		pIPAddr = fixedInfo->DnsServerList.Next;
 		while ( pIPAddr )
 		{
-			m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
-			PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << pIPAddr->IpAddress.String);
+			try
+			{
+				m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
+				PCPP_LOG_DEBUG("Default DNS server IP #" << dnsServerCounter++ << ": " << pIPAddr->IpAddress.String);
+			}
+			catch(const std::exception&)
+			{
+				PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << pIPAddr->IpAddress.String);
+			}
 			pIPAddr = pIPAddr -> Next;
 		}
 	}
@@ -142,9 +156,16 @@ void PcapLiveDeviceList::setDnsServers()
 		std::string dnsIP;
 		lineStream >> headline;
 		lineStream >> dnsIP;
-		IPv4Address dnsIPAddr(dnsIP);
-		if (!dnsIPAddr.isValid())
+		IPv4Address dnsIPAddr;
+		try
+		{
+			dnsIPAddr = IPv4Address(dnsIP);
+		}
+		catch(const std::exception& e)
+		{
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << dnsIP << ": " << e.what());
 			continue;
+		}
 
 		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
 		{
@@ -191,8 +212,15 @@ void PcapLiveDeviceList::setDnsServers()
 		uint8_t buf[20];
 		char* serverAddressCString = (char*)buf;
 		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
-		m_DnsServers.push_back(IPv4Address(serverAddressCString));
-		PCPP_LOG_DEBUG("Default DNS server IP #" << (int)(i+1) << ": " << serverAddressCString);
+		try
+		{
+			m_DnsServers.push_back(IPv4Address(serverAddressCString));
+			PCPP_LOG_DEBUG("Default DNS server IP #" << (int)(i+1) << ": " << serverAddressCString);
+		}
+		catch(const std::exception& e)
+		{
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << serverAddressCString << ": " << e.what());
+		}
 	}
 
 	CFRelease(dynRef);
@@ -205,12 +233,20 @@ void PcapLiveDeviceList::setDnsServers()
 	for (int i = 0; i < _res.nscount; i++)
 	{
 		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
-		if (saddr == NULL)
+		if (saddr == nullptr)
 			continue;
 		in_addr* inaddr = internal::sockaddr2in_addr(saddr);
-		if (inaddr == NULL)
+		if (inaddr == nullptr)
 			continue;
-		m_DnsServers.push_back(IPv4Address(internal::in_addr2int(*inaddr)));
+
+		try
+		{
+			m_DnsServers.push_back(IPv4Address(internal::in_addr2int(*inaddr)));
+		}
+		catch(const std::exception& e)
+		{
+			PCPP_LOG_DEBUG("Failed to parse DNS server IP address: " << internal::in_addr2int(*inaddr) << ": " << e.what());
+		}
 	}
 
 #endif
@@ -246,7 +282,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
-				PCPP_LOG_DEBUG("Address is NULL");
+				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 
@@ -279,7 +315,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
-				PCPP_LOG_DEBUG("Address is NULL");
+				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 
@@ -301,10 +337,14 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const
 {
-	IPAddress ipAddr(ipAddrAsString);
-	if (!ipAddr.isValid())
+	IPAddress ipAddr;
+	try
 	{
-		PCPP_LOG_ERROR("IP address illegal");
+		ipAddr = IPAddress(ipAddrAsString);
+	}
+	catch(const std::exception&)
+	{
+		PCPP_LOG_ERROR("IP address is not valid: " + ipAddrAsString);
 		return nullptr;
 	}
 
@@ -330,12 +370,12 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
 {
-	IPAddress interfaceIP(ipOrName);
-	if (interfaceIP.isValid())
+	try
 	{
+		IPAddress interfaceIP = IPAddress(ipOrName);
 		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
 	}
-	else
+	catch (std::exception&)
 	{
 		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName);
 	}

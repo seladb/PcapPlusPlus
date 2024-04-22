@@ -257,7 +257,7 @@ namespace pcpp
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~PcapLiveDevice();
+		~PcapLiveDevice() override;
 
 		/**
 		 * @return The type of the device (libPcap, WinPcap/Npcap or a remote device)
@@ -417,6 +417,7 @@ namespace pcpp
 		 * callback returns `true`.
 		 * @return -1 if timeout expired, 1 if blocking was stopped via onPacketArrives callback or 0 if an error occurred (such as device
 		 * not open etc.). When returning 0 an appropriate error message is printed to log
+		 * @note On Unix-like systems, enabling the `usePoll` option in `DeviceConfiguration` prevents the method from blocking indefinitely when no packets are available, even if a timeout is set.
 		 */
 		virtual int startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacketArrives, void* userCookie, const double timeout);
 
@@ -553,7 +554,7 @@ namespace pcpp
 		 * @return True if the device was opened successfully, false otherwise. When opening the device fails an error will be printed to log
 		 * as well
 		 */
-		bool open();
+		bool open() override;
 
 		/**
 		 * Enables to open a device in a non-default configuration. Configuration has parameters like packet buffer timeout & size, open in
@@ -563,7 +564,7 @@ namespace pcpp
 		 */
 		bool open(const DeviceConfiguration& config);
 
-		void close();
+		void close() override;
 
 		/**
 		 * Clones the current device class
@@ -571,7 +572,7 @@ namespace pcpp
 		 */
 		PcapLiveDevice* clone();
 
-		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
+		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);

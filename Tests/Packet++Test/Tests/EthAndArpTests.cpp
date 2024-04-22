@@ -33,7 +33,7 @@ PTF_TEST_CASE(EthPacketCreation)
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
-	pcpp::PayloadLayer payloadLayer(payload, 4, true);
+	pcpp::PayloadLayer payloadLayer(payload, 4);
 
 	pcpp::Packet ethPacket(1);
 	PTF_ASSERT_TRUE(ethPacket.addLayer(&ethLayer));
@@ -61,7 +61,7 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 	pcpp::EthLayer* ethLayer = new pcpp::EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
-	pcpp::PayloadLayer* payloadLayer = new pcpp::PayloadLayer(payload, 4, true);
+	pcpp::PayloadLayer* payloadLayer = new pcpp::PayloadLayer(payload, 4);
 
 	pcpp::Packet* ethPacket = new pcpp::Packet(1);
 	PTF_ASSERT_TRUE(ethPacket->addLayer(ethLayer, true));
@@ -119,7 +119,7 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 PTF_TEST_CASE(ArpPacketCreation)
 {
 	pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
-	pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff:");
+	pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff");
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
 
 	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address("10.0.0.1"), pcpp::IPv4Address("10.0.0.138"));

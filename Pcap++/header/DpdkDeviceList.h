@@ -77,6 +77,7 @@ namespace pcpp
 		static bool m_DpdkInitVerify;
 		static bool m_IsDpdkInitialized;
 		static uint32_t m_MBufPoolSizePerDevice;
+		static uint16_t m_MBufDataSize;
 		static CoreMask m_CoreMask;
 		std::vector<DpdkDevice*> m_DpdkDeviceList;
 		std::vector<DpdkWorkerThread*> m_WorkerThreads;
@@ -84,7 +85,7 @@ namespace pcpp
 		DpdkDeviceList();
 
 		bool isInitialized() const { return (m_IsInitialized && m_IsDpdkInitialized); }
-		bool initDpdkDevices(uint32_t mBufPoolSizePerDevice);
+		bool initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mMbufDataSize);
 		static bool verifyHugePagesAndDpdkDriver();
 
 		static int dpdkWorkerThreadStart(void* ptr);
@@ -101,7 +102,7 @@ namespace pcpp
 		{
 			static DpdkDeviceList instance;
 			if (!instance.isInitialized())
-				instance.initDpdkDevices(DpdkDeviceList::m_MBufPoolSizePerDevice);
+				instance.initDpdkDevices(DpdkDeviceList::m_MBufPoolSizePerDevice, DpdkDeviceList::m_MBufDataSize);
 
 			return instance;
 		}
@@ -120,6 +121,7 @@ namespace pcpp
 		 * minus 1, for example: 1023 (= 2^10-1) or 4,294,967,295 (= 2^32-1), etc. This is a DPDK limitation, not PcapPlusPlus.
 		 * The size of the mbuf pool size dictates how many packets can be handled by the application at the same time. For example: if
 		 * pool size is 1023 it means that no more than 1023 packets can be handled or stored in application memory at every point in time
+		 * @param[in] mBufDataSize The size of data buffer in each mbuf. If this value is less than 1, we will use RTE_MBUF_DEFAULT_BUF_SIZE.
 		 * @param[in] masterCore The core DPDK will use as master to control all worker thread. The default, unless set otherwise, is 0
 		 * @param[in] initDpdkArgc Number of optional arguments
 		 * @param[in] initDpdkArgv Optional arguments
@@ -129,7 +131,7 @@ namespace pcpp
 		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
+		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize = 0, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
 
 		/**
 		 * Get a DpdkDevice by port ID

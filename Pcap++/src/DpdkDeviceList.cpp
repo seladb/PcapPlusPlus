@@ -56,6 +56,7 @@ namespace pcpp
 bool DpdkDeviceList::m_IsDpdkInitialized = false;
 CoreMask DpdkDeviceList::m_CoreMask = 0;
 uint32_t DpdkDeviceList::m_MBufPoolSizePerDevice = 0;
+uint16_t DpdkDeviceList::m_MBufDataSize = 0;
 bool DpdkDeviceList::m_DpdkInitVerify = true;
 
 DpdkDeviceList::DpdkDeviceList()
@@ -78,7 +79,7 @@ void DpdkDeviceList::setDpdkInitVerify(bool verify)
 	m_DpdkInitVerify = verify;
 }
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
 {
 	char **initDpdkArgvBuffer;
 
@@ -167,11 +168,12 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 	m_IsDpdkInitialized = true;
 
 	m_MBufPoolSizePerDevice = mBufPoolSizePerDevice;
+	m_MBufDataSize = mBufDataSize;
 	DpdkDeviceList::getInstance().setDpdkLogLevel(Logger::Info);
-	return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice);
+	return DpdkDeviceList::getInstance().initDpdkDevices(m_MBufPoolSizePerDevice, m_MBufDataSize);
 }
 
-bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
+bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize)
 {
 	if (!m_IsDpdkInitialized)
 	{
@@ -199,7 +201,7 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice)
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
-		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice);
+		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize);
 		PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 		m_DpdkDeviceList.push_back(newDevice);
 	}

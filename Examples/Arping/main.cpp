@@ -136,13 +136,33 @@ int main(int argc, char* argv[])
 				ifaceNameOrIpProvided = true;
 				break;
 			case 's':
-				sourceMac = pcpp::MacAddress(optarg);
+				try
+				{
+					sourceMac = pcpp::MacAddress(optarg);
+				}
+				catch (std::exception&) {
+					EXIT_WITH_ERROR("Source MAC address is not valid");
+				}
 				break;
 			case 'S':
-				sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				try
+				{
+					sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				}
+				catch(const std::exception&)
+				{
+					EXIT_WITH_ERROR("Source IP address is not valid");
+				}
 				break;
 			case 'T':
-				targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				try
+				{
+					targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				}
+				catch(const std::exception&)
+				{
+					EXIT_WITH_ERROR("Target IP is not valid");
+				}
 				targetIpProvided = true;
 				break;
 			case 'c':
@@ -174,11 +194,6 @@ int main(int argc, char* argv[])
 	if (!targetIpProvided)
 		EXIT_WITH_ERROR("You must provide target IP (-T switch)");
 
-	// verify target IP is value
-	if (!targetIP.isValid())
-		EXIT_WITH_ERROR("Target IP is not valid");
-
-
 	pcpp::PcapLiveDevice* dev = nullptr;
 
 	// Search interface by name or IP
@@ -195,22 +210,18 @@ int main(int argc, char* argv[])
 	if (!dev->open())
 		EXIT_WITH_ERROR("Couldn't open interface device '" << dev->getName() << "'");
 
-	// verify source MAC is valid
-	if (!sourceMac.isValid())
-		EXIT_WITH_ERROR("Source MAC address is invalid");
-
 	// if source MAC not provided - use the interface MAC address
 	if (sourceMac == pcpp::MacAddress::Zero)
 		sourceMac = dev->getMacAddress();
 
 	// if source MAC is still invalid, it means it couldn't be extracted from interface
-	if (!sourceMac.isValid() || sourceMac == pcpp::MacAddress::Zero)
+	if (sourceMac == pcpp::MacAddress::Zero)
 		EXIT_WITH_ERROR("MAC address couldn't be extracted from interface");
 
-	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
+	if (sourceIP == pcpp::IPv4Address::Zero)
 		sourceIP = dev->getIPv4Address();
 
-	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
+	if (sourceIP == pcpp::IPv4Address::Zero)
 		EXIT_WITH_ERROR("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
 
 	// let's go
