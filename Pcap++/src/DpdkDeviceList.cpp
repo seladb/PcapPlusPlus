@@ -57,7 +57,6 @@ bool DpdkDeviceList::m_IsDpdkInitialized = false;
 CoreMask DpdkDeviceList::m_CoreMask = 0;
 uint32_t DpdkDeviceList::m_MBufPoolSizePerDevice = 0;
 uint16_t DpdkDeviceList::m_MBufDataSize = 0;
-bool DpdkDeviceList::m_DpdkInitVerify = true;
 
 DpdkDeviceList::DpdkDeviceList()
 {
@@ -74,12 +73,7 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-void DpdkDeviceList::setDpdkInitVerify(bool verify)
-{
-	m_DpdkInitVerify = verify;
-}
-
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName, bool verifyHugePagesAndDriver)
 {
 	char **initDpdkArgvBuffer;
 
@@ -94,12 +88,9 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 		}
 	}
 
-	if (m_DpdkInitVerify)
+	if (verifyHugePagesAndDriver && !verifyHugePagesAndDpdkDriver())
 	{
-		if (!verifyHugePagesAndDpdkDriver())
-		{
-			return false;
-		}
+		return false;
 	}
 
 	// verify mBufPoolSizePerDevice is power of 2 minus 1
