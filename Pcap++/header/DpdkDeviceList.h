@@ -177,13 +177,6 @@ namespace pcpp
 		bool writeDpdkLogToFile(FILE* logFile);
 
 		/**
-		 * Disable/Enable initial verification of hugespages and loaded kernel modules by initDpdk()
-		 * Will not disable DPDK EAL checks
-		 * @param[in] verify boolean value
-		 */
-		static void setDpdkInitVerify(bool verify);
-
-		/**
 		 * There are two ways to capture packets using DpdkDevice: one of them is using worker threads and the other way is setting
 		 * a callback which is invoked each time a burst of packets is captured (see DpdkDevice#startCaptureSingleThread() ). This
 		 * method implements the first way. See a detailed description of workers in DpdkWorkerThread class description. This method
