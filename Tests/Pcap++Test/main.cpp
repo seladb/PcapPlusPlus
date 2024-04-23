@@ -218,6 +218,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFileAppend, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapNgFileReadWrite, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapNgFileReadWriteAdv, "no_network;pcap;pcapng");
+	PTF_RUN_TEST(TestPcapNgFileTooManyInterfaces, "no_network;pcap;pcapng");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
 	PTF_RUN_TEST(TestSolarisSnoopFileRead, "no_network;pcap;snoop");
