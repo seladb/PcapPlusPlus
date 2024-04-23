@@ -73,7 +73,7 @@ DpdkDeviceList::~DpdkDeviceList()
 	m_DpdkDeviceList.clear();
 }
 
-bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName)
+bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName, bool verifyHugePagesAndDriver)
 {
 	char **initDpdkArgvBuffer;
 
@@ -88,7 +88,7 @@ bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice,
 		}
 	}
 
-	if (!verifyHugePagesAndDpdkDriver())
+	if (verifyHugePagesAndDriver && !verifyHugePagesAndDpdkDriver())
 	{
 		return false;
 	}
