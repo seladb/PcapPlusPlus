@@ -272,7 +272,7 @@ namespace pcpp
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IPFilter(IPv4Address(ipAddress), dir, ipv4Mask) {}
 
-		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string &ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
