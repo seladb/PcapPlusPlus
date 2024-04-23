@@ -163,7 +163,7 @@ namespace pcpp
 		 * @brief Get the magic number
 		 * @return uint8_t The magic number
 		 */
-		static bool verifyRequest(uint8_t *data) { return data[0] == detail::kGvcpMagicNumber; };
+		static bool verifyRequest(const uint8_t *data) { return data[0] == detail::kGvcpMagicNumber; };
 
 	  protected:
 		GvcpLayer() = default;
@@ -197,7 +197,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		GvcpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		explicit GvcpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
@@ -207,8 +207,8 @@ namespace pcpp
 		 * @param[in] flag The flag, optional
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
 		 */
-		GvcpRequestLayer(GvcpCommand command, const uint8_t *data = nullptr, uint16_t dataSize = 0, GvcpFlag flag = 0,
-						 uint16_t requestId = 1);
+		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t *data = nullptr, uint16_t dataSize = 0,
+								  GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
 		 * @brief Get the header object
@@ -236,7 +236,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		GvcpAcknowledgeLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		explicit GvcpAcknowledgeLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
 
 		/**
 		 * @brief Construct a new GvcpAcknowledgeLayer object
@@ -246,8 +246,8 @@ namespace pcpp
 		 * @param[in] dataSize The size of the data in bytes, optional
 		 * @param[in] ackId The acknowledge ID, optional
 		 */
-		GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command, const uint8_t *data = nullptr,
-							 uint16_t dataSize = 0, uint16_t ackId = 0);
+		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command, const uint8_t *data = nullptr,
+									  uint16_t dataSize = 0, uint16_t ackId = 0);
 
 		/**
 		 * @brief Get the header object

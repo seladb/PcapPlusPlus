@@ -3,6 +3,11 @@
 #include "GvcpLayer.h"
 #include <cstring>
 
+/**
+ * @file GvcpLayer.cpp
+ * @author An-Chi Liu (phy.tiger@gmail.com)
+ */
+
 namespace pcpp
 {
 	/*---------------------- Class GvcpLayer ----------------------------*/
