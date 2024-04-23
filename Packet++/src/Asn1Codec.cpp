@@ -459,19 +459,19 @@ namespace pcpp {
 			}
 			case 2:
 			{
-				m_Value = be16toh(*(uint16_t*)data);
+				m_Value = be16toh(*reinterpret_cast<uint16_t*>(data));
 				break;
 			}
 			case 3:
 			{
 				uint8_t tempData[4] = {0};
 				memcpy(tempData + 1, data, 3);
-				m_Value = be32toh(*(uint32_t*)tempData);
+				m_Value = be32toh(*reinterpret_cast<uint32_t*>(tempData));
 				break;
 			}
 			case 4:
 			{
-				m_Value = be32toh(*(uint32_t*)data);
+				m_Value = be32toh(*reinterpret_cast<uint32_t*>(data));
 				break;
 			}
 			default:

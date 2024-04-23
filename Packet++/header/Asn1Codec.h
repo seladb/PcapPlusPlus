@@ -114,7 +114,10 @@ namespace pcpp
 
 	/**
 	 * @class Asn1Record
-	 * Represents an ASN.1 record, as described in ITU-T Recommendation X.680
+	 * Represents an ASN.1 record, as described in ITU-T Recommendation X.680:
+	 * <https://www.itu.int/rec/T-REC-X.680/en>
+	 *
+	 * <https://en.wikipedia.org/wiki/ASN.1>
 	 */
 	class Asn1Record
 	{
