@@ -108,10 +108,10 @@ namespace pcpp
 
 		/**
 		 * A static method that has to be called once at the startup of every application that uses DPDK. It does several things:
-		 *    - verifies huge-pages are set and DPDK kernel module is loaded (these are set by the setup_dpdk.py external script that
-		 *      has to be run before application is started)
-		 *    - initializes the DPDK infrastructure
-		 *    - creates DpdkDevice instances for all ports available for DPDK
+		 * - verifies huge-pages are set and DPDK kernel module is loaded, unless specifically asked not to (these are set by
+		 *   the setup_dpdk.py external script that has to be run before application is started)
+		 * - initializes the DPDK infrastructure
+		 * - creates DpdkDevice instances for all ports available for DPDK
 		 *
 		 * @param[in] coreMask The cores to initialize DPDK with. After initialization, DPDK will only be able to use these cores
 		 * for its work. The core mask should have a bit set for every core to use. For example: if the user want to use cores 1,2
@@ -124,13 +124,14 @@ namespace pcpp
 		 * @param[in] masterCore The core DPDK will use as master to control all worker thread. The default, unless set otherwise, is 0
 		 * @param[in] initDpdkArgc Number of optional arguments
 		 * @param[in] initDpdkArgv Optional arguments
-		 * @param[in] appName program name to be provided for the DPDK
+		 * @param[in] appName Program name to be provided for the DPDK
+		 * @param[in] verifyHugePagesAndDriver Verify huge-pages are set and DPDK kernel module is loaded. The default value it true
 		 * @return True if initialization succeeded or false if huge-pages or DPDK kernel driver are not loaded, if mBufPoolSizePerDevice
 		 * isn't power of 2 minus 1, if DPDK infra initialization failed or if DpdkDevice initialization failed. Anyway, if this method
 		 * returned false it's impossible to use DPDK with PcapPlusPlus. You can get some more details about mbufs and pools in
 		 * DpdkDevice.h file description or in DPDK web site
 		 */
-		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize = 0, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = NULL, const std::string& appName = "pcapplusplusapp");
+		static bool initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize = 0, uint8_t masterCore = 0, uint32_t initDpdkArgc = 0, char **initDpdkArgv = nullptr, const std::string& appName = "pcapplusplusapp", bool verifyHugePagesAndDriver = true);
 
 		/**
 		 * Get a DpdkDevice by port ID
