@@ -509,14 +509,14 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF");
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff");
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff");
 
 	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::runtime_error,
 		"Attempting to set an IPv4 mask on non-IPv4 address. Please set an IPv4 address before setting the mask.");
 
 	ipFilterWithMask.setLen(42);
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff/42");
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff/42");
 
 	if(true) {
 		//ipFilterWithMask.setAddr("2001:db9:0:12::1");

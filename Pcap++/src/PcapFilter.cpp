@@ -222,10 +222,11 @@ void IPFilter::parseToString(std::string& result)
 	std::string dir;
 	std::string ipAddr = m_Address.toString();
 	std::string mask = m_IPv4Mask;
+	std::string ipProto = m_Address.isIPv6() ? "ip6" : "ip";
 	convertToIPAddressWithMask(ipAddr, mask);
 	convertToIPAddressWithLen(ipAddr);
 	parseDirection(dir);
-	result = "ip and " + dir + " net " + ipAddr;
+	result = ipProto + " and " + dir + " net " + ipAddr;
 	if (m_IPv4Mask != "")
 		result += " mask " + mask;
 	else if (m_Len > 0)
