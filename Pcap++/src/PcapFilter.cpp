@@ -231,7 +231,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 		{
 			mask[i] = static_cast<uint8_t>(-1);
 		}
-		if (fullyMaskedBytes < mask.size())
+		if (static_cast<size_t>(fullyMaskedBytes) < mask.size())
 		{
 			mask[fullyMaskedBytes] = static_cast<uint8_t>(-1) << (8 - partialMaskBits);
 		}
