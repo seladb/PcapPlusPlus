@@ -268,6 +268,7 @@ if(PCAPPP_BUILD_REPRODUCIBLE)
     endif()
   elseif(MSVC)
     add_link_options(/Brepro)
+    add_link_options(/INCREMENTAL:NO)
   else()
     # We should not use __DATE__ nor __TIME__ in case of reproducible build
     add_compile_options(-Wdate-time)
