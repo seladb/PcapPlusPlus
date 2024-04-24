@@ -9,7 +9,7 @@
 | x.x.x   | :x:                |
 -->
 
-We encourage you to submit a pull request if you have a solution or fix. Your contributions help advance the library and enhance safety for all users :star:. We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/community#contribute) in PcapPlusPlus web-site.
+We encourage you to submit a pull request if you have a solution or fix for anything. Your contributions help advance the library and enhance safety for all users :star:. We would very much appreciate any contribution to this project. If you're interested in contributing please visit the [contribution page](https://pcapplusplus.github.io/community#contribute) in PcapPlusPlus web-site.
 
 ## Reporting a Bug :bug: :bug:
 
@@ -28,7 +28,7 @@ If you already looked at the code and found the root cause - that's great :four_
 
 ## Reporting a Vulnerability :closed_lock_with_key: :eyes:
 
-To report a sensitive security issue :lock:, please email <pcapplusplus@gmail.com> with the following information:
+You can use the GitHub issues to report a vulnerability publicly. But if you find a sensitive security issue and want to report privately :lock:, please email <pcapplusplus@gmail.com> with the following information:
 
 - Description of the vulnerability
 - Steps to reproduce the issue or a simple code piece
@@ -36,4 +36,6 @@ To report a sensitive security issue :lock:, please email <pcapplusplus@gmail.co
 - If applicable, a data sample (preferably `pcap/pcapng`) to reproduce
 - If known, any mitigations or fixes for the issue
 
-This project follows a 30-day disclosure timeline. Vulnerabilities will be listed in GitHub issues 30 days after the report is received, with the `vulnerability` tag :unlock:.
+This project follows a 30-day disclosure timeline for private vulnerability reports. Vulnerabilities will be listed in GitHub issues 30 days after the report is received, with the `vulnerability` tag :unlock:.
+
+If you already looked at the code and found the root cause - that's great :four_leaf_clover:! You can create a GitHub pull request as soon as possible with fix to keep safe everyone.
