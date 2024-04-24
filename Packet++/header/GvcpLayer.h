@@ -1,6 +1,8 @@
 #pragma once
 
+#include "IpAddress.h"
 #include "Layer.h"
+#include "MacAddress.h"
 
 /**
  * @file GvcpLayer.h
@@ -18,12 +20,14 @@ namespace pcpp
 		static constexpr size_t kGvcpMagicNumber = 0x42;
 		static constexpr size_t kGvcpRequestHeaderLength = 8;
 		static constexpr size_t kGvcpAckHeaderLength = 8;
-		static constexpr size_t kGvcpDiscoveryLength = 256;
+		static constexpr size_t kGvcpDiscoveryBodyLength = 248;
 
 	} // namespace detail
 
 	typedef uint8_t GvcpFlag; // flag bits are specified by each command
 
+	/// @brief Gvcp command
+	/// See spec "18 Command and Acknowledge Values"
 	enum class GvcpCommand : uint16_t
 	{
 		// Discovery Protocol Control
@@ -59,6 +63,8 @@ namespace pcpp
 		Unknown = 0xFFFF
 	};
 
+	/// @brief Gvcp response status
+	/// See spec "Table 19-1: List of Standard Status Codes"
 	enum class GvcpResponseStatus : uint16_t
 	{
 		Success = 0x0000,
@@ -96,13 +102,48 @@ namespace pcpp
 	struct GvcpRequestHeader
 	{
 		uint8_t magicNumber = detail::kGvcpMagicNumber; // always fixed
-		GvcpFlag flag = 0;
+		GvcpFlag flag = 0; // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
 		GvcpCommand command = GvcpCommand::Unknown;
 		uint16_t dataSize = 0;
 		uint16_t requestId = 0;
+
+		// ------------- methods --------------
+
+		/**
+		 * @brief Verify the magic number
+		 * @return true The magic number is valid
+		 */
+		bool verifyMagicNumber() const { return magicNumber == detail::kGvcpMagicNumber; }
+
+		/**
+		 * @brief Check if the acknowledge is required
+		 * @return true The acknowledge is required
+		 */
+		bool hasAcknowledgeFlag() const
+		{
+			constexpr GvcpFlag kAcknowledgeFlag = 0b0000001;
+			return (flag & kAcknowledgeFlag) == kAcknowledgeFlag;
+		}
 	};
 	static_assert(sizeof(GvcpRequestHeader) == detail::kGvcpRequestHeaderLength,
 				  "Gvcp request header size should be 8 bytes");
+
+	struct GvcpDiscoveryRequest : public GvcpRequestHeader
+	{
+		// no addition fields
+
+		// ------------- methods --------------
+
+		/**
+		 * @brief Check if the broadcast is allowed
+		 * @return true The broadcast acknowledge is allowed
+		 */
+		bool hasAllowBroadcastFlag() const
+		{
+			constexpr GvcpFlag kAllowBroadcastFlag = 0b0001000;
+			return (flag & kAllowBroadcastFlag) == kAllowBroadcastFlag;
+		}
+	};
 
 	/// @brief Gvcp acknowledge header
 	/// @note refer to the spec "15.2 Acknowledge Header"
@@ -117,9 +158,8 @@ namespace pcpp
 
 	/// @brief Gvcp discovery acknowledge body
 	/// @note refer to the spec "16.1.2 DISCOVERY_ACK"
-	struct GvcpDiscovery
+	struct GvcpDiscoveryBody
 	{
-		GvcpAckHeader header;
 		uint16_t versionMajor = 0;
 		uint16_t versionMinor = 0;
 		uint32_t deviceMode = 0;
@@ -132,15 +172,87 @@ namespace pcpp
 		uint8_t reserved3[12];
 		uint32_t subnetMask = 0;
 		uint8_t reserved4[12] = {0};
-		uint32_t defaultGatewayIpAddress = 0;
+		uint32_t defaultGateway = 0;
 		char manufacturerName[32] = {0};
 		char modelName[32] = {0};
 		char deviceVersion[32] = {0};
 		char manufacturerSpecificInformation[48] = {0};
 		char serialNumber[16] = {0};
 		char userDefinedName[16] = {0};
+
+		// ------------- methods --------------
+
+		/**
+		 * @brief Get the version
+		 * @return std::pair<uint16_t, uint16_t> The version major and minor
+		 */
+		std::pair<uint16_t, uint16_t> getVersion() const { return {versionMajor, versionMinor}; }
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::MacAddress getMacAddress() const
+		{
+			return pcpp::MacAddress(reinterpret_cast<const uint8_t *>(macAddress));
+		}
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::IPv4Address getIpAddress() const { return pcpp::IPv4Address(ipAddress); }
+
+		/**
+		 * @brief Get the subnet mask
+		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
+		 */
+		pcpp::IPv4Address getSubnetMask() const { return pcpp::IPv4Address(subnetMask); }
+
+		/**
+		 * @brief Get the gateway IP address
+		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
+		 */
+		pcpp::IPv4Address getGatewayIpAddress() const { return pcpp::IPv4Address(defaultGateway); }
+
+		/**
+		 * @brief Get the manufacturer name
+		 * @return std::string The manufacturer name
+		 */
+		std::string getManufacturerName() const { return std::string(manufacturerName); }
+
+		/**
+		 * @brief Get the model name
+		 * @return std::string The model name
+		 */
+		std::string getModelName() const { return std::string(modelName); }
+
+		/**
+		 * @brief Get the device version
+		 * @return std::string The device version
+		 */
+		std::string getDeviceVersion() const { return std::string(deviceVersion); }
+
+		/**
+		 * @brief Get the manufacturer specific information
+		 * @return std::string The manufacturer specific information
+		 */
+		std::string getManufacturerSpecificInformation() const { return std::string(manufacturerSpecificInformation); }
+
+		/**
+		 * @brief Get the serial number
+		 * @return std::string The serial number
+		 */
+		std::string getSerialNumber() const { return std::string(serialNumber); }
+
+		/**
+		 * @brief Get the user defined name
+		 * @return std::string The user defined name
+		 */
+		std::string getUserDefinedName() const { return std::string(userDefinedName); }
 	};
-	static_assert(sizeof(GvcpDiscovery) == detail::kGvcpDiscoveryLength, "Gvcp ack body size should be 256 bytes");
+	static_assert(sizeof(GvcpDiscoveryBody) == detail::kGvcpDiscoveryBodyLength,
+				  "Gvcp ack body size should be 248 bytes");
 #pragma pack(pop)
 
 	/**
@@ -222,6 +334,15 @@ namespace pcpp
 		// implement Layer's abstract methods
 		size_t getHeaderLen() const override { return sizeof(GvcpRequestHeader); }
 
+		/**
+		 * @brief Get the discovery request object
+		 * @return GvcpDiscoveryRequest* A pointer to the discovery request object.
+		 */
+		GvcpDiscoveryRequest *getGvcpDiscoveryRequest() const
+		{
+			return reinterpret_cast<GvcpDiscoveryRequest *>(m_Header);
+		}
+
 	  private:
 		GvcpRequestHeader *m_Header;
 	};
@@ -255,11 +376,31 @@ namespace pcpp
 		 */
 		GvcpAckHeader *getGvcpHeader() const { return m_Header; }
 
+		/**
+		 * @brief Get the response command type.
+		 * Use the command type to determine the response body.
+		 * @return GvcpCommand The response command type
+		 */
+		GvcpCommand getCommand() const { return m_Header->command; }
+
 		// implement Layer's abstract methods
 		std::string toString() const override { return ""; };
 
 		// implement Layer's abstract methods
 		size_t getHeaderLen() const override { return sizeof(GvcpAckHeader); }
+
+		/**
+		 * @brief Get the discovery body object
+		 * @return GvcpDiscoveryBody* A pointer to the discovery body object. If the data length is invalid, return
+		 * nullptr.
+		 */
+		GvcpDiscoveryBody *getGvcpDiscoveryBody() const
+		{
+			if (m_DataLen != detail::kGvcpDiscoveryBodyLength)
+				return nullptr;
+
+			return reinterpret_cast<GvcpDiscoveryBody *>(m_Data);
+		}
 
 	  private:
 		GvcpAckHeader *m_Header;
