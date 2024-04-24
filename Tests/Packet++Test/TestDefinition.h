@@ -257,3 +257,7 @@ PTF_TEST_CASE(S7CommLayerCreationTest);
 PTF_TEST_CASE(SmtpParsingTests);
 PTF_TEST_CASE(SmtpCreationTests);
 PTF_TEST_CASE(SmtpEditTests);
+
+// Implemented in Asn1Tests.cpp
+PTF_TEST_CASE(Asn1DecodingTest);
+PTF_TEST_CASE(Asn1EncodingTest);
