@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "IPv4Layer.h"
 #include <sstream>
+#include <array>
 #if defined(_WIN32)
 #include <winsock2.h>
 #endif
@@ -214,6 +215,37 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 		uint32_t mask = static_cast<uint32_t>(-1) >> ((sizeof(uint32_t) * 8) - m_Len);
 		addrAsInt &= mask;
 		ipAddrmodified = IPv4Address(addrAsInt).toString();
+	}
+	else if (ipAddr.getType() == IPAddress::IPv6AddressType)
+	{
+		std::array<uint8_t, 16> addrAsBytes{};
+		{
+			const uint8_t* bytesArrInternal = ipAddr.getIPv6().toBytes();
+			std::copy(bytesArrInternal, bytesArrInternal + 16, addrAsBytes.begin());
+		}
+
+		std::array<uint8_t, 16> mask{};
+		const int fullyMaskedBytes = m_Len / 8;
+		const int partialMaskBits = m_Len % 8;
+		for (int i = 0; i < fullyMaskedBytes && i < mask.size(); i++)
+		{
+			mask[i] = static_cast<uint8_t>(-1);
+		}
+		if (fullyMaskedBytes < mask.size())
+		{
+			mask[fullyMaskedBytes] = static_cast<uint8_t>(-1) << (8 - partialMaskBits);
+		}
+		for (size_t i = 0; i < addrAsBytes.size(); i++)
+		{
+			addrAsBytes[i] &= mask[i];
+		}
+
+		ipAddrmodified = IPv6Address(addrAsBytes.data()).toString();
+	}
+	else
+	{
+		// Realistically the code flow should never get to this block.
+		throw std::logic_error("Unsupported IP address version.");
 	}
 }
 

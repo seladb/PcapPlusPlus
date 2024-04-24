@@ -514,14 +514,12 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::runtime_error,
 		"Attempting to set an IPv4 mask on non-IPv4 address. Please set an IPv4 address before setting the mask.");
 
-	ipFilterWithMask.setLen(42);
+	ipFilterWithMask.setLen(48);
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff/42");
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333::/48");
 
 	if(true) {
-		//ipFilterWithMask.setAddr("2001:db9:0:12::1");
-		//ipFilterWithMask.setAddr("::1");
-		ipFilterWithMask.setAddr("0000:0000:0000:0000:0000:0000:0000:0001");
+		ipFilterWithMask.setAddr("2001:db8:0:12::1");
 		ipFilterWithMask.clearLen();
 		ipFilterWithMask.clearMask();
 		pcpp::PcapFileReaderDevice fileReaderDev5(EXAMPLE_PCAP_IPV6_PATH);
@@ -537,10 +535,10 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 			pcpp::Packet packet(*iter);
 			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv6));
 			pcpp::IPv6Layer *ipLayer = packet.getLayerOfType<pcpp::IPv6Layer>();
-			PTF_ASSERT_TRUE(ipLayer->getSrcIPv6Address().matchNetwork("2001:db9:0:12::1"));
+			// This is essentially matching the host address, but it will have to do for the current sample.
+			PTF_ASSERT_TRUE(ipLayer->getSrcIPv6Address().matchNetwork("2001:db8:0:12::1/128"));
 		}
 		rawPacketVec.clear();
-
 		ipFilterWithMask.setLen(64);
 
 		PTF_ASSERT_TRUE(fileReaderDev5.open());
@@ -554,7 +552,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 			pcpp::Packet packet(*iter);
 			PTF_ASSERT_TRUE(packet.isPacketOfType(pcpp::IPv6));
 			pcpp::IPv6Layer *ipLayer = packet.getLayerOfType<pcpp::IPv6Layer>();
-			PTF_ASSERT_TRUE(ipLayer->getSrcIPv6Address().matchNetwork("2001:db9:0:12::1/64"));
+			PTF_ASSERT_TRUE(ipLayer->getSrcIPv6Address().matchNetwork("2001:db8:0:12::/64"));
 		}
 		rawPacketVec.clear();
 	}
