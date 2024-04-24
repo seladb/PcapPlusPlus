@@ -227,7 +227,7 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 		std::array<uint8_t, 16> mask{};
 		const int fullyMaskedBytes = m_Len / 8;
 		const int partialMaskBits = m_Len % 8;
-		for (int i = 0; i < fullyMaskedBytes && i < mask.size(); i++)
+		for (size_t i = 0; i < static_cast<size_t>(fullyMaskedBytes) && i < mask.size(); i++)
 		{
 			mask[i] = static_cast<uint8_t>(-1);
 		}
