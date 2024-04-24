@@ -252,57 +252,92 @@ namespace pcpp
 		bool hasMask() const { return !m_IPv4Mask.empty(); }
 	public:
 		/**
-		 * The basic constructor that creates the filter from an IPv4 address and direction (source or destination)
-		 * @param[in] ipAddress The IPv4 address to build the filter with. If this address is not a valid IPv4 address an error will be
-		 * written to log and parsing this filter will fail
+		 * The basic constructor that creates the filter from an IP address string and direction (source or destination)
+		 * @param[in] ipAddress The IP address to build the filter with.
 		 * @param[in] dir The address direction to filter (source or destination)
+		 * @throws std::invalid_argument The provided address is not a valid IPv4 or IPv6 address.
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir) : IPFilter(IPAddress(ipAddress), dir) {}
 
+		/**
+		 * The basic constructor that creates the filter from an IP address and direction (source or destination)
+		 * @param[in] ipAddress The IP address to build the filter with.
+		 * @param[in] dir The address direction to filter (source or destination)
+		 */
 		IPFilter(const IPAddress& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
 		 * the subnet 10.0.0.x"
 		 * @param[in] ipAddress The IPv4 address to use. Only the part of the address that is not masked will be matched. For example: if the address
-		 * is "1.2.3.4" and the mask is "255.255.255.0" than the part of the address that will be matched is "1.2.3.X". If this address is not a
-		 * valid IPv4 address an error will be written to log and parsing this filter will fail
+		 * is "1.2.3.4" and the mask is "255.255.255.0" than the part of the address that will be matched is "1.2.3.X".
 		 * @param[in] dir The address direction to filter (source or destination)
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
+		 * @throws std::invalid_argument The provided address is not a valid IPv4 address.
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IPFilter(IPv4Address(ipAddress), dir, ipv4Mask) {}
 
+		/**
+		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example:
+		 * "filter only IP addresses that matches the subnet 10.0.0.x"
+		 * @param[in] ipAddress The IPv4 address to use. Only the part of the address that is not masked will be
+		 * matched. For example: if the address is "1.2.3.4" and the mask is "255.255.255.0" than the part of the
+		 * address that will be matched is "1.2.3.X".
+		 * @param[in] dir The address direction to filter (source or destination)
+		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise
+		 * parsing this filter will fail
+		 */
 		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
 		 * the part of the address that will be matched is "10.0.0.X"
-		 * @param[in] ipAddress The IPv4 address to use. Only the part of the address that is not masked will be matched. For example: if the address
-		 * is "1.2.3.4" and the subnet is "/24" than the part of the address that will be matched is "1.2.3.X". If this address is not a
-		 * valid IPv4 address an error will be written to log and parsing this filter will fail
+		 * @param[in] ipAddress The IP address to use. Only the part of the address that is not masked will be matched. For example: if the address
+		 * is "1.2.3.4" and the subnet is "/24" than the part of the address that will be matched is "1.2.3.X".
 		 * @param[in] dir The address direction to filter (source or destination)
-		 * @param[in] len The subnet to use (e.g "/24")
+		 * @param[in] len The subnet to use (e.g "/24"). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
+		 * @throws std::invalid_argument The provided address is not a valid IPv4 or IPv6 address or the provided length is out of acceptable range.
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, int len) : IPFilter(IPAddress(ipAddress), dir, len) {}
 
-		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len) {}
+		/**
+		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the
+		 * subnet 10.0.0.3/24" which means the part of the address that will be matched is "10.0.0.X"
+		 * @param[in] ipAddress The IP address to use. Only the part of the address that is not masked will be matched.
+		 * For example: if the address is "1.2.3.4" and the subnet is "/24" than the part of the address that will be
+		 * matched is "1.2.3.X".
+		 * @param[in] dir The address direction to filter (source or destination)
+		 * @param[in] len The subnet to use (e.g "/24"). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
+		 * @throws std::invalid_argument The provided length is out of acceptable range.
+		 */
+		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len)
+		{
+			if (ipAddress.isIPv4() && (m_Len < 0 || m_Len > 32))
+				throw std::invalid_argument("IPv4 subnet must be between 0 and 32.");
+			else if (ipAddress.isIPv6() && (m_Len < 0 || m_Len > 128))
+				throw std::invalid_argument("IPv6 prefix length must be between 0 and 128.");
+		}
 
 		void parseToString(std::string& result) override;
 
 		/**
-		 * Set the IPv4 address
-		 * @param[in] ipAddress The IPv4 address to build the filter with. If this address is not a valid IPv4 address an error will be
-		 * written to log and parsing this filter will fail
+		 * Set the IP address
+		 * @param[in] ipAddress The IP address to build the filter with.
+		 * @throws std::invalid_argument Setting a non-IPv4 address when the filter has IPv4 specific functionality enabled.
 		 */
 		void setAddr(const std::string& ipAddress) { this->setAddr(IPAddress(ipAddress)); }
 
+		/**
+		 * Set the IP address
+		 * @param[in] ipAddress The IP address to build the filter with.
+		 * @throws std::invalid_argument Setting a non-IPv4 address when the filter has IPv4 specific functionality enabled.
+		 */
 		void setAddr(const IPAddress& ipAddress)
 		{
 			if (!ipAddress.isIPv4() && hasMask())
 			{
-				// TODO: What exception type to throw here?
-				throw std::runtime_error("Attempting to set non-IPv4 address while an IPv4 mask is set. "
-										 "Please clear the mask before setting a non-IPv4 address.");
+				throw std::invalid_argument("Attempting to set non-IPv4 address while an IPv4 mask is set. "
+										    "Please clear the mask before setting a non-IPv4 address.");
 			}
 
 			m_Address = ipAddress;
@@ -311,28 +346,41 @@ namespace pcpp
 		/**
 		 * Set the IPv4 mask
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
+		 * @throws std::invalid_argument The filter is configured for a non-IPv4 address.
 		 */
 		void setMask(const std::string& ipv4Mask)
 		{
 			if (!m_Address.isIPv4())
 			{
-				// TODO: What exception type to throw here?
-				throw std::runtime_error("Attempting to set an IPv4 mask on non-IPv4 address. "
-										 "Please set an IPv4 address before setting the mask.");
+				throw std::invalid_argument("Attempting to set an IPv4 mask on non-IPv4 address. "
+										    "Please set an IPv4 address before setting the mask.");
 			}
 
 			this->clearLen();
 			m_IPv4Mask = ipv4Mask;
 		}
 
+		/**
+		 * Clears the IPv4 subnet mask.
+		 */
 		void clearMask() { m_IPv4Mask = ""; }
 
 		/**
-		 * Set the subnet
+		 * Set the subnet (IPv4) or prefix length (IPv6). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
 		 * @param[in] len The subnet to use (e.g "/24")
+		 * @throws std::invalid_argument The provided length is out of acceptable range.
 		 */
-		void setLen(const int len) { this->clearMask(); m_Len = len; }
+		void setLen(const int len) {
+			if (m_Address.isIPv4() && (m_Len < 0 || m_Len > 32))
+				throw std::invalid_argument("IPv4 subnet must be between 0 and 32.");
+			else if (m_Address.isIPv6() && (m_Len < 0 || m_Len > 128))
+				throw std::invalid_argument("IPv6 prefix length must be between 0 and 128.");
+			this->clearMask(); m_Len = len;
+		}
 
+		/**
+		 * Clears the subnet mask length.
+		 */
 		void clearLen() { m_Len = 0; }
 	};
 
