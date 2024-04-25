@@ -258,12 +258,24 @@ void IPFilter::parseToString(std::string& result)
 	convertToIPAddressWithMask(ipAddr, mask);
 	convertToIPAddressWithLen(ipAddr);
 	parseDirection(dir);
-	result = ipProto + " and " + dir + " net " + ipAddr;
+
+	result.reserve(ipProto.size() + dir.size() + ipAddr.size() + 10 /* Hard-coded strings */);
+	result = ipProto;
+	result += " and ";
+	result += dir;
+	result += " net ";
+	result += ipAddr;
+
+	// Mask and Len appends might require reallocation, but they also might not depending on the reserve implementation.
 	if (m_IPv4Mask != "")
-		result += " mask " + mask;
+	{
+		result += " mask ";
+		result += mask;
+	}
 	else if (m_Len > 0)
 	{
-		result += '/' + std::to_string(m_Len);
+		result += '/';
+		result += std::to_string(m_Len);
 	}
 }
 
