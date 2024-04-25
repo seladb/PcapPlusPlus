@@ -64,7 +64,7 @@ PTF_TEST_CASE(TestTcpReassemblySanity);
 PTF_TEST_CASE(TestTcpReassemblyRetran);
 PTF_TEST_CASE(TestTcpReassemblyMissingData);
 PTF_TEST_CASE(TestTcpReassemblyOutOfOrder);
-PTF_TEST_CASE(TestTcpReassemblyOutOfOrderWithManualClose);
+PTF_TEST_CASE(TestTcpReassemblyOOOWithManualClose);
 PTF_TEST_CASE(TestTcpReassemblyWithFIN_RST);
 PTF_TEST_CASE(TestTcpReassemblyMalformedPkts);
 PTF_TEST_CASE(TestTcpReassemblyMultipleConns);

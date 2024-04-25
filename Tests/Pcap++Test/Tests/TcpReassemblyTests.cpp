@@ -53,27 +53,6 @@ struct TcpReassemblyMultipleConnStats
 		flowKeysList.clear();
 	}
 
-};
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TcpReassemblyMultipleConnStats
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-struct TcpReassemblyMultipleConnStatsWithReassembly
-{
-	typedef std::vector<uint32_t> FlowKeysList;
-	typedef std::map<uint32_t, TcpReassemblyStats> Stats;
-
-	Stats stats;
-	FlowKeysList flowKeysList;
-
-	std::vector<timeval>timestamps;
-	void clear()
-	{
-		stats.clear();
-		flowKeysList.clear();
-	}
-
 	pcpp::TcpReassembly *tcpReassmbly = nullptr;
 };
 
@@ -148,8 +127,7 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 
 static void tcpReassemblyManuallyCloseConnMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
 {
-	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStatsWithReassembly*)userCookie)->stats;
-	pcpp::TcpReassembly *&tcpReassmbly = ((TcpReassemblyMultipleConnStatsWithReassembly*)userCookie)->tcpReassmbly;
+	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
 
 	TcpReassemblyMultipleConnStats::Stats::iterator iter = stats.find(tcpData.getConnectionData().flowKey);
 	if (iter == stats.end())
@@ -173,7 +151,7 @@ static void tcpReassemblyManuallyCloseConnMsgReadyCallback(int8_t sideIndex, con
 	// if numOfDataPackets hits 10, close the connection manually
 	if (iter->second.numOfDataPackets >= 10)
 	{
-		tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
+		((TcpReassemblyMultipleConnStats*)userCookie)->tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
 	}
 }
 
@@ -272,14 +250,11 @@ static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, 
 // tcpReassemblyTestManuallyCloseConnOnMesgReady()
 // ~~~~~~~~~~~~~~~~~~~
 
-static bool tcpReassemblyTestManuallyCloseConnOnMesgReady(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStatsWithReassembly& results, bool monitorOpenCloseConns, bool closeConnsManually)
+static bool tcpReassemblyTestManuallyCloseConnOnMesgReady(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStatsWithReassembly& results)
 {
 	pcpp::TcpReassembly* &tcpReassembly = results.tcpReassmbly;
 
-	if (monitorOpenCloseConns)
-		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyManuallyCloseConnMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
-	else
-		tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyManuallyCloseConnMsgReadyCallback, &results);
+	tcpReassembly = new pcpp::TcpReassembly(tcpReassemblyManuallyCloseConnMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
 
 	for (auto iter : packetStream)
 	{
@@ -300,8 +275,7 @@ static bool tcpReassemblyTestManuallyCloseConnOnMesgReady(const std::vector<pcpp
 	//	}
 	//}
 
-	if (closeConnsManually)
-		tcpReassembly->closeAllConnections();
+	tcpReassembly->closeAllConnections();
 
 	delete tcpReassembly;
 
@@ -585,7 +559,7 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 
 
 
-PTF_TEST_CASE(TestTcpReassemblyOutOfOrderWithManualClose)
+PTF_TEST_CASE(TestTcpReassemblyOOOWithManualClose)
 {
 	std::string errMsg;
 	std::vector<pcpp::RawPacket> packetStream;
@@ -608,8 +582,8 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrderWithManualClose)
 		packetStream.insert(packetStream.begin() + 24 + i, oooPacketTemp);
 	}
 
-	TcpReassemblyMultipleConnStatsWithReassembly tcpReassemblyResults;
-	tcpReassemblyTestManuallyCloseConnOnMesgReady(packetStream, tcpReassemblyResults, true, true);
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTestManuallyCloseConnOnMesgReady(packetStream, tcpReassemblyResults);
 
 	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
 	PTF_ASSERT_EQUAL(stats.size(), 1);
