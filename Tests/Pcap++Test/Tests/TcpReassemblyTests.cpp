@@ -326,7 +326,7 @@ static pcpp::RawPacket tcpReassemblyAddRetransmissions(pcpp::RawPacket rawPacket
 
 	tcpLayer->getTcpHeader()->sequenceNumber = htobe32(be32toh(tcpLayer->getTcpHeader()->sequenceNumber) + beginning);
 
-	pcpp::PayloadLayer newPayloadLayer(newPayload, numOfBytes, false);
+	pcpp::PayloadLayer newPayloadLayer(newPayload, numOfBytes);
 	packet.addLayer(&newPayloadLayer);
 
 	packet.computeCalculateFields();
@@ -363,8 +363,6 @@ PTF_TEST_CASE(TestTcpReassemblySanity)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isValid());
 	pcpp::IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	pcpp::IPv4Address expectedDstIP(std::string("81.218.72.15"));
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
@@ -931,8 +929,6 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isValid());
 	pcpp::IPv6Address expectedSrcIP("2001:618:400::5199:cc70");
 	pcpp::IPv6Address expectedDstIP("2001:618:1:8000::5");
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
@@ -974,8 +970,6 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_TRUE(iter->second.connectionsStarted);
 	PTF_ASSERT_FALSE(iter->second.connectionsEnded);
 	PTF_ASSERT_TRUE(iter->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isValid());
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35995);
@@ -994,8 +988,6 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_TRUE(iter->second.connectionsStarted);
 	PTF_ASSERT_FALSE(iter->second.connectionsEnded);
 	PTF_ASSERT_TRUE(iter->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isValid());
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35999);
@@ -1012,8 +1004,6 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_TRUE(iter->second.connectionsStarted);
 	PTF_ASSERT_FALSE(iter->second.connectionsEnded);
 	PTF_ASSERT_TRUE(iter->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isValid());
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP2);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 40426);
@@ -1032,8 +1022,6 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6MultConns)
 	PTF_ASSERT_TRUE(iter->second.connectionsStarted);
 	PTF_ASSERT_FALSE(iter->second.connectionsEnded);
 	PTF_ASSERT_TRUE(iter->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(iter->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(iter->second.connData.dstIP.isValid());
 	PTF_ASSERT_EQUAL(iter->second.connData.srcIP, expectedSrcIP);
 	PTF_ASSERT_EQUAL(iter->second.connData.dstIP, expectedDstIP1);
 	PTF_ASSERT_EQUAL(iter->second.connData.srcPort, 35997);
@@ -1075,8 +1063,6 @@ PTF_TEST_CASE(TestTcpReassemblyIPv6_OOO)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isValid());
 	pcpp::IPv6Address expectedSrcIP("2001:618:400::5199:cc70");
 	pcpp::IPv6Address expectedDstIP("2001:618:1:8000::5");
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);
@@ -1218,8 +1204,6 @@ PTF_TEST_CASE(TestTcpReassemblyMaxSeq)
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.srcIP.isValid());
-	PTF_ASSERT_TRUE(stats.begin()->second.connData.dstIP.isValid());
 	pcpp::IPv4Address expectedSrcIP(std::string("10.0.0.1"));
 	pcpp::IPv4Address expectedDstIP(std::string("81.218.72.15"));
 	PTF_ASSERT_EQUAL(stats.begin()->second.connData.srcIP, expectedSrcIP);

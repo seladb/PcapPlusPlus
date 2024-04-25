@@ -71,11 +71,6 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	else
 		return NonIpPacket;
 
-	// in real traffic the IP addresses cannot be an unspecified
-	if (!srcIP.isValid() || !dstIP.isValid())
-		return NonIpPacket;
-
-
 	// Ignore non-TCP packets
 	TcpLayer* tcpLayer = tcpData.getLayerOfType<TcpLayer>(true); // lookup in reverse order
 	if (tcpLayer == nullptr)

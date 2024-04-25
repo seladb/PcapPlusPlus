@@ -201,7 +201,7 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&sipReqLayer));
 
 	pcpp::SipRequestLayer* samplePacketSipLayer = sipReqSamplePacket.getLayerOfType<pcpp::SipRequestLayer>();
-	auto payloadLayer = new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize(), true);
+	auto payloadLayer = new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize());
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(payloadLayer, true));
 
 	newSipPacket.computeCalculateFields();

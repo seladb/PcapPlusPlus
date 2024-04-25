@@ -338,11 +338,12 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getFirstAnswer(), firstAnswer, ptr);
 	PTF_ASSERT_EQUAL(dnsEdit4Packet.getLayerOfType<pcpp::DnsLayer>()->getNextAnswer(firstAnswer), secondAnswer, ptr);
 
+	PTF_ASSERT_RAISES(pcpp::IPv4DnsResourceData(std::string("256.249.90.238")), std::invalid_argument, "Not a valid IPv4 address: 256.249.90.238");
+
 	pcpp::DnsResource* thirdAnswer = dns4Layer.addAnswer(secondAnswer);
 	PTF_ASSERT_NOT_NULL(thirdAnswer);
 	pcpp::Logger::getInstance().suppressLogs();
-	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("256.249.90.238"));
-	PTF_ASSERT_FALSE(thirdAnswer->setData(&ipv4DnsData));
+	PTF_ASSERT_FALSE(thirdAnswer->setData(nullptr));
 	pcpp::Logger::getInstance().enableLogs();
 	ipv4DnsData = pcpp::IPv4DnsResourceData(std::string("151.249.90.238"));
 	PTF_ASSERT_TRUE(thirdAnswer->setData(&ipv4DnsData));
@@ -386,17 +387,14 @@ PTF_TEST_CASE(DnsLayerResourceCreationTest)
 
 	PTF_ASSERT_EQUAL(dnsLayer6.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), "10.0.0.2");
 
+	PTF_ASSERT_RAISES(pcpp::IPv6DnsResourceData(std::string("##80::5a1f:aaff:fe4f:3f9d")), std::invalid_argument, "Not a valid IPv6 address: ##80::5a1f:aaff:fe4f:3f9d");
+
 	authority = dnsLayer6.addAuthority(authority);
 	pcpp::Logger::getInstance().suppressLogs();
-	pcpp::IPv6DnsResourceData ipv6DnsData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
-	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
+	PTF_ASSERT_FALSE(authority->setData(nullptr));
 	pcpp::Logger::getInstance().enableLogs();
 	authority->setDnsType(pcpp::DNS_TYPE_AAAA);
-	pcpp::Logger::getInstance().suppressLogs();
-	ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff$fe4f:3f9d"));
-	PTF_ASSERT_FALSE(authority->setData(&ipv6DnsData));
-	pcpp::Logger::getInstance().enableLogs();
-	ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
+	auto ipv6DnsData = pcpp::IPv6DnsResourceData(std::string("fe80::5a1f:aaff:fe4f:3f9d"));
 	PTF_ASSERT_TRUE(authority->setData(&ipv6DnsData));
 
 	query = dnsLayer6.addQuery(query);

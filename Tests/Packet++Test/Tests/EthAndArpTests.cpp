@@ -33,7 +33,7 @@ PTF_TEST_CASE(EthPacketCreation)
 	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
-	pcpp::PayloadLayer payloadLayer(payload, 4, true);
+	pcpp::PayloadLayer payloadLayer(payload, 4);
 
 	pcpp::Packet ethPacket(1);
 	PTF_ASSERT_TRUE(ethPacket.addLayer(&ethLayer));
@@ -61,7 +61,7 @@ PTF_TEST_CASE(EthPacketPointerCreation)
 	pcpp::EthLayer* ethLayer = new pcpp::EthLayer(srcMac, dstMac, PCPP_ETHERTYPE_IP);
 
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04 };
-	pcpp::PayloadLayer* payloadLayer = new pcpp::PayloadLayer(payload, 4, true);
+	pcpp::PayloadLayer* payloadLayer = new pcpp::PayloadLayer(payload, 4);
 
 	pcpp::Packet* ethPacket = new pcpp::Packet(1);
 	PTF_ASSERT_TRUE(ethPacket->addLayer(ethLayer, true));

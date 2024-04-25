@@ -11,7 +11,6 @@ extern PcapTestArgs PcapTestGlobalArgs;
 PTF_TEST_CASE(TestRawSockets)
 {
 	pcpp::IPAddress ipAddr = pcpp::IPAddress(PcapTestGlobalArgs.ipToSendReceivePackets);
-	PTF_ASSERT_TRUE(ipAddr.isValid());
 	pcpp::RawSocketDevice rawSock(ipAddr);
 
 #if defined(_WIN32)
