@@ -250,7 +250,7 @@ static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, 
 // tcpReassemblyTestManuallyCloseConnOnMesgReady()
 // ~~~~~~~~~~~~~~~~~~~
 
-static bool tcpReassemblyTestManuallyCloseConnOnMesgReady(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStatsWithReassembly& results)
+static bool tcpReassemblyTestManuallyCloseConnOnMesgReady(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results)
 {
 	pcpp::TcpReassembly* &tcpReassembly = results.tcpReassmbly;
 
@@ -614,7 +614,7 @@ PTF_TEST_CASE(TestTcpReassemblyOOOWithManualClose)
 	// remove one packet
 	packetStream.erase(packetStream.begin() + 29);
 
-	tcpReassemblyTestManuallyCloseConnOnMesgReady(packetStream, tcpReassemblyResults, true, true);
+	tcpReassemblyTestManuallyCloseConnOnMesgReady(packetStream, tcpReassemblyResults);
 
 	PTF_ASSERT_EQUAL(stats.size(), 1);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 18);
