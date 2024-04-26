@@ -51,11 +51,14 @@ std::string AuthenticationHeaderLayer::getICVHexStream() const
 	return byteArrayToHexString(bytes, getICVLength());
 }
 
-void AuthenticationHeaderLayer::parseNextLayer()
+void AuthenticationHeaderLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	uint8_t* payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;
@@ -112,8 +115,11 @@ uint32_t ESPLayer::getSequenceNumber() const
 	return be32toh(getESPHeader()->sequenceNumber);
 }
 
-void ESPLayer::parseNextLayer()
+void ESPLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+		
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;

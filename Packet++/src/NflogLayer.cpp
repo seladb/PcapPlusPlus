@@ -43,10 +43,14 @@ NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const
 	return tlv;
 }
 
-void NflogLayer::parseNextLayer()
+void NflogLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(nflog_header))
 		return;
+	
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+
 	auto payloadInfo = getTlvByType(NflogTlvType::NFULA_PAYLOAD);
 	if (payloadInfo.isNull())
 	{

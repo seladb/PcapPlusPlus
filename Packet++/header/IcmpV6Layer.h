@@ -187,7 +187,7 @@ public:
 	/**
 	 * Does nothing for this layer. ICMPv6 is the last layer.
 	 */
-	void parseNextLayer() {}
+	void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 	/**
 	 * @return The size of the ICMPv6 message

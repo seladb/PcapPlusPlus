@@ -92,11 +92,14 @@ size_t SSLLayer::getHeaderLen() const
 	return len;
 }
 
-void SSLLayer::parseNextLayer()
+void SSLLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	if (SSLLayer::IsSSLMessage(0, 0, m_Data + headerLen, m_DataLen - headerLen, true))
 		m_NextLayer = SSLLayer::createSSLMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);

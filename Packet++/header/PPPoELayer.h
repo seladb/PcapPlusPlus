@@ -162,7 +162,7 @@ namespace pcpp
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
 		 */
-		virtual void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return Size of @ref pppoe_header
@@ -401,7 +401,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PPPoE discovery is always the last layer)
 		 */
-		virtual void parseNextLayer() {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * @return The header length which is size of strcut pppoe_header plus the total size of tags

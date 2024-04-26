@@ -329,7 +329,7 @@ public:
 	/**
 	 * Identifies the following next layers: SomeIpLayer, SomeIpTpLayer, SomeIpSdLayer. Otherwise sets PayloadLayer
 	 */
-	void parseNextLayer();
+	void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 	/**
 	 * @return The string representation of the SOME/IP layer

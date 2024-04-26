@@ -255,11 +255,14 @@ void SomeIpLayer::setPayloadLength(uint32_t payloadLength)
 						  payloadLength);
 }
 
-void SomeIpLayer::parseNextLayer()
+void SomeIpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	uint8_t *payload = m_Data + headerLen;
 	size_t payloadLen = m_DataLen - headerLen;

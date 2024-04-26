@@ -408,11 +408,14 @@ int TextBasedProtocolMessage::getFieldCount() const
 	return result;
 }
 
-void TextBasedProtocolMessage::parseNextLayer()
+void TextBasedProtocolMessage::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+	
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 }

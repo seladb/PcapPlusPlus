@@ -147,7 +147,7 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Wake on LAN is the always last so does nothing for this layer
-		void parseNextLayer() {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * @return Get the size of the layer

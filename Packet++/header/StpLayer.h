@@ -268,7 +268,8 @@ typedef stp_tcn_bpdu stp_header;
 		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
 
 		/// Parses next layer
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+
 
 		/**
 		 * @return Returns the protocol info as readable string
@@ -506,7 +507,7 @@ typedef stp_tcn_bpdu stp_header;
 		size_t getHeaderLen() const { return sizeof(stp_conf_bpdu); }
 
 		/// Parses next layer
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return Returns the protocol info as readable string
@@ -579,7 +580,8 @@ typedef stp_tcn_bpdu stp_header;
 		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
 
 		/// Parses next layer
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override;
+
 
 		/**
 		 * @return Returns the protocol info as readable string
@@ -778,7 +780,7 @@ typedef stp_tcn_bpdu stp_header;
 		// overridden methods
 
 		/// Parses next layer
-		void parseNextLayer() {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * @return Returns the protocol info as readable string

@@ -409,7 +409,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (DhcpV6Layer is always last)
 		 */
-		void parseNextLayer() {}
+	    void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * @return The size of @ref dhcpv6_header + size of options

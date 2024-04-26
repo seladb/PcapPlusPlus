@@ -206,7 +206,7 @@ namespace pcpp
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer using address family
 		 * Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return Size of nflog_header

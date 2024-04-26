@@ -20,10 +20,13 @@ EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMa
 	m_Protocol = Ethernet;
 }
 
-void EthDot3Layer::parseNextLayer()
+void EthDot3Layer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(ether_dot3_header))
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	uint8_t* payload = m_Data + sizeof(ether_dot3_header);
 	size_t payloadLen = m_DataLen - sizeof(ether_dot3_header);

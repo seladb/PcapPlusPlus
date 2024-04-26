@@ -41,11 +41,14 @@ namespace pcpp
 		return "TPKT Layer, version: " + versionStream.str() + ", length: " + lengthStream.str();
 	}
 
-	void TpktLayer::parseNextLayer()
+	void TpktLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 	{
 		size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
 			return;
+
+		if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        	return;
 
 		uint8_t *payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;

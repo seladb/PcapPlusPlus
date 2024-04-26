@@ -141,7 +141,7 @@ namespace pcpp
 		/**
 		 * Each layer is responsible for parsing the next layer
 		 */
-		virtual void parseNextLayer() = 0;
+		virtual void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) = 0;
 
 		/**
 		 * @return The header length in bytes

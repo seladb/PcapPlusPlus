@@ -191,11 +191,14 @@ bool GreLayer::unsetSequenceNumber()
 	return true;
 }
 
-void GreLayer::parseNextLayer()
+void GreLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	gre_basic_header* header = (gre_basic_header*)m_Data;
 	uint8_t* payload = m_Data + headerLen;
@@ -567,8 +570,11 @@ PPP_PPTPLayer::PPP_PPTPLayer(uint8_t address, uint8_t control)
 }
 
 
-void PPP_PPTPLayer::parseNextLayer()
+void PPP_PPTPLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+		
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;

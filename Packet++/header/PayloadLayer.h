@@ -61,7 +61,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PayloadLayer is always last)
 		 */
-		void parseNextLayer() {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * @return Payload data length in bytes

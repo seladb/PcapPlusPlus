@@ -183,7 +183,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (S7CommLayer is always last)
 		 */
-		void parseNextLayer() override {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a S7COMM

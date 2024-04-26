@@ -60,10 +60,13 @@ void VlanLayer::setPriority(uint8_t priority)
 	getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13));
 }
 
-void VlanLayer::parseNextLayer()
+void VlanLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(vlan_header))
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	uint8_t* payload = m_Data + sizeof(vlan_header);
 	size_t payloadLen = m_DataLen - sizeof(vlan_header);

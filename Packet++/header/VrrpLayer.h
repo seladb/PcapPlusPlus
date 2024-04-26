@@ -292,7 +292,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (VRRP layer is always last)
 		 */
-		void parseNextLayer() override {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 		/**
 		 * Calculate the VRRP checksum

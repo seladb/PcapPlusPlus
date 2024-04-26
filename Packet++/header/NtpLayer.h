@@ -650,7 +650,7 @@ namespace pcpp
         // overridden methods
 
         /// Parses the next layer. NTP is the always last so does nothing for this layer
-        void parseNextLayer() {}
+        void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
         /**
          * @return Get the size of the layer (Including the extension and authentication fields if exists)

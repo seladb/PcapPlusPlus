@@ -686,7 +686,7 @@ namespace pcpp
 		 * have data that contains IPv4 header and some L4 header (TCP/UDP/ICMP). This method parses these headers as separate
 		 * layers on top of the ICMP layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return The ICMP header length. This length varies according to the ICMP message type. This length doesn't include

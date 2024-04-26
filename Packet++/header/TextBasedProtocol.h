@@ -220,7 +220,7 @@ public:
 	/**
 	 * Currently set only PayloadLayer for the rest of the data
 	 */
-	virtual void parseNextLayer();
+	void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 	/**
 	 * @return The message length

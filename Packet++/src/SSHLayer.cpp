@@ -29,11 +29,15 @@ SSHLayer* SSHLayer::createSSHMessage(uint8_t* data, size_t dataLen, Layer* prevL
 	return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 }
 
-void SSHLayer::parseNextLayer()
+void SSHLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+
 	m_NextLayer = SSHLayer::createSSHMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 }
 

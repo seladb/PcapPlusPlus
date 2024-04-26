@@ -52,8 +52,11 @@ void NullLoopbackLayer::setFamily(uint32_t family)
 	*m_Data = family;
 }
 
-void NullLoopbackLayer::parseNextLayer()
+void NullLoopbackLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+
 	uint8_t* payload = m_Data + sizeof(uint32_t);
 	size_t payloadLen = m_DataLen - sizeof(uint32_t);
 

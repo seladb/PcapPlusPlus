@@ -49,10 +49,13 @@ bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
 	return setLinkLayerAddr(macAddrAsArr, 6);
 }
 
-void SllLayer::parseNextLayer()
+void SllLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(sll_header))
 		return;
+	
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	uint8_t* payload = m_Data + sizeof(sll_header);
 	size_t payloadLen = m_DataLen - sizeof(sll_header);

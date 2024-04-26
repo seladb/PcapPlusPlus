@@ -99,7 +99,7 @@ namespace pcpp
 		 * Several SSH records can reside in a single packets. This method examins the remaining data and creates additional
 		 * SSH records if applicable
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * Does nothing for this layer

@@ -81,10 +81,13 @@ HeaderField* SipLayer::setContentLength(int contentLength, const std::string &pr
 	return contentLengthField;
 }
 
-void SipLayer::parseNextLayer()
+void SipLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (getLayerPayloadSize() == 0)
 		return;
+	
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	size_t headerLen = getHeaderLen();
 	std::string contentType;

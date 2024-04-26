@@ -217,7 +217,7 @@ public:
 	/**
 	 * Does nothing for this layer (IGMP layer is always last)
 	 */
-	void parseNextLayer() {}
+	void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 	/**
 	 * @return Size of IGMP header = 8B

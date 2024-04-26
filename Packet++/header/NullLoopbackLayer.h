@@ -69,7 +69,7 @@ namespace pcpp
 		 * - for ::PCPP_BSD_AF_INET6_BSD, ::PCPP_BSD_AF_INET6_FREEBSD, ::PCPP_BSD_AF_INET6_DARWIN the next layer is IPv6Layer
 		 * - for other values the next layer in PayloadLayer (unknown protocol)
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return Size of Null/Loopback header = 4B

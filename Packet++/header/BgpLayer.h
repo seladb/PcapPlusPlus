@@ -103,7 +103,7 @@ public:
 	 * Multiple BGP messages can reside in a single packet, and the only layer that can come after a BGP message
 	 * is another BGP message. This method checks for remaining data and parses it as another BGP layer
 	 */
-	void parseNextLayer();
+	void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 	std::string toString() const;
 

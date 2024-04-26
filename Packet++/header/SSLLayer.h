@@ -246,7 +246,7 @@ namespace pcpp
 		 * Several SSL/TLS records can reside in a single packets. So this method checks the remaining data and if it's
 		 * identified as SSL/TLS it creates another SSL/TLS record layer as the next layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		OsiModelLayer getOsiModelLayer() const { return OsiModelPresentationLayer; }
 

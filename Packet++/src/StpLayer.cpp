@@ -76,8 +76,11 @@ StpTopologyChangeBPDULayer::StpTopologyChangeBPDULayer() : StpLayer(sizeof(stp_t
 	setType(0x80);
 }
 
-void StpTopologyChangeBPDULayer::parseNextLayer()
+void StpTopologyChangeBPDULayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+		
 	if (m_DataLen > sizeof(stp_tcn_bpdu))
 		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
 }
@@ -170,8 +173,11 @@ double StpConfigurationBPDULayer::getForwardDelay() const { return getStpConfHea
 
 void StpConfigurationBPDULayer::setForwardDelay(double value) { getStpConfHeader()->forwardDelay = value; }
 
-void StpConfigurationBPDULayer::parseNextLayer()
+void StpConfigurationBPDULayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+		
 	if (m_DataLen > sizeof(stp_conf_bpdu))
 		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
 }
@@ -185,8 +191,11 @@ RapidStpLayer::RapidStpLayer() : StpConfigurationBPDULayer(sizeof(rstp_conf_bpdu
 	setType(0x2);
 }
 
-void RapidStpLayer::parseNextLayer()
+void RapidStpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+
 	if (m_DataLen > sizeof(rstp_conf_bpdu))
 		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, m_Packet);
 }

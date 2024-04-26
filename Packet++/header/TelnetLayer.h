@@ -324,7 +324,7 @@ class TelnetLayer : public Layer
 	// overridden methods
 
 	/// Parses the next layer. Telnet is the always last so does nothing for this layer
-	void parseNextLayer() {}
+	void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
 
 	/**
 	 * @return Get the size of the layer

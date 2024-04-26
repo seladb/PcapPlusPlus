@@ -563,8 +563,11 @@ bool GtpV1Layer::isGTPCMessage() const
 }
 
 
-void GtpV1Layer::parseNextLayer()
+void GtpV1Layer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+		
 	size_t headerLen = getHeaderLen();
 	if (headerLen < sizeof(gtpv1_header))
 	{
@@ -584,6 +587,9 @@ void GtpV1Layer::parseNextLayer()
 		// no data beyond headerLen, nothing to parse further
 		return;
 	}
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	// GTP-U message, try to parse the next layer
 

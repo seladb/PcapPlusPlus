@@ -60,7 +60,7 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Currently only STP supported as next layer
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/// Does nothing for this layer
 		void computeCalculateFields() {}

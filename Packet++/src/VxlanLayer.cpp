@@ -47,10 +47,13 @@ std::string VxlanLayer::toString() const
 	return "VXLAN Layer";
 }
 
-void VxlanLayer::parseNextLayer()
+void VxlanLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(vxlan_header))
 		return;
+	
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	m_NextLayer = new EthLayer(m_Data + sizeof(vxlan_header), m_DataLen - sizeof(vxlan_header), this, m_Packet);
 }

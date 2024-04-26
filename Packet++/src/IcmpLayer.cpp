@@ -552,8 +552,11 @@ icmp_info_reply* IcmpLayer::setInfoReplyData(uint16_t id, uint16_t sequence)
 }
 
 
-void IcmpLayer::parseNextLayer()
+void IcmpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
+		
 	size_t headerLen = getHeaderLen();
 
 	switch (getMessageType())

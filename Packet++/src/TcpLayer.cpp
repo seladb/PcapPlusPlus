@@ -333,11 +333,14 @@ TcpLayer& TcpLayer::operator=(const TcpLayer& other)
 	return *this;
 }
 
-void TcpLayer::parseNextLayer()
+void TcpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	const size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
+	
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	uint8_t* payload = m_Data + headerLen;
 	const size_t payloadLen = m_DataLen - headerLen;

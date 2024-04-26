@@ -98,7 +98,7 @@ namespace pcpp
 		/**
 		 * Parses next layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return Size of ether_dot3_header

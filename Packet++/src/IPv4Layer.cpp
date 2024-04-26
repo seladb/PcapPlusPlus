@@ -237,11 +237,14 @@ IPv4Layer& IPv4Layer::operator=(const IPv4Layer& other)
 	return *this;
 }
 
-void IPv4Layer::parseNextLayer()
+void IPv4Layer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	size_t hdrLen = getHeaderLen();
 	if (m_DataLen <= hdrLen || hdrLen == 0)
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	iphdr* ipHdr = getIPv4Header();
 

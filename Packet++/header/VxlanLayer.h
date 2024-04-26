@@ -121,7 +121,7 @@ namespace pcpp
 		/**
 		 * Next layer for VXLAN is always Ethernet
 		 */
-		void parseNextLayer();
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
 
 		/**
 		 * @return Size of vxlan_header

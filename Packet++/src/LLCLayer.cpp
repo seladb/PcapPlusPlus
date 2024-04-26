@@ -23,10 +23,13 @@ LLCLayer::LLCLayer(uint8_t dsap, uint8_t ssap, uint8_t control)
 	header->control = control;
 }
 
-void LLCLayer::parseNextLayer()
+void LLCLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(llc_header))
 		return;
+
+	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
+        return;
 
 	llc_header *hdr = getLlcHeader();
 	uint8_t *payload = m_Data + sizeof(llc_header);
