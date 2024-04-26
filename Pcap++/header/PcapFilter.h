@@ -20,7 +20,7 @@ struct bpf_program;
  * may output syntax errors that are hard to understand. My experience with BPF was not good, so I decided to make the filters mechanism more
  * structured, easier to understand and less error-prone by creating classes that represent filters. Each possible filter phrase is represented
  * by a class. The filter, at the end, is that class.<BR>
- * For example: the filter "src host 1.1.1.1" will be represented by IPFilter instance; "dst port 80" will be represented by PortFilter, and
+ * For example: the filter "src net 1.1.1.1" will be represented by IPFilter instance; "dst port 80" will be represented by PortFilter, and
  * so on.<BR>
  * So what about complex filters that involve "and", "or"? There are also 2 classes: AndFilter and OrFilter that can store more filters (in a
  * composite idea) and connect them by "and" or "or". For example: "src host 1.1.1.1 and dst port 80" will be represented by an AndFilter that
