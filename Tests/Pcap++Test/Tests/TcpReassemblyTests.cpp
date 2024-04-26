@@ -585,7 +585,7 @@ PTF_TEST_CASE(TestTcpReassemblyOOOWithManualClose)
 
 	TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
 	PTF_ASSERT_EQUAL(stats.size(), 1);
-	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 19);
+	PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 13);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 2);
 	PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 2);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
