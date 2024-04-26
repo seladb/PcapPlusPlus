@@ -140,15 +140,29 @@ int main(int argc, char* argv[])
 				{
 					sourceMac = pcpp::MacAddress(optarg);
 				}
-				catch (std::exception& e) {
+				catch (std::exception&) {
 					EXIT_WITH_ERROR("Source MAC address is not valid");
 				}
 				break;
 			case 'S':
-				sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				try
+				{
+					sourceIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				}
+				catch(const std::exception&)
+				{
+					EXIT_WITH_ERROR("Source IP address is not valid");
+				}
 				break;
 			case 'T':
-				targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				try
+				{
+					targetIP = pcpp::IPv4Address(static_cast<char const *>(optarg));
+				}
+				catch(const std::exception&)
+				{
+					EXIT_WITH_ERROR("Target IP is not valid");
+				}
 				targetIpProvided = true;
 				break;
 			case 'c':
@@ -180,11 +194,6 @@ int main(int argc, char* argv[])
 	if (!targetIpProvided)
 		EXIT_WITH_ERROR("You must provide target IP (-T switch)");
 
-	// verify target IP is value
-	if (!targetIP.isValid())
-		EXIT_WITH_ERROR("Target IP is not valid");
-
-
 	pcpp::PcapLiveDevice* dev = nullptr;
 
 	// Search interface by name or IP
@@ -209,10 +218,10 @@ int main(int argc, char* argv[])
 	if (sourceMac == pcpp::MacAddress::Zero)
 		EXIT_WITH_ERROR("MAC address couldn't be extracted from interface");
 
-	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
+	if (sourceIP == pcpp::IPv4Address::Zero)
 		sourceIP = dev->getIPv4Address();
 
-	if (!sourceIP.isValid() || sourceIP == pcpp::IPv4Address::Zero)
+	if (sourceIP == pcpp::IPv4Address::Zero)
 		EXIT_WITH_ERROR("Source IPv4 address wasn't supplied and couldn't be retrieved from interface");
 
 	// let's go

@@ -1,3 +1,4 @@
+#include <memory>
 #include <iostream>
 #include "stdlib.h"
 #include "PcapFileDevice.h"
@@ -9,7 +10,7 @@ int main(int argc, char* argv[])
 {
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader("input.pcap");
+	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("input.pcap"));
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
@@ -66,6 +67,12 @@ int main(int argc, char* argv[])
 		pcapNgWriter.writePacket(rawPacket);
 	}
 
+	// Use lambda to simplify statistics output
+	auto printStats = [](const std::string& writerName, const pcpp::IPcapDevice::PcapStats& stats) {
+		std::cout << "Written " << stats.packetsRecv << " packets successfully to " << writerName
+			<< " and " << stats.packetsDrop << " packets could not be written" << std::endl;
+	};
+
 	// create the stats object
 	pcpp::IPcapDevice::PcapStats stats;
 
@@ -75,11 +82,11 @@ int main(int argc, char* argv[])
 
 	// read stats from pcap writer and print them
 	pcapWriter.getStatistics(stats);
-	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap writer and " << stats.packetsDrop << " packets could not be written" << std::endl;
+	printStats("pcap writer", stats);
 
 	// read stats from pcap-ng writer and print them
 	pcapNgWriter.getStatistics(stats);
-	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap-ng writer and " << stats.packetsDrop << " packets could not be written" << std::endl;
+	printStats("pcap-ng writer", stats);
 
 	// close reader
 	reader->close();
@@ -88,6 +95,5 @@ int main(int argc, char* argv[])
 	pcapWriter.close();
 	pcapNgWriter.close();
 
-	// free reader memory because it was created by pcpp::IFileReaderDevice::getReader()
-	delete reader;
+	return 0;
 }
