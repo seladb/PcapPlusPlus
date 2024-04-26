@@ -247,8 +247,6 @@ namespace pcpp
 		std::string m_IPv4Mask;
 		int m_Len;
 		IPNetwork m_Network;
-		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
-		void convertToIPAddressWithLen(std::string& ipAddrmodified) const;
 		void updateNetworkFromDeprecatedDataMembers();
 
 		bool hasMask() const { return !m_IPv4Mask.empty(); }
