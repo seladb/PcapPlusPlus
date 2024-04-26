@@ -466,6 +466,14 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * A constructor that creates an instance of the class out of an address and a full prefix length,
+		 * essentially making a network of consisting of only 1 address.
+		 * 
+		 * @param address An address representing the network prefix.
+		 */
+		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u) {}
+
+		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
@@ -569,6 +577,14 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * A constructor that creates an instance of the class out of an address and a full prefix length,
+		 * essentially making a network of consisting of only 1 address.
+		 *
+		 * @param address An address representing the network prefix.
+		 */
+		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128u) {}
+
+		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
@@ -671,6 +687,21 @@ namespace pcpp
 	class IPNetwork
 	{
 	public:
+		/**
+		 * A constructor that creates an instance of the class out of an IPv4 address and a full prefix length,
+		 * essentially making a network of consisting of only 1 address.
+		 *
+		 * @param address An address representing the network prefix.
+		 */
+		explicit IPNetwork(const IPv4Address& address) : IPNetwork(address, 32u) {}
+		/**
+		 * A constructor that creates an instance of the class out of an IPv6 address and a full prefix length,
+	     * essentially making a network of consisting of only 1 address.
+	     *
+	     * @param address An address representing the network prefix.
+		 */
+		explicit IPNetwork(const IPv6Address& address) : IPNetwork(address, 128u) {}
+
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
