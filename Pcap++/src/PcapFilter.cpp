@@ -249,14 +249,28 @@ void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
 	}
 }
 
+void IPFilter::updateNetworkFromDeprecatedDataMembers()
+{
+	if (hasMask())
+	{
+		m_Network = IPNetwork(m_Address, m_IPv4Mask);
+	}
+	else if (m_Len > 0)
+	{
+		m_Network = IPNetwork(m_Address, m_Len);
+	}
+	else
+	{
+		m_Network = IPNetwork(m_Address);
+	}
+}
+
 void IPFilter::parseToString(std::string& result)
 {
 	std::string dir;
-	std::string ipAddr = m_Address.toString();
-	std::string mask = m_IPv4Mask;
-	std::string ipProto = m_Address.isIPv6() ? "ip6" : "ip";
-	convertToIPAddressWithMask(ipAddr, mask);
-	convertToIPAddressWithLen(ipAddr);
+	std::string ipAddr = m_Network.toString();
+	std::string ipProto = m_Network.isIPv6Network() ? "ip6" : "ip";
+
 	parseDirection(dir);
 
 	result.reserve(ipProto.size() + dir.size() + ipAddr.size() + 10 /* Hard-coded strings */);
@@ -265,18 +279,6 @@ void IPFilter::parseToString(std::string& result)
 	result += dir;
 	result += " net ";
 	result += ipAddr;
-
-	// Mask and Len appends might require reallocation, but they also might not depending on the reserve implementation.
-	if (m_IPv4Mask != "")
-	{
-		result += " mask ";
-		result += mask;
-	}
-	else if (m_Len > 0)
-	{
-		result += '/';
-		result += std::to_string(m_Len);
-	}
 }
 
 void IPv4IDFilter::parseToString(std::string& result)

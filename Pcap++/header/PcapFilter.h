@@ -246,8 +246,10 @@ namespace pcpp
 		IPAddress m_Address;
 		std::string m_IPv4Mask;
 		int m_Len;
+		IPNetwork m_Network;
 		void convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const;
 		void convertToIPAddressWithLen(std::string& ipAddrmodified) const;
+		void updateNetworkFromDeprecatedDataMembers();
 
 		bool hasMask() const { return !m_IPv4Mask.empty(); }
 	public:
@@ -264,7 +266,7 @@ namespace pcpp
 		 * @param[in] ipAddress The IP address to build the filter with.
 		 * @param[in] dir The address direction to filter (source or destination)
 		 */
-		IPFilter(const IPAddress& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
+		IPFilter(const IPAddress& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0), m_Network(ipAddress) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
@@ -287,7 +289,7 @@ namespace pcpp
 		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise
 		 * parsing this filter will fail
 		 */
-		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0), m_Network(ipAddress, ipv4Mask) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
@@ -310,7 +312,7 @@ namespace pcpp
 		 * @param[in] len The subnet to use (e.g "/24"). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
 		 * @throws std::invalid_argument The provided length is out of acceptable range.
 		 */
-		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len)
+		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len), m_Network(ipAddress, len)
 		{
 			if (ipAddress.isIPv4() && (m_Len < 0 || m_Len > 32))
 				throw std::invalid_argument("IPv4 subnet must be between 0 and 32.");
@@ -341,6 +343,7 @@ namespace pcpp
 			}
 
 			m_Address = ipAddress;
+			updateNetworkFromDeprecatedDataMembers();
 		}
 
 		/**
@@ -358,12 +361,16 @@ namespace pcpp
 
 			this->clearLen();
 			m_IPv4Mask = ipv4Mask;
+			updateNetworkFromDeprecatedDataMembers();
 		}
 
 		/**
 		 * Clears the IPv4 subnet mask.
 		 */
-		void clearMask() { m_IPv4Mask = ""; }
+		void clearMask() { 
+			m_IPv4Mask = "";
+			updateNetworkFromDeprecatedDataMembers();
+		}
 
 		/**
 		 * Set the subnet (IPv4) or prefix length (IPv6). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
@@ -375,13 +382,19 @@ namespace pcpp
 				throw std::invalid_argument("IPv4 subnet must be between 0 and 32.");
 			else if (m_Address.isIPv6() && (m_Len < 0 || m_Len > 128))
 				throw std::invalid_argument("IPv6 prefix length must be between 0 and 128.");
-			this->clearMask(); m_Len = len;
+			this->clearMask();
+			m_Len = len;
+			updateNetworkFromDeprecatedDataMembers();
 		}
 
 		/**
 		 * Clears the subnet mask length.
 		 */
-		void clearLen() { m_Len = 0; }
+		void clearLen()
+		{
+			m_Len = 0;
+			updateNetworkFromDeprecatedDataMembers();
+		}
 	};
 
 
