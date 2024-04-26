@@ -45,15 +45,15 @@ namespace pcpp
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const override { return m_DataLen; }
 
 		/// Does nothing for this layer
-		void computeCalculateFields() {}
+		void computeCalculateFields() override {}
 
 		/**
 		 * @return The OSI layer level of SMTP (Application Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 	};
 
 	/**

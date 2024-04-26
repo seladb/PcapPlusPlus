@@ -316,7 +316,7 @@ namespace pcpp
 		/**
 		 * @return The size written in radius_header#length
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Does nothing for this layer, RADIUS is always last
@@ -326,11 +326,11 @@ namespace pcpp
 		/**
 		 * Calculate and store the value of radius_header#length according to the layer size
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 	};
 
 

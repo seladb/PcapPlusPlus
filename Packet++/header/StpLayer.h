@@ -785,7 +785,7 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const { return "Multiple Spanning Tree"; }
+		std::string toString() const override { return "Multiple Spanning Tree"; }
 
 		/**
 		 * A static method that validates the input data

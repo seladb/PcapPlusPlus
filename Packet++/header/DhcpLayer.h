@@ -793,7 +793,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref dhcp_header + size of options
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const override { return m_DataLen; }
 
 		/**
 		 * Calculate the following fields:
@@ -804,11 +804,11 @@ namespace pcpp
 		 * - @ref dhcp_header#hardwareType = 1 (Ethernet)
 		 * - @ref dhcp_header#hardwareAddressLength = 6 (MAC address length)
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
 	private:
 

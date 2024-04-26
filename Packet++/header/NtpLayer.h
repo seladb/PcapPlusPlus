@@ -655,20 +655,20 @@ namespace pcpp
         /**
          * @return Get the size of the layer (Including the extension and authentication fields if exists)
          */
-        size_t getHeaderLen() const { return m_DataLen; }
+        size_t getHeaderLen() const override { return m_DataLen; }
 
         /// Does nothing for this layer
-        void computeCalculateFields() {}
+        void computeCalculateFields() override {}
 
         /**
          * @return The OSI layer level of NTP (Application Layer).
          */
-        OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+        OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
         /**
          * @return Returns the protocol info as readable string
          */
-        std::string toString() const;
+        std::string toString() const override;
     };
 
 } // namespace pcpp

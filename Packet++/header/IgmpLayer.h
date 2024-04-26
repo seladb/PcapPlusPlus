@@ -222,11 +222,11 @@ public:
 	/**
 	 * @return Size of IGMP header = 8B
 	 */
-	size_t getHeaderLen() const { return sizeof(igmp_header); }
+	size_t getHeaderLen() const override { return sizeof(igmp_header); }
 
-	std::string toString() const;
+	std::string toString() const override;
 
-	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+	OsiModelLayer getOsiModelLayer() const override { return OsiModelNetworkLayer; }
 };
 
 

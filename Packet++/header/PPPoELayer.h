@@ -406,9 +406,9 @@ namespace pcpp
 		/**
 		 * @return The header length which is size of strcut pppoe_header plus the total size of tags
 		 */
-		virtual size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
-		virtual std::string toString() const { return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")"; }
+		virtual std::string toString() const override { return "PPP-over-Ethernet Discovery (" + codeToString((PPPoELayer::PPPoECode)getPPPoEHeader()->code) + ")"; }
 
 	private:
 		TLVRecordReader<PPPoETag> m_TagReader;
