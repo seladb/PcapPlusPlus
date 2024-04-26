@@ -13,18 +13,7 @@ We encourage you to submit a pull request if you have a solution or fix for anyt
 
 ## Reporting a Bug :bug: :bug:
 
-Simply use GitHub issues to report a bug with related information to debug the issue :pencil:.
-
-When filing your issue please make sure you provide a reproducible test case. Please also provide as much information about your environment as possible. We never know what information will be pertinent when trying narrow down the issue. Please include at least the following information:
-
-- The version you're trying to run (a released version or the latest from master)
-- Platform you're running on (MacOS, Linux, Windows, Android, FreeBSD + OS version)
-- Architecture you're running on (32bit or 64bit)
-- If working with libpcap, DPDK or PF_RING please specify the version you're using
-- If working with DPDK, please make sure you can not reproduce the issue a clean DPDK version, meaning a version without PcapPlusPlus
-- If you can provide a pcap file or anything else that will help us to reproduce the bug / verify the fix, please do so
-
-If you already looked at the code and found the root cause - that's great :four_leaf_clover:! You can either create a GitHub pull request or point us to the exact place in the code where you think the bug is.
+Simply use GitHub issues to report a bug with related information to debug the issue :pencil:. Please check the [CONTRIBUTING.md](https://github.com/seladb/PcapPlusPlus/blob/master/CONTRIBUTING.md) for details.
 
 ## Reporting a Vulnerability :closed_lock_with_key: :eyes:
 
@@ -35,7 +24,5 @@ You can use the GitHub issues to report a vulnerability publicly. But if you fin
 - Affected versions
 - If applicable, a data sample (preferably `pcap/pcapng`) to reproduce
 - If known, any mitigations or fixes for the issue
-
-This project follows a 30-day disclosure timeline for private vulnerability reports. Vulnerabilities will be listed in GitHub issues 30 days after the report is received, with the `vulnerability` tag :unlock:.
 
 If you already looked at the code and found the root cause - that's great :four_leaf_clover:! You can create a GitHub pull request as soon as possible with fix to keep safe everyone.
