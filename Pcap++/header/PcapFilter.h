@@ -353,7 +353,7 @@ namespace pcpp
 
 		/**
 		 * Set the subnet mask
-		 * @param[in] netmask The mask to use. The mask should match the IP versrion and be in a valid format. 
+		 * @param[in] netmask The mask to use. The mask should match the IP versrion and be in a valid format.
 		 * Valid formats:
 		 *	 IPv4 - (X.X.X.X) - 'X' - a number in the range of 0 and 255 (inclusive)):
 		 *   IPv6 - (YYYY:YYYY:YYYY:YYYY:YYYY:YYYY:YYYY:YYYY) - 'Y' - a hexadecimal digit [0 - 9, A - F]. Short form IPv6 formats are allowed.
