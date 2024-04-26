@@ -89,7 +89,7 @@ uint16_t UdpLayer::calculateChecksum(bool writeResultToPacket)
 	return checksumRes;
 }
 
-void UdpLayer::arseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
+void UdpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
 {
 	if (m_DataLen <= sizeof(udphdr))
 		return;
