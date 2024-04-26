@@ -154,109 +154,12 @@ std::string IFilterWithOperator::parseOperator()
 	}
 }
 
-void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const
-{
-	if (!hasMask())
-		return;
-
-	// Handle the mask
-
-	// The following code lines verify both ipAddress and ipv4Mask are valid IPv4 addresses
-	// The IPv4 limitation comes from the fact libPcap/WinPcap/Npcap doesn't support mask for IPv6 addresses
-	if (!m_Address.isIPv4())
-	{
-		PCPP_LOG_ERROR("IP filter with mask must be used with IPv4 valid address. Setting the mask to an empty value");
-		mask.clear();
-		return;
-	}
-
-	IPv4Address maskAsAddr;
-	try
-	{
-		maskAsAddr = IPv4Address(m_IPv4Mask);
-	}
-	catch(const std::exception&)
-	{
-		PCPP_LOG_ERROR("Invalid IPv4 mask '" << m_IPv4Mask << "', setting the mask to an empty value");
-		mask.clear();
-		return;
-	}
-
-	// If all addresses are IPv4 valid addresses, make sure ipAddress matches the mask. If it's not, mask the address with the mask
-	// The reason for doing that is libPcap/WinPcap/Npcap doesn't allow filtering an IP address that doesn't match the mask
-
-	uint32_t addrAsIntAfterMask = m_Address.getIPv4().toInt() & maskAsAddr.toInt();
-	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
-}
-
-void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
-{
-	if (m_Len == 0)
-		return;
-
-	// Handle the length
-
-	// The following code lines verify IP address is valid (IPv4 or IPv6)
-
-	IPAddress ipAddr;
-	try
-	{
-		ipAddr = IPAddress(ipAddrmodified);
-	}
-	catch(const std::exception&)
-	{
-		PCPP_LOG_ERROR("Invalid IP address '" << ipAddrmodified << "', setting len to zero");
-		return;
-	}
-
-	if (ipAddr.getType() == IPAddress::IPv4AddressType)
-	{
-		uint32_t addrAsInt = ipAddr.getIPv4().toInt();
-		uint32_t mask = static_cast<uint32_t>(-1) >> ((sizeof(uint32_t) * 8) - m_Len);
-		addrAsInt &= mask;
-		ipAddrmodified = IPv4Address(addrAsInt).toString();
-	}
-	else if (ipAddr.getType() == IPAddress::IPv6AddressType)
-	{
-		std::array<uint8_t, 16> addrAsBytes{};
-		{
-			const uint8_t* bytesArrInternal = ipAddr.getIPv6().toBytes();
-			std::copy(bytesArrInternal, bytesArrInternal + 16, addrAsBytes.begin());
-		}
-
-		std::array<uint8_t, 16> mask{};
-		const int fullyMaskedBytes = m_Len / 8;
-		const int partialMaskBits = m_Len % 8;
-		for (size_t i = 0; i < static_cast<size_t>(fullyMaskedBytes) && i < mask.size(); i++)
-		{
-			mask[i] = static_cast<uint8_t>(-1);
-		}
-		if (static_cast<size_t>(fullyMaskedBytes) < mask.size())
-		{
-			mask[fullyMaskedBytes] = static_cast<uint8_t>(-1) << (8 - partialMaskBits);
-		}
-		for (size_t i = 0; i < addrAsBytes.size(); i++)
-		{
-			addrAsBytes[i] &= mask[i];
-		}
-
-		ipAddrmodified = IPv6Address(addrAsBytes.data()).toString();
-	}
-	else
-	{
-		// Realistically the code flow should never get to this block.
-		throw std::logic_error("Unsupported IP address version.");
-	}
-}
-
 void IPFilter::parseToString(std::string& result)
 {
 	std::string dir;
-	std::string ipAddr = m_Address.toString();
-	std::string mask = m_IPv4Mask;
-	std::string ipProto = m_Address.isIPv6() ? "ip6" : "ip";
-	convertToIPAddressWithMask(ipAddr, mask);
-	convertToIPAddressWithLen(ipAddr);
+	std::string ipAddr = m_Network.toString();
+	std::string ipProto = m_Network.isIPv6Network() ? "ip6" : "ip";
+
 	parseDirection(dir);
 
 	result.reserve(ipProto.size() + dir.size() + ipAddr.size() + 10 /* Hard-coded strings */);
@@ -265,18 +168,6 @@ void IPFilter::parseToString(std::string& result)
 	result += dir;
 	result += " net ";
 	result += ipAddr;
-
-	// Mask and Len appends might require reallocation, but they also might not depending on the reserve implementation.
-	if (m_IPv4Mask != "")
-	{
-		result += " mask ";
-		result += mask;
-	}
-	else if (m_Len > 0)
-	{
-		result += '/';
-		result += std::to_string(m_Len);
-	}
 }
 
 void IPv4IDFilter::parseToString(std::string& result)

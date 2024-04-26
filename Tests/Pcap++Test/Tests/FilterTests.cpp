@@ -454,7 +454,9 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	//-------------------------
 	pcpp::IPFilter ipFilterWithMask("212.199.202.9", pcpp::SRC, "255.255.255.0");
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.0 mask 255.255.255.0");
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.0/24");
+
+	PTF_ASSERT_RAISES(ipFilterWithMask.setAddr("BogusIPAddressString"), std::invalid_argument, "Not a valid IP address: BogusIPAddressString");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(ipFilterWithMask));
@@ -474,8 +476,13 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	ipFilterWithMask.clearMask();
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9");
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9/32");
 
+	ipFilterWithMask = pcpp::IPFilter(pcpp::IPNetwork("212.199.202.9/24"), pcpp::Direction::DST);
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip and dst net 212.199.202.0/24");
+
+	ipFilterWithMask.setDirection(pcpp::Direction::SRC);
 	ipFilterWithMask.setLen(24);
 	ipFilterWithMask.setAddr("212.199.202.9");
 	ipFilterWithMask.parseToString(filterAsString);
@@ -498,21 +505,27 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	ipFilterWithMask.clearLen();
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9");
+	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9/32");
 
 	// IPv6 tests
 
 	ipFilterWithMask.setMask("255.255.255.0");
-	PTF_ASSERT_RAISES(ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF"), std::invalid_argument,
-		"Attempting to set non-IPv4 address while an IPv4 mask is set. Please clear the mask before setting a non-IPv4 address.");
-	ipFilterWithMask.clearMask();
-
 	ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF");
 	ipFilterWithMask.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff");
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:d00::/24");
+	ipFilterWithMask.clearMask();
 
-	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::invalid_argument,
-		"Attempting to set an IPv4 mask on non-IPv4 address. Please set an IPv4 address before setting the mask.");
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff/128");
+
+	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::invalid_argument, "Netmask is not valid IPv6 format: 255.255.255.255");
+	ipFilterWithMask.setMask("ffff:ffff:ffff::");
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333::/48");
+
+	ipFilterWithMask.setNetwork(pcpp::IPNetwork("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF/64"));
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444::/64");
 
 	ipFilterWithMask.setLen(48);
 	ipFilterWithMask.parseToString(filterAsString);
@@ -731,20 +744,20 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	filterVec.push_back(&protoFilter);
 	pcpp::AndFilter andFilter(filterVec);
 	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)");
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
 
 	andFilter.addFilter(&ipFilter);
 	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp) and (ip and src net 10.0.0.6)");
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp) and (ip and src net 10.0.0.6/32)");
 
 	andFilter.removeFilter(&ipFilter);
 	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
+	PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6/32)");
 
 	{
 		pcpp::OrFilter externalFilter;
 		andFilter.removeFilter(&externalFilter);
-		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6)");
+		PTF_ASSERT_EQUAL(filterAsString, "(udp) and (ip and src net 10.0.0.6/32)");
 	}
 
 	andFilter.clearAllFilters();
@@ -753,7 +766,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	andFilter.setFilters(filterVec);
 	andFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6) and (udp)");
+	PTF_ASSERT_EQUAL(filterAsString, "(ip and src net 10.0.0.6/32) and (udp)");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(andFilter));
@@ -793,7 +806,7 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	pcpp::OrFilter orFilter(filterVec);
 
 	orFilter.parseToString(filterAsString);
-	PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1))");
+	PTF_ASSERT_EQUAL(filterAsString, "(arp) or ((proto 47) and (ip and src or dst net 20.0.0.1/32))");
 
 	PTF_ASSERT_TRUE(fileReaderDev3.open());
 	PTF_ASSERT_TRUE(fileReaderDev3.setFilter(orFilter));
