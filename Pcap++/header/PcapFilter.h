@@ -310,13 +310,7 @@ namespace pcpp
 		 * @param[in] len The subnet to use (e.g "/24"). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
 		 * @throws std::invalid_argument The provided length is out of acceptable range.
 		 */
-		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len), m_Network(ipAddress, len)
-		{
-			if (ipAddress.isIPv4() && (m_Len < 0 || m_Len > 32))
-				throw std::invalid_argument("IPv4 subnet must be between 0 and 32.");
-			else if (ipAddress.isIPv6() && (m_Len < 0 || m_Len > 128))
-				throw std::invalid_argument("IPv6 prefix length must be between 0 and 128.");
-		}
+		IPFilter(const IPAddress& ipAddress, Direction dir, int len) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(len), m_Network(ipAddress, len) {}
 
 		/**
 		 * A constructor that enables to filter by a predefined network object.
