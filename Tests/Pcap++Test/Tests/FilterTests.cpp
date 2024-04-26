@@ -455,6 +455,8 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	pcpp::IPFilter ipFilterWithMask("212.199.202.9", pcpp::SRC, "255.255.255.0");
 	ipFilterWithMask.parseToString(filterAsString);
 	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.0/24");
+	
+	PTF_ASSERT_RAISES(ipFilterWithMask.setAddr("BogusIPAddressString"), std::invalid_argument, "Not a valid IP address: BogusIPAddressString");
 
 	PTF_ASSERT_TRUE(fileReaderDev2.open());
 	PTF_ASSERT_TRUE(fileReaderDev2.setFilter(ipFilterWithMask));
@@ -508,16 +510,18 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	// IPv6 tests
 
 	ipFilterWithMask.setMask("255.255.255.0");
-	PTF_ASSERT_RAISES(ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF"), std::invalid_argument,
-		"Attempting to set non-IPv4 address while an IPv4 mask is set. Please clear the mask before setting a non-IPv4 address.");
+	ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF");
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:d00::/24");
 	ipFilterWithMask.clearMask();
 
-	ipFilterWithMask.setAddr("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF");
 	ipFilterWithMask.parseToString(filterAsString);
 	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444:cccc:dddd:eeee:ffff/128");
 
-	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::invalid_argument,
-		"Attempting to set an IPv4 mask on non-IPv4 address. Please set an IPv4 address before setting the mask.");
+	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::invalid_argument, "Netmask is not valid IPv6 format: 255.255.255.255");
+	ipFilterWithMask.setMask("ffff:ffff:ffff::");
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333::/48");
 
 	ipFilterWithMask.setNetwork(pcpp::IPNetwork("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF/64"));
 	ipFilterWithMask.parseToString(filterAsString);

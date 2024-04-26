@@ -154,22 +154,6 @@ std::string IFilterWithOperator::parseOperator()
 	}
 }
 
-void IPFilter::updateNetworkFromDeprecatedDataMembers()
-{
-	if (hasMask())
-	{
-		m_Network = IPNetwork(m_Address, m_IPv4Mask);
-	}
-	else if (m_Len > 0)
-	{
-		m_Network = IPNetwork(m_Address, m_Len);
-	}
-	else
-	{
-		m_Network = IPNetwork(m_Address);
-	}
-}
-
 void IPFilter::parseToString(std::string& result)
 {
 	std::string dir;
