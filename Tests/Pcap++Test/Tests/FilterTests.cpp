@@ -476,6 +476,11 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 	ipFilterWithMask.parseToString(filterAsString);
 	PTF_ASSERT_EQUAL(filterAsString, "ip and src net 212.199.202.9/32");
 
+	ipFilterWithMask = pcpp::IPFilter(pcpp::IPNetwork("212.199.202.9/24"), pcpp::Direction::DST);
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip and dst net 212.199.202.0/24");
+
+	ipFilterWithMask.setDirection(pcpp::Direction::SRC);
 	ipFilterWithMask.setLen(24);
 	ipFilterWithMask.setAddr("212.199.202.9");
 	ipFilterWithMask.parseToString(filterAsString);
@@ -513,6 +518,10 @@ PTF_TEST_CASE(TestPcapFiltersOffline)
 
 	PTF_ASSERT_RAISES(ipFilterWithMask.setMask("255.255.255.255"), std::invalid_argument,
 		"Attempting to set an IPv4 mask on non-IPv4 address. Please set an IPv4 address before setting the mask.");
+
+	ipFilterWithMask.setNetwork(pcpp::IPNetwork("2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF/64"));
+	ipFilterWithMask.parseToString(filterAsString);
+	PTF_ASSERT_EQUAL(filterAsString, "ip6 and src net 2001:db8:3333:4444::/64");
 
 	ipFilterWithMask.setLen(48);
 	ipFilterWithMask.parseToString(filterAsString);

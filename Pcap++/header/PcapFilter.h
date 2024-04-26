@@ -318,7 +318,25 @@ namespace pcpp
 				throw std::invalid_argument("IPv6 prefix length must be between 0 and 128.");
 		}
 
+		/**
+		 * A constructor that enables to filter by a predefined network object.
+		 * @param[in] network The network to use when filtering. IP address and subnet mask are taken from the network object.
+		 * @param[in] dir The address direction to filter (source or destination)
+		 */
+		IPFilter(const IPNetwork& network, Direction dir) : IFilterWithDirection(dir), m_Address(network.getNetworkPrefix()), m_IPv4Mask(""), m_Len(network.getPrefixLen()), m_Network(network) {}
+
 		void parseToString(std::string& result) override;
+
+		/**
+		 * Set the network to build the filter with.
+		 * @param[in] The IP Network object to be used when building the filter.
+		 */
+		void setNetwork(const IPNetwork& network) { 
+			m_Network = network;
+			m_Address = m_Network.getNetworkPrefix();
+			m_Len = m_Network.getPrefixLen();
+			m_IPv4Mask = "";
+		}
 
 		/**
 		 * Set the IP address
