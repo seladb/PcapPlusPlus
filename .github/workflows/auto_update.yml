@@ -2,7 +2,7 @@ name: Auto Update
 
 on:
   schedule:
-    - cron: '10 10 15 * *'
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
 
 jobs:
   precommit-update:
