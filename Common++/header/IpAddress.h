@@ -688,19 +688,12 @@ namespace pcpp
 	{
 	public:
 		/**
-		 * A constructor that creates an instance of the class out of an IPv4 address and a full prefix length,
-		 * essentially making a network of consisting of only 1 address.
-		 *
-		 * @param address An address representing the network prefix.
-		 */
-		explicit IPNetwork(const IPv4Address& address) : IPNetwork(address, 32u) {}
-		/**
-		 * A constructor that creates an instance of the class out of an IPv6 address and a full prefix length,
+		 * A constructor that creates an instance of the class out of an IP address and a full prefix length,
 	     * essentially making a network of consisting of only 1 address.
 	     *
 	     * @param address An address representing the network prefix.
 		 */
-		explicit IPNetwork(const IPv6Address& address) : IPNetwork(address, 128u) {}
+		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u) {}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
