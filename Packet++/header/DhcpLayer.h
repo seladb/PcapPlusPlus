@@ -788,7 +788,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (DhcpLayer is always last)
 		 */
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override {}
 
 		/**
 		 * @return The size of @ref dhcp_header + size of options

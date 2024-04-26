@@ -577,7 +577,7 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return The size of Rapid STP message
 		 */
-		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
+		size_t getHeaderLen() const override { return sizeof(rstp_conf_bpdu); }
 
 		/// Parses next layer
 		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override;
@@ -586,7 +586,7 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const { return "Rapid Spanning Tree"; }
+		std::string toString() const override { return "Rapid Spanning Tree"; }
 
 		/**
 		 * A static method that validates the input data
@@ -780,7 +780,7 @@ typedef stp_tcn_bpdu stp_header;
 		// overridden methods
 
 		/// Parses next layer
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override {}
 
 		/**
 		 * @return Returns the protocol info as readable string

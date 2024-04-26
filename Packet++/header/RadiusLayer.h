@@ -321,7 +321,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer, RADIUS is always last
 		 */
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override {}
 
 		/**
 		 * Calculate and store the value of radius_header#length according to the layer size

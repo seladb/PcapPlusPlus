@@ -61,7 +61,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PacketTrailerLayer is always last)
 		 */
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override {}
 
 		/**
 		 * @return trailer data length in bytes

@@ -113,7 +113,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (ArpLayer is always last)
 		 */
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override {}
 
 		/**
 		 * @return The size of @ref arphdr

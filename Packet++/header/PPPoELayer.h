@@ -401,7 +401,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PPPoE discovery is always the last layer)
 		 */
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) {}
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override {}
 
 		/**
 		 * @return The header length which is size of strcut pppoe_header plus the total size of tags
