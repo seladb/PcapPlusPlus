@@ -331,7 +331,7 @@ namespace pcpp
 		 * Set the network to build the filter with.
 		 * @param[in] The IP Network object to be used when building the filter.
 		 */
-		void setNetwork(const IPNetwork& network) { 
+		void setNetwork(const IPNetwork& network) {
 			m_Network = network;
 			m_Address = m_Network.getNetworkPrefix();
 			m_Len = m_Network.getPrefixLen();
@@ -383,7 +383,7 @@ namespace pcpp
 		/**
 		 * Clears the IPv4 subnet mask.
 		 */
-		void clearMask() { 
+		void clearMask() {
 			m_IPv4Mask = "";
 			updateNetworkFromDeprecatedDataMembers();
 		}

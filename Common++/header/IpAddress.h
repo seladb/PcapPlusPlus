@@ -49,7 +49,7 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
-		 * 
+		 *
 		 * @param[in] addrAsString The std::string representation of the address
 		 * @throws std::invalid_argument The provided string does not represent a valid IPv4 address.
 		 */
@@ -183,7 +183,7 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
-		 * 
+		 *
 		 * @param[in] addrAsString The std::string representation of the address
 		 * @throws std::invalid_argument The provided string does not represent a valid IPv6 address.
 		 */
@@ -329,7 +329,7 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
-		 * 
+		 *
 		 * @param[in] addrAsString The std::string representation of the address
 		 * @throws std::invalid_argument The provided string does not represent a valid IPv4 or IPv6 address.
 		 */
@@ -468,7 +468,7 @@ namespace pcpp
 		/**
 		 * A constructor that creates an instance of the class out of an address and a full prefix length,
 		 * essentially making a network of consisting of only 1 address.
-		 * 
+		 *
 		 * @param address An address representing the network prefix.
 		 */
 		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u) {}
@@ -478,7 +478,7 @@ namespace pcpp
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		 * exception is thrown
-		 * @param prefixLen A number between 0 and 32 representing the prefix length. 
+		 * @param prefixLen A number between 0 and 32 representing the prefix length.
 		 * @throws std::invalid_argument Prefix length is out of acceptable range.
 		 */
 		IPv4Network(const IPv4Address& address, uint8_t prefixLen);
