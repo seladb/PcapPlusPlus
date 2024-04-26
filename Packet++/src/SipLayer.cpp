@@ -85,7 +85,7 @@ void SipLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilL
 {
 	if (getLayerPayloadSize() == 0)
 		return;
-	
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 

@@ -80,7 +80,7 @@ void StpTopologyChangeBPDULayer::parseNextLayer(ProtocolType parseUntil, OsiMode
 {
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
-		
+
 	if (m_DataLen > sizeof(stp_tcn_bpdu))
 		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
 }
@@ -177,7 +177,7 @@ void StpConfigurationBPDULayer::parseNextLayer(ProtocolType parseUntil, OsiModel
 {
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
-		
+
 	if (m_DataLen > sizeof(stp_conf_bpdu))
 		m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
 }

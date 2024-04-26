@@ -47,7 +47,7 @@ void NflogLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUnti
 {
 	if (m_DataLen <= sizeof(nflog_header))
 		return;
-	
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 

@@ -197,7 +197,7 @@ void IPv6Layer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntil
 
 	if (m_DataLen <= headerLen)
 		return;
-	
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 

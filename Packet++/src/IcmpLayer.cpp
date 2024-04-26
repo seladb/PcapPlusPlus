@@ -556,7 +556,7 @@ void IcmpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntil
 {
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
-		
+
 	size_t headerLen = getHeaderLen();
 
 	switch (getMessageType())

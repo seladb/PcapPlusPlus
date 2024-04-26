@@ -567,7 +567,7 @@ void GtpV1Layer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUnti
 {
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
-		
+
 	size_t headerLen = getHeaderLen();
 	if (headerLen < sizeof(gtpv1_header))
 	{

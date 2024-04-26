@@ -53,7 +53,7 @@ void SllLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilL
 {
 	if (m_DataLen <= sizeof(sll_header))
 		return;
-	
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 

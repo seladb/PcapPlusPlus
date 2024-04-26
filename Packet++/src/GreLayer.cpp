@@ -574,7 +574,7 @@ void PPP_PPTPLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseU
 {
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
-		
+
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;

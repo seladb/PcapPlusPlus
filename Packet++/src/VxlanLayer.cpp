@@ -51,7 +51,7 @@ void VxlanLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUnti
 {
 	if (m_DataLen <= sizeof(vxlan_header))
 		return;
-	
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 

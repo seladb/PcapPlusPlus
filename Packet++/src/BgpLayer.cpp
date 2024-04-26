@@ -81,7 +81,7 @@ void BgpLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilL
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen || headerLen == 0)
 		return;
-		
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 

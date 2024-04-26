@@ -119,7 +119,7 @@ void ESPLayer::parseNextLayer(ProtocolType parseUntil, OsiModelLayer parseUntilL
 {
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
-		
+
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;

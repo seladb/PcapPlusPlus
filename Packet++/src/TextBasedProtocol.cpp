@@ -413,7 +413,7 @@ void TextBasedProtocolMessage::parseNextLayer(ProtocolType parseUntil, OsiModelL
 	size_t headerLen = getHeaderLen();
 	if (m_DataLen <= headerLen)
 		return;
-	
+
 	if (getProtocol() == parseUntil || getOsiModelLayer() == parseUntilLayer)
         return;
 
