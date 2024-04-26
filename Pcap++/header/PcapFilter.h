@@ -251,6 +251,13 @@ namespace pcpp
 
 		bool hasMask() const { return !m_IPv4Mask.empty(); }
 	public:
+		/**
+		 * The basic constructor that creates the filter from an IP address string and direction (source or destination)
+		 * @param[in] ipAddress The IP address to build the filter with.
+		 * @param[in] dir The address direction to filter (source or destination)
+		 * @throws std::invalid_argument The provided address is not a valid IPv4 or IPv6 address.
+		 */
+		IPFilter(const std::string& ipAddress, Direction dir) : IPFilter(IPAddress(ipAddress), dir) {}
 
 		/**
 		 * The basic constructor that creates the filter from an IP address and direction (source or destination)
@@ -258,6 +265,17 @@ namespace pcpp
 		 * @param[in] dir The address direction to filter (source or destination)
 		 */
 		IPFilter(const IPAddress& ipAddress, Direction dir) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(""), m_Len(0) {}
+
+		/**
+		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example: "filter only IP addresses that matches
+		 * the subnet 10.0.0.x"
+		 * @param[in] ipAddress The IPv4 address to use. Only the part of the address that is not masked will be matched. For example: if the address
+		 * is "1.2.3.4" and the mask is "255.255.255.0" than the part of the address that will be matched is "1.2.3.X".
+		 * @param[in] dir The address direction to filter (source or destination)
+		 * @param[in] ipv4Mask The mask to use. Mask should also be in a valid IPv4 format (i.e x.x.x.x), otherwise parsing this filter will fail
+		 * @throws std::invalid_argument The provided address is not a valid IPv4 address.
+		 */
+		IPFilter(const std::string& ipAddress, Direction dir, const std::string& ipv4Mask) : IPFilter(IPv4Address(ipAddress), dir, ipv4Mask) {}
 
 		/**
 		 * A constructor that enable to filter only part of the address by using a mask (aka subnet). For example:
@@ -270,6 +288,17 @@ namespace pcpp
 		 * parsing this filter will fail
 		 */
 		IPFilter(const IPv4Address& ipAddress, Direction dir, const std::string& ipv4Mask) : IFilterWithDirection(dir), m_Address(ipAddress), m_IPv4Mask(ipv4Mask), m_Len(0) {}
+
+		/**
+		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the subnet 10.0.0.3/24" which means
+		 * the part of the address that will be matched is "10.0.0.X"
+		 * @param[in] ipAddress The IP address to use. Only the part of the address that is not masked will be matched. For example: if the address
+		 * is "1.2.3.4" and the subnet is "/24" than the part of the address that will be matched is "1.2.3.X".
+		 * @param[in] dir The address direction to filter (source or destination)
+		 * @param[in] len The subnet to use (e.g "/24"). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
+		 * @throws std::invalid_argument The provided address is not a valid IPv4 or IPv6 address or the provided length is out of acceptable range.
+		 */
+		IPFilter(const std::string& ipAddress, Direction dir, int len) : IPFilter(IPAddress(ipAddress), dir, len) {}
 
 		/**
 		 * A constructor that enables to filter by a subnet. For example: "filter only IP addresses that matches the
