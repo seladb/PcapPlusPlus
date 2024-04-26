@@ -415,16 +415,16 @@ namespace pcpp
 		 * @return The size of the DNS data in the packet including he DNS header and size of all queries, answers, authorities and additional
 		 * records
 		 */
-		size_t getHeaderLen() const { return m_DataLen; } //No layer above DNS
+		size_t getHeaderLen() const override { return m_DataLen; } //No layer above DNS
 
 		/**
 		 * Does nothing for this layer
 		 */
-		virtual void computeCalculateFields() {}
+		virtual void computeCalculateFields() override {}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
 		/**
 		 * A static method that checks whether the port is considered as DNS

@@ -96,7 +96,7 @@ namespace pcpp
 		/**
 		 * Currently parses the rest of the packet as a S7COMM or generic payload (PayloadLayer)
 		 */
-		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
+		void parseNextLayer(ProtocolType parseUntil = UnknownProtocol, OsiModelLayer parseUntilLayer = OsiModelLayerUnknown) override;
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a COTP

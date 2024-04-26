@@ -414,16 +414,16 @@ namespace pcpp
 		/**
 		 * @return The size of @ref dhcpv6_header + size of options
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const override { return m_DataLen; }
 
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields() override {}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
 
 	private:
 		uint8_t* getOptionsBasePtr() const { return m_Data + sizeof(dhcpv6_header); }

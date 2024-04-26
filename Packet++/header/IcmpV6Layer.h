@@ -192,16 +192,16 @@ public:
 	/**
 	 * @return The size of the ICMPv6 message
 	 */
-	size_t getHeaderLen() const { return m_DataLen; }
+	size_t getHeaderLen() const override { return m_DataLen; }
 
 	/**
 	 * Calculate ICMPv6 checksum field
 	 */
-	void computeCalculateFields();
+	void computeCalculateFields() override;
 
-	OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+	OsiModelLayer getOsiModelLayer() const override { return OsiModelNetworkLayer; }
 
-	std::string toString() const;
+	std::string toString() const override;
 
 protected:
 	IcmpV6Layer() = default;

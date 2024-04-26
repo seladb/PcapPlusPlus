@@ -118,7 +118,7 @@ namespace pcpp
 		/**
 		 * @return The size of @ref arphdr
 		 */
-		size_t getHeaderLen() const { return sizeof(arphdr); }
+		size_t getHeaderLen() const override { return sizeof(arphdr); }
 
 		/**
 		 * Calculate the following fields:
@@ -128,7 +128,7 @@ namespace pcpp
 		 * - @ref arphdr#protocolSize = 4 (assume IPv4 over ARP)
 		 * - if it's an ARP request: @ref arphdr#targetMacAddr = MacAddress("00:00:00:00:00:00")
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * Is this packet an ARP request?
@@ -140,9 +140,9 @@ namespace pcpp
 		 */
 		bool isReply() const;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const override { return OsiModelNetworkLayer; }
 	};
 
 } // namespace pcpp
