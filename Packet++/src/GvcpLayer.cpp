@@ -46,24 +46,32 @@ namespace pcpp
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(uint8_t *data, size_t dataSize, Layer *prevLayer, Packet *packet)
 		: GvcpLayer(data, dataSize, prevLayer, packet)
 	{
-		m_Header = reinterpret_cast<GvcpAckHeader *>(data);
+		m_Protocol = Gvcp;
+		m_Header = reinterpret_cast<GvcpAckHeader *>(const_cast<uint8_t *>(data));
 		m_DataLen = dataSize - sizeof(GvcpAckHeader);
 		m_Data = data + sizeof(GvcpAckHeader);
 	}
 
-	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command, const uint8_t *data,
-											   uint16_t dataSize, uint16_t ackId)
+	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
+											   const uint8_t *payloadData, uint16_t payloadDataSize, uint16_t ackId)
 	{
 		m_Protocol = Gvcp;
 		m_Header = new GvcpAckHeader();
-		memcpy(m_Header, data, sizeof(GvcpAckHeader));
-		m_DataLen = dataSize - sizeof(GvcpAckHeader);
-		m_Data = new uint8_t[sizeof(GvcpAckHeader)];
+		m_DataLen = payloadDataSize - sizeof(GvcpAckHeader);
+		m_Data = const_cast<uint8_t *>(payloadData);
 
 		m_Header->status = status;
 		m_Header->command = command;
 		m_Header->ackId = ackId;
-		m_Header->dataSize = dataSize;
+		m_Header->dataSize = payloadDataSize;
+	}
+
+	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(const uint8_t *data, uint16_t dataSize)
+	{
+		m_Protocol = Gvcp;
+		m_Header = reinterpret_cast<GvcpAckHeader *>(const_cast<uint8_t *>(data));
+		m_DataLen = dataSize - sizeof(GvcpAckHeader);
+		m_Data = const_cast<uint8_t *>(data) + sizeof(GvcpAckHeader);
 	}
 
 } // namespace pcpp

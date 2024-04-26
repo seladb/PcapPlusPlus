@@ -363,12 +363,20 @@ namespace pcpp
 		 * @brief Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] status The response status
 		 * @param[in] command The command
-		 * @param[in] data A pointer to the data, optional
-		 * @param[in] dataSize The size of the data in bytes, optional
+		 * @param[in] payloadData A pointer to the payload data, optional
+		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] ackId The acknowledge ID, optional
 		 */
-		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command, const uint8_t *data = nullptr,
-									  uint16_t dataSize = 0, uint16_t ackId = 0);
+		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
+									  const uint8_t *payloadData = nullptr, uint16_t payloadDataSize = 0,
+									  uint16_t ackId = 0);
+
+		/**
+		 * @brief Construct a new GvcpAcknowledgeLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		explicit GvcpAcknowledgeLayer(const uint8_t *data, uint16_t dataSize);
 
 		/**
 		 * @brief Get the header object
