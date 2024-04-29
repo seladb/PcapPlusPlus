@@ -2,6 +2,8 @@ name: Fuzz CI
 on:
   pull_request:
     branches: ["dev"]
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
 
 jobs:
   Fuzzing:
