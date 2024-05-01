@@ -1,10 +1,11 @@
 #pragma once
 
 #include <atomic>
-#include <vector>
+#include <functional>
+#include <net/route.h>
 #include <string.h>
 #include <thread>
-#include <functional>
+#include <vector>
 
 #include "IpAddress.h"
 #include "Packet.h"
@@ -576,6 +577,12 @@ namespace pcpp
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
+	};
+
+	//route message struct for communication in BSD / APPLE device
+	struct BSDRoutingMessage{
+		struct	rt_msghdr header;
+		char	messageSpace[512];
 	};
 
 } // namespace pcpp

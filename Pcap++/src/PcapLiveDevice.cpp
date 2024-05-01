@@ -36,6 +36,7 @@
 #endif // if defined(_WIN32)
 #if defined(__APPLE__) || defined(__FreeBSD__)
 #include <net/if_dl.h>
+#include <net/route.h>
 #include <sys/sysctl.h>
 #endif
 
@@ -1055,31 +1056,84 @@ void PcapLiveDevice::setDefaultGateway()
 		}
 	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-	std::string command = "netstat -nr | grep default | grep " + m_Name;
-	std::string ifaceInfo = executeShellCommand(command);
-	if (ifaceInfo == "")
-	{
-		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't get netstat output");
+
+	#define ROUNDUP(a) \
+		((a) > 0 ? (1 + (((a) - 1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t))
+	#define ADVANCE(x, n) (x += ROUNDUP((n)->sa_len))
+
+	struct BSDRoutingMessage routingMessage;
+	char* spacePtr = routingMessage.messageSpace;
+	int sockfd = socket(PF_ROUTE, SOCK_RAW, 0);
+	if (sockfd < 0) {
+		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't get open routing socket");
+		return ;
+	}
+
+	bzero((char *)&routingMessage, sizeof(routingMessage));
+	routingMessage.header.rtm_msglen = sizeof(struct rt_msghdr);
+	routingMessage.header.rtm_version = RTM_VERSION;
+	routingMessage.header.rtm_type = RTM_GET;
+	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK | RTA_IFP;
+	routingMessage.header.rtm_flags = RTF_UP | RTF_GATEWAY | RTF_STATIC;
+
+	struct	sockaddr_in so_dst , so_mask;
+	struct	sockaddr_dl so_ifp;
+	memset(&so_dst, 0, sizeof(so_dst));
+	memset(&so_mask, 0, sizeof(so_mask));
+	memset(&so_ifp, 0, sizeof(so_ifp));
+
+	int len = sizeof(sockaddr_in);
+	bcopy((char *)&(so_dst), spacePtr, len);
+	spacePtr += len;
+	bcopy((char *)&(so_mask), spacePtr, len);
+	spacePtr += len;
+	routingMessage.header.rtm_msglen += 2*len ;
+	len = sizeof(sockaddr_dl);
+	bcopy((char *)&(so_ifp), spacePtr, len);
+	spacePtr += len;
+
+
+	if (write(sockfd, (char*)&routingMessage, routingMessage.header.rtm_msglen) < 0) {
+		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't write into the routing socket");
 		return;
 	}
 
-	// remove the word "default"
-	ifaceInfo.erase(0, 7);
+	// Read the response from the route socket
+	if (read(sockfd, (char*)&routingMessage, sizeof(routingMessage)) < 0) {
+		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't read from the routing socket");
+		return;
+	}
 
-	// remove spaces
-	while (ifaceInfo.at(0) == ' ')
-		ifaceInfo.erase(0,1);
-
-	// erase string after gateway IP address
-	ifaceInfo.resize(ifaceInfo.find(' ', 0));
-
+	struct sockaddr_in  *gate = nullptr;
+	struct sockaddr_dl *ifp = nullptr;
+	struct sockaddr *sa = nullptr;
+	spacePtr = ((char*)(&routingMessage.header+1));
+	for (int i = 1; i; i <<= 1)
+	{
+		if (i & routingMessage.header.rtm_addrs)
+		{
+			sa = (struct sockaddr *)spacePtr;
+			switch (i)
+			{
+			case RTA_GATEWAY:
+				gate = (sockaddr_in* )sa;
+				break;
+			case RTA_IFP:
+				if (sa->sa_family == AF_LINK &&
+					((sockaddr_dl *)sa)->sdl_nlen)
+					ifp = (sockaddr_dl *)sa;
+				break;
+			}
+			ADVANCE(spacePtr, sa);
+		}
+	}
 	try
 	{
-		m_DefaultGateway = IPv4Address(ifaceInfo);
+		m_DefaultGateway = IPv4Address(gate->sin_addr.s_addr);
 	}
 	catch(const std::exception& e)
 	{
-		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< ifaceInfo << ": " << e.what());
+		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< inet_ntoa(gate->sin_addr) << ": " << e.what());
 	}
 #endif
 }
