@@ -320,7 +320,8 @@ namespace pcpp
 		 * Set the network to build the filter with.
 		 * @param[in] network The IP Network object to be used when building the filter.
 		 */
-		void setNetwork(const IPNetwork& network) {
+		void setNetwork(const IPNetwork& network)
+		{
 			m_Network = network;
 			m_Address = m_Network.getNetworkPrefix();
 		}

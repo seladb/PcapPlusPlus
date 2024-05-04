@@ -689,9 +689,9 @@ namespace pcpp
 	public:
 		/**
 		 * A constructor that creates an instance of the class out of an IP address and a full prefix length,
-	     * essentially making a network of consisting of only 1 address.
-	     *
-	     * @param address An address representing the network prefix.
+		 * essentially making a network of consisting of only 1 address.
+		 *
+		 * @param address An address representing the network prefix.
 		 */
 		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u) {}
 
@@ -877,8 +877,8 @@ namespace pcpp
 		}
 
 		/**
- 		* @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is 255.0.0.0
- 		*/
+		* @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is 255.0.0.0
+		*/
 		std::string getNetmask() const
 		{
 			return (m_IPv4Network != nullptr ? m_IPv4Network->getNetmask() : m_IPv6Network->getNetmask());
