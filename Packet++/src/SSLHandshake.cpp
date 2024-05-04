@@ -1117,7 +1117,13 @@ uint8_t* SSLExtension::getData() const
 
 std::string SSLServerNameIndicationExtension::getHostName() const
 {
-	uint8_t* hostNameLengthPos = getData() + sizeof(uint16_t) + sizeof(uint8_t);
+	auto *extensionDataPtr = getData();
+	if (extensionDataPtr == nullptr)
+	{
+		return "";
+	}
+
+	uint8_t *hostNameLengthPos = extensionDataPtr + sizeof(uint16_t) + sizeof(uint8_t);
 	uint16_t hostNameLength = be16toh(*(uint16_t*)hostNameLengthPos);
 
 	char* hostNameAsCharArr = new char[hostNameLength+1];
