@@ -77,7 +77,7 @@ namespace pcpp
 		 */
 		struct BpfProgramDeleter
 		{
-			void operator()(bpf_program* ptr);
+			void operator()(bpf_program* ptr) const;
 		};
 	}
 

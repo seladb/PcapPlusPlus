@@ -29,7 +29,7 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 
 namespace detail
 {
-	void BpfProgramDeleter::operator()(bpf_program* ptr)
+	void BpfProgramDeleter::operator()(bpf_program* ptr) const
 	{
 		pcap_freecode(ptr);
 		delete ptr;
