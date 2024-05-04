@@ -92,10 +92,10 @@ namespace pcpp
 		bool operator<(const IPv4Address& rhs) const
 		{
 			uint32_t intVal = toInt();
-			std::reverse((uint8_t*)(&intVal), (uint8_t*)(&intVal) + sizeof(intVal));
+			std::reverse(reinterpret_cast<uint8_t*>(&intVal), reinterpret_cast<uint8_t*>(&intVal) + sizeof(intVal));
 
 			uint32_t rhsIntVal = rhs.toInt();
-			std::reverse((uint8_t*)(&rhsIntVal), (uint8_t*)(&rhsIntVal) + sizeof(rhsIntVal));
+			std::reverse(reinterpret_cast<uint8_t*>(&rhsIntVal), reinterpret_cast<uint8_t*>(&rhsIntVal) + sizeof(rhsIntVal));
 
 			return intVal < rhsIntVal;
 		}
