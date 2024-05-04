@@ -69,6 +69,18 @@ namespace pcpp
 		LESS_OR_EQUAL
 	} FilterOperator;
 
+	namespace detail
+	{
+		/**
+		 * @class BpfProgramDeleter
+		 * A deleter that cleans up a bpf_program object.
+		 */
+		struct BpfProgramDeleter
+		{
+			void operator()(bpf_program* ptr);
+		};
+	}
+
 	/**
 	 * @class BpfFilterWrapper
 	 * A wrapper class for BPF filtering. Enables setting a BPF filter and matching it against a packet
@@ -78,7 +90,7 @@ namespace pcpp
 	private:
 		std::string m_FilterStr;
 		LinkLayerType m_LinkType;
-		bpf_program* m_Program;
+		std::unique_ptr<bpf_program, detail::BpfProgramDeleter> m_Program;
 
 		void freeProgram();
 
@@ -88,11 +100,6 @@ namespace pcpp
 		 * A c'tor for this class
 		 */
 		BpfFilterWrapper();
-
-		/**
-		 * A d'tor for this class. Makes sure to clear the bpf_program object if was previously set.
-		 */
-		~BpfFilterWrapper();
 
 		/**
 		 * Set a filter. This method receives a filter in BPF syntax (https://biot.com/capstats/bpf.html) and an optional link type,

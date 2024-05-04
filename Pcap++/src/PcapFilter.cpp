@@ -27,15 +27,19 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	return m_BpfWrapper.matchPacketWithFilter(rawPacket);
 }
 
+namespace detail
+{
+	void BpfProgramDeleter::operator()(bpf_program* ptr)
+	{
+		pcap_freecode(ptr);
+		delete ptr;
+	}
+}
+
 BpfFilterWrapper::BpfFilterWrapper()
 {
 	m_Program = nullptr;
 	m_LinkType = LINKTYPE_ETHERNET;
-}
-
-BpfFilterWrapper::~BpfFilterWrapper()
-{
-	freeProgram();
 }
 
 bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkType)
@@ -63,8 +67,9 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 			return false;
 		}
 
+		// TODO: Do we technically need 'free_program' here? Both m_program and m_filter string are overwritten directly after that.
 		freeProgram();
-		m_Program = newProg;
+		m_Program = std::unique_ptr<bpf_program, detail::BpfProgramDeleter>(newProg);
 		m_FilterStr = filter;
 		m_LinkType = linkType;
 	}
@@ -74,13 +79,8 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 void BpfFilterWrapper::freeProgram()
 {
-	if (m_Program != nullptr)
-	{
-		pcap_freecode(m_Program);
-		delete m_Program;
-		m_Program = nullptr;
-		m_FilterStr.clear();
-	}
+	m_Program = nullptr;
+	m_FilterStr.clear();
 }
 
 bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
@@ -103,7 +103,7 @@ bool BpfFilterWrapper::matchPacketWithFilter(const uint8_t* packetData, uint32_t
 	pktHdr.len = packetDataLength;
 	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 
-	return (pcap_offline_filter(m_Program, &pktHdr, packetData) != 0);
+	return (pcap_offline_filter(m_Program.get(), &pktHdr, packetData) != 0);
 }
 
 void BPFStringFilter::parseToString(std::string& result)
