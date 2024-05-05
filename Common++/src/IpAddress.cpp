@@ -51,7 +51,7 @@ namespace pcpp
 
 	IPv4Address::IPv4Address(const std::string& addrAsString)
 	{
-		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
+		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes.data()) <= 0)
 		{
 			throw std::invalid_argument("Not a valid IPv4 address: " + addrAsString);
 		}

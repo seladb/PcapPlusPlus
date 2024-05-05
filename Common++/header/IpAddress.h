@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <ostream>
+#include <array>
 #include <memory>
 
 /// @file
@@ -40,13 +41,13 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(const uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
+		IPv4Address(const uint32_t addrAsInt) { memcpy_s(m_Bytes.data(), m_Bytes.size(), &addrAsInt, sizeof(addrAsInt)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte array.
 		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
+		IPv4Address(const uint8_t bytes[4]) { memcpy_s(m_Bytes.data(), m_Bytes.size(), bytes, 4 * sizeof(uint8_t)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -65,7 +66,7 @@ namespace pcpp
 		/**
 		 * Returns a pointer to 4-byte array representing the IPv4 address
 		 */
-		const uint8_t* toBytes() const { return m_Bytes; }
+		const uint8_t* toBytes() const { return m_Bytes.data(); }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -151,7 +152,7 @@ namespace pcpp
 		static const IPv4Address MulticastRangeUpperBound;
 
 	private:
-		uint8_t m_Bytes[4] = {0};
+		std::array<uint8_t, 4> m_Bytes = {0};
 	}; // class IPv4Address
 
 
@@ -160,7 +161,7 @@ namespace pcpp
 	uint32_t IPv4Address::toInt() const
 	{
 		uint32_t addr;
-		memcpy(&addr, m_Bytes, sizeof(m_Bytes));
+		memcpy_s(&addr, sizeof(addr), m_Bytes.data(), m_Bytes.size() /* * sizeof(uint8_t) = 1 byte */);
 		return addr;
 	}
 
