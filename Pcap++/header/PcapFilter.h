@@ -267,7 +267,7 @@ namespace pcpp
 		 * @param[in] ipAddress The IP address to use. Only the part of the address that is not masked will be matched. For example: if the address
 		 * is "1.2.3.4" and the mask is "255.255.255.0" than the part of the address that will be matched is "1.2.3.X".
 		 * @param[in] dir The address direction to filter (source or destination)
-		 * @param[in] netmask The mask to use. Mask should be in a valid IPv4 format (i.e x.x.x.x) or IPv6 format (i.e. xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx).
+		 * @param[in] netmask The mask to use. The mask should be a valid IP address in either IPv4 dotted-decimal format (e.g., 255.255.255.0) or IPv6 colon-separated hexadecimal format (e.g., FFFF:FFFF:FFFF:FFFF::).
 		 * @throws std::invalid_argument The provided address is not a valid IP address or the provided netmask string is invalid..
 		 */
 		IPFilter(const std::string& ipAddress, Direction dir, const std::string& netmask) : IPFilter(IPv4Address(ipAddress), dir, netmask) {}
@@ -279,7 +279,7 @@ namespace pcpp
 		 * matched. For example: if the address is "1.2.3.4" and the mask is "255.255.255.0" than the part of the
 		 * address that will be matched is "1.2.3.X".
 		 * @param[in] dir The address direction to filter (source or destination)
-		 * @param[in] netmask The mask to use. Mask should be in a valid IPv4 format (i.e x.x.x.x) or IPv6 format (i.e. xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx).
+		 * @param[in] netmask The mask to use. The mask should be a valid IP address in either IPv4 dotted-decimal format (e.g., 255.255.255.0) or IPv6 colon-separated hexadecimal format (e.g., FFFF:FFFF:FFFF:FFFF::).
 		 * @throws std::invalid_argument The provided netmask string is invalid.
 		 */
 		IPFilter(const IPAddress& ipAddress, Direction dir, const std::string& netmask) : IFilterWithDirection(dir), m_Address(ipAddress), m_Network(ipAddress, netmask) {}
