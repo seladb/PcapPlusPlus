@@ -46,11 +46,7 @@ namespace internal
 	};
 }
 
-BpfFilterWrapper::BpfFilterWrapper()
-{
-	m_Program = nullptr;
-	m_LinkType = LINKTYPE_ETHERNET;
-}
+BpfFilterWrapper::BpfFilterWrapper() : m_LinkType(LinkLayerType::LINKTYPE_ETHERNET) {}
 
 BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other) : BpfFilterWrapper() { setFilter(other.m_FilterStr, other.m_LinkType); }
 
