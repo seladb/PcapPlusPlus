@@ -172,7 +172,7 @@ namespace pcpp
 	uint32_t IPv4Address::toInt() const
 	{
 		uint32_t addr;
-		memcpy(&addr, m_Bytes.data(), m_Bytes.size() /* * sizeof(uint8_t) = 1 byte */);
+		memcpy(&addr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
 		return addr;
 	}
 
