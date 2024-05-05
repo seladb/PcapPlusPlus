@@ -49,10 +49,10 @@ TcpOptionBuilder::TcpOptionBuilder(const NopEolOptionEnumType optionType)
 {
 	switch (optionType)
 	{
-	case NopEolOptionEnumType::EOL:
+	case NopEolOptionEnumType::Eol:
 		init(static_cast<uint8_t>(PCPP_TCPOPT_EOL), nullptr, 0);
 		break;
-	case NopEolOptionEnumType::NOP:
+	case NopEolOptionEnumType::Nop:
 	default:
 		init(static_cast<uint8_t>(PCPP_TCPOPT_NOP), nullptr, 0);
 		break;

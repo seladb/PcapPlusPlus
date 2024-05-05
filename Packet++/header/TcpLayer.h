@@ -150,53 +150,53 @@ namespace pcpp
 	enum class TcpOptionEnumType : uint8_t
 	{
 		/** Padding */
-		NOP =            1,
+		Nop =            1,
 		/** End of options */
-		EOL =            0,
+		Eol =            0,
 		/** Segment size negotiating */
-		MSS =          	 2,
+		Mss =          	 2,
 		/** Window scaling */
-		WINDOW =         3,
+		Window =         3,
 		/** SACK Permitted */
-		SACK_PERM =      4,
+		SackPerm =      4,
 		/** SACK Block */
-		SACK =           5,
-		/** Echo (obsoleted by option TcpOptionEnumType::TIMESTAMP) */
-		ECHO =           6,
-		/** Echo Reply (obsoleted by option TcpOptionEnumType::TIMESTAMP) */
-		ECHOREPLY =      7,
+		Sack =           5,
+		/** Echo (obsoleted by option TcpOptionEnumType::Timestamp) */
+		Echo =           6,
+		/** Echo Reply (obsoleted by option TcpOptionEnumType::Timestamp) */
+		EchoReply =      7,
 		/** TCP Timestamps */
-		TIMESTAMP =      8,
+		Timestamp =      8,
 		/** CC (obsolete) */
-		CC =             11,
+		Cc =             11,
 		/** CC.NEW (obsolete) */
-		CCNEW =          12,
+		CcNew =          12,
 		/** CC.ECHO(obsolete) */
-		CCECHO =         13,
+		CcEcho =         13,
 		/** MD5 Signature Option */
-		MD5 =            19,
+		Md5 =            19,
 		/** Multipath TCP */
-		MPTCP =          0x1e,
+		MpTcp =          0x1e,
 		/** SCPS Capabilities */
-		SCPS =           20,
+		Scps =           20,
 		/** SCPS SNACK */
-		SNACK =          21,
+		Snack =          21,
 		/** SCPS Record Boundary */
-		RECBOUND =       22,
+		RecBound =       22,
 		/** SCPS Corruption Experienced */
-		CORREXP =        23,
+		CorrExp =        23,
 		/** Quick-Start Response */
-		QS =             27,
+		Qs =             27,
 		/** User Timeout Option (also, other known unauthorized use) */
-		USER_TO =        28,
+		UserTo =        28,
 		/** RFC3692-style Experiment 1 (also improperly used for shipping products) */
-		EXP_FD =         0xfd,
+		ExpFd =         0xfd,
 		/** RFC3692-style Experiment 2 (also improperly used for shipping products) */
-		EXP_FE =         0xfe,
+		ExpFe =         0xfe,
 		/** Riverbed probe option, non IANA registered option number */
-		RVBD_PROBE =     76,
+		RvbdProbe =     76,
 		/** Riverbed transparency option, non IANA registered option number */
-		RVBD_TRPY =      78,
+		RvbdTrpy =      78,
 		/** Unknown option */
 		Unknown =        255
 	};
@@ -204,51 +204,51 @@ namespace pcpp
 
 	// TCP option lengths
 
-	/** pcpp::TcpOptionEnumType::NOP length */
+	/** pcpp::TcpOptionEnumType::Nop length */
 #define PCPP_TCPOLEN_NOP            1
-	/** pcpp::TcpOptionEnumType::EOL length */
+	/** pcpp::TcpOptionEnumType::Eol length */
 #define PCPP_TCPOLEN_EOL            1
-	/** pcpp::TcpOptionEnumType::MSS length */
+	/** pcpp::TcpOptionEnumType::Mss length */
 #define PCPP_TCPOLEN_MSS            4
-	/** pcpp::TcpOptionEnumType::WINDOW length */
+	/** pcpp::TcpOptionEnumType::Window length */
 #define PCPP_TCPOLEN_WINDOW         3
-	/** pcpp::TcpOptionEnumType::SACK_PERM length */
+	/** pcpp::TcpOptionEnumType::SackPerm length */
 #define PCPP_TCPOLEN_SACK_PERM      2
-	/** pcpp::TcpOptionEnumType::SACK length */
+	/** pcpp::TcpOptionEnumType::Sack length */
 #define PCPP_TCPOLEN_SACK_MIN       2
-	/** pcpp:TcpOptionEnumType::ECHO length */
+	/** pcpp::TcpOptionEnumType::Echo length */
 #define PCPP_TCPOLEN_ECHO           6
-	/** pcpp::TcpOptionEnumType::ECHOREPLY length */
+	/** pcpp::TcpOptionEnumType::EchoReply length */
 #define PCPP_TCPOLEN_ECHOREPLY      6
-	/** pcpp::TcpOptionEnumType::TIMESTAMP length */
+	/** pcpp::TcpOptionEnumType::Timestamp length */
 #define PCPP_TCPOLEN_TIMESTAMP     10
-	/** pcpp::TcpOptionEnumType::CC length */
+	/** pcpp::TcpOptionEnumType::Cc length */
 #define PCPP_TCPOLEN_CC             6
-	/** pcpp::TcpOptionEnumType::CCNEW length */
+	/** pcpp::TcpOptionEnumType::CcNew length */
 #define PCPP_TCPOLEN_CCNEW          6
-	/** pcpp::TcpOptionEnumType::CCECHO length */
+	/** pcpp::TcpOptionEnumType::CcEcho length */
 #define PCPP_TCPOLEN_CCECHO         6
-	/** pcpp::TcpOptionEnumType::MD5 length */
+	/** pcpp::TcpOptionEnumType::Md5 length */
 #define PCPP_TCPOLEN_MD5           18
-	/** pcpp::TcpOptionEnumType::MPTCP length */
+	/** pcpp::TcpOptionEnumType::MpTcp length */
 #define PCPP_TCPOLEN_MPTCP_MIN      8
-	/** pcpp::TcpOptionEnumType::SCPS length */
+	/** pcpp::TcpOptionEnumType::Scps length */
 #define PCPP_TCPOLEN_SCPS           4
-	/** pcpp::TcpOptionEnumType::SNACK length */
+	/** pcpp::TcpOptionEnumType::Snack length */
 #define PCPP_TCPOLEN_SNACK          6
-	/** pcpp::TcpOptionEnumType::RECBOUND length */
+	/** pcpp::TcpOptionEnumType::RecBound length */
 #define PCPP_TCPOLEN_RECBOUND       2
-	/** pcpp::TcpOptionEnumType::CORREXP length */
+	/** pcpp::TcpOptionEnumType::CorrExp length */
 #define PCPP_TCPOLEN_CORREXP        2
-	/** pcpp::TcpOptionEnumType::QS length */
+	/** pcpp::TcpOptionEnumType::Qs length */
 #define PCPP_TCPOLEN_QS             8
-	/** pcpp::TcpOptionEnumType::USER_TO length */
+	/** pcpp::TcpOptionEnumType::UserTo length */
 #define PCPP_TCPOLEN_USER_TO        4
-	/** pcpp::TcpOptionEnumType::RVBD_PROBE length */
+	/** pcpp::TcpOptionEnumType::RvbdProbe length */
 #define PCPP_TCPOLEN_RVBD_PROBE_MIN 3
-	/** pcpp::TcpOptionEnumType::RVBD_TRPY length */
+	/** pcpp::TcpOptionEnumType::RvbdTrpy length */
 #define PCPP_TCPOLEN_RVBD_TRPY_MIN 16
-	/** pcpp::TcpOptionEnumType::EXP_FD and pcpp::TcpOptionEnumType::EXP_FE length */
+	/** pcpp::TcpOptionEnumType::ExpFd and pcpp::TcpOptionEnumType::ExpFe length */
 #define PCPP_TCPOLEN_EXP_MIN        2
 
 
@@ -307,7 +307,7 @@ namespace pcpp
 				return false;
 
 			const auto recordType = getTcpOptionEnumType(data);
-			if (recordType == TcpOptionEnumType::NOP || recordType == TcpOptionEnumType::EOL)
+			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -321,7 +321,7 @@ namespace pcpp
 				return 0;
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
-			if (recordType == TcpOptionEnumType::NOP || recordType == TcpOptionEnumType::EOL)
+			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
 				return sizeof(uint8_t);
 
 			return static_cast<size_t>(m_Data->recordLen);
@@ -333,7 +333,7 @@ namespace pcpp
 				return 0;
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
-			if (recordType == TcpOptionEnumType::NOP || recordType == TcpOptionEnumType::EOL)
+			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
 				return 0;
 
 			return static_cast<size_t>(m_Data->recordLen) - (2*sizeof(uint8_t));
@@ -385,9 +385,9 @@ namespace pcpp
 		enum class NopEolOptionEnumType : uint8_t
 		{
 			/** NOP TCP option */
-			NOP,
+			Nop,
 			/** EOL TCP option */
-			EOL
+			Eol
 		};
 
 		/**
