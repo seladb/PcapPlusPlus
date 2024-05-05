@@ -102,6 +102,16 @@ namespace pcpp
 		BpfFilterWrapper();
 
 		/**
+		 * A copy constructor for this class.
+		 */
+		BpfFilterWrapper(const BpfFilterWrapper& other);
+
+		/**
+		 * A copy assignment operator for this class.
+		 */
+		BpfFilterWrapper& operator=(const BpfFilterWrapper& other);
+
+		/**
 		 * Set a filter. This method receives a filter in BPF syntax (https://biot.com/capstats/bpf.html) and an optional link type,
 		 * compiles them, and if compilation is successful it stores the filter.
 		 * @param[in] filter A filter in BPF syntax

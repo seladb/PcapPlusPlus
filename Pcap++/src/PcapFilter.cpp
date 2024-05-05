@@ -52,6 +52,14 @@ BpfFilterWrapper::BpfFilterWrapper()
 	m_LinkType = LINKTYPE_ETHERNET;
 }
 
+BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other) : BpfFilterWrapper() { setFilter(other.m_FilterStr, other.m_LinkType); }
+
+BpfFilterWrapper& BpfFilterWrapper::operator=(const BpfFilterWrapper &other)
+{
+	setFilter(other.m_FilterStr, other.m_LinkType);
+	return *this;
+}
+
 bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkType)
 {
 	if (filter.empty())
