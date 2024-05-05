@@ -41,13 +41,13 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(const uint32_t addrAsInt) { memcpy_s(m_Bytes.data(), m_Bytes.size(), &addrAsInt, sizeof(addrAsInt)); }
+		IPv4Address(const uint32_t addrAsInt) { memcpy(m_Bytes.data(), &addrAsInt, sizeof(addrAsInt)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte array.
 		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		IPv4Address(const uint8_t bytes[4]) { memcpy_s(m_Bytes.data(), m_Bytes.size(), bytes, 4 * sizeof(uint8_t)); }
+		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of a 4-byte standard array.
@@ -172,7 +172,7 @@ namespace pcpp
 	uint32_t IPv4Address::toInt() const
 	{
 		uint32_t addr;
-		memcpy_s(&addr, sizeof(addr), m_Bytes.data(), m_Bytes.size() /* * sizeof(uint8_t) = 1 byte */);
+		memcpy(&addr, m_Bytes.data(), m_Bytes.size() /* * sizeof(uint8_t) = 1 byte */);
 		return addr;
 	}
 
@@ -192,7 +192,7 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 16-byte array.
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(const uint8_t bytes[16]) { memcpy_s(m_Bytes.data(), m_Bytes.size(), bytes, 16 * sizeof(uint8_t)); }
+		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of a 16-byte standard array.
@@ -264,7 +264,7 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const { memcpy_s(arr, 16 * sizeof(uint8_t), m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t)); }
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t)); }
 
 		/**
 		 * Checks whether the address matches a network.
