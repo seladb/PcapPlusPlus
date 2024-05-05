@@ -50,8 +50,9 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
-		 * If the string doesn't represent a valid IPv4 address, an exception is thrown.
+		 *
 		 * @param[in] addrAsString The std::string representation of the address
+		 * @throws std::invalid_argument The provided string does not represent a valid IPv4 address.
 		 */
 		IPv4Address(const std::string& addrAsString);
 
@@ -183,8 +184,9 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
-		 * If the string doesn't represent a valid IPv6 address, an exception is thrown.
+		 *
 		 * @param[in] addrAsString The std::string representation of the address
+		 * @throws std::invalid_argument The provided string does not represent a valid IPv6 address.
 		 */
 		IPv6Address(const std::string& addrAsString);
 
@@ -328,8 +330,9 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
-		 * If the string doesn't represent a valid IPv4 or IPv6 address, an instance will store an unspecified address
+		 *
 		 * @param[in] addrAsString The std::string representation of the address
+		 * @throws std::invalid_argument The provided string does not represent a valid IPv4 or IPv6 address.
 		 */
 		IPAddress(const std::string& addrAsString);
 
@@ -464,12 +467,20 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * A constructor that creates an instance of the class out of an address and a full prefix length,
+		 * essentially making a network of consisting of only 1 address.
+		 *
+		 * @param address An address representing the network prefix.
+		 */
+		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u) {}
+
+		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		 * exception is thrown
-		 * @param prefixLen A number between 0 and 32 representing the prefix length. If another value is provided
-		 * std::invalid_argument exception is thrown
+		 * @param prefixLen A number between 0 and 32 representing the prefix length.
+		 * @throws std::invalid_argument Prefix length is out of acceptable range.
 		 */
 		IPv4Network(const IPv4Address& address, uint8_t prefixLen);
 
@@ -480,8 +491,8 @@ namespace pcpp
 		 * exception is thrown
 		 * @param netmask A string representing a netmask in the format of X.X.X.X, for example: 255.255.0.0.
 		 * Please notice that netmasks that start with zeros are invalid, for example: 0.0.255.255. The only netmask
-		 * starting with zeros that is valid is 0.0.0.0. If the netmask is invalid std::invalid_argument
-		 * exception is thrown
+		 * starting with zeros that is valid is 0.0.0.0.
+		 * @throws std::invalid_argument The provided netmask is invalid.
 		 */
 		IPv4Network(const IPv4Address& address, const std::string& netmask);
 
@@ -493,7 +504,7 @@ namespace pcpp
 		 *    0 and 32 representing the network prefix
 		 *  - X.X.X.X/Y.Y.Y.Y where X.X.X.X is a valid IPv4 address representing the network prefix and Y.Y.Y.Y is
 		 *    a valid netmask
-		 *  For any invalid value std::invalid_argument is thrown
+		 * @throws std::invalid_argument The provided string does not represent a valid address and netmask format.
 		 */
 		IPv4Network(const std::string& addressAndNetmask);
 
@@ -567,12 +578,20 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * A constructor that creates an instance of the class out of an address and a full prefix length,
+		 * essentially making a network of consisting of only 1 address.
+		 *
+		 * @param address An address representing the network prefix.
+		 */
+		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128u) {}
+
+		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		 * exception is thrown
-		 * @param prefixLen A number between 0 and 128 representing the prefix length. If another value is provided
-		 * std::invalid_argument exception is thrown
+		 * @param prefixLen A number between 0 and 128 representing the prefix length.
+		 * @throws std::invalid_argument Prefix length is out of acceptable range.
 		 */
 		IPv6Network(const IPv6Address& address, uint8_t prefixLen);
 
@@ -583,8 +602,8 @@ namespace pcpp
 		 * exception is thrown
 		 * @param netmask A string representing a netmask in valid IPv6 format, for example: ffff:ffff::.
 		 * Please notice that netmasks that start with zeros are invalid, for example: 0:ffff::. The only netmask
-		 * starting with zeros that is valid is all zeros (::). If the netmask is invalid std::invalid_argument
-		 * exception is thrown
+		 * starting with zeros that is valid is all zeros (::).
+		 * @throws std::invalid_argument The provided netmask is invalid.
 		 */
 		IPv6Network(const IPv6Address& address, const std::string& netmask);
 
@@ -596,7 +615,7 @@ namespace pcpp
 		 *    a number between 0 and 128 representing the network prefix
 		 *  - IPV6_ADDRESS/IPV6_NETMASK where IPV6_ADDRESS is a valid IPv6 address representing the network prefix
 		 *    and IPV6_NETMASK is a valid IPv6 netmask
-		 *  For any invalid value std::invalid_argument is thrown
+		 * @throws std::invalid_argument The provided string does not represent a valid address and netmask format.
 		 */
 		IPv6Network(const std::string& addressAndNetmask);
 
@@ -670,12 +689,20 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * A constructor that creates an instance of the class out of an IP address and a full prefix length,
+		 * essentially making a network of consisting of only 1 address.
+		 *
+		 * @param address An address representing the network prefix.
+		 */
+		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u) {}
+
+		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		 * exception is thrown
-		 * @param prefixLen A number representing the prefix length. If the value isn't in the range allowed for the
-		 * network (0 - 32 for IPv4 networks or 0 - 128 for IPv6 networks) and std::invalid_argument exception is thrown
+		 * @param prefixLen A number representing the prefix length. Allowed ranges are 0 - 32 for IPv4 networks and 0 - 128 for IPv6 networks.
+		 * @throws std::invalid_argument Prefix length is out of acceptable range.
 		 */
 		IPNetwork(const IPAddress& address, uint8_t prefixLen)
 		{
@@ -698,7 +725,7 @@ namespace pcpp
 		 * or 255.255.0.0 for IPv4 networks.
 		 * Please notice that netmasks that start with zeros are invalid, for example: 0:ffff:: or 0.255.255.255.
 		 * The only netmask starting with zeros that is valid is all zeros (:: or 0.0.0.0).
-		 * If the netmask is invalid std::invalid_argument exception is thrown
+		 * @throws std::invalid_argument The provided netmask is invalid.
 		 */
 		IPNetwork(const IPAddress& address, const std::string& netmask)
 		{
@@ -720,7 +747,7 @@ namespace pcpp
 		 *    a number representing the network prefix
 		 *  - IP_ADDRESS/NETMASK where IP_ADDRESS is a valid IP address representing the network prefix and NETMASK
 		 *    is a valid netmask for this type of network (IPv4 or IPv6 network)
-		 *  For any invalid value std::invalid_argument is thrown
+		 * @throws std::invalid_argument The provided string does not represent a valid address and netmask format.
 		 */
 		IPNetwork(const std::string& addressAndNetmask)
 		{
@@ -822,8 +849,8 @@ namespace pcpp
 		}
 
 		/**
- 		* @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is 255.0.0.0
- 		*/
+		* @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is 255.0.0.0
+		*/
 		std::string getNetmask() const
 		{
 			return (m_IPv4Network != nullptr ? m_IPv4Network->getNetmask() : m_IPv6Network->getNetmask());
