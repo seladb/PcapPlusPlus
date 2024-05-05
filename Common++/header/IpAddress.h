@@ -50,6 +50,12 @@ namespace pcpp
 		IPv4Address(const uint8_t bytes[4]) { memcpy_s(m_Bytes.data(), m_Bytes.size(), bytes, 4 * sizeof(uint8_t)); }
 
 		/**
+		 * A constructor that creates an instance of the class out of a 4-byte standard array.
+		 * @param[in] bytes The address as 4-byte standard array in network byte order
+		 */
+		IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes) {}
+
+		/**
 		 * A constructor that creates an instance of the class out of std::string value.
 		 *
 		 * @param[in] addrAsString The std::string representation of the address
@@ -67,6 +73,11 @@ namespace pcpp
 		 * Returns a pointer to 4-byte array representing the IPv4 address
 		 */
 		const uint8_t* toBytes() const { return m_Bytes.data(); }
+
+		/**
+		 * Returns a reference to a 4-byte standard array representing the IPv4 address
+		 */
+		const std::array<uint8_t, 4>& toBytesArray() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
