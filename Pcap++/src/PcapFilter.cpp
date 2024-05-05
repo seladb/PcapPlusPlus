@@ -34,6 +34,15 @@ namespace internal
 		pcap_freecode(ptr);
 		delete ptr;
 	}
+
+	/**
+	 * @class PcapTDeleter
+	 * A deleter that cleans up a pcap_t structure by calling pcap_close.
+	 */
+	struct PcapTDeleter
+	{
+		void operator()(pcap_t* ptr) const { pcap_close(ptr); }
+	};
 }
 
 BpfFilterWrapper::BpfFilterWrapper()
@@ -52,15 +61,14 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 	if (filter != m_FilterStr || linkType != m_LinkType)
 	{
-		pcap_t* pcap = pcap_open_dead(linkType, DEFAULT_SNAPLEN);
+		std::unique_ptr<pcap_t, internal::PcapTDeleter> pcap = std::unique_ptr<pcap_t, internal::PcapTDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
 		{
 			return false;
 		}
 
 		bpf_program* newProg = new bpf_program;
-		int ret = pcap_compile(pcap, newProg, filter.c_str(), 1, 0);
-		pcap_close(pcap);
+		int ret = pcap_compile(pcap.get(), newProg, filter.c_str(), 1, 0);
 		if (ret < 0)
 		{
 			delete newProg;
