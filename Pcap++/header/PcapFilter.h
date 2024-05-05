@@ -69,7 +69,7 @@ namespace pcpp
 		LESS_OR_EQUAL
 	} FilterOperator;
 
-	namespace detail
+	namespace internal
 	{
 		/**
 		 * @class BpfProgramDeleter
@@ -90,7 +90,7 @@ namespace pcpp
 	private:
 		std::string m_FilterStr;
 		LinkLayerType m_LinkType;
-		std::unique_ptr<bpf_program, detail::BpfProgramDeleter> m_Program;
+		std::unique_ptr<bpf_program, internal::BpfProgramDeleter> m_Program;
 
 		void freeProgram();
 
@@ -546,7 +546,7 @@ namespace pcpp
 		OR,
 	};
 
-	namespace detail
+	namespace internal
 	{
 		/* Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when C++17 is the minimum supported standard.*/
 		/**
@@ -579,7 +579,7 @@ namespace pcpp
 				result += '(' + innerFilter + ')';
 				if (m_FilterList.cend() - 1 != it)
 				{
-					result += detail::getCompositeLogicOpDelimiter<op>();
+					result += internal::getCompositeLogicOpDelimiter<op>();
 				}
 			}
 		}

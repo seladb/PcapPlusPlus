@@ -27,7 +27,7 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	return m_BpfWrapper.matchPacketWithFilter(rawPacket);
 }
 
-namespace detail
+namespace internal
 {
 	void BpfProgramDeleter::operator()(bpf_program* ptr) const
 	{
@@ -69,7 +69,7 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 		// TODO: Do we technically need 'free_program' here? Both m_program and m_filter string are overwritten directly after that.
 		freeProgram();
-		m_Program = std::unique_ptr<bpf_program, detail::BpfProgramDeleter>(newProg);
+		m_Program = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>(newProg);
 		m_FilterStr = filter;
 		m_LinkType = linkType;
 	}
