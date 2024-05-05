@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <ostream>
+#include <memory>
 
 /// @file
 
@@ -680,13 +681,11 @@ namespace pcpp
 		{
 			if (address.isIPv4())
 			{
-				m_IPv4Network = new IPv4Network(address.getIPv4(), prefixLen);
-				m_IPv6Network = nullptr;
+				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(address.getIPv4(), prefixLen));
 			}
 			else
 			{
-				m_IPv6Network = new IPv6Network(address.getIPv6(), prefixLen);
-				m_IPv4Network = nullptr;
+				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(address.getIPv6(), prefixLen));
 			}
 		}
 
@@ -705,13 +704,11 @@ namespace pcpp
 		{
 			if (address.isIPv4())
 			{
-				m_IPv4Network = new IPv4Network(address.getIPv4(), netmask);
-				m_IPv6Network = nullptr;
+				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(address.getIPv4(), netmask));
 			}
 			else
 			{
-				m_IPv6Network = new IPv6Network(address.getIPv6(), netmask);
-				m_IPv4Network = nullptr;
+				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(address.getIPv6(), netmask));
 			}
 		}
 
@@ -729,13 +726,11 @@ namespace pcpp
 		{
 			try
 			{
-				m_IPv4Network = new IPv4Network(addressAndNetmask);
-				m_IPv6Network = nullptr;
+				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(addressAndNetmask));
 			}
 			catch (const std::invalid_argument&)
 			{
-				m_IPv6Network = new IPv6Network(addressAndNetmask);
-				m_IPv4Network = nullptr;
+				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(addressAndNetmask));
 			}
 		}
 
@@ -745,33 +740,14 @@ namespace pcpp
 		 */
 		IPNetwork(const IPNetwork& other)
 		{
-			m_IPv4Network = nullptr;
-			m_IPv6Network = nullptr;
-
 			if (other.m_IPv4Network)
 			{
-				m_IPv4Network = new IPv4Network(*other.m_IPv4Network);
+				m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(*other.m_IPv4Network));
 			}
 
 			if (other.m_IPv6Network)
 			{
-				m_IPv6Network = new IPv6Network(*other.m_IPv6Network);
-			}
-		}
-
-		/**
-		 * A destructor for this class
-		 */
-		~IPNetwork()
-		{
-			if (m_IPv4Network)
-			{
-				delete m_IPv4Network;
-			}
-
-			if (m_IPv6Network)
-			{
-				delete m_IPv6Network;
+				m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(*other.m_IPv6Network));
 			}
 		}
 
@@ -801,17 +777,15 @@ namespace pcpp
 		{
 			if (m_IPv4Network)
 			{
-				delete m_IPv4Network;
 				m_IPv4Network = nullptr;
 			}
 
 			if (m_IPv6Network)
 			{
-				delete m_IPv6Network;
 				m_IPv6Network = nullptr;
 			}
 
-			m_IPv4Network = new IPv4Network(other);
+			m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(other));
 
 			return *this;
 		}
@@ -825,17 +799,15 @@ namespace pcpp
 		{
 			if (m_IPv4Network)
 			{
-				delete m_IPv4Network;
 				m_IPv4Network = nullptr;
 			}
 
 			if (m_IPv6Network)
 			{
-				delete m_IPv6Network;
 				m_IPv6Network = nullptr;
 			}
 
-			m_IPv6Network = new IPv6Network(other);
+			m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(other));
 
 			return *this;
 		}
@@ -972,8 +944,8 @@ namespace pcpp
 		}
 
 	private:
-		IPv4Network* m_IPv4Network;
-		IPv6Network* m_IPv6Network;
+		std::unique_ptr<IPv4Network> m_IPv4Network;
+		std::unique_ptr<IPv6Network> m_IPv6Network;
 	};
 } // namespace pcpp
 
