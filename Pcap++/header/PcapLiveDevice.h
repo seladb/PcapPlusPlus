@@ -579,10 +579,4 @@ namespace pcpp
 		pcap_t* doOpen(const DeviceConfiguration& config);
 	};
 
-	//route message struct for communication in BSD / APPLE device
-	struct BSDRoutingMessage{
-		struct	rt_msghdr header;
-		char	messageSpace[512];
-	};
-
 } // namespace pcpp

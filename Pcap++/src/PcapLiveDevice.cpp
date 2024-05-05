@@ -1057,15 +1057,18 @@ void PcapLiveDevice::setDefaultGateway()
 	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 
-	#define ROUNDUP(a) \
-		((a) > 0 ? (1 + (((a) - 1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t))
-	#define ADVANCE(x, n) (x += ROUNDUP((n)->sa_len))
+	//route message struct for communication in BSD / APPLE device
+	struct BSDRoutingMessage{
+		struct	rt_msghdr header;
+		char	messageSpace[512];
+	};
 
 	struct BSDRoutingMessage routingMessage;
 	char* spacePtr = routingMessage.messageSpace;
+	// It creates a raw socket that can be used for routing-related operations
 	int sockfd = socket(PF_ROUTE, SOCK_RAW, 0);
 	if (sockfd < 0) {
-		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't get open routing socket");
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't get open routing socket");
 		return ;
 	}
 
@@ -1076,43 +1079,40 @@ void PcapLiveDevice::setDefaultGateway()
 	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK | RTA_IFP;
 	routingMessage.header.rtm_flags = RTF_UP | RTF_GATEWAY | RTF_STATIC;
 
-	struct	sockaddr_in so_dst , so_mask;
-	struct	sockaddr_dl so_ifp;
-	memset(&so_dst, 0, sizeof(so_dst));
-	memset(&so_mask, 0, sizeof(so_mask));
-	memset(&so_ifp, 0, sizeof(so_ifp));
+	struct	sockaddr_in so_dst = {0} , so_mask = {0};
+	struct	sockaddr_dl so_ifp = {0};
 
-	int len = sizeof(sockaddr_in);
-	bcopy((char *)&(so_dst), spacePtr, len);
+	size_t len = sizeof(sockaddr_in);
+	bcopy(reinterpret_cast<char*>(&so_dst), spacePtr, len);
 	spacePtr += len;
-	bcopy((char *)&(so_mask), spacePtr, len);
+	bcopy(reinterpret_cast<char*>(&so_mask), spacePtr, len);
 	spacePtr += len;
 	routingMessage.header.rtm_msglen += 2*len ;
 	len = sizeof(sockaddr_dl);
-	bcopy((char *)&(so_ifp), spacePtr, len);
-	spacePtr += len;
+	bcopy(reinterpret_cast<char*>(&so_ifp), spacePtr, len);
+	routingMessage.header.rtm_msglen += len ;
 
 
-	if (write(sockfd, (char*)&routingMessage, routingMessage.header.rtm_msglen) < 0) {
-		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't write into the routing socket");
+	if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0) {
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't write into the routing socket");
 		return;
 	}
 
 	// Read the response from the route socket
-	if (read(sockfd, (char*)&routingMessage, sizeof(routingMessage)) < 0) {
-		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't read from the routing socket");
+	if (read(sockfd,reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0) {
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't read from the routing socket");
 		return;
 	}
 
 	struct sockaddr_in  *gate = nullptr;
 	struct sockaddr_dl *ifp = nullptr;
 	struct sockaddr *sa = nullptr;
-	spacePtr = ((char*)(&routingMessage.header+1));
-	for (int i = 1; i; i <<= 1)
+	spacePtr = (reinterpret_cast<char*>(&routingMessage.header+1));
+	for (int i = 1; i > 0; i <<= 1)
 	{
 		if (i & routingMessage.header.rtm_addrs)
 		{
-			sa = (struct sockaddr *)spacePtr;
+			sa =  reinterpret_cast<sockaddr *>(spacePtr);
 			switch (i)
 			{
 			case RTA_GATEWAY:
@@ -1124,8 +1124,14 @@ void PcapLiveDevice::setDefaultGateway()
 					ifp = (sockaddr_dl *)sa;
 				break;
 			}
-			ADVANCE(spacePtr, sa);
+			// Make sure the increment is the nearest multiple of the size of uint32_t
+			spacePtr += sa->sa_len > 0 ? (1 + (((sa->sa_len) - 1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t);
 		}
+	}
+	if(gate == nullptr || ifp == nullptr)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: Empty Message related to gate");
+		return;
 	}
 	try
 	{
