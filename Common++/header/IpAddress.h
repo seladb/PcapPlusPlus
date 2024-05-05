@@ -192,7 +192,13 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 16-byte array.
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
+		IPv6Address(const uint8_t bytes[16]) { memcpy_s(m_Bytes.data(), m_Bytes.size(), bytes, 16 * sizeof(uint8_t)); }
+
+		/**
+		 * A constructor that creates an instance of the class out of a 16-byte standard array.
+		 * @param[in] bytes The address as 16-byte standard array in network byte order
+		 */
+		IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes) {}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -205,7 +211,12 @@ namespace pcpp
 		/**
 		 * Returns a pointer to 16-byte array representing the IPv6 address
 		 */
-		const uint8_t* toBytes() const { return m_Bytes; }
+		const uint8_t* toBytes() const { return m_Bytes.data(); }
+
+		/**
+		 * Returns a reference to a 16-byte standard array representing the IPv6 address
+		 */
+		const std::array<uint8_t, 16>& toBytesArray() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -253,7 +264,7 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
+		void copyTo(uint8_t* arr) const { memcpy_s(arr, 16 * sizeof(uint8_t), m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t)); }
 
 		/**
 		 * Checks whether the address matches a network.
@@ -297,7 +308,7 @@ namespace pcpp
 		static const IPv6Address MulticastRangeLowerBound;
 
 	private:
-		uint8_t m_Bytes[16] = {0};
+		std::array<uint8_t, 16> m_Bytes = {0};
 	}; // class IPv6Address
 
 

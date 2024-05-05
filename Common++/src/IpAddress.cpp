@@ -109,7 +109,7 @@ namespace pcpp
 
 	IPv6Address::IPv6Address(const std::string& addrAsString)
 	{
-		if(inet_pton(AF_INET6, addrAsString.data(), m_Bytes) <= 0)
+		if(inet_pton(AF_INET6, addrAsString.data(), m_Bytes.data()) <= 0)
 		{
 			throw std::invalid_argument("Not a valid IPv6 address: " + addrAsString);
 		}
@@ -118,10 +118,10 @@ namespace pcpp
 
 	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 	{
-		const size_t addrLen = sizeof(m_Bytes);
+		const size_t addrLen = m_Bytes.size() * sizeof(uint8_t);
 		length = addrLen;
 		*arr = new uint8_t[addrLen];
-		memcpy(*arr, m_Bytes, addrLen);
+		memcpy(*arr, m_Bytes.data(), addrLen);
 	}
 
 
