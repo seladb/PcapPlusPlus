@@ -57,7 +57,7 @@ static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pc
 
 	pcpp::Logger::getInstance().enableLogs();
 
-	int *packetCount = static_cast<int*>(userCookie);
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -80,7 +80,7 @@ static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcp
 
 static bool packetArrivesBlockingModeNoTimeoutPacketCount(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int *packetCount = static_cast<int*>(userCookie);
+	int* packetCount = static_cast<int*>(userCookie);
 	(*packetCount)++;
 	return false;
 }
