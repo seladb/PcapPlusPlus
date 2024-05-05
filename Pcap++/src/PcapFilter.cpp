@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "IPv4Layer.h"
 #include <sstream>
+#include <array>
 #if defined(_WIN32)
 #include <winsock2.h>
 #endif
@@ -153,93 +154,20 @@ std::string IFilterWithOperator::parseOperator()
 	}
 }
 
-void IPFilter::convertToIPAddressWithMask(std::string& ipAddrmodified, std::string& mask) const
-{
-	if (m_IPv4Mask.empty())
-		return;
-
-	// Handle the mask
-
-	// The following code lines verify both ipAddress and ipv4Mask are valid IPv4 addresses
-	// The IPv4 limitation comes from the fact libPcap/WinPcap/Npcap doesn't support mask for IPv6 addresses
-
-	IPv4Address ipAddr;
-	try
-	{
-		ipAddr = IPv4Address(m_Address);
-	}
-	catch(const std::exception&)
-	{
-		PCPP_LOG_ERROR("Invalid IP address '" << m_Address << "', setting the mask to an empty value");
-		mask.clear();
-		return;
-	}
-
-	IPv4Address maskAsAddr;
-	try
-	{
-		maskAsAddr = IPv4Address(m_IPv4Mask);
-	}
-	catch(const std::exception&)
-	{
-		PCPP_LOG_ERROR("Invalid IPv4 mask '" << m_IPv4Mask << "', setting the mask to an empty value");
-		mask.clear();
-		return;
-	}
-
-	// If all addresses are IPv4 valid addresses, make sure ipAddress matches the mask. If it's not, mask the address with the mask
-	// The reason for doing that is libPcap/WinPcap/Npcap doesn't allow filtering an IP address that doesn't match the mask
-
-	uint32_t addrAsIntAfterMask = ipAddr.toInt() & maskAsAddr.toInt();
-	ipAddrmodified = IPv4Address(addrAsIntAfterMask).toString();
-}
-
-void IPFilter::convertToIPAddressWithLen(std::string& ipAddrmodified) const
-{
-	if (m_Len == 0)
-		return;
-
-	// Handle the length
-
-	// The following code lines verify IP address is valid (IPv4 or IPv6)
-
-	IPAddress ipAddr;
-	try
-	{
-		ipAddr = IPAddress(ipAddrmodified);
-	}
-	catch(const std::exception&)
-	{
-		PCPP_LOG_ERROR("Invalid IP address '" << ipAddrmodified << "', setting len to zero");
-		return;
-	}
-
-	if (ipAddr.getType() == IPAddress::IPv4AddressType)
-	{
-		uint32_t addrAsInt = ipAddr.getIPv4().toInt();
-		uint32_t mask = static_cast<uint32_t>(-1) >> ((sizeof(uint32_t) * 8) - m_Len);
-		addrAsInt &= mask;
-		ipAddrmodified = IPv4Address(addrAsInt).toString();
-	}
-}
-
 void IPFilter::parseToString(std::string& result)
 {
 	std::string dir;
-	std::string ipAddr = m_Address;
-	std::string mask = m_IPv4Mask;
-	convertToIPAddressWithMask(ipAddr, mask);
-	convertToIPAddressWithLen(ipAddr);
+	std::string ipAddr = m_Network.toString();
+	std::string ipProto = m_Network.isIPv6Network() ? "ip6" : "ip";
+
 	parseDirection(dir);
-	result = "ip and " + dir + " net " + ipAddr;
-	if (m_IPv4Mask != "")
-		result += " mask " + mask;
-	else if (m_Len > 0)
-	{
-		std::ostringstream stream;
-		stream << m_Len;
-		result += '/' + stream.str();
-	}
+
+	result.reserve(ipProto.size() + dir.size() + ipAddr.size() + 10 /* Hard-coded strings */);
+	result = ipProto;
+	result += " and ";
+	result += dir;
+	result += " net ";
+	result += ipAddr;
 }
 
 void IPv4IDFilter::parseToString(std::string& result)
