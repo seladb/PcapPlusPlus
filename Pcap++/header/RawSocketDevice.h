@@ -135,12 +135,12 @@ namespace pcpp
 		 * Open the device by creating a raw socket and binding it to the network interface specified in the c'tor
 		 * @return True if device was opened successfully, false otherwise with a corresponding error log message
 		 */
-		virtual bool open();
+		bool open() override;
 
 		/**
 		 * Close the raw socket
 		 */
-		virtual void close();
+		void close() override;
 
 	private:
 

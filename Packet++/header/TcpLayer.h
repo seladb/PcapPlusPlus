@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DeprecationMacros.h"
+#include "DeprecationUtils.h"
 #include "Layer.h"
 #include "TLVData.h"
 #include <string.h>

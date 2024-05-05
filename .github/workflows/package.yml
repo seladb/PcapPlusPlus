@@ -8,6 +8,8 @@ on:
     paths:
       # Also run this workflow when this package.yml is update by a PR
       - '.github/workflows/package.yml'
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
 
 env:
   BUILD_DIR: Dist

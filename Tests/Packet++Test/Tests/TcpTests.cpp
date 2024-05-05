@@ -8,7 +8,7 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include "PacketUtils.h"
-#include "DeprecationMacros.h"
+#include "DeprecationUtils.h"
 
 // TODO: remove these macros, when deprecated code is gone
 DISABLE_WARNING_PUSH

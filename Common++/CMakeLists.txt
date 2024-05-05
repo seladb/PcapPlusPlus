@@ -11,7 +11,7 @@ add_library(
   src/TablePrinter.cpp)
 
 set(public_headers
-    header/DeprecationMacros.h
+    header/DeprecationUtils.h
     header/GeneralUtils.h
     header/IpAddress.h
     header/IpUtils.h

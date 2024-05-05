@@ -143,7 +143,7 @@ namespace pcpp
 		/**
 		 * @return MBufRawPacket object type
 		 */
-		virtual inline uint8_t getObjectType() const { return MBUFRAWPACKET_OBJECT_TYPE; }
+		inline uint8_t getObjectType() const override { return MBUFRAWPACKET_OBJECT_TYPE; }
 
 		/**
 		 * An assignment operator for this class. Copies the data from the mbuf attached to the other MBufRawPacket to the mbuf

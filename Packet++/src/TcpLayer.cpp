@@ -18,7 +18,7 @@
 #include "SmtpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
-#include "DeprecationMacros.h"
+#include "DeprecationUtils.h"
 #include <string.h>
 #include <sstream>
 

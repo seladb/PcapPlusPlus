@@ -1,10 +1,9 @@
 #pragma once
 
-#include "DeprecationMacros.h"
+#include "DeprecationUtils.h"
 #include "TextBasedProtocol.h"
 #include <string>
 #include <exception>
-
 
 /// @file
 

@@ -850,15 +850,28 @@ void PcapLiveDevice::setDeviceMtu()
 	memset(&ifr, 0, sizeof(ifr));
 	strncpy(ifr.ifr_name, m_Name.c_str(), sizeof(ifr.ifr_name) - 1);
 
-	int socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (ioctl(socketfd, SIOCGIFMTU, &ifr) == -1)
+	int socketfd = -1;
+	try
 	{
-		PCPP_LOG_DEBUG("Error in retrieving MTU: ioctl() returned -1");
+		socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+		if (ioctl(socketfd, SIOCGIFMTU, &ifr) == -1)
+		{
+			PCPP_LOG_DEBUG("Error in retrieving MTU: ioctl() returned -1");
+			m_DeviceMtu = 0;
+			return;
+		}
+		m_DeviceMtu = ifr.ifr_mtu;
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error in retrieving MTU: " << e.what());
 		m_DeviceMtu = 0;
-		return;
 	}
 
-	m_DeviceMtu = ifr.ifr_mtu;
+	if(socketfd != -1)
+	{
+		::close(socketfd);
+	}
 #endif
 }
 
@@ -906,14 +919,28 @@ void PcapLiveDevice::setDeviceMacAddress()
 	memset(&ifr, 0, sizeof(ifr));
 	strncpy(ifr.ifr_name, m_Name.c_str(), sizeof(ifr.ifr_name) - 1);
 
-	int socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
-	if (ioctl(socketfd, SIOCGIFHWADDR, &ifr) == -1)
+
+	int socketfd = -1;
+	try
 	{
-		PCPP_LOG_DEBUG("Error in retrieving MAC address: ioctl() returned -1");
-		return;
+		socketfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
+		if (ioctl(socketfd, SIOCGIFHWADDR, &ifr) == -1)
+		{
+			PCPP_LOG_DEBUG("Error in retrieving MAC address: ioctl() returned -1");
+			return;
+		}
+
+		m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error in retrieving MAC address: " << e.what());
 	}
 
-	m_MacAddress = MacAddress(ifr.ifr_hwaddr.sa_data[0], ifr.ifr_hwaddr.sa_data[1], ifr.ifr_hwaddr.sa_data[2], ifr.ifr_hwaddr.sa_data[3], ifr.ifr_hwaddr.sa_data[4], ifr.ifr_hwaddr.sa_data[5]);
+	if(socketfd != -1)
+	{
+		::close(socketfd);
+	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 	int	mib[6];
 	size_t len;
@@ -972,7 +999,17 @@ void PcapLiveDevice::setDefaultGateway()
 		while (curAdapterInfo != NULL)
 		{
 			if (m_Name.find(curAdapterInfo->AdapterName) != std::string::npos)
-				m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
+			{
+				try
+				{
+					m_DefaultGateway = IPv4Address(curAdapterInfo->GatewayList.IpAddress.String);
+				}
+				catch(const std::exception& e)
+				{
+					PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
+				}
+				break;
+			}
 
 			curAdapterInfo = curAdapterInfo->Next;
 		}
@@ -1008,7 +1045,14 @@ void PcapLiveDevice::setDefaultGateway()
 		std::stringstream interfaceGatewayStream;
 		interfaceGatewayStream << std::hex << interfaceGateway;
 		interfaceGatewayStream >> interfaceGatewayIPInt;
-		m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+		try
+		{
+			m_DefaultGateway = IPv4Address(interfaceGatewayIPInt);
+		}
+		catch(const std::exception& e)
+		{
+			PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
+		}
 	}
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 	std::string command = "netstat -nr | grep default | grep " + m_Name;
@@ -1029,7 +1073,14 @@ void PcapLiveDevice::setDefaultGateway()
 	// erase string after gateway IP address
 	ifaceInfo.resize(ifaceInfo.find(' ', 0));
 
-	m_DefaultGateway = IPv4Address(ifaceInfo);
+	try
+	{
+		m_DefaultGateway = IPv4Address(ifaceInfo);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< ifaceInfo << ": " << e.what());
+	}
 #endif
 }
 
@@ -1051,7 +1102,14 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 			continue;
 		}
 
-		return IPv4Address(currAddr->s_addr);
+		try
+		{
+			return IPv4Address(currAddr->s_addr);
+		}
+		catch (const std::exception&)
+		{
+			continue;
+		}
 	}
 
 	return IPv4Address::Zero;

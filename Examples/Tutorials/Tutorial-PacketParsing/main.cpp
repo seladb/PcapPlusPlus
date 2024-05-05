@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 #include "stdlib.h"
 #include "SystemUtils.h"
 #include "Packet.h"
@@ -28,24 +29,16 @@ std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType)
 
 std::string printTcpFlags(pcpp::TcpLayer* tcpLayer)
 {
-	std::string result = "";
-	if (tcpLayer->getTcpHeader()->synFlag == 1)
-		result += "SYN ";
-	if (tcpLayer->getTcpHeader()->ackFlag == 1)
-		result += "ACK ";
-	if (tcpLayer->getTcpHeader()->pshFlag == 1)
-		result += "PSH ";
-	if (tcpLayer->getTcpHeader()->cwrFlag == 1)
-		result += "CWR ";
-	if (tcpLayer->getTcpHeader()->urgFlag == 1)
-		result += "URG ";
-	if (tcpLayer->getTcpHeader()->eceFlag == 1)
-		result += "ECE ";
-	if (tcpLayer->getTcpHeader()->rstFlag == 1)
-		result += "RST ";
-	if (tcpLayer->getTcpHeader()->finFlag == 1)
-		result += "FIN ";
-
+	std::string result;
+	auto* tcpHeader = tcpLayer->getTcpHeader();
+	if (tcpHeader->synFlag) result += "SYN ";
+	if (tcpHeader->ackFlag) result += "ACK ";
+	if (tcpHeader->pshFlag) result += "PSH ";
+	if (tcpHeader->cwrFlag) result += "CWR ";
+	if (tcpHeader->urgFlag) result += "URG ";
+	if (tcpHeader->eceFlag) result += "ECE ";
+	if (tcpHeader->rstFlag) result += "RST ";
+	if (tcpHeader->finFlag) result += "FIN ";
 	return result;
 }
 
@@ -79,7 +72,7 @@ int main(int argc, char* argv[])
 {
 	// use the IFileReaderDevice interface to automatically identify file type (pcap/pcap-ng)
 	// and create an interface instance that both readers implement
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader("1_http_packet.pcap");
+	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader("1_http_packet.pcap"));
 
 	// verify that a reader interface was indeed created
 	if (reader == nullptr)
@@ -110,7 +103,7 @@ int main(int argc, char* argv[])
 	pcpp::Packet parsedPacket(&rawPacket);
 
 	// first let's go over the layers one by one and find out its type, its total length, its header length and its payload length
-	for (pcpp::Layer* curLayer = parsedPacket.getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
+	for (auto* curLayer = parsedPacket.getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 	{
 		std::cout
 			<< "Layer type: " << getProtocolTypeAsString(curLayer->getProtocol()) << "; " // get layer type
@@ -121,7 +114,7 @@ int main(int argc, char* argv[])
 	}
 
 	// now let's get the Ethernet layer
-	pcpp::EthLayer* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
+	auto* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 	if (ethernetLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
@@ -135,7 +128,7 @@ int main(int argc, char* argv[])
 		<< "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType) << std::endl;
 
 	// let's get the IPv4 layer
-	pcpp::IPv4Layer* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
+	auto* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 	if (ipLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find IPv4 layer" << std::endl;
@@ -150,7 +143,7 @@ int main(int argc, char* argv[])
 		<< "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
 
 	// let's get the TCP layer
-	pcpp::TcpLayer* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
+	auto* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
 	if (tcpLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find TCP layer" << std::endl;
@@ -172,7 +165,7 @@ int main(int argc, char* argv[])
 	std::cout << std::endl;
 
 	// let's get the HTTP request layer
-	pcpp::HttpRequestLayer* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
+	auto* httpRequestLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
 	if (httpRequestLayer == nullptr)
 	{
 		std::cerr << "Something went wrong, couldn't find HTTP request layer" << std::endl;
