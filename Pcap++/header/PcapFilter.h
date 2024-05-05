@@ -103,11 +103,14 @@ namespace pcpp
 
 		/**
 		 * A copy constructor for this class.
+		 * @param[in] other The instance to copy from
 		 */
 		BpfFilterWrapper(const BpfFilterWrapper& other);
 
 		/**
 		 * A copy assignment operator for this class.
+		 * @param[in] other An instance of IPNetwork to assign
+		 * @return A reference to the assignee
 		 */
 		BpfFilterWrapper& operator=(const BpfFilterWrapper& other);
 
