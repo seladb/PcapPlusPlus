@@ -68,17 +68,17 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 			return false;
 		}
 
-		bpf_program* newProg = new bpf_program;
-		int ret = pcap_compile(pcap.get(), newProg, filter.c_str(), 1, 0);
+		std::unique_ptr<bpf_program> newProg = std::unique_ptr<bpf_program>(new bpf_program);
+		int ret = pcap_compile(pcap.get(), newProg.get(), filter.c_str(), 1, 0);
 		if (ret < 0)
 		{
-			delete newProg;
 			return false;
 		}
 
 		// TODO: Do we technically need 'free_program' here? Both m_program and m_filter string are overwritten directly after that.
 		freeProgram();
-		m_Program = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>(newProg);
+		// Reassigns ownership of the bpf program to a new unique_ptr with a custom deleter as it now requires specialized cleanup.
+		m_Program = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>(newProg.release());
 		m_FilterStr = filter;
 		m_LinkType = linkType;
 	}
