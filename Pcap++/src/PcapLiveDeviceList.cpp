@@ -45,12 +45,12 @@ void PcapLiveDeviceList::init()
 	std::unique_ptr<pcap_if_t, internal::FreeAllDevsDeleter> interfaceList;
 	{
 		pcap_if_t* interfaceListRaw;
-	char errbuf[PCAP_ERRBUF_SIZE];
+		char errbuf[PCAP_ERRBUF_SIZE];
 		int err = pcap_findalldevs(&interfaceListRaw, errbuf);
-	if (err < 0)
-	{
-		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
-	}
+		if (err < 0)
+		{
+			PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
+		}
 		// Assigns the raw pointer to the smart pointer with specialized deleter.
 		interfaceList = std::unique_ptr<pcap_if_t, internal::FreeAllDevsDeleter>(interfaceListRaw);
 	}
@@ -66,7 +66,7 @@ void PcapLiveDeviceList::init()
 		std::unique_ptr<PcapLiveDevice> dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
 		currInterface = currInterface->next;
-		m_LiveDeviceList.insert(m_LiveDeviceList.end(), std::move(dev));
+		m_LiveDeviceList.push_back(std::move(dev));
 	}
 
 	setDnsServers();
