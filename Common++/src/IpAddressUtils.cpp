@@ -1,5 +1,8 @@
 #include "IpAddressUtils.h"
 
+#include "IpAddress.h"
+#include "IpUtils.h" // Just needing in_addr and in6_addr.
+
 namespace pcpp
 {
 	bool operator==(const IPv4Address& lhs, const in_addr& rhs)

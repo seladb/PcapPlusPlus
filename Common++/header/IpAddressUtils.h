@@ -1,9 +1,10 @@
 #pragma once
 
-#include "IpAddress.h"
-#include "IpUtils.h" // Just needing in_addr and in6_addr.
-
 /// @file
+
+// Forward declarations
+struct in_addr;
+struct in6_addr;
 
 /**
  * \namespace pcpp
@@ -11,6 +12,11 @@
  */
 namespace pcpp
 {
+	// Forward declarations
+	class IPv4Address;
+	class IPv6Address;
+	class IPAddress;
+
 	/**
 	 * Overload of the equal-to operator
 	 * @return True if the addresses are equal, false otherwise
