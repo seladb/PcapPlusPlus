@@ -69,6 +69,18 @@ namespace pcpp
 		LESS_OR_EQUAL
 	} FilterOperator;
 
+	namespace internal
+	{
+		/**
+		 * @class BpfProgramDeleter
+		 * A deleter that cleans up a bpf_program object.
+		 */
+		struct BpfProgramDeleter
+		{
+			void operator()(bpf_program* ptr) const;
+		};
+	}
+
 	/**
 	 * @class BpfFilterWrapper
 	 * A wrapper class for BPF filtering. Enables setting a BPF filter and matching it against a packet
@@ -78,7 +90,7 @@ namespace pcpp
 	private:
 		std::string m_FilterStr;
 		LinkLayerType m_LinkType;
-		bpf_program* m_Program;
+		std::unique_ptr<bpf_program, internal::BpfProgramDeleter> m_Program;
 
 		void freeProgram();
 
@@ -90,9 +102,17 @@ namespace pcpp
 		BpfFilterWrapper();
 
 		/**
-		 * A d'tor for this class. Makes sure to clear the bpf_program object if was previously set.
+		 * A copy constructor for this class.
+		 * @param[in] other The instance to copy from
 		 */
-		~BpfFilterWrapper();
+		BpfFilterWrapper(const BpfFilterWrapper& other);
+
+		/**
+		 * A copy assignment operator for this class.
+		 * @param[in] other An instance of IPNetwork to assign
+		 * @return A reference to the assignee
+		 */
+		BpfFilterWrapper& operator=(const BpfFilterWrapper& other);
 
 		/**
 		 * Set a filter. This method receives a filter in BPF syntax (https://biot.com/capstats/bpf.html) and an optional link type,
@@ -618,7 +638,7 @@ namespace pcpp
 		OR,
 	};
 
-	namespace detail
+	namespace internal
 	{
 		/* Could potentially be moved into CompositeLogicFilter as a private member function, with if constexpr when C++17 is the minimum supported standard.*/
 		/**
@@ -651,7 +671,7 @@ namespace pcpp
 				result += '(' + innerFilter + ')';
 				if (m_FilterList.cend() - 1 != it)
 				{
-					result += detail::getCompositeLogicOpDelimiter<op>();
+					result += internal::getCompositeLogicOpDelimiter<op>();
 				}
 			}
 		}
