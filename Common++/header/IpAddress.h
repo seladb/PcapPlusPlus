@@ -70,12 +70,14 @@ namespace pcpp
 		inline uint32_t toInt() const;
 
 		/**
-		 * Returns a pointer to 4-byte array representing the IPv4 address
+		 * Returns a view of the IPv4 address as a 4-byte raw C-style array
+		 * @return A non-owning pointer to 4-byte array representing the IPv4 address
 		 */
 		const uint8_t* toBytes() const { return m_Bytes.data(); }
 
 		/**
-		 * Returns a reference to a 4-byte standard array representing the IPv4 address
+		 * Returns a view of the IPv4 address as a std::array of bytes
+		 * @return A reference to a 4-byte standard array representing the IPv4 address
 		 */
 		const std::array<uint8_t, 4>& toBytesArray() const { return m_Bytes; }
 
@@ -209,12 +211,14 @@ namespace pcpp
 		IPv6Address(const std::string& addrAsString);
 
 		/**
-		 * Returns a pointer to 16-byte array representing the IPv6 address
+		 * Returns a view of the IPv6 address as a 16-byte raw C-style array
+		 * @return A non-owning pointer to 16-byte array representing the IPv6 address
 		 */
 		const uint8_t* toBytes() const { return m_Bytes.data(); }
 
 		/**
-		 * Returns a reference to a 16-byte standard array representing the IPv6 address
+		 * Returns a view of the IPv6 address as a std::array of bytes
+		 * @return A reference to a 16-byte standard array representing the IPv6 address
 		 */
 		const std::array<uint8_t, 16>& toBytesArray() const { return m_Bytes; }
 
