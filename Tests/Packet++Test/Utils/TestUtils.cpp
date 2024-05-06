@@ -103,7 +103,7 @@ void savePacketToPcap(pcpp::Packet& packet, const std::string &fileName)
 	hdr.ts.tv_usec = 0; /* ms */
 	hdr.caplen = hdr.len = packet.getRawPacket()->getRawDataLen();
 	/* write single IP packet */
-	pcap_dump((u_char*)d, &hdr, packet.getRawPacketReadOnly()->getRawData());
+	pcap_dump(static_cast<u_char*>(d), &hdr, packet.getRawPacketReadOnly()->getRawData());
 
 	/* finish up */
 	pcap_dump_close(d);
