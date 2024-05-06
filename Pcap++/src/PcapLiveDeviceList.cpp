@@ -57,15 +57,13 @@ void PcapLiveDeviceList::init()
 
 	PCPP_LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
 
-	pcap_if_t* currInterface = interfaceList.get();
-	while (currInterface != nullptr)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
 #if defined(_WIN32)
 		std::unique_ptr<PcapLiveDevice> dev = std::unique_ptr<PcapLiveDevice>(new WinPcapLiveDevice(currInterface, true, true, true));
 #else //__linux__, __APPLE__, __FreeBSD__
 		std::unique_ptr<PcapLiveDevice> dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
-		currInterface = currInterface->next;
 		m_LiveDeviceList.push_back(std::move(dev));
 	}
 
