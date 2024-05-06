@@ -79,7 +79,7 @@ namespace pcpp
 		 * Returns a view of the IPv4 address as a std::array of bytes
 		 * @return A reference to a 4-byte standard array representing the IPv4 address
 		 */
-		const std::array<uint8_t, 4>& toBytesArray() const { return m_Bytes; }
+		const std::array<uint8_t, 4>& toByteArray() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -220,7 +220,7 @@ namespace pcpp
 		 * Returns a view of the IPv6 address as a std::array of bytes
 		 * @return A reference to a 16-byte standard array representing the IPv6 address
 		 */
-		const std::array<uint8_t, 16>& toBytesArray() const { return m_Bytes; }
+		const std::array<uint8_t, 16>& toByteArray() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
