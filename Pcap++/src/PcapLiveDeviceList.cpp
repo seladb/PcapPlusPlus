@@ -28,14 +28,6 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 	init();
 }
 
-PcapLiveDeviceList::~PcapLiveDeviceList()
-{
-	for(const auto &devIter : m_LiveDeviceList)
-	{
-		delete devIter;
-	}
-}
-
 void PcapLiveDeviceList::init()
 {
 	pcap_if_t* interfaceList;
@@ -52,12 +44,12 @@ void PcapLiveDeviceList::init()
 	while (currInterface != nullptr)
 	{
 #if defined(_WIN32)
-		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true, true);
+		std::unique_ptr<PcapLiveDevice> dev = std::unique_ptr<PcapLiveDevice>(new WinPcapLiveDevice(currInterface, true, true, true));
 #else //__linux__, __APPLE__, __FreeBSD__
-		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true, true);
+		std::unique_ptr<PcapLiveDevice> dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
 		currInterface = currInterface->next;
-		m_LiveDeviceList.insert(m_LiveDeviceList.end(), dev);
+		m_LiveDeviceList.insert(m_LiveDeviceList.end(), std::move(dev));
 	}
 
 	setDnsServers();
@@ -252,6 +244,27 @@ void PcapLiveDeviceList::setDnsServers()
 #endif
 }
 
+void PcapLiveDeviceList::updateLiveDeviceListView() const
+{
+	// Technically if a device is removed and a different device is added, it might cause issues,
+	// but as far as I can see the LiveDeviceList is only modified on construction and reset, and that is a whole list refresh
+	// which can easily be handled by clearing the view list too.
+	if (m_LiveDeviceList.size() != m_LiveDeviceListView.size())
+	{
+		m_LiveDeviceListView.resize(m_LiveDeviceList.size());
+		// Full update of all elements of the view vector to synchronize them with the main vector.
+		std::transform(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin(),
+					   [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); }
+		);
+	}
+}
+
+const std::vector<PcapLiveDevice*>& PcapLiveDeviceList::getPcapLiveDevicesList() const
+{
+	updateLiveDeviceListView();
+	return m_LiveDeviceListView;
+}
+
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr) const
 {
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
@@ -289,7 +302,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			if (currAddr->s_addr == ipAddr.toInt())
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter;
+				return devIter.get();
 			}
 		}
 	}
@@ -325,7 +338,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
 				delete [] addrAsArr;
-				return devIter;
+				return devIter.get();
 			}
 
 			delete [] addrAsArr;
@@ -357,7 +370,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	auto devIter = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
-								[&name](const PcapLiveDevice *dev) { return dev->getName() == name; });
+								[&name](const std::unique_ptr<PcapLiveDevice>& dev) { return dev->getName() == name; });
 
 	if (devIter == m_LiveDeviceList.end())
 	{
@@ -365,7 +378,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 		return nullptr;
 	}
 
-	return *devIter;
+	return devIter->get();
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
@@ -388,11 +401,7 @@ PcapLiveDeviceList* PcapLiveDeviceList::clone()
 
 void PcapLiveDeviceList::reset()
 {
-	for(auto devIter : m_LiveDeviceList)
-	{
-		delete devIter;
-	}
-
+	m_LiveDeviceListView.clear();
 	m_LiveDeviceList.clear();
 	m_DnsServers.clear();
 
