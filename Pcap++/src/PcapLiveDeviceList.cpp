@@ -28,19 +28,36 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 	init();
 }
 
+namespace internal
+{
+	/**
+	 * @class FreeAllDevsDeleter
+	 * A deleter that frees an interface list of pcap_if_t ptr by calling 'pcap_freealldevs' function on it.
+	 */
+	struct FreeAllDevsDeleter
+	{
+		void operator()(pcap_if_t *ptr) const { pcap_freealldevs(ptr); }
+	};
+} // namespace internal
+
 void PcapLiveDeviceList::init()
 {
-	pcap_if_t* interfaceList;
+	std::unique_ptr<pcap_if_t, internal::FreeAllDevsDeleter> interfaceList;
+	{
+		pcap_if_t* interfaceListRaw;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	int err = pcap_findalldevs(&interfaceList, errbuf);
+		int err = pcap_findalldevs(&interfaceListRaw, errbuf);
 	if (err < 0)
 	{
 		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
 	}
+		// Assigns the raw pointer to the smart pointer with specialized deleter.
+		interfaceList = std::unique_ptr<pcap_if_t, internal::FreeAllDevsDeleter>(interfaceListRaw);
+	}
 
 	PCPP_LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
 
-	pcap_if_t* currInterface = interfaceList;
+	pcap_if_t* currInterface = interfaceList.get();
 	while (currInterface != nullptr)
 	{
 #if defined(_WIN32)
@@ -54,8 +71,8 @@ void PcapLiveDeviceList::init()
 
 	setDnsServers();
 
+	// TODO: What to do with this log message? Free All devs is no longer needed here as that is handled by the deleter.
 	PCPP_LOG_DEBUG("Freeing live device data");
-	pcap_freealldevs(interfaceList);
 }
 
 void PcapLiveDeviceList::setDnsServers()
