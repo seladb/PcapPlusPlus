@@ -296,7 +296,7 @@ PTF_TEST_CASE(TcpChecksumInvalidRead)
 	m[2] = 0xF3;
 
 	pcpp::ScalarBuffer<uint16_t> vec[1];
-	vec[0].buffer = (uint16_t*)m;
+	vec[0].buffer = reinterpret_cast<uint16_t*>(m);
 	vec[0].len = 3;
 
 	uint16_t c = pcpp::computeChecksum(vec, 1);

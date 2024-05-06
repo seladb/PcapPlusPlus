@@ -33,11 +33,11 @@ void testSetUp();
 
 #define READ_FILE_AND_CREATE_PACKET(num, filename) \
   READ_FILE_INTO_BUFFER(num, filename); \
-	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true)
+	pcpp::RawPacket rawPacket##num(static_cast<const uint8_t*>(buffer##num), bufferLength##num, time, true)
 
 #define READ_FILE_AND_CREATE_PACKET_LINKTYPE(num, filename, linktype) \
   READ_FILE_INTO_BUFFER(num, filename); \
-	pcpp::RawPacket rawPacket##num((const uint8_t*)buffer##num, bufferLength##num, time, true, linktype)
+	pcpp::RawPacket rawPacket##num(static_cast<const uint8_t*>(buffer##num), bufferLength##num, time, true, linktype)
 
 #ifdef PCPP_TESTS_DEBUG
 void savePacketToPcap(pcpp::Packet& packet, const std::string &fileName);
