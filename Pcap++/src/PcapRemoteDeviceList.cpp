@@ -23,17 +23,17 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	char errbuf[PCAP_ERRBUF_SIZE];
 	std::ostringstream portAsString;
 	portAsString << port;
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsString.str().c_str(), NULL, errbuf) != 0)
+	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsString.str().c_str(), nullptr, errbuf) != 0)
 	{
 		PCPP_LOG_ERROR("Error in creating the remote connection string. Error was: " << errbuf);
-		return NULL;
+		return nullptr;
 	}
 
 	PCPP_LOG_DEBUG("Remote capture string: " << remoteCaptureString);
 
-	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
-	if (remoteAuth != NULL)
+	if (remoteAuth != nullptr)
 	{
 		PCPP_LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
 		rmAuth = remoteAuth->getPcapRmAuth();
@@ -45,7 +45,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceList, errorBuf) < 0)
 	{
 		PCPP_LOG_ERROR("Error retrieving device on remote machine. Error string is: " << errorBuf);
-		return NULL;
+		return nullptr;
 	}
 
 	PcapRemoteDeviceList* resultList = new PcapRemoteDeviceList();
@@ -54,7 +54,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	resultList->setRemoteAuthentication(remoteAuth);
 
 	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != NULL)
+	while (currInterface != nullptr)
 	{
 		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication,
 				resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort());
@@ -127,7 +127,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 		}
 	}
 
-	return NULL;
+	return nullptr;
 
 }
 
@@ -161,7 +161,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 		}
 	}
 
-	return NULL;
+	return nullptr;
 
 }
 
