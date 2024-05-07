@@ -177,14 +177,11 @@ void PcapRemoteDeviceList::setRemoteMachinePort(uint16_t port)
 
 void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth)
 {
-	if (remoteAuth != NULL)
-		m_RemoteAuthentication = new PcapRemoteAuthentication(*remoteAuth);
-	else
-	{
-		if (m_RemoteAuthentication != NULL)
-			delete m_RemoteAuthentication;
-		m_RemoteAuthentication = NULL;
-	}
+	setRemoteAuthentication(remoteAuth != nullptr ? std::make_shared<PcapRemoteAuthentication>(*remoteAuth) : nullptr);
+}
+void PcapRemoteDeviceList::setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth)
+{
+	m_RemoteAuthentication = std::move(remoteAuth);
 }
 
 PcapRemoteDeviceList::~PcapRemoteDeviceList()
@@ -194,11 +191,6 @@ PcapRemoteDeviceList::~PcapRemoteDeviceList()
 		RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
 		delete (*devIter);
 		m_RemoteDeviceList.erase(devIter);
-	}
-
-	if (m_RemoteAuthentication != NULL)
-	{
-		delete m_RemoteAuthentication;
 	}
 }
 

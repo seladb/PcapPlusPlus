@@ -19,14 +19,14 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 	return result;
 }
 
-PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
+PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
 	: PcapLiveDevice(iface, false, false, false)
 {
 	PCPP_LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
 	m_DeviceMtu = 1514;
 	m_RemoteMachineIpAddress = remoteMachineIP;
 	m_RemoteMachinePort = remoteMachinePort;
-	m_RemoteAuthentication = remoteAuthentication;
+	m_RemoteAuthentication = std::move(remoteAuthentication);
 }
 
 

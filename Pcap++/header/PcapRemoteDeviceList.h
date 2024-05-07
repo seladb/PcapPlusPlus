@@ -2,6 +2,7 @@
 
 #if defined(_WIN32)
 
+#include <memory>
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
 
@@ -30,10 +31,10 @@ namespace pcpp
 		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
-		PcapRemoteAuthentication* m_RemoteAuthentication;
+		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList() : m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {}
+		PcapRemoteDeviceList() : m_RemoteMachinePort(0) {}
 		// private copy c'tor
 		PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
@@ -41,6 +42,7 @@ namespace pcpp
 		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
 		void setRemoteMachinePort(uint16_t port);
 		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
+		void setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
 
 	public:
 		/**
