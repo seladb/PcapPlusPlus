@@ -11,6 +11,7 @@
 #include "pcap.h"
 #include "RawPacket.h"
 #include "TimespecTimeval.h"
+#include "MemoryUtils.h"
 
 namespace pcpp
 {
@@ -35,15 +36,6 @@ namespace internal
 		pcap_freecode(ptr);
 		delete ptr;
 	}
-
-	/**
-	 * @class PcapTDeleter
-	 * A deleter that cleans up a pcap_t structure by calling pcap_close.
-	 */
-	struct PcapTDeleter
-	{
-		void operator()(pcap_t* ptr) const { pcap_close(ptr); }
-	};
 }
 
 BpfFilterWrapper::BpfFilterWrapper() : m_LinkType(LinkLayerType::LINKTYPE_ETHERNET) {}
@@ -66,7 +58,7 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 	if (filter != m_FilterStr || linkType != m_LinkType)
 	{
-		std::unique_ptr<pcap_t, internal::PcapTDeleter> pcap = std::unique_ptr<pcap_t, internal::PcapTDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
+		std::unique_ptr<pcap_t, internal::PcapCloseDeleter> pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
 		{
 			return false;

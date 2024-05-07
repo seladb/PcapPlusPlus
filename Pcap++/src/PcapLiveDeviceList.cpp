@@ -4,6 +4,7 @@
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "SystemUtils.h"
+#include "MemoryUtils.h"
 #include "pcap.h"
 #include <string.h>
 #include <sstream>
@@ -28,21 +29,9 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 	init();
 }
 
-namespace internal
-{
-	/**
-	 * @class FreeAllDevsDeleter
-	 * A deleter that frees an interface list of pcap_if_t ptr by calling 'pcap_freealldevs' function on it.
-	 */
-	struct FreeAllDevsDeleter
-	{
-		void operator()(pcap_if_t *ptr) const { pcap_freealldevs(ptr); }
-	};
-} // namespace internal
-
 void PcapLiveDeviceList::init()
 {
-	std::unique_ptr<pcap_if_t, internal::FreeAllDevsDeleter> interfaceList;
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	{
 		pcap_if_t* interfaceListRaw;
 		char errbuf[PCAP_ERRBUF_SIZE];
@@ -52,7 +41,7 @@ void PcapLiveDeviceList::init()
 			PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
 		}
 		// Assigns the raw pointer to the smart pointer with specialized deleter.
-		interfaceList = std::unique_ptr<pcap_if_t, internal::FreeAllDevsDeleter>(interfaceListRaw);
+		interfaceList = std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 	}
 
 	PCPP_LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
