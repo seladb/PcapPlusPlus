@@ -62,7 +62,7 @@ namespace pcpp
 
 		/*
 		 * @class smart_ptr_tag
-		 * Helper tag to disambiguate smart pointer factory.
+		 * Helper tag to disambiguate smart pointer api.
 		 */
 		struct smart_ptr_api_tag {};
 		const smart_ptr_api_tag smart_ptr_api{};
