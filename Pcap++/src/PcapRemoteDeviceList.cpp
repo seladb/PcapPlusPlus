@@ -18,6 +18,13 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
+	// Uses the smart pointer version and releases management of the object to the caller.
+	std::unique_ptr<PcapRemoteDeviceList> uPtr = getRemoteDeviceList(ipAddress, port, std::unique_ptr<PcapRemoteAuthentication>(new PcapRemoteAuthentication(*remoteAuth)));
+	return uPtr.release();
+}
+
+std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::unique_ptr<PcapRemoteAuthentication> remoteAuth)
+{
 	PCPP_LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -48,10 +55,10 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 		return nullptr;
 	}
 
-	PcapRemoteDeviceList* resultList = new PcapRemoteDeviceList();
+	std::unique_ptr<PcapRemoteDeviceList> resultList = std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList());
 	resultList->setRemoteMachineIpAddress(ipAddress);
 	resultList->setRemoteMachinePort(port);
-	resultList->setRemoteAuthentication(remoteAuth);
+	resultList->setRemoteAuthentication(std::move(remoteAuth));
 
 	pcap_if_t* currInterface = interfaceList;
 	while (currInterface != nullptr)
