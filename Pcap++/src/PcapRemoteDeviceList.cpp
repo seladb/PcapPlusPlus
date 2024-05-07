@@ -179,9 +179,9 @@ void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthenticatio
 {
 	setRemoteAuthentication(remoteAuth != nullptr ? std::make_shared<PcapRemoteAuthentication>(*remoteAuth) : nullptr);
 }
-void PcapRemoteDeviceList::setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth)
+void PcapRemoteDeviceList::setRemoteAuthentication(const std::shared_ptr<PcapRemoteAuthentication>& remoteAuth)
 {
-	m_RemoteAuthentication = std::move(remoteAuth);
+	m_RemoteAuthentication = remoteAuth;
 }
 
 PcapRemoteDeviceList::~PcapRemoteDeviceList()

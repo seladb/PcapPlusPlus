@@ -42,7 +42,7 @@ namespace pcpp
 		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
 		void setRemoteMachinePort(uint16_t port);
 		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
-		void setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
+		void setRemoteAuthentication(const std::shared_ptr<PcapRemoteAuthentication>& remoteAuth);
 
 	public:
 		/**

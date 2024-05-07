@@ -85,7 +85,7 @@ namespace pcpp
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
 		// c'tor is private, as only PcapRemoteDeviceList should create instances of it, and it'll create only one for every remote interface
-		PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
+		PcapRemoteDevice(pcap_if_t* iface, const std::shared_ptr<PcapRemoteAuthentication>& remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
 
 		// private copy c'tor
 		PcapRemoteDevice( const PcapRemoteDevice& other );
