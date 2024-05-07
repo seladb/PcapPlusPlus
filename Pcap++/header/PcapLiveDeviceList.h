@@ -123,6 +123,11 @@ namespace pcpp
 		 * @return A pointer to the cloned device list
 		 */
 		PcapLiveDeviceList* clone();
+		/**
+		 * Copies the current live device list
+		 * @return A unique ptr managing the cloned device list
+		 */
+		std::unique_ptr<PcapLiveDeviceList> clone(smart_ptr_api_tag) const;
 
 		/**
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
