@@ -29,7 +29,7 @@ namespace pcpp
 	{
 	private:
 		std::vector<std::shared_ptr<PcapRemoteDevice>> m_RemoteDeviceList;
-		// View vector to help keep backward compatability of iteration.
+		// View vector to help keep backward compatibility of iteration.
 		std::vector<PcapRemoteDevice*> m_RemoteDeviceListView;
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
