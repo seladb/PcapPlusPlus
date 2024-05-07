@@ -38,10 +38,10 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 {
 	PCPP_LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
-	char errbuf[PCAP_ERRBUF_SIZE];
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), std::to_string(port).c_str(), nullptr, errbuf) != 0)
+	char errorBuf[PCAP_ERRBUF_SIZE];
+	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), std::to_string(port).c_str(), nullptr, errorBuf) != 0)
 	{
-		PCPP_LOG_ERROR("Error in creating the remote connection string. Error was: " << errbuf);
+		PCPP_LOG_ERROR("Error in creating the remote connection string. Error was: " << errorBuf);
 		return nullptr;
 	}
 
@@ -57,7 +57,6 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 	}
 
 	pcap_if_t* interfaceList;
-	char errorBuf[PCAP_ERRBUF_SIZE];
 	if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceList, errorBuf) < 0)
 	{
 		PCPP_LOG_ERROR("Error retrieving device on remote machine. Error string is: " << errorBuf);
