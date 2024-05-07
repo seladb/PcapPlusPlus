@@ -57,12 +57,10 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 	PCPP_LOG_DEBUG("Remote capture string: " << remoteCaptureString);
 
 	pcap_rmtauth* pRmAuth = nullptr;
-	pcap_rmtauth rmAuth;
 	if (remoteAuth != nullptr)
 	{
 		PCPP_LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
-		rmAuth = remoteAuth->getPcapRmAuth();
-		pRmAuth = &rmAuth;
+		pRmAuth = &remoteAuth->getPcapRmAuth();
 	}
 
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
