@@ -39,9 +39,7 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 	PCPP_LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
 	char remoteCaptureString[PCAP_BUF_SIZE];
 	char errbuf[PCAP_ERRBUF_SIZE];
-	std::ostringstream portAsString;
-	portAsString << port;
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsString.str().c_str(), nullptr, errbuf) != 0)
+	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), std::to_string(port).c_str(), nullptr, errbuf) != 0)
 	{
 		PCPP_LOG_ERROR("Error in creating the remote connection string. Error was: " << errbuf);
 		return nullptr;
