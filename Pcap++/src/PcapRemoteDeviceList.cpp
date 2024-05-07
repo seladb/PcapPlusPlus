@@ -16,6 +16,11 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, nullptr);
 }
 
+std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, PcapRemoteDeviceList::smart_ptr_tag)
+{
+	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, std::unique_ptr<PcapRemoteAuthentication>());
+}
+
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
 	// Uses the smart pointer version and releases management of the object to the caller.

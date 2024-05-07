@@ -55,6 +55,12 @@ namespace pcpp
 		 */
 		typedef typename std::vector<PcapRemoteDevice*>::const_iterator ConstRemoteDeviceListIterator;
 
+		/*
+		 * @class smart_ptr_tag
+		 * Helper tag to disambiguate smart pointer factory.
+		 */
+		struct smart_ptr_tag {};
+
 		~PcapRemoteDeviceList();
 
 		/**
@@ -71,6 +77,8 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
+
+		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, smart_ptr_tag);
 
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
