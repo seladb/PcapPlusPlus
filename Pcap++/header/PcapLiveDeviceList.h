@@ -63,6 +63,7 @@ namespace pcpp
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 */
 		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const;
+		const std::vector<std::shared_ptr<PcapLiveDevice>> &getPcapLiveDevicesList(smart_ptr_api_tag) const { return m_LiveDeviceList; };
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
