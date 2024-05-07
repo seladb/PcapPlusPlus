@@ -13,13 +13,14 @@ namespace pcpp
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
-	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL);
+	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, nullptr);
 }
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
 	// Uses the smart pointer version and releases management of the object to the caller.
-	std::unique_ptr<PcapRemoteDeviceList> uPtr = getRemoteDeviceList(ipAddress, port, std::unique_ptr<PcapRemoteAuthentication>(new PcapRemoteAuthentication(*remoteAuth)));
+	std::unique_ptr<PcapRemoteAuthentication> auth = remoteAuth != nullptr ? std::unique_ptr<PcapRemoteAuthentication>(new PcapRemoteAuthentication(*remoteAuth)) : nullptr;
+	std::unique_ptr<PcapRemoteDeviceList> uPtr = getRemoteDeviceList(ipAddress, port, std::move(auth));
 	return uPtr.release();
 }
 
