@@ -60,13 +60,11 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 	resultList->setRemoteMachinePort(port);
 	resultList->setRemoteAuthentication(std::move(remoteAuth));
 
-	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != nullptr)
+	for (pcap_if_t* currInterface = interfaceList; currInterface != nullptr; currInterface = currInterface->next)
 	{
 		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication,
 				resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort());
 		resultList->m_RemoteDeviceList.push_back(pNewRemoteDevice);
-		currInterface = currInterface->next;
 	}
 
 	pcap_freealldevs(interfaceList);
