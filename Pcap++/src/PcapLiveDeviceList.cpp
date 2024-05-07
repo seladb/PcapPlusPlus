@@ -440,7 +440,7 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(
 	}
 }
 
-PcapLiveDeviceList* PcapLiveDeviceList::clone() { return clone(smart_ptr_api).release(); }
+PcapLiveDeviceList* PcapLiveDeviceList::clone() const { return clone(smart_ptr_api).release(); }
 
 std::unique_ptr<PcapLiveDeviceList> PcapLiveDeviceList::clone(smart_ptr_api_tag) const
 {

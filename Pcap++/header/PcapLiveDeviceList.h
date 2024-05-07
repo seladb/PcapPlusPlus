@@ -122,7 +122,7 @@ namespace pcpp
 		 * Copies the current live device list
 		 * @return A pointer to the cloned device list
 		 */
-		PcapLiveDeviceList* clone();
+		PcapLiveDeviceList* clone() const;
 		/**
 		 * Copies the current live device list
 		 * @return A unique ptr managing the cloned device list
