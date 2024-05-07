@@ -67,7 +67,7 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	{
-		pcap_if_t *interfaceListRaw;
+		pcap_if_t* interfaceListRaw;
 		if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceListRaw, errorBuf) < 0)
 		{
 			PCPP_LOG_ERROR("Error retrieving device on remote machine. Error string is: " << errorBuf);
