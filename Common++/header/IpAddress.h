@@ -64,32 +64,27 @@ namespace pcpp
 		IPv4Address(const std::string& addrAsString);
 
 		/**
-		 * Converts the IPv4 address into a 4B integer
-		 * @return a 4B integer in network byte order representing the IPv4 address
+		 * @return A 4-byte integer in network byte order representing the IPv4 address
 		 */
 		inline uint32_t toInt() const;
 
 		/**
-		 * Returns a view of the IPv4 address as a 4-byte raw C-style array
-		 * @return A non-owning pointer to 4-byte array representing the IPv4 address
+		 * @return A non-owning pointer to 4-byte C-style array representing the IPv4 address
 		 */
 		const uint8_t* toBytes() const { return m_Bytes.data(); }
 
 		/**
-		 * Returns a view of the IPv4 address as a std::array of bytes
 		 * @return A reference to a 4-byte standard array representing the IPv4 address
 		 */
 		const std::array<uint8_t, 4>& toByteArray() const { return m_Bytes; }
 
 		/**
-		 * Returns a std::string representation of the address
 		 * @return A string representation of the address
 		 */
 		std::string toString() const;
 
 		/**
-		 * Determine whether the address is a multicast address
-		 * @return True if an address is multicast
+		 * @return True if an address is multicast, false otherwise.
 		 */
 		bool isMulticast() const;
 
