@@ -24,7 +24,7 @@ namespace pcpp
 	class PcapLiveDeviceList
 	{
 	private:
-		std::vector<std::unique_ptr<PcapLiveDevice>> m_LiveDeviceList;
+		std::vector<std::shared_ptr<PcapLiveDevice>> m_LiveDeviceList;
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
 		mutable std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
@@ -42,6 +42,13 @@ namespace pcpp
 
 		void updateLiveDeviceListView() const;
 	public:
+		/*
+		 * @class smart_ptr_tag
+		 * Helper tag to disambiguate smart pointer api.
+		 */
+		struct smart_ptr_api_tag {};
+		const smart_ptr_api_tag smart_ptr_api{};
+
 		/**
 		 * The access method to the singleton
 		 * @return The singleton instance of this class
@@ -63,6 +70,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IP address exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPAddress& ipAddr, smart_ptr_api_tag) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv4 address
@@ -70,6 +78,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IPv4 address exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv4Address& ipAddr, smart_ptr_api_tag) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv6 address
@@ -77,6 +86,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IPv6 address exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, smart_ptr_api_tag) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
@@ -84,6 +94,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IP address is valid and exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const std::string& ipAddrAsString, smart_ptr_api_tag) const;
 
 		/**
 		 * Get a pointer to the live device by its name
@@ -91,6 +102,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this name exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByName(const std::string& name, smart_ptr_api_tag) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address or name
@@ -98,6 +110,7 @@ namespace pcpp
 		 * @return A pointer to the live device if exists, NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIpOrName(const std::string& ipOrName, smart_ptr_api_tag) const;
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they

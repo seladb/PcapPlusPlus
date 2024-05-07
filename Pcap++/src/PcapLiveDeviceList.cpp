@@ -258,7 +258,7 @@ void PcapLiveDeviceList::updateLiveDeviceListView() const
 		m_LiveDeviceListView.resize(m_LiveDeviceList.size());
 		// Full update of all elements of the view vector to synchronize them with the main vector.
 		std::transform(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin(),
-					   [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); }
+					   [](const std::shared_ptr<PcapLiveDevice>& ptr) { return ptr.get(); }
 		);
 	}
 }
@@ -271,17 +271,33 @@ const std::vector<PcapLiveDevice*>& PcapLiveDeviceList::getPcapLiveDevicesList()
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr) const
 {
+	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
+	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
+	// device alive.
+	return getPcapLiveDeviceByIp(ipAddr, smart_ptr_api).get();
+}
+
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr, smart_ptr_api_tag) const
+{
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
-		return getPcapLiveDeviceByIp(ipAddr.getIPv4());
+		return getPcapLiveDeviceByIp(ipAddr.getIPv4(), smart_ptr_api);
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		return getPcapLiveDeviceByIp(ipAddr.getIPv6());
+		return getPcapLiveDeviceByIp(ipAddr.getIPv6(), smart_ptr_api);
 	}
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
+{
+	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
+	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
+	// device alive.
+	return getPcapLiveDeviceByIp(ipAddr, smart_ptr_api).get();
+}
+
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr, smart_ptr_api_tag) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(const auto &devIter : m_LiveDeviceList)
@@ -306,7 +322,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			if (currAddr->s_addr == ipAddr.toInt())
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter.get();
+				return devIter;
 			}
 		}
 	}
@@ -315,6 +331,14 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
+{
+	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
+	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
+	// device alive.
+	return getPcapLiveDeviceByIp(ip6Addr, smart_ptr_api).get();
+}
+
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, smart_ptr_api_tag) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(const auto &devIter : m_LiveDeviceList)
@@ -339,7 +363,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter.get();
+				return devIter;
 			}
 		}
 	}
@@ -348,6 +372,14 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const
+{
+	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
+	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
+	// device alive.
+	return getPcapLiveDeviceByIp(ipAddrAsString, smart_ptr_api).get();
+}
+
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipAddrAsString, smart_ptr_api_tag) const
 {
 	IPAddress ipAddr;
 	try
@@ -360,16 +392,23 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 		return nullptr;
 	}
 
-	PcapLiveDevice* result = PcapLiveDeviceList::getPcapLiveDeviceByIp(ipAddr);
-	return result;
+	return PcapLiveDeviceList::getPcapLiveDeviceByIp(ipAddr, smart_ptr_api);
 }
 
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {
+	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
+	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
+	// device alive.
+	return getPcapLiveDeviceByIp(name, smart_ptr_api).get();
+}
+
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name, smart_ptr_api_tag) const
+{
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	auto devIter = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
-								[&name](const std::unique_ptr<PcapLiveDevice>& dev) { return dev->getName() == name; });
+								[&name](const std::shared_ptr<PcapLiveDevice>& dev) { return dev->getName() == name; });
 
 	if (devIter == m_LiveDeviceList.end())
 	{
@@ -377,19 +416,27 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 		return nullptr;
 	}
 
-	return devIter->get();
+	return *devIter;
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
 {
+	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
+	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
+	// device alive.
+	return getPcapLiveDeviceByIp(ipOrName, smart_ptr_api).get();
+}
+
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName, smart_ptr_api_tag) const
+{
 	try
 	{
 		IPAddress interfaceIP = IPAddress(ipOrName);
-		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP);
+		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP, smart_ptr_api);
 	}
 	catch (std::exception&)
 	{
-		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName);
+		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName, smart_ptr_api);
 	}
 }
 
