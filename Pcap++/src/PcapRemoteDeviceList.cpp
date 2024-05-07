@@ -5,6 +5,7 @@
 #include "PcapRemoteDeviceList.h"
 #include "Logger.h"
 #include "IpUtils.h"
+#include "MemoryUtils.h"
 #include "pcap.h"
 #include <ws2tcpip.h>
 
@@ -56,11 +57,15 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 		pRmAuth = &rmAuth;
 	}
 
-	pcap_if_t* interfaceList;
-	if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceList, errorBuf) < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	{
-		PCPP_LOG_ERROR("Error retrieving device on remote machine. Error string is: " << errorBuf);
-		return nullptr;
+		pcap_if_t *interfaceListRaw;
+		if (pcap_findalldevs_ex(remoteCaptureString, pRmAuth, &interfaceListRaw, errorBuf) < 0)
+		{
+			PCPP_LOG_ERROR("Error retrieving device on remote machine. Error string is: " << errorBuf);
+			return nullptr;
+		}
+		interfaceList = std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 	}
 
 	std::unique_ptr<PcapRemoteDeviceList> resultList = std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList());
@@ -68,14 +73,13 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 	resultList->setRemoteMachinePort(port);
 	resultList->setRemoteAuthentication(std::move(remoteAuth));
 
-	for (pcap_if_t* currInterface = interfaceList; currInterface != nullptr; currInterface = currInterface->next)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
 		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication,
 				resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort());
 		resultList->m_RemoteDeviceList.push_back(pNewRemoteDevice);
 	}
 
-	pcap_freealldevs(interfaceList);
 	return resultList;
 }
 
