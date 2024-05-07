@@ -424,7 +424,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::strin
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByIp(ipOrName, smart_ptr_api).get();
+	return getPcapLiveDeviceByIpOrName(ipOrName, smart_ptr_api).get();
 }
 
 std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName, smart_ptr_api_tag) const
