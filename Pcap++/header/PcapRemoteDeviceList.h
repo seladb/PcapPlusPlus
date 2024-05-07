@@ -28,17 +28,20 @@ namespace pcpp
 	class PcapRemoteDeviceList
 	{
 	private:
-		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
+		std::vector<std::unique_ptr<PcapRemoteDevice>> m_RemoteDeviceList;
+		// View vector to help keep backward compatability of iteration.
+		std::vector<PcapRemoteDevice*> m_RemoteDeviceListView;
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<PcapRemoteDevice*> deviceList);
+		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<std::unique_ptr<PcapRemoteDevice>> deviceList);
 		// private copy c'tor
 		PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
 
+		void updateDeviceListView();
 		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
 		void setRemoteMachinePort(uint16_t port);
 		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
@@ -62,8 +65,6 @@ namespace pcpp
 		 * Helper tag to disambiguate smart pointer factory.
 		 */
 		struct smart_ptr_tag {};
-
-		~PcapRemoteDeviceList();
 
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
@@ -140,22 +141,22 @@ namespace pcpp
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		RemoteDeviceListIterator begin() { return m_RemoteDeviceList.begin(); }
+		RemoteDeviceListIterator begin() { return m_RemoteDeviceListView.begin(); }
 
 		/**
 		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceList.begin(); }
+		ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceListView.begin(); }
 
 		/**
 		 * @return An iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		RemoteDeviceListIterator end() { return m_RemoteDeviceList.end(); }
+		RemoteDeviceListIterator end() { return m_RemoteDeviceListView.end(); }
 
 		/**
 		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
+		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceListView.end(); }
 
 	};
 

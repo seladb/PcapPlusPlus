@@ -12,8 +12,25 @@
 namespace pcpp
 {
 
-PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<PcapRemoteDevice*> deviceList)
-	: m_RemoteDeviceList(std::move(deviceList)), m_RemoteMachineIpAddress(ipAddress), m_RemoteMachinePort(port), m_RemoteAuthentication(std::move(remoteAuth)) {}
+PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<std::unique_ptr<PcapRemoteDevice>> deviceList)
+	: m_RemoteDeviceList(std::move(deviceList)), m_RemoteMachineIpAddress(ipAddress), m_RemoteMachinePort(port), m_RemoteAuthentication(std::move(remoteAuth))
+{
+	updateDeviceListView();
+}
+
+void PcapRemoteDeviceList::updateDeviceListView()
+{
+	// Technically if a device is removed and a different device is added, it might cause issues,
+	// but as far as I can see the LiveDeviceList is only modified on construction and reset, and that is a whole list
+	// refresh which can easily be handled by clearing the view list too.
+	if (m_RemoteDeviceList.size() != m_RemoteDeviceListView.size())
+	{
+		m_RemoteDeviceList.resize(m_RemoteDeviceListView.size());
+		// Full update of all elements of the view vector to synchronize them with the main vector.
+		std::transform(m_RemoteDeviceList.begin(), m_RemoteDeviceList.end(), m_RemoteDeviceListView.begin(),
+					   [](const std::unique_ptr<PcapRemoteDevice>& ptr) { return ptr.get(); });
+	}
+}
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
@@ -74,11 +91,11 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 		interfaceList = std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 	}
 
-	std::vector<PcapRemoteDevice*> remoteDeviceList;
+	std::vector<std::unique_ptr<PcapRemoteDevice>> remoteDeviceList;
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		PcapRemoteDevice *pNewRemoteDevice = new PcapRemoteDevice(currInterface, remoteAuth, ipAddress, port);
-		remoteDeviceList.push_back(pNewRemoteDevice);
+		std::unique_ptr<PcapRemoteDevice> pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(new PcapRemoteDevice(currInterface, remoteAuth, ipAddress, port));
+		remoteDeviceList.push_back(std::move(pNewRemoteDevice));
 	}
 
 	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, std::move(remoteAuth), std::move(remoteDeviceList)));
@@ -118,7 +135,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipA
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(auto& devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); ++devIter)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(const auto &addrIter : (*devIter)->m_Addresses)
@@ -140,7 +157,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 			if (currAddr->s_addr == ip4Addr.toInt())
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return (*devIter);
+				return devIter->get();
 			}
 		}
 	}
@@ -152,7 +169,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(auto& devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); ++devIter)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(const auto &addrIter : (*devIter)->m_Addresses)
@@ -174,7 +191,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return (*devIter);
+				return devIter->get();
 			}
 		}
 	}
@@ -200,16 +217,6 @@ void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthenticatio
 void PcapRemoteDeviceList::setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth)
 {
 	m_RemoteAuthentication = std::move(remoteAuth);
-}
-
-PcapRemoteDeviceList::~PcapRemoteDeviceList()
-{
-	while (m_RemoteDeviceList.size() > 0)
-	{
-		RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
-		delete (*devIter);
-		m_RemoteDeviceList.erase(devIter);
-	}
 }
 
 } // namespace pcpp
