@@ -14,8 +14,9 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 {
 	pcap_rmtauth result;
 	result.type = RPCAP_RMTAUTH_PWD;
-	result.username = (char*)userName.c_str();
-	result.password = (char*)password.c_str();
+	// Const cast can cause access violation errors. Hope nobody modifies this...
+	result.username = const_cast<char*>(userName.c_str());
+	result.password = const_cast<char*>(password.c_str());
 	return result;
 }
 
