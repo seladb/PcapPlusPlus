@@ -230,25 +230,6 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 	return nullptr;
 }
 
-void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress& ipAddress)
-{
-	m_RemoteMachineIpAddress = ipAddress;
-}
-
-void PcapRemoteDeviceList::setRemoteMachinePort(uint16_t port)
-{
-	m_RemoteMachinePort = port;
-}
-
-void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth)
-{
-	setRemoteAuthentication(remoteAuth != nullptr ? std::move(std::make_shared<PcapRemoteAuthentication>(*remoteAuth)) : nullptr);
-}
-void PcapRemoteDeviceList::setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth)
-{
-	m_RemoteAuthentication = std::move(remoteAuth);
-}
-
 } // namespace pcpp
 
 #endif // _WIN32

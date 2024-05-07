@@ -42,10 +42,6 @@ namespace pcpp
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
 
 		void updateDeviceListView();
-		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
-		void setRemoteMachinePort(uint16_t port);
-		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
-		void setRemoteAuthentication(std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
 
 		// Implementation that uses a shared ptr is private to guarantee that the remote auth object is not shared externally. It is used by the other overloads.
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
