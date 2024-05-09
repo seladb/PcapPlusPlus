@@ -98,7 +98,7 @@ Follow the build instructions according to your platform in the [Build From Sour
 
 ### Verify your packages
 
-PcapPlusPlus releases are signed with GitHub attestation. You can verify the attestation of the packages with GitHub CLI. To verify packages you can follow the most recent instructions from [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify) page. For simple instructions you can use the following command:
+PcapPlusPlus releases which newer than v23.09 are signed with GitHub attestation. You can verify the attestation of these packages with GitHub CLI. To verify packages you can follow the most recent instructions from [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify). For simple instructions you can use the following command:
 
 ```shell
 gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
