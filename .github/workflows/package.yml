@@ -63,7 +63,7 @@ jobs:
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
 
-	    - name: Generate artifact attestation
+      - name: Generate artifact attestation
         id: attestation
         uses: actions/attest-build-provenance@v1
         with:
@@ -106,7 +106,7 @@ jobs:
             cmake --build "$BUILD_DIR" -j 4
             cmake --build "$BUILD_DIR" --target package
 
-	    - name: Generate artifact attestation
+      - name: Generate artifact attestation
         id: attestation
         uses: actions/attest-build-provenance@v1
         with:
@@ -150,7 +150,7 @@ jobs:
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
 
-	    - name: Generate artifact attestation
+      - name: Generate artifact attestation
         id: attestation
         uses: actions/attest-build-provenance@v1
         with:
@@ -221,7 +221,7 @@ jobs:
         shell: msys2 {0}
         run: cmake --build "$BUILD_DIR" --target package
 
-	    - name: Generate artifact attestation
+      - name: Generate artifact attestation
         id: attestation
         uses: actions/attest-build-provenance@v1
         with:
@@ -271,7 +271,7 @@ jobs:
       - name: Package
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
-	    - name: Generate artifact attestation
+      - name: Generate artifact attestation
         id: attestation
         uses: actions/attest-build-provenance@v1
         with:
