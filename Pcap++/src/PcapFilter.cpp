@@ -28,15 +28,32 @@ bool GeneralFilter::matchPacketWithFilter(RawPacket* rawPacket)
 	return m_BpfWrapper.matchPacketWithFilter(rawPacket);
 }
 
-BpfFilterWrapper::BpfFilterWrapper()
+namespace internal
 {
-	m_Program = nullptr;
-	m_LinkType = LINKTYPE_ETHERNET;
+	void BpfProgramDeleter::operator()(bpf_program* ptr) const
+	{
+		pcap_freecode(ptr);
+		delete ptr;
+	}
+
+	/**
+	 * @class PcapTDeleter
+	 * A deleter that cleans up a pcap_t structure by calling pcap_close.
+	 */
+	struct PcapTDeleter
+	{
+		void operator()(pcap_t* ptr) const { pcap_close(ptr); }
+	};
 }
 
-BpfFilterWrapper::~BpfFilterWrapper()
+BpfFilterWrapper::BpfFilterWrapper() : m_LinkType(LinkLayerType::LINKTYPE_ETHERNET) {}
+
+BpfFilterWrapper::BpfFilterWrapper(const BpfFilterWrapper& other) : BpfFilterWrapper() { setFilter(other.m_FilterStr, other.m_LinkType); }
+
+BpfFilterWrapper& BpfFilterWrapper::operator=(const BpfFilterWrapper &other)
 {
-	freeProgram();
+	setFilter(other.m_FilterStr, other.m_LinkType);
+	return *this;
 }
 
 bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkType)
@@ -49,23 +66,21 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 	if (filter != m_FilterStr || linkType != m_LinkType)
 	{
-		pcap_t* pcap = pcap_open_dead(linkType, DEFAULT_SNAPLEN);
+		std::unique_ptr<pcap_t, internal::PcapTDeleter> pcap = std::unique_ptr<pcap_t, internal::PcapTDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
 		{
 			return false;
 		}
 
-		bpf_program* newProg = new bpf_program;
-		int ret = pcap_compile(pcap, newProg, filter.c_str(), 1, 0);
-		pcap_close(pcap);
+		std::unique_ptr<bpf_program> newProg = std::unique_ptr<bpf_program>(new bpf_program);
+		int ret = pcap_compile(pcap.get(), newProg.get(), filter.c_str(), 1, 0);
 		if (ret < 0)
 		{
-			delete newProg;
 			return false;
 		}
 
-		freeProgram();
-		m_Program = newProg;
+		// Reassigns ownership of the bpf program to a new unique_ptr with a custom deleter as it now requires specialized cleanup.
+		m_Program = std::unique_ptr<bpf_program, internal::BpfProgramDeleter>(newProg.release());
 		m_FilterStr = filter;
 		m_LinkType = linkType;
 	}
@@ -75,13 +90,8 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 void BpfFilterWrapper::freeProgram()
 {
-	if (m_Program != nullptr)
-	{
-		pcap_freecode(m_Program);
-		delete m_Program;
-		m_Program = nullptr;
-		m_FilterStr.clear();
-	}
+	m_Program = nullptr;
+	m_FilterStr.clear();
 }
 
 bool BpfFilterWrapper::matchPacketWithFilter(const RawPacket* rawPacket)
@@ -104,7 +114,7 @@ bool BpfFilterWrapper::matchPacketWithFilter(const uint8_t* packetData, uint32_t
 	pktHdr.len = packetDataLength;
 	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packetTimestamp);
 
-	return (pcap_offline_filter(m_Program, &pktHdr, packetData) != 0);
+	return (pcap_offline_filter(m_Program.get(), &pktHdr, packetData) != 0);
 }
 
 void BPFStringFilter::parseToString(std::string& result)
