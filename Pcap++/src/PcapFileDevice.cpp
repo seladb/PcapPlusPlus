@@ -251,17 +251,17 @@ bool PcapFileReaderDevice::open()
 	}
 
 	char errbuf[PCAP_ERRBUF_SIZE];
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+	m_PcapDescriptor = pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf);
+#else
 	m_PcapDescriptor = pcap_open_offline(m_FileName.c_str(), errbuf);
+#endif
 	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Cannot open file reader device for filename '" << m_FileName << "': " << errbuf);
 		m_DeviceOpened = false;
 		return false;
 	}
-
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-	m_Precision = pcap_get_tstamp_precision(m_PcapDescriptor);
-#endif
 
 	int linkLayer = pcap_datalink(m_PcapDescriptor);
 	if (!RawPacket::isLinkTypeValid(linkLayer))
@@ -275,7 +275,12 @@ bool PcapFileReaderDevice::open()
 
 	m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
 
-	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "'");
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+	m_Precision = pcap_get_tstamp_precision(m_PcapDescriptor);
+#endif
+	PCPP_LOG_ERROR("Successfully opened file reader device for filename '"
+				   << m_FileName << "' with precision "
+				   << (m_Precision == PCAP_TSTAMP_PRECISION_NANO ? "nano" : "micro"));
 	m_DeviceOpened = true;
 	return true;
 }
@@ -307,7 +312,7 @@ bool PcapFileReaderDevice::getNextPacket(RawPacket& rawPacket)
 	uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 	memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec * (m_Precision == PCAP_TSTAMP_PRECISION_NANO ? 1 : 1000))}; // because we opened with nano second precision 'tv_usec' is actually nanos
+	timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec) }; //because we opened with nano second precision 'tv_usec' is actually nanos
 #else
 	struct timeval ts = pkthdr.ts;
 #endif
@@ -578,7 +583,12 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pktHdr.caplen = ((RawPacket&)packet).getRawDataLen();
 	pktHdr.len = ((RawPacket&)packet).getFrameLength();
 	timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
-	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+	if (m_Precision != PCAP_TSTAMP_PRECISION_NANO)
+	{
+		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
+	}
+#endif
 	if (!m_AppendMode)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
 	else
