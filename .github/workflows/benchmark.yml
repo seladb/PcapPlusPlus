@@ -44,7 +44,7 @@ jobs:
         uses: benchmark-action/github-action-benchmark@v1
         with:
           tool: 'googlecpp'
-          output-file-path: Tests/Benchmarks/PcppBenchmark/benchmark_result.json
+          output-file-path: Tests/Benchmarks/benchmark_result.json
           external-data-json-path: ./cache/benchmark_result.json
           fail-on-alert: true
           summary-always: true
