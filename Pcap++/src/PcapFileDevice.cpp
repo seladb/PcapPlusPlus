@@ -277,10 +277,12 @@ bool PcapFileReaderDevice::open()
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_Precision = pcap_get_tstamp_precision(m_PcapDescriptor);
+	std::string precisionString = m_Precision == PCAP_TSTAMP_PRECISION_NANO ? "nano" : "micro";
+#else
+	m_Precision = -1;
+    std::string precisionString = "micro";
 #endif
-	PCPP_LOG_ERROR("Successfully opened file reader device for filename '"
-				   << m_FileName << "' with precision "
-				   << (m_Precision == PCAP_TSTAMP_PRECISION_NANO ? "nano" : "micro"));
+	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision " << precisionString);
 	m_DeviceOpened = true;
 	return true;
 }
@@ -588,6 +590,13 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	{
 		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 	}
+	else
+	{
+		pktHdr.ts.tv_sec = packet_timestamp.tv_sec;
+		pktHdr.ts.tv_usec = packet_timestamp.tv_nsec;
+	}
+#else
+	TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 #endif
 	if (!m_AppendMode)
 		pcap_dump((uint8_t*)m_PcapDumpHandler, &pktHdr, ((RawPacket&)packet).getRawData());
