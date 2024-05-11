@@ -538,7 +538,12 @@ PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLaye
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_Precision = nanoPrecision ? PCAP_TSTAMP_PRECISION_NANO : PCAP_TSTAMP_PRECISION_MICRO;
 #else
-	PCPP_LOG_ERROR("PcapFileWriterDevice was compiled without nano precision support which requires libpcap > 1.5.1. Please recompile PcapPlusPlus with nano precision support to use this feature. Using default precision");
+	if (nanoPrecision)
+	{
+		PCPP_LOG_DEBUG(
+			"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+			"recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+	}
 	m_Precision = -1;
 #endif
 	m_File = nullptr;
