@@ -70,7 +70,7 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
@@ -113,7 +113,7 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
@@ -157,7 +157,7 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
@@ -228,7 +228,7 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
@@ -278,7 +278,7 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
@@ -369,7 +369,7 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
