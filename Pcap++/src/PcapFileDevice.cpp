@@ -280,7 +280,7 @@ bool PcapFileReaderDevice::open()
 	std::string precisionString = m_Precision == PCAP_TSTAMP_PRECISION_NANO ? "nano" : "micro";
 #else
 	m_Precision = -1;
-    std::string precisionString = "micro";
+	std::string precisionString = "micro";
 #endif
 	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision " << precisionString);
 	m_DeviceOpened = true;
