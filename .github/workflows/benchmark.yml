@@ -1,0 +1,45 @@
+name: Benchmark
+
+on:
+  push:
+    branches: ["master", "dev"]
+  pull_request:
+    branches: ["dev"]
+
+env:
+  BUILD_DIR: Dist
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    container: seladb/ubuntu2204
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_BUILD_BENCHMARK_SUITE=ON -S . -B "$BUILD_DIR"
+
+      - name: Run PcapPlusPlus benchmark
+        run: cd Tests/Benchmarks/PcppBenchmark && ./PcppBenchmark --verbose --benchmark_out=benchmark_result.json
+
+      - name: Download previous benchmark data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          key: ${{ runner.os }}-benchmark
+
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'googlecpp'
+          output-file-path: Tests/Benchmarks/PcppBenchmark/benchmark_result.json
+          external-data-json-path: ./cache/benchmark_result.json
+          fail-on-alert: true
+          summary-always: true
+  
