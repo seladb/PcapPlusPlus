@@ -13,7 +13,6 @@ static std::string pcapFileName = "pcap_examples/example_copy.pcap";
 static void BM_PcapFileRead(benchmark::State& state)
 {
     // Open the pcap file for reading
-	bool isPacketRead = false;
 	pcpp::PcapFileReaderDevice reader(pcapFileName);
     if (!reader.open())
     {
@@ -21,13 +20,15 @@ static void BM_PcapFileRead(benchmark::State& state)
         return;
     }
 
+    size_t totalBytes = 0;
+	size_t totalPackets = 0;
     pcpp::RawPacket rawPacket;
     for (auto _ : state)
     {
         if (!reader.getNextPacket(rawPacket))
         {
             // If the rawPacket is empty there should be an error
-            if (!isPacketRead)
+            if (totalBytes == 0)
             {
                 state.SkipWithError("Cannot read packet");
                 break;
@@ -41,8 +42,13 @@ static void BM_PcapFileRead(benchmark::State& state)
                 state.ResumeTiming();
             }
         }
-		isPacketRead = true;
+
+        ++totalPackets;
+        totalBytes += rawPacket.getRawDataLen();
     }
+
+    state.SetBytesProcessed(totalBytes);
+    state.SetItemsProcessed(totalPackets);
 }
 BENCHMARK(BM_PcapFileRead);
 
@@ -131,7 +137,8 @@ static void BM_PcapPacketParsing(benchmark::State& state)
 	}
 
     // Open the pcap file for reading
-	bool isPacketRead = false;
+	size_t totalBytes = 0;
+	size_t totalPackets = 0;
 	pcpp::PcapFileReaderDevice reader(pcapFileName);
     if (!reader.open())
     {
@@ -145,7 +152,7 @@ static void BM_PcapPacketParsing(benchmark::State& state)
         if (!reader.getNextPacket(rawPacket))
         {
 			// If the rawPacket is empty there should be an error
-			if (!isPacketRead)
+			if (totalBytes == 0)
 			{
 				state.SkipWithError("Cannot read packet");
 				break;
@@ -159,7 +166,6 @@ static void BM_PcapPacketParsing(benchmark::State& state)
 				state.ResumeTiming();
 			}
         }
-		isPacketRead = true;
 
         // Parse packet
         pcpp::Packet parsedPacket(&rawPacket);
@@ -170,7 +176,13 @@ static void BM_PcapPacketParsing(benchmark::State& state)
 			++layerTypes[curLayer->getProtocol()];
 			++osiLayers[curLayer->getOsiModelLayer()];
         }
+
+        ++totalPackets;
+        totalBytes += rawPacket.getRawDataLen();
     }
+
+    state.SetBytesProcessed(totalBytes);
+    state.SetItemsProcessed(totalPackets);
 }
 BENCHMARK(BM_PcapPacketParsing);
 
