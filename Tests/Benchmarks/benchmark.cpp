@@ -170,7 +170,7 @@ static void BM_PcapPacketParsing(benchmark::State& state)
         // Parse packet
         pcpp::Packet parsedPacket(&rawPacket);
 
-        // Access protocol layers to simulate accessing
+        // Count protocol layers to simulate accessing
 		for (pcpp::Layer *curLayer = parsedPacket.getFirstLayer(); curLayer != NULL; curLayer = curLayer->getNextLayer())
         {
 			++layerTypes[curLayer->getProtocol()];
