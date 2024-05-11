@@ -208,7 +208,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	PTF_ASSERT_EQUAL(newExt1.getExtensionType(), 0xc0);
 	PTF_ASSERT_EQUAL(newExt1.getTotalLength(), 4*sizeof(uint8_t));
 	PTF_ASSERT_EQUAL(newExt1.getContentLength(), 2*sizeof(uint8_t));
-	uint16_t* content = (uint16_t*)newExt1.getContent();
+	uint16_t* content = reinterpret_cast<uint16_t*>(newExt1.getContent());
 	PTF_ASSERT_EQUAL(be16toh(content[0]), 2308);
 	PTF_ASSERT_TRUE(newExt1.getNextExtension().isNull());
 
@@ -222,7 +222,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	PTF_ASSERT_EQUAL(newExt2.getExtensionType(), 0x40);
 	PTF_ASSERT_EQUAL(newExt2.getTotalLength(), 4*sizeof(uint8_t));
 	PTF_ASSERT_EQUAL(newExt2.getContentLength(), 2*sizeof(uint8_t));
-	content = (uint16_t*)newExt2.getContent();
+	content = reinterpret_cast<uint16_t*>(newExt2.getContent());
 	PTF_ASSERT_EQUAL(be16toh(content[0]), 1308);
 	PTF_ASSERT_TRUE(newExt2.getNextExtension().isNull());
 
@@ -276,7 +276,7 @@ PTF_TEST_CASE(GtpLayerEditTest)
 
 	pcpp::GtpV1Layer::GtpExtension gtpExtension = gtpLayer->getNextExtension();
 	PTF_ASSERT_FALSE(gtpExtension.isNull());
-	uint16_t* extContent = (uint16_t*)gtpExtension.getContent();
+	uint16_t* extContent = reinterpret_cast<uint16_t*>(gtpExtension.getContent());
 	PTF_ASSERT_EQUAL(be16toh(extContent[0]), 1000);
 
 	gtpHeader = gtpLayer->getHeader();

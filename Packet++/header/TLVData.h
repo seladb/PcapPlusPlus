@@ -69,7 +69,7 @@ namespace pcpp
 		 */
 		void assign(uint8_t* recordRawData)
 		{
-			m_Data = (TLVRawData*)recordRawData;
+			m_Data = reinterpret_cast<TLVRawData*>(recordRawData);
 		}
 
 		/**

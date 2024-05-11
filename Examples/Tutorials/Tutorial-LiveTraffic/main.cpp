@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "stdlib.h"
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
@@ -7,25 +8,23 @@
  */
 struct PacketStats
 {
-	int ethPacketCount;
-	int ipv4PacketCount;
-	int ipv6PacketCount;
-	int tcpPacketCount;
-	int udpPacketCount;
-	int dnsPacketCount;
-	int httpPacketCount;
-	int sslPacketCount;
+	int ethPacketCount = 0;
+	int ipv4PacketCount = 0;
+	int ipv6PacketCount = 0;
+	int tcpPacketCount = 0;
+	int udpPacketCount = 0;
+	int dnsPacketCount = 0;
+	int httpPacketCount = 0;
+	int sslPacketCount = 0;
 
 
 	/**
 	 * Clear all stats
 	 */
-	void clear() { ethPacketCount = 0; ipv4PacketCount = 0; ipv6PacketCount = 0; tcpPacketCount = 0; udpPacketCount = 0; tcpPacketCount = 0; dnsPacketCount = 0; httpPacketCount = 0; sslPacketCount = 0; }
+	void clear() { ethPacketCount = ipv4PacketCount = ipv6PacketCount = tcpPacketCount = udpPacketCount = dnsPacketCount = httpPacketCount = sslPacketCount = 0; }
 
-	/**
-	 * C'tor
-	 */
-	PacketStats() { clear(); }
+	// Constructor is optional here since the members are already initialized
+	PacketStats() = default;
 
 	/**
 	 * Collect stats from a packet
@@ -74,7 +73,7 @@ struct PacketStats
 static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
 	// extract the stats object form the cookie
-	PacketStats* stats = (PacketStats*)cookie;
+	auto* stats = static_cast<PacketStats*>(cookie);
 
 	// parsed the raw packet
 	pcpp::Packet parsedPacket(packet);
@@ -89,8 +88,8 @@ static void onPacketArrives(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, 
  */
 static bool onPacketArrivesBlockingMode(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* cookie)
 {
-	// extract the stats object form the cookie
-	PacketStats* stats = (PacketStats*)cookie;
+	// extract the stats object from the cookie
+	auto* stats = static_cast<PacketStats*>(cookie);
 
 	// parsed the raw packet
 	pcpp::Packet parsedPacket(packet);
@@ -112,7 +111,7 @@ int main(int argc, char* argv[])
 	std::string interfaceIPAddr = "10.0.0.1";
 
 	// find the interface by IP address
-	pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
+	auto* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIPAddr);
 	if (dev == nullptr)
 	{
 		std::cerr << "Cannot find interface with IPv4 address of '" << interfaceIPAddr << "'" << std::endl;
@@ -131,8 +130,10 @@ int main(int argc, char* argv[])
 		<< "   Default gateway:       " << dev->getDefaultGateway() << std::endl // get default gateway
 		<< "   Interface MTU:         " << dev->getMtu() << std::endl; // get interface MTU
 
-	if (dev->getDnsServers().size() > 0)
-		std::cout << "   DNS server:            " << dev->getDnsServers().at(0) << std::endl;
+	if (!dev->getDnsServers().empty())
+	{
+		std::cout << "   DNS server:            " << dev->getDnsServers().front() << std::endl;
+	}
 
 	// open the device before start capturing/sending packets
 	if (!dev->open())
@@ -185,12 +186,9 @@ int main(int argc, char* argv[])
 	dev->stopCapture();
 
 	// go over the packet vector and feed all packets to the stats object
-	for (pcpp::RawPacketVector::ConstVectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
+	for (const auto& packet : packetVec)
 	{
-		// parse raw packet
-		pcpp::Packet parsedPacket(*iter);
-
-		// feed packet to the stats object
+		pcpp::Packet parsedPacket(packet);
 		stats.consumePacket(parsedPacket);
 	}
 
@@ -225,15 +223,16 @@ int main(int argc, char* argv[])
 	std::cout << std::endl << "Sending " << packetVec.size() << " packets one by one..." << std::endl;
 
 	// go over the vector of packets and send them one by one
-	for (pcpp::RawPacketVector::ConstVectorIterator iter = packetVec.begin(); iter != packetVec.end(); iter++)
+	bool allSent = std::all_of(packetVec.begin(), packetVec.end(), [dev](pcpp::RawPacket* packet) {
+		return dev->sendPacket(*packet);
+	});
+
+	if (!allSent)
 	{
-		// send the packet. If fails exit the application
-		if (!dev->sendPacket(**iter))
-		{
-			std::cerr << "Couldn't send packet" << std::endl;
-			return 1;
-		}
+		std::cerr << "Couldn't send packet" << std::endl;
+		return 1;
 	}
+
 	std::cout << packetVec.size() << " packets sent" << std::endl;
 
 
@@ -279,7 +278,6 @@ int main(int argc, char* argv[])
 	// print results - should capture only packets which match the filter (which is TCP port 80)
 	std::cout << "Results:" << std::endl;
 	stats.printToConsole();
-
 
 	// close the device before application ends
 	dev->close();

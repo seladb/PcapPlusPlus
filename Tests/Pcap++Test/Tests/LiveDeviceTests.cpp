@@ -22,12 +22,12 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 static void packetArrives(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDevice, void* userCookie)
 {
-	(*(int*)userCookie)++;
+	(*static_cast<int*>(userCookie))++;
 }
 
 static void statsUpdate(pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
 {
-	(*(int*)userCookie)++;
+	(*static_cast<int*>(userCookie))++;
 }
 
 static bool packetArrivesBlockingModeTimeout(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
@@ -37,7 +37,7 @@ static bool packetArrivesBlockingModeTimeout(pcpp::RawPacket* rawPacket, pcpp::P
 
 static bool packetArrivesBlockingModeNoTimeout(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -57,7 +57,7 @@ static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pc
 
 	pcpp::Logger::getInstance().enableLogs();
 
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -70,7 +70,7 @@ static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcp
 	// shouldn't do anything
 	dev->stopCapture();
 
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -80,14 +80,14 @@ static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcp
 
 static bool packetArrivesBlockingModeNoTimeoutPacketCount(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	(*packetCount)++;
 	return false;
 }
 
 static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int snaplen = *(int*)userCookie;
+	int snaplen = *static_cast<int*>(userCookie);
 	return rawPacket->getRawDataLen() > snaplen;
 }
 
@@ -118,7 +118,7 @@ public:
 		if (!CreateProcess
 				(
 				TEXT(cmd.c_str()),
-				(char*)TEXT(args.str().c_str()),
+				const_cast<char*>(TEXT(args.str().c_str())), // TODO: This can potentially cause access violation if Unicode version CreateProcessW is chosen.
 				NULL,NULL,FALSE,
 				CREATE_NEW_CONSOLE,
 				NULL,NULL,
@@ -229,7 +229,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	DeviceTeardown devTeardown(liveDev);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
@@ -254,7 +254,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 } // TestPcapLiveDevice
 
@@ -272,7 +272,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	DeviceTeardown devTeardown(liveDev, true);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
@@ -296,7 +296,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 
 } // TestPcapLiveDeviceClone
@@ -343,7 +343,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	sendURLRequest("www.ebay.com");
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 6)
@@ -370,7 +370,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 } // TestPcapLiveDeviceStatsMode
 
@@ -491,15 +491,15 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 
 	auto packetArrivesLambda = [](pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDevice, void* userCookie)
 	{
-		(*(int*)userCookie)++;
+		(*static_cast<int*>(userCookie))++;
 	};
 
 	auto statsUpdateLambda = [](pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
 	{
-		(*(int*)userCookie)++;
+		(*static_cast<int*>(userCookie))++;
 	};
 
-	PTF_ASSERT_TRUE(liveDev->startCapture(packetArrivesLambda , (void*)&packetCount, 1, statsUpdateLambda, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(packetArrivesLambda , static_cast<void*>(&packetCount), 1, statsUpdateLambda, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
@@ -523,7 +523,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 	auto packetArrivesBlockingModeNoTimeoutLambda = [](
 		pcpp::RawPacket *rawPacket, pcpp::PcapLiveDevice *dev, void *userCookie)
 	{
-		int *packetCount = (int *)userCookie;
+		int *packetCount = static_cast<int*>(userCookie);
 		if ((*packetCount) == 5)
 			return true;
 
@@ -632,7 +632,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	PTF_ASSERT_TRUE(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000));
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(winPcapLiveDevice->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	for (int i = 0; i < 5; i++)
 	{
 		sendURLRequest("www.ebay.com");
@@ -650,7 +650,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 
 #else

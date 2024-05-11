@@ -20,7 +20,7 @@ void RawPacket::init(bool deleteRawDataAtDestructor)
 
 RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor, LinkLayerType layerType)
 {
-	timespec nsec_time;
+	timespec nsec_time = {};
 	TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
 	init(deleteRawDataAtDestructor);
 	setRawData(pRawData, rawDataLen, nsec_time, layerType);

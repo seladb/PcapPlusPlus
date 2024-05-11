@@ -5,7 +5,7 @@ on:
     branches: [ "dev" ]
   workflow_dispatch:
   schedule:
-    - cron: '15 14 * * 1'
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
 
 jobs:
   analyze:

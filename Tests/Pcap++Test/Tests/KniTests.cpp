@@ -23,7 +23,7 @@ struct KniRequestsCallbacksMock
 
 	static bool onPacketsCallbackSingleBurst(pcpp::MBufRawPacket*, uint32_t numOfPackets, pcpp::KniDevice*, void* userCookie)
 	{
-		unsigned int* counter = (unsigned int*)userCookie;
+		unsigned int* counter = static_cast<unsigned int*>(userCookie);
 		*counter = numOfPackets;
 		// Break after first burst
 		return false;
@@ -34,7 +34,7 @@ struct KniRequestsCallbacksMock
 	}
 	static bool onPacketsCallback(pcpp::MBufRawPacket*, uint32_t numOfPackets, pcpp::KniDevice*, void* userCookie)
 	{
-		unsigned int* counter = (unsigned int*)userCookie;
+		unsigned int* counter = static_cast<unsigned int*>(userCookie);
 		*counter = *counter + numOfPackets;
 		return true;
 	}
