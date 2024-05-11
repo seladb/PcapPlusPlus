@@ -32,7 +32,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Run PcapPlusPlus benchmark
-        run: cd Tests/Benchmarks/PcppBenchmark && ./PcppBenchmark --verbose --benchmark_out=benchmark_result.json
+        run: cd Tests/Benchmarks && ./PcppBenchmark --verbose --benchmark_out=benchmark_result.json
 
       - name: Download previous benchmark data
         uses: actions/cache@v4
