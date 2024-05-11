@@ -48,4 +48,3 @@ jobs:
           external-data-json-path: ./cache/benchmark_result.json
           fail-on-alert: true
           summary-always: true
-  

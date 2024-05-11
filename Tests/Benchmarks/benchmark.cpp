@@ -125,13 +125,13 @@ static void BM_PcapPacketParsing(benchmark::State& state)
 
 
     std::unordered_map<pcpp::ProtocolType, size_t> layerTypes;
-    for (auto &element : layerTypeStrings)
+    for (const auto &element : layerTypeStrings)
 	{
 		layerTypes[element.first] = 0;
 	}
 
 	std::unordered_map<pcpp::OsiModelLayer, size_t> osiLayers;
-	for (auto &element : osiLayerStrings)
+	for (const auto &element : osiLayerStrings)
 	{
 		osiLayers[element.first] = 0;
 	}
