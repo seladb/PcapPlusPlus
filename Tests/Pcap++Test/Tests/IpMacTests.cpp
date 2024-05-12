@@ -132,7 +132,7 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
 		PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
 		PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
-		
+
 		// Equality between equal in6_addr and IPAddress.
 		PTF_ASSERT_TRUE(ip6Addr == in_ipv6_addr);
 		PTF_ASSERT_TRUE(in_ipv6_addr == ip6Addr);
