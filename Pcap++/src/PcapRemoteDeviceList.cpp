@@ -160,20 +160,20 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(const auto& devIter : m_RemoteDeviceList)
+	for(const auto& device : m_RemoteDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : devIter->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << device->m_Name << "'. Searching all addresses...");
+		for(const auto& addressInfo : device->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addressInfo.addr != nullptr)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
+				internal::sockaddr2string(addressInfo.addr, addrAsString);
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
-			if (currAddr == NULL)
+			in_addr* currAddr = internal::sockaddr2in_addr(addressInfo.addr);
+			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
 				continue;
@@ -182,7 +182,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 			if (currAddr->s_addr == ip4Addr.toInt())
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter;
+				return device;
 			}
 		}
 	}
@@ -202,20 +202,20 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address &i
 std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(const auto& devIter : m_RemoteDeviceList)
+	for(const auto& device : m_RemoteDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
-		for(const auto& addrIter : devIter->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << device->m_Name << "'. Searching all addresses...");
+		for(const auto& addressInfo : device->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addressInfo.addr != nullptr)
 			{
 				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
+				internal::sockaddr2string(addressInfo.addr, addrAsString);
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
-			if (currAddr == NULL)
+			in6_addr* currAddr = internal::sockaddr2in6_addr(addressInfo.addr);
+			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
 				continue;
@@ -224,7 +224,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter;
+				return device;
 			}
 		}
 	}
