@@ -160,10 +160,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(auto& devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); ++devIter)
+	for(const auto& devIter : m_RemoteDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : (*devIter)->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
+		for(const auto &addrIter : devIter->m_Addresses)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
 			{
@@ -182,7 +182,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 			if (currAddr->s_addr == ip4Addr.toInt())
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return *devIter;
+				return devIter;
 			}
 		}
 	}
@@ -202,10 +202,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address &i
 std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(auto& devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); ++devIter)
+	for(const auto& devIter : m_RemoteDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : (*devIter)->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
+		for(const auto& addrIter : devIter->m_Addresses)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
 			{
@@ -224,7 +224,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return *devIter;
+				return devIter;
 			}
 		}
 	}
