@@ -49,12 +49,26 @@ PTF_TEST_CASE(TestIPAddress)
 			inAddr_v4.S_un.S_un_b.s_b3 = 0;
 			inAddr_v4.S_un.S_un_b.s_b4 = 4;
 
+			// Equality between equal in_addr and IPv4Address.
+			PTF_ASSERT_TRUE(ip4AddrFromIpAddr == inAddr_v4);
+			PTF_ASSERT_TRUE(inAddr_v4 == ip4AddrFromIpAddr);
+			PTF_ASSERT_FALSE(ip4AddrFromIpAddr != inAddr_v4);
+			PTF_ASSERT_FALSE(inAddr_v4 != ip4AddrFromIpAddr);
+
+			// Equality between equal in_addr and IPAddress.
 			PTF_ASSERT_TRUE(ip4Addr == inAddr_v4);
 			PTF_ASSERT_TRUE(inAddr_v4 == ip4Addr);
 			PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
 			PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
 
 			inAddr_v4.S_un.S_un_b.s_b2 = 1;
+			// Equality between different in_addr and IPv4Address.
+			PTF_ASSERT_FALSE(ip4AddrFromIpAddr == inAddr_v4);
+			PTF_ASSERT_FALSE(inAddr_v4 == ip4AddrFromIpAddr);
+			PTF_ASSERT_TRUE(ip4AddrFromIpAddr != inAddr_v4);
+			PTF_ASSERT_TRUE(inAddr_v4 != ip4AddrFromIpAddr);
+
+			// Equality between different in_addr and IPAddress.
 			PTF_ASSERT_FALSE(ip4Addr == inAddr_v4);
 			PTF_ASSERT_FALSE(inAddr_v4 == ip4Addr);
 			PTF_ASSERT_TRUE(ip4Addr != inAddr_v4);
@@ -120,10 +134,17 @@ PTF_TEST_CASE(TestIPAddress)
 			in6_addr in_ipv6_addr;
 			std::copy(expectedByteArray, expectedByteArray + 16, in_ipv6_addr.u.Byte);
 
+			// Equality between equal in6_addr and IPv6Address.
 			PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
 			PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
 			PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
 			PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
+
+			// Equality between equal in6_addr and IPAddress.
+			PTF_ASSERT_TRUE(ip6Addr == in_ipv6_addr);
+			PTF_ASSERT_TRUE(in_ipv6_addr == ip6Addr);
+			PTF_ASSERT_FALSE(ip6Addr != in_ipv6_addr);
+			PTF_ASSERT_FALSE(in_ipv6_addr != ip6Addr);
 
 			in_ipv6_addr.u.Byte[3] = 0x01;
 			// Equality between different in6_addr and IPv6Address.
@@ -131,6 +152,12 @@ PTF_TEST_CASE(TestIPAddress)
 			PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
 			PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
 			PTF_ASSERT_TRUE(in_ipv6_addr != ip6AddrFromIpAddr);
+
+			// Equality between different in6_addr and IPAddress.
+			PTF_ASSERT_FALSE(ip6Addr == in_ipv6_addr);
+			PTF_ASSERT_FALSE(in_ipv6_addr == ip6Addr);
+			PTF_ASSERT_TRUE(ip6Addr != in_ipv6_addr);
+			PTF_ASSERT_TRUE(in_ipv6_addr != ip6Addr);
 		}
 
 		ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
