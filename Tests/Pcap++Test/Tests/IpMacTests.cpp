@@ -8,7 +8,9 @@
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include "IpUtils.h"
 #include "IpAddress.h"
+#include "IpAddressUtils.h"
 #include "MacAddress.h"
 #include "LRUList.h"
 #include "NetworkUtils.h"
@@ -38,6 +40,25 @@ PTF_TEST_CASE(TestIPAddress)
 	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
 	secondIPv4Address = ip4AddrFromIpAddr;
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
+
+	{
+		in_addr inAddr_v4;
+		inAddr_v4.S_un.S_un_b.s_b1 = 10;
+		inAddr_v4.S_un.S_un_b.s_b2 = 0;
+		inAddr_v4.S_un.S_un_b.s_b3 = 0;
+		inAddr_v4.S_un.S_un_b.s_b4 = 4;
+
+		PTF_ASSERT_TRUE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
+
+		inAddr_v4.S_un.S_un_b.s_b2 = 1;
+		PTF_ASSERT_FALSE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_TRUE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4Addr);
+	}
 
 	// networks
 	pcpp::IPv4Address ipv4Addr("10.0.0.4");
@@ -86,6 +107,22 @@ PTF_TEST_CASE(TestIPAddress)
 	for (int i = 0; i < 16; i++)
 	{
 		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
+	}
+
+	{
+		in6_addr in_ipv6_addr;
+		std::copy(expectedByteArray, expectedByteArray + 16, in_ipv6_addr.u.Byte);
+
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
+		
+		in_ipv6_addr.u.Byte[3] = 0x01;
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6AddrFromIpAddr);
 	}
 
 	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
