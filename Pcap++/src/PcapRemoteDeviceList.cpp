@@ -36,7 +36,7 @@ void PcapRemoteDeviceList::updateDeviceListView()
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
-	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, nullptr);
+	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, nullptr, SmartPtrApi).release();
 }
 
 std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, PcapRemoteDeviceList::SmartPtrApiTag)
