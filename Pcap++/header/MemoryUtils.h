@@ -11,7 +11,7 @@ namespace pcpp
 	namespace internal
 	{
 		/**
-		 * @class PcapTDeleter
+		 * @class PcapCloseDeleter
 		 * A deleter that cleans up a pcap_t structure by calling pcap_close.
 		 */
 		struct PcapCloseDeleter
