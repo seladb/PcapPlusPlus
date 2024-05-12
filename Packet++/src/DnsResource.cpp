@@ -10,7 +10,7 @@ namespace pcpp
 {
 
 IDnsResource::IDnsResource(DnsLayer* dnsLayer, size_t offsetInLayer)
-	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(nullptr)
+	: m_DnsLayer(dnsLayer), m_OffsetInLayer(offsetInLayer), m_NextResource(nullptr), m_ExternalRawData(nullptr)
 {
 	char decodedName[4096];
 	m_NameLength = decodeName((const char*)getRawData(), decodedName);
