@@ -37,7 +37,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, nullptr);
 }
 
-std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, PcapRemoteDeviceList::smart_ptr_api_tag)
+std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, PcapRemoteDeviceList::SmartPtrApiTag)
 {
 	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, std::unique_ptr<PcapRemoteAuthentication>());
 }
@@ -109,10 +109,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& i
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getRemoteDeviceByIP(ipAddrAsString, smart_ptr_api).get();
+	return getRemoteDeviceByIP(ipAddrAsString, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString, smart_ptr_api_tag) const
+std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString, SmartPtrApiTag) const
 {
 	IPAddress ipAddr;
 
@@ -126,7 +126,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 		return nullptr;
 	}
 
-	return getRemoteDeviceByIP(ipAddr, smart_ptr_api);
+	return getRemoteDeviceByIP(ipAddr, SmartPtrApi);
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
@@ -134,18 +134,18 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipA
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getRemoteDeviceByIP(ipAddr, smart_ptr_api).get();
+	return getRemoteDeviceByIP(ipAddr, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr, smart_ptr_api_tag) const
+std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr, SmartPtrApiTag) const
 {
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
-		return getRemoteDeviceByIP(ipAddr.getIPv4(), smart_ptr_api);
+		return getRemoteDeviceByIP(ipAddr.getIPv4(), SmartPtrApi);
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		return getRemoteDeviceByIP(ipAddr.getIPv6(), smart_ptr_api);
+		return getRemoteDeviceByIP(ipAddr.getIPv6(), SmartPtrApi);
 	}
 }
 
@@ -154,10 +154,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getRemoteDeviceByIP(ip4Addr, smart_ptr_api).get();
+	return getRemoteDeviceByIP(ip4Addr, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr, smart_ptr_api_tag) const
+std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
 	for(auto& devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); ++devIter)
@@ -196,10 +196,10 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address &i
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getRemoteDeviceByIP(ip6Addr, smart_ptr_api).get();
+	return getRemoteDeviceByIP(ip6Addr, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr, smart_ptr_api_tag) const
+std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
 	for(auto& devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); ++devIter)

@@ -57,11 +57,11 @@ namespace pcpp
 		typedef typename std::vector<PcapRemoteDevice*>::const_iterator ConstRemoteDeviceListIterator;
 
 		/*
-		 * @class smart_ptr_tag
-		 * Helper tag to disambiguate smart pointer api.
+		 * @class SmartPtrApiTag
+		 * Helper tag to disambiguate smart pointer API.
 		 */
-		struct smart_ptr_api_tag {};
-		const smart_ptr_api_tag smart_ptr_api{};
+		struct SmartPtrApiTag {};
+		const SmartPtrApiTag SmartPtrApi{};
 
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
@@ -78,7 +78,7 @@ namespace pcpp
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
 
-		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, smart_ptr_api_tag);
+		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, SmartPtrApiTag);
 
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
@@ -113,7 +113,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv4Address& ip4Addr) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv4Address &ip4Addr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv4Address &ip4Addr, SmartPtrApiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
@@ -121,7 +121,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv6Address& ip6Addr) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv6Address &ip4Addr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv6Address &ip4Addr, SmartPtrApiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
@@ -129,7 +129,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPAddress &ip4Addr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPAddress &ip4Addr, SmartPtrApiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
@@ -137,7 +137,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const std::string &ip4Addr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const std::string &ip4Addr, SmartPtrApiTag) const;
 
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list

@@ -274,18 +274,18 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAdd
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByIp(ipAddr, smart_ptr_api).get();
+	return getPcapLiveDeviceByIp(ipAddr, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr, smart_ptr_api_tag) const
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr, SmartPtrApiTag) const
 {
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
-		return getPcapLiveDeviceByIp(ipAddr.getIPv4(), smart_ptr_api);
+		return getPcapLiveDeviceByIp(ipAddr.getIPv4(), SmartPtrApi);
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		return getPcapLiveDeviceByIp(ipAddr.getIPv6(), smart_ptr_api);
+		return getPcapLiveDeviceByIp(ipAddr.getIPv6(), SmartPtrApi);
 	}
 }
 
@@ -294,10 +294,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByIp(ipAddr, smart_ptr_api).get();
+	return getPcapLiveDeviceByIp(ipAddr, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr, smart_ptr_api_tag) const
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(const auto &devIter : m_LiveDeviceList)
@@ -335,10 +335,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByIp(ip6Addr, smart_ptr_api).get();
+	return getPcapLiveDeviceByIp(ip6Addr, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, smart_ptr_api_tag) const
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(const auto &devIter : m_LiveDeviceList)
@@ -376,10 +376,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByIp(ipAddrAsString, smart_ptr_api).get();
+	return getPcapLiveDeviceByIp(ipAddrAsString, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipAddrAsString, smart_ptr_api_tag) const
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipAddrAsString, SmartPtrApiTag) const
 {
 	IPAddress ipAddr;
 	try
@@ -392,7 +392,7 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 		return nullptr;
 	}
 
-	return PcapLiveDeviceList::getPcapLiveDeviceByIp(ipAddr, smart_ptr_api);
+	return PcapLiveDeviceList::getPcapLiveDeviceByIp(ipAddr, SmartPtrApi);
 }
 
 
@@ -401,10 +401,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByName(name, smart_ptr_api).get();
+	return getPcapLiveDeviceByName(name, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name, smart_ptr_api_tag) const
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name, SmartPtrApiTag) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	auto devIter = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
@@ -424,25 +424,25 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::strin
 	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
 	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
 	// device alive.
-	return getPcapLiveDeviceByIpOrName(ipOrName, smart_ptr_api).get();
+	return getPcapLiveDeviceByIpOrName(ipOrName, SmartPtrApi).get();
 }
 
-std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName, smart_ptr_api_tag) const
+std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName, SmartPtrApiTag) const
 {
 	try
 	{
 		IPAddress interfaceIP = IPAddress(ipOrName);
-		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP, smart_ptr_api);
+		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(interfaceIP, SmartPtrApi);
 	}
 	catch (std::exception&)
 	{
-		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName, smart_ptr_api);
+		return PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(ipOrName, SmartPtrApi);
 	}
 }
 
-PcapLiveDeviceList* PcapLiveDeviceList::clone() const { return clone(smart_ptr_api).release(); }
+PcapLiveDeviceList* PcapLiveDeviceList::clone() const { return clone(SmartPtrApi).release(); }
 
-std::unique_ptr<PcapLiveDeviceList> PcapLiveDeviceList::clone(smart_ptr_api_tag) const
+std::unique_ptr<PcapLiveDeviceList> PcapLiveDeviceList::clone(SmartPtrApiTag) const
 {
 	return std::unique_ptr<PcapLiveDeviceList>(new PcapLiveDeviceList());
 }

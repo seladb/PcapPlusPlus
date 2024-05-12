@@ -43,11 +43,11 @@ namespace pcpp
 		void updateLiveDeviceListView() const;
 	public:
 		/*
-		 * @class smart_ptr_tag
-		 * Helper tag to disambiguate smart pointer api.
+		 * @class SmartPtrApiTag
+		 * Helper tag to disambiguate smart pointer API.
 		 */
-		struct smart_ptr_api_tag {};
-		const smart_ptr_api_tag smart_ptr_api{};
+		struct SmartPtrApiTag {};
+		const SmartPtrApiTag SmartPtrApi{};
 
 		/**
 		 * The access method to the singleton
@@ -63,7 +63,7 @@ namespace pcpp
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 */
 		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const;
-		const std::vector<std::shared_ptr<PcapLiveDevice>> &getPcapLiveDevicesList(smart_ptr_api_tag) const { return m_LiveDeviceList; };
+		const std::vector<std::shared_ptr<PcapLiveDevice>> &getPcapLiveDevicesList(SmartPtrApiTag) const { return m_LiveDeviceList; };
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
@@ -71,7 +71,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IP address exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPAddress& ipAddr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPAddress& ipAddr, SmartPtrApiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv4 address
@@ -79,7 +79,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IPv4 address exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv4Address& ipAddr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv4Address& ipAddr, SmartPtrApiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv6 address
@@ -87,7 +87,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IPv6 address exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, SmartPtrApiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
@@ -95,7 +95,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IP address is valid and exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const;
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const std::string& ipAddrAsString, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const std::string& ipAddrAsString, SmartPtrApiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its name
@@ -103,7 +103,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this name exists. NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByName(const std::string& name, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByName(const std::string& name, SmartPtrApiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address or name
@@ -111,7 +111,7 @@ namespace pcpp
 		 * @return A pointer to the live device if exists, NULL otherwise
 		 */
 		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIpOrName(const std::string& ipOrName, smart_ptr_api_tag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIpOrName(const std::string& ipOrName, SmartPtrApiTag) const;
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
@@ -128,7 +128,7 @@ namespace pcpp
 		 * Copies the current live device list
 		 * @return A unique ptr managing the cloned device list
 		 */
-		std::unique_ptr<PcapLiveDeviceList> clone(smart_ptr_api_tag) const;
+		std::unique_ptr<PcapLiveDeviceList> clone(SmartPtrApiTag) const;
 
 		/**
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
