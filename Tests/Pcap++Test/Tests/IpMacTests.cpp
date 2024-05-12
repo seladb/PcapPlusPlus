@@ -75,7 +75,7 @@ PTF_TEST_CASE(TestIPAddress)
 			PTF_ASSERT_TRUE(inAddr_v4 != ip4Addr);
 		}
 	}
-	
+
 	// networks
 	{
 		pcpp::IPv4Address ipv4Addr("10.0.0.4");
@@ -104,7 +104,7 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_RAISES(pcpp::IPv4Address("321.123.1000.1"), std::invalid_argument,
 						  "Not a valid IPv4 address: 321.123.1000.1");
 	}
-	
+
 	{
 		std::string ip6AddrString("2607:f0d0:1002:51::4");
 		pcpp::IPAddress ip6Addr = pcpp::IPAddress(ip6AddrString);
@@ -225,7 +225,7 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_TRUE(IpV4_2 < IpV4_3);
 		PTF_ASSERT_FALSE(IpV4_3 < IpV4_4);
 	}
-	
+
 	{
 		pcpp::IPv6Address ipv6Address("2001:db8::2:1");
 		pcpp::IPv6Address ipv6AddressLong("2001:db8:0:0:0:0:2:1");
