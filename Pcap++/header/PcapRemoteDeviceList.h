@@ -102,14 +102,26 @@ namespace pcpp
 		 * remote daemons which require authentication for accessing them
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
-		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for connecting to the remote
-		 * daemon
+		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for connecting to the remote daemon
 		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+		/**
+		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
+		 * remote daemons which require authentication for accessing them
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for connecting to the remote daemon
+		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @return An unique pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
+		 * - IP address provided is not valid
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 */
+		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, SmartPtrApiTag);
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is
 		 * suitable for connecting to remote daemons which require authentication for accessing them
