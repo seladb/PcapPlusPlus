@@ -45,7 +45,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
 		std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}
 	};
-	for (auto network : networks)
+	for (const auto& network : networks)
 	{
 		std::string networkWithPrefixAsString = std::get<0>(network) + "/" + std::get<1>(network);
 		std::string networkWithMaskAsString = std::get<0>(network) + "/" + std::get<2>(network);
@@ -56,7 +56,7 @@ PTF_TEST_CASE(TestIPAddress)
 
 	pcpp::Logger::getInstance().suppressLogs();
 	auto invalidMasks = std::vector<std::string>{"aaaa", "10.0.0.0", "10.0.0.0/aa", "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
-	for (auto invalidMask : invalidMasks)
+	for (const auto& invalidMask : invalidMasks)
 	{
 		PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
 	}
@@ -109,7 +109,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}
 	};
 
-	for (auto ipv6Network : ipv6Networks)
+	for (const auto& ipv6Network : ipv6Networks)
 	{
 		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
@@ -124,7 +124,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}
 	};
 
-	for (auto ipv6Network : ipv6NetworksNotMatch)
+	for (const auto& ipv6Network : ipv6NetworksNotMatch)
 	{
 		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
