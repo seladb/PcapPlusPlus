@@ -20,7 +20,7 @@ namespace pcpp
 		};
 
 		/**
-		 * @class FreeAllDevsDeleter
+		 * @class PcapFreeAllDevsDeleter
 		 * A deleter that frees an interface list of pcap_if_t ptr by calling 'pcap_freealldevs' function on it.
 		 */
 		struct PcapFreeAllDevsDeleter
