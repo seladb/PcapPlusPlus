@@ -9,6 +9,9 @@ on:
 env:
   BUILD_DIR: Dist
 
+permissions:
+  contents: read
+
 jobs:
   benchmark:
     runs-on: ubuntu-latest
@@ -48,3 +51,11 @@ jobs:
           external-data-json-path: ./cache/benchmark_result.json
           fail-on-alert: true
           summary-always: true
+
+      - name: Upload benchmark data
+        uses: actions/upload-artifact@v2
+        with:
+          name: benchmark_data
+          path: |
+              Tests/Benchmarks/benchmark_result.json
+              ./cache/benchmark_result.json
