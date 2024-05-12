@@ -124,7 +124,7 @@ PTF_TEST_CASE(TestIPAddress)
 		in6_addr in_ipv6_addr;
 		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51::4", &in_ipv6_addr), 1);
 
-			// Equality between equal in6_addr and IPv6Address.
+		// Equality between equal in6_addr and IPv6Address.
 		PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
 		PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
 		PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
