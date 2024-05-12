@@ -139,13 +139,14 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipA
 
 std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr, SmartPtrApiTag) const
 {
-	if (ipAddr.getType() == IPAddress::IPv4AddressType)
+	switch (ipAddr.getType())
 	{
+	case IPAddress::IPv4AddressType:
 		return getRemoteDeviceByIP(ipAddr.getIPv4(), SmartPtrApi);
-	}
-	else //IPAddress::IPv6AddressType
-	{
+	case IPAddress::IPv6AddressType:
 		return getRemoteDeviceByIP(ipAddr.getIPv6(), SmartPtrApi);
+	default:
+		throw std::invalid_argument("Unsupported IP Address type.");
 	}
 }
 
