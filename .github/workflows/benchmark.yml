@@ -53,9 +53,7 @@ jobs:
           summary-always: true
 
       - name: Upload benchmark data
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark_data
-          path: |
-              Tests/Benchmarks/benchmark_result.json
-              ./cache/benchmark_result.json
+          path: ./cache/benchmark_result.json
