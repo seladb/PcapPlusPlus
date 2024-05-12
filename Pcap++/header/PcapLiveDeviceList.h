@@ -83,10 +83,10 @@ namespace pcpp
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
 		 * @param[in] ipAddr The IP address defined for the device
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the live device if this IP address exists, nullptr otherwise
 		 */
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPAddress& ipAddr, SmartPtrApiTag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPAddress& ipAddr, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv4 address
@@ -98,10 +98,10 @@ namespace pcpp
 		/**
 		 * Get a pointer to the live device by its IPv4 address
 		 * @param[in] ipAddr The IPv4 address defined for the device
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the live device if this IPv4 address exists, nullptr otherwise
 		 */
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv4Address& ipAddr, SmartPtrApiTag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv4Address& ipAddr, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IPv6 address
@@ -113,11 +113,11 @@ namespace pcpp
 		/**
 		 * Get a pointer to the live device by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address defined for the device
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the live device if this IPv6 address exists, nullptr otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, SmartPtrApiTag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const IPv6Address& ip6Addr, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
@@ -129,10 +129,10 @@ namespace pcpp
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
 		 * @param[in] ipAddrAsString The IP address defined for the device as string
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the live device if this IP address is valid and exists, nullptr otherwise
 		 */
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const std::string& ipAddrAsString, SmartPtrApiTag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIp(const std::string& ipAddrAsString, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its name
@@ -159,10 +159,10 @@ namespace pcpp
 		/**
 		 * Get a pointer to the live device by its IP address or name
 		 * @param[in] ipOrName An IP address or name of the interface
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the live device if exists, nullptr otherwise
 		 */
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIpOrName(const std::string& ipOrName, SmartPtrApiTag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByIpOrName(const std::string& ipOrName, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
@@ -178,9 +178,10 @@ namespace pcpp
 		PCPP_DEPRECATED PcapLiveDeviceList* clone() const;
 		/**
 		 * Copies the current live device list
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A unique ptr managing the cloned device list
 		 */
-		std::unique_ptr<PcapLiveDeviceList> clone(SmartPtrApiTag) const;
+		std::unique_ptr<PcapLiveDeviceList> clone(SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Reset the live device list and DNS server list, meaning clear and refetch them

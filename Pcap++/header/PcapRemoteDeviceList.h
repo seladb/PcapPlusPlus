@@ -97,7 +97,7 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
-		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, SmartPtrApiTag);
+		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, SmartPtrApiTag apiTag);
 
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
@@ -118,13 +118,13 @@ namespace pcpp
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
 		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for connecting to the remote daemon
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return An unique pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
-		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, SmartPtrApiTag);
+		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, SmartPtrApiTag apiTag);
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is
 		 * suitable for connecting to remote daemons which require authentication for accessing them
@@ -173,10 +173,10 @@ namespace pcpp
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
 		 */
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv4Address& ip4Addr, SmartPtrApiTag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv4Address& ip4Addr, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
@@ -188,10 +188,10 @@ namespace pcpp
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
 		 */
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv6Address& ip6Addr, SmartPtrApiTag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv6Address& ip6Addr, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
@@ -203,10 +203,10 @@ namespace pcpp
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
 		 */
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPAddress& ipAddr, SmartPtrApiTag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPAddress& ipAddr, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
@@ -218,10 +218,10 @@ namespace pcpp
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
 		 */
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const std::string& ipAddrAsString, SmartPtrApiTag) const;
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const std::string& ipAddrAsString, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list
