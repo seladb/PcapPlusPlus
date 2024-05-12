@@ -145,10 +145,10 @@ namespace pcpp
 		/**
 		 * Get a pointer to the live device by its name
 		 * @param[in] name The name of the interface (e.g eth0)
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A shared pointer to the live device if this name exists, nullptr otherwise
 		 */
-		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByName(const std::string& name, SmartPtrApiTag) const;
+		std::shared_ptr<PcapLiveDevice> getPcapLiveDeviceByName(const std::string& name, SmartPtrApiTag apiTag) const;
 
 		/**
 		 * Get a pointer to the live device by its IP address or name
