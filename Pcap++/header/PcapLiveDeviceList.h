@@ -32,9 +32,6 @@ namespace pcpp
 
 		// private c'tor
 		PcapLiveDeviceList();
-		// private copy c'tor
-		PcapLiveDeviceList( const PcapLiveDeviceList& other );
-		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
 
 		void init();
 
@@ -42,6 +39,9 @@ namespace pcpp
 
 		void updateLiveDeviceListView() const;
 	public:
+		PcapLiveDeviceList(const PcapLiveDeviceList& other) = delete;
+		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other) = delete;
+
 		/*
 		 * @class SmartPtrApiTag
 		 * Helper tag to disambiguate smart pointer API.

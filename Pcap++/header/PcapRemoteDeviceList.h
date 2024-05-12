@@ -37,15 +37,15 @@ namespace pcpp
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
 		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<std::shared_ptr<PcapRemoteDevice>> deviceList);
-		// private copy c'tor
-		PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
-		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
 
 		void updateDeviceListView();
 
 		// Implementation that uses a shared ptr is private to guarantee that the remote auth object is not shared externally. It is used by the other overloads.
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
 	public:
+		PcapRemoteDeviceList(const PcapRemoteDeviceList& other) = delete;
+		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other) = delete;
+
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 */
