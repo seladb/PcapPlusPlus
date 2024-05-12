@@ -12,6 +12,8 @@
 namespace pcpp
 {
 
+const PcapRemoteDeviceList::SmartPtrApiTag PcapRemoteDeviceList::SmartPtrApi{};
+
 PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress &ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<std::shared_ptr<PcapRemoteDevice>> deviceList)
 	: m_RemoteDeviceList(std::move(deviceList)), m_RemoteMachineIpAddress(ipAddress), m_RemoteMachinePort(port), m_RemoteAuthentication(std::move(remoteAuth))
 {

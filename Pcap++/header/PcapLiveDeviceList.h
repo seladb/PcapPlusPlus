@@ -47,7 +47,10 @@ namespace pcpp
 		 * Helper tag to disambiguate smart pointer API.
 		 */
 		struct SmartPtrApiTag {};
-		const SmartPtrApiTag SmartPtrApi{};
+		/**
+		 * Helper tag constant for disambuguating smart pointer API.
+		 */
+		static const SmartPtrApiTag SmartPtrApi;
 
 		/**
 		 * The access method to the singleton

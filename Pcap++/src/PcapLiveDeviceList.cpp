@@ -24,6 +24,8 @@
 namespace pcpp
 {
 
+const PcapLiveDeviceList::SmartPtrApiTag PcapLiveDeviceList::SmartPtrApi{};
+
 PcapLiveDeviceList::PcapLiveDeviceList()
 {
 	init();

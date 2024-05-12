@@ -65,7 +65,7 @@ namespace pcpp
 		/**
 		 * Helper tag constant for disambuguating smart pointer API.
 		 */
-		const SmartPtrApiTag SmartPtrApi{};
+		static const SmartPtrApiTag SmartPtrApi;
 
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
