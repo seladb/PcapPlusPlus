@@ -321,7 +321,7 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 
 			if (currAddr->s_addr == ipAddr.toInt())
 			{
-				PCPP_LOG_DEBUG("Found matched address!");
+				PCPP_LOG_DEBUG("Found matching address!");
 				return device;
 			}
 		}
@@ -362,7 +362,7 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 
 			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
-				PCPP_LOG_DEBUG("Found matched address!");
+				PCPP_LOG_DEBUG("Found matching address!");
 				return device;
 			}
 		}

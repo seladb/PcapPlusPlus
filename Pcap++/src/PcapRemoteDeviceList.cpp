@@ -181,7 +181,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 
 			if (currAddr->s_addr == ip4Addr.toInt())
 			{
-				PCPP_LOG_DEBUG("Found matched address!");
+				PCPP_LOG_DEBUG("Found matching address!");
 				return device;
 			}
 		}
@@ -223,7 +223,7 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 
 			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
 			{
-				PCPP_LOG_DEBUG("Found matched address!");
+				PCPP_LOG_DEBUG("Found matching address!");
 				return device;
 			}
 		}
