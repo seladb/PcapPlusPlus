@@ -3,6 +3,8 @@ name: Benchmark
 on:
   push:
     branches: ["master"]
+  pull_request:
+    branches: ["dev"]
 
 env:
   BUILD_DIR: Dist
