@@ -40,7 +40,8 @@ namespace pcpp
 
 		void updateDeviceListView();
 
-		// Implementation that uses a shared ptr is private to guarantee that the remote auth object is not shared externally. It is used by the other overloads.
+		// Implementation that uses a shared ptr is private to guarantee that the remote auth object is not shared externally.
+		// It is used by the other overloads for casting different kinds of pointers/references into shared_ptr.
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
 	public:
 		PcapRemoteDeviceList(const PcapRemoteDeviceList& other) = delete;
@@ -61,6 +62,9 @@ namespace pcpp
 		 * Helper tag to disambiguate smart pointer API.
 		 */
 		struct SmartPtrApiTag {};
+		/**
+		 * Helper tag constant for disambuguating smart pointer API.
+		 */
 		const SmartPtrApiTag SmartPtrApi{};
 
 		/**
@@ -71,13 +75,26 @@ namespace pcpp
 		 * use the other method overload
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
-		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
-		 * - IP address provided is NULL or not valid
+		 * @return A pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed to log in each case):
+		 * - IP address provided is not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
-
+		/**
+		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
+		 * creates a list of PcapRemoteDevice instances stored in it, one for each remote network interface. Notice this method allocates
+		 * the PcapRemoteDeviceList instance and returns a unique pointer to it.<BR>
+		 * This method overload is for remote daemons which don't require authentication for accessing them. For daemons which do require authentication
+		 * use the other method overload.
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @return An unique pointer to the newly created PcapRemoteDeviceList or a nullptr if (an appropriate error will be printed to log in each case):
+		 * - IP address provided is not valid
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 */
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, SmartPtrApiTag);
 
 		/**
@@ -88,13 +105,37 @@ namespace pcpp
 		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for connecting to the remote
 		 * daemon
 		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed to log in each case):
-		 * - IP address provided is NULL or not valid
+		 * - IP address provided is not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
-
+		/**
+		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is
+		 * suitable for connecting to remote daemons which require authentication for accessing them
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] remoteAuth An unique pointer to the authentication object which contains the username and password for connecting to the remote daemon
+		 * @return An unique pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed to log in each case):
+		 * - IP address provided is not valid
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
+		 * devices on the remote machine
+		 */
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::unique_ptr<PcapRemoteAuthentication> remoteAuth);
+		/**
+		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is
+		 * suitable for connecting to remote daemons which require authentication for accessing them
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] remoteAuth A reference to the authentication object which contains the username and password for connecting to the remote daemon
+		 * @return An unique pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed
+		 * to log in each case):
+		 * - IP address provided is not valid
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
+		 * devices on the remote machine
+		 */
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, const PcapRemoteAuthentication& remoteAuth);
 
 		/**
@@ -110,34 +151,58 @@ namespace pcpp
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return A pointer to PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv4Address& ip4Addr) const;
+		/**
+		 * Search a PcapRemoteDevice in the list by its IPv4 address
+		 * @param[in] ip4Addr The IPv4 address
+		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
+		 */
 		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv4Address &ip4Addr, SmartPtrApiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return A pointer to PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv6Address& ip6Addr) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv6Address &ip4Addr, SmartPtrApiTag) const;
+		/**
+		 * Search a PcapRemoteDevice in the list by its IPv6 address
+		 * @param[in] ip6Addr The IPv6 address
+		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
+		 */
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPv6Address& ip6Addr, SmartPtrApiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return A pointer to PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPAddress &ip4Addr, SmartPtrApiTag) const;
+		/**
+		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
+		 * @param[in] ipAddr The IP address
+		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
+		 */
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const IPAddress& ipAddr, SmartPtrApiTag) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return A pointer to PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
-		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const std::string &ip4Addr, SmartPtrApiTag) const;
+		/**
+		 * Search a PcapRemoteDevice in the list by its IP address
+		 * @param[in] ipAddrAsString The IP address in string format
+		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @return A shared pointer to the PcapRemoteDevice if found, nullptr otherwise
+		 */
+		std::shared_ptr<PcapRemoteDevice> getRemoteDeviceByIP(const std::string& ipAddrAsString, SmartPtrApiTag) const;
 
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list
