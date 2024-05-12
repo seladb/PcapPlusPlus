@@ -69,9 +69,10 @@ namespace pcpp
 		 */
 		PCPP_DEPRECATED const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const;
 		/**
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A reference to a vector containing shared pointers to all live devices currently installed on the machine.
 		 */
-		const std::vector<std::shared_ptr<PcapLiveDevice>>& getPcapLiveDevicesList(SmartPtrApiTag) const { return m_LiveDeviceList; };
+		const std::vector<std::shared_ptr<PcapLiveDevice>>& getPcapLiveDevicesList(SmartPtrApiTag apiTag) const { return m_LiveDeviceList; };
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6

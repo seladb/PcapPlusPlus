@@ -91,7 +91,7 @@ namespace pcpp
 		 * use the other method overload.
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
-		 * @param[in] Disambiguating tag for SmartPtrAPI.
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return An unique pointer to the newly created PcapRemoteDeviceList or a nullptr if (an appropriate error will be printed to log in each case):
 		 * - IP address provided is not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
