@@ -22,245 +22,229 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 PTF_TEST_CASE(TestIPAddress)
 {
+	pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
+	PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
+	PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4");
 	{
-		pcpp::IPAddress ip4Addr = pcpp::IPAddress("10.0.0.4");
-		PTF_ASSERT_EQUAL(ip4Addr.getType(), pcpp::IPAddress::IPv4AddressType, enum);
-		PTF_ASSERT_EQUAL(ip4Addr.toString(), "10.0.0.4");
-		{
-			std::ostringstream oss;
-			oss << ip4Addr;
-			PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4");
-		}
-		pcpp::IPv4Address ip4AddrFromIpAddr = ip4Addr.getIPv4();
-		{
-			std::ostringstream oss;
-			oss << ip4AddrFromIpAddr;
-			PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4");
-		}
-		PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004));
-		pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
-		secondIPv4Address = ip4AddrFromIpAddr;
-		PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
+		std::ostringstream oss;
+		oss << ip4Addr;
+		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4");
+	}
+	pcpp::IPv4Address ip4AddrFromIpAddr = ip4Addr.getIPv4();
+	{
+		std::ostringstream oss;
+		oss << ip4AddrFromIpAddr;
+		PTF_ASSERT_EQUAL(oss.str(), "10.0.0.4");
+	}
+	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr.toInt(), htobe32(0x0A000004));
+	pcpp::IPv4Address secondIPv4Address(std::string("1.1.1.1"));
+	secondIPv4Address = ip4AddrFromIpAddr;
+	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
-		{
-			in_addr inAddr_v4;
-			inAddr_v4.S_un.S_un_b.s_b1 = 10;
-			inAddr_v4.S_un.S_un_b.s_b2 = 0;
-			inAddr_v4.S_un.S_un_b.s_b3 = 0;
-			inAddr_v4.S_un.S_un_b.s_b4 = 4;
+	{
+		in_addr inAddr_v4;
+		inAddr_v4.S_un.S_un_b.s_b1 = 10;
+		inAddr_v4.S_un.S_un_b.s_b2 = 0;
+		inAddr_v4.S_un.S_un_b.s_b3 = 0;
+		inAddr_v4.S_un.S_un_b.s_b4 = 4;
 
-			// Equality between equal in_addr and IPv4Address.
-			PTF_ASSERT_TRUE(ip4AddrFromIpAddr == inAddr_v4);
-			PTF_ASSERT_TRUE(inAddr_v4 == ip4AddrFromIpAddr);
-			PTF_ASSERT_FALSE(ip4AddrFromIpAddr != inAddr_v4);
-			PTF_ASSERT_FALSE(inAddr_v4 != ip4AddrFromIpAddr);
+		// Equality between equal in_addr and IPv4Address.
+		PTF_ASSERT_TRUE(ip4AddrFromIpAddr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip4AddrFromIpAddr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4AddrFromIpAddr);
 
-			// Equality between equal in_addr and IPAddress.
-			PTF_ASSERT_TRUE(ip4Addr == inAddr_v4);
-			PTF_ASSERT_TRUE(inAddr_v4 == ip4Addr);
-			PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
-			PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
+		// Equality between equal in_addr and IPAddress.
+		PTF_ASSERT_TRUE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
 
-			inAddr_v4.S_un.S_un_b.s_b2 = 1;
-			// Equality between different in_addr and IPv4Address.
-			PTF_ASSERT_FALSE(ip4AddrFromIpAddr == inAddr_v4);
-			PTF_ASSERT_FALSE(inAddr_v4 == ip4AddrFromIpAddr);
-			PTF_ASSERT_TRUE(ip4AddrFromIpAddr != inAddr_v4);
-			PTF_ASSERT_TRUE(inAddr_v4 != ip4AddrFromIpAddr);
+		inAddr_v4.S_un.S_un_b.s_b2 = 1;
+		// Equality between different in_addr and IPv4Address.
+		PTF_ASSERT_FALSE(ip4AddrFromIpAddr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip4AddrFromIpAddr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4AddrFromIpAddr);
 
 			// Equality between different in_addr and IPAddress.
-			PTF_ASSERT_FALSE(ip4Addr == inAddr_v4);
-			PTF_ASSERT_FALSE(inAddr_v4 == ip4Addr);
-			PTF_ASSERT_TRUE(ip4Addr != inAddr_v4);
-			PTF_ASSERT_TRUE(inAddr_v4 != ip4Addr);
-		}
+		PTF_ASSERT_FALSE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_TRUE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4Addr);
 	}
 
 	// networks
+	pcpp::IPv4Address ipv4Addr("10.0.0.4");
+	auto networks = std::vector<std::tuple<std::string, std::string, std::string>>{
+		std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
+		std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}
+	};
+	for (const auto& network : networks)
 	{
-		pcpp::IPv4Address ipv4Addr("10.0.0.4");
-		auto networks = std::vector<std::tuple<std::string, std::string, std::string>>{
-			std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
-			std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}};
-		for (const auto &network : networks)
-		{
-			std::string networkWithPrefixAsString = std::get<0>(network) + "/" + std::get<1>(network);
-			std::string networkWithMaskAsString = std::get<0>(network) + "/" + std::get<2>(network);
-			PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(networkWithPrefixAsString));
-			PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(networkWithMaskAsString));
-			PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(pcpp::IPv4Network(networkWithPrefixAsString)));
-		}
+		std::string networkWithPrefixAsString = std::get<0>(network) + "/" + std::get<1>(network);
+		std::string networkWithMaskAsString = std::get<0>(network) + "/" + std::get<2>(network);
+		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(networkWithMaskAsString));
+		PTF_ASSERT_TRUE(ipv4Addr.matchNetwork(pcpp::IPv4Network(networkWithPrefixAsString)));
+	}
 
-		pcpp::Logger::getInstance().suppressLogs();
-		auto invalidMasks = std::vector<std::string>{"aaaa",		"10.0.0.0",		  "10.0.0.0/aa",
-													 "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
-		for (const auto &invalidMask : invalidMasks)
-		{
-			PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
-		}
-		pcpp::Logger::getInstance().enableLogs();
+	pcpp::Logger::getInstance().suppressLogs();
+	auto invalidMasks = std::vector<std::string>{"aaaa", "10.0.0.0", "10.0.0.0/aa", "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
+	for (const auto& invalidMask : invalidMasks)
+	{
+		PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
+	}
+	pcpp::Logger::getInstance().enableLogs();
 
-		PTF_ASSERT_RAISES(pcpp::IPv4Address("invalid"), std::invalid_argument, "Not a valid IPv4 address: invalid");
-		PTF_ASSERT_RAISES(pcpp::IPv4Address("321.123.1000.1"), std::invalid_argument,
-						  "Not a valid IPv4 address: 321.123.1000.1");
+	PTF_ASSERT_RAISES(pcpp::IPv4Address("invalid"), std::invalid_argument, "Not a valid IPv4 address: invalid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Address("321.123.1000.1"), std::invalid_argument, "Not a valid IPv4 address: 321.123.1000.1");
+
+	std::string ip6AddrString("2607:f0d0:1002:51::4");
+	pcpp::IPAddress ip6Addr = pcpp::IPAddress(ip6AddrString);
+	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
+	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
+	{
+		std::ostringstream oss;
+		oss << ip6Addr;
+		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
+	}
+	pcpp::IPv6Address ip6AddrFromIpAddr = ip6Addr.getIPv6();
+	{
+		std::ostringstream oss;
+		oss << ip6AddrFromIpAddr;
+		PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
+	}
+	uint8_t addrAsByteArray[16];
+	ip6AddrFromIpAddr.copyTo(addrAsByteArray);
+	uint8_t expectedByteArray[16] = { 0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51, 0x00, 0x00 , 0x00, 0x00, 0x00, 0x00, 0x00, 0x04 };
+	for (int i = 0; i < 16; i++)
+	{
+		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
 	}
 
 	{
-		std::string ip6AddrString("2607:f0d0:1002:51::4");
-		pcpp::IPAddress ip6Addr = pcpp::IPAddress(ip6AddrString);
-		PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
-		PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
-		{
-			std::ostringstream oss;
-			oss << ip6Addr;
-			PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
-		}
-		pcpp::IPv6Address ip6AddrFromIpAddr = ip6Addr.getIPv6();
-		{
-			std::ostringstream oss;
-			oss << ip6AddrFromIpAddr;
-			PTF_ASSERT_EQUAL(oss.str(), "2607:f0d0:1002:51::4");
-		}
-		uint8_t addrAsByteArray[16];
-		ip6AddrFromIpAddr.copyTo(addrAsByteArray);
-		uint8_t expectedByteArray[16] = {0x26, 0x07, 0xF0, 0xD0, 0x10, 0x02, 0x00, 0x51,
-										 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
-		for (int i = 0; i < 16; i++)
-		{
-			PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
-		}
-
-		{
-			in6_addr in_ipv6_addr;
-			std::copy(expectedByteArray, expectedByteArray + 16, in_ipv6_addr.u.Byte);
+		in6_addr in_ipv6_addr;
+		std::copy(expectedByteArray, expectedByteArray + 16, in_ipv6_addr.u.Byte);
 
 			// Equality between equal in6_addr and IPv6Address.
-			PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
-			PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
-			PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
-			PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
+		
+		// Equality between equal in6_addr and IPAddress.
+		PTF_ASSERT_TRUE(ip6Addr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6Addr);
+		PTF_ASSERT_FALSE(ip6Addr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6Addr);
 
-			// Equality between equal in6_addr and IPAddress.
-			PTF_ASSERT_TRUE(ip6Addr == in_ipv6_addr);
-			PTF_ASSERT_TRUE(in_ipv6_addr == ip6Addr);
-			PTF_ASSERT_FALSE(ip6Addr != in_ipv6_addr);
-			PTF_ASSERT_FALSE(in_ipv6_addr != ip6Addr);
+		in_ipv6_addr.u.Byte[3] = 0x01;
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6AddrFromIpAddr);
 
-			in_ipv6_addr.u.Byte[3] = 0x01;
-			// Equality between different in6_addr and IPv6Address.
-			PTF_ASSERT_FALSE(ip6AddrFromIpAddr == in_ipv6_addr);
-			PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
-			PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
-			PTF_ASSERT_TRUE(in_ipv6_addr != ip6AddrFromIpAddr);
-
-			// Equality between different in6_addr and IPAddress.
-			PTF_ASSERT_FALSE(ip6Addr == in_ipv6_addr);
-			PTF_ASSERT_FALSE(in_ipv6_addr == ip6Addr);
-			PTF_ASSERT_TRUE(ip6Addr != in_ipv6_addr);
-			PTF_ASSERT_TRUE(in_ipv6_addr != ip6Addr);
-		}
-
-		ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
-		PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
-		PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
-		pcpp::IPv6Address secondIPv6Address(std::string("2607:f0d0:1002:52::5"));
-		ip6AddrFromIpAddr = ip6Addr.getIPv6();
-		secondIPv6Address = ip6AddrFromIpAddr;
-		PTF_ASSERT_EQUAL(ip6AddrFromIpAddr, secondIPv6Address);
-
-		PTF_ASSERT_RAISES(pcpp::IPv6Address("invalid"), std::invalid_argument, "Not a valid IPv6 address: invalid");
-		PTF_ASSERT_RAISES(pcpp::IPv6Address("zzzz:2222:1002:0051:0000:0000:0000:0004"), std::invalid_argument,
-						  "Not a valid IPv6 address: zzzz:2222:1002:0051:0000:0000:0000:0004");
+		// Equality between different in6_addr and IPAddress.
+		PTF_ASSERT_FALSE(ip6Addr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6Addr);
+		PTF_ASSERT_TRUE(ip6Addr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6Addr);
 	}
+
+	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
+	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
+	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
+	pcpp::IPv6Address secondIPv6Address(std::string("2607:f0d0:1002:52::5"));
+	ip6AddrFromIpAddr = ip6Addr.getIPv6();
+	secondIPv6Address = ip6AddrFromIpAddr;
+	PTF_ASSERT_EQUAL(ip6AddrFromIpAddr, secondIPv6Address);
+
+	PTF_ASSERT_RAISES(pcpp::IPv6Address("invalid"), std::invalid_argument, "Not a valid IPv6 address: invalid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Address("zzzz:2222:1002:0051:0000:0000:0000:0004"), std::invalid_argument, "Not a valid IPv6 address: zzzz:2222:1002:0051:0000:0000:0000:0004");
 
 	// networks
+	pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff::0004");
+	pcpp::IPv6Address ipv6NetworkPrefix("2607:f0d0:1002:0051:fffe::");
+	auto ipv6Networks = std::vector<std::tuple<uint8_t, std::string, std::string>>{
+		std::tuple<uint8_t, std::string, std::string>{64, "64", "ffff:ffff:ffff:ffff::"},
+		std::tuple<uint8_t, std::string, std::string>{32, "32", "ffff:ffff::"},
+		std::tuple<uint8_t, std::string, std::string>{79, "79", "ffff:ffff:ffff:ffff:fffe::"},
+		std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}
+	};
+
+	for (const auto& ipv6Network : ipv6Networks)
 	{
-		pcpp::IPv6Address ip6Addr2("2607:f0d0:1002:0051:ffff::0004");
-		pcpp::IPv6Address ipv6NetworkPrefix("2607:f0d0:1002:0051:fffe::");
-		auto ipv6Networks = std::vector<std::tuple<uint8_t, std::string, std::string>>{
-			std::tuple<uint8_t, std::string, std::string>{64, "64", "ffff:ffff:ffff:ffff::"},
-			std::tuple<uint8_t, std::string, std::string>{32, "32", "ffff:ffff::"},
-			std::tuple<uint8_t, std::string, std::string>{79, "79", "ffff:ffff:ffff:ffff:fffe::"},
-			std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}};
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
-		for (const auto &ipv6Network : ipv6Networks)
-		{
-			PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
-
-			std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
-			std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
-			PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
-			PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithMaskAsString));
-		}
-
-		auto ipv6NetworksNotMatch = std::vector<std::tuple<uint8_t, std::string, std::string>>{
-			std::tuple<uint8_t, std::string, std::string>{80, "80", "ffff:ffff:ffff:ffff:ffff::"},
-			std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}};
-
-		for (const auto &ipv6Network : ipv6NetworksNotMatch)
-		{
-			PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
-
-			std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
-			std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
-			PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
-			PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithMaskAsString));
-		}
-
-		pcpp::Logger::getInstance().suppressLogs();
-		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("invalid"));
-		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("10.8.0.0/16"));
-		pcpp::Logger::getInstance().enableLogs();
+		std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
+		std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(networkWithMaskAsString));
 	}
+
+	auto ipv6NetworksNotMatch = std::vector<std::tuple<uint8_t, std::string, std::string>>{
+		std::tuple<uint8_t, std::string, std::string>{80, "80", "ffff:ffff:ffff:ffff:ffff::"},
+		std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}
+	};
+
+	for (const auto& ipv6Network : ipv6NetworksNotMatch)
+	{
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
+
+		std::string networkWithPrefixAsString = ipv6NetworkPrefix.toString() + "/" + std::get<1>(ipv6Network);
+		std::string networkWithMaskAsString = ipv6NetworkPrefix.toString() + "/" + std::get<2>(ipv6Network);
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithPrefixAsString));
+		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(networkWithMaskAsString));
+	}
+
+	pcpp::Logger::getInstance().suppressLogs();
+	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("invalid"));
+	PTF_ASSERT_FALSE(ip6Addr2.matchNetwork("10.8.0.0/16"));
+	pcpp::Logger::getInstance().enableLogs();
 
 	// Test less-than comparison operator
-	{
-		pcpp::IPv4Address IpV4_1("1.1.1.1");
-		pcpp::IPv4Address IpV4_2("212.0.0.1");
-		pcpp::IPv4Address IpV4_3("224.0.0.0");
-		pcpp::IPv4Address IpV4_4("224.0.0.0");
+	pcpp::IPv4Address IpV4_1("1.1.1.1");
+	pcpp::IPv4Address IpV4_2("212.0.0.1");
+	pcpp::IPv4Address IpV4_3("224.0.0.0");
+	pcpp::IPv4Address IpV4_4("224.0.0.0");
 
-		PTF_ASSERT_TRUE(IpV4_1 < IpV4_2);
-		PTF_ASSERT_TRUE(IpV4_1 < IpV4_3);
-		PTF_ASSERT_TRUE(IpV4_2 < IpV4_3);
-		PTF_ASSERT_FALSE(IpV4_3 < IpV4_4);
-	}
+	PTF_ASSERT_TRUE(IpV4_1 < IpV4_2);
+	PTF_ASSERT_TRUE(IpV4_1 < IpV4_3);
+	PTF_ASSERT_TRUE(IpV4_2 < IpV4_3);
+	PTF_ASSERT_FALSE(IpV4_3 < IpV4_4);
 
-	{
-		pcpp::IPv6Address ipv6Address("2001:db8::2:1");
-		pcpp::IPv6Address ipv6AddressLong("2001:db8:0:0:0:0:2:1");
-		pcpp::IPv6Address ipv6Address2("2001:db8::2:2");
+	pcpp::IPv6Address ipv6Address("2001:db8::2:1");
+	pcpp::IPv6Address ipv6AddressLong("2001:db8:0:0:0:0:2:1");
+	pcpp::IPv6Address ipv6Address2("2001:db8::2:2");
 
-		PTF_ASSERT_FALSE(ipv6Address < ipv6AddressLong);
-		PTF_ASSERT_TRUE(ipv6Address < ipv6Address2);
-	}
+	PTF_ASSERT_FALSE(ipv6Address < ipv6AddressLong);
+	PTF_ASSERT_TRUE(ipv6Address < ipv6Address2);
 
-	{
-		pcpp::IPAddress baseIpv4_1("1.1.1.1");
-		pcpp::IPAddress baseIpv4_2("1.1.1.2");
-		pcpp::IPAddress baseIPv6_1("2001:db8::2:1");
-		pcpp::IPAddress baseIPv6_2("2001:db8::2:2");
+	pcpp::IPAddress baseIpv4_1("1.1.1.1");
+	pcpp::IPAddress baseIpv4_2("1.1.1.2");
+	pcpp::IPAddress baseIPv6_1("2001:db8::2:1");
+	pcpp::IPAddress baseIPv6_2("2001:db8::2:2");
 
-		// Compare IPv4 against IPv4
-		PTF_ASSERT_TRUE(baseIpv4_1 < baseIpv4_2);
-		PTF_ASSERT_FALSE(baseIpv4_2 < baseIpv4_1);
+	// Compare IPv4 against IPv4
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIpv4_2);
+	PTF_ASSERT_FALSE(baseIpv4_2 < baseIpv4_1);
 
-		// Compare IPv6 against IPv6
-		PTF_ASSERT_TRUE(baseIPv6_1 < baseIPv6_2);
-		PTF_ASSERT_FALSE(baseIPv6_2 < baseIPv6_1);
+	// Compare IPv6 against IPv6
+	PTF_ASSERT_TRUE(baseIPv6_1 < baseIPv6_2);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIPv6_1);
 
-		// Compare IPv6 against IPv4
-		PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_1);
-		PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_2);
-		PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_1);
-		PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_2);
+	// Compare IPv6 against IPv4
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_1);
+	PTF_ASSERT_TRUE(baseIpv4_1 < baseIPv6_2);
+	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_1);
+	PTF_ASSERT_TRUE(baseIpv4_2 < baseIPv6_2);
 
-		// Compare IPv4 against IPv6
-		PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_1);
-		PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_1);
-		PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_2);
-		PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_2);
-	}
+	// Compare IPv4 against IPv6
+	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_1);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_1);
+	PTF_ASSERT_FALSE(baseIPv6_1 < baseIpv4_2);
+	PTF_ASSERT_FALSE(baseIPv6_2 < baseIpv4_2);
 } // TestIPAddress
 
 
