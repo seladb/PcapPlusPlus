@@ -43,10 +43,7 @@ PTF_TEST_CASE(TestIPAddress)
 
 	{
 		in_addr inAddr_v4;
-		inAddr_v4.S_un.S_un_b.s_b1 = 10;
-		inAddr_v4.S_un.S_un_b.s_b2 = 0;
-		inAddr_v4.S_un.S_un_b.s_b3 = 0;
-		inAddr_v4.S_un.S_un_b.s_b4 = 4;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET, "10.0.0.4", &inAddr_v4), 1);
 
 		// Equality between equal in_addr and IPv4Address.
 		PTF_ASSERT_TRUE(ip4AddrFromIpAddr == inAddr_v4);
@@ -60,7 +57,7 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
 		PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
 
-		inAddr_v4.S_un.S_un_b.s_b2 = 1;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET, "10.0.1.4", &inAddr_v4), 1);
 		// Equality between different in_addr and IPv4Address.
 		PTF_ASSERT_FALSE(ip4AddrFromIpAddr == inAddr_v4);
 		PTF_ASSERT_FALSE(inAddr_v4 == ip4AddrFromIpAddr);
@@ -125,7 +122,7 @@ PTF_TEST_CASE(TestIPAddress)
 
 	{
 		in6_addr in_ipv6_addr;
-		std::copy(expectedByteArray, expectedByteArray + 16, in_ipv6_addr.u.Byte);
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51::4", &in_ipv6_addr), 1);
 
 			// Equality between equal in6_addr and IPv6Address.
 		PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
@@ -139,7 +136,7 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_FALSE(ip6Addr != in_ipv6_addr);
 		PTF_ASSERT_FALSE(in_ipv6_addr != ip6Addr);
 
-		in_ipv6_addr.u.Byte[3] = 0x01;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51:4::4", &in_ipv6_addr), 1);
 		PTF_ASSERT_FALSE(ip6AddrFromIpAddr == in_ipv6_addr);
 		PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
 		PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
