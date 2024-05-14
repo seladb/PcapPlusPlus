@@ -420,7 +420,7 @@ namespace pcpp
 		 * @brief Construct HttpResponseStatusCode from Value enum
 		 * @param[in] statusCode the status code enum
 		 */
-		explicit HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
+		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from the code number and the customized message
