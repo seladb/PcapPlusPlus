@@ -595,10 +595,7 @@ namespace pcpp
 		TcpOption insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown);
 
 		/**
-		 * Remove an existing TCP option from the layer. TCP option is found by type
-		 * @param[in] optionType The TCP option type to remove
-		 * @return True if TCP option was removed or false if type wasn't found or if removal failed (in each case a proper error
-		 * will be written to log)
+		 * @deprecated This method is deprecated, please use removeTcpOption(TcpOptionEnumType)
 		 */
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		bool removeTcpOption(TcpOptionType optionType);
