@@ -42,7 +42,7 @@ std::string printTcpFlags(pcpp::TcpLayer* tcpLayer)
 	return result;
 }
 
-std::string printTcpOptionEnumType(pcpp::TcpOptionEnumType optionType)
+std::string printTcpOptionType(pcpp::TcpOptionEnumType optionType)
 {
 	switch (optionType)
 	{
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 	std::cout << "TCP options: ";
 	for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull(); tcpOption = tcpLayer->getNextTcpOption(tcpOption))
 	{
-		std::cout << printTcpOptionEnumType(tcpOption.getTcpOptionEnumType()) << " ";
+		std::cout << printTcpOptionType(tcpOption.getTcpOptionEnumType()) << " ";
 	}
 	std::cout << std::endl;
 

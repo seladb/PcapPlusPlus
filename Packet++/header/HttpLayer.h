@@ -420,7 +420,7 @@ namespace pcpp
 		 * @brief Construct HttpResponseStatusCode from Value enum
 		 * @param[in] statusCode the status code enum
 		 */
-		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
+		explicit HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from the code number and the customized message
@@ -514,7 +514,8 @@ namespace pcpp
 		 * default status code string
 		 * @deprecated Use other constructors instead.
 		 */
-		PCPP_DEPRECATED explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
+		PCPP_DEPRECATED("Use other constructors instead")
+		explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
 
 		/**
 		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
@@ -732,7 +733,8 @@ namespace pcpp
 		 * @return True if setting the status code was completed successfully, false otherwise
 	     * @deprecated Use the other overload instead.
 		 */
-		PCPP_DEPRECATED bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
+		PCPP_DEPRECATED("Use the other overload instead")
+		bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
 
 		/**
 		 * Set the status code

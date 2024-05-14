@@ -6,8 +6,8 @@
 #include <string.h>
 
 #ifndef PCPP_DEPRECATED_TCP_OPTION_TYPE
-#define PCPP_DEPRECATED_TCP_OPTION_TYPE PCPP_DEPRECATED_MSG("enum TcpOptionType is deprecated; " \
-                                                            "Use enum class TcpOptionEnumType instead")
+#define PCPP_DEPRECATED_TCP_OPTION_TYPE PCPP_DEPRECATED("enum TcpOptionType is deprecated; " \
+                                                        "Use enum class TcpOptionEnumType instead")
 #endif
 
 /// @file
@@ -276,7 +276,7 @@ namespace pcpp
 		/**
 		 * @deprecated This method is deprecated, please use getTcpOptionEnumType()
 		 */
-		PCPP_DEPRECATED_MSG("Use getTcpOptionEnumType instead")
+		PCPP_DEPRECATED("Use getTcpOptionEnumType instead")
 		TcpOptionType getTcpOptionType() const
 		{
 			return getTcpOptionType(m_Data);
@@ -459,7 +459,7 @@ namespace pcpp
 		/**
 		 * @deprecated This method is deprecated, please use constructor with NopEolOptionEnumType
 		 */
-		PCPP_DEPRECATED_MSG("enum NopEolOptionTypes is deprecated; Use enum class NopEolOptionEnumType instead")
+		PCPP_DEPRECATED("enum NopEolOptionTypes is deprecated; Use enum class NopEolOptionEnumType instead")
 		explicit TcpOptionBuilder(NopEolOptionTypes optionType);
 
 		/**
@@ -580,16 +580,16 @@ namespace pcpp
 		/**
 		 * @deprecated This method is deprecated, please use insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown)
 		 */
-		PCPP_DEPRECATED_MSG("Use insertTcpOptionAfter instead")
+		PCPP_DEPRECATED("Use insertTcpOptionAfter instead")
 		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType = TcpOptionType::TCPOPT_Unknown);
 
 		/**
-		 * Add a new TCP option after an existing one
-		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be added
-		 * @param[in] prevOptionType The TCP option which the newly added option should come after. This is an optional parameter which
-		 * gets a default value of TcpOptionType::Unknown if omitted, which means the new option will be added as the first option in the layer
-		 * @return A TcpOption object containing the newly added TCP option data or logical NULL
-		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		 * Insert a new TCP option after an existing one
+		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be inserted
+		 * @param[in] prevOptionType The TCP option which the newly inserted option should come after. This is an optional parameter which
+		 * gets a default value of TcpOptionType::Unknown if omitted, which means the new option will be inserted as the first option in the layer
+		 * @return A TcpOption object containing the newly inserted TCP option data or logical NULL
+		 * (TcpOption#isNull() == true) if insertion failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
 		TcpOption insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown);
@@ -600,6 +600,7 @@ namespace pcpp
 		 * @return True if TCP option was removed or false if type wasn't found or if removal failed (in each case a proper error
 		 * will be written to log)
 		 */
+		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		bool removeTcpOption(TcpOptionType optionType);
 
 		/**

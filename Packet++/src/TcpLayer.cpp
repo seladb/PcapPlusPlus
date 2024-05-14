@@ -50,11 +50,11 @@ TcpOptionBuilder::TcpOptionBuilder(const NopEolOptionEnumType optionType)
 	switch (optionType)
 	{
 	case NopEolOptionEnumType::Eol:
-		init(static_cast<uint8_t>(PCPP_TCPOPT_EOL), nullptr, 0);
+		init(static_cast<uint8_t>(TcpOptionEnumType::Eol), nullptr, 0);
 		break;
 	case NopEolOptionEnumType::Nop:
 	default:
-		init(static_cast<uint8_t>(PCPP_TCPOPT_NOP), nullptr, 0);
+		init(static_cast<uint8_t>(TcpOptionEnumType::Nop), nullptr, 0);
 		break;
 	}
 }
@@ -64,7 +64,7 @@ TcpOption TcpOptionBuilder::build() const
 	uint8_t recType = static_cast<uint8_t>(m_RecType);
 	size_t optionSize = m_RecValueLen + 2*sizeof(uint8_t);
 
-	if (recType == static_cast<uint8_t>(PCPP_TCPOPT_EOL) || recType == static_cast<uint8_t>(PCPP_TCPOPT_NOP))
+	if (recType == static_cast<uint8_t>(TcpOptionEnumType::Eol) || recType == static_cast<uint8_t>(TcpOptionEnumType::Nop))
 	{
 		if (m_RecValueLen != 0)
 		{

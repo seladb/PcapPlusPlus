@@ -3,24 +3,13 @@
 /// @file
 
 #ifndef PCPP_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define PCPP_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define PCPP_DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-#define PCPP_DEPRECATED
-#endif
-#endif
-
-#ifndef PCPP_DEPRECATED_MSG
     #if defined(__GNUC__) || defined(__clang__)
-        #define PCPP_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))
+        #define PCPP_DEPRECATED(msg) __attribute__((deprecated(msg)))
     #elif defined(_MSC_VER)
-        #define PCPP_DEPRECATED_MSG(msg) __declspec(deprecated(msg))
+        #define PCPP_DEPRECATED(msg) __declspec(deprecated(msg))
     #else
         #pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-        #define PCPP_DEPRECATED_MSG(msg)
+        #define PCPP_DEPRECATED(msg)
     #endif
 #endif
 
