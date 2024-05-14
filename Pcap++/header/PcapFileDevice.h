@@ -36,6 +36,10 @@ namespace pcpp
 		*/
 		std::string getFileName() const;
 
+		/**
+		 * @return The supported precision
+		 */
+		bool isTimestampPrecisionNanoSupported() const;
 
 		//override methods
 

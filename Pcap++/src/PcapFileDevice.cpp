@@ -55,6 +55,18 @@ std::string IFileDevice::getFileName() const
 	return m_FileName;
 }
 
+bool IFileDevice::isTimestampPrecisionNanoSupported() const
+{
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+	return true;
+#else
+	PCPP_LOG_DEBUG(
+		"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+		"recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+	return false;
+#endif
+}
+
 void IFileDevice::close()
 {
 	if (m_PcapDescriptor != nullptr)
