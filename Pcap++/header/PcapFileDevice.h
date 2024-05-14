@@ -39,7 +39,7 @@ namespace pcpp
 		/**
 		 * @return The supported precision
 		 */
-		bool isTimestampPrecisionNanoSupported() const;
+		static bool isTimestampPrecisionNanoSupported();
 
 		//override methods
 

@@ -55,7 +55,7 @@ std::string IFileDevice::getFileName() const
 	return m_FileName;
 }
 
-bool IFileDevice::isTimestampPrecisionNanoSupported() const
+bool IFileDevice::isTimestampPrecisionNanoSupported()
 {
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	return true;

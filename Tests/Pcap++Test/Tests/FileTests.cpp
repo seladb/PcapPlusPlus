@@ -3,6 +3,7 @@
 #include "Packet.h"
 #include "PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
+#include <array>
 #include <fstream>
 
 
@@ -132,12 +133,12 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 	pcpp::RawPacket readPacketNano, readPacketMicro;
 	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketMicro));
 	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_nsec, readerDevNano.isTimestampPrecisionNanoSupported() ? 2000 : 2);
+	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 2000 : 2);
 
 	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketNano));
 	PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_nsec, readerDevNano.isTimestampPrecisionNanoSupported() ? 1234 : 1);
-	
+	PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 1234 : 1);
+
 	readerDevNano.close();
 
 	// Read micro precision file
@@ -147,11 +148,11 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 
 	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
 	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, readerDevMicro.isTimestampPrecisionNanoSupported() ? 2000 : 2);
+	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 2000 : 2);
 
 	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketNano2));
 	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, readerDevMicro.isTimestampPrecisionNanoSupported() ? 1000 : 1);
+	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 1000 : 1);
 
 	readerDevMicro.close();
 } // TestPcapFilePrecision
