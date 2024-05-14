@@ -113,7 +113,7 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 	// Write nano precision file
 	pcpp::PcapFileWriterDevice writerDevNano(EXAMPLE_PCAP_NANO_PATH, pcpp::LINKTYPE_ETHERNET, true);
 	PTF_ASSERT_TRUE(writerDevNano.open());
-	PTF_ASSERT_EQUAL(writerDevNano.isTimestampPrecisionNano(), 1);
+	PTF_ASSERT_EQUAL(writerDevNano.isTimestampPrecisionNano(), pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported());
 	PTF_ASSERT_TRUE(writerDevNano.writePacket(rawPacketMicro));
 	PTF_ASSERT_TRUE(writerDevNano.writePacket(rawPacketNano));
 	writerDevNano.close();
