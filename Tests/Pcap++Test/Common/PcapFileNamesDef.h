@@ -29,3 +29,5 @@
 #define EXAMPLE_SOLARIS_SNOOP "PcapExamples/solaris.snoop"
 #define SLL2_PCAP_PATH "PcapExamples/sll2.pcap"
 #define SLL2_PCAP_WRITE_PATH "PcapExamples/sll2_copy.pcap"
+#define EXAMPLE_PCAP_MICRO_PATH "PcapExamples/microsecs.pcap"
+#define EXAMPLE_PCAP_NANO_PATH "PcapExamples/nanosecs.pcap"
