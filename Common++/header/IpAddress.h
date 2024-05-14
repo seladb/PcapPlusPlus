@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <ostream>
+#include <array>
 #include <memory>
 
 /// @file
@@ -41,13 +42,19 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(const uint32_t addrAsInt) { memcpy(m_Bytes, &addrAsInt, sizeof(m_Bytes)); }
+		IPv4Address(const uint32_t addrAsInt) { memcpy(m_Bytes.data(), &addrAsInt, sizeof(addrAsInt)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte array.
 		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
+		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t)); }
+
+		/**
+		 * A constructor that creates an instance of the class out of a 4-byte standard array.
+		 * @param[in] bytes The address as 4-byte standard array in network byte order
+		 */
+		IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes) {}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -58,25 +65,27 @@ namespace pcpp
 		IPv4Address(const std::string& addrAsString);
 
 		/**
-		 * Converts the IPv4 address into a 4B integer
-		 * @return a 4B integer in network byte order representing the IPv4 address
+		 * @return A 4-byte integer in network byte order representing the IPv4 address
 		 */
 		inline uint32_t toInt() const;
 
 		/**
-		 * Returns a pointer to 4-byte array representing the IPv4 address
+		 * @return A non-owning pointer to 4-byte C-style array representing the IPv4 address
 		 */
-		const uint8_t* toBytes() const { return m_Bytes; }
+		const uint8_t* toBytes() const { return m_Bytes.data(); }
 
 		/**
-		 * Returns a std::string representation of the address
+		 * @return A reference to a 4-byte standard array representing the IPv4 address
+		 */
+		const std::array<uint8_t, 4>& toByteArray() const { return m_Bytes; }
+
+		/**
 		 * @return A string representation of the address
 		 */
 		std::string toString() const;
 
 		/**
-		 * Determine whether the address is a multicast address
-		 * @return True if an address is multicast
+		 * @return True if an address is multicast, false otherwise.
 		 */
 		bool isMulticast() const;
 
@@ -95,10 +104,10 @@ namespace pcpp
 		bool operator<(const IPv4Address& rhs) const
 		{
 			uint32_t intVal = toInt();
-			std::reverse((uint8_t*)(&intVal), (uint8_t*)(&intVal) + sizeof(intVal));
+			std::reverse(reinterpret_cast<uint8_t*>(&intVal), reinterpret_cast<uint8_t*>(&intVal) + sizeof(intVal));
 
 			uint32_t rhsIntVal = rhs.toInt();
-			std::reverse((uint8_t*)(&rhsIntVal), (uint8_t*)(&rhsIntVal) + sizeof(rhsIntVal));
+			std::reverse(reinterpret_cast<uint8_t*>(&rhsIntVal), reinterpret_cast<uint8_t*>(&rhsIntVal) + sizeof(rhsIntVal));
 
 			return intVal < rhsIntVal;
 		}
@@ -152,7 +161,7 @@ namespace pcpp
 		static const IPv4Address MulticastRangeUpperBound;
 
 	private:
-		uint8_t m_Bytes[4] = {0};
+		std::array<uint8_t, 4> m_Bytes = {0};
 	}; // class IPv4Address
 
 
@@ -161,7 +170,7 @@ namespace pcpp
 	uint32_t IPv4Address::toInt() const
 	{
 		uint32_t addr;
-		memcpy(&addr, m_Bytes, sizeof(m_Bytes));
+		memcpy(&addr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
 		return addr;
 	}
 
@@ -181,7 +190,13 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 16-byte array.
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes, bytes, sizeof(m_Bytes)); }
+		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t)); }
+
+		/**
+		 * A constructor that creates an instance of the class out of a 16-byte standard array.
+		 * @param[in] bytes The address as 16-byte standard array in network byte order
+		 */
+		IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes) {}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -192,9 +207,16 @@ namespace pcpp
 		IPv6Address(const std::string& addrAsString);
 
 		/**
-		 * Returns a pointer to 16-byte array representing the IPv6 address
+		 * Returns a view of the IPv6 address as a 16-byte raw C-style array
+		 * @return A non-owning pointer to 16-byte array representing the IPv6 address
 		 */
-		const uint8_t* toBytes() const { return m_Bytes; }
+		const uint8_t* toBytes() const { return m_Bytes.data(); }
+
+		/**
+		 * Returns a view of the IPv6 address as a std::array of bytes
+		 * @return A reference to a 16-byte standard array representing the IPv6 address
+		 */
+		const std::array<uint8_t, 16>& toByteArray() const { return m_Bytes; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -242,7 +264,7 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes, sizeof(m_Bytes)); }
+		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t)); }
 
 		/**
 		 * Checks whether the address matches a network.
@@ -286,7 +308,7 @@ namespace pcpp
 		static const IPv6Address MulticastRangeLowerBound;
 
 	private:
-		uint8_t m_Bytes[16] = {0};
+		std::array<uint8_t, 16> m_Bytes = {0};
 	}; // class IPv6Address
 
 
