@@ -128,6 +128,11 @@ namespace pcpp
 		*/
 		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
 
+		/**
+		 * @return The precision of the timestamps in the file. If the precision is unknown, -1 will be returned,
+		 * otherwise the precision will be returned in micro-seconds (0) or nano-seconds (1)
+		*/
+		int isTimestampPrecisionNano() const { return m_Precision; }
 
 		//overridden methods
 
@@ -427,6 +432,12 @@ namespace pcpp
 		 * log will be printed) or if at least one of the packets wasn't written successfully to the file
 		 */
 		bool writePackets(const RawPacketVector& packets) override;
+
+		/**
+		 * @return The precision of the timestamps in the file. If the precision is unknown, -1 will be returned,
+		 * otherwise the precision will be returned in micro-seconds (0) or nano-seconds (1)
+		 */
+		int isTimestampPrecisionNano() const { return m_Precision; }
 
 		//override methods
 
