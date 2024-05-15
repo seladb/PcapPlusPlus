@@ -133,7 +133,7 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 	pcpp::RawPacket readPacketNano, readPacketMicro;
 	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketMicro));
 	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 2000 : 2000);
+	PTF_ASSERT_EQUAL(readPacketMicro.getPacketTimeStamp().tv_nsec, 2000);
 
 	PTF_ASSERT_TRUE(readerDevNano.getNextPacket(readPacketNano));
 	PTF_ASSERT_EQUAL(readPacketNano.getPacketTimeStamp().tv_sec, 1);
@@ -148,11 +148,11 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 
 	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
 	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 2000 : 2000);
+	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, pcpp::2000);
 
 	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketNano2));
 	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, pcpp::PcapFileReaderDevice::isTimestampPrecisionNanoSupported() ? 1000 : 1000);
+	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_nsec, 1000);
 
 	readerDevMicro.close();
 } // TestPcapFilePrecision
