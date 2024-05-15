@@ -148,7 +148,7 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 
 	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketMicro2));
 	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_sec, 1);
-	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, pcpp::2000);
+	PTF_ASSERT_EQUAL(readPacketMicro2.getPacketTimeStamp().tv_nsec, 2000);
 
 	PTF_ASSERT_TRUE(readerDevMicro.getNextPacket(readPacketNano2));
 	PTF_ASSERT_EQUAL(readPacketNano2.getPacketTimeStamp().tv_sec, 1);
