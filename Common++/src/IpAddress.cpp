@@ -51,7 +51,7 @@ namespace pcpp
 
 	IPv4Address::IPv4Address(const std::string& addrAsString)
 	{
-		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes) <= 0)
+		if (inet_pton(AF_INET, addrAsString.data(), m_Bytes.data()) <= 0)
 		{
 			throw std::invalid_argument("Not a valid IPv4 address: " + addrAsString);
 		}
@@ -109,7 +109,7 @@ namespace pcpp
 
 	IPv6Address::IPv6Address(const std::string& addrAsString)
 	{
-		if(inet_pton(AF_INET6, addrAsString.data(), m_Bytes) <= 0)
+		if(inet_pton(AF_INET6, addrAsString.data(), m_Bytes.data()) <= 0)
 		{
 			throw std::invalid_argument("Not a valid IPv6 address: " + addrAsString);
 		}
@@ -118,10 +118,10 @@ namespace pcpp
 
 	void IPv6Address::copyTo(uint8_t** arr, size_t& length) const
 	{
-		const size_t addrLen = sizeof(m_Bytes);
+		const size_t addrLen = m_Bytes.size() * sizeof(uint8_t);
 		length = addrLen;
 		*arr = new uint8_t[addrLen];
-		memcpy(*arr, m_Bytes, addrLen);
+		memcpy(*arr, m_Bytes.data(), addrLen);
 	}
 
 
@@ -237,11 +237,11 @@ namespace pcpp
 		}
 		catch(const std::exception&)
 		{
-			throw std::invalid_argument("Netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid IPv4 format: " + netmask);
 		}
 		if (!isValidNetmask(netmaskAddr))
 		{
-			throw std::invalid_argument("Netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid IPv4 format: " + netmask);
 		}
 		initFromAddressAndNetmask(address, netmaskAddr);
 	}
@@ -288,11 +288,11 @@ namespace pcpp
 			}
 			catch (const std::invalid_argument&)
 			{
-				throw std::invalid_argument("Netmask is not valid: " + netmaskStr);
+				throw std::invalid_argument("Netmask is not valid IPv4 format: " + netmaskStr);
 			}
 			if (!isValidNetmask(netmaskAddr))
 			{
-				throw std::invalid_argument("Netmask is not valid: " + netmaskStr);
+				throw std::invalid_argument("Netmask is not valid IPv4 format: " + netmaskStr);
 			}
 			initFromAddressAndNetmask(networkPrefix, netmaskAddr);
 		}
@@ -456,11 +456,11 @@ namespace pcpp
 		}
 		catch(const std::exception&)
 		{
-			throw std::invalid_argument("Netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid IPv6 format: " + netmask);
 		}
 		if (!isValidNetmask(netmaskAddr))
 		{
-			throw std::invalid_argument("Netmask is not valid: " + netmask);
+			throw std::invalid_argument("Netmask is not valid IPv6 format: " + netmask);
 		}
 		initFromAddressAndNetmask(address, netmaskAddr);
 	}
@@ -505,11 +505,11 @@ namespace pcpp
 			}
 			catch(const std::exception&)
 			{
-				throw std::invalid_argument("Netmask is not valid: " + netmaskStr);
+				throw std::invalid_argument("Netmask is not valid IPv6 format: " + netmaskStr);
 			}
 			if (!isValidNetmask(netmaskAddr))
 			{
-				throw std::invalid_argument("Netmask is not valid: " + netmaskStr);
+				throw std::invalid_argument("Netmask is not valid IPv6 format: " + netmaskStr);
 			}
 			initFromAddressAndNetmask(networkPrefix, netmaskAddr);
 		}

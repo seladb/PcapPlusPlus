@@ -42,7 +42,7 @@ struct SetFilterInstruction
 
 static void pfRingPacketsArrive(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device, void* userCookie)
 {
-	PfRingPacketData* data = (PfRingPacketData*)userCookie;
+	PfRingPacketData* data = static_cast<PfRingPacketData*>(userCookie);
 
 	data->ThreadId = threadId;
 	data->PacketCount += numOfPackets;
@@ -64,7 +64,7 @@ static void pfRingPacketsArrive(pcpp::RawPacket* packets, uint32_t numOfPackets,
 
 static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device, void* userCookie)
 {
-	PfRingPacketData* data = (PfRingPacketData*)userCookie;
+	PfRingPacketData* data = static_cast<PfRingPacketData*>(userCookie);
 
 	data[threadId].ThreadId = threadId;
 	data[threadId].PacketCount += numOfPackets;
@@ -93,7 +93,7 @@ static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t nu
 
 void pfRingPacketsArriveSetFilter(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device, void* userCookie)
 {
-	SetFilterInstruction* instruction = (SetFilterInstruction*)userCookie;
+	SetFilterInstruction* instruction = static_cast<SetFilterInstruction*>(userCookie);
 	switch(instruction->Instruction)
 	{
 	case 1: //verify TCP packet
