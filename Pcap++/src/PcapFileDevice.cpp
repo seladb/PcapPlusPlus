@@ -36,6 +36,18 @@ struct packet_header
 	uint32_t len;
 };
 
+static constexpr bool checkNanoSupport()
+{
+#if defined(PCAP_TSTAMP_PRECISION_NANO)
+    return true;
+#else
+	PCPP_LOG_DEBUG(
+		"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
+		"recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
+	return false;
+#endif
+}
+
 // ~~~~~~~~~~~~~~~~~~~
 // IFileDevice members
 // ~~~~~~~~~~~~~~~~~~~
@@ -53,18 +65,6 @@ IFileDevice::~IFileDevice()
 std::string IFileDevice::getFileName() const
 {
 	return m_FileName;
-}
-
-bool IFileDevice::isTimestampPrecisionNanoSupported()
-{
-#if defined(PCAP_TSTAMP_PRECISION_NANO)
-	return true;
-#else
-	PCPP_LOG_DEBUG(
-		"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
-		"recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
-	return false;
-#endif
 }
 
 void IFileDevice::close()
@@ -288,15 +288,20 @@ bool PcapFileReaderDevice::open()
 	m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	m_Precision = pcap_get_tstamp_precision(m_PcapDescriptor);
-	std::string precisionString = m_Precision == PCAP_TSTAMP_PRECISION_NANO ? "nano" : "micro";
+	m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(m_PcapDescriptor));
+	std::string precisionStr = (m_Precision == FileTimestampPrecision::Nano) ? "nanoseconds" : "microseconds";
 #else
-	m_Precision = 0;
-	std::string precisionString = "micro";
+	m_Precision = FileTimestampPrecision::Micro;
+	std::string precisionStr = "microseconds";
 #endif
-	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision " << precisionString);
+	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision " << precisionStr);
 	m_DeviceOpened = true;
 	return true;
+}
+
+bool PcapFileReaderDevice::isNanoSecondPrecisionSupported()
+{
+	return checkNanoSupport();
 }
 
 void PcapFileReaderDevice::getStatistics(PcapStats& stats) const
@@ -555,15 +560,15 @@ PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLaye
 	m_PcapLinkLayerType = linkLayerType;
 	m_AppendMode = false;
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	m_Precision = nanoPrecision ? PCAP_TSTAMP_PRECISION_NANO : PCAP_TSTAMP_PRECISION_MICRO;
+	m_Precision = nanoPrecision ? FileTimestampPrecision::Nano : FileTimestampPrecision::Micro;
 #else
 	if (nanoPrecision)
 	{
-		PCPP_LOG_DEBUG(
+		PCPP_LOG_ERROR(
 			"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
 			"recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
 	}
-	m_Precision = 0;
+	m_Precision = FileTimestampPrecision::Micro;
 #endif
 	m_File = nullptr;
 }
@@ -598,7 +603,7 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pktHdr.len = ((RawPacket&)packet).getFrameLength();
 	timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	if (m_Precision != PCAP_TSTAMP_PRECISION_NANO)
+	if (m_Precision != FileTimestampPrecision::Nano)
 	{
 		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 	}
@@ -646,6 +651,11 @@ bool PcapFileWriterDevice::writePackets(const RawPacketVector& packets)
 	return true;
 }
 
+bool PcapFileWriterDevice::isNanoSecondPrecisionSupported()
+{
+	return checkNanoSupport();
+}
+
 bool PcapFileWriterDevice::open()
 {
 	if (m_PcapDescriptor != nullptr)
@@ -668,7 +678,7 @@ bool PcapFileWriterDevice::open()
 	m_NumOfPacketsWritten = 0;
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	m_PcapDescriptor = pcap_open_dead_with_tstamp_precision(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE, m_Precision);
+	m_PcapDescriptor = pcap_open_dead_with_tstamp_precision(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE, static_cast<int>(m_Precision));
 #else
 	m_PcapDescriptor = pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE);
 #endif
