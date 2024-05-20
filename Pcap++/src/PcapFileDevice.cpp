@@ -36,7 +36,7 @@ struct packet_header
 	uint32_t len;
 };
 
-static constexpr bool checkNanoSupport()
+static bool checkNanoSupport()
 {
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
     return true;
