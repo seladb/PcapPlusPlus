@@ -1099,7 +1099,7 @@ void PcapLiveDevice::setDefaultGateway()
 	}
 
 	// Read the response from the route socket
-	if (read(sockfd,reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0) {
+	if (read(sockfd, reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0) {
 		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't read from the routing socket");
 		return;
 	}
