@@ -5,6 +5,7 @@
 #include "PcapRemoteDeviceList.h"
 #include "Logger.h"
 #include "IpUtils.h"
+#include "IpAddressUtils.h"
 #include "pcap.h"
 #include <ws2tcpip.h>
 
@@ -119,7 +120,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 				continue;
 			}
 
-			if (currAddr->s_addr == ip4Addr.toInt())
+			if (*currAddr == ip4Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
 				return (*devIter);
@@ -153,15 +154,11 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return (*devIter);
 			}
-			delete [] addrAsArr;
 		}
 	}
 
