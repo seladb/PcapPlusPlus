@@ -1,6 +1,7 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include "IpUtils.h"
+#include "IpAddressUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "SystemUtils.h"
@@ -321,7 +322,7 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 				continue;
 			}
 
-			if (currAddr->s_addr == ipAddr.toInt())
+			if (*currAddr == ipAddr)
 			{
 				PCPP_LOG_DEBUG("Found matching address!");
 				return device;
@@ -362,7 +363,7 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 				continue;
 			}
 
-			if (memcmp(currAddr, ip6Addr.toBytes(), sizeof(struct in6_addr)) == 0)
+			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matching address!");
 				return device;
