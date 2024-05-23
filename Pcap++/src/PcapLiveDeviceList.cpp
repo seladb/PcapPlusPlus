@@ -1,6 +1,7 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include "IpUtils.h"
+#include "IpAddressUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "SystemUtils.h"
@@ -286,7 +287,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 				continue;
 			}
 
-			if (currAddr->s_addr == ipAddr.toInt())
+			if (*currAddr == ipAddr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
 				return devIter;
@@ -319,16 +320,11 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return devIter;
 			}
-
-			delete [] addrAsArr;
 		}
 	}
 
