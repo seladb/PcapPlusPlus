@@ -263,7 +263,6 @@ namespace pcpp
 		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
 		 */
 		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceListView.end(); }
-
 	};
 
 } // namespace pcpp
