@@ -71,13 +71,13 @@ namespace pcpp
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 */
 		using RemoteDeviceListIterator = std::vector<PcapRemoteDevice*>::iterator;
-		using iterator = std::vector<PcapRemoteDevice*>::iterator;
+		using iterator = RemoteDeviceListIterator;
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 */
 		using ConstRemoteDeviceListIterator = std::vector<PcapRemoteDevice*>::const_iterator;
-		using const_iterator = std::vector<PcapRemoteDevice*>::const_iterator;
+		using const_iterator = ConstRemoteDeviceListIterator;
 
 		/*
 		 * @class SmartPtrApiTag
