@@ -9,6 +9,11 @@
 
 /// @file
 
+#ifndef PCPP_DEPRECATED_RAW_PTR_API
+#define PCPP_DEPRECATED_RAW_PTR_API_LOCAL_DEFINE 1
+#define PCPP_DEPRECATED_RAW_PTR_API PCPP_DEPRECATED("This method is deprecated in favor of the SmartPtrAPI overload.")
+#endif // !PCPP_DEPRECATED_RAW_PTR_API
+
 /**
 * \namespace pcpp
 * \brief The main namespace for the PcapPlusPlus lib
@@ -67,7 +72,7 @@ namespace pcpp
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const;
+		PCPP_DEPRECATED_RAW_PTR_API const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const;
 		/**
 		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
 		 * @return A reference to a vector containing shared pointers to all live devices currently installed on the machine.
@@ -80,7 +85,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IP address exists, nullptr otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
 		 * @param[in] ipAddr The IP address defined for the device
@@ -95,7 +100,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IPv4 address exists, nullptr otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
 		/**
 		 * Get a pointer to the live device by its IPv4 address
 		 * @param[in] ipAddr The IPv4 address defined for the device
@@ -110,7 +115,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IPv6 address exists, nullptr otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
 		/**
 		 * Get a pointer to the live device by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address defined for the device
@@ -126,7 +131,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this IP address is valid and exists, nullptr otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const;
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
 		 * @param[in] ipAddrAsString The IP address defined for the device as string
@@ -141,7 +146,7 @@ namespace pcpp
 		 * @return A pointer to the live device if this name exists, nullprt otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
 		/**
 		 * Get a pointer to the live device by its name
 		 * @param[in] name The name of the interface (e.g eth0)
@@ -156,7 +161,7 @@ namespace pcpp
 		 * @return A pointer to the live device if exists, nullptr otherwise
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
 		/**
 		 * Get a pointer to the live device by its IP address or name
 		 * @param[in] ipOrName An IP address or name of the interface
@@ -176,7 +181,7 @@ namespace pcpp
 		 * @return A pointer to the cloned device list
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
-		PCPP_DEPRECATED PcapLiveDeviceList* clone() const;
+		PCPP_DEPRECATED_RAW_PTR_API PcapLiveDeviceList* clone() const;
 		/**
 		 * Copies the current live device list
 		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
@@ -191,3 +196,8 @@ namespace pcpp
 	};
 
 } // namespace pcpp
+
+#ifdef PCPP_DEPRECATED_RAW_PTR_API_LOCAL_DEFINE
+#undef PCPP_DEPRECATED_RAW_PTR_API
+#undef PCPP_DEPRECATED_RAW_PTR_API_LOCAL_DEFINE
+#endif // PCPP_DEPRECATED_RAW_PTR_API_LOCAL_DEFINE
