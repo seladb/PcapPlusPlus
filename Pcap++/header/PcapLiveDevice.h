@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <memory>
 #include <vector>
 #include <string.h>
 #include <thread>
@@ -130,6 +131,16 @@ namespace pcpp
 		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 	public:
+
+		/*
+		* @class SmartPtrApiTag
+		* Helper tag to disambiguate smart pointer API.
+		*/
+		struct SmartPtrApiTag{};
+		/**
+		* Helper tag constant for disambuguating smart pointer API.
+		*/
+		static const SmartPtrApiTag SmartPtrApi;
 
 		/**
 		 * The type of the live device
@@ -570,7 +581,13 @@ namespace pcpp
 		 * Clones the current device class
 		 * @return Pointer to the copied class
 		 */
-		PcapLiveDevice* clone();
+		PcapLiveDevice* clone() const;
+		/**
+		 * Clones the current device class
+		 * @param[in] apiTag Disambiguating tag for SmartPtrAPI.
+		 * @return Unique pointer to the copied device.
+		 */
+		std::unique_ptr<PcapLiveDevice> clone(SmartPtrApiTag apiTag) const;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 

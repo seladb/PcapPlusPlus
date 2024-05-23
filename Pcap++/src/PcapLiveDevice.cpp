@@ -11,6 +11,7 @@
 #include <thread>
 #include "Logger.h"
 #include "SystemUtils.h"
+#include "MemoryUtils.h"
 #include <string.h>
 #include <iostream>
 #include <fstream>
@@ -71,7 +72,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 }
 #endif
 
-
+const PcapLiveDevice::SmartPtrApiTag PcapLiveDevice::SmartPtrApi{};
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
 	IPcapDevice(), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
@@ -401,34 +402,32 @@ void PcapLiveDevice::close()
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
-PcapLiveDevice* PcapLiveDevice::clone()
+PcapLiveDevice* PcapLiveDevice::clone() const { return clone(SmartPtrApi).release(); }
+
+std::unique_ptr<PcapLiveDevice> PcapLiveDevice::clone(SmartPtrApiTag apiTag) const 
 {
-	PcapLiveDevice *retval = nullptr;
-
-	pcap_if_t *interfaceList;
-	char errbuf[PCAP_ERRBUF_SIZE];
-	int err = pcap_findalldevs(&interfaceList, errbuf);
-	if (err < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	{
-		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
-		return nullptr;
+		pcap_if_t* interfaceListRaw;
+		char errbuf[PCAP_ERRBUF_SIZE];
+		int err = pcap_findalldevs(&interfaceListRaw, errbuf);
+		if (err < 0)
+		{
+			PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
+			return nullptr;
+		}
+		interfaceList = std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 	}
 
-	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != nullptr)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		if(!strcmp(currInterface->name, getName().c_str()))
-			break;
-		currInterface = currInterface->next;
+		if (!strcmp(currInterface->name, getName().c_str()))
+		{
+			return std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
+		}
 	}
-
-	if(currInterface)
-		retval = new PcapLiveDevice(currInterface, true, true, true);
-	else
-		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
-
-	pcap_freealldevs(interfaceList);
-	return retval;
+	PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+	return nullptr;
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
