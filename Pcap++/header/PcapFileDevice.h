@@ -21,15 +21,15 @@ namespace pcpp
 	 * An enumeration representing the precision of timestamps in a pcap file.
 	 * The precision can be Unknown, Micro, or Nano.
 	 */
-    enum class FileTimestampPrecision : int8_t
-    {
+	enum class FileTimestampPrecision : int8_t
+	{
 		/// Precision is unknown or not set/determined
-        Unknown = -1,
-		/// Precision is in microseconds
-        Micro,
-		/// Precision is in nanoseconds
-        Nano
-    };
+		Unknown = -1,
+		/// Precision is in microseconds.
+		Microseconds = 0,
+		/// Precision is in nanoseconds.
+		Nanoseconds = 1
+	};
 
 	/**
 	 * @class IFileDevice
@@ -423,9 +423,9 @@ namespace pcpp
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
 		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
-		 * @param[in] nanoPrecision A boolean indicating whether to write timestamps in nano-precision. If set to false, timestamps will be written in micro-precision
+		 * @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set to false, timestamps will be written in micro-precision
 		 */
-		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET, bool nanoPrecision = false);
+		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET, bool nanosecondsPrecision = false);
 
 		/**
 		 * A destructor for this class

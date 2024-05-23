@@ -289,9 +289,9 @@ bool PcapFileReaderDevice::open()
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 	m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(m_PcapDescriptor));
-	std::string precisionStr = (m_Precision == FileTimestampPrecision::Nano) ? "nanoseconds" : "microseconds";
+	std::string precisionStr = (m_Precision == FileTimestampPrecision::Nanoseconds) ? "nanoseconds" : "microseconds";
 #else
-	m_Precision = FileTimestampPrecision::Micro;
+	m_Precision = FileTimestampPrecision::Microseconds;
 	std::string precisionStr = "microseconds";
 #endif
 	PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision " << precisionStr);
@@ -552,7 +552,7 @@ IFileWriterDevice:: IFileWriterDevice(const std::string& fileName) : IFileDevice
 // PcapFileWriterDevice members
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType, bool nanoPrecision) : IFileWriterDevice(fileName)
+PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType, bool nanosecondsPrecision) : IFileWriterDevice(fileName)
 {
 	m_PcapDumpHandler = nullptr;
 	m_NumOfPacketsNotWritten = 0;
@@ -560,15 +560,15 @@ PcapFileWriterDevice::PcapFileWriterDevice(const std::string& fileName, LinkLaye
 	m_PcapLinkLayerType = linkLayerType;
 	m_AppendMode = false;
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	m_Precision = nanoPrecision ? FileTimestampPrecision::Nano : FileTimestampPrecision::Micro;
+	m_Precision = nanosecondsPrecision ? FileTimestampPrecision::Nanoseconds : FileTimestampPrecision::Microseconds;
 #else
-	if (nanoPrecision)
+	if (nanosecondsPrecision)
 	{
 		PCPP_LOG_ERROR(
 			"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
 			"recompile PcapPlusPlus with nano precision support to use this feature. Using default microsecond precision");
 	}
-	m_Precision = FileTimestampPrecision::Micro;
+	m_Precision = FileTimestampPrecision::Microseconds;
 #endif
 	m_File = nullptr;
 }
@@ -603,7 +603,7 @@ bool PcapFileWriterDevice::writePacket(RawPacket const& packet)
 	pktHdr.len = ((RawPacket&)packet).getFrameLength();
 	timespec packet_timestamp = ((RawPacket&)packet).getPacketTimeStamp();
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-	if (m_Precision != FileTimestampPrecision::Nano)
+	if (m_Precision != FileTimestampPrecision::Nanoseconds)
 	{
 		TIMESPEC_TO_TIMEVAL(&pktHdr.ts, &packet_timestamp);
 	}
