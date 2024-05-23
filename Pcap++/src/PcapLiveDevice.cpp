@@ -690,7 +690,7 @@ bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 		return sendPacket(&parsedPacket, true);
 	}
 	// Send packet without Mtu check
-	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+	return sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen());
 }
 
 bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
