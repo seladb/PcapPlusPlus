@@ -404,7 +404,7 @@ void PcapLiveDevice::close()
 
 PcapLiveDevice* PcapLiveDevice::clone() const { return clone(SmartPtrApi).release(); }
 
-std::unique_ptr<PcapLiveDevice> PcapLiveDevice::clone(SmartPtrApiTag apiTag) const 
+std::unique_ptr<PcapLiveDevice> PcapLiveDevice::clone(SmartPtrApiTag apiTag) const
 {
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	{
