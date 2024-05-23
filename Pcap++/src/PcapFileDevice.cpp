@@ -39,7 +39,7 @@ struct packet_header
 static bool checkNanoSupport()
 {
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-    return true;
+	return true;
 #else
 	PCPP_LOG_DEBUG(
 		"PcapPlusPlus was compiled without nano precision support which requires libpcap > 1.5.1. Please "
