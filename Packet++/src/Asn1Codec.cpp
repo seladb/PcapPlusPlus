@@ -170,14 +170,10 @@ namespace pcpp
 			return result;
 		}
 
-		// Assuming the size is always 4 bytes
-		uint8_t firstByte = 0x80 | sizeof(uint32_t);
+		// Assuming the size is always less than 256
+		uint8_t firstByte = 0x80 | 0x01;
 		result.push_back(firstByte);
-
-		result.push_back((m_ValueLength >> 24) & 0xff);
-		result.push_back((m_ValueLength >> 16) & 0xff);
-		result.push_back((m_ValueLength >> 8) & 0xff);
-		result.push_back(m_ValueLength & 0xff);
+		result.push_back(m_ValueLength);
 
 		return result;
 	}
@@ -471,7 +467,6 @@ namespace pcpp
 		m_TagClass = tagClass;
 		m_IsConstructed = isConstructed;
 		m_Value = new uint8_t[valueLen];
-		m_FreeValueOnDestruction = true;
 		memcpy(m_Value, value, valueLen);
 		m_ValueLength = valueLen;
 		m_TotalLength = m_ValueLength + 2;
@@ -479,15 +474,15 @@ namespace pcpp
 
 	Asn1GenericRecord::~Asn1GenericRecord()
 	{
-		if (m_Value && m_FreeValueOnDestruction)
-		{
-			delete m_Value;
-		}
+		delete m_Value;
 	}
 
 	void Asn1GenericRecord::decodeValue(uint8_t* data, bool lazy)
 	{
-		m_Value = data;
+		delete m_Value;
+
+		m_Value = new uint8_t[m_ValueLength];
+		memcpy(m_Value, data, m_ValueLength);
 	}
 
 	std::vector<uint8_t> Asn1GenericRecord::encodeValue() const
@@ -497,21 +492,12 @@ namespace pcpp
 
 	Asn1ConstructedRecord::Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords)
 	{
-		m_TagType = tagType;
-		m_TagClass = tagClass;
-		m_IsConstructed = true;
+		init(tagClass, tagType, subRecords.begin(), subRecords.end());
+	}
 
-		size_t recordValueLength = 0;
-		for (auto record : subRecords)
-		{
-			auto encodedRecord = record->encode();
-			auto copyRecord = Asn1Record::decode(encodedRecord.data(), encodedRecord.size(), false);
-			m_SubRecords.pushBack(copyRecord.release());
-			recordValueLength += encodedRecord.size();
-		}
-
-		m_ValueLength = recordValueLength;
-		m_TotalLength = recordValueLength + 2;
+	Asn1ConstructedRecord::Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const PointerVector<Asn1Record>& subRecords)
+	{
+		init(tagClass, tagType, subRecords.begin(), subRecords.end());
 	}
 
 	void Asn1ConstructedRecord::decodeValue(uint8_t* data, bool lazy)
@@ -565,8 +551,16 @@ namespace pcpp
 		: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Sequence), subRecords)
 	{}
 
+	Asn1SequenceRecord::Asn1SequenceRecord(const PointerVector<Asn1Record>& subRecords)
+		: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Sequence), subRecords)
+	{}
+
 	Asn1SetRecord::Asn1SetRecord(const std::vector<Asn1Record*>& subRecords)
 			: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
+	{}
+
+	Asn1SetRecord::Asn1SetRecord(const PointerVector<Asn1Record>& subRecords)
+		: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
 	{}
 
 	Asn1PrimitiveRecord::Asn1PrimitiveRecord(Asn1UniversalTagType tagType) : Asn1Record()
