@@ -992,7 +992,7 @@ void PcapLiveDevice::setDefaultGateway()
 	{
 		buffer.resize(outBufLen);
 		// Repins the adapter info pointer to the vector data pointer as the vector might be reallocated during the resize.
-		adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer.data());;
+		adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer.data());
 		retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
 	}
 
