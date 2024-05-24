@@ -135,6 +135,8 @@ jobs:
           flags: ${{ matrix.image }},unittest
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   dpdk:
     runs-on: ubuntu-latest
@@ -309,6 +311,8 @@ jobs:
           flags: ${{ matrix.os-version }},unittest
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   macos-m1:
     runs-on: ${{ matrix.os-version }}
@@ -382,6 +386,8 @@ jobs:
           flags: ${{ matrix.os-version }},unittest
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   mingw-w64:
     runs-on: windows-latest
@@ -462,6 +468,8 @@ jobs:
           flags: ${{ matrix.sys }},unittest
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   visual-studio:
     strategy:
@@ -550,6 +558,8 @@ jobs:
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   android:
     strategy:
@@ -652,6 +662,8 @@ jobs:
           flags: xdp,unittest
           fail_ci_if_error: false
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test_regressions:
     name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
