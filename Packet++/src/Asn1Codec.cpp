@@ -3,7 +3,10 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
+#include <numeric>
+#include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <cstring>
 #include <cmath>
 #include <limits>
@@ -12,7 +15,106 @@
 #undef max
 #endif
 
-namespace pcpp {
+namespace pcpp
+{
+	std::string toString(Asn1TagClass tagClass)
+	{
+		switch (tagClass)
+		{
+			case Asn1TagClass::Universal:
+				return "Universal";
+			case Asn1TagClass::ContextSpecific:
+				return "ContextSpecific";
+			case Asn1TagClass::Application:
+				return "Application";
+			default:
+				return "Private";
+		}
+	}
+
+	std::string toString(Asn1UniversalTagType tagType)
+	{
+		switch (tagType)
+		{
+			case Asn1UniversalTagType::EndOfContent:
+				return "EndOfContent";
+			case Asn1UniversalTagType::Boolean:
+				return "Boolean";
+			case Asn1UniversalTagType::Integer:
+				return "Integer";
+			case Asn1UniversalTagType::BitString:
+				return "BitString";
+			case Asn1UniversalTagType::OctetString:
+				return "OctetString";
+			case Asn1UniversalTagType::Null:
+				return "Null";
+			case Asn1UniversalTagType::ObjectIdentifier:
+				return "ObjectIdentifier";
+			case Asn1UniversalTagType::ObjectDescriptor:
+				return "ObjectDescriptor";
+			case Asn1UniversalTagType::External:
+				return "External";
+			case Asn1UniversalTagType::Real:
+				return "Real";
+			case Asn1UniversalTagType::Enumerated:
+				return "Enumerated";
+			case Asn1UniversalTagType::EmbeddedPDV:
+				return "EmbeddedPDV";
+			case Asn1UniversalTagType::UTF8String:
+				return "UTF8String";
+			case Asn1UniversalTagType::RelativeObjectIdentifier:
+				return "RelativeObjectIdentifier";
+			case Asn1UniversalTagType::Time:
+				return "Time";
+			case Asn1UniversalTagType::Reserved:
+				return "Reserved";
+			case Asn1UniversalTagType::Sequence:
+				return "Sequence";
+			case Asn1UniversalTagType::Set:
+				return "Set";
+			case Asn1UniversalTagType::NumericString:
+				return "NumericString";
+			case Asn1UniversalTagType::PrintableString:
+				return "PrintableString";
+			case Asn1UniversalTagType::T61String:
+				return "T61String";
+			case Asn1UniversalTagType::VideotexString:
+				return "VideotexString";
+			case Asn1UniversalTagType::IA5String:
+				return "IA5String";
+			case Asn1UniversalTagType::UTCTime:
+				return "UTCTime";
+			case Asn1UniversalTagType::GeneralizedTime:
+				return "GeneralizedTime";
+			case Asn1UniversalTagType::GraphicString:
+				return "GraphicString";
+			case Asn1UniversalTagType::VisibleString:
+				return "VisibleString";
+			case Asn1UniversalTagType::GeneralString:
+				return "GeneralString";
+			case Asn1UniversalTagType::UniversalString:
+				return "UniversalString";
+			case Asn1UniversalTagType::CharacterString:
+				return "CharacterString";
+			case Asn1UniversalTagType::BMPString:
+				return "BMPString";
+			case Asn1UniversalTagType::Date:
+				return "Date";
+			case Asn1UniversalTagType::TimeOfDay:
+				return "TimeOfDay";
+			case Asn1UniversalTagType::DateTime:
+				return "DateTime";
+			case Asn1UniversalTagType::Duration:
+				return "Duration";
+			case Asn1UniversalTagType::ObjectIdentifierIRI:
+				return "ObjectIdentifierIRI";
+			case Asn1UniversalTagType::RelativeObjectIdentifierIRI:
+				return "RelativeObjectIdentifierIRI";
+			default:
+				return "Unknown";
+		}
+	}
+
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
 		auto record = decodeInternal(data, dataLen ,lazy);
@@ -327,6 +429,42 @@ namespace pcpp {
 		}
 	}
 
+	std::string Asn1Record::toString()
+	{
+		auto lines = toStringList();
+
+		auto commaSeparated = [](std::string str1, std::string str2)
+		{
+			return std::move(str1) + '\n' + std::move(str2);
+		};
+
+		return std::accumulate(std::next(lines.begin()), lines.end(),lines[0], commaSeparated);
+	}
+
+	std::vector<std::string> Asn1Record::toStringList()
+	{
+		std::ostringstream stream;
+
+		auto universalType = getUniversalTagType();
+		if (universalType == Asn1UniversalTagType::NotApplicable)
+		{
+			stream << pcpp::toString(m_TagClass) << " (" << static_cast<int>(m_TagType) << ")";
+		}
+		else
+		{
+			stream << pcpp::toString(universalType);
+		}
+
+		if (m_IsConstructed)
+		{
+			stream << " (constructed)";
+		}
+
+		stream << ", Length: " << m_TotalLength - m_ValueLength << "+" << m_ValueLength;
+
+		return {stream.str()};
+	}
+
 	Asn1GenericRecord::Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen)
 	{
 		m_TagType = tagType;
@@ -405,6 +543,20 @@ namespace pcpp {
 		{
 			auto encodedRecord = record->encode();
 			result.insert(result.end(), std::make_move_iterator(encodedRecord.begin()), std::make_move_iterator(encodedRecord.end()));
+		}
+		return result;
+	}
+
+	std::vector<std::string> Asn1ConstructedRecord::toStringList()
+	{
+		decodeValueIfNeeded();
+		std::vector<std::string> result = {Asn1Record::toStringList().front()};
+		for (auto subRecord : m_SubRecords)
+		{
+			for (const auto& line : subRecord->toStringList())
+			{
+				result.push_back("  " + line);
+			}
 		}
 		return result;
 	}
@@ -526,6 +678,11 @@ namespace pcpp {
 		return result;
 	}
 
+	std::vector<std::string> Asn1IntegerRecord::toStringList()
+	{
+		return std::vector<std::string>({Asn1Record::toStringList().front() + ", Value: " + std::to_string(getValue())});
+	}
+
 	Asn1EnumeratedRecord::Asn1EnumeratedRecord(uint32_t value) : Asn1IntegerRecord(value)
 	{
 		m_TagType = static_cast<uint8_t>(Asn1UniversalTagType::Enumerated);
@@ -536,16 +693,52 @@ namespace pcpp {
 		m_Value = value;
 		m_ValueLength = value.size();
 		m_TotalLength = m_ValueLength + 2;
+		m_IsPrintable = true;
+	}
+
+	Asn1OctetStringRecord::Asn1OctetStringRecord(const uint8_t* value, size_t valueLength) : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString)
+	{
+		m_Value = byteArrayToHexString(value, valueLength);
+		m_ValueLength = valueLength;
+		m_TotalLength = m_ValueLength + 2;
+		m_IsPrintable = false;
 	}
 
 	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
 	{
-		m_Value = std::string(reinterpret_cast<char*>(data), m_ValueLength);
+		auto value = reinterpret_cast<char*>(data);
+
+		m_IsPrintable = std::all_of(value, value + m_ValueLength, [](char c) {
+			return isprint(c);
+		});
+
+		if (m_IsPrintable)
+		{
+			m_Value = std::string(value, m_ValueLength);
+		}
+		else
+		{
+			m_Value = byteArrayToHexString(data, m_ValueLength);
+		}
 	}
 
 	std::vector<uint8_t> Asn1OctetStringRecord::encodeValue() const
 	{
-		return {m_Value.begin(), m_Value.end()};
+		if (m_IsPrintable)
+		{
+			return {m_Value.begin(), m_Value.end()};
+		}
+
+		auto rawValueSize = static_cast<size_t>(m_Value.size() / 2);
+		std::vector<uint8_t> rawValue;
+		rawValue.resize(rawValueSize);
+		hexStringToByteArray(m_Value, rawValue.data(), rawValueSize);
+		return rawValue;
+	}
+
+	std::vector<std::string> Asn1OctetStringRecord::toStringList()
+	{
+		return {Asn1Record::toStringList().front() + ", Value: " + getValue()};
 	}
 
 	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean)
@@ -564,6 +757,11 @@ namespace pcpp {
 	{
 		uint8_t byte = (m_Value ? 0xff : 0x00);
 		return { byte };
+	}
+
+	std::vector<std::string> Asn1BooleanRecord::toStringList()
+	{
+		return {Asn1Record::toStringList().front() + ", Value: " + (getValue() ? "true" : "false")};
 	}
 
 	Asn1NullRecord::Asn1NullRecord() : Asn1PrimitiveRecord(Asn1UniversalTagType::Null)
