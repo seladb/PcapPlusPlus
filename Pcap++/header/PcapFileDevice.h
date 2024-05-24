@@ -142,7 +142,8 @@ namespace pcpp
 		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
 
 		/**
-		 * @return The precision of the timestamps in the file.
+		 * @return The precision of the timestamps in the file. If the platform supports nanosecond precision, this method will return
+		 * nanoseconds even if the file has microseconds since libpcap scales timestamps before supply. Otherwise, it will return microseconds.
 		*/
 		FileTimestampPrecision getTimestampPrecision() const { return m_Precision; }
 
