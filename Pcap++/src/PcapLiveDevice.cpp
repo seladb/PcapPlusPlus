@@ -135,7 +135,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 
 void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -150,7 +150,7 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -165,7 +165,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -672,7 +672,7 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 
 bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
 {
-	if (packetPayloadLength > (int)m_DeviceMtu)
+	if (packetPayloadLength > static_cast<int>(m_DeviceMtu))
 	{
 		PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is larger than device MTU [" << m_DeviceMtu << "]");
 		return false;
@@ -684,12 +684,12 @@ bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 {
 	if (checkMtu)
 	{
-		RawPacket *rPacket = (RawPacket *)&rawPacket;
+		RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 		return sendPacket(&parsedPacket, true);
 	}
 	// Send packet without Mtu check
-	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+	return sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen());
 }
 
 bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
@@ -739,10 +739,10 @@ bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
 		switch (packet->getFirstLayer()->getOsiModelLayer())
 		{
 			case (pcpp::OsiModelDataLinkLayer):
-				packetPayloadLength = (int)packet->getFirstLayer()->getLayerPayloadSize();
+				packetPayloadLength = static_cast<int>(packet->getFirstLayer()->getLayerPayloadSize());
 				break;
 			case (pcpp::OsiModelNetworkLayer):
-				packetPayloadLength = (int)packet->getFirstLayer()->getDataLen();
+				packetPayloadLength = static_cast<int>(packet->getFirstLayer()->getDataLen());
 				break;
 			default:
 				// if packet layer is not known, do not perform MTU check.
@@ -804,7 +804,7 @@ void PcapLiveDevice::setDeviceMtu()
 	}
 
 	uint32_t mtuValue = 0;
-	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name.c_str());
+	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
 	if (adapter == NULL)
 	{
 		PCPP_LOG_ERROR("Error in retrieving MTU: Adapter is NULL");
@@ -812,7 +812,7 @@ void PcapLiveDevice::setDeviceMtu()
 	}
 
 	uint8_t buffer[512];
-	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+	PACKET_OID_DATA* oidData = reinterpret_cast<PACKET_OID_DATA*>(buffer);
 	oidData->Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
 	oidData->Length = sizeof(uint32_t);
 	memcpy(oidData->Data, &mtuValue, sizeof(uint32_t));
@@ -878,7 +878,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 {
 #if defined(_WIN32)
 
-	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name.c_str());
+	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
 	if (adapter == NULL)
 	{
 		PCPP_LOG_ERROR("Error in retrieving MAC address: Adapter is NULL");
@@ -886,7 +886,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
 	uint8_t buffer[512];
-	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+	PACKET_OID_DATA* oidData = reinterpret_cast<PACKET_OID_DATA*>(buffer);
 	oidData->Oid = OID_802_3_CURRENT_ADDRESS;
 	oidData->Length = 6;
 	oidData->Data[0] = 0;
@@ -982,13 +982,13 @@ void PcapLiveDevice::setDefaultGateway()
 #if defined(_WIN32)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
 	uint8_t* buffer = new uint8_t[outBufLen];
-	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
+	PIP_ADAPTER_INFO adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer);
 	DWORD retVal = 0;
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
 	uint8_t* buffer2 = new uint8_t[outBufLen];
 	if (retVal == ERROR_BUFFER_OVERFLOW)
-		adapterInfo = (IP_ADAPTER_INFO *)buffer2;
+		adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer2);
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
 
@@ -1085,7 +1085,7 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(const auto &addrIter : m_Addresses)
+	for(const auto& addrIter : m_Addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
@@ -1116,7 +1116,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (const auto &addrIter : m_Addresses)
+	for (const auto& addrIter : m_Addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
