@@ -5,11 +5,8 @@
 #include "TLVData.h"
 #include <string.h>
 
-#ifndef PCPP_DEPRECATED_TCP_OPTION_TYPE
-#define PCPP_DEPRECATED_TCP_OPTION_TYPE__LOCAL_DEFINE
 #define PCPP_DEPRECATED_TCP_OPTION_TYPE PCPP_DEPRECATED("enum TcpOptionType is deprecated; " \
                                                         "Use enum class TcpOptionEnumType instead")
-#endif
 
 /// @file
 
@@ -677,7 +674,4 @@ namespace pcpp
 	}
 } // namespace pcpp
 
-#ifdef PCPP_DEPRECATED_TCP_OPTION_TYPE__LOCAL_DEFINE
 #undef PCPP_DEPRECATED_TCP_OPTION_TYPE
-#undef PCPP_DEPRECATED_TCP_OPTION_TYPE__LOCAL_DEFINE
-#endif // PCPP_DEPRECATED_TCP_OPTION_TYPE__LOCAL_DEFINE
