@@ -48,16 +48,6 @@ namespace pcpp
 		PcapLiveDeviceList(const PcapLiveDeviceList& other) = delete;
 		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other) = delete;
 
-		/*
-		 * @class SmartPtrApiTag
-		 * Helper tag to disambiguate smart pointer API.
-		 */
-		struct SmartPtrApiTag {};
-		/**
-		 * Helper tag constant for disambuguating smart pointer API.
-		 */
-		static const SmartPtrApiTag SmartPtrApi;
-
 		/**
 		 * The access method to the singleton
 		 * @return The singleton instance of this class

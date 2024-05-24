@@ -60,6 +60,8 @@ static const int DEFAULT_SNAPLEN = 9000;
 namespace pcpp
 {
 
+const SmartPtrApiTag SmartPtrApi{};
+
 #ifdef HAS_SET_DIRECTION_ENABLED
 static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction)
 {
@@ -71,8 +73,6 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 	}
 }
 #endif
-
-const PcapLiveDevice::SmartPtrApiTag PcapLiveDevice::SmartPtrApi{};
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
 	IPcapDevice(), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)

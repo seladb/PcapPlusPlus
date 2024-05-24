@@ -79,16 +79,6 @@ namespace pcpp
 		using ConstRemoteDeviceListIterator = std::vector<PcapRemoteDevice*>::const_iterator;
 		using const_iterator = ConstRemoteDeviceListIterator;
 
-		/*
-		 * @class SmartPtrApiTag
-		 * Helper tag to disambiguate smart pointer API.
-		 */
-		struct SmartPtrApiTag {};
-		/**
-		 * Helper tag constant for disambuguating smart pointer API.
-		 */
-		static const SmartPtrApiTag SmartPtrApi;
-
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
 		 * creates a list of PcapRemoteDevice instances stored in it, one for each remote network interface. Notice this method allocates
