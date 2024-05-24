@@ -126,6 +126,36 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 	return true;
 }
 
+PcapLiveDevice* WinPcapLiveDevice::clone() const
+{
+	WinPcapLiveDevice* retval = nullptr;
+
+	pcap_if_t* interfaceList;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	int err = pcap_findalldevs(&interfaceList, errbuf);
+	if (err < 0)
+	{
+		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
+		return nullptr;
+	}
+
+	pcap_if_t* currInterface = interfaceList;
+	while (currInterface != nullptr)
+	{
+		if (!strcmp(currInterface->name, getName().c_str()))
+			break;
+		currInterface = currInterface->next;
+	}
+
+	if (currInterface)
+		retval = new WinPcapLiveDevice(currInterface, true, true, true);
+	else
+		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+
+	pcap_freealldevs(interfaceList);
+	return retval;
+}
+
 } // namespace pcpp
 
 #endif // _WIN32

@@ -55,6 +55,12 @@ namespace pcpp
 		 * setMinAmountOfDataToCopyFromKernelToApplication())
 		 */
 		int getMinAmountOfDataToCopyFromKernelToApplication() const { return m_MinAmountOfDataToCopyFromKernelToApplication; }
+
+		/**
+		 * Clones the current device class
+		 * @return Pointer to the copied class
+		 */
+		PcapLiveDevice* clone() const override;
 	};
 
 } // namespace pcpp

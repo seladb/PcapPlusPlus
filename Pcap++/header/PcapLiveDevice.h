@@ -570,7 +570,7 @@ namespace pcpp
 		 * Clones the current device class
 		 * @return Pointer to the copied class
 		 */
-		PcapLiveDevice* clone();
+		virtual PcapLiveDevice* clone() const;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 

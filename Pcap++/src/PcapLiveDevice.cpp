@@ -401,11 +401,11 @@ void PcapLiveDevice::close()
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
-PcapLiveDevice* PcapLiveDevice::clone()
+PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	PcapLiveDevice *retval = nullptr;
+	PcapLiveDevice* retval = nullptr;
 
-	pcap_if_t *interfaceList;
+	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
