@@ -140,6 +140,7 @@ public:
 		if (m_ProcessHandle != NULL)
 		{
 			TerminateProcess(m_ProcessHandle, 0);
+			CloseHandle(m_ProcessHandle);
 		}
 	}
 
