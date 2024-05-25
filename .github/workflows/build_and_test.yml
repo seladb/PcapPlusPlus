@@ -52,6 +52,9 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2404
+            python: python3
+            config-zstd: OFF
           - image: ubuntu2204
             python: python3
             config-zstd: OFF
@@ -62,9 +65,6 @@ jobs:
             additional-gcov-flags: --gcov-executable "llvm-cov gcov"
           - image: ubuntu2004
             python: python3
-            config-zstd: OFF
-          - image: ubuntu1804
-            python: python3.8
             config-zstd: OFF
           - image: rhel93
             python: python3
