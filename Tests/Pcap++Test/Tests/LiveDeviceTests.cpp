@@ -128,7 +128,7 @@ public:
 				)
 			{
 				m_ProcessHandle = NULL;
-				PCPP_LOG_ERROR("Create process failed " << (int)GetLastError());
+				PCPP_LOG_ERROR("Create process failed " << static_cast<int>(GetLastError()));
 				return;
 			}
 
@@ -140,6 +140,7 @@ public:
 		if (m_ProcessHandle != NULL)
 		{
 			TerminateProcess(m_ProcessHandle, 0);
+			CloseHandle(m_ProcessHandle);
 		}
 	}
 
