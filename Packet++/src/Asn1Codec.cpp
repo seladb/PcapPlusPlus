@@ -18,7 +18,16 @@
 
 namespace pcpp
 {
-	const std::unordered_map<Asn1TagClass, std::string, std::hash<Asn1TagClass>> Asn1TagClassToString {
+	template<typename EnumClass>
+	struct EnumClassHash
+	{
+		size_t operator()(const EnumClass& value) const
+		{
+			return static_cast<int>(value);
+		}
+	};
+
+	const std::unordered_map<Asn1TagClass, std::string, EnumClassHash<Asn1TagClass>> Asn1TagClassToString {
 		{Asn1TagClass::Universal, "Universal" },
 		{Asn1TagClass::ContextSpecific, "ContextSpecific" },
 		{Asn1TagClass::Application, "Application"},
@@ -35,7 +44,7 @@ namespace pcpp
 		return "Unknown";
 	}
 
-	const std::unordered_map<Asn1UniversalTagType, std::string, std::hash<Asn1UniversalTagType>> Asn1UniversalTagTypeToString {
+	const std::unordered_map<Asn1UniversalTagType, std::string, EnumClassHash<Asn1UniversalTagType>> Asn1UniversalTagTypeToString {
 		{Asn1UniversalTagType::EndOfContent, "EndOfContent"},
 		{Asn1UniversalTagType::Boolean, "Boolean"},
 		{Asn1UniversalTagType::Integer, "Integer"},
