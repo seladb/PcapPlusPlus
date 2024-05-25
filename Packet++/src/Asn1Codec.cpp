@@ -3,6 +3,7 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
+#include <unordered_map>
 #include <numeric>
 #include <algorithm>
 #include <iostream>
@@ -17,102 +18,81 @@
 
 namespace pcpp
 {
+	template<typename EnumClass>
+	struct EnumClassHash
+	{
+		size_t operator()(const EnumClass& value) const
+		{
+			return static_cast<int>(value);
+		}
+	};
+
+	const std::unordered_map<Asn1TagClass, std::string, EnumClassHash<Asn1TagClass>> Asn1TagClassToString {
+		{Asn1TagClass::Universal, "Universal" },
+		{Asn1TagClass::ContextSpecific, "ContextSpecific" },
+		{Asn1TagClass::Application, "Application"},
+		{Asn1TagClass::Private, "Private"}
+	};
+
 	std::string toString(Asn1TagClass tagClass)
 	{
-		switch (tagClass)
+		if (Asn1TagClassToString.find(tagClass) != Asn1TagClassToString.end())
 		{
-			case Asn1TagClass::Universal:
-				return "Universal";
-			case Asn1TagClass::ContextSpecific:
-				return "ContextSpecific";
-			case Asn1TagClass::Application:
-				return "Application";
-			default:
-				return "Private";
+			return Asn1TagClassToString.at(tagClass);
 		}
+
+		return "Unknown";
 	}
+
+	const std::unordered_map<Asn1UniversalTagType, std::string, EnumClassHash<Asn1UniversalTagType>> Asn1UniversalTagTypeToString {
+		{Asn1UniversalTagType::EndOfContent, "EndOfContent"},
+		{Asn1UniversalTagType::Boolean, "Boolean"},
+		{Asn1UniversalTagType::Integer, "Integer"},
+		{Asn1UniversalTagType::BitString, "BitString"},
+		{Asn1UniversalTagType::OctetString, "OctetString"},
+		{Asn1UniversalTagType::Null, "Null"},
+		{Asn1UniversalTagType::ObjectIdentifier, "ObjectIdentifier"},
+		{Asn1UniversalTagType::ObjectDescriptor, "ObjectDescriptor"},
+		{Asn1UniversalTagType::External, "External"},
+		{Asn1UniversalTagType::Real, "Real"},
+		{Asn1UniversalTagType::Enumerated, "Enumerated"},
+		{Asn1UniversalTagType::EmbeddedPDV, "EmbeddedPDV"},
+		{Asn1UniversalTagType::UTF8String, "UTF8String"},
+		{Asn1UniversalTagType::RelativeObjectIdentifier, "RelativeObjectIdentifier"},
+		{Asn1UniversalTagType::Time, "Time"},
+		{Asn1UniversalTagType::Reserved, "Reserved"},
+		{Asn1UniversalTagType::Sequence, "Sequence"},
+		{Asn1UniversalTagType::Set, "Set"},
+		{Asn1UniversalTagType::NumericString, "NumericString"},
+		{Asn1UniversalTagType::PrintableString, "PrintableString"},
+		{Asn1UniversalTagType::T61String, "T61String"},
+		{Asn1UniversalTagType::VideotexString, "VideotexString"},
+		{Asn1UniversalTagType::IA5String, "IA5String"},
+		{Asn1UniversalTagType::UTCTime, "UTCTime"},
+		{Asn1UniversalTagType::GeneralizedTime, "GeneralizedTime"},
+		{Asn1UniversalTagType::GraphicString, "GraphicString"},
+		{Asn1UniversalTagType::VisibleString, "VisibleString"},
+		{Asn1UniversalTagType::GeneralString, "GeneralString"},
+		{Asn1UniversalTagType::UniversalString, "UniversalString"},
+		{Asn1UniversalTagType::CharacterString, "CharacterString"},
+		{Asn1UniversalTagType::BMPString, "BMPString"},
+		{Asn1UniversalTagType::Date, "Date"},
+		{Asn1UniversalTagType::TimeOfDay, "TimeOfDay"},
+		{Asn1UniversalTagType::DateTime, "DateTime"},
+		{Asn1UniversalTagType::Duration, "Duration"},
+		{Asn1UniversalTagType::ObjectIdentifierIRI, "ObjectIdentifierIRI"},
+		{Asn1UniversalTagType::RelativeObjectIdentifierIRI, "RelativeObjectIdentifierIRI"},
+		{Asn1UniversalTagType::NotApplicable, "Unknown"}
+	};
 
 	std::string toString(Asn1UniversalTagType tagType)
 	{
-		switch (tagType)
+		if (Asn1UniversalTagTypeToString.find(tagType) != Asn1UniversalTagTypeToString.end())
 		{
-			case Asn1UniversalTagType::EndOfContent:
-				return "EndOfContent";
-			case Asn1UniversalTagType::Boolean:
-				return "Boolean";
-			case Asn1UniversalTagType::Integer:
-				return "Integer";
-			case Asn1UniversalTagType::BitString:
-				return "BitString";
-			case Asn1UniversalTagType::OctetString:
-				return "OctetString";
-			case Asn1UniversalTagType::Null:
-				return "Null";
-			case Asn1UniversalTagType::ObjectIdentifier:
-				return "ObjectIdentifier";
-			case Asn1UniversalTagType::ObjectDescriptor:
-				return "ObjectDescriptor";
-			case Asn1UniversalTagType::External:
-				return "External";
-			case Asn1UniversalTagType::Real:
-				return "Real";
-			case Asn1UniversalTagType::Enumerated:
-				return "Enumerated";
-			case Asn1UniversalTagType::EmbeddedPDV:
-				return "EmbeddedPDV";
-			case Asn1UniversalTagType::UTF8String:
-				return "UTF8String";
-			case Asn1UniversalTagType::RelativeObjectIdentifier:
-				return "RelativeObjectIdentifier";
-			case Asn1UniversalTagType::Time:
-				return "Time";
-			case Asn1UniversalTagType::Reserved:
-				return "Reserved";
-			case Asn1UniversalTagType::Sequence:
-				return "Sequence";
-			case Asn1UniversalTagType::Set:
-				return "Set";
-			case Asn1UniversalTagType::NumericString:
-				return "NumericString";
-			case Asn1UniversalTagType::PrintableString:
-				return "PrintableString";
-			case Asn1UniversalTagType::T61String:
-				return "T61String";
-			case Asn1UniversalTagType::VideotexString:
-				return "VideotexString";
-			case Asn1UniversalTagType::IA5String:
-				return "IA5String";
-			case Asn1UniversalTagType::UTCTime:
-				return "UTCTime";
-			case Asn1UniversalTagType::GeneralizedTime:
-				return "GeneralizedTime";
-			case Asn1UniversalTagType::GraphicString:
-				return "GraphicString";
-			case Asn1UniversalTagType::VisibleString:
-				return "VisibleString";
-			case Asn1UniversalTagType::GeneralString:
-				return "GeneralString";
-			case Asn1UniversalTagType::UniversalString:
-				return "UniversalString";
-			case Asn1UniversalTagType::CharacterString:
-				return "CharacterString";
-			case Asn1UniversalTagType::BMPString:
-				return "BMPString";
-			case Asn1UniversalTagType::Date:
-				return "Date";
-			case Asn1UniversalTagType::TimeOfDay:
-				return "TimeOfDay";
-			case Asn1UniversalTagType::DateTime:
-				return "DateTime";
-			case Asn1UniversalTagType::Duration:
-				return "Duration";
-			case Asn1UniversalTagType::ObjectIdentifierIRI:
-				return "ObjectIdentifierIRI";
-			case Asn1UniversalTagType::RelativeObjectIdentifierIRI:
-				return "RelativeObjectIdentifierIRI";
-			default:
-				return "Unknown";
+			return Asn1UniversalTagTypeToString.at(tagType);
 		}
+
+		return "Unknown";
 	}
 
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
@@ -434,7 +414,7 @@ namespace pcpp
 			return std::move(str1) + '\n' + std::move(str2);
 		};
 
-		return std::accumulate(std::next(lines.begin()), lines.end(),lines[0], commaSeparated);
+		return std::accumulate(std::next(lines.begin()), lines.end(), lines[0], commaSeparated);
 	}
 
 	std::vector<std::string> Asn1Record::toStringList()
@@ -556,7 +536,7 @@ namespace pcpp
 	{}
 
 	Asn1SetRecord::Asn1SetRecord(const std::vector<Asn1Record*>& subRecords)
-			: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
+		: Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
 	{}
 
 	Asn1SetRecord::Asn1SetRecord(const PointerVector<Asn1Record>& subRecords)
@@ -723,6 +703,9 @@ namespace pcpp
 			return {m_Value.begin(), m_Value.end()};
 		}
 
+		// converting the hex stream to a byte array.
+		// The byte array size is half the size of the string
+		// i.e "1a2b" (length == 4)  becomes {0x1a, 0x2b} (length == 2)
 		auto rawValueSize = static_cast<size_t>(m_Value.size() / 2);
 		std::vector<uint8_t> rawValue;
 		rawValue.resize(rawValueSize);

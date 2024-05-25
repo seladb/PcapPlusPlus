@@ -20,13 +20,13 @@ namespace pcpp
 	enum class Asn1TagClass : uint8_t
 	{
 		/** The Universal tag class */
-		Universal,
+		Universal = 0,
 		/** The Application tag class */
-		Application,
+		Application = 1,
 		/** The Context-Specific tag class */
-		ContextSpecific,
+		ContextSpecific = 2,
 		/** The Private tag class */
-		Private
+		Private = 3,
 	};
 
 	/**
