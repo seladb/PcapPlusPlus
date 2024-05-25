@@ -207,7 +207,7 @@ namespace pcpp
 
 		static Asn1Record* decodeInternal(const uint8_t* data, size_t dataLen, bool lazy);
 
-		virtual void decodeValue(uint8_t* data, bool lazy) = 0;
+		virtual void decodeValue(uint8_t* data) = 0;
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 
 		static Asn1Record* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen);
@@ -252,7 +252,7 @@ namespace pcpp
 	protected:
 		Asn1GenericRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t* data) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 	private:
@@ -286,7 +286,7 @@ namespace pcpp
 	protected:
 		Asn1ConstructedRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t* data) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -370,7 +370,7 @@ namespace pcpp
 	protected:
 		Asn1IntegerRecord() = default;
 
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t* data) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -426,7 +426,7 @@ namespace pcpp
 		std::string getValue() { decodeValueIfNeeded(); return m_Value; };
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t* data) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -459,7 +459,7 @@ namespace pcpp
 		bool getValue() { decodeValueIfNeeded(); return m_Value; };
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override;
+		void decodeValue(uint8_t* data) override;
 		std::vector<uint8_t> encodeValue() const override;
 
 		std::vector<std::string> toStringList() override;
@@ -485,7 +485,7 @@ namespace pcpp
 		Asn1NullRecord();
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override {}
+		void decodeValue(uint8_t* data) override {}
 		std::vector<uint8_t> encodeValue() const override { return {}; }
 	};
 }

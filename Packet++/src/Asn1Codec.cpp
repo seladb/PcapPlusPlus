@@ -97,7 +97,7 @@ namespace pcpp
 
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		auto record = decodeInternal(data, dataLen ,lazy);
+		auto record = decodeInternal(data, dataLen, lazy);
 		return std::unique_ptr<Asn1Record>(record);
 	}
 
@@ -203,16 +203,16 @@ namespace pcpp
 
 		if (!lazy)
 		{
+			 // not lazy going here
 			try
 			{
-				decodedRecord->decodeValue(const_cast<uint8_t*>(data) + tagLen + lengthLen, lazy);
+				decodedRecord->decodeValue(const_cast<uint8_t*>(data) + tagLen + lengthLen);
 			}
 			catch (...)
 			{
 				delete decodedRecord;
 				throw;
 			}
-
 		}
 		else
 		{
@@ -404,7 +404,7 @@ namespace pcpp
 	{
 		if (m_EncodedValue != nullptr)
 		{
-			decodeValue(m_EncodedValue, true);
+			decodeValue(m_EncodedValue);
 			m_EncodedValue = nullptr;
 		}
 	}
@@ -465,7 +465,7 @@ namespace pcpp
 		}
 	}
 
-	void Asn1GenericRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1GenericRecord::decodeValue(uint8_t* data)
 	{
 		m_Value = data;
 	}
@@ -494,7 +494,7 @@ namespace pcpp
 		m_TotalLength = recordValueLength + 2;
 	}
 
-	void Asn1ConstructedRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1ConstructedRecord::decodeValue(uint8_t* data)
 	{
 		if (!(data || m_ValueLength))
 		{
@@ -506,7 +506,7 @@ namespace pcpp
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1Record::decodeInternal(value, valueLen, lazy);
+			auto subRecord = Asn1Record::decodeInternal(value, valueLen, false);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
@@ -580,7 +580,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1IntegerRecord::decodeValue(uint8_t* data)
 	{
 		switch (m_ValueLength)
 		{
@@ -684,7 +684,7 @@ namespace pcpp
 		m_IsPrintable = false;
 	}
 
-	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1OctetStringRecord::decodeValue(uint8_t* data)
 	{
 		auto value = reinterpret_cast<char*>(data);
 
@@ -731,7 +731,7 @@ namespace pcpp
 		m_TotalLength = 3;
 	}
 
-	void Asn1BooleanRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1BooleanRecord::decodeValue(uint8_t* data)
 	{
 		m_Value = data[0] != 0;
 	}
