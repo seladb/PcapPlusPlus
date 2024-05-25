@@ -18,7 +18,7 @@
 
 namespace pcpp
 {
-	const std::unordered_map<Asn1TagClass, std::string> Asn1TagClassToString {
+	const std::unordered_map<Asn1TagClass, std::string, std::hash<Asn1TagClass>> Asn1TagClassToString {
 		{Asn1TagClass::Universal, "Universal" },
 		{Asn1TagClass::ContextSpecific, "ContextSpecific" },
 		{Asn1TagClass::Application, "Application"},
@@ -35,7 +35,7 @@ namespace pcpp
 		return "Unknown";
 	}
 
-	const std::unordered_map<Asn1UniversalTagType, std::string> Asn1UniversalTagTypeToString {
+	const std::unordered_map<Asn1UniversalTagType, std::string, std::hash<Asn1UniversalTagType>> Asn1UniversalTagTypeToString {
 		{Asn1UniversalTagType::EndOfContent, "EndOfContent"},
 		{Asn1UniversalTagType::Boolean, "Boolean"},
 		{Asn1UniversalTagType::Integer, "Integer"},
@@ -700,6 +700,9 @@ namespace pcpp
 			return {m_Value.begin(), m_Value.end()};
 		}
 
+		// converting the hex stream to a byte array.
+		// The byte array size is half the size of the string
+		// i.e "1a2b" (length == 4)  becomes {0x1a, 0x2b} (length == 2)
 		auto rawValueSize = static_cast<size_t>(m_Value.size() / 2);
 		std::vector<uint8_t> rawValue;
 		rawValue.resize(rawValueSize);
