@@ -16,6 +16,7 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
+#include <vector>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -982,16 +983,18 @@ void PcapLiveDevice::setDefaultGateway()
 {
 #if defined(_WIN32)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
-	uint8_t* buffer = new uint8_t[outBufLen];
-	PIP_ADAPTER_INFO adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer);
+	std::vector<uint8_t> buffer(outBufLen);
+	PIP_ADAPTER_INFO adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer.data());
 	DWORD retVal = 0;
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
-	uint8_t* buffer2 = new uint8_t[outBufLen];
 	if (retVal == ERROR_BUFFER_OVERFLOW)
-		adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer2);
-
-	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+	{
+		buffer.resize(outBufLen);
+		// Repins the adapter info pointer to the vector data pointer as the vector might be reallocated during the resize.
+		adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer.data());
+		retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+	}
 
 	if (retVal == NO_ERROR)
 	{
@@ -1018,10 +1021,6 @@ void PcapLiveDevice::setDefaultGateway()
 	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address");
 	}
-
-	delete[] buffer;
-	// cppcheck-suppress uninitdata
-	delete[] buffer2;
 #elif defined(__linux__)
 	std::ifstream routeFile("/proc/net/route");
 	std::string line;
