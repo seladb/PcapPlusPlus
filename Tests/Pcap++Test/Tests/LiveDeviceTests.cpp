@@ -127,8 +127,8 @@ public:
 		// Sizeof C-string includes the NULL terminator in the size.
 		// For the purposes of this calculation the NULL terminator's inclusion in the size is used to simulate the space delimiter after the argument.
 		args.reserve(
-			sizeof("rpcapd\\rpcapd.exe -b") + ip.size() + 
-			sizeof(" -p") + 5 /* The maximum digits a uint16_t can have is 5 */ + 
+			sizeof("rpcapd\\rpcapd.exe -b") + ip.size() +
+			sizeof(" -p") + 5 /* The maximum digits a uint16_t can have is 5 */ +
 			sizeof(" -n") - 1 /* Subtracts one as the last NULL terminator is not needed */
 		);
 		args += "rpcapd\\rpcapd.exe -b ";
