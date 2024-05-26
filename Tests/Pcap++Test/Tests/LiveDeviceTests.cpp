@@ -10,6 +10,8 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
+#include <array>
+#include <cstdio>
 #if defined(_WIN32)
 #include "PcapRemoteDevice.h"
 #include "PcapRemoteDeviceList.h"
@@ -121,20 +123,17 @@ public:
 			return;
 
 		std::string cmd = "rpcapd\\rpcapd.exe";
-		std::string args;
-		// Reserves the size of the arguments string in 1 allocation.
-		// Sizeof C-string includes the NULL terminator in the size.
-		// For the purposes of this calculation the NULL terminator's inclusion in the size is used to simulate the space delimiter after the argument.
-		args.reserve(
-			sizeof("rpcapd\\rpcapd.exe -b") + ip.size() +
-			sizeof(" -p") + 5 /* The maximum digits a uint16_t can have is 5 */ +
-			sizeof(" -n") - 1 /* Subtracts one as the last NULL terminator is not needed */
-		);
-		args += "rpcapd\\rpcapd.exe -b ";
-		args += ip;
-		args += " -p ";
-		args += std::to_string(port);
-		args += " -n";
+		std::array<char, 256> args;
+		int res = std::snprintf(args.data(), args.size(), "rpcapd\\rpcapd.exe -b %s -p %d -n", ip.c_str(), port);
+		if (res < 0)
+		{
+			throw std::runtime_error("Error during string formatting");
+		}
+		else if (res >= args.size())
+		{
+			// We should never get here with reasonable input but you never know.
+			throw std::runtime_error("Buffer overflow. Are you sure the IP is a valid string?");
+		}
 
 		m_JobHandle = CreateJobObject(nullptr, nullptr);
 		if (m_JobHandle == nullptr)
@@ -163,9 +162,7 @@ public:
 		if (!CreateProcess (
 				TEXT(cmd.c_str()),
 				// CreateProcessW (Unicode version) modifies the argument string inplace during internal processing.
-				// This can potentially cause access violation, if used with a compile time constant string,
-				// but since the current usage uses a heap allocated string, it should be fine.
-				const_cast<char*>(TEXT(args.c_str())),
+				TEXT(args.data()),
 				nullptr, nullptr, false,
 				CREATE_NEW_CONSOLE,
 				nullptr, nullptr,
