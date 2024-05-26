@@ -187,7 +187,22 @@ public:
 	}
 
 	RpcapdServerInitializer(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer(RpcapdServerInitializer&& other) noexcept 
+		: m_ProcessHandle(other.m_ProcessHandle), m_JobHandle(other.m_JobHandle)
+	{
+		other.m_ProcessHandle = nullptr;
+		other.m_JobHandle = nullptr;
+	}
 	RpcapdServerInitializer& operator=(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer& operator=(RpcapdServerInitializer&& other) noexcept
+	{
+		killProcessAndCloseHandles();
+		m_ProcessHandle = other.m_ProcessHandle;
+		m_JobHandle = other.m_JobHandle;
+		other.m_ProcessHandle = nullptr;
+		other.m_JobHandle = nullptr;
+		return *this;
+	}
 
 	~RpcapdServerInitializer() { killProcessAndCloseHandles(); }
 
