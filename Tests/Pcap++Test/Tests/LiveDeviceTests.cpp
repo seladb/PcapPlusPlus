@@ -145,8 +145,7 @@ public:
 		// Sets up the job limits so closing the job will automatically kill all processes assigned to the job.
 		// This will prevent the subprocess continuing to live if the current process is killed without unwinding the stack (i.e. std::terminate is called),
 		// as the OS itself will kill the subprocesses when the last job handle is closed.
-		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimitInfo;
-		ZeroMemory(&jobLimitInfo, sizeof(jobLimitInfo));
+		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimitInfo{};
 		jobLimitInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 		if (!SetInformationJobObject(m_JobHandle, JobObjectExtendedLimitInformation, &jobLimitInfo, sizeof(jobLimitInfo)))
 		{
