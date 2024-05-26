@@ -163,7 +163,10 @@ public:
 		ZeroMemory( &pi, sizeof(pi) );
 		if (!CreateProcess (
 				TEXT(cmd.c_str()),
-				const_cast<char*>(TEXT(args.c_str())), // TODO: This can potentially cause access violation if Unicode version CreateProcessW is chosen.
+				// CreateProcessW (Unicode version) modifies the argument string inplace during internal processing. 
+				// This can potentially cause access violation, if used with a compile time constant string, 
+				// but since the current usage uses a heap allocated string, it should be fine.
+				const_cast<char*>(TEXT(args.c_str())),
 				nullptr, nullptr, false,
 				CREATE_NEW_CONSOLE,
 				nullptr, nullptr,
