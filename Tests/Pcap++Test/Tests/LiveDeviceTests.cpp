@@ -187,7 +187,7 @@ public:
 	}
 
 	RpcapdServerInitializer(const RpcapdServerInitializer&) = delete;
-	RpcapdServerInitializer(RpcapdServerInitializer&& other) noexcept 
+	RpcapdServerInitializer(RpcapdServerInitializer&& other) noexcept
 		: m_ProcessHandle(other.m_ProcessHandle), m_JobHandle(other.m_JobHandle)
 	{
 		other.m_ProcessHandle = nullptr;
