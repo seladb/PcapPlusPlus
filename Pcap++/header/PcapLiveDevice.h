@@ -124,9 +124,6 @@ namespace pcpp
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
-		// copy c'tor is not public
-		PcapLiveDevice( const PcapLiveDevice& other );
-		PcapLiveDevice& operator=(const PcapLiveDevice& other);
 
 		void setDeviceMtu();
 		void setDeviceMacAddress();
@@ -140,6 +137,9 @@ namespace pcpp
 		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 	public:
+		PcapLiveDevice(const PcapLiveDevice& other) = delete;
+		PcapLiveDevice& operator=(const PcapLiveDevice& other) = delete;
+
 		/**
 		 * The type of the live device
 		 */
