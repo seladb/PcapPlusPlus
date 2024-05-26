@@ -109,7 +109,7 @@ private:
 		}
 
 		if (m_JobHandle != nullptr)
-	{
+		{
 			CloseHandle(m_JobHandle);
 			m_JobHandle = nullptr;
 		}
@@ -127,13 +127,13 @@ public:
 		// Sizeof C-string includes the NULL terminator in the size.
 		// For the purposes of this calculation the NULL terminator's inclusion in the size is used to simulate the space delimiter after the argument.
 		args.reserve(
-			sizeof("-b") + ip.size() + 
+			sizeof("rpcapd\\rpcapd.exe -b") + ip.size() + 
 			sizeof(" -p") + 5 /* The maximum digits a uint16_t can have is 5 */ + 
 			sizeof(" -n") - 1 /* Subtracts one as the last NULL terminator is not needed */
 		);
-		args += "-b ";
+		args += "rpcapd\\rpcapd.exe -b ";
 		args += ip;
-		args += " -p";
+		args += " -p ";
 		args += std::to_string(port);
 		args += " -n";
 
@@ -171,17 +171,17 @@ public:
 				&si,
 				&pi
 		))
-			{
+		{
 			DWORD errCode = GetLastError();
 			CloseHandle(m_JobHandle);
 			throw std::runtime_error("Create process failed with error code: " + std::to_string(errCode));
-			}
+		}
 
 		m_ProcessHandle = pi.hProcess;
 		CloseHandle(pi.hThread); // We don't need the thread handle, so we can close it.
 
 		if (!AssignProcessToJobObject(m_JobHandle, m_ProcessHandle))
-	{
+		{
 			DWORD errCode = GetLastError();
 			killProcessAndCloseHandles();
 			throw std::runtime_error("Failed assigning process to job object with code: " + std::to_string(errCode));
