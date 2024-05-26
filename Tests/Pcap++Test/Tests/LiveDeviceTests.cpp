@@ -148,7 +148,7 @@ public:
 		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimitInfo;
 		ZeroMemory(&jobLimitInfo, sizeof(jobLimitInfo));
 		jobLimitInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-		if (!SetInformationJobObject(m_JobHandle, JobObjectExtendedLimitInformation ,&jobLimitInfo, sizeof(jobLimitInfo)))
+		if (!SetInformationJobObject(m_JobHandle, JobObjectExtendedLimitInformation, &jobLimitInfo, sizeof(jobLimitInfo)))
 		{
 			DWORD errCode = GetLastError();
 			CloseHandle(m_JobHandle);
