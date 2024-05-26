@@ -97,17 +97,64 @@ class RpcapdServerInitializer
 {
 private:
 	HANDLE m_ProcessHandle;
+	HANDLE m_JobHandle;
 
+	void killProcessAndCloseHandles()
+	{
+		if (m_ProcessHandle != nullptr)
+		{
+			TerminateProcess(m_ProcessHandle, 0);
+			CloseHandle(m_ProcessHandle);
+			m_ProcessHandle = nullptr;
+		}
+
+		if (m_JobHandle != nullptr)
+	{
+			CloseHandle(m_JobHandle);
+			m_JobHandle = nullptr;
+		}
+	}
 public:
-
-	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port) : m_ProcessHandle(nullptr)
+	RpcapdServerInitializer(bool activateRemoteDevice, const std::string& ip, uint16_t port)
+		: m_ProcessHandle(nullptr), m_JobHandle(nullptr)
 	{
 		if (!activateRemoteDevice)
 			return;
 
 		std::string cmd = "rpcapd\\rpcapd.exe";
-		std::ostringstream args;
-		args << "rpcapd\\rpcapd.exe -b " << ip << " -p " << port << " -n";
+		std::string args;
+		// Reserves the size of the arguments string in 1 allocation.
+		// Sizeof C-string includes the NULL terminator in the size.
+		// For the purposes of this calculation the NULL terminator's inclusion in the size is used to simulate the space delimiter after the argument.
+		args.reserve(
+			sizeof("-b") + ip.size() + 
+			sizeof(" -p") + 5 /* The maximum digits a uint16_t can have is 5 */ + 
+			sizeof(" -n") - 1 /* Subtracts one as the last NULL terminator is not needed */
+		);
+		args += "-b ";
+		args += ip;
+		args += " -p";
+		args += std::to_string(port);
+		args += " -n";
+
+		m_JobHandle = CreateJobObject(nullptr, nullptr);
+		if (m_JobHandle == nullptr)
+		{
+			throw std::runtime_error("Failed to create a job object with error code: " + std::to_string(GetLastError()));
+		}
+
+		// Sets up the job limits so closing the job will automatically kill all processes assigned to the job.
+		// This will prevent the subprocess continuing to live if the current process is killed without unwinding the stack (i.e. std::terminate is called),
+		// as the OS itself will kill the subprocesses when the last job handle is closed.
+		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimitInfo;
+		ZeroMemory(&jobLimitInfo, sizeof(jobLimitInfo));
+		jobLimitInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+		if (!SetInformationJobObject(m_JobHandle, JobObjectExtendedLimitInformation ,&jobLimitInfo, sizeof(jobLimitInfo)))
+		{
+			DWORD errCode = GetLastError();
+			CloseHandle(m_JobHandle);
+			throw std::runtime_error("Failed to set settings to job object with error code: " + std::to_string(errCode));
+		}
 
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -115,36 +162,38 @@ public:
 		ZeroMemory( &si, sizeof(si) );
 		si.cb = sizeof(si);
 		ZeroMemory( &pi, sizeof(pi) );
-		if (!CreateProcess
-				(
+		if (!CreateProcess (
 				TEXT(cmd.c_str()),
-				const_cast<char*>(TEXT(args.str().c_str())), // TODO: This can potentially cause access violation if Unicode version CreateProcessW is chosen.
-				NULL,NULL,FALSE,
+				const_cast<char*>(TEXT(args.c_str())), // TODO: This can potentially cause access violation if Unicode version CreateProcessW is chosen.
+				nullptr, nullptr, false,
 				CREATE_NEW_CONSOLE,
-				NULL,NULL,
+				nullptr, nullptr,
 				&si,
 				&pi
-				)
-				)
+		))
 			{
-				m_ProcessHandle = NULL;
-				PCPP_LOG_ERROR("Create process failed " << static_cast<int>(GetLastError()));
-				return;
+			DWORD errCode = GetLastError();
+			CloseHandle(m_JobHandle);
+			throw std::runtime_error("Create process failed with error code: " + std::to_string(errCode));
 			}
 
 		m_ProcessHandle = pi.hProcess;
-	}
+		CloseHandle(pi.hThread); // We don't need the thread handle, so we can close it.
 
-	~RpcapdServerInitializer()
+		if (!AssignProcessToJobObject(m_JobHandle, m_ProcessHandle))
 	{
-		if (m_ProcessHandle != NULL)
-		{
-			TerminateProcess(m_ProcessHandle, 0);
-			CloseHandle(m_ProcessHandle);
+			DWORD errCode = GetLastError();
+			killProcessAndCloseHandles();
+			throw std::runtime_error("Failed assigning process to job object with code: " + std::to_string(errCode));
 		}
 	}
 
-	HANDLE getHandle() { return m_ProcessHandle; }
+	RpcapdServerInitializer(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer& operator=(const RpcapdServerInitializer&) = delete;
+
+	~RpcapdServerInitializer() { killProcessAndCloseHandles(); }
+
+	HANDLE getHandle() const { return m_ProcessHandle; }
 };
 
 #endif // defined(_WIN32)
