@@ -8,7 +8,9 @@
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include "IpUtils.h"
 #include "IpAddress.h"
+#include "IpAddressUtils.h"
 #include "MacAddress.h"
 #include "LRUList.h"
 #include "NetworkUtils.h"
@@ -39,13 +41,43 @@ PTF_TEST_CASE(TestIPAddress)
 	secondIPv4Address = ip4AddrFromIpAddr;
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
+	{
+		in_addr inAddr_v4;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET, "10.0.0.4", &inAddr_v4), 1);
+
+		// Equality between equal in_addr and IPv4Address.
+		PTF_ASSERT_TRUE(ip4AddrFromIpAddr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip4AddrFromIpAddr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4AddrFromIpAddr);
+
+		// Equality between equal in_addr and IPAddress.
+		PTF_ASSERT_TRUE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
+
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET, "10.0.1.4", &inAddr_v4), 1);
+		// Equality between different in_addr and IPv4Address.
+		PTF_ASSERT_FALSE(ip4AddrFromIpAddr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip4AddrFromIpAddr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4AddrFromIpAddr);
+
+			// Equality between different in_addr and IPAddress.
+		PTF_ASSERT_FALSE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_TRUE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4Addr);
+	}
+
 	// networks
 	pcpp::IPv4Address ipv4Addr("10.0.0.4");
 	auto networks = std::vector<std::tuple<std::string, std::string, std::string>>{
 		std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
 		std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}
 	};
-	for (auto network : networks)
+	for (const auto& network : networks)
 	{
 		std::string networkWithPrefixAsString = std::get<0>(network) + "/" + std::get<1>(network);
 		std::string networkWithMaskAsString = std::get<0>(network) + "/" + std::get<2>(network);
@@ -56,7 +88,7 @@ PTF_TEST_CASE(TestIPAddress)
 
 	pcpp::Logger::getInstance().suppressLogs();
 	auto invalidMasks = std::vector<std::string>{"aaaa", "10.0.0.0", "10.0.0.0/aa", "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
-	for (auto invalidMask : invalidMasks)
+	for (const auto& invalidMask : invalidMasks)
 	{
 		PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
 	}
@@ -88,6 +120,35 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
 	}
 
+	{
+		in6_addr in_ipv6_addr;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51::4", &in_ipv6_addr), 1);
+
+		// Equality between equal in6_addr and IPv6Address.
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
+
+		// Equality between equal in6_addr and IPAddress.
+		PTF_ASSERT_TRUE(ip6Addr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6Addr);
+		PTF_ASSERT_FALSE(ip6Addr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6Addr);
+
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51:4::4", &in_ipv6_addr), 1);
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6AddrFromIpAddr);
+
+		// Equality between different in6_addr and IPAddress.
+		PTF_ASSERT_FALSE(ip6Addr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6Addr);
+		PTF_ASSERT_TRUE(ip6Addr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6Addr);
+	}
+
 	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
 	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
@@ -109,7 +170,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}
 	};
 
-	for (auto ipv6Network : ipv6Networks)
+	for (const auto& ipv6Network : ipv6Networks)
 	{
 		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
@@ -124,7 +185,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}
 	};
 
-	for (auto ipv6Network : ipv6NetworksNotMatch)
+	for (const auto& ipv6Network : ipv6NetworksNotMatch)
 	{
 		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
