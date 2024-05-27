@@ -9,10 +9,7 @@
 
 /// @file
 
-#ifndef PCPP_DEPRECATED_RAW_PTR_API
-#define PCPP_DEPRECATED_RAW_PTR_API__LOCAL_DEFINE
 #define PCPP_DEPRECATED_RAW_PTR_API PCPP_DEPRECATED("This method is deprecated in favor of the SmartPtrAPI overload.")
-#endif // !PCPP_DEPRECATED_RAW_PTR_API
 
 /**
 * \namespace pcpp
@@ -257,9 +254,6 @@ namespace pcpp
 
 } // namespace pcpp
 
-#ifdef PCPP_DEPRECATED_RAW_PTR_API__LOCAL_DEFINE
 #undef PCPP_DEPRECATED_RAW_PTR_API
-#undef PCPP_DEPRECATED_RAW_PTR_API__LOCAL_DEFINE
-#endif // PCPP_DEPRECATED_RAW_PTR_API_LOCAL_DEFINE
 
 #endif // _WIN32
