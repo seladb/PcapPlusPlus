@@ -26,7 +26,7 @@ void PcapRemoteDeviceList::updateDeviceListView()
 	// refresh which can easily be handled by clearing the view list too.
 	if (m_RemoteDeviceList.size() != m_RemoteDeviceListView.size())
 	{
-		m_RemoteDeviceList.resize(m_RemoteDeviceListView.size());
+		m_RemoteDeviceListView.resize(m_RemoteDeviceList.size());
 		// Full update of all elements of the view vector to synchronize them with the main vector.
 		std::transform(m_RemoteDeviceList.begin(), m_RemoteDeviceList.end(), m_RemoteDeviceListView.begin(),
 					   [](const std::shared_ptr<PcapRemoteDevice>& ptr) { return ptr.get(); });
