@@ -1,5 +1,6 @@
 add_library(
   Pcap++
+  src/DeviceUtils.cpp
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDevice.cpp>
@@ -25,6 +26,7 @@ add_library(
 
 set(public_headers
     header/Device.h
+    header/DeviceUtils.h
     header/MemoryUtils.h
     header/NetworkUtils.h
     header/PcapDevice.h

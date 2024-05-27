@@ -10,6 +10,7 @@
 #include "pcap.h"
 #include <thread>
 #include "Logger.h"
+#include "DeviceUtils.h"
 #include "SystemUtils.h"
 #include "MemoryUtils.h"
 #include <string.h>
@@ -408,16 +409,14 @@ PcapLiveDevice* PcapLiveDevice::clone() const { return clone(SmartPtrApi).releas
 std::unique_ptr<PcapLiveDevice> PcapLiveDevice::clone(SmartPtrApiTag apiTag) const
 {
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		pcap_if_t* interfaceListRaw;
-		char errbuf[PCAP_ERRBUF_SIZE];
-		int err = pcap_findalldevs(&interfaceListRaw, errbuf);
-		if (err < 0)
-		{
-			PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
-			return nullptr;
-		}
-		interfaceList = std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR(e.what());
+		return nullptr;
 	}
 
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)

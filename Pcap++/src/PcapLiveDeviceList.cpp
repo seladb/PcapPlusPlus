@@ -4,6 +4,7 @@
 #include "IpAddressUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
+#include "DeviceUtils.h"
 #include "SystemUtils.h"
 #include "MemoryUtils.h"
 #include "pcap.h"
@@ -33,16 +34,13 @@ PcapLiveDeviceList::PcapLiveDeviceList()
 void PcapLiveDeviceList::init()
 {
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		pcap_if_t* interfaceListRaw;
-		char errbuf[PCAP_ERRBUF_SIZE];
-		int err = pcap_findalldevs(&interfaceListRaw, errbuf);
-		if (err < 0)
-		{
-			PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
-		}
-		// Assigns the raw pointer to the smart pointer with specialized deleter.
-		interfaceList = std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR(e.what());
 	}
 
 	PCPP_LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
