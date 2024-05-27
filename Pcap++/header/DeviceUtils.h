@@ -13,7 +13,7 @@ namespace pcpp
 {
 	namespace internal
 	{
-		/** 
+		/**
 		 * Fetches a list of all network devices on the local machine that LibPcap/WinPcap/NPcap can find.
 		 * @return A smart pointer to an interface list structure.
 		 * @throws std::runtime_error The system encountered an error fetching the devices.

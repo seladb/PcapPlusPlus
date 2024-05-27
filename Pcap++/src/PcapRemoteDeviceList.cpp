@@ -86,7 +86,7 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 		PCPP_LOG_ERROR(e.what());
 		return nullptr;
 	}
-	
+
 	std::vector<std::shared_ptr<PcapRemoteDevice>> remoteDeviceList;
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
