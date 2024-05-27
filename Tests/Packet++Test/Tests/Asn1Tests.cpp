@@ -361,6 +361,18 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
 	}
 
+	// Long length
+	{
+		pcpp::Asn1OctetStringRecord record("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+
+		uint8_t data[203];
+		auto dataLen = pcpp::hexStringToByteArray("0481c83132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930", data, 203);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
 	// Integer 1 byte
 	{
 		pcpp::Asn1IntegerRecord record(6);
@@ -570,6 +582,21 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
 	}
 
+	// Sequence initialized with a PointerVector
+	{
+		pcpp::PointerVector<pcpp::Asn1Record> subRecords;
+		subRecords.pushBack(new pcpp::Asn1OctetStringRecord("abcd"));
+		subRecords.pushBack(new pcpp::Asn1IntegerRecord(1000));
+		pcpp::Asn1SequenceRecord record(subRecords);
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("300a040461626364020203e8", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
 	// Set
 	{
 		pcpp::Asn1OctetStringRecord octestStringRecord("abcd");
@@ -586,6 +613,21 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(subRecords.size(), 2);
 		PTF_ASSERT_EQUAL(subRecords.at(0)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("310a020203e8040461626364", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
+	}
+
+	// Set initialized with a PointerVector
+	{
+		pcpp::PointerVector<pcpp::Asn1Record> subRecords;
+		subRecords.pushBack(new pcpp::Asn1IntegerRecord(1000));
+		subRecords.pushBack(new pcpp::Asn1OctetStringRecord("abcd"));
+		pcpp::Asn1SetRecord record(subRecords);
 
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("310a020203e8040461626364", data, 20);
