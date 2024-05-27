@@ -23,6 +23,8 @@ namespace pcpp
 			// Assigns the raw pointer to the smart pointer with specialized deleter.
 			return std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 		}
+
+#ifdef _WIN32
 		std::unique_ptr<pcap_if_t, PcapFreeAllDevsDeleter> getAllRemotePcapDevices(const IPAddress& ipAddress, uint16_t port, pcap_rmtauth* pRmAuth)
 		{
 			PCPP_LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
@@ -43,5 +45,6 @@ namespace pcpp
 			}
 			return std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 		}
+#endif // _WIN32
 	}
 }
