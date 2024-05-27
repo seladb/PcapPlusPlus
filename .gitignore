@@ -63,6 +63,7 @@ Tests/Pcap++Test/cUrl/curl_output.txt
 *.VC.db
 *.vcxproj.user
 **/.vs
+CMakeSettings.json
 
 #Visual Studio Projects
 mk/vs2015/**
