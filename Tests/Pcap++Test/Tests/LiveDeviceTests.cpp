@@ -203,46 +203,45 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 
 PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 {
-	// Raw Pointer API
+	std::shared_ptr<pcpp::PcapLiveDevice> liveDev;
+	pcpp::PcapLiveDevice* liveDevRaw = nullptr;
+
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str(), pcpp::SmartPtrApi);
+	PTF_ASSERT_NOT_NULL(liveDev);
+
+	liveDevRaw = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	PTF_ASSERT_EQUAL(liveDevRaw, liveDev.get())
+
+	std::string devName(liveDev->getName());
+
+	std::shared_ptr<pcpp::PcapLiveDevice> liveDev2 = nullptr;
+	liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName, pcpp::SmartPtrApi);
+	PTF_ASSERT_NOT_NULL(liveDev2);
+	PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
+
 	{
-		pcpp::PcapLiveDevice* liveDev = nullptr;
-		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-		PTF_ASSERT_NOT_NULL(liveDev);
-
-		std::string devName(liveDev->getName());
-		pcpp::PcapLiveDevice* liveDev2 = nullptr;
-		liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
-		PTF_ASSERT_NOT_NULL(liveDev2);
-		PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
-
-		pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
-		PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
-		liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
-		PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
-
-		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
-		PTF_ASSERT_NULL(liveDev);
+		pcpp::PcapLiveDevice* liveDev2Raw = nullptr;
+		liveDev2Raw = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
+		PTF_ASSERT_EQUAL(liveDev2Raw, liveDev2.get())
 	}
-	// Smart Pointer API
-	{
-		std::shared_ptr<pcpp::PcapLiveDevice> liveDev;
-		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str(), pcpp::SmartPtrApi);
-		PTF_ASSERT_NOT_NULL(liveDev);
 
-		std::string devName(liveDev->getName());
-		std::shared_ptr<pcpp::PcapLiveDevice> liveDev2 = nullptr;
-		liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName, pcpp::SmartPtrApi);
-		PTF_ASSERT_NOT_NULL(liveDev2);
-		PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
+	std::shared_ptr<pcpp::PcapLiveDevice> liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName, pcpp::SmartPtrApi);
+	PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
 
-		std::shared_ptr<pcpp::PcapLiveDevice> liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName, pcpp::SmartPtrApi);
-		PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
-		liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets, pcpp::SmartPtrApi);
-		PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
+	pcpp::PcapLiveDevice* liveDev3Raw = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
+	PTF_ASSERT_EQUAL(liveDev3Raw, liveDev2.get());
 
-		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250", pcpp::SmartPtrApi);
-		PTF_ASSERT_NULL(liveDev);
-	}
+	liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets, pcpp::SmartPtrApi);
+	PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
+
+	liveDev3Raw = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
+	PTF_ASSERT_EQUAL(liveDev3Raw, liveDev.get(), ptr);
+
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250", pcpp::SmartPtrApi);
+	PTF_ASSERT_NULL(liveDev);
+
+	liveDevRaw = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
+	PTF_ASSERT_NULL(liveDevRaw);
 } // TestPcapLiveDeviceListSearch
 
 
