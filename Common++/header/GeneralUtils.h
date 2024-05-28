@@ -65,6 +65,10 @@ namespace pcpp
 		return (number + mask) & ~mask;
 	}
 
+	/**
+	 * A template class to calculate enum class hash
+	 * @tparam EnumClass
+	 */
 	template<typename EnumClass>
 	struct EnumClassHash
 	{
