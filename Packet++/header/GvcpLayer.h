@@ -153,6 +153,15 @@ namespace pcpp
 		GvcpCommand command = GvcpCommand::Unknown;
 		uint16_t dataSize = 0;
 		uint16_t ackId = 0;
+
+		// ------------- methods --------------
+		void deserialize(const uint8_t *data)
+		{
+			status = static_cast<GvcpResponseStatus>(data[1] | (data[0] << 8));
+			command = static_cast<GvcpCommand>(data[3] | (data[2] << 8));
+			dataSize = data[5] | (data[4] << 8);
+			ackId = data[7] | (data[6] << 8);
+		}
 	};
 	static_assert(sizeof(GvcpAckHeader) == detail::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
 

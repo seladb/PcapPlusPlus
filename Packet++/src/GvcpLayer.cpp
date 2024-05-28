@@ -57,8 +57,9 @@ namespace pcpp
 	{
 		m_Protocol = Gvcp;
 		m_Header = new GvcpAckHeader();
-		m_DataLen = payloadDataSize - sizeof(GvcpAckHeader);
-		m_Data = const_cast<uint8_t *>(payloadData);
+		m_DataLen = payloadDataSize;
+		m_Data = new uint8_t[m_DataLen];
+		memcpy(m_Data, payloadData, m_DataLen);
 
 		m_Header->status = status;
 		m_Header->command = command;
@@ -69,9 +70,11 @@ namespace pcpp
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(const uint8_t *data, uint16_t dataSize)
 	{
 		m_Protocol = Gvcp;
-		m_Header = reinterpret_cast<GvcpAckHeader *>(const_cast<uint8_t *>(data));
-		m_DataLen = dataSize - sizeof(GvcpAckHeader);
-		m_Data = const_cast<uint8_t *>(data) + sizeof(GvcpAckHeader);
-	}
+		m_Header = new GvcpAckHeader();
+		m_Header->deserialize(data);
 
+		m_DataLen = dataSize - sizeof(GvcpAckHeader);
+		m_Data = new uint8_t[m_DataLen];
+		memcpy(m_Data, data + sizeof(GvcpAckHeader), m_DataLen);
+	}
 } // namespace pcpp
