@@ -74,7 +74,7 @@ namespace pcpp {
 	// region LdapLayer
 
 	LdapLayer::LdapLayer(uint16_t messageId, LdapOperationType operationType,
-		const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl> controls)
+		const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls)
 	{
 		init(messageId, operationType, messageRecords, controls);
 	}

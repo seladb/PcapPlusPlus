@@ -63,7 +63,7 @@ namespace pcpp
 			SearchResultReference = 19,
 			/// Extended Request
 			ExtendedRequest = 23,
-			/// Extended Resonse
+			/// Extended Response
 			ExtendedResponse = 24,
 			/// Intermediate Response
 			IntermediateResponse = 25,
@@ -73,6 +73,7 @@ namespace pcpp
 
 		LdapOperationType() = default;
 
+		// cppcheck-suppress noExplicitConstructor
 		/**
  		 * Construct LdapOperationType from Value enum
  		 * @param[in] value the opetation type enum value
@@ -87,8 +88,8 @@ namespace pcpp
 		/**
 		 * A static method that creates LdapOperationType from an integer value
 		 * @param[in] value The operation type integer value
-		 * @return The operation type that correspondes to the integer value. If the integer value
-		 * doesn't correspondes to any operation type, LdapOperationType::Unknown is returned
+		 * @return The operation type that corresponds to the integer value. If the integer value
+		 * doesn't corresponds to any operation type, LdapOperationType::Unknown is returned
 		 */
 		static LdapOperationType fromIntValue(uint8_t value);
 
@@ -99,7 +100,7 @@ namespace pcpp
 		explicit operator bool() const = delete;
 
 	private:
-		Value m_Value;
+		Value m_Value = LdapOperationType::Unknown;
 	};
 
 	/**
@@ -132,7 +133,7 @@ namespace pcpp
 	{
 	public:
 		/**
-		 * A constrcutor to create a new LDAP message
+		 * A constructor to create a new LDAP message
 		 * @param[in] messageId The LDAP message ID
 		 * @param[in] operationType The LDAP operation type
 		 * @param[in] messageRecords A vector of ASN.1 records that comprise the LDAP message
@@ -141,7 +142,7 @@ namespace pcpp
 		 */
 		LdapLayer(uint16_t messageId, LdapOperationType operationType,
 			const std::vector<Asn1Record*>& messageRecords,
-			const std::vector<LdapControl> controls = std::vector<LdapControl>());
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		~LdapLayer() {}
 
@@ -261,7 +262,6 @@ namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
 {
-	std::string valuesStream;
 	os << "{" << control.controlType << ", " << control.controlValue << "}";
 	return os;
 }
