@@ -4,8 +4,10 @@
 #include "SystemUtils.h"
 #include "LdapLayer.h"
 #include <sstream>
+#include <cstring>
 
-PTF_TEST_CASE(LdapParsingTest) {
+PTF_TEST_CASE(LdapParsingTest)
+{
 	timeval time;
 	gettimeofday(&time, nullptr);
 
@@ -29,12 +31,12 @@ PTF_TEST_CASE(LdapParsingTest) {
 		pcpp::Asn1EnumeratedRecord enumeratedRecord(0);
 		pcpp::Asn1OctetStringRecord stringRecord1("");
 		pcpp::Asn1OctetStringRecord stringRecord2("");
-		pcpp::Asn1ConstructedRecord expectedMessageRecord(pcpp::Asn1TagClass::Application, 9, {&enumeratedRecord, &stringRecord1, &stringRecord2});
+		pcpp::Asn1ConstructedRecord expectedOperationRecord(pcpp::Asn1TagClass::Application, 9, {&enumeratedRecord, &stringRecord1, &stringRecord2});
 
-		pcpp::Asn1SequenceRecord expectedRootRecord({&messageIdRecord, &expectedMessageRecord});
+		pcpp::Asn1SequenceRecord expectedRootRecord({&messageIdRecord, &expectedOperationRecord});
 
 		PTF_ASSERT_EQUAL(ldapLayer->getRootAsn1Record()->toString(), expectedRootRecord.toString());
-		PTF_ASSERT_EQUAL(ldapLayer->getMessageAsn1Record()->toString(), expectedMessageRecord.toString());
+		PTF_ASSERT_EQUAL(ldapLayer->getLdapOperationAsn1Record()->toString(), expectedOperationRecord.toString());
 	}
 
 	// LDAP with multiple controls
@@ -62,6 +64,24 @@ PTF_TEST_CASE(LdapParsingTest) {
 		PTF_ASSERT_NOT_NULL(ldapLayer);
 
 		auto controls = ldapLayer->getControls();
+		std::vector<pcpp::LdapControl> expectedControls = {{"1.3.6.1.4.1.42.2.27.8.5.1"}};
+		PTF_ASSERT_VECTORS_EQUAL(controls, expectedControls);
+	}
+
+	// LdapLayer tryGet
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_request1.dat");
+		buffer1[68] = 0x04;
+		pcpp::Packet malformedLdapPacket(&rawPacket1);
+
+		auto malformedLdapLayer = malformedLdapPacket.getLayerOfType<pcpp::LdapLayer>();
+		PTF_ASSERT_NOT_NULL(malformedLdapLayer);
+
+		uint16_t messageId;
+		PTF_ASSERT_FALSE(malformedLdapLayer->tryGet(&pcpp::LdapLayer::getMessageID, messageId));
+
+		std::vector<pcpp::LdapControl> controls;
+		PTF_ASSERT_TRUE(malformedLdapLayer->tryGet(&pcpp::LdapLayer::getControls, controls));
 		std::vector<pcpp::LdapControl> expectedControls = {{"1.3.6.1.4.1.42.2.27.8.5.1"}};
 		PTF_ASSERT_VECTORS_EQUAL(controls, expectedControls);
 	}

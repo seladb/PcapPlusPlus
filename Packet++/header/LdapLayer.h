@@ -146,31 +146,58 @@ namespace pcpp
 		~LdapLayer() {}
 
 		/**
-		 * @return The root ASN.1 record of the LDAP message. All of the message data will be under this record
+		 * @return The root ASN.1 record of the LDAP message. All of the message data will be under this record.
+		 * If the Root ASN.1 record is malformed, an exception is thrown
 		 */
 		Asn1SequenceRecord* getRootAsn1Record() const;
 
 		/**
 		 * @return The ASN.1 record of the specific LDAP operation in this LDAP message. Each operation has a specific
-		 * structure
+		 * structure. If the Operation ASN.1 record is malformed, an exception is thrown
 		 */
-		Asn1ConstructedRecord* getMessageAsn1Record() const;
+		Asn1ConstructedRecord* getLdapOperationAsn1Record() const;
 
 		/**
-		 * @return The LDAP message ID
+		 * @return The LDAP message ID. If the ASN.1 record is malformed, an exception is thrown
 		 */
 		uint16_t getMessageID() const;
 
 		/**
 		 * @return A vector of LDAP controls in this message. If the message contains no controls then an empty
-		 * vector is returned
+		 * vector is returned. If the Controls ASN.1 record is malformed, an exception is thrown
 		 */
 		std::vector<LdapControl> getControls() const;
 
 		/**
-		 * @return The LDAP operation of this message
+		 * @return The LDAP operation of this message. If the Operation ASN.1 record is malformed, an exception is thrown
 		 */
 		LdapOperationType getLdapOperationType() const;
+
+		/**
+		 * Most getter methods in this class throw an exception if the corresponding ASN.1 record is invalid.
+		 * This is a wrapper method that allows calling these getters without adding a `try...catch` clause.
+		 * It accepts the getter method and an out variable. It tries to call the getter and if no exception
+		 * is thrown, the out variable will contain the result.
+		 *
+		 * Here is an example:
+		 * @code
+		 * uint16_t messageId;
+		 * ldapLayer->tryGet(&pcpp::LdapLayer::getMessageID, messageId));
+		 * @endcode
+		 *
+		 * We call getMessageID(), if no exception is thrown the variable messageId will hold the result
+		 *
+		 * @tparam Method The class method type
+		 * @tparam ResultType The expected result type (for example: uint8_t, std::string, etc.)
+		 * @param[in] method The class method to call
+		 * @param[out] result An outvariable to contain the result if no exception is thrown
+		 * @return True if no exception was thrown or false otherwise
+		 */
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
+		{
+			return internalTryGet(this, method, result);
+		}
 
 		/**
 		 * A static method that checks whether a source or dest port match those associated with the LDAP protocol
@@ -215,12 +242,12 @@ namespace pcpp
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
 		virtual std::string getExtendedStringInfo() const { return ""; }
 
-		template <typename T, typename Member, typename LdapClass>
-		bool internalTryGet(LdapClass* thisPtr, Member member, T& result)
+		template <typename LdapClass, typename Method, typename ResultType>
+		bool internalTryGet(LdapClass* thisPtr, Method method, ResultType& result)
 		{
 			try
 			{
-				result = (thisPtr->*member)();
+				result = (thisPtr->*method)();
 				return true;
 			}
 			catch (...)

@@ -156,7 +156,7 @@ namespace pcpp {
 		return m_Asn1Record->castAs<Asn1SequenceRecord>();
 	}
 
-	Asn1ConstructedRecord* LdapLayer::getMessageAsn1Record() const
+	Asn1ConstructedRecord* LdapLayer::getLdapOperationAsn1Record() const
 	{
 		return getRootAsn1Record()->getSubRecords().at(1)->castAs<Asn1ConstructedRecord>();
 	}
@@ -192,7 +192,7 @@ namespace pcpp {
 
 	LdapOperationType LdapLayer::getLdapOperationType() const
 	{
-		return LdapOperationType::fromIntValue(getMessageAsn1Record()->getTagType());
+		return LdapOperationType::fromIntValue(getLdapOperationAsn1Record()->getTagType());
 	}
 
 	void LdapLayer::parseNextLayer()
