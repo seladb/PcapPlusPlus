@@ -64,4 +64,13 @@ namespace pcpp
 		int mask = alignment - 1;
 		return (number + mask) & ~mask;
 	}
+
+	template<typename EnumClass>
+	struct EnumClassHash
+	{
+		size_t operator()(const EnumClass& value) const
+		{
+			return static_cast<int>(value);
+		}
+	};
 }
