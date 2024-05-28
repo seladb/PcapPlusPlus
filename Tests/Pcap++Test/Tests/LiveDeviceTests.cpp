@@ -10,6 +10,7 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
+#include <memory>
 #include <sstream>
 #if defined(_WIN32)
 #include "PcapRemoteDevice.h"
@@ -178,18 +179,22 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 		PTF_ASSERT_FALSE(iter->getName().empty());
 	}
 
-	pcpp::PcapLiveDeviceList *clonedDevList = pcpp::PcapLiveDeviceList::getInstance().clone();
-	PTF_ASSERT_NOT_NULL(clonedDevList);
+	pcpp::PcapLiveDeviceList* clonedDevList1 = pcpp::PcapLiveDeviceList::getInstance().clone();
+	std::unique_ptr<pcpp::PcapLiveDeviceList> clonedDevList2 = pcpp::PcapLiveDeviceList::getInstance().clone(pcpp::SmartPtrApi);
 
-	std::vector<pcpp::PcapLiveDevice*> clonedDevListVector = clonedDevList->getPcapLiveDevicesList();
-	PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());
-
-	auto iterCloned = clonedDevListVector.begin();
-	for(auto iter = devList.begin(); iter != devList.end(); ++iter, ++iterCloned)
+	for (pcpp::PcapLiveDeviceList* clonedDevList : { clonedDevList1, clonedDevList2.get() })
 	{
-		PTF_ASSERT_EQUAL((*iter)->getName(), (*iterCloned)->getName());
+		PTF_ASSERT_NOT_NULL(clonedDevList);
+
+		std::vector<pcpp::PcapLiveDevice *> clonedDevListVector = clonedDevList->getPcapLiveDevicesList();
+		PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());
+
+		for (auto iter = devList.begin(), iterCloned = clonedDevListVector.begin(); iter != devList.end(); ++iter, ++iterCloned)
+		{
+			PTF_ASSERT_EQUAL((*iter)->getName(), (*iterCloned)->getName());
+		}
 	}
-	delete clonedDevList;
+	delete clonedDevList1;
 
 	PTF_ASSERT_EQUAL(pcpp::PcapLiveDeviceList::getInstance().getDnsServers().size(), dnsServerCount);
 } // TestPcapLiveDeviceList
@@ -198,108 +203,216 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 
 PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 {
-	pcpp::PcapLiveDevice* liveDev = nullptr;
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	PTF_ASSERT_NOT_NULL(liveDev);
+	// Raw Pointer API
+	{
+		pcpp::PcapLiveDevice* liveDev = nullptr;
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		PTF_ASSERT_NOT_NULL(liveDev);
 
-	std::string devName(liveDev->getName());
-	pcpp::PcapLiveDevice* liveDev2 = nullptr;
-	liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
-	PTF_ASSERT_NOT_NULL(liveDev2);
-	PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
+		std::string devName(liveDev->getName());
+		pcpp::PcapLiveDevice* liveDev2 = nullptr;
+		liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName);
+		PTF_ASSERT_NOT_NULL(liveDev2);
+		PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
 
-	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
-	PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
-	liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
-	PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
+		pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName);
+		PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
+		liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
+		PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
 
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
-	PTF_ASSERT_NULL(liveDev);
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250");
+		PTF_ASSERT_NULL(liveDev);
+	}
+	// Smart Pointer API
+	{
+		std::shared_ptr<pcpp::PcapLiveDevice> liveDev;
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str(), pcpp::SmartPtrApi);
+		PTF_ASSERT_NOT_NULL(liveDev);
+
+		std::string devName(liveDev->getName());
+		std::shared_ptr<pcpp::PcapLiveDevice> liveDev2 = nullptr;
+		liveDev2 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(devName, pcpp::SmartPtrApi);
+		PTF_ASSERT_NOT_NULL(liveDev2);
+		PTF_ASSERT_EQUAL(liveDev->getName(), liveDev2->getName());
+
+		std::shared_ptr<pcpp::PcapLiveDevice> liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(devName, pcpp::SmartPtrApi);
+		PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
+		liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets, pcpp::SmartPtrApi);
+		PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
+
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp("255.255.255.250", pcpp::SmartPtrApi);
+		PTF_ASSERT_NULL(liveDev);
+	}
 } // TestPcapLiveDeviceListSearch
 
 
 
 PTF_TEST_CASE(TestPcapLiveDevice)
 {
-	pcpp::PcapLiveDevice* liveDev = nullptr;
-	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
-	PTF_ASSERT_NOT_NULL(liveDev);
-	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
-	PTF_ASSERT_TRUE(liveDev->open());
-	DeviceTeardown devTeardown(liveDev);
-	int packetCount = 0;
-	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	int totalSleepTime = 0;
-	while (totalSleepTime <= 20)
+	// Raw Pointer API
 	{
-		pcpp::multiPlatformSleep(2);
-		totalSleepTime += 2;
-		if (packetCount > 0)
-			break;
+		pcpp::PcapLiveDevice* liveDev = nullptr;
+		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+		PTF_ASSERT_NOT_NULL(liveDev);
+		PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
+		PTF_ASSERT_TRUE(liveDev->open());
+		DeviceTeardown devTeardown(liveDev);
+		int packetCount = 0;
+		int numOfTimeStatsWereInvoked = 0;
+		PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void *>(&packetCount), 1, &statsUpdate,
+											  static_cast<void *>(&numOfTimeStatsWereInvoked)));
+		int totalSleepTime = 0;
+		while (totalSleepTime <= 20)
+		{
+			pcpp::multiPlatformSleep(2);
+			totalSleepTime += 2;
+			if (packetCount > 0)
+				break;
+		}
+
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_THAN(packetCount, 0);
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime - 2);
+
+		pcpp::IPcapDevice::PcapStats statistics;
+		liveDev->getStatistics(statistics);
+		// Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
+		// PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
+		liveDev->close();
+		PTF_ASSERT_FALSE(liveDev->isOpened());
+
+		// a negative test
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void *>(&packetCount), 1, &statsUpdate,
+											   static_cast<void *>(&numOfTimeStatsWereInvoked)));
+		pcpp::Logger::getInstance().enableLogs();
 	}
+	// Smart Pointer API
+	{
+		std::shared_ptr<pcpp::PcapLiveDevice> liveDev = nullptr;
+		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch, pcpp::SmartPtrApi);
+		PTF_ASSERT_NOT_NULL(liveDev);
+		PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
+		PTF_ASSERT_TRUE(liveDev->open());
+		DeviceTeardown devTeardown(liveDev.get());
+		int packetCount = 0;
+		int numOfTimeStatsWereInvoked = 0;
+		PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+		int totalSleepTime = 0;
+		while (totalSleepTime <= 20)
+		{
+			pcpp::multiPlatformSleep(2);
+			totalSleepTime += 2;
+			if (packetCount > 0)
+				break;
+		}
 
-	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
-	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-2);
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_THAN(packetCount, 0);
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-2);
 
-	pcpp::IPcapDevice::PcapStats statistics;
-	liveDev->getStatistics(statistics);
-	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
-	//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
-	liveDev->close();
-	PTF_ASSERT_FALSE(liveDev->isOpened());
+		pcpp::IPcapDevice::PcapStats statistics;
+		liveDev->getStatistics(statistics);
+		//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
+		//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
+		liveDev->close();
+		PTF_ASSERT_FALSE(liveDev->isOpened());
 
-	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	pcpp::Logger::getInstance().enableLogs();
+		// a negative test
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+		pcpp::Logger::getInstance().enableLogs();
+	}
 } // TestPcapLiveDevice
 
 
 
 PTF_TEST_CASE(TestPcapLiveDeviceClone)
 {
-	// Test of clone device should be same with original
-	pcpp::PcapLiveDevice* liveDev = nullptr;
-	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
-	PTF_ASSERT_NOT_NULL(liveDev);
-	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
-	PTF_ASSERT_TRUE(liveDev->open());
-	DeviceTeardown devTeardown(liveDev, true);
-	int packetCount = 0;
-	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	int totalSleepTime = 0;
-	while (totalSleepTime <= 20)
+	// Raw Pointer API
 	{
-		pcpp::multiPlatformSleep(2);
-		totalSleepTime += 2;
-		if (packetCount > 0)
-			break;
+		// Test of clone device should be same with original
+		pcpp::PcapLiveDevice* liveDev = nullptr;
+		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
+		PTF_ASSERT_NOT_NULL(liveDev);
+		PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
+		PTF_ASSERT_TRUE(liveDev->open());
+		DeviceTeardown devTeardown(liveDev, true);
+		int packetCount = 0;
+		int numOfTimeStatsWereInvoked = 0;
+		PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+		int totalSleepTime = 0;
+		while (totalSleepTime <= 20)
+		{
+			pcpp::multiPlatformSleep(2);
+			totalSleepTime += 2;
+			if (packetCount > 0)
+				break;
+		}
+
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_THAN(packetCount, 0);
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1);
+		pcpp::IPcapDevice::PcapStats statistics;
+		liveDev->getStatistics(statistics);
+		//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
+		//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
+		liveDev->close();
+		PTF_ASSERT_FALSE(liveDev->isOpened());
+
+		// a negative test
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+		pcpp::Logger::getInstance().enableLogs();
 	}
+	// Smart Pointer API
+	{
+		// Test of clone device should be same with original
+		std::unique_ptr<pcpp::PcapLiveDevice> liveDev = nullptr;
+		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch, pcpp::SmartPtrApi)->clone(pcpp::SmartPtrApi);
+		PTF_ASSERT_NOT_NULL(liveDev);
+		PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
+		PTF_ASSERT_TRUE(liveDev->open());
+		DeviceTeardown devTeardown(liveDev.get());
+		int packetCount = 0;
+		int numOfTimeStatsWereInvoked = 0;
+		PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+		int totalSleepTime = 0;
+		while (totalSleepTime <= 20)
+		{
+			pcpp::multiPlatformSleep(2);
+			totalSleepTime += 2;
+			if (packetCount > 0)
+				break;
+		}
 
-	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
-	liveDev->stopCapture();
-	PTF_ASSERT_GREATER_THAN(packetCount, 0);
-	PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1);
-	pcpp::IPcapDevice::PcapStats statistics;
-	liveDev->getStatistics(statistics);
-	//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
-	//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
-	liveDev->close();
-	PTF_ASSERT_FALSE(liveDev->isOpened());
+		liveDev->stopCapture();
+		PTF_ASSERT_GREATER_THAN(packetCount, 0);
+		PTF_ASSERT_GREATER_OR_EQUAL_THAN(numOfTimeStatsWereInvoked, totalSleepTime-1);
+		pcpp::IPcapDevice::PcapStats statistics;
+		liveDev->getStatistics(statistics);
+		//Bad test - on high traffic libpcap/WinPcap/Npcap sometimes drop packets
+		//PTF_ASSERT_EQUALS((uint32_t)statistics.ps_drop, 0);
+		liveDev->close();
+		PTF_ASSERT_FALSE(liveDev->isOpened());
 
-	// a negative test
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
-	pcpp::Logger::getInstance().enableLogs();
-
+		// a negative test
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
+		pcpp::Logger::getInstance().enableLogs();
+	}
 } // TestPcapLiveDeviceClone
 
 
@@ -858,79 +971,154 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
 
 	pcpp::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
-	pcpp::PcapRemoteDeviceList* remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
-	PTF_ASSERT_NOT_NULL(remoteDevices);
-	for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
+
+	// Raw Pointer API
 	{
-		PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
-	}
-	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
-	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
-
-	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
-	PTF_ASSERT_NOT_NULL(remoteDevice);
-	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
-	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
-	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
-	pcpp::Logger::getInstance().enableLogs();
-	PTF_ASSERT_TRUE(remoteDevice->open());
-	DeviceTeardown devTeardown(remoteDevice);
-	pcpp::RawPacketVector capturedPackets;
-	PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
-
-	if (!useRemoteDevicesFromArgs)
-		PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
-
-	int totalSleepTime = 0;
-	while (totalSleepTime < 10)
-	{
-		if (capturedPackets.size() > 2)
+		pcpp::PcapRemoteDeviceList* remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
+		PTF_ASSERT_NOT_NULL(remoteDevices);
+		for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
 		{
-			break;
+			PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
+		}
+		PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
+		PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
+
+		pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
+		PTF_ASSERT_NOT_NULL(remoteDevice);
+		PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
+		PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
+		pcpp::Logger::getInstance().enableLogs();
+		PTF_ASSERT_TRUE(remoteDevice->open());
+		DeviceTeardown devTeardown(remoteDevice);
+		pcpp::RawPacketVector capturedPackets;
+		PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
+
+		if (!useRemoteDevicesFromArgs)
+			PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
+
+		int totalSleepTime = 0;
+		while (totalSleepTime < 10)
+		{
+			if (capturedPackets.size() > 2)
+			{
+				break;
+			}
+
+			pcpp::multiPlatformSleep(1);
+			totalSleepTime += 1;
 		}
 
-		pcpp::multiPlatformSleep(1);
-		totalSleepTime += 1;
-	}
+		remoteDevice->stopCapture();
 
-	remoteDevice->stopCapture();
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
 
-	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+		PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2);
 
-	PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2);
+		// send single packet
+		PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
 
-	// send single packet
-	PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
+		// send multiple packets
+		pcpp::RawPacketVector packetsToSend;
+		std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
 
-	// send multiple packets
-	pcpp::RawPacketVector packetsToSend;
-	std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
-
-	size_t capturedPacketsSize = capturedPackets.size();
-	while (iter != capturedPackets.end())
-	{
-		if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
+		size_t capturedPacketsSize = capturedPackets.size();
+		while (iter != capturedPackets.end())
 		{
-			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
+			if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
+			{
+				packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
+			}
+			else
+				++iter;
 		}
-		else
-			++iter;
+		int packetsSent = remoteDevice->sendPackets(packetsToSend);
+		PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size());
+
+		//check statistics
+		pcpp::IPcapDevice::PcapStats stats;
+		remoteDevice->getStatistics(stats);
+		PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize);
+
+		remoteDevice->close();
+
+		delete remoteDevices;
+
+		// the device object is already deleted, cannot close it
+		devTeardown.cancelTeardown();
 	}
-	int packetsSent = remoteDevice->sendPackets(packetsToSend);
-	PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size());
 
-	//check statistics
-	pcpp::IPcapDevice::PcapStats stats;
-	remoteDevice->getStatistics(stats);
-	PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize);
+	// Smart Pointer API
+	{
+		std::unique_ptr<pcpp::PcapRemoteDeviceList> remoteDevices = pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort, pcpp::SmartPtrApi);
+		PTF_ASSERT_NOT_NULL(remoteDevices);
+		for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin(); remoteDevIter != remoteDevices->end(); remoteDevIter++)
+		{
+			PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
+		}
+		PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
+		PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
 
-	remoteDevice->close();
+		std::shared_ptr<pcpp::PcapRemoteDevice> remoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr, pcpp::SmartPtrApi);
+		PTF_ASSERT_NOT_NULL(remoteDevice);
+		PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
+		PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
+		pcpp::Logger::getInstance().suppressLogs();
+		PTF_ASSERT_EQUAL(remoteDevice->getMacAddress(), pcpp::MacAddress::Zero);
+		pcpp::Logger::getInstance().enableLogs();
+		PTF_ASSERT_TRUE(remoteDevice->open());
+		DeviceTeardown devTeardown(remoteDevice.get());
+		pcpp::RawPacketVector capturedPackets;
+		PTF_ASSERT_TRUE(remoteDevice->startCapture(capturedPackets));
 
-	delete remoteDevices;
+		if (!useRemoteDevicesFromArgs)
+			PTF_ASSERT_TRUE(sendURLRequest("www.yahoo.com"));
 
-	// the device object is already deleted, cannot close it
-	devTeardown.cancelTeardown();
+		int totalSleepTime = 0;
+		while (totalSleepTime < 10)
+		{
+			if (capturedPackets.size() > 2)
+			{
+				break;
+			}
+
+			pcpp::multiPlatformSleep(1);
+			totalSleepTime += 1;
+		}
+
+		remoteDevice->stopCapture();
+
+		PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime << " secs");
+
+		PTF_ASSERT_GREATER_THAN(capturedPackets.size(), 2);
+
+		// send single packet
+		PTF_ASSERT_TRUE(remoteDevice->sendPacket(*capturedPackets.front()));
+
+		// send multiple packets
+		pcpp::RawPacketVector packetsToSend;
+		std::vector<pcpp::RawPacket*>::iterator iter = capturedPackets.begin();
+
+		size_t capturedPacketsSize = capturedPackets.size();
+		while (iter != capturedPackets.end())
+		{
+			if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
+			{
+				packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
+			}
+			else
+				++iter;
+		}
+		int packetsSent = remoteDevice->sendPackets(packetsToSend);
+		PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size());
+
+		//check statistics
+		pcpp::IPcapDevice::PcapStats stats;
+		remoteDevice->getStatistics(stats);
+		PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize);
+	}
+
 #else
 	PTF_SKIP_TEST("This test can only run in Windows environment");
 #endif
