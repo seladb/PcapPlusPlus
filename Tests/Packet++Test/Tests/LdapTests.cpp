@@ -65,6 +65,25 @@ PTF_TEST_CASE(LdapParsingTest) {
 		std::vector<pcpp::LdapControl> expectedControls = {{"1.3.6.1.4.1.42.2.27.8.5.1"}};
 		PTF_ASSERT_VECTORS_EQUAL(controls, expectedControls);
 	}
+
+	// Multiple LDAP messages in the same packet
+	{
+		READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/ldap_multiple_messages.dat", pcpp::LINKTYPE_LINUX_SLL);
+		pcpp::Packet multipleLdapPacket(&rawPacket1);
+
+		auto ldapLayer = multipleLdapPacket.getLayerOfType<pcpp::LdapLayer>();
+		PTF_ASSERT_NOT_NULL(ldapLayer);
+
+		for (int i = 0; i < 3; i++)
+		{
+			PTF_ASSERT_EQUAL(ldapLayer->getLdapOperationType(), pcpp::LdapOperationType::SearchResultReference, enum);
+			ldapLayer = dynamic_cast<pcpp::LdapLayer*>(ldapLayer->getNextLayer());
+			PTF_ASSERT_NOT_NULL(ldapLayer);
+		}
+
+		PTF_ASSERT_EQUAL(ldapLayer->getLdapOperationType(), pcpp::LdapOperationType::SearchResultDone, enum);
+		PTF_ASSERT_NULL(ldapLayer->getNextLayer());
+	}
 } // LdapParsingTest
 
 

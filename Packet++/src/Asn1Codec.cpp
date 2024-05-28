@@ -685,7 +685,7 @@ namespace pcpp
 		auto value = reinterpret_cast<char*>(data);
 
 		m_IsPrintable = std::all_of(value, value + m_ValueLength, [](char c) {
-			return isprint(c);
+			return isprint(0xff & c);
 		});
 
 		if (m_IsPrintable)

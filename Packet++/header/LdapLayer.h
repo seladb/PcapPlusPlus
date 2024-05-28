@@ -192,9 +192,9 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		 * Does nothing for this layer (ArpLayer is always last)
+		 * Tries to identify more LDAP messages in this packet if exist
 		 */
-		void parseNextLayer() override {}
+		void parseNextLayer() override;
 
 		/**
 		 * @return The size of the LDAP message

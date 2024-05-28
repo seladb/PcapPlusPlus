@@ -195,5 +195,16 @@ namespace pcpp {
 		return LdapOperationType::fromIntValue(getMessageAsn1Record()->getTagType());
 	}
 
+	void LdapLayer::parseNextLayer()
+	{
+		size_t headerLen = getHeaderLen();
+		if (m_DataLen <= headerLen || headerLen == 0)
+			return;
+
+		uint8_t* payload = m_Data + headerLen;
+		size_t payloadLen = m_DataLen - headerLen;
+
+		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
+	}
 	// endregion
 }
