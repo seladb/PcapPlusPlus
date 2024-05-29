@@ -43,12 +43,12 @@ body:
         - "v22.05"
         - "v21.11"
         - "v21.05"
-        - "Other"
+        - "Other (specify in the next question)"
     validations:
       required: true
   - type: input
     attributes:
-      label: Other version:
+      label: Other PcapPlusPlus version (if applicable):
       description: If you select "Other", please specify the version of PcapPlusPlus you tested on.
       placeholder: ex. Build with commit hash 1234567
     validations:
@@ -63,14 +63,14 @@ body:
         - Windows
         - FreeBSD
         - Android
-        - Other
+        - Other (specify in the next question)
     validations:
       required: true
   - type: input
     attributes:
-      label: Other platform:
+      label: Other operation systems (if applicable):
       description: If you select "Other", please specify the operation system you tested on.
-      placeholder: ex. Ubuntu 20.04
+      placeholder: ex. ChromeOS, Solaris
     validations:
       required: false
   - type: input
