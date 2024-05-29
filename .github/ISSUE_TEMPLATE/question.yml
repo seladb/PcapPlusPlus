@@ -1,0 +1,24 @@
+name: Question
+description: Submit a question
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Asking a question
+        If you have a question about PcapPlusPlus, please check the following resources before opening a new issue:
+        - [PcapPlusPlus documentation](https://pcapplusplus.github.io/docs/quickstart)
+        - [PcapPlusPlus API reference](https://pcapplusplus.github.io/docs/api)
+        - [Issues tracker](https://github.com/seladb/PcapPlusPlus/issues)
+
+  - type: textarea
+    attributes:
+      label: "Question:"
+      description: >
+        Explain your question in detail.
+      value: |
+        ```cpp
+        # Add a code block here, if required
+        ```
+    validations:
+      required: true
