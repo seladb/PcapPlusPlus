@@ -65,11 +65,31 @@ body:
         - Android
         - Other
     validations:
-      required: false
+      required: true
   - type: input
     attributes:
       label: Other platform:
       description: If you select "Other", please specify the operation system you tested on.
       placeholder: ex. Ubuntu 20.04
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: Compiler version:
+      description: Please specify the compiler version you used.
+      placeholder: ex. GCC 10.2.0
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Packet capture backend (if applicable):
+      multiple: true
+      options:
+        - libpcap
+        - PF_RING
+        - DPDK
+        - WinPcap
+        - Npcap
+        - N/A
     validations:
       required: false
