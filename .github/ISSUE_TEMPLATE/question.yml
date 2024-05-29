@@ -22,3 +22,19 @@ body:
         ```
     validations:
       required: true
+
+  - type: dropdown
+    attributes:
+      label: "Operating systems:"
+      description: >
+        Select the operating systems that you are interested in.
+      multiple: true
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - FreeBSD
+        - Android
+        - Other (specify in the question)
+    validations:
+      required: false
