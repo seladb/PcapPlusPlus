@@ -20,13 +20,13 @@ namespace pcpp
 	enum class Asn1TagClass : uint8_t
 	{
 		/** The Universal tag class */
-		Universal,
+		Universal = 0,
 		/** The Application tag class */
-		Application,
+		Application = 1,
 		/** The Context-Specific tag class */
-		ContextSpecific,
+		ContextSpecific = 2,
 		/** The Private tag class */
-		Private
+		Private = 3,
 	};
 
 	/**
@@ -170,6 +170,11 @@ namespace pcpp
 		size_t getTotalLength() const { return m_TotalLength; }
 
 		/**
+		 * @return A string representation of the record
+		 */
+		std::string toString();
+
+		/**
 		 * A templated method that accepts a class derived from Asn1Record as its template argument and attempts
 		 * to cast the current instance to that type
 		 * @tparam Asn1RecordType The type to cast to
@@ -211,6 +216,10 @@ namespace pcpp
 
 		uint8_t encodeTag();
 		std::vector<uint8_t> encodeLength() const;
+
+		virtual std::vector<std::string> toStringList();
+
+		friend class Asn1ConstructedRecord;
 	};
 
 	/**
@@ -248,7 +257,6 @@ namespace pcpp
 
 	private:
 		uint8_t* m_Value = nullptr;
-		bool m_FreeValueOnDestruction = false;
 	};
 
 	/**
@@ -269,6 +277,14 @@ namespace pcpp
 		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords);
 
 		/**
+		 * A constructor to create a constructed record
+		 * @param tagClass The record tag class
+		 * @param tagType The record tag type value
+		 * @param subRecords A PointerVector of sub-records to assign as the record value
+		 */
+		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const PointerVector<Asn1Record>& subRecords);
+
+		/**
 		 * @return A reference to the list of sub-records. It's important to note that any modifications made to
 		 * this list will directly affect the internal structure
 		 */
@@ -280,6 +296,27 @@ namespace pcpp
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
+		std::vector<std::string> toStringList() override;
+
+		template<typename Iterator>
+		void init(Asn1TagClass tagClass, uint8_t tagType, Iterator begin, Iterator end)
+		{
+			m_TagType = tagType;
+			m_TagClass = tagClass;
+			m_IsConstructed = true;
+
+			size_t recordValueLength = 0;
+			for (Iterator recordIter = begin; recordIter != end; ++recordIter)
+			{
+				auto encodedRecord = (*recordIter)->encode();
+				auto copyRecord = Asn1Record::decode(encodedRecord.data(), encodedRecord.size(), false);
+				m_SubRecords.pushBack(copyRecord.release());
+				recordValueLength += encodedRecord.size();
+			}
+
+			m_ValueLength = recordValueLength;
+			m_TotalLength = recordValueLength + 1 + (m_ValueLength < 128 ? 1 : 2);
+		}
 	private:
 		PointerVector<Asn1Record> m_SubRecords;
 	};
@@ -299,6 +336,12 @@ namespace pcpp
 		 */
 		explicit Asn1SequenceRecord(const std::vector<Asn1Record*>& subRecords);
 
+		/**
+		 * A constructor to create a record of type Sequence
+		 * @param subRecords A PointerVector of sub-records to assign as the record value
+		 */
+		explicit Asn1SequenceRecord(const PointerVector<Asn1Record>& subRecords);
+
 	private:
 		Asn1SequenceRecord() = default;
 	};
@@ -317,6 +360,12 @@ namespace pcpp
 		 * @param subRecords A list of sub-records to assign as the record value
 		 */
 		explicit Asn1SetRecord(const std::vector<Asn1Record*>& subRecords);
+
+		/**
+		 * A constructor to create a record of type Set
+		 * @param subRecords A PointerVector of sub-records to assign as the record value
+		 */
+		explicit Asn1SetRecord(const PointerVector<Asn1Record>& subRecords);
 
 	private:
 		Asn1SetRecord() = default;
@@ -362,6 +411,8 @@ namespace pcpp
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
+		std::vector<std::string> toStringList() override;
+
 	private:
 		uint32_t m_Value = 0;
 	};
@@ -395,10 +446,17 @@ namespace pcpp
 
 	public:
 		/**
-		 * A constructor to create a record of type Octet String
+		 * A constructor to create a record of type Octet String from a printable value
 		 * @param value A string to set as the record value
 		 */
 		explicit Asn1OctetStringRecord(const std::string& value);
+
+		/**
+ 		 * A constructor to create a record of type Octet String from a non-printable value
+ 		 * @param value A byte array to set as the record value
+		 * @param valueLength The length of the byte array
+ 		*/
+		explicit Asn1OctetStringRecord(const uint8_t* value, size_t valueLength);
 
 		/**
 		 * @return The string value of this record
@@ -409,8 +467,11 @@ namespace pcpp
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
 
+		std::vector<std::string> toStringList() override;
+
 	private:
 		std::string m_Value;
+		bool m_IsPrintable = true;
 
 		Asn1OctetStringRecord() = default;
 	};
@@ -438,6 +499,8 @@ namespace pcpp
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
 		std::vector<uint8_t> encodeValue() const override;
+
+		std::vector<std::string> toStringList() override;
 
 	private:
 		Asn1BooleanRecord() = default;

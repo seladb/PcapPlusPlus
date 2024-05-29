@@ -10,6 +10,6 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: marocchino/validate-dependabot@v3
+      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - uses: marocchino/validate-dependabot@d8ae5c0d03dd75fbd0ad5f8ab4ba8101ebbd4b37 # v3.0.0
         id: validate
