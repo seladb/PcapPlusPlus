@@ -429,7 +429,7 @@ jobs:
       - name: Install WinPcap
         run: |
           ci\install_winpcap.bat
-          echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
+          echo "PCAP_SDK_DIR=/C/WpdPack" >> $env:GITHUB_ENV
 
       - name: Configure PcapPlusPlus
         shell: msys2 {0}
