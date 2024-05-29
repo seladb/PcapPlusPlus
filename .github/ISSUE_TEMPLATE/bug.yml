@@ -27,16 +27,16 @@ body:
         and put any code blocks inside triple backticks.
 
       value: |
-      **Describe the bug**
-      A clear and concise description of what the bug is.
+        **Describe the bug**
+        A clear and concise description of what the bug is.
 
-      **Code example to reproduce**
-      ```cpp
-      // Add a code block here, if required
-      ```
+        **Code example to reproduce**
+        ```cpp
+        // Add a code block here, if required
+        ```
 
-      **Expected behavior**
-      A clear and concise description of what you expected to happen.
+        **Expected behavior**
+        A clear and concise description of what you expected to happen.
 
     validations:
       required: true
