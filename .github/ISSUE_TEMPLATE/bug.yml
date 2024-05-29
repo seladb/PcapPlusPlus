@@ -90,6 +90,7 @@ body:
         - DPDK
         - WinPcap
         - Npcap
+        - XDP
         - N/A
     validations:
       required: false
