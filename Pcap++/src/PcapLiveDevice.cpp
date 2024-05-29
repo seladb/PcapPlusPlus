@@ -424,12 +424,17 @@ PcapLiveDevice* PcapLiveDevice::clone() const
 	}
 
 	if(currInterface)
-		retval = new PcapLiveDevice(currInterface, true, true, true);
+		retval = cloneInternal(*currInterface);
 	else
 		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
 
 	pcap_freealldevs(interfaceList);
 	return retval;
+}
+
+PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+{
+	return new PcapLiveDevice(&devInterface, true, true, true);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
