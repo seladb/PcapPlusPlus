@@ -124,7 +124,7 @@ public:
 
 		std::string cmd = "rpcapd\\rpcapd.exe";
 		std::array<char, 256> args;
-		int res = std::snprintf(args.data(), args.size(), "rpcapd\\rpcapd.exe -b %s -p %d -n", ip.c_str(), port);
+		int res = std::snprintf(args.data(), args.size(), "%s -b %s -p %d -n", cmd.c_str(), ip.c_str(), port);
 		if (res < 0)
 		{
 			throw std::runtime_error("Error during string formatting");
