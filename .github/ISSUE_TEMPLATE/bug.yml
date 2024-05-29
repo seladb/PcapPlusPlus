@@ -46,6 +46,13 @@ body:
         - "Other"
     validations:
       required: true
+  - type: input
+    attributes:
+      label: Other version:
+      description: If you select "Other", please specify the version of PcapPlusPlus you tested on.
+      placeholder: ex. Build with commit hash 1234567
+    validations:
+      required: false
   - type: dropdown
     attributes:
       label: "Operating systems tested on:"
@@ -57,5 +64,12 @@ body:
         - FreeBSD
         - Android
         - Other
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: Other platform:
+      description: If you select "Other", please specify the operation system you tested on.
+      placeholder: ex. Ubuntu 20.04
     validations:
       required: false
