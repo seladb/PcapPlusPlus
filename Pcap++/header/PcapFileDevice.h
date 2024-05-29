@@ -16,6 +16,20 @@ typedef struct pcap_dumper pcap_dumper_t;
 */
 namespace pcpp
 {
+	/**
+	 * @enum FileTimestampPrecision
+	 * An enumeration representing the precision of timestamps in a pcap file.
+	 * The precision can be Unknown, Micro, or Nano.
+	 */
+	enum class FileTimestampPrecision : int8_t
+	{
+		/// Precision is unknown or not set/determined
+		Unknown = -1,
+		/// Precision is in microseconds.
+		Microseconds = 0,
+		/// Precision is in nanoseconds.
+		Nanoseconds = 1
+	};
 
 	/**
 	 * @class IFileDevice
@@ -35,7 +49,6 @@ namespace pcpp
 		* @return The name of the file
 		*/
 		std::string getFileName() const;
-
 
 		//override methods
 
@@ -103,6 +116,7 @@ namespace pcpp
 	class PcapFileReaderDevice : public IFileReaderDevice
 	{
 	private:
+		FileTimestampPrecision m_Precision;
 		LinkLayerType m_PcapLinkLayerType;
 
 		// private copy c'tor
@@ -115,7 +129,7 @@ namespace pcpp
 		 * isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+		PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_Precision(FileTimestampPrecision::Unknown), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
 
 		/**
 		 * A destructor for this class
@@ -127,6 +141,17 @@ namespace pcpp
 		*/
 		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
 
+		/**
+		 * @return The precision of the timestamps in the file. If the platform supports nanosecond precision, this method will return
+		 * nanoseconds even if the file has microseconds since libpcap scales timestamps before supply. Otherwise, it will return microseconds.
+		*/
+		FileTimestampPrecision getTimestampPrecision() const { return m_Precision; }
+
+		/**
+		 * A static method that checks if nano-second precision is supported in the current platform and environment
+		 * @return True if nano-second precision is supported, false otherwise
+		 */
+		static bool isNanoSecondPrecisionSupported();
 
 		//overridden methods
 
@@ -384,6 +409,7 @@ namespace pcpp
 		pcap_dumper_t* m_PcapDumpHandler;
 		LinkLayerType m_PcapLinkLayerType;
 		bool m_AppendMode;
+		FileTimestampPrecision m_Precision;
 		FILE* m_File;
 
 		// private copy c'tor
@@ -398,8 +424,9 @@ namespace pcpp
 		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file
 		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
+		 * @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set to false, timestamps will be written in micro-precision
 		 */
-		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET);
+		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET, bool nanosecondsPrecision = false);
 
 		/**
 		 * A destructor for this class
@@ -424,6 +451,17 @@ namespace pcpp
 		 * log will be printed) or if at least one of the packets wasn't written successfully to the file
 		 */
 		bool writePackets(const RawPacketVector& packets) override;
+
+		/**
+		 * @return The precision of the timestamps in the file.
+		 */
+		FileTimestampPrecision getTimestampPrecision() const { return m_Precision; }
+
+		/**
+		 * A static method that checks if nano-second precision is supported in the current platform and environment
+		 * @return True if nano-second precision is supported, false otherwise
+		 */
+		static bool isNanoSecondPrecisionSupported();
 
 		//override methods
 
