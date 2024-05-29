@@ -27,9 +27,17 @@ body:
         and put any code blocks inside triple backticks.
 
       value: |
-        ```cpp
-        # Add a code block here, if required
-        ```
+      **Describe the bug**
+      A clear and concise description of what the bug is.
+
+      **Code example to reproduce**
+      ```cpp
+      // Add a code block here, if required
+      ```
+
+      **Expected behavior**
+      A clear and concise description of what you expected to happen.
+
     validations:
       required: true
   - type: dropdown
