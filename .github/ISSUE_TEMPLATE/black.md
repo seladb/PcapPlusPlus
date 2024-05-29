@@ -1,5 +1,5 @@
 ---
-name: Blank Issue
+name: Blank issue
 about: Report a issue with no specific category
 labels: ""
 ---
