@@ -89,7 +89,7 @@ body:
       required: true
   - type: dropdown
     attributes:
-      label: Packet capture backend (if applicable):
+      label: "Packet capture backend (if applicable):"
       multiple: true
       options:
         - libpcap
