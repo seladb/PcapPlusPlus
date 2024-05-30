@@ -402,11 +402,11 @@ void PcapLiveDevice::close()
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
-PcapLiveDevice* PcapLiveDevice::clone()
+PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	PcapLiveDevice *retval = nullptr;
+	PcapLiveDevice* retval = nullptr;
 
-	pcap_if_t *interfaceList;
+	pcap_if_t* interfaceList;
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int err = pcap_findalldevs(&interfaceList, errbuf);
 	if (err < 0)
@@ -424,12 +424,17 @@ PcapLiveDevice* PcapLiveDevice::clone()
 	}
 
 	if(currInterface)
-		retval = new PcapLiveDevice(currInterface, true, true, true);
+		retval = cloneInternal(*currInterface);
 	else
 		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
 
 	pcap_freealldevs(interfaceList);
 	return retval;
+}
+
+PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+{
+	return new PcapLiveDevice(&devInterface, true, true, true);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
