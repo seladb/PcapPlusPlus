@@ -328,8 +328,26 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	// Test of clone device should be same with original
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
+
+	{
+		pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+		PTF_ASSERT_NOT_NULL(originalDev);
+
+#ifdef _WIN32
+		// Tests if device pointer points to a Windows Live Device on a Windows machine.
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(originalDev));
+#endif // _WIN32
+
+		liveDev = originalDev->clone();
+	}
+
 	PTF_ASSERT_NOT_NULL(liveDev);
+
+#ifdef _WIN32
+	// Tests if the clone is correctly returns a Windows Live Device on Windows systems.
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(liveDev));
+#endif // _WIN32
+
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev, true);
