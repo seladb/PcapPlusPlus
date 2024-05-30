@@ -31,7 +31,7 @@ namespace pcpp {
 		{LdapOperationType::Unknown,               "Unknown"}
 	};
 
-	const std::unordered_map<uint8_t, LdapOperationType> IntToLdapOperationType{
+	const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
 		{static_cast<uint8_t>(LdapOperationType::BindRequest), LdapOperationType::BindRequest},
 		{static_cast<uint8_t>(LdapOperationType::BindResponse), LdapOperationType::BindResponse},
 		{static_cast<uint8_t>(LdapOperationType::UnbindRequest), LdapOperationType::UnbindRequest},
@@ -59,11 +59,11 @@ namespace pcpp {
 		return LdapOperationTypeToString.at(m_Value);
 	}
 
-	LdapOperationType LdapOperationType::fromIntValue(uint8_t value)
+	LdapOperationType LdapOperationType::fromUintValue(uint8_t value)
 	{
-		if (IntToLdapOperationType.find(value) != IntToLdapOperationType.end())
+		if (UintToLdapOperationType.find(value) != UintToLdapOperationType.end())
 		{
-			return IntToLdapOperationType.at(value);
+			return UintToLdapOperationType.at(value);
 		}
 
 		return LdapOperationType::Unknown;
@@ -137,7 +137,7 @@ namespace pcpp {
 		try
 		{
 			auto asn1Record = Asn1Record::decode(data, dataLen, true);
-			auto operationType = LdapOperationType::fromIntValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(1)->getTagType());
+			auto operationType = LdapOperationType::fromUintValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(1)->getTagType());
 			if (operationType != LdapOperationType::Unknown)
 			{
 				return new LdapLayer(asn1Record, data, dataLen, prevLayer, packet);
@@ -192,7 +192,7 @@ namespace pcpp {
 
 	LdapOperationType LdapLayer::getLdapOperationType() const
 	{
-		return LdapOperationType::fromIntValue(getLdapOperationAsn1Record()->getTagType());
+		return LdapOperationType::fromUintValue(getLdapOperationAsn1Record()->getTagType());
 	}
 
 	void LdapLayer::parseNextLayer()

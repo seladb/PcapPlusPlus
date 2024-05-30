@@ -91,7 +91,7 @@ namespace pcpp
 		 * @return The operation type that corresponds to the integer value. If the integer value
 		 * doesn't corresponds to any operation type, LdapOperationType::Unknown is returned
 		 */
-		static LdapOperationType fromIntValue(uint8_t value);
+		static LdapOperationType fromUintValue(uint8_t value);
 
 		// Allow switch and comparisons.
 		constexpr operator Value() const { return m_Value; }
