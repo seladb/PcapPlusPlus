@@ -6,7 +6,7 @@ namespace pcpp {
 
 	// region LdapOperationType
 
-	const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType>> LdapOperationTypeToString{
+	const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
 		{LdapOperationType::BindRequest,           "BindRequest"},
 		{LdapOperationType::BindResponse,          "BindResponse"},
 		{LdapOperationType::UnbindRequest,         "UnbindRequest"},

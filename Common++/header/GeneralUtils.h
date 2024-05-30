@@ -2,6 +2,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <type_traits>
 
 /// @file
 
@@ -69,12 +70,12 @@ namespace pcpp
 	 * A template class to calculate enum class hash
 	 * @tparam EnumClass
 	 */
-	template<typename EnumClass>
+	template<typename EnumClass, typename std::enable_if<std::is_enum<EnumClass>::value , bool>::type = false>
 	struct EnumClassHash
 	{
 		size_t operator()(const EnumClass& value) const
 		{
-			return static_cast<int>(value);
+			return static_cast<typename std::underlying_type<EnumClass>::type>(value);
 		}
 	};
 }
