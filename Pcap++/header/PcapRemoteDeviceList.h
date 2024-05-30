@@ -17,21 +17,6 @@
 */
 namespace pcpp
 {
-	namespace internal
-	{
-		// In internal namespace as you are not supposed to use this type directly, but through PcapRemoteDeviceList::RemoteDeviceListIterator.
-		template <class T>
-		class PcapDeviceListConstIterator
-		{
-		public:
-			using iterator_category = std::input_iterator_tag;
-			using value_type = T;
-			using difference_type = std::ptrdiff_t;
-			using pointer = const value_type*;
-			using reference = const value_type&;
-		};
-	}
-
 	/**
 	 * @class PcapRemoteDeviceList
 	 * A class that creates, stores and provides access to all instances of PcapRemoteDevice for a certain remote machine. To get an instance
