@@ -10,8 +10,9 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
+#include <array>
 #include <memory>
-#include <sstream>
+#include <cstdio>
 #if defined(_WIN32)
 #include "PcapRemoteDevice.h"
 #include "PcapRemoteDeviceList.h"
@@ -98,17 +99,60 @@ class RpcapdServerInitializer
 {
 private:
 	HANDLE m_ProcessHandle;
+	HANDLE m_JobHandle;
 
+	void killProcessAndCloseHandles()
+	{
+		if (m_ProcessHandle != nullptr)
+		{
+			TerminateProcess(m_ProcessHandle, 0);
+			CloseHandle(m_ProcessHandle);
+			m_ProcessHandle = nullptr;
+		}
+
+		if (m_JobHandle != nullptr)
+		{
+			CloseHandle(m_JobHandle);
+			m_JobHandle = nullptr;
+		}
+	}
 public:
-
-	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port) : m_ProcessHandle(nullptr)
+	RpcapdServerInitializer(bool activateRemoteDevice, const std::string& ip, uint16_t port)
+		: m_ProcessHandle(nullptr), m_JobHandle(nullptr)
 	{
 		if (!activateRemoteDevice)
 			return;
 
 		std::string cmd = "rpcapd\\rpcapd.exe";
-		std::ostringstream args;
-		args << "rpcapd\\rpcapd.exe -b " << ip << " -p " << port << " -n";
+		std::array<char, 256> args;
+		int res = std::snprintf(args.data(), args.size(), "%s -b %s -p %d -n", cmd.c_str(), ip.c_str(), port);
+		if (res < 0)
+		{
+			throw std::runtime_error("Error during string formatting");
+		}
+		else if (res >= args.size())
+		{
+			// We should never get here with reasonable input but you never know.
+			throw std::runtime_error("Buffer overflow. Are you sure the IP is a valid string?");
+		}
+
+		m_JobHandle = CreateJobObject(nullptr, nullptr);
+		if (m_JobHandle == nullptr)
+		{
+			throw std::runtime_error("Failed to create a job object with error code: " + std::to_string(GetLastError()));
+		}
+
+		// Sets up the job limits so closing the job will automatically kill all processes assigned to the job.
+		// This will prevent the subprocess continuing to live if the current process is killed without unwinding the stack (i.e. std::terminate is called),
+		// as the OS itself will kill the subprocesses when the last job handle is closed.
+		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimitInfo{};
+		jobLimitInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+		if (!SetInformationJobObject(m_JobHandle, JobObjectExtendedLimitInformation, &jobLimitInfo, sizeof(jobLimitInfo)))
+		{
+			DWORD errCode = GetLastError();
+			CloseHandle(m_JobHandle);
+			throw std::runtime_error("Failed to set settings to job object with error code: " + std::to_string(errCode));
+		}
 
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -116,36 +160,54 @@ public:
 		ZeroMemory( &si, sizeof(si) );
 		si.cb = sizeof(si);
 		ZeroMemory( &pi, sizeof(pi) );
-		if (!CreateProcess
-				(
+		if (!CreateProcess (
 				TEXT(cmd.c_str()),
-				const_cast<char*>(TEXT(args.str().c_str())), // TODO: This can potentially cause access violation if Unicode version CreateProcessW is chosen.
-				NULL,NULL,FALSE,
+				// CreateProcessW (Unicode version) modifies the argument string inplace during internal processing.
+				TEXT(args.data()),
+				nullptr, nullptr, false,
 				CREATE_NEW_CONSOLE,
-				NULL,NULL,
+				nullptr, nullptr,
 				&si,
 				&pi
-				)
-				)
-			{
-				m_ProcessHandle = NULL;
-				PCPP_LOG_ERROR("Create process failed " << static_cast<int>(GetLastError()));
-				return;
-			}
+		))
+		{
+			DWORD errCode = GetLastError();
+			CloseHandle(m_JobHandle);
+			throw std::runtime_error("Create process failed with error code: " + std::to_string(errCode));
+		}
 
 		m_ProcessHandle = pi.hProcess;
-	}
+		CloseHandle(pi.hThread); // We don't need the thread handle, so we can close it.
 
-	~RpcapdServerInitializer()
-	{
-		if (m_ProcessHandle != NULL)
+		if (!AssignProcessToJobObject(m_JobHandle, m_ProcessHandle))
 		{
-			TerminateProcess(m_ProcessHandle, 0);
-			CloseHandle(m_ProcessHandle);
+			DWORD errCode = GetLastError();
+			killProcessAndCloseHandles();
+			throw std::runtime_error("Failed assigning process to job object with code: " + std::to_string(errCode));
 		}
 	}
 
-	HANDLE getHandle() { return m_ProcessHandle; }
+	RpcapdServerInitializer(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer(RpcapdServerInitializer&& other) noexcept
+		: m_ProcessHandle(other.m_ProcessHandle), m_JobHandle(other.m_JobHandle)
+	{
+		other.m_ProcessHandle = nullptr;
+		other.m_JobHandle = nullptr;
+	}
+	RpcapdServerInitializer& operator=(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer& operator=(RpcapdServerInitializer&& other) noexcept
+	{
+		killProcessAndCloseHandles();
+		m_ProcessHandle = other.m_ProcessHandle;
+		m_JobHandle = other.m_JobHandle;
+		other.m_ProcessHandle = nullptr;
+		other.m_JobHandle = nullptr;
+		return *this;
+	}
+
+	~RpcapdServerInitializer() { killProcessAndCloseHandles(); }
+
+	HANDLE getHandle() const { return m_ProcessHandle; }
 };
 
 #endif // defined(_WIN32)
@@ -340,7 +402,25 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 		pcpp::PcapLiveDevice* liveDev = nullptr;
 		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
+		{
+			pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+			PTF_ASSERT_NOT_NULL(originalDev);
+
+#ifdef _WIN32
+			// Tests if device pointer points to a Windows Live Device on a Windows machine.
+			PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(originalDev));
+#endif // _WIN32
+
+			liveDev = originalDev->clone();
+		}
+
 		PTF_ASSERT_NOT_NULL(liveDev);
+
+#ifdef _WIN32
+	// Tests if the clone is correctly returns a Windows Live Device on Windows systems.
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(liveDev));
+#endif // _WIN32
+
 		PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 		PTF_ASSERT_TRUE(liveDev->open());
 		DeviceTeardown devTeardown(liveDev, true);
@@ -379,6 +459,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 		std::unique_ptr<pcpp::PcapLiveDevice> liveDev = nullptr;
 		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch, pcpp::SmartPtrApi)->clone(pcpp::SmartPtrApi);
+		// TODO: Add unit test for WinPcapLiveDevice check.
 		PTF_ASSERT_NOT_NULL(liveDev);
 		PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 		PTF_ASSERT_TRUE(liveDev->open());

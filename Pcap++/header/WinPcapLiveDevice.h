@@ -55,6 +55,9 @@ namespace pcpp
 		 * setMinAmountOfDataToCopyFromKernelToApplication())
 		 */
 		int getMinAmountOfDataToCopyFromKernelToApplication() const { return m_MinAmountOfDataToCopyFromKernelToApplication; }
+
+	protected:
+		WinPcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const override;
 	};
 
 } // namespace pcpp

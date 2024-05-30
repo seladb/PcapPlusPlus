@@ -423,11 +423,16 @@ std::unique_ptr<PcapLiveDevice> PcapLiveDevice::clone(SmartPtrApiTag apiTag) con
 	{
 		if (!strcmp(currInterface->name, getName().c_str()))
 		{
-			return std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
+			return std::unique_ptr<PcapLiveDevice>(cloneInternal(*currInterface));
 		}
 	}
 	PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
 	return nullptr;
+}
+
+PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+{
+	return new PcapLiveDevice(&devInterface, true, true, true);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
