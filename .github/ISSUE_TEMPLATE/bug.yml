@@ -55,7 +55,7 @@ body:
       required: true
   - type: input
     attributes:
-      label: Other PcapPlusPlus version (if applicable):
+      label: "Other PcapPlusPlus version (if applicable):"
       description: If you select "Other", please specify the version of PcapPlusPlus you tested on.
       placeholder: ex. Build with commit hash 1234567
     validations:
@@ -75,14 +75,14 @@ body:
       required: true
   - type: input
     attributes:
-      label: Other operation systems (if applicable):
+      label: "Other operation systems (if applicable):"
       description: If you select "Other", please specify the operation system you tested on.
       placeholder: ex. ChromeOS, Solaris
     validations:
       required: false
   - type: input
     attributes:
-      label: Compiler version:
+      label: "Compiler version:"
       description: Please specify the compiler version you used.
       placeholder: ex. GCC 10.2.0
     validations:
