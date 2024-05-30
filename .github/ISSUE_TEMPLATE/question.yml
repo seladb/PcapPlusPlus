@@ -9,7 +9,7 @@ body:
         If you have a question about PcapPlusPlus, please check the following resources before opening a new issue:
         - [PcapPlusPlus documentation](https://pcapplusplus.github.io/docs/quickstart)
         - [PcapPlusPlus API reference](https://pcapplusplus.github.io/docs/api)
-        - [GIthub issues tracker](https://github.com/seladb/PcapPlusPlus/issues)
+        - [GitHub issues tracker](https://github.com/seladb/PcapPlusPlus/issues)
 
   - type: textarea
     attributes:
