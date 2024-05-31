@@ -265,6 +265,103 @@ namespace pcpp
 		}
 	};
 
+	class LdapSearchRequestLayer : public LdapLayer
+	{
+	public:
+		class SearchRequestScope
+		{
+		public:
+			enum Value : uint8_t
+			{
+				BaseObject = 0,
+				SingleLevel = 1,
+				WholeSubtree = 2,
+				Unknown = 255
+			};
+
+			SearchRequestScope() = default;
+
+			constexpr SearchRequestScope(Value value) : m_Value(value) {}
+
+			std::string toString() const;
+
+			static SearchRequestScope fromUintValue(uint8_t value);
+
+			// Allow switch and comparisons.
+			constexpr operator Value() const { return m_Value; }
+
+			// Prevent usage: if(LdapOperationType)
+			explicit operator bool() const = delete;
+		private:
+			Value m_Value;
+		};
+
+		class DerefAliases
+		{
+		public:
+			enum Value : uint8_t
+			{
+				NeverDerefAliases = 0,
+				DerefInSearching = 1,
+				DerefFindingBaseObj = 2,
+				DerefAlways = 3,
+				Unknown = 255
+			};
+
+			DerefAliases() = default;
+
+			constexpr DerefAliases(Value value) : m_Value(value) {}
+
+			std::string toString() const;
+
+			static DerefAliases fromUintValue(uint8_t value);
+
+			// Allow switch and comparisons.
+			constexpr operator Value() const { return m_Value; }
+
+			// Prevent usage: if(LdapOperationType)
+			explicit operator bool() const = delete;
+		private:
+			Value m_Value;
+		};
+
+		LdapSearchRequestLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(asn1Record, data, dataLen, prevLayer, packet) {}
+
+		LdapSearchRequestLayer(
+			uint16_t messageId, const std::string& baseObject, SearchRequestScope scope, DerefAliases derefAliases,
+			uint8_t sizeLimit, uint8_t timeLimit, bool typesOnly, Asn1Record* filterRecord,
+			const std::vector<std::string>& attributes, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		std::string getBaseObject() const;
+		SearchRequestScope getScope() const;
+		DerefAliases getDerefAlias() const;
+		uint8_t getSizeLimit() const;
+		uint8_t getTimeLimit() const;
+		bool getTypesOnly() const;
+		Asn1Record* getFilter() const;
+		std::vector<std::string> getAttributes() const;
+
+		template <typename T, typename Member>
+		bool tryGet(Member member, T& result)
+		{
+			return internalTryGet(this, member, result);
+		}
+
+	protected:
+		static constexpr int baseObjectIndex = 0;
+		static constexpr int scopeIndex = 1;
+		static constexpr int derefAliasIndex = 2;
+		static constexpr int sizeLimitIndex = 3;
+		static constexpr int timeLimitIndex = 4;
+		static constexpr int typesOnlyIndex = 5;
+		static constexpr int filterIndex = 6;
+		static constexpr int attributesIndex = 7;
+
+		std::string getExtendedStringInfo() const override;
+	};
+
+
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
