@@ -19,7 +19,7 @@ body:
         You can check more information about how to report a bug in the [PcapPlusPlus page](https://pcapplusplus.github.io/community#report-an-issue).
   - type: textarea
     attributes:
-      label: "Bug description:"
+      label: "Bug description"
       description: >
         Give a clear and concise description of what happened.
         Include a [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example) if possible.
@@ -41,7 +41,7 @@ body:
       required: true
   - type: dropdown
     attributes:
-      label: "PcapPlusPlus versions tested on:"
+      label: "PcapPlusPlus versions tested on"
       multiple: true
       options:
         - "PcapPlusPlus master branch"
@@ -55,14 +55,14 @@ body:
       required: true
   - type: input
     attributes:
-      label: "Other PcapPlusPlus version (if applicable):"
+      label: "Other PcapPlusPlus version (if applicable)"
       description: If you select "Other", please specify the version of PcapPlusPlus you tested on.
       placeholder: ex. Build with commit hash 1234567
     validations:
       required: false
   - type: dropdown
     attributes:
-      label: "Operating systems tested on:"
+      label: "Operating systems tested on"
       multiple: true
       options:
         - Linux
@@ -75,21 +75,21 @@ body:
       required: true
   - type: input
     attributes:
-      label: "Other operation systems (if applicable):"
+      label: "Other operation systems (if applicable)"
       description: If you select "Other", please specify the operation system you tested on.
       placeholder: ex. ChromeOS, Solaris
     validations:
       required: false
   - type: input
     attributes:
-      label: "Compiler version:"
+      label: "Compiler version"
       description: Please specify the compiler version you used.
       placeholder: ex. GCC 10.2.0
     validations:
       required: true
   - type: dropdown
     attributes:
-      label: "Packet capture backend (if applicable):"
+      label: "Packet capture backend (if applicable)"
       multiple: true
       options:
         - libpcap
