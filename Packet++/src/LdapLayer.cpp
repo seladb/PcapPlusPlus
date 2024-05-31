@@ -137,7 +137,7 @@ namespace pcpp {
 		try
 		{
 			auto asn1Record = Asn1Record::decode(data, dataLen, true);
-			auto operationType = LdapOperationType::fromUintValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(1)->getTagType());
+			auto operationType = LdapOperationType::fromUintValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(operationTypeIndex)->getTagType());
 			if (operationType != LdapOperationType::Unknown)
 			{
 				return new LdapLayer(asn1Record, data, dataLen, prevLayer, packet);
@@ -158,31 +158,31 @@ namespace pcpp {
 
 	Asn1ConstructedRecord* LdapLayer::getLdapOperationAsn1Record() const
 	{
-		return getRootAsn1Record()->getSubRecords().at(1)->castAs<Asn1ConstructedRecord>();
+		return getRootAsn1Record()->getSubRecords().at(operationTypeIndex)->castAs<Asn1ConstructedRecord>();
 	}
 
 	uint16_t LdapLayer::getMessageID() const
 	{
-		return getRootAsn1Record()->getSubRecords().at(0)->castAs<Asn1IntegerRecord>()->getValue();
+		return getRootAsn1Record()->getSubRecords().at(messageIdIndex)->castAs<Asn1IntegerRecord>()->getValue();
 	}
 
 	std::vector<LdapControl> LdapLayer::getControls() const
 	{
 		std::vector<LdapControl> controls;
-		if (getRootAsn1Record()->getSubRecords().size() < 3)
+		if (getRootAsn1Record()->getSubRecords().size() <= controlsIndex)
 		{
 			return controls;
 		}
 
-		auto controlsRecord = getRootAsn1Record()->getSubRecords().at(2)->castAs<Asn1ConstructedRecord>();
+		auto controlsRecord = getRootAsn1Record()->getSubRecords().at(controlsIndex)->castAs<Asn1ConstructedRecord>();
 		for (auto controlRecord : controlsRecord->getSubRecords())
 		{
 			auto controlSequence = controlRecord->castAs<Asn1SequenceRecord>();
-			auto controlType = controlSequence->getSubRecords().at(0)->castAs<Asn1OctetStringRecord>()->getValue();
+			auto controlType = controlSequence->getSubRecords().at(controlTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 			std::string controlValue;
-			if (controlSequence->getSubRecords().size() > 1)
+			if (controlSequence->getSubRecords().size() > controlValueIndex)
 			{
-				controlValue = controlSequence->getSubRecords().at(1)->castAs<Asn1OctetStringRecord>()->getValue();
+				controlValue = controlSequence->getSubRecords().at(controlValueIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 			}
 			controls.push_back({ controlType, controlValue });
 		}

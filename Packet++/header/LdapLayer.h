@@ -243,6 +243,13 @@ namespace pcpp
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
 		virtual std::string getExtendedStringInfo() const { return ""; }
 
+		static constexpr int messageIdIndex = 0;
+		static constexpr int operationTypeIndex = 1;
+		static constexpr int controlsIndex = 2;
+
+		static constexpr int controlTypeIndex = 0;
+		static constexpr int controlValueIndex = 1;
+
 		template <typename LdapClass, typename Method, typename ResultType>
 		bool internalTryGet(LdapClass* thisPtr, Method method, ResultType& result)
 		{
