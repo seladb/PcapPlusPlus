@@ -265,12 +265,23 @@ namespace pcpp
 		}
 	};
 
+	/**
+	 * @class LdapSearchRequestLayer
+	 * Represents LDAP search request operation
+	 */
 	class LdapSearchRequestLayer : public LdapLayer
 	{
 	public:
+		/**
+		 * @class SearchRequestScope
+		 * @brief An enum wrapper class for LDAP search request scope
+		 */
 		class SearchRequestScope
 		{
 		public:
+			/**
+			 * Define enum types and the corresponding int values
+			 */
 			enum Value : uint8_t
 			{
 				BaseObject = 0,
@@ -281,10 +292,23 @@ namespace pcpp
 
 			SearchRequestScope() = default;
 
+			/**
+			 * Construct SearchRequestScope from Value enum
+			 * @param[in] value the scope enum value
+			 */
 			constexpr SearchRequestScope(Value value) : m_Value(value) {}
 
+			/**
+			 * @return A string representation of the scope value
+			 */
 			std::string toString() const;
 
+			/**
+			 * A static method that creates SearchRequestScope from an integer value
+			 * @param[in] value The scope integer value
+			 * @return The scope that corresponds to the integer value. If the integer value
+			 * doesn't corresponds to any enum value, SearchRequestScope::Unknown is returned
+			 */
 			static SearchRequestScope fromUintValue(uint8_t value);
 
 			// Allow switch and comparisons.
@@ -296,24 +320,48 @@ namespace pcpp
 			Value m_Value;
 		};
 
+		/**
+		 * @class DerefAliases
+		 * @brief An enum wrapper class for LDAP search request dereferencing aliases
+		 */
 		class DerefAliases
 		{
 		public:
+			/**
+			 * Define enum types and the corresponding int values
+			 */
 			enum Value : uint8_t
 			{
+				/// Never dereferences aliase
 				NeverDerefAliases = 0,
+				/// Dereferences aliases only after name resolution
 				DerefInSearching = 1,
+				/// Dereferences aliases only during name resolution
 				DerefFindingBaseObj = 2,
+				/// Always dereference aliases
 				DerefAlways = 3,
 				Unknown = 255
 			};
 
 			DerefAliases() = default;
 
+			/**
+			 * Construct DerefAliases from Value enum
+			 * @param[in] value the dereference alias enum value
+			 */
 			constexpr DerefAliases(Value value) : m_Value(value) {}
 
+			/**
+			 * @return A string representation of the dereference alias value
+			 */
 			std::string toString() const;
 
+			/**
+			 * A static method that creates DerefAliases from an integer value
+			 * @param[in] value The dereference alias integer value
+			 * @return The dereference alias that corresponds to the integer value. If the integer value
+			 * doesn't corresponds to any enum value, DerefAliases::Unknown is returned
+			 */
 			static DerefAliases fromUintValue(uint8_t value);
 
 			// Allow switch and comparisons.
