@@ -61,9 +61,10 @@ namespace pcpp {
 
 	LdapOperationType LdapOperationType::fromUintValue(uint8_t value)
 	{
-		if (UintToLdapOperationType.find(value) != UintToLdapOperationType.end())
+		auto result = UintToLdapOperationType.find(value);
+		if (result != UintToLdapOperationType.end())
 		{
-			return UintToLdapOperationType.at(value);
+			return result->second;
 		}
 
 		return LdapOperationType::Unknown;
