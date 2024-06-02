@@ -335,6 +335,7 @@ namespace pcpp
 
 			SearchRequestScope() = default;
 
+			// cppcheck-suppress noExplicitConstructor
 			/**
 			 * Construct SearchRequestScope from Value enum
 			 * @param[in] value the scope enum value
@@ -389,6 +390,7 @@ namespace pcpp
 
 			DerefAliases() = default;
 
+			// cppcheck-suppress noExplicitConstructor
 			/**
 			 * Construct DerefAliases from Value enum
 			 * @param[in] value the dereference alias enum value
