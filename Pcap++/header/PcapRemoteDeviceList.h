@@ -32,7 +32,7 @@ namespace pcpp
 	private:
 		std::vector<std::shared_ptr<PcapRemoteDevice>> m_RemoteDeviceList;
 		// View vector to help keep backward compatibility of iteration.
-		std::vector<PcapRemoteDevice*> m_RemoteDeviceListView;
+		mutable std::vector<PcapRemoteDevice*> m_RemoteDeviceListView;
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
@@ -40,7 +40,7 @@ namespace pcpp
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
 		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<std::shared_ptr<PcapRemoteDevice>> deviceList);
 
-		void updateDeviceListView();
+		void updateDeviceListView() const;
 
 		// Implementation that uses a shared ptr is private to guarantee that the remote auth object is not shared externally.
 		// It is used by the other overloads for casting different kinds of pointers/references into shared_ptr.
