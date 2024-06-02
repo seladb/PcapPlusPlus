@@ -80,7 +80,7 @@ namespace pcpp {
 		init(messageId, operationType, messageRecords, controls);
 	}
 
-	LdapLayer::LdapLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
+	LdapLayer::LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 	{
 		m_Protocol = LDAP;
 		m_Asn1Record = std::move(asn1Record);
@@ -142,16 +142,14 @@ namespace pcpp {
 			switch (operationType)
 			{
 				case LdapOperationType::SearchRequest:
-					return new LdapSearchRequestLayer(asn1Record, data, dataLen, prevLayer, packet);
+					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchResultEntry:
-					return new LdapSearchResultEntryLayer(asn1Record, data, dataLen, prevLayer, packet);
+					return new LdapSearchResultEntryLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::Unknown:
 					return nullptr;
 				default:
-					return new LdapLayer(asn1Record, data, dataLen, prevLayer, packet);
+					return new LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 			}
-
-			return nullptr;
 		}
 		catch (...)
 		{

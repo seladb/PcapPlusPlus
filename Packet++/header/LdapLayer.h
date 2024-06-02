@@ -261,7 +261,7 @@ namespace pcpp
 	protected:
 		std::unique_ptr<Asn1Record> m_Asn1Record;
 
-		LdapLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		LdapLayer() = default;
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
 		virtual std::string getExtendedStringInfo() const { return ""; }
@@ -507,8 +507,8 @@ namespace pcpp
 		static constexpr int filterIndex = 6;
 		static constexpr int attributesIndex = 7;
 
-		LdapSearchRequestLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(asn1Record, data, dataLen, prevLayer, packet) {}
+		LdapSearchRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 
 
 		std::string getExtendedStringInfo() const override;
@@ -556,8 +556,8 @@ namespace pcpp
 		static constexpr int attributeTypeIndex = 0;
 		static constexpr int attributeValueIndex = 1;
 
-		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(asn1Record, data, dataLen, prevLayer, packet) {}
+		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 	};
 } // namespace pcpp
 
