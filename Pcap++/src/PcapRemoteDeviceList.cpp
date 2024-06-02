@@ -20,7 +20,7 @@ PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress &ipAddress, uint16_t 
 	updateDeviceListView();
 }
 
-void PcapRemoteDeviceList::updateDeviceListView()
+void PcapRemoteDeviceList::updateDeviceListView() const
 {
 	// Technically if a device is removed and a different device is added, it might cause issues,
 	// but as far as I can see the LiveDeviceList is only modified on construction and reset, and that is a whole list
