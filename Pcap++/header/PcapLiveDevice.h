@@ -592,7 +592,7 @@ namespace pcpp
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
 
-		virtual PcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const;
+		virtual std::unique_ptr<PcapLiveDevice> cloneInternal(pcap_if_t& devInterface) const;
 	};
 
 } // namespace pcpp
