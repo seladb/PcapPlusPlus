@@ -401,7 +401,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 		// Test of clone device should be same with original
 		pcpp::PcapLiveDevice* liveDev = nullptr;
 		pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-		liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
 		{
 			pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
 			PTF_ASSERT_NOT_NULL(originalDev);
