@@ -4,6 +4,7 @@
 #include "Asn1Codec.h"
 #include <ostream>
 #include <string>
+#include <functional>
 
 /// @file
 
@@ -255,7 +256,7 @@ namespace pcpp
 		{
 			try
 			{
-				result = (thisPtr->*method)();
+				result = std::mem_fn(method)(thisPtr);
 				return true;
 			}
 			catch (...)
