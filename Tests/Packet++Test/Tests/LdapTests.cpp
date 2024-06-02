@@ -144,6 +144,25 @@ PTF_TEST_CASE(LdapParsingTest)
 		};
 		PTF_ASSERT_VECTORS_EQUAL(attributes, expectedAttributes);
 	}
+
+	// SearchResultEntry
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_entry.dat");
+		pcpp::Packet searchResEntryPacket(&rawPacket1);
+
+		auto searchResultEntryLayer = searchResEntryPacket.getLayerOfType<pcpp::LdapSearchResultEntryLayer>();
+		PTF_ASSERT_NOT_NULL(searchResultEntryLayer);
+		PTF_ASSERT_EQUAL(searchResultEntryLayer->getMessageID(), 16);
+		PTF_ASSERT_EQUAL(searchResultEntryLayer->getLdapOperationType(), pcpp::LdapOperationType::SearchResultEntry, enum);
+		PTF_ASSERT_EQUAL(searchResultEntryLayer->getObjectName(), "cn=b.smith,ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org");
+		std::vector<pcpp::LdapAttribute> expectedAttributes = {
+			{"objectclass", {"inetOrgPerson", "organizationalPerson", "person", "top"}},
+			{"sn",          {"Young"}},
+			{"cn",          {"b.smith"}},
+			{"givenname",   {"Beatrix"}}
+		};
+		PTF_ASSERT_VECTORS_EQUAL(searchResultEntryLayer->getAttributes(), expectedAttributes);
+	}
 } // LdapParsingTest
 
 
@@ -241,5 +260,26 @@ PTF_TEST_CASE(LdapCreationTest)
 
 		PTF_ASSERT_BUF_COMPARE(searchRequestLayer.getData(), expectedSearchRequestLayer->getData(),
 			expectedSearchRequestLayer->getDataLen());
+	}
+
+	// SearchResultEntry
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_entry.dat");
+		pcpp::Packet searchResultEntryPacket(&rawPacket1);
+
+		std::vector<pcpp::LdapAttribute> attributes = {
+			{"objectclass", {"inetOrgPerson", "organizationalPerson", "person", "top"}},
+			{"sn",          {"Young"}},
+			{"cn",          {"b.smith"}},
+			{"givenname",   {"Beatrix"}}
+		};
+
+		pcpp::LdapSearchResultEntryLayer searchResultEntryLayer(16, "cn=b.smith,ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org", attributes);
+
+		auto expectedSearchResultEntryLayer = searchResultEntryPacket.getLayerOfType<pcpp::LdapSearchResultEntryLayer>();
+		PTF_ASSERT_NOT_NULL(expectedSearchResultEntryLayer);
+
+		PTF_ASSERT_BUF_COMPARE(searchResultEntryLayer.getData(), expectedSearchResultEntryLayer->getData(),
+			expectedSearchResultEntryLayer->getDataLen());
 	}
 } // LdapCreationTest

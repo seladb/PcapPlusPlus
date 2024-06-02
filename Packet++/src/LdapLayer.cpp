@@ -143,6 +143,8 @@ namespace pcpp {
 			{
 				case LdapOperationType::SearchRequest:
 					return new LdapSearchRequestLayer(asn1Record, data, dataLen, prevLayer, packet);
+				case LdapOperationType::SearchResultEntry:
+					return new LdapSearchResultEntryLayer(asn1Record, data, dataLen, prevLayer, packet);
 				case LdapOperationType::Unknown:
 					return nullptr;
 				default:
@@ -347,4 +349,63 @@ namespace pcpp {
 	}
 
 	// endregion
+
+// region LdapSearchResultEntryLayer
+
+	LdapSearchResultEntryLayer::LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
+		const std::vector<LdapAttribute>& attributes, const std::vector<LdapControl>& controls)
+	{
+		PointerVector<Asn1Record> attributesSubRecords;
+		for (const auto& attribute : attributes)
+		{
+			PointerVector<Asn1Record> valuesSubRecords;
+			for (const auto& value : attribute.values)
+			{
+				valuesSubRecords.pushBack(new Asn1OctetStringRecord(value));
+			}
+
+			Asn1OctetStringRecord typeRecord(attribute.type);
+			Asn1SetRecord valuesRecord(valuesSubRecords);
+
+			attributesSubRecords.pushBack(new Asn1SequenceRecord({&typeRecord, &valuesRecord}));
+		}
+
+		Asn1OctetStringRecord objectNameRecord(objectName);
+		Asn1SequenceRecord attributesRecord(attributesSubRecords);
+
+		LdapLayer::init(messageId, LdapOperationType::SearchResultEntry, {&objectNameRecord, &attributesRecord}, controls);
+	}
+
+	std::string LdapSearchResultEntryLayer::getObjectName() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(objectNameIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::vector<LdapAttribute> LdapSearchResultEntryLayer::getAttributes() const
+	{
+		std::vector<LdapAttribute> result;
+
+		auto attributes = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		for (auto attributeRecord : attributes->getSubRecords())
+		{
+			auto attrAsSequence = attributeRecord->castAs<Asn1SequenceRecord>();
+
+			auto type = attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+
+			std::vector<std::string> values;
+			auto valuesRecord = attrAsSequence->getSubRecords().at(attributeValueIndex)->castAs<Asn1SetRecord>();
+
+			for (auto valueRecord : valuesRecord->getSubRecords())
+			{
+				values.push_back(valueRecord->castAs<Asn1OctetStringRecord>()->getValue());
+			}
+
+			LdapAttribute ldapAttribute = {type, values};
+			result.push_back(ldapAttribute);
+		}
+
+		return result;
+	}
+
+// endregion
 }

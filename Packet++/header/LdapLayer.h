@@ -127,6 +127,28 @@ namespace pcpp
 	};
 
 	/**
+	 * @struct LdapAttribute
+	 * A struct that represents an LDAP attribute
+	 */
+	struct LdapAttribute
+	{
+		/// Attribute description
+		std::string type;
+		/// A list of attribute values (zero or more)
+		std::vector<std::string> values;
+
+		/**
+		 * Equality operator overload for this struct
+		 * @param[in] other The value to compare with
+		 * @return True if both values are equal, false otherwise
+		 */
+		bool operator==(const LdapAttribute& other) const
+		{
+			return type == other.type && values == other.values;
+		}
+	};
+
+	/**
 	 * @class LdapLayer
 	 * Represents an LDAP message
 	 */
@@ -464,10 +486,10 @@ namespace pcpp
 		 */
 		std::vector<std::string> getAttributes() const;
 
-		template <typename T, typename Member>
-		bool tryGet(Member member, T& result)
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
 		{
-			return internalTryGet(this, member, result);
+			return internalTryGet(this, method, result);
 		}
 
 	protected:
@@ -489,11 +511,69 @@ namespace pcpp
 		std::string getExtendedStringInfo() const override;
 	};
 
+	/**
+	 * @class LdapSearchResultEntryLayer
+	 * Represents LDAP search result entry message
+	 */
+	class LdapSearchResultEntryLayer : public LdapLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP search result entry message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] objectName The entry's DN
+		 * @param[in] attributes The entry's attributes
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
+			const std::vector<LdapAttribute>& attributes,
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
+		/**
+		 * @return The entry's DN
+		 */
+		std::string getObjectName() const;
+
+		/**
+		 * @return The entry's attributes
+		 */
+		std::vector<LdapAttribute> getAttributes() const;
+
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
+		{
+			return internalTryGet(this, method, result);
+		}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		static constexpr int objectNameIndex = 0;
+		static constexpr int attributesIndex = 1;
+		static constexpr int attributeTypeIndex = 0;
+		static constexpr int attributeValueIndex = 1;
+
+		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(asn1Record, data, dataLen, prevLayer, packet) {}
+	};
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
 {
 	os << "{" << control.controlType << ", " << control.controlValue << "}";
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& attr)
+{
+	std::string valuesStream;
+	bool first = true;
+	for (const auto& value : attr.values)
+	{
+		if (!first) valuesStream += ", ";
+		valuesStream += value;
+		first = false;
+	}
+	os << "{" << attr.type << ", {" << valuesStream << "}}";
 	return os;
 }
