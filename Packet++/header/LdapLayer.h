@@ -360,7 +360,7 @@ namespace pcpp
 			// Prevent usage: if(LdapOperationType)
 			explicit operator bool() const = delete;
 		private:
-			Value m_Value;
+			Value m_Value = SearchRequestScope::Unknown;
 		};
 
 		/**
@@ -383,6 +383,7 @@ namespace pcpp
 				DerefFindingBaseObj = 2,
 				/// Always dereference aliases
 				DerefAlways = 3,
+				/// Unknown value
 				Unknown = 255
 			};
 
@@ -413,7 +414,7 @@ namespace pcpp
 			// Prevent usage: if(LdapOperationType)
 			explicit operator bool() const = delete;
 		private:
-			Value m_Value;
+			Value m_Value = DerefAliases::Unknown;
 		};
 
 		/**
