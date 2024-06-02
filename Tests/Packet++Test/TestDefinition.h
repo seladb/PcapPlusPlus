@@ -258,3 +258,7 @@ PTF_TEST_CASE(SmtpEditTests);
 // Implemented in Asn1Tests.cpp
 PTF_TEST_CASE(Asn1DecodingTest);
 PTF_TEST_CASE(Asn1EncodingTest);
+
+// Implemented in LdapTests.cpp
+PTF_TEST_CASE(LdapParsingTest);
+PTF_TEST_CASE(LdapCreationTest);

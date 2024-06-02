@@ -242,6 +242,15 @@ namespace pcpp
 		 */
 		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
 
+		/**
+		 * A constructor to create a generic record
+		 * @param tagClass The record tag class
+		 * @param isConstructed A flag to indicate if the record is constructed or primitive
+		 * @param tagType The record tag type value
+		 * @param value A string representing the tag value
+		 */
+		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const std::string& value);
+
 		~Asn1GenericRecord() override;
 
 		/**
@@ -257,6 +266,8 @@ namespace pcpp
 
 	private:
 		uint8_t* m_Value = nullptr;
+
+		void init(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
 	};
 
 	/**

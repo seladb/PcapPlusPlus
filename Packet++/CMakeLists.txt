@@ -25,6 +25,7 @@ add_library(
   src/IPv6Extensions.cpp
   src/IPv6Layer.cpp
   src/Layer.cpp
+  src/LdapLayer.cpp
   src/LLCLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
@@ -93,6 +94,7 @@ set(public_headers
     header/IPv6Extensions.h
     header/IPv6Layer.h
     header/Layer.h
+    header/LdapLayer.h
     header/LLCLayer.h
     header/MplsLayer.h
     header/NullLoopbackLayer.h

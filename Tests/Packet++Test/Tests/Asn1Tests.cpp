@@ -340,10 +340,30 @@ PTF_TEST_CASE(Asn1DecodingTest)
 
 PTF_TEST_CASE(Asn1EncodingTest)
 {
-	// Generic record
+	// Generic record with byte array value
 	{
 		uint8_t value[] = {0x6f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x63, 0x6c, 0x61, 0x73, 0x73};
 		pcpp::Asn1GenericRecord record(pcpp::Asn1TagClass::ContextSpecific, false, 7, value, 11);
+
+		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::ContextSpecific, enumclass);
+		PTF_ASSERT_FALSE(record.isConstructed());
+		PTF_ASSERT_EQUAL(record.getUniversalTagType(), pcpp::Asn1UniversalTagType::NotApplicable, enumclass);
+		PTF_ASSERT_EQUAL(record.getTotalLength(), 13);
+		PTF_ASSERT_EQUAL(record.getValueLength(), 11);
+		auto recordValue = std::string(record.getValue(), record.getValue() + record.getValueLength());
+		PTF_ASSERT_EQUAL(recordValue, "objectclass");
+
+		uint8_t data[20];
+		auto dataLen = pcpp::hexStringToByteArray("870b6f626a656374636c617373", data, 20);
+
+		auto encodedValue = record.encode();
+		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
+		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen)
+	}
+
+	// Generic record with string value
+	{
+		pcpp::Asn1GenericRecord record(pcpp::Asn1TagClass::ContextSpecific, false, 7, "objectclass");
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::ContextSpecific, enumclass);
 		PTF_ASSERT_FALSE(record.isConstructed());
