@@ -296,7 +296,7 @@ namespace pcpp
 			Sip405MethodNotAllowed,
 			/** The resource identified by the request is only capable of generating response entities that have content characteristics but not acceptable according to the Accept header field sent in the request */
 			Sip406NotAcceptable,
-			/** The request requires user authentication. This response is issued by proxys */
+			/** The request requires user authentication. This response is issued by proxies */
 			Sip407ProxyAuthenticationRequired,
 			/** Couldn't find the user in time. The server could not produce a response within a suitable amount of time, for example, if it could not determine the location of the user in time. The client MAY repeat the request without modifications at any later time */
 			Sip408RequestTimeout,
