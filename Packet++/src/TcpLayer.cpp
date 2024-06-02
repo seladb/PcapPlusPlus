@@ -16,6 +16,7 @@
 #include "FtpLayer.h"
 #include "SomeIpLayer.h"
 #include "SmtpLayer.h"
+#include "LdapLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
@@ -404,6 +405,12 @@ void TcpLayer::parseNextLayer()
 		m_NextLayer = new SmtpResponseLayer(payload, payloadLen, this, m_Packet);
 	else if (SmtpLayer::isSmtpPort(portDst) && SmtpLayer::isDataValid(payload, payloadLen))
 		m_NextLayer = new SmtpRequestLayer(payload, payloadLen, this, m_Packet);
+	else if (LdapLayer::isLdapPort(portDst) || LdapLayer::isLdapPort(portSrc))
+	{
+		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
+		if (!m_NextLayer)
+			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+	}
 	else
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 }

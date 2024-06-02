@@ -75,6 +75,30 @@
 		} \
 	}
 
+#define PTF_ASSERT_VECTORS_EQUAL(actual, expected, ...) \
+	{ \
+		if (actual != expected) {\
+			std::ostringstream actualOss, expectedOss; \
+			bool first = true; \
+			for (const auto& elem : actual) { \
+				if (!first) actualOss << ", "; \
+				actualOss << elem; \
+				first = false; \
+			} \
+			first = true; \
+			for (const auto& elem : expected) { \
+				if (!first) expectedOss << ", "; \
+				expectedOss << elem; \
+				first = false; \
+			} \
+			std::string actualValues = "[" + actualOss.str() + "]"; \
+			std::string expectedValues = "[" + expectedOss.str() + "]"; \
+			PTF_PRINT_COMPARE_ASSERTION_FAILED("VECTORS EQUAL", #actual, actualValues, #expected, expectedValues, __VA_ARGS__); \
+			ptfResult = PTF_RESULT_FAILED; \
+			return; \
+		} \
+	}
+
 #define PTF_ASSERT_NOT_EQUAL(actual, expected, ...) \
 	{ \
 		auto ptfActual = actual; \
