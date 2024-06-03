@@ -39,8 +39,9 @@ namespace pcpp
 			{
 				return sockaddr2in_addr(sa);
 			}
-			catch (const std::invalid_argument&)
+			catch (const std::invalid_argument& e)
 			{
+				PCPP_LOG_DEBUG("Extraction failed: " << e.what() << " Returning nullptr.");
 				return nullptr;
 			}
 		}
@@ -65,8 +66,9 @@ namespace pcpp
 			{
 				return sockaddr2in6_addr(sa);
 			}
-			catch (const std::invalid_argument&)
+			catch (const std::invalid_argument& e)
 			{
+				PCPP_LOG_DEBUG("Extraction failed: " << e.what() << " Returning nullptr.");
 				return nullptr;
 			}
 		}
