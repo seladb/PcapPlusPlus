@@ -236,7 +236,7 @@ void PcapLiveDeviceList::setDnsServers()
 		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
 		if (saddr == nullptr)
 			continue;
-		in_addr* inaddr = internal::sockaddr2in_addr(saddr);
+		in_addr* inaddr = internal::try_sockaddr2in_addr(saddr);
 		if (inaddr == nullptr)
 			continue;
 
@@ -280,7 +280,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");
@@ -313,7 +313,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");

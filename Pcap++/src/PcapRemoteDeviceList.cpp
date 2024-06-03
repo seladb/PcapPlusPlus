@@ -113,7 +113,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 			if (currAddr == NULL)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
@@ -147,7 +147,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 				PCPP_LOG_DEBUG("Searching address " << addrAsString);
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == NULL)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");

@@ -1099,7 +1099,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
 
-		in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+		in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
@@ -1129,7 +1129,7 @@ IPv6Address PcapLiveDevice::getIPv6Address() const
 			internal::sockaddr2string(addrIter.addr, addrAsString);
 			PCPP_LOG_DEBUG("Searching address " << addrAsString);
 		}
-		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+		in6_addr *currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
