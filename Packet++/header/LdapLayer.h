@@ -127,6 +127,28 @@ namespace pcpp
 	};
 
 	/**
+	 * @struct LdapAttribute
+	 * A struct that represents an LDAP attribute
+	 */
+	struct LdapAttribute
+	{
+		/// Attribute description
+		std::string type;
+		/// A list of attribute values (zero or more)
+		std::vector<std::string> values;
+
+		/**
+		 * Equality operator overload for this struct
+		 * @param[in] other The value to compare with
+		 * @return True if both values are equal, false otherwise
+		 */
+		bool operator==(const LdapAttribute& other) const
+		{
+			return type == other.type && values == other.values;
+		}
+	};
+
+	/**
 	 * @class LdapLayer
 	 * Represents an LDAP message
 	 */
@@ -239,7 +261,7 @@ namespace pcpp
 	protected:
 		std::unique_ptr<Asn1Record> m_Asn1Record;
 
-		LdapLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		LdapLayer() = default;
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
 		virtual std::string getExtendedStringInfo() const { return ""; }
@@ -266,10 +288,295 @@ namespace pcpp
 		}
 	};
 
+	/**
+	 * @class LdapSearchRequestLayer
+	 * Represents LDAP search request operation
+	 */
+	class LdapSearchRequestLayer : public LdapLayer
+	{
+	public:
+		/**
+		 * @class SearchRequestScope
+		 * An enum wrapper class for LDAP search request scope
+		 */
+		class SearchRequestScope
+		{
+		public:
+			/**
+			 * Define enum types and the corresponding int values
+			 */
+			enum Value : uint8_t
+			{
+				/**
+				 * The search operation should only be performed against the entry specified as the search base DN
+				 */
+				BaseObject = 0,
+				/**
+				 * The search operation should only be performed against entries that are immediate subordinates
+				 * of the entry specified as the search base DN
+				 */
+				SingleLevel = 1,
+				/**
+				 * The search operation should be performed against the entry specified as the search base
+				 * and all of its subordinates to any depth
+				 */
+				WholeSubtree = 2,
+				/**
+				 * The search operation should be performed against any subordinate entries (to any depth) below the
+				 * entry specified by the base DN should be considered, but the base entry itself
+				 * should not be considered
+				 */
+				subordinateSubtree = 3,
+				/**
+				 * Unknown or unsupported scope
+				 */
+				Unknown = 255
+			};
+
+			SearchRequestScope() = default;
+
+			// cppcheck-suppress noExplicitConstructor
+			/**
+			 * Construct SearchRequestScope from Value enum
+			 * @param[in] value the scope enum value
+			 */
+			constexpr SearchRequestScope(Value value) : m_Value(value) {}
+
+			/**
+			 * @return A string representation of the scope value
+			 */
+			std::string toString() const;
+
+			/**
+			 * A static method that creates SearchRequestScope from an integer value
+			 * @param[in] value The scope integer value
+			 * @return The scope that corresponds to the integer value. If the integer value
+			 * doesn't corresponds to any enum value, SearchRequestScope::Unknown is returned
+			 */
+			static SearchRequestScope fromUintValue(uint8_t value);
+
+			// Allow switch and comparisons.
+			constexpr operator Value() const { return m_Value; }
+
+			// Prevent usage: if(LdapOperationType)
+			explicit operator bool() const = delete;
+		private:
+			Value m_Value = SearchRequestScope::Unknown;
+		};
+
+		/**
+		 * @class DerefAliases
+		 * An enum wrapper class for LDAP search request dereferencing aliases
+		 */
+		class DerefAliases
+		{
+		public:
+			/**
+			 * Define enum types and the corresponding int values
+			 */
+			enum Value : uint8_t
+			{
+				/// Never dereferences aliases
+				NeverDerefAliases = 0,
+				/// Dereferences aliases only after name resolution
+				DerefInSearching = 1,
+				/// Dereferences aliases only during name resolution
+				DerefFindingBaseObj = 2,
+				/// Always dereference aliases
+				DerefAlways = 3,
+				/// Unknown value
+				Unknown = 255
+			};
+
+			DerefAliases() = default;
+
+			// cppcheck-suppress noExplicitConstructor
+			/**
+			 * Construct DerefAliases from Value enum
+			 * @param[in] value the dereference alias enum value
+			 */
+			constexpr DerefAliases(Value value) : m_Value(value) {}
+
+			/**
+			 * @return A string representation of the dereference alias value
+			 */
+			std::string toString() const;
+
+			/**
+			 * A static method that creates DerefAliases from an integer value
+			 * @param[in] value The dereference alias integer value
+			 * @return The dereference alias that corresponds to the integer value. If the integer value
+			 * doesn't corresponds to any enum value, DerefAliases::Unknown is returned
+			 */
+			static DerefAliases fromUintValue(uint8_t value);
+
+			// Allow switch and comparisons.
+			constexpr operator Value() const { return m_Value; }
+
+			// Prevent usage: if(LdapOperationType)
+			explicit operator bool() const = delete;
+		private:
+			Value m_Value = DerefAliases::Unknown;
+		};
+
+		/**
+		 * A constructor to create a new LDAP search request message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] baseObject The base object for the LDAP search request entry
+		 * @param[in] scope The portion of the target subtree that should be considered
+		 * @param[in] derefAliases The alias dereferencing behavior, which indicates how the server should treat
+		 * any aliases encountered while processing the search
+		 * @param[in] sizeLimit The maximum number of entries that should be returned from the search
+		 * @param[in] timeLimit The time limit for the search in seconds
+		 * @param[in] typesOnly If this is given a value of true, then it indicates that entries that match the
+		 * search criteria should be returned containing only the attribute descriptions for the attributes
+		 * contained in that entry but should not include the values for those attributes.
+		 * If this is given a value of false, then it indicates that the attribute values should be included
+		 * in the entries that are returned
+		 * @param[in] filterRecord The filter for the search. Please note that parsing for the search filter
+		 * doesn't exist yet. Therefore, the expected input value should be a plain ASN.1 record
+		 * @param[in] attributes A set of attributes to request for inclusion in entries that match the search
+		 * criteria and are returned to the client
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapSearchRequestLayer(
+			uint16_t messageId, const std::string& baseObject, SearchRequestScope scope, DerefAliases derefAliases,
+			uint8_t sizeLimit, uint8_t timeLimit, bool typesOnly, Asn1Record* filterRecord,
+			const std::vector<std::string>& attributes, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		/**
+		 * @return The base object for the LDAP search request entry
+		 */
+		std::string getBaseObject() const;
+
+		/**
+		 * @return The portion of the target subtree that should be considered
+		 */
+		SearchRequestScope getScope() const;
+
+		/**
+		 * @return The alias dereferencing behavior
+		 */
+		DerefAliases getDerefAlias() const;
+
+		/**
+		 * @return The maximum number of entries that should be returned from the search
+		 */
+		uint8_t getSizeLimit() const;
+
+		/**
+		 * @return The time limit for the search in seconds
+		 */
+		uint8_t getTimeLimit() const;
+
+		/**
+		 * @return If this flag is true, then it indicates that entries that match the search criteria should be
+		 * returned containing only the attribute descriptions for the attributes contained in that entry but
+		 * should not include the values for those attributes. If this flag is false, then it indicates that the
+		 * attribute values should be included in the entries that are returned
+		 */
+		bool getTypesOnly() const;
+
+		/**
+		 * @return The filter for the search. Please note that parsing for the search filter doesn't exist yet.
+		 * Therefore, the return value is a plain ASN.1 record
+		 */
+		Asn1Record* getFilter() const;
+
+		/**
+		 * @return A list of search request attributes
+		 */
+		std::vector<std::string> getAttributes() const;
+
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
+		{
+			return internalTryGet(this, method, result);
+		}
+
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		static constexpr int baseObjectIndex = 0;
+		static constexpr int scopeIndex = 1;
+		static constexpr int derefAliasIndex = 2;
+		static constexpr int sizeLimitIndex = 3;
+		static constexpr int timeLimitIndex = 4;
+		static constexpr int typesOnlyIndex = 5;
+		static constexpr int filterIndex = 6;
+		static constexpr int attributesIndex = 7;
+
+		LdapSearchRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+
+
+		std::string getExtendedStringInfo() const override;
+	};
+
+	/**
+	 * @class LdapSearchResultEntryLayer
+	 * Represents LDAP search result entry message
+	 */
+	class LdapSearchResultEntryLayer : public LdapLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP search result entry message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] objectName The entry's DN
+		 * @param[in] attributes The entry's attributes
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
+			const std::vector<LdapAttribute>& attributes,
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		/**
+		 * @return The entry's DN
+		 */
+		std::string getObjectName() const;
+
+		/**
+		 * @return The entry's attributes
+		 */
+		std::vector<LdapAttribute> getAttributes() const;
+
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
+		{
+			return internalTryGet(this, method, result);
+		}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		static constexpr int objectNameIndex = 0;
+		static constexpr int attributesIndex = 1;
+		static constexpr int attributeTypeIndex = 0;
+		static constexpr int attributeValueIndex = 1;
+
+		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
 } // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
 {
 	os << "{" << control.controlType << ", " << control.controlValue << "}";
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& attr)
+{
+	std::string valuesStream;
+	bool first = true;
+	for (const auto& value : attr.values)
+	{
+		if (!first) valuesStream += ", ";
+		valuesStream += value;
+		first = false;
+	}
+	os << "{" << attr.type << ", {" << valuesStream << "}}";
 	return os;
 }
