@@ -58,7 +58,7 @@ bool BpfFilterWrapper::setFilter(const std::string& filter, LinkLayerType linkTy
 
 	if (filter != m_FilterStr || linkType != m_LinkType)
 	{
-		std::unique_ptr<pcap_t, internal::PcapCloseDeleter> pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
+		auto pcap = std::unique_ptr<pcap_t, internal::PcapCloseDeleter>(pcap_open_dead(linkType, DEFAULT_SNAPLEN));
 		if (pcap == nullptr)
 		{
 			return false;
