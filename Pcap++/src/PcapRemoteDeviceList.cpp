@@ -100,9 +100,8 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::getRemoteDeviceList(
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
 {
-	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
-	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
-	// device alive.
+	// This line creates and immediately deconstructs an extra shared pointer which is slow due to the atomic reference
+	// count. As the current function returns a non-owning pointer, the list's shared pointer copy is the only one keeping the device object alive.
 	return getRemoteDeviceByIP(ipAddrAsString, SmartPtrApi).get();
 }
 
@@ -125,9 +124,8 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
 {
-	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
-	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
-	// device alive.
+	// This line creates and immediately deconstructs an extra shared pointer which is slow due to the atomic reference
+	// count. As the current function returns a non-owning pointer, the list's shared pointer copy is the only one keeping the device object alive.
 	return getRemoteDeviceByIP(ipAddr, SmartPtrApi).get();
 }
 
@@ -146,9 +144,8 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
 {
-	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
-	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
-	// device alive.
+	// This line creates and immediately deconstructs an extra shared pointer which is slow due to the atomic reference
+	// count. As the current function returns a non-owning pointer, the list's shared pointer copy is the only one keeping the device object alive.
 	return getRemoteDeviceByIP(ip4Addr, SmartPtrApi).get();
 }
 
@@ -188,9 +185,8 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address &ip6Addr) const
 {
-	// Technically this creates and deconstructs an extra shared ptr leading to some inneficiencies but its shorter.
-	// As the current function is to return a non-owning pointer, the shared pointer in the list is left to keep the
-	// device alive.
+	// This line creates and immediately deconstructs an extra shared pointer which is slow due to the atomic reference
+	// count. As the current function returns a non-owning pointer, the list's shared pointer copy is the only one keeping the device object alive.
 	return getRemoteDeviceByIP(ip6Addr, SmartPtrApi).get();
 }
 
