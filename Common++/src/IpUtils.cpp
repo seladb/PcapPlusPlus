@@ -73,7 +73,7 @@ namespace pcpp
 			}
 		}
 
-		void sockaddr2string(sockaddr* sa, char* resultString)
+		void sockaddr2string(sockaddr const* sa, char* resultString)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -97,10 +97,13 @@ namespace pcpp
 			}
 		}
 
-		std::string sockaddr2string(sockaddr& sa)
+		std::string sockaddr2string(sockaddr const* sa)
 		{
+			if (sa == nullptr)
+				throw std::invalid_argument("sockaddr is nullptr");
+
 			std::string resultString;
-			switch (sa.sa_family)
+			switch (sa->sa_family)
 			{
 			case AF_INET:
 				resultString.resize(INET_ADDRSTRLEN);
@@ -113,7 +116,7 @@ namespace pcpp
 			}
 
 			// Pre cpp-17 does not have a non-const version of data().
-			sockaddr2string(&sa, const_cast<char*>(resultString.data()));
+			sockaddr2string(sa, const_cast<char*>(resultString.data()));
 			return resultString;
 		}
 

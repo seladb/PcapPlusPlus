@@ -95,7 +95,7 @@ namespace pcpp
 		 * @param[out] resultString String representation of the address
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, or sockaddr is nullptr.
 		 */
-		void sockaddr2string(sockaddr* sa, char* resultString);
+		void sockaddr2string(sockaddr const* sa, char* resultString);
 
 		/**
 		 * Converts a spckaddr format address to its string representation
@@ -103,7 +103,7 @@ namespace pcpp
 		 * @return String representation of the address
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, or sockaddr is nullptr.
 		 */
-		std::string sockaddr2string(sockaddr& sa);
+		std::string sockaddr2string(sockaddr const* sa);
 
 		/**
 		 * Convert a in_addr format address to 32bit representation
