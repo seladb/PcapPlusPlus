@@ -348,7 +348,7 @@ namespace pcpp {
 
 	// endregion
 
-// region LdapSearchResultEntryLayer
+	// region LdapSearchResultEntryLayer
 
 	LdapSearchResultEntryLayer::LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
 		const std::vector<LdapAttribute>& attributes, const std::vector<LdapControl>& controls)
@@ -405,5 +405,5 @@ namespace pcpp {
 		return result;
 	}
 
-// endregion
+	// endregion
 }
