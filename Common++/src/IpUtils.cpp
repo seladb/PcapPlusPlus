@@ -83,13 +83,13 @@ namespace pcpp
 			case AF_INET:
 			{
 				PCPP_LOG_DEBUG("IPv4 packet address");
-				inet_ntop(AF_INET, &(((sockaddr_in*)sa)->sin_addr), resultString, INET_ADDRSTRLEN);
+				inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString, INET_ADDRSTRLEN);
 				break;
 			}
 			case AF_INET6:
 			{
 				PCPP_LOG_DEBUG("IPv6 packet address");
-				inet_ntop(AF_INET6, &(((sockaddr_in6*)sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
+				inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
 				break;
 			}
 			default:
