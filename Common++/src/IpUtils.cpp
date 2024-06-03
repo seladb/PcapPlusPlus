@@ -86,7 +86,10 @@ namespace pcpp
 				if (resultBufLen < INET_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
 
-				inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString, INET_ADDRSTRLEN);
+				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString, resultBufLen) == nullptr)
+				{
+					throw std::runtime_error("Unknown error during conversion");
+				}
 				break;
 			}
 			case AF_INET6:
@@ -95,7 +98,10 @@ namespace pcpp
 				if (resultBufLen < INET6_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
 
-				inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
+				if(inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString, resultBufLen) == nullptr)
+				{
+					throw std::runtime_error("Unknown error during conversion");
+				}
 				break;
 			}
 			default:
