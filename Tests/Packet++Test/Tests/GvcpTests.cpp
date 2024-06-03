@@ -1,6 +1,9 @@
 #include "../TestDefinition.h"
-#include "GeneralUtils.h"
+#include "../Utils/TestUtils.h"
 #include "GvcpLayer.h"
+#include "Packet.h"
+#include "SystemUtils.h"
+#include "UdpLayer.h"
 #include <vector>
 
 PTF_TEST_CASE(GvcpBasicTest)
@@ -30,7 +33,6 @@ PTF_TEST_CASE(GvcpBasicTest)
 		PTF_ASSERT_EQUAL(uint16_t(header->command), uint16_t(GvcpCommand::DiscoveredAck));
 		PTF_ASSERT_EQUAL(header->ackId, 2);
 		PTF_ASSERT_EQUAL(header->dataSize, payload.size());
-
 	}
 }
 
@@ -40,34 +42,29 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 	{
 		using namespace pcpp;
 
-		uint8_t *data = new uint8_t[513];
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_discovery_ack.dat");
+		pcpp::Packet discoverAckPacket(&rawPacket1);
 
-		const char *hexPayload =
-			"0000000300f8000100020000800000000000623fab1e4da10000000700000007000000000000000000000000c0fe07660000000000"
-			"00000000000000ffffff0000000000000000000000000000000000506572636970696f000000000000000000000000000000000000"
-			"000000000000504d3830322d47492d4531000000000000000000000000000000000000000000302e302e303b302e302e3000000000"
-			"0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
-			"0000000000000000000000003230373030303132343534360000000000000000000000000000000000000000";
-		auto dataLen = pcpp::hexStringToByteArray(hexPayload, data, 513);
+		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
 
-		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(data, dataLen);
+		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader *header = gvcpAcknowledgeLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(uint16_t(header->status), uint16_t(GvcpResponseStatus::Success));
 		PTF_ASSERT_EQUAL(uint16_t(header->command), uint16_t(GvcpCommand::DiscoveredAck));
 		PTF_ASSERT_EQUAL(header->ackId, 1);
-		PTF_ASSERT_EQUAL(header->dataSize, dataLen - sizeof(GvcpAckHeader));
+		PTF_ASSERT_EQUAL(header->dataSize, udpLayer->getLayerPayloadSize() - sizeof(GvcpAckHeader));
 
 		auto discoveryBody = gvcpAcknowledgeLayer.getGvcpDiscoveryBody();
 		PTF_ASSERT_TRUE(discoveryBody != nullptr);
-		PTF_ASSERT_EQUAL(discoveryBody->getMacAddress(), pcpp::MacAddress("62:3f:ab:1e:4d:a1"));
-		PTF_ASSERT_EQUAL(discoveryBody->getIpAddress(), pcpp::IPv4Address("192.254.7.102"));
-		PTF_ASSERT_EQUAL(discoveryBody->getManufacturerName(), "Percipio");
-		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "PM802-GI-E1");
-		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "207000124546");
-
-		delete[] data;
+		PTF_ASSERT_EQUAL(discoveryBody->getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
+		PTF_ASSERT_EQUAL(discoveryBody->getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
+		PTF_ASSERT_EQUAL(discoveryBody->getManufacturerName(), "Vendor01");
+		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "ABCDE 3D Scanner (TW)");
+		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "XXX-005");
 	}
 	catch (...)
 	{
