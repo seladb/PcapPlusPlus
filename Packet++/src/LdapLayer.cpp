@@ -80,7 +80,7 @@ namespace pcpp {
 		init(messageId, operationType, messageRecords, controls);
 	}
 
-	LdapLayer::LdapLayer(std::unique_ptr<Asn1Record>& asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
+	LdapLayer::LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet)
 	{
 		m_Protocol = LDAP;
 		m_Asn1Record = std::move(asn1Record);
@@ -139,12 +139,17 @@ namespace pcpp {
 		{
 			auto asn1Record = Asn1Record::decode(data, dataLen, true);
 			auto operationType = LdapOperationType::fromUintValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(operationTypeIndex)->getTagType());
-			if (operationType != LdapOperationType::Unknown)
+			switch (operationType)
 			{
-				return new LdapLayer(asn1Record, data, dataLen, prevLayer, packet);
+				case LdapOperationType::SearchRequest:
+					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::SearchResultEntry:
+					return new LdapSearchResultEntryLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::Unknown:
+					return nullptr;
+				default:
+					return new LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 			}
-
-			return nullptr;
 		}
 		catch (...)
 		{
@@ -207,5 +212,198 @@ namespace pcpp {
 
 		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
 	}
+	// endregion
+
+	// region LdapSearchRequestLayer
+
+	const std::unordered_map<LdapSearchRequestLayer::SearchRequestScope::Value, std::string, EnumClassHash<LdapSearchRequestLayer::SearchRequestScope::Value>> SearchRequestScopeToString {
+		{LdapSearchRequestLayer::SearchRequestScope::BaseObject,   "BaseObject"},
+		{LdapSearchRequestLayer::SearchRequestScope::SingleLevel,  "SingleLevel"},
+		{LdapSearchRequestLayer::SearchRequestScope::WholeSubtree, "WholeSubtree"},
+		{LdapSearchRequestLayer::SearchRequestScope::Unknown,      "Unknown"}
+	};
+
+	const std::unordered_map<LdapSearchRequestLayer::DerefAliases::Value, std::string, EnumClassHash<LdapSearchRequestLayer::DerefAliases::Value>> DerefAliasesToString {
+		{LdapSearchRequestLayer::DerefAliases::NeverDerefAliases,   "NeverDerefAliases"},
+		{LdapSearchRequestLayer::DerefAliases::DerefInSearching,    "DerefInSearching"},
+		{LdapSearchRequestLayer::DerefAliases::DerefFindingBaseObj, "DerefFindingBaseObj"},
+		{LdapSearchRequestLayer::DerefAliases::DerefAlways,         "DerefAlways"},
+		{LdapSearchRequestLayer::DerefAliases::Unknown,             "Unknown"}
+	};
+
+	std::string LdapSearchRequestLayer::SearchRequestScope::toString() const
+	{
+		return SearchRequestScopeToString.at(m_Value);
+	}
+
+	LdapSearchRequestLayer::SearchRequestScope LdapSearchRequestLayer::SearchRequestScope::fromUintValue(uint8_t value)
+	{
+		if (value >= 0 && value <= 2)
+		{
+			return static_cast<LdapSearchRequestLayer::SearchRequestScope::Value>(value);
+		}
+
+		return LdapSearchRequestLayer::SearchRequestScope::Unknown;
+	}
+
+	std::string LdapSearchRequestLayer::DerefAliases::toString() const
+	{
+		return DerefAliasesToString.at(m_Value);
+	}
+
+	LdapSearchRequestLayer::DerefAliases LdapSearchRequestLayer::DerefAliases::fromUintValue(uint8_t value)
+	{
+		if (value >= 0 && value <= 3)
+		{
+			return static_cast<LdapSearchRequestLayer::DerefAliases::Value>(value);
+		}
+
+		return LdapSearchRequestLayer::DerefAliases::Unknown;
+	}
+
+	LdapSearchRequestLayer::LdapSearchRequestLayer(
+			uint16_t messageId, const std::string& baseObject, SearchRequestScope scope, DerefAliases derefAliases,
+			uint8_t sizeLimit, uint8_t timeLimit, bool typesOnly, Asn1Record* filterRecord,
+			const std::vector<std::string>& attributes, const std::vector<LdapControl>& controls)
+	{
+		Asn1OctetStringRecord baseObjectRecord(baseObject);
+		Asn1EnumeratedRecord scopeRecord(scope);
+		Asn1EnumeratedRecord derefAliasesRecord(derefAliases);
+		Asn1IntegerRecord sizeLimitRecord(sizeLimit);
+		Asn1IntegerRecord timeLimitRecord(timeLimit);
+		Asn1BooleanRecord typeOnlyRecord(typesOnly);
+
+		PointerVector<Asn1Record> attributeSubRecords;
+		for (const auto& attribute : attributes)
+		{
+			attributeSubRecords.pushBack(new Asn1OctetStringRecord(attribute));
+		}
+		Asn1SequenceRecord attributesRecord(attributeSubRecords);
+
+		LdapLayer::init(messageId, LdapOperationType::SearchRequest, {&baseObjectRecord, &scopeRecord, &derefAliasesRecord, &sizeLimitRecord, &timeLimitRecord, &typeOnlyRecord, filterRecord, &attributesRecord}, controls);
+	}
+
+	std::string LdapSearchRequestLayer::getBaseObject() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(baseObjectIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	LdapSearchRequestLayer::SearchRequestScope LdapSearchRequestLayer::getScope() const
+	{
+		return LdapSearchRequestLayer::SearchRequestScope::fromUintValue(getLdapOperationAsn1Record()->getSubRecords().at(scopeIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+	}
+
+	LdapSearchRequestLayer::DerefAliases LdapSearchRequestLayer::getDerefAlias() const
+	{
+		return LdapSearchRequestLayer::DerefAliases::fromUintValue(getLdapOperationAsn1Record()->getSubRecords().at(derefAliasIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+	}
+
+	uint8_t LdapSearchRequestLayer::getSizeLimit() const
+	{
+		return static_cast<uint8_t>(getLdapOperationAsn1Record()->getSubRecords().at(sizeLimitIndex)->castAs<Asn1IntegerRecord>()->getValue());
+	}
+
+	uint8_t LdapSearchRequestLayer::getTimeLimit() const
+	{
+		return static_cast<uint8_t>(getLdapOperationAsn1Record()->getSubRecords().at(timeLimitIndex)->castAs<Asn1IntegerRecord>()->getValue());
+	}
+
+	bool LdapSearchRequestLayer::getTypesOnly() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(typesOnlyIndex)->castAs<Asn1BooleanRecord>()->getValue();
+	}
+
+	Asn1Record* LdapSearchRequestLayer::getFilter() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(filterIndex);
+	}
+
+	std::vector<std::string> LdapSearchRequestLayer::getAttributes() const
+	{
+		std::vector<std::string> result;
+		if (getLdapOperationAsn1Record()->getSubRecords().size() <= attributesIndex)
+		{
+			return result;
+		}
+
+		auto attributesRecord = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		for (auto attribute : attributesRecord->getSubRecords())
+		{
+			result.push_back(attribute->castAs<Asn1OctetStringRecord>()->getValue());
+		}
+
+		return result;
+	}
+
+	std::string LdapSearchRequestLayer::getExtendedStringInfo() const
+	{
+		auto baseObject = getBaseObject();
+		if (baseObject.empty())
+		{
+			baseObject = "ROOT";
+		}
+
+		return "\"" + baseObject + "\", " + getScope().toString();
+	}
+
+	// endregion
+
+	// region LdapSearchResultEntryLayer
+
+	LdapSearchResultEntryLayer::LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
+		const std::vector<LdapAttribute>& attributes, const std::vector<LdapControl>& controls)
+	{
+		PointerVector<Asn1Record> attributesSubRecords;
+		for (const auto& attribute : attributes)
+		{
+			PointerVector<Asn1Record> valuesSubRecords;
+			for (const auto& value : attribute.values)
+			{
+				valuesSubRecords.pushBack(new Asn1OctetStringRecord(value));
+			}
+
+			Asn1OctetStringRecord typeRecord(attribute.type);
+			Asn1SetRecord valuesRecord(valuesSubRecords);
+
+			attributesSubRecords.pushBack(new Asn1SequenceRecord({&typeRecord, &valuesRecord}));
+		}
+
+		Asn1OctetStringRecord objectNameRecord(objectName);
+		Asn1SequenceRecord attributesRecord(attributesSubRecords);
+
+		LdapLayer::init(messageId, LdapOperationType::SearchResultEntry, {&objectNameRecord, &attributesRecord}, controls);
+	}
+
+	std::string LdapSearchResultEntryLayer::getObjectName() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(objectNameIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::vector<LdapAttribute> LdapSearchResultEntryLayer::getAttributes() const
+	{
+		std::vector<LdapAttribute> result;
+
+		auto attributes = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		for (auto attributeRecord : attributes->getSubRecords())
+		{
+			auto attrAsSequence = attributeRecord->castAs<Asn1SequenceRecord>();
+
+			auto type = attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+
+			std::vector<std::string> values;
+			auto valuesRecord = attrAsSequence->getSubRecords().at(attributeValueIndex)->castAs<Asn1SetRecord>();
+
+			for (auto valueRecord : valuesRecord->getSubRecords())
+			{
+				values.push_back(valueRecord->castAs<Asn1OctetStringRecord>()->getValue());
+			}
+
+			LdapAttribute ldapAttribute = {type, values};
+			result.push_back(ldapAttribute);
+		}
+
+		return result;
+	}
+
 	// endregion
 }
