@@ -65,7 +65,7 @@ namespace pcpp
 		 * @return Address in in_addr format
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET or sockaddr is nullptr.
 		 */
-		in_addr* sockaddr2in_addr(struct sockaddr *sa);
+		in_addr* sockaddr2in_addr(struct sockaddr* sa);
 
 		/**
 		 * Attempt to extract IPv4 address from sockaddr
