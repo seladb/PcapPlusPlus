@@ -33,6 +33,18 @@ namespace pcpp
 			}
 		}
 
+		in_addr* try_sockaddr2in_addr(struct sockaddr* sa)
+		{
+			try
+			{
+				return sockaddr2in_addr(sa);
+			}
+			catch (const std::invalid_argument&)
+			{
+				return nullptr;
+			}
+		}
+
 		in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
 		{
 			if (sa == nullptr)
@@ -44,6 +56,18 @@ namespace pcpp
 				return &(((struct sockaddr_in6*)sa)->sin6_addr);
 			default:
 				throw std::invalid_argument("sockaddr family is not AF_INET6.");
+			}
+		}
+
+		in6_addr* try_sockaddr2in6_addr(struct sockaddr* sa)
+		{
+			try
+			{
+				return sockaddr2in6_addr(sa);
+			}
+			catch (const std::invalid_argument&)
+			{
+				return nullptr;
 			}
 		}
 

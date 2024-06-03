@@ -67,12 +67,26 @@ namespace pcpp
 		in_addr* sockaddr2in_addr(struct sockaddr *sa);
 
 		/**
+		 * Attempt to extract IPv4 address from sockaddr.
+		 * @param[in] sa - input sockaddr
+		 * @return Pointer to address in in_addr format or nullptr if extraction fails.
+		 */
+		in_addr* try_sockaddr2in_addr(struct sockaddr* sa);
+
+		/**
 		 * Extract IPv6 address from sockaddr
 		 * @param[in] sa - input sockaddr
 		 * @return Address in in6_addr format
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET6 or sockaddr is nullptr. 
 		 */
 		in6_addr* sockaddr2in6_addr(struct sockaddr *sa);
+
+		/**
+		 * Attempt to extract IPv6 address from sockaddr.
+		 * @param[in] sa - input sockaddr
+		 * @return Pointer to address in in6_addr format or nullptr if extraction fails.
+		 */
+		in6_addr* try_sockaddr2in6_addr(struct sockaddr* sa);
 
 		/**
 		 * Converts a sockaddr format address to its string representation
