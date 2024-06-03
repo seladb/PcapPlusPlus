@@ -119,6 +119,7 @@ DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mBufDataSize)
 	std::ostringstream deviceNameStream;
 	deviceNameStream << "DPDK_" << m_Id;
 	m_DeviceName = deviceNameStream.str();
+	m_DeviceSocketId =  rte_eth_dev_socket_id(m_Id);
 
 #if (RTE_VER_YEAR > 19) || (RTE_VER_YEAR == 19 && RTE_VER_MONTH >= 8)
 	struct rte_ether_addr etherAddr;
@@ -364,7 +365,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 	for (uint8_t i = 0; i < numOfRxQueuesToInit; i++)
 	{
 		int ret = rte_eth_rx_queue_setup((uint8_t) m_Id, i,
-				m_Config.receiveDescriptorsNumber, 0,
+				m_Config.receiveDescriptorsNumber, m_DeviceSocketId,
 				NULL, m_MBufMempool);
 
 		if (ret < 0)
@@ -380,7 +381,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 	{
 		int ret = rte_eth_tx_queue_setup((uint8_t) m_Id, i,
 				m_Config.transmitDescriptorsNumber,
-					0, NULL);
+				m_DeviceSocketId, NULL);
 		if (ret < 0)
 		{
 			PCPP_LOG_ERROR("Failed to init TX queue #" << i << " for port " << m_Id << ". Error was: '" << rte_strerror(ret) << "' [Error code: " << ret << "]");
@@ -400,7 +401,7 @@ bool DpdkDevice::initQueues(uint8_t numOfRxQueuesToInit, uint8_t numOfTxQueuesTo
 
 	for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 	{
-		m_TxBuffers[i] = (rte_eth_dev_tx_buffer*)rte_zmalloc_socket("tx_buffer", RTE_ETH_TX_BUFFER_SIZE(MAX_BURST_SIZE), 0, rte_eth_dev_socket_id(m_Id));
+		m_TxBuffers[i] = (rte_eth_dev_tx_buffer*)rte_zmalloc_socket("tx_buffer", RTE_ETH_TX_BUFFER_SIZE(MAX_BURST_SIZE), 0, m_DeviceSocketId);
 
 		if (m_TxBuffers[i] == NULL)
 		{
@@ -432,7 +433,7 @@ bool DpdkDevice::initMemPool(struct rte_mempool*& memPool, const char* mempoolNa
 	bool ret = false;
 
 	// create mbuf pool
-	memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, m_MBufDataSize, rte_socket_id());
+	memPool = rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, m_MBufDataSize, m_DeviceSocketId);
 	if (memPool == NULL)
 	{
 		PCPP_LOG_ERROR("Failed to create packets memory pool for port " << m_Id << ", pool name: " << mempoolName << ". Error was: '" << rte_strerror(rte_errno) << "' [Error code: " << rte_errno << "]");
