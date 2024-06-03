@@ -86,13 +86,33 @@ namespace pcpp
 			}
 			case AF_INET6:
 			{
-				PCPP_LOG_DEBUG("Not IPv4 packet address. Assuming IPv6 packet");
+				PCPP_LOG_DEBUG("IPv6 packet address");
 				inet_ntop(AF_INET6, &(((sockaddr_in6*)sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
 				break;
 			}
 			default:
 				throw std::invalid_argument("Unsupported sockaddr family. Family is not AF_INET or AF_INET6.");
 			}
+		}
+
+		std::string sockaddr2string(struct sockaddr& sa)
+		{
+			std::string resultString;
+			switch (sa.sa_family)
+			{
+			case AF_INET:
+				resultString.resize(INET_ADDRSTRLEN);
+				break;
+			case AF_INET6:
+				resultString.resize(INET6_ADDRSTRLEN);
+				break;
+			default:
+				throw std::invalid_argument("Unsupported sockaddr family. Family is not AF_INET or AF_INET6.");
+			}
+
+			// Pre cpp-17 does not have a non-const version of data().
+			sockaddr2string(&sa, const_cast<char*>(resultString.data()));
+			return resultString;
 		}
 
 		uint32_t in_addr2int(in_addr inAddr)
