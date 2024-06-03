@@ -85,7 +85,7 @@ namespace pcpp
 				PCPP_LOG_DEBUG("IPv4 packet address");
 				if (resultBufLen < INET_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
-				
+
 				inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString, INET_ADDRSTRLEN);
 				break;
 			}
