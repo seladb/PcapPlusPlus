@@ -27,11 +27,11 @@ namespace pcpp
 {
 	/*
 	 * @class SmartPtrApiTag
-	 * Helper tag to disambiguate smart pointer API.
+	 * Helper tag to disambiguate smart pointer API methods.
 	 */
 	struct SmartPtrApiTag{};
 	/**
-	 * Helper tag constant for disambuguating smart pointer API.
+	 * Helper tag constant for disambiguating smart pointer API methods.
 	 */
 	extern const SmartPtrApiTag SmartPtrApi;
 
