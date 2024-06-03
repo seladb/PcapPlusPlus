@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdexcept>
 #ifndef NS_INADDRSZ
 #define NS_INADDRSZ	4
 #endif
@@ -21,33 +22,52 @@ namespace pcpp
 		in_addr* sockaddr2in_addr(struct sockaddr* sa)
 		{
 			if (sa == nullptr)
-				return nullptr;
-			if (sa->sa_family == AF_INET)
+				throw std::invalid_argument("sockaddr is nullptr");
+
+			switch (sa->sa_family)
+			{
+			case AF_INET:
 				return &(((struct sockaddr_in*)sa)->sin_addr);
-			PCPP_LOG_DEBUG("sockaddr family is not AF_INET. Returning NULL");
-			return nullptr;
+			default:
+				throw std::invalid_argument("sockaddr family is not AF_INET.");
+			}
 		}
 
 		in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
 		{
-			if (sa->sa_family == AF_INET6)
+			if (sa == nullptr)
+				throw std::invalid_argument("sockaddr is nullptr");
+
+			switch (sa->sa_family)
+			{
+			case AF_INET6:
 				return &(((struct sockaddr_in6*)sa)->sin6_addr);
-			PCPP_LOG_DEBUG("sockaddr family is not AF_INET6. Returning NULL");
-			return nullptr;
+			default:
+				throw std::invalid_argument("sockaddr family is not AF_INET6.");
+			}
 		}
 
 		void sockaddr2string(struct sockaddr* sa, char* resultString)
 		{
-			in_addr* ipv4Addr = sockaddr2in_addr(sa);
-			if (ipv4Addr != nullptr)
+			if (sa == nullptr)
+				throw std::invalid_argument("sockaddr is nullptr");
+
+			switch (sa->sa_family)
+			{
+			case AF_INET:
 			{
 				PCPP_LOG_DEBUG("IPv4 packet address");
 				inet_ntop(AF_INET, &(((sockaddr_in*)sa)->sin_addr), resultString, INET_ADDRSTRLEN);
+				break;
 			}
-			else
+			case AF_INET6:
 			{
 				PCPP_LOG_DEBUG("Not IPv4 packet address. Assuming IPv6 packet");
 				inet_ntop(AF_INET6, &(((sockaddr_in6*)sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
+				break;
+			}
+			default:
+				throw std::invalid_argument("Unsupported sockaddr family. Family is not AF_INET or AF_INET6.");
 			}
 		}
 
