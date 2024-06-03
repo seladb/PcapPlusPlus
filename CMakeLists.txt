@@ -247,6 +247,8 @@ if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall)
+  # FIXME: https://github.com/seladb/PcapPlusPlus/issues/1347
+  add_compile_options(-Wno-incompatible-pointer-types)
 endif()
 
 if(PCAPPP_BUILD_FUZZERS)
