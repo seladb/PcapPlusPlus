@@ -27,7 +27,7 @@ namespace pcpp
 			switch (sa->sa_family)
 			{
 			case AF_INET:
-				return &(((struct sockaddr_in*)sa)->sin_addr);
+				return &(reinterpret_cast<sockaddr_in*>(sa)->sin_addr);
 			default:
 				throw std::invalid_argument("sockaddr family is not AF_INET.");
 			}
@@ -54,7 +54,7 @@ namespace pcpp
 			switch (sa->sa_family)
 			{
 			case AF_INET6:
-				return &(((struct sockaddr_in6*)sa)->sin6_addr);
+				return &(reinterpret_cast<struct sockaddr_in6*>(sa)->sin6_addr);
 			default:
 				throw std::invalid_argument("sockaddr family is not AF_INET6.");
 			}
