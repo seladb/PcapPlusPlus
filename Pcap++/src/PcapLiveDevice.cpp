@@ -677,7 +677,7 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
-bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
+bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
 {
 	if (packetPayloadLength > static_cast<int>(m_DeviceMtu))
 	{
