@@ -62,7 +62,7 @@ namespace pcpp
 		 * Extract IPv4 address from sockaddr
 		 * @param[in] sa - input sockaddr
 		 * @return Address in in_addr format
-		 * @throws std::invalid_argument Sockaddr family is not AF_INET or sockaddr is nullptr. 
+		 * @throws std::invalid_argument Sockaddr family is not AF_INET or sockaddr is nullptr.
 		 */
 		in_addr* sockaddr2in_addr(struct sockaddr *sa);
 
@@ -77,9 +77,9 @@ namespace pcpp
 		 * Extract IPv6 address from sockaddr
 		 * @param[in] sa - input sockaddr
 		 * @return Address in in6_addr format
-		 * @throws std::invalid_argument Sockaddr family is not AF_INET6 or sockaddr is nullptr. 
+		 * @throws std::invalid_argument Sockaddr family is not AF_INET6 or sockaddr is nullptr.
 		 */
-		in6_addr* sockaddr2in6_addr(struct sockaddr *sa);
+		in6_addr* sockaddr2in6_addr(struct sockaddr* sa);
 
 		/**
 		 * Attempt to extract IPv6 address from sockaddr.
@@ -91,10 +91,10 @@ namespace pcpp
 		/**
 		 * Converts a sockaddr format address to its string representation
 		 * @param[in] sa Address in sockaddr format
-		 * @param[out]  resultString String representation of the address
-		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, or sockaddr is nullptr. 
+		 * @param[out] resultString String representation of the address
+		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, or sockaddr is nullptr.
 		 */
-		void sockaddr2string(struct sockaddr *sa, char* resultString);
+		void sockaddr2string(struct sockaddr* sa, char* resultString);
 
 		/**
 		 * Convert a in_addr format address to 32bit representation
