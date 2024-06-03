@@ -19,7 +19,7 @@ namespace pcpp
 {
 	namespace internal
 	{
-		in_addr* sockaddr2in_addr(struct sockaddr* sa)
+		in_addr* sockaddr2in_addr(sockaddr* sa)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -33,7 +33,7 @@ namespace pcpp
 			}
 		}
 
-		in_addr* try_sockaddr2in_addr(struct sockaddr* sa)
+		in_addr* try_sockaddr2in_addr(sockaddr* sa)
 		{
 			try
 			{
@@ -46,7 +46,7 @@ namespace pcpp
 			}
 		}
 
-		in6_addr* sockaddr2in6_addr(struct sockaddr* sa)
+		in6_addr* sockaddr2in6_addr(sockaddr* sa)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -60,7 +60,7 @@ namespace pcpp
 			}
 		}
 
-		in6_addr* try_sockaddr2in6_addr(struct sockaddr* sa)
+		in6_addr* try_sockaddr2in6_addr(sockaddr* sa)
 		{
 			try
 			{
@@ -73,7 +73,7 @@ namespace pcpp
 			}
 		}
 
-		void sockaddr2string(struct sockaddr* sa, char* resultString)
+		void sockaddr2string(sockaddr* sa, char* resultString)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -97,7 +97,7 @@ namespace pcpp
 			}
 		}
 
-		std::string sockaddr2string(struct sockaddr& sa)
+		std::string sockaddr2string(sockaddr& sa)
 		{
 			std::string resultString;
 			switch (sa.sa_family)
