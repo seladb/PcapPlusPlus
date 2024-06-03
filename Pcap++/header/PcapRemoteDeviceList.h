@@ -76,6 +76,7 @@ namespace pcpp
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
 		PCPP_DEPRECATED_RAW_PTR_API static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
+
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
 		 * creates a list of PcapRemoteDevice instances stored in it, one for each remote network interface. Notice this method allocates
@@ -105,6 +106,7 @@ namespace pcpp
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
 		PCPP_DEPRECATED_RAW_PTR_API static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
 		 * remote daemons which require authentication for accessing them
@@ -118,6 +120,7 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth, SmartPtrApiTag apiTag);
+
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is
 		 * suitable for connecting to remote daemons which require authentication for accessing them
@@ -131,6 +134,7 @@ namespace pcpp
 		 * devices on the remote machine
 		 */
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::unique_ptr<PcapRemoteAuthentication> remoteAuth);
+
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is
 		 * suitable for connecting to remote daemons which require authentication for accessing them
@@ -163,6 +167,7 @@ namespace pcpp
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
 		PCPP_DEPRECATED_RAW_PTR_API PcapRemoteDevice* getRemoteDeviceByIP(const IPv4Address& ip4Addr) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
@@ -178,6 +183,7 @@ namespace pcpp
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
 		PCPP_DEPRECATED_RAW_PTR_API PcapRemoteDevice* getRemoteDeviceByIP(const IPv6Address& ip6Addr) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
@@ -193,6 +199,7 @@ namespace pcpp
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
 		PCPP_DEPRECATED_RAW_PTR_API PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
@@ -208,6 +215,7 @@ namespace pcpp
 		 * @deprecated This method is deprecated in favor of the SmartPtrAPI overload.
 		 */
 		PCPP_DEPRECATED_RAW_PTR_API PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format
