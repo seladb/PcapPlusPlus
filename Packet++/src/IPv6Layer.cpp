@@ -187,8 +187,7 @@ void IPv6Layer::removeAllExtensions()
 
 bool IPv6Layer::isFragment() const
 {
-	IPv6FragmentationHeader const* fragHdr = getExtensionOfType<IPv6FragmentationHeader>();
-	return (fragHdr != nullptr);
+	return getExtensionOfType<IPv6FragmentationHeader>() != nullptr;
 }
 
 void IPv6Layer::parseNextLayer()
