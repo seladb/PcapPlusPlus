@@ -93,9 +93,10 @@ namespace pcpp
 		 * Converts a sockaddr format address to its string representation
 		 * @param[in] sa Address in sockaddr format
 		 * @param[out] resultString String representation of the address
-		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, or sockaddr is nullptr.
+		 * @param[in] resultBufLen Length of the result buffer.
+		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, sockaddr is nullptr or the result str buffer is insufficient.
 		 */
-		void sockaddr2string(sockaddr const* sa, char* resultString);
+		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen);
 
 		/**
 		 * Converts a spckaddr format address to its string representation

@@ -73,7 +73,7 @@ namespace pcpp
 			}
 		}
 
-		void sockaddr2string(sockaddr const* sa, char* resultString)
+		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -83,12 +83,18 @@ namespace pcpp
 			case AF_INET:
 			{
 				PCPP_LOG_DEBUG("IPv4 packet address");
+				if (resultBufLen < INET_ADDRSTRLEN)
+					throw std::invalid_argument("Insufficient buffer");
+				
 				inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString, INET_ADDRSTRLEN);
 				break;
 			}
 			case AF_INET6:
 			{
 				PCPP_LOG_DEBUG("IPv6 packet address");
+				if (resultBufLen < INET6_ADDRSTRLEN)
+					throw std::invalid_argument("Insufficient buffer");
+
 				inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString, INET6_ADDRSTRLEN);
 				break;
 			}
@@ -116,7 +122,7 @@ namespace pcpp
 			}
 
 			// Pre cpp-17 does not have a non-const version of data().
-			sockaddr2string(sa, const_cast<char*>(resultString.data()));
+			sockaddr2string(sa, const_cast<char*>(resultString.data()), resultString.size());
 			return resultString;
 		}
 

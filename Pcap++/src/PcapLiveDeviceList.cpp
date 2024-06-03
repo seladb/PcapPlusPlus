@@ -275,9 +275,9 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
 			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
@@ -308,9 +308,9 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
 			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
