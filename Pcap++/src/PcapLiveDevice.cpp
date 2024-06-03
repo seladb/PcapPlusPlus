@@ -13,7 +13,7 @@
 #include "DeviceUtils.h"
 #include "SystemUtils.h"
 #include "MemoryUtils.h"
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -421,7 +421,7 @@ std::unique_ptr<PcapLiveDevice> PcapLiveDevice::clone(SmartPtrApiTag apiTag) con
 
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		if (!strcmp(currInterface->name, getName().c_str()))
+		if (!std::strcmp(currInterface->name, getName().c_str()))
 		{
 			return cloneInternal(*currInterface);
 		}
