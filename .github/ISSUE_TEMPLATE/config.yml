@@ -1,0 +1,7 @@
+contact_links:
+  - name: "Contact the PcapPlusPlus team"
+    about: "For help or advice on using PcapPlusPlus, try one of the following options instead of opening a GitHub issue:"
+    url: "https://pcapplusplus.github.io/community"
+  - name: "Documentation"
+    about: "Check the PcapPlusPlus documentation for more information."
+    url: "https://pcapplusplus.github.io/ "

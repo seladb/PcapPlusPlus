@@ -242,9 +242,9 @@ namespace pcpp
 			if (dataSize < 2)
 				return res;
 
-			uint8_t valueOffset = (uint8_t)(1);
+			uint8_t valueOffset = static_cast<uint8_t>(1);
 
-			while ((size_t)valueOffset < dataSize)
+			while (static_cast<size_t>(valueOffset) < dataSize)
 			{
 				uint32_t curValue;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
@@ -253,7 +253,7 @@ namespace pcpp
 
 				res.push_back(IPv4Address(curValue));
 
-				valueOffset += (uint8_t)(4);
+				valueOffset += static_cast<uint8_t>(4);
 			}
 
 			return res;
@@ -281,12 +281,12 @@ namespace pcpp
 			if (dataSize < 2)
 				return res;
 
-			res.type = (IPv4TimestampOptionValue::TimestampType)m_Data->recordValue[1];
+			res.type = static_cast<IPv4TimestampOptionValue::TimestampType>(m_Data->recordValue[1]);
 
-			uint8_t valueOffset = (uint8_t)(2);
+			uint8_t valueOffset = static_cast<uint8_t>(2);
 			bool readIPAddr = (res.type == IPv4TimestampOptionValue::TimestampAndIP);
 
-			while ((size_t)valueOffset < dataSize)
+			while (static_cast<size_t>(valueOffset) < dataSize)
 			{
 				uint32_t curValue;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
@@ -301,7 +301,7 @@ namespace pcpp
 				if (res.type == IPv4TimestampOptionValue::TimestampAndIP)
 					readIPAddr = !readIPAddr;
 
-				valueOffset += (uint8_t)(4);
+				valueOffset += static_cast<uint8_t>(4);
 			}
 
 			return res;
@@ -323,14 +323,14 @@ namespace pcpp
 		 */
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
-			auto data = (TLVRawData*)recordRawData;
+			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
 			if (data == nullptr)
 				return false;
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
 				return false;
 
-			if (getIPv4OptionType(data) == (uint8_t)IPV4OPT_EndOfOptionsList || data->recordType == (uint8_t)IPV4OPT_NOP)
+			if (getIPv4OptionType(data) == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) || data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -343,10 +343,10 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOptionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
+			if (getIPv4OptionType() == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) || m_Data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
 				return sizeof(uint8_t);
 
-			return (size_t)m_Data->recordLen;
+			return static_cast<size_t>(m_Data->recordLen);
 		}
 
 		size_t getDataSize() const
@@ -354,10 +354,10 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (getIPv4OptionType() == (uint8_t)IPV4OPT_EndOfOptionsList || m_Data->recordType == (uint8_t)IPV4OPT_NOP)
-				return (size_t)0;
+			if (getIPv4OptionType() == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) || m_Data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+				return 0;
 
-			return (size_t)m_Data->recordLen - (2*sizeof(uint8_t));
+			return static_cast<size_t>(m_Data->recordLen) - (2*sizeof(uint8_t));
 		}
 
 	private:
@@ -369,7 +369,7 @@ namespace pcpp
 			if (data == nullptr)
 				return IPV4OPT_Unknown;
 
-			return (IPv4OptionTypes)data->recordType;
+			return static_cast<IPv4OptionTypes>(data->recordType);
 		}
 	};
 
@@ -637,7 +637,7 @@ namespace pcpp
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		size_t getHeaderLen() const { return (size_t)((uint16_t)(getIPv4Header()->internetHeaderLength) * 4) + m_TempHeaderExtension; }
+		size_t getHeaderLen() const { return static_cast<size_t>(static_cast<uint16_t>(getIPv4Header()->internetHeaderLength) * 4) + m_TempHeaderExtension; }
 
 		/**
 		 * Calculate the following fields:

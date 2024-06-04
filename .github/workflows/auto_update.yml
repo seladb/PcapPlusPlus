@@ -25,7 +25,7 @@ jobs:
             pip install pre-commit
             pre-commit autoupdate
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@c55203cfde3e5c11a452d352b4393e68b85b4533 # v6.0.3
+        uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
         with:
           token: ${{ secrets.PAT }}
           author: GitHub <noreply@github.com>
@@ -58,7 +58,7 @@ jobs:
             python3 3rdParty/OUIDataset/create_oui_data.py
             mv -f PCPP_OUIDataset.json 3rdParty/OUIDataset/PCPP_OUIDataset.json
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@c55203cfde3e5c11a452d352b4393e68b85b4533 # v6.0.3
+        uses: peter-evans/create-pull-request@6d6857d36972b65feb161a90e484f2984215f83e # v6.0.5
         with:
           token: ${{ secrets.PAT }}
           author: GitHub <noreply@github.com>

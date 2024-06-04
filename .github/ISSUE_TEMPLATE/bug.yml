@@ -1,0 +1,103 @@
+name: Bug report
+description: Submit a bug report
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **New to PcapPlusPlus?**
+
+        For help or advice on using PcapPlusPlus, try one of the following options instead of opening a GitHub issue:
+
+        - Post a message in PcapPlusPlus Google group: https://groups.google.com/d/forum/pcapplusplus-support
+        - Ask a question on Stack Overflow: https://stackoverflow.com/questions/tagged/pcapplusplus
+        - Send an email to: pcapplusplus@gmail.com
+        - Follow us on Twitter: https://twitter.com/seladb
+
+        Make sure to also search the [PcapPlusPlus issue tracker](https://github.com/seladb/PcapPlusPlus/issues) to check that the bug has not already been reported.
+
+        You can check more information about how to report a bug in the [PcapPlusPlus page](https://pcapplusplus.github.io/community#report-an-issue).
+  - type: textarea
+    attributes:
+      label: "Bug description"
+      description: >
+        Give a clear and concise description of what happened.
+        Include a [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example) if possible.
+        [Copy and paste code where possible rather than using screenshots](https://meta.stackoverflow.com/a/285557/13990016),
+        and put any code blocks inside triple backticks.
+
+      value: |
+        **Describe the bug**
+        A clear and concise description of what the bug is.
+
+        **Code example to reproduce**
+        ```cpp
+        // Add a code block here, if required
+        ```
+
+        **Expected behavior**
+        A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: "PcapPlusPlus versions tested on"
+      multiple: true
+      options:
+        - "PcapPlusPlus master branch"
+        - "v23.09"
+        - "v22.11"
+        - "v22.05"
+        - "v21.11"
+        - "v21.05"
+        - "Other (specify in the next question)"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Other PcapPlusPlus version (if applicable)"
+      description: If you select "Other", please specify the version of PcapPlusPlus you tested on.
+      placeholder: ex. Build with commit hash 1234567
+    validations:
+      required: false
+  - type: dropdown
+    attributes:
+      label: "Operating systems tested on"
+      multiple: true
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - FreeBSD
+        - Android
+        - Other (specify in the next question)
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Other operation systems (if applicable)"
+      description: If you select "Other", please specify the operation system you tested on.
+      placeholder: ex. ChromeOS, Solaris
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: "Compiler version"
+      description: Please specify the compiler version you used.
+      placeholder: ex. GCC 10.2.0
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: "Packet capture backend (if applicable)"
+      multiple: true
+      options:
+        - libpcap
+        - PF_RING
+        - DPDK
+        - WinPcap
+        - Npcap
+        - XDP
+        - N/A
+    validations:
+      required: false
