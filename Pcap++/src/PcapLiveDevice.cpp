@@ -76,7 +76,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
-	IPcapDevice(), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+	IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -678,7 +678,7 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
-bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
+bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
 {
 	if (packetPayloadLength > static_cast<int>(m_DeviceMtu))
 	{
