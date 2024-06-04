@@ -46,8 +46,10 @@ namespace pcpp
 		// It is used by the other overloads for casting different kinds of pointers/references into shared_ptr.
 		static std::unique_ptr<PcapRemoteDeviceList> getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth);
 	public:
-		PcapRemoteDeviceList(const PcapRemoteDeviceList& other) = delete;
-		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other) = delete;
+		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
+		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
+		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList&) = delete;
+		PcapRemoteDeviceList& operator=(PcapRemoteDeviceList&&) noexcept = delete;
 
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list

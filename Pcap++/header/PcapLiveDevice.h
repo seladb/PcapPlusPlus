@@ -137,8 +137,10 @@ namespace pcpp
 		static void onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 		static void onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet);
 	public:
-		PcapLiveDevice(const PcapLiveDevice& other) = delete;
-		PcapLiveDevice& operator=(const PcapLiveDevice& other) = delete;
+		PcapLiveDevice(const PcapLiveDevice&) = delete;
+		PcapLiveDevice(PcapLiveDevice&&) noexcept = delete;
+		PcapLiveDevice& operator=(const PcapLiveDevice&) = delete;
+		PcapLiveDevice& operator=(PcapLiveDevice&&) noexcept = delete;
 
 		/**
 		 * The type of the live device

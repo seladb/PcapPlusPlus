@@ -42,8 +42,10 @@ namespace pcpp
 
 		void updateLiveDeviceListView() const;
 	public:
-		PcapLiveDeviceList(const PcapLiveDeviceList& other) = delete;
-		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other) = delete;
+		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
+		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
+		PcapLiveDeviceList& operator=(const PcapLiveDeviceList&) = delete;
+		PcapLiveDeviceList& operator=(PcapLiveDeviceList&&) noexcept = delete;
 
 		/**
 		 * The access method to the singleton

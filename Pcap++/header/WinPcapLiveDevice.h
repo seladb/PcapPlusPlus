@@ -29,8 +29,10 @@ namespace pcpp
 		WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 
 	public:
-		WinPcapLiveDevice(const WinPcapLiveDevice& other) = delete;
-		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other) = delete;
+		WinPcapLiveDevice(const WinPcapLiveDevice&) = delete;
+		WinPcapLiveDevice(WinPcapLiveDevice&&) noexcept = delete;
+		WinPcapLiveDevice& operator=(const WinPcapLiveDevice&) = delete;
+		WinPcapLiveDevice& operator=(WinPcapLiveDevice&&) noexcept = delete;
 
 		virtual LiveDeviceType getDeviceType() const { return WinPcapDevice; }
 

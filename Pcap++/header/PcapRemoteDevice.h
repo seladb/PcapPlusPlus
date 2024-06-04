@@ -93,8 +93,10 @@ namespace pcpp
 		ThreadStart getCaptureThreadStart();
 
 	public:
-		PcapRemoteDevice(const PcapRemoteDevice& other) = delete;
-		PcapRemoteDevice& operator=(const PcapRemoteDevice& other) = delete;
+		PcapRemoteDevice(const PcapRemoteDevice&) = delete;
+		PcapRemoteDevice(PcapRemoteDevice&&) noexcept = delete;
+		PcapRemoteDevice& operator=(const PcapRemoteDevice&) = delete;
+		PcapRemoteDevice& operator=(PcapRemoteDevice&&) noexcept = delete;
 
 		virtual ~PcapRemoteDevice() {}
 
