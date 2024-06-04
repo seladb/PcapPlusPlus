@@ -9,6 +9,7 @@
 #include "DeviceUtils.h"
 #include "MemoryUtils.h"
 #include "pcap.h"
+#include <array>
 #include <ws2tcpip.h>
 
 namespace pcpp
@@ -159,12 +160,12 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addressInfo.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addressInfo.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addressInfo.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addressInfo.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
@@ -200,12 +201,12 @@ std::shared_ptr<PcapRemoteDevice> PcapRemoteDeviceList::getRemoteDeviceByIP(cons
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addressInfo.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addressInfo.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addressInfo.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addressInfo.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");

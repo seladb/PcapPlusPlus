@@ -449,7 +449,7 @@ namespace pcpp
 		 * @param[in] packetPayloadLength The length of the IP layer of the packet
 		 * @return True if the packetPayloadLength is less than or equal to the device MTU
 		 */
-		bool doMtuCheck(int packetPayloadLength);
+		bool doMtuCheck(int packetPayloadLength) const;
 
 		/**
 		 * Send a RawPacket to the network

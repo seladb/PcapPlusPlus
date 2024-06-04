@@ -230,7 +230,7 @@ void PcapLiveDeviceList::setDnsServers()
 		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
 		if (saddr == nullptr)
 			continue;
-		in_addr* inaddr = internal::sockaddr2in_addr(saddr);
+		in_addr* inaddr = internal::try_sockaddr2in_addr(saddr);
 		if (inaddr == nullptr)
 			continue;
 
@@ -303,12 +303,12 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addressInfo.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addressInfo.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addressInfo.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");
@@ -343,12 +343,12 @@ std::shared_ptr<PcapLiveDevice> PcapLiveDeviceList::getPcapLiveDeviceByIp(const 
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addressInfo.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addressInfo.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addressInfo.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");

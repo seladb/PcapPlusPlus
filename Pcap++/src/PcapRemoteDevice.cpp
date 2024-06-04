@@ -120,7 +120,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 		return;
 	}
 	stats.packetsRecv = tempStats->ps_capt;
-	stats.packetsDrop = tempStats->ps_drop + tempStats->ps_netdrop;
+	stats.packetsDrop = static_cast<uint64_t>(tempStats->ps_drop) + tempStats->ps_netdrop;
 	stats.packetsDropByInterface = tempStats->ps_ifdrop;
 }
 
