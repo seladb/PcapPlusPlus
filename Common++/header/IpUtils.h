@@ -106,11 +106,5 @@ namespace pcpp
 		 */
 		std::string sockaddr2string(sockaddr const* sa);
 
-		/**
-		 * Convert a in_addr format address to 32bit representation
-		 * @param[in] inAddr Address in in_addr format
-		 * @return Address in 32bit format
-		 */
-		uint32_t in_addr2int(in_addr inAddr);
 	} // namespace internal
 } // namespace pcpp
