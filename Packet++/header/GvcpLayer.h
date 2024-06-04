@@ -3,6 +3,8 @@
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"
+#include "SystemUtils.h"
+#include <iostream>
 
 /**
  * @file GvcpLayer.h
@@ -63,6 +65,8 @@ namespace pcpp
 		Unknown = 0xFFFF
 	};
 
+	std::ostream &operator<<(std::ostream &os, GvcpCommand command);
+
 	/// @brief Gvcp response status
 	/// See spec "Table 19-1: List of Standard Status Codes"
 	enum class GvcpResponseStatus : uint16_t
@@ -96,18 +100,37 @@ namespace pcpp
 		Unknown = 0xFFFF
 	};
 
+	std::ostream &operator<<(std::ostream &os, GvcpResponseStatus status);
+
 #pragma pack(push, 1)
 	/// @brief Gvcp request header
-	/// @note refer to the spec "15.1 Request Header"
+	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
 	struct GvcpRequestHeader
 	{
+	  protected:
 		uint8_t magicNumber = detail::kGvcpMagicNumber; // always fixed
-		GvcpFlag flag = 0; // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
-		GvcpCommand command = GvcpCommand::Unknown;
+		uint8_t flag = 0; // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
+		uint16_t command = 0;
 		uint16_t dataSize = 0;
 		uint16_t requestId = 0;
 
+	  public:
 		// ------------- methods --------------
+		GvcpRequestHeader() = default;
+
+		GvcpRequestHeader(GvcpFlag flag, GvcpCommand command, uint16_t dataSize, uint16_t requestId)
+			: flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
+			  requestId(hostToNet16(requestId))
+		{
+		}
+
+		GvcpFlag getFlag() const { return flag; }
+
+		GvcpCommand getCommand() const { return static_cast<GvcpCommand>(netToHost16(command)); }
+
+		uint16_t getDataSize() const { return netToHost16(dataSize); }
+
+		uint16_t getRequestId() const { return netToHost16(requestId); }
 
 		/**
 		 * @brief Verify the magic number
@@ -146,27 +169,37 @@ namespace pcpp
 	};
 
 	/// @brief Gvcp acknowledge header
-	/// @note refer to the spec "15.2 Acknowledge Header"
+	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
 	struct GvcpAckHeader
 	{
-		GvcpResponseStatus status = GvcpResponseStatus::Unknown;
-		GvcpCommand command = GvcpCommand::Unknown;
+	  protected:
+		uint16_t status = 0;
+		uint16_t command = 0;
 		uint16_t dataSize = 0;
 		uint16_t ackId = 0;
 
+	  public:
 		// ------------- methods --------------
-		void deserialize(const uint8_t *data)
+		GvcpAckHeader() = default;
+
+		GvcpAckHeader(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize, uint16_t ackId)
+			: status(hostToNet16(static_cast<uint16_t>(status))), command(hostToNet16(static_cast<uint16_t>(command))),
+			  dataSize(hostToNet16(dataSize)), ackId(hostToNet16(ackId))
 		{
-			status = static_cast<GvcpResponseStatus>(data[1] | (data[0] << 8));
-			command = static_cast<GvcpCommand>(data[3] | (data[2] << 8));
-			dataSize = data[5] | (data[4] << 8);
-			ackId = data[7] | (data[6] << 8);
 		}
+
+		GvcpResponseStatus getStatus() const { return static_cast<GvcpResponseStatus>(netToHost16(status)); }
+
+		GvcpCommand getCommand() const { return static_cast<GvcpCommand>(netToHost16(command)); }
+
+		uint16_t getDataSize() const { return netToHost16(dataSize); }
+
+		uint16_t getAckId() const { return netToHost16(ackId); }
 	};
 	static_assert(sizeof(GvcpAckHeader) == detail::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
 
 	/// @brief Gvcp discovery acknowledge body
-	/// @note refer to the spec "16.1.2 DISCOVERY_ACK"
+	/// @note refer to the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
 	struct GvcpDiscoveryBody
 	{
 		uint16_t versionMajor = 0;
@@ -327,6 +360,7 @@ namespace pcpp
 		 * @param[in] dataSize The size of the data in bytes, optional
 		 * @param[in] flag The flag, optional
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
+		 * @note all the parameters wil be converted to the network byte order
 		 */
 		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t *data = nullptr, uint16_t dataSize = 0,
 								  GvcpFlag flag = 0, uint16_t requestId = 1);
@@ -336,6 +370,8 @@ namespace pcpp
 		 * @return GvcpRequestHeader* A pointer to the header object
 		 */
 		GvcpRequestHeader *getGvcpHeader() const { return m_Header; }
+
+		GvcpCommand getCommand() const { return m_Header->getCommand(); }
 
 		// implement Layer's abstract methods
 		std::string toString() const override { return ""; };
@@ -375,6 +411,7 @@ namespace pcpp
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] ackId The acknowledge ID, optional
+		 * @note all the parameters wil be converted to the network byte order
 		 */
 		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
 									  const uint8_t *payloadData = nullptr, uint16_t payloadDataSize = 0,
@@ -398,7 +435,7 @@ namespace pcpp
 		 * Use the command type to determine the response body.
 		 * @return GvcpCommand The response command type
 		 */
-		GvcpCommand getCommand() const { return m_Header->command; }
+		GvcpCommand getCommand() const { return m_Header->getCommand(); }
 
 		// implement Layer's abstract methods
 		std::string toString() const override { return ""; };

@@ -17,10 +17,10 @@ PTF_TEST_CASE(GvcpBasicTest)
 
 		GvcpRequestHeader *header = gvcpRequestLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
-		PTF_ASSERT_EQUAL(uint16_t(header->command), uint16_t(GvcpCommand::DiscoveredCmd));
-		PTF_ASSERT_EQUAL(header->flag, 1);
-		PTF_ASSERT_EQUAL(header->requestId, 2);
-		PTF_ASSERT_EQUAL(header->dataSize, payload.size());
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
+		PTF_ASSERT_EQUAL(header->getFlag(), 1);
+		PTF_ASSERT_EQUAL(header->getRequestId(), 2);
+		PTF_ASSERT_EQUAL(header->getDataSize(), payload.size());
 	}
 	{
 		std::vector<uint8_t> payload = {0x00, 0x01, 0x02, 0x03};
@@ -29,15 +29,16 @@ PTF_TEST_CASE(GvcpBasicTest)
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader *header = gvcpAcknowledgeLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
-		PTF_ASSERT_EQUAL(uint16_t(header->status), uint16_t(GvcpResponseStatus::Success));
-		PTF_ASSERT_EQUAL(uint16_t(header->command), uint16_t(GvcpCommand::DiscoveredAck));
-		PTF_ASSERT_EQUAL(header->ackId, 2);
-		PTF_ASSERT_EQUAL(header->dataSize, payload.size());
+		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
+		PTF_ASSERT_EQUAL(header->getAckId(), 2);
+		PTF_ASSERT_EQUAL(header->getDataSize(), payload.size());
 	}
 }
 
 PTF_TEST_CASE(GvcpDiscoveryAck)
 {
+	//
 	try
 	{
 		using namespace pcpp;
@@ -53,10 +54,10 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader *header = gvcpAcknowledgeLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
-		PTF_ASSERT_EQUAL(uint16_t(header->status), uint16_t(GvcpResponseStatus::Success));
-		PTF_ASSERT_EQUAL(uint16_t(header->command), uint16_t(GvcpCommand::DiscoveredAck));
-		PTF_ASSERT_EQUAL(header->ackId, 1);
-		PTF_ASSERT_EQUAL(header->dataSize, udpLayer->getLayerPayloadSize() - sizeof(GvcpAckHeader));
+		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
+		PTF_ASSERT_EQUAL(header->getAckId(), 1);
+		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpAckHeader));
 
 		auto discoveryBody = gvcpAcknowledgeLayer.getGvcpDiscoveryBody();
 		PTF_ASSERT_TRUE(discoveryBody != nullptr);

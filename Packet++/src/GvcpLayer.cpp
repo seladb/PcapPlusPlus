@@ -10,6 +10,19 @@
 
 namespace pcpp
 {
+
+	std::ostream &operator<<(std::ostream &os, GvcpCommand command)
+	{
+		os << "0x" << std::hex << static_cast<uint16_t>(command) << std::dec;
+		return os;
+	}
+
+	std::ostream &operator<<(std::ostream &os, GvcpResponseStatus status)
+	{
+		os << "0x" << std::hex << static_cast<uint16_t>(status) << std::dec;
+		return os;
+	}
+
 	/*---------------------- Class GvcpLayer ----------------------------*/
 
 	GvcpLayer::GvcpLayer(uint8_t *data, size_t dataSize, Layer *prevLayer, Packet *packet)
@@ -31,15 +44,11 @@ namespace pcpp
 									   uint16_t requestId)
 	{
 		m_Protocol = Gvcp;
-		m_Header = new GvcpRequestHeader();
-		memcpy(m_Header, data, sizeof(GvcpRequestHeader));
-		m_DataLen = dataSize - sizeof(GvcpRequestHeader);
-		m_Data = new uint8_t[sizeof(GvcpRequestHeader)];
+		m_Header = new GvcpRequestHeader(flag, command, dataSize, requestId);
 
-		m_Header->command = command;
-		m_Header->flag = flag;
-		m_Header->requestId = requestId;
-		m_Header->dataSize = dataSize;
+		m_DataLen = dataSize;
+		m_Data = new uint8_t[sizeof(GvcpRequestHeader)];
+		memcpy(m_Data, data + sizeof(GvcpRequestHeader), m_DataLen);
 	}
 
 	/*---------------------- Class GvcpAcknowledgeLayer ----------------------------*/
@@ -56,22 +65,17 @@ namespace pcpp
 											   const uint8_t *payloadData, uint16_t payloadDataSize, uint16_t ackId)
 	{
 		m_Protocol = Gvcp;
-		m_Header = new GvcpAckHeader();
+		m_Header = new GvcpAckHeader(status, command, payloadDataSize, ackId);
 		m_DataLen = payloadDataSize;
 		m_Data = new uint8_t[m_DataLen];
 		memcpy(m_Data, payloadData, m_DataLen);
-
-		m_Header->status = status;
-		m_Header->command = command;
-		m_Header->ackId = ackId;
-		m_Header->dataSize = payloadDataSize;
 	}
 
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(const uint8_t *data, uint16_t dataSize)
 	{
 		m_Protocol = Gvcp;
 		m_Header = new GvcpAckHeader();
-		m_Header->deserialize(data);
+		std::memcpy(m_Header, data, sizeof(GvcpAckHeader));
 
 		m_DataLen = dataSize - sizeof(GvcpAckHeader);
 		m_Data = new uint8_t[m_DataLen];
