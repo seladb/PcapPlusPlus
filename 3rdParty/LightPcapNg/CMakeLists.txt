@@ -24,6 +24,13 @@ add_library(
 
 target_compile_definitions(light_pcapng PUBLIC -DUNIVERSAL)
 
+# FIXME: https://github.com/seladb/PcapPlusPlus/issues/1347
+include(CheckCCompilerFlag)
+check_c_compiler_flag(-Wincompatible-pointer-types HAVE_W_INCOMPATIBLE_POINTER_TYPES)
+if(HAVE_W_INCOMPATIBLE_POINTER_TYPES)
+  target_compile_options(light_pcapng PRIVATE -Wno-incompatible-pointer-types)
+endif()
+
 if(BUILD_SHARED_LIBS)
   set_property(TARGET light_pcapng PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()

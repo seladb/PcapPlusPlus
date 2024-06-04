@@ -2,6 +2,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <type_traits>
 
 /// @file
 
@@ -64,4 +65,17 @@ namespace pcpp
 		int mask = alignment - 1;
 		return (number + mask) & ~mask;
 	}
+
+	/**
+	 * A template class to calculate enum class hash
+	 * @tparam EnumClass
+	 */
+	template<typename EnumClass, typename std::enable_if<std::is_enum<EnumClass>::value , bool>::type = false>
+	struct EnumClassHash
+	{
+		size_t operator()(EnumClass value) const
+		{
+			return static_cast<typename std::underlying_type<EnumClass>::type>(value);
+		}
+	};
 }
