@@ -17,6 +17,7 @@
 #include <chrono>
 #include <sstream>
 #include <vector>
+#include <array>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -93,9 +94,9 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		pInterface->addresses = pInterface->addresses->next;
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != nullptr && pInterface->addresses->addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
-			PCPP_LOG_DEBUG("      " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(pInterface->addresses->addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("      " << addrAsString.data());
 		}
 	}
 
@@ -1094,12 +1095,12 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter.addr, addrAsString);
-			PCPP_LOG_DEBUG("Searching address " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 		}
 
-		in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+		in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
@@ -1125,11 +1126,11 @@ IPv6Address PcapLiveDevice::getIPv6Address() const
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter.addr, addrAsString);
-			PCPP_LOG_DEBUG("Searching address " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 		}
-		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+		in6_addr *currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
