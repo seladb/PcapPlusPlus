@@ -163,7 +163,7 @@ namespace pcpp {
 		return LdapResultCodeToString.at(m_Value);
 	}
 
-	static LdapResultCode fromUintValue(uint8_t value)
+	LdapResultCode LdapResultCode::fromUintValue(uint8_t value)
 	{
 		auto result = UintToLdapResultCode.find(value);
 		if (result != UintToLdapResultCode.end())
@@ -249,6 +249,18 @@ namespace pcpp {
 					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchResultEntry:
 					return new LdapSearchResultEntryLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::SearchResultDone:
+					return new LdapSearchResultDoneLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::ModifyResponse:
+					return new LdapModifyResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::AddResponse:
+					return new LdapAddResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::DelResponse:
+					return new LdapDeleteResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::ModifyDNResponse:
+					return new LdapModifyDNResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::CompareResponse:
+					return new LdapCompareResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::Unknown:
 					return nullptr;
 				default:
@@ -316,6 +328,73 @@ namespace pcpp {
 
 		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
 	}
+	// endregion
+
+	// region LdapResponseLayer
+
+	LdapResponseLayer::LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
+		const std::vector<LdapControl>& controls)
+	{
+		Asn1EnumeratedRecord resultCodeRecord(resultCode);
+		Asn1OctetStringRecord matchedDNRecord(matchedDN);
+		Asn1OctetStringRecord diagnosticMessageRecord(diagnosticMessage);
+
+		std::vector<Asn1Record*> messageRecords = {&resultCodeRecord, &matchedDNRecord, &diagnosticMessageRecord};
+
+		std::unique_ptr<Asn1ConstructedRecord> referralRecord;
+		if (!referral.empty())
+		{
+			PointerVector<Asn1Record> referralSubRecords;
+			for (const auto& uri : referral)
+			{
+				referralSubRecords.pushBack(new Asn1OctetStringRecord(uri));
+			}
+			referralRecord = std::unique_ptr<Asn1ConstructedRecord>(new Asn1ConstructedRecord(
+				Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords));
+			messageRecords.push_back(referralRecord.get());
+		}
+
+		LdapLayer::init(messageId, operationType, messageRecords, controls);
+	}
+
+	LdapResultCode LdapResponseLayer::getResultCode() const
+	{
+		return LdapResultCode::fromUintValue(getLdapOperationAsn1Record()->getSubRecords().at(resultCodeIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+	}
+
+	std::string LdapResponseLayer::getMatchedDN() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(matchedDNIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::string LdapResponseLayer::getDiagnosticMessage() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(diagnotsticsMessageIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::vector<std::string> LdapResponseLayer::getReferral() const
+	{
+		std::vector<std::string> result;
+		if (getLdapOperationAsn1Record()->getSubRecords().size() <= referralIndex)
+		{
+			return result;
+		}
+
+		auto referralRecord = getLdapOperationAsn1Record()->getSubRecords().at(referralIndex);
+		if (referralRecord->getTagClass() != Asn1TagClass::ContextSpecific || referralRecord->getTagType() != referralTagType)
+		{
+			return result;
+		}
+
+		for (auto uriRecord : referralRecord->castAs<Asn1ConstructedRecord>()->getSubRecords())
+		{
+			result.push_back(uriRecord->castAs<Asn1OctetStringRecord>()->getValue());
+		}
+
+		return result;
+	}
+
 	// endregion
 
 	// region LdapSearchRequestLayer

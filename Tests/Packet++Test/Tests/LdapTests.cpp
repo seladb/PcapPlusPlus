@@ -163,6 +163,101 @@ PTF_TEST_CASE(LdapParsingTest)
 		};
 		PTF_ASSERT_VECTORS_EQUAL(searchResultEntryLayer->getAttributes(), expectedAttributes);
 	}
+
+	// LdapSearchResultDoneLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_done.dat");
+		pcpp::Packet searchResultDonePacket(&rawPacket1);
+
+		auto searchResultDoneLayer = searchResultDonePacket.getLayerOfType<pcpp::LdapSearchResultDoneLayer>();
+		PTF_ASSERT_NOT_NULL(searchResultDoneLayer);
+		PTF_ASSERT_EQUAL(searchResultDoneLayer->getMessageID(), 8);
+		PTF_ASSERT_EQUAL(searchResultDoneLayer->getLdapOperationType(), pcpp::LdapOperationType::SearchResultDone, enum);
+		PTF_ASSERT_EQUAL(searchResultDoneLayer->getResultCode(), pcpp::LdapResultCode::Success, enum);
+		PTF_ASSERT_EQUAL(searchResultDoneLayer->getMatchedDN(), "");
+		PTF_ASSERT_EQUAL(searchResultDoneLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(searchResultDoneLayer->getReferral(), std::vector<std::string>());
+	}
+
+	// LdapModifyResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_response.dat");
+		pcpp::Packet modifyResponsePacket(&rawPacket1);
+
+		auto modifyResponseLayer = modifyResponsePacket.getLayerOfType<pcpp::LdapModifyResponseLayer>();
+		PTF_ASSERT_NOT_NULL(modifyResponseLayer);
+		PTF_ASSERT_EQUAL(modifyResponseLayer->getMessageID(), 14);
+		PTF_ASSERT_EQUAL(modifyResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::ModifyResponse, enum);
+		PTF_ASSERT_EQUAL(modifyResponseLayer->getResultCode(), pcpp::LdapResultCode::NoSuchObject, enum);
+		PTF_ASSERT_EQUAL(modifyResponseLayer->getMatchedDN(), "");
+		PTF_ASSERT_EQUAL(modifyResponseLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(modifyResponseLayer->getReferral(), std::vector<std::string>());
+	}
+
+	// LdapAddResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_add_response.dat");
+		pcpp::Packet addResponsePacket(&rawPacket1);
+
+		auto addResponseLayer = addResponsePacket.getLayerOfType<pcpp::LdapAddResponseLayer>();
+		PTF_ASSERT_NOT_NULL(addResponseLayer);
+		PTF_ASSERT_EQUAL(addResponseLayer->getMessageID(), 27);
+		PTF_ASSERT_EQUAL(addResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::AddResponse, enum);
+		PTF_ASSERT_EQUAL(addResponseLayer->getResultCode(), pcpp::LdapResultCode::Success, enum);
+		PTF_ASSERT_EQUAL(addResponseLayer->getMatchedDN(), "");
+		PTF_ASSERT_EQUAL(addResponseLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(addResponseLayer->getReferral(), std::vector<std::string>());
+	}
+
+	// LdapDeleteResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_delete_response.dat");
+		pcpp::Packet deleteResponsePacket(&rawPacket1);
+
+		auto deleteResponseLayer = deleteResponsePacket.getLayerOfType<pcpp::LdapDeleteResponseLayer>();
+		PTF_ASSERT_NOT_NULL(deleteResponseLayer);
+		PTF_ASSERT_EQUAL(deleteResponseLayer->getMessageID(), 27);
+		PTF_ASSERT_EQUAL(deleteResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::DelResponse, enum);
+		PTF_ASSERT_EQUAL(deleteResponseLayer->getResultCode(), pcpp::LdapResultCode::NoSuchObject, enum);
+		PTF_ASSERT_EQUAL(deleteResponseLayer->getMatchedDN(), "ou=People,dc=example,dc=com");
+		PTF_ASSERT_EQUAL(deleteResponseLayer->getDiagnosticMessage(), "LDAP: error code 32 - No such object");
+
+		std::vector<std::string> expectedReferral = {
+			"ldap://ldap.example.com/dc=example,dc=com",
+			"ldap://ldap.example.com/dc=example,dc=com?objectClass?one"
+		};
+		PTF_ASSERT_VECTORS_EQUAL(deleteResponseLayer->getReferral(), expectedReferral);
+	}
+
+	// LdapModifyDNResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_dn_response.dat");
+		pcpp::Packet modifyDNResponsePacket(&rawPacket1);
+
+		auto modifyDNResponseLayer = modifyDNResponsePacket.getLayerOfType<pcpp::LdapModifyDNResponseLayer>();
+		PTF_ASSERT_NOT_NULL(modifyDNResponseLayer);
+		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getMessageID(), 15);
+		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::ModifyDNResponse, enum);
+		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getResultCode(), pcpp::LdapResultCode::NoSuchObject, enum);
+		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getMatchedDN(), "ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org");
+		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(modifyDNResponseLayer->getReferral(), std::vector<std::string>());
+	}
+
+	// LdapCompareResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_compare_response.dat");
+		pcpp::Packet compareResponsePacket(&rawPacket1);
+
+		auto compareResponseLayer = compareResponsePacket.getLayerOfType<pcpp::LdapCompareResponseLayer>();
+		PTF_ASSERT_NOT_NULL(compareResponseLayer);
+		PTF_ASSERT_EQUAL(compareResponseLayer->getMessageID(), 28);
+		PTF_ASSERT_EQUAL(compareResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::CompareResponse, enum);
+		PTF_ASSERT_EQUAL(compareResponseLayer->getResultCode(), pcpp::LdapResultCode::CompareFalse, enum);
+		PTF_ASSERT_EQUAL(compareResponseLayer->getMatchedDN(), "");
+		PTF_ASSERT_EQUAL(compareResponseLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(compareResponseLayer->getReferral(), std::vector<std::string>());
+	}
 } // LdapParsingTest
 
 
@@ -281,5 +376,95 @@ PTF_TEST_CASE(LdapCreationTest)
 
 		PTF_ASSERT_BUF_COMPARE(searchResultEntryLayer.getData(), expectedSearchResultEntryLayer->getData(),
 			expectedSearchResultEntryLayer->getDataLen());
+	}
+
+	// LdapSearchResultDoneLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_done.dat");
+		pcpp::Packet searchResultDonePacket(&rawPacket1);
+
+		pcpp::LdapSearchResultDoneLayer searchResultDoneLayer(8, pcpp::LdapResultCode::Success, "", "");
+
+		auto expectedSearchResultDoneLayer = searchResultDonePacket.getLayerOfType<pcpp::LdapSearchResultDoneLayer>();
+		PTF_ASSERT_NOT_NULL(expectedSearchResultDoneLayer);
+
+		PTF_ASSERT_BUF_COMPARE(searchResultDoneLayer.getData(), expectedSearchResultDoneLayer->getData(),
+			expectedSearchResultDoneLayer->getDataLen());
+	}
+
+	// LdapModifyResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_response.dat");
+		pcpp::Packet modifyResponsePacket(&rawPacket1);
+
+		pcpp::LdapModifyResponseLayer modifyResponseLayer(14, pcpp::LdapResultCode::NoSuchObject, "", "");
+
+		auto expectedModifyResponseLayer = modifyResponsePacket.getLayerOfType<pcpp::LdapModifyResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedModifyResponseLayer);
+
+		PTF_ASSERT_BUF_COMPARE(modifyResponseLayer.getData(), expectedModifyResponseLayer->getData(),
+			expectedModifyResponseLayer->getDataLen());
+	}
+
+	// LdapAddResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_add_response.dat");
+		pcpp::Packet addResponsePacket(&rawPacket1);
+
+		pcpp::LdapAddResponseLayer addResponseLayer(27, pcpp::LdapResultCode::Success, "", "");
+
+		auto expectedAddResponseLayer = addResponsePacket.getLayerOfType<pcpp::LdapAddResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedAddResponseLayer);
+
+		PTF_ASSERT_BUF_COMPARE(addResponseLayer.getData(), expectedAddResponseLayer->getData(),
+			expectedAddResponseLayer->getDataLen());
+	}
+
+	// LdapDeleteResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_delete_response.dat");
+		pcpp::Packet deleteResponsePacket(&rawPacket1);
+
+		std::vector<std::string> referral = {
+			"ldap://ldap.example.com/dc=example,dc=com",
+			"ldap://ldap.example.com/dc=example,dc=com?objectClass?one"
+		};
+
+		pcpp::LdapDeleteResponseLayer deleteResponseLayer(27, pcpp::LdapResultCode::NoSuchObject, "ou=People,dc=example,dc=com",
+			"LDAP: error code 32 - No such object", referral);
+
+		auto expectedDeleteResponseLayer = deleteResponsePacket.getLayerOfType<pcpp::LdapDeleteResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedDeleteResponseLayer);
+
+		PTF_ASSERT_BUF_COMPARE(deleteResponseLayer.getData(), expectedDeleteResponseLayer->getData(),
+			expectedDeleteResponseLayer->getDataLen());
+	}
+
+	// LdapModifyDNResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_modify_dn_response.dat");
+		pcpp::Packet modifyDNResponsePacket(&rawPacket1);
+
+		pcpp::LdapModifyDNResponseLayer modifyDNResponseLayer(15, pcpp::LdapResultCode::NoSuchObject, "ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org", "");
+
+		auto expectedModifyDNResponseLayer = modifyDNResponsePacket.getLayerOfType<pcpp::LdapModifyDNResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedModifyDNResponseLayer);
+
+		PTF_ASSERT_BUF_COMPARE(modifyDNResponseLayer.getData(), expectedModifyDNResponseLayer->getData(),
+			expectedModifyDNResponseLayer->getDataLen());
+	}
+
+	// LdapCompareResponseLayer
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_compare_response.dat");
+		pcpp::Packet compareResponsePacket(&rawPacket1);
+
+		pcpp::LdapCompareResponseLayer compareResponseLayer(28, pcpp::LdapResultCode::CompareFalse, "", "");
+
+		auto expectedCompareResponseLayer = compareResponsePacket.getLayerOfType<pcpp::LdapCompareResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedCompareResponseLayer);
+
+		PTF_ASSERT_BUF_COMPARE(compareResponseLayer.getData(), expectedCompareResponseLayer->getData(),
+			expectedCompareResponseLayer->getDataLen());
 	}
 } // LdapCreationTest

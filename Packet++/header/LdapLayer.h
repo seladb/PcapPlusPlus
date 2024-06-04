@@ -358,6 +358,30 @@ namespace pcpp
 		}
 	};
 
+	class LdapResponseLayer : public LdapLayer
+	{
+	public:
+		LdapResultCode getResultCode() const;
+		std::string getMatchedDN() const;
+		std::string getDiagnosticMessage() const;
+		std::vector<std::string> getReferral() const;
+	protected:
+		static constexpr int resultCodeIndex = 0;
+		static constexpr int matchedDNIndex = 1;
+		static constexpr int diagnotsticsMessageIndex = 2;
+		static constexpr int referralIndex = 3;
+
+		static constexpr uint8_t referralTagType = 3;
+
+		LdapResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+
+		LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+			const std::string& matchedDN, const std::string& diagnosticMessage,
+			const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+	};
+
 	/**
 	 * @class LdapSearchRequestLayer
 	 * Represents LDAP search request operation
@@ -628,6 +652,90 @@ namespace pcpp
 
 		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	class LdapSearchResultDoneLayer : public LdapResponseLayer
+	{
+	public:
+		LdapSearchResultDoneLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::SearchResultDone, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapSearchResultDoneLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	class LdapModifyResponseLayer : public LdapResponseLayer
+	{
+	public:
+		LdapModifyResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::ModifyResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapModifyResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	class LdapAddResponseLayer : public LdapResponseLayer
+	{
+	public:
+		LdapAddResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::AddResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapAddResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	class LdapDeleteResponseLayer : public LdapResponseLayer
+	{
+	public:
+		LdapDeleteResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::DelResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapDeleteResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	class LdapModifyDNResponseLayer : public LdapResponseLayer
+	{
+	public:
+		LdapModifyDNResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::ModifyDNResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapModifyDNResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	class LdapCompareResponseLayer : public LdapResponseLayer
+	{
+	public:
+		LdapCompareResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::CompareResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapCompareResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 	};
 } // namespace pcpp
 
