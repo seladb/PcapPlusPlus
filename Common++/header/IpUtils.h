@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <string>
 #ifdef __linux__
 #include <netinet/in.h>
 #include <arpa/inet.h>
