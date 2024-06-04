@@ -99,12 +99,10 @@ namespace pcpp
 		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen);
 
 		/**
-		 * Converts a spckaddr format address to its string representation
-		 * @param[in] sa Address in sockaddr format
-		 * @return String representation of the address
-		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, or sockaddr is nullptr.
+		 * Convert a in_addr format address to 32bit representation
+		 * @param[in] inAddr Address in in_addr format
+		 * @return Address in 32bit format
 		 */
-		std::string sockaddr2string(sockaddr const* sa);
-
+		uint32_t in_addr2int(in_addr inAddr);
 	} // namespace internal
 } // namespace pcpp
