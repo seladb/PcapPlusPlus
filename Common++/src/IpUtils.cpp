@@ -24,13 +24,10 @@ namespace pcpp
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
 
-			switch (sa->sa_family)
-			{
-			case AF_INET:
-				return &(reinterpret_cast<sockaddr_in*>(sa)->sin_addr);
-			default:
+			if (sa->sa_family != AF_INET)
 				throw std::invalid_argument("sockaddr family is not AF_INET.");
-			}
+
+			return &(reinterpret_cast<sockaddr_in*>(sa)->sin_addr);
 		}
 
 		in_addr* try_sockaddr2in_addr(sockaddr* sa)
@@ -51,13 +48,10 @@ namespace pcpp
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
 
-			switch (sa->sa_family)
-			{
-			case AF_INET6:
-				return &(reinterpret_cast<sockaddr_in6*>(sa)->sin6_addr);
-			default:
+			if (sa->sa_family != AF_INET6)
 				throw std::invalid_argument("sockaddr family is not AF_INET6.");
-			}
+
+			return &(reinterpret_cast<sockaddr_in6*>(sa)->sin6_addr);
 		}
 
 		in6_addr* try_sockaddr2in6_addr(sockaddr* sa)
