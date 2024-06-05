@@ -9,7 +9,6 @@
 [![Codecov](https://img.shields.io/codecov/c/github/seladb/PcapPlusPlus?logo=codecov&logoColor=white)](https://app.codecov.io/github/seladb/PcapPlusPlus)
 [![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
 <!--[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/seladb/PcapPlusPlus/badge)](https://scorecard.dev/viewer/?uri=github.com/seladb/PcapPlusPlus)-->
-<br>
 [![Twitter Follow](https://img.shields.io/badge/follow-%40seladb-1DA1F2?logo=twitter&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
 [![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
 
@@ -257,14 +256,15 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 38. DNS
 39. FTP
 40. HTTP headers (request & response)
-41. NTP (v3, v4)
-42. Radius
-43. S7 Communication (S7comm)
-44. SMTP
-45. SOME/IP
-46. SSH - parsing only (no editing capabilities)
-47. Telnet - parsing only (no editing capabilities)
-48. Generic payload
+41. LDAP
+42. NTP (v3, v4)
+43. Radius
+44. S7 Communication (S7comm)
+45. SMTP
+46. SOME/IP
+47. SSH - parsing only (no editing capabilities)
+48. Telnet - parsing only (no editing capabilities)
+49. Generic payload
 
 ## DPDK And PF_RING Support
 

@@ -438,7 +438,7 @@ namespace pcpp
 		 * @param[in] packetPayloadLength The length of the IP layer of the packet
 		 * @return True if the packetPayloadLength is less than or equal to the device MTU
 		 */
-		bool doMtuCheck(int packetPayloadLength);
+		bool doMtuCheck(int packetPayloadLength) const;
 
 		/**
 		 * Send a RawPacket to the network
@@ -570,12 +570,14 @@ namespace pcpp
 		 * Clones the current device class
 		 * @return Pointer to the copied class
 		 */
-		PcapLiveDevice* clone();
+		PcapLiveDevice* clone() const;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
+
+		virtual PcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const;
 	};
 
 } // namespace pcpp

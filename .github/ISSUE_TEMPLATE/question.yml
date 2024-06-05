@@ -1,0 +1,40 @@
+name: Question
+description: Submit a question
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Asking a question
+        If you have a question about PcapPlusPlus, please check the following resources before opening a new issue:
+        - [PcapPlusPlus documentation](https://pcapplusplus.github.io/docs/quickstart)
+        - [PcapPlusPlus API reference](https://pcapplusplus.github.io/docs/api)
+        - [GitHub issues tracker](https://github.com/seladb/PcapPlusPlus/issues)
+
+  - type: textarea
+    attributes:
+      label: "Question"
+      description: >
+        Explain your question in detail.
+      value: |
+        ```cpp
+        # Add a code block here, if required
+        ```
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: "Operating systems"
+      description: >
+        Select the operating systems that you are interested in.
+      multiple: true
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - FreeBSD
+        - Android
+        - Other (specify in the question)
+    validations:
+      required: false
