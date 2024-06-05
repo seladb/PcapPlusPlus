@@ -22,22 +22,9 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
-	PCPP_LOG_DEBUG("Searching remote devices on IP: " << ipAddress << " and port: " << port);
-	char remoteCaptureString[PCAP_BUF_SIZE];
-	char errbuf[PCAP_ERRBUF_SIZE];
-	std::ostringstream portAsString;
-	portAsString << port;
-	if (pcap_createsrcstr(remoteCaptureString, PCAP_SRC_IFREMOTE, ipAddress.toString().c_str(), portAsString.str().c_str(), NULL, errbuf) != 0)
-	{
-		PCPP_LOG_ERROR("Error in creating the remote connection string. Error was: " << errbuf);
-		return NULL;
-	}
-
-	PCPP_LOG_DEBUG("Remote capture string: " << remoteCaptureString);
-
-	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
-	if (remoteAuth != NULL)
+	if (remoteAuth != nullptr)
 	{
 		PCPP_LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
 		rmAuth = remoteAuth->getPcapRmAuth();
