@@ -4,6 +4,8 @@
 #include "IpAddressUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
+#include "MemoryUtils.h"
+#include "DeviceUtils.h"
 #include "SystemUtils.h"
 #include "pcap.h"
 #include <string.h>
@@ -39,32 +41,30 @@ PcapLiveDeviceList::~PcapLiveDeviceList()
 
 void PcapLiveDeviceList::init()
 {
-	pcap_if_t* interfaceList;
-	char errbuf[PCAP_ERRBUF_SIZE];
-	int err = pcap_findalldevs(&interfaceList, errbuf);
-	if (err < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR(e.what());
 	}
 
 	PCPP_LOG_DEBUG("Pcap lib version info: " << IPcapDevice::getPcapLibVersionInfo());
 
-	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != nullptr)
+
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
 #if defined(_WIN32)
 		PcapLiveDevice* dev = new WinPcapLiveDevice(currInterface, true, true, true);
 #else //__linux__, __APPLE__, __FreeBSD__
 		PcapLiveDevice* dev = new PcapLiveDevice(currInterface, true, true, true);
 #endif
-		currInterface = currInterface->next;
 		m_LiveDeviceList.insert(m_LiveDeviceList.end(), dev);
 	}
 
 	setDnsServers();
-
-	PCPP_LOG_DEBUG("Freeing live device data");
-	pcap_freealldevs(interfaceList);
 }
 
 void PcapLiveDeviceList::setDnsServers()

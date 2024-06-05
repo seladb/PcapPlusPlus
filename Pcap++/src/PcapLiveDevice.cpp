@@ -1,6 +1,8 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include "IpUtils.h"
+#include "DeviceUtils.h"
+#include "MemoryUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "Packet.h"
@@ -11,7 +13,7 @@
 #include <thread>
 #include "Logger.h"
 #include "SystemUtils.h"
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -405,32 +407,26 @@ void PcapLiveDevice::close()
 
 PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	PcapLiveDevice* retval = nullptr;
-
-	pcap_if_t* interfaceList;
-	char errbuf[PCAP_ERRBUF_SIZE];
-	int err = pcap_findalldevs(&interfaceList, errbuf);
-	if (err < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
-		return nullptr;
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR(e.what());
 	}
 
-	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != nullptr)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		if(!strcmp(currInterface->name, getName().c_str()))
-			break;
-		currInterface = currInterface->next;
+		if (!std::strcmp(currInterface->name, getName().c_str()))
+		{
+			return cloneInternal(*currInterface);
+		}
 	}
 
-	if(currInterface)
-		retval = cloneInternal(*currInterface);
-	else
-		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
-
-	pcap_freealldevs(interfaceList);
-	return retval;
+	PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+	return nullptr;
 }
 
 PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
