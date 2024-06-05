@@ -1060,9 +1060,9 @@ void PcapLiveDevice::setDefaultGateway()
 			PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
 		}
 	}
-#elif defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__APPLE__)
 
-	//route message struct for communication in BSD / APPLE device
+	//route message struct for communication in APPLE device
 	struct BSDRoutingMessage{
 		struct	rt_msghdr header;
 		char	messageSpace[512];
@@ -1077,7 +1077,7 @@ void PcapLiveDevice::setDefaultGateway()
 		return ;
 	}
 
-	bzero((char *)&routingMessage, sizeof(routingMessage));
+    memset(reinterpret_cast<char*>(&routingMessage), 0, sizeof(routingMessage));
 	routingMessage.header.rtm_msglen = sizeof(struct rt_msghdr);
 	routingMessage.header.rtm_version = RTM_VERSION;
 	routingMessage.header.rtm_type = RTM_GET;
@@ -1145,6 +1145,33 @@ void PcapLiveDevice::setDefaultGateway()
 	catch(const std::exception& e)
 	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< inet_ntoa(gate->sin_addr) << ": " << e.what());
+	}
+#elif defined(__FreeBSD__)
+    std::string command = "netstat -nr | grep default | grep " + m_Name;
+	std::string ifaceInfo = executeShellCommand(command);
+	if (ifaceInfo == "")
+	{
+		PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't get netstat output");
+		return;
+	}
+
+	// remove the word "default"
+	ifaceInfo.erase(0, 7);
+
+	// remove spaces
+	while (ifaceInfo.at(0) == ' ')
+		ifaceInfo.erase(0,1);
+
+	// erase string after gateway IP address
+	ifaceInfo.resize(ifaceInfo.find(' ', 0));
+
+	try
+	{
+		m_DefaultGateway = IPv4Address(ifaceInfo);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< ifaceInfo << ": " << e.what());
 	}
 #endif
 }
