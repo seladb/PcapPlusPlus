@@ -69,7 +69,7 @@ jobs:
           - image: rhel93
             python: python3
             config-zstd: OFF
-          - image: fedora37
+          - image: fedora39
             python: python3
             config-zstd: OFF
           - image: alpine317
