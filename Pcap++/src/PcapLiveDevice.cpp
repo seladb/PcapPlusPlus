@@ -415,6 +415,7 @@ PcapLiveDevice* PcapLiveDevice::clone() const
 	catch (const std::exception& e)
 	{
 		PCPP_LOG_ERROR(e.what());
+		return nullptr;
 	}
 
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
