@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleSomeIpSdLayer
 
 #include "SomeIpSdLayer.h"
+#include "EndianPortable.h"
 #include <algorithm>
 #include <cstring>
 #include <sstream>

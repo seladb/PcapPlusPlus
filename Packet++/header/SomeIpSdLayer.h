@@ -1,6 +1,5 @@
 #pragma once
 
-#include "EndianPortable.h"
 #include "IpAddress.h"
 #include "Layer.h"
 #include "SomeIpLayer.h"
