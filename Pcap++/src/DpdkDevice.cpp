@@ -119,7 +119,7 @@ DpdkDevice::DpdkDevice(int port, uint32_t mBufPoolSize, uint16_t mBufDataSize)
 	std::ostringstream deviceNameStream;
 	deviceNameStream << "DPDK_" << m_Id;
 	m_DeviceName = deviceNameStream.str();
-	m_DeviceSocketId =  rte_eth_dev_socket_id(m_Id);
+	m_DeviceSocketId = rte_eth_dev_socket_id(m_Id);
 
 #if (RTE_VER_YEAR > 19) || (RTE_VER_YEAR == 19 && RTE_VER_MONTH >= 8)
 	struct rte_ether_addr etherAddr;
