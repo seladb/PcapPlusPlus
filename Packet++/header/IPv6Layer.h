@@ -231,19 +231,19 @@ namespace pcpp
 		while (curExt != NULL && dynamic_cast<TIPv6Extension*>(curExt) == NULL)
 			curExt = curExt->getNextHeader();
 
-		return (TIPv6Extension*)curExt;
+		return static_cast<TIPv6Extension*>(curExt);
 	}
 
 	template<class TIPv6Extension>
 	TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader)
 	{
-		int offsetToAddHeader = (int)getHeaderLen();
+		int offsetToAddHeader = static_cast<int>(getHeaderLen());
 		if (!extendLayer(offsetToAddHeader, extensionHeader.getExtensionLen()))
 		{
 			return NULL;
 		}
 
-		TIPv6Extension* newHeader = new TIPv6Extension(this, (size_t)offsetToAddHeader);
+		TIPv6Extension* newHeader = new TIPv6Extension(this, static_cast<size_t>(offsetToAddHeader));
 		(*newHeader) = extensionHeader;
 
 		if (m_FirstExtension != NULL)
