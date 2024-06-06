@@ -86,10 +86,6 @@ namespace pcpp
 		// c'tor is private, as only PcapRemoteDeviceList should create instances of it, and it'll create only one for every remote interface
 		PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
 
-		// private copy c'tor
-		PcapRemoteDevice( const PcapRemoteDevice& other );
-		// private assignment operator
-		PcapRemoteDevice& operator=(const PcapRemoteDevice& other);
 
 		static void* remoteDeviceCaptureThreadMain(void *ptr);
 
@@ -97,6 +93,11 @@ namespace pcpp
 		ThreadStart getCaptureThreadStart();
 
 	public:
+		PcapRemoteDevice(const PcapRemoteDevice&) = delete;
+		PcapRemoteDevice(PcapRemoteDevice&&) noexcept = delete;
+		PcapRemoteDevice& operator=(const PcapRemoteDevice&) = delete;
+		PcapRemoteDevice& operator=(PcapRemoteDevice&&) noexcept = delete;
+
 		virtual ~PcapRemoteDevice() {}
 
 		/**
