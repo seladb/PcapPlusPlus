@@ -525,7 +525,7 @@ namespace pcpp
 
 	/**
 	 * @class LdapResponseLayer
-	 * An abstract class for represnting an LDAP response message. It's the parent class
+	 * An abstract class for representing an LDAP response message. It's the parent class
 	 * for all response message layers
 	 */
 	class LdapResponseLayer : public LdapLayer
