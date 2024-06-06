@@ -279,19 +279,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAdd
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(const auto &devIter : m_LiveDeviceList)
+	for(const auto& devicePtr : m_LiveDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : devIter->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
+		for(const auto& addressInfo : devicePtr->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
 			{
 				std::array<char, INET6_ADDRSTRLEN> addrAsString;
-				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
 				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addressInfo.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");
@@ -301,7 +301,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			if (*currAddr == ipAddr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter.get();
+				return devicePtr.get();
 			}
 		}
 	}
@@ -312,19 +312,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(const auto &devIter : m_LiveDeviceList)
+	for(const auto& devicePtr : m_LiveDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << devIter->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : devIter->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
+		for(const auto& addressInfo : devicePtr->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
 			{
 				std::array<char, INET6_ADDRSTRLEN> addrAsString;
-				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
 				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addressInfo.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");
@@ -334,7 +334,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devIter.get();
+				return devicePtr.get();
 			}
 		}
 	}
