@@ -4,7 +4,7 @@
 #include "IpAddressUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
-#include "MemoryUtils.h"
+#include "PcapUtils.h"
 #include "DeviceUtils.h"
 #include "SystemUtils.h"
 #include "pcap.h"

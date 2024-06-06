@@ -4,7 +4,7 @@
 
 #include <memory>
 #include "IpAddress.h"
-#include "MemoryUtils.h"
+#include "PcapUtils.h"
 
 // Forward declaration
 struct pcap_rmtauth;

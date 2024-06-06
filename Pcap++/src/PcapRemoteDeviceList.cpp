@@ -6,7 +6,7 @@
 #include "Logger.h"
 #include "IpUtils.h"
 #include "DeviceUtils.h"
-#include "MemoryUtils.h"
+#include "PcapUtils.h"
 #include "IpAddressUtils.h"
 #include "pcap.h"
 #include <array>

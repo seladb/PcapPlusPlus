@@ -2,7 +2,7 @@
 
 #include "IpUtils.h"
 #include "DeviceUtils.h"
-#include "MemoryUtils.h"
+#include "PcapUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "Packet.h"

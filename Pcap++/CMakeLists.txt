@@ -7,7 +7,7 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDeviceList.cpp>
   $<$<BOOL:${LINUX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
-  src/MemoryUtils.cpp
+  src/PcapUtils.cpp
   src/NetworkUtils.cpp
   src/PcapFileDevice.cpp
   src/PcapDevice.cpp
@@ -27,7 +27,7 @@ add_library(
 set(public_headers
     header/Device.h
     header/DeviceUtils.h
-    header/MemoryUtils.h
+    header/PcapUtils.h
     header/NetworkUtils.h
     header/PcapDevice.h
     header/PcapFileDevice.h
