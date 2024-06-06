@@ -17,8 +17,8 @@ namespace pcpp {
 		{LdapOperationType::ModifyResponse,        "ModifyResponse"},
 		{LdapOperationType::AddRequest,            "AddRequest"},
 		{LdapOperationType::AddResponse,           "AddResponse"},
-		{LdapOperationType::DelRequest,            "DelRequest"},
-		{LdapOperationType::DelResponse,           "DelResponse"},
+		{LdapOperationType::DeleteRequest,         "DeleteRequest"},
+		{LdapOperationType::DeleteResponse,        "DeleteResponse"},
 		{LdapOperationType::ModifyDNRequest,       "ModifyDNRequest"},
 		{LdapOperationType::ModifyDNResponse,      "ModifyDNResponse"},
 		{LdapOperationType::CompareRequest,        "CompareRequest"},
@@ -535,7 +535,7 @@ namespace pcpp {
 
 	// endregion
 
-// region LdapSearchResultEntryLayer
+	// region LdapSearchResultEntryLayer
 
 	LdapSearchResultEntryLayer::LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
 		const std::vector<LdapAttribute>& attributes, const std::vector<LdapControl>& controls)
@@ -592,5 +592,5 @@ namespace pcpp {
 		return result;
 	}
 
-// endregion
+	// endregion
 }
