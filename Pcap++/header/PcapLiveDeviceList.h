@@ -29,14 +29,16 @@ namespace pcpp
 
 		// private c'tor
 		PcapLiveDeviceList();
-		// private copy c'tor
-		PcapLiveDeviceList( const PcapLiveDeviceList& other );
-		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
 
 		void init();
 
 		void setDnsServers();
 	public:
+		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
+		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
+		PcapLiveDeviceList& operator=(const PcapLiveDeviceList&) = delete;
+		PcapLiveDeviceList& operator=(PcapLiveDeviceList&&) noexcept = delete;
+
 		/**
 		 * The access method to the singleton
 		 * @return The singleton instance of this class
