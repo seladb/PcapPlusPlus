@@ -17,8 +17,8 @@ namespace pcpp {
 		{LdapOperationType::ModifyResponse,        "ModifyResponse"},
 		{LdapOperationType::AddRequest,            "AddRequest"},
 		{LdapOperationType::AddResponse,           "AddResponse"},
-		{LdapOperationType::DelRequest,            "DelRequest"},
-		{LdapOperationType::DelResponse,           "DelResponse"},
+		{LdapOperationType::DeleteRequest,         "DeleteRequest"},
+		{LdapOperationType::DeleteResponse,        "DeleteResponse"},
 		{LdapOperationType::ModifyDNRequest,       "ModifyDNRequest"},
 		{LdapOperationType::ModifyDNResponse,      "ModifyDNResponse"},
 		{LdapOperationType::CompareRequest,        "CompareRequest"},
@@ -41,8 +41,8 @@ namespace pcpp {
 		{static_cast<uint8_t>(LdapOperationType::ModifyResponse), LdapOperationType::ModifyResponse},
 		{static_cast<uint8_t>(LdapOperationType::AddRequest), LdapOperationType::AddRequest},
 		{static_cast<uint8_t>(LdapOperationType::AddResponse), LdapOperationType::AddResponse},
-		{static_cast<uint8_t>(LdapOperationType::DelRequest), LdapOperationType::DelRequest},
-		{static_cast<uint8_t>(LdapOperationType::DelResponse), LdapOperationType::DelResponse},
+		{static_cast<uint8_t>(LdapOperationType::DeleteRequest), LdapOperationType::DeleteRequest},
+		{static_cast<uint8_t>(LdapOperationType::DeleteResponse), LdapOperationType::DeleteResponse},
 		{static_cast<uint8_t>(LdapOperationType::ModifyDNRequest), LdapOperationType::ModifyDNRequest},
 		{static_cast<uint8_t>(LdapOperationType::ModifyDNResponse), LdapOperationType::ModifyDNResponse},
 		{static_cast<uint8_t>(LdapOperationType::CompareRequest), LdapOperationType::CompareRequest},
@@ -255,7 +255,7 @@ namespace pcpp {
 					return new LdapModifyResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::AddResponse:
 					return new LdapAddResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
-				case LdapOperationType::DelResponse:
+				case LdapOperationType::DeleteResponse:
 					return new LdapDeleteResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::ModifyDNResponse:
 					return new LdapModifyDNResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
@@ -395,6 +395,10 @@ namespace pcpp {
 		return result;
 	}
 
+	std::string LdapResponseLayer::getExtendedStringInfo() const
+	{
+		return getResultCode().toString();
+	}
 	// endregion
 
 	// region LdapSearchRequestLayer

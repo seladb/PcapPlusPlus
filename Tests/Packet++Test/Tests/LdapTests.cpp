@@ -24,7 +24,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(ldapLayer->getProtocol(), pcpp::LDAP);
 		PTF_ASSERT_EQUAL(ldapLayer->getHeaderLen(), 14);
 		PTF_ASSERT_TRUE(ldapLayer->getControls().empty());
-		PTF_ASSERT_EQUAL(ldapLayer->toString(), "LDAP Layer, AddResponse");
+		PTF_ASSERT_EQUAL(ldapLayer->toString(), "LDAP Layer, AddResponse, Success");
 
 		pcpp::Asn1IntegerRecord messageIdRecord(27);
 
@@ -177,6 +177,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(searchResultDoneLayer->getMatchedDN(), "");
 		PTF_ASSERT_EQUAL(searchResultDoneLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(searchResultDoneLayer->getReferral(), std::vector<std::string>());
+		PTF_ASSERT_EQUAL(searchResultDoneLayer->toString(), "LDAP Layer, SearchResultDone, Success");
 	}
 
 	// LdapModifyResponseLayer
@@ -192,6 +193,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(modifyResponseLayer->getMatchedDN(), "");
 		PTF_ASSERT_EQUAL(modifyResponseLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(modifyResponseLayer->getReferral(), std::vector<std::string>());
+		PTF_ASSERT_EQUAL(modifyResponseLayer->toString(), "LDAP Layer, ModifyResponse, NoSuchObject");
 	}
 
 	// LdapAddResponseLayer
@@ -207,6 +209,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(addResponseLayer->getMatchedDN(), "");
 		PTF_ASSERT_EQUAL(addResponseLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(addResponseLayer->getReferral(), std::vector<std::string>());
+		PTF_ASSERT_EQUAL(addResponseLayer->toString(), "LDAP Layer, AddResponse, Success");
 	}
 
 	// LdapDeleteResponseLayer
@@ -217,7 +220,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		auto deleteResponseLayer = deleteResponsePacket.getLayerOfType<pcpp::LdapDeleteResponseLayer>();
 		PTF_ASSERT_NOT_NULL(deleteResponseLayer);
 		PTF_ASSERT_EQUAL(deleteResponseLayer->getMessageID(), 27);
-		PTF_ASSERT_EQUAL(deleteResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::DelResponse, enum);
+		PTF_ASSERT_EQUAL(deleteResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::DeleteResponse, enum);
 		PTF_ASSERT_EQUAL(deleteResponseLayer->getResultCode(), pcpp::LdapResultCode::NoSuchObject, enum);
 		PTF_ASSERT_EQUAL(deleteResponseLayer->getMatchedDN(), "ou=People,dc=example,dc=com");
 		PTF_ASSERT_EQUAL(deleteResponseLayer->getDiagnosticMessage(), "LDAP: error code 32 - No such object");
@@ -227,6 +230,7 @@ PTF_TEST_CASE(LdapParsingTest)
 			"ldap://ldap.example.com/dc=example,dc=com?objectClass?one"
 		};
 		PTF_ASSERT_VECTORS_EQUAL(deleteResponseLayer->getReferral(), expectedReferral);
+		PTF_ASSERT_EQUAL(deleteResponseLayer->toString(), "LDAP Layer, DeleteResponse, NoSuchObject");
 	}
 
 	// LdapModifyDNResponseLayer
@@ -242,6 +246,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getMatchedDN(), "ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org");
 		PTF_ASSERT_EQUAL(modifyDNResponseLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(modifyDNResponseLayer->getReferral(), std::vector<std::string>());
+		PTF_ASSERT_EQUAL(modifyDNResponseLayer->toString(), "LDAP Layer, ModifyDNResponse, NoSuchObject");
 	}
 
 	// LdapCompareResponseLayer
@@ -257,6 +262,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(compareResponseLayer->getMatchedDN(), "");
 		PTF_ASSERT_EQUAL(compareResponseLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(compareResponseLayer->getReferral(), std::vector<std::string>());
+		PTF_ASSERT_EQUAL(compareResponseLayer->toString(), "LDAP Layer, CompareResponse, CompareFalse");
 	}
 } // LdapParsingTest
 

@@ -47,9 +47,9 @@ namespace pcpp
 			/// Add Response
 			AddResponse = 9,
 			/// Delete Request
-			DelRequest = 10,
+			DeleteRequest = 10,
 			/// Delete Response
-			DelResponse = 11,
+			DeleteResponse = 11,
 			/// Modify DN (Distinguished Name) Request
 			ModifyDNRequest = 12,
 			/// Modify DN (Distinguished Name) Response
@@ -525,15 +525,33 @@ namespace pcpp
 
 	/**
 	 * @class LdapResponseLayer
-	 * An abstract class that represnts an LDAP response message. It's a parent class
-	 * for the specific response message layers
+	 * An abstract class for represnting an LDAP response message. It's the parent class
+	 * for all response message layers
 	 */
 	class LdapResponseLayer : public LdapLayer
 	{
 	public:
+		/**
+		 * @return LDAP result code
+		 */
 		LdapResultCode getResultCode() const;
+
+		/**
+		 * @return An optional distinguished name (DN) that may be included in the response to a request
+		 * targeting an entry that does not exist
+		 */
 		std::string getMatchedDN() const;
+
+		/**
+		 * @return An optional string that can provide additional information about the processing that
+		 * was performed
+		 */
 		std::string getDiagnosticMessage() const;
+
+		/**
+		 * @return An optional list of one or more URIs that the client may use to re-try the operation
+		 * somewhere else. If referral doesn't exist on the message, and empty vector is returned
+		 */
 		std::vector<std::string> getReferral() const;
 	protected:
 		static constexpr int resultCodeIndex = 0;
@@ -550,6 +568,8 @@ namespace pcpp
 			const std::string& matchedDN, const std::string& diagnosticMessage,
 			const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		std::string getExtendedStringInfo() const override;
 	};
 
 	/**
@@ -831,6 +851,19 @@ namespace pcpp
 	class LdapSearchResultDoneLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP search result done message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapSearchResultDoneLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
@@ -849,6 +882,19 @@ namespace pcpp
 	class LdapModifyResponseLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP modify response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapModifyResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
@@ -867,6 +913,19 @@ namespace pcpp
 	class LdapAddResponseLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP add response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapAddResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
@@ -885,10 +944,23 @@ namespace pcpp
 	class LdapDeleteResponseLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP delete response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapDeleteResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::DelResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+			: LdapResponseLayer(messageId, LdapOperationType::DeleteResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
@@ -903,6 +975,19 @@ namespace pcpp
 	class LdapModifyDNResponseLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP modify DN response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapModifyDNResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
@@ -921,6 +1006,19 @@ namespace pcpp
 	class LdapCompareResponseLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP compare response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapCompareResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
