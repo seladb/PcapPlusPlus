@@ -24,7 +24,7 @@ namespace pcpp
 	class PcapLiveDeviceList
 	{
 	private:
-		std::vector<std::shared_ptr<PcapLiveDevice>> m_LiveDeviceList;
+		std::vector<std::unique_ptr<PcapLiveDevice>> m_LiveDeviceList;
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
 		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
