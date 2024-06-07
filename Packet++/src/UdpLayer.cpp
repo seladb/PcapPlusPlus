@@ -132,9 +132,13 @@ void UdpLayer::parseNextLayer()
 	else if (GvcpLayer::isGvcpPort(portSrc) || GvcpLayer::isGvcpPort(portDst) )
 	{
 		if(GvcpLayer::verifyRequest(udpData))
+		{
 			m_NextLayer = new GvcpRequestLayer(udpData, udpDataLen, this, m_Packet);
+		}
 		else
+		{
 			m_NextLayer = new GvcpAcknowledgeLayer(udpData, udpDataLen, this, m_Packet);
+		}
 	}
 	else
 		m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
