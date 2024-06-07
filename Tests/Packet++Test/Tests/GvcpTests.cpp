@@ -38,7 +38,7 @@ PTF_TEST_CASE(GvcpBasicTest)
 
 PTF_TEST_CASE(GvcpDiscoveryAck)
 {
-	//
+	// test the creation from the raw buffer
 	try
 	{
 		using namespace pcpp;
@@ -50,7 +50,9 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 
 		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
 
+		// we get the raw buffer from the payload of the UDP layer and create a GvcpAcknowledgeLayer from the buffer
 		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader *header = gvcpAcknowledgeLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
@@ -60,6 +62,40 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpAckHeader));
 
 		auto discoveryBody = gvcpAcknowledgeLayer.getGvcpDiscoveryBody();
+		PTF_ASSERT_TRUE(discoveryBody != nullptr);
+		PTF_ASSERT_EQUAL(discoveryBody->getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
+		PTF_ASSERT_EQUAL(discoveryBody->getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
+		PTF_ASSERT_EQUAL(discoveryBody->getManufacturerName(), "Vendor01");
+		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "ABCDE 3D Scanner (TW)");
+		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "XXX-005");
+	}
+	catch (...)
+	{
+		std::cout << "Exception occurred" << std::endl;
+	}
+
+	// test the GVCP layer directly from the packet
+	try
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_discovery_ack.dat");
+		pcpp::Packet discoverAckPacket(&rawPacket1);
+
+		// we get the GVCP layer from the packet
+		auto gvcpAcknowledgeLayer = discoverAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
+
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
+		GvcpAckHeader *header = gvcpAcknowledgeLayer->getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
+		PTF_ASSERT_EQUAL(header->getAckId(), 1);
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpAcknowledgeLayer->getDataLen());
+
+		auto discoveryBody = gvcpAcknowledgeLayer->getGvcpDiscoveryBody();
 		PTF_ASSERT_TRUE(discoveryBody != nullptr);
 		PTF_ASSERT_EQUAL(discoveryBody->getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
 		PTF_ASSERT_EQUAL(discoveryBody->getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
