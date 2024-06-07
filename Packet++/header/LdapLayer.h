@@ -499,7 +499,7 @@ namespace pcpp
 		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		LdapLayer() = default;
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
-		virtual std::string getExtendedStringInfo() const { return ""; }
+		virtual std::string getExtendedInfoString() const { return ""; }
 
 		static constexpr int messageIdIndex = 0;
 		static constexpr int operationTypeIndex = 1;
@@ -569,7 +569,7 @@ namespace pcpp
 			const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
-		std::string getExtendedStringInfo() const override;
+		std::string getExtendedInfoString() const override;
 	};
 
 	/**
@@ -795,7 +795,7 @@ namespace pcpp
 			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 
 
-		std::string getExtendedStringInfo() const override;
+		std::string getExtendedInfoString() const override;
 	};
 
 	/**

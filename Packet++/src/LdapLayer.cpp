@@ -6,7 +6,7 @@ namespace pcpp {
 
 	// region LdapOperationType
 
-	const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
+	static const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
 		{LdapOperationType::BindRequest,           "BindRequest"},
 		{LdapOperationType::BindResponse,          "BindResponse"},
 		{LdapOperationType::UnbindRequest,         "UnbindRequest"},
@@ -31,7 +31,7 @@ namespace pcpp {
 		{LdapOperationType::Unknown,               "Unknown"}
 	};
 
-	const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
+	static const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
 		{static_cast<uint8_t>(LdapOperationType::BindRequest), LdapOperationType::BindRequest},
 		{static_cast<uint8_t>(LdapOperationType::BindResponse), LdapOperationType::BindResponse},
 		{static_cast<uint8_t>(LdapOperationType::UnbindRequest), LdapOperationType::UnbindRequest},
@@ -74,7 +74,7 @@ namespace pcpp {
 
 	// region LdapResultCode
 
-	const std::unordered_map<LdapResultCode::Value, std::string, EnumClassHash<LdapResultCode::Value>> LdapResultCodeToString{
+	static const std::unordered_map<LdapResultCode::Value, std::string, EnumClassHash<LdapResultCode::Value>> LdapResultCodeToString{
 		{LdapResultCode::Success, "Success"},
 		{LdapResultCode::OperationsError, "OperationsError"},
 		{LdapResultCode::ProtocolError, "ProtocolError"},
@@ -116,7 +116,7 @@ namespace pcpp {
 		{LdapResultCode::Other, "Other"}
 	};
 
-	const std::unordered_map<uint8_t, LdapResultCode> UintToLdapResultCode{
+	static const std::unordered_map<uint8_t, LdapResultCode> UintToLdapResultCode{
 		{static_cast<uint8_t>(LdapResultCode::Success), LdapResultCode::Success},
 		{static_cast<uint8_t>(LdapResultCode::OperationsError), LdapResultCode::OperationsError},
 		{static_cast<uint8_t>(LdapResultCode::ProtocolError), LdapResultCode::ProtocolError},
@@ -233,7 +233,7 @@ namespace pcpp {
 
 	std::string LdapLayer::toString() const
 	{
-		auto extendedInfo = getExtendedStringInfo();
+		auto extendedInfo = getExtendedInfoString();
 		return "LDAP Layer, " + getLdapOperationType().toString() + (extendedInfo.empty() ? "" : ", " + extendedInfo);
 	}
 
@@ -395,7 +395,7 @@ namespace pcpp {
 		return result;
 	}
 
-	std::string LdapResponseLayer::getExtendedStringInfo() const
+	std::string LdapResponseLayer::getExtendedInfoString() const
 	{
 		return getResultCode().toString();
 	}
@@ -522,7 +522,7 @@ namespace pcpp {
 		return result;
 	}
 
-	std::string LdapSearchRequestLayer::getExtendedStringInfo() const
+	std::string LdapSearchRequestLayer::getExtendedInfoString() const
 	{
 		auto baseObject = getBaseObject();
 		if (baseObject.empty())
