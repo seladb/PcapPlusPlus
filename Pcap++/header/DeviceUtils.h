@@ -6,9 +6,6 @@
 #include "IpAddress.h"
 #include "PcapUtils.h"
 
-// Forward declaration
-struct pcap_rmtauth;
-
 namespace pcpp
 {
 	namespace internal
