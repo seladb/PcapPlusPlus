@@ -1,6 +1,7 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include "IpUtils.h"
+#include "IpAddressUtils.h"
 #include "PcapLiveDeviceList.h"
 #include "Logger.h"
 #include "SystemUtils.h"
@@ -235,7 +236,7 @@ void PcapLiveDeviceList::setDnsServers()
 		sockaddr* saddr = (sockaddr*)&_res.nsaddr_list[i];
 		if (saddr == nullptr)
 			continue;
-		in_addr* inaddr = internal::sockaddr2in_addr(saddr);
+		in_addr* inaddr = internal::try_sockaddr2in_addr(saddr);
 		if (inaddr == nullptr)
 			continue;
 
@@ -274,19 +275,19 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 
-			if (currAddr->s_addr == ipAddr.toInt())
+			if (*currAddr == ipAddr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
 				return devIter;
@@ -307,28 +308,23 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return devIter;
 			}
-
-			delete [] addrAsArr;
 		}
 	}
 

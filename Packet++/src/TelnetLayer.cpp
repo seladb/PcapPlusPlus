@@ -40,7 +40,7 @@ size_t TelnetLayer::distanceToNextIAC(uint8_t *startPos, size_t maxLength)
 			addition += maxLength - currentOffset;
 		currentOffset = currentOffset + addition;
 		// "FF FF" means data continue
-	} while (pos && (pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (currentOffset < maxLength));
+	} while (pos && ((pos + 1) < (startPos + maxLength)) && (pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (currentOffset < maxLength));
 
 	return addition;
 }

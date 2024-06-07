@@ -3,6 +3,7 @@
 #define EXAMPLE_PCAP_WRITE_PATH "PcapExamples/example_copy.pcap"
 #define EXAMPLE_PCAP_PATH "PcapExamples/example.pcap"
 #define EXAMPLE2_PCAP_PATH "PcapExamples/example2.pcap"
+#define EXAMPLE_PCAP_IPV6_PATH "PcapExamples/ICMPv6_echos.cap"
 #define EXAMPLE_PCAP_HTTP_REQUEST "PcapExamples/4KHttpRequests.pcap"
 #define EXAMPLE_PCAP_HTTP_RESPONSE "PcapExamples/650HttpResponses.pcap"
 #define EXAMPLE_PCAP_VLAN "PcapExamples/VlanPackets.pcap"
@@ -28,3 +29,5 @@
 #define EXAMPLE_SOLARIS_SNOOP "PcapExamples/solaris.snoop"
 #define SLL2_PCAP_PATH "PcapExamples/sll2.pcap"
 #define SLL2_PCAP_WRITE_PATH "PcapExamples/sll2_copy.pcap"
+#define EXAMPLE_PCAP_MICRO_PATH "PcapExamples/microsecs.pcap"
+#define EXAMPLE_PCAP_NANO_PATH "PcapExamples/nanosecs.pcap"

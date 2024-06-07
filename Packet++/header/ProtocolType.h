@@ -343,9 +343,15 @@ namespace pcpp
 	const ProtocolType SMTP = 54;
 
 	/*
+	 * LDAP protocol
+	 */
+	const ProtocolType LDAP = 55;
+
+	/*
 	 * GVCP protocol
 	 */
-	const ProtocolType Gvcp = 55;
+	const ProtocolType Gvcp = 56;
+
 
 	/**
 	 * An enum representing OSI model layers

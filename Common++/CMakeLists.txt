@@ -2,6 +2,7 @@ add_library(
   Common++
   src/GeneralUtils.cpp
   src/IpAddress.cpp
+  src/IpAddressUtils.cpp
   src/IpUtils.cpp
   src/Logger.cpp
   src/MacAddress.cpp
@@ -11,8 +12,10 @@ add_library(
   src/TablePrinter.cpp)
 
 set(public_headers
+    header/DeprecationUtils.h
     header/GeneralUtils.h
     header/IpAddress.h
+    header/IpAddressUtils.h
     header/IpUtils.h
     header/Logger.h
     header/LRUList.h

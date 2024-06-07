@@ -10,7 +10,8 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <sstream>
+#include <array>
+#include <cstdio>
 #if defined(_WIN32)
 #include "PcapRemoteDevice.h"
 #include "PcapRemoteDeviceList.h"
@@ -22,12 +23,12 @@ extern PcapTestArgs PcapTestGlobalArgs;
 
 static void packetArrives(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDevice, void* userCookie)
 {
-	(*(int*)userCookie)++;
+	(*static_cast<int*>(userCookie))++;
 }
 
 static void statsUpdate(pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
 {
-	(*(int*)userCookie)++;
+	(*static_cast<int*>(userCookie))++;
 }
 
 static bool packetArrivesBlockingModeTimeout(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
@@ -37,7 +38,7 @@ static bool packetArrivesBlockingModeTimeout(pcpp::RawPacket* rawPacket, pcpp::P
 
 static bool packetArrivesBlockingModeNoTimeout(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -57,7 +58,7 @@ static bool packetArrivesBlockingModeStartCapture(pcpp::RawPacket* rawPacket, pc
 
 	pcpp::Logger::getInstance().enableLogs();
 
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -70,7 +71,7 @@ static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcp
 	// shouldn't do anything
 	dev->stopCapture();
 
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	if ((*packetCount) == 5)
 		return true;
 
@@ -80,14 +81,14 @@ static bool packetArrivesBlockingModeStopCapture(pcpp::RawPacket* rawPacket, pcp
 
 static bool packetArrivesBlockingModeNoTimeoutPacketCount(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int* packetCount = (int*)userCookie;
+	int* packetCount = static_cast<int*>(userCookie);
 	(*packetCount)++;
 	return false;
 }
 
 static bool packetArrivesBlockingModeWithSnaplen(pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* dev, void* userCookie)
 {
-	int snaplen = *(int*)userCookie;
+	int snaplen = *static_cast<int*>(userCookie);
 	return rawPacket->getRawDataLen() > snaplen;
 }
 
@@ -97,17 +98,60 @@ class RpcapdServerInitializer
 {
 private:
 	HANDLE m_ProcessHandle;
+	HANDLE m_JobHandle;
 
+	void killProcessAndCloseHandles()
+	{
+		if (m_ProcessHandle != nullptr)
+		{
+			TerminateProcess(m_ProcessHandle, 0);
+			CloseHandle(m_ProcessHandle);
+			m_ProcessHandle = nullptr;
+		}
+
+		if (m_JobHandle != nullptr)
+		{
+			CloseHandle(m_JobHandle);
+			m_JobHandle = nullptr;
+		}
+	}
 public:
-
-	RpcapdServerInitializer(bool activateRemoteDevice, const std::string &ip, uint16_t port) : m_ProcessHandle(nullptr)
+	RpcapdServerInitializer(bool activateRemoteDevice, const std::string& ip, uint16_t port)
+		: m_ProcessHandle(nullptr), m_JobHandle(nullptr)
 	{
 		if (!activateRemoteDevice)
 			return;
 
 		std::string cmd = "rpcapd\\rpcapd.exe";
-		std::ostringstream args;
-		args << "rpcapd\\rpcapd.exe -b " << ip << " -p " << port << " -n";
+		std::array<char, 256> args;
+		int res = std::snprintf(args.data(), args.size(), "%s -b %s -p %d -n", cmd.c_str(), ip.c_str(), port);
+		if (res < 0)
+		{
+			throw std::runtime_error("Error during string formatting");
+		}
+		else if (res >= args.size())
+		{
+			// We should never get here with reasonable input but you never know.
+			throw std::runtime_error("Buffer overflow. Are you sure the IP is a valid string?");
+		}
+
+		m_JobHandle = CreateJobObject(nullptr, nullptr);
+		if (m_JobHandle == nullptr)
+		{
+			throw std::runtime_error("Failed to create a job object with error code: " + std::to_string(GetLastError()));
+		}
+
+		// Sets up the job limits so closing the job will automatically kill all processes assigned to the job.
+		// This will prevent the subprocess continuing to live if the current process is killed without unwinding the stack (i.e. std::terminate is called),
+		// as the OS itself will kill the subprocesses when the last job handle is closed.
+		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobLimitInfo{};
+		jobLimitInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+		if (!SetInformationJobObject(m_JobHandle, JobObjectExtendedLimitInformation, &jobLimitInfo, sizeof(jobLimitInfo)))
+		{
+			DWORD errCode = GetLastError();
+			CloseHandle(m_JobHandle);
+			throw std::runtime_error("Failed to set settings to job object with error code: " + std::to_string(errCode));
+		}
 
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -115,35 +159,54 @@ public:
 		ZeroMemory( &si, sizeof(si) );
 		si.cb = sizeof(si);
 		ZeroMemory( &pi, sizeof(pi) );
-		if (!CreateProcess
-				(
+		if (!CreateProcess (
 				TEXT(cmd.c_str()),
-				(char*)TEXT(args.str().c_str()),
-				NULL,NULL,FALSE,
+				// CreateProcessW (Unicode version) modifies the argument string inplace during internal processing.
+				TEXT(args.data()),
+				nullptr, nullptr, false,
 				CREATE_NEW_CONSOLE,
-				NULL,NULL,
+				nullptr, nullptr,
 				&si,
 				&pi
-				)
-				)
-			{
-				m_ProcessHandle = NULL;
-				PCPP_LOG_ERROR("Create process failed " << (int)GetLastError());
-				return;
-			}
+		))
+		{
+			DWORD errCode = GetLastError();
+			CloseHandle(m_JobHandle);
+			throw std::runtime_error("Create process failed with error code: " + std::to_string(errCode));
+		}
 
 		m_ProcessHandle = pi.hProcess;
-	}
+		CloseHandle(pi.hThread); // We don't need the thread handle, so we can close it.
 
-	~RpcapdServerInitializer()
-	{
-		if (m_ProcessHandle != NULL)
+		if (!AssignProcessToJobObject(m_JobHandle, m_ProcessHandle))
 		{
-			TerminateProcess(m_ProcessHandle, 0);
+			DWORD errCode = GetLastError();
+			killProcessAndCloseHandles();
+			throw std::runtime_error("Failed assigning process to job object with code: " + std::to_string(errCode));
 		}
 	}
 
-	HANDLE getHandle() { return m_ProcessHandle; }
+	RpcapdServerInitializer(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer(RpcapdServerInitializer&& other) noexcept
+		: m_ProcessHandle(other.m_ProcessHandle), m_JobHandle(other.m_JobHandle)
+	{
+		other.m_ProcessHandle = nullptr;
+		other.m_JobHandle = nullptr;
+	}
+	RpcapdServerInitializer& operator=(const RpcapdServerInitializer&) = delete;
+	RpcapdServerInitializer& operator=(RpcapdServerInitializer&& other) noexcept
+	{
+		killProcessAndCloseHandles();
+		m_ProcessHandle = other.m_ProcessHandle;
+		m_JobHandle = other.m_JobHandle;
+		other.m_ProcessHandle = nullptr;
+		other.m_JobHandle = nullptr;
+		return *this;
+	}
+
+	~RpcapdServerInitializer() { killProcessAndCloseHandles(); }
+
+	HANDLE getHandle() const { return m_ProcessHandle; }
 };
 
 #endif // defined(_WIN32)
@@ -229,7 +292,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	DeviceTeardown devTeardown(liveDev);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
@@ -254,7 +317,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 } // TestPcapLiveDevice
 
@@ -265,14 +328,32 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	// Test of clone device should be same with original
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 	pcpp::IPv4Address ipToSearch(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch)->clone();
+
+	{
+		pcpp::PcapLiveDevice* originalDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ipToSearch);
+		PTF_ASSERT_NOT_NULL(originalDev);
+
+#ifdef _WIN32
+		// Tests if device pointer points to a Windows Live Device on a Windows machine.
+		PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(originalDev));
+#endif // _WIN32
+
+		liveDev = originalDev->clone();
+	}
+
 	PTF_ASSERT_NOT_NULL(liveDev);
+
+#ifdef _WIN32
+	// Tests if the clone is correctly returns a Windows Live Device on Windows systems.
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::WinPcapLiveDevice*>(liveDev));
+#endif // _WIN32
+
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev, true);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
@@ -296,7 +377,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(liveDev->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 
 } // TestPcapLiveDeviceClone
@@ -343,7 +424,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	sendURLRequest("www.ebay.com");
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 6)
@@ -370,7 +451,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(liveDev->startCapture(1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 } // TestPcapLiveDeviceStatsMode
 
@@ -491,15 +572,15 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 
 	auto packetArrivesLambda = [](pcpp::RawPacket* rawPacket, pcpp::PcapLiveDevice* pDevice, void* userCookie)
 	{
-		(*(int*)userCookie)++;
+		(*static_cast<int*>(userCookie))++;
 	};
 
 	auto statsUpdateLambda = [](pcpp::IPcapDevice::PcapStats& stats, void* userCookie)
 	{
-		(*(int*)userCookie)++;
+		(*static_cast<int*>(userCookie))++;
 	};
 
-	PTF_ASSERT_TRUE(liveDev->startCapture(packetArrivesLambda , (void*)&packetCount, 1, statsUpdateLambda, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(liveDev->startCapture(packetArrivesLambda , static_cast<void*>(&packetCount), 1, statsUpdateLambda, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
@@ -523,7 +604,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 	auto packetArrivesBlockingModeNoTimeoutLambda = [](
 		pcpp::RawPacket *rawPacket, pcpp::PcapLiveDevice *dev, void *userCookie)
 	{
-		int *packetCount = (int *)userCookie;
+		int *packetCount = static_cast<int*>(userCookie);
 		if ((*packetCount) == 5)
 			return true;
 
@@ -632,7 +713,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	PTF_ASSERT_TRUE(winPcapLiveDevice->setMinAmountOfDataToCopyFromKernelToApplication(100000));
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
-	PTF_ASSERT_TRUE(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_TRUE(winPcapLiveDevice->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	for (int i = 0; i < 5; i++)
 	{
 		sendURLRequest("www.ebay.com");
@@ -650,7 +731,7 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 
 	// a negative test
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, (void*)&packetCount, 1, &statsUpdate, (void*)&numOfTimeStatsWereInvoked));
+	PTF_ASSERT_FALSE(winPcapLiveDevice->startCapture(&packetArrives, static_cast<void*>(&packetCount), 1, &statsUpdate, static_cast<void*>(&numOfTimeStatsWereInvoked)));
 	pcpp::Logger::getInstance().enableLogs();
 
 #else
@@ -867,6 +948,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);
 
 	pcpp::PcapRemoteDevice* remoteDevice = remoteDevices->getRemoteDeviceByIP(remoteDeviceIPAddr);
+	PTF_ASSERT_NOT_NULL(remoteDevice);
 	PTF_ASSERT_EQUAL(remoteDevice->getDeviceType(), pcpp::PcapLiveDevice::RemoteDevice, enum);
 	PTF_ASSERT_EQUAL(remoteDevice->getMtu(), 0);
 	pcpp::Logger::getInstance().suppressLogs();

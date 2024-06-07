@@ -5,7 +5,9 @@
 #include "PcapRemoteDeviceList.h"
 #include "Logger.h"
 #include "IpUtils.h"
+#include "IpAddressUtils.h"
 #include "pcap.h"
+#include <array>
 #include <ws2tcpip.h>
 
 namespace pcpp
@@ -107,19 +109,19 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 			if (currAddr == NULL)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
 				continue;
 			}
 
-			if (currAddr->s_addr == ip4Addr.toInt())
+			if (*currAddr == ip4Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
 				return (*devIter);
@@ -141,27 +143,23 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
 			{
-				char addrAsString[INET6_ADDRSTRLEN];
-				internal::sockaddr2string(addrIter.addr, addrAsString);
-				PCPP_LOG_DEBUG("Searching address " << addrAsString);
+				std::array<char, INET6_ADDRSTRLEN> addrAsString;
+				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+				PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 			}
 
-			in6_addr* currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == NULL)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
 				continue;
 			}
 
-			uint8_t* addrAsArr; size_t addrLen;
-			ip6Addr.copyTo(&addrAsArr, addrLen);
-			if (memcmp(currAddr, addrAsArr, sizeof(struct in6_addr)) == 0)
+			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				delete [] addrAsArr;
 				return (*devIter);
 			}
-			delete [] addrAsArr;
 		}
 	}
 
