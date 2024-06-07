@@ -26,7 +26,7 @@ namespace pcpp
 	private:
 		std::vector<std::shared_ptr<PcapLiveDevice>> m_LiveDeviceList;
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
-		mutable std::vector<PcapLiveDevice*> m_LiveDeviceListView;
+		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
 		std::vector<IPv4Address> m_DnsServers;
 
@@ -57,7 +57,7 @@ namespace pcpp
 		/**
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 */
-		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const;
+		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceListView; };
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6

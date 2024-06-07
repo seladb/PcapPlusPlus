@@ -53,6 +53,11 @@ void PcapLiveDeviceList::init()
 		m_LiveDeviceList.push_back(std::move(dev));
 	}
 
+	m_LiveDeviceListView.resize(m_LiveDeviceList.size());
+	// Full update of all elements of the view vector to synchronize them with the main vector.
+	std::transform(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin(),
+				   [](const std::shared_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
+
 	setDnsServers();
 
 	PCPP_LOG_DEBUG("Freeing live device data");
@@ -243,25 +248,6 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 #endif
-}
-
-void PcapLiveDeviceList::updateLiveDeviceListView() const
-{
-	// There is a potential issue if a device is removed and another one is added between updates,
-	// but as far as I can see the LiveDeviceList is never partially modified.
-	if (m_LiveDeviceList.size() != m_LiveDeviceListView.size())
-	{
-		m_LiveDeviceListView.resize(m_LiveDeviceList.size());
-		// Full update of all elements of the view vector to synchronize them with the main vector.
-		std::transform(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin(),
-					   [](const std::shared_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
-	}
-}
-
-const std::vector<PcapLiveDevice*>& PcapLiveDeviceList::getPcapLiveDevicesList() const
-{
-	updateLiveDeviceListView();
-	return m_LiveDeviceListView;
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr) const
