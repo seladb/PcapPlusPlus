@@ -8,6 +8,8 @@ typedef pcap_if pcap_if_t;
 
 namespace pcpp
 {
+	/// @cond PCPP_INTERNAL
+
 	namespace internal
 	{
 		/**
@@ -28,4 +30,6 @@ namespace pcpp
 			void operator()(pcap_if_t* ptr) const;
 		};
 	}
+
+	/// @endcond
 }

@@ -8,6 +8,8 @@
 
 namespace pcpp
 {
+	/// @cond PCPP_INTERNAL
+
 	namespace internal
 	{
 		/**
@@ -17,4 +19,6 @@ namespace pcpp
 		 */
 		std::unique_ptr<pcap_if_t, PcapFreeAllDevsDeleter> getAllLocalPcapDevices();
 	}
+
+	/// @endcond
 }
