@@ -6,7 +6,7 @@ namespace pcpp {
 
 	// region LdapOperationType
 
-	const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
+	static const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
 		{LdapOperationType::BindRequest,           "BindRequest"},
 		{LdapOperationType::BindResponse,          "BindResponse"},
 		{LdapOperationType::UnbindRequest,         "UnbindRequest"},
@@ -17,8 +17,8 @@ namespace pcpp {
 		{LdapOperationType::ModifyResponse,        "ModifyResponse"},
 		{LdapOperationType::AddRequest,            "AddRequest"},
 		{LdapOperationType::AddResponse,           "AddResponse"},
-		{LdapOperationType::DelRequest,            "DelRequest"},
-		{LdapOperationType::DelResponse,           "DelResponse"},
+		{LdapOperationType::DeleteRequest,         "DeleteRequest"},
+		{LdapOperationType::DeleteResponse,        "DeleteResponse"},
 		{LdapOperationType::ModifyDNRequest,       "ModifyDNRequest"},
 		{LdapOperationType::ModifyDNResponse,      "ModifyDNResponse"},
 		{LdapOperationType::CompareRequest,        "CompareRequest"},
@@ -31,7 +31,7 @@ namespace pcpp {
 		{LdapOperationType::Unknown,               "Unknown"}
 	};
 
-	const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
+	static const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
 		{static_cast<uint8_t>(LdapOperationType::BindRequest), LdapOperationType::BindRequest},
 		{static_cast<uint8_t>(LdapOperationType::BindResponse), LdapOperationType::BindResponse},
 		{static_cast<uint8_t>(LdapOperationType::UnbindRequest), LdapOperationType::UnbindRequest},
@@ -41,8 +41,8 @@ namespace pcpp {
 		{static_cast<uint8_t>(LdapOperationType::ModifyResponse), LdapOperationType::ModifyResponse},
 		{static_cast<uint8_t>(LdapOperationType::AddRequest), LdapOperationType::AddRequest},
 		{static_cast<uint8_t>(LdapOperationType::AddResponse), LdapOperationType::AddResponse},
-		{static_cast<uint8_t>(LdapOperationType::DelRequest), LdapOperationType::DelRequest},
-		{static_cast<uint8_t>(LdapOperationType::DelResponse), LdapOperationType::DelResponse},
+		{static_cast<uint8_t>(LdapOperationType::DeleteRequest), LdapOperationType::DeleteRequest},
+		{static_cast<uint8_t>(LdapOperationType::DeleteResponse), LdapOperationType::DeleteResponse},
 		{static_cast<uint8_t>(LdapOperationType::ModifyDNRequest), LdapOperationType::ModifyDNRequest},
 		{static_cast<uint8_t>(LdapOperationType::ModifyDNResponse), LdapOperationType::ModifyDNResponse},
 		{static_cast<uint8_t>(LdapOperationType::CompareRequest), LdapOperationType::CompareRequest},
@@ -68,6 +68,110 @@ namespace pcpp {
 		}
 
 		return LdapOperationType::Unknown;
+	}
+
+	// endregion
+
+	// region LdapResultCode
+
+	static const std::unordered_map<LdapResultCode::Value, std::string, EnumClassHash<LdapResultCode::Value>> LdapResultCodeToString{
+		{LdapResultCode::Success, "Success"},
+		{LdapResultCode::OperationsError, "OperationsError"},
+		{LdapResultCode::ProtocolError, "ProtocolError"},
+		{LdapResultCode::TimeLimitExceeded, "TimeLimitExceeded"},
+		{LdapResultCode::SizeLimitExceeded, "SizeLimitExceeded"},
+		{LdapResultCode::CompareFalse, "CompareFalse"},
+		{LdapResultCode::CompareTrue, "CompareTrue"},
+		{LdapResultCode::AuthMethodNotSupported, "AuthMethodNotSupported"},
+		{LdapResultCode::StrongerAuthRequired, "StrongerAuthRequired"},
+		{LdapResultCode::Referral, "Referral"},
+		{LdapResultCode::AdminLimitExceeded, "AdminLimitExceeded"},
+		{LdapResultCode::UnavailableCriticalExtension, "UnavailableCriticalExtension"},
+		{LdapResultCode::ConfidentialityRequired, "ConfidentialityRequired"},
+		{LdapResultCode::SaslBindInProgress, "SaslBindInProgress"},
+		{LdapResultCode::NoSuchAttribute, "NoSuchAttribute"},
+		{LdapResultCode::UndefinedAttributeType, "UndefinedAttributeType"},
+		{LdapResultCode::InappropriateMatching, "InappropriateMatching"},
+		{LdapResultCode::ConstraintViolation, "ConstraintViolation"},
+		{LdapResultCode::AttributeOrValueExists, "AttributeOrValueExists"},
+		{LdapResultCode::InvalidAttributeSyntax, "InvalidAttributeSyntax"},
+		{LdapResultCode::NoSuchObject, "NoSuchObject"},
+		{LdapResultCode::AliasProblem, "AliasProblem"},
+		{LdapResultCode::InvalidDNSyntax, "InvalidDNSyntax"},
+		{LdapResultCode::AliasDereferencingProblem, "AliasDereferencingProblem"},
+		{LdapResultCode::InappropriateAuthentication, "InappropriateAuthentication"},
+		{LdapResultCode::InvalidCredentials, "InvalidCredentials"},
+		{LdapResultCode::InsufficientAccessRights, "InsufficientAccessRights"},
+		{LdapResultCode::Busy, "Busy"},
+		{LdapResultCode::Unavailable, "Unavailable"},
+		{LdapResultCode::UnwillingToPerform, "UnwillingToPerform"},
+		{LdapResultCode::LoopDetect, "LoopDetect"},
+		{LdapResultCode::NamingViolation, "NamingViolation"},
+		{LdapResultCode::ObjectClassViolation, "ObjectClassViolation"},
+		{LdapResultCode::NotAllowedOnNonLeaf, "NotAllowedOnNonLeaf"},
+		{LdapResultCode::NotAllowedOnRDN, "NotAllowedOnRDN"},
+		{LdapResultCode::EntryAlreadyExists, "EntryAlreadyExists"},
+		{LdapResultCode::ObjectClassModsProhibited, "ObjectClassModsProhibited"},
+		{LdapResultCode::AffectsMultipleDSAs, "AffectsMultipleDSAs"},
+		{LdapResultCode::Other, "Other"}
+	};
+
+	static const std::unordered_map<uint8_t, LdapResultCode> UintToLdapResultCode{
+		{static_cast<uint8_t>(LdapResultCode::Success), LdapResultCode::Success},
+		{static_cast<uint8_t>(LdapResultCode::OperationsError), LdapResultCode::OperationsError},
+		{static_cast<uint8_t>(LdapResultCode::ProtocolError), LdapResultCode::ProtocolError},
+		{static_cast<uint8_t>(LdapResultCode::TimeLimitExceeded), LdapResultCode::TimeLimitExceeded},
+		{static_cast<uint8_t>(LdapResultCode::SizeLimitExceeded), LdapResultCode::SizeLimitExceeded},
+		{static_cast<uint8_t>(LdapResultCode::CompareFalse), LdapResultCode::CompareFalse},
+		{static_cast<uint8_t>(LdapResultCode::CompareTrue), LdapResultCode::CompareTrue},
+		{static_cast<uint8_t>(LdapResultCode::AuthMethodNotSupported), LdapResultCode::AuthMethodNotSupported},
+		{static_cast<uint8_t>(LdapResultCode::StrongerAuthRequired), LdapResultCode::StrongerAuthRequired},
+		{static_cast<uint8_t>(LdapResultCode::Referral), LdapResultCode::Referral},
+		{static_cast<uint8_t>(LdapResultCode::AdminLimitExceeded), LdapResultCode::AdminLimitExceeded},
+		{static_cast<uint8_t>(LdapResultCode::UnavailableCriticalExtension), LdapResultCode::UnavailableCriticalExtension},
+		{static_cast<uint8_t>(LdapResultCode::ConfidentialityRequired), LdapResultCode::ConfidentialityRequired},
+		{static_cast<uint8_t>(LdapResultCode::SaslBindInProgress), LdapResultCode::SaslBindInProgress},
+		{static_cast<uint8_t>(LdapResultCode::NoSuchAttribute), LdapResultCode::NoSuchAttribute},
+		{static_cast<uint8_t>(LdapResultCode::UndefinedAttributeType), LdapResultCode::UndefinedAttributeType},
+		{static_cast<uint8_t>(LdapResultCode::InappropriateMatching), LdapResultCode::InappropriateMatching},
+		{static_cast<uint8_t>(LdapResultCode::ConstraintViolation), LdapResultCode::ConstraintViolation},
+		{static_cast<uint8_t>(LdapResultCode::AttributeOrValueExists), LdapResultCode::AttributeOrValueExists},
+		{static_cast<uint8_t>(LdapResultCode::InvalidAttributeSyntax), LdapResultCode::InvalidAttributeSyntax},
+		{static_cast<uint8_t>(LdapResultCode::NoSuchObject), LdapResultCode::NoSuchObject},
+		{static_cast<uint8_t>(LdapResultCode::AliasProblem), LdapResultCode::AliasProblem},
+		{static_cast<uint8_t>(LdapResultCode::InvalidDNSyntax), LdapResultCode::InvalidDNSyntax},
+		{static_cast<uint8_t>(LdapResultCode::AliasDereferencingProblem), LdapResultCode::AliasDereferencingProblem},
+		{static_cast<uint8_t>(LdapResultCode::InappropriateAuthentication), LdapResultCode::InappropriateAuthentication},
+		{static_cast<uint8_t>(LdapResultCode::InvalidCredentials), LdapResultCode::InvalidCredentials},
+		{static_cast<uint8_t>(LdapResultCode::InsufficientAccessRights), LdapResultCode::InsufficientAccessRights},
+		{static_cast<uint8_t>(LdapResultCode::Busy), LdapResultCode::Busy},
+		{static_cast<uint8_t>(LdapResultCode::Unavailable), LdapResultCode::Unavailable},
+		{static_cast<uint8_t>(LdapResultCode::UnwillingToPerform), LdapResultCode::UnwillingToPerform},
+		{static_cast<uint8_t>(LdapResultCode::LoopDetect), LdapResultCode::LoopDetect},
+		{static_cast<uint8_t>(LdapResultCode::NamingViolation), LdapResultCode::NamingViolation},
+		{static_cast<uint8_t>(LdapResultCode::ObjectClassViolation), LdapResultCode::ObjectClassViolation},
+		{static_cast<uint8_t>(LdapResultCode::NotAllowedOnNonLeaf), LdapResultCode::NotAllowedOnNonLeaf},
+		{static_cast<uint8_t>(LdapResultCode::NotAllowedOnRDN), LdapResultCode::NotAllowedOnRDN},
+		{static_cast<uint8_t>(LdapResultCode::EntryAlreadyExists), LdapResultCode::EntryAlreadyExists},
+		{static_cast<uint8_t>(LdapResultCode::ObjectClassModsProhibited), LdapResultCode::ObjectClassModsProhibited},
+		{static_cast<uint8_t>(LdapResultCode::AffectsMultipleDSAs), LdapResultCode::AffectsMultipleDSAs},
+		{static_cast<uint8_t>(LdapResultCode::Other), LdapResultCode::Other}
+	};
+
+	std::string LdapResultCode::toString() const
+	{
+		return LdapResultCodeToString.at(m_Value);
+	}
+
+	LdapResultCode LdapResultCode::fromUintValue(uint8_t value)
+	{
+		auto result = UintToLdapResultCode.find(value);
+		if (result != UintToLdapResultCode.end())
+		{
+			return result->second;
+		}
+
+		return LdapResultCode::Unknown;
 	}
 
 	// endregion
@@ -129,7 +233,7 @@ namespace pcpp {
 
 	std::string LdapLayer::toString() const
 	{
-		auto extendedInfo = getExtendedStringInfo();
+		auto extendedInfo = getExtendedInfoString();
 		return "LDAP Layer, " + getLdapOperationType().toString() + (extendedInfo.empty() ? "" : ", " + extendedInfo);
 	}
 
@@ -145,6 +249,18 @@ namespace pcpp {
 					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchResultEntry:
 					return new LdapSearchResultEntryLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::SearchResultDone:
+					return new LdapSearchResultDoneLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::ModifyResponse:
+					return new LdapModifyResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::AddResponse:
+					return new LdapAddResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::DeleteResponse:
+					return new LdapDeleteResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::ModifyDNResponse:
+					return new LdapModifyDNResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::CompareResponse:
+					return new LdapCompareResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::Unknown:
 					return nullptr;
 				default:
@@ -211,6 +327,77 @@ namespace pcpp {
 		size_t payloadLen = m_DataLen - headerLen;
 
 		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
+	}
+	// endregion
+
+	// region LdapResponseLayer
+
+	LdapResponseLayer::LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
+		const std::vector<LdapControl>& controls)
+	{
+		Asn1EnumeratedRecord resultCodeRecord(resultCode);
+		Asn1OctetStringRecord matchedDNRecord(matchedDN);
+		Asn1OctetStringRecord diagnosticMessageRecord(diagnosticMessage);
+
+		std::vector<Asn1Record*> messageRecords = {&resultCodeRecord, &matchedDNRecord, &diagnosticMessageRecord};
+
+		std::unique_ptr<Asn1ConstructedRecord> referralRecord;
+		if (!referral.empty())
+		{
+			PointerVector<Asn1Record> referralSubRecords;
+			for (const auto& uri : referral)
+			{
+				referralSubRecords.pushBack(new Asn1OctetStringRecord(uri));
+			}
+			referralRecord = std::unique_ptr<Asn1ConstructedRecord>(new Asn1ConstructedRecord(
+				Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords));
+			messageRecords.push_back(referralRecord.get());
+		}
+
+		LdapLayer::init(messageId, operationType, messageRecords, controls);
+	}
+
+	LdapResultCode LdapResponseLayer::getResultCode() const
+	{
+		return LdapResultCode::fromUintValue(getLdapOperationAsn1Record()->getSubRecords().at(resultCodeIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+	}
+
+	std::string LdapResponseLayer::getMatchedDN() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(matchedDNIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::string LdapResponseLayer::getDiagnosticMessage() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(diagnotsticsMessageIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::vector<std::string> LdapResponseLayer::getReferral() const
+	{
+		std::vector<std::string> result;
+		if (getLdapOperationAsn1Record()->getSubRecords().size() <= referralIndex)
+		{
+			return result;
+		}
+
+		auto referralRecord = getLdapOperationAsn1Record()->getSubRecords().at(referralIndex);
+		if (referralRecord->getTagClass() != Asn1TagClass::ContextSpecific || referralRecord->getTagType() != referralTagType)
+		{
+			return result;
+		}
+
+		for (auto uriRecord : referralRecord->castAs<Asn1ConstructedRecord>()->getSubRecords())
+		{
+			result.push_back(uriRecord->castAs<Asn1OctetStringRecord>()->getValue());
+		}
+
+		return result;
+	}
+
+	std::string LdapResponseLayer::getExtendedInfoString() const
+	{
+		return getResultCode().toString();
 	}
 	// endregion
 
@@ -335,7 +522,7 @@ namespace pcpp {
 		return result;
 	}
 
-	std::string LdapSearchRequestLayer::getExtendedStringInfo() const
+	std::string LdapSearchRequestLayer::getExtendedInfoString() const
 	{
 		auto baseObject = getBaseObject();
 		if (baseObject.empty())
