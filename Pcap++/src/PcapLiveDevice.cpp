@@ -40,6 +40,7 @@
 #endif // if defined(_WIN32)
 #if defined(__APPLE__)
 #include <net/if_dl.h>
+#include <sys/sysctl.h>
 #include <net/route.h>
 #endif
 
