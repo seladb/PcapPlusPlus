@@ -193,9 +193,17 @@ namespace pcpp {
 	void LdapLayer::init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls)
 	{
 		Asn1IntegerRecord messageIdRecord(messageId);
-		Asn1ConstructedRecord messageRootRecord(Asn1TagClass::Application, operationType, messageRecords);
+		std::unique_ptr<Asn1Record> messageRootRecord;
+		if (!messageRecords.empty())
+		{
+			messageRootRecord = std::unique_ptr<Asn1Record>(new Asn1ConstructedRecord(Asn1TagClass::Application, operationType, messageRecords));
+		}
+		else
+		{
+			messageRootRecord = std::unique_ptr<Asn1Record>(new Asn1GenericRecord(Asn1TagClass::Application, false, operationType, ""));
+		}
 
-		std::vector<Asn1Record*> rootSubRecords = {&messageIdRecord, &messageRootRecord};
+		std::vector<Asn1Record*> rootSubRecords = {&messageIdRecord, messageRootRecord.get()};
 
 		std::unique_ptr<Asn1ConstructedRecord> controlsRecord;
 		if (!controls.empty())
@@ -247,6 +255,8 @@ namespace pcpp {
 			{
 				case LdapOperationType::BindRequest:
 					return new LdapBindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::UnbindRequest:
+					return new LdapUnbindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchRequest:
 					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchResultEntry:
@@ -525,6 +535,15 @@ namespace pcpp {
 			default:
 				return "Unknown";
 		}
+	}
+
+	// endregion
+
+	// region LdapUnbindRequestLayer
+
+	LdapUnbindRequestLayer::LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls)
+	{
+		LdapLayer::init(messageId, LdapOperationType::UnbindRequest, {}, controls);
 	}
 
 	// endregion

@@ -181,6 +181,18 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(bindRequestLayer->toString(), "LDAP Layer, BindRequest, sasl");
 	}
 
+	// UnbindRequest
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_unbind_request.dat");
+		pcpp::Packet unbindRequestPacket(&rawPacket1);
+
+		auto unbindRequestLayer = unbindRequestPacket.getLayerOfType<pcpp::LdapUnbindRequestLayer>();
+		PTF_ASSERT_NOT_NULL(unbindRequestLayer);
+		PTF_ASSERT_EQUAL(unbindRequestLayer->getMessageID(), 3);
+		PTF_ASSERT_EQUAL(unbindRequestLayer->getLdapOperationType(), pcpp::LdapOperationType::UnbindRequest, enum);
+		PTF_ASSERT_EQUAL(unbindRequestLayer->toString(), "LDAP Layer, UnbindRequest");
+	}
+
 	// SearchRequest
 	{
 		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_request2.dat");
@@ -471,6 +483,20 @@ PTF_TEST_CASE(LdapCreationTest)
 			bindRequestLayer.getLdapOperationAsn1Record()->getSubRecords().end(),
 			expectedBindRequestLayer->getLdapOperationAsn1Record()->getSubRecords().begin(),
 			[](pcpp::Asn1Record* elem1, pcpp::Asn1Record* elem2) { return elem1->encode() == elem2->encode();}));
+	}
+
+	// UnbindRequest
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_unbind_request.dat");
+		pcpp::Packet unbindRequestPacket(&rawPacket1);
+
+		pcpp::LdapUnbindRequestLayer unbindRequestLayer(3);
+
+		auto expectedUnbindRequestLayer = unbindRequestPacket.getLayerOfType<pcpp::LdapUnbindRequestLayer>();
+		PTF_ASSERT_NOT_NULL(expectedUnbindRequestLayer);
+
+		PTF_ASSERT_BUF_COMPARE(unbindRequestLayer.getData(), expectedUnbindRequestLayer->getData(),
+			expectedUnbindRequestLayer->getDataLen());
 	}
 
 	// SearchRequest

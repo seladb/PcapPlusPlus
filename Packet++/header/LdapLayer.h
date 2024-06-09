@@ -430,7 +430,7 @@ namespace pcpp
 		/**
 		 * @return The LDAP operation of this message. If the Operation ASN.1 record is malformed, an exception is thrown
 		 */
-		LdapOperationType getLdapOperationType() const;
+		virtual LdapOperationType getLdapOperationType() const;
 
 		/**
 		 * Most getter methods in this class throw an exception if the corresponding ASN.1 record is invalid.
@@ -631,6 +631,27 @@ namespace pcpp
 
 		static constexpr int saslMechanismIndex = 0;
 		static constexpr int saslCredentialsIndex = 1;
+	};
+
+	class LdapUnbindRequestLayer : public LdapLayer
+	{
+	public:
+		LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		Asn1ConstructedRecord* getLdapOperationAsn1Record() const = delete;
+
+		virtual LdapOperationType getLdapOperationType() const { return LdapOperationType::UnbindRequest; }
+
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
+		{
+			return internalTryGet(this, method, result);
+		}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapUnbindRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 	};
 
 	/**
