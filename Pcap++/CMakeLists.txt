@@ -1,11 +1,13 @@
 add_library(
   Pcap++
+  src/DeviceUtils.cpp
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/DpdkDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDevice.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK_KNI}>:src/KniDeviceList.cpp>
   $<$<BOOL:${LINUX}>:src/LinuxNicInformationSocket.cpp>
   $<$<BOOL:${PCAPPP_USE_DPDK}>:src/MBufRawPacket.cpp>
+  src/PcapUtils.cpp
   src/NetworkUtils.cpp
   src/PcapFileDevice.cpp
   src/PcapDevice.cpp
