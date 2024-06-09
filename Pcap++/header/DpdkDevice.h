@@ -803,7 +803,7 @@ namespace pcpp
 
 		int m_Id;
 		MacAddress m_MacAddress;
-		uint16_t m_DeviceSocketId;
+		int16_t m_DeviceSocketId;
 		uint16_t m_DeviceMtu;
 		uint16_t m_MBufDataSize;
 		struct rte_mempool* m_MBufMempool;
