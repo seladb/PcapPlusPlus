@@ -36,11 +36,16 @@
 #include <poll.h>
 #include <pcap/pcap.h>
 #endif // if defined(_WIN32)
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__APPLE__)
 #include <net/if_dl.h>
 #include <net/route.h>
-#include <sys/sysctl.h>
 #endif
+
+#if defined(__FreeBSD__)
+#include <sys/sysctl.h>
+#include <net/if_dl.h>
+#endif
+
 
 // TODO: FIX FreeBSD
 // On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail.
