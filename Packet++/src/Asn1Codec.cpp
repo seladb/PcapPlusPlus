@@ -142,10 +142,16 @@ namespace pcpp
 			return result;
 		}
 
-		// Assuming the size is always less than 256
-		uint8_t firstByte = 0x80 | 0x01;
-		result.push_back(firstByte);
-		result.push_back(m_ValueLength);
+		auto tempValueLength = m_ValueLength;
+		do
+		{
+			uint8_t byte = tempValueLength & 0xff;
+			result.insert(result.begin(), byte); // Insert byte at the beginning of the vector
+			tempValueLength >>= 8;
+		} while (tempValueLength != 0);
+
+		uint8_t firstByte = 0x80 | static_cast<uint8_t>(result.size());
+		result.insert(result.begin(), firstByte);
 
 		return result;
 	}

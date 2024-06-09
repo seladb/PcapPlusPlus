@@ -245,6 +245,8 @@ namespace pcpp {
 			auto operationType = LdapOperationType::fromUintValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(operationTypeIndex)->getTagType());
 			switch (operationType)
 			{
+				case LdapOperationType::BindRequest:
+					return new LdapBindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchRequest:
 					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchResultEntry:
@@ -399,6 +401,132 @@ namespace pcpp {
 	{
 		return getResultCode().toString();
 	}
+	// endregion
+
+	// region LdapBindRequestLayer
+
+	LdapBindRequestLayer::LdapBindRequestLayer(
+		uint16_t messageId, uint8_t version, const std::string& name, const std::string& simpleAuthentication,
+		const std::vector<LdapControl>& controls)
+	{
+		Asn1IntegerRecord versionRecord(version);
+		Asn1OctetStringRecord nameRecord(name);
+		std::vector<Asn1Record*> messageRecords = {&versionRecord, &nameRecord};
+		std::unique_ptr<Asn1GenericRecord> simpleAuthenticationRecord;
+		if (!simpleAuthentication.empty())
+		{
+			auto data = reinterpret_cast<const uint8_t*>(simpleAuthentication.data());
+			simpleAuthenticationRecord = std::unique_ptr<Asn1GenericRecord>(
+				new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data, simpleAuthentication.size()));
+			messageRecords.push_back(simpleAuthenticationRecord.get());
+		}
+
+		LdapLayer::init(messageId, LdapOperationType::BindRequest, messageRecords, controls);
+	}
+
+	LdapBindRequestLayer::LdapBindRequestLayer(
+		uint16_t messageId, uint8_t version, const std::string& name, const SaslAuthentication& saslAuthentication,
+		const std::vector<LdapControl>& controls)
+	{
+		Asn1IntegerRecord versionRecord(version);
+		Asn1OctetStringRecord nameRecord(name);
+		std::vector<Asn1Record*> messageRecords = {&versionRecord, &nameRecord};
+		std::unique_ptr<Asn1ConstructedRecord> saslAuthenticationRecord;
+		if (!saslAuthentication.mechanism.empty())
+		{
+			PointerVector<Asn1Record> saslAuthenticationRecords;
+			saslAuthenticationRecords.pushBack(new Asn1OctetStringRecord(saslAuthentication.mechanism));
+			if (!saslAuthentication.credentials.empty())
+			{
+				auto credentialsRecord = new Asn1OctetStringRecord(saslAuthentication.credentials.data(), saslAuthentication.credentials.size());
+				saslAuthenticationRecords.pushBack(credentialsRecord);
+			}
+
+			saslAuthenticationRecord = std::unique_ptr<Asn1ConstructedRecord>(
+				new Asn1ConstructedRecord(Asn1TagClass::ContextSpecific, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Sasl), saslAuthenticationRecords));
+			messageRecords.push_back(saslAuthenticationRecord.get());
+		}
+
+		LdapLayer::init(messageId, LdapOperationType::BindRequest, messageRecords, controls);
+	}
+
+	uint32_t LdapBindRequestLayer::getVersion() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(versionIndex)->castAs<Asn1IntegerRecord>()->getValue();
+	}
+
+	std::string LdapBindRequestLayer::getName() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(nameIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	LdapBindRequestLayer::AuthenticationType LdapBindRequestLayer::getAuthenticationType() const
+	{
+		if (getLdapOperationAsn1Record()->getSubRecords().size() <= credentialIndex)
+		{
+			return LdapBindRequestLayer::AuthenticationType::NotApplicable;
+		}
+
+		auto authType = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->getTagType();
+		switch (authType)
+		{
+			case 0:
+				return LdapBindRequestLayer::AuthenticationType::Simple;
+			case 3:
+				return LdapBindRequestLayer::AuthenticationType::Sasl;
+			default:
+				return LdapBindRequestLayer::AuthenticationType::NotApplicable;
+		}
+	}
+
+	std::string LdapBindRequestLayer::getSimpleAuthentication() const
+	{
+		if (getAuthenticationType() != LdapBindRequestLayer::AuthenticationType::Simple)
+		{
+			throw std::invalid_argument("Authentication type is not simple");
+		}
+
+		auto authRecord = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1GenericRecord>();
+		return {reinterpret_cast<const char*>(authRecord->getValue()), authRecord->getValueLength()};
+	}
+
+	LdapBindRequestLayer::SaslAuthentication LdapBindRequestLayer::getSaslAuthentication() const
+	{
+		if (getAuthenticationType() != LdapBindRequestLayer::AuthenticationType::Sasl)
+		{
+			throw std::invalid_argument("Authentication type is not sasl");
+		}
+
+		auto authRecord = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
+		std::string mechanism;
+		std::vector<uint8_t> credentials;
+		if (authRecord->getSubRecords().size() > saslMechanismIndex)
+		{
+			mechanism = authRecord->getSubRecords().at(saslMechanismIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+		}
+		if (authRecord->getSubRecords().size() > saslCredentialsIndex)
+		{
+			auto credentialsAsString = authRecord->getSubRecords().at(saslCredentialsIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			credentials.resize(credentialsAsString.size() / 2);
+			hexStringToByteArray(credentialsAsString, credentials.data(), credentials.size());
+		}
+
+		return {mechanism, credentials};
+	}
+
+	std::string LdapBindRequestLayer::getExtendedInfoString() const
+	{
+		switch (getAuthenticationType())
+		{
+			case AuthenticationType::Simple:
+				return "simple";
+			case AuthenticationType::Sasl:
+				return "sasl";
+			default:
+				return "Unknown";
+		}
+	}
+
 	// endregion
 
 	// region LdapSearchRequestLayer

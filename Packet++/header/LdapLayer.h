@@ -572,6 +572,67 @@ namespace pcpp
 		std::string getExtendedInfoString() const override;
 	};
 
+	class LdapBindRequestLayer : public LdapLayer
+	{
+	public:
+		enum class AuthenticationType : uint8_t
+		{
+			Simple = 0,
+			Sasl = 3,
+			NotApplicable = 255
+		};
+
+		struct SaslAuthentication
+		{
+			std::string mechanism;
+			std::vector<uint8_t> credentials;
+
+			bool operator==(const SaslAuthentication& other) const
+			{
+				return mechanism == other.mechanism && credentials == other.credentials;
+			}
+
+			bool operator!=(const SaslAuthentication& other) const
+			{
+				return mechanism != other.mechanism || credentials != other.credentials;
+			}
+		};
+
+		LdapBindRequestLayer(
+			uint16_t messageId, uint8_t version, const std::string& name, const std::string& simpleAuthentication,
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		LdapBindRequestLayer(
+			uint16_t messageId, uint8_t version, const std::string& name, const SaslAuthentication& saslAuthentication,
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		uint32_t getVersion() const;
+		std::string getName() const;
+		AuthenticationType getAuthenticationType() const;
+		std::string getSimpleAuthentication() const;
+		SaslAuthentication getSaslAuthentication() const;
+
+		template <typename Method, typename ResultType>
+		bool tryGet(Method method, ResultType& result)
+		{
+			return internalTryGet(this, method, result);
+		}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapBindRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+
+		std::string getExtendedInfoString() const override;
+	private:
+		static constexpr int versionIndex = 0;
+		static constexpr int nameIndex = 1;
+		static constexpr int credentialIndex = 2;
+
+		static constexpr int saslMechanismIndex = 0;
+		static constexpr int saslCredentialsIndex = 1;
+	};
+
 	/**
 	 * @class LdapSearchRequestLayer
 	 * Represents LDAP search request operation
@@ -1048,5 +1109,19 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& att
 		first = false;
 	}
 	os << "{" << attr.type << ", {" << valuesStream << "}}";
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapBindRequestLayer::SaslAuthentication& saslAuthentication)
+{
+	std::string valuesStream;
+	bool first = true;
+	for (const auto& value : saslAuthentication.credentials)
+	{
+		if (!first) valuesStream += ", ";
+		valuesStream += "0x" + std::to_string(value);
+		first = false;
+	}
+	os << "{" << saslAuthentication.mechanism << ", {" << valuesStream << "}}";
 	return os;
 }
