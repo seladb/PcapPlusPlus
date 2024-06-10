@@ -255,6 +255,8 @@ namespace pcpp {
 			{
 				case LdapOperationType::BindRequest:
 					return new LdapBindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::BindResponse:
+					return new LdapBindResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::UnbindRequest:
 					return new LdapUnbindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchRequest:
@@ -348,6 +350,13 @@ namespace pcpp {
 		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
 		const std::vector<LdapControl>& controls)
 	{
+		LdapResponseLayer::init(messageId, operationType, resultCode, matchedDN, diagnosticMessage, referral, {}, controls);
+	}
+
+	void LdapResponseLayer::init(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
+		const std::vector<Asn1Record*>& additionalRecords, const std::vector<LdapControl>& controls)
+	{
 		Asn1EnumeratedRecord resultCodeRecord(resultCode);
 		Asn1OctetStringRecord matchedDNRecord(matchedDN);
 		Asn1OctetStringRecord diagnosticMessageRecord(diagnosticMessage);
@@ -363,12 +372,21 @@ namespace pcpp {
 				referralSubRecords.pushBack(new Asn1OctetStringRecord(uri));
 			}
 			referralRecord = std::unique_ptr<Asn1ConstructedRecord>(new Asn1ConstructedRecord(
-				Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords));
+					Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords));
 			messageRecords.push_back(referralRecord.get());
+		}
+
+		if (!additionalRecords.empty())
+		{
+			for (auto additionalRecord : additionalRecords)
+			{
+				messageRecords.push_back(additionalRecord);
+			}
 		}
 
 		LdapLayer::init(messageId, operationType, messageRecords, controls);
 	}
+
 
 	LdapResultCode LdapResponseLayer::getResultCode() const
 	{
@@ -534,6 +552,39 @@ namespace pcpp {
 				return "sasl";
 			default:
 				return "Unknown";
+		}
+	}
+
+	// endregion
+
+	// region LdapBindResponseLayer
+
+	LdapBindResponseLayer::LdapBindResponseLayer(uint16_t messageId, const LdapResultCode& resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage,
+		const std::vector<std::string>& referral, const std::vector<uint8_t>& serverSaslCredentials,
+		const std::vector<LdapControl>& controls)
+	{
+		std::vector<Asn1Record*> additionalRecords;
+		std::unique_ptr<Asn1Record> serverSaslCredentialsRecord;
+		if (!serverSaslCredentials.empty())
+		{
+			serverSaslCredentialsRecord = std::unique_ptr<Asn1Record>(new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false, serverSaslCredentialsTagType, serverSaslCredentials.data(), serverSaslCredentials.size()));
+			additionalRecords.push_back(serverSaslCredentialsRecord.get());
+		}
+
+		LdapResponseLayer::init(messageId, LdapOperationType::BindResponse, resultCode, matchedDN, diagnosticMessage, referral, additionalRecords, controls);
+	}
+
+	std::vector<uint8_t> LdapBindResponseLayer::getServerSaslCredentials()
+	{
+		try
+		{
+			auto serverSaslCredentialsRecord = getLdapOperationAsn1Record()->getSubRecords().back()->castAs<Asn1GenericRecord>();
+			return {serverSaslCredentialsRecord->getValue(), serverSaslCredentialsRecord->getValue() + serverSaslCredentialsRecord->getValueLength()};
+		}
+		catch (const std::exception&)
+		{
+			return {};
 		}
 	}
 

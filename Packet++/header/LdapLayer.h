@@ -561,12 +561,19 @@ namespace pcpp
 
 		static constexpr uint8_t referralTagType = 3;
 
+		LdapResponseLayer() = default;
 		LdapResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 
 		LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
 			const std::string& matchedDN, const std::string& diagnosticMessage,
 			const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		void init(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+			const std::string& matchedDN, const std::string& diagnosticMessage,
+			const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<Asn1Record*>& additionalRecords = std::vector<Asn1Record*>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		std::string getExtendedInfoString() const override;
@@ -631,6 +638,24 @@ namespace pcpp
 
 		static constexpr int saslMechanismIndex = 0;
 		static constexpr int saslCredentialsIndex = 1;
+	};
+
+	class LdapBindResponseLayer : public LdapResponseLayer
+	{
+	public:
+		LdapBindResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<uint8_t>& serverSaslCredentials = std::vector<uint8_t>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		std::vector<uint8_t> getServerSaslCredentials();
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		static constexpr int serverSaslCredentialsTagType = 7;
+
+		LdapBindResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 	};
 
 	class LdapUnbindRequestLayer : public LdapLayer

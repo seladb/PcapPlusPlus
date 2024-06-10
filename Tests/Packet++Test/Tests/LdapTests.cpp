@@ -181,6 +181,44 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(bindRequestLayer->toString(), "LDAP Layer, BindRequest, sasl");
 	}
 
+	// BindResponse with server sals credentials
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response1.dat");
+		pcpp::Packet bindResponsePacket(&rawPacket1);
+
+		auto bindResponseLayer = bindResponsePacket.getLayerOfType<pcpp::LdapBindResponseLayer>();
+		PTF_ASSERT_NOT_NULL(bindResponseLayer);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getMessageID(), 215);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::BindResponse, enum);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getResultCode(), pcpp::LdapResultCode::Success, enum);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getMatchedDN(), "");
+		PTF_ASSERT_EQUAL(bindResponseLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getReferral(), std::vector<std::string>());
+		std::vector<uint8_t> expectedServerSaslCredentials = {
+			0xa1, 0x81, 0xa1, 0x30, 0x81, 0x9e, 0xa0, 0x03, 0x0a, 0x01, 0x00, 0xa1, 0x0b, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x82, 0xf7, 0x12, 0x01, 0x02, 0x02, 0xa2, 0x81, 0x89, 0x04, 0x81, 0x86, 0x60, 0x81, 0x83, 0x06, 0x09, 0x2a, 0x86, 0x48,
+			0x86, 0xf7, 0x12, 0x01, 0x02, 0x02, 0x02, 0x00, 0x6f, 0x74, 0x30, 0x72, 0xa0, 0x03, 0x02, 0x01, 0x05, 0xa1, 0x03, 0x02, 0x01, 0x0f, 0xa2, 0x66, 0x30, 0x64, 0xa0, 0x03, 0x02, 0x01, 0x17, 0xa2, 0x5d, 0x04, 0x5b, 0x4a, 0x9f, 0x10,
+			0xab, 0x89, 0x96, 0xfa, 0x43, 0xf2, 0xfb, 0x40, 0x92, 0xa7, 0x6c, 0xc3, 0xfa, 0x6c, 0x1f, 0x00, 0x11, 0x67, 0xfa, 0xc9, 0x04, 0xda, 0xb0, 0x67, 0xf5, 0xf2, 0xda, 0x59, 0xa7, 0x54, 0x90, 0x57, 0xbd, 0x3e, 0xb4, 0x6c, 0xb4, 0x67,
+			0xfd, 0x3b, 0x01, 0xd7, 0x3f, 0x50, 0x51, 0xaa, 0x63, 0x2e, 0xd8, 0xd6, 0xa6, 0xe5, 0x81, 0xbb, 0xab, 0x17, 0x80, 0xfa, 0xab, 0xac, 0x51, 0x52, 0x84, 0x13, 0x9c, 0xfb, 0x44, 0xc2, 0x04, 0xae, 0x1e, 0xc2, 0x5a, 0x2d, 0x58, 0x90,
+			0x9d, 0x22, 0xff, 0x52, 0x34, 0x9e, 0x6d, 0x2e, 0x4d, 0x83, 0x5b, 0x98};
+		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getServerSaslCredentials(), expectedServerSaslCredentials);
+	}
+
+	// BindResponse without server sals credentials
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response2.dat");
+		pcpp::Packet bindResponsePacket(&rawPacket1);
+
+		auto bindResponseLayer = bindResponsePacket.getLayerOfType<pcpp::LdapBindResponseLayer>();
+		PTF_ASSERT_NOT_NULL(bindResponseLayer);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getMessageID(), 2);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getLdapOperationType(), pcpp::LdapOperationType::BindResponse, enum);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getResultCode(), pcpp::LdapResultCode::Success, enum);
+		PTF_ASSERT_EQUAL(bindResponseLayer->getMatchedDN(), "");
+		PTF_ASSERT_EQUAL(bindResponseLayer->getDiagnosticMessage(), "");
+		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getReferral(), std::vector<std::string>());
+		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getServerSaslCredentials(), std::vector<std::uint8_t>());
+	}
+
 	// UnbindRequest
 	{
 		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_unbind_request.dat");
@@ -482,6 +520,53 @@ PTF_TEST_CASE(LdapCreationTest)
 		PTF_ASSERT_TRUE(std::equal(bindRequestLayer.getLdapOperationAsn1Record()->getSubRecords().begin(),
 			bindRequestLayer.getLdapOperationAsn1Record()->getSubRecords().end(),
 			expectedBindRequestLayer->getLdapOperationAsn1Record()->getSubRecords().begin(),
+			[](pcpp::Asn1Record* elem1, pcpp::Asn1Record* elem2) { return elem1->encode() == elem2->encode();}));
+	}
+
+	// BindResponse with server sasl credentials
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response1.dat");
+		pcpp::Packet bindResponsePacket(&rawPacket1);
+
+		std::vector<uint8_t> serverSaslCredentials = {
+			0xa1, 0x81, 0xa1, 0x30, 0x81, 0x9e, 0xa0, 0x03, 0x0a, 0x01, 0x00, 0xa1, 0x0b, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x82, 0xf7, 0x12, 0x01, 0x02, 0x02, 0xa2, 0x81, 0x89, 0x04, 0x81, 0x86, 0x60, 0x81, 0x83, 0x06, 0x09, 0x2a, 0x86, 0x48,
+			0x86, 0xf7, 0x12, 0x01, 0x02, 0x02, 0x02, 0x00, 0x6f, 0x74, 0x30, 0x72, 0xa0, 0x03, 0x02, 0x01, 0x05, 0xa1, 0x03, 0x02, 0x01, 0x0f, 0xa2, 0x66, 0x30, 0x64, 0xa0, 0x03, 0x02, 0x01, 0x17, 0xa2, 0x5d, 0x04, 0x5b, 0x4a, 0x9f, 0x10,
+			0xab, 0x89, 0x96, 0xfa, 0x43, 0xf2, 0xfb, 0x40, 0x92, 0xa7, 0x6c, 0xc3, 0xfa, 0x6c, 0x1f, 0x00, 0x11, 0x67, 0xfa, 0xc9, 0x04, 0xda, 0xb0, 0x67, 0xf5, 0xf2, 0xda, 0x59, 0xa7, 0x54, 0x90, 0x57, 0xbd, 0x3e, 0xb4, 0x6c, 0xb4, 0x67,
+			0xfd, 0x3b, 0x01, 0xd7, 0x3f, 0x50, 0x51, 0xaa, 0x63, 0x2e, 0xd8, 0xd6, 0xa6, 0xe5, 0x81, 0xbb, 0xab, 0x17, 0x80, 0xfa, 0xab, 0xac, 0x51, 0x52, 0x84, 0x13, 0x9c, 0xfb, 0x44, 0xc2, 0x04, 0xae, 0x1e, 0xc2, 0x5a, 0x2d, 0x58, 0x90,
+			0x9d, 0x22, 0xff, 0x52, 0x34, 0x9e, 0x6d, 0x2e, 0x4d, 0x83, 0x5b, 0x98};
+
+		pcpp::LdapBindResponseLayer bindResponseLayer(215, pcpp::LdapResultCode::Success, "", "", {}, serverSaslCredentials);
+
+		auto expectedBindResponseLayer = bindResponsePacket.getLayerOfType<pcpp::LdapBindResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedBindResponseLayer);
+
+		PTF_ASSERT_EQUAL(bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().size(), expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().size());
+
+		for (int i = 0; i < 3; i++)
+		{
+			PTF_ASSERT_EQUAL(bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(i)->toString(),
+				expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(i)->toString());
+		}
+
+		auto actualServerSaslCredentialsRecord = bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
+		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
+		PTF_ASSERT_BUF_COMPARE(actualServerSaslCredentialsRecord->getValue(), expectedServerSaslCredentialsRecord->getValue(), expectedServerSaslCredentialsRecord->getValueLength())
+	}
+
+	// BindResponse without server sasl credentials
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_bind_response2.dat");
+		pcpp::Packet bindResponsePacket(&rawPacket1);
+
+		pcpp::LdapBindResponseLayer bindResponseLayer(2, pcpp::LdapResultCode::Success, "", "");
+
+		auto expectedBindResponseLayer = bindResponsePacket.getLayerOfType<pcpp::LdapBindResponseLayer>();
+		PTF_ASSERT_NOT_NULL(expectedBindResponseLayer);
+
+		PTF_ASSERT_EQUAL(bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().size(), expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().size());
+		PTF_ASSERT_TRUE(std::equal(bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().begin(),
+			bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().end(),
+			expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().begin(),
 			[](pcpp::Asn1Record* elem1, pcpp::Asn1Record* elem2) { return elem1->encode() == elem2->encode();}));
 	}
 
