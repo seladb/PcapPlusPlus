@@ -12,6 +12,21 @@
 
 namespace pcpp
 {
+	/// @cond PCPP_INTERNAL
+
+	namespace
+	{
+		/**
+		 * @class PfRingCloseDeleter
+		 * A deleter that cleans up a pcap_t structure by calling pcap_close.
+		 */
+		struct PfRingCloseDeleter
+		{
+			void operator()(pfring* ptr) const { pfring_close(ptr); }
+		};
+	}
+
+	/// @endcond
 
 PfRingDeviceList::PfRingDeviceList()
 {
@@ -41,12 +56,11 @@ PfRingDeviceList::PfRingDeviceList()
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
 		uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
-		pfring* ring = pfring_open(currInterface->name, 128, flags);
+		std::unique_ptr<pfring, PfRingCloseDeleter> ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
 		if (ring != nullptr)
 		{
 			if (m_PfRingVersion == "")
-				calcPfRingVersion(ring);
-			pfring_close(ring);
+				calcPfRingVersion(ring.get());
 			std::unique_ptr<PfRingDevice> newDev = std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
 			m_PfRingDeviceList.push_back(std::move(newDev));
 			PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
