@@ -72,7 +72,7 @@ PfRingDeviceList::PfRingDeviceList()
 		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 		{
 			uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
-			std::unique_ptr<pfring, PfRingCloseDeleter> ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
+			auto ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
 			if (ring != nullptr)
 			{
 				if (m_PfRingVersion.empty())
