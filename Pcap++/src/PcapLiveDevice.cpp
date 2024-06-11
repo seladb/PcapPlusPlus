@@ -1123,11 +1123,11 @@ void PcapLiveDevice::setDefaultGateway()
 			switch (i)
 			{
 			case RTA_GATEWAY:
-                gateAddr = internal::sockaddr2in_addr(sa);
+				gateAddr = internal::sockaddr2in_addr(sa);
 				break;
 			case RTA_IFP:
 				if (sa->sa_family == AF_LINK &&
-                        reinterpret_cast<sockaddr_dl*>(sa)->sdl_nlen)
+						reinterpret_cast<sockaddr_dl*>(sa)->sdl_nlen)
 					ifp = reinterpret_cast<sockaddr_dl *>(sa);
 				break;
 			}
@@ -1149,32 +1149,32 @@ void PcapLiveDevice::setDefaultGateway()
 		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< inet_ntoa(*gateAddr) << ": " << e.what());
 	}
 #elif defined(__FreeBSD__)
-        std::string command = "netstat -nr | grep default | grep " + m_Name;
-        std::string ifaceInfo = executeShellCommand(command);
-        if (ifaceInfo == "")
-        {
-            PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't get netstat output");
-            return;
-        }
+		std::string command = "netstat -nr | grep default | grep " + m_Name;
+		std::string ifaceInfo = executeShellCommand(command);
+		if (ifaceInfo == "")
+		{
+			PCPP_LOG_DEBUG("Error retrieving default gateway address: couldn't get netstat output");
+			return;
+		}
 
-        // remove the word "default"
-        ifaceInfo.erase(0, 7);
+		// remove the word "default"
+		ifaceInfo.erase(0, 7);
 
-        // remove spaces
-        while (ifaceInfo.at(0) == ' ')
-            ifaceInfo.erase(0,1);
+		// remove spaces
+		while (ifaceInfo.at(0) == ' ')
+			ifaceInfo.erase(0,1);
 
-        // erase string after gateway IP address
-        ifaceInfo.resize(ifaceInfo.find(' ', 0));
+		// erase string after gateway IP address
+		ifaceInfo.resize(ifaceInfo.find(' ', 0));
 
-        try
-        {
-            m_DefaultGateway = IPv4Address(ifaceInfo);
-        }
-        catch(const std::exception& e)
-        {
-            PCPP_LOG_ERROR("Error retrieving default gateway address: "<< ifaceInfo << ": " << e.what());
-        }
+		try
+		{
+			m_DefaultGateway = IPv4Address(ifaceInfo);
+		}
+		catch(const std::exception& e)
+		{
+			PCPP_LOG_ERROR("Error retrieving default gateway address: "<< ifaceInfo << ": " << e.what());
+		}
 #endif
 }
 
