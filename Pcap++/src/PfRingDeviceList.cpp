@@ -5,6 +5,7 @@
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include "PfRingDeviceList.h"
+#include "DeviceUtils.h"
 #include "Logger.h"
 #include "pcap.h"
 #include "pfring.h"
@@ -26,16 +27,18 @@ PfRingDeviceList::PfRingDeviceList()
 
 	PCPP_LOG_DEBUG("PF_RING kernel module is loaded");
 
-	pcap_if_t* interfaceList;
-	char errbuf[PCAP_ERRBUF_SIZE];
 	PCPP_LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");
-	int err = pcap_findalldevs(&interfaceList, errbuf);
-	if (err < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		PCPP_LOG_ERROR("Error searching for PF_RING devices: " << errbuf);
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::runtime_error& e)
+	{
+		PCPP_LOG_ERROR("PfRingDeviceList init error: " << e.what());
 	}
 
-	pcap_if_t* currInterface = interfaceList;
+	pcap_if_t* currInterface = interfaceList.get();
 	while (currInterface != NULL)
 	{
 		uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
@@ -54,7 +57,6 @@ PfRingDeviceList::PfRingDeviceList()
 	}
 
 	PCPP_LOG_DEBUG("PfRingDeviceList init end");
-	pcap_freealldevs(interfaceList);
 
 	// Full update of all elements of the view vector to synchronize them with the main vector.
 	m_PfRingDeviceListView.resize(m_PfRingDeviceList.size());
