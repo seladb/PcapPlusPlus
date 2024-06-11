@@ -75,7 +75,7 @@ PfRingDeviceList::PfRingDeviceList()
 			std::unique_ptr<pfring, PfRingCloseDeleter> ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
 			if (ring != nullptr)
 			{
-				if (m_PfRingVersion == "")
+				if (m_PfRingVersion.empty())
 				{
 					try
 					{
