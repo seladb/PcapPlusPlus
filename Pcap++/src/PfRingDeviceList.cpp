@@ -28,8 +28,8 @@ PfRingDeviceList::PfRingDeviceList()
 		PCPP_LOG_ERROR("PF_RING load error: " + e.what());
 		moduleLoaded = false;
 	}
-	
-	if (!moduleLoaded) 
+
+	if (!moduleLoaded)
 	{
 		PCPP_LOG_ERROR("PF_RING kernel module isn't loaded. Please run: 'sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko'");
 		return;
