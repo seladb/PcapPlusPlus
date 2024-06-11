@@ -31,10 +31,10 @@ namespace pcpp
 		 * @param[in] ring A PF_RING handle.
 		 * @return A string representation of the ring version.
 		 */
-		std::string readPfRingVersion(pfring const& ring)
+		std::string readPfRingVersion(pfring* ring)
 		{
 			uint32_t version;
-			if (pfring_version(&ring, &version) < 0)
+			if (pfring_version(ring, &version) < 0)
 			{
 				throw std::runtime_error("Couldn't retrieve PF_RING version, pfring_version returned an error");
 			}
@@ -73,18 +73,18 @@ PfRingDeviceList::PfRingDeviceList()
 		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 		{
 			uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
-			auto ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
+			auto ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags));
 			if (ring != nullptr)
 			{
 				if (m_PfRingVersion.empty())
 				{
 					try
 					{
-						m_PfRingVersion = readPfRingVersion(*ring);
+						m_PfRingVersion = readPfRingVersion(ring.get());
 					}
 					catch (const std::runtime_error& e)
 					{
-						PCPP_LOG_ERROR("Error reading version: ", e.what());
+						PCPP_LOG_ERROR("Error reading version: " << e.what());
 					}
 
 					PCPP_LOG_DEBUG("PF_RING version is: " << m_PfRingVersion);
