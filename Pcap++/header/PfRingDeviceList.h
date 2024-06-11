@@ -2,6 +2,7 @@
 
 // GCOVR_EXCL_START
 
+#include <memory>
 #include "PfRingDevice.h"
 
 /// @file
@@ -21,12 +22,11 @@ namespace pcpp
 	class PfRingDeviceList
 	{
 	private:
-		std::vector<PfRingDevice*> m_PfRingDeviceList;
+		std::vector<std::unique_ptr<PfRingDevice>> m_PfRingDeviceList;
+		std::vector<PfRingDevice*> m_PfRingDeviceListView;
 		std::string m_PfRingVersion;
 
 		PfRingDeviceList();
-		// private d'tor
-		~PfRingDeviceList();
 
 		void calcPfRingVersion(void* ring);
 	public:
@@ -49,7 +49,7 @@ namespace pcpp
 		 * Return a list of all available PF_RING devices
 		 * @return a list of all available PF_RING devices
 		 */
-		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceList; }
+		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceListView; }
 
 		/**
 		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
