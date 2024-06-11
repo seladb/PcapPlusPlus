@@ -25,7 +25,7 @@ PfRingDeviceList::PfRingDeviceList()
 	}
 	catch (const std::exception& e)
 	{
-		PCPP_LOG_ERROR("PF_RING load error: " + e.what());
+		PCPP_LOG_ERROR("PF_RING load error: " << e.what());
 		moduleLoaded = false;
 	}
 
