@@ -5,6 +5,7 @@
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include "PfRingDeviceList.h"
+#include "SystemUtils.h"
 #include "Logger.h"
 #include "pcap.h"
 #include "pfring.h"
@@ -16,9 +17,19 @@ PfRingDeviceList::PfRingDeviceList()
 {
 	m_PfRingVersion = "";
 
-	FILE *fd = popen("lsmod | grep pf_ring", "r");
-	char buf[16];
-	if (!fread(buf, 1, sizeof (buf), fd)) // if there is some result the module must be loaded
+	bool moduleLoaded = false;
+	try
+	{
+		// if there is some result the module must be loaded
+		moduleLoaded = !(executeShellCommand("lsmod | grep pf_ring").empty());
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR("PF_RING load error: " + e.what());
+		moduleLoaded = false;
+	}
+	
+	if (!moduleLoaded) 
 	{
 		PCPP_LOG_ERROR("PF_RING kernel module isn't loaded. Please run: 'sudo insmod <PF_RING_LOCATION>/kernel/pf_ring.ko'");
 		return;
