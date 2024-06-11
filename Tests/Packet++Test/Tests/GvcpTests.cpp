@@ -39,7 +39,6 @@ PTF_TEST_CASE(GvcpBasicTest)
 PTF_TEST_CASE(GvcpDiscoveryAck)
 {
 	// test the creation from the raw buffer
-	try
 	{
 		using namespace pcpp;
 
@@ -69,13 +68,8 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "ABCDE 3D Scanner (TW)");
 		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "XXX-005");
 	}
-	catch (...)
-	{
-		std::cout << "Exception occurred" << std::endl;
-	}
 
 	// test the GVCP layer directly from the packet
-	try
 	{
 		using namespace pcpp;
 
@@ -103,16 +97,11 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "ABCDE 3D Scanner (TW)");
 		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "XXX-005");
 	}
-	catch (...)
-	{
-		std::cout << "Exception occurred" << std::endl;
-	}
 }
 
 PTF_TEST_CASE(GvcpForceIpCommand)
 {
 	// test the creation from the raw buffer
-	try
 	{
 		using namespace pcpp;
 
@@ -141,13 +130,8 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
 		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
 	}
-	catch (...)
-	{
-		std::cout << "Exception occurred" << std::endl;
-	}
 
 	// test the GVCP layer directly from the packet
-	try
 	{
 		using namespace pcpp;
 
@@ -173,9 +157,5 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		PTF_ASSERT_EQUAL(forceIpBody->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
 		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
 		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
-	}
-	catch (...)
-	{
-		std::cout << "Exception occurred" << std::endl;
 	}
 }
