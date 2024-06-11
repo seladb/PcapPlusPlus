@@ -4,6 +4,7 @@
 
 #define LOG_MODULE PcapLogModulePfRingDevice
 
+#include <cstdio>
 #include "PfRingDeviceList.h"
 #include "DeviceUtils.h"
 #include "Logger.h"
@@ -39,7 +40,7 @@ namespace pcpp
 			}
 
 			char versionAsString[25];
-			sprintf(versionAsString, "PF_RING v.%u.%u.%u\n",
+			std::snprintf(versionAsString, 25, "PF_RING v.%u.%u.%u\n",
 				(version & 0xFFFF0000) >> 16,
 				(version & 0x0000FF00) >> 8,
 				 version & 0x000000FF);
