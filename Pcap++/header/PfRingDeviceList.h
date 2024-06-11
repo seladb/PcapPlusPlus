@@ -25,14 +25,16 @@ namespace pcpp
 		std::string m_PfRingVersion;
 
 		PfRingDeviceList();
-		// private copy c'tor
-		PfRingDeviceList(const PfRingDeviceList& other);
-		PfRingDeviceList& operator=(const PfRingDeviceList& other);
 		// private d'tor
 		~PfRingDeviceList();
 
 		void calcPfRingVersion(void* ring);
 	public:
+		PfRingDeviceList(const PfRingDeviceList&) = delete;
+		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;
+		PfRingDeviceList& operator=(const PfRingDeviceList&) = delete;
+		PfRingDeviceList& operator=(PfRingDeviceList&&) noexcept = delete;
+
 		/**
 		 * A static method that returns the singleton object for PfRingDeviceList
 		 * @return PfRingDeviceList singleton
