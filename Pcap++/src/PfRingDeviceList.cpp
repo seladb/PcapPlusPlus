@@ -39,7 +39,7 @@ namespace pcpp
 			}
 
 			char versionAsString[25];
-			sprintf(versionAsString, "PF_RING v.%u.%u.%u\n", 
+			sprintf(versionAsString, "PF_RING v.%u.%u.%u\n",
 				(version & 0xFFFF0000) >> 16,
 				(version & 0x0000FF00) >> 8,
 				 version & 0x000000FF);
@@ -68,7 +68,7 @@ PfRingDeviceList::PfRingDeviceList()
 	try
 	{
 		auto interfaceList = internal::getAllLocalPcapDevices();
-	
+
 		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 		{
 			uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
@@ -85,7 +85,7 @@ PfRingDeviceList::PfRingDeviceList()
 					{
 						PCPP_LOG_ERROR("Error reading version: ", e.what());
 					}
-					
+
 					PCPP_LOG_DEBUG("PF_RING version is: " << m_PfRingVersion);
 				}
 				std::unique_ptr<PfRingDevice> newDev = std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
