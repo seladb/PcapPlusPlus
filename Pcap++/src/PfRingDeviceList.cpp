@@ -19,7 +19,7 @@ namespace pcpp
 	{
 		/**
 		 * @class PfRingCloseDeleter
-		 * A deleter that cleans up a pcap_t structure by calling pcap_close.
+		 * A deleter that cleans up a pfring structure by calling pfring_close.
 		 */
 		struct PfRingCloseDeleter
 		{
