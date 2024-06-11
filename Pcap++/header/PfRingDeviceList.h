@@ -27,8 +27,6 @@ namespace pcpp
 		std::string m_PfRingVersion;
 
 		PfRingDeviceList();
-
-		void calcPfRingVersion(void* ring);
 	public:
 		PfRingDeviceList(const PfRingDeviceList&) = delete;
 		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;

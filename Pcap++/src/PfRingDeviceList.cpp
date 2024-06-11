@@ -24,6 +24,28 @@ namespace pcpp
 		{
 			void operator()(pfring* ptr) const { pfring_close(ptr); }
 		};
+
+		/**
+		 * Reads the ring version of a PF_RING handle.
+		 * @param[in] ring A PF_RING handle.
+		 * @return A string representation of the ring version.
+		 */
+		std::string readPfRingVersion(pfring const& ring)
+		{
+			uint32_t version;
+			if (pfring_version(&ring, &version) < 0)
+			{
+				throw std::runtime_error("Couldn't retrieve PF_RING version, pfring_version returned an error");
+			}
+
+			char versionAsString[25];
+			sprintf(versionAsString, "PF_RING v.%u.%u.%u\n", 
+				(version & 0xFFFF0000) >> 16,
+				(version & 0x0000FF00) >> 8,
+				 version & 0x000000FF);
+
+			return std::string(versionAsString);
+		}
 	}
 
 	/// @endcond
@@ -43,28 +65,38 @@ PfRingDeviceList::PfRingDeviceList()
 	PCPP_LOG_DEBUG("PF_RING kernel module is loaded");
 
 	PCPP_LOG_DEBUG("PfRingDeviceList init: searching all interfaces on machine");
-	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	try
 	{
-		interfaceList = internal::getAllLocalPcapDevices();
+		auto interfaceList = internal::getAllLocalPcapDevices();
+	
+		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
+		{
+			uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
+			std::unique_ptr<pfring, PfRingCloseDeleter> ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
+			if (ring != nullptr)
+			{
+				if (m_PfRingVersion == "")
+				{
+					try
+					{
+						m_PfRingVersion = readPfRingVersion(*ring);
+					}
+					catch (const std::runtime_error& e)
+					{
+						PCPP_LOG_ERROR("Error reading version: ", e.what());
+					}
+					
+					PCPP_LOG_DEBUG("PF_RING version is: " << m_PfRingVersion);
+				}
+				std::unique_ptr<PfRingDevice> newDev = std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
+				m_PfRingDeviceList.push_back(std::move(newDev));
+				PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
+			}
+		}
 	}
 	catch (const std::runtime_error& e)
 	{
 		PCPP_LOG_ERROR("PfRingDeviceList init error: " << e.what());
-	}
-
-	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
-	{
-		uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
-		std::unique_ptr<pfring, PfRingCloseDeleter> ring = std::unique_ptr<pfring, PfRingCloseDeleter>(pfring_open(currInterface->name, 128, flags))
-		if (ring != nullptr)
-		{
-			if (m_PfRingVersion == "")
-				calcPfRingVersion(ring.get());
-			std::unique_ptr<PfRingDevice> newDev = std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
-			m_PfRingDeviceList.push_back(std::move(newDev));
-			PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
-		}
 	}
 
 	PCPP_LOG_DEBUG("PfRingDeviceList init end");
@@ -72,7 +104,7 @@ PfRingDeviceList::PfRingDeviceList()
 	// Full update of all elements of the view vector to synchronize them with the main vector.
 	m_PfRingDeviceListView.resize(m_PfRingDeviceList.size());
 	std::transform(m_PfRingDeviceList.begin(), m_PfRingDeviceList.end(), m_PfRingDeviceListView.begin(),
-				   [](const std::unique_ptr<PfRingDevice>& ptr) { return ptr.get(); });
+				  [](const std::unique_ptr<PfRingDevice>& ptr) { return ptr.get(); });
 }
 
 PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName) const
@@ -88,26 +120,6 @@ PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName
 	}
 
 	return devIter->get();
-}
-
-void PfRingDeviceList::calcPfRingVersion(void* ring)
-{
-	pfring* ringPtr = reinterpret_cast<pfring*>(ring);
-	uint32_t version;
-	if (pfring_version(ringPtr, &version) < 0)
-	{
-		PCPP_LOG_ERROR("Couldn't retrieve PF_RING version, pfring_version returned an error");
-		return;
-	}
-
-	char versionAsString[25];
-	sprintf(versionAsString, "PF_RING v.%u.%u.%u\n",
-	  (version & 0xFFFF0000) >> 16,
-	  (version & 0x0000FF00) >> 8,
-	  version & 0x000000FF);
-
-	PCPP_LOG_DEBUG("PF_RING version is: " << versionAsString);
-	m_PfRingVersion = std::string(versionAsString);
 }
 
 } // namespace pcpp
