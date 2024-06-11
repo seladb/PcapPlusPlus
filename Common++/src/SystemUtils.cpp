@@ -4,6 +4,8 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+#include <stdexcept>
+#include <memory>
 #include <iostream>
 #include <mutex>
 #include <signal.h>
@@ -183,18 +185,29 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
 	}
 }
 
-std::string executeShellCommand(const std::string &command)
+namespace
 {
-	FILE* pipe = POPEN(command.c_str(), "r");
-	if (!pipe) return "ERROR";
-	char buffer[128];
-	std::string result = "";
-	while(!feof(pipe))
+	struct PcloseDeleter
 	{
-		if(fgets(buffer, 128, pipe) != nullptr)
+		void operator()(FILE* ptr) const { PCLOSE(ptr); }
+	};
+}
+
+std::string executeShellCommand(const std::string& command)
+{
+	std::unique_ptr<FILE, PcloseDeleter> pipe = std::unique_ptr<FILE, PcloseDeleter>(POPEN(command.c_str(), "r"));
+	if (!pipe)
+	{
+		throw std::runtime_error("Error executing command: " + command);
+	}
+
+	char buffer[128];
+	std::string result;
+	while(!feof(pipe.get()))
+	{
+		if(fgets(buffer, 128, pipe.get()) != nullptr)
 			result += buffer;
 	}
-	PCLOSE(pipe);
 	return result;
 }
 
