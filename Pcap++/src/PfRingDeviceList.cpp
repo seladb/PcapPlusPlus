@@ -79,7 +79,7 @@ PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName
 
 void PfRingDeviceList::calcPfRingVersion(void* ring)
 {
-	pfring* ringPtr = (pfring*)ring;
+	pfring* ringPtr = reinterpret_cast<pfring*>(ring);
 	uint32_t version;
 	if (pfring_version(ringPtr, &version) < 0)
 	{
