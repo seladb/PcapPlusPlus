@@ -38,12 +38,11 @@ PfRingDeviceList::PfRingDeviceList()
 		PCPP_LOG_ERROR("PfRingDeviceList init error: " << e.what());
 	}
 
-	pcap_if_t* currInterface = interfaceList.get();
-	while (currInterface != NULL)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
 		uint32_t flags = PF_RING_PROMISC | PF_RING_DNA_SYMMETRIC_RSS;
 		pfring* ring = pfring_open(currInterface->name, 128, flags);
-		if (ring != NULL)
+		if (ring != nullptr)
 		{
 			if (m_PfRingVersion == "")
 				calcPfRingVersion(ring);
@@ -52,8 +51,6 @@ PfRingDeviceList::PfRingDeviceList()
 			m_PfRingDeviceList.push_back(std::move(newDev));
 			PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
 		}
-
-		currInterface = currInterface->next;
 	}
 
 	PCPP_LOG_DEBUG("PfRingDeviceList init end");
