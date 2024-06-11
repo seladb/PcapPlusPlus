@@ -108,3 +108,74 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		std::cout << "Exception occurred" << std::endl;
 	}
 }
+
+PTF_TEST_CASE(GvcpForceIpCommand)
+{
+	// test the creation from the raw buffer
+	try
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_forceip_cmd.dat");
+		pcpp::Packet discoverAckPacket(&rawPacket1);
+
+		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
+
+		// we get the raw buffer from the payload of the UDP layer and create a GvcpRequestLayer from the buffer
+		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
+		GvcpRequestHeader *header = gvcpRequestLayer.getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpCmd);
+		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpRequestHeader));
+		PTF_ASSERT_EQUAL(header->getRequestId(), 8787);
+
+		auto forceIpBody = gvcpRequestLayer.getGvcpForceIpBody();
+		PTF_ASSERT_TRUE(forceIpBody != nullptr);
+		PTF_ASSERT_EQUAL(forceIpBody->getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
+		PTF_ASSERT_EQUAL(forceIpBody->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
+		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
+		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
+	}
+	catch (...)
+	{
+		std::cout << "Exception occurred" << std::endl;
+	}
+
+	// test the GVCP layer directly from the packet
+	try
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_forceip_cmd.dat");
+		pcpp::Packet forceIpCommandPacket(&rawPacket1);
+
+		// we get the GVCP layer from the packet
+		auto gvcpRequestLayer = forceIpCommandPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
+
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
+		GvcpRequestHeader *header = gvcpRequestLayer->getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpCmd);
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getDataLen());
+		PTF_ASSERT_EQUAL(header->getRequestId(), 8787);
+
+		auto forceIpBody = gvcpRequestLayer->getGvcpForceIpBody();
+		PTF_ASSERT_TRUE(forceIpBody != nullptr);
+		PTF_ASSERT_EQUAL(forceIpBody->getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
+		PTF_ASSERT_EQUAL(forceIpBody->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
+		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
+		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
+	}
+	catch (...)
+	{
+		std::cout << "Exception occurred" << std::endl;
+	}
+}

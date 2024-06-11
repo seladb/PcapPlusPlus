@@ -51,6 +51,17 @@ namespace pcpp
 		memcpy(m_Data, data + sizeof(GvcpRequestHeader), m_DataLen);
 	}
 
+	GvcpRequestLayer::GvcpRequestLayer(const uint8_t *data, uint16_t dataSize)
+	{
+		m_Protocol = Gvcp;
+		m_Header = new GvcpRequestHeader();
+		std::memcpy(m_Header, data, sizeof(GvcpRequestHeader));
+
+		m_DataLen = dataSize - sizeof(GvcpRequestHeader);
+		m_Data = new uint8_t[m_DataLen];
+		memcpy(m_Data, data + sizeof(GvcpRequestHeader), m_DataLen);
+	}
+
 	/*---------------------- Class GvcpAcknowledgeLayer ----------------------------*/
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(uint8_t *data, size_t dataSize, Layer *prevLayer, Packet *packet)
 		: GvcpLayer(data, dataSize, prevLayer, packet)

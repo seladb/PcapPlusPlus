@@ -23,7 +23,7 @@ namespace pcpp
 		static constexpr size_t kGvcpRequestHeaderLength = 8;
 		static constexpr size_t kGvcpAckHeaderLength = 8;
 		static constexpr size_t kGvcpDiscoveryBodyLength = 248;
-
+		static constexpr size_t kGvcpForceIpBodyLength = 56;
 	} // namespace detail
 
 	typedef uint8_t GvcpFlag; // flag bits are specified by each command
@@ -295,6 +295,51 @@ namespace pcpp
 	};
 	static_assert(sizeof(GvcpDiscoveryBody) == detail::kGvcpDiscoveryBodyLength,
 				  "Gvcp ack body size should be 248 bytes");
+
+	/// @brief GVCP force IP command body
+	/// @note refer to the spec "16.2 FORCEIP". The data is stored as big-endian.
+	struct GvcpForceIpBody
+	{
+		char padding1[2] = {0};
+		char macAddress[6] = {0};
+		char padding2[12] = {0};
+		uint32_t ipAddress = 0;
+		char padding3[12] = {0};
+		uint32_t subnetMask = 0;
+		char padding4[12] = {0};
+		uint32_t gateway = 0;
+
+		// ------------- methods --------------
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::MacAddress getMacAddress() const
+		{
+			return pcpp::MacAddress(reinterpret_cast<const uint8_t *>(macAddress));
+		}
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::IPv4Address getIpAddress() const { return pcpp::IPv4Address(ipAddress); }
+
+		/**
+		 * @brief Get the subnet mask
+		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
+		 */
+		pcpp::IPv4Address getSubnetMask() const { return pcpp::IPv4Address(subnetMask); }
+
+		/**
+		 * @brief Get the gateway IP address
+		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
+		 */
+		pcpp::IPv4Address getGatewayIpAddress() const { return pcpp::IPv4Address(gateway); }
+	};
+	static_assert(sizeof(GvcpForceIpBody) == detail::kGvcpForceIpBodyLength,
+				  "GVCP force IP command body size should be 56 bytes");
 #pragma pack(pop)
 
 	/**
@@ -366,10 +411,30 @@ namespace pcpp
 								  GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		explicit GvcpRequestLayer(const uint8_t *data, uint16_t dataSize);
+
+		/**
 		 * @brief Get the header object
 		 * @return GvcpRequestHeader* A pointer to the header object
 		 */
 		GvcpRequestHeader *getGvcpHeader() const { return m_Header; }
+
+		/**
+		 * @brief Get the force id command body object
+		 * @return GvcpForceIpBody* A pointer to the force id command body object. If the data length is invalid, return
+		 * nullptr.
+		 */
+		GvcpForceIpBody *getGvcpForceIpBody() const
+		{
+			if (m_DataLen != detail::kGvcpForceIpBodyLength)
+				return nullptr;
+
+			return reinterpret_cast<GvcpForceIpBody *>(m_Data);
+		}
 
 		GvcpCommand getCommand() const { return m_Header->getCommand(); }
 
