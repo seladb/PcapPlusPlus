@@ -51,6 +51,22 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 }
 #endif
 
+/// @cond PCPP_INTERNAL
+
+namespace
+{
+	/**
+	 * @class PcloseDeleter
+	 * A deleter that cleans up a FILE handle using pclose.
+	 */
+	struct PcloseDeleter
+	{
+		void operator()(FILE* ptr) const { PCLOSE(ptr); }
+	};
+} // namespace
+
+/// @endcond
+
 namespace pcpp
 {
 
@@ -184,14 +200,6 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
 		coreMask = coreMask >> 1;
 		i++;
 	}
-}
-
-namespace
-{
-	struct PcloseDeleter
-	{
-		void operator()(FILE* ptr) const { PCLOSE(ptr); }
-	};
 }
 
 std::string executeShellCommand(const std::string& command)
