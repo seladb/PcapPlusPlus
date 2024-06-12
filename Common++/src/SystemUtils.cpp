@@ -6,6 +6,7 @@
 #endif
 #include <stdexcept>
 #include <memory>
+#include <array>
 #include <iostream>
 #include <mutex>
 #include <signal.h>
@@ -201,12 +202,12 @@ std::string executeShellCommand(const std::string& command)
 		throw std::runtime_error("Error executing command: " + command);
 	}
 
-	char buffer[128];
+	std::array<char, 128> buffer;
 	std::string result;
 	while(!feof(pipe.get()))
 	{
-		if(fgets(buffer, 128, pipe.get()) != nullptr)
-			result += buffer;
+		if(fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+			result += buffer.data(); // Using the C-string overload of string append.
 	}
 	return result;
 }
