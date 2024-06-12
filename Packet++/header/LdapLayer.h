@@ -47,9 +47,9 @@ namespace pcpp
 			/// Add Response
 			AddResponse = 9,
 			/// Delete Request
-			DelRequest = 10,
+			DeleteRequest = 10,
 			/// Delete Response
-			DelResponse = 11,
+			DeleteResponse = 11,
 			/// Modify DN (Distinguished Name) Request
 			ModifyDNRequest = 12,
 			/// Modify DN (Distinguished Name) Response
@@ -102,6 +102,241 @@ namespace pcpp
 
 	private:
 		Value m_Value = LdapOperationType::Unknown;
+	};
+
+	/**
+	 * @class LdapResultCode
+	 * @brief An enum wrapper class for LDAP result codes
+	 */
+	class LdapResultCode
+	{
+	public:
+		/**
+		 * Define enum types and the corresponding int values
+		 */
+		enum Value : uint8_t
+		{
+			/**
+			 * Indicates that the associated operation completed successfully
+			 */
+			Success = 0,
+			/**
+			 * Indicates that there was a problem with the client’s use of the LDAP protocol
+			 */
+			OperationsError= 1,
+			/**
+			 * Indicates that there was a problem with the client’s use of the LDAP protocol
+			 */
+			ProtocolError = 2,
+			/**
+			 * Indicates that the associated operation failed because it hadn’t completed by the time
+			 * a maximum processing time limit had been reached
+			 */
+			TimeLimitExceeded = 3,
+			/**
+			 * Indicates that the associated search operation failed because the server has determined
+			 * that the number of entries that would be returned in response to the search would exceed
+			 * the upper bound for that operation
+			 */
+			SizeLimitExceeded = 4,
+			/**
+			 * Indicates that the associated compare request targeted an entry that exists and that contains
+			 * the targeted attribute, but does not have any value that matches the provided assertion value
+			 */
+			CompareFalse = 5,
+			/**
+			 * Indicates that the associated compare request targeted an entry that exists and that contains
+			 * the targeted attribute with a value that matches the provided assertion value
+			 */
+			CompareTrue = 6,
+			/**
+			 * Indicates that the associated bind operation failed because the client attempted to authenticate
+			 * with a mechanism that the server does not support or that it does not allow the client to use
+			 */
+			AuthMethodNotSupported = 7,
+			/**
+			 * Indicates that the server requires the client to authenticate with a stronger form of authentication
+			 */
+			StrongerAuthRequired = 8,
+			/**
+			 * Indicates that the request cannot be processed exactly as issued, but that it might succeed
+			 * if re-issued to a different server, or is updated to target a different location in the DIT
+			 */
+			Referral = 10,
+			/**
+			 * Indicates that some administrative limit within the server was exceeded while processing the request
+			 */
+			AdminLimitExceeded = 11,
+			/**
+			 * Indicates that the request includes a control with a criticality of true,
+			 * but that control could not be honored for some reason
+			 */
+			UnavailableCriticalExtension = 12,
+			/**
+			 * Indicates that the server is only willing to process the requested operation if it is received
+			 * over a secure connection that does not allow an eavesdropper to decipher or alter the contents
+			 * of the request or response
+			 */
+			ConfidentialityRequired = 13,
+			/**
+			 * Indicates that the server has completed a portion of the processing for the provided SASL
+			 * bind request, but that it needs additional information from the client to complete the authentication
+			 */
+			SaslBindInProgress = 14,
+			/**
+			 * Indicates that the request targeted an attribute that does not exist in the specified entry
+			 */
+			NoSuchAttribute = 16,
+			/**
+			 * Indicates that the request attempted to provide one or more values for an attribute type
+			 * that is not defined in the server schema
+			 */
+			UndefinedAttributeType = 17,
+			/**
+			 * Indicates that the search request tried to perform some type of matching that is not
+			 * supported for the target attribute type
+			 */
+			InappropriateMatching = 18,
+			/**
+			 * Indicates that the requested operation would have resulted in an entry that violates
+			 * some constraint defined within the server
+			 */
+			ConstraintViolation = 19,
+			/**
+			 * Indicates that the requested operation would have resulted in an attribute in which
+			 * the same value appeared more than once
+			 */
+			AttributeOrValueExists = 20,
+			/**
+			 * Indicates that the requested add or modify operation would have resulted in an entry
+			 * that had at least one attribute value that does not conform to the constraints of the
+			 * associated attribute syntax
+			 */
+			InvalidAttributeSyntax = 21,
+			/**
+			 * Indicates that the requested operation targeted an entry that does not exist within the DIT
+			 */
+			NoSuchObject = 32,
+			/**
+			 * Indicates that a problem occurred while attempting to dereference an alias during search processing
+			 */
+			AliasProblem = 33,
+			/**
+			 * Indicates that the request included a malformed entry DN
+			 */
+			InvalidDNSyntax = 34,
+			/**
+			 * Indicates that the server encountered an alias while processing the request and that there
+			 * was some problem related to that alias
+			 */
+			AliasDereferencingProblem = 36,
+			/**
+			 * Indicates that the client attempted to bind in an inappropriate manner that is inappropriate
+			 * for the target account
+			 */
+			InappropriateAuthentication = 48,
+			/**
+			 * Indicates that the client attempted to bind with a set of credentials that cannot
+			 * be used to authenticate
+			 */
+			InvalidCredentials = 49,
+			/**
+			 * Indicates that the client requested an operation for which it does not have the necessary
+			 * access control permissions
+			 */
+			InsufficientAccessRights = 50,
+			/**
+			 * Indicates that the requested operation cannot be processed because the server is currently too busy
+			 */
+			Busy = 51,
+			/**
+			 * Indicates that the server is currently not available to process the requested operation
+			 */
+			Unavailable = 52,
+			/**
+			 * Indicates that the server is not willing to process the requested operation for some reason
+			 */
+			UnwillingToPerform = 53,
+			/**
+			 * Indicates that the server detected some kind of circular reference in the course
+			 * of processing an operation
+			 */
+			LoopDetect = 54,
+			/**
+			 * Indicates that the requested add or modify DN operation would have resulted in an entry
+			 * that violates some naming constraint within the server
+			 */
+			NamingViolation = 64,
+			/**
+			 * Indicates that the requested operation would have resulted in an entry that has
+			 * an inappropriate set of object classes, or whose attributes violate the constraints
+			 * associated with its set of object classes
+			 */
+			ObjectClassViolation = 65,
+			/**
+			 * Indicates that the requested operation is only supported for leaf entries,
+			 * but the targeted entry has one or more subordinates
+			 */
+			NotAllowedOnNonLeaf = 66,
+			/**
+			 * Indicates that the requested modify operation would have resulted in an entry that
+			 * does not include all of the attributes used in its RDN
+			 */
+			NotAllowedOnRDN = 67,
+			/**
+			 * Indicates that the requested operation would have resulted in an entry with the same
+			 * DN as an entry that already exists in the server
+			 */
+			EntryAlreadyExists = 68,
+			/**
+			 * Indicates that the requested modify operation would have altered the target entry’s
+			 * set of object classes in a way that is not supported
+			 */
+			ObjectClassModsProhibited = 69,
+			/**
+			 * Indicates that the requested operation would have required manipulating information
+			 * in multiple servers in a way that is not supported
+			 */
+			AffectsMultipleDSAs = 71,
+			/**
+			 * Used when a problem occurs for which none of the other result codes is more appropriate
+			 */
+			Other = 80,
+			/**
+			 * Unknown result code
+			 */
+			Unknown = 255
+		};
+
+		LdapResultCode() = default;
+
+		// cppcheck-suppress noExplicitConstructor
+		/**
+ 		 * Construct LdapResultCode from Value enum
+ 		 * @param[in] value the result code enum value
+ 		 */
+		constexpr LdapResultCode(Value value) : m_Value(value) { }
+
+		/**
+		 * @return A string representation of the result code
+		 */
+		std::string toString() const;
+
+		/**
+		 * A static method that creates LdapResultCode from an integer value
+		 * @param[in] value The result code integer value
+		 * @return The result code that corresponds to the integer value. If the integer value
+		 * doesn't corresponds to any operation type, LdapResultCode::Unknown is returned
+		 */
+		static LdapResultCode fromUintValue(uint8_t value);
+
+		// Allow switch and comparisons
+		constexpr operator Value() const { return m_Value; }
+
+		// Prevent usage: if(LdapResultCode)
+		explicit operator bool() const = delete;
+	private:
+		Value m_Value = LdapResultCode::Unknown;
 	};
 
 	/**
@@ -264,7 +499,7 @@ namespace pcpp
 		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 		LdapLayer() = default;
 		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
-		virtual std::string getExtendedStringInfo() const { return ""; }
+		virtual std::string getExtendedInfoString() const { return ""; }
 
 		static constexpr int messageIdIndex = 0;
 		static constexpr int operationTypeIndex = 1;
@@ -286,6 +521,55 @@ namespace pcpp
 				return false;
 			}
 		}
+	};
+
+	/**
+	 * @class LdapResponseLayer
+	 * An abstract class for representing an LDAP response message. It's the parent class
+	 * for all response message layers
+	 */
+	class LdapResponseLayer : public LdapLayer
+	{
+	public:
+		/**
+		 * @return LDAP result code
+		 */
+		LdapResultCode getResultCode() const;
+
+		/**
+		 * @return An optional distinguished name (DN) that may be included in the response to a request
+		 * targeting an entry that does not exist
+		 */
+		std::string getMatchedDN() const;
+
+		/**
+		 * @return An optional string that can provide additional information about the processing that
+		 * was performed
+		 */
+		std::string getDiagnosticMessage() const;
+
+		/**
+		 * @return An optional list of one or more URIs that the client may use to re-try the operation
+		 * somewhere else. If referral doesn't exist on the message, and empty vector is returned
+		 */
+		std::vector<std::string> getReferral() const;
+	protected:
+		static constexpr int resultCodeIndex = 0;
+		static constexpr int matchedDNIndex = 1;
+		static constexpr int diagnotsticsMessageIndex = 2;
+		static constexpr int referralIndex = 3;
+
+		static constexpr uint8_t referralTagType = 3;
+
+		LdapResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+
+		LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+			const std::string& matchedDN, const std::string& diagnosticMessage,
+			const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+
+		std::string getExtendedInfoString() const override;
 	};
 
 	/**
@@ -511,7 +795,7 @@ namespace pcpp
 			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 
 
-		std::string getExtendedStringInfo() const override;
+		std::string getExtendedInfoString() const override;
 	};
 
 	/**
@@ -558,6 +842,192 @@ namespace pcpp
 
 		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	/**
+	 * @class LdapSearchResultDoneLayer
+	 * Represents LDAP search result done message
+	 */
+	class LdapSearchResultDoneLayer : public LdapResponseLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP search result done message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapSearchResultDoneLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::SearchResultDone, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapSearchResultDoneLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	/**
+	 * @class LdapModifyResponseLayer
+	 * Represents LDAP modify response message
+	 */
+	class LdapModifyResponseLayer : public LdapResponseLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP modify response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapModifyResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::ModifyResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapModifyResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	/**
+	 * @class LdapAddResponseLayer
+	 * Represents LDAP add response message
+	 */
+	class LdapAddResponseLayer : public LdapResponseLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP add response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapAddResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::AddResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapAddResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	/**
+	 * @class LdapDeleteResponseLayer
+	 * Represents LDAP delete response message
+	 */
+	class LdapDeleteResponseLayer : public LdapResponseLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP delete response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapDeleteResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::DeleteResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapDeleteResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	/**
+	 * @class LdapModifyDNResponseLayer
+	 * Represents LDAP modify DN response message
+	 */
+	class LdapModifyDNResponseLayer : public LdapResponseLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP modify DN response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapModifyDNResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::ModifyDNResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapModifyDNResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+	};
+
+	/**
+	 * @class LdapCompareResponseLayer
+	 * Represents LDAP compare response message
+	 */
+	class LdapCompareResponseLayer : public LdapResponseLayer
+	{
+	public:
+		/**
+		 * A constructor to create a new LDAP compare response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
+		LdapCompareResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
+			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+			: LdapResponseLayer(messageId, LdapOperationType::CompareResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+	protected:
+		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		LdapCompareResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 	};
 } // namespace pcpp
 

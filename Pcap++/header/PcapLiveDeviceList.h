@@ -3,6 +3,7 @@
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include <vector>
+#include <memory>
 
 
 /// @file
@@ -23,20 +24,26 @@ namespace pcpp
 	class PcapLiveDeviceList
 	{
 	private:
-		std::vector<PcapLiveDevice*> m_LiveDeviceList;
+		std::vector<std::unique_ptr<PcapLiveDevice>> m_LiveDeviceList;
+		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
+		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
 		std::vector<IPv4Address> m_DnsServers;
 
 		// private c'tor
 		PcapLiveDeviceList();
-		// private copy c'tor
-		PcapLiveDeviceList( const PcapLiveDeviceList& other );
-		PcapLiveDeviceList& operator=(const PcapLiveDeviceList& other);
 
 		void init();
 
 		void setDnsServers();
+
+		void updateLiveDeviceListView() const;
 	public:
+		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
+		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
+		PcapLiveDeviceList& operator=(const PcapLiveDeviceList&) = delete;
+		PcapLiveDeviceList& operator=(PcapLiveDeviceList&&) noexcept = delete;
+
 		/**
 		 * The access method to the singleton
 		 * @return The singleton instance of this class
@@ -50,7 +57,7 @@ namespace pcpp
 		/**
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 */
-		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceList; }
+		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceListView; };
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
@@ -110,9 +117,6 @@ namespace pcpp
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
 		 */
 		void reset();
-
-		// d'tor
-		~PcapLiveDeviceList();
 	};
 
 } // namespace pcpp
