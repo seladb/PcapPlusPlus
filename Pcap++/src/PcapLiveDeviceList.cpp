@@ -8,6 +8,7 @@
 #include "DeviceUtils.h"
 #include "SystemUtils.h"
 #include "pcap.h"
+#include <array>
 #include <string.h>
 #include <sstream>
 #include <algorithm>
@@ -67,23 +68,28 @@ void PcapLiveDeviceList::init()
 void PcapLiveDeviceList::setDnsServers()
 {
 #if defined(_WIN32)
-	FIXED_INFO * fixedInfo;
+	FIXED_INFO* fixedInfo;
 	ULONG    ulOutBufLen;
 	DWORD    dwRetVal;
-	IP_ADDR_STRING * pIPAddr;
+	IP_ADDR_STRING* pIPAddr;
 
-	uint8_t buf1[sizeof(FIXED_INFO)];
-	fixedInfo = (FIXED_INFO *) buf1;
-	ulOutBufLen = sizeof( FIXED_INFO );
+	std::array<uint8_t, sizeof(FIXED_INFO)> bufferOnStack;
+	fixedInfo = reinterpret_cast<FIXED_INFO*>(bufferOnStack.data());
+	ulOutBufLen = bufferOnStack.size();
 
 	dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen );
-	uint8_t* buf2 = new uint8_t[ulOutBufLen];
+	std::vector<uint8_t> bufferOnHeap;
 	if(ERROR_BUFFER_OVERFLOW == dwRetVal)
 	{
-		fixedInfo = (FIXED_INFO *)buf2;
+		// Stack buffer was not enough. Allocating a heap buffer.
+		bufferOnHeap.resize(ulOutBufLen);
+		fixedInfo = reinterpret_cast<FIXED_INFO*>(bufferOnHeap.data());
+		ulOutBufLen = bufferOnHeap.size();
+		// Retrying to get network info.
+		dwRetVal = GetNetworkParams(fixedInfo, &ulOutBufLen);
 	}
 
-	if ((dwRetVal = GetNetworkParams( fixedInfo, &ulOutBufLen )) != 0)
+	if (dwRetVal != 0)
 		PCPP_LOG_ERROR("Call to GetNetworkParams failed. Return Value: " << std::hex << dwRetVal);
 	else
 	{
@@ -113,8 +119,6 @@ void PcapLiveDeviceList::setDnsServers()
 			pIPAddr = pIPAddr -> Next;
 		}
 	}
-
-	delete[] buf2;
 #elif defined(__linux__)
 	// verify that nmcli exist
 	std::string command = "command -v nmcli >/dev/null 2>&1 || { echo 'nmcli not installed'; }";
