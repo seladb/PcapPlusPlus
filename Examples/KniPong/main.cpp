@@ -241,8 +241,15 @@ inline bool setKniIp(const pcpp::IPv4Address& ip, const std::string& kniName)
 	pcpp::executeShellCommand(command.str());
 	command.str("");
 	command << "ip a | grep " << ip;
-	std::string result = pcpp::executeShellCommand(command.str());
-	return result != "" && result != "ERROR";
+	try
+	{
+		std::string result = pcpp::executeShellCommand(command.str());
+		return result != "";
+	}
+	catch (const std::runtime_error&)
+	{
+		return false;
+	}
 }
 
 

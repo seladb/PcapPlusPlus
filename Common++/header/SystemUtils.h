@@ -228,8 +228,9 @@ namespace pcpp
 	 * Execute a shell command and return its output
 	 * @param[in] command The command to run
 	 * @return The output of the command (both stdout and stderr)
+	 * @throws std::runtime_error Error executing the command.
 	 */
-	std::string executeShellCommand(const std::string &command);
+	std::string executeShellCommand(const std::string& command);
 
 	/**
 	 * Check if a directory exists
