@@ -601,7 +601,7 @@ namespace pcpp
 
 		/**
 		 * @struct SaslAuthentication
-		 * A struct to represnet SASL authentication
+		 * A struct to represent SASL authentication
 		 */
 		struct SaslAuthentication
 		{
@@ -751,6 +751,7 @@ namespace pcpp
 	class LdapUnbindRequestLayer : public LdapLayer
 	{
 	public:
+		// cppcheck-suppress noExplicitConstructor
 		/**
 		 * A constructor to create a new LDAP unbind message
 		 * @param[in] messageId The LDAP message ID

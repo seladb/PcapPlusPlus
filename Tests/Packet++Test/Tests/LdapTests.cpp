@@ -216,7 +216,7 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_EQUAL(bindResponseLayer->getMatchedDN(), "");
 		PTF_ASSERT_EQUAL(bindResponseLayer->getDiagnosticMessage(), "");
 		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getReferral(), std::vector<std::string>());
-		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getServerSaslCredentials(), std::vector<std::uint8_t>());
+		PTF_ASSERT_VECTORS_EQUAL(bindResponseLayer->getServerSaslCredentials(), std::vector<uint8_t>());
 	}
 
 	// UnbindRequest
