@@ -19,14 +19,14 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 	return result;
 }
 
-PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
+PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
 	: PcapLiveDevice(iface, false, false, false)
+	, m_RemoteMachineIpAddress(remoteMachineIP)
+	, m_RemoteMachinePort(remoteMachinePort)
+	, m_RemoteAuthentication(std::move(remoteAuthentication))
 {
 	PCPP_LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
 	m_DeviceMtu = 1514;
-	m_RemoteMachineIpAddress = remoteMachineIP;
-	m_RemoteMachinePort = remoteMachinePort;
-	m_RemoteAuthentication = remoteAuthentication;
 }
 
 
@@ -35,16 +35,16 @@ bool PcapRemoteDevice::open()
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
 	PCPP_LOG_DEBUG("Opening device '" << m_Name << "'");
-	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
-	if (m_RemoteAuthentication != NULL)
+	if (m_RemoteAuthentication != nullptr)
 	{
 		rmAuth = m_RemoteAuthentication->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
 
 	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
 		m_DeviceOpened = false;

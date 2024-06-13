@@ -3,6 +3,7 @@
 #if defined(_WIN32)
 
 #include <vector>
+#include <memory>
 #include "PcapLiveDevice.h"
 
 
@@ -81,10 +82,10 @@ namespace pcpp
 	private:
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
-		PcapRemoteAuthentication* m_RemoteAuthentication;
+		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
 		// c'tor is private, as only PcapRemoteDeviceList should create instances of it, and it'll create only one for every remote interface
-		PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
+		PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
 
 		static void* remoteDeviceCaptureThreadMain(void *ptr);
 
