@@ -35,16 +35,16 @@ bool PcapRemoteDevice::open()
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
 	PCPP_LOG_DEBUG("Opening device '" << m_Name << "'");
-	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
-	if (m_RemoteAuthentication != NULL)
+	if (m_RemoteAuthentication != nullptr)
 	{
 		rmAuth = m_RemoteAuthentication->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
 
 	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
 		m_DeviceOpened = false;
@@ -73,7 +73,7 @@ bool PcapRemoteDevice::open()
 void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 {
 	PcapRemoteDevice* pThis = (PcapRemoteDevice*)ptr;
-	if (pThis == NULL)
+	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Capture thread: Unable to extract PcapLiveDevice instance");
 		return 0;
