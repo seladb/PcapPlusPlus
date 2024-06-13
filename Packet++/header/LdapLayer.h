@@ -579,44 +579,109 @@ namespace pcpp
 		std::string getExtendedInfoString() const override;
 	};
 
+	/**
+	 * @class LdapBindRequestLayer
+	 * Represents LDAP bind request operation
+	 */
 	class LdapBindRequestLayer : public LdapLayer
 	{
 	public:
+		/**
+		 * An enum to represent the bind request authentication type
+		 */
 		enum class AuthenticationType : uint8_t
 		{
+			/// Simple authentication
 			Simple = 0,
+			/// SASL authentication
 			Sasl = 3,
+			/// Unknown / not application authentication type
 			NotApplicable = 255
 		};
 
+		/**
+		 * @struct SaslAuthentication
+		 * A struct to represnet SASL authentication
+		 */
 		struct SaslAuthentication
 		{
+			/// The SASL mechanism
 			std::string mechanism;
+			/// Encoded SASL credentials
 			std::vector<uint8_t> credentials;
 
+			/**
+			 * Equality operator overload for this struct
+			 * @param[in] other The value to compare with
+			 * @return True if both values are equal, false otherwise
+			 */
 			bool operator==(const SaslAuthentication& other) const
 			{
 				return mechanism == other.mechanism && credentials == other.credentials;
 			}
 
+			/**
+			 * Inequality operator overload for this struct
+			 * @param[in] other The value to compare with
+			 * @return False if both values are equal, true otherwise
+			 */
 			bool operator!=(const SaslAuthentication& other) const
 			{
-				return mechanism != other.mechanism || credentials != other.credentials;
+				return !operator==(other);
 			}
 		};
 
+		/**
+		 * A constructor to create a new LDAP bind request message with simple authentication
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] version The LDAP protocol version that the client wants to use
+		 * @param[in] name The DN of the user to authenticate
+		 * @param[in] simpleAuthentication Simple authentication to use in this message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapBindRequestLayer(
 			uint16_t messageId, uint8_t version, const std::string& name, const std::string& simpleAuthentication,
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
+		/**
+		 * A constructor to create a new LDAP bind request message with SASL authentication
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] version The LDAP protocol version that the client wants to use
+		 * @param[in] name The DN of the user to authenticate
+		 * @param[in] saslAuthentication SASL authentication to use in this message
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapBindRequestLayer(
 			uint16_t messageId, uint8_t version, const std::string& name, const SaslAuthentication& saslAuthentication,
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
+		/**
+		 * @return The LDAP protocol version that the client wants to use
+		 */
 		uint32_t getVersion() const;
+
+		/**
+		 * @return The DN of the user to authenticate
+		 */
 		std::string getName() const;
+
+		/**
+		 * @return The authentication type included in this message
+		 */
 		AuthenticationType getAuthenticationType() const;
+
+		/**
+		 * @return The simple authentication included in this message
+		 * @throws std::invalid_argument if the message doesn't include simple authentication
+		 */
 		std::string getSimpleAuthentication() const;
+
+		/**
+		 * @return The SASL authentication included in this message
+		 * @throws std::invalid_argument if the message doesn't include SASL authentication
+		 */
 		SaslAuthentication getSaslAuthentication() const;
 
 		template <typename Method, typename ResultType>
@@ -640,14 +705,35 @@ namespace pcpp
 		static constexpr int saslCredentialsIndex = 1;
 	};
 
+	/**
+	 * @class LdapBindResponseLayer
+	 * Represents LDAP bind response operation
+	 */
 	class LdapBindResponseLayer : public LdapResponseLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP bind response message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] resultCode The LDAP result code
+		 * @param[in] matchedDN The distinguished name (DN) to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] diagnosticMessage The additional information to set on the message. If not applicable
+		 * pass an empty string
+		 * @param[in] referral A list of URIs to re-try the operation somewhere else. This is an optional
+		 * parameter. If not provided then referral won't be added to the message
+		 * @param[in] serverSaslCredentials Encoded server SASL credentials for use in subsequent processing
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapBindResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<uint8_t>& serverSaslCredentials = std::vector<uint8_t>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
+		/**
+		 * @return Encoded server SASL credentials for use in subsequent processing
+		 */
 		std::vector<uint8_t> getServerSaslCredentials();
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
@@ -658,9 +744,19 @@ namespace pcpp
 			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 	};
 
+	/**
+	 * @class LdapUnbindRequestLayer
+	 * Represents LDAP unbind operation
+	 */
 	class LdapUnbindRequestLayer : public LdapLayer
 	{
 	public:
+		/**
+		 * A constructor to create a new LDAP unbind message
+		 * @param[in] messageId The LDAP message ID
+		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
+		 * will be created without LDAP controls
+		 */
 		LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		Asn1ConstructedRecord* getLdapOperationAsn1Record() const = delete;
