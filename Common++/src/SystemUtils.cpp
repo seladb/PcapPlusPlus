@@ -4,6 +4,9 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+#include <stdexcept>
+#include <memory>
+#include <array>
 #include <iostream>
 #include <mutex>
 #include <signal.h>
@@ -47,6 +50,22 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 	return 0;
 }
 #endif
+
+/// @cond PCPP_INTERNAL
+
+namespace
+{
+	/**
+	 * @class PcloseDeleter
+	 * A deleter that cleans up a FILE handle using pclose.
+	 */
+	struct PcloseDeleter
+	{
+		void operator()(FILE* ptr) const { PCLOSE(ptr); }
+	};
+} // namespace
+
+/// @endcond
 
 namespace pcpp
 {
@@ -183,18 +202,21 @@ void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& re
 	}
 }
 
-std::string executeShellCommand(const std::string &command)
+std::string executeShellCommand(const std::string& command)
 {
-	FILE* pipe = POPEN(command.c_str(), "r");
-	if (!pipe) return "ERROR";
-	char buffer[128];
-	std::string result = "";
-	while(!feof(pipe))
+	std::unique_ptr<FILE, PcloseDeleter> pipe = std::unique_ptr<FILE, PcloseDeleter>(POPEN(command.c_str(), "r"));
+	if (!pipe)
 	{
-		if(fgets(buffer, 128, pipe) != nullptr)
-			result += buffer;
+		throw std::runtime_error("Error executing command: " + command);
 	}
-	PCLOSE(pipe);
+
+	std::array<char, 128> buffer;
+	std::string result;
+	while(!feof(pipe.get()))
+	{
+		if(fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+			result += buffer.data(); // Using the C-string overload of string append.
+	}
 	return result;
 }
 
