@@ -72,7 +72,7 @@ bool PcapRemoteDevice::open()
 
 void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void* ptr)
 {
-	PcapRemoteDevice* pThis = reinterpret_cast<PcapRemoteDevice*>(ptr);
+	PcapRemoteDevice* pThis = static_cast<PcapRemoteDevice*>(ptr);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Capture thread: Unable to extract PcapLiveDevice instance");
