@@ -592,7 +592,7 @@ PTF_TEST_CASE(TestTcpReassemblyOOOWithManualClose)
 	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
 	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
 
-	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_out_of_order_output.txt"));
+	std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_out_of_order_with_manual_close_output.txt"));
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
 
 	packetStream.clear();
