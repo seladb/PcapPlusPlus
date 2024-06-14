@@ -346,14 +346,14 @@ namespace pcpp {
 
 	// region LdapResponseLayer
 
-	LdapResponseLayer::LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+	LdapResponseLayer::LdapResponseLayer(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
 		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
 		const std::vector<LdapControl>& controls)
 	{
 		LdapResponseLayer::init(messageId, operationType, resultCode, matchedDN, diagnosticMessage, referral, {}, controls);
 	}
 
-	void LdapResponseLayer::init(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+	void LdapResponseLayer::init(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
 		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
 		const std::vector<Asn1Record*>& additionalRecords, const std::vector<LdapControl>& controls)
 	{
@@ -386,7 +386,6 @@ namespace pcpp {
 
 		LdapLayer::init(messageId, operationType, messageRecords, controls);
 	}
-
 
 	LdapResultCode LdapResponseLayer::getResultCode() const
 	{
@@ -559,7 +558,7 @@ namespace pcpp {
 
 	// region LdapBindResponseLayer
 
-	LdapBindResponseLayer::LdapBindResponseLayer(uint16_t messageId, const LdapResultCode& resultCode,
+	LdapBindResponseLayer::LdapBindResponseLayer(uint16_t messageId, LdapResultCode resultCode,
 		const std::string& matchedDN, const std::string& diagnosticMessage,
 		const std::vector<std::string>& referral, const std::vector<uint8_t>& serverSaslCredentials,
 		const std::vector<LdapControl>& controls)

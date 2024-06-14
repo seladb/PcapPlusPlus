@@ -565,12 +565,12 @@ namespace pcpp
 		LdapResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
 
-		LdapResponseLayer(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+		LdapResponseLayer(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
 			const std::string& matchedDN, const std::string& diagnosticMessage,
 			const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
-		void init(uint16_t messageId, const LdapOperationType& operationType, const LdapResultCode& resultCode,
+		void init(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
 			const std::string& matchedDN, const std::string& diagnosticMessage,
 			const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<Asn1Record*>& additionalRecords = std::vector<Asn1Record*>(),
@@ -726,7 +726,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapBindResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapBindResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<uint8_t>& serverSaslCredentials = std::vector<uint8_t>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
@@ -751,14 +751,13 @@ namespace pcpp
 	class LdapUnbindRequestLayer : public LdapLayer
 	{
 	public:
-		// cppcheck-suppress noExplicitConstructor
 		/**
 		 * A constructor to create a new LDAP unbind message
 		 * @param[in] messageId The LDAP message ID
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		explicit LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		Asn1ConstructedRecord* getLdapOperationAsn1Record() const = delete;
 
@@ -1068,7 +1067,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapSearchResultDoneLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapSearchResultDoneLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
 			: LdapResponseLayer(messageId, LdapOperationType::SearchResultDone, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
@@ -1099,7 +1098,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapModifyResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapModifyResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
 			: LdapResponseLayer(messageId, LdapOperationType::ModifyResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
@@ -1130,7 +1129,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapAddResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapAddResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
 			: LdapResponseLayer(messageId, LdapOperationType::AddResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
@@ -1161,7 +1160,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapDeleteResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapDeleteResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
 			: LdapResponseLayer(messageId, LdapOperationType::DeleteResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
@@ -1192,7 +1191,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapModifyDNResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapModifyDNResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
 			: LdapResponseLayer(messageId, LdapOperationType::ModifyDNResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
@@ -1223,7 +1222,7 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapCompareResponseLayer(uint16_t messageId, const LdapResultCode& resultCode, const std::string& matchedDN,
+		LdapCompareResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
 			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
 			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
 			: LdapResponseLayer(messageId, LdapOperationType::CompareResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
@@ -1243,28 +1242,36 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& contr
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& attr)
 {
-	std::string valuesStream;
-	bool first = true;
+	os << "{" << attr.type << ", {";
+
+	std::string separator;
 	for (const auto& value : attr.values)
 	{
-		if (!first) valuesStream += ", ";
-		valuesStream += value;
-		first = false;
+		os << separator << value;
+		if (separator.empty())
+		{
+			separator = ", ";
+		}
 	}
-	os << "{" << attr.type << ", {" << valuesStream << "}}";
+
+	os << "}}";
 	return os;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapBindRequestLayer::SaslAuthentication& saslAuthentication)
 {
-	std::string valuesStream;
-	bool first = true;
+	os << "{" << saslAuthentication.mechanism << ", {";
+
+	std::string separator;
 	for (const auto& value : saslAuthentication.credentials)
 	{
-		if (!first) valuesStream += ", ";
-		valuesStream += "0x" + std::to_string(value);
-		first = false;
+		os << separator << "0x" << std::hex << static_cast<int>(value) << std::dec;
+		if (separator.empty())
+		{
+			separator = ", ";
+		}
 	}
-	os << "{" << saslAuthentication.mechanism << ", {" << valuesStream << "}}";
+
+	os << "}}";
 	return os;
 }
