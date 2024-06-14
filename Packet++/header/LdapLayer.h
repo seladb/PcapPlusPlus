@@ -759,6 +759,7 @@ namespace pcpp
 		 */
 		explicit LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
+		// Unbind request has no operation record
 		Asn1ConstructedRecord* getLdapOperationAsn1Record() const = delete;
 
 		LdapOperationType getLdapOperationType() const override { return LdapOperationType::UnbindRequest; }
