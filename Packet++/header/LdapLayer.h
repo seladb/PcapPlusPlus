@@ -734,7 +734,7 @@ namespace pcpp
 		/**
 		 * @return Encoded server SASL credentials for use in subsequent processing
 		 */
-		std::vector<uint8_t> getServerSaslCredentials();
+		std::vector<uint8_t> getServerSaslCredentials() const;
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 

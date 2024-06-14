@@ -574,7 +574,7 @@ namespace pcpp {
 		LdapResponseLayer::init(messageId, LdapOperationType::BindResponse, resultCode, matchedDN, diagnosticMessage, referral, additionalRecords, controls);
 	}
 
-	std::vector<uint8_t> LdapBindResponseLayer::getServerSaslCredentials()
+	std::vector<uint8_t> LdapBindResponseLayer::getServerSaslCredentials() const
 	{
 		try
 		{
