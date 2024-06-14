@@ -98,7 +98,7 @@ namespace pcpp
 		PcapRemoteDevice& operator=(const PcapRemoteDevice&) = delete;
 		PcapRemoteDevice& operator=(PcapRemoteDevice&&) noexcept = delete;
 
-		virtual ~PcapRemoteDevice() {}
+		~PcapRemoteDevice() override {}
 
 		/**
 		 * @return The IP address of the remote machine where packets are transmitted from the remote machine to the client machine
@@ -110,21 +110,22 @@ namespace pcpp
 		 */
 		uint16_t getRemoteMachinePort() const { return m_RemoteMachinePort; }
 
-		//overridden methods
-
-		virtual LiveDeviceType getDeviceType() const { return RemoteDevice; }
+		/**
+		 * @return The type of the device (libPcap, WinPcap/Npcap or a remote device)
+		 */
+		LiveDeviceType getDeviceType() const override { return RemoteDevice; }
 
 		/**
 		 * MTU isn't supported for remote devices
 		 * @return 0
 		 */
-		virtual uint32_t getMtu() const;
+		uint32_t getMtu() const override;
 
 		/**
 		 * MAC address isn't supported for remote devices
 		 * @return MacAddress#Zero
 		 */
-		virtual MacAddress getMacAddress() const;
+		MacAddress getMacAddress() const override;
 
 		/**
 		 * Open the device using pcap_open. Opening the device makes the connection to the remote daemon (including authentication if needed
@@ -135,9 +136,9 @@ namespace pcpp
 		 * @return True if the device was opened successfully, false otherwise. When opening the device fails an error will be printed to log
 		 * as well, including the WinPcap/Npcap error if exists
 		 */
-		virtual bool open();
+		bool open() override;
 
-		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
+		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 	};
 
 } // namespace pcpp

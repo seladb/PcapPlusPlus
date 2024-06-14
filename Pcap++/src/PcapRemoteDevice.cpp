@@ -14,8 +14,8 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 {
 	pcap_rmtauth result;
 	result.type = RPCAP_RMTAUTH_PWD;
-	result.username = (char*)userName.c_str();
-	result.password = (char*)password.c_str();
+	result.username = const_cast<char*>(userName.c_str());
+	result.password = const_cast<char*>(password.c_str());
 	return result;
 }
 
@@ -70,9 +70,9 @@ bool PcapRemoteDevice::open()
 	return true;
 }
 
-void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
+void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void* ptr)
 {
-	PcapRemoteDevice* pThis = (PcapRemoteDevice*)ptr;
+	PcapRemoteDevice* pThis = static_cast<PcapRemoteDevice*>(ptr);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Capture thread: Unable to extract PcapLiveDevice instance");
@@ -89,7 +89,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		while (!pThis->m_StopThread)
 		{
 			if (pcap_next_ex(pThis->m_PcapDescriptor, &pkthdr, &pktData) > 0)
-				onPacketArrives((uint8_t*)pThis, pkthdr, pktData);
+				onPacketArrives(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 		}
 	}
 	else
@@ -97,7 +97,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		while (!pThis->m_StopThread)
 		{
 			if (pcap_next_ex(pThis->m_PcapDescriptor, &pkthdr, &pktData) > 0)
-				onPacketArrivesNoCallback((uint8_t*)pThis, pkthdr, pktData);
+				onPacketArrivesNoCallback(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 		}
 	}
 	PCPP_LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
@@ -113,7 +113,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 {
 	int allocatedMemory;
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
-	if (allocatedMemory < (int)sizeof(pcap_stat))
+	if (allocatedMemory < static_cast<int>(sizeof(pcap_stat)))
 	{
 		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_Name << "': WinPcap did not allocate the entire struct");
 		return;
