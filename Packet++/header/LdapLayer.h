@@ -761,7 +761,7 @@ namespace pcpp
 
 		Asn1ConstructedRecord* getLdapOperationAsn1Record() const = delete;
 
-		virtual LdapOperationType getLdapOperationType() const { return LdapOperationType::UnbindRequest; }
+		LdapOperationType getLdapOperationType() const override { return LdapOperationType::UnbindRequest; }
 
 		template <typename Method, typename ResultType>
 		bool tryGet(Method method, ResultType& result)
