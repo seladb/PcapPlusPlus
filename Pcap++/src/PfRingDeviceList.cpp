@@ -5,6 +5,7 @@
 #define LOG_MODULE PcapLogModulePfRingDevice
 
 #include <cstdio>
+#include <array>
 #include "PfRingDeviceList.h"
 #include "SystemUtils.h"
 #include "DeviceUtils.h"
@@ -41,13 +42,13 @@ namespace pcpp
 				return {};
 			}
 
-			char versionAsString[25];
-			std::snprintf(versionAsString, 25, "PF_RING v.%u.%u.%u\n",
+			std::array<char, 25> versionAsString;
+			std::snprintf(versionAsString.data(), versionAsString.size(), "PF_RING v.%u.%u.%u\n",
 				(version & 0xFFFF0000) >> 16,
 				(version & 0x0000FF00) >> 8,
 				 version & 0x000000FF);
 
-			return std::string(versionAsString);
+			return std::string(versionAsString.data());
 		}
 	}
 
