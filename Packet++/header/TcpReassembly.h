@@ -445,6 +445,7 @@ private:
 	size_t m_MaxOutOfOrderFragments;
 	time_t m_PurgeTimepoint;
 	bool m_EnableBaseBufferClearCondition;
+	bool m_ProcessingOutOfOrder = false;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList);
 

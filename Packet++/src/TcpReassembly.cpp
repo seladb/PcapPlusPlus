@@ -226,7 +226,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	// if this side already got FIN or RST packet before, ignore this packet as this side is considered closed
 	if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 	{
-		PCPP_LOG_DEBUG("Got a packet after FIN or RST were already seen on this side (" << sideIndex << "). Ignoring this packet");
+		PCPP_LOG_DEBUG("Got a packet after FIN or RST were already seen on this side (" << static_cast<int>(sideIndex) << "). Ignoring this packet");
 		return Ignore_PacketOfClosedFlow;
 	}
 
@@ -256,7 +256,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 	if (m_EnableBaseBufferClearCondition && !first && tcpPayloadSize > 0 && tcpReassemblyData->prevSide != -1 && tcpReassemblyData->prevSide != sideIndex &&
 		tcpReassemblyData->twoSides[tcpReassemblyData->prevSide].tcpFragmentList.size() > 0)
 	{
-		PCPP_LOG_DEBUG("Seeing a first data packet from a different side. Previous side was " << tcpReassemblyData->prevSide << ", current side is " << sideIndex);
+		PCPP_LOG_DEBUG("Seeing a first data packet from a different side. Previous side was " << static_cast<int>(tcpReassemblyData->prevSide) << ", current side is " << static_cast<int>(sideIndex));
 		checkOutOfOrderFragments(tcpReassemblyData, tcpReassemblyData->prevSide, true);
 	}
 	tcpReassemblyData->prevSide = sideIndex;
@@ -412,7 +412,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
 		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
-		PCPP_LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size " << tcpPayloadSize << " to the out-of-order list of side " << sideIndex);
+		PCPP_LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size " << tcpPayloadSize << " to the out-of-order list of side " << static_cast<int>(sideIndex));
 		status = OutOfOrderTcpMessageBuffered;
 
 		// check if we've stored too many out-of-order fragments; if so, consider missing packets lost and
@@ -451,7 +451,7 @@ void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t 
 	if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 		return;
 
-	PCPP_LOG_DEBUG("Handling FIN or RST packet on side " << sideIndex);
+	PCPP_LOG_DEBUG("Handling FIN or RST packet on side " << static_cast<int>(sideIndex));
 
 	// set FIN/RST flag for this side
 	tcpReassemblyData->twoSides[sideIndex].gotFinOrRst = true;
@@ -473,6 +473,12 @@ void TcpReassembly::handleFinOrRst(TcpReassemblyData* tcpReassemblyData, int8_t 
 
 void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList)
 {
+	if (m_ProcessingOutOfOrder)
+	{
+		return;
+	}
+
+	m_ProcessingOutOfOrder = true;
 	bool foundSomething = false;
 
 	do
@@ -500,7 +506,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength;
 					if (curTcpFrag->data != nullptr)
 					{
-						PCPP_LOG_DEBUG("Found an out-of-order packet matching to the current sequence with size " << curTcpFrag->dataLength << " on side " << sideIndex << ". Pulling it out of the list and sending the data to the callback");
+						PCPP_LOG_DEBUG("Found an out-of-order packet matching to the current sequence with size " << curTcpFrag->dataLength << " on side " << static_cast<int>(sideIndex) << ". Pulling it out of the list and sending the data to the callback");
 
 						// send new data to callback
 
@@ -533,7 +539,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 						uint32_t newLength = tcpReassemblyData->twoSides[sideIndex].sequence - curTcpFrag->sequence;
 
 						PCPP_LOG_DEBUG("Found a fragment in the out-of-order list which its sequence is lower than expected but its payload is long enough to contain new data. "
-							"Calling the callback with the new data. Fragment size is " << curTcpFrag->dataLength << " on side " << sideIndex << ", new data size is " << (int)(curTcpFrag->dataLength - newLength));
+							"Calling the callback with the new data. Fragment size is " << curTcpFrag->dataLength << " on side " << static_cast<int>(sideIndex) << ", new data size is " << static_cast<int>(curTcpFrag->dataLength - newLength));
 
 						// update current sequence with the delta new data size
 						tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength - newLength;
@@ -549,7 +555,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					}
 					else
 					{
-						PCPP_LOG_DEBUG("Found a fragment in the out-of-order list which doesn't contain any new data, ignoring it. Fragment size is " << curTcpFrag->dataLength << " on side " << sideIndex);
+						PCPP_LOG_DEBUG("Found a fragment in the out-of-order list which doesn't contain any new data, ignoring it. Fragment size is " << curTcpFrag->dataLength << " on side " << static_cast<int>(sideIndex));
 					}
 
 					delete curTcpFrag;
@@ -570,6 +576,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		// assume it's out-of-order and return
 		if (!cleanWholeFragList && (m_MaxOutOfOrderFragments == 0 || tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() <= m_MaxOutOfOrderFragments))
 		{
+			m_ProcessingOutOfOrder = false;
 			return;
 		}
 
@@ -629,7 +636,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 					TcpStreamData streamData(&dataWithMissingDataText[0], dataWithMissingDataText.size(), missingDataLen, tcpReassemblyData->connData, curTcpFrag->timestamp);
 					m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 
-					PCPP_LOG_DEBUG("Found missing data on side " << sideIndex << ": " << missingDataLen << " byte are missing. Sending the closest fragment which is in size " << curTcpFrag->dataLength << " + missing text message which size is " << missingDataTextStr.length());
+					PCPP_LOG_DEBUG("Found missing data on side " << static_cast<int>(sideIndex) << ": " << missingDataLen << " byte are missing. Sending the closest fragment which is in size " << curTcpFrag->dataLength << " + missing text message which size is " << missingDataTextStr.length());
 				}
 			}
 
@@ -643,6 +650,8 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		}
 
 	} while (foundSomething);
+
+	m_ProcessingOutOfOrder = false;
 }
 
 void TcpReassembly::closeConnection(uint32_t flowKey)
