@@ -325,5 +325,11 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(SmtpCreationTests, "smtp");
 	PTF_RUN_TEST(SmtpEditTests, "smtp");
 
+	PTF_RUN_TEST(Asn1DecodingTest, "asn1");
+	PTF_RUN_TEST(Asn1EncodingTest, "asn1");
+
+	PTF_RUN_TEST(LdapParsingTest, "ldap");
+	PTF_RUN_TEST(LdapCreationTest, "ldap");
+
 	PTF_END_RUNNING_TESTS;
 }

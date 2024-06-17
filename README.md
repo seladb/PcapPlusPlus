@@ -7,9 +7,10 @@
 [![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?label=Cirrus%20CI&logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/seladb/PcapPlusPlus/codeql.yml?branch=master&label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
 [![Codecov](https://img.shields.io/codecov/c/github/seladb/PcapPlusPlus?logo=codecov&logoColor=white)](https://app.codecov.io/github/seladb/PcapPlusPlus)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/seladb/PcapPlusPlus/badge)](https://scorecard.dev/viewer/?uri=github.com/seladb/PcapPlusPlus)
 [![GitHub contributors](https://img.shields.io/github/contributors/seladb/PcapPlusPlus?style=flat&label=Contributors&logo=github)](https://github.com/seladb/PcapPlusPlus/graphs/contributors)
-<br>
-[![Twitter Follow](https://img.shields.io/badge/follow-%40seladb-1DA1F2?logo=twitter&style=social)](https://twitter.com/intent/follow?screen_name=seladb)
+
+[![Twitter Follow](https://img.shields.io/badge/follow-%40seladb-1DA1F2?logo=x&style=social)](https://x.com/intent/follow?screen_name=seladb)
 [![GitHub Repo stars](https://img.shields.io/github/stars/seladb/PcapPlusPlus?style=social)]()
 
 </div>
@@ -249,20 +250,22 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 
 ### Application Layer (L7)
 
-34. BGP (v4)
-35. DHCP
-36. DHCPv6
-37. DNS
-38. FTP
-39. HTTP headers (request & response)
-40. NTP (v3, v4)
-41. Radius
-42. S7 Communication (S7comm)
-43. SMTP
-44. SOME/IP
-45. SSH - parsing only (no editing capabilities)
-46. Telnet - parsing only (no editing capabilities)
-47. Generic payload
+34. ASN.1 decoder and encoder
+35. BGP (v4)
+36. DHCP
+37. DHCPv6
+38. DNS
+39. FTP
+40. HTTP headers (request & response)
+41. LDAP
+42. NTP (v3, v4)
+43. Radius
+44. S7 Communication (S7comm)
+45. SMTP
+46. SOME/IP
+47. SSH - parsing only (no editing capabilities)
+48. Telnet - parsing only (no editing capabilities)
+49. Generic payload
 
 ## DPDK And PF_RING Support
 

@@ -15,6 +15,13 @@
 #define ptr_PTF_PRINT_TYPE_EXPECTED(exp, val) exp << "[ptr: " << val << "]"
 #define enumclass_PTF_PRINT_TYPE_ACTUAL(exp, val) "enum[" << +static_cast<std::underlying_type<decltype(val)>::type>(val) << "]"
 #define enumclass_PTF_PRINT_TYPE_EXPECTED(exp, val) exp << "[" << +static_cast<std::underlying_type<decltype(val)>::type>(val) << "]"
+#define BUFFER_PRINT(buffer, size) \
+	for(size_t currentByteId = 0; currentByteId < static_cast<size_t>(size); ++currentByteId) { \
+		std::cout << std::setfill('0') << std::setw(2) << std::right << std::hex << static_cast<int>(*(buffer + currentByteId)) << " "; \
+	} \
+	std::cout << std::setfill(' ') << std::setw(0) << std::left << std::dec; \
+	std::cout << std::endl
+
 
 #define PTF_PRINT_ASSERTION(severity, op) \
 	std::cout << std::left << std::setw(35) << __FUNCTION__ << ": " \
@@ -63,6 +70,30 @@
 		auto ptfExpected = static_cast<decltype(ptfActual)>(expected); \
 		if (ptfActual != ptfExpected) { \
 			PTF_PRINT_COMPARE_ASSERTION_FAILED("EQUAL", #actual, ptfActual, #expected, ptfExpected, __VA_ARGS__); \
+			ptfResult = PTF_RESULT_FAILED; \
+			return; \
+		} \
+	}
+
+#define PTF_ASSERT_VECTORS_EQUAL(actual, expected, ...) \
+	{ \
+		if (actual != expected) {\
+			std::ostringstream actualOss, expectedOss; \
+			bool first = true; \
+			for (const auto& elem : actual) { \
+				if (!first) actualOss << ", "; \
+				actualOss << elem; \
+				first = false; \
+			} \
+			first = true; \
+			for (const auto& elem : expected) { \
+				if (!first) expectedOss << ", "; \
+				expectedOss << elem; \
+				first = false; \
+			} \
+			std::string actualValues = "[" + actualOss.str() + "]"; \
+			std::string expectedValues = "[" + expectedOss.str() + "]"; \
+			PTF_PRINT_COMPARE_ASSERTION_FAILED("VECTORS EQUAL", #actual, actualValues, #expected, expectedValues, __VA_ARGS__); \
 			ptfResult = PTF_RESULT_FAILED; \
 			return; \
 		} \
@@ -126,10 +157,10 @@
 #define PTF_ASSERT_BUF_COMPARE(buf1, buf2, size) \
 	if (memcmp(buf1, buf2, size) != 0) { \
 		PTF_PRINT_ASSERTION("FAILED", "BUFFER COMPARE") \
-		<< "   [ " << #buf1 << " ]" << std::endl \
-		<< "   <>" << std::endl \
-	  	<< "   [ " << #buf2 << " ]" \
-		<< std::endl; \
+		<< "   Actual   " << std::endl; \
+		BUFFER_PRINT(buf1, size) \
+		<< "   Expected   " << std::endl; \
+		BUFFER_PRINT(buf2, size); \
 		ptfResult = PTF_RESULT_FAILED; \
 		return; \
 	}

@@ -8,7 +8,9 @@
 #include "EndianPortable.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
+#include "IpUtils.h"
 #include "IpAddress.h"
+#include "IpAddressUtils.h"
 #include "MacAddress.h"
 #include "LRUList.h"
 #include "NetworkUtils.h"
@@ -39,13 +41,43 @@ PTF_TEST_CASE(TestIPAddress)
 	secondIPv4Address = ip4AddrFromIpAddr;
 	PTF_ASSERT_EQUAL(ip4AddrFromIpAddr, secondIPv4Address);
 
+	{
+		in_addr inAddr_v4;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET, "10.0.0.4", &inAddr_v4), 1);
+
+		// Equality between equal in_addr and IPv4Address.
+		PTF_ASSERT_TRUE(ip4AddrFromIpAddr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip4AddrFromIpAddr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4AddrFromIpAddr);
+
+		// Equality between equal in_addr and IPAddress.
+		PTF_ASSERT_TRUE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_FALSE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 != ip4Addr);
+
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET, "10.0.1.4", &inAddr_v4), 1);
+		// Equality between different in_addr and IPv4Address.
+		PTF_ASSERT_FALSE(ip4AddrFromIpAddr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip4AddrFromIpAddr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4AddrFromIpAddr);
+
+			// Equality between different in_addr and IPAddress.
+		PTF_ASSERT_FALSE(ip4Addr == inAddr_v4);
+		PTF_ASSERT_FALSE(inAddr_v4 == ip4Addr);
+		PTF_ASSERT_TRUE(ip4Addr != inAddr_v4);
+		PTF_ASSERT_TRUE(inAddr_v4 != ip4Addr);
+	}
+
 	// networks
 	pcpp::IPv4Address ipv4Addr("10.0.0.4");
 	auto networks = std::vector<std::tuple<std::string, std::string, std::string>>{
 		std::tuple<std::string, std::string, std::string>{"10.8.0.0", "8", "255.0.0.0"},
 		std::tuple<std::string, std::string, std::string>{"10.0.0.0", "24", "255.255.255.0"}
 	};
-	for (auto network : networks)
+	for (const auto& network : networks)
 	{
 		std::string networkWithPrefixAsString = std::get<0>(network) + "/" + std::get<1>(network);
 		std::string networkWithMaskAsString = std::get<0>(network) + "/" + std::get<2>(network);
@@ -56,7 +88,7 @@ PTF_TEST_CASE(TestIPAddress)
 
 	pcpp::Logger::getInstance().suppressLogs();
 	auto invalidMasks = std::vector<std::string>{"aaaa", "10.0.0.0", "10.0.0.0/aa", "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99"};
-	for (auto invalidMask : invalidMasks)
+	for (const auto& invalidMask : invalidMasks)
 	{
 		PTF_ASSERT_FALSE(ipv4Addr.matchNetwork(invalidMask));
 	}
@@ -88,6 +120,35 @@ PTF_TEST_CASE(TestIPAddress)
 		PTF_ASSERT_EQUAL(addrAsByteArray[i], expectedByteArray[i]);
 	}
 
+	{
+		in6_addr in_ipv6_addr;
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51::4", &in_ipv6_addr), 1);
+
+		// Equality between equal in6_addr and IPv6Address.
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6AddrFromIpAddr);
+
+		// Equality between equal in6_addr and IPAddress.
+		PTF_ASSERT_TRUE(ip6Addr == in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr == ip6Addr);
+		PTF_ASSERT_FALSE(ip6Addr != in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr != ip6Addr);
+
+		PTF_ASSERT_EQUAL(inet_pton(AF_INET6, "2607:f0d0:1002:51:4::4", &in_ipv6_addr), 1);
+		PTF_ASSERT_FALSE(ip6AddrFromIpAddr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6AddrFromIpAddr);
+		PTF_ASSERT_TRUE(ip6AddrFromIpAddr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6AddrFromIpAddr);
+
+		// Equality between different in6_addr and IPAddress.
+		PTF_ASSERT_FALSE(ip6Addr == in_ipv6_addr);
+		PTF_ASSERT_FALSE(in_ipv6_addr == ip6Addr);
+		PTF_ASSERT_TRUE(ip6Addr != in_ipv6_addr);
+		PTF_ASSERT_TRUE(in_ipv6_addr != ip6Addr);
+	}
+
 	ip6Addr = pcpp::IPAddress("2607:f0d0:1002:0051:0000:0000:0000:0004");
 	PTF_ASSERT_EQUAL(ip6Addr.getType(), pcpp::IPAddress::IPv6AddressType, enum);
 	PTF_ASSERT_EQUAL(ip6Addr.toString(), "2607:f0d0:1002:51::4");
@@ -109,7 +170,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<uint8_t, std::string, std::string>{0, "0", "::"}
 	};
 
-	for (auto ipv6Network : ipv6Networks)
+	for (const auto& ipv6Network : ipv6Networks)
 	{
 		PTF_ASSERT_TRUE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
@@ -124,7 +185,7 @@ PTF_TEST_CASE(TestIPAddress)
 		std::tuple<uint8_t, std::string, std::string>{128, "128", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"}
 	};
 
-	for (auto ipv6Network : ipv6NetworksNotMatch)
+	for (const auto& ipv6Network : ipv6NetworksNotMatch)
 	{
 		PTF_ASSERT_FALSE(ip6Addr2.matchNetwork(pcpp::IPv6Network(ipv6NetworkPrefix, std::get<0>(ipv6Network))));
 
@@ -355,23 +416,23 @@ PTF_TEST_CASE(TestIPv4Network)
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), 33), std::invalid_argument, "prefixLen must be an integer between 0 and 32");
 
 	// Invalid c'tor: IPv4 address + netmask
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "invalid"), std::invalid_argument, "Netmask is not valid: invalid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "999.999.999.999"), std::invalid_argument, "Netmask is not valid: 999.999.999.999");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "255.255.0.255"), std::invalid_argument, "Netmask is not valid: 255.255.0.255");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "10.10.10.10"), std::invalid_argument, "Netmask is not valid: 10.10.10.10");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "0.255.255.255"), std::invalid_argument, "Netmask is not valid: 0.255.255.255");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "127.255.255.255"), std::invalid_argument, "Netmask is not valid: 127.255.255.255");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "invalid"), std::invalid_argument, "Netmask is not valid IPv4 format: invalid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "999.999.999.999"), std::invalid_argument, "Netmask is not valid IPv4 format: 999.999.999.999");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "255.255.0.255"), std::invalid_argument, "Netmask is not valid IPv4 format: 255.255.0.255");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "10.10.10.10"), std::invalid_argument, "Netmask is not valid IPv4 format: 10.10.10.10");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "0.255.255.255"), std::invalid_argument, "Netmask is not valid IPv4 format: 0.255.255.255");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(pcpp::IPv4Address("1.1.1.1"), "127.255.255.255"), std::invalid_argument, "Netmask is not valid IPv4 format: 127.255.255.255");
 
 	// Invalid c'tor: address + netmask in one string
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("invalid/255.255.255.0")), std::invalid_argument, "The input doesn't contain a valid IPv4 network prefix: invalid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.255.0/24")), std::invalid_argument, "Netmask is not valid: 255.255.255.0/24");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.255.0/24")), std::invalid_argument, "Netmask is not valid IPv4 format: 255.255.255.0/24");
 	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/33")), std::invalid_argument, "Prefix length must be an integer between 0 and 32");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/-1")), std::invalid_argument, "Netmask is not valid: -1");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/invalid")), std::invalid_argument, "Netmask is not valid: invalid");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/999.999.999.999")), std::invalid_argument, "Netmask is not valid: 999.999.999.999");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.0.1")), std::invalid_argument, "Netmask is not valid: 255.255.0.1");
-	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/0.0.255.255")), std::invalid_argument, "Netmask is not valid: 0.0.255.255");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/-1")), std::invalid_argument, "Netmask is not valid IPv4 format: -1");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/invalid")), std::invalid_argument, "Netmask is not valid IPv4 format: invalid");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/999.999.999.999")), std::invalid_argument, "Netmask is not valid IPv4 format: 999.999.999.999");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/255.255.0.1")), std::invalid_argument, "Netmask is not valid IPv4 format: 255.255.0.1");
+	PTF_ASSERT_RAISES(pcpp::IPv4Network(std::string("1.1.1.1/0.0.255.255")), std::invalid_argument, "Netmask is not valid IPv4 format: 0.0.255.255");
 
 	// Valid c'tor
 	auto addressAsStr = std::string("192.168.10.100");
@@ -451,24 +512,24 @@ PTF_TEST_CASE(TestIPv6Network)
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), 129), std::invalid_argument, "prefixLen must be an integer between 0 and 128");
 
 	// Invalid c'tor: IPv6 address + netmask
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "invalid"), std::invalid_argument, "Netmask is not valid: invalid");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ff10::"), std::invalid_argument, "Netmask is not valid: ffff:ff10::");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ee00::"), std::invalid_argument, "Netmask is not valid: ffff:ee00::");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "7f00::"), std::invalid_argument, "Netmask is not valid: 7f00::");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff::ffff"), std::invalid_argument, "Netmask is not valid: ffff::ffff");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "f000::0001"), std::invalid_argument, "Netmask is not valid: f000::0001");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "invalid"), std::invalid_argument, "Netmask is not valid IPv6 format: invalid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ff10::"), std::invalid_argument, "Netmask is not valid IPv6 format: ffff:ff10::");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff:ee00::"), std::invalid_argument, "Netmask is not valid IPv6 format: ffff:ee00::");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "7f00::"), std::invalid_argument, "Netmask is not valid IPv6 format: 7f00::");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "ffff::ffff"), std::invalid_argument, "Netmask is not valid IPv6 format: ffff::ffff");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(pcpp::IPv6Address("2001:db8::"), "f000::0001"), std::invalid_argument, "Netmask is not valid IPv6 format: f000::0001");
 
 	// Invalid c'tor: address + netmask in one string
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid")), std::invalid_argument, "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("invalid/32")), std::invalid_argument, "The input doesn't contain a valid IPv6 network prefix: invalid");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/32/24")), std::invalid_argument, "Netmask is not valid: 32/24");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/255.255.0.0")), std::invalid_argument, "Netmask is not valid: 255.255.0.0");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/32/24")), std::invalid_argument, "Netmask is not valid IPv6 format: 32/24");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/255.255.0.0")), std::invalid_argument, "Netmask is not valid IPv6 format: 255.255.0.0");
 	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/130")), std::invalid_argument, "Prefix length must be an integer between 0 and 128");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/-1")), std::invalid_argument, "Netmask is not valid: -1");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/invalid")), std::invalid_argument, "Netmask is not valid: invalid");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/a2cb:d625::")), std::invalid_argument, "Netmask is not valid: a2cb:d625::");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/ffff::0001")), std::invalid_argument, "Netmask is not valid: ffff::0001");
-	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/0fff::")), std::invalid_argument, "Netmask is not valid: 0fff::");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/-1")), std::invalid_argument, "Netmask is not valid IPv6 format: -1");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/invalid")), std::invalid_argument, "Netmask is not valid IPv6 format: invalid");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/a2cb:d625::")), std::invalid_argument, "Netmask is not valid IPv6 format: a2cb:d625::");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/ffff::0001")), std::invalid_argument, "Netmask is not valid IPv6 format: ffff::0001");
+	PTF_ASSERT_RAISES(pcpp::IPv6Network(std::string("ef3c:7157:a084:23c0::/0fff::")), std::invalid_argument, "Netmask is not valid IPv6 format: 0fff::");
 
 	// Valid c'tor
 	auto addressAsStr = std::string("39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746");

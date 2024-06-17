@@ -1,6 +1,8 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include "IpUtils.h"
+#include "DeviceUtils.h"
+#include "PcapUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "Packet.h"
@@ -11,11 +13,13 @@
 #include <thread>
 #include "Logger.h"
 #include "SystemUtils.h"
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <sstream>
+#include <vector>
+#include <array>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -74,7 +78,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
-	IPcapDevice(), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+	IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -92,9 +96,9 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		pInterface->addresses = pInterface->addresses->next;
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != nullptr && pInterface->addresses->addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
-			PCPP_LOG_DEBUG("      " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(pInterface->addresses->addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("      " << addrAsString.data());
 		}
 	}
 
@@ -134,7 +138,7 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 
 void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -149,7 +153,7 @@ void PcapLiveDevice::onPacketArrives(uint8_t* user, const struct pcap_pkthdr* pk
 
 void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -164,7 +168,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)
 {
-	PcapLiveDevice* pThis = (PcapLiveDevice*)user;
+	PcapLiveDevice* pThis = reinterpret_cast<PcapLiveDevice*>(user);
 	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Unable to extract PcapLiveDevice instance");
@@ -401,34 +405,34 @@ void PcapLiveDevice::close()
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
-PcapLiveDevice* PcapLiveDevice::clone()
+PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	PcapLiveDevice *retval = nullptr;
-
-	pcap_if_t *interfaceList;
-	char errbuf[PCAP_ERRBUF_SIZE];
-	int err = pcap_findalldevs(&interfaceList, errbuf);
-	if (err < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR(e.what());
 		return nullptr;
 	}
 
-	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != nullptr)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		if(!strcmp(currInterface->name, getName().c_str()))
-			break;
-		currInterface = currInterface->next;
+		if (!std::strcmp(currInterface->name, getName().c_str()))
+		{
+			return cloneInternal(*currInterface);
+		}
 	}
 
-	if(currInterface)
-		retval = new PcapLiveDevice(currInterface, true, true, true);
-	else
-		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+	PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+	return nullptr;
+}
 
-	pcap_freealldevs(interfaceList);
-	return retval;
+PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+{
+	return new PcapLiveDevice(&devInterface, true, true, true);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
@@ -671,9 +675,9 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
-bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
+bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
 {
-	if (packetPayloadLength > (int)m_DeviceMtu)
+	if (packetPayloadLength > static_cast<int>(m_DeviceMtu))
 	{
 		PCPP_LOG_ERROR("Payload length [" << packetPayloadLength << "] is larger than device MTU [" << m_DeviceMtu << "]");
 		return false;
@@ -685,12 +689,12 @@ bool PcapLiveDevice::sendPacket(RawPacket const& rawPacket, bool checkMtu)
 {
 	if (checkMtu)
 	{
-		RawPacket *rPacket = (RawPacket *)&rawPacket;
+		RawPacket* rPacket = const_cast<RawPacket*>(&rawPacket);
 		Packet parsedPacket = Packet(rPacket, OsiModelDataLinkLayer);
 		return sendPacket(&parsedPacket, true);
 	}
 	// Send packet without Mtu check
-	return sendPacket(((RawPacket&)rawPacket).getRawData(), ((RawPacket&)rawPacket).getRawDataLen());
+	return sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen());
 }
 
 bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength, int packetPayloadLength)
@@ -740,10 +744,10 @@ bool PcapLiveDevice::sendPacket(Packet* packet, bool checkMtu)
 		switch (packet->getFirstLayer()->getOsiModelLayer())
 		{
 			case (pcpp::OsiModelDataLinkLayer):
-				packetPayloadLength = (int)packet->getFirstLayer()->getLayerPayloadSize();
+				packetPayloadLength = static_cast<int>(packet->getFirstLayer()->getLayerPayloadSize());
 				break;
 			case (pcpp::OsiModelNetworkLayer):
-				packetPayloadLength = (int)packet->getFirstLayer()->getDataLen();
+				packetPayloadLength = static_cast<int>(packet->getFirstLayer()->getDataLen());
 				break;
 			default:
 				// if packet layer is not known, do not perform MTU check.
@@ -805,7 +809,7 @@ void PcapLiveDevice::setDeviceMtu()
 	}
 
 	uint32_t mtuValue = 0;
-	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name.c_str());
+	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
 	if (adapter == NULL)
 	{
 		PCPP_LOG_ERROR("Error in retrieving MTU: Adapter is NULL");
@@ -813,7 +817,7 @@ void PcapLiveDevice::setDeviceMtu()
 	}
 
 	uint8_t buffer[512];
-	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+	PACKET_OID_DATA* oidData = reinterpret_cast<PACKET_OID_DATA*>(buffer);
 	oidData->Oid = OID_GEN_MAXIMUM_TOTAL_SIZE;
 	oidData->Length = sizeof(uint32_t);
 	memcpy(oidData->Data, &mtuValue, sizeof(uint32_t));
@@ -879,7 +883,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 {
 #if defined(_WIN32)
 
-	LPADAPTER adapter = PacketOpenAdapter((char*)m_Name.c_str());
+	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
 	if (adapter == NULL)
 	{
 		PCPP_LOG_ERROR("Error in retrieving MAC address: Adapter is NULL");
@@ -887,7 +891,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	}
 
 	uint8_t buffer[512];
-	PACKET_OID_DATA* oidData = (PACKET_OID_DATA*)buffer;
+	PACKET_OID_DATA* oidData = reinterpret_cast<PACKET_OID_DATA*>(buffer);
 	oidData->Oid = OID_802_3_CURRENT_ADDRESS;
 	oidData->Length = 6;
 	oidData->Data[0] = 0;
@@ -982,16 +986,18 @@ void PcapLiveDevice::setDefaultGateway()
 {
 #if defined(_WIN32)
 	ULONG outBufLen = sizeof (IP_ADAPTER_INFO);
-	uint8_t* buffer = new uint8_t[outBufLen];
-	PIP_ADAPTER_INFO adapterInfo = (IP_ADAPTER_INFO*)buffer;
+	std::vector<uint8_t> buffer(outBufLen);
+	PIP_ADAPTER_INFO adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer.data());
 	DWORD retVal = 0;
 
 	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
-	uint8_t* buffer2 = new uint8_t[outBufLen];
 	if (retVal == ERROR_BUFFER_OVERFLOW)
-		adapterInfo = (IP_ADAPTER_INFO *)buffer2;
-
-	retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+	{
+		buffer.resize(outBufLen);
+		// Repins the adapter info pointer to the vector data pointer as the vector might be reallocated during the resize.
+		adapterInfo = reinterpret_cast<IP_ADAPTER_INFO*>(buffer.data());
+		retVal = GetAdaptersInfo(adapterInfo, &outBufLen);
+	}
 
 	if (retVal == NO_ERROR)
 	{
@@ -1018,10 +1024,6 @@ void PcapLiveDevice::setDefaultGateway()
 	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address");
 	}
-
-	delete[] buffer;
-	// cppcheck-suppress uninitdata
-	delete[] buffer2;
 #elif defined(__linux__)
 	std::ifstream routeFile("/proc/net/route");
 	std::string line;
@@ -1086,16 +1088,16 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(const auto &addrIter : m_Addresses)
+	for(const auto& addrIter : m_Addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter.addr, addrAsString);
-			PCPP_LOG_DEBUG("Searching address " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 		}
 
-		in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+		in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
@@ -1117,15 +1119,15 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (const auto &addrIter : m_Addresses)
+	for (const auto& addrIter : m_Addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter.addr, addrAsString);
-			PCPP_LOG_DEBUG("Searching address " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 		}
-		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+		in6_addr *currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");

@@ -1,19 +1,9 @@
 #pragma once
 
+#include "DeprecationUtils.h"
 #include "TextBasedProtocol.h"
 #include <string>
 #include <exception>
-
-#ifndef PCPP_DEPRECATED
-#if defined(__GNUC__) || defined(__clang__)
-#define PCPP_DEPRECATED __attribute__((deprecated))
-#elif defined(_MSC_VER)
-#define PCPP_DEPRECATED __declspec(deprecated)
-#else
-#pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
-#define PCPP_DEPRECATED
-#endif
-#endif
 
 /// @file
 
@@ -524,7 +514,8 @@ namespace pcpp
 		 * default status code string
 		 * @deprecated Use other constructors instead.
 		 */
-		PCPP_DEPRECATED explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
+		PCPP_DEPRECATED("Use other constructors instead")
+		explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
 
 		/**
 		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
@@ -742,7 +733,8 @@ namespace pcpp
 		 * @return True if setting the status code was completed successfully, false otherwise
 	     * @deprecated Use the other overload instead.
 		 */
-		PCPP_DEPRECATED bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
+		PCPP_DEPRECATED("Use the other overload instead")
+		bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
 
 		/**
 		 * Set the status code

@@ -257,7 +257,7 @@ namespace pcpp
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~PcapLiveDevice();
+		~PcapLiveDevice() override;
 
 		/**
 		 * @return The type of the device (libPcap, WinPcap/Npcap or a remote device)
@@ -438,7 +438,7 @@ namespace pcpp
 		 * @param[in] packetPayloadLength The length of the IP layer of the packet
 		 * @return True if the packetPayloadLength is less than or equal to the device MTU
 		 */
-		bool doMtuCheck(int packetPayloadLength);
+		bool doMtuCheck(int packetPayloadLength) const;
 
 		/**
 		 * Send a RawPacket to the network
@@ -554,7 +554,7 @@ namespace pcpp
 		 * @return True if the device was opened successfully, false otherwise. When opening the device fails an error will be printed to log
 		 * as well
 		 */
-		bool open();
+		bool open() override;
 
 		/**
 		 * Enables to open a device in a non-default configuration. Configuration has parameters like packet buffer timeout & size, open in
@@ -564,18 +564,20 @@ namespace pcpp
 		 */
 		bool open(const DeviceConfiguration& config);
 
-		void close();
+		void close() override;
 
 		/**
 		 * Clones the current device class
 		 * @return Pointer to the copied class
 		 */
-		PcapLiveDevice* clone();
+		PcapLiveDevice* clone() const;
 
-		virtual void getStatistics(IPcapDevice::PcapStats& stats) const;
+		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
+
+		virtual PcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const;
 	};
 
 } // namespace pcpp

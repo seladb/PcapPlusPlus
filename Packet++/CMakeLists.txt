@@ -2,6 +2,7 @@ add_library(
   Packet++
   $<TARGET_OBJECTS:hash-library>
   src/ArpLayer.cpp
+  src/Asn1Codec.cpp
   src/BgpLayer.cpp
   src/CotpLayer.cpp
   src/DhcpLayer.cpp
@@ -24,6 +25,7 @@ add_library(
   src/IPv6Extensions.cpp
   src/IPv6Layer.cpp
   src/Layer.cpp
+  src/LdapLayer.cpp
   src/LLCLayer.cpp
   src/MplsLayer.cpp
   src/NdpLayer.cpp
@@ -67,6 +69,7 @@ add_library(
 
 set(public_headers
     header/ArpLayer.h
+    header/Asn1Codec.h
     header/BgpLayer.h
     header/CotpLayer.h
     header/DhcpLayer.h
@@ -91,6 +94,7 @@ set(public_headers
     header/IPv6Extensions.h
     header/IPv6Layer.h
     header/Layer.h
+    header/LdapLayer.h
     header/LLCLayer.h
     header/MplsLayer.h
     header/NullLoopbackLayer.h
