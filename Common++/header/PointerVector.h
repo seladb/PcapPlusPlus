@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <vector>
 
 /// @file
@@ -15,28 +15,28 @@ namespace pcpp
 
 	/**
 	 * @class PointerVector
-	 * A template class for representing a std::vector of pointers. Once (a pointer to) an element is added to this vector,
-	 * the element responsibility moves to the vector, meaning the PointerVector will free the object once it's removed from the vector
-	 * This class wraps std::vector and adds the capability of freeing objects once they're removed from it
+	 * A template class for representing a std::vector of pointers. Once (a pointer to) an element is added to this
+	 * vector, the element responsibility moves to the vector, meaning the PointerVector will free the object once it's
+	 * removed from the vector This class wraps std::vector and adds the capability of freeing objects once they're
+	 * removed from it
 	 */
-	template<typename T>
-	class PointerVector
+	template <typename T> class PointerVector
 	{
-	public:
+	  public:
 		/**
 		 * Iterator object that is used for iterating all elements in the vector
 		 */
-		typedef typename std::vector<T*>::iterator VectorIterator;
+		typedef typename std::vector<T *>::iterator VectorIterator;
 
 		/**
 		 * Const iterator object that is used for iterating all elements in a constant vector
 		 */
-		typedef typename std::vector<T*>::const_iterator ConstVectorIterator;
+		typedef typename std::vector<T *>::const_iterator ConstVectorIterator;
 
 		/**
 		 * A constructor that create an empty instance of this object
 		 */
-		PointerVector() { }
+		PointerVector() {}
 
 		/**
 		 * A destructor for this class. The destructor frees all elements that are binded to the vector
@@ -51,27 +51,28 @@ namespace pcpp
 
 		/**
 		 * Copy constructor. Once a vector is copied from another vector, all elements inside it are copied,
-		 * meaning the new vector will contain pointers to copied elements, not pointers to the elements of the original vector
+		 * meaning the new vector will contain pointers to copied elements, not pointers to the elements of the original
+		 * vector
 		 */
-		PointerVector(const PointerVector& other)
+		PointerVector(const PointerVector &other)
 		{
 			try
 			{
 				for (const auto iter : other)
 				{
-					T* objCopy = new T(*iter);
+					T *objCopy = new T(*iter);
 					try
 					{
 						m_Vector.push_back(objCopy);
 					}
-					catch (const std::exception&)
+					catch (const std::exception &)
 					{
 						delete objCopy;
 						throw;
 					}
 				}
 			}
-			catch (const std::exception&)
+			catch (const std::exception &)
 			{
 				for (auto obj : m_Vector)
 				{
@@ -97,7 +98,7 @@ namespace pcpp
 		/**
 		 * Add a new (pointer to an) element to the vector
 		 */
-		void pushBack(T* element) { m_Vector.push_back(element); }
+		void pushBack(T *element) { m_Vector.push_back(element); }
 
 		/**
 		 * Get the first element of the vector
@@ -123,8 +124,7 @@ namespace pcpp
 		 */
 		ConstVectorIterator end() const { return m_Vector.end(); }
 
-
-		//inline size_t size() { return m_Vector.size(); }
+		// inline size_t size() { return m_Vector.size(); }
 
 		/**
 		 * Get number of elements in the vector
@@ -136,17 +136,18 @@ namespace pcpp
 		 * Returns a pointer of the first element in the vector
 		 * @return A pointer of the first element in the vector
 		 */
-		T* front() { return m_Vector.front(); }
+		T *front() { return m_Vector.front(); }
 
 		/**
 		 * @return A pointer to the last element in the vector
 		 */
-		T* back() { return m_Vector.back(); }
+		T *back() { return m_Vector.back(); }
 
 		/**
 		 * Removes from the vector a single element (position). Once the element is erased, it's also freed
 		 * @param[in] position The position of the element to erase
-		 * @return An iterator pointing to the new location of the element that followed the last element erased by the function call
+		 * @return An iterator pointing to the new location of the element that followed the last element erased by the
+		 * function call
 		 */
 		VectorIterator erase(VectorIterator position)
 		{
@@ -157,11 +158,12 @@ namespace pcpp
 		/**
 		 * Remove an element from the vector without freeing it
 		 * param[in] position The position of the element to remove from the vector
-		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free it
+		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
+		 * it
 		 */
-		T* getAndRemoveFromVector(VectorIterator& position)
+		T *getAndRemoveFromVector(VectorIterator &position)
 		{
-			T* result = (*position);
+			T *result = (*position);
 			VectorIterator tempPos = position;
 			tempPos = m_Vector.erase(tempPos);
 			position = tempPos;
@@ -173,23 +175,17 @@ namespace pcpp
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
 		 */
-		T* at(int index)
-		{
-			return m_Vector.at(index);
-		}
+		T *at(int index) { return m_Vector.at(index); }
 
 		/**
 		 * Return a const pointer to the element in a certain index
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
 		 */
-		const T* at(int index) const
-		{
-			return m_Vector.at(index);
-		}
+		const T *at(int index) const { return m_Vector.at(index); }
 
-	private:
-		std::vector<T*> m_Vector;
+	  private:
+		std::vector<T *> m_Vector;
 	};
 
 } // namespace pcpp

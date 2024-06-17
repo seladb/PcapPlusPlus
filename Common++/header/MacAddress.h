@@ -1,12 +1,12 @@
 #pragma once
 
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
+#include <ostream>
 #include <stdint.h>
 #include <string.h>
 #include <string>
-#include <initializer_list>
-#include <algorithm>
-#include <iterator>
-#include <ostream>
 
 /// @file
 
@@ -23,7 +23,7 @@ namespace pcpp
 	 */
 	class MacAddress
 	{
-	public:
+	  public:
 		/**
 		 * Default constructor for this class.
 		 * Initializes the address as 00:00:00:00:00:00.
@@ -36,23 +36,22 @@ namespace pcpp
 		 * If the byte array is invalid, the constructor throws an exception.
 		 * @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
 		 */
-		explicit MacAddress(const uint8_t* addr) { memcpy(m_Address, addr, sizeof(m_Address)); }
+		explicit MacAddress(const uint8_t *addr) { memcpy(m_Address, addr, sizeof(m_Address)); }
 
 		/**
 		 * A constructor that creates an instance of the class out of a std::string.
 		 * If the string doesn't represent a valid MAC address, the constructor throws an exception.
-	 	 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
+		 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
 		 */
-		explicit MacAddress(const std::string& addr);
+		explicit MacAddress(const std::string &addr);
 
 		/**
 		 * A template constructor that creates an instance of the class out of a string convertible to std::string.
 		 * If the string doesn't represent a valid MAC address, the constructor throws an exception.
 		 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
 		 */
-		template<typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
-		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr)) {};
-
+		template <typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
+		MacAddress(const T &addr) : MacAddress(static_cast<std::string>(addr)){};
 
 		/**
 		 * A constructor that creates an instance of 6 bytes representing the MAC address
@@ -63,7 +62,8 @@ namespace pcpp
 		 * @param[in] fifthOctet Represent the fifth octet in the address
 		 * @param[in] sixthOctet Represent the sixth octet in the address
 		 */
-		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet, uint8_t fifthOctet, uint8_t sixthOctet)
+		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
+						  uint8_t fifthOctet, uint8_t sixthOctet)
 		{
 			m_Address[0] = firstOctet;
 			m_Address[1] = secondOctet;
@@ -81,7 +81,7 @@ namespace pcpp
 		 */
 		MacAddress(std::initializer_list<uint8_t> octets)
 		{
-			if(octets.size() != sizeof(m_Address))
+			if (octets.size() != sizeof(m_Address))
 			{
 				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
@@ -93,23 +93,27 @@ namespace pcpp
 		 * @param[in] other The object to compare with
 		 * @return True if addresses are equal, false otherwise
 		 */
-		bool operator==(const MacAddress& other) const { return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0; }
+		bool operator==(const MacAddress &other) const
+		{
+			return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0;
+		}
 
 		/**
 		 * Overload of the not-equal operator
 		 * @param[in] other The object to compare with
 		 * @return True if addresses are not equal, false otherwise
 		 */
-		bool operator!=(const MacAddress& other) const { return !operator==(other); }
+		bool operator!=(const MacAddress &other) const { return !operator==(other); }
 
 		/**
 		 * Overload of the assignment operator.
 		 * If the list is invalid, the constructor throws an exception.
-		 * @param[in] octets An initializer list containing the values of type uint8_t representing the MAC address, the length of the list must be equal to 6
+		 * @param[in] octets An initializer list containing the values of type uint8_t representing the MAC address, the
+		 * length of the list must be equal to 6
 		 */
-		MacAddress& operator=(std::initializer_list<uint8_t> octets)
+		MacAddress &operator=(std::initializer_list<uint8_t> octets)
 		{
-			if(octets.size() != sizeof(m_Address))
+			if (octets.size() != sizeof(m_Address))
 			{
 				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
@@ -122,7 +126,7 @@ namespace pcpp
 		 * Returns the pointer to raw data
 		 * @return The pointer to raw data
 		 */
-		const uint8_t* getRawData() const { return m_Address; }
+		const uint8_t *getRawData() const { return m_Address; }
 
 		/**
 		 * Returns a std::string representation of the address
@@ -131,10 +135,11 @@ namespace pcpp
 		std::string toString() const;
 
 		/**
-		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user responsibility
+		 * Allocates a byte array of length 6 and copies address value into it. Array deallocation is user
+		 * responsibility
 		 * @param[in] arr A pointer to where array will be allocated
 		 */
-		void copyTo(uint8_t** arr) const
+		void copyTo(uint8_t **arr) const
 		{
 			*arr = new uint8_t[sizeof(m_Address)];
 			memcpy(*arr, m_Address, sizeof(m_Address));
@@ -145,19 +150,19 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 6 (the size of a MAC address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const { memcpy(arr, m_Address, sizeof(m_Address)); }
+		void copyTo(uint8_t *arr) const { memcpy(arr, m_Address, sizeof(m_Address)); }
 
 		/**
 		 * A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		 */
 		static MacAddress Zero;
 
-	private:
+	  private:
 		uint8_t m_Address[6] = {0};
 	};
 } // namespace pcpp
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
+inline std::ostream &operator<<(std::ostream &os, const pcpp::MacAddress &macAddress)
 {
 	os << macAddress.toString();
 	return os;

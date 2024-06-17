@@ -15,10 +15,11 @@ namespace pcpp
 {
 	/**
 	 * @class OUILookup
-	 * Provides vendor name matching functionality from MAC addresses. It uses an internal database to define name of the vendor.
-	 * The class itself should be initialized by using initOUIDatabaseFromJson() otherwise all requests will return "Unknown" as vendor.
-	 * The class itself currently does not support on-fly modifying the database but anyone who wants to add/modify/remove entries,
-	 * should modify 3rdParty/OUILookup/PCPP_OUIDatabase.json file and call to initOUIDatabaseFromJson() function to renew the internal data.
+	 * Provides vendor name matching functionality from MAC addresses. It uses an internal database to define name of
+	 * the vendor. The class itself should be initialized by using initOUIDatabaseFromJson() otherwise all requests will
+	 * return "Unknown" as vendor. The class itself currently does not support on-fly modifying the database but anyone
+	 * who wants to add/modify/remove entries, should modify 3rdParty/OUILookup/PCPP_OUIDatabase.json file and call to
+	 * initOUIDatabaseFromJson() function to renew the internal data.
 	 */
 	class OUILookup
 	{
@@ -49,14 +50,13 @@ namespace pcpp
 		/// Internal vendor list for MAC addresses
 		OUIVendorMap vendorMap;
 
-		template <typename T>
-		int64_t internalParser(T &jsonData);
+		template <typename T> int64_t internalParser(T &jsonData);
 
 	  public:
-
 		/**
 		 * Initialise internal OUI database from a JSON file
-		 * @param[in] path Path to OUI database. The database itself is located at 3rdParty/OUILookup/PCPP_OUIDatabase.json
+		 * @param[in] path Path to OUI database. The database itself is located at
+		 * 3rdParty/OUILookup/PCPP_OUIDatabase.json
 		 * @return Returns the number of total vendors, negative on errors
 		 */
 		int64_t initOUIDatabaseFromJson(const std::string &path = "");

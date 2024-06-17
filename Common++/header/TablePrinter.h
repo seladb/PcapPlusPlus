@@ -15,7 +15,7 @@ namespace pcpp
 	 */
 	class TablePrinter
 	{
-	public:
+	  public:
 		/**
 		 * C'tor - get column names and column widths
 		 * @param[in] columnNames A vector of strings containing column names
@@ -37,7 +37,7 @@ namespace pcpp
 		 * @return True if row was printed successfully or false otherwise (in any case of error an appropriate message
 		 * will be printed to log)
 		 */
-		bool printRow(const std::string& values, char delimiter);
+		bool printRow(const std::string &values, char delimiter);
 
 		/**
 		 * Print a single row
@@ -53,12 +53,12 @@ namespace pcpp
 		void printSeparator();
 
 		/**
-		 * Close the table - should be called after all rows were printed. Calling this method is not a must as it's called
-		 * in the class d'tor
+		 * Close the table - should be called after all rows were printed. Calling this method is not a must as it's
+		 * called in the class d'tor
 		 */
 		void closeTable();
 
-	private:
+	  private:
 		std::vector<std::string> m_ColumnNames;
 		std::vector<int> m_ColumnWidths;
 		bool m_FirstRow;
@@ -70,4 +70,4 @@ namespace pcpp
 		void printHeadline();
 	};
 
-}
+} // namespace pcpp

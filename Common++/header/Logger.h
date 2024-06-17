@@ -1,10 +1,10 @@
 #pragma once
 
-#include <stdio.h>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifndef LOG_MODULE
 #define LOG_MODULE UndefinedLogModule
@@ -17,24 +17,27 @@
 #define PCAPPP_FILENAME __FILE__
 #endif
 
-#define PCPP_LOG(level, message) do \
-	{ \
-		std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream(); \
-		(*sstream) << message; \
-		pcpp::Logger::getInstance().internalPrintLogMessage(sstream, level, PCAPPP_FILENAME, __FUNCTION__, __LINE__); \
-	} while(0)
+#define PCPP_LOG(level, message)                                                                                       \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		std::ostringstream *sstream = pcpp::Logger::getInstance().internalCreateLogStream();                           \
+		(*sstream) << message;                                                                                         \
+		pcpp::Logger::getInstance().internalPrintLogMessage(sstream, level, PCAPPP_FILENAME, __FUNCTION__, __LINE__);  \
+	} while (0)
 
-#define PCPP_LOG_DEBUG(message) do \
-	{ \
-		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE)) \
-		{ \
-			PCPP_LOG(pcpp::Logger::Debug, message); \
-		} \
-	} while(0)
+#define PCPP_LOG_DEBUG(message)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE))       \
+		{                                                                                                              \
+			PCPP_LOG(pcpp::Logger::Debug, message);                                                                    \
+		}                                                                                                              \
+	} while (0)
 
-#define PCPP_LOG_ERROR(message) do \
-	{ \
-		PCPP_LOG(pcpp::Logger::Error, message); \
+#define PCPP_LOG_ERROR(message)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		PCPP_LOG(pcpp::Logger::Error, message);                                                                        \
 	} while (0)
 
 /// @file
@@ -52,64 +55,64 @@ namespace pcpp
 	enum LogModule
 	{
 		UndefinedLogModule,
-		CommonLogModuleIpUtils, ///< IP Utils module (Common++)
-		CommonLogModuleTablePrinter, ///< Table printer module (Common++)
-		CommonLogModuleGenericUtils, ///< Generic Utils (Common++)
-		PacketLogModuleRawPacket, ///< RawPacket module (Packet++)
-		PacketLogModulePacket, ///< Packet module (Packet++)
-		PacketLogModuleLayer, ///< Layer module (Packet++)
-		PacketLogModuleAsn1Codec, ///< Asn1Codec module (Packet++)
-		PacketLogModuleArpLayer, ///< ArpLayer module (Packet++)
-		PacketLogModuleEthLayer, ///< EthLayer module (Packet++)
-		PacketLogModuleIPv4Layer, ///< IPv4Layer module (Packet++)
-		PacketLogModuleIPv6Layer, ///< IPv6Layer module (Packet++)
-		PacketLogModulePayloadLayer, ///< PayloadLayer module (Packet++)
-		PacketLogModuleTcpLayer, ///< TcpLayer module (Packet++)
-		PacketLogModuleUdpLayer, ///< UdpLayer module (Packet++)
-		PacketLogModuleVlanLayer, ///< VlanLayer module (Packet++)
-		PacketLogModuleHttpLayer, ///< HttpLayer module (Packet++)
-		PacketLogModulePPPoELayer, ///< PPPoELayer module (Packet++)
-		PacketLogModuleDnsLayer, ///< DnsLayer module (Packet++)
-		PacketLogModuleMplsLayer, ///< MplsLayer module (Packet++)
-		PacketLogModuleIcmpLayer, ///< IcmpLayer module (Packet++)
-		PacketLogModuleIcmpV6Layer, ///< IcmpV6Layer module (Packet++)
-		PacketLogModuleGreLayer, ///< GreLayer module (Packet++)
-		PacketLogModuleSSLLayer, ///< SSLLayer module (Packet++)
-		PacketLogModuleSllLayer, ///< SllLayer module (Packet++)
-		PacketLogModuleNflogLayer, ///< NflogLayer module (Packet++)
-		PacketLogModuleDhcpLayer, ///< DhcpLayer module (Packet++)
-		PacketLogModuleDhcpV6Layer, ///< DhcpV6Layer module (Packet++)
-		PacketLogModuleIgmpLayer, ///< IgmpLayer module (Packet++)
-		PacketLogModuleSipLayer, ///< SipLayer module (Packet++)
-		PacketLogModuleSdpLayer, ///< SdpLayer module (Packet++)
-		PacketLogModuleRadiusLayer, ///< RadiusLayer module (Packet++)
-		PacketLogModuleGtpLayer, ///< GtpLayer module (Packet++)
-		PacketLogModuleBgpLayer, ///< GtpLayer module (Packet++)
-		PacketLogModuleSSHLayer, ///< SSHLayer module (Packet++)
-		PacketLogModuleVrrpLayer, ///< Vrrp Record module (Packet++)
-		PacketLogModuleTcpReassembly, ///< TcpReassembly module (Packet++)
-		PacketLogModuleIPReassembly, ///< IPReassembly module (Packet++)
-		PacketLogModuleIPSecLayer, ///< IPSecLayers module (Packet++)
-		PacketLogModuleNtpLayer, ///< NtpLayer module (Packet++)
-		PacketLogModuleTelnetLayer, ///< TelnetLayer module (Packet++)
-		PacketLogModuleStpLayer, ///< StpLayer module (Packet++)
-		PacketLogModuleLLCLayer, ///< LLCLayer module (Packet++)
-		PacketLogModuleNdpLayer, ///< NdpLayer module (Packet++)
-		PacketLogModuleFtpLayer, ///< FtpLayer module (Packet++)
-		PacketLogModuleSomeIpLayer, ///< SomeIpLayer module (Packet++)
-		PacketLogModuleSomeIpSdLayer, ///< SomeIpSdLayer module (Packet++)
-		PacketLogModuleWakeOnLanLayer, ///< WakeOnLanLayer module (Packet++)
-		PacketLogModuleSmtpLayer, ///< SmtpLayer module (Packet++)
+		CommonLogModuleIpUtils,			///< IP Utils module (Common++)
+		CommonLogModuleTablePrinter,	///< Table printer module (Common++)
+		CommonLogModuleGenericUtils,	///< Generic Utils (Common++)
+		PacketLogModuleRawPacket,		///< RawPacket module (Packet++)
+		PacketLogModulePacket,			///< Packet module (Packet++)
+		PacketLogModuleLayer,			///< Layer module (Packet++)
+		PacketLogModuleAsn1Codec,		///< Asn1Codec module (Packet++)
+		PacketLogModuleArpLayer,		///< ArpLayer module (Packet++)
+		PacketLogModuleEthLayer,		///< EthLayer module (Packet++)
+		PacketLogModuleIPv4Layer,		///< IPv4Layer module (Packet++)
+		PacketLogModuleIPv6Layer,		///< IPv6Layer module (Packet++)
+		PacketLogModulePayloadLayer,	///< PayloadLayer module (Packet++)
+		PacketLogModuleTcpLayer,		///< TcpLayer module (Packet++)
+		PacketLogModuleUdpLayer,		///< UdpLayer module (Packet++)
+		PacketLogModuleVlanLayer,		///< VlanLayer module (Packet++)
+		PacketLogModuleHttpLayer,		///< HttpLayer module (Packet++)
+		PacketLogModulePPPoELayer,		///< PPPoELayer module (Packet++)
+		PacketLogModuleDnsLayer,		///< DnsLayer module (Packet++)
+		PacketLogModuleMplsLayer,		///< MplsLayer module (Packet++)
+		PacketLogModuleIcmpLayer,		///< IcmpLayer module (Packet++)
+		PacketLogModuleIcmpV6Layer,		///< IcmpV6Layer module (Packet++)
+		PacketLogModuleGreLayer,		///< GreLayer module (Packet++)
+		PacketLogModuleSSLLayer,		///< SSLLayer module (Packet++)
+		PacketLogModuleSllLayer,		///< SllLayer module (Packet++)
+		PacketLogModuleNflogLayer,		///< NflogLayer module (Packet++)
+		PacketLogModuleDhcpLayer,		///< DhcpLayer module (Packet++)
+		PacketLogModuleDhcpV6Layer,		///< DhcpV6Layer module (Packet++)
+		PacketLogModuleIgmpLayer,		///< IgmpLayer module (Packet++)
+		PacketLogModuleSipLayer,		///< SipLayer module (Packet++)
+		PacketLogModuleSdpLayer,		///< SdpLayer module (Packet++)
+		PacketLogModuleRadiusLayer,		///< RadiusLayer module (Packet++)
+		PacketLogModuleGtpLayer,		///< GtpLayer module (Packet++)
+		PacketLogModuleBgpLayer,		///< GtpLayer module (Packet++)
+		PacketLogModuleSSHLayer,		///< SSHLayer module (Packet++)
+		PacketLogModuleVrrpLayer,		///< Vrrp Record module (Packet++)
+		PacketLogModuleTcpReassembly,	///< TcpReassembly module (Packet++)
+		PacketLogModuleIPReassembly,	///< IPReassembly module (Packet++)
+		PacketLogModuleIPSecLayer,		///< IPSecLayers module (Packet++)
+		PacketLogModuleNtpLayer,		///< NtpLayer module (Packet++)
+		PacketLogModuleTelnetLayer,		///< TelnetLayer module (Packet++)
+		PacketLogModuleStpLayer,		///< StpLayer module (Packet++)
+		PacketLogModuleLLCLayer,		///< LLCLayer module (Packet++)
+		PacketLogModuleNdpLayer,		///< NdpLayer module (Packet++)
+		PacketLogModuleFtpLayer,		///< FtpLayer module (Packet++)
+		PacketLogModuleSomeIpLayer,		///< SomeIpLayer module (Packet++)
+		PacketLogModuleSomeIpSdLayer,	///< SomeIpSdLayer module (Packet++)
+		PacketLogModuleWakeOnLanLayer,	///< WakeOnLanLayer module (Packet++)
+		PacketLogModuleSmtpLayer,		///< SmtpLayer module (Packet++)
 		PcapLogModuleWinPcapLiveDevice, ///< WinPcapLiveDevice module (Pcap++)
-		PcapLogModuleRemoteDevice, ///< WinPcapRemoteDevice module (Pcap++)
-		PcapLogModuleLiveDevice, ///< PcapLiveDevice module (Pcap++)
-		PcapLogModuleFileDevice, ///< FileDevice module (Pcap++)
-		PcapLogModulePfRingDevice, ///< PfRingDevice module (Pcap++)
-		PcapLogModuleMBufRawPacket, ///< MBufRawPacket module (Pcap++)
-		PcapLogModuleDpdkDevice, ///< DpdkDevice module (Pcap++)
-		PcapLogModuleKniDevice, ///< KniDevice module (Pcap++)
-		PcapLogModuleXdpDevice, ///< XdpDevice module (Pcap++)
-		NetworkUtils, ///< NetworkUtils module (Pcap++)
+		PcapLogModuleRemoteDevice,		///< WinPcapRemoteDevice module (Pcap++)
+		PcapLogModuleLiveDevice,		///< PcapLiveDevice module (Pcap++)
+		PcapLogModuleFileDevice,		///< FileDevice module (Pcap++)
+		PcapLogModulePfRingDevice,		///< PfRingDevice module (Pcap++)
+		PcapLogModuleMBufRawPacket,		///< MBufRawPacket module (Pcap++)
+		PcapLogModuleDpdkDevice,		///< DpdkDevice module (Pcap++)
+		PcapLogModuleKniDevice,			///< KniDevice module (Pcap++)
+		PcapLogModuleXdpDevice,			///< XdpDevice module (Pcap++)
+		NetworkUtils,					///< NetworkUtils module (Pcap++)
 		NumOfLogModules
 	};
 
@@ -119,13 +122,14 @@ namespace pcpp
 	 * PcapPlusPlus uses this logger to output both error and debug logs.
 	 * There are currently 3 log levels: Logger#Error, Logger#Info and Logger#Debug.
 	 *
-	 * PcapPlusPlus is divided into modules (described in #LogModule enum). The user can set the log level got each module or to all modules at once.
-	 * The default is Logger#Info which outputs only error messages. Changing log level for modules can be done dynamically while the application is running.
+	 * PcapPlusPlus is divided into modules (described in #LogModule enum). The user can set the log level got each
+	 * module or to all modules at once. The default is Logger#Info which outputs only error messages. Changing log
+	 * level for modules can be done dynamically while the application is running.
 	 *
 	 * The logger also exposes a method to retrieve the last error log message.
 	 *
-	 * Logs are printed to console by default in a certain format. The user can set a different print function to change the format or to print to
-	 * other media (such as files, etc.).
+	 * Logs are printed to console by default in a certain format. The user can set a different print function to change
+	 * the format or to print to other media (such as files, etc.).
 	 *
 	 * PcapPlusPlus logger is a singleton which can be reached from anywhere in the code.
 	 *
@@ -133,15 +137,16 @@ namespace pcpp
 	 */
 	class Logger
 	{
-	public:
+	  public:
 		/**
-		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the default log level
+		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
+		 * default log level
 		 */
 		enum LogLevel
 		{
 			Error, ///< Error log level
-			Info, ///< Info log level
-			Debug ///< Debug log level
+			Info,  ///< Info log level
+			Debug  ///< Debug log level
 		};
 
 		/**
@@ -153,7 +158,8 @@ namespace pcpp
 		 * @param[in] method The method in PcapPlusPlus code the log message is coming from
 		 * @param[in] line The line in PcapPlusPlus code the log message is coming from
 		 */
-		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+		typedef void (*LogPrinter)(LogLevel logLevel, const std::string &logMessage, const std::string &file,
+								   const std::string &method, const int line);
 
 		/**
 		 * A static method for converting the log level enum to a string.
@@ -187,7 +193,11 @@ namespace pcpp
 		 * Set all PcapPlusPlus modules to a certain log level
 		 * @param[in] level The log level to set all modules to
 		 */
-		void setAllModulesToLogLevel(LogLevel level) { for (int i=1; i<NumOfLogModules; i++) m_LogModulesArray[i] = level; }
+		void setAllModulesToLogLevel(LogLevel level)
+		{
+			for (int i = 1; i < NumOfLogModules; i++)
+				m_LogModulesArray[i] = level;
+		}
 
 		/**
 		 * Set a custom log printer.
@@ -221,40 +231,42 @@ namespace pcpp
 		 */
 		bool logsEnabled() const { return m_LogsEnabled; }
 
-		template<class T>
-		Logger& operator<<(const T& msg)
+		template <class T> Logger &operator<<(const T &msg)
 		{
 			(*m_LogStream) << msg;
 			return *this;
 		}
 
-		std::ostringstream * internalCreateLogStream();
+		std::ostringstream *internalCreateLogStream();
 
 		/**
 		 * An internal method to print log messages. Shouldn't be used externally.
 		 */
-		void internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file, const char* method, int line);
+		void internalPrintLogMessage(std::ostringstream *logStream, Logger::LogLevel logLevel, const char *file,
+									 const char *method, int line);
 
 		/**
 		 * Get access to Logger singleton
 		 * @todo: make this singleton thread-safe/
 		 * @return a pointer to the Logger singleton
-		**/
-		static Logger& getInstance()
+		 **/
+		static Logger &getInstance()
 		{
 			static Logger instance;
 			return instance;
 		}
-	private:
+
+	  private:
 		bool m_LogsEnabled;
 		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
-		std::ostringstream* m_LogStream;
+		std::ostringstream *m_LogStream;
 
 		// private c'tor - this class is a singleton
 		Logger();
 
-		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file, const std::string& method, const int line);
+		static void defaultLogPrinter(LogLevel logLevel, const std::string &logMessage, const std::string &file,
+									  const std::string &method, const int line);
 	};
 } // namespace pcpp

@@ -9,7 +9,7 @@
 #define MAX_NUM_OF_CORES 32
 
 #ifdef _MSC_VER
-int gettimeofday(struct timeval * tp, struct timezone * tzp);
+int gettimeofday(struct timeval *tp, struct timezone *tzp);
 #endif
 
 /**
@@ -26,8 +26,8 @@ namespace pcpp
 	struct SystemCore
 	{
 		/**
-		 * Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set, according to the core ID.
-		 * For example:
+		 * Core position in a 32-bit mask. For each core this attribute holds a 4B integer where only 1 bit is set,
+		 * according to the core ID. For example:
 		 * - In core #0 the right-most bit will be set (meaning the number 0x01);
 		 * - in core #5 the 5th right-most bit will be set (meaning the number 0x20)
 		 */
@@ -39,10 +39,10 @@ namespace pcpp
 		uint8_t Id;
 
 		/**
-		* Overload of the comparison operator
-		* @return true if 2 addresses are equal. False otherwise
-		*/
-		bool operator==(const SystemCore& other) const { return Id == other.Id; }
+		 * Overload of the comparison operator
+		 * @return true if 2 addresses are equal. False otherwise
+		 */
+		bool operator==(const SystemCore &other) const { return Id == other.Id; }
 	};
 
 	/**
@@ -200,14 +200,12 @@ namespace pcpp
 	 */
 	CoreMask getCoreMaskForAllMachineCores();
 
-
 	/**
 	 * Create a core mask from a vector of system cores
 	 * @param[in] cores A vector of SystemCore instances
 	 * @return A core mask representing these cores
 	 */
 	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore> &cores);
-
 
 	/**
 	 * Create a core mask from a vector of core IDs
@@ -216,13 +214,12 @@ namespace pcpp
 	 */
 	CoreMask createCoreMaskFromCoreIds(const std::vector<int> &coreIds);
 
-
 	/**
 	 * Convert a core mask into a vector of its appropriate system cores
 	 * @param[in] coreMask The input core mask
 	 * @param[out] resultVec The vector that will contain the system cores
 	 */
-	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec);
+	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore> &resultVec);
 
 	/**
 	 * Execute a shell command and return its output
@@ -230,7 +227,7 @@ namespace pcpp
 	 * @return The output of the command (both stdout and stderr)
 	 * @throws std::runtime_error Error executing the command.
 	 */
-	std::string executeShellCommand(const std::string& command);
+	std::string executeShellCommand(const std::string &command);
 
 	/**
 	 * Check if a directory exists
@@ -240,24 +237,24 @@ namespace pcpp
 	bool directoryExists(const std::string &dirPath);
 
 	/**
-	 * Retrieve a system-wide real-time accurate clock. It's actually a multi-platform version of clock_gettime() which is
-	 * fully supported only on Linux
+	 * Retrieve a system-wide real-time accurate clock. It's actually a multi-platform version of clock_gettime() which
+	 * is fully supported only on Linux
 	 * @param[out] sec The second portion of the time
 	 * @param[out] nsec The nanosecond portion of the time
 	 * @return 0 for success, or -1 for failure
 	 */
-	int clockGetTime(long& sec, long& nsec);
+	int clockGetTime(long &sec, long &nsec);
 
 	/**
-	 * A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according to the platform
-	 * it is running on.
+	 * A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according
+	 * to the platform it is running on.
 	 * @param[in] seconds Number of seconds to sleep
 	 */
 	void multiPlatformSleep(uint32_t seconds);
 
 	/**
-	 * A multi-platform version of sleep in milliseconds resolution. This method simply runs the right sleep method, according to the platform
-	 * it is running on.
+	 * A multi-platform version of sleep in milliseconds resolution. This method simply runs the right sleep method,
+	 * according to the platform it is running on.
 	 * @param[in] milliseconds Number of milliseconds to sleep
 	 */
 	void multiPlatformMSleep(uint32_t milliseconds);
@@ -292,22 +289,23 @@ namespace pcpp
 
 	/**
 	 * @class AppName
-	 * This class extracts the application name from the current running executable and stores it for usage of the application throughout its runtime.
-	 * This class should be initialized once in the beginning of the main() method using AppName#init() and from then on the app name could be retrieved using AppName#get()
+	 * This class extracts the application name from the current running executable and stores it for usage of the
+	 * application throughout its runtime. This class should be initialized once in the beginning of the main() method
+	 * using AppName#init() and from then on the app name could be retrieved using AppName#get()
 	 */
 	class AppName
 	{
-	private:
+	  private:
 		static std::string m_AppName;
 
-	public:
+	  public:
 		/**
 		 * Static init method which should be called once at the beginning of the main method.
 		 * @param[in] argc The argc param from main()
 		 * @param[in] argv The argv param from main()
 		 */
 		// cppcheck-suppress constParameter
-		static void init(int argc, char* argv[])
+		static void init(int argc, char *argv[])
 		{
 			if (argc == 0)
 			{
@@ -333,7 +331,8 @@ namespace pcpp
 
 			// remove file extension
 			lastPos = m_AppName.rfind('.');
-			if (lastPos != std::string::npos) {
+			if (lastPos != std::string::npos)
+			{
 				m_AppName.resize(lastPos);
 			}
 		}
@@ -341,29 +340,29 @@ namespace pcpp
 		/**
 		 * @return The app name as extracted from the current running executable
 		 */
-		static const std::string& get() { return m_AppName; }
+		static const std::string &get() { return m_AppName; }
 	};
 
 	/**
 	 * @class ApplicationEventHandler
-	 * A singleton class that provides callbacks for events that occur during application life-cycle such as ctrl+c pressed,
-	 * application closed, killed, etc.
+	 * A singleton class that provides callbacks for events that occur during application life-cycle such as ctrl+c
+	 * pressed, application closed, killed, etc.
 	 */
 	class ApplicationEventHandler
 	{
-	public:
+	  public:
 		/**
 		 * @typedef EventHandlerCallback
 		 * The callback to be invoked when the event occurs
 		 * @param[in] cookie A pointer the the cookie provided by the user in ApplicationEventHandler c'tor
 		 */
-		typedef void (*EventHandlerCallback)(void* cookie);
+		typedef void (*EventHandlerCallback)(void *cookie);
 
 		/**
 		 * As ApplicationEventHandler is a singleton, this is the static getter to retrieve its instance
 		 * @return The singleton instance of ApplicationEventHandler
 		 */
-		static ApplicationEventHandler& getInstance()
+		static ApplicationEventHandler &getInstance()
 		{
 			static ApplicationEventHandler instance;
 			return instance;
@@ -372,14 +371,15 @@ namespace pcpp
 		/**
 		 * Register for an application-interrupted event, meaning ctrl+c was pressed
 		 * @param[in] handler The callback to be activated when the event occurs
-		 * @param[in] cookie A pointer to a user provided object. This object will be transferred to the EventHandlerCallback callback.
-		 * This cookie is very useful for transferring objects that give context to the event callback
+		 * @param[in] cookie A pointer to a user provided object. This object will be transferred to the
+		 * EventHandlerCallback callback. This cookie is very useful for transferring objects that give context to the
+		 * event callback
 		 */
-		void onApplicationInterrupted(EventHandlerCallback handler, void* cookie);
+		void onApplicationInterrupted(EventHandlerCallback handler, void *cookie);
 
-	private:
+	  private:
 		EventHandlerCallback m_ApplicationInterruptedHandler;
-		void* m_ApplicationInterruptedCookie;
+		void *m_ApplicationInterruptedCookie;
 
 		// private c'tor
 		ApplicationEventHandler();
