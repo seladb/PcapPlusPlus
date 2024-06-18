@@ -3,5 +3,6 @@ BasedOnStyle: Microsoft
 UseTab: Always
 AllowShortFunctionsOnASingleLine: All
 NamespaceIndentation: All
-
+SortIncludes: false
+BreakBeforeBraces: Allman
 ...
