@@ -88,7 +88,8 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 light_pcapng_stream light_open_stream(const char *file_name)
 {
 	light_pcapng_stream pcapng = calloc(1, sizeof(struct _light_pcapng_stream));
-	pcapng->stream.fd = light_open(file_name, LIGHT_OREAD);
+	light_file light_f = light_open(file_name, LIGHT_OREAD);
+	pcapng->stream.fd = light_f->file;
 
 	if (pcapng->stream.fd == NULL) {
 		free(pcapng);
