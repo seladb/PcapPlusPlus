@@ -2,20 +2,20 @@
 
 #include <stdint.h>
 #ifdef __linux__
-#include <arpa/inet.h>
-#include <netinet/in.h>
+#	include <arpa/inet.h>
+#	include <netinet/in.h>
 #endif
 #if defined(__APPLE__)
-#include <arpa/inet.h>
-#include <netinet/in.h>
+#	include <arpa/inet.h>
+#	include <netinet/in.h>
 #endif
 #if defined(_WIN32)
-#include <ws2tcpip.h>
+#	include <ws2tcpip.h>
 #endif
 #if defined(__FreeBSD__)
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
+#	include <arpa/inet.h>
+#	include <netinet/in.h>
+#	include <sys/socket.h>
 #endif
 
 /// @file

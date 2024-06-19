@@ -6,13 +6,13 @@
 #include <stdio.h>
 #include <stdexcept>
 #ifndef NS_INADDRSZ
-#define NS_INADDRSZ 4
+#	define NS_INADDRSZ 4
 #endif
 #ifndef NS_IN6ADDRSZ
-#define NS_IN6ADDRSZ 16
+#	define NS_IN6ADDRSZ 16
 #endif
 #ifndef NS_INT16SZ
-#define NS_INT16SZ 2
+#	define NS_INT16SZ 2
 #endif
 
 namespace pcpp
@@ -426,14 +426,14 @@ int inet_pton(int af, const char *src, void *dst)
 {
 	switch (af)
 	{
-#ifdef AF_INET
+#	ifdef AF_INET
 	case AF_INET:
 		return (inet_pton4(src, (uint8_t *)dst));
-#endif
-#ifdef AF_INET6
+#	endif
+#	ifdef AF_INET6
 	case AF_INET6:
 		return (inet_pton6(src, (uint8_t *)dst));
-#endif
+#	endif
 	default:
 		return (-1);
 	}

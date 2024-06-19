@@ -2,7 +2,7 @@
 #include "EndianPortable.h"
 
 #ifndef _MSC_VER
-#include <unistd.h>
+#	include <unistd.h>
 #endif
 #include <stdexcept>
 #include <memory>
@@ -14,20 +14,20 @@
 #include <string.h>
 #include <sys/stat.h>
 #if defined(__APPLE__)
-#include <mach/clock.h>
-#include <mach/mach.h>
+#	include <mach/clock.h>
+#	include <mach/mach.h>
 #endif
 
 #if defined(_WIN32)
-#define POPEN _popen
+#	define POPEN _popen
 #else
-#define POPEN popen
+#	define POPEN popen
 #endif
 
 #if defined(_WIN32)
-#define PCLOSE _pclose
+#	define PCLOSE _pclose
 #else
-#define PCLOSE pclose
+#	define PCLOSE pclose
 #endif
 
 #ifdef _MSC_VER
@@ -211,7 +211,7 @@ namespace pcpp
 
 #if defined(_WIN32)
 
-#define CLOCK_GETTIME_BILLION (1E9)
+#	define CLOCK_GETTIME_BILLION (1E9)
 
 		static BOOL clock_gettime_first_time = 1;
 		static LARGE_INTEGER clock_gettime_counts_per_sec;
@@ -253,7 +253,7 @@ namespace pcpp
 
 #else // Linux
 
-#include <time.h>
+#	include <time.h>
 
 		timespec ts;
 		int res = clock_gettime(CLOCK_REALTIME, &ts);

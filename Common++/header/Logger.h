@@ -7,14 +7,14 @@
 #include <stdio.h>
 
 #ifndef LOG_MODULE
-#define LOG_MODULE UndefinedLogModule
+#	define LOG_MODULE UndefinedLogModule
 #endif
 
 // Use __FILE_NAME__ to avoid leaking complete full path
 #ifdef __FILE_NAME__
-#define PCAPPP_FILENAME __FILE_NAME__
+#	define PCAPPP_FILENAME __FILE_NAME__
 #else
-#define PCAPPP_FILENAME __FILE__
+#	define PCAPPP_FILENAME __FILE__
 #endif
 
 #define PCPP_LOG(level, message)                                                                                       \
