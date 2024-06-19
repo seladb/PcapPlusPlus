@@ -15,7 +15,7 @@ namespace pcpp
 	 */
 	class TablePrinter
 	{
-	   public:
+	public:
 		/**
 		 * C'tor - get column names and column widths
 		 * @param[in] columnNames A vector of strings containing column names
@@ -58,7 +58,7 @@ namespace pcpp
 		 */
 		void closeTable();
 
-	   private:
+	private:
 		std::vector<std::string> m_ColumnNames;
 		std::vector<int> m_ColumnWidths;
 		bool m_FirstRow;

@@ -23,7 +23,7 @@ namespace pcpp
 	 */
 	class OUILookup
 	{
-	   private:
+	private:
 		/**
 		 * MAC addresses with mask values. For example for a MAC address "XX:XX:XX:XX:X0:00/36" the first element will
 		 * be 36, and the second element will be unsigned integer equivalent of "XX:XX:XX:XX:X0:00" and vendor name.
@@ -52,7 +52,7 @@ namespace pcpp
 
 		template <typename T> int64_t internalParser(T& jsonData);
 
-	   public:
+	public:
 		/**
 		 * Initialise internal OUI database from a JSON file
 		 * @param[in] path Path to OUI database. The database itself is located at

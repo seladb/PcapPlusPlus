@@ -137,7 +137,7 @@ namespace pcpp
 	 */
 	class Logger
 	{
-	   public:
+	public:
 		/**
 		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
 		 * default log level
@@ -283,7 +283,7 @@ namespace pcpp
 			return instance;
 		}
 
-	   private:
+	private:
 		bool m_LogsEnabled;
 		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
 		LogPrinter m_LogPrinter;

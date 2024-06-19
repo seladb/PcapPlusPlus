@@ -298,10 +298,10 @@ namespace pcpp
 	 */
 	class AppName
 	{
-	   private:
+	private:
 		static std::string m_AppName;
 
-	   public:
+	public:
 		/**
 		 * Static init method which should be called once at the beginning of the main method.
 		 * @param[in] argc The argc param from main()
@@ -356,7 +356,7 @@ namespace pcpp
 	 */
 	class ApplicationEventHandler
 	{
-	   public:
+	public:
 		/**
 		 * @typedef EventHandlerCallback
 		 * The callback to be invoked when the event occurs
@@ -383,7 +383,7 @@ namespace pcpp
 		 */
 		void onApplicationInterrupted(EventHandlerCallback handler, void* cookie);
 
-	   private:
+	private:
 		EventHandlerCallback m_ApplicationInterruptedHandler;
 		void* m_ApplicationInterruptedCookie;
 

@@ -23,7 +23,7 @@ namespace pcpp
 	 */
 	class MacAddress
 	{
-	   public:
+	public:
 		/**
 		 * Default constructor for this class.
 		 * Initializes the address as 00:00:00:00:00:00.
@@ -169,7 +169,7 @@ namespace pcpp
 		 */
 		static MacAddress Zero;
 
-	   private:
+	private:
 		uint8_t m_Address[6] = {0};
 	};
 }  // namespace pcpp

@@ -22,7 +22,7 @@ namespace pcpp
 	 */
 	template <typename T> class PointerVector
 	{
-	   public:
+	public:
 		/**
 		 * Iterator object that is used for iterating all elements in the vector
 		 */
@@ -216,7 +216,7 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
-	   private:
+	private:
 		std::vector<T*> m_Vector;
 	};
 

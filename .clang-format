@@ -9,11 +9,12 @@ IndentPPDirectives: AfterHash
 IndentWidth: 4
 AllowShortBlocksOnASingleLine: Never
 PointerAlignment: Left
-AccessModifierOffset: -1
+AccessModifierOffset: -4
 AlignTrailingComments: true
 AllowShortEnumsOnASingleLine: false
 BreakStringLiterals: true
 AlignArrayOfStructures: Left
 BreakArrays: true
 SpacesBeforeTrailingComments: 2
+IndentAccessModifiers: false
 ...

@@ -30,7 +30,7 @@ namespace pcpp
 	 */
 	class IPv4Address
 	{
-	   public:
+	public:
 		/**
 		 * A default constructor that creates an instance of the class with the zero-initialized address
 		 */
@@ -179,7 +179,7 @@ namespace pcpp
 		static const IPv4Address MulticastRangeLowerBound;
 		static const IPv4Address MulticastRangeUpperBound;
 
-	   private:
+	private:
 		std::array<uint8_t, 4> m_Bytes = {0};
 	};  // class IPv4Address
 
@@ -198,7 +198,7 @@ namespace pcpp
 	 */
 	class IPv6Address
 	{
-	   public:
+	public:
 		/**
 		 * A default constructor that creates an instance of the class with the zero-initialized address.
 		 */
@@ -348,7 +348,7 @@ namespace pcpp
 		 */
 		static const IPv6Address MulticastRangeLowerBound;
 
-	   private:
+	private:
 		std::array<uint8_t, 16> m_Bytes = {0};
 	};  // class IPv6Address
 
@@ -358,7 +358,7 @@ namespace pcpp
 	 */
 	class IPAddress
 	{
-	   public:
+	public:
 		/**
 		 * An enum representing the address type: IPv4 or IPv6
 		 */
@@ -512,7 +512,7 @@ namespace pcpp
 			return !(*this == rhs);
 		}
 
-	   private:
+	private:
 		uint8_t m_Type;
 		IPv4Address m_IPv4;
 		IPv6Address m_IPv6;
@@ -559,7 +559,7 @@ namespace pcpp
 	 */
 	class IPv4Network
 	{
-	   public:
+	public:
 		/**
 		 * A constructor that creates an instance of the class out of an address and a full prefix length,
 		 * essentially making a network of consisting of only 1 address.
@@ -662,7 +662,7 @@ namespace pcpp
 		 */
 		std::string toString() const;
 
-	   private:
+	private:
 		uint32_t m_NetworkPrefix;
 		uint32_t m_Mask;
 
@@ -677,7 +677,7 @@ namespace pcpp
 	 */
 	class IPv6Network
 	{
-	   public:
+	public:
 		/**
 		 * A constructor that creates an instance of the class out of an address and a full prefix length,
 		 * essentially making a network of consisting of only 1 address.
@@ -780,7 +780,7 @@ namespace pcpp
 		 */
 		std::string toString() const;
 
-	   private:
+	private:
 		uint8_t m_NetworkPrefix[16];
 		uint8_t m_Mask[16];
 
@@ -795,7 +795,7 @@ namespace pcpp
 	 */
 	class IPNetwork
 	{
-	   public:
+	public:
 		/**
 		 * A constructor that creates an instance of the class out of an IP address and a full prefix length,
 		 * essentially making a network of consisting of only 1 address.
@@ -1086,7 +1086,7 @@ namespace pcpp
 			return (m_IPv4Network != nullptr ? m_IPv4Network->toString() : m_IPv6Network->toString());
 		}
 
-	   private:
+	private:
 		std::unique_ptr<IPv4Network> m_IPv4Network;
 		std::unique_ptr<IPv6Network> m_IPv6Network;
 	};

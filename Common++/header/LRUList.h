@@ -1,7 +1,7 @@
 #pragma once
 
-#include <unordered_map>
 #include <list>
+#include <unordered_map>
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 #	include <utility>
@@ -25,7 +25,7 @@ namespace pcpp
 	 */
 	template <typename T> class LRUList
 	{
-	   public:
+	public:
 		typedef typename std::list<T>::iterator ListIterator;
 		typedef typename std::unordered_map<T, ListIterator>::iterator MapIterator;
 
@@ -130,7 +130,7 @@ namespace pcpp
 			return m_CacheItemsMap.size();
 		}
 
-	   private:
+	private:
 		std::list<T> m_CacheItemsList;
 		std::unordered_map<T, ListIterator> m_CacheItemsMap;
 		size_t m_MaxSize;
