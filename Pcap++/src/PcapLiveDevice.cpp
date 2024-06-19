@@ -1083,22 +1083,10 @@ void PcapLiveDevice::setDefaultGateway()
 	routingMessage.header.rtm_msglen = sizeof(struct rt_msghdr);
 	routingMessage.header.rtm_version = RTM_VERSION;
 	routingMessage.header.rtm_type = RTM_GET;
-	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK | RTA_IFP;
+	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK ;
 	routingMessage.header.rtm_flags = RTF_UP | RTF_GATEWAY | RTF_STATIC;
 
-	struct	sockaddr_in so_dst = {0} , so_mask = {0};
-	struct	sockaddr_dl so_ifp = {0};
-
-	size_t len = sizeof(sockaddr_in);
-	bcopy(reinterpret_cast<char*>(&so_dst), spacePtr, len);
-	spacePtr += len;
-	bcopy(reinterpret_cast<char*>(&so_mask), spacePtr, len);
-	spacePtr += len;
-	routingMessage.header.rtm_msglen += 2*len ;
-	len = sizeof(sockaddr_dl);
-	bcopy(reinterpret_cast<char*>(&so_ifp), spacePtr, len);
-	routingMessage.header.rtm_msglen += len ;
-
+	routingMessage.header.rtm_msglen += 2*sizeof(sockaddr_in) ;
 
 	if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0) {
 		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't write into the routing socket");
@@ -1112,30 +1100,28 @@ void PcapLiveDevice::setDefaultGateway()
 	}
 
 	struct in_addr  *gateAddr = nullptr;
-	struct sockaddr_dl *ifp = nullptr;
 	struct sockaddr *sa = nullptr;
 	spacePtr = (reinterpret_cast<char*>(&routingMessage.header+1));
-	for (int i = 1; i != 0; i <<= 1)
-	{
-		if (i & routingMessage.header.rtm_addrs)
-		{
-			sa =  reinterpret_cast<sockaddr *>(spacePtr);
-			switch (i)
-			{
-			case RTA_GATEWAY:
-				gateAddr = internal::sockaddr2in_addr(sa);
-				break;
-			case RTA_IFP:
-				if (sa->sa_family == AF_LINK &&
-						reinterpret_cast<sockaddr_dl*>(sa)->sdl_nlen)
-					ifp = reinterpret_cast<sockaddr_dl *>(sa);
-				break;
-			}
-			// Make sure the increment is the nearest multiple of the size of uint32_t
-			spacePtr += sa->sa_len > 0 ? (1 + (((sa->sa_len) - 1) | (sizeof(uint32_t) - 1))) : sizeof(uint32_t);
-		}
-	}
-	if(gateAddr == nullptr || ifp == nullptr)
+    auto rtmAddrs = routingMessage.header.rtm_addrs;
+    int index = 0;
+    auto roundUpClosetMultiple = [](int multiple, int num){
+        return ((num+multiple-1)/multiple)*multiple;
+    };
+    while (rtmAddrs)
+    {
+        if (rtmAddrs & 1) {
+            sa =  reinterpret_cast<sockaddr *>(spacePtr);
+            if(index == RTA_GATEWAY) {
+                gateAddr = internal::sockaddr2in_addr(sa);
+                break;
+            }
+            spacePtr += sa->sa_len > 0 ? roundUpClosetMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);
+        }
+        index++;
+        rtmAddrs >>= 1;
+    }
+
+	if(gateAddr == nullptr)
 	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address: Empty Message related to gate");
 		return;
