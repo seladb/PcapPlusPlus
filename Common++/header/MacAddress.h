@@ -1,12 +1,12 @@
 #pragma once
 
-#include <algorithm>
-#include <initializer_list>
-#include <iterator>
-#include <ostream>
 #include <stdint.h>
 #include <string.h>
 #include <string>
+#include <initializer_list>
+#include <algorithm>
+#include <iterator>
+#include <ostream>
 
 /// @file
 
@@ -66,7 +66,7 @@ namespace pcpp
 		 * @param[in] sixthOctet Represent the sixth octet in the address
 		 */
 		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
-						  uint8_t fifthOctet, uint8_t sixthOctet)
+		                  uint8_t fifthOctet, uint8_t sixthOctet)
 		{
 			m_Address[0] = firstOctet;
 			m_Address[1] = secondOctet;

@@ -33,7 +33,7 @@ namespace pcpp
 						continue;
 					auto subVal = entry.get<nlohmann::json>();
 					if (subVal.contains("mask") && subVal.contains("vendors") && subVal["mask"].is_number_integer() &&
-						subVal["vendors"].is_object())
+					    subVal["vendors"].is_object())
 					{
 						int maskValue = subVal["mask"].get<int>();
 						vLocalMaskedFilter.push_back({maskValue, {}});
@@ -44,7 +44,7 @@ namespace pcpp
 							if (subentry.value().is_string())
 							{
 								vLocalMaskedFilter.back().vendorMap.insert(
-									{std::stoull(subentry.key()), subentry.value()});
+								    {std::stoull(subentry.key()), subentry.value()});
 								++ctrRead;
 							}
 						}
@@ -53,7 +53,7 @@ namespace pcpp
 			}
 
 			vendorMap.insert({
-				std::stoull(line.key()), {val["vendor"], vLocalMaskedFilter}
+			    std::stoull(line.key()), {val["vendor"], vLocalMaskedFilter}
             });
 			++ctrRead;
 		}
@@ -88,8 +88,8 @@ namespace pcpp
 		addr.copyTo(buffArray);
 
 		uint64_t macAddr = (((uint64_t)((buffArray)[5]) << 0) + ((uint64_t)((buffArray)[4]) << 8) +
-							((uint64_t)((buffArray)[3]) << 16) + ((uint64_t)((buffArray)[2]) << 24) +
-							((uint64_t)((buffArray)[1]) << 32) + ((uint64_t)((buffArray)[0]) << 40));
+		                    ((uint64_t)((buffArray)[3]) << 16) + ((uint64_t)((buffArray)[2]) << 24) +
+		                    ((uint64_t)((buffArray)[1]) << 32) + ((uint64_t)((buffArray)[0]) << 40));
 
 		auto itr = vendorMap.find(macAddr >> 24);
 		if (itr == vendorMap.end())

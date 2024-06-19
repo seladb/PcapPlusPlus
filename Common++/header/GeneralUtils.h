@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <string>
+#include <stdint.h>
 #include <type_traits>
 
 /// @file

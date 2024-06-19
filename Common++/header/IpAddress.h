@@ -1,12 +1,12 @@
 #pragma once
 
-#include <algorithm>
-#include <array>
-#include <memory>
-#include <ostream>
 #include <stdint.h>
 #include <string.h>
 #include <string>
+#include <algorithm>
+#include <ostream>
+#include <array>
+#include <memory>
 
 /// @file
 
@@ -123,7 +123,7 @@ namespace pcpp
 
 			uint32_t rhsIntVal = rhs.toInt();
 			std::reverse(reinterpret_cast<uint8_t*>(&rhsIntVal),
-						 reinterpret_cast<uint8_t*>(&rhsIntVal) + sizeof(rhsIntVal));
+			             reinterpret_cast<uint8_t*>(&rhsIntVal) + sizeof(rhsIntVal));
 
 			return intVal < rhsIntVal;
 		}
@@ -975,7 +975,7 @@ namespace pcpp
 		IPAddress getNetworkPrefix() const
 		{
 			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getNetworkPrefix())
-											 : IPAddress(m_IPv6Network->getNetworkPrefix()));
+			                                 : IPAddress(m_IPv6Network->getNetworkPrefix()));
 		}
 
 		/**
@@ -985,7 +985,7 @@ namespace pcpp
 		IPAddress getLowestAddress() const
 		{
 			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getLowestAddress())
-											 : IPAddress(m_IPv6Network->getLowestAddress()));
+			                                 : IPAddress(m_IPv6Network->getLowestAddress()));
 		}
 
 		/**
@@ -995,7 +995,7 @@ namespace pcpp
 		IPAddress getHighestAddress() const
 		{
 			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getHighestAddress())
-											 : IPAddress(m_IPv6Network->getHighestAddress()));
+			                                 : IPAddress(m_IPv6Network->getHighestAddress()));
 		}
 
 		/**
@@ -1006,7 +1006,7 @@ namespace pcpp
 		uint64_t getTotalAddressCount() const
 		{
 			return (m_IPv4Network != nullptr ? m_IPv4Network->getTotalAddressCount()
-											 : m_IPv6Network->getTotalAddressCount());
+			                                 : m_IPv6Network->getTotalAddressCount());
 		}
 
 		/**

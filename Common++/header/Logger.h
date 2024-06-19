@@ -1,10 +1,10 @@
 #pragma once
 
-#include <iomanip>
+#include <stdio.h>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <stdint.h>
-#include <stdio.h>
 
 #ifndef LOG_MODULE
 #	define LOG_MODULE UndefinedLogModule

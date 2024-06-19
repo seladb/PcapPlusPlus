@@ -4,12 +4,12 @@
 #ifndef _MSC_VER
 #	include <unistd.h>
 #endif
+#include <stdexcept>
+#include <memory>
 #include <array>
 #include <iostream>
-#include <memory>
 #include <mutex>
 #include <signal.h>
-#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -107,13 +107,13 @@ namespace pcpp
 	const SystemCore SystemCores::Core31 = {0x80000000, 31};
 
 	const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] = {
-		SystemCores::Core0,  SystemCores::Core1,  SystemCores::Core2,  SystemCores::Core3,  SystemCores::Core4,
-		SystemCores::Core5,  SystemCores::Core6,  SystemCores::Core7,  SystemCores::Core8,  SystemCores::Core9,
-		SystemCores::Core10, SystemCores::Core11, SystemCores::Core12, SystemCores::Core13, SystemCores::Core14,
-		SystemCores::Core15, SystemCores::Core16, SystemCores::Core17, SystemCores::Core18, SystemCores::Core19,
-		SystemCores::Core20, SystemCores::Core21, SystemCores::Core22, SystemCores::Core23, SystemCores::Core24,
-		SystemCores::Core25, SystemCores::Core26, SystemCores::Core27, SystemCores::Core28, SystemCores::Core29,
-		SystemCores::Core30, SystemCores::Core31};
+	    SystemCores::Core0,  SystemCores::Core1,  SystemCores::Core2,  SystemCores::Core3,  SystemCores::Core4,
+	    SystemCores::Core5,  SystemCores::Core6,  SystemCores::Core7,  SystemCores::Core8,  SystemCores::Core9,
+	    SystemCores::Core10, SystemCores::Core11, SystemCores::Core12, SystemCores::Core13, SystemCores::Core14,
+	    SystemCores::Core15, SystemCores::Core16, SystemCores::Core17, SystemCores::Core18, SystemCores::Core19,
+	    SystemCores::Core20, SystemCores::Core21, SystemCores::Core22, SystemCores::Core23, SystemCores::Core24,
+	    SystemCores::Core25, SystemCores::Core26, SystemCores::Core27, SystemCores::Core28, SystemCores::Core29,
+	    SystemCores::Core30, SystemCores::Core31};
 
 	int getNumOfCores()
 	{
@@ -238,7 +238,7 @@ namespace pcpp
 
 		sec = count.QuadPart / clock_gettime_counts_per_sec.QuadPart;
 		nsec = ((count.QuadPart % clock_gettime_counts_per_sec.QuadPart) * CLOCK_GETTIME_BILLION) /
-			   clock_gettime_counts_per_sec.QuadPart;
+		       clock_gettime_counts_per_sec.QuadPart;
 
 		return 0;
 
@@ -320,7 +320,7 @@ namespace pcpp
 		{
 			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
-					ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 			return TRUE;
 		}
 
@@ -346,7 +346,7 @@ namespace pcpp
 
 			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != nullptr)
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
-					ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = nullptr;
 
@@ -361,7 +361,7 @@ namespace pcpp
 #endif
 
 	ApplicationEventHandler::ApplicationEventHandler()
-		: m_ApplicationInterruptedHandler(nullptr), m_ApplicationInterruptedCookie(nullptr)
+	    : m_ApplicationInterruptedHandler(nullptr), m_ApplicationInterruptedCookie(nullptr)
 	{
 	}
 

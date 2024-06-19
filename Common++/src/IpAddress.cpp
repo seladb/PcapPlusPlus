@@ -44,7 +44,7 @@ namespace pcpp
 	bool IPv4Address::isMulticast() const
 	{
 		return !operator<(MulticastRangeLowerBound) &&
-			   (operator<(MulticastRangeUpperBound) || operator==(MulticastRangeUpperBound));
+		       (operator<(MulticastRangeUpperBound) || operator==(MulticastRangeUpperBound));
 	}
 
 	IPv4Address::IPv4Address(const std::string& addrAsString)
@@ -237,7 +237,7 @@ namespace pcpp
 		if (netmaskStr.empty())
 		{
 			throw std::invalid_argument(
-				"The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
+			    "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
 		IPv4Address networkPrefix;
@@ -443,7 +443,7 @@ namespace pcpp
 		if (netmaskStr.empty())
 		{
 			throw std::invalid_argument(
-				"The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
+			    "The input should be in the format of <address>/<netmask> or <address>/<prefixLength>");
 		}
 
 		IPv6Address networkPrefix;

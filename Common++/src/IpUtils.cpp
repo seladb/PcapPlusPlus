@@ -81,7 +81,7 @@ namespace pcpp
 					throw std::invalid_argument("Insufficient buffer");
 
 				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString,
-							  resultBufLen) == nullptr)
+				              resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
 				}
@@ -94,7 +94,7 @@ namespace pcpp
 					throw std::invalid_argument("Insufficient buffer");
 
 				if (inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString,
-							  resultBufLen) == nullptr)
+				              resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
 				}
