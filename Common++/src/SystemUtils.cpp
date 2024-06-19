@@ -4,12 +4,12 @@
 #ifndef _MSC_VER
 #	include <unistd.h>
 #endif
-#include <stdexcept>
-#include <memory>
 #include <array>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <signal.h>
+#include <stdexcept>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -31,7 +31,7 @@
 #endif
 
 #ifdef _MSC_VER
-int gettimeofday(struct timeval *tp, struct timezone *tzp)
+int gettimeofday(struct timeval* tp, struct timezone* tzp)
 {
 	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
 	static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
@@ -61,9 +61,12 @@ namespace
 	 */
 	struct PcloseDeleter
 	{
-		void operator()(FILE *ptr) const { PCLOSE(ptr); }
+		void operator()(FILE* ptr) const
+		{
+			PCLOSE(ptr);
+		}
 	};
-} // namespace
+}  // namespace
 
 /// @endcond
 
@@ -104,8 +107,8 @@ namespace pcpp
 	const SystemCore SystemCores::Core31 = {0x80000000, 31};
 
 	const SystemCore SystemCores::IdToSystemCore[MAX_NUM_OF_CORES] = {
-		SystemCores::Core0,	 SystemCores::Core1,  SystemCores::Core2,  SystemCores::Core3,	SystemCores::Core4,
-		SystemCores::Core5,	 SystemCores::Core6,  SystemCores::Core7,  SystemCores::Core8,	SystemCores::Core9,
+		SystemCores::Core0,  SystemCores::Core1,  SystemCores::Core2,  SystemCores::Core3,  SystemCores::Core4,
+		SystemCores::Core5,  SystemCores::Core6,  SystemCores::Core7,  SystemCores::Core8,  SystemCores::Core9,
 		SystemCores::Core10, SystemCores::Core11, SystemCores::Core12, SystemCores::Core13, SystemCores::Core14,
 		SystemCores::Core15, SystemCores::Core16, SystemCores::Core17, SystemCores::Core18, SystemCores::Core19,
 		SystemCores::Core20, SystemCores::Core21, SystemCores::Core22, SystemCores::Core23, SystemCores::Core24,
@@ -135,10 +138,10 @@ namespace pcpp
 		return result;
 	}
 
-	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore> &cores)
+	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore>& cores)
 	{
 		CoreMask result = 0;
-		for (const auto &core : cores)
+		for (const auto& core : cores)
 		{
 			// cppcheck-suppress useStlAlgorithm
 			result |= core.Mask;
@@ -147,10 +150,10 @@ namespace pcpp
 		return result;
 	}
 
-	CoreMask createCoreMaskFromCoreIds(const std::vector<int> &coreIds)
+	CoreMask createCoreMaskFromCoreIds(const std::vector<int>& coreIds)
 	{
 		CoreMask result = 0;
-		for (const auto &coreId : coreIds)
+		for (const auto& coreId : coreIds)
 		{
 			// cppcheck-suppress useStlAlgorithm
 			result |= SystemCores::IdToSystemCore[coreId].Mask;
@@ -159,7 +162,7 @@ namespace pcpp
 		return result;
 	}
 
-	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore> &resultVec)
+	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec)
 	{
 		int i = 0;
 		while (coreMask != 0)
@@ -174,7 +177,7 @@ namespace pcpp
 		}
 	}
 
-	std::string executeShellCommand(const std::string &command)
+	std::string executeShellCommand(const std::string& command)
 	{
 		std::unique_ptr<FILE, PcloseDeleter> pipe = std::unique_ptr<FILE, PcloseDeleter>(POPEN(command.c_str(), "r"));
 		if (!pipe)
@@ -187,12 +190,12 @@ namespace pcpp
 		while (!feof(pipe.get()))
 		{
 			if (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-				result += buffer.data(); // Using the C-string overload of string append.
+				result += buffer.data();  // Using the C-string overload of string append.
 		}
 		return result;
 	}
 
-	bool directoryExists(const std::string &dirPath)
+	bool directoryExists(const std::string& dirPath)
 	{
 		struct stat info;
 
@@ -204,7 +207,7 @@ namespace pcpp
 			return false;
 	}
 
-	int clockGetTime(long &sec, long &nsec)
+	int clockGetTime(long& sec, long& nsec)
 	{
 		sec = 0;
 		nsec = 0;
@@ -251,7 +254,7 @@ namespace pcpp
 
 		return 0;
 
-#else // Linux
+#else  // Linux
 
 #	include <time.h>
 
@@ -285,13 +288,25 @@ namespace pcpp
 #endif
 	}
 
-	uint16_t hostToNet16(uint16_t host) { return htobe16(host); }
+	uint16_t hostToNet16(uint16_t host)
+	{
+		return htobe16(host);
+	}
 
-	uint16_t netToHost16(uint16_t net) { return be16toh(net); }
+	uint16_t netToHost16(uint16_t net)
+	{
+		return be16toh(net);
+	}
 
-	uint32_t hostToNet32(uint32_t host) { return htobe32(host); }
+	uint32_t hostToNet32(uint32_t host)
+	{
+		return htobe32(host);
+	}
 
-	uint32_t netToHost32(uint32_t net) { return be32toh(net); }
+	uint32_t netToHost32(uint32_t net)
+	{
+		return be32toh(net);
+	}
 
 	std::string AppName::m_AppName;
 
@@ -350,7 +365,7 @@ namespace pcpp
 	{
 	}
 
-	void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void *cookie)
+	void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void* cookie)
 	{
 		m_ApplicationInterruptedHandler = handler;
 		m_ApplicationInterruptedCookie = cookie;
@@ -366,4 +381,4 @@ namespace pcpp
 #endif
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

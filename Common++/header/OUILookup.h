@@ -23,7 +23,7 @@ namespace pcpp
 	 */
 	class OUILookup
 	{
-	  private:
+	   private:
 		/**
 		 * MAC addresses with mask values. For example for a MAC address "XX:XX:XX:XX:X0:00/36" the first element will
 		 * be 36, and the second element will be unsigned integer equivalent of "XX:XX:XX:XX:X0:00" and vendor name.
@@ -50,22 +50,22 @@ namespace pcpp
 		/// Internal vendor list for MAC addresses
 		OUIVendorMap vendorMap;
 
-		template <typename T> int64_t internalParser(T &jsonData);
+		template <typename T> int64_t internalParser(T& jsonData);
 
-	  public:
+	   public:
 		/**
 		 * Initialise internal OUI database from a JSON file
 		 * @param[in] path Path to OUI database. The database itself is located at
 		 * 3rdParty/OUILookup/PCPP_OUIDatabase.json
 		 * @return Returns the number of total vendors, negative on errors
 		 */
-		int64_t initOUIDatabaseFromJson(const std::string &path = "");
+		int64_t initOUIDatabaseFromJson(const std::string& path = "");
 
 		/**
 		 * Returns the vendor of the MAC address. OUI database should be initialized with initOUIDatabaseFromJson()
 		 * @param[in] addr MAC address to search
 		 * @return Vendor name
 		 */
-		std::string getVendorName(const pcpp::MacAddress &addr);
+		std::string getVendorName(const pcpp::MacAddress& addr);
 	};
-} // namespace pcpp
+}  // namespace pcpp

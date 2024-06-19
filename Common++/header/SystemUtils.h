@@ -9,7 +9,7 @@
 #define MAX_NUM_OF_CORES 32
 
 #ifdef _MSC_VER
-int gettimeofday(struct timeval *tp, struct timezone *tzp);
+int gettimeofday(struct timeval* tp, struct timezone* tzp);
 #endif
 
 /**
@@ -42,7 +42,10 @@ namespace pcpp
 		 * Overload of the comparison operator
 		 * @return true if 2 addresses are equal. False otherwise
 		 */
-		bool operator==(const SystemCore &other) const { return Id == other.Id; }
+		bool operator==(const SystemCore& other) const
+		{
+			return Id == other.Id;
+		}
 	};
 
 	/**
@@ -205,21 +208,21 @@ namespace pcpp
 	 * @param[in] cores A vector of SystemCore instances
 	 * @return A core mask representing these cores
 	 */
-	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore> &cores);
+	CoreMask createCoreMaskFromCoreVector(const std::vector<SystemCore>& cores);
 
 	/**
 	 * Create a core mask from a vector of core IDs
 	 * @param[in] coreIds A vector of core IDs
 	 * @return A core mask representing these cores
 	 */
-	CoreMask createCoreMaskFromCoreIds(const std::vector<int> &coreIds);
+	CoreMask createCoreMaskFromCoreIds(const std::vector<int>& coreIds);
 
 	/**
 	 * Convert a core mask into a vector of its appropriate system cores
 	 * @param[in] coreMask The input core mask
 	 * @param[out] resultVec The vector that will contain the system cores
 	 */
-	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore> &resultVec);
+	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec);
 
 	/**
 	 * Execute a shell command and return its output
@@ -227,14 +230,14 @@ namespace pcpp
 	 * @return The output of the command (both stdout and stderr)
 	 * @throws std::runtime_error Error executing the command.
 	 */
-	std::string executeShellCommand(const std::string &command);
+	std::string executeShellCommand(const std::string& command);
 
 	/**
 	 * Check if a directory exists
 	 * @param[in] dirPath Full path of the directory to search
 	 * @return True if directory exists, false otherwise
 	 */
-	bool directoryExists(const std::string &dirPath);
+	bool directoryExists(const std::string& dirPath);
 
 	/**
 	 * Retrieve a system-wide real-time accurate clock. It's actually a multi-platform version of clock_gettime() which
@@ -243,7 +246,7 @@ namespace pcpp
 	 * @param[out] nsec The nanosecond portion of the time
 	 * @return 0 for success, or -1 for failure
 	 */
-	int clockGetTime(long &sec, long &nsec);
+	int clockGetTime(long& sec, long& nsec);
 
 	/**
 	 * A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according
@@ -295,17 +298,17 @@ namespace pcpp
 	 */
 	class AppName
 	{
-	  private:
+	   private:
 		static std::string m_AppName;
 
-	  public:
+	   public:
 		/**
 		 * Static init method which should be called once at the beginning of the main method.
 		 * @param[in] argc The argc param from main()
 		 * @param[in] argv The argv param from main()
 		 */
 		// cppcheck-suppress constParameter
-		static void init(int argc, char *argv[])
+		static void init(int argc, char* argv[])
 		{
 			if (argc == 0)
 			{
@@ -340,7 +343,10 @@ namespace pcpp
 		/**
 		 * @return The app name as extracted from the current running executable
 		 */
-		static const std::string &get() { return m_AppName; }
+		static const std::string& get()
+		{
+			return m_AppName;
+		}
 	};
 
 	/**
@@ -350,19 +356,19 @@ namespace pcpp
 	 */
 	class ApplicationEventHandler
 	{
-	  public:
+	   public:
 		/**
 		 * @typedef EventHandlerCallback
 		 * The callback to be invoked when the event occurs
 		 * @param[in] cookie A pointer the the cookie provided by the user in ApplicationEventHandler c'tor
 		 */
-		typedef void (*EventHandlerCallback)(void *cookie);
+		typedef void (*EventHandlerCallback)(void* cookie);
 
 		/**
 		 * As ApplicationEventHandler is a singleton, this is the static getter to retrieve its instance
 		 * @return The singleton instance of ApplicationEventHandler
 		 */
-		static ApplicationEventHandler &getInstance()
+		static ApplicationEventHandler& getInstance()
 		{
 			static ApplicationEventHandler instance;
 			return instance;
@@ -375,11 +381,11 @@ namespace pcpp
 		 * EventHandlerCallback callback. This cookie is very useful for transferring objects that give context to the
 		 * event callback
 		 */
-		void onApplicationInterrupted(EventHandlerCallback handler, void *cookie);
+		void onApplicationInterrupted(EventHandlerCallback handler, void* cookie);
 
-	  private:
+	   private:
 		EventHandlerCallback m_ApplicationInterruptedHandler;
-		void *m_ApplicationInterruptedCookie;
+		void* m_ApplicationInterruptedCookie;
 
 		// private c'tor
 		ApplicationEventHandler();
@@ -391,4 +397,4 @@ namespace pcpp
 #endif
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

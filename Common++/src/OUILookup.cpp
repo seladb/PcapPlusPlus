@@ -8,14 +8,14 @@
 namespace pcpp
 {
 
-	template <typename T> int64_t OUILookup::internalParser(T &jsonData)
+	template <typename T> int64_t OUILookup::internalParser(T& jsonData)
 	{
 		// Clear all entries before adding
 		vendorMap.clear();
 
 		int64_t ctrRead = 0;
 		nlohmann::json parsedJson = nlohmann::json::parse(jsonData);
-		for (const auto &line : parsedJson.items())
+		for (const auto& line : parsedJson.items())
 		{
 			if (!(line.value().is_object()))
 				continue;
@@ -27,7 +27,7 @@ namespace pcpp
 			if (val.contains("maskedFilters") && val["maskedFilters"].is_array())
 			{
 				// Iterate through masked filters
-				for (const auto &entry : val["maskedFilters"])
+				for (const auto& entry : val["maskedFilters"])
 				{
 					if (!entry.is_object())
 						continue;
@@ -39,7 +39,7 @@ namespace pcpp
 						vLocalMaskedFilter.push_back({maskValue, {}});
 
 						// Parse masked filter
-						for (const auto &subentry : subVal["vendors"].items())
+						for (const auto& subentry : subVal["vendors"].items())
 						{
 							if (subentry.value().is_string())
 							{
@@ -52,7 +52,9 @@ namespace pcpp
 				}
 			}
 
-			vendorMap.insert({std::stoull(line.key()), {val["vendor"], vLocalMaskedFilter}});
+			vendorMap.insert({
+				std::stoull(line.key()), {val["vendor"], vLocalMaskedFilter}
+            });
 			++ctrRead;
 		}
 
@@ -60,7 +62,7 @@ namespace pcpp
 		return ctrRead;
 	}
 
-	int64_t OUILookup::initOUIDatabaseFromJson(const std::string &path)
+	int64_t OUILookup::initOUIDatabaseFromJson(const std::string& path)
 	{
 		std::ifstream dataFile;
 
@@ -76,7 +78,7 @@ namespace pcpp
 		return internalParser(dataFile);
 	}
 
-	std::string OUILookup::getVendorName(const pcpp::MacAddress &addr)
+	std::string OUILookup::getVendorName(const pcpp::MacAddress& addr)
 	{
 		if (vendorMap.empty())
 			PCPP_LOG_DEBUG("Vendor map is empty");
@@ -93,7 +95,7 @@ namespace pcpp
 		if (itr == vendorMap.end())
 			return "Unknown";
 
-		for (const auto &entry : itr->second.maskedFilter)
+		for (const auto& entry : itr->second.maskedFilter)
 		{
 			uint64_t maskValue = ~((1 << (48 - entry.mask)) - 1);
 			uint64_t bufferAddr = macAddr & maskValue;
@@ -106,4 +108,4 @@ namespace pcpp
 		return itr->second.vendorName;
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

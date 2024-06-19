@@ -24,7 +24,10 @@ namespace pcpp
 		}
 	}
 
-	TablePrinter::~TablePrinter() { closeTable(); }
+	TablePrinter::~TablePrinter()
+	{
+		closeTable();
+	}
 
 	bool TablePrinter::printRow(std::vector<std::string> values)
 	{
@@ -65,7 +68,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool TablePrinter::printRow(const std::string &values, char delimiter)
+	bool TablePrinter::printRow(const std::string& values, char delimiter)
 	{
 		std::string singleValue;
 		std::istringstream valueStream(values);
@@ -127,4 +130,4 @@ namespace pcpp
 		printSeparator();
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

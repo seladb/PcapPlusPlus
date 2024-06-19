@@ -33,7 +33,7 @@
  * @param[in] size 'dst' Maximum size
  * @return pointer to presentation format address ('dst'), or NULL (see errno).
  */
-const char *inet_ntop(int af, const void *src, char *dst, size_t size);
+const char* inet_ntop(int af, const void* src, char* dst, size_t size);
 
 /**
  * Convert from presentation format (which usually means ASCII printable)
@@ -46,7 +46,7 @@ const char *inet_ntop(int af, const void *src, char *dst, size_t size);
  * 0 if the address wasn't valid ('dst' is untouched in this case);
  * -1 if some other error occurred ('dst' is untouched in this case, too)
  */
-int inet_pton(int af, const char *src, void *dst);
+int inet_pton(int af, const char* src, void* dst);
 #endif
 
 /**
@@ -63,14 +63,14 @@ namespace pcpp
 		 * @return Address in in_addr format
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET or sockaddr is nullptr.
 		 */
-		in_addr *sockaddr2in_addr(sockaddr *sa);
+		in_addr* sockaddr2in_addr(sockaddr* sa);
 
 		/**
 		 * Attempt to extract IPv4 address from sockaddr
 		 * @param[in] sa - input sockaddr
 		 * @return Pointer to address in in_addr format or nullptr if extraction fails.
 		 */
-		in_addr *try_sockaddr2in_addr(sockaddr *sa);
+		in_addr* try_sockaddr2in_addr(sockaddr* sa);
 
 		/**
 		 * Extract IPv6 address from sockaddr
@@ -78,14 +78,14 @@ namespace pcpp
 		 * @return Address in in6_addr format
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET6 or sockaddr is nullptr.
 		 */
-		in6_addr *sockaddr2in6_addr(sockaddr *sa);
+		in6_addr* sockaddr2in6_addr(sockaddr* sa);
 
 		/**
 		 * Attempt to extract IPv6 address from sockaddr
 		 * @param[in] sa - input sockaddr
 		 * @return Pointer to address in in6_addr format or nullptr if extraction fails.
 		 */
-		in6_addr *try_sockaddr2in6_addr(sockaddr *sa);
+		in6_addr* try_sockaddr2in6_addr(sockaddr* sa);
 
 		/**
 		 * Converts a sockaddr format address to its string representation
@@ -95,7 +95,7 @@ namespace pcpp
 		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, sockaddr is nullptr or the result
 		 * str buffer is insufficient.
 		 */
-		void sockaddr2string(sockaddr const *sa, char *resultString, size_t resultBufLen);
+		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen);
 
 		/**
 		 * Convert a in_addr format address to 32bit representation
@@ -103,5 +103,5 @@ namespace pcpp
 		 * @return Address in 32bit format
 		 */
 		uint32_t in_addr2int(in_addr inAddr);
-	} // namespace internal
-} // namespace pcpp
+	}  // namespace internal
+}  // namespace pcpp

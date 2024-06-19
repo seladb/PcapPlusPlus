@@ -10,7 +10,7 @@
 namespace pcpp
 {
 
-	std::string byteArrayToHexString(const uint8_t *byteArr, size_t byteArrSize, int stringSizeLimit)
+	std::string byteArrayToHexString(const uint8_t* byteArr, size_t byteArrSize, int stringSizeLimit)
 	{
 		if (stringSizeLimit <= 0)
 			stringSizeLimit = byteArrSize;
@@ -39,7 +39,7 @@ namespace pcpp
 		return -1;
 	}
 
-	size_t hexStringToByteArray(const std::string &hexString, uint8_t *resultByteArr, size_t resultByteArrSize)
+	size_t hexStringToByteArray(const std::string& hexString, uint8_t* resultByteArr, size_t resultByteArrSize)
 	{
 		if (hexString.size() % 2 != 0)
 		{
@@ -68,12 +68,12 @@ namespace pcpp
 		return hexString.length() / 2;
 	}
 
-	char *cross_platform_memmem(const char *haystack, size_t haystackLen, const char *needle, size_t needleLen)
+	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen)
 	{
-		char *ptr = (char *)haystack;
+		char* ptr = (char*)haystack;
 		while (needleLen <= (haystackLen - (ptr - haystack)))
 		{
-			if (nullptr != (ptr = (char *)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
+			if (nullptr != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
 			{
 				// check if there is room to do a memcmp
 				if (needleLen > (haystackLen - (ptr - haystack)))
@@ -93,4 +93,4 @@ namespace pcpp
 		return nullptr;
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

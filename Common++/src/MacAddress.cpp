@@ -15,7 +15,7 @@ namespace pcpp
 		return std::string(str);
 	}
 
-	MacAddress::MacAddress(const std::string &address)
+	MacAddress::MacAddress(const std::string& address)
 	{
 		constexpr size_t validMacAddressLength = 17;
 		unsigned int values[6];
@@ -31,4 +31,4 @@ namespace pcpp
 		}
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

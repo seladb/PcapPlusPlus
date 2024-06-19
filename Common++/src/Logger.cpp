@@ -1,5 +1,5 @@
-#include <sstream>
 #include "Logger.h"
+#include <sstream>
 
 namespace pcpp
 {
@@ -24,8 +24,8 @@ namespace pcpp
 		}
 	}
 
-	void Logger::defaultLogPrinter(LogLevel logLevel, const std::string &logMessage, const std::string &file,
-								   const std::string &method, const int line)
+	void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
+								   const std::string& method, const int line)
 	{
 		std::ostringstream sstream;
 		sstream << file << ": " << method << ":" << line;
@@ -33,10 +33,13 @@ namespace pcpp
 				  << sstream.str() << "] " << logMessage << std::endl;
 	}
 
-	std::ostringstream *Logger::internalCreateLogStream() { return new std::ostringstream(); }
+	std::ostringstream* Logger::internalCreateLogStream()
+	{
+		return new std::ostringstream();
+	}
 
-	void Logger::internalPrintLogMessage(std::ostringstream *logStream, Logger::LogLevel logLevel, const char *file,
-										 const char *method, int line)
+	void Logger::internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file,
+										 const char* method, int line)
 	{
 		std::string logMessage = logStream->str();
 		delete logStream;
@@ -50,4 +53,4 @@ namespace pcpp
 		}
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

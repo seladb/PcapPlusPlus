@@ -19,6 +19,9 @@ namespace pcpp
 		return "unavailable";
 	}
 
-	std::string getGitInfo() { return "Git branch '" + getGitBranch() + "', commit '" + getGitCommit() + "'"; }
+	std::string getGitInfo()
+	{
+		return "Git branch '" + getGitBranch() + "', commit '" + getGitCommit() + "'";
+	}
 
-} // namespace pcpp
+}  // namespace pcpp

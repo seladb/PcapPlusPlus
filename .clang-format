@@ -1,10 +1,19 @@
 ---
 BasedOnStyle: Microsoft
-UseTab: Always
+UseTab: ForIndentation
 BreakBeforeBraces: Allman
-AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: None
 NamespaceIndentation: All
 SortIncludes: false
 IndentPPDirectives: AfterHash
 IndentWidth: 4
+AllowShortBlocksOnASingleLine: Never
+PointerAlignment: Left
+AccessModifierOffset: -1
+AlignTrailingComments: true
+AllowShortEnumsOnASingleLine: false
+BreakStringLiterals: true
+AlignArrayOfStructures: Left
+BreakArrays: true
+SpacesBeforeTrailingComments: 2
 ...

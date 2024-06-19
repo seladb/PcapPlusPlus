@@ -22,21 +22,23 @@ namespace pcpp
 	 */
 	template <typename T> class PointerVector
 	{
-	  public:
+	   public:
 		/**
 		 * Iterator object that is used for iterating all elements in the vector
 		 */
-		typedef typename std::vector<T *>::iterator VectorIterator;
+		typedef typename std::vector<T*>::iterator VectorIterator;
 
 		/**
 		 * Const iterator object that is used for iterating all elements in a constant vector
 		 */
-		typedef typename std::vector<T *>::const_iterator ConstVectorIterator;
+		typedef typename std::vector<T*>::const_iterator ConstVectorIterator;
 
 		/**
 		 * A constructor that create an empty instance of this object
 		 */
-		PointerVector() {}
+		PointerVector()
+		{
+		}
 
 		/**
 		 * A destructor for this class. The destructor frees all elements that are binded to the vector
@@ -54,25 +56,25 @@ namespace pcpp
 		 * meaning the new vector will contain pointers to copied elements, not pointers to the elements of the original
 		 * vector
 		 */
-		PointerVector(const PointerVector &other)
+		PointerVector(const PointerVector& other)
 		{
 			try
 			{
 				for (const auto iter : other)
 				{
-					T *objCopy = new T(*iter);
+					T* objCopy = new T(*iter);
 					try
 					{
 						m_Vector.push_back(objCopy);
 					}
-					catch (const std::exception &)
+					catch (const std::exception&)
 					{
 						delete objCopy;
 						throw;
 					}
 				}
 			}
-			catch (const std::exception &)
+			catch (const std::exception&)
 			{
 				for (auto obj : m_Vector)
 				{
@@ -98,31 +100,46 @@ namespace pcpp
 		/**
 		 * Add a new (pointer to an) element to the vector
 		 */
-		void pushBack(T *element) { m_Vector.push_back(element); }
+		void pushBack(T* element)
+		{
+			m_Vector.push_back(element);
+		}
 
 		/**
 		 * Get the first element of the vector
 		 * @return An iterator object pointing to the first element of the vector
 		 */
-		VectorIterator begin() { return m_Vector.begin(); }
+		VectorIterator begin()
+		{
+			return m_Vector.begin();
+		}
 
 		/**
 		 * Get the first element of a constant vector
 		 * @return A const iterator object pointing to the first element of the vector
 		 */
-		ConstVectorIterator begin() const { return m_Vector.begin(); }
+		ConstVectorIterator begin() const
+		{
+			return m_Vector.begin();
+		}
 
 		/**
 		 * Get the last element of the vector
 		 * @return An iterator object pointing to the last element of the vector
 		 */
-		VectorIterator end() { return m_Vector.end(); }
+		VectorIterator end()
+		{
+			return m_Vector.end();
+		}
 
 		/**
 		 * Get the last element of a constant vector
 		 * @return A const iterator object pointing to the last element of the vector
 		 */
-		ConstVectorIterator end() const { return m_Vector.end(); }
+		ConstVectorIterator end() const
+		{
+			return m_Vector.end();
+		}
 
 		// inline size_t size() { return m_Vector.size(); }
 
@@ -130,18 +147,27 @@ namespace pcpp
 		 * Get number of elements in the vector
 		 * @return The number of elements in the vector
 		 */
-		size_t size() const { return m_Vector.size(); }
+		size_t size() const
+		{
+			return m_Vector.size();
+		}
 
 		/**
 		 * Returns a pointer of the first element in the vector
 		 * @return A pointer of the first element in the vector
 		 */
-		T *front() { return m_Vector.front(); }
+		T* front()
+		{
+			return m_Vector.front();
+		}
 
 		/**
 		 * @return A pointer to the last element in the vector
 		 */
-		T *back() { return m_Vector.back(); }
+		T* back()
+		{
+			return m_Vector.back();
+		}
 
 		/**
 		 * Removes from the vector a single element (position). Once the element is erased, it's also freed
@@ -161,9 +187,9 @@ namespace pcpp
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
 		 * it
 		 */
-		T *getAndRemoveFromVector(VectorIterator &position)
+		T* getAndRemoveFromVector(VectorIterator& position)
 		{
-			T *result = (*position);
+			T* result = (*position);
 			VectorIterator tempPos = position;
 			tempPos = m_Vector.erase(tempPos);
 			position = tempPos;
@@ -175,17 +201,23 @@ namespace pcpp
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
 		 */
-		T *at(int index) { return m_Vector.at(index); }
+		T* at(int index)
+		{
+			return m_Vector.at(index);
+		}
 
 		/**
 		 * Return a const pointer to the element in a certain index
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
 		 */
-		const T *at(int index) const { return m_Vector.at(index); }
+		const T* at(int index) const
+		{
+			return m_Vector.at(index);
+		}
 
-	  private:
-		std::vector<T *> m_Vector;
+	   private:
+		std::vector<T*> m_Vector;
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

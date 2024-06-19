@@ -25,7 +25,7 @@ namespace pcpp
 	 */
 	template <typename T> class LRUList
 	{
-	  public:
+	   public:
 		typedef typename std::list<T>::iterator ListIterator;
 		typedef typename std::unordered_map<T, ListIterator>::iterator MapIterator;
 
@@ -33,7 +33,10 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] maxSize The max size this list can go
 		 */
-		explicit LRUList(size_t maxSize) { m_MaxSize = maxSize; }
+		explicit LRUList(size_t maxSize)
+		{
+			m_MaxSize = maxSize;
+		}
 
 		/**
 		 * Puts an element in the list. This element will be inserted (or advanced if it already exists) to the head of
@@ -46,7 +49,7 @@ namespace pcpp
 		 * and deletedValue is not NULL the value of deleted element is copied into the place the deletedValue points
 		 * to.
 		 */
-		int put(const T &element, T *deletedValue = NULL)
+		int put(const T& element, T* deletedValue = NULL)
 		{
 			m_CacheItemsList.push_front(element);
 
@@ -54,7 +57,7 @@ namespace pcpp
 			// iterator to the element that prevented the insertion
 			std::pair<MapIterator, bool> pair =
 				m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
-			if (pair.second == false) // already exists
+			if (pair.second == false)  // already exists
 			{
 				m_CacheItemsList.erase(pair.first->second);
 				pair.first->second = m_CacheItemsList.begin();
@@ -83,19 +86,25 @@ namespace pcpp
 		 * Get the most recently used element (the one at the beginning of the list)
 		 * @return The most recently used element
 		 */
-		const T &getMRUElement() const { return m_CacheItemsList.front(); }
+		const T& getMRUElement() const
+		{
+			return m_CacheItemsList.front();
+		}
 
 		/**
 		 * Get the least recently used element (the one at the end of the list)
 		 * @return The least recently used element
 		 */
-		const T &getLRUElement() const { return m_CacheItemsList.back(); }
+		const T& getLRUElement() const
+		{
+			return m_CacheItemsList.back();
+		}
 
 		/**
 		 * Erase an element from the list. If element isn't found in the list nothing happens
 		 * @param[in] element The element to erase
 		 */
-		void eraseElement(const T &element)
+		void eraseElement(const T& element)
 		{
 			MapIterator iter = m_CacheItemsMap.find(element);
 			if (iter == m_CacheItemsMap.end())
@@ -108,17 +117,23 @@ namespace pcpp
 		/**
 		 * @return The max size of this list as determined in the c'tor
 		 */
-		size_t getMaxSize() const { return m_MaxSize; }
+		size_t getMaxSize() const
+		{
+			return m_MaxSize;
+		}
 
 		/**
 		 * @return The number of elements currently in this list
 		 */
-		size_t getSize() const { return m_CacheItemsMap.size(); }
+		size_t getSize() const
+		{
+			return m_CacheItemsMap.size();
+		}
 
-	  private:
+	   private:
 		std::list<T> m_CacheItemsList;
 		std::unordered_map<T, ListIterator> m_CacheItemsMap;
 		size_t m_MaxSize;
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

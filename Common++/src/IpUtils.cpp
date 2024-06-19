@@ -19,7 +19,7 @@ namespace pcpp
 {
 	namespace internal
 	{
-		in_addr *sockaddr2in_addr(sockaddr *sa)
+		in_addr* sockaddr2in_addr(sockaddr* sa)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -27,23 +27,23 @@ namespace pcpp
 			if (sa->sa_family != AF_INET)
 				throw std::invalid_argument("sockaddr family is not AF_INET.");
 
-			return &(reinterpret_cast<sockaddr_in *>(sa)->sin_addr);
+			return &(reinterpret_cast<sockaddr_in*>(sa)->sin_addr);
 		}
 
-		in_addr *try_sockaddr2in_addr(sockaddr *sa)
+		in_addr* try_sockaddr2in_addr(sockaddr* sa)
 		{
 			try
 			{
 				return sockaddr2in_addr(sa);
 			}
-			catch (const std::invalid_argument &e)
+			catch (const std::invalid_argument& e)
 			{
 				PCPP_LOG_DEBUG("Extraction failed: " << e.what() << " Returning nullptr.");
 				return nullptr;
 			}
 		}
 
-		in6_addr *sockaddr2in6_addr(sockaddr *sa)
+		in6_addr* sockaddr2in6_addr(sockaddr* sa)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -51,23 +51,23 @@ namespace pcpp
 			if (sa->sa_family != AF_INET6)
 				throw std::invalid_argument("sockaddr family is not AF_INET6.");
 
-			return &(reinterpret_cast<sockaddr_in6 *>(sa)->sin6_addr);
+			return &(reinterpret_cast<sockaddr_in6*>(sa)->sin6_addr);
 		}
 
-		in6_addr *try_sockaddr2in6_addr(sockaddr *sa)
+		in6_addr* try_sockaddr2in6_addr(sockaddr* sa)
 		{
 			try
 			{
 				return sockaddr2in6_addr(sa);
 			}
-			catch (const std::invalid_argument &e)
+			catch (const std::invalid_argument& e)
 			{
 				PCPP_LOG_DEBUG("Extraction failed: " << e.what() << " Returning nullptr.");
 				return nullptr;
 			}
 		}
 
-		void sockaddr2string(sockaddr const *sa, char *resultString, size_t resultBufLen)
+		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen)
 		{
 			if (sa == nullptr)
 				throw std::invalid_argument("sockaddr is nullptr");
@@ -80,7 +80,7 @@ namespace pcpp
 				if (resultBufLen < INET_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
 
-				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const *>(sa)->sin_addr), resultString,
+				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString,
 							  resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
@@ -93,7 +93,7 @@ namespace pcpp
 				if (resultBufLen < INET6_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
 
-				if (inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const *>(sa)->sin6_addr), resultString,
+				if (inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString,
 							  resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
@@ -113,8 +113,8 @@ namespace pcpp
 			return inAddr.s_addr;
 #endif
 		}
-	} // namespace internal
-} // namespace pcpp
+	}  // namespace internal
+}  // namespace pcpp
 
 // Only MinGW32 doesn't have these functions (not MinGW-w64 nor Visual C++)
 #if defined(_WIN32) && !defined(_MSC_VER) && (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 8))
@@ -129,7 +129,7 @@ namespace pcpp
  * author:
  *	Paul Vixie, 1996.
  */
-static const char *inet_ntop4(const uint8_t *src, char *dst, size_t size)
+static const char* inet_ntop4(const uint8_t* src, char* dst, size_t size)
 {
 	static const char fmt[] = "%u.%u.%u.%u";
 	char tmp[sizeof "255.255.255.255"];
@@ -150,7 +150,7 @@ static const char *inet_ntop4(const uint8_t *src, char *dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
-static const char *inet_ntop6(const uint8_t *src, char *dst, size_t size)
+static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -258,7 +258,7 @@ static const char *inet_ntop6(const uint8_t *src, char *dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
-static int inet_pton4(const char *src, uint8_t *dst)
+static int inet_pton4(const char* src, uint8_t* dst)
 {
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
@@ -269,7 +269,7 @@ static int inet_pton4(const char *src, uint8_t *dst)
 	*(tp = tmp) = 0;
 	while ((ch = *src++) != '\0')
 	{
-		const char *pch;
+		const char* pch;
 
 		if ((pch = strchr(digits, ch)) != NULL)
 		{
@@ -314,11 +314,11 @@ static int inet_pton4(const char *src, uint8_t *dst)
  * author:
  *	Paul Vixie, 1996.
  */
-static int inet_pton6(const char *src, uint8_t *dst)
+static int inet_pton6(const char* src, uint8_t* dst)
 {
 	static const char xdigits_l[] = "0123456789abcdef", xdigits_u[] = "0123456789ABCDEF";
 	u_char tmp[NS_IN6ADDRSZ], *tp, *endp, *colonp;
-	const char *curtok;
+	const char* curtok;
 	int ch, saw_xdigit;
 	u_int val;
 
@@ -408,31 +408,31 @@ static int inet_pton6(const char *src, uint8_t *dst)
 	return (1);
 }
 
-const char *inet_ntop(int af, const void *src, char *dst, size_t size)
+const char* inet_ntop(int af, const void* src, char* dst, size_t size)
 {
 	switch (af)
 	{
 	case AF_INET:
-		return (inet_ntop4((const uint8_t *)src, dst, size));
+		return (inet_ntop4((const uint8_t*)src, dst, size));
 	case AF_INET6:
-		return (inet_ntop6((const uint8_t *)src, dst, size));
+		return (inet_ntop6((const uint8_t*)src, dst, size));
 	default:
 		return (NULL);
 	}
 	/* NOTREACHED */
 }
 
-int inet_pton(int af, const char *src, void *dst)
+int inet_pton(int af, const char* src, void* dst)
 {
 	switch (af)
 	{
 #	ifdef AF_INET
 	case AF_INET:
-		return (inet_pton4(src, (uint8_t *)dst));
+		return (inet_pton4(src, (uint8_t*)dst));
 #	endif
 #	ifdef AF_INET6
 	case AF_INET6:
-		return (inet_pton6(src, (uint8_t *)dst));
+		return (inet_pton6(src, (uint8_t*)dst));
 #	endif
 	default:
 		return (-1);
