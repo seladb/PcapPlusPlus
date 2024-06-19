@@ -621,7 +621,7 @@ namespace pcpp
 	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
 	{
 		std::vector<uint8_t> result;
-		result.reserve(m_ValueLength);
+//		result.reserve(m_ValueLength);
 
 		switch (m_ValueLength)
 		{
