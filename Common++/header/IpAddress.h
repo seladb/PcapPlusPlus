@@ -180,7 +180,7 @@ namespace pcpp
 		static const IPv4Address MulticastRangeUpperBound;
 
 	private:
-		std::array<uint8_t, 4> m_Bytes = {0};
+		std::array<uint8_t, 4> m_Bytes = { 0 };
 	};  // class IPv4Address
 
 	// Implementation of inline methods
@@ -349,7 +349,7 @@ namespace pcpp
 		static const IPv6Address MulticastRangeLowerBound;
 
 	private:
-		std::array<uint8_t, 16> m_Bytes = {0};
+		std::array<uint8_t, 16> m_Bytes = { 0 };
 	};  // class IPv6Address
 
 	/**

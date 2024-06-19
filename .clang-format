@@ -17,4 +17,5 @@ AlignArrayOfStructures: Left
 BreakArrays: true
 SpacesBeforeTrailingComments: 2
 IndentAccessModifiers: false
+Cpp11BracedListStyle: false
 ...

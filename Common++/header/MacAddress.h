@@ -170,7 +170,7 @@ namespace pcpp
 		static MacAddress Zero;
 
 	private:
-		uint8_t m_Address[6] = {0};
+		uint8_t m_Address[6] = { 0 };
 	};
 }  // namespace pcpp
 
