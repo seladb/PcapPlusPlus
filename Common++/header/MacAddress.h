@@ -1,12 +1,12 @@
 #pragma once
 
+#include <algorithm>
+#include <initializer_list>
+#include <iterator>
+#include <ostream>
 #include <stdint.h>
 #include <string.h>
 #include <string>
-#include <initializer_list>
-#include <algorithm>
-#include <iterator>
-#include <ostream>
 
 /// @file
 
@@ -54,7 +54,9 @@ namespace pcpp
 		 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
 		 */
 		template <typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
-		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr)){};
+		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr))
+		{
+		}
 
 		/**
 		 * A constructor that creates an instance of 6 bytes representing the MAC address
