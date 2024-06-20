@@ -55,8 +55,7 @@ namespace pcpp
 		 */
 		template <typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
 		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr))
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of 6 bytes representing the MAC address

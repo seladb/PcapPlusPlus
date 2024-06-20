@@ -59,8 +59,7 @@ namespace pcpp
 		 * @param[in] bytes The address as 4-byte standard array in network byte order
 		 */
 		IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -218,8 +217,7 @@ namespace pcpp
 		 * @param[in] bytes The address as 16-byte standard array in network byte order
 		 */
 		IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -378,24 +376,21 @@ namespace pcpp
 		 * A default constructor that creates an instance of the class with unspecified IPv4 address
 		 */
 		IPAddress() : m_Type(IPv4AddressType)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of IPv4Address.
 		 * @param[in] addr A const reference to instance of IPv4Address
 		 */
 		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of IPv6Address.
 		 * @param[in] addr A const reference to instance of IPv6Address
 		 */
 		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
@@ -567,8 +562,7 @@ namespace pcpp
 		 * @param address An address representing the network prefix.
 		 */
 		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
@@ -685,8 +679,7 @@ namespace pcpp
 		 * @param address An address representing the network prefix.
 		 */
 		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128u)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
@@ -803,8 +796,7 @@ namespace pcpp
 		 * @param address An address representing the network prefix.
 		 */
 		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u)
-		{
-		}
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix

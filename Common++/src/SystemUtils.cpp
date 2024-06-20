@@ -363,8 +363,7 @@ namespace pcpp
 
 	ApplicationEventHandler::ApplicationEventHandler()
 		: m_ApplicationInterruptedHandler(nullptr), m_ApplicationInterruptedCookie(nullptr)
-	{
-	}
+	{}
 
 	void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void* cookie)
 	{

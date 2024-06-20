@@ -1,7 +1,6 @@
 ---
 BasedOnStyle: Microsoft
 UseTab: AlignWithSpaces
-BreakBeforeBraces: Allman
 AllowShortFunctionsOnASingleLine: None
 NamespaceIndentation: All
 SortIncludes: false
@@ -18,4 +17,8 @@ BreakArrays: true
 SpacesBeforeTrailingComments: 2
 IndentAccessModifiers: false
 Cpp11BracedListStyle: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  SplitEmptyFunction: false
+  AfterCaseLabel: true
 ...

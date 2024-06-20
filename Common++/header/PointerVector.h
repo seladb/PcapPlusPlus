@@ -37,8 +37,7 @@ namespace pcpp
 		 * A constructor that create an empty instance of this object
 		 */
 		PointerVector()
-		{
-		}
+		{}
 
 		/**
 		 * A destructor for this class. The destructor frees all elements that are binded to the vector
