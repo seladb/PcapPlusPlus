@@ -13,8 +13,8 @@ namespace pcpp
 {
 
 	TablePrinter::TablePrinter(std::vector<std::string> columnNames, std::vector<int> columnWidths)
-	    : m_ColumnNames(std::move(columnNames)), m_ColumnWidths(std::move(columnWidths)), m_FirstRow(true),
-	      m_TableClosed(false)
+		: m_ColumnNames(std::move(columnNames)), m_ColumnWidths(std::move(columnWidths)), m_FirstRow(true),
+		  m_TableClosed(false)
 	{
 		if (m_ColumnWidths.size() != m_ColumnNames.size())
 		{

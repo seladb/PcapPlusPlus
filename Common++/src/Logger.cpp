@@ -30,7 +30,7 @@ namespace pcpp
 		std::ostringstream sstream;
 		sstream << file << ": " << method << ":" << line;
 		std::cout << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
-		          << sstream.str() << "] " << logMessage << std::endl;
+				  << sstream.str() << "] " << logMessage << std::endl;
 	}
 
 	std::ostringstream* Logger::internalCreateLogStream()

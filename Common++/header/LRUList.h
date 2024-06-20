@@ -56,7 +56,7 @@ namespace pcpp
 			// Inserting a new element. If an element with an equivalent key already exists the method returns an
 			// iterator to the element that prevented the insertion
 			std::pair<MapIterator, bool> pair =
-			    m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
+				m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
 			if (pair.second == false)  // already exists
 			{
 				m_CacheItemsList.erase(pair.first->second);

@@ -1,6 +1,6 @@
 ---
 BasedOnStyle: Microsoft
-UseTab: ForIndentation
+UseTab: AlignWithSpaces
 BreakBeforeBraces: Allman
 AllowShortFunctionsOnASingleLine: None
 NamespaceIndentation: All
