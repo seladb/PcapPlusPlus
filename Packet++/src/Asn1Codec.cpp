@@ -622,7 +622,7 @@ namespace pcpp
 	{
 		std::vector<uint8_t> result;
 
-		#if !(defined(__MIGW32__) || defined(__MIGW64__))
+		#if !(defined(__MINGW64_VERSION_MAJOR) || defined(__MINGW32_MAJOR_VERSION))
 		result.reserve(m_ValueLength);
 		#endif
 
