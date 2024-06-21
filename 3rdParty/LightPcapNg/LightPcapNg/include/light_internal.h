@@ -33,7 +33,7 @@
 #include <assert.h>
 
 struct _light_pcapng_stream {
-	struct light_file_t *file;
+	struct light_file_t *file; // PCPP patch
 	struct _light_pcapng *current_block;
 	int valid;
 };

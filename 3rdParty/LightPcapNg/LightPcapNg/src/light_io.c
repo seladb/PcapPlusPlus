@@ -88,9 +88,9 @@ int light_pcapng_to_compressed_file(const char *file_name, const light_pcapng pc
 light_pcapng_stream light_open_stream(const char *file_name)
 {
 	light_pcapng_stream pcapng = calloc(1, sizeof(struct _light_pcapng_stream));
-	pcapng->file = light_open(file_name, LIGHT_OREAD);
+	pcapng->file = light_open(file_name, LIGHT_OREAD); // PCPP patch
 
-	if (pcapng->file == NULL) {
+	if (pcapng->file == NULL) { // PCPP patch
 		free(pcapng);
 		return NULL;
 	}
@@ -114,6 +114,7 @@ light_pcapng light_read_stream(light_pcapng_stream pcapng)
 		pcapng->current_block = NULL;
 	}
 
+	// PCPP patch
 	if (light_read(pcapng->file, &block_type, sizeof(block_type)) == -1 ||
 			light_read(pcapng->file, &block_total_length, sizeof(block_total_length)) == -1) {
 		pcapng->valid = 0;
@@ -129,6 +130,7 @@ light_pcapng light_read_stream(light_pcapng_stream pcapng)
 	block_data[0] = block_type;
 	block_data[1] = block_total_length;
 
+	// PCPP patch
 	if (light_read(pcapng->file, &block_data[2], block_total_length - 2 * sizeof(uint32_t)) == -1) {
 		free(block_data);
 		pcapng->valid = 0;
@@ -152,7 +154,7 @@ int light_close_stream(light_pcapng_stream pcapng)
 		pcapng->current_block = NULL;
 	}
 
-	light_close(pcapng->file);
+	light_close(pcapng->file); // PCPP patch
 	pcapng->valid = 0;
 	free(pcapng);
 
