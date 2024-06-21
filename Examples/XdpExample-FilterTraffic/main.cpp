@@ -1,12 +1,12 @@
 /**
-* Filter Traffic AF_XDP example application
-* =========================================
-*
-* This application demonstrates PcapPlusPlus AF_XDP APIs.
-* Please read the README.md file for more information.
-*
-* You can also run `XdpTrafficFilter -h` for modes of operation and parameters.
-*/
+ * Filter Traffic AF_XDP example application
+ * =========================================
+ *
+ * This application demonstrates PcapPlusPlus AF_XDP APIs.
+ * Please read the README.md file for more information.
+ *
+ * You can also run `XdpTrafficFilter -h` for modes of operation and parameters.
+ */
 
 #include "PacketMatchingEngine.h"
 #include "SystemUtils.h"
@@ -22,15 +22,19 @@
 #include <iostream>
 #include <thread>
 
-#define EXIT_WITH_ERROR(reason) do { \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
+#define EXIT_WITH_ERROR(reason)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
-	printUsage(); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason)                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage();                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
 	} while (0)
 
 /**
@@ -55,9 +59,11 @@ public:
 	int matchedUdpFlows;
 	int matchedPacketCount;
 
-	PacketStats() : packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0),
-					httpCount(0), dnsCount(0), sslCount(0),
-					totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0), matchedPacketCount(0) {}
+	PacketStats()
+		: packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0), httpCount(0),
+		  dnsCount(0), sslCount(0), totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0),
+		  matchedPacketCount(0)
+	{}
 
 	/**
 	 * Collect stats per packet
@@ -98,21 +104,23 @@ struct PacketCaptureArgs
 	pcpp::PcapFileWriterDevice* pcapWriter;
 	bool stopCapture;
 
-	PacketCaptureArgs() : packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr), stopCapture(false) {}
+	PacketCaptureArgs()
+		: packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr), stopCapture(false)
+	{}
 };
 
 static struct option XdpFilterTrafficOptions[] = {
-	{"interface",  required_argument, nullptr, 'n'},
-	{"send-matched-packets", required_argument, nullptr, 's'},
-	{"save-matched-packets", required_argument, nullptr, 'f'},
-	{"match-source-ip", required_argument, nullptr, 'i'},
-	{"match-dest-ip", required_argument, nullptr, 'I'},
-	{"match-source-port", required_argument, nullptr, 'p'},
-	{"match-dest-port", required_argument, nullptr, 'P'},
-	{"match-protocol", required_argument, nullptr, 'r'},
-	{"help", no_argument, nullptr, 'h'},
-	{"version", no_argument, nullptr, 'v'},
-	{"list-interfaces", no_argument, nullptr, 'l'}
+	{ "interface",            required_argument, nullptr, 'n' },
+	{ "send-matched-packets", required_argument, nullptr, 's' },
+	{ "save-matched-packets", required_argument, nullptr, 'f' },
+	{ "match-source-ip",      required_argument, nullptr, 'i' },
+	{ "match-dest-ip",        required_argument, nullptr, 'I' },
+	{ "match-source-port",    required_argument, nullptr, 'p' },
+	{ "match-dest-port",      required_argument, nullptr, 'P' },
+	{ "match-protocol",       required_argument, nullptr, 'r' },
+	{ "help",				 no_argument,       nullptr, 'h' },
+	{ "version",              no_argument,       nullptr, 'v' },
+	{ "list-interfaces",      no_argument,       nullptr, 'l' }
 };
 
 /**
@@ -140,7 +148,8 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 		// collect stats for packet
 		args->packetStats->collectStats(packet);
 
-		// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
+		// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or
+		// new flow
 		uint32_t hash = pcpp::hash5Tuple(&packet);
 		auto iter = args->flowTable.find(hash);
 
@@ -151,7 +160,7 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 		{
 			packetMatched = true;
 		}
-		else // packet belongs to a new flow
+		else  // packet belongs to a new flow
 		{
 			auto isTcpFlow = packet.isPacketOfType(pcpp::TCP);
 			auto isUdpFlow = packet.isPacketOfType(pcpp::UDP);
@@ -171,7 +180,7 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 				// put new flow in flow table
 				args->flowTable[hash] = true;
 
-				//collect stats
+				// collect stats
 				if (isTcpFlow)
 				{
 					args->packetStats->matchedTcpFlows++;
@@ -210,10 +219,11 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 /**
  * Print the stats in a table
  */
-void printStats(PacketStats* packetStats, pcpp::XdpDevice::XdpDeviceStats* rxDeviceStats, pcpp::XdpDevice::XdpDeviceStats* txDeviceStats)
+void printStats(PacketStats* packetStats, pcpp::XdpDevice::XdpDeviceStats* rxDeviceStats,
+                pcpp::XdpDevice::XdpDeviceStats* txDeviceStats)
 {
-	std::vector<std::string> columnNames = {"Stat", "Count"};
-	std::vector<int> columnsWidths = {21, 10};
+	std::vector<std::string> columnNames = { "Stat", "Count" };
+	std::vector<int> columnsWidths = { 21, 10 };
 	pcpp::TablePrinter printer(columnNames, columnsWidths);
 
 	printer.printRow("Eth count|" + std::to_string(packetStats->ethCount), '|');
@@ -268,7 +278,7 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 			{
 				txStats = new pcpp::XdpDevice::XdpDeviceStats(sendDev->getStatistics());
 			}
-			else // send and receive sockets are the same
+			else  // send and receive sockets are the same
 			{
 				txStats = &rxStats;
 			}
@@ -292,37 +302,49 @@ void printUsage()
 	std::cout << std::endl
 			  << "Usage:" << std::endl
 			  << "------" << std::endl
-			  << pcpp::AppName::get() << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL] -n INTERFACE_NAME" << std::endl
+			  << pcpp::AppName::get()
+			  << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r "
+	             "PROTOCOL] -n INTERFACE_NAME"
+			  << std::endl
 			  << std::endl
 			  << "Options:" << std::endl
 			  << std::endl
 			  << "    -h|--help                                  : Displays this help message and exits" << std::endl
 			  << "    -v|--version                               : Displays the current version and exits" << std::endl
-			  << "    -l|--list                                  : Print the list of network interfaces and exit" << std::endl
-			  << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive packets from." << std::endl
-			  << "                                                 To see all available interfaces use the -l switch" << std::endl
-			  << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to." << std::endl
-			  << "                                                 The app will open another AF_XDP socket for sending packets." << std::endl
-			  << "                                                 Note: this interface can be the same one used to receive packets." << std::endl
-			  << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH." << std::endl
+			  << "    -l|--list                                  : Print the list of network interfaces and exit"
+			  << std::endl
+			  << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive "
+	             "packets from."
+			  << std::endl
+			  << "                                                 To see all available interfaces use the -l switch"
+			  << std::endl
+			  << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to."
+			  << std::endl
+			  << "                                                 The app will open another AF_XDP socket for sending "
+	             "packets."
+			  << std::endl
+			  << "                                                 Note: this interface can be the same one used to "
+	             "receive packets."
+			  << std::endl
+			  << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
+			  << std::endl
 			  << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
 			  << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
 			  << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
 			  << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-			  << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'" << std::endl
+			  << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
+			  << std::endl
 			  << std::endl;
 }
-
 
 /**
  * Print application version
  */
 void printAppVersion()
 {
-	std::cout
-		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-		<< "Built: " << pcpp::getBuildDateTime() << std::endl
-		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+			  << "Built: " << pcpp::getBuildDateTime() << std::endl
+			  << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -332,11 +354,12 @@ void printAppVersion()
 void listInterfaces()
 {
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for(const auto& device : pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList())
+	for (const auto& device : pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList())
 	{
 		if (device->getIPv4Address() != pcpp::IPv4Address::Zero)
 		{
-			std::cout << "    -> Name: '" << device->getName() << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
+			std::cout << "    -> Name: '" << device->getName()
+					  << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
 		}
 	}
 	exit(0);
@@ -351,119 +374,119 @@ int main(int argc, char* argv[])
 
 	std::string interfaceName;
 
-	pcpp::IPv4Address  srcIPToMatch = pcpp::IPv4Address::Zero;
-	pcpp::IPv4Address  dstIPToMatch = pcpp::IPv4Address::Zero;
-	uint16_t           srcPortToMatch = 0;
-	uint16_t           dstPortToMatch = 0;
+	pcpp::IPv4Address srcIPToMatch = pcpp::IPv4Address::Zero;
+	pcpp::IPv4Address dstIPToMatch = pcpp::IPv4Address::Zero;
+	uint16_t srcPortToMatch = 0;
+	uint16_t dstPortToMatch = 0;
 	pcpp::ProtocolType protocolToMatch = pcpp::UnknownProtocol;
 
 	std::string writePacketsToFileName;
 	std::string sendInterfaceName;
 
-	while((opt = getopt_long(argc, argv, "n:f:s:i:I:p:P:r:vhl", XdpFilterTrafficOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "n:f:s:i:I:p:P:r:vhl", XdpFilterTrafficOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
-			case 0:
+		case 0:
+		{
+			break;
+		}
+		case 'n':
+		{
+			interfaceName = std::string(optarg);
+			break;
+		}
+		case 'f':
+		{
+			writePacketsToFileName = std::string(optarg);
+			break;
+		}
+		case 's':
+		{
+			sendInterfaceName = std::string(optarg);
+			break;
+		}
+		case 'i':
+		{
+			try
 			{
-				break;
+				srcIPToMatch = pcpp::IPv4Address(optarg);
 			}
-			case 'n':
+			catch (const std::exception&)
 			{
-				interfaceName = std::string(optarg);
-				break;
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
 			}
-			case 'f':
+			break;
+		}
+		case 'I':
+		{
+			try
 			{
-				writePacketsToFileName = std::string(optarg);
-				break;
+				dstIPToMatch = pcpp::IPv4Address(optarg);
 			}
-			case 's':
+			catch (const std::exception&)
 			{
-				sendInterfaceName = std::string(optarg);
-				break;
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
 			}
-			case 'i':
+			break;
+		}
+		case 'p':
+		{
+			int ret = std::stoi(optarg);
+			if (ret <= 0 || ret > 65535)
 			{
-				try
-				{
-					srcIPToMatch = pcpp::IPv4Address(optarg);
-				}
-				catch(const std::exception&)
-				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source IP to match isn't a valid IP address");
-				}
-				break;
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
 			}
-			case 'I':
+			srcPortToMatch = ret;
+			break;
+		}
+		case 'P':
+		{
+			int ret = std::stoi(optarg);
+			if (ret <= 0 || ret > 65535)
 			{
-				try
-				{
-					dstIPToMatch = pcpp::IPv4Address(optarg);
-				}
-				catch(const std::exception&)
-				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination IP to match isn't a valid IP address");
-				}
-				break;
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
 			}
-			case 'p':
+			dstPortToMatch = ret;
+			break;
+		}
+		case 'r':
+		{
+			std::string protocol = std::string(optarg);
+			if (protocol == "TCP")
 			{
-				int ret = std::stoi(optarg);
-				if (ret <= 0 || ret > 65535)
-				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Source port to match isn't a valid TCP/UDP port");
-				}
-				srcPortToMatch = ret;
-				break;
+				protocolToMatch = pcpp::TCP;
 			}
-			case 'P':
+			else if (protocol == "UDP")
 			{
-				int ret = std::stoi(optarg);
-				if (ret <= 0 || ret > 65535)
-				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Destination port to match isn't a valid TCP/UDP port");
-				}
-				dstPortToMatch = ret;
-				break;
+				protocolToMatch = pcpp::UDP;
 			}
-			case 'r':
+			else
 			{
-				std::string protocol = std::string(optarg);
-				if (protocol == "TCP")
-				{
-					protocolToMatch = pcpp::TCP;
-				}
-				else if (protocol == "UDP")
-				{
-					protocolToMatch = pcpp::UDP;
-				}
-				else
-				{
-					EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
-				}
-				break;
+				EXIT_WITH_ERROR_AND_PRINT_USAGE("Protocol to match isn't TCP or UDP");
 			}
-			case 'h':
-			{
-				printUsage();
-				exit(0);
-			}
-			case 'v':
-			{
-				printAppVersion();
-				break;
-			}
-			case 'l':
-			{
-				listInterfaces();
-				exit(0);
-			}
-			default:
-			{
-				printUsage();
-				exit(0);
-			}
+			break;
+		}
+		case 'h':
+		{
+			printUsage();
+			exit(0);
+		}
+		case 'v':
+		{
+			printAppVersion();
+			break;
+		}
+		case 'l':
+		{
+			listInterfaces();
+			exit(0);
+		}
+		default:
+		{
+			printUsage();
+			exit(0);
+		}
 		}
 	}
 
@@ -532,7 +555,8 @@ int main(int argc, char* argv[])
 	std::thread collectStatsThread(&collectStats, std::move(futureObj), &packetStats, &dev, sendDev);
 
 	// add an handler for app interrupted signal, i.e ctrl+c
-	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted([](void* args){reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true;}, &args);
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(
+		[](void* args) { reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true; }, &args);
 
 	// start receiving packets on the AF_XDP socket
 	auto res = dev.receivePackets(onPacketsArrive, &args, -1);
@@ -549,7 +573,8 @@ int main(int argc, char* argv[])
 	{
 		pcpp::IPcapDevice::PcapStats stats;
 		pcapWriter->getStatistics(stats);
-		additionalStats.push_back("Wrote " + std::to_string(stats.packetsRecv) + " packets to '" + pcapWriter->getFileName() + "'");
+		additionalStats.push_back("Wrote " + std::to_string(stats.packetsRecv) + " packets to '" +
+		                          pcapWriter->getFileName() + "'");
 		pcapWriter->close();
 		delete pcapWriter;
 	}

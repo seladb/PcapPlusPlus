@@ -21,25 +21,23 @@
 #include <SystemUtils.h>
 #include <getopt.h>
 
-
-static struct option PcapPrinterOptions[] =
-{
-	{"output-file", required_argument, nullptr, 'o'},
-	{"packet-count", required_argument, nullptr, 'c'},
-	{"filter", required_argument, nullptr, 'i'},
-	{"summary", no_argument, nullptr, 's'},
-	{"help", no_argument, nullptr, 'h'},
-	{"version", no_argument, nullptr, 'v'},
-	{nullptr, 0, nullptr, 0}
+static struct option PcapPrinterOptions[] = {
+	{ "output-file",  required_argument, nullptr, 'o' },
+	{ "packet-count", required_argument, nullptr, 'c' },
+	{ "filter",       required_argument, nullptr, 'i' },
+	{ "summary",      no_argument,       nullptr, 's' },
+	{ "help",         no_argument,       nullptr, 'h' },
+	{ "version",      no_argument,       nullptr, 'v' },
+	{ nullptr,        0,                 nullptr, 0   }
 };
 
-
-#define EXIT_WITH_ERROR(reason) do { \
-	printUsage(); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
-
+#define EXIT_WITH_ERROR(reason)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage();                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
 /**
  * Print application usage
@@ -47,35 +45,33 @@ static struct option PcapPrinterOptions[] =
 void printUsage()
 {
 	std::cout << std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " pcap_file [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s]" << std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    pcap_file      : Input pcap/pcapng file name" << std::endl
-		<< "    -o output_file : Save output to text file (default output is stdout)" << std::endl
-		<< "    -c packet_count: Print only first packet_count number of packet" << std::endl
-		<< "    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed" << std::endl
-		<< "    -s             : Print only file summary and exit" << std::endl
-		<< "    -v             : Display the current version and exit" << std::endl
-		<< "    -h             : Display this help message and exit" << std::endl
-		<< std::endl;
+			  << "Usage:" << std::endl
+			  << "------" << std::endl
+			  << pcpp::AppName::get() << " pcap_file [-h] [-v] [-o output_file] [-c packet_count] [-i filter] [-s]"
+			  << std::endl
+			  << std::endl
+			  << "Options:" << std::endl
+			  << std::endl
+			  << "    pcap_file      : Input pcap/pcapng file name" << std::endl
+			  << "    -o output_file : Save output to text file (default output is stdout)" << std::endl
+			  << "    -c packet_count: Print only first packet_count number of packet" << std::endl
+			  << "    -i filter      : Apply a BPF filter, meaning only filtered packets will be printed" << std::endl
+			  << "    -s             : Print only file summary and exit" << std::endl
+			  << "    -v             : Display the current version and exit" << std::endl
+			  << "    -h             : Display this help message and exit" << std::endl
+			  << std::endl;
 }
-
 
 /**
  * Print application version
  */
 void printAppVersion()
 {
-	std::cout
-		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-		<< "Built: " << pcpp::getBuildDateTime() << std::endl
-		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+			  << "Built: " << pcpp::getBuildDateTime() << std::endl
+			  << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
-
 
 std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 {
@@ -90,7 +86,8 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 		return "Linux cooked capture v2";
 	else if (linkLayer == pcpp::LINKTYPE_NULL)
 		return "Null/Loopback";
-	else if (linkLayer == pcpp::LINKTYPE_RAW || linkLayer == pcpp::LINKTYPE_DLT_RAW1 || linkLayer == pcpp::LINKTYPE_DLT_RAW2)
+	else if (linkLayer == pcpp::LINKTYPE_RAW || linkLayer == pcpp::LINKTYPE_DLT_RAW1 ||
+	         linkLayer == pcpp::LINKTYPE_DLT_RAW2)
 	{
 		std::ostringstream stream;
 		stream << "Raw IP (" << linkLayer << ")";
@@ -102,10 +99,9 @@ std::string linkLayerToString(pcpp::LinkLayerType linkLayer)
 	return stream.str();
 }
 
-
 /**
-* print file summary based on the reader type
-*/
+ * print file summary based on the reader type
+ */
 std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 {
 	std::ostringstream stream;
@@ -147,10 +143,9 @@ std::string printFileSummary(pcpp::IFileReaderDevice* reader)
 	return stream.str();
 }
 
-
 /**
-* print all requested packets in a pcap/snoop file
-*/
+ * print all requested packets in a pcap/snoop file
+ */
 int printPcapPackets(pcpp::IFileReaderDevice* reader, std::ostream* out, int packetCount)
 {
 	// read packets from the file until end-of-file or until reached user requested packet count
@@ -171,10 +166,9 @@ int printPcapPackets(pcpp::IFileReaderDevice* reader, std::ostream* out, int pac
 	return packetCountSoFar;
 }
 
-
 /**
-* print all requested packets in a pcap-ng file
-*/
+ * print all requested packets in a pcap-ng file
+ */
 int printPcapNgPackets(pcpp::PcapNgFileReaderDevice* reader, std::ostream* out, int packetCount)
 {
 	// read packets from the file until end-of-file or until reached user requested packet count
@@ -201,7 +195,6 @@ int printPcapNgPackets(pcpp::PcapNgFileReaderDevice* reader, std::ostream* out, 
 	return packetCountSoFar;
 }
 
-
 /**
  * main method of this utility
  */
@@ -221,34 +214,34 @@ int main(int argc, char* argv[])
 	int optionIndex = 0;
 	int opt = 0;
 
-	while((opt = getopt_long(argc, argv, "o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "o:c:i:svh", PcapPrinterOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
-			case 0:
-				break;
-			case 'o':
-				outputPcapFileName = optarg;
-				break;
-			case 'c':
-				packetCount = atoi(optarg);
-				break;
-			case 'i':
-				filter = optarg;
-				break;
-			case 's':
-				printOnlySummary = true;
-				break;
-			case 'h':
-				printUsage();
-				exit(0);
-				break;
-			case 'v':
-				printAppVersion();
-				break;
-			default:
-				printUsage();
-				exit(-1);
+		case 0:
+			break;
+		case 'o':
+			outputPcapFileName = optarg;
+			break;
+		case 'c':
+			packetCount = atoi(optarg);
+			break;
+		case 'i':
+			filter = optarg;
+			break;
+		case 's':
+			printOnlySummary = true;
+			break;
+		case 'h':
+			printUsage();
+			exit(0);
+			break;
+		case 'v':
+			printAppVersion();
+			break;
+		default:
+			printUsage();
+			exit(-1);
 		}
 	}
 
@@ -290,7 +283,6 @@ int main(int argc, char* argv[])
 			delete reader;
 			EXIT_WITH_ERROR("Couldn't set filter '" << filter << "'");
 		}
-
 	}
 
 	// print file summary

@@ -12,20 +12,23 @@
 #include <sstream>
 #include <stdlib.h>
 
-
 /**
  * Macros for exiting the application with error
  */
 
-#define EXIT_WITH_ERROR(reason) do { \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
+#define EXIT_WITH_ERROR(reason)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
-	printUsage(); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason)                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage();                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
 	} while (0)
 
 /**
@@ -49,7 +52,10 @@ public:
 	int MatchedUdpFlows;
 	int MatchedPackets;
 
-	PacketStats() : ThreadId(MAX_NUM_OF_CORES+1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0), TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0) {}
+	PacketStats()
+		: ThreadId(MAX_NUM_OF_CORES + 1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0),
+		  TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0)
+	{}
 
 	void collectStats(pcpp::Packet& packet)
 	{
@@ -86,12 +92,26 @@ public:
 		MatchedPackets += stats.MatchedPackets;
 	}
 
-	void clear() { ThreadId = MAX_NUM_OF_CORES+1; PacketCount = 0; EthCount = 0; ArpCount = 0; Ip4Count = 0; Ip6Count = 0; TcpCount = 0; UdpCount = 0; HttpCount = 0; MatchedTcpFlows = 0; MatchedUdpFlows = 0; MatchedPackets = 0; }
+	void clear()
+	{
+		ThreadId = MAX_NUM_OF_CORES + 1;
+		PacketCount = 0;
+		EthCount = 0;
+		ArpCount = 0;
+		Ip4Count = 0;
+		Ip6Count = 0;
+		TcpCount = 0;
+		UdpCount = 0;
+		HttpCount = 0;
+		MatchedTcpFlows = 0;
+		MatchedUdpFlows = 0;
+		MatchedPackets = 0;
+	}
 
-	std::string getStatValuesAsString(const std::string &delimiter)
+	std::string getStatValuesAsString(const std::string& delimiter)
 	{
 		std::stringstream values;
-		if (ThreadId == MAX_NUM_OF_CORES+1)
+		if (ThreadId == MAX_NUM_OF_CORES + 1)
 			values << "Total" << delimiter;
 		else
 			values << (int)ThreadId << delimiter;
@@ -110,14 +130,13 @@ public:
 		return values.str();
 	}
 
-
 	static void getStatsColumns(std::vector<std::string>& columnNames, std::vector<int>& columnWidths)
 	{
 		columnNames.clear();
 		columnWidths.clear();
 
-	    static const int narrowColumnWidth = 11;
-	    static const int wideColumnWidth = 18;
+		static const int narrowColumnWidth = 11;
+		static const int wideColumnWidth = 18;
 
 		columnNames.push_back("Core ID");
 		columnNames.push_back("Packet Cnt");
@@ -144,6 +163,5 @@ public:
 		columnWidths.push_back(wideColumnWidth);
 		columnWidths.push_back(wideColumnWidth);
 		columnWidths.push_back(wideColumnWidth);
-
 	}
 };

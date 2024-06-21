@@ -83,7 +83,8 @@ int main(int argc, char* argv[])
 	// remove cookie field
 	httpRequestLayer->removeField(PCPP_HTTP_COOKIE_FIELD);
 	// add x-forwarded-for field
-	pcpp::HeaderField* xForwardedForField = httpRequestLayer->insertField(httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD), "X-Forwarded-For", "1.1.1.1");
+	pcpp::HeaderField* xForwardedForField = httpRequestLayer->insertField(
+		httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD), "X-Forwarded-For", "1.1.1.1");
 	// add cache-control field
 	httpRequestLayer->insertField(xForwardedForField, "Cache-Control", "max-age=0");
 
@@ -103,7 +104,6 @@ int main(int argc, char* argv[])
 		writer.writePacket(*(parsedPacket.getRawPacket()));
 		writer.close();
 	}
-
 
 	// Packet Creation
 	// ~~~~~~~~~~~~~~~

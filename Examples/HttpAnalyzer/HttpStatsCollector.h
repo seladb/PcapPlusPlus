@@ -16,8 +16,8 @@
  */
 struct Rate
 {
-	double currentRate; // periodic rate
-	double totalRate;	 // overlal rate
+	double currentRate;  // periodic rate
+	double totalRate;    // overlal rate
 
 	void clear()
 	{
@@ -31,19 +31,19 @@ struct Rate
  */
 struct HttpGeneralStats
 {
-	int numOfHttpFlows; // total number of HTTP flows
-	Rate httpFlowRate; // rate of HTTP flows
-	int numOfHttpPipeliningFlows; // total number of HTTP flows that contains at least on HTTP pipelining transaction
-	int numOfHttpTransactions; // total number of HTTP transactions
-	Rate httpTransactionsRate; // rate of HTTP transactions
-	double averageNumOfHttpTransactionsPerFlow; // average number of HTTP transactions per flow
-	int numOfHttpPackets; // total number of HTTP packets
-	Rate httpPacketRate; // rate of HTTP packets
-	double averageNumOfPacketsPerFlow; // average number of HTTP packets per flow
-	int amountOfHttpTraffic; // total HTTP traffic in bytes
-	double averageAmountOfDataPerFlow; // average number of HTTP traffic per flow
-	Rate httpTrafficRate; // rate of HTTP traffic
-	double sampleTime; // total stats collection time
+	int numOfHttpFlows;            // total number of HTTP flows
+	Rate httpFlowRate;             // rate of HTTP flows
+	int numOfHttpPipeliningFlows;  // total number of HTTP flows that contains at least on HTTP pipelining transaction
+	int numOfHttpTransactions;     // total number of HTTP transactions
+	Rate httpTransactionsRate;     // rate of HTTP transactions
+	double averageNumOfHttpTransactionsPerFlow;  // average number of HTTP transactions per flow
+	int numOfHttpPackets;                        // total number of HTTP packets
+	Rate httpPacketRate;                         // rate of HTTP packets
+	double averageNumOfPacketsPerFlow;           // average number of HTTP packets per flow
+	int amountOfHttpTraffic;                     // total HTTP traffic in bytes
+	double averageAmountOfDataPerFlow;           // average number of HTTP traffic per flow
+	Rate httpTrafficRate;                        // rate of HTTP traffic
+	double sampleTime;                           // total stats collection time
 
 	void clear()
 	{
@@ -63,18 +63,18 @@ struct HttpGeneralStats
 	}
 };
 
-
 /**
  * A base struct for collecting stats on HTTP messages
  */
 struct HttpMessageStats
 {
-	int numOfMessages; // total number of HTTP messages of that type (request/response)
-	Rate messageRate; // rate of HTTP messages of that type
-	int totalMessageHeaderSize; // total size (in bytes) of data in headers
-	double averageMessageHeaderSize; // average header size
+	int numOfMessages;                // total number of HTTP messages of that type (request/response)
+	Rate messageRate;                 // rate of HTTP messages of that type
+	int totalMessageHeaderSize;       // total size (in bytes) of data in headers
+	double averageMessageHeaderSize;  // average header size
 
-	virtual ~HttpMessageStats() {}
+	virtual ~HttpMessageStats()
+	{}
 
 	virtual void clear()
 	{
@@ -85,14 +85,14 @@ struct HttpMessageStats
 	}
 };
 
-
 /**
  * A struct for collecting stats on all HTTP requests
  */
 struct HttpRequestStats : HttpMessageStats
 {
-	std::unordered_map<pcpp::HttpRequestLayer::HttpMethod, int, std::hash<int> > methodCount; // a map for counting the different HTTP methods seen in traffic
-	std::unordered_map<std::string, int> hostnameCount; // a map for counting the hostnames seen in traffic
+	std::unordered_map<pcpp::HttpRequestLayer::HttpMethod, int, std::hash<int>>
+		methodCount;  // a map for counting the different HTTP methods seen in traffic
+	std::unordered_map<std::string, int> hostnameCount;  // a map for counting the hostnames seen in traffic
 
 	void clear() override
 	{
@@ -102,17 +102,17 @@ struct HttpRequestStats : HttpMessageStats
 	}
 };
 
-
 /**
  * A struct for collecting stats on all HTTP responses
  */
 struct HttpResponseStats : HttpMessageStats
 {
-	std::unordered_map<std::string, int> statusCodeCount; // a map for counting the different status codes seen in traffic
-	std::unordered_map<std::string, int> contentTypeCount; // a map for counting the content-types seen in traffic
-	int numOfMessagesWithContentLength; // total number of responses containing the "content-length" field
-	int totalContentLengthSize; // total body size extracted by responses containing "content-length" field
-	double averageContentLengthSize; // average body size
+	std::unordered_map<std::string, int>
+		statusCodeCount;  // a map for counting the different status codes seen in traffic
+	std::unordered_map<std::string, int> contentTypeCount;  // a map for counting the content-types seen in traffic
+	int numOfMessagesWithContentLength;  // total number of responses containing the "content-length" field
+	int totalContentLengthSize;          // total body size extracted by responses containing "content-length" field
+	double averageContentLengthSize;     // average body size
 
 	void clear() override
 	{
@@ -125,14 +125,12 @@ struct HttpResponseStats : HttpMessageStats
 	}
 };
 
-
 /**
  * The HTTP stats collector. Should be called for every packet arriving and also periodically to calculate rates
  */
 class HttpStatsCollector
 {
 public:
-
 	/**
 	 * C'tor - clear all structures
 	 */
@@ -191,23 +189,29 @@ public:
 		// getting time from last rate calculation until now
 		double diffSec = curTime - m_LastCalcRateTime;
 
-		// calculating current rates which are the changes from last rate calculation until now divided by the time passed from
-		// last rate calculation until now
+		// calculating current rates which are the changes from last rate calculation until now divided by the time
+		// passed from last rate calculation until now
 		if (diffSec != 0)
 		{
-			m_GeneralStats.httpTrafficRate.currentRate = (m_GeneralStats.amountOfHttpTraffic - m_PrevGeneralStats.amountOfHttpTraffic) / diffSec;
-			m_GeneralStats.httpPacketRate.currentRate = (m_GeneralStats.numOfHttpPackets - m_PrevGeneralStats.numOfHttpPackets) / diffSec;
-			m_GeneralStats.httpFlowRate.currentRate = (m_GeneralStats.numOfHttpFlows - m_PrevGeneralStats.numOfHttpFlows) / diffSec;
-			m_GeneralStats.httpTransactionsRate.currentRate = (m_GeneralStats.numOfHttpTransactions - m_PrevGeneralStats.numOfHttpTransactions) / diffSec;
-			m_RequestStats.messageRate.currentRate = (m_RequestStats.numOfMessages - m_PrevRequestStats.numOfMessages) / diffSec;
-			m_ResponseStats.messageRate.currentRate = (m_ResponseStats.numOfMessages - m_PrevResponseStats.numOfMessages) / diffSec;
+			m_GeneralStats.httpTrafficRate.currentRate =
+				(m_GeneralStats.amountOfHttpTraffic - m_PrevGeneralStats.amountOfHttpTraffic) / diffSec;
+			m_GeneralStats.httpPacketRate.currentRate =
+				(m_GeneralStats.numOfHttpPackets - m_PrevGeneralStats.numOfHttpPackets) / diffSec;
+			m_GeneralStats.httpFlowRate.currentRate =
+				(m_GeneralStats.numOfHttpFlows - m_PrevGeneralStats.numOfHttpFlows) / diffSec;
+			m_GeneralStats.httpTransactionsRate.currentRate =
+				(m_GeneralStats.numOfHttpTransactions - m_PrevGeneralStats.numOfHttpTransactions) / diffSec;
+			m_RequestStats.messageRate.currentRate =
+				(m_RequestStats.numOfMessages - m_PrevRequestStats.numOfMessages) / diffSec;
+			m_ResponseStats.messageRate.currentRate =
+				(m_ResponseStats.numOfMessages - m_PrevResponseStats.numOfMessages) / diffSec;
 		}
 
 		// getting the time from the beginning of stats collection until now
 		double diffSecTotal = curTime - m_StartTime;
 
-		// calculating total rate which is the change from beginning of stats collection until now divided by time passed from
-		// beginning of stats collection until now
+		// calculating total rate which is the change from beginning of stats collection until now divided by time
+		// passed from beginning of stats collection until now
 		if (diffSecTotal != 0)
 		{
 			m_GeneralStats.httpTrafficRate.totalRate = m_GeneralStats.amountOfHttpTraffic / diffSecTotal;
@@ -245,30 +249,42 @@ public:
 	/**
 	 * Get HTTP general stats
 	 */
-	HttpGeneralStats& getGeneralStats() { return m_GeneralStats; }
+	HttpGeneralStats& getGeneralStats()
+	{
+		return m_GeneralStats;
+	}
 
 	/**
 	 * Get HTTP request stats
 	 */
-	HttpRequestStats& getRequestStats() { return m_RequestStats; }
+	HttpRequestStats& getRequestStats()
+	{
+		return m_RequestStats;
+	}
 
 	/**
 	 * Get HTTP response stats
 	 */
-	HttpResponseStats& getResponseStats() { return m_ResponseStats; }
+	HttpResponseStats& getResponseStats()
+	{
+		return m_ResponseStats;
+	}
 
 private:
-
 	/**
 	 * Auxiliary data collected for each flow for help calculating stats on this flow
 	 */
 	struct HttpFlowData
 	{
-		int numOfOpenTransactions; // number of transactions that were started (request has arrived) but weren't closed yet (response hasn't arrived yet)
-		pcpp::ProtocolType lastSeenMessage; // the last HTTP message seen on this flow (request, response or neither). Used to identify HTTP pipelining
-		bool httpPipeliningFlow; // was HTTP pipelining identified on this flow
-		uint32_t curSeqNumberRequests; // the current TCP sequence number from client to server. Used to identify TCP re-transmission
-		uint32_t curSeqNumberResponses; // the current TCP sequence number from server to client. Used to identify TCP re-transmission
+		int numOfOpenTransactions;  // number of transactions that were started (request has arrived) but weren't closed
+		                            // yet (response hasn't arrived yet)
+		pcpp::ProtocolType lastSeenMessage;  // the last HTTP message seen on this flow (request, response or neither).
+		                                     // Used to identify HTTP pipelining
+		bool httpPipeliningFlow;             // was HTTP pipelining identified on this flow
+		uint32_t curSeqNumberRequests;   // the current TCP sequence number from client to server. Used to identify TCP
+		                                 // re-transmission
+		uint32_t curSeqNumberResponses;  // the current TCP sequence number from server to client. Used to identify TCP
+		                                 // re-transmission
 
 		void clear()
 		{
@@ -277,7 +293,6 @@ private:
 			httpPipeliningFlow = false;
 		}
 	};
-
 
 	/**
 	 * Collect stats relevant for every HTTP packet (request, response or any other)
@@ -307,13 +322,14 @@ private:
 		// calculate averages
 		if (m_FlowTable.size() != 0)
 		{
-			m_GeneralStats.averageAmountOfDataPerFlow = (double)m_GeneralStats.amountOfHttpTraffic / (double)m_FlowTable.size();
-			m_GeneralStats.averageNumOfPacketsPerFlow = (double)m_GeneralStats.numOfHttpPackets / (double)m_FlowTable.size();
+			m_GeneralStats.averageAmountOfDataPerFlow =
+				(double)m_GeneralStats.amountOfHttpTraffic / (double)m_FlowTable.size();
+			m_GeneralStats.averageNumOfPacketsPerFlow =
+				(double)m_GeneralStats.numOfHttpPackets / (double)m_FlowTable.size();
 		}
 
 		return hashVal;
 	}
-
 
 	/**
 	 * Collect stats relevant for HTTP messages (requests or responses)
@@ -328,14 +344,15 @@ private:
 		{
 			// if new packet seq number is smaller than previous seen seq number current it means this packet is
 			// a re-transmitted packet and should be ignored
-			if (m_FlowTable[flowKey].curSeqNumberRequests >= pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
+			if (m_FlowTable[flowKey].curSeqNumberRequests >=
+			    pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
 				return;
 
 			// a new request - increase num of open transactions
 			m_FlowTable[flowKey].numOfOpenTransactions++;
 
-			// if the previous message seen on this flow is HTTP request and if flow is not already marked as HTTP pipelining -
-			// mark it as so and increase number of HTTP pipelining flows
+			// if the previous message seen on this flow is HTTP request and if flow is not already marked as HTTP
+			// pipelining - mark it as so and increase number of HTTP pipelining flows
 			if (!m_FlowTable[flowKey].httpPipeliningFlow && m_FlowTable[flowKey].lastSeenMessage == pcpp::HTTPRequest)
 			{
 				m_FlowTable[flowKey].httpPipeliningFlow = true;
@@ -352,14 +369,15 @@ private:
 		{
 			// if new packet seq number is smaller than previous seen seq number current it means this packet is
 			// a re-transmitted packet and should be ignored
-			if (m_FlowTable[flowKey].curSeqNumberResponses >= pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
+			if (m_FlowTable[flowKey].curSeqNumberResponses >=
+			    pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber))
 				return;
 
 			// a response - decrease num of open transactions
 			m_FlowTable[flowKey].numOfOpenTransactions--;
 
-			// if the previous message seen on this flow is HTTP response and if flow is not already marked as HTTP pipelining -
-			// mark it as so and increase number of HTTP pipelining flows
+			// if the previous message seen on this flow is HTTP response and if flow is not already marked as HTTP
+			// pipelining - mark it as so and increase number of HTTP pipelining flows
 			if (!m_FlowTable[flowKey].httpPipeliningFlow && m_FlowTable[flowKey].lastSeenMessage == pcpp::HTTPResponse)
 			{
 				m_FlowTable[flowKey].httpPipeliningFlow = true;
@@ -376,14 +394,14 @@ private:
 
 				// calc average transactions per flow
 				if (m_FlowTable.size() != 0)
-					m_GeneralStats.averageNumOfHttpTransactionsPerFlow = (double)m_GeneralStats.numOfHttpTransactions / (double)m_FlowTable.size();
+					m_GeneralStats.averageNumOfHttpTransactionsPerFlow =
+						(double)m_GeneralStats.numOfHttpTransactions / (double)m_FlowTable.size();
 			}
 
 			// set last seen sequence number
 			m_FlowTable[flowKey].curSeqNumberResponses = pcpp::netToHost32(tcpLayer->getTcpHeader()->sequenceNumber);
 		}
 	}
-
 
 	/**
 	 * Collect stats relevant for HTTP request messages
@@ -393,7 +411,8 @@ private:
 		m_RequestStats.numOfMessages++;
 		m_RequestStats.totalMessageHeaderSize += req->getHeaderLen();
 		if (m_RequestStats.numOfMessages != 0)
-			m_RequestStats.averageMessageHeaderSize = (double)m_RequestStats.totalMessageHeaderSize / (double)m_RequestStats.numOfMessages;
+			m_RequestStats.averageMessageHeaderSize =
+				(double)m_RequestStats.totalMessageHeaderSize / (double)m_RequestStats.numOfMessages;
 
 		// extract hostname and add to hostname count map
 		pcpp::HeaderField* hostField = req->getFieldByName(PCPP_HTTP_HOST_FIELD);
@@ -403,7 +422,6 @@ private:
 		m_RequestStats.methodCount[req->getFirstLine()->getMethod()]++;
 	}
 
-
 	/**
 	 * Collect stats relevant for HTTP response messages
 	 */
@@ -412,7 +430,8 @@ private:
 		m_ResponseStats.numOfMessages++;
 		m_ResponseStats.totalMessageHeaderSize += res->getHeaderLen();
 		if (m_ResponseStats.numOfMessages != 0)
-			m_ResponseStats.averageMessageHeaderSize = (double)m_ResponseStats.totalMessageHeaderSize / (double)m_ResponseStats.numOfMessages;
+			m_ResponseStats.averageMessageHeaderSize =
+				(double)m_ResponseStats.totalMessageHeaderSize / (double)m_ResponseStats.numOfMessages;
 
 		// extract content-length (if exists)
 		pcpp::HeaderField* contentLengthField = res->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
@@ -421,7 +440,8 @@ private:
 			m_ResponseStats.numOfMessagesWithContentLength++;
 			m_ResponseStats.totalContentLengthSize += atoi(contentLengthField->getFieldValue().c_str());
 			if (m_ResponseStats.numOfMessagesWithContentLength != 0)
-				m_ResponseStats.averageContentLengthSize = (double)m_ResponseStats.totalContentLengthSize / (double)m_ResponseStats.numOfMessagesWithContentLength;
+				m_ResponseStats.averageContentLengthSize = (double)m_ResponseStats.totalContentLengthSize /
+				                                           (double)m_ResponseStats.numOfMessagesWithContentLength;
 		}
 
 		// extract content-type and add to content-type map
@@ -449,11 +469,11 @@ private:
 
 	double getCurTime(void)
 	{
-	    struct timeval tv;
+		struct timeval tv;
 
-	    gettimeofday(&tv, NULL);
+		gettimeofday(&tv, NULL);
 
-	    return (((double) tv.tv_sec) + (double) (tv.tv_usec / 1000000.0));
+		return (((double)tv.tv_sec) + (double)(tv.tv_usec / 1000000.0));
 	}
 
 	HttpGeneralStats m_GeneralStats;
