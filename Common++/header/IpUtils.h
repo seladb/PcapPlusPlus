@@ -2,20 +2,20 @@
 
 #include <stdint.h>
 #ifdef __linux__
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
 #endif
 #if defined(__APPLE__)
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
 #endif
 #if defined(_WIN32)
-#include <ws2tcpip.h>
+#	include <ws2tcpip.h>
 #endif
 #if defined(__FreeBSD__)
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#	include <sys/socket.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
 #endif
 
 /// @file
@@ -48,7 +48,6 @@ const char* inet_ntop(int af, const void* src, char* dst, size_t size);
  */
 int inet_pton(int af, const char* src, void* dst);
 #endif
-
 
 /**
  * \namespace pcpp
@@ -93,7 +92,8 @@ namespace pcpp
 		 * @param[in] sa Address in sockaddr format
 		 * @param[out] resultString String representation of the address
 		 * @param[in] resultBufLen Length of the result buffer.
-		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, sockaddr is nullptr or the result str buffer is insufficient.
+		 * @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, sockaddr is nullptr or the result
+		 * str buffer is insufficient.
 		 */
 		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen);
 
@@ -103,5 +103,5 @@ namespace pcpp
 		 * @return Address in 32bit format
 		 */
 		uint32_t in_addr2int(in_addr inAddr);
-	} // namespace internal
-} // namespace pcpp
+	}  // namespace internal
+}  // namespace pcpp

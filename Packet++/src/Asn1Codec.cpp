@@ -621,7 +621,10 @@ namespace pcpp
 	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
 	{
 		std::vector<uint8_t> result;
+
+		#if !(defined(__MINGW64_VERSION_MAJOR) || defined(__MINGW32_MAJOR_VERSION))
 		result.reserve(m_ValueLength);
+		#endif
 
 		switch (m_ValueLength)
 		{
