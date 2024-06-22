@@ -1072,7 +1072,6 @@ void PcapLiveDevice::setDefaultGateway()
 	};
 
 	struct BSDRoutingMessage routingMessage;
-	char* spacePtr = routingMessage.messageSpace;
 	// It creates a raw socket that can be used for routing-related operations
 	int sockfd = socket(PF_ROUTE, SOCK_RAW, 0);
 	if (sockfd < 0) {
@@ -1101,28 +1100,26 @@ void PcapLiveDevice::setDefaultGateway()
 
 	struct in_addr  *gateAddr = nullptr;
 	struct sockaddr *sa = nullptr;
-	spacePtr = (reinterpret_cast<char*>(&routingMessage.header+1));
+    char* spacePtr = (reinterpret_cast<char*>(&routingMessage.header+1));
     auto rtmAddrs = routingMessage.header.rtm_addrs;
-    int index = 0;
-    auto roundUpClosetMultiple = [](int multiple, int num){
+    int index = 1;
+    auto roundUpClosestMultiple = [](int multiple, int num){
         return ((num+multiple-1)/multiple)*multiple;
     };
-    while (rtmAddrs)
-    {
-        if (rtmAddrs & 1) {
-            sa =  reinterpret_cast<sockaddr *>(spacePtr);
-            if(index == RTA_GATEWAY) {
-                gateAddr = internal::sockaddr2in_addr(sa);
-                break;
-            }
-            spacePtr += sa->sa_len > 0 ? roundUpClosetMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);
-        }
-        index++;
-        rtmAddrs >>= 1;
-    }
+	while (rtmAddrs) {
+		if (rtmAddrs & 1) {
+			sa = reinterpret_cast<sockaddr *>(spacePtr);
+			if (index == RTA_GATEWAY) {
+				gateAddr = internal::sockaddr2in_addr(sa);
+				break;
+			}
+			spacePtr += sa->sa_len > 0 ? roundUpClosestMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);
+		}
+		index++;
+		rtmAddrs >>= 1;
+	}
 
-	if(gateAddr == nullptr)
-	{
+	if (gateAddr == nullptr) {
 		PCPP_LOG_ERROR("Error retrieving default gateway address: Empty Message related to gate");
 		return;
 	}
