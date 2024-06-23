@@ -37,6 +37,8 @@ jobs:
 #        if: github.ref_name == 'refs/heads/master'
         if: github.head_ref == 'move-doxygen-to-gh-actions'
         run: |
+          pwd
+          ls -la
           cd ..
           find next/ -maxdepth 1 -type f -exec rm {} \;
           rm -rf next/search/
