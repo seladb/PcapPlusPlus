@@ -49,7 +49,7 @@ jobs:
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
         with:
-          source-directory: pcapplusplus.github.io/static/api-docs/next
+          source-directory: pcapplusplus.github.io
           destination-github-username: "PcapPlusPlus"
           destination-repository-name: "pcapplusplus.github.io"
           user-email: noreply@github.com
