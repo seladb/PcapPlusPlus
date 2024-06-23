@@ -28,11 +28,10 @@ jobs:
           repository: PcapPlusPlus/pcapplusplus.github.io
           path: pcapplusplus.github.io
 
-      - name: Test repos
+      - name: Run doxygen
         run: |
-          ls -la
-          cd ..
-          ls -la
+          cd static/api-docs/next/doxygen
+          doxygen Doxyfile-ci
 
 
 #  pre-commit:
