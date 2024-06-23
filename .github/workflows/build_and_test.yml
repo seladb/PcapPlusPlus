@@ -54,7 +54,7 @@ jobs:
           destination-github-username: "PcapPlusPlus"
           destination-repository-name: "pcapplusplus.github.io"
           user-email: noreply@github.com
-          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+          commit-message: Update API documentation for commit ORIGIN_COMMIT
           target-branch: doxygen-test #TODO: remove
 
 #  pre-commit:
