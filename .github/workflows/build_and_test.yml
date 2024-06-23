@@ -32,6 +32,8 @@ jobs:
         run: |
           cd pcapplusplus.github.io/static/api-docs/next/doxygen
           doxygen Doxyfile-ci
+          echo {{ github.ref_name }}
+          echo {{ github.ref }}
 
       - name: Prepare documentation
 #        if: github.ref == 'refs/heads/move-doxygen-to-gh-actions'
