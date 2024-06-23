@@ -33,6 +33,26 @@ jobs:
           cd pcapplusplus.github.io/static/api-docs/next/doxygen
           doxygen Doxyfile-ci
 
+      - name: Prepare documentation
+        if: github.ref == "refs/heads/move-doxygen-to-gh-actions"
+        run: |
+          find static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
+          rm -rf static/api-docs/next/search/
+          mv static/api-docs/next/html/* static/api-docs/next/
+#          cd pcapplusplus.github.io/static/api-docs/next/
+
+#      - name: Upload documentation
+#        if: github.ref == "refs/heads/move-doxygen-to-gh-actions"
+#        uses: cpina/github-action-push-to-another-repository@main
+#        env:
+#          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+#        with:
+#          source-directory: .
+#          destination-github-username: "PcapPlusPlus"
+#          destination-repository-name: "pcapplusplus.github.io "
+#          user-email: noreply@github.com
+#          commit-message: See ORIGIN_COMMIT from $GITHUB_REF
+#          target-branch: doxygen-test
 
 #  pre-commit:
 #    runs-on: ubuntu-latest
