@@ -34,7 +34,8 @@ jobs:
           doxygen Doxyfile-ci
 
       - name: Prepare documentation
-        if: github.ref == 'refs/heads/move-doxygen-to-gh-actions'
+#        if: github.ref == 'refs/heads/move-doxygen-to-gh-actions'
+        if: github.ref == 'refs/heads/master'
         run: |
           find static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
           rm -rf static/api-docs/next/search/
