@@ -1,0 +1,48 @@
+name: Build doxygen
+on:
+  push:
+    branches: ["master", "dev"]
+  pull_request:
+    branches: ["dev"]
+
+permissions:
+  contents: read
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    container: seladb/ubuntu2204:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+
+      - name: Checkout docs repo
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        with:
+          repository: PcapPlusPlus/pcapplusplus.github.io
+          path: pcapplusplus.github.io
+
+      - name: Run doxygen
+        run: |
+          cd pcapplusplus.github.io/static/api-docs/next/doxygen
+          doxygen Doxyfile-ci
+
+      - name: Prepare documentation
+        if: github.ref_name == 'refs/heads/master'
+        run: |
+          cd pcapplusplus.github.io/static/api-docs/
+          find next/ -maxdepth 1 -type f -exec rm {} \;
+          rm -rf next/search/
+          mv next/html/* next/
+
+      - name: Upload documentation
+        if: github.ref_name == 'refs/heads/master'
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: pcapplusplus.github.io
+          destination-github-username: "PcapPlusPlus"
+          destination-repository-name: "pcapplusplus.github.io"
+          user-email: noreply@github.com
+          commit-message: Update API documentation for commit ORIGIN_COMMIT
