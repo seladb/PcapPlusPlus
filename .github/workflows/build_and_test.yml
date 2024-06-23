@@ -37,9 +37,10 @@ jobs:
 #        if: github.ref_name == 'refs/heads/master'
         if: github.head_ref == 'move-doxygen-to-gh-actions'
         run: |
-          find static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
-          rm -rf static/api-docs/next/search/
-          mv static/api-docs/next/html/* static/api-docs/next/
+          cd ..
+          find next/ -maxdepth 1 -type f -exec rm {} \;
+          rm -rf next/search/
+          mv next/html/* next/
 #          cd pcapplusplus.github.io/static/api-docs/next/
 
 #      - name: Upload documentation
