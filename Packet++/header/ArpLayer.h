@@ -50,10 +50,6 @@ namespace pcpp
 		ARP_REPLY   = 0x0002  ///< ARP reply (response)
 	};
 
-	/**
-	 * @class ArpLayer
-	 * Represents an ARP protocol layer. Currently only IPv4 ARP messages are supported
-	 */
 	class ArpLayer : public Layer
 	{
 	public:
