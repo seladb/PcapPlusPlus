@@ -35,7 +35,7 @@ jobs:
 
       - name: Prepare documentation
 #        if: github.ref == 'refs/heads/move-doxygen-to-gh-actions'
-        if: github.ref == 'refs/heads/master'
+        if: github.ref_name == 'move-doxygen-to-gh-actions'
         run: |
           find static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
           rm -rf static/api-docs/next/search/
