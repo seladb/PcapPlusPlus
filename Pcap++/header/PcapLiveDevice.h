@@ -1,10 +1,10 @@
 #pragma once
 
 #include <atomic>
-#include <functional>
+#include <vector>
 #include <string.h>
 #include <thread>
-#include <vector>
+#include <functional>
 
 #include "IpAddress.h"
 #include "Packet.h"

@@ -1066,15 +1066,17 @@ void PcapLiveDevice::setDefaultGateway()
 #elif defined(__APPLE__)
 
 	//route message struct for communication in APPLE device
-	struct BSDRoutingMessage{
-		struct	rt_msghdr header;
-		char	messageSpace[512];
+	struct BSDRoutingMessage
+	{
+		struct rt_msghdr header;
+		char   messageSpace[512];
 	};
 
 	struct BSDRoutingMessage routingMessage;
 	// It creates a raw socket that can be used for routing-related operations
 	int sockfd = socket(PF_ROUTE, SOCK_RAW, 0);
-	if (sockfd < 0) {
+	if (sockfd < 0)
+	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't get open routing socket");
 		return ;
 	}
@@ -1084,32 +1086,36 @@ void PcapLiveDevice::setDefaultGateway()
 	routingMessage.header.rtm_type = RTM_GET;
 	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK ;
 	routingMessage.header.rtm_flags = RTF_UP | RTF_GATEWAY | RTF_STATIC;
+	routingMessage.header.rtm_msglen += 2 * sizeof(sockaddr_in);
 
-	routingMessage.header.rtm_msglen += 2*sizeof(sockaddr_in) ;
-
-	if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0) {
+	if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0)
+	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't write into the routing socket");
 		return;
 	}
 
 	// Read the response from the route socket
-	if (read(sockfd, reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0) {
+	if (read(sockfd, reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0)
+	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't read from the routing socket");
 		return;
 	}
 
 	struct in_addr  *gateAddr = nullptr;
 	struct sockaddr *sa = nullptr;
-	char* spacePtr = (reinterpret_cast<char*>(&routingMessage.header+1));
+	char* spacePtr = (reinterpret_cast<char*>(&routingMessage.header + 1));
 	auto rtmAddrs = routingMessage.header.rtm_addrs;
 	int index = 1;
-	auto roundUpClosestMultiple = [](int multiple, int num){
-		return ((num+multiple-1)/multiple)*multiple;
+	auto roundUpClosestMultiple = [](int multiple, int num) {
+		return ((num+multiple - 1) / multiple) * multiple;
 	};
-	while (rtmAddrs) {
-		if (rtmAddrs & 1) {
+	while (rtmAddrs)
+	{
+		if (rtmAddrs & 1)
+		{
 			sa = reinterpret_cast<sockaddr *>(spacePtr);
-			if (index == RTA_GATEWAY) {
+			if (index == RTA_GATEWAY)
+			{
 				gateAddr = internal::sockaddr2in_addr(sa);
 				break;
 			}
@@ -1119,7 +1125,8 @@ void PcapLiveDevice::setDefaultGateway()
 		rtmAddrs >>= 1;
 	}
 
-	if (gateAddr == nullptr) {
+	if (gateAddr == nullptr)
+	{
 		PCPP_LOG_ERROR("Error retrieving default gateway address: Empty Message related to gate");
 		return;
 	}
