@@ -708,7 +708,6 @@ jobs:
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
         with:
           repository: PcapPlusPlus/pcapplusplus.github.io
-          ref: 'doxygen-test' #TODO: remove
           path: pcapplusplus.github.io
 
       - name: Run doxygen
@@ -717,8 +716,7 @@ jobs:
           doxygen Doxyfile-ci
 
       - name: Prepare documentation
-        #TODO if: github.ref_name == 'refs/heads/master'
-        if: github.head_ref == 'move-doxygen-to-gh-actions'
+        if: github.ref_name == 'refs/heads/master'
         run: |
           cd pcapplusplus.github.io/static/api-docs/
           find next/ -maxdepth 1 -type f -exec rm {} \;
@@ -726,8 +724,7 @@ jobs:
           mv next/html/* next/
 
       - name: Upload documentation
-        #TODO if: github.ref_name == 'refs/heads/master'
-        if: github.head_ref == 'move-doxygen-to-gh-actions'
+        if: github.ref_name == 'refs/heads/master'
         uses: cpina/github-action-push-to-another-repository@main
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
@@ -737,4 +734,3 @@ jobs:
           destination-repository-name: "pcapplusplus.github.io"
           user-email: noreply@github.com
           commit-message: Update API documentation for commit ORIGIN_COMMIT
-          target-branch: doxygen-test #TODO: remove
