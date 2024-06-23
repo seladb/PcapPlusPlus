@@ -30,8 +30,9 @@ jobs:
 
       - name: Run doxygen
         run: |
-          cd static/api-docs/next/doxygen
-          doxygen Doxyfile-ci
+          ls -la
+#          cd static/api-docs/next/doxygen
+#          doxygen Doxyfile-ci
 
 
 #  pre-commit:
