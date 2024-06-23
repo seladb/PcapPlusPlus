@@ -28,7 +28,7 @@ jobs:
           doxygen Doxyfile-ci
 
       - name: Prepare documentation
-        if: github.ref_name == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         run: |
           cd pcapplusplus.github.io/static/api-docs/
           find next/ -maxdepth 1 -type f -exec rm {} \;
@@ -36,7 +36,7 @@ jobs:
           mv next/html/* next/
 
       - name: Upload documentation
-        if: github.ref_name == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         uses: cpina/github-action-push-to-another-repository@main
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
