@@ -32,11 +32,10 @@ jobs:
         run: |
           cd pcapplusplus.github.io/static/api-docs/next/doxygen
           doxygen Doxyfile-ci
-          echo ${{ github.head_ref }}
 
       - name: Prepare documentation
 #        if: github.ref_name == 'refs/heads/master'
-        if: github.head_ref == 'refs/heads/move-doxygen-to-gh-actions'
+        if: github.head_ref == 'move-doxygen-to-gh-actions'
         run: |
           find static/api-docs/next/ -maxdepth 1 -type f -exec rm {} \;
           rm -rf static/api-docs/next/search/
