@@ -30,9 +30,8 @@ jobs:
 
       - name: Run doxygen
         run: |
-          ls -la
-#          cd static/api-docs/next/doxygen
-#          doxygen Doxyfile-ci
+          cd pcapplusplus.github.io/static/api-docs/next/doxygen
+          doxygen Doxyfile-ci
 
 
 #  pre-commit:
