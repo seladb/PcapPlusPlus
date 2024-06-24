@@ -577,27 +577,29 @@ jobs:
         prepare: |
           pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
 
-        run: |
-          echo "Building PcapPlusPlus"
-          chmod a+rw /dev/bpf*
-          cmake -S . -B Dist
-          cmake --build Dist -j$(sysctl -n hw.ncpu)
+    - name: Building PcapPlusPlus
+      run: |
+        chmod a+rw /dev/bpf*
+        cmake -S . -B Dist
+        cmake --build Dist -j$(sysctl -n hw.ncpu)
 
-          echo "Setting up the network interface for the tests"
-          # Get the first interface name that is not 'lo'
-          interface_name=$(ifconfig -l | tr ' ' '\n' | grep -v '^lo' | head -n 1)
-          ifconfig "$interface_name" promisc
+    - name: Setting up the network interface for the tests
+      run: |
+        echo "INTERFACE_NAME=$(ifconfig -l | tr ' ' '\n' | grep -v '^lo' | head -n 1)" >> $GITHUB_ENV
+        ifconfig "$INTERFACE_NAME" promisc
 
-          echo "Testing PcapPlusPlus"
-          python3 -m ensurepip
-          python3 -m pip install -r ci/run_tests/requirements.txt
-          python3 ci/run_tests/run_tests.py --interface "$interface_name"
+    - name: Testing PcapPlusPlus
+      run: |
+        python3 -m ensurepip
+        python3 -m pip install -r ci/run_tests/requirements.txt
+        python3 ci/run_tests/run_tests.py --interface "$INTERFACE_NAME"
 
-          echo "Testing PcapPlusPlus examples"
-          cd Tests/ExamplesTest
-          python3 -m ensurepip
-          python3 -m pip install -r requirements.txt
-          python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
+    - name: Testing PcapPlusPlus examples
+      run: |
+        cd Tests/ExamplesTest
+        python3 -m ensurepip
+        python3 -m pip install -r requirements.txt
+        python3 -m pytest --interface "$INTERFACE_NAME" --root-path=../../Dist/examples_bin
 
   android:
     strategy:
