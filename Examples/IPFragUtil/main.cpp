@@ -63,30 +63,30 @@ struct FragStats
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " input_file -s frag_size -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]"
-		<< std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    input_file      : Input pcap/pcapng file" << std::endl
-		<< "    -s frag_size    : Size of each fragment" << std::endl
-		<< "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
-		<< std::endl
-		<< "    -d ip_ids       : Fragment only packets that match this comma-separated list of IP IDs in decimal "
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " input_file -s frag_size -o output_file [-d ip_ids] [-f bpf_filter] [-a] [-h] [-v]"
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    input_file      : Input pcap/pcapng file" << std::endl
+	    << "    -s frag_size    : Size of each fragment" << std::endl
+	    << "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
+	    << std::endl
+	    << "    -d ip_ids       : Fragment only packets that match this comma-separated list of IP IDs in decimal "
 	       "format"
-		<< std::endl
-		<< "    -f bpf_filter   : Fragment only packets that match bpf_filter. Filter should be provided in Berkeley "
+	    << std::endl
+	    << "    -f bpf_filter   : Fragment only packets that match bpf_filter. Filter should be provided in Berkeley "
 	       "Packet Filter (BPF)"
-		<< std::endl
-		<< "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
-		<< "    -a              : Copy all packets (those who were fragmented and those who weren't) to output file"
-		<< std::endl
-		<< "    -v              : Displays the current version and exits" << std::endl
-		<< "    -h              : Displays this help message and exits" << std::endl
-		<< std::endl;
+	    << std::endl
+	    << "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
+	    << "    -a              : Copy all packets (those who were fragmented and those who weren't) to output file"
+	    << std::endl
+	    << "    -v              : Displays the current version and exits" << std::endl
+	    << "    -h              : Displays this help message and exits" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -95,8 +95,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 

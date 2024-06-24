@@ -60,9 +60,9 @@ public:
 	int matchedPacketCount;
 
 	PacketStats()
-		: packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0), httpCount(0),
-		  dnsCount(0), sslCount(0), totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0),
-		  matchedPacketCount(0)
+	    : packetCount(0), ethCount(0), arpCount(0), ip4Count(0), ip6Count(0), tcpCount(0), udpCount(0), httpCount(0),
+	      dnsCount(0), sslCount(0), totalTcpFlows(0), totalUdpFlows(0), matchedTcpFlows(0), matchedUdpFlows(0),
+	      matchedPacketCount(0)
 	{}
 
 	/**
@@ -105,7 +105,7 @@ struct PacketCaptureArgs
 	bool stopCapture;
 
 	PacketCaptureArgs()
-		: packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr), stopCapture(false)
+	    : packetStats(nullptr), matchingEngine(nullptr), sendPacketsTo(nullptr), pcapWriter(nullptr), stopCapture(false)
 	{}
 };
 
@@ -118,7 +118,7 @@ static struct option XdpFilterTrafficOptions[] = {
 	{ "match-source-port",    required_argument, nullptr, 'p' },
 	{ "match-dest-port",      required_argument, nullptr, 'P' },
 	{ "match-protocol",       required_argument, nullptr, 'r' },
-	{ "help",				 no_argument,       nullptr, 'h' },
+	{ "help",	             no_argument,       nullptr, 'h' },
 	{ "version",              no_argument,       nullptr, 'v' },
 	{ "list-interfaces",      no_argument,       nullptr, 'l' }
 };
@@ -300,41 +300,41 @@ void collectStats(std::future<void> futureObj, PacketStats* packetStats, pcpp::X
 void printUsage()
 {
 	std::cout << std::endl
-			  << "Usage:" << std::endl
-			  << "------" << std::endl
-			  << pcpp::AppName::get()
-			  << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r "
+	          << "Usage:" << std::endl
+	          << "------" << std::endl
+	          << pcpp::AppName::get()
+	          << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r "
 	             "PROTOCOL] -n INTERFACE_NAME"
-			  << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -h|--help                                  : Displays this help message and exits" << std::endl
-			  << "    -v|--version                               : Displays the current version and exits" << std::endl
-			  << "    -l|--list                                  : Print the list of network interfaces and exit"
-			  << std::endl
-			  << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive "
+	          << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -h|--help                                  : Displays this help message and exits" << std::endl
+	          << "    -v|--version                               : Displays the current version and exits" << std::endl
+	          << "    -l|--list                                  : Print the list of network interfaces and exit"
+	          << std::endl
+	          << "    -n|--interface-name       INTERFACE_NAME   : An interface name to open AF_XDP socket and receive "
 	             "packets from."
-			  << std::endl
-			  << "                                                 To see all available interfaces use the -l switch"
-			  << std::endl
-			  << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to."
-			  << std::endl
-			  << "                                                 The app will open another AF_XDP socket for sending "
+	          << std::endl
+	          << "                                                 To see all available interfaces use the -l switch"
+	          << std::endl
+	          << "    -s|--send-matched-packets INTERFACE_NAME   : Network interface name to send matched packets to."
+	          << std::endl
+	          << "                                                 The app will open another AF_XDP socket for sending "
 	             "packets."
-			  << std::endl
-			  << "                                                 Note: this interface can be the same one used to "
+	          << std::endl
+	          << "                                                 Note: this interface can be the same one used to "
 	             "receive packets."
-			  << std::endl
-			  << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
-			  << std::endl
-			  << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-			  << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-			  << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-			  << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-			  << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-			  << std::endl
-			  << std::endl;
+	          << std::endl
+	          << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
+	          << std::endl
+	          << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
+	          << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
+	          << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
+	          << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
+	          << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
+	          << std::endl
+	          << std::endl;
 }
 
 /**
@@ -343,8 +343,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -359,7 +359,7 @@ void listInterfaces()
 		if (device->getIPv4Address() != pcpp::IPv4Address::Zero)
 		{
 			std::cout << "    -> Name: '" << device->getName()
-					  << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
+			          << "'   IP address: " << device->getIPv4Address().toString() << std::endl;
 		}
 	}
 	exit(0);
@@ -556,7 +556,7 @@ int main(int argc, char* argv[])
 
 	// add an handler for app interrupted signal, i.e ctrl+c
 	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(
-		[](void* args) { reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true; }, &args);
+	    [](void* args) { reinterpret_cast<PacketCaptureArgs*>(args)->stopCapture = true; }, &args);
 
 	// start receiving packets on the AF_XDP socket
 	auto res = dev.receivePackets(onPacketsArrive, &args, -1);

@@ -45,16 +45,18 @@
 #define DEFAULT_MBUF_POOL_SIZE 4095
 #define DEFAULT_QUEUE_QUANTITY 1
 
+// clang-format off
 static struct option DpdkBridgeOptions[] = {
 	{ "dpdk-ports",     required_argument, 0, 'd' },
-    { "core-mask",      optional_argument, 0, 'c' },
+	{ "core-mask",      optional_argument, 0, 'c' },
 	{ "mbuf-pool-size", optional_argument, 0, 'm' },
-    { "queue-quantity", optional_argument, 0, 'q' },
+	{ "queue-quantity", optional_argument, 0, 'q' },
 	{ "help",           optional_argument, 0, 'h' },
-    { "list",           optional_argument, 0, 'l' },
+	{ "list",           optional_argument, 0, 'l' },
 	{ "version",        optional_argument, 0, 'v' },
-    { 0,                0,                 0, 0   }
+	{ 0,                0,                 0, 0   }
 };
+// clang-format on
 
 /**
  * Print application usage
@@ -62,33 +64,33 @@ static struct option DpdkBridgeOptions[] = {
 void printUsage()
 {
 	std::cout << std::endl
-			  << "Usage:" << std::endl
-			  << "------" << std::endl
-			  << pcpp::AppName::get() << " [-hlv] [-c CORE_MASK] [-m POOL_SIZE] [-q QUEUE_QTY] -d PORT_1,PORT_2"
-			  << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -h|--help                                  : Displays this help message and exits" << std::endl
-			  << "    -l|--list                                  : Print the list of DPDK ports and exits" << std::endl
-			  << "    -v|--version                               : Displays the current version and exits" << std::endl
-			  << "    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 "
+	          << "Usage:" << std::endl
+	          << "------" << std::endl
+	          << pcpp::AppName::get() << " [-hlv] [-c CORE_MASK] [-m POOL_SIZE] [-q QUEUE_QTY] -d PORT_1,PORT_2"
+	          << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -h|--help                                  : Displays this help message and exits" << std::endl
+	          << "    -l|--list                                  : Print the list of DPDK ports and exits" << std::endl
+	          << "    -v|--version                               : Displays the current version and exits" << std::endl
+	          << "    -c|--core-mask CORE_MASK                   : Core mask of cores to use. For example: use 7 "
 	             "(binary 0111) to use cores 0,1,2."
-			  << std::endl
-			  << "                                                 Default is using all cores except management core"
-			  << std::endl
-			  << "    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. "
+	          << std::endl
+	          << "                                                 Default is using all cores except management core"
+	          << std::endl
+	          << "    -m|--mbuf-pool-size POOL_SIZE              : DPDK mBuf pool size to initialize DPDK with. "
 	             "Default value is 4095\n"
-			  << std::endl
-			  << "    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to "
+	          << std::endl
+	          << "    -d|--dpdk-ports PORT_1,PORT_2              : A comma-separated list of two DPDK port numbers to "
 	             "be bridged."
-			  << std::endl
-			  << "                                                 To see all available DPDK ports use the -l switch"
-			  << std::endl
-			  << "    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK "
+	          << std::endl
+	          << "                                                 To see all available DPDK ports use the -l switch"
+	          << std::endl
+	          << "    -q|--queue-quantity QUEUE_QTY              : Quantity of RX queues to be opened for each DPDK "
 	             "device. Default value is 1"
-			  << std::endl
-			  << std::endl;
+	          << std::endl
+	          << std::endl;
 }
 
 /**
@@ -97,8 +99,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -123,10 +125,10 @@ void listDpdkPorts()
 	{
 		pcpp::DpdkDevice* dev = iter;
 		std::cout << "   "
-				  << " Port #" << dev->getDeviceId() << ":"
-				  << " MAC address='" << dev->getMacAddress() << "';"
-				  << " PCI address='" << dev->getPciAddress() << "';"
-				  << " PMD='" << dev->getPMDName() << "'" << std::endl;
+		          << " Port #" << dev->getDeviceId() << ":"
+		          << " MAC address='" << dev->getMacAddress() << "';"
+		          << " PCI address='" << dev->getPciAddress() << "';"
+		          << " PMD='" << dev->getPMDName() << "'" << std::endl;
 	}
 }
 
@@ -182,14 +184,14 @@ void printStats(pcpp::DpdkDevice* device)
 
 	std::stringstream totalRx;
 	totalRx << "rx"
-			<< "|" << stats.aggregatedRxStats.packets << "|" << stats.aggregatedRxStats.packetsPerSec << "|"
-			<< stats.aggregatedRxStats.bytes << "|" << stats.aggregatedRxStats.bytesPerSec;
+	        << "|" << stats.aggregatedRxStats.packets << "|" << stats.aggregatedRxStats.packetsPerSec << "|"
+	        << stats.aggregatedRxStats.bytes << "|" << stats.aggregatedRxStats.bytesPerSec;
 	printer.printRow(totalRx.str(), '|');
 
 	std::stringstream totalTx;
 	totalTx << "tx"
-			<< "|" << stats.aggregatedTxStats.packets << "|" << stats.aggregatedTxStats.packetsPerSec << "|"
-			<< stats.aggregatedTxStats.bytes << "|" << stats.aggregatedTxStats.bytesPerSec;
+	        << "|" << stats.aggregatedTxStats.packets << "|" << stats.aggregatedTxStats.packetsPerSec << "|"
+	        << stats.aggregatedTxStats.bytes << "|" << stats.aggregatedTxStats.bytesPerSec;
 	printer.printRow(totalTx.str(), '|');
 }
 

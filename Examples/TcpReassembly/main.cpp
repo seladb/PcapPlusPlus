@@ -79,8 +79,8 @@ private:
 	 * A private c'tor (as this is a singleton)
 	 */
 	GlobalConfig()
-		: m_RecentConnsWithActivity(nullptr), writeMetadata(false), writeToConsole(false), separateSides(false),
-		  maxOpenFiles(DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+	    : m_RecentConnsWithActivity(nullptr), writeMetadata(false), writeToConsole(false), separateSides(false),
+	      maxOpenFiles(DEFAULT_MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
 	{}
 
 	// A least-recently-used (LRU) list of all connections seen so far. Each connection is represented by its flow key.
@@ -286,32 +286,32 @@ typedef std::unordered_map<uint32_t, TcpReassemblyData> TcpReassemblyConnMgr;
 void printUsage()
 {
 	std::cout << std::endl
-			  << "Usage:" << std::endl
-			  << "------" << std::endl
-			  << pcpp::AppName::get()
-			  << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]" << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file"
-			  << std::endl
-			  << "    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
+	          << "Usage:" << std::endl
+	          << "------" << std::endl
+	          << pcpp::AppName::get()
+	          << " [-hvlcms] [-r input_file] [-i interface] [-o output_dir] [-e bpf_filter] [-f max_files]" << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -r input_file : Input pcap/pcapng file to analyze. Required argument for reading from file"
+	          << std::endl
+	          << "    -i interface  : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
 	             "address. Required argument for capturing from live interface"
-			  << std::endl
-			  << "    -o output_dir : Specify output directory (default is '.')" << std::endl
-			  << "    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly "
+	          << std::endl
+	          << "    -o output_dir : Specify output directory (default is '.')" << std::endl
+	          << "    -e bpf_filter : Apply a BPF filter to capture file or live interface, meaning TCP reassembly "
 	             "will only work on filtered packets"
-			  << std::endl
-			  << "    -f max_files  : Maximum number of file descriptors to use" << std::endl
-			  << "    -c            : Write all output to console (nothing will be written to files)" << std::endl
-			  << "    -m            : Write a metadata file for each connection" << std::endl
-			  << "    -s            : Write each side of each connection to a separate file (default is writing both "
+	          << std::endl
+	          << "    -f max_files  : Maximum number of file descriptors to use" << std::endl
+	          << "    -c            : Write all output to console (nothing will be written to files)" << std::endl
+	          << "    -m            : Write a metadata file for each connection" << std::endl
+	          << "    -s            : Write each side of each connection to a separate file (default is writing both "
 	             "sides of each connection to the same file)"
-			  << std::endl
-			  << "    -l            : Print the list of interfaces and exit" << std::endl
-			  << "    -v            : Display the current version and exit" << std::endl
-			  << "    -h            : Display this help message and exit" << std::endl
-			  << std::endl;
+	          << std::endl
+	          << "    -l            : Print the list of interfaces and exit" << std::endl
+	          << "    -v            : Display the current version and exit" << std::endl
+	          << "    -h            : Display this help message and exit" << std::endl
+	          << std::endl;
 }
 
 /**
@@ -320,8 +320,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -337,7 +337,7 @@ void listInterfaces()
 	for (auto dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }
@@ -410,7 +410,7 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 		// open the file in overwrite mode (if this is the first time the file is opened) or in append mode (if it was
 		// already opened before)
 		flow->second.fileStreams[side] =
-			GlobalConfig::getInstance().openFileStream(fileName, flow->second.reopenFileStreams[side]);
+		    GlobalConfig::getInstance().openFileStream(fileName, flow->second.reopenFileStreams[side]);
 	}
 
 	// if this messages comes on a different side than previous message seen on this connection
@@ -476,17 +476,17 @@ static void tcpReassemblyConnectionEndCallback(const pcpp::ConnectionData& conne
 		metadataFile << "Number of data packets in side 0:  " << connection->second.numOfDataPackets[0] << std::endl;
 		metadataFile << "Number of data packets in side 1:  " << connection->second.numOfDataPackets[1] << std::endl;
 		metadataFile << "Total number of data packets:      "
-					 << (connection->second.numOfDataPackets[0] + connection->second.numOfDataPackets[1]) << std::endl;
+		             << (connection->second.numOfDataPackets[0] + connection->second.numOfDataPackets[1]) << std::endl;
 		metadataFile << std::endl;
 		metadataFile << "Number of bytes in side 0:         " << connection->second.bytesFromSide[0] << std::endl;
 		metadataFile << "Number of bytes in side 1:         " << connection->second.bytesFromSide[1] << std::endl;
 		metadataFile << "Total number of bytes:             "
-					 << (connection->second.bytesFromSide[0] + connection->second.bytesFromSide[1]) << std::endl;
+		             << (connection->second.bytesFromSide[0] + connection->second.bytesFromSide[1]) << std::endl;
 		metadataFile << std::endl;
 		metadataFile << "Number of messages in side 0:      " << connection->second.numOfMessagesFromSide[0]
-					 << std::endl;
+		             << std::endl;
 		metadataFile << "Number of messages in side 1:      " << connection->second.numOfMessagesFromSide[1]
-					 << std::endl;
+		             << std::endl;
 		metadataFile.close();
 	}
 
@@ -690,7 +690,7 @@ int main(int argc, char* argv[])
 	{
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev =
-			pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 

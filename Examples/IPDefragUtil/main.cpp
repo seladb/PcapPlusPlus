@@ -62,30 +62,30 @@ struct DefragStats
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]"
-		<< std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    input_file      : Input pcap/pcapng file" << std::endl
-		<< "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
-		<< std::endl
-		<< "    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) "
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]"
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    input_file      : Input pcap/pcapng file" << std::endl
+	    << "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
+	    << std::endl
+	    << "    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) "
 	       "or"
-		<< std::endl
-		<< "                      fragment IDs (for IPv6) in decimal format" << std::endl
-		<< "    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in "
+	    << std::endl
+	    << "                      fragment IDs (for IPv6) in decimal format" << std::endl
+	    << "    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in "
 	       "Berkeley Packet Filter (BPF)"
-		<< std::endl
-		<< "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
-		<< "    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file"
-		<< std::endl
-		<< "    -v              : Displays the current version and exits" << std::endl
-		<< "    -h              : Displays this help message and exits" << std::endl
-		<< std::endl;
+	    << std::endl
+	    << "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
+	    << "    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file"
+	    << std::endl
+	    << "    -v              : Displays the current version and exits" << std::endl
+	    << "    -h              : Displays this help message and exits" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -94,8 +94,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -261,11 +261,11 @@ void printStats(const DefragStats& stats, bool filterByIpID, bool filterByBpf)
 	if (filterByBpf)
 		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
 	stream << "Total fragments matched:                 " << (stats.ipv4FragmentsMatched + stats.ipv6FragmentsMatched)
-		   << std::endl;
+	       << std::endl;
 	stream << "IPv4 fragments matched:                  " << stats.ipv4FragmentsMatched << std::endl;
 	stream << "IPv6 fragments matched:                  " << stats.ipv6FragmentsMatched << std::endl;
 	stream << "Total packets reassembled:               "
-		   << (stats.ipv4PacketsDefragmented + stats.ipv6PacketsDefragmented) << std::endl;
+	       << (stats.ipv4PacketsDefragmented + stats.ipv6PacketsDefragmented) << std::endl;
 	stream << "IPv4 packets reassembled:                " << stats.ipv4PacketsDefragmented << std::endl;
 	stream << "IPv6 packets reassembled:                " << stats.ipv6PacketsDefragmented << std::endl;
 	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << std::endl;

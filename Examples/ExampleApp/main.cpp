@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
 		// print source and dest IPs
 		std::cout << "Source IP is '" << srcIP << "'; "
-				  << "Dest IP is '" << destIP << "'" << std::endl;
+		          << "Dest IP is '" << destIP << "'" << std::endl;
 	}
 
 	// close the file

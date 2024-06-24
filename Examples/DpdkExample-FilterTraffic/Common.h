@@ -48,7 +48,7 @@ struct AppWorkerConfig
 	std::string pathToWritePackets;
 
 	AppWorkerConfig()
-		: coreId(MAX_NUM_OF_CORES + 1), sendPacketsTo(nullptr), writeMatchedPacketsToFile(false), pathToWritePackets("")
+	    : coreId(MAX_NUM_OF_CORES + 1), sendPacketsTo(nullptr), writeMatchedPacketsToFile(false), pathToWritePackets("")
 	{}
 };
 
@@ -76,9 +76,9 @@ public:
 	int matchedPackets;
 
 	PacketStats()
-		: workerId(MAX_NUM_OF_CORES + 1), packetCount(0), ethCount(0), arpCount(0), ipv4Count(0), ipv6Count(0),
-		  tcpCount(0), udpCount(0), httpCount(0), dnsCount(0), tlsCount(0), matchedTcpFlows(0), matchedUdpFlows(0),
-		  matchedPackets(0)
+	    : workerId(MAX_NUM_OF_CORES + 1), packetCount(0), ethCount(0), arpCount(0), ipv4Count(0), ipv6Count(0),
+	      tcpCount(0), udpCount(0), httpCount(0), dnsCount(0), tlsCount(0), matchedTcpFlows(0), matchedUdpFlows(0),
+	      matchedPackets(0)
 	{}
 
 	void collectStats(pcpp::Packet& packet)

@@ -28,15 +28,15 @@
 
 static struct option TLSFingerprintingOptions[] = {
 	{ "interface",       required_argument, nullptr, 'i' },
-    { "input-file",      required_argument, nullptr, 'r' },
+	{ "input-file",      required_argument, nullptr, 'r' },
 	{ "output-file",     required_argument, nullptr, 'o' },
-    { "separator",       required_argument, nullptr, 's' },
+	{ "separator",       required_argument, nullptr, 's' },
 	{ "tls-fp-type",     required_argument, nullptr, 't' },
-    { "filter",          required_argument, nullptr, 'f' },
+	{ "filter",          required_argument, nullptr, 'f' },
 	{ "list-interfaces", no_argument,       nullptr, 'l' },
-    { "help",            no_argument,       nullptr, 'h' },
 	{ "version",         no_argument,       nullptr, 'v' },
-    { nullptr,           0,                 nullptr, 0   }
+	{ "help",            no_argument,       nullptr, 'h' },
+	{ nullptr,           0,                 nullptr, 0   }
 };
 
 #define EXIT_WITH_ERROR(reason)                                                                                        \
@@ -74,55 +74,55 @@ bool stringCountComparer(const std::pair<std::string, uint64_t>& first, const st
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get()
-		<< " [-hvlcms] [-r input_file] [-i interface] [-o output_file_name] [-s separator] [-t tls_fp_type] [-f "
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get()
+	    << " [-hvlcms] [-r input_file] [-i interface] [-o output_file_name] [-s separator] [-t tls_fp_type] [-f "
 	       "bpf_filter]"
-		<< std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -r input_file       : Input pcap/pcapng file to analyze. Required argument for reading from file"
-		<< std::endl
-		<< "    -i interface        : Use the specified interface. Can be interface name (e.g eth0) or IP address."
-		<< std::endl
-		<< "                          Required argument for capturing from live interface" << std::endl
-		<< "    -o output_file_name : Output file name. This is a csv file (where 'tab' is the default separator)"
-		<< std::endl
-		<< "                          which contains information about all of the TLS fingerprints found in the"
-		<< std::endl
-		<< "                          capture file or live interface. It includes the TLS fingerprint itself"
-		<< std::endl
-		<< "                          (raw string and MD5), IP addresses, TCP ports and SSL message type (ClientHello"
-		<< std::endl
-		<< "                          or ServerHello). If this argument is not specified the output file name is the"
-		<< std::endl
-		<< "                          name of capture file or the live interface and it is written to the current"
-		<< std::endl
-		<< "                          directory ('.')" << std::endl
-		<< "    -s separator        : The separator to use in the csv output file. Valid values are a single character"
-		<< std::endl
-		<< "                          which is not alphanumeric and not one of the following: '.', ',', ':', '-'."
-		<< std::endl
-		<< "                          If this argument is not specified the default separator is 'tab' ('\\t')"
-		<< std::endl
-		<< "    -t tls_fp_type      : Specify whether to calculate TLS fingerprints for ClientHello packets only "
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -r input_file       : Input pcap/pcapng file to analyze. Required argument for reading from file"
+	    << std::endl
+	    << "    -i interface        : Use the specified interface. Can be interface name (e.g eth0) or IP address."
+	    << std::endl
+	    << "                          Required argument for capturing from live interface" << std::endl
+	    << "    -o output_file_name : Output file name. This is a csv file (where 'tab' is the default separator)"
+	    << std::endl
+	    << "                          which contains information about all of the TLS fingerprints found in the"
+	    << std::endl
+	    << "                          capture file or live interface. It includes the TLS fingerprint itself"
+	    << std::endl
+	    << "                          (raw string and MD5), IP addresses, TCP ports and SSL message type (ClientHello"
+	    << std::endl
+	    << "                          or ServerHello). If this argument is not specified the output file name is the"
+	    << std::endl
+	    << "                          name of capture file or the live interface and it is written to the current"
+	    << std::endl
+	    << "                          directory ('.')" << std::endl
+	    << "    -s separator        : The separator to use in the csv output file. Valid values are a single character"
+	    << std::endl
+	    << "                          which is not alphanumeric and not one of the following: '.', ',', ':', '-'."
+	    << std::endl
+	    << "                          If this argument is not specified the default separator is 'tab' ('\\t')"
+	    << std::endl
+	    << "    -t tls_fp_type      : Specify whether to calculate TLS fingerprints for ClientHello packets only "
 	       "('ch'),"
-		<< std::endl
-		<< "                          ServerHello packets only ('sh') or both ('ch_sh'). The only valid values are"
-		<< std::endl
-		<< "                          'ch', 'sh', 'ch_sh'. If this argument is not specified the default value is"
-		<< std::endl
-		<< "                          ClientHello ('ch')" << std::endl
-		<< "    -f bpf_filter       : Apply a BPF filter to the capture file or live interface, meaning TLS fingerprint"
-		<< std::endl
-		<< "                          will only be generated for the filtered packets" << std::endl
-		<< "    -l                  : Print the list of interfaces and exit" << std::endl
-		<< "    -v                  : Display the current version and exit" << std::endl
-		<< "    -h                  : Display this help message and exit" << std::endl
-		<< std::endl;
+	    << std::endl
+	    << "                          ServerHello packets only ('sh') or both ('ch_sh'). The only valid values are"
+	    << std::endl
+	    << "                          'ch', 'sh', 'ch_sh'. If this argument is not specified the default value is"
+	    << std::endl
+	    << "                          ClientHello ('ch')" << std::endl
+	    << "    -f bpf_filter       : Apply a BPF filter to the capture file or live interface, meaning TLS fingerprint"
+	    << std::endl
+	    << "                          will only be generated for the filtered packets" << std::endl
+	    << "    -l                  : Print the list of interfaces and exit" << std::endl
+	    << "    -v                  : Display the current version and exit" << std::endl
+	    << "    -h                  : Display this help message and exit" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -131,8 +131,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -142,13 +142,13 @@ void printAppVersion()
 void listInterfaces()
 {
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
-		pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }
@@ -205,8 +205,8 @@ void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPack
 	std::pair<uint16_t, uint16_t> tcpPorts = getTcpPorts(parsedPacket);
 
 	*outputFile << tlsFP_MD5 << separator << tlsFPString << separator << tlsFPType << separator
-				<< ipSrcDest.first.toString() << separator << tcpPorts.first << separator << ipSrcDest.second.toString()
-				<< separator << tcpPorts.second << std::endl;
+	            << ipSrcDest.first.toString() << separator << tcpPorts.first << separator << ipSrcDest.second.toString()
+	            << separator << tcpPorts.second << std::endl;
 }
 
 /**
@@ -215,8 +215,8 @@ void writeToOutputFile(std::ofstream* outputFile, const pcpp::Packet& parsedPack
 void writeHeaderToOutputFile(std::ofstream& outputFile, const std::string& separator)
 {
 	outputFile << "TLS Fingerprint (MD5)" << separator << "TLS Fingerprint" << separator << "TLS Fingerprint type"
-			   << separator << "IP Source" << separator << "TCP Source Port" << separator << "IP Dest" << separator
-			   << "TCP Dest Port" << std::endl;
+	           << separator << "IP Source" << separator << "TCP Source Port" << separator << "IP Dest" << separator
+	           << "TCP Dest Port" << std::endl;
 }
 
 struct TLSFingerprintingStats
@@ -339,14 +339,14 @@ void handlePacket(pcpp::RawPacket* rawPacket, const HandlePacketData* data)
 			{
 				// check if the SSL/TLS handhsake layer contains a ClientHello message
 				pcpp::SSLClientHelloMessage* clientHelloMessage =
-					sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+				    sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
 				if (clientHelloMessage != nullptr)
 				{
 					data->stats->numOfCHPackets++;
 
 					// extract the TLS fingerprint
 					pcpp::SSLClientHelloMessage::ClientHelloTLSFingerprint tlsFingerprint =
-						clientHelloMessage->generateTLSFingerprint();
+					    clientHelloMessage->generateTLSFingerprint();
 					std::pair<std::string, std::string> tlsFingerprintStringAndMD5 = tlsFingerprint.toStringAndMD5();
 					data->stats->chFingerprints[tlsFingerprintStringAndMD5.second]++;
 					// write data to output file
@@ -360,14 +360,14 @@ void handlePacket(pcpp::RawPacket* rawPacket, const HandlePacketData* data)
 			{
 				// check if the SSL/TLS handhsake layer contains a ServerHello message
 				pcpp::SSLServerHelloMessage* servertHelloMessage =
-					sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+				    sslHandshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
 				if (servertHelloMessage != nullptr)
 				{
 					data->stats->numOfSHPackets++;
 
 					// extract the TLS fingerprint
 					pcpp::SSLServerHelloMessage::ServerHelloTLSFingerprint tlsFingerprint =
-						servertHelloMessage->generateTLSFingerprint();
+					    servertHelloMessage->generateTLSFingerprint();
 					std::pair<std::string, std::string> tlsFingerprintStringAndMD5 = tlsFingerprint.toStringAndMD5();
 					data->stats->shFingerprints[tlsFingerprintStringAndMD5.second]++;
 					// write data to output file
@@ -398,7 +398,7 @@ void doTlsFingerprintingOnPcapFile(const std::string& inputPcapFileName, std::st
 		size_t fileNameOffset = inputPcapFileName.find_last_of("\\/") + 1;
 		size_t extensionOffset = inputPcapFileName.find_last_of(".");
 		std::string fileNameWithoutExtension =
-			inputPcapFileName.substr(fileNameOffset, extensionOffset - fileNameOffset);
+		    inputPcapFileName.substr(fileNameOffset, extensionOffset - fileNameOffset);
 		outputFileName = fileNameWithoutExtension + ".txt";
 	}
 
@@ -601,7 +601,7 @@ int main(int argc, char* argv[])
 	        disallowedSeparatorsVec.end())
 	{
 		EXIT_WITH_ERROR(
-			"Allowed separators are single characters which are not alphanumeric and not ',', '.', ':', '-'");
+		    "Allowed separators are single characters which are not alphanumeric and not ',', '.', ':', '-'");
 	}
 
 	// validate TLS fingerprint type the user has requested

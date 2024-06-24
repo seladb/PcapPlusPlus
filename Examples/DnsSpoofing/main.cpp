@@ -83,31 +83,31 @@ struct DnsSpoofingArgs
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " [-hvl] [-o host1,host2,...,host_n] [-c ip_address] -i interface -d ip_address"
-		<< std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -h                          : Displays this help message and exits" << std::endl
-		<< "    -v                          : Displays the current version and exists" << std::endl
-		<< "    -l                          : Print the list of available interfaces" << std::endl
-		<< "    -i interface                : The interface name or interface IP address to use." << std::endl
-		<< "                                  Use the -l switch to see all interfaces" << std::endl
-		<< "    -d ip_address               : The IP address of the spoofed DNS server. Supports both IPv4 and IPv6"
-		<< std::endl
-		<< "                                  (all responses will be sent with this IP address)" << std::endl
-		<< "    -c ip_address               : Spoof only DNS requests coming from a specific IP address" << std::endl
-		<< "    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given,"
-		<< std::endl
-		<< "                                  all hosts will be spoofed. If an host contains '*' all sub-domains"
-		<< std::endl
-		<< "                                  will be spoofed, for example: if '*.google.com' is given" << std::endl
-		<< "                                  then 'mail.google.com', 'tools.google.com', etc. will be spoofed"
-		<< std::endl
-		<< std::endl;
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " [-hvl] [-o host1,host2,...,host_n] [-c ip_address] -i interface -d ip_address"
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -h                          : Displays this help message and exits" << std::endl
+	    << "    -v                          : Displays the current version and exists" << std::endl
+	    << "    -l                          : Print the list of available interfaces" << std::endl
+	    << "    -i interface                : The interface name or interface IP address to use." << std::endl
+	    << "                                  Use the -l switch to see all interfaces" << std::endl
+	    << "    -d ip_address               : The IP address of the spoofed DNS server. Supports both IPv4 and IPv6"
+	    << std::endl
+	    << "                                  (all responses will be sent with this IP address)" << std::endl
+	    << "    -c ip_address               : Spoof only DNS requests coming from a specific IP address" << std::endl
+	    << "    -o host1,host2,...,host_n   : A comma-separated list of hosts to spoof. If list is not given,"
+	    << std::endl
+	    << "                                  all hosts will be spoofed. If an host contains '*' all sub-domains"
+	    << std::endl
+	    << "                                  will be spoofed, for example: if '*.google.com' is given" << std::endl
+	    << "                                  then 'mail.google.com', 'tools.google.com', etc. will be spoofed"
+	    << std::endl
+	    << std::endl;
 }
 
 /**
@@ -116,8 +116,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -127,13 +127,13 @@ void printAppVersion()
 void listInterfaces()
 {
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
-		pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }
@@ -266,12 +266,12 @@ void onApplicationInterrupted(void* cookie)
 	else
 	{
 		std::cout << std::endl
-				  << "Summary of spoofed hosts:" << std::endl
-				  << "-------------------------" << std::endl
-				  << std::endl
-				  << "Total spoofed:          " << args->stats.numOfSpoofedDnsRequests << std::endl
-				  << "Number of host spoofed: " << args->stats.spoofedHosts.size() << std::endl
-				  << std::endl;
+		          << "Summary of spoofed hosts:" << std::endl
+		          << "-------------------------" << std::endl
+		          << std::endl
+		          << "Total spoofed:          " << args->stats.numOfSpoofedDnsRequests << std::endl
+		          << "Number of host spoofed: " << args->stats.spoofedHosts.size() << std::endl
+		          << std::endl;
 
 		// create a table
 		std::vector<std::string> columnNames;

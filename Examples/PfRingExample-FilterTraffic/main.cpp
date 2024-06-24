@@ -56,10 +56,10 @@ static struct option PfFilterTrafficOptions[] = {
 	{ "match-dest-port",      required_argument, 0, 'P' },
 	{ "match-protocol",       required_argument, 0, 'r' },
 	{ "num-of-threads",       required_argument, 0, 't' },
-	{ "help",				 no_argument,       0, 'h' },
+	{ "help",	             no_argument,       0, 'h' },
 	{ "version",              no_argument,       0, 'v' },
-	{ "list",				 no_argument,       0, 'l' },
-	{ 0,					  0,				 0, 0   }
+	{ "list",	             no_argument,       0, 'l' },
+	{ 0,	                  0,	             0, 0   }
 };
 
 /**
@@ -74,7 +74,7 @@ struct CaptureThreadArgs
 	pcpp::PcapFileWriterDevice** pcapWriters;
 
 	CaptureThreadArgs()
-		: packetStatArr(NULL), matchingEngine(NULL), flowTables(NULL), sendPacketsTo(NULL), pcapWriters(NULL)
+	    : packetStatArr(NULL), matchingEngine(NULL), flowTables(NULL), sendPacketsTo(NULL), pcapWriters(NULL)
 	{}
 };
 
@@ -84,43 +84,43 @@ struct CaptureThreadArgs
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get()
-		<< " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
-		<< std::endl
-		<< "                    [-c NUM_OF_THREADS] -n INTERFACE_NAME" << std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -h|--help                                  : Displays this help message and exits" << std::endl
-		<< "    -v|--version                               : Displays the current version and exits" << std::endl
-		<< "    -l|--list                                  : Print the list of PF_RING devices and exit" << std::endl
-		<< "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from."
-		<< std::endl
-		<< "                                                 To see all available interfaces use the -l switch"
-		<< std::endl
-		<< "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to"
-		<< std::endl
-		<< "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
-		<< std::endl
-		<< "                                                 Packets matched by thread X will be saved under"
-		<< std::endl
-		<< "                                                 'FILEPATH/ThreadX.pcap'" << std::endl
-		<< "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-		<< "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-		<< "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-		<< "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-		<< "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-		<< std::endl
-		<< "    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in"
-		<< std::endl
-		<< "                                                 the range of 1 to NUM_OF_CORES_ON_MACHINE-1." << std::endl
-		<< "                                                 Default is using all machine cores except the core"
-		<< std::endl
-		<< "                                                 the application is running on" << std::endl
-		<< std::endl;
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get()
+	    << " [-hvl] [-s INTERFACE_NAME] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
+	    << std::endl
+	    << "                    [-c NUM_OF_THREADS] -n INTERFACE_NAME" << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -h|--help                                  : Displays this help message and exits" << std::endl
+	    << "    -v|--version                               : Displays the current version and exits" << std::endl
+	    << "    -l|--list                                  : Print the list of PF_RING devices and exit" << std::endl
+	    << "    -n|--interface-name       INTERFACE_NAME   : A PF_RING interface name to receive packets from."
+	    << std::endl
+	    << "                                                 To see all available interfaces use the -l switch"
+	    << std::endl
+	    << "    -s|--send-matched-packets INTERFACE_NAME   : PF_RING interface name to send matched packets to"
+	    << std::endl
+	    << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH."
+	    << std::endl
+	    << "                                                 Packets matched by thread X will be saved under"
+	    << std::endl
+	    << "                                                 'FILEPATH/ThreadX.pcap'" << std::endl
+	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
+	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
+	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
+	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
+	    << "    -r|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
+	    << std::endl
+	    << "    -t|--num-of-threads       NUM_OF_THREADS   : Number of capture threads to open. Should be in"
+	    << std::endl
+	    << "                                                 the range of 1 to NUM_OF_CORES_ON_MACHINE-1." << std::endl
+	    << "                                                 Default is using all machine cores except the core"
+	    << std::endl
+	    << "                                                 the application is running on" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -129,8 +129,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -156,10 +156,10 @@ void listPfRingDevices()
 		}
 
 		std::cout << "    -> Name: " << std::left << std::setw(8) << dev->getDeviceName() << " Index: " << std::setw(5)
-				  << interfaceIndex.str() << " MAC address: " << std::setw(19)
-				  << (dev->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : dev->getMacAddress().toString())
-				  << " Available RX channels: " << std::setw(3) << (int)dev->getTotalNumOfRxChannels()
-				  << " MTU: " << dev->getMtu() << std::endl;
+		          << interfaceIndex.str() << " MAC address: " << std::setw(19)
+		          << (dev->getMacAddress() == pcpp::MacAddress::Zero ? "N/A" : dev->getMacAddress().toString())
+		          << " Available RX channels: " << std::setw(3) << (int)dev->getTotalNumOfRxChannels()
+		          << " MTU: " << dev->getMtu() << std::endl;
 	}
 
 	// re-enable errors
@@ -460,7 +460,7 @@ int main(int argc, char* argv[])
 	}
 
 	std::cout << "Start capturing on " << numOfCaptureThreads << " threads core mask = 0x" << std::hex << coreMask
-			  << std::dec << std::endl;
+	          << std::dec << std::endl;
 
 	// prepare packet capture configuration
 	CaptureThreadArgs args;

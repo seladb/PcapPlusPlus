@@ -42,8 +42,8 @@
 
 #define PRINT_STAT_LINE(description, counter, measurement)                                                             \
 	std::cout << std::left << std::setw(40) << (std::string(description) + ":") << std::right << std::setw(15)         \
-			  << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
-			  << std::endl;
+	          << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
+	          << std::endl;
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
@@ -55,9 +55,9 @@ static struct option HttpAnalyzerOptions[] = {
 	{ "rate-calc-period",    required_argument, nullptr, 'r' },
 	{ "disable-rates-print", no_argument,       nullptr, 'd' },
 	{ "list-interfaces",     no_argument,       nullptr, 'l' },
-	{ "help",				no_argument,       nullptr, 'h' },
+	{ "help",	            no_argument,       nullptr, 'h' },
 	{ "version",             no_argument,       nullptr, 'v' },
-	{ nullptr,			   0,                 nullptr, 0   }
+	{ nullptr,	           0,                 nullptr, 0   }
 };
 
 struct HttpPacketArrivedData
@@ -72,38 +72,38 @@ struct HttpPacketArrivedData
 void printUsage()
 {
 	std::cout << std::endl
-			  << "Usage: PCAP file mode:" << std::endl
-			  << "----------------------" << std::endl
-			  << pcpp::AppName::get() << " [-vh] -f input_file" << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -f             : The input pcap/pcapng file to analyze. Required argument for this mode"
-			  << std::endl
-			  << "    -v             : Displays the current version and exists" << std::endl
-			  << "    -h             : Displays this help message and exits" << std::endl
-			  << std::endl
-			  << "Usage: Live traffic mode:" << std::endl
-			  << "-------------------------" << std::endl
-			  << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface"
-			  << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
+	          << "Usage: PCAP file mode:" << std::endl
+	          << "----------------------" << std::endl
+	          << pcpp::AppName::get() << " [-vh] -f input_file" << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -f             : The input pcap/pcapng file to analyze. Required argument for this mode"
+	          << std::endl
+	          << "    -v             : Displays the current version and exists" << std::endl
+	          << "    -h             : Displays this help message and exits" << std::endl
+	          << std::endl
+	          << "Usage: Live traffic mode:" << std::endl
+	          << "-------------------------" << std::endl
+	          << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] [-p dst_port] -i interface"
+	          << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
 	             "address"
-			  << std::endl
-			  << "    -p dst_port    : Use the specified port (optional parameter, the default is 80)" << std::endl
-			  << "    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause "
+	          << std::endl
+	          << "    -p dst_port    : Use the specified port (optional parameter, the default is 80)" << std::endl
+	          << "    -o output_file : Save all captured HTTP packets to a pcap file. Notice this may cause "
 	             "performance degradation"
-			  << std::endl
-			  << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
-			  << std::endl
-			  << "    -d             : Disable periodic rates calculation" << std::endl
-			  << "    -h             : Displays this help message and exits" << std::endl
-			  << "    -v             : Displays the current version and exists" << std::endl
-			  << "    -l             : Print the list of interfaces and exists" << std::endl
-			  << std::endl;
+	          << std::endl
+	          << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
+	          << std::endl
+	          << "    -d             : Disable periodic rates calculation" << std::endl
+	          << "    -h             : Displays this help message and exits" << std::endl
+	          << "    -v             : Displays the current version and exists" << std::endl
+	          << "    -l             : Print the list of interfaces and exists" << std::endl
+	          << std::endl;
 }
 
 /**
@@ -112,8 +112,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -123,13 +123,13 @@ void printAppVersion()
 void listInterfaces()
 {
 	const std::vector<pcpp::PcapLiveDevice*>& liveDevices =
-		pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& device : liveDevices)
 	{
 		std::cout << "    -> Name: '" << device->getName() << "'   IP address: " << device->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }
@@ -137,9 +137,9 @@ void listInterfaces()
 void printStatsHeadline(const std::string& description)
 {
 	std::cout << std::endl
-			  << description << std::endl
-			  << std::string(description.length(), '-') << std::endl
-			  << std::endl;
+	          << description << std::endl
+	          << std::string(description.length(), '-') << std::endl
+	          << std::endl;
 }
 
 /**
@@ -176,8 +176,8 @@ void printMethods(const HttpRequestStats& reqStatscollector)
 	std::vector<std::pair<pcpp::HttpRequestLayer::HttpMethod, int>> map2vec(reqStatscollector.methodCount.begin(),
 	                                                                        reqStatscollector.methodCount.end());
 	std::sort(
-		map2vec.begin(), map2vec.end(),
-		[](const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& left,
+	    map2vec.begin(), map2vec.end(),
+	    [](const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& left,
 	       const std::pair<pcpp::HttpRequestLayer::HttpMethod, int>& right) { return left.second > right.second; });
 
 	// go over the method count table, print each method and the aggregated figure
@@ -189,39 +189,39 @@ void printMethods(const HttpRequestStats& reqStatscollector)
 		{
 		case pcpp::HttpRequestLayer::HttpGET:
 			values << "GET"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpGET);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpGET);
 			break;
 		case pcpp::HttpRequestLayer::HttpPOST:
 			values << "POST"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPOST);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPOST);
 			break;
 		case pcpp::HttpRequestLayer::HttpCONNECT:
 			values << "CONNECT"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpCONNECT);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpCONNECT);
 			break;
 		case pcpp::HttpRequestLayer::HttpDELETE:
 			values << "DELETE"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpDELETE);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpDELETE);
 			break;
 		case pcpp::HttpRequestLayer::HttpHEAD:
 			values << "HEAD"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpHEAD);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpHEAD);
 			break;
 		case pcpp::HttpRequestLayer::HttpOPTIONS:
 			values << "OPTIONS"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpOPTIONS);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpOPTIONS);
 			break;
 		case pcpp::HttpRequestLayer::HttpPATCH:
 			values << "PATCH"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPATCH);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPATCH);
 			break;
 		case pcpp::HttpRequestLayer::HttpPUT:
 			values << "PUT"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPUT);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpPUT);
 			break;
 		case pcpp::HttpRequestLayer::HttpTRACE:
 			values << "TRACE"
-				   << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpTRACE);
+			       << "|" << reqStatscollector.methodCount.at(pcpp::HttpRequestLayer::HttpTRACE);
 			break;
 		default:
 			break;
@@ -284,8 +284,8 @@ void printStatusCodes(const HttpResponseStats& resStatscollector)
 	                                                 resStatscollector.statusCodeCount.end());
 	std::sort(map2vec.begin(), map2vec.end(),
 	          [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) {
-				  return left.first < right.first;
-			  });
+		          return left.first < right.first;
+	          });
 	for (const auto& statusCodeStat : map2vec)
 	{
 		std::stringstream values;
@@ -309,8 +309,8 @@ void printContentTypes(const HttpResponseStats& resStatscollector)
 	                                                 resStatscollector.contentTypeCount.end());
 	std::sort(map2vec.begin(), map2vec.end(),
 	          [](const std::pair<std::string, int>& left, const std::pair<std::string, int>& right) {
-				  return left.first < right.first;
-			  });
+		          return left.first < right.first;
+	          });
 	for (const auto& contentTypeStat : map2vec)
 	{
 		std::stringstream values;
@@ -574,7 +574,7 @@ int main(int argc, char* argv[])
 	else  // analyze in live traffic mode
 	{
 		pcpp::PcapLiveDevice* dev =
-			pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 

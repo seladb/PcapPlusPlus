@@ -55,10 +55,10 @@ static struct option FilterTrafficOptions[] = {
 	{ "mbuf-pool-size",       optional_argument, 0, 'm' },
 	{ "rx-queues",            optional_argument, 0, 'r' },
 	{ "tx-queues",            optional_argument, 0, 't' },
-	{ "help",				 optional_argument, 0, 'h' },
+	{ "help",	             optional_argument, 0, 'h' },
 	{ "version",              optional_argument, 0, 'v' },
-	{ "list",				 optional_argument, 0, 'l' },
-	{ 0,					  0,				 0, 0   }
+	{ "list",	             optional_argument, 0, 'l' },
+	{ 0,	                  0,	             0, 0   }
 };
 
 /**
@@ -67,53 +67,53 @@ static struct option FilterTrafficOptions[] = {
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get()
-		<< " [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
-		<< std::endl
-		<< "                  [-c CORE_MASK] [-m POOL_SIZE] [-r NUM_QUEUES] [-t NUM_QUEUES] -d PORT_1,PORT_3,...,PORT_N"
-		<< std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -h|--help                                  : Displays this help message and exits" << std::endl
-		<< "    -v|--version                               : Displays the current version and exits" << std::endl
-		<< "    -l|--list                                  : Print the list of DPDK ports and exists" << std::endl
-		<< "    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive"
-		<< std::endl
-		<< "                                                 packets from. To see all available DPDK ports use the -l "
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get()
+	    << " [-hvl] [-s PORT] [-f FILENAME] [-i IPV4_ADDR] [-I IPV4_ADDR] [-p PORT] [-P PORT] [-r PROTOCOL]"
+	    << std::endl
+	    << "                  [-c CORE_MASK] [-m POOL_SIZE] [-r NUM_QUEUES] [-t NUM_QUEUES] -d PORT_1,PORT_3,...,PORT_N"
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -h|--help                                  : Displays this help message and exits" << std::endl
+	    << "    -v|--version                               : Displays the current version and exits" << std::endl
+	    << "    -l|--list                                  : Print the list of DPDK ports and exists" << std::endl
+	    << "    -d|--dpdk-ports PORT_1,PORT_3,...,PORT_N   : A comma-separated list of DPDK port numbers to receive"
+	    << std::endl
+	    << "                                                 packets from. To see all available DPDK ports use the -l "
 	       "switch"
-		<< std::endl
-		<< "    -s|--send-matched-packets PORT             : DPDK port to send matched packets to" << std::endl
-		<< "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH. Packets"
-		<< std::endl
-		<< "                                                 matched by core X will be saved under "
+	    << std::endl
+	    << "    -s|--send-matched-packets PORT             : DPDK port to send matched packets to" << std::endl
+	    << "    -f|--save-matched-packets FILEPATH         : Save matched packets to pcap files under FILEPATH. Packets"
+	    << std::endl
+	    << "                                                 matched by core X will be saved under "
 	       "'FILEPATH/CoreX.pcap'"
-		<< std::endl
-		<< "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
-		<< "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
-		<< "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
-		<< "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
-		<< "    -o|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
-		<< std::endl
-		<< "    -c|--core-mask            CORE_MASK        : Core mask of cores to use." << std::endl
-		<< "                                                 For example: use 7 (binary 0111) to use cores 0,1,2."
-		<< std::endl
-		<< "                                                 Default is using all cores except management core"
-		<< std::endl
-		<< "    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with." << std::endl
-		<< "                                                 Default value is 4095" << std::endl
-		<< "    -r|--rx-queues            NUM_QUEUES       : Number of RX queues to open. Cannot exceed the max "
+	    << std::endl
+	    << "    -i|--match-source-ip      IPV4_ADDR        : Match source IPv4 address" << std::endl
+	    << "    -I|--match-dest-ip        IPV4_ADDR        : Match destination IPv4 address" << std::endl
+	    << "    -p|--match-source-port    PORT             : Match source TCP/UDP port" << std::endl
+	    << "    -P|--match-dest-port      PORT             : Match destination TCP/UDP port" << std::endl
+	    << "    -o|--match-protocol       PROTOCOL         : Match protocol. Valid values are 'TCP' or 'UDP'"
+	    << std::endl
+	    << "    -c|--core-mask            CORE_MASK        : Core mask of cores to use." << std::endl
+	    << "                                                 For example: use 7 (binary 0111) to use cores 0,1,2."
+	    << std::endl
+	    << "                                                 Default is using all cores except management core"
+	    << std::endl
+	    << "    -m|--mbuf-pool-size       POOL_SIZE        : DPDK mBuf pool size to initialize DPDK with." << std::endl
+	    << "                                                 Default value is 4095" << std::endl
+	    << "    -r|--rx-queues            NUM_QUEUES       : Number of RX queues to open. Cannot exceed the max "
 	       "allowed by the NIC or "
-		<< MAX_QUEUES << std::endl
-		<< "                                                 The default is 1" << std::endl
-		<< "    -t|--tx-queues            NUM_QUEUES       : Number of TX queues to open. Cannot exceed the max "
+	    << MAX_QUEUES << std::endl
+	    << "                                                 The default is 1" << std::endl
+	    << "    -t|--tx-queues            NUM_QUEUES       : Number of TX queues to open. Cannot exceed the max "
 	       "allowed by the NIC or "
-		<< MAX_QUEUES << std::endl
-		<< "                                                 The default is 1" << std::endl
-		<< std::endl;
+	    << MAX_QUEUES << std::endl
+	    << "                                                 The default is 1" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -122,8 +122,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -147,10 +147,10 @@ void listDpdkPorts()
 	for (const auto& dev : deviceList)
 	{
 		std::cout << "   "
-				  << " Port #" << dev->getDeviceId() << ":"
-				  << " MAC address='" << dev->getMacAddress() << "';"
-				  << " PCI address='" << dev->getPciAddress() << "';"
-				  << " PMD='" << dev->getPMDName() << "'" << std::endl;
+		          << " Port #" << dev->getDeviceId() << ":"
+		          << " MAC address='" << dev->getMacAddress() << "';"
+		          << " PCI address='" << dev->getPciAddress() << "';"
+		          << " PMD='" << dev->getPMDName() << "'" << std::endl;
 	}
 }
 
@@ -569,10 +569,10 @@ int main(int argc, char* argv[])
 			                                              << "'");
 		}
 		std::cout << "Opened device #" << dev->getDeviceId() << " with " << rxQueues << " RX queues and " << txQueues
-				  << " TX queues."
-				  << " RSS hash functions:" << std::endl;
+		          << " TX queues."
+		          << " RSS hash functions:" << std::endl;
 		std::vector<std::string> rssHashFunctions =
-			dev->rssHashFunctionMaskToString(dev->getConfiguredRssHashFunction());
+		    dev->rssHashFunctionMaskToString(dev->getConfiguredRssHashFunction());
 		for (const auto& hashFunc : rssHashFunctions)
 		{
 			std::cout << "   " << hashFunc << std::endl;

@@ -26,8 +26,8 @@ private:
 
 public:
 	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine)
-		: m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1),
-		  m_PacketMatchingEngine(matchingEngine)
+	    : m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1),
+	      m_PacketMatchingEngine(matchingEngine)
 	{}
 
 	virtual ~AppWorkerThread()

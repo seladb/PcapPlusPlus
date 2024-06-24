@@ -115,11 +115,11 @@ int main(int argc, char* argv[])
 	for (auto* curLayer = parsedPacket.getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 	{
 		std::cout << "Layer type: " << getProtocolTypeAsString(curLayer->getProtocol()) << "; "  // get layer type
-				  << "Total data: " << curLayer->getDataLen() << " [bytes]; "    // get total length of the layer
-				  << "Layer data: " << curLayer->getHeaderLen() << " [bytes]; "  // get the header length of the layer
-				  << "Layer payload: " << curLayer->getLayerPayloadSize()
-				  << " [bytes]"  // get the payload length of the layer (equals total length minus header length)
-				  << std::endl;
+		          << "Total data: " << curLayer->getDataLen() << " [bytes]; "    // get total length of the layer
+		          << "Layer data: " << curLayer->getHeaderLen() << " [bytes]; "  // get the header length of the layer
+		          << "Layer payload: " << curLayer->getLayerPayloadSize()
+		          << " [bytes]"  // get the payload length of the layer (equals total length minus header length)
+		          << std::endl;
 	}
 
 	// now let's get the Ethernet layer
@@ -132,10 +132,10 @@ int main(int argc, char* argv[])
 
 	// print the source and dest MAC addresses and the Ether type
 	std::cout << std::endl
-			  << "Source MAC address: " << ethernetLayer->getSourceMac() << std::endl
-			  << "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
-			  << "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType)
-			  << std::endl;
+	          << "Source MAC address: " << ethernetLayer->getSourceMac() << std::endl
+	          << "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
+	          << "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType)
+	          << std::endl;
 
 	// let's get the IPv4 layer
 	auto* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
@@ -147,10 +147,10 @@ int main(int argc, char* argv[])
 
 	// print source and dest IP addresses, IP ID and TTL
 	std::cout << std::endl
-			  << "Source IP address: " << ipLayer->getSrcIPAddress() << std::endl
-			  << "Destination IP address: " << ipLayer->getDstIPAddress() << std::endl
-			  << "IP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId) << std::endl
-			  << "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
+	          << "Source IP address: " << ipLayer->getSrcIPAddress() << std::endl
+	          << "Destination IP address: " << ipLayer->getDstIPAddress() << std::endl
+	          << "IP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId) << std::endl
+	          << "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
 
 	// let's get the TCP layer
 	auto* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
@@ -162,10 +162,10 @@ int main(int argc, char* argv[])
 
 	// print TCP source and dest ports, window size, and the TCP flags that are set in this layer
 	std::cout << std::endl
-			  << "Source TCP port: " << tcpLayer->getSrcPort() << std::endl
-			  << "Destination TCP port: " << tcpLayer->getDstPort() << std::endl
-			  << "Window size: " << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize) << std::endl
-			  << "TCP flags: " << printTcpFlags(tcpLayer) << std::endl;
+	          << "Source TCP port: " << tcpLayer->getSrcPort() << std::endl
+	          << "Destination TCP port: " << tcpLayer->getDstPort() << std::endl
+	          << "Window size: " << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize) << std::endl
+	          << "TCP flags: " << printTcpFlags(tcpLayer) << std::endl;
 
 	std::cout << "TCP options: ";
 	for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull();
@@ -185,15 +185,15 @@ int main(int argc, char* argv[])
 
 	// print HTTP method and URI. Both appear in the first line of the HTTP request
 	std::cout << std::endl
-			  << "HTTP method: " << printHttpMethod(httpRequestLayer->getFirstLine()->getMethod()) << std::endl
-			  << "HTTP URI: " << httpRequestLayer->getFirstLine()->getUri() << std::endl;
+	          << "HTTP method: " << printHttpMethod(httpRequestLayer->getFirstLine()->getMethod()) << std::endl
+	          << "HTTP URI: " << httpRequestLayer->getFirstLine()->getUri() << std::endl;
 
 	// print values of the following HTTP field: Host, User-Agent and Cookie
 	std::cout << "HTTP host: " << httpRequestLayer->getFieldByName(PCPP_HTTP_HOST_FIELD)->getFieldValue() << std::endl
-			  << "HTTP user-agent: " << httpRequestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue()
-			  << std::endl
-			  << "HTTP cookie: " << httpRequestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue()
-			  << std::endl;
+	          << "HTTP user-agent: " << httpRequestLayer->getFieldByName(PCPP_HTTP_USER_AGENT_FIELD)->getFieldValue()
+	          << std::endl
+	          << "HTTP cookie: " << httpRequestLayer->getFieldByName(PCPP_HTTP_COOKIE_FIELD)->getFieldValue()
+	          << std::endl;
 
 	// print the full URL of this request
 	std::cout << "HTTP full URL: " << httpRequestLayer->getUrl() << std::endl;

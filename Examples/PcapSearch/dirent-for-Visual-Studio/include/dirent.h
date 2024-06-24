@@ -374,8 +374,8 @@ extern "C"
 						case '\\':
 						case '/':
 						case ':':
-							/* Directory ends in path separator, e.g. c:\temp\ */
-							/*NOP*/;
+						    /* Directory ends in path separator, e.g. c:\temp\ */
+						    /*NOP*/;
 							break;
 
 						default:

@@ -60,14 +60,14 @@ public:
 					if (!tcpLayer->getTcpHeader()->ackFlag)
 					{
 						m_FlowTable[hash] =
-							getFileNumberForValue(getValue(packet, SYN, srcPort, dstPort), filesToClose);
+						    getFileNumberForValue(getValue(packet, SYN, srcPort, dstPort), filesToClose);
 						return m_FlowTable[hash];
 					}
 					// SYN/ACK packet
 					else
 					{
 						m_FlowTable[hash] =
-							getFileNumberForValue(getValue(packet, SYN_ACK, srcPort, dstPort), filesToClose);
+						    getFileNumberForValue(getValue(packet, SYN_ACK, srcPort, dstPort), filesToClose);
 						return m_FlowTable[hash];
 					}
 				}
@@ -75,7 +75,7 @@ public:
 				else
 				{
 					m_FlowTable[hash] =
-						getFileNumberForValue(getValue(packet, TCP_OTHER, srcPort, dstPort), filesToClose);
+					    getFileNumberForValue(getValue(packet, TCP_OTHER, srcPort, dstPort), filesToClose);
 					return m_FlowTable[hash];
 				}
 			}

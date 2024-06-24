@@ -91,7 +91,7 @@ struct HttpMessageStats
 struct HttpRequestStats : HttpMessageStats
 {
 	std::unordered_map<pcpp::HttpRequestLayer::HttpMethod, int, std::hash<int>>
-		methodCount;  // a map for counting the different HTTP methods seen in traffic
+	    methodCount;  // a map for counting the different HTTP methods seen in traffic
 	std::unordered_map<std::string, int> hostnameCount;  // a map for counting the hostnames seen in traffic
 
 	void clear() override
@@ -108,7 +108,7 @@ struct HttpRequestStats : HttpMessageStats
 struct HttpResponseStats : HttpMessageStats
 {
 	std::unordered_map<std::string, int>
-		statusCodeCount;  // a map for counting the different status codes seen in traffic
+	    statusCodeCount;  // a map for counting the different status codes seen in traffic
 	std::unordered_map<std::string, int> contentTypeCount;  // a map for counting the content-types seen in traffic
 	int numOfMessagesWithContentLength;  // total number of responses containing the "content-length" field
 	int totalContentLengthSize;          // total body size extracted by responses containing "content-length" field
@@ -194,17 +194,17 @@ public:
 		if (diffSec != 0)
 		{
 			m_GeneralStats.httpTrafficRate.currentRate =
-				(m_GeneralStats.amountOfHttpTraffic - m_PrevGeneralStats.amountOfHttpTraffic) / diffSec;
+			    (m_GeneralStats.amountOfHttpTraffic - m_PrevGeneralStats.amountOfHttpTraffic) / diffSec;
 			m_GeneralStats.httpPacketRate.currentRate =
-				(m_GeneralStats.numOfHttpPackets - m_PrevGeneralStats.numOfHttpPackets) / diffSec;
+			    (m_GeneralStats.numOfHttpPackets - m_PrevGeneralStats.numOfHttpPackets) / diffSec;
 			m_GeneralStats.httpFlowRate.currentRate =
-				(m_GeneralStats.numOfHttpFlows - m_PrevGeneralStats.numOfHttpFlows) / diffSec;
+			    (m_GeneralStats.numOfHttpFlows - m_PrevGeneralStats.numOfHttpFlows) / diffSec;
 			m_GeneralStats.httpTransactionsRate.currentRate =
-				(m_GeneralStats.numOfHttpTransactions - m_PrevGeneralStats.numOfHttpTransactions) / diffSec;
+			    (m_GeneralStats.numOfHttpTransactions - m_PrevGeneralStats.numOfHttpTransactions) / diffSec;
 			m_RequestStats.messageRate.currentRate =
-				(m_RequestStats.numOfMessages - m_PrevRequestStats.numOfMessages) / diffSec;
+			    (m_RequestStats.numOfMessages - m_PrevRequestStats.numOfMessages) / diffSec;
 			m_ResponseStats.messageRate.currentRate =
-				(m_ResponseStats.numOfMessages - m_PrevResponseStats.numOfMessages) / diffSec;
+			    (m_ResponseStats.numOfMessages - m_PrevResponseStats.numOfMessages) / diffSec;
 		}
 
 		// getting the time from the beginning of stats collection until now
@@ -323,9 +323,9 @@ private:
 		if (m_FlowTable.size() != 0)
 		{
 			m_GeneralStats.averageAmountOfDataPerFlow =
-				(double)m_GeneralStats.amountOfHttpTraffic / (double)m_FlowTable.size();
+			    (double)m_GeneralStats.amountOfHttpTraffic / (double)m_FlowTable.size();
 			m_GeneralStats.averageNumOfPacketsPerFlow =
-				(double)m_GeneralStats.numOfHttpPackets / (double)m_FlowTable.size();
+			    (double)m_GeneralStats.numOfHttpPackets / (double)m_FlowTable.size();
 		}
 
 		return hashVal;
@@ -395,7 +395,7 @@ private:
 				// calc average transactions per flow
 				if (m_FlowTable.size() != 0)
 					m_GeneralStats.averageNumOfHttpTransactionsPerFlow =
-						(double)m_GeneralStats.numOfHttpTransactions / (double)m_FlowTable.size();
+					    (double)m_GeneralStats.numOfHttpTransactions / (double)m_FlowTable.size();
 			}
 
 			// set last seen sequence number
@@ -412,7 +412,7 @@ private:
 		m_RequestStats.totalMessageHeaderSize += req->getHeaderLen();
 		if (m_RequestStats.numOfMessages != 0)
 			m_RequestStats.averageMessageHeaderSize =
-				(double)m_RequestStats.totalMessageHeaderSize / (double)m_RequestStats.numOfMessages;
+			    (double)m_RequestStats.totalMessageHeaderSize / (double)m_RequestStats.numOfMessages;
 
 		// extract hostname and add to hostname count map
 		pcpp::HeaderField* hostField = req->getFieldByName(PCPP_HTTP_HOST_FIELD);
@@ -431,7 +431,7 @@ private:
 		m_ResponseStats.totalMessageHeaderSize += res->getHeaderLen();
 		if (m_ResponseStats.numOfMessages != 0)
 			m_ResponseStats.averageMessageHeaderSize =
-				(double)m_ResponseStats.totalMessageHeaderSize / (double)m_ResponseStats.numOfMessages;
+			    (double)m_ResponseStats.totalMessageHeaderSize / (double)m_ResponseStats.numOfMessages;
 
 		// extract content-length (if exists)
 		pcpp::HeaderField* contentLengthField = res->getFieldByName(PCPP_HTTP_CONTENT_LENGTH_FIELD);

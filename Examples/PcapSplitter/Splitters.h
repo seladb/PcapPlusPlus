@@ -123,7 +123,7 @@ protected:
 	 * UNLIMITED_FILES_MAGIC_NUMBER, it's considered there's no output files limit
 	 */
 	explicit SplitterWithMaxFiles(int maxFiles, int firstFileNumber = 0)
-		: m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
+	    : m_LRUFileList(MAX_NUMBER_OF_CONCURRENT_OPEN_FILES)
 	{
 		m_MaxFiles = maxFiles;
 		m_NextFile = firstFileNumber;

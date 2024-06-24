@@ -21,7 +21,7 @@ private:
 
 public:
 	explicit AppWorkerThread(AppWorkerConfig& workerConfig)
-		: m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1)
+	    : m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1)
 	{}
 
 	virtual ~AppWorkerThread()

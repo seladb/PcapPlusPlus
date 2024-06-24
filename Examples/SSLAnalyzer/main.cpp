@@ -41,8 +41,8 @@
 
 #define PRINT_STAT_LINE(description, counter, measurement)                                                             \
 	std::cout << std::left << std::setw(46) << (std::string(description) + ":") << std::right << std::setw(15)         \
-			  << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
-			  << std::endl;
+	          << std::fixed << std::showpoint << std::setprecision(3) << counter << " [" << measurement << "]"         \
+	          << std::endl;
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
@@ -53,9 +53,9 @@ static struct option SSLAnalyzerOptions[] = {
 	{ "rate-calc-period",    required_argument, nullptr, 'r' },
 	{ "disable-rates-print", no_argument,       nullptr, 'd' },
 	{ "list-interfaces",     no_argument,       nullptr, 'l' },
-	{ "help",				no_argument,       nullptr, 'h' },
+	{ "help",	            no_argument,       nullptr, 'h' },
 	{ "version",             no_argument,       nullptr, 'v' },
-	{ nullptr,			   0,                 nullptr, 0   }
+	{ nullptr,	           0,                 nullptr, 0   }
 };
 
 struct SSLPacketArrivedData
@@ -70,36 +70,36 @@ struct SSLPacketArrivedData
 void printUsage()
 {
 	std::cout << std::endl
-			  << "Usage: PCAP file mode:" << std::endl
-			  << "----------------------" << std::endl
-			  << pcpp::AppName::get() << " [-hv] -f input_file" << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -f           : The input pcap/pcapng file to analyze. Required argument for this mode"
-			  << std::endl
-			  << "    -v           : Displays the current version and exists" << std::endl
-			  << "    -h           : Displays this help message and exits" << std::endl
-			  << std::endl
-			  << "Usage: Live traffic mode:" << std::endl
-			  << "-------------------------" << std::endl
-			  << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] -i interface" << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
+	          << "Usage: PCAP file mode:" << std::endl
+	          << "----------------------" << std::endl
+	          << pcpp::AppName::get() << " [-hv] -f input_file" << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -f           : The input pcap/pcapng file to analyze. Required argument for this mode"
+	          << std::endl
+	          << "    -v           : Displays the current version and exists" << std::endl
+	          << "    -h           : Displays this help message and exits" << std::endl
+	          << std::endl
+	          << "Usage: Live traffic mode:" << std::endl
+	          << "-------------------------" << std::endl
+	          << pcpp::AppName::get() << " [-hvld] [-o output_file] [-r calc_period] -i interface" << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -i interface   : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 "
 	             "address"
-			  << std::endl
-			  << "    -o output_file : Save all captured SSL packets to a pcap file. Notice this may cause performance "
+	          << std::endl
+	          << "    -o output_file : Save all captured SSL packets to a pcap file. Notice this may cause performance "
 	             "degradation"
-			  << std::endl
-			  << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
-			  << std::endl
-			  << "    -d             : Disable periodic rates calculation" << std::endl
-			  << "    -v             : Displays the current version and exists" << std::endl
-			  << "    -h             : Displays this help message and exits" << std::endl
-			  << "    -l             : Print the list of interfaces and exists" << std::endl
-			  << std::endl;
+	          << std::endl
+	          << "    -r calc_period : The period in seconds to calculate rates. If not provided default is 2 seconds"
+	          << std::endl
+	          << "    -d             : Disable periodic rates calculation" << std::endl
+	          << "    -v             : Displays the current version and exists" << std::endl
+	          << "    -h             : Displays this help message and exits" << std::endl
+	          << "    -l             : Print the list of interfaces and exists" << std::endl
+	          << std::endl;
 }
 
 /**
@@ -108,8 +108,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -119,13 +119,13 @@ void printAppVersion()
 void listInterfaces()
 {
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
-		pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }
@@ -535,7 +535,7 @@ int main(int argc, char* argv[])
 	{
 		// extract pcap live device by interface name or IP address
 		pcpp::PcapLiveDevice* dev =
-			pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
+		    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 

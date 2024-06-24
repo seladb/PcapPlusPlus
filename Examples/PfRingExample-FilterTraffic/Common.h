@@ -53,8 +53,8 @@ public:
 	int MatchedPackets;
 
 	PacketStats()
-		: ThreadId(MAX_NUM_OF_CORES + 1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0),
-		  TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0)
+	    : ThreadId(MAX_NUM_OF_CORES + 1), PacketCount(0), EthCount(0), ArpCount(0), Ip4Count(0), Ip6Count(0),
+	      TcpCount(0), UdpCount(0), HttpCount(0), MatchedTcpFlows(0), MatchedUdpFlows(0), MatchedPackets(0)
 	{}
 
 	void collectStats(pcpp::Packet& packet)

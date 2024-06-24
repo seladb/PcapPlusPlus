@@ -20,15 +20,15 @@
 
 static struct option IcmpFTOptions[] = {
 	{ "interface",       required_argument, nullptr, 'i'         },
-    { "dest-ip",         required_argument, nullptr, 'd'         },
+	{ "dest-ip",         required_argument, nullptr, 'd'         },
 	{ "send-file",       required_argument, nullptr, 's'         },
-    { "receive-file",    no_argument,       nullptr, 'r'         },
+	{ "receive-file",    no_argument,       nullptr, 'r'         },
 	{ "speed",           required_argument, nullptr, 'p'         },
-    { "block-size",      required_argument, nullptr, 'b'         },
+	{ "block-size",      required_argument, nullptr, 'b'         },
 	{ "list-interfaces", no_argument,       nullptr, 'l'         },
-    { "help",            no_argument,       nullptr, 'h'         },
 	{ "version",         no_argument,       nullptr, 'v'         },
-    { nullptr,           no_argument,       nullptr, no_argument }
+	{ "help",            no_argument,       nullptr, 'h'         },
+	{ nullptr,           no_argument,       nullptr, no_argument }
 };
 
 #define EXIT_WITH_ERROR_PRINT_USAGE(reason)                                                                            \
@@ -50,27 +50,27 @@ void printUsage(const std::string& thisSide, const std::string& otherSide)
 	std::string otherSideIP = otherSide + "_ip";
 
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " [-h] [-v] [-l] -i " << thisSideInterface << " -d " << otherSideIP
-		<< " -s file_path -r " << messagesPerSecShort << "[-b block_size]" << std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -i " << thisSideInterface
-		<< " : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address" << std::endl
-		<< "    -d " << otherSideIP << "        : " << otherSide << " IPv4 address" << std::endl
-		<< "    -s file_path         : Send file mode: send file_path to " << otherSide << std::endl
-		<< "    -r                   : Receive file mode: receive file from " << otherSide << std::endl
-		<< messagesPerSecLong
-		<< "    -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). Default is "
-		<< DEFAULT_BLOCK_SIZE << " bytes. Relevant only" << std::endl
-		<< "                           in send file mode (when -s is set)" << std::endl
-		<< "    -l                   : Print the list of interfaces and exit" << std::endl
-		<< "    -v                   : Displays the current version and exists" << std::endl
-		<< "    -h                   : Display this help message and exit" << std::endl
-		<< std::endl;
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " [-h] [-v] [-l] -i " << thisSideInterface << " -d " << otherSideIP
+	    << " -s file_path -r " << messagesPerSecShort << "[-b block_size]" << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -i " << thisSideInterface
+	    << " : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address" << std::endl
+	    << "    -d " << otherSideIP << "        : " << otherSide << " IPv4 address" << std::endl
+	    << "    -s file_path         : Send file mode: send file_path to " << otherSide << std::endl
+	    << "    -r                   : Receive file mode: receive file from " << otherSide << std::endl
+	    << messagesPerSecLong
+	    << "    -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). Default is "
+	    << DEFAULT_BLOCK_SIZE << " bytes. Relevant only" << std::endl
+	    << "                           in send file mode (when -s is set)" << std::endl
+	    << "    -l                   : Print the list of interfaces and exit" << std::endl
+	    << "    -v                   : Displays the current version and exists" << std::endl
+	    << "    -h                   : Display this help message and exit" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -79,8 +79,8 @@ void printUsage(const std::string& thisSide, const std::string& otherSide)
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -90,13 +90,13 @@ void printAppVersion()
 void listInterfaces()
 {
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
-		pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }

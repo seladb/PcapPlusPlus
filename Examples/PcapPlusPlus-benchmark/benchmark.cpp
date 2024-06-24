@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 		reader.close();
 	}
 	auto total_time =
-		std::accumulate(durations.begin(), durations.end(), std::chrono::high_resolution_clock::duration(0));
+	    std::accumulate(durations.begin(), durations.end(), std::chrono::high_resolution_clock::duration(0));
 
 	using std::chrono::duration_cast;
 	using std::chrono::milliseconds;

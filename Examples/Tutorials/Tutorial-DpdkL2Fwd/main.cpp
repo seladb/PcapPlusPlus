@@ -34,14 +34,14 @@ void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 
 	std::stringstream totalRx;
 	totalRx << "rx"
-			<< "|" << rxStats.aggregatedRxStats.packets << "|" << rxStats.aggregatedRxStats.packetsPerSec << "|"
-			<< rxStats.aggregatedRxStats.bytes << "|" << rxStats.aggregatedRxStats.bytesPerSec * 8;
+	        << "|" << rxStats.aggregatedRxStats.packets << "|" << rxStats.aggregatedRxStats.packetsPerSec << "|"
+	        << rxStats.aggregatedRxStats.bytes << "|" << rxStats.aggregatedRxStats.bytesPerSec * 8;
 	printer.printRow(totalRx.str(), '|');
 
 	std::stringstream totalTx;
 	totalTx << "tx"
-			<< "|" << txStats.aggregatedTxStats.packets << "|" << txStats.aggregatedTxStats.packetsPerSec << "|"
-			<< txStats.aggregatedTxStats.bytes << "|" << txStats.aggregatedTxStats.bytesPerSec * 8;
+	        << "|" << txStats.aggregatedTxStats.packets << "|" << txStats.aggregatedTxStats.packetsPerSec << "|"
+	        << txStats.aggregatedTxStats.bytes << "|" << txStats.aggregatedTxStats.bytesPerSec * 8;
 	printer.printRow(totalTx.str(), '|');
 }
 
@@ -73,14 +73,14 @@ int main(int argc, char* argv[])
 	if (!device1->openMultiQueues(1, 1))
 	{
 		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'"
-				  << std::endl;
+		          << std::endl;
 		return 1;
 	}
 
 	if (!device2->openMultiQueues(1, 1))
 	{
 		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'"
-				  << std::endl;
+		          << std::endl;
 		return 1;
 	}
 

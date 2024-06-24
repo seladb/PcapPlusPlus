@@ -23,7 +23,7 @@ struct PacketStats
 	void clear()
 	{
 		ethPacketCount = ipv4PacketCount = ipv6PacketCount = tcpPacketCount = udpPacketCount = dnsPacketCount =
-			httpPacketCount = sslPacketCount = 0;
+		    httpPacketCount = sslPacketCount = 0;
 	}
 
 	// Constructor is optional here since the members are already initialized
@@ -58,13 +58,13 @@ struct PacketStats
 	void printToConsole()
 	{
 		std::cout << "Ethernet packet count: " << ethPacketCount << std::endl
-				  << "IPv4 packet count:     " << ipv4PacketCount << std::endl
-				  << "IPv6 packet count:     " << ipv6PacketCount << std::endl
-				  << "TCP packet count:      " << tcpPacketCount << std::endl
-				  << "UDP packet count:      " << udpPacketCount << std::endl
-				  << "DNS packet count:      " << dnsPacketCount << std::endl
-				  << "HTTP packet count:     " << httpPacketCount << std::endl
-				  << "SSL packet count:      " << sslPacketCount << std::endl;
+		          << "IPv4 packet count:     " << ipv4PacketCount << std::endl
+		          << "IPv6 packet count:     " << ipv6PacketCount << std::endl
+		          << "TCP packet count:      " << tcpPacketCount << std::endl
+		          << "UDP packet count:      " << udpPacketCount << std::endl
+		          << "DNS packet count:      " << dnsPacketCount << std::endl
+		          << "HTTP packet count:     " << httpPacketCount << std::endl
+		          << "SSL packet count:      " << sslPacketCount << std::endl;
 	}
 };
 
@@ -122,11 +122,11 @@ int main(int argc, char* argv[])
 
 	// before capturing packets let's print some info about this interface
 	std::cout << "Interface info:" << std::endl
-			  << "   Interface name:        " << dev->getName() << std::endl            // get interface name
-			  << "   Interface description: " << dev->getDesc() << std::endl            // get interface description
-			  << "   MAC address:           " << dev->getMacAddress() << std::endl      // get interface MAC address
-			  << "   Default gateway:       " << dev->getDefaultGateway() << std::endl  // get default gateway
-			  << "   Interface MTU:         " << dev->getMtu() << std::endl;            // get interface MTU
+	          << "   Interface name:        " << dev->getName() << std::endl            // get interface name
+	          << "   Interface description: " << dev->getDesc() << std::endl            // get interface description
+	          << "   MAC address:           " << dev->getMacAddress() << std::endl      // get interface MAC address
+	          << "   Default gateway:       " << dev->getDefaultGateway() << std::endl  // get default gateway
+	          << "   Interface MTU:         " << dev->getMtu() << std::endl;            // get interface MTU
 
 	if (!dev->getDnsServers().empty())
 	{

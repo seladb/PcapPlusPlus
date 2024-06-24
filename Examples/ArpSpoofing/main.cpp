@@ -24,11 +24,11 @@
 
 static struct option L3FwdOptions[] = {
 	{ "interface", required_argument, nullptr, 'i' },
-    { "victim",    required_argument, nullptr, 'c' },
+	{ "victim",    required_argument, nullptr, 'c' },
 	{ "gateway",   required_argument, nullptr, 'g' },
-    { "help",      no_argument,       nullptr, 'h' },
 	{ "version",   no_argument,       nullptr, 'v' },
-    { nullptr,     0,                 nullptr, 0   }
+	{ "help",      no_argument,       nullptr, 'h' },
+	{ nullptr,     0,                 nullptr, 0   }
 };
 
 /**
@@ -37,18 +37,18 @@ static struct option L3FwdOptions[] = {
 void printUsage()
 {
 	std::cout << std::endl
-			  << "Usage:" << std::endl
-			  << "------" << std::endl
-			  << pcpp::AppName::get() << " [-hv] -i interface_ip -c victim_ip -g gateway_ip" << std::endl
-			  << std::endl
-			  << "Options:" << std::endl
-			  << std::endl
-			  << "    -i interface_ip   : The IPv4 address of interface to use" << std::endl
-			  << "    -c victim_ip      : The IPv4 address of the victim" << std::endl
-			  << "    -g gateway_ip     : The IPv4 address of the gateway" << std::endl
-			  << "    -h                : Displays this help message and exits" << std::endl
-			  << "    -v                : Displays the current version and exists" << std::endl
-			  << std::endl;
+	          << "Usage:" << std::endl
+	          << "------" << std::endl
+	          << pcpp::AppName::get() << " [-hv] -i interface_ip -c victim_ip -g gateway_ip" << std::endl
+	          << std::endl
+	          << "Options:" << std::endl
+	          << std::endl
+	          << "    -i interface_ip   : The IPv4 address of interface to use" << std::endl
+	          << "    -c victim_ip      : The IPv4 address of the victim" << std::endl
+	          << "    -g gateway_ip     : The IPv4 address of the gateway" << std::endl
+	          << "    -h                : Displays this help message and exits" << std::endl
+	          << "    -v                : Displays the current version and exists" << std::endl
+	          << std::endl;
 }
 
 /**
@@ -57,8 +57,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -160,10 +160,10 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	{
 		pDevice->sendPacket(&gwArpReply);
 		std::cout << "Sent ARP reply: " << gatewayAddr << " [gateway] is at MAC address " << deviceMacAddress << " [me]"
-				  << std::endl;
+		          << std::endl;
 		pDevice->sendPacket(&victimArpReply);
 		std::cout << "Sent ARP reply: " << victimAddr << " [victim] is at MAC address " << deviceMacAddress << " [me]"
-				  << std::endl;
+		          << std::endl;
 		pcpp::multiPlatformSleep(5);
 	}
 }

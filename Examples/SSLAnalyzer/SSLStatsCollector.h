@@ -152,15 +152,15 @@ public:
 		if (diffSec != 0)
 		{
 			m_GeneralStats.sslTrafficRate.currentRate =
-				(m_GeneralStats.amountOfSSLTraffic - m_PrevGeneralStats.amountOfSSLTraffic) / diffSec;
+			    (m_GeneralStats.amountOfSSLTraffic - m_PrevGeneralStats.amountOfSSLTraffic) / diffSec;
 			m_GeneralStats.sslPacketRate.currentRate =
-				(m_GeneralStats.numOfSSLPackets - m_PrevGeneralStats.numOfSSLPackets) / diffSec;
+			    (m_GeneralStats.numOfSSLPackets - m_PrevGeneralStats.numOfSSLPackets) / diffSec;
 			m_GeneralStats.sslFlowRate.currentRate =
-				(m_GeneralStats.numOfSSLFlows - m_PrevGeneralStats.numOfSSLFlows) / diffSec;
+			    (m_GeneralStats.numOfSSLFlows - m_PrevGeneralStats.numOfSSLFlows) / diffSec;
 			m_ClientHelloStats.messageRate.currentRate =
-				(m_ClientHelloStats.numOfMessages - m_PrevClientHelloStats.numOfMessages) / diffSec;
+			    (m_ClientHelloStats.numOfMessages - m_PrevClientHelloStats.numOfMessages) / diffSec;
 			m_ServerHelloStats.messageRate.currentRate =
-				(m_ServerHelloStats.numOfMessages - m_PrevServerHelloStats.numOfMessages) / diffSec;
+			    (m_ServerHelloStats.numOfMessages - m_PrevServerHelloStats.numOfMessages) / diffSec;
 		}
 
 		// getting the time from the beginning of stats collection until now
@@ -279,9 +279,9 @@ private:
 		if (m_FlowTable.size() != 0)
 		{
 			m_GeneralStats.averageAmountOfDataPerFlow =
-				(double)m_GeneralStats.amountOfSSLTraffic / (double)m_FlowTable.size();
+			    (double)m_GeneralStats.amountOfSSLTraffic / (double)m_FlowTable.size();
 			m_GeneralStats.averageNumOfPacketsPerFlow =
-				(double)m_GeneralStats.numOfSSLPackets / (double)m_FlowTable.size();
+			    (double)m_GeneralStats.numOfSSLPackets / (double)m_FlowTable.size();
 		}
 
 		return hashVal;
@@ -328,7 +328,7 @@ private:
 
 				// try to find client-hello message
 				pcpp::SSLClientHelloMessage* clientHelloMessage =
-					handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
+				    handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
 
 				// collect client-hello stats
 				if (clientHelloMessage != NULL)
@@ -338,7 +338,7 @@ private:
 
 				// try to find server-hello message
 				pcpp::SSLServerHelloMessage* serverHelloMessage =
-					handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
+				    handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
 
 				// collect server-hello stats
 				if (serverHelloMessage != NULL)
@@ -360,7 +360,7 @@ private:
 		m_ClientHelloStats.numOfMessages++;
 
 		pcpp::SSLServerNameIndicationExtension* sniExt =
-			clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>();
+		    clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>();
 		if (sniExt != NULL)
 			m_ClientHelloStats.serverNameCount[sniExt->getHostName()]++;
 	}

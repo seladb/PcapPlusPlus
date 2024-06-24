@@ -24,9 +24,9 @@ private:
 public:
 	PacketMatchingEngine(const pcpp::IPv4Address& srcIpToMatch, const pcpp::IPv4Address& dstIpToMatch,
 	                     uint16_t srcPortToMatch, uint16_t dstPortToMatch, pcpp::ProtocolType protocolToMatch)
-		: m_SrcIpToMatch(srcIpToMatch), m_DstIpToMatch(dstIpToMatch), m_SrcPortToMatch(srcPortToMatch),
-		  m_DstPortToMatch(dstPortToMatch), m_ProtocolToMatch(protocolToMatch), m_MatchSrcIp(false),
-		  m_MatchDstIp(false), m_MatchSrcPort(false), m_MatchDstPort(false), m_MatchProtocol(false)
+	    : m_SrcIpToMatch(srcIpToMatch), m_DstIpToMatch(dstIpToMatch), m_SrcPortToMatch(srcPortToMatch),
+	      m_DstPortToMatch(dstPortToMatch), m_ProtocolToMatch(protocolToMatch), m_MatchSrcIp(false),
+	      m_MatchDstIp(false), m_MatchSrcPort(false), m_MatchDstPort(false), m_MatchProtocol(false)
 	{
 		if (m_SrcIpToMatch != pcpp::IPv4Address::Zero)
 			m_MatchSrcIp = true;

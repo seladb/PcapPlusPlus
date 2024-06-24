@@ -46,25 +46,25 @@ static struct option ArpingOptions[] = {
 void printUsage()
 {
 	std::cout
-		<< std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " [-hvl] [-c count] [-w timeout] [-s mac_addr] [-S ip_addr] -i interface -T ip_addr"
-		<< std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -h           : Displays this help message and exits" << std::endl
-		<< "    -v           : Displays the current version and exists" << std::endl
-		<< "    -l           : Print the list of interfaces and exists" << std::endl
-		<< "    -c count     : Send 'count' requests" << std::endl
-		<< "    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address"
-		<< std::endl
-		<< "    -s mac_addr  : Set source MAC address" << std::endl
-		<< "    -S ip_addr   : Set source IP address" << std::endl
-		<< "    -T ip_addr   : Set target IP address" << std::endl
-		<< "    -w timeout   : How long to wait for a reply (in seconds)" << std::endl
-		<< std::endl;
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " [-hvl] [-c count] [-w timeout] [-s mac_addr] [-S ip_addr] -i interface -T ip_addr"
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -h           : Displays this help message and exits" << std::endl
+	    << "    -v           : Displays the current version and exists" << std::endl
+	    << "    -l           : Print the list of interfaces and exists" << std::endl
+	    << "    -c count     : Send 'count' requests" << std::endl
+	    << "    -i interface : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address"
+	    << std::endl
+	    << "    -s mac_addr  : Set source MAC address" << std::endl
+	    << "    -S ip_addr   : Set source IP address" << std::endl
+	    << "    -T ip_addr   : Set target IP address" << std::endl
+	    << "    -w timeout   : How long to wait for a reply (in seconds)" << std::endl
+	    << std::endl;
 }
 
 /**
@@ -73,8 +73,8 @@ void printUsage()
 void printAppVersion()
 {
 	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-			  << "Built: " << pcpp::getBuildDateTime() << std::endl
-			  << "Built from: " << pcpp::getGitInfo() << std::endl;
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
@@ -84,13 +84,13 @@ void printAppVersion()
 void listInterfaces()
 {
 	const std::vector<pcpp::PcapLiveDevice*>& devList =
-		pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& dev : devList)
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
-				  << std::endl;
+		          << std::endl;
 	}
 	exit(0);
 }
@@ -250,8 +250,8 @@ int main(int argc, char* argv[])
 			// output ARP ping data
 			std::cout.precision(3);
 			std::cout << "Reply from " << targetIP << " "
-					  << "[" << result << "]  " << std::fixed << arpResponseTimeMS << "ms  "
-					  << "index=" << i << std::endl;
+			          << "[" << result << "]  " << std::fixed << arpResponseTimeMS << "ms  "
+			          << "index=" << i << std::endl;
 		}
 
 		i++;
