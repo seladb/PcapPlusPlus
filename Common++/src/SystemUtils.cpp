@@ -321,7 +321,7 @@ namespace pcpp
 		{
 			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
-					ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 			return TRUE;
 		}
 
@@ -347,7 +347,7 @@ namespace pcpp
 
 			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != nullptr)
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
-					ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = nullptr;
 
@@ -362,7 +362,7 @@ namespace pcpp
 #endif
 
 	ApplicationEventHandler::ApplicationEventHandler()
-		: m_ApplicationInterruptedHandler(nullptr), m_ApplicationInterruptedCookie(nullptr)
+	    : m_ApplicationInterruptedHandler(nullptr), m_ApplicationInterruptedCookie(nullptr)
 	{}
 
 	void ApplicationEventHandler::onApplicationInterrupted(EventHandlerCallback handler, void* cookie)
