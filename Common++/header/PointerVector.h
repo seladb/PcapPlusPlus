@@ -186,8 +186,6 @@ namespace pcpp
 			return m_Vector.end();
 		}
 
-		// inline size_t size() { return m_Vector.size(); }
-
 		/**
 		 * Get number of elements in the vector
 		 * @return The number of elements in the vector
