@@ -6,13 +6,13 @@
 #include <stdio.h>
 #include <stdexcept>
 #ifndef NS_INADDRSZ
-#define NS_INADDRSZ	4
+#	define NS_INADDRSZ 4
 #endif
 #ifndef NS_IN6ADDRSZ
-#define NS_IN6ADDRSZ	16
+#	define NS_IN6ADDRSZ 16
 #endif
 #ifndef NS_INT16SZ
-#define NS_INT16SZ	2
+#	define NS_INT16SZ 2
 #endif
 
 namespace pcpp
@@ -80,7 +80,8 @@ namespace pcpp
 				if (resultBufLen < INET_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
 
-				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString, resultBufLen) == nullptr)
+				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString,
+				              resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
 				}
@@ -92,7 +93,8 @@ namespace pcpp
 				if (resultBufLen < INET6_ADDRSTRLEN)
 					throw std::invalid_argument("Insufficient buffer");
 
-				if(inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString, resultBufLen) == nullptr)
+				if (inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString,
+				              resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
 				}
@@ -105,14 +107,14 @@ namespace pcpp
 
 		uint32_t in_addr2int(in_addr inAddr)
 		{
-		#ifdef _WIN32
+#ifdef _WIN32
 			return inAddr.S_un.S_addr;
-		#else
+#else
 			return inAddr.s_addr;
-		#endif
+#endif
 		}
-	} // namespace internal
-} // namespace pcpp
+	}  // namespace internal
+}  // namespace pcpp
 
 // Only MinGW32 doesn't have these functions (not MinGW-w64 nor Visual C++)
 #if defined(_WIN32) && !defined(_MSC_VER) && (!defined(__MINGW64_VERSION_MAJOR) || (__MINGW64_VERSION_MAJOR < 8))
@@ -127,14 +129,13 @@ namespace pcpp
  * author:
  *	Paul Vixie, 1996.
  */
-static const char *
-inet_ntop4(const uint8_t* src, char* dst, size_t size)
+static const char* inet_ntop4(const uint8_t* src, char* dst, size_t size)
 {
 	static const char fmt[] = "%u.%u.%u.%u";
 	char tmp[sizeof "255.255.255.255"];
 	int nprinted;
 	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
-		/* Note: nprinted *excludes* the trailing '\0' character */
+	/* Note: nprinted *excludes* the trailing '\0' character */
 	if ((size_t)nprinted >= size)
 	{
 		return (NULL);
@@ -149,8 +150,7 @@ inet_ntop4(const uint8_t* src, char* dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
-static const char *
-inet_ntop6(const uint8_t* src, char* dst, size_t size)
+static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 {
 	/*
 	 * Note that int32_t and int16_t need only be "at least" large enough
@@ -160,7 +160,10 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	 * to use pointer overlays.  All the world's not a VAX.
 	 */
 	char tmp[sizeof "ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255"], *tp;
-	struct { int base, len; } best, cur;
+	struct
+	{
+		int base, len;
+	} best, cur;
 	u_int words[NS_IN6ADDRSZ / NS_INT16SZ];
 	int i;
 
@@ -222,16 +225,15 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 		/* Is this address an encapsulated IPv4? */
 		if (i == 6 && best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
 		{
-			if (!inet_ntop4(src+12, tp, sizeof tmp - (tp - tmp)))
+			if (!inet_ntop4(src + 12, tp, sizeof tmp - (tp - tmp)))
 				return (NULL);
 			tp += strlen(tp);
 			break;
 		}
-		tp += snprintf(tp, (unsigned long) (sizeof tmp - (tp - tmp)), "%x", words[i]);
+		tp += snprintf(tp, (unsigned long)(sizeof tmp - (tp - tmp)), "%x", words[i]);
 	}
 	/* Was it a trailing run of 0x00's? */
-	if (best.base != -1 && (best.base + best.len) ==
-		(NS_IN6ADDRSZ / NS_INT16SZ))
+	if (best.base != -1 && (best.base + best.len) == (NS_IN6ADDRSZ / NS_INT16SZ))
 		*tp++ = ':';
 	*tp++ = '\0';
 
@@ -246,7 +248,6 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	return (dst);
 }
 
-
 /* int
  * inet_pton4(src, dst)
  *	like inet_aton() but without all the hexadecimal and shorthand.
@@ -257,8 +258,7 @@ inet_ntop6(const uint8_t* src, char* dst, size_t size)
  * author:
  *	Paul Vixie, 1996.
  */
-static int
-inet_pton4(const char* src, uint8_t* dst)
+static int inet_pton4(const char* src, uint8_t* dst)
 {
 	static const char digits[] = "0123456789";
 	int saw_digit, octets, ch;
@@ -269,7 +269,7 @@ inet_pton4(const char* src, uint8_t* dst)
 	*(tp = tmp) = 0;
 	while ((ch = *src++) != '\0')
 	{
-		const char *pch;
+		const char* pch;
 
 		if ((pch = strchr(digits, ch)) != NULL)
 		{
@@ -277,8 +277,8 @@ inet_pton4(const char* src, uint8_t* dst)
 
 			if (newSize > 255)
 				return (0);
-			*tp = (u_char) newSize;
-			if (! saw_digit)
+			*tp = (u_char)newSize;
+			if (!saw_digit)
 			{
 				if (++octets > 4)
 					return (0);
@@ -291,7 +291,8 @@ inet_pton4(const char* src, uint8_t* dst)
 				return (0);
 			*++tp = 0;
 			saw_digit = 0;
-		} else
+		}
+		else
 			return (0);
 	}
 	if (octets < 4)
@@ -313,13 +314,11 @@ inet_pton4(const char* src, uint8_t* dst)
  * author:
  *	Paul Vixie, 1996.
  */
-static int
-inet_pton6(const char* src, uint8_t* dst)
+static int inet_pton6(const char* src, uint8_t* dst)
 {
-	static const char xdigits_l[] = "0123456789abcdef",
-			  xdigits_u[] = "0123456789ABCDEF";
+	static const char xdigits_l[] = "0123456789abcdef", xdigits_u[] = "0123456789ABCDEF";
 	u_char tmp[NS_IN6ADDRSZ], *tp, *endp, *colonp;
-	const char *curtok;
+	const char* curtok;
 	int ch, saw_xdigit;
 	u_int val;
 
@@ -335,7 +334,7 @@ inet_pton6(const char* src, uint8_t* dst)
 	val = 0;
 	while ((ch = *src++) != '\0')
 	{
-		const char* pch, *xdigits;
+		const char *pch, *xdigits;
 
 		if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
 			pch = strchr((xdigits = xdigits_u), ch);
@@ -364,8 +363,8 @@ inet_pton6(const char* src, uint8_t* dst)
 			}
 			if (tp + NS_INT16SZ > endp)
 				return (0);
-			*tp++ = (u_char) (val >> 8) & 0xff;
-			*tp++ = (u_char) val & 0xff;
+			*tp++ = (u_char)(val >> 8) & 0xff;
+			*tp++ = (u_char)val & 0xff;
 			saw_xdigit = 0;
 			val = 0;
 			continue;
@@ -374,7 +373,7 @@ inet_pton6(const char* src, uint8_t* dst)
 		{
 			tp += NS_INADDRSZ;
 			saw_xdigit = 0;
-			break;	/* '\0' was seen by inet_pton4(). */
+			break; /* '\0' was seen by inet_pton4(). */
 		}
 		return (0);
 	}
@@ -382,8 +381,8 @@ inet_pton6(const char* src, uint8_t* dst)
 	{
 		if (tp + NS_INT16SZ > endp)
 			return (0);
-		*tp++ = (u_char) (val >> 8) & 0xff;
-		*tp++ = (u_char) val & 0xff;
+		*tp++ = (u_char)(val >> 8) & 0xff;
+		*tp++ = (u_char)val & 0xff;
 	}
 	if (colonp != NULL)
 	{
@@ -391,14 +390,14 @@ inet_pton6(const char* src, uint8_t* dst)
 		 * Since some memmove()'s erroneously fail to handle
 		 * overlapping regions, we'll do the shift by hand.
 		 */
-		const int n = (int) (tp - colonp);
+		const int n = (int)(tp - colonp);
 		int i;
 
 		if (tp == endp)
 			return (0);
 		for (i = 1; i <= n; i++)
 		{
-			endp[- i] = colonp[n - i];
+			endp[-i] = colonp[n - i];
 			colonp[n - i] = 0;
 		}
 		tp = endp;
@@ -408,7 +407,6 @@ inet_pton6(const char* src, uint8_t* dst)
 	memcpy(dst, tmp, NS_IN6ADDRSZ);
 	return (1);
 }
-
 
 const char* inet_ntop(int af, const void* src, char* dst, size_t size)
 {
@@ -428,14 +426,14 @@ int inet_pton(int af, const char* src, void* dst)
 {
 	switch (af)
 	{
-#ifdef AF_INET
+#	ifdef AF_INET
 	case AF_INET:
 		return (inet_pton4(src, (uint8_t*)dst));
-#endif
-#ifdef AF_INET6
+#	endif
+#	ifdef AF_INET6
 	case AF_INET6:
 		return (inet_pton6(src, (uint8_t*)dst));
-#endif
+#	endif
 	default:
 		return (-1);
 	}

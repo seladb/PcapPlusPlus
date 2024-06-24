@@ -10,7 +10,6 @@
 
 /// @file
 
-
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
@@ -41,19 +40,26 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(const uint32_t addrAsInt) { memcpy(m_Bytes.data(), &addrAsInt, sizeof(addrAsInt)); }
+		IPv4Address(const uint32_t addrAsInt)
+		{
+			memcpy(m_Bytes.data(), &addrAsInt, sizeof(addrAsInt));
+		}
 
 		/**
 		 * A constructor that creates an instance of the class out of 4-byte array.
 		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		IPv4Address(const uint8_t bytes[4]) { memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t)); }
+		IPv4Address(const uint8_t bytes[4])
+		{
+			memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t));
+		}
 
 		/**
 		 * A constructor that creates an instance of the class out of a 4-byte standard array.
 		 * @param[in] bytes The address as 4-byte standard array in network byte order
 		 */
-		IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes) {}
+		IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -71,12 +77,18 @@ namespace pcpp
 		/**
 		 * @return A non-owning pointer to 4-byte C-style array representing the IPv4 address
 		 */
-		const uint8_t* toBytes() const { return m_Bytes.data(); }
+		const uint8_t* toBytes() const
+		{
+			return m_Bytes.data();
+		}
 
 		/**
 		 * @return A reference to a 4-byte standard array representing the IPv4 address
 		 */
-		const std::array<uint8_t, 4>& toByteArray() const { return m_Bytes; }
+		const std::array<uint8_t, 4>& toByteArray() const
+		{
+			return m_Bytes;
+		}
 
 		/**
 		 * @return A string representation of the address
@@ -93,7 +105,10 @@ namespace pcpp
 		 * @param[in] rhs The object to compare with
 		 * @return True if the addresses are equal, false otherwise
 		 */
-		bool operator==(const IPv4Address& rhs) const { return toInt() == rhs.toInt(); }
+		bool operator==(const IPv4Address& rhs) const
+		{
+			return toInt() == rhs.toInt();
+		}
 
 		/**
 		 * Overload of the less-than operator
@@ -106,7 +121,8 @@ namespace pcpp
 			std::reverse(reinterpret_cast<uint8_t*>(&intVal), reinterpret_cast<uint8_t*>(&intVal) + sizeof(intVal));
 
 			uint32_t rhsIntVal = rhs.toInt();
-			std::reverse(reinterpret_cast<uint8_t*>(&rhsIntVal), reinterpret_cast<uint8_t*>(&rhsIntVal) + sizeof(rhsIntVal));
+			std::reverse(reinterpret_cast<uint8_t*>(&rhsIntVal),
+			             reinterpret_cast<uint8_t*>(&rhsIntVal) + sizeof(rhsIntVal));
 
 			return intVal < rhsIntVal;
 		}
@@ -116,7 +132,10 @@ namespace pcpp
 		 * @param[in] rhs The object to compare with
 		 * @return True if the addresses are not equal, false otherwise
 		 */
-		bool operator!=(const IPv4Address& rhs) const	{ return !(*this == rhs); }
+		bool operator!=(const IPv4Address& rhs) const
+		{
+			return !(*this == rhs);
+		}
 
 		/**
 		 * Checks whether the address matches a network.
@@ -160,9 +179,8 @@ namespace pcpp
 		static const IPv4Address MulticastRangeUpperBound;
 
 	private:
-		std::array<uint8_t, 4> m_Bytes = {0};
-	}; // class IPv4Address
-
+		std::array<uint8_t, 4> m_Bytes = { 0 };
+	};  // class IPv4Address
 
 	// Implementation of inline methods
 
@@ -189,13 +207,17 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 16-byte array.
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(const uint8_t bytes[16]) { memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t)); }
+		IPv6Address(const uint8_t bytes[16])
+		{
+			memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
+		}
 
 		/**
 		 * A constructor that creates an instance of the class out of a 16-byte standard array.
 		 * @param[in] bytes The address as 16-byte standard array in network byte order
 		 */
-		IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes) {}
+		IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value.
@@ -209,13 +231,19 @@ namespace pcpp
 		 * Returns a view of the IPv6 address as a 16-byte raw C-style array
 		 * @return A non-owning pointer to 16-byte array representing the IPv6 address
 		 */
-		const uint8_t* toBytes() const { return m_Bytes.data(); }
+		const uint8_t* toBytes() const
+		{
+			return m_Bytes.data();
+		}
 
 		/**
 		 * Returns a view of the IPv6 address as a std::array of bytes
 		 * @return A reference to a 16-byte standard array representing the IPv6 address
 		 */
-		const std::array<uint8_t, 16>& toByteArray() const { return m_Bytes; }
+		const std::array<uint8_t, 16>& toByteArray() const
+		{
+			return m_Bytes;
+		}
 
 		/**
 		 * Returns a std::string representation of the address
@@ -234,22 +262,30 @@ namespace pcpp
 		 * @param[in] rhs The object to compare with
 		 * @return True if the addresses are equal, false otherwise
 		 */
-		bool operator==(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0; }
+		bool operator==(const IPv6Address& rhs) const
+		{
+			return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) == 0;
+		}
 
 		/**
 		 * Overload of the less-than operator
 		 * @param[in] rhs The object to compare with
 		 * @return True if the address value is lower than the other address value, false otherwise
 		 */
-		bool operator<(const IPv6Address& rhs) const { return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) < 0; }
+		bool operator<(const IPv6Address& rhs) const
+		{
+			return memcmp(toBytes(), rhs.toBytes(), sizeof(m_Bytes)) < 0;
+		}
 
 		/**
 		 * Overload of the not-equal-to operator
 		 * @param[in] rhs The object to compare with
 		 * @return True if the addresses are not equal, false otherwise
 		 */
-		bool operator!=(const IPv6Address &rhs) const { return !(*this == rhs); }
-
+		bool operator!=(const IPv6Address& rhs) const
+		{
+			return !(*this == rhs);
+		}
 
 		/**
 		 * Allocates a byte array and copies address value into it. Array deallocation is user responsibility
@@ -263,7 +299,10 @@ namespace pcpp
 		 * This method assumes array allocated size is at least 16 (the size of an IPv6 address)
 		 * @param[in] arr A pointer to the array which address will be copied to
 		 */
-		void copyTo(uint8_t* arr) const { memcpy(arr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t)); }
+		void copyTo(uint8_t* arr) const
+		{
+			memcpy(arr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
+		}
 
 		/**
 		 * Checks whether the address matches a network.
@@ -295,7 +334,8 @@ namespace pcpp
 		static bool isValidIPv6Address(const std::string& addrAsString);
 
 		/**
-		 * A static value representing a zero value of IPv6 address, meaning address of value "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0".
+		 * A static value representing a zero value of IPv6 address, meaning address of value
+		 * "0:0:0:0:0:0:0:0:0:0:0:0:0:0:0:0".
 		 */
 		static const IPv6Address Zero;
 
@@ -307,9 +347,8 @@ namespace pcpp
 		static const IPv6Address MulticastRangeLowerBound;
 
 	private:
-		std::array<uint8_t, 16> m_Bytes = {0};
-	}; // class IPv6Address
-
+		std::array<uint8_t, 16> m_Bytes = { 0 };
+	};  // class IPv6Address
 
 	/**
 	 * @class IPAddress
@@ -336,19 +375,22 @@ namespace pcpp
 		/**
 		 * A default constructor that creates an instance of the class with unspecified IPv4 address
 		 */
-		IPAddress() : m_Type(IPv4AddressType) {}
+		IPAddress() : m_Type(IPv4AddressType)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of IPv4Address.
 		 * @param[in] addr A const reference to instance of IPv4Address
 		 */
-		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr) {}
+		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of IPv6Address.
 		 * @param[in] addr A const reference to instance of IPv6Address
 		 */
-		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr) {}
+		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of std::string value
@@ -376,46 +418,70 @@ namespace pcpp
 		 * Gets the address type: IPv4 or IPv6
 		 * @return The address type
 		 */
-		AddressType getType() const { return static_cast<AddressType>(m_Type); }
+		AddressType getType() const
+		{
+			return static_cast<AddressType>(m_Type);
+		}
 
 		/**
 		 * Returns a std::string representation of the address
 		 * @return A string representation of the address
 		 */
-		std::string toString() const { return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();	}
+		std::string toString() const
+		{
+			return (getType() == IPv4AddressType) ? m_IPv4.toString() : m_IPv6.toString();
+		}
 
 		/**
 		 * @return Determine whether the object contains an IP version 4 address
 		 */
-		bool isIPv4() const { return getType() == IPv4AddressType; }
+		bool isIPv4() const
+		{
+			return getType() == IPv4AddressType;
+		}
 
 		/**
 		 * @return Determine whether the object contains an IP version 6 address
 		 */
-		bool isIPv6() const { return getType() == IPv6AddressType; }
+		bool isIPv6() const
+		{
+			return getType() == IPv6AddressType;
+		}
 
 		/**
 		 * Determine whether the address is a multicast address
 		 * @return True if an address is multicast
 		 */
-		bool isMulticast() const { return (getType() == IPv4AddressType) ? m_IPv4.isMulticast() : m_IPv6.isMulticast(); }
+		bool isMulticast() const
+		{
+			return (getType() == IPv4AddressType) ? m_IPv4.isMulticast() : m_IPv6.isMulticast();
+		}
 
 		/**
 		 * Get a reference to IPv4 address instance
 		 * @return The const reference to IPv4Address instance
 		 */
-		const IPv4Address& getIPv4() const { return m_IPv4; }
+		const IPv4Address& getIPv4() const
+		{
+			return m_IPv4;
+		}
 
 		/**
 		 * Get a reference to IPv6 address instance
 		 * @return The const reference to IPv6Address instance
 		 */
-		const IPv6Address& getIPv6() const { return m_IPv6; }
+		const IPv6Address& getIPv6() const
+		{
+			return m_IPv6;
+		}
 
 		/**
 		 * @return True if the address is zero, false otherwise
 		 */
-		bool isZero() const { return (getType() == IPv4AddressType) ? m_IPv4 == IPv4Address::Zero : m_IPv6 == IPv6Address::Zero; }
+		bool isZero() const
+		{
+			return (getType() == IPv4AddressType) ? m_IPv4 == IPv4Address::Zero : m_IPv6 == IPv6Address::Zero;
+		}
 
 		/**
 		 * Overload of the equal-to operator
@@ -436,14 +502,16 @@ namespace pcpp
 		 * @param[in] rhs The object to compare with
 		 * @return True if the addresses are not equal, false otherwise
 		 */
-		bool operator!=(const IPAddress& rhs) const { return !(*this == rhs); }
+		bool operator!=(const IPAddress& rhs) const
+		{
+			return !(*this == rhs);
+		}
 
 	private:
 		uint8_t m_Type;
 		IPv4Address m_IPv4;
 		IPv6Address m_IPv6;
 	};
-
 
 	// implementation of inline methods
 
@@ -457,7 +525,7 @@ namespace pcpp
 
 	bool IPAddress::operator<(const IPAddress& rhs) const
 	{
-		if(isIPv4())
+		if (isIPv4())
 		{
 			// treat IPv4 as less than IPv6
 			// If current obj is IPv4 and other is IPv6 return true
@@ -480,7 +548,6 @@ namespace pcpp
 		return *this;
 	}
 
-
 	/**
 	 * @class IPv4Network
 	 * A class representing IPv4 network definition
@@ -494,7 +561,8 @@ namespace pcpp
 		 *
 		 * @param address An address representing the network prefix.
 		 */
-		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u) {}
+		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
@@ -538,12 +606,18 @@ namespace pcpp
 		/**
 		 * @return The netmask, for example: the netmask of 10.10.10.10/8 is 255.0.0.0
 		 */
-		std::string getNetmask() const { return IPv4Address(m_Mask).toString(); }
+		std::string getNetmask() const
+		{
+			return IPv4Address(m_Mask).toString();
+		}
 
 		/**
 		 * @return The network prefix, for example: the network prefix of 10.10.10.10/16 is 10.10.0.0
-		*/
-		IPv4Address getNetworkPrefix() const { return IPv4Address(m_NetworkPrefix); }
+		 */
+		IPv4Address getNetworkPrefix() const
+		{
+			return IPv4Address(m_NetworkPrefix);
+		}
 
 		/**
 		 * @return The lowest non-reserved IPv4 address in this network, for example: the lowest address
@@ -591,7 +665,6 @@ namespace pcpp
 		void initFromAddressAndNetmask(const IPv4Address& address, const IPv4Address& netmaskAddress);
 	};
 
-
 	/**
 	 * @class IPv6Network
 	 * A class representing IPv6 network definition
@@ -605,7 +678,8 @@ namespace pcpp
 		 *
 		 * @param address An address representing the network prefix.
 		 */
-		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128u) {}
+		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128u)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
@@ -649,17 +723,23 @@ namespace pcpp
 		/**
 		 * @return The netmask, for example: the netmask of 3546::/16 is ffff::
 		 */
-		std::string getNetmask() const { return IPv6Address(m_Mask).toString(); }
+		std::string getNetmask() const
+		{
+			return IPv6Address(m_Mask).toString();
+		}
 
 		/**
 		 * @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::
-		*/
-		IPv6Address getNetworkPrefix() const { return IPv6Address(m_NetworkPrefix); }
+		 */
+		IPv6Address getNetworkPrefix() const
+		{
+			return IPv6Address(m_NetworkPrefix);
+		}
 
 		/**
-		* @return The lowest non-reserved IPv6 address in this network, for example: the lowest address in 3546::/16 is
-		* 3546::1
-		*/
+		 * @return The lowest non-reserved IPv6 address in this network, for example: the lowest address in 3546::/16 is
+		 * 3546::1
+		 */
 		IPv6Address getLowestAddress() const;
 
 		/**
@@ -702,7 +782,6 @@ namespace pcpp
 		void initFromAddressAndNetmask(const IPv6Address& address, const IPv6Address& netmaskAddress);
 	};
 
-
 	/**
 	 * @class IPNetwork
 	 * A class representing version independent IP network definition, both IPv4 and IPv6 are included
@@ -716,14 +795,16 @@ namespace pcpp
 		 *
 		 * @param address An address representing the network prefix.
 		 */
-		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u) {}
+		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u)
+		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of an address representing the network prefix
 		 * and a prefix length
 		 * @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		 * exception is thrown
-		 * @param prefixLen A number representing the prefix length. Allowed ranges are 0 - 32 for IPv4 networks and 0 - 128 for IPv6 networks.
+		 * @param prefixLen A number representing the prefix length. Allowed ranges are 0 - 32 for IPv4 networks and 0 -
+		 * 128 for IPv6 networks.
 		 * @throws std::invalid_argument Prefix length is out of acceptable range.
 		 */
 		IPNetwork(const IPAddress& address, uint8_t prefixLen)
@@ -871,8 +952,9 @@ namespace pcpp
 		}
 
 		/**
-		* @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is 255.0.0.0
-		*/
+		 * @return The netmask, for example: the netmask of 3546::/16 is ffff::, the netmask of 10.10.10.10/8 is
+		 * 255.0.0.0
+		 */
 		std::string getNetmask() const
 		{
 			return (m_IPv4Network != nullptr ? m_IPv4Network->getNetmask() : m_IPv6Network->getNetmask());
@@ -881,19 +963,21 @@ namespace pcpp
 		/**
 		 * @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::, the network prefix
 		 * of 10.10.10.10/16 is 10.10.0.0
-		*/
+		 */
 		IPAddress getNetworkPrefix() const
 		{
-			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getNetworkPrefix()) : IPAddress(m_IPv6Network->getNetworkPrefix()));
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getNetworkPrefix())
+			                                 : IPAddress(m_IPv6Network->getNetworkPrefix()));
 		}
 
 		/**
-		* @return The lowest non-reserved IP address in this network, for example: the lowest address in 3546::/16 is
-		* 3546::1, the lowest address in 10.10.10.10/16 is 10.10.0.1
-		*/
+		 * @return The lowest non-reserved IP address in this network, for example: the lowest address in 3546::/16 is
+		 * 3546::1, the lowest address in 10.10.10.10/16 is 10.10.0.1
+		 */
 		IPAddress getLowestAddress() const
 		{
-			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getLowestAddress()) : IPAddress(m_IPv6Network->getLowestAddress()));
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getLowestAddress())
+			                                 : IPAddress(m_IPv6Network->getLowestAddress()));
 		}
 
 		/**
@@ -902,7 +986,8 @@ namespace pcpp
 		 */
 		IPAddress getHighestAddress() const
 		{
-			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getHighestAddress()) : IPAddress(m_IPv6Network->getHighestAddress()));
+			return (m_IPv4Network != nullptr ? IPAddress(m_IPv4Network->getHighestAddress())
+			                                 : IPAddress(m_IPv6Network->getHighestAddress()));
 		}
 
 		/**
@@ -912,7 +997,8 @@ namespace pcpp
 		 */
 		uint64_t getTotalAddressCount() const
 		{
-			return (m_IPv4Network != nullptr ? m_IPv4Network->getTotalAddressCount() : m_IPv6Network->getTotalAddressCount());
+			return (m_IPv4Network != nullptr ? m_IPv4Network->getTotalAddressCount()
+			                                 : m_IPv6Network->getTotalAddressCount());
 		}
 
 		/**
@@ -996,7 +1082,7 @@ namespace pcpp
 		std::unique_ptr<IPv4Network> m_IPv4Network;
 		std::unique_ptr<IPv6Network> m_IPv6Network;
 	};
-} // namespace pcpp
+}  // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
 {

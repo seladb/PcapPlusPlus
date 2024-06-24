@@ -1,7 +1,24 @@
 ---
 BasedOnStyle: Microsoft
-UseTab: Always
-AllowShortFunctionsOnASingleLine: All
+UseTab: AlignWithSpaces
+AllowShortFunctionsOnASingleLine: None
 NamespaceIndentation: All
-
+SortIncludes: false
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+AllowShortBlocksOnASingleLine: Never
+PointerAlignment: Left
+AccessModifierOffset: -4
+AlignTrailingComments: true
+AllowShortEnumsOnASingleLine: false
+BreakStringLiterals: true
+AlignArrayOfStructures: Left
+BreakArrays: true
+SpacesBeforeTrailingComments: 2
+IndentAccessModifiers: false
+Cpp11BracedListStyle: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  SplitEmptyFunction: false
+  AfterCaseLabel: true
 ...
