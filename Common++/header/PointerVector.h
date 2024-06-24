@@ -342,7 +342,7 @@ namespace pcpp
 		 * @param[in] origin The vector of elements to free.
 		 * @remarks The vector's contents are not cleared and will point to invalid locations in memory.
 		 */
-		static void freeVectorUnsafe(std::vector<T*>& origin)
+		static void freeVectorUnsafe(std::vector<T*> const& origin)
 		{
 			for (auto& obj : origin)
 			{
