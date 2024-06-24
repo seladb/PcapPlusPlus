@@ -93,7 +93,7 @@ namespace pcpp
 		/**
 		 * A move assignment operator. Replaces the contents with those of other via move semantics.
 		 * The other vector is left empty.
-		 * @param[in] The vector to move from.
+		 * @param[in] other The vector to move from.
 		 * @return A reference to the current object.
 		 */
 		PointerVector& operator=(PointerVector&& other) noexcept
