@@ -38,10 +38,17 @@
 #include <poll.h>
 #include <pcap/pcap.h>
 #endif // if defined(_WIN32)
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__APPLE__)
 #include <net/if_dl.h>
 #include <sys/sysctl.h>
+#include <net/route.h>
 #endif
+
+#if defined(__FreeBSD__)
+#include <sys/sysctl.h>
+#include <net/if_dl.h>
+#endif
+
 
 // TODO: FIX FreeBSD
 // On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail.
@@ -1056,7 +1063,82 @@ void PcapLiveDevice::setDefaultGateway()
 			PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
 		}
 	}
-#elif defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__APPLE__)
+
+	//route message struct for communication in APPLE device
+	struct BSDRoutingMessage
+	{
+		struct rt_msghdr header;
+		char   messageSpace[512];
+	};
+
+	struct BSDRoutingMessage routingMessage;
+	// It creates a raw socket that can be used for routing-related operations
+	int sockfd = socket(PF_ROUTE, SOCK_RAW, 0);
+	if (sockfd < 0)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't get open routing socket");
+		return ;
+	}
+	memset(reinterpret_cast<char*>(&routingMessage), 0, sizeof(routingMessage));
+	routingMessage.header.rtm_msglen = sizeof(struct rt_msghdr);
+	routingMessage.header.rtm_version = RTM_VERSION;
+	routingMessage.header.rtm_type = RTM_GET;
+	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK ;
+	routingMessage.header.rtm_flags = RTF_UP | RTF_GATEWAY | RTF_STATIC;
+	routingMessage.header.rtm_msglen += 2 * sizeof(sockaddr_in);
+
+	if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't write into the routing socket");
+		return;
+	}
+
+	// Read the response from the route socket
+	if (read(sockfd, reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't read from the routing socket");
+		return;
+	}
+
+	struct in_addr  *gateAddr = nullptr;
+	struct sockaddr *sa = nullptr;
+	char* spacePtr = (reinterpret_cast<char*>(&routingMessage.header + 1));
+	auto rtmAddrs = routingMessage.header.rtm_addrs;
+	int index = 1;
+	auto roundUpClosestMultiple = [](int multiple, int num) {
+		return ((num+multiple - 1) / multiple) * multiple;
+	};
+	while (rtmAddrs)
+	{
+		if (rtmAddrs & 1)
+		{
+			sa = reinterpret_cast<sockaddr *>(spacePtr);
+			if (index == RTA_GATEWAY)
+			{
+				gateAddr = internal::sockaddr2in_addr(sa);
+				break;
+			}
+			spacePtr += sa->sa_len > 0 ? roundUpClosestMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);
+		}
+		index++;
+		rtmAddrs >>= 1;
+	}
+
+	if (gateAddr == nullptr)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: Empty Message related to gate");
+		return;
+	}
+	try
+	{
+		m_DefaultGateway = IPv4Address(gateAddr->s_addr);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< inet_ntoa(*gateAddr) << ": " << e.what());
+	}
+#elif defined(__FreeBSD__)
 	std::string command = "netstat -nr | grep default | grep " + m_Name;
 	std::string ifaceInfo = executeShellCommand(command);
 	if (ifaceInfo == "")
