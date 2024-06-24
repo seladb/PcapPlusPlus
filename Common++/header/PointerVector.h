@@ -201,7 +201,8 @@ namespace pcpp
 
 		/**
 		 * Remove an element from the vector without freeing it
-		 * param[in] position The position of the element to remove from the vector
+		 * @param[in, out] position The position of the element to remove from the vector.
+		 *	The iterator is shifted to the following element after the removal is completed.
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
 		 * it
 		 */
