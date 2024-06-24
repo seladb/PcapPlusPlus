@@ -6,7 +6,7 @@ namespace pcpp {
 
 	// region LdapOperationType
 
-	const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
+	static const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
 		{LdapOperationType::BindRequest,           "BindRequest"},
 		{LdapOperationType::BindResponse,          "BindResponse"},
 		{LdapOperationType::UnbindRequest,         "UnbindRequest"},
@@ -17,8 +17,8 @@ namespace pcpp {
 		{LdapOperationType::ModifyResponse,        "ModifyResponse"},
 		{LdapOperationType::AddRequest,            "AddRequest"},
 		{LdapOperationType::AddResponse,           "AddResponse"},
-		{LdapOperationType::DelRequest,            "DelRequest"},
-		{LdapOperationType::DelResponse,           "DelResponse"},
+		{LdapOperationType::DeleteRequest,         "DeleteRequest"},
+		{LdapOperationType::DeleteResponse,        "DeleteResponse"},
 		{LdapOperationType::ModifyDNRequest,       "ModifyDNRequest"},
 		{LdapOperationType::ModifyDNResponse,      "ModifyDNResponse"},
 		{LdapOperationType::CompareRequest,        "CompareRequest"},
@@ -31,7 +31,7 @@ namespace pcpp {
 		{LdapOperationType::Unknown,               "Unknown"}
 	};
 
-	const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
+	static const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
 		{static_cast<uint8_t>(LdapOperationType::BindRequest), LdapOperationType::BindRequest},
 		{static_cast<uint8_t>(LdapOperationType::BindResponse), LdapOperationType::BindResponse},
 		{static_cast<uint8_t>(LdapOperationType::UnbindRequest), LdapOperationType::UnbindRequest},
@@ -41,8 +41,8 @@ namespace pcpp {
 		{static_cast<uint8_t>(LdapOperationType::ModifyResponse), LdapOperationType::ModifyResponse},
 		{static_cast<uint8_t>(LdapOperationType::AddRequest), LdapOperationType::AddRequest},
 		{static_cast<uint8_t>(LdapOperationType::AddResponse), LdapOperationType::AddResponse},
-		{static_cast<uint8_t>(LdapOperationType::DelRequest), LdapOperationType::DelRequest},
-		{static_cast<uint8_t>(LdapOperationType::DelResponse), LdapOperationType::DelResponse},
+		{static_cast<uint8_t>(LdapOperationType::DeleteRequest), LdapOperationType::DeleteRequest},
+		{static_cast<uint8_t>(LdapOperationType::DeleteResponse), LdapOperationType::DeleteResponse},
 		{static_cast<uint8_t>(LdapOperationType::ModifyDNRequest), LdapOperationType::ModifyDNRequest},
 		{static_cast<uint8_t>(LdapOperationType::ModifyDNResponse), LdapOperationType::ModifyDNResponse},
 		{static_cast<uint8_t>(LdapOperationType::CompareRequest), LdapOperationType::CompareRequest},
@@ -72,6 +72,110 @@ namespace pcpp {
 
 	// endregion
 
+	// region LdapResultCode
+
+	static const std::unordered_map<LdapResultCode::Value, std::string, EnumClassHash<LdapResultCode::Value>> LdapResultCodeToString{
+		{LdapResultCode::Success, "Success"},
+		{LdapResultCode::OperationsError, "OperationsError"},
+		{LdapResultCode::ProtocolError, "ProtocolError"},
+		{LdapResultCode::TimeLimitExceeded, "TimeLimitExceeded"},
+		{LdapResultCode::SizeLimitExceeded, "SizeLimitExceeded"},
+		{LdapResultCode::CompareFalse, "CompareFalse"},
+		{LdapResultCode::CompareTrue, "CompareTrue"},
+		{LdapResultCode::AuthMethodNotSupported, "AuthMethodNotSupported"},
+		{LdapResultCode::StrongerAuthRequired, "StrongerAuthRequired"},
+		{LdapResultCode::Referral, "Referral"},
+		{LdapResultCode::AdminLimitExceeded, "AdminLimitExceeded"},
+		{LdapResultCode::UnavailableCriticalExtension, "UnavailableCriticalExtension"},
+		{LdapResultCode::ConfidentialityRequired, "ConfidentialityRequired"},
+		{LdapResultCode::SaslBindInProgress, "SaslBindInProgress"},
+		{LdapResultCode::NoSuchAttribute, "NoSuchAttribute"},
+		{LdapResultCode::UndefinedAttributeType, "UndefinedAttributeType"},
+		{LdapResultCode::InappropriateMatching, "InappropriateMatching"},
+		{LdapResultCode::ConstraintViolation, "ConstraintViolation"},
+		{LdapResultCode::AttributeOrValueExists, "AttributeOrValueExists"},
+		{LdapResultCode::InvalidAttributeSyntax, "InvalidAttributeSyntax"},
+		{LdapResultCode::NoSuchObject, "NoSuchObject"},
+		{LdapResultCode::AliasProblem, "AliasProblem"},
+		{LdapResultCode::InvalidDNSyntax, "InvalidDNSyntax"},
+		{LdapResultCode::AliasDereferencingProblem, "AliasDereferencingProblem"},
+		{LdapResultCode::InappropriateAuthentication, "InappropriateAuthentication"},
+		{LdapResultCode::InvalidCredentials, "InvalidCredentials"},
+		{LdapResultCode::InsufficientAccessRights, "InsufficientAccessRights"},
+		{LdapResultCode::Busy, "Busy"},
+		{LdapResultCode::Unavailable, "Unavailable"},
+		{LdapResultCode::UnwillingToPerform, "UnwillingToPerform"},
+		{LdapResultCode::LoopDetect, "LoopDetect"},
+		{LdapResultCode::NamingViolation, "NamingViolation"},
+		{LdapResultCode::ObjectClassViolation, "ObjectClassViolation"},
+		{LdapResultCode::NotAllowedOnNonLeaf, "NotAllowedOnNonLeaf"},
+		{LdapResultCode::NotAllowedOnRDN, "NotAllowedOnRDN"},
+		{LdapResultCode::EntryAlreadyExists, "EntryAlreadyExists"},
+		{LdapResultCode::ObjectClassModsProhibited, "ObjectClassModsProhibited"},
+		{LdapResultCode::AffectsMultipleDSAs, "AffectsMultipleDSAs"},
+		{LdapResultCode::Other, "Other"}
+	};
+
+	static const std::unordered_map<uint8_t, LdapResultCode> UintToLdapResultCode{
+		{static_cast<uint8_t>(LdapResultCode::Success), LdapResultCode::Success},
+		{static_cast<uint8_t>(LdapResultCode::OperationsError), LdapResultCode::OperationsError},
+		{static_cast<uint8_t>(LdapResultCode::ProtocolError), LdapResultCode::ProtocolError},
+		{static_cast<uint8_t>(LdapResultCode::TimeLimitExceeded), LdapResultCode::TimeLimitExceeded},
+		{static_cast<uint8_t>(LdapResultCode::SizeLimitExceeded), LdapResultCode::SizeLimitExceeded},
+		{static_cast<uint8_t>(LdapResultCode::CompareFalse), LdapResultCode::CompareFalse},
+		{static_cast<uint8_t>(LdapResultCode::CompareTrue), LdapResultCode::CompareTrue},
+		{static_cast<uint8_t>(LdapResultCode::AuthMethodNotSupported), LdapResultCode::AuthMethodNotSupported},
+		{static_cast<uint8_t>(LdapResultCode::StrongerAuthRequired), LdapResultCode::StrongerAuthRequired},
+		{static_cast<uint8_t>(LdapResultCode::Referral), LdapResultCode::Referral},
+		{static_cast<uint8_t>(LdapResultCode::AdminLimitExceeded), LdapResultCode::AdminLimitExceeded},
+		{static_cast<uint8_t>(LdapResultCode::UnavailableCriticalExtension), LdapResultCode::UnavailableCriticalExtension},
+		{static_cast<uint8_t>(LdapResultCode::ConfidentialityRequired), LdapResultCode::ConfidentialityRequired},
+		{static_cast<uint8_t>(LdapResultCode::SaslBindInProgress), LdapResultCode::SaslBindInProgress},
+		{static_cast<uint8_t>(LdapResultCode::NoSuchAttribute), LdapResultCode::NoSuchAttribute},
+		{static_cast<uint8_t>(LdapResultCode::UndefinedAttributeType), LdapResultCode::UndefinedAttributeType},
+		{static_cast<uint8_t>(LdapResultCode::InappropriateMatching), LdapResultCode::InappropriateMatching},
+		{static_cast<uint8_t>(LdapResultCode::ConstraintViolation), LdapResultCode::ConstraintViolation},
+		{static_cast<uint8_t>(LdapResultCode::AttributeOrValueExists), LdapResultCode::AttributeOrValueExists},
+		{static_cast<uint8_t>(LdapResultCode::InvalidAttributeSyntax), LdapResultCode::InvalidAttributeSyntax},
+		{static_cast<uint8_t>(LdapResultCode::NoSuchObject), LdapResultCode::NoSuchObject},
+		{static_cast<uint8_t>(LdapResultCode::AliasProblem), LdapResultCode::AliasProblem},
+		{static_cast<uint8_t>(LdapResultCode::InvalidDNSyntax), LdapResultCode::InvalidDNSyntax},
+		{static_cast<uint8_t>(LdapResultCode::AliasDereferencingProblem), LdapResultCode::AliasDereferencingProblem},
+		{static_cast<uint8_t>(LdapResultCode::InappropriateAuthentication), LdapResultCode::InappropriateAuthentication},
+		{static_cast<uint8_t>(LdapResultCode::InvalidCredentials), LdapResultCode::InvalidCredentials},
+		{static_cast<uint8_t>(LdapResultCode::InsufficientAccessRights), LdapResultCode::InsufficientAccessRights},
+		{static_cast<uint8_t>(LdapResultCode::Busy), LdapResultCode::Busy},
+		{static_cast<uint8_t>(LdapResultCode::Unavailable), LdapResultCode::Unavailable},
+		{static_cast<uint8_t>(LdapResultCode::UnwillingToPerform), LdapResultCode::UnwillingToPerform},
+		{static_cast<uint8_t>(LdapResultCode::LoopDetect), LdapResultCode::LoopDetect},
+		{static_cast<uint8_t>(LdapResultCode::NamingViolation), LdapResultCode::NamingViolation},
+		{static_cast<uint8_t>(LdapResultCode::ObjectClassViolation), LdapResultCode::ObjectClassViolation},
+		{static_cast<uint8_t>(LdapResultCode::NotAllowedOnNonLeaf), LdapResultCode::NotAllowedOnNonLeaf},
+		{static_cast<uint8_t>(LdapResultCode::NotAllowedOnRDN), LdapResultCode::NotAllowedOnRDN},
+		{static_cast<uint8_t>(LdapResultCode::EntryAlreadyExists), LdapResultCode::EntryAlreadyExists},
+		{static_cast<uint8_t>(LdapResultCode::ObjectClassModsProhibited), LdapResultCode::ObjectClassModsProhibited},
+		{static_cast<uint8_t>(LdapResultCode::AffectsMultipleDSAs), LdapResultCode::AffectsMultipleDSAs},
+		{static_cast<uint8_t>(LdapResultCode::Other), LdapResultCode::Other}
+	};
+
+	std::string LdapResultCode::toString() const
+	{
+		return LdapResultCodeToString.at(m_Value);
+	}
+
+	LdapResultCode LdapResultCode::fromUintValue(uint8_t value)
+	{
+		auto result = UintToLdapResultCode.find(value);
+		if (result != UintToLdapResultCode.end())
+		{
+			return result->second;
+		}
+
+		return LdapResultCode::Unknown;
+	}
+
+	// endregion
+
 	// region LdapLayer
 
 	LdapLayer::LdapLayer(uint16_t messageId, LdapOperationType operationType,
@@ -89,9 +193,17 @@ namespace pcpp {
 	void LdapLayer::init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls)
 	{
 		Asn1IntegerRecord messageIdRecord(messageId);
-		Asn1ConstructedRecord messageRootRecord(Asn1TagClass::Application, operationType, messageRecords);
+		std::unique_ptr<Asn1Record> messageRootRecord;
+		if (!messageRecords.empty())
+		{
+			messageRootRecord = std::unique_ptr<Asn1Record>(new Asn1ConstructedRecord(Asn1TagClass::Application, operationType, messageRecords));
+		}
+		else
+		{
+			messageRootRecord = std::unique_ptr<Asn1Record>(new Asn1GenericRecord(Asn1TagClass::Application, false, operationType, ""));
+		}
 
-		std::vector<Asn1Record*> rootSubRecords = {&messageIdRecord, &messageRootRecord};
+		std::vector<Asn1Record*> rootSubRecords = {&messageIdRecord, messageRootRecord.get()};
 
 		std::unique_ptr<Asn1ConstructedRecord> controlsRecord;
 		if (!controls.empty())
@@ -129,7 +241,7 @@ namespace pcpp {
 
 	std::string LdapLayer::toString() const
 	{
-		auto extendedInfo = getExtendedStringInfo();
+		auto extendedInfo = getExtendedInfoString();
 		return "LDAP Layer, " + getLdapOperationType().toString() + (extendedInfo.empty() ? "" : ", " + extendedInfo);
 	}
 
@@ -141,10 +253,28 @@ namespace pcpp {
 			auto operationType = LdapOperationType::fromUintValue(asn1Record->castAs<Asn1SequenceRecord>()->getSubRecords().at(operationTypeIndex)->getTagType());
 			switch (operationType)
 			{
+				case LdapOperationType::BindRequest:
+					return new LdapBindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::BindResponse:
+					return new LdapBindResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::UnbindRequest:
+					return new LdapUnbindRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchRequest:
 					return new LdapSearchRequestLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::SearchResultEntry:
 					return new LdapSearchResultEntryLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::SearchResultDone:
+					return new LdapSearchResultDoneLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::ModifyResponse:
+					return new LdapModifyResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::AddResponse:
+					return new LdapAddResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::DeleteResponse:
+					return new LdapDeleteResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::ModifyDNResponse:
+					return new LdapModifyDNResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
+				case LdapOperationType::CompareResponse:
+					return new LdapCompareResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet);
 				case LdapOperationType::Unknown:
 					return nullptr;
 				default:
@@ -212,6 +342,260 @@ namespace pcpp {
 
 		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
 	}
+	// endregion
+
+	// region LdapResponseLayer
+
+	LdapResponseLayer::LdapResponseLayer(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
+		const std::vector<LdapControl>& controls)
+	{
+		LdapResponseLayer::init(messageId, operationType, resultCode, matchedDN, diagnosticMessage, referral, {}, controls);
+	}
+
+	void LdapResponseLayer::init(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage, const std::vector<std::string>& referral,
+		const std::vector<Asn1Record*>& additionalRecords, const std::vector<LdapControl>& controls)
+	{
+		Asn1EnumeratedRecord resultCodeRecord(resultCode);
+		Asn1OctetStringRecord matchedDNRecord(matchedDN);
+		Asn1OctetStringRecord diagnosticMessageRecord(diagnosticMessage);
+
+		std::vector<Asn1Record*> messageRecords = {&resultCodeRecord, &matchedDNRecord, &diagnosticMessageRecord};
+
+		std::unique_ptr<Asn1ConstructedRecord> referralRecord;
+		if (!referral.empty())
+		{
+			PointerVector<Asn1Record> referralSubRecords;
+			for (const auto& uri : referral)
+			{
+				referralSubRecords.pushBack(new Asn1OctetStringRecord(uri));
+			}
+			referralRecord = std::unique_ptr<Asn1ConstructedRecord>(new Asn1ConstructedRecord(
+					Asn1TagClass::ContextSpecific, referralTagType, referralSubRecords));
+			messageRecords.push_back(referralRecord.get());
+		}
+
+		if (!additionalRecords.empty())
+		{
+			for (auto additionalRecord : additionalRecords)
+			{
+				messageRecords.push_back(additionalRecord);
+			}
+		}
+
+		LdapLayer::init(messageId, operationType, messageRecords, controls);
+	}
+
+	LdapResultCode LdapResponseLayer::getResultCode() const
+	{
+		return LdapResultCode::fromUintValue(getLdapOperationAsn1Record()->getSubRecords().at(resultCodeIndex)->castAs<Asn1EnumeratedRecord>()->getValue());
+	}
+
+	std::string LdapResponseLayer::getMatchedDN() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(matchedDNIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::string LdapResponseLayer::getDiagnosticMessage() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(diagnotsticsMessageIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	std::vector<std::string> LdapResponseLayer::getReferral() const
+	{
+		std::vector<std::string> result;
+		if (getLdapOperationAsn1Record()->getSubRecords().size() <= referralIndex)
+		{
+			return result;
+		}
+
+		auto referralRecord = getLdapOperationAsn1Record()->getSubRecords().at(referralIndex);
+		if (referralRecord->getTagClass() != Asn1TagClass::ContextSpecific || referralRecord->getTagType() != referralTagType)
+		{
+			return result;
+		}
+
+		for (auto uriRecord : referralRecord->castAs<Asn1ConstructedRecord>()->getSubRecords())
+		{
+			result.push_back(uriRecord->castAs<Asn1OctetStringRecord>()->getValue());
+		}
+
+		return result;
+	}
+
+	std::string LdapResponseLayer::getExtendedInfoString() const
+	{
+		return getResultCode().toString();
+	}
+	// endregion
+
+	// region LdapBindRequestLayer
+
+	LdapBindRequestLayer::LdapBindRequestLayer(
+		uint16_t messageId, uint8_t version, const std::string& name, const std::string& simpleAuthentication,
+		const std::vector<LdapControl>& controls)
+	{
+		Asn1IntegerRecord versionRecord(version);
+		Asn1OctetStringRecord nameRecord(name);
+		std::vector<Asn1Record*> messageRecords = {&versionRecord, &nameRecord};
+		std::unique_ptr<Asn1GenericRecord> simpleAuthenticationRecord;
+		if (!simpleAuthentication.empty())
+		{
+			auto data = reinterpret_cast<const uint8_t*>(simpleAuthentication.data());
+			simpleAuthenticationRecord = std::unique_ptr<Asn1GenericRecord>(
+				new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data, simpleAuthentication.size()));
+			messageRecords.push_back(simpleAuthenticationRecord.get());
+		}
+
+		LdapLayer::init(messageId, LdapOperationType::BindRequest, messageRecords, controls);
+	}
+
+	LdapBindRequestLayer::LdapBindRequestLayer(
+		uint16_t messageId, uint8_t version, const std::string& name, const SaslAuthentication& saslAuthentication,
+		const std::vector<LdapControl>& controls)
+	{
+		Asn1IntegerRecord versionRecord(version);
+		Asn1OctetStringRecord nameRecord(name);
+		std::vector<Asn1Record*> messageRecords = {&versionRecord, &nameRecord};
+		std::unique_ptr<Asn1ConstructedRecord> saslAuthenticationRecord;
+		if (!saslAuthentication.mechanism.empty())
+		{
+			PointerVector<Asn1Record> saslAuthenticationRecords;
+			saslAuthenticationRecords.pushBack(new Asn1OctetStringRecord(saslAuthentication.mechanism));
+			if (!saslAuthentication.credentials.empty())
+			{
+				auto credentialsRecord = new Asn1OctetStringRecord(saslAuthentication.credentials.data(), saslAuthentication.credentials.size());
+				saslAuthenticationRecords.pushBack(credentialsRecord);
+			}
+
+			saslAuthenticationRecord = std::unique_ptr<Asn1ConstructedRecord>(
+				new Asn1ConstructedRecord(Asn1TagClass::ContextSpecific, static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Sasl), saslAuthenticationRecords));
+			messageRecords.push_back(saslAuthenticationRecord.get());
+		}
+
+		LdapLayer::init(messageId, LdapOperationType::BindRequest, messageRecords, controls);
+	}
+
+	uint32_t LdapBindRequestLayer::getVersion() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(versionIndex)->castAs<Asn1IntegerRecord>()->getValue();
+	}
+
+	std::string LdapBindRequestLayer::getName() const
+	{
+		return getLdapOperationAsn1Record()->getSubRecords().at(nameIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+	}
+
+	LdapBindRequestLayer::AuthenticationType LdapBindRequestLayer::getAuthenticationType() const
+	{
+		if (getLdapOperationAsn1Record()->getSubRecords().size() <= credentialIndex)
+		{
+			return LdapBindRequestLayer::AuthenticationType::NotApplicable;
+		}
+
+		auto authType = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->getTagType();
+		switch (authType)
+		{
+			case 0:
+				return LdapBindRequestLayer::AuthenticationType::Simple;
+			case 3:
+				return LdapBindRequestLayer::AuthenticationType::Sasl;
+			default:
+				return LdapBindRequestLayer::AuthenticationType::NotApplicable;
+		}
+	}
+
+	std::string LdapBindRequestLayer::getSimpleAuthentication() const
+	{
+		if (getAuthenticationType() != LdapBindRequestLayer::AuthenticationType::Simple)
+		{
+			throw std::invalid_argument("Authentication type is not simple");
+		}
+
+		auto authRecord = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1GenericRecord>();
+		return {reinterpret_cast<const char*>(authRecord->getValue()), authRecord->getValueLength()};
+	}
+
+	LdapBindRequestLayer::SaslAuthentication LdapBindRequestLayer::getSaslAuthentication() const
+	{
+		if (getAuthenticationType() != LdapBindRequestLayer::AuthenticationType::Sasl)
+		{
+			throw std::invalid_argument("Authentication type is not sasl");
+		}
+
+		auto authRecord = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
+		std::string mechanism;
+		std::vector<uint8_t> credentials;
+		if (authRecord->getSubRecords().size() > saslMechanismIndex)
+		{
+			mechanism = authRecord->getSubRecords().at(saslMechanismIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+		}
+		if (authRecord->getSubRecords().size() > saslCredentialsIndex)
+		{
+			auto credentialsAsString = authRecord->getSubRecords().at(saslCredentialsIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			credentials.resize(credentialsAsString.size() / 2);
+			hexStringToByteArray(credentialsAsString, credentials.data(), credentials.size());
+		}
+
+		return {mechanism, credentials};
+	}
+
+	std::string LdapBindRequestLayer::getExtendedInfoString() const
+	{
+		switch (getAuthenticationType())
+		{
+			case AuthenticationType::Simple:
+				return "simple";
+			case AuthenticationType::Sasl:
+				return "sasl";
+			default:
+				return "Unknown";
+		}
+	}
+
+	// endregion
+
+	// region LdapBindResponseLayer
+
+	LdapBindResponseLayer::LdapBindResponseLayer(uint16_t messageId, LdapResultCode resultCode,
+		const std::string& matchedDN, const std::string& diagnosticMessage,
+		const std::vector<std::string>& referral, const std::vector<uint8_t>& serverSaslCredentials,
+		const std::vector<LdapControl>& controls)
+	{
+		std::vector<Asn1Record*> additionalRecords;
+		std::unique_ptr<Asn1Record> serverSaslCredentialsRecord;
+		if (!serverSaslCredentials.empty())
+		{
+			serverSaslCredentialsRecord = std::unique_ptr<Asn1Record>(new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false, serverSaslCredentialsTagType, serverSaslCredentials.data(), serverSaslCredentials.size()));
+			additionalRecords.push_back(serverSaslCredentialsRecord.get());
+		}
+
+		LdapResponseLayer::init(messageId, LdapOperationType::BindResponse, resultCode, matchedDN, diagnosticMessage, referral, additionalRecords, controls);
+	}
+
+	std::vector<uint8_t> LdapBindResponseLayer::getServerSaslCredentials() const
+	{
+		try
+		{
+			auto serverSaslCredentialsRecord = getLdapOperationAsn1Record()->getSubRecords().back()->castAs<Asn1GenericRecord>();
+			return {serverSaslCredentialsRecord->getValue(), serverSaslCredentialsRecord->getValue() + serverSaslCredentialsRecord->getValueLength()};
+		}
+		catch (const std::exception&)
+		{
+			return {};
+		}
+	}
+
+	// endregion
+
+	// region LdapUnbindRequestLayer
+
+	LdapUnbindRequestLayer::LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls)
+	{
+		LdapLayer::init(messageId, LdapOperationType::UnbindRequest, {}, controls);
+	}
+
 	// endregion
 
 	// region LdapSearchRequestLayer
@@ -335,7 +719,7 @@ namespace pcpp {
 		return result;
 	}
 
-	std::string LdapSearchRequestLayer::getExtendedStringInfo() const
+	std::string LdapSearchRequestLayer::getExtendedInfoString() const
 	{
 		auto baseObject = getBaseObject();
 		if (baseObject.empty())

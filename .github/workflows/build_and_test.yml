@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add cppcheck python3-dev
-          python3 -m pip install cmake-format
+          python3 -m pip install cmake-format clang-format==18.1.6
 
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
@@ -63,6 +63,9 @@ jobs:
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
+          - image: ubuntu2004-zstd
+            python: python3
+            config-zstd: ON
           - image: ubuntu1804
             python: python3.8
             config-zstd: OFF
@@ -233,15 +236,22 @@ jobs:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        os-version: [macos-12, macos-13]
-        arch: [x86_64, arm64]
-        # Handle ZSTD build by Cirrus CI
-        # config-zstd: [ON, OFF]
-        config-zstd: [OFF]
-        exclude:
-          # excludes ZSTD on Arm64
-          - arch: arm64
+        include:
+          - os-version: macos-12
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-12
+            arch: arm64
+            config-zstd: OFF
+          - os-version: macos-13
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-13
+            arch: x86_64
             config-zstd: ON
+          - os-version: macos-13
+            arch: arm64
+            config-zstd: OFF
 
     steps:
       - name: Checkout code
@@ -561,6 +571,44 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  freebsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["14.0", "13.2"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test in FreeBSD
+      id: test
+      uses: vmactions/freebsd-vm@v1
+      with:
+        release: ${{ matrix.version }}
+        usesh: true
+        prepare: |
+          pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
+
+        run: |
+          echo "Building PcapPlusPlus"
+          chmod a+rw /dev/bpf*
+          cmake -S . -B Dist
+          cmake --build Dist -j$(sysctl -n hw.ncpu)
+
+          echo "Setting up the network interface for the tests"
+          # Get the first interface name that is not 'lo'
+          interface_name=$(ifconfig -l | tr ' ' '\n' | grep -v '^lo' | head -n 1)
+          ifconfig "$interface_name" promisc
+
+          echo "Testing PcapPlusPlus"
+          python3 -m ensurepip
+          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 ci/run_tests/run_tests.py --interface "$interface_name"
+
+          echo "Testing PcapPlusPlus examples"
+          cd Tests/ExamplesTest
+          python3 -m ensurepip
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
+
   android:
     strategy:
       matrix:
@@ -571,11 +619,11 @@ jobs:
           - run-on-os: ubuntu-20.04
             target: x86
             api-version: 30
-          - run-on-os: macos-11
+          - run-on-os: macos-12
             target: arm64-v8a
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
-          - run-on-os: macos-11
+          - run-on-os: macos-12
             target: x86_64
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30

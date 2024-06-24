@@ -14,19 +14,19 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 {
 	pcap_rmtauth result;
 	result.type = RPCAP_RMTAUTH_PWD;
-	result.username = (char*)userName.c_str();
-	result.password = (char*)password.c_str();
+	result.username = const_cast<char*>(userName.c_str());
+	result.password = const_cast<char*>(password.c_str());
 	return result;
 }
 
-PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, PcapRemoteAuthentication* remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
+PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
 	: PcapLiveDevice(iface, false, false, false)
+	, m_RemoteMachineIpAddress(remoteMachineIP)
+	, m_RemoteMachinePort(remoteMachinePort)
+	, m_RemoteAuthentication(std::move(remoteAuthentication))
 {
 	PCPP_LOG_DEBUG("MTU calculation isn't supported for remote devices. Setting MTU to 1514");
 	m_DeviceMtu = 1514;
-	m_RemoteMachineIpAddress = remoteMachineIP;
-	m_RemoteMachinePort = remoteMachinePort;
-	m_RemoteAuthentication = remoteAuthentication;
 }
 
 
@@ -35,16 +35,16 @@ bool PcapRemoteDevice::open()
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
 	PCPP_LOG_DEBUG("Opening device '" << m_Name << "'");
-	pcap_rmtauth* pRmAuth = NULL;
+	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
-	if (m_RemoteAuthentication != NULL)
+	if (m_RemoteAuthentication != nullptr)
 	{
 		rmAuth = m_RemoteAuthentication->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
 
 	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
-	if (m_PcapDescriptor == NULL)
+	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
 		m_DeviceOpened = false;
@@ -70,10 +70,10 @@ bool PcapRemoteDevice::open()
 	return true;
 }
 
-void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
+void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void* ptr)
 {
-	PcapRemoteDevice* pThis = (PcapRemoteDevice*)ptr;
-	if (pThis == NULL)
+	PcapRemoteDevice* pThis = static_cast<PcapRemoteDevice*>(ptr);
+	if (pThis == nullptr)
 	{
 		PCPP_LOG_ERROR("Capture thread: Unable to extract PcapLiveDevice instance");
 		return 0;
@@ -89,7 +89,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		while (!pThis->m_StopThread)
 		{
 			if (pcap_next_ex(pThis->m_PcapDescriptor, &pkthdr, &pktData) > 0)
-				onPacketArrives((uint8_t*)pThis, pkthdr, pktData);
+				onPacketArrives(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 		}
 	}
 	else
@@ -97,7 +97,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void *ptr)
 		while (!pThis->m_StopThread)
 		{
 			if (pcap_next_ex(pThis->m_PcapDescriptor, &pkthdr, &pktData) > 0)
-				onPacketArrivesNoCallback((uint8_t*)pThis, pkthdr, pktData);
+				onPacketArrivesNoCallback(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 		}
 	}
 	PCPP_LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
@@ -113,7 +113,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 {
 	int allocatedMemory;
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
-	if (allocatedMemory < (int)sizeof(pcap_stat))
+	if (allocatedMemory < static_cast<int>(sizeof(pcap_stat)))
 	{
 		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_Name << "': WinPcap did not allocate the entire struct");
 		return;
