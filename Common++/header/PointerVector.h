@@ -27,12 +27,12 @@ namespace pcpp
 		/**
 		 * Iterator object that is used for iterating all elements in the vector
 		 */
-		typedef typename std::vector<T*>::iterator VectorIterator;
+		using VectorIterator = typename std::vector<T*>::iterator;
 
 		/**
 		 * Const iterator object that is used for iterating all elements in a constant vector
 		 */
-		typedef typename std::vector<T*>::const_iterator ConstVectorIterator;
+		using ConstVectorIterator = typename std::vector<T*>::const_iterator;
 
 		/**
 		 * A constructor that create an empty instance of this object
