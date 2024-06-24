@@ -66,14 +66,14 @@ namespace pcpp
 		}
 
 		/**
-		 * A copy assignemnt operator. Replaces the contents with a copy of the contents of other.
+		 * A copy assignment operator. Replaces the contents with a copy of the contents of other.
 		 * See copy constructor for more information on the specific copy procedure.
 		 * @param[in] other The vector to copy from.
 		 * @return A reference to the current object.
 		 */
 		PointerVector& operator=(const PointerVector& other)
 		{
-			// Saves a copy of the old poiters to defer cleanup.
+			// Saves a copy of the old pointer to defer cleanup.
 			auto oldValues = m_Vector;
 			try
 			{
