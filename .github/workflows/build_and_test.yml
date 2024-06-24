@@ -63,6 +63,9 @@ jobs:
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
+          - image: ubuntu2004-zstd
+            python: python3
+            config-zstd: ON
           - image: ubuntu1804
             python: python3.8
             config-zstd: OFF
@@ -233,15 +236,22 @@ jobs:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
-        os-version: [macos-12, macos-13]
-        arch: [x86_64, arm64]
-        # Handle ZSTD build by Cirrus CI
-        # config-zstd: [ON, OFF]
-        config-zstd: [OFF]
-        exclude:
-          # excludes ZSTD on Arm64
-          - arch: arm64
+        include:
+          - os-version: macos-12
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-12
+            arch: arm64
+            config-zstd: OFF
+          - os-version: macos-13
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-13
+            arch: x86_64
             config-zstd: ON
+          - os-version: macos-13
+            arch: arm64
+            config-zstd: OFF
 
     steps:
       - name: Checkout code
