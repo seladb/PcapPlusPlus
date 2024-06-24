@@ -146,6 +146,7 @@ namespace pcpp
 
 			// Release is called after the raw pointer is already inserted into the vector to prevent
 			// a memory leak if push_back throws.
+			// cppcheck-suppress danglingLifetime
 			m_Vector.push_back(element.get());
 			element.release();
 		}
