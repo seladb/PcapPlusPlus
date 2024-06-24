@@ -99,7 +99,7 @@ namespace pcpp
 
 		/**
 		 * Add a new (pointer to an) element to the vector
-		 * @param[in] element A pointer to an element to assume onwership of.
+		 * @param[in] element A pointer to an element to assume ownership of.
 		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 */
 		void pushBack(T* element)
