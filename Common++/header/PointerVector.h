@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <vector>
+#include <memory>
 
 /// @file
 
@@ -105,6 +106,24 @@ namespace pcpp
 		}
 
 		/**
+		 * Add a new element to the vector that has been managed by an unique pointer.
+		 * @param[in] element A unique pointer holding an element.
+		 * @remarks If pushBack throws the element is freed immediately.
+		 */
+		void pushBack(std::unique_ptr<T> element)
+		{
+			if (!element)
+			{
+				throw std::invalid_argument("Element is nullptr");
+			}
+
+			// Release is called after the raw pointer is already inserted into the vector to prevent
+			// a memory leak if push_back throws.
+			m_Vector.push_back(element.get());
+			element.release();
+		}
+
+		/**
 		 * Get the first element of the vector
 		 * @return An iterator object pointing to the first element of the vector
 		 */
@@ -192,6 +211,29 @@ namespace pcpp
 			VectorIterator tempPos = position;
 			tempPos = m_Vector.erase(tempPos);
 			position = tempPos;
+			return result;
+		}
+
+		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in] index The index of the element to detach.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(size_t index)
+		{
+			return getAndDetach(m_Vector.begin() + index);
+		}
+
+		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in, out] position An iterator pointing to the element to detach.
+		 *	The iterator is shifted to the following element after the detach completes.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(VectorIterator& position)
+		{
+			std::unique_ptr<T> result(*position);
+			position = m_Vector.erase(position);
 			return result;
 		}
 
