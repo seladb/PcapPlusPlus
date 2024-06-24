@@ -99,15 +99,23 @@ namespace pcpp
 
 		/**
 		 * Add a new (pointer to an) element to the vector
+		 * @param[in] element A pointer to an element to assume onwership of.
+		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 */
 		void pushBack(T* element)
 		{
+			if (element == nullptr)
+			{
+				throw std::invalid_argument("Element is nullptr");
+			}
+
 			m_Vector.push_back(element);
 		}
 
 		/**
 		 * Add a new element to the vector that has been managed by an unique pointer.
 		 * @param[in] element A unique pointer holding an element.
+		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 * @remarks If pushBack throws the element is freed immediately.
 		 */
 		void pushBack(std::unique_ptr<T> element)
