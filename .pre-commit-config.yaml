@@ -1,6 +1,18 @@
 exclude: '.*\.(pcap|pcapng|dat|txt)'
 fail_fast: false
 repos:
+  - repo: local
+    hooks:
+      - id: check-clang-format-version
+        name: Check clang-format version
+        entry: ./ci/check-clang-format-version.sh
+        language: script
+      - id: clang-format
+        name: Clang format
+        entry: clang-format
+        language: system
+        args: ["--style=file"]  # Use the .clang-format file for configuration
+        files: ^Common\+\+/.*\.(cpp|h)$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -16,9 +28,6 @@ repos:
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
-      - id: clang-format
-        args: ["--style=file"]  # Use the .clang-format file for configuration
-        files: ^Common\+\+/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
   - repo: https://github.com/codespell-project/codespell

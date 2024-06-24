@@ -1,6 +1,6 @@
 ---
 BasedOnStyle: Microsoft
-UseTab: AlignWithSpaces
+UseTab: ForIndentation
 AllowShortFunctionsOnASingleLine: None
 NamespaceIndentation: All
 SortIncludes: false
