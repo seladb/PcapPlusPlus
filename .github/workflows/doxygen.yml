@@ -46,3 +46,4 @@ jobs:
           destination-repository-name: "pcapplusplus.github.io"
           user-email: noreply@github.com
           commit-message: Update API documentation for commit ORIGIN_COMMIT
+          target-branch: master
