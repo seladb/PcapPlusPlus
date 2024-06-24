@@ -179,7 +179,6 @@ namespace pcpp
 		}
 
 		/**
-		 * Returns a pointer of the first element in the vector
 		 * @return A pointer of the first element in the vector
 		 */
 		T* front()
@@ -188,9 +187,25 @@ namespace pcpp
 		}
 
 		/**
+		 * @return A pointer to the first element in the vector
+		 */
+		T const* front() const
+		{
+			return m_Vector.front();
+		}
+
+		/**
 		 * @return A pointer to the last element in the vector
 		 */
 		T* back()
+		{
+			return m_Vector.back();
+		}
+
+		/*
+		 * @return A pointer to the last element in the vector.
+		 */
+		T const* back() const
 		{
 			return m_Vector.back();
 		}
