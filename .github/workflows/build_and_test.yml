@@ -571,6 +571,44 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  freebsd:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["14.0", "13.2"]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test in FreeBSD
+      id: test
+      uses: vmactions/freebsd-vm@v1
+      with:
+        release: ${{ matrix.version }}
+        usesh: true
+        prepare: |
+          pkg install -y python3 bash cmake git gmake gsed libpcap tcpreplay
+
+        run: |
+          echo "Building PcapPlusPlus"
+          chmod a+rw /dev/bpf*
+          cmake -S . -B Dist
+          cmake --build Dist -j$(sysctl -n hw.ncpu)
+
+          echo "Setting up the network interface for the tests"
+          # Get the first interface name that is not 'lo'
+          interface_name=$(ifconfig -l | tr ' ' '\n' | grep -v '^lo' | head -n 1)
+          ifconfig "$interface_name" promisc
+
+          echo "Testing PcapPlusPlus"
+          python3 -m ensurepip
+          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 ci/run_tests/run_tests.py --interface "$interface_name"
+
+          echo "Testing PcapPlusPlus examples"
+          cd Tests/ExamplesTest
+          python3 -m ensurepip
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
+
   android:
     strategy:
       matrix:
