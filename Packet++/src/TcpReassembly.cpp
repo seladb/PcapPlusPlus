@@ -488,23 +488,22 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 	{
 		PCPP_LOG_DEBUG("Starting first iteration of checkOutOfOrderFragments - looking for fragments that match the current sequence or have smaller sequence");
 
-		PointerVector<TcpFragment>::VectorIterator it;
 		foundSomething = false;
 
 		do
 		{
-			it = curSideData.tcpFragmentList.begin();
+			auto tcpFragIter = curSideData.tcpFragmentList.begin();
 			foundSomething = false;
 
 			// first fragment list iteration - go over the whole fragment list and see if can find fragments that match the current sequence
 			// or have smaller sequence but have big enough payload to get new data
-			while (it != curSideData.tcpFragmentList.end())
+			while (tcpFragIter != curSideData.tcpFragmentList.end())
 			{
 				// if fragment sequence matches the current sequence
-				if ((*it)->sequence == curSideData.sequence)
+				if ((*tcpFragIter)->sequence == curSideData.sequence)
 				{
 					// pop the fragment from fragment list
-					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(it));
+					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(tcpFragIter));
 					// update sequence
 					curSideData.sequence += curTcpFrag->dataLength;
 					if (curTcpFrag->data != nullptr)
@@ -526,10 +525,10 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 
 				// if fragment sequence has lower sequence than the current sequence
-				if (SEQ_LT((*it)->sequence, curSideData.sequence))
+				if (SEQ_LT((*tcpFragIter)->sequence, curSideData.sequence))
 				{
 					// pop the fragment from fragment list
-					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(it));
+					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(tcpFragIter));
 					// check if it still has new data
 					uint32_t newSequence = curTcpFrag->sequence + curTcpFrag->dataLength;
 
@@ -563,7 +562,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 
 				//if got to here it means the fragment has higher sequence than current sequence, increment it and continue
-				it++;
+				tcpFragIter++;
 			}
 
 			// if managed to find new segment, do the search all over again
@@ -586,22 +585,16 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		uint32_t closestSequence = 0xffffffff;
 		bool closestSequenceDefined = false;
 		auto closestSequenceFragIt = curSideData.tcpFragmentList.end();
-		it = curSideData.tcpFragmentList.begin();
 
-		while (it != curSideData.tcpFragmentList.end())
+		for (auto tcpFragIter = curSideData.tcpFragmentList.begin(); tcpFragIter != curSideData.tcpFragmentList.end(); tcpFragIter++)
 		{
-			// extract segment at current index
-			TcpFragment* curTcpFrag = *it;
-
 			// check if its sequence is closer than current closest sequence
-			if (!closestSequenceDefined || SEQ_LT(curTcpFrag->sequence, closestSequence))
+			if (!closestSequenceDefined || SEQ_LT((*tcpFragIter)->sequence, closestSequence))
 			{
-				closestSequence = curTcpFrag->sequence;
-				closestSequenceFragIt = it;
+				closestSequence = (*tcpFragIter)->sequence;
+				closestSequenceFragIt = tcpFragIter;
 				closestSequenceDefined = true;
 			}
-
-			it++;
 		}
 
 		// this means fragment list is not empty at this stage
