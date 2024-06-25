@@ -127,7 +127,7 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 
 static void tcpReassemblyManuallyCloseConnMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
 {
-	TcpReassemblyMultipleConnStats::Stats &stats = ((TcpReassemblyMultipleConnStats*)userCookie)->stats;
+	TcpReassemblyMultipleConnStats::Stats &stats = static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->stats;
 
 	auto iter = stats.find(tcpData.getConnectionData().flowKey);
 	if (iter == stats.end())
@@ -144,14 +144,14 @@ static void tcpReassemblyManuallyCloseConnMsgReadyCallback(int8_t sideIndex, con
 		iter->second.curSide = sideIndex;
 	}
 
-	((TcpReassemblyMultipleConnStats *)userCookie)->timestamps.push_back(tcpData.getTimeStamp());
+	static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->timestamps.push_back(tcpData.getTimeStamp());
 	iter->second.numOfDataPackets++;
 	iter->second.reassembledData += std::string((char*)tcpData.getData(), tcpData.getDataLength());
 
 	// if numOfDataPackets hits 10, close the connection manually
 	if (iter->second.numOfDataPackets >= 10)
 	{
-		((TcpReassemblyMultipleConnStats*)userCookie)->tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
+		static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
 	}
 }
 
