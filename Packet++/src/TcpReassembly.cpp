@@ -482,6 +482,8 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 	bool foundSomething = false;
 
+	auto& curSideData = tcpReassemblyData->twoSides[sideIndex];
+
 	do
 	{
 		PCPP_LOG_DEBUG("Starting first iteration of checkOutOfOrderFragments - looking for fragments that match the current sequence or have smaller sequence");
@@ -491,20 +493,20 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 		do
 		{
-			it = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin();
+			it = curSideData.tcpFragmentList.begin();
 			foundSomething = false;
 
 			// first fragment list iteration - go over the whole fragment list and see if can find fragments that match the current sequence
 			// or have smaller sequence but have big enough payload to get new data
-			while (it != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
+			while (it != curSideData.tcpFragmentList.end())
 			{
 				// if fragment sequence matches the current sequence
-				if ((*it)->sequence == tcpReassemblyData->twoSides[sideIndex].sequence)
+				if ((*it)->sequence == curSideData.sequence)
 				{
 					// pop the fragment from fragment list
-					auto curTcpFrag = std::unique_ptr<TcpFragment>(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.getAndRemoveFromVector(it));
+					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(it));
 					// update sequence
-					tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength;
+					curSideData.sequence += curTcpFrag->dataLength;
 					if (curTcpFrag->data != nullptr)
 					{
 						PCPP_LOG_DEBUG("Found an out-of-order packet matching to the current sequence with size " << curTcpFrag->dataLength << " on side " << static_cast<int>(sideIndex) << ". Pulling it out of the list and sending the data to the callback");
@@ -524,24 +526,24 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				}
 
 				// if fragment sequence has lower sequence than the current sequence
-				if (SEQ_LT((*it)->sequence, tcpReassemblyData->twoSides[sideIndex].sequence))
+				if (SEQ_LT((*it)->sequence, curSideData.sequence))
 				{
 					// pop the fragment from fragment list
-					auto curTcpFrag = std::unique_ptr<TcpFragment>(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.getAndRemoveFromVector(it));
+					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(it));
 					// check if it still has new data
 					uint32_t newSequence = curTcpFrag->sequence + curTcpFrag->dataLength;
 
 					// it has new data
-					if (SEQ_GT(newSequence, tcpReassemblyData->twoSides[sideIndex].sequence))
+					if (SEQ_GT(newSequence, curSideData.sequence))
 					{
 						// calculate the delta new data size
-						uint32_t newLength = tcpReassemblyData->twoSides[sideIndex].sequence - curTcpFrag->sequence;
+						uint32_t newLength = curSideData.sequence - curTcpFrag->sequence;
 
 						PCPP_LOG_DEBUG("Found a fragment in the out-of-order list which its sequence is lower than expected but its payload is long enough to contain new data. "
 							"Calling the callback with the new data. Fragment size is " << curTcpFrag->dataLength << " on side " << static_cast<int>(sideIndex) << ", new data size is " << static_cast<int>(curTcpFrag->dataLength - newLength));
 
 						// update current sequence with the delta new data size
-						tcpReassemblyData->twoSides[sideIndex].sequence += curTcpFrag->dataLength - newLength;
+						curSideData.sequence += curTcpFrag->dataLength - newLength;
 
 						// send only the new data to the callback
 						if (m_OnMessageReadyCallback != nullptr)
@@ -571,7 +573,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		// if got here it means we're left only with fragments that have higher sequence than current sequence. This means out-of-order packets or
 		// missing data. If we don't want to clear the frag list yet and the number of out of order fragments isn't above the configured limit,
 		// assume it's out-of-order and return
-		if (!cleanWholeFragList && (m_MaxOutOfOrderFragments == 0 || tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() <= m_MaxOutOfOrderFragments))
+		if (!cleanWholeFragList && (m_MaxOutOfOrderFragments == 0 || curSideData.tcpFragmentList.size() <= m_MaxOutOfOrderFragments))
 		{
 			return;
 		}
@@ -583,10 +585,10 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 
 		uint32_t closestSequence = 0xffffffff;
 		bool closestSequenceDefined = false;
-		auto closestSequenceFragIt = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end();
-		it = tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.begin();
+		auto closestSequenceFragIt = curSideData.tcpFragmentList.end();
+		it = curSideData.tcpFragmentList.begin();
 
-		while (it != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
+		while (it != curSideData.tcpFragmentList.end())
 		{
 			// extract segment at current index
 			TcpFragment* curTcpFrag = *it;
@@ -603,16 +605,16 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		}
 
 		// this means fragment list is not empty at this stage
-		if (closestSequenceFragIt != tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.end())
+		if (closestSequenceFragIt != curSideData.tcpFragmentList.end())
 		{
 			// get the fragment with the closest sequence
-			auto curTcpFrag = std::unique_ptr<TcpFragment>(tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.getAndRemoveFromVector(closestSequenceFragIt));
+			auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(closestSequenceFragIt));
 
 			// calculate number of missing bytes
-			uint32_t missingDataLen = curTcpFrag->sequence - tcpReassemblyData->twoSides[sideIndex].sequence;
+			uint32_t missingDataLen = curTcpFrag->sequence - curSideData.sequence;
 
 			// update sequence
-			tcpReassemblyData->twoSides[sideIndex].sequence = curTcpFrag->sequence + curTcpFrag->dataLength;
+			curSideData.sequence = curTcpFrag->sequence + curTcpFrag->dataLength;
 			if (curTcpFrag->data != nullptr)
 			{
 				// send new data to callback
