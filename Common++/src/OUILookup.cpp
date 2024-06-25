@@ -44,7 +44,7 @@ namespace pcpp
 							if (subentry.value().is_string())
 							{
 								vLocalMaskedFilter.back().vendorMap.insert(
-									{ std::stoull(subentry.key()), subentry.value() });
+								    { std::stoull(subentry.key()), subentry.value() });
 								++ctrRead;
 							}
 						}
@@ -53,7 +53,7 @@ namespace pcpp
 			}
 
 			vendorMap.insert({
-				std::stoull(line.key()), { val["vendor"], vLocalMaskedFilter }
+			    std::stoull(line.key()), { val["vendor"], vLocalMaskedFilter }
             });
 			++ctrRead;
 		}
