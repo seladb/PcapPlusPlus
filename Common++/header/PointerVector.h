@@ -46,7 +46,7 @@ namespace pcpp
 		 * All elements inside the copied vector are duplicates and the originals remain unchanged.
 		 * @param[in] other The vector to copy from.
 		 * @remarks As the vector is copied via deep copy, all pointers obtained from the copied vector
-		 * reference the duplicates and not the original.
+		 * reference the duplicates and not the originals.
 		 */
 		PointerVector(const PointerVector& other) : m_Vector(deepCopyUnsafe(other.m_Vector))
 		{}
