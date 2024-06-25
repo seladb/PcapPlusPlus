@@ -53,6 +53,7 @@ struct TcpReassemblyMultipleConnStats
 		flowKeysList.clear();
 	}
 
+	pcpp::TcpReassembly *tcpReassmbly = nullptr;
 };
 
 
@@ -119,6 +120,40 @@ static void tcpReassemblyMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStrea
 	iter->second.reassembledData += std::string((char*)tcpData.getData(), tcpData.getDataLength());
 }
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// tcpReassemblyManuallyCloseConnMsgReadyCallback()
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+static void tcpReassemblyManuallyCloseConnMsgReadyCallback(int8_t sideIndex, const pcpp::TcpStreamData& tcpData, void* userCookie)
+{
+	TcpReassemblyMultipleConnStats::Stats &stats = static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->stats;
+
+	auto iter = stats.find(tcpData.getConnectionData().flowKey);
+	if (iter == stats.end())
+	{
+		stats.insert(std::make_pair(tcpData.getConnectionData().flowKey, TcpReassemblyStats()));
+		iter = stats.find(tcpData.getConnectionData().flowKey);
+	}
+
+	iter->second.totalMissingBytes += tcpData.getMissingByteCount();
+
+	if (sideIndex != iter->second.curSide)
+	{
+		iter->second.numOfMessagesFromSide[sideIndex]++;
+		iter->second.curSide = sideIndex;
+	}
+
+	static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->timestamps.push_back(tcpData.getTimeStamp());
+	iter->second.numOfDataPackets++;
+	iter->second.reassembledData += std::string((char*)tcpData.getData(), tcpData.getDataLength());
+
+	// if numOfDataPackets hits 10, close the connection manually
+	if (iter->second.numOfDataPackets >= 10)
+	{
+		static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
+	}
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // tcpReassemblyConnectionStartCallback()
@@ -206,6 +241,28 @@ static bool tcpReassemblyTest(const std::vector<pcpp::RawPacket>& packetStream, 
 		tcpReassembly->closeAllConnections();
 
 	delete tcpReassembly;
+
+	return true;
+}
+
+
+// ~~~~~~~~~~~~~~~~~~~
+// tcpReassemblyTestManuallyCloseConnOnMsgReady()
+// ~~~~~~~~~~~~~~~~~~~
+
+static bool tcpReassemblyTestManuallyCloseConnOnMsgReady(const std::vector<pcpp::RawPacket>& packetStream, TcpReassemblyMultipleConnStats& results)
+{
+	results.tcpReassmbly = new pcpp::TcpReassembly(tcpReassemblyManuallyCloseConnMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback, tcpReassemblyConnectionEndCallback);
+
+	for (auto iter : packetStream)
+	{
+		pcpp::Packet packet(&iter);
+		results.tcpReassmbly->reassemblePacket(packet);
+	}
+
+	results.tcpReassmbly->closeAllConnections();
+
+	delete results.tcpReassmbly;
 
 	return true;
 }
@@ -482,6 +539,78 @@ PTF_TEST_CASE(TestTcpReassemblyOutOfOrder)
 
 	PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
 } // TestTcpReassemblyOutOfOrder
+
+
+
+PTF_TEST_CASE(TestTcpReassemblyOOOWithManualClose)
+{
+	// out-of-order packets
+	{
+		std::string errMsg;
+		std::vector<pcpp::RawPacket> packetStream;
+		PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg));
+
+		// swap 2 consequent packets
+		std::swap(packetStream[9], packetStream[10]);
+
+		// swap 2 non-consequent packets
+		pcpp::RawPacket oooPacket1 = packetStream[18];
+		packetStream.erase(packetStream.begin() + 18);
+		packetStream.insert(packetStream.begin() + 23, oooPacket1);
+
+		// reverse order of all packets in message
+		for (int i = 0; i < 12; i++)
+		{
+			pcpp::RawPacket oooPacketTemp = packetStream[35];
+			packetStream.erase(packetStream.begin() + 35);
+			packetStream.insert(packetStream.begin() + 24 + i, oooPacketTemp);
+		}
+
+		TcpReassemblyMultipleConnStats tcpReassemblyResults;
+		tcpReassemblyTestManuallyCloseConnOnMsgReady(packetStream, tcpReassemblyResults);
+
+		TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+		PTF_ASSERT_EQUAL(stats.size(), 1);
+		PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 13);
+		PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 2);
+		PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 1);
+		PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
+		PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
+		PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
+
+		std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_out_of_order_with_manual_close_output.txt"));
+		PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
+	}
+
+	// out-of-order + missing data
+	{
+		std::string errMsg;
+		std::vector<pcpp::RawPacket> packetStream;
+		PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream.pcap", packetStream, errMsg));
+
+		// swap 2 consequent packets
+		std::swap(packetStream[9], packetStream[10]);
+
+		// remove one packet
+		packetStream.erase(packetStream.begin() + 13);
+
+		TcpReassemblyMultipleConnStats tcpReassemblyResults;
+		tcpReassemblyTestManuallyCloseConnOnMsgReady(packetStream, tcpReassemblyResults);
+		TcpReassemblyMultipleConnStats::Stats &stats = tcpReassemblyResults.stats;
+
+		PTF_ASSERT_EQUAL(stats.size(), 1);
+		PTF_ASSERT_EQUAL(stats.begin()->second.numOfDataPackets, 10);
+		PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[0], 2);
+		PTF_ASSERT_EQUAL(stats.begin()->second.numOfMessagesFromSide[1], 1);
+		PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
+		PTF_ASSERT_FALSE(stats.begin()->second.connectionsEnded);
+		PTF_ASSERT_TRUE(stats.begin()->second.connectionsEndedManually);
+
+		std::string expectedReassemblyData = readFileIntoString(std::string("PcapExamples/one_tcp_stream_missing_date_with_manual_close_output.txt"));
+
+		PTF_ASSERT_EQUAL(expectedReassemblyData, stats.begin()->second.reassembledData);
+	}
+} // TestTcpReassemblyOOOWithManualClose
 
 
 
