@@ -478,7 +478,8 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		return;
 	}
 
-	m_ProcessingOutOfOrder = true;
+	OutOfOrderProcessingGuard guard(m_ProcessingOutOfOrder);
+
 	bool foundSomething = false;
 
 	do
@@ -576,7 +577,6 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		// assume it's out-of-order and return
 		if (!cleanWholeFragList && (m_MaxOutOfOrderFragments == 0 || tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.size() <= m_MaxOutOfOrderFragments))
 		{
-			m_ProcessingOutOfOrder = false;
 			return;
 		}
 
@@ -650,8 +650,6 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		}
 
 	} while (foundSomething);
-
-	m_ProcessingOutOfOrder = false;
 }
 
 void TcpReassembly::closeConnection(uint32_t flowKey)
