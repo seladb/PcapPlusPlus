@@ -5,8 +5,8 @@ repos:
     hooks:
       - id: check-clang-format-version
         name: Check clang-format version
-        entry: ./ci/check-clang-format-version.sh
-        language: script
+        entry: python3 ./ci/check-clang-format-version.py
+        language: system
       - id: clang-format
         name: Clang format
         entry: clang-format
