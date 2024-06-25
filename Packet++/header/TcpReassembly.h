@@ -434,7 +434,7 @@ private:
 	private:
 		bool& m_Flag;
 	public:
-		OutOfOrderProcessingGuard(bool& flag) : m_Flag(flag)
+		explicit OutOfOrderProcessingGuard(bool& flag) : m_Flag(flag)
 		{
 			m_Flag = true;
 		}
