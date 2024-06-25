@@ -9,13 +9,9 @@ def main():
 
     version_str = result.stdout.decode("utf-8").split(" ")[2].strip()
     if version_str != EXPECTED_CLANG_VERSION:
-        print(
+        raise ValueError(
             f"Error: Found clang-format version {version_str}, but {EXPECTED_CLANG_VERSION} is required."
         )
-        exit(1)
-
-    print("Clang format version satisfied.")
-    exit(0)
 
 
 if __name__ == "__main__":
