@@ -85,7 +85,7 @@ namespace pcpp
 			// If an exception is thrown during the copy operation, restore old values and rethrow.
 			catch (const std::exception&)
 			{
-				m_Vector = oldValues;
+				m_Vector = std::move(oldValues);
 				throw;
 			}
 			// Free old values as the new ones have been successfully assigned.
