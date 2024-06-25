@@ -46,7 +46,7 @@ namespace pcpp
 		 * All elements inside the copied vector are duplicates and the originals remain unchanged.
 		 * @param[in] other The vector to copy from.
 		 * @remarks As the vector is copied via deep copy, all pointers obtained from the copied vector
-		 *	reference the duplicates and not the original.
+		 * reference the duplicates and not the original.
 		 */
 		PointerVector(const PointerVector& other) : m_Vector(deepCopyUnsafe(other.m_Vector))
 		{}
@@ -244,7 +244,7 @@ namespace pcpp
 		/**
 		 * Remove an element from the vector without freeing it
 		 * @param[in, out] position The position of the element to remove from the vector.
-		 *	The iterator is shifted to the following element after the removal is completed.
+		 * The iterator is shifted to the following element after the removal is completed.
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
 		 * it
 		 */
@@ -270,7 +270,7 @@ namespace pcpp
 		/**
 		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
 		 * @param[in, out] position An iterator pointing to the element to detach.
-		 *	The iterator is shifted to the following element after the detach completes.
+		 * The iterator is shifted to the following element after the detach completes.
 		 * @return An unique pointer that holds ownership of the detached element.
 		 */
 		std::unique_ptr<T> getAndDetach(VectorIterator& position)
