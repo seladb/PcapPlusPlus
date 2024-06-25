@@ -56,7 +56,9 @@ namespace pcpp
 		 * @param[in] other The vector to move from.
 		 */
 		PointerVector(PointerVector&& other) noexcept : m_Vector(std::move(other.m_Vector))
-		{}
+		{
+			other.m_Vector.clear();
+		}
 
 		/**
 		 * A destructor for this class. The destructor frees all elements that are binded to the vector
