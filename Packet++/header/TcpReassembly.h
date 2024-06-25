@@ -429,6 +429,26 @@ private:
 		TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1) {}
 	};
 
+	class OutOfOrderProcessingGuard
+	{
+	private:
+		bool& m_Flag;
+	public:
+		explicit OutOfOrderProcessingGuard(bool& flag) : m_Flag(flag)
+		{
+			m_Flag = true;
+		}
+
+		~OutOfOrderProcessingGuard()
+		{
+			m_Flag = false;
+		}
+
+		// Disable copy and move operations
+		OutOfOrderProcessingGuard(const OutOfOrderProcessingGuard&) = delete;
+		OutOfOrderProcessingGuard& operator=(const OutOfOrderProcessingGuard&) = delete;
+	};
+
 	typedef std::unordered_map<uint32_t, TcpReassemblyData> ConnectionList;
 	typedef std::map<time_t, std::list<uint32_t> > CleanupList;
 
@@ -445,6 +465,7 @@ private:
 	size_t m_MaxOutOfOrderFragments;
 	time_t m_PurgeTimepoint;
 	bool m_EnableBaseBufferClearCondition;
+	bool m_ProcessingOutOfOrder = false;
 
 	void checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyData, int8_t sideIndex, bool cleanWholeFragList);
 
