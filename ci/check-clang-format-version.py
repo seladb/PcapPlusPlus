@@ -4,7 +4,7 @@ EXPECTED_CLANG_VERSION = "18.1.6"
 
 
 def main():
-    result = subprocess.run("clang-format --version", capture_output=True)
+    result = subprocess.run(("clang-format", "--version"), capture_output=True)
     result.check_returncode()
 
     version_str = result.stdout.decode("utf-8").split(" ")[2].strip()
