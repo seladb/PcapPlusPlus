@@ -14,7 +14,6 @@ private:
 	int m_MaxPacketsPerFile;
 
 public:
-
 	/**
 	 * A c'tor for this class which gets the packet count for each split file
 	 */
@@ -57,8 +56,6 @@ public:
 	}
 };
 
-
-
 /**
  * Splits a pcap file by number of byte in each file
  */
@@ -68,11 +65,10 @@ private:
 	uint64_t m_TotalSize;
 	uint64_t m_MaxBytesPerFile;
 
-	static const int PCAP_FILE_HEADER_SIZE = 24;   // == sizeof(pcap_file_header)
-	static const int PCAP_PACKET_HEADER_SIZE = 16; // == sizeof(pcap_pkthdr)
+	static const int PCAP_FILE_HEADER_SIZE = 24;    // == sizeof(pcap_file_header)
+	static const int PCAP_PACKET_HEADER_SIZE = 16;  // == sizeof(pcap_pkthdr)
 
 public:
-
 	/**
 	 * A c'tor for this class which gets the file size in bytes for each split file
 	 */
@@ -114,13 +110,11 @@ public:
 
 		return true;
 	}
-
 };
 
-
 /**
- * Splits a pcap file into two files: one that contains all packets matching a given BPF filter and one that contains the rest
- * of the packets
+ * Splits a pcap file into two files: one that contains all packets matching a given BPF filter and one that contains
+ * the rest of the packets
  */
 class BpfCriteriaSplitter : public Splitter
 {
@@ -129,7 +123,8 @@ private:
 	pcpp::BPFStringFilter filter;
 
 public:
-	explicit BpfCriteriaSplitter(const std::string &bpfFilter) : m_BpfFilter(bpfFilter), filter(bpfFilter) {}
+	explicit BpfCriteriaSplitter(const std::string& bpfFilter) : m_BpfFilter(bpfFilter), filter(bpfFilter)
+	{}
 
 	/**
 	 * Return file #0 if packet matches the BPF filer, and file #1 if it's not
@@ -145,7 +140,7 @@ public:
 	 * Re-implement Splitter's getFileName() method, clarifying which file was matched by the BPF
 	 * filter and which didn't
 	 */
-	std::string getFileName(pcpp::Packet& packet, const std::string &outputPcapBasePath, int fileNumber)
+	std::string getFileName(pcpp::Packet& packet, const std::string& outputPcapBasePath, int fileNumber)
 	{
 		if (fileNumber == 0)
 			return outputPcapBasePath + "match-bpf";
@@ -164,7 +159,6 @@ public:
 			return false;
 		}
 
-
 		pcpp::BPFStringFilter localFilter(m_BpfFilter);
 		bool filterValid = localFilter.verifyFilter();
 		if (!filterValid)
@@ -174,14 +168,14 @@ public:
 	}
 };
 
-
 /**
  * Split a pcap file to an arbitrary number of files in a round-robin manner, each read packet to the next file in line
  */
 class RoundRobinSplitter : public SplitterWithMaxFiles
 {
 public:
-	explicit RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles) { }
+	explicit RoundRobinSplitter(int numOfFiles) : SplitterWithMaxFiles(numOfFiles)
+	{}
 
 	/**
 	 * Get the next file number, SplitterWithMaxFiles#getNextFileNumber() takes care of the round-robin method
