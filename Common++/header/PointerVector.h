@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdexcept>
 #include <vector>
+#include <memory>
 
 /// @file
 
@@ -26,12 +28,12 @@ namespace pcpp
 		/**
 		 * Iterator object that is used for iterating all elements in the vector
 		 */
-		typedef typename std::vector<T*>::iterator VectorIterator;
+		using VectorIterator = typename std::vector<T*>::iterator;
 
 		/**
 		 * Const iterator object that is used for iterating all elements in a constant vector
 		 */
-		typedef typename std::vector<T*>::const_iterator ConstVectorIterator;
+		using ConstVectorIterator = typename std::vector<T*>::const_iterator;
 
 		/**
 		 * A constructor that create an empty instance of this object
@@ -40,47 +42,72 @@ namespace pcpp
 		{}
 
 		/**
+		 * Copies the vector along with all elements inside it.
+		 * All elements inside the copied vector are duplicates and the originals remain unchanged.
+		 * @param[in] other The vector to copy from.
+		 * @remarks As the vector is copied via deep copy, all pointers obtained from the copied vector
+		 * reference the duplicates and not the originals.
+		 */
+		PointerVector(const PointerVector& other) : m_Vector(deepCopyUnsafe(other.m_Vector))
+		{}
+
+		/**
+		 * Move constructor. All elements along with their ownership is transferred to the new vector.
+		 * @param[in] other The vector to move from.
+		 */
+		PointerVector(PointerVector&& other) noexcept : m_Vector(std::move(other.m_Vector))
+		{
+			other.m_Vector.clear();
+		}
+
+		/**
 		 * A destructor for this class. The destructor frees all elements that are binded to the vector
 		 */
 		~PointerVector()
 		{
-			for (auto iter : m_Vector)
-			{
-				delete iter;
-			}
+			freeVectorUnsafe(m_Vector);
 		}
 
 		/**
-		 * Copy constructor. Once a vector is copied from another vector, all elements inside it are copied,
-		 * meaning the new vector will contain pointers to copied elements, not pointers to the elements of the original
-		 * vector
+		 * A copy assignment operator. Replaces the contents with a copy of the contents of other.
+		 * See copy constructor for more information on the specific copy procedure.
+		 * @param[in] other The vector to copy from.
+		 * @return A reference to the current object.
 		 */
-		PointerVector(const PointerVector& other)
+		PointerVector& operator=(const PointerVector& other)
 		{
+			// Saves a copy of the old pointer to defer cleanup.
+			auto oldValues = m_Vector;
 			try
 			{
-				for (const auto iter : other)
-				{
-					T* objCopy = new T(*iter);
-					try
-					{
-						m_Vector.push_back(objCopy);
-					}
-					catch (const std::exception&)
-					{
-						delete objCopy;
-						throw;
-					}
-				}
+				m_Vector = deepCopyUnsafe(other.m_Vector);
 			}
+			// If an exception is thrown during the copy operation, restore old values and rethrow.
 			catch (const std::exception&)
 			{
-				for (auto obj : m_Vector)
-				{
-					delete obj;
-				}
+				m_Vector = std::move(oldValues);
 				throw;
 			}
+			// Free old values as the new ones have been successfully assigned.
+			freeVectorUnsafe(oldValues);
+			return *this;
+		}
+
+		/**
+		 * A move assignment operator. Replaces the contents with those of other via move semantics.
+		 * The other vector is left empty.
+		 * @param[in] other The vector to move from.
+		 * @return A reference to the current object.
+		 */
+		PointerVector& operator=(PointerVector&& other) noexcept
+		{
+			// Releases all current elements.
+			clear();
+			// Moves the elements of the other vector.
+			m_Vector = std::move(other.m_Vector);
+			// Explicitly clear the other vector as the standard only guarantees an unspecified valid state after move.
+			other.m_Vector.clear();
+			return *this;
 		}
 
 		/**
@@ -88,20 +115,43 @@ namespace pcpp
 		 */
 		void clear()
 		{
-			for (auto iter : m_Vector)
-			{
-				delete iter;
-			}
-
+			freeVectorUnsafe(m_Vector);
 			m_Vector.clear();
 		}
 
 		/**
 		 * Add a new (pointer to an) element to the vector
+		 * @param[in] element A pointer to an element to assume ownership of.
+		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 */
 		void pushBack(T* element)
 		{
+			if (element == nullptr)
+			{
+				throw std::invalid_argument("Element is nullptr");
+			}
+
 			m_Vector.push_back(element);
+		}
+
+		/**
+		 * Add a new element to the vector that has been managed by an unique pointer.
+		 * @param[in] element A unique pointer holding an element.
+		 * @throws std::invalid_argument The provided pointer is a nullptr.
+		 * @remarks If pushBack throws the element is freed immediately.
+		 */
+		void pushBack(std::unique_ptr<T> element)
+		{
+			if (!element)
+			{
+				throw std::invalid_argument("Element is nullptr");
+			}
+
+			// Release is called after the raw pointer is already inserted into the vector to prevent
+			// a memory leak if push_back throws.
+			// cppcheck-suppress danglingLifetime
+			m_Vector.push_back(element.get());
+			element.release();
 		}
 
 		/**
@@ -140,8 +190,6 @@ namespace pcpp
 			return m_Vector.end();
 		}
 
-		// inline size_t size() { return m_Vector.size(); }
-
 		/**
 		 * Get number of elements in the vector
 		 * @return The number of elements in the vector
@@ -152,7 +200,6 @@ namespace pcpp
 		}
 
 		/**
-		 * Returns a pointer of the first element in the vector
 		 * @return A pointer of the first element in the vector
 		 */
 		T* front()
@@ -161,9 +208,25 @@ namespace pcpp
 		}
 
 		/**
+		 * @return A pointer to the first element in the vector
+		 */
+		T const* front() const
+		{
+			return m_Vector.front();
+		}
+
+		/**
 		 * @return A pointer to the last element in the vector
 		 */
 		T* back()
+		{
+			return m_Vector.back();
+		}
+
+		/*
+		 * @return A pointer to the last element in the vector.
+		 */
+		T const* back() const
 		{
 			return m_Vector.back();
 		}
@@ -182,7 +245,8 @@ namespace pcpp
 
 		/**
 		 * Remove an element from the vector without freeing it
-		 * param[in] position The position of the element to remove from the vector
+		 * @param[in, out] position The position of the element to remove from the vector.
+		 * The iterator is shifted to the following element after the removal is completed.
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
 		 * it
 		 */
@@ -192,6 +256,29 @@ namespace pcpp
 			VectorIterator tempPos = position;
 			tempPos = m_Vector.erase(tempPos);
 			position = tempPos;
+			return result;
+		}
+
+		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in] index The index of the element to detach.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(size_t index)
+		{
+			return getAndDetach(m_Vector.begin() + index);
+		}
+
+		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in, out] position An iterator pointing to the element to detach.
+		 * The iterator is shifted to the following element after the detach completes.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(VectorIterator& position)
+		{
+			std::unique_ptr<T> result(*position);
+			position = m_Vector.erase(position);
 			return result;
 		}
 
@@ -216,6 +303,57 @@ namespace pcpp
 		}
 
 	private:
+		/**
+		 * Performs a copy of the vector along with its elements.
+		 * The caller is responsible of freeing the copied elements.
+		 * @return A vector of pointers to the newly copied elements.
+		 */
+		static std::vector<T*> deepCopyUnsafe(std::vector<T*> const& origin)
+		{
+			std::vector<T*> copyVec;
+
+			try
+			{
+				for (const auto iter : origin)
+				{
+					T* objCopy = new T(*iter);
+					try
+					{
+						copyVec.push_back(objCopy);
+					}
+					catch (const std::exception&)
+					{
+						delete objCopy;
+						throw;
+					}
+				}
+			}
+			catch (const std::exception&)
+			{
+				for (auto obj : copyVec)
+				{
+					delete obj;
+				}
+				throw;
+			}
+
+			return copyVec;
+		}
+
+		/**
+		 * Frees all elements inside the vector.
+		 * Calling this function with non-heap allocated pointers is UB.
+		 * @param[in] origin The vector of elements to free.
+		 * @remarks The vector's contents are not cleared and will point to invalid locations in memory.
+		 */
+		static void freeVectorUnsafe(std::vector<T*> const& origin)
+		{
+			for (auto& obj : origin)
+			{
+				delete obj;
+			}
+		}
+
 		std::vector<T*> m_Vector;
 	};
 
