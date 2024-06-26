@@ -27,18 +27,20 @@
 
 #define DEFAULT_MAX_TRIES 1000000
 
+// clang-format off
 static struct option ArpingOptions[] = {
 	{ "interface",  optional_argument, nullptr, 'i' },
-    { "source-mac", optional_argument, nullptr, 's' },
+	{ "source-mac", optional_argument, nullptr, 's' },
 	{ "source-ip",  optional_argument, nullptr, 'S' },
-    { "target-ip",  required_argument, nullptr, 'T' },
+	{ "target-ip",  required_argument, nullptr, 'T' },
 	{ "count",      optional_argument, nullptr, 'c' },
-    { "help",       optional_argument, nullptr, 'h' },
 	{ "version",    no_argument,       nullptr, 'v' },
-    { "list",       optional_argument, nullptr, 'l' },
+	{ "list",       optional_argument, nullptr, 'l' },
 	{ "timeout",    optional_argument, nullptr, 'w' },
-    { nullptr,      0,                 nullptr, 0   }
+	{ "help",       optional_argument, nullptr, 'h' },
+	{ nullptr,      0,                 nullptr, 0   }
 };
+// clang-format on
 
 /**
  * Print application usage
