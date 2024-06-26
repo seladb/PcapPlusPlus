@@ -42,6 +42,7 @@
 #define DEFAULT_MBUF_POOL_SIZE 4095
 #define MAX_QUEUES 64
 
+// clang-format off
 static struct option FilterTrafficOptions[] = {
 	{ "dpdk-ports",           required_argument, 0, 'd' },
 	{ "send-matched-packets", optional_argument, 0, 's' },
@@ -55,11 +56,12 @@ static struct option FilterTrafficOptions[] = {
 	{ "mbuf-pool-size",       optional_argument, 0, 'm' },
 	{ "rx-queues",            optional_argument, 0, 'r' },
 	{ "tx-queues",            optional_argument, 0, 't' },
-	{ "help",	             optional_argument, 0, 'h' },
+	{ "help",                 optional_argument, 0, 'h' },
 	{ "version",              optional_argument, 0, 'v' },
-	{ "list",	             optional_argument, 0, 'l' },
-	{ 0,	                  0,	             0, 0   }
+	{ "list",                 optional_argument, 0, 'l' },
+	{ 0,	                     0,                 0, 0   }
 };
+// clang-format on
 
 /**
  * Print application usage
