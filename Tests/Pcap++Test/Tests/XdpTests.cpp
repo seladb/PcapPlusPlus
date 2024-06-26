@@ -1,11 +1,10 @@
-#include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
+#include "../TestDefinition.h"
+#include "Logger.h"
+#include "Packet.h"
+#include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "XdpDevice.h"
-#include "PcapFileDevice.h"
-#include "Packet.h"
-#include "Logger.h"
-
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
@@ -17,34 +16,27 @@ struct XdpPacketData
 	int byteCount;
 	uint64_t latestTimestamp;
 
-	XdpPacketData() : packetCount(0), byteCount(0), latestTimestamp(0) {}
+	XdpPacketData() : packetCount(0), byteCount(0), latestTimestamp(0)
+	{}
 };
 
 bool assertConfig(const pcpp::XdpDevice::XdpDeviceConfiguration* config,
-				  const pcpp::XdpDevice::XdpDeviceConfiguration::AttachMode expectedAttachMode,
-				  const uint16_t expectedUmemNumFrames,
-				  const uint16_t expectedUmemFrameSize,
-				  const uint32_t expectedFillRingSize,
-				  const uint32_t expectedCompletionRingSize,
-				  const uint32_t expectedRxSize,
-				  const uint32_t expectedTxSize,
-				  const uint16_t expectedRxTxBatchSize)
+                  const pcpp::XdpDevice::XdpDeviceConfiguration::AttachMode expectedAttachMode,
+                  const uint16_t expectedUmemNumFrames, const uint16_t expectedUmemFrameSize,
+                  const uint32_t expectedFillRingSize, const uint32_t expectedCompletionRingSize,
+                  const uint32_t expectedRxSize, const uint32_t expectedTxSize, const uint16_t expectedRxTxBatchSize)
 {
-	return (
-			config != nullptr &&
-			config->attachMode == expectedAttachMode &&
-			config->umemNumFrames == expectedUmemNumFrames &&
-			config->umemFrameSize == expectedUmemFrameSize &&
-			config->fillRingSize == expectedFillRingSize &&
-			config->completionRingSize == expectedCompletionRingSize &&
-			config->rxSize == expectedRxSize &&
-			config->txSize == expectedTxSize &&
-			config->rxTxBatchSize == expectedRxTxBatchSize);
+	return (config != nullptr && config->attachMode == expectedAttachMode &&
+	        config->umemNumFrames == expectedUmemNumFrames && config->umemFrameSize == expectedUmemFrameSize &&
+	        config->fillRingSize == expectedFillRingSize && config->completionRingSize == expectedCompletionRingSize &&
+	        config->rxSize == expectedRxSize && config->txSize == expectedTxSize &&
+	        config->rxTxBatchSize == expectedRxTxBatchSize);
 }
 
 std::string getDeviceName()
 {
-	auto pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	auto pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	if (pcapLiveDev)
 	{
 		return pcapLiveDev->getName();
@@ -53,8 +45,7 @@ std::string getDeviceName()
 	return "";
 }
 
-
-#endif // USE_XDP
+#endif  // USE_XDP
 
 PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 {
@@ -67,14 +58,13 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 
 	PTF_ASSERT_TRUE(device.open());
 
-	PTF_ASSERT_TRUE(
-		assertConfig(device.getConfig(),
-					pcpp::XdpDevice::XdpDeviceConfiguration::AutoMode,
-					4096, 4096,4096,2048,2048,2048,64));
+	PTF_ASSERT_TRUE(assertConfig(device.getConfig(), pcpp::XdpDevice::XdpDeviceConfiguration::AutoMode, 4096, 4096,
+	                             4096, 2048, 2048, 2048, 64));
 
 	XdpPacketData packetData;
 
-	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie) -> void {
+	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device,
+	                          void* userCookie) -> void {
 		auto packetData = static_cast<XdpPacketData*>(userCookie);
 
 		for (uint32_t i = 0; i < packetCount; i++)
@@ -83,7 +73,8 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 			{
 				packetData->packetCount++;
 				packetData->byteCount += packets[i].getRawDataLen();
-				packetData->latestTimestamp = 1000*1000*1000*packets[i].getPacketTimeStamp().tv_sec + packets[i].getPacketTimeStamp().tv_nsec;
+				packetData->latestTimestamp = 1000 * 1000 * 1000 * packets[i].getPacketTimeStamp().tv_sec +
+				                              packets[i].getPacketTimeStamp().tv_nsec;
 			}
 		}
 
@@ -96,7 +87,7 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 	timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
 
-	uint64_t curTimestamp = 1000*1000*1000*ts.tv_sec + ts.tv_nsec;
+	uint64_t curTimestamp = 1000 * 1000 * 1000 * ts.tv_sec + ts.tv_nsec;
 
 	PTF_ASSERT_TRUE(device.receivePackets(onPacketsArrive, &packetData, 20000));
 
@@ -134,8 +125,7 @@ PTF_TEST_CASE(TestXdpDeviceReceivePackets)
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
-} // TestXdpDeviceReceivePackets
-
+}  // TestXdpDeviceReceivePackets
 
 PTF_TEST_CASE(TestXdpDeviceSendPackets)
 {
@@ -181,8 +171,7 @@ PTF_TEST_CASE(TestXdpDeviceSendPackets)
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
-} // TestXdpDeviceSendPackets
-
+}  // TestXdpDeviceSendPackets
 
 PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 {
@@ -191,18 +180,17 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 	PTF_ASSERT_FALSE(devName.empty());
 	pcpp::XdpDevice device(devName);
 
-	auto config = pcpp::XdpDevice::XdpDeviceConfiguration(pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode,
-														  1000, 4096, 512, 512, 512, 512, 20);
+	auto config = pcpp::XdpDevice::XdpDeviceConfiguration(pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode, 1000, 4096,
+	                                                      512, 512, 512, 512, 20);
 	PTF_ASSERT_TRUE(device.open(config));
 
-	PTF_ASSERT_TRUE(
-		assertConfig(device.getConfig(),
-					 pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode,
-					 1000, 4096,512,512,512,512,20));
+	PTF_ASSERT_TRUE(assertConfig(device.getConfig(), pcpp::XdpDevice::XdpDeviceConfiguration::SkbMode, 1000, 4096, 512,
+	                             512, 512, 512, 20));
 
 	int numPackets = 0;
 
-	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device, void* userCookie) -> void {
+	auto onPacketsArrive = [](pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpDevice* device,
+	                          void* userCookie) -> void {
 		int* totalPacketCount = static_cast<int*>(userCookie);
 
 		for (uint32_t i = 0; i < packetCount; i++)
@@ -225,8 +213,7 @@ PTF_TEST_CASE(TestXdpDeviceNonDefaultConfig)
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
-} // TestXdpDeviceNonDefaultConfig
-
+}  // TestXdpDeviceNonDefaultConfig
 
 PTF_TEST_CASE(TestXdpDeviceInvalidConfig)
 {
@@ -301,4 +288,4 @@ PTF_TEST_CASE(TestXdpDeviceInvalidConfig)
 #else
 	PTF_SKIP_TEST("XDP not configured");
 #endif
-} // TestXdpDeviceInvalidConfig
+}  // TestXdpDeviceInvalidConfig

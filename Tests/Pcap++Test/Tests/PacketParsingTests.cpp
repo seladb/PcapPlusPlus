@@ -1,13 +1,12 @@
-#include "../TestDefinition.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <sstream>
-#include <fstream>
-#include <stdlib.h>
-#include "Packet.h"
-#include "HttpLayer.h"
+#include "../TestDefinition.h"
 #include "DnsLayer.h"
+#include "HttpLayer.h"
+#include "Packet.h"
 #include "PcapFileDevice.h"
-
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {
@@ -103,9 +102,9 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 
 	PTF_ASSERT_EQUAL(packetCount, 385);
 
-	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ")
+	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " ||
+	// tcp contains "HEAD " || tcp contains "OPTIONS ")
 	PTF_ASSERT_EQUAL(httpPackets, 385);
-
 
 	PTF_ASSERT_EQUAL(otherMethodReqs, 0);
 
@@ -118,8 +117,8 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "HEAD ")
 	PTF_ASSERT_EQUAL(headReqs, 5);
 
-
-	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST ") && (tcp matches "home.*HTTP/1.1")
+	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST ") &&
+	// (tcp matches "home.*HTTP/1.1")
 	PTF_ASSERT_EQUAL(homeReqs, 13);
 	// Wireshark filter: http.request.full_uri contains .swf
 	PTF_ASSERT_EQUAL(swfReqs, 4);
@@ -131,17 +130,16 @@ PTF_TEST_CASE(TestHttpRequestParsing)
 	// Wireshark filter: tcp contains "Host: www.winwin.co.il"
 	PTF_ASSERT_EQUAL(winwinReqs, 20);
 
-
-	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Firefox/33.0")
+	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " ||
+	// tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Firefox/33.0")
 	PTF_ASSERT_EQUAL(ffReqs, 233);
-	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Chrome/38.0")
+	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " ||
+	// tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Chrome/38.0")
 	PTF_ASSERT_EQUAL(chromeReqs, 82);
-	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " || tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Trident/7.0")
+	// Wireshark filter: (tcp.dstport == 80 || tcp.dstport == 8080) && (tcp contains "GET " || tcp contains "POST " ||
+	// tcp contains "HEAD " || tcp contains "OPTIONS ") && (tcp contains "Trident/7.0")
 	PTF_ASSERT_EQUAL(ieReqs, 55);
-} // TestHttpRequestParsing
-
-
-
+}  // TestHttpRequestParsing
 
 PTF_TEST_CASE(TestHttpResponseParsing)
 {
@@ -175,11 +173,16 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 		pcpp::HttpResponseLayer* httpResLayer = packet.getLayerOfType<pcpp::HttpResponseLayer>();
 		PTF_ASSERT_NOT_NULL(httpResLayer->getFirstLine());
 
-		if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http200OK) {
+		if (httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http200OK)
+		{
 			http200OKCounter++;
-		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http302) {
+		}
+		else if (httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http302)
+		{
 			http302Counter++;
-		} else if(httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http304NotModified ) {
+		}
+		else if (httpResLayer->getFirstLine()->getStatusCode() == pcpp::HttpResponseStatusCode::Http304NotModified)
+		{
 			http304NotModifiedCounter++;
 		}
 
@@ -209,7 +212,6 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 			if (length > 100000)
 				bigResponses++;
 		}
-
 	}
 
 	PTF_ASSERT_EQUAL(packetCount, 682);
@@ -228,21 +230,22 @@ PTF_TEST_CASE(TestHttpResponseParsing)
 
 	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type == "text/html"
 	PTF_ASSERT_EQUAL(textHtmlCount, 38);
-	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type contains "image/"
+	// wireshark filter: http.response && (tcp.srcport == 80 || tcp.srcport == 8080) && http.content_type contains
+	// "image/"
 	PTF_ASSERT_EQUAL(imageCount, 369);
 
-	// wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && (tcp contains "Transfer-Encoding:  chunked" || tcp contains "Transfer-Encoding: chunked" || tcp contains "transfer-encoding: chunked")
+	// wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && (tcp contains
+	// "Transfer-Encoding:  chunked" || tcp contains "Transfer-Encoding: chunked" || tcp contains "transfer-encoding:
+	// chunked")
 	PTF_ASSERT_EQUAL(chunkedCount, 45);
-	// wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && tcp contains "Content-Encoding: gzip"
+	// wireshark filter: (tcp.srcport == 80 || tcp.srcport == 8080) && tcp contains "HTTP/1." && tcp contains
+	// "Content-Encoding: gzip"
 	PTF_ASSERT_EQUAL(gzipCount, 148);
 
 	// wireshark filter: http.content_length > 100000
 	PTF_ASSERT_EQUAL(bigResponses, 14);
 
-} // TestHttpResponseParsing
-
-
-
+}  // TestHttpResponseParsing
 
 PTF_TEST_CASE(TestPrintPacketAndLayers)
 {
@@ -273,15 +276,14 @@ PTF_TEST_CASE(TestPrintPacketAndLayers)
 	while (true)
 	{
 		index = referenceBufferAsString.find("\r\n", index);
-		if (index == std::string::npos) break;
+		if (index == std::string::npos)
+			break;
 		referenceBufferAsString.replace(index, 2, "\n");
 		index += 1;
 	}
 
 	PTF_ASSERT_EQUAL(referenceBufferAsString, outputStream.str());
-} // TestPrintPacketAndLayers
-
-
+}  // TestPrintPacketAndLayers
 
 PTF_TEST_CASE(TestDnsParsing)
 {
@@ -297,7 +299,7 @@ PTF_TEST_CASE(TestDnsParsing)
 	int packetsContainingDnsAdditional = 0;
 
 	int queriesWithNameGoogle = 0;
-	int queriesWithNameMozillaOrg = 0; //aus3.mozilla.org
+	int queriesWithNameMozillaOrg = 0;  // aus3.mozilla.org
 	int queriesWithTypeA = 0;
 	int queriesWithTypeNotA = 0;
 	int queriesWithClassIN = 0;
@@ -334,7 +336,8 @@ PTF_TEST_CASE(TestDnsParsing)
 			bool isTypeA = false;
 			bool isClassIN = false;
 
-			for (pcpp::DnsQuery* query = dnsLayer->getFirstQuery(); query != nullptr; query = dnsLayer->getNextQuery(query))
+			for (pcpp::DnsQuery* query = dnsLayer->getFirstQuery(); query != nullptr;
+			     query = dnsLayer->getNextQuery(query))
 			{
 				if (query->getDnsType() == pcpp::DNS_TYPE_A)
 					isTypeA = true;
@@ -361,7 +364,8 @@ PTF_TEST_CASE(TestDnsParsing)
 			bool isTypePTR = false;
 			bool isTtlLessThan30 = false;
 
-			for (pcpp::DnsResource* answer = dnsLayer->getFirstAnswer(); answer != nullptr; answer = dnsLayer->getNextAnswer(answer))
+			for (pcpp::DnsResource* answer = dnsLayer->getFirstAnswer(); answer != nullptr;
+			     answer = dnsLayer->getNextAnswer(answer))
 			{
 				if (answer->getTTL() < 30)
 					isTtlLessThan30 = true;
@@ -388,7 +392,8 @@ PTF_TEST_CASE(TestDnsParsing)
 			if (dnsLayer->getAuthority("Yaels-iPhone.local", true) != nullptr)
 				authoritiesWithNameYaelPhone++;
 
-			for (pcpp::DnsResource* auth = dnsLayer->getFirstAuthority(); auth != nullptr; auth = dnsLayer->getNextAuthority(auth))
+			for (pcpp::DnsResource* auth = dnsLayer->getFirstAuthority(); auth != nullptr;
+			     auth = dnsLayer->getNextAuthority(auth))
 			{
 				if (auth->getData()->toString() == "10.0.0.2")
 				{
@@ -405,12 +410,14 @@ PTF_TEST_CASE(TestDnsParsing)
 			if (dnsLayer->getAdditionalRecord("", true) != nullptr)
 				additionalWithEmptyName++;
 
-			if (dnsLayer->getAdditionalRecord("D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa", true) != nullptr)
+			if (dnsLayer->getAdditionalRecord(
+			        "D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa", true) != nullptr)
 				additionalWithLongUglyName++;
 
 			bool isTypeNSEC = false;
 
-			for (pcpp::DnsResource* add = dnsLayer->getFirstAdditionalRecord(); add != nullptr; add = dnsLayer->getNextAdditionalRecord(add))
+			for (pcpp::DnsResource* add = dnsLayer->getFirstAdditionalRecord(); add != nullptr;
+			     add = dnsLayer->getNextAdditionalRecord(add))
 			{
 				if (add->getDnsType() == pcpp::DNS_TYPE_NSEC)
 					isTypeNSEC = true;
@@ -461,8 +468,9 @@ PTF_TEST_CASE(TestDnsParsing)
 
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.name == "<Root>"
 	PTF_ASSERT_EQUAL(additionalWithEmptyName, 23);
-	// wireshark filter: dns.count.add_rr > 0 and dns.resp.name == D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa
+	// wireshark filter: dns.count.add_rr > 0 and dns.resp.name ==
+	// D.9.F.3.F.4.E.F.F.F.A.A.F.1.A.5.0.0.0.0.0.0.0.0.0.0.0.0.0.8.E.F.ip6.arpa
 	PTF_ASSERT_EQUAL(additionalWithLongUglyName, 12);
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
 	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14);
-} // TestDnsParsing
+}  // TestDnsParsing
