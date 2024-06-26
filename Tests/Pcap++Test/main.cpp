@@ -1,12 +1,12 @@
-#include "Common/GlobalTestArgs.h"
-#include "Common/TestUtils.h"
-#include "Logger.h"
-#include "PcapPlusPlusVersion.h"
-#include "PcppTestFrameworkRun.h"
-#include "TestDefinition.h"
-#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "PcapPlusPlusVersion.h"
+#include "Logger.h"
+#include "PcppTestFrameworkRun.h"
+#include "TestDefinition.h"
+#include "Common/GlobalTestArgs.h"
+#include "Common/TestUtils.h"
+#include <getopt.h>
 
 // clang-format off
 static struct option PcapTestOptions[] = {
