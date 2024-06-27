@@ -11,16 +11,13 @@ on:
   schedule:
     - cron: '0 0 * * 0' # Run every Sunday at midnight
 
-permissions:
-  attestations: write
-  contents: write
-  id-token: write
-
 env:
   BUILD_DIR: Dist
 
 permissions:
   contents: read
+  attestations: write
+  id-token: write
 
 jobs:
   linux:
@@ -75,13 +72,9 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
-
-      - name: Move attestation to artifact for automatic upload
-        run: mv "${{ steps.attestation.outputs.bundle-path }}" "${{ env.BUILD_DIR }}/"$(basename ${{ env.BUILD_DIR }}/*.tar.gz .tar.gz)".sigstore.json"
-        shell: bash
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
@@ -90,7 +83,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm,${{ env.BUILD_DIR }}/*.sigstore.json"
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
   freebsd:
     runs-on: ubuntu-latest
@@ -120,13 +113,9 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
-
-      - name: Move attestation to artifact for automatic upload
-        run: mv "${{ steps.attestation.outputs.bundle-path }}" "${{ env.BUILD_DIR }}/"$(basename ${{ env.BUILD_DIR }}/*.tar.gz .tar.gz)".sigstore.json"
-        shell: bash
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
@@ -135,7 +124,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.sigstore.json"
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
     runs-on: macos-12
@@ -166,13 +155,9 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
-
-      - name: Move attestation to artifact for automatic upload
-        run: mv "${{ steps.attestation.outputs.bundle-path }}" "${{ env.BUILD_DIR }}/"$(basename ${{ env.BUILD_DIR }}/*.tar.gz .tar.gz)".sigstore.json"
-        shell: bash
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
@@ -181,7 +166,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg,${{ env.BUILD_DIR }}/*.sigstore.json"
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
   mingw-w64:
     runs-on: windows-latest
@@ -239,13 +224,9 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
-
-      - name: Move attestation to artifact for automatic upload
-        run: mv "${{ steps.attestation.outputs.bundle-path }}" "${{ env.BUILD_DIR }}/"$(basename ${{ env.BUILD_DIR }}/*.zip .zip)".sigstore.json"
-        shell: bash
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
@@ -254,7 +235,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/*.zip,${{ env.BUILD_DIR }}/*.sigstore.json"
+          artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   visual-studio:
     strategy:
@@ -291,13 +272,9 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
-
-      - name: Move attestation to artifact for automatic upload
-        run: mv "${{ steps.attestation.outputs.bundle-path }}" "${{ env.BUILD_DIR }}/"$(basename ${{ env.BUILD_DIR }}/*.zip .zip)".sigstore.json"
-        shell: bash
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
@@ -306,7 +283,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.BUILD_DIR }}/*.zip,${{ env.BUILD_DIR }}/*.sigstore.json"
+          artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   android-build:
     strategy:
@@ -384,13 +361,9 @@ jobs:
 
       - name: Generate artifact attestation
         id: attestation
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4 # v1.1.1
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
-
-      - name: Move attestation to artifact for automatic upload
-        run: mv "${{ steps.attestation.outputs.bundle-path }}" "${{ env.BUILD_DIR }}/"$(basename ${{ env.BUILD_DIR }}/*.tar.gz .tar.gz)".sigstore.json"
-        shell: bash
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
@@ -399,4 +372,4 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: "${{ env.PACKAGE_DIR }}.tar.gz,${{ env.BUILD_DIR }}/*.sigstore.json"
+          artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
