@@ -16,14 +16,14 @@ env:
 
 permissions:
   contents: read
-  attestations: write
-  id-token: write
 
 jobs:
   linux:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -87,6 +87,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     strategy:
       matrix:
         include:
@@ -128,6 +130,8 @@ jobs:
     runs-on: macos-12
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     strategy:
       matrix:
         xcode-version: [14.2.0, 13.4.1]
@@ -170,6 +174,8 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     strategy:
       matrix:
         include:
@@ -245,6 +251,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
@@ -344,6 +352,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
 
     steps:
       - uses: actions/download-artifact@c850b930e6ba138125429b7e5c93fc707a7f8427 # v4.1.4
