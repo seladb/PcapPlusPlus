@@ -371,7 +371,7 @@ jobs:
         id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
-          subject-path: "${{ env.PACKAGE_DIR }}/*.tar.gz"
+          subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
 
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
