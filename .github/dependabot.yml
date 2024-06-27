@@ -11,7 +11,7 @@ updates:
   - package-ecosystem: "pip"
     directories:
       - "/Tests/ExamplesTest"
-      - "/ci/run_tests" 
+      - "/ci/run_tests"
     schedule:
       interval: "monthly"
     target-branch: "dev"
