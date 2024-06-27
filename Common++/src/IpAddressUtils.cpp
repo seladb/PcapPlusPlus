@@ -1,7 +1,7 @@
 #include "IpAddressUtils.h"
 
 #include "IpAddress.h"
-#include "IpUtils.h" // Just needing in_addr and in6_addr.
+#include "IpUtils.h"  // Just needing in_addr and in6_addr.
 
 namespace pcpp
 {
@@ -32,4 +32,4 @@ namespace pcpp
 		}
 		return false;
 	}
-}
+}  // namespace pcpp

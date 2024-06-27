@@ -258,23 +258,24 @@ bool DpdkDeviceList::verifyHugePagesAndDpdkDriver()
 	execResult = executeShellCommand("lsmod | grep -s igb_uio");
 	if (execResult == "")
 	{
-		execResult = executeShellCommand("modinfo -d uio_pci_generic");
-		if (execResult.find("ERROR") != std::string::npos)
+		try
 		{
-			execResult = executeShellCommand("modinfo -d vfio-pci");
-			if (execResult.find("ERROR") != std::string::npos)
+			execResult = executeShellCommand("modinfo -d uio_pci_generic");
+			PCPP_LOG_DEBUG("uio_pci_generic module is loaded");
+		}
+		catch (const std::runtime_error&)
+		{
+			try
 			{
-				PCPP_LOG_ERROR("None of igb_uio, uio_pci_generic, vfio-pci kernel modules are loaded so DPDK cannot be initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
-				return false;
-			}
-			else
-			{
+				execResult = executeShellCommand("modinfo -d vfio-pci");
 				PCPP_LOG_DEBUG("vfio-pci module is loaded");
 			}
-		}
-		else
-		{
-			PCPP_LOG_DEBUG("uio_pci_generic module is loaded");
+			catch (const std::runtime_error&)
+			{
+				PCPP_LOG_ERROR("None of igb_uio, uio_pci_generic, vfio-pci kernel modules are loaded so DPDK cannot be "
+							   "initialized. Please run <PcapPlusPlus_Root>/setup_dpdk.sh");
+				return false;
+			}
 		}
 	}
 	else

@@ -1,6 +1,8 @@
 #define LOG_MODULE PcapLogModuleLiveDevice
 
 #include "IpUtils.h"
+#include "DeviceUtils.h"
+#include "PcapUtils.h"
 #include "PcapLiveDevice.h"
 #include "PcapLiveDeviceList.h"
 #include "Packet.h"
@@ -11,12 +13,13 @@
 #include <thread>
 #include "Logger.h"
 #include "SystemUtils.h"
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <sstream>
 #include <vector>
+#include <array>
 #if defined(_WIN32)
 // The definition of BPF_MAJOR_VERSION is required to support Npcap. In Npcap there are
 // compilation errors due to struct redefinition when including both Packet32.h and pcap.h
@@ -35,10 +38,17 @@
 #include <poll.h>
 #include <pcap/pcap.h>
 #endif // if defined(_WIN32)
-#if defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__APPLE__)
 #include <net/if_dl.h>
 #include <sys/sysctl.h>
+#include <net/route.h>
 #endif
+
+#if defined(__FreeBSD__)
+#include <sys/sysctl.h>
+#include <net/if_dl.h>
+#endif
+
 
 // TODO: FIX FreeBSD
 // On Mac OS X and FreeBSD timeout of -1 causes pcap_open_live to fail.
@@ -75,7 +85,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 
 
 PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
-	IPcapDevice(), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+	IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
@@ -93,9 +103,9 @@ PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool ca
 		pInterface->addresses = pInterface->addresses->next;
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != nullptr && pInterface->addresses->addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(pInterface->addresses->addr, addrAsString);
-			PCPP_LOG_DEBUG("      " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(pInterface->addresses->addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("      " << addrAsString.data());
 		}
 	}
 
@@ -402,34 +412,34 @@ void PcapLiveDevice::close()
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' closed");
 }
 
-PcapLiveDevice* PcapLiveDevice::clone()
+PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	PcapLiveDevice *retval = nullptr;
-
-	pcap_if_t *interfaceList;
-	char errbuf[PCAP_ERRBUF_SIZE];
-	int err = pcap_findalldevs(&interfaceList, errbuf);
-	if (err < 0)
+	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
+	try
 	{
-		PCPP_LOG_ERROR("Error searching for devices: " << errbuf);
+		interfaceList = internal::getAllLocalPcapDevices();
+	}
+	catch (const std::exception& e)
+	{
+		PCPP_LOG_ERROR(e.what());
 		return nullptr;
 	}
 
-	pcap_if_t* currInterface = interfaceList;
-	while (currInterface != nullptr)
+	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		if(!strcmp(currInterface->name, getName().c_str()))
-			break;
-		currInterface = currInterface->next;
+		if (!std::strcmp(currInterface->name, getName().c_str()))
+		{
+			return cloneInternal(*currInterface);
+		}
 	}
 
-	if(currInterface)
-		retval = new PcapLiveDevice(currInterface, true, true, true);
-	else
-		PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+	PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
+	return nullptr;
+}
 
-	pcap_freealldevs(interfaceList);
-	return retval;
+PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+{
+	return new PcapLiveDevice(&devInterface, true, true, true);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
@@ -672,7 +682,7 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	stats.packetsDropByInterface = pcapStats.ps_ifdrop;
 }
 
-bool PcapLiveDevice::doMtuCheck(int packetPayloadLength)
+bool PcapLiveDevice::doMtuCheck(int packetPayloadLength) const
 {
 	if (packetPayloadLength > static_cast<int>(m_DeviceMtu))
 	{
@@ -1053,7 +1063,82 @@ void PcapLiveDevice::setDefaultGateway()
 			PCPP_LOG_ERROR("Error retrieving default gateway address: " << e.what());
 		}
 	}
-#elif defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__APPLE__)
+
+	//route message struct for communication in APPLE device
+	struct BSDRoutingMessage
+	{
+		struct rt_msghdr header;
+		char   messageSpace[512];
+	};
+
+	struct BSDRoutingMessage routingMessage;
+	// It creates a raw socket that can be used for routing-related operations
+	int sockfd = socket(PF_ROUTE, SOCK_RAW, 0);
+	if (sockfd < 0)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't get open routing socket");
+		return ;
+	}
+	memset(reinterpret_cast<char*>(&routingMessage), 0, sizeof(routingMessage));
+	routingMessage.header.rtm_msglen = sizeof(struct rt_msghdr);
+	routingMessage.header.rtm_version = RTM_VERSION;
+	routingMessage.header.rtm_type = RTM_GET;
+	routingMessage.header.rtm_addrs = RTA_DST | RTA_NETMASK ;
+	routingMessage.header.rtm_flags = RTF_UP | RTF_GATEWAY | RTF_STATIC;
+	routingMessage.header.rtm_msglen += 2 * sizeof(sockaddr_in);
+
+	if (write(sockfd, reinterpret_cast<char*>(&routingMessage), routingMessage.header.rtm_msglen) < 0)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't write into the routing socket");
+		return;
+	}
+
+	// Read the response from the route socket
+	if (read(sockfd, reinterpret_cast<char*>(&routingMessage), sizeof(routingMessage)) < 0)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: couldn't read from the routing socket");
+		return;
+	}
+
+	struct in_addr  *gateAddr = nullptr;
+	struct sockaddr *sa = nullptr;
+	char* spacePtr = (reinterpret_cast<char*>(&routingMessage.header + 1));
+	auto rtmAddrs = routingMessage.header.rtm_addrs;
+	int index = 1;
+	auto roundUpClosestMultiple = [](int multiple, int num) {
+		return ((num+multiple - 1) / multiple) * multiple;
+	};
+	while (rtmAddrs)
+	{
+		if (rtmAddrs & 1)
+		{
+			sa = reinterpret_cast<sockaddr *>(spacePtr);
+			if (index == RTA_GATEWAY)
+			{
+				gateAddr = internal::sockaddr2in_addr(sa);
+				break;
+			}
+			spacePtr += sa->sa_len > 0 ? roundUpClosestMultiple(sizeof(uint32_t), sa->sa_len) : sizeof(uint32_t);
+		}
+		index++;
+		rtmAddrs >>= 1;
+	}
+
+	if (gateAddr == nullptr)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: Empty Message related to gate");
+		return;
+	}
+	try
+	{
+		m_DefaultGateway = IPv4Address(gateAddr->s_addr);
+	}
+	catch(const std::exception& e)
+	{
+		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< inet_ntoa(*gateAddr) << ": " << e.what());
+	}
+#elif defined(__FreeBSD__)
 	std::string command = "netstat -nr | grep default | grep " + m_Name;
 	std::string ifaceInfo = executeShellCommand(command);
 	if (ifaceInfo == "")
@@ -1089,12 +1174,12 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter.addr, addrAsString);
-			PCPP_LOG_DEBUG("Searching address " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 		}
 
-		in_addr* currAddr = internal::sockaddr2in_addr(addrIter.addr);
+		in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");
@@ -1120,11 +1205,11 @@ IPv6Address PcapLiveDevice::getIPv6Address() const
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
-			char addrAsString[INET6_ADDRSTRLEN];
-			internal::sockaddr2string(addrIter.addr, addrAsString);
-			PCPP_LOG_DEBUG("Searching address " << addrAsString);
+			std::array<char, INET6_ADDRSTRLEN> addrAsString;
+			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
+			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
 		}
-		in6_addr *currAddr = internal::sockaddr2in6_addr(addrIter.addr);
+		in6_addr *currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 		if (currAddr == nullptr)
 		{
 			PCPP_LOG_DEBUG("Address is NULL");

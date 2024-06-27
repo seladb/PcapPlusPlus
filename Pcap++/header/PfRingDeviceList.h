@@ -2,6 +2,7 @@
 
 // GCOVR_EXCL_START
 
+#include <memory>
 #include "PfRingDevice.h"
 
 /// @file
@@ -21,18 +22,17 @@ namespace pcpp
 	class PfRingDeviceList
 	{
 	private:
-		std::vector<PfRingDevice*> m_PfRingDeviceList;
+		std::vector<std::unique_ptr<PfRingDevice>> m_PfRingDeviceList;
+		std::vector<PfRingDevice*> m_PfRingDeviceListView;
 		std::string m_PfRingVersion;
 
 		PfRingDeviceList();
-		// private copy c'tor
-		PfRingDeviceList(const PfRingDeviceList& other);
-		PfRingDeviceList& operator=(const PfRingDeviceList& other);
-		// private d'tor
-		~PfRingDeviceList();
-
-		void calcPfRingVersion(void* ring);
 	public:
+		PfRingDeviceList(const PfRingDeviceList&) = delete;
+		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;
+		PfRingDeviceList& operator=(const PfRingDeviceList&) = delete;
+		PfRingDeviceList& operator=(PfRingDeviceList&&) noexcept = delete;
+
 		/**
 		 * A static method that returns the singleton object for PfRingDeviceList
 		 * @return PfRingDeviceList singleton
@@ -47,7 +47,7 @@ namespace pcpp
 		 * Return a list of all available PF_RING devices
 		 * @return a list of all available PF_RING devices
 		 */
-		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceList; }
+		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceListView; }
 
 		/**
 		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig

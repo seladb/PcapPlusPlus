@@ -1,6 +1,18 @@
 exclude: '.*\.(pcap|pcapng|dat|txt)'
 fail_fast: false
 repos:
+  - repo: local
+    hooks:
+      - id: check-clang-format-version
+        name: Check clang-format version
+        entry: python3 ./ci/check-clang-format-version.py
+        language: system
+      - id: clang-format
+        name: Clang format
+        entry: clang-format
+        language: system
+        args: ["--style=file"]  # Use the .clang-format file for configuration
+        files: ^Common\+\+/.*\.(cpp|h)$
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -10,7 +22,7 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
   - repo: https://github.com/psf/black
-    rev: 24.4.0
+    rev: 24.4.2
     hooks:
       - id: black
   - repo: https://github.com/pocc/pre-commit-hooks
@@ -18,14 +30,13 @@ repos:
     hooks:
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
-#      - id: clang-format
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: v2.3.0
     hooks:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.20.8
+    rev: v1.21.0
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
