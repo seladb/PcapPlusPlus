@@ -34,7 +34,9 @@ namespace pcpp
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList() : m_RemoteMachinePort(0), m_RemoteAuthentication(nullptr) {}
+		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port,
+		                     std::shared_ptr<PcapRemoteAuthentication> remoteAuth,
+		                     std::vector<PcapRemoteDevice*> deviceList);
 
 		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
 		void setRemoteMachinePort(uint16_t port);
@@ -76,11 +78,11 @@ namespace pcpp
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a specific remote machine.
 		 * This methods creates the instance and populates it with PcapRemoteDevice instances.
-		 * Each PcapRemoteDevice instance correspons to a network interface on the remote machine.
-		 * 
-		 * This method overload is for remote daemons which don't require authentication for accessing them. 
+		 * Each PcapRemoteDevice instance corresponds to a network interface on the remote machine.
+		 *
+		 * This method overload is for remote daemons which don't require authentication for accessing them.
 		 * For daemons which do require authentication use the other method overload.
-		 * 
+		 *
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
 		 * daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
@@ -109,11 +111,11 @@ namespace pcpp
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a specific remote machine.
 		 * This methods creates the instance and populates it with PcapRemoteDevice instances.
-		 * Each PcapRemoteDevice instance correspons to a network interface on the remote machine.
-		 * 
+		 * Each PcapRemoteDevice instance corresponds to a network interface on the remote machine.
+		 *
 		 * This method overload is for remote daemons which require authentication for accessing them.
 		 * If no authentication is required, use the other method overload.
-		 * 
+		 *
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
 		 * daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
@@ -125,7 +127,7 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
 		 * devices on the remote machine
 		 */
-		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication const* remoteAuth);
 
 		/**
 		 * @return The IP address of the remote machine

@@ -48,6 +48,13 @@ namespace pcpp
 		}
 	}
 
+PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<PcapRemoteDevice*> deviceList)
+	: m_RemoteDeviceList(std::move(deviceList))
+	, m_RemoteMachineIpAddress(ipAddress)
+	, m_RemoteMachinePort(port)
+	, m_RemoteAuthentication(std::move(remoteAuth))
+{}
+
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
 	auto result = PcapRemoteDeviceList::createRemoteDeviceList(ipAddress, port);
@@ -65,14 +72,16 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 	return result.release();
 }
 
-std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
+std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication const* remoteAuth)
 {
+	std::shared_ptr<PcapRemoteAuthentication> sRemoteAuth;
 	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
 	if (remoteAuth != nullptr)
 	{
 		PCPP_LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
-		rmAuth = remoteAuth->getPcapRmAuth();
+		sRemoteAuth = std::make_shared<PcapRemoteAuthentication>(*remoteAuth);
+		rmAuth = sRemoteAuth->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
 
@@ -87,20 +96,29 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceLi
 		return nullptr;
 	}
 
-	std::unique_ptr<PcapRemoteDeviceList> resultList = std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList());
-	resultList->setRemoteMachineIpAddress(ipAddress);
-	resultList->setRemoteMachinePort(port);
-	resultList->setRemoteAuthentication(remoteAuth);
-
-
-	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
+	std::vector<PcapRemoteDevice*> devices;
+	try
 	{
-		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication,
-				resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort());
-		resultList->m_RemoteDeviceList.push_back(pNewRemoteDevice);
+		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
+		{
+			auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(new PcapRemoteDevice(currInterface, sRemoteAuth, ipAddress, port));
+			// Release is called after pushback to prevent memory leaks if vector reallocation fails.
+			// cppcheck-suppress danglingLifetime
+			devices.push_back(pNewRemoteDevice.get());
+			pNewRemoteDevice.release();
+		}
+	}
+	catch (const std::exception& e)
+	{
+		for (auto dev : devices)
+		{
+			delete dev;
+		}
+		PCPP_LOG_ERROR("Error creating remote devices: " << e.what());
+		return nullptr;
 	}
 
-	return resultList;
+	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, sRemoteAuth, devices));
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
