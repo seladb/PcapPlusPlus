@@ -220,26 +220,6 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 
 }
 
-void PcapRemoteDeviceList::setRemoteMachineIpAddress(const IPAddress& ipAddress)
-{
-	m_RemoteMachineIpAddress = ipAddress;
-}
-
-void PcapRemoteDeviceList::setRemoteMachinePort(uint16_t port)
-{
-	m_RemoteMachinePort = port;
-}
-
-void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth)
-{
-	if (remoteAuth != nullptr)
-		m_RemoteAuthentication = std::shared_ptr<PcapRemoteAuthentication>(new PcapRemoteAuthentication(*remoteAuth));
-	else
-	{
-		m_RemoteAuthentication = nullptr;
-	}
-}
-
 PcapRemoteDeviceList::~PcapRemoteDeviceList()
 {
 	while (m_RemoteDeviceList.size() > 0)

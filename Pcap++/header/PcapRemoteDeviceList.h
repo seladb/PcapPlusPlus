@@ -38,10 +38,6 @@ namespace pcpp
 		                     std::shared_ptr<PcapRemoteAuthentication> remoteAuth,
 		                     std::vector<PcapRemoteDevice*> deviceList);
 
-		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
-		void setRemoteMachinePort(uint16_t port);
-		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
-
 	public:
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
