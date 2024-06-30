@@ -74,6 +74,25 @@ namespace pcpp
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
 
 		/**
+		 * A static method for creating a PcapRemoteDeviceList instance for a specific remote machine.
+		 * This methods creates the instance and populates it with PcapRemoteDevice instances.
+		 * Each PcapRemoteDevice instance correspons to a network interface on the remote machine.
+		 * 
+		 * This method overload is for remote daemons which don't require authentication for accessing them. 
+		 * For daemons which do require authentication use the other method overload.
+		 * 
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
+		 * daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @return A smart pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed
+		 * to log in each case):
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
+		 * devices on the remote machine
+		 */
+		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
+
+		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
 		 * remote daemons which require authentication for accessing them
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd daemon
@@ -86,6 +105,27 @@ namespace pcpp
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
 		 */
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+
+		/**
+		 * A static method for creating a PcapRemoteDeviceList instance for a specific remote machine.
+		 * This methods creates the instance and populates it with PcapRemoteDevice instances.
+		 * Each PcapRemoteDevice instance correspons to a network interface on the remote machine.
+		 * 
+		 * This method overload is for remote daemons which require authentication for accessing them.
+		 * If no authentication is required, use the other method overload.
+		 * 
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
+		 * daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for
+		 * connecting to the remote daemon
+		 * @return A smart pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed
+		 * to log in each case):
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
+		 * devices on the remote machine
+		 */
+		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
 
 		/**
 		 * @return The IP address of the remote machine

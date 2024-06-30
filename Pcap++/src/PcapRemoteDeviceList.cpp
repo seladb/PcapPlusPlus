@@ -50,10 +50,22 @@ namespace pcpp
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
 {
-	return PcapRemoteDeviceList::getRemoteDeviceList(ipAddress, port, NULL);
+	auto result = PcapRemoteDeviceList::createRemoteDeviceList(ipAddress, port);
+	return result.release();
+}
+
+std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port)
+{
+	return PcapRemoteDeviceList::createRemoteDeviceList(ipAddress, port, nullptr);
 }
 
 PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
+{
+	auto result = PcapRemoteDeviceList::createRemoteDeviceList(ipAddress, port, remoteAuth);
+	return result.release();
+}
+
+std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth)
 {
 	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
@@ -75,7 +87,7 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 		return nullptr;
 	}
 
-	PcapRemoteDeviceList* resultList = new PcapRemoteDeviceList();
+	std::unique_ptr<PcapRemoteDeviceList> resultList = std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList());
 	resultList->setRemoteMachineIpAddress(ipAddress);
 	resultList->setRemoteMachinePort(port);
 	resultList->setRemoteAuthentication(remoteAuth);
