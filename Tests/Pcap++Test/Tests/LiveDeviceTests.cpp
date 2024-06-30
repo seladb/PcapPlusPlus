@@ -992,7 +992,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	{
 		if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
 		{
-			packetsToSend.pushBack(capturedPackets.getAndRemoveFromVector(iter));
+			packetsToSend.pushBack(capturedPackets.getAndDetach(iter));
 		}
 		else
 			++iter;
