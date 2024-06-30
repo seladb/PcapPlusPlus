@@ -4,6 +4,7 @@
 
 #include <memory>
 #include "IpAddress.h"
+#include "PointerVector.h"
 #include "PcapRemoteDevice.h"
 
 /// @file
@@ -28,7 +29,7 @@ namespace pcpp
 	class PcapRemoteDeviceList
 	{
 	private:
-		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
+		PointerVector<PcapRemoteDevice> m_RemoteDeviceList;
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
@@ -44,12 +45,12 @@ namespace pcpp
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 */
-		typedef typename std::vector<PcapRemoteDevice*>::iterator RemoteDeviceListIterator;
+		using RemoteDeviceListIterator = PointerVector<PcapRemoteDevice>::VectorIterator;
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 */
-		typedef typename std::vector<PcapRemoteDevice*>::const_iterator ConstRemoteDeviceListIterator;
+		using ConstRemoteDeviceListIterator = PointerVector<PcapRemoteDevice>::ConstVectorIterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;

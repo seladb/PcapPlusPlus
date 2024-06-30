@@ -9,6 +9,7 @@
 #include "IpAddressUtils.h"
 #include "pcap.h"
 #include <array>
+#include <memory>
 #include <ws2tcpip.h>
 
 namespace pcpp
@@ -83,9 +84,9 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		PcapRemoteDevice* pNewRemoteDevice = new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication,
-				resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort());
-		resultList->m_RemoteDeviceList.push_back(pNewRemoteDevice);
+		std::unique_ptr<PcapRemoteDevice> pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(
+			new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication, resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort()));
+		resultList->m_RemoteDeviceList.pushBack(std::move(pNewRemoteDevice));
 	}
 
 	return resultList;
@@ -211,14 +212,7 @@ void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthenticatio
 }
 
 PcapRemoteDeviceList::~PcapRemoteDeviceList()
-{
-	while (m_RemoteDeviceList.size() > 0)
-	{
-		RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
-		delete (*devIter);
-		m_RemoteDeviceList.erase(devIter);
-	}
-}
+{}
 
 } // namespace pcpp
 
