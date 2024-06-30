@@ -5,6 +5,7 @@
 #include <memory>
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -33,7 +34,7 @@ namespace pcpp
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
-		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
+		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::createRemoteDeviceList()
 		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port,
 		                     std::shared_ptr<PcapRemoteAuthentication> remoteAuth,
 		                     std::vector<PcapRemoteDevice*> deviceList);
@@ -68,7 +69,9 @@ namespace pcpp
 		 * - IP address provided is NULL or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * @deprecated This factory function has been deprecated in favor of 'createRemoteDeviceList' factory for better memory safety.
 		 */
+		PCPP_DEPRECATED("Please use 'createRemoteDeviceList' factory method instead.")
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
 
 		/**
@@ -101,7 +104,9 @@ namespace pcpp
 		 * - IP address provided is NULL or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * @deprecated This factory function has been deprecated in favor of 'createRemoteDeviceList' factory for better memory safety.
 		 */
+		PCPP_DEPRECATED("Please use 'createRemoteDeviceList' factory method instead.")
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
 
 		/**
