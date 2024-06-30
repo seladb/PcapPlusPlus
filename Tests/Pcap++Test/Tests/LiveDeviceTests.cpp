@@ -990,7 +990,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	size_t capturedPacketsSize = capturedPackets.size();
 	while (iter != capturedPackets.end())
 	{
-		if ((*iter)->getRawDataLen() <= (int)remoteDevice->getMtu())
+		if ((*iter)->getRawDataLen() <= static_cast<int>(remoteDevice->getMtu()))
 		{
 			packetsToSend.pushBack(capturedPackets.getAndDetach(iter));
 		}
@@ -998,12 +998,12 @@ PTF_TEST_CASE(TestRemoteCapture)
 			++iter;
 	}
 	int packetsSent = remoteDevice->sendPackets(packetsToSend);
-	PTF_ASSERT_EQUAL(packetsSent, (int)packetsToSend.size());
+	PTF_ASSERT_EQUAL(packetsSent, static_cast<int>(packetsToSend.size()));
 
 	//check statistics
 	pcpp::IPcapDevice::PcapStats stats;
 	remoteDevice->getStatistics(stats);
-	PTF_ASSERT_EQUAL((uint32_t)stats.packetsRecv, capturedPacketsSize);
+	PTF_ASSERT_EQUAL(static_cast<uint32_t>(stats.packetsRecv), capturedPacketsSize);
 
 	remoteDevice->close();
 
