@@ -252,7 +252,7 @@ namespace pcpp
 		 */
 		T* getAndRemoveFromVector(VectorIterator& position)
 		{
-			T* result = (*position);
+			T* result = *position;
 			position = m_Vector.erase(position);
 			return result;
 		}
