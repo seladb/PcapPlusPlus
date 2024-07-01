@@ -503,7 +503,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				if ((*tcpFragIter)->sequence == curSideData.sequence)
 				{
 					// pop the fragment from fragment list
-					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(tcpFragIter));
+					auto curTcpFrag = curSideData.tcpFragmentList.getAndDetach(tcpFragIter);
 					// update sequence
 					curSideData.sequence += curTcpFrag->dataLength;
 					if (curTcpFrag->data != nullptr)
@@ -528,7 +528,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 				if (SEQ_LT((*tcpFragIter)->sequence, curSideData.sequence))
 				{
 					// pop the fragment from fragment list
-					auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(tcpFragIter));
+					auto curTcpFrag = curSideData.tcpFragmentList.getAndDetach(tcpFragIter);
 					// check if it still has new data
 					uint32_t newSequence = curTcpFrag->sequence + curTcpFrag->dataLength;
 
@@ -601,7 +601,7 @@ void TcpReassembly::checkOutOfOrderFragments(TcpReassemblyData* tcpReassemblyDat
 		if (closestSequenceFragIt != curSideData.tcpFragmentList.end())
 		{
 			// get the fragment with the closest sequence
-			auto curTcpFrag = std::unique_ptr<TcpFragment>(curSideData.tcpFragmentList.getAndRemoveFromVector(closestSequenceFragIt));
+			auto curTcpFrag = curSideData.tcpFragmentList.getAndDetach(closestSequenceFragIt);
 
 			// calculate number of missing bytes
 			uint32_t missingDataLen = curTcpFrag->sequence - curSideData.sequence;
