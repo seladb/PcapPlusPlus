@@ -77,7 +77,7 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
 		GvcpRequestHeader* header = gvcpRequestLayer->getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
-		PTF_ASSERT_EQUAL(header->getFlag(), 1);
+		PTF_ASSERT_EQUAL(uint8_t(header->getFlag()), uint8_t(0x11));  // allow broadcast, acknowledge required
 		PTF_ASSERT_EQUAL(header->hasAcknowledgeFlag(), true);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
 		PTF_ASSERT_EQUAL(header->verifyMagicNumber(), true);
@@ -206,5 +206,52 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		PTF_ASSERT_EQUAL(forceIpBody->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
 		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
 		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
+	}
+}
+
+PTF_TEST_CASE(GvcpForceIpAck)
+{
+	// test the creation from the raw buffer
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_forceip_ack.dat");
+		pcpp::Packet forceIpAckPacket(&rawPacket1);
+
+		auto udpLayer = forceIpAckPacket.getLayerOfType<pcpp::UdpLayer>();
+
+		// we get the raw buffer from the payload of the UDP layer and create a GvcpAcknowledgeLayer from the buffer
+		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
+		GvcpAckHeader* header = gvcpAcknowledgeLayer.getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpAck);
+		PTF_ASSERT_EQUAL(header->getAckId(), 8787);
+		PTF_ASSERT_EQUAL(header->getDataSize(), 0);
+	}
+
+	// test the GVCP layer directly from the packet
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_forceip_ack.dat");
+		pcpp::Packet forceIpAckPacket(&rawPacket1);
+
+		// we get the GVCP layer from the packet
+		auto gvcpAcknowledgeLayer = forceIpAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
+
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
+		GvcpAckHeader* header = gvcpAcknowledgeLayer->getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpAck);
+		PTF_ASSERT_EQUAL(header->getAckId(), 8787);
+		PTF_ASSERT_EQUAL(header->getDataSize(), 0);
 	}
 }
