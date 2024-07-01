@@ -12,7 +12,6 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
-
 PTF_TEST_CASE(SllPacketParsingTest)
 {
 	timeval time;
@@ -37,9 +36,7 @@ PTF_TEST_CASE(SllPacketParsingTest)
 	pcpp::MacAddress macAddrRef("00:12:44:1e:74:00");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 	PTF_ASSERT_EQUAL(sllLayer->getSllHeader()->protocol_type, htobe16(PCPP_ETHERTYPE_IPV6));
-} // SllPacketParsingTest
-
-
+}  // SllPacketParsingTest
 
 PTF_TEST_CASE(SllPacketCreationTest)
 {
@@ -58,9 +55,12 @@ PTF_TEST_CASE(SllPacketCreationTest)
 	tcpLayer.getTcpHeader()->ackNumber = htobe32(0x7633e977);
 	tcpLayer.getTcpHeader()->ackFlag = 1;
 	tcpLayer.getTcpHeader()->windowSize = htobe16(4098);
-	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::Nop)).isNotNull());
-	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::Nop)).isNotNull());
-	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::Timestamp, nullptr, PCPP_TCPOLEN_TIMESTAMP-2));
+	PTF_ASSERT_TRUE(
+	    tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::Nop)).isNotNull());
+	PTF_ASSERT_TRUE(
+	    tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::Nop)).isNotNull());
+	pcpp::TcpOption tsOption = tcpLayer.addTcpOption(
+	    pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::Timestamp, nullptr, PCPP_TCPOLEN_TIMESTAMP - 2));
 	PTF_ASSERT_TRUE(tsOption.isNotNull());
 	tsOption.setValue<uint32_t>(htobe32(0x0402383b));
 	tsOption.setValue<uint32_t>(htobe32(0x03ff37f5), 4);
@@ -72,16 +72,13 @@ PTF_TEST_CASE(SllPacketCreationTest)
 
 	sllPacket.computeCalculateFields();
 
-
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/SllPacket2.dat");
 
 	PTF_ASSERT_EQUAL(sllPacket.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(sllPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
 
-	delete [] buffer1;
-} // SllPacketCreationTest
-
-
+	delete[] buffer1;
+}  // SllPacketCreationTest
 
 PTF_TEST_CASE(NullLoopbackTest)
 {
@@ -91,7 +88,6 @@ PTF_TEST_CASE(NullLoopbackTest)
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(1, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(2, "PacketExamples/NullLoopback2.dat", pcpp::LINKTYPE_NULL);
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/NullLoopback3.dat", pcpp::LINKTYPE_NULL);
-
 
 	pcpp::Packet nullPacket1(&rawPacket1);
 	pcpp::Packet nullPacket2(&rawPacket2);
@@ -132,7 +128,9 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	pcpp::UdpLayer newUdpLayer(55369, 8612);
 
-	uint8_t payload[] = { 0x42, 0x4a, 0x4e, 0x42, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	uint8_t payload[] = {
+		0x42, 0x4a, 0x4e, 0x42, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	};
 	pcpp::PayloadLayer newPayloadLayer(payload, 16);
 
 	pcpp::Packet newNullPacket(1);
@@ -145,4 +143,4 @@ PTF_TEST_CASE(NullLoopbackTest)
 
 	PTF_ASSERT_EQUAL(newNullPacket.getRawPacket()->getRawDataLen(), bufferLength2);
 	PTF_ASSERT_BUF_COMPARE(newNullPacket.getRawPacket()->getRawData(), buffer2, bufferLength2);
-} // NullLoopbackTest
+}  // NullLoopbackTest

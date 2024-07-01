@@ -40,7 +40,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->length, htobe16(154));
 	PTF_ASSERT_EQUAL(pUdpLayer->getUdpHeader()->headerChecksum, htobe16(0x5fea));
 
-	pcpp::EthLayer ethLayer(pcpp::MacAddress("6c:f0:49:b2:de:6e"), pcpp::MacAddress ("33:33:00:00:00:0c"));
+	pcpp::EthLayer ethLayer(pcpp::MacAddress("6c:f0:49:b2:de:6e"), pcpp::MacAddress("33:33:00:00:00:0c"));
 
 	pcpp::IPv6Layer ip6Layer(srcIP, dstIP);
 	pcpp::ip6_hdr* ip6Header = ip6Layer.getIPv6Header();
@@ -72,9 +72,7 @@ PTF_TEST_CASE(IPv6UdpPacketParseAndCreate)
 	PTF_ASSERT_EQUAL(ipv6LayerEmpty.getDstIPv6Address(), dstIP);
 
 	delete[] payloadData;
-} // IPv6UdpPacketParseAndCreate
-
-
+}  // IPv6UdpPacketParseAndCreate
 
 PTF_TEST_CASE(IPv6FragmentationTest)
 {
@@ -153,10 +151,9 @@ PTF_TEST_CASE(IPv6FragmentationTest)
 	newFrag.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(frag4.getRawPacket()->getRawDataLen(), newFrag.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(frag4.getRawPacket()->getRawData(), newFrag.getRawPacket()->getRawData(), frag4.getRawPacket()->getRawDataLen());
-} // IPv6FragmentationTest
-
-
+	PTF_ASSERT_BUF_COMPARE(frag4.getRawPacket()->getRawData(), newFrag.getRawPacket()->getRawData(),
+	                       frag4.getRawPacket()->getRawDataLen());
+}  // IPv6FragmentationTest
 
 PTF_TEST_CASE(IPv6ExtensionsTest)
 {
@@ -176,7 +173,6 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	pcpp::Packet ipv6Routing2(&rawPacket4);
 	pcpp::Packet ipv6AuthHdr(&rawPacket5);
 	pcpp::Packet ipv6MultipleOptions(&rawPacket6);
-
 
 	// parsing of Destination extension
 	pcpp::IPv6Layer* ipv6Layer = ipv6Dest.getLayerOfType<pcpp::IPv6Layer>();
@@ -207,7 +203,6 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_TRUE(destExt->getOption(12).isNull());
 	PTF_ASSERT_TRUE(destExt->getOption(0).isNull());
 
-
 	// parsing of Hop-By-Hop extension
 	ipv6Layer = ipv6HopByHop.getLayerOfType<pcpp::IPv6Layer>();
 	hopByHopExt = ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>();
@@ -232,7 +227,6 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	option = hopByHopExt->getNextOption(option);
 	PTF_ASSERT_TRUE(option.isNull());
 
-
 	// parsing of routing extension #1
 	ipv6Layer = ipv6Routing1.getLayerOfType<pcpp::IPv6Layer>();
 	hopByHopExt = ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>();
@@ -247,7 +241,6 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"));
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address("2200::240:2:0:0:4"));
 
-
 	// parsing of routing extension #2
 	ipv6Layer = ipv6Routing2.getLayerOfType<pcpp::IPv6Layer>();
 	routingExt = ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>();
@@ -259,7 +252,6 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(4), pcpp::IPv6Address("2200::210:2:0:0:4"));
 	PTF_ASSERT_EQUAL(routingExt->getRoutingAdditionalDataAsIPv6Address(20), pcpp::IPv6Address::Zero);
 
-
 	// parsing of authentication header extension
 	ipv6Layer = ipv6AuthHdr.getLayerOfType<pcpp::IPv6Layer>();
 	pcpp::IPv6AuthenticationHeader* authHdrExt = ipv6Layer->getExtensionOfType<pcpp::IPv6AuthenticationHeader>();
@@ -269,21 +261,22 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	PTF_ASSERT_EQUAL(authHdrExt->getAuthHeader()->sequenceNumber, htobe32(32));
 	PTF_ASSERT_EQUAL(authHdrExt->getIntegrityCheckValueLength(), 12);
 	uint8_t expectedICV[12] = { 0x35, 0x48, 0x21, 0x48, 0xb2, 0x43, 0x5a, 0x23, 0xdc, 0xdd, 0x55, 0x36 };
-	PTF_ASSERT_BUF_COMPARE(expectedICV, authHdrExt->getIntegrityCheckValue(), authHdrExt->getIntegrityCheckValueLength());
-
+	PTF_ASSERT_BUF_COMPARE(expectedICV, authHdrExt->getIntegrityCheckValue(),
+	                       authHdrExt->getIntegrityCheckValueLength());
 
 	// parsing of multiple options in one IPv6 layer
 	ipv6Layer = ipv6MultipleOptions.getLayerOfType<pcpp::IPv6Layer>();
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionCount(), 4);
 	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6AuthenticationHeader>());
-	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex, be32toh(0x100));
+	PTF_ASSERT_EQUAL(
+	    ipv6Layer->getExtensionOfType<pcpp::IPv6AuthenticationHeader>()->getAuthHeader()->securityParametersIndex,
+	    be32toh(0x100));
 	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6DestinationHeader>());
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6DestinationHeader>()->getFirstOption().getType(), 11);
 	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>());
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6HopByHopHeader>()->getFirstOption().getType(), 5);
 	PTF_ASSERT_NOT_NULL(ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>());
 	PTF_ASSERT_EQUAL(ipv6Layer->getExtensionOfType<pcpp::IPv6RoutingHeader>()->getRoutingHeader()->routingType, 0);
-
 
 	// creation of Destination extension
 	pcpp::EthLayer newEthLayer(*ipv6Dest.getLayerOfType<pcpp::EthLayer>());
@@ -310,8 +303,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	newPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipv6Dest.getRawPacket()->getRawDataLen(), newPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(ipv6Dest.getRawPacket()->getRawData(), newPacket.getRawPacket()->getRawData(), ipv6Dest.getRawPacket()->getRawDataLen());
-
+	PTF_ASSERT_BUF_COMPARE(ipv6Dest.getRawPacket()->getRawData(), newPacket.getRawPacket()->getRawData(),
+	                       ipv6Dest.getRawPacket()->getRawDataLen());
 
 	// creation of hop-by-hop extension
 	pcpp::EthLayer newEthLayer2(*ipv6HopByHop.getLayerOfType<pcpp::EthLayer>());
@@ -336,8 +329,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	newPacket2.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipv6HopByHop.getRawPacket()->getRawDataLen(), newPacket2.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(ipv6HopByHop.getRawPacket()->getRawData(), newPacket2.getRawPacket()->getRawData(), ipv6HopByHop.getRawPacket()->getRawDataLen());
-
+	PTF_ASSERT_BUF_COMPARE(ipv6HopByHop.getRawPacket()->getRawData(), newPacket2.getRawPacket()->getRawData(),
+	                       ipv6HopByHop.getRawPacket()->getRawDataLen());
 
 	// creation of routing extension
 	pcpp::EthLayer newEthLayer3(*ipv6Routing2.getLayerOfType<pcpp::EthLayer>());
@@ -353,7 +346,7 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	ip6Addr.copyTo(routingAdditionalData + 4);
 	pcpp::IPv6RoutingHeader newRoutingHeader(0, 1, routingAdditionalData, 20);
 	newIPv6Layer3.addExtension<pcpp::IPv6RoutingHeader>(newRoutingHeader);
-	delete [] routingAdditionalData;
+	delete[] routingAdditionalData;
 
 	pcpp::UdpLayer newUdpLayer3(*ipv6Routing2.getLayerOfType<pcpp::UdpLayer>());
 
@@ -363,8 +356,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	newPacket3.addLayer(&newUdpLayer3);
 
 	PTF_ASSERT_EQUAL(ipv6Routing2.getRawPacket()->getRawDataLen(), newPacket3.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(ipv6Routing2.getRawPacket()->getRawData(), newPacket3.getRawPacket()->getRawData(), ipv6Routing2.getRawPacket()->getRawDataLen());
-
+	PTF_ASSERT_BUF_COMPARE(ipv6Routing2.getRawPacket()->getRawData(), newPacket3.getRawPacket()->getRawData(),
+	                       ipv6Routing2.getRawPacket()->getRawDataLen());
 
 	// creation of AH extension
 	pcpp::EthLayer newEthLayer4(*ipv6AuthHdr.getLayerOfType<pcpp::EthLayer>());
@@ -386,8 +379,8 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	newPacket4.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipv6AuthHdr.getRawPacket()->getRawDataLen(), newPacket4.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(ipv6AuthHdr.getRawPacket()->getRawData(), newPacket4.getRawPacket()->getRawData(), ipv6AuthHdr.getRawPacket()->getRawDataLen());
-
+	PTF_ASSERT_BUF_COMPARE(ipv6AuthHdr.getRawPacket()->getRawData(), newPacket4.getRawPacket()->getRawData(),
+	                       ipv6AuthHdr.getRawPacket()->getRawDataLen());
 
 	// creation of packet with several extensions
 	pcpp::EthLayer newEthLayer5(*ipv6AuthHdr.getLayerOfType<pcpp::EthLayer>());
@@ -409,5 +402,6 @@ PTF_TEST_CASE(IPv6ExtensionsTest)
 	newPacket5.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipv6MultipleOptions.getRawPacket()->getRawDataLen(), newPacket5.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(), ipv6MultipleOptions.getRawPacket()->getRawDataLen());
-} // IPv6ExtensionsTest
+	PTF_ASSERT_BUF_COMPARE(ipv6MultipleOptions.getRawPacket()->getRawData(), newPacket5.getRawPacket()->getRawData(),
+	                       ipv6MultipleOptions.getRawPacket()->getRawDataLen());
+}  // IPv6ExtensionsTest

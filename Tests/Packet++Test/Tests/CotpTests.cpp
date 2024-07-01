@@ -37,4 +37,4 @@ PTF_TEST_CASE(CotpLayerTest)
 	PTF_ASSERT_EQUAL(newCotpPacket.getPduType(), 0xd2);
 	PTF_ASSERT_EQUAL(newCotpPacket.getTpduNumber(), 0x7d);
 
-} // CotpLayerTest
+}  // CotpLayerTest

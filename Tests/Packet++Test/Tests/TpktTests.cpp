@@ -35,4 +35,4 @@ PTF_TEST_CASE(TpktLayerTest)
 	PTF_ASSERT_EQUAL(tpktLayerTest.getLength(), 602);
 	PTF_ASSERT_EQUAL(tpktLayerTest.toString(), "TPKT Layer, version: 10, length: 602");
 
-} // TpktLayerTest
+}  // TpktLayerTest

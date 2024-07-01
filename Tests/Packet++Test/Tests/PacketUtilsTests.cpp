@@ -25,7 +25,6 @@ PTF_TEST_CASE(PacketUtilsHash5TupleUdp)
 	srcDstPacket.addLayer(&udpLayer);
 	srcDstPacket.computeCalculateFields();
 
-
 	pcpp::IPv4Layer ipLayer2(dstIP, srcIP);
 	ipLayer2.getIPv4Header()->ipId = htobe16(20300);
 	ipLayer2.getIPv4Header()->fragmentOffset = htobe16(0x4000);
@@ -48,7 +47,7 @@ PTF_TEST_CASE(PacketUtilsHash5TupleUdp)
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 683027169);
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 683027169);
 
-} // PacketUtilsHash5TupleUdp
+}  // PacketUtilsHash5TupleUdp
 
 PTF_TEST_CASE(PacketUtilsHash5TupleTcp)
 {
@@ -69,7 +68,6 @@ PTF_TEST_CASE(PacketUtilsHash5TupleTcp)
 	srcDstPacket.addLayer(&ipLayer);
 	srcDstPacket.addLayer(&tcpLayer);
 	srcDstPacket.computeCalculateFields();
-
 
 	pcpp::IPv4Layer ipLayer2(dstIP, srcIP);
 	ipLayer2.getIPv4Header()->ipId = htobe16(20300);
@@ -94,11 +92,10 @@ PTF_TEST_CASE(PacketUtilsHash5TupleTcp)
 
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, false), 1576639238);
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2243556734);
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 1576639238 );
-	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 1576639238 );
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 1576639238);
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 1576639238);
 
-} // PacketUtilsHash5TupleTcp
-
+}  // PacketUtilsHash5TupleTcp
 
 PTF_TEST_CASE(PacketUtilsHash5TupleIPv6)
 {
@@ -112,7 +109,6 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6)
 	srcDstPacket.addLayer(&ipLayer);
 	srcDstPacket.addLayer(&udpLayer);
 	srcDstPacket.computeCalculateFields();
-
 
 	pcpp::IPv6Layer ipLayer2(dstIP, srcIP);
 	pcpp::UdpLayer udpLayer2(1900, 63628);
@@ -133,4 +129,4 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6)
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 4288746927);
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 4288746927);
 
-} // PacketUtilsHash5TupleIPv6
+}  // PacketUtilsHash5TupleIPv6

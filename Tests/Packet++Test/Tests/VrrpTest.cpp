@@ -11,14 +11,13 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
-
 PTF_TEST_CASE(VrrpParsingTest)
 {
 	timeval time = {};
 	gettimeofday(&time, nullptr);
 
 	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(nullptr, 0), pcpp::UnknownProtocol);
-	uint8_t fakeBuffer[10] = {0xb4,0xaf,0x98,0x1a, 0xb4,0xaf,0x98,0x1a, 0x98,0x1a};
+	uint8_t fakeBuffer[10] = { 0xb4, 0xaf, 0x98, 0x1a, 0xb4, 0xaf, 0x98, 0x1a, 0x98, 0x1a };
 	PTF_ASSERT_EQUAL(pcpp::VrrpLayer::getVersionFromData(fakeBuffer, 10), pcpp::UnknownProtocol);
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/VRRP-V2.dat");
@@ -47,13 +46,10 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV2Layer->toString(), "VRRP v2 Layer, virtual router ID: 1, IP address count: 3")
 	PTF_ASSERT_EQUAL(vrrpV2Layer->getIPAddressesCount(), 3)
 	auto ipAddressVec = vrrpV2Layer->getIPAddresses();
-	std::vector<pcpp::IPAddress> expectedIpAddressVec = {
-		pcpp::IPAddress("192.168.0.1"),
-		pcpp::IPAddress("192.168.0.2"),
-		pcpp::IPAddress("192.168.0.3")
-	};
+	std::vector<pcpp::IPAddress> expectedIpAddressVec = { pcpp::IPAddress("192.168.0.1"),
+		                                                  pcpp::IPAddress("192.168.0.2"),
+		                                                  pcpp::IPAddress("192.168.0.3") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
-
 
 	PTF_ASSERT_TRUE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRP))
 	PTF_ASSERT_FALSE(vrrpv3IPv4Packet.isPacketOfType(pcpp::VRRPv2))
@@ -71,10 +67,7 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->toString(), "VRRP v3 Layer, virtual router ID: 1, IP address count: 2")
 	PTF_ASSERT_EQUAL(vrrpV3IPv4Layer->getIPAddressesCount(), 2)
 	ipAddressVec = vrrpV3IPv4Layer->getIPAddresses();
-	expectedIpAddressVec = {
-		pcpp::IPAddress("192.168.0.1"),
-		pcpp::IPAddress("192.168.0.2")
-	};
+	expectedIpAddressVec = { pcpp::IPAddress("192.168.0.1"), pcpp::IPAddress("192.168.0.2") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
 
 	PTF_ASSERT_TRUE(vrrpv3IPv6Packet.isPacketOfType(pcpp::VRRP))
@@ -93,15 +86,10 @@ PTF_TEST_CASE(VrrpParsingTest)
 	PTF_ASSERT_TRUE(vrrpV3IPv6Layer->isChecksumCorrect())
 	PTF_ASSERT_EQUAL(vrrpV3IPv6Layer->toString(), "VRRP v3 Layer, virtual router ID: 1, IP address count: 3")
 	ipAddressVec = vrrpV3IPv6Layer->getIPAddresses();
-	expectedIpAddressVec = {
-		pcpp::IPAddress("fe80::254"),
-		pcpp::IPAddress("2001:db8::1"),
-		pcpp::IPAddress("2001:db8::2")
-	};
+	expectedIpAddressVec = { pcpp::IPAddress("fe80::254"), pcpp::IPAddress("2001:db8::1"),
+		                     pcpp::IPAddress("2001:db8::2") };
 	PTF_ASSERT_TRUE(ipAddressVec == expectedIpAddressVec)
-} // VrrpParsingTest
-
-
+}  // VrrpParsingTest
 
 PTF_TEST_CASE(VrrpCreateAndEditTest)
 {
@@ -188,14 +176,13 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	vrrpv2Layer.setAuthType(10);
 	PTF_ASSERT_EQUAL(vrrpv2Layer.getAuthTypeAsEnum(), pcpp::VrrpV2Layer::VrrpAuthType::Other, enumclass)
 
-
-	//VRRPv3 IPv4 Packet
+	// VRRPv3 IPv4 Packet
 	pcpp::EthLayer ethLayer2(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
 	pcpp::IPv4Layer ipv4Layer(pcpp::IPv4Address("192.168.0.30"), pcpp::IPv4Address("224.0.0.18"));
 	ipv4Layer.getIPv4Header()->timeToLive = 255;
 
 	pcpp::Packet vrrpv3IPv4Packet(1);
-	pcpp::VrrpV3Layer vrrpv3IPv4Layer(pcpp::IPAddress::IPv4AddressType, 1 ,100, 1);
+	pcpp::VrrpV3Layer vrrpv3IPv4Layer(pcpp::IPAddress::IPv4AddressType, 1, 100, 1);
 
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address1);
 	vrrpv3IPv4Layer.addIPAddress(ipv4Address2);
@@ -221,10 +208,10 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	vrrpv3IPv4Layer.getData()[0] = 0x55;
 	PTF_ASSERT_EQUAL(vrrpv3IPv4Layer.getType(), pcpp::VrrpLayer::VrrpType::VrrpType_Unknown)
 
-	PTF_ASSERT_RAISES(vrrpv3IPv4Layer.setMaxAdvInt(0x1234), std::invalid_argument, "maxAdvInt must not exceed 12 bits length")
+	PTF_ASSERT_RAISES(vrrpv3IPv4Layer.setMaxAdvInt(0x1234), std::invalid_argument,
+	                  "maxAdvInt must not exceed 12 bits length")
 
-
-	//VRRPv3 IPv6 Packet
+	// VRRPv3 IPv6 Packet
 	pcpp::EthLayer ethLayer3(pcpp::MacAddress("00:00:5e:00:01:01"), pcpp::MacAddress("01:00:5e:00:00:12"));
 	pcpp::IPv6Layer ipv6Layer(pcpp::IPv6Address("fe80::1"), pcpp::IPv6Address("ff02::12"));
 	ipv6Layer.getIPv6Header()->hopLimit = 255;
@@ -249,4 +236,4 @@ PTF_TEST_CASE(VrrpCreateAndEditTest)
 	FREE_FILE_INTO_BUFFER(2)
 	FREE_FILE_INTO_BUFFER(3)
 
-} // VrrpCreateAndEditTest
+}  // VrrpCreateAndEditTest

@@ -37,8 +37,7 @@ PTF_TEST_CASE(Sll2PacketParsingTest)
 	pcpp::MacAddress macAddrRef("d2:cf:c2:50:15:ea");
 	PTF_ASSERT_EQUAL(macAddrRef, macAddrFromPacket);
 	PTF_ASSERT_EQUAL(macAddrRef, sll2Layer->getLinkLayerAsMacAddress());
-} // Sll2PacketParsingTest
-
+}  // Sll2PacketParsingTest
 
 PTF_TEST_CASE(Sll2PacketCreationTest)
 {
@@ -46,8 +45,7 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	sll2Layer.setProtocolType(PCPP_ETHERTYPE_IP);
 	sll2Layer.setMacAddressAsLinkLayer(pcpp::MacAddress("d2:cf:c2:50:15:ea"));
 
-	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("7.249.151.114")),
-							pcpp::IPv4Address("116.63.66.108"));
+	pcpp::IPv4Layer ipLayer(pcpp::IPv4Address(std::string("7.249.151.114")), pcpp::IPv4Address("116.63.66.108"));
 	ipLayer.getIPv4Header()->fragmentOffset = 0x40;
 	ipLayer.getIPv4Header()->ipId = htobe16(35618);
 	ipLayer.getIPv4Header()->timeToLive = 64;
@@ -74,5 +72,5 @@ PTF_TEST_CASE(Sll2PacketCreationTest)
 	PTF_ASSERT_FALSE(sll2Layer.setLinkLayerAddr(tempBuf, 9));
 	pcpp::Logger::getInstance().enableLogs();
 
-	delete [] buffer1;
-} // Sll2PacketCreationTest
+	delete[] buffer1;
+}  // Sll2PacketCreationTest

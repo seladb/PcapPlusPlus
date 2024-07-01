@@ -12,33 +12,36 @@
 #include <iostream>
 PTF_TEST_CASE(HttpRequestParseMethodTest)
 {
-	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(nullptr, 0), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("GET").c_str(), 3), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(nullptr, 0),
+	                 pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("GET").c_str(), 3),
+	                 pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
 
-	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("OPTIONS").c_str(), 7), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("OPTIONS").c_str(), 7),
+	                 pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
 
 	std::vector<std::pair<std::string, pcpp::HttpRequestLayer::HttpMethod>> possibleMethods = {
-		{"GET", pcpp::HttpRequestLayer::HttpMethod::HttpGET },
-		{"HEAD", pcpp::HttpRequestLayer::HttpMethod::HttpHEAD },
-		{"POST", pcpp::HttpRequestLayer::HttpMethod::HttpPOST },
-		{"PUT", pcpp::HttpRequestLayer::HttpMethod::HttpPUT },
-		{"DELETE", pcpp::HttpRequestLayer::HttpMethod::HttpDELETE },
-		{"TRACE", pcpp::HttpRequestLayer::HttpMethod::HttpTRACE },
-		{"OPTIONS", pcpp::HttpRequestLayer::HttpMethod::HttpOPTIONS },
-		{"CONNECT", pcpp::HttpRequestLayer::HttpMethod::HttpCONNECT },
-		{"PATCH", pcpp::HttpRequestLayer::HttpMethod::HttpPATCH }
+		{ "GET",     pcpp::HttpRequestLayer::HttpMethod::HttpGET     },
+		{ "HEAD",    pcpp::HttpRequestLayer::HttpMethod::HttpHEAD    },
+		{ "POST",    pcpp::HttpRequestLayer::HttpMethod::HttpPOST    },
+		{ "PUT",     pcpp::HttpRequestLayer::HttpMethod::HttpPUT     },
+		{ "DELETE",  pcpp::HttpRequestLayer::HttpMethod::HttpDELETE  },
+		{ "TRACE",   pcpp::HttpRequestLayer::HttpMethod::HttpTRACE   },
+		{ "OPTIONS", pcpp::HttpRequestLayer::HttpMethod::HttpOPTIONS },
+		{ "CONNECT", pcpp::HttpRequestLayer::HttpMethod::HttpCONNECT },
+		{ "PATCH",   pcpp::HttpRequestLayer::HttpMethod::HttpPATCH   }
 	};
 
-	for (const std::pair<std::string, pcpp::HttpRequestLayer::HttpMethod> &method : possibleMethods )
+	for (const std::pair<std::string, pcpp::HttpRequestLayer::HttpMethod>& method : possibleMethods)
 	{
 		std::string firstLine = method.first + " ";
-		PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(firstLine.c_str(), firstLine.length()), method.second, enum);
+		PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(firstLine.c_str(), firstLine.length()), method.second,
+		                 enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("UNKNOWN ").c_str(), 8), pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
-} // HttpRequestParseMethodTest
-
-
+	PTF_ASSERT_EQUAL(pcpp::HttpRequestFirstLine::parseMethod(std::string("UNKNOWN ").c_str(), 8),
+	                 pcpp::HttpRequestLayer::HttpMethod::HttpMethodUnknown, enum);
+}  // HttpRequestParseMethodTest
 
 PTF_TEST_CASE(HttpRequestLayerParsingTest)
 {
@@ -67,7 +70,6 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getUrl(), "www.ynet.co.il/home/0,7340,L-8,00.html");
 
-
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/PartialHttpRequest.dat");
 	pcpp::Packet httpPacket2(&rawPacket2);
 
@@ -92,9 +94,7 @@ PTF_TEST_CASE(HttpRequestLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(requestLayer->getFieldCount(), 8);
 	PTF_ASSERT_FALSE(requestLayer->isHeaderComplete());
-} // HttpRequestLayerParsingTest
-
-
+}  // HttpRequestLayerParsingTest
 
 PTF_TEST_CASE(HttpRequestLayerCreationTest)
 {
@@ -111,12 +111,15 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	pcpp::TcpLayer tcpLayer = *(sampleHttpPacket.getLayerOfType<pcpp::TcpLayer>());
 
 	pcpp::HttpRequestLayer httpLayer(pcpp::HttpRequestLayer::HttpOPTIONS, "/home/0,7340,L-8,00", pcpp::OneDotOne);
-	PTF_ASSERT_NOT_NULL(httpLayer.addField(PCPP_HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
+	PTF_ASSERT_NOT_NULL(httpLayer.addField(
+	    PCPP_HTTP_ACCEPT_FIELD, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"));
 	PTF_ASSERT_NOT_NULL(httpLayer.addField("Dummy-Field", "some value"));
 	pcpp::HeaderField* hostField = httpLayer.insertField(nullptr, PCPP_HTTP_HOST_FIELD, "www.ynet-ynet.co.il");
 	PTF_ASSERT_NOT_NULL(hostField);
 	PTF_ASSERT_NOT_NULL(httpLayer.insertField(hostField, PCPP_HTTP_CONNECTION_FIELD, "keep-alive"));
-	pcpp::HeaderField* userAgentField = httpLayer.addField(PCPP_HTTP_USER_AGENT_FIELD, "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
+	pcpp::HeaderField* userAgentField = httpLayer.addField(
+	    PCPP_HTTP_USER_AGENT_FIELD,
+	    "(Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
 	httpLayer.getFirstLine()->setUri("bla.php");
 	PTF_ASSERT_NOT_NULL(userAgentField);
 	PTF_ASSERT_NOT_NULL(httpLayer.addField(PCPP_HTTP_ACCEPT_LANGUAGE_FIELD, "en-US,en;q=0.8"));
@@ -145,16 +148,15 @@ PTF_TEST_CASE(HttpRequestLayerCreationTest)
 	PTF_ASSERT_EQUAL(httpLayer.getFirstLine()->getVersion(), pcpp::OneDotOne, enum);
 	httpLayer.getFirstLine()->setUri("/home/0,7340,L-8,00.html");
 	PTF_ASSERT_TRUE(httpLayer.removeField("Dummy-Field2"));
-	userAgentField->setFieldValue("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
+	userAgentField->setFieldValue(
+	    "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36");
 
 	httpPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(bufferLength1, httpPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(), bufferLength1);
 
-} // HttpRequestLayerCreationTest
-
-
+}  // HttpRequestLayerCreationTest
 
 PTF_TEST_CASE(HttpRequestLayerEditTest)
 {
@@ -175,7 +177,8 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 	tcpLayer->getTcpHeader()->windowSize = htobe16(16660);
 
 	pcpp::HttpRequestLayer* httpReqLayer = httpRequest.getLayerOfType<pcpp::HttpRequestLayer>();
-	PTF_ASSERT_TRUE(httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js"));
+	PTF_ASSERT_TRUE(
+	    httpReqLayer->getFirstLine()->setUri("/Common/Api/Video/CmmLightboxPlayerJs/0,14153,061014181713,00.js"));
 	pcpp::HeaderField* acceptField = httpReqLayer->getFieldByName(PCPP_HTTP_ACCEPT_FIELD);
 	PTF_ASSERT_NOT_NULL(acceptField);
 	acceptField->setFieldValue("*/*");
@@ -191,16 +194,16 @@ PTF_TEST_CASE(HttpRequestLayerEditTest)
 
 	PTF_ASSERT_BUF_COMPARE(buffer2, httpRequest.getRawPacket()->getRawData(), bufferLength2);
 
-	delete [] buffer2;
+	delete[] buffer2;
 
-} // HttpRequestLayerEditTest
-
-
+}  // HttpRequestLayerEditTest
 
 PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 {
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(nullptr, 0), pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3), pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(nullptr, 0),
+	                 pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3),
+	                 pcpp::HttpResponseLayer::HttpResponseStatusCode::HttpStatusCodeUnknown);
 
 	std::vector<pcpp::HttpResponseStatusCode> possibleStatusCodes = {
 		pcpp::HttpResponseStatusCode::Http100Continue,
@@ -288,71 +291,98 @@ PTF_TEST_CASE(HttpResponseParseStatusCodeTest)
 		pcpp::HttpResponseStatusCode::Http599NetworkConnectTimeoutError,
 	};
 
-	for (const auto &statusCode : possibleStatusCodes )
+	for (const auto& statusCode : possibleStatusCodes)
 	{
 		std::string firstLine = "HTTP/x.y " + statusCode.toString() + " " + statusCode.getMessage() + "\n";
-		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode, enum);
+		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()),
+		                 statusCode, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600 any message\n").c_str(), 26), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
-
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 001 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 199 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatus1xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 299 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatus2xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 399 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatus3xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 477 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatus4xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 577 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatus5xxCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 600 any message\n").c_str(), 26),
+	    pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown, enum);
 
 	// test getMessage()
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 200 OK\n").c_str(), 17).getMessage(), "OK");
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 404 Not Found\n").c_str(), 24).getMessage(), "Not Found");
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 200 OK\n").c_str(), 17).getMessage(), "OK");
+	PTF_ASSERT_EQUAL(
+	    pcpp::HttpResponseFirstLine::parseStatusCode(std::string("HTTP/x.y 404 Not Found\n").c_str(), 24).getMessage(),
+	    "Not Found");
 
 	std::string testLine;
 	testLine = "HTTP/x.y 404 My Not Found\r\n";
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found");
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(),
+	                 "My Not Found");
 
 	testLine = "HTTP/x.y 404 My Not Found 2\n";
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(), "My Not Found 2");
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()).getMessage(),
+	                 "My Not Found 2");
 
 	testLine = "HTTP/x.y 404 Unfinished Line Here";
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()),
+	                 pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
 
-	testLine = "HTTP/x.y 404\n"; // no status message
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
+	testLine = "HTTP/x.y 404\n";  // no status message
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()),
+	                 pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
 
-	testLine = "HTTP/x.y 404 \n"; // no status message
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()), pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
-} // HttpResponseParseStatusCodeTest
-
-
+	testLine = "HTTP/x.y 404 \n";  // no status message
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseStatusCode(testLine.c_str(), testLine.size()),
+	                 pcpp::HttpResponseStatusCode::HttpStatusCodeUnknown);
+}  // HttpResponseParseStatusCodeTest
 
 PTF_TEST_CASE(HttpResponseParseVersionTest)
 {
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(nullptr, 0), pcpp::HttpVersion::HttpVersionUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("1.1").c_str(), 3), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(nullptr, 0), pcpp::HttpVersion::HttpVersionUnknown,
+	                 enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("1.1").c_str(), 3),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("XTTP/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HXTP/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTXP/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTX/1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTP 1.1").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("XTTP/1.1").c_str(), 8),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HXTP/1.1").c_str(), 8),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTXP/1.1").c_str(), 8),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTX/1.1").c_str(), 8),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTP 1.1").c_str(), 8),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
 
 	std::vector<std::pair<std::string, pcpp::HttpVersion>> possibleVersions = {
 		{ "0.9", pcpp::HttpVersion::ZeroDotNine },
-		{ "1.0", pcpp::HttpVersion::OneDotZero },
-		{ "1.1", pcpp::HttpVersion::OneDotOne }
+		{ "1.0", pcpp::HttpVersion::OneDotZero  },
+		{ "1.1", pcpp::HttpVersion::OneDotOne   }
 	};
 
-	for (const std::pair<std::string, pcpp::HttpVersion> &version : possibleVersions )
+	for (const std::pair<std::string, pcpp::HttpVersion>& version : possibleVersions)
 	{
 		std::string firstLine = "HTTP/" + version.first;
-		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(firstLine.c_str(), firstLine.length()), version.second, enum);
+		PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(firstLine.c_str(), firstLine.length()),
+		                 version.second, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTP/2.0 ").c_str(), 8), pcpp::HttpVersion::HttpVersionUnknown, enum);
-} // HttpResponseParseVersionTest
-
-
+	PTF_ASSERT_EQUAL(pcpp::HttpResponseFirstLine::parseVersion(std::string("HTTP/2.0 ").c_str(), 8),
+	                 pcpp::HttpVersion::HttpVersionUnknown, enum);
+}  // HttpResponseParseVersionTest
 
 PTF_TEST_CASE(HttpResponseLayerParsingTest)
 {
@@ -382,9 +412,7 @@ PTF_TEST_CASE(HttpResponseLayerParsingTest)
 	pcpp::HeaderField* contentTypeField = responseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
 	PTF_ASSERT_NOT_NULL(contentTypeField);
 	PTF_ASSERT_EQUAL(contentTypeField->getFieldValue(), "application/x-javascript");
-} // HttpResponseLayerParsingTest
-
-
+}  // HttpResponseLayerParsingTest
 
 PTF_TEST_CASE(HttpResponseLayerCreationTest)
 {
@@ -405,11 +433,15 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 	PTF_ASSERT_NULL(httpResponse.addField(PCPP_HTTP_SERVER_FIELD, "Microsoft-IIS/6.0"));
 	pcpp::Logger::getInstance().enableLogs();
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_CONTENT_ENCODING_FIELD, "gzip"));
-	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_SERVER_FIELD), PCPP_HTTP_CONTENT_TYPE_FIELD, "application/x-javascript"));
-	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD), "Accept-Ranges", "bytes"));
+	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_SERVER_FIELD),
+	                                             PCPP_HTTP_CONTENT_TYPE_FIELD, "application/x-javascript"));
+	PTF_ASSERT_NOT_NULL(
+	    httpResponse.insertField(httpResponse.getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD), "Accept-Ranges", "bytes"));
 	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("Accept-Ranges"), "KuKu", "BlaBla"));
-	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("kuku"), "Last-Modified", "Wed, 19 Dec 2012 14:06:29 GMT"));
-	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("last-Modified"), "ETag", "\"3b846daf2ddcd1:e29\""));
+	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("kuku"), "Last-Modified",
+	                                             "Wed, 19 Dec 2012 14:06:29 GMT"));
+	PTF_ASSERT_NOT_NULL(
+	    httpResponse.insertField(httpResponse.getFieldByName("last-Modified"), "ETag", "\"3b846daf2ddcd1:e29\""));
 	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("etag"), "Vary", "Accept-Encoding"));
 	PTF_ASSERT_NOT_NULL(httpResponse.setContentLength(1616, PCPP_HTTP_CONTENT_ENCODING_FIELD));
 	PTF_ASSERT_NOT_NULL(httpResponse.addField("Kuku2", "blibli2"));
@@ -427,26 +459,27 @@ PTF_TEST_CASE(HttpResponseLayerCreationTest)
 
 	PTF_ASSERT_NOT_NULL(httpResponse.addField(PCPP_HTTP_CONNECTION_FIELD, "keep-alive"));
 	PTF_ASSERT_NOT_NULL(httpResponse.addEndOfHeader());
-	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("Cache-Control"), "Expires", "Mon, 20 Oct 2014 13:34:26 GMT"));
+	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("Cache-Control"), "Expires",
+	                                             "Mon, 20 Oct 2014 13:34:26 GMT"));
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_NULL(httpResponse.addField("kuku3", "kuka"));
 	pcpp::Logger::getInstance().enableLogs();
-	PTF_ASSERT_NOT_NULL(httpResponse.insertField(httpResponse.getFieldByName("ExpIRes"), "Date", "Sun, 19 Oct 2014 19:12:09 GMT"));
+	PTF_ASSERT_NOT_NULL(
+	    httpResponse.insertField(httpResponse.getFieldByName("ExpIRes"), "Date", "Sun, 19 Oct 2014 19:12:09 GMT"));
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(httpResponse.removeField("kuku5"));
 	pcpp::Logger::getInstance().enableLogs();
 	PTF_ASSERT_TRUE(httpResponse.removeField("kuku2"));
 
-
 	httpPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(httpResponse.getHeaderLen(), 382);
 
-	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(), ethLayer.getHeaderLen()+ip4Layer.getHeaderLen()+tcpLayer.getHeaderLen()+httpResponse.getHeaderLen());
+	PTF_ASSERT_BUF_COMPARE(buffer1, httpPacket.getRawPacket()->getRawData(),
+	                       ethLayer.getHeaderLen() + ip4Layer.getHeaderLen() + tcpLayer.getHeaderLen() +
+	                           httpResponse.getHeaderLen());
 
-} // HttpResponseLayerCreationTest
-
-
+}  // HttpResponseLayerCreationTest
 
 PTF_TEST_CASE(HttpResponseLayerEditTest)
 {
@@ -465,8 +498,10 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 	responseLayer->getFirstLine()->setVersion(pcpp::OneDotOne);
 
 	// original status code is 404 Not Found
-	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported));
-	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(), pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported, enum);
+	PTF_ASSERT_TRUE(
+	    responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported));
+	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCode(),
+	                 pcpp::HttpResponseStatusCode::Http505HTTPVersionNotSupported, enum);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 505);
 
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "HTTP Version Not Supported");
@@ -476,15 +511,14 @@ PTF_TEST_CASE(HttpResponseLayerEditTest)
 
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
 
-	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(pcpp::HttpResponseStatusCode(pcpp::HttpResponseStatusCode::Http413RequestEntityTooLarge, "This is a test")));
+	PTF_ASSERT_TRUE(responseLayer->getFirstLine()->setStatusCode(
+	    pcpp::HttpResponseStatusCode(pcpp::HttpResponseStatusCode::Http413RequestEntityTooLarge, "This is a test")));
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeAsInt(), 413);
 	PTF_ASSERT_EQUAL(responseLayer->getFirstLine()->getStatusCodeString(), "This is a test");
 
 	expectedHttpResponse = "HTTP/1.1 413 This is a test\r\nContent-Length: 345\r\n";
 	PTF_ASSERT_BUF_COMPARE(expectedHttpResponse.c_str(), responseLayer->getData(), expectedHttpResponse.length());
-} // HttpResponseLayerEditTest
-
-
+}  // HttpResponseLayerEditTest
 
 /// In this test the first HTTP header field is malformed - it only has header name but not an header value
 PTF_TEST_CASE(HttpMalformedResponseTest)
@@ -498,13 +532,20 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 
 	pcpp::HttpResponseLayer* httpResp = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	PTF_ASSERT_EQUAL(httpResp->getFieldCount(), 6);
-	std::string fieldNames[] = {"x-amz-request-id2 CA4DB8F36423461F\r\n", "x-amz-id-2", PCPP_HTTP_CONTENT_TYPE_FIELD, PCPP_HTTP_TRANSFER_ENCODING_FIELD, "Date", PCPP_HTTP_SERVER_FIELD};
-	std::string fieldValues[] = {"", "xcjboWLTcibyztI2kdnRoUvPdimtSPdYQYsQ4pHAebH4miKlux4Am0SBZrvVxsHN", "application/xml", "chunked", "Thu, 21 Feb 2013 06:27:11 GMT", "AmazonS3"};
+	std::string fieldNames[] = { "x-amz-request-id2 CA4DB8F36423461F\r\n", "x-amz-id-2", PCPP_HTTP_CONTENT_TYPE_FIELD,
+		                         PCPP_HTTP_TRANSFER_ENCODING_FIELD,        "Date",       PCPP_HTTP_SERVER_FIELD };
+	std::string fieldValues[] = { "",
+		                          "xcjboWLTcibyztI2kdnRoUvPdimtSPdYQYsQ4pHAebH4miKlux4Am0SBZrvVxsHN",
+		                          "application/xml",
+		                          "chunked",
+		                          "Thu, 21 Feb 2013 06:27:11 GMT",
+		                          "AmazonS3" };
 	int index = 0;
-	for (pcpp::HeaderField* field = httpResp->getFirstField(); field != nullptr && !field->isEndOfHeader(); field = httpResp->getNextField(field))
+	for (pcpp::HeaderField* field = httpResp->getFirstField(); field != nullptr && !field->isEndOfHeader();
+	     field = httpResp->getNextField(field))
 	{
 		PTF_ASSERT_EQUAL(field->getFieldName(), fieldNames[index]);
 		PTF_ASSERT_EQUAL(field->getFieldValue(), fieldValues[index]);
 		index++;
 	}
-} // HttpMalformedResponseTest
+}  // HttpMalformedResponseTest

@@ -4,7 +4,6 @@
 #include "IPSecLayer.h"
 #include "SystemUtils.h"
 
-
 PTF_TEST_CASE(IPSecParsingTest)
 {
 	timeval time;
@@ -58,4 +57,4 @@ PTF_TEST_CASE(IPSecParsingTest)
 	PTF_ASSERT_NOT_NULL(espLayer);
 	PTF_ASSERT_EQUAL(espLayer->getSPI(), 0x49507636);
 	PTF_ASSERT_EQUAL(espLayer->getSequenceNumber(), 541414224);
-} // IPSecParsingTest
+}  // IPSecParsingTest
