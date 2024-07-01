@@ -53,8 +53,8 @@ namespace pcpp
 		void printSeparator();
 
 		/**
-		 * Close the table - should be called after all rows were printed. Calling this method is not a must as it's called
-		 * in the class d'tor
+		 * Close the table - should be called after all rows were printed. Calling this method is not a must as it's
+		 * called in the class d'tor
 		 */
 		void closeTable();
 
@@ -70,4 +70,4 @@ namespace pcpp
 		void printHeadline();
 	};
 
-}
+}  // namespace pcpp
