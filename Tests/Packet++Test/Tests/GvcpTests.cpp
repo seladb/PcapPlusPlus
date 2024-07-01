@@ -11,11 +11,11 @@ PTF_TEST_CASE(GvcpBasicTest)
 	using namespace pcpp;
 
 	{
-		std::vector<uint8_t> payload = {0x00, 0x01, 0x02, 0x03};
+		std::vector<uint8_t> payload = { 0x00, 0x01, 0x02, 0x03 };
 		GvcpRequestLayer gvcpRequestLayer(GvcpCommand::DiscoveredCmd, payload.data(), payload.size(), 1, 2);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
 
-		GvcpRequestHeader *header = gvcpRequestLayer.getGvcpHeader();
+		GvcpRequestHeader* header = gvcpRequestLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
 		PTF_ASSERT_EQUAL(header->getFlag(), 1);
@@ -23,16 +23,65 @@ PTF_TEST_CASE(GvcpBasicTest)
 		PTF_ASSERT_EQUAL(header->getDataSize(), payload.size());
 	}
 	{
-		std::vector<uint8_t> payload = {0x00, 0x01, 0x02, 0x03};
+		std::vector<uint8_t> payload = { 0x00, 0x01, 0x02, 0x03 };
 		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(GvcpResponseStatus::Success, GvcpCommand::DiscoveredAck,
-												  payload.data(), payload.size(), 2);
+		                                          payload.data(), payload.size(), 2);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
-		GvcpAckHeader *header = gvcpAcknowledgeLayer.getGvcpHeader();
+		GvcpAckHeader* header = gvcpAcknowledgeLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
 		PTF_ASSERT_EQUAL(header->getAckId(), 2);
 		PTF_ASSERT_EQUAL(header->getDataSize(), payload.size());
+	}
+}
+
+PTF_TEST_CASE(GvcpDiscoveryCommand)
+{
+	// test the creation from the raw buffer
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_discovery_cmd.dat");
+		pcpp::Packet discoverAckPacket(&rawPacket1);
+
+		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
+
+		// we get the raw buffer from the payload of the UDP layer and create a gvcpRequestLayer from the buffer
+		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
+		GvcpRequestHeader* header = gvcpRequestLayer.getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(uint8_t(header->getFlag()), uint8_t(0x11));  // allow broadcast, acknowledge required
+		PTF_ASSERT_EQUAL(header->hasAcknowledgeFlag(), true);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
+		PTF_ASSERT_EQUAL(header->verifyMagicNumber(), true);
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer.getDataLen());
+	}
+
+	// test the GVCP layer directly from the packet
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_discovery_cmd.dat");
+		pcpp::Packet discoverCmdPacket(&rawPacket1);
+
+		// we get the GVCP layer from the packet
+		auto gvcpRequestLayer = discoverCmdPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
+
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
+		GvcpRequestHeader* header = gvcpRequestLayer->getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getFlag(), 1);
+		PTF_ASSERT_EQUAL(header->hasAcknowledgeFlag(), true);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
+		PTF_ASSERT_EQUAL(header->verifyMagicNumber(), true);
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getDataLen());
 	}
 }
 
@@ -53,7 +102,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
-		GvcpAckHeader *header = gvcpAcknowledgeLayer.getGvcpHeader();
+		GvcpAckHeader* header = gvcpAcknowledgeLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
@@ -82,7 +131,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		auto gvcpAcknowledgeLayer = discoverAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
-		GvcpAckHeader *header = gvcpAcknowledgeLayer->getGvcpHeader();
+		GvcpAckHeader* header = gvcpAcknowledgeLayer->getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
@@ -116,7 +165,7 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
-		GvcpRequestHeader *header = gvcpRequestLayer.getGvcpHeader();
+		GvcpRequestHeader* header = gvcpRequestLayer.getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpCmd);
@@ -144,7 +193,7 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		auto gvcpRequestLayer = forceIpCommandPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
-		GvcpRequestHeader *header = gvcpRequestLayer->getGvcpHeader();
+		GvcpRequestHeader* header = gvcpRequestLayer->getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpCmd);

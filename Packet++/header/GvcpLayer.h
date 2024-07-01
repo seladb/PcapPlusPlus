@@ -24,9 +24,9 @@ namespace pcpp
 		static constexpr size_t kGvcpAckHeaderLength = 8;
 		static constexpr size_t kGvcpDiscoveryBodyLength = 248;
 		static constexpr size_t kGvcpForceIpBodyLength = 56;
-	} // namespace detail
+	}  // namespace detail
 
-	typedef uint8_t GvcpFlag; // flag bits are specified by each command
+	typedef uint8_t GvcpFlag;  // flag bits are specified by each command
 
 	/// @brief Gvcp command
 	/// See spec "18 Command and Acknowledge Values"
@@ -40,7 +40,7 @@ namespace pcpp
 
 		// Streaming Protocol Control
 		PacketResendCmd = 0x0040,
-		PacketResendAck = 0x0041, // Resent packet must be on the stream channel
+		PacketResendAck = 0x0041,  // Resent packet must be on the stream channel
 
 		// Device Memory Access
 		ReadRegCmd = 0x0080,
@@ -65,7 +65,7 @@ namespace pcpp
 		Unknown = 0xFFFF
 	};
 
-	std::ostream &operator<<(std::ostream &os, GvcpCommand command);
+	std::ostream& operator<<(std::ostream& os, GvcpCommand command);
 
 	/// @brief Gvcp response status
 	/// See spec "Table 19-1: List of Standard Status Codes"
@@ -80,63 +80,77 @@ namespace pcpp
 		BadAlignment = 0x8005,
 		AccessDenied = 0x8006,
 		Busy = 0x8007,
-		LocalProblem = 0x8008,	  // deprecated
-		MsgMismatch = 0x8009,	  // deprecated
-		InvalidProtocol = 0x800A, // deprecated
-		NoMsg = 0x800B,			  // deprecated
+		LocalProblem = 0x8008,     // deprecated
+		MsgMismatch = 0x8009,      // deprecated
+		InvalidProtocol = 0x800A,  // deprecated
+		NoMsg = 0x800B,            // deprecated
 		PacketUnavailable = 0x800C,
 		DataOverrun = 0x800D,
 		InvalidHeader = 0x800E,
-		WrongConfig = 0x800F, // deprecated
+		WrongConfig = 0x800F,  // deprecated
 		PacketNotYetAvailable = 0x8010,
 		PacketAndPrevRemovedFromMemory = 0x8011,
 		PacketRemovedFromMemory = 0x8012,
-		NoRefTime = 0x8013,					   // GEV 2.0
-		PacketTemporarilyUnavailable = 0x8014, // GEV 2.0
-		Overflow = 0x8015,					   // GEV 2.0
-		ActionLate = 0x8016,				   // GEV 2.0
-		LeaderTrailerOverflow = 0x8017,		   // GEV 2.1
+		NoRefTime = 0x8013,                     // GEV 2.0
+		PacketTemporarilyUnavailable = 0x8014,  // GEV 2.0
+		Overflow = 0x8015,                      // GEV 2.0
+		ActionLate = 0x8016,                    // GEV 2.0
+		LeaderTrailerOverflow = 0x8017,         // GEV 2.1
 		Error = 0x8FFF,
 		Unknown = 0xFFFF
 	};
 
-	std::ostream &operator<<(std::ostream &os, GvcpResponseStatus status);
+	std::ostream& operator<<(std::ostream& os, GvcpResponseStatus status);
 
 #pragma pack(push, 1)
 	/// @brief Gvcp request header
 	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
 	struct GvcpRequestHeader
 	{
-	  protected:
-		uint8_t magicNumber = detail::kGvcpMagicNumber; // always fixed
-		uint8_t flag = 0; // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
+	protected:
+		uint8_t magicNumber = detail::kGvcpMagicNumber;  // always fixed
+		uint8_t flag = 0;  // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
 		uint16_t command = 0;
 		uint16_t dataSize = 0;
 		uint16_t requestId = 0;
 
-	  public:
+	public:
 		// ------------- methods --------------
 		GvcpRequestHeader() = default;
 
 		GvcpRequestHeader(GvcpFlag flag, GvcpCommand command, uint16_t dataSize, uint16_t requestId)
-			: flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
-			  requestId(hostToNet16(requestId))
+		    : flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
+		      requestId(hostToNet16(requestId))
+		{}
+
+		GvcpFlag getFlag() const
 		{
+			return flag;
 		}
 
-		GvcpFlag getFlag() const { return flag; }
+		GvcpCommand getCommand() const
+		{
+			return static_cast<GvcpCommand>(netToHost16(command));
+		}
 
-		GvcpCommand getCommand() const { return static_cast<GvcpCommand>(netToHost16(command)); }
+		uint16_t getDataSize() const
+		{
+			return netToHost16(dataSize);
+		}
 
-		uint16_t getDataSize() const { return netToHost16(dataSize); }
-
-		uint16_t getRequestId() const { return netToHost16(requestId); }
+		uint16_t getRequestId() const
+		{
+			return netToHost16(requestId);
+		}
 
 		/**
 		 * @brief Verify the magic number
 		 * @return true The magic number is valid
 		 */
-		bool verifyMagicNumber() const { return magicNumber == detail::kGvcpMagicNumber; }
+		bool verifyMagicNumber() const
+		{
+			return magicNumber == detail::kGvcpMagicNumber;
+		}
 
 		/**
 		 * @brief Check if the acknowledge is required
@@ -149,7 +163,7 @@ namespace pcpp
 		}
 	};
 	static_assert(sizeof(GvcpRequestHeader) == detail::kGvcpRequestHeaderLength,
-				  "Gvcp request header size should be 8 bytes");
+	              "Gvcp request header size should be 8 bytes");
 
 	struct GvcpDiscoveryRequest : public GvcpRequestHeader
 	{
@@ -172,29 +186,40 @@ namespace pcpp
 	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
 	struct GvcpAckHeader
 	{
-	  protected:
+	protected:
 		uint16_t status = 0;
 		uint16_t command = 0;
 		uint16_t dataSize = 0;
 		uint16_t ackId = 0;
 
-	  public:
+	public:
 		// ------------- methods --------------
 		GvcpAckHeader() = default;
 
 		GvcpAckHeader(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize, uint16_t ackId)
-			: status(hostToNet16(static_cast<uint16_t>(status))), command(hostToNet16(static_cast<uint16_t>(command))),
-			  dataSize(hostToNet16(dataSize)), ackId(hostToNet16(ackId))
+		    : status(hostToNet16(static_cast<uint16_t>(status))), command(hostToNet16(static_cast<uint16_t>(command))),
+		      dataSize(hostToNet16(dataSize)), ackId(hostToNet16(ackId))
+		{}
+
+		GvcpResponseStatus getStatus() const
 		{
+			return static_cast<GvcpResponseStatus>(netToHost16(status));
 		}
 
-		GvcpResponseStatus getStatus() const { return static_cast<GvcpResponseStatus>(netToHost16(status)); }
+		GvcpCommand getCommand() const
+		{
+			return static_cast<GvcpCommand>(netToHost16(command));
+		}
 
-		GvcpCommand getCommand() const { return static_cast<GvcpCommand>(netToHost16(command)); }
+		uint16_t getDataSize() const
+		{
+			return netToHost16(dataSize);
+		}
 
-		uint16_t getDataSize() const { return netToHost16(dataSize); }
-
-		uint16_t getAckId() const { return netToHost16(ackId); }
+		uint16_t getAckId() const
+		{
+			return netToHost16(ackId);
+		}
 	};
 	static_assert(sizeof(GvcpAckHeader) == detail::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
 
@@ -206,21 +231,21 @@ namespace pcpp
 		uint16_t versionMinor = 0;
 		uint32_t deviceMode = 0;
 		uint16_t reserved = 0;
-		char macAddress[6] = {0};
+		char macAddress[6] = { 0 };
 		uint32_t supportedIpConfigOptions = 0;
 		uint32_t ipConfigCurrent = 0;
-		uint8_t reserved2[12] = {0};
+		uint8_t reserved2[12] = { 0 };
 		uint32_t ipAddress = 0;
 		uint8_t reserved3[12];
 		uint32_t subnetMask = 0;
-		uint8_t reserved4[12] = {0};
+		uint8_t reserved4[12] = { 0 };
 		uint32_t defaultGateway = 0;
-		char manufacturerName[32] = {0};
-		char modelName[32] = {0};
-		char deviceVersion[32] = {0};
-		char manufacturerSpecificInformation[48] = {0};
-		char serialNumber[16] = {0};
-		char userDefinedName[16] = {0};
+		char manufacturerName[32] = { 0 };
+		char modelName[32] = { 0 };
+		char deviceVersion[32] = { 0 };
+		char manufacturerSpecificInformation[48] = { 0 };
+		char serialNumber[16] = { 0 };
+		char userDefinedName[16] = { 0 };
 
 		// ------------- methods --------------
 
@@ -228,7 +253,10 @@ namespace pcpp
 		 * @brief Get the version
 		 * @return std::pair<uint16_t, uint16_t> The version major and minor
 		 */
-		std::pair<uint16_t, uint16_t> getVersion() const { return {versionMajor, versionMinor}; }
+		std::pair<uint16_t, uint16_t> getVersion() const
+		{
+			return { versionMajor, versionMinor };
+		}
 
 		/**
 		 * @brief Get the IP address
@@ -236,77 +264,104 @@ namespace pcpp
 		 */
 		pcpp::MacAddress getMacAddress() const
 		{
-			return pcpp::MacAddress(reinterpret_cast<const uint8_t *>(macAddress));
+			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(macAddress));
 		}
 
 		/**
 		 * @brief Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
-		pcpp::IPv4Address getIpAddress() const { return pcpp::IPv4Address(ipAddress); }
+		pcpp::IPv4Address getIpAddress() const
+		{
+			return pcpp::IPv4Address(ipAddress);
+		}
 
 		/**
 		 * @brief Get the subnet mask
 		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
 		 */
-		pcpp::IPv4Address getSubnetMask() const { return pcpp::IPv4Address(subnetMask); }
+		pcpp::IPv4Address getSubnetMask() const
+		{
+			return pcpp::IPv4Address(subnetMask);
+		}
 
 		/**
 		 * @brief Get the gateway IP address
 		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
 		 */
-		pcpp::IPv4Address getGatewayIpAddress() const { return pcpp::IPv4Address(defaultGateway); }
+		pcpp::IPv4Address getGatewayIpAddress() const
+		{
+			return pcpp::IPv4Address(defaultGateway);
+		}
 
 		/**
 		 * @brief Get the manufacturer name
 		 * @return std::string The manufacturer name
 		 */
-		std::string getManufacturerName() const { return std::string(manufacturerName); }
+		std::string getManufacturerName() const
+		{
+			return std::string(manufacturerName);
+		}
 
 		/**
 		 * @brief Get the model name
 		 * @return std::string The model name
 		 */
-		std::string getModelName() const { return std::string(modelName); }
+		std::string getModelName() const
+		{
+			return std::string(modelName);
+		}
 
 		/**
 		 * @brief Get the device version
 		 * @return std::string The device version
 		 */
-		std::string getDeviceVersion() const { return std::string(deviceVersion); }
+		std::string getDeviceVersion() const
+		{
+			return std::string(deviceVersion);
+		}
 
 		/**
 		 * @brief Get the manufacturer specific information
 		 * @return std::string The manufacturer specific information
 		 */
-		std::string getManufacturerSpecificInformation() const { return std::string(manufacturerSpecificInformation); }
+		std::string getManufacturerSpecificInformation() const
+		{
+			return std::string(manufacturerSpecificInformation);
+		}
 
 		/**
 		 * @brief Get the serial number
 		 * @return std::string The serial number
 		 */
-		std::string getSerialNumber() const { return std::string(serialNumber); }
+		std::string getSerialNumber() const
+		{
+			return std::string(serialNumber);
+		}
 
 		/**
 		 * @brief Get the user defined name
 		 * @return std::string The user defined name
 		 */
-		std::string getUserDefinedName() const { return std::string(userDefinedName); }
+		std::string getUserDefinedName() const
+		{
+			return std::string(userDefinedName);
+		}
 	};
 	static_assert(sizeof(GvcpDiscoveryBody) == detail::kGvcpDiscoveryBodyLength,
-				  "Gvcp ack body size should be 248 bytes");
+	              "Gvcp ack body size should be 248 bytes");
 
 	/// @brief GVCP force IP command body
 	/// @note refer to the spec "16.2 FORCEIP". The data is stored as big-endian.
 	struct GvcpForceIpBody
 	{
-		char padding1[2] = {0};
-		char macAddress[6] = {0};
-		char padding2[12] = {0};
+		char padding1[2] = { 0 };
+		char macAddress[6] = { 0 };
+		char padding2[12] = { 0 };
 		uint32_t ipAddress = 0;
-		char padding3[12] = {0};
+		char padding3[12] = { 0 };
 		uint32_t subnetMask = 0;
-		char padding4[12] = {0};
+		char padding4[12] = { 0 };
 		uint32_t gateway = 0;
 
 		// ------------- methods --------------
@@ -317,54 +372,69 @@ namespace pcpp
 		 */
 		pcpp::MacAddress getMacAddress() const
 		{
-			return pcpp::MacAddress(reinterpret_cast<const uint8_t *>(macAddress));
+			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(macAddress));
 		}
 
 		/**
 		 * @brief Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
-		pcpp::IPv4Address getIpAddress() const { return pcpp::IPv4Address(ipAddress); }
+		pcpp::IPv4Address getIpAddress() const
+		{
+			return pcpp::IPv4Address(ipAddress);
+		}
 
 		/**
 		 * @brief Get the subnet mask
 		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
 		 */
-		pcpp::IPv4Address getSubnetMask() const { return pcpp::IPv4Address(subnetMask); }
+		pcpp::IPv4Address getSubnetMask() const
+		{
+			return pcpp::IPv4Address(subnetMask);
+		}
 
 		/**
 		 * @brief Get the gateway IP address
 		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
 		 */
-		pcpp::IPv4Address getGatewayIpAddress() const { return pcpp::IPv4Address(gateway); }
+		pcpp::IPv4Address getGatewayIpAddress() const
+		{
+			return pcpp::IPv4Address(gateway);
+		}
 	};
 	static_assert(sizeof(GvcpForceIpBody) == detail::kGvcpForceIpBodyLength,
-				  "GVCP force IP command body size should be 56 bytes");
+	              "GVCP force IP command body size should be 56 bytes");
 #pragma pack(pop)
 
 	/**
 	 * @class GvcpLayer
-	 * A class representing the GigE Vision protocol(Gvcp).
+	 * A class representing the GigE Vision protocol(GVCP).
 	 * The class is implemented according to the GigE Vision specification 2.0.
 	 * @see https://en.wikipedia.org/wiki/GigE_Vision
 	 * @note The class cannot be instantiated directly.
 	 */
 	class GvcpLayer : public Layer
 	{
-	  public:
+	public:
 		/**
 		 * A static method that checks whether the port is considered as GVCP
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isGvcpPort(uint16_t port) { return port == 3956; }
+		static bool isGvcpPort(uint16_t port)
+		{
+			return port == 3956;
+		}
 
 		/**
 		 * @brief Get the magic number
 		 * @return uint8_t The magic number
 		 */
-		static bool verifyRequest(const uint8_t *data) { return data[0] == detail::kGvcpMagicNumber; };
+		static bool verifyRequest(const uint8_t* data)
+		{
+			return data[0] == detail::kGvcpMagicNumber;
+		};
 
-	  protected:
+	protected:
 		GvcpLayer() = default;
 
 		/**
@@ -374,21 +444,26 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		GvcpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		GvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		// implement Layer's abstract methods
-		void parseNextLayer() override {}
+		void parseNextLayer() override
+		{}
 
 		// implement Layer's abstract methods
-		void computeCalculateFields() override {}
+		void computeCalculateFields() override
+		{}
 
 		// implement Layer's abstract methods
-		OsiModelLayer getOsiModelLayer() const override { return OsiModelLayer::OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelLayer::OsiModelApplicationLayer;
+		}
 	};
 
 	class GvcpRequestLayer : public GvcpLayer
 	{
-	  public:
+	public:
 		/**
 		 * @brief Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
@@ -396,7 +471,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		explicit GvcpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		explicit GvcpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
@@ -407,59 +482,71 @@ namespace pcpp
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
 		 * @note all the parameters wil be converted to the network byte order
 		 */
-		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t *data = nullptr, uint16_t dataSize = 0,
-								  GvcpFlag flag = 0, uint16_t requestId = 1);
+		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t* data = nullptr, uint16_t dataSize = 0,
+		                          GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
-		explicit GvcpRequestLayer(const uint8_t *data, uint16_t dataSize);
+		explicit GvcpRequestLayer(const uint8_t* data, uint16_t dataSize);
 
 		/**
 		 * @brief Get the header object
 		 * @return GvcpRequestHeader* A pointer to the header object
 		 */
-		GvcpRequestHeader *getGvcpHeader() const { return m_Header; }
+		GvcpRequestHeader* getGvcpHeader() const
+		{
+			return m_Header;
+		}
 
 		/**
 		 * @brief Get the force id command body object
-		 * @return GvcpForceIpBody* A pointer to the force id command body object. If the data length is invalid, return
-		 * nullptr.
+		 * @return GvcpForceIpBody* A pointer to the force id command body object. If the data length is invalid or the
+		 * command is not ForceIpCmd, return nullptr.
 		 */
-		GvcpForceIpBody *getGvcpForceIpBody() const
+		GvcpForceIpBody* getGvcpForceIpBody() const
 		{
-			if (m_DataLen != detail::kGvcpForceIpBodyLength)
+			if (m_DataLen != detail::kGvcpForceIpBodyLength || m_Header->getCommand() != GvcpCommand::ForceIpCmd)
 				return nullptr;
 
-			return reinterpret_cast<GvcpForceIpBody *>(m_Data);
+			return reinterpret_cast<GvcpForceIpBody*>(m_Data);
 		}
 
-		GvcpCommand getCommand() const { return m_Header->getCommand(); }
+		GvcpCommand getCommand() const
+		{
+			return m_Header->getCommand();
+		}
 
 		// implement Layer's abstract methods
-		std::string toString() const override { return ""; };
+		std::string toString() const override
+		{
+			return "";
+		};
 
 		// implement Layer's abstract methods
-		size_t getHeaderLen() const override { return sizeof(GvcpRequestHeader); }
+		size_t getHeaderLen() const override
+		{
+			return sizeof(GvcpRequestHeader);
+		}
 
 		/**
 		 * @brief Get the discovery request object
 		 * @return GvcpDiscoveryRequest* A pointer to the discovery request object.
 		 */
-		GvcpDiscoveryRequest *getGvcpDiscoveryRequest() const
+		GvcpDiscoveryRequest* getGvcpDiscoveryRequest() const
 		{
-			return reinterpret_cast<GvcpDiscoveryRequest *>(m_Header);
+			return reinterpret_cast<GvcpDiscoveryRequest*>(m_Header);
 		}
 
-	  private:
-		GvcpRequestHeader *m_Header;
+	private:
+		GvcpRequestHeader* m_Header;
 	};
 
 	class GvcpAcknowledgeLayer : public GvcpLayer
 	{
-	  public:
+	public:
 		/**
 		 * @brief Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
@@ -467,7 +554,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		explicit GvcpAcknowledgeLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		explicit GvcpAcknowledgeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
 		 * @brief Construct a new GvcpAcknowledgeLayer object
@@ -479,49 +566,61 @@ namespace pcpp
 		 * @note all the parameters wil be converted to the network byte order
 		 */
 		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
-									  const uint8_t *payloadData = nullptr, uint16_t payloadDataSize = 0,
-									  uint16_t ackId = 0);
+		                              const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
+		                              uint16_t ackId = 0);
 
 		/**
 		 * @brief Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
-		explicit GvcpAcknowledgeLayer(const uint8_t *data, uint16_t dataSize);
+		explicit GvcpAcknowledgeLayer(const uint8_t* data, uint16_t dataSize);
 
 		/**
 		 * @brief Get the header object
 		 * @return GvcpAckHeader* A pointer to the header object
 		 */
-		GvcpAckHeader *getGvcpHeader() const { return m_Header; }
+		GvcpAckHeader* getGvcpHeader() const
+		{
+			return m_Header;
+		}
 
 		/**
 		 * @brief Get the response command type.
 		 * Use the command type to determine the response body.
 		 * @return GvcpCommand The response command type
 		 */
-		GvcpCommand getCommand() const { return m_Header->getCommand(); }
+		GvcpCommand getCommand() const
+		{
+			return m_Header->getCommand();
+		}
 
 		// implement Layer's abstract methods
-		std::string toString() const override { return ""; };
+		std::string toString() const override
+		{
+			return "";
+		};
 
 		// implement Layer's abstract methods
-		size_t getHeaderLen() const override { return sizeof(GvcpAckHeader); }
+		size_t getHeaderLen() const override
+		{
+			return sizeof(GvcpAckHeader);
+		}
 
 		/**
 		 * @brief Get the discovery body object
-		 * @return GvcpDiscoveryBody* A pointer to the discovery body object. If the data length is invalid, return
-		 * nullptr.
+		 * @return GvcpDiscoveryBody* A pointer to the discovery body object. If the data length is invalid or the
+		 * command is not DiscoveredAck, return nullptr.
 		 */
-		GvcpDiscoveryBody *getGvcpDiscoveryBody() const
+		GvcpDiscoveryBody* getGvcpDiscoveryBody() const
 		{
-			if (m_DataLen != detail::kGvcpDiscoveryBodyLength)
+			if (m_DataLen != detail::kGvcpDiscoveryBodyLength || m_Header->getCommand() != GvcpCommand::DiscoveredAck)
 				return nullptr;
 
-			return reinterpret_cast<GvcpDiscoveryBody *>(m_Data);
+			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data);
 		}
 
-	  private:
-		GvcpAckHeader *m_Header;
+	private:
+		GvcpAckHeader* m_Header;
 	};
-} // namespace pcpp
+}  // namespace pcpp

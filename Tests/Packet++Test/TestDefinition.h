@@ -168,6 +168,7 @@ PTF_TEST_CASE(GtpLayerEditTest);
 PTF_TEST_CASE(GvcpBasicTest);
 PTF_TEST_CASE(GvcpDiscoveryAck);
 PTF_TEST_CASE(GvcpForceIpCommand);
+PTF_TEST_CASE(GvcpDiscoveryCommand);
 
 // Implemented in BgpTests.cpp
 PTF_TEST_CASE(BgpLayerParsingTest);
