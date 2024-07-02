@@ -170,6 +170,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck);
 PTF_TEST_CASE(GvcpForceIpCommand);
 PTF_TEST_CASE(GvcpDiscoveryCommand);
 PTF_TEST_CASE(GvcpForceIpAck);
+PTF_TEST_CASE(GvcpReadRegisterCommand);
 
 // Implemented in BgpTests.cpp
 PTF_TEST_CASE(BgpLayerParsingTest);

@@ -107,6 +107,8 @@ namespace pcpp
 	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
 	struct GvcpRequestHeader
 	{
+		friend class GvcpRequestLayer;
+
 	protected:
 		uint8_t magicNumber = detail::kGvcpMagicNumber;  // always fixed
 		uint8_t flag = 0;  // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
@@ -186,6 +188,8 @@ namespace pcpp
 	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
 	struct GvcpAckHeader
 	{
+		friend class GvcpAcknowledgeLayer;
+
 	protected:
 		uint16_t status = 0;
 		uint16_t command = 0;
@@ -231,7 +235,7 @@ namespace pcpp
 		uint16_t versionMinor = 0;
 		uint32_t deviceMode = 0;
 		uint16_t reserved = 0;
-		char macAddress[6] = { 0 };
+		uint8_t macAddress[6] = { 0 };
 		uint32_t supportedIpConfigOptions = 0;
 		uint32_t ipConfigCurrent = 0;
 		uint8_t reserved2[12] = { 0 };
@@ -264,7 +268,7 @@ namespace pcpp
 		 */
 		pcpp::MacAddress getMacAddress() const
 		{
-			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(macAddress));
+			return pcpp::MacAddress(macAddress);
 		}
 
 		/**
@@ -476,14 +480,14 @@ namespace pcpp
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
 		 * @param[in] command The command
-		 * @param[in] data A pointer to the data, optional
-		 * @param[in] dataSize The size of the data in bytes, optional
+		 * @param[in] payloadData A pointer to the payload data, optional
+		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] flag The flag, optional
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
 		 * @note all the parameters wil be converted to the network byte order
 		 */
-		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t* data = nullptr, uint16_t dataSize = 0,
-		                          GvcpFlag flag = 0, uint16_t requestId = 1);
+		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData = nullptr,
+		                          uint16_t payloadDataSize = 0, GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
@@ -498,7 +502,7 @@ namespace pcpp
 		 */
 		GvcpRequestHeader* getGvcpHeader() const
 		{
-			return m_Header;
+			return reinterpret_cast<GvcpRequestHeader*>(m_Data);  // the header is at the beginning of the data
 		}
 
 		/**
@@ -508,15 +512,16 @@ namespace pcpp
 		 */
 		GvcpForceIpBody* getGvcpForceIpBody() const
 		{
-			if (m_DataLen != detail::kGvcpForceIpBodyLength || m_Header->getCommand() != GvcpCommand::ForceIpCmd)
+			if (getDataLen() - getHeaderLen() != detail::kGvcpForceIpBodyLength ||
+			    getGvcpHeader()->getCommand() != GvcpCommand::ForceIpCmd)
 				return nullptr;
 
-			return reinterpret_cast<GvcpForceIpBody*>(m_Data);
+			return reinterpret_cast<GvcpForceIpBody*>(m_Data + getHeaderLen());
 		}
 
 		GvcpCommand getCommand() const
 		{
-			return m_Header->getCommand();
+			return getGvcpHeader()->getCommand();
 		}
 
 		// implement Layer's abstract methods
@@ -537,11 +542,8 @@ namespace pcpp
 		 */
 		GvcpDiscoveryRequest* getGvcpDiscoveryRequest() const
 		{
-			return reinterpret_cast<GvcpDiscoveryRequest*>(m_Header);
+			return reinterpret_cast<GvcpDiscoveryRequest*>(getGvcpHeader());
 		}
-
-	private:
-		GvcpRequestHeader* m_Header;
 	};
 
 	class GvcpAcknowledgeLayer : public GvcpLayer
@@ -582,7 +584,7 @@ namespace pcpp
 		 */
 		GvcpAckHeader* getGvcpHeader() const
 		{
-			return m_Header;
+			return reinterpret_cast<GvcpAckHeader*>(m_Data);  // the header is at the beginning of the data
 		}
 
 		/**
@@ -592,7 +594,7 @@ namespace pcpp
 		 */
 		GvcpCommand getCommand() const
 		{
-			return m_Header->getCommand();
+			return getGvcpHeader()->getCommand();
 		}
 
 		// implement Layer's abstract methods
@@ -614,13 +616,13 @@ namespace pcpp
 		 */
 		GvcpDiscoveryBody* getGvcpDiscoveryBody() const
 		{
-			if (m_DataLen != detail::kGvcpDiscoveryBodyLength || m_Header->getCommand() != GvcpCommand::DiscoveredAck)
+			if (getDataLen() - getHeaderLen() != detail::kGvcpDiscoveryBodyLength ||
+			    getGvcpHeader()->getCommand() != GvcpCommand::DiscoveredAck)
+			{
 				return nullptr;
+			}
 
-			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data);
+			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data + getHeaderLen());
 		}
-
-	private:
-		GvcpAckHeader* m_Header;
 	};
 }  // namespace pcpp

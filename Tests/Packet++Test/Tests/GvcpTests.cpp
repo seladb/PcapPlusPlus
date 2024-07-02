@@ -45,9 +45,9 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		timeval time;
 		gettimeofday(&time, nullptr);
 		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_discovery_cmd.dat");
-		pcpp::Packet discoverAckPacket(&rawPacket1);
+		pcpp::Packet discoverRequestPacket(&rawPacket1);
 
-		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
+		auto udpLayer = discoverRequestPacket.getLayerOfType<pcpp::UdpLayer>();
 
 		// we get the raw buffer from the payload of the UDP layer and create a gvcpRequestLayer from the buffer
 		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
@@ -59,7 +59,7 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		PTF_ASSERT_EQUAL(header->hasAcknowledgeFlag(), true);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
 		PTF_ASSERT_EQUAL(header->verifyMagicNumber(), true);
-		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer.getDataLen());
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer.getLayerPayloadSize());
 	}
 
 	// test the GVCP layer directly from the packet
@@ -81,7 +81,7 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		PTF_ASSERT_EQUAL(header->hasAcknowledgeFlag(), true);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredCmd);
 		PTF_ASSERT_EQUAL(header->verifyMagicNumber(), true);
-		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getDataLen());
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
 	}
 }
 
@@ -136,7 +136,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::DiscoveredAck);
 		PTF_ASSERT_EQUAL(header->getAckId(), 1);
-		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpAcknowledgeLayer->getDataLen());
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpAcknowledgeLayer->getLayerPayloadSize());
 
 		auto discoveryBody = gvcpAcknowledgeLayer->getGvcpDiscoveryBody();
 		PTF_ASSERT_TRUE(discoveryBody != nullptr);
@@ -197,7 +197,7 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpCmd);
-		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getDataLen());
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
 		PTF_ASSERT_EQUAL(header->getRequestId(), 8787);
 
 		auto forceIpBody = gvcpRequestLayer->getGvcpForceIpBody();
@@ -253,5 +253,60 @@ PTF_TEST_CASE(GvcpForceIpAck)
 		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpAck);
 		PTF_ASSERT_EQUAL(header->getAckId(), 8787);
 		PTF_ASSERT_EQUAL(header->getDataSize(), 0);
+	}
+}
+
+PTF_TEST_CASE(GvcpReadRegisterCommand)
+{
+	// test the creation from the raw buffer
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_readreg_cmd.dat");
+		pcpp::Packet readRegCmdPacket(&rawPacket1);
+
+		auto udpLayer = readRegCmdPacket.getLayerOfType<pcpp::UdpLayer>();
+
+		// we get the raw buffer from the payload of the UDP layer and create a GvcpRequestLayer from the buffer
+		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
+		GvcpRequestHeader* header = gvcpRequestLayer.getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ReadRegCmd);
+		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpRequestHeader));
+		PTF_ASSERT_EQUAL(header->getRequestId(), 35824);
+
+		auto payload = gvcpRequestLayer.getLayerPayload();
+		PTF_ASSERT_TRUE(payload != nullptr);
+		PTF_ASSERT_EQUAL(reinterpret_cast<uint32_t*>(payload)[0], 0x00000000);
+	}
+
+	// test the GVCP layer directly from the packet
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_readreg_cmd.dat");
+		pcpp::Packet readRegCmdPacket(&rawPacket1);
+
+		// we get the GVCP layer from the packet
+		auto gvcpRequestLayer = readRegCmdPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
+
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
+		GvcpRequestHeader* header = gvcpRequestLayer->getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getFlag(), 0x01);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ReadRegCmd);
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
+		PTF_ASSERT_EQUAL(header->getRequestId(), 35824);
+
+		auto payload = gvcpRequestLayer->getLayerPayload();
+		PTF_ASSERT_TRUE(payload != nullptr);
+		PTF_ASSERT_EQUAL(reinterpret_cast<uint32_t*>(payload)[0], 0x00000000);
 	}
 }
