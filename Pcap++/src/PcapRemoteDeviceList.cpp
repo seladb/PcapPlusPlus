@@ -110,9 +110,9 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceLi
 	}
 	catch (const std::exception& e)
 	{
-		for (auto dev : devices)
+		for (auto device : devices)
 		{
-			delete dev;
+			delete device;
 		}
 		PCPP_LOG_ERROR("Error creating remote devices: " << e.what());
 		return nullptr;
