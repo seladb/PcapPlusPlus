@@ -74,14 +74,14 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication const* remoteAuth)
 {
-	std::shared_ptr<PcapRemoteAuthentication> sRemoteAuth;
+	std::shared_ptr<PcapRemoteAuthentication> remoteAuthCopy;
 	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
 	if (remoteAuth != nullptr)
 	{
 		PCPP_LOG_DEBUG("Authentication requested. Username: " << remoteAuth->userName << ", Password: " << remoteAuth->password);
-		sRemoteAuth = std::make_shared<PcapRemoteAuthentication>(*remoteAuth);
-		rmAuth = sRemoteAuth->getPcapRmAuth();
+		remoteAuthCopy = std::make_shared<PcapRemoteAuthentication>(*remoteAuth);
+		rmAuth = remoteAuthCopy->getPcapRmAuth();
 		pRmAuth = &rmAuth;
 	}
 
@@ -101,7 +101,7 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceLi
 	{
 		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 		{
-			auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(new PcapRemoteDevice(currInterface, sRemoteAuth, ipAddress, port));
+			auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(new PcapRemoteDevice(currInterface, remoteAuthCopy, ipAddress, port));
 			// Release is called after pushback to prevent memory leaks if vector reallocation fails.
 			// cppcheck-suppress danglingLifetime
 			devices.push_back(pNewRemoteDevice.get());
@@ -118,7 +118,7 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceLi
 		return nullptr;
 	}
 
-	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, sRemoteAuth, devices));
+	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, remoteAuthCopy, devices));
 }
 
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
