@@ -289,7 +289,7 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
 - Post a message in PcapPlusPlus Google group: <https://groups.google.com/d/forum/pcapplusplus-support>
 - Ask a question on Stack Overflow: <https://stackoverflow.com/questions/tagged/pcapplusplus>
 - Send an email to: <pcapplusplus@gmail.com>
-- Follow us on Twitter: <https://twitter.com/seladb>
+- Follow us on X: <https://x.com/seladb>
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
