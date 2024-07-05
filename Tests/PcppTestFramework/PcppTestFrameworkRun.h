@@ -72,7 +72,16 @@ static bool __ptfCheckTags(const std::string &tagSet, const std::string &tagSetT
 			bool memAllocVerbose = __ptfCheckTags("mem_leak_check_verbose", configTagsToRun, false); \
 			MemPlumber::start(memAllocVerbose); \
 		} \
-		TestName(TestName##_result, verboseMode, showSkippedTests); \
+		try \
+		{ \
+			TestName(TestName##_result, verboseMode, showSkippedTests); \
+		} \
+		catch (std::exception const& e) \
+		{ \
+			TestName##_result = PTF_RESULT_FAILED; \
+			std::cout << std::left << std::setw(35) << #TestName << ": FAILED. Unhandled exception occurred! " \
+			<< "Exception: " << e.what() << std::endl; \
+		} \
 		if (runMemLeakCheck) \
 		{ \
 			if (TestName##_result != PTF_RESULT_PASSED) \

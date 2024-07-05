@@ -4,7 +4,6 @@
 [![PcapPlusPlus Logo](https://pcapplusplus.github.io/img/logo/logo_color.png)](https://pcapplusplus.github.io)
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/seladb/PcapPlusPlus/build_and_test.yml?branch=master&label=Actions&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22Build+and+test%22)
-[![Cirrus CI - Base Branch Build Status](https://img.shields.io/cirrus/github/seladb/PcapPlusPlus?label=Cirrus%20CI&logo=cirrusci&style=flat)](https://cirrus-ci.com/github/seladb/PcapPlusPlus)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/seladb/PcapPlusPlus/codeql.yml?branch=master&label=CodeQL&logo=github&style=flat)](https://github.com/seladb/PcapPlusPlus/actions?query=workflow%3A%22CodeQL%22)
 [![Codecov](https://img.shields.io/codecov/c/github/seladb/PcapPlusPlus?logo=codecov&logoColor=white)](https://app.codecov.io/github/seladb/PcapPlusPlus)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/seladb/PcapPlusPlus/badge)](https://scorecard.dev/viewer/?uri=github.com/seladb/PcapPlusPlus)
@@ -290,7 +289,7 @@ We'd be more than happy to get feedback, please feel free to reach out to us in 
 - Post a message in PcapPlusPlus Google group: <https://groups.google.com/d/forum/pcapplusplus-support>
 - Ask a question on Stack Overflow: <https://stackoverflow.com/questions/tagged/pcapplusplus>
 - Send an email to: <pcapplusplus@gmail.com>
-- Follow us on Twitter: <https://twitter.com/seladb>
+- Follow us on X: <https://x.com/seladb>
 
 If you like this project please __Star us on GitHub — it helps!__ :star: :star:
 
