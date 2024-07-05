@@ -55,6 +55,7 @@ jobs:
           - image: ubuntu2404
             python: python3
             config-zstd: OFF
+            additional-pip-flags: --break-system-packages
           - image: ubuntu2204
             python: python3
             config-zstd: OFF
