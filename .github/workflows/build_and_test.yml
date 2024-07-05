@@ -101,15 +101,15 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
-          ${{ matrix.python }} -m pip install --break-system-packages -U pip
-          ${{ matrix.python }} -m pip install --break-system-packages -r ci/run_tests/requirements.txt
+          ${{ matrix.python }} -m pip install ${{ matrix.additional-pip-flags }} -U pip
+          ${{ matrix.python }} -m pip install ${{ matrix.additional-pip-flags }} -r ci/run_tests/requirements.txt
           ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
         run: |
           cd Tests/ExamplesTest
-          ${{ matrix.python }} -m pip install --break-system-packages -U pip
-          ${{ matrix.python }} -m pip install --break-system-packages -r requirements.txt
+          ${{ matrix.python }} -m pip install ${{ matrix.additional-pip-flags }} -U pip
+          ${{ matrix.python }} -m pip install ${{ matrix.additional-pip-flags }} -r requirements.txt
           ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
 
       - name: Check installation
