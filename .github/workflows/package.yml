@@ -33,11 +33,9 @@ jobs:
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
           - image: ubuntu2004
             config-zstd: OFF
-          - image: ubuntu1804
+          - image: rhel94
             config-zstd: OFF
-          - image: rhel93
-            config-zstd: OFF
-          - image: fedora37
+          - image: fedora39
             config-zstd: OFF
           - image: alpine317
             config-zstd: OFF
