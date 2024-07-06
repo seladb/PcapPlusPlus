@@ -29,6 +29,16 @@ pcapp_detect_compiler(PCAPPP_TARGET)
 # Get architecture
 target_architecture(PCAPP_TARGET_ARCHITECTURE)
 
+# Use Ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  message(STATUS "Ccache found!")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
+else()
+  message(STATUS "Ccache not found!")
+endif()
+
 # LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
 if(UNIX
    AND NOT APPLE

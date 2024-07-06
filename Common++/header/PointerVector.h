@@ -6,6 +6,8 @@
 #include <vector>
 #include <memory>
 
+#include "DeprecationUtils.h"
+
 /// @file
 
 /**
@@ -249,13 +251,13 @@ namespace pcpp
 		 * The iterator is shifted to the following element after the removal is completed.
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
 		 * it
+		 * @deprecated Deprecated in favor of 'getAndDetach' as that function provides memory safety.
 		 */
+		PCPP_DEPRECATED("Please use the memory safe 'getAndDetach' instead.")
 		T* getAndRemoveFromVector(VectorIterator& position)
 		{
-			T* result = (*position);
-			VectorIterator tempPos = position;
-			tempPos = m_Vector.erase(tempPos);
-			position = tempPos;
+			T* result = *position;
+			position = m_Vector.erase(position);
 			return result;
 		}
 
