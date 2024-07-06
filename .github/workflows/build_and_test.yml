@@ -102,6 +102,8 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
+          python -m venv ./venv
+          source ./venv/bin/activate
           ${{ matrix.python }} -m pip install -U pip
           ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
           ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
