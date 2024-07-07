@@ -1,8 +1,8 @@
-#include "../Common/PcapFileNamesDef.h"
 #include "../TestDefinition.h"
 #include "Logger.h"
 #include "Packet.h"
 #include "PcapFileDevice.h"
+#include "../Common/PcapFileNamesDef.h"
 #include <array>
 #include <fstream>
 

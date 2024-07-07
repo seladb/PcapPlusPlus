@@ -4,14 +4,12 @@
 #include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
-// clang-format off
 #ifdef USE_PF_RING
-#include "PfRingDeviceList.h"
+#	include "PfRingDeviceList.h"
 #endif
 #ifdef USE_DPDK
-#include "DpdkDeviceList.h"
+#	include "DpdkDeviceList.h"
 #endif
-// clang-format on
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
