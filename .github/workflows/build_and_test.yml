@@ -113,6 +113,7 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
+          bash
           ${{ matrix.python }} -m venv ./venv
           source ./venv/bin/activate
           ${{ matrix.python }} -m pip install pip
@@ -122,7 +123,6 @@ jobs:
       - name: Test Examples
         run: |
           cd Tests/ExamplesTest
-          ${{ matrix.python }} -m pip install pip
           ${{ matrix.python }} -m pip install -r requirements.txt
           ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
 
