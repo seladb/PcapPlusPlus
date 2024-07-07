@@ -54,13 +54,12 @@ void PcapLiveDeviceList::init()
 #else //__linux__, __APPLE__, __FreeBSD__
 		auto dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
-		m_LiveDeviceList.push_back(std::move(dev));
+		m_LiveDeviceList.pushBack(std::move(dev));
 	}
 
 	m_LiveDeviceListView.resize(m_LiveDeviceList.size());
 	// Full update of all elements of the view vector to synchronize them with the main vector.
-	std::transform(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin(),
-				   [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
+	std::copy(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin());
 
 	setDnsServers();
 }
@@ -291,7 +290,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 			if (*currAddr == ipAddr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devicePtr.get();
+				return devicePtr;
 			}
 		}
 	}
@@ -324,7 +323,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return devicePtr.get();
+				return devicePtr;
 			}
 		}
 	}
@@ -354,7 +353,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	auto devIter = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
-								[&name](const std::unique_ptr<PcapLiveDevice>& dev) { return dev->getName() == name; });
+								[&name](PcapLiveDevice* const dev) { return dev->getName() == name; });
 
 	if (devIter == m_LiveDeviceList.end())
 	{
@@ -362,7 +361,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& n
 		return nullptr;
 	}
 
-	return devIter->get();
+	return *devIter;
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const

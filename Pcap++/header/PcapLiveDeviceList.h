@@ -2,6 +2,7 @@
 
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
+#include "PointerVector.h"
 #include <vector>
 #include <memory>
 
@@ -24,7 +25,7 @@ namespace pcpp
 	class PcapLiveDeviceList
 	{
 	private:
-		std::vector<std::unique_ptr<PcapLiveDevice>> m_LiveDeviceList;
+		PointerVector<PcapLiveDevice> m_LiveDeviceList;
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
 		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
