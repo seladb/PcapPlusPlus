@@ -122,18 +122,35 @@ namespace pcpp
 		}
 
 		/**
+		 * Adding a nullptr to the vector is not allowed.
+		 */
+		void pushBack(nullptr_t element, bool freeElementOnError = false) = delete;
+
+		/**
 		 * Add a new (pointer to an) element to the vector
 		 * @param[in] element A pointer to an element to assume ownership of.
+		 * @param[in] freeElementOnError If set to true, the element is freed if an exception is thrown during the push.
 		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 */
-		void pushBack(T* element)
+		void pushBack(T* element, bool freeElementOnError = false)
 		{
 			if (element == nullptr)
 			{
 				throw std::invalid_argument("Element is nullptr");
 			}
 
-			m_Vector.push_back(element);
+			try
+			{
+				m_Vector.push_back(element);
+			}
+			catch (const std::exception&)
+			{
+				if (freeElementOnError)
+				{
+					delete element;
+				}
+				throw;
+			}
 		}
 
 		/**
