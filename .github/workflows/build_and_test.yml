@@ -91,7 +91,7 @@ jobs:
           elif [ "${{ matrix.image }}" = "rhel94" ]; then
             yum install -y python3 python3-virtualenv python3-devel
           elif [ "${{ matrix.image }}" = "fedora39" ]; then
-            dnf install -y python3 python3-venv python3-devel
+            dnf install -y python3 python3-virtualenv python3-devel
           else
             apt-get update
             apt-get install -y python3 python3-venv python3-dev
