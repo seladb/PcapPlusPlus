@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdexcept>
@@ -124,7 +125,7 @@ namespace pcpp
 		/**
 		 * Adding a nullptr to the vector is not allowed.
 		 */
-		void pushBack(nullptr_t element, bool freeElementOnError = false) = delete;
+		void pushBack(std::nullptr_t element, bool freeElementOnError = false) = delete;
 
 		/**
 		 * Add a new (pointer to an) element to the vector
