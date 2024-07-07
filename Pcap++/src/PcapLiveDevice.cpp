@@ -170,7 +170,7 @@ void PcapLiveDevice::onPacketArrivesNoCallback(uint8_t* user, const struct pcap_
 	uint8_t* packetData = new uint8_t[pkthdr->caplen];
 	memcpy(packetData, packet, pkthdr->caplen);
 	RawPacket* rawPacketPtr = new RawPacket(packetData, pkthdr->caplen, pkthdr->ts, true, pThis->getLinkType());
-	pThis->m_CapturedPackets->pushBack(rawPacketPtr);
+	pThis->m_CapturedPackets->pushBack(rawPacketPtr, true);
 }
 
 void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pcap_pkthdr* pkthdr, const uint8_t* packet)

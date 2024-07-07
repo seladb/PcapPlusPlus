@@ -507,7 +507,7 @@ namespace pcpp
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
-			m_SubRecords.pushBack(subRecord);
+			m_SubRecords.pushBack(subRecord, true);
 		}
 	}
 

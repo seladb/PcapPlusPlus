@@ -119,7 +119,7 @@ int IFileReaderDevice::getNextPackets(RawPacketVector& packetVec, int numOfPacke
 		bool packetRead = getNextPacket(*newPacket);
 		if (packetRead)
 		{
-			packetVec.pushBack(newPacket);
+			packetVec.pushBack(newPacket, true);
 		}
 		else
 		{

@@ -814,7 +814,7 @@ PTF_TEST_CASE(TestSendPackets)
 	int packetsRead = 0;
 	while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
 	{
-		packetVec.pushBack(new pcpp::Packet(&rawPacketArr[packetsRead]));
+		packetVec.pushBack(new pcpp::Packet(&rawPacketArr[packetsRead]), true);
 		packetsRead++;
 	}
 

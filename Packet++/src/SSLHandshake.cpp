@@ -1351,7 +1351,7 @@ SSLClientHelloMessage::SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLH
 		}
 
 
-		m_ExtensionList.pushBack(newExt);
+		m_ExtensionList.pushBack(newExt, true);
 		curPos += newExt->getTotalLength();
 	}
 }
@@ -1638,7 +1638,7 @@ SSLServerHelloMessage::SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLH
 			break;
 		}
 
-		m_ExtensionList.pushBack(newExt);
+		m_ExtensionList.pushBack(newExt, true);
 		curPos += newExt->getTotalLength();
 	}
 }
@@ -1868,7 +1868,7 @@ SSLCertificateMessage::SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLH
 
 		PCPP_LOG_DEBUG("Parsing certificate: pos=" << (int)(curPos-data) << "; len=" << certificateLength);
 		SSLx509Certificate* newCert = new SSLx509Certificate(curPos, certificateLength, certificateFull);
-		m_CertificateList.pushBack(newCert);
+		m_CertificateList.pushBack(newCert, true);
 
 		curPos += certificateLength;
 	}

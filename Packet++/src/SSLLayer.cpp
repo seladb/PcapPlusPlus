@@ -136,7 +136,7 @@ SSLHandshakeLayer::SSLHandshakeLayer(uint8_t* data, size_t dataLen, Layer* prevL
 		if (message == nullptr)
 			break;
 
-		m_MessageList.pushBack(message);
+		m_MessageList.pushBack(message, true);
 		curPos += message->getMessageLength();
 		curPosIndex += message->getMessageLength();
 	}

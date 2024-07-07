@@ -414,7 +414,7 @@ Packet* IPReassembly::processPacket(Packet* fragment, ReassemblyStatus& status, 
 			newFrag->lastFragment = fragWrapper->isLastFragment();
 
 			// store the IPFragment in the out-of-order fragment list
-			fragData->outOfOrderFragments.pushBack(newFrag);
+			fragData->outOfOrderFragments.pushBack(newFrag, true);
 
 			status = OUT_OF_ORDER_FRAGMENT;
 			return nullptr;

@@ -502,7 +502,7 @@ uint16_t KniDevice::receivePackets(MBufRawPacketVector& rawPacketsArr)
 		struct rte_mbuf* mBuf = mBufArray[index];
 		MBufRawPacket* newRawPacket = new MBufRawPacket();
 		newRawPacket->setMBuf(mBuf, time);
-		rawPacketsArr.pushBack(newRawPacket);
+		rawPacketsArr.pushBack(newRawPacket, true);
 	}
 
 	return numOfPktsReceived;
