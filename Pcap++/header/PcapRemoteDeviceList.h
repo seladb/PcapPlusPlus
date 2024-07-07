@@ -46,11 +46,13 @@ namespace pcpp
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 */
 		using RemoteDeviceListIterator = PointerVector<PcapRemoteDevice>::VectorIterator;
+		using iterator = RemoteDeviceListIterator;
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 */
 		using ConstRemoteDeviceListIterator = PointerVector<PcapRemoteDevice>::ConstVectorIterator;
+		using const_iterator = ConstRemoteDeviceListIterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
@@ -129,22 +131,22 @@ namespace pcpp
 		/**
 		 * @return An iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		RemoteDeviceListIterator begin() { return m_RemoteDeviceList.begin(); }
+		iterator begin() { return m_RemoteDeviceList.begin(); }
 
 		/**
 		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
 		 */
-		ConstRemoteDeviceListIterator begin() const { return m_RemoteDeviceList.begin(); }
+		const_iterator begin() const { return m_RemoteDeviceList.begin(); }
 
 		/**
 		 * @return An iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		RemoteDeviceListIterator end() { return m_RemoteDeviceList.end(); }
+		iterator end() { return m_RemoteDeviceList.end(); }
 
 		/**
 		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
 		 */
-		ConstRemoteDeviceListIterator end() const { return m_RemoteDeviceList.end(); }
+		const_iterator end() const { return m_RemoteDeviceList.end(); }
 
 	};
 
