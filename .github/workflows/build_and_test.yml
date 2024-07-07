@@ -112,8 +112,8 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Test PcapPlusPlus
+        shell: bash
         run: |
-          bash # need to run bash to activate venv
           ${{ matrix.python }} -m venv ./venv
           source ./venv/bin/activate
           ${{ matrix.python }} -m pip install pip
@@ -121,7 +121,9 @@ jobs:
           ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
+        shell: bash
         run: |
+          source ./venv/bin/activate
           cd Tests/ExamplesTest
           ${{ matrix.python }} -m pip install -r requirements.txt
           ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
@@ -141,7 +143,9 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
+        shell: bash
         run: |
+          source ./venv/bin/activate
           ${{ matrix.python }} -m pip install gcovr
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
