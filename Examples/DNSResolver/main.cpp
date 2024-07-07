@@ -73,10 +73,8 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
-
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (const auto &dev : devList)
+	for (const auto& dev : pcpp::PcapLiveDeviceList::getInstance())
 	{
 		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString() << std::endl;
 	}
@@ -187,7 +185,7 @@ int main(int argc, char* argv[])
 	// if interface name or IP was not provided - find a device that has a default gateway
 	else
 	{
-		const std::vector<pcpp::PcapLiveDevice*>& devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+		const auto& devList = pcpp::PcapLiveDeviceList::getInstance();
 
 		auto iter = std::find_if(devList.begin(), devList.end(),
 								 [](pcpp::PcapLiveDevice *dev) { return dev->getDefaultGateway() != pcpp::IPv4Address::Zero; });
