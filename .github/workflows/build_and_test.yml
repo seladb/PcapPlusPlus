@@ -113,7 +113,7 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
-          bash
+          bash # need to run bash to activate venv
           ${{ matrix.python }} -m venv ./venv
           source ./venv/bin/activate
           ${{ matrix.python }} -m pip install pip
