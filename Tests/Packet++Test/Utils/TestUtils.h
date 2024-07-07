@@ -1,8 +1,10 @@
 #pragma once
 
+// clang-format off
 #ifdef PCPP_TESTS_DEBUG
-#	include "Packet.h"
+#include "Packet.h"
 #endif
+// clang-format on
 #include <stdint.h>
 #include <stdlib.h>
 

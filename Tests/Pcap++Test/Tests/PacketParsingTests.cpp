@@ -1,12 +1,12 @@
-#include "../TestDefinition.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <sstream>
-#include <fstream>
-#include <stdlib.h>
-#include "Packet.h"
-#include "HttpLayer.h"
+#include "../TestDefinition.h"
 #include "DnsLayer.h"
+#include "HttpLayer.h"
+#include "Packet.h"
 #include "PcapFileDevice.h"
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {

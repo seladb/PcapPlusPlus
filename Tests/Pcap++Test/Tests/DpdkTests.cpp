@@ -1,21 +1,21 @@
-#include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
-#include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <unordered_map>
-#include <stdlib.h>
+#include "../Common/TestUtils.h"
+#include "../TestDefinition.h"
 #include <sstream>
+#include <stdlib.h>
+#include <unordered_map>
 
 #ifdef USE_DPDK
-#	include <mutex>
-#	include "Logger.h"
-#	include "PacketUtils.h"
-#	include "IPv4Layer.h"
-#	include "TcpLayer.h"
-#	include "UdpLayer.h"
 #	include "DnsLayer.h"
 #	include "DpdkDeviceList.h"
+#	include "IPv4Layer.h"
+#	include "Logger.h"
+#	include "PacketUtils.h"
 #	include "PcapFileDevice.h"
+#	include "TcpLayer.h"
+#	include "UdpLayer.h"
+#	include <mutex>
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;

@@ -1,10 +1,10 @@
-#include "../TestDefinition.h"
 #include "../Common/TestUtils.h"
+#include "../TestDefinition.h"
+#include "EndianPortable.h"
+#include "HttpLayer.h"
 #include "IPReassembly.h"
 #include "IPv6Layer.h"
-#include "HttpLayer.h"
 #include "PcapFileDevice.h"
-#include "EndianPortable.h"
 
 static void ipReassemblyOnFragmentsClean(const pcpp::IPReassembly::PacketKey* key, void* userCookie)
 {

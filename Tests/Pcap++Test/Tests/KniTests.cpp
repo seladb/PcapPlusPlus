@@ -1,6 +1,6 @@
-#include "../TestDefinition.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/PcapFileNamesDef.h"
+#include "../TestDefinition.h"
 
 #ifdef USE_DPDK_KNI
 #	include "KniDeviceList.h"
