@@ -5,6 +5,7 @@
 #include "PointerVector.h"
 #include <vector>
 #include <memory>
+#include "DeprecationUtils.h"
 
 
 /// @file
@@ -40,6 +41,16 @@ namespace pcpp
 
 		void updateLiveDeviceListView() const;
 	public:
+		/**
+		 * Iterator object that can be used for iterating all PcapLiveDevice in list
+		 */
+		using iterator = PointerVector<PcapLiveDevice>::VectorIterator;
+
+		/**
+		 * Const iterator object that can be used for iterating all PcapLiveDevice in a constant list
+		 */
+		using const_iterator = PointerVector<PcapLiveDevice>::ConstVectorIterator;
+
 		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
 		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
 		PcapLiveDeviceList& operator=(const PcapLiveDeviceList&) = delete;
@@ -57,7 +68,9 @@ namespace pcpp
 
 		/**
 		 * @return A vector containing pointers to all live devices currently installed on the machine
+		 * @deprecated This method has been deprecated in favor of begin/end iteration API.
 		 */
+		PCPP_DEPRECATED("Deprecated in favor of begin/end iteration API")
 		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceListView; };
 
 		/**
@@ -118,6 +131,38 @@ namespace pcpp
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
 		 */
 		void reset();
+
+		/**
+		 * @return An iterator object pointing to the first PcapRemoteDevice in list
+		 */
+		iterator begin()
+		{
+			return m_LiveDeviceList.begin();
+		}
+
+		/**
+		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
+		 */
+		const_iterator begin() const
+		{
+			return m_LiveDeviceList.begin();
+		}
+
+		/**
+		 * @return An iterator object pointing to the last PcapRemoteDevice in list
+		 */
+		iterator end()
+		{
+			return m_LiveDeviceList.end();
+		}
+
+		/**
+		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
+		 */
+		const_iterator end() const
+		{
+			return m_LiveDeviceList.end();
+		}
 	};
 
 } // namespace pcpp
