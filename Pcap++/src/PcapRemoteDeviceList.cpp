@@ -211,9 +211,6 @@ void PcapRemoteDeviceList::setRemoteAuthentication(const PcapRemoteAuthenticatio
 	}
 }
 
-PcapRemoteDeviceList::~PcapRemoteDeviceList()
-{}
-
 } // namespace pcpp
 
 #endif // _WIN32

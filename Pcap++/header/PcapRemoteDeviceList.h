@@ -59,8 +59,6 @@ namespace pcpp
 		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList& operator=(PcapRemoteDeviceList&&) noexcept = delete;
 
-		~PcapRemoteDeviceList();
-
 		/**
 		 * A static method for creating a PcapRemoteDeviceList instance for a certain remote machine. This methods creates the instance, and also
 		 * creates a list of PcapRemoteDevice instances stored in it, one for each remote network interface. Notice this method allocates
