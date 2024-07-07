@@ -63,16 +63,13 @@ jobs:
           - image: ubuntu2004
             python: python3
             config-zstd: OFF
+          - image: rhel94
+            python: python3
+            config-zstd: OFF
           - image: ubuntu2004-zstd
             python: python3
             config-zstd: ON
-          - image: ubuntu1804
-            python: python3.8
-            config-zstd: OFF
-          - image: rhel93
-            python: python3
-            config-zstd: OFF
-          - image: fedora37
+          - image: fedora39
             python: python3
             config-zstd: OFF
           - image: alpine317
