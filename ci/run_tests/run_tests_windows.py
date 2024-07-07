@@ -9,14 +9,18 @@ PCAP_FILE_PATH = os.path.abspath(
     os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 )
 
+
 def get_ip_address(interface):
+    print(interface)
     addresses = psutil.net_if_addrs().get(interface)
+    print(addresses)
     if not addresses:
         return None
     for address in addresses:
         if address.family == socket.AF_INET:
             return address.address
     return None
+
 
 def find_interface():
     completed_process = subprocess.run(
@@ -73,7 +77,7 @@ def main():
 
     tcpreplay_interface, ip_address = find_interface()
     if not tcpreplay_interface or not ip_address:
-        print("Cannot find an interface to run tests on!")
+        print("Cannot find an interface to run tests on! Info from psutil.net_if_addrs() %s"% psutil.net_if_addrs())
         exit(1)
     print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 

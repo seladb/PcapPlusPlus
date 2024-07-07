@@ -6,6 +6,7 @@ import socket
 
 PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 
+
 def get_ip_address(interface):
     addresses = psutil.net_if_addrs().get(interface)
     if not addresses:
@@ -14,6 +15,7 @@ def get_ip_address(interface):
         if address.family == socket.AF_INET:
             return address.address
     return None
+
 
 def main():
     parser = argparse.ArgumentParser()
