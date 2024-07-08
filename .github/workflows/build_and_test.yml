@@ -665,7 +665,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev tcpreplay
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
@@ -693,6 +700,12 @@ jobs:
           verbose: true
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
   test_regressions:
     name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
