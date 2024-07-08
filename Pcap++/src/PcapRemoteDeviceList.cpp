@@ -84,8 +84,9 @@ PcapRemoteDeviceList* PcapRemoteDeviceList::getRemoteDeviceList(const IPAddress&
 
 	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 	{
-		std::unique_ptr<PcapRemoteDevice> pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(
-			new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication, resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort()));
+		auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(
+			new PcapRemoteDevice(currInterface, resultList->m_RemoteAuthentication, 
+								 resultList->getRemoteMachineIpAddress(), resultList->getRemoteMachinePort()));
 		resultList->m_RemoteDeviceList.pushBack(std::move(pNewRemoteDevice));
 	}
 
