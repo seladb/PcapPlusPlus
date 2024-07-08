@@ -718,23 +718,40 @@ jobs:
     container:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - name: Install prerequisites
         run: |
-          apt-get update && apt-get install -y cmake autoconf flex bison
+          apt-get update && apt-get install -y autoconf bison ccache cmake flex
           cd ..
           cp -r PcapPlusPlus/ $SRC/PcapPlusPlus
           git clone --depth=1 https://github.com/the-tcpdump-group/libpcap.git $SRC/libpcap
           cd $SRC/PcapPlusPlus/
-      - name: Compile fuzzer
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache
+
+      - name: Compile PcapPlusPlus Fuzzer application
         run: |
           export FUZZING_LANGUAGE=c
           export ARCHITECTURE=x86_64
           export FUZZING_ENGINE=${{ matrix.engine }}
           export SANITIZER=${{ matrix.sanitizer }}
           $SRC/PcapPlusPlus/Tests/Fuzzers/ossfuzz.sh
+
       - name: Check for regressions
         run: |
           export BINARY="$OUT/FuzzTarget"
           export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
           Tests/Fuzzers/RegressionTests/run_tests.sh
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
