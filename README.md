@@ -96,6 +96,20 @@ git clone https://github.com/seladb/PcapPlusPlus.git
 
 Follow the build instructions according to your platform in the [Build From Source](https://pcapplusplus.github.io/docs/install#build-from-source) page in PcapPlusPlus web-site.
 
+### Verify your packages
+
+PcapPlusPlus releases which newer than v23.09 are signed with GitHub attestation. You can verify the attestation of these packages with GitHub CLI. To verify packages you can follow the most recent instructions from [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify). For simple instructions you can use the following command:
+
+```shell
+gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
+```
+
+and you should see the following output in your terminal:
+
+```shell
+✓ Verification succeeded!
+```
+
 ## Feature Overview
 
 - __Packet capture__ through an easy to use C++ wrapper for popular packet capture engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [Intel DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [ntop’s PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) and [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-capture)]
