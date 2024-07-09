@@ -273,6 +273,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyRetran, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMissingData, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyOutOfOrder, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyOOOWithManualClose, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyWithFIN_RST, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMalformedPkts, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyMultipleConns, "no_network;tcp_reassembly");
