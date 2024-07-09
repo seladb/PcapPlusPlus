@@ -269,27 +269,33 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
-  macos-x86:
+  macos:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
         include:
           - os-version: macos-12
+            host-arch: x86_64
             arch: x86_64
             config-zstd: OFF
           - os-version: macos-12
+            host-arch: x86_64
             arch: arm64
             config-zstd: OFF
           - os-version: macos-13
+            host-arch: x86_64
             arch: x86_64
             config-zstd: OFF
           - os-version: macos-13
+            host-arch: x86_64
             arch: x86_64
             config-zstd: ON
           - os-version: macos-13
+            host-arch: x86_64
             arch: arm64
             config-zstd: OFF
           - os-version: macos-14
+            host-arch: arm64
             arch: arm64
             config-zstd: OFF
 
@@ -328,14 +334,14 @@ jobs:
 
       - name: Test PcapPlusPlus
         # We can't run cross compiled binaries
-        if: ${{ matrix.arch == 'x86_64' }}
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           python -m pip install -U pip
           python -m pip install -r ci/run_tests/requirements.txt
           python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
-        if: ${{ matrix.arch == 'x86_64' }}
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           cd Tests/ExamplesTest
           python -m pip install -U pip
@@ -355,7 +361,7 @@ jobs:
           cmake --build build_examples -j
 
       - name: Test Tutorials
-        if: ${{ matrix.arch == 'x86_64' }}
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
