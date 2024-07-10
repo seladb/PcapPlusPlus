@@ -134,7 +134,7 @@ void listPfRingDevices()
 	// suppress errors as there may be devices (like lo) that their MAC address can't be read, etc.
 	pcpp::Logger::getInstance().suppressLogs();
 
-	const std::vector<pcpp::PfRingDevice*>& devList = pcpp::PfRingDeviceList::getInstance().getPfRingDevicesList();
+	const auto& devList = pcpp::PfRingDeviceList::getInstance();
 	for (const auto &dev : devList)
 	{
 		std::ostringstream interfaceIndex;
