@@ -3,8 +3,7 @@ import argparse
 import subprocess
 import psutil
 import socket
-import netifaces as ni
-
+import wmi
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 PCAP_FILE_PATH = os.path.abspath(
@@ -13,14 +12,16 @@ PCAP_FILE_PATH = os.path.abspath(
 
 
 def get_ip_address(interface):
-    print(interface)
-    addresses = psutil.net_if_addrs().get(interface)
-    print(addresses)
-    if not addresses:
-        return None
-    for address in addresses:
-        if address.family == socket.AF_INET:
-            return address.address
+    c = wmi.WMI()
+    nic_configs = c.Win32_NetworkAdapter()
+    for nic in nic_configs:
+        if nic.GUID and nic.GUID.lower() == interface.lower():
+            addresses = psutil.net_if_addrs().get(interface)
+            if not addresses:
+                return None
+            for address in addresses:
+                if address.family == socket.AF_INET:
+                    return address.address
     return None
 
 
@@ -42,8 +43,6 @@ def find_interface():
             interface = columns[1]
             try:
                 ni_interface = interface.lstrip("\\Device\\NPF_")
-                ip_address = ni.ifaddresses(ni_interface)[ni.AF_INET][0]["addr"]
-                print(f"IP Address: {ip_address}, Interface Addresses: {ni.ifaddresses(ni_interface)}, Interface: {ni_interface}")
                 ip_address = get_ip_address(ni_interface)
                 if ip_address.startswith("169.254"):
                     continue

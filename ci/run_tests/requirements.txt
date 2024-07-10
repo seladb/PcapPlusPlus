@@ -1,2 +1,2 @@
 psutil==6.0.0
-netifaces==0.11.0
+wmi==1.5.1
