@@ -20,7 +20,7 @@ jobs:
     container: seladb/alpine317
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -78,7 +78,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -152,7 +152,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
@@ -197,7 +197,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -252,7 +252,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
@@ -329,7 +329,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
@@ -408,7 +408,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@d0e80f58dffbc64f6a3a1f43527d469b4fc7b6c8 # v2.23.0
@@ -502,7 +502,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
         with:
@@ -574,7 +574,7 @@ jobs:
       matrix:
         version: ["14.0", "13.2"]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.1.7
     - name: Test in FreeBSD
       id: test
       uses: vmactions/freebsd-vm@v1
@@ -629,10 +629,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017 # main
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # main
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -646,7 +646,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # master
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -677,7 +677,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install dependencies
         run: |
@@ -721,7 +721,7 @@ jobs:
     container:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Install prerequisites
         run: |
           apt-get update && apt-get install -y cmake autoconf flex bison
