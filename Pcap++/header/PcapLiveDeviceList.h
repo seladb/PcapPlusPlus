@@ -133,7 +133,7 @@ namespace pcpp
 		void reset();
 
 		/**
-		 * @return An iterator object pointing to the first PcapRemoteDevice in list
+		 * @return An iterator object pointing to the first device in the list
 		 */
 		iterator begin()
 		{
@@ -141,7 +141,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
+		 * @return A constant iterator object pointing to the first device in the list
 		 */
 		const_iterator begin() const
 		{
@@ -149,7 +149,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return An iterator object pointing to the last PcapRemoteDevice in list
+		 * @return An iterator object pointing to the last device in the list
 		 */
 		iterator end()
 		{
@@ -157,7 +157,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
+		 * @return A constant iterator object pointing to the last device in the list
 		 */
 		const_iterator end() const
 		{

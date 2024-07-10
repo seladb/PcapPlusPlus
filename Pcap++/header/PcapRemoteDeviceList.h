@@ -127,22 +127,22 @@ namespace pcpp
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
 
 		/**
-		 * @return An iterator object pointing to the first PcapRemoteDevice in list
+		 * @return An iterator object pointing to the first device in the list
 		 */
 		iterator begin() { return m_RemoteDeviceList.begin(); }
 
 		/**
-		 * @return A const iterator object pointing to the first PcapRemoteDevice in list
+		 * @return A constant iterator object pointing to the first device in the list
 		 */
 		const_iterator begin() const { return m_RemoteDeviceList.begin(); }
 
 		/**
-		 * @return An iterator object pointing to the last PcapRemoteDevice in list
+		 * @return An iterator object pointing to the last device in the list
 		 */
 		iterator end() { return m_RemoteDeviceList.end(); }
 
 		/**
-		 * @return A const iterator object pointing to the last PcapRemoteDevice in list
+		 * @return A constant iterator object pointing to the last device in the list
 		 */
 		const_iterator end() const { return m_RemoteDeviceList.end(); }
 
