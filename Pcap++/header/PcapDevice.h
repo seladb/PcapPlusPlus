@@ -29,7 +29,7 @@ namespace pcpp
 		pcap_t* m_PcapDescriptor;
 
 		// c'tor should not be public
-		IPcapDevice() : IDevice() { m_PcapDescriptor = NULL; }
+		IPcapDevice() : IDevice() { m_PcapDescriptor = nullptr; }
 
 	public:
 
