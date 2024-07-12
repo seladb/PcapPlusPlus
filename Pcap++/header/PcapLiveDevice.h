@@ -599,7 +599,7 @@ namespace pcpp
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
 
-		virtual PcapLiveDevice* cloneInternal(DeviceInterfaceDetails const& devInterface) const;
+		virtual PcapLiveDevice* doClone(DeviceInterfaceDetails const& devInterface) const;
 	};
 
 } // namespace pcpp

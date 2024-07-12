@@ -131,7 +131,7 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 	return true;
 }
 
-WinPcapLiveDevice* WinPcapLiveDevice::cloneInternal(DeviceInterfaceDetails const& devInterface) const
+WinPcapLiveDevice* WinPcapLiveDevice::doClone(DeviceInterfaceDetails const& devInterface) const
 {
 	return new WinPcapLiveDevice(devInterface, true, true, true);
 }

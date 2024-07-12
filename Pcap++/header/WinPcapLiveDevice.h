@@ -58,7 +58,7 @@ namespace pcpp
 		int getMinAmountOfDataToCopyFromKernelToApplication() const { return m_MinAmountOfDataToCopyFromKernelToApplication; }
 
 	protected:
-		WinPcapLiveDevice* cloneInternal(DeviceInterfaceDetails const& devInterface) const override;
+		WinPcapLiveDevice* doClone(DeviceInterfaceDetails const& devInterface) const override;
 	};
 
 } // namespace pcpp

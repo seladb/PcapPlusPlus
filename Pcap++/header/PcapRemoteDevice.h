@@ -142,7 +142,7 @@ namespace pcpp
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
-		PcapRemoteDevice* cloneInternal(DeviceInterfaceDetails const& devInterface) const override;
+		PcapRemoteDevice* doClone(DeviceInterfaceDetails const& devInterface) const override;
 	};
 
 } // namespace pcpp

@@ -421,10 +421,10 @@ void PcapLiveDevice::close()
 
 PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	return cloneInternal(m_InterfaceDetails);
+	return doClone(m_InterfaceDetails);
 }
 
-PcapLiveDevice* PcapLiveDevice::cloneInternal(DeviceInterfaceDetails const& devInterface) const
+PcapLiveDevice* PcapLiveDevice::doClone(DeviceInterfaceDetails const& devInterface) const
 {
 	return new PcapLiveDevice(devInterface, true, true, true);
 }
