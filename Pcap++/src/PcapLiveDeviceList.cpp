@@ -271,8 +271,9 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(const auto& devicePtr : m_LiveDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
-		for(const auto& addressInfo : devicePtr->m_Addresses)
+		auto const& deviceInterfaceDetails = devicePtr->m_InterfaceDetails;
+		PCPP_LOG_DEBUG("Searching device '" << deviceInterfaceDetails.name << "'. Searching all addresses...");
+		for (const auto& addressInfo : deviceInterfaceDetails.addresses)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
 			{
@@ -304,8 +305,9 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	for(const auto& devicePtr : m_LiveDeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
-		for(const auto& addressInfo : devicePtr->m_Addresses)
+		auto const& deviceInterfaceDetails = devicePtr->m_InterfaceDetails;
+		PCPP_LOG_DEBUG("Searching device '" << deviceInterfaceDetails.name << "'. Searching all addresses...");
+		for (const auto& addressInfo : deviceInterfaceDetails.addresses)
 		{
 			if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
 			{
