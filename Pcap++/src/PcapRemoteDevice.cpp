@@ -20,7 +20,11 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 }
 
 PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
-	: PcapLiveDevice(iface, false, false, false)
+	: PcapRemoteDevice(DeviceInterfaceDetails(iface), std::move(remoteAuthentication), remoteMachineIP, remoteMachinePort)
+{}
+
+PcapRemoteDevice::PcapRemoteDevice(DeviceInterfaceDetails deviceInterface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
+	: PcapLiveDevice(std::move(deviceInterface), false, false, false)
 	, m_RemoteMachineIpAddress(remoteMachineIP)
 	, m_RemoteMachinePort(remoteMachinePort)
 	, m_RemoteAuthentication(std::move(remoteAuthentication))
@@ -34,7 +38,7 @@ bool PcapRemoteDevice::open()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int flags = PCAP_OPENFLAG_PROMISCUOUS | PCAP_OPENFLAG_NOCAPTURE_RPCAP; //PCAP_OPENFLAG_DATATX_UDP doesn't always work
-	PCPP_LOG_DEBUG("Opening device '" << m_Name << "'");
+	PCPP_LOG_DEBUG("Opening device '" << m_InterfaceDetails.name << "'");
 	pcap_rmtauth* pRmAuth = nullptr;
 	pcap_rmtauth rmAuth;
 	if (m_RemoteAuthentication != nullptr)
@@ -43,7 +47,7 @@ bool PcapRemoteDevice::open()
 		pRmAuth = &rmAuth;
 	}
 
-	m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
+	m_PcapDescriptor = pcap_open(m_InterfaceDetails.name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
 	if (m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
@@ -65,7 +69,7 @@ bool PcapRemoteDevice::open()
 		return false;
 	}
 
-	PCPP_LOG_DEBUG("Device '" << m_Name << "' opened");
+	PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' opened");
 
 	return true;
 }
@@ -79,7 +83,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void* ptr)
 		return 0;
 	}
 
-	PCPP_LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
+	PCPP_LOG_DEBUG("Started capture thread for device '" << pThis->m_InterfaceDetails.name << "'");
 
 	pcap_pkthdr* pkthdr;
 	const uint8_t* pktData;
@@ -100,7 +104,7 @@ void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void* ptr)
 				onPacketArrivesNoCallback(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 		}
 	}
-	PCPP_LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
+	PCPP_LOG_DEBUG("Ended capture thread for device '" << pThis->m_InterfaceDetails.name << "'");
 	return 0;
 }
 
@@ -115,7 +119,7 @@ void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
 	if (allocatedMemory < static_cast<int>(sizeof(pcap_stat)))
 	{
-		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_Name << "': WinPcap did not allocate the entire struct");
+		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_InterfaceDetails.name << "': WinPcap did not allocate the entire struct");
 		return;
 	}
 	stats.packetsRecv = tempStats->ps_capt;
