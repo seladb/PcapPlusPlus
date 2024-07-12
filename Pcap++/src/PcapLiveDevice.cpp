@@ -82,7 +82,7 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 }
 #endif
 
-PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface) 
+PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface)
 	: name(pInterface->name)
 	, isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
 {
