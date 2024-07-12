@@ -139,6 +139,11 @@ MacAddress PcapRemoteDevice::getMacAddress() const
 	return MacAddress::Zero;
 }
 
+PcapRemoteDevice* PcapRemoteDevice::cloneInternal(DeviceInterfaceDetails const& devInterface) const
+{
+	return new PcapRemoteDevice(devInterface, m_RemoteAuthentication, m_RemoteMachineIpAddress, m_RemoteMachinePort);
+}
+
 } // namespace pcpp
 
 #endif // _WIN32

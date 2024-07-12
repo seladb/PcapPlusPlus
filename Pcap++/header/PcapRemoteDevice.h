@@ -140,6 +140,9 @@ namespace pcpp
 		bool open() override;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
+
+	protected:
+		PcapRemoteDevice* cloneInternal(DeviceInterfaceDetails const& devInterface) const override;
 	};
 
 } // namespace pcpp
