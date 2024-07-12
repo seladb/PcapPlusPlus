@@ -79,16 +79,38 @@ namespace pcpp
 	{
 		friend class PcapLiveDeviceList;
 	protected:
+		/**
+		 * @struct DeviceInterfaceDetails
+		 * A struct that contains all details of a network interface.
+		 */
+		struct DeviceInterfaceDetails
+		{
+			explicit DeviceInterfaceDetails(pcap_if_t* pInterface);
+			/**
+			 * @brief Name of the device.
+			 */
+			std::string name;
+			/**
+			 * @brief Description of the device.
+			 */
+			std::string description;
+			/**
+			 * @brief Flag to indicate if the device is a loopback device.
+			 */
+			bool isLoopback;
+			/**
+			 * @brief IP addresses associated with the device.
+			 */
+			std::vector<pcap_addr_t> addresses;
+		};
+
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
 		int m_PcapSelectableFd;
-		std::string m_Name;
-		std::string m_Description;
-		bool m_IsLoopback;
+		DeviceInterfaceDetails m_InterfaceDetails;
 		uint32_t m_DeviceMtu;
-		std::vector<pcap_addr_t> m_Addresses;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
 		std::thread m_CaptureThread;
@@ -114,6 +136,7 @@ namespace pcpp
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 		// copy c'tor is not public
 		PcapLiveDevice( const PcapLiveDevice& other );
 		PcapLiveDevice& operator=(const PcapLiveDevice& other);
@@ -267,17 +290,17 @@ namespace pcpp
 		/**
 		 * @return The name of the device (e.g eth0), taken from pcap_if_t->name
 		 */
-		std::string getName() const { return m_Name; }
+		std::string getName() const { return m_InterfaceDetails.name; }
 
 		/**
 		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be NULL in some interfaces
 		 */
-		std::string getDesc() const { return m_Description; }
+		std::string getDesc() const { return m_InterfaceDetails.description; }
 
 		/**
 		 * @return True if this interface is a loopback interface, false otherwise
 		 */
-		bool getLoopback() const { return m_IsLoopback; }
+		bool getLoopback() const { return m_InterfaceDetails.isLoopback; }
 
 		/**
 		 * @return The device's maximum transmission unit (MTU) in bytes
@@ -292,7 +315,7 @@ namespace pcpp
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
 		 */
-		const std::vector<pcap_addr_t>& getAddresses() const { return m_Addresses; }
+		const std::vector<pcap_addr_t>& getAddresses() const { return m_InterfaceDetails.addresses; }
 
 		/**
 		 * @return The MAC address for this interface

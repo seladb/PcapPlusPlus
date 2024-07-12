@@ -82,29 +82,36 @@ static pcap_direction_t directionTypeMap(PcapLiveDevice::PcapDirection direction
 }
 #endif
 
+PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface) 
+	: name(pInterface->name)
+	, isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
+{
+	if (pInterface->description != nullptr)
+		description = pInterface->description;
 
+	for (pcap_addr* current = pInterface->addresses; current != nullptr; current = current->next)
+	{
+		addresses.push_back(*current);
+	}
+}
 
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
-	IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
+PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+	: PcapLiveDevice(DeviceInterfaceDetails(pInterface), calculateMTU, calculateMacAddress, calculateDefaultGateway) {}
+
+PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
+	IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_InterfaceDetails(std::move(interfaceDetails)), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
 {
 	m_DeviceMtu = 0;
 	m_LinkType = LINKTYPE_ETHERNET;
 
-	m_IsLoopback = (pInterface->flags & 0x1) == PCAP_IF_LOOPBACK;
-
-	m_Name = pInterface->name;
-	if (pInterface->description != nullptr)
-		m_Description = pInterface->description;
-	PCPP_LOG_DEBUG("Added live device: name=" << m_Name << "; desc=" << m_Description);
-	PCPP_LOG_DEBUG("   Addresses:");
-	while (pInterface->addresses != nullptr)
+	if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice))
 	{
-		m_Addresses.insert(m_Addresses.end(), *(pInterface->addresses));
-		pInterface->addresses = pInterface->addresses->next;
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && pInterface->addresses != nullptr && pInterface->addresses->addr != nullptr)
+		PCPP_LOG_DEBUG("Added live device: name=" << m_InterfaceDetails.name << "; desc=" << m_InterfaceDetails.description);
+		PCPP_LOG_DEBUG("   Addresses:");
+		for (auto const& address : m_InterfaceDetails.addresses)
 		{
 			std::array<char, INET6_ADDRSTRLEN> addrAsString;
-			internal::sockaddr2string(pInterface->addresses->addr, addrAsString.data(), addrAsString.size());
+			internal::sockaddr2string(address.addr, addrAsString.data(), addrAsString.size());
 			PCPP_LOG_DEBUG("      " << addrAsString.data());
 		}
 	}
@@ -191,7 +198,7 @@ void PcapLiveDevice::onPacketArrivesBlockingMode(uint8_t* user, const struct pca
 
 void PcapLiveDevice::captureThreadMain()
 {
-	PCPP_LOG_DEBUG("Started capture thread for device '" << m_Name << "'");
+	PCPP_LOG_DEBUG("Started capture thread for device '" << m_InterfaceDetails.name << "'");
 	m_CaptureThreadStarted = true;
 
 	if (m_CaptureCallbackMode)
@@ -216,12 +223,12 @@ void PcapLiveDevice::captureThreadMain()
 			}
 		}
 	}
-	PCPP_LOG_DEBUG("Ended capture thread for device '" << m_Name << "'");
+	PCPP_LOG_DEBUG("Ended capture thread for device '" << m_InterfaceDetails.name << "'");
 }
 
 void PcapLiveDevice::statsThreadMain()
 {
-	PCPP_LOG_DEBUG("Started stats thread for device '" << m_Name << "'");
+	PCPP_LOG_DEBUG("Started stats thread for device '" << m_InterfaceDetails.name << "'");
 	while (!m_StopThread)
 	{
 		PcapStats stats;
@@ -229,13 +236,13 @@ void PcapLiveDevice::statsThreadMain()
 		m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
 		multiPlatformSleep(m_IntervalToUpdateStats);
 	}
-	PCPP_LOG_DEBUG("Ended stats thread for device '" << m_Name << "'");
+	PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
 }
 
 pcap_t* PcapLiveDevice::doOpen(const DeviceConfiguration& config)
 {
 	char errbuf[PCAP_ERRBUF_SIZE] = {'\0'};
-	std::string device_name = m_Name;
+	std::string device_name = m_InterfaceDetails.name;
 
 	if (device_name == NFLOG_IFACE)
 	{
@@ -341,14 +348,14 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 {
 	if (m_DeviceOpened)
 	{
-		PCPP_LOG_DEBUG("Device '" << m_Name << "' already opened");
+		PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' already opened");
 		return true;
 	}
 
 	m_PcapDescriptor = doOpen(config);
 
 	// It's not possible to have two open instances of the same NFLOG device:group
-	if (m_Name == NFLOG_IFACE)
+	if (m_InterfaceDetails.name == NFLOG_IFACE)
 	{
 		m_PcapSendDescriptor = nullptr;
 	}
@@ -357,13 +364,13 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 		m_PcapSendDescriptor = doOpen(config);
 	}
 
-	if (m_PcapDescriptor == nullptr || (m_Name != NFLOG_IFACE && m_PcapSendDescriptor == nullptr))
+	if (m_PcapDescriptor == nullptr || (m_InterfaceDetails.name != NFLOG_IFACE && m_PcapSendDescriptor == nullptr))
 	{
 		m_DeviceOpened = false;
 		return false;
 	}
 
-	PCPP_LOG_DEBUG("Device '" << m_Name << "' opened");
+	PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' opened");
 
 	m_DeviceOpened = true;
 
@@ -395,7 +402,7 @@ void PcapLiveDevice::close()
 {
 	if (m_PcapDescriptor == nullptr && m_PcapSendDescriptor == nullptr)
 	{
-		PCPP_LOG_DEBUG("Device '" << m_Name << "' already closed");
+		PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' already closed");
 		return;
 	}
 
@@ -409,7 +416,7 @@ void PcapLiveDevice::close()
 	}
 
 	m_DeviceOpened = false;
-	PCPP_LOG_DEBUG("Device '" << m_Name << "' closed");
+	PCPP_LOG_DEBUG("Device '" << m_InterfaceDetails.name << "' closed");
 }
 
 PcapLiveDevice* PcapLiveDevice::clone() const
@@ -456,13 +463,13 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 		return false;
 	}
 
 	if (m_CaptureThreadStarted)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' already capturing traffic");
 		return false;
 	}
 
@@ -479,7 +486,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 	while (m_CaptureThreadStarted != true) {
 		std::this_thread::yield();
 	}
-	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
+	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_InterfaceDetails.name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	if (onStatsUpdate != nullptr && intervalInSecondsToUpdateStats > 0)
 	{
@@ -487,7 +494,7 @@ bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void*
 		m_cbOnStatsUpdateUserCookie = onStatsUpdateUserCookie;
 		m_StatsThread = std::thread(&pcpp::PcapLiveDevice::statsThreadMain, this);
 		m_StatsThreadStarted = true;
-		PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_Name << "'. Thread id: " << m_StatsThread.get_id());
+		PCPP_LOG_DEBUG("Successfully created stats thread for device '" << m_InterfaceDetails.name << "'. Thread id: " << m_StatsThread.get_id());
 	}
 
 	return true;
@@ -497,13 +504,13 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 		return false;
 	}
 
 	if (captureActive())
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' already capturing traffic");
 		return false;
 	}
 
@@ -518,7 +525,7 @@ bool PcapLiveDevice::startCapture(RawPacketVector& capturedPacketsVector)
 		std::this_thread::yield();
 	}
 
-	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_Name << "'. Thread id: " << m_CaptureThread.get_id());
+	PCPP_LOG_DEBUG("Successfully created capture thread for device '" << m_InterfaceDetails.name << "'. Thread id: " << m_CaptureThread.get_id());
 
 	return true;
 }
@@ -528,13 +535,13 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 		return 0;
 	}
 
 	if (captureActive())
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' already capturing traffic");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' already capturing traffic");
 		return 0;
 	}
 
@@ -650,15 +657,15 @@ void PcapLiveDevice::stopCapture()
 		PCPP_LOG_DEBUG("Stopping capture thread, waiting for it to join...");
 		m_CaptureThread.join();
 		m_CaptureThreadStarted = false;
-		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_Name << "'");
+		PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 	}
-	PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_Name << "'");
+	PCPP_LOG_DEBUG("Capture thread stopped for device '" << m_InterfaceDetails.name << "'");
 	if (m_StatsThreadStarted)
 	{
 		PCPP_LOG_DEBUG("Stopping stats thread, waiting for it to join...");
 		m_StatsThread.join();
 		m_StatsThreadStarted = false;
-		PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_Name << "'");
+		PCPP_LOG_DEBUG("Stats thread stopped for device '" << m_InterfaceDetails.name << "'");
 	}
 
 	m_StopThread = false;
@@ -674,7 +681,7 @@ void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	pcap_stat pcapStats;
 	if (pcap_stats(m_PcapDescriptor, &pcapStats) < 0)
 	{
-		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_Name << "'");
+		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_InterfaceDetails.name << "'");
 	}
 
 	stats.packetsRecv = pcapStats.ps_recv;
@@ -722,7 +729,7 @@ bool PcapLiveDevice::sendPacket(const uint8_t* packetData, int packetDataLength,
 
 	if (!m_DeviceOpened)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened!");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened!");
 		return false;
 	}
 
@@ -808,7 +815,7 @@ void PcapLiveDevice::setDeviceMtu()
 {
 #if defined(_WIN32)
 
-	if (m_IsLoopback)
+	if (m_InterfaceDetails.isLoopback)
 	{
 		PCPP_LOG_DEBUG("Npcap Loopback Adapter - MTU is insignificant, setting MTU to max value (0xffffffff)");
 		m_DeviceMtu = 0xffffffff;
@@ -816,7 +823,7 @@ void PcapLiveDevice::setDeviceMtu()
 	}
 
 	uint32_t mtuValue = 0;
-	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
+	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_InterfaceDetails.name.c_str()));
 	if (adapter == NULL)
 	{
 		PCPP_LOG_ERROR("Error in retrieving MTU: Adapter is NULL");
@@ -859,7 +866,7 @@ void PcapLiveDevice::setDeviceMtu()
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
-	strncpy(ifr.ifr_name, m_Name.c_str(), sizeof(ifr.ifr_name) - 1);
+	strncpy(ifr.ifr_name, m_InterfaceDetails.name.c_str(), sizeof(ifr.ifr_name) - 1);
 
 	int socketfd = -1;
 	try
@@ -890,7 +897,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 {
 #if defined(_WIN32)
 
-	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
+	LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_InterfaceDetails.name.c_str()));
 	if (adapter == NULL)
 	{
 		PCPP_LOG_ERROR("Error in retrieving MAC address: Adapter is NULL");
@@ -928,7 +935,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	struct ifreq ifr;
 
 	memset(&ifr, 0, sizeof(ifr));
-	strncpy(ifr.ifr_name, m_Name.c_str(), sizeof(ifr.ifr_name) - 1);
+	strncpy(ifr.ifr_name, m_InterfaceDetails.name.c_str(), sizeof(ifr.ifr_name) - 1);
 
 
 	int socketfd = -1;
@@ -961,7 +968,7 @@ void PcapLiveDevice::setDeviceMacAddress()
 	mib[2] = 0;
 	mib[3] = AF_LINK;
 	mib[4] = NET_RT_IFLIST;
-	mib[5] = if_nametoindex(m_Name.c_str());
+	mib[5] = if_nametoindex(m_InterfaceDetails.name.c_str());
 
 	if (mib[5] == 0){
 		PCPP_LOG_DEBUG("Error in retrieving MAC address: if_nametoindex error");
@@ -1011,7 +1018,7 @@ void PcapLiveDevice::setDefaultGateway()
 		PIP_ADAPTER_INFO curAdapterInfo = adapterInfo;
 		while (curAdapterInfo != NULL)
 		{
-			if (m_Name.find(curAdapterInfo->AdapterName) != std::string::npos)
+			if (m_InterfaceDetails.name.find(curAdapterInfo->AdapterName) != std::string::npos)
 			{
 				try
 				{
@@ -1039,7 +1046,7 @@ void PcapLiveDevice::setDefaultGateway()
 		std::stringstream lineStream(line);
 		std::string interfaceName;
 		std::getline(lineStream, interfaceName, '\t');
-		if (interfaceName != m_Name)
+		if (interfaceName != m_InterfaceDetails.name)
 			continue;
 
 		std::string interfaceDest;
@@ -1139,7 +1146,7 @@ void PcapLiveDevice::setDefaultGateway()
 		PCPP_LOG_ERROR("Error retrieving default gateway address: "<< inet_ntoa(*gateAddr) << ": " << e.what());
 	}
 #elif defined(__FreeBSD__)
-	std::string command = "netstat -nr | grep default | grep " + m_Name;
+	std::string command = "netstat -nr | grep default | grep " + m_InterfaceDetails.name;
 	std::string ifaceInfo = executeShellCommand(command);
 	if (ifaceInfo == "")
 	{
@@ -1170,7 +1177,7 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(const auto& addrIter : m_Addresses)
+	for(const auto& addrIter : m_InterfaceDetails.addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
@@ -1201,7 +1208,7 @@ IPv4Address PcapLiveDevice::getIPv4Address() const
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (const auto& addrIter : m_Addresses)
+	for (const auto& addrIter : m_InterfaceDetails.addresses)
 	{
 		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
 		{
