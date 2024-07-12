@@ -137,9 +137,6 @@ namespace pcpp
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
-		// copy c'tor is not public
-		PcapLiveDevice( const PcapLiveDevice& other );
-		PcapLiveDevice& operator=(const PcapLiveDevice& other);
 
 		void setDeviceMtu();
 		void setDeviceMacAddress();
@@ -276,6 +273,8 @@ namespace pcpp
 			}
 		};
 
+		PcapLiveDevice(const PcapLiveDevice& other) = delete;
+		PcapLiveDevice& operator=(const PcapLiveDevice& other) = delete;
 
 		/**
 		 * A destructor for this class
