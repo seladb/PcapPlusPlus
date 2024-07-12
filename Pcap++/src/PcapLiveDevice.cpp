@@ -421,32 +421,12 @@ void PcapLiveDevice::close()
 
 PcapLiveDevice* PcapLiveDevice::clone() const
 {
-	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
-	try
-	{
-		interfaceList = internal::getAllLocalPcapDevices();
-	}
-	catch (const std::exception& e)
-	{
-		PCPP_LOG_ERROR(e.what());
-		return nullptr;
-	}
-
-	for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
-	{
-		if (!std::strcmp(currInterface->name, getName().c_str()))
-		{
-			return cloneInternal(*currInterface);
-		}
-	}
-
-	PCPP_LOG_ERROR("Can't find interface " << getName().c_str());
-	return nullptr;
+	return cloneInternal(m_InterfaceDetails);
 }
 
-PcapLiveDevice* PcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+PcapLiveDevice* PcapLiveDevice::cloneInternal(DeviceInterfaceDetails const& devInterface) const
 {
-	return new PcapLiveDevice(&devInterface, true, true, true);
+	return new PcapLiveDevice(devInterface, true, true, true);
 }
 
 bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)
