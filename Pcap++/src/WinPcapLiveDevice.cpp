@@ -10,7 +10,12 @@
 namespace pcpp
 {
 
-WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) : PcapLiveDevice(iface, calculateMTU, calculateMacAddress, calculateDefaultGateway)
+WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+	: WinPcapLiveDevice(DeviceInterfaceDetails(iface), calculateMTU, calculateMacAddress, calculateDefaultGateway)
+{}
+
+WinPcapLiveDevice::WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+	: PcapLiveDevice(std::move(interfaceDetails), calculateMTU, calculateMacAddress, calculateDefaultGateway)
 {
 	m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 }
@@ -19,14 +24,14 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in capture mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
 	{
-		PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
+		PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_InterfaceDetails.name << "'");
 		return false;
 	}
 
@@ -37,14 +42,14 @@ bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStats
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in statistics mode
 	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
 	{
-		PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
+		PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_InterfaceDetails.name << "'");
 		return false;
 	}
 
@@ -55,7 +60,7 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 {
 	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
 	{
-		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+		PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 		return 0;
 	}
 
