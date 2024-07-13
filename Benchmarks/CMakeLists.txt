@@ -12,6 +12,7 @@ if(TARGET Pcap++)
   message(STATUS "Building benchmarks from PcapPlusPlus project")
   # Alias the project to make it compatible with imported package
   add_library(PcapPlusPlus::Pcap++ ALIAS Pcap++)
+  add_library(PcapPlusPlus::Packet++ ALIAS Packet++)
 else()
   find_package(PcapPlusPlus CONFIG REQUIRED)
   message(STATUS "Using Pcap++ ${PcapPlusPlus_VERSION}")
@@ -22,7 +23,7 @@ find_package(benchmark REQUIRED)
 
 add_executable(PcppBenchmark benchmark.cpp)
 
-target_link_libraries(PcppBenchmark PUBLIC Pcap++ Packet++ benchmark::benchmark)
+target_link_libraries(PcppBenchmark PUBLIC PcapPlusPlus::Pcap++ PcapPlusPlus::Packet++ benchmark::benchmark)
 
 set_property(TARGET PcppBenchmark PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set_property(TARGET PcppBenchmark PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
