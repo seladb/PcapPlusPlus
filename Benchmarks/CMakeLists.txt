@@ -1,3 +1,23 @@
+cmake_minimum_required(VERSION 3.12)
+
+project(PcapPlusPlusBenchmark)
+
+set(CMAKE_PROJECT_HOMEPAGE_URL "https://pcapplusplus.github.io/")
+
+# Set C++11
+set(CMAKE_CXX_STANDARD 11)
+
+if(TARGET Pcap++)
+  # Are we building from the PcapPlusPlus project ??
+  message(STATUS "Building benchmarks from PcapPlusPlus project")
+  # Alias the project to make it compatible with imported package
+  add_library(PcapPlusPlus::Pcap++ ALIAS Pcap++)
+else()
+  find_package(PcapPlusPlus CONFIG REQUIRED)
+  message(STATUS "Using Pcap++ ${PcapPlusPlus_VERSION}")
+  message(STATUS "Include dir: ${PcapPlusPlus_INCLUDE_DIR}")
+endif()
+
 find_package(benchmark REQUIRED)
 
 add_executable(PcppBenchmark benchmark.cpp)

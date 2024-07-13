@@ -36,9 +36,6 @@ static void BM_PcapFileRead(benchmark::State &state)
 			else // If the rawPacket is not empty, it means the file is over
 			{
 				state.PauseTiming();
-				std::cout << "Restarting pcap file since it ended. If this happens too often, consider increasing the "
-							 "file size"
-						  << std::endl;
 				reader.close();
 				reader.open();
 				state.ResumeTiming();
@@ -114,7 +111,7 @@ static void BM_PcapPacketParsing(benchmark::State &state)
 		{pcpp::SMTP, "SMTP"}};
 
 	std::unordered_map<pcpp::OsiModelLayer, std::string> osiLayerStrings = {
-		{pcpp::OsiModelPhysicalLayer, "Physical"},
+		{pcpp::OsiModelLayer::OsiModelPhysicalLayer, "Physical"},
 		{pcpp::OsiModelLayer::OsiModelDataLinkLayer, "DataLink"},
 		{pcpp::OsiModelLayer::OsiModelNetworkLayer, "Network"},
 		{pcpp::OsiModelLayer::OsiModelTransportLayer, "Transport"},
@@ -159,9 +156,6 @@ static void BM_PcapPacketParsing(benchmark::State &state)
 			else // If the rawPacket is not empty, it means the file is over
 			{
 				state.PauseTiming();
-				std::cout << "Restarting pcap file since it ended. If this happens too often, consider increasing the "
-							 "file size"
-						  << std::endl;
 				reader.close();
 				reader.open();
 				state.ResumeTiming();

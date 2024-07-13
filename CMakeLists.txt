@@ -288,6 +288,10 @@ add_subdirectory(Packet++)
 add_subdirectory(Pcap++)
 add_subdirectory(Common++)
 
+if(PCAPPP_BUILD_BENCHMARK_SUITE)
+  add_subdirectory(Benchmarks)
+endif()
+
 if(PCAPPP_BUILD_EXAMPLES)
   set(PCAPPP_BINARY_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/examples_bin)
   add_subdirectory(Examples)

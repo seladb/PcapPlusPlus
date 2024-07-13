@@ -7,7 +7,3 @@ endif()
 if(PCAPPP_BUILD_FUZZERS)
   add_subdirectory(Fuzzers)
 endif()
-
-if(PCAPPP_BUILD_BENCHMARK_SUITE)
-  add_subdirectory(Benchmarks)
-endif()
