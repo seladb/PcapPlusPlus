@@ -7,19 +7,19 @@ updates:
     target-branch: "dev"
     labels:
     - "automated-pr"
+    group:
+      name: "GitHub Actions"
+      package-ecosystem: "github-actions"
 
   - package-ecosystem: "pip"
-    directory: "/Tests/ExamplesTest"
+    directories:
+      - "/Tests/ExamplesTest"
+      - "/ci/run_tests"
     schedule:
       interval: "monthly"
     target-branch: "dev"
     labels:
     - "automated-pr"
-
-  - package-ecosystem: "pip"
-    directory: "/ci/run_tests"
-    schedule:
-      interval: "monthly"
-    target-branch: "dev"
-    labels:
-    - "automated-pr"
+    group:
+      name: "pip updates"
+      package-ecosystem: "pip"

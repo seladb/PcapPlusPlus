@@ -2,6 +2,7 @@
 
 #if defined(_WIN32)
 
+#include <memory>
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
 
@@ -30,13 +31,10 @@ namespace pcpp
 		std::vector<PcapRemoteDevice*> m_RemoteDeviceList;
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
-		PcapRemoteAuthentication* m_RemoteAuthentication;
+		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
 		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList() : m_RemoteMachinePort(0), m_RemoteAuthentication(NULL) {}
-		// private copy c'tor
-		PcapRemoteDeviceList(const PcapRemoteDeviceList& other);
-		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList& other);
+		PcapRemoteDeviceList() : m_RemoteMachinePort(0), m_RemoteAuthentication(nullptr) {}
 
 		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
 		void setRemoteMachinePort(uint16_t port);
@@ -52,6 +50,11 @@ namespace pcpp
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 */
 		typedef typename std::vector<PcapRemoteDevice*>::const_iterator ConstRemoteDeviceListIterator;
+
+		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
+		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
+		PcapRemoteDeviceList& operator=(const PcapRemoteDeviceList&) = delete;
+		PcapRemoteDeviceList& operator=(PcapRemoteDeviceList&&) noexcept = delete;
 
 		~PcapRemoteDeviceList();
 

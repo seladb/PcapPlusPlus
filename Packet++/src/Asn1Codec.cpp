@@ -3,6 +3,7 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
+#include "GeneralUtils.h"
 #include <unordered_map>
 #include <numeric>
 #include <algorithm>
@@ -18,15 +19,6 @@
 
 namespace pcpp
 {
-	template<typename EnumClass>
-	struct EnumClassHash
-	{
-		size_t operator()(const EnumClass& value) const
-		{
-			return static_cast<int>(value);
-		}
-	};
-
 	const std::unordered_map<Asn1TagClass, std::string, EnumClassHash<Asn1TagClass>> Asn1TagClassToString {
 		{Asn1TagClass::Universal, "Universal" },
 		{Asn1TagClass::ContextSpecific, "ContextSpecific" },
@@ -150,10 +142,19 @@ namespace pcpp
 			return result;
 		}
 
-		// Assuming the size is always less than 256
-		uint8_t firstByte = 0x80 | 0x01;
+		auto tempValueLength = m_ValueLength;
+		do
+		{
+			uint8_t byte = tempValueLength & 0xff;
+			result.push_back(byte); // Inserts the bytes in reverse order
+			tempValueLength >>= 8;
+		} while (tempValueLength != 0);
+
+		uint8_t firstByte = 0x80 | static_cast<uint8_t>(result.size());
 		result.push_back(firstByte);
-		result.push_back(m_ValueLength);
+
+		// Reverses the bytes to get forward ordering
+		std::reverse(result.begin(), result.end());
 
 		return result;
 	}
@@ -443,13 +444,12 @@ namespace pcpp
 
 	Asn1GenericRecord::Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen)
 	{
-		m_TagType = tagType;
-		m_TagClass = tagClass;
-		m_IsConstructed = isConstructed;
-		m_Value = new uint8_t[valueLen];
-		memcpy(m_Value, value, valueLen);
-		m_ValueLength = valueLen;
-		m_TotalLength = m_ValueLength + 2;
+		init(tagClass, isConstructed, tagType, value, valueLen);
+	}
+
+	Asn1GenericRecord::Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const std::string& value)
+	{
+		init(tagClass, isConstructed, tagType, reinterpret_cast<const uint8_t*>(value.c_str()), value.size());
 	}
 
 	Asn1GenericRecord::~Asn1GenericRecord()
@@ -468,6 +468,17 @@ namespace pcpp
 	std::vector<uint8_t> Asn1GenericRecord::encodeValue() const
 	{
 		return {m_Value, m_Value + m_ValueLength};
+	}
+
+	void Asn1GenericRecord::init(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen)
+	{
+		m_TagType = tagType;
+		m_TagClass = tagClass;
+		m_IsConstructed = isConstructed;
+		m_Value = new uint8_t[valueLen];
+		memcpy(m_Value, value, valueLen);
+		m_ValueLength = valueLen;
+		m_TotalLength = m_ValueLength + 2;
 	}
 
 	Asn1ConstructedRecord::Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords)
@@ -610,7 +621,10 @@ namespace pcpp
 	std::vector<uint8_t> Asn1IntegerRecord::encodeValue() const
 	{
 		std::vector<uint8_t> result;
+
+		#if !(defined(__MINGW64_VERSION_MAJOR) || defined(__MINGW32_MAJOR_VERSION))
 		result.reserve(m_ValueLength);
+		#endif
 
 		switch (m_ValueLength)
 		{
@@ -683,7 +697,7 @@ namespace pcpp
 		auto value = reinterpret_cast<char*>(data);
 
 		m_IsPrintable = std::all_of(value, value + m_ValueLength, [](char c) {
-			return isprint(c);
+			return isprint(0xff & c);
 		});
 
 		if (m_IsPrintable)
