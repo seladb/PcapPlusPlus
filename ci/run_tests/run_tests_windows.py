@@ -11,12 +11,11 @@ PCAP_FILE_PATH = os.path.abspath(
 
 def get_ip_by_guid(guid):
     interfaces = scapy.arch.windows.get_windows_if_list()
-    print(guid)
-    print(interfaces)
     for iface in interfaces:
         if iface["guid"] == guid:
             if len(iface["ips"]) > 0:
-                return iface["ips"][0]
+                # iface["ips"] will put ipv6 address first
+                return iface["ips"][1]
             else:
                 return None
     return None
