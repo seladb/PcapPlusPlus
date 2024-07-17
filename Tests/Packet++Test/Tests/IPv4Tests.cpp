@@ -1,16 +1,16 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include <sstream>
 #include "EndianPortable.h"
-#include "Logger.h"
-#include "MacAddress.h"
-#include "Packet.h"
 #include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
-#include "UdpLayer.h"
+#include "Logger.h"
+#include "MacAddress.h"
+#include "Packet.h"
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
+#include "UdpLayer.h"
+#include <sstream>
 
 PTF_TEST_CASE(IPv4PacketCreation)
 {
@@ -343,10 +343,9 @@ PTF_TEST_CASE(IPv4OptionsEditTest)
 	PTF_ASSERT_FALSE(
 	    ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_CommercialSecurity, commSecOptionData, 20)).isNull());
 	PTF_ASSERT_FALSE(ipLayer->addOption(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0)).isNull());
-	PTF_ASSERT_FALSE(ipLayer
-	                     ->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0),
-	                                      pcpp::IPV4OPT_CommercialSecurity)
-	                     .isNull());
+	// clang-format off
+	PTF_ASSERT_FALSE(ipLayer->addOptionAfter(pcpp::IPv4OptionBuilder(pcpp::IPV4OPT_EndOfOptionsList, nullptr, 0), pcpp::IPV4OPT_CommercialSecurity).isNull());
+	// clang-format on
 	ipOpt1.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(ipOpt1.getRawPacket()->getRawDataLen(), bufferLength11);
