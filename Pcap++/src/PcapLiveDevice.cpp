@@ -1168,6 +1168,31 @@ void PcapLiveDevice::setDefaultGateway()
 #endif
 }
 
+std::vector<IPAddress> PcapLiveDevice::getIPAddresses() const
+{
+	std::vector<IPAddress> results;
+	for (const auto& address : m_Addresses)
+	{
+		in_addr* ipv4Addr = internal::try_sockaddr2in_addr(address.addr);
+		if (ipv4Addr != nullptr)
+		{
+			results.push_back(IPv4Address(ipv4Addr->s_addr));
+			PCPP_LOG_DEBUG("IPv4 address found: " << results.back());
+			continue;
+		}
+		
+		in6_addr* ipv6Addr = internal::try_sockaddr2in6_addr(address.addr);
+		if (ipv6Addr != nullptr)
+		{
+			results.push_back(IPv6Address(ipv6Addr->s6_addr));
+			PCPP_LOG_DEBUG("IPv6 address found: " << results.back());
+			continue;
+		}
+	}
+
+	return results;
+}
+
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
 	for(const auto& addrIter : m_Addresses)

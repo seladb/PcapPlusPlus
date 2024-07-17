@@ -289,6 +289,22 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
+
+	PTF_ASSERT_EQUAL(liveDev->getIPv4Address(), ipToSearch);
+	{
+		// Should probably be refactored as PTF_ASSERT_CONTAINS or similar.
+		bool foundIp = false;
+		for (auto const& ipAddress : liveDev->getIPAddresses())
+		{
+			if (ipAddress == ipToSearch)
+			{
+				foundIp = true;
+				break;
+			}
+		}
+		PTF_ASSERT_TRUE(foundIp);
+	}
+
 	DeviceTeardown devTeardown(liveDev);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
