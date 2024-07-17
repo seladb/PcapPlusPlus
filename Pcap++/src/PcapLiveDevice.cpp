@@ -1180,7 +1180,7 @@ std::vector<IPAddress> PcapLiveDevice::getIPAddresses() const
 			PCPP_LOG_DEBUG("IPv4 address found: " << results.back());
 			continue;
 		}
-		
+
 		in6_addr* ipv6Addr = internal::try_sockaddr2in6_addr(address.addr);
 		if (ipv6Addr != nullptr)
 		{
