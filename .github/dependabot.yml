@@ -8,8 +8,9 @@ updates:
     labels:
     - "automated-pr"
     groups:
-      name: "GitHub Actions"
-      package-ecosystem: "github-actions"
+      actions-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "pip"
     directories:
@@ -21,5 +22,6 @@ updates:
     labels:
     - "automated-pr"
     groups:
-      name: "pip updates"
-      package-ecosystem: "pip"
+      pip-dependencies:
+        patterns:
+          - "*"
