@@ -19,9 +19,9 @@ namespace pcpp_tests
 
 	void testSetUp();
 
-#define READ_FILE_INTO_BUFFER(num, filename)                                                                           \
-	int bufferLength##num = 0;                                                                                         \
-	uint8_t* buffer##num = pcpp_tests::readFileIntoBuffer(filename, bufferLength##num);                                \
+#define READ_FILE_INTO_BUFFER(num, filename)                                            \
+	int bufferLength##num = 0;                                                          \
+	uint8_t* buffer##num = pcpp_tests::readFileIntoBuffer(filename, bufferLength##num); \
 	PTF_ASSERT_NOT_NULL(buffer##num)
 
 #define FREE_FILE_INTO_BUFFER(num) delete[] buffer##num;
@@ -30,12 +30,12 @@ namespace pcpp_tests
 
 #define FILE_INTO_BUFFER(num) buffer##num
 
-#define READ_FILE_AND_CREATE_PACKET(num, filename)                                                                     \
-	READ_FILE_INTO_BUFFER(num, filename);                                                                              \
+#define READ_FILE_AND_CREATE_PACKET(num, filename) \
+	READ_FILE_INTO_BUFFER(num, filename);          \
 	pcpp::RawPacket rawPacket##num(static_cast<const uint8_t*>(buffer##num), bufferLength##num, time, true)
 
-#define READ_FILE_AND_CREATE_PACKET_LINKTYPE(num, filename, linktype)                                                  \
-	READ_FILE_INTO_BUFFER(num, filename);                                                                              \
+#define READ_FILE_AND_CREATE_PACKET_LINKTYPE(num, filename, linktype) \
+	READ_FILE_INTO_BUFFER(num, filename);                             \
 	pcpp::RawPacket rawPacket##num(static_cast<const uint8_t*>(buffer##num), bufferLength##num, time, true, linktype)
 
 #ifdef PCPP_TESTS_DEBUG

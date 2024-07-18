@@ -16,7 +16,8 @@ struct XdpPacketData
 	int byteCount;
 	uint64_t latestTimestamp;
 
-	XdpPacketData() : packetCount(0), byteCount(0), latestTimestamp(0)
+	XdpPacketData()
+	    : packetCount(0), byteCount(0), latestTimestamp(0)
 	{}
 };
 

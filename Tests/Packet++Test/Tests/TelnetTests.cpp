@@ -39,9 +39,9 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 
 	// Check iteration
 	std::vector<pcpp::TelnetLayer::TelnetCommand> vCommand = {
-		pcpp::TelnetLayer::TelnetCommand::WillPerform,    pcpp::TelnetLayer::TelnetCommand::DoPerform,
-		pcpp::TelnetLayer::TelnetCommand::DoPerform,      pcpp::TelnetLayer::TelnetCommand::DoPerform,
-		pcpp::TelnetLayer::TelnetCommand::DoPerform,      pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::WillPerform, pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform, pcpp::TelnetLayer::TelnetCommand::DoPerform,
+		pcpp::TelnetLayer::TelnetCommand::DoPerform, pcpp::TelnetLayer::TelnetCommand::DoPerform,
 		pcpp::TelnetLayer::TelnetCommand::Subnegotiation, pcpp::TelnetLayer::TelnetCommand::SubnegotiationEnd
 	};
 
@@ -54,11 +54,11 @@ PTF_TEST_CASE(TelnetCommandParsingTests)
 		                                                      pcpp::TelnetLayer::TelnetOption::Linemode,
 		                                                      pcpp::TelnetLayer::TelnetOption::TelnetOptionNoOption };
 
-	std::vector<std::string> vCommandString = { "Will Perform", "Do Perform", "Do Perform",     "Do Perform",
-		                                        "Do Perform",   "Do Perform", "Subnegotiation", "Subnegotiation End" };
+	std::vector<std::string> vCommandString = { "Will Perform", "Do Perform", "Do Perform", "Do Perform",
+		                                        "Do Perform", "Do Perform", "Subnegotiation", "Subnegotiation End" };
 	std::vector<std::string> vOptionString = {
 		"Suppress Go Ahead", "Terminal Type", "Negotiate About Window Size", "Terminal Speed", "Remote Flow Control",
-		"Line mode",         "Line mode",     "No option for this command"
+		"Line mode", "Line mode", "No option for this command"
 	};
 
 	size_t ctr = 0;

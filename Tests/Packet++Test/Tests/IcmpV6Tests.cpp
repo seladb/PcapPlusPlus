@@ -187,10 +187,7 @@ PTF_TEST_CASE(IcmpV6CreationTest)
 	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&ipv6Layer));
 	PTF_ASSERT_TRUE(icmpv6LayerPacket.addLayer(&icmpv6Layer));
 	icmpv6LayerPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(
-	    icmpv6LayerPacket.getRawPacket()->getRawDataLen(),
-	    bufferLength1 -
-	        4);  // comparing with IcmpV6_EchoRequest frame which has the same data but an additional echo header
+	PTF_ASSERT_EQUAL(icmpv6LayerPacket.getRawPacket()->getRawDataLen(), bufferLength1 - 4);  // comparing with IcmpV6_EchoRequest frame which has the same data but an additional echo header
 	PTF_ASSERT_BUF_COMPARE(icmpv6LayerPacket.getRawPacket()->getRawData() + 58, buffer1 + 62, bufferLength1 - 62);
 
 	// Echo request creation

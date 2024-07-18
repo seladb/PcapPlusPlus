@@ -1,10 +1,10 @@
 #include "TestUtils.h"
 #include "SomeIpLayer.h"
-#include <iostream>
+#include <fstream>
 #include <iomanip>
+#include <iostream>
 #include <string.h>
 #include <string>
-#include <fstream>
 
 namespace pcpp_tests
 {
@@ -71,7 +71,10 @@ namespace pcpp_tests
 				std::cout << std::endl;
 			}
 		}
-		std::cout << "\n\n" << std::dec << differenceCount << " bytes differ\n\n";
+		std::cout << "\n\n"
+		          << std::dec
+		          << differenceCount
+		          << " bytes differ\n\n";
 	}
 
 	void testSetUp()

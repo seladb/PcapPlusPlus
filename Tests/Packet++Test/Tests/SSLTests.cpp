@@ -50,14 +50,14 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 		                                 "TLS_RSA_WITH_3DES_EDE_CBC_SHA" };
 	pcpp::SSLKeyExchangeAlgorithm cipherSuiteKey[11] = {
 		pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_ECDHE,
-		pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_DHE,   pcpp::SSL_KEYX_DHE,
-		pcpp::SSL_KEYX_RSA,   pcpp::SSL_KEYX_RSA,   pcpp::SSL_KEYX_RSA
+		pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_ECDHE, pcpp::SSL_KEYX_DHE, pcpp::SSL_KEYX_DHE,
+		pcpp::SSL_KEYX_RSA, pcpp::SSL_KEYX_RSA, pcpp::SSL_KEYX_RSA
 	};
 
 	pcpp::SSLAuthenticationAlgorithm cipherSuiteAuth[11] = {
 		pcpp::SSL_AUTH_ECDSA, pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_ECDSA, pcpp::SSL_AUTH_ECDSA,
-		pcpp::SSL_AUTH_RSA,   pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA,   pcpp::SSL_AUTH_RSA,
-		pcpp::SSL_AUTH_RSA,   pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA
+		pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA,
+		pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA, pcpp::SSL_AUTH_RSA
 	};
 
 	pcpp::SSLSymetricEncryptionAlgorithm cipherSuiteSym[11] = {
@@ -67,9 +67,9 @@ PTF_TEST_CASE(SSLClientHelloParsingTest)
 	};
 
 	pcpp::SSLHashingAlgorithm cipherSuiteHash[11] = { pcpp::SSL_HASH_SHA256, pcpp::SSL_HASH_SHA256, pcpp::SSL_HASH_SHA,
-		                                              pcpp::SSL_HASH_SHA,    pcpp::SSL_HASH_SHA,    pcpp::SSL_HASH_SHA,
-		                                              pcpp::SSL_HASH_SHA,    pcpp::SSL_HASH_SHA,    pcpp::SSL_HASH_SHA,
-		                                              pcpp::SSL_HASH_SHA,    pcpp::SSL_HASH_SHA };
+		                                              pcpp::SSL_HASH_SHA, pcpp::SSL_HASH_SHA, pcpp::SSL_HASH_SHA,
+		                                              pcpp::SSL_HASH_SHA, pcpp::SSL_HASH_SHA, pcpp::SSL_HASH_SHA,
+		                                              pcpp::SSL_HASH_SHA, pcpp::SSL_HASH_SHA };
 
 	PTF_PRINT_VERBOSE("Iterating over cipher suites");
 	for (int i = 0; i < clientHelloMessage->getCipherSuiteCount(); i++)

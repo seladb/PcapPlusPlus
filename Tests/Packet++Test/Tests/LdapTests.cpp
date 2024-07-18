@@ -49,10 +49,12 @@ PTF_TEST_CASE(LdapParsingTest)
 		PTF_ASSERT_NOT_NULL(ldapLayer);
 
 		auto controls = ldapLayer->getControls();
+		// clang-format off
 		std::vector<pcpp::LdapControl> expectedControls = {
 			{ "1.2.840.113556.1.4.801", "3003020107"       },
-            { "1.2.840.113556.1.4.319", "3006020201f40400" }
+			{ "1.2.840.113556.1.4.319", "3006020201f40400" }
 		};
+		// clang-format on
 		PTF_ASSERT_VECTORS_EQUAL(controls, expectedControls);
 	}
 
@@ -338,12 +340,14 @@ PTF_TEST_CASE(LdapParsingTest)
 		                 enum);
 		PTF_ASSERT_EQUAL(searchResultEntryLayer->getObjectName(),
 		                 "cn=b.smith,ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org");
+		// clang-format off
 		std::vector<pcpp::LdapAttribute> expectedAttributes = {
 			{ "objectclass", { "inetOrgPerson", "organizationalPerson", "person", "top" } },
-			{ "sn",          { "Young" }			                                      },
-			{ "cn",          { "b.smith" }			                                    },
-			{ "givenname",   { "Beatrix" }			                                    }
+			{ "sn",          { "Young" }                                                },
+			{ "cn",          { "b.smith" }                                              },
+			{ "givenname",   { "Beatrix" }                                              }
 		};
+		// clang-format on
 		PTF_ASSERT_VECTORS_EQUAL(searchResultEntryLayer->getAttributes(), expectedAttributes);
 	}
 
@@ -479,7 +483,7 @@ PTF_TEST_CASE(LdapCreationTest)
 
 		std::vector<pcpp::LdapControl> controls = {
 			{ "1.2.840.113556.1.4.801", "3003020107"       },
-            { "1.2.840.113556.1.4.319", "3006020201f40400" }
+			{ "1.2.840.113556.1.4.319", "3006020201f40400" }
 		};
 
 		pcpp::LdapLayer ldapLayer(6, pcpp::LdapOperationType::SearchRequest,
@@ -664,12 +668,8 @@ PTF_TEST_CASE(LdapCreationTest)
 			    expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(i)->toString());
 		}
 
-		auto actualServerSaslCredentialsRecord =
-		    bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
-		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()
-		                                               ->getSubRecords()
-		                                               .at(3)
-		                                               ->castAs<pcpp::Asn1GenericRecord>();
+		auto actualServerSaslCredentialsRecord = bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
+		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
 		PTF_ASSERT_BUF_COMPARE(actualServerSaslCredentialsRecord->getValue(),
 		                       expectedServerSaslCredentialsRecord->getValue(),
 		                       expectedServerSaslCredentialsRecord->getValueLength())
@@ -747,12 +747,14 @@ PTF_TEST_CASE(LdapCreationTest)
 		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/ldap_search_result_entry.dat");
 		pcpp::Packet searchResultEntryPacket(&rawPacket1);
 
+		// clang-format off
 		std::vector<pcpp::LdapAttribute> attributes = {
 			{ "objectclass", { "inetOrgPerson", "organizationalPerson", "person", "top" } },
-			{ "sn",          { "Young" }			                                      },
-			{ "cn",          { "b.smith" }			                                    },
-			{ "givenname",   { "Beatrix" }			                                    }
+			{ "sn",          { "Young" }                                                },
+			{ "cn",          { "b.smith" }                                              },
+			{ "givenname",   { "Beatrix" }                                              }
 		};
+		// clang-format on
 
 		pcpp::LdapSearchResultEntryLayer searchResultEntryLayer(
 		    16, "cn=b.smith,ou=ldap3-tutorial,dc=demo1,dc=freeipa,dc=org", attributes);
