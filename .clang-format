@@ -18,6 +18,7 @@ SpacesBeforeTrailingComments: 2
 IndentAccessModifiers: false
 Cpp11BracedListStyle: false
 BreakBeforeBraces: Custom
+ColumnLimit: 0
 BraceWrapping:
   SplitEmptyFunction: false
   AfterCaseLabel: true
