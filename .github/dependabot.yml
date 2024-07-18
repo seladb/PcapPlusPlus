@@ -7,7 +7,7 @@ updates:
     target-branch: "dev"
     labels:
     - "automated-pr"
-    group:
+    groups:
       name: "GitHub Actions"
       package-ecosystem: "github-actions"
 
@@ -20,6 +20,6 @@ updates:
     target-branch: "dev"
     labels:
     - "automated-pr"
-    group:
+    groups:
       name: "pip updates"
       package-ecosystem: "pip"
