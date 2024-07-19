@@ -71,10 +71,7 @@ namespace pcpp_tests
 				std::cout << std::endl;
 			}
 		}
-		std::cout << "\n\n"
-		          << std::dec
-		          << differenceCount
-		          << " bytes differ\n\n";
+		std::cout << "\n\n" << std::dec << differenceCount << " bytes differ\n\n";
 	}
 
 	void testSetUp()

@@ -533,7 +533,7 @@ PTF_TEST_CASE(HttpMalformedResponseTest)
 	pcpp::HttpResponseLayer* httpResp = httpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	PTF_ASSERT_EQUAL(httpResp->getFieldCount(), 6);
 	std::string fieldNames[] = { "x-amz-request-id2 CA4DB8F36423461F\r\n", "x-amz-id-2", PCPP_HTTP_CONTENT_TYPE_FIELD,
-		                         PCPP_HTTP_TRANSFER_ENCODING_FIELD, "Date", PCPP_HTTP_SERVER_FIELD };
+		                         PCPP_HTTP_TRANSFER_ENCODING_FIELD,        "Date",       PCPP_HTTP_SERVER_FIELD };
 	std::string fieldValues[] = { "",
 		                          "xcjboWLTcibyztI2kdnRoUvPdimtSPdYQYsQ4pHAebH4miKlux4Am0SBZrvVxsHN",
 		                          "application/xml",

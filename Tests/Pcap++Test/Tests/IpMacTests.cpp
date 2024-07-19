@@ -86,7 +86,7 @@ PTF_TEST_CASE(TestIPAddress)
 	}
 
 	pcpp::Logger::getInstance().suppressLogs();
-	auto invalidMasks = std::vector<std::string>{ "aaaa", "10.0.0.0", "10.0.0.0/aa",
+	auto invalidMasks = std::vector<std::string>{ "aaaa",        "10.0.0.0",       "10.0.0.0/aa",
 		                                          "10.0.0.0/33", "999.999.1.1/24", "10.10.10.10/99.99.99" };
 	for (const auto& invalidMask : invalidMasks)
 	{

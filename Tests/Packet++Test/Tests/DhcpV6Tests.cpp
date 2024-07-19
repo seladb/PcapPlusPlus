@@ -21,7 +21,7 @@ PTF_TEST_CASE(DhcpV6ParsingTest)
 	PTF_ASSERT_EQUAL(dhcpv6Layer->getOptionCount(), 6);
 	PTF_ASSERT_EQUAL(dhcpv6Layer->toString(), "DHCPv6 Layer, Solicit message");
 
-	pcpp::DhcpV6OptionType optTypeArr[] = { pcpp::DHCPV6_OPT_CLIENTID, pcpp::DHCPV6_OPT_ORO,
+	pcpp::DhcpV6OptionType optTypeArr[] = { pcpp::DHCPV6_OPT_CLIENTID,     pcpp::DHCPV6_OPT_ORO,
 		                                    pcpp::DHCPV6_OPT_ELAPSED_TIME, pcpp::DHCPV6_OPT_USER_CLASS,
 		                                    pcpp::DHCPV6_OPT_VENDOR_CLASS, pcpp::DHCPV6_OPT_IA_NA };
 	size_t optDataSizeArr[] = { 18, 14, 2, 10, 51, 12 };
@@ -91,7 +91,8 @@ PTF_TEST_CASE(DhcpV6CreationTest)
 	PTF_ASSERT_EQUAL(newDhcpV6Layer.getOptionCount(), 4);
 	// 6th option
 	option = newDhcpV6Layer.addOption(pcpp::DhcpV6OptionBuilder(
-	    pcpp::DHCPV6_OPT_BOOTFILE_URL, "687474703a2f2f5b323030313a6462613a3130303a3a315d3a393039302f657868617573746976655f7a74705f7363726970742e7079"));
+	    pcpp::DHCPV6_OPT_BOOTFILE_URL,
+	    "687474703a2f2f5b323030313a6462613a3130303a3a315d3a393039302f657868617573746976655f7a74705f7363726970742e7079"));
 	PTF_ASSERT_EQUAL(option.getType(), pcpp::DHCPV6_OPT_BOOTFILE_URL);
 	PTF_ASSERT_EQUAL(option.getDataSize(), 54);
 	PTF_ASSERT_EQUAL(newDhcpV6Layer.getOptionCount(), 5);

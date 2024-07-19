@@ -674,7 +674,7 @@ PTF_TEST_CASE(DnsOverTcpParsingTest)
 		                             "EEQ3CIFFULOPN4J3E5MKEGKVDJKIGVBP.net",
 		                             "EEQ3CIFFULOPN4J3E5MKEGKVDJKIGVBP.net" };
 
-	pcpp::DnsType expectedTypes[8] = { pcpp::DNS_TYPE_SOA, pcpp::DNS_TYPE_RRSIG, pcpp::DNS_TYPE_NSEC3,
+	pcpp::DnsType expectedTypes[8] = { pcpp::DNS_TYPE_SOA,   pcpp::DNS_TYPE_RRSIG, pcpp::DNS_TYPE_NSEC3,
 		                               pcpp::DNS_TYPE_RRSIG, pcpp::DNS_TYPE_NSEC3, pcpp::DNS_TYPE_RRSIG,
 		                               pcpp::DNS_TYPE_NSEC3, pcpp::DNS_TYPE_RRSIG };
 

@@ -483,7 +483,7 @@ PTF_TEST_CASE(LdapCreationTest)
 
 		std::vector<pcpp::LdapControl> controls = {
 			{ "1.2.840.113556.1.4.801", "3003020107"       },
-			{ "1.2.840.113556.1.4.319", "3006020201f40400" }
+            { "1.2.840.113556.1.4.319", "3006020201f40400" }
 		};
 
 		pcpp::LdapLayer ldapLayer(6, pcpp::LdapOperationType::SearchRequest,
@@ -668,8 +668,12 @@ PTF_TEST_CASE(LdapCreationTest)
 			    expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(i)->toString());
 		}
 
-		auto actualServerSaslCredentialsRecord = bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
-		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
+		auto actualServerSaslCredentialsRecord =
+		    bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
+		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()
+		                                               ->getSubRecords()
+		                                               .at(3)
+		                                               ->castAs<pcpp::Asn1GenericRecord>();
 		PTF_ASSERT_BUF_COMPARE(actualServerSaslCredentialsRecord->getValue(),
 		                       expectedServerSaslCredentialsRecord->getValue(),
 		                       expectedServerSaslCredentialsRecord->getValueLength())

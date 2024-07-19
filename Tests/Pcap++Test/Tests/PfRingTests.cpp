@@ -27,8 +27,7 @@ struct PfRingPacketData
 	int UdpCount;
 	std::unordered_map<uint32_t, pcpp::RawPacketVector> FlowKeys;
 
-	PfRingPacketData()
-	    : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0)
+	PfRingPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0)
 	{}
 	void clear()
 	{
