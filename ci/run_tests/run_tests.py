@@ -1,9 +1,20 @@
 import os
 import subprocess
 import argparse
-import netifaces as ni
+import psutil
+import socket
 
 PCAP_FILE_PATH = os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
+
+
+def get_ip_address(interface):
+    addresses = psutil.net_if_addrs().get(interface)
+    if not addresses:
+        return None
+    for address in addresses:
+        if address.family == socket.AF_INET:
+            return address.address
+    return None
 
 
 def main():
@@ -32,7 +43,8 @@ def main():
     )
     args = parser.parse_args()
 
-    ip_address = ni.ifaddresses(args.interface)[ni.AF_INET][0]["addr"]
+    ip_address = get_ip_address(args.interface)
+
     print("IP address is: %s" % ip_address)
 
     try:

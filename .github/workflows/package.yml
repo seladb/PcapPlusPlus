@@ -26,6 +26,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2404
+            config-zstd: OFF
           - image: ubuntu2204
             config-zstd: OFF
           - image: ubuntu2204-icpx

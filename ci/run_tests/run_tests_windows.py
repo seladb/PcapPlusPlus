@@ -1,12 +1,25 @@
 import os
 import argparse
 import subprocess
-import netifaces as ni
+import psutil
+import socket
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 PCAP_FILE_PATH = os.path.abspath(
     os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 )
+
+
+def get_ip_address(interface):
+    print(interface)
+    addresses = psutil.net_if_addrs().get(interface)
+    print(addresses)
+    if not addresses:
+        return None
+    for address in addresses:
+        if address.family == socket.AF_INET:
+            return address.address
+    return None
 
 
 def find_interface():
@@ -27,7 +40,7 @@ def find_interface():
             interface = columns[1]
             try:
                 ni_interface = interface.lstrip("\\Device\\NPF_")
-                ip_address = ni.ifaddresses(ni_interface)[ni.AF_INET][0]["addr"]
+                ip_address = get_ip_address(ni_interface)
                 if ip_address.startswith("169.254"):
                     continue
                 completed_process = subprocess.run(
@@ -64,7 +77,7 @@ def main():
 
     tcpreplay_interface, ip_address = find_interface()
     if not tcpreplay_interface or not ip_address:
-        print("Cannot find an interface to run tests on!")
+        print("Cannot find an interface to run tests on! Info from psutil.net_if_addrs() %s"% psutil.net_if_addrs())
         exit(1)
     print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 
