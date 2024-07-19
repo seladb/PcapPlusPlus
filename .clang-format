@@ -11,14 +11,13 @@ PointerAlignment: Left
 AccessModifierOffset: -4
 AlignTrailingComments: true
 AllowShortEnumsOnASingleLine: false
-BreakStringLiterals: true
+BreakStringLiterals: false
 AlignArrayOfStructures: Left
 BreakArrays: true
 SpacesBeforeTrailingComments: 2
 IndentAccessModifiers: false
 Cpp11BracedListStyle: false
 BreakBeforeBraces: Custom
-ColumnLimit: 0
 BraceWrapping:
   SplitEmptyFunction: false
   AfterCaseLabel: true
