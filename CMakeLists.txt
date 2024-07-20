@@ -268,13 +268,9 @@ if(PCAPPP_BUILD_REPRODUCIBLE)
     endif()
   elseif(MSVC)
     message(FATAL_ERROR "Unsupported with MSVC compiler")
-    # Try to build a reproducible static library with MSVC doesn't work
-    # but this option should make it work for shared libraries or executables.
-    # add_compile_options(/Brepro)
-    # add_compile_options(/experimental:deterministic)
-    # add_link_options(/Brepro)
-    # add_link_options(/experimental:deterministic)
-    # add_link_options(/INCREMENTAL:NO)
+    # Try to build a reproducible static library with MSVC doesn't work but this option should make it work for shared
+    # libraries or executables. add_compile_options(/Brepro) add_compile_options(/experimental:deterministic)
+    # add_link_options(/Brepro) add_link_options(/experimental:deterministic) add_link_options(/INCREMENTAL:NO)
   else()
     # We should not use __DATE__ nor __TIME__ in case of reproducible build
     add_compile_options(-Wdate-time)
