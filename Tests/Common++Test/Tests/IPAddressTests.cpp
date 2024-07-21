@@ -152,7 +152,7 @@ namespace pcpp
 
 		ASSERT_NE(heapOutBuffer, nullptr);
 		EXPECT_EQ(heapOutBufferSize, 16);
-		EXPECT_THAT(heapOutBuffer, ::testing::ElementsAreArray(ipUint8Array.toByteArray()));
+		EXPECT_TRUE(0 == std::memcmp(ipArrayBuffer.data(), heapOutBuffer, 16));
 		delete[] heapOutBuffer;
 	};
 
