@@ -88,7 +88,7 @@ namespace pcpp
 		FAIL() << "Not Implemented";
 	};
 
-	TEST(IPv6AddressTest, IPv6Statics)
+	TEST(IPv6AddressTest, IPv6AddressStatics)
 	{
 		IPv6Address const& ipZero = IPv6Address::Zero;
 		EXPECT_EQ(ipZero.toString(), "::");
@@ -96,14 +96,40 @@ namespace pcpp
 
 		IPv6Address const& ipMulticastLower = IPv6Address::MulticastRangeLowerBound;
 		EXPECT_EQ(ipMulticastLower.toString(), "ff00::");
-		EXPECT_THAT(ipMulticastLower.toByteArray(), ::testing::ElementsAre(0xFF, 0x00, 0x00, 0x00));
+		EXPECT_THAT(ipMulticastLower.toByteArray(),
+		            ::testing::ElementsAre(0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
 	};
 
 	TEST(IPv6AddressTest, IPv6AddressBasics)
 	{
 		IPv6Address ipDefault;
-		
-		FAIL() << "Not Implemented";
+		EXPECT_EQ(ipDefault.toString(), "::");
+		EXPECT_THAT(ipDefault.toByteArray(), ::testing::Each(0));
+
+		IPv6Address ipString("2001:0db8:85a3:0000:0000:8a4e:0370:7334");
+		EXPECT_EQ(ipString.toString(), "2001:db8:85a3::8a4e:370:7334");
+		EXPECT_THAT(ipString.toByteArray(), ::testing::ElementsAre(0x20, 0x01, 0x0D, 0xB8, 0x85, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x4E, 0x03, 0x70, 0x73, 0x34));
+
+		EXPECT_THROW(IPv6Address("2001:0db8:85a3:0000:0000:8a4e:0370:7334:extra"), std::invalid_argument) << "IPv6Address does not throw for out of bounds IP string.";
+		EXPECT_THROW(IPv6Address("bogusString"), std::invalid_argument) << "IPv6Address does not throw for non-IP string.";
+
+		std::array<uint8_t, 16> ipArrayBuffer = {0x20, 0x01, 0x0D, 0xB8, 0x85, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x2E, 0x03, 0x70, 0x73, 0x34};
+
+		IPv6Address ipUint8Raw(ipArrayBuffer.data());
+		EXPECT_EQ(ipUint8Raw.toString(), "2001:db8:85a3::8a2e:370:7334");
+		EXPECT_THAT(ipUint8Raw.toByteArray(), ::testing::ElementsAre(0x20, 0x01, 0x0D, 0xB8, 0x85, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x2E, 0x03, 0x70, 0x73, 0x34));
+
+		IPv6Address ipUint8Array(ipArrayBuffer);
+		EXPECT_EQ(ipUint8Array.toString(), "2001:db8:85a3::8a2e:370:7334");
+		EXPECT_THAT(ipUint8Array.toByteArray(), ::testing::ElementsAre(0x20, 0x01, 0x0D, 0xB8, 0x85, 0xA3, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x2E, 0x03, 0x70, 0x73, 0x34));
+
+		EXPECT_TRUE(ipUint8Raw == ipUint8Array) << "Comparison operator '==' does not compare equal values correctly.";
+		EXPECT_FALSE(ipUint8Raw == ipDefault) << "Comparison operator '==' does not compare unequal values correctly.";
+		EXPECT_FALSE(ipUint8Raw != ipUint8Array) << "Comparison operator '!=' does not compare equal values correctly.";
+		EXPECT_TRUE(ipUint8Raw != ipDefault) << "Comparison operator '!=' does not compare unequal values correctly.";
+
+		EXPECT_TRUE(ipDefault < ipString) << "Comparison operator '<' does not compare less than values correctly.";
+		EXPECT_FALSE(ipString < ipDefault) << "Comparison operator '<' does not compare less than values correctly.";
 	};
 
 	TEST(IPAddressTest, IPAddressTest)
