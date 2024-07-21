@@ -323,9 +323,9 @@ jobs:
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ${{ matrix.os-version }}-ccache-${{ github.run_id }}
+          key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
           restore-keys: |
-            ${{ matrix.os-version }}-ccache
+            ${{ matrix.os-version }}-${{ matrix.arch }}-ccache
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
