@@ -287,12 +287,62 @@ namespace pcpp
 		FAIL() << "Not Implemented";
 	};
 
-	TEST(IPv6NetworkTest, IPv6NetworkTest)
+	TEST(IPv6NetworkTest, IPv6NetworkBasics)
+	{
+		using namespace pcpp::literals;
+
+		IPv6Network netSingle("2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingle.getPrefixLen(), 128u);
+		EXPECT_EQ(netSingle.getNetmask(), "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+		EXPECT_EQ(netSingle.getNetworkPrefix(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingle.getLowestAddress(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingle.getHighestAddress(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingle.getTotalAddressCount(), 1);
+
+		IPv6Network netPrefix("2001:db8:85a3::8a2e:370:7334"_ipv6, 96u);
+		EXPECT_EQ(netPrefix.getPrefixLen(), 96u);
+		EXPECT_EQ(netPrefix.getNetmask(), "ffff:ffff:ffff:ffff:ffff:ffff::");
+		EXPECT_EQ(netPrefix.getNetworkPrefix(), "2001:db8:85a3::8a2e:0:0"_ipv6);
+		EXPECT_EQ(netPrefix.getLowestAddress(), "2001:db8:85a3::8a2e:0:1"_ipv6);
+		EXPECT_EQ(netPrefix.getHighestAddress(), "2001:db8:85a3::8a2e:ffff:ffff"_ipv6);
+		EXPECT_EQ(netPrefix.getTotalAddressCount(), 4294967296ul);
+
+		IPv6Network netNetmask("2001:db8:85a3::8a2e:370:7334"_ipv6, "ffff:ffff:ffff:ffff::");
+		EXPECT_EQ(netNetmask.getPrefixLen(), 64u);
+		EXPECT_EQ(netNetmask.getNetmask(), "ffff:ffff:ffff:ffff::");
+		EXPECT_EQ(netNetmask.getNetworkPrefix(), "2001:db8:85a3::"_ipv6);
+		EXPECT_EQ(netNetmask.getLowestAddress(), "2001:db8:85a3::1"_ipv6);
+		EXPECT_EQ(netNetmask.getHighestAddress(), "2001:db8:85a3::ffff:ffff:ffff:ffff"_ipv6);
+		EXPECT_THROW(netNetmask.getTotalAddressCount(), std::out_of_range);
+
+		IPv6Network netStringWithPrefix("2001:db8:85a3::8a2e:370:7334/64");
+		EXPECT_EQ(netStringWithPrefix.getPrefixLen(), 64u);
+		EXPECT_EQ(netStringWithPrefix.getNetmask(), "ffff:ffff:ffff:ffff::");
+		EXPECT_EQ(netStringWithPrefix.getNetworkPrefix(), "2001:db8:85a3::"_ipv6);
+		EXPECT_EQ(netStringWithPrefix.getLowestAddress(), "2001:db8:85a3::1"_ipv6);
+		EXPECT_EQ(netStringWithPrefix.getHighestAddress(), "2001:db8:85a3::ffff:ffff:ffff:ffff"_ipv6);
+		EXPECT_THROW(netStringWithPrefix.getTotalAddressCount(), std::out_of_range);
+
+		IPv6Network netStringWithMask("2001:db8:85a3::8a2e:370:7334/ffff:ffff:ffff:ffff::");
+		EXPECT_EQ(netStringWithMask.getPrefixLen(), 64u);
+		EXPECT_EQ(netStringWithMask.getNetmask(), "ffff:ffff:ffff:ffff::");
+		EXPECT_EQ(netStringWithMask.getNetworkPrefix(), "2001:db8:85a3::"_ipv6);
+		EXPECT_EQ(netStringWithMask.getLowestAddress(), "2001:db8:85a3::1"_ipv6);
+		EXPECT_EQ(netStringWithMask.getHighestAddress(), "2001:db8:85a3::ffff:ffff:ffff:ffff"_ipv6);
+		EXPECT_THROW(netStringWithMask.getTotalAddressCount(), std::out_of_range);
+	};
+
+	TEST(IPv6NetworkTest, IPv6NetworkIncludes)
 	{
 		FAIL() << "Not Implemented";
 	};
 
-	TEST(IPNetworkTest, IPNetworkTest)
+	TEST(IPNetworkTest, IPNetworkBasics)
+	{
+		FAIL() << "Not Implemented";
+	};
+
+	TEST(IPNetworkTest, IPNetworkIncludes)
 	{
 		FAIL() << "Not Implemented";
 	};
