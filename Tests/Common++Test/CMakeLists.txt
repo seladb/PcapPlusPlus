@@ -24,7 +24,8 @@ target_link_libraries(
   Common++Test
   PRIVATE Common++
           gtest
-          gtest_main
+          gmock
+          gmock_main
 )
 
 if(MSVC)

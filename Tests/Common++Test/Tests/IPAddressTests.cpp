@@ -1,6 +1,7 @@
 #include <array>
 #include <cstring>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 #include "IpAddress.h"
 
@@ -55,17 +56,53 @@ namespace pcpp
 		EXPECT_EQ(ipUint8Array.toByteArray(), ipArrayBuffer);
 		EXPECT_TRUE(0 == std::memcmp(ipArrayBuffer.data(), ipUint8Array.toBytes(), 4));
 
-		EXPECT_EQ(ipUint8Raw, ipUint8Array) << "Comparison operator '==' does not compare equal values.";
-		EXPECT_NE(ipUint8Raw, ipDefault) << "Comparison operator '!=' does not compare unequal values.";
+		EXPECT_TRUE(ipUint8Raw == ipUint8Array) << "Comparison operator '==' does not compare equal values correctly.";
+		EXPECT_FALSE(ipUint8Raw == ipDefault) << "Comparison operator '==' does not compare unequal values correctly.";
+		EXPECT_FALSE(ipUint8Raw != ipUint8Array) << "Comparison operator '!=' does not compare equal values correctly.";
+		EXPECT_TRUE(ipUint8Raw != ipDefault) << "Comparison operator '!=' does not compare unequal values correctly.";
+
+		EXPECT_TRUE(ipDefault < ipString) << "Comparison operator '<' does not compare less than values correctly.";
+		EXPECT_FALSE(ipString < ipDefault) << "Comparison operator '<' does not compare less than values correctly.";
 	};
 
 	TEST(IPv4AddressTest, Multicast)
 	{
+		IPv4Address underMulticastBound(0x000000D1);
+		EXPECT_FALSE(underMulticastBound.isMulticast());
+
+		IPv4Address atLowerMulticastBound(0x000000E0);
+		EXPECT_TRUE(atLowerMulticastBound.isMulticast());
+
+		IPv4Address inMulticastRange(0x000000EF);
+		EXPECT_TRUE(inMulticastRange.isMulticast());
+		
+		IPv4Address atUpperMulticastBound(0xFFFFFFEF);
+		EXPECT_TRUE(atUpperMulticastBound.isMulticast());
+		
+		IPv4Address overMulticastBound(0x000000F0);
+		EXPECT_FALSE(overMulticastBound.isMulticast());
+	};
+
+	TEST(IPv4AddressTest, MatchNetwork)
+	{
 		FAIL() << "Not Implemented";
 	};
 
-	TEST(IPv6AddressTest, IPv6AddressTest)
+	TEST(IPv6AddressTest, IPv6Statics)
 	{
+		IPv6Address const& ipZero = IPv6Address::Zero;
+		EXPECT_EQ(ipZero.toString(), "::");
+		EXPECT_THAT(ipZero.toByteArray(), ::testing::Each(0));
+
+		IPv6Address const& ipMulticastLower = IPv6Address::MulticastRangeLowerBound;
+		EXPECT_EQ(ipMulticastLower.toString(), "ff00::");
+		EXPECT_THAT(ipMulticastLower.toByteArray(), ::testing::ElementsAre(0xFF, 0x00, 0x00, 0x00));
+	};
+
+	TEST(IPv6AddressTest, IPv6AddressBasics)
+	{
+		IPv6Address ipDefault;
+		
 		FAIL() << "Not Implemented";
 	};
 
