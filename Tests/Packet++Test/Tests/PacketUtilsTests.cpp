@@ -97,6 +97,15 @@ PTF_TEST_CASE(PacketUtilsHash5TupleTcp)
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 1576639238 );
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 1576639238 );
 
+	tcpLayer.getTcpHeader()->portDst = 80;
+	tcpLayer.getTcpHeader()->portSrc = 80;
+
+	tcpLayer2.getTcpHeader()->portDst = 80;
+	tcpLayer2.getTcpHeader()->portSrc = 80;
+
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket));
+	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket,true), pcpp::hash5Tuple(&dstSrcPacket,true));
+
 } // PacketUtilsHash5TupleTcp
 
 
@@ -132,5 +141,14 @@ PTF_TEST_CASE(PacketUtilsHash5TupleIPv6)
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), 2229527039);
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, false), 4288746927);
 	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&dstSrcPacket, true), 4288746927);
+
+	udpLayer.getUdpHeader()->portDst = 80;
+	udpLayer.getUdpHeader()->portSrc = 80;
+
+	udpLayer2.getUdpHeader()->portDst = 80;
+	udpLayer2.getUdpHeader()->portSrc = 80;
+
+	PTF_ASSERT_EQUAL(pcpp::hash5Tuple(&srcDstPacket), pcpp::hash5Tuple(&dstSrcPacket));
+	PTF_ASSERT_NOT_EQUAL(pcpp::hash5Tuple(&srcDstPacket, true), pcpp::hash5Tuple(&dstSrcPacket, true));
 
 } // PacketUtilsHash5TupleIPv6
