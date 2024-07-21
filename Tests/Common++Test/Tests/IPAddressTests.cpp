@@ -237,7 +237,52 @@ namespace pcpp
 		FAIL() << "Not Implemented";
 	};
 
-	TEST(IPv4NetworkTest, IPv4NetworkTest)
+	TEST(IPv4NetworkTest, IPv4NetworkBasics)
+	{
+		using namespace pcpp::literals;
+
+		IPv4Network netSingle("192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingle.getPrefixLen(), 32u);
+		EXPECT_EQ(netSingle.getNetmask(), "255.255.255.255");
+		EXPECT_EQ(netSingle.getNetworkPrefix(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingle.getLowestAddress(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingle.getHighestAddress(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingle.getTotalAddressCount(), 1);
+		
+		IPv4Network netPrefix("192.168.1.1"_ipv4, 24u);
+		EXPECT_EQ(netPrefix.getPrefixLen(), 24u);
+		EXPECT_EQ(netPrefix.getNetmask(), "255.255.255.0");
+		EXPECT_EQ(netPrefix.getNetworkPrefix(), "192.168.1.0"_ipv4);
+		EXPECT_EQ(netPrefix.getLowestAddress(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netPrefix.getHighestAddress(), "192.168.1.254"_ipv4);
+		EXPECT_EQ(netPrefix.getTotalAddressCount(), 256);
+
+		IPv4Network netNetmask("192.168.1.1"_ipv4, "255.255.0.0");
+		EXPECT_EQ(netNetmask.getPrefixLen(), 16u);
+		EXPECT_EQ(netNetmask.getNetmask(), "255.255.0.0");
+		EXPECT_EQ(netNetmask.getNetworkPrefix(), "192.168.0.0"_ipv4);
+		EXPECT_EQ(netNetmask.getLowestAddress(), "192.168.0.1"_ipv4);
+		EXPECT_EQ(netNetmask.getHighestAddress(), "192.168.255.254"_ipv4);
+		EXPECT_EQ(netNetmask.getTotalAddressCount(), 256 * 256);
+
+		IPv4Network netStringWithPrefix("192.168.1.1/8");
+		EXPECT_EQ(netStringWithPrefix.getPrefixLen(), 8u);
+		EXPECT_EQ(netStringWithPrefix.getNetmask(), "255.0.0.0");
+		EXPECT_EQ(netStringWithPrefix.getNetworkPrefix(), "192.0.0.0"_ipv4);
+		EXPECT_EQ(netStringWithPrefix.getLowestAddress(), "192.0.0.1"_ipv4);
+		EXPECT_EQ(netStringWithPrefix.getHighestAddress(), "192.255.255.254"_ipv4);
+		EXPECT_EQ(netStringWithPrefix.getTotalAddressCount(), 256 * 256 * 256);
+
+		IPv4Network netStringWithMask("192.168.1.1/255.0.0.0");
+		EXPECT_EQ(netStringWithMask.getPrefixLen(), 8u);
+		EXPECT_EQ(netStringWithMask.getNetmask(), "255.0.0.0");
+		EXPECT_EQ(netStringWithMask.getNetworkPrefix(), "192.0.0.0"_ipv4);
+		EXPECT_EQ(netStringWithMask.getLowestAddress(), "192.0.0.1"_ipv4);
+		EXPECT_EQ(netStringWithMask.getHighestAddress(), "192.255.255.254"_ipv4);
+		EXPECT_EQ(netStringWithMask.getTotalAddressCount(), 256 * 256 * 256);
+	};
+
+	TEST(IPv4NetworkTest, IPv4NetworkIncludes)
 	{
 		FAIL() << "Not Implemented";
 	};
