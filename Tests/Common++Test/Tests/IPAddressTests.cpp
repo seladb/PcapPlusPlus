@@ -67,6 +67,14 @@ namespace pcpp
 		EXPECT_FALSE(ipString < ipDefault) << "Comparison operator '<' does not compare less than values correctly.";
 	};
 
+	TEST(IPv4AddressTest, Literals)
+	{
+		using namespace pcpp::literals;
+
+		IPv4Address ipString = "192.168.1.5"_ipv4;
+		EXPECT_EQ(ipString.toInt(), 0x0501A8C0);
+	}
+
 	TEST(IPv4AddressTest, Multicast)
 	{
 		IPv4Address underMulticastBound(0x000000D1);
@@ -155,6 +163,15 @@ namespace pcpp
 		EXPECT_TRUE(0 == std::memcmp(ipArrayBuffer.data(), heapOutBuffer, 16));
 		delete[] heapOutBuffer;
 	};
+
+	TEST(IPv6AddressTest, Literals)
+	{
+		using namespace pcpp::literals;
+
+		IPv6Address ipString = "2001:0db8:85a3:0000:0000:8a4e:0370:7334"_ipv6;
+		EXPECT_THAT(ipString.toByteArray(), ::testing::ElementsAre(0x20, 0x01, 0x0D, 0xB8, 0x85, 0xA3, 0x00, 0x00, 0x00,
+		                                                           0x00, 0x8A, 0x4E, 0x03, 0x70, 0x73, 0x34));
+	}
 
 	TEST(IPv6AddressTest, Multicast)
 	{
