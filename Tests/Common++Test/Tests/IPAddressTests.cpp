@@ -248,6 +248,7 @@ namespace pcpp
 		EXPECT_EQ(netSingle.getLowestAddress(), "192.168.1.1"_ipv4);
 		EXPECT_EQ(netSingle.getHighestAddress(), "192.168.1.1"_ipv4);
 		EXPECT_EQ(netSingle.getTotalAddressCount(), 1);
+		EXPECT_EQ(netSingle.toString(), "192.168.1.1/32");
 		
 		IPv4Network netPrefix("192.168.1.1"_ipv4, 24u);
 		EXPECT_EQ(netPrefix.getPrefixLen(), 24u);
@@ -256,6 +257,7 @@ namespace pcpp
 		EXPECT_EQ(netPrefix.getLowestAddress(), "192.168.1.1"_ipv4);
 		EXPECT_EQ(netPrefix.getHighestAddress(), "192.168.1.254"_ipv4);
 		EXPECT_EQ(netPrefix.getTotalAddressCount(), 256);
+		EXPECT_EQ(netPrefix.toString(), "192.168.1.0/24");
 
 		IPv4Network netNetmask("192.168.1.1"_ipv4, "255.255.0.0");
 		EXPECT_EQ(netNetmask.getPrefixLen(), 16u);
@@ -264,6 +266,7 @@ namespace pcpp
 		EXPECT_EQ(netNetmask.getLowestAddress(), "192.168.0.1"_ipv4);
 		EXPECT_EQ(netNetmask.getHighestAddress(), "192.168.255.254"_ipv4);
 		EXPECT_EQ(netNetmask.getTotalAddressCount(), 256 * 256);
+		EXPECT_EQ(netNetmask.toString(), "192.168.0.0/16");
 
 		IPv4Network netStringWithPrefix("192.168.1.1/8");
 		EXPECT_EQ(netStringWithPrefix.getPrefixLen(), 8u);
@@ -272,6 +275,7 @@ namespace pcpp
 		EXPECT_EQ(netStringWithPrefix.getLowestAddress(), "192.0.0.1"_ipv4);
 		EXPECT_EQ(netStringWithPrefix.getHighestAddress(), "192.255.255.254"_ipv4);
 		EXPECT_EQ(netStringWithPrefix.getTotalAddressCount(), 256 * 256 * 256);
+		EXPECT_EQ(netStringWithPrefix.toString(), "192.0.0.0/8");
 
 		IPv4Network netStringWithMask("192.168.1.1/255.0.0.0");
 		EXPECT_EQ(netStringWithMask.getPrefixLen(), 8u);
@@ -280,6 +284,7 @@ namespace pcpp
 		EXPECT_EQ(netStringWithMask.getLowestAddress(), "192.0.0.1"_ipv4);
 		EXPECT_EQ(netStringWithMask.getHighestAddress(), "192.255.255.254"_ipv4);
 		EXPECT_EQ(netStringWithMask.getTotalAddressCount(), 256 * 256 * 256);
+		EXPECT_EQ(netStringWithMask.toString(), "192.0.0.0/8");
 	};
 
 	TEST(IPv4NetworkTest, IPv4NetworkIncludes)
@@ -298,6 +303,7 @@ namespace pcpp
 		EXPECT_EQ(netSingle.getLowestAddress(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
 		EXPECT_EQ(netSingle.getHighestAddress(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
 		EXPECT_EQ(netSingle.getTotalAddressCount(), 1);
+		EXPECT_EQ(netSingle.toString(), "2001:db8:85a3::8a2e:370:7334/128");
 
 		IPv6Network netPrefix("2001:db8:85a3::8a2e:370:7334"_ipv6, 96u);
 		EXPECT_EQ(netPrefix.getPrefixLen(), 96u);
@@ -306,6 +312,7 @@ namespace pcpp
 		EXPECT_EQ(netPrefix.getLowestAddress(), "2001:db8:85a3::8a2e:0:1"_ipv6);
 		EXPECT_EQ(netPrefix.getHighestAddress(), "2001:db8:85a3::8a2e:ffff:ffff"_ipv6);
 		EXPECT_EQ(netPrefix.getTotalAddressCount(), 4294967296ul);
+		EXPECT_EQ(netPrefix.toString(), "2001:db8:85a3::8a2e:0:0/96");
 
 		IPv6Network netNetmask("2001:db8:85a3::8a2e:370:7334"_ipv6, "ffff:ffff:ffff:ffff::");
 		EXPECT_EQ(netNetmask.getPrefixLen(), 64u);
@@ -314,6 +321,7 @@ namespace pcpp
 		EXPECT_EQ(netNetmask.getLowestAddress(), "2001:db8:85a3::1"_ipv6);
 		EXPECT_EQ(netNetmask.getHighestAddress(), "2001:db8:85a3::ffff:ffff:ffff:ffff"_ipv6);
 		EXPECT_THROW(netNetmask.getTotalAddressCount(), std::out_of_range);
+		EXPECT_EQ(netNetmask.toString(), "2001:db8:85a3::/64");
 
 		IPv6Network netStringWithPrefix("2001:db8:85a3::8a2e:370:7334/64");
 		EXPECT_EQ(netStringWithPrefix.getPrefixLen(), 64u);
@@ -322,6 +330,7 @@ namespace pcpp
 		EXPECT_EQ(netStringWithPrefix.getLowestAddress(), "2001:db8:85a3::1"_ipv6);
 		EXPECT_EQ(netStringWithPrefix.getHighestAddress(), "2001:db8:85a3::ffff:ffff:ffff:ffff"_ipv6);
 		EXPECT_THROW(netStringWithPrefix.getTotalAddressCount(), std::out_of_range);
+		EXPECT_EQ(netStringWithPrefix.toString(), "2001:db8:85a3::/64");
 
 		IPv6Network netStringWithMask("2001:db8:85a3::8a2e:370:7334/ffff:ffff:ffff:ffff::");
 		EXPECT_EQ(netStringWithMask.getPrefixLen(), 64u);
@@ -330,6 +339,7 @@ namespace pcpp
 		EXPECT_EQ(netStringWithMask.getLowestAddress(), "2001:db8:85a3::1"_ipv6);
 		EXPECT_EQ(netStringWithMask.getHighestAddress(), "2001:db8:85a3::ffff:ffff:ffff:ffff"_ipv6);
 		EXPECT_THROW(netStringWithMask.getTotalAddressCount(), std::out_of_range);
+		EXPECT_EQ(netStringWithMask.toString(), "2001:db8:85a3::/64");
 	};
 
 	TEST(IPv6NetworkTest, IPv6NetworkIncludes)
@@ -339,7 +349,29 @@ namespace pcpp
 
 	TEST(IPNetworkTest, IPNetworkBasics)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		IPNetwork netSingleV4("192.168.1.1"_ipv4);
+		EXPECT_TRUE(netSingleV4.isIPv4Network());
+		EXPECT_FALSE(netSingleV4.isIPv6Network());
+		EXPECT_EQ(netSingleV4.getPrefixLen(), 32u);
+		EXPECT_EQ(netSingleV4.getNetmask(), "255.255.255.255");
+		EXPECT_EQ(netSingleV4.getNetworkPrefix(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingleV4.getLowestAddress(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingleV4.getHighestAddress(), "192.168.1.1"_ipv4);
+		EXPECT_EQ(netSingleV4.getTotalAddressCount(), 1);
+		EXPECT_EQ(netSingleV4.toString(), "192.168.1.1/32");
+
+		IPNetwork netSingleV6("2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_FALSE(netSingleV6.isIPv4Network());
+		EXPECT_TRUE(netSingleV6.isIPv6Network());
+		EXPECT_EQ(netSingleV6.getPrefixLen(), 128u);
+		EXPECT_EQ(netSingleV6.getNetmask(), "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff");
+		EXPECT_EQ(netSingleV6.getNetworkPrefix(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingleV6.getLowestAddress(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingleV6.getHighestAddress(), "2001:db8:85a3::8a2e:370:7334"_ipv6);
+		EXPECT_EQ(netSingleV6.getTotalAddressCount(), 1);
+		EXPECT_EQ(netSingleV6.toString(), "2001:db8:85a3::8a2e:370:7334/128");
 	};
 
 	TEST(IPNetworkTest, IPNetworkIncludes)
