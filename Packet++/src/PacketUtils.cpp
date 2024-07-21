@@ -181,7 +181,7 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 	IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
 	if (ipv4Layer != nullptr)
 	{
-		if (portSrc == portDst && ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
+		if (!directionUnique && portSrc == portDst && ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
 			srcPosition = 1;
 
 		vec[2 + srcPosition].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
@@ -194,7 +194,7 @@ uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 	else
 	{
 		IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
-		if (portSrc == portDst && (uint64_t)ipv6Layer->getIPv6Header()->ipDst < (uint64_t)ipv6Layer->getIPv6Header()->ipSrc)
+		if (!directionUnique && portSrc == portDst && memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
 			srcPosition = 1;
 
 		vec[2 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
@@ -232,8 +232,7 @@ uint32_t hash2Tuple(Packet* packet)
 	{
 		IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
 		int srcPosition = 0;
-		if ((uint64_t)ipv6Layer->getIPv6Header()->ipDst < (uint64_t)ipv6Layer->getIPv6Header()->ipSrc
-				&& (uint64_t)(ipv6Layer->getIPv6Header()->ipDst+8) < (uint64_t)(ipv6Layer->getIPv6Header()->ipSrc+8))
+		if (memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
 			srcPosition = 1;
 
 		vec[0 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
