@@ -1,4 +1,5 @@
 #include <array>
+#include <cstring>
 #include <gtest/gtest.h>
 
 #include "IpAddress.h"
@@ -22,7 +23,7 @@ namespace pcpp
 		EXPECT_TRUE(IPv4Address::isValidIPv4Address("222.146.254.245"));
 		EXPECT_FALSE(IPv4Address::isValidIPv4Address("222.146.300.245"));
 		EXPECT_FALSE(IPv4Address::isValidIPv4Address("bogus string"));
-	}
+	};
 
 	TEST(IPv4AddressTest, IPv4AddressBasics)
 	{
@@ -61,7 +62,7 @@ namespace pcpp
 	TEST(IPv4AddressTest, Multicast)
 	{
 		FAIL() << "Not Implemented";
-	}
+	};
 
 	TEST(IPv6AddressTest, IPv6AddressTest)
 	{
@@ -71,20 +72,20 @@ namespace pcpp
 	TEST(IPAddressTest, IPAddressTest)
 	{
 		FAIL() << "Not Implemented";
-	}
+	};
 
 	TEST(IPv4NetworkTest, IPv4NetworkTest)
 	{
 		FAIL() << "Not Implemented";
-	}
+	};
 
 	TEST(IPv6NetworkTest, IPv6NetworkTest)
 	{
 		FAIL() << "Not Implemented";
-	}
+	};
 
 	TEST(IPNetworkTest, IPNetworkTest)
 	{
 		FAIL() << "Not Implemented";
-	}
+	};
 }  // namespace pcpp
