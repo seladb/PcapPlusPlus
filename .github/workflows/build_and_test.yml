@@ -365,12 +365,14 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           python3 -m pip install gcovr
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
         uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+        if: ${{ matrix.host-arch == matrix.arch }}
         with:
           files: ./coverage.xml
           flags: ${{ matrix.os-version }},unittest
