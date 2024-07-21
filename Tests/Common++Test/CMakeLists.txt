@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 3.14)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.11.0
+)
+
+if(WIN32)
+  # Prevent overriding the parent project's compiler/linker settings.
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+endif()
+
+FetchContent_MakeAvailable(googletest)
+
+
+add_executable(
+  Common++Test
+  Tests/IPAddressTests.cpp)
+
+target_link_libraries(
+  Common++Test
+  PRIVATE Common++
+          gtest
+          gtest_main
+)
+
+if(MSVC)
+  # This executable requires getopt.h not available on VStudio
+  target_link_libraries(Common++Test PRIVATE Getopt-for-Visual-Studio)
+endif()
+
+set_property(TARGET Common++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+set_property(TARGET Common++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+set_property(TARGET Common++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
+
+enable_testing()
+
+add_test(
+  NAME Common++Test
+  COMMAND $<TARGET_FILE:Common++Test>
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
