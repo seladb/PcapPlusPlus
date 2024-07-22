@@ -95,7 +95,25 @@ namespace pcpp
 
 	TEST(IPv4AddressTest, MatchNetwork)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		IPv4Address ipBase = "192.168.1.1"_ipv4;
+
+		EXPECT_TRUE(ipBase.matchNetwork("192.168.1.1/16"));
+		EXPECT_TRUE(ipBase.matchNetwork("192.168.1.1/24"));
+		EXPECT_TRUE(ipBase.matchNetwork("192.168.1.1/32"));
+		
+		EXPECT_TRUE(ipBase.matchNetwork(IPv4Network("192.168.1.1/16")));
+		EXPECT_TRUE(ipBase.matchNetwork(IPv4Network("192.168.1.1/24")));
+		EXPECT_TRUE(ipBase.matchNetwork(IPv4Network("192.168.1.1/32")));
+
+		EXPECT_FALSE(ipBase.matchNetwork("192.168.1.2/32"));
+		EXPECT_FALSE(ipBase.matchNetwork("192.168.2.1/24"));
+		EXPECT_FALSE(ipBase.matchNetwork("192.169.1.1/16"));
+
+		EXPECT_FALSE(ipBase.matchNetwork(IPv4Network("192.168.1.2/32")));
+		EXPECT_FALSE(ipBase.matchNetwork(IPv4Network("192.168.2.1/24")));
+		EXPECT_FALSE(ipBase.matchNetwork(IPv4Network("192.169.1.1/16")));
 	};
 
 	TEST(IPv6AddressTest, IPv6AddressStatics)
@@ -187,7 +205,29 @@ namespace pcpp
 
 	TEST(IPv6AddressTest, MatchNetwork)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		IPv6Address ipBase = "2001:db8:85a3::8a2e:370:7334"_ipv6;
+
+		EXPECT_TRUE(ipBase.matchNetwork("2001:db8:85a3::8a2e:370:7334/128"));
+		EXPECT_TRUE(ipBase.matchNetwork("2001:db8:85a3::8a2e:0:0/96"));
+		EXPECT_TRUE(ipBase.matchNetwork("2001:db8:85a3::/64"));
+		EXPECT_TRUE(ipBase.matchNetwork("2001:db8:85a3::/32"));
+
+		EXPECT_TRUE(ipBase.matchNetwork(IPv6Network("2001:db8:85a3::8a2e:370:7334/128")));
+		EXPECT_TRUE(ipBase.matchNetwork(IPv6Network("2001:db8:85a3::8a2e:0:0/96")));
+		EXPECT_TRUE(ipBase.matchNetwork(IPv6Network("2001:db8:85a3::/64")));
+		EXPECT_TRUE(ipBase.matchNetwork(IPv6Network("2001:db8:85a3::/32")));
+
+		EXPECT_FALSE(ipBase.matchNetwork("2001:db8:85a3::8a2e:370:7344/128"));
+		EXPECT_FALSE(ipBase.matchNetwork("2001:db8:85a3::8a2f:0:0/96"));
+		EXPECT_FALSE(ipBase.matchNetwork("2001:db8:85b3::/64"));
+		EXPECT_FALSE(ipBase.matchNetwork("2002:db8:85a3::/32"));
+
+		EXPECT_FALSE(ipBase.matchNetwork(IPv6Network("2001:db8:85a3::8a2e:370:7344/128")));
+		EXPECT_FALSE(ipBase.matchNetwork(IPv6Network("2001:db8:85a3::8a2f:0:0/96")));
+		EXPECT_FALSE(ipBase.matchNetwork(IPv6Network("2001:db8:85b3::/64")));
+		EXPECT_FALSE(ipBase.matchNetwork(IPv6Network("2002:db8:85a3::/32")));
 	};
 
 	TEST(IPAddressTest, IPAddressBasics)
