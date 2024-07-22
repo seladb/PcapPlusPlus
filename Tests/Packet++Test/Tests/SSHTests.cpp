@@ -33,18 +33,18 @@ PTF_TEST_CASE(SSHParsingTest)
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMessageTypeStr(), "Key Exchange Init");
 	PTF_ASSERT_EQUAL(sshKexInitLayer->toString(), "SSH Layer, Handshake Message: Key Exchange Init");
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getCookieAsHexStream(), "0e7b9a0807ea71e0945dd1fdbfa41929");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getKeyExchangeAlgorithms(),
-	                 "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-"
-	                 "sha1,diffie-hellman-group1-sha1");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getServerHostKeyAlgorithms(),
-	                 "ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,ssh-rsa-cert-v00@openssh.com,ssh-dss-"
-	                 "cert-v00@openssh.com,ssh-rsa,ssh-dss");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getEncryptionAlgorithmsClientToServer(),
-	                 "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-"
-	                 "cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getEncryptionAlgorithmsServerToClient(),
-	                 "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-"
-	                 "cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getKeyExchangeAlgorithms(),
+	    "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getServerHostKeyAlgorithms(),
+	    "ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,ssh-rsa-cert-v00@openssh.com,ssh-dss-cert-v00@openssh.com,ssh-rsa,ssh-dss");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getEncryptionAlgorithmsClientToServer(),
+	    "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getEncryptionAlgorithmsServerToClient(),
+	    "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
 	PTF_ASSERT_EQUAL(
 	    sshKexInitLayer->getMacAlgorithmsClientToServer(),
 	    "hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160,hmac-ripemd160@openssh.com,hmac-sha1-96,hmac-md5-96");
@@ -151,18 +151,18 @@ PTF_TEST_CASE(SSHMalformedParsingTest)
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getSSHHandshakeMessageLength(), 894);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMessageType(), pcpp::SSHHandshakeMessage::SSH_MSG_KEX_INIT, enum);
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getCookieAsHexStream(), "0e7b9a0807ea71e0945dd1fdbfa41929");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getKeyExchangeAlgorithms(),
-	                 "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-"
-	                 "sha1,diffie-hellman-group1-sha1");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getServerHostKeyAlgorithms(),
-	                 "ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,ssh-rsa-cert-v00@openssh.com,ssh-dss-"
-	                 "cert-v00@openssh.com,ssh-rsa,ssh-dss");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getEncryptionAlgorithmsClientToServer(),
-	                 "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-"
-	                 "cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
-	PTF_ASSERT_EQUAL(sshKexInitLayer->getEncryptionAlgorithmsServerToClient(),
-	                 "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-"
-	                 "cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getKeyExchangeAlgorithms(),
+	    "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1,diffie-hellman-group14-sha1,diffie-hellman-group1-sha1");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getServerHostKeyAlgorithms(),
+	    "ssh-rsa-cert-v01@openssh.com,ssh-dss-cert-v01@openssh.com,ssh-rsa-cert-v00@openssh.com,ssh-dss-cert-v00@openssh.com,ssh-rsa,ssh-dss");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getEncryptionAlgorithmsClientToServer(),
+	    "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
+	PTF_ASSERT_EQUAL(
+	    sshKexInitLayer->getEncryptionAlgorithmsServerToClient(),
+	    "aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc,aes192-cbc,aes256-cbc,arcfour,rijndael-cbc@lysator.liu.se");
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMacAlgorithmsClientToServer(), "");
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getMacAlgorithmsServerToClient(), "");
 	PTF_ASSERT_EQUAL(sshKexInitLayer->getCompressionAlgorithmsClientToServer(), "");
