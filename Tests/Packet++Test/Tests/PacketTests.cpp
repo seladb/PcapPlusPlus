@@ -893,10 +893,9 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// extend layer just before trailer
 	pcpp::PPPoEDiscoveryLayer* pppoeDiscovery = trailerPPPoEDPacket.getLayerOfType<pcpp::PPPoEDiscoveryLayer>();
 	PTF_ASSERT_NOT_NULL(pppoeDiscovery);
-	PTF_ASSERT_FALSE(pppoeDiscovery
-	                     ->addTag(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(
-	                         pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 0x42524153))
-	                     .isNull());
+	// clang-format off
+	PTF_ASSERT_FALSE(pppoeDiscovery->addTag(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 0x42524153)).isNull());
+	// clang-format on
 	trailerPPPoEDPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 68);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PPPoEDiscoveryLayer>()->getDataLen(), 26);
