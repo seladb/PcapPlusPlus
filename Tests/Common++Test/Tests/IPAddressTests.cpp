@@ -223,18 +223,54 @@ namespace pcpp
 		    << "IPAddress does not throw for multiple double colon in IP string.";
 		EXPECT_THROW(IPAddress("bogusString"), std::invalid_argument) << "IPAddress does not throw for non-IP string.";
 
-		EXPECT_TRUE(ipDefault == IPv4Address::Zero) << "Comparison operator '==' does not compare equal values correctly.";
-		EXPECT_FALSE(ipDefault != IPv4Address::Zero) << "Comparison operator '!=' does not compare equal values correctly.";
+		EXPECT_TRUE(ipDefault == IPv4Address::Zero)
+		    << "Comparison operator '==' does not compare equal values correctly.";
+		EXPECT_FALSE(ipDefault != IPv4Address::Zero)
+		    << "Comparison operator '!=' does not compare equal values correctly.";
 
-		EXPECT_FALSE(ipDefault == ip6ZeroString) << "Comparison operator '==' between IPv4 and IPv6 should always return false";
-		EXPECT_TRUE(ipDefault != ip6ZeroString) << "Comparison operator '!=' between IPv4 and IPv6 should always return true";
+		EXPECT_FALSE(ipDefault == ip6ZeroString)
+		    << "Comparison operator '==' between IPv4 and IPv6 should always return false";
+		EXPECT_TRUE(ipDefault != ip6ZeroString)
+		    << "Comparison operator '!=' between IPv4 and IPv6 should always return true";
 
 		// Todo: less than operator
 	};
 
 	TEST(IPAddressTest, Multicast)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		{
+			SCOPED_TRACE("IPv4");
+
+			IPAddress underMulticastBound("223.0.0.0"_ipv4);
+			EXPECT_FALSE(underMulticastBound.isMulticast());
+
+			IPAddress atLowerMulticastBound("224.0.0.0"_ipv4);
+			EXPECT_TRUE(atLowerMulticastBound.isMulticast());
+
+			IPAddress inMulticastRange("230.9.4.1"_ipv4);
+			EXPECT_TRUE(inMulticastRange.isMulticast());
+
+			IPAddress atUpperMulticastBound("239.255.255.255"_ipv4);
+			EXPECT_TRUE(atUpperMulticastBound.isMulticast());
+
+			IPAddress overMulticastBound("240.0.0.0"_ipv4);
+			EXPECT_FALSE(overMulticastBound.isMulticast());
+		}
+
+		{
+			SCOPED_TRACE("IPv6");
+
+			IPAddress underMulticastBound("fef0::"_ipv6);
+			EXPECT_FALSE(underMulticastBound.isMulticast());
+
+			IPAddress atLowerMulticastBound("ff00::"_ipv6);
+			EXPECT_TRUE(atLowerMulticastBound.isMulticast());
+
+			IPAddress inMulticastRange("ff00::ef"_ipv6);
+			EXPECT_TRUE(inMulticastRange.isMulticast());
+		}
 	};
 
 	TEST(IPv4NetworkTest, IPv4NetworkBasics)
@@ -249,7 +285,7 @@ namespace pcpp
 		EXPECT_EQ(netSingle.getHighestAddress(), "192.168.1.1"_ipv4);
 		EXPECT_EQ(netSingle.getTotalAddressCount(), 1);
 		EXPECT_EQ(netSingle.toString(), "192.168.1.1/32");
-		
+
 		IPv4Network netPrefix("192.168.1.1"_ipv4, 24u);
 		EXPECT_EQ(netPrefix.getPrefixLen(), 24u);
 		EXPECT_EQ(netPrefix.getNetmask(), "255.255.255.0");
@@ -289,7 +325,19 @@ namespace pcpp
 
 	TEST(IPv4NetworkTest, IPv4NetworkIncludes)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		IPv4Network netBase("192.168.0.0/16");
+
+		EXPECT_TRUE(netBase.includes("192.168.1.0"_ipv4));
+		EXPECT_TRUE(netBase.includes("192.168.1.1"_ipv4));
+		EXPECT_TRUE(netBase.includes("192.168.2.1"_ipv4));
+		EXPECT_FALSE(netBase.includes("192.169.2.1"_ipv4));
+
+		EXPECT_TRUE(netBase.includes(IPv4Network("192.168.1.0/24")));
+		EXPECT_TRUE(netBase.includes(IPv4Network("192.168.2.0/24")));
+		EXPECT_TRUE(netBase.includes(IPv4Network("192.168.0.0/16")));
+		EXPECT_FALSE(netBase.includes(IPv4Network("192.0.0.0/8")));
 	};
 
 	TEST(IPv6NetworkTest, IPv6NetworkBasics)
@@ -344,7 +392,17 @@ namespace pcpp
 
 	TEST(IPv6NetworkTest, IPv6NetworkIncludes)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		IPv6Network netBase("2001:db8:85a3:34ac::/64");
+
+		EXPECT_TRUE(netBase.includes("2001:db8:85a3:34ac::1"_ipv6));
+		EXPECT_TRUE(netBase.includes("2001:db8:85a3:34ac:c::2"_ipv6));
+		EXPECT_FALSE(netBase.includes("2001:db8:85a3:34ab::1"_ipv6));
+
+		EXPECT_TRUE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/64")));
+		EXPECT_TRUE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/72")));
+		EXPECT_FALSE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/56")));
 	};
 
 	TEST(IPNetworkTest, IPNetworkBasics)
@@ -376,6 +434,48 @@ namespace pcpp
 
 	TEST(IPNetworkTest, IPNetworkIncludes)
 	{
-		FAIL() << "Not Implemented";
+		using namespace pcpp::literals;
+
+		IPNetwork netBaseV4("192.168.0.0/16");
+		EXPECT_TRUE(netBaseV4.includes("192.168.1.0"_ipv4));
+		EXPECT_TRUE(netBaseV4.includes("192.168.1.1"_ipv4));
+		EXPECT_TRUE(netBaseV4.includes("192.168.2.1"_ipv4));
+		EXPECT_FALSE(netBaseV4.includes("192.169.2.1"_ipv4));
+		EXPECT_FALSE(netBaseV4.includes("2001:db8:85a3:34ac::"_ipv6));
+		EXPECT_FALSE(netBaseV4.includes("::C0A9:0201"_ipv6)) << "IPNetwork in V4 mode should not match V6 equivalents.";
+
+		EXPECT_TRUE(netBaseV4.includes(IPNetwork("192.168.1.0/24")));
+		EXPECT_TRUE(netBaseV4.includes(IPNetwork("192.168.2.0/24")));
+		EXPECT_TRUE(netBaseV4.includes(IPNetwork("192.168.0.0/16")));
+		EXPECT_FALSE(netBaseV4.includes(IPNetwork("192.0.0.0/8")));
+		EXPECT_FALSE(netBaseV4.includes(IPNetwork("2001:db8:85a3:34ac::/64")));
+		EXPECT_FALSE(netBaseV4.includes(IPNetwork("::c0a9:0000/112")))
+		    << "IPNetwork in V4 mode should not match V6 equivalents.";
+		EXPECT_FALSE(netBaseV4.includes(IPNetwork("::c0a9:0201/116")))
+		    << "IPNetwork in V4 mode should not match V6 equivalents.";
+
+		IPNetwork netBaseV6("2001:db8:85a3:34ac::/64");
+		EXPECT_TRUE(netBaseV6.includes("2001:db8:85a3:34ac::1"_ipv6));
+		EXPECT_TRUE(netBaseV6.includes("2001:db8:85a3:34ac:c::2"_ipv6));
+		EXPECT_FALSE(netBaseV6.includes("2001:db8:85a3:34ab::1"_ipv6));
+
+		EXPECT_TRUE(netBaseV6.includes(IPNetwork("2001:db8:85a3:34ac::/64")));
+		EXPECT_TRUE(netBaseV6.includes(IPNetwork("2001:db8:85a3:34ac::/72")));
+		EXPECT_FALSE(netBaseV6.includes(IPNetwork("2001:db8:85a3:34ac::/56")));
+
+		IPNetwork netBaseV6_V4compat("::c0a8:0000/112");
+		EXPECT_FALSE(netBaseV6_V4compat.includes("192.168.1.0"_ipv4))
+		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
+		EXPECT_FALSE(netBaseV6_V4compat.includes("192.168.2.1"_ipv4))
+		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
+		EXPECT_FALSE(netBaseV6_V4compat.includes("192.169.2.1"_ipv4))
+		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
+
+		EXPECT_FALSE(netBaseV6_V4compat.includes(IPNetwork("192.169.1.1/15")))
+		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
+		EXPECT_FALSE(netBaseV6_V4compat.includes(IPNetwork("192.169.1.1/16")))
+		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
+		EXPECT_FALSE(netBaseV6_V4compat.includes(IPNetwork("192.169.1.1/17")))
+		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
 	};
 }  // namespace pcpp
