@@ -1,5 +1,6 @@
 #include <array>
 #include <cstring>
+#include <sstream>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -55,5 +56,13 @@ namespace pcpp
 
 		EXPECT_TRUE(macAddr1 != macAddr2) << "Comparison operator '!=' does not compare unequal values correctly.";
 		EXPECT_FALSE(macAddr2 != macAddr3) << "Comparison operator '!=' does not compare equal values correctly.";
+	};
+
+	TEST(MacAddressTest, ToStream)
+	{
+		MacAddress macAddr("00:11:22:33:44:55");
+		std::stringstream stream;
+		stream << macAddr;
+		EXPECT_EQ(stream.str(), "00:11:22:33:44:55");
 	};
 }  // namespace pcpp
