@@ -263,23 +263,23 @@ PTF_TEST_CASE(TestKniDevice)
 		case pcpp::KniDevice::LINK_NOT_SUPPORTED:
 		{
 			PTF_PRINT_VERBOSE("KNI updateLinkState not supported");
+			break;
 		}
-		break;
 		case pcpp::KniDevice::LINK_ERROR:
 		{
 			PTF_PRINT_VERBOSE("KNI updateLinkState have failed with LINK_ERROR");
+			break;
 		}
-		break;
 		case pcpp::KniDevice::LINK_DOWN:
 		{  // If previous known state was UP -> yield an error
 			PTF_ASSERT_FALSE(isLinkUp);
+			break;
 		}
-		break;
 		case pcpp::KniDevice::LINK_UP:
 		{  // If previous known state was DOWN -> yield an error
 			PTF_ASSERT_TRUE(isLinkUp);
+			break;
 		}
-		break;
 		}
 	}
 	device->stopRequestHandlerThread();
@@ -417,18 +417,18 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		case -1:
 		{
 			PTF_PRINT_VERBOSE("KNI startCaptureBlockingMode have exited by timeout");
+			break;
 		}
-		break;
 		case 0:
 		{
 			PTF_PRINT_VERBOSE("KNI startCaptureBlockingMode have exited by an ERROR");
+			break;
 		}
-		break;
 		case 1:
 		{
 			PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets (blocking mode) on device " << KNI_DEVICE1);
+			break;
 		}
-		break;
 		}
 	}
 
