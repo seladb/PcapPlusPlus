@@ -461,25 +461,18 @@ PTF_TEST_CASE(TestIPv4Network)
 	auto addressAsStr = std::string("192.168.10.100");
 	auto address = pcpp::IPv4Address(addressAsStr);
 
-	auto networksPrefixLensAndNetPrefix =
-	    std::vector<std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>>{
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "255.255.255.255", 32, "192.168.10.100", "192.168.10.100", "192.168.10.100",  1          },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "255.255.255.0",   24, "192.168.10.0",   "192.168.10.1",   "192.168.10.254",  256        },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "255.255.0.0",     16, "192.168.0.0",    "192.168.0.1",    "192.168.255.254", 65536      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "255.240.0.0",     12, "192.160.0.0",    "192.160.0.1",    "192.175.255.254", 1048576    },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "255.0.0.0",       8,  "192.0.0.0",      "192.0.0.1",      "192.255.255.254", 16777216   },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "192.0.0.0",       2,  "192.0.0.0",      "192.0.0.1",      "255.255.255.254", 1073741824 },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "128.0.0.0",       1,  "128.0.0.0",      "128.0.0.1",      "255.255.255.254", 2147483648 },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "0.0.0.0",         0,  "0.0.0.0",        "0.0.0.1",        "255.255.255.254", 4294967296 }
-    };
+	// clang-format off
+	auto networksPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>> {
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.255.255.255", 32, "192.168.10.100", "192.168.10.100", "192.168.10.100", 1},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.255.255.0", 24, "192.168.10.0", "192.168.10.1", "192.168.10.254", 256},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.255.0.0", 16, "192.168.0.0", "192.168.0.1", "192.168.255.254", 65536},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.240.0.0", 12, "192.160.0.0", "192.160.0.1", "192.175.255.254", 1048576},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"255.0.0.0", 8, "192.0.0.0", "192.0.0.1", "192.255.255.254", 16777216},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"192.0.0.0", 2, "192.0.0.0", "192.0.0.1", "255.255.255.254", 1073741824},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"128.0.0.0", 1, "128.0.0.0", "128.0.0.1", "255.255.255.254", 2147483648},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"0.0.0.0", 0, "0.0.0.0", "0.0.0.1", "255.255.255.254", 4294967296}
+	};
+	// clang-format on
 
 	for (auto networkPrefixLenAndNetPrefix : networksPrefixLensAndNetPrefix)
 	{
@@ -585,39 +578,23 @@ PTF_TEST_CASE(TestIPv6Network)
 	auto addressAsStr = std::string("39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746");
 	auto address = pcpp::IPv6Address(addressAsStr);
 
-	auto netmasksPrefixLensAndNetPrefix =
-	    std::vector<std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>>{
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 128, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746",
-		                                                                                      "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746",		                                                                   "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", 1                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8", 125, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5740",
-		                                                                                      "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5741",		                                                                   "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5747", 8                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:ffff:ffff:ffff:8000::",              65,  "39e1:f90e:14dd:f9a1::",                   "39e1:f90e:14dd:f9a1::1",
-		                                                                                      "39e1:f90e:14dd:f9a1:7fff:ffff:ffff:ffff",		                                                                                                              9223372036854775808ULL },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:ffff:ffff:ffff::",                   64,  "39e1:f90e:14dd:f9a1::",                   "39e1:f90e:14dd:f9a1::1",
-		                                                                                      "39e1:f90e:14dd:f9a1:ffff:ffff:ffff:ffff",		                                                                                                              0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:ffff::",                             32,  "39e1:f90e::",                             "39e1:f90e::1",           "39e1:f90e:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:e000::",                             19,  "39e1:e000::",                             "39e1:e000::1",           "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff:8000::",                             17,  "39e1:8000::",                             "39e1:8000::1",           "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ffff::",		                          16,  "39e1::",                                  "39e1::1",                "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ff80::",		                          9,   "3980::",                                  "3980::1",                "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "ff00::",		                          8,   "3900::",                                  "3900::1",                "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "fc00::",		                          6,   "3800::",                                  "3800::1",                "3bff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "c000::",		                          2,   "00::",                                    "00::1",                  "3fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      },
-		    std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{
-		                                                                                      "::",		                              0,   "::",		                              "::1",                    "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0                      }
-    };
+	// clang-format off
+	auto netmasksPrefixLensAndNetPrefix = std::vector<std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>> {
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 128, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5746", 1},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:ffff:ffff:ffff:fff8", 125, "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5740", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5741", "39e1:f90e:14dd:f9a1:4d0a:7f9f:da18:5747", 8},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff:8000::", 65, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1::1", "39e1:f90e:14dd:f9a1:7fff:ffff:ffff:ffff", 9223372036854775808ULL},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff:ffff:ffff::", 64, "39e1:f90e:14dd:f9a1::", "39e1:f90e:14dd:f9a1::1", "39e1:f90e:14dd:f9a1:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:ffff::", 32, "39e1:f90e::", "39e1:f90e::1", "39e1:f90e:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:e000::", 19, "39e1:e000::", "39e1:e000::1", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff:8000::", 17, "39e1:8000::", "39e1:8000::1", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ffff::", 16, "39e1::", "39e1::1", "39e1:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ff80::", 9, "3980::", "3980::1", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"ff00::", 8, "3900::", "3900::1", "39ff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"fc00::", 6, "3800::", "3800::1", "3bff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"c000::", 2, "00::", "00::1", "3fff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0},
+		std::tuple<std::string, uint8_t, std::string, std::string, std::string, uint64_t>{"::", 0, "::", "::1", "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff", 0}
+	};
+	// clang-format on
 
 	for (auto netmaskPrefixLenAndNetPrefix : netmasksPrefixLensAndNetPrefix)
 	{
@@ -692,19 +669,12 @@ PTF_TEST_CASE(TestIPv6Network)
 
 PTF_TEST_CASE(TestIPNetwork)
 {
-	auto networkInfos = std::vector<std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress,
-	                                           int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>>{
-		std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress,
-		           pcpp::IPAddress, uint64_t>{ "192.168.1.1",                             pcpp::IPv4Address("192.168.1.1"), 16, "255.255.0.0",
-                                              pcpp::IPv4Address("192.168.0.0"),		                                                                                                    4, pcpp::IPv4Address("192.168.0.1"),
-                                              pcpp::IPv4Address("192.168.255.254"),                         65536 },
-		std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress,
-		           pcpp::IPAddress, uint64_t>{ "fe26:d0a1:beb6:5957:e77a:9983:ec84:b23e",
-                                              pcpp::IPv6Address("fe26:d0a1:beb6:5957:e77a:9983:ec84:b23e"),                 64,
-                                              "ffff:ffff:ffff:ffff::",		                                                                 pcpp::IPv6Address("fe26:d0a1:beb6:5957::"), 6,
-                                              pcpp::IPv6Address("fe26:d0a1:beb6:5957::1"),
-                                              pcpp::IPv6Address("fe26:d0a1:beb6:5957:ffff:ffff:ffff:ffff"), 0     }
+	// clang-format off
+	auto networkInfos = std::vector<std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>> {
+		std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>{"192.168.1.1", pcpp::IPv4Address("192.168.1.1"), 16, "255.255.0.0", pcpp::IPv4Address("192.168.0.0"), 4, pcpp::IPv4Address("192.168.0.1"), pcpp::IPv4Address("192.168.255.254"), 65536},
+		std::tuple<std::string, pcpp::IPAddress, std::uint8_t, std::string, pcpp::IPAddress, int, pcpp::IPAddress, pcpp::IPAddress, uint64_t>{"fe26:d0a1:beb6:5957:e77a:9983:ec84:b23e", pcpp::IPv6Address("fe26:d0a1:beb6:5957:e77a:9983:ec84:b23e"), 64, "ffff:ffff:ffff:ffff::", pcpp::IPv6Address("fe26:d0a1:beb6:5957::"), 6, pcpp::IPv6Address("fe26:d0a1:beb6:5957::1"), pcpp::IPv6Address("fe26:d0a1:beb6:5957:ffff:ffff:ffff:ffff"), 0}
 	};
+	// clang-format on
 
 	for (auto networkInfo : networkInfos)
 	{
