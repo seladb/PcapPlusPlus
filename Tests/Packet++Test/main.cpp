@@ -14,8 +14,10 @@ static struct option PacketTestOptions[] = {
 	{ "mem-verbose",         no_argument,       nullptr, 'm' },
 	{ "verbose",             no_argument,       nullptr, 'v' },
 	{ "skip-mem-leak-check", no_argument,       nullptr, 's' },
-	{ "help",	            no_argument,       nullptr, 'h' },
-	{ nullptr,	           0,                 nullptr, 0   }
+	// clang-format off
+	{ "help",                no_argument,       nullptr, 'h' },
+	{ nullptr,               0,                 nullptr, 0   }
+	// clang-format on
 };
 
 void printUsage()
