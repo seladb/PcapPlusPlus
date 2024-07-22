@@ -380,10 +380,9 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	                       sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getDataLen());
 	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(),
 	                 sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOptionCount());
-	PTF_ASSERT_TRUE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()
-	                    ->getTcpOption(pcpp::TcpOptionEnumType::Timestamp)
-	                    .getRecordBasePtr() !=
-	                tcpLayer.getTcpOption(pcpp::TcpOptionEnumType::Timestamp).getRecordBasePtr());
+	// clang-format off
+	PTF_ASSERT_TRUE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOption(pcpp::TcpOptionEnumType::Timestamp).getRecordBasePtr() != tcpLayer.getTcpOption(pcpp::TcpOptionEnumType::Timestamp).getRecordBasePtr());
+	// clang-format on
 	PTF_ASSERT_TRUE(
 	    sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOption(pcpp::TcpOptionEnumType::Timestamp) ==
 	    tcpLayer.getTcpOption(pcpp::TcpOptionEnumType::Timestamp));
