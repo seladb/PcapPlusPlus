@@ -331,10 +331,9 @@ PTF_TEST_CASE(TcpPacketCreation2)
 	    tcpLayer.addTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TCPOPT_QS, nullptr, PCPP_TCPOLEN_QS), pcpp::TCPOPT_MSS);
 	PTF_ASSERT_TRUE(qsOption.isNotNull());
 	PTF_ASSERT_TRUE(qsOption.setValue(htobe32(9999)));
-	PTF_ASSERT_TRUE(
-	    tcpLayer
-	        .addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::Snack, static_cast<uint32_t>(htobe32(1000))))
-	        .isNotNull());
+	// clang-format off
+	PTF_ASSERT_TRUE(tcpLayer.addTcpOption(pcpp::TcpOptionBuilder(pcpp::TcpOptionEnumType::Snack, static_cast<uint32_t>(htobe32(1000)))).isNotNull());
+	// clang-format on
 	PTF_ASSERT_TRUE(tcpLayer
 	                    .insertTcpOptionAfter(pcpp::TcpOptionBuilder(pcpp::TcpOptionBuilder::NopEolOptionEnumType::Nop),
 	                                          pcpp::TcpOptionEnumType::Timestamp)
