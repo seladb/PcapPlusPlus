@@ -1,16 +1,16 @@
-#include "../Common/GlobalTestArgs.h"
-#include "../Common/PcapFileNamesDef.h"
-#include "../Common/TestUtils.h"
 #include "../TestDefinition.h"
+#include "../Common/GlobalTestArgs.h"
+#include "../Common/TestUtils.h"
+#include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 
 #ifdef USE_PF_RING
-#	include "IPv4Layer.h"
 #	include "Logger.h"
 #	include "PacketUtils.h"
+#	include "IPv4Layer.h"
+#	include "PfRingDeviceList.h"
 #	include "PcapFileDevice.h"
 #	include "PcapLiveDeviceList.h"
-#	include "PfRingDeviceList.h"
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;

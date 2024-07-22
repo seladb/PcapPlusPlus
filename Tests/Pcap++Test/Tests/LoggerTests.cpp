@@ -1,12 +1,11 @@
 #define LOG_MODULE PacketLogModuleArpLayer
 #include "../TestDefinition.h"
+#include "Logger.h"
+#include <string>
 #include <algorithm>
 #include <cctype>
-#include <random>
-#include <string>
 #include <thread>
-
-#include "Logger.h"
+#include <random>
 #include "SystemUtils.h"
 
 namespace pcpp
