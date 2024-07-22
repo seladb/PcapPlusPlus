@@ -102,7 +102,7 @@ namespace pcpp
 		EXPECT_TRUE(ipBase.matchNetwork("192.168.1.1/16"));
 		EXPECT_TRUE(ipBase.matchNetwork("192.168.1.1/24"));
 		EXPECT_TRUE(ipBase.matchNetwork("192.168.1.1/32"));
-		
+
 		EXPECT_TRUE(ipBase.matchNetwork(IPv4Network("192.168.1.1/16")));
 		EXPECT_TRUE(ipBase.matchNetwork(IPv4Network("192.168.1.1/24")));
 		EXPECT_TRUE(ipBase.matchNetwork(IPv4Network("192.168.1.1/32")));
