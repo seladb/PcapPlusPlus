@@ -1264,3 +1264,31 @@ PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 	packetStream.clear();
 	tcpReassemblyResults.clear();
 } // TestTcpReassemblyTimeStamps
+
+PTF_TEST_CASE(TestTcpReassemblyFinishReset)
+{
+	TcpReassemblyMultipleConnStats results;
+	std::string errMsg;
+
+	std::vector<pcpp::RawPacket> packetStream;
+	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream_fin_rst_close_packet.pcap", packetStream, errMsg));
+
+	pcpp::TcpReassemblyConfiguration config(true, 2, 1);
+	pcpp::TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback,
+	                                  tcpReassemblyConnectionEndCallback, config);
+
+	for (auto iter : packetStream)
+	{
+		pcpp::Packet packet(&iter);
+		tcpReassembly.reassemblePacket(packet);
+	}
+
+	auto managedConnections = tcpReassembly.getConnectionInformation();  // make a copy of list
+	PTF_ASSERT_EQUAL(managedConnections.size(), 1);
+
+	bool isOpen = tcpReassembly.isConnectionOpen(managedConnections.begin()->second);
+	PTF_ASSERT_FALSE(isOpen);
+
+	packetStream.clear();
+
+}  // TestTcpReassemblyFinishReset

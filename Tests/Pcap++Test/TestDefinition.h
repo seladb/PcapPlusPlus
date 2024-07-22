@@ -77,6 +77,7 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags);
 PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
 PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup);
 PTF_TEST_CASE(TestTcpReassemblyTimeStamps);
+PTF_TEST_CASE(TestTcpReassemblyFinishReset);
 
 // Implemented in IPFragmentationTests.cpp
 PTF_TEST_CASE(TestIPFragmentationSanity);
