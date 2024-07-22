@@ -80,8 +80,7 @@ int main(int argc, char* argv[])
 
 #ifdef NDEBUG
 	skipMemLeakCheck = true;
-	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks "
-	             "like a memory leak:"
+	std::cout << "Disabling memory leak check in MSVC Release builds due to caching logic in stream objects that looks like a memory leak:"
 	          << std::endl
 	          << "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 #endif
