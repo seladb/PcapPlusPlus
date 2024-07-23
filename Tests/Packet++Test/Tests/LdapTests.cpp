@@ -670,10 +670,9 @@ PTF_TEST_CASE(LdapCreationTest)
 
 		auto actualServerSaslCredentialsRecord =
 		    bindResponseLayer.getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
-		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()
-		                                               ->getSubRecords()
-		                                               .at(3)
-		                                               ->castAs<pcpp::Asn1GenericRecord>();
+		// clang-format off
+		auto expectedServerSaslCredentialsRecord = expectedBindResponseLayer->getLdapOperationAsn1Record()->getSubRecords().at(3)->castAs<pcpp::Asn1GenericRecord>();
+		// clang-format on
 		PTF_ASSERT_BUF_COMPARE(actualServerSaslCredentialsRecord->getValue(),
 		                       expectedServerSaslCredentialsRecord->getValue(),
 		                       expectedServerSaslCredentialsRecord->getValueLength())
