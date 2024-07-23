@@ -1,13 +1,13 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
+#include "Packet.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
-#include "Packet.h"
-#include "PacketUtils.h"
-#include "SystemUtils.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
+#include "SystemUtils.h"
+#include "PacketUtils.h"
 
 PTF_TEST_CASE(PacketUtilsHash5TupleUdp)
 {
