@@ -26,7 +26,7 @@ repos:
         args: ["--style=file"]  # Use the .clang-format file for configuration
         files: ^Common\+\+/.*\.(cpp|h)$
       - id: cppcheck
-        args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
+        args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force", "--library=googletest"]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
