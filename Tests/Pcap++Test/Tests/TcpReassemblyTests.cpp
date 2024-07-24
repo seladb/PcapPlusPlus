@@ -160,8 +160,9 @@ static void tcpReassemblyManuallyCloseConnMsgReadyCallback(int8_t sideIndex, con
 	// if numOfDataPackets hits 10, close the connection manually
 	if (iter->second.numOfDataPackets >= 10)
 	{
-		static_cast<TcpReassemblyMultipleConnStats*>(userCookie)
-		    ->tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
+		// clang-format off
+		static_cast<TcpReassemblyMultipleConnStats*>(userCookie)->tcpReassmbly->closeConnection(tcpData.getConnectionData().flowKey);
+		// clang-format on
 	}
 }
 
