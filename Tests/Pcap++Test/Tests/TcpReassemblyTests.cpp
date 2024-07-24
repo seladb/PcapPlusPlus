@@ -1115,8 +1115,8 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
 	std::string errMsg;
 
 	pcpp::TcpReassemblyConfiguration config1(true, 5, 30);
-	pcpp::TcpReassemblyConfiguration config2(
-	    true, 5, 30, 5);  // the fourth argument is the max allowed out-of-order fragments, so we only allow 5
+	// the fourth argument is the max allowed out-of-order fragments, so we only allow 5
+	pcpp::TcpReassemblyConfiguration config2(true, 5, 30, 5);
 	pcpp::TcpReassembly tcpReassembly1(tcpReassemblyMsgReadyCallback, &results1, tcpReassemblyConnectionStartCallback,
 	                                   tcpReassemblyConnectionEndCallback, config1);
 	pcpp::TcpReassembly tcpReassembly2(tcpReassemblyMsgReadyCallback, &results2, tcpReassemblyConnectionStartCallback,
