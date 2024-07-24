@@ -21,7 +21,9 @@ add_executable(
   Tests/GeneralUtilsTests.cpp
   Tests/IPAddressTests.cpp
   Tests/MacAddressTests.cpp
-  Tests/PointerVectorTests.cpp )
+  Tests/PointerVectorTests.cpp
+  Tests/LRUListTests.cpp
+)
 
 target_link_libraries(
   Common++Test
