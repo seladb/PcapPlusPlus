@@ -481,10 +481,12 @@ PTF_TEST_CASE(LdapCreationTest)
 		pcpp::Asn1OctetStringRecord stringSubRecord2("ntsecuritydescriptor");
 		pcpp::Asn1SequenceRecord sequenceRecord({ &stringSubRecord1, &stringSubRecord2 });
 
+		// clang-format off
 		std::vector<pcpp::LdapControl> controls = {
 			{ "1.2.840.113556.1.4.801", "3003020107"       },
-            { "1.2.840.113556.1.4.319", "3006020201f40400" }
+			{ "1.2.840.113556.1.4.319", "3006020201f40400" }
 		};
+		// clang-format on
 
 		pcpp::LdapLayer ldapLayer(6, pcpp::LdapOperationType::SearchRequest,
 		                          { &stringRecord, &enumeratedRecord1, &enumeratedRecord2, &integerRecord1,
