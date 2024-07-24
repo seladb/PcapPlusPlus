@@ -17,7 +17,7 @@ namespace pcpp
 		lruCache.put(1, &deletedValue);
 		EXPECT_EQ(lruCache.getSize(), 1);
 		EXPECT_EQ(deletedValue, 0);
-		
+
 		lruCache.put(1, &deletedValue);
 		EXPECT_EQ(lruCache.getSize(), 1);
 		EXPECT_EQ(deletedValue, 0);
