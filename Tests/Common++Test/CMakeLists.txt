@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(
   Common++Test
+  Tests/GeneralUtilsTests.cpp
   Tests/IPAddressTests.cpp
   Tests/MacAddressTests.cpp
   Tests/PointerVectorTests.cpp )
