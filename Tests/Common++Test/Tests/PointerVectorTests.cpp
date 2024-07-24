@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "..\Utils\MemoryLeakDetectorFixture.hpp"
+#include "MemoryLeakDetectorFixture.hpp"
 
 #include "PointerVector.h"
 

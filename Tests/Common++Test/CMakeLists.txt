@@ -31,6 +31,11 @@ target_link_libraries(
           gmock_main
 )
 
+target_include_directories(Common++Test PRIVATE 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>
+)
+
+
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
   target_link_libraries(Common++Test PRIVATE Getopt-for-Visual-Studio)
