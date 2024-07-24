@@ -32,8 +32,8 @@ namespace pcpp
 		EXPECT_EQ(*atIdx0, 1);
 
 		int const* cAtIdx0 = cpVector.at(0);
-		ASSERT_NE(atIdx0, nullptr);
-		EXPECT_EQ(*atIdx0, 1);
+		ASSERT_NE(cAtIdx0, nullptr);
+		EXPECT_EQ(*cAtIdx0, 1);
 
 		pVector.pushBack(std::unique_ptr<int>(new int(2)));
 		EXPECT_EQ(pVector.size(), 2);
