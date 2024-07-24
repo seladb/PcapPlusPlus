@@ -1149,10 +1149,10 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags)
 	PTF_ASSERT_TRUE(iterConn2 != managedConnections2.end());
 	PTF_ASSERT_EQUAL(tcpReassembly1.isConnectionOpen(iterConn1->second), 1);
 	PTF_ASSERT_EQUAL(tcpReassembly2.isConnectionOpen(iterConn2->second), 1);
-	PTF_ASSERT_EQUAL(results1.stats.begin()->second.numOfDataPackets,
-	                 1);  // The second data packet is incomplete so we stopped at one
-	PTF_ASSERT_EQUAL(results2.stats.begin()->second.numOfDataPackets,
-	                 7);  // We hit the fragment limit so skipped the missing fragment and continued to the end
+	// The second data packet is incomplete so we stopped at one
+	PTF_ASSERT_EQUAL(results1.stats.begin()->second.numOfDataPackets, 1);
+	// We hit the fragment limit so skipped the missing fragment and continued to the end
+	PTF_ASSERT_EQUAL(results2.stats.begin()->second.numOfDataPackets, 7);
 
 	// Close the connections, forcing cleanup
 	tcpReassembly1.closeAllConnections();
