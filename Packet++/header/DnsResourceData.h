@@ -14,18 +14,6 @@
  */
 namespace pcpp
 {
-
-	// Visual studio has always been stupid about returning something useful for __cplusplus
-	// Only recently was this fixed - and even then it requires a specific hack to the command line during build
-	// Its easier/more consistent to test _MSC_VER in VS
-	// https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=vs-2017
-
-#if __cplusplus > 199711L || _MSC_VER >= 1800  // Maybe this can be 1600 for VS2010
-#	define PCPP_SMART_PTR(T) std::unique_ptr<T>
-#else
-#	define PCPP_SMART_PTR(T) std::auto_ptr<T>
-#endif
-
 	// forward declarations
 	class IDnsResource;
 
@@ -96,14 +84,14 @@ namespace pcpp
 	 * @class DnsResourceDataPtr
 	 * A smart pointer class that holds pointers of type IDnsResourceData. This object is used in DnsResource#getData()
 	 */
-	class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData)
+	class DnsResourceDataPtr : public std::unique_ptr<IDnsResourceData>
 	{
 	public:
 		/**
 		 * A c'tor to this class
 		 * @param[in] ptr A pointer to IDnsResourceData
 		 */
-		explicit DnsResourceDataPtr(IDnsResourceData* ptr) : PCPP_SMART_PTR(IDnsResourceData)(ptr)
+		explicit DnsResourceDataPtr(IDnsResourceData* ptr) : std::unique_ptr<IDnsResourceData>(ptr)
 		{}
 
 		// Visual studio has always been stupid about returning something useful for __cplusplus
@@ -113,7 +101,7 @@ namespace pcpp
 
 #if __cplusplus <= 199711L && _MSC_VER < 1800  // Maybe this can be 1600 for VS2010
 		DnsResourceDataPtr(const DnsResourceDataPtr& other)
-		    : PCPP_SMART_PTR(IDnsResourceData)((DnsResourceDataPtr&)other)
+		    : std::unique_ptr<IDnsResourceData>((DnsResourceDataPtr&)other)
 		{}
 #endif
 
