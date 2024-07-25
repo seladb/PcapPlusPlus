@@ -582,8 +582,8 @@ namespace pcpp
 		/**
 		 * The length of the body of many HTTP response messages is determined by a HTTP header field called
 		 * "Content-Length". This method sets The content-length field value. The method supports several cases:
-		 * - If the "Content-Length" field exists - the method will only replace the existing value with the new value
-		 * - If the "Content-Length" field doesn't exist - the method will create this field and put the value in it.
+		 *   - If the "Content-Length" field exists - the method will only replace the existing value with the new value
+		 *   - If the "Content-Length" field doesn't exist - the method will create this field and put the value in it.
 		 * Here are also 2 cases:
 		 *   - If prevFieldName is specified - the new "Content-Length" field will be created after it
 		 *   - If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the
