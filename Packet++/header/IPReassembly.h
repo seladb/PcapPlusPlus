@@ -17,16 +17,16 @@
  *
  * The logic works as follows:
  * - There is an internal map that stores the reassembly data for each packet. The key to this map, meaning the way to
- * uniquely associate a fragment to a (reassembled) packet is the triplet of source IP, destination IP and IP ID (for
- * IPv4) or Fragment ID (for IPv6)
+ *   uniquely associate a fragment to a (reassembled) packet is the triplet of source IP, destination IP and IP ID (for
+ *   IPv4) or Fragment ID (for IPv6)
  * - When the first fragment arrives a new record is created in the map and the fragment data is copied
  * - With each fragment arriving the fragment data is copied right after the previous fragment and the reassembled
- * packet is gradually being built
+ *   packet is gradually being built
  * - When the last fragment arrives the packet is fully reassembled and returned to the user. Since all fragment data is
- * copied, the packet pointer returned to the user has to be freed by the user when done using it
+ *   copied, the packet pointer returned to the user has to be freed by the user when done using it
  * - The logic supports out-of-order fragments, meaning that a fragment which arrives out-of-order, its data will be
- * copied to a list of out-of-order fragments where it waits for its turn. This list is observed each time a new
- * fragment arrives to see if the next fragment(s) wait(s) in this list
+ *   copied to a list of out-of-order fragments where it waits for its turn. This list is observed each time a new
+ *   fragment arrives to see if the next fragment(s) wait(s) in this list
  * - If a non-IP packet arrives it's returned as is to the user
  * - If a non-fragment packet arrives it's returned as is to the user
  *
@@ -58,12 +58,12 @@ namespace pcpp
 	 * Please refer to the documentation at the top of IPReassembly.h
 	 * to understand how this mechanism works. The main APIs are:
 	 * - IPReassembly#processPacket() - process a fragment. This is the main method which should be called whenever a
-	 * new fragment arrives. This method processes the fragment, runs the reassembly logic and returns the result packet
-	 * when it's fully reassembled
+	 *   new fragment arrives. This method processes the fragment, runs the reassembly logic and returns the result
+	 * packet when it's fully reassembled
 	 * - IPReassembly#getCurrentPacket() - get the reassembled data that is currently available, even if reassembly
-	 * process is not yet completed
+	 *   process is not yet completed
 	 * - IPReassembly#removePacket() - remove all data that is currently stored for a packet, including the reassembled
-	 * data that was gathered so far
+	 *   data that was gathered so far
 	 */
 	class IPReassembly
 	{
