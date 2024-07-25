@@ -5,12 +5,12 @@
 #include <sstream>
 
 #ifdef USE_PF_RING
-#include "Logger.h"
-#include "PacketUtils.h"
-#include "IPv4Layer.h"
-#include "PfRingDeviceList.h"
-#include "PcapFileDevice.h"
-#include "PcapLiveDeviceList.h"
+#	include "Logger.h"
+#	include "PacketUtils.h"
+#	include "IPv4Layer.h"
+#	include "PfRingDeviceList.h"
+#	include "PcapFileDevice.h"
+#	include "PcapLiveDeviceList.h"
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;
@@ -27,10 +27,19 @@ struct PfRingPacketData
 	int UdpCount;
 	std::unordered_map<uint32_t, pcpp::RawPacketVector> FlowKeys;
 
-	PfRingPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0) {}
-	void clear() { ThreadId = -1; PacketCount = 0; EthCount = 0; IpCount = 0; TcpCount = 0; UdpCount = 0; FlowKeys.clear(); }
+	PfRingPacketData() : ThreadId(-1), PacketCount(0), EthCount(0), IpCount(0), TcpCount(0), UdpCount(0)
+	{}
+	void clear()
+	{
+		ThreadId = -1;
+		PacketCount = 0;
+		EthCount = 0;
+		IpCount = 0;
+		TcpCount = 0;
+		UdpCount = 0;
+		FlowKeys.clear();
+	}
 };
-
 
 struct SetFilterInstruction
 {
@@ -39,8 +48,8 @@ struct SetFilterInstruction
 	int PacketCount;
 };
 
-
-static void pfRingPacketsArrive(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device, void* userCookie)
+static void pfRingPacketsArrive(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId,
+                                pcpp::PfRingDevice* device, void* userCookie)
 {
 	PfRingPacketData* data = static_cast<PfRingPacketData*>(userCookie);
 
@@ -61,8 +70,8 @@ static void pfRingPacketsArrive(pcpp::RawPacket* packets, uint32_t numOfPackets,
 	}
 }
 
-
-static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device, void* userCookie)
+static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId,
+                                           pcpp::PfRingDevice* device, void* userCookie)
 {
 	PfRingPacketData* data = static_cast<PfRingPacketData*>(userCookie);
 
@@ -90,13 +99,13 @@ static void pfRingPacketsArriveMultiThread(pcpp::RawPacket* packets, uint32_t nu
 	}
 }
 
-
-void pfRingPacketsArriveSetFilter(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, pcpp::PfRingDevice* device, void* userCookie)
+void pfRingPacketsArriveSetFilter(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t threadId,
+                                  pcpp::PfRingDevice* device, void* userCookie)
 {
 	SetFilterInstruction* instruction = static_cast<SetFilterInstruction*>(userCookie);
-	switch(instruction->Instruction)
+	switch (instruction->Instruction)
 	{
-	case 1: //verify TCP packet
+	case 1:  // verify TCP packet
 		for (uint32_t i = 0; i < numOfPackets; i++)
 		{
 			pcpp::Packet packet(&packets[i]);
@@ -108,7 +117,7 @@ void pfRingPacketsArriveSetFilter(pcpp::RawPacket* packets, uint32_t numOfPacket
 		}
 		break;
 
-	case 2: //verify IP filter
+	case 2:  // verify IP filter
 		pcpp::IPv4Address addr(instruction->Data);
 		for (uint32_t i = 0; i < numOfPackets; i++)
 		{
@@ -142,7 +151,8 @@ int incSleep(int maxSleepTime, const PfRingPacketData& packetData)
 	return totalSleepTime;
 }
 
-int incSleepMultiThread(int maxSleepTime, PfRingPacketData packetData[], int totalNumOfCores, int numOfCoresInUse, pcpp::CoreMask coreMask)
+int incSleepMultiThread(int maxSleepTime, PfRingPacketData packetData[], int totalNumOfCores, int numOfCoresInUse,
+                        pcpp::CoreMask coreMask)
 {
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
@@ -185,9 +195,6 @@ static pcpp::CoreMask TestPfRingMultiThreadCoreMask;
 
 #endif
 
-
-
-
 PTF_TEST_CASE(TestPfRingDevice)
 {
 #ifdef USE_PF_RING
@@ -195,7 +202,8 @@ PTF_TEST_CASE(TestPfRingDevice)
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
 	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0);
 	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "");
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 
@@ -237,26 +245,24 @@ PTF_TEST_CASE(TestPfRingDevice)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingDevice
-
-
-
+}  // TestPfRingDevice
 
 PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 {
 #ifdef USE_PF_RING
 
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 
 	PfRingPacketData packetData;
 	pcpp::Logger::getInstance().suppressLogs();
-	PTF_ASSERT_FALSE(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels()+1));
+	PTF_ASSERT_FALSE(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels() + 1));
 	pcpp::Logger::getInstance().enableLogs();
-	PTF_ASSERT_TRUE(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels()-1));
+	PTF_ASSERT_TRUE(dev->openSingleRxChannel(dev->getTotalNumOfRxChannels() - 1));
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArrive, &packetData));
 	int totalSleepTime = incSleep(10, packetData);
 	dev->stopCapture();
@@ -281,22 +287,20 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingDeviceSingleChannel
-
-
-
+}  // TestPfRingDeviceSingleChannel
 
 PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 
 	uint8_t numOfChannels = dev->getTotalNumOfRxChannels();
-	PTF_ASSERT_TRUE(dev->openMultiRxChannels(numOfChannels*2.5, pcpp::PfRingDevice::PerFlow));
+	PTF_ASSERT_TRUE(dev->openMultiRxChannels(numOfChannels * 2.5, pcpp::PfRingDevice::PerFlow));
 	DeviceTeardown devTeardown(dev);
 	dev->close();
 	PTF_ASSERT_EQUAL(dev->getNumOfOpenedRxChannels(), 0);
@@ -315,8 +319,10 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 
 	PTF_ASSERT_TRUE(dev->openMultiRxChannels((uint8_t)numOfCoresInUse, pcpp::PfRingDevice::PerFlow));
 	PfRingPacketData packetDataMultiThread[totalnumOfCores];
-	PTF_ASSERT_TRUE(dev->startCaptureMultiThread(pfRingPacketsArriveMultiThread, packetDataMultiThread, TestPfRingMultiThreadCoreMask));
-	int totalSleepTime = incSleepMultiThread(15, packetDataMultiThread, totalnumOfCores, numOfCoresInUse, TestPfRingMultiThreadCoreMask);
+	PTF_ASSERT_TRUE(dev->startCaptureMultiThread(pfRingPacketsArriveMultiThread, packetDataMultiThread,
+	                                             TestPfRingMultiThreadCoreMask));
+	int totalSleepTime =
+	    incSleepMultiThread(15, packetDataMultiThread, totalnumOfCores, numOfCoresInUse, TestPfRingMultiThreadCoreMask);
 	dev->stopCapture();
 	PTF_PRINT_VERBOSE("Total sleep time: " << totalSleepTime);
 	pcpp::PfRingDevice::PfRingStats aggrStats;
@@ -344,7 +350,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 			PTF_PRINT_VERBOSE("Packets captured: " << stats.recv);
 			PTF_PRINT_VERBOSE("Packets dropped: " << stats.drop);
 			PTF_PRINT_VERBOSE("Total flows: " << packetDataMultiThread[i].FlowKeys.size());
-			for(const auto &iter : packetDataMultiThread[i].FlowKeys)
+			for (const auto& iter : packetDataMultiThread[i].FlowKeys)
 			{
 				PTF_PRINT_VERBOSE("Key=0x" << std::hex << iter.first << "; Value=" << std::dec << iter.second.size());
 			}
@@ -359,10 +365,11 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 
 	for (int firstCoreId = 0; firstCoreId < totalnumOfCores; firstCoreId++)
 	{
-		for (int secondCoreId = firstCoreId+1; secondCoreId < totalnumOfCores; secondCoreId++)
+		for (int secondCoreId = firstCoreId + 1; secondCoreId < totalnumOfCores; secondCoreId++)
 		{
-			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector> > res;
-			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
+			std::unordered_map<uint32_t, std::pair<pcpp::RawPacketVector, pcpp::RawPacketVector>> res;
+			intersectMaps<uint32_t, pcpp::RawPacketVector, pcpp::RawPacketVector>(
+			    packetDataMultiThread[firstCoreId].FlowKeys, packetDataMultiThread[secondCoreId].FlowKeys, res);
 			PTF_ASSERT_EQUAL(res.size(), 0);
 		}
 
@@ -374,11 +381,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingDeviceMultiThread (internal test case)
-
-
-
-
+}  // TestPfRingDeviceMultiThread (internal test case)
 
 PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 {
@@ -400,10 +403,7 @@ PTF_TEST_CASE(TestPfRingMultiThreadAllCores)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingMultiThreadAllCores
-
-
-
+}  // TestPfRingMultiThreadAllCores
 
 PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 {
@@ -428,16 +428,14 @@ PTF_TEST_CASE(TestPfRingMultiThreadSomeCores)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingMultiThreadSomeCores
-
-
-
+}  // TestPfRingMultiThreadSomeCores
 
 PTF_TEST_CASE(TestPfRingSendPacket)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -449,25 +447,25 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 
 	PTF_ASSERT_GREATER_THAN(dev->getMtu(), 0);
 	uint16_t mtu = dev->getMtu();
-	int buffLen = mtu+1;
+	int buffLen = mtu + 1;
 	uint8_t buff[buffLen];
 	memset(buff, 0, buffLen);
 
 	pcpp::RawPacket rawPacket;
 	int packetsSent = 0;
 	int packetsRead = 0;
-	while(fileReaderDev.getNextPacket(rawPacket))
+	while (fileReaderDev.getNextPacket(rawPacket))
 	{
 		packetsRead++;
 
 		pcpp::RawPacket origRawPacket = rawPacket;
-		//send packet as RawPacket
+		// send packet as RawPacket
 		PTF_ASSERT_TRUE(dev->sendPacket(rawPacket));
 
-		//send packet as raw data
+		// send packet as raw data
 		PTF_ASSERT_TRUE(dev->sendPacket(rawPacket.getRawData(), rawPacket.getRawDataLen()));
 
-		//send packet as parsed EthPacekt
+		// send packet as parsed EthPacekt
 		pcpp::Packet packet(&rawPacket);
 		PTF_ASSERT_TRUE(dev->sendPacket(packet));
 
@@ -483,7 +481,7 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 	// send some packets with single channel open
 	PTF_ASSERT_TRUE(dev->openSingleRxChannel(0));
 	fileReaderDev.open();
-	while(fileReaderDev.getNextPacket(rawPacket))
+	while (fileReaderDev.getNextPacket(rawPacket))
 	{
 		PTF_ASSERT_TRUE(dev->sendPacket(rawPacket));
 	}
@@ -495,16 +493,14 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingSendPacket
-
-
-
+}  // TestPfRingSendPacket
 
 PTF_TEST_CASE(TestPfRingSendPackets)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -518,16 +514,16 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 	pcpp::PointerVector<pcpp::Packet> packetVec;
 	const pcpp::Packet* packetArr[10000];
 	int packetsRead = 0;
-	while(fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
+	while (fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
 	{
 		packetVec.pushBack(new pcpp::Packet(&rawPacketArr[packetsRead]));
 		packetsRead++;
 	}
 
-	//send packets as RawPacket array
+	// send packets as RawPacket array
 	int packetsSentAsRaw = dev->sendPackets(rawPacketArr, packetsRead);
 
-	//send packets as parsed EthPacekt array
+	// send packets as parsed EthPacekt array
 	std::copy(packetVec.begin(), packetVec.end(), packetArr);
 	int packetsSentAsParsed = dev->sendPackets(packetArr, packetsRead);
 
@@ -540,16 +536,14 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 #else
 	PTF_SKIP_TEST("PF_RING not configured");
 #endif
-} // TestPfRingSendPackets
-
-
-
+}  // TestPfRingSendPackets
 
 PTF_TEST_CASE(TestPfRingFilters)
 {
 #ifdef USE_PF_RING
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(
+	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
 	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
@@ -566,7 +560,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	PTF_ASSERT_TRUE(dev->setFilter(protocolFilter));
 
 	// verify TCP filter
-	SetFilterInstruction instruction = { 1, "", 0 }; // instruction #1: verify all packets are of type TCP
+	SetFilterInstruction instruction = { 1, "", 0 };  // instruction #1: verify all packets are of type TCP
 	PTF_ASSERT_TRUE(dev->startCaptureSingleThread(pfRingPacketsArriveSetFilter, &instruction));
 	int totalSleepTime = incSleepSetFilter(10, instruction);
 	dev->stopCapture();

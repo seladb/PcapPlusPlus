@@ -11,7 +11,7 @@ PointerAlignment: Left
 AccessModifierOffset: -4
 AlignTrailingComments: true
 AllowShortEnumsOnASingleLine: false
-BreakStringLiterals: true
+BreakStringLiterals: false
 AlignArrayOfStructures: Left
 BreakArrays: true
 SpacesBeforeTrailingComments: 2
