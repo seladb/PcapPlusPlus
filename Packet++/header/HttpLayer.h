@@ -425,17 +425,15 @@ namespace pcpp
 			/** 599 Network connect timeout error */
 			Http599NetworkConnectTimeoutError = 599,
 
+			// clang-format off
 			/** Unknown status code */
-			HttpStatus1xxCodeUnknown = 900001,  // 1xx: Informational - Request received, continuing process
-			HttpStatus2xxCodeUnknown =
-			    900002,  // 2xx: Success - The action was successfully received, understood, and accepted
-			HttpStatus3xxCodeUnknown =
-			    900003,  // 3xx: Redirection - Further action must be taken in order to complete the request
-			HttpStatus4xxCodeUnknown =
-			    900004,  // 4xx: Client Error - The request contains bad syntax or cannot be fulfilled
-			HttpStatus5xxCodeUnknown =
-			    900005,  // 5xx: Server Error - The server failed to fulfill an apparently valid request
-			HttpStatusCodeUnknown = 999999,  // other arbitrary number
+			HttpStatus1xxCodeUnknown = 900001, // 1xx: Informational - Request received, continuing process
+			HttpStatus2xxCodeUnknown = 900002, // 2xx: Success - The action was successfully received, understood, and accepted
+			HttpStatus3xxCodeUnknown = 900003, // 3xx: Redirection - Further action must be taken in order to complete the request
+			HttpStatus4xxCodeUnknown = 900004, // 4xx: Client Error - The request contains bad syntax or cannot be fulfilled
+			HttpStatus5xxCodeUnknown = 900005, // 5xx: Server Error - The server failed to fulfill an apparently valid request
+			HttpStatusCodeUnknown = 999999,    // other arbitrary number
+			// clang-format on
 		};
 
 		HttpResponseStatusCode() = default;
