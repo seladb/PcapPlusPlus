@@ -1177,7 +1177,6 @@ std::vector<IPAddress> PcapLiveDevice::getIPAddresses() const
 		if (ipv4Addr != nullptr)
 		{
 			results.push_back(IPv4Address(ipv4Addr->s_addr));
-			PCPP_LOG_DEBUG("IPv4 address found: " << results.back());
 			continue;
 		}
 
@@ -1185,7 +1184,6 @@ std::vector<IPAddress> PcapLiveDevice::getIPAddresses() const
 		if (ipv6Addr != nullptr)
 		{
 			results.push_back(IPv6Address(ipv6Addr->s6_addr));
-			PCPP_LOG_DEBUG("IPv6 address found: " << results.back());
 			continue;
 		}
 	}
