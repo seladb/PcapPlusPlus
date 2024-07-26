@@ -303,18 +303,17 @@ namespace pcpp
 
 	 @verbatim
 
-	         |---------------------------------------------- SSLHandshakeLayer
-	 -----------------------------------------------------|
+	         |---------------------------------------------- SSLHandshakeLayer -----------------------------------------------------|
 	         +----------------------+-------------------------------------+---------------------------+-----------------------------+
-	         | ssl_tls_record_layer |       SSLServerHelloMessage         |   SSLCertificateMessage   |
-	 SSLServerKeyExchangeMessage | |        struct        |                                     | | |
+	         | ssl_tls_record_layer |       SSLServerHelloMessage         |   SSLCertificateMessage   | SSLServerKeyExchangeMessage |
+	         |        struct        |                                     |                           |                             |
 	         +----------------------+-------------------------------------+---------------------------+-----------------------------+
-	          /     |       \               |          \         \               |           \               | \ /
-	 version    \      |   handshake       \        rest of  |      |          rest      |      |            rest /
-	 TLS1_0      \            type          \       message      handshake   of fields...   handshake    of fields...
+	          /     |       \               |          \         \               |           \               |            \
+	         /    version    \      |   handshake       \        rest of  |      |          rest      |      |            rest
+	        /     TLS1_0      \            type          \       message      handshake   of fields...   handshake    of fields...
 	     type                  \    | SSL_SERVER_HELLO    \      fields...|     type                  |     type
-	 SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE SSL_SERVER_KEY_EXCHANGE (22)
-	 xxx   |               version,length        |                           |
+	 SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE             SSL_SERVER_KEY_EXCHANGE
+	     (22)                 xxx   |               version,length        |                           |
 	 @endverbatim
 	 */
 	// clang-format on
