@@ -108,7 +108,7 @@ namespace pcpp
 		 * came from the network. When using this constructor a pointer to the RawPacket is saved (data isn't copied)
 		 * and the RawPacket is parsed, meaning all layers are created and linked to each other in the right order. In
 		 * this overload of the constructor the user can specify whether to free the instance of raw packet when the
-		 * Packet is free or not. . This constructor should be used to parse the packet up to a certain layer in the OSI
+		 * Packet is free or not. This constructor should be used to parse the packet up to a certain layer in the OSI
 		 * model
 		 * @param[in] rawPacket A pointer to the raw packet
 		 * @param[in] parseUntilLayer Optional parameter. Parse the packet until you reach a certain layer in the OSI
