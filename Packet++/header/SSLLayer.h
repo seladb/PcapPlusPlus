@@ -135,8 +135,7 @@
  * There are many known cipher-suites. PcapPlusPlus support above 300 of them, according to this list:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
  * There is a designated class in PcapPlusPlus called pcpp::SSLCipherSuite which represents the cipher-suites and
- * provides
- * access to their attributes. Then there is a static instance of this class for each one of the supported
+ * provides access to their attributes. Then there is a static instance of this class for each one of the supported
  * cipher-suites.
  * This means there are 300+ static instances of pcpp::SSLCipherSuite representing the different cipher suites. The user
  * can access them through static methods in pcpp::SSLCipherSuite or from client-hello and server-hello messages where
