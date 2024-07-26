@@ -142,32 +142,48 @@ namespace pcpp
 		/**
 		 * @return The ASN.1 tag class
 		 */
-		Asn1TagClass getTagClass() const { return m_TagClass; }
+		Asn1TagClass getTagClass() const
+		{
+			return m_TagClass;
+		}
 
 		/**
 		 * @return True if it's a constructed record, or false if it's a primitive record
 		 */
-		bool isConstructed() const { return m_IsConstructed; }
+		bool isConstructed() const
+		{
+			return m_IsConstructed;
+		}
 
 		/**
-		 * @return The ASN.1 Universal tag type if the record is of class Universal, otherwise Asn1UniversalTagType#NotApplicable
+		 * @return The ASN.1 Universal tag type if the record is of class Universal, otherwise
+		 * Asn1UniversalTagType#NotApplicable
 		 */
 		Asn1UniversalTagType getUniversalTagType() const;
 
 		/**
 		 * @return The ASN.1 tag type value
 		 */
-		uint8_t getTagType() const { return m_TagType; }
+		uint8_t getTagType() const
+		{
+			return m_TagType;
+		}
 
 		/**
 		 * @return The length of the record value
 		 */
-		size_t getValueLength() const { return m_ValueLength; }
+		size_t getValueLength() const
+		{
+			return m_ValueLength;
+		}
 
 		/**
 		 * @return The total length of the record
 		 */
-		size_t getTotalLength() const { return m_TotalLength; }
+		size_t getTotalLength() const
+		{
+			return m_TotalLength;
+		}
 
 		/**
 		 * @return A string representation of the record
@@ -180,8 +196,7 @@ namespace pcpp
 		 * @tparam Asn1RecordType The type to cast to
 		 * @return A pointer to the type after casting
 		 */
-		template <class Asn1RecordType>
-		Asn1RecordType* castAs()
+		template <class Asn1RecordType> Asn1RecordType* castAs()
 		{
 			auto result = dynamic_cast<Asn1RecordType*>(this);
 			if (result == nullptr)
@@ -240,7 +255,8 @@ namespace pcpp
 		 * @param value A byte array of the tag value
 		 * @param valueLen The length of the value byte array
 		 */
-		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value, size_t valueLen);
+		Asn1GenericRecord(Asn1TagClass tagClass, bool isConstructed, uint8_t tagType, const uint8_t* value,
+		                  size_t valueLen);
 
 		/**
 		 * A constructor to create a generic record
@@ -256,7 +272,11 @@ namespace pcpp
 		/**
 		 * @return A pointer to the tag value
 		 */
-		const uint8_t* getValue() { decodeValueIfNeeded(); return m_Value; }
+		const uint8_t* getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		}
 
 	protected:
 		Asn1GenericRecord() = default;
@@ -285,7 +305,8 @@ namespace pcpp
 		 * @param tagType The record tag type value
 		 * @param subRecords A list of sub-records to assign as the record value
 		 */
-		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const std::vector<Asn1Record*>& subRecords);
+		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType,
+		                               const std::vector<Asn1Record*>& subRecords);
 
 		/**
 		 * A constructor to create a constructed record
@@ -293,13 +314,18 @@ namespace pcpp
 		 * @param tagType The record tag type value
 		 * @param subRecords A PointerVector of sub-records to assign as the record value
 		 */
-		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType, const PointerVector<Asn1Record>& subRecords);
+		explicit Asn1ConstructedRecord(Asn1TagClass tagClass, uint8_t tagType,
+		                               const PointerVector<Asn1Record>& subRecords);
 
 		/**
 		 * @return A reference to the list of sub-records. It's important to note that any modifications made to
 		 * this list will directly affect the internal structure
 		 */
-		PointerVector<Asn1Record>& getSubRecords() { decodeValueIfNeeded(); return m_SubRecords; };
+		PointerVector<Asn1Record>& getSubRecords()
+		{
+			decodeValueIfNeeded();
+			return m_SubRecords;
+		};
 
 	protected:
 		Asn1ConstructedRecord() = default;
@@ -309,8 +335,7 @@ namespace pcpp
 
 		std::vector<std::string> toStringList() override;
 
-		template<typename Iterator>
-		void init(Asn1TagClass tagClass, uint8_t tagType, Iterator begin, Iterator end)
+		template <typename Iterator> void init(Asn1TagClass tagClass, uint8_t tagType, Iterator begin, Iterator end)
 		{
 			m_TagType = tagType;
 			m_TagClass = tagClass;
@@ -328,6 +353,7 @@ namespace pcpp
 			m_ValueLength = recordValueLength;
 			m_TotalLength = recordValueLength + 1 + (m_ValueLength < 128 ? 1 : 2);
 		}
+
 	private:
 		PointerVector<Asn1Record> m_SubRecords;
 	};
@@ -414,7 +440,11 @@ namespace pcpp
 		/**
 		 * @return The integer value of this record
 		 */
-		uint32_t getValue() { decodeValueIfNeeded(); return m_Value; }
+		uint32_t getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		}
 
 	protected:
 		Asn1IntegerRecord() = default;
@@ -463,16 +493,20 @@ namespace pcpp
 		explicit Asn1OctetStringRecord(const std::string& value);
 
 		/**
- 		 * A constructor to create a record of type Octet String from a non-printable value
- 		 * @param value A byte array to set as the record value
+		 * A constructor to create a record of type Octet String from a non-printable value
+		 * @param value A byte array to set as the record value
 		 * @param valueLength The length of the byte array
- 		*/
+		 */
 		explicit Asn1OctetStringRecord(const uint8_t* value, size_t valueLength);
 
 		/**
 		 * @return The string value of this record
 		 */
-		std::string getValue() { decodeValueIfNeeded(); return m_Value; };
+		std::string getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		};
 
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
@@ -505,7 +539,11 @@ namespace pcpp
 		/**
 		 * @return The boolean value of this record
 		 */
-		bool getValue() { decodeValueIfNeeded(); return m_Value; };
+		bool getValue()
+		{
+			decodeValueIfNeeded();
+			return m_Value;
+		};
 
 	protected:
 		void decodeValue(uint8_t* data, bool lazy) override;
@@ -534,7 +572,11 @@ namespace pcpp
 		Asn1NullRecord();
 
 	protected:
-		void decodeValue(uint8_t* data, bool lazy) override {}
-		std::vector<uint8_t> encodeValue() const override { return {}; }
+		void decodeValue(uint8_t* data, bool lazy) override
+		{}
+		std::vector<uint8_t> encodeValue() const override
+		{
+			return {};
+		}
 	};
-}
+}  // namespace pcpp

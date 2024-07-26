@@ -27,7 +27,7 @@ namespace pcpp
 		return getCommandInternal();
 	}
 
-	bool FtpRequestLayer::setCommandOption(const std::string &value)
+	bool FtpRequestLayer::setCommandOption(const std::string& value)
 	{
 		return setCommandOptionInternal(value);
 	}
@@ -40,7 +40,7 @@ namespace pcpp
 			std::string field = getCommandOptionInternal();
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
-				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
+				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)  // From SPACE to ~
 					ss << field.c_str()[idx];
 			}
 			return ss.str();
@@ -96,7 +96,7 @@ namespace pcpp
 			return "Language Negotiation";
 		case FtpCommand::LIST:
 			return "Returns information of a file or directory if specified, else information of the current working "
-				"directory is returned";
+			       "directory is returned";
 		case FtpCommand::LPRT:
 			return "Specifies a long address and port to which the server should connect";
 		case FtpCommand::LPSV:
@@ -117,7 +117,7 @@ namespace pcpp
 			return "Lists the contents of a directory in a standardized machine-readable format";
 		case FtpCommand::MLST:
 			return "Provides data about exactly the object named on its command line in a standardized "
-				"machine-readable format";
+			       "machine-readable format";
 		case FtpCommand::MODE:
 			return "Sets the transfer mode (Stream, Block, or Compressed)";
 		case FtpCommand::NLST:
@@ -156,14 +156,14 @@ namespace pcpp
 			return "Rename to";
 		case FtpCommand::SITE:
 			return "Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE "
-				"HELP output for complete list of supported commands";
+			       "HELP output for complete list of supported commands";
 		case FtpCommand::SIZE:
 			return "Return the size of a file";
 		case FtpCommand::SMNT:
 			return "Mount file structure";
 		case FtpCommand::SPSV:
 			return "Use single port passive mode (only one TCP port number for both control connections and "
-				"passive-mode data connections)";
+			       "passive-mode data connections)";
 		case FtpCommand::STAT:
 			return "Returns information on the server status, including the status of the current connection";
 		case FtpCommand::STOR:
@@ -207,7 +207,7 @@ namespace pcpp
 		for (size_t idx = 0; idx < 4; ++idx)
 		{
 			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
-			if (val) // Dont push if it is a null character
+			if (val)  // Dont push if it is a null character
 			{
 				oss << val;
 			}
@@ -238,7 +238,7 @@ namespace pcpp
 		return getCommandInternal();
 	}
 
-	bool FtpResponseLayer::setStatusOption(const std::string &value)
+	bool FtpResponseLayer::setStatusOption(const std::string& value)
 	{
 		return setCommandOptionInternal(value);
 	}
@@ -251,7 +251,7 @@ namespace pcpp
 			std::string field = getCommandOptionInternal();
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
-				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31) // From SPACE to ~
+				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)  // From SPACE to ~
 					ss << field.c_str()[idx];
 			}
 			return ss.str();
@@ -390,4 +390,4 @@ namespace pcpp
 		return "FTP Data";
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

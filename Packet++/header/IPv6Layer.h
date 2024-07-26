@@ -21,17 +21,17 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ip6_hdr
 	{
-		#if (BYTE_ORDER == LITTLE_ENDIAN)
+#if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** Traffic class */
-		uint8_t trafficClass:4,
+		uint8_t trafficClass : 4,
+		    /** IP version number, has the value of 6 for IPv6 */
+		    ipVersion : 4;
+#else
 		/** IP version number, has the value of 6 for IPv6 */
-		ipVersion:4;
-		#else
-		/** IP version number, has the value of 6 for IPv6 */
-		uint8_t ipVersion:4,
-		/** Traffic class */
-		trafficClass:4;
-		#endif
+		uint8_t ipVersion : 4,
+		    /** Traffic class */
+		    trafficClass : 4;
+#endif
 		/** Flow label */
 		uint8_t flowLabel[3];
 		/** The size of the payload in octets, including any extension headers */
@@ -46,7 +46,6 @@ namespace pcpp
 		uint8_t ipDst[16];
 	};
 #pragma pack(pop)
-
 
 	/**
 	 * @class IPv6Layer
@@ -87,54 +86,76 @@ namespace pcpp
 		~IPv6Layer();
 
 		/**
-		 * An assignment operator that first delete all data from current layer and then copy the entire header from the other IPv6Layer (including IPv6 extensions)
+		 * An assignment operator that first delete all data from current layer and then copy the entire header from the
+		 * other IPv6Layer (including IPv6 extensions)
 		 */
 		IPv6Layer& operator=(const IPv6Layer& other);
 
 		/**
-		 * Get a pointer to the IPv6 header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the IPv6 header. Notice this points directly to the data, so every change will change the
+		 * actual packet data
 		 * @return A pointer to the @ref ip6_hdr
 		 */
-		ip6_hdr* getIPv6Header() const { return (ip6_hdr*)m_Data; }
+		ip6_hdr* getIPv6Header() const
+		{
+			return (ip6_hdr*)m_Data;
+		}
 
 		/**
 		 * Get the source IP address in the form of IPAddress. This method is very similar to getSrcIPv6Address(),
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the source address
 		 */
-		IPAddress getSrcIPAddress() const { return getSrcIPv6Address(); }
+		IPAddress getSrcIPAddress() const
+		{
+			return getSrcIPv6Address();
+		}
 
 		/**
 		 * Get the source IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the source address
 		 */
-		IPv6Address getSrcIPv6Address() const { return getIPv6Header()->ipSrc; }
+		IPv6Address getSrcIPv6Address() const
+		{
+			return getIPv6Header()->ipSrc;
+		}
 
 		/**
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setSrcIPv6Address(const IPv6Address& ipAddr) { ipAddr.copyTo(getIPv6Header()->ipSrc); }
-
+		void setSrcIPv6Address(const IPv6Address& ipAddr)
+		{
+			ipAddr.copyTo(getIPv6Header()->ipSrc);
+		}
 
 		/**
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setDstIPv6Address(const IPv6Address& ipAddr) { ipAddr.copyTo(getIPv6Header()->ipDst); }
+		void setDstIPv6Address(const IPv6Address& ipAddr)
+		{
+			ipAddr.copyTo(getIPv6Header()->ipDst);
+		}
 
 		/**
 		 * Get the destination IP address in the form of IPAddress. This method is very similar to getDstIPv6Address(),
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the destination address
 		 */
-		IPAddress getDstIPAddress() const { return getDstIPv6Address(); }
+		IPAddress getDstIPAddress() const
+		{
+			return getDstIPv6Address();
+		}
 
 		/**
 		 * Get the destination IP address in the form of IPv6Address
 		 * @return An IPv6Address containing the destination address
 		 */
-		IPv6Address getDstIPv6Address() const { return getIPv6Header()->ipDst; }
+		IPv6Address getDstIPv6Address() const
+		{
+			return getIPv6Header()->ipDst;
+		}
 
 		/**
 		 * @return Number of IPv6 extensions in this layer
@@ -142,24 +163,23 @@ namespace pcpp
 		size_t getExtensionCount() const;
 
 		/**
-		 * A templated getter for an IPv6 extension of a type TIPv6Extension. TIPv6Extension has to be one of the supported IPv6 extensions,
-		 * meaning a class that inherits IPv6Extension. If the requested extension type isn't found NULL is returned
+		 * A templated getter for an IPv6 extension of a type TIPv6Extension. TIPv6Extension has to be one of the
+		 * supported IPv6 extensions, meaning a class that inherits IPv6Extension. If the requested extension type isn't
+		 * found NULL is returned
 		 * @return A pointer to the extension instance or NULL if the requested extension type isn't found
 		 */
-		template<class TIPv6Extension>
-		TIPv6Extension* getExtensionOfType() const;
+		template <class TIPv6Extension> TIPv6Extension* getExtensionOfType() const;
 
 		/**
-		 * Add a new extension of type TIPv6Extension to the layer. This is a templated method and TIPv6Extension has to be one of
-		 * the supported IPv6 extensions, meaning a class that inherits IPv6Extension. If the extension is added successfully a pointer
-		 * to the newly added extension object is returned, otherwise NULL is returned
-		 * @param[in] extensionHeader The extension object to add. Notice the object passed here is read-only, meaning its data is copied
-		 * but the object itself isn't modified
-		 * @return If the extension is added successfully a pointer to the newly added extension object is returned. Otherwise NULL is
-		 * returned
+		 * Add a new extension of type TIPv6Extension to the layer. This is a templated method and TIPv6Extension has to
+		 * be one of the supported IPv6 extensions, meaning a class that inherits IPv6Extension. If the extension is
+		 * added successfully a pointer to the newly added extension object is returned, otherwise NULL is returned
+		 * @param[in] extensionHeader The extension object to add. Notice the object passed here is read-only, meaning
+		 * its data is copied but the object itself isn't modified
+		 * @return If the extension is added successfully a pointer to the newly added extension object is returned.
+		 * Otherwise NULL is returned
 		 */
-		template<class TIPv6Extension>
-		TIPv6Extension* addExtension(const TIPv6Extension& extensionHeader);
+		template <class TIPv6Extension> TIPv6Extension* addExtension(const TIPv6Extension& extensionHeader);
 
 		/**
 		 * Remove all IPv6 extensions in this layer
@@ -178,7 +198,6 @@ namespace pcpp
 		 * @return True if the data is valid and can represent the IPv6 packet
 		 */
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
-
 
 		// implement abstract methods
 
@@ -199,19 +218,26 @@ namespace pcpp
 		/**
 		 * @return Size of @ref ip6_hdr
 		 */
-		size_t getHeaderLen() const { return sizeof(ip6_hdr) + m_ExtensionsLen; }
+		size_t getHeaderLen() const
+		{
+			return sizeof(ip6_hdr) + m_ExtensionsLen;
+		}
 
 		/**
 		 * Calculate the following fields:
 		 * - ip6_hdr#payloadLength = size of payload (all data minus header size)
 		 * - ip6_hdr#ipVersion = 6
-		 * - ip6_hdr#nextHeader = calculated if next layer is known: ::PACKETPP_IPPROTO_TCP for TCP, ::PACKETPP_IPPROTO_UDP for UDP, ::PACKETPP_IPPROTO_ICMP for ICMP
+		 * - ip6_hdr#nextHeader = calculated if next layer is known: ::PACKETPP_IPPROTO_TCP for TCP,
+		 * ::PACKETPP_IPPROTO_UDP for UDP, ::PACKETPP_IPPROTO_ICMP for ICMP
 		 */
 		void computeCalculateFields();
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelNetworkLayer;
+		}
 
 	private:
 		void initLayer();
@@ -223,9 +249,7 @@ namespace pcpp
 		size_t m_ExtensionsLen;
 	};
 
-
-	template<class TIPv6Extension>
-	TIPv6Extension* IPv6Layer::getExtensionOfType() const
+	template <class TIPv6Extension> TIPv6Extension* IPv6Layer::getExtensionOfType() const
 	{
 		IPv6Extension* curExt = m_FirstExtension;
 		while (curExt != NULL && dynamic_cast<TIPv6Extension*>(curExt) == NULL)
@@ -234,8 +258,7 @@ namespace pcpp
 		return static_cast<TIPv6Extension*>(curExt);
 	}
 
-	template<class TIPv6Extension>
-	TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader)
+	template <class TIPv6Extension> TIPv6Extension* IPv6Layer::addExtension(const TIPv6Extension& extensionHeader)
 	{
 		int offsetToAddHeader = static_cast<int>(getHeaderLen());
 		if (!extendLayer(offsetToAddHeader, extensionHeader.getExtensionLen()))
@@ -273,4 +296,4 @@ namespace pcpp
 		return data && dataLen >= sizeof(ip6_hdr);
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

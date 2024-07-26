@@ -23,8 +23,9 @@ namespace pcpp
 		bool hyphenRequired(const std::string& value);
 
 	protected:
-		SingleCommandTextProtocol(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : Layer(data, dataLen, prevLayer, packet) {};
-		SingleCommandTextProtocol(const std::string &command, const std::string &option);
+		SingleCommandTextProtocol(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet) {};
+		SingleCommandTextProtocol(const std::string& command, const std::string& option);
 
 		bool setCommandInternal(std::string value);
 		bool setCommandOptionInternal(std::string value);
@@ -33,9 +34,9 @@ namespace pcpp
 		std::string getCommandOptionInternal() const;
 
 	public:
-
 		/**
-		 * Checks if the current message is a multi-line reply. Multi-line messages are indicated with a Hyphen (-) immediately after reply code.
+		 * Checks if the current message is a multi-line reply. Multi-line messages are indicated with a Hyphen (-)
+		 * immediately after reply code.
 		 * @return true If this is a multi-line reply
 		 * @return false Otherwise
 		 */
@@ -48,6 +49,6 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as single command text based message
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize);
+		static bool isDataValid(const uint8_t* data, size_t dataSize);
 	};
-} // namespace pcpp
+}  // namespace pcpp
