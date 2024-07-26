@@ -44,11 +44,11 @@ namespace pcpp
 			RouteRefresh = 5,
 		};
 
-/**
- * @struct bgp_common_header
- * Represents the common fields of a BGP 4 message
- */
 #pragma pack(push, 1)
+		/**
+		 * @struct bgp_common_header
+		 * Represents the common fields of a BGP 4 message
+		 */
 		struct bgp_common_header
 		{
 			/** 16-octet marker */
@@ -147,11 +147,11 @@ namespace pcpp
 	class BgpOpenMessageLayer : public BgpLayer
 	{
 	public:
-/**
- * @struct bgp_open_message
- * BGP OPEN message structure
- */
 #pragma pack(push, 1)
+		/**
+		 * @struct bgp_open_message
+		 * BGP OPEN message structure
+		 */
 		typedef struct bgp_open_message : bgp_common_header
 		{
 			/** BGP version number */
@@ -504,11 +504,11 @@ namespace pcpp
 	class BgpNotificationMessageLayer : public BgpLayer
 	{
 	public:
-/**
- * @struct bgp_notification_message
- * BGP NOTIFICATION message structure
- */
 #pragma pack(push, 1)
+		/**
+		 * @struct bgp_notification_message
+		 * BGP NOTIFICATION message structure
+		 */
 		typedef struct bgp_notification_message : bgp_common_header
 		{
 			/** BGP notification error code */
@@ -672,11 +672,11 @@ namespace pcpp
 	class BgpRouteRefreshMessageLayer : public BgpLayer
 	{
 	public:
-/**
- * @struct bgp_route_refresh_message
- * BGP ROUTE-REFRESH message structure
- */
 #pragma pack(push, 1)
+		/**
+		 * @struct bgp_route_refresh_message
+		 * BGP ROUTE-REFRESH message structure
+		 */
 		typedef struct bgp_route_refresh_message : bgp_common_header
 		{
 			/** Address Family Identifier */
