@@ -125,7 +125,7 @@ namespace pcpp
 		/**
 		 * Adding a nullptr to the vector is not allowed.
 		 */
-		void pushBack(std::nullptr_t element, bool freeElementOnError = false) = delete;
+		void pushBack(std::nullptr_t element, bool freeElementOnError = true) = delete;
 
 		/**
 		 * Add a new (pointer to an) element to the vector
@@ -133,7 +133,7 @@ namespace pcpp
 		 * @param[in] freeElementOnError If set to true, the element is freed if an exception is thrown during the push.
 		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 */
-		void pushBack(T* element, bool freeElementOnError = false)
+		void pushBack(T* element, bool freeElementOnError = true)
 		{
 			if (element == nullptr)
 			{

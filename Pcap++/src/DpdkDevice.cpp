@@ -879,7 +879,7 @@ uint16_t DpdkDevice::receivePackets(MBufRawPacketVector& rawPacketsArr, uint16_t
 		struct rte_mbuf* mBuf = mBufArray[index];
 		MBufRawPacket* newRawPacket = new MBufRawPacket();
 		newRawPacket->setMBuf(mBuf, time);
-		rawPacketsArr.pushBack(newRawPacket, true);
+		rawPacketsArr.pushBack(newRawPacket);
 	}
 
 	return numOfPktsReceived;
@@ -1129,7 +1129,7 @@ uint16_t DpdkDevice::sendPackets(Packet** packetsArr, uint16_t arrLength, uint16
 				return 0;
 			}
 
-			mBufVec.pushBack(rawPacket, true);
+			mBufVec.pushBack(rawPacket);
 		}
 		else
 		{
@@ -1170,7 +1170,7 @@ uint16_t DpdkDevice::sendPackets(RawPacketVector& rawPacketsVec, uint16_t txQueu
 				return 0;
 			}
 
-			mBufVec.pushBack(rawPacket, true);
+			mBufVec.pushBack(rawPacket);
 		}
 		else
 		{

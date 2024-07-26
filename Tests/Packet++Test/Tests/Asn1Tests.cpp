@@ -617,8 +617,8 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Sequence initialized with a PointerVector
 	{
 		pcpp::PointerVector<pcpp::Asn1Record> subRecords;
-		subRecords.pushBack(new pcpp::Asn1OctetStringRecord("abcd"), true);
-		subRecords.pushBack(new pcpp::Asn1IntegerRecord(1000), true);
+		subRecords.pushBack(new pcpp::Asn1OctetStringRecord("abcd"));
+		subRecords.pushBack(new pcpp::Asn1IntegerRecord(1000));
 		pcpp::Asn1SequenceRecord record(subRecords);
 
 		uint8_t data[20];
@@ -657,8 +657,8 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// Set initialized with a PointerVector
 	{
 		pcpp::PointerVector<pcpp::Asn1Record> subRecords;
-		subRecords.pushBack(new pcpp::Asn1IntegerRecord(1000), true);
-		subRecords.pushBack(new pcpp::Asn1OctetStringRecord("abcd"), true);
+		subRecords.pushBack(new pcpp::Asn1IntegerRecord(1000));
+		subRecords.pushBack(new pcpp::Asn1OctetStringRecord("abcd"));
 		pcpp::Asn1SetRecord record(subRecords);
 
 		uint8_t data[20];

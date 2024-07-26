@@ -188,7 +188,7 @@ void onPacketsArrive(pcpp::RawPacket packets[], uint32_t packetCount, pcpp::XdpD
 			if (args->sendPacketsTo != nullptr)
 			{
 				// add packet to the vector of packets to send
-				packetsToSend.pushBack(new pcpp::RawPacket(packets[i]), true);
+				packetsToSend.pushBack(new pcpp::RawPacket(packets[i]));
 			}
 
 			// save packet to file if needed

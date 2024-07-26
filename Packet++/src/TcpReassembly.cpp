@@ -410,7 +410,7 @@ TcpReassembly::ReassemblyStatus TcpReassembly::reassemblePacket(Packet& tcpData)
 		newTcpFrag->sequence = sequence;
 		newTcpFrag->timestamp = timestampOfTheReceivedPacket;
 		memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
-		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag, true);
+		tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 
 		PCPP_LOG_DEBUG("Found out-of-order packet and added a new TCP fragment with size " << tcpPayloadSize << " to the out-of-order list of side " << static_cast<int>(sideIndex));
 		status = OutOfOrderTcpMessageBuffered;

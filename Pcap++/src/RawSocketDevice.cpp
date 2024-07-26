@@ -237,7 +237,7 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 		RawPacket* rawPacket = new RawPacket();
 		if (receivePacket(*rawPacket, true, timeoutSec-curSec) == RecvSuccess)
 		{
-			packetVec.pushBack(rawPacket, true);
+			packetVec.pushBack(rawPacket);
 			packetCount++;
 		}
 		else

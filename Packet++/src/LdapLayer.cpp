@@ -214,7 +214,7 @@ namespace pcpp {
 				Asn1OctetStringRecord controlTypeRecord(control.controlType);
 				if (control.controlValue.empty())
 				{
-					controlsSubRecords.pushBack(new Asn1SequenceRecord({&controlTypeRecord}), true);
+					controlsSubRecords.pushBack(new Asn1SequenceRecord({&controlTypeRecord}));
 				}
 				else
 				{
@@ -222,7 +222,7 @@ namespace pcpp {
 					std::unique_ptr<uint8_t[]> controlValue(new uint8_t[controlValueSize]);
 					controlValueSize = hexStringToByteArray(control.controlValue, controlValue.get(), controlValueSize);
 					Asn1OctetStringRecord controlValueRecord(controlValue.get(), controlValueSize);
-					controlsSubRecords.pushBack(new Asn1SequenceRecord({&controlTypeRecord, &controlValueRecord}), true);
+					controlsSubRecords.pushBack(new Asn1SequenceRecord({&controlTypeRecord, &controlValueRecord}));
 				}
 			}
 			controlsRecord = std::unique_ptr<Asn1ConstructedRecord>(new Asn1ConstructedRecord(Asn1TagClass::ContextSpecific, 0, controlsSubRecords));
@@ -462,11 +462,11 @@ namespace pcpp {
 		if (!saslAuthentication.mechanism.empty())
 		{
 			PointerVector<Asn1Record> saslAuthenticationRecords;
-			saslAuthenticationRecords.pushBack(new Asn1OctetStringRecord(saslAuthentication.mechanism), true);
+			saslAuthenticationRecords.pushBack(new Asn1OctetStringRecord(saslAuthentication.mechanism));
 			if (!saslAuthentication.credentials.empty())
 			{
 				auto credentialsRecord = new Asn1OctetStringRecord(saslAuthentication.credentials.data(), saslAuthentication.credentials.size());
-				saslAuthenticationRecords.pushBack(credentialsRecord, true);
+				saslAuthenticationRecords.pushBack(credentialsRecord);
 			}
 
 			saslAuthenticationRecord = std::unique_ptr<Asn1ConstructedRecord>(
@@ -660,7 +660,7 @@ namespace pcpp {
 		PointerVector<Asn1Record> attributeSubRecords;
 		for (const auto& attribute : attributes)
 		{
-			attributeSubRecords.pushBack(new Asn1OctetStringRecord(attribute), true);
+			attributeSubRecords.pushBack(new Asn1OctetStringRecord(attribute));
 		}
 		Asn1SequenceRecord attributesRecord(attributeSubRecords);
 
@@ -743,13 +743,13 @@ namespace pcpp {
 			PointerVector<Asn1Record> valuesSubRecords;
 			for (const auto& value : attribute.values)
 			{
-				valuesSubRecords.pushBack(new Asn1OctetStringRecord(value), true);
+				valuesSubRecords.pushBack(new Asn1OctetStringRecord(value));
 			}
 
 			Asn1OctetStringRecord typeRecord(attribute.type);
 			Asn1SetRecord valuesRecord(valuesSubRecords);
 
-			attributesSubRecords.pushBack(new Asn1SequenceRecord({ &typeRecord, &valuesRecord }), true);
+			attributesSubRecords.pushBack(new Asn1SequenceRecord({ &typeRecord, &valuesRecord }));
 		}
 
 		Asn1OctetStringRecord objectNameRecord(objectName);

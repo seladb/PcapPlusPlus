@@ -10,7 +10,7 @@
 static void ipReassemblyOnFragmentsClean(const pcpp::IPReassembly::PacketKey* key, void* userCookie)
 {
 	pcpp::PointerVector<pcpp::IPReassembly::PacketKey>* packetsRemoved = (pcpp::PointerVector<pcpp::IPReassembly::PacketKey>*)userCookie;
-	packetsRemoved->pushBack(key->clone(), true);
+	packetsRemoved->pushBack(key->clone());
 }
 
 

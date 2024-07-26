@@ -168,7 +168,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 	if (ipLayer->getLayerPayloadSize() <= fragmentSize)
 	{
 		pcpp::RawPacket* copyOfRawPacket = new pcpp::RawPacket(*rawPacket);
-		resultFragments.pushBack(copyOfRawPacket, true);
+		resultFragments.pushBack(copyOfRawPacket);
 		return;
 	}
 
@@ -218,7 +218,7 @@ void splitIPPacketToFragmentsBySize(pcpp::RawPacket* rawPacket, size_t fragmentS
 		newFrag.computeCalculateFields();
 
 		// add fragment to result list
-		resultFragments.pushBack(newFrag.getRawPacket(), true);
+		resultFragments.pushBack(newFrag.getRawPacket());
 
 		// increment offset pointer
 		curOffset += curFragSize;
