@@ -18,9 +18,8 @@ namespace pcpp
 	 *
 	 * @brief The NTP packet consists of an integral number of 32-bit (4 octet) words in network byte order.
 	 * The packet format consists of three components: the header itself, one or more optional extension fields (for
-	 v4),
-	 * and an optional message authentication code (MAC). Currently the extension fields are not supported. The NTP
-	 header is:
+	 * v4), and an optional message authentication code (MAC). Currently the extension fields are not supported. The NTP
+	 * header is:
 	 *
 	 * @verbatim
 	   0                   1                   2                   3
