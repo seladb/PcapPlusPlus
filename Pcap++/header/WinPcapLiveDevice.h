@@ -27,6 +27,7 @@ namespace pcpp
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+		WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 		// copy c'tor is not public
 		WinPcapLiveDevice( const WinPcapLiveDevice& other );
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other);
@@ -57,7 +58,7 @@ namespace pcpp
 		int getMinAmountOfDataToCopyFromKernelToApplication() const { return m_MinAmountOfDataToCopyFromKernelToApplication; }
 
 	protected:
-		WinPcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const override;
+		WinPcapLiveDevice* doClone(DeviceInterfaceDetails const& devInterface) const override;
 	};
 
 } // namespace pcpp
