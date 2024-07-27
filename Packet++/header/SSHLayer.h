@@ -18,26 +18,26 @@
  * If it doesn't find a match to one of the other SSH messages, it assumes it is an encrypted SSH message.
  *
  * Following is an overview of the SSH protocol classes currently supported in PcapPlusPlus. They cover the different
- messages of the SSH protocol:
+ * messages of the SSH protocol:
  *
   @verbatim
 
-                                 +----------------------------+      SSH version identification
-                             +---|  SSHIdentificationMessage  | ===> as described here:
-                             |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-4.2
-                             |
-  +------------+             |   +----------------------------+      SSH handshake message
-  |  SSHLayer  |-------------+---|  SSHHandshakeMessage       | ===> which is typically one of the messages described
- here: | (abstract) |             |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-12
-  +------------+             |                 |
-                             |                 |     +----------------------------+      SSH Key Exchange message
-                             |                 +-----|  SSHKeyExchangeInitMessage | ===> as described here:
-                             |                       +----------------------------+
- https://tools.ietf.org/html/rfc4253#section-7
-                             |
-                             |   +----------------------------+
-                             +---|  SSHEncryptedMessage       | ===> An encrypted SSH message
-                                 +----------------------------+
+                             +----------------------------+      SSH version identification
+                         +---|  SSHIdentificationMessage  | ===> as described here:
+                         |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-4.2
+                         |
+  +------------+         |   +----------------------------+      SSH handshake message
+  |  SSHLayer  |---------+---|  SSHHandshakeMessage       | ===> which is typically one of the messages described here:
+  | (abstract) |         |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-12
+  +------------+         |                 |
+                         |                 |     +----------------------------+
+                         |                 +-----|  SSHKeyExchangeInitMessage | ===> SSH Key Exchange message
+                         |                       +----------------------------+      as described here:
+                         |                                                 https://tools.ietf.org/html/rfc4253#section-7
+                         |
+                         |   +----------------------------+
+                         +---|  SSHEncryptedMessage       | ===> An encrypted SSH message
+                             +----------------------------+
 
   @endverbatim
 
@@ -46,8 +46,7 @@
   *    pcpp#SSHIdentificationMessage
   * 2. Try to determine if this is a non-encrypted SSH handshake message:
   *    - Look at the first 4 bytes of the data which may contain the packet length and see if the value is smaller of
- equal
-  *      than the entire layer length
+  *      equal than the entire layer length.
   *    - The next byte contains the padding length, check if it's smaller or equal than the packet length
   *    - The next byte contains the message type, check if the value is a valid message type as described in:
   *      <https://tools.ietf.org/html/rfc4253#section-12>
@@ -195,13 +194,12 @@ namespace pcpp
 	 @endverbatim
 	 *
 	 * The first 4 bytes hold the packet length, followed by 1 byte that holds the padding length (which comes at the
-	 end of the message),
-	 * then 1 byte that holds the message type (which can be of type SSHHandshakeMessage#SSHHandshakeMessageType) and
-	 then the message content.
-	 * At the end of the content there is typically padding.
+	 * end of the message), then 1 byte that holds the message type (which can be of type
+	 * SSHHandshakeMessage#SSHHandshakeMessageType) and then the message content. At the end of the content there is
+	 * typically padding.
 	 *
 	 * This class provides access to all of these values. The message content itself is not parse with the exception of
-	 SSHKeyExchangeInitMessage
+	 * SSHKeyExchangeInitMessage
 	 * which inherits from this class and provides parsing of the Key Exchange Init message.
 	 */
 	class SSHHandshakeMessage : public SSHLayer
@@ -280,10 +278,10 @@ namespace pcpp
 		std::string toString() const;
 
 	protected:
-/**
- * An internal struct representing the SSH handshake message header
- */
 #pragma pack(push, 1)
+		/**
+		 * An internal struct representing the SSH handshake message header
+		 */
 		struct ssh_message_base
 		{
 			uint32_t packetLength;
