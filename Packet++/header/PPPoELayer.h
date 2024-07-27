@@ -23,18 +23,18 @@ namespace pcpp
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** PPPoE version */
-		uint8_t version : 4,
-		    /** PPPoE type */
-		    type : 4;
+		uint8_t version : 4;
+		/** PPPoE type */
+		uint8_t type : 4;
 		/** PPPoE code */
 		uint8_t code;
 #else
 		/** PPPoE version */
-		uint16_t version : 4,
-		    /** PPPoE type */
-		    type : 4,
-		    /** PPPoE code */
-		    code : 8;
+		uint16_t version : 4;
+		/** PPPoE type */
+		uint16_t type : 4;
+		/** PPPoE code */
+		uint16_t code : 8;
 #endif
 		/** PPPoE session ID (relevant for PPPoE session packets only) */
 		uint16_t sessionId;
