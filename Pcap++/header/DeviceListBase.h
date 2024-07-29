@@ -19,6 +19,7 @@ namespace pcpp
 			PointerVector<DeviceType> m_DeviceList;
 
 			DeviceListBase() = default;
+			DeviceListBase(PointerVector<DeviceType> devices) : m_DeviceList(std::move(devices)) {}
 			DeviceListBase(DeviceListBase<DeviceType> const&) = default;
 			DeviceListBase(DeviceListBase<DeviceType>&&) = default;
 			// Protected destructor to disallow deletion of derived class through a base class pointer

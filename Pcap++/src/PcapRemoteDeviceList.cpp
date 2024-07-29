@@ -50,7 +50,7 @@ namespace pcpp
 	}
 
 PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, PointerVector<PcapRemoteDevice> deviceList)
-	: m_RemoteDeviceList(std::move(deviceList))
+	: Base(std::move(deviceList))
 	, m_RemoteMachineIpAddress(ipAddress)
 	, m_RemoteMachinePort(port)
 	, m_RemoteAuthentication(std::move(remoteAuth))
@@ -149,7 +149,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipA
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(ConstRemoteDeviceListIterator devIter = m_DeviceList.begin(); devIter != m_DeviceList.end(); devIter++)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(const auto &addrIter : (*devIter)->m_Addresses)
@@ -183,7 +183,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(ConstRemoteDeviceListIterator devIter = m_DeviceList.begin(); devIter != m_DeviceList.end(); devIter++)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 		for(const auto &addrIter : (*devIter)->m_Addresses)

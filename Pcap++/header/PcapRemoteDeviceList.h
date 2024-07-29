@@ -5,6 +5,7 @@
 #include <memory>
 #include "IpAddress.h"
 #include "PointerVector.h"
+#include "DeviceListBase.h"
 #include "PcapRemoteDevice.h"
 #include "DeprecationUtils.h"
 
@@ -27,10 +28,11 @@ namespace pcpp
 	 * by iterating the PcapRemoteDevice instances (through the PcapRemoteDeviceList#RemoteDeviceListIterator iterator)<BR>
 	 * Since Remote Capture is supported in WinPcap and Npcap only, this class is available in Windows only
 	 */
-	class PcapRemoteDeviceList
+	class PcapRemoteDeviceList : public internal::DeviceListBase<PcapRemoteDevice>
 	{
 	private:
-		PointerVector<PcapRemoteDevice> m_RemoteDeviceList;
+		using Base = internal::DeviceListBase<PcapRemoteDevice>;
+
 		IPAddress m_RemoteMachineIpAddress;
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
@@ -168,27 +170,6 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
-
-		/**
-		 * @return An iterator object pointing to the first device in the list
-		 */
-		iterator begin() { return m_RemoteDeviceList.begin(); }
-
-		/**
-		 * @return A constant iterator object pointing to the first device in the list
-		 */
-		const_iterator begin() const { return m_RemoteDeviceList.begin(); }
-
-		/**
-		 * @return An iterator object pointing to the last device in the list
-		 */
-		iterator end() { return m_RemoteDeviceList.end(); }
-
-		/**
-		 * @return A constant iterator object pointing to the last device in the list
-		 */
-		const_iterator end() const { return m_RemoteDeviceList.end(); }
-
 	};
 
 } // namespace pcpp

@@ -4,6 +4,7 @@
 
 #include "PfRingDevice.h"
 #include "PointerVector.h"
+#include "DeviceListBase.h"
 #include "DeprecationUtils.h"
 
 /// @file
@@ -20,10 +21,11 @@ namespace pcpp
 	 * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING devices or find a specific
 	 * device by name
 	 */
-	class PfRingDeviceList
+	class PfRingDeviceList : public internal::DeviceListBase<PfRingDevice>
 	{
 	private:
-		PointerVector<PfRingDevice> m_PfRingDeviceList;
+		using Base = internal::DeviceListBase<PfRingDevice>;
+
 		std::vector<PfRingDevice*> m_PfRingDeviceListView;
 		std::string m_PfRingVersion;
 
@@ -74,38 +76,6 @@ namespace pcpp
 		 * @return A string representing PF_RING version
 		 */
 		std::string getPfRingVersion() const { return m_PfRingVersion; }
-
-		/**
-		 * @return An iterator object pointing to the first device in the list
-		 */
-		iterator begin()
-		{
-			return m_PfRingDeviceList.begin();
-		}
-
-		/**
-		 * @return A constant iterator object pointing to the first device in the list
-		 */
-		const_iterator begin() const
-		{
-			return m_PfRingDeviceList.begin();
-		}
-
-		/**
-		 * @return An iterator object pointing to the last device in the list
-		 */
-		iterator end()
-		{
-			return m_PfRingDeviceList.end();
-		}
-
-		/**
-		 * @return A constant iterator object pointing to the last device in the list
-		 */
-		const_iterator end() const
-		{
-			return m_PfRingDeviceList.end();
-		}
 	};
 
 } // namespace pcpp
