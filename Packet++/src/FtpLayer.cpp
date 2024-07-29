@@ -95,8 +95,7 @@ namespace pcpp
 		case FtpCommand::LANG:
 			return "Language Negotiation";
 		case FtpCommand::LIST:
-			return "Returns information of a file or directory if specified, else information of the current working "
-			       "directory is returned";
+			return "Returns information of a file or directory if specified, else information of the current working directory is returned";
 		case FtpCommand::LPRT:
 			return "Specifies a long address and port to which the server should connect";
 		case FtpCommand::LPSV:
@@ -116,8 +115,7 @@ namespace pcpp
 		case FtpCommand::MLSD:
 			return "Lists the contents of a directory in a standardized machine-readable format";
 		case FtpCommand::MLST:
-			return "Provides data about exactly the object named on its command line in a standardized "
-			       "machine-readable format";
+			return "Provides data about exactly the object named on its command line in a standardized machine-readable format";
 		case FtpCommand::MODE:
 			return "Sets the transfer mode (Stream, Block, or Compressed)";
 		case FtpCommand::NLST:
@@ -155,15 +153,13 @@ namespace pcpp
 		case FtpCommand::RNTO:
 			return "Rename to";
 		case FtpCommand::SITE:
-			return "Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE "
-			       "HELP output for complete list of supported commands";
+			return "Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP output for complete list of supported commands";
 		case FtpCommand::SIZE:
 			return "Return the size of a file";
 		case FtpCommand::SMNT:
 			return "Mount file structure";
 		case FtpCommand::SPSV:
-			return "Use single port passive mode (only one TCP port number for both control connections and "
-			       "passive-mode data connections)";
+			return "Use single port passive mode (only one TCP port number for both control connections and passive-mode data connections)";
 		case FtpCommand::STAT:
 			return "Returns information on the server status, including the status of the current connection";
 		case FtpCommand::STOR:
