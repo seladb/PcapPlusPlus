@@ -13,9 +13,9 @@
  *   - Write each connection to a separate file
  *   - Write each side of each connection to a separate file
  *   - Limit the max number of open files in each point in time (to avoid running out of file descriptors for large
- * files / heavy traffic)
+ *     files / heavy traffic)
  *   - Write a metadata file (txt file) for each connection with various stats on the connection: number of packets (in
- * each side + total), number of TCP messages (in each side + total), number of bytes (in each side + total)
+ *     each side + total), number of TCP messages (in each side + total), number of bytes (in each side + total)
  *   - Write to console only (instead of files)
  *   - Set a directory to write files to (default is current directory)
  *
@@ -402,10 +402,11 @@ static void tcpReassemblyMsgReadyCallback(const int8_t sideIndex, const pcpp::Tc
 			}
 		}
 
+		// clang-format off
 		// get the file name according to the 5-tuple etc.
-		std::string fileName = GlobalConfig::getInstance().getFileName(tcpData.getConnectionData(), sideIndex,
-		                                                               GlobalConfig::getInstance().separateSides) +
-		                       ".txt";
+		std::string fileName = GlobalConfig::getInstance().getFileName(tcpData.getConnectionData(), sideIndex, GlobalConfig::getInstance().separateSides)
+		                       + ".txt";
+		// clang-format on
 
 		// open the file in overwrite mode (if this is the first time the file is opened) or in append mode (if it was
 		// already opened before)
