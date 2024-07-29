@@ -36,6 +36,7 @@
 #include <rte_mbuf.h>
 #include <rte_version.h>
 
+#include <memory>
 #include <sstream>
 #include <iomanip>
 #include <string>
@@ -61,16 +62,6 @@ uint16_t DpdkDeviceList::m_MBufDataSize = 0;
 DpdkDeviceList::DpdkDeviceList()
 {
 	m_IsInitialized = false;
-}
-
-DpdkDeviceList::~DpdkDeviceList()
-{
-	for (auto dev : m_DpdkDeviceList)
-	{
-		delete dev;
-	}
-
-	m_DpdkDeviceList.clear();
 }
 
 bool DpdkDeviceList::initDpdk(CoreMask coreMask, uint32_t mBufPoolSizePerDevice, uint16_t mBufDataSize, uint8_t masterCore, uint32_t initDpdkArgc, char **initDpdkArgv, const std::string& appName, bool verifyHugePagesAndDriver)
@@ -192,10 +183,14 @@ bool DpdkDeviceList::initDpdkDevices(uint32_t mBufPoolSizePerDevice, uint16_t mB
 	// Initialize a DpdkDevice per port
 	for (int i = 0; i < numOfPorts; i++)
 	{
-		DpdkDevice* newDevice = new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize);
+		auto newDevice = std::unique_ptr<DpdkDevice>(new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize));
 		PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='" << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName() << "', MAC Addr='" << newDevice->getMacAddress() << "'");
-		m_DpdkDeviceList.push_back(newDevice);
+		m_DeviceList.pushBack(std::move(newDevice));
 	}
+
+	// Full update of all elements of the view vector to synchronize them with the main vector.
+	m_DpdkDeviceListView.resize(m_DeviceList.size());
+	std::copy(m_DeviceList.begin(), m_DeviceList.end(), m_DpdkDeviceListView.begin());
 
 	m_IsInitialized = true;
 	return true;
@@ -206,15 +201,15 @@ DpdkDevice* DpdkDeviceList::getDeviceByPort(int portId) const
 	if (!isInitialized())
 	{
 		PCPP_LOG_ERROR("DpdkDeviceList not initialized");
-		return NULL;
+		return nullptr;
 	}
 
-	if ((uint32_t)portId >= m_DpdkDeviceList.size())
+	if (static_cast<uint32_t>(portId) >= m_DeviceList.size())
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	return m_DpdkDeviceList.at(portId);
+	return m_DeviceList.at(portId);
 }
 
 DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) const
@@ -225,10 +220,10 @@ DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) co
 		return NULL;
 	}
 
-	auto devIter = std::find_if(m_DpdkDeviceList.begin(), m_DpdkDeviceList.end(),
+	auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 								[&pciAddr](const DpdkDevice *dev) { return dev->getPciAddress() == pciAddr; });
 
-	if (devIter == m_DpdkDeviceList.end())
+	if (devIter == m_DeviceList.end())
 	{
 		PCPP_LOG_DEBUG("Found no DPDK devices with PCI address '" << pciAddr << "'");
 		return nullptr;
