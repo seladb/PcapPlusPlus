@@ -133,10 +133,10 @@ jobs:
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
-      - name: Create Cobertura Report
-        run: |
-          ${{ matrix.python }} -m pip install gcovr
-          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
+      # - name: Create Cobertura Report
+      #   run: |
+      #     ${{ matrix.python }} -m pip install gcovr
+      #     gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       # - name: Upload Coverage Results
       #   uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
