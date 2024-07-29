@@ -31,19 +31,32 @@ struct Rate
  */
 struct HttpGeneralStats
 {
-	int numOfHttpFlows;            // total number of HTTP flows
-	Rate httpFlowRate;             // rate of HTTP flows
-	int numOfHttpPipeliningFlows;  // total number of HTTP flows that contains at least on HTTP pipelining transaction
-	int numOfHttpTransactions;     // total number of HTTP transactions
-	Rate httpTransactionsRate;     // rate of HTTP transactions
-	double averageNumOfHttpTransactionsPerFlow;  // average number of HTTP transactions per flow
-	int numOfHttpPackets;                        // total number of HTTP packets
-	Rate httpPacketRate;                         // rate of HTTP packets
-	double averageNumOfPacketsPerFlow;           // average number of HTTP packets per flow
-	int amountOfHttpTraffic;                     // total HTTP traffic in bytes
-	double averageAmountOfDataPerFlow;           // average number of HTTP traffic per flow
-	Rate httpTrafficRate;                        // rate of HTTP traffic
-	double sampleTime;                           // total stats collection time
+	// total number of HTTP flows
+	int numOfHttpFlows;
+	// rate of HTTP flows
+	Rate httpFlowRate;
+	// total number of HTTP flows that contains at least on HTTP pipelining transaction
+	int numOfHttpPipeliningFlows;
+	// total number of HTTP transactions
+	int numOfHttpTransactions;
+	// rate of HTTP transactions
+	Rate httpTransactionsRate;
+	// average number of HTTP transactions per flow
+	double averageNumOfHttpTransactionsPerFlow;
+	// total number of HTTP packets
+	int numOfHttpPackets;
+	// rate of HTTP packets
+	Rate httpPacketRate;
+	// average number of HTTP packets per flow
+	double averageNumOfPacketsPerFlow;
+	// total HTTP traffic in bytes
+	int amountOfHttpTraffic;
+	// average number of HTTP traffic per flow
+	double averageAmountOfDataPerFlow;
+	// rate of HTTP traffic
+	Rate httpTrafficRate;
+	// total stats collection time
+	double sampleTime;
 
 	void clear()
 	{
@@ -68,10 +81,14 @@ struct HttpGeneralStats
  */
 struct HttpMessageStats
 {
-	int numOfMessages;                // total number of HTTP messages of that type (request/response)
-	Rate messageRate;                 // rate of HTTP messages of that type
-	int totalMessageHeaderSize;       // total size (in bytes) of data in headers
-	double averageMessageHeaderSize;  // average header size
+	// total number of HTTP messages of that type (request/response)
+	int numOfMessages;
+	// rate of HTTP messages of that type
+	Rate messageRate;
+	// total size (in bytes) of data in headers
+	int totalMessageHeaderSize;
+	// average header size
+	double averageMessageHeaderSize;
 
 	virtual ~HttpMessageStats()
 	{}
@@ -90,9 +107,10 @@ struct HttpMessageStats
  */
 struct HttpRequestStats : HttpMessageStats
 {
-	std::unordered_map<pcpp::HttpRequestLayer::HttpMethod, int, std::hash<int>>
-	    methodCount;  // a map for counting the different HTTP methods seen in traffic
-	std::unordered_map<std::string, int> hostnameCount;  // a map for counting the hostnames seen in traffic
+	// a map for counting the different HTTP methods seen in traffic
+	std::unordered_map<pcpp::HttpRequestLayer::HttpMethod, int, std::hash<int>> methodCount;
+	// a map for counting the hostnames seen in traffic
+	std::unordered_map<std::string, int> hostnameCount;
 
 	void clear() override
 	{
@@ -107,12 +125,16 @@ struct HttpRequestStats : HttpMessageStats
  */
 struct HttpResponseStats : HttpMessageStats
 {
-	std::unordered_map<std::string, int>
-	    statusCodeCount;  // a map for counting the different status codes seen in traffic
-	std::unordered_map<std::string, int> contentTypeCount;  // a map for counting the content-types seen in traffic
-	int numOfMessagesWithContentLength;  // total number of responses containing the "content-length" field
-	int totalContentLengthSize;          // total body size extracted by responses containing "content-length" field
-	double averageContentLengthSize;     // average body size
+	// a map for counting the different status codes seen in traffic
+	std::unordered_map<std::string, int> statusCodeCount;
+	// a map for counting the content-types seen in traffic
+	std::unordered_map<std::string, int> contentTypeCount;
+	// total number of responses containing the "content-length" field
+	int numOfMessagesWithContentLength;
+	// total body size extracted by responses containing "content-length" field
+	int totalContentLengthSize;
+	// average body size
+	double averageContentLengthSize;
 
 	void clear() override
 	{
@@ -276,15 +298,17 @@ private:
 	 */
 	struct HttpFlowData
 	{
-		int numOfOpenTransactions;  // number of transactions that were started (request has arrived) but weren't closed
-		                            // yet (response hasn't arrived yet)
-		pcpp::ProtocolType lastSeenMessage;  // the last HTTP message seen on this flow (request, response or neither).
-		                                     // Used to identify HTTP pipelining
-		bool httpPipeliningFlow;             // was HTTP pipelining identified on this flow
-		uint32_t curSeqNumberRequests;   // the current TCP sequence number from client to server. Used to identify TCP
-		                                 // re-transmission
-		uint32_t curSeqNumberResponses;  // the current TCP sequence number from server to client. Used to identify TCP
-		                                 // re-transmission
+		// number of transactions that were started (request has arrived) but weren't closed yet (response hasn't
+		// arrived yet)
+		int numOfOpenTransactions;
+		// the last HTTP message seen on this flow (request, response or neither). Used to identify HTTP pipelining
+		pcpp::ProtocolType lastSeenMessage;
+		// was HTTP pipelining identified on this flow
+		bool httpPipeliningFlow;
+		// the current TCP sequence number from client to server. Used to identify TCP re-transmission
+		uint32_t curSeqNumberRequests;
+		// the current TCP sequence number from server to client. Used to identify TCP re-transmission
+		uint32_t curSeqNumberResponses;
 
 		void clear()
 		{
