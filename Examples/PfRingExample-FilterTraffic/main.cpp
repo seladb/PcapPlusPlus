@@ -46,6 +46,7 @@
 #include <sstream>
 #include <unistd.h>
 
+// clang-format off
 static struct option PfFilterTrafficOptions[] = {
 	{ "interface-name",       required_argument, 0, 'n' },
 	{ "send-matched-packets", required_argument, 0, 's' },
@@ -56,11 +57,12 @@ static struct option PfFilterTrafficOptions[] = {
 	{ "match-dest-port",      required_argument, 0, 'P' },
 	{ "match-protocol",       required_argument, 0, 'r' },
 	{ "num-of-threads",       required_argument, 0, 't' },
-	{ "help",	             no_argument,       0, 'h' },
+	{ "help",                 no_argument,       0, 'h' },
 	{ "version",              no_argument,       0, 'v' },
-	{ "list",	             no_argument,       0, 'l' },
-	{ 0,	                  0,	             0, 0   }
+	{ "list",                 no_argument,       0, 'l' },
+	{ 0,                      0,                 0, 0   }
 };
+// clang-format on
 
 /**
  * A struct that holds all arguments passed to capture threads: packetArrived()
