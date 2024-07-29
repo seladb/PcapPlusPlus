@@ -46,6 +46,7 @@
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
+// clang-format off
 static struct option SSLAnalyzerOptions[] = {
 	{ "interface",           required_argument, nullptr, 'i' },
 	{ "input-file",          required_argument, nullptr, 'f' },
@@ -53,10 +54,11 @@ static struct option SSLAnalyzerOptions[] = {
 	{ "rate-calc-period",    required_argument, nullptr, 'r' },
 	{ "disable-rates-print", no_argument,       nullptr, 'd' },
 	{ "list-interfaces",     no_argument,       nullptr, 'l' },
-	{ "help",	            no_argument,       nullptr, 'h' },
+	{ "help",                no_argument,       nullptr, 'h' },
 	{ "version",             no_argument,       nullptr, 'v' },
-	{ nullptr,	           0,                 nullptr, 0   }
+	{ nullptr,               0,                 nullptr, 0   }
 };
+// clang-format on
 
 struct SSLPacketArrivedData
 {
