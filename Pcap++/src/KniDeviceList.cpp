@@ -120,28 +120,23 @@ KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
 	//? Linear search here is optimal for low count of devices.
 	//? We assume that no one will create large count of devices or will rapidly search them.
 	//? Same for <getDeviceByName> function
-	KniDevice* kniDevice = nullptr;
 	if (!isInitialized())
-		return kniDevice;
-	for (auto const kniDevice : m_DeviceList)
-	{
-		if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
-			return kniDevice;
-	}
-	return kniDevice = nullptr;
+		return nullptr;
+
+	auto const foundIt = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		[&portId](KniDevice* kniDevice) { return kniDevice && kniDevice->m_DeviceInfo.portId == portId; }
+	);
+	return foundIt != m_DeviceList.end() ? *foundIt : nullptr;
 }
 
 KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
 {
-	KniDevice* kniDevice = nullptr;
 	if (!isInitialized())
-		return kniDevice;
-	for (auto const kniDevice : m_DeviceList)
-	{
-		if (kniDevice && kniDevice->m_DeviceInfo.name == name)
-			return kniDevice;
-	}
-	return kniDevice = nullptr;
+		return nullptr;
+	auto const foundIt = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), 
+		[&name](KniDevice* kniDevice) { return kniDevice && kniDevice->m_DeviceInfo.name == name; }
+	);
+	return foundIt != m_DeviceList.end() ? *foundIt : nullptr;
 }
 
 KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()
