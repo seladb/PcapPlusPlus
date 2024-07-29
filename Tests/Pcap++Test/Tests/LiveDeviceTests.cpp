@@ -11,6 +11,7 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <array>
+#include <algorithm>
 #include <cstdio>
 #if defined(_WIN32)
 #	include "PcapRemoteDevice.h"
@@ -296,6 +297,14 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_GREATER_THAN(liveDev->getMtu(), 0);
 	PTF_ASSERT_TRUE(liveDev->open());
+
+	PTF_ASSERT_EQUAL(liveDev->getIPv4Address(), ipToSearch);
+	{
+		// Should probably be refactored as PTF_ASSERT_CONTAINS or similar.
+		auto const ipAddresses = liveDev->getIPAddresses();
+		PTF_ASSERT_TRUE(std::any_of(ipAddresses.begin(), ipAddresses.end(), [ipToSearch](pcpp::IPAddress const& addr) { return addr == ipToSearch; }));
+	}
+
 	DeviceTeardown devTeardown(liveDev);
 	int packetCount = 0;
 	int numOfTimeStatsWereInvoked = 0;
