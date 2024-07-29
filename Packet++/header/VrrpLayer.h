@@ -74,16 +74,16 @@ namespace pcpp
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** Type */
-		uint8_t type : 4,
+		uint8_t type : 4;
 
-		    /** Version bits */
-		    version : 4;
+		/** Version bits */
+		uint8_t version : 4;
 #else
 		/** Version bits */
-		uint8_t version : 4,
+		uint8_t version : 4;
 
-		    /** Type */
-		    type : 4;
+		/** Type */
+		uint8_t type : 4;
 #endif
 		/** The Virtual Router Identifier (VRID) field identifies the virtual router this packet is reporting status
 		 * for*/

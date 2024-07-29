@@ -6,8 +6,7 @@
 #include <string.h>
 
 #define PCPP_DEPRECATED_TCP_OPTION_TYPE                                                                                \
-	PCPP_DEPRECATED("enum TcpOptionType is deprecated; "                                                               \
-	                "Use enum class TcpOptionEnumType instead")
+	PCPP_DEPRECATED("enum TcpOptionType is deprecated; Use enum class TcpOptionEnumType instead")
 
 /// @file
 
@@ -34,44 +33,46 @@ namespace pcpp
 		/** Acknowledgment number */
 		uint32_t ackNumber;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		uint16_t reserved : 4,
-		    /** Specifies the size of the TCP header in 32-bit words */
-		    dataOffset : 4,
-		    /** FIN flag */
-		    finFlag : 1,
-		    /** SYN flag */
-		    synFlag : 1,
-		    /** RST flag */
-		    rstFlag : 1,
-		    /** PSH flag */
-		    pshFlag : 1,
-		    /** ACK flag */
-		    ackFlag : 1,
-		    /** URG flag */
-		    urgFlag : 1,
-		    /** ECE flag */
-		    eceFlag : 1,
-		    /** CWR flag */
-		    cwrFlag : 1;
+		uint16_t reserved : 4;
+		/** Specifies the size of the TCP header in 32-bit words */
+		uint16_t dataOffset : 4;
+		/** FIN flag */
+		uint16_t finFlag : 1;
+		/** SYN flag */
+		uint16_t synFlag : 1;
+		/** RST flag */
+		uint16_t rstFlag : 1;
+		/** PSH flag */
+		uint16_t pshFlag : 1;
+		/** ACK flag */
+		uint16_t ackFlag : 1;
+		/** URG flag */
+		uint16_t urgFlag : 1;
+		/** ECE flag */
+		uint16_t eceFlag : 1;
+		/** CWR flag */
+		uint16_t cwrFlag : 1;
 #elif (BYTE_ORDER == BIG_ENDIAN)
 		/** Specifies the size of the TCP header in 32-bit words */
-		uint16_t dataOffset : 4, reserved : 4,
-		    /** CWR flag */
-		    cwrFlag : 1,
-		    /** ECE flag */
-		    eceFlag : 1,
-		    /** URG flag */
-		    urgFlag : 1,
-		    /** ACK flag */
-		    ackFlag : 1,
-		    /** PSH flag */
-		    pshFlag : 1,
-		    /** RST flag */
-		    rstFlag : 1,
-		    /** SYN flag */
-		    synFlag : 1,
-		    /** FIN flag */
-		    finFlag : 1;
+		uint16_t dataOffset : 4;
+		/** Reserved */
+		uint16_t reserved : 4;
+		/** CWR flag */
+		uint16_t cwrFlag : 1;
+		/** ECE flag */
+		uint16_t eceFlag : 1;
+		/** URG flag */
+		uint16_t urgFlag : 1;
+		/** ACK flag */
+		uint16_t ackFlag : 1;
+		/** PSH flag */
+		uint16_t pshFlag : 1;
+		/** RST flag */
+		uint16_t rstFlag : 1;
+		/** SYN flag */
+		uint16_t synFlag : 1;
+		/** FIN flag */
+		uint16_t finFlag : 1;
 #else
 #	error "Endian is not LE nor BE..."
 #endif

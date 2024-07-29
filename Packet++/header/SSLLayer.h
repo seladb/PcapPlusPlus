@@ -92,7 +92,7 @@
  * - New-session-ticket
  *
  * All handshake messages classes inherit from a base abstract class: pcpp::SSLHandshakeMessage which cannot be
- instantiated.
+ * instantiated.
  * Also, all of them reside in SSLHandshake.h. Following is a simple diagram of these classes:
  *
  @verbatim
@@ -131,18 +131,16 @@
  * __Cipher suites:__    <BR>
  *
  * Cipher suites are named combinations of authentication, encryption, message authentication code (MAC) and key
- exchange
- * algorithms used to negotiate the security settings for a network connection using SSL/TLS.
+ * exchange algorithms used to negotiate the security settings for a network connection using SSL/TLS.
  * There are many known cipher-suites. PcapPlusPlus support above 300 of them, according to this list:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
  * There is a designated class in PcapPlusPlus called pcpp::SSLCipherSuite which represents the cipher-suites and
- provides
+ * provides
  * access to their attributes. Then there is a static instance of this class for each one of the supported
- cipher-suites.
+ * cipher-suites.
  * This means there are 300+ static instances of pcpp::SSLCipherSuite representing the different cipher suites. The user
- can
- * access them through static methods in pcpp::SSLCipherSuite or from client-hello and server-hello messages where they
- appear
+ * can access them through static methods in pcpp::SSLCipherSuite or from client-hello and server-hello messages where
+ * they appear.
  *
  * <BR><BR>
  *
@@ -151,15 +149,13 @@
  * SSL/TLS handshake messages, specifically client-hello and server-hello usually include extensions. There are various
  * types of extensions - some are more broadly used, some are less. In PcapPlusPlus there is a base class for all
  * extensions: pcpp::SSLExtension. This class is instantiable and represents a generic extension, which means extension
- data
- * isn't parsed and given to the user as raw data. Currently there are only two extension that are fully parsed which
- are
- * server-name-indication (pcpp::SSLServerNameIndicationExtension) and SupportedVersions
- (pcpp::SSLSupportedVersionsExtension).
+ * data isn't parsed and given to the user as raw data. Currently there are only two extension that are fully parsed
+ * which are server-name-indication (pcpp::SSLServerNameIndicationExtension) and SupportedVersions
+ * (pcpp::SSLSupportedVersionsExtension).
  * Both inherit from pcpp::SSLExtension and add additional parsing relevant for the specific extension.
  * All other extensions aren't parsed and are represented by instance of pcpp::SSLExtension.
  * Access to extensions is done through the handshake messages classes, specifically pcpp::SSLClientHelloMessage and
- pcpp::SSLServerHelloMessage
+ * pcpp::SSLServerHelloMessage
  */
 
 /**
@@ -275,17 +271,17 @@ namespace pcpp
 
 	};  // class SSLLayer
 
+	// The graph below will break the code formatting, so it's disabled.
+	// clang-format off
 	/**
 	 * @class SSLHandshakeLayer
 	 * Represents SSL/TLS handshake layer. This layer may contain one or more handshake messages (all of them inherit
-	 from
-	 * the base class SSLHandshakeMessage) which are the SSL/TLS handshake message sent between a client and a server
-	 until
-	 * they establish a secure connection (e.g client-hello, server-hello, certificate, client-key-exchange,
-	 * server-key-exchange, etc.). Usually this layer will contain just one message (as the first example below
+	 * from the base class SSLHandshakeMessage) which are the SSL/TLS handshake message sent between a client and a
+	 * server until they establish a secure connection (e.g client-hello, server-hello, certificate,
+	 * client-key-exchange, server-key-exchange, etc.).
+	 * Usually this layer will contain just one message (as the first example below
 	 * demonstrates). But there are cases a layer may contain more than 1 message. To better explain this layer
-	 structure
-	 * we'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
+	 * structure. We'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
 	 @verbatim
 
 	         |------------------- SSLHandshakeLayer ----------------------|
@@ -304,8 +300,7 @@ namespace pcpp
 	 @endverbatim
 
 	 * Second example is a multiple-message handshake layer comprises of server-hello, certificate and
-	 server-key-exchange
-	 * messages:
+	 * server-key-exchange messages:
 
 	 @verbatim
 
@@ -323,6 +318,7 @@ namespace pcpp
 	 xxx   |               version,length        |                           |
 	 @endverbatim
 	 */
+	// clang-format on
 	class SSLHandshakeLayer : public SSLLayer
 	{
 	public:
