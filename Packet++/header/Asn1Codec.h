@@ -346,7 +346,7 @@ namespace pcpp
 			{
 				auto encodedRecord = (*recordIter)->encode();
 				auto copyRecord = Asn1Record::decode(encodedRecord.data(), encodedRecord.size(), false);
-				m_SubRecords.pushBack(copyRecord.release());
+				m_SubRecords.pushBack(std::move(copyRecord));
 				recordValueLength += encodedRecord.size();
 			}
 
