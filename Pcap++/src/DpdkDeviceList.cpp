@@ -209,7 +209,8 @@ DpdkDevice* DpdkDeviceList::getDeviceByPort(int portId) const
 		return nullptr;
 	}
 
-	return m_DeviceList.at(portId);
+	// Hack because the device list returns a pointer to const, when the device list is const qualified.
+	return const_cast<DpdkDevice*>(m_DeviceList.at(portId));
 }
 
 DpdkDevice* DpdkDeviceList::getDeviceByPciAddress(const std::string& pciAddr) const
