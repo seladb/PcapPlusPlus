@@ -88,7 +88,7 @@ namespace pcpp
 {
 	class KniDevice;
 	class KniDeviceList;
-	
+
 	namespace internal
 	{
 		class KniDeviceDeleter;

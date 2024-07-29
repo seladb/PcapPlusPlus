@@ -84,7 +84,7 @@ KniDevice* KniDeviceList::createDevice(
 {
 	if (!isInitialized())
 		return nullptr;
-	
+
 	if (getDeviceByName(std::string(config.name)) != nullptr)
 	{
 		PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
@@ -129,7 +129,7 @@ KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
 {
 	if (!isInitialized())
 		return nullptr;
-	auto const foundIt = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), 
+	auto const foundIt = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 		[&name](KniDevice* kniDevice) { return kniDevice && kniDevice->m_DeviceInfo.name == name; }
 	);
 	return foundIt != m_DeviceList.end() ? *foundIt : nullptr;
