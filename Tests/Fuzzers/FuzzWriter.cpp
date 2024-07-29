@@ -10,10 +10,10 @@ static std::string tmpFile;
 static std::string outPcapFile;
 static int writes = 0;
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
 	if (tmpName.empty())
-		tmpName = tmpnam (NULL);
+		tmpName = tmpnam(NULL);
 
 	if (tmpFile.empty())
 		tmpFile = tmpName + FILE_EXT;
@@ -41,9 +41,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 #endif
 
 #ifdef NG_WRITER
-		pcpp::PcapNgFileWriterDevice pcapWriter(outPcapFile);
+	pcpp::PcapNgFileWriterDevice pcapWriter(outPcapFile);
 #else
-		pcpp::PcapFileWriterDevice pcapWriter(outPcapFile, pcpp::LINKTYPE_ETHERNET);
+	pcpp::PcapFileWriterDevice pcapWriter(outPcapFile, pcpp::LINKTYPE_ETHERNET);
 #endif
 	if (writes++ == 10)
 	{
@@ -71,8 +71,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
 	pcpp::IPcapDevice::PcapStats stats;
 	pcapWriter.getStatistics(stats);
-	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap writer and "
-			  << stats.packetsDrop << " packets could not be written" << std::endl;
+	std::cout << "Written " << stats.packetsRecv << " packets successfully to pcap writer and " << stats.packetsDrop
+	          << " packets could not be written" << std::endl;
 
 	pcapWriter.close();
 	return 0;
