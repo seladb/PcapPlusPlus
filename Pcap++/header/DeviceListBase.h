@@ -13,20 +13,21 @@ namespace pcpp
 		 * A base class for all device lists in PcapPlusPlus. This class is used to store a list of devices and provide
 		 * access to them
 		 */
-		template <class DeviceType> class DeviceListBase
+		template <class DeviceType, class DeviceDeleter = std::default_delete<DeviceType>> class DeviceListBase
 		{
 		protected:
-			PointerVector<DeviceType> m_DeviceList;
+			PointerVector<DeviceType, DeviceDeleter> m_DeviceList;
 
 			DeviceListBase() = default;
-			explicit DeviceListBase(PointerVector<DeviceType> devices) : m_DeviceList(std::move(devices)) {}
-			DeviceListBase(DeviceListBase<DeviceType> const&) = default;
-			DeviceListBase(DeviceListBase<DeviceType>&&) = default;
+			explicit DeviceListBase(PointerVector<DeviceType, DeviceDeleter> devices) : m_DeviceList(std::move(devices))
+			{}
+			DeviceListBase(DeviceListBase const&) = default;
+			DeviceListBase(DeviceListBase&&) = default;
 			// Protected destructor to disallow deletion of derived class through a base class pointer
 			~DeviceListBase() = default;
 
-			DeviceListBase& operator=(DeviceListBase<DeviceType> const&) = default;
-			DeviceListBase& operator=(DeviceListBase<DeviceType>&&) = default;
+			DeviceListBase& operator=(DeviceListBase const&) = default;
+			DeviceListBase& operator=(DeviceListBase&&) = default;
 
 		public:
 			using value_type = DeviceType*;

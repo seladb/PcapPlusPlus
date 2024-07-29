@@ -88,6 +88,11 @@ namespace pcpp
 {
 	class KniDevice;
 	class KniDeviceList;
+	
+	namespace internal
+	{
+		class KniDeviceDeleter;
+	}
 
 	/**
 	 * Defines the signature callback used by capturing API on KNI device
@@ -122,6 +127,7 @@ namespace pcpp
 	class KniDevice : public IDevice
 	{
 		friend class KniDeviceList;
+		friend class internal::KniDeviceDeleter;
 		friend class MBufRawPacket;
 	public:
 		/**

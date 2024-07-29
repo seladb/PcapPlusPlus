@@ -13,13 +13,27 @@
 namespace pcpp
 {
 
+	namespace internal
+	{
+		/**
+		 * @class Specialized deleter for KniDevice.
+		 * @remarks Do not use outside of KniDeviceList.
+		 */
+		struct KniDeviceDeleter
+		{
+			void operator()(KniDevice* kniDevice)
+			{
+				delete kniDevice;
+			}
+		};
+
 	/**
 	 * @class KniDeviceList
 	 * A singleton class that encapsulates DPDK KNI module initialization
 	 * and holds the list of KniDevice instances.
 	 * As it's a singleton, it has only one active instance doesn't have a public c'tor.
 	 */
-	class KniDeviceList : public internal::DeviceListBase<KniDevice>
+	class KniDeviceList : public internal::DeviceListBase<KniDevice, internal::KniDeviceDeleter>
 	{
 		KniDeviceList();
 
