@@ -16,7 +16,7 @@ namespace pcpp
 	namespace internal
 	{
 		/**
-		 * @class Specialized deleter for KniDevice.
+		 * @class KniDeviceDeleter Specialized deleter for KniDevice.
 		 * @remarks Do not use outside of KniDeviceList.
 		 */
 		struct KniDeviceDeleter
