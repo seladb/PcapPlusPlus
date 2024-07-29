@@ -48,9 +48,9 @@ namespace pcpp
 		/**
 		 * Return a list of all available PF_RING devices
 		 * @return a list of all available PF_RING devices
-		 * @deprecated This method has been deprecated in favor of begin/end iteration API.
+		 * @deprecated This method has been deprecated in favor of direct accessor API.
 		 */
-		PCPP_DEPRECATED("Deprecated in favor of begin/end iteration API")
+		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
 		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceListView; }
 
 		/**
