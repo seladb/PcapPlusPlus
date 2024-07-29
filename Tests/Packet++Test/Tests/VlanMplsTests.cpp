@@ -11,14 +11,13 @@
 #include "UdpLayer.h"
 #include "SystemUtils.h"
 
-
 PTF_TEST_CASE(VlanParseAndCreation)
 {
-	for(int vid = 0; vid < 4096 * 2; vid++)
+	for (int vid = 0; vid < 4096 * 2; vid++)
 	{
-		for(int prio = 0; prio < 8 * 2; prio ++)
+		for (int prio = 0; prio < 8 * 2; prio++)
 		{
-			for(int cfi = 0; cfi < 2 * 2; cfi++) //true or false
+			for (int cfi = 0; cfi < 2 * 2; cfi++)  // true or false
 			{
 				pcpp::VlanLayer testVlanLayer(vid, cfi, prio, PCPP_ETHERTYPE_VLAN);
 				PTF_ASSERT_EQUAL(testVlanLayer.getVlanID(), (vid & 0xFFF));
@@ -53,8 +52,9 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	pcpp::EthLayer ethLayer(macSrc, macDest);
 	pcpp::VlanLayer firstVlanLayer(666, 1, 5);
 	pcpp::VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
-	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, macSrc, pcpp::MacAddress("00:00:00:00:00:00"), pcpp::IPv4Address("192.168.2.200"), pcpp::IPv4Address("192.168.2.254"));
-    pcpp::Packet arpWithVlanNew(1);
+	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, macSrc, pcpp::MacAddress("00:00:00:00:00:00"),
+	                        pcpp::IPv4Address("192.168.2.200"), pcpp::IPv4Address("192.168.2.254"));
+	pcpp::Packet arpWithVlanNew(1);
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&firstVlanLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&secondVlanLayer));
@@ -64,9 +64,7 @@ PTF_TEST_CASE(VlanParseAndCreation)
 
 	PTF_ASSERT_EQUAL(arpWithVlanNew.getRawPacket()->getRawDataLen(), bufferLength1);
 	PTF_ASSERT_BUF_COMPARE(arpWithVlanNew.getRawPacket()->getRawData(), buffer1, bufferLength1);
-} // VlanParseAndCreation
-
-
+}  // VlanParseAndCreation
 
 PTF_TEST_CASE(QinQ802_1adParse)
 {
@@ -88,9 +86,7 @@ PTF_TEST_CASE(QinQ802_1adParse)
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getPriority(), 0);
 	PTF_ASSERT_NOT_NULL(secondVlanLayerPtr->getNextLayer());
 	PTF_ASSERT_EQUAL(secondVlanLayerPtr->getNextLayer()->getProtocol(), pcpp::IPv4, enum);
-} // QinQ802_1adParse
-
-
+}  // QinQ802_1adParse
 
 PTF_TEST_CASE(MplsLayerTest)
 {
@@ -138,7 +134,7 @@ PTF_TEST_CASE(MplsLayerTest)
 	mplsLayer->setTTL(111);
 	PTF_ASSERT_TRUE(mplsLayer->setMplsLabel(100000));
 	uint8_t expectedResult[4] = { 0x18, 0x6A, 0x0d, 0x6f };
-	PTF_ASSERT_BUF_COMPARE(mplsLayer->getData(), expectedResult , 4);
+	PTF_ASSERT_BUF_COMPARE(mplsLayer->getData(), expectedResult, 4);
 	PTF_ASSERT_EQUAL(mplsLayer->getTTL(), 111);
 	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 100000);
 	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 6);
@@ -146,7 +142,7 @@ PTF_TEST_CASE(MplsLayerTest)
 
 	pcpp::MplsLayer mplsLayer2(0xdff0f, 20, 7, false);
 	uint8_t expectedResult2[4] = { 0xdf, 0xf0, 0xfe, 0x14 };
-	PTF_ASSERT_BUF_COMPARE(mplsLayer2.getData(), expectedResult2 , 4);
+	PTF_ASSERT_BUF_COMPARE(mplsLayer2.getData(), expectedResult2, 4);
 
 	pcpp::Logger::getInstance().suppressLogs();
 	PTF_ASSERT_FALSE(mplsLayer->setMplsLabel(0xFFFFFF));
@@ -173,9 +169,7 @@ PTF_TEST_CASE(MplsLayerTest)
 	PTF_ASSERT_EQUAL(mplsLayer->getMplsLabel(), 18);
 	PTF_ASSERT_EQUAL(mplsLayer->getExperimentalUseValue(), 0);
 	PTF_ASSERT_TRUE(mplsLayer->isBottomOfStack());
-} // MplsLayerTest
-
-
+}  // MplsLayerTest
 
 PTF_TEST_CASE(VxlanParsingAndCreationTest)
 {
@@ -209,7 +203,8 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 
 	// verify edited fields
 	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength2);
-	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer2, vxlanPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer2,
+	                       vxlanPacket.getRawPacket()->getRawDataLen());
 
 	// remove vxlan layer
 	PTF_ASSERT_TRUE(vxlanPacket.removeLayer(pcpp::VXLAN));
@@ -221,7 +216,8 @@ PTF_TEST_CASE(VxlanParsingAndCreationTest)
 
 	// verify new vxlan layer
 	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer1, vxlanPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(vxlanPacket.getRawPacket()->getRawData(), buffer1,
+	                       vxlanPacket.getRawPacket()->getRawDataLen());
 
-	delete [] buffer2;
-} // VxlanParsingAndCreationTest
+	delete[] buffer2;
+}  // VxlanParsingAndCreationTest

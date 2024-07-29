@@ -10,42 +10,44 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 
-
 PTF_TEST_CASE(SipRequestParseMethodTest)
 {
-	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(nullptr, 0), pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(std::string("ACK").c_str(), 3), pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(nullptr, 0),
+	                 pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(std::string("ACK").c_str(), 3),
+	                 pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
 
-	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(std::string("CANCEL").c_str(), 6), pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(std::string("CANCEL").c_str(), 6),
+	                 pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
 
 	std::vector<std::pair<std::string, pcpp::SipRequestLayer::SipMethod>> possibleMethods = {
-		{"INVITE", pcpp::SipRequestLayer::SipMethod::SipINVITE },
-		{"ACK", pcpp::SipRequestLayer::SipMethod::SipACK },
-		{"BYE", pcpp::SipRequestLayer::SipMethod::SipBYE },
-		{"CANCEL", pcpp::SipRequestLayer::SipMethod::SipCANCEL },
-		{"REGISTER", pcpp::SipRequestLayer::SipMethod::SipREGISTER },
-		{"PRACK", pcpp::SipRequestLayer::SipMethod::SipPRACK },
-		{"OPTIONS", pcpp::SipRequestLayer::SipMethod::SipOPTIONS },
-		{"SUBSCRIBE", pcpp::SipRequestLayer::SipMethod::SipSUBSCRIBE },
-		{"NOTIFY", pcpp::SipRequestLayer::SipMethod::SipNOTIFY },
-		{"PUBLISH", pcpp::SipRequestLayer::SipMethod::SipPUBLISH },
-		{"INFO", pcpp::SipRequestLayer::SipMethod::SipINFO },
-		{"REFER", pcpp::SipRequestLayer::SipMethod::SipREFER },
-		{"MESSAGE", pcpp::SipRequestLayer::SipMethod::SipMESSAGE },
-		{"UPDATE", pcpp::SipRequestLayer::SipMethod::SipUPDATE },
-		{"UPDATE", pcpp::SipRequestLayer::SipMethod::SipUPDATE },
+		{ "INVITE",    pcpp::SipRequestLayer::SipMethod::SipINVITE    },
+		{ "ACK",       pcpp::SipRequestLayer::SipMethod::SipACK       },
+		{ "BYE",       pcpp::SipRequestLayer::SipMethod::SipBYE       },
+		{ "CANCEL",    pcpp::SipRequestLayer::SipMethod::SipCANCEL    },
+		{ "REGISTER",  pcpp::SipRequestLayer::SipMethod::SipREGISTER  },
+		{ "PRACK",     pcpp::SipRequestLayer::SipMethod::SipPRACK     },
+		{ "OPTIONS",   pcpp::SipRequestLayer::SipMethod::SipOPTIONS   },
+		{ "SUBSCRIBE", pcpp::SipRequestLayer::SipMethod::SipSUBSCRIBE },
+		{ "NOTIFY",    pcpp::SipRequestLayer::SipMethod::SipNOTIFY    },
+		{ "PUBLISH",   pcpp::SipRequestLayer::SipMethod::SipPUBLISH   },
+		{ "INFO",      pcpp::SipRequestLayer::SipMethod::SipINFO      },
+		{ "REFER",     pcpp::SipRequestLayer::SipMethod::SipREFER     },
+		{ "MESSAGE",   pcpp::SipRequestLayer::SipMethod::SipMESSAGE   },
+		{ "UPDATE",    pcpp::SipRequestLayer::SipMethod::SipUPDATE    },
+		{ "UPDATE",    pcpp::SipRequestLayer::SipMethod::SipUPDATE    },
 	};
 
-	for (const std::pair<std::string, pcpp::SipRequestLayer::SipMethod> &method : possibleMethods )
+	for (const std::pair<std::string, pcpp::SipRequestLayer::SipMethod>& method : possibleMethods)
 	{
 		std::string firstLine = method.first + " ";
-		PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(firstLine.c_str(), firstLine.length()), method.second, enum);
+		PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(firstLine.c_str(), firstLine.length()), method.second,
+		                 enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(std::string("UNKNOWN ").c_str(), 8), pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
-} // SipRequestParseMethodTest
-
-
+	PTF_ASSERT_EQUAL(pcpp::SipRequestFirstLine::parseMethod(std::string("UNKNOWN ").c_str(), 8),
+	                 pcpp::SipRequestLayer::SipMethod::SipMethodUnknown, enum);
+}  // SipRequestParseMethodTest
 
 PTF_TEST_CASE(SipRequestLayerParsingTest)
 {
@@ -82,14 +84,17 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getSize(), 47);
 
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue(), "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue(),
+	                 "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD));
 	PTF_ASSERT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD, 1));
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_CONTACT_FIELD)->getFieldValue(), "<sip:200.57.7.195:5060>");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue(), "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue(),
+	                 "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->getFieldValue(), "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->getFieldValue(),
+	                 "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0");
 	PTF_ASSERT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 2));
 	PTF_ASSERT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 100));
 	PTF_ASSERT_NULL(sipReqLayer->getFieldByName("BlaBla"));
@@ -101,7 +106,6 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipReqLayer->getLayerPayloadSize(), 229);
 	PTF_ASSERT_EQUAL(sipReqLayer->getContentLength(), 229);
 
-
 	sipReqLayer = sipReqPacket2.getLayerOfType<pcpp::SipRequestLayer>();
 
 	PTF_ASSERT_EQUAL(sipReqLayer->getFirstLine()->getMethod(), pcpp::SipRequestLayer::SipCANCEL, enum);
@@ -110,14 +114,14 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD));
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD)->getFieldValue(), "70");
-	PTF_ASSERT_TRUE(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD))->isEndOfHeader());
+	PTF_ASSERT_TRUE(
+	    sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD))->isEndOfHeader());
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD));
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD)->getFieldValue(), "2 CANCEL");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD));
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD)->getFieldValue(), "<sip:echo@iptel.org>");
 	PTF_ASSERT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD, 2));
 	PTF_ASSERT_TRUE(sipReqLayer->isHeaderComplete());
-
 
 	sipReqLayer = sipReqPacket3.getLayerOfType<pcpp::SipRequestLayer>();
 
@@ -127,15 +131,16 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 
 	PTF_ASSERT_FALSE(sipReqLayer->isHeaderComplete());
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->getFieldValue(), "SIP/2.0/UDP 213.192.59.78:5080;rport=5080;branch=z9hG4bKjBiNGaOX");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->getFieldValue(),
+	                 "SIP/2.0/UDP 213.192.59.78:5080;rport=5080;branch=z9hG4bKjBiNGaOX");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue(), "2091060b-146f-e011-809a-0019cb53db77@admind-desktop");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue(),
+	                 "2091060b-146f-e011-809a-0019cb53db77@admind-desktop");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName("P-hint"));
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName("P-hint")->getFieldValue(), "rr-enforced");
 	PTF_ASSERT_NULL(sipReqLayer->getNextField(sipReqLayer->getFieldByName("P-hint")));
 	PTF_ASSERT_EQUAL(sipReqLayer->getContentLength(), 0);
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldCount(), 9);
-
 
 	sipReqLayer = sipReqPacket4.getLayerOfType<pcpp::SipRequestLayer>();
 
@@ -145,16 +150,18 @@ PTF_TEST_CASE(SipRequestLayerParsingTest)
 
 	PTF_ASSERT_FALSE(sipReqLayer->isHeaderComplete());
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_USER_AGENT_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_USER_AGENT_FIELD)->getFieldValue(), "FreeSWITCH-mod_sofia/1.6.12-20-b91a0a6~64bit");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_USER_AGENT_FIELD)->getFieldValue(),
+	                 "FreeSWITCH-mod_sofia/1.6.12-20-b91a0a6~64bit");
 	PTF_ASSERT_NOT_NULL(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD));
-	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD)->getFieldValue(), "Q.850;cause=16;text=\"NORMAL_CLEARING\"");
-	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldName(), "Content-Lengt");
-	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldValue(), "");
+	PTF_ASSERT_EQUAL(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD)->getFieldValue(),
+	                 "Q.850;cause=16;text=\"NORMAL_CLEARING\"");
+	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldName(),
+	                 "Content-Lengt");
+	PTF_ASSERT_EQUAL(sipReqLayer->getNextField(sipReqLayer->getFieldByName(PCPP_SIP_REASON_FIELD))->getFieldValue(),
+	                 "");
 	PTF_ASSERT_EQUAL(sipReqLayer->getFieldCount(), 11);
 
-} // SipRequestLayerParsingTest
-
-
+}  // SipRequestLayerParsingTest
 
 PTF_TEST_CASE(SipRequestLayerCreationTest)
 {
@@ -175,8 +182,10 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(sipReqLayer.addField(PCPP_SIP_CALL_ID_FIELD, "12013223@200.57.7.195"));
 	PTF_ASSERT_NOT_NULL(sipReqLayer.addField(PCPP_SIP_CONTENT_TYPE_FIELD, "application/sdp"));
 	PTF_ASSERT_TRUE(sipReqLayer.addEndOfHeader());
-	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0"));
-	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290"));
+	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(
+	    nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195:55061;branch=z9hG4bK291d90e31a47b225bd0ddff4353e9cc0"));
+	PTF_ASSERT_NOT_NULL(sipReqLayer.insertField(
+	    nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290"));
 	pcpp::HeaderField* callIDField = sipReqLayer.getFieldByName(PCPP_SIP_CALL_ID_FIELD);
 	PTF_ASSERT_NOT_NULL(callIDField);
 	pcpp::HeaderField* newField = sipReqLayer.insertField(callIDField, PCPP_SIP_CSEQ_FIELD, "1 INVITE");
@@ -185,14 +194,15 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	PTF_ASSERT_NOT_NULL(newField);
 	pcpp::HeaderField* secondViaField = sipReqLayer.getFieldByName(PCPP_SIP_VIA_FIELD, 0);
 	PTF_ASSERT_NOT_NULL(secondViaField);
-	newField = sipReqLayer.insertField(secondViaField, PCPP_SIP_FROM_FIELD, "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34");
+	newField = sipReqLayer.insertField(secondViaField, PCPP_SIP_FROM_FIELD,
+	                                   "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34");
 	PTF_ASSERT_NOT_NULL(newField);
-	newField = sipReqLayer.insertField(newField, PCPP_SIP_TO_FIELD, "\"francisco@bestel.com\" <sip:francisco@bestel.com:55060>");
+	newField = sipReqLayer.insertField(newField, PCPP_SIP_TO_FIELD,
+	                                   "\"francisco@bestel.com\" <sip:francisco@bestel.com:55060>");
 	PTF_ASSERT_NOT_NULL(newField);
 	pcpp::HeaderField* contentLengthField = sipReqLayer.setContentLength(229, PCPP_SIP_CONTENT_TYPE_FIELD);
 	PTF_ASSERT_NOT_NULL(contentLengthField);
 	contentLengthField->setFieldValue("  229");
-
 
 	pcpp::Packet newSipPacket;
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ethLayer));
@@ -201,16 +211,16 @@ PTF_TEST_CASE(SipRequestLayerCreationTest)
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&sipReqLayer));
 
 	pcpp::SipRequestLayer* samplePacketSipLayer = sipReqSamplePacket.getLayerOfType<pcpp::SipRequestLayer>();
-	auto payloadLayer = new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize());
+	auto payloadLayer =
+	    new pcpp::PayloadLayer(samplePacketSipLayer->getLayerPayload(), samplePacketSipLayer->getLayerPayloadSize());
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(payloadLayer, true));
 
 	newSipPacket.computeCalculateFields();
 
 	PTF_ASSERT_EQUAL(newSipPacket.getRawPacket()->getRawDataLen(), bufferLength1);
-	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), buffer1, newSipPacket.getRawPacket()->getRawDataLen());
-} // SipRequestLayerCreationTest
-
-
+	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), buffer1,
+	                       newSipPacket.getRawPacket()->getRawDataLen());
+}  // SipRequestLayerCreationTest
 
 PTF_TEST_CASE(SipRequestLayerEditTest)
 {
@@ -238,7 +248,9 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT_FALSE(sipReqLayer->getFirstLine()->setUri(""));
 	pcpp::Logger::getInstance().enableLogs();
 
-	PTF_ASSERT_TRUE(sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)->setFieldValue("SIP/2.0/UDP 178.45.73.241:5060;branch=z9hG4bKb26f2c0b-146f-e011-809a-0019cb53db77;rport"));
+	PTF_ASSERT_TRUE(
+	    sipReqLayer->getFieldByName(PCPP_SIP_VIA_FIELD, 1)
+	        ->setFieldValue("SIP/2.0/UDP 178.45.73.241:5060;branch=z9hG4bKb26f2c0b-146f-e011-809a-0019cb53db77;rport"));
 	PTF_ASSERT_TRUE(sipReqLayer->getFieldByName(PCPP_SIP_MAX_FORWARDS_FIELD)->setFieldValue("70"));
 	PTF_ASSERT_TRUE(sipReqLayer->removeField(PCPP_SIP_VIA_FIELD, 0));
 	PTF_ASSERT_TRUE(sipReqLayer->removeField(PCPP_SIP_RECORD_ROUTE_FIELD));
@@ -247,9 +259,12 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT_NOT_NULL(sipReqLayer->setContentLength(0, PCPP_SIP_TO_FIELD));
 	PTF_ASSERT_TRUE(sipReqLayer->removeField(PCPP_SIP_CALL_ID_FIELD));
 	PTF_ASSERT_TRUE(sipReqLayer->removeField(PCPP_SIP_CSEQ_FIELD));
-	PTF_ASSERT_NOT_NULL(sipReqLayer->insertField(PCPP_SIP_FROM_FIELD, PCPP_SIP_CALL_ID_FIELD, "2091060b-146f-e011-809a-0019cb53db77@admind-desktop"));
+	PTF_ASSERT_NOT_NULL(sipReqLayer->insertField(PCPP_SIP_FROM_FIELD, PCPP_SIP_CALL_ID_FIELD,
+	                                             "2091060b-146f-e011-809a-0019cb53db77@admind-desktop"));
 	PTF_ASSERT_NOT_NULL(sipReqLayer->insertField("", PCPP_SIP_CSEQ_FIELD, "2 CANCEL"));
-	PTF_ASSERT_TRUE(sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->setFieldValue("\"sam netmon \" <sip:admind@178.45.73.241>;tag=bc86060b-146f-e011-809a-0019cb53db77"));
+	PTF_ASSERT_TRUE(
+	    sipReqLayer->getFieldByName(PCPP_SIP_FROM_FIELD)
+	        ->setFieldValue("\"sam netmon \" <sip:admind@178.45.73.241>;tag=bc86060b-146f-e011-809a-0019cb53db77"));
 	PTF_ASSERT_TRUE(sipReqLayer->getFieldByName(PCPP_SIP_TO_FIELD)->setFieldValue("<sip:echo@iptel.org>"));
 
 	editedPacket.computeCalculateFields();
@@ -264,106 +279,107 @@ PTF_TEST_CASE(SipRequestLayerEditTest)
 	PTF_ASSERT_EQUAL(secondSipReqLayer->getFirstLine()->getVersion(), sipReqLayer->getFirstLine()->getVersion());
 	PTF_ASSERT_EQUAL(secondSipReqLayer->getFieldCount(), sipReqLayer->getFieldCount());
 	PTF_ASSERT_BUF_COMPARE(secondSipReqLayer->getData(), sipReqLayer->getData(), secondSipReqLayer->getHeaderLen());
-} // SipRequestLayerEditTest
-
-
+}  // SipRequestLayerEditTest
 
 PTF_TEST_CASE(SipResponseParseStatusCodeTest)
 {
-	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(nullptr, 0), pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3), pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
-	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(std::string("SIP/x.y200  ").c_str(), 12), pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(nullptr, 0),
+	                 pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(std::string("abc").c_str(), 3),
+	                 pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
+	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(std::string("SIP/x.y200  ").c_str(), 12),
+	                 pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
 
 	std::vector<std::pair<std::string, pcpp::SipResponseLayer::SipResponseStatusCode>> possibleStatusCodes = {
-		{"100", pcpp::SipResponseLayer::SipResponseStatusCode::Sip100Trying },
-		{"180", pcpp::SipResponseLayer::SipResponseStatusCode::Sip180Ringing },
-		{"181", pcpp::SipResponseLayer::SipResponseStatusCode::Sip181CallisBeingForwarded },
-		{"182", pcpp::SipResponseLayer::SipResponseStatusCode::Sip182Queued },
-		{"183", pcpp::SipResponseLayer::SipResponseStatusCode::Sip183SessioninProgress },
-		{"199", pcpp::SipResponseLayer::SipResponseStatusCode::Sip199EarlyDialogTerminated },
-		{"200", pcpp::SipResponseLayer::SipResponseStatusCode::Sip200OK },
-		{"202", pcpp::SipResponseLayer::SipResponseStatusCode::Sip202Accepted },
-		{"204", pcpp::SipResponseLayer::SipResponseStatusCode::Sip204NoNotification },
-		{"300", pcpp::SipResponseLayer::SipResponseStatusCode::Sip300MultipleChoices },
-		{"301", pcpp::SipResponseLayer::SipResponseStatusCode::Sip301MovedPermanently },
-		{"302", pcpp::SipResponseLayer::SipResponseStatusCode::Sip302MovedTemporarily },
-		{"305", pcpp::SipResponseLayer::SipResponseStatusCode::Sip305UseProxy },
-		{"380", pcpp::SipResponseLayer::SipResponseStatusCode::Sip380AlternativeService },
-		{"400", pcpp::SipResponseLayer::SipResponseStatusCode::Sip400BadRequest },
-		{"401", pcpp::SipResponseLayer::SipResponseStatusCode::Sip401Unauthorized },
-		{"402", pcpp::SipResponseLayer::SipResponseStatusCode::Sip402PaymentRequired },
-		{"403", pcpp::SipResponseLayer::SipResponseStatusCode::Sip403Forbidden },
-		{"404", pcpp::SipResponseLayer::SipResponseStatusCode::Sip404NotFound },
-		{"405", pcpp::SipResponseLayer::SipResponseStatusCode::Sip405MethodNotAllowed },
-		{"406", pcpp::SipResponseLayer::SipResponseStatusCode::Sip406NotAcceptable },
-		{"407", pcpp::SipResponseLayer::SipResponseStatusCode::Sip407ProxyAuthenticationRequired },
-		{"408", pcpp::SipResponseLayer::SipResponseStatusCode::Sip408RequestTimeout },
-		{"409", pcpp::SipResponseLayer::SipResponseStatusCode::Sip409Conflict },
-		{"410", pcpp::SipResponseLayer::SipResponseStatusCode::Sip410Gone },
-		{"411", pcpp::SipResponseLayer::SipResponseStatusCode::Sip411LengthRequired },
-		{"412", pcpp::SipResponseLayer::SipResponseStatusCode::Sip412ConditionalRequestFailed },
-		{"413", pcpp::SipResponseLayer::SipResponseStatusCode::Sip413RequestEntityTooLarge },
-		{"414", pcpp::SipResponseLayer::SipResponseStatusCode::Sip414RequestURITooLong },
-		{"415", pcpp::SipResponseLayer::SipResponseStatusCode::Sip415UnsupportedMediaType },
-		{"416", pcpp::SipResponseLayer::SipResponseStatusCode::Sip416UnsupportedURIScheme },
-		{"417", pcpp::SipResponseLayer::SipResponseStatusCode::Sip417UnknownResourcePriority },
-		{"420", pcpp::SipResponseLayer::SipResponseStatusCode::Sip420BadExtension },
-		{"421", pcpp::SipResponseLayer::SipResponseStatusCode::Sip421ExtensionRequired },
-		{"422", pcpp::SipResponseLayer::SipResponseStatusCode::Sip422SessionIntervalTooSmall },
-		{"423", pcpp::SipResponseLayer::SipResponseStatusCode::Sip423IntervalTooBrief },
-		{"424", pcpp::SipResponseLayer::SipResponseStatusCode::Sip424BadLocationInformation },
-		{"425", pcpp::SipResponseLayer::SipResponseStatusCode::Sip425BadAlertMessage },
-		{"428", pcpp::SipResponseLayer::SipResponseStatusCode::Sip428UseIdentityHeader },
-		{"429", pcpp::SipResponseLayer::SipResponseStatusCode::Sip429ProvideReferrerIdentity },
-		{"430", pcpp::SipResponseLayer::SipResponseStatusCode::Sip430FlowFailed },
-		{"433", pcpp::SipResponseLayer::SipResponseStatusCode::Sip433AnonymityDisallowed },
-		{"436", pcpp::SipResponseLayer::SipResponseStatusCode::Sip436BadIdentityInfo },
-		{"437", pcpp::SipResponseLayer::SipResponseStatusCode::Sip437UnsupportedCertificate },
-		{"438", pcpp::SipResponseLayer::SipResponseStatusCode::Sip438InvalidIdentityHeader },
-		{"439", pcpp::SipResponseLayer::SipResponseStatusCode::Sip439FirstHopLacksOutboundSupport },
-		{"440", pcpp::SipResponseLayer::SipResponseStatusCode::Sip440MaxBreadthExceeded },
-		{"469", pcpp::SipResponseLayer::SipResponseStatusCode::Sip469BadInfoPackage },
-		{"470", pcpp::SipResponseLayer::SipResponseStatusCode::Sip470ConsentNeeded },
-		{"480", pcpp::SipResponseLayer::SipResponseStatusCode::Sip480TemporarilyUnavailable },
-		{"481", pcpp::SipResponseLayer::SipResponseStatusCode::Sip481Call_TransactionDoesNotExist },
-		{"482", pcpp::SipResponseLayer::SipResponseStatusCode::Sip482LoopDetected },
-		{"483", pcpp::SipResponseLayer::SipResponseStatusCode::Sip483TooManyHops },
-		{"484", pcpp::SipResponseLayer::SipResponseStatusCode::Sip484AddressIncomplete },
-		{"485", pcpp::SipResponseLayer::SipResponseStatusCode::Sip485Ambiguous },
-		{"486", pcpp::SipResponseLayer::SipResponseStatusCode::Sip486BusyHere },
-		{"487", pcpp::SipResponseLayer::SipResponseStatusCode::Sip487RequestTerminated },
-		{"488", pcpp::SipResponseLayer::SipResponseStatusCode::Sip488NotAcceptableHere },
-		{"489", pcpp::SipResponseLayer::SipResponseStatusCode::Sip489BadEvent },
-		{"491", pcpp::SipResponseLayer::SipResponseStatusCode::Sip491RequestPending },
-		{"493", pcpp::SipResponseLayer::SipResponseStatusCode::Sip493Undecipherable },
-		{"494", pcpp::SipResponseLayer::SipResponseStatusCode::Sip494SecurityAgreementRequired },
-		{"500", pcpp::SipResponseLayer::SipResponseStatusCode::Sip500ServerInternalError },
-		{"501", pcpp::SipResponseLayer::SipResponseStatusCode::Sip501NotImplemented },
-		{"502", pcpp::SipResponseLayer::SipResponseStatusCode::Sip502BadGateway },
-		{"503", pcpp::SipResponseLayer::SipResponseStatusCode::Sip503ServiceUnavailable },
-		{"504", pcpp::SipResponseLayer::SipResponseStatusCode::Sip504ServerTimeout },
-		{"505", pcpp::SipResponseLayer::SipResponseStatusCode::Sip505VersionNotSupported },
-		{"513", pcpp::SipResponseLayer::SipResponseStatusCode::Sip513MessageTooLarge },
-		{"555", pcpp::SipResponseLayer::SipResponseStatusCode::Sip555PushNotificationServiceNotSupported },
-		{"580", pcpp::SipResponseLayer::SipResponseStatusCode::Sip580PreconditionFailure },
-		{"600", pcpp::SipResponseLayer::SipResponseStatusCode::Sip600BusyEverywhere },
-		{"603", pcpp::SipResponseLayer::SipResponseStatusCode::Sip603Decline },
-		{"604", pcpp::SipResponseLayer::SipResponseStatusCode::Sip604DoesNotExistAnywhere },
-		{"606", pcpp::SipResponseLayer::SipResponseStatusCode::Sip606NotAcceptable },
-		{"607", pcpp::SipResponseLayer::SipResponseStatusCode::Sip607Unwanted },
-		{"608", pcpp::SipResponseLayer::SipResponseStatusCode::Sip608Rejected }
+		{ "100", pcpp::SipResponseLayer::SipResponseStatusCode::Sip100Trying                              },
+		{ "180", pcpp::SipResponseLayer::SipResponseStatusCode::Sip180Ringing                             },
+		{ "181", pcpp::SipResponseLayer::SipResponseStatusCode::Sip181CallisBeingForwarded                },
+		{ "182", pcpp::SipResponseLayer::SipResponseStatusCode::Sip182Queued                              },
+		{ "183", pcpp::SipResponseLayer::SipResponseStatusCode::Sip183SessioninProgress                   },
+		{ "199", pcpp::SipResponseLayer::SipResponseStatusCode::Sip199EarlyDialogTerminated               },
+		{ "200", pcpp::SipResponseLayer::SipResponseStatusCode::Sip200OK                                  },
+		{ "202", pcpp::SipResponseLayer::SipResponseStatusCode::Sip202Accepted                            },
+		{ "204", pcpp::SipResponseLayer::SipResponseStatusCode::Sip204NoNotification                      },
+		{ "300", pcpp::SipResponseLayer::SipResponseStatusCode::Sip300MultipleChoices                     },
+		{ "301", pcpp::SipResponseLayer::SipResponseStatusCode::Sip301MovedPermanently                    },
+		{ "302", pcpp::SipResponseLayer::SipResponseStatusCode::Sip302MovedTemporarily                    },
+		{ "305", pcpp::SipResponseLayer::SipResponseStatusCode::Sip305UseProxy                            },
+		{ "380", pcpp::SipResponseLayer::SipResponseStatusCode::Sip380AlternativeService                  },
+		{ "400", pcpp::SipResponseLayer::SipResponseStatusCode::Sip400BadRequest                          },
+		{ "401", pcpp::SipResponseLayer::SipResponseStatusCode::Sip401Unauthorized                        },
+		{ "402", pcpp::SipResponseLayer::SipResponseStatusCode::Sip402PaymentRequired                     },
+		{ "403", pcpp::SipResponseLayer::SipResponseStatusCode::Sip403Forbidden                           },
+		{ "404", pcpp::SipResponseLayer::SipResponseStatusCode::Sip404NotFound                            },
+		{ "405", pcpp::SipResponseLayer::SipResponseStatusCode::Sip405MethodNotAllowed                    },
+		{ "406", pcpp::SipResponseLayer::SipResponseStatusCode::Sip406NotAcceptable                       },
+		{ "407", pcpp::SipResponseLayer::SipResponseStatusCode::Sip407ProxyAuthenticationRequired         },
+		{ "408", pcpp::SipResponseLayer::SipResponseStatusCode::Sip408RequestTimeout                      },
+		{ "409", pcpp::SipResponseLayer::SipResponseStatusCode::Sip409Conflict                            },
+		{ "410", pcpp::SipResponseLayer::SipResponseStatusCode::Sip410Gone                                },
+		{ "411", pcpp::SipResponseLayer::SipResponseStatusCode::Sip411LengthRequired                      },
+		{ "412", pcpp::SipResponseLayer::SipResponseStatusCode::Sip412ConditionalRequestFailed            },
+		{ "413", pcpp::SipResponseLayer::SipResponseStatusCode::Sip413RequestEntityTooLarge               },
+		{ "414", pcpp::SipResponseLayer::SipResponseStatusCode::Sip414RequestURITooLong                   },
+		{ "415", pcpp::SipResponseLayer::SipResponseStatusCode::Sip415UnsupportedMediaType                },
+		{ "416", pcpp::SipResponseLayer::SipResponseStatusCode::Sip416UnsupportedURIScheme                },
+		{ "417", pcpp::SipResponseLayer::SipResponseStatusCode::Sip417UnknownResourcePriority             },
+		{ "420", pcpp::SipResponseLayer::SipResponseStatusCode::Sip420BadExtension                        },
+		{ "421", pcpp::SipResponseLayer::SipResponseStatusCode::Sip421ExtensionRequired                   },
+		{ "422", pcpp::SipResponseLayer::SipResponseStatusCode::Sip422SessionIntervalTooSmall             },
+		{ "423", pcpp::SipResponseLayer::SipResponseStatusCode::Sip423IntervalTooBrief                    },
+		{ "424", pcpp::SipResponseLayer::SipResponseStatusCode::Sip424BadLocationInformation              },
+		{ "425", pcpp::SipResponseLayer::SipResponseStatusCode::Sip425BadAlertMessage                     },
+		{ "428", pcpp::SipResponseLayer::SipResponseStatusCode::Sip428UseIdentityHeader                   },
+		{ "429", pcpp::SipResponseLayer::SipResponseStatusCode::Sip429ProvideReferrerIdentity             },
+		{ "430", pcpp::SipResponseLayer::SipResponseStatusCode::Sip430FlowFailed                          },
+		{ "433", pcpp::SipResponseLayer::SipResponseStatusCode::Sip433AnonymityDisallowed                 },
+		{ "436", pcpp::SipResponseLayer::SipResponseStatusCode::Sip436BadIdentityInfo                     },
+		{ "437", pcpp::SipResponseLayer::SipResponseStatusCode::Sip437UnsupportedCertificate              },
+		{ "438", pcpp::SipResponseLayer::SipResponseStatusCode::Sip438InvalidIdentityHeader               },
+		{ "439", pcpp::SipResponseLayer::SipResponseStatusCode::Sip439FirstHopLacksOutboundSupport        },
+		{ "440", pcpp::SipResponseLayer::SipResponseStatusCode::Sip440MaxBreadthExceeded                  },
+		{ "469", pcpp::SipResponseLayer::SipResponseStatusCode::Sip469BadInfoPackage                      },
+		{ "470", pcpp::SipResponseLayer::SipResponseStatusCode::Sip470ConsentNeeded                       },
+		{ "480", pcpp::SipResponseLayer::SipResponseStatusCode::Sip480TemporarilyUnavailable              },
+		{ "481", pcpp::SipResponseLayer::SipResponseStatusCode::Sip481Call_TransactionDoesNotExist        },
+		{ "482", pcpp::SipResponseLayer::SipResponseStatusCode::Sip482LoopDetected                        },
+		{ "483", pcpp::SipResponseLayer::SipResponseStatusCode::Sip483TooManyHops                         },
+		{ "484", pcpp::SipResponseLayer::SipResponseStatusCode::Sip484AddressIncomplete                   },
+		{ "485", pcpp::SipResponseLayer::SipResponseStatusCode::Sip485Ambiguous                           },
+		{ "486", pcpp::SipResponseLayer::SipResponseStatusCode::Sip486BusyHere                            },
+		{ "487", pcpp::SipResponseLayer::SipResponseStatusCode::Sip487RequestTerminated                   },
+		{ "488", pcpp::SipResponseLayer::SipResponseStatusCode::Sip488NotAcceptableHere                   },
+		{ "489", pcpp::SipResponseLayer::SipResponseStatusCode::Sip489BadEvent                            },
+		{ "491", pcpp::SipResponseLayer::SipResponseStatusCode::Sip491RequestPending                      },
+		{ "493", pcpp::SipResponseLayer::SipResponseStatusCode::Sip493Undecipherable                      },
+		{ "494", pcpp::SipResponseLayer::SipResponseStatusCode::Sip494SecurityAgreementRequired           },
+		{ "500", pcpp::SipResponseLayer::SipResponseStatusCode::Sip500ServerInternalError                 },
+		{ "501", pcpp::SipResponseLayer::SipResponseStatusCode::Sip501NotImplemented                      },
+		{ "502", pcpp::SipResponseLayer::SipResponseStatusCode::Sip502BadGateway                          },
+		{ "503", pcpp::SipResponseLayer::SipResponseStatusCode::Sip503ServiceUnavailable                  },
+		{ "504", pcpp::SipResponseLayer::SipResponseStatusCode::Sip504ServerTimeout                       },
+		{ "505", pcpp::SipResponseLayer::SipResponseStatusCode::Sip505VersionNotSupported                 },
+		{ "513", pcpp::SipResponseLayer::SipResponseStatusCode::Sip513MessageTooLarge                     },
+		{ "555", pcpp::SipResponseLayer::SipResponseStatusCode::Sip555PushNotificationServiceNotSupported },
+		{ "580", pcpp::SipResponseLayer::SipResponseStatusCode::Sip580PreconditionFailure                 },
+		{ "600", pcpp::SipResponseLayer::SipResponseStatusCode::Sip600BusyEverywhere                      },
+		{ "603", pcpp::SipResponseLayer::SipResponseStatusCode::Sip603Decline                             },
+		{ "604", pcpp::SipResponseLayer::SipResponseStatusCode::Sip604DoesNotExistAnywhere                },
+		{ "606", pcpp::SipResponseLayer::SipResponseStatusCode::Sip606NotAcceptable                       },
+		{ "607", pcpp::SipResponseLayer::SipResponseStatusCode::Sip607Unwanted                            },
+		{ "608", pcpp::SipResponseLayer::SipResponseStatusCode::Sip608Rejected                            }
 	};
 
-	for (const std::pair<std::string, pcpp::SipResponseLayer::SipResponseStatusCode> &statusCode : possibleStatusCodes )
+	for (const std::pair<std::string, pcpp::SipResponseLayer::SipResponseStatusCode>& statusCode : possibleStatusCodes)
 	{
 		std::string firstLine = "SIP/x.y " + statusCode.first + " ";
-		PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()), statusCode.second, enum);
+		PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(firstLine.c_str(), firstLine.length()),
+		                 statusCode.second, enum);
 	}
 
-	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(std::string("SIP/x.y 999 ").c_str(), 12), pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
-} // SipResponseParseStatusCodeTest
-
-
+	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseStatusCode(std::string("SIP/x.y 999 ").c_str(), 12),
+	                 pcpp::SipResponseLayer::SipResponseStatusCode::SipStatusCodeUnknown, enum);
+}  // SipResponseParseStatusCodeTest
 
 PTF_TEST_CASE(SipResponseParseVersionCodeTest)
 {
@@ -378,9 +394,7 @@ PTF_TEST_CASE(SipResponseParseVersionCodeTest)
 	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseVersion(std::string("SIP/2.01").c_str(), 8), "");
 
 	PTF_ASSERT_EQUAL(pcpp::SipResponseFirstLine::parseVersion(std::string("SIP/2.0 ").c_str(), 8), "SIP/2.0");
-} // SipResponseParseVersionCodeTest
-
-
+}  // SipResponseParseVersionCodeTest
 
 PTF_TEST_CASE(SipResponseLayerParsingTest)
 {
@@ -423,7 +437,8 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 20);
 
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue(), "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34");
+	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->getFieldValue(),
+	                 "<sip:200.57.7.195:55061;user=phone>;tag=GR52RWG346-34");
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CALL_ID_FIELD)->getFieldValue(), "12013223@200.57.7.195");
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_SERVER_FIELD));
@@ -431,7 +446,6 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD)->getFieldValue(), "0");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 0);
-
 
 	sipRespLayer = sipRespPacket2.getLayerOfType<pcpp::SipResponseLayer>();
 
@@ -443,11 +457,11 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstField()->getFieldName(), PCPP_SIP_VIA_FIELD);
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue(), "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290");
+	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->getFieldValue(),
+	                 "SIP/2.0/UDP 200.57.7.195;branch=z9hG4bKff9b46fb055c0521cc24024da96cd290");
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD)->getFieldValue(), "1 INVITE");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 0);
-
 
 	sipRespLayer = sipRespPacket3.getLayerOfType<pcpp::SipResponseLayer>();
 
@@ -461,7 +475,6 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_TYPE_FIELD)->getFieldValue(), "application/sdp");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 298);
 
-
 	sipRespLayer = sipRespPacket4.getLayerOfType<pcpp::SipResponseLayer>();
 
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip401Unauthorized, enum);
@@ -471,13 +484,15 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 26);
 
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_WWW_AUTHENTICATE_FIELD));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_WWW_AUTHENTICATE_FIELD)->getFieldValue(), "Digest  realm=\"ims.hom\",nonce=\"021fa2db5ff06518\",opaque=\"627f7bb95d5e2dcd\",algorithm=MD5,qop=\"auth\"");
+	PTF_ASSERT_EQUAL(
+	    sipRespLayer->getFieldByName(PCPP_SIP_WWW_AUTHENTICATE_FIELD)->getFieldValue(),
+	    "Digest  realm=\"ims.hom\",nonce=\"021fa2db5ff06518\",opaque=\"627f7bb95d5e2dcd\",algorithm=MD5,qop=\"auth\"");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 0);
-
 
 	sipRespLayer = sipRespPacket7.getLayerOfType<pcpp::SipResponseLayer>();
 
-	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip503ServiceUnavailable, enum);
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip503ServiceUnavailable,
+	                 enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeAsInt(), 503);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCodeString(), "Service Unavailable");
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getVersion(), "SIP/2.0");
@@ -486,9 +501,7 @@ PTF_TEST_CASE(SipResponseLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFieldByName(PCPP_SIP_RETRY_AFTER_FIELD)->getFieldValue(), "0");
 	PTF_ASSERT_EQUAL(sipRespLayer->getContentLength(), 0);
-} // SipResponseLayerParsingTest
-
-
+}  // SipResponseLayerParsingTest
 
 PTF_TEST_CASE(SipResponseLayerCreationTest)
 {
@@ -513,10 +526,13 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 	contentLengthField->setFieldValue(" 0");
 	PTF_ASSERT_NOT_NULL(sipRespLayer.addEndOfHeader());
 	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(nullptr, PCPP_SIP_CALL_ID_FIELD, "93803593"));
-	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(nullptr, PCPP_SIP_VIA_FIELD, "SIP/2.0/UDP 10.3.160.214:5060;rport=5060;received=10.3.160.214;branch=z9hG4bK19266132"));
+	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(
+	    nullptr, PCPP_SIP_VIA_FIELD,
+	    "SIP/2.0/UDP 10.3.160.214:5060;rport=5060;received=10.3.160.214;branch=z9hG4bK19266132"));
 	pcpp::HeaderField* fromField = sipRespLayer.getFieldByName(PCPP_SIP_FROM_FIELD);
 	PTF_ASSERT_NOT_NULL(fromField);
-	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(fromField, PCPP_SIP_TO_FIELD, "<sip:user103@ims.hom>;tag=z9hG4bKPjoKb0QlsN0Z-v4iW63WRm5UfjLn.Gm81V"));
+	PTF_ASSERT_NOT_NULL(sipRespLayer.insertField(
+	    fromField, PCPP_SIP_TO_FIELD, "<sip:user103@ims.hom>;tag=z9hG4bKPjoKb0QlsN0Z-v4iW63WRm5UfjLn.Gm81V"));
 
 	pcpp::Packet newSipPacket;
 	PTF_ASSERT_TRUE(newSipPacket.addLayer(&ethLayer));
@@ -529,10 +545,9 @@ PTF_TEST_CASE(SipResponseLayerCreationTest)
 	newSipPacket.getLayerOfType<pcpp::UdpLayer>()->getUdpHeader()->headerChecksum = 0xced8;
 
 	PTF_ASSERT_EQUAL(newSipPacket.getRawPacket()->getRawDataLen(), bufferLength6);
-	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), buffer6, newSipPacket.getRawPacket()->getRawDataLen());
-} // SipResponseLayerCreationTest
-
-
+	PTF_ASSERT_BUF_COMPARE(newSipPacket.getRawPacket()->getRawData(), buffer6,
+	                       newSipPacket.getRawPacket()->getRawDataLen());
+}  // SipResponseLayerCreationTest
 
 PTF_TEST_CASE(SipResponseLayerEditTest)
 {
@@ -553,12 +568,14 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip202Accepted, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 22);
 	PTF_ASSERT_TRUE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::Sip415UnsupportedMediaType));
-	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip415UnsupportedMediaType, enum);
+	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip415UnsupportedMediaType,
+	                 enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 36);
 	PTF_ASSERT_TRUE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::Sip603Decline));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip603Decline, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 21);
-	PTF_ASSERT_TRUE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::Sip603Decline, "Some other string"));
+	PTF_ASSERT_TRUE(
+	    sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::Sip603Decline, "Some other string"));
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getStatusCode(), pcpp::SipResponseLayer::Sip603Decline, enum);
 	PTF_ASSERT_EQUAL(sipRespLayer->getFirstLine()->getSize(), 31);
 	PTF_ASSERT_TRUE(sipRespLayer->getFirstLine()->setStatusCode(pcpp::SipResponseLayer::Sip401Unauthorized));
@@ -572,15 +589,20 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_VIA_FIELD, 1));
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_CONTACT_FIELD));
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_CALL_ID_FIELD));
-	PTF_ASSERT_TRUE(sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD)->setFieldValue("SIP/2.0/UDP 10.3.160.214:5060;rport=5060;received=10.3.160.214;branch=z9hG4bK758266975"));
+	PTF_ASSERT_TRUE(
+	    sipRespLayer->getFieldByName(PCPP_SIP_VIA_FIELD)
+	        ->setFieldValue("SIP/2.0/UDP 10.3.160.214:5060;rport=5060;received=10.3.160.214;branch=z9hG4bK758266975"));
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_CONTENT_TYPE_FIELD));
 	PTF_ASSERT_TRUE(sipRespLayer->removeField(PCPP_SIP_SERVER_FIELD));
 	PTF_ASSERT_NOT_NULL(sipRespLayer->setContentLength(0));
-	PTF_ASSERT_TRUE(sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->setFieldValue("<sip:user3@ims.hom>;tag=1597735002"));
-	PTF_ASSERT_TRUE(sipRespLayer->getFieldByName(PCPP_SIP_TO_FIELD)->setFieldValue("<sip:user3@ims.hom>;tag=z9hG4bKPjNwtzXu2EwWIjxR8qftv00jzO9arV-iyh"));
+	PTF_ASSERT_TRUE(
+	    sipRespLayer->getFieldByName(PCPP_SIP_FROM_FIELD)->setFieldValue("<sip:user3@ims.hom>;tag=1597735002"));
+	PTF_ASSERT_TRUE(sipRespLayer->getFieldByName(PCPP_SIP_TO_FIELD)
+	                    ->setFieldValue("<sip:user3@ims.hom>;tag=z9hG4bKPjNwtzXu2EwWIjxR8qftv00jzO9arV-iyh"));
 	PTF_ASSERT_TRUE(sipRespLayer->getFieldByName(PCPP_SIP_CSEQ_FIELD)->setFieldValue("1 REGISTER"));
-	PTF_ASSERT_NOT_NULL(sipRespLayer->insertField(PCPP_SIP_CSEQ_FIELD, PCPP_SIP_WWW_AUTHENTICATE_FIELD,
-			"Digest  realm=\"ims.hom\",nonce=\"021fa2db5ff06518\",opaque=\"627f7bb95d5e2dcd\",algorithm=MD5,qop=\"auth\""));
+	PTF_ASSERT_NOT_NULL(sipRespLayer->insertField(
+	    PCPP_SIP_CSEQ_FIELD, PCPP_SIP_WWW_AUTHENTICATE_FIELD,
+	    "Digest  realm=\"ims.hom\",nonce=\"021fa2db5ff06518\",opaque=\"627f7bb95d5e2dcd\",algorithm=MD5,qop=\"auth\""));
 	PTF_ASSERT_NOT_NULL(sipRespLayer->insertField(PCPP_SIP_VIA_FIELD, PCPP_SIP_CALL_ID_FIELD, "434981653"));
 	PTF_ASSERT_TRUE(sipRespLayer->getFieldByName(PCPP_SIP_CONTENT_LENGTH_FIELD)->setFieldValue(" 0"));
 
@@ -588,12 +610,11 @@ PTF_TEST_CASE(SipResponseLayerEditTest)
 
 	PTF_ASSERT_EQUAL(secondSipRespLayer->getHeaderLen(), sipRespLayer->getHeaderLen());
 	PTF_ASSERT_EQUAL(secondSipRespLayer->getFirstLine()->getSize(), sipRespLayer->getFirstLine()->getSize());
-	PTF_ASSERT_EQUAL(secondSipRespLayer->getFirstLine()->getStatusCode(), sipRespLayer->getFirstLine()->getStatusCode(), enum);
+	PTF_ASSERT_EQUAL(secondSipRespLayer->getFirstLine()->getStatusCode(), sipRespLayer->getFirstLine()->getStatusCode(),
+	                 enum);
 	PTF_ASSERT_EQUAL(secondSipRespLayer->getFieldCount(), sipRespLayer->getFieldCount());
 	PTF_ASSERT_BUF_COMPARE(secondSipRespLayer->getData(), sipRespLayer->getData(), secondSipRespLayer->getHeaderLen());
-} // SipResponseLayerEditTest
-
-
+}  // SipResponseLayerEditTest
 
 PTF_TEST_CASE(SdpLayerParsingTest)
 {
@@ -615,13 +636,16 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_PROTOCOL_VERSION_FIELD));
 	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_PROTOCOL_VERSION_FIELD)->getFieldValue(), "0");
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD));
-	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD)->getFieldValue(), "Clarent 120386 120387 IN IP4 200.57.7.196");
+	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD)->getFieldValue(),
+	                 "Clarent 120386 120387 IN IP4 200.57.7.196");
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD));
-	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD)->getFieldValue(), "audio 40376 RTP/AVP 8 18 4 0");
+	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD)->getFieldValue(),
+	                 "audio 40376 RTP/AVP 8 18 4 0");
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD));
 	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD)->getFieldValue(), "rtpmap:8 PCMA/8000");
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 2));
-	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 2)->getFieldValue(), "rtpmap:4 G723/8000");
+	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 2)->getFieldValue(),
+	                 "rtpmap:4 G723/8000");
 	PTF_ASSERT_NOT_NULL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 4));
 	PTF_ASSERT_EQUAL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 4)->getFieldValue(), "SendRecv");
 	PTF_ASSERT_NULL(sdpLayer->getFieldByName(PCPP_SDP_MEDIA_ATTRIBUTE_FIELD, 5));
@@ -645,8 +669,7 @@ PTF_TEST_CASE(SdpLayerParsingTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getOwnerIPv4Address(), pcpp::IPv4Address("10.33.6.100"));
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("audio"), 6010);
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("image"), 6012);
-} // SdpLayerParsingTest
-
+}  // SdpLayerParsingTest
 
 PTF_TEST_CASE(SipNotSdpLayerParsingTest)
 {
@@ -665,7 +688,7 @@ PTF_TEST_CASE(SipNotSdpLayerParsingTest)
 	PTF_ASSERT_EQUAL(nextLayer->getProtocol(), pcpp::GenericPayload);
 
 	PTF_ASSERT_FALSE(notSdpPacket.isPacketOfType(pcpp::SDP));
-} // SipNotSdpLayerParsingTest
+}  // SipNotSdpLayerParsingTest
 
 PTF_TEST_CASE(SdpLayerCreationTest)
 {
@@ -725,9 +748,7 @@ PTF_TEST_CASE(SdpLayerCreationTest)
 	PTF_ASSERT_EQUAL(copiedSdpLayer.getFieldCount(), 18);
 	PTF_ASSERT_EQUAL(copiedSdpLayer.getHeaderLen(), 406);
 	PTF_ASSERT_BUF_COMPARE(copiedSdpLayer.getData(), sdpLayerPtr->getData(), sdpLayerPtr->getHeaderLen());
-} // SdpLayerCreationTest
-
-
+}  // SdpLayerCreationTest
 
 PTF_TEST_CASE(SdpLayerEditTest)
 {
@@ -743,7 +764,8 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	pcpp::SdpLayer* sdpLayer = sourceSdpPacket.getLayerOfType<pcpp::SdpLayer>();
 	PTF_ASSERT_NOT_NULL(sdpLayer);
 
-	PTF_ASSERT_TRUE(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD)->setFieldValue("IPP 782647527 782647407 IN IP4 10.33.6.100"));
+	PTF_ASSERT_TRUE(sdpLayer->getFieldByName(PCPP_SDP_ORIGINATOR_FIELD)
+	                    ->setFieldValue("IPP 782647527 782647407 IN IP4 10.33.6.100"));
 	PTF_ASSERT_TRUE(sdpLayer->getFieldByName(PCPP_SDP_SESSION_NAME_FIELD)->setFieldValue("Phone-Call"));
 	PTF_ASSERT_TRUE(sdpLayer->getFieldByName(PCPP_SDP_CONNECTION_INFO_FIELD)->setFieldValue("IN IP4 10.33.6.100"));
 	PTF_ASSERT_TRUE(sdpLayer->removeField(PCPP_SDP_MEDIA_NAME_FIELD));
@@ -779,4 +801,4 @@ PTF_TEST_CASE(SdpLayerEditTest)
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("audio"), targetSdpLayer->getMediaPort("audio"));
 	PTF_ASSERT_EQUAL(sdpLayer->getMediaPort("image"), targetSdpLayer->getMediaPort("image"));
 	PTF_ASSERT_BUF_COMPARE(sdpLayer->getData(), targetSdpLayer->getData(), targetSdpLayer->getHeaderLen());
-} // SdpLayerEditTest
+}  // SdpLayerEditTest
