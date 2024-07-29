@@ -28,7 +28,7 @@ namespace pcpp
 	template <typename T, typename Deleter = std::default_delete<T>> class PointerVector
 	{
 	public:
-		using deleter_type = typename Deleter;
+		using deleter_type = Deleter;
 		/**
 		 * Iterator object that is used for iterating all elements in the vector
 		 */
