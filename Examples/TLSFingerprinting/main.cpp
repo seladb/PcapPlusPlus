@@ -583,15 +583,14 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// if no interface or input pcap file provided or both are provided- exit with error
+	// if no interface or input pcap file provided or both are provided - exit with error
 	if (inputPcapFileName.empty() == interfaceNameOrIP.empty())
 	{
 		EXIT_WITH_ERROR("Please provide an interface or an input pcap file");
 	}
 
-	// if the user chosen a separator which is not the default, check if this separator is allowed.
-	// allowed separators are a single character which is not alphanumeric and not one of the following: '.', ',', ':',
-	// '-'
+	// if the user chosen a separator which is not the default, check if this separator is allowed. Allowed separators
+	// are a single character which is not alphanumeric and not one of the following: '.', ',', ':', '-'
 	static const std::string disallowedSeparatorsArr[] = { ".", ",", ":", "-" };
 	std::vector<std::string> disallowedSeparatorsVec(disallowedSeparatorsArr,
 	                                                 disallowedSeparatorsArr + sizeof(disallowedSeparatorsArr) /
