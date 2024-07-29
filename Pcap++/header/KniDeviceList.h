@@ -26,6 +26,7 @@ namespace pcpp
 				delete kniDevice;
 			}
 		};
+	}  // namespace internal
 
 	/**
 	 * @class KniDeviceList
