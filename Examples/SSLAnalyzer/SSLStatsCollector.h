@@ -14,8 +14,10 @@
  */
 struct Rate
 {
-	double currentRate;  // periodic rate
-	double totalRate;    // overall rate
+	// periodic rate
+	double currentRate;
+	// overall rate
+	double totalRate;
 };
 
 /**
@@ -23,19 +25,32 @@ struct Rate
  */
 struct SSLGeneralStats
 {
-	int numOfSSLFlows;                                  // total number of SSL flows
-	Rate sslFlowRate;                                   // rate of SSL flows
-	int numOfSSLPackets;                                // total number of SSL packets
-	Rate sslPacketRate;                                 // rate of SSL packets
-	double averageNumOfPacketsPerFlow;                  // average number of SSL packets per flow
-	int amountOfSSLTraffic;                             // total SSL traffic in bytes
-	double averageAmountOfDataPerFlow;                  // average number of SSL traffic per flow
-	Rate sslTrafficRate;                                // rate of SSL traffic
-	double sampleTime;                                  // total stats collection time
-	int numOfHandshakeCompleteFlows;                    // number of flows which handshake was complete
-	int numOfFlowsWithAlerts;                           // number of flows that were terminated because of SSL/TLS alert
-	std::unordered_map<uint16_t, int> sslVersionCount;  // number of flows per SSL/TLS version
-	std::unordered_map<uint16_t, int> sslPortCount;     // number of flows per TCP port
+	// total number of SSL flows
+	int numOfSSLFlows;
+	// rate of SSL flows
+	Rate sslFlowRate;
+	// total number of SSL packets
+	int numOfSSLPackets;
+	// rate of SSL packets
+	Rate sslPacketRate;
+	// average number of SSL packets per flow
+	double averageNumOfPacketsPerFlow;
+	// total SSL traffic in bytes
+	int amountOfSSLTraffic;
+	// average number of SSL traffic per flow
+	double averageAmountOfDataPerFlow;
+	// rate of SSL traffic
+	Rate sslTrafficRate;
+	// total stats collection time
+	double sampleTime;
+	// number of flows which handshake was complete
+	int numOfHandshakeCompleteFlows;
+	// number of flows that were terminated because of SSL/TLS alert
+	int numOfFlowsWithAlerts;
+	// number of flows per SSL/TLS version
+	std::unordered_map<uint16_t, int> sslVersionCount;
+	// number of flows per TCP port
+	std::unordered_map<uint16_t, int> sslPortCount;
 
 	void clear()
 	{
@@ -63,9 +78,12 @@ struct SSLGeneralStats
  */
 struct ClientHelloStats
 {
-	int numOfMessages;                                     // total number of client-hello messages
-	Rate messageRate;                                      // rate of client-hello messages
-	std::unordered_map<std::string, int> serverNameCount;  // a map for counting the server names seen in traffic
+	// total number of client-hello messages
+	int numOfMessages;
+	// rate of client-hello messages
+	Rate messageRate;
+	// a map for counting the server names seen in traffic
+	std::unordered_map<std::string, int> serverNameCount;
 
 	virtual ~ClientHelloStats()
 	{}
@@ -84,9 +102,12 @@ struct ClientHelloStats
  */
 struct ServerHelloStats
 {
-	int numOfMessages;                                      // total number of server-hello messages
-	Rate messageRate;                                       // rate of server-hello messages
-	std::unordered_map<std::string, int> cipherSuiteCount;  // count of the different chosen cipher-suites
+	// total number of server-hello messages
+	int numOfMessages;
+	// rate of server-hello messages
+	Rate messageRate;
+	// count of the different chosen cipher-suites
+	std::unordered_map<std::string, int> cipherSuiteCount;
 
 	virtual ~ServerHelloStats()
 	{}
@@ -231,8 +252,10 @@ private:
 	 */
 	struct SSLFlowData
 	{
-		bool seenAppDataPacket;  // was SSL application data seen in this flow
-		bool seenAlertPacket;    // was SSL alert packet seen in this flow
+		// was SSL application data seen in this flow
+		bool seenAppDataPacket;
+		// was SSL alert packet seen in this flow
+		bool seenAlertPacket;
 
 		void clear()
 		{
