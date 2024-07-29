@@ -24,18 +24,20 @@
  *    and dest will be written to the same file. If the user doesn't set such limit - all connection of one pair of
  *    source and dest IP will be written to each file
  * 7) Connection - splits a pcap file to smaller pcap files by TCP/UDP connection meaning each connection will be
- * written to a certain file. The user can limit the number of output files, in this case an equal number of connections
- * will be written to the same file. If the user doesn't set such limit - each file will contain one connection 8) BPF
- * filter - splits the pcap file into two files: one that contains all packets matching the input BPF filter and the
- * other one with the rest of the packets
+ *    written to a certain file. The user can limit the number of output files, in this case an equal number of
+ *    connections will be written to the same file. If the user doesn't set such limit - each file will contain one
+ *    connection
+ * 8) BPF filter - splits the pcap file into two files: one that contains all packets matching the input BPF filter and
+ *    the other one with the rest of the packets
  *
  * Remarks:
+ *
  * - Options 3-7 supports both IPv4 and IPV6
  * - Number of output files isn't limited, unless the user set such limit in options 3-7
  * - There is no limit on the size of the input file, the number of packets it contains or the number of connections it
  *   contains
  * - The user can also set a BPF filter to instruct the application to handle only packets filtered by the filter. The
- * rest of the packets in the input file will be ignored
+ *   rest of the packets in the input file will be ignored
  * - In options 3-5 & 7 all packets which aren't UDP or TCP (hence don't belong to any connection) will be written to
  *   one output file, separate from the other output files (usually file#0)
  * - Works only on files of the pcap (TCPDUMP) format
