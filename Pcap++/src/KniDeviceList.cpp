@@ -5,7 +5,6 @@
 #define LOG_MODULE PcapLogModuleKniDevice
 
 #include <inttypes.h>
-#include <memory>
 #include <algorithm>
 
 #include "KniDeviceList.h"
@@ -97,8 +96,8 @@ KniDevice* KniDeviceList::createDevice(
 		PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 		return nullptr;
 	}
-	auto kniDevice = std::unique_ptr<KniDevice>(new KniDevice(config, mempoolSize, m_KniUniqueId++));
-	m_DeviceList.pushBack(std::move(kniDevice));
+	auto kniDevice = new KniDevice(config, mempoolSize, m_KniUniqueId++);
+	m_DeviceList.pushBack(kniDevice);
 	return kniDevice;
 }
 
