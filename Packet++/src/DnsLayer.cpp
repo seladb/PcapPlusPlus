@@ -150,8 +150,8 @@ namespace pcpp
 
 		if (numOfOtherResources > 300)
 		{
-			PCPP_LOG_ERROR("DNS layer contains more than 300 resources, probably a bad packet. "
-			               "Skipping parsing DNS resources");
+			PCPP_LOG_ERROR(
+			    "DNS layer contains more than 300 resources, probably a bad packet. Skipping parsing DNS resources");
 			return;
 		}
 
@@ -496,8 +496,11 @@ namespace pcpp
 			else
 				newResource->setNexResource(curResource->getNextResource());
 		}
-		else  // curResource != NULL
+		else
+		{
+			// curResource != NULL
 			newResource->setNexResource(m_ResourceList);
+		}
 
 		// extend layer to make room for the new resource
 		if (!extendLayer(newResourceOffsetInLayer, newResource->getSize(), newResource))
