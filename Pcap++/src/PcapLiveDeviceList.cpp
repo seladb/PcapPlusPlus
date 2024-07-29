@@ -54,12 +54,12 @@ void PcapLiveDeviceList::init()
 #else //__linux__, __APPLE__, __FreeBSD__
 		auto dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
-		m_LiveDeviceList.pushBack(std::move(dev));
+		m_DeviceList.pushBack(std::move(dev));
 	}
 
-	m_LiveDeviceListView.resize(m_LiveDeviceList.size());
+	m_LiveDeviceListView.resize(m_DeviceList.size());
 	// Full update of all elements of the view vector to synchronize them with the main vector.
-	std::copy(m_LiveDeviceList.begin(), m_LiveDeviceList.end(), m_LiveDeviceListView.begin());
+	std::copy(m_DeviceList.begin(), m_DeviceList.end(), m_LiveDeviceListView.begin());
 
 	setDnsServers();
 }
@@ -268,7 +268,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAdd
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(const auto& devicePtr : m_LiveDeviceList)
+	for(const auto& devicePtr : m_DeviceList)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
 		for(const auto& addressInfo : devicePtr->m_Addresses)
@@ -301,7 +301,7 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv4Address& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	for(const auto& devicePtr : m_LiveDeviceList)
+	for(const auto& devicePtr : m_DeviceList)
 	{
 		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
 		for(const auto& addressInfo : devicePtr->m_Addresses)
@@ -352,10 +352,10 @@ PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const std::string& ipA
 PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByName(const std::string& name) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
-	auto devIter = std::find_if(m_LiveDeviceList.begin(), m_LiveDeviceList.end(),
+	auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
 								[&name](PcapLiveDevice* const dev) { return dev->getName() == name; });
 
-	if (devIter == m_LiveDeviceList.end())
+	if (devIter == m_DeviceList.end())
 	{
 		PCPP_LOG_DEBUG("Found no live device with name '" << name << "'");
 		return nullptr;
@@ -385,7 +385,7 @@ PcapLiveDeviceList* PcapLiveDeviceList::clone()
 void PcapLiveDeviceList::reset()
 {
 	m_LiveDeviceListView.clear();
-	m_LiveDeviceList.clear();
+	m_DeviceList.clear();
 	m_DnsServers.clear();
 
 	init();

@@ -3,6 +3,7 @@
 #include "IpAddress.h"
 #include "PcapLiveDevice.h"
 #include "PointerVector.h"
+#include "DeviceListBase.h"
 #include <vector>
 #include <memory>
 #include "DeprecationUtils.h"
@@ -23,10 +24,9 @@ namespace pcpp
 	 * devices are initialized on startup and wrap the network interfaces installed on the machine. This class enables access to them through
 	 * their IP addresses or get a vector of all of them so the user can search them in some other way
 	 */
-	class PcapLiveDeviceList
+	class PcapLiveDeviceList : public internal::DeviceListBase<PcapLiveDevice>
 	{
 	private:
-		PointerVector<PcapLiveDevice> m_LiveDeviceList;
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
 		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
@@ -68,9 +68,9 @@ namespace pcpp
 
 		/**
 		 * @return A vector containing pointers to all live devices currently installed on the machine
-		 * @deprecated This method has been deprecated in favor of begin/end iteration API.
+		 * @deprecated This method has been deprecated in favor of direct accessor API.
 		 */
-		PCPP_DEPRECATED("Deprecated in favor of begin/end iteration API")
+		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
 		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceListView; };
 
 		/**
@@ -131,38 +131,6 @@ namespace pcpp
 		 * Reset the live device list and DNS server list, meaning clear and refetch them
 		 */
 		void reset();
-
-		/**
-		 * @return An iterator object pointing to the first device in the list
-		 */
-		iterator begin()
-		{
-			return m_LiveDeviceList.begin();
-		}
-
-		/**
-		 * @return A constant iterator object pointing to the first device in the list
-		 */
-		const_iterator begin() const
-		{
-			return m_LiveDeviceList.begin();
-		}
-
-		/**
-		 * @return An iterator object pointing to the last device in the list
-		 */
-		iterator end()
-		{
-			return m_LiveDeviceList.end();
-		}
-
-		/**
-		 * @return A constant iterator object pointing to the last device in the list
-		 */
-		const_iterator end() const
-		{
-			return m_LiveDeviceList.end();
-		}
 	};
 
 } // namespace pcpp
