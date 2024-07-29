@@ -2,10 +2,9 @@
 
 // GCOVR_EXCL_START
 
-#include <vector>
-
 #include "KniDevice.h"
 #include "DpdkDeviceList.h"
+#include "DeviceListBase.h"
 
 /**
  * \namespace pcpp
@@ -20,7 +19,7 @@ namespace pcpp
 	 * and holds the list of KniDevice instances.
 	 * As it's a singleton, it has only one active instance doesn't have a public c'tor.
 	 */
-	class KniDeviceList
+	class KniDeviceList : public internal::DeviceListBase<KniDevice>
 	{
 		KniDeviceList();
 
@@ -120,7 +119,6 @@ namespace pcpp
 		 */
 		static bool isCallbackSupported(const KniCallbackType cbType);
 	private:
-		std::vector<KniDevice*> m_Devices;
 		bool m_Initialized;
 		int m_KniUniqueId;
 	};
