@@ -84,25 +84,21 @@ KniDevice* KniDeviceList::createDevice(
 {
 	if (!isInitialized())
 		return nullptr;
-	KniDevice* kniDevice = getDeviceByName(std::string(config.name));
-	if (kniDevice != nullptr)
+	
+	if (getDeviceByName(std::string(config.name)) != nullptr)
 	{
 		PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
 		PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
 		return nullptr;
 	}
-	if (config.portId != UINT16_MAX)
+	if (config.portId != UINT16_MAX && getDeviceByPort(config.portId) != nullptr)
 	{
-		kniDevice = getDeviceByPort(config.portId);
-		if (kniDevice != nullptr)
-		{
-			PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
-			PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
-			return nullptr;
-		}
+		PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
+		PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
+		return nullptr;
 	}
-	kniDevice = new KniDevice(config, mempoolSize, m_KniUniqueId++);
-	m_DeviceList.pushBack(kniDevice);
+	auto kniDevice = std::unique_ptr<KniDevice>(new KniDevice(config, mempoolSize, m_KniUniqueId++));
+	m_DeviceList.pushBack(std::move(kniDevice));
 	return kniDevice;
 }
 
