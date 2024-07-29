@@ -47,6 +47,7 @@
 
 #define DEFAULT_CALC_RATES_PERIOD_SEC 2
 
+// clang-format off
 static struct option HttpAnalyzerOptions[] = {
 	{ "interface",           required_argument, nullptr, 'i' },
 	{ "dst-port",            required_argument, nullptr, 'p' },
@@ -55,10 +56,11 @@ static struct option HttpAnalyzerOptions[] = {
 	{ "rate-calc-period",    required_argument, nullptr, 'r' },
 	{ "disable-rates-print", no_argument,       nullptr, 'd' },
 	{ "list-interfaces",     no_argument,       nullptr, 'l' },
-	{ "help",	            no_argument,       nullptr, 'h' },
+	{ "help",                no_argument,       nullptr, 'h' },
 	{ "version",             no_argument,       nullptr, 'v' },
-	{ nullptr,	           0,                 nullptr, 0   }
+	{ nullptr,               0,                 nullptr, 0   }
 };
+// clang-format on
 
 struct HttpPacketArrivedData
 {
@@ -544,7 +546,6 @@ int main(int argc, char* argv[])
 		case 'h':
 			printUsage();
 			exit(0);
-			break;
 		case 'v':
 			printAppVersion();
 			break;
