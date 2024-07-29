@@ -117,8 +117,9 @@ int main(int argc, char* argv[])
 		std::cout << "Layer type: " << getProtocolTypeAsString(curLayer->getProtocol()) << "; "  // get layer type
 		          << "Total data: " << curLayer->getDataLen() << " [bytes]; "    // get total length of the layer
 		          << "Layer data: " << curLayer->getHeaderLen() << " [bytes]; "  // get the header length of the layer
-		          << "Layer payload: " << curLayer->getLayerPayloadSize()
-		          << " [bytes]"  // get the payload length of the layer (equals total length minus header length)
+		          << "Layer payload: " << curLayer->getLayerPayloadSize() << " [bytes]"  // get the payload length of
+		                                                                                 // the layer (equals total
+		                                                                                 // length minus header length)
 		          << std::endl;
 	}
 
