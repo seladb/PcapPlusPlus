@@ -62,7 +62,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL((uint8_t)option->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv4Endpoint);
 	PTF_ASSERT_EQUAL(option->getDataPtr()[1], 0x09);
 
-	pcpp::SomeIpSdIPv4Option* ipv4Option = (pcpp::SomeIpSdIPv4Option*) option;
+	pcpp::SomeIpSdIPv4Option* ipv4Option = (pcpp::SomeIpSdIPv4Option*)option;
 	PTF_ASSERT_EQUAL(ipv4Option->getIpAddress(), pcpp::IPv4Address("160.48.199.28"));
 	PTF_ASSERT_EQUAL(ipv4Option->getProtocol(), pcpp::SomeIpSdProtocolType::SD_UDP);
 	PTF_ASSERT_EQUAL(ipv4Option->getPort(), 30502);
@@ -110,19 +110,21 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL((uint8_t)option2_1->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv6Endpoint);
 	PTF_ASSERT_EQUAL(option2_1->getDataPtr()[1], 0x15);
 
-	pcpp::SomeIpSdIPv6Option* ipv6Option2_1 = (pcpp::SomeIpSdIPv6Option*) option2_1;
+	pcpp::SomeIpSdIPv6Option* ipv6Option2_1 = (pcpp::SomeIpSdIPv6Option*)option2_1;
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getIpAddress(), pcpp::IPv6Address("fd53:7cb8:383:4::1:1e5"));
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getProtocol(), pcpp::SomeIpSdProtocolType::SD_TCP);
 	PTF_ASSERT_EQUAL(ipv6Option2_1->getPort(), 29769);
 
-	pcpp::SomeIpSdOption* option2_2 = *(options2.begin()+1);
+	pcpp::SomeIpSdOption* option2_2 = *(options2.begin() + 1);
 	PTF_ASSERT_EQUAL(option2_2->getLength(), 93);
 	PTF_ASSERT_EQUAL((uint8_t)option2_2->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::ConfigurationString);
 	PTF_ASSERT_EQUAL(option2_2->getDataPtr()[5], 0x63);
 
-	pcpp::SomeIpSdConfigurationOption* configurationOption = (pcpp::SomeIpSdConfigurationOption*) option2_2;
-	for(int i = 0; i < 89; i++){
-		PTF_ASSERT_EQUAL(configurationOption->getConfigurationString()[i], someIpSdPacket2.getRawPacket()->getRawData()[138+i]);
+	pcpp::SomeIpSdConfigurationOption* configurationOption = (pcpp::SomeIpSdConfigurationOption*)option2_2;
+	for (int i = 0; i < 89; i++)
+	{
+		PTF_ASSERT_EQUAL(configurationOption->getConfigurationString()[i],
+		                 someIpSdPacket2.getRawPacket()->getRawData()[138 + i]);
 	}
 
 	pcpp::SomeIpSdLayer::OptionsVec options2Entry0 = someIpSdLayer2->getOptionsFromEntry(0);
@@ -133,9 +135,10 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL((uint8_t)options2Entry0_1->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::IPv6Endpoint);
 	PTF_ASSERT_EQUAL(options2Entry0_1->getDataPtr()[1], 0x15);
 
-	pcpp::SomeIpSdOption* options2Entry0_2 = *(options2Entry0.begin()+1);
+	pcpp::SomeIpSdOption* options2Entry0_2 = *(options2Entry0.begin() + 1);
 	PTF_ASSERT_EQUAL(options2Entry0_2->getLength(), 93);
-	PTF_ASSERT_EQUAL((uint8_t)options2Entry0_2->getType(), (uint8_t)pcpp::SomeIpSdOption::OptionType::ConfigurationString);
+	PTF_ASSERT_EQUAL((uint8_t)options2Entry0_2->getType(),
+	                 (uint8_t)pcpp::SomeIpSdOption::OptionType::ConfigurationString);
 	PTF_ASSERT_EQUAL(options2Entry0_2->getDataPtr()[5], 0x63);
 
 	pcpp::SomeIpSdLayer::OptionsVec options2Entry1 = someIpSdLayer2->getOptionsFromEntry(1);
@@ -177,7 +180,7 @@ PTF_TEST_CASE(SomeIpSdParsingTest)
 	PTF_ASSERT_EQUAL(entry3_1->getEventgroupId(), 1);
 	PTF_ASSERT_EQUAL(entry3_1->getDataPtr()[0], 0x06);
 
-	pcpp::SomeIpSdEntry* entry3_2 = *(entries3.begin()+1);
+	pcpp::SomeIpSdEntry* entry3_2 = *(entries3.begin() + 1);
 	PTF_ASSERT_EQUAL(entry3_2->getLength(), 16);
 	PTF_ASSERT_EQUAL(entry3_2->getNumOptions(), 1);
 	PTF_ASSERT_EQUAL((uint8_t)entry3_2->getType(), (uint8_t)pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup);
@@ -228,8 +231,11 @@ PTF_TEST_CASE(SomeIpSdCreationTest)
 
 	// OfferService (Entry: OfferService, Option: IPv4Endpoint)
 	pcpp::SomeIpSdLayer someIpSdLayer(0xffff, 0x8100, 0, 0x2, 0x1, pcpp::SomeIpLayer::MsgType::NOTIFICATION, 0, 0xc0);
-	auto pEntry = std::unique_ptr<pcpp::SomeIpSdEntry>(new pcpp::SomeIpSdEntry(pcpp::SomeIpSdEntry::EntryType::OfferService, 0xd05f, 2, 1, 3, 0));
-	auto pOption = std::unique_ptr<pcpp::SomeIpSdIPv4Option>(new pcpp::SomeIpSdIPv4Option(pcpp::SomeIpSdIPv4Option::IPv4OptionType::IPv4Endpoint, pcpp::IPv4Address("160.48.199.28"), 30502, pcpp::SomeIpSdProtocolType::SD_UDP));
+	auto pEntry = std::unique_ptr<pcpp::SomeIpSdEntry>(
+	    new pcpp::SomeIpSdEntry(pcpp::SomeIpSdEntry::EntryType::OfferService, 0xd05f, 2, 1, 3, 0));
+	auto pOption = std::unique_ptr<pcpp::SomeIpSdIPv4Option>(
+	    new pcpp::SomeIpSdIPv4Option(pcpp::SomeIpSdIPv4Option::IPv4OptionType::IPv4Endpoint,
+	                                 pcpp::IPv4Address("160.48.199.28"), 30502, pcpp::SomeIpSdProtocolType::SD_UDP));
 	auto offsetEntry = someIpSdLayer.addEntry(*pEntry);
 	someIpSdLayer.addOptionTo(offsetEntry, *pOption);
 
@@ -237,14 +243,18 @@ PTF_TEST_CASE(SomeIpSdCreationTest)
 	PTF_ASSERT_TRUE(someIpSdPacket.addLayer(&someIpSdLayer));
 	someIpSdPacket.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpSdPacket.getRawPacket()->getRawDataLen(), bufferLength1-46);
-	PTF_ASSERT_BUF_COMPARE(someIpSdPacket.getRawPacket()->getRawData(), buffer1+46, bufferLength1-46);
+	PTF_ASSERT_EQUAL(someIpSdPacket.getRawPacket()->getRawDataLen(), bufferLength1 - 46);
+	PTF_ASSERT_BUF_COMPARE(someIpSdPacket.getRawPacket()->getRawData(), buffer1 + 46, bufferLength1 - 46);
 
 	// Subscribe (Entry: 2xSubscribeEventgroup, Option: IPv4Endpoint)
 	pcpp::SomeIpSdLayer someIpSdLayer2(0xffff, 0x8100, 0, 0x3, 0x1, pcpp::SomeIpLayer::MsgType::NOTIFICATION, 0, 0xc0);
-	auto pEntry2_1 = std::unique_ptr<pcpp::SomeIpSdEntry>(new pcpp::SomeIpSdEntry(pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup, 0xd063, 1, 1, 3, 0, 1));
-	auto pEntry2_2 = std::unique_ptr<pcpp::SomeIpSdEntry>(new pcpp::SomeIpSdEntry(pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup, 0xd066, 1, 1, 3, 0, 1));
-	auto pOption2 = std::unique_ptr<pcpp::SomeIpSdIPv4Option>(new pcpp::SomeIpSdIPv4Option(pcpp::SomeIpSdIPv4Option::IPv4OptionType::IPv4Endpoint, pcpp::IPv4Address("160.48.199.101"), 58358, pcpp::SomeIpSdProtocolType::SD_UDP));
+	auto pEntry2_1 = std::unique_ptr<pcpp::SomeIpSdEntry>(
+	    new pcpp::SomeIpSdEntry(pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup, 0xd063, 1, 1, 3, 0, 1));
+	auto pEntry2_2 = std::unique_ptr<pcpp::SomeIpSdEntry>(
+	    new pcpp::SomeIpSdEntry(pcpp::SomeIpSdEntry::EntryType::SubscribeEventgroup, 0xd066, 1, 1, 3, 0, 1));
+	auto pOption2 = std::unique_ptr<pcpp::SomeIpSdIPv4Option>(
+	    new pcpp::SomeIpSdIPv4Option(pcpp::SomeIpSdIPv4Option::IPv4OptionType::IPv4Endpoint,
+	                                 pcpp::IPv4Address("160.48.199.101"), 58358, pcpp::SomeIpSdProtocolType::SD_UDP));
 	auto offsetEntry2_1 = someIpSdLayer2.addEntry(*pEntry2_1);
 	someIpSdLayer2.addOptionTo(offsetEntry2_1, *pOption2);
 	auto offsetEntry2_2 = someIpSdLayer2.addEntry(*pEntry2_2);
@@ -254,9 +264,9 @@ PTF_TEST_CASE(SomeIpSdCreationTest)
 	PTF_ASSERT_TRUE(someIpSdPacket2.addLayer(&someIpSdLayer2));
 	someIpSdPacket2.computeCalculateFields();
 
-	PTF_ASSERT_EQUAL(someIpSdPacket2.getRawPacket()->getRawDataLen(), bufferLength2-46);
-	PTF_ASSERT_BUF_COMPARE(someIpSdPacket2.getRawPacket()->getRawData(), buffer2+46, bufferLength2-46);
+	PTF_ASSERT_EQUAL(someIpSdPacket2.getRawPacket()->getRawDataLen(), bufferLength2 - 46);
+	PTF_ASSERT_BUF_COMPARE(someIpSdPacket2.getRawPacket()->getRawData(), buffer2 + 46, bufferLength2 - 46);
 
-	delete [] buffer1;
-	delete [] buffer2;
+	delete[] buffer1;
+	delete[] buffer2;
 }
