@@ -109,6 +109,7 @@ struct PacketCaptureArgs
 	{}
 };
 
+// clang-format off
 static struct option XdpFilterTrafficOptions[] = {
 	{ "interface",            required_argument, nullptr, 'n' },
 	{ "send-matched-packets", required_argument, nullptr, 's' },
@@ -118,10 +119,11 @@ static struct option XdpFilterTrafficOptions[] = {
 	{ "match-source-port",    required_argument, nullptr, 'p' },
 	{ "match-dest-port",      required_argument, nullptr, 'P' },
 	{ "match-protocol",       required_argument, nullptr, 'r' },
-	{ "help",	             no_argument,       nullptr, 'h' },
+	{ "help",                 no_argument,       nullptr, 'h' },
 	{ "version",              no_argument,       nullptr, 'v' },
 	{ "list-interfaces",      no_argument,       nullptr, 'l' }
 };
+// clang-format on
 
 /**
  * A callback to handle packets that were received on the AF_XDP socket
