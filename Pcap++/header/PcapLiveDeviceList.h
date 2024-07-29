@@ -1,11 +1,10 @@
 #pragma once
 
-#include "IpAddress.h"
-#include "PcapLiveDevice.h"
-#include "PointerVector.h"
-#include "DeviceListBase.h"
 #include <vector>
 #include <memory>
+#include "IpAddress.h"
+#include "PcapLiveDevice.h"
+#include "DeviceListBase.h"
 #include "DeprecationUtils.h"
 
 
@@ -38,19 +37,7 @@ namespace pcpp
 		void init();
 
 		void setDnsServers();
-
-		void updateLiveDeviceListView() const;
 	public:
-		/**
-		 * Iterator object that can be used for iterating all PcapLiveDevice in list
-		 */
-		using iterator = PointerVector<PcapLiveDevice>::VectorIterator;
-
-		/**
-		 * Const iterator object that can be used for iterating all PcapLiveDevice in a constant list
-		 */
-		using const_iterator = PointerVector<PcapLiveDevice>::ConstVectorIterator;
-
 		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
 		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
 		PcapLiveDeviceList& operator=(const PcapLiveDeviceList&) = delete;

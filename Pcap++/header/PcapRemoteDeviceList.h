@@ -4,7 +4,6 @@
 
 #include <memory>
 #include "IpAddress.h"
-#include "PointerVector.h"
 #include "DeviceListBase.h"
 #include "PcapRemoteDevice.h"
 #include "DeprecationUtils.h"
@@ -46,14 +45,12 @@ namespace pcpp
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 */
-		using RemoteDeviceListIterator = PointerVector<PcapRemoteDevice>::VectorIterator;
-		using iterator = RemoteDeviceListIterator;
+		using RemoteDeviceListIterator = iterator;
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 */
-		using ConstRemoteDeviceListIterator = PointerVector<PcapRemoteDevice>::ConstVectorIterator;
-		using const_iterator = ConstRemoteDeviceListIterator;
+		using ConstRemoteDeviceListIterator = const_iterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;

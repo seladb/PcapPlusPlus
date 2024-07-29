@@ -3,7 +3,6 @@
 // GCOVR_EXCL_START
 
 #include "PfRingDevice.h"
-#include "PointerVector.h"
 #include "DeviceListBase.h"
 #include "DeprecationUtils.h"
 
@@ -31,16 +30,6 @@ namespace pcpp
 
 		PfRingDeviceList();
 	public:
-		/**
-		 * Iterator object that can be used for iterating all PfRingDevice in list
-		 */
-		using iterator = PointerVector<PfRingDevice>::VectorIterator;
-
-		/**
-		 * Const iterator object that can be used for iterating all PfRingDevice in a constant list
-		 */
-		using const_iterator = PointerVector<PfRingDevice>::ConstVectorIterator;
-
 		PfRingDeviceList(const PfRingDeviceList&) = delete;
 		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;
 		PfRingDeviceList& operator=(const PfRingDeviceList&) = delete;
