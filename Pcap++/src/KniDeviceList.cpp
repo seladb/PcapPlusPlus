@@ -82,7 +82,9 @@ KniDevice* KniDeviceList::createDevice(
 )
 {
 	if (!isInitialized())
+	{
 		return nullptr;
+	}
 
 	if (getDeviceByName(std::string(config.name)) != nullptr)
 	{

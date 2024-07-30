@@ -204,7 +204,7 @@ DpdkDevice* DpdkDeviceList::getDeviceByPort(int portId) const
 		return nullptr;
 	}
 
-	if (static_cast<uint32_t>(portId) >= m_DeviceList.size())
+	if (static_cast<std::size_t>(portId) >= m_DeviceList.size())
 	{
 		return nullptr;
 	}
