@@ -651,7 +651,6 @@ namespace pcpp
 	};
 	// clang-format on
 
-
 	HttpResponseStatusCode::HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage)
 	    : m_Value(statusCode)
 	{
