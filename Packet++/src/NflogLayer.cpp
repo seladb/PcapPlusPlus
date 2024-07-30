@@ -33,8 +33,8 @@ namespace pcpp
 
 	NflogTlv NflogLayer::getTlvByType(NflogTlvType type) const
 	{
-		NflogTlv tlv =
-		    m_TlvReader.getTLVRecord(static_cast<uint32_t>(type), getTlvsBasePtr(), m_DataLen - sizeof(nflog_header));
+		const auto typeNum = static_cast<uint32_t>(type);
+		NflogTlv tlv = m_TlvReader.getTLVRecord(typeNum, getTlvsBasePtr(), m_DataLen - sizeof(nflog_header));
 
 		return tlv;
 	}
@@ -42,7 +42,9 @@ namespace pcpp
 	void NflogLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(nflog_header))
+		{
 			return;
+		}
 		auto payloadInfo = getTlvByType(NflogTlvType::NFULA_PAYLOAD);
 		if (payloadInfo.isNull())
 		{
