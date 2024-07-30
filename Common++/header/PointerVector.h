@@ -303,6 +303,18 @@ namespace pcpp
 		}
 
 		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in] position An iterator pointing to the element to detach.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(VectorIterator const& position)
+		{
+			std::unique_ptr<T> result(*position);
+			m_Vector.erase(position);
+			return result;
+		}
+
+		/**
 		 * Return a pointer to the element in a certain index
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
