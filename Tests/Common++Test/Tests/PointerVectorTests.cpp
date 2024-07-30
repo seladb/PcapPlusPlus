@@ -24,7 +24,7 @@ namespace pcpp
 		pVector.pushBack(new int(1));
 		EXPECT_EQ(pVector.size(), 1);
 
-		EXPECT_THROW(pVector.pushBack(nullptr), std::invalid_argument);
+		EXPECT_THROW(pVector.pushBack(static_cast<int*>(nullptr)), std::invalid_argument);
 		EXPECT_THROW(pVector.pushBack(std::unique_ptr<int>()), std::invalid_argument);
 
 		int* atIdx0 = pVector.at(0);
