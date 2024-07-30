@@ -19,8 +19,8 @@ namespace pcpp
 		uint8_t* recordBuffer = new uint8_t[optionSizeWithPadding];
 		memset(recordBuffer, 0, optionSizeWithPadding);
 		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
-		recordBuffer[1] =
-		    static_cast<uint8_t>(optionSizeWithPadding / 8);  // length value is stored in units of 8 octets
+		// length value is stored in units of 8 octets
+		recordBuffer[1] = static_cast<uint8_t>(optionSizeWithPadding / 8);
 		memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
 
 		return NdpOption(recordBuffer);
