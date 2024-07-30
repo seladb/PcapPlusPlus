@@ -573,10 +573,11 @@ namespace pcpp
 		case ICMP_TIME_EXCEEDED:
 		case ICMP_REDIRECT:
 		case ICMP_PARAM_PROBLEM:
-			m_NextLayer =
-			    IPv4Layer::isDataValid(m_Data + headerLen, m_DataLen - headerLen)
+			// clang-format off
+			m_NextLayer = IPv4Layer::isDataValid(m_Data + headerLen, m_DataLen - headerLen)
 			        ? static_cast<Layer*>(new IPv4Layer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet))
 			        : static_cast<Layer*>(new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet));
+			// clang-format on
 			return;
 		default:
 			if (m_DataLen > headerLen)
@@ -615,9 +616,9 @@ namespace pcpp
 		case ICMP_PARAM_PROBLEM:
 			return sizeof(icmp_param_problem);
 		case ICMP_ROUTER_ADV:
-			routerAdvSize =
-			    sizeof(icmp_router_advertisement_hdr) +
-			    (getRouterAdvertisementData()->header->advertisementCount * sizeof(icmp_router_address_structure));
+			// clang-format off
+			routerAdvSize = sizeof(icmp_router_advertisement_hdr) + (getRouterAdvertisementData()->header->advertisementCount * sizeof(icmp_router_address_structure));
+			// clang-format on
 			if (routerAdvSize > m_DataLen)
 				return m_DataLen;
 			return routerAdvSize;
