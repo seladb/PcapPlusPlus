@@ -7,31 +7,32 @@ namespace pcpp
 
 	// region LdapOperationType
 
-	static const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>>
-	    LdapOperationTypeToString{
-		    { LdapOperationType::BindRequest,           "BindRequest"           },
-		    { LdapOperationType::BindResponse,          "BindResponse"          },
-		    { LdapOperationType::UnbindRequest,         "UnbindRequest"         },
-		    { LdapOperationType::SearchRequest,         "SearchRequest"         },
-		    { LdapOperationType::SearchResultEntry,     "SearchResultEntry"     },
-		    { LdapOperationType::SearchResultDone,      "SearchResultDone"      },
-		    { LdapOperationType::ModifyRequest,         "ModifyRequest"         },
-		    { LdapOperationType::ModifyResponse,        "ModifyResponse"        },
-		    { LdapOperationType::AddRequest,            "AddRequest"            },
-		    { LdapOperationType::AddResponse,           "AddResponse"           },
-		    { LdapOperationType::DeleteRequest,         "DeleteRequest"         },
-		    { LdapOperationType::DeleteResponse,        "DeleteResponse"        },
-		    { LdapOperationType::ModifyDNRequest,       "ModifyDNRequest"       },
-		    { LdapOperationType::ModifyDNResponse,      "ModifyDNResponse"      },
-		    { LdapOperationType::CompareRequest,        "CompareRequest"        },
-		    { LdapOperationType::CompareResponse,       "CompareResponse"       },
-		    { LdapOperationType::AbandonRequest,        "AbandonRequest"        },
-		    { LdapOperationType::SearchResultReference, "SearchResultReference" },
-		    { LdapOperationType::ExtendedRequest,       "ExtendedRequest"       },
-		    { LdapOperationType::ExtendedResponse,      "ExtendedResponse"      },
-		    { LdapOperationType::IntermediateResponse,  "IntermediateResponse"  },
-		    { LdapOperationType::Unknown,               "Unknown"               }
-    };
+	// clang-format off
+	static const std::unordered_map<LdapOperationType::Value, std::string, EnumClassHash<LdapOperationType::Value>> LdapOperationTypeToString{
+		{ LdapOperationType::BindRequest,           "BindRequest"           },
+		{ LdapOperationType::BindResponse,          "BindResponse"          },
+		{ LdapOperationType::UnbindRequest,         "UnbindRequest"         },
+		{ LdapOperationType::SearchRequest,         "SearchRequest"         },
+		{ LdapOperationType::SearchResultEntry,     "SearchResultEntry"     },
+		{ LdapOperationType::SearchResultDone,      "SearchResultDone"      },
+		{ LdapOperationType::ModifyRequest,         "ModifyRequest"         },
+		{ LdapOperationType::ModifyResponse,        "ModifyResponse"        },
+		{ LdapOperationType::AddRequest,            "AddRequest"            },
+		{ LdapOperationType::AddResponse,           "AddResponse"           },
+		{ LdapOperationType::DeleteRequest,         "DeleteRequest"         },
+		{ LdapOperationType::DeleteResponse,        "DeleteResponse"        },
+		{ LdapOperationType::ModifyDNRequest,       "ModifyDNRequest"       },
+		{ LdapOperationType::ModifyDNResponse,      "ModifyDNResponse"      },
+		{ LdapOperationType::CompareRequest,        "CompareRequest"        },
+		{ LdapOperationType::CompareResponse,       "CompareResponse"       },
+		{ LdapOperationType::AbandonRequest,        "AbandonRequest"        },
+		{ LdapOperationType::SearchResultReference, "SearchResultReference" },
+		{ LdapOperationType::ExtendedRequest,       "ExtendedRequest"       },
+		{ LdapOperationType::ExtendedResponse,      "ExtendedResponse"      },
+		{ LdapOperationType::IntermediateResponse,  "IntermediateResponse"  },
+		{ LdapOperationType::Unknown,               "Unknown"               }
+	};
+	// clang-format on
 
 	static const std::unordered_map<uint8_t, LdapOperationType> UintToLdapOperationType{
 		{ static_cast<uint8_t>(LdapOperationType::BindRequest),           LdapOperationType::BindRequest           },
@@ -76,91 +77,94 @@ namespace pcpp
 
 	// region LdapResultCode
 
-	static const std::unordered_map<LdapResultCode::Value, std::string, EnumClassHash<LdapResultCode::Value>>
-	    LdapResultCodeToString{
-		    { LdapResultCode::Success,                      "Success"                      },
-		    { LdapResultCode::OperationsError,              "OperationsError"              },
-		    { LdapResultCode::ProtocolError,                "ProtocolError"                },
-		    { LdapResultCode::TimeLimitExceeded,            "TimeLimitExceeded"            },
-		    { LdapResultCode::SizeLimitExceeded,            "SizeLimitExceeded"            },
-		    { LdapResultCode::CompareFalse,                 "CompareFalse"                 },
-		    { LdapResultCode::CompareTrue,                  "CompareTrue"                  },
-		    { LdapResultCode::AuthMethodNotSupported,       "AuthMethodNotSupported"       },
-		    { LdapResultCode::StrongerAuthRequired,         "StrongerAuthRequired"         },
-		    { LdapResultCode::Referral,                     "Referral"                     },
-		    { LdapResultCode::AdminLimitExceeded,           "AdminLimitExceeded"           },
-		    { LdapResultCode::UnavailableCriticalExtension, "UnavailableCriticalExtension" },
-		    { LdapResultCode::ConfidentialityRequired,      "ConfidentialityRequired"      },
-		    { LdapResultCode::SaslBindInProgress,           "SaslBindInProgress"           },
-		    { LdapResultCode::NoSuchAttribute,              "NoSuchAttribute"              },
-		    { LdapResultCode::UndefinedAttributeType,       "UndefinedAttributeType"       },
-		    { LdapResultCode::InappropriateMatching,        "InappropriateMatching"        },
-		    { LdapResultCode::ConstraintViolation,          "ConstraintViolation"          },
-		    { LdapResultCode::AttributeOrValueExists,       "AttributeOrValueExists"       },
-		    { LdapResultCode::InvalidAttributeSyntax,       "InvalidAttributeSyntax"       },
-		    { LdapResultCode::NoSuchObject,                 "NoSuchObject"                 },
-		    { LdapResultCode::AliasProblem,                 "AliasProblem"                 },
-		    { LdapResultCode::InvalidDNSyntax,              "InvalidDNSyntax"              },
-		    { LdapResultCode::AliasDereferencingProblem,    "AliasDereferencingProblem"    },
-		    { LdapResultCode::InappropriateAuthentication,  "InappropriateAuthentication"  },
-		    { LdapResultCode::InvalidCredentials,           "InvalidCredentials"           },
-		    { LdapResultCode::InsufficientAccessRights,     "InsufficientAccessRights"     },
-		    { LdapResultCode::Busy,                         "Busy"                         },
-		    { LdapResultCode::Unavailable,                  "Unavailable"                  },
-		    { LdapResultCode::UnwillingToPerform,           "UnwillingToPerform"           },
-		    { LdapResultCode::LoopDetect,                   "LoopDetect"                   },
-		    { LdapResultCode::NamingViolation,              "NamingViolation"              },
-		    { LdapResultCode::ObjectClassViolation,         "ObjectClassViolation"         },
-		    { LdapResultCode::NotAllowedOnNonLeaf,          "NotAllowedOnNonLeaf"          },
-		    { LdapResultCode::NotAllowedOnRDN,              "NotAllowedOnRDN"              },
-		    { LdapResultCode::EntryAlreadyExists,           "EntryAlreadyExists"           },
-		    { LdapResultCode::ObjectClassModsProhibited,    "ObjectClassModsProhibited"    },
-		    { LdapResultCode::AffectsMultipleDSAs,          "AffectsMultipleDSAs"          },
-		    { LdapResultCode::Other,                        "Other"                        }
+	// clang-format off
+	static const std::unordered_map<LdapResultCode::Value, std::string, EnumClassHash<LdapResultCode::Value>> LdapResultCodeToString{
+		{ LdapResultCode::Success,                      "Success"                      },
+		{ LdapResultCode::OperationsError,              "OperationsError"              },
+		{ LdapResultCode::ProtocolError,                "ProtocolError"                },
+		{ LdapResultCode::TimeLimitExceeded,            "TimeLimitExceeded"            },
+		{ LdapResultCode::SizeLimitExceeded,            "SizeLimitExceeded"            },
+		{ LdapResultCode::CompareFalse,                 "CompareFalse"                 },
+		{ LdapResultCode::CompareTrue,                  "CompareTrue"                  },
+		{ LdapResultCode::AuthMethodNotSupported,       "AuthMethodNotSupported"       },
+		{ LdapResultCode::StrongerAuthRequired,         "StrongerAuthRequired"         },
+		{ LdapResultCode::Referral,                     "Referral"                     },
+		{ LdapResultCode::AdminLimitExceeded,           "AdminLimitExceeded"           },
+		{ LdapResultCode::UnavailableCriticalExtension, "UnavailableCriticalExtension" },
+		{ LdapResultCode::ConfidentialityRequired,      "ConfidentialityRequired"      },
+		{ LdapResultCode::SaslBindInProgress,           "SaslBindInProgress"           },
+		{ LdapResultCode::NoSuchAttribute,              "NoSuchAttribute"              },
+		{ LdapResultCode::UndefinedAttributeType,       "UndefinedAttributeType"       },
+		{ LdapResultCode::InappropriateMatching,        "InappropriateMatching"        },
+		{ LdapResultCode::ConstraintViolation,          "ConstraintViolation"          },
+		{ LdapResultCode::AttributeOrValueExists,       "AttributeOrValueExists"       },
+		{ LdapResultCode::InvalidAttributeSyntax,       "InvalidAttributeSyntax"       },
+		{ LdapResultCode::NoSuchObject,                 "NoSuchObject"                 },
+		{ LdapResultCode::AliasProblem,                 "AliasProblem"                 },
+		{ LdapResultCode::InvalidDNSyntax,              "InvalidDNSyntax"              },
+		{ LdapResultCode::AliasDereferencingProblem,    "AliasDereferencingProblem"    },
+		{ LdapResultCode::InappropriateAuthentication,  "InappropriateAuthentication"  },
+		{ LdapResultCode::InvalidCredentials,           "InvalidCredentials"           },
+		{ LdapResultCode::InsufficientAccessRights,     "InsufficientAccessRights"     },
+		{ LdapResultCode::Busy,                         "Busy"                         },
+		{ LdapResultCode::Unavailable,                  "Unavailable"                  },
+		{ LdapResultCode::UnwillingToPerform,           "UnwillingToPerform"           },
+		{ LdapResultCode::LoopDetect,                   "LoopDetect"                   },
+		{ LdapResultCode::NamingViolation,              "NamingViolation"              },
+		{ LdapResultCode::ObjectClassViolation,         "ObjectClassViolation"         },
+		{ LdapResultCode::NotAllowedOnNonLeaf,          "NotAllowedOnNonLeaf"          },
+		{ LdapResultCode::NotAllowedOnRDN,              "NotAllowedOnRDN"              },
+		{ LdapResultCode::EntryAlreadyExists,           "EntryAlreadyExists"           },
+		{ LdapResultCode::ObjectClassModsProhibited,    "ObjectClassModsProhibited"    },
+		{ LdapResultCode::AffectsMultipleDSAs,          "AffectsMultipleDSAs"          },
+		{ LdapResultCode::Other,                        "Other"                        }
     };
+	// clang-format on
 
 	static const std::unordered_map<uint8_t, LdapResultCode> UintToLdapResultCode{
-		{ static_cast<uint8_t>(LdapResultCode::Success),                      LdapResultCode::Success                   },
-		{ static_cast<uint8_t>(LdapResultCode::OperationsError),              LdapResultCode::OperationsError           },
-		{ static_cast<uint8_t>(LdapResultCode::ProtocolError),                LdapResultCode::ProtocolError             },
-		{ static_cast<uint8_t>(LdapResultCode::TimeLimitExceeded),            LdapResultCode::TimeLimitExceeded         },
-		{ static_cast<uint8_t>(LdapResultCode::SizeLimitExceeded),            LdapResultCode::SizeLimitExceeded         },
-		{ static_cast<uint8_t>(LdapResultCode::CompareFalse),                 LdapResultCode::CompareFalse              },
-		{ static_cast<uint8_t>(LdapResultCode::CompareTrue),                  LdapResultCode::CompareTrue               },
-		{ static_cast<uint8_t>(LdapResultCode::AuthMethodNotSupported),       LdapResultCode::AuthMethodNotSupported    },
-		{ static_cast<uint8_t>(LdapResultCode::StrongerAuthRequired),         LdapResultCode::StrongerAuthRequired      },
-		{ static_cast<uint8_t>(LdapResultCode::Referral),                     LdapResultCode::Referral                  },
-		{ static_cast<uint8_t>(LdapResultCode::AdminLimitExceeded),           LdapResultCode::AdminLimitExceeded        },
-		{ static_cast<uint8_t>(LdapResultCode::UnavailableCriticalExtension),
-         LdapResultCode::UnavailableCriticalExtension		                                                           },
-		{ static_cast<uint8_t>(LdapResultCode::ConfidentialityRequired),      LdapResultCode::ConfidentialityRequired   },
-		{ static_cast<uint8_t>(LdapResultCode::SaslBindInProgress),           LdapResultCode::SaslBindInProgress        },
-		{ static_cast<uint8_t>(LdapResultCode::NoSuchAttribute),              LdapResultCode::NoSuchAttribute           },
-		{ static_cast<uint8_t>(LdapResultCode::UndefinedAttributeType),       LdapResultCode::UndefinedAttributeType    },
-		{ static_cast<uint8_t>(LdapResultCode::InappropriateMatching),        LdapResultCode::InappropriateMatching     },
-		{ static_cast<uint8_t>(LdapResultCode::ConstraintViolation),          LdapResultCode::ConstraintViolation       },
-		{ static_cast<uint8_t>(LdapResultCode::AttributeOrValueExists),       LdapResultCode::AttributeOrValueExists    },
-		{ static_cast<uint8_t>(LdapResultCode::InvalidAttributeSyntax),       LdapResultCode::InvalidAttributeSyntax    },
-		{ static_cast<uint8_t>(LdapResultCode::NoSuchObject),                 LdapResultCode::NoSuchObject              },
-		{ static_cast<uint8_t>(LdapResultCode::AliasProblem),                 LdapResultCode::AliasProblem              },
-		{ static_cast<uint8_t>(LdapResultCode::InvalidDNSyntax),              LdapResultCode::InvalidDNSyntax           },
-		{ static_cast<uint8_t>(LdapResultCode::AliasDereferencingProblem),    LdapResultCode::AliasDereferencingProblem },
-		{ static_cast<uint8_t>(LdapResultCode::InappropriateAuthentication),
-         LdapResultCode::InappropriateAuthentication		                                                            },
-		{ static_cast<uint8_t>(LdapResultCode::InvalidCredentials),           LdapResultCode::InvalidCredentials        },
-		{ static_cast<uint8_t>(LdapResultCode::InsufficientAccessRights),     LdapResultCode::InsufficientAccessRights  },
-		{ static_cast<uint8_t>(LdapResultCode::Busy),                         LdapResultCode::Busy                      },
-		{ static_cast<uint8_t>(LdapResultCode::Unavailable),                  LdapResultCode::Unavailable               },
-		{ static_cast<uint8_t>(LdapResultCode::UnwillingToPerform),           LdapResultCode::UnwillingToPerform        },
-		{ static_cast<uint8_t>(LdapResultCode::LoopDetect),                   LdapResultCode::LoopDetect                },
-		{ static_cast<uint8_t>(LdapResultCode::NamingViolation),              LdapResultCode::NamingViolation           },
-		{ static_cast<uint8_t>(LdapResultCode::ObjectClassViolation),         LdapResultCode::ObjectClassViolation      },
-		{ static_cast<uint8_t>(LdapResultCode::NotAllowedOnNonLeaf),          LdapResultCode::NotAllowedOnNonLeaf       },
-		{ static_cast<uint8_t>(LdapResultCode::NotAllowedOnRDN),              LdapResultCode::NotAllowedOnRDN           },
-		{ static_cast<uint8_t>(LdapResultCode::EntryAlreadyExists),           LdapResultCode::EntryAlreadyExists        },
-		{ static_cast<uint8_t>(LdapResultCode::ObjectClassModsProhibited),    LdapResultCode::ObjectClassModsProhibited },
-		{ static_cast<uint8_t>(LdapResultCode::AffectsMultipleDSAs),          LdapResultCode::AffectsMultipleDSAs       },
-		{ static_cast<uint8_t>(LdapResultCode::Other),                        LdapResultCode::Other                     }
+		{ static_cast<uint8_t>(LdapResultCode::Success),                   LdapResultCode::Success                   },
+		{ static_cast<uint8_t>(LdapResultCode::OperationsError),           LdapResultCode::OperationsError           },
+		{ static_cast<uint8_t>(LdapResultCode::ProtocolError),             LdapResultCode::ProtocolError             },
+		{ static_cast<uint8_t>(LdapResultCode::TimeLimitExceeded),         LdapResultCode::TimeLimitExceeded         },
+		{ static_cast<uint8_t>(LdapResultCode::SizeLimitExceeded),         LdapResultCode::SizeLimitExceeded         },
+		{ static_cast<uint8_t>(LdapResultCode::CompareFalse),              LdapResultCode::CompareFalse              },
+		{ static_cast<uint8_t>(LdapResultCode::CompareTrue),               LdapResultCode::CompareTrue               },
+		{ static_cast<uint8_t>(LdapResultCode::AuthMethodNotSupported),    LdapResultCode::AuthMethodNotSupported    },
+		{ static_cast<uint8_t>(LdapResultCode::StrongerAuthRequired),      LdapResultCode::StrongerAuthRequired      },
+		{ static_cast<uint8_t>(LdapResultCode::Referral),                  LdapResultCode::Referral                  },
+		{ static_cast<uint8_t>(LdapResultCode::AdminLimitExceeded),        LdapResultCode::AdminLimitExceeded        },
+		// clang-format off
+		{ static_cast<uint8_t>(LdapResultCode::UnavailableCriticalExtension), LdapResultCode::UnavailableCriticalExtension },
+		// clang-format on
+		{ static_cast<uint8_t>(LdapResultCode::ConfidentialityRequired),   LdapResultCode::ConfidentialityRequired   },
+		{ static_cast<uint8_t>(LdapResultCode::SaslBindInProgress),        LdapResultCode::SaslBindInProgress        },
+		{ static_cast<uint8_t>(LdapResultCode::NoSuchAttribute),           LdapResultCode::NoSuchAttribute           },
+		{ static_cast<uint8_t>(LdapResultCode::UndefinedAttributeType),    LdapResultCode::UndefinedAttributeType    },
+		{ static_cast<uint8_t>(LdapResultCode::InappropriateMatching),     LdapResultCode::InappropriateMatching     },
+		{ static_cast<uint8_t>(LdapResultCode::ConstraintViolation),       LdapResultCode::ConstraintViolation       },
+		{ static_cast<uint8_t>(LdapResultCode::AttributeOrValueExists),    LdapResultCode::AttributeOrValueExists    },
+		{ static_cast<uint8_t>(LdapResultCode::InvalidAttributeSyntax),    LdapResultCode::InvalidAttributeSyntax    },
+		{ static_cast<uint8_t>(LdapResultCode::NoSuchObject),              LdapResultCode::NoSuchObject              },
+		{ static_cast<uint8_t>(LdapResultCode::AliasProblem),              LdapResultCode::AliasProblem              },
+		{ static_cast<uint8_t>(LdapResultCode::InvalidDNSyntax),           LdapResultCode::InvalidDNSyntax           },
+		{ static_cast<uint8_t>(LdapResultCode::AliasDereferencingProblem), LdapResultCode::AliasDereferencingProblem },
+		// clang-format off
+		{ static_cast<uint8_t>(LdapResultCode::InappropriateAuthentication),  LdapResultCode::InappropriateAuthentication },
+		// clang-format on
+		{ static_cast<uint8_t>(LdapResultCode::InvalidCredentials),        LdapResultCode::InvalidCredentials        },
+		{ static_cast<uint8_t>(LdapResultCode::InsufficientAccessRights),  LdapResultCode::InsufficientAccessRights  },
+		{ static_cast<uint8_t>(LdapResultCode::Busy),                      LdapResultCode::Busy                      },
+		{ static_cast<uint8_t>(LdapResultCode::Unavailable),               LdapResultCode::Unavailable               },
+		{ static_cast<uint8_t>(LdapResultCode::UnwillingToPerform),        LdapResultCode::UnwillingToPerform        },
+		{ static_cast<uint8_t>(LdapResultCode::LoopDetect),                LdapResultCode::LoopDetect                },
+		{ static_cast<uint8_t>(LdapResultCode::NamingViolation),           LdapResultCode::NamingViolation           },
+		{ static_cast<uint8_t>(LdapResultCode::ObjectClassViolation),      LdapResultCode::ObjectClassViolation      },
+		{ static_cast<uint8_t>(LdapResultCode::NotAllowedOnNonLeaf),       LdapResultCode::NotAllowedOnNonLeaf       },
+		{ static_cast<uint8_t>(LdapResultCode::NotAllowedOnRDN),           LdapResultCode::NotAllowedOnRDN           },
+		{ static_cast<uint8_t>(LdapResultCode::EntryAlreadyExists),        LdapResultCode::EntryAlreadyExists        },
+		{ static_cast<uint8_t>(LdapResultCode::ObjectClassModsProhibited), LdapResultCode::ObjectClassModsProhibited },
+		{ static_cast<uint8_t>(LdapResultCode::AffectsMultipleDSAs),       LdapResultCode::AffectsMultipleDSAs       },
+		{ static_cast<uint8_t>(LdapResultCode::Other),                     LdapResultCode::Other                     }
 	};
 
 	std::string LdapResultCode::toString() const
@@ -326,13 +330,15 @@ namespace pcpp
 		for (auto controlRecord : controlsRecord->getSubRecords())
 		{
 			auto controlSequence = controlRecord->castAs<Asn1SequenceRecord>();
-			auto controlType =
-			    controlSequence->getSubRecords().at(controlTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			// clang-format off
+			auto controlType = controlSequence->getSubRecords().at(controlTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			// clang-format on
 			std::string controlValue;
 			if (controlSequence->getSubRecords().size() > controlValueIndex)
 			{
-				controlValue =
-				    controlSequence->getSubRecords().at(controlValueIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+				// clang-format off
+				controlValue = controlSequence->getSubRecords().at(controlValueIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+				// clang-format on
 			}
 			controls.push_back({ controlType, controlValue });
 		}
@@ -560,8 +566,9 @@ namespace pcpp
 			throw std::invalid_argument("Authentication type is not sasl");
 		}
 
-		auto authRecord =
-		    getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
+		// clang-format off
+		auto authRecord = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
+		// clang-format on
 		std::string mechanism;
 		std::vector<uint8_t> credentials;
 		if (authRecord->getSubRecords().size() > saslMechanismIndex)
@@ -570,8 +577,9 @@ namespace pcpp
 		}
 		if (authRecord->getSubRecords().size() > saslCredentialsIndex)
 		{
-			auto credentialsAsString =
-			    authRecord->getSubRecords().at(saslCredentialsIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			// clang-format off
+			auto credentialsAsString = authRecord->getSubRecords().at(saslCredentialsIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			// clang-format on
 			credentials.resize(credentialsAsString.size() / 2);
 			hexStringToByteArray(credentialsAsString, credentials.data(), credentials.size());
 		}
@@ -777,8 +785,9 @@ namespace pcpp
 			return result;
 		}
 
-		auto attributesRecord =
-		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		// clang-format off
+		auto attributesRecord = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		// clang-format on
 		for (auto attribute : attributesRecord->getSubRecords())
 		{
 			result.push_back(attribute->castAs<Asn1OctetStringRecord>()->getValue());
@@ -841,14 +850,16 @@ namespace pcpp
 	{
 		std::vector<LdapAttribute> result;
 
-		auto attributes =
-		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		// clang-format off
+		auto attributes = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
+		// clang-format on
 		for (auto attributeRecord : attributes->getSubRecords())
 		{
 			auto attrAsSequence = attributeRecord->castAs<Asn1SequenceRecord>();
 
-			auto type =
-			    attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			// clang-format off
+			auto type = attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
+			// clang-format on
 
 			std::vector<std::string> values;
 			auto valuesRecord = attrAsSequence->getSubRecords().at(attributeValueIndex)->castAs<Asn1SetRecord>();
