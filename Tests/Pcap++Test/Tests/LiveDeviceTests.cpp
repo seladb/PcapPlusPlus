@@ -302,7 +302,8 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	{
 		// Should probably be refactored as PTF_ASSERT_CONTAINS or similar.
 		auto const ipAddresses = liveDev->getIPAddresses();
-		PTF_ASSERT_TRUE(std::any_of(ipAddresses.begin(), ipAddresses.end(), [ipToSearch](pcpp::IPAddress const& addr) { return addr == ipToSearch; }));
+		PTF_ASSERT_TRUE(std::any_of(ipAddresses.begin(), ipAddresses.end(),
+		                            [ipToSearch](pcpp::IPAddress const& addr) { return addr == ipToSearch; }));
 	}
 
 	DeviceTeardown devTeardown(liveDev);
