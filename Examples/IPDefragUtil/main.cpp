@@ -11,23 +11,22 @@
 #include "SystemUtils.h"
 #include "getopt.h"
 
+#define EXIT_WITH_ERROR(reason)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage();                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
-#define EXIT_WITH_ERROR(reason) do { \
-	printUsage(); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
-
-
-static struct option DefragUtilOptions[] =
-{
-	{"output-file", required_argument, nullptr, 'o'},
-	{"filter-by-ipid", required_argument, nullptr, 'd'},
-	{"bpf-filter", required_argument, nullptr, 'f'},
-	{"copy-all-packets", no_argument, nullptr, 'a'},
-	{"help", no_argument, nullptr, 'h'},
-	{"version", no_argument, nullptr, 'v'},
-	{nullptr, 0, nullptr, 0}
+static struct option DefragUtilOptions[] = {
+	{ "output-file",      required_argument, nullptr, 'o' },
+	{ "filter-by-ipid",   required_argument, nullptr, 'd' },
+	{ "bpf-filter",       required_argument, nullptr, 'f' },
+	{ "copy-all-packets", no_argument,       nullptr, 'a' },
+	{ "help",             no_argument,       nullptr, 'h' },
+	{ "version",          no_argument,       nullptr, 'v' },
+	{ nullptr,            0,                 nullptr, 0   }
 };
 
 /**
@@ -47,58 +46,66 @@ struct DefragStats
 	int ipv6PacketsDefragmented;
 	int totalPacketsWritten;
 
-	void clear() { memset(this, 0, sizeof(DefragStats)); }
-	DefragStats() { clear(); }
+	void clear()
+	{
+		memset(this, 0, sizeof(DefragStats));
+	}
+	DefragStats()
+	{
+		clear();
+	}
 };
-
 
 /**
  * Print application usage
  */
 void printUsage()
 {
-	std::cout << std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]" << std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    input_file      : Input pcap/pcapng file" << std::endl
-		<< "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type" << std::endl
-		<< "    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) or" << std::endl
-		<< "                      fragment IDs (for IPv6) in decimal format" << std::endl
-		<< "    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in Berkeley Packet Filter (BPF)" << std::endl
-		<< "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
-		<< "    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file" << std::endl
-		<< "    -v              : Displays the current version and exits" << std::endl
-		<< "    -h              : Displays this help message and exits" << std::endl
-		<< std::endl;
+	std::cout
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " input_file -o output_file [-d frag_ids] [-f bpf_filter] [-a] [-h] [-v]"
+	    << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    input_file      : Input pcap/pcapng file" << std::endl
+	    << "    -o output_file  : Output file. Output file type (pcap/pcapng) will match the input file type"
+	    << std::endl
+	    << "    -d frag_ids     : De-fragment only fragments that match this comma-separated list of IP IDs (for IPv4) "
+	       "or"
+	    << std::endl
+	    << "                      fragment IDs (for IPv6) in decimal format" << std::endl
+	    << "    -f bpf_filter   : De-fragment only fragments that match bpf_filter. Filter should be provided in "
+	       "Berkeley Packet Filter (BPF)"
+	    << std::endl
+	    << "                      syntax (http://biot.com/capstats/bpf.html) i.e: 'ip net 1.1.1.1'" << std::endl
+	    << "    -a              : Copy all packets (those who were de-fragmented and those who weren't) to output file"
+	    << std::endl
+	    << "    -v              : Displays the current version and exits" << std::endl
+	    << "    -h              : Displays this help message and exits" << std::endl
+	    << std::endl;
 }
-
 
 /**
  * Print application version
  */
 void printAppVersion()
 {
-	std::cout
-		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-		<< "Built: " << pcpp::getBuildDateTime() << std::endl
-		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
 
-
 /**
- * This method reads packets from the input file, decided which fragments pass the filters set by the user, de-fragment the fragments
- * who pass them, and writes the result packets to the output file
+ * This method reads packets from the input file, decided which fragments pass the filters set by the user, de-fragment
+ * the fragments who pass them, and writes the result packets to the output file
  */
-void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer,
-		bool filterByBpf, const std::string& bpfFilter,
-		bool filterByIpID, std::unordered_map<uint32_t, bool> fragIDs,
-		bool copyAllPacketsToOutputFile,
-		DefragStats& stats)
+void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* writer, bool filterByBpf,
+                    const std::string& bpfFilter, bool filterByIpID, std::unordered_map<uint32_t, bool> fragIDs,
+                    bool copyAllPacketsToOutputFile, DefragStats& stats)
 {
 	pcpp::RawPacket rawPacket;
 	pcpp::BPFStringFilter filter(bpfFilter);
@@ -123,7 +130,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			{
 				stats.ipPacketsMatchBpfFilter++;
 			}
-			else // if not - set the packet as not marked for de-fragmentation
+			else  // if not - set the packet as not marked for de-fragmentation
 			{
 				defragPacket = false;
 			}
@@ -144,7 +151,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			stats.ipv6Packets++;
 			isIPv6Packet = true;
 		}
-		else // if not - set the packet as not marked for de-fragmentation
+		else  // if not - set the packet as not marked for de-fragmentation
 		{
 			defragPacket = false;
 		}
@@ -161,7 +168,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 				{
 					stats.ipv4PacketsMatchIpIDs++;
 				}
-				else // if not - set the packet as not marked for de-fragmentation
+				else  // if not - set the packet as not marked for de-fragmentation
 				{
 					defragPacket = false;
 				}
@@ -179,7 +186,7 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 				{
 					stats.ipv6PacketsMatchFragIDs++;
 				}
-				else // if not - set the packet as not marked for de-fragmentation
+				else  // if not - set the packet as not marked for de-fragmentation
 				{
 					defragPacket = false;
 				}
@@ -196,7 +203,8 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			// - packet is fully reassembled (status of REASSEMBLED)
 			// - packet isn't a fragment or isn't an IP packet and the user asked to write all packets to output
 			if (status == pcpp::IPReassembly::REASSEMBLED ||
-					((status == pcpp::IPReassembly::NON_IP_PACKET || status == pcpp::IPReassembly::NON_FRAGMENT) && copyAllPacketsToOutputFile))
+			    ((status == pcpp::IPReassembly::NON_IP_PACKET || status == pcpp::IPReassembly::NON_FRAGMENT) &&
+			     copyAllPacketsToOutputFile))
 			{
 				writer->writePacket(*result->getRawPacket());
 				stats.totalPacketsWritten++;
@@ -215,11 +223,9 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			}
 
 			// update statistics if packet isn't fully reassembled
-			if (status == pcpp::IPReassembly::FIRST_FRAGMENT ||
-					status == pcpp::IPReassembly::FRAGMENT ||
-					status == pcpp::IPReassembly::OUT_OF_ORDER_FRAGMENT ||
-					status == pcpp::IPReassembly::MALFORMED_FRAGMENT ||
-					status == pcpp::IPReassembly::REASSEMBLED)
+			if (status == pcpp::IPReassembly::FIRST_FRAGMENT || status == pcpp::IPReassembly::FRAGMENT ||
+			    status == pcpp::IPReassembly::OUT_OF_ORDER_FRAGMENT ||
+			    status == pcpp::IPReassembly::MALFORMED_FRAGMENT || status == pcpp::IPReassembly::REASSEMBLED)
 			{
 				if (isIPv4Packet)
 					stats.ipv4FragmentsMatched++;
@@ -233,10 +239,8 @@ void processPackets(pcpp::IFileReaderDevice* reader, pcpp::IFileWriterDevice* wr
 			writer->writePacket(rawPacket);
 			stats.totalPacketsWritten++;
 		}
-
 	}
 }
-
 
 /**
  * A method for printing fragmentation process stats
@@ -256,17 +260,18 @@ void printStats(const DefragStats& stats, bool filterByIpID, bool filterByBpf)
 	}
 	if (filterByBpf)
 		stream << "IP packets match BPF filter:             " << stats.ipPacketsMatchBpfFilter << std::endl;
-	stream << "Total fragments matched:                 " << (stats.ipv4FragmentsMatched + stats.ipv6FragmentsMatched) << std::endl;
+	stream << "Total fragments matched:                 " << (stats.ipv4FragmentsMatched + stats.ipv6FragmentsMatched)
+	       << std::endl;
 	stream << "IPv4 fragments matched:                  " << stats.ipv4FragmentsMatched << std::endl;
 	stream << "IPv6 fragments matched:                  " << stats.ipv6FragmentsMatched << std::endl;
-	stream << "Total packets reassembled:               " << (stats.ipv4PacketsDefragmented + stats.ipv6PacketsDefragmented) << std::endl;
+	stream << "Total packets reassembled:               "
+	       << (stats.ipv4PacketsDefragmented + stats.ipv6PacketsDefragmented) << std::endl;
 	stream << "IPv4 packets reassembled:                " << stats.ipv4PacketsDefragmented << std::endl;
 	stream << "IPv6 packets reassembled:                " << stats.ipv6PacketsDefragmented << std::endl;
 	stream << "Total packets written to output file:    " << stats.totalPacketsWritten << std::endl;
 
 	std::cout << stream.str();
 }
-
 
 /**
  * main method of the application
@@ -285,68 +290,67 @@ int main(int argc, char* argv[])
 	std::unordered_map<uint32_t, bool> fragIDMap;
 	bool copyAllPacketsToOutputFile = false;
 
-
-	while((opt = getopt_long(argc, argv, "o:d:f:ahv", DefragUtilOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "o:d:f:ahv", DefragUtilOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
-			case 0:
+		case 0:
+		{
+			break;
+		}
+		case 'o':
+		{
+			outputFile = optarg;
+			break;
+		}
+		case 'd':
+		{
+			filterByFragID = true;
+			// read the IP ID / Frag ID list into the map
+			fragIDMap.clear();
+			std::string ipIDsAsString = std::string(optarg);
+			std::stringstream stream(ipIDsAsString);
+			std::string ipIDStr;
+			// break comma-separated string into string list
+			while (std::getline(stream, ipIDStr, ','))
 			{
-				break;
+				// convert the IP ID to uint16_t
+				uint32_t fragID = (uint32_t)atoi(ipIDStr.c_str());
+				// add the frag ID into the map if it doesn't already exist
+				fragIDMap.emplace(fragID, true);
 			}
-			case 'o':
-			{
-				outputFile = optarg;
-				break;
-			}
-			case 'd':
-			{
-				filterByFragID = true;
-				// read the IP ID / Frag ID list into the map
-				fragIDMap.clear();
-				std::string ipIDsAsString = std::string(optarg);
-				std::stringstream stream(ipIDsAsString);
-				std::string ipIDStr;
-				// break comma-separated string into string list
-				while(std::getline(stream, ipIDStr, ','))
-				{
-					// convert the IP ID to uint16_t
-					uint32_t fragID = (uint32_t)atoi(ipIDStr.c_str());
-					// add the frag ID into the map if it doesn't already exist
-					fragIDMap.emplace(fragID, true);
-				}
 
-				// verify list is not empty
-				if (fragIDMap.empty())
-				{
-					EXIT_WITH_ERROR("Couldn't parse fragment ID list");
-				}
-				break;
-			}
-			case 'f':
+			// verify list is not empty
+			if (fragIDMap.empty())
 			{
-				filterByBpfFilter = true;
-				bpfFilter = optarg;
-				pcpp::BPFStringFilter filter(bpfFilter);
-				if (!filter.verifyFilter())
-					EXIT_WITH_ERROR("Illegal BPF filter");
-				break;
+				EXIT_WITH_ERROR("Couldn't parse fragment ID list");
 			}
-			case 'a':
-			{
-				copyAllPacketsToOutputFile = true;
-				break;
-			}
-			case 'h':
-			{
-				printUsage();
-				exit(0);
-			}
-			case 'v':
-			{
-				printAppVersion();
-				break;
-			}
+			break;
+		}
+		case 'f':
+		{
+			filterByBpfFilter = true;
+			bpfFilter = optarg;
+			pcpp::BPFStringFilter filter(bpfFilter);
+			if (!filter.verifyFilter())
+				EXIT_WITH_ERROR("Illegal BPF filter");
+			break;
+		}
+		case 'a':
+		{
+			copyAllPacketsToOutputFile = true;
+			break;
+		}
+		case 'h':
+		{
+			printUsage();
+			exit(0);
+		}
+		case 'v':
+		{
+			printAppVersion();
+			break;
+		}
 		}
 	}
 
@@ -363,14 +367,14 @@ int main(int argc, char* argv[])
 
 		switch (paramIndex)
 		{
-			case 0:
-			{
-				inputFile = argv[i];
-				break;
-			}
+		case 0:
+		{
+			inputFile = argv[i];
+			break;
+		}
 
-			default:
-				EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
+		default:
+			EXIT_WITH_ERROR("Unexpected parameter: " << argv[i]);
 		}
 	}
 
@@ -391,7 +395,6 @@ int main(int argc, char* argv[])
 	{
 		EXIT_WITH_ERROR("Error opening input file");
 	}
-
 
 	// create a writer device for output file in the same file type as input file
 	pcpp::IFileWriterDevice* writer = nullptr;
@@ -416,7 +419,8 @@ int main(int argc, char* argv[])
 
 	// run the de-fragmentation process
 	DefragStats stats;
-	processPackets(reader, writer, filterByBpfFilter, bpfFilter, filterByFragID, fragIDMap, copyAllPacketsToOutputFile, stats);
+	processPackets(reader, writer, filterByBpfFilter, bpfFilter, filterByFragID, fragIDMap, copyAllPacketsToOutputFile,
+	               stats);
 
 	// close files
 	reader->close();
