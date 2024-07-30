@@ -40,7 +40,9 @@ namespace pcpp
 		    (type > (uint8_t)IgmpType_MulticastTraceroute && type < (uint8_t)IgmpType_MembershipReportV3) ||
 		    (type > (uint8_t)IgmpType_MembershipReportV3 && type < (uint8_t)IgmpType_MulticastRouterAdvertisement) ||
 		    type > IgmpType_MulticastRouterTermination)
+		{
 			return IgmpType_Unknown;
+		}
 
 		return (IgmpType)type;
 	}
