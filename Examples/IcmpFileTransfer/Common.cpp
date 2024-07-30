@@ -10,78 +10,79 @@
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 
-
 #if defined(_WIN32)
-#define SEPARATOR '\\'
+#	define SEPARATOR '\\'
 #else
-#define SEPARATOR '/'
+#	define SEPARATOR '/'
 #endif
 
 #define DEFAULT_BLOCK_SIZE 1400
 
-static struct option IcmpFTOptions[] =
-{
-	{"interface",  required_argument, nullptr, 'i'},
-	{"dest-ip",  required_argument, nullptr, 'd'},
-	{"send-file",  required_argument, nullptr, 's'},
-	{"receive-file", no_argument, nullptr, 'r'},
-	{"speed", required_argument, nullptr, 'p'},
-	{"block-size", required_argument, nullptr, 'b'},
-	{"list-interfaces", no_argument, nullptr, 'l'},
-	{"help", no_argument, nullptr, 'h'},
-	{"version", no_argument, nullptr, 'v'},
-	{nullptr, no_argument, nullptr, no_argument}
+static struct option IcmpFTOptions[] = {
+	{ "interface",       required_argument, nullptr, 'i'         },
+	{ "dest-ip",         required_argument, nullptr, 'd'         },
+	{ "send-file",       required_argument, nullptr, 's'         },
+	{ "receive-file",    no_argument,       nullptr, 'r'         },
+	{ "speed",           required_argument, nullptr, 'p'         },
+	{ "block-size",      required_argument, nullptr, 'b'         },
+	{ "list-interfaces", no_argument,       nullptr, 'l'         },
+	{ "version",         no_argument,       nullptr, 'v'         },
+	{ "help",            no_argument,       nullptr, 'h'         },
+	{ nullptr,           no_argument,       nullptr, no_argument }
 };
 
+#define EXIT_WITH_ERROR_PRINT_USAGE(reason)                                                                            \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage(thisSide, otherSide);                                                                               \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
-#define EXIT_WITH_ERROR_PRINT_USAGE(reason) do { \
-	printUsage(thisSide, otherSide); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
-
-
-void printUsage(const std::string &thisSide, const std::string &otherSide)
+void printUsage(const std::string& thisSide, const std::string& otherSide)
 {
 	std::string messagesPerSecShort = (thisSide == "pitcher") ? "[-p messages_per_sec] " : "";
-	std::string messagesPerSecLong = (thisSide == "pitcher") ? "    -p messages_per_sec  : Set number of messages to be sent per seconds. Default is max possible speed\n" : "";
+	std::string messagesPerSecLong = (thisSide == "pitcher") ? "    -p messages_per_sec  : Set number of messages to "
+	                                                           "be sent per seconds. Default is max possible speed\n"
+	                                                         : "";
 
 	std::string thisSideInterface = thisSide + "_interface";
 	std::string otherSideIP = otherSide + "_ip";
 
-	std::cout << std::endl
-		<< "Usage:" << std::endl
-		<< "------" << std::endl
-		<< pcpp::AppName::get() << " [-h] [-v] [-l] -i " << thisSideInterface << " -d " << otherSideIP << " -s file_path -r " << messagesPerSecShort << "[-b block_size]" << std::endl
-		<< std::endl
-		<< "Options:" << std::endl
-		<< std::endl
-		<< "    -i " << thisSideInterface << " : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address" << std::endl
-		<< "    -d " << otherSideIP << "        : " << otherSide << " IPv4 address" << std::endl
-		<< "    -s file_path         : Send file mode: send file_path to " << otherSide << std::endl
-		<< "    -r                   : Receive file mode: receive file from " << otherSide << std::endl
-		<< messagesPerSecLong
-		<< "    -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). Default is " << DEFAULT_BLOCK_SIZE << " bytes. Relevant only" << std::endl
-		<< "                           in send file mode (when -s is set)" << std::endl
-		<< "    -l                   : Print the list of interfaces and exit" << std::endl
-		<< "    -v                   : Displays the current version and exists" << std::endl
-		<< "    -h                   : Display this help message and exit" << std::endl
-		<< std::endl;
+	std::cout
+	    << std::endl
+	    << "Usage:" << std::endl
+	    << "------" << std::endl
+	    << pcpp::AppName::get() << " [-h] [-v] [-l] -i " << thisSideInterface << " -d " << otherSideIP
+	    << " -s file_path -r " << messagesPerSecShort << "[-b block_size]" << std::endl
+	    << std::endl
+	    << "Options:" << std::endl
+	    << std::endl
+	    << "    -i " << thisSideInterface
+	    << " : Use the specified interface. Can be interface name (e.g eth0) or interface IPv4 address" << std::endl
+	    << "    -d " << otherSideIP << "        : " << otherSide << " IPv4 address" << std::endl
+	    << "    -s file_path         : Send file mode: send file_path to " << otherSide << std::endl
+	    << "    -r                   : Receive file mode: receive file from " << otherSide << std::endl
+	    << messagesPerSecLong
+	    << "    -b block_size        : Set the size of data chunk sent in each ICMP message (in bytes). Default is "
+	    << DEFAULT_BLOCK_SIZE << " bytes. Relevant only" << std::endl
+	    << "                           in send file mode (when -s is set)" << std::endl
+	    << "    -l                   : Print the list of interfaces and exit" << std::endl
+	    << "    -v                   : Displays the current version and exists" << std::endl
+	    << "    -h                   : Display this help message and exit" << std::endl
+	    << std::endl;
 }
-
 
 /**
  * Print application version
  */
 void printAppVersion()
 {
-	std::cout
-		<< pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
-		<< "Built: " << pcpp::getBuildDateTime() << std::endl
-		<< "Built from: " << pcpp::getGitInfo() << std::endl;
+	std::cout << pcpp::AppName::get() << " " << pcpp::getPcapPlusPlusVersionFull() << std::endl
+	          << "Built: " << pcpp::getBuildDateTime() << std::endl
+	          << "Built from: " << pcpp::getGitInfo() << std::endl;
 	exit(0);
 }
-
 
 /**
  * Go over all interfaces and output their names
@@ -91,20 +92,17 @@ void listInterfaces()
 	const auto& devList = pcpp::PcapLiveDeviceList::getInstance();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (const auto &dev : devList)
+	for (const auto& dev : devList)
 	{
-		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString() << std::endl;
+		std::cout << "    -> Name: '" << dev->getName() << "'   IP address: " << dev->getIPv4Address().toString()
+		          << std::endl;
 	}
 	exit(0);
 }
 
-
-void readCommandLineArguments(int argc, char* argv[],
-		const std::string &thisSide, const std::string &otherSide,
-		bool& sender, bool& receiver,
-		pcpp::IPv4Address& myIP, pcpp::IPv4Address& otherSideIP,
-		std::string& fileNameToSend,
-		int& packetsPerSec, size_t& blockSize)
+void readCommandLineArguments(int argc, char* argv[], const std::string& thisSide, const std::string& otherSide,
+                              bool& sender, bool& receiver, pcpp::IPv4Address& myIP, pcpp::IPv4Address& otherSideIP,
+                              std::string& fileNameToSend, int& packetsPerSec, size_t& blockSize)
 {
 	std::string interfaceNameOrIP;
 	std::string otherSideIPAsString;
@@ -119,48 +117,48 @@ void readCommandLineArguments(int argc, char* argv[],
 	int optionIndex = 0;
 	int opt = 0;
 
-	while((opt = getopt_long(argc, argv, "i:d:s:rp:b:hvl", IcmpFTOptions, &optionIndex)) != -1)
+	while ((opt = getopt_long(argc, argv, "i:d:s:rp:b:hvl", IcmpFTOptions, &optionIndex)) != -1)
 	{
 		switch (opt)
 		{
-			case 0:
-				break;
-			case 'i':
-				interfaceNameOrIP = optarg;
-				break;
-			case 'd':
-				otherSideIPAsString = optarg;
-				break;
-			case 's':
-				fileNameToSend = optarg;
-				sender = true;
-				break;
-			case 'r':
-				receiver = true;
-				break;
-			case 'p':
-				if (thisSide == "catcher")
-					EXIT_WITH_ERROR_PRINT_USAGE("Unknown option -p");
-				packetsPerSec = atoi(optarg);
-				packetsPerSecSet = true;
-				break;
-			case 'b':
-				blockSize = atoi(optarg);
-				blockSizeSet = true;
-				break;
-			case 'h':
-				printUsage(thisSide, otherSide);
-				exit(0);
-				break;
-			case 'v':
-				printAppVersion();
-				break;
-			case 'l':
-				listInterfaces();
-				break;
-			default:
-				printUsage(thisSide, otherSide);
-				exit(-1);
+		case 0:
+			break;
+		case 'i':
+			interfaceNameOrIP = optarg;
+			break;
+		case 'd':
+			otherSideIPAsString = optarg;
+			break;
+		case 's':
+			fileNameToSend = optarg;
+			sender = true;
+			break;
+		case 'r':
+			receiver = true;
+			break;
+		case 'p':
+			if (thisSide == "catcher")
+				EXIT_WITH_ERROR_PRINT_USAGE("Unknown option -p");
+			packetsPerSec = atoi(optarg);
+			packetsPerSecSet = true;
+			break;
+		case 'b':
+			blockSize = atoi(optarg);
+			blockSizeSet = true;
+			break;
+		case 'h':
+			printUsage(thisSide, otherSide);
+			exit(0);
+			break;
+		case 'v':
+			printAppVersion();
+			break;
+		case 'l':
+			listInterfaces();
+			break;
+		default:
+			printUsage(thisSide, otherSide);
+			exit(-1);
 		}
 	}
 
@@ -174,7 +172,7 @@ void readCommandLineArguments(int argc, char* argv[],
 		interfaceIP = pcpp::IPv4Address(interfaceNameOrIP);
 		myIP = interfaceIP;
 	}
-	catch(const std::exception&)
+	catch (const std::exception&)
 	{
 		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
 		if (dev == nullptr)
@@ -192,7 +190,7 @@ void readCommandLineArguments(int argc, char* argv[],
 	{
 		tempIP = pcpp::IPv4Address(otherSideIPAsString);
 	}
-	catch(const std::exception&)
+	catch (const std::exception&)
 	{
 		EXIT_WITH_ERROR_PRINT_USAGE("Invalid " << otherSide << " IP address");
 	}
@@ -211,20 +209,17 @@ void readCommandLineArguments(int argc, char* argv[],
 
 	// validate block size
 	if (blockSize < 1 || blockSize > 1464)
-		EXIT_WITH_ERROR_PRINT_USAGE("Block size must be a positive integer lower or equal to 1464 bytes (which is the maximum size for a standard packet)");
+		EXIT_WITH_ERROR_PRINT_USAGE("Block size must be a positive integer lower or equal to 1464 bytes (which is the "
+		                            "maximum size for a standard packet)");
 
 	// validate packets per sec
 	if (packetsPerSecSet && packetsPerSec < 1)
 		EXIT_WITH_ERROR_PRINT_USAGE("message_per_sec must be a positive value greater or equal to 1");
 }
 
-bool sendIcmpMessage(pcpp::PcapLiveDevice* dev,
-		pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-		pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr,
-		size_t icmpMsgId,
-		uint64_t msgType,
-		uint8_t* data, size_t dataLen,
-		bool sendRequest)
+bool sendIcmpMessage(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
+                     pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
+                     uint8_t* data, size_t dataLen, bool sendRequest)
 {
 	// a static variable that holds an incrementing IP ID
 	static uint16_t ipID = 0x1234;
@@ -262,22 +257,16 @@ bool sendIcmpMessage(pcpp::PcapLiveDevice* dev,
 	return dev->sendPacket(&packet);
 }
 
-bool sendIcmpRequest(pcpp::PcapLiveDevice* dev,
-		pcpp::MacAddress srcMacAddr, const pcpp::MacAddress dstMacAddr,
-		pcpp::IPv4Address srcIPAddr, const pcpp::IPv4Address dstIPAddr,
-		size_t icmpMsgId,
-		uint64_t msgType,
-		uint8_t* data, size_t dataLen)
+bool sendIcmpRequest(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, const pcpp::MacAddress dstMacAddr,
+                     pcpp::IPv4Address srcIPAddr, const pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
+                     uint8_t* data, size_t dataLen)
 {
 	return sendIcmpMessage(dev, srcMacAddr, dstMacAddr, srcIPAddr, dstIPAddr, icmpMsgId, msgType, data, dataLen, true);
 }
 
-bool sendIcmpResponse(pcpp::PcapLiveDevice* dev,
-		pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
-		pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr,
-		size_t icmpMsgId,
-		uint64_t msgType,
-		uint8_t* data, size_t dataLen)
+bool sendIcmpResponse(pcpp::PcapLiveDevice* dev, pcpp::MacAddress srcMacAddr, pcpp::MacAddress dstMacAddr,
+                      pcpp::IPv4Address srcIPAddr, pcpp::IPv4Address dstIPAddr, size_t icmpMsgId, uint64_t msgType,
+                      uint8_t* data, size_t dataLen)
 {
 	return sendIcmpMessage(dev, srcMacAddr, dstMacAddr, srcIPAddr, dstIPAddr, icmpMsgId, msgType, data, dataLen, false);
 }
