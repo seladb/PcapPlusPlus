@@ -346,10 +346,7 @@ namespace pcpp
 
 		// remove the hash entry for this field
 		std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
-		std::pair<std::multimap<std::string, HeaderField*>::iterator,
-		          std::multimap<std::string, HeaderField*>::iterator>
-		    range;
-		range = m_FieldNameToFieldMap.equal_range(fieldName);
+		auto range = m_FieldNameToFieldMap.equal_range(fieldName);
 		for (std::multimap<std::string, HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
 		{
 			if (iter->second == fieldToRemove)
@@ -388,10 +385,7 @@ namespace pcpp
 	{
 		std::transform(fieldName.begin(), fieldName.end(), fieldName.begin(), ::tolower);
 
-		std::pair<std::multimap<std::string, HeaderField*>::const_iterator,
-		          std::multimap<std::string, HeaderField*>::const_iterator>
-		    range;
-		range = m_FieldNameToFieldMap.equal_range(fieldName);
+		auto range = m_FieldNameToFieldMap.equal_range(fieldName);
 		int i = 0;
 		for (std::multimap<std::string, HeaderField*>::const_iterator iter = range.first; iter != range.second; ++iter)
 		{
@@ -517,9 +511,11 @@ namespace pcpp
 				// couldn't find the end of the field, so assuming the field value length is from m_ValueOffsetInMessage
 				// until the end of the packet
 				if (fieldEndPtr == nullptr)
-					m_FieldValueSize =
-					    (char*)(m_TextBasedProtocolMessage->m_Data + m_TextBasedProtocolMessage->getDataLen()) -
-					    fieldValuePtr;
+				{
+					// clang-format off
+					m_FieldValueSize = (char*)(m_TextBasedProtocolMessage->m_Data + m_TextBasedProtocolMessage->getDataLen()) - fieldValuePtr;
+					// clang-format on
+				}
 				else
 				{
 					m_FieldValueSize = fieldEndPtr - fieldValuePtr;
