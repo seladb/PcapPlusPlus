@@ -67,7 +67,7 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIp(const IPAddress& ipAddr) const;
 		/**
-		 * @copydoc PcapLiveDeviceList::getDeviceByIp(IPAddress const&)
+		 * @copydoc getDeviceByIp(IPAddress const&)
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
