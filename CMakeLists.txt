@@ -29,6 +29,16 @@ pcapp_detect_compiler(PCAPPP_TARGET)
 # Get architecture
 target_architecture(PCAPP_TARGET_ARCHITECTURE)
 
+# Use Ccache if available
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  message(STATUS "Ccache found!")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_PROGRAM}")
+else()
+  message(STATUS "Ccache not found!")
+endif()
+
 # LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
 if(UNIX
    AND NOT APPLE
@@ -91,6 +101,7 @@ cmake_dependent_option(
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
+option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -247,6 +258,23 @@ if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall)
+endif()
+
+if(PCAPPP_BUILD_REPRODUCIBLE)
+  add_definitions(-DPCAPPP_BUILD_REPRODUCIBLE)
+  if(APPLE)
+    if(NOT $ENV{ZERO_AR_DATE})
+      message(FATAL_ERROR "You need to set `export ZERO_AR_DATE=1`")
+    endif()
+  elseif(MSVC)
+    message(FATAL_ERROR "Unsupported with MSVC compiler")
+    # Try to build a reproducible static library with MSVC doesn't work but this option should make it work for shared
+    # libraries or executables. add_compile_options(/Brepro) add_compile_options(/experimental:deterministic)
+    # add_link_options(/Brepro) add_link_options(/experimental:deterministic) add_link_options(/INCREMENTAL:NO)
+  else()
+    # We should not use __DATE__ nor __TIME__ in case of reproducible build
+    add_compile_options(-Wdate-time)
+  endif()
 endif()
 
 if(PCAPPP_BUILD_FUZZERS)

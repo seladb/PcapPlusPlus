@@ -1,10 +1,13 @@
 #pragma once
 
+#include <cstddef>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdexcept>
 #include <vector>
 #include <memory>
+
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -120,18 +123,35 @@ namespace pcpp
 		}
 
 		/**
+		 * Adding a nullptr to the vector is not allowed.
+		 */
+		void pushBack(std::nullptr_t element, bool freeElementOnError = true) = delete;
+
+		/**
 		 * Add a new (pointer to an) element to the vector
 		 * @param[in] element A pointer to an element to assume ownership of.
+		 * @param[in] freeElementOnError If set to true, the element is freed if an exception is thrown during the push.
 		 * @throws std::invalid_argument The provided pointer is a nullptr.
 		 */
-		void pushBack(T* element)
+		void pushBack(T* element, bool freeElementOnError = true)
 		{
 			if (element == nullptr)
 			{
 				throw std::invalid_argument("Element is nullptr");
 			}
 
-			m_Vector.push_back(element);
+			try
+			{
+				m_Vector.push_back(element);
+			}
+			catch (const std::exception&)
+			{
+				if (freeElementOnError)
+				{
+					delete element;
+				}
+				throw;
+			}
 		}
 
 		/**
@@ -249,13 +269,13 @@ namespace pcpp
 		 * The iterator is shifted to the following element after the removal is completed.
 		 * @return A pointer to the element which is no longer managed by the vector. It's user responsibility to free
 		 * it
+		 * @deprecated Deprecated in favor of 'getAndDetach' as that function provides memory safety.
 		 */
+		PCPP_DEPRECATED("Please use the memory safe 'getAndDetach' instead.")
 		T* getAndRemoveFromVector(VectorIterator& position)
 		{
-			T* result = (*position);
-			VectorIterator tempPos = position;
-			tempPos = m_Vector.erase(tempPos);
-			position = tempPos;
+			T* result = *position;
+			position = m_Vector.erase(position);
 			return result;
 		}
 
@@ -279,6 +299,18 @@ namespace pcpp
 		{
 			std::unique_ptr<T> result(*position);
 			position = m_Vector.erase(position);
+			return result;
+		}
+
+		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in] position An iterator pointing to the element to detach.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(VectorIterator const& position)
+		{
+			std::unique_ptr<T> result(*position);
+			m_Vector.erase(position);
 			return result;
 		}
 
