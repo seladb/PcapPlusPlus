@@ -205,7 +205,7 @@ PTF_TEST_CASE(TestPfRingDevice)
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
-	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	pcpp::PfRingDevice* dev = devList.getDeviceByName(pcapLiveDev->getName());
 
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_GREATER_THAN(dev->getInterfaceIndex(), 0);
@@ -255,7 +255,7 @@ PTF_TEST_CASE(TestPfRingDeviceSingleChannel)
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
-	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	pcpp::PfRingDevice* dev = devList.getDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 
 	PfRingPacketData packetData;
@@ -296,7 +296,7 @@ PTF_TEST_CASE(TestPfRingDeviceMultiThread)
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
-	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	pcpp::PfRingDevice* dev = devList.getDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 
 	uint8_t numOfChannels = dev->getTotalNumOfRxChannels();
@@ -437,7 +437,7 @@ PTF_TEST_CASE(TestPfRingSendPacket)
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
-	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	pcpp::PfRingDevice* dev = devList.getDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);
@@ -502,7 +502,7 @@ PTF_TEST_CASE(TestPfRingSendPackets)
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
-	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	pcpp::PfRingDevice* dev = devList.getDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 	PTF_ASSERT_TRUE(dev->open());
 	DeviceTeardown devTeardown(dev);
@@ -545,7 +545,7 @@ PTF_TEST_CASE(TestPfRingFilters)
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(pcapLiveDev);
-	pcpp::PfRingDevice* dev = devList.getPfRingDeviceByName(pcapLiveDev->getName());
+	pcpp::PfRingDevice* dev = devList.getDeviceByName(pcapLiveDev->getName());
 	PTF_ASSERT_NOT_NULL(dev);
 
 	PTF_ASSERT_FALSE(dev->isFilterCurrentlySet());

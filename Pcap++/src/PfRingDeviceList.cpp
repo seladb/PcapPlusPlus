@@ -113,7 +113,7 @@ PfRingDeviceList::PfRingDeviceList()
 	std::copy(m_DeviceList.begin(), m_DeviceList.end(), m_PfRingDeviceListView.begin());
 }
 
-PfRingDevice* PfRingDeviceList::getPfRingDeviceByName(const std::string &devName) const
+PfRingDevice* PfRingDeviceList::getDeviceByName(const std::string &devName) const
 {
 	PCPP_LOG_DEBUG("Searching all live devices...");
 	auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),

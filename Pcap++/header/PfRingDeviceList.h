@@ -58,7 +58,13 @@ namespace pcpp
 		 * (e.g eth0, eth1, etc.)
 		 * @return A pointer to the PF_RING device
 		 */
-		PfRingDevice* getPfRingDeviceByName(const std::string &devName) const;
+		PfRingDevice* getDeviceByName(const std::string& devName) const;
+		/**
+		 * @copydoc getDeviceByName(std::string const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
+		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const { return getDeviceByName(devName); };
 
 		/**
 		 * Get installed PF_RING version
