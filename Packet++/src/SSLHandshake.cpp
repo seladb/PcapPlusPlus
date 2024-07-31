@@ -17,690 +17,337 @@ namespace pcpp
 	// SSLCipherSuite
 	// --------------
 
-	static const SSLCipherSuite Cipher1 =
-	    SSLCipherSuite(0x0000, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_NULL, SSL_HASH_NULL, "TLS_NULL_WITH_NULL_NULL");
-	static const SSLCipherSuite Cipher2 =
-	    SSLCipherSuite(0x0001, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_MD5, "TLS_RSA_WITH_NULL_MD5");
-	static const SSLCipherSuite Cipher3 =
-	    SSLCipherSuite(0x0002, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_RSA_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher4 = SSLCipherSuite(0x0003, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_40,
-	                                                     SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC4_40_MD5");
-	static const SSLCipherSuite Cipher5 =
-	    SSLCipherSuite(0x0004, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_RSA_WITH_RC4_128_MD5");
-	static const SSLCipherSuite Cipher6 =
-	    SSLCipherSuite(0x0005, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher7 = SSLCipherSuite(0x0006, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC2_CBC_40,
-	                                                     SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
-	static const SSLCipherSuite Cipher8 =
-	    SSLCipherSuite(0x0007, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_IDEA_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_IDEA_CBC_SHA");
-	static const SSLCipherSuite Cipher9 = SSLCipherSuite(0x0008, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES40_CBC,
-	                                                     SSL_HASH_SHA, "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA");
-	static const SSLCipherSuite Cipher10 =
-	    SSLCipherSuite(0x0009, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher11 = SSLCipherSuite(0x000A, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher12 = SSLCipherSuite(0x000B, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES40_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
-	static const SSLCipherSuite Cipher13 =
-	    SSLCipherSuite(0x000C, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher14 = SSLCipherSuite(0x000D, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher15 = SSLCipherSuite(0x000E, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES40_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
-	static const SSLCipherSuite Cipher16 =
-	    SSLCipherSuite(0x000F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher17 = SSLCipherSuite(0x0010, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher18 = SSLCipherSuite(0x0011, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES40_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
-	static const SSLCipherSuite Cipher19 = SSLCipherSuite(0x0012, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher20 = SSLCipherSuite(0x0013, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher21 = SSLCipherSuite(0x0014, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES40_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
-	static const SSLCipherSuite Cipher22 = SSLCipherSuite(0x0015, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher23 = SSLCipherSuite(0x0016, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher24 = SSLCipherSuite(0x0017, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_40,
-	                                                      SSL_HASH_MD5, "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5");
-	static const SSLCipherSuite Cipher25 = SSLCipherSuite(0x0018, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_128,
-	                                                      SSL_HASH_MD5, "TLS_DH_anon_WITH_RC4_128_MD5");
-	static const SSLCipherSuite Cipher26 = SSLCipherSuite(0x0019, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES40_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
-	static const SSLCipherSuite Cipher27 = SSLCipherSuite(0x001A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher28 = SSLCipherSuite(0x001B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher29 = SSLCipherSuite(0x001E, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_WITH_DES_CBC_SHA");
-	static const SSLCipherSuite Cipher30 = SSLCipherSuite(0x001F, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher31 = SSLCipherSuite(0x0020, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher32 = SSLCipherSuite(0x0021, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_IDEA_CBC,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_WITH_IDEA_CBC_SHA");
-	static const SSLCipherSuite Cipher33 = SSLCipherSuite(0x0022, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_WITH_DES_CBC_MD5");
-	static const SSLCipherSuite Cipher34 = SSLCipherSuite(0x0023, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_WITH_3DES_EDE_CBC_MD5");
-	static const SSLCipherSuite Cipher35 = SSLCipherSuite(0x0024, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_WITH_RC4_128_MD5");
-	static const SSLCipherSuite Cipher36 = SSLCipherSuite(0x0025, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_IDEA_CBC,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_WITH_IDEA_CBC_MD5");
-	static const SSLCipherSuite Cipher37 = SSLCipherSuite(0x0026, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA");
-	static const SSLCipherSuite Cipher38 = SSLCipherSuite(0x0027, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
-	static const SSLCipherSuite Cipher39 = SSLCipherSuite(0x0028, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40,
-	                                                      SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC4_40_SHA");
-	static const SSLCipherSuite Cipher40 = SSLCipherSuite(0x0029, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
-	static const SSLCipherSuite Cipher41 = SSLCipherSuite(0x002A, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
-	static const SSLCipherSuite Cipher42 = SSLCipherSuite(0x002B, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40,
-	                                                      SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC4_40_MD5");
-	static const SSLCipherSuite Cipher43 =
-	    SSLCipherSuite(0x002C, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_PSK_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher44 =
-	    SSLCipherSuite(0x002D, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher45 =
-	    SSLCipherSuite(0x002E, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher46 = SSLCipherSuite(0x002F, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher47 = SSLCipherSuite(0x0030, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher48 = SSLCipherSuite(0x0031, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher49 = SSLCipherSuite(0x0032, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher50 = SSLCipherSuite(0x0033, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher51 = SSLCipherSuite(0x0034, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher52 = SSLCipherSuite(0x0035, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher53 = SSLCipherSuite(0x0036, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher54 = SSLCipherSuite(0x0037, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher55 = SSLCipherSuite(0x0038, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher56 = SSLCipherSuite(0x0039, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher57 = SSLCipherSuite(0x003A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher58 =
-	    SSLCipherSuite(0x003B, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_RSA_WITH_NULL_SHA256");
-	static const SSLCipherSuite Cipher59 = SSLCipherSuite(0x003C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_RSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher60 = SSLCipherSuite(0x003D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_RSA_WITH_AES_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher61 = SSLCipherSuite(0x003E, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DH_DSS_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher62 = SSLCipherSuite(0x003F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DH_RSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher63 = SSLCipherSuite(0x0040, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher64 = SSLCipherSuite(0x0041, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA");
-	static const SSLCipherSuite Cipher65 = SSLCipherSuite(0x0042, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA");
-	static const SSLCipherSuite Cipher66 = SSLCipherSuite(0x0043, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA");
-	static const SSLCipherSuite Cipher67 = SSLCipherSuite(0x0044, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA");
-	static const SSLCipherSuite Cipher68 = SSLCipherSuite(0x0045, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA");
-	static const SSLCipherSuite Cipher69 = SSLCipherSuite(0x0046, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA");
-	static const SSLCipherSuite Cipher70 = SSLCipherSuite(0x0067, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher71 = SSLCipherSuite(0x0068, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher72 = SSLCipherSuite(0x0069, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher73 = SSLCipherSuite(0x006A, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher74 = SSLCipherSuite(0x006B, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher75 = SSLCipherSuite(0x006C, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher76 = SSLCipherSuite(0x006D, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA256, "TLS_DH_anon_WITH_AES_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher77 = SSLCipherSuite(0x0084, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA");
-	static const SSLCipherSuite Cipher78 = SSLCipherSuite(0x0085, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA");
-	static const SSLCipherSuite Cipher79 = SSLCipherSuite(0x0086, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA");
-	static const SSLCipherSuite Cipher80 = SSLCipherSuite(0x0087, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA");
-	static const SSLCipherSuite Cipher81 = SSLCipherSuite(0x0088, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA");
-	static const SSLCipherSuite Cipher82 = SSLCipherSuite(0x0089, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA");
-	static const SSLCipherSuite Cipher83 =
-	    SSLCipherSuite(0x008A, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_PSK_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher84 = SSLCipherSuite(0x008B, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_PSK_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher85 = SSLCipherSuite(0x008C, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_PSK_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher86 = SSLCipherSuite(0x008D, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_PSK_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher87 = SSLCipherSuite(0x008E, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_RC4_128,
-	                                                      SSL_HASH_SHA, "TLS_DHE_PSK_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher88 = SSLCipherSuite(0x008F, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher89 = SSLCipherSuite(0x0090, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher90 = SSLCipherSuite(0x0091, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher91 = SSLCipherSuite(0x0092, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_RC4_128,
-	                                                      SSL_HASH_SHA, "TLS_RSA_PSK_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher92 = SSLCipherSuite(0x0093, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher93 = SSLCipherSuite(0x0094, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher94 = SSLCipherSuite(0x0095, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                      SSL_HASH_SHA, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher95 =
-	    SSLCipherSuite(0x0096, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_SEED_CBC_SHA");
-	static const SSLCipherSuite Cipher96 = SSLCipherSuite(0x0097, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_SEED_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_DSS_WITH_SEED_CBC_SHA");
-	static const SSLCipherSuite Cipher97 = SSLCipherSuite(0x0098, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_SEED_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DH_RSA_WITH_SEED_CBC_SHA");
-	static const SSLCipherSuite Cipher98 = SSLCipherSuite(0x0099, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_SEED_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_DSS_WITH_SEED_CBC_SHA");
-	static const SSLCipherSuite Cipher99 = SSLCipherSuite(0x009A, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_SEED_CBC,
-	                                                      SSL_HASH_SHA, "TLS_DHE_RSA_WITH_SEED_CBC_SHA");
-	static const SSLCipherSuite Cipher100 = SSLCipherSuite(0x009B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_SEED_CBC,
-	                                                       SSL_HASH_SHA, "TLS_DH_anon_WITH_SEED_CBC_SHA");
-	static const SSLCipherSuite Cipher101 = SSLCipherSuite(0x009C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher102 = SSLCipherSuite(0x009D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher103 = SSLCipherSuite(0x009E, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher104 = SSLCipherSuite(0x009F, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher105 = SSLCipherSuite(0x00A0, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_RSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher106 = SSLCipherSuite(0x00A1, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_RSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher107 = SSLCipherSuite(0x00A2, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher108 = SSLCipherSuite(0x00A3, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher109 = SSLCipherSuite(0x00A4, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_DSS_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher110 = SSLCipherSuite(0x00A5, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_DSS_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher111 = SSLCipherSuite(0x00A6, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_anon_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher112 = SSLCipherSuite(0x00A7, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_anon_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher113 = SSLCipherSuite(0x00A8, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_PSK_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher114 = SSLCipherSuite(0x00A9, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_PSK_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher115 = SSLCipherSuite(0x00AA, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher116 = SSLCipherSuite(0x00AB, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher117 = SSLCipherSuite(0x00AC, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher118 = SSLCipherSuite(0x00AD, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher119 = SSLCipherSuite(0x00AE, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_PSK_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher120 = SSLCipherSuite(0x00AF, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_PSK_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher121 =
-	    SSLCipherSuite(0x00B0, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_PSK_WITH_NULL_SHA256");
-	static const SSLCipherSuite Cipher122 =
-	    SSLCipherSuite(0x00B1, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA384, "TLS_PSK_WITH_NULL_SHA384");
-	static const SSLCipherSuite Cipher123 = SSLCipherSuite(0x00B2, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher124 = SSLCipherSuite(0x00B3, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher125 = SSLCipherSuite(0x00B4, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_NULL_SHA256");
-	static const SSLCipherSuite Cipher126 = SSLCipherSuite(0x00B5, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_NULL_SHA384");
-	static const SSLCipherSuite Cipher127 = SSLCipherSuite(0x00B6, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher128 = SSLCipherSuite(0x00B7, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher129 = SSLCipherSuite(0x00B8, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_NULL_SHA256");
-	static const SSLCipherSuite Cipher130 = SSLCipherSuite(0x00B9, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_NULL_SHA384");
-	static const SSLCipherSuite Cipher131 = SSLCipherSuite(0x00BA, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher132 = SSLCipherSuite(0x00BB, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher133 = SSLCipherSuite(0x00BC, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher134 = SSLCipherSuite(0x00BD, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher135 = SSLCipherSuite(0x00BE, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher136 = SSLCipherSuite(0x00BF, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher137 = SSLCipherSuite(0x00C0, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher138 = SSLCipherSuite(0x00C1, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher139 = SSLCipherSuite(0x00C2, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher140 = SSLCipherSuite(0x00C3, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher141 = SSLCipherSuite(0x00C4, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher142 = SSLCipherSuite(0x00C5, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256");
-	static const SSLCipherSuite Cipher143 = SSLCipherSuite(0xC001, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher144 = SSLCipherSuite(0xC002, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_RC4_128,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher145 = SSLCipherSuite(0xC003, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher146 = SSLCipherSuite(0xC004, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher147 = SSLCipherSuite(0xC005, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher148 = SSLCipherSuite(0xC006, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher149 = SSLCipherSuite(0xC007, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_RC4_128,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher150 = SSLCipherSuite(0xC008, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher151 = SSLCipherSuite(0xC009, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher152 = SSLCipherSuite(0xC00A, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher153 =
-	    SSLCipherSuite(0xC00B, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher154 = SSLCipherSuite(0xC00C, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_RC4_128,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher155 = SSLCipherSuite(0xC00D, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher156 = SSLCipherSuite(0xC00E, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher157 = SSLCipherSuite(0xC00F, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher158 =
-	    SSLCipherSuite(0xC010, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher159 = SSLCipherSuite(0xC011, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_RC4_128,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher160 = SSLCipherSuite(0xC012, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher161 = SSLCipherSuite(0xC013, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher162 = SSLCipherSuite(0xC014, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher163 =
-	    SSLCipherSuite(0xC015, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher164 = SSLCipherSuite(0xC016, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_RC4_128,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_anon_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher165 = SSLCipherSuite(0xC017, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher166 = SSLCipherSuite(0xC018, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher167 = SSLCipherSuite(0xC019, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher168 = SSLCipherSuite(0xC01A, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher169 = SSLCipherSuite(0xC01B, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher170 = SSLCipherSuite(0xC01C, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher171 = SSLCipherSuite(0xC01D, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher172 = SSLCipherSuite(0xC01E, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher173 = SSLCipherSuite(0xC01F, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher174 = SSLCipherSuite(0xC020, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher175 = SSLCipherSuite(0xC021, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher176 = SSLCipherSuite(0xC022, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher177 = SSLCipherSuite(0xC023, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher178 = SSLCipherSuite(0xC024, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher179 = SSLCipherSuite(0xC025, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher180 = SSLCipherSuite(0xC026, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher181 = SSLCipherSuite(0xC027, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher182 = SSLCipherSuite(0xC028, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher183 = SSLCipherSuite(0xC029, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher184 = SSLCipherSuite(0xC02A, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher185 = SSLCipherSuite(0xC02B, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher186 = SSLCipherSuite(0xC02C, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher187 = SSLCipherSuite(0xC02D, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher188 = SSLCipherSuite(0xC02E, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher189 = SSLCipherSuite(0xC02F, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher190 = SSLCipherSuite(0xC030, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher191 = SSLCipherSuite(0xC031, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher192 = SSLCipherSuite(0xC032, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher193 = SSLCipherSuite(0xC033, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_RC4_128,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_RC4_128_SHA");
-	static const SSLCipherSuite Cipher194 = SSLCipherSuite(0xC034, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA");
-	static const SSLCipherSuite Cipher195 = SSLCipherSuite(0xC035, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA");
-	static const SSLCipherSuite Cipher196 = SSLCipherSuite(0xC036, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA");
-	static const SSLCipherSuite Cipher197 = SSLCipherSuite(0xC037, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher198 = SSLCipherSuite(0xC038, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher199 =
-	    SSLCipherSuite(0xC039, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_NULL_SHA");
-	static const SSLCipherSuite Cipher200 = SSLCipherSuite(0xC03A, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_NULL_SHA256");
-	static const SSLCipherSuite Cipher201 = SSLCipherSuite(0xC03B, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_NULL,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_NULL_SHA384");
-	static const SSLCipherSuite Cipher202 = SSLCipherSuite(0xC03C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher203 = SSLCipherSuite(0xC03D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher204 = SSLCipherSuite(0xC03E, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_DSS_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher205 = SSLCipherSuite(0xC03F, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DH_DSS_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher206 = SSLCipherSuite(0xC040, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_RSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher207 = SSLCipherSuite(0xC041, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DH_RSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher208 = SSLCipherSuite(0xC042, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher209 = SSLCipherSuite(0xC043, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher210 = SSLCipherSuite(0xC044, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher211 = SSLCipherSuite(0xC045, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher212 = SSLCipherSuite(0xC046, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DH_anon_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher213 = SSLCipherSuite(0xC047, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DH_anon_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher214 = SSLCipherSuite(0xC048, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher215 = SSLCipherSuite(0xC049, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher216 = SSLCipherSuite(0xC04A, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher217 = SSLCipherSuite(0xC04B, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher218 = SSLCipherSuite(0xC04C, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher219 = SSLCipherSuite(0xC04D, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher220 = SSLCipherSuite(0xC04E, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher221 = SSLCipherSuite(0xC04F, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher222 = SSLCipherSuite(0xC050, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher223 = SSLCipherSuite(0xC051, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher224 = SSLCipherSuite(0xC052, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher225 = SSLCipherSuite(0xC053, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher226 = SSLCipherSuite(0xC054, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_RSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher227 = SSLCipherSuite(0xC055, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_RSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher228 = SSLCipherSuite(0xC056, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher229 = SSLCipherSuite(0xC057, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher230 = SSLCipherSuite(0xC058, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_DSS_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher231 = SSLCipherSuite(0xC059, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_DSS_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher232 = SSLCipherSuite(0xC05A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_anon_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher233 = SSLCipherSuite(0xC05B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_anon_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher234 = SSLCipherSuite(0xC05C, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher235 = SSLCipherSuite(0xC05D, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher236 = SSLCipherSuite(0xC05E, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher237 = SSLCipherSuite(0xC05F, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher238 = SSLCipherSuite(0xC060, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher239 = SSLCipherSuite(0xC061, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher240 = SSLCipherSuite(0xC062, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher241 = SSLCipherSuite(0xC063, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher242 = SSLCipherSuite(0xC064, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_PSK_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher243 = SSLCipherSuite(0xC065, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_PSK_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher244 = SSLCipherSuite(0xC066, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher245 = SSLCipherSuite(0xC067, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher246 = SSLCipherSuite(0xC068, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher247 = SSLCipherSuite(0xC069, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher248 = SSLCipherSuite(0xC06A, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_PSK_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher249 = SSLCipherSuite(0xC06B, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_PSK_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher250 = SSLCipherSuite(0xC06C, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher251 = SSLCipherSuite(0xC06D, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher252 = SSLCipherSuite(0xC06E, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_ARIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher253 = SSLCipherSuite(0xC06F, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher254 = SSLCipherSuite(0xC070, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher255 = SSLCipherSuite(0xC071, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher256 =
-	    SSLCipherSuite(0xC072, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher257 =
-	    SSLCipherSuite(0xC073, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384,
-	                   "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher258 =
-	    SSLCipherSuite(0xC074, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256,
-	                   "TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher259 =
-	    SSLCipherSuite(0xC075, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384,
-	                   "TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher260 =
-	    SSLCipherSuite(0xC076, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher261 =
-	    SSLCipherSuite(0xC077, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384,
-	                   "TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher262 =
-	    SSLCipherSuite(0xC078, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256,
-	                   "TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher263 =
-	    SSLCipherSuite(0xC079, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384,
-	                   "TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher264 = SSLCipherSuite(0xC07A, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher265 = SSLCipherSuite(0xC07B, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher266 = SSLCipherSuite(0xC07C, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher267 = SSLCipherSuite(0xC07D, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher268 = SSLCipherSuite(0xC07E, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_RSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher269 = SSLCipherSuite(0xC07F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_RSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher270 = SSLCipherSuite(0xC080, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher271 = SSLCipherSuite(0xC081, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher272 = SSLCipherSuite(0xC082, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_DSS_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher273 = SSLCipherSuite(0xC083, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_DSS_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher274 = SSLCipherSuite(0xC084, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher275 = SSLCipherSuite(0xC085, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher276 =
-	    SSLCipherSuite(0xC086, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher277 =
-	    SSLCipherSuite(0xC087, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384,
-	                   "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher278 =
-	    SSLCipherSuite(0xC088, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256,
-	                   "TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher279 =
-	    SSLCipherSuite(0xC089, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384,
-	                   "TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher280 =
-	    SSLCipherSuite(0xC08A, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher281 =
-	    SSLCipherSuite(0xC08B, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384,
-	                   "TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher282 =
-	    SSLCipherSuite(0xC08C, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256,
-	                   "TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher283 =
-	    SSLCipherSuite(0xC08D, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384,
-	                   "TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher284 = SSLCipherSuite(0xC08E, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher285 = SSLCipherSuite(0xC08F, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher286 = SSLCipherSuite(0xC090, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher287 = SSLCipherSuite(0xC091, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher288 = SSLCipherSuite(0xC092, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher289 = SSLCipherSuite(0xC093, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher290 = SSLCipherSuite(0xC094, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher291 = SSLCipherSuite(0xC095, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher292 = SSLCipherSuite(0xC096, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher293 = SSLCipherSuite(0xC097, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher294 = SSLCipherSuite(0xC098, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC,
-	                                                       SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher295 = SSLCipherSuite(0xC099, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC,
-	                                                       SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher296 =
-	    SSLCipherSuite(0xC09A, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256");
-	static const SSLCipherSuite Cipher297 =
-	    SSLCipherSuite(0xC09B, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384,
-	                   "TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384");
-	static const SSLCipherSuite Cipher298 =
-	    SSLCipherSuite(0xC09C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_RSA_WITH_AES_128_CCM");
-	static const SSLCipherSuite Cipher299 =
-	    SSLCipherSuite(0xC09D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_RSA_WITH_AES_256_CCM");
-	static const SSLCipherSuite Cipher300 = SSLCipherSuite(0xC09E, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM, "TLS_DHE_RSA_WITH_AES_128_CCM");
-	static const SSLCipherSuite Cipher301 = SSLCipherSuite(0xC09F, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM, "TLS_DHE_RSA_WITH_AES_256_CCM");
-	static const SSLCipherSuite Cipher302 = SSLCipherSuite(0xC0A0, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM_8, "TLS_RSA_WITH_AES_128_CCM_8");
-	static const SSLCipherSuite Cipher303 = SSLCipherSuite(0xC0A1, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM_8, "TLS_RSA_WITH_AES_256_CCM_8");
-	static const SSLCipherSuite Cipher304 = SSLCipherSuite(0xC0A2, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM_8, "TLS_DHE_RSA_WITH_AES_128_CCM_8");
-	static const SSLCipherSuite Cipher305 = SSLCipherSuite(0xC0A3, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM_8, "TLS_DHE_RSA_WITH_AES_256_CCM_8");
-	static const SSLCipherSuite Cipher306 =
-	    SSLCipherSuite(0xC0A4, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_PSK_WITH_AES_128_CCM");
-	static const SSLCipherSuite Cipher307 =
-	    SSLCipherSuite(0xC0A5, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_PSK_WITH_AES_256_CCM");
-	static const SSLCipherSuite Cipher308 = SSLCipherSuite(0xC0A6, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM, "TLS_DHE_PSK_WITH_AES_128_CCM");
-	static const SSLCipherSuite Cipher309 = SSLCipherSuite(0xC0A7, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM, "TLS_DHE_PSK_WITH_AES_256_CCM");
-	static const SSLCipherSuite Cipher310 = SSLCipherSuite(0xC0A8, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM_8, "TLS_PSK_WITH_AES_128_CCM_8");
-	static const SSLCipherSuite Cipher311 = SSLCipherSuite(0xC0A9, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM_8, "TLS_PSK_WITH_AES_256_CCM_8");
-	static const SSLCipherSuite Cipher312 = SSLCipherSuite(0xC0AA, SSL_KEYX_PSK, SSL_AUTH_DHE, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM_8, "TLS_PSK_DHE_WITH_AES_128_CCM_8");
-	static const SSLCipherSuite Cipher313 = SSLCipherSuite(0xC0AB, SSL_KEYX_PSK, SSL_AUTH_DHE, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM_8, "TLS_PSK_DHE_WITH_AES_256_CCM_8");
-	static const SSLCipherSuite Cipher314 = SSLCipherSuite(0xC0AC, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM");
-	static const SSLCipherSuite Cipher315 = SSLCipherSuite(0xC0AD, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM");
-	static const SSLCipherSuite Cipher316 = SSLCipherSuite(0xC0AE, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128,
-	                                                       SSL_HASH_CCM_8, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8");
-	static const SSLCipherSuite Cipher317 = SSLCipherSuite(0xC0AF, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256,
-	                                                       SSL_HASH_CCM_8, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8");
-	static const SSLCipherSuite Cipher318 =
-	    SSLCipherSuite(0xCCA8, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher319 =
-	    SSLCipherSuite(0xCCA9, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher320 =
-	    SSLCipherSuite(0xCCAA, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher321 =
-	    SSLCipherSuite(0xCCAB, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher322 =
-	    SSLCipherSuite(0xCCAC, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher323 =
-	    SSLCipherSuite(0xCCAD, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher324 =
-	    SSLCipherSuite(0xCCAE, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher325 = SSLCipherSuite(0x1301, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_GCM,
-	                                                       SSL_HASH_SHA256, "TLS_AES_128_GCM_SHA256");
-	static const SSLCipherSuite Cipher326 = SSLCipherSuite(0x1302, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_256_GCM,
-	                                                       SSL_HASH_SHA384, "TLS_AES_256_GCM_SHA384");
-	static const SSLCipherSuite Cipher327 =
-	    SSLCipherSuite(0x1303, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256,
-	                   "TLS_CHACHA20_POLY1305_SHA256");
-	static const SSLCipherSuite Cipher328 = SSLCipherSuite(0x1304, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM,
-	                                                       SSL_HASH_SHA256, "TLS_AES_128_CCM_SHA256");
-	static const SSLCipherSuite Cipher329 = SSLCipherSuite(0x1305, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM_8,
-	                                                       SSL_HASH_SHA256, "TLS_AES_128_CCM_8_SHA256");
+	// clang-format off
+	static const SSLCipherSuite Cipher1 = SSLCipherSuite(0x0000, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_NULL, SSL_HASH_NULL, "TLS_NULL_WITH_NULL_NULL");
+	static const SSLCipherSuite Cipher2 = SSLCipherSuite(0x0001, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_MD5, "TLS_RSA_WITH_NULL_MD5");
+	static const SSLCipherSuite Cipher3 = SSLCipherSuite(0x0002, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_RSA_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher4 = SSLCipherSuite(0x0003, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC4_40_MD5");
+	static const SSLCipherSuite Cipher5 = SSLCipherSuite(0x0004, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_RSA_WITH_RC4_128_MD5");
+	static const SSLCipherSuite Cipher6 = SSLCipherSuite(0x0005, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher7 = SSLCipherSuite(0x0006, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_RC2_CBC_40, SSL_HASH_MD5, "TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5");
+	static const SSLCipherSuite Cipher8 = SSLCipherSuite(0x0007, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_IDEA_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_IDEA_CBC_SHA");
+	static const SSLCipherSuite Cipher9 = SSLCipherSuite(0x0008, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_RSA_EXPORT_WITH_DES40_CBC_SHA");
+	static const SSLCipherSuite Cipher10 = SSLCipherSuite(0x0009, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher11 = SSLCipherSuite(0x000A, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher12 = SSLCipherSuite(0x000B, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA");
+	static const SSLCipherSuite Cipher13 = SSLCipherSuite(0x000C, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher14 = SSLCipherSuite(0x000D, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher15 = SSLCipherSuite(0x000E, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA");
+	static const SSLCipherSuite Cipher16 = SSLCipherSuite(0x000F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher17 = SSLCipherSuite(0x0010, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher18 = SSLCipherSuite(0x0011, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA");
+	static const SSLCipherSuite Cipher19 = SSLCipherSuite(0x0012, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher20 = SSLCipherSuite(0x0013, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher21 = SSLCipherSuite(0x0014, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA");
+	static const SSLCipherSuite Cipher22 = SSLCipherSuite(0x0015, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher23 = SSLCipherSuite(0x0016, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher24 = SSLCipherSuite(0x0017, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_DH_anon_EXPORT_WITH_RC4_40_MD5");
+	static const SSLCipherSuite Cipher25 = SSLCipherSuite(0x0018, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_DH_anon_WITH_RC4_128_MD5");
+	static const SSLCipherSuite Cipher26 = SSLCipherSuite(0x0019, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES40_CBC, SSL_HASH_SHA, "TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA");
+	static const SSLCipherSuite Cipher27 = SSLCipherSuite(0x001A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher28 = SSLCipherSuite(0x001B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher29 = SSLCipherSuite(0x001E, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_DES_CBC_SHA");
+	static const SSLCipherSuite Cipher30 = SSLCipherSuite(0x001F, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher31 = SSLCipherSuite(0x0020, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_KRB5_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher32 = SSLCipherSuite(0x0021, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_IDEA_CBC, SSL_HASH_SHA, "TLS_KRB5_WITH_IDEA_CBC_SHA");
+	static const SSLCipherSuite Cipher33 = SSLCipherSuite(0x0022, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_DES_CBC_MD5");
+	static const SSLCipherSuite Cipher34 = SSLCipherSuite(0x0023, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_3DES_EDE_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_3DES_EDE_CBC_MD5");
+	static const SSLCipherSuite Cipher35 = SSLCipherSuite(0x0024, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_128, SSL_HASH_MD5, "TLS_KRB5_WITH_RC4_128_MD5");
+	static const SSLCipherSuite Cipher36 = SSLCipherSuite(0x0025, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_IDEA_CBC, SSL_HASH_MD5, "TLS_KRB5_WITH_IDEA_CBC_MD5");
+	static const SSLCipherSuite Cipher37 = SSLCipherSuite(0x0026, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA");
+	static const SSLCipherSuite Cipher38 = SSLCipherSuite(0x0027, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA");
+	static const SSLCipherSuite Cipher39 = SSLCipherSuite(0x0028, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40, SSL_HASH_SHA, "TLS_KRB5_EXPORT_WITH_RC4_40_SHA");
+	static const SSLCipherSuite Cipher40 = SSLCipherSuite(0x0029, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_DES_CBC_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5");
+	static const SSLCipherSuite Cipher41 = SSLCipherSuite(0x002A, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC2_CBC_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5");
+	static const SSLCipherSuite Cipher42 = SSLCipherSuite(0x002B, SSL_KEYX_KRB5, SSL_AUTH_KRB5, SSL_SYM_RC4_40, SSL_HASH_MD5, "TLS_KRB5_EXPORT_WITH_RC4_40_MD5");
+	static const SSLCipherSuite Cipher43 = SSLCipherSuite(0x002C, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_PSK_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher44 = SSLCipherSuite(0x002D, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher45 = SSLCipherSuite(0x002E, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher46 = SSLCipherSuite(0x002F, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher47 = SSLCipherSuite(0x0030, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher48 = SSLCipherSuite(0x0031, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher49 = SSLCipherSuite(0x0032, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher50 = SSLCipherSuite(0x0033, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher51 = SSLCipherSuite(0x0034, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher52 = SSLCipherSuite(0x0035, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher53 = SSLCipherSuite(0x0036, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher54 = SSLCipherSuite(0x0037, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher55 = SSLCipherSuite(0x0038, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher56 = SSLCipherSuite(0x0039, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher57 = SSLCipherSuite(0x003A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher58 = SSLCipherSuite(0x003B, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_RSA_WITH_NULL_SHA256");
+	static const SSLCipherSuite Cipher59 = SSLCipherSuite(0x003C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_RSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher60 = SSLCipherSuite(0x003D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA256, "TLS_RSA_WITH_AES_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher61 = SSLCipherSuite(0x003E, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher62 = SSLCipherSuite(0x003F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher63 = SSLCipherSuite(0x0040, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher64 = SSLCipherSuite(0x0041, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA");
+	static const SSLCipherSuite Cipher65 = SSLCipherSuite(0x0042, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA");
+	static const SSLCipherSuite Cipher66 = SSLCipherSuite(0x0043, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA");
+	static const SSLCipherSuite Cipher67 = SSLCipherSuite(0x0044, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA");
+	static const SSLCipherSuite Cipher68 = SSLCipherSuite(0x0045, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA");
+	static const SSLCipherSuite Cipher69 = SSLCipherSuite(0x0046, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA");
+	static const SSLCipherSuite Cipher70 = SSLCipherSuite(0x0067, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher71 = SSLCipherSuite(0x0068, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_AES_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher72 = SSLCipherSuite(0x0069, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_AES_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher73 = SSLCipherSuite(0x006A, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher74 = SSLCipherSuite(0x006B, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher75 = SSLCipherSuite(0x006C, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_DH_anon_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher76 = SSLCipherSuite(0x006D, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC, SSL_HASH_SHA256, "TLS_DH_anon_WITH_AES_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher77 = SSLCipherSuite(0x0084, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA");
+	static const SSLCipherSuite Cipher78 = SSLCipherSuite(0x0085, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA");
+	static const SSLCipherSuite Cipher79 = SSLCipherSuite(0x0086, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA");
+	static const SSLCipherSuite Cipher80 = SSLCipherSuite(0x0087, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA");
+	static const SSLCipherSuite Cipher81 = SSLCipherSuite(0x0088, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA");
+	static const SSLCipherSuite Cipher82 = SSLCipherSuite(0x0089, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA");
+	static const SSLCipherSuite Cipher83 = SSLCipherSuite(0x008A, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_PSK_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher84 = SSLCipherSuite(0x008B, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher85 = SSLCipherSuite(0x008C, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher86 = SSLCipherSuite(0x008D, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_PSK_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher87 = SSLCipherSuite(0x008E, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher88 = SSLCipherSuite(0x008F, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher89 = SSLCipherSuite(0x0090, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher90 = SSLCipherSuite(0x0091, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher91 = SSLCipherSuite(0x0092, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher92 = SSLCipherSuite(0x0093, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher93 = SSLCipherSuite(0x0094, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher94 = SSLCipherSuite(0x0095, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher95 = SSLCipherSuite(0x0096, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_RSA_WITH_SEED_CBC_SHA");
+	static const SSLCipherSuite Cipher96 = SSLCipherSuite(0x0097, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_DH_DSS_WITH_SEED_CBC_SHA");
+	static const SSLCipherSuite Cipher97 = SSLCipherSuite(0x0098, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_DH_RSA_WITH_SEED_CBC_SHA");
+	static const SSLCipherSuite Cipher98 = SSLCipherSuite(0x0099, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_DHE_DSS_WITH_SEED_CBC_SHA");
+	static const SSLCipherSuite Cipher99 = SSLCipherSuite(0x009A, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_DHE_RSA_WITH_SEED_CBC_SHA");
+	static const SSLCipherSuite Cipher100 = SSLCipherSuite(0x009B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_SEED_CBC, SSL_HASH_SHA, "TLS_DH_anon_WITH_SEED_CBC_SHA");
+	static const SSLCipherSuite Cipher101 = SSLCipherSuite(0x009C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_RSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher102 = SSLCipherSuite(0x009D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_RSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher103 = SSLCipherSuite(0x009E, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher104 = SSLCipherSuite(0x009F, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher105 = SSLCipherSuite(0x00A0, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher106 = SSLCipherSuite(0x00A1, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_DH_RSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher107 = SSLCipherSuite(0x00A2, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher108 = SSLCipherSuite(0x00A3, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher109 = SSLCipherSuite(0x00A4, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher110 = SSLCipherSuite(0x00A5, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_DH_DSS_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher111 = SSLCipherSuite(0x00A6, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_DH_anon_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher112 = SSLCipherSuite(0x00A7, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_DH_anon_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher113 = SSLCipherSuite(0x00A8, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_PSK_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher114 = SSLCipherSuite(0x00A9, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_PSK_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher115 = SSLCipherSuite(0x00AA, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher116 = SSLCipherSuite(0x00AB, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher117 = SSLCipherSuite(0x00AC, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher118 = SSLCipherSuite(0x00AD, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher119 = SSLCipherSuite(0x00AE, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_PSK_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher120 = SSLCipherSuite(0x00AF, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_PSK_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher121 = SSLCipherSuite(0x00B0, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_PSK_WITH_NULL_SHA256");
+	static const SSLCipherSuite Cipher122 = SSLCipherSuite(0x00B1, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA384, "TLS_PSK_WITH_NULL_SHA384");
+	static const SSLCipherSuite Cipher123 = SSLCipherSuite(0x00B2, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher124 = SSLCipherSuite(0x00B3, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher125 = SSLCipherSuite(0x00B4, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_NULL_SHA256");
+	static const SSLCipherSuite Cipher126 = SSLCipherSuite(0x00B5, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_NULL_SHA384");
+	static const SSLCipherSuite Cipher127 = SSLCipherSuite(0x00B6, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher128 = SSLCipherSuite(0x00B7, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher129 = SSLCipherSuite(0x00B8, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_NULL_SHA256");
+	static const SSLCipherSuite Cipher130 = SSLCipherSuite(0x00B9, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_NULL_SHA384");
+	static const SSLCipherSuite Cipher131 = SSLCipherSuite(0x00BA, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher132 = SSLCipherSuite(0x00BB, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher133 = SSLCipherSuite(0x00BC, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher134 = SSLCipherSuite(0x00BD, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher135 = SSLCipherSuite(0x00BE, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher136 = SSLCipherSuite(0x00BF, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher137 = SSLCipherSuite(0x00C0, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher138 = SSLCipherSuite(0x00C1, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_CAMELLIA_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher139 = SSLCipherSuite(0x00C2, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_CAMELLIA_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher140 = SSLCipherSuite(0x00C3, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher141 = SSLCipherSuite(0x00C4, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher142 = SSLCipherSuite(0x00C5, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256");
+	static const SSLCipherSuite Cipher143 = SSLCipherSuite(0xC001, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher144 = SSLCipherSuite(0xC002, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher145 = SSLCipherSuite(0xC003, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher146 = SSLCipherSuite(0xC004, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher147 = SSLCipherSuite(0xC005, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher148 = SSLCipherSuite(0xC006, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher149 = SSLCipherSuite(0xC007, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher150 = SSLCipherSuite(0xC008, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher151 = SSLCipherSuite(0xC009, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher152 = SSLCipherSuite(0xC00A, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher153 = SSLCipherSuite(0xC00B, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher154 = SSLCipherSuite(0xC00C, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher155 = SSLCipherSuite(0xC00D, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher156 = SSLCipherSuite(0xC00E, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher157 = SSLCipherSuite(0xC00F, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher158 = SSLCipherSuite(0xC010, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher159 = SSLCipherSuite(0xC011, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher160 = SSLCipherSuite(0xC012, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher161 = SSLCipherSuite(0xC013, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher162 = SSLCipherSuite(0xC014, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher163 = SSLCipherSuite(0xC015, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher164 = SSLCipherSuite(0xC016, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher165 = SSLCipherSuite(0xC017, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher166 = SSLCipherSuite(0xC018, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher167 = SSLCipherSuite(0xC019, SSL_KEYX_ECDH, SSL_AUTH_anon, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDH_anon_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher168 = SSLCipherSuite(0xC01A, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher169 = SSLCipherSuite(0xC01B, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher170 = SSLCipherSuite(0xC01C, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher171 = SSLCipherSuite(0xC01D, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher172 = SSLCipherSuite(0xC01E, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher173 = SSLCipherSuite(0xC01F, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher174 = SSLCipherSuite(0xC020, SSL_KEYX_SRP, SSL_AUTH_SHA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher175 = SSLCipherSuite(0xC021, SSL_KEYX_SRP, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher176 = SSLCipherSuite(0xC022, SSL_KEYX_SRP, SSL_AUTH_DSS, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher177 = SSLCipherSuite(0xC023, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher178 = SSLCipherSuite(0xC024, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher179 = SSLCipherSuite(0xC025, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher180 = SSLCipherSuite(0xC026, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher181 = SSLCipherSuite(0xC027, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher182 = SSLCipherSuite(0xC028, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher183 = SSLCipherSuite(0xC029, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher184 = SSLCipherSuite(0xC02A, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher185 = SSLCipherSuite(0xC02B, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher186 = SSLCipherSuite(0xC02C, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher187 = SSLCipherSuite(0xC02D, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher188 = SSLCipherSuite(0xC02E, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher189 = SSLCipherSuite(0xC02F, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher190 = SSLCipherSuite(0xC030, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher191 = SSLCipherSuite(0xC031, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher192 = SSLCipherSuite(0xC032, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher193 = SSLCipherSuite(0xC033, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_RC4_128, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_RC4_128_SHA");
+	static const SSLCipherSuite Cipher194 = SSLCipherSuite(0xC034, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_3DES_EDE_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA");
+	static const SSLCipherSuite Cipher195 = SSLCipherSuite(0xC035, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA");
+	static const SSLCipherSuite Cipher196 = SSLCipherSuite(0xC036, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA");
+	static const SSLCipherSuite Cipher197 = SSLCipherSuite(0xC037, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_AES_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher198 = SSLCipherSuite(0xC038, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_AES_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher199 = SSLCipherSuite(0xC039, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA, "TLS_ECDHE_PSK_WITH_NULL_SHA");
+	static const SSLCipherSuite Cipher200 = SSLCipherSuite(0xC03A, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_NULL_SHA256");
+	static const SSLCipherSuite Cipher201 = SSLCipherSuite(0xC03B, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_NULL, SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_NULL_SHA384");
+	static const SSLCipherSuite Cipher202 = SSLCipherSuite(0xC03C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_RSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher203 = SSLCipherSuite(0xC03D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_RSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher204 = SSLCipherSuite(0xC03E, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher205 = SSLCipherSuite(0xC03F, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_DH_DSS_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher206 = SSLCipherSuite(0xC040, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher207 = SSLCipherSuite(0xC041, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_DH_RSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher208 = SSLCipherSuite(0xC042, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher209 = SSLCipherSuite(0xC043, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher210 = SSLCipherSuite(0xC044, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher211 = SSLCipherSuite(0xC045, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher212 = SSLCipherSuite(0xC046, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_DH_anon_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher213 = SSLCipherSuite(0xC047, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_DH_anon_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher214 = SSLCipherSuite(0xC048, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher215 = SSLCipherSuite(0xC049, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher216 = SSLCipherSuite(0xC04A, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher217 = SSLCipherSuite(0xC04B, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher218 = SSLCipherSuite(0xC04C, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher219 = SSLCipherSuite(0xC04D, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher220 = SSLCipherSuite(0xC04E, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher221 = SSLCipherSuite(0xC04F, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher222 = SSLCipherSuite(0xC050, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_RSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher223 = SSLCipherSuite(0xC051, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_RSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher224 = SSLCipherSuite(0xC052, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher225 = SSLCipherSuite(0xC053, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher226 = SSLCipherSuite(0xC054, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher227 = SSLCipherSuite(0xC055, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_DH_RSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher228 = SSLCipherSuite(0xC056, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher229 = SSLCipherSuite(0xC057, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher230 = SSLCipherSuite(0xC058, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher231 = SSLCipherSuite(0xC059, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_DH_DSS_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher232 = SSLCipherSuite(0xC05A, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_DH_anon_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher233 = SSLCipherSuite(0xC05B, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_DH_anon_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher234 = SSLCipherSuite(0xC05C, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher235 = SSLCipherSuite(0xC05D, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher236 = SSLCipherSuite(0xC05E, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher237 = SSLCipherSuite(0xC05F, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher238 = SSLCipherSuite(0xC060, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher239 = SSLCipherSuite(0xC061, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher240 = SSLCipherSuite(0xC062, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher241 = SSLCipherSuite(0xC063, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher242 = SSLCipherSuite(0xC064, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_PSK_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher243 = SSLCipherSuite(0xC065, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_PSK_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher244 = SSLCipherSuite(0xC066, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher245 = SSLCipherSuite(0xC067, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher246 = SSLCipherSuite(0xC068, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher247 = SSLCipherSuite(0xC069, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher248 = SSLCipherSuite(0xC06A, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_PSK_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher249 = SSLCipherSuite(0xC06B, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_PSK_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher250 = SSLCipherSuite(0xC06C, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher251 = SSLCipherSuite(0xC06D, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher252 = SSLCipherSuite(0xC06E, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_128_GCM, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_ARIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher253 = SSLCipherSuite(0xC06F, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_ARIA_256_GCM, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_ARIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher254 = SSLCipherSuite(0xC070, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_ARIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_ARIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher255 = SSLCipherSuite(0xC071, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_ARIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_ARIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher256 = SSLCipherSuite(0xC072, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher257 = SSLCipherSuite(0xC073, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher258 = SSLCipherSuite(0xC074, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher259 = SSLCipherSuite(0xC075, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher260 = SSLCipherSuite(0xC076, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher261 = SSLCipherSuite(0xC077, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher262 = SSLCipherSuite(0xC078, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher263 = SSLCipherSuite(0xC079, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher264 = SSLCipherSuite(0xC07A, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_RSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher265 = SSLCipherSuite(0xC07B, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher266 = SSLCipherSuite(0xC07C, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher267 = SSLCipherSuite(0xC07D, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_DHE_RSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher268 = SSLCipherSuite(0xC07E, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_DH_RSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher269 = SSLCipherSuite(0xC07F, SSL_KEYX_DH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_DH_RSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher270 = SSLCipherSuite(0xC080, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_DHE_DSS_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher271 = SSLCipherSuite(0xC081, SSL_KEYX_DHE, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_DHE_DSS_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher272 = SSLCipherSuite(0xC082, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_DH_DSS_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher273 = SSLCipherSuite(0xC083, SSL_KEYX_DH, SSL_AUTH_DSS, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_DH_DSS_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher274 = SSLCipherSuite(0xC084, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_DH_anon_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher275 = SSLCipherSuite(0xC085, SSL_KEYX_DH, SSL_AUTH_anon, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_DH_anon_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher276 = SSLCipherSuite(0xC086, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher277 = SSLCipherSuite(0xC087, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_ECDSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher278 = SSLCipherSuite(0xC088, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_ECDSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher279 = SSLCipherSuite(0xC089, SSL_KEYX_ECDH, SSL_AUTH_ECDSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_ECDSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher280 = SSLCipherSuite(0xC08A, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher281 = SSLCipherSuite(0xC08B, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDHE_RSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher282 = SSLCipherSuite(0xC08C, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_ECDH_RSA_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher283 = SSLCipherSuite(0xC08D, SSL_KEYX_ECDH, SSL_AUTH_RSA, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_ECDH_RSA_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher284 = SSLCipherSuite(0xC08E, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher285 = SSLCipherSuite(0xC08F, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_PSK_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher286 = SSLCipherSuite(0xC090, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher287 = SSLCipherSuite(0xC091, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher288 = SSLCipherSuite(0xC092, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_GCM, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_CAMELLIA_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher289 = SSLCipherSuite(0xC093, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_GCM, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_CAMELLIA_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher290 = SSLCipherSuite(0xC094, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher291 = SSLCipherSuite(0xC095, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_PSK_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher292 = SSLCipherSuite(0xC096, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher293 = SSLCipherSuite(0xC097, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_DHE_PSK_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher294 = SSLCipherSuite(0xC098, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher295 = SSLCipherSuite(0xC099, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_RSA_PSK_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher296 = SSLCipherSuite(0xC09A, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_128_CBC, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_CAMELLIA_128_CBC_SHA256");
+	static const SSLCipherSuite Cipher297 = SSLCipherSuite(0xC09B, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CAMELLIA_256_CBC, SSL_HASH_SHA384, "TLS_ECDHE_PSK_WITH_CAMELLIA_256_CBC_SHA384");
+	static const SSLCipherSuite Cipher298 = SSLCipherSuite(0xC09C, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_RSA_WITH_AES_128_CCM");
+	static const SSLCipherSuite Cipher299 = SSLCipherSuite(0xC09D, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_RSA_WITH_AES_256_CCM");
+	static const SSLCipherSuite Cipher300 = SSLCipherSuite(0xC09E, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_DHE_RSA_WITH_AES_128_CCM");
+	static const SSLCipherSuite Cipher301 = SSLCipherSuite(0xC09F, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_DHE_RSA_WITH_AES_256_CCM");
+	static const SSLCipherSuite Cipher302 = SSLCipherSuite(0xC0A0, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_128, SSL_HASH_CCM_8, "TLS_RSA_WITH_AES_128_CCM_8");
+	static const SSLCipherSuite Cipher303 = SSLCipherSuite(0xC0A1, SSL_KEYX_RSA, SSL_AUTH_RSA, SSL_SYM_AES_256, SSL_HASH_CCM_8, "TLS_RSA_WITH_AES_256_CCM_8");
+	static const SSLCipherSuite Cipher304 = SSLCipherSuite(0xC0A2, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_128, SSL_HASH_CCM_8, "TLS_DHE_RSA_WITH_AES_128_CCM_8");
+	static const SSLCipherSuite Cipher305 = SSLCipherSuite(0xC0A3, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_AES_256, SSL_HASH_CCM_8, "TLS_DHE_RSA_WITH_AES_256_CCM_8");
+	static const SSLCipherSuite Cipher306 = SSLCipherSuite(0xC0A4, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_PSK_WITH_AES_128_CCM");
+	static const SSLCipherSuite Cipher307 = SSLCipherSuite(0xC0A5, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_PSK_WITH_AES_256_CCM");
+	static const SSLCipherSuite Cipher308 = SSLCipherSuite(0xC0A6, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_DHE_PSK_WITH_AES_128_CCM");
+	static const SSLCipherSuite Cipher309 = SSLCipherSuite(0xC0A7, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_DHE_PSK_WITH_AES_256_CCM");
+	static const SSLCipherSuite Cipher310 = SSLCipherSuite(0xC0A8, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_128, SSL_HASH_CCM_8, "TLS_PSK_WITH_AES_128_CCM_8");
+	static const SSLCipherSuite Cipher311 = SSLCipherSuite(0xC0A9, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_AES_256, SSL_HASH_CCM_8, "TLS_PSK_WITH_AES_256_CCM_8");
+	static const SSLCipherSuite Cipher312 = SSLCipherSuite(0xC0AA, SSL_KEYX_PSK, SSL_AUTH_DHE, SSL_SYM_AES_128, SSL_HASH_CCM_8, "TLS_PSK_DHE_WITH_AES_128_CCM_8");
+	static const SSLCipherSuite Cipher313 = SSLCipherSuite(0xC0AB, SSL_KEYX_PSK, SSL_AUTH_DHE, SSL_SYM_AES_256, SSL_HASH_CCM_8, "TLS_PSK_DHE_WITH_AES_256_CCM_8");
+	static const SSLCipherSuite Cipher314 = SSLCipherSuite(0xC0AC, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128, SSL_HASH_CCM, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM");
+	static const SSLCipherSuite Cipher315 = SSLCipherSuite(0xC0AD, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256, SSL_HASH_CCM, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM");
+	static const SSLCipherSuite Cipher316 = SSLCipherSuite(0xC0AE, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_128, SSL_HASH_CCM_8, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8");
+	static const SSLCipherSuite Cipher317 = SSLCipherSuite(0xC0AF, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_AES_256, SSL_HASH_CCM_8, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8");
+	static const SSLCipherSuite Cipher318 = SSLCipherSuite(0xCCA8, SSL_KEYX_ECDHE, SSL_AUTH_RSA, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher319 = SSLCipherSuite(0xCCA9, SSL_KEYX_ECDHE, SSL_AUTH_ECDSA, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher320 = SSLCipherSuite(0xCCAA, SSL_KEYX_DHE, SSL_AUTH_RSA, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher321 = SSLCipherSuite(0xCCAB, SSL_KEYX_PSK, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_PSK_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher322 = SSLCipherSuite(0xCCAC, SSL_KEYX_ECDHE, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_ECDHE_PSK_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher323 = SSLCipherSuite(0xCCAD, SSL_KEYX_DHE, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_DHE_PSK_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher324 = SSLCipherSuite(0xCCAE, SSL_KEYX_RSA, SSL_AUTH_PSK, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_RSA_PSK_WITH_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher325 = SSLCipherSuite(0x1301, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_GCM, SSL_HASH_SHA256, "TLS_AES_128_GCM_SHA256");
+	static const SSLCipherSuite Cipher326 = SSLCipherSuite(0x1302, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_256_GCM, SSL_HASH_SHA384, "TLS_AES_256_GCM_SHA384");
+	static const SSLCipherSuite Cipher327 = SSLCipherSuite(0x1303, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_CHACHA20_POLY1305, SSL_HASH_SHA256, "TLS_CHACHA20_POLY1305_SHA256");
+	static const SSLCipherSuite Cipher328 = SSLCipherSuite(0x1304, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM, SSL_HASH_SHA256, "TLS_AES_128_CCM_SHA256");
+	static const SSLCipherSuite Cipher329 = SSLCipherSuite(0x1305, SSL_KEYX_NULL, SSL_AUTH_NULL, SSL_SYM_AES_128_CCM_8, SSL_HASH_SHA256, "TLS_AES_128_CCM_8_SHA256");
+	// clang-format on
 
 	static std::unordered_map<uint16_t, SSLCipherSuite*> createCipherSuiteIdToObjectMap()
 	{
@@ -1042,6 +689,7 @@ namespace pcpp
 #define B 76963       /* another prime */
 #define C 86969       /* yet another prime */
 #define FIRST_HASH 37 /* also prime */
+
 	static uint32_t hashString(std::string str)
 	{
 		unsigned h = FIRST_HASH;
@@ -1588,6 +1236,7 @@ namespace pcpp
 		ssl_tls_handshake_layer* hsMsgHeader = (ssl_tls_handshake_layer*)data;
 
 		if (dataLen >= 16 && (be64toh(*(uint64_t*)data) <= 0xFFFFFF || hsMsgHeader->length1 >= 1))
+		{
 			// possibly Encrypted Handshake Message
 			// used heuristic:
 			// - handshake layer of more than 16 byte
@@ -1595,6 +1244,7 @@ namespace pcpp
 			// - or wrong message length is over 64K
 			// - or message type makes so sense (handled through the switch statement)
 			return new SSLUnknownMessage(data, dataLen, container);
+		}
 
 		switch (hsMsgHeader->handshakeType)
 		{
