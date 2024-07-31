@@ -11,6 +11,8 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <array>
+#include <memory>
+#include <utility>
 #include <algorithm>
 #include <cstdio>
 #if defined(_WIN32)
@@ -223,7 +225,7 @@ public:
 
 PTF_TEST_CASE(TestPcapLiveDeviceList)
 {
-	std::vector<pcpp::PcapLiveDevice*> devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	auto& devList = pcpp::PcapLiveDeviceList::getInstance();
 	PTF_ASSERT_FALSE(devList.empty());
 
 	pcpp::IPv4Address defaultGateway = pcpp::IPv4Address::Zero;
@@ -242,7 +244,6 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 	// reset the device list and make sure devices are back and there is no memory leak
 	pcpp::PcapLiveDeviceList::getInstance().reset();
 
-	devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
 	PTF_ASSERT_FALSE(devList.empty());
 
 	for (const auto& iter : devList)
@@ -250,18 +251,18 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 		PTF_ASSERT_FALSE(iter->getName().empty());
 	}
 
-	pcpp::PcapLiveDeviceList* clonedDevList = pcpp::PcapLiveDeviceList::getInstance().clone();
-	PTF_ASSERT_NOT_NULL(clonedDevList);
-
-	std::vector<pcpp::PcapLiveDevice*> clonedDevListVector = clonedDevList->getPcapLiveDevicesList();
-	PTF_ASSERT_EQUAL(clonedDevListVector.size(), devList.size());
-
-	auto iterCloned = clonedDevListVector.begin();
-	for (auto iter = devList.begin(); iter != devList.end(); ++iter, ++iterCloned)
 	{
-		PTF_ASSERT_EQUAL((*iter)->getName(), (*iterCloned)->getName());
+		auto clonedDevList = std::unique_ptr<pcpp::PcapLiveDeviceList>(devList.clone());
+		PTF_ASSERT_NOT_NULL(clonedDevList);
+
+		PTF_ASSERT_EQUAL(clonedDevList->size(), devList.size());
+
+		for (auto itPair = std::make_pair(devList.begin(), clonedDevList->begin()); itPair.first != devList.end();
+		     ++itPair.first, ++itPair.second)
+		{
+			PTF_ASSERT_EQUAL((*itPair.first)->getName(), (*itPair.second)->getName());
+		}
 	}
-	delete clonedDevList;
 
 	PTF_ASSERT_EQUAL(pcpp::PcapLiveDeviceList::getInstance().getDnsServers().size(), dnsServerCount);
 }  // TestPcapLiveDeviceList
@@ -407,7 +408,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 
 	pcpp::PcapLiveDevice* liveDev = nullptr;
 
-	std::vector<pcpp::PcapLiveDevice*> devList = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	auto& devList = pcpp::PcapLiveDeviceList::getInstance();
 	PTF_ASSERT_FALSE(devList.empty());
 
 	auto iter = std::find_if(devList.begin(), devList.end(), [](const pcpp::PcapLiveDevice* dev) {

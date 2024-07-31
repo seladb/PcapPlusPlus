@@ -356,7 +356,7 @@ void printAppVersion()
 void listInterfaces()
 {
 	std::cout << std::endl << "Network interfaces:" << std::endl;
-	for (const auto& device : pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList())
+	for (const auto& device : pcpp::PcapLiveDeviceList::getInstance())
 	{
 		if (device->getIPv4Address() != pcpp::IPv4Address::Zero)
 		{
