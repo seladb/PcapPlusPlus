@@ -234,11 +234,10 @@ namespace pcpp
 
 	std::string PPPoESessionLayer::toString() const
 	{
-		std::unordered_map<uint16_t, std::string>::const_iterator iter =
-		    PPPNextProtoToString.find(getPPPNextProtocol());
+		auto findResult = PPPNextProtoToString.find(getPPPNextProtocol());
 		std::string nextProtocol;
-		if (iter != PPPNextProtoToString.end())
-			nextProtocol = iter->second;
+		if (findResult != PPPNextProtoToString.end())
+			nextProtocol = findResult->second;
 		else
 		{
 			std::ostringstream stream;
