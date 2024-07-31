@@ -310,3 +310,58 @@ PTF_TEST_CASE(GvcpReadRegisterCommand)
 		PTF_ASSERT_EQUAL(reinterpret_cast<uint32_t*>(payload)[0], 0x00000000);
 	}
 }
+
+PTF_TEST_CASE(GvcpReadRegisterAcknowledge)
+{
+	// test the creation from the raw buffer
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_readreg_ack.dat");
+		pcpp::Packet readRegAckPacket(&rawPacket1);
+
+		auto udpLayer = readRegAckPacket.getLayerOfType<pcpp::UdpLayer>();
+
+		// we get the raw buffer from the payload of the UDP layer and create a GvcpAcknowledgeLayer from the buffer
+		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
+		auto header = gvcpAcknowledgeLayer.getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getAckId(), 0x1fee);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ReadRegAck);
+		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpAckHeader));
+		PTF_ASSERT_EQUAL(header->getStatus(), 0x0000);
+
+		auto payload = gvcpAcknowledgeLayer.getLayerPayload();
+		PTF_ASSERT_TRUE(payload != nullptr);
+		PTF_ASSERT_EQUAL(reinterpret_cast<uint32_t*>(payload)[0], hostToNet32(0x80000001));
+	}
+
+	// test the GVCP layer directly from the packet
+	{
+		using namespace pcpp;
+
+		timeval time;
+		gettimeofday(&time, nullptr);
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gvcp_readreg_ack.dat");
+		pcpp::Packet readRegAckPacket(&rawPacket1);
+
+		// we get the GVCP layer from the packet
+		auto gvcpAcknowledgeLayer = readRegAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
+
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
+		auto header = gvcpAcknowledgeLayer->getGvcpHeader();
+		PTF_ASSERT_TRUE(header != nullptr);
+		PTF_ASSERT_EQUAL(header->getAckId(), 0x1fee);
+		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ReadRegAck);
+		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpAcknowledgeLayer->getLayerPayloadSize());
+		PTF_ASSERT_EQUAL(header->getStatus(), 0x0000);
+
+		auto payload = gvcpAcknowledgeLayer->getLayerPayload();
+		PTF_ASSERT_TRUE(payload != nullptr);
+		PTF_ASSERT_EQUAL(reinterpret_cast<uint32_t*>(payload)[0], hostToNet32(0x80000001));
+	}
+}

@@ -260,6 +260,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(GvcpDiscoveryCommand, "gvcp");
 	PTF_RUN_TEST(GvcpForceIpAck, "gvcp");
 	PTF_RUN_TEST(GvcpReadRegisterCommand, "gvcp");
+	PTF_RUN_TEST(GvcpReadRegisterAcknowledge, "gvcp");
 
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
