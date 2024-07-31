@@ -132,7 +132,7 @@ std::vector<IPv4Address> PcapLiveDeviceList::fetchDnsServers()
 	if (nmcliExists != "")
 	{
 		PCPP_LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
-		return;
+		return {};
 	}
 
 	// check nmcli major version (0 or 1)
@@ -151,7 +151,7 @@ std::vector<IPv4Address> PcapLiveDeviceList::fetchDnsServers()
 	if (dnsServersInfo == "")
 	{
 		PCPP_LOG_DEBUG("Error retrieving DNS server list: call to nmcli gave no output");
-		return;
+		return {};
 	}
 
 	std::istringstream stream(dnsServersInfo);
@@ -187,7 +187,7 @@ std::vector<IPv4Address> PcapLiveDeviceList::fetchDnsServers()
 	if (dynRef == nullptr)
 	{
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to retrieve SCDynamicStore");
-		return;
+		return {};
 	}
 
 	CFDictionaryRef dnsDict = (CFDictionaryRef)SCDynamicStoreCopyValue(dynRef,CFSTR("State:/Network/Global/DNS"));
@@ -196,7 +196,7 @@ std::vector<IPv4Address> PcapLiveDeviceList::fetchDnsServers()
 	{
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to get DNS dictionary");
 		CFRelease(dynRef);
-		return;
+		return {};
 	}
 
 	CFArrayRef serverAddresses = (CFArrayRef)CFDictionaryGetValue(dnsDict, CFSTR("ServerAddresses"));
@@ -206,7 +206,7 @@ std::vector<IPv4Address> PcapLiveDeviceList::fetchDnsServers()
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: server addresses array is null");
 		CFRelease(dynRef);
 		CFRelease(dnsDict);
-		return;
+		return {};
 	}
 
 	CFIndex count = CFArrayGetCount(serverAddresses);
