@@ -7,9 +7,9 @@
 #include "PcapFilter.h"
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 	/** A vector of pointers to RawPacket */
@@ -26,11 +26,12 @@ namespace pcpp
 		bool m_DeviceOpened;
 
 		// c'tor should not be public
-		IDevice() : m_DeviceOpened(false) {}
+		IDevice() : m_DeviceOpened(false)
+		{}
 
 	public:
-
-		virtual ~IDevice() {}
+		virtual ~IDevice()
+		{}
 
 		/**
 		 * Open the device
@@ -46,9 +47,11 @@ namespace pcpp
 		/**
 		 * @return True if the file is opened, false otherwise
 		 */
-		inline bool isOpened() { return m_DeviceOpened; }
+		inline bool isOpened()
+		{
+			return m_DeviceOpened;
+		}
 	};
-
 
 	/**
 	 * @class IFilterableDevice
@@ -59,16 +62,17 @@ namespace pcpp
 	class IFilterableDevice
 	{
 	protected:
-
 		// c'tor should not be public
-		IFilterableDevice() {}
+		IFilterableDevice()
+		{}
 
 	public:
-
-		virtual ~IFilterableDevice() {}
+		virtual ~IFilterableDevice()
+		{}
 
 		/**
-		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received
+		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be
+		 * received
 		 * @param[in] filter The filter to be set in PcapPlusPlus' GeneralFilter format
 		 * @return True if filter set successfully, false otherwise
 		 */
@@ -80,8 +84,10 @@ namespace pcpp
 		}
 
 		/**
-		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received
-		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be
+		 * received
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
+		 * (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */
 		virtual bool setFilter(std::string filterAsString) = 0;
@@ -92,4 +98,4 @@ namespace pcpp
 		 */
 		virtual bool clearFilter() = 0;
 	};
-}
+}  // namespace pcpp
