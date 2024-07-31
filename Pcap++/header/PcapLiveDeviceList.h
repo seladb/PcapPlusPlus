@@ -65,42 +65,78 @@ namespace pcpp
 		 * @param[in] ipAddr The IP address defined for the device
 		 * @return A pointer to the live device if this IP address exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const;
+		PcapLiveDevice* getDeviceByIp(const IPAddress& ipAddr) const;
+		/**
+		 * @copydoc PcapLiveDeviceList::getDeviceByIp(IPAddress const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const { return getDeviceByIp(ipAddr); }
 
 		/**
 		 * Get a pointer to the live device by its IPv4 address
 		 * @param[in] ipAddr The IPv4 address defined for the device
 		 * @return A pointer to the live device if this IPv4 address exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const;
+		PcapLiveDevice* getDeviceByIp(const IPv4Address& ipAddr) const;
+		/*
+		 * @copydoc getDeviceByIp(IPv4Address const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const { return getDeviceByIp(ipAddr); }
 
 		/**
 		 * Get a pointer to the live device by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address defined for the device
 		 * @return A pointer to the live device if this IPv6 address exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const;
+		PcapLiveDevice* getDeviceByIp(const IPv6Address& ip6Addr) const;
+		/**
+		 * @copydoc getDeviceByIp(IPv6Address const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const { return getDeviceByIp(ip6Addr); }
 
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
 		 * @param[in] ipAddrAsString The IP address defined for the device as string
 		 * @return A pointer to the live device if this IP address is valid and exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const;
+		PcapLiveDevice* getDeviceByIp(const std::string& ipAddrAsString) const;
+		/**
+		 * @copydoc getDeviceByIp(std::string const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
+		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const { return getDeviceByIp(ipAddrAsString); }
 
 		/**
 		 * Get a pointer to the live device by its name
 		 * @param[in] name The name of the interface (e.g eth0)
 		 * @return A pointer to the live device if this name exists. NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const;
+		PcapLiveDevice* getDeviceByName(const std::string& name) const;
+		/**
+		 * @copydoc getDeviceByName(std::string const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
+		 */
+		PCPP_DEPRECATED("Please use getPcapLiveDeviceByName(...) instead.")
+		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const { return getDeviceByName(name); }
 
 		/**
 		 * Get a pointer to the live device by its IP address or name
 		 * @param[in] ipOrName An IP address or name of the interface
 		 * @return A pointer to the live device if exists, NULL otherwise
 		 */
-		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
+		PcapLiveDevice* getDeviceByIpOrName(const std::string& ipOrName) const;
+		/**
+		 * @copydoc getDeviceByIpOrName(std::string const&)
+		 * @deprecated This method has been deprecated in favor of getDeviceByIpOrName(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
+		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const { return getDeviceByIpOrName(ipOrName); }
 
 		/**
 		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they

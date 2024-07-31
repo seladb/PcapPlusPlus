@@ -174,7 +174,7 @@ void readCommandLineArguments(int argc, char* argv[], const std::string& thisSid
 	}
 	catch (const std::exception&)
 	{
-		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceNameOrIP);
+		pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByName(interfaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR_PRINT_USAGE("Cannot find interface by provided name");
 
