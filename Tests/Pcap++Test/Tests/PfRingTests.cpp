@@ -200,7 +200,7 @@ PTF_TEST_CASE(TestPfRingDevice)
 #ifdef USE_PF_RING
 
 	pcpp::PfRingDeviceList& devList = pcpp::PfRingDeviceList::getInstance();
-	PTF_ASSERT_GREATER_THAN(devList.getPfRingDevicesList().size(), 0);
+	PTF_ASSERT_GREATER_THAN(devList.size(), 0);
 	PTF_ASSERT_NOT_EQUAL(devList.getPfRingVersion(), "");
 	pcpp::PcapLiveDevice* pcapLiveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
 	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
