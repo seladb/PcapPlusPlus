@@ -314,8 +314,10 @@ namespace pcpp
 		 * @deprecated This method is deprecated and will be removed in future versions. Please use getIPAddresses()
 		 * instead.
 		 */
-		PCPP_DEPRECATED(
-		    "This method is deprecated and will be removed in future versions. Please use getIPAddresses() instead.")
+		// clang-format off
+		// Breaking the macro into multiple lines causes doxygen to cause a fit.
+		PCPP_DEPRECATED("This method is deprecated and will be removed in future versions. Please use getIPAddresses() instead.")
+		// clang-format on
 		const std::vector<pcap_addr_t>& getAddresses() const
 		{
 			return m_Addresses;
