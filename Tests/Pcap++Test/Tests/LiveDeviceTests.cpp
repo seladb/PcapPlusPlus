@@ -949,8 +949,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_NOT_NULL(rpcapdInitializer.getHandle());
 
 	pcpp::IPv4Address remoteDeviceIPAddr(remoteDeviceIP);
-	pcpp::PcapRemoteDeviceList* remoteDevices =
-	    pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
+	auto remoteDevices = pcpp::PcapRemoteDeviceList::createRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
 	PTF_ASSERT_NOT_NULL(remoteDevices);
 	for (auto const remoteDevicePtr : *remoteDevices)
 	{
@@ -1018,8 +1017,6 @@ PTF_TEST_CASE(TestRemoteCapture)
 	PTF_ASSERT_EQUAL(static_cast<uint32_t>(stats.packetsRecv), capturedPacketsSize);
 
 	remoteDevice->close();
-
-	delete remoteDevices;
 
 	// the device object is already deleted, cannot close it
 	devTeardown.cancelTeardown();
