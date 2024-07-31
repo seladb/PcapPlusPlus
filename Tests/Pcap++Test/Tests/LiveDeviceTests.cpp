@@ -270,8 +270,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceList)
 PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 {
 	pcpp::PcapLiveDevice* liveDev = nullptr;
-	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 
 	std::string devName(liveDev->getName());
@@ -282,8 +281,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceListSearch)
 
 	pcpp::PcapLiveDevice* liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(devName);
 	PTF_ASSERT_EQUAL(liveDev3, liveDev2, ptr);
-	liveDev3 =
-	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
+	liveDev3 = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(PcapTestGlobalArgs.ipToSendReceivePackets);
 	PTF_ASSERT_EQUAL(liveDev3, liveDev, ptr);
 
 	liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp("255.255.255.250");
@@ -435,8 +433,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceNoNetworking)
 
 PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 {
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
@@ -486,8 +484,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 	for (const auto& config : configs)
 	{
 		// open device
-		pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-		    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+		pcpp::PcapLiveDevice* liveDev =
+		    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 		PTF_ASSERT_NOT_NULL(liveDev);
 		PTF_ASSERT_TRUE(liveDev->open(config));
 		DeviceTeardown devTeardown(liveDev);
@@ -624,8 +622,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 	};
 
 	// open device
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_TRUE(liveDev->open());
 	DeviceTeardown devTeardown(liveDev);
@@ -644,8 +642,8 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingModeWithLambda)
 
 PTF_TEST_CASE(TestPcapLiveDeviceSpecialCfg)
 {
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 
 	// open device in default mode
@@ -716,8 +714,8 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 {
 #if defined(_WIN32)
 
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_EQUAL(liveDev->getDeviceType(), pcpp::PcapLiveDevice::WinPcapDevice, enum);
 
@@ -753,8 +751,8 @@ PTF_TEST_CASE(TestWinPcapLiveDevice)
 	pcpp::Logger::getInstance().enableLogs();
 
 #else
-	pcpp::PcapLiveDevice* liveDev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(
-	    PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
+	pcpp::PcapLiveDevice* liveDev =
+	    pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(PcapTestGlobalArgs.ipToSendReceivePackets.c_str());
 	PTF_ASSERT_NOT_NULL(liveDev);
 	PTF_ASSERT_EQUAL(liveDev->getDeviceType(), pcpp::PcapLiveDevice::LibPcapDevice, enum);
 #endif
