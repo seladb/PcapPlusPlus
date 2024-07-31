@@ -122,7 +122,7 @@ namespace pcpp
 		 * @copydoc getDeviceByName(std::string const&)
 		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		 */
-		PCPP_DEPRECATED("Please use getPcapLiveDeviceByName(...) instead.")
+		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
 		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const { return getDeviceByName(name); }
 
 		/**
