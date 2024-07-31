@@ -26,7 +26,7 @@
 
 namespace pcpp
 {
-	namespace 
+	namespace
 	{
 		void syncPointerVectors(std::vector<std::unique_ptr<PcapLiveDevice>> const& mainVector, std::vector<PcapLiveDevice*>& viewVector)
 		{
