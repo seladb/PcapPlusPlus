@@ -115,7 +115,7 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceLi
 	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, pRemoteAuthCopy, std::move(devices)));
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const std::string& ipAddrAsString) const
 {
 	IPAddress ipAddr;
 
@@ -129,24 +129,24 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& i
 		return nullptr;
 	}
 
-	PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
+	PcapRemoteDevice* result = getDeviceByIp(ipAddr);
 	return result;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPAddress& ipAddr) const
 {
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
-		return getRemoteDeviceByIP(ipAddr.getIPv4());
+		return getDeviceByIp(ipAddr.getIPv4());
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		return getRemoteDeviceByIP(ipAddr.getIPv6());
+		return getDeviceByIp(ipAddr.getIPv6());
 	}
 }
 
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv4Address& ip4Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
 	for(auto const devicePtr : m_DeviceList)
@@ -180,7 +180,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
 	for (auto devicePtr : m_DeviceList)
