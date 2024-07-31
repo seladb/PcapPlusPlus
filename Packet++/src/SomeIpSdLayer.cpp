@@ -712,8 +712,9 @@ namespace pcpp
 
 	bool SomeIpSdLayer::addOptionIndex(uint32_t indexEntry, uint32_t indexOffset)
 	{
-		/* The SOME/IP-SD protocol supports two option runs. Runs meaning that two different starting indices with
-		differing length can be provided. Of course, this only works if the indices in both runs are consecutive.
+		/*
+		    The SOME/IP-SD protocol supports two option runs. Runs meaning that two different starting indices with
+		    differing length can be provided. Of course, this only works if the indices in both runs are consecutive.
 
 		    So, indices like this would work:
 		        1 2 3 ; 7 8
@@ -723,8 +724,8 @@ namespace pcpp
 		        1 3 ; 7 8
 		*/
 
-		size_t offsetToAddAt =
-		    sizeof(someipsdhdr) + sizeof(uint32_t) + indexEntry * sizeof(SomeIpSdEntry::someipsdhdrentry);
+		const size_t someipsdhdrentrySize = sizeof(SomeIpSdEntry::someipsdhdrentry);
+		size_t offsetToAddAt = sizeof(someipsdhdr) + sizeof(uint32_t) + indexEntry * someipsdhdrentrySize;
 		auto hdrEntry = (SomeIpSdEntry::someipsdhdrentry*)(m_Data + offsetToAddAt);
 
 		uint8_t indexFirstOption = hdrEntry->indexFirstOption;
