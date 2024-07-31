@@ -952,10 +952,9 @@ PTF_TEST_CASE(TestRemoteCapture)
 	pcpp::PcapRemoteDeviceList* remoteDevices =
 	    pcpp::PcapRemoteDeviceList::getRemoteDeviceList(remoteDeviceIPAddr, remoteDevicePort);
 	PTF_ASSERT_NOT_NULL(remoteDevices);
-	for (pcpp::PcapRemoteDeviceList::RemoteDeviceListIterator remoteDevIter = remoteDevices->begin();
-	     remoteDevIter != remoteDevices->end(); remoteDevIter++)
+	for (auto const remoteDevicePtr : *remoteDevices)
 	{
-		PTF_ASSERT_FALSE((*remoteDevIter)->getName().empty());
+		PTF_ASSERT_FALSE(remoteDevicePtr->getName().empty());
 	}
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachineIpAddress().toString(), remoteDeviceIP);
 	PTF_ASSERT_EQUAL(remoteDevices->getRemoteMachinePort(), remoteDevicePort);

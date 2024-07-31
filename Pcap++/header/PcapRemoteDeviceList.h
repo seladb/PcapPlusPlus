@@ -44,13 +44,15 @@ namespace pcpp
 	public:
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
+		 * @deprecated Please use the 'iterator' alias instead of 'RemoteDeviceListIterator'.
 		 */
-		using RemoteDeviceListIterator = iterator;
+		using RemoteDeviceListIterator = PCPP_DEPRECATED("Please use the 'iterator' alias instead of 'RemoteDeviceListIterator'.") iterator;
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
+		 * @deprecated Please use the 'const_iterator' alias instead of 'ConstRemoteDeviceListIterator'.
 		 */
-		using ConstRemoteDeviceListIterator = const_iterator;
+		using ConstRemoteDeviceListIterator = PCPP_DEPRECATED("Please use the 'const_iterator' alias instead of 'ConstRemoteDeviceListIterator'.") const_iterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
