@@ -42,17 +42,28 @@ namespace pcpp
 		                     PointerVector<PcapRemoteDevice> deviceList);
 
 	public:
+#	define __PCPP_REMOTE_LIST_ITERATOR_MSG "Please use the 'iterator' alias instead of 'RemoteDeviceListIterator'."
+		// Preprocessor hacks because GNU/Clang and MSVC expect their compiler specific attributes differently for aliases.
+		// I wish the minimum supported standard was Cpp14 :'(
+
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 * @deprecated Please use the 'iterator' alias instead of 'RemoteDeviceListIterator'.
 		 */
-		using RemoteDeviceListIterator = PCPP_DEPRECATED("Please use the 'iterator' alias instead of 'RemoteDeviceListIterator'.") iterator;
+		using RemoteDeviceListIterator __PCPP_DEPRECATED_GNU(__PCPP_REMOTE_LIST_ITERATOR_MSG) =
+		    __PCPP_DEPRECATED_MSVC(__PCPP_REMOTE_LIST_ITERATOR_MSG) iterator;
+#	undef __PCPP_REMOTE_LIST_ITERATOR_MSG
+
+#	define __PCPP_REMOTE_LIST_ITERATOR_MSG                                                                            \
+		"Please use the 'const_iterator' alias instead of 'ConstRemoteDeviceListIterator'."
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 * @deprecated Please use the 'const_iterator' alias instead of 'ConstRemoteDeviceListIterator'.
 		 */
-		using ConstRemoteDeviceListIterator = PCPP_DEPRECATED("Please use the 'const_iterator' alias instead of 'ConstRemoteDeviceListIterator'.") const_iterator;
+		using ConstRemoteDeviceListIterator __PCPP_DEPRECATED_GNU(__PCPP_REMOTE_LIST_ITERATOR_MSG) =
+		    __PCPP_DEPRECATED_MSVC(__PCPP_REMOTE_LIST_ITERATOR_MSG) const_iterator;
+#	undef __PCPP_REMOTE_LIST_ITERATOR_MSG
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
