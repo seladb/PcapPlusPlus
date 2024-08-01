@@ -67,7 +67,9 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIp(const IPAddress& ipAddr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPAddress const&)
+		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
+		 * @param[in] ipAddr The IP address defined for the device
+		 * @return A pointer to the live device if this IP address exists. NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
