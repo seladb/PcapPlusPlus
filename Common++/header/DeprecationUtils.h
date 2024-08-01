@@ -8,7 +8,7 @@
 #	else
 #		define __PCPP_DEPRECATED_GNU(msg)
 #	endif  // defined(__GUNC__) || defined(__clang__)
-#endif  // !__PCPP_DEPRECATED_GNU
+#endif      // !__PCPP_DEPRECATED_GNU
 
 #ifndef __PCPP_DEPRECATED_MSVC
 #	ifdef _MSC_VER
@@ -16,7 +16,7 @@
 #	else
 #		define __PCPP_DEPRECATED_MSVC(msg)
 #	endif  // __MSC_VER
-#endif  // !__PCPP_DEPRECATED_MSVC
+#endif      // !__PCPP_DEPRECATED_MSVC
 
 #ifndef PCPP_DEPRECATED
 #	if defined(__GNUC__) || defined(__clang__)
