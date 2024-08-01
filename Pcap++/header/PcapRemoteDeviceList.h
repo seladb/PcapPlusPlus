@@ -160,7 +160,7 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPv4Address& ip4Addr) const;
 		/*
-		 * @copydoc getDeviceByIp(IPv4Address const&)
+		 * @copydoc getDeviceByIp(IPv4Address)
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -173,7 +173,7 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPv6Address& ip6Addr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPv6Address const&)
+		 * @copydoc getDeviceByIp(IPv6Address)
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -186,7 +186,7 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPAddress& ipAddr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPAddress const&)
+		 * @copydoc getDeviceByIp(IPAddress)
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -199,7 +199,7 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const std::string& ipAddrAsString) const;
 		/**
-		 * @copydoc getDeviceByIp(std::string const&)
+		 * @copydoc getDeviceByIp(std::string)
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")

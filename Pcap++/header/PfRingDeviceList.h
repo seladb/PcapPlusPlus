@@ -60,7 +60,7 @@ namespace pcpp
 		 */
 		PfRingDevice* getDeviceByName(const std::string& devName) const;
 		/**
-		 * @copydoc getDeviceByName(std::string const&)
+		 * @copydoc getDeviceByName(std::string)
 		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
