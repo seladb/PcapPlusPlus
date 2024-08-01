@@ -67,7 +67,7 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIp(const IPAddress& ipAddr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPAddress)
+		 * @copydoc getDeviceByIp(IPAddress const&)
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -80,7 +80,9 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIp(const IPv4Address& ipAddr) const;
 		/*
-		 * @copydoc getDeviceByIp(IPv4Address)
+		 * Get a pointer to the live device by its IPv4 address
+		 * @param[in] ipAddr The IPv4 address defined for the device
+		 * @return A pointer to the live device if this IPv4 address exists. NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -93,7 +95,9 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIp(const IPv6Address& ip6Addr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPv6Address)
+		 * Get a pointer to the live device by its IPv6 address
+		 * @param[in] ip6Addr The IPv6 address defined for the device
+		 * @return A pointer to the live device if this IPv6 address exists. NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -106,7 +110,9 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIp(const std::string& ipAddrAsString) const;
 		/**
-		 * @copydoc getDeviceByIp(std::string)
+		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
+		 * @param[in] ipAddrAsString The IP address defined for the device as string
+		 * @return A pointer to the live device if this IP address is valid and exists. NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -119,7 +125,9 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByName(const std::string& name) const;
 		/**
-		 * @copydoc getDeviceByName(std::string const&)
+		 * Get a pointer to the live device by its name
+		 * @param[in] name The name of the interface (e.g eth0)
+		 * @return A pointer to the live device if this name exists. NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
@@ -132,7 +140,9 @@ namespace pcpp
 		 */
 		PcapLiveDevice* getDeviceByIpOrName(const std::string& ipOrName) const;
 		/**
-		 * @copydoc getDeviceByIpOrName(std::string const&)
+		 * Get a pointer to the live device by its IP address or name
+		 * @param[in] ipOrName An IP address or name of the interface
+		 * @return A pointer to the live device if exists, NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIpOrName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")

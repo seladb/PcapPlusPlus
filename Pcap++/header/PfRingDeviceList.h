@@ -60,7 +60,9 @@ namespace pcpp
 		 */
 		PfRingDevice* getDeviceByName(const std::string& devName) const;
 		/**
-		 * @copydoc getDeviceByName(std::string)
+		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
+		 * (e.g eth0, eth1, etc.)
+		 * @return A pointer to the PF_RING device
 		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")

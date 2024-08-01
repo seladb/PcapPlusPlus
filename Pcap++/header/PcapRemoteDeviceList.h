@@ -160,7 +160,9 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPv4Address& ip4Addr) const;
 		/*
-		 * @copydoc getDeviceByIp(IPv4Address)
+		 * Search a PcapRemoteDevice in the list by its IPv4 address
+		 * @param[in] ip4Addr The IPv4 address
+		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -173,7 +175,9 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPv6Address& ip6Addr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPv6Address)
+		 * Search a PcapRemoteDevice in the list by its IPv6 address
+		 * @param[in] ip6Addr The IPv6 address
+		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -186,7 +190,9 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPAddress& ipAddr) const;
 		/**
-		 * @copydoc getDeviceByIp(IPAddress)
+		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
+		 * @param[in] ipAddr The IP address
+		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
@@ -199,7 +205,9 @@ namespace pcpp
 		 */
 		PcapRemoteDevice* getDeviceByIp(const std::string& ipAddrAsString) const;
 		/**
-		 * @copydoc getDeviceByIp(std::string)
+		 * Search a PcapRemoteDevice in the list by its IP address
+		 * @param[in] ipAddrAsString The IP address in string format
+		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
