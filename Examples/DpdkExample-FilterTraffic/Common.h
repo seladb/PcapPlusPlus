@@ -13,25 +13,26 @@
 #include <sstream>
 #include <stdlib.h>
 
-
 /**
  * Macros for exiting the application with error
  */
 
-#define EXIT_WITH_ERROR(reason) do { \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
+#define EXIT_WITH_ERROR(reason)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason)                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage();                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
-	printUsage(); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
-
-typedef std::unordered_map<pcpp::DpdkDevice*, std::vector<int> > InputDataConfig;
-
+typedef std::unordered_map<pcpp::DpdkDevice*, std::vector<int>> InputDataConfig;
 
 /**
  * Contains all the configuration needed for the worker thread including:
@@ -46,10 +47,10 @@ struct AppWorkerConfig
 	bool writeMatchedPacketsToFile;
 	std::string pathToWritePackets;
 
-	AppWorkerConfig() : coreId(MAX_NUM_OF_CORES+1), sendPacketsTo(nullptr),
-	                    writeMatchedPacketsToFile(false), pathToWritePackets("") {}
+	AppWorkerConfig()
+	    : coreId(MAX_NUM_OF_CORES + 1), sendPacketsTo(nullptr), writeMatchedPacketsToFile(false), pathToWritePackets("")
+	{}
 };
-
 
 /**
  * Collect and analyze packet and flow statistics
@@ -74,9 +75,11 @@ public:
 	int matchedUdpFlows;
 	int matchedPackets;
 
-	PacketStats() : workerId(MAX_NUM_OF_CORES+1), packetCount(0), ethCount(0), arpCount(0), ipv4Count(0), ipv6Count(0),
-	                tcpCount(0), udpCount(0), httpCount(0), dnsCount(0), tlsCount(0),
-					matchedTcpFlows(0), matchedUdpFlows(0), matchedPackets(0) {}
+	PacketStats()
+	    : workerId(MAX_NUM_OF_CORES + 1), packetCount(0), ethCount(0), arpCount(0), ipv4Count(0), ipv6Count(0),
+	      tcpCount(0), udpCount(0), httpCount(0), dnsCount(0), tlsCount(0), matchedTcpFlows(0), matchedUdpFlows(0),
+	      matchedPackets(0)
+	{}
 
 	void collectStats(pcpp::Packet& packet)
 	{
@@ -121,7 +124,7 @@ public:
 
 	void clear()
 	{
-		workerId = MAX_NUM_OF_CORES+1;
+		workerId = MAX_NUM_OF_CORES + 1;
 		packetCount = 0;
 		ethCount = 0;
 		arpCount = 0;
