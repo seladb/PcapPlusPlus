@@ -100,11 +100,11 @@ jobs:
           restore-keys: |
             ${{ matrix.image }}-ccache
 
-      - name: Remove coverage files to prevent misinterpreting
-        run: find "$BUILD_DIR" -type f -name "*.gcno" -exec rm -f {} \;
-
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+
+      - name: Remove coverage files to prevent misinterpreting
+        run: find "$BUILD_DIR" -type f -name "*.gcno" -exec rm -f {} \;
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
