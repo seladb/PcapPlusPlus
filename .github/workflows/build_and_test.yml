@@ -148,6 +148,9 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Remove coverage files to prevent caching
+        run: find "$BUILD_DIR" -type f -name "*.gcno" -exec rm -f {} \;
+
       - name: Save Ccache
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
