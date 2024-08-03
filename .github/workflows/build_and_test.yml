@@ -101,7 +101,7 @@ jobs:
             ${{ matrix.image }}-ccache
 
       - name: Remove coverage files to prevent misinterpreting
-        run: find ${{ env.CCACHE_DIR }} -type f -name "*.gcno" -exec rm -f {} \;
+        run: find "$BUILD_DIR" -type f -name "*.gcno" -exec rm -f {} \;
 
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
