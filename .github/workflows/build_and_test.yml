@@ -91,16 +91,14 @@ jobs:
           . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
 
-      - name: Create ccache configuration
-        run: |
-          echo "sloppiness = file_macro,include_file_mtime,include_file_ctime" > ~/.ccache/ccache.conf
-          echo "exclude_extensions = gcno" >> ~/.ccache/ccache.conf
-
       - name: Restore Ccache
         id: ccache-restore
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
-          path: ${{ env.CCACHE_DIR }}
+          path: |
+            ${{ env.CCACHE_DIR }}
+            !*.gcda
+            !*.gcno
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
           restore-keys: |
             ${{ matrix.image }}-ccache
