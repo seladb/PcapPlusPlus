@@ -91,6 +91,11 @@ jobs:
           . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
 
+      - name: Create ccache configuration
+        run: |
+          echo "sloppiness = file_macro,include_file_mtime,include_file_ctime" > ~/.ccache/ccache.conf
+          echo "exclude_extensions = gcno" >> ~/.ccache/ccache.conf
+
       - name: Restore Ccache
         id: ccache-restore
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -102,9 +107,6 @@ jobs:
 
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
-
-      - name: Remove coverage files to prevent misinterpreting
-        run: find "$BUILD_DIR" -type f -name "*.gcno" -exec rm -f {} \;
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
