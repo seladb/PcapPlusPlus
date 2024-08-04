@@ -649,7 +649,6 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # master
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
-          ref: update-ndk
           path: ./ToyVpn-PcapPlusPlus
           submodules: true
 
@@ -670,6 +669,8 @@ jobs:
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+          NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
+          sed -i "/defaultConfig {/a \\n        ndkVersion \"$NDK_VERSION\"" app/build.gradle
           chmod +x gradlew
           ./gradlew assembleDebug
 
