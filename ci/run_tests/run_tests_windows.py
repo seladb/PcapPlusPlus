@@ -13,11 +13,9 @@ def get_ip_by_guid(guid):
     interfaces = scapy.arch.windows.get_windows_if_list()
     for iface in interfaces:
         if iface["guid"] == guid:
-            if len(iface["ips"]) > 0:
-                # iface["ips"] will put ipv6 address first
-                return iface["ips"][1]
-            else:
-                return None
+            # Return the second IP address if it exists, otherwise return None
+            return iface["ips"][1] if len(iface["ips"]) > 1 else None
+    # Return None if no matching interface is found
     return None
 
 
@@ -77,7 +75,7 @@ def main():
     tcpreplay_interface, ip_address = find_interface()
     if not tcpreplay_interface or not ip_address:
         print("Cannot find an interface to run tests on!")
-    exit(1)
+        exit(1)
     print(f"Interface is {tcpreplay_interface} and IP address is {ip_address}")
 
     try:
