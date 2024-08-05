@@ -670,7 +670,7 @@ jobs:
         run: |
           NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
-          sed -i.bak "/defaultConfig {/a \        ndkVersion \"$NDK_VERSION\"" app/build.gradle
+          sed -i.bak "/defaultConfig {/a\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
           chmod +x gradlew
           ./gradlew assembleDebug
 
