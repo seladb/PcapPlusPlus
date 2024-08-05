@@ -378,16 +378,16 @@ jobs:
           python3 -m pip install gcovr
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
-        if: ${{ matrix.host-arch == matrix.arch }}
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.os-version }},unittest
-          fail_ci_if_error: false
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # - name: Upload Coverage Results
+      #   uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+      #   if: ${{ matrix.host-arch == matrix.arch }}
+      #   with:
+      #     files: ./coverage.xml
+      #     flags: ${{ matrix.os-version }},unittest
+      #     fail_ci_if_error: false
+      #     verbose: true
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
@@ -668,7 +668,15 @@ jobs:
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
+          NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+          if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
+              sed -i.bak "/defaultConfig {/a\\
+                  ndkVersion \"$NDK_VERSION\"
+              " app/build.gradle
+          else
+              sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
+          fi
           chmod +x gradlew
           ./gradlew assembleDebug
 
