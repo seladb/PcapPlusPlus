@@ -672,7 +672,8 @@ jobs:
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
           if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
               sed -i.bak "/defaultConfig {/a\\
-                  ndkVersion \"$NDK_VERSION\"" app/build.gradle
+                  ndkVersion \"$NDK_VERSION\"
+              " app/build.gradle
           else
               sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
           fi
