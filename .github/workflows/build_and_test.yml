@@ -671,7 +671,15 @@ jobs:
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
+          NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+          if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
+              sed -i.bak "/defaultConfig {/a\\
+                  ndkVersion \"$NDK_VERSION\"
+              " app/build.gradle
+          else
+              sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
+          fi
           chmod +x gradlew
           ./gradlew assembleDebug
 
