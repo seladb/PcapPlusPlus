@@ -749,7 +749,7 @@ namespace pcpp {
 			Asn1OctetStringRecord typeRecord(attribute.type);
 			Asn1SetRecord valuesRecord(valuesSubRecords);
 
-			attributesSubRecords.pushBack(new Asn1SequenceRecord({&typeRecord, &valuesRecord}));
+			attributesSubRecords.pushBack(new Asn1SequenceRecord({ &typeRecord, &valuesRecord }));
 		}
 
 		Asn1OctetStringRecord objectNameRecord(objectName);

@@ -291,8 +291,15 @@ namespace pcpp
 
 		/**
 		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
+		 * @deprecated This method is deprecated and will be removed in future versions. Please use getIPAddresses() instead.
 		 */
+		PCPP_DEPRECATED("This method is deprecated and will be removed in future versions. Please use getIPAddresses() instead.")
 		const std::vector<pcap_addr_t>& getAddresses() const { return m_Addresses; }
+
+		/**
+		 * @return A vector containing all IP addresses defined for this interface.
+		 */
+		std::vector<IPAddress> getIPAddresses() const;
 
 		/**
 		 * @return The MAC address for this interface

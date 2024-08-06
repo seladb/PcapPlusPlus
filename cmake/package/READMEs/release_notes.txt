@@ -35,7 +35,7 @@ Release notes (changes from v22.11)
    - Increase test coverage
  - Remove deprecated methods (due to typos):
    - `DhcpLayer::getMesageType()` -> replaced by `DhcpLayer::getMessageType()`
-   - `DhcpLayer::setMesageType()` -> replaced by `DhcpLayer::setMesasgeType()`
+   - `DhcpLayer::setMesageType()` -> replaced by `DhcpLayer::setMessageType()`
    - `SSLHandshakeMessage::createHandhakeMessage()` -> replaced by `SSLHandshakeMessage::createHandshakeMessage()`
    - `SSLClientHelloMessage::getExtensionsLenth()` -> replaced by `SSLClientHelloMessage::getExtensionsLength()`
    - `SSLServerHelloMessage::getExtensionsLenth()` -> replaced by `SSLServerHelloMessage::getExtensionsLength()`
