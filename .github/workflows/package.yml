@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
@@ -66,6 +68,12 @@ jobs:
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
 
+      - name: Generate artifact attestation
+        id: attestation
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
+
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
@@ -79,6 +87,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     strategy:
       matrix:
         include:
@@ -101,6 +111,12 @@ jobs:
             cmake --build "$BUILD_DIR" -j 4
             cmake --build "$BUILD_DIR" --target package
 
+      - name: Generate artifact attestation
+        id: attestation
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
+
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
@@ -108,12 +124,14 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: ${{ env.BUILD_DIR }}/*.tar.gz
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
     runs-on: macos-12
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     strategy:
       matrix:
         xcode-version: [14.2.0, 13.4.1]
@@ -137,6 +155,12 @@ jobs:
       - name: Package
         run: cmake --build "$BUILD_DIR" --target package
 
+      - name: Generate artifact attestation
+        id: attestation
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
+
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
@@ -150,6 +174,8 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     strategy:
       matrix:
         include:
@@ -200,6 +226,12 @@ jobs:
         shell: msys2 {0}
         run: cmake --build "$BUILD_DIR" --target package
 
+      - name: Generate artifact attestation
+        id: attestation
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.zip"
+
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
@@ -207,7 +239,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: ${{ env.BUILD_DIR }}/*.zip
+          artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   visual-studio:
     strategy:
@@ -219,6 +251,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+      attestations: write
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -242,6 +276,12 @@ jobs:
       - name: Package
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
+      - name: Generate artifact attestation
+        id: attestation
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.zip"
+
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
@@ -249,7 +289,7 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: ${{ env.BUILD_DIR }}/*.zip
+          artifacts: "${{ env.BUILD_DIR }}/*.zip"
 
   android-build:
     strategy:
@@ -312,6 +352,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      attestations: write
+      id-token: write
 
     steps:
       - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
@@ -324,6 +366,13 @@ jobs:
           export PACKAGE_DIR=$(ls | grep pcapplusplus)
           echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
+
+      - name: Generate artifact attestation
+        id: attestation
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        with:
+          subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
+
       - name: Upload binaries to release
         if: github.ref_type == 'tag'
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
@@ -331,4 +380,4 @@ jobs:
           draft: true
           allowUpdates: true
           updateOnlyUnreleased: true
-          artifacts: ${{ env.PACKAGE_DIR }}.tar.gz
+          artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"
