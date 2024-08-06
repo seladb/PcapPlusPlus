@@ -62,12 +62,12 @@
  * __Additional information:__
  * When the connection is closed the information is not being deleted from memory immediately. There is a delay between
  * these moments. Existence of this delay is caused by two reasons:
- * - pcpp#TcpReassembly#reassemblePacket() should detect the packets that arrive after the FIN packet has been received
- * - the user can use the information about connections managed by pcpp#TcpReassembly instance. Following methods are
- * used for this purpose: pcpp#TcpReassembly#getConnectionInformation and pcpp#TcpReassembly#isConnectionOpen. Cleaning
- * of memory can be performed automatically (the default behavior) by pcpp#TcpReassembly#reassemblePacket() or manually
- * by calling pcpp#TcpReassembly#purgeClosedConnections in the user code. Automatic cleaning is performed once per
- * second.
+ * - pcpp#TcpReassembly#reassemblePacket() should detect the packets that arrive after the FIN packet has been received.
+ * - The user can use the information about connections managed by pcpp#TcpReassembly instance. Following methods are
+ *   used for this purpose: pcpp#TcpReassembly#getConnectionInformation and pcpp#TcpReassembly#isConnectionOpen.
+ * Cleaning of memory can be performed automatically (the default behavior) by pcpp#TcpReassembly#reassemblePacket() or
+ * manually by calling pcpp#TcpReassembly#purgeClosedConnections in the user code. Automatic cleaning is performed once
+ * per second.
  *
  * The struct pcpp#TcpReassemblyConfiguration allows to setup the parameters of cleanup. Following parameters are
  * supported:
@@ -305,11 +305,11 @@ namespace pcpp
 			 * callback function. The packet may be:
 			 * 1. An in-order TCP packet, meaning `packet_sequence == sequence_expected`.
 			 *    Note if there's any buffered out-of-order packet waiting for this packet, their associated callbacks
-			 * are called in this `reassemblePacket` call.
+			 *    are called in this `reassemblePacket` call.
 			 * 2. An out-of-order TCP packet which satisfy `packet_sequence < sequence_expected && packet_sequence +
-			 * packet_payload_length > sequence_expected`. Note only the new data (the `[sequence_expected,
-			 * packet_sequence + packet_payload_length]` part ) is processed by `OnMessageReadyCallback` callback
-			 * function.
+			 *    packet_payload_length > sequence_expected`. Note only the new data (the `[sequence_expected,
+			 *    packet_sequence + packet_payload_length]` part ) is processed by `OnMessageReadyCallback` callback
+			 *    function.
 			 */
 			TcpMessageHandled,
 			/**
@@ -317,11 +317,11 @@ namespace pcpp
 			 * buffered so no `OnMessageReadyCallback` callback function is called. The callback function for this
 			 * packet maybe called LATER, under different circumstances:
 			 * 1. When an in-order packet which is right before this packet arrives(case 1 and case 2 described in
-			 * `TcpMessageHandled` section above).
+			 *    `TcpMessageHandled` section above).
 			 * 2. When a FIN or RST packet arrives, which will clear the buffered out-of-order packets of this side.
 			 *    If this packet contains "new data", meaning `(packet_sequence <= sequence_expected) &&
-			 * (packet_sequence + packet_payload_length > sequence_expected)`, the new data is processed by
-			 * `OnMessageReadyCallback` callback.
+			 *    (packet_sequence + packet_payload_length > sequence_expected)`, the new data is processed by
+			 *    `OnMessageReadyCallback` callback.
 			 */
 			OutOfOrderTcpMessageBuffered,
 			/**
