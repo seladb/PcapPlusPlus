@@ -592,8 +592,8 @@ namespace pcpp
 		// put the new frag in the LRU list
 		uint32_t packetRemoved;
 
-		if (m_PacketLRU.put(hash, &packetRemoved) ==
-		    1)  // this means LRU list was full and the least recently used item was removed
+		// this means LRU list was full and the least recently used item was removed
+		if (m_PacketLRU.put(hash, &packetRemoved) == 1)
 		{
 			// remove this item from the fragment map
 			std::unordered_map<uint32_t, IPFragmentData*>::iterator iter = m_FragmentMap.find(packetRemoved);
