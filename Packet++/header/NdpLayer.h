@@ -76,10 +76,12 @@ namespace pcpp
 		size_t getDataSize() const
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
-			return (size_t)m_Data->recordLen * 8 -
-			       (2 * sizeof(uint8_t));  // length value is stored in units of 8 octets
+			// length value is stored in units of 8 octets
+			return (size_t)m_Data->recordLen * 8 - (2 * sizeof(uint8_t));
 		}
 	};
 
