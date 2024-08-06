@@ -459,7 +459,7 @@ namespace pcpp
 	public:
 		/**
 		 * A c'tor for this class that accepts raw message data. Please avoid using it as it's used internally
-		 * when parsing SSH messagess in SSHLayer#createSSHMessage()
+		 * when parsing SSH messages in SSHLayer#createSSHMessage()
 		 */
 		SSHEncryptedMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : SSHLayer(data, dataLen, prevLayer, packet)
