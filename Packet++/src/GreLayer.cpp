@@ -1,17 +1,17 @@
 #define LOG_MODULE PacketLogModuleGreLayer
 
 #include "GreLayer.h"
-#include "EthLayer.h"
+#include "EndianPortable.h"
 #include "EthDot3Layer.h"
+#include "EthLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
-#include "PPPoELayer.h"
-#include "VlanLayer.h"
-#include "MplsLayer.h"
-#include "PayloadLayer.h"
-#include "PacketUtils.h"
 #include "Logger.h"
-#include "EndianPortable.h"
+#include "MplsLayer.h"
+#include "PPPoELayer.h"
+#include "PacketUtils.h"
+#include "PayloadLayer.h"
+#include "VlanLayer.h"
 
 // ==============
 // GreLayer class
@@ -41,8 +41,8 @@ namespace pcpp
 
 		gre_basic_header* header = (gre_basic_header*)m_Data;
 
-		for (int curFieldAsInt = static_cast<int>(GreChecksumOrRouting);
-		     curFieldAsInt < 4 /* this value is out of scope of GreField enum values */; ++curFieldAsInt)
+		constexpr int numGreField = 4;
+		for (int curFieldAsInt = static_cast<int>(GreChecksumOrRouting); curFieldAsInt < numGreField; ++curFieldAsInt)
 		{
 			const GreField curField = static_cast<GreField>(curFieldAsInt);
 			bool curFieldExists = false;
