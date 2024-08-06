@@ -6,7 +6,7 @@
 #include "TablePrinter.h"
 #include "WorkerThread.h"
 
-#define MBUF_POOL_SIZE 16*1024-1
+#define MBUF_POOL_SIZE 16 * 1024 - 1
 #define DEVICE_ID_1 0
 #define DEVICE_ID_2 1
 #define COLLECT_STATS_EVERY_SEC 2
@@ -20,7 +20,6 @@ void onApplicationInterrupted(void* cookie)
 	std::cout << std::endl << "Shutting down..." << std::endl;
 }
 
-
 void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 {
 	pcpp::DpdkDevice::DpdkDeviceStats rxStats;
@@ -28,20 +27,23 @@ void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 	rxDevice->getStatistics(rxStats);
 	txDevice->getStatistics(txStats);
 
-	std::vector<std::string> columnNames = {" ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec"};
-	std::vector<int> columnLengths = {10, 15, 15, 15, 15};
+	std::vector<std::string> columnNames = { " ", "Total Packets", "Packets/sec", "Bytes", "Bits/sec" };
+	std::vector<int> columnLengths = { 10, 15, 15, 15, 15 };
 
 	pcpp::TablePrinter printer(columnNames, columnLengths);
 
 	std::stringstream totalRx;
-	totalRx << "rx" << "|" << rxStats.aggregatedRxStats.packets << "|" << rxStats.aggregatedRxStats.packetsPerSec << "|" << rxStats.aggregatedRxStats.bytes << "|" << rxStats.aggregatedRxStats.bytesPerSec*8;
+	totalRx << "rx"
+	        << "|" << rxStats.aggregatedRxStats.packets << "|" << rxStats.aggregatedRxStats.packetsPerSec << "|"
+	        << rxStats.aggregatedRxStats.bytes << "|" << rxStats.aggregatedRxStats.bytesPerSec * 8;
 	printer.printRow(totalRx.str(), '|');
 
 	std::stringstream totalTx;
-	totalTx << "tx" << "|" << txStats.aggregatedTxStats.packets << "|" << txStats.aggregatedTxStats.packetsPerSec << "|" << txStats.aggregatedTxStats.bytes << "|" << txStats.aggregatedTxStats.bytesPerSec*8;
+	totalTx << "tx"
+	        << "|" << txStats.aggregatedTxStats.packets << "|" << txStats.aggregatedTxStats.packetsPerSec << "|"
+	        << txStats.aggregatedTxStats.bytes << "|" << txStats.aggregatedTxStats.bytesPerSec * 8;
 	printer.printRow(totalTx.str(), '|');
 }
-
 
 int main(int argc, char* argv[])
 {
@@ -70,13 +72,15 @@ int main(int argc, char* argv[])
 	// Open DPDK devices
 	if (!device1->openMultiQueues(1, 1))
 	{
-		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'" << std::endl;
+		std::cerr << "Couldn't open device1 #" << device1->getDeviceId() << ", PMD '" << device1->getPMDName() << "'"
+		          << std::endl;
 		return 1;
 	}
 
 	if (!device2->openMultiQueues(1, 1))
 	{
-		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'" << std::endl;
+		std::cerr << "Couldn't open device2 #" << device2->getDeviceId() << ", PMD '" << device2->getPMDName() << "'"
+		          << std::endl;
 		return 1;
 	}
 
@@ -115,21 +119,14 @@ int main(int argc, char* argv[])
 			// Clear screen and move to top left
 			std::cout << "\033[2J\033[1;1H";
 
-			std::cout
-				<< "Stats #" << statsCounter++ << std::endl
-				<< "==========" << std::endl
-				<< std::endl;
+			std::cout << "Stats #" << statsCounter++ << std::endl << "==========" << std::endl << std::endl;
 
 			// Print stats of traffic going from Device1 to Device2
-			std::cout << std::endl
-				<< "Device1->Device2 stats:" << std::endl
-				<< std::endl;
+			std::cout << std::endl << "Device1->Device2 stats:" << std::endl << std::endl;
 			printStats(device1, device2);
 
 			// Print stats of traffic going from Device2 to Device1
-			std::cout << std::endl
-				<< "Device2->Device1 stats:" << std::endl
-				<< std::endl;
+			std::cout << std::endl << "Device2->Device1 stats:" << std::endl << std::endl;
 			printStats(device2, device1);
 		}
 		counter++;
