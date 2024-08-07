@@ -7,8 +7,8 @@
 
 #define ASCII_HYPHEN 0x2d
 #define ASCII_SPACE 0x20
-#define MAX_COMMAND_LENGTH 9 // From SMTP command "STARTTLS" + 1 byte hyphen or space
-#define MIN_PACKET_LENGTH 2 // CRLF
+#define MAX_COMMAND_LENGTH 9  // From SMTP command "STARTTLS" + 1 byte hyphen or space
+#define MIN_PACKET_LENGTH 2   // CRLF
 
 namespace pcpp
 {
@@ -25,7 +25,7 @@ namespace pcpp
 		// the first MAX_CONTENT_LENGTH bytes, search the both of hyphen and space to take
 		// correct command delimiter
 
-		std::string field(reinterpret_cast<char *>(m_Data), maxLen);
+		std::string field(reinterpret_cast<char*>(m_Data), maxLen);
 
 		size_t posHyphen = field.find_first_of(ASCII_HYPHEN);
 		size_t posSpace = field.find_first_of(ASCII_SPACE);
@@ -52,14 +52,14 @@ namespace pcpp
 			memset(&m_Data[getArgumentFieldOffset()], ASCII_SPACE, 1);
 	}
 
-	bool SingleCommandTextProtocol::hyphenRequired(const std::string &value)
+	bool SingleCommandTextProtocol::hyphenRequired(const std::string& value)
 	{
 		size_t firstPos = value.find("\r\n");
 		size_t lastPos = value.rfind("\r\n");
 		return (firstPos != std::string::npos) && (lastPos != std::string::npos) && (firstPos != lastPos);
 	}
 
-	SingleCommandTextProtocol::SingleCommandTextProtocol(const std::string &command, const std::string &option)
+	SingleCommandTextProtocol::SingleCommandTextProtocol(const std::string& command, const std::string& option)
 	{
 		m_Data = new uint8_t[MIN_PACKET_LENGTH];
 		m_DataLen = MIN_PACKET_LENGTH;
@@ -126,8 +126,8 @@ namespace pcpp
 
 		// If there is no option remove trailing newline characters
 		if (offset == (m_DataLen - 1) && offset > 1)
-			return std::string((char *)m_Data, offset - 1);
-		return std::string((char *)m_Data, offset);
+			return std::string((char*)m_Data, offset - 1);
+		return std::string((char*)m_Data, offset);
 	}
 
 	std::string SingleCommandTextProtocol::getCommandOptionInternal() const
@@ -139,14 +139,14 @@ namespace pcpp
 		int addition = offset ? 1 : 0;
 		if (offset != (m_DataLen - 1))
 		{
-			auto option = std::string((char *)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
+			auto option = std::string((char*)&m_Data[offset + addition], m_DataLen - (offset + 2 + addition));
 
 			// Remove XXX- and XXX<SP> since they are delimiters of the protocol where XXX is the usually status code
 			// Check RFC821 (SMTP) Section 3.3 and RFC959 (FTP) Section 4.2
 			auto code = getCommandInternal();
-			auto vDelim = std::vector<std::string> {code + " ", code + "-"};
+			auto vDelim = std::vector<std::string>{ code + " ", code + "-" };
 
-			for (const auto &delim : vDelim)
+			for (const auto& delim : vDelim)
 			{
 				size_t pos = 0;
 				while ((pos = option.find(delim, pos)) != std::string::npos)
@@ -159,15 +159,18 @@ namespace pcpp
 		return "";
 	}
 
-	bool SingleCommandTextProtocol::isMultiLine() const { return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN; }
+	bool SingleCommandTextProtocol::isMultiLine() const
+	{
+		return m_Data[getArgumentFieldOffset()] == ASCII_HYPHEN;
+	}
 
-	bool SingleCommandTextProtocol::isDataValid(const uint8_t *data, size_t dataSize)
+	bool SingleCommandTextProtocol::isDataValid(const uint8_t* data, size_t dataSize)
 	{
 		if (data == nullptr || dataSize < MIN_PACKET_LENGTH)
 			return false;
 
-		std::string payload = std::string((char *)data, dataSize);
+		std::string payload = std::string((char*)data, dataSize);
 		return payload.rfind("\r\n") == dataSize - 2;
 	}
 
-} // namespace pcpp
+}  // namespace pcpp
