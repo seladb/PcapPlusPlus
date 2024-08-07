@@ -4,7 +4,6 @@
 
 /// @file
 
-
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
@@ -21,38 +20,40 @@ namespace pcpp
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		/** A 1-bit value that states whether there is a N-PDU number optional field */
-		uint8_t npduNumberFlag:1,
-		/** A 1-bit value that states whether there is a Sequence Number optional field */
-		sequenceNumberFlag:1,
-		/** A 1-bit value that states whether there is an extension header optional field */
-		extensionHeaderFlag:1,
-		/** Reserved bit */
-		reserved:1,
-		/** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
-		protocolType:1,
-		/** GTP version */
-		version:3;
+		uint8_t npduNumberFlag : 1,
+		    /** A 1-bit value that states whether there is a Sequence Number optional field */
+		    sequenceNumberFlag : 1,
+		    /** A 1-bit value that states whether there is an extension header optional field */
+		    extensionHeaderFlag : 1,
+		    /** Reserved bit */
+		    reserved : 1,
+		    /** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
+		    protocolType : 1,
+		    /** GTP version */
+		    version : 3;
 #else
 		/** GTP version */
-		uint8_t version:3,
-		/** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
-		protocolType:1,
-		/** Reserved bit */
-		reserved:1,
-		/** A 1-bit value that states whether there is an extension header optional field */
-		extensionHeaderFlag:1,
-		/** A 1-bit value that states whether there is a Sequence Number optional field */
-		sequenceNumberFlag:1,
-		/** A 1-bit value that states whether there is a N-PDU number optional field */
-		npduNumberFlag:1;
+		uint8_t version : 3,
+		    /** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
+		    protocolType : 1,
+		    /** Reserved bit */
+		    reserved : 1,
+		    /** A 1-bit value that states whether there is an extension header optional field */
+		    extensionHeaderFlag : 1,
+		    /** A 1-bit value that states whether there is a Sequence Number optional field */
+		    sequenceNumberFlag : 1,
+		    /** A 1-bit value that states whether there is a N-PDU number optional field */
+		    npduNumberFlag : 1;
 #endif
 		/** An 8-bit field that indicates the type of GTP message */
 		uint8_t messageType;
 
-		/** A 16-bit field that indicates the length of the payload in bytes (rest of the packet following the mandatory 8-byte GTP header). Includes the optional fields */
+		/** A 16-bit field that indicates the length of the payload in bytes (rest of the packet following the mandatory
+		 * 8-byte GTP header). Includes the optional fields */
 		uint16_t messageLength;
 
-		/** Tunnel endpoint identifier - A 32-bit(4-octet) field used to multiplex different connections in the same GTP tunnel */
+		/** Tunnel endpoint identifier - A 32-bit(4-octet) field used to multiplex different connections in the same GTP
+		 * tunnel */
 		uint32_t teid;
 	};
 
@@ -60,7 +61,8 @@ namespace pcpp
 
 	/**
 	 * An enum representing the possible GTP v1 message types.
-	 * All of the message types except for #GtpV1_GPDU are considered GTP-C messages. #GtpV1_GPDU is considered a GTP-U message
+	 * All of the message types except for #GtpV1_GPDU are considered GTP-C messages. #GtpV1_GPDU is considered a GTP-U
+	 * message
 	 */
 	enum GtpV1MessageType
 	{
@@ -204,7 +206,6 @@ namespace pcpp
 		GtpV1_GPDU = 255
 	};
 
-
 	/**
 	 * @class GtpV1Layer
 	 * A class representing the [GTP v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
@@ -221,10 +222,10 @@ namespace pcpp
 
 		gtpv1_header_extra* getHeaderExtra() const;
 
-		void init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
+		void init(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum,
+		          uint8_t npduNum);
 
 	public:
-
 		/**
 		 * @class GtpExtension
 		 * A class that represents [GTP header extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
@@ -245,7 +246,6 @@ namespace pcpp
 			static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
 
 		public:
-
 			/**
 			 * An empty c'tor that creates an empty object, meaning one that isNull() returns "true")
 			 */
@@ -282,8 +282,8 @@ namespace pcpp
 			size_t getTotalLength() const;
 
 			/**
-			 * @return The length of the extension's content, excluding the extension length and next extension type fields.
-			 * If the object is empty a value of zero is returned
+			 * @return The length of the extension's content, excluding the extension length and next extension type
+			 * fields. If the object is empty a value of zero is returned
 			 */
 			size_t getContentLength() const;
 
@@ -294,28 +294,33 @@ namespace pcpp
 			uint8_t* getContent() const;
 
 			/**
-			 * @return The extension type of the next header. If there are no more header extensions or if this object is empty
-			 * a value of zero is returned
+			 * @return The extension type of the next header. If there are no more header extensions or if this object
+			 * is empty a value of zero is returned
 			 */
 			uint8_t getNextExtensionHeaderType() const;
 
 			/**
-			 * @return An instance of this class representing the next extension header, if exists in the message. If there are
-			 * no more header extensions or if this object is empty an empty instance of GtpExtension is returned, meaning
-			 * one that GtpExtension#isNull() returns "true"
+			 * @return An instance of this class representing the next extension header, if exists in the message. If
+			 * there are no more header extensions or if this object is empty an empty instance of GtpExtension is
+			 * returned, meaning one that GtpExtension#isNull() returns "true"
 			 */
 			GtpExtension getNextExtension() const;
-		}; // GtpExtension
+		};  // GtpExtension
 
-		virtual ~GtpV1Layer() {}
+		virtual ~GtpV1Layer()
+		{}
 
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = GTPv1; }
+		GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet)
+		{
+			m_Protocol = GTPv1;
+		}
 
 		/**
 		 * A constructor that creates a new GTPv1 layer and sets the message type and the TEID value
@@ -328,12 +333,17 @@ namespace pcpp
 		 * A constructor that creates a new GTPv1 layer and sets various parameters
 		 * @param[in] messageType The GTPv1 message type to be set in the newly created layer
 		 * @param[in] teid The TEID value to be set in the newly created layer
-		 * @param[in] setSeqNum A flag indicating whether to set a sequence number. If set to "false" then the parameter "seqNum" will be ignored
-		 * @param[in] seqNum The sequence number to be set in the newly created later. If "setSeqNum" is set to false this parameter will be ignored
-		 * @param[in] setNpduNum A flag indicating whether to set the N-PDU number. If set to "false" then the parameter "npduNum" will be ignored
-		 * @param[in] npduNum The N-PDU number to be set in the newly created later. If "setNpduNum" is set to false this parameter will be ignored
+		 * @param[in] setSeqNum A flag indicating whether to set a sequence number. If set to "false" then the parameter
+		 * "seqNum" will be ignored
+		 * @param[in] seqNum The sequence number to be set in the newly created later. If "setSeqNum" is set to false
+		 * this parameter will be ignored
+		 * @param[in] setNpduNum A flag indicating whether to set the N-PDU number. If set to "false" then the parameter
+		 * "npduNum" will be ignored
+		 * @param[in] npduNum The N-PDU number to be set in the newly created later. If "setNpduNum" is set to false
+		 * this parameter will be ignored
 		 */
-		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum, uint8_t npduNum);
+		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum,
+		           uint8_t npduNum);
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a GTP v1 message
@@ -344,9 +354,13 @@ namespace pcpp
 		static bool isGTPv1(const uint8_t* data, size_t dataSize);
 
 		/**
-		 * @return The GTP v1 common header structure. Notice this points directly to the data, so every change will change the actual packet data
+		 * @return The GTP v1 common header structure. Notice this points directly to the data, so every change will
+		 * change the actual packet data
 		 */
-		gtpv1_header* getHeader() const { return (gtpv1_header*)m_Data; }
+		gtpv1_header* getHeader() const
+		{
+			return (gtpv1_header*)m_Data;
+		}
 
 		/**
 		 * Get the sequence number if exists on the message (sequence number is an optional field in GTP messages)
@@ -359,7 +373,8 @@ namespace pcpp
 		/**
 		 * Set a sequence number
 		 * @param[in] seqNumber The sequence number to set
-		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error message will be written to log
+		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
+		 * message will be written to log
 		 */
 		bool setSequenceNumber(const uint16_t seqNumber);
 
@@ -374,32 +389,35 @@ namespace pcpp
 		/**
 		 * Set an N-PDU number
 		 * @param[in] npduNum The N-PDU number to set
-		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error message will be written to log
+		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
+		 * message will be written to log
 		 */
 		bool setNpduNumber(const uint8_t npduNum);
 
 		/**
 		 * Get the type of the next header extension if exists on the message (extensions are optional in GTP messages)
-		 * @param[out] nextExtType Set with the next header extension type if exists in layer. Otherwise remains unchanged
+		 * @param[out] nextExtType Set with the next header extension type if exists in layer. Otherwise remains
+		 * unchanged
 		 * @return True if the message contains header extensions, in which case nextExtType is set to the next
 		 * header extension type. If there are no header extensions false is returned and nextExtType remains unchanged
 		 */
 		bool getNextExtensionHeaderType(uint8_t& nextExtType) const;
 
 		/**
-		 * @return An object that represents the next extension header, if exists in the message. If there are no extensions
-		 * an empty object is returned, meaning an object which GtpExtension#isNull() returns "true"
+		 * @return An object that represents the next extension header, if exists in the message. If there are no
+		 * extensions an empty object is returned, meaning an object which GtpExtension#isNull() returns "true"
 		 */
 		GtpExtension getNextExtension() const;
 
 		/**
-		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2 bytes in length.
-		 * If you need a different content size please reach out to me. This method takes care of extending the layer to make room for
-		 * the new extension and also sets the relevant flags and fields
+		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2
+		 * bytes in length. If you need a different content size please reach out to me. This method takes care of
+		 * extending the layer to make room for the new extension and also sets the relevant flags and fields
 		 * @param[in] extensionType The type of the new extension
 		 * @param[in] extensionContent A 2-byte long content
-		 * @return An object representing the newly added extension. If there was an error adding the extension a null object will be
-		 * returned (meaning GtpExtension#isNull() will return "true") and a corresponding error message will be written to log
+		 * @return An object representing the newly added extension. If there was an error adding the extension a null
+		 * object will be returned (meaning GtpExtension#isNull() will return "true") and a corresponding error message
+		 * will be written to log
 		 */
 		GtpExtension addExtension(uint8_t extensionType, uint16_t extensionContent);
 
@@ -428,8 +446,10 @@ namespace pcpp
 		 * @param[in] port The port number to be checked
 		 * @return True if the port matches those associated with the BGP protocol
 		 */
-		static bool isGTPv1Port(uint16_t port) { return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */; }
-
+		static bool isGTPv1Port(uint16_t port)
+		{
+			return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */;
+		}
 
 		// implement abstract methods
 
@@ -454,6 +474,9 @@ namespace pcpp
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelTransportLayer;
+		}
 	};
-}
+}  // namespace pcpp
