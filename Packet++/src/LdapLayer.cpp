@@ -562,9 +562,8 @@ namespace pcpp
 			throw std::invalid_argument("Authentication type is not sasl");
 		}
 
-		// clang-format off
-		auto authRecord = getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
-		// clang-format on
+		auto authRecord =
+		    getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
 		std::string mechanism;
 		std::vector<uint8_t> credentials;
 		if (authRecord->getSubRecords().size() > saslMechanismIndex)
