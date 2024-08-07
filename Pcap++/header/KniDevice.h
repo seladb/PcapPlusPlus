@@ -73,7 +73,7 @@
  *
  * Useful links:
  *  - <a href="https://doc.dpdk.org/guides/prog_guide/kernel_nic_interface.html">KNI interface concept DPDK
- * documentation</a>
+ *    documentation</a>
  *  - <a href="https://doc.dpdk.org/guides/nics/kni.html">KNI PMD</a>
  *  - <a href="https://doc.dpdk.org/guides/sample_app_ug/kernel_nic_interface.html">KNI DPDK sample application</a>
  *  - <a href="https://doc.dpdk.org/dts/test_plans/kni_test_plan.html">KNI DPDK test plan</a>

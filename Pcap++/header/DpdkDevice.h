@@ -41,19 +41,19 @@
  * have a large pool of mbufs so mbufs doesn't run-out. PcapPlusPlus enables to choose the pool size at startup<BR> <BR>
  * PcapPlusPlus main wrapper classes for DPDK are:
  *    - DpdkDevice - a class that wraps a DPDK port and provides all capabilities of receiving and sending packets to
- * this port
+ *      this port
  *    - DpdkDeviceList - a singleton class that initializes the DPDK infrastructure and creates DpdkDevice instances to
- * all available ports. In addition it allows starting and stopping of worker threads
+ *      all available ports. In addition it allows starting and stopping of worker threads
  *    - MBufRawPacket - a child class to RawPacket which customizes it for working with mbuf
  *    - In addition PcapPlusPlus provides a shell script to initialize DPDK prerequisites: setup_dpdk.py. This is an
- * easy-to-use script that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by DPDK.
- * This script must run before an application that uses DPDK runs. If you forgot to run it the application will fail
- * with an appropriate error that will remind
+ *      easy-to-use script that sets up huge-pages, loads DPDK kernel module and sets up the NICs that will be used by
+ *      DPDK. This script must run before an application that uses DPDK runs. If you forgot to run it the application
+ *      will fail with an appropriate error that will remind
  *
  * DPDK initialization using PcapPlusPlus:
  *    - Before application runs: run the setup_dpdk.py script
  *    - On application startup call DpdkDeviceList#initDpdk() static method to initialize DPDK infrastructure and
- * DpdkDevice instances
+ *      DpdkDevice instances
  *    - Open the relevant DpdkDevice(s)
  *    - Send & receive packets...
  */
@@ -155,7 +155,7 @@ namespace pcpp
 	 *
 	 * __Capturing packets__: there are two ways to capture packets using DpdkDevice:
 	 *    - using worker threads (see DpdkDeviceList#startDpdkWorkerThreads() ). When using this method the worker
-	 * should use the DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
+	 *      should use the DpdkDevice#receivePackets() methods to get packets from the DpdkDevice
 	 *    - by setting a callback which is invoked each time a burst of packets arrives. For more details see
 	 *      DpdkDevice#startCaptureSingleThread()
 	 *
@@ -171,9 +171,9 @@ namespace pcpp
 	 *
 	 * __Known limitations:__
 	 *    - BPF filters are currently not supported by this device (as opposed to other PcapPlusPlus device types. This
-	 * means that the device cannot filter packets before they get to the user
+	 *      means that the device cannot filter packets before they get to the user
 	 *    - It's not possible to set or change NIC load-balancing method. DPDK provides this capability but it's still
-	 * not supported by DpdkDevice
+	 *      not supported by DpdkDevice
 	 */
 	class DpdkDevice : public IDevice
 	{
