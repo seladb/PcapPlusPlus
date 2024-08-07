@@ -16,7 +16,7 @@ namespace pcpp
 		/** length */
 		uint8_t length;
 		/** PDU type identifier */
-		uint8_t pduType ;
+		uint8_t pduType;
 		/** TPDU number sequence*/
 		uint8_t tpduNumber;
 	} cotphdr;
@@ -28,7 +28,7 @@ namespace pcpp
 	 */
 	class CotpLayer : public Layer
 	{
-	  public:
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data (will be casted to @ref cotphdr)
@@ -36,8 +36,8 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		CotpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: Layer(data, dataLen, prevLayer, packet)
+		CotpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet)
 		{
 			m_Protocol = COTP;
 		}
@@ -48,7 +48,8 @@ namespace pcpp
 		 */
 		explicit CotpLayer(uint8_t tpduNumber);
 
-		virtual ~CotpLayer() {}
+		virtual ~CotpLayer()
+		{}
 
 		/**
 		 * @return COTP length
@@ -68,7 +69,10 @@ namespace pcpp
 		/**
 		 * @return Size of @ref cotphdr
 		 */
-		size_t getHeaderLen() const override { return sizeof(cotphdr); }
+		size_t getHeaderLen() const override
+		{
+			return sizeof(cotphdr);
+		}
 
 		/**
 		 * Set the value of the length
@@ -91,7 +95,8 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() override {}
+		void computeCalculateFields() override
+		{}
 
 		/**
 		 * Currently parses the rest of the packet as a S7COMM or generic payload (PayloadLayer)
@@ -104,14 +109,20 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data looks like a valid COTP layer
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize);
+		static bool isDataValid(const uint8_t* data, size_t dataSize);
 
 		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const override { return OsiModelTransportLayer; }
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelTransportLayer;
+		}
 
-	  private:
-		cotphdr *getCotpHeader() const { return (cotphdr *)m_Data; }
+	private:
+		cotphdr* getCotpHeader() const
+		{
+			return (cotphdr*)m_Data;
+		}
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

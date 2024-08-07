@@ -16,8 +16,8 @@ namespace pcpp
 
 	/**
 	 * @class IDataContainer
-	 * An interface (virtual abstract class) that indicates an object that holds a pointer to a buffer data. The Layer class is an example
-	 * of such object, hence it inherits this interface
+	 * An interface (virtual abstract class) that indicates an object that holds a pointer to a buffer data. The Layer
+	 * class is an example of such object, hence it inherits this interface
 	 */
 	class IDataContainer
 	{
@@ -29,64 +29,77 @@ namespace pcpp
 		 */
 		virtual uint8_t* getDataPtr(size_t offset = 0) const = 0;
 
-		virtual ~IDataContainer() {}
+		virtual ~IDataContainer()
+		{}
 	};
 
 	class Packet;
 
 	/**
 	 * @class Layer
-	 * Layer is the base class for all protocol layers. Each protocol supported in PcapPlusPlus has a class that inherits Layer.
+	 * Layer is the base class for all protocol layers. Each protocol supported in PcapPlusPlus has a class that
+	 * inherits Layer.
 	 * The protocol layer class expose all properties and methods relevant for viewing and editing protocol fields.
-	 * For example: a pointer to a structured header (e.g tcphdr, iphdr, etc.), protocol header size, payload size, compute
-	 * fields that can be automatically computed, print protocol data to string, etc.
-	 * Each protocol instance is obviously part of a protocol stack (which construct a packet). This protocol stack is represented
-	 * in PcapPlusPlus in a linked list, and each layer is an element in this list. That's why each layer has properties to the next and previous
-	 * layer in the protocol stack
-	 * The Layer class, as a base class, is abstract and the user can't create an instance of it (it has a private constructor)
-	 * Each layer holds a pointer to the relevant place in the packet. The layer sees all the data from this pointer forward until the
-	 * end of the packet. Here is an example packet showing this concept:
+	 * For example: a pointer to a structured header (e.g tcphdr, iphdr, etc.), protocol header size, payload size,
+	 * compute fields that can be automatically computed, print protocol data to string, etc.
+	 * Each protocol instance is obviously part of a protocol stack (which construct a packet). This protocol stack is
+	 * represented in PcapPlusPlus in a linked list, and each layer is an element in this list. That's why each layer
+	 * has properties to the next and previous layer in the protocol stack. The Layer class, as a base class, is
+	 * abstract and the user can't create an instance of it (it has a private constructor). Each layer holds a pointer
+	 * to the relevant place in the packet. The layer sees all the data from this pointer forward until the end of the
+	 * packet. Here is an example packet showing this concept:
 	 *
-	 @verbatim
-	 ====================================================
-	 |Eth       |IPv4       |TCP       |Packet          |
-	 |Header    |Header     |Header    |Payload         |
-	 ====================================================
-
-	 |--------------------------------------------------|
- 	 EthLayer data
-	            |---------------------------------------|
-	            IPv4Layer data
-	                        |---------------------------|
-	                        TcpLayer data
-	                                   |----------------|
-	                                   PayloadLayer data
-	 @endverbatim
+	 * @verbatim
+	 * ====================================================
+	 * |Eth       |IPv4       |TCP       |Packet          |
+	 * |Header    |Header     |Header    |Payload         |
+	 * ====================================================
 	 *
-	*/
+	 * |--------------------------------------------------|
+	 * EthLayer data
+	 *            |---------------------------------------|
+	 *            IPv4Layer data
+	 *                        |---------------------------|
+	 *                        TcpLayer data
+	 *                                   |----------------|
+	 *                                   PayloadLayer data
+	 * @endverbatim
+	 *
+	 */
 	class Layer : public IDataContainer
 	{
 		friend class Packet;
+
 	public:
 		/**
-		 * A destructor for this class. Frees the data if it was allocated by the layer constructor (see isAllocatedToPacket() for more info)
+		 * A destructor for this class. Frees the data if it was allocated by the layer constructor (see
+		 * isAllocatedToPacket() for more info)
 		 */
 		virtual ~Layer();
 
 		/**
 		 * @return A pointer to the next layer in the protocol stack or NULL if the layer is the last one
 		 */
-		Layer* getNextLayer() const { return m_NextLayer; }
+		Layer* getNextLayer() const
+		{
+			return m_NextLayer;
+		}
 
 		/**
 		 * @return A pointer to the previous layer in the protocol stack or NULL if the layer is the first one
 		 */
-		Layer* getPrevLayer() const { return m_PrevLayer; }
+		Layer* getPrevLayer() const
+		{
+			return m_PrevLayer;
+		}
 
 		/**
 		 * @return The protocol enum
 		 */
-		ProtocolType getProtocol() const { return m_Protocol; }
+		ProtocolType getProtocol() const
+		{
+			return m_Protocol;
+		}
 
 		/**
 		 * Check if the layer's protocol matches a protocol family
@@ -98,32 +111,50 @@ namespace pcpp
 		/**
 		 * @return A pointer to the layer raw data. In most cases it'll be a pointer to the first byte of the header
 		 */
-		uint8_t* getData() const { return m_Data; }
+		uint8_t* getData() const
+		{
+			return m_Data;
+		}
 
 		/**
 		 * @return The length in bytes of the data from the first byte of the header until the end of the packet
 		 */
-		size_t getDataLen() const { return m_DataLen; }
+		size_t getDataLen() const
+		{
+			return m_DataLen;
+		}
 
 		/**
 		 * @return A pointer for the layer payload, meaning the first byte after the header
 		 */
-		uint8_t* getLayerPayload() const { return m_Data + getHeaderLen(); }
+		uint8_t* getLayerPayload() const
+		{
+			return m_Data + getHeaderLen();
+		}
 
 		/**
 		 * @return The size in bytes of the payload
 		 */
-		size_t getLayerPayloadSize() const { return m_DataLen - getHeaderLen(); }
+		size_t getLayerPayloadSize() const
+		{
+			return m_DataLen - getHeaderLen();
+		}
 
 		/**
 		 * Raw data in layers can come from one of sources:
-		 * 1. from an existing packet - this is the case when parsing packets received from files or the network. In this case the data was
-		 * already allocated by someone else, and layer only holds the pointer to the relevant place inside this data
-		 * 2. when creating packets, data is allocated when layer is created. In this case the layer is responsible for freeing it as well
+		 * 1. from an existing packet - this is the case when parsing packets received from files or the network. In
+		 * this case the data was already allocated by someone else, and layer only holds the pointer to the relevant
+		 * place inside this data
+		 * 2. when creating packets, data is allocated when layer is created. In this case the layer is responsible for
+		 * freeing it as well
 		 *
-		 * @return Returns true if the data was allocated by an external source (a packet) or false if it was allocated by the layer itself
+		 * @return Returns true if the data was allocated by an external source (a packet) or false if it was allocated
+		 * by the layer itself
 		 */
-		bool isAllocatedToPacket() const { return m_Packet != NULL; }
+		bool isAllocatedToPacket() const
+		{
+			return m_Packet != NULL;
+		}
 
 		/**
 		 * Copy the raw data of this layer to another array
@@ -133,8 +164,10 @@ namespace pcpp
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) const { return (uint8_t*)(m_Data + offset); }
-
+		uint8_t* getDataPtr(size_t offset = 0) const
+		{
+			return (uint8_t*)(m_Data + offset);
+		}
 
 		// abstract methods
 
@@ -154,7 +187,8 @@ namespace pcpp
 		virtual void computeCalculateFields() = 0;
 
 		/**
-		 * @return A string representation of the layer most important data (should look like the layer description in Wireshark)
+		 * @return A string representation of the layer most important data (should look like the layer description in
+		 * Wireshark)
 		 */
 		virtual std::string toString() const = 0;
 
@@ -172,27 +206,36 @@ namespace pcpp
 		Layer* m_PrevLayer;
 		bool m_IsAllocatedInPacket;
 
-		Layer() : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(UnknownProtocol), m_NextLayer(NULL), m_PrevLayer(NULL), m_IsAllocatedInPacket(false) { }
+		Layer()
+		    : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(UnknownProtocol), m_NextLayer(NULL),
+		      m_PrevLayer(NULL), m_IsAllocatedInPacket(false)
+		{}
 
-		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
-			m_Data(data), m_DataLen(dataLen),
-			m_Packet(packet), m_Protocol(UnknownProtocol),
-			m_NextLayer(NULL), m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false) {}
+		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(UnknownProtocol), m_NextLayer(NULL),
+		      m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false)
+		{}
 
 		// Copy c'tor
 		Layer(const Layer& other);
 		Layer& operator=(const Layer& other);
 
-		void setNextLayer(Layer* nextLayer) { m_NextLayer = nextLayer; }
-		void setPrevLayer(Layer* prevLayer) { m_PrevLayer = prevLayer; }
+		void setNextLayer(Layer* nextLayer)
+		{
+			m_NextLayer = nextLayer;
+		}
+		void setPrevLayer(Layer* prevLayer)
+		{
+			m_PrevLayer = prevLayer;
+		}
 
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
 	};
 
-} // namespace pcpp
+}  // namespace pcpp
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer &layer)
+inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)
 {
 	os << layer.toString();
 	return os;

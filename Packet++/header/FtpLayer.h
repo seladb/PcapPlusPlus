@@ -18,41 +18,60 @@ namespace pcpp
 	class FtpLayer : public SingleCommandTextProtocol
 	{
 	protected:
-		FtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : SingleCommandTextProtocol(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
-		FtpLayer(const std::string &command, const std::string &option) : SingleCommandTextProtocol(command, option) { m_Protocol = FTP; };
+		FtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : SingleCommandTextProtocol(data, dataLen, prevLayer, packet)
+		{
+			m_Protocol = FTP;
+		};
+		FtpLayer(const std::string& command, const std::string& option) : SingleCommandTextProtocol(command, option)
+		{
+			m_Protocol = FTP;
+		};
 
 	public:
-
 		/**
 		 * A static method that checks whether the port is considered as FTP control
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isFtpPort(uint16_t port) { return port == 21; }
+		static bool isFtpPort(uint16_t port)
+		{
+			return port == 21;
+		}
 
 		/**
 		 * A static method that checks whether the port is considered as FTP data
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isFtpDataPort(uint16_t port) { return port == 20; }
+		static bool isFtpDataPort(uint16_t port)
+		{
+			return port == 20;
+		}
 
 		// overridden methods
 
 		/// FTP is the always last so does nothing for this layer
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const
+		{
+			return m_DataLen;
+		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		/**
 		 * @return The OSI layer level of FTP (Application Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
-
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelApplicationLayer;
+		}
 	};
 
 	/**
@@ -61,7 +80,6 @@ namespace pcpp
 	class FtpRequestLayer : public FtpLayer
 	{
 	public:
-
 		/**
 		 * Enum for FTP command codes
 		 */
@@ -92,13 +110,13 @@ namespace pcpp
 			/// Client / Server Identification
 			CSID = ('C') | ('S' << 8) | ('I' << 16) | ('D' << 24),
 			/// Change working directory.
-			CWD  = ('C') | ('W' << 8) | ('D' << 16),
+			CWD = ('C') | ('W' << 8) | ('D' << 16),
 			/// Delete file.
 			DELE = ('D') | ('E' << 8) | ('L' << 16) | ('E' << 24),
 			/// Get the directory size
 			DSIZ = ('D') | ('S' << 8) | ('I' << 16) | ('Z' << 24),
 			/// Privacy Protected Channel
-			ENC  = ('E') | ('N' << 8) | ('C' << 16),
+			ENC = ('E') | ('N' << 8) | ('C' << 16),
 			/// Specifies an extended address and port to which the server should connect.
 			EPRT = ('E') | ('P' << 8) | ('R' << 16) | ('T' << 24),
 			/// Enter extended passive mode.
@@ -111,7 +129,8 @@ namespace pcpp
 			HOST = ('H') | ('O' << 8) | ('S' << 16) | ('T' << 24),
 			/// Language Negotiation
 			LANG = ('L') | ('A' << 8) | ('N' << 16) | ('G' << 24),
-			/// Returns information of a file or directory if specified, else information of the current working directory is returned.
+			/// Returns information of a file or directory if specified, else information of the current working
+			/// directory is returned.
 			LIST = ('L') | ('I' << 8) | ('S' << 16) | ('T' << 24),
 			/// Specifies a long address and port to which the server should connect.
 			LPRT = ('L') | ('P' << 8) | ('R' << 16) | ('T' << 24),
@@ -122,16 +141,17 @@ namespace pcpp
 			/// Modify the creation time of a file.
 			MFCT = ('M') | ('F' << 8) | ('C' << 16) | ('T' << 24),
 			/// Modify fact (the last modification time, creation time, UNIX group/owner/mode of a file).
-			MFF  = ('M') | ('F' << 8) | ('F' << 16),
+			MFF = ('M') | ('F' << 8) | ('F' << 16),
 			/// Modify the last modification time of a file.
 			MFMT = ('M') | ('F' << 8) | ('M' << 16) | ('T' << 24),
 			/// Integrity Protected Command
-			MIC  = ('M') | ('I' << 8) | ('C' << 16),
+			MIC = ('M') | ('I' << 8) | ('C' << 16),
 			/// Make directory.
-			MKD  = ('M') | ('K' << 8) | ('D' << 16),
+			MKD = ('M') | ('K' << 8) | ('D' << 16),
 			/// Lists the contents of a directory in a standardized machine-readable format.
 			MLSD = ('M') | ('L' << 8) | ('S' << 16) | ('D' << 24),
-			/// Provides data about exactly the object named on its command line in a standardized machine-readable format.
+			/// Provides data about exactly the object named on its command line in a standardized machine-readable
+			/// format.
 			MLST = ('M') | ('L' << 8) | ('S' << 16) | ('T' << 24),
 			/// Sets the transfer mode (Stream, Block, or Compressed).
 			MODE = ('M') | ('O' << 8) | ('D' << 16) | ('E' << 24),
@@ -152,7 +172,7 @@ namespace pcpp
 			/// Data Channel Protection Level.
 			PROT = ('P') | ('R' << 8) | ('O' << 16) | ('T' << 24),
 			/// Print working directory. Returns the current directory of the host.
-			PWD  = ('P') | ('W' << 8) | ('D' << 16),
+			PWD = ('P') | ('W' << 8) | ('D' << 16),
 			/// Disconnect.
 			QUIT = ('Q') | ('U' << 8) | ('I' << 16) | ('T' << 24),
 			/// Re initializes the connection.
@@ -162,20 +182,22 @@ namespace pcpp
 			/// Retrieve a copy of the file
 			RETR = ('R') | ('E' << 8) | ('T' << 16) | ('R' << 24),
 			/// Remove a directory.
-			RMD  = ('R') | ('M' << 8) | ('D' << 16),
+			RMD = ('R') | ('M' << 8) | ('D' << 16),
 			/// Remove a directory tree
 			RMDA = ('R') | ('M' << 8) | ('D' << 16) | ('A' << 24),
 			/// Rename from.
 			RNFR = ('R') | ('N' << 8) | ('F' << 16) | ('R' << 24),
 			/// Rename to.
 			RNTO = ('R') | ('N' << 8) | ('T' << 16) | ('O' << 24),
-			/// Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP output for complete list of supported commands.
+			/// Sends site specific commands to remote server (like SITE IDLE 60 or SITE UMASK 002). Inspect SITE HELP
+			/// output for complete list of supported commands.
 			SITE = ('S') | ('I' << 8) | ('T' << 16) | ('E' << 24),
 			/// Return the size of a file.
 			SIZE = ('S') | ('I' << 8) | ('Z' << 16) | ('E' << 24),
 			/// Mount file structure.
 			SMNT = ('S') | ('M' << 8) | ('N' << 16) | ('T' << 24),
-			/// Use single port passive mode (only one TCP port number for both control connections and passive-mode data connections)
+			/// Use single port passive mode (only one TCP port number for both control connections and passive-mode
+			/// data connections)
 			SPSV = ('S') | ('P' << 8) | ('S' << 16) | ('V' << 24),
 			/// Returns information on the server status, including the status of the current connection
 			STAT = ('S') | ('T' << 8) | ('A' << 16) | ('T' << 24),
@@ -217,14 +239,16 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) {};
+		FtpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : FtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
 		 * A constructor that creates layer with provided input values
 		 * @param[in] command FTP command
 		 * @param[in] option Argument of the command
 		 */
-		explicit FtpRequestLayer(const FtpCommand &command, const std::string &option = "") : FtpLayer(getCommandAsString(command), option) {};
+		explicit FtpRequestLayer(const FtpCommand& command, const std::string& option = "")
+		    : FtpLayer(getCommandAsString(command), option) {};
 
 		/**
 		 * Set the command of request message
@@ -250,7 +274,7 @@ namespace pcpp
 		 * @param[in] value Value to set command argument
 		 * @return True if the operation is successful, false otherwise
 		 */
-		bool setCommandOption(const std::string &value);
+		bool setCommandOption(const std::string& value);
 
 		/**
 		 * Get the command argument of request message
@@ -287,7 +311,6 @@ namespace pcpp
 	class FtpResponseLayer : public FtpLayer
 	{
 	public:
-
 		/**
 		 * Enum for FTP response codes
 		 */
@@ -415,14 +438,16 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : FtpLayer(data, dataLen, prevLayer, packet) {};
+		FtpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : FtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
 		 * A constructor that creates layer with provided input values
 		 * @param[in] code Status code
 		 * @param[in] option Argument of the status code
 		 */
-		explicit FtpResponseLayer(const FtpStatusCode &code, const std::string &option = "") : FtpLayer(std::to_string(int(code)), option) {};
+		explicit FtpResponseLayer(const FtpStatusCode& code, const std::string& option = "")
+		    : FtpLayer(std::to_string(int(code)), option) {};
 
 		/**
 		 * Set the status code of response message
@@ -448,7 +473,7 @@ namespace pcpp
 		 * @param[in] value Value to set argument
 		 * @return True if the operation is successful, false otherwise
 		 */
-		bool setStatusOption(const std::string &value);
+		bool setStatusOption(const std::string& value);
 
 		/**
 		 * Get the argument of response message
@@ -478,18 +503,21 @@ namespace pcpp
 	class FtpDataLayer : public PayloadLayer
 	{
 	public:
-
 		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		FtpDataLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet) : PayloadLayer(data, dataLen, prevLayer, packet) { m_Protocol = FTP; };
+		FtpDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : PayloadLayer(data, dataLen, prevLayer, packet)
+		{
+			m_Protocol = FTP;
+		};
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const;
 	};
-} // namespace pcpp
+}  // namespace pcpp
