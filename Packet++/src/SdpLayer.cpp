@@ -53,9 +53,8 @@ namespace pcpp
 		std::stringstream sessionVersionStream;
 		sessionVersionStream << sessionVersion;
 		std::string networkInfo = "IN IP4 " + ipAddress.toString();
-		// clang-format off
-		std::string originatorFieldValue = username + " " + sessionIDStream.str() + " " + sessionVersionStream.str() + " " + networkInfo;
-		// clang-format on
+		std::string originatorFieldValue =
+		    username + " " + sessionIDStream.str() + " " + sessionVersionStream.str() + " " + networkInfo;
 		addField(PCPP_SDP_ORIGINATOR_FIELD, originatorFieldValue);
 
 		addField(PCPP_SDP_SESSION_NAME_FIELD, sessionName);

@@ -1,17 +1,17 @@
 #define LOG_MODULE PacketLogModuleGreLayer
 
 #include "GreLayer.h"
-#include "EndianPortable.h"
-#include "EthDot3Layer.h"
 #include "EthLayer.h"
+#include "EthDot3Layer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
-#include "Logger.h"
-#include "MplsLayer.h"
 #include "PPPoELayer.h"
-#include "PacketUtils.h"
-#include "PayloadLayer.h"
 #include "VlanLayer.h"
+#include "MplsLayer.h"
+#include "PayloadLayer.h"
+#include "PacketUtils.h"
+#include "Logger.h"
+#include "EndianPortable.h"
 
 // ==============
 // GreLayer class

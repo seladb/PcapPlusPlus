@@ -261,10 +261,7 @@ namespace pcpp
 
 		HeaderField* fieldToRemove = nullptr;
 
-		std::pair<std::multimap<std::string, HeaderField*>::iterator,
-		          std::multimap<std::string, HeaderField*>::iterator>
-		    range;
-		range = m_FieldNameToFieldMap.equal_range(fieldName);
+		auto range = m_FieldNameToFieldMap.equal_range(fieldName);
 		int i = 0;
 		for (std::multimap<std::string, HeaderField*>::iterator iter = range.first; iter != range.second; ++iter)
 		{

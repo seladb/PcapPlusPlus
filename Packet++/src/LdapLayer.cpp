@@ -121,6 +121,7 @@ namespace pcpp
     };
 	// clang-format on
 
+	// clang-format off
 	static const std::unordered_map<uint8_t, LdapResultCode> UintToLdapResultCode{
 		{ static_cast<uint8_t>(LdapResultCode::Success),                   LdapResultCode::Success                   },
 		{ static_cast<uint8_t>(LdapResultCode::OperationsError),           LdapResultCode::OperationsError           },
@@ -133,9 +134,7 @@ namespace pcpp
 		{ static_cast<uint8_t>(LdapResultCode::StrongerAuthRequired),      LdapResultCode::StrongerAuthRequired      },
 		{ static_cast<uint8_t>(LdapResultCode::Referral),                  LdapResultCode::Referral                  },
 		{ static_cast<uint8_t>(LdapResultCode::AdminLimitExceeded),        LdapResultCode::AdminLimitExceeded        },
-		// clang-format off
 		{ static_cast<uint8_t>(LdapResultCode::UnavailableCriticalExtension), LdapResultCode::UnavailableCriticalExtension },
-		// clang-format on
 		{ static_cast<uint8_t>(LdapResultCode::ConfidentialityRequired),   LdapResultCode::ConfidentialityRequired   },
 		{ static_cast<uint8_t>(LdapResultCode::SaslBindInProgress),        LdapResultCode::SaslBindInProgress        },
 		{ static_cast<uint8_t>(LdapResultCode::NoSuchAttribute),           LdapResultCode::NoSuchAttribute           },
@@ -148,9 +147,7 @@ namespace pcpp
 		{ static_cast<uint8_t>(LdapResultCode::AliasProblem),              LdapResultCode::AliasProblem              },
 		{ static_cast<uint8_t>(LdapResultCode::InvalidDNSyntax),           LdapResultCode::InvalidDNSyntax           },
 		{ static_cast<uint8_t>(LdapResultCode::AliasDereferencingProblem), LdapResultCode::AliasDereferencingProblem },
-		// clang-format off
 		{ static_cast<uint8_t>(LdapResultCode::InappropriateAuthentication),  LdapResultCode::InappropriateAuthentication },
-		// clang-format on
 		{ static_cast<uint8_t>(LdapResultCode::InvalidCredentials),        LdapResultCode::InvalidCredentials        },
 		{ static_cast<uint8_t>(LdapResultCode::InsufficientAccessRights),  LdapResultCode::InsufficientAccessRights  },
 		{ static_cast<uint8_t>(LdapResultCode::Busy),                      LdapResultCode::Busy                      },
@@ -166,6 +163,7 @@ namespace pcpp
 		{ static_cast<uint8_t>(LdapResultCode::AffectsMultipleDSAs),       LdapResultCode::AffectsMultipleDSAs       },
 		{ static_cast<uint8_t>(LdapResultCode::Other),                     LdapResultCode::Other                     }
 	};
+	// clang-format on
 
 	std::string LdapResultCode::toString() const
 	{
@@ -330,15 +328,13 @@ namespace pcpp
 		for (auto controlRecord : controlsRecord->getSubRecords())
 		{
 			auto controlSequence = controlRecord->castAs<Asn1SequenceRecord>();
-			// clang-format off
-			auto controlType = controlSequence->getSubRecords().at(controlTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
-			// clang-format on
+			auto controlType =
+			    controlSequence->getSubRecords().at(controlTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 			std::string controlValue;
 			if (controlSequence->getSubRecords().size() > controlValueIndex)
 			{
-				// clang-format off
-				controlValue = controlSequence->getSubRecords().at(controlValueIndex)->castAs<Asn1OctetStringRecord>()->getValue();
-				// clang-format on
+				controlValue =
+				    controlSequence->getSubRecords().at(controlValueIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 			}
 			controls.push_back({ controlType, controlValue });
 		}
@@ -577,9 +573,8 @@ namespace pcpp
 		}
 		if (authRecord->getSubRecords().size() > saslCredentialsIndex)
 		{
-			// clang-format off
-			auto credentialsAsString = authRecord->getSubRecords().at(saslCredentialsIndex)->castAs<Asn1OctetStringRecord>()->getValue();
-			// clang-format on
+			auto credentialsAsString =
+			    authRecord->getSubRecords().at(saslCredentialsIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 			credentials.resize(credentialsAsString.size() / 2);
 			hexStringToByteArray(credentialsAsString, credentials.data(), credentials.size());
 		}
@@ -785,9 +780,8 @@ namespace pcpp
 			return result;
 		}
 
-		// clang-format off
-		auto attributesRecord = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
-		// clang-format on
+		auto attributesRecord =
+		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
 		for (auto attribute : attributesRecord->getSubRecords())
 		{
 			result.push_back(attribute->castAs<Asn1OctetStringRecord>()->getValue());
@@ -850,16 +844,14 @@ namespace pcpp
 	{
 		std::vector<LdapAttribute> result;
 
-		// clang-format off
-		auto attributes = getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
-		// clang-format on
+		auto attributes =
+		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
 		for (auto attributeRecord : attributes->getSubRecords())
 		{
 			auto attrAsSequence = attributeRecord->castAs<Asn1SequenceRecord>();
 
-			// clang-format off
-			auto type = attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
-			// clang-format on
+			auto type =
+			    attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 
 			std::vector<std::string> values;
 			auto valuesRecord = attrAsSequence->getSubRecords().at(attributeValueIndex)->castAs<Asn1SetRecord>();
