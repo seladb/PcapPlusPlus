@@ -94,7 +94,8 @@ namespace pcpp
 		close();
 	}
 
-	RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking, double timeout)
+	RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking,
+	                                                                 double timeout)
 	{
 #if defined(_WIN32)
 
@@ -115,7 +116,7 @@ namespace pcpp
 		u_long blockingMode = (blocking ? 0 : 1);
 		ioctlsocket(fd, FIONBIO, &blockingMode);
 
-		DWORD timeoutVal = timeout * 1000; // convert to milliseconds
+		DWORD timeoutVal = timeout * 1000;  // convert to milliseconds
 		setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
 		// recvfrom(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0, (struct sockaddr*)&sockAddr,(socklen_t*)&sockAddrLen);
