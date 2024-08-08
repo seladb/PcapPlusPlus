@@ -86,8 +86,9 @@ namespace pcpp
 		 * @param[out] rawPacket An empty packet instance where the received packet data will be written to
 		 * @param[in] blocking Indicates whether to run in blocking or non-blocking mode. Default value is blocking
 		 * @param[in] timeout When in blocking mode, specifies the timeout [in seconds] to wait for a packet. If timeout
-		 * expired and no packets were captured the method will return RawSocketDevice#RecvTimeout. Zero or negative
-		 * values mean no timeout. The default value is no timeout
+		 * expired and no packets were captured the method will return RawSocketDevice#RecvTimeout. Zero or negative values mean no
+		 * timeout. The default value is no timeout. The timeout precision is in milliseconds, for example a timeout of 0.123
+		 * means 123 milliseconds.
 		 * @return The method returns one on the following values:
 		 *  - RawSocketDevice#RecvSuccess is returned if a packet was received successfully
 		 *  - RawSocketDevice#RecvTimeout is returned if in blocking mode and timeout expired
@@ -95,18 +96,19 @@ namespace pcpp
 		 *  - RawSocketDevice#RecvError is returned if an error occurred such as device is not opened or the recv
 		 *    operation returned some error. A log message will be followed specifying the error and error code
 		 */
-		RecvPacketResult receivePacket(RawPacket& rawPacket, bool blocking = true, int timeout = -1);
+		RecvPacketResult receivePacket(RawPacket& rawPacket, bool blocking = true, double timeout = -1);
 
 		/**
 		 * Receive packets into a packet vector for a certain amount of time. This method starts a timer and invokes the
 		 * receivePacket() method in blocking mode repeatedly until the timeout expires. All packets received
 		 * successfully are put into a packet vector
 		 * @param[out] packetVec The packet vector to add the received packet to
-		 * @param[in] timeout Timeout in seconds to receive packets on the raw socket
+		 * @param[in] timeout Timeout in seconds to receive packets on the raw socket. The timeout precision is in milliseconds,
+		 * for example a timeout of 0.123 means 123 milliseconds.
 		 * @param[out] failedRecv Number of receive attempts that failed
 		 * @return The number of packets received successfully
 		 */
-		int receivePackets(RawPacketVector& packetVec, int timeout, int& failedRecv);
+		int receivePackets(RawPacketVector& packetVec, double timeout, int& failedRecv);
 
 		/**
 		 * Send an Ethernet packet to the network. L2 protocols other than Ethernet are not supported in raw sockets.
