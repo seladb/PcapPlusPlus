@@ -1,12 +1,22 @@
 import os
 import argparse
 import subprocess
-import netifaces as ni
+import scapy.arch.windows
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 PCAP_FILE_PATH = os.path.abspath(
     os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 )
+
+
+def get_ip_by_guid(guid):
+    interfaces = scapy.arch.windows.get_windows_if_list()
+    for iface in interfaces:
+        if iface["guid"] == guid:
+            # Return the second IP address if it exists, otherwise return None
+            return iface["ips"][1] if len(iface["ips"]) > 1 else None
+    # Return None if no matching interface is found
+    return None
 
 
 def find_interface():
@@ -26,8 +36,8 @@ def find_interface():
         if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
             interface = columns[1]
             try:
-                ni_interface = interface.lstrip("\\Device\\NPF_")
-                ip_address = ni.ifaddresses(ni_interface)[ni.AF_INET][0]["addr"]
+                nic_guid = interface.lstrip("\\Device\\NPF_")
+                ip_address = get_ip_by_guid(nic_guid)
                 if ip_address.startswith("169.254"):
                     continue
                 completed_process = subprocess.run(
