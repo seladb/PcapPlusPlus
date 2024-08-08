@@ -1,5 +1,6 @@
 #include "RawSocketDevice.h"
 #include "EndianPortable.h"
+#include <chrono>
 #ifdef __linux__
 #include <fcntl.h>
 #include <errno.h>
@@ -95,7 +96,7 @@ RawSocketDevice::~RawSocketDevice()
 	close();
 }
 
-RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking, int timeout)
+RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawPacket, bool blocking, double timeout)
 {
 #if defined(_WIN32)
 
@@ -116,7 +117,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 	u_long blockingMode = (blocking? 0 : 1);
 	ioctlsocket(fd, FIONBIO, &blockingMode);
 
-	DWORD timeoutVal = timeout * 1000;
+	DWORD timeoutVal = timeout * 1000; // convert to milliseconds
 	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
 	//recvfrom(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0, (struct sockaddr*)&sockAddr,(socklen_t*)&sockAddrLen);
@@ -179,8 +180,8 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 
 	// set timeout on socket
 	struct timeval timeoutVal;
-	timeoutVal.tv_sec = timeout;
-	timeoutVal.tv_usec = 0;
+	timeoutVal.tv_sec = static_cast<int>(timeout);
+	timeoutVal.tv_usec = static_cast<long int>((timeout - timeoutVal.tv_sec) * 1000000);
 	setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeoutVal, sizeof(timeoutVal));
 
 	int bufferLen = recv(fd, buffer, RAW_SOCKET_BUFFER_LEN, 0);
@@ -216,7 +217,7 @@ RawSocketDevice::RecvPacketResult RawSocketDevice::receivePacket(RawPacket& rawP
 #endif
 }
 
-int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int& failedRecv)
+int RawSocketDevice::receivePackets(RawPacketVector& packetVec, double timeout, int& failedRecv)
 {
 	if (!isOpened())
 	{
@@ -224,18 +225,26 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 		return 0;
 	}
 
-	long curSec, curNsec;
-	clockGetTime(curSec, curNsec);
+	int64_t timeoutMilli = timeout * 1000;
 
 	int packetCount = 0;
 	failedRecv = 0;
 
-	long timeoutSec = curSec + timeout;
+	auto start = std::chrono::system_clock::now();
 
-	while (curSec < timeoutSec)
+	while (true)
 	{
+		auto now = std::chrono::system_clock::now();
+		auto elapsedMilli = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+		double elapsedSec = static_cast<double>(elapsedMilli) / 1000;
+
+		if (elapsedMilli >= timeoutMilli)
+		{
+			break;
+		}
+
 		RawPacket* rawPacket = new RawPacket();
-		if (receivePacket(*rawPacket, true, timeoutSec-curSec) == RecvSuccess)
+		if (receivePacket(*rawPacket, true, elapsedSec) == RecvSuccess)
 		{
 			packetVec.pushBack(rawPacket);
 			packetCount++;
@@ -245,8 +254,6 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, int timeout, int
 			failedRecv++;
 			delete rawPacket;
 		}
-
-		clockGetTime(curSec, curNsec);
 	}
 
 	return packetCount;
