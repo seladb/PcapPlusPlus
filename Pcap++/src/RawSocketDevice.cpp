@@ -230,11 +230,11 @@ int RawSocketDevice::receivePackets(RawPacketVector& packetVec, double timeout, 
 	int packetCount = 0;
 	failedRecv = 0;
 
-	auto start = std::chrono::system_clock::now();
+	auto start = std::chrono::steady_clock::now();
 
 	while (true)
 	{
-		auto now = std::chrono::system_clock::now();
+		auto now = std::chrono::steady_clock::now();
 		auto elapsedMilli = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
 		double elapsedSec = static_cast<double>(elapsedMilli) / 1000;
 
