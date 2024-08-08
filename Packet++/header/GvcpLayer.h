@@ -465,6 +465,7 @@ namespace pcpp
 		}
 	};
 
+	/// @brief Gvcp request layer
 	class GvcpRequestLayer : public GvcpLayer
 	{
 	public:
@@ -484,7 +485,7 @@ namespace pcpp
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] flag The flag, optional
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
-		 * @note all the parameters wil be converted to the network byte order
+		 * @note all the parameters will be converted to the network byte order
 		 */
 		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData = nullptr,
 		                          uint16_t payloadDataSize = 0, GvcpFlag flag = 0, uint16_t requestId = 1);
@@ -519,6 +520,7 @@ namespace pcpp
 			return reinterpret_cast<GvcpForceIpBody*>(m_Data + getHeaderLen());
 		}
 
+		/// @brief get the GVCP command
 		GvcpCommand getCommand() const
 		{
 			return getGvcpHeader()->getCommand();
@@ -546,6 +548,7 @@ namespace pcpp
 		}
 	};
 
+	/// @brief Gvcp acknowledge layer
 	class GvcpAcknowledgeLayer : public GvcpLayer
 	{
 	public:
@@ -565,7 +568,7 @@ namespace pcpp
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] ackId The acknowledge ID, optional
-		 * @note all the parameters wil be converted to the network byte order
+		 * @note all the parameters will be converted to the network byte order
 		 */
 		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
 		                              const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
