@@ -118,7 +118,7 @@ namespace pcpp
 		 * A static method that has to be called once at the startup of every application that uses DPDK. It does
 		 * several things:
 		 * - verifies huge-pages are set and DPDK kernel module is loaded, unless specifically asked not to (these are
-		 * set by the setup_dpdk.py external script that has to be run before application is started)
+		 *   set by the setup_dpdk.py external script that has to be run before application is started)
 		 * - initializes the DPDK infrastructure
 		 * - creates DpdkDevice instances for all ports available for DPDK
 		 *

@@ -486,12 +486,12 @@ namespace pcpp
 		 * @brief Send an array of MBufRawPacket to kernel.
 		 * Please notice the following:<BR>
 		 * - In terms of performance, this is the best method to use for sending packets because out of all sendPackets
-		 * overloads this method requires the least overhead and is almost as efficient as sending the packets directly
-		 * through DPDK. So if performance is a critical factor in your application, please use this method
+		 *   overloads this method requires the least overhead and is almost as efficient as sending the packets
+		 *   directly through DPDK. So if performance is a critical factor in your application, please use this method
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending
-		 * packets to DPDK, each iteration of 64 packets
+		 *   packets to DPDK, each iteration of 64 packets
 		 * - The mbufs used in this method aren't freed by this method, they will be transparently freed by DPDK
-		 * <BR><BR>
+		 *   <BR><BR>
 		 * @param[in] rawPacketsArr A pointer to an array of MBufRawPacket
 		 * @param[in] arrLength The length of the array
 		 * @return The number of packets actually and successfully sent
@@ -501,13 +501,13 @@ namespace pcpp
 		 * @brief Send an array of parsed packets to kernel.
 		 * Please notice the following:<BR>
 		 * - If some or all of the packets contain raw packets which aren't of type MBufRawPacket, a new temp
-		 * MBufRawPacket instances will be created and packet data will be copied to them. This is necessary to allocate
-		 * mbufs which will store the data to be sent. If performance is a critical factor please make sure you send
-		 * parsed packets that contain only raw packets of type MBufRawPacket
+		 *   MBufRawPacket instances will be created and packet data will be copied to them. This is necessary to
+		 *   allocate mbufs which will store the data to be sent. If performance is a critical factor please make sure
+		 *   you send parsed packets that contain only raw packets of type MBufRawPacket
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending
-		 * packets to DPDK, each iteration of 64 packets
+		 *   packets to DPDK, each iteration of 64 packets
 		 * - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed by
-		 * DPDK <BR><BR>
+		 *   DPDK <BR><BR>
 		 * @param[in] packetsArr A pointer to an array of parsed packet pointers
 		 * @param[in] arrLength The length of the array
 		 * @return The number of packets actually and successfully sent
@@ -517,9 +517,9 @@ namespace pcpp
 		 * @brief Send a vector of MBufRawPacket pointers to kernel.
 		 * Please notice the following:<BR>
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending
-		 * packets to DPDK, each iteration of 64 packets
+		 *   packets to DPDK, each iteration of 64 packets
 		 * - The mbufs used in this method aren't freed by this method, they will be transparently freed by DPDK
-		 * <BR><BR>
+		 *   <BR><BR>
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @return The number of packets actually and successfully sent
 		 */
@@ -528,13 +528,13 @@ namespace pcpp
 		 * @brief Send a vector of RawPacket pointers to kernel.
 		 * Please notice the following:<BR>
 		 * - If some or all of the raw packets aren't of type MBufRawPacket, a new temp MBufRawPacket instances will be
-		 * created and packet data will be copied to them. This is necessary to allocate mbufs which will store the data
-		 * to be sent. If performance is a critical factor please make sure you send only raw packets of type
-		 * MBufRawPacket (or use the sendPackets overload that sends MBufRawPacketVector)
+		 *   created and packet data will be copied to them. This is necessary to allocate mbufs which will store the
+		 *   data to be sent. If performance is a critical factor please make sure you send only raw packets of type
+		 *   MBufRawPacket (or use the sendPackets overload that sends MBufRawPacketVector)
 		 * - If the number of packets to send is higher than 64 this method will run multiple iterations of sending
-		 * packets to DPDK, each iteration of 64 packets
+		 *   packets to DPDK, each iteration of 64 packets
 		 * - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed by
-		 * DPDK <BR><BR>
+		 *   DPDK <BR><BR>
 		 * @param[in] rawPacketsVec The vector of raw packet
 		 * @return The number of packets actually and successfully sent
 		 */

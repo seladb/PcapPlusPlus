@@ -278,9 +278,8 @@ namespace pcpp
 
 	/**
 	 * @class IPFilter
-	 * A class for representing IPv4 address filter, equivalent to "net src x.x.x.x" or "net dst x.x.x.x"<BR>
+	 * A class for representing IPv4 or IPv6 address filter, equivalent to "net src x.x.x.x" or "net dst x.x.x.x"<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
-	 * @todo Add IPv6 filtering support
 	 */
 	class IPFilter : public IFilterWithDirection
 	{
@@ -421,11 +420,11 @@ namespace pcpp
 
 		/**
 		 * Set the subnet mask
-		 * @param[in] netmask The mask to use. The mask should match the IP versrion and be in a valid format.
+		 * @param[in] netmask The mask to use. The mask should match the IP version and be in a valid format.
 		 * Valid formats:
-		 *	 IPv4 - (X.X.X.X) - 'X' - a number in the range of 0 and 255 (inclusive)):
+		 *   IPv4 - (X.X.X.X) - 'X' - a number in the range of 0 and 255 (inclusive)):
 		 *   IPv6 - (YYYY:YYYY:YYYY:YYYY:YYYY:YYYY:YYYY:YYYY) - 'Y' - a hexadecimal digit [0 - 9, A - F]. Short form
-		 *IPv6 formats are allowed.
+		 *   IPv6 formats are allowed.
 		 * @throws std::invalid_argument The provided netmask is invalid or does not correspond to the current IP
 		 *address version.
 		 */
@@ -443,8 +442,8 @@ namespace pcpp
 		}
 
 		/**
-		 * Set the subnet (IPv4) or prefix length (IPv6). Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for
-		 * IPv6.
+		 * Set the subnet (IPv4) or prefix length (IPv6).
+		 * Acceptable subnet values are [0, 32] for IPv4 and [0, 128] for IPv6.
 		 * @param[in] len The subnet to use (e.g "/24")
 		 * @throws std::invalid_argument The provided length is out of acceptable range.
 		 */
@@ -464,7 +463,7 @@ namespace pcpp
 
 	/**
 	 * @class IPv4IDFilter
-	 * A class for filtering IPv4 traffic by IP ID field of the IPv4 protocol, For example:
+	 * A class for filtering IPv4 traffic by IP ID field of the IPv4 protocol, for example:
 	 * "filter only IPv4 traffic which IP ID is greater than 1234"<BR>
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
@@ -496,8 +495,8 @@ namespace pcpp
 
 	/**
 	 * @class IPv4TotalLengthFilter
-	 * A class for filtering IPv4 traffic by "total length" field of the IPv4 protocol, For example:
-	 * "filter only IPv4 traffic which "total length" value is less than 60B"<BR>
+	 * A class for filtering IPv4 traffic by "total length" field of the IPv4 protocol, for example:
+	 * "filter only IPv4 traffic which "total length" value is less than 60B"
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class IPv4TotalLengthFilter : public IFilterWithOperator
@@ -562,7 +561,8 @@ namespace pcpp
 	 * @class PortRangeFilter
 	 * A class for filtering TCP or UDP port ranges, meaning match only packets which port is within this range, for
 	 * example: "src portrange 1000-2000" will match only TCP or UDP traffic which source port is in the range of 1000 -
-	 * 2000<BR> For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * 2000<BR>
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class PortRangeFilter : public IFilterWithDirection
 	{

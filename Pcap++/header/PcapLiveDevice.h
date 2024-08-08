@@ -67,16 +67,16 @@ namespace pcpp
 	 * by using PcapLiveDeviceList public methods such as PcapLiveDeviceList#getPcapLiveDeviceByIp()<BR> Main
 	 * capabilities of this class:
 	 * - Get all available information for this network interfaces such as name, IP addresses, MAC address, MTU, etc.
-	 * This information is taken from both libpcap and the OS
+	 *   This information is taken from both libpcap and the OS
 	 * - Capture packets from the network. Capturing is always conducted on a different thread. PcapPlusPlus creates
-	 * this thread when capturing starts and kills it when capturing ends. This prevents the application from being
-	 * stuck while waiting for packets or processing them. Currently only one capturing thread is allowed, so when the
-	 * interface is in capture mode, no further capturing is allowed. In addition to capturing the user can get stats on
-	 * packets that were received by the application, dropped by the NIC (due to full NIC buffers), etc. Stats
-	 * collection can be initiated by the user by calling getStatistics() or be pushed to the user periodically by
-	 * supplying a callback and a timeout to startCapture()
+	 *   this thread when capturing starts and kills it when capturing ends. This prevents the application from being
+	 *   stuck while waiting for packets or processing them. Currently only one capturing thread is allowed, so when the
+	 *   interface is in capture mode, no further capturing is allowed. In addition to capturing the user can get stats on
+	 *   packets that were received by the application, dropped by the NIC (due to full NIC buffers), etc. Stats
+	 *   collection can be initiated by the user by calling getStatistics() or be pushed to the user periodically by
+	 *   supplying a callback and a timeout to startCapture()
 	 * - Send packets back to the network. Sending the packets is done on the caller thread. No additional threads are
-	 * created for this task
+	 *   created for this task
 	 */
 	class PcapLiveDevice : public IPcapDevice
 	{

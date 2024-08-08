@@ -74,7 +74,7 @@ namespace pcpp
 		 * - IP address provided is NULL or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
-		 * devices on the remote machine
+		 *   devices on the remote machine
 		 * @deprecated This factory function has been deprecated in favor of 'createRemoteDeviceList' factory for better
 		 * memory safety.
 		 */
@@ -96,7 +96,7 @@ namespace pcpp
 		 * be printed to log in each case):
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
-		 * devices on the remote machine
+		 *   devices on the remote machine
 		 */
 		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
 
@@ -113,7 +113,7 @@ namespace pcpp
 		 * - IP address provided is NULL or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
-		 * devices on the remote machine
+		 *   devices on the remote machine
 		 * @deprecated This factory function has been deprecated in favor of 'createRemoteDeviceList' factory for better
 		 * memory safety.
 		 */
@@ -138,7 +138,7 @@ namespace pcpp
 		 * be printed to log in each case):
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
-		 * devices on the remote machine
+		 *   devices on the remote machine
 		 */
 		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port,
 		                                                                    PcapRemoteAuthentication const* remoteAuth);
