@@ -21,16 +21,16 @@ namespace pcpp
 	 * unusable. There are also major differences between Linux and Windows in raw socket implementation, let's mention
 	 * some of the:
 	 *  - On Windows administrative privileges are required for raw sockets creation, meaning the process running the
-	 * code has to have these privileges. In Linux 'sudo' is required
+	 *    code has to have these privileges. In Linux 'sudo' is required
 	 *  - On Windows raw sockets are implemented in L3, meaning the L2 (Ethernet) layer is omitted by the socket and
-	 * only L3 and up are visible to the user. On Linux raw sockets are implemented on L2, meaning all layers (including
-	 * the Ethernet data) are visible to the user.
+	 *    only L3 and up are visible to the user. On Linux raw sockets are implemented on L2, meaning all layers
+	 *    (including the Ethernet data) are visible to the user.
 	 *  - On Windows sending packets is not supported, a raw socket can only receive packets. On Linux both send and
-	 * receive are supported
+	 *    receive are supported
 	 *  - Linux doesn't require binding to a specific network interface for receiving packets, but it does require
-	 * binding for sending packets. Windows requires binding for receiving packets. For the sake of keeping a unified
-	 * and simple cross-platform interface this class requires binding for both Linux and Windows, on both send and
-	 * receive
+	 *    binding for sending packets. Windows requires binding for receiving packets. For the sake of keeping a unified
+	 *    and simple cross-platform interface this class requires binding for both Linux and Windows, on both send and
+	 *    receive
 	 *
 	 * More details about opening the raw socket, receiving and sending packets are explained in the corresponding class
 	 * methods. Raw sockets are supported for both IPv4 and IPv6, so you can create and bind raw sockets to each of the
@@ -73,12 +73,12 @@ namespace pcpp
 		/**
 		 * Receive a packet on the raw socket. This method has several modes of operation:
 		 *  - Blocking/non-blocking - in blocking mode the method will not return until a packet is received on the
-		 * socket or until the timeout expires. In non-blocking mode it will return immediately and in case no packets
-		 * are on the receive queue RawSocketDevice#RecvWouldBlock will be returned. Unless specified otherwise, the
-		 * default value is blocking mode
+		 *    socket or until the timeout expires. In non-blocking mode it will return immediately and in case no
+		 *    packets are on the receive queue RawSocketDevice#RecvWouldBlock will be returned. Unless specified
+		 *    otherwise, the default value is blocking mode
 		 *  - Receive timeout - in blocking mode, the user can set a timeout to wait until a packet is received. If the
-		 * timeout expires and no packets were received, the method will return RawSocketDevice#RecvTimeout. The default
-		 * value is a negative value which means no timeout
+		 *    timeout expires and no packets were received, the method will return RawSocketDevice#RecvTimeout. The
+		 *    default value is a negative value which means no timeout
 		 *
 		 * There is a slight difference on this method's behavior between Windows and Linux around how packets are
 		 * received. On Linux the received packet contains all layers starting from the L2 (Ethernet). However on
@@ -93,7 +93,7 @@ namespace pcpp
 		 *  - RawSocketDevice#RecvTimeout is returned if in blocking mode and timeout expired
 		 *  - RawSocketDevice#RecvWouldBlock is returned if in non-blocking mode and no packets were captured
 		 *  - RawSocketDevice#RecvError is returned if an error occurred such as device is not opened or the recv
-		 * operation returned some error. A log message will be followed specifying the error and error code
+		 *    operation returned some error. A log message will be followed specifying the error and error code
 		 */
 		RecvPacketResult receivePacket(RawPacket& rawPacket, bool blocking = true, int timeout = -1);
 

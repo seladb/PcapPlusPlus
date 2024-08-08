@@ -34,16 +34,16 @@ namespace pcpp
 	 * mbuf object which contains a pointer to the data. This implies that MBufRawPacket without an mbuf allocated to it
 	 * is not usable. Getting instances of MBufRawPacket can be done in one to the following ways:
 	 *    - Receiving packets from DpdkDevice. In this case DpdkDevice takes care of getting the mbuf from DPDK and
-	 * wrapping it with MBufRawPacket
+	 *      wrapping it with MBufRawPacket
 	 *    - Creating MBufRawPacket from scratch (in order to send it with DpdkDevice, for example). In this case the
-	 * user should call the init() method after constructing the object in order to allocate a new mbuf from DPDK port
-	 * pool (encapsulated by DpdkDevice)
+	 *      user should call the init() method after constructing the object in order to allocate a new mbuf from DPDK
+	 *      port pool (encapsulated by DpdkDevice)
 	 *
 	 * Limitations of this class:
 	 *    - Currently chained mbufs are not supported. An mbuf has the capability to be linked to another mbuf and
-	 * create a linked list of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support this
-	 * capability so there is no way to access the mbufs linked to the mbuf wrapped by MBufRawPacket instance. I hope
-	 * I'll be able to add this support in the future
+	 *      create a linked list of mbufs. This is good for Jumbo packets or other uses. MBufRawPacket doesn't support
+	 *      this capability so there is no way to access the mbufs linked to the mbuf wrapped by MBufRawPacket instance.
+	 *      I hope I'll be able to add this support in the future
 	 */
 	class MBufRawPacket : public RawPacket
 	{

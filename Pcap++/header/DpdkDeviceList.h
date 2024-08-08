@@ -68,7 +68,7 @@ namespace pcpp
 	 * A singleton class that encapsulates DPDK initialization and holds the list of DpdkDevice instances. As it's a
 	 * singleton, it has only one active instance doesn't have a public c'tor. This class has several main uses:
 	 *    - it contains the initDpdk() static method which initializes the DPDK infrastructure. It should be called once
-	 * in every application at its startup process
+	 *      in every application at its startup process
 	 *    - it contains the list of DpdkDevice instances and enables access to them
 	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
 	 */
