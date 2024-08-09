@@ -85,8 +85,7 @@ void printAppVersion()
  */
 void listInterfaces()
 {
-	const std::vector<pcpp::PcapLiveDevice*>& devList =
-	    pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
+	const auto& devList = pcpp::PcapLiveDeviceList::getInstance();
 
 	std::cout << std::endl << "Network interfaces:" << std::endl;
 	for (const auto& dev : devList)
@@ -199,7 +198,7 @@ int main(int argc, char* argv[])
 	// Search interface by name or IP
 	if (!ifaceNameOrIP.empty())
 	{
-		dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIpOrName(ifaceNameOrIP);
+		dev = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIpOrName(ifaceNameOrIP);
 		if (dev == nullptr)
 			EXIT_WITH_ERROR("Couldn't find interface by provided IP address or name");
 	}

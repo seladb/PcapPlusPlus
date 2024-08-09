@@ -41,11 +41,8 @@ static inline bool checkKniDriver()
 	return true;
 }
 
-KniDeviceList::KniDeviceList() :
-	m_Devices(),
-	m_Initialized(true), m_KniUniqueId(0)
+KniDeviceList::KniDeviceList() : m_Initialized(true), m_KniUniqueId(0)
 {
-	m_Devices.reserve(MAX_KNI_DEVICES);
 	if (!checkKniDriver())
 	{
 		m_Initialized = false;
@@ -69,8 +66,7 @@ KniDeviceList::KniDeviceList() :
 
 KniDeviceList::~KniDeviceList()
 {
-	for (size_t i = 0; i < m_Devices.size(); ++i)
-		delete m_Devices[i];
+	m_DeviceList.clear();
 	rte_kni_close();
 }
 
@@ -86,40 +82,34 @@ KniDevice* KniDeviceList::createDevice(
 )
 {
 	if (!isInitialized())
-		return NULL;
-	KniDevice* kniDevice = getDeviceByName(std::string(config.name));
-	if (kniDevice != NULL)
+	{
+		return nullptr;
+	}
+
+	if (getDeviceByName(std::string(config.name)) != nullptr)
 	{
 		PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
 		PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
-		return NULL;
+		return nullptr;
 	}
-	if (config.portId != UINT16_MAX)
+	if (config.portId != UINT16_MAX && getDeviceByPort(config.portId) != nullptr)
 	{
-		kniDevice = getDeviceByPort(config.portId);
-		if (kniDevice != NULL)
-		{
-			PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
-			PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
-			return NULL;
-		}
+		PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
+		PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
+		return nullptr;
 	}
-	kniDevice = new KniDevice(config, mempoolSize, m_KniUniqueId++);
-	m_Devices.push_back(kniDevice);
+	auto kniDevice = new KniDevice(config, mempoolSize, m_KniUniqueId++);
+	m_DeviceList.pushBack(kniDevice);
 	return kniDevice;
 }
 
 void KniDeviceList::destroyDevice(KniDevice* kniDevice)
 {
-	m_Devices.erase(
-		std::remove(
-			m_Devices.begin(),
-			m_Devices.end(),
-			kniDevice
-		),
-		m_Devices.end()
-	);
-	delete kniDevice;
+	auto it = std::find(m_DeviceList.begin(), m_DeviceList.end(), kniDevice);
+	if (it != m_DeviceList.end())
+	{
+		m_DeviceList.erase(it);
+	}
 }
 
 KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
@@ -127,30 +117,23 @@ KniDevice* KniDeviceList::getDeviceByPort(const uint16_t portId)
 	//? Linear search here is optimal for low count of devices.
 	//? We assume that no one will create large count of devices or will rapidly search them.
 	//? Same for <getDeviceByName> function
-	KniDevice* kniDevice = NULL;
 	if (!isInitialized())
-		return kniDevice;
-	for (size_t i = 0; i < m_Devices.size(); ++i)
-	{
-		kniDevice = m_Devices[i];
-		if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
-			return kniDevice;
-	}
-	return kniDevice = NULL;
+		return nullptr;
+
+	auto const foundIt = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		[&portId](KniDevice* kniDevice) { return kniDevice && kniDevice->m_DeviceInfo.portId == portId; }
+	);
+	return foundIt != m_DeviceList.end() ? *foundIt : nullptr;
 }
 
 KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
 {
-	KniDevice* kniDevice = NULL;
 	if (!isInitialized())
-		return kniDevice;
-	for (size_t i = 0; i < m_Devices.size(); ++i)
-	{
-		kniDevice = m_Devices[i];
-		if (kniDevice && kniDevice->m_DeviceInfo.name == name)
-			return kniDevice;
-	}
-	return kniDevice = NULL;
+		return nullptr;
+	auto const foundIt = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		[&name](KniDevice* kniDevice) { return kniDevice && kniDevice->m_DeviceInfo.name == name; }
+	);
+	return foundIt != m_DeviceList.end() ? *foundIt : nullptr;
 }
 
 KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()

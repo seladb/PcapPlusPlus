@@ -9,6 +9,7 @@
 #include "IpAddressUtils.h"
 #include "pcap.h"
 #include <array>
+#include <memory>
 #include <ws2tcpip.h>
 
 namespace pcpp
@@ -48,8 +49,8 @@ namespace pcpp
 		}
 	}
 
-PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, std::vector<PcapRemoteDevice*> deviceList)
-	: m_RemoteDeviceList(std::move(deviceList))
+PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, std::shared_ptr<PcapRemoteAuthentication> remoteAuth, PointerVector<PcapRemoteDevice> deviceList)
+	: Base(std::move(deviceList))
 	, m_RemoteMachineIpAddress(ipAddress)
 	, m_RemoteMachinePort(port)
 	, m_RemoteAuthentication(std::move(remoteAuth))
@@ -96,32 +97,25 @@ std::unique_ptr<PcapRemoteDeviceList> PcapRemoteDeviceList::createRemoteDeviceLi
 		return nullptr;
 	}
 
-	std::vector<PcapRemoteDevice*> devices;
+	PointerVector<PcapRemoteDevice> devices;
 	try
 	{
 		for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr; currInterface = currInterface->next)
 		{
 			auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(new PcapRemoteDevice(currInterface, pRemoteAuthCopy, ipAddress, port));
-			// Release is called after pushback to prevent memory leaks if vector reallocation fails.
-			// cppcheck-suppress danglingLifetime
-			devices.push_back(pNewRemoteDevice.get());
-			pNewRemoteDevice.release();
+			devices.pushBack(std::move(pNewRemoteDevice));
 		}
 	}
 	catch (const std::exception& e)
 	{
-		for (auto device : devices)
-		{
-			delete device;
-		}
 		PCPP_LOG_ERROR("Error creating remote devices: " << e.what());
 		return nullptr;
 	}
 
-	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, pRemoteAuthCopy, devices));
+	return std::unique_ptr<PcapRemoteDeviceList>(new PcapRemoteDeviceList(ipAddress, port, pRemoteAuthCopy, std::move(devices)));
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const std::string& ipAddrAsString) const
 {
 	IPAddress ipAddr;
 
@@ -135,32 +129,32 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& i
 		return nullptr;
 	}
 
-	PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
+	PcapRemoteDevice* result = getDeviceByIp(ipAddr);
 	return result;
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPAddress& ipAddr) const
 {
 	if (ipAddr.getType() == IPAddress::IPv4AddressType)
 	{
-		return getRemoteDeviceByIP(ipAddr.getIPv4());
+		return getDeviceByIp(ipAddr.getIPv4());
 	}
 	else //IPAddress::IPv6AddressType
 	{
-		return getRemoteDeviceByIP(ipAddr.getIPv6());
+		return getDeviceByIp(ipAddr.getIPv6());
 	}
 }
 
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv4Address& ip4Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for(auto const devicePtr : m_DeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : (*devIter)->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
+		for (const auto& addrIter : devicePtr->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != nullptr)
 			{
 				std::array<char, INET6_ADDRSTRLEN> addrAsString;
 				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
@@ -168,7 +162,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 			}
 
 			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
-			if (currAddr == NULL)
+			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
 				continue;
@@ -177,24 +171,24 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& i
 			if (*currAddr == ip4Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return (*devIter);
+				return devicePtr;
 			}
 		}
 	}
 
-	return NULL;
+	return nullptr;
 
 }
 
-PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
+PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 {
 	PCPP_LOG_DEBUG("Searching all remote devices in list...");
-	for(ConstRemoteDeviceListIterator devIter = m_RemoteDeviceList.begin(); devIter != m_RemoteDeviceList.end(); devIter++)
+	for (auto devicePtr : m_DeviceList)
 	{
-		PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
-		for(const auto &addrIter : (*devIter)->m_Addresses)
+		PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
+		for (const auto& addrIter : devicePtr->m_Addresses)
 		{
-			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
+			if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != nullptr)
 			{
 				std::array<char, INET6_ADDRSTRLEN> addrAsString;
 				internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
@@ -202,7 +196,7 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 			}
 
 			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
-			if (currAddr == NULL)
+			if (currAddr == nullptr)
 			{
 				PCPP_LOG_DEBUG("Address is NULL");
 				continue;
@@ -211,23 +205,13 @@ PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& i
 			if (*currAddr == ip6Addr)
 			{
 				PCPP_LOG_DEBUG("Found matched address!");
-				return (*devIter);
+				return devicePtr;
 			}
 		}
 	}
 
-	return NULL;
+	return nullptr;
 
-}
-
-PcapRemoteDeviceList::~PcapRemoteDeviceList()
-{
-	while (m_RemoteDeviceList.size() > 0)
-	{
-		RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
-		delete (*devIter);
-		m_RemoteDeviceList.erase(devIter);
-	}
 }
 
 } // namespace pcpp

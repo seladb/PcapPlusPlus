@@ -241,7 +241,7 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Gateway address is not valid");
 	}
 
-	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByIp(ifaceAddr);
+	pcpp::PcapLiveDevice* pIfaceDevice = pcpp::PcapLiveDeviceList::getInstance().getDeviceByIp(ifaceAddr);
 
 	// Verifying interface is valid
 	if (pIfaceDevice == nullptr)

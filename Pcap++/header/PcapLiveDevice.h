@@ -63,7 +63,7 @@ namespace pcpp
 	 * almost similar in capabilities, the main difference between them is adapting some capabilities to the specific OS.
 	 * This class cannot be instantiated by the user (it has a private constructor), as network interfaces aren't dynamic. Instances of
 	 * this class (one instance per network interface) are created by PcapLiveDeviceList singleton on application startup and the user can get
-	 * access to them by using PcapLiveDeviceList public methods such as PcapLiveDeviceList#getPcapLiveDeviceByIp()<BR>
+	 * access to them by using PcapLiveDeviceList public methods such as PcapLiveDeviceList#getDeviceByIp()<BR>
 	 * Main capabilities of this class:
 	 * - Get all available information for this network interfaces such as name, IP addresses, MAC address, MTU, etc. This information is taken
 	 * from both libpcap and the OS

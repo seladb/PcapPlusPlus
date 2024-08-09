@@ -2,10 +2,9 @@
 
 // GCOVR_EXCL_START
 
-#include <vector>
-
 #include "KniDevice.h"
 #include "DpdkDeviceList.h"
+#include "DeviceListBase.h"
 
 /**
  * \namespace pcpp
@@ -14,13 +13,28 @@
 namespace pcpp
 {
 
+	namespace internal
+	{
+		/**
+		 * @class KniDeviceDeleter
+		 * Specialized deleter for KniDevice. Do not use outside of KniDeviceList.
+		 */
+		struct KniDeviceDeleter
+		{
+			void operator()(KniDevice* kniDevice)
+			{
+				delete kniDevice;
+			}
+		};
+	}  // namespace internal
+
 	/**
 	 * @class KniDeviceList
 	 * A singleton class that encapsulates DPDK KNI module initialization
 	 * and holds the list of KniDevice instances.
 	 * As it's a singleton, it has only one active instance doesn't have a public c'tor.
 	 */
-	class KniDeviceList
+	class KniDeviceList : public internal::DeviceListBase<KniDevice, internal::KniDeviceDeleter>
 	{
 		KniDeviceList();
 
@@ -120,7 +134,6 @@ namespace pcpp
 		 */
 		static bool isCallbackSupported(const KniCallbackType cbType);
 	private:
-		std::vector<KniDevice*> m_Devices;
 		bool m_Initialized;
 		int m_KniUniqueId;
 	};
