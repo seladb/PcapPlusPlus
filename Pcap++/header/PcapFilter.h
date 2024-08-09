@@ -148,7 +148,8 @@ namespace pcpp
 
 	/**
 	 * @class GeneralFilter
-	 * The base class for all filter classes. This class is virtual and abstract, hence cannot be instantiated.<BR>
+	 * The base class for all filter classes. This class is virtual and abstract, hence cannot be instantiated.
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class GeneralFilter
@@ -214,7 +215,9 @@ namespace pcpp
 	/**
 	 * @class IFilterWithDirection
 	 * An abstract class that is the base class for all filters which contain a direction (source or destination). This
-	 * class cannot be instantiated<BR> For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * class cannot be instantiated
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class IFilterWithDirection : public GeneralFilter
 	{
@@ -246,8 +249,9 @@ namespace pcpp
 	/**
 	 * @class IFilterWithOperator
 	 * An abstract class that is the base class for all filters which contain an operator (e.g X equals Y; A is greater
-	 * than B; Z1 not equals Z2, etc.). This class cannot be instantiated<BR> For deeper understanding of the filter
-	 * concept please refer to PcapFilter.h
+	 * than B; Z1 not equals Z2, etc.). This class cannot be instantiated
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class IFilterWithOperator : public GeneralFilter
 	{
@@ -278,7 +282,8 @@ namespace pcpp
 
 	/**
 	 * @class IPFilter
-	 * A class for representing IPv4 or IPv6 address filter, equivalent to "net src x.x.x.x" or "net dst x.x.x.x"<BR>
+	 * A class for representing IPv4 or IPv6 address filter, equivalent to "net src x.x.x.x" or "net dst x.x.x.x"
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class IPFilter : public IFilterWithDirection
@@ -464,7 +469,8 @@ namespace pcpp
 	/**
 	 * @class IPv4IDFilter
 	 * A class for filtering IPv4 traffic by IP ID field of the IPv4 protocol, for example:
-	 * "filter only IPv4 traffic which IP ID is greater than 1234"<BR>
+	 * "filter only IPv4 traffic which IP ID is greater than 1234"
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class IPv4IDFilter : public IFilterWithOperator
@@ -528,7 +534,8 @@ namespace pcpp
 
 	/**
 	 * @class PortFilter
-	 * A class for filtering TCP or UDP traffic by port, for example: "dst port 80" or "src port 12345"<BR>
+	 * A class for filtering TCP or UDP traffic by port, for example: "dst port 80" or "src port 12345".
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class PortFilter : public IFilterWithDirection
@@ -561,7 +568,8 @@ namespace pcpp
 	 * @class PortRangeFilter
 	 * A class for filtering TCP or UDP port ranges, meaning match only packets which port is within this range, for
 	 * example: "src portrange 1000-2000" will match only TCP or UDP traffic which source port is in the range of 1000 -
-	 * 2000<BR>
+	 * 2000
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class PortRangeFilter : public IFilterWithDirection
@@ -605,7 +613,9 @@ namespace pcpp
 	/**
 	 * @class MacAddressFilter
 	 * A class for filtering Ethernet traffic by MAC addresses, for example: "ether src 12:34:56:78:90:12" or "ether dst
-	 * "10:29:38:47:56:10:29"<BR> For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * "10:29:38:47:56:10:29"
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class MacAddressFilter : public IFilterWithDirection
 	{
@@ -636,8 +646,9 @@ namespace pcpp
 	/**
 	 * @class EtherTypeFilter
 	 * A class for filtering by EtherType field of the Ethernet protocol. This enables to filter packets from certain
-	 * protocols, such as ARP, IPv4, IPv6, VLAN tags, etc.<BR> For deeper understanding of the filter concept please
-	 * refer to PcapFilter.h
+	 * protocols, such as ARP, IPv4, IPv6, VLAN tags, etc.
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class EtherTypeFilter : public GeneralFilter
 	{
@@ -667,7 +678,9 @@ namespace pcpp
 	/**
 	 * @class CompositeFilter
 	 * The base class for all filter classes composed of several other filters. This class is virtual and abstract,
-	 * hence cannot be instantiated.<BR> For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * hence cannot be instantiated.
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class CompositeFilter : public GeneralFilter
 	{
@@ -748,7 +761,8 @@ namespace pcpp
 
 	/**
 	 * @class CompositeLogicFilter
-	 * A class for connecting several filters into one filter with logical operation between them.<BR>
+	 * A class for connecting several filters into one filter with logical operation between them.
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	template <CompositeLogicFilterOp op> class CompositeLogicFilter : public CompositeFilter
@@ -775,22 +789,25 @@ namespace pcpp
 	/**
 	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2
 	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
-	 * _AND_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
-	 * filter concept please refer to PcapFilter.h
+	 * _AND_ TCP port dst = 80"<BR> This class follows the composite design pattern.
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	using AndFilter = CompositeLogicFilter<CompositeLogicFilterOp::AND>;
 
 	/**
 	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2
 	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
-	 * _OR_ TCP port dst = 80"<BR> This class follows the composite design pattern<BR> For deeper understanding of the
-	 * filter concept please refer to PcapFilter.h
+	 * _OR_ TCP port dst = 80"<BR> This class follows the composite design pattern.
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	using OrFilter = CompositeLogicFilter<CompositeLogicFilterOp::OR>;
 
 	/**
 	 * @class NotFilter
-	 * A class for creating a filter which is inverse to another filter<BR>
+	 * A class for creating a filter which is inverse to another filter
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class NotFilter : public GeneralFilter
@@ -880,7 +897,9 @@ namespace pcpp
 	/**
 	 * @class ArpFilter
 	 * A class for filtering ARP packets according the ARP opcode. When using this filter only ARP packets with the
-	 * relevant opcode will be received <BR> For deeper understanding of the filter concept please refer to PcapFilter.h
+	 * relevant opcode will be received
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class ArpFilter : public GeneralFilter
 	{
@@ -910,8 +929,9 @@ namespace pcpp
 	/**
 	 * @class VlanFilter
 	 * A class for filtering VLAN tagged packets by VLAN ID. When using this filter only packets tagged with VLAN which
-	 * has the specific VLAN ID will be received <BR> For deeper understanding of the filter concept please refer to
-	 * PcapFilter.h
+	 * has the specific VLAN ID will be received
+	 *
+	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class VlanFilter : public GeneralFilter
 	{
@@ -940,7 +960,8 @@ namespace pcpp
 
 	/**
 	 * @class TcpFlagsFilter
-	 * A class for filtering only TCP packets which certain TCP flags are set in them <BR>
+	 * A class for filtering only TCP packets which certain TCP flags are set in them
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class TcpFlagsFilter : public GeneralFilter
@@ -1012,7 +1033,8 @@ namespace pcpp
 
 	/**
 	 * @class TcpWindowSizeFilter
-	 * A class for filtering TCP packets that matches TCP window-size criteria <BR>
+	 * A class for filtering TCP packets that matches TCP window-size criteria.
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class TcpWindowSizeFilter : public IFilterWithOperator
@@ -1044,7 +1066,8 @@ namespace pcpp
 
 	/**
 	 * @class UdpLengthFilter
-	 * A class for filtering UDP packets that matches UDP length criteria <BR>
+	 * A class for filtering UDP packets that matches UDP length criteria.
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class UdpLengthFilter : public IFilterWithOperator
