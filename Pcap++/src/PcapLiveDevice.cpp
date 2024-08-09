@@ -606,8 +606,8 @@ namespace pcpp
 					int64_t pollTimeoutMs =
 					    timeoutMs -
 					    std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count();
-					pollTimeoutMs =
-					    std::max(pollTimeoutMs, (int64_t)0);  // poll will be in blocking mode if negative value
+					// poll will be in blocking mode if negative value
+					pollTimeoutMs = std::max(pollTimeoutMs, static_cast<int64_t>(0));
 
 					int ready = poll(&pcapPollFd, 1, pollTimeoutMs);  // wait the packets until timeout
 

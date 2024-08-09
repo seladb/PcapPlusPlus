@@ -342,9 +342,8 @@ namespace pcpp
 		uint8_t* pMyPacketData = new uint8_t[pkthdr.caplen];
 		memcpy(pMyPacketData, pPacketData, pkthdr.caplen);
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-		timespec ts = {
-			pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec)
-		};  // because we opened with nano second precision 'tv_usec' is actually nanos
+		// because we opened with nano second precision 'tv_usec' is actually nanos
+		timespec ts = { pkthdr.ts.tv_sec, static_cast<long>(pkthdr.ts.tv_usec) };
 #else
 		struct timeval ts = pkthdr.ts;
 #endif
