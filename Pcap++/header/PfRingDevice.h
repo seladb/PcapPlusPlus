@@ -16,16 +16,16 @@ struct __pfring;
 typedef struct __pfring pfring;
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 
 	class PfRingDevice;
 
-	typedef void (*OnPfRingPacketsArriveCallback)(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId, PfRingDevice* device, void* userCookie);
-
+	typedef void (*OnPfRingPacketsArriveCallback)(RawPacket* packets, uint32_t numOfPackets, uint8_t threadId,
+	                                              PfRingDevice* device, void* userCookie);
 
 	/**
 	 * @class PfRingDevice
@@ -34,8 +34,8 @@ namespace pcpp
 	class PfRingDevice : public IDevice, public IFilterableDevice
 	{
 		friend class PfRingDeviceList;
-	private:
 
+	private:
 		struct CoreConfiguration
 		{
 			std::thread RxThread;
@@ -68,7 +68,11 @@ namespace pcpp
 
 		int openSingleRxChannel(const char* deviceName, pfring** ring);
 
-		bool getIsHwClockEnable() { setPfRingDeviceAttributes(); return m_HwClockEnabled; }
+		bool getIsHwClockEnable()
+		{
+			setPfRingDeviceAttributes();
+			return m_HwClockEnabled;
+		}
 		bool setPfRingDeviceClock(pfring* ring);
 
 		void clearCoreConfiguration();
@@ -77,8 +81,8 @@ namespace pcpp
 		void setPfRingDeviceAttributes();
 
 		bool sendData(const uint8_t* packetData, int packetDataLength, bool flushTxQueues);
-	public:
 
+	public:
 		/**
 		 * An enum representing the type of packet distribution between different RX channels
 		 */
@@ -115,58 +119,78 @@ namespace pcpp
 		 * Get the MAC address of the current device
 		 * @return The MAC address of the current device
 		 */
-		MacAddress getMacAddress() { setPfRingDeviceAttributes(); return m_MacAddress; }
+		MacAddress getMacAddress()
+		{
+			setPfRingDeviceAttributes();
+			return m_MacAddress;
+		}
 
 		/**
 		 * Get PF_RING interface index of the current device
 		 * @return PF_RING interface index of the current device
 		 */
-		int getInterfaceIndex() { setPfRingDeviceAttributes(); return m_InterfaceIndex; }
+		int getInterfaceIndex()
+		{
+			setPfRingDeviceAttributes();
+			return m_InterfaceIndex;
+		}
 
 		/**
 		 * Get MTU of the current device
 		 * @return Upon success return the device MTU, 0 otherwise
 		 */
-		int getMtu() { setPfRingDeviceAttributes(); return m_DeviceMTU; }
+		int getMtu()
+		{
+			setPfRingDeviceAttributes();
+			return m_DeviceMTU;
+		}
 
 		/**
 		 * Return true if device supports hardware timestamping. If it does, this feature will be automatically set
 		 * for this device. You can read more about this in PF_RING documentation
 		 * @return True if device supports hardware timestamping, false otherwise
 		 */
-		bool isHwClockEnabledForDevice() { setPfRingDeviceAttributes(); return m_HwClockEnabled; }
+		bool isHwClockEnabledForDevice()
+		{
+			setPfRingDeviceAttributes();
+			return m_HwClockEnabled;
+		}
 
 		/**
 		 * Gets the interface name (e.g eth0, eth1, etc.)
 		 * @return The interface name
 		 */
-		std::string getDeviceName() const { return m_DeviceName; }
-
+		std::string getDeviceName() const
+		{
+			return m_DeviceName;
+		}
 
 		/**
 		 * Start single-threaded capturing with callback. Works with open() or openSingleRxChannel().
 		 * @param[in] onPacketsArrive A callback to call whenever a packet arrives
-		 * @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every packet
+		 * @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every
+		 * packet
 		 * @return True if this action succeeds, false otherwise
 		 */
 		bool startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie);
 
 		/**
 		 * Start multi-threaded (multi-core) capturing with callback. Works with openMultiRxChannels().
-		 * This method will return an error if the number of opened channels is different than the number of threads/cores
-		 * requested
+		 * This method will return an error if the number of opened channels is different than the number of
+		 * threads/cores requested
 		 * @param[in] onPacketsArrive A callback to call whenever a packet arrives
-		 * @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every packet
+		 * @param[in] onPacketsArriveUserCookie A cookie that will be delivered to onPacketsArrive callback on every
+		 * packet
 		 * @param[in] coreMask The cores to be used as mask. For example:
 		 * @return True if this action succeeds, false otherwise
 		 */
-		bool startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie, CoreMask coreMask);
+		bool startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive, void* onPacketsArriveUserCookie,
+		                             CoreMask coreMask);
 
 		/**
 		 * Stops capturing packets (works will all type of startCapture*)
 		 */
 		void stopCapture();
-
 
 		/**
 		 * Opens a single RX channel (=RX queue) on this interface. All packets will be received on a single thread
@@ -178,9 +202,9 @@ namespace pcpp
 		bool openSingleRxChannel(uint8_t channelId);
 
 		/**
-		 * Opens a set of RX channels (=RX queues) on this interface, identified by their IDs. All packets will be received on a single thread
-		 * without core affinity. If one of the channel IDs requested doesn't exist on this interface, the method will fail
-		 * (return false)
+		 * Opens a set of RX channels (=RX queues) on this interface, identified by their IDs. All packets will be
+		 * received on a single thread without core affinity. If one of the channel IDs requested doesn't exist on this
+		 * interface, the method will fail (return false)
 		 * @param[in] channelIds An array of channel IDs
 		 * @param[in] numOfChannelIds The channel ID array size
 		 * @return True if this action succeeds, false otherwise
@@ -190,10 +214,10 @@ namespace pcpp
 		/**
 		 * Opens numOfRxChannelsToOpen RX channels. If numOfRxChannelsToOpen is larger than available RX queues for this
 		 * interface than a number of RX channels will be opened on each RX queue. For example: if the user asks for 10
-		 * RX channels but the interface has only 4 RX queues, then 3 RX channels will be opened for RX-queue0 and RX-queue2,
-		 * and 2 RX channels will be opened for RX-queue2 and RX-queue3.
-		 * Packets will be distributed between different RX queues on per-flow manner, but within multiple RX channels in
-		 * the same RX queue packet will be distributed according to distribution requested by "dist"
+		 * RX channels but the interface has only 4 RX queues, then 3 RX channels will be opened for RX-queue0 and
+		 * RX-queue2, and 2 RX channels will be opened for RX-queue2 and RX-queue3. Packets will be distributed between
+		 * different RX queues on per-flow manner, but within multiple RX channels in the same RX queue packet will be
+		 * distributed according to distribution requested by "dist"
 		 * @param[in] numOfRxChannelsToOpen Number of RX channels to open
 		 * @param[in] dist Distribution method
 		 * @return True if this action succeeds, false otherwise
@@ -207,7 +231,10 @@ namespace pcpp
 		 * opened for each RX queue
 		 * @return Number of opened RX channels
 		 */
-		uint8_t getNumOfOpenedRxChannels() const { return m_NumOfOpenedRxChannels; }
+		uint8_t getNumOfOpenedRxChannels() const
+		{
+			return m_NumOfOpenedRxChannels;
+		}
 
 		/**
 		 * Gets the total number of RX channels (RX queues) this interface has
@@ -224,20 +251,23 @@ namespace pcpp
 		/**
 		 * Get the statistics of a specific thread/core (=RX channel)
 		 * @param[in] core The requested core
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be
+		 * overridden
 		 */
 		void getThreadStatistics(SystemCore core, PfRingStats& stats) const;
 
 		/**
 		 * Get the statistics of the current thread/core (=RX channel)
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be
+		 * overridden
 		 */
 		void getCurrentThreadStatistics(PfRingStats& stats) const;
 
 		/**
-		 * Get the statistics for the entire device. If more than 1 RX channel is opened, this method aggregates the stats
-		 * of all channels
-		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be overridden
+		 * Get the statistics for the entire device. If more than 1 RX channel is opened, this method aggregates the
+		 * stats of all channels
+		 * @param[out] stats A reference for the stats object where the stats are written. Current values will be
+		 * overridden
 		 */
 		void getStatistics(PfRingStats& stats) const;
 
@@ -314,9 +344,7 @@ namespace pcpp
 		 */
 		int sendPackets(const RawPacketVector& rawPackets);
 
-
 		// implement abstract methods
-
 
 		/**
 		 * Opens the entire device (including all RX channels/queues on this interface). All packets will be received
@@ -345,6 +373,6 @@ namespace pcpp
 		bool clearFilter();
 	};
 
-} // namespace pcpp
+}  // namespace pcpp
 
 // GCOVR_EXCL_STOP

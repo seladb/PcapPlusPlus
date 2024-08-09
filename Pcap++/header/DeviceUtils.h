@@ -18,7 +18,7 @@ namespace pcpp
 		 * @throws std::runtime_error The system encountered an error fetching the devices.
 		 */
 		std::unique_ptr<pcap_if_t, PcapFreeAllDevsDeleter> getAllLocalPcapDevices();
-	}
+	}  // namespace internal
 
 	/// @endcond
-}
+}  // namespace pcpp

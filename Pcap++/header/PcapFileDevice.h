@@ -11,9 +11,9 @@ typedef struct pcap_dumper pcap_dumper_t;
 /// @file
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 	/**
@@ -44,20 +44,18 @@ namespace pcpp
 		virtual ~IFileDevice();
 
 	public:
-
 		/**
-		* @return The name of the file
-		*/
+		 * @return The name of the file
+		 */
 		std::string getFileName() const;
 
-		//override methods
+		// override methods
 
 		/**
 		 * Close the file
 		 */
 		void close() override;
 	};
-
 
 	/**
 	 * @class IFileReaderDevice
@@ -70,22 +68,22 @@ namespace pcpp
 		uint32_t m_NumOfPacketsNotParsed;
 
 		/**
-		 * A constructor for this class that gets the pcap full path file name to open. Notice that after calling this constructor the file
-		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * A constructor for this class that gets the pcap full path file name to open. Notice that after calling this
+		 * constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
 		IFileReaderDevice(const std::string& fileName);
 
 	public:
-
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~IFileReaderDevice() {}
+		virtual ~IFileReaderDevice()
+		{}
 
 		/**
-		* @return The file size in bytes
-		*/
+		 * @return The file size in bytes
+		 */
 		uint64_t getFileSize() const;
 
 		virtual bool getNextPacket(RawPacket& rawPacket) = 0;
@@ -93,25 +91,26 @@ namespace pcpp
 		/**
 		 * Read the next N packets into a raw packet vector
 		 * @param[out] packetVec The raw packet vector to read packets into
-		 * @param[in] numOfPacketsToRead Number of packets to read. If value <0 all remaining packets in the file will be read into the
-		 * raw packet vector (this is the default value)
+		 * @param[in] numOfPacketsToRead Number of packets to read. If value <0 all remaining packets in the file will
+		 * be read into the raw packet vector (this is the default value)
 		 * @return The number of packets actually read
 		 */
 		int getNextPackets(RawPacketVector& packetVec, int numOfPacketsToRead = -1);
 
 		/**
-		 * A static method that creates an instance of the reader best fit to read the file. It decides by the file extension: for .pcapng
-		 * files it returns an instance of PcapNgFileReaderDevice and for all other extensions it returns an instance of PcapFileReaderDevice
+		 * A static method that creates an instance of the reader best fit to read the file. It decides by the file
+		 * extension: for .pcapng files it returns an instance of PcapNgFileReaderDevice and for all other extensions it
+		 * returns an instance of PcapFileReaderDevice
 		 * @param[in] fileName The file name to open
 		 * @return An instance of the reader to read the file. Notice you should free this instance when done using it
 		 */
 		static IFileReaderDevice* getReader(const std::string& fileName);
 	};
 
-
 	/**
 	 * @class PcapFileReaderDevice
-	 * A class for opening a pcap file in read-only mode. This class enable to open the file and read all packets, packet-by-packet
+	 * A class for opening a pcap file in read-only mode. This class enable to open the file and read all packets,
+	 * packet-by-packet
 	 */
 	class PcapFileReaderDevice : public IFileReaderDevice
 	{
@@ -125,27 +124,38 @@ namespace pcpp
 
 	public:
 		/**
-		 * A constructor for this class that gets the pcap full path file name to open. Notice that after calling this constructor the file
-		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * A constructor for this class that gets the pcap full path file name to open. Notice that after calling this
+		 * constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		PcapFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_Precision(FileTimestampPrecision::Unknown), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+		PcapFileReaderDevice(const std::string& fileName)
+		    : IFileReaderDevice(fileName), m_Precision(FileTimestampPrecision::Unknown),
+		      m_PcapLinkLayerType(LINKTYPE_ETHERNET)
+		{}
 
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~PcapFileReaderDevice() {}
+		virtual ~PcapFileReaderDevice()
+		{}
 
 		/**
-		* @return The link layer type of this file
-		*/
-		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
+		 * @return The link layer type of this file
+		 */
+		LinkLayerType getLinkLayerType() const
+		{
+			return m_PcapLinkLayerType;
+		}
 
 		/**
-		 * @return The precision of the timestamps in the file. If the platform supports nanosecond precision, this method will return
-		 * nanoseconds even if the file has microseconds since libpcap scales timestamps before supply. Otherwise, it will return microseconds.
-		*/
-		FileTimestampPrecision getTimestampPrecision() const { return m_Precision; }
+		 * @return The precision of the timestamps in the file. If the platform supports nanosecond precision, this
+		 * method will return nanoseconds even if the file has microseconds since libpcap scales timestamps before
+		 * supply. Otherwise, it will return microseconds.
+		 */
+		FileTimestampPrecision getTimestampPrecision() const
+		{
+			return m_Precision;
+		}
 
 		/**
 		 * A static method that checks if nano-second precision is supported in the current platform and environment
@@ -153,25 +163,26 @@ namespace pcpp
 		 */
 		static bool isNanoSecondPrecisionSupported();
 
-		//overridden methods
+		// overridden methods
 
 		/**
 		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
 		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
-		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
-		 * or if reached end-of-file
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
+		 * error log will be printed) or if reached end-of-file
 		 */
 		bool getNextPacket(RawPacket& rawPacket);
 
 		/**
 		 * Open the file name which path was specified in the constructor in a read-only mode
-		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed for some reason (for example:
-		 * file path does not exist)
+		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed
+		 * for some reason (for example: file path does not exist)
 		 */
 		bool open();
 
 		/**
-		 * Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The rest of the members will contain 0
+		 * Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The
+		 * rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		void getStatistics(PcapStats& stats) const;
@@ -179,33 +190,36 @@ namespace pcpp
 
 	/**
 	 * @class SnoopFileReaderDevice
-	 * A class for opening a snoop file in read-only mode. This class enable to open the file and read all packets, packet-by-packet
+	 * A class for opening a snoop file in read-only mode. This class enable to open the file and read all packets,
+	 * packet-by-packet
 	 */
 	class SnoopFileReaderDevice : public IFileReaderDevice
 	{
 	private:
-		#pragma pack(1)
+#pragma pack(1)
 		/*
 		 * File format header.
 		 */
-		typedef struct {
-		    uint64_t        identification_pattern;
-		    uint32_t        version_number;
-		    uint32_t        datalink_type;
+		typedef struct
+		{
+			uint64_t identification_pattern;
+			uint32_t version_number;
+			uint32_t datalink_type;
 		} snoop_file_header_t;
 
 		/*
 		 * Packet record header.
 		 */
-		typedef struct {
-		    uint32_t        original_length;     /* original packet length */
-		    uint32_t        included_length;     /* saved packet length */
-		    uint32_t        packet_record_length;/* total record length */
-		    uint32_t        ndrops_cumulative;   /* cumulative drops */
-		    uint32_t        time_sec;            /* timestamp */
-		    uint32_t        time_usec;           /* microsecond timestamp */
+		typedef struct
+		{
+			uint32_t original_length;      /* original packet length */
+			uint32_t included_length;      /* saved packet length */
+			uint32_t packet_record_length; /* total record length */
+			uint32_t ndrops_cumulative;    /* cumulative drops */
+			uint32_t time_sec;             /* timestamp */
+			uint32_t time_usec;            /* microsecond timestamp */
 		} snoop_packet_header_t;
-		#pragma pack()
+#pragma pack()
 
 		LinkLayerType m_PcapLinkLayerType;
 		std::ifstream m_snoopFile;
@@ -216,11 +230,13 @@ namespace pcpp
 
 	public:
 		/**
-		 * A constructor for this class that gets the snoop full path file name to open. Notice that after calling this constructor the file
-		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * A constructor for this class that gets the snoop full path file name to open. Notice that after calling this
+		 * constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
-		SnoopFileReaderDevice(const std::string& fileName) : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET) {}
+		SnoopFileReaderDevice(const std::string& fileName)
+		    : IFileReaderDevice(fileName), m_PcapLinkLayerType(LINKTYPE_ETHERNET)
+		{}
 
 		/**
 		 * A destructor for this class
@@ -228,30 +244,33 @@ namespace pcpp
 		virtual ~SnoopFileReaderDevice();
 
 		/**
-		* @return The link layer type of this file
-		*/
-		LinkLayerType getLinkLayerType() const { return m_PcapLinkLayerType; }
+		 * @return The link layer type of this file
+		 */
+		LinkLayerType getLinkLayerType() const
+		{
+			return m_PcapLinkLayerType;
+		}
 
-
-		//overridden methods
+		// overridden methods
 
 		/**
 		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
 		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
-		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
-		 * or if reached end-of-file
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
+		 * error log will be printed) or if reached end-of-file
 		 */
 		bool getNextPacket(RawPacket& rawPacket);
 
 		/**
 		 * Open the file name which path was specified in the constructor in a read-only mode
-		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed for some reason (for example:
-		 * file path does not exist)
+		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed
+		 * for some reason (for example: file path does not exist)
 		 */
 		bool open();
 
 		/**
-		 * Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The rest of the members will contain 0
+		 * Get statistics of packets read so far. In the PcapStats struct, only the packetsRecv member is relevant. The
+		 * rest of the members will contain 0
 		 * @param[out] stats The stats struct where stats are returned
 		 */
 		void getStatistics(PcapStats& stats) const;
@@ -262,10 +281,10 @@ namespace pcpp
 		void close();
 	};
 
-
 	/**
 	 * @class PcapNgFileReaderDevice
-	 * A class for opening a pcap-ng file in read-only mode. This class enable to open the file and read all packets, packet-by-packet
+	 * A class for opening a pcap-ng file in read-only mode. This class enable to open the file and read all packets,
+	 * packet-by-packet
 	 */
 	class PcapNgFileReaderDevice : public IFileReaderDevice
 	{
@@ -279,8 +298,8 @@ namespace pcpp
 
 	public:
 		/**
-		 * A constructor for this class that gets the pcap-ng full path file name to open. Notice that after calling this constructor the file
-		 * isn't opened yet, so reading packets will fail. For opening the file call open()
+		 * A constructor for this class that gets the pcap-ng full path file name to open. Notice that after calling
+		 * this constructor the file isn't opened yet, so reading packets will fail. For opening the file call open()
 		 * @param[in] fileName The full path of the file to read
 		 */
 		PcapNgFileReaderDevice(const std::string& fileName);
@@ -288,64 +307,68 @@ namespace pcpp
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~PcapNgFileReaderDevice() { close(); }
+		virtual ~PcapNgFileReaderDevice()
+		{
+			close();
+		}
 
 		/**
-		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
-		 * operating system that was used for capturing the packets. This method reads this string from the metadata (if exists) and
-		 * returns it
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
+		 * specifying the operating system that was used for capturing the packets. This method reads this string from
+		 * the metadata (if exists) and returns it
 		 * @return The operating system string if exists, or an empty string otherwise
 		 */
 		std::string getOS() const;
 
 		/**
-		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
-		 * hardware that was used for capturing the packets. This method reads this string from the metadata (if exists) and
-		 * returns it
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
+		 * specifying the hardware that was used for capturing the packets. This method reads this string from the
+		 * metadata (if exists) and returns it
 		 * @return The hardware string if exists, or an empty string otherwise
 		 */
 		std::string getHardware() const;
 
 		/**
-		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string specifying the
-		 * capture application that was used for capturing the packets. This method reads this string from the metadata (if exists) and
-		 * returns it
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
+		 * specifying the capture application that was used for capturing the packets. This method reads this string
+		 * from the metadata (if exists) and returns it
 		 * @return The capture application string if exists, or an empty string otherwise
 		 */
 		std::string getCaptureApplication() const;
 
 		/**
-		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string containing a user-defined
-		 * comment (can be any string). This method reads this string from the metadata (if exists) and
-		 * returns it
+		 * The pcap-ng format allows storing metadata at the header of the file. Part of this metadata is a string
+		 * containing a user-defined comment (can be any string). This method reads this string from the metadata (if
+		 * exists) and returns it
 		 * @return The comment written inside the file if exists, or an empty string otherwise
 		 */
 		std::string getCaptureFileComment() const;
 
 		/**
-		 * The pcap-ng format allows storing a user-defined comment for every packet (besides the comment per-file). This method reads
-		 * the next packet and the comment attached to it (if such comment exists), and returns them both
+		 * The pcap-ng format allows storing a user-defined comment for every packet (besides the comment per-file).
+		 * This method reads the next packet and the comment attached to it (if such comment exists), and returns them
+		 * both
 		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
 		 * @param[out] packetComment The comment attached to the packet or an empty string if no comment exists
-		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
-		 * or if reached end-of-file
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
+		 * error log will be printed) or if reached end-of-file
 		 */
 		bool getNextPacket(RawPacket& rawPacket, std::string& packetComment);
 
-		//overridden methods
+		// overridden methods
 
 		/**
 		 * Read the next packet from the file. Before using this method please verify the file is opened using open()
 		 * @param[out] rawPacket A reference for an empty RawPacket where the packet will be written
-		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an error log will be printed)
-		 * or if reached end-of-file
+		 * @return True if a packet was read successfully. False will be returned if the file isn't opened (also, an
+		 * error log will be printed) or if reached end-of-file
 		 */
 		bool getNextPacket(RawPacket& rawPacket);
 
 		/**
 		 * Open the file name which path was specified in the constructor in a read-only mode
-		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed for some reason (for example:
-		 * file path does not exist)
+		 * @return True if file was opened successfully or if file is already opened. False if opening the file failed
+		 * for some reason (for example: file path does not exist)
 		 */
 		bool open();
 
@@ -357,7 +380,8 @@ namespace pcpp
 
 		/**
 		 * Set a filter for PcapNG reader device. Only packets that match the filter will be received
-		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
+		 * (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */
 		bool setFilter(std::string filterAsString);
@@ -367,7 +391,6 @@ namespace pcpp
 		 */
 		void close();
 	};
-
 
 	/**
 	 * @class IFileWriterDevice
@@ -382,11 +405,11 @@ namespace pcpp
 		IFileWriterDevice(const std::string& fileName);
 
 	public:
-
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~IFileWriterDevice() {}
+		virtual ~IFileWriterDevice()
+		{}
 
 		virtual bool writePacket(RawPacket const& packet) = 0;
 
@@ -395,7 +418,6 @@ namespace pcpp
 		using IFileDevice::open;
 		virtual bool open(bool appendMode) = 0;
 	};
-
 
 	/**
 	 * @class PcapFileWriterDevice
@@ -420,22 +442,27 @@ namespace pcpp
 
 	public:
 		/**
-		 * A constructor for this class that gets the pcap full path file name to open for writing or create. Notice that after calling this
-		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
+		 * A constructor for this class that gets the pcap full path file name to open for writing or create. Notice
+		 * that after calling this constructor the file isn't opened yet, so writing packets will fail. For opening the
+		 * file call open()
 		 * @param[in] fileName The full path of the file
-		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is Ethernet
-		 * @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set to false, timestamps will be written in micro-precision
+		 * @param[in] linkLayerType The link layer type all packet in this file will be based on. The default is
+		 * Ethernet
+		 * @param[in] nanosecondsPrecision A boolean indicating whether to write timestamps in nano-precision. If set to
+		 * false, timestamps will be written in micro-precision
 		 */
-		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET, bool nanosecondsPrecision = false);
+		PcapFileWriterDevice(const std::string& fileName, LinkLayerType linkLayerType = LINKTYPE_ETHERNET,
+		                     bool nanosecondsPrecision = false);
 
 		/**
 		 * A destructor for this class
 		 */
-		~PcapFileWriterDevice() {}
+		~PcapFileWriterDevice()
+		{}
 
 		/**
-		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change the
-		 * written packet
+		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This
+		 * method won't change the written packet
 		 * @param[in] packet A reference for an existing RawPcket to write to the file
 		 * @return True if a packet was written successfully. False will be returned if the file isn't opened
 		 * or if the packet link layer type is different than the one defined for the file
@@ -444,18 +471,22 @@ namespace pcpp
 		bool writePacket(RawPacket const& packet) override;
 
 		/**
-		 * Write multiple RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change
-		 * the written packets or the RawPacketVector instance
+		 * Write multiple RawPacket to the file. Before using this method please verify the file is opened using open().
+		 * This method won't change the written packets or the RawPacketVector instance
 		 * @param[in] packets A reference for an existing RawPcketVector, all of its packets will be written to the file
-		 * @return True if all packets were written successfully to the file. False will be returned if the file isn't opened (also, an error
-		 * log will be printed) or if at least one of the packets wasn't written successfully to the file
+		 * @return True if all packets were written successfully to the file. False will be returned if the file isn't
+		 * opened (also, an error log will be printed) or if at least one of the packets wasn't written successfully to
+		 * the file
 		 */
 		bool writePackets(const RawPacketVector& packets) override;
 
 		/**
 		 * @return The precision of the timestamps in the file.
 		 */
-		FileTimestampPrecision getTimestampPrecision() const { return m_Precision; }
+		FileTimestampPrecision getTimestampPrecision() const
+		{
+			return m_Precision;
+		}
 
 		/**
 		 * A static method that checks if nano-second precision is supported in the current platform and environment
@@ -463,13 +494,13 @@ namespace pcpp
 		 */
 		static bool isNanoSecondPrecisionSupported();
 
-		//override methods
+		// override methods
 
 		/**
 		 * Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
 		 * overwritten, meaning all its current content will be deleted
-		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
-		 * (an error will be printed to log)
+		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file
+		 * failed for some reason (an error will be printed to log)
 		 */
 		bool open() override;
 
@@ -478,10 +509,10 @@ namespace pcpp
 		 * instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
 		 * @param[in] appendMode A boolean indicating whether to open the file in append mode or not. If set to false
 		 * this method will act exactly like open(). If set to true, file will be opened in append mode
-		 * @return True of managed to open the file successfully. In case appendMode is set to true, false will be returned
-		 * if file wasn't found or couldn't be read, if file type is not pcap, or if link type specified in c'tor is
-		 * different from current file link type. In case appendMode is set to false, please refer to open() for return
-		 * values
+		 * @return True of managed to open the file successfully. In case appendMode is set to true, false will be
+		 * returned if file wasn't found or couldn't be read, if file type is not pcap, or if link type specified in
+		 * c'tor is different from current file link type. In case appendMode is set to false, please refer to open()
+		 * for return values
 		 */
 		bool open(bool appendMode) override;
 
@@ -502,13 +533,12 @@ namespace pcpp
 		void getStatistics(PcapStats& stats) const override;
 	};
 
-
 	/**
 	 * @class PcapNgFileWriterDevice
-	 * A class for opening a pcap-ng file for writing or creating a new pcap-ng file and write packets to it. This class adds
-	 * unique capabilities such as writing metadata attributes into the file header, adding comments per packet and opening
-	 * the file in append mode where packets are added to a file instead of overriding it. This capabilities are part of the
-	 * pcap-ng standard but aren't supported in most tools and libraries
+	 * A class for opening a pcap-ng file for writing or creating a new pcap-ng file and write packets to it. This class
+	 * adds unique capabilities such as writing metadata attributes into the file header, adding comments per packet and
+	 * opening the file in append mode where packets are added to a file instead of overriding it. This capabilities are
+	 * part of the pcap-ng standard but aren't supported in most tools and libraries
 	 */
 	class PcapNgFileWriterDevice : public IFileWriterDevice
 	{
@@ -522,71 +552,80 @@ namespace pcpp
 		PcapNgFileWriterDevice& operator=(const PcapNgFileWriterDevice& other);
 
 	public:
-
 		/**
-		 * A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice that after calling this
-		 * constructor the file isn't opened yet, so writing packets will fail. For opening the file call open()
+		 * A constructor for this class that gets the pcap-ng full path file name to open for writing or create. Notice
+		 * that after calling this constructor the file isn't opened yet, so writing packets will fail. For opening the
+		 * file call open()
 		 * @param[in] fileName The full path of the file
-		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression or 10 for max compression. Default is 0
+		 * @param[in] compressionLevel The compression level to use when writing the file, use 0 to disable compression
+		 * or 10 for max compression. Default is 0
 		 */
 		PcapNgFileWriterDevice(const std::string& fileName, int compressionLevel = 0);
 
 		/**
 		 * A destructor for this class
 		 */
-		virtual ~PcapNgFileWriterDevice() { close(); }
+		virtual ~PcapNgFileWriterDevice()
+		{
+			close();
+		}
 
 		/**
 		 * Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
-		 * overwritten, meaning all its current content will be deleted. As opposed to open(), this method also allows writing several
-		 * metadata attributes that will be stored in the header of the file
-		 * @param[in] os A string describing the operating system that was used to capture the packets. If this string is empty or null it
-		 * will be ignored
-		 * @param[in] hardware A string describing the hardware that was used to capture the packets. If this string is empty or null it
-		 * will be ignored
-		 * @param[in] captureApp A string describing the application that was used to capture the packets. If this string is empty or null it
-		 * will be ignored
-		 * @param[in] fileComment A string containing a user-defined comment that will be part of the metadata of the file.
-		 * If this string is empty or null it will be ignored
-		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
-		 * (an error will be printed to log)
+		 * overwritten, meaning all its current content will be deleted. As opposed to open(), this method also allows
+		 * writing several metadata attributes that will be stored in the header of the file
+		 * @param[in] os A string describing the operating system that was used to capture the packets. If this string
+		 * is empty or null it will be ignored
+		 * @param[in] hardware A string describing the hardware that was used to capture the packets. If this string is
+		 * empty or null it will be ignored
+		 * @param[in] captureApp A string describing the application that was used to capture the packets. If this
+		 * string is empty or null it will be ignored
+		 * @param[in] fileComment A string containing a user-defined comment that will be part of the metadata of the
+		 * file. If this string is empty or null it will be ignored
+		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file
+		 * failed for some reason (an error will be printed to log)
 		 */
-		bool open(const std::string& os, const std::string& hardware, const std::string& captureApp, const std::string& fileComment);
+		bool open(const std::string& os, const std::string& hardware, const std::string& captureApp,
+		          const std::string& fileComment);
 
 		/**
-		 * The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a RawPacket to the file and
-		 * adds a comment to it. Before using this method please verify the file is opened using open(). This method won't change the
-		 * written packet or the input comment
+		 * The pcap-ng format allows adding a user-defined comment for each stored packet. This method writes a
+		 * RawPacket to the file and adds a comment to it. Before using this method please verify the file is opened
+		 * using open(). This method won't change the written packet or the input comment
 		 * @param[in] packet A reference for an existing RawPcket to write to the file
-		 * @param[in] comment The comment to be written for the packet. If this string is empty or null it will be ignored
-		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error will be printed to log)
+		 * @param[in] comment The comment to be written for the packet. If this string is empty or null it will be
+		 * ignored
+		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error
+		 * will be printed to log)
 		 */
 		bool writePacket(RawPacket const& packet, const std::string& comment);
 
-		//overridden methods
+		// overridden methods
 
 		/**
-		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change the
-		 * written packet
+		 * Write a RawPacket to the file. Before using this method please verify the file is opened using open(). This
+		 * method won't change the written packet
 		 * @param[in] packet A reference for an existing RawPcket to write to the file
-		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error will be printed to log)
+		 * @return True if a packet was written successfully. False will be returned if the file isn't opened (an error
+		 * will be printed to log)
 		 */
 		bool writePacket(RawPacket const& packet);
 
 		/**
-		 * Write multiple RawPacket to the file. Before using this method please verify the file is opened using open(). This method won't change
-		 * the written packets or the RawPacketVector instance
+		 * Write multiple RawPacket to the file. Before using this method please verify the file is opened using open().
+		 * This method won't change the written packets or the RawPacketVector instance
 		 * @param[in] packets A reference for an existing RawPcketVector, all of its packets will be written to the file
-		 * @return True if all packets were written successfully to the file. False will be returned if the file isn't opened (also, an error
-		 * log will be printed) or if at least one of the packets wasn't written successfully to the file
+		 * @return True if all packets were written successfully to the file. False will be returned if the file isn't
+		 * opened (also, an error log will be printed) or if at least one of the packets wasn't written successfully to
+		 * the file
 		 */
 		bool writePackets(const RawPacketVector& packets);
 
 		/**
 		 * Open the file in a write mode. If file doesn't exist, it will be created. If it does exist it will be
 		 * overwritten, meaning all its current content will be deleted
-		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file failed for some reason
-		 * (an error will be printed to log)
+		 * @return True if file was opened/created successfully or if file is already opened. False if opening the file
+		 * failed for some reason (an error will be printed to log)
 		 */
 		bool open();
 
@@ -595,9 +634,9 @@ namespace pcpp
 		 * instead of overwrite its current content. In append mode file must exist, otherwise opening will fail
 		 * @param[in] appendMode A boolean indicating whether to open the file in append mode or not. If set to false
 		 * this method will act exactly like open(). If set to true, file will be opened in append mode
-		 * @return True of managed to open the file successfully. In case appendMode is set to true, false will be returned
-		 * if file wasn't found or couldn't be read, if file type is not pcap-ng. In case appendMode is set to false, please refer to open()
-		 * for return values
+		 * @return True of managed to open the file successfully. In case appendMode is set to true, false will be
+		 * returned if file wasn't found or couldn't be read, if file type is not pcap-ng. In case appendMode is set to
+		 * false, please refer to open() for return values
 		 */
 		bool open(bool appendMode);
 
@@ -619,11 +658,11 @@ namespace pcpp
 
 		/**
 		 * Set a filter for PcapNG writer device. Only packets that match the filter will be persisted
-		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
+		 * (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */
 		bool setFilter(std::string filterAsString);
-
 	};
 
-}// namespace pcpp
+}  // namespace pcpp

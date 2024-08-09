@@ -23,5 +23,5 @@ namespace pcpp
 			// Assigns the raw pointer to the smart pointer with specialized deleter.
 			return std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter>(interfaceListRaw);
 		}
-	}
-}
+	}  // namespace internal
+}  // namespace pcpp

@@ -29,7 +29,7 @@ namespace pcpp
 		{
 			void operator()(pcap_if_t* ptr) const;
 		};
-	}
+	}  // namespace internal
 
 	/// @endcond
-}
+}  // namespace pcpp
