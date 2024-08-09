@@ -167,6 +167,7 @@ namespace pcpp
 	static_assert(sizeof(GvcpRequestHeader) == detail::kGvcpRequestHeaderLength,
 	              "Gvcp request header size should be 8 bytes");
 
+	/// @brief Gvcp discovery request
 	struct GvcpDiscoveryRequest : public GvcpRequestHeader
 	{
 		// no addition fields
