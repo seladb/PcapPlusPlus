@@ -2,6 +2,7 @@ import os
 import argparse
 import subprocess
 import scapy.arch.windows
+from ipaddress import IPv4Address
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 PCAP_FILE_PATH = os.path.abspath(
@@ -9,12 +10,25 @@ PCAP_FILE_PATH = os.path.abspath(
 )
 
 
+def validate_ipv4_address(address):
+    try:
+        IPv4Address(address)
+        return True
+    except ValueError:
+        return False
+
+
 def get_ip_by_guid(guid):
     interfaces = scapy.arch.windows.get_windows_if_list()
     for iface in interfaces:
-        if iface["guid"] == guid:
-            # Return the second IP address if it exists, otherwise return None
-            return iface["ips"][1] if len(iface["ips"]) > 1 else None
+        ips = iface.get("ips", [])
+        if not isinstance(ips, list):
+            print(f"Unexpected format for 'ips' in interface: {iface}")
+            return None
+        # Use filter inside next to find the first valid IPv4 address
+        # The first element in the returned iface["ips"] list is set to be a ipv6 address;
+        # Example 'ips': ['fe80::ff8e:5110:73f1:e14d', '169.254.226.73']}
+        return next(filter(validate_ipv4_address, ips), None)
     # Return None if no matching interface is found
     return None
 
