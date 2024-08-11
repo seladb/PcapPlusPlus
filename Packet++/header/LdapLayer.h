@@ -76,10 +76,11 @@ namespace pcpp
 
 		// cppcheck-suppress noExplicitConstructor
 		/**
- 		 * Construct LdapOperationType from Value enum
- 		 * @param[in] value the opetation type enum value
- 		 */
-		constexpr LdapOperationType(Value value) : m_Value(value) {}
+		 * Construct LdapOperationType from Value enum
+		 * @param[in] value the opetation type enum value
+		 */
+		constexpr LdapOperationType(Value value) : m_Value(value)
+		{}
 
 		/**
 		 * @return A string representation of the operation type
@@ -95,7 +96,10 @@ namespace pcpp
 		static LdapOperationType fromUintValue(uint8_t value);
 
 		// Allow switch and comparisons.
-		constexpr operator Value() const { return m_Value; }
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
 
 		// Prevent usage: if(LdapOperationType)
 		explicit operator bool() const = delete;
@@ -123,7 +127,7 @@ namespace pcpp
 			/**
 			 * Indicates that there was a problem with the client’s use of the LDAP protocol
 			 */
-			OperationsError= 1,
+			OperationsError = 1,
 			/**
 			 * Indicates that there was a problem with the client’s use of the LDAP protocol
 			 */
@@ -312,10 +316,11 @@ namespace pcpp
 
 		// cppcheck-suppress noExplicitConstructor
 		/**
- 		 * Construct LdapResultCode from Value enum
- 		 * @param[in] value the result code enum value
- 		 */
-		constexpr LdapResultCode(Value value) : m_Value(value) { }
+		 * Construct LdapResultCode from Value enum
+		 * @param[in] value the result code enum value
+		 */
+		constexpr LdapResultCode(Value value) : m_Value(value)
+		{}
 
 		/**
 		 * @return A string representation of the result code
@@ -331,10 +336,14 @@ namespace pcpp
 		static LdapResultCode fromUintValue(uint8_t value);
 
 		// Allow switch and comparisons
-		constexpr operator Value() const { return m_Value; }
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
 
 		// Prevent usage: if(LdapResultCode)
 		explicit operator bool() const = delete;
+
 	private:
 		Value m_Value = LdapResultCode::Unknown;
 	};
@@ -398,11 +407,11 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapLayer(uint16_t messageId, LdapOperationType operationType,
-			const std::vector<Asn1Record*>& messageRecords,
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		LdapLayer(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords,
+		          const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
-		~LdapLayer() {}
+		~LdapLayer()
+		{}
 
 		/**
 		 * @return The root ASN.1 record of the LDAP message. All of the message data will be under this record.
@@ -428,7 +437,8 @@ namespace pcpp
 		std::vector<LdapControl> getControls() const;
 
 		/**
-		 * @return The LDAP operation of this message. If the Operation ASN.1 record is malformed, an exception is thrown
+		 * @return The LDAP operation of this message. If the Operation ASN.1 record is malformed, an exception is
+		 * thrown
 		 */
 		virtual LdapOperationType getLdapOperationType() const;
 
@@ -452,8 +462,7 @@ namespace pcpp
 		 * @param[out] result An outvariable to contain the result if no exception is thrown
 		 * @return True if no exception was thrown or false otherwise
 		 */
-		template <typename Method, typename ResultType>
-		bool tryGet(Method method, ResultType& result)
+		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
 		}
@@ -463,7 +472,10 @@ namespace pcpp
 		 * @param[in] port The port number to check
 		 * @return True if this is an LDAP port, false otherwise
 		 */
-		static bool isLdapPort(uint16_t port) { return port == 389; }
+		static bool isLdapPort(uint16_t port)
+		{
+			return port == 389;
+		}
 
 		/**
 		 * A static message to parse an LDAP message from raw data
@@ -485,21 +497,33 @@ namespace pcpp
 		/**
 		 * @return The size of the LDAP message
 		 */
-		size_t getHeaderLen() const override { return m_Asn1Record->getTotalLength(); }
+		size_t getHeaderLen() const override
+		{
+			return m_Asn1Record->getTotalLength();
+		}
 
-		void computeCalculateFields() override {}
+		void computeCalculateFields() override
+		{}
 
-		OsiModelLayer getOsiModelLayer() const override { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelApplicationLayer;
+		}
 
 		std::string toString() const override;
 
 	protected:
 		std::unique_ptr<Asn1Record> m_Asn1Record;
 
-		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		          Packet* packet);
 		LdapLayer() = default;
-		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls);
-		virtual std::string getExtendedInfoString() const { return ""; }
+		void init(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords,
+		          const std::vector<LdapControl>& controls);
+		virtual std::string getExtendedInfoString() const
+		{
+			return "";
+		}
 
 		static constexpr int messageIdIndex = 0;
 		static constexpr int operationTypeIndex = 1;
@@ -553,6 +577,7 @@ namespace pcpp
 		 * somewhere else. If referral doesn't exist on the message, and empty vector is returned
 		 */
 		std::vector<std::string> getReferral() const;
+
 	protected:
 		static constexpr int resultCodeIndex = 0;
 		static constexpr int matchedDNIndex = 1;
@@ -562,19 +587,21 @@ namespace pcpp
 		static constexpr uint8_t referralTagType = 3;
 
 		LdapResponseLayer() = default;
-		LdapResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                  Packet* packet)
+		    : LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 
 		LdapResponseLayer(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
-			const std::string& matchedDN, const std::string& diagnosticMessage,
-			const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		                  const std::string& matchedDN, const std::string& diagnosticMessage,
+		                  const std::vector<std::string>& referral = std::vector<std::string>(),
+		                  const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		void init(uint16_t messageId, LdapOperationType operationType, LdapResultCode resultCode,
-			const std::string& matchedDN, const std::string& diagnosticMessage,
-			const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<Asn1Record*>& additionalRecords = std::vector<Asn1Record*>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		          const std::string& matchedDN, const std::string& diagnosticMessage,
+		          const std::vector<std::string>& referral = std::vector<std::string>(),
+		          const std::vector<Asn1Record*>& additionalRecords = std::vector<Asn1Record*>(),
+		          const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		std::string getExtendedInfoString() const override;
 	};
@@ -640,9 +667,9 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapBindRequestLayer(
-			uint16_t messageId, uint8_t version, const std::string& name, const std::string& simpleAuthentication,
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		LdapBindRequestLayer(uint16_t messageId, uint8_t version, const std::string& name,
+		                     const std::string& simpleAuthentication,
+		                     const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		/**
 		 * A constructor to create a new LDAP bind request message with SASL authentication
@@ -653,9 +680,9 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapBindRequestLayer(
-			uint16_t messageId, uint8_t version, const std::string& name, const SaslAuthentication& saslAuthentication,
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		LdapBindRequestLayer(uint16_t messageId, uint8_t version, const std::string& name,
+		                     const SaslAuthentication& saslAuthentication,
+		                     const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		/**
 		 * @return The LDAP protocol version that the client wants to use
@@ -684,18 +711,21 @@ namespace pcpp
 		 */
 		SaslAuthentication getSaslAuthentication() const;
 
-		template <typename Method, typename ResultType>
-		bool tryGet(Method method, ResultType& result)
+		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
 		}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapBindRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapBindRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                     Packet* packet)
+		    : LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 
 		std::string getExtendedInfoString() const override;
+
 	private:
 		static constexpr int versionIndex = 0;
 		static constexpr int nameIndex = 1;
@@ -727,21 +757,25 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapBindResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<uint8_t>& serverSaslCredentials = std::vector<uint8_t>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		                      const std::string& diagnosticMessage,
+		                      const std::vector<std::string>& referral = std::vector<std::string>(),
+		                      const std::vector<uint8_t>& serverSaslCredentials = std::vector<uint8_t>(),
+		                      const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		/**
 		 * @return Encoded server SASL credentials for use in subsequent processing
 		 */
 		std::vector<uint8_t> getServerSaslCredentials() const;
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		static constexpr int serverSaslCredentialsTagType = 7;
 
-		LdapBindResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapBindResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                      Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -757,23 +791,29 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		explicit LdapUnbindRequestLayer(uint16_t messageId, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		explicit LdapUnbindRequestLayer(uint16_t messageId,
+		                                const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		// Unbind request has no operation record
 		Asn1ConstructedRecord* getLdapOperationAsn1Record() const = delete;
 
-		LdapOperationType getLdapOperationType() const override { return LdapOperationType::UnbindRequest; }
+		LdapOperationType getLdapOperationType() const override
+		{
+			return LdapOperationType::UnbindRequest;
+		}
 
-		template <typename Method, typename ResultType>
-		bool tryGet(Method method, ResultType& result)
+		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
 		}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapUnbindRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapUnbindRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                       Packet* packet)
+		    : LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -828,7 +868,8 @@ namespace pcpp
 			 * Construct SearchRequestScope from Value enum
 			 * @param[in] value the scope enum value
 			 */
-			constexpr SearchRequestScope(Value value) : m_Value(value) {}
+			constexpr SearchRequestScope(Value value) : m_Value(value)
+			{}
 
 			/**
 			 * @return A string representation of the scope value
@@ -844,10 +885,14 @@ namespace pcpp
 			static SearchRequestScope fromUintValue(uint8_t value);
 
 			// Allow switch and comparisons.
-			constexpr operator Value() const { return m_Value; }
+			constexpr operator Value() const
+			{
+				return m_Value;
+			}
 
 			// Prevent usage: if(LdapOperationType)
 			explicit operator bool() const = delete;
+
 		private:
 			Value m_Value = SearchRequestScope::Unknown;
 		};
@@ -883,7 +928,8 @@ namespace pcpp
 			 * Construct DerefAliases from Value enum
 			 * @param[in] value the dereference alias enum value
 			 */
-			constexpr DerefAliases(Value value) : m_Value(value) {}
+			constexpr DerefAliases(Value value) : m_Value(value)
+			{}
 
 			/**
 			 * @return A string representation of the dereference alias value
@@ -899,10 +945,14 @@ namespace pcpp
 			static DerefAliases fromUintValue(uint8_t value);
 
 			// Allow switch and comparisons.
-			constexpr operator Value() const { return m_Value; }
+			constexpr operator Value() const
+			{
+				return m_Value;
+			}
 
 			// Prevent usage: if(LdapOperationType)
 			explicit operator bool() const = delete;
+
 		private:
 			Value m_Value = DerefAliases::Unknown;
 		};
@@ -928,10 +978,10 @@ namespace pcpp
 		 * @param[in] controls A vector of LDAP controls. This is an optional parameter, if not provided the message
 		 * will be created without LDAP controls
 		 */
-		LdapSearchRequestLayer(
-			uint16_t messageId, const std::string& baseObject, SearchRequestScope scope, DerefAliases derefAliases,
-			uint8_t sizeLimit, uint8_t timeLimit, bool typesOnly, Asn1Record* filterRecord,
-			const std::vector<std::string>& attributes, const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		LdapSearchRequestLayer(uint16_t messageId, const std::string& baseObject, SearchRequestScope scope,
+		                       DerefAliases derefAliases, uint8_t sizeLimit, uint8_t timeLimit, bool typesOnly,
+		                       Asn1Record* filterRecord, const std::vector<std::string>& attributes,
+		                       const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		/**
 		 * @return The base object for the LDAP search request entry
@@ -977,8 +1027,7 @@ namespace pcpp
 		 */
 		std::vector<std::string> getAttributes() const;
 
-		template <typename Method, typename ResultType>
-		bool tryGet(Method method, ResultType& result)
+		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
 		}
@@ -995,9 +1044,10 @@ namespace pcpp
 		static constexpr int filterIndex = 6;
 		static constexpr int attributesIndex = 7;
 
-		LdapSearchRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
-
+		LdapSearchRequestLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                       Packet* packet)
+		    : LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 
 		std::string getExtendedInfoString() const override;
 	};
@@ -1018,8 +1068,8 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapSearchResultEntryLayer(uint16_t messageId, const std::string& objectName,
-			const std::vector<LdapAttribute>& attributes,
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>());
+		                           const std::vector<LdapAttribute>& attributes,
+		                           const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
 		/**
 		 * @return The entry's DN
@@ -1031,11 +1081,11 @@ namespace pcpp
 		 */
 		std::vector<LdapAttribute> getAttributes() const;
 
-		template <typename Method, typename ResultType>
-		bool tryGet(Method method, ResultType& result)
+		template <typename Method, typename ResultType> bool tryGet(Method method, ResultType& result)
 		{
 			return internalTryGet(this, method, result);
 		}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
@@ -1044,8 +1094,10 @@ namespace pcpp
 		static constexpr int attributeTypeIndex = 0;
 		static constexpr int attributeValueIndex = 1;
 
-		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapSearchResultEntryLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen,
+		                           Layer* prevLayer, Packet* packet)
+		    : LdapLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -1069,14 +1121,20 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapSearchResultDoneLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::SearchResultDone, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+		                          const std::string& diagnosticMessage,
+		                          const std::vector<std::string>& referral = std::vector<std::string>(),
+		                          const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+		    : LdapResponseLayer(messageId, LdapOperationType::SearchResultDone, resultCode, matchedDN,
+		                        diagnosticMessage, referral, controls)
+		{}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapSearchResultDoneLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapSearchResultDoneLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen,
+		                          Layer* prevLayer, Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -1100,14 +1158,20 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapModifyResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::ModifyResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+		                        const std::string& diagnosticMessage,
+		                        const std::vector<std::string>& referral = std::vector<std::string>(),
+		                        const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+		    : LdapResponseLayer(messageId, LdapOperationType::ModifyResponse, resultCode, matchedDN, diagnosticMessage,
+		                        referral, controls)
+		{}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapModifyResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapModifyResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                        Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -1131,14 +1195,20 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapAddResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::AddResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+		                     const std::string& diagnosticMessage,
+		                     const std::vector<std::string>& referral = std::vector<std::string>(),
+		                     const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+		    : LdapResponseLayer(messageId, LdapOperationType::AddResponse, resultCode, matchedDN, diagnosticMessage,
+		                        referral, controls)
+		{}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapAddResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapAddResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                     Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -1162,14 +1232,20 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapDeleteResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::DeleteResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+		                        const std::string& diagnosticMessage,
+		                        const std::vector<std::string>& referral = std::vector<std::string>(),
+		                        const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+		    : LdapResponseLayer(messageId, LdapOperationType::DeleteResponse, resultCode, matchedDN, diagnosticMessage,
+		                        referral, controls)
+		{}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapDeleteResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapDeleteResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
+		                        Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -1193,14 +1269,20 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapModifyDNResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::ModifyDNResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+		                          const std::string& diagnosticMessage,
+		                          const std::vector<std::string>& referral = std::vector<std::string>(),
+		                          const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+		    : LdapResponseLayer(messageId, LdapOperationType::ModifyDNResponse, resultCode, matchedDN,
+		                        diagnosticMessage, referral, controls)
+		{}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapModifyDNResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapModifyDNResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen,
+		                          Layer* prevLayer, Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
 
 	/**
@@ -1224,16 +1306,22 @@ namespace pcpp
 		 * will be created without LDAP controls
 		 */
 		LdapCompareResponseLayer(uint16_t messageId, LdapResultCode resultCode, const std::string& matchedDN,
-			const std::string& diagnosticMessage, const std::vector<std::string>& referral = std::vector<std::string>(),
-			const std::vector<LdapControl>& controls = std::vector<LdapControl>())
-			: LdapResponseLayer(messageId, LdapOperationType::CompareResponse, resultCode, matchedDN, diagnosticMessage, referral, controls) {}
+		                         const std::string& diagnosticMessage,
+		                         const std::vector<std::string>& referral = std::vector<std::string>(),
+		                         const std::vector<LdapControl>& controls = std::vector<LdapControl>())
+		    : LdapResponseLayer(messageId, LdapOperationType::CompareResponse, resultCode, matchedDN, diagnosticMessage,
+		                        referral, controls)
+		{}
+
 	protected:
 		friend LdapLayer* LdapLayer::parseLdapMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		LdapCompareResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet) {}
+		LdapCompareResponseLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen,
+		                         Layer* prevLayer, Packet* packet)
+		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
+		{}
 	};
-} // namespace pcpp
+}  // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
 {
@@ -1259,7 +1347,8 @@ inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& att
 	return os;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapBindRequestLayer::SaslAuthentication& saslAuthentication)
+inline std::ostream& operator<<(std::ostream& os,
+                                const pcpp::LdapBindRequestLayer::SaslAuthentication& saslAuthentication)
 {
 	os << "{" << saslAuthentication.mechanism << ", {";
 

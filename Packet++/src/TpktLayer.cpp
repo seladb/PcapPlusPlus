@@ -14,22 +14,37 @@ namespace pcpp
 		m_DataLen = sizeof(tpkthdr);
 		m_Data = new uint8_t[m_DataLen];
 		memset(m_Data, 0, m_DataLen);
-		tpkthdr *tpktHdr = getTpktHeader();
+		tpkthdr* tpktHdr = getTpktHeader();
 		tpktHdr->version = version;
 		tpktHdr->reserved = 0;
 		tpktHdr->length = htobe16(length);
 		m_Protocol = TPKT;
 	}
 
-	uint8_t TpktLayer::getReserved() const { return getTpktHeader()->reserved; }
+	uint8_t TpktLayer::getReserved() const
+	{
+		return getTpktHeader()->reserved;
+	}
 
-	uint8_t TpktLayer::getVersion() const { return getTpktHeader()->version; }
+	uint8_t TpktLayer::getVersion() const
+	{
+		return getTpktHeader()->version;
+	}
 
-	uint16_t TpktLayer::getLength() const { return htobe16(getTpktHeader()->length); }
+	uint16_t TpktLayer::getLength() const
+	{
+		return htobe16(getTpktHeader()->length);
+	}
 
-	void TpktLayer::setLength(uint16_t length) const { getTpktHeader()->length = htobe16(length); }
+	void TpktLayer::setLength(uint16_t length) const
+	{
+		getTpktHeader()->length = htobe16(length);
+	}
 
-	void TpktLayer::setVersion(uint8_t version) const { getTpktHeader()->version = version; }
+	void TpktLayer::setVersion(uint8_t version) const
+	{
+		getTpktHeader()->version = version;
+	}
 
 	std::string TpktLayer::toString() const
 	{
@@ -47,13 +62,15 @@ namespace pcpp
 		if (m_DataLen <= headerLen)
 			return;
 
-		uint8_t *payload = m_Data + headerLen;
+		uint8_t* payload = m_Data + headerLen;
 		size_t payloadLen = m_DataLen - headerLen;
 
-		if (CotpLayer::isDataValid(payload, payloadLen)) {
+		if (CotpLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
-		} else
+		}
+		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
 
-} // namespace pcpp
+}  // namespace pcpp
