@@ -431,7 +431,7 @@ namespace pcpp
 		 *   IPv6 - (YYYY:YYYY:YYYY:YYYY:YYYY:YYYY:YYYY:YYYY) - 'Y' - a hexadecimal digit [0 - 9, A - F]. Short form
 		 *   IPv6 formats are allowed.
 		 * @throws std::invalid_argument The provided netmask is invalid or does not correspond to the current IP
-		 *address version.
+		 * address version.
 		 */
 		void setMask(const std::string& netmask)
 		{
@@ -503,6 +503,7 @@ namespace pcpp
 	 * @class IPv4TotalLengthFilter
 	 * A class for filtering IPv4 traffic by "total length" field of the IPv4 protocol, for example:
 	 * "filter only IPv4 traffic which "total length" value is less than 60B"
+	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
 	class IPv4TotalLengthFilter : public IFilterWithOperator
