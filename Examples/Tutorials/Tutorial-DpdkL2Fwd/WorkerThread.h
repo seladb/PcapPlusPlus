@@ -5,18 +5,19 @@
 
 class L2FwdWorkerThread : public pcpp::DpdkWorkerThread
 {
- private:
+private:
 	pcpp::DpdkDevice* m_RxDevice;
 	pcpp::DpdkDevice* m_TxDevice;
 	bool m_Stop;
 	uint32_t m_CoreId;
 
 public:
- 	// c'tor
+	// c'tor
 	L2FwdWorkerThread(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice);
 
 	// d'tor (does nothing)
-	~L2FwdWorkerThread() { }
+	~L2FwdWorkerThread()
+	{}
 
 	// implement abstract method
 

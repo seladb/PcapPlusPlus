@@ -58,7 +58,6 @@ PTF_TEST_CASE(InsertDataToPacket)
 	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc);
 	PTF_ASSERT_EQUAL(payloadLayer.getPayload()[3], 0x04);
 
-
 	// Adding another Eth layer at the beginning of the packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,26 +75,23 @@ PTF_TEST_CASE(InsertDataToPacket)
 	PTF_ASSERT_EQUAL(ip4Layer.getSrcIPAddress(), ipSrc);
 	PTF_ASSERT_EQUAL(payloadLayer.getPayload()[3], 0x04);
 
-
 	// Adding a TCP layer at the end of the packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	auto tcpLayer = new pcpp::TcpLayer((uint16_t)12345, (uint16_t)80);
 	PTF_ASSERT_TRUE(ip4Packet.insertLayer(&payloadLayer, tcpLayer, true));
 
-
 	// Create a new packet and use insertLayer for the first layer in packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	pcpp::EthLayer ethLayer3(srcMac2, dstMac2, PCPP_ETHERTYPE_IP);
-    pcpp::Packet testPacket(1);
+	pcpp::Packet testPacket(1);
 	PTF_ASSERT_TRUE(testPacket.insertLayer(nullptr, &ethLayer3));
 	PTF_ASSERT_EQUAL(testPacket.getFirstLayer(), &ethLayer3, ptr);
 	PTF_ASSERT_NULL(testPacket.getFirstLayer()->getNextLayer());
 	PTF_ASSERT_EQUAL(ethLayer3.getDestMac(), dstMac2);
 
-} // InsertDataToPacket
-
+}  // InsertDataToPacket
 
 PTF_TEST_CASE(CreatePacketFromBuffer)
 {
@@ -139,13 +135,13 @@ PTF_TEST_CASE(CreatePacketFromBuffer)
 	// Delete the packet - the buffer should not be freed
 	delete newPacket;
 
-	std::string expectedHexString = "bbbbbbbbbbbbaaaaaaaaaaaa08004500001e00000000000690b101010101141414140102030405060708090a0000";
+	std::string expectedHexString =
+	    "bbbbbbbbbbbbaaaaaaaaaaaa08004500001e00000000000690b101010101141414140102030405060708090a0000";
 	PTF_ASSERT_EQUAL(pcpp::byteArrayToHexString(buffer, bufferSize), expectedHexString);
 
-	delete [] buffer;
+	delete[] buffer;
 
-} // CreatePacketFromBuffer
-
+}  // CreatePacketFromBuffer
 
 PTF_TEST_CASE(InsertVlanToPacket)
 {
@@ -164,8 +160,7 @@ PTF_TEST_CASE(InsertVlanToPacket)
 	PTF_ASSERT_EQUAL(tcpPacket.getFirstLayer()->getNextLayer(), &vlanLayer, ptr);
 	PTF_ASSERT_NOT_NULL(vlanLayer.getNextLayer());
 	PTF_ASSERT_EQUAL(vlanLayer.getNextLayer()->getProtocol(), pcpp::IPv4, enum);
-} // InsertVlanToPacket
-
+}  // InsertVlanToPacket
 
 PTF_TEST_CASE(RemoveLayerTest)
 {
@@ -179,7 +174,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 
 	pcpp::Packet tcpPacket(&rawPacket1);
 
-
 	// a. Remove layer from the middle
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -189,7 +183,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_NULL(tcpPacket.getLayerOfType<pcpp::IPv4Layer>());
 	PTF_ASSERT_EQUAL(tcpPacket.getFirstLayer()->getNextLayer()->getProtocol(), pcpp::TCP, enum);
 	PTF_ASSERT_EQUAL(tcpPacket.getRawPacket()->getRawDataLen(), 271);
-
 
 	// b. Remove first layer
 	// ~~~~~~~~~~~~~~~~~~~~~
@@ -201,7 +194,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_NULL(tcpPacket.getFirstLayer()->getNextLayer()->getNextLayer());
 	PTF_ASSERT_EQUAL(tcpPacket.getRawPacket()->getRawDataLen(), 257);
 
-
 	// c. Remove last layer
 	// ~~~~~~~~~~~~~~~~~~~~
 	PTF_ASSERT_TRUE(tcpPacket.removeLastLayer());
@@ -210,7 +202,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_EQUAL(tcpPacket.getFirstLayer(), tcpPacket.getLastLayer(), ptr);
 	PTF_ASSERT_EQUAL(tcpPacket.getFirstLayer()->getProtocol(), pcpp::TCP, enum);
 	PTF_ASSERT_EQUAL(tcpPacket.getRawPacket()->getRawDataLen(), 20);
-
 
 	// d. Remove a second layer of the same type
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,7 +220,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_TRUE(vxlanPacket.isPacketOfType(pcpp::VXLAN));
 	PTF_ASSERT_EQUAL(vxlanPacket.getRawPacket()->getRawDataLen(), 50);
 
-
 	// e. Remove a layer that doesn't exist
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -237,7 +227,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::HTTPRequest));
 	PTF_ASSERT_FALSE(vxlanPacket.removeLayer(pcpp::Ethernet, 1));
 	pcpp::Logger::getInstance().enableLogs();
-
 
 	// create packet and remove layers
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -259,7 +248,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	pcpp::PayloadLayer payloadLayer(payload, 10);
 	PTF_ASSERT_TRUE(testPacket.addLayer(&payloadLayer));
 
-
 	// a. remove first layer
 	// ~~~~~~~~~~~~~~~~~~~~~
 
@@ -269,7 +257,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_FALSE(testPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_TRUE(testPacket.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_EQUAL(testPacket.getRawPacket()->getRawDataLen(), 30);
-
 
 	// b. remove last layer
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -281,7 +268,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_FALSE(testPacket.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_EQUAL(testPacket.getRawPacket()->getRawDataLen(), 20);
 
-
 	// c. insert a layer
 	// ~~~~~~~~~~~~~~~~~
 
@@ -291,7 +277,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_EQUAL(testPacket.getFirstLayer()->getNextLayer(), &ip4Layer, ptr);
 	PTF_ASSERT_TRUE(testPacket.isPacketOfType(pcpp::VLAN));
 	PTF_ASSERT_EQUAL(testPacket.getRawPacket()->getRawDataLen(), 24);
-
 
 	// d. remove the remaining layers (packet remains empty!)
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -304,7 +289,6 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_TRUE(testPacket.removeLayer(pcpp::VLAN));
 	PTF_ASSERT_FALSE(testPacket.isPacketOfType(pcpp::VLAN));
 	PTF_ASSERT_EQUAL(testPacket.getRawPacket()->getRawDataLen(), 0);
-
 
 	// Detach layer and add it to another packet
 	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -356,10 +340,9 @@ PTF_TEST_CASE(RemoveLayerTest)
 	PTF_ASSERT_EQUAL(packetWithoutTunnel.getRawPacket()->getRawDataLen(), bufferLength4);
 	PTF_ASSERT_BUF_COMPARE(packetWithoutTunnel.getRawPacket()->getRawData(), buffer4, bufferLength4);
 
-	delete [] buffer4;
+	delete[] buffer4;
 
-} // RemoveLayerTest
-
+}  // RemoveLayerTest
 
 PTF_TEST_CASE(CopyLayerAndPacketTest)
 {
@@ -370,7 +353,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 
 	pcpp::Packet sampleHttpPacket(&rawPacket1);
 
-	//RawPacket copy c'tor / assignment operator test
+	// RawPacket copy c'tor / assignment operator test
 	//-----------------------------------------------
 	pcpp::RawPacket copyRawPacket;
 	copyRawPacket = rawPacket1;
@@ -378,33 +361,40 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_TRUE(copyRawPacket.getRawData() != rawPacket1.getRawData());
 	PTF_ASSERT_BUF_COMPARE(copyRawPacket.getRawData(), rawPacket1.getRawData(), rawPacket1.getRawDataLen());
 
-	//EthLayer copy c'tor test
+	// EthLayer copy c'tor test
 	//------------------------
 	pcpp::EthLayer ethLayer = *sampleHttpPacket.getLayerOfType<pcpp::EthLayer>();
 	PTF_ASSERT_TRUE(sampleHttpPacket.getLayerOfType<pcpp::EthLayer>()->getLayerPayload() != ethLayer.getLayerPayload());
-	PTF_ASSERT_BUF_COMPARE(ethLayer.getLayerPayload(), sampleHttpPacket.getLayerOfType<pcpp::EthLayer>()->getLayerPayload(), sampleHttpPacket.getLayerOfType<pcpp::EthLayer>()->getLayerPayloadSize());
+	PTF_ASSERT_BUF_COMPARE(ethLayer.getLayerPayload(),
+	                       sampleHttpPacket.getLayerOfType<pcpp::EthLayer>()->getLayerPayload(),
+	                       sampleHttpPacket.getLayerOfType<pcpp::EthLayer>()->getLayerPayloadSize());
 
-
-	//TcpLayer copy c'tor test
+	// TcpLayer copy c'tor test
 	//------------------------
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/TcpPacketWithOptions2.dat");
 
 	pcpp::Packet sampleTcpPacketWithOptions(&rawPacket2);
 	pcpp::TcpLayer tcpLayer = *sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>();
 	PTF_ASSERT_TRUE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getData() != tcpLayer.getData());
-	PTF_ASSERT_BUF_COMPARE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getData(), tcpLayer.getData(), sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getDataLen());
-	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(), sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOptionCount());
+	PTF_ASSERT_BUF_COMPARE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getData(), tcpLayer.getData(),
+	                       sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getDataLen());
+	PTF_ASSERT_EQUAL(tcpLayer.getTcpOptionCount(),
+	                 sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOptionCount());
+	// clang-format off
 	PTF_ASSERT_TRUE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOption(pcpp::TcpOptionEnumType::Timestamp).getRecordBasePtr() != tcpLayer.getTcpOption(pcpp::TcpOptionEnumType::Timestamp).getRecordBasePtr());
-	PTF_ASSERT_TRUE(sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOption(pcpp::TcpOptionEnumType::Timestamp) == tcpLayer.getTcpOption(pcpp::TcpOptionEnumType::Timestamp));
+	// clang-format on
+	PTF_ASSERT_TRUE(
+	    sampleTcpPacketWithOptions.getLayerOfType<pcpp::TcpLayer>()->getTcpOption(pcpp::TcpOptionEnumType::Timestamp) ==
+	    tcpLayer.getTcpOption(pcpp::TcpOptionEnumType::Timestamp));
 
-
-	//HttpLayer copy c'tor test
+	// HttpLayer copy c'tor test
 	//--------------------------
 
 	pcpp::HttpResponseLayer* sampleHttpLayer = sampleHttpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	pcpp::HttpResponseLayer httpResLayer = *sampleHttpPacket.getLayerOfType<pcpp::HttpResponseLayer>();
 	PTF_ASSERT_TRUE(sampleHttpLayer->getFirstLine() != httpResLayer.getFirstLine());
-	PTF_ASSERT_EQUAL(sampleHttpLayer->getFirstLine()->getStatusCode(), httpResLayer.getFirstLine()->getStatusCode(), enum);
+	PTF_ASSERT_EQUAL(sampleHttpLayer->getFirstLine()->getStatusCode(), httpResLayer.getFirstLine()->getStatusCode(),
+	                 enum);
 	PTF_ASSERT_EQUAL(sampleHttpLayer->getFirstLine()->getSize(), httpResLayer.getFirstLine()->getSize());
 	PTF_ASSERT_EQUAL(sampleHttpLayer->getFirstLine()->getVersion(), httpResLayer.getFirstLine()->getVersion(), enum);
 
@@ -424,16 +414,17 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_NULL(curFieldInSample);
 	PTF_ASSERT_NULL(curFieldInCopy);
 
-
-	//Packet copy c'tor test - Ethernet
+	// Packet copy c'tor test - Ethernet
 	//---------------------------------
 
 	pcpp::Packet samplePacketCopy(sampleHttpPacket);
 	PTF_ASSERT_TRUE(samplePacketCopy.getFirstLayer() != sampleHttpPacket.getFirstLayer());
 	PTF_ASSERT_TRUE(samplePacketCopy.getLastLayer() != sampleHttpPacket.getLastLayer());
 	PTF_ASSERT_TRUE(samplePacketCopy.getRawPacket() != sampleHttpPacket.getRawPacket());
-	PTF_ASSERT_EQUAL(samplePacketCopy.getRawPacket()->getRawDataLen(), sampleHttpPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(samplePacketCopy.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(samplePacketCopy.getRawPacket()->getRawDataLen(),
+	                 sampleHttpPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(samplePacketCopy.getRawPacket()->getRawData(), sampleHttpPacket.getRawPacket()->getRawData(),
+	                       sampleHttpPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_TRUE(samplePacketCopy.isPacketOfType(pcpp::Ethernet));
 	PTF_ASSERT_TRUE(samplePacketCopy.isPacketOfType(pcpp::IPv4));
 	PTF_ASSERT_TRUE(samplePacketCopy.isPacketOfType(pcpp::TCP));
@@ -446,25 +437,26 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getHeaderLen(), curPacketCopyLayer->getHeaderLen());
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getLayerPayloadSize(), curPacketCopyLayer->getLayerPayloadSize());
 		PTF_ASSERT_EQUAL(curSamplePacketLayer->getDataLen(), curPacketCopyLayer->getDataLen());
-		PTF_ASSERT_BUF_COMPARE(curSamplePacketLayer->getData(), curPacketCopyLayer->getData(), curSamplePacketLayer->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(curSamplePacketLayer->getData(), curPacketCopyLayer->getData(),
+		                       curSamplePacketLayer->getDataLen());
 		curSamplePacketLayer = curSamplePacketLayer->getNextLayer();
 		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
 	}
 	auto samplePacketCopyHttpResponseLayer = samplePacketCopy.getLayerOfType<pcpp::HttpResponseLayer>();
 	auto contentTypeField = samplePacketCopyHttpResponseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
-	PTF_ASSERT_NOT_NULL(samplePacketCopyHttpResponseLayer->insertField(contentTypeField, "X-Forwarded-For", "10.20.30.40"));
+	PTF_ASSERT_NOT_NULL(
+	    samplePacketCopyHttpResponseLayer->insertField(contentTypeField, "X-Forwarded-For", "10.20.30.40"));
 
 	samplePacketCopy = sampleHttpPacket;
 	samplePacketCopyHttpResponseLayer = samplePacketCopy.getLayerOfType<pcpp::HttpResponseLayer>();
 	contentTypeField = samplePacketCopyHttpResponseLayer->getFieldByName(PCPP_HTTP_CONTENT_TYPE_FIELD);
-	PTF_ASSERT_NOT_NULL(samplePacketCopyHttpResponseLayer->insertField(contentTypeField, "X-Forwarded-For", "10.20.30.40"));
-
+	PTF_ASSERT_NOT_NULL(
+	    samplePacketCopyHttpResponseLayer->insertField(contentTypeField, "X-Forwarded-For", "10.20.30.40"));
 
 	PTF_ASSERT_NULL(curSamplePacketLayer);
 	PTF_ASSERT_NULL(curPacketCopyLayer);
 
-
-	//Packet copy c'tor test - Null/Loopback
+	// Packet copy c'tor test - Null/Loopback
 	//--------------------------------------
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(3, "PacketExamples/NullLoopback1.dat", pcpp::LINKTYPE_NULL);
@@ -476,8 +468,11 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_TRUE(nullLoopbackPacketCopy.getFirstLayer() != nullLoopbackPacket.getFirstLayer());
 	PTF_ASSERT_TRUE(nullLoopbackPacketCopy.getLastLayer() != nullLoopbackPacket.getLastLayer());
 	PTF_ASSERT_TRUE(nullLoopbackPacketCopy.getRawPacket() != nullLoopbackPacket.getRawPacket());
-	PTF_ASSERT_EQUAL(nullLoopbackPacketCopy.getRawPacket()->getRawDataLen(), nullLoopbackPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(nullLoopbackPacketCopy.getRawPacket()->getRawData(), nullLoopbackPacket.getRawPacket()->getRawData(), nullLoopbackPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_EQUAL(nullLoopbackPacketCopy.getRawPacket()->getRawDataLen(),
+	                 nullLoopbackPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(nullLoopbackPacketCopy.getRawPacket()->getRawData(),
+	                       nullLoopbackPacket.getRawPacket()->getRawData(),
+	                       nullLoopbackPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_EQUAL(nullLoopbackPacketCopy.getRawPacket()->getLinkLayerType(), pcpp::LINKTYPE_NULL, enum);
 	PTF_ASSERT_EQUAL(nullLoopbackPacketCopy.getFirstLayer()->getProtocol(), pcpp::NULL_LOOPBACK, enum);
 
@@ -493,8 +488,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
 	}
 
-
-	//Packet copy c'tor test - SLL
+	// Packet copy c'tor test - SLL
 	//----------------------------
 
 	READ_FILE_AND_CREATE_PACKET_LINKTYPE(4, "PacketExamples/SllPacket2.dat", pcpp::LINKTYPE_LINUX_SLL);
@@ -507,7 +501,8 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_TRUE(sllPacketCopy.getLastLayer() != sllPacket.getLastLayer());
 	PTF_ASSERT_TRUE(sllPacketCopy.getRawPacket() != sllPacket.getRawPacket());
 	PTF_ASSERT_EQUAL(sllPacketCopy.getRawPacket()->getRawDataLen(), sllPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(sllPacketCopy.getRawPacket()->getRawData(), sllPacket.getRawPacket()->getRawData(), sllPacket.getRawPacket()->getRawDataLen());
+	PTF_ASSERT_BUF_COMPARE(sllPacketCopy.getRawPacket()->getRawData(), sllPacket.getRawPacket()->getRawData(),
+	                       sllPacket.getRawPacket()->getRawDataLen());
 	PTF_ASSERT_EQUAL(sllPacketCopy.getRawPacket()->getLinkLayerType(), pcpp::LINKTYPE_LINUX_SLL, enum);
 	PTF_ASSERT_EQUAL(sllPacketCopy.getFirstLayer()->getProtocol(), pcpp::SLL, enum);
 
@@ -523,8 +518,7 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 		curPacketCopyLayer = curPacketCopyLayer->getNextLayer();
 	}
 
-
-	//DnsLayer copy c'tor and operator= test
+	// DnsLayer copy c'tor and operator= test
 	//--------------------------------------
 
 	READ_FILE_AND_CREATE_PACKET(5, "PacketExamples/Dns2.dat");
@@ -539,9 +533,11 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getDnsType(), origDnsLayer->getFirstQuery()->getDnsType(), enum);
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthorityCount(), origDnsLayer->getAuthorityCount());
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getData()->toString(), origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getData()->toString());
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority("Yaels-iPhone.local", true)->getData()->toString(),
+	                 origDnsLayer->getAuthority("Yaels-iPhone.local", true)->getData()->toString());
 
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString());
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(),
+	                 origDnsLayer->getAdditionalRecord("", true)->getData()->toString());
 
 	copyDnsLayer.addQuery("bla", pcpp::DNS_TYPE_A, pcpp::DNS_CLASS_ANY);
 	pcpp::IPv4DnsResourceData ipv4DnsData(std::string("1.1.1.1"));
@@ -554,14 +550,15 @@ PTF_TEST_CASE(CopyLayerAndPacketTest)
 	PTF_ASSERT_EQUAL(copyDnsLayer.getFirstQuery()->getDnsType(), origDnsLayer->getFirstQuery()->getDnsType(), enum);
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthorityCount(), origDnsLayer->getAuthorityCount());
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority(".local", false)->getData()->toString(), origDnsLayer->getAuthority("iPhone.local", false)->getData()->toString());
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAuthority(".local", false)->getData()->toString(),
+	                 origDnsLayer->getAuthority("iPhone.local", false)->getData()->toString());
 
 	PTF_ASSERT_EQUAL(copyDnsLayer.getAnswerCount(), origDnsLayer->getAnswerCount());
 
-	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(), origDnsLayer->getAdditionalRecord("", true)->getData()->toString());
+	PTF_ASSERT_EQUAL(copyDnsLayer.getAdditionalRecord("", true)->getData()->toString(),
+	                 origDnsLayer->getAdditionalRecord("", true)->getData()->toString());
 
-} // CopyLayerAndPacketTest
-
+}  // CopyLayerAndPacketTest
 
 PTF_TEST_CASE(PacketLayerLookupTest)
 {
@@ -613,8 +610,7 @@ PTF_TEST_CASE(PacketLayerLookupTest)
 		// try to get nonexistent layer
 		PTF_ASSERT_NULL(vxlanPacket.getLayerOfType<pcpp::RadiusLayer>(true));
 	}
-} // PacketLayerLookupTest
-
+}  // PacketLayerLookupTest
 
 PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 {
@@ -627,8 +623,8 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 	timespec nsec_test_time;
 	timespec expected_ts;
 
-	//test usec-precision setter
-	usec_test_time.tv_sec = 1583840642; //10.03.2020 15:44
+	// test usec-precision setter
+	usec_test_time.tv_sec = 1583840642;  // 10.03.2020 15:44
 	usec_test_time.tv_usec = 111222;
 	expected_ts.tv_sec = usec_test_time.tv_sec;
 	expected_ts.tv_nsec = usec_test_time.tv_usec * 1000;
@@ -637,16 +633,15 @@ PTF_TEST_CASE(RawPacketTimeStampSetterTest)
 	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec);
 	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec);
 
-	//test nsec-precision setter
-	nsec_test_time.tv_sec = 1583842105; //10.03.2020 16:08
+	// test nsec-precision setter
+	nsec_test_time.tv_sec = 1583842105;  // 10.03.2020 16:08
 	nsec_test_time.tv_nsec = 111222987;
 	expected_ts = nsec_test_time;
 
 	PTF_ASSERT_TRUE(rawPacket1.setPacketTimeStamp(nsec_test_time));
 	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_sec, expected_ts.tv_sec);
 	PTF_ASSERT_EQUAL(rawPacket1.getPacketTimeStamp().tv_nsec, expected_ts.tv_nsec);
-} // RawPacketTimeStampSetterTest
-
+}  // RawPacketTimeStampSetterTest
 
 PTF_TEST_CASE(ParsePartialPacketTest)
 {
@@ -739,8 +734,7 @@ PTF_TEST_CASE(ParsePartialPacketTest)
 	PTF_ASSERT_EQUAL(curLayer->getProtocol(), pcpp::GREv0, enum);
 	curLayer = curLayer->getNextLayer();
 	PTF_ASSERT_NULL(curLayer);
-} // ParsePartialPacketTest
-
+}  // ParsePartialPacketTest
 
 PTF_TEST_CASE(PacketTrailerTest)
 {
@@ -769,10 +763,14 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerLen(), 4);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerLen(), 28);
 
-	PTF_ASSERT_EQUAL(trailerArpPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "742066726f6d2062726964676500203d3d20");
-	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "0101080a0000");
-	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "cdfcf105");
-	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(), "00000000000000000000000000000000000000000000000000000000");
+	PTF_ASSERT_EQUAL(trailerArpPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(),
+	                 "742066726f6d2062726964676500203d3d20");
+	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(),
+	                 "0101080a0000");
+	PTF_ASSERT_EQUAL(trailerIPv6Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(),
+	                 "cdfcf105");
+	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerDataAsHexString(),
+	                 "00000000000000000000000000000000000000000000000000000000");
 
 	PTF_ASSERT_EQUAL(trailerArpPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerData()[3], 0x72, hex);
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getTrailerData()[2], 0x8, hex);
@@ -791,7 +789,8 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_NOT_NULL(ethLayer);
 	PTF_ASSERT_NOT_NULL(ip6Layer);
 	PTF_ASSERT_GREATER_THAN(ethLayer->getDataLen() - ethLayer->getHeaderLen(), ip6Layer->getDataLen());
-	PTF_ASSERT_EQUAL(ip6Layer->getDataLen(), be16toh(ip6Layer->getIPv6Header()->payloadLength) + ip6Layer->getHeaderLen());
+	PTF_ASSERT_EQUAL(ip6Layer->getDataLen(),
+	                 be16toh(ip6Layer->getIPv6Header()->payloadLength) + ip6Layer->getHeaderLen());
 
 	// add layer before trailer
 	auto newVlanLayer = new pcpp::VlanLayer(123, true, 1, PCPP_ETHERTYPE_IPV6);
@@ -860,7 +859,8 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerIPv4Packet.getLayerOfType<pcpp::PacketTrailerLayer>()->getDataLen(), 6);
 
 	// rebuild packet starting from trailer
-	auto newEthLayer = new pcpp::EthLayer(pcpp::MacAddress("30:46:9a:23:fb:fa"), pcpp::MacAddress("6c:f0:49:b2:de:6e"), PCPP_ETHERTYPE_IP);
+	auto newEthLayer = new pcpp::EthLayer(pcpp::MacAddress("30:46:9a:23:fb:fa"), pcpp::MacAddress("6c:f0:49:b2:de:6e"),
+	                                      PCPP_ETHERTYPE_IP);
 	PTF_ASSERT_TRUE(trailerIPv4Packet.insertLayer(nullptr, newEthLayer, true));
 	auto newIp4Layer = new pcpp::IPv4Layer(pcpp::IPv4Address("173.194.78.104"), pcpp::IPv4Address("10.0.0.1"));
 	newIp4Layer->getIPv4Header()->ipId = htobe16(40382);
@@ -893,7 +893,9 @@ PTF_TEST_CASE(PacketTrailerTest)
 	// extend layer just before trailer
 	pcpp::PPPoEDiscoveryLayer* pppoeDiscovery = trailerPPPoEDPacket.getLayerOfType<pcpp::PPPoEDiscoveryLayer>();
 	PTF_ASSERT_NOT_NULL(pppoeDiscovery);
+	// clang-format off
 	PTF_ASSERT_FALSE(pppoeDiscovery->addTag(pcpp::PPPoEDiscoveryLayer::PPPoETagBuilder(pcpp::PPPoEDiscoveryLayer::PPPOE_TAG_AC_NAME, 0x42524153)).isNull());
+	// clang-format on
 	trailerPPPoEDPacket.computeCalculateFields();
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 68);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PPPoEDiscoveryLayer>()->getDataLen(), 26);
@@ -917,20 +919,19 @@ PTF_TEST_CASE(PacketTrailerTest)
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::EthLayer>()->getDataLen(), 48);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PPPoEDiscoveryLayer>()->getDataLen(), 6);
 	PTF_ASSERT_EQUAL(trailerPPPoEDPacket.getLayerOfType<pcpp::PacketTrailerLayer>()->getDataLen(), 28);
-} // PacketTrailerTest
-
+}  // PacketTrailerTest
 
 PTF_TEST_CASE(ResizeLayerTest)
 {
 	uint8_t payload[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xa };
 	pcpp::PayloadLayer payloadLayer(payload, 10);
 
-    // Creating a packet
-    pcpp::Packet packet(1500);
-    PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
+	// Creating a packet
+	pcpp::Packet packet(1500);
+	PTF_ASSERT_TRUE(packet.addLayer(&payloadLayer));
 
 	// Starting Resize testing
-	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 10); // Size of packet before resizing is not correct
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), 10);  // Size of packet before resizing is not correct
 
 	//
 	// test shortening of packet and layer
@@ -940,11 +941,13 @@ PTF_TEST_CASE(ResizeLayerTest)
 	payloadLayer.setPayload(payload2, payload2_size);
 
 	// check that resizing worked in terms of data length
-	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), (int)payload2_size); // Size of packet after first resizing (shortening) is not correct
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(),
+	                 (int)payload2_size);  // Size of packet after first resizing (shortening) is not correct
 
 	// confirm that data has been correctly written to raw packet
-	const uint8_t* rawData = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload2_size);
-	PTF_ASSERT_EQUAL(rawData[0], 0x05); // Setting payload to new payload has failed.
+	const uint8_t* rawData =
+	    packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload2_size);
+	PTF_ASSERT_EQUAL(rawData[0], 0x05);  // Setting payload to new payload has failed.
 	PTF_ASSERT_EQUAL(rawData[1], 0x04);
 	PTF_ASSERT_EQUAL(rawData[2], 0x03);
 	PTF_ASSERT_EQUAL(rawData[3], 0x02);
@@ -958,11 +961,13 @@ PTF_TEST_CASE(ResizeLayerTest)
 	payloadLayer.setPayload(payload3, payload3_size);
 
 	// check that resizing worked in terms of data length
-	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(), (int)payload3_size); // Size of packet after second resizing (extension) is not correct
+	PTF_ASSERT_EQUAL(packet.getRawPacket()->getRawDataLen(),
+	                 (int)payload3_size);  // Size of packet after second resizing (extension) is not correct
 
 	// confirm that data has been correctly written to raw packet
-	const uint8_t* rawData2 = packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload3_size);
-	PTF_ASSERT_EQUAL(rawData2[0], 0xDE); // Setting payload to new payload has failed.
+	const uint8_t* rawData2 =
+	    packet.getRawPacket()->getRawData() + (packet.getRawPacket()->getRawDataLen() - payload3_size);
+	PTF_ASSERT_EQUAL(rawData2[0], 0xDE);  // Setting payload to new payload has failed.
 	PTF_ASSERT_EQUAL(rawData2[1], 0xAD);
 	PTF_ASSERT_EQUAL(rawData2[2], 0xBE);
 	PTF_ASSERT_EQUAL(rawData2[3], 0xEF);
@@ -970,8 +975,7 @@ PTF_TEST_CASE(ResizeLayerTest)
 	PTF_ASSERT_EQUAL(rawData2[5], 0xAD);
 	PTF_ASSERT_EQUAL(rawData2[6], 0xBE);
 	PTF_ASSERT_EQUAL(rawData2[7], 0xEF);
-} // ResizeLayerTest
-
+}  // ResizeLayerTest
 
 PTF_TEST_CASE(PrintPacketAndLayersTest)
 {
@@ -981,9 +985,9 @@ PTF_TEST_CASE(PrintPacketAndLayersTest)
 
 	// convert the timestamp to a printable format
 	time_t nowtime = time.tv_sec;
-	struct tm *nowtm = nullptr;
+	struct tm* nowtm = nullptr;
 #if __cplusplus > 199711L && !defined(_WIN32)
-  // localtime_r is a thread-safe versions of localtime,
+	// localtime_r is a thread-safe versions of localtime,
 	// but they're defined only in newer compilers (>= C++0x).
 	// on Windows localtime is already thread-safe so there is not need
 	// to use localtime_r
@@ -1001,7 +1005,8 @@ PTF_TEST_CASE(PrintPacketAndLayersTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/MplsPackets1.dat");
 	pcpp::Packet packet(&rawPacket1);
 
-	std::string expectedPacketHeaderString = "Packet length: 361 [Bytes], Arrival time: " + std::string(tmbuf) + ".000000000";
+	std::string expectedPacketHeaderString =
+	    "Packet length: 361 [Bytes], Arrival time: " + std::string(tmbuf) + ".000000000";
 	std::vector<std::string> expectedLayerStrings;
 	expectedLayerStrings.push_back("Ethernet II Layer, Src: 50:81:89:f9:d5:7b, Dst: 28:c2:ce:ba:97:e8");
 	expectedLayerStrings.push_back("VLAN Layer, Priority: 0, Vlan ID: 215, CFI: 0");
@@ -1040,8 +1045,7 @@ PTF_TEST_CASE(PrintPacketAndLayersTest)
 	std::vector<std::string> packetAsStringList;
 	packet.toStringList(packetAsStringList);
 	PTF_ASSERT_TRUE(packetAsStringList == expectedLayerStrings);
-} // PrintPacketAndLayer
-
+}  // PrintPacketAndLayer
 
 PTF_TEST_CASE(ProtocolFamilyMembershipTest)
 {

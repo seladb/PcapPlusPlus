@@ -28,8 +28,8 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-/// Spanning Tree protocol common header
-typedef stp_tcn_bpdu stp_header;
+	/// Spanning Tree protocol common header
+	typedef stp_tcn_bpdu stp_header;
 
 /**
  * @struct stp_conf_bpdu
@@ -125,9 +125,9 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class StpLayer : public Layer
 	{
-	  protected:
-		StpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: Layer(data, dataLen, prevLayer, packet)
+	protected:
+		StpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet)
 		{
 			m_Protocol = STP;
 		}
@@ -141,9 +141,9 @@ typedef stp_tcn_bpdu stp_header;
 		}
 
 		static pcpp::MacAddress IDtoMacAddress(uint64_t id);
-		static uint64_t macAddressToID(const pcpp::MacAddress &addr);
+		static uint64_t macAddressToID(const pcpp::MacAddress& addr);
 
-	  public:
+	public:
 		/// STP protocol uses "01:80:C2:00:00:00" multicast address as destination MAC
 		static pcpp::MacAddress StpMulticastDstMAC;
 		/// STP Uplink Fast protocol uses "01:00:0C:CD:CD:CD" as destination MAC
@@ -153,58 +153,86 @@ typedef stp_tcn_bpdu stp_header;
 		 * Get a pointer to base Spanning tree header
 		 * @return A pointer to spanning tree header
 		 */
-		stp_header *getStpHeader() const { return (stp_header *)(m_Data); }
+		stp_header* getStpHeader() const
+		{
+			return (stp_header*)(m_Data);
+		}
 
 		/**
 		 * Returns the protocol id. Fixed at 0x0 for STP messages which represents IEEE 802.1d
 		 * @return ID of the protocol
 		 */
-		uint16_t getProtoId() const { return getStpHeader()->protoId; }
+		uint16_t getProtoId() const
+		{
+			return getStpHeader()->protoId;
+		}
 
 		/**
 		 * Sets the protocol id
 		 * @param[in] value ID of the protocol
 		 */
-		void setProtoId(uint16_t value) { getStpHeader()->protoId = value; }
+		void setProtoId(uint16_t value)
+		{
+			getStpHeader()->protoId = value;
+		}
 
 		/**
 		 * Returns the version. Fixed at 0x0 for STP messages
 		 * @return Version number
 		 */
-		uint8_t getVersion() const { return getStpHeader()->version; }
+		uint8_t getVersion() const
+		{
+			return getStpHeader()->version;
+		}
 
 		/**
 		 * Sets the version
 		 * @param[in] value Version number
 		 */
-		void setVersion(uint8_t value) { getStpHeader()->version = value; }
+		void setVersion(uint8_t value)
+		{
+			getStpHeader()->version = value;
+		}
 
 		/**
 		 * Returns the type of configuration message.
 		 * @return Type of configuration message
 		 */
-		uint8_t getType() const { return getStpHeader()->type; }
+		uint8_t getType() const
+		{
+			return getStpHeader()->type;
+		}
 
 		/**
 		 * Sets the type of configuration message
 		 * @param[in] value Type of configuration message
 		 */
-		void setType(uint8_t value) { getStpHeader()->type = value; }
+		void setType(uint8_t value)
+		{
+			getStpHeader()->type = value;
+		}
 
 		// overridden methods
 
 		/**
 		 * @return The size of STP packet
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const
+		{
+			return m_DataLen;
+		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		/**
 		 * @return The OSI layer level of STP (Data Link Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelDataLinkLayer;
+		}
 
 		/**
 		 * A static method that validates the input data
@@ -212,7 +240,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen);
+		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		/**
 		 * A method to create STP layer from existing packet
@@ -223,7 +251,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @return A newly allocated STP layer of one of the following types (according to the message type):
 		 * StpConfigurationBPDULayer, StpTopologyChangeBPDULayer, RapidStpLayer, MultipleStpLayer
 		 */
-		static StpLayer *parseStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet);
+		static StpLayer* parseStpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	};
 
 	/**
@@ -232,10 +260,11 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class StpTopologyChangeBPDULayer : public StpLayer
 	{
-	  protected:
-		explicit StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen) {}
+	protected:
+		explicit StpTopologyChangeBPDULayer(size_t dataLen) : StpLayer(dataLen)
+		{}
 
-	  public:
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -243,10 +272,9 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		StpTopologyChangeBPDULayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpLayer(data, dataLen, prevLayer, packet)
-		{
-		}
+		StpTopologyChangeBPDULayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : StpLayer(data, dataLen, prevLayer, packet)
+		{}
 
 		/**
 		 * Empty c'tor to create a new network topology change (TCN) BPDU layer.
@@ -258,14 +286,20 @@ typedef stp_tcn_bpdu stp_header;
 		 * Get a pointer to network topology change (TCN) BPDU message
 		 * @return A pointer to TCN BPDU message
 		 */
-		stp_tcn_bpdu* getStpTcnHeader() { return getStpHeader(); }
+		stp_tcn_bpdu* getStpTcnHeader()
+		{
+			return getStpHeader();
+		}
 
 		// overridden methods
 
 		/**
 		 * @return The size of STP TCN message
 		 */
-		size_t getHeaderLen() const { return sizeof(stp_tcn_bpdu); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(stp_tcn_bpdu);
+		}
 
 		/// Parses next layer
 		void parseNextLayer();
@@ -273,7 +307,10 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const { return "Spanning Tree Topology Change Notification"; }
+		std::string toString() const
+		{
+			return "Spanning Tree Topology Change Notification";
+		}
 
 		/**
 		 * A static method that validates the input data
@@ -281,7 +318,10 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen) { return data && dataLen >= sizeof(stp_tcn_bpdu); }
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
+		{
+			return data && dataLen >= sizeof(stp_tcn_bpdu);
+		}
 	};
 
 	/**
@@ -290,10 +330,11 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class StpConfigurationBPDULayer : public StpTopologyChangeBPDULayer
 	{
-	  protected:
-		explicit StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen) {}
+	protected:
+		explicit StpConfigurationBPDULayer(size_t dataLen) : StpTopologyChangeBPDULayer(dataLen)
+		{}
 
-	  public:
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -301,10 +342,9 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		StpConfigurationBPDULayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
-		{
-		}
+		StpConfigurationBPDULayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : StpTopologyChangeBPDULayer(data, dataLen, prevLayer, packet)
+		{}
 
 		/**
 		 * Empty c'tor to create a new configuration BPDU layer.
@@ -316,19 +356,28 @@ typedef stp_tcn_bpdu stp_header;
 		 * Get a pointer to configuration BPDU message
 		 * @return A pointer to configuration BPDU message
 		 */
-		stp_conf_bpdu *getStpConfHeader() const { return (stp_conf_bpdu *)(m_Data); }
+		stp_conf_bpdu* getStpConfHeader() const
+		{
+			return (stp_conf_bpdu*)(m_Data);
+		}
 
 		/**
 		 * Returns the flags of configuration message which indicates purpose of BPDU
 		 * @return Flags of the configuration message
 		 */
-		uint8_t getFlag() const { return getStpConfHeader()->flag; }
+		uint8_t getFlag() const
+		{
+			return getStpConfHeader()->flag;
+		}
 
 		/**
 		 * Returns the flags of configuration message which indicates purpose of BPDU
 		 * @param[in] value Flags of the configuration message
 		 */
-		void setFlag(uint8_t value) { getStpConfHeader()->flag = value; }
+		void setFlag(uint8_t value)
+		{
+			getStpConfHeader()->flag = value;
+		}
 
 		/**
 		 * Returns the root bridge identifier
@@ -370,13 +419,16 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the system identifier of root bridge
 		 * @return System identifier of root bridge
 		 */
-		pcpp::MacAddress getRootSystemID() const { return IDtoMacAddress(getRootId()); }
+		pcpp::MacAddress getRootSystemID() const
+		{
+			return IDtoMacAddress(getRootId());
+		}
 
 		/**
 		 * Sets the system identifier of root bridge
 		 * @param[in] value System identifier of root bridge
 		 */
-		void setRootSystemID(const pcpp::MacAddress &value);
+		void setRootSystemID(const pcpp::MacAddress& value);
 
 		/**
 		 * Returns the value of the cost of path
@@ -430,13 +482,16 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the system identifier of bridge
 		 * @return System identifier of bridge
 		 */
-		pcpp::MacAddress getBridgeSystemID() const { return IDtoMacAddress(getBridgeId()); }
+		pcpp::MacAddress getBridgeSystemID() const
+		{
+			return IDtoMacAddress(getBridgeId());
+		}
 
 		/**
 		 * Sets the system identifier of bridge
 		 * @param[in] value System identifier of bridge
 		 */
-		void setBridgeSystemID(const pcpp::MacAddress &value);
+		void setBridgeSystemID(const pcpp::MacAddress& value);
 
 		/**
 		 * Returns the port identifier
@@ -503,7 +558,10 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return The size of STP configuration BPDU message
 		 */
-		size_t getHeaderLen() const { return sizeof(stp_conf_bpdu); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(stp_conf_bpdu);
+		}
 
 		/// Parses next layer
 		void parseNextLayer();
@@ -511,7 +569,10 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const { return "Spanning Tree Configuration"; }
+		std::string toString() const
+		{
+			return "Spanning Tree Configuration";
+		}
 
 		/**
 		 * A static method that validates the input data
@@ -519,7 +580,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
 			return data && dataLen >= sizeof(stp_conf_bpdu);
 		}
@@ -531,10 +592,11 @@ typedef stp_tcn_bpdu stp_header;
 	 */
 	class RapidStpLayer : public StpConfigurationBPDULayer
 	{
-	  protected:
-		explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen) {}
+	protected:
+		explicit RapidStpLayer(size_t dataLen) : StpConfigurationBPDULayer(dataLen)
+		{}
 
-	  public:
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -542,10 +604,9 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		RapidStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
-		{
-		}
+		RapidStpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : StpConfigurationBPDULayer(data, dataLen, prevLayer, packet)
+		{}
 
 		/**
 		 * Empty c'tor to create a new Rapid STP layer.
@@ -557,26 +618,38 @@ typedef stp_tcn_bpdu stp_header;
 		 * Get a pointer to Rapid STP header
 		 * @return A pointer to Rapid STP header
 		 */
-		rstp_conf_bpdu *getRstpConfHeader() const { return (rstp_conf_bpdu *)(m_Data); }
+		rstp_conf_bpdu* getRstpConfHeader() const
+		{
+			return (rstp_conf_bpdu*)(m_Data);
+		}
 
 		/**
 		 * Returns the length of version1 field. Fixed at 0x0 for Rapid STP
 		 * @return Length of the version1 field
 		 */
-		uint8_t getVersion1Len() const { return getRstpConfHeader()->version1Len; }
+		uint8_t getVersion1Len() const
+		{
+			return getRstpConfHeader()->version1Len;
+		}
 
 		/**
 		 * Returns the length of version1 field
 		 * @param[in] value Length of the version1 field
 		 */
-		void setVersion1Len(uint8_t value) { getRstpConfHeader()->version1Len = value; }
+		void setVersion1Len(uint8_t value)
+		{
+			getRstpConfHeader()->version1Len = value;
+		}
 
 		// overridden methods
 
 		/**
 		 * @return The size of Rapid STP message
 		 */
-		size_t getHeaderLen() const { return sizeof(rstp_conf_bpdu); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(rstp_conf_bpdu);
+		}
 
 		/// Parses next layer
 		void parseNextLayer();
@@ -584,7 +657,10 @@ typedef stp_tcn_bpdu stp_header;
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const { return "Rapid Spanning Tree"; }
+		std::string toString() const
+		{
+			return "Rapid Spanning Tree";
+		}
 
 		/**
 		 * A static method that validates the input data
@@ -592,7 +668,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
 			return data && dataLen >= sizeof(rstp_conf_bpdu);
 		}
@@ -600,11 +676,12 @@ typedef stp_tcn_bpdu stp_header;
 
 	/**
 	 * @class MultipleStpLayer
-	 * Represents Multiple Spanning Tree Protocol (MSTP). It has limited capabilities (no crafting / limited editing) over MSTI configuration
+	 * Represents Multiple Spanning Tree Protocol (MSTP). It has limited capabilities (no crafting / limited editing)
+	 * over MSTI configuration
 	 */
 	class MultipleStpLayer : public RapidStpLayer
 	{
-	  public:
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -612,10 +689,9 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		MultipleStpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: RapidStpLayer(data, dataLen, prevLayer, packet)
-		{
-		}
+		MultipleStpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : RapidStpLayer(data, dataLen, prevLayer, packet)
+		{}
 
 		/**
 		 * Empty c'tor to create a new Multiple STP layer.
@@ -627,7 +703,10 @@ typedef stp_tcn_bpdu stp_header;
 		 * Get a pointer to Multiple STP header
 		 * @return A pointer to Multiple STP header
 		 */
-		mstp_conf_bpdu *getMstpHeader() const { return (mstp_conf_bpdu *)(m_Data); }
+		mstp_conf_bpdu* getMstpHeader() const
+		{
+			return (mstp_conf_bpdu*)(m_Data);
+		}
 
 		/**
 		 * @return Length of version3 field
@@ -644,13 +723,19 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the configuration ID format selector
 		 * @return Configuration ID of format selector
 		 */
-		uint8_t getMstConfigurationFormatSelector() const { return getMstpHeader()->mstConfigFormatSelector; }
+		uint8_t getMstConfigurationFormatSelector() const
+		{
+			return getMstpHeader()->mstConfigFormatSelector;
+		}
 
 		/**
 		 * Sets the configuration ID format selector
 		 * @param[in] value Configuration ID of format selector
 		 */
-		void setMstConfigurationFormatSelector(uint8_t value) { getMstpHeader()->mstConfigFormatSelector = value; }
+		void setMstConfigurationFormatSelector(uint8_t value)
+		{
+			getMstpHeader()->mstConfigFormatSelector = value;
+		}
 
 		/**
 		 * Returns the pointer to configuration name field
@@ -663,7 +748,7 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] value Configuration name. Length should be less than 32, if longer value provided first 32
 		 * characters are used
 		 */
-		void setMstConfigurationName(const std::string &value);
+		void setMstConfigurationName(const std::string& value);
 
 		/**
 		 * Returns the revision of configuration ID
@@ -681,14 +766,17 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the pointer to configuration message digest. The field itself always 16 bytes long.
 		 * @return A pointer to configuration digest
 		 */
-		uint8_t *getMstConfigDigest() const { return getMstpHeader()->mstConfigDigest; }
+		uint8_t* getMstConfigDigest() const
+		{
+			return getMstpHeader()->mstConfigDigest;
+		}
 
 		/**
 		 * Sets the pointer to configuration message digest. The field itself always 16 bytes long.
 		 * @param[in] value Pointer to digest
 		 * @param[in] len Length of the digest, should be less than 16. If longer first 16 bytes are used
 		 */
-		void setMstConfigDigest(const uint8_t *value, uint8_t len);
+		void setMstConfigDigest(const uint8_t* value, uint8_t len);
 
 		/**
 		 * Returns CIST internal root path cost
@@ -742,48 +830,65 @@ typedef stp_tcn_bpdu stp_header;
 		 * Returns the system identifier of CIST bridge
 		 * @return System identifier of CIST bridge
 		 */
-		pcpp::MacAddress getCISTBridgeSystemID() const { return IDtoMacAddress(getCISTBridgeId()); }
+		pcpp::MacAddress getCISTBridgeSystemID() const
+		{
+			return IDtoMacAddress(getCISTBridgeId());
+		}
 
 		/**
 		 * Sets the system identifier of CIST bridge
 		 * @param[in] value System identifier of CIST bridge
 		 */
-		void setCISTBridgeSystemID(const pcpp::MacAddress &value);
+		void setCISTBridgeSystemID(const pcpp::MacAddress& value);
 
 		/**
 		 * Returns the remaining hop count
 		 * @return Value of remaining hop count
 		 */
-		uint8_t getRemainingHopCount() const { return getMstpHeader()->remainId; }
+		uint8_t getRemainingHopCount() const
+		{
+			return getMstpHeader()->remainId;
+		}
 
 		/**
 		 * Returns the remaining hop count
 		 * @param[in] value Value of remaining hop count
 		 */
-		void setRemainingHopCount(uint8_t value) { getMstpHeader()->remainId = value; }
+		void setRemainingHopCount(uint8_t value)
+		{
+			getMstpHeader()->remainId = value;
+		}
 
 		/**
 		 * Returns the total number of MSTI configuration messages
 		 * @return Number of MSTI configuration messages. Can be between 0 and 64.
 		 */
-		uint8_t getNumberOfMSTIConfMessages() const { return (getVersion3Len() - (sizeof(mstp_conf_bpdu) - sizeof(rstp_conf_bpdu) - sizeof(uint16_t))) / sizeof(msti_conf_msg); }
+		uint8_t getNumberOfMSTIConfMessages() const
+		{
+			return (getVersion3Len() - (sizeof(mstp_conf_bpdu) - sizeof(rstp_conf_bpdu) - sizeof(uint16_t))) /
+			       sizeof(msti_conf_msg);
+		}
 
 		/**
 		 * Returns a reference to MSTI configuration messages. An MSTP packet can contain between 0 to 64 MSTI messages.
 		 * The number of messages can be obtained by using getNumberOfMSTIConfMessages()
 		 * @return An array pointer to MSTI configuration messages. Returns nullptr if there is no MSTI message.
 		 */
-		msti_conf_msg *getMstiConfMessages() const;
+		msti_conf_msg* getMstiConfMessages() const;
 
 		// overridden methods
 
 		/// Parses next layer
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const { return "Multiple Spanning Tree"; }
+		std::string toString() const
+		{
+			return "Multiple Spanning Tree";
+		}
 
 		/**
 		 * A static method that validates the input data
@@ -791,9 +896,9 @@ typedef stp_tcn_bpdu stp_header;
 		 * @param[in] dataLen The length of the byte stream
 		 * @return True if the data is valid and can represent an Spanning Tree packet
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataLen)
+		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
 			return data && dataLen >= sizeof(mstp_conf_bpdu);
 		}
 	};
-} // namespace pcpp
+}  // namespace pcpp

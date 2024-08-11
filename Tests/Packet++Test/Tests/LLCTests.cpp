@@ -17,10 +17,10 @@ PTF_TEST_CASE(LLCParsingTests)
 	pcpp::Packet llcPacket1(&rawPacket1);
 	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
 
-	pcpp::LLCLayer *llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
+	pcpp::LLCLayer* llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
 	PTF_ASSERT_NOT_NULL(llcLayer1);
 
-	pcpp::llc_header *header1 = llcLayer1->getLlcHeader();
+	pcpp::llc_header* header1 = llcLayer1->getLlcHeader();
 	PTF_ASSERT_EQUAL(header1->dsap, 0x42);
 	PTF_ASSERT_EQUAL(header1->ssap, 0x42);
 	PTF_ASSERT_EQUAL(header1->control, 0x3);
@@ -32,15 +32,15 @@ PTF_TEST_CASE(LLCParsingTests)
 
 	READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/llc_vlan.dat");
 	pcpp::Packet llcPacket2(&rawPacket2);
-	pcpp::LLCLayer *llcLayer2 = llcPacket2.getLayerOfType<pcpp::LLCLayer>();
+	pcpp::LLCLayer* llcLayer2 = llcPacket2.getLayerOfType<pcpp::LLCLayer>();
 
 	PTF_ASSERT_NOT_NULL(llcLayer2);
 
-	pcpp::llc_header *header2 = llcLayer2->getLlcHeader();
+	pcpp::llc_header* header2 = llcLayer2->getLlcHeader();
 	PTF_ASSERT_EQUAL(header2->dsap, 0xaa);
 	PTF_ASSERT_EQUAL(header2->ssap, 0xaa);
 	PTF_ASSERT_EQUAL(header2->control, 0x3);
-} // LLCParsingTests
+}  // LLCParsingTests
 
 PTF_TEST_CASE(LLCCreationTests)
 {
@@ -52,9 +52,9 @@ PTF_TEST_CASE(LLCCreationTests)
 	pcpp::Packet llcPacket1(&rawPacket1);
 	PTF_ASSERT_TRUE(llcPacket1.isPacketOfType(pcpp::LLC));
 
-	pcpp::LLCLayer *llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
+	pcpp::LLCLayer* llcLayer1 = llcPacket1.getLayerOfType<pcpp::LLCLayer>();
 	PTF_ASSERT_NOT_NULL(llcLayer1);
 
 	pcpp::LLCLayer craftedLayer1(0x42, 0x42, 0x3);
 	PTF_ASSERT_BUF_COMPARE(llcLayer1->getData(), craftedLayer1.getData(), craftedLayer1.getDataLen());
-} // LLCCreationTests
+}  // LLCCreationTests
