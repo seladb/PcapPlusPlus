@@ -16,15 +16,19 @@ struct bpf_program;
  * Most packet capture engines contain packet filtering capabilities. In order to set the filters there should be a
  * known syntax user can use. The most popular syntax is Berkeley Packet Filter (BPF) - see more in here:
  * http://en.wikipedia.org/wiki/Berkeley_Packet_Filter. Detailed explanation of the syntax can be found here:
- * http://www.tcpdump.org/manpages/pcap-filter.7.html.<BR> The problem with BPF is that, for my opinion, the syntax is
- * too complicated and too poorly documented. In addition the BPF filter compilers may output syntax errors that are
- * hard to understand. My experience with BPF was not good, so I decided to make the filters mechanism more structured,
- * easier to understand and less error-prone by creating classes that represent filters. Each possible filter phrase is
- * represented by a class. The filter, at the end, is that class.<BR> For example: the filter "src net 1.1.1.1" will be
- * represented by IPFilter instance; "dst port 80" will be represented by PortFilter, and so on.<BR> So what about
- * complex filters that involve "and", "or"? There are also 2 classes: AndFilter and OrFilter that can store more
- * filters (in a composite idea) and connect them by "and" or "or". For example: "src host 1.1.1.1 and dst port 80" will
- * be represented by an AndFilter that h olds IPFilter and PortFilter inside it
+ * http://www.tcpdump.org/manpages/pcap-filter.7.html.
+ *
+ * The problem with BPF is that, for my opinion, the syntax is too complicated and too poorly documented. In addition
+ * the BPF filter compilers may output syntax errors that are hard to understand. My experience with BPF was not good,
+ * so I decided to make the filters mechanism more structured, easier to understand and less error-prone by creating
+ * classes that represent filters. Each possible filter phrase is represented by a class. The filter, at the end, is
+ * that class.
+ * For example: the filter "src net 1.1.1.1" will be represented by IPFilter instance; "dst port 80"
+ * will be represented by PortFilter, and so on.
+ * So what about complex filters that involve "and", "or"? There are
+ * also 2 classes: AndFilter and OrFilter that can store more filters (in a composite idea) and connect them by "and" or
+ * "or". For example: "src host 1.1.1.1 and dst port 80" will be represented by an AndFilter that holds IPFilter and
+ * PortFilter inside it
  */
 
 /**
@@ -184,7 +188,7 @@ namespace pcpp
 
 	/**
 	 * @class BPFStringFilter
-	 * This class can be loaded with a BPF filter string and then can be used to verify the string is valid.<BR>
+	 * This class can be loaded with a BPF filter string and then can be used to verify the string is valid.
 	 */
 	class BPFStringFilter : public GeneralFilter
 	{
@@ -790,7 +794,9 @@ namespace pcpp
 	/**
 	 * A class for connecting several filters into one filter with logical "and" between them. For example: if the 2
 	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
-	 * _AND_ TCP port dst = 80"<BR> This class follows the composite design pattern.
+	 * _AND_ TCP port dst = 80"
+	 *
+	 * This class follows the composite design pattern.
 	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
@@ -799,7 +805,9 @@ namespace pcpp
 	/**
 	 * A class for connecting several filters into one filter with logical "or" between them. For example: if the 2
 	 * filters are: "IPv4 address = x.x.x.x" + "TCP port dst = 80", then the new filter will be: "IPv4 address = x.x.x.x
-	 * _OR_ TCP port dst = 80"<BR> This class follows the composite design pattern.
+	 * _OR_ TCP port dst = 80"
+	 *
+	 * This class follows the composite design pattern.
 	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
