@@ -5,6 +5,7 @@
 #include <memory>
 #include "IpAddress.h"
 #include "PcapRemoteDevice.h"
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -33,23 +34,21 @@ namespace pcpp
 		uint16_t m_RemoteMachinePort;
 		std::shared_ptr<PcapRemoteAuthentication> m_RemoteAuthentication;
 
-		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::getRemoteDeviceList()
-		PcapRemoteDeviceList() : m_RemoteMachinePort(0), m_RemoteAuthentication(nullptr) {}
-
-		void setRemoteMachineIpAddress(const IPAddress& ipAddress);
-		void setRemoteMachinePort(uint16_t port);
-		void setRemoteAuthentication(const PcapRemoteAuthentication* remoteAuth);
+		// private c'tor. User should create the list via static methods PcapRemoteDeviceList::createRemoteDeviceList()
+		PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port,
+		                     std::shared_ptr<PcapRemoteAuthentication> remoteAuth,
+		                     std::vector<PcapRemoteDevice*> deviceList);
 
 	public:
 		/**
 		 * Iterator object that can be used for iterating all PcapRemoteDevice in list
 		 */
-		typedef typename std::vector<PcapRemoteDevice*>::iterator RemoteDeviceListIterator;
+		using RemoteDeviceListIterator = typename std::vector<PcapRemoteDevice*>::iterator;
 
 		/**
 		 * Const iterator object that can be used for iterating all PcapRemoteDevice in a constant list
 		 */
-		typedef typename std::vector<PcapRemoteDevice*>::const_iterator ConstRemoteDeviceListIterator;
+		using ConstRemoteDeviceListIterator = typename std::vector<PcapRemoteDevice*>::const_iterator;
 
 		PcapRemoteDeviceList(const PcapRemoteDeviceList&) = delete;
 		PcapRemoteDeviceList(PcapRemoteDeviceList&&) noexcept = delete;
@@ -70,8 +69,29 @@ namespace pcpp
 		 * - IP address provided is NULL or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * @deprecated This factory function has been deprecated in favor of 'createRemoteDeviceList' factory for better memory safety.
 		 */
+		PCPP_DEPRECATED("Please use 'createRemoteDeviceList' factory method instead.")
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
+
+		/**
+		 * A static method for creating a PcapRemoteDeviceList instance for a specific remote machine.
+		 * This methods creates the instance and populates it with PcapRemoteDevice instances.
+		 * Each PcapRemoteDevice instance corresponds to a network interface on the remote machine.
+		 *
+		 * This method overload is for remote daemons which don't require authentication for accessing them.
+		 * For daemons which do require authentication use the other method overload.
+		 *
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
+		 * daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @return A smart pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed
+		 * to log in each case):
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
+		 * devices on the remote machine
+		 */
+		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port);
 
 		/**
 		 * An overload of the previous getRemoteDeviceList() method but with authentication support. This method is suitable for connecting to
@@ -84,8 +104,31 @@ namespace pcpp
 		 * - IP address provided is NULL or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving devices on the remote machine
+		 * @deprecated This factory function has been deprecated in favor of 'createRemoteDeviceList' factory for better memory safety.
 		 */
+		PCPP_DEPRECATED("Please use 'createRemoteDeviceList' factory method instead.")
 		static PcapRemoteDeviceList* getRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication* remoteAuth);
+
+		/**
+		 * A static method for creating a PcapRemoteDeviceList instance for a specific remote machine.
+		 * This methods creates the instance and populates it with PcapRemoteDevice instances.
+		 * Each PcapRemoteDevice instance corresponds to a network interface on the remote machine.
+		 *
+		 * This method overload is for remote daemons which require authentication for accessing them.
+		 * If no authentication is required, use the other method overload.
+		 *
+		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
+		 * daemon
+		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
+		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for
+		 * connecting to the remote daemon
+		 * @return A smart pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be printed
+		 * to log in each case):
+		 * - WinPcap/Npcap encountered an error in creating the remote connection string
+		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
+		 * devices on the remote machine
+		 */
+		static std::unique_ptr<PcapRemoteDeviceList> createRemoteDeviceList(const IPAddress& ipAddress, uint16_t port, PcapRemoteAuthentication const* remoteAuth);
 
 		/**
 		 * @return The IP address of the remote machine

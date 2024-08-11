@@ -10,6 +10,7 @@ on:
 env:
   BUILD_DIR: Dist
   GCOVR_FLAGS: --gcov-ignore-parse-errors --exclude-throw-branches --filter Common --filter Pcap --filter Packet --xml
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
 
 permissions:
   contents: read
@@ -20,7 +21,7 @@ jobs:
     container: seladb/alpine317
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -78,7 +79,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -89,6 +90,15 @@ jobs:
         run: |
           . /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
         run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
@@ -113,7 +123,7 @@ jobs:
         run: |
           cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
           cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
+          cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
         run: |
@@ -123,20 +133,26 @@ jobs:
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
-      - name: Create Cobertura Report
-        run: |
-          ${{ matrix.python }} -m pip install gcovr
-          gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
+      # - name: Create Cobertura Report
+      #   run: |
+      #     ${{ matrix.python }} -m pip install gcovr
+      #     gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+      # - name: Upload Coverage Results
+      #   uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+      #   with:
+      #     files: ./coverage.xml
+      #     flags: ${{ matrix.image }},unittest
+      #     fail_ci_if_error: false
+      #     verbose: true
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
-          files: ./coverage.xml
-          flags: ${{ matrix.image }},unittest
-          fail_ci_if_error: false
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
   dpdk:
     runs-on: ubuntu-latest
@@ -152,7 +168,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_DPDK=ON  ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
@@ -177,7 +202,7 @@ jobs:
         run: |
           cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
           cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
+          cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
         run: |
@@ -186,6 +211,12 @@ jobs:
 
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
   pfring:
     runs-on: ubuntu-latest
@@ -197,7 +228,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
         run: ${{ matrix.configure }}
@@ -219,7 +259,7 @@ jobs:
         run: |
           cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
           cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
+          cmake --install "$BUILD_DIR"
 
       - name: Build Tutorials
         run: |
@@ -229,40 +269,69 @@ jobs:
       - name: Test Tutorials
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
-  macos-x86:
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+
+  macos:
     runs-on: ${{ matrix.os-version }}
     strategy:
       matrix:
         include:
           - os-version: macos-12
+            host-arch: x86_64
             arch: x86_64
             config-zstd: OFF
           - os-version: macos-12
+            host-arch: x86_64
             arch: arm64
             config-zstd: OFF
           - os-version: macos-13
+            host-arch: x86_64
             arch: x86_64
             config-zstd: OFF
           - os-version: macos-13
+            host-arch: x86_64
             arch: x86_64
             config-zstd: ON
           - os-version: macos-13
+            host-arch: x86_64
+            arch: arm64
+            config-zstd: OFF
+          - os-version: macos-14
+            host-arch: arm64
             arch: arm64
             config-zstd: OFF
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Setup Python
+        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
+
+      - name: Install Requirements Ccache & Tcpreplay
+        run: brew install ccache tcpreplay
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.os-version }}-${{ matrix.arch }}-ccache
 
       - name: Configure PcapPlusPlus
         # Ensure user have access to network devices instead of giving super-user right
         run: |
           sudo chmod a+rw /dev/bpf*
+          sudo chmod a+rw /usr/local
           cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
@@ -271,95 +340,16 @@ jobs:
       - name: Check architecture
         run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch ${{ matrix.arch }}
 
-      - name: Install Tcpreplay
-        run: brew install tcpreplay
-
       - name: Test PcapPlusPlus
         # We can't run cross compiled binaries
-        if: ${{ matrix.arch == 'x86_64' }}
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           python -m pip install -U pip
           python -m pip install -r ci/run_tests/requirements.txt
           python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: |
-          cd Tests/ExamplesTest
-          python -m pip install -U pip
-          python -m pip install -r requirements.txt
-          python -m pytest --interface en0 --use-sudo --root-path=../../Dist/examples_bin
-
-      - name: Check installation
-        run: |
-          cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
-          cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR
-
-      - name: Build Tutorials
-        run: |
-          mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
-          cmake --build build_examples -j
-
-      - name: Test Tutorials
-        if: ${{ matrix.arch == 'x86_64' }}
-        run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
-
-      - name: Create Cobertura Report
-        run: |
-          python3 -m pip install gcovr
-          gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
-
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
-        with:
-          files: ./coverage.xml
-          flags: ${{ matrix.os-version }},unittest
-          fail_ci_if_error: false
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  macos-m1:
-    runs-on: ${{ matrix.os-version }}
-    strategy:
-      matrix:
-        os-version: [macos-14]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
-
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
-        with:
-          # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-          python-version: "3.12"
-
-      - name: Configure PcapPlusPlus
-        # Ensure user have access to network devices instead of giving super-user right
-        # Seems macos-14 has more strict file permission
-        run: |
-          sudo chmod a+rw /dev/bpf*
-          sudo chmod a+rw /usr/local
-          cmake -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
-
-      - name: Build PcapPlusPlus
-        run: cmake --build "$BUILD_DIR" -j
-
-      - name: Check architecture
-        run: lipo $BUILD_DIR/Pcap++/libPcap++.a -verify_arch arm64
-
-      - name: Install Tcpreplay
-        run: brew install tcpreplay
-
-      - name: Test PcapPlusPlus
-        run: |
-          python -m pip install -U pip
-          python -m pip install -r ci/run_tests/requirements.txt
-          python ci/run_tests/run_tests.py --interface en0
-
-      - name: Test Examples
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           cd Tests/ExamplesTest
           python -m pip install -U pip
@@ -375,26 +365,35 @@ jobs:
       - name: Build Tutorials
         run: |
           mkdir -p build_examples
-          cmake -DPCAPPP_BUILD_TUTORIALS=ON -S Examples -B build_examples
+          cmake -DPCAPPP_BUILD_TUTORIALS=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S Examples -B build_examples
           cmake --build build_examples -j
 
       - name: Test Tutorials
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Create Cobertura Report
+        if: ${{ matrix.host-arch == matrix.arch }}
         run: |
           python3 -m pip install gcovr
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
-      - name: Upload Coverage Results
-        uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+      # - name: Upload Coverage Results
+      #   uses: codecov/codecov-action@ab904c41d6ece82784817410c45d8b8c02684457 # v3.1.6
+      #   if: ${{ matrix.host-arch == matrix.arch }}
+      #   with:
+      #     files: ./coverage.xml
+      #     flags: ${{ matrix.os-version }},unittest
+      #     fail_ci_if_error: false
+      #     verbose: true
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
-          files: ./coverage.xml
-          flags: ${{ matrix.os-version }},unittest
-          fail_ci_if_error: false
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
   mingw-w64:
     runs-on: windows-latest
@@ -408,7 +407,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@d0e80f58dffbc64f6a3a1f43527d469b4fc7b6c8 # v2.23.0
@@ -421,9 +420,9 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
         with:
-          python-version: "3.8.x"
+          python-version: "3.12"
 
       - name: Install NPcap
         env:
@@ -502,11 +501,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      - name: Setup Python
+        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
         with:
-          python-version: "3.8.x"
+          python-version: "3.12"
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
@@ -574,10 +574,10 @@ jobs:
       matrix:
         version: ["14.0", "13.2"]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@v1
+      uses: vmactions/freebsd-vm@12c207ac1ba13827f25726fe93f9c2e6f685f0f3 # v1.0.8
       with:
         release: ${{ matrix.version }}
         usesh: true
@@ -629,10 +629,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017 # main
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # main
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -646,7 +646,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@61b9e3751b92087fd0b06925ba6dd6314e06f089 # master
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # master
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -660,7 +660,7 @@ jobs:
           PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
           cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
           cmake --build "$BUILD_DIR" -j
-          cmake --install $BUILD_DIR --prefix ${TOYVPN_PCAPPLUSPLUS}
+          cmake --install "$BUILD_DIR" --prefix ${TOYVPN_PCAPPLUSPLUS}
           mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
@@ -668,7 +668,15 @@ jobs:
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
+          NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+          if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
+              sed -i.bak "/defaultConfig {/a\\
+                  ndkVersion \"$NDK_VERSION\"
+              " app/build.gradle
+          else
+              sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
+          fi
           chmod +x gradlew
           ./gradlew assembleDebug
 
@@ -677,11 +685,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Install dependencies
         run: |
-          sudo apt update && sudo apt -y install libpcap-dev libbpf-dev tcpreplay
+          sudo apt update && sudo apt -y install ccache libpcap-dev libbpf-dev tcpreplay
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_USE_XDP=ON -DPCAPPP_BUILD_COVERAGE=ON -S . -B $BUILD_DIR
@@ -692,8 +709,8 @@ jobs:
       - name: Test PcapPlusPlus
         run: |
           python -m pip install -U pip
-          python  -m pip install -r ci/run_tests/requirements.txt
-          python  ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
+          python -m pip install -r ci/run_tests/requirements.txt
+          python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
 
       - name: Create Cobertura Report
         run: |
@@ -710,6 +727,12 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
+
   test_regressions:
     name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
     runs-on: ubuntu-latest
@@ -721,23 +744,42 @@ jobs:
     container:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - name: Install prerequisites
         run: |
-          apt-get update && apt-get install -y cmake autoconf flex bison
+          apt-get update && apt-get install -y autoconf bison ccache cmake flex
           cd ..
           cp -r PcapPlusPlus/ $SRC/PcapPlusPlus
           git clone --depth=1 https://github.com/the-tcpdump-group/libpcap.git $SRC/libpcap
           cd $SRC/PcapPlusPlus/
-      - name: Compile fuzzer
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache
+
+      - name: Compile PcapPlusPlus Fuzzer application
         run: |
           export FUZZING_LANGUAGE=c
           export ARCHITECTURE=x86_64
           export FUZZING_ENGINE=${{ matrix.engine }}
           export SANITIZER=${{ matrix.sanitizer }}
           $SRC/PcapPlusPlus/Tests/Fuzzers/ossfuzz.sh
+
       - name: Check for regressions
         run: |
           export BINARY="$OUT/FuzzTarget"
           export SAMPLES="Tests/Fuzzers/RegressionTests/regression_samples"
           Tests/Fuzzers/RegressionTests/run_tests.sh
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
