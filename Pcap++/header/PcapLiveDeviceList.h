@@ -33,11 +33,9 @@ namespace pcpp
 		// private c'tor
 		PcapLiveDeviceList();
 
-		void init();
+		static std::vector<std::unique_ptr<PcapLiveDevice>> fetchAllLocalDevices();
+		static std::vector<IPv4Address> fetchDnsServers();
 
-		void setDnsServers();
-
-		void updateLiveDeviceListView() const;
 
 	public:
 		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
