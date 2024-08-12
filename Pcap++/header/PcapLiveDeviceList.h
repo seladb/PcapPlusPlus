@@ -26,6 +26,8 @@ namespace pcpp
 	class PcapLiveDeviceList : public internal::DeviceListBase<PcapLiveDevice>
 	{
 	private:
+		using Base = internal::DeviceListBase<PcapLiveDevice>;
+
 		// Vector of raw device pointers to keep the signature of getPcapLiveDevicesList, as it returns a reference.
 		std::vector<PcapLiveDevice*> m_LiveDeviceListView;
 
@@ -34,7 +36,7 @@ namespace pcpp
 		// private c'tor
 		PcapLiveDeviceList();
 
-		static std::vector<std::unique_ptr<PcapLiveDevice>> fetchAllLocalDevices();
+		static PointerVector<PcapLiveDevice> fetchAllLocalDevices();
 		static std::vector<IPv4Address> fetchDnsServers();
 	public:
 		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;

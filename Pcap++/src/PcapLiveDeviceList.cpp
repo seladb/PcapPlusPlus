@@ -28,23 +28,23 @@ namespace pcpp
 {
 	namespace
 	{
-		void syncPointerVectors(std::vector<std::unique_ptr<PcapLiveDevice>> const& mainVector, std::vector<PcapLiveDevice*>& viewVector)
+		void syncPointerVectors(PointerVector<PcapLiveDevice> const& mainVector, std::vector<PcapLiveDevice*>& viewVector)
 		{
 			viewVector.resize(mainVector.size());
 			// Full update of all elements of the view vector to synchronize them with the main vector.
-			std::transform(mainVector.begin(), mainVector.end(), viewVector.begin(),
-			               [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
+			std::copy(mainVector.begin(), mainVector.end(), viewVector.begin());
 		}
 	}
 
-PcapLiveDeviceList::PcapLiveDeviceList() : m_LiveDeviceList(fetchAllLocalDevices()), m_DnsServers(fetchDnsServers())
-{
-	syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
+PcapLiveDeviceList::PcapLiveDeviceList()
+	    : Base(fetchAllLocalDevices()), m_DnsServers(fetchDnsServers())
+	{
+	syncPointerVectors(m_DeviceList, m_LiveDeviceListView);
 }
 
-std::vector<std::unique_ptr<PcapLiveDevice>> PcapLiveDeviceList::fetchAllLocalDevices()
+PointerVector<PcapLiveDevice> PcapLiveDeviceList::fetchAllLocalDevices()
 {
-	std::vector<std::unique_ptr<PcapLiveDevice>> deviceList;
+	PointerVector<PcapLiveDevice> deviceList;
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	try
 	{
@@ -65,7 +65,7 @@ std::vector<std::unique_ptr<PcapLiveDevice>> PcapLiveDeviceList::fetchAllLocalDe
 #else //__linux__, __APPLE__, __FreeBSD__
 		auto dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
-		deviceList.push_back(std::move(dev));
+		deviceList.pushBack(std::move(dev));
 	}
 	return deviceList;
 }
@@ -394,10 +394,10 @@ void PcapLiveDeviceList::reset()
 {
 	m_LiveDeviceListView.clear();
 
-	m_LiveDeviceList = fetchAllLocalDevices();
+	m_DeviceList = fetchAllLocalDevices();
 	m_DnsServers = fetchDnsServers();
 
-	syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
+	syncPointerVectors(m_DeviceList, m_LiveDeviceListView);
 }
 
 } // namespace pcpp
