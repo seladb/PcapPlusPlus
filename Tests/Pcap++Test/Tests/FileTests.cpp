@@ -180,6 +180,27 @@ PTF_TEST_CASE(TestPcapFilePrecision)
 	readerDevMicro.close();
 }  // TestPcapFilePrecision
 
+PTF_TEST_CASE(TestPcapNgFilePrecision)
+{
+	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+	pcpp::RawPacket rawPacketNano(testPayload.data(), testPayload.size(), timespec({ 1722196160, 123456789 }),
+	                              false);  // 1722196160.123456789
+
+	pcpp::PcapNgFileWriterDevice writerDev(EXAMPLE_PCAPNG_NANO_PATH);
+	PTF_ASSERT_TRUE(writerDev.open());
+	PTF_ASSERT_TRUE(writerDev.writePacket(rawPacketNano));
+	writerDev.close();
+
+	pcpp::PcapNgFileReaderDevice readerDev(EXAMPLE_PCAPNG_NANO_PATH);
+	PTF_ASSERT_TRUE(readerDev.open());
+	pcpp::RawPacket readPacket;
+	PTF_ASSERT_TRUE(readerDev.getNextPacket(readPacket));
+	PTF_ASSERT_EQUAL(readPacket.getPacketTimeStamp().tv_sec, 1722196160);
+	PTF_ASSERT_EQUAL(readPacket.getPacketTimeStamp().tv_nsec, 123456789);
+	readerDev.close();
+}  // TestPcapNgFilePrecision
+
 PTF_TEST_CASE(TestPcapSllFileReadWrite)
 {
 	pcpp::PcapFileReaderDevice readerDev(SLL_PCAP_PATH);
