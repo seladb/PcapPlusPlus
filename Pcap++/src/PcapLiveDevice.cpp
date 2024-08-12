@@ -198,9 +198,9 @@ void PcapLiveDevice::captureThreadMain()
 	{
 		while (!m_StopThread)
 		{
-			if (pcap_dispatch(m_PcapDescriptor, -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
+			if (pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
-				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
 				m_StopThread = true;
 			}
 		}
@@ -209,9 +209,9 @@ void PcapLiveDevice::captureThreadMain()
 	{
 		while (!m_StopThread)
 		{
-			if (pcap_dispatch(m_PcapDescriptor, 100, onPacketArrivesNoCallback, reinterpret_cast<uint8_t*>(this)) == -1)
+			if (pcap_dispatch(m_PcapDescriptor.value(), 100, onPacketArrivesNoCallback, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
-				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
 				m_StopThread = true;
 			}
 		}
@@ -345,26 +345,29 @@ bool PcapLiveDevice::open(const DeviceConfiguration& config)
 		return true;
 	}
 
-	m_PcapDescriptor = doOpen(config);
+	auto pcapDescriptor = internal::PcapHandle(doOpen(config));
+	internal::PcapHandle pcapSendDescriptor;
 
 	// It's not possible to have two open instances of the same NFLOG device:group
 	if (m_Name == NFLOG_IFACE)
 	{
-		m_PcapSendDescriptor = nullptr;
+		pcapSendDescriptor = nullptr;
 	}
 	else
 	{
-		m_PcapSendDescriptor = doOpen(config);
+		pcapSendDescriptor = internal::PcapHandle(doOpen(config));
 	}
 
-	if (m_PcapDescriptor == nullptr || (m_Name != NFLOG_IFACE && m_PcapSendDescriptor == nullptr))
+	if (pcapDescriptor == nullptr || (m_Name != NFLOG_IFACE && pcapSendDescriptor == nullptr))
 	{
 		m_DeviceOpened = false;
 		return false;
 	}
 
 	PCPP_LOG_DEBUG("Device '" << m_Name << "' opened");
-
+	m_PcapDescriptor = std::move(pcapDescriptor);
+	// The send descriptor is held as a raw pointer as it can sometimes be the same as the receive descriptor
+	m_PcapSendDescriptor = pcapSendDescriptor.release();
 	m_DeviceOpened = true;
 
 	if(!config.usePoll)
@@ -399,8 +402,8 @@ void PcapLiveDevice::close()
 		return;
 	}
 
-	bool sameDescriptor = (m_PcapDescriptor == m_PcapSendDescriptor);
-	pcap_close(m_PcapDescriptor);
+	bool sameDescriptor = (m_PcapDescriptor.value() == m_PcapSendDescriptor);
+	m_PcapDescriptor = nullptr;
 	PCPP_LOG_DEBUG("Receive pcap descriptor closed");
 	if (!sameDescriptor)
 	{
@@ -566,9 +569,9 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 	{
 		while (!m_StopThread)
 		{
-			if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+			if(pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 			{
-				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+				PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
 				shouldReturnError = true;
 				m_StopThread = true;
 			}
@@ -588,9 +591,9 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 
 				if(ready > 0)
 				{
-					if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+					if(pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 					{
-						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
 						shouldReturnError = true;
 						m_StopThread = true;
 					}
@@ -609,9 +612,9 @@ int PcapLiveDevice::startCaptureBlockingMode(OnPacketArrivesStopBlocking onPacke
 			}
 			else
 			{
-				if(pcap_dispatch(m_PcapDescriptor, -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
+				if(pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrivesBlockingMode, reinterpret_cast<uint8_t*>(this)) == -1)
 				{
-					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << pcap_geterr(m_PcapDescriptor));
+					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
 					shouldReturnError = true;
 					m_StopThread = true;
 				}
@@ -646,7 +649,7 @@ void PcapLiveDevice::stopCapture()
 	m_StopThread = true;
 	if (m_CaptureThreadStarted)
 	{
-		pcap_breakloop(m_PcapDescriptor);
+		pcap_breakloop(m_PcapDescriptor.value());
 		PCPP_LOG_DEBUG("Stopping capture thread, waiting for it to join...");
 		m_CaptureThread.join();
 		m_CaptureThreadStarted = false;
@@ -672,7 +675,7 @@ bool PcapLiveDevice::captureActive()
 void PcapLiveDevice::getStatistics(PcapStats& stats) const
 {
 	pcap_stat pcapStats;
-	if (pcap_stats(m_PcapDescriptor, &pcapStats) < 0)
+	if (pcap_stats(m_PcapDescriptor.value(), &pcapStats) < 0)
 	{
 		PCPP_LOG_ERROR("Error getting statistics from live device '" << m_Name << "'");
 	}

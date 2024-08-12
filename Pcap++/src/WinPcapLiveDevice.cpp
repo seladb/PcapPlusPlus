@@ -17,14 +17,14 @@ WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool c
 
 bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie, int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in capture mode
-	if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
+	if (pcap_setmode(m_PcapDescriptor.value(), MODE_CAPT) < 0)
 	{
 		PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
 		return false;
@@ -35,14 +35,14 @@ bool WinPcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, vo
 
 bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate, void* onStatsUpdateUserCookie)
 {
-	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return false;
 	}
 
 	//Put the interface in statistics mode
-	if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
+	if (pcap_setmode(m_PcapDescriptor.value(), MODE_STAT) < 0)
 	{
 		PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
 		return false;
@@ -53,7 +53,7 @@ bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStats
 
 int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 {
-	if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+	if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 	{
 		PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 		return 0;
@@ -84,9 +84,9 @@ int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
 
 	int res;
-	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < (int)(sendQueue->len))
+	if ((res = pcap_sendqueue_transmit(m_PcapDescriptor.value(), sendQueue, 0)) < static_cast<int>(sendQueue->len))
 	{
-		PCPP_LOG_ERROR("An error occurred sending the packets: " << pcap_geterr(m_PcapDescriptor) << ". Only " << res << " bytes were sent");
+		PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastErrorView() << ". Only " << res << " bytes were sent");
 		packetsSent = 0;
 		dataSize = 0;
 		for (int i = 0; i < arrLength; i++)
@@ -117,7 +117,7 @@ bool WinPcapLiveDevice::setMinAmountOfDataToCopyFromKernelToApplication(int size
 		return false;
 	}
 
-	if (pcap_setmintocopy(m_PcapDescriptor, size) != 0)
+	if (pcap_setmintocopy(m_PcapDescriptor.value(), size) != 0)
 	{
 		PCPP_LOG_ERROR("pcap_setmintocopy failed");
 		return false;

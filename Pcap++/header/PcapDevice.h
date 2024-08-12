@@ -18,6 +18,79 @@ namespace pcpp
 	//Forward Declaration - required for IPcapDevice::matchPacketWithFilter
 	class GeneralFilter;
 
+	namespace internal
+	{
+		/// @class PcapHandle
+		/// @brief A wrapper class for pcap_t* which is the libpcap packet capture descriptor.
+		/// This class is used to manage the lifecycle of the pcap_t* object
+		class PcapHandle
+		{
+		public:
+			/// @brief Creates an empty handle.
+			PcapHandle() = default;
+			/// @brief Creates a handle from the provided pcap descriptor.
+			/// @param pcapDescriptor The pcap descriptor to wrap.
+			explicit PcapHandle(pcap_t* pcapDescriptor);
+
+			PcapHandle(const PcapHandle&) = delete;
+			PcapHandle(PcapHandle&& other) noexcept;
+
+			PcapHandle& operator=(const PcapHandle&) = delete;
+			PcapHandle& operator=(PcapHandle&& other) noexcept;
+			PcapHandle& operator=(std::nullptr_t) noexcept;
+
+			~PcapHandle();
+
+			/// @brief Check if the handle is not null.
+			/// @return True if the handle is not null, false otherwise.
+			bool hasValue() const
+			{
+				return m_PcapDescriptor != nullptr;
+			}
+
+			/// @brief Access the underlying pcap descriptor.
+			/// @return The pcap descriptor.
+			pcap_t* value() const
+			{
+				return m_PcapDescriptor;
+			}
+
+			/// @brief Releases ownership of the handle and returns the pcap descriptor.
+			/// @return The pcap descriptor or nullptr if no handle is owned.
+			pcap_t* release();
+
+			/// @brief Helper function to retrieve the last error string for this handle.
+			/// @return The last error string.
+			std::string getLastError() const;
+
+			/// @brief Helper function to retrieve a view of the last error string for this handle.
+			/// @return A view of the last error string.
+			/// @remarks This function is more efficient than getLastError() as it does not copy the string.
+			char const* getLastErrorView() const;
+
+			/// @brief Implicit conversion to bool.
+			/// @return True if the handle is not null, false otherwise.
+			operator bool() const
+			{
+				return hasValue();
+			}
+
+			bool operator==(std::nullptr_t) const
+			{
+				return !hasValue();
+			}
+			bool operator!=(std::nullptr_t) const
+			{
+				return hasValue();
+			}
+
+		private:
+			void closeHandle() noexcept;
+
+			pcap_t* m_PcapDescriptor = nullptr;
+		};
+	}  // namespace internal
+
 	/**
 	 * @class IPcapDevice
 	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and RemoteCapture.
@@ -26,10 +99,11 @@ namespace pcpp
 	class IPcapDevice : public IDevice, public IFilterableDevice
 	{
 	protected:
-		pcap_t* m_PcapDescriptor;
+		internal::PcapHandle m_PcapDescriptor;
 
 		// c'tor should not be public
-		IPcapDevice() : IDevice() { m_PcapDescriptor = NULL; }
+		IPcapDevice() : IDevice()
+		{}
 
 	public:
 
@@ -64,12 +138,12 @@ namespace pcpp
 		static std::string getPcapLibVersionInfo();
 
 		/**
-		* Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any device instance
-		* in order to perform this match
-		* @param[in] filter A filter class to test against
-		* @param[in] rawPacket A pointer to the raw packet to match the filter with
-		* @return True if raw packet matches the filter or false otherwise
-		*/
+		 * Match a raw packet with a given BPF filter. Notice this method is static which means you don't need any
+		 * device instance in order to perform this match
+		 * @param[in] filter A filter class to test against
+		 * @param[in] rawPacket A pointer to the raw packet to match the filter with
+		 * @return True if raw packet matches the filter or false otherwise
+		 */
 		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
 
