@@ -27,14 +27,15 @@ namespace pcpp
 {
 	namespace
 	{
-		void syncPointerVectors(std::vector<std::unique_ptr<PcapLiveDevice>> const& mainVector, std::vector<PcapLiveDevice*>& viewVector)
+		void syncPointerVectors(std::vector<std::unique_ptr<PcapLiveDevice>> const& mainVector,
+		                        std::vector<PcapLiveDevice*>& viewVector)
 		{
 			viewVector.resize(mainVector.size());
 			// Full update of all elements of the view vector to synchronize them with the main vector.
 			std::transform(mainVector.begin(), mainVector.end(), viewVector.begin(),
 			               [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
 		}
-	}
+	}  // namespace
 
 	PcapLiveDeviceList::PcapLiveDeviceList() : m_LiveDeviceList(fetchAllLocalDevices()), m_DnsServers(fetchDnsServers())
 	{
@@ -261,7 +262,7 @@ namespace pcpp
 		}
 
 #endif
-	return dnsServers;
+		return dnsServers;
 	}
 
 	PcapLiveDevice* PcapLiveDeviceList::getPcapLiveDeviceByIp(const IPAddress& ipAddr) const
@@ -397,10 +398,10 @@ namespace pcpp
 	{
 		m_LiveDeviceListView.clear();
 
-	m_LiveDeviceList = fetchAllLocalDevices();
-	m_DnsServers = fetchDnsServers();
+		m_LiveDeviceList = fetchAllLocalDevices();
+		m_DnsServers = fetchDnsServers();
 
-	syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
+		syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
 	}
 
 }  // namespace pcpp
