@@ -305,7 +305,7 @@ namespace pcpp
 		/**
 		 * @return A vector containing all IP addresses defined for this interface.
 		 */
-		std::vector<IPAddress> getIPAddresses() const;
+		std::vector<IPAddress> getIPAddresses() const { return m_InterfaceDetails.addresses; }
 
 		/**
 		 * @return The MAC address for this interface
