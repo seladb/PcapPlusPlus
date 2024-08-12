@@ -91,12 +91,21 @@ PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInter
 
 	for (pcap_addr* current = pInterface->addresses; current != nullptr; current = current->next)
 	{
-		addresses.push_back(*current);
+		in_addr* ipv4Addr = internal::try_sockaddr2in_addr(current->addr);
+		if (ipv4Addr != nullptr)
+		{
+			addresses.push_back(IPv4Address(ipv4Addr->s_addr));
+			continue;
+		}
+
+		in6_addr* ipv6Addr = internal::try_sockaddr2in6_addr(current->addr);
+		if (ipv6Addr != nullptr)
+		{
+			addresses.push_back(IPv6Address(ipv6Addr->s6_addr));
+			continue;
+		}
 	}
 }
-
-PcapLiveDevice::PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
-	: PcapLiveDevice(DeviceInterfaceDetails(pInterface), calculateMTU, calculateMacAddress, calculateDefaultGateway) {}
 
 PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway) :
 	IPcapDevice(), m_PcapSendDescriptor(nullptr), m_PcapSelectableFd(-1), m_InterfaceDetails(std::move(interfaceDetails)), m_DefaultGateway(IPv4Address::Zero), m_UsePoll(false)
@@ -110,9 +119,7 @@ PcapLiveDevice::PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool cal
 		PCPP_LOG_DEBUG("   Addresses:");
 		for (auto const& address : m_InterfaceDetails.addresses)
 		{
-			std::array<char, INET6_ADDRSTRLEN> addrAsString;
-			internal::sockaddr2string(address.addr, addrAsString.data(), addrAsString.size());
-			PCPP_LOG_DEBUG("      " << addrAsString.data());
+			PCPP_LOG_DEBUG("      " << address.toString());
 		}
 	}
 
@@ -1157,54 +1164,16 @@ void PcapLiveDevice::setDefaultGateway()
 
 IPv4Address PcapLiveDevice::getIPv4Address() const
 {
-	for(const auto& addrIter : m_InterfaceDetails.addresses)
-	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
-		{
-			std::array<char, INET6_ADDRSTRLEN> addrAsString;
-			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
-			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
-		}
-
-		in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
-		if (currAddr == nullptr)
-		{
-			PCPP_LOG_DEBUG("Address is NULL");
-			continue;
-		}
-
-		try
-		{
-			return IPv4Address(currAddr->s_addr);
-		}
-		catch (const std::exception&)
-		{
-			continue;
-		}
-	}
-
-	return IPv4Address::Zero;
+	auto const& addresses = m_InterfaceDetails.addresses;
+	auto it = std::find_if(addresses.begin(), addresses.end(), [](const IPAddress& addr) { return addr.isIPv4(); });
+	return it != addresses.end() ? it->getIPv4() : IPv4Address::Zero;
 }
 
 IPv6Address PcapLiveDevice::getIPv6Address() const
 {
-	for (const auto& addrIter : m_InterfaceDetails.addresses)
-	{
-		if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addrIter.addr != nullptr)
-		{
-			std::array<char, INET6_ADDRSTRLEN> addrAsString;
-			internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
-			PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
-		}
-		in6_addr *currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
-		if (currAddr == nullptr)
-		{
-			PCPP_LOG_DEBUG("Address is NULL");
-			continue;
-		}
-		return IPv6Address(currAddr->s6_addr);
-	}
-	return IPv6Address::Zero;
+	auto const& addresses = m_InterfaceDetails.addresses;
+	auto it = std::find_if(addresses.begin(), addresses.end(), [](const IPAddress& addr) { return addr.isIPv6(); });
+	return it != addresses.end() ? it->getIPv6() : IPv6Address::Zero;
 }
 
 IPv4Address PcapLiveDevice::getDefaultGateway() const

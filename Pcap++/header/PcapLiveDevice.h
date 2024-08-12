@@ -79,29 +79,19 @@ namespace pcpp
 	{
 		friend class PcapLiveDeviceList;
 	protected:
-		/**
-		 * @struct DeviceInterfaceDetails
-		 * A struct that contains all details of a network interface.
-		 */
+		/// @struct DeviceInterfaceDetails
+		/// @brief A struct that contains all details of a network interface.
 		struct DeviceInterfaceDetails
 		{
 			explicit DeviceInterfaceDetails(pcap_if_t* pInterface);
-			/**
-			 * @brief Name of the device.
-			 */
+			/// @brief Name of the device.
 			std::string name;
-			/**
-			 * @brief Description of the device.
-			 */
+			/// @brief Description of the device.
 			std::string description;
-			/**
-			 * @brief Flag to indicate if the device is a loopback device.
-			 */
+			/// @brief IP addresses associated with the device.
+			std::vector<IPAddress> addresses;
+			/// @brief Flag to indicate if the device is a loopback device.
 			bool isLoopback;
-			/**
-			 * @brief IP addresses associated with the device.
-			 */
-			std::vector<pcap_addr_t> addresses;
 		};
 
 		// This is a second descriptor for the same device. It is needed because of a bug
@@ -135,7 +125,8 @@ namespace pcpp
 		bool m_UsePoll;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
-		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+		    : PcapLiveDevice(DeviceInterfaceDetails(pInterface), calculateMTU, calculateMacAddress, calculateDefaultGateway) {}
 		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
 
 		void setDeviceMtu();
@@ -312,9 +303,9 @@ namespace pcpp
 		virtual LinkLayerType getLinkType() const { return m_LinkType; }
 
 		/**
-		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
+		 * @return A vector containing all IP addresses defined for this interface.
 		 */
-		const std::vector<pcap_addr_t>& getAddresses() const { return m_InterfaceDetails.addresses; }
+		std::vector<IPAddress> getIPAddresses() const { return m_InterfaceDetails.addresses; }
 
 		/**
 		 * @return The MAC address for this interface

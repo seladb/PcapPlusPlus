@@ -10,10 +10,6 @@
 namespace pcpp
 {
 
-WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
-	: WinPcapLiveDevice(DeviceInterfaceDetails(iface), calculateMTU, calculateMacAddress, calculateDefaultGateway)
-{}
-
 WinPcapLiveDevice::WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
 	: PcapLiveDevice(std::move(interfaceDetails), calculateMTU, calculateMacAddress, calculateDefaultGateway)
 {

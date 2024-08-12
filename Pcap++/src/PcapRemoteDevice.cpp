@@ -19,10 +19,6 @@ pcap_rmtauth PcapRemoteAuthentication::getPcapRmAuth() const
 	return result;
 }
 
-PcapRemoteDevice::PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
-	: PcapRemoteDevice(DeviceInterfaceDetails(iface), std::move(remoteAuthentication), remoteMachineIP, remoteMachinePort)
-{}
-
 PcapRemoteDevice::PcapRemoteDevice(DeviceInterfaceDetails deviceInterface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication, const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
 	: PcapLiveDevice(std::move(deviceInterface), false, false, false)
 	, m_RemoteMachineIpAddress(remoteMachineIP)
