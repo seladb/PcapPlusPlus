@@ -618,7 +618,7 @@ namespace pcpp
 	/**
 	 * @class MacAddressFilter
 	 * A class for filtering Ethernet traffic by MAC addresses, for example: "ether src 12:34:56:78:90:12" or "ether dst
-	 * "10:29:38:47:56:10:29"
+	 * 10:29:38:47:56:10:29"
 	 *
 	 * For deeper understanding of the filter concept please refer to PcapFilter.h
 	 */
