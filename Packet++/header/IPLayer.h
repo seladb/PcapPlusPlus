@@ -21,7 +21,9 @@ namespace pcpp
 	class IPLayer
 	{
 	protected:
-		IPLayer() {}
+		IPLayer()
+		{}
+
 	public:
 		/**
 		 * An abstract method to get the source IP address
@@ -38,6 +40,7 @@ namespace pcpp
 		/**
 		 * An empty destructor
 		 */
-		virtual ~IPLayer() {}
+		virtual ~IPLayer()
+		{}
 	};
-}
+}  // namespace pcpp

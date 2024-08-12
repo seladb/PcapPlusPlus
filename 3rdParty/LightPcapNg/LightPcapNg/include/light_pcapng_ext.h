@@ -71,7 +71,7 @@ typedef struct _light_pcapng_file_info {
 	size_t user_app_desc_size;
 	size_t interface_block_count;
 	uint16_t link_types[MAX_SUPPORTED_INTERFACE_BLOCKS];
-	double timestamp_resolution[MAX_SUPPORTED_INTERFACE_BLOCKS];
+	uint64_t timestamp_ticks_per_second[MAX_SUPPORTED_INTERFACE_BLOCKS]; // PCPP patch
 
 } light_pcapng_file_info;
 

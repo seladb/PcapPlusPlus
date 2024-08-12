@@ -3,25 +3,44 @@
 #include "../Common/PcapFileNamesDef.h"
 
 #ifdef USE_DPDK_KNI
-#include "KniDeviceList.h"
-#include "PcapFileDevice.h"
-#include "RawSocketDevice.h"
-#include "SystemUtils.h"
+#	include "KniDeviceList.h"
+#	include "PcapFileDevice.h"
+#	include "RawSocketDevice.h"
+#	include "SystemUtils.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
-#define KNI_TEST_NAME "tkni"
+#	define KNI_TEST_NAME "tkni"
 
 struct KniRequestsCallbacksMock
 {
-	static int change_mtu_new(uint16_t, unsigned int) { return 0; }
-	static int change_mtu_old(uint8_t, unsigned int) { return 0; }
-	static int config_network_if_new(uint16_t, uint8_t) { return 0; }
-	static int config_network_if_old(uint8_t, uint8_t) { return 0; }
-	static int config_mac_address(uint16_t, uint8_t[]) { return 0; }
-	static int config_promiscusity(uint16_t, uint8_t) { return 0; }
+	static int change_mtu_new(uint16_t, unsigned int)
+	{
+		return 0;
+	}
+	static int change_mtu_old(uint8_t, unsigned int)
+	{
+		return 0;
+	}
+	static int config_network_if_new(uint16_t, uint8_t)
+	{
+		return 0;
+	}
+	static int config_network_if_old(uint8_t, uint8_t)
+	{
+		return 0;
+	}
+	static int config_mac_address(uint16_t, uint8_t[])
+	{
+		return 0;
+	}
+	static int config_promiscusity(uint16_t, uint8_t)
+	{
+		return 0;
+	}
 
-	static bool onPacketsCallbackSingleBurst(pcpp::MBufRawPacket*, uint32_t numOfPackets, pcpp::KniDevice*, void* userCookie)
+	static bool onPacketsCallbackSingleBurst(pcpp::MBufRawPacket*, uint32_t numOfPackets, pcpp::KniDevice*,
+	                                         void* userCookie)
 	{
 		unsigned int* counter = static_cast<unsigned int*>(userCookie);
 		*counter = numOfPackets;
@@ -77,28 +96,26 @@ static bool setKniDeviceIp(const pcpp::IPAddress& ip, int kniDeviceId)
 
 class KniDeviceTeardown
 {
-	private:
-		pcpp::KniDevice* m_KniDevice;
+private:
+	pcpp::KniDevice* m_KniDevice;
 
-	public:
+public:
+	explicit KniDeviceTeardown(pcpp::KniDevice* dev)
+	{
+		m_KniDevice = dev;
+	}
 
-		explicit KniDeviceTeardown(pcpp::KniDevice* dev)
+	~KniDeviceTeardown()
+	{
+		if (m_KniDevice != NULL && m_KniDevice->isInitialized() && m_KniDevice->isOpened())
 		{
-			m_KniDevice = dev;
+			m_KniDevice->stopRequestHandlerThread();
+			m_KniDevice->close();
 		}
-
-		~KniDeviceTeardown()
-		{
-			if (m_KniDevice != NULL && m_KniDevice->isInitialized() && m_KniDevice->isOpened())
-			{
-				m_KniDevice->stopRequestHandlerThread();
-				m_KniDevice->close();
-			}
-		}
+	}
 };
 
-#endif // USE_DPDK_KNI
-
+#endif  // USE_DPDK_KNI
 
 PTF_TEST_CASE(TestKniDevice)
 {
@@ -176,7 +193,7 @@ PTF_TEST_CASE(TestKniDevice)
 
 	PTF_ASSERT_TRUE(device->open());
 	PTF_ASSERT_TRUE(device->startRequestHandlerThread(0, 150000000));
-	pcpp::multiPlatformSleep(2); // Wait for thread to start
+	pcpp::multiPlatformSleep(2);  // Wait for thread to start
 	if (pcpp::KniDeviceList::isCallbackSupported(pcpp::KniDeviceList::CALLBACK_PROMISC))
 	{
 		bool modeSet = device->setPromiscuous(pcpp::KniDevice::PROMISC_ENABLE);
@@ -239,37 +256,40 @@ PTF_TEST_CASE(TestKniDevice)
 		}
 	}
 	{
-		pcpp::KniDevice::KniLinkState ls = device->updateLinkState(isLinkUp ? pcpp::KniDevice::LINK_DOWN : pcpp::KniDevice::LINK_UP);
+		pcpp::KniDevice::KniLinkState ls =
+		    device->updateLinkState(isLinkUp ? pcpp::KniDevice::LINK_DOWN : pcpp::KniDevice::LINK_UP);
 		switch (ls)
 		{
-			case pcpp::KniDevice::LINK_NOT_SUPPORTED:
-			{
-				PTF_PRINT_VERBOSE("KNI updateLinkState not supported");
-			} break;
-			case pcpp::KniDevice::LINK_ERROR:
-			{
-				PTF_PRINT_VERBOSE("KNI updateLinkState have failed with LINK_ERROR");
-			} break;
-			case pcpp::KniDevice::LINK_DOWN:
-			{	// If previous known state was UP -> yield an error
-				PTF_ASSERT_FALSE(isLinkUp);
-			} break;
-			case pcpp::KniDevice::LINK_UP:
-			{	// If previous known state was DOWN -> yield an error
-				PTF_ASSERT_TRUE(isLinkUp);
-			} break;
+		case pcpp::KniDevice::LINK_NOT_SUPPORTED:
+		{
+			PTF_PRINT_VERBOSE("KNI updateLinkState not supported");
+			break;
+		}
+		case pcpp::KniDevice::LINK_ERROR:
+		{
+			PTF_PRINT_VERBOSE("KNI updateLinkState have failed with LINK_ERROR");
+			break;
+		}
+		case pcpp::KniDevice::LINK_DOWN:
+		{  // If previous known state was UP -> yield an error
+			PTF_ASSERT_FALSE(isLinkUp);
+			break;
+		}
+		case pcpp::KniDevice::LINK_UP:
+		{  // If previous known state was DOWN -> yield an error
+			PTF_ASSERT_TRUE(isLinkUp);
+			break;
+		}
 		}
 	}
 	device->stopRequestHandlerThread();
 	device->close();
 	// Device will be destroyed later
 
-
 #else
 	PTF_SKIP_TEST("DPDK and DPDK_KNI not configured");
 #endif
-} // TestKniDevice
-
+}  // TestKniDevice
 
 PTF_TEST_CASE(TestKniDeviceSendReceive)
 {
@@ -281,7 +301,11 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	}
 
 	// Assume that DPDK was initialized correctly in DpdkDevice tests
-	enum { KNI_MTU = 1500, BLOCK_TIMEOUT = 3 };
+	enum
+	{
+		KNI_MTU = 1500,
+		BLOCK_TIMEOUT = 3
+	};
 	pcpp::KniDevice* device = NULL;
 	unsigned int counter = 0;
 	pcpp::KniDevice::KniDeviceConfiguration devConfig;
@@ -313,7 +337,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	PTF_ASSERT_TRUE(device->startRequestHandlerThread(0, 250000000));
 	KniDeviceTeardown devTeardown(device);
 
-	pcpp::multiPlatformSleep(1); // Wait for thread to start
+	pcpp::multiPlatformSleep(1);  // Wait for thread to start
 
 	// KNI device management
 	PTF_ASSERT_TRUE(setKniDeviceIp(kniIp, KNI_DEVICE1));
@@ -325,7 +349,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(rsdevice.open());
 
-	{	// Receive test part
+	{  // Receive test part
 		pcpp::RawPacket rawPacket;
 		pcpp::RawPacketVector rawPacketVec;
 		pcpp::MBufRawPacketVector mbufRawPacketVec;
@@ -339,7 +363,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		pcpp::Logger::getInstance().suppressLogs();
 		PTF_ASSERT_FALSE(device->startCapture(KniRequestsCallbacksMock::onPacketsMock, NULL));
 		pcpp::Logger::getInstance().enableLogs();
-		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
+		pcpp::multiPlatformSleep(1);  // Give some time to start capture thread
 		for (int i = 0; i < 10; ++i)
 		{
 			fileReaderDev.getNextPacket(rawPacket);
@@ -350,12 +374,12 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::Logger::getInstance().enableLogs();
 		rawPacketVec.clear();
-		pcpp::multiPlatformSleep(1); // Give some time to receive packets
+		pcpp::multiPlatformSleep(1);  // Give some time to receive packets
 		device->stopCapture();
 		PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets in single burst on device " << KNI_DEVICE1);
 		counter = 0;
 		PTF_ASSERT_TRUE(device->startCapture(KniRequestsCallbacksMock::onPacketsCallback, &counter));
-		pcpp::multiPlatformSleep(1); // Give some time to start capture thread
+		pcpp::multiPlatformSleep(1);  // Give some time to start capture thread
 		pcpp::Logger::getInstance().suppressLogs();
 		PTF_ASSERT_EQUAL(device->receivePackets(mbufRawPacketVec), 0);
 		PTF_ASSERT_EQUAL(device->receivePackets(mBufRawPacketArr, mBufRawPacketArrLen), 0);
@@ -371,7 +395,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rsdevice.sendPackets(rawPacketVec);
 		pcpp::Logger::getInstance().enableLogs();
 		rawPacketVec.clear();
-		pcpp::multiPlatformSleep(1); // Give some time to receive packets
+		pcpp::multiPlatformSleep(1);  // Give some time to receive packets
 		device->stopCapture();
 		PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets on device " << KNI_DEVICE1);
 		counter = 0;
@@ -386,21 +410,25 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		rawPacketVec.clear();
 		//? Note(echo-Mike): Some amount of packets are always queued inside kernel
 		//? so blocking mode has a slight chance to obtain this packets
-		int blockResult = device->startCaptureBlockingMode(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst, &counter, BLOCK_TIMEOUT);
+		int blockResult = device->startCaptureBlockingMode(KniRequestsCallbacksMock::onPacketsCallbackSingleBurst,
+		                                                   &counter, BLOCK_TIMEOUT);
 		switch (blockResult)
 		{
-			case -1:
-			{
-				PTF_PRINT_VERBOSE("KNI startCaptureBlockingMode have exited by timeout");
-			} break;
-			case 0:
-			{
-				PTF_PRINT_VERBOSE("KNI startCaptureBlockingMode have exited by an ERROR");
-			} break;
-			case 1:
-			{
-				PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets (blocking mode) on device " << KNI_DEVICE1);
-			} break;
+		case -1:
+		{
+			PTF_PRINT_VERBOSE("KNI startCaptureBlockingMode have exited by timeout");
+			break;
+		}
+		case 0:
+		{
+			PTF_PRINT_VERBOSE("KNI startCaptureBlockingMode have exited by an ERROR");
+			break;
+		}
+		case 1:
+		{
+			PTF_PRINT_VERBOSE("KNI have captured " << counter << " packets (blocking mode) on device " << KNI_DEVICE1);
+			break;
+		}
 		}
 	}
 
@@ -409,7 +437,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	pcpp::Logger::getInstance().enableLogs();
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
-	{ // Send test part
+	{  // Send test part
 		pcpp::PointerVector<pcpp::Packet> packetVec;
 		pcpp::RawPacketVector sendRawPacketVec;
 		pcpp::RawPacketVector receiveRawPacketVec;
@@ -417,7 +445,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		uint16_t packetsRead = 0;
 		int packetsReceived = 0;
 		pcpp::RawPacket rawPacket;
-		while(fileReaderDev.getNextPacket(rawPacket))
+		while (fileReaderDev.getNextPacket(rawPacket))
 		{
 			if (packetsRead == 100)
 				break;
@@ -430,7 +458,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 			packetsRead++;
 		}
 
-		//send packets as parsed EthPacekt array
+		// send packets as parsed EthPacekt array
 		uint16_t packetsSentAsParsed = device->sendPackets(packetArr, packetsRead);
 		PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);
 
@@ -443,7 +471,7 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 		PTF_ASSERT_NOT_EQUAL(packetsReceived, 0);
 		packetsReceived = 0;
 
-		//send packets are RawPacketVector
+		// send packets are RawPacketVector
 		uint16_t packetsSentAsRawVector = device->sendPackets(sendRawPacketVec);
 		PTF_ASSERT_EQUAL(packetsSentAsRawVector, packetsRead);
 
@@ -458,8 +486,8 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 
 		//? Note (echo-Mike): this will not be checked by raw socket because there is
 		//? a chance that packets will be thrown away before we can receive them
-		PTF_ASSERT_TRUE(device->sendPacket(*(sendRawPacketVec.at(packetsRead/3))));
-		PTF_ASSERT_TRUE(device->sendPacket(*(packetArr[packetsRead/2])));
+		PTF_ASSERT_TRUE(device->sendPacket(*(sendRawPacketVec.at(packetsRead / 3))));
+		PTF_ASSERT_TRUE(device->sendPacket(*(packetArr[packetsRead / 2])));
 	}
 
 	//! Note(echo-Mike): RawSocket device must be closed before KNI
@@ -472,4 +500,4 @@ PTF_TEST_CASE(TestKniDeviceSendReceive)
 	PTF_SKIP_TEST("DPDK and DPDK_KNI not configured");
 #endif
 
-} // TestKniDeviceSendReceive
+}  // TestKniDeviceSendReceive

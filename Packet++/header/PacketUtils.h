@@ -14,8 +14,7 @@ namespace pcpp
 	/**
 	 * A struct that represent a single buffer
 	 */
-	template<typename T>
-	struct ScalarBuffer
+	template <typename T> struct ScalarBuffer
 	{
 		/**
 		 * The pointer to the buffer
@@ -36,7 +35,7 @@ namespace pcpp
 	 */
 	uint16_t computeChecksum(ScalarBuffer<uint16_t> vec[], size_t vecSize);
 
-  /**
+	/**
 	 * Computes the checksum for Pseudo header
 	 * @param[in] dataPtr Data pointer
 	 * @param[in] dataLen Data length
@@ -46,9 +45,8 @@ namespace pcpp
 	 * @param[in] dstIPAddress Destination IP Address
 	 * @return The checksum result
 	 */
-	uint16_t computePseudoHdrChecksum(uint8_t *dataPtr, size_t dataLen,
-									  IPAddress::AddressType ipAddrType, uint8_t protocolType,
-									  IPAddress srcIPAddress, IPAddress dstIPAddress);
+	uint16_t computePseudoHdrChecksum(uint8_t* dataPtr, size_t dataLen, IPAddress::AddressType ipAddrType,
+	                                  uint8_t protocolType, IPAddress srcIPAddress, IPAddress dstIPAddress);
 
 	/**
 	 * Computes Fowler-Noll-Vo (FNV-1) 32bit hash function on an array of byte buffers. The hash is calculated on each
@@ -85,4 +83,4 @@ namespace pcpp
 	 */
 	uint32_t hash2Tuple(Packet* packet);
 
-} // namespace pcpp
+}  // namespace pcpp
