@@ -17,16 +17,16 @@
  */
 namespace pcpp
 {
-	namespace detail
+	namespace internal
 	{
 		static constexpr size_t kGvcpMagicNumber = 0x42;
 		static constexpr size_t kGvcpRequestHeaderLength = 8;
 		static constexpr size_t kGvcpAckHeaderLength = 8;
 		static constexpr size_t kGvcpDiscoveryBodyLength = 248;
 		static constexpr size_t kGvcpForceIpBodyLength = 56;
-	}  // namespace detail
+	}  // namespace internal
 
-	typedef uint8_t GvcpFlag;  // flag bits are specified by each command
+	using GvcpFlag = uint8_t;  // flag bits are specified by each command
 
 	/// @brief Gvcp command
 	/// See spec "18 Command and Acknowledge Values"
@@ -110,7 +110,7 @@ namespace pcpp
 		friend class GvcpRequestLayer;
 
 	protected:
-		uint8_t magicNumber = detail::kGvcpMagicNumber;  // always fixed
+		uint8_t magicNumber = internal::kGvcpMagicNumber;  // always fixed
 		uint8_t flag = 0;  // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
 		uint16_t command = 0;
 		uint16_t dataSize = 0;
@@ -151,7 +151,7 @@ namespace pcpp
 		 */
 		bool verifyMagicNumber() const
 		{
-			return magicNumber == detail::kGvcpMagicNumber;
+			return magicNumber == internal::kGvcpMagicNumber;
 		}
 
 		/**
@@ -164,7 +164,7 @@ namespace pcpp
 			return (flag & kAcknowledgeFlag) == kAcknowledgeFlag;
 		}
 	};
-	static_assert(sizeof(GvcpRequestHeader) == detail::kGvcpRequestHeaderLength,
+	static_assert(sizeof(GvcpRequestHeader) == internal::kGvcpRequestHeaderLength,
 	              "Gvcp request header size should be 8 bytes");
 
 	/// @brief Gvcp discovery request
@@ -226,7 +226,7 @@ namespace pcpp
 			return netToHost16(ackId);
 		}
 	};
-	static_assert(sizeof(GvcpAckHeader) == detail::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
+	static_assert(sizeof(GvcpAckHeader) == internal::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
 
 	/// @brief Gvcp discovery acknowledge body
 	/// @note refer to the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
@@ -353,7 +353,7 @@ namespace pcpp
 			return std::string(userDefinedName);
 		}
 	};
-	static_assert(sizeof(GvcpDiscoveryBody) == detail::kGvcpDiscoveryBodyLength,
+	static_assert(sizeof(GvcpDiscoveryBody) == internal::kGvcpDiscoveryBodyLength,
 	              "Gvcp ack body size should be 248 bytes");
 
 	/// @brief GVCP force IP command body
@@ -407,7 +407,7 @@ namespace pcpp
 			return pcpp::IPv4Address(gateway);
 		}
 	};
-	static_assert(sizeof(GvcpForceIpBody) == detail::kGvcpForceIpBodyLength,
+	static_assert(sizeof(GvcpForceIpBody) == internal::kGvcpForceIpBodyLength,
 	              "GVCP force IP command body size should be 56 bytes");
 #pragma pack(pop)
 
@@ -436,7 +436,7 @@ namespace pcpp
 		 */
 		static bool verifyRequest(const uint8_t* data)
 		{
-			return data[0] == detail::kGvcpMagicNumber;
+			return data[0] == internal::kGvcpMagicNumber;
 		};
 
 	protected:
@@ -514,7 +514,7 @@ namespace pcpp
 		 */
 		GvcpForceIpBody* getGvcpForceIpBody() const
 		{
-			if (getDataLen() - getHeaderLen() != detail::kGvcpForceIpBodyLength ||
+			if (getDataLen() - getHeaderLen() != internal::kGvcpForceIpBodyLength ||
 			    getGvcpHeader()->getCommand() != GvcpCommand::ForceIpCmd)
 				return nullptr;
 
@@ -528,10 +528,7 @@ namespace pcpp
 		}
 
 		// implement Layer's abstract methods
-		std::string toString() const override
-		{
-			return "";
-		};
+		std::string toString() const override;
 
 		// implement Layer's abstract methods
 		size_t getHeaderLen() const override
@@ -602,10 +599,7 @@ namespace pcpp
 		}
 
 		// implement Layer's abstract methods
-		std::string toString() const override
-		{
-			return "";
-		};
+		std::string toString() const override;
 
 		// implement Layer's abstract methods
 		size_t getHeaderLen() const override
@@ -620,7 +614,7 @@ namespace pcpp
 		 */
 		GvcpDiscoveryBody* getGvcpDiscoveryBody() const
 		{
-			if (getDataLen() - getHeaderLen() != detail::kGvcpDiscoveryBodyLength ||
+			if (getDataLen() - getHeaderLen() != internal::kGvcpDiscoveryBodyLength ||
 			    getGvcpHeader()->getCommand() != GvcpCommand::DiscoveredAck)
 			{
 				return nullptr;

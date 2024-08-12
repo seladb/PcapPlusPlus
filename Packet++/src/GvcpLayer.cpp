@@ -2,6 +2,7 @@
 
 #include "GvcpLayer.h"
 #include <cstring>
+#include <sstream>
 
 /**
  * @file GvcpLayer.cpp
@@ -29,8 +30,6 @@ namespace pcpp
 	    : Layer(data, dataSize, prevLayer, packet)
 	{
 		m_Protocol = Gvcp;
-		m_DataLen = dataSize;
-		m_Data = data;
 	}
 
 	/*---------------------- Class GvcpRequestLayer ----------------------------*/
@@ -66,6 +65,13 @@ namespace pcpp
 		memcpy(m_Data, data, m_DataLen);
 	}
 
+	std::string GvcpRequestLayer::toString() const
+	{
+		std::stringstream ss;
+		ss << "GVCP Request Layer, Command: " << getCommand() << ", Request ID: " << getGvcpHeader()->getRequestId();
+		return ss.str();
+	}
+
 	/*---------------------- Class GvcpAcknowledgeLayer ----------------------------*/
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(uint8_t* data, size_t dataSize, Layer* prevLayer, Packet* packet)
 	    : GvcpLayer(data, dataSize, prevLayer, packet)
@@ -97,5 +103,13 @@ namespace pcpp
 		m_DataLen = dataSize;
 		m_Data = new uint8_t[m_DataLen];
 		memcpy(m_Data, data, m_DataLen);
+	}
+
+	std::string GvcpAcknowledgeLayer::toString() const
+	{
+		std::stringstream ss;
+		ss << "GVCP Acknowledge Layer, Command: " << getCommand() << ", Acknowledge ID: " << getGvcpHeader()->getAckId()
+		   << ", Status: " << getGvcpHeader()->getStatus();
+		return ss.str();
 	}
 }  // namespace pcpp
