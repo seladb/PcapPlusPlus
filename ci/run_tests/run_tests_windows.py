@@ -22,12 +22,7 @@ def get_ip_by_guid(guid):
     interfaces = scapy.arch.windows.get_windows_if_list()
     for iface in interfaces:
         ips = iface.get("ips", [])
-        if not isinstance(ips, list):
-            print(f"Unexpected format for 'ips' in interface: {iface}")
-            return None
-        # Use filter inside next to find the first valid IPv4 address
-        # The first element in the returned iface["ips"] list is set to be a ipv6 address;
-        # Example 'ips': ['fe80::ff8e:5110:73f1:e14d', '169.254.226.73']}
+        # Find the first valid IPv4 address inside iface["ips"]. If no address is found, return None
         return next(filter(validate_ipv4_address, ips), None)
     # Return None if no matching interface is found
     return None
