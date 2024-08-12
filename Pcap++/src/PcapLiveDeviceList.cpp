@@ -26,14 +26,25 @@
 
 namespace pcpp
 {
+	namespace
+	{
+		void syncPointerVectors(std::vector<std::unique_ptr<PcapLiveDevice>> const& mainVector, std::vector<PcapLiveDevice*>& viewVector)
+		{
+			viewVector.resize(mainVector.size());
+			// Full update of all elements of the view vector to synchronize them with the main vector.
+			std::transform(mainVector.begin(), mainVector.end(), viewVector.begin(),
+			               [](const std::unique_ptr<PcapLiveDevice>& ptr) { return ptr.get(); });
+		}
+	}
 
-PcapLiveDeviceList::PcapLiveDeviceList()
+PcapLiveDeviceList::PcapLiveDeviceList() : m_LiveDeviceList(fetchAllLocalDevices()), m_DnsServers(fetchDnsServers())
 {
-	init();
+	syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
 }
 
-void PcapLiveDeviceList::init()
+std::vector<std::unique_ptr<PcapLiveDevice>> PcapLiveDeviceList::fetchAllLocalDevices()
 {
+	std::vector<std::unique_ptr<PcapLiveDevice>> deviceList;
 	std::unique_ptr<pcap_if_t, internal::PcapFreeAllDevsDeleter> interfaceList;
 	try
 	{
@@ -54,18 +65,14 @@ void PcapLiveDeviceList::init()
 #else //__linux__, __APPLE__, __FreeBSD__
 		auto dev = std::unique_ptr<PcapLiveDevice>(new PcapLiveDevice(currInterface, true, true, true));
 #endif
-		m_DeviceList.pushBack(std::move(dev));
+		deviceList.push_back(std::move(dev));
 	}
-
-	m_LiveDeviceListView.resize(m_DeviceList.size());
-	// Full update of all elements of the view vector to synchronize them with the main vector.
-	std::copy(m_DeviceList.begin(), m_DeviceList.end(), m_LiveDeviceListView.begin());
-
-	setDnsServers();
+	return deviceList;
 }
 
-void PcapLiveDeviceList::setDnsServers()
+std::vector<IPv4Address> PcapLiveDeviceList::fetchDnsServers()
 {
+	std::vector<IPv4Address> dnsServers;
 #if defined(_WIN32)
 	FIXED_INFO* fixedInfo;
 	ULONG    ulOutBufLen;
@@ -95,7 +102,7 @@ void PcapLiveDeviceList::setDnsServers()
 		int dnsServerCounter = 0;
 		try
 		{
-			m_DnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
+			dnsServers.push_back(IPv4Address(fixedInfo->DnsServerList.IpAddress.String));
 			PCPP_LOG_DEBUG("Default DNS server IP #" << dnsServerCounter++ << ": " << fixedInfo->DnsServerList.IpAddress.String);
 		}
 		catch(const std::exception&)
@@ -108,7 +115,7 @@ void PcapLiveDeviceList::setDnsServers()
 		{
 			try
 			{
-				m_DnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
+				dnsServers.push_back(IPv4Address(pIPAddr->IpAddress.String));
 				PCPP_LOG_DEBUG("Default DNS server IP #" << dnsServerCounter++ << ": " << pIPAddr->IpAddress.String);
 			}
 			catch(const std::exception&)
@@ -125,7 +132,7 @@ void PcapLiveDeviceList::setDnsServers()
 	if (nmcliExists != "")
 	{
 		PCPP_LOG_DEBUG("Error retrieving DNS server list: nmcli doesn't exist");
-		return;
+		return {};
 	}
 
 	// check nmcli major version (0 or 1)
@@ -144,7 +151,7 @@ void PcapLiveDeviceList::setDnsServers()
 	if (dnsServersInfo == "")
 	{
 		PCPP_LOG_DEBUG("Error retrieving DNS server list: call to nmcli gave no output");
-		return;
+		return {};
 	}
 
 	std::istringstream stream(dnsServersInfo);
@@ -168,9 +175,9 @@ void PcapLiveDeviceList::setDnsServers()
 			continue;
 		}
 
-		if (std::find(m_DnsServers.begin(), m_DnsServers.end(), dnsIPAddr) == m_DnsServers.end())
+		if (std::find(dnsServers.begin(), dnsServers.end(), dnsIPAddr) == dnsServers.end())
 		{
-			m_DnsServers.push_back(dnsIPAddr);
+			dnsServers.push_back(dnsIPAddr);
 			PCPP_LOG_DEBUG("Default DNS server IP #" << i++ << ": " << dnsIPAddr);
 		}
 	}
@@ -180,7 +187,7 @@ void PcapLiveDeviceList::setDnsServers()
 	if (dynRef == nullptr)
 	{
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to retrieve SCDynamicStore");
-		return;
+		return {};
 	}
 
 	CFDictionaryRef dnsDict = (CFDictionaryRef)SCDynamicStoreCopyValue(dynRef,CFSTR("State:/Network/Global/DNS"));
@@ -189,7 +196,7 @@ void PcapLiveDeviceList::setDnsServers()
 	{
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: failed to get DNS dictionary");
 		CFRelease(dynRef);
-		return;
+		return {};
 	}
 
 	CFArrayRef serverAddresses = (CFArrayRef)CFDictionaryGetValue(dnsDict, CFSTR("ServerAddresses"));
@@ -199,7 +206,7 @@ void PcapLiveDeviceList::setDnsServers()
 		PCPP_LOG_DEBUG("Couldn't set DNS server list: server addresses array is null");
 		CFRelease(dynRef);
 		CFRelease(dnsDict);
-		return;
+		return {};
 	}
 
 	CFIndex count = CFArrayGetCount(serverAddresses);
@@ -215,7 +222,7 @@ void PcapLiveDeviceList::setDnsServers()
 		CFStringGetCString(serverAddress, serverAddressCString, 20, kCFStringEncodingUTF8);
 		try
 		{
-			m_DnsServers.push_back(IPv4Address(serverAddressCString));
+			dnsServers.push_back(IPv4Address(serverAddressCString));
 			PCPP_LOG_DEBUG("Default DNS server IP #" << (int)(i+1) << ": " << serverAddressCString);
 		}
 		catch(const std::exception& e)
@@ -242,7 +249,7 @@ void PcapLiveDeviceList::setDnsServers()
 
 		try
 		{
-			m_DnsServers.push_back(IPv4Address(internal::in_addr2int(*inaddr)));
+			dnsServers.push_back(IPv4Address(internal::in_addr2int(*inaddr)));
 		}
 		catch(const std::exception& e)
 		{
@@ -251,6 +258,7 @@ void PcapLiveDeviceList::setDnsServers()
 	}
 
 #endif
+	return dnsServers;
 }
 
 PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPAddress& ipAddr) const
@@ -385,10 +393,11 @@ PcapLiveDeviceList* PcapLiveDeviceList::clone()
 void PcapLiveDeviceList::reset()
 {
 	m_LiveDeviceListView.clear();
-	m_DeviceList.clear();
-	m_DnsServers.clear();
 
-	init();
+	m_LiveDeviceList = fetchAllLocalDevices();
+	m_DnsServers = fetchDnsServers();
+
+	syncPointerVectors(m_LiveDeviceList, m_LiveDeviceListView);
 }
 
 } // namespace pcpp
