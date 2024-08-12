@@ -25,10 +25,12 @@ namespace pcpp
 		/** Protocol type (PTYPE). The permitted PTYPE values share a numbering space with those for EtherType */
 		uint16_t protocolType;
 		/** Hardware address length (HLEN). For IPv4, this has the value 0x0800 */
-		uint8_t	hardwareSize;
-		/** Protocol length (PLEN). Length (in octets) of addresses used in the upper layer protocol. (The upper layer protocol specified in PTYPE.) IPv4 address size is 4 */
-		uint8_t	protocolSize;
-		/** Specifies the operation that the sender is performing: 1 (::ARP_REQUEST) for request, 2 (::ARP_REPLY) for reply */
+		uint8_t hardwareSize;
+		/** Protocol length (PLEN). Length (in octets) of addresses used in the upper layer protocol. (The upper layer
+		 * protocol specified in PTYPE.) IPv4 address size is 4 */
+		uint8_t protocolSize;
+		/** Specifies the operation that the sender is performing: 1 (::ARP_REQUEST) for request, 2 (::ARP_REPLY) for
+		 * reply */
 		uint16_t opcode;
 		/** Sender hardware address (SHA) */
 		uint8_t senderMacAddr[6];
@@ -46,8 +48,8 @@ namespace pcpp
 	 */
 	enum ArpOpcode
 	{
-		ARP_REQUEST = 0x0001, ///< ARP request
-		ARP_REPLY   = 0x0002  ///< ARP reply (response)
+		ARP_REQUEST = 0x0001,  ///< ARP request
+		ARP_REPLY = 0x0002     ///< ARP reply (response)
 	};
 
 	/**
@@ -64,7 +66,12 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		ArpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = ARP; m_DataLen = sizeof(arphdr); }
+		ArpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet)
+		{
+			m_Protocol = ARP;
+			m_DataLen = sizeof(arphdr);
+		}
 
 		/**
 		 * A constructor that allocates a new ARP header
@@ -74,51 +81,73 @@ namespace pcpp
 		 * @param[in] senderIpAddr The sender IP address (will be put in arphdr#senderIpAddr)
 		 * @param[in] targetIpAddr The target IP address (will be put in arphdr#targetIpAddr)
 		 */
-		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr, const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr);
+		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr,
+		         const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr);
 
-		~ArpLayer() {}
+		~ArpLayer()
+		{}
 
 		/**
-		 * Get a pointer to the ARP header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the ARP header. Notice this points directly to the data, so every change will change the
+		 * actual packet data
 		 * @return A pointer to the @ref arphdr
 		 */
-		inline arphdr* getArpHeader() const { return (arphdr*)m_Data; }
+		inline arphdr* getArpHeader() const
+		{
+			return (arphdr*)m_Data;
+		}
 
 		/**
 		 * Get the sender hardware address (SHA) in the form of MacAddress
 		 * @return A MacAddress containing the sender hardware address (SHA)
 		 */
-		inline MacAddress getSenderMacAddress() const { return MacAddress(getArpHeader()->senderMacAddr); }
+		inline MacAddress getSenderMacAddress() const
+		{
+			return MacAddress(getArpHeader()->senderMacAddr);
+		}
 
 		/**
 		 * Get the target hardware address (THA) in the form of MacAddress
 		 * @return A MacAddress containing the target hardware address (THA)
 		 */
-		inline MacAddress getTargetMacAddress() const { return MacAddress(getArpHeader()->targetMacAddr); }
+		inline MacAddress getTargetMacAddress() const
+		{
+			return MacAddress(getArpHeader()->targetMacAddr);
+		}
 
 		/**
 		 * Get the sender protocol address (SPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the sender protocol address (SPA)
 		 */
-		inline IPv4Address getSenderIpAddr() const { return getArpHeader()->senderIpAddr; }
+		inline IPv4Address getSenderIpAddr() const
+		{
+			return getArpHeader()->senderIpAddr;
+		}
 
 		/**
 		 * Get the target protocol address (TPA) in the form of IPv4Address
 		 * @return An IPv4Address containing the target protocol address (TPA)
 		 */
-		inline IPv4Address getTargetIpAddr() const { return getArpHeader()->targetIpAddr; }
+		inline IPv4Address getTargetIpAddr() const
+		{
+			return getArpHeader()->targetIpAddr;
+		}
 
 		// implement abstract methods
 
 		/**
 		 * Does nothing for this layer (ArpLayer is always last)
 		 */
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * @return The size of @ref arphdr
 		 */
-		size_t getHeaderLen() const { return sizeof(arphdr); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(arphdr);
+		}
 
 		/**
 		 * Calculate the following fields:
@@ -142,7 +171,10 @@ namespace pcpp
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelNetworkLayer;
+		}
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

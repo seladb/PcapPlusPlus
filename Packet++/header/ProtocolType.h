@@ -267,8 +267,8 @@ namespace pcpp
 	 */
 	const ProtocolType Telnet = 40;
 
-  	/**
-   	 * File Transfer (FTP) Protocol
+	/**
+	 * File Transfer (FTP) Protocol
 	 */
 	const ProtocolType FTP = 41;
 
@@ -318,8 +318,8 @@ namespace pcpp
 	const ProtocolType VRRPv3 = 50;
 
 	/**
-	* VRRP protocol family (VRRPv2 and VRRPv3 protocols)
-	*/
+	 * VRRP protocol family (VRRPv2 and VRRPv3 protocols)
+	 */
 	const ProtocolTypeFamily VRRP = 0x3132;
 
 	/**
@@ -370,4 +370,4 @@ namespace pcpp
 		OsiModelLayerUnknown = 8
 	};
 
-} //namespace pcpp
+}  // namespace pcpp
