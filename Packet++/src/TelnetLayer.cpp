@@ -92,7 +92,7 @@ namespace pcpp
 			pos += length;
 			offset += length;
 
-			if (isCommandField(pos))
+			if ((pos - m_Data <= m_DataLen) && isCommandField(pos))
 				return pos;
 		}
 
