@@ -92,7 +92,8 @@ namespace pcpp
 			pos += length;
 			offset += length;
 
-			if (isCommandField(pos))
+			if ((static_cast<size_t>(pos - m_Data) <= (m_DataLen - 2)) &&
+			    isCommandField(pos))  // Need at least 2 bytes for command
 				return pos;
 		}
 
