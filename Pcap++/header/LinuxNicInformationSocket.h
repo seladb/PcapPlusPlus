@@ -62,6 +62,7 @@ namespace pcpp
 		 * or have the CAP_NET_ADMIN capability.
 		 */
 		bool makeRequest(const char* nicName, const IoctlType ioctlType, ifreq* request);
+
 	private:
 		/* Hidden copy constructor. This structure is not copyable */
 		LinuxNicInformationSocket(const LinuxNicInformationSocket&);
@@ -69,4 +70,4 @@ namespace pcpp
 		LinuxNicInformationSocket operator=(const LinuxNicInformationSocket&);
 		LinuxSocket m_Socket;
 	};
-} // namespace pcpp
+}  // namespace pcpp

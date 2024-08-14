@@ -10,12 +10,12 @@ struct pcap_pkthdr;
 /// @file
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
-	//Forward Declaration - required for IPcapDevice::matchPacketWithFilter
+	// Forward Declaration - required for IPcapDevice::matchPacketWithFilter
 	class GeneralFilter;
 
 	namespace internal
@@ -93,8 +93,8 @@ namespace pcpp
 
 	/**
 	 * @class IPcapDevice
-	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and RemoteCapture.
-	 * This class is abstract and cannot be instantiated
+	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and
+	 * RemoteCapture. This class is abstract and cannot be instantiated
 	 */
 	class IPcapDevice : public IDevice, public IFilterableDevice
 	{
@@ -106,7 +106,6 @@ namespace pcpp
 		{}
 
 	public:
-
 		/**
 		 * @struct PcapStats
 		 * A container for pcap device statistics
@@ -120,7 +119,6 @@ namespace pcpp
 			/** number of packets dropped by interface (not supported on all platforms) */
 			uint64_t packetsDropByInterface;
 		};
-
 
 		virtual ~IPcapDevice();
 
@@ -146,16 +144,16 @@ namespace pcpp
 		 */
 		static bool matchPacketWithFilter(GeneralFilter& filter, RawPacket* rawPacket);
 
-
 		// implement abstract methods
 
 		using IFilterableDevice::setFilter;
 
 		/**
-		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be received.
-		 * Please note that when the device is closed the filter is reset so when reopening the device you need to call this
-		 * method again in order to reactivate the filter
-		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax (http://biot.com/capstats/bpf.html)
+		 * Set a filter for the device. When implemented by the device, only packets that match the filter will be
+		 * received. Please note that when the device is closed the filter is reset so when reopening the device you
+		 * need to call this method again in order to reactivate the filter
+		 * @param[in] filterAsString The filter to be set in Berkeley Packet Filter (BPF) syntax
+		 * (http://biot.com/capstats/bpf.html)
 		 * @return True if filter set successfully, false otherwise
 		 */
 		virtual bool setFilter(std::string filterAsString);
@@ -167,4 +165,4 @@ namespace pcpp
 		bool clearFilter();
 	};
 
-} // namespace pcpp
+}  // namespace pcpp
