@@ -264,8 +264,8 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 46. SOME/IP
 47. SSH - parsing only (no editing capabilities)
 48. Telnet - parsing only (no editing capabilities)
-49. Generic payload
-50. GVCP
+49. GVCP
+50. Generic payload
 
 
 ## DPDK And PF_RING Support
