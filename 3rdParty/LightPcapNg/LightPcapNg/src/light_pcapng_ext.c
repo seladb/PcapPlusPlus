@@ -422,10 +422,10 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 			timestamp = timestamp << 32;
 			timestamp += epb->timestamp_low;
 			uint64_t ticks_per_sec = pcapng->file_info->timestamp_ticks_per_second[epb->interface_id];
-			uint64_t packet_secs = timestamp / ticks_per_sec;
-			uint64_t ticks = timestamp % ticks_per_sec;
-			if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+			uint64_t packet_secs = (ticks_per_sec != 0 ?  timestamp / ticks_per_sec : 0);
+			if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
 			{
+				uint64_t ticks = timestamp % ticks_per_sec;
 				packet_header->timestamp.tv_sec = packet_secs;
 				packet_header->timestamp.tv_nsec = (1000000000ul * ticks) / ticks_per_sec;
 			}
