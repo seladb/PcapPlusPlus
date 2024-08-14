@@ -1,12 +1,31 @@
 import os
 import argparse
 import subprocess
-import netifaces as ni
+import scapy.arch.windows
+from ipaddress import IPv4Address
 
 TCPREPLAY_PATH = "tcpreplay-4.4.1-win"
 PCAP_FILE_PATH = os.path.abspath(
     os.path.join("Tests", "Pcap++Test", "PcapExamples", "example.pcap")
 )
+
+
+def validate_ipv4_address(address):
+    try:
+        IPv4Address(address)
+        return True
+    except ValueError:
+        return False
+
+
+def get_ip_by_guid(guid):
+    interfaces = scapy.arch.windows.get_windows_if_list()
+    for iface in interfaces:
+        ips = iface.get("ips", [])
+        # Find the first valid IPv4 address inside iface["ips"]. If no address is found, return None
+        return next(filter(validate_ipv4_address, ips), None)
+    # Return None if no matching interface is found
+    return None
 
 
 def find_interface():
@@ -26,8 +45,8 @@ def find_interface():
         if len(columns) > 1 and columns[1].startswith("\\Device\\NPF_"):
             interface = columns[1]
             try:
-                ni_interface = interface.lstrip("\\Device\\NPF_")
-                ip_address = ni.ifaddresses(ni_interface)[ni.AF_INET][0]["addr"]
+                nic_guid = interface.lstrip("\\Device\\NPF_")
+                ip_address = get_ip_by_guid(nic_guid)
                 if ip_address.startswith("169.254"):
                     continue
                 completed_process = subprocess.run(
