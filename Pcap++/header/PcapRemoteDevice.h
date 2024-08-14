@@ -100,7 +100,7 @@ namespace pcpp
 		static void* remoteDeviceCaptureThreadMain(void* ptr);
 
 		// overridden methods
-		ThreadStart getCaptureThreadStart();
+		internal::ThreadStart getCaptureThreadStart();
 
 	public:
 		PcapRemoteDevice(const PcapRemoteDevice&) = delete;

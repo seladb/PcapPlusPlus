@@ -52,8 +52,10 @@ namespace pcpp
 	 */
 	using OnStatsUpdateCallback = std::function<void(IPcapDevice::PcapStats&, void*)>;
 
-	// for internal use only
-	typedef void* (*ThreadStart)(void*);
+	namespace internal
+	{
+		using ThreadStart = void*(*)(void*);
+	}
 
 	/**
 	 * @class PcapLiveDevice

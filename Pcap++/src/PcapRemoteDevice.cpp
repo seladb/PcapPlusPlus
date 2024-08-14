@@ -104,7 +104,7 @@ namespace pcpp
 		return 0;
 	}
 
-	ThreadStart PcapRemoteDevice::getCaptureThreadStart()
+	internal::ThreadStart PcapRemoteDevice::getCaptureThreadStart()
 	{
 		return &remoteDeviceCaptureThreadMain;
 	}
