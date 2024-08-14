@@ -32,6 +32,18 @@ namespace pcpp
 		m_Protocol = Gvcp;
 	}
 
+	GvcpLayer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	{
+		if (GvcpLayer::verifyRequest(data))
+		{
+			return new GvcpRequestLayer(data, dataLen, prevLayer, packet);
+		}
+		else
+		{
+			return new GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet);
+		}
+	}
+
 	/*---------------------- Class GvcpRequestLayer ----------------------------*/
 	GvcpRequestLayer::GvcpRequestLayer(uint8_t* data, size_t dataSize, Layer* prevLayer, Packet* packet)
 	    : GvcpLayer(data, dataSize, prevLayer, packet)

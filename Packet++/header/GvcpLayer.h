@@ -439,6 +439,16 @@ namespace pcpp
 			return data[0] == internal::kGvcpMagicNumber;
 		};
 
+		/**
+		 * @brief Construct a new GvcpLayer object
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 * @return GvcpLayer* A pointer to the constructed GvcpLayer object
+		 */
+		static GvcpLayer* parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
 	protected:
 		GvcpLayer() = default;
 
