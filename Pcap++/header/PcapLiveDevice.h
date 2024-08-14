@@ -54,7 +54,7 @@ namespace pcpp
 
 	namespace internal
 	{
-		using ThreadStart = void*(*)(void*);
+		using ThreadStart = void* (*)(void*);
 	}
 
 	/**
