@@ -27,7 +27,7 @@ namespace pcpp
 		{
 		public:
 			/// @brief Creates an empty handle.
-			PcapHandle() noexcept = default;
+			constexpr PcapHandle() noexcept = default;
 			/// @brief Creates a handle from the provided pcap descriptor.
 			/// @param pcapDescriptor The pcap descriptor to wrap.
 			explicit PcapHandle(pcap_t* pcapDescriptor) noexcept;
