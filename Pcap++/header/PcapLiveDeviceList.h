@@ -5,21 +5,21 @@
 #include <vector>
 #include <memory>
 
-
 /// @file
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 
 	/**
 	 * @class PcapLiveDeviceList
-	 * A singleton class that creates, stores and provides access to all PcapLiveDevice (on Linux) or WinPcapLiveDevice (on Windows) instances. All live
-	 * devices are initialized on startup and wrap the network interfaces installed on the machine. This class enables access to them through
-	 * their IP addresses or get a vector of all of them so the user can search them in some other way
+	 * A singleton class that creates, stores and provides access to all PcapLiveDevice (on Linux) or WinPcapLiveDevice
+	 * (on Windows) instances. All live devices are initialized on startup and wrap the network interfaces installed on
+	 * the machine. This class enables access to them through their IP addresses or get a vector of all of them so the
+	 * user can search them in some other way
 	 */
 	class PcapLiveDeviceList
 	{
@@ -33,11 +33,9 @@ namespace pcpp
 		// private c'tor
 		PcapLiveDeviceList();
 
-		void init();
+		static std::vector<std::unique_ptr<PcapLiveDevice>> fetchAllLocalDevices();
+		static std::vector<IPv4Address> fetchDnsServers();
 
-		void setDnsServers();
-
-		void updateLiveDeviceListView() const;
 	public:
 		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
 		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
@@ -57,7 +55,10 @@ namespace pcpp
 		/**
 		 * @return A vector containing pointers to all live devices currently installed on the machine
 		 */
-		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceListView; };
+		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const
+		{
+			return m_LiveDeviceListView;
+		};
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
@@ -102,10 +103,13 @@ namespace pcpp
 		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const;
 
 		/**
-		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
-		 * couldn't be extracted from some reason
+		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers
+		 * were defined or they couldn't be extracted from some reason
 		 */
-		const std::vector<IPv4Address>& getDnsServers() const { return m_DnsServers; }
+		const std::vector<IPv4Address>& getDnsServers() const
+		{
+			return m_DnsServers;
+		}
 
 		/**
 		 * Copies the current live device list
@@ -119,4 +123,4 @@ namespace pcpp
 		void reset();
 	};
 
-} // namespace pcpp
+}  // namespace pcpp
