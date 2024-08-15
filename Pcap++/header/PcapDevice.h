@@ -43,7 +43,7 @@ namespace pcpp
 
 			/// @brief Check if the handle is not null.
 			/// @return True if the handle is not null, false otherwise.
-			bool hasValue() const
+			bool isValid() const
 			{
 				return m_PcapDescriptor != nullptr;
 			}
@@ -72,16 +72,16 @@ namespace pcpp
 			/// @return True if the handle is not null, false otherwise.
 			operator bool() const
 			{
-				return hasValue();
+				return isValid();
 			}
 
 			bool operator==(std::nullptr_t) const
 			{
-				return !hasValue();
+				return !isValid();
 			}
 			bool operator!=(std::nullptr_t) const
 			{
-				return hasValue();
+				return isValid();
 			}
 
 		private:
