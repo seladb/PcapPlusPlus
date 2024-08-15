@@ -1262,7 +1262,7 @@ PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 	expectedOutput.close();
 	packetStream.clear();
 	tcpReassemblyResults.clear();
-} // TestTcpReassemblyTimeStamps
+}  // TestTcpReassemblyTimeStamps
 
 PTF_TEST_CASE(TestTcpReassemblyFinishReset)
 {
@@ -1270,7 +1270,8 @@ PTF_TEST_CASE(TestTcpReassemblyFinishReset)
 	std::string errMsg;
 
 	std::vector<pcpp::RawPacket> packetStream;
-	PTF_ASSERT_TRUE(readPcapIntoPacketVec("PcapExamples/one_tcp_stream_fin_rst_close_packet.pcap", packetStream, errMsg));
+	PTF_ASSERT_TRUE(
+	    readPcapIntoPacketVec("PcapExamples/one_tcp_stream_fin_rst_close_packet.pcap", packetStream, errMsg));
 
 	pcpp::TcpReassemblyConfiguration config(true, 2, 1);
 	pcpp::TcpReassembly tcpReassembly(tcpReassemblyMsgReadyCallback, &results, tcpReassemblyConnectionStartCallback,
