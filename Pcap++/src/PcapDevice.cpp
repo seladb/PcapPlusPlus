@@ -9,7 +9,7 @@ namespace pcpp
 	namespace internal
 	{
 
-		PcapHandle::PcapHandle(pcap_t* pcapDescriptor) : m_PcapDescriptor(pcapDescriptor)
+		PcapHandle::PcapHandle(pcap_t* pcapDescriptor) noexcept : m_PcapDescriptor(pcapDescriptor)
 		{}
 
 		PcapHandle::PcapHandle(PcapHandle&& other) noexcept : m_PcapDescriptor(other.m_PcapDescriptor)
@@ -39,7 +39,7 @@ namespace pcpp
 			closeHandle();
 		}
 
-		pcap_t* PcapHandle::release()
+		pcap_t* PcapHandle::release() noexcept
 		{
 			auto result = m_PcapDescriptor;
 			m_PcapDescriptor = nullptr;
@@ -51,7 +51,7 @@ namespace pcpp
 			return pcap_geterr(m_PcapDescriptor);
 		}
 
-		char const* PcapHandle::getLastErrorView() const
+		char const* PcapHandle::getLastErrorView() const noexcept
 		{
 			return pcap_geterr(m_PcapDescriptor);
 		}

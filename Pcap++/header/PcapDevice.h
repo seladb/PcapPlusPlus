@@ -27,10 +27,10 @@ namespace pcpp
 		{
 		public:
 			/// @brief Creates an empty handle.
-			PcapHandle() = default;
+			PcapHandle() noexcept = default;
 			/// @brief Creates a handle from the provided pcap descriptor.
 			/// @param pcapDescriptor The pcap descriptor to wrap.
-			explicit PcapHandle(pcap_t* pcapDescriptor);
+			explicit PcapHandle(pcap_t* pcapDescriptor) noexcept;
 
 			PcapHandle(const PcapHandle&) = delete;
 			PcapHandle(PcapHandle&& other) noexcept;
@@ -43,21 +43,21 @@ namespace pcpp
 
 			/// @brief Check if the handle is not null.
 			/// @return True if the handle is not null, false otherwise.
-			bool isValid() const
+			bool isValid() const noexcept
 			{
 				return m_PcapDescriptor != nullptr;
 			}
 
 			/// @brief Access the underlying pcap descriptor.
 			/// @return The pcap descriptor.
-			pcap_t* get() const
+			pcap_t* get() const noexcept
 			{
 				return m_PcapDescriptor;
 			}
 
 			/// @brief Releases ownership of the handle and returns the pcap descriptor.
 			/// @return The pcap descriptor or nullptr if no handle is owned.
-			pcap_t* release();
+			pcap_t* release() noexcept;
 
 			/// @brief Helper function to retrieve the last error string for this handle.
 			/// @return The last error string.
@@ -66,20 +66,20 @@ namespace pcpp
 			/// @brief Helper function to retrieve a view of the last error string for this handle.
 			/// @return A view of the last error string.
 			/// @remarks This function is more efficient than getLastError() as it does not copy the string.
-			char const* getLastErrorView() const;
+			char const* getLastErrorView() const noexcept;
 
 			/// @brief Implicit conversion to bool.
 			/// @return True if the handle is not null, false otherwise.
-			operator bool() const
+			explicit operator bool() const noexcept
 			{
 				return isValid();
 			}
 
-			bool operator==(std::nullptr_t) const
+			bool operator==(std::nullptr_t) const noexcept
 			{
 				return !isValid();
 			}
-			bool operator!=(std::nullptr_t) const
+			bool operator!=(std::nullptr_t) const noexcept
 			{
 				return isValid();
 			}
