@@ -46,11 +46,6 @@ namespace pcpp
 			return result;
 		}
 
-		std::string PcapHandle::getLastError() const
-		{
-			return pcap_geterr(m_PcapDescriptor);
-		}
-
 		char const* PcapHandle::getLastErrorView() const noexcept
 		{
 			return pcap_geterr(m_PcapDescriptor);

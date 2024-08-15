@@ -59,13 +59,9 @@ namespace pcpp
 			/// @return The pcap descriptor or nullptr if no handle is owned.
 			pcap_t* release() noexcept;
 
-			/// @brief Helper function to retrieve the last error string for this handle.
-			/// @return The last error string.
-			std::string getLastError() const;
-
 			/// @brief Helper function to retrieve a view of the last error string for this handle.
 			/// @return A view of the last error string.
-			/// @remarks This function is more efficient than getLastError() as it does not copy the string.
+			/// @remarks The returned view is only valid until the next call to a pcap function.
 			char const* getLastErrorView() const noexcept;
 
 			/// @brief Implicit conversion to bool.
