@@ -272,7 +272,6 @@ namespace pcpp
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
 		auto pcapDescriptor = internal::PcapHandle(
 		    pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf));
-		pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf);
 #else
 		auto pcapDescriptor = internal::PcapHandle(pcap_open_offline(m_FileName.c_str(), errbuf));
 #endif
