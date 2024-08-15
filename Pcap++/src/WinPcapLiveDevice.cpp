@@ -28,7 +28,7 @@ namespace pcpp
 		}
 
 		// Put the interface in capture mode
-		if (pcap_setmode(m_PcapDescriptor.value(), MODE_CAPT) < 0)
+		if (pcap_setmode(m_PcapDescriptor.get(), MODE_CAPT) < 0)
 		{
 			PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
 			return false;
@@ -48,7 +48,7 @@ namespace pcpp
 		}
 
 		// Put the interface in statistics mode
-		if (pcap_setmode(m_PcapDescriptor.value(), MODE_STAT) < 0)
+		if (pcap_setmode(m_PcapDescriptor.get(), MODE_STAT) < 0)
 		{
 			PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
 			return false;
@@ -90,7 +90,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
 
 		int res;
-		if ((res = pcap_sendqueue_transmit(m_PcapDescriptor.value(), sendQueue, 0)) < static_cast<int>(sendQueue->len))
+		if ((res = pcap_sendqueue_transmit(m_PcapDescriptor.get(), sendQueue, 0)) < static_cast<int>(sendQueue->len))
 		{
 			PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastErrorView() << ". Only "
 			                                                         << res << " bytes were sent");
@@ -124,7 +124,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (pcap_setmintocopy(m_PcapDescriptor.value(), size) != 0)
+		if (pcap_setmintocopy(m_PcapDescriptor.get(), size) != 0)
 		{
 			PCPP_LOG_ERROR("pcap_setmintocopy failed");
 			return false;

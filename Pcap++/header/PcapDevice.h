@@ -50,7 +50,7 @@ namespace pcpp
 
 			/// @brief Access the underlying pcap descriptor.
 			/// @return The pcap descriptor.
-			pcap_t* value() const
+			pcap_t* get() const
 			{
 				return m_PcapDescriptor;
 			}

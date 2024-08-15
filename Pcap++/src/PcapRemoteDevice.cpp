@@ -51,7 +51,7 @@ namespace pcpp
 		}
 
 		// in Remote devices there shouldn't be 2 separate descriptors
-		m_PcapSendDescriptor = m_PcapDescriptor.value();
+		m_PcapSendDescriptor = m_PcapDescriptor.get();
 
 		// setFilter requires that m_DeviceOpened == true
 		m_DeviceOpened = true;
@@ -89,7 +89,7 @@ namespace pcpp
 		{
 			while (!pThis->m_StopThread)
 			{
-				if (pcap_next_ex(pThis->m_PcapDescriptor.value(), &pkthdr, &pktData) > 0)
+				if (pcap_next_ex(pThis->m_PcapDescriptor.get(), &pkthdr, &pktData) > 0)
 					onPacketArrives(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 			}
 		}
@@ -97,7 +97,7 @@ namespace pcpp
 		{
 			while (!pThis->m_StopThread)
 			{
-				if (pcap_next_ex(pThis->m_PcapDescriptor.value(), &pkthdr, &pktData) > 0)
+				if (pcap_next_ex(pThis->m_PcapDescriptor.get(), &pkthdr, &pktData) > 0)
 					onPacketArrivesNoCallback(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
 			}
 		}
@@ -113,7 +113,7 @@ namespace pcpp
 	void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	{
 		int allocatedMemory;
-		pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor.value(), &allocatedMemory);
+		pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor.get(), &allocatedMemory);
 		if (allocatedMemory < static_cast<int>(sizeof(pcap_stat)))
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '"

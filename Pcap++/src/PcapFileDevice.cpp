@@ -283,7 +283,7 @@ namespace pcpp
 			return false;
 		}
 
-		int linkLayer = pcap_datalink(pcapDescriptor.value());
+		int linkLayer = pcap_datalink(pcapDescriptor.get());
 		if (!RawPacket::isLinkTypeValid(linkLayer))
 		{
 			PCPP_LOG_ERROR("Invalid link layer (" << linkLayer << ") for reader device filename '" << m_FileName
@@ -295,7 +295,7 @@ namespace pcpp
 		m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-		m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(pcapDescriptor.value()));
+		m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(pcapDescriptor.get()));
 		std::string precisionStr =
 		    (m_Precision == FileTimestampPrecision::Nanoseconds) ? "nanoseconds" : "microseconds";
 #else
@@ -331,7 +331,7 @@ namespace pcpp
 			return false;
 		}
 		pcap_pkthdr pkthdr;
-		const uint8_t* pPacketData = pcap_next(m_PcapDescriptor.value(), &pkthdr);
+		const uint8_t* pPacketData = pcap_next(m_PcapDescriptor.get(), &pkthdr);
 		if (pPacketData == nullptr)
 		{
 			PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
@@ -705,7 +705,7 @@ namespace pcpp
 			return false;
 		}
 
-		m_PcapDumpHandler = pcap_dump_open(pcapDescriptor.value(), m_FileName.c_str());
+		m_PcapDumpHandler = pcap_dump_open(pcapDescriptor.get(), m_FileName.c_str());
 		if (m_PcapDumpHandler == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"

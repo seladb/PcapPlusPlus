@@ -80,7 +80,7 @@ namespace pcpp
 
 		struct bpf_program prog;
 		PCPP_LOG_DEBUG("Compiling the filter '" << filterAsString << "'");
-		if (pcap_compile(m_PcapDescriptor.value(), &prog, filterAsString.c_str(), 1, 0) < 0)
+		if (pcap_compile(m_PcapDescriptor.get(), &prog, filterAsString.c_str(), 1, 0) < 0)
 		{
 			/*
 			 * Print out appropriate text, followed by the error message
@@ -91,7 +91,7 @@ namespace pcpp
 		}
 
 		PCPP_LOG_DEBUG("Setting the compiled filter");
-		if (pcap_setfilter(m_PcapDescriptor.value(), &prog) < 0)
+		if (pcap_setfilter(m_PcapDescriptor.get(), &prog) < 0)
 		{
 			/*
 			 * Print out error. The format will be the prefix string,

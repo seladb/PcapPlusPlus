@@ -204,7 +204,7 @@ namespace pcpp
 		{
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) ==
+				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) ==
 				    -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
@@ -216,7 +216,7 @@ namespace pcpp
 		{
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.value(), 100, onPacketArrivesNoCallback,
+				if (pcap_dispatch(m_PcapDescriptor.get(), 100, onPacketArrivesNoCallback,
 				                  reinterpret_cast<uint8_t*>(this)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
@@ -413,7 +413,7 @@ namespace pcpp
 			return;
 		}
 
-		bool sameDescriptor = (m_PcapDescriptor.value() == m_PcapSendDescriptor);
+		bool sameDescriptor = (m_PcapDescriptor.get() == m_PcapSendDescriptor);
 		m_PcapDescriptor = nullptr;
 		PCPP_LOG_DEBUG("Receive pcap descriptor closed");
 		if (!sameDescriptor)
@@ -590,7 +590,7 @@ namespace pcpp
 		{
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrivesBlockingMode,
+				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
 				                  reinterpret_cast<uint8_t*>(this)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
@@ -639,7 +639,7 @@ namespace pcpp
 				}
 				else
 				{
-					if (pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrivesBlockingMode,
+					if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
 					                  reinterpret_cast<uint8_t*>(this)) == -1)
 					{
 						PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
@@ -677,7 +677,7 @@ namespace pcpp
 		m_StopThread = true;
 		if (m_CaptureThreadStarted)
 		{
-			pcap_breakloop(m_PcapDescriptor.value());
+			pcap_breakloop(m_PcapDescriptor.get());
 			PCPP_LOG_DEBUG("Stopping capture thread, waiting for it to join...");
 			m_CaptureThread.join();
 			m_CaptureThreadStarted = false;
@@ -703,7 +703,7 @@ namespace pcpp
 	void PcapLiveDevice::getStatistics(PcapStats& stats) const
 	{
 		pcap_stat pcapStats;
-		if (pcap_stats(m_PcapDescriptor.value(), &pcapStats) < 0)
+		if (pcap_stats(m_PcapDescriptor.get(), &pcapStats) < 0)
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '" << m_Name << "'");
 		}
