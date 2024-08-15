@@ -204,8 +204,7 @@ namespace pcpp
 		{
 			while (!m_StopThread)
 			{
-				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) ==
-				    -1)
+				if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrives, reinterpret_cast<uint8_t*>(this)) == -1)
 				{
 					PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
 					m_StopThread = true;
