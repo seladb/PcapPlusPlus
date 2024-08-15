@@ -94,7 +94,10 @@ namespace pcpp
 		EXPECT_EQ(pVector.size(), 2);
 
 		{
-			int* removed = pVector.getAndRemoveFromVector(pVector.begin());
+			// Can't pass pVector.begin() directly to getAndRemoveFromVector because temporaries can't be passed as
+			// non-const reference.
+			auto it = pVector.begin();
+			int* removed = pVector.getAndRemoveFromVector(it);
 			EXPECT_EQ(*removed, 1);
 			EXPECT_EQ(pVector.size(), 1);
 			EXPECT_EQ(*pVector.front(), 3);
