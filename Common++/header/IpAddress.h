@@ -1094,7 +1094,7 @@ namespace pcpp
 		{
 			return IPv6Address(std::string(addrString, size));
 		}
-	}
+	}  // namespace literals
 }  // namespace pcpp
 
 inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
