@@ -616,7 +616,7 @@ namespace pcpp
 
 					if (ready > 0)
 					{
-						if (pcap_dispatch(m_PcapDescriptor.value(), -1, onPacketArrivesBlockingMode,
+						if (pcap_dispatch(m_PcapDescriptor.get(), -1, onPacketArrivesBlockingMode,
 						                  reinterpret_cast<uint8_t*>(this)) == -1)
 						{
 							PCPP_LOG_ERROR("pcap_dispatch returned an error: " << m_PcapDescriptor.getLastErrorView());
