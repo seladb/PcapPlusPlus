@@ -57,27 +57,20 @@ jobs:
           - image: ubuntu2404
             config-zstd: OFF
           - image: ubuntu2204
-            python: python3
             config-zstd: OFF
           - image: ubuntu2204-icpx
-            python: python3
             config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
             additional-gcov-flags: --gcov-executable "llvm-cov gcov"
           - image: ubuntu2004
-            python: python3
             config-zstd: OFF
           - image: rhel94
-            python: python3
             config-zstd: OFF
           - image: ubuntu2004-zstd
-            python: python3
             config-zstd: ON
           - image: fedora39
-            python: python3
             config-zstd: OFF
           - image: alpine317
-            python: python3
             config-zstd: OFF
 
     steps:
@@ -115,19 +108,18 @@ jobs:
       - name: Test PcapPlusPlus
         shell: bash
         run: |
-          ${{ matrix.python }} -m venv ./venv
+          python3 -m venv ./venv
           source ./venv/bin/activate
-          ${{ matrix.python }} -m pip install pip
-          ${{ matrix.python }} -m pip install -r ci/run_tests/requirements.txt
-          ${{ matrix.python }} ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
+          python3 -m pip install -r ci/run_tests/requirements.txt
+          python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
         shell: bash
         run: |
           source ./venv/bin/activate
           cd Tests/ExamplesTest
-          ${{ matrix.python }} -m pip install -r requirements.txt
-          ${{ matrix.python }} -m pytest --interface eth0 --root-path=../../Dist/examples_bin
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin
 
       - name: Check installation
         run: |
@@ -147,7 +139,7 @@ jobs:
         shell: bash
         run: |
           source ./venv/bin/activate
-          ${{ matrix.python }} -m pip install gcovr
+          python3 -m pip install gcovr
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
