@@ -31,7 +31,6 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-
 	/**
 	 * @struct ssl_tls_handshake_layer
 	 * The common part of all SSL/TLS handshake message types
@@ -48,7 +47,6 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-
 	/**
 	 * @struct ssl_tls_client_server_hello
 	 * The common header part of client-hello and server-hello handshake messages
@@ -63,7 +61,6 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-
 	/**
 	 * @struct ssl_tls_change_cipher_spec
 	 * SSL/TLS change-cipher-spec message structure
@@ -75,7 +72,6 @@ namespace pcpp
 		uint8_t changeCipherSpec;
 	};
 #pragma pack(pop)
-
 
 	/**
 	 * @struct ssl_tls_alert
@@ -91,7 +87,6 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-
 	/**
 	 * SSL/TLS message types
 	 */
@@ -100,13 +95,12 @@ namespace pcpp
 		/** Change-cipher-spec message */
 		SSL_CHANGE_CIPHER_SPEC = 20,
 		/** SSL alert message */
-		SSL_ALERT              = 21,
+		SSL_ALERT = 21,
 		/** SSL handshake message */
-		SSL_HANDSHAKE          = 22,
+		SSL_HANDSHAKE = 22,
 		/** SSL data message */
-		SSL_APPLICATION_DATA   = 23
+		SSL_APPLICATION_DATA = 23
 	};
-
 
 	/**
 	 * @class SSLVersion
@@ -123,9 +117,9 @@ namespace pcpp
 		enum SSLVersionEnum
 		{
 			/** SSL 2.0 */
-			SSL2   = 0x0200,
+			SSL2 = 0x0200,
 			/** SSL 3.0 */
-			SSL3   = 0x0300,
+			SSL3 = 0x0300,
 			/** TLS 1.0 */
 			TLS1_0 = 0x0301,
 			/** TLS 1.1 */
@@ -177,28 +171,34 @@ namespace pcpp
 		 * @param[in] sslVersionValue The numeric value representing this SSL/TLS version. For example:
 		 * for TLS 1.2 this would be 0x0303.
 		 */
-		explicit SSLVersion(uint16_t sslVersionValue) { m_SSLVersionValue = sslVersionValue; }
+		explicit SSLVersion(uint16_t sslVersionValue)
+		{
+			m_SSLVersionValue = sslVersionValue;
+		}
 
 		/**
 		 * @return An enum value of type SSLVersion::SSLVersionEnum representing the SSL/TLS version.
 		 * If the numeric value is an invalid SSL/TLS version SSLVersion::Unknown will be returned.
-		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the enum value SSLVersion::TLS1_3 for all TLS 1.3 drafts. If set to "true"
-		 * all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return SSLVersion::TLS1_3, otherwise the corresponding enum values will be
-		 * returned. The default value is "false".
+		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the enum value SSLVersion::TLS1_3 for all
+		 * TLS 1.3 drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
+		 * SSLVersion::TLS1_3, otherwise the corresponding enum values will be returned. The default value is "false".
 		 */
 		SSLVersionEnum asEnum(bool countTlsDraftsAs1_3 = false);
 
 		/**
 		 * @return The numeric value of the SSL/TLs version
 		 */
-		uint16_t asUInt() { return m_SSLVersionValue; }
+		uint16_t asUInt()
+		{
+			return m_SSLVersionValue;
+		}
 
 		/**
-		 * @return A string representation of the SSL/TLS version. For example: for TLS 1.2 the string "TLS 1.2" is returned.
-		 * If the numeric value is an invalid SSL/TLS version the string "Unknown" will be returned.
-		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the string value "TLS 1.3" for all TLS 1.3 drafts. If set to "true"
-		 * all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return "TLS 1.3", otherwise the corresponding string values will be
-		 * returned. The default value is "false".
+		 * @return A string representation of the SSL/TLS version. For example: for TLS 1.2 the string "TLS 1.2" is
+		 * returned. If the numeric value is an invalid SSL/TLS version the string "Unknown" will be returned.
+		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the string value "TLS 1.3" for all TLS 1.3
+		 * drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
+		 * "TLS 1.3", otherwise the corresponding string values will be returned. The default value is "false".
 		 */
 		std::string toString(bool countTlsDraftsAs1_3 = false);
 
@@ -215,35 +215,35 @@ namespace pcpp
 	enum SSLHandshakeType
 	{
 		/** Hello-request message type */
-		SSL_HELLO_REQUEST        = 0,
+		SSL_HELLO_REQUEST = 0,
 		/** Client-hello message type */
-		SSL_CLIENT_HELLO         = 1,
+		SSL_CLIENT_HELLO = 1,
 		/** Server-hello message type */
-		SSL_SERVER_HELLO         = 2,
+		SSL_SERVER_HELLO = 2,
 		/** New-session-ticket message type */
-		SSL_NEW_SESSION_TICKET   = 4,
+		SSL_NEW_SESSION_TICKET = 4,
 		/** End-of-early-data message type (TLS 1.3) */
-		SSL_END_OF_EARLY_DATE    = 5,
+		SSL_END_OF_EARLY_DATE = 5,
 		/** Encrypted-extensions message type (TLS 1.3) */
 		SSL_ENCRYPTED_EXTENSIONS = 8,
 		/** Certificate message type */
-		SSL_CERTIFICATE          = 11,
+		SSL_CERTIFICATE = 11,
 		/** Server-key-exchange message type */
-		SSL_SERVER_KEY_EXCHANGE  = 12,
+		SSL_SERVER_KEY_EXCHANGE = 12,
 		/** Certificate-request message type */
-		SSL_CERTIFICATE_REQUEST  = 13,
+		SSL_CERTIFICATE_REQUEST = 13,
 		/** Server-hello-done message type */
-		SSL_SERVER_DONE          = 14,
+		SSL_SERVER_DONE = 14,
 		/** Certificate-verify message type */
-		SSL_CERTIFICATE_VERIFY   = 15,
+		SSL_CERTIFICATE_VERIFY = 15,
 		/** Client-key-exchange message type */
-		SSL_CLIENT_KEY_EXCHANGE  = 16,
+		SSL_CLIENT_KEY_EXCHANGE = 16,
 		/** Finish message type */
-		SSL_FINISHED             = 20,
+		SSL_FINISHED = 20,
 		/** Key-update message type (TLS 1.3) */
-		SSL_KEY_UPDATE           = 24,
+		SSL_KEY_UPDATE = 24,
 		/** Unknown SSL handshake message */
-		SSL_HANDSHAKE_UNKNOWN    = 255
+		SSL_HANDSHAKE_UNKNOWN = 255
 	};
 
 	/**
@@ -252,11 +252,11 @@ namespace pcpp
 	enum SSLAlertLevel
 	{
 		/** Warning level alert */
-		SSL_ALERT_LEVEL_WARNING       = 1,
+		SSL_ALERT_LEVEL_WARNING = 1,
 		/** Fatal level alert */
-		SSL_ALERT_LEVEL_FATAL         = 2,
+		SSL_ALERT_LEVEL_FATAL = 2,
 		/** For encrypted alerts the level is unknown so this type will be returned */
-		SSL_ALERT_LEVEL_ENCRYPTED     = 255
+		SSL_ALERT_LEVEL_ENCRYPTED = 255
 	};
 
 	/**
@@ -265,57 +265,57 @@ namespace pcpp
 	enum SSLAlertDescription
 	{
 		/** Close notify alert */
-		SSL_ALERT_CLOSE_NOTIFY            =  0,
+		SSL_ALERT_CLOSE_NOTIFY = 0,
 		/** Unexpected message alert */
-		SSL_ALERT_UNEXPECTED_MESSAGE      = 10,
+		SSL_ALERT_UNEXPECTED_MESSAGE = 10,
 		/** Bad record MAC alert */
-		SSL_ALERT_BAD_RECORD_MAC          = 20,
+		SSL_ALERT_BAD_RECORD_MAC = 20,
 		/** Decryption failed alert */
-		SSL_ALERT_DECRYPTION_FAILED       = 21,
+		SSL_ALERT_DECRYPTION_FAILED = 21,
 		/**  */
-		SSL_ALERT_RECORD_OVERFLOW         = 22,
+		SSL_ALERT_RECORD_OVERFLOW = 22,
 		/** Decompression failure alert */
-		SSL_ALERT_DECOMPRESSION_FAILURE   = 30,
+		SSL_ALERT_DECOMPRESSION_FAILURE = 30,
 		/** Handshake failure alert */
-		SSL_ALERT_HANDSHAKE_FAILURE       = 40,
+		SSL_ALERT_HANDSHAKE_FAILURE = 40,
 		/** No certificate alert */
-		SSL_ALERT_NO_CERTIFICATE          = 41,
+		SSL_ALERT_NO_CERTIFICATE = 41,
 		/** Bad certificate alert */
-		SSL_ALERT_BAD_CERTIFICATE         = 42,
+		SSL_ALERT_BAD_CERTIFICATE = 42,
 		/** Unsupported certificate */
 		SSL_ALERT_UNSUPPORTED_CERTIFICATE = 43,
 		/** Certificate revoked alert */
-		SSL_ALERT_CERTIFICATE_REVOKED     = 44,
+		SSL_ALERT_CERTIFICATE_REVOKED = 44,
 		/** Certificate expired alert */
-		SSL_ALERT_CERTIFICATE_EXPIRED     = 45,
+		SSL_ALERT_CERTIFICATE_EXPIRED = 45,
 		/** Certificate unknown alert */
-		SSL_ALERT_CERTIFICATE_UNKNOWN     = 46,
+		SSL_ALERT_CERTIFICATE_UNKNOWN = 46,
 		/** Illegal parameter alert */
-		SSL_ALERT_ILLEGAL_PARAMETER       = 47,
+		SSL_ALERT_ILLEGAL_PARAMETER = 47,
 		/** Unknown CA alert */
-		SSL_ALERT_UNKNOWN_CA              = 48,
+		SSL_ALERT_UNKNOWN_CA = 48,
 		/** Access denied alert */
-		SSL_ALERT_ACCESS_DENIED           = 49,
+		SSL_ALERT_ACCESS_DENIED = 49,
 		/** Decode error alert */
-		SSL_ALERT_DECODE_ERROR            = 50,
+		SSL_ALERT_DECODE_ERROR = 50,
 		/** Decrypt error alert */
-		SSL_ALERT_DECRYPT_ERROR           = 51,
+		SSL_ALERT_DECRYPT_ERROR = 51,
 		/** Export restriction alert */
-		SSL_ALERT_EXPORT_RESTRICTION      = 60,
+		SSL_ALERT_EXPORT_RESTRICTION = 60,
 		/** Protocol version alert */
-		SSL_ALERT_PROTOCOL_VERSION        = 70,
+		SSL_ALERT_PROTOCOL_VERSION = 70,
 		/** Insufficient security alert */
-		SSL_ALERT_INSUFFICIENT_SECURITY   = 71,
+		SSL_ALERT_INSUFFICIENT_SECURITY = 71,
 		/** Internal error alert */
-		SSL_ALERT_INTERNAL_ERROR          = 80,
+		SSL_ALERT_INTERNAL_ERROR = 80,
 		/** User cancelled alert */
-		SSL_ALERT_USER_CANCELLED          = 90,
+		SSL_ALERT_USER_CANCELLED = 90,
 		/** No negotiation alert */
-		SSL_ALERT_NO_RENEGOTIATION        = 100,
+		SSL_ALERT_NO_RENEGOTIATION = 100,
 		/** Unsupported extension alert */
-		SSL_ALERT_UNSUPPORTED_EXTENSION   = 110,
+		SSL_ALERT_UNSUPPORTED_EXTENSION = 110,
 		/** Encrtpyed alert (cannot determine its type) */
-		SSL_ALERT_ENCRYPTED               = 255
+		SSL_ALERT_ENCRYPTED = 255
 	};
 
 	/**
@@ -606,4 +606,4 @@ namespace pcpp
 		SSL_CCT_UNKNOWN
 	};
 
-} //namespace pcpp
+}  // namespace pcpp

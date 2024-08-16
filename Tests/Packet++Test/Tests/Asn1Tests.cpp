@@ -21,9 +21,10 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getValueLength(), 11);
 		PTF_ASSERT_EQUAL(record->toString(), "ContextSpecific (7), Length: 2+11");
 		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
-		auto recordValue = std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
+		auto recordValue =
+		    std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
 		PTF_ASSERT_EQUAL(recordValue, "objectclass");
-	}
+	};
 
 	// Integer 1 byte
 	{
@@ -89,7 +90,8 @@ PTF_TEST_CASE(Asn1DecodingTest)
 	{
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("020502540be400", data, 20);
-		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::runtime_error, "An integer ASN.1 record of more than 4 bytes is not supported");
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen, false), std::runtime_error,
+		                  "An integer ASN.1 record of more than 4 bytes is not supported");
 	}
 
 	// Enumerated
@@ -200,10 +202,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 
 		std::ostringstream expectedString;
-		expectedString
-			<< "Sequence (constructed), Length: 2+10" << std::endl
-			<< "  OctetString, Length: 2+4, Value: abcd" << std::endl
-			<< "  Integer, Length: 2+2, Value: 1000";
+		expectedString << "Sequence (constructed), Length: 2+10" << std::endl
+		               << "  OctetString, Length: 2+4, Value: abcd" << std::endl
+		               << "  Integer, Length: 2+2, Value: 1000";
 
 		PTF_ASSERT_EQUAL(record->toString(), expectedString.str());
 	}
@@ -226,10 +227,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1OctetStringRecord>()->getValue(), "abcd");
 
 		std::ostringstream expectedString;
-		expectedString
-			<< "Set (constructed), Length: 2+10" << std::endl
-			<< "  Integer, Length: 2+2, Value: 1000" << std::endl
-			<< "  OctetString, Length: 2+4, Value: abcd";
+		expectedString << "Set (constructed), Length: 2+10" << std::endl
+		               << "  Integer, Length: 2+2, Value: 1000" << std::endl
+		               << "  OctetString, Length: 2+4, Value: abcd";
 
 		PTF_ASSERT_EQUAL(record->toString(), expectedString.str());
 	}
@@ -252,10 +252,9 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(subRecords.at(1)->castAs<pcpp::Asn1IntegerRecord>()->getValue(), 1000);
 
 		std::ostringstream expectedString;
-		expectedString
-			<< "Application (3) (constructed), Length: 2+10" << std::endl
-			<< "  OctetString, Length: 2+4, Value: abcd" << std::endl
-			<< "  Integer, Length: 2+2, Value: 1000";
+		expectedString << "Application (3) (constructed), Length: 2+10" << std::endl
+		               << "  OctetString, Length: 2+4, Value: abcd" << std::endl
+		               << "  Integer, Length: 2+2, Value: 1000";
 
 		PTF_ASSERT_EQUAL(record->toString(), expectedString.str());
 	}
@@ -273,7 +272,8 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getValueLength(), 7);
 		PTF_ASSERT_EQUAL(record->toString(), "ObjectIdentifierIRI, Length: 3+7");
 		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
-		auto recordValue = std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
+		auto recordValue =
+		    std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
 		PTF_ASSERT_EQUAL(recordValue, "myvalue");
 	}
 
@@ -290,7 +290,8 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		PTF_ASSERT_EQUAL(record->getValueLength(), 7);
 		PTF_ASSERT_EQUAL(record->toString(), "Unknown, Length: 3+7");
 		auto genericRecord = record->castAs<pcpp::Asn1GenericRecord>();
-		auto recordValue = std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
+		auto recordValue =
+		    std::string(genericRecord->getValue(), genericRecord->getValue() + genericRecord->getValueLength());
 		PTF_ASSERT_EQUAL(recordValue, "myvalue");
 	}
 
@@ -298,7 +299,8 @@ PTF_TEST_CASE(Asn1DecodingTest)
 	{
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("1f8100076d7976616c7565", data, 20);
-		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen), std::invalid_argument, "ASN.1 tags with value larger than 127 are not supported");
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, dataLen), std::invalid_argument,
+		                  "ASN.1 tags with value larger than 127 are not supported");
 	}
 
 	// Not enough data to parse tag
@@ -313,14 +315,16 @@ PTF_TEST_CASE(Asn1DecodingTest)
 	{
 		uint8_t data[20];
 		pcpp::hexStringToByteArray("0500", data, 20);
-		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, 1), std::invalid_argument, "Cannot decode ASN.1 record length");
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, 1), std::invalid_argument,
+		                  "Cannot decode ASN.1 record length");
 	}
 
 	// Incomplete record - doesn't contain the entire value
 	{
 		uint8_t data[20];
 		pcpp::hexStringToByteArray("0a022000", data, 20);
-		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, 3), std::invalid_argument, "Cannot decode ASN.1 record, data doesn't contain the entire record");
+		PTF_ASSERT_RAISES(pcpp::Asn1Record::decode(data, 3), std::invalid_argument,
+		                  "Cannot decode ASN.1 record, data doesn't contain the entire record");
 	}
 
 	// Cast as the wrong type
@@ -328,21 +332,20 @@ PTF_TEST_CASE(Asn1DecodingTest)
 		uint8_t data[20];
 		auto dataLen = pcpp::hexStringToByteArray("0a022000", data, 20);
 		auto record = pcpp::Asn1Record::decode(data, dataLen);
-		#ifdef _MSC_VER
+#ifdef _MSC_VER
 		auto expectedMessage = "bad cast";
-		#else
+#else
 		auto expectedMessage = "std::bad_cast";
-		#endif
+#endif
 		PTF_ASSERT_RAISES(record->castAs<pcpp::Asn1BooleanRecord>(), std::bad_cast, expectedMessage);
 	}
-}; // Asn1DecodingTest
-
+};  // Asn1DecodingTest
 
 PTF_TEST_CASE(Asn1EncodingTest)
 {
 	// Generic record with byte array value
 	{
-		uint8_t value[] = {0x6f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x63, 0x6c, 0x61, 0x73, 0x73};
+		uint8_t value[] = { 0x6f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x63, 0x6c, 0x61, 0x73, 0x73 };
 		pcpp::Asn1GenericRecord record(pcpp::Asn1TagClass::ContextSpecific, false, 7, value, 11);
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::ContextSpecific, enumclass);
@@ -383,10 +386,17 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Record length > 128
 	{
-		pcpp::Asn1OctetStringRecord record("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
+		pcpp::Asn1OctetStringRecord record(
+		    "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456"
+		    "7890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
 
 		uint8_t data[203];
-		auto dataLen = pcpp::hexStringToByteArray("0481c83132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930", data, 203);
+		auto dataLen = pcpp::hexStringToByteArray(
+		    "0481c83132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930"
+		    "3132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233"
+		    "3435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536"
+		    "3738393031323334353637383930313233343536373839303132333435363738393031323334353637383930",
+		    data, 203);
 
 		auto encodedValue = record.encode();
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
@@ -395,10 +405,20 @@ PTF_TEST_CASE(Asn1EncodingTest)
 
 	// Record length > 256
 	{
-		pcpp::Asn1OctetStringRecord record("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
+		pcpp::Asn1OctetStringRecord record(
+		    "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
+		    "6789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901"
+		    "2345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
 
 		uint8_t data[304];
-		auto dataLen = pcpp::hexStringToByteArray("0482012c303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930313233343536373839", data, 304);
+		auto dataLen = pcpp::hexStringToByteArray(
+		    "0482012c30313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738"
+		    "3930313233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031"
+		    "3233343536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334"
+		    "3536373839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637"
+		    "3839303132333435363738393031323334353637383930313233343536373839303132333435363738393031323334353637383930"
+		    "313233343536373839303132333435363738393031323334353637383930313233343536373839",
+		    data, 304);
 
 		auto encodedValue = record.encode();
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
@@ -522,7 +542,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	// OctetString with non-printable value
 	{
 		constexpr size_t valueSize = 8;
-		uint8_t value[valueSize] = {0x30, 0x06, 0x02, 0x02, 0x01, 0xf4, 0x04, 0x00};
+		uint8_t value[valueSize] = { 0x30, 0x06, 0x02, 0x02, 0x01, 0xf4, 0x04, 0x00 };
 		pcpp::Asn1OctetStringRecord record(value, valueSize);
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
@@ -593,7 +613,7 @@ PTF_TEST_CASE(Asn1EncodingTest)
 	{
 		pcpp::Asn1OctetStringRecord octestStringRecord("abcd");
 		pcpp::Asn1IntegerRecord integerRecord(1000);
-		pcpp::Asn1SequenceRecord record({ &octestStringRecord, &integerRecord});
+		pcpp::Asn1SequenceRecord record({ &octestStringRecord, &integerRecord });
 
 		PTF_ASSERT_EQUAL(record.getTagClass(), pcpp::Asn1TagClass::Universal, enumclass);
 		PTF_ASSERT_TRUE(record.isConstructed());
@@ -668,4 +688,4 @@ PTF_TEST_CASE(Asn1EncodingTest)
 		PTF_ASSERT_EQUAL(encodedValue.size(), dataLen);
 		PTF_ASSERT_BUF_COMPARE(encodedValue.data(), data, dataLen);
 	}
-} // Asn1EncodingTest
+}  // Asn1EncodingTest

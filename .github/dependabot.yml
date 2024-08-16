@@ -7,6 +7,10 @@ updates:
     target-branch: "dev"
     labels:
     - "automated-pr"
+    groups:
+      actions-dependencies:
+        patterns:
+          - "*"
 
   - package-ecosystem: "pip"
     directories:
@@ -17,3 +21,7 @@ updates:
     target-branch: "dev"
     labels:
     - "automated-pr"
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*"

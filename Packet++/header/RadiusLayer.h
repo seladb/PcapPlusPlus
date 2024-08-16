@@ -30,7 +30,6 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-
 	/**
 	 * @class RadiusAttribute
 	 * A wrapper class for RADIUS attributes. This class does not create or modify RADIUS attribute records, but rather
@@ -39,17 +38,18 @@ namespace pcpp
 	class RadiusAttribute : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
-
 		/**
 		 * A c'tor for this class that gets a pointer to the attribute raw data (byte array)
 		 * @param[in] attrRawData A pointer to the attribute raw data
 		 */
-		explicit RadiusAttribute(uint8_t* attrRawData) : TLVRecord(attrRawData) { }
+		explicit RadiusAttribute(uint8_t* attrRawData) : TLVRecord(attrRawData)
+		{}
 
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		virtual ~RadiusAttribute() { }
+		virtual ~RadiusAttribute()
+		{}
 
 		// implement abstract methods
 
@@ -66,10 +66,9 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			return (size_t)m_Data->recordLen - 2*sizeof(uint8_t);
+			return (size_t)m_Data->recordLen - 2 * sizeof(uint8_t);
 		}
 	};
-
 
 	/**
 	 * @class RadiusAttributeBuilder
@@ -79,68 +78,69 @@ namespace pcpp
 	class RadiusAttributeBuilder : public TLVRecordBuilder
 	{
 	public:
-
 		/**
-		 * A c'tor for building RADIUS attributes which their value is a byte array. The RadiusAttribute object can later
-		 * be retrieved by calling build()
+		 * A c'tor for building RADIUS attributes which their value is a byte array. The RadiusAttribute object can
+		 * later be retrieved by calling build()
 		 * @param[in] attrType RADIUS attribute type
-		 * @param[in] attrValue A buffer containing the attribute value. This buffer is read-only and isn't modified in any way
+		 * @param[in] attrValue A buffer containing the attribute value. This buffer is read-only and isn't modified in
+		 * any way
 		 * @param[in] attrValueLen Attribute value length in bytes
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, const uint8_t* attrValue, uint8_t attrValueLen) :
-			TLVRecordBuilder(attrType, attrValue, attrValueLen) { }
+		RadiusAttributeBuilder(uint8_t attrType, const uint8_t* attrValue, uint8_t attrValueLen)
+		    : TLVRecordBuilder(attrType, attrValue, attrValueLen)
+		{}
 
 		/**
-		 * A c'tor for building RADIUS attributes which have a 1-byte value. The RadiusAttribute object can later be retrieved
-		 * by calling build()
+		 * A c'tor for building RADIUS attributes which have a 1-byte value. The RadiusAttribute object can later be
+		 * retrieved by calling build()
 		 * @param[in] attrType RADIUS attribute type
 		 * @param[in] attrValue A 1-byte attribute value
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, uint8_t attrValue) :
-			TLVRecordBuilder(attrType, attrValue) { }
+		RadiusAttributeBuilder(uint8_t attrType, uint8_t attrValue) : TLVRecordBuilder(attrType, attrValue)
+		{}
 
 		/**
-		 * A c'tor for building RADIUS attributes which have a 2-byte value. The RadiusAttribute object can later be retrieved
-		 * by calling build()
+		 * A c'tor for building RADIUS attributes which have a 2-byte value. The RadiusAttribute object can later be
+		 * retrieved by calling build()
 		 * @param[in] attrType RADIUS attribute type
 		 * @param[in] attrValue A 2-byte attribute value
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, uint16_t attrValue) :
-			TLVRecordBuilder(attrType, attrValue) { }
+		RadiusAttributeBuilder(uint8_t attrType, uint16_t attrValue) : TLVRecordBuilder(attrType, attrValue)
+		{}
 
 		/**
-		 * A c'tor for building RADIUS attributes which have a 4-byte value. The RadiusAttribute object can later be retrieved
-		 * by calling build()
+		 * A c'tor for building RADIUS attributes which have a 4-byte value. The RadiusAttribute object can later be
+		 * retrieved by calling build()
 		 * @param[in] attrType RADIUS attribute type
 		 * @param[in] attrValue A 4-byte attribute value
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, uint32_t attrValue) :
-			TLVRecordBuilder(attrType, attrValue) { }
+		RadiusAttributeBuilder(uint8_t attrType, uint32_t attrValue) : TLVRecordBuilder(attrType, attrValue)
+		{}
 
 		/**
-		 * A c'tor for building RADIUS attributes which have an IPv4Address value. The RadiusAttribute object can later be
-		 * retrieved by calling build()
+		 * A c'tor for building RADIUS attributes which have an IPv4Address value. The RadiusAttribute object can later
+		 * be retrieved by calling build()
 		 * @param[in] attrType RADIUS attribute type
 		 * @param[in] attrValue The IPv4 address attribute value
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, const IPv4Address& attrValue) :
-			TLVRecordBuilder(attrType, attrValue) { }
+		RadiusAttributeBuilder(uint8_t attrType, const IPv4Address& attrValue) : TLVRecordBuilder(attrType, attrValue)
+		{}
 
 		/**
-		 * A c'tor for building RADIUS attributes which have a string value. The RadiusAttribute object can later be retrieved
-		 * by calling build()
+		 * A c'tor for building RADIUS attributes which have a string value. The RadiusAttribute object can later be
+		 * retrieved by calling build()
 		 * @param[in] attrType RADIUS attribute type
 		 * @param[in] attrValue The string attribute value
 		 */
-		RadiusAttributeBuilder(uint8_t attrType, const std::string& attrValue) :
-			TLVRecordBuilder(attrType, attrValue) { }
+		RadiusAttributeBuilder(uint8_t attrType, const std::string& attrValue) : TLVRecordBuilder(attrType, attrValue)
+		{}
 
 		/**
 		 * A copy c'tor which copies all the data from another instance of RadiusAttributeBuilder
 		 * @param[in] other The instance to copy from
 		 */
-		RadiusAttributeBuilder(const RadiusAttributeBuilder& other) :
-			TLVRecordBuilder(other) { }
+		RadiusAttributeBuilder(const RadiusAttributeBuilder& other) : TLVRecordBuilder(other)
+		{}
 
 		/**
 		 * Assignment operator that copies all data from another instance of RadiusAttributeBuilder
@@ -159,7 +159,6 @@ namespace pcpp
 		RadiusAttribute build() const;
 	};
 
-
 	/**
 	 * @class RadiusLayer
 	 * Represents a RADIUS (Remote Authentication Dial-In User Service) protocol layer
@@ -167,15 +166,16 @@ namespace pcpp
 	class RadiusLayer : public Layer
 	{
 	private:
-
 		TLVRecordReader<RadiusAttribute> m_AttributeReader;
 
-		uint8_t* getAttributesBasePtr() const { return m_Data + sizeof(radius_header); }
+		uint8_t* getAttributesBasePtr() const
+		{
+			return m_Data + sizeof(radius_header);
+		}
 
 		RadiusAttribute addAttrAt(const RadiusAttributeBuilder& attrBuilder, int offset);
 
 	public:
-
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -183,9 +183,11 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		RadiusLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) :
-			Layer(data, dataLen, prevLayer, packet)
-			{ m_Protocol = Radius; }
+		RadiusLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet)
+		{
+			m_Protocol = Radius;
+		}
 
 		/**
 		 * A constructor that creates a new layer from scratch
@@ -193,8 +195,9 @@ namespace pcpp
 		 * @param[in] id The RADIUS message ID
 		 * @param[in] authenticator A pointer to a byte array containing the authenticator value
 		 * @param[in] authenticatorArrSize The authenticator byte array size. A valid size of the authenticator field is
-		 * 16 bytes. If the provided size is less than that then the byte array will be copied to the packet but the missing
-		 * bytes will stay zero. If the size is more than 16 bytes, only the first 16 bytes will be copied to the packet
+		 * 16 bytes. If the provided size is less than that then the byte array will be copied to the packet but the
+		 * missing bytes will stay zero. If the size is more than 16 bytes, only the first 16 bytes will be copied to
+		 * the packet
 		 */
 		RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator, uint8_t authenticatorArrSize);
 
@@ -203,22 +206,27 @@ namespace pcpp
 		 * @param[in] code The RADIUS message code
 		 * @param[in] id The RADIUS message ID
 		 * @param[in] authenticator A hex string representing the authenticator value. A valid size of the authenticator
-		 * field is 16 bytes. If the hex string represents an array that is smaller than this then the missing bytes in the
-		 * packet's authenticator field will stay zero. If the hex string represents an array that is larger than 16 bytes,
-		 * only the first 16 bytes will be copied to the packet
+		 * field is 16 bytes. If the hex string represents an array that is smaller than this then the missing bytes in
+		 * the packet's authenticator field will stay zero. If the hex string represents an array that is larger than 16
+		 * bytes, only the first 16 bytes will be copied to the packet
 		 */
-		RadiusLayer(uint8_t code, uint8_t id, const std::string &authenticator);
+		RadiusLayer(uint8_t code, uint8_t id, const std::string& authenticator);
 
 		/**
 		 * A d'tor for this layer, currently does nothing
 		 */
-		~RadiusLayer() {}
+		~RadiusLayer()
+		{}
 
 		/**
-		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the
+		 * actual packet data
 		 * @return A pointer to the radius_header object
 		 */
-		radius_header* getRadiusHeader() const { return (radius_header*)m_Data; }
+		radius_header* getRadiusHeader() const
+		{
+			return (radius_header*)m_Data;
+		}
 
 		/**
 		 * @return A hex string representation of the radius_header#authenticator byte array value
@@ -287,7 +295,8 @@ namespace pcpp
 		/**
 		 * Remove an existing RADIUS attribute from the layer
 		 * @param[in] attrType The RADIUS attribute type to remove
-		 * @return True if the RADIUS attribute was successfully removed or false if type wasn't found or if removal failed
+		 * @return True if the RADIUS attribute was successfully removed or false if type wasn't found or if removal
+		 * failed
 		 */
 		bool removeAttribute(uint8_t attrType);
 
@@ -321,7 +330,8 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer, RADIUS is always last
 		 */
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * Calculate and store the value of radius_header#length according to the layer size
@@ -330,9 +340,11 @@ namespace pcpp
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelApplicationLayer;
+		}
 	};
-
 
 	// implementation of inline methods
 
@@ -347,6 +359,6 @@ namespace pcpp
 		default:
 			return false;
 		}
-	} // isRadiusPort
+	}  // isRadiusPort
 
-} // namespace pcpp
+}  // namespace pcpp
