@@ -53,7 +53,7 @@ jobs:
     container: seladb/${{ matrix.image }}
     strategy:
       matrix:
-        include:
+        include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
           - image: ubuntu2404
             config-zstd: OFF
           - image: ubuntu2204
