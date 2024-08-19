@@ -347,7 +347,7 @@ jobs:
       - name: Prepare environment for tests
         run: |
           python -m venv ./venv
-          source ./venv/bin/activate
+          . ./venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
@@ -712,11 +712,14 @@ jobs:
       - name: Build PcapPlusPlus
         run: cmake --build $BUILD_DIR -j
 
-      - name: Test PcapPlusPlus
+      - name: Prepare environment for tests
         run: |
           python -m venv ./venv
-          source ./venv/bin/activate
+          . ./venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
+
+      - name: Test PcapPlusPlus
+        run: |
           python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
 
       - name: Create Cobertura Report
