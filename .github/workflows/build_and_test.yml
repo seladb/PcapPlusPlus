@@ -113,6 +113,7 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
+          . ./venv/bin/activate
           python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
@@ -354,6 +355,7 @@ jobs:
         # We can't run cross compiled binaries
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
+          . ./venv/bin/activate
           python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
@@ -720,6 +722,7 @@ jobs:
 
       - name: Test PcapPlusPlus
         run: |
+          . ./venv/bin/activate
           python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
 
       - name: Create Cobertura Report
