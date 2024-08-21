@@ -93,8 +93,7 @@ namespace pcpp
 			 * created above, followed by the error message that the packet
 			 * capture library generates.
 			 */
-			PCPP_LOG_ERROR(
-			    "Error setting a compiled filter. Error message is: " << m_PcapDescriptor.getLastError());
+			PCPP_LOG_ERROR("Error setting a compiled filter. Error message is: " << m_PcapDescriptor.getLastError());
 			pcap_freecode(&prog);
 			return false;
 		}
