@@ -57,6 +57,12 @@ namespace pcpp
 
 		char const* PcapHandle::getLastError() const noexcept
 		{
+			if (!isValid())
+			{
+				static char const* const noHandleError = "No pcap handle";
+				return noHandleError;
+			}
+
 			return pcap_geterr(m_PcapDescriptor);
 		}
 	}  // namespace internal
