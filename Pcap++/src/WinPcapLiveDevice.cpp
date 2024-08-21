@@ -92,7 +92,7 @@ namespace pcpp
 		int res;
 		if ((res = pcap_sendqueue_transmit(m_PcapDescriptor.get(), sendQueue, 0)) < static_cast<int>(sendQueue->len))
 		{
-			PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastErrorView() << ". Only "
+			PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastError() << ". Only "
 			                                                         << res << " bytes were sent");
 			packetsSent = 0;
 			dataSize = 0;

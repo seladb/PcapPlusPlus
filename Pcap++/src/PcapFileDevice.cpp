@@ -709,7 +709,7 @@ namespace pcpp
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"
 			               << m_FileName << "': pcap_dump_open returned NULL with error: '"
-			               << pcapDescriptor.getLastErrorView() << "'");
+			               << pcapDescriptor.getLastError() << "'");
 			m_DeviceOpened = false;
 			return false;
 		}

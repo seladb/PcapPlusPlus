@@ -62,7 +62,7 @@ namespace pcpp
 			/// @brief Helper function to retrieve a view of the last error string for this handle.
 			/// @return A view of the last error string.
 			/// @remarks The returned view is only valid until the next call to a pcap function.
-			char const* getLastErrorView() const noexcept;
+			char const* getLastError() const noexcept;
 
 			/// @brief Implicit conversion to bool.
 			/// @return True if the handle is not null, false otherwise.
