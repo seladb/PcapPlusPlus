@@ -23,7 +23,7 @@ repos:
     rev: v1.3.5
     hooks:
       - id: clang-format
-        args: ["--style=file"]  # Use the .clang-format file for configuration
+        args: ["--style=file", "-i"]  # Use the .clang-format file for configuration
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]

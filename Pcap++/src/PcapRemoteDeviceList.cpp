@@ -169,7 +169,7 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 			for (const auto& addrIter : (*devIter)->m_Addresses)
 			{
-				if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
+				if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != nullptr)
 				{
 					std::array<char, INET6_ADDRSTRLEN> addrAsString;
 					internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
@@ -177,9 +177,9 @@ namespace pcpp
 				}
 
 				in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
-				if (currAddr == NULL)
+				if (currAddr == nullptr)
 				{
-					PCPP_LOG_DEBUG("Address is NULL");
+					PCPP_LOG_DEBUG("Address is nullptr");
 					continue;
 				}
 
@@ -191,7 +191,7 @@ namespace pcpp
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
@@ -203,7 +203,7 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Searching device '" << (*devIter)->m_Name << "'. Searching all addresses...");
 			for (const auto& addrIter : (*devIter)->m_Addresses)
 			{
-				if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != NULL)
+				if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != nullptr)
 				{
 					std::array<char, INET6_ADDRSTRLEN> addrAsString;
 					internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
@@ -211,9 +211,9 @@ namespace pcpp
 				}
 
 				in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
-				if (currAddr == NULL)
+				if (currAddr == nullptr)
 				{
-					PCPP_LOG_DEBUG("Address is NULL");
+					PCPP_LOG_DEBUG("Address is nullptr");
 					continue;
 				}
 
@@ -225,7 +225,7 @@ namespace pcpp
 			}
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	PcapRemoteDeviceList::~PcapRemoteDeviceList()

@@ -31,7 +31,7 @@ namespace pcpp
 		// c'tor should not be public
 		IPcapDevice() : IDevice()
 		{
-			m_PcapDescriptor = NULL;
+			m_PcapDescriptor = nullptr;
 		}
 
 	public:

@@ -136,7 +136,7 @@ namespace pcpp
 		if (bufferLen > 0)
 		{
 			timeval time;
-			gettimeofday(&time, NULL);
+			gettimeofday(&time, nullptr);
 			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_DLT_RAW1);
 			return RecvSuccess;
 		}
@@ -386,7 +386,7 @@ namespace pcpp
 			return false;
 		}
 
-		void* localAddr = NULL;
+		void* localAddr = nullptr;
 		struct sockaddr_in localAddrIPv4;
 		struct sockaddr_in6 localAddrIPv6;
 		size_t localAddrSize = 0;
@@ -430,7 +430,7 @@ namespace pcpp
 
 		int n = 1;
 		DWORD dwBytesRet;
-		if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), NULL, 0, &dwBytesRet, NULL, NULL) == SOCKET_ERROR)
+		if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), nullptr, 0, &dwBytesRet, nullptr, nullptr) == SOCKET_ERROR)
 		{
 			PCPP_LOG_ERROR("Call to WSAIotcl(" << std::hex << SIO_RCVALL << ") failed with error code "
 			                                   << WSAGetLastError());

@@ -581,7 +581,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// get DPDK device to send packets to (or NULL if doesn't exist)
+	// get DPDK device to send packets to (or nullptr if doesn't exist)
 	pcpp::DpdkDevice* sendPacketsTo = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(sendPacketsToPort);
 	if (sendPacketsTo != nullptr && !sendPacketsTo->isOpened() && !sendPacketsTo->open())
 	{

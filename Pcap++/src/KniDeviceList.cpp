@@ -81,22 +81,22 @@ namespace pcpp
 	KniDevice* KniDeviceList::createDevice(const KniDevice::KniDeviceConfiguration& config, const size_t mempoolSize)
 	{
 		if (!isInitialized())
-			return NULL;
+			return nullptr;
 		KniDevice* kniDevice = getDeviceByName(std::string(config.name));
-		if (kniDevice != NULL)
+		if (kniDevice != nullptr)
 		{
 			PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same name: '" << config.name << "'");
 			PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
-			return NULL;
+			return nullptr;
 		}
 		if (config.portId != UINT16_MAX)
 		{
 			kniDevice = getDeviceByPort(config.portId);
-			if (kniDevice != NULL)
+			if (kniDevice != nullptr)
 			{
 				PCPP_LOG_ERROR("Attempt to create DPDK KNI device with same port ID: " << config.portId);
 				PCPP_LOG_DEBUG("Use KniDeviceList::getDeviceByName or KniDeviceList::getDeviceByPort.");
-				return NULL;
+				return nullptr;
 			}
 		}
 		kniDevice = new KniDevice(config, mempoolSize, m_KniUniqueId++);
@@ -115,7 +115,7 @@ namespace pcpp
 		//? Linear search here is optimal for low count of devices.
 		//? We assume that no one will create large count of devices or will rapidly search them.
 		//? Same for <getDeviceByName> function
-		KniDevice* kniDevice = NULL;
+		KniDevice* kniDevice = nullptr;
 		if (!isInitialized())
 			return kniDevice;
 		for (size_t i = 0; i < m_Devices.size(); ++i)
@@ -124,12 +124,12 @@ namespace pcpp
 			if (kniDevice && kniDevice->m_DeviceInfo.portId == portId)
 				return kniDevice;
 		}
-		return kniDevice = NULL;
+		return kniDevice = nullptr;
 	}
 
 	KniDevice* KniDeviceList::getDeviceByName(const std::string& name)
 	{
-		KniDevice* kniDevice = NULL;
+		KniDevice* kniDevice = nullptr;
 		if (!isInitialized())
 			return kniDevice;
 		for (size_t i = 0; i < m_Devices.size(); ++i)
@@ -138,7 +138,7 @@ namespace pcpp
 			if (kniDevice && kniDevice->m_DeviceInfo.name == name)
 				return kniDevice;
 		}
-		return kniDevice = NULL;
+		return kniDevice = nullptr;
 	}
 
 	KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()

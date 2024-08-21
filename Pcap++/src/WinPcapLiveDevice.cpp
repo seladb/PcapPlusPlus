@@ -21,7 +21,7 @@ namespace pcpp
 	                                     int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
 	                                     void* onStatsUpdateUserCookie)
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 			return false;
@@ -41,7 +41,7 @@ namespace pcpp
 	bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
 	                                     void* onStatsUpdateUserCookie)
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 			return false;
@@ -59,7 +59,7 @@ namespace pcpp
 
 	int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
 			return 0;

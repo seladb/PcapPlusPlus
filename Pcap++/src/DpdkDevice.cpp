@@ -145,8 +145,8 @@ namespace pcpp
 
 		memset(&m_PrevStats, 0, sizeof(m_PrevStats));
 
-		m_TxBuffers = NULL;
-		m_TxBufferLastDrainTsc = NULL;
+		m_TxBuffers = nullptr;
+		m_TxBufferLastDrainTsc = nullptr;
 
 		m_DeviceOpened = false;
 		m_WasOpened = false;
@@ -155,10 +155,10 @@ namespace pcpp
 
 	DpdkDevice::~DpdkDevice()
 	{
-		if (m_TxBuffers != NULL)
+		if (m_TxBuffers != nullptr)
 			delete[] m_TxBuffers;
 
-		if (m_TxBufferLastDrainTsc != NULL)
+		if (m_TxBufferLastDrainTsc != nullptr)
 			delete[] m_TxBufferLastDrainTsc;
 	}
 
@@ -244,16 +244,16 @@ namespace pcpp
 		rte_eth_dev_stop(m_Id);
 		PCPP_LOG_DEBUG("Called rte_eth_dev_stop for device [" << m_DeviceName << "]");
 
-		if (m_TxBuffers != NULL)
+		if (m_TxBuffers != nullptr)
 		{
 			delete[] m_TxBuffers;
-			m_TxBuffers = NULL;
+			m_TxBuffers = nullptr;
 		}
 
-		if (m_TxBufferLastDrainTsc != NULL)
+		if (m_TxBufferLastDrainTsc != nullptr)
 		{
 			delete[] m_TxBufferLastDrainTsc;
-			m_TxBufferLastDrainTsc = NULL;
+			m_TxBufferLastDrainTsc = nullptr;
 		}
 
 		m_DeviceOpened = false;
@@ -371,7 +371,7 @@ namespace pcpp
 		for (uint8_t i = 0; i < numOfRxQueuesToInit; i++)
 		{
 			int ret = rte_eth_rx_queue_setup((uint8_t)m_Id, i, m_Config.receiveDescriptorsNumber, m_DeviceSocketId,
-			                                 NULL, m_MBufMempool);
+			                                 nullptr, m_MBufMempool);
 
 			if (ret < 0)
 			{
@@ -388,7 +388,7 @@ namespace pcpp
 		for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 		{
 			int ret =
-			    rte_eth_tx_queue_setup((uint8_t)m_Id, i, m_Config.transmitDescriptorsNumber, m_DeviceSocketId, NULL);
+			    rte_eth_tx_queue_setup((uint8_t)m_Id, i, m_Config.transmitDescriptorsNumber, m_DeviceSocketId, nullptr);
 			if (ret < 0)
 			{
 				PCPP_LOG_ERROR("Failed to init TX queue #" << i << " for port " << m_Id << ". Error was: '"
@@ -397,10 +397,10 @@ namespace pcpp
 			}
 		}
 
-		if (m_TxBuffers != NULL)
+		if (m_TxBuffers != nullptr)
 			delete[] m_TxBuffers;
 
-		if (m_TxBufferLastDrainTsc != NULL)
+		if (m_TxBufferLastDrainTsc != nullptr)
 			delete[] m_TxBufferLastDrainTsc;
 
 		m_TxBuffers = new rte_eth_dev_tx_buffer*[numOfTxQueuesToInit];
@@ -412,7 +412,7 @@ namespace pcpp
 			m_TxBuffers[i] = (rte_eth_dev_tx_buffer*)rte_zmalloc_socket(
 			    "tx_buffer", RTE_ETH_TX_BUFFER_SIZE(MAX_BURST_SIZE), 0, m_DeviceSocketId);
 
-			if (m_TxBuffers[i] == NULL)
+			if (m_TxBuffers[i] == nullptr)
 			{
 				PCPP_LOG_ERROR("Failed to allocate TX buffer for port " << m_Id << " TX queue " << (int)i);
 				return false;
@@ -444,7 +444,7 @@ namespace pcpp
 		// create mbuf pool
 		memPool =
 		    rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, m_MBufDataSize, m_DeviceSocketId);
-		if (memPool == NULL)
+		if (memPool == nullptr)
 		{
 			PCPP_LOG_ERROR("Failed to create packets memory pool for port "
 			               << m_Id << ", pool name: " << mempoolName << ". Error was: '" << rte_strerror(rte_errno)
@@ -749,7 +749,7 @@ namespace pcpp
 		DpdkDevice* pThis = (DpdkDevice*)ptr;
 		struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
 
-		if (pThis == NULL)
+		if (pThis == nullptr)
 		{
 			PCPP_LOG_ERROR("Failed to retrieve DPDK device in capture thread main loop");
 			return 1;
@@ -770,7 +770,7 @@ namespace pcpp
 			timespec time;
 			clock_gettime(CLOCK_REALTIME, &time);
 
-			if (likely(pThis->m_OnPacketsArriveCallback != NULL))
+			if (likely(pThis->m_OnPacketsArriveCallback != nullptr))
 			{
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
@@ -926,9 +926,9 @@ namespace pcpp
 			return 0;
 		}
 
-		if (unlikely(rawPacketsArr == NULL))
+		if (unlikely(rawPacketsArr == nullptr))
 		{
-			PCPP_LOG_ERROR("Provided address of array to store packets is NULL");
+			PCPP_LOG_ERROR("Provided address of array to store packets is nullptr");
 			return 0;
 		}
 
@@ -946,7 +946,7 @@ namespace pcpp
 		for (size_t index = 0; index < packetsReceived; ++index)
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
-			if (rawPacketsArr[index] == NULL)
+			if (rawPacketsArr[index] == nullptr)
 				rawPacketsArr[index] = new MBufRawPacket();
 
 			rawPacketsArr[index]->setMBuf(mBuf, time);
@@ -991,7 +991,7 @@ namespace pcpp
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
 			newRawPacket->setMBuf(mBuf, time);
-			if (packetsArr[index] == NULL)
+			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 
 			packetsArr[index]->setRawPacket(newRawPacket, true);
@@ -1142,7 +1142,7 @@ namespace pcpp
 
 		for (size_t i = 0; i < arrLength; i++)
 		{
-			MBufRawPacket* rawPacket = NULL;
+			MBufRawPacket* rawPacket = nullptr;
 			uint8_t rawPacketType = packetsArr[i]->getRawPacketReadOnly()->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
@@ -1184,7 +1184,7 @@ namespace pcpp
 
 		for (RawPacketVector::ConstVectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); iter++)
 		{
-			MBufRawPacket* rawPacket = NULL;
+			MBufRawPacket* rawPacket = nullptr;
 			uint8_t rawPacketType = (*iter)->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{

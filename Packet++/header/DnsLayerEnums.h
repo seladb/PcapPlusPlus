@@ -31,7 +31,7 @@ namespace pcpp
 		DNS_TYPE_MG,
 		/** mail rename domain name record */
 		DNS_TYPE_MR,
-		/** NULL record */
+		/** nullptr record */
 		DNS_TYPE_NULL_R,
 		/** well known service description record */
 		DNS_TYPE_WKS,

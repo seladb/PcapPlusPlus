@@ -765,23 +765,23 @@ namespace pcpp
 
 		/**
 		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain
-		 * a logical NULL (DhcpOption#isNull() == true)
+		 * a logical nullptr (DhcpOption#isNull() == true)
 		 */
 		DhcpOption getFirstOptionData() const;
 
 		/**
 		 * Get the DHCP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (DhcpOption#isNull() == true)
+		 * returned value will contain a logical nullptr (DhcpOption#isNull() == true)
 		 * @param[in] dhcpOption A given DHCP option
-		 * @return A DhcpOption object containing the option data that comes next, or logical NULL if the given DHCP
-		 * option: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
+		 * @return A DhcpOption object containing the option data that comes next, or logical nullptr if the given DHCP
+		 * option: (1) was the last one; (2) contains a logical nullptr or (3) doesn't belong to this packet
 		 */
 		DhcpOption getNextOptionData(DhcpOption dhcpOption) const;
 
 		/**
 		 * Get a DHCP option by type
 		 * @param[in] option DHCP option type
-		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical NULL
+		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical nullptr
 		 * (DhcpOption#isNull() == true) if no such option found
 		 */
 		DhcpOption getOptionData(DhcpOptionTypes option) const;
@@ -794,7 +794,7 @@ namespace pcpp
 		/**
 		 * Add a new DHCP option at the end of the layer
 		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
-		 * @return A DhcpOption object containing the newly added DHCP option data or logical NULL
+		 * @return A DhcpOption object containing the newly added DHCP option data or logical nullptr
 		 * (DhcpOption#isNull() == true) if addition failed
 		 */
 		DhcpOption addOption(const DhcpOptionBuilder& optionBuilder);
@@ -803,7 +803,7 @@ namespace pcpp
 		 * Add a new DHCP option after an existing one
 		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
 		 * @param[in] prevOption The DHCP option type which the newly added option will come after
-		 * @return A DhcpOption object containing the newly added DHCP option data or logical NULL
+		 * @return A DhcpOption object containing the newly added DHCP option data or logical nullptr
 		 * (DhcpOption#isNull() == true) if addition failed
 		 */
 		DhcpOption addOptionAfter(const DhcpOptionBuilder& optionBuilder, DhcpOptionTypes prevOption);

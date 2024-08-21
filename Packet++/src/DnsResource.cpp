@@ -347,7 +347,7 @@ namespace pcpp
 
 		if (data == nullptr)
 		{
-			PCPP_LOG_ERROR("Given data is NULL");
+			PCPP_LOG_ERROR("Given data is nullptr");
 			return false;
 		}
 

@@ -115,7 +115,7 @@ namespace pcpp
 		                                                     KniDevice::KniLinkState state = KniDevice::LINK_UP)
 		{
 			KniDevice::KniLinkState oldState = KniDevice::LINK_NOT_SUPPORTED;
-			if (kni == NULL || !(state == KniDevice::LINK_UP || state == KniDevice::LINK_DOWN))
+			if (kni == nullptr || !(state == KniDevice::LINK_UP || state == KniDevice::LINK_DOWN))
 			{
 				return oldState = KniDevice::LINK_ERROR;
 			}
@@ -135,12 +135,12 @@ namespace pcpp
 
 		inline struct rte_mempool* createMempool(size_t mempoolSize, int unique, const char* deviceName)
 		{
-			struct rte_mempool* result = NULL;
+			struct rte_mempool* result = nullptr;
 			char mempoolName[64];
 			snprintf(mempoolName, sizeof(mempoolName), KNI_MEMPOOL_NAME_PREFIX "%d", unique);
 			result = rte_pktmbuf_pool_create(mempoolName, mempoolSize, MEMPOOL_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE,
 			                                 rte_socket_id());
-			if (result == NULL)
+			if (result == nullptr)
 			{
 				PCPP_LOG_ERROR("Failed to create packets memory pool for KNI device '"
 				               << deviceName << "', pool name: " << mempoolName);
@@ -156,17 +156,17 @@ namespace pcpp
 	}  // namespace
 
 	KniDevice::KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique)
-	    : m_Device(NULL), m_MBufMempool(NULL)
+	    : m_Device(nullptr), m_MBufMempool(nullptr)
 	{
 		struct rte_kni_ops kniOps;
 		struct rte_kni_conf kniConf;
 		if (!m_DeviceInfo.init(conf))
 			return;
-		m_Requests.thread = NULL;
+		m_Requests.thread = nullptr;
 		std::memset(&m_Capturing, 0, sizeof(m_Capturing));
 		std::memset(&m_Requests, 0, sizeof(m_Requests));
 
-		if ((m_MBufMempool = createMempool(mempoolSize, unique, conf.name.c_str())) == NULL)
+		if ((m_MBufMempool = createMempool(mempoolSize, unique, conf.name.c_str())) == nullptr)
 			return;
 
 		std::memset(&kniOps, 0, sizeof(kniOps));
@@ -183,7 +183,7 @@ namespace pcpp
 
 		kniOps.port_id = conf.portId;
 #	if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
-		if (conf.callbacks != NULL)
+		if (conf.callbacks != nullptr)
 		{
 			kniOps.change_mtu = conf.callbacks->change_mtu;
 			kniOps.config_network_if = conf.callbacks->config_network_if;
@@ -193,7 +193,7 @@ namespace pcpp
 #		endif
 		}
 #	else
-		if (conf.oldCallbacks != NULL)
+		if (conf.oldCallbacks != nullptr)
 		{
 			kniOps.change_mtu = conf.oldCallbacks->change_mtu;
 			kniOps.config_network_if = conf.oldCallbacks->config_network_if;
@@ -201,7 +201,7 @@ namespace pcpp
 #	endif
 
 		m_Device = rte_kni_alloc(m_MBufMempool, &kniConf, &kniOps);
-		if (m_Device == NULL)
+		if (m_Device == nullptr)
 		{
 			PCPP_LOG_ERROR("DPDK have failed to create KNI device " << conf.name);
 		}
@@ -211,12 +211,12 @@ namespace pcpp
 	{
 		m_Requests.cleanup();
 		m_Capturing.cleanup();
-		if (m_Device != NULL)
+		if (m_Device != nullptr)
 		{
 			setKniDeviceLinkState(m_Device, m_DeviceInfo.name.c_str(), KniDevice::LINK_DOWN);
 			destroyKniDevice(m_Device, m_DeviceInfo.name.c_str());
 		}
-		if (m_MBufMempool != NULL)
+		if (m_MBufMempool != nullptr)
 			rte_mempool_free(m_MBufMempool);
 	}
 
@@ -403,7 +403,7 @@ namespace pcpp
 		if (thread)
 			thread->cancel();
 		delete thread;
-		thread = NULL;
+		thread = nullptr;
 		sleepS = sleepNs = 0;
 	}
 
@@ -416,7 +416,7 @@ namespace pcpp
 		struct rte_kni* kni_dev = device->m_Device;
 		for (;;)
 		{
-			nanosleep(&sleepTime, NULL);
+			nanosleep(&sleepTime, nullptr);
 			rte_kni_handle_request(kni_dev);
 			if (stopThread)
 			{
@@ -427,7 +427,7 @@ namespace pcpp
 
 	bool KniDevice::startRequestHandlerThread(long sleepSeconds, long sleepNanoSeconds)
 	{
-		if (m_Requests.thread != NULL)
+		if (m_Requests.thread != nullptr)
 		{
 			PCPP_LOG_ERROR("KNI request thread is already started for device '" << m_DeviceInfo.name << "'");
 			return false;
@@ -445,7 +445,7 @@ namespace pcpp
 
 	void KniDevice::stopRequestHandlerThread()
 	{
-		if (m_Requests.thread == NULL)
+		if (m_Requests.thread == nullptr)
 		{
 			PCPP_LOG_DEBUG("Attempt to stop not running KNI request thread for device '" << m_DeviceInfo.name << "'");
 			return;
@@ -507,9 +507,9 @@ namespace pcpp
 			                                 "Cannot receive packets in parallel");
 			return 0;
 		}
-		if (unlikely(rawPacketsArr == NULL))
+		if (unlikely(rawPacketsArr == nullptr))
 		{
-			PCPP_LOG_ERROR("KNI Provided address of array to store packets is NULL");
+			PCPP_LOG_ERROR("KNI Provided address of array to store packets is nullptr");
 			return 0;
 		}
 
@@ -527,7 +527,7 @@ namespace pcpp
 		for (size_t index = 0; index < packetsReceived; ++index)
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
-			if (rawPacketsArr[index] == NULL)
+			if (rawPacketsArr[index] == nullptr)
 				rawPacketsArr[index] = new MBufRawPacket();
 
 			rawPacketsArr[index]->setMBuf(mBuf, time);
@@ -567,7 +567,7 @@ namespace pcpp
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
 			newRawPacket->setMBuf(mBuf, time);
-			if (packetsArr[index] == NULL)
+			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 
 			packetsArr[index]->setRawPacket(newRawPacket, true);
@@ -734,7 +734,7 @@ namespace pcpp
 		}
 
 		struct rte_mbuf* mbuf;
-		MBufRawPacket* mbufRawPacket = NULL;
+		MBufRawPacket* mbufRawPacket = nullptr;
 		bool sent = false;
 		bool wasAllocated = false;
 
@@ -810,7 +810,7 @@ namespace pcpp
 			timespec time;
 			clock_gettime(CLOCK_REALTIME, &time);
 
-			if (likely(callback != NULL))
+			if (likely(callback != nullptr))
 			{
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
@@ -833,9 +833,9 @@ namespace pcpp
 		if (thread)
 			thread->cancel();
 		delete thread;
-		thread = NULL;
-		callback = NULL;
-		userCookie = NULL;
+		thread = nullptr;
+		callback = nullptr;
+		userCookie = nullptr;
 	}
 
 	bool KniDevice::startCapture(OnKniPacketArriveCallback onPacketArrives, void* onPacketArrivesUserCookie)
@@ -845,7 +845,7 @@ namespace pcpp
 			PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened. Can't start capture");
 			return false;
 		}
-		if (unlikely(m_Capturing.thread != NULL))
+		if (unlikely(m_Capturing.thread != nullptr))
 		{
 			PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already capturing");
 			return false;
@@ -867,7 +867,7 @@ namespace pcpp
 
 	void KniDevice::stopCapture()
 	{
-		if (m_Capturing.thread == NULL)
+		if (m_Capturing.thread == nullptr)
 		{
 			PCPP_LOG_DEBUG("Attempt to stop not running KNI capturing thread for device '" << m_DeviceInfo.name << "'");
 			return;
@@ -883,14 +883,14 @@ namespace pcpp
 			PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is not opened. Can't start capture");
 			return 0;
 		}
-		if (unlikely(m_Capturing.thread != NULL))
+		if (unlikely(m_Capturing.thread != nullptr))
 		{
 			PCPP_LOG_ERROR("KNI device '" << m_DeviceInfo.name << "' is already capturing");
 			return 0;
 		}
 		m_Capturing.callback = onPacketArrives;
 		m_Capturing.userCookie = onPacketArrivesUserCookie;
-		if (unlikely(m_Capturing.callback == NULL))
+		if (unlikely(m_Capturing.callback == nullptr))
 		{
 			PCPP_LOG_ERROR("Attempt to start KNI device '" << m_DeviceInfo.name
 			                                               << "' capturing in blocking mode without callback");
@@ -974,7 +974,7 @@ namespace pcpp
 
 	void KniDevice::close()
 	{
-		if (m_Capturing.thread != NULL)
+		if (m_Capturing.thread != nullptr)
 		{
 			m_Capturing.cleanup();
 		}

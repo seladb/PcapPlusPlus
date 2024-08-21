@@ -592,7 +592,7 @@ namespace pcpp
 		 * @param[in] contentLength The content length value to set
 		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be
 		 * created after it
-		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
+		 * @return A pointer to the "Content-Length" field, or nullptr if creation failed for some reason
 		 */
 		HeaderField* setContentLength(int contentLength, const std::string& prevFieldName = "");
 

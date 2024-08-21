@@ -847,9 +847,9 @@ namespace pcpp
 
 		uint32_t mtuValue = 0;
 		LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
-		if (adapter == NULL)
+		if (adapter == nullptr)
 		{
-			PCPP_LOG_ERROR("Error in retrieving MTU: Adapter is NULL");
+			PCPP_LOG_ERROR("Error in retrieving MTU: Adapter is nullptr");
 			return;
 		}
 
@@ -922,9 +922,9 @@ namespace pcpp
 #if defined(_WIN32)
 
 		LPADAPTER adapter = PacketOpenAdapter(const_cast<char*>(m_Name.c_str()));
-		if (adapter == NULL)
+		if (adapter == nullptr)
 		{
-			PCPP_LOG_ERROR("Error in retrieving MAC address: Adapter is NULL");
+			PCPP_LOG_ERROR("Error in retrieving MAC address: Adapter is nullptr");
 			return;
 		}
 
@@ -1044,7 +1044,7 @@ namespace pcpp
 		if (retVal == NO_ERROR)
 		{
 			PIP_ADAPTER_INFO curAdapterInfo = adapterInfo;
-			while (curAdapterInfo != NULL)
+			while (curAdapterInfo != nullptr)
 			{
 				if (m_Name.find(curAdapterInfo->AdapterName) != std::string::npos)
 				{
@@ -1240,7 +1240,7 @@ namespace pcpp
 			in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
-				PCPP_LOG_DEBUG("Address is NULL");
+				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 
@@ -1270,7 +1270,7 @@ namespace pcpp
 			in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 			if (currAddr == nullptr)
 			{
-				PCPP_LOG_DEBUG("Address is NULL");
+				PCPP_LOG_DEBUG("Address is nullptr");
 				continue;
 			}
 			return IPv6Address(currAddr->s6_addr);

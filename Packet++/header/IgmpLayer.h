@@ -478,18 +478,18 @@ namespace pcpp
 		uint16_t getGroupRecordCount() const;
 
 		/**
-		 * @return A pointer to the first group record or NULL if no group records exist. Notice the return value is a
-		 * pointer to the real data, so changes in the return value will affect the packet data
+		 * @return A pointer to the first group record or nullptr if no group records exist. Notice the return value is
+		 * a pointer to the real data, so changes in the return value will affect the packet data
 		 */
 		igmpv3_group_record* getFirstGroupRecord() const;
 
 		/**
-		 * Get the group record that comes next to a given group record. If "groupRecord" is NULL then NULL will be
-		 * returned. If "groupRecord" is the last group record or if it is out of layer bounds NULL will be returned
-		 * also. Notice the return value is a pointer to the real data casted to igmpv3_group_record type (as opposed to
-		 * a copy of the option data). So changes in the return value will affect the packet data
+		 * Get the group record that comes next to a given group record. If "groupRecord" is nullptr then nullptr will
+		 * be returned. If "groupRecord" is the last group record or if it is out of layer bounds nullptr will be
+		 * returned also. Notice the return value is a pointer to the real data casted to igmpv3_group_record type (as
+		 * opposed to a copy of the option data). So changes in the return value will affect the packet data
 		 * @param[in] groupRecord The group record to start searching from
-		 * @return The next group record or NULL if "groupRecord" is NULL, last or out of layer bounds
+		 * @return The next group record or nullptr if "groupRecord" is nullptr, last or out of layer bounds
 		 */
 		igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord) const;
 
@@ -501,7 +501,7 @@ namespace pcpp
 		 * @param[in] sourceAddresses A vector containing all the source addresses of the new group record
 		 * @return The method constructs a new group record, adds it to the end of the group record list of IGMPv3
 		 * report message and returns a pointer to the new message. If something went wrong in creating or adding the
-		 * new group record a NULL value is returned and an appropriate error message is printed to log
+		 * new group record a nullptr value is returned and an appropriate error message is printed to log
 		 */
 		igmpv3_group_record* addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress,
 		                                    const std::vector<IPv4Address>& sourceAddresses);
@@ -514,7 +514,7 @@ namespace pcpp
 		 * @param[in] sourceAddresses A vector containing all the source addresses of the new group record
 		 * @param[in] index The index to add the new group address at
 		 * @return The method constructs a new group record, adds it to the IGMPv3 report message and returns a pointer
-		 * to the new message. If something went wrong in creating or adding the new group record a NULL value is
+		 * to the new message. If something went wrong in creating or adding the new group record a nullptr value is
 		 * returned and an appropriate error message is printed to log
 		 */
 		igmpv3_group_record* addGroupRecordAtIndex(uint8_t recordType, const IPv4Address& multicastAddress,

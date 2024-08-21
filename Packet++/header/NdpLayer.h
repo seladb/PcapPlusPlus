@@ -131,30 +131,30 @@ namespace pcpp
 		/**
 		 * Get a NDP option by type.
 		 * @param[in] option NDP option type
-		 * @return An NdpOption object that contains the first option that matches this type, or logical NULL
+		 * @return An NdpOption object that contains the first option that matches this type, or logical nullptr
 		 * (NdpOption#isNull() == true) if no such option found
 		 */
 		NdpOption getNdpOption(NDPNeighborOptionTypes option) const;
 
 		/**
 		 * @return The first NDP option in the packet. If the current layer contains no options the returned value will
-		 * contain a logical NULL (NdpOption#isNull() == true)
+		 * contain a logical nullptr (NdpOption#isNull() == true)
 		 */
 		NdpOption getFirstNdpOption() const;
 
 		/**
 		 * Get the NDP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (IdpOption#isNull() == true)
+		 * returned value will contain a logical nullptr (IdpOption#isNull() == true)
 		 * @param[in] option An NDP option object that exists in the current layer
-		 * @return A NdpOption object that contains the NDP option data that comes next, or logical NULL if the given
-		 * NDP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
+		 * @return A NdpOption object that contains the NDP option data that comes next, or logical nullptr if the given
+		 * NDP option: (1) was the last one; or (2) contains a logical nullptr; or (3) doesn't belong to this packet
 		 */
 		NdpOption getNextNdpOption(NdpOption& option) const;
 
 		/**
 		 * Add a new NDP option at the end of the layer (after the last NDP option)
 		 * @param[in] optionBuilder An NdpOptionBuilder object that contains the NDP option data to be added
-		 * @return A NdpOption object that contains the newly added NDP option data or logical NULL
+		 * @return A NdpOption object that contains the newly added NDP option data or logical nullptr
 		 * (NdpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
