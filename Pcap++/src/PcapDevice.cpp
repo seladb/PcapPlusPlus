@@ -21,8 +21,7 @@ namespace pcpp
 		{
 			if (this != &other)
 			{
-				closeHandle();
-				m_PcapDescriptor = other.m_PcapDescriptor;
+				reset(other.m_PcapDescriptor);
 				other.m_PcapDescriptor = nullptr;
 			}
 			return *this;
@@ -30,13 +29,13 @@ namespace pcpp
 
 		PcapHandle& PcapHandle::operator=(std::nullptr_t) noexcept
 		{
-			closeHandle();
+			reset();
 			return *this;
 		}
 
 		PcapHandle::~PcapHandle()
 		{
-			closeHandle();
+			reset();
 		}
 
 		pcap_t* PcapHandle::release() noexcept
@@ -46,18 +45,19 @@ namespace pcpp
 			return result;
 		}
 
+		void PcapHandle::reset(pcap_t* pcapDescriptor) noexcept
+		{
+			pcap_t* oldDescriptor = m_PcapDescriptor;
+			m_PcapDescriptor = pcapDescriptor;
+			if (oldDescriptor != nullptr)
+			{
+				pcap_close(oldDescriptor);
+			}
+		}
+
 		char const* PcapHandle::getLastError() const noexcept
 		{
 			return pcap_geterr(m_PcapDescriptor);
-		}
-
-		void PcapHandle::closeHandle() noexcept
-		{
-			if (m_PcapDescriptor != nullptr)
-			{
-				pcap_close(m_PcapDescriptor);
-				m_PcapDescriptor = nullptr;
-			}
 		}
 	}  // namespace internal
 

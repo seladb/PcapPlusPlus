@@ -70,6 +70,13 @@ namespace pcpp
 			pcap_t* release() noexcept;
 
 			/**
+			 * @brief Replaces the managed handle with the provided one.
+			 * @param pcapDescriptor A new pcap descriptor to manage.
+			 * @remarks If the handle contains a non-null descriptor it will be closed.
+			 */
+			void reset(pcap_t* pcapDescriptor = nullptr) noexcept;
+
+			/**
 			 * @brief Helper function to retrieve a view of the last error string for this handle.
 			 * @return A null-terminated view of the last error string.
 			 * @remarks The returned view is only valid until the next call to a pcap function.
@@ -94,8 +101,6 @@ namespace pcpp
 			}
 
 		private:
-			void closeHandle() noexcept;
-
 			pcap_t* m_PcapDescriptor = nullptr;
 		};
 	}  // namespace internal

@@ -413,7 +413,7 @@ namespace pcpp
 		}
 
 		bool sameDescriptor = (m_PcapDescriptor.get() == m_PcapSendDescriptor);
-		m_PcapDescriptor = nullptr;
+		m_PcapDescriptor.reset();
 		PCPP_LOG_DEBUG("Receive pcap descriptor closed");
 		if (!sameDescriptor)
 		{
