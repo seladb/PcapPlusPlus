@@ -10,11 +10,19 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      - id: trailing-whitespace
       - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-shebang-scripts-are-executable
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: detect-private-key
       - id: end-of-file-fixer
+      - id: forbid-submodules
       - id: mixed-line-ending
         args: ['--fix=lf']
+      - id: trailing-whitespace
   - repo: https://github.com/psf/black
     rev: 24.4.2
     hooks:
@@ -38,3 +46,12 @@ repos:
       - id: typos
         args: ['--config=typos-config.toml']
         pass_filenames: false
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--exclude-files', 'Tests/*']
+  - repo: https://github.com/lovesegfault/beautysh
+    rev: v6.2.1
+    hooks:
+      - id: beautysh
