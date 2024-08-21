@@ -97,11 +97,6 @@ namespace pcpp
 		PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication,
 		                 const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
 
-		static void* remoteDeviceCaptureThreadMain(void* ptr);
-
-		// overridden methods
-		ThreadStart getCaptureThreadStart();
-
 	public:
 		PcapRemoteDevice(const PcapRemoteDevice&) = delete;
 		PcapRemoteDevice(PcapRemoteDevice&&) noexcept = delete;

@@ -353,6 +353,10 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 	PTF_ASSERT_TRUE(pos != std::string::npos);
 	pos = certBuffer.find("Internal Development CA");
 	PTF_ASSERT_EQUAL(pos, std::string::npos, ptr);
+	auto asn1Record = cert->getRootAsn1Record();
+	PTF_ASSERT_NOT_NULL(asn1Record);
+	PTF_ASSERT_EQUAL(asn1Record->getSubRecords().size(), 3);
+
 	cert = certMsg->getCertificate(1);
 	PTF_ASSERT_NOT_NULL(cert);
 	PTF_ASSERT_TRUE(cert->allDataExists());
@@ -360,6 +364,7 @@ PTF_TEST_CASE(SSLMultipleRecordParsing3Test)
 	certBuffer = std::string(cert->getData(), cert->getData() + cert->getDataLength());
 	pos = certBuffer.find("Internal Development CA");
 	PTF_ASSERT_TRUE(pos != std::string::npos);
+
 	cert = certMsg->getCertificate(2);
 	PTF_ASSERT_NOT_NULL(cert);
 	PTF_ASSERT_TRUE(cert->allDataExists());
