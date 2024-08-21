@@ -77,7 +77,6 @@ namespace pcpp
 			char const* getLastError() const noexcept;
 
 			/**
-			 * @brief Implicit conversion to bool.
 			 * @return True if the handle is not null, false otherwise.
 			 */
 			explicit operator bool() const noexcept
