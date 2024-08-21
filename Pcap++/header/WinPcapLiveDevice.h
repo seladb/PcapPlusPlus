@@ -29,8 +29,12 @@ namespace pcpp
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
-		    : WinPcapLiveDevice(DeviceInterfaceDetails(iface), calculateMTU, calculateMacAddress, calculateDefaultGateway) {}
-		WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+		    : WinPcapLiveDevice(DeviceInterfaceDetails(iface), calculateMTU, calculateMacAddress,
+		                        calculateDefaultGateway)
+		{}
+		WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
+		                  bool calculateDefaultGateway);
+
 	public:
 		WinPcapLiveDevice(const WinPcapLiveDevice& other) = delete;
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other) = delete;

@@ -127,8 +127,11 @@ namespace pcpp
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
 		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
-		    : PcapLiveDevice(DeviceInterfaceDetails(pInterface), calculateMTU, calculateMacAddress, calculateDefaultGateway) {}
-		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
+		    : PcapLiveDevice(DeviceInterfaceDetails(pInterface), calculateMTU, calculateMacAddress,
+		                     calculateDefaultGateway)
+		{}
+		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
+		               bool calculateDefaultGateway);
 
 		void setDeviceMtu();
 		void setDeviceMacAddress();
@@ -321,7 +324,10 @@ namespace pcpp
 		/**
 		 * @return A vector containing all IP addresses defined for this interface.
 		 */
-		std::vector<IPAddress> getIPAddresses() const { return m_InterfaceDetails.addresses; }
+		std::vector<IPAddress> getIPAddresses() const
+		{
+			return m_InterfaceDetails.addresses;
+		}
 
 		/**
 		 * @return The MAC address for this interface
