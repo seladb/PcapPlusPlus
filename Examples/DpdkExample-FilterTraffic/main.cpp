@@ -59,7 +59,7 @@ static struct option FilterTrafficOptions[] = {
 	{ "help",                 optional_argument, nullptr, 'h' },
 	{ "version",              optional_argument, nullptr, 'v' },
 	{ "list",                 optional_argument, nullptr, 'l' },
-	{ nullptr,	              0,                 nullptr,  0  }
+	{ nullptr,                0,                 nullptr,  0  }
 };
 // clang-format on
 
