@@ -9,16 +9,16 @@
 /// @file
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 
 	/**
 	 * @class PfRingDeviceList
-	 * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING devices or find a specific
-	 * device by name
+	 * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING
+	 * devices or find a specific device by name
 	 */
 	class PfRingDeviceList : public internal::DeviceListBase<PfRingDevice>
 	{
@@ -29,6 +29,7 @@ namespace pcpp
 		std::string m_PfRingVersion;
 
 		PfRingDeviceList();
+
 	public:
 		PfRingDeviceList(const PfRingDeviceList&) = delete;
 		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;
@@ -51,7 +52,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of direct accessor API.
 		 */
 		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
-		const std::vector<PfRingDevice*>& getPfRingDevicesList() const { return m_PfRingDeviceListView; }
+		const std::vector<PfRingDevice*>& getPfRingDevicesList() const
+		{
+			return m_PfRingDeviceListView;
+		}
 
 		/**
 		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
@@ -66,15 +70,21 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
-		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const { return getDeviceByName(devName); };
+		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const
+		{
+			return getDeviceByName(devName);
+		}
 
 		/**
 		 * Get installed PF_RING version
 		 * @return A string representing PF_RING version
 		 */
-		std::string getPfRingVersion() const { return m_PfRingVersion; }
+		std::string getPfRingVersion() const
+		{
+			return m_PfRingVersion;
+		}
 	};
 
-} // namespace pcpp
+}  // namespace pcpp
 
 // GCOVR_EXCL_STOP

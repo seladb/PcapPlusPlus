@@ -7,21 +7,21 @@
 #include "DeviceListBase.h"
 #include "DeprecationUtils.h"
 
-
 /// @file
 
 /**
-* \namespace pcpp
-* \brief The main namespace for the PcapPlusPlus lib
-*/
+ * \namespace pcpp
+ * \brief The main namespace for the PcapPlusPlus lib
+ */
 namespace pcpp
 {
 
 	/**
 	 * @class PcapLiveDeviceList
-	 * A singleton class that creates, stores and provides access to all PcapLiveDevice (on Linux) or WinPcapLiveDevice (on Windows) instances. All live
-	 * devices are initialized on startup and wrap the network interfaces installed on the machine. This class enables access to them through
-	 * their IP addresses or get a vector of all of them so the user can search them in some other way
+	 * A singleton class that creates, stores and provides access to all PcapLiveDevice (on Linux) or WinPcapLiveDevice
+	 * (on Windows) instances. All live devices are initialized on startup and wrap the network interfaces installed on
+	 * the machine. This class enables access to them through their IP addresses or get a vector of all of them so the
+	 * user can search them in some other way
 	 */
 	class PcapLiveDeviceList : public internal::DeviceListBase<PcapLiveDevice>
 	{
@@ -38,6 +38,7 @@ namespace pcpp
 
 		static PointerVector<PcapLiveDevice> fetchAllLocalDevices();
 		static std::vector<IPv4Address> fetchDnsServers();
+
 	public:
 		PcapLiveDeviceList(const PcapLiveDeviceList&) = delete;
 		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
@@ -59,7 +60,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of direct accessor API.
 		 */
 		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
-		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const { return m_LiveDeviceListView; };
+		const std::vector<PcapLiveDevice*>& getPcapLiveDevicesList() const
+		{
+			return m_LiveDeviceListView;
+		};
 
 		/**
 		 * Get a pointer to the live device by its IP address. IP address can be both IPv4 or IPv6
@@ -74,7 +78,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
-		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const { return getDeviceByIp(ipAddr); }
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPAddress& ipAddr) const
+		{
+			return getDeviceByIp(ipAddr);
+		}
 
 		/**
 		 * Get a pointer to the live device by its IPv4 address
@@ -89,7 +96,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
-		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const { return getDeviceByIp(ipAddr); }
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv4Address& ipAddr) const
+		{
+			return getDeviceByIp(ipAddr);
+		}
 
 		/**
 		 * Get a pointer to the live device by its IPv6 address
@@ -104,7 +114,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
-		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const { return getDeviceByIp(ip6Addr); }
+		PcapLiveDevice* getPcapLiveDeviceByIp(const IPv6Address& ip6Addr) const
+		{
+			return getDeviceByIp(ip6Addr);
+		}
 
 		/**
 		 * Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
@@ -119,7 +132,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByIp(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
-		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const { return getDeviceByIp(ipAddrAsString); }
+		PcapLiveDevice* getPcapLiveDeviceByIp(const std::string& ipAddrAsString) const
+		{
+			return getDeviceByIp(ipAddrAsString);
+		}
 
 		/**
 		 * Get a pointer to the live device by its name
@@ -134,7 +150,10 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
-		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const { return getDeviceByName(name); }
+		PcapLiveDevice* getPcapLiveDeviceByName(const std::string& name) const
+		{
+			return getDeviceByName(name);
+		}
 
 		/**
 		 * Get a pointer to the live device by its IP address or name
@@ -149,13 +168,19 @@ namespace pcpp
 		 * @deprecated This method has been deprecated in favor of getDeviceByIpOrName(...).
 		 */
 		PCPP_DEPRECATED("Please use getDeviceByIp(...) instead.")
-		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const { return getDeviceByIpOrName(ipOrName); }
+		PcapLiveDevice* getPcapLiveDeviceByIpOrName(const std::string& ipOrName) const
+		{
+			return getDeviceByIpOrName(ipOrName);
+		}
 
 		/**
-		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers were defined or they
-		 * couldn't be extracted from some reason
+		 * @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers
+		 * were defined or they couldn't be extracted from some reason
 		 */
-		const std::vector<IPv4Address>& getDnsServers() const { return m_DnsServers; }
+		const std::vector<IPv4Address>& getDnsServers() const
+		{
+			return m_DnsServers;
+		}
 
 		/**
 		 * Copies the current live device list
@@ -169,4 +194,4 @@ namespace pcpp
 		void reset();
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

@@ -51,6 +51,7 @@ namespace pcpp
 		 * @param[in] kniDevice KNI device to be destroyed explicitly
 		 */
 		void destroyDevice(KniDevice* kniDevice);
+
 	public:
 		/**
 		 * Callback related constants for KNI device
@@ -69,7 +70,8 @@ namespace pcpp
 		{
 			/** KniDevice#KniIoctlCallbacks#change_mtu and KniDevice#KniOldIoctlCallbacks#change_mtu callback */
 			CALLBACK_MTU,
-			/** KniDevice#KniIoctlCallbacks#config_network_if and KniDevice#KniOldIoctlCallbacks#config_network_if callback */
+			/** KniDevice#KniIoctlCallbacks#config_network_if and KniDevice#KniOldIoctlCallbacks#config_network_if
+			 * callback */
 			CALLBACK_LINK,
 			/** KniDevice#KniIoctlCallbacks#config_mac_address callback */
 			CALLBACK_MAC,
@@ -89,7 +91,10 @@ namespace pcpp
 		/**
 		 * @return true if KNI module was initialized successfully false otherwise
 		 */
-		inline bool isInitialized() { return m_Initialized; }
+		inline bool isInitialized()
+		{
+			return m_Initialized;
+		}
 
 		/* Device manipulation */
 
@@ -133,10 +138,11 @@ namespace pcpp
 		 * @param[in] cbType One of KniCallbackType enum values
 		 */
 		static bool isCallbackSupported(const KniCallbackType cbType);
+
 	private:
 		bool m_Initialized;
 		int m_KniUniqueId;
 	};
-} // namespace pcpp
+}  // namespace pcpp
 
 // GCOVR_EXCL_STOP
