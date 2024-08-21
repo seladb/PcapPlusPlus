@@ -20,16 +20,22 @@ namespace pcpp
 
 	namespace internal
 	{
-		/// @class PcapHandle
-		/// @brief A wrapper class for pcap_t* which is the libpcap packet capture descriptor.
-		/// This class is used to manage the lifecycle of the pcap_t* object
+		/**
+		 * @class PcapHandle
+		 * @brief A wrapper class for pcap_t* which is the libpcap packet capture descriptor.
+		 * This class is used to manage the lifecycle of the pcap_t* object
+		 */
 		class PcapHandle
 		{
 		public:
-			/// @brief Creates an empty handle.
+			/**
+			 * @brief Creates an empty handle.
+			 */
 			constexpr PcapHandle() noexcept = default;
-			/// @brief Creates a handle from the provided pcap descriptor.
-			/// @param pcapDescriptor The pcap descriptor to wrap.
+			/**
+			 * @brief Creates a handle from the provided pcap descriptor.
+			 * @param pcapDescriptor The pcap descriptor to wrap.
+			 */
 			explicit PcapHandle(pcap_t* pcapDescriptor) noexcept;
 
 			PcapHandle(const PcapHandle&) = delete;
@@ -41,31 +47,39 @@ namespace pcpp
 
 			~PcapHandle();
 
-			/// @brief Check if the handle is not null.
-			/// @return True if the handle is not null, false otherwise.
+			/**
+			 * @return True if the handle is not null, false otherwise.
+			 */
 			bool isValid() const noexcept
 			{
 				return m_PcapDescriptor != nullptr;
 			}
 
-			/// @brief Access the underlying pcap descriptor.
-			/// @return The pcap descriptor.
+			/**
+			 * @return The underlying pcap descriptor.
+			 */
 			pcap_t* get() const noexcept
 			{
 				return m_PcapDescriptor;
 			}
 
-			/// @brief Releases ownership of the handle and returns the pcap descriptor.
-			/// @return The pcap descriptor or nullptr if no handle is owned.
+			/**
+			 * @brief Releases ownership of the handle and returns the pcap descriptor.
+			 * @return The pcap descriptor or nullptr if no handle is owned.
+			 */
 			pcap_t* release() noexcept;
 
-			/// @brief Helper function to retrieve a view of the last error string for this handle.
-			/// @return A view of the last error string.
-			/// @remarks The returned view is only valid until the next call to a pcap function.
+			/**
+			 * @brief Helper function to retrieve a view of the last error string for this handle.
+			 * @return A null-terminated view of the last error string.
+			 * @remarks The returned view is only valid until the next call to a pcap function.
+			 */
 			char const* getLastError() const noexcept;
-
-			/// @brief Implicit conversion to bool.
-			/// @return True if the handle is not null, false otherwise.
+			
+			/**
+			 * @brief Implicit conversion to bool.
+			 * @return True if the handle is not null, false otherwise.
+			 */
 			explicit operator bool() const noexcept
 			{
 				return isValid();
