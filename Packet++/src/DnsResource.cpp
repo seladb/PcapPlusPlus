@@ -180,7 +180,6 @@ namespace pcpp
 				// set the pointer to the encoded string result
 				result[0] = (uint8_t)0xc0;
 				result[1] = (uint8_t)pointerInPacket;
-				result += 2;
 				resultLen += 2;
 				return;  // pointer always comes last
 			}

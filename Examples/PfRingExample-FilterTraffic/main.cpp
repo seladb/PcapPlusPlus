@@ -76,7 +76,8 @@ struct CaptureThreadArgs
 	pcpp::PcapFileWriterDevice** pcapWriters;
 
 	CaptureThreadArgs()
-	    : packetStatArr(nullptr), matchingEngine(nullptr), flowTables(nullptr), sendPacketsTo(nullptr), pcapWriters(nullptr)
+	    : packetStatArr(nullptr), matchingEngine(nullptr), flowTables(nullptr), sendPacketsTo(nullptr),
+	      pcapWriters(nullptr)
 	{}
 };
 

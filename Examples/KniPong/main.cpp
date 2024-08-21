@@ -114,13 +114,13 @@ namespace
 	inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	{
 		struct option KniPongOptions[] = {
-			{ "src",     required_argument, nullptr, 's' },
-			{ "dst",     required_argument, nullptr, 'd' },
-			{ "name",    optional_argument, nullptr, 'n' },
-			{ "port",    optional_argument, nullptr, 'p' },
-			{ "help",    no_argument,       nullptr, 'h' },
-			{ "version", no_argument,       nullptr, 'v' },
-			{ nullptr,   0,                 nullptr,  0  }
+			{"src",      required_argument, nullptr, 's'},
+			{ "dst",     required_argument, nullptr, 'd'},
+			{ "name",    optional_argument, nullptr, 'n'},
+			{ "port",    optional_argument, nullptr, 'p'},
+			{ "help",    no_argument,       nullptr, 'h'},
+			{ "version", no_argument,       nullptr, 'v'},
+			{ nullptr,   0,                 nullptr, 0  }
 		};
 		// Default port:
 		args.kniPort = DEFAULT_PORT;
@@ -360,7 +360,7 @@ namespace
 		// Copy ARP request
 		std::memcpy(&arpHdr, origArpHdr, sizeof(arpHdr));
 		// Fill fields
-		arpHdr.hardwareType = pcpp::hostToNet16(0x0001);                  // ETHERNET
+		arpHdr.hardwareType = pcpp::hostToNet16(0x0001);                        // ETHERNET
 		arpHdr.hardwareSize = sizeof(((pcpp::arphdr*)nullptr)->senderMacAddr);  // sizeof(MAC)
 		arpHdr.protocolSize = sizeof(((pcpp::arphdr*)nullptr)->senderIpAddr);   // sizeof(IPv4)
 		arpHdr.opcode = pcpp::hostToNet16(pcpp::ARP_REPLY);

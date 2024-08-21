@@ -210,7 +210,7 @@ namespace pcpp
 			}
 			else
 			{
-				curResource->setNexResource(newGenResource);
+				curResource->setNextResource(newGenResource);
 				curResource = curResource->getNextResource();
 			}
 

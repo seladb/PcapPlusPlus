@@ -51,7 +51,7 @@ namespace pcpp
 		{
 			return m_NextResource;
 		}
-		void setNexResource(IDnsResource* next)
+		void setNextResource(IDnsResource* next)
 		{
 			m_NextResource = next;
 		}
