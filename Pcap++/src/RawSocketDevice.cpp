@@ -199,7 +199,7 @@ namespace pcpp
 		if (bufferLen > 0)
 		{
 			timeval time;
-			gettimeofday(&time, NULL);
+			gettimeofday(&time, nullptr);
 			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_ETHERNET);
 			return RecvSuccess;
 		}
@@ -464,7 +464,7 @@ namespace pcpp
 		getifaddrs(&addrs);
 		std::string ifaceName = "";
 		int ifaceIndex = -1;
-		for (struct ifaddrs* curAddr = addrs; curAddr != NULL; curAddr = curAddr->ifa_next)
+		for (struct ifaddrs* curAddr = addrs; curAddr != nullptr; curAddr = curAddr->ifa_next)
 		{
 			if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP))
 			{

@@ -44,22 +44,22 @@
 
 // clang-format off
 static struct option FilterTrafficOptions[] = {
-	{ "dpdk-ports",           required_argument, 0, 'd' },
-	{ "send-matched-packets", optional_argument, 0, 's' },
-	{ "save-matched-packets", optional_argument, 0, 'f' },
-	{ "match-source-ip",      optional_argument, 0, 'i' },
-	{ "match-dest-ip",        optional_argument, 0, 'I' },
-	{ "match-source-port",    optional_argument, 0, 'p' },
-	{ "match-dest-port",      optional_argument, 0, 'P' },
-	{ "match-protocol",       optional_argument, 0, 'o' },
-	{ "core-mask",            optional_argument, 0, 'c' },
-	{ "mbuf-pool-size",       optional_argument, 0, 'm' },
-	{ "rx-queues",            optional_argument, 0, 'r' },
-	{ "tx-queues",            optional_argument, 0, 't' },
-	{ "help",                 optional_argument, 0, 'h' },
-	{ "version",              optional_argument, 0, 'v' },
-	{ "list",                 optional_argument, 0, 'l' },
-	{ 0,	                     0,                 0, 0   }
+	{ "dpdk-ports",           required_argument, nullptr, 'd' },
+	{ "send-matched-packets", optional_argument, nullptr, 's' },
+	{ "save-matched-packets", optional_argument, nullptr, 'f' },
+	{ "match-source-ip",      optional_argument, nullptr, 'i' },
+	{ "match-dest-ip",        optional_argument, nullptr, 'I' },
+	{ "match-source-port",    optional_argument, nullptr, 'p' },
+	{ "match-dest-port",      optional_argument, nullptr, 'P' },
+	{ "match-protocol",       optional_argument, nullptr, 'o' },
+	{ "core-mask",            optional_argument, nullptr, 'c' },
+	{ "mbuf-pool-size",       optional_argument, nullptr, 'm' },
+	{ "rx-queues",            optional_argument, nullptr, 'r' },
+	{ "tx-queues",            optional_argument, nullptr, 't' },
+	{ "help",                 optional_argument, nullptr, 'h' },
+	{ "version",              optional_argument, nullptr, 'v' },
+	{ "list",                 optional_argument, nullptr, 'l' },
+	{ nullptr,	              0,                 nullptr,  0  }
 };
 // clang-format on
 
@@ -235,7 +235,7 @@ struct FilterTrafficArgs
 	bool shouldStop;
 	std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector;
 
-	FilterTrafficArgs() : shouldStop(false), workerThreadsVector(NULL)
+	FilterTrafficArgs() : shouldStop(false), workerThreadsVector(nullptr)
 	{}
 };
 
@@ -545,7 +545,7 @@ int main(int argc, char* argv[])
 	for (const auto& port : dpdkPortVec)
 	{
 		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(port);
-		if (dev == NULL)
+		if (dev == nullptr)
 		{
 			EXIT_WITH_ERROR("DPDK device for port " << port << " doesn't exist");
 		}
@@ -583,7 +583,7 @@ int main(int argc, char* argv[])
 
 	// get DPDK device to send packets to (or NULL if doesn't exist)
 	pcpp::DpdkDevice* sendPacketsTo = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(sendPacketsToPort);
-	if (sendPacketsTo != NULL && !sendPacketsTo->isOpened() && !sendPacketsTo->open())
+	if (sendPacketsTo != nullptr && !sendPacketsTo->isOpened() && !sendPacketsTo->open())
 	{
 		EXIT_WITH_ERROR("Could not open port#" << sendPacketsToPort << " for sending matched packets");
 	}

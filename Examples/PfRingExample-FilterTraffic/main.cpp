@@ -48,19 +48,19 @@
 
 // clang-format off
 static struct option PfFilterTrafficOptions[] = {
-	{ "interface-name",       required_argument, 0, 'n' },
-	{ "send-matched-packets", required_argument, 0, 's' },
-	{ "save-matched-packets", required_argument, 0, 'f' },
-	{ "match-source-ip",      required_argument, 0, 'i' },
-	{ "match-dest-ip",        required_argument, 0, 'I' },
-	{ "match-source-port",    required_argument, 0, 'p' },
-	{ "match-dest-port",      required_argument, 0, 'P' },
-	{ "match-protocol",       required_argument, 0, 'r' },
-	{ "num-of-threads",       required_argument, 0, 't' },
-	{ "help",                 no_argument,       0, 'h' },
-	{ "version",              no_argument,       0, 'v' },
-	{ "list",                 no_argument,       0, 'l' },
-	{ 0,                      0,                 0, 0   }
+	{ "interface-name",       required_argument, nullptr, 'n' },
+	{ "send-matched-packets", required_argument, nullptr, 's' },
+	{ "save-matched-packets", required_argument, nullptr, 'f' },
+	{ "match-source-ip",      required_argument, nullptr, 'i' },
+	{ "match-dest-ip",        required_argument, nullptr, 'I' },
+	{ "match-source-port",    required_argument, nullptr, 'p' },
+	{ "match-dest-port",      required_argument, nullptr, 'P' },
+	{ "match-protocol",       required_argument, nullptr, 'r' },
+	{ "num-of-threads",       required_argument, nullptr, 't' },
+	{ "help",                 no_argument,       nullptr, 'h' },
+	{ "version",              no_argument,       nullptr, 'v' },
+	{ "list",                 no_argument,       nullptr, 'l' },
+	{ nullptr,                0,                 nullptr,  0  }
 };
 // clang-format on
 
@@ -76,7 +76,7 @@ struct CaptureThreadArgs
 	pcpp::PcapFileWriterDevice** pcapWriters;
 
 	CaptureThreadArgs()
-	    : packetStatArr(NULL), matchingEngine(NULL), flowTables(NULL), sendPacketsTo(NULL), pcapWriters(NULL)
+	    : packetStatArr(nullptr), matchingEngine(nullptr), flowTables(nullptr), sendPacketsTo(nullptr), pcapWriters(nullptr)
 	{}
 };
 
@@ -220,13 +220,13 @@ void packetArrived(pcpp::RawPacket* packets, uint32_t numOfPackets, uint8_t thre
 		if (packetMatched)
 		{
 			// send packet to TX port if needed
-			if (args->sendPacketsTo != NULL)
+			if (args->sendPacketsTo != nullptr)
 			{
 				args->sendPacketsTo->sendPacket(packet);
 			}
 
 			// save packet to file if needed
-			if (args->pcapWriters != NULL)
+			if (args->pcapWriters != nullptr)
 			{
 				args->pcapWriters[threadId]->writePacket(packets[i]);
 			}
@@ -250,12 +250,12 @@ int main(int argc, char* argv[])
 {
 	pcpp::AppName::init(argc, argv);
 
-	pcpp::PfRingDevice* dev = NULL;
+	pcpp::PfRingDevice* dev = nullptr;
 
 	int totalNumOfCores = pcpp::getNumOfCores();
 	int numOfCaptureThreads = totalNumOfCores - 1;
 
-	pcpp::PfRingDevice* sendPacketsToIface = NULL;
+	pcpp::PfRingDevice* sendPacketsToIface = nullptr;
 
 	std::string packetFilePath = "";
 	bool writePacketsToDisk = true;
@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
 		{
 			std::string ifaceName = std::string(optarg);
 			dev = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(ifaceName);
-			if (dev == NULL)
+			if (dev == nullptr)
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << ifaceName << "'");
 			break;
 		}
@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
 		{
 			std::string sendPacketsToIfaceName = std::string(optarg);
 			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(sendPacketsToIfaceName);
-			if (sendPacketsToIface == NULL)
+			if (sendPacketsToIface == nullptr)
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << sendPacketsToIfaceName << "'");
 
 			break;
@@ -391,7 +391,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (dev == NULL)
+	if (dev == nullptr)
 		EXIT_WITH_ERROR_AND_PRINT_USAGE("Interface name was not provided");
 
 	// open the PF_RING device in multi-thread mode. Distribution of packets between threads will be done per-flow (as
@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Couldn't open " << numOfCaptureThreads << " RX channels on interface '" << dev->getDeviceName()
 		                                 << "'");
 
-	if (sendPacketsToIface != NULL && !sendPacketsToIface->open())
+	if (sendPacketsToIface != nullptr && !sendPacketsToIface->open())
 		EXIT_WITH_ERROR("Couldn't open PF_RING device '" << sendPacketsToIface->getDeviceName()
 		                                                 << "' for sending matched packets");
 
@@ -435,7 +435,7 @@ int main(int argc, char* argv[])
 	// create a flow table for each core
 	std::unordered_map<uint32_t, bool> flowTables[totalNumOfCores];
 
-	pcpp::PcapFileWriterDevice** pcapWriters = NULL;
+	pcpp::PcapFileWriterDevice** pcapWriters = nullptr;
 
 	// if needed, prepare pcap writers for all capturing threads
 	if (writePacketsToDisk)
@@ -447,7 +447,7 @@ int main(int argc, char* argv[])
 			// if core doesn't participate in capturing, skip it
 			if ((coreMask & pcpp::SystemCores::IdToSystemCore[coreId].Mask) == 0)
 			{
-				pcapWriters[coreId] = NULL;
+				pcapWriters[coreId] = nullptr;
 				continue;
 			}
 
