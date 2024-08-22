@@ -100,7 +100,7 @@ namespace pcpp
 		uint8_t* udpData = m_Data + sizeof(udphdr);
 		size_t udpDataLen = m_DataLen - sizeof(udphdr);
 
-		if (DhcpLayer::isDhcpPorts(portDst, portSrc))
+		if (DhcpLayer::isDhcpPorts(portSrc, portDst))
 			m_NextLayer = new DhcpLayer(udpData, udpDataLen, this, m_Packet);
 		else if (VxlanLayer::isVxlanPort(portDst))
 			m_NextLayer = new VxlanLayer(udpData, udpDataLen, this, m_Packet);

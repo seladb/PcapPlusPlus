@@ -881,7 +881,8 @@ namespace pcpp
 
 	bool DhcpLayer::isDhcpPorts(uint16_t portSrc, uint16_t portDst)
 	{
-		return ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67));
+		return ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) ||
+				(portSrc == 67 && portDst == 67));
 	}
 
 }  // namespace pcpp
