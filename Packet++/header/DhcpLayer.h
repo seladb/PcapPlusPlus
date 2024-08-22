@@ -821,6 +821,14 @@ namespace pcpp
 		 */
 		bool removeAllOptions();
 
+		/**
+		 * A static method that checks whether a pair of ports are considered DHCP ports
+		 * @param[in] portSrc The source port number to check
+		 * @param[in] portDst The destination port number to check
+		 * @return True if these are DHCP port numbers, false otherwise
+		 */
+		static inline bool isDhcpPorts(uint16_t portSrc, uint16_t portDst);
+
 		// implement abstract methods
 
 		/**
@@ -868,4 +876,12 @@ namespace pcpp
 
 		DhcpOption addOptionAt(const DhcpOptionBuilder& optionBuilder, int offset);
 	};
+
+	// implementation of inline methods
+
+	bool DhcpLayer::isDhcpPorts(uint16_t portSrc, uint16_t portDst)
+	{
+		return ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) || (portSrc == 67 && portDst == 67));
+	}
+
 }  // namespace pcpp
