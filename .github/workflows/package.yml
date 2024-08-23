@@ -28,6 +28,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - image: ubuntu2404
+            config-zstd: OFF
           - image: ubuntu2204
             config-zstd: OFF
           - image: ubuntu2204-icpx
@@ -127,14 +129,14 @@ jobs:
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
-    runs-on: macos-12
+    runs-on: macos-14
     permissions:
       contents: write
       attestations: write
       id-token: write
     strategy:
       matrix:
-        xcode-version: [14.2.0, 13.4.1]
+        xcode-version: [15.4, 14.3.1]
         arch: [x86_64, arm64]
 
     steps:

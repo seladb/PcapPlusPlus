@@ -41,7 +41,8 @@ namespace pcpp
 			pRmAuth = &rmAuth;
 		}
 
-		m_PcapDescriptor = pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
+		m_PcapDescriptor =
+		    internal::PcapHandle(pcap_open(m_Name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf));
 		if (m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
@@ -50,7 +51,7 @@ namespace pcpp
 		}
 
 		// in Remote devices there shouldn't be 2 separate descriptors
-		m_PcapSendDescriptor = m_PcapDescriptor;
+		m_PcapSendDescriptor = m_PcapDescriptor.get();
 
 		// setFilter requires that m_DeviceOpened == true
 		m_DeviceOpened = true;
@@ -70,49 +71,10 @@ namespace pcpp
 		return true;
 	}
 
-	void* PcapRemoteDevice::remoteDeviceCaptureThreadMain(void* ptr)
-	{
-		PcapRemoteDevice* pThis = static_cast<PcapRemoteDevice*>(ptr);
-		if (pThis == nullptr)
-		{
-			PCPP_LOG_ERROR("Capture thread: Unable to extract PcapLiveDevice instance");
-			return 0;
-		}
-
-		PCPP_LOG_DEBUG("Started capture thread for device '" << pThis->m_Name << "'");
-
-		pcap_pkthdr* pkthdr;
-		const uint8_t* pktData;
-
-		if (pThis->m_CaptureCallbackMode)
-		{
-			while (!pThis->m_StopThread)
-			{
-				if (pcap_next_ex(pThis->m_PcapDescriptor, &pkthdr, &pktData) > 0)
-					onPacketArrives(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
-			}
-		}
-		else
-		{
-			while (!pThis->m_StopThread)
-			{
-				if (pcap_next_ex(pThis->m_PcapDescriptor, &pkthdr, &pktData) > 0)
-					onPacketArrivesNoCallback(reinterpret_cast<uint8_t*>(pThis), pkthdr, pktData);
-			}
-		}
-		PCPP_LOG_DEBUG("Ended capture thread for device '" << pThis->m_Name << "'");
-		return 0;
-	}
-
-	ThreadStart PcapRemoteDevice::getCaptureThreadStart()
-	{
-		return &remoteDeviceCaptureThreadMain;
-	}
-
 	void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	{
 		int allocatedMemory;
-		pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
+		pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor.get(), &allocatedMemory);
 		if (allocatedMemory < static_cast<int>(sizeof(pcap_stat)))
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '"
