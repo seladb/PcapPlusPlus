@@ -251,107 +251,6 @@ namespace pcpp
 		char manufacturerSpecificInformation[48] = { 0 };
 		char serialNumber[16] = { 0 };
 		char userDefinedName[16] = { 0 };
-
-		// ------------- methods --------------
-
-		/**
-		 * @brief Get the version
-		 * @return std::pair<uint16_t, uint16_t> The version major and minor
-		 */
-		std::pair<uint16_t, uint16_t> getVersion() const
-		{
-			return { versionMajor, versionMinor };
-		}
-
-		/**
-		 * @brief Get the IP address
-		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
-		 */
-		pcpp::MacAddress getMacAddress() const
-		{
-			return pcpp::MacAddress(macAddress);
-		}
-
-		/**
-		 * @brief Get the IP address
-		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
-		 */
-		pcpp::IPv4Address getIpAddress() const
-		{
-			return pcpp::IPv4Address(ipAddress);
-		}
-
-		/**
-		 * @brief Get the subnet mask
-		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
-		 */
-		pcpp::IPv4Address getSubnetMask() const
-		{
-			return pcpp::IPv4Address(subnetMask);
-		}
-
-		/**
-		 * @brief Get the gateway IP address
-		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
-		 */
-		pcpp::IPv4Address getGatewayIpAddress() const
-		{
-			return pcpp::IPv4Address(defaultGateway);
-		}
-
-		/**
-		 * @brief Get the manufacturer name
-		 * @return std::string The manufacturer name
-		 */
-		std::string getManufacturerName() const
-		{
-			return std::string(manufacturerName);
-		}
-
-		/**
-		 * @brief Get the model name
-		 * @return std::string The model name
-		 */
-		std::string getModelName() const
-		{
-			return std::string(modelName);
-		}
-
-		/**
-		 * @brief Get the device version
-		 * @return std::string The device version
-		 */
-		std::string getDeviceVersion() const
-		{
-			return std::string(deviceVersion);
-		}
-
-		/**
-		 * @brief Get the manufacturer specific information
-		 * @return std::string The manufacturer specific information
-		 */
-		std::string getManufacturerSpecificInformation() const
-		{
-			return std::string(manufacturerSpecificInformation);
-		}
-
-		/**
-		 * @brief Get the serial number
-		 * @return std::string The serial number
-		 */
-		std::string getSerialNumber() const
-		{
-			return std::string(serialNumber);
-		}
-
-		/**
-		 * @brief Get the user defined name
-		 * @return std::string The user defined name
-		 */
-		std::string getUserDefinedName() const
-		{
-			return std::string(userDefinedName);
-		}
 	};
 	static_assert(sizeof(GvcpDiscoveryBody) == internal::kGvcpDiscoveryBodyLength,
 	              "Gvcp ack body size should be 248 bytes");
@@ -368,44 +267,6 @@ namespace pcpp
 		uint32_t subnetMask = 0;
 		char padding4[12] = { 0 };
 		uint32_t gateway = 0;
-
-		// ------------- methods --------------
-
-		/**
-		 * @brief Get the IP address
-		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
-		 */
-		pcpp::MacAddress getMacAddress() const
-		{
-			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(macAddress));
-		}
-
-		/**
-		 * @brief Get the IP address
-		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
-		 */
-		pcpp::IPv4Address getIpAddress() const
-		{
-			return pcpp::IPv4Address(ipAddress);
-		}
-
-		/**
-		 * @brief Get the subnet mask
-		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
-		 */
-		pcpp::IPv4Address getSubnetMask() const
-		{
-			return pcpp::IPv4Address(subnetMask);
-		}
-
-		/**
-		 * @brief Get the gateway IP address
-		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
-		 */
-		pcpp::IPv4Address getGatewayIpAddress() const
-		{
-			return pcpp::IPv4Address(gateway);
-		}
 	};
 	static_assert(sizeof(GvcpForceIpBody) == internal::kGvcpForceIpBodyLength,
 	              "GVCP force IP command body size should be 56 bytes");
@@ -632,5 +493,184 @@ namespace pcpp
 
 			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data + getHeaderLen());
 		}
+	};
+
+	// ---------------------------------------- Special Layer ----------------------------------------
+	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
+	{
+	};
+
+	class GvcpDiscoveryAcknowledgeLayer : public GvcpAcknowledgeLayer
+	{
+	public:
+		/**
+		 * @brief Get the version
+		 * @return std::pair<uint16_t, uint16_t> The version major and minor
+		 */
+		std::pair<uint16_t, uint16_t> getVersion() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return { getGvcpDiscoveryBody->versionMajor, getGvcpDiscoveryBody->versionMinor };
+		}
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::MacAddress getMacAddress() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return pcpp::MacAddress(getGvcpDiscoveryBody->macAddress);
+		}
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::IPv4Address getIpAddress() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return pcpp::IPv4Address(getGvcpDiscoveryBody->ipAddress);
+		}
+
+		/**
+		 * @brief Get the subnet mask
+		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
+		 */
+		pcpp::IPv4Address getSubnetMask() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return pcpp::IPv4Address(getGvcpDiscoveryBody->subnetMask);
+		}
+
+		/**
+		 * @brief Get the gateway IP address
+		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
+		 */
+		pcpp::IPv4Address getGatewayIpAddress() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return pcpp::IPv4Address(getGvcpDiscoveryBody->defaultGateway);
+		}
+
+		/**
+		 * @brief Get the manufacturer name
+		 * @return std::string The manufacturer name
+		 */
+		std::string getManufacturerName() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return std::string(getGvcpDiscoveryBody->manufacturerName);
+		}
+
+		/**
+		 * @brief Get the model name
+		 * @return std::string The model name
+		 */
+		std::string getModelName() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return std::string(getGvcpDiscoveryBody->modelName);
+		}
+
+		/**
+		 * @brief Get the device version
+		 * @return std::string The device version
+		 */
+		std::string getDeviceVersion() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return std::string(getGvcpDiscoveryBody->deviceVersion);
+		}
+
+		/**
+		 * @brief Get the manufacturer specific information
+		 * @return std::string The manufacturer specific information
+		 */
+		std::string getManufacturerSpecificInformation() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return std::string(getGvcpDiscoveryBody->manufacturerSpecificInformation);
+		}
+
+		/**
+		 * @brief Get the serial number
+		 * @return std::string The serial number
+		 */
+		std::string getSerialNumber() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return std::string(getGvcpDiscoveryBody->serialNumber);
+		}
+
+		/**
+		 * @brief Get the user defined name
+		 * @return std::string The user defined name
+		 */
+		std::string getUserDefinedName() const
+		{
+			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
+			return std::string(getGvcpDiscoveryBody->userDefinedName);
+		}
+
+	private:
+		GvcpDiscoveryBody* getGvcpDiscoveryBody() const
+		{
+			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data + getHeaderLen());
+		}
+	};
+
+	class GvcpForceIpRequestLayer : public GvcpRequestLayer
+	{
+	public:
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::MacAddress getMacAddress() const
+		{
+			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
+			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(getGvcpForceIpBody->macAddress));
+		}
+
+		/**
+		 * @brief Get the IP address
+		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
+		 */
+		pcpp::IPv4Address getIpAddress() const
+		{
+			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
+			return pcpp::IPv4Address(getGvcpForceIpBody->ipAddress);
+		}
+
+		/**
+		 * @brief Get the subnet mask
+		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
+		 */
+		pcpp::IPv4Address getSubnetMask() const
+		{
+			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
+			return pcpp::IPv4Address(getGvcpForceIpBody->subnetMask);
+		}
+
+		/**
+		 * @brief Get the gateway IP address
+		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
+		 */
+		pcpp::IPv4Address getGatewayIpAddress() const
+		{
+			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
+			return pcpp::IPv4Address(getGvcpForceIpBody->gateway);
+		}
+
+	private:
+		GvcpForceIpBody* getGvcpForceIpBody() const
+		{
+			return reinterpret_cast<GvcpForceIpBody*>(m_Data + getHeaderLen());
+		}
+	};
+
+	class GvcpForceIpAcknowledgeLayer : public GvcpAcknowledgeLayer
+	{
 	};
 }  // namespace pcpp
