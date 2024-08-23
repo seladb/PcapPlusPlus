@@ -3,6 +3,7 @@
 #include <utility>
 #include "SSLCommon.h"
 #include "PointerVector.h"
+#include "Asn1Codec.h"
 
 /**
  * @file
@@ -302,6 +303,12 @@ namespace pcpp
 		}
 
 		/**
+		 * @return The root ASN.1 record of the certificate data. All of the certificate data will be under this record.
+		 * If the Root ASN.1 record is malformed, an exception is thrown
+		 */
+		Asn1SequenceRecord* getRootAsn1Record();
+
+		/**
 		 * Certificate messages usually spread on more than 1 packet. So a certificate is likely to split between 2
 		 * packets or more. This method provides an indication whether all certificate data exists or only part of it
 		 * @return True if this data contains all certificate data, false otherwise
@@ -312,6 +319,7 @@ namespace pcpp
 		}
 
 	private:
+		std::unique_ptr<Asn1Record> m_Asn1Record;
 		uint8_t* m_Data;
 		size_t m_DataLen;
 		bool m_AllDataExists;
