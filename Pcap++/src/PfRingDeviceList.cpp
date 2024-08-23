@@ -100,7 +100,7 @@ namespace pcpp
 					}
 					std::unique_ptr<PfRingDevice> newDev =
 					    std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
-					m_DeviceList.push_back(std::move(newDev));
+					m_DeviceList.pushBack(std::move(newDev));
 					PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
 				}
 			}
