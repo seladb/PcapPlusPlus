@@ -98,7 +98,9 @@ namespace pcpp
 						m_PfRingVersion = readPfRingVersion(ring.get());
 						PCPP_LOG_DEBUG("PF_RING version is: " << m_PfRingVersion);
 					}
-					std::unique_ptr<PfRingDevice> newDev = m_DeviceList.pushBack(std::move(newDev));
+					std::unique_ptr<PfRingDevice> newDev =
+					    std::unique_ptr<PfRingDevice>(new PfRingDevice(currInterface->name));
+					m_PfRingDeviceList.push_back(std::move(newDev));
 					PCPP_LOG_DEBUG("Found interface: " << currInterface->name);
 				}
 			}

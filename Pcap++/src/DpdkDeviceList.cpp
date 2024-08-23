@@ -188,9 +188,10 @@ namespace pcpp
 		for (int i = 0; i < numOfPorts; i++)
 		{
 			auto newDevice = std::unique_ptr<DpdkDevice>(new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize));
-			PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName()
-			                              << "', PCI-slot='" m_DeviceList.pushBack(std::move(newDevice));
+			PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='"
+			                              << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName()
 			               << "', MAC Addr='" << newDevice->getMacAddress() << "'");
+			m_DeviceList.pushBack(std::move(newDevice));
 		}
 
 		// Full update of all elements of the view vector to synchronize them with the main vector.
