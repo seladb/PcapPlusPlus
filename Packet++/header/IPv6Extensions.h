@@ -333,13 +333,13 @@ namespace pcpp
 		/**
 		 * Retrieve an option by its type
 		 * @param[in] optionType Option type
-		 * @return An IPv6Option object that wraps the option data. If option isn't found a logical nullptr is returned
+		 * @return An IPv6Option object that wraps the option data. If option isn't found a logical null is returned
 		 * (IPv6Option#isNull() == true)
 		 */
 		IPv6Option getOption(uint8_t optionType) const;
 
 		/**
-		 * @return An IPv6Option that wraps the first option data or logical nullptr (IPv6Option#isNull() == true) if no
+		 * @return An IPv6Option that wraps the first option data or logical null (IPv6Option#isNull() == true) if no
 		 * options exist
 		 */
 		IPv6Option getFirstOption() const;
@@ -347,7 +347,7 @@ namespace pcpp
 		/**
 		 * Returns a pointer to the option that comes after the option given as the parameter
 		 * @param[in] option A pointer to an option instance
-		 * @return An IPv6Option object that wraps the option data. In the following cases logical nullptr
+		 * @return An IPv6Option object that wraps the option data. In the following cases logical null
 		 * (IPv6Option#isNull() == true) is returned: (1) input parameter is out-of-bounds for this extension or (2) the
 		 * next option doesn't exist or (3) the input option is nullptr
 		 */

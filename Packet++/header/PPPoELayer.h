@@ -362,23 +362,23 @@ namespace pcpp
 		/**
 		 * Get a PPPoE Tag by tag type.
 		 * @param[in] tagType The type of the tag to search
-		 * @return A PPPoETag object that contains the first tag that matches this type, or logical nullptr
+		 * @return A PPPoETag object that contains the first tag that matches this type, or logical null
 		 * (PPPoETag#isNull() == true) if no such tag found
 		 */
 		PPPoETag getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const;
 
 		/**
 		 * @return The first tag in the PPPoE discovery layer. If the current layer contains no tags the returned value
-		 * will contain a logical nullptr (PPPoETag#isNull() == true)
+		 * will contain a logical null (PPPoETag#isNull() == true)
 		 */
 		PPPoETag getFirstTag() const;
 
 		/**
 		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value
-		 * will contain a logical nullptr (PPPoETag#isNull() == true)
+		 * will contain a logical null (PPPoETag#isNull() == true)
 		 * @param[in] tag A given tag
-		 * @return A PPPoETag object containing the tag that comes next, or logical nullptr if the given
-		 * tag: (1) was the last one; (2) contains a logical nullptr or (3) doesn't belong to this packet
+		 * @return A PPPoETag object containing the tag that comes next, or logical null if the given
+		 * tag: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		 */
 		PPPoETag getNextTag(const PPPoETag& tag) const;
 
@@ -390,7 +390,7 @@ namespace pcpp
 		/**
 		 * Add a new PPPoE Tag at the end of the layer
 		 * @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
-		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical nullptr
+		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical null
 		 * (PPPoETag#isNull() == true) if addition failed
 		 */
 		PPPoETag addTag(const PPPoETagBuilder& tagBuilder);
@@ -399,7 +399,7 @@ namespace pcpp
 		 * Add a new PPPoE Tag after an existing one
 		 * @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
 		 * @param[in] prevTagType The PPPoE Tag which the newly added tag will come after
-		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical nullptr
+		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical null
 		 * (PPPoETag#isNull() == true) if addition failed
 		 */
 		PPPoETag addTagAfter(const PPPoETagBuilder& tagBuilder, PPPoETagTypes prevTagType);

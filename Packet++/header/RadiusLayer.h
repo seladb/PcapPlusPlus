@@ -249,16 +249,16 @@ namespace pcpp
 
 		/**
 		 * @return The first RADIUS attribute in the packet. If there are no attributes the returned value will contain
-		 * a logical nullptr (RadiusAttribute#isNull() == true)
+		 * a logical null (RadiusAttribute#isNull() == true)
 		 */
 		RadiusAttribute getFirstAttribute() const;
 
 		/**
 		 * Get the RADIUS attribute that comes after a given attribute. If the given attribute was the last one, the
-		 * returned value will contain a logical nullptr (RadiusAttribute#isNull() == true)
+		 * returned value will contain a logical null (RadiusAttribute#isNull() == true)
 		 * @param[in] attr A given attribute
-		 * @return A RadiusAttribute object containing the attribute data that comes next, or logical nullptr if the
-		 * given attribute: (1) was the last one; (2) contains a logical nullptr or (3) doesn't belong to this packet
+		 * @return A RadiusAttribute object containing the attribute data that comes next, or logical null if the
+		 * given attribute: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		 */
 		RadiusAttribute getNextAttribute(RadiusAttribute& attr) const;
 
@@ -278,7 +278,7 @@ namespace pcpp
 		/**
 		 * Add a new RADIUS attribute at the end of the layer
 		 * @param[in] attrBuilder A RadiusAttributeBuilder object that contains the requested attribute data to add
-		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical nullptr
+		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical null
 		 * (RadiusAttribute#isNull() == true) if addition failed
 		 */
 		RadiusAttribute addAttribute(const RadiusAttributeBuilder& attrBuilder);
@@ -287,7 +287,7 @@ namespace pcpp
 		 * Add a new RADIUS attribute after an existing one
 		 * @param[in] attrBuilder A RadiusAttributeBuilder object that contains the requested attribute data to add
 		 * @param[in] prevAttrType The RADIUS attribute which the newly added attribute will come after
-		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical nullptr
+		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical null
 		 * (RadiusAttribute#isNull() == true) if addition failed
 		 */
 		RadiusAttribute addAttributeAfter(const RadiusAttributeBuilder& attrBuilder, uint8_t prevAttrType);

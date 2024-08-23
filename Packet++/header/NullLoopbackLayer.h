@@ -26,7 +26,7 @@ namespace pcpp
 
 	/**
 	 * @class NullLoopbackLayer
-	 * Represents a nullptr/Loopback layer
+	 * Represents a Null/Loopback layer
 	 */
 	class NullLoopbackLayer : public Layer
 	{

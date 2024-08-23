@@ -306,14 +306,6 @@ namespace pcpp
 		// update offsets of all fields after this field
 		HeaderField* curField = fieldToRemove->getNextField();
 		shiftFieldsOffset(curField, 0 - fieldToRemove->getFieldSize());
-		//	while (curField != nullptr)
-		//	{
-		//		curField->m_NameOffsetInMessage -= fieldToRemove->getFieldSize();
-		//		if (curField->m_ValueOffsetInMessage != -1)
-		//			curField->m_ValueOffsetInMessage -= fieldToRemove->getFieldSize();
-		//
-		//		curField = curField->getNextField();
-		//	}
 
 		// update fields link list
 		if (fieldToRemove == m_FieldList)

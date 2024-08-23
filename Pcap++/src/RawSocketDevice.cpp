@@ -430,7 +430,7 @@ namespace pcpp
 
 		int n = 1;
 		DWORD dwBytesRet;
-		if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), nullptr, 0, &dwBytesRet, nullptr, nullptr) == SOCKET_ERROR)
+		if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), NULL, 0, &dwBytesRet, NULL, NULL) == SOCKET_ERROR)
 		{
 			PCPP_LOG_ERROR("Call to WSAIotcl(" << std::hex << SIO_RCVALL << ") failed with error code "
 			                                   << WSAGetLastError());

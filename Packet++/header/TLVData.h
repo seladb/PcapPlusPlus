@@ -305,7 +305,7 @@ namespace pcpp
 		 * @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		 * @param[in] tlvDataLen The TLV data byte stream length
 		 * @return An instance of type TLVRecordType that wraps the record following the record given as input. If the
-		 * input record.isNull() is true or if the next record is out of bounds of the byte stream, a logical nullptr
+		 * input record.isNull() is true or if the next record is out of bounds of the byte stream, a logical null
 		 * instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
 		TLVRecordType getNextTLVRecord(TLVRecordType& record, const uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
