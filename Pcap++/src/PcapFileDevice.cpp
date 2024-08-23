@@ -73,9 +73,8 @@ namespace pcpp
 	{
 		if (m_PcapDescriptor != nullptr)
 		{
-			pcap_close(m_PcapDescriptor);
-			PCPP_LOG_DEBUG("Successfully closed file reader device for filename '" << m_FileName << "'");
 			m_PcapDescriptor = nullptr;
+			PCPP_LOG_DEBUG("Successfully closed file reader device for filename '" << m_FileName << "'");
 		}
 
 		m_DeviceOpened = false;
@@ -271,25 +270,23 @@ namespace pcpp
 
 		char errbuf[PCAP_ERRBUF_SIZE];
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-		m_PcapDescriptor =
-		    pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf);
+		auto pcapDescriptor = internal::PcapHandle(
+		    pcap_open_offline_with_tstamp_precision(m_FileName.c_str(), PCAP_TSTAMP_PRECISION_NANO, errbuf));
 #else
-		m_PcapDescriptor = pcap_open_offline(m_FileName.c_str(), errbuf);
+		auto pcapDescriptor = internal::PcapHandle(pcap_open_offline(m_FileName.c_str(), errbuf));
 #endif
-		if (m_PcapDescriptor == nullptr)
+		if (pcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Cannot open file reader device for filename '" << m_FileName << "': " << errbuf);
 			m_DeviceOpened = false;
 			return false;
 		}
 
-		int linkLayer = pcap_datalink(m_PcapDescriptor);
+		int linkLayer = pcap_datalink(pcapDescriptor.get());
 		if (!RawPacket::isLinkTypeValid(linkLayer))
 		{
 			PCPP_LOG_ERROR("Invalid link layer (" << linkLayer << ") for reader device filename '" << m_FileName
 			                                      << "'");
-			pcap_close(m_PcapDescriptor);
-			m_PcapDescriptor = nullptr;
 			m_DeviceOpened = false;
 			return false;
 		}
@@ -297,7 +294,7 @@ namespace pcpp
 		m_PcapLinkLayerType = static_cast<LinkLayerType>(linkLayer);
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-		m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(m_PcapDescriptor));
+		m_Precision = static_cast<FileTimestampPrecision>(pcap_get_tstamp_precision(pcapDescriptor.get()));
 		std::string precisionStr =
 		    (m_Precision == FileTimestampPrecision::Nanoseconds) ? "nanoseconds" : "microseconds";
 #else
@@ -306,6 +303,7 @@ namespace pcpp
 #endif
 		PCPP_LOG_DEBUG("Successfully opened file reader device for filename '" << m_FileName << "' with precision "
 		                                                                       << precisionStr);
+		m_PcapDescriptor = std::move(pcapDescriptor);
 		m_DeviceOpened = true;
 		return true;
 	}
@@ -332,7 +330,7 @@ namespace pcpp
 			return false;
 		}
 		pcap_pkthdr pkthdr;
-		const uint8_t* pPacketData = pcap_next(m_PcapDescriptor, &pkthdr);
+		const uint8_t* pPacketData = pcap_next(m_PcapDescriptor.get(), &pkthdr);
 		if (pPacketData == nullptr)
 		{
 			PCPP_LOG_DEBUG("Packet could not be read. Probably end-of-file");
@@ -693,12 +691,12 @@ namespace pcpp
 		m_NumOfPacketsWritten = 0;
 
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
-		m_PcapDescriptor = pcap_open_dead_with_tstamp_precision(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE,
-		                                                        static_cast<int>(m_Precision));
+		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead_with_tstamp_precision(
+		    m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE, static_cast<int>(m_Precision)));
 #else
-		m_PcapDescriptor = pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE);
+		auto pcapDescriptor = internal::PcapHandle(pcap_open_dead(m_PcapLinkLayerType, PCPP_MAX_PACKET_SIZE));
 #endif
-		if (m_PcapDescriptor == nullptr)
+		if (pcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName
 			                                                             << "': pcap_open_dead returned NULL");
@@ -706,16 +704,17 @@ namespace pcpp
 			return false;
 		}
 
-		m_PcapDumpHandler = pcap_dump_open(m_PcapDescriptor, m_FileName.c_str());
+		m_PcapDumpHandler = pcap_dump_open(pcapDescriptor.get(), m_FileName.c_str());
 		if (m_PcapDumpHandler == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"
 			               << m_FileName << "': pcap_dump_open returned NULL with error: '"
-			               << pcap_geterr(m_PcapDescriptor) << "'");
+			               << pcapDescriptor.getLastError() << "'");
 			m_DeviceOpened = false;
 			return false;
 		}
 
+		m_PcapDescriptor = std::move(pcapDescriptor);
 		m_DeviceOpened = true;
 		PCPP_LOG_DEBUG("File writer device for file '" << m_FileName << "' opened successfully");
 		return true;
