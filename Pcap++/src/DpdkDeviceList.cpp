@@ -190,7 +190,7 @@ namespace pcpp
 			auto newDevice = std::unique_ptr<DpdkDevice>(new DpdkDevice(i, mBufPoolSizePerDevice, mBufDataSize));
 			PCPP_LOG_DEBUG("DpdkDevice #" << i << ": Name='" << newDevice->getDeviceName() << "', PCI-slot='"
 			                              << newDevice->getPciAddress() << "', PMD='" << newDevice->getPMDName()
-			               << "', MAC Addr='" << newDevice->getMacAddress() << "'");
+			                              << "', MAC Addr='" << newDevice->getMacAddress() << "'");
 			m_DeviceList.pushBack(std::move(newDevice));
 		}
 
