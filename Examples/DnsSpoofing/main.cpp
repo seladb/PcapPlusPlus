@@ -6,6 +6,7 @@
  * address as the resolved IP. Then it's sent back on the network on the same interface
  */
 
+#include <stdexcept>
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -205,10 +206,14 @@ void handleDnsRequest(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 		ip4Layer->setDstIPv4Address(srcIP.getIPv4());
 		ip4Layer->getIPv4Header()->ipId = 0;
 	}
-	else
+	else if (ip6Layer != nullptr)
 	{
 		ip6Layer->setSrcIPv6Address(ip6Layer->getDstIPv6Address());
 		ip6Layer->setDstIPv6Address(srcIP.getIPv6());
+	}
+	else
+	{
+		throw std::logic_error("IPLayer should be either IPv4Layer or IPv6Layer");
 	}
 
 	// reverse src and dst UDP ports
