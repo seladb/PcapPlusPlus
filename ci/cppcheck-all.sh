@@ -18,10 +18,16 @@ MODE=${1:-all}
 
 if [ "$MODE" = "changed" ]; then
     # Get the list of changed files from origin/dev
-    files=$(git diff --name-only origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/')
+    files=$(git diff --name-only origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
 else
     # Find all relevant files
     files=$(find "${ROOTPATH}" -type f \( -name '*.cpp' -o -name '*.h' \) -not -path "*/3rdParty/*")
+fi
+
+# Check if there are any files to process
+if [ -z "$files" ]; then
+    echo "No files to process."
+    exit 0
 fi
 
 # Process each file
