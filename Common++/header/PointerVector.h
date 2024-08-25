@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 #include "DeprecationUtils.h"
 
@@ -17,6 +18,26 @@
  */
 namespace pcpp
 {
+
+	namespace internal
+	{
+		/**
+		 * @brief A type trait that checks if a class has a clone method.
+		 * @tparam T The class to check.
+		 * @tparam Dummy A dummy parameter to enable SFINAE.
+		 */
+		template <class T, typename = std::void_t<>> struct has_clone : std::false_type
+		{
+		};
+
+		/**
+		 * @brief A type trait that checks if a class has a clone method.
+		 * @tparam T The class to check.
+		 */
+		template <class T> struct has_clone<T, std::void_t<decltype(std::declval<T>().clone())>> : std::true_type
+		{
+		};
+	}  // namespace internal
 
 	/**
 	 * @class PointerVector
@@ -50,7 +71,9 @@ namespace pcpp
 		 * @param[in] other The vector to copy from.
 		 * @remarks As the vector is copied via deep copy, all pointers obtained from the copied vector
 		 * reference the duplicates and not the originals.
+		 * @deprecated Deprecated in favor of clone()
 		 */
+		PCPP_DEPRECATED("Deprecated in favor of clone()")
 		PointerVector(const PointerVector& other) : m_Vector(deepCopyUnsafe(other.m_Vector))
 		{}
 
@@ -76,7 +99,9 @@ namespace pcpp
 		 * See copy constructor for more information on the specific copy procedure.
 		 * @param[in] other The vector to copy from.
 		 * @return A reference to the current object.
+		 * @deprecated Deprecated in favor of clone()
 		 */
+		PCPP_DEPRECATED("Deprecated in favor of clone()")
 		PointerVector& operator=(const PointerVector& other)
 		{
 			// Saves a copy of the old pointer to defer cleanup.
@@ -332,6 +357,40 @@ namespace pcpp
 		const T* at(int index) const
 		{
 			return m_Vector.at(index);
+		}
+
+		template <class E = T,
+		          std::enable_if_t<std::is_polymorphic<E>::value && !internal::has_clone<E>::value, bool> = false>
+		PointerVector<T> clone() const = delete;
+
+		/**
+		 * @brief Makes a deep copy of the pointer vector.
+		 * @return A copy of the vector with all elements duplicated.
+		 * @remarks This overload is used when the elements are polymorphic and have a clone method.
+		 */
+		template <class E = T,
+		          std::enable_if_t<std::is_polymorphic<E>::value && internal::has_clone<E>::value, bool> = false>
+		PointerVector<T> clone() const
+		{
+			PointerVector<T> clone;
+			for (const auto iter : m_Vector)
+			{
+				clone.pushBack(std::move(iter->clone()));
+			}
+			return clone;
+		}
+
+		/**
+		 * @brief Makes a deep copy of the pointer vector.
+		 * @return A copy of the vector with all elements duplicated.
+		 * @remarks This overload is used when the elements are not polymorphic.
+		 */
+		template <class E = T, std::enable_if_t<!std::is_polymorphic<E>::value, bool> = false>
+		PointerVector<T> clone() const
+		{
+			PointerVector<T> clone;
+			clone.m_Vector = std::move(deepCopyUnsafe(m_Vector));
+			return clone;
 		}
 
 	private:
