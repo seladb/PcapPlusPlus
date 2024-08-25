@@ -5,6 +5,12 @@
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"
 
+#ifdef _MSC_VER
+#	define _PTF_MSVC_SUPPRESS_C26444 _Pragma("warning(suppress: 26444)");
+#else
+#	define _PTF_MSVC_SUPPRESS_C26444
+#endif  // _MSC_VER
+
 #define _PTF_PRINT_TYPE_ACTUAL(exp, val) val
 #define _PTF_PRINT_TYPE_EXPECTED(exp, val) val
 #define hex_PTF_PRINT_TYPE_ACTUAL(exp, val) "0x" << std::hex << +val << std::dec
@@ -217,6 +223,7 @@
 		std::string messageCaught = "";                                                                                \
 		try                                                                                                            \
 		{                                                                                                              \
+			_PTF_MSVC_SUPPRESS_C26444                                                                                  \
 			expression;                                                                                                \
 		}                                                                                                              \
 		catch (const exception_type& e)                                                                                \

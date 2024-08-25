@@ -251,7 +251,7 @@ namespace pcpp
 
 		size_t ipAddrOffset = 0;
 		uint8_t* newIpAddresses = getData() + offset;
-		for (auto ipAddress : ipAddresses)
+		for (auto const& ipAddress : ipAddresses)
 		{
 			copyIPAddressToData(newIpAddresses + ipAddrOffset, ipAddress);
 			ipAddrOffset += ipAddrLen;
