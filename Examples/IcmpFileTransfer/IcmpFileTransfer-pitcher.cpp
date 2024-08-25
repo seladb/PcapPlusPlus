@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #ifndef _MSC_VER
@@ -37,6 +38,10 @@ void usleep(__int64 usec)
 	ft.QuadPart = -(10 * usec);  // Convert to 100 nanosecond interval, negative value indicates relative time
 
 	timer = CreateWaitableTimer(NULL, TRUE, NULL);
+	if (timer == nullptr)
+	{
+		throw std::runtime_error("Could not create waitable timer with error: " + std::to_string(GetLastError()));
+	}
 	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
 	WaitForSingleObject(timer, INFINITE);
 	CloseHandle(timer);
