@@ -710,13 +710,13 @@ namespace pcpp
 		class HttpRequestFirstLineException : public std::exception
 		{
 		public:
-			~HttpRequestFirstLineException() throw()
+			~HttpRequestFirstLineException() noexcept
 			{}
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const throw()
+			virtual const char* what() const noexcept
 			{
 				return m_Message.c_str();
 			}
@@ -857,13 +857,13 @@ namespace pcpp
 		class HttpResponseFirstLineException : public std::exception
 		{
 		public:
-			~HttpResponseFirstLineException() throw()
+			~HttpResponseFirstLineException() noexcept
 			{}
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const throw()
+			virtual const char* what() const noexcept
 			{
 				return m_Message.c_str();
 			}
