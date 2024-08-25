@@ -4,24 +4,27 @@ set -e
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "${SCRIPT}")
 ROOTPATH=$(realpath "${SCRIPTPATH}"/..)
-if ! command -v cmake-format; then
-    echo "cmake-format is not found!"
+if ! command -v clang-format; then
+    echo "clang-format is not found!"
     exit 1
 fi
+
+# Check the version of clang-format
+python3 ./ci/check-clang-format-version.py
 
 # Determine the mode (all files or changed files)
 MODE=${1:-all}
 
 if [ "$MODE" = "changed" ]; then
     # Get the list of changed files from origin/dev
-    files=$(git diff --name-only origin/dev -- '*.cmake' 'CMakeLists.txt' | grep -v '3rdParty/')
+    files=$(git diff --name-only origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/')
 else
     # Find all relevant files
-    files=$(find "${ROOTPATH}" -type f \( -name '*.cmake' -o -name 'CMakeLists.txt' \) -not -path "*/3rdParty/*")
+    files=$(find "${ROOTPATH}" -type f \( -name '*.cpp' -o -name '*.h' \) -not -path "*/3rdParty/*")
 fi
 
 # Process each file
 echo "$files" | while IFS= read -r file; do
     echo "Checking: $file"
-    cmake-format -i "$file"
+    clang-format --style=file -i "$file"
 done

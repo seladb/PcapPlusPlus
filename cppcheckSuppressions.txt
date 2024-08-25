@@ -3,7 +3,9 @@
 ConfigurationNotChecked:*
 ctuOneDefinitionRuleViolation:Examples/*
 missingInclude:*
+missingIncludeSystem:*
 unknownMacro:*
+unmatchedSuppression:*
 unusedFunction:*
 unusedStructMember:*
 

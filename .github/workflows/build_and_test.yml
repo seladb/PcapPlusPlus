@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pre-commit:
+  static-analysis:
     runs-on: ubuntu-latest
     container: seladb/alpine317
     steps:
@@ -36,24 +36,30 @@ jobs:
           apk update && apk add cppcheck python3-dev
           python3 -m pip install cmake-format clang-format==18.1.6
 
-      # TODO: investigate how to run pre-commit with `venv`
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-
-      - name: CMake format
-        run: |
-          ./ci/cmake-format-all.sh
-          git diff --exit-code
-
       - name: Fetch dev branch
         run: git fetch origin dev
 
+      - name: CMake format
+        run: |
+          ./ci/cmake-format-all.sh changed
+          git diff --exit-code
+
+      - name: Clang format
+        run: |
+          ./ci/clang-format-all.sh changed
+          git diff --exit-code
+
+      - name: Cppcheck
+        run: |
+          ./ci/cppcheck-all.sh changed
+
       - name: Configure
-        run: cmake -S . -B "$BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -S . -B "$BUILD_DIR"
 
       - name: Run clang-tidy on changed files
         run: |
-          git diff --name-only origin/dev | grep -E '\.(cpp|h)$' | xargs -P $(nproc) -I{} clang-tidy {} -p $BUILD_DIR
-
+          ./ci/clang-tidy-all.sh changed
+          git diff --exit-code
 
   linux:
     runs-on: ubuntu-latest

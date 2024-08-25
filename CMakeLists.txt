@@ -123,6 +123,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS ON)
 # Set Position Independent Code for static libraries
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# Export compile commands for external tools
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
 if(WIN32
