@@ -17,7 +17,7 @@ MODE=${1:-all}
 
 if [ "$MODE" = "changed" ]; then
     # Get the list of changed files from origin/dev
-    files=$(git diff --name-only upstream/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
+    files=$(git diff --name-only origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
 else
     # Find all relevant files
     files=$(find "${ROOTPATH}" -type f \( -name '*.cpp' -o -name '*.h' \) -not -path "*/3rdParty/*")
