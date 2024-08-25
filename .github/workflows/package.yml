@@ -71,7 +71,6 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
@@ -114,7 +113,6 @@ jobs:
             cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
@@ -158,7 +156,6 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
@@ -229,7 +226,6 @@ jobs:
         run: cmake --build "$BUILD_DIR" --target package
 
       - name: Generate artifact attestation
-        id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
@@ -279,7 +275,6 @@ jobs:
         run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
 
       - name: Generate artifact attestation
-        id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
@@ -370,7 +365,6 @@ jobs:
           tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
 
       - name: Generate artifact attestation
-        id: attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
         with:
           subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
