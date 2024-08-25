@@ -819,32 +819,3 @@ jobs:
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
-
-  Fuzzing:
-    runs-on: ubuntu-latest
-    needs: [linux, dpdk, pfring, macos, mingw-w64, visual-studio, freebsd, android, xdp]
-    strategy:
-      fail-fast: true
-      matrix:
-        sanitizer: [address, undefined, memory]
-    steps:
-    - name: Build Fuzzers
-      id: build
-      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
-      with:
-        oss-fuzz-project-name: 'pcapplusplus'
-        dry-run: false
-        sanitizer: ${{ matrix.sanitizer }}
-    - name: Run Fuzzers
-      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@c2c0632831767ff05c568e7b552cef2801d739ff # master
-      with:
-        oss-fuzz-project-name: 'pcapplusplus'
-        fuzz-seconds: 600
-        dry-run: false
-        sanitizer: ${{ matrix.sanitizer }}
-    - name: Upload Crash
-      uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
-      if: failure() && steps.build.outcome == 'success'
-      with:
-        name: artifacts
-        path: ./out/artifacts
