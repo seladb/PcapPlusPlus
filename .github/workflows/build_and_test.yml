@@ -55,6 +55,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
+    needs: [pre-commit]
     strategy:
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
@@ -166,6 +167,7 @@ jobs:
   dpdk:
     runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
+    needs: [pre-commit]
     strategy:
       matrix:
         include:
@@ -230,6 +232,7 @@ jobs:
   pfring:
     runs-on: ubuntu-latest
     container: seladb/ubuntu2004-pfring
+    needs: [pre-commit]
     strategy:
       matrix:
         include:
@@ -286,6 +289,7 @@ jobs:
 
   macos:
     runs-on: ${{ matrix.os-version }}
+    needs: [pre-commit]
     strategy:
       matrix:
         include:
@@ -410,6 +414,7 @@ jobs:
 
   mingw-w64:
     runs-on: windows-latest
+    needs: [pre-commit]
     strategy:
       matrix:
         include:
@@ -491,6 +496,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   visual-studio:
+    needs: [pre-commit]
     strategy:
       matrix:
         include:
@@ -583,6 +589,7 @@ jobs:
 
   freebsd:
     runs-on: ubuntu-latest
+    needs: [pre-commit]
     strategy:
       matrix:
         version: ["14.0", "13.2"]
@@ -619,6 +626,7 @@ jobs:
           python3 -m pytest --interface "$interface_name" --root-path=../../Dist/examples_bin
 
   android:
+    needs: [pre-commit]
     strategy:
       matrix:
         include:
@@ -694,6 +702,7 @@ jobs:
 
   xdp:
     runs-on: ubuntu-latest
+    needs: [pre-commit]
 
     steps:
       - name: Checkout code
@@ -753,6 +762,7 @@ jobs:
   test_regressions:
     name: Run ${{ matrix.engine }}-${{ matrix.sanitizer }} fuzzer for regressions
     runs-on: ubuntu-latest
+    needs: [linux, dpdk, pfring, macos, mingw-w64, visual-studio, freebsd, android, xdp]
     strategy:
       fail-fast: true
       matrix:
