@@ -521,7 +521,7 @@ namespace pcpp
 	{
 		m_NameValueSeparator = nameValueSeparator;
 		m_SpacesAllowedBetweenNameAndValue = spacesAllowedBetweenNameAndValue;
-		initNewField(std::move(name), std::move(value));
+		initNewField(name, value);
 	}
 
 	void HeaderField::initNewField(const std::string& name, const std::string& value)

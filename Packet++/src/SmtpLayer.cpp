@@ -18,7 +18,9 @@ namespace pcpp
 		std::string field = getCommandString();
 
 		for (size_t idx = 0; idx < field.size(); ++idx)
-			val |= (field.c_str()[idx] << (idx * 8));
+		{
+			val |= static_cast<size_t>(field.c_str()[idx]) << (idx * 8);
+		}
 
 		return static_cast<SmtpCommand>(val);
 	}

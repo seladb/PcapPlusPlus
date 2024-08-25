@@ -1,5 +1,6 @@
 #define LOG_MODULE PacketLogModuleIPv6Layer
 
+#include <stdexcept>
 #include "IPv6Layer.h"
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
@@ -133,6 +134,10 @@ namespace pcpp
 			}
 			else
 			{
+				if (curExt == nullptr)
+				{
+					throw std::logic_error("curExt is nullptr");
+				}
 				curExt->setNextHeader(newExt);
 				curExt = curExt->getNextHeader();
 			}

@@ -16,8 +16,7 @@ cmake -DPCAPPP_BUILD_FUZZERS=ON -DPCAPPP_BUILD_TESTS=OFF -DPCAPPP_BUILD_EXAMPLES
 cmake --build $TARGETS_DIR -j
 
 # Copy target and options
-FUZZERS="
-    FuzzTarget \
+FUZZERS="FuzzTarget \
     FuzzTargetNg \
     FuzzTargetSnoop \
     FuzzWriter \
