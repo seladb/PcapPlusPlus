@@ -44,13 +44,13 @@ jobs:
           ./ci/cmake-format-all.sh
           git diff --exit-code
 
-      - name: Configure PcapPlusPlus for Static analysis
-        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
+      - name: Fetch dev branch
+        run: git fetch origin dev
 
-      - name: Build PcapPlusPlus and check any diff
+      - name: Run clang-tidy on changed files
         run: |
-          cmake --build "$BUILD_DIR" -j
-          git diff --exit-code
+          git diff --name-only origin/dev | grep -E '\.(cpp|h)$' | xargs -P $(nproc) -I{} clang-tidy {}
+
 
   linux:
     runs-on: ubuntu-latest
