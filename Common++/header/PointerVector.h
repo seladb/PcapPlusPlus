@@ -22,11 +22,16 @@ namespace pcpp
 	namespace internal
 	{
 		/**
+		 * @brief void_t (added officially in C++17) is a fancy trick to just instantiate stuff and then discard it
+		 */
+		template <class...> using void_t = void;
+
+		/**
 		 * @brief A type trait that checks if a class has a clone method.
 		 * @tparam T The class to check.
 		 * @tparam Dummy A dummy parameter to enable SFINAE.
 		 */
-		template <class T, typename = std::void_t<>> struct has_clone : std::false_type
+		template <class T, typename = void_t<>> struct has_clone : std::false_type
 		{
 		};
 
@@ -34,7 +39,7 @@ namespace pcpp
 		 * @brief A type trait that checks if a class has a clone method.
 		 * @tparam T The class to check.
 		 */
-		template <class T> struct has_clone<T, std::void_t<decltype(std::declval<T>().clone())>> : std::true_type
+		template <class T> struct has_clone<T, void_t<decltype(std::declval<T>().clone())>> : std::true_type
 		{
 		};
 	}  // namespace internal
@@ -359,8 +364,8 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
-		template <class E = T,
-		          std::enable_if_t<std::is_polymorphic<E>::value && !internal::has_clone<E>::value, bool> = false>
+		template <class E = T, typename std::enable_if<std::is_polymorphic<E>::value && !internal::has_clone<E>::value,
+		                                               bool>::type = false>
 		PointerVector<T> clone() const = delete;
 
 		/**
@@ -368,8 +373,8 @@ namespace pcpp
 		 * @return A copy of the vector with all elements duplicated.
 		 * @remarks This overload is used when the elements are polymorphic and have a clone method.
 		 */
-		template <class E = T,
-		          std::enable_if_t<std::is_polymorphic<E>::value && internal::has_clone<E>::value, bool> = false>
+		template <class E = T, typename std::enable_if<std::is_polymorphic<E>::value && internal::has_clone<E>::value,
+		                                               bool>::type = false>
 		PointerVector<T> clone() const
 		{
 			PointerVector<T> clone;
@@ -385,7 +390,7 @@ namespace pcpp
 		 * @return A copy of the vector with all elements duplicated.
 		 * @remarks This overload is used when the elements are not polymorphic.
 		 */
-		template <class E = T, std::enable_if_t<!std::is_polymorphic<E>::value, bool> = false>
+		template <class E = T, typename std::enable_if<!std::is_polymorphic<E>::value, bool>::type = false>
 		PointerVector<T> clone() const
 		{
 			PointerVector<T> clone;
