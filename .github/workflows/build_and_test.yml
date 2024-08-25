@@ -47,9 +47,12 @@ jobs:
       - name: Fetch dev branch
         run: git fetch origin dev
 
+      - name: Configure
+        run: cmake -S . -B "$BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
       - name: Run clang-tidy on changed files
         run: |
-          git diff --name-only origin/dev | grep -E '\.(cpp|h)$' | xargs -P $(nproc) -I{} clang-tidy {}
+          git diff --name-only origin/dev | grep -E '\.(cpp|h)$' | xargs -P $(nproc) -I{} clang-tidy {} -p $BUILD_DIR
 
 
   linux:
