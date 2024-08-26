@@ -278,7 +278,7 @@ namespace pcpp
 		 * @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		 * @param[in] tlvDataLen The TLV data byte stream length
 		 * @return An instance of type TLVRecordType that contains the first TLV record. If tlvDataBasePtr is nullptr or
-		 * tlvDataLen is zero the returned TLVRecordType instance will be logically nullptr, meaning
+		 * tlvDataLen is zero the returned TLVRecordType instance will be logically null, meaning
 		 * TLVRecordType.isNull() will return true
 		 */
 		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
@@ -342,7 +342,7 @@ namespace pcpp
 		 * @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		 * @param[in] tlvDataLen The TLV data byte stream length
 		 * @return An instance of type TLVRecordType that contains the result record. If record was not found a logical
-		 * nullptr instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
+		 * null instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
 		TLVRecordType getTLVRecord(uint32_t recordType, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{

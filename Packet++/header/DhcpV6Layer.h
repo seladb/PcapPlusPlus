@@ -347,7 +347,7 @@ namespace pcpp
 		 * Get a DHCPv6 option by type
 		 * @param[in] option DHCPv6 option type
 		 * @return A DhcpV6OptionType object containing the first DHCP option data that matches this type, or logical
-		 * nullptr (DhcpV6Option#isNull() == true) if no such option found
+		 * null (DhcpV6Option#isNull() == true) if no such option found
 		 */
 		DhcpV6Option getOptionData(DhcpV6OptionType option) const;
 

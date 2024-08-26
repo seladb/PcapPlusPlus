@@ -266,7 +266,7 @@ namespace pcpp
 		 * Get a RADIUS attribute by attribute type
 		 * @param[in] attrType RADIUS attribute type
 		 * @return A RadiusAttribute object containing the first attribute data that matches this type, or logical
-		 * nullptr (RadiusAttribute#isNull() == true) if no such attribute found
+		 * null (RadiusAttribute#isNull() == true) if no such attribute found
 		 */
 		RadiusAttribute getAttribute(uint8_t attrType) const;
 
