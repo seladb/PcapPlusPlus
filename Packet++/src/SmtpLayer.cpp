@@ -17,14 +17,8 @@ namespace pcpp
 		size_t val = 0;
 		std::string field = getCommandString();
 
-		for (size_t idx = 0; idx < field.size(); ++idx)
+		for (size_t idx = 0; idx < std::min(field.size(), static_cast<size_t>(8)); ++idx)
 		{
-			// Truncate the value if it is longer than 8 bytes
-			if (idx >= 8)
-			{
-				break;
-			}
-
 			val |= static_cast<size_t>(field.c_str()[idx]) << (idx * 8);
 		}
 
