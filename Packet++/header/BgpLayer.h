@@ -586,7 +586,7 @@ namespace pcpp
 
 		/**
 		 * Set the notification data. This method will extend or shorten the existing layer to include the new
-		 * notification data. If newNotificationData is NULL or newNotificationDataLen is zero then notification data
+		 * notification data. If newNotificationData is nullptr or newNotificationDataLen is zero then notification data
 		 * will be set to none.
 		 * @param[in] newNotificationData A byte array containing the new notification data
 		 * @param[in] newNotificationDataLen The size of the byte array

@@ -26,7 +26,7 @@ namespace pcpp
 
 	/**
 	 * @class NullLoopbackLayer
-	 * Represents a NULL/Loopback layer
+	 * Represents a Null/Loopback layer
 	 */
 	class NullLoopbackLayer : public Layer
 	{
@@ -36,7 +36,7 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		NullLoopbackLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet)
+		NullLoopbackLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet)
 		{
 			m_Protocol = NULL_LOOPBACK;
 		}

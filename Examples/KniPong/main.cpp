@@ -114,13 +114,13 @@ namespace
 	inline void parseArgs(int argc, char* argv[], KniPongArgs& args)
 	{
 		struct option KniPongOptions[] = {
-			{ "src",     required_argument, NULL, 's' },
-			{ "dst",     required_argument, NULL, 'd' },
-			{ "name",    optional_argument, NULL, 'n' },
-			{ "port",    optional_argument, NULL, 'p' },
-			{ "help",    no_argument,       NULL, 'h' },
-			{ "version", no_argument,       NULL, 'v' },
-			{ NULL,      0,                 NULL, 0   }
+			{ "src",     required_argument, nullptr, 's' },
+			{ "dst",     required_argument, nullptr, 'd' },
+			{ "name",    optional_argument, nullptr, 'n' },
+			{ "port",    optional_argument, nullptr, 'p' },
+			{ "help",    no_argument,       nullptr, 'h' },
+			{ "version", no_argument,       nullptr, 'v' },
+			{ nullptr,   0,                 nullptr, 0   }
 		};
 		// Default port:
 		args.kniPort = DEFAULT_PORT;
@@ -142,7 +142,7 @@ namespace
 				args.kniName = optarg;
 				break;
 			case 'p':
-				args.kniPort = std::strtoul(optarg, NULL, 10) & 0xFFFF;
+				args.kniPort = std::strtoul(optarg, nullptr, 10) & 0xFFFF;
 				break;
 			case 'v':
 				printAppVersion();
@@ -282,7 +282,7 @@ namespace
 		}
 		pcpp::IPv4Address kniIp = args.kniIp;
 		// Setup device config
-		pcpp::KniDevice* device = NULL;
+		pcpp::KniDevice* device = nullptr;
 		pcpp::KniDevice::KniDeviceConfiguration devConfig;
 		devConfig.name = args.kniName;
 		KniDummyCallbacks::setCallbacks();
@@ -299,7 +299,7 @@ namespace
 		if (!kniDeviceList.isInitialized())
 			EXIT_WITH_ERROR("Can't initialize KNI device list");
 		device = kniDeviceList.createDevice(devConfig, 1024);
-		if (device == NULL)
+		if (device == nullptr)
 			EXIT_WITH_ERROR("Can't create KNI device");
 		// Check KNI device and start request thread
 		if (!device->isInitialized())
@@ -354,19 +354,19 @@ namespace
 	inline void processArp(pcpp::Packet& packet, pcpp::ArpLayer* arpLayer)
 	{
 		pcpp::MacAddress rndMac("00:42:43:74:11:54");
-		pcpp::EthLayer* ethernetLayer = NULL;
+		pcpp::EthLayer* ethernetLayer = nullptr;
 		pcpp::arphdr arpHdr;
 		pcpp::arphdr* origArpHdr = arpLayer->getArpHeader();
 		// Copy ARP request
 		std::memcpy(&arpHdr, origArpHdr, sizeof(arpHdr));
 		// Fill fields
-		arpHdr.hardwareType = pcpp::hostToNet16(0x0001);                  // ETHERNET
-		arpHdr.hardwareSize = sizeof(((pcpp::arphdr*)0)->senderMacAddr);  // sizeof(MAC)
-		arpHdr.protocolSize = sizeof(((pcpp::arphdr*)0)->senderIpAddr);   // sizeof(IPv4)
+		arpHdr.hardwareType = pcpp::hostToNet16(0x0001);                        // ETHERNET
+		arpHdr.hardwareSize = sizeof(((pcpp::arphdr*)nullptr)->senderMacAddr);  // sizeof(MAC)
+		arpHdr.protocolSize = sizeof(((pcpp::arphdr*)nullptr)->senderIpAddr);   // sizeof(IPv4)
 		arpHdr.opcode = pcpp::hostToNet16(pcpp::ARP_REPLY);
-		std::memcpy(arpHdr.targetMacAddr, origArpHdr->senderMacAddr, sizeof(((pcpp::arphdr*)0)->senderMacAddr));
-		std::memcpy(&arpHdr.targetIpAddr, &origArpHdr->senderIpAddr, sizeof(((pcpp::arphdr*)0)->senderIpAddr));
-		std::memcpy(&arpHdr.senderIpAddr, &origArpHdr->targetIpAddr, sizeof(((pcpp::arphdr*)0)->senderIpAddr));
+		std::memcpy(arpHdr.targetMacAddr, origArpHdr->senderMacAddr, sizeof(((pcpp::arphdr*)nullptr)->senderMacAddr));
+		std::memcpy(&arpHdr.targetIpAddr, &origArpHdr->senderIpAddr, sizeof(((pcpp::arphdr*)nullptr)->senderIpAddr));
+		std::memcpy(&arpHdr.senderIpAddr, &origArpHdr->targetIpAddr, sizeof(((pcpp::arphdr*)nullptr)->senderIpAddr));
 		// Set rnd MAC in response
 		rndMac.copyTo(arpHdr.senderMacAddr);
 		// Copy ready ARP response to packet
@@ -389,8 +389,8 @@ namespace
 	 */
 	inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
 	{
-		pcpp::EthLayer* ethernetLayer = NULL;
-		pcpp::IPv4Layer* ipLayer = NULL;
+		pcpp::EthLayer* ethernetLayer = nullptr;
+		pcpp::IPv4Layer* ipLayer = nullptr;
 
 		ethernetLayer = packet.getLayerOfType<pcpp::EthLayer>();
 		pcpp::ether_header ethHdr;
@@ -402,7 +402,7 @@ namespace
 		std::memcpy(origEthHdr, &ethHdr, sizeof(ethHdr));
 
 		ipLayer = packet.getLayerOfType<pcpp::IPv4Layer>();
-		if (ipLayer == NULL)  // Some invalid packet
+		if (ipLayer == nullptr)  // Some invalid packet
 			return false;
 		pcpp::iphdr ipHdr;
 		pcpp::iphdr* origIpHdr = ipLayer->getIPv4Header();
@@ -439,31 +439,31 @@ namespace
 	{
 		PacketStats* packetStats = (PacketStats*)cookie;
 		pcpp::Packet packet;
-		pcpp::ArpLayer* arpLayer = NULL;
-		pcpp::UdpLayer* udpLayer = NULL;
+		pcpp::ArpLayer* arpLayer = nullptr;
+		pcpp::UdpLayer* udpLayer = nullptr;
 
 		packetStats->totalPackets += numOfPackets;
 		for (uint32_t i = 0; i < numOfPackets; ++i)
 		{
 			packet.setRawPacket(packets + i, false);
-			if ((arpLayer = packet.getLayerOfType<pcpp::ArpLayer>()) != NULL)
+			if ((arpLayer = packet.getLayerOfType<pcpp::ArpLayer>()) != nullptr)
 			{
 				++packetStats->arpPacketsIn;
 				processArp(packet, arpLayer);
 				// Packet is ready to be sent -> have no fields to recalculate
 				if (!kni->sendPacket(packet))
 					++packetStats->arpPacketsOutFail;
-				arpLayer = NULL;
+				arpLayer = nullptr;
 				continue;
 			}
 
-			if ((udpLayer = packet.getLayerOfType<pcpp::UdpLayer>()) != NULL)
+			if ((udpLayer = packet.getLayerOfType<pcpp::UdpLayer>()) != nullptr)
 			{
 				++packetStats->udpPacketsIn;
 				//! Warning (echo-Mike): DO NOT normalize next logic statement it relays on short circuiting
 				if (!processUdp(packet, udpLayer) || !kni->sendPacket(packet))
 					++packetStats->udpPacketsOutFail;
-				udpLayer = NULL;
+				udpLayer = nullptr;
 				continue;
 			}
 
@@ -731,7 +731,7 @@ int main(int argc, char* argv[])
 	PacketStats packetStats;
 	std::memset(&packetStats, 0, sizeof(packetStats));
 	KniPongArgs args;
-	std::srand(std::time(NULL));
+	std::srand(std::time(nullptr));
 	pcpp::AppName::init(argc, argv);
 	parseArgs(argc, argv, args);
 	pcpp::KniDevice* device = setupKniDevice(args);

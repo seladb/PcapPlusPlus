@@ -323,7 +323,7 @@ namespace pcpp
 	 */
 	enum SSLKeyExchangeAlgorithm
 	{
-		/** NULL value */
+		/** Null value */
 		SSL_KEYX_NULL,
 		/** RSA (Rivest-Shamir-Adleman) */
 		SSL_KEYX_RSA,
@@ -356,7 +356,7 @@ namespace pcpp
 	 */
 	enum SSLAuthenticationAlgorithm
 	{
-		/** NULL value */
+		/** Null value */
 		SSL_AUTH_NULL,
 		/** RSA (Rivest-Shamir-Adleman) */
 		SSL_AUTH_RSA,
@@ -389,7 +389,7 @@ namespace pcpp
 	 */
 	enum SSLSymetricEncryptionAlgorithm
 	{
-		/** NULL value */
+		/** Null value */
 		SSL_SYM_NULL,
 		/** RC4_40 */
 		SSL_SYM_RC4_40,
@@ -472,7 +472,7 @@ namespace pcpp
 	 */
 	enum SSLHashingAlgorithm
 	{
-		/** NULL value */
+		/** Null value */
 		SSL_HASH_NULL,
 		/** Message-Digest Algorithm */
 		SSL_HASH_MD5,

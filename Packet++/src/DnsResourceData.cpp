@@ -15,7 +15,7 @@ namespace pcpp
 	{
 		if (dnsResource == nullptr)
 		{
-			PCPP_LOG_ERROR("Cannot decode name, DNS resource object is NULL");
+			PCPP_LOG_ERROR("Cannot decode name, DNS resource object is nullptr");
 			return 0;
 		}
 
@@ -27,7 +27,7 @@ namespace pcpp
 	{
 		if (dnsResource == nullptr)
 		{
-			PCPP_LOG_ERROR("Cannot encode name, DNS resource object is NULL");
+			PCPP_LOG_ERROR("Cannot encode name, DNS resource object is nullptr");
 			return;
 		}
 
@@ -43,7 +43,7 @@ namespace pcpp
 			m_Data = tempResult;
 		}
 		else
-			PCPP_LOG_ERROR("Cannot decode name, dataPtr is NULL or length is 0");
+			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
 	}
 
 	bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
@@ -100,7 +100,7 @@ namespace pcpp
 			m_Data.mailExchange = tempMX;
 		}
 		else
-			PCPP_LOG_ERROR("Cannot decode name, dataPtr is NULL or length is 0");
+			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
 	}
 
 	MxDnsResourceData::MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange)

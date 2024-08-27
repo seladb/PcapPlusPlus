@@ -78,7 +78,7 @@ namespace pcpp
 		virtual ~Layer();
 
 		/**
-		 * @return A pointer to the next layer in the protocol stack or NULL if the layer is the last one
+		 * @return A pointer to the next layer in the protocol stack or nullptr if the layer is the last one
 		 */
 		Layer* getNextLayer() const
 		{
@@ -86,7 +86,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A pointer to the previous layer in the protocol stack or NULL if the layer is the first one
+		 * @return A pointer to the previous layer in the protocol stack or nullptr if the layer is the first one
 		 */
 		Layer* getPrevLayer() const
 		{
@@ -153,7 +153,7 @@ namespace pcpp
 		 */
 		bool isAllocatedToPacket() const
 		{
-			return m_Packet != NULL;
+			return m_Packet != nullptr;
 		}
 
 		/**
@@ -207,12 +207,12 @@ namespace pcpp
 		bool m_IsAllocatedInPacket;
 
 		Layer()
-		    : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(UnknownProtocol), m_NextLayer(NULL),
-		      m_PrevLayer(NULL), m_IsAllocatedInPacket(false)
+		    : m_Data(nullptr), m_DataLen(0), m_Packet(nullptr), m_Protocol(UnknownProtocol), m_NextLayer(nullptr),
+		      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
 		{}
 
 		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(UnknownProtocol), m_NextLayer(NULL),
+		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(UnknownProtocol), m_NextLayer(nullptr),
 		      m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false)
 		{}
 

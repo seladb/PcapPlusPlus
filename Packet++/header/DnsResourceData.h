@@ -50,14 +50,14 @@ namespace pcpp
 		 */
 		template <class IDnsResourceDataType> bool isTypeOf() const
 		{
-			return dynamic_cast<const IDnsResourceDataType*>(this) != NULL;
+			return dynamic_cast<const IDnsResourceDataType*>(this) != nullptr;
 		}
 
 		/**
 		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries
 		 * to cast the current instance as that type
-		 * @return A pointer to the current instance casted as the requested type or NULL if this instance isn't of this
-		 * type
+		 * @return A pointer to the current instance casted as the requested type or nullptr if this instance isn't of
+		 * this type
 		 */
 		template <class IDnsResourceDataType> IDnsResourceDataType* castAs()
 		{
@@ -107,7 +107,7 @@ namespace pcpp
 		/**
 		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries
 		 * to cast the pointer stored in this object as that type
-		 * @return A pointer to the stored pointer casted as the requested type or NULL if it isn't of this type
+		 * @return A pointer to the stored pointer casted as the requested type or nullptr if it isn't of this type
 		 */
 		template <class IDnsResourceDataType> IDnsResourceDataType* castAs()
 		{
@@ -393,7 +393,7 @@ namespace pcpp
 
 		~GenericDnsResourceData()
 		{
-			if (m_Data != NULL)
+			if (m_Data != nullptr)
 				delete[] m_Data;
 		}
 
