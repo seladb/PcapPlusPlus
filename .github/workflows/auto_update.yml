@@ -8,39 +8,6 @@ permissions:
   contents: read
 
 jobs:
-  precommit-update:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          ref: dev
-      - name: Setup Python
-        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
-        with:
-          python-version: "3.8.x"
-      - name: Run update
-        run: |
-            pip install pre-commit
-            pre-commit autoupdate
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
-        with:
-          token: ${{ secrets.PAT }}
-          author: GitHub <noreply@github.com>
-          add-paths: .pre-commit-config.yaml
-          commit-message: Auto pre-commit update
-          body: |
-            Update pre-commit hooks to latest
-
-            Auto generated
-          branch: auto-update/precommit_update
-          delete-branch: true
-          title: Auto precommit update
-          labels: automated-pr
-          assignees: seladb
-
   oui-update:
     runs-on: ubuntu-latest
 
