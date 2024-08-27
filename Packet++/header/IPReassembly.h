@@ -347,8 +347,8 @@ namespace pcpp
 		 * volume exceeds this capacity the mechanism starts dropping packets in a LRU manner (least recently used are
 		 * dropped first). Whenever a packet is dropped this callback is fired
 		 * @param[in] key A pointer to the identifier of the packet that is being dropped
-		 * @param[in] userCookie A pointer to the cookie provided by the user in IPReassemby c'tor (or NULL if no cookie
-		 * provided)
+		 * @param[in] userCookie A pointer to the cookie provided by the user in IPReassemby c'tor (or nullptr if no
+		 * cookie provided)
 		 */
 		typedef void (*OnFragmentsClean)(const PacketKey* key, void* userCookie);
 
@@ -378,13 +378,13 @@ namespace pcpp
 		 * A c'tor for this class.
 		 * @param[in] onFragmentsCleanCallback The callback to be called when packets are dropped due to capacity limit.
 		 * Please read more about capacity limit in IPReassembly.h file description. This parameter is optional, default
-		 * value is NULL (no callback)
+		 * value is nullptr (no callback)
 		 * @param[in] callbackUserCookie A pointer to an object provided by the user. This pointer will be returned when
-		 * invoking the onFragmentsCleanCallback. This parameter is optional, default cookie is NULL
+		 * invoking the onFragmentsCleanCallback. This parameter is optional, default cookie is nullptr
 		 * @param[in] maxPacketsToStore Set the capacity limit of the IP reassembly mechanism. Default capacity is
 		 * #PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE
 		 */
-		explicit IPReassembly(OnFragmentsClean onFragmentsCleanCallback = NULL, void* callbackUserCookie = NULL,
+		explicit IPReassembly(OnFragmentsClean onFragmentsCleanCallback = nullptr, void* callbackUserCookie = nullptr,
 		                      size_t maxPacketsToStore = PCPP_IP_REASSEMBLY_DEFAULT_MAX_PACKETS_TO_STORE)
 		    : m_PacketLRU(maxPacketsToStore), m_OnFragmentsCleanCallback(onFragmentsCleanCallback),
 		      m_CallbackUserCookie(callbackUserCookie)
@@ -429,7 +429,7 @@ namespace pcpp
 		 *   pointer to the input fragment
 		 * - If the input fragment is the last one and the reassembled packet is ready - a pointer to the reassembled
 		 *   packet is returned. Notice it's the user's responsibility to free this pointer when done using it
-		 * - If the reassembled packet isn't ready then NULL is returned
+		 * - If the reassembled packet isn't ready then nullptr is returned
 		 */
 		Packet* processPacket(Packet* fragment, ReassemblyStatus& status, ProtocolType parseUntil = UnknownProtocol,
 		                      OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
@@ -471,7 +471,7 @@ namespace pcpp
 		 *   free this instance
 		 * - If the input fragment is the last one and the reassembled packet is ready - a pointer to the reassembled
 		 *   packet is returned. Notice it's the user's responsibility to free this pointer when done using it
-		 * - If the reassembled packet isn't ready then NULL is returned
+		 * - If the reassembled packet isn't ready then nullptr is returned
 		 */
 		Packet* processPacket(RawPacket* fragment, ReassemblyStatus& status, ProtocolType parseUntil = UnknownProtocol,
 		                      OsiModelLayer parseUntilLayer = OsiModelLayerUnknown);
@@ -522,7 +522,7 @@ namespace pcpp
 			{
 				fragmentOffset = 0;
 				lastFragment = false;
-				fragmentData = NULL;
+				fragmentData = nullptr;
 				fragmentDataLen = 0;
 			}
 			~IPFragment()
@@ -542,7 +542,7 @@ namespace pcpp
 			IPFragmentData(PacketKey* pktKey, uint32_t fragId)
 			{
 				currentOffset = 0;
-				data = NULL;
+				data = nullptr;
 				deleteData = true;
 				fragmentID = fragId;
 				packetKey = pktKey;
@@ -550,7 +550,7 @@ namespace pcpp
 			~IPFragmentData()
 			{
 				delete packetKey;
-				if (deleteData && data != NULL)
+				if (deleteData && data != nullptr)
 				{
 					delete data;
 				}

@@ -219,7 +219,7 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 * @return A pointer to the newly created record layer. If no SSL/TLS record could be identified from the raw
-		 * data NULL is returned
+		 * data nullptr is returned
 		 */
 		static SSLLayer* createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
@@ -339,16 +339,17 @@ namespace pcpp
 
 		/**
 		 * Get a pointer to an handshake message by index. The message are numbered according to their order of
-		 * appearance in the layer. If index is out of bounds (less than 0 or larger than total amount of message) NULL
-		 * will be returned
+		 * appearance in the layer. If index is out of bounds (less than 0 or larger than total amount of message)
+		 * nullptr will be returned
 		 * @param[in] index The index of the message to return
-		 * @return The pointer to the message object or NULL if index is out of bounds
+		 * @return The pointer to the message object or nullptr if index is out of bounds
 		 */
 		SSLHandshakeMessage* getHandshakeMessageAt(int index) const;
 
 		/**
-		 * A templated method to get a message of a certain type. If no message of such type is found, NULL is returned
-		 * @return A pointer to the message of the requested type, NULL if not found
+		 * A templated method to get a message of a certain type. If no message of such type is found, nullptr is
+		 * returned
+		 * @return A pointer to the message of the requested type, nullptr if not found
 		 */
 		template <class THandshakeMessage> THandshakeMessage* getHandshakeMessageOfType() const;
 
@@ -357,9 +358,9 @@ namespace pcpp
 		 * For example: if the layer looks like: HelloRequest(1) -> HelloRequest(2)
 		 * and the user put HelloRequest(1) as a parameter and wishes to search for an HelloRequest message, the
 		 * HelloRequest(2) will be returned.<BR>
-		 * If no layer of such type is found, NULL is returned
+		 * If no layer of such type is found, nullptr is returned
 		 * @param[in] after A pointer to the message to start search from
-		 * @return A pointer to the message of the requested type, NULL if not found
+		 * @return A pointer to the message of the requested type, nullptr if not found
 		 */
 		template <class THandshakeMessage>
 		THandshakeMessage* getNextHandshakeMessageOfType(const SSLHandshakeMessage* after) const;
@@ -504,12 +505,12 @@ namespace pcpp
 		for (size_t i = 0; i < vecSize; i++)
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
-			if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
+			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
 				return (THandshakeMessage*)curElem;
 		}
 
 		// element not found
-		return NULL;
+		return nullptr;
 	}  // getHandshakeMessageOfType
 
 	template <class THandshakeMessage>
@@ -528,17 +529,17 @@ namespace pcpp
 
 		// "after" not found
 		if (afterIndex == vecSize)
-			return NULL;
+			return nullptr;
 
 		for (size_t i = afterIndex + 1; i < vecSize; i++)
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
-			if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
+			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
 				return (THandshakeMessage*)curElem;
 		}
 
 		// element not found
-		return NULL;
+		return nullptr;
 	}  // getNextHandshakeMessageOfType
 
 	// implementation of inline methods
