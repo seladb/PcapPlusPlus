@@ -19,6 +19,12 @@ namespace pcpp
 
 		for (size_t idx = 0; idx < field.size(); ++idx)
 		{
+			// Truncate the value if it is longer than 8 bytes
+			if (idx >= 8)
+			{
+				break;
+			}
+
 			val |= static_cast<size_t>(field.c_str()[idx]) << (idx * 8);
 		}
 
