@@ -498,11 +498,34 @@ namespace pcpp
 	// ---------------------------------------- Special Layer ----------------------------------------
 	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
 	{
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] payloadData A pointer to the payload data, optional
+		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
+		 * @param[in] flag The flag, optional
+		 * @param[in] requestId The request ID, it should be always larger than 1, optional
+		 * @note all the parameters will be converted to the network byte order
+		 */
+		explicit GvcpDiscoveryRequestLayer(const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
+		                                   GvcpFlag flag = 0, uint16_t requestId = 1)
+		    : GvcpRequestLayer(GvcpCommand::DiscoveredCmd, payloadData, payloadDataSize, flag, requestId) {};
 	};
 
 	class GvcpDiscoveryAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
+		/**
+		 * @brief Construct a new GvcpAcknowledgeLayer object
+		 * @param[in] status The response status
+		 * @param[in] payloadData A pointer to the payload data, optional
+		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
+		 * @param[in] ackId The acknowledge ID, optional
+		 * @note all the parameters will be converted to the network byte order
+		 */
+		explicit GvcpDiscoveryAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
+		                                       uint16_t payloadDataSize = 0, uint16_t ackId = 0)
+		    : GvcpAcknowledgeLayer(status, GvcpCommand::DiscoveredAck, payloadData, payloadDataSize, ackId) {};
+
 		/**
 		 * @brief Get the version
 		 * @return std::pair<uint16_t, uint16_t> The version major and minor
@@ -624,6 +647,18 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] payloadData A pointer to the payload data, optional
+		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
+		 * @param[in] flag The flag, optional
+		 * @param[in] requestId The request ID, it should be always larger than 1, optional
+		 * @note all the parameters will be converted to the network byte order
+		 */
+		explicit GvcpForceIpRequestLayer(const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
+		                                 GvcpFlag flag = 0, uint16_t requestId = 1)
+		    : GvcpRequestLayer(GvcpCommand::ForceIpCmd, payloadData, payloadDataSize, flag, requestId) {};
+
+		/**
 		 * @brief Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
@@ -672,5 +707,16 @@ namespace pcpp
 
 	class GvcpForceIpAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
+		/**
+		 * @brief Construct a new GvcpAcknowledgeLayer object
+		 * @param[in] status The response status
+		 * @param[in] payloadData A pointer to the payload data, optional
+		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
+		 * @param[in] ackId The acknowledge ID, optional
+		 * @note all the parameters will be converted to the network byte order
+		 */
+		explicit GvcpForceIpAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
+		                                     uint16_t payloadDataSize = 0, uint16_t ackId = 0)
+		    : GvcpAcknowledgeLayer(status, GvcpCommand::ForceIpAck, payloadData, payloadDataSize, ackId) {};
 	};
 }  // namespace pcpp
