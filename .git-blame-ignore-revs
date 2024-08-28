@@ -1,0 +1,10 @@
+# run `git config blame.ignoreRevsFile .git-blame-ignore-revs` to use this file
+
+# clang-format
+b27e84f9041411ccfd8e4cdb6b813ffc50ccc9f1
+316ea6e767984f75d8c97357df336d33ba45b7bc
+09f479f890b8b4e2023ca5e71d3068f9fa469c84
+123994c8254f84829a5e1957b46b76395b5cdbfd
+
+# dos2unix
+5a6de4e00e9ed899c544cbf32f50bedadac7d9b1

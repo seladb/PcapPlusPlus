@@ -375,7 +375,7 @@ namespace pcpp
 		 * @param[in] side The side this data belongs to (MachineA->MachineB or vice versa). The value is 0 or 1 where 0
 		 * is the first side seen in the connection and 1 is the second side seen
 		 * @param[in] tcpData The TCP data itself + connection information
-		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or NULL if no
+		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		 * cookie provided)
 		 */
 		typedef void (*OnTcpMessageReady)(int8_t side, const TcpStreamData& tcpData, void* userCookie);
@@ -384,7 +384,7 @@ namespace pcpp
 		 * @typedef OnTcpConnectionStart
 		 * A callback invoked when a new TCP connection is identified (whether it begins with a SYN packet or not)
 		 * @param[in] connectionData Connection information
-		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or NULL if no
+		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		 * cookie provided)
 		 */
 		typedef void (*OnTcpConnectionStart)(const ConnectionData& connectionData, void* userCookie);
@@ -394,7 +394,7 @@ namespace pcpp
 		 * A callback invoked when a TCP connection is terminated, either by a FIN or RST packet or manually by the user
 		 * @param[in] connectionData Connection information
 		 * @param[in] reason The reason for connection termination: FIN/RST packet or manually by the user
-		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or NULL if no
+		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		 * cookie provided)
 		 */
 		typedef void (*OnTcpConnectionEnd)(const ConnectionData& connectionData, ConnectionEndReason reason,
@@ -404,7 +404,7 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] onMessageReadyCallback The callback to be invoked when new data arrives
 		 * @param[in] userCookie A pointer to an object provided by the user. This pointer will be returned when
-		 * invoking the various callbacks. This parameter is optional, default cookie is NULL
+		 * invoking the various callbacks. This parameter is optional, default cookie is nullptr
 		 * @param[in] onConnectionStartCallback The callback to be invoked when a new connection is identified. This
 		 * parameter is optional
 		 * @param[in] onConnectionEndCallback The callback to be invoked when a new connection is terminated (either by
@@ -412,9 +412,9 @@ namespace pcpp
 		 * @param[in] config Optional parameter for defining special configuration parameters. If not set the default
 		 * parameters will be set
 		 */
-		explicit TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = NULL,
-		                       OnTcpConnectionStart onConnectionStartCallback = NULL,
-		                       OnTcpConnectionEnd onConnectionEndCallback = NULL,
+		explicit TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie = nullptr,
+		                       OnTcpConnectionStart onConnectionStartCallback = nullptr,
+		                       OnTcpConnectionEnd onConnectionEndCallback = nullptr,
 		                       const TcpReassemblyConfiguration& config = TcpReassemblyConfiguration());
 
 		/**
@@ -485,7 +485,7 @@ namespace pcpp
 			uint8_t* data;
 			timeval timestamp;
 
-			TcpFragment() : sequence(0), dataLength(0), data(NULL)
+			TcpFragment() : sequence(0), dataLength(0), data(nullptr)
 			{}
 			~TcpFragment()
 			{

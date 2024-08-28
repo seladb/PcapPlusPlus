@@ -283,7 +283,7 @@ namespace pcpp
 		 * @param[in] layerType The layer type (protocol) to detach from the packet
 		 * @param[in] index If there are multiple layers of the same type, indicate which instance to detach. The
 		 * default value is 0, meaning detach the first layer of this type
-		 * @return A pointer to the detached layer or NULL if detaching process failed. In any case of failure an
+		 * @return A pointer to the detached layer or nullptr if detaching process failed. In any case of failure an
 		 * appropriate error log message will be printed
 		 */
 		Layer* detachLayer(ProtocolType layerType, int index = 0);
@@ -309,16 +309,16 @@ namespace pcpp
 		 * @param[in] layerType The layer type (protocol) to fetch
 		 * @param[in] index If there are multiple layers of the same type, indicate which instance to fetch. The default
 		 * value is 0, meaning fetch the first layer of this type
-		 * @return A pointer to the layer or NULL if no such layer was found
+		 * @return A pointer to the layer or nullptr if no such layer was found
 		 */
 		Layer* getLayerOfType(ProtocolType layerType, int index = 0) const;
 
 		/**
-		 * A templated method to get a layer of a certain type (protocol). If no layer of such type is found, NULL is
+		 * A templated method to get a layer of a certain type (protocol). If no layer of such type is found, nullptr is
 		 * returned
 		 * @param[in] reverseOrder The optional parameter that indicates that the lookup should run in reverse order,
 		 * the default value is false
-		 * @return A pointer to the layer of the requested type, NULL if not found
+		 * @return A pointer to the layer of the requested type, nullptr if not found
 		 */
 		template <class TLayer> TLayer* getLayerOfType(bool reverseOrder = false) const;
 
@@ -326,9 +326,9 @@ namespace pcpp
 		 * A templated method to get the first layer of a certain type (protocol), start searching from a certain layer.
 		 * For example: if a packet looks like: EthLayer -> VlanLayer(1) -> VlanLayer(2) -> VlanLayer(3) -> IPv4Layer
 		 * and the user put VlanLayer(2) as a parameter and wishes to search for a VlanLayer, VlanLayer(3) will be
-		 * returned If no layer of such type is found, NULL is returned
+		 * returned If no layer of such type is found, nullptr is returned
 		 * @param[in] startLayer A pointer to the layer to start search from
-		 * @return A pointer to the layer of the requested type, NULL if not found
+		 * @return A pointer to the layer of the requested type, nullptr if not found
 		 */
 		template <class TLayer> TLayer* getNextLayerOfType(Layer* startLayer) const;
 
@@ -336,9 +336,9 @@ namespace pcpp
 		 * A templated method to get the first layer of a certain type (protocol), start searching from a certain layer.
 		 * For example: if a packet looks like: EthLayer -> VlanLayer(1) -> VlanLayer(2) -> VlanLayer(3) -> IPv4Layer
 		 * and the user put VlanLayer(2) as a parameter and wishes to search for a VlanLayer, VlanLayer(1) will be
-		 * returned If no layer of such type is found, NULL is returned
+		 * returned If no layer of such type is found, nullptr is returned
 		 * @param[in] startLayer A pointer to the layer to start search from
-		 * @return A pointer to the layer of the requested type, NULL if not found
+		 * @return A pointer to the layer of the requested type, nullptr if not found
 		 */
 		template <class TLayer> TLayer* getPrevLayerOfType(Layer* startLayer) const;
 
@@ -404,14 +404,14 @@ namespace pcpp
 	{
 		if (!reverse)
 		{
-			if (dynamic_cast<TLayer*>(getFirstLayer()) != NULL)
+			if (dynamic_cast<TLayer*>(getFirstLayer()) != nullptr)
 				return dynamic_cast<TLayer*>(getFirstLayer());
 
 			return getNextLayerOfType<TLayer>(getFirstLayer());
 		}
 
 		// lookup in reverse order
-		if (dynamic_cast<TLayer*>(getLastLayer()) != NULL)
+		if (dynamic_cast<TLayer*>(getLastLayer()) != nullptr)
 			return dynamic_cast<TLayer*>(getLastLayer());
 
 		return getPrevLayerOfType<TLayer>(getLastLayer());
@@ -419,11 +419,11 @@ namespace pcpp
 
 	template <class TLayer> TLayer* Packet::getNextLayerOfType(Layer* curLayer) const
 	{
-		if (curLayer == NULL)
-			return NULL;
+		if (curLayer == nullptr)
+			return nullptr;
 
 		curLayer = curLayer->getNextLayer();
-		while ((curLayer != NULL) && (dynamic_cast<TLayer*>(curLayer) == NULL))
+		while ((curLayer != nullptr) && (dynamic_cast<TLayer*>(curLayer) == nullptr))
 		{
 			curLayer = curLayer->getNextLayer();
 		}
@@ -433,11 +433,11 @@ namespace pcpp
 
 	template <class TLayer> TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const
 	{
-		if (curLayer == NULL)
-			return NULL;
+		if (curLayer == nullptr)
+			return nullptr;
 
 		curLayer = curLayer->getPrevLayer();
-		while (curLayer != NULL && dynamic_cast<TLayer*>(curLayer) == NULL)
+		while (curLayer != nullptr && dynamic_cast<TLayer*>(curLayer) == nullptr)
 		{
 			curLayer = curLayer->getPrevLayer();
 		}

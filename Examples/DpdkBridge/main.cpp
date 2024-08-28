@@ -47,14 +47,14 @@
 
 // clang-format off
 static struct option DpdkBridgeOptions[] = {
-	{ "dpdk-ports",     required_argument, 0, 'd' },
-	{ "core-mask",      optional_argument, 0, 'c' },
-	{ "mbuf-pool-size", optional_argument, 0, 'm' },
-	{ "queue-quantity", optional_argument, 0, 'q' },
-	{ "help",           optional_argument, 0, 'h' },
-	{ "list",           optional_argument, 0, 'l' },
-	{ "version",        optional_argument, 0, 'v' },
-	{ 0,                0,                 0, 0   }
+	{ "dpdk-ports",     required_argument, nullptr, 'd' },
+	{ "core-mask",      optional_argument, nullptr, 'c' },
+	{ "mbuf-pool-size", optional_argument, nullptr, 'm' },
+	{ "queue-quantity", optional_argument, nullptr, 'q' },
+	{ "help",           optional_argument, nullptr, 'h' },
+	{ "list",           optional_argument, nullptr, 'l' },
+	{ "version",        optional_argument, nullptr, 'v' },
+	{ nullptr,          0,                 nullptr,  0  }
 };
 // clang-format on
 
@@ -137,7 +137,7 @@ struct DpdkBridgeArgs
 	bool shouldStop;
 	std::vector<pcpp::DpdkWorkerThread*>* workerThreadsVector;
 
-	DpdkBridgeArgs() : shouldStop(false), workerThreadsVector(NULL)
+	DpdkBridgeArgs() : shouldStop(false), workerThreadsVector(nullptr)
 	{}
 };
 
@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
 	for (const auto& port : dpdkPortVec)
 	{
 		pcpp::DpdkDevice* dev = pcpp::DpdkDeviceList::getInstance().getDeviceByPort(port);
-		if (dev == NULL)
+		if (dev == nullptr)
 		{
 			EXIT_WITH_ERROR("DPDK device for port " << port << " doesn't exist");
 		}

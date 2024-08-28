@@ -549,23 +549,23 @@ namespace pcpp
 		/**
 		 * Get a TCP option by type
 		 * @param[in] option TCP option type to retrieve
-		 * @return An TcpOption object that contains the first option that matches this type, or logical NULL
+		 * @return An TcpOption object that contains the first option that matches this type, or logical null
 		 * (TcpOption#isNull() == true) if no such option found
 		 */
 		TcpOption getTcpOption(TcpOptionEnumType option) const;
 
 		/**
 		 * @return The first TCP option in the packet. If the current layer contains no options the returned value will
-		 * contain a logical NULL (TcpOption#isNull() == true)
+		 * contain a logical null (TcpOption#isNull() == true)
 		 */
 		TcpOption getFirstTcpOption() const;
 
 		/**
 		 * Get the TCP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (TcpOption#isNull() == true)
+		 * returned value will contain a logical null (TcpOption#isNull() == true)
 		 * @param[in] tcpOption A TCP option object that exists in the current layer
-		 * @return A TcpOption object that contains the TCP option data that comes next, or logical NULL if the given
-		 * TCP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
+		 * @return A TcpOption object that contains the TCP option data that comes next, or logical null if the given
+		 * TCP option: (1) was the last one; or (2) contains a logical null; or (3) doesn't belong to this packet
 		 */
 		TcpOption getNextTcpOption(TcpOption& tcpOption) const;
 
@@ -577,7 +577,7 @@ namespace pcpp
 		/**
 		 * Add a new TCP option at the end of the layer (after the last TCP option)
 		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the TCP option data to be added
-		 * @return A TcpOption object that contains the newly added TCP option data or logical NULL
+		 * @return A TcpOption object that contains the newly added TCP option data or logical null
 		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
@@ -597,7 +597,7 @@ namespace pcpp
 		 * @param[in] prevOptionType The TCP option which the newly inserted option should come after. This is an
 		 * optional parameter which gets a default value of TcpOptionType::Unknown if omitted, which means the new
 		 * option will be inserted as the first option in the layer
-		 * @return A TcpOption object containing the newly inserted TCP option data or logical NULL
+		 * @return A TcpOption object containing the newly inserted TCP option data or logical null
 		 * (TcpOption#isNull() == true) if insertion failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */

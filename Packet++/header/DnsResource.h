@@ -51,7 +51,7 @@ namespace pcpp
 		{
 			return m_NextResource;
 		}
-		void setNexResource(IDnsResource* next)
+		void setNextResource(IDnsResource* next)
 		{
 			m_NextResource = next;
 		}
@@ -203,8 +203,8 @@ namespace pcpp
 
 		/**
 		 * @return A smart pointer to an IDnsResourceData object that contains the DNS resource data. It is guaranteed
-		 * that the smart pointer will always point to an object and never to NULL. The specific object type depends on
-		 * the DNS type of this record:<BR>
+		 * that the smart pointer will always point to an object and never to nullptr. The specific object type depends
+		 * on the DNS type of this record:<BR>
 		 * - For type A (::DNS_TYPE_A): the return value is a smart pointer to IPv4DnsResourceData object that contains
 		 * the IPv4 address<BR>
 		 * - For type AAAA (::DNS_TYPE_AAAA): the return value is a smart pointer to IPv6DnsResourceData object that

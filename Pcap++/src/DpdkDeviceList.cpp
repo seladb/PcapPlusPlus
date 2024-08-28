@@ -115,7 +115,7 @@ namespace pcpp
 		dpdkParamsStream << (int)masterCore << " ";
 
 		uint32_t i = 0;
-		while (i < initDpdkArgc && initDpdkArgv[i] != NULL)
+		while (i < initDpdkArgc && initDpdkArgv[i] != nullptr)
 		{
 			dpdkParamsStream << initDpdkArgv[i] << " ";
 			i++;
@@ -212,12 +212,12 @@ namespace pcpp
 		if (!isInitialized())
 		{
 			PCPP_LOG_ERROR("DpdkDeviceList not initialized");
-			return NULL;
+			return nullptr;
 		}
 
 		if ((uint32_t)portId >= m_DpdkDeviceList.size())
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		return m_DpdkDeviceList.at(portId);
@@ -228,7 +228,7 @@ namespace pcpp
 		if (!isInitialized())
 		{
 			PCPP_LOG_ERROR("DpdkDeviceList not initialized");
-			return NULL;
+			return nullptr;
 		}
 
 		auto devIter = std::find_if(m_DpdkDeviceList.begin(), m_DpdkDeviceList.end(),
