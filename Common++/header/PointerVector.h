@@ -18,29 +18,32 @@
  */
 namespace pcpp
 {
-
 	namespace internal
 	{
 		/**
-		 * @brief void_t (added officially in C++17) is a fancy trick to just instantiate stuff and then discard it
+		 * @brief A helper struct to facilitate the creation of a copy of an object.
+		 * @tparam T The type of object to copy.
+		 * @tparam Enable Helper parameter for SFINAE.
 		 */
-		template <class...> using void_t = void;
-
-		/**
-		 * @brief A type trait that checks if a class has a clone method.
-		 * @tparam T The class to check.
-		 * @tparam Dummy A dummy parameter to enable SFINAE.
-		 */
-		template <class T, typename = void_t<>> struct has_clone : std::false_type
+		template <class T, class Enable = void> struct Copier
 		{
+			std::unique_ptr<T> operator()(const T& obj) const
+			{
+				return std::unique_ptr<T>(new T(obj));
+			}
 		};
 
 		/**
-		 * @brief A type trait that checks if a class has a clone method.
-		 * @tparam T The class to check.
+		 * @brief A specialization of Copier to facilitate the safe copying of polymorphic objects via clone() method.
+		 * @tparam T The type of object to copy.
 		 */
-		template <class T> struct has_clone<T, void_t<decltype(std::declval<T>().clone())>> : std::true_type
+		template <class T> struct Copier<T, typename std::enable_if<std::is_polymorphic<T>::value>::type>
 		{
+			std::unique_ptr<T> operator()(const T& obj) const
+			{
+				// Clone can return unique_ptr or raw pointer.
+				return std::unique_ptr<T>(std::move(obj.clone()));
+			}
 		};
 	}  // namespace internal
 
@@ -76,9 +79,7 @@ namespace pcpp
 		 * @param[in] other The vector to copy from.
 		 * @remarks As the vector is copied via deep copy, all pointers obtained from the copied vector
 		 * reference the duplicates and not the originals.
-		 * @deprecated Deprecated in favor of clone()
 		 */
-		PCPP_DEPRECATED("Deprecated in favor of clone()")
 		PointerVector(const PointerVector& other) : m_Vector(deepCopyUnsafe(other.m_Vector))
 		{}
 
@@ -104,9 +105,7 @@ namespace pcpp
 		 * See copy constructor for more information on the specific copy procedure.
 		 * @param[in] other The vector to copy from.
 		 * @return A reference to the current object.
-		 * @deprecated Deprecated in favor of clone()
 		 */
-		PCPP_DEPRECATED("Deprecated in favor of clone()")
 		PointerVector& operator=(const PointerVector& other)
 		{
 			// Saves a copy of the old pointer to defer cleanup.
@@ -364,40 +363,6 @@ namespace pcpp
 			return m_Vector.at(index);
 		}
 
-		template <class E = T, typename std::enable_if<std::is_polymorphic<E>::value && !internal::has_clone<E>::value,
-		                                               bool>::type = false>
-		PointerVector<T> clone() const = delete;
-
-		/**
-		 * @brief Makes a deep copy of the pointer vector.
-		 * @return A copy of the vector with all elements duplicated.
-		 * @remarks This overload is used when the elements are polymorphic and have a clone method.
-		 */
-		template <class E = T, typename std::enable_if<std::is_polymorphic<E>::value && internal::has_clone<E>::value,
-		                                               bool>::type = false>
-		PointerVector<T> clone() const
-		{
-			PointerVector<T> clone;
-			for (const auto iter : m_Vector)
-			{
-				clone.pushBack(std::move(iter->clone()));
-			}
-			return clone;
-		}
-
-		/**
-		 * @brief Makes a deep copy of the pointer vector.
-		 * @return A copy of the vector with all elements duplicated.
-		 * @remarks This overload is used when the elements are not polymorphic.
-		 */
-		template <class E = T, typename std::enable_if<!std::is_polymorphic<E>::value, bool>::type = false>
-		PointerVector<T> clone() const
-		{
-			PointerVector<T> clone;
-			clone.m_Vector = std::move(deepCopyUnsafe(m_Vector));
-			return clone;
-		}
-
 	private:
 		/**
 		 * Performs a copy of the vector along with its elements.
@@ -407,21 +372,16 @@ namespace pcpp
 		static std::vector<T*> deepCopyUnsafe(std::vector<T*> const& origin)
 		{
 			std::vector<T*> copyVec;
+			// Allocate the vector initially to ensure no exceptions are thrown during push_back.
+			copyVec.reserve(origin.size());
 
 			try
 			{
 				for (const auto iter : origin)
 				{
-					T* objCopy = new T(*iter);
-					try
-					{
-						copyVec.push_back(objCopy);
-					}
-					catch (const std::exception&)
-					{
-						delete objCopy;
-						throw;
-					}
+					std::unique_ptr<T> objCopy = internal::Copier<T>()(*iter);
+					// There shouldn't be a memory leak as the vector is reserved.
+					copyVec.push_back(objCopy.release());
 				}
 			}
 			catch (const std::exception&)
