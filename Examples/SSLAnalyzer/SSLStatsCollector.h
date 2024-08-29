@@ -317,7 +317,7 @@ private:
 	{
 		// go over all SSL messages in this packet
 		pcpp::SSLLayer* sslLayer = sslPacket->getLayerOfType<pcpp::SSLLayer>();
-		while (sslLayer != NULL)
+		while (sslLayer != nullptr)
 		{
 			// check if the layer is an alert message
 			pcpp::SSLRecordType recType = sslLayer->getRecordType();
@@ -346,7 +346,7 @@ private:
 			else if (recType == pcpp::SSL_HANDSHAKE)
 			{
 				pcpp::SSLHandshakeLayer* handshakeLayer = dynamic_cast<pcpp::SSLHandshakeLayer*>(sslLayer);
-				if (handshakeLayer == NULL)
+				if (handshakeLayer == nullptr)
 					continue;
 
 				// try to find client-hello message
@@ -354,7 +354,7 @@ private:
 				    handshakeLayer->getHandshakeMessageOfType<pcpp::SSLClientHelloMessage>();
 
 				// collect client-hello stats
-				if (clientHelloMessage != NULL)
+				if (clientHelloMessage != nullptr)
 				{
 					collecClientHelloStats(clientHelloMessage);
 				}
@@ -364,7 +364,7 @@ private:
 				    handshakeLayer->getHandshakeMessageOfType<pcpp::SSLServerHelloMessage>();
 
 				// collect server-hello stats
-				if (serverHelloMessage != NULL)
+				if (serverHelloMessage != nullptr)
 				{
 					m_GeneralStats.sslVersionCount[serverHelloMessage->getHandshakeVersion().asUInt()]++;
 					collecServerHelloStats(serverHelloMessage);
@@ -384,7 +384,7 @@ private:
 
 		pcpp::SSLServerNameIndicationExtension* sniExt =
 		    clientHelloMessage->getExtensionOfType<pcpp::SSLServerNameIndicationExtension>();
-		if (sniExt != NULL)
+		if (sniExt != nullptr)
 			m_ClientHelloStats.serverNameCount[sniExt->getHostName()]++;
 	}
 
@@ -396,7 +396,7 @@ private:
 		m_ServerHelloStats.numOfMessages++;
 
 		pcpp::SSLCipherSuite* cipherSuite = serverHelloMessage->getCipherSuite();
-		if (cipherSuite != NULL)
+		if (cipherSuite != nullptr)
 			m_ServerHelloStats.cipherSuiteCount[cipherSuite->asString()]++;
 	}
 
@@ -404,7 +404,7 @@ private:
 	{
 		struct timeval tv;
 
-		gettimeofday(&tv, NULL);
+		gettimeofday(&tv, nullptr);
 
 		return (((double)tv.tv_sec) + (double)(tv.tv_usec / 1000000.0));
 	}

@@ -94,14 +94,14 @@ namespace pcpp
 		/**
 		 * A static method that returns a cipher-suite instance by ID
 		 * @param[in] id Cipher-suite ID
-		 * @return A cipher-suite instance matching this ID or NULL if ID not found
+		 * @return A cipher-suite instance matching this ID or nullptr if ID not found
 		 */
 		static SSLCipherSuite* getCipherSuiteByID(uint16_t id);
 
 		/**
 		 *  A static method that returns a cipher-suite instance by name
 		 *  @param[in] name Cipher-suite name (e.g "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA")
-		 *  @return A cipher-suite instance matching this name or NULL if name not found
+		 *  @return A cipher-suite instance matching this name or nullptr if name not found
 		 */
 		static SSLCipherSuite* getCipherSuiteByName(std::string name);
 
@@ -478,7 +478,7 @@ namespace pcpp
 		uint8_t getSessionIDLength() const;
 
 		/**
-		 * @return Session ID as byte array. If server-hello message doesn't include session ID NULL will be returned
+		 * @return Session ID as byte array. If server-hello message doesn't include session ID nullptr will be returned
 		 */
 		uint8_t* getSessionID() const;
 
@@ -490,10 +490,10 @@ namespace pcpp
 		/**
 		 * Get a pointer to a cipher-suite by index. The cipher-suites are numbered according to their order of
 		 * appearance in the message. If index is out of bounds (less than 0 or larger than total amount of cipher
-		 * suites) NULL will be returned. NULL will also be returned if the cipher-suite ID is unknown. If you still
-		 * want to get the cipher-suite ID you can use getCipherSuiteID()
+		 * suites) nullptr will be returned. nullptr will also be returned if the cipher-suite ID is unknown. If you
+		 * still want to get the cipher-suite ID you can use getCipherSuiteID()
 		 * @param[in] index The index of the cipher-suite to return
-		 * @return The pointer to the cipher-suite object or NULL if index is out of bounds
+		 * @return The pointer to the cipher-suite object or nullptr if index is out of bounds
 		 */
 		SSLCipherSuite* getCipherSuite(int index) const;
 
@@ -527,10 +527,10 @@ namespace pcpp
 
 		/**
 		 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
-		 * in the message. If index is out of bounds (less than 0 or larger than total amount of extensions) NULL will
-		 * be returned
+		 * in the message. If index is out of bounds (less than 0 or larger than total amount of extensions) nullptr
+		 * will be returned
 		 * @param[in] index The index of the extension to return
-		 * @return The pointer to the extension or NULL if index is out of bounds
+		 * @return The pointer to the extension or nullptr if index is out of bounds
 		 */
 		SSLExtension* getExtension(int index) const;
 
@@ -539,21 +539,21 @@ namespace pcpp
 		 * its type (for example: renegotiation info extension type is 0x1ff). This method gets the type and returns a
 		 * pointer to the extension object
 		 * @param[in] type The 2-byte numeric type of the extension
-		 * @return A pointer to the extension object of NULL if this type doesn't exist in this message
+		 * @return A pointer to the extension object of nullptr if this type doesn't exist in this message
 		 */
 		SSLExtension* getExtensionOfType(uint16_t type) const;
 
 		/**
 		 * Get a pointer to an extension by its enum type
 		 * @param[in] type The type of extension to return
-		 * @return A pointer to the extension object or NULL if this type doesn't exist in this message
+		 * @return A pointer to the extension object or nullptr if this type doesn't exist in this message
 		 */
 		SSLExtension* getExtensionOfType(SSLExtensionType type) const;
 
 		/**
 		 * Get a pointer to an extension by its class type. This is a templated method that is used with the type of the
 		 * requested extension and returns the first extension instance of this type
-		 * @return A pointer to the extension object or NULL if this extension type doesn't exist in this message
+		 * @return A pointer to the extension object or nullptr if this extension type doesn't exist in this message
 		 *
 		 */
 		template <class TExtension> TExtension* getExtensionOfType() const;
@@ -661,13 +661,13 @@ namespace pcpp
 		uint8_t getSessionIDLength() const;
 
 		/**
-		 * @return Session ID as byte array. If server-hello message doesn't include session ID NULL will be returned
+		 * @return Session ID as byte array. If server-hello message doesn't include session ID nullptr will be returned
 		 */
 		uint8_t* getSessionID() const;
 
 		/**
 		 * @return A pointer to the cipher suite encapsulated in this message (server-hello message contains one
-		 * cipher-suite, the one that will be used to for encryption between client and server). May return NULL
+		 * cipher-suite, the one that will be used to for encryption between client and server). May return nullptr
 		 * if the parsing of the message failed or the cipher-suite ID is unknown. If you still want to get the
 		 * cipher-suite ID you can use the getCipherSuiteID() method
 		 */
@@ -701,10 +701,10 @@ namespace pcpp
 
 		/**
 		 * Get a pointer to an extension by index. The extensions are numbered according to their order of appearance
-		 * in the message. If index is out of bounds (less than 0 or larger than total amount of extensions) NULL will
-		 * be returned
+		 * in the message. If index is out of bounds (less than 0 or larger than total amount of extensions) nullptr
+		 * will be returned
 		 * @param[in] index The index of the extension to return
-		 * @return The pointer to the extension or NULL if index is out of bounds
+		 * @return The pointer to the extension or nullptr if index is out of bounds
 		 */
 		SSLExtension* getExtension(int index) const;
 
@@ -713,21 +713,21 @@ namespace pcpp
 		 * its type (for example: renegotiation info extension type is 0x1ff). This method gets the type and returns a
 		 * pointer to the extension object
 		 * @param[in] type The 2-byte numeric type of the extension
-		 * @return A pointer to the extension object of NULL if this type doesn't exist in this message
+		 * @return A pointer to the extension object of nullptr if this type doesn't exist in this message
 		 */
 		SSLExtension* getExtensionOfType(uint16_t type) const;
 
 		/**
 		 * Get a pointer to an extension by its enum type
 		 * @param[in] type The type of extension to return
-		 * @return A pointer to the extension object or NULL if this type doesn't exist in this message
+		 * @return A pointer to the extension object or nullptr if this type doesn't exist in this message
 		 */
 		SSLExtension* getExtensionOfType(SSLExtensionType type) const;
 
 		/**
 		 * Get a pointer to an extension by its class type. This is a templated method that is used with the type of the
 		 * requested extension and returns the first extension instance of this type
-		 * @return A pointer to the extension object or NULL if this extension type doesn't exist in this message
+		 * @return A pointer to the extension object or nullptr if this extension type doesn't exist in this message
 		 *
 		 */
 		template <class TExtension> TExtension* getExtensionOfType() const;
@@ -789,7 +789,7 @@ namespace pcpp
 		 * Get a certificate by index
 		 * @param[in] index The index of the certificate to retrieve
 		 * @return A pointer to the certificate object. Notice that if index < 0 or index > num of certificates
-		 * encapsulated in current packet a NULL value will be returned
+		 * encapsulated in current packet a nullptr value will be returned
 		 */
 		SSLx509Certificate* getCertificate(int index) const;
 
@@ -854,7 +854,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the raw data of the server key exchange params. Currently this data can only returned as
 		 * raw, parsing may be added in the future. Notice that if the message is spread over more than 1 packet in a
-		 * way params doesn't exist in the first packet, NULL will be returned
+		 * way params doesn't exist in the first packet, nullptr will be returned
 		 */
 		uint8_t* getServerKeyExchangeParams() const;
 
@@ -897,7 +897,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the raw data of the server key exchange params. Currently this data can only be returned
 		 * as raw, parsing may be added in the future. Notice that if the message is spread over more than 1 packet in
-		 * a way params doesn't exist in the first packet, NULL will be returned
+		 * a way params doesn't exist in the first packet, nullptr will be returned
 		 */
 		uint8_t* getClientKeyExchangeParams() const;
 
@@ -942,7 +942,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the certificate authority data as raw data (byte array). Parsing of this data may be
 		 * added in the future. Notice that if this message is spread over several packets in a way none of the
-		 * certificate authority data exists in this packet, NULL will be returned
+		 * certificate authority data exists in this packet, nullptr will be returned
 		 */
 		uint8_t* getCertificateAuthorityData() const;
 
@@ -1015,7 +1015,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the signed hash data as raw data (byte array). Parsing of this data may be added
 		 * in the future. Notice that if this message is spread over several packets in a way none of the signed hash
-		 * data exists in this packet, NULL will be returned
+		 * data exists in this packet, nullptr will be returned
 		 */
 		uint8_t* getSignedHash() const;
 
@@ -1058,7 +1058,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the signed hash data as raw data (byte array). Parsing of this data may be added
 		 * in the future. Notice that if this message is spread over several packets in a way none of the signed hash
-		 * data exists in this packet, NULL will be returned
+		 * data exists in this packet, nullptr will be returned
 		 */
 		uint8_t* getSignedHash() const;
 
@@ -1100,7 +1100,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the session ticket data as raw data (byte array). Parsing of this data may be added
 		 * in the future. Notice that if this message is spread over several packets in a way none of the signed hash
-		 * data exists in current packet, NULL will be returned
+		 * data exists in current packet, nullptr will be returned
 		 */
 		uint8_t* getSessionTicketData() const;
 
@@ -1163,11 +1163,11 @@ namespace pcpp
 		for (size_t i = 0; i < vecSize; i++)
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
-			if (dynamic_cast<TExtension*>(curElem) != NULL)
+			if (dynamic_cast<TExtension*>(curElem) != nullptr)
 				return (TExtension*)curElem;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	template <class TExtension> TExtension* SSLServerHelloMessage::getExtensionOfType() const
@@ -1176,11 +1176,11 @@ namespace pcpp
 		for (size_t i = 0; i < vecSize; i++)
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
-			if (dynamic_cast<TExtension*>(curElem) != NULL)
+			if (dynamic_cast<TExtension*>(curElem) != nullptr)
 				return (TExtension*)curElem;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 }  // namespace pcpp

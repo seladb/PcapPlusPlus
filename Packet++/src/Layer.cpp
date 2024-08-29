@@ -61,7 +61,7 @@ namespace pcpp
 	{
 		if (m_Data == nullptr)
 		{
-			PCPP_LOG_ERROR("Layer's data is NULL");
+			PCPP_LOG_ERROR("Layer's data is nullptr");
 			return false;
 		}
 
@@ -89,7 +89,7 @@ namespace pcpp
 	{
 		if (m_Data == nullptr)
 		{
-			PCPP_LOG_ERROR("Layer's data is NULL");
+			PCPP_LOG_ERROR("Layer's data is nullptr");
 			return false;
 		}
 

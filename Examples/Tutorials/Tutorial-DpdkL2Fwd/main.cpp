@@ -48,7 +48,7 @@ void printStats(pcpp::DpdkDevice* rxDevice, pcpp::DpdkDevice* txDevice)
 int main(int argc, char* argv[])
 {
 	// Register the on app close event handler
-	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, NULL);
+	pcpp::ApplicationEventHandler::getInstance().onApplicationInterrupted(onApplicationInterrupted, nullptr);
 
 	// Initialize DPDK
 	pcpp::CoreMask coreMaskToUse = pcpp::getCoreMaskForAllMachineCores();
