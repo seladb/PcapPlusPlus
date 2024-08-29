@@ -167,6 +167,13 @@ namespace pcpp
 		MBufRawPacket& operator=(const MBufRawPacket& other);
 
 		/**
+		 * @brief Clone this MBufRawPacket object. See copy constructor for details.
+		 * The caller is responsible for the deallocation of the returned pointer.
+		 * @return A pointer to the new MBufRawPacket object which is a clone of this object
+		 */
+		MBufRawPacket* clone() const override;
+
+		/**
 		 * Set raw data to the mbuf by copying the data to it. In order to stay compatible with the ancestor method
 		 * which takes control of the data pointer and frees it when RawPacket is destroyed, this method frees this
 		 * pointer right away after data is copied to the mbuf. So when using this method please notice that after it's

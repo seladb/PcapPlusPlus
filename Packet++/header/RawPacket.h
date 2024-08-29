@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <memory>
 #ifdef _MSC_VER
 #	include <WinSock2.h>
 #	include <time.h>
@@ -338,6 +339,12 @@ namespace pcpp
 		 * @param[in] other The instance to copy from
 		 */
 		RawPacket& operator=(const RawPacket& other);
+
+		/**
+		 * @brief Clones the current packet. Caller is responsible for deallocation of the memory.
+		 * @return A pointer to the new RawPacket object which is a clone of this object
+		 */
+		virtual RawPacket* clone() const;
 
 		/**
 		 * @return RawPacket object type. Each derived class should return a different value
