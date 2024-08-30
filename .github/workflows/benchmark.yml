@@ -3,12 +3,12 @@ name: Benchmark
 on:
   pull_request:
     branches: ["dev"]
-  workflow_run:
-    workflows: [CodeQL]
-    types: [completed]
+  push:
+    branches: ["master"]
 
 env:
   BUILD_DIR: Dist
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
 
 permissions:
   contents: read
@@ -16,16 +16,7 @@ permissions:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    container: seladb/${{ matrix.image }}
-    strategy:
-      matrix:
-        include:
-          - image: ubuntu2204
-          # - image: ubuntu2204
-          #   additional-flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-          - image: ubuntu2204-icpx
-            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-
+    container: seladb/ubuntu2204
     steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -34,29 +25,21 @@ jobs:
       - name: Fix checkout ownership
         run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
-      - name: Setup Intel Compiler variables
-        if: contains(matrix.image, 'icpx')
-        run: |
-          . /opt/intel/oneapi/setvars.sh
-          printenv >> $GITHUB_ENV
-
       - name: Restore Ccache
         id: ccache-restore
         uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: |
             ${{ env.CCACHE_DIR }}
-            !*.gcda
-            !*.gcno
-          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          key: ubuntu2204-ccache-${{ github.run_id }}
           restore-keys: |
-            ${{ matrix.image }}-ccache
+            ubuntu2204-ccache
 
       - name: Install dependencies (remove and install this to the container)
         run: apt-get update && apt-get install -y libbenchmark-dev
 
       - name: Configure PcapPlusPlus for benchmarking
-        run: cmake -DPCAPPP_BUILD_BENCHMARK_SUITE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+        run: cmake -DPCAPPP_BUILD_BENCHMARK_SUITE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
