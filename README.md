@@ -27,7 +27,6 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
   - [Build It Yourself](#build-it-yourself)
-  - [Verify your packages](#verify-your-packages)
 - [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
