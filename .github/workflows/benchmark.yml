@@ -27,7 +27,6 @@ jobs:
         with:
           repository: PcapPlusPlus/pcapplusplus.github.io
           path: Benchmarks
-          fetch-depth: 0
           sparse-checkout: benchmark-results
 
       # Checkout is performed out of the container and doesn't match our user
@@ -54,7 +53,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Run PcapPlusPlus benchmark
-        run:  cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark-results/benchmark_result_${GITHUB_SHA}.json
+        run: cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark-results/benchmark_result_${GITHUB_SHA}.json
 
       - name: Upload benchmark results
         if: github.ref == 'refs/heads/master'
