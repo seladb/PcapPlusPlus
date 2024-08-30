@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: ["dev"]
   push:
-    branches: ["master"]
+    branches: ["dev"]
 
 env:
   BUILD_DIR: Dist
@@ -35,6 +35,8 @@ jobs:
           restore-keys: |
             ubuntu2204-ccache
 
+      - uses: bencherdev/bencher@dfb22ab380d7e985394c23a459ee3586e7a16a98 # v0.4.19
+
       - name: Install dependencies (remove and install this to the container)
         run: apt-get update && apt-get install -y libbenchmark-dev
 
@@ -44,8 +46,15 @@ jobs:
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
-      - name: Run PcapPlusPlus benchmark
-        run: cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark_result.json
+      - name: Run benchmark with Bencher
+        run: |
+          bencher run \
+          --project PcapPlusPlus \
+          --token '${{ secrets.BENCHER_API_TOKEN }}' \
+          --branch dev \
+          --testbed ubuntu2204 \
+          --adapter cpp_google \
+          "cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark_result.json"
 
       - name: Save Ccache
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
