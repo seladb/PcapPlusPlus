@@ -1,12 +1,6 @@
 exclude: '.*\.(pcap|pcapng|dat|txt)'
 fail_fast: false
 repos:
-  - repo: local
-    hooks:
-      - id: check-clang-format-version
-        name: Check clang-format version
-        entry: python3 ./ci/check-clang-format-version.py
-        language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -42,6 +36,6 @@ repos:
       - id: beautysh
 
 ci:
-  autofix_prs: true
+  autofix_prs: false
   autoupdate_branch: dev
   autoupdate_schedule: monthly
