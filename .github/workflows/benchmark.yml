@@ -21,12 +21,9 @@ jobs:
       matrix:
         include:
           - image: ubuntu2204
-            config-zstd: OFF
-          - image: ubuntu2204
-            config-zstd: OFF
-            additional-flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          # - image: ubuntu2204
+          #   additional-flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
           - image: ubuntu2204-icpx
-            config-zstd: OFF
             additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
 
     steps:
