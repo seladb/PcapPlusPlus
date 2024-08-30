@@ -1,8 +1,9 @@
 name: Benchmark
 
 on:
-  push:
-    branches: ["master"]
+  workflow_run:
+    workflows: [CodeQL]
+    types: [completed]
 
 env:
   BUILD_DIR: Dist
@@ -13,7 +14,18 @@ permissions:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    container: seladb/ubuntu2204
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+        include:
+          - image: ubuntu2204
+            config-zstd: OFF
+          - image: ubuntu2204
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+          - image: ubuntu2204-icpx
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
 
     steps:
       - name: Checkout code
@@ -23,14 +35,38 @@ jobs:
       - name: Fix checkout ownership
         run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
+      - name: Setup Intel Compiler variables
+        if: contains(matrix.image, 'icpx')
+        run: |
+          . /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+
+      - name: Restore Ccache
+        id: ccache-restore
+        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: |
+            ${{ env.CCACHE_DIR }}
+            !*.gcda
+            !*.gcno
+          key: ${{ matrix.image }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.image }}-ccache
+
       - name: Install dependencies (remove and install this to the container)
         run: apt-get update && apt-get install -y libbenchmark-dev
 
-      - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_BUILD_BENCHMARK_SUITE=ON -S . -B "$BUILD_DIR"
+      - name: Configure PcapPlusPlus for benchmarking
+        run: cmake -DPCAPPP_BUILD_BENCHMARK_SUITE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Run PcapPlusPlus benchmark
-        run: cd Tests/Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark_result.json
+        run: cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark_result.json
+
+      - name: Save Ccache
+        uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
