@@ -2,6 +2,12 @@
 #include <PcapFileDevice.h>
 #include <PcapPlusPlusVersion.h>
 
+#include <EthLayer.h>
+#include <IPv4Layer.h>
+#include <IPv6Layer.h>
+#include <TcpLayer.h>
+#include <UdpLayer.h>
+
 #include <benchmark/benchmark.h>
 
 #include <iostream>
@@ -50,6 +56,44 @@ static void BM_PcapFileRead(benchmark::State& state)
 	state.SetItemsProcessed(totalPackets);
 }
 BENCHMARK(BM_PcapFileRead);
+
+static void BM_PcapFileWrite(benchmark::State& state)
+{
+	// Open the pcap file for writing
+	pcpp::PcapFileWriterDevice writer("PcapExamples/output.pcap");
+	if (!writer.open())
+	{
+		state.SkipWithError("Cannot open pcap file for writing");
+		return;
+	}
+
+	pcpp::Packet packet;
+	pcpp::EthLayer ethLayer(pcpp::MacAddress("00:00:00:00:00:00"), pcpp::MacAddress("00:00:00:00:00:00"));
+	pcpp::IPv4Layer ip4Layer(pcpp::IPv4Address("192.168.0.1"), pcpp::IPv4Address("192.168.0.2"));
+	pcpp::TcpLayer tcpLayer(12345, 80);
+
+	packet.addLayer(&ethLayer);
+	packet.addLayer(&ip4Layer);
+	packet.addLayer(&tcpLayer);
+	packet.computeCalculateFields();
+
+	size_t totalBytes = 0;
+	size_t totalPackets = 0;
+	for (auto _ : state)
+	{
+		// Write packet to file
+		writer.writePacket(*(packet.getRawPacket()));
+
+		// Count total bytes and packets
+		++totalPackets;
+		totalBytes += packet.getRawPacket()->getRawDataLen();
+	}
+
+	// Set statistics to the benchmark state
+	state.SetBytesProcessed(totalBytes);
+	state.SetItemsProcessed(totalPackets);
+}
+BENCHMARK(BM_PcapFileWrite);
 
 static void BM_PcapPacketParsing(benchmark::State& state)
 {
@@ -118,6 +162,87 @@ static void BM_PcapPacketParsing(benchmark::State& state)
 	state.SetItemsProcessed(totalPackets);
 }
 BENCHMARK(BM_PcapPacketParsing);
+
+static void BM_PcapPacketCrafting(benchmark::State& state)
+{
+	size_t totalBytes = 0;
+	size_t totalPackets = 0;
+
+	for (auto _ : state)
+	{
+		uint8_t randNum = static_cast<uint8_t>(rand() % 256);
+
+		// Generate random MAC addresses
+		pcpp::MacAddress srcMac(randNum, randNum, randNum, randNum, randNum, randNum);
+		pcpp::MacAddress dstMac(randNum, randNum, randNum, randNum, randNum, randNum);
+
+		// Craft packet
+		std::unique_ptr<pcpp::EthLayer> ethLayer(new pcpp::EthLayer(srcMac, dstMac));
+
+		std::unique_ptr<pcpp::IPv4Layer> ipv4Layer(nullptr);
+		std::unique_ptr<pcpp::IPv6Layer> ipv6Layer(nullptr);
+
+		std::unique_ptr<pcpp::TcpLayer> tcpLayer(nullptr);
+		std::unique_ptr<pcpp::UdpLayer> udpLayer(nullptr);
+
+		// Randomly choose between IPv4 and IPv6
+		if (randNum % 2)
+		{
+			ipv4Layer.reset(new pcpp::IPv4Layer(randNum, randNum));
+		}
+		else
+		{
+			std::array<uint8_t, 16> srcIP = { randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum,
+				                              randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum };
+			std::array<uint8_t, 16> dstIP = { randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum,
+				                              randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum };
+
+			ipv6Layer.reset(new pcpp::IPv6Layer(srcIP, dstIP));
+		}
+
+		// Randomly choose between TCP and UDP
+		if (randNum % 2)
+		{
+			tcpLayer.reset(new pcpp::TcpLayer(randNum % 65536, randNum % 65536));
+		}
+		else
+		{
+			udpLayer.reset(new pcpp::UdpLayer(randNum % 65536, randNum % 65536));
+		}
+
+		// Add layers to the packet
+		pcpp::Packet packet;
+		packet.addLayer(ethLayer.get());
+		if (ipv4Layer)
+		{
+			packet.addLayer(ipv4Layer.get());
+		}
+		else
+		{
+			packet.addLayer(ipv6Layer.get());
+		}
+
+		if (tcpLayer)
+		{
+			packet.addLayer(tcpLayer.get());
+		}
+		else
+		{
+			packet.addLayer(udpLayer.get());
+		}
+
+		packet.computeCalculateFields();
+
+		// Count total bytes and packets
+		++totalPackets;
+		totalBytes += packet.getRawPacket()->getRawDataLen();
+	}
+
+	// Set statistics to the benchmark state
+	state.SetBytesProcessed(totalBytes);
+	state.SetItemsProcessed(totalPackets);
+}
+BENCHMARK(BM_PcapPacketCrafting);
 
 int main(int argc, char** argv)
 {
