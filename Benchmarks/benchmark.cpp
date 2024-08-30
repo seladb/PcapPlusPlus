@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 
-static std::string pcapFileName = "PcapExamples/example_copy.pcap";
+static std::string pcapFileName = "PcapExamples/example.pcap";
 
 static void BM_PcapFileRead(benchmark::State& state)
 {
