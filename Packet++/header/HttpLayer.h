@@ -32,98 +32,116 @@ namespace pcpp
 	// some popular HTTP fields
 
 	/** Host field */
-#define PCPP_HTTP_HOST_FIELD 				"Host"
+#define PCPP_HTTP_HOST_FIELD "Host"
 	/** Connection field */
-#define PCPP_HTTP_CONNECTION_FIELD 			"Connection"
+#define PCPP_HTTP_CONNECTION_FIELD "Connection"
 	/** User-Agent field */
-#define PCPP_HTTP_USER_AGENT_FIELD			"User-Agent"
+#define PCPP_HTTP_USER_AGENT_FIELD "User-Agent"
 	/** Referer field */
-#define PCPP_HTTP_REFERER_FIELD				"Referer"
+#define PCPP_HTTP_REFERER_FIELD "Referer"
 	/** Accept field */
-#define PCPP_HTTP_ACCEPT_FIELD 				"Accept"
+#define PCPP_HTTP_ACCEPT_FIELD "Accept"
 	/** Accept-Encoding field */
-#define PCPP_HTTP_ACCEPT_ENCODING_FIELD		"Accept-Encoding"
+#define PCPP_HTTP_ACCEPT_ENCODING_FIELD "Accept-Encoding"
 	/** Accept-Language field */
-#define PCPP_HTTP_ACCEPT_LANGUAGE_FIELD		"Accept-Language"
+#define PCPP_HTTP_ACCEPT_LANGUAGE_FIELD "Accept-Language"
 	/** Cookie field */
-#define PCPP_HTTP_COOKIE_FIELD 				"Cookie"
+#define PCPP_HTTP_COOKIE_FIELD "Cookie"
 	/** Content-Length field */
-#define PCPP_HTTP_CONTENT_LENGTH_FIELD		"Content-Length"
+#define PCPP_HTTP_CONTENT_LENGTH_FIELD "Content-Length"
 	/** Content-Encoding field */
-#define PCPP_HTTP_CONTENT_ENCODING_FIELD 	"Content-Encoding"
+#define PCPP_HTTP_CONTENT_ENCODING_FIELD "Content-Encoding"
 	/** Content-Type field */
-#define PCPP_HTTP_CONTENT_TYPE_FIELD		"Content-Type"
+#define PCPP_HTTP_CONTENT_TYPE_FIELD "Content-Type"
 	/** Transfer-Encoding field */
-#define PCPP_HTTP_TRANSFER_ENCODING_FIELD	"Transfer-Encoding"
+#define PCPP_HTTP_TRANSFER_ENCODING_FIELD "Transfer-Encoding"
 	/** Server field */
-#define PCPP_HTTP_SERVER_FIELD				"Server"
-
+#define PCPP_HTTP_SERVER_FIELD "Server"
 
 	// -------- classes to be defined later -----------------
-
 
 	class HttpRequestFirstLine;
 	class HttpResponseFirstLine;
 
-
 	// -------- Class HttpMessage -----------------
-
 
 	/**
 	 * @class HttpMessage
-	 * Represents a general HTTP message. It's an abstract class and cannot be instantiated. It's inherited by HttpRequestLayer and HttpResponseLayer
+	 * Represents a general HTTP message. It's an abstract class and cannot be instantiated. It's inherited by
+	 * HttpRequestLayer and HttpResponseLayer
 	 */
 	class HttpMessage : public TextBasedProtocolMessage
 	{
 	public:
-
-		virtual ~HttpMessage() {}
+		virtual ~HttpMessage()
+		{}
 
 		/**
 		 * A static method that checks whether the port is considered as HTTP
 		 * @param[in] port The port number to be checked
 		 * @return True if the port matches those associated with the HTTP protocol
 		 */
-		static bool isHttpPort(uint16_t port) { return port == 80 || port == 8080; }
+		static bool isHttpPort(uint16_t port)
+		{
+			return port == 80 || port == 8080;
+		}
 
 		// overridden methods
 
 		virtual HeaderField* addField(const std::string& fieldName, const std::string& fieldValue);
 		virtual HeaderField* addField(const HeaderField& newField);
-		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName, const std::string& fieldValue);
+		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName,
+		                                 const std::string& fieldValue);
 		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelApplicationLayer;
+		}
 
 	protected:
-		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : TextBasedProtocolMessage(data, dataLen, prevLayer, packet) {}
-		HttpMessage() : TextBasedProtocolMessage() {}
-		HttpMessage(const HttpMessage& other) : TextBasedProtocolMessage(other) {}
-		HttpMessage& operator=(const HttpMessage& other) { TextBasedProtocolMessage::operator=(other); return *this; }
+		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet)
+		{}
+		HttpMessage() : TextBasedProtocolMessage()
+		{}
+		HttpMessage(const HttpMessage& other) : TextBasedProtocolMessage(other)
+		{}
+		HttpMessage& operator=(const HttpMessage& other)
+		{
+			TextBasedProtocolMessage::operator=(other);
+			return *this;
+		}
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() const { return ':'; }
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() const { return true; }
+		char getHeaderFieldNameValueSeparator() const
+		{
+			return ':';
+		}
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const
+		{
+			return true;
+		}
 	};
-
 
 	// -------- Class HttpRequestLayer -----------------
 
 	/**
 	 * @class HttpRequestLayer
-	 * Represents an HTTP request header and inherits all basic functionality of HttpMessage and TextBasedProtocolMessage.
-	 * The functionality that is added for this class is the HTTP first line concept. An HTTP request has the following first line:
-	 * <i>GET /bla/blabla.asp HTTP/1.1</i>
-	 * Since it's not an "ordinary" HTTP field, it requires a special treatment and gets a class of it's own: HttpRequestFirstLine.
-	 * Unlike most L2-4 protocols, an HTTP request header can spread over more than 1 packet. PcapPlusPlus currently doesn't support a header
-	 * that is spread over more than 1 packet so in such cases: 1) only the first packet will be parsed as HttpRequestLayer (the other packets
-	 * won't be recognized as HttpRequestLayer) and 2) the HTTP header for the first packet won't be complete (as it continues in the following
-	 * packets), this why PcapPlusPlus can indicate that HTTP request header is complete or not(doesn't end with "\r\n\r\n" or "\n\n") using
-	 * HttpMessage#isHeaderComplete()
+	 * Represents an HTTP request header and inherits all basic functionality of HttpMessage and
+	 * TextBasedProtocolMessage. The functionality that is added for this class is the HTTP first line concept. An HTTP
+	 * request has the following first line: <i>GET /bla/blabla.asp HTTP/1.1</i> Since it's not an "ordinary" HTTP
+	 * field, it requires a special treatment and gets a class of it's own: HttpRequestFirstLine. Unlike most L2-4
+	 * protocols, an HTTP request header can spread over more than 1 packet. PcapPlusPlus currently doesn't support a
+	 * header that is spread over more than 1 packet so in such cases: 1) only the first packet will be parsed as
+	 * HttpRequestLayer (the other packets won't be recognized as HttpRequestLayer) and 2) the HTTP header for the first
+	 * packet won't be complete (as it continues in the following packets), this why PcapPlusPlus can indicate that HTTP
+	 * request header is complete or not(doesn't end with "\r\n\r\n" or "\n\n") using HttpMessage#isHeaderComplete()
 	 */
 	class HttpRequestLayer : public HttpMessage
 	{
 		friend class HttpRequestFirstLine;
+
 	public:
 		/**
 		 * HTTP request methods
@@ -152,7 +170,7 @@ namespace pcpp
 			HttpMethodUnknown
 		};
 
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -161,8 +179,8 @@ namespace pcpp
 		HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * A constructor that allocates a new HTTP request header with only the first line filled. Object will be created without further fields.
-		 * The user can then add fields using addField() methods
+		 * A constructor that allocates a new HTTP request header with only the first line filled. Object will be
+		 * created without further fields. The user can then add fields using addField() methods
 		 * @param[in] method The HTTP method used in this HTTP request
 		 * @param[in] uri The URI of the first line
 		 * @param[in] version HTTP version to be used in this request
@@ -172,15 +190,15 @@ namespace pcpp
 		virtual ~HttpRequestLayer();
 
 		/**
-		 * A copy constructor for this layer. This copy constructor inherits base copy constructor HttpMessage#HttpMessage() and add the functionality
-		 * of copying the first line as well
+		 * A copy constructor for this layer. This copy constructor inherits base copy constructor
+		 * HttpMessage#HttpMessage() and add the functionality of copying the first line as well
 		 * @param[in] other The instance to copy from
 		 */
 		HttpRequestLayer(const HttpRequestLayer& other);
 
 		/**
-		 * An assignment operator overload for this layer. This method inherits base assignment operator HttpMessage#operator=() and add the functionality
-		 * of copying the first line as well
+		 * An assignment operator overload for this layer. This method inherits base assignment operator
+		 * HttpMessage#operator=() and add the functionality of copying the first line as well
 		 * @param[in] other The instance to copy from
 		 * @return A reference to the assignee
 		 */
@@ -189,13 +207,16 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		HttpRequestFirstLine* getFirstLine() const { return m_FirstLine; }
+		HttpRequestFirstLine* getFirstLine() const
+		{
+			return m_FirstLine;
+		}
 
 		/**
-		 * The URL is hostname+uri. So given the following URL, for example: "www.cnn.com/main.html", the hostname is "www.cnn.com" and the URI
-		 * is "/.main.html". URI and hostname are split to 2 different places inside the HTTP request packet: URI is in the first line and hostname
-		 * is in "HOST" field.
-		 * This methods concatenates the hostname and URI to the full URL
+		 * The URL is hostname+uri. So given the following URL, for example: "www.cnn.com/main.html", the hostname is
+		 * "www.cnn.com" and the URI is "/.main.html". URI and hostname are split to 2 different places inside the HTTP
+		 * request packet: URI is in the first line and hostname is in "HOST" field. This methods concatenates the
+		 * hostname and URI to the full URL
 		 * @return The URL of the HTTP request message
 		 */
 		std::string getUrl() const;
@@ -219,7 +240,7 @@ namespace pcpp
 		/**
 		 * @brief Define enum types and the corresponding int values
 		 */
-		enum Value: int
+		enum Value : int
 		{
 			/** 100 Continue*/
 			Http100Continue = 100,
@@ -232,7 +253,7 @@ namespace pcpp
 			/** 104-199 Unassigned */
 
 			/** 200 OK */
-			Http200OK= 200,
+			Http200OK = 200,
 			/** 201 Created */
 			Http201Created = 201,
 			/** 202 Accepted */
@@ -404,13 +425,15 @@ namespace pcpp
 			/** 599 Network connect timeout error */
 			Http599NetworkConnectTimeoutError = 599,
 
+			// clang-format off
 			/** Unknown status code */
 			HttpStatus1xxCodeUnknown = 900001, // 1xx: Informational - Request received, continuing process
 			HttpStatus2xxCodeUnknown = 900002, // 2xx: Success - The action was successfully received, understood, and accepted
 			HttpStatus3xxCodeUnknown = 900003, // 3xx: Redirection - Further action must be taken in order to complete the request
 			HttpStatus4xxCodeUnknown = 900004, // 4xx: Client Error - The request contains bad syntax or cannot be fulfilled
 			HttpStatus5xxCodeUnknown = 900005, // 5xx: Server Error - The server failed to fulfill an apparently valid request
-			HttpStatusCodeUnknown = 999999, // other arbitrary number
+			HttpStatusCodeUnknown = 999999,    // other arbitrary number
+			// clang-format on
 		};
 
 		HttpResponseStatusCode() = default;
@@ -420,14 +443,15 @@ namespace pcpp
 		 * @brief Construct HttpResponseStatusCode from Value enum
 		 * @param[in] statusCode the status code enum
 		 */
-		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode) { }
+		HttpResponseStatusCode(Value statusCode) : m_Value(statusCode)
+		{}
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from the code number and the customized message
 		 * @param[in] statusCodeNumber the status code in number, e.g. 200, 404
 		 * @param[in] statusMessage the status message, optional, leave empty to use a default message
 		 */
-		explicit HttpResponseStatusCode(const int &statusCodeNumber, const std::string& statusMessage = "");
+		explicit HttpResponseStatusCode(const int& statusCodeNumber, const std::string& statusMessage = "");
 
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum and the customized message
@@ -436,8 +460,11 @@ namespace pcpp
 		 */
 		explicit HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage);
 
- 		// Allow switch and comparisons.
-		operator Value() const { return m_Value; }
+		// Allow switch and comparisons.
+		operator Value() const
+		{
+			return m_Value;
+		}
 		// Prevent usage: if(httpResponseStatusCode)
 		explicit operator bool() const = delete;
 
@@ -471,7 +498,7 @@ namespace pcpp
 		}
 
 	private:
-  		Value m_Value = HttpStatusCodeUnknown;
+		Value m_Value = HttpStatusCodeUnknown;
 		std::string m_CustomizedMessage;
 	};
 
@@ -479,24 +506,25 @@ namespace pcpp
 
 	/**
 	 * @class HttpResponseLayer
-	 * Represents an HTTP response header and inherits all basic functionality of HttpMessage and TextBasedProtocolMessage.
-	 * The functionality that is added for this class is the HTTP first line concept. An HTTP response has the following first line:
-	 * <i>200 OK HTTP/1.1</i>
-	 * Since it's not an "ordinary" HTTP field, it requires a special treatment and gets a class of it's own: HttpResponseFirstLine.
-	 * Unlike most L2-4 protocols, an HTTP response header can spread over more than 1 packet. PcapPlusPlus currently doesn't support a header
-	 * that is spread over more than 1 packet so in such cases: 1) only the first packet will be parsed as HttpResponseLayer (the other packets
-	 * won't be recognized as HttpResponseLayer) and 2) the HTTP header for the first packet won't be complete (as it continues in the following
-	 * packets), this why PcapPlusPlus can indicate that HTTP response header is complete or not (doesn't end with "\r\n\r\n" or "\n\n") using
-	 * HttpMessage#isHeaderComplete()
+	 * Represents an HTTP response header and inherits all basic functionality of HttpMessage and
+	 * TextBasedProtocolMessage. The functionality that is added for this class is the HTTP first line concept. An HTTP
+	 * response has the following first line: <i>200 OK HTTP/1.1</i> Since it's not an "ordinary" HTTP field, it
+	 * requires a special treatment and gets a class of it's own: HttpResponseFirstLine. Unlike most L2-4 protocols, an
+	 * HTTP response header can spread over more than 1 packet. PcapPlusPlus currently doesn't support a header that is
+	 * spread over more than 1 packet so in such cases: 1) only the first packet will be parsed as HttpResponseLayer
+	 * (the other packets won't be recognized as HttpResponseLayer) and 2) the HTTP header for the first packet won't be
+	 * complete (as it continues in the following packets), this why PcapPlusPlus can indicate that HTTP response header
+	 * is complete or not (doesn't end with "\r\n\r\n" or "\n\n") using HttpMessage#isHeaderComplete()
 	 */
 	class HttpResponseLayer : public HttpMessage
 	{
 		friend class HttpResponseFirstLine;
+
 	public:
 		// backward compatibility
 		using HttpResponseStatusCode = pcpp::HttpResponseStatusCode;
 
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -505,21 +533,22 @@ namespace pcpp
 		HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
-		 * The user can then add fields using addField() methods
+		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be
+		 * created without further fields. The user can then add fields using addField() methods
 		 * @param[in] version HTTP version to be used
 		 * @param[in] statusCode Status code to be used
-		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK", 404 is usually "Not Found", etc.
-		 * But the user can set a non-default status code string and it will be written in the header first line. Empty string ("") means using the
-		 * default status code string
+		 * @param[in] statusCodeString Most status codes have their default string, e.g 200 is usually "OK", 404 is
+		 * usually "Not Found", etc. But the user can set a non-default status code string and it will be written in the
+		 * header first line. Empty string ("") means using the default status code string
 		 * @deprecated Use other constructors instead.
 		 */
 		PCPP_DEPRECATED("Use other constructors instead")
-		explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode, const std::string& statusCodeString);
+		explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode,
+		                           const std::string& statusCodeString);
 
 		/**
-		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be created without further fields.
-		 * The user can then add fields using addField() methods
+		 * A constructor that allocates a new HTTP response header with only the first line filled. Object will be
+		 * created without further fields. The user can then add fields using addField() methods
 		 * @param[in] version HTTP version to be used
 		 * @param[in] statusCode Status code to be used
 		 */
@@ -528,15 +557,15 @@ namespace pcpp
 		virtual ~HttpResponseLayer();
 
 		/**
-		 * A copy constructor for this layer. This copy constructor inherits base copy constructor HttpMessage#HttpMessage() and adds the functionality
-		 * of copying the first line as well
+		 * A copy constructor for this layer. This copy constructor inherits base copy constructor
+		 * HttpMessage#HttpMessage() and adds the functionality of copying the first line as well
 		 * @param[in] other The instance to copy from
 		 */
 		HttpResponseLayer(const HttpResponseLayer& other);
 
 		/**
-		 * An assignment operator overload for this layer. This method inherits base assignment operator HttpMessage#operator=() and adds the functionality
-		 * of copying the first line as well
+		 * An assignment operator overload for this layer. This method inherits base assignment operator
+		 * HttpMessage#operator=() and adds the functionality of copying the first line as well
 		 * @param[in] other The instance to copy from
 		 * @return A reference to the assignee
 		 */
@@ -545,26 +574,32 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first line instance for this message
 		 */
-		HttpResponseFirstLine* getFirstLine() const { return m_FirstLine; }
+		HttpResponseFirstLine* getFirstLine() const
+		{
+			return m_FirstLine;
+		}
 
 		/**
-		 * The length of the body of many HTTP response messages is determined by a HTTP header field called "Content-Length". This method sets
-		 * The content-length field value. The method supports several cases:
-		 * - If the "Content-Length" field exists - the method will only replace the existing value with the new value
-		 * - If the "Content-Length" field doesn't exist - the method will create this field and put the value in it. Here are also 2 cases:
+		 * The length of the body of many HTTP response messages is determined by a HTTP header field called
+		 * "Content-Length". This method sets The content-length field value. The method supports several cases:
+		 *   - If the "Content-Length" field exists - the method will only replace the existing value with the new value
+		 *   - If the "Content-Length" field doesn't exist - the method will create this field and put the value in it.
+		 * Here are also 2 cases:
 		 *   - If prevFieldName is specified - the new "Content-Length" field will be created after it
-		 *   - If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the last field before
-		 *     end-of-header field
+		 *   - If prevFieldName isn't specified or doesn't exist - the new "Content-Length" field will be created as the
+		 * last field before end-of-header field
 		 *
 		 * @param[in] contentLength The content length value to set
-		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be created after it
-		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
+		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be
+		 * created after it
+		 * @return A pointer to the "Content-Length" field, or nullptr if creation failed for some reason
 		 */
-		HeaderField* setContentLength(int contentLength, const std::string &prevFieldName = "");
+		HeaderField* setContentLength(int contentLength, const std::string& prevFieldName = "");
 
 		/**
-		 * The length of the body of many HTTP response messages is determined by a HTTP header field called "Content-Length". This method
-		 * parses this field, extracts its value and return it. If this field doesn't exist the method will return 0
+		 * The length of the body of many HTTP response messages is determined by a HTTP header field called
+		 * "Content-Length". This method parses this field, extracts its value and return it. If this field doesn't
+		 * exist the method will return 0
 		 * @return HTTP response body length determined by "Content-Length" field
 		 */
 		int getContentLength() const;
@@ -575,44 +610,45 @@ namespace pcpp
 
 	private:
 		HttpResponseFirstLine* m_FirstLine;
-
 	};
-
-
-
-
 
 	// -------- Class HttpRequestFirstLine -----------------
 
 	/**
 	 * @class HttpRequestFirstLine
-	 * Represents an HTTP request header first line. The first line includes 3 parameters: HTTP method (e.g GET, POST, etc.),
-	 * URI (e.g /main/index.html) and HTTP version (e.g HTTP/1.1). All these parameters are included in this class, and the user
-	 * can retrieve or set them.
-	 * This class cannot be instantiated by users, it's created inside HttpRequestLayer and user can get a pointer to an instance of it. All "get"
-	 * methods of this class will retrieve the actual data of the HTTP request and the "set" methods will change the packet data.
-	 * Since HTTP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So most "set" methods
-	 * of this class need in most cases to shorten or extend the data in HttpRequestLayer. These methods will return a false value if this
-	 * action failed
+	 * Represents an HTTP request header first line. The first line includes 3 parameters: HTTP method (e.g GET, POST,
+	 * etc.), URI (e.g /main/index.html) and HTTP version (e.g HTTP/1.1). All these parameters are included in this
+	 * class, and the user can retrieve or set them. This class cannot be instantiated by users, it's created inside
+	 * HttpRequestLayer and user can get a pointer to an instance of it. All "get" methods of this class will retrieve
+	 * the actual data of the HTTP request and the "set" methods will change the packet data. Since HTTP is a textual
+	 * protocol, most fields aren't of fixed size and this also applies to the first line parameters. So most "set"
+	 * methods of this class need in most cases to shorten or extend the data in HttpRequestLayer. These methods will
+	 * return a false value if this action failed
 	 */
 	class HttpRequestFirstLine
 	{
 		friend class HttpRequestLayer;
+
 	public:
 		/**
 		 * @return The HTTP method
 		 */
-		HttpRequestLayer::HttpMethod getMethod() const { return m_Method; }
+		HttpRequestLayer::HttpMethod getMethod() const
+		{
+			return m_Method;
+		}
 
 		/**
 		 * Set the HTTP method
 		 * @param[in] newMethod The method to set
-		 * @return False if newMethod is HttpRequestLayer#HttpMethodUnknown or if shortening/extending the HttpRequestLayer data failed. True otherwise
+		 * @return False if newMethod is HttpRequestLayer#HttpMethodUnknown or if shortening/extending the
+		 * HttpRequestLayer data failed. True otherwise
 		 */
 		bool setMethod(HttpRequestLayer::HttpMethod newMethod);
 
 		/**
-		 * @return A copied version of the URI (notice changing the return value won't change the actual data of the packet)
+		 * @return A copied version of the URI (notice changing the return value won't change the actual data of the
+		 * packet)
 		 */
 		std::string getUri() const;
 
@@ -626,11 +662,14 @@ namespace pcpp
 		/**
 		 * @return The HTTP version
 		 */
-		HttpVersion getVersion() const { return m_Version; }
+		HttpVersion getVersion() const
+		{
+			return m_Version;
+		}
 
 		/**
-		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
-		 * (HTTP/0.9, HTTP/1.0, HTTP/1.1)
+		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same
+		 * size (HTTP/0.9, HTTP/1.0, HTTP/1.1)
 		 * @param[in] newVersion The HTTP version to set
 		 */
 		void setVersion(HttpVersion newVersion);
@@ -646,37 +685,50 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
-		int getSize() const { return m_FirstLineEndOffset; }
+		int getSize() const
+		{
+			return m_FirstLineEndOffset;
+		}
 
 		/**
-		 * As explained in HttpRequestLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
-		 * the header can be partial. Same goes for the first line - it can spread over more than 1 packet. This method returns an indication
-		 * whether the first line is partial
+		 * As explained in HttpRequestLayer, an HTTP header can spread over more than 1 packet, so when looking at a
+		 * single packet the header can be partial. Same goes for the first line - it can spread over more than 1
+		 * packet. This method returns an indication whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		bool isComplete() const { return m_IsComplete; }
+		bool isComplete() const
+		{
+			return m_IsComplete;
+		}
 
 		/**
 		 * @class HttpRequestFirstLineException
-		 * This exception can be thrown while constructing HttpRequestFirstLine (the constructor is private, so the construction happens
-		 * only in HttpRequestLayer). This kind of exception will be thrown if trying to construct with HTTP method of
-		 * HttpRequestLayer#HttpMethodUnknown or with undefined HTTP version ::HttpVersionUnknown
+		 * This exception can be thrown while constructing HttpRequestFirstLine (the constructor is private, so the
+		 * construction happens only in HttpRequestLayer). This kind of exception will be thrown if trying to construct
+		 * with HTTP method of HttpRequestLayer#HttpMethodUnknown or with undefined HTTP version ::HttpVersionUnknown
 		 */
 		class HttpRequestFirstLineException : public std::exception
 		{
 		public:
-			~HttpRequestFirstLineException() throw() {}
-			void setMessage(const std::string &message) { m_Message = message; }
-			virtual const char* what() const throw()
+			~HttpRequestFirstLineException() noexcept
+			{}
+			void setMessage(const std::string& message)
+			{
+				m_Message = message;
+			}
+			virtual const char* what() const noexcept
 			{
 				return m_Message.c_str();
 			}
+
 		private:
 			std::string m_Message;
 		};
+
 	private:
 		HttpRequestFirstLine(HttpRequestLayer* httpRequest);
-		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version, const std::string& uri = "/");
+		HttpRequestFirstLine(HttpRequestLayer* httpRequest, HttpRequestLayer::HttpMethod method, HttpVersion version,
+		                     const std::string& uri = "/");
 
 		void parseVersion();
 
@@ -690,30 +742,31 @@ namespace pcpp
 		HttpRequestFirstLineException m_Exception;
 	};
 
-
-
-
-
 	// -------- Class HttpResponseFirstLine -----------------
 
 	/**
 	 * @class HttpResponseFirstLine
-	 * Represents an HTTP response header first line. The first line includes 2 parameters: status code (e.g 200 OK, 404 Not Found, etc.),
-	 * and HTTP version (e.g HTTP/1.1). These 2 parameters are included in this class, and the user can retrieve or set them.
-	 * This class cannot be instantiated by users, it's created inside HttpResponseLayer and user can get a pointer to an instance of it. The "get"
-	 * methods of this class will retrieve the actual data of the HTTP response and the "set" methods will change the packet data.
-	 * Since HTTP is a textual protocol, most fields aren't of fixed size and this also applies to the first line parameters. So most "set" methods
-	 * of this class need in most cases to shorten or extend the data in HttpResponseLayer. These methods will return a false value if this
+	 * Represents an HTTP response header first line. The first line includes 2 parameters: status code (e.g 200 OK, 404
+	 * Not Found, etc.), and HTTP version (e.g HTTP/1.1). These 2 parameters are included in this class, and the user
+	 * can retrieve or set them. This class cannot be instantiated by users, it's created inside HttpResponseLayer and
+	 * user can get a pointer to an instance of it. The "get" methods of this class will retrieve the actual data of the
+	 * HTTP response and the "set" methods will change the packet data. Since HTTP is a textual protocol, most fields
+	 * aren't of fixed size and this also applies to the first line parameters. So most "set" methods of this class need
+	 * in most cases to shorten or extend the data in HttpResponseLayer. These methods will return a false value if this
 	 * action failed
 	 */
 	class HttpResponseFirstLine
 	{
 		friend class HttpResponseLayer;
+
 	public:
 		/**
 		 * @return The status code as HttpResponseStatusCode enum
 		 */
-		HttpResponseStatusCode getStatusCode() const { return m_StatusCode; }
+		HttpResponseStatusCode getStatusCode() const
+		{
+			return m_StatusCode;
+		}
 
 		/**
 		 * @return The status code number as integer (e.g 200, 404, etc.)
@@ -728,10 +781,11 @@ namespace pcpp
 		/**
 		 * Set the status code
 		 * @param[in] newStatusCode The new status code to set
-		 * @param[in] statusCodeString An optional parameter: set a non-default status code message (e.g "Bla Bla" instead of "Not Found"). If
-		 * this parameter isn't supplied or supplied as empty string (""), the default message for the status code will be set
+		 * @param[in] statusCodeString An optional parameter: set a non-default status code message (e.g "Bla Bla"
+		 * instead of "Not Found"). If this parameter isn't supplied or supplied as empty string (""), the default
+		 * message for the status code will be set
 		 * @return True if setting the status code was completed successfully, false otherwise
-	     * @deprecated Use the other overload instead.
+		 * @deprecated Use the other overload instead.
 		 */
 		PCPP_DEPRECATED("Use the other overload instead")
 		bool setStatusCode(const HttpResponseStatusCode& newStatusCode, const std::string& statusCodeString);
@@ -746,11 +800,14 @@ namespace pcpp
 		/**
 		 * @return The HTTP version
 		 */
-		HttpVersion getVersion() const { return m_Version; }
+		HttpVersion getVersion() const
+		{
+			return m_Version;
+		}
 
 		/**
-		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same size
-		 * (HTTP/0.9, HTTP/1.0, HTTP/1.1)
+		 * Set the HTTP version. This method doesn't return a value since all supported HTTP versions are of the same
+		 * size (HTTP/0.9, HTTP/1.0, HTTP/1.1)
 		 * @param[in] newVersion The HTTP version to set
 		 */
 		void setVersion(HttpVersion newVersion);
@@ -774,38 +831,51 @@ namespace pcpp
 		/**
 		 * @return The size in bytes of the HTTP first line
 		 */
-		int getSize() const { return m_FirstLineEndOffset; }
+		int getSize() const
+		{
+			return m_FirstLineEndOffset;
+		}
 
 		/**
-		 * As explained in HttpResponseLayer, an HTTP header can spread over more than 1 packet, so when looking at a single packet
-		 * the header can be partial. Same goes for the first line - it can spread over more than 1 packet. This method returns an indication
-		 * whether the first line is partial
+		 * As explained in HttpResponseLayer, an HTTP header can spread over more than 1 packet, so when looking at a
+		 * single packet the header can be partial. Same goes for the first line - it can spread over more than 1
+		 * packet. This method returns an indication whether the first line is partial
 		 * @return False if the first line is partial, true if it's complete
 		 */
-		bool isComplete() const { return m_IsComplete; }
+		bool isComplete() const
+		{
+			return m_IsComplete;
+		}
 
 		/**
 		 * @class HttpResponseFirstLineException
-		 * This exception can be thrown while constructing HttpResponseFirstLine (the constructor is private, so the construction happens
-		 * only in HttpResponseLayer). This kind of exception will be thrown if trying to construct with a HTTP status code that is not in
-		 * HttpResponseStatusCode or with undefined HTTP version ::HttpVersionUnknown
+		 * This exception can be thrown while constructing HttpResponseFirstLine (the constructor is private, so the
+		 * construction happens only in HttpResponseLayer). This kind of exception will be thrown if trying to construct
+		 * with a HTTP status code that is not in HttpResponseStatusCode or with undefined HTTP version
+		 * ::HttpVersionUnknown
 		 */
 		class HttpResponseFirstLineException : public std::exception
 		{
 		public:
-			~HttpResponseFirstLineException() throw() {}
-			void setMessage(const std::string &message) { m_Message = message; }
-			virtual const char* what() const throw()
+			~HttpResponseFirstLineException() noexcept
+			{}
+			void setMessage(const std::string& message)
+			{
+				m_Message = message;
+			}
+			virtual const char* what() const noexcept
 			{
 				return m_Message.c_str();
 			}
+
 		private:
 			std::string m_Message;
 		};
 
 	private:
 		HttpResponseFirstLine(HttpResponseLayer* httpResponse);
-		HttpResponseFirstLine(HttpResponseLayer* httpResponse,  HttpVersion version, const HttpResponseStatusCode& statusCode);
+		HttpResponseFirstLine(HttpResponseLayer* httpResponse, HttpVersion version,
+		                      const HttpResponseStatusCode& statusCode);
 
 		HttpResponseLayer* m_HttpResponse;
 		HttpVersion m_Version;
@@ -815,4 +885,4 @@ namespace pcpp
 		HttpResponseFirstLineException m_Exception;
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

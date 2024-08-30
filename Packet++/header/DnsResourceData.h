@@ -14,60 +14,55 @@
  */
 namespace pcpp
 {
-
-	//Visual studio has always been stupid about returning something useful for __cplusplus
-	//Only recently was this fixed - and even then it requires a specific hack to the command line during build
-	//Its easier/more consistent to test _MSC_VER in VS
-	//https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=vs-2017
-
-	#if __cplusplus > 199711L || _MSC_VER >= 1800 //Maybe this can be 1600 for VS2010
-	#define PCPP_SMART_PTR(T) std::unique_ptr<T>
-	#else
-	#define PCPP_SMART_PTR(T) std::auto_ptr<T>
-	#endif
-
 	// forward declarations
 	class IDnsResource;
 
 	/**
 	 * @class IDnsResourceData
-	 * A wrapper class for storing DNS RR (resource record) data. This is the base class which introduces several abstract
-	 * methods for derived classes to implement for setting and retrieving the stored data. Each derived class will store
-	 * different type of DNS RR data and implement these methods accordingly (for example: IPv4/IPv6 addresses, MX data,
-	 * hostnames, raw byte data etc.)
+	 * A wrapper class for storing DNS RR (resource record) data. This is the base class which introduces several
+	 * abstract methods for derived classes to implement for setting and retrieving the stored data. Each derived class
+	 * will store different type of DNS RR data and implement these methods accordingly (for example: IPv4/IPv6
+	 * addresses, MX data, hostnames, raw byte data etc.)
 	 */
 	class IDnsResourceData
 	{
 	protected:
-
 		// unimplemented private copy c'tor
 		IDnsResourceData(const IDnsResourceData& other);
-		IDnsResourceData() { }
+		IDnsResourceData()
+		{}
 
 		size_t decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const;
-		void encodeName(const std::string& decodedName, char* result, size_t& resultLen, IDnsResource* dnsResource) const;
+		void encodeName(const std::string& decodedName, char* result, size_t& resultLen,
+		                IDnsResource* dnsResource) const;
 
 	public:
 		/**
 		 * A virtual d'tor, does nothing
 		 */
-		virtual ~IDnsResourceData() { }
+		virtual ~IDnsResourceData()
+		{}
 
 		/**
 		 * A templated method which takes a class that derives from IDnsResourceData as the template argument and
 		 * checks whether this instance is of this type
 		 * @return True if this instance is of the requested type, false otherwise
 		 */
-		template <class IDnsResourceDataType>
-		bool isTypeOf() const { return dynamic_cast<const IDnsResourceDataType*>(this) != NULL; }
+		template <class IDnsResourceDataType> bool isTypeOf() const
+		{
+			return dynamic_cast<const IDnsResourceDataType*>(this) != nullptr;
+		}
 
 		/**
-		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries to
-		 * cast the current instance as that type
-		 * @return A pointer to the current instance casted as the requested type or NULL if this instance isn't of this type
+		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries
+		 * to cast the current instance as that type
+		 * @return A pointer to the current instance casted as the requested type or nullptr if this instance isn't of
+		 * this type
 		 */
-		template <class IDnsResourceDataType>
-		IDnsResourceDataType* castAs() { return dynamic_cast<IDnsResourceDataType*>(this); }
+		template <class IDnsResourceDataType> IDnsResourceDataType* castAs()
+		{
+			return dynamic_cast<IDnsResourceDataType*>(this);
+		}
 
 		/**
 		 * @return A string that represents the current DNS RR data
@@ -79,57 +74,51 @@ namespace pcpp
 		 * @param[out] arr A pointer to a pre-allocated byte array where the result will be written to
 		 * @param[out] arrLength A reference to a 2-byte number where the result array length will be written to
 		 * @param[in] dnsResource A pointer to a DNS resource object where this DNS RR data will be stored
-		 * @return True if the DNS RR data was successfully converted into a byte array and written to the given array or
-		 * false if stored DNS RR data is invalid or if it could not be written to the given array
+		 * @return True if the DNS RR data was successfully converted into a byte array and written to the given array
+		 * or false if stored DNS RR data is invalid or if it could not be written to the given array
 		 */
 		virtual bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const = 0;
 	};
-
 
 	/**
 	 * @class DnsResourceDataPtr
 	 * A smart pointer class that holds pointers of type IDnsResourceData. This object is used in DnsResource#getData()
 	 */
-	class DnsResourceDataPtr : public PCPP_SMART_PTR(IDnsResourceData)
+	class DnsResourceDataPtr : public std::unique_ptr<IDnsResourceData>
 	{
 	public:
-
 		/**
 		 * A c'tor to this class
 		 * @param[in] ptr A pointer to IDnsResourceData
 		 */
-		explicit DnsResourceDataPtr(IDnsResourceData* ptr) : PCPP_SMART_PTR(IDnsResourceData)(ptr) {}
-
-		//Visual studio has always been stupid about returning something useful for __cplusplus
-		//Only recently was this fixed - and even then it requires a specific hack to the command line during build
-		//Its easier/more consistent to test _MSC_VER in VS
-		//https://docs.microsoft.com/en-us/cpp/build/reference/zc-cplusplus?view=vs-2017
-
-#if __cplusplus <= 199711L && _MSC_VER < 1800 //Maybe this can be 1600 for VS2010
-		DnsResourceDataPtr(const DnsResourceDataPtr& other) : PCPP_SMART_PTR(IDnsResourceData)((DnsResourceDataPtr&)other) {}
-#endif
+		explicit DnsResourceDataPtr(IDnsResourceData* ptr) : std::unique_ptr<IDnsResourceData>(ptr)
+		{}
 
 		/**
 		 * A templated method which takes a class that derives from IDnsResourceData as the template argument and
 		 * checks whether the pointer stored in this object is of this type
 		 * @return True if the stored pointer is of the requested type, false otherwise
 		 */
-		template <class IDnsResourceDataType>
-		bool isTypeOf() const { return get()->isTypeOf<IDnsResourceDataType>(); }
+		template <class IDnsResourceDataType> bool isTypeOf() const
+		{
+			return get()->isTypeOf<IDnsResourceDataType>();
+		}
 
 		/**
-		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries to
-		 * cast the pointer stored in this object as that type
-		 * @return A pointer to the stored pointer casted as the requested type or NULL if it isn't of this type
+		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries
+		 * to cast the pointer stored in this object as that type
+		 * @return A pointer to the stored pointer casted as the requested type or nullptr if it isn't of this type
 		 */
-		template <class IDnsResourceDataType>
-		IDnsResourceDataType* castAs() { return get()->castAs<IDnsResourceDataType>();}
+		template <class IDnsResourceDataType> IDnsResourceDataType* castAs()
+		{
+			return get()->castAs<IDnsResourceDataType>();
+		}
 	};
-
 
 	/**
 	 * @class StringDnsResourceData
-	 * A class that represents DNS RR string data, mainly used in DNS RRs that store hostnames (like CNAME, DNAME, NS, etc.)
+	 * A class that represents DNS RR string data, mainly used in DNS RRs that store hostnames (like CNAME, DNAME, NS,
+	 * etc.)
 	 */
 	class StringDnsResourceData : public IDnsResourceData
 	{
@@ -137,36 +126,43 @@ namespace pcpp
 		std::string m_Data;
 
 	public:
-
 		/**
 		 * A c'tor for this class
 		 * @param[in] data The string data to store in this object. If this string represents a hostname it's possible
-		 * to include a pointer to another string in the DNS layer (as explained here: http://www.zytrax.com/books/dns/ch15/#name).
-		 * These pointers are often used to reduce the DNS packet size and avoid unnecessary duplications. The way to include pointers
-		 * in a hostname string is to use the following format: 'some.domain.#{offset}' where '#{offset}' is the offset from the
-		 * start of the DNS layer. For example: if the string 'yahoo.com' already appears in offset 12 in the packet and you want
-		 * to set the DNS RR data as 'my.subdomain.yahoo.com' you may use the following string: 'my.subdomain.#12'.
-		 * This will result in writing 'my.subdomain' and a pointer to offset 12
+		 * to include a pointer to another string in the DNS layer (as explained here:
+		 * http://www.zytrax.com/books/dns/ch15/#name). These pointers are often used to reduce the DNS packet size and
+		 * avoid unnecessary duplications. The way to include pointers in a hostname string is to use the following
+		 * format: 'some.domain.#{offset}' where '#{offset}' is the offset from the start of the DNS layer. For example:
+		 * if the string 'yahoo.com' already appears in offset 12 in the packet and you want to set the DNS RR data as
+		 * 'my.subdomain.yahoo.com' you may use the following string: 'my.subdomain.#12'. This will result in writing
+		 * 'my.subdomain' and a pointer to offset 12
 		 */
-		explicit StringDnsResourceData(const std::string& data) : m_Data(data) {}
+		explicit StringDnsResourceData(const std::string& data) : m_Data(data)
+		{}
 
 		StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource);
 
-		~StringDnsResourceData() {}
+		~StringDnsResourceData()
+		{}
 
 		/**
 		 * Equality operator overload for this class that compares the strings stored in each object
 		 * @param[in] other The object to compare with
 		 * @return True if the string data is the same in both objects, false otherwise
 		 */
-		bool operator==(const StringDnsResourceData& other) const { return m_Data == other.m_Data; }
+		bool operator==(const StringDnsResourceData& other) const
+		{
+			return m_Data == other.m_Data;
+		}
 
 		// implement abstract methods
 
-		std::string toString() const { return m_Data; }
+		std::string toString() const
+		{
+			return m_Data;
+		}
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
-
 
 	/**
 	 * @class IPv4DnsResourceData
@@ -178,7 +174,6 @@ namespace pcpp
 		IPv4Address m_Data;
 
 	public:
-
 		/**
 		 * A c'tor for this class
 		 * @param[in] dataPtr A byte array of size 4 that contains an IPv4 address (each byte represents 1 octet)
@@ -190,32 +185,42 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv4 address to store in this object
 		 */
-		explicit IPv4DnsResourceData(const IPv4Address& addr) : m_Data(addr) {}
+		explicit IPv4DnsResourceData(const IPv4Address& addr) : m_Data(addr)
+		{}
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] addrAsString A string representation of an IPv4 address to store in this object
 		 */
-		explicit IPv4DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
+		explicit IPv4DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString)
+		{}
 
 		/**
 		 * Equality operator overload for this class that compares the IPv4 addresses stored in each object
 		 * @param[in] other The object to compare with
 		 * @return True if IPv4 addresses are the same in both objects, false otherwise
 		 */
-		bool operator==(const IPv4DnsResourceData& other) const { return m_Data == other.m_Data; }
+		bool operator==(const IPv4DnsResourceData& other) const
+		{
+			return m_Data == other.m_Data;
+		}
 
 		/**
 		 * @return The IPv4 address stored in this object
 		 */
-		IPv4Address getIpAddress() const { return m_Data; }
+		IPv4Address getIpAddress() const
+		{
+			return m_Data;
+		}
 
 		// implement abstract methods
 
-		std::string toString() const { return m_Data.toString(); }
+		std::string toString() const
+		{
+			return m_Data.toString();
+		}
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
-
 
 	/**
 	 * @class IPv6DnsResourceData
@@ -227,7 +232,6 @@ namespace pcpp
 		IPv6Address m_Data;
 
 	public:
-
 		/**
 		 * A c'tor for this class
 		 * @param[in] dataPtr A byte array of size 16 that contains an IPv6 address (each byte represents 1 octet)
@@ -239,32 +243,42 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] addr The IPv6 address to store in this object
 		 */
-		explicit IPv6DnsResourceData(const IPv6Address& addr) : m_Data(addr) {}
+		explicit IPv6DnsResourceData(const IPv6Address& addr) : m_Data(addr)
+		{}
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] addrAsString A string representation of an IPv6 address to store in this object
 		 */
-		explicit IPv6DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString) {}
+		explicit IPv6DnsResourceData(const std::string& addrAsString) : m_Data(addrAsString)
+		{}
 
 		/**
 		 * Equality operator overload for this class that compares the IPv6 addresses stored in each object
 		 * @param[in] other The object to compare with
 		 * @return True if IPv6 addresses are the same in both objects, false otherwise
 		 */
-		bool operator==(const IPv6DnsResourceData& other) const { return m_Data == other.m_Data; }
+		bool operator==(const IPv6DnsResourceData& other) const
+		{
+			return m_Data == other.m_Data;
+		}
 
 		/**
 		 * @return The IPv6 address stored in this object
 		 */
-		IPv6Address getIpAddress() const { return m_Data; }
+		IPv6Address getIpAddress() const
+		{
+			return m_Data;
+		}
 
 		// implement abstract methods
 
-		std::string toString() const { return m_Data.toString(); }
+		std::string toString() const
+		{
+			return m_Data.toString();
+		}
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
-
 
 	/**
 	 * @class MxDnsResourceData
@@ -273,7 +287,6 @@ namespace pcpp
 	class MxDnsResourceData : public IDnsResourceData
 	{
 	public:
-
 		/**
 		 * A struct that represents mail exchange (MX) data
 		 */
@@ -297,16 +310,17 @@ namespace pcpp
 		 * A c'tor for this class
 		 * @param[in] preference The MX preference value to store in this object
 		 * @param[in] mailExchange The MX hostname value to store in this object. It's possible to include a pointer to
-		 * another string in the DNS layer (as explained here: http://www.zytrax.com/books/dns/ch15/#name). These pointers
-		 * are often used to reduce the DNS packet size and avoid unnecessary duplications. The way to include pointers
-		 * in the hostname string is to use the following format: 'some.domain.#{offset}' where '#{offset}' is the offset
-		 * from the start of the DNS layer. For example: if the string 'yahoo.com' already appears in offset 12 in the
-		 * packet and you want to set the DNS RR data as 'my.subdomain.yahoo.com' you may use the following string:
-		 * 'my.subdomain.#12'. This will result in writing 'my.subdomain' and a pointer to offset 12
+		 * another string in the DNS layer (as explained here: http://www.zytrax.com/books/dns/ch15/#name). These
+		 * pointers are often used to reduce the DNS packet size and avoid unnecessary duplications. The way to include
+		 * pointers in the hostname string is to use the following format: 'some.domain.#{offset}' where '#{offset}' is
+		 * the offset from the start of the DNS layer. For example: if the string 'yahoo.com' already appears in offset
+		 * 12 in the packet and you want to set the DNS RR data as 'my.subdomain.yahoo.com' you may use the following
+		 * string: 'my.subdomain.#12'. This will result in writing 'my.subdomain' and a pointer to offset 12
 		 */
 		MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange);
 
-		~MxDnsResourceData() {}
+		~MxDnsResourceData()
+		{}
 
 		/**
 		 * Equality operator overload for this class that compares the MX data stored in each object
@@ -319,7 +333,10 @@ namespace pcpp
 		/**
 		 * @return The MX data stored in this object
 		 */
-		MxData getMxData() const { return m_Data; }
+		MxData getMxData() const
+		{
+			return m_Data;
+		}
 
 		/**
 		 * Set the MX data stored in this object
@@ -342,11 +359,10 @@ namespace pcpp
 		MxData m_Data;
 	};
 
-
 	/**
 	 * @class GenericDnsResourceData
-	 * A class that represents generic DNS RR data which cannot be represented in any of the other classes. It stores the
-	 * DNS RR data as byte array
+	 * A class that represents generic DNS RR data which cannot be represented in any of the other classes. It stores
+	 * the DNS RR data as byte array
 	 */
 	class GenericDnsResourceData : public IDnsResourceData
 	{
@@ -355,11 +371,10 @@ namespace pcpp
 		size_t m_DataLen;
 
 	public:
-
 		/**
 		 * A c'tor for this class
-		 * @param[in] dataPtr A byte array that contains the raw data (as it written in the DNS packet). The data will be
-		 * copied from this byte array to the object
+		 * @param[in] dataPtr A byte array that contains the raw data (as it written in the DNS packet). The data will
+		 * be copied from this byte array to the object
 		 * @param[in] dataLen The byte array size
 		 */
 		GenericDnsResourceData(const uint8_t* dataPtr, size_t dataLen);
@@ -376,7 +391,11 @@ namespace pcpp
 		 */
 		GenericDnsResourceData(const GenericDnsResourceData& other);
 
-		~GenericDnsResourceData() { if (m_Data != NULL) delete [] m_Data; }
+		~GenericDnsResourceData()
+		{
+			if (m_Data != nullptr)
+				delete[] m_Data;
+		}
 
 		GenericDnsResourceData& operator=(const GenericDnsResourceData& other);
 
@@ -393,4 +412,4 @@ namespace pcpp
 		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
 	};
 
-}
+}  // namespace pcpp

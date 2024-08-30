@@ -3,12 +3,11 @@
 #include "Layer.h"
 #include "IPv4Layer.h"
 #ifdef _MSC_VER
-#include <Winsock2.h>
+#	include <Winsock2.h>
 #else
-#include <sys/time.h>
+#	include <sys/time.h>
 #endif
 #include <vector>
-
 
 /// @file
 
@@ -27,9 +26,9 @@ namespace pcpp
 	typedef struct icmphdr
 	{
 		/** message type */
-		uint8_t	 type;
+		uint8_t type;
 		/** message code */
-		uint8_t	 code;
+		uint8_t code;
 		/** message checksum */
 		uint16_t checksum;
 	} icmphdr;
@@ -41,37 +40,37 @@ namespace pcpp
 	enum IcmpMessageType
 	{
 		/** ICMP echo (ping) reply message */
-		ICMP_ECHO_REPLY           = 0,
+		ICMP_ECHO_REPLY = 0,
 		/** ICMP destination unreachable message */
-		ICMP_DEST_UNREACHABLE     = 3,
+		ICMP_DEST_UNREACHABLE = 3,
 		/** ICMP source quench message */
-		ICMP_SOURCE_QUENCH        = 4,
+		ICMP_SOURCE_QUENCH = 4,
 		/** ICMP redirect message */
-		ICMP_REDIRECT             = 5,
+		ICMP_REDIRECT = 5,
 		/** ICMP echo (ping) request message */
-		ICMP_ECHO_REQUEST         = 8,
+		ICMP_ECHO_REQUEST = 8,
 		/** ICMP router advertisement message */
-		ICMP_ROUTER_ADV           = 9,
+		ICMP_ROUTER_ADV = 9,
 		/** ICMP router soliciatation message */
-		ICMP_ROUTER_SOL           = 10,
+		ICMP_ROUTER_SOL = 10,
 		/** ICMP time-to-live excceded message */
-		ICMP_TIME_EXCEEDED        = 11,
+		ICMP_TIME_EXCEEDED = 11,
 		/** ICMP parameter problem message */
-		ICMP_PARAM_PROBLEM        = 12,
+		ICMP_PARAM_PROBLEM = 12,
 		/** ICMP timestamp request message */
-		ICMP_TIMESTAMP_REQUEST    = 13,
+		ICMP_TIMESTAMP_REQUEST = 13,
 		/** ICMP timestamp reply message */
-		ICMP_TIMESTAMP_REPLY      = 14,
+		ICMP_TIMESTAMP_REPLY = 14,
 		/** ICMP information request message */
-		ICMP_INFO_REQUEST         = 15,
+		ICMP_INFO_REQUEST = 15,
 		/** ICMP information reply message */
-		ICMP_INFO_REPLY           = 16,
+		ICMP_INFO_REPLY = 16,
 		/** ICMP address mask request message */
 		ICMP_ADDRESS_MASK_REQUEST = 17,
 		/** ICMP address mask reply message */
-		ICMP_ADDRESS_MASK_REPLY   = 18,
+		ICMP_ADDRESS_MASK_REPLY = 18,
 		/** ICMP message type unsupported by PcapPlusPlus */
-		ICMP_UNSUPPORTED          = 255
+		ICMP_UNSUPPORTED = 255
 	};
 
 	/**
@@ -120,7 +119,6 @@ namespace pcpp
 		IcmpPrecedenceCutoff = 15
 	};
 
-
 	/**
 	 * @struct icmp_echo_hdr
 	 * ICMP echo (ping) request/reply message structure
@@ -137,7 +135,6 @@ namespace pcpp
 	} icmp_echo_hdr;
 #pragma pack(pop)
 
-
 	/**
 	 * @struct icmp_echo_request
 	 * ICMP echo (ping) request/reply message structure
@@ -152,13 +149,11 @@ namespace pcpp
 		uint8_t* data;
 	} icmp_echo_request;
 
-
 	/**
 	 * @typedef icmp_echo_reply
 	 * ICMP echo (ping) reply message structure, same as icmp_echo_request
 	 */
 	typedef icmp_echo_request icmp_echo_reply;
-
 
 	/**
 	 * @struct icmp_timestamp_request
@@ -180,13 +175,11 @@ namespace pcpp
 	} icmp_timestamp_request;
 #pragma pack(pop)
 
-
 	/**
 	 * @typedef icmp_timestamp_reply
 	 * ICMP timestamp reply message structure, same as icmp_timestamp_request
 	 */
 	typedef icmp_timestamp_request icmp_timestamp_reply;
-
 
 	/**
 	 * @struct icmp_destination_unreachable
@@ -202,7 +195,6 @@ namespace pcpp
 	} icmp_destination_unreachable;
 #pragma pack(pop)
 
-
 	/**
 	 * @struct icmp_time_exceeded
 	 * ICMP time-to-live exceeded message structure
@@ -215,13 +207,11 @@ namespace pcpp
 	} icmp_time_exceeded;
 #pragma pack(pop)
 
-
 	/**
 	 * @typedef icmp_source_quench
 	 * ICMP source quence message structure, same as icmp_time_exceeded
 	 */
 	typedef icmp_time_exceeded icmp_source_quench;
-
 
 	/**
 	 * @struct icmp_param_problem
@@ -230,15 +220,15 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_param_problem : icmphdr
 	{
-		/** in the case of an invalid IP header (Code 0), this field indicates the byte offset of the error in the header */
-		uint8_t  pointer;
+		/** in the case of an invalid IP header (Code 0), this field indicates the byte offset of the error in the
+		 * header */
+		uint8_t pointer;
 		/** unused 1 byte */
-		uint8_t  unused1;
+		uint8_t unused1;
 		/** unused 2 bytes */
 		uint16_t unused2;
 	} icmp_param_problem;
 #pragma pack(pop)
-
 
 	/**
 	 * @typedef icmp_router_solicitation
@@ -257,7 +247,6 @@ namespace pcpp
 		uint32_t gatewayAddress;
 	} icmp_redirect;
 #pragma pack(pop)
-
 
 	/**
 	 * @struct icmp_router_address_structure
@@ -283,10 +272,12 @@ namespace pcpp
 		/**
 		 * @return The IPv4 address extracted from icmp_router_address_structure#routerAddress field
 		 */
-		IPv4Address getAddress() const { return routerAddress; }
+		IPv4Address getAddress() const
+		{
+			return routerAddress;
+		}
 	};
 #pragma pack(pop)
-
 
 	/**
 	 * @struct icmp_router_advertisement_hdr
@@ -295,16 +286,16 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_router_advertisement_hdr : icmphdr
 	{
-		/** the number of router advertisements in this message. Each advertisement contains one router address/preference level pair */
-		uint8_t  advertisementCount;
-		/** the number of 32-bit words of information for each router address entry in the list. The value is normally set to 2
-		 * (router address + preference level) */
-		uint8_t  addressEntrySize;
+		/** the number of router advertisements in this message. Each advertisement contains one router
+		 * address/preference level pair */
+		uint8_t advertisementCount;
+		/** the number of 32-bit words of information for each router address entry in the list. The value is normally
+		 * set to 2 (router address + preference level) */
+		uint8_t addressEntrySize;
 		/** the maximum number of seconds that the router addresses in this list may be considered valid */
 		uint16_t lifetime;
 	} icmp_router_advertisement_hdr;
 #pragma pack(pop)
-
 
 	/**
 	 * @struct icmp_router_advertisement
@@ -318,12 +309,12 @@ namespace pcpp
 		/**
 		 * Extract router advertisement at a given index
 		 * @param[in] index The index of the router advertisement
-		 * @return A pointer to the router advertisement on the packet or null if index is out of range (less than zero or
-		 * greater than the number of router advertisement records on this message, determined by advertisementCount field)
+		 * @return A pointer to the router advertisement on the packet or null if index is out of range (less than zero
+		 * or greater than the number of router advertisement records on this message, determined by advertisementCount
+		 * field)
 		 */
 		icmp_router_address_structure* getRouterAddress(int index) const;
 	};
-
 
 	/**
 	 * @struct icmp_address_mask_request
@@ -341,13 +332,11 @@ namespace pcpp
 	} icmp_address_mask_request;
 #pragma pack(pop)
 
-
 	/**
 	 * @typedef icmp_address_mask_reply
 	 * ICMP address mask reply message structure, same as icmp_address_mask_request
 	 */
 	typedef icmp_address_mask_request icmp_address_mask_reply;
-
 
 	/**
 	 * @struct icmp_info_request
@@ -363,13 +352,11 @@ namespace pcpp
 	} icmp_info_request;
 #pragma pack(pop)
 
-
 	/**
 	 * @typedef icmp_info_reply
 	 * ICMP information reply message structure, same as icmp_info_request
 	 */
 	typedef icmp_info_request icmp_info_reply;
-
 
 	/**
 	 * @class IcmpLayer
@@ -383,7 +370,8 @@ namespace pcpp
 
 		bool cleanIcmpLayer();
 
-		bool setEchoData(IcmpMessageType echoType, uint16_t id, uint16_t sequence, uint64_t timestamp, const uint8_t* data, size_t dataLen);
+		bool setEchoData(IcmpMessageType echoType, uint16_t id, uint16_t sequence, uint64_t timestamp,
+		                 const uint8_t* data, size_t dataLen);
 
 		bool setIpAndL4Layers(IPv4Layer* ipLayer, Layer* l4Layer);
 
@@ -396,21 +384,30 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		// cppcheck-suppress uninitMemberVar
-		IcmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = ICMP; }
+		IcmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet)
+		{
+			m_Protocol = ICMP;
+		}
 
 		/**
-		 * An empty constructor that creates a new layer with an empty ICMP header without setting the ICMP type or ICMP data.
-		 * Call the set*Data() methods to set ICMP type and data
+		 * An empty constructor that creates a new layer with an empty ICMP header without setting the ICMP type or ICMP
+		 * data. Call the set*Data() methods to set ICMP type and data
 		 */
 		IcmpLayer();
 
-		virtual ~IcmpLayer() {}
+		virtual ~IcmpLayer()
+		{}
 
 		/**
-		 * Get a pointer to the basic ICMP header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the basic ICMP header. Notice this points directly to the data, so every change will change
+		 * the actual packet data
 		 * @return A pointer to the @ref icmphdr
 		 */
-		icmphdr* getIcmpHeader() const { return (icmphdr*)m_Data; }
+		icmphdr* getIcmpHeader() const
+		{
+			return (icmphdr*)m_Data;
+		}
 
 		/**
 		 * @return The ICMP message type
@@ -421,10 +418,13 @@ namespace pcpp
 		 * @param[in] type Type to check
 		 * @return True if the layer if of the given type, false otherwise
 		 */
-		bool isMessageOfType(IcmpMessageType type) const { return getMessageType() == type; }
+		bool isMessageOfType(IcmpMessageType type) const
+		{
+			return getMessageType() == type;
+		}
 
 		/**
-		 * @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request NULL is returned
+		 * @return ICMP echo (ping) request data. If the layer isn't of type ICMP echo request nullptr is returned
 		 */
 		icmp_echo_request* getEchoRequestData();
 
@@ -435,13 +435,14 @@ namespace pcpp
 		 * @param[in] timestamp Echo (ping) request timestamp
 		 * @param[in] data A pointer to echo (ping) request payload to set
 		 * @param[in] dataLen The length of the echo (ping) request payload
-		 * @return A pointer to the echo (ping) request data that have been set or NULL if something went wrong
+		 * @return A pointer to the echo (ping) request data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_echo_request* setEchoRequestData(uint16_t id, uint16_t sequence, uint64_t timestamp, const uint8_t* data, size_t dataLen);
+		icmp_echo_request* setEchoRequestData(uint16_t id, uint16_t sequence, uint64_t timestamp, const uint8_t* data,
+		                                      size_t dataLen);
 
 		/**
-		 * @return ICMP echo reply data. If the layer isn't of type ICMP echo reply NULL is returned
+		 * @return ICMP echo reply data. If the layer isn't of type ICMP echo reply nullptr is returned
 		 */
 		icmp_echo_reply* getEchoReplyData();
 
@@ -452,13 +453,14 @@ namespace pcpp
 		 * @param[in] timestamp Echo (ping) reply timestamp
 		 * @param[in] data A pointer to echo (ping) reply payload to set
 		 * @param[in] dataLen The length of the echo (ping) reply payload
-		 * @return A pointer to the echo (ping) reply data that have been set or NULL if something went wrong
+		 * @return A pointer to the echo (ping) reply data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_echo_reply* setEchoReplyData(uint16_t id, uint16_t sequence, uint64_t timestamp, const uint8_t* data, size_t dataLen);
+		icmp_echo_reply* setEchoReplyData(uint16_t id, uint16_t sequence, uint64_t timestamp, const uint8_t* data,
+		                                  size_t dataLen);
 
 		/**
-		 * @return ICMP timestamp request data. If the layer isn't of type ICMP timestamp request NULL is returned
+		 * @return ICMP timestamp request data. If the layer isn't of type ICMP timestamp request nullptr is returned
 		 */
 		icmp_timestamp_request* getTimestampRequestData();
 
@@ -467,13 +469,13 @@ namespace pcpp
 		 * @param[in] id Timestamp request identifier
 		 * @param[in] sequence Timestamp request sequence
 		 * @param[in] originateTimestamp Time (in milliseconds since midnight) the sender last touched the packet
-		 * @return A pointer to the timestamp request data that have been set or NULL if something went wrong
+		 * @return A pointer to the timestamp request data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_timestamp_request* setTimestampRequestData(uint16_t id, uint16_t sequence, timeval originateTimestamp);
 
 		/**
-		 * @return ICMP timestamp reply data. If the layer isn't of type ICMP timestamp reply NULL is returned
+		 * @return ICMP timestamp reply data. If the layer isn't of type ICMP timestamp reply nullptr is returned
 		 */
 		icmp_timestamp_reply* getTimestampReplyData();
 
@@ -484,34 +486,36 @@ namespace pcpp
 		 * @param[in] originateTimestamp Time (in milliseconds since midnight) the sender last touched the packet
 		 * @param[in] receiveTimestamp The time the echoer first touched it on receipt
 		 * @param[in] transmitTimestamp The time the echoer last touched the message on sending it
-		 * @return A pointer to the timestamp reply data that have been set or NULL if something went wrong
+		 * @return A pointer to the timestamp reply data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_timestamp_reply* setTimestampReplyData(uint16_t id, uint16_t sequence,
-				timeval originateTimestamp, timeval receiveTimestamp, timeval transmitTimestamp);
+		icmp_timestamp_reply* setTimestampReplyData(uint16_t id, uint16_t sequence, timeval originateTimestamp,
+		                                            timeval receiveTimestamp, timeval transmitTimestamp);
 
 		/**
-		 * @return ICMP destination unreachable data. If the layer isn't of type ICMP destination unreachable NULL is returned.
-		 * The IP and L4 (ICMP/TCP/UDP) headers of the destination unreachable data are parsed as separate layers and can be
-		 * retrieved via this->getNextLayer()
+		 * @return ICMP destination unreachable data. If the layer isn't of type ICMP destination unreachable nullptr is
+		 * returned. The IP and L4 (ICMP/TCP/UDP) headers of the destination unreachable data are parsed as separate
+		 * layers and can be retrieved via this->getNextLayer()
 		 */
 		icmp_destination_unreachable* getDestUnreachableData();
 
 		/**
-		 * Set destination unreachable message data. This method only works if IcmpLayer is already part of a packet (not
-		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate layers
-		 * and need a packet to be added to
+		 * Set destination unreachable message data. This method only works if IcmpLayer is already part of a packet
+		 * (not a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate
+		 * layers and need a packet to be added to
 		 * @param[in] code Destination unreachable code
 		 * @param[in] nextHopMTU The MTU of the next-hop network if a code 4 error occurs
-		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the packet
+		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the
+		 * packet
 		 * @param[in] l4Header The L4 header of the original data. This layer is added as a separate layer on the packet
-		 * @return A pointer to the destination unreachable data that have been set or NULL if something went wrong
+		 * @return A pointer to the destination unreachable data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_destination_unreachable* setDestUnreachableData(IcmpDestUnreachableCodes code, uint16_t nextHopMTU, IPv4Layer* ipHeader, Layer* l4Header);
+		icmp_destination_unreachable* setDestUnreachableData(IcmpDestUnreachableCodes code, uint16_t nextHopMTU,
+		                                                     IPv4Layer* ipHeader, Layer* l4Header);
 
 		/**
-		 * @return ICMP source quench data. If the layer isn't of type ICMP source quench NULL is returned.
+		 * @return ICMP source quench data. If the layer isn't of type ICMP source quench nullptr is returned.
 		 * The IP and L4 (ICMP/TCP/UDP) headers of the source quench data are parsed as separate layers and can be
 		 * retrieved via this->getNextLayer()
 		 */
@@ -519,17 +523,18 @@ namespace pcpp
 
 		/**
 		 * Set source quench message data. This method only works if IcmpLayer is already part of a packet (not
-		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate layers
-		 * and need a packet to be added to
-		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the packet
+		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate
+		 * layers and need a packet to be added to
+		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the
+		 * packet
 		 * @param[in] l4Header The L4 header of the original data. This layer is added as a separate layer on the packet
-		 * @return A pointer to the source quench data that have been set or NULL if something went wrong
+		 * @return A pointer to the source quench data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_source_quench* setSourceQuenchdata(IPv4Layer* ipHeader, Layer* l4Header);
 
 		/**
-		 * @return ICMP redirect data. If the layer isn't of type ICMP redirect NULL is returned.
+		 * @return ICMP redirect data. If the layer isn't of type ICMP redirect nullptr is returned.
 		 * The IP and L4 (ICMP/TCP/UDP) headers of the redirect data are parsed as separate layers and can be
 		 * retrieved via this->getNextLayer()
 		 */
@@ -537,84 +542,99 @@ namespace pcpp
 
 		/**
 		 * Set redirect message data. This method only works if IcmpLayer is already part of a packet (not
-		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate layers
-		 * and need a packet to be added to
-		 * @param[in] code The redirect message code. Only values between 0 and 3 are legal, the rest will cause the method to fail
+		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate
+		 * layers and need a packet to be added to
+		 * @param[in] code The redirect message code. Only values between 0 and 3 are legal, the rest will cause the
+		 * method to fail
 		 * @param[in] gatewayAddress An IPv4 address of the gateway to which the redirection should be sent
-		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the packet
+		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the
+		 * packet
 		 * @param[in] l4Header The L4 header of the original data. This layer is added as a separate layer on the packet
-		 * @return A pointer to the redirect data that have been set or NULL if something went wrong
+		 * @return A pointer to the redirect data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_redirect* setRedirectData(uint8_t code, IPv4Address gatewayAddress, IPv4Layer* ipHeader, Layer* l4Header);
 
 		/**
-		 * @return ICMP router advertisement data. If the layer isn't of type ICMP router advertisement NULL is returned
+		 * @return ICMP router advertisement data. If the layer isn't of type ICMP router advertisement nullptr is
+		 * returned
 		 */
 		icmp_router_advertisement* getRouterAdvertisementData() const;
 
 		/**
 		 * Set router advertisement message data
-		 * @param[in] code The router advertisement message code. Only codes 0 or 16 are legal, the rest will fail the method
-		 * @param[in] lifetimeInSeconds The maximum number of seconds that the router addresses in this list may be considered valid
+		 * @param[in] code The router advertisement message code. Only codes 0 or 16 are legal, the rest will fail the
+		 * method
+		 * @param[in] lifetimeInSeconds The maximum number of seconds that the router addresses in this list may be
+		 * considered valid
 		 * @param[in] routerAddresses A vector of router advertisements to set
-		 * @return A pointer to the router advertisement data that have been set or NULL if something went wrong
+		 * @return A pointer to the router advertisement data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_router_advertisement* setRouterAdvertisementData(uint8_t code, uint16_t lifetimeInSeconds, const std::vector<icmp_router_address_structure>& routerAddresses);
+		icmp_router_advertisement* setRouterAdvertisementData(
+		    uint8_t code, uint16_t lifetimeInSeconds,
+		    const std::vector<icmp_router_address_structure>& routerAddresses);
 
 		/**
-		 * @return ICMP router solicitation data. If the layer isn't of type ICMP router solicitation NULL is returned
+		 * @return ICMP router solicitation data. If the layer isn't of type ICMP router solicitation nullptr is
+		 * returned
 		 */
 		icmp_router_solicitation* getRouterSolicitationData();
 
 		/**
 		 * Set router solicitation message data. This message accepts no parameters as there are no parameters to this
 		 * type of message (code is always zero)
-		 * @return A pointer to the router solicitation data that have been set or NULL if something went wrong
+		 * @return A pointer to the router solicitation data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_router_solicitation* setRouterSolicitationData();
 
 		/**
-		 * @return ICMP time-to-live exceeded data. If the layer isn't of type ICMP time-to-live exceeded NULL is returned.
-		 * The IP and L4 (ICMP/TCP/UDP) headers of the time exceeded data are parsed as separate layers and can be
-		 * retrieved via this->getNextLayer()
+		 * @return ICMP time-to-live exceeded data. If the layer isn't of type ICMP time-to-live exceeded nullptr is
+		 * returned. The IP and L4 (ICMP/TCP/UDP) headers of the time exceeded data are parsed as separate layers and
+		 * can be retrieved via this->getNextLayer()
 		 */
 		icmp_time_exceeded* getTimeExceededData();
 
 		/**
 		 * Set time-to-live exceeded message data. This method only works if IcmpLayer is already part of a packet (not
-		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate layers
-		 * and need a packet to be added to
-		 * @param[in] code Time-to-live exceeded message code. Only codes 0 or 1 are legal, the rest will fail the method
-		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the packet
+		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate
+		 * layers and need a packet to be added to
+		 * @param[in] code Time-to-live exceeded message code. Only codes 0 or 1 are legal, the rest will fail the
+		 * method
+		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the
+		 * packet
 		 * @param[in] l4Header The L4 header of the original data. This layer is added as a separate layer on the packet
-		 * @return A pointer to the time-to-live exceeded data that have been set or NULL if something went wrong
+		 * @return A pointer to the time-to-live exceeded data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_time_exceeded* setTimeExceededData(uint8_t code, IPv4Layer* ipHeader, Layer* l4Header);
 
 		/**
-		 * @return ICMP parameter problem data. If the layer isn't of type ICMP parameter problem NULL is returned
+		 * @return ICMP parameter problem data. If the layer isn't of type ICMP parameter problem nullptr is returned
 		 */
 		icmp_param_problem* getParamProblemData();
 
 		/**
 		 * Set parameter problem message data. This method only works if IcmpLayer is already part of a packet (not
-		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate layers
-		 * and need a packet to be added to
-		 * @param[in] code Parameter problem message code. Only code between 0 and 2 are legal, the rest will fail the method
-		 * @param[in] errorOctetPointer In the case of an invalid IP header (Code 0), indicate the byte offset of the error in the header
-		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the packet
+		 * a standalone layer). The reason is the Internet and L4 headers given as parameters are added as separate
+		 * layers and need a packet to be added to
+		 * @param[in] code Parameter problem message code. Only code between 0 and 2 are legal, the rest will fail the
+		 * method
+		 * @param[in] errorOctetPointer In the case of an invalid IP header (Code 0), indicate the byte offset of the
+		 * error in the header
+		 * @param[in] ipHeader The Internet header of the original data. This layer is added as a separate layer on the
+		 * packet
 		 * @param[in] l4Header The L4 header of the original data. This layer is added as a separate layer on the packet
-		 * @return A pointer to the parameter problem data that have been set or NULL if something went wrong
+		 * @return A pointer to the parameter problem data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
-		icmp_param_problem* setParamProblemData(uint8_t code, uint8_t errorOctetPointer, IPv4Layer* ipHeader, Layer* l4Header);
+		icmp_param_problem* setParamProblemData(uint8_t code, uint8_t errorOctetPointer, IPv4Layer* ipHeader,
+		                                        Layer* l4Header);
 
 		/**
-		 * @return ICMP address mask request data. If the layer isn't of type ICMP address mask request NULL is returned
+		 * @return ICMP address mask request data. If the layer isn't of type ICMP address mask request nullptr is
+		 * returned
 		 */
 		icmp_address_mask_request* getAddressMaskRequestData();
 
@@ -623,13 +643,13 @@ namespace pcpp
 		 * @param[in] id Address mask request identifier
 		 * @param[in] sequence Address mask request sequence
 		 * @param[in] mask The subnet mask of the requesting host
-		 * @return A pointer to the address mask request data that have been set or NULL if something went wrong
+		 * @return A pointer to the address mask request data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_address_mask_request* setAddressMaskRequestData(uint16_t id, uint16_t sequence, IPv4Address mask);
 
 		/**
-		 * @return ICMP address mask reply data. If the layer isn't of type ICMP address mask reply NULL is returned
+		 * @return ICMP address mask reply data. If the layer isn't of type ICMP address mask reply nullptr is returned
 		 */
 		icmp_address_mask_reply* getAddressMaskReplyData();
 
@@ -638,13 +658,14 @@ namespace pcpp
 		 * @param[in] id Address mask reply identifier
 		 * @param[in] sequence Address mask reply sequence
 		 * @param[in] mask The subnet mask of the requesting host
-		 * @return A pointer to the address mask reply data that have been set or NULL if something went wrong
+		 * @return A pointer to the address mask reply data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_address_mask_reply* setAddressMaskReplyData(uint16_t id, uint16_t sequence, IPv4Address mask);
 
 		/**
-		 * @return ICMP address information request data. If the layer isn't of type ICMP information request NULL is returned
+		 * @return ICMP address information request data. If the layer isn't of type ICMP information request nullptr is
+		 * returned
 		 */
 		icmp_info_request* getInfoRequestData();
 
@@ -652,13 +673,14 @@ namespace pcpp
 		 * Set information request message data
 		 * @param[in] id Information request identifier
 		 * @param[in] sequence Information request sequence
-		 * @return A pointer to the information request data that have been set or NULL if something went wrong
+		 * @return A pointer to the information request data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_info_request* setInfoRequestData(uint16_t id, uint16_t sequence);
 
 		/**
-		 * @return ICMP address information reply data. If the layer isn't of type ICMP information reply NULL is returned
+		 * @return ICMP address information reply data. If the layer isn't of type ICMP information reply nullptr is
+		 * returned
 		 */
 		icmp_info_reply* getInfoReplyData();
 
@@ -666,7 +688,7 @@ namespace pcpp
 		 * Set information reply message data
 		 * @param[in] id Information reply identifier
 		 * @param[in] sequence Information reply sequence
-		 * @return A pointer to the information reply data that have been set or NULL if something went wrong
+		 * @return A pointer to the information reply data that have been set or nullptr if something went wrong
 		 * (an appropriate error log is printed in such cases)
 		 */
 		icmp_info_reply* setInfoReplyData(uint16_t id, uint16_t sequence);
@@ -682,16 +704,16 @@ namespace pcpp
 		// implement abstract methods
 
 		/**
-		 * ICMP messages of types: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH, ICMP_TIME_EXCEEDED, ICMP_REDIRECT, ICMP_PARAM_PROBLEM
-		 * have data that contains IPv4 header and some L4 header (TCP/UDP/ICMP). This method parses these headers as separate
-		 * layers on top of the ICMP layer
+		 * ICMP messages of types: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH, ICMP_TIME_EXCEEDED, ICMP_REDIRECT,
+		 * ICMP_PARAM_PROBLEM have data that contains IPv4 header and some L4 header (TCP/UDP/ICMP). This method parses
+		 * these headers as separate layers on top of the ICMP layer
 		 */
 		void parseNextLayer();
 
 		/**
-		 * @return The ICMP header length. This length varies according to the ICMP message type. This length doesn't include
-		 * IPv4 and L4 headers in case ICMP message type are: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH, ICMP_TIME_EXCEEDED,
-		 * ICMP_REDIRECT, ICMP_PARAM_PROBLEM
+		 * @return The ICMP header length. This length varies according to the ICMP message type. This length doesn't
+		 * include IPv4 and L4 headers in case ICMP message type are: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH,
+		 * ICMP_TIME_EXCEEDED, ICMP_REDIRECT, ICMP_PARAM_PROBLEM
 		 */
 		size_t getHeaderLen() const;
 
@@ -702,7 +724,10 @@ namespace pcpp
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelNetworkLayer;
+		}
 	};
 
 	// implementation of inline methods
@@ -749,4 +774,4 @@ namespace pcpp
 		return false;
 	}
 
-} // namespace pcpp
+}  // namespace pcpp

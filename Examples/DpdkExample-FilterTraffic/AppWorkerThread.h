@@ -9,9 +9,10 @@
 #include "PcapFileDevice.h"
 
 /**
- * The worker thread class which does all the work: receive packets from relevant DPDK port(s), matched them with the packet matching engine and send them to
- * TX port and/or save them to a file. In addition it collects packets statistics.
- * Each core is assigned with one such worker thread, and all of them are activated using DpdkDeviceList::startDpdkWorkerThreads (see main.cpp)
+ * The worker thread class which does all the work: receive packets from relevant DPDK port(s), matched them with the
+ * packet matching engine and send them to TX port and/or save them to a file. In addition it collects packets
+ * statistics. Each core is assigned with one such worker thread, and all of them are activated using
+ * DpdkDeviceList::startDpdkWorkerThreads (see main.cpp)
  */
 class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
@@ -24,11 +25,10 @@ private:
 	std::unordered_map<uint32_t, bool> m_FlowTable;
 
 public:
-	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine) :
-		m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES+1),
-		m_PacketMatchingEngine(matchingEngine)
-	{
-	}
+	AppWorkerThread(AppWorkerConfig& workerConfig, PacketMatchingEngine& matchingEngine)
+	    : m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1),
+	      m_PacketMatchingEngine(matchingEngine)
+	{}
 
 	virtual ~AppWorkerThread()
 	{
@@ -48,7 +48,7 @@ public:
 		m_Stop = false;
 		m_Stats.workerId = coreId;
 		pcpp::DpdkDevice* sendPacketsTo = m_WorkerConfig.sendPacketsTo;
-		pcpp::PcapFileWriterDevice* pcapWriter = NULL;
+		pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
 
 		// if needed, create the pcap file writer which all matched packets will be written into
 		if (m_WorkerConfig.writeMatchedPacketsToFile)
@@ -66,7 +66,7 @@ public:
 			return true;
 		}
 
-		#define MAX_RECEIVE_BURST 64
+#define MAX_RECEIVE_BURST 64
 		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
 		// main loop, runs until be told to stop
@@ -74,10 +74,10 @@ public:
 		while (!m_Stop)
 		{
 			// go over all DPDK devices configured for this worker/core
-			for (const auto &iter : m_WorkerConfig.inDataCfg)
+			for (const auto& iter : m_WorkerConfig.inDataCfg)
 			{
 				// for each DPDK device go over all RX queues configured for this worker/core
-				for (const auto &iter2 : iter.second)
+				for (const auto& iter2 : iter.second)
 				{
 					pcpp::DpdkDevice* dev = iter.first;
 
@@ -94,7 +94,8 @@ public:
 
 						bool packetMatched;
 
-						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to an existing or new flow
+						// hash the packet by 5-tuple and look in the flow table to see whether this packet belongs to
+						// an existing or new flow
 						uint32_t hash = pcpp::hash5Tuple(&parsedPacket);
 						auto iter3 = m_FlowTable.find(hash);
 
@@ -103,7 +104,7 @@ public:
 						{
 							packetMatched = true;
 						}
-						else // packet belongs to a new flow
+						else  // packet belongs to a new flow
 						{
 							packetMatched = m_PacketMatchingEngine.isMatched(parsedPacket);
 							if (packetMatched)
@@ -111,7 +112,7 @@ public:
 								// put new flow in flow table
 								m_FlowTable[hash] = true;
 
-								//collect stats
+								// collect stats
 								if (parsedPacket.isPacketOfType(pcpp::TCP))
 								{
 									m_Stats.matchedTcpFlows++;
@@ -120,20 +121,19 @@ public:
 								{
 									m_Stats.matchedUdpFlows++;
 								}
-
 							}
 						}
 
 						if (packetMatched)
 						{
 							// send packet to TX port if needed
-							if (sendPacketsTo != NULL)
+							if (sendPacketsTo != nullptr)
 							{
 								sendPacketsTo->sendPacket(*packetArr[i], 0);
 							}
 
 							// save packet to file if needed
-							if (pcapWriter != NULL)
+							if (pcapWriter != nullptr)
 							{
 								pcapWriter->writePacket(*packetArr[i]);
 							}
@@ -148,12 +148,12 @@ public:
 		// free packet array (frees all mbufs as well)
 		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
 		{
-			if (packetArr[i] != NULL)
+			if (packetArr[i] != nullptr)
 				delete packetArr[i];
 		}
 
 		// close and delete pcap file writer
-		if (pcapWriter != NULL)
+		if (pcapWriter != nullptr)
 		{
 			delete pcapWriter;
 		}
@@ -171,5 +171,4 @@ public:
 	{
 		return m_CoreId;
 	}
-
 };

@@ -138,7 +138,7 @@ static const char* inet_ntop4(const uint8_t* src, char* dst, size_t size)
 	/* Note: nprinted *excludes* the trailing '\0' character */
 	if ((size_t)nprinted >= size)
 	{
-		return (NULL);
+		return (nullptr);
 	}
 	strncpy(dst, tmp, size);
 	return (dst);
@@ -226,7 +226,7 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 		if (i == 6 && best.base == 0 && (best.len == 6 || (best.len == 5 && words[5] == 0xffff)))
 		{
 			if (!inet_ntop4(src + 12, tp, sizeof tmp - (tp - tmp)))
-				return (NULL);
+				return (nullptr);
 			tp += strlen(tp);
 			break;
 		}
@@ -242,7 +242,7 @@ static const char* inet_ntop6(const uint8_t* src, char* dst, size_t size)
 	 */
 	if ((size_t)(tp - tmp) > size)
 	{
-		return (NULL);
+		return (nullptr);
 	}
 	strncpy(dst, tmp, size);
 	return (dst);
@@ -271,7 +271,7 @@ static int inet_pton4(const char* src, uint8_t* dst)
 	{
 		const char* pch;
 
-		if ((pch = strchr(digits, ch)) != NULL)
+		if ((pch = strchr(digits, ch)) != nullptr)
 		{
 			size_t newSize = *tp * 10 + (pch - digits);
 
@@ -324,7 +324,7 @@ static int inet_pton6(const char* src, uint8_t* dst)
 
 	memset((tp = tmp), '\0', NS_IN6ADDRSZ);
 	endp = tp + NS_IN6ADDRSZ;
-	colonp = NULL;
+	colonp = nullptr;
 	/* Leading :: requires some special handling. */
 	if (*src == ':')
 		if (*++src != ':')
@@ -336,9 +336,9 @@ static int inet_pton6(const char* src, uint8_t* dst)
 	{
 		const char *pch, *xdigits;
 
-		if ((pch = strchr((xdigits = xdigits_l), ch)) == NULL)
+		if ((pch = strchr((xdigits = xdigits_l), ch)) == nullptr)
 			pch = strchr((xdigits = xdigits_u), ch);
-		if (pch != NULL)
+		if (pch != nullptr)
 		{
 			val <<= 4;
 			val |= (pch - xdigits);
@@ -384,7 +384,7 @@ static int inet_pton6(const char* src, uint8_t* dst)
 		*tp++ = (u_char)(val >> 8) & 0xff;
 		*tp++ = (u_char)val & 0xff;
 	}
-	if (colonp != NULL)
+	if (colonp != nullptr)
 	{
 		/*
 		 * Since some memmove()'s erroneously fail to handle
@@ -417,7 +417,7 @@ const char* inet_ntop(int af, const void* src, char* dst, size_t size)
 	case AF_INET6:
 		return (inet_ntop6((const uint8_t*)src, dst, size));
 	default:
-		return (NULL);
+		return (nullptr);
 	}
 	/* NOTREACHED */
 }

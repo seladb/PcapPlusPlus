@@ -27,6 +27,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
   - [Build It Yourself](#build-it-yourself)
+  - [Verify your packages](#verify-your-packages)
 - [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
@@ -38,7 +39,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Session Layer (L5)](#session-layer-l5)
   - [Presentation Layer (L6)](#presentation-layer-l6)
   - [Application Layer (L7)](#application-layer-l7)
-- [DPDK And PF_RING Support](#dpdk-and-pf_ring-support)
+- [DPDK And PF\_RING Support](#dpdk-and-pf_ring-support)
 - [Benchmarks](#benchmarks)
 - [Provide Feedback](#provide-feedback)
 - [Contributing](#contributing)
@@ -98,7 +99,7 @@ Follow the build instructions according to your platform in the [Build From Sour
 
 ### Verify your packages
 
-PcapPlusPlus releases which newer than v23.09 are signed with GitHub attestation. You can verify the attestation of these packages with GitHub CLI. To verify packages you can follow the most recent instructions from [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify). For simple instructions you can use the following command:
+PcapPlusPlus releases which newer than v23.09 are signed with GitHub attestation. All of the attestations can be found [here](https://github.com/seladb/PcapPlusPlus/attestations). You can verify the attestation of these packages with GitHub CLI. To verify packages you can follow the most recent instructions from [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify). For simple instructions you can use the following command:
 
 ```shell
 gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus

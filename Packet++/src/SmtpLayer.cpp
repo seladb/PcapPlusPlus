@@ -7,7 +7,10 @@
 namespace pcpp
 {
 	// ----------------- Class SmtpRequestLayer -----------------
-	bool SmtpRequestLayer::setCommand(SmtpCommand code) { return setCommandInternal(getCommandAsString(code)); }
+	bool SmtpRequestLayer::setCommand(SmtpCommand code)
+	{
+		return setCommandInternal(getCommandAsString(code));
+	}
 
 	SmtpRequestLayer::SmtpCommand SmtpRequestLayer::getCommand() const
 	{
@@ -15,14 +18,22 @@ namespace pcpp
 		std::string field = getCommandString();
 
 		for (size_t idx = 0; idx < field.size(); ++idx)
-			val |= (field.c_str()[idx] << (idx * 8));
+		{
+			val |= static_cast<size_t>(field.c_str()[idx]) << (idx * 8);
+		}
 
 		return static_cast<SmtpCommand>(val);
 	}
 
-	std::string SmtpRequestLayer::getCommandString() const { return getCommandInternal(); }
+	std::string SmtpRequestLayer::getCommandString() const
+	{
+		return getCommandInternal();
+	}
 
-	bool SmtpRequestLayer::setCommandOption(const std::string &value) { return setCommandOptionInternal(value); }
+	bool SmtpRequestLayer::setCommandOption(const std::string& value)
+	{
+		return setCommandOptionInternal(value);
+	}
 
 	std::string SmtpRequestLayer::getCommandOption(bool removeEscapeCharacters) const
 	{
@@ -107,7 +118,7 @@ namespace pcpp
 		for (size_t idx = 0; idx < 8; ++idx)
 		{
 			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
-			if (val) // Dont push if it is a null character
+			if (val)  // Dont push if it is a null character
 			{
 				oss << val;
 			}
@@ -133,9 +144,15 @@ namespace pcpp
 		return static_cast<SmtpStatusCode>(atoi(getCommandInternal().c_str()));
 	}
 
-	std::string SmtpResponseLayer::getStatusCodeString() const { return getCommandInternal(); }
+	std::string SmtpResponseLayer::getStatusCodeString() const
+	{
+		return getCommandInternal();
+	}
 
-	bool SmtpResponseLayer::setStatusOption(const std::string &value) { return setCommandOptionInternal(value); }
+	bool SmtpResponseLayer::setStatusOption(const std::string& value)
+	{
+		return setCommandOptionInternal(value);
+	}
 
 	std::string SmtpResponseLayer::getStatusOption(bool removeEscapeCharacters) const
 	{
@@ -239,4 +256,4 @@ namespace pcpp
 		return "SMTP response layer, status code: " + getStatusCodeAsString(getStatusCode());
 	}
 
-} // namespace pcpp
+}  // namespace pcpp
