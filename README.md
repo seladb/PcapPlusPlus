@@ -27,6 +27,7 @@ PcapPlusPlus enables decoding and forging capabilities for a large variety of ne
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
   - [Build It Yourself](#build-it-yourself)
+  - [Verify your packages](#verify-your-packages)
 - [Feature Overview](#feature-overview)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
@@ -291,7 +292,16 @@ PcapPlusPLus provides a C++ abstraction layer over DPDK & PF_RING. This abstract
 
 ## Benchmarks
 
-We used Matias Fontanini's [packet-capture-benchmarks](https://github.com/mfontanini/packet-capture-benchmarks) project to compare the performance of PcapPlusPlus with other similar C++ libraries (such as `libtins` and `libcrafter`).
+There is an integration of Google Benchmark library for continous benchmarking. Please note that these results are obtained from GitHub Actions virtual machines to give an idea about the performance of library so, the results can be flaky. Each benchmark can be affected from different source. You can check the table below. If you have performance critical applications which will use PcapPlusPlus, please benchmark it in your environment to get better and more precise results. Also using different pcaps, both in terms of size (larger is better to prevent open/close overhead) and protocol/session variety, can also help to give idea about performance of PcapPlusPlus in your environment.
+
+|     Benchmark     |   Operation   |  Can be affected  |
+|:-----------------:|:-------------:|:-----------------:|
+| BM_PcapFileRead   |     Read      | CPU + Disk (Read) |
+| BM_PcapFileWrite  |     Write     | CPU + Disk (Write)|
+| BM_PacketParsing  | Read + Parse  | CPU + Disk (Read) |
+| BM_PacketCrafting |     Craft     |       CPU         |
+
+Additionaly, we used Matias Fontanini's [packet-capture-benchmarks](https://github.com/mfontanini/packet-capture-benchmarks) project to compare the performance of PcapPlusPlus with other similar C++ libraries (such as `libtins` and `libcrafter`).
 
 You can see the results in the [Benchmarks](https://pcapplusplus.github.io/docs/benchmark) page in PcapPlusPlus web-site.
 
