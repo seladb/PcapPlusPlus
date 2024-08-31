@@ -95,7 +95,7 @@ static void BM_PcapFileWrite(benchmark::State& state)
 }
 BENCHMARK(BM_PcapFileWrite);
 
-static void BM_PcapPacketParsing(benchmark::State& state)
+static void BM_PacketParsing(benchmark::State& state)
 {
 	std::unordered_map<pcpp::ProtocolType, size_t> layerTypes;
 	std::unordered_map<pcpp::OsiModelLayer, size_t> osiLayers;
@@ -161,9 +161,9 @@ static void BM_PcapPacketParsing(benchmark::State& state)
 	state.SetBytesProcessed(totalBytes);
 	state.SetItemsProcessed(totalPackets);
 }
-BENCHMARK(BM_PcapPacketParsing);
+BENCHMARK(BM_PacketParsing);
 
-static void BM_PcapPacketCrafting(benchmark::State& state)
+static void BM_PacketCrafting(benchmark::State& state)
 {
 	size_t totalBytes = 0;
 	size_t totalPackets = 0;
@@ -242,7 +242,7 @@ static void BM_PcapPacketCrafting(benchmark::State& state)
 	state.SetBytesProcessed(totalBytes);
 	state.SetItemsProcessed(totalPackets);
 }
-BENCHMARK(BM_PcapPacketCrafting);
+BENCHMARK(BM_PacketCrafting);
 
 int main(int argc, char** argv)
 {
