@@ -47,8 +47,7 @@ namespace pcpp
 		 */
 		explicit PayloadLayer(const std::string& payloadAsHexStream);
 
-		~PayloadLayer()
-		{}
+		~PayloadLayer() override = default;
 
 		/**
 		 * Get a pointer to the payload data
@@ -73,13 +72,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PayloadLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Payload data length in bytes
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
@@ -87,7 +86,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
@@ -98,7 +97,7 @@ namespace pcpp
 		 */
 		void setPayload(const uint8_t* newPayload, size_t newPayloadLength);
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
