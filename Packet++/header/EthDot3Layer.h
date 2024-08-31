@@ -67,8 +67,7 @@ namespace pcpp
 		 */
 		EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length);
 
-		~EthDot3Layer()
-		{}
+		~EthDot3Layer() override = default;
 
 		/**
 		 * Get a pointer to the Ethernet header. Notice this points directly to the data, so every change will change
@@ -77,7 +76,7 @@ namespace pcpp
 		 */
 		ether_dot3_header* getEthHeader() const
 		{
-			return (ether_dot3_header*)m_Data;
+			return reinterpret_cast<ether_dot3_header*>(m_Data);
 		}
 
 		/**
@@ -121,12 +120,12 @@ namespace pcpp
 		/**
 		 * Parses next layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of ether_dot3_header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(ether_dot3_header);
 		}
@@ -134,10 +133,10 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
