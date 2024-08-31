@@ -229,7 +229,7 @@ namespace pcpp
 		/**
 		 * @return The OSI layer level of STP (Data Link Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

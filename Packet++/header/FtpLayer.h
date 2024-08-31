@@ -68,7 +68,7 @@ namespace pcpp
 		/**
 		 * @return The OSI layer level of FTP (Application Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

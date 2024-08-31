@@ -88,7 +88,7 @@ namespace pcpp
 		/**
 		 * @return The OSI layer level of LLC (Data Link Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

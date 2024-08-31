@@ -164,7 +164,7 @@ namespace pcpp
 
 		// overridden methods
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelSesionLayer;
 		}

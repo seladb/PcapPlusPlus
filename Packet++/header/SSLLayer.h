@@ -256,7 +256,7 @@ namespace pcpp
 		 */
 		void parseNextLayer();
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelPresentationLayer;
 		}

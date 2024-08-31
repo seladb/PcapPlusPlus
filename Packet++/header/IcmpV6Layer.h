@@ -210,7 +210,7 @@ namespace pcpp
 		 */
 		void computeCalculateFields();
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}

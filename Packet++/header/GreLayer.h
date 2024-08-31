@@ -154,7 +154,7 @@ namespace pcpp
 		 */
 		size_t getHeaderLen() const;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
@@ -465,7 +465,7 @@ namespace pcpp
 			return "PPP for PPTP Layer";
 		}
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelSesionLayer;
 		}

@@ -94,7 +94,7 @@ namespace pcpp
 		                                 const std::string& fieldValue);
 		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

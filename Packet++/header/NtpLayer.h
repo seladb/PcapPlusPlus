@@ -689,7 +689,7 @@ namespace pcpp
 		/**
 		 * @return The OSI layer level of NTP (Application Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

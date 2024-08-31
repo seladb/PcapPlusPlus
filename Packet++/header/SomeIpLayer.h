@@ -355,7 +355,7 @@ namespace pcpp
 		/**
 		 * @return The OSI model layer of this layer
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

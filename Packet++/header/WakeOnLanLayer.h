@@ -171,7 +171,7 @@ namespace pcpp
 		/**
 		 * @return The OSI layer level of Wake on LAN (Data Link Layer)
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}
