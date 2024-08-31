@@ -39,12 +39,9 @@ jobs:
         with:
           path: |
             ${{ env.CCACHE_DIR }}
-          key: ubuntu2204-ccache-${{ github.run_id }}
+          key: benchmark-ccache-${{ github.run_id }}
           restore-keys: |
-            ubuntu2204-ccache
-
-      - name: Install dependencies (remove and install this to the container)
-        run: apt-get update && apt-get install -y libbenchmark-dev
+            benchmark-ccache
 
       - name: Configure PcapPlusPlus for benchmarking
         run: cmake -DPCAPPP_BUILD_BENCHMARK_SUITE=ON -S . -B "$BUILD_DIR"
