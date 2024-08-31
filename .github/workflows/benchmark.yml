@@ -55,6 +55,12 @@ jobs:
       - name: Run PcapPlusPlus benchmark
         run: cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark_result_${GITHUB_SHA}.json
 
+      - name: Prepare benchmark results
+        run: |
+          mkdir -p Benchmarks/static/benchmark-results
+          mv Benchmarks/benchmark_result_${GITHUB_SHA}.json Benchmarks/static/benchmark-results
+          python3 ci/generateBenchmarkGraphData.py --directory Benchmarks/static/benchmark-results --output Benchmarks/static/benchmark-results/benchmark_graph_data.csv
+
       - name: Upload benchmark results
         if: github.ref == 'refs/heads/master'
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # main
