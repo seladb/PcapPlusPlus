@@ -145,7 +145,7 @@ namespace pcpp
 
 	size_t WireGuardLayer::getHeaderLen() const
 	{
-			return m_DataLen;
+		return m_DataLen;
 	}
 
 }  // namespace pcpp
