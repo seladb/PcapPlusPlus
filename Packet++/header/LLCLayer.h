@@ -60,22 +60,22 @@ namespace pcpp
 		 */
 		inline llc_header* getLlcHeader() const
 		{
-			return (llc_header*)m_Data;
+			return reinterpret_cast<llc_header*>(m_Data);
 		};
 
 		// overridden methods
 
 		/// Parses the next layer. Currently only STP supported as next layer
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/// Does nothing for this layer
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
 		 * @return Get the size of the LLC header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(llc_header);
 		}
@@ -83,7 +83,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * @return The OSI layer level of LLC (Data Link Layer).
