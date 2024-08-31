@@ -84,8 +84,7 @@ namespace pcpp
 		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr,
 		         const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr);
 
-		~ArpLayer()
-		{}
+		~ArpLayer() override = default;
 
 		/**
 		 * Get a pointer to the ARP header. Notice this points directly to the data, so every change will change the
@@ -94,7 +93,7 @@ namespace pcpp
 		 */
 		inline arphdr* getArpHeader() const
 		{
-			return (arphdr*)m_Data;
+			return reinterpret_cast<arphdr*>(m_Data);
 		}
 
 		/**
@@ -138,13 +137,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (ArpLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return The size of @ref arphdr
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(arphdr);
 		}
@@ -157,7 +156,7 @@ namespace pcpp
 		 * - @ref arphdr#protocolSize = 4 (assume IPv4 over ARP)
 		 * - if it's an ARP request: @ref arphdr#targetMacAddr = MacAddress("00:00:00:00:00:00")
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * Is this packet an ARP request?
@@ -169,7 +168,7 @@ namespace pcpp
 		 */
 		bool isReply() const;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
