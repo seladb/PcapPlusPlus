@@ -408,8 +408,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		virtual ~DhcpOption()
-		{}
+		~DhcpOption() override = default;
 
 		/**
 		 * Retrieve DHCP option data as IPv4 address. Relevant only if option value is indeed an IPv4 address
@@ -444,7 +443,8 @@ namespace pcpp
 			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
 				return "";
 
-			return std::string((const char*)m_Data->recordValue + valueOffset, (int)m_Data->recordLen - valueOffset);
+			return std::string(reinterpret_cast<const char*>(m_Data->recordValue) + valueOffset,
+			                   static_cast<int>(m_Data->recordLen) - valueOffset);
 		}
 
 		/**
@@ -458,7 +458,7 @@ namespace pcpp
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
 			// calculate the maximum length of the destination buffer
-			size_t len = (size_t)m_Data->recordLen - (size_t)valueOffset;
+			size_t len = static_cast<size_t>(m_Data->recordLen) - static_cast<size_t>(valueOffset);
 
 			// use the length of input string if a buffer is large enough for whole string
 			if (stringValue.length() < len)
@@ -475,14 +475,15 @@ namespace pcpp
 		 */
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
-			auto data = (TLVRawData*)recordRawData;
+			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
 			if (data == nullptr)
 				return false;
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
 				return false;
 
-			if (data->recordType == (uint8_t)DHCPOPT_END || data->recordType == (uint8_t)DHCPOPT_PAD)
+			if (data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
+			    data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
 				return true;
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
@@ -495,10 +496,11 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
+			if (m_Data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
+			    m_Data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
 				return sizeof(uint8_t);
 
-			return sizeof(uint8_t) * 2 + (size_t)m_Data->recordLen;
+			return sizeof(uint8_t) * 2 + static_cast<size_t>(m_Data->recordLen);
 		}
 
 		size_t getDataSize() const
@@ -506,7 +508,8 @@ namespace pcpp
 			if (m_Data == nullptr)
 				return 0;
 
-			if (m_Data->recordType == (uint8_t)DHCPOPT_END || m_Data->recordType == (uint8_t)DHCPOPT_PAD)
+			if (m_Data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
+			    m_Data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
 				return 0;
 
 			return m_Data->recordLen;
@@ -530,7 +533,7 @@ namespace pcpp
 		 * @param[in] optionValueLen DHCP option value length in bytes
 		 */
 		DhcpOptionBuilder(DhcpOptionTypes optionType, const uint8_t* optionValue, uint8_t optionValueLen)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen)
+		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue, optionValueLen)
 		{}
 
 		/**
@@ -540,7 +543,7 @@ namespace pcpp
 		 * @param[in] optionValue A 1-byte option value
 		 */
 		DhcpOptionBuilder(DhcpOptionTypes optionType, uint8_t optionValue)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue)
+		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
 		/**
@@ -550,7 +553,7 @@ namespace pcpp
 		 * @param[in] optionValue A 2-byte option value
 		 */
 		DhcpOptionBuilder(DhcpOptionTypes optionType, uint16_t optionValue)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue)
+		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
 		/**
@@ -560,7 +563,7 @@ namespace pcpp
 		 * @param[in] optionValue A 4-byte option value
 		 */
 		DhcpOptionBuilder(DhcpOptionTypes optionType, uint32_t optionValue)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue)
+		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
 		/**
@@ -570,7 +573,7 @@ namespace pcpp
 		 * @param[in] optionValue The IPv4 address option value
 		 */
 		DhcpOptionBuilder(DhcpOptionTypes optionType, const IPv4Address& optionValue)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue)
+		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
 		/**
@@ -580,7 +583,7 @@ namespace pcpp
 		 * @param[in] optionValue The string option value
 		 */
 		DhcpOptionBuilder(DhcpOptionTypes optionType, const std::string& optionValue)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue)
+		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
 		/**
@@ -640,8 +643,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer
 		 */
-		virtual ~DhcpLayer()
-		{}
+		~DhcpLayer() override = default;
 
 		/**
 		 * Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the
@@ -650,7 +652,7 @@ namespace pcpp
 		 */
 		dhcp_header* getDhcpHeader() const
 		{
-			return (dhcp_header*)m_Data;
+			return reinterpret_cast<dhcp_header*>(m_Data);
 		}
 
 		/**
@@ -658,7 +660,7 @@ namespace pcpp
 		 */
 		BootpOpCodes getOpCode() const
 		{
-			return (BootpOpCodes)getDhcpHeader()->opCode;
+			return static_cast<BootpOpCodes>(getDhcpHeader()->opCode);
 		}
 
 		/**
@@ -834,13 +836,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (DhcpLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return The size of @ref dhcp_header + size of options
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
@@ -855,9 +857,9 @@ namespace pcpp
 		 * - @ref dhcp_header#hardwareType = 1 (Ethernet)
 		 * - @ref dhcp_header#hardwareAddressLength = 6 (MAC address length)
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
