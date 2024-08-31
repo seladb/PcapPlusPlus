@@ -307,8 +307,7 @@ namespace pcpp
 			GtpExtension getNextExtension() const;
 		};  // GtpExtension
 
-		virtual ~GtpV1Layer()
-		{}
+		~GtpV1Layer() override = default;
 
 		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -359,7 +358,7 @@ namespace pcpp
 		 */
 		gtpv1_header* getHeader() const
 		{
-			return (gtpv1_header*)m_Data;
+			return reinterpret_cast<gtpv1_header*>(m_Data);
 		}
 
 		/**
@@ -456,7 +455,7 @@ namespace pcpp
 		/**
 		 * Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return The size of the GTP header. For GTP-C packets the size is determined by the value of
@@ -464,15 +463,15 @@ namespace pcpp
 		 * the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU
 		 * or extensions if exist)
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Calculate the following fields:
 		 * - gtpv1_header#messageLength
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
