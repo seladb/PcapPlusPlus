@@ -27,7 +27,7 @@ jobs:
         with:
           repository: PcapPlusPlus/pcapplusplus.github.io
           path: Benchmarks
-          sparse-checkout: benchmark-results
+          sparse-checkout: static/benchmark-results
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -53,7 +53,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Run PcapPlusPlus benchmark
-        run: cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark-results/benchmark_result_${GITHUB_SHA}.json
+        run: cd Benchmarks && ./Bin/PcppBenchmark --benchmark_out=benchmark_result_${GITHUB_SHA}.json
 
       - name: Upload benchmark results
         if: github.ref == 'refs/heads/master'
@@ -61,13 +61,13 @@ jobs:
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
         with:
-          source-directory: Benchmarks/benchmark-results
+          source-directory: Benchmarks/static/benchmark-results
           destination-github-username: "PcapPlusPlus"
           destination-repository-name: "pcapplusplus.github.io"
           user-email: noreply@github.com
           commit-message: Add benchmark for commit ORIGIN_COMMIT
           target-branch: master
-          target-directory: benchmark-results
+          target-directory: static/benchmark-results
 
       - name: Save Ccache
         uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
