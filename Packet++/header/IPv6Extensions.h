@@ -65,7 +65,7 @@ namespace pcpp
 		virtual ~IPv6Extension();
 
 		/**
-		 * @return A pointer to the next header or NULL if the extension is the last one
+		 * @return A pointer to the next header or nullptr if the extension is the last one
 		 */
 		IPv6Extension* getNextHeader() const
 		{
@@ -81,14 +81,14 @@ namespace pcpp
 
 		// protected c'tor
 		IPv6Extension(IDataContainer* dataContainer, size_t offset)
-		    : m_NextHeader(NULL), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(dataContainer), m_Offset(offset),
-		      m_ShadowData(NULL)
+		    : m_NextHeader(nullptr), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(dataContainer), m_Offset(offset),
+		      m_ShadowData(nullptr)
 		{}
 
 		// protected empty c'tor
 		IPv6Extension()
-		    : m_NextHeader(NULL), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(NULL), m_Offset(0),
-		      m_ShadowData(NULL)
+		    : m_NextHeader(nullptr), m_ExtType(IPv6ExtensionUnknown), m_DataContainer(nullptr), m_Offset(0),
+		      m_ShadowData(nullptr)
 		{}
 
 		// protected assignment operator
@@ -333,13 +333,13 @@ namespace pcpp
 		/**
 		 * Retrieve an option by its type
 		 * @param[in] optionType Option type
-		 * @return An IPv6Option object that wraps the option data. If option isn't found a logical NULL is returned
+		 * @return An IPv6Option object that wraps the option data. If option isn't found a logical null is returned
 		 * (IPv6Option#isNull() == true)
 		 */
 		IPv6Option getOption(uint8_t optionType) const;
 
 		/**
-		 * @return An IPv6Option that wraps the first option data or logical NULL (IPv6Option#isNull() == true) if no
+		 * @return An IPv6Option that wraps the first option data or logical null (IPv6Option#isNull() == true) if no
 		 * options exist
 		 */
 		IPv6Option getFirstOption() const;
@@ -347,9 +347,9 @@ namespace pcpp
 		/**
 		 * Returns a pointer to the option that comes after the option given as the parameter
 		 * @param[in] option A pointer to an option instance
-		 * @return An IPv6Option object that wraps the option data. In the following cases logical NULL
+		 * @return An IPv6Option object that wraps the option data. In the following cases logical null
 		 * (IPv6Option#isNull() == true) is returned: (1) input parameter is out-of-bounds for this extension or (2) the
-		 * next option doesn't exist or (3) the input option is NULL
+		 * next option doesn't exist or (3) the input option is nullptr
 		 */
 		IPv6Option getNextOption(IPv6Option& option) const;
 

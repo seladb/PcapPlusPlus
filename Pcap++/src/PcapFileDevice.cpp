@@ -699,7 +699,7 @@ namespace pcpp
 		if (pcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName
-			                                                             << "': pcap_open_dead returned NULL");
+			                                                             << "': pcap_open_dead returned nullptr");
 			m_DeviceOpened = false;
 			return false;
 		}
@@ -708,7 +708,7 @@ namespace pcpp
 		if (m_PcapDumpHandler == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device for file '"
-			               << m_FileName << "': pcap_dump_open returned NULL with error: '"
+			               << m_FileName << "': pcap_dump_open returned nullptr with error: '"
 			               << pcapDescriptor.getLastError() << "'");
 			m_DeviceOpened = false;
 			return false;
@@ -853,8 +853,8 @@ namespace pcpp
 		m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
 		if (m_LightPcapNg == nullptr)
 		{
-			PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName
-			                                                             << "': light_pcapng_open_write returned NULL");
+			PCPP_LOG_ERROR("Error opening file writer device for file '"
+			               << m_FileName << "': light_pcapng_open_write returned nullptr");
 
 			light_free_file_info(info);
 
@@ -937,8 +937,8 @@ namespace pcpp
 		m_LightPcapNg = light_pcapng_open_write(m_FileName.c_str(), info, m_CompressionLevel);
 		if (m_LightPcapNg == nullptr)
 		{
-			PCPP_LOG_ERROR("Error opening file writer device for file '" << m_FileName
-			                                                             << "': light_pcapng_open_write returned NULL");
+			PCPP_LOG_ERROR("Error opening file writer device for file '"
+			               << m_FileName << "': light_pcapng_open_write returned nullptr");
 
 			light_free_file_info(info);
 
@@ -963,7 +963,7 @@ namespace pcpp
 		if (m_LightPcapNg == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening file writer device in append mode for file '"
-			               << m_FileName << "': light_pcapng_open_append returned NULL");
+			               << m_FileName << "': light_pcapng_open_append returned nullptr");
 			m_DeviceOpened = false;
 			return false;
 		}

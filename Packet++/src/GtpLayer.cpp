@@ -237,7 +237,7 @@ namespace pcpp
 		gtpv1_header* header = getHeader();
 		if (header == nullptr)
 		{
-			PCPP_LOG_ERROR("Set sequence failed: GTP header is NULL");
+			PCPP_LOG_ERROR("Set sequence failed: GTP header is nullptr");
 			return false;
 		}
 
@@ -256,7 +256,7 @@ namespace pcpp
 		gtpv1_header_extra* headerExtra = getHeaderExtra();
 		if (headerExtra == nullptr)
 		{
-			PCPP_LOG_ERROR("Set sequence failed: extra header is NULL");
+			PCPP_LOG_ERROR("Set sequence failed: extra header is nullptr");
 			return false;
 		}
 
@@ -289,7 +289,7 @@ namespace pcpp
 		gtpv1_header* header = getHeader();
 		if (header == nullptr)
 		{
-			PCPP_LOG_ERROR("Set N-PDU failed: GTP header is NULL");
+			PCPP_LOG_ERROR("Set N-PDU failed: GTP header is nullptr");
 			return false;
 		}
 
@@ -308,7 +308,7 @@ namespace pcpp
 		gtpv1_header_extra* headerExtra = getHeaderExtra();
 		if (headerExtra == nullptr)
 		{
-			PCPP_LOG_ERROR("Set N-PDU failed: extra header is NULL");
+			PCPP_LOG_ERROR("Set N-PDU failed: extra header is nullptr");
 			return false;
 		}
 
@@ -354,7 +354,7 @@ namespace pcpp
 		gtpv1_header* header = getHeader();
 		if (header == nullptr)
 		{
-			PCPP_LOG_ERROR("Add extension failed: GTP header is NULL");
+			PCPP_LOG_ERROR("Add extension failed: GTP header is nullptr");
 			return GtpExtension();
 		}
 
@@ -375,7 +375,7 @@ namespace pcpp
 		gtpv1_header_extra* headerExtra = getHeaderExtra();
 		if (headerExtra == nullptr)
 		{
-			PCPP_LOG_ERROR("Add extension failed: extra header is NULL");
+			PCPP_LOG_ERROR("Add extension failed: extra header is nullptr");
 			return GtpExtension();
 		}
 

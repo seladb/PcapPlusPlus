@@ -210,7 +210,7 @@ namespace pcpp
 			}
 			else
 			{
-				curResource->setNexResource(newGenResource);
+				curResource->setNextResource(newGenResource);
 				curResource = curResource->getNextResource();
 			}
 
@@ -492,14 +492,14 @@ namespace pcpp
 		if (curResource != nullptr)
 		{
 			if (curResource->getType() > newResource->getType())
-				newResource->setNexResource(m_ResourceList);
+				newResource->setNextResource(m_ResourceList);
 			else
-				newResource->setNexResource(curResource->getNextResource());
+				newResource->setNextResource(curResource->getNextResource());
 		}
 		else
 		{
-			// curResource != NULL
-			newResource->setNexResource(m_ResourceList);
+			// curResource != nullptr
+			newResource->setNextResource(m_ResourceList);
 		}
 
 		// extend layer to make room for the new resource
@@ -516,7 +516,7 @@ namespace pcpp
 		// connect the new resource to the layer's resource list
 		if (curResource != nullptr)
 		{
-			curResource->setNexResource(newResource);
+			curResource->setNextResource(newResource);
 			// this means the new resource is the first of it's type
 			if (curResource->getType() < newResource->getType())
 			{
@@ -530,7 +530,7 @@ namespace pcpp
 				setFirstResource(resType, newResource);
 			}
 		}
-		else  // curResource != NULL, meaning this is the first resource in layer
+		else  // curResource != nullptr, meaning this is the first resource in layer
 		{
 			m_ResourceList = newResource;
 
@@ -566,9 +566,9 @@ namespace pcpp
 
 		// set next resource for new query. This must happen here for extendLayer to succeed
 		if (curQuery != nullptr)
-			newQuery->setNexResource(curQuery->getNextResource());
+			newQuery->setNextResource(curQuery->getNextResource());
 		else
-			newQuery->setNexResource(m_ResourceList);
+			newQuery->setNextResource(m_ResourceList);
 
 		// extend layer to make room for the new query
 		if (!extendLayer(newQueryOffsetInLayer, newQuery->getSize(), newQuery))
@@ -583,8 +583,8 @@ namespace pcpp
 
 		// connect the new query to the layer's resource list
 		if (curQuery != nullptr)
-			curQuery->setNexResource(newQuery);
-		else  // curQuery == NULL, meaning this is the first query
+			curQuery->setNextResource(newQuery);
+		else  // curQuery == nullptr, meaning this is the first query
 		{
 			m_ResourceList = newQuery;
 			m_FirstQuery = newQuery;
@@ -783,7 +783,7 @@ namespace pcpp
 	{
 		if (resourceToRemove == nullptr)
 		{
-			PCPP_LOG_DEBUG("resourceToRemove cannot be NULL");
+			PCPP_LOG_DEBUG("resourceToRemove cannot be nullptr");
 			return false;
 		}
 
@@ -818,7 +818,7 @@ namespace pcpp
 		// remove resourceToRemove from the resources linked list
 		if (m_ResourceList != resourceToRemove)
 		{
-			prevResource->setNexResource(resourceToRemove->getNextResource());
+			prevResource->setNextResource(resourceToRemove->getNextResource());
 		}
 		else
 		{

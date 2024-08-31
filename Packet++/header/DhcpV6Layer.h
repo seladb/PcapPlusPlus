@@ -330,16 +330,16 @@ namespace pcpp
 
 		/**
 		 * @return The first DHCPv6 option in the packet. If there are no DHCPv6 options the returned value will contain
-		 * a logical NULL (DhcpV6Option#isNull() == true)
+		 * a logical null (DhcpV6Option#isNull() == true)
 		 */
 		DhcpV6Option getFirstOptionData() const;
 
 		/**
 		 * Get the DHCPv6 option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (DhcpV6Option#isNull() == true)
+		 * returned value will contain a logical null (DhcpV6Option#isNull() == true)
 		 * @param[in] dhcpv6Option A given DHCPv6 option
-		 * @return A DhcpV6Option object containing the option data that comes next, or logical NULL if the given DHCPv6
-		 * option: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
+		 * @return A DhcpV6Option object containing the option data that comes next, or logical null if the given
+		 * DHCPv6 option: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		 */
 		DhcpV6Option getNextOptionData(DhcpV6Option dhcpv6Option) const;
 
@@ -347,7 +347,7 @@ namespace pcpp
 		 * Get a DHCPv6 option by type
 		 * @param[in] option DHCPv6 option type
 		 * @return A DhcpV6OptionType object containing the first DHCP option data that matches this type, or logical
-		 * NULL (DhcpV6Option#isNull() == true) if no such option found
+		 * null (DhcpV6Option#isNull() == true) if no such option found
 		 */
 		DhcpV6Option getOptionData(DhcpV6OptionType option) const;
 
@@ -359,7 +359,7 @@ namespace pcpp
 		/**
 		 * Add a new DHCPv6 option at the end of the layer
 		 * @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
-		 * @return A DhcpV6Option object containing the newly added DHCP option data or logical NULL
+		 * @return A DhcpV6Option object containing the newly added DHCP option data or logical null
 		 * (DhcpV6Option#isNull() == true) if addition failed
 		 */
 		DhcpV6Option addOption(const DhcpV6OptionBuilder& optionBuilder);
@@ -368,7 +368,7 @@ namespace pcpp
 		 * Add a new DHCPv6 option after an existing one
 		 * @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
 		 * @param[in] optionType The DHCPv6 option type which the newly added option will come after
-		 * @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical NULL
+		 * @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical null
 		 * (DhcpV6Option#isNull() == true) if addition failed
 		 */
 		DhcpV6Option addOptionAfter(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType);
@@ -377,7 +377,7 @@ namespace pcpp
 		 * Add a new DHCPv6 option before an existing one
 		 * @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
 		 * @param[in] optionType The DHCPv6 option type which the newly added option will come before
-		 * @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical NULL
+		 * @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical null
 		 * (DhcpV6Option#isNull() == true) if addition failed
 		 */
 		DhcpV6Option addOptionBefore(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType);
