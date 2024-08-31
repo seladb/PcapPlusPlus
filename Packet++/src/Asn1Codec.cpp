@@ -399,7 +399,7 @@ namespace pcpp
 
 	void Asn1Record::decodeValueIfNeeded()
 	{
-		if (m_EncodedValue != NULL)
+		if (m_EncodedValue != nullptr)
 		{
 			decodeValue(m_EncodedValue, true);
 			m_EncodedValue = nullptr;
