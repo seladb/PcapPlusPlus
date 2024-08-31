@@ -58,7 +58,7 @@ jobs:
 
       - name: Run clang-tidy on changed files
         run: |
-          ./ci/clang-tidy-all.sh changed
+          ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
           git diff --exit-code
 
   linux:
