@@ -78,10 +78,8 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		EthLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet)
-		{
-			m_Protocol = Ethernet;
-		}
+		EthLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet, Ethernet)
+		{}
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -91,10 +89,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		EthLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = Ethernet;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, Ethernet)
+		{}
 
 		/**
 		 * A constructor that creates a new Ethernet header and allocates the data

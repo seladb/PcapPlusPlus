@@ -135,10 +135,8 @@ namespace pcpp
 	protected:
 		VrrpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType vrrpVer,
 		          IPAddress::AddressType addressType)
-		    : Layer(data, dataLen, prevLayer, packet), m_AddressType(addressType)
-		{
-			m_Protocol = vrrpVer;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, vrrpVer), m_AddressType(addressType)
+		{}
 
 		explicit VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority);
 
