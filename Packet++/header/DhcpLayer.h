@@ -638,12 +638,6 @@ namespace pcpp
 		DhcpLayer();
 
 		/**
-		 * A destructor for this layer
-		 */
-		virtual ~DhcpLayer()
-		{}
-
-		/**
 		 * Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the
 		 * actual packet data
 		 * @return A pointer to the @ref dhcp_header

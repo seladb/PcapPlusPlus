@@ -410,9 +410,6 @@ namespace pcpp
 		LdapLayer(uint16_t messageId, LdapOperationType operationType, const std::vector<Asn1Record*>& messageRecords,
 		          const std::vector<LdapControl>& controls = std::vector<LdapControl>());
 
-		~LdapLayer()
-		{}
-
 		/**
 		 * @return The root ASN.1 record of the LDAP message. All of the message data will be under this record.
 		 * If the Root ASN.1 record is malformed, an exception is thrown

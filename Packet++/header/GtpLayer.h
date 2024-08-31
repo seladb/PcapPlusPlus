@@ -307,9 +307,6 @@ namespace pcpp
 			GtpExtension getNextExtension() const;
 		};  // GtpExtension
 
-		virtual ~GtpV1Layer()
-		{}
-
 		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes

@@ -124,7 +124,7 @@ namespace pcpp
 		friend class HeaderField;
 
 	public:
-		~TextBasedProtocolMessage();
+		~TextBasedProtocolMessage() override;
 
 		/**
 		 * Get a pointer to a header field by name. The search is case insensitive, meaning if a field with name "Host"

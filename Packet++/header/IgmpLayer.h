@@ -174,9 +174,6 @@ namespace pcpp
 		size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const;
 
 	public:
-		virtual ~IgmpLayer()
-		{}
-
 		/**
 		 * Get a pointer to the raw IGMPv1/IGMPv2 header. Notice this points directly to the data, so every change will
 		 * change the actual packet data
@@ -275,12 +272,6 @@ namespace pcpp
 		    : IgmpLayer(type, groupAddr, 0, IGMPv1)
 		{}
 
-		/**
-		 * A destructor for this layer (does nothing)
-		 */
-		~IgmpV1Layer()
-		{}
-
 		// implement abstract methods
 
 		/**
@@ -317,12 +308,6 @@ namespace pcpp
 		 */
 		explicit IgmpV2Layer(IgmpType type, const IPv4Address& groupAddr = IPv4Address(), uint8_t maxResponseTime = 0)
 		    : IgmpLayer(type, groupAddr, maxResponseTime, IGMPv2)
-		{}
-
-		/**
-		 * A destructor for this layer (does nothing)
-		 */
-		~IgmpV2Layer()
 		{}
 
 		// implement abstract methods

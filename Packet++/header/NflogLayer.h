@@ -180,9 +180,6 @@ namespace pcpp
 			m_Protocol = NFLOG;
 		}
 
-		~NflogLayer()
-		{}
-
 		/**
 		 * Get a pointer to the Nflog header.
 		 * @return A pointer to the nflog_header

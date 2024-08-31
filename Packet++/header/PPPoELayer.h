@@ -80,9 +80,6 @@ namespace pcpp
 			PPPOE_CODE_PADN = 0xd4
 		};
 
-		~PPPoELayer()
-		{}
-
 		/**
 		 * Get a pointer to the PPPoE header. Notice this points directly to the data, so every change will change the
 		 * actual packet data

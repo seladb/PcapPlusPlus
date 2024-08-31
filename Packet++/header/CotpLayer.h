@@ -48,9 +48,6 @@ namespace pcpp
 		 */
 		explicit CotpLayer(uint8_t tpduNumber);
 
-		virtual ~CotpLayer()
-		{}
-
 		/**
 		 * @return COTP length
 		 */

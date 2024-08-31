@@ -55,9 +55,6 @@ namespace pcpp
 		 */
 		MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack);
 
-		virtual ~MplsLayer()
-		{}
-
 		/**
 		 * @return TTL value of the MPLS header
 		 */

@@ -67,9 +67,6 @@ namespace pcpp
 		 */
 		EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length);
 
-		~EthDot3Layer()
-		{}
-
 		/**
 		 * Get a pointer to the Ethernet header. Notice this points directly to the data, so every change will change
 		 * the actual packet data

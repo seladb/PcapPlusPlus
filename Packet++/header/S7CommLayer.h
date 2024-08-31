@@ -110,7 +110,7 @@ namespace pcpp
 			m_Parameter = nullptr;
 		}
 
-		virtual ~S7CommLayer()
+		~S7CommLayer() override
 		{
 			if (m_Parameter)
 				delete m_Parameter;

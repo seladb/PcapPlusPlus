@@ -507,8 +507,6 @@ namespace pcpp
 		 */
 		TcpLayer(uint16_t portSrc, uint16_t portDst);
 
-		~TcpLayer() = default;
-
 		/**
 		 * A copy constructor that copy the entire header from the other TcpLayer (including TCP options)
 		 */

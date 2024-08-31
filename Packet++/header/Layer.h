@@ -29,8 +29,7 @@ namespace pcpp
 		 */
 		virtual uint8_t* getDataPtr(size_t offset = 0) const = 0;
 
-		virtual ~IDataContainer()
-		{}
+		virtual ~IDataContainer() = default;
 	};
 
 	class Packet;
@@ -232,6 +231,7 @@ namespace pcpp
 		virtual bool extendLayer(int offsetInLayer, size_t numOfBytesToExtend);
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
 	};
+	static_assert(std::has_virtual_destructor<Layer>::value, "Layer must have a virtual destructor");
 
 }  // namespace pcpp
 

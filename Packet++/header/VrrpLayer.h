@@ -177,9 +177,6 @@ namespace pcpp
 			Other
 		};
 
-		virtual ~VrrpLayer()
-		{}
-
 		/**
 		 * @return The VRRP IP Address type
 		 */

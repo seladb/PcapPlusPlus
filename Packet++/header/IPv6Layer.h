@@ -83,7 +83,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer
 		 */
-		~IPv6Layer();
+		~IPv6Layer() override;
 
 		/**
 		 * An assignment operator that first delete all data from current layer and then copy the entire header from the

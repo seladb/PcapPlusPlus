@@ -84,9 +84,6 @@ namespace pcpp
 		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr,
 		         const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr);
 
-		~ArpLayer()
-		{}
-
 		/**
 		 * Get a pointer to the ARP header. Notice this points directly to the data, so every change will change the
 		 * actual packet data

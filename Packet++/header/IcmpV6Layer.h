@@ -154,9 +154,6 @@ namespace pcpp
 		 */
 		IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code, const uint8_t* data, size_t dataLen);
 
-		virtual ~IcmpV6Layer()
-		{}
-
 		/**
 		 * A static method that creates an ICMPv6 layer from packet raw data
 		 * @param[in] data A pointer to the raw data

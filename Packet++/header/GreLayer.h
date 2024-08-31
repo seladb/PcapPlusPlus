@@ -104,9 +104,6 @@ namespace pcpp
 	class GreLayer : public Layer
 	{
 	public:
-		virtual ~GreLayer()
-		{}
-
 		/**
 		 * A static method that determines the GRE version of GRE layer raw data by looking at the
 		 * gre_basic_header#version field
@@ -425,9 +422,6 @@ namespace pcpp
 		 * @param[in] control Control field
 		 */
 		PPP_PPTPLayer(uint8_t address, uint8_t control);
-
-		~PPP_PPTPLayer()
-		{}
 
 		/**
 		 * Get a pointer to the PPP-PPTP header. Notice this points directly to the data, so every change will change

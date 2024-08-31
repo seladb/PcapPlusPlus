@@ -43,9 +43,6 @@ namespace pcpp
 			m_Protocol = PacketTrailer;
 		}
 
-		~PacketTrailerLayer()
-		{}
-
 		/**
 		 * Get a pointer to the trailer data
 		 * @return A pointer to the trailer data

@@ -396,9 +396,6 @@ namespace pcpp
 		 */
 		IcmpLayer();
 
-		virtual ~IcmpLayer()
-		{}
-
 		/**
 		 * Get a pointer to the basic ICMP header. Notice this points directly to the data, so every change will change
 		 * the actual packet data

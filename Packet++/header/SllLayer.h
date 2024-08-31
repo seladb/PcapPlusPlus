@@ -62,9 +62,6 @@ namespace pcpp
 		 */
 		SllLayer(uint16_t packetType, uint16_t ARPHRDType);
 
-		~SllLayer()
-		{}
-
 		/**
 		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the
 		 * actual packet data

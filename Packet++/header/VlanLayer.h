@@ -63,9 +63,6 @@ namespace pcpp
 		 */
 		VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType = 0);
 
-		~VlanLayer()
-		{}
-
 		/**
 		 * Get a pointer to the VLAN header. Notice this points directly to the data, so every change will change the
 		 * actual packet data

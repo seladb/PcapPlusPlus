@@ -213,12 +213,6 @@ namespace pcpp
 		RadiusLayer(uint8_t code, uint8_t id, const std::string& authenticator);
 
 		/**
-		 * A d'tor for this layer, currently does nothing
-		 */
-		~RadiusLayer()
-		{}
-
-		/**
 		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the
 		 * actual packet data
 		 * @return A pointer to the radius_header object

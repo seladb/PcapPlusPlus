@@ -125,7 +125,7 @@ namespace pcpp
 		 */
 		DnsLayer& operator=(const DnsLayer& other);
 
-		virtual ~DnsLayer();
+		~DnsLayer() override;
 
 		/**
 		 * Get a pointer to the DNS header (as opposed to the DNS data which is the queries, answers, etc. Data can be

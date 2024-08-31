@@ -95,9 +95,6 @@ namespace pcpp
 		explicit VxlanLayer(uint32_t vni = 0, uint16_t groupPolicyID = 0, bool setGbpFlag = false,
 		                    bool setPolicyAppliedFlag = false, bool setDontLearnFlag = false);
 
-		~VxlanLayer()
-		{}
-
 		/**
 		 * Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the
 		 * actual packet data

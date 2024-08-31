@@ -95,9 +95,6 @@ namespace pcpp
 		SdpLayer(const std::string& username, long sessionID, long sessionVersion, IPv4Address ipAddress,
 		         const std::string& sessionName, long startTime, long stopTime);
 
-		~SdpLayer()
-		{}
-
 		/**
 		 * A copy constructor for this layer. Inherits the base copy constructor and doesn't add
 		 * anything else

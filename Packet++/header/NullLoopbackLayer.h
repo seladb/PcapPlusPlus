@@ -48,12 +48,6 @@ namespace pcpp
 		explicit NullLoopbackLayer(uint32_t family);
 
 		/**
-		 * A destructor for this layer (does nothing)
-		 */
-		~NullLoopbackLayer()
-		{}
-
-		/**
 		 * @return The protocol family in this layer
 		 */
 		uint32_t getFamily() const;

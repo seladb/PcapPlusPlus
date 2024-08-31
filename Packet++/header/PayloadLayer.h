@@ -47,9 +47,6 @@ namespace pcpp
 		 */
 		explicit PayloadLayer(const std::string& payloadAsHexStream);
 
-		~PayloadLayer()
-		{}
-
 		/**
 		 * Get a pointer to the payload data
 		 * @return A pointer to the payload data

@@ -55,9 +55,6 @@ namespace pcpp
 		 */
 		TpktLayer(uint8_t version, uint16_t length);
 
-		virtual ~TpktLayer()
-		{}
-
 		/**
 		 * @return TPKT reserved
 		 */
