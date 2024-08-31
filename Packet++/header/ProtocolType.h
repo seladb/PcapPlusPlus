@@ -347,6 +347,11 @@ namespace pcpp
 	 */
 	const ProtocolType LDAP = 55;
 
+	/*
+	 * Wireguard protocol
+	 */
+	const ProtocolType WIREGUARD = 56;
+
 	/**
 	 * An enum representing OSI model layers
 	 */

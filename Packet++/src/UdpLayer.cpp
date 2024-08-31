@@ -15,6 +15,7 @@
 #include "NtpLayer.h"
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
+#include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -134,6 +135,8 @@ namespace pcpp
 			m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 			m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
+		else if ((WireGuardLayer::isWireguardPorts(portDst, portSrc) && WireGuardLayer::isWireGuard(udpData, udpDataLen)))
+			m_NextLayer = new WireGuardLayer(udpData, udpDataLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 	}
