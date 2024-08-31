@@ -125,7 +125,7 @@ namespace pcpp
 		 */
 		DnsLayer& operator=(const DnsLayer& other);
 
-		virtual ~DnsLayer();
+		~DnsLayer() override;
 
 		/**
 		 * Get a pointer to the DNS header (as opposed to the DNS data which is the queries, answers, etc. Data can be
@@ -434,14 +434,14 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (DnsLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return The size of the DNS data in the packet including he DNS header and size of all queries, answers,
 		 * authorities and additional records
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}  // No layer above DNS
@@ -449,10 +449,10 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		virtual void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
@@ -566,7 +566,7 @@ namespace pcpp
 		/**
 		 * Calculate the TCP message length field
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 	};
 
 	// implementation of inline methods
