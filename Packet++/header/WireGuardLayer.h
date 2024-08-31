@@ -181,7 +181,7 @@ namespace pcpp
 		 * @param dataLen Length of the data
 		 * @return True if the data starts with a valid WireGuard message type, false otherwise
 		 */
-		static inline bool isWireGuard(uint8_t* data, size_t dataLen);
+		static inline bool isWireGuard(const uint8_t* data, size_t dataLen);
 
 		/**
 		 * No operation required for parsing the next layer since WireGuard does not have a next layer.
@@ -246,7 +246,7 @@ namespace pcpp
 	 * @param dataLen Length of the data
 	 * @return True if the data starts with a valid WireGuard message type, false otherwise
 	 */
-	bool WireGuardLayer::isWireGuard(uint8_t* data, size_t dataLen)
+	bool WireGuardLayer::isWireGuard(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < sizeof(wg_common_header))
 			return false;
