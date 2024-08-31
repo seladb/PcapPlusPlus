@@ -164,9 +164,9 @@ namespace pcpp
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) const
+		uint8_t* getDataPtr(size_t offset = 0) const override
 		{
-			return (uint8_t*)(m_Data + offset);
+			return static_cast<uint8_t*>(m_Data + offset);
 		}
 
 		// abstract methods
