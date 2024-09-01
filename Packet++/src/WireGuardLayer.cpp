@@ -5,9 +5,9 @@
 #include "IPv6Layer.h"
 #include "WireGuardLayer.h"
 #include "Logger.h"
-#include <string.h>
 #include <sstream>
 #include <iomanip>
+#include <cstring>
 
 namespace pcpp
 {

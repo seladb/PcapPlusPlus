@@ -3,8 +3,8 @@
 #include "Layer.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
-#include <string.h>
 #include <sstream>
+#include <cstring>
 
 /// @file
 
