@@ -113,11 +113,11 @@ namespace pcpp
 		}
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() const
+		char getHeaderFieldNameValueSeparator() const override
 		{
 			return ':';
 		}
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() const
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const override
 		{
 			return true;
 		}
