@@ -36,7 +36,7 @@ void usleep(__int64 usec)
 	LARGE_INTEGER ft;
 
 	ft.QuadPart = -(10 * usec);  // Convert to 100 nanosecond interval, negative value indicates relative time
-	                             // NULL is Used for WindowAPIs and no need to change to nullptr for C++11
+	                             // NULL is used instead of nullptr for Windows APIs. Check https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
 	timer = CreateWaitableTimer(NULL, TRUE, NULL);
 	if (timer == nullptr)
 	{

@@ -430,7 +430,7 @@ namespace pcpp
 
 		int n = 1;
 		DWORD dwBytesRet;
-		// NULL is Used for WindowAPIs and no need to change to nullptr for C++11
+		// NULL is used instead of nullptr for Windows APIs. Check https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
 		if (WSAIoctl(fd, SIO_RCVALL, &n, sizeof(n), NULL, 0, &dwBytesRet, NULL, NULL) == SOCKET_ERROR)
 		{
 			PCPP_LOG_ERROR("Call to WSAIotcl(" << std::hex << SIO_RCVALL << ") failed with error code "
