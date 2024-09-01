@@ -431,7 +431,7 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
