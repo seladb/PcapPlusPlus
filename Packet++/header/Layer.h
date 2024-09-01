@@ -210,8 +210,8 @@ namespace pcpp
 		      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
 		{}
 
-		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(UnknownProtocol), m_NextLayer(nullptr),
+		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol = UnknownProtocol)
+		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(protocol), m_NextLayer(nullptr),
 		      m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false)
 		{}
 

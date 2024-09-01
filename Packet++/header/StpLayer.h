@@ -127,10 +127,8 @@ namespace pcpp
 	{
 	protected:
 		StpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = STP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, STP)
+		{}
 
 		explicit StpLayer(size_t dataLen)
 		{

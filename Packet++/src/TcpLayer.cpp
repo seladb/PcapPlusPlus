@@ -317,9 +317,8 @@ namespace pcpp
 	}
 
 	TcpLayer::TcpLayer(uint8_t* data, const size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet)
+	    : Layer(data, dataLen, prevLayer, packet, TCP)
 	{
-		m_Protocol = TCP;
 		m_NumOfTrailingBytes = 0;
 	}
 

@@ -44,10 +44,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		UdpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = UDP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, UDP)
+		{}
 
 		/**
 		 * A constructor that allocates a new UDP header with source and destination ports

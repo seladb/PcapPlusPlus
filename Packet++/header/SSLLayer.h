@@ -263,10 +263,8 @@ namespace pcpp
 
 	protected:
 		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = SSL;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, SSL)
+		{}
 
 	};  // class SSLLayer
 

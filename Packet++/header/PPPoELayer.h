@@ -106,8 +106,8 @@ namespace pcpp
 
 	protected:
 		// protected c'tor as this class shouldn't be instantiated
-		PPPoELayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
+		PPPoELayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
+		    : Layer(data, dataLen, prevLayer, packet, protocol)
 		{}
 
 		// protected c'tor as this class shouldn't be instantiated
@@ -130,10 +130,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		PPPoESessionLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : PPPoELayer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = PPPoESession;
-		}
+		    : PPPoELayer(data, dataLen, prevLayer, packet, PPPoESession)
+		{}
 
 		/**
 		 * A constructor that allocates a new PPPoE Session header with version, type and session ID
@@ -337,9 +335,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		PPPoEDiscoveryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : PPPoELayer(data, dataLen, prevLayer, packet)
+		    : PPPoELayer(data, dataLen, prevLayer, packet, PPPoEDiscovery)
 		{
-			m_Protocol = PPPoEDiscovery;
 			m_DataLen = getHeaderLen();
 		}
 

@@ -385,10 +385,8 @@ namespace pcpp
 		 */
 		// cppcheck-suppress uninitMemberVar
 		IcmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = ICMP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, ICMP)
+		{}
 
 		/**
 		 * An empty constructor that creates a new layer with an empty ICMP header without setting the ICMP type or ICMP

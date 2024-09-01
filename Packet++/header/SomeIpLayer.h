@@ -92,10 +92,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		SomeIpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = SomeIP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, SomeIP)
+		{}
 
 		/**
 		 * Construct a new layer object

@@ -41,10 +41,9 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		EthDot3Layer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet)
-		{
-			m_Protocol = EthernetDot3;
-		}
+		EthDot3Layer(uint8_t* data, size_t dataLen, Packet* packet)
+		    : Layer(data, dataLen, nullptr, packet, EthernetDot3)
+		{}
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -54,10 +53,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		EthDot3Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = EthernetDot3;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, EthernetDot3)
+		{}
 
 		/**
 		 * A constructor that creates a new IEEE 802.3 Ethernet header and allocates the data

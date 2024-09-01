@@ -78,10 +78,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		VxlanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = VXLAN;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, VXLAN)
+		{}
 
 		/**
 		 * A constructor that creates a new VXLAN header and allocates the data. Note: the VNI present flag is set

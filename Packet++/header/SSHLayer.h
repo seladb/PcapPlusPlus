@@ -120,10 +120,8 @@ namespace pcpp
 	protected:
 		// protected c'tor, this class cannot be instantiated
 		SSHLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = SSH;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, SSH)
+		{}
 
 	private:
 		// this layer supports only parsing

@@ -58,10 +58,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		AuthenticationHeaderLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = AuthenticationHeader;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, AuthenticationHeader)
+		{}
 
 		/**
 		 * Get a pointer to the raw AH header. Notice this points directly to the data, so every change will change the
@@ -155,14 +153,12 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		ESPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = ESP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, ESP)
+		{}
 
 		ipsec_esp* getESPHeader() const
 		{
-			return (ipsec_esp*)m_Data;
+			return reinterpret_cast<ipsec_esp*>(m_Data);
 		}
 
 		/**
