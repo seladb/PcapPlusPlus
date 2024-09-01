@@ -119,10 +119,7 @@ namespace pcpp
 		 */
 		WireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, WIREGUARD)
-		{
-			m_Data = data;
-			m_DataLen = dataLen;
-		}
+		{}
 
 		/**
 		 * Gets a pointer to the Handshake Initiation message.
