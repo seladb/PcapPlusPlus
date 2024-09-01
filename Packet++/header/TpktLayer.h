@@ -55,8 +55,7 @@ namespace pcpp
 		 */
 		TpktLayer(uint8_t version, uint16_t length);
 
-		virtual ~TpktLayer()
-		{}
+		~TpktLayer() override = default;
 
 		/**
 		 * @return TPKT reserved
@@ -142,7 +141,7 @@ namespace pcpp
 		 */
 		tpkthdr* getTpktHeader() const
 		{
-			return (tpkthdr*)m_Data;
+			return reinterpret_cast<tpkthdr*>(m_Data);
 		}
 	};
 
