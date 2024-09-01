@@ -311,7 +311,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
@@ -323,7 +323,7 @@ namespace pcpp
 			return static_cast<size_t>(m_Data->recordLen);
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
