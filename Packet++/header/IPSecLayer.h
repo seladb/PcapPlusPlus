@@ -184,7 +184,7 @@ namespace pcpp
 		/**
 		 * @return The size of the ESP header (8 bytes)
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(ipsec_esp);
 		}
@@ -192,15 +192,15 @@ namespace pcpp
 		/**
 		 * The payload of an ESP layer is encrypted, hence the next layer is always a generic payload (PayloadLayer)
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
