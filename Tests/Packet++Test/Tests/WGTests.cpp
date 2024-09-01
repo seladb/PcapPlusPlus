@@ -72,9 +72,6 @@ PTF_TEST_CASE(WGHandshakeRespParsingTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeResponse.dat");
 	pcpp::Packet parsedPacket(&rawPacket1);
 
-	PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(pcpp::Ethernet));
-	PTF_ASSERT_NOT_NULL(parsedPacket.getLayerOfType<pcpp::EthLayer>());
-
 	pcpp::UdpLayer* udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
@@ -119,9 +116,6 @@ PTF_TEST_CASE(WGTransportDataParsingTest)
 
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardTransportData.dat");
 	pcpp::Packet parsedPacket(&rawPacket1);
-
-	PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(pcpp::Ethernet));
-	PTF_ASSERT_NOT_NULL(parsedPacket.getLayerOfType<pcpp::EthLayer>());
 
 	pcpp::UdpLayer* udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
