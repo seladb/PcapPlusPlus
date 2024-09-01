@@ -63,7 +63,7 @@ namespace pcpp
 		 */
 		udphdr* getUdpHeader() const
 		{
-			return (udphdr*)m_Data;
+			return reinterpret_cast<udphdr*>(m_Data);
 		}
 
 		/**
@@ -90,12 +90,12 @@ namespace pcpp
 		 * Currently identifies the following next layers: DnsLayer, DhcpLayer, VxlanLayer, SipRequestLayer,
 		 * SipResponseLayer, RadiusLayer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of @ref udphdr
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(udphdr);
 		}
@@ -103,9 +103,9 @@ namespace pcpp
 		/**
 		 * Calculate @ref udphdr#headerChecksum field
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
