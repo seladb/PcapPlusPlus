@@ -19,7 +19,17 @@ else()
   message(STATUS "Include dir: ${PcapPlusPlus_INCLUDE_DIR}")
 endif()
 
-find_package(benchmark REQUIRED)
+include(FetchContent)
+
+# Fetch Google Benchmark
+FetchContent_Declare(
+  benchmark
+  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GIT_TAG v1.9.0
+)
+# Disable testing for benchmark
+set(BENCHMARK_ENABLE_TESTING OFF)
+FetchContent_MakeAvailable(benchmark)
 
 add_executable(PcppBenchmark benchmark.cpp)
 
