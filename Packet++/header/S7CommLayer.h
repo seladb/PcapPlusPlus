@@ -53,8 +53,7 @@ namespace pcpp
 		S7CommParameter()
 		{}
 
-		virtual ~S7CommParameter()
-		{}
+		virtual ~S7CommParameter() = default;
 
 		/**
 		 * @return The data of the Parameter
@@ -110,7 +109,7 @@ namespace pcpp
 			m_Parameter = nullptr;
 		}
 
-		virtual ~S7CommLayer()
+		~S7CommLayer() override
 		{
 			if (m_Parameter)
 				delete m_Parameter;
@@ -217,14 +216,14 @@ namespace pcpp
 	private:
 		s7commhdr* getS7commHeader() const
 		{
-			return (s7commhdr*)m_Data;
+			return reinterpret_cast<s7commhdr*>(m_Data);
 		}
 
 		s7comm_ack_data_hdr* getS7commAckDataHeader() const
 		{
 			if (getS7commHeader()->msgType == 0x03)
 			{
-				return (s7comm_ack_data_hdr*)m_Data;
+				return reinterpret_cast<s7comm_ack_data_hdr*>(m_Data);
 			}
 			return nullptr;
 		}
