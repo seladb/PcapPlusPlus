@@ -160,8 +160,8 @@ namespace pcpp
 		}
 
 	protected:
-		GreLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
+		GreLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
+		    : Layer(data, dataLen, prevLayer, packet, protocol)
 		{}
 
 		GreLayer()
@@ -196,10 +196,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		GREv0Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : GreLayer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = GREv0;
-		}
+		    : GreLayer(data, dataLen, prevLayer, packet, GREv0)
+		{}
 
 		/**
 		 * A constructor that creates a new GREv0 header and allocates the data
@@ -322,10 +320,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		GREv1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : GreLayer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = GREv1;
-		}
+		    : GreLayer(data, dataLen, prevLayer, packet, GREv1)
+		{}
 
 		/**
 		 * A constructor that creates a new GREv1 header and allocates the data
@@ -414,10 +410,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		PPP_PPTPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = PPP_PPTP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, PPP_PPTP)
+		{}
 
 		/**
 		 * A constructor that allocates a new PPP-PPTP header

@@ -317,10 +317,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = GTPv1;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, GTPv1)
+		{}
 
 		/**
 		 * A constructor that creates a new GTPv1 layer and sets the message type and the TEID value

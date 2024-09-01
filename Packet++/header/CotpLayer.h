@@ -37,10 +37,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		CotpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = COTP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, COTP)
+		{}
 
 		/**
 		 * A constructor that allocates a new COTP header

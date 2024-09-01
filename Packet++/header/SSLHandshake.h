@@ -280,7 +280,7 @@ namespace pcpp
 		 * @param[in] dataLen The length in bytes of the raw data
 		 * @param[in] allDataExists Certificate messages usually spread on more than 1 packet. So a certificate is
 		 * likely to split between 2 packets or more. This field indicates whether the raw data contains all
-		 * ceritificate data of just a part of it
+		 * certificate data of just a part of it
 		 */
 		SSLx509Certificate(uint8_t* data, size_t dataLen, bool allDataExists)
 		    : m_Data(data), m_DataLen(dataLen), m_AllDataExists(allDataExists)
