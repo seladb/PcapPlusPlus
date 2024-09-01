@@ -263,3 +263,8 @@ PTF_TEST_CASE(Asn1EncodingTest);
 // Implemented in LdapTests.cpp
 PTF_TEST_CASE(LdapParsingTest);
 PTF_TEST_CASE(LdapCreationTest);
+
+// Implemented in WGTest.cpp
+PTF_TEST_CASE(WGHandshakeInitParsingTest);
+PTF_TEST_CASE(WGHandshakeRespParsingTest);
+PTF_TEST_CASE(WGTransportDataParsingTest);
