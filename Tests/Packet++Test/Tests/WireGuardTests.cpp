@@ -2,6 +2,7 @@
 #include "../Utils/TestUtils.h"
 #include "Packet.h"
 #include "WireGuardLayer.h"
+#include "SystemUtils.h"
 
 PTF_TEST_CASE(WGHandshakeInitParsingTest)
 {
