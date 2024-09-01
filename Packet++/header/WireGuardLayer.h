@@ -118,9 +118,8 @@ namespace pcpp
 		 * @param packet Pointer to the packet this layer belongs to
 		 */
 		WireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
+		    : Layer(data, dataLen, prevLayer, packet, WIREGUARD)
 		{
-			m_Protocol = WIREGUARD;
 			m_Data = data;
 			m_DataLen = dataLen;
 		}
@@ -186,7 +185,7 @@ namespace pcpp
 		/**
 		 * No operation required for parsing the next layer since WireGuard does not have a next layer.
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{
 			// No next layer to parse for WireGuard, do nothing
 		}
@@ -196,12 +195,12 @@ namespace pcpp
 		 *
 		 * @return Size of the header in bytes. For TransportData, returns the total data length.
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * No fields to compute or update, so this method is left empty.
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{
 			// Since WireGuard headers have fixed lengths and no fields to compute (like checksums or lengths),
 			// this method does not need to perform any operations. It's left empty.
@@ -212,14 +211,14 @@ namespace pcpp
 		 *
 		 * @return String representation of the WireGuard layer
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * Returns the OSI model layer that this protocol belongs to.
 		 *
 		 * @return OSI model layer corresponding to the Network layer
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
