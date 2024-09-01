@@ -62,8 +62,7 @@ namespace pcpp
 		 */
 		SllLayer(uint16_t packetType, uint16_t ARPHRDType);
 
-		~SllLayer()
-		{}
+		~SllLayer() override = default;
 
 		/**
 		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the
@@ -72,7 +71,7 @@ namespace pcpp
 		 */
 		sll_header* getSllHeader() const
 		{
-			return (sll_header*)m_Data;
+			return reinterpret_cast<sll_header*>(m_Data);
 		}
 
 		/**
@@ -94,12 +93,12 @@ namespace pcpp
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer,
 		 * PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of sll_header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(sll_header);
 		}
@@ -107,9 +106,9 @@ namespace pcpp
 		/**
 		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		OsiModelLayer getOsiModelLayer() const override
 		{
