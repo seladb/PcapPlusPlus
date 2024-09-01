@@ -43,7 +43,7 @@ for filename in os.listdir(directory):
 
         for benchmark in data.get("benchmarks", []):
             if benchmark["name"] in benchmarks:
-                benchmarks[benchmark["name"]] = benchmark.get("real_time", "N/A")
+                benchmarks[benchmark["name"]] = benchmark.get("items_per_second", "N/A")
 
         # Append the results to the list
         benchmark_data.append(benchmarks)
