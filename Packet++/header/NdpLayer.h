@@ -64,7 +64,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0u;  // Cpp23 - uz literal
@@ -72,7 +72,7 @@ namespace pcpp
 			return static_cast<size_t>(m_Data->recordLen) * 8;
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 			{
@@ -252,7 +252,7 @@ namespace pcpp
 		 */
 		MacAddress getLinkLayerAddress() const;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		void initLayer(uint8_t code, const IPv6Address& targetIP);
