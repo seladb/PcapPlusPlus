@@ -219,8 +219,8 @@ namespace pcpp
 
 		// implement abstract methods
 
-		size_t getTotalSize() const;
-		size_t getDataSize() const;
+		size_t getTotalSize() const override;
+		size_t getDataSize() const override;
 	};
 
 	/**
