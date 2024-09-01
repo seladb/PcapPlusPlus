@@ -36,13 +36,15 @@ void usleep(__int64 usec)
 	LARGE_INTEGER ft;
 
 	ft.QuadPart = -(10 * usec);  // Convert to 100 nanosecond interval, negative value indicates relative time
-	                             // NULL is used instead of nullptr for Windows APIs. Check https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
+	                             // NULL is used instead of nullptr for Windows APIs. Check
+	                             // https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
 	timer = CreateWaitableTimer(NULL, TRUE, NULL);
 	if (timer == nullptr)
 	{
 		throw std::runtime_error("Could not create waitable timer with error: " + std::to_string(GetLastError()));
 	}
-	// NULL is used instead of nullptr for Windows APIs. Check https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
+	// NULL is used instead of nullptr for Windows APIs. Check
+	// https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
 	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
 	WaitForSingleObject(timer, INFINITE);
 	CloseHandle(timer);
