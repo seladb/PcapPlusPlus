@@ -332,19 +332,19 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Telnet is the always last so does nothing for this layer
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
@@ -358,7 +358,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 }  // namespace pcpp
