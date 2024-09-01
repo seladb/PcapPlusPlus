@@ -475,7 +475,7 @@ namespace pcpp
 		static const uint32_t SOMEIP_TP_MORE_FLAG_MASK = 0x01;
 		static const uint32_t SOMEIP_TP_OFFSET_MASK = 0xFFFFFFF0;
 
-		size_t getSomeIpHeaderLen() const
+		size_t getSomeIpHeaderLen() const override
 		{
 			return sizeof(someiptphdr);
 		}
