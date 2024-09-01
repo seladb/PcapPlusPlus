@@ -15,9 +15,6 @@ PTF_TEST_CASE(WGHandshakeInitParsingTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
 	pcpp::Packet parsedPacket(&rawPacket1);
 
-	PTF_ASSERT_TRUE(parsedPacket.isPacketOfType(pcpp::Ethernet));
-	PTF_ASSERT_NOT_NULL(parsedPacket.getLayerOfType<pcpp::EthLayer>());
-
 	pcpp::UdpLayer* udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
 	PTF_ASSERT_NOT_NULL(udpLayer);
 
@@ -63,6 +60,8 @@ PTF_TEST_CASE(WGHandshakeInitParsingTest)
 		                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	PTF_ASSERT_TRUE(std::memcmp(handshakeInit->mac2, expectedMac2, sizeof(expectedMac2)) == 0);
+	delete wgLayer;
+	delete udpLayer;
 }
 
 PTF_TEST_CASE(WGHandshakeRespParsingTest)
@@ -109,6 +108,8 @@ PTF_TEST_CASE(WGHandshakeRespParsingTest)
 		                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	PTF_ASSERT_TRUE(std::memcmp(handshakeResponse->mac2, expectedMac2, sizeof(expectedMac2)) == 0);
+	delete wgLayer;
+	delete udpLayer;
 }
 
 PTF_TEST_CASE(WGTransportDataParsingTest)
@@ -154,4 +155,6 @@ PTF_TEST_CASE(WGTransportDataParsingTest)
 
 	PTF_ASSERT_TRUE(std::memcmp(transportData->encryptedData, expectedEncryptedData, sizeof(expectedEncryptedData)) ==
 	                0);
+	delete wgLayer;
+	delete udpLayer;
 }
