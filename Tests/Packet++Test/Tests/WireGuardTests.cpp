@@ -114,4 +114,4 @@ PTF_TEST_CASE(WGTransportDataParsingTest)
 		                                   0xe5, 0x47, 0xdd, 0xb2, 0x6e, 0xf6, 0xa4, 0x6b };
 	PTF_ASSERT_TRUE(std::memcmp(transportData->encryptedData, expectedEncryptedData, sizeof(expectedEncryptedData)) ==
 	                0);
-   }
+}
