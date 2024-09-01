@@ -42,7 +42,7 @@ void usleep(__int64 usec)
 	{
 		throw std::runtime_error("Could not create waitable timer with error: " + std::to_string(GetLastError()));
 	}
-	// NULL is Used for WindowAPIs and no need to change to nullptr for C++11
+	// NULL is used instead of nullptr for Windows APIs. Check https://devblogs.microsoft.com/oldnewthing/20180307-00/?p=98175
 	SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
 	WaitForSingleObject(timer, INFINITE);
 	CloseHandle(timer);
