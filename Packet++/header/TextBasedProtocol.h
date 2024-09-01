@@ -260,7 +260,8 @@ namespace pcpp
 		virtual void computeCalculateFields();
 
 	protected:
-		TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		                         ProtocolType protocol);
 		TextBasedProtocolMessage() : m_FieldList(nullptr), m_LastField(nullptr), m_FieldsOffset(0)
 		{}
 

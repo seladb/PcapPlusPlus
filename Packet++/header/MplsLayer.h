@@ -40,10 +40,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		MplsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = MPLS;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, MPLS)
+		{}
 
 		/**
 		 * A constructor that allocates a new MPLS header

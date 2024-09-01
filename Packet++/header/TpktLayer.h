@@ -43,10 +43,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		TpktLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = TPKT;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, TPKT)
+		{}
 
 		/**
 		 * A constructor that allocates a new TPKT header
