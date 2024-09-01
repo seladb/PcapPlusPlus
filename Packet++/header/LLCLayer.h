@@ -41,10 +41,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		LLCLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = LLC;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, LLC)
+		{}
 
 		/**
 		 * A constructor that creates the LLC layer from provided values

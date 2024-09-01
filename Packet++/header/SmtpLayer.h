@@ -19,15 +19,10 @@ namespace pcpp
 	{
 	protected:
 		SmtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : SingleCommandTextProtocol(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = SMTP;
-		};
+		    : SingleCommandTextProtocol(data, dataLen, prevLayer, packet, SMTP) {};
 
-		SmtpLayer(const std::string& command, const std::string& option) : SingleCommandTextProtocol(command, option)
-		{
-			m_Protocol = SMTP;
-		};
+		SmtpLayer(const std::string& command, const std::string& option)
+		    : SingleCommandTextProtocol(command, option, SMTP) {};
 
 	public:
 		/**
