@@ -13,14 +13,12 @@ namespace pcpp
 {
 	std::string WireGuardLayer::toString() const
 	{
-		std::stringstream ss;
-
 		if (m_DataLen < sizeof(wg_common_header))
 		{
-			ss << "WireGuard header (incomplete)";
-			return ss.str();
+			return "WireGuard header (incomplete)";
 		}
 
+		std::stringstream ss;
 		const wg_common_header* header = reinterpret_cast<const wg_common_header*>(m_Data);
 		ss << "WireGuard Layer\n";
 		ss << "  Type: " << static_cast<int>(header->messageType) << "\n";
