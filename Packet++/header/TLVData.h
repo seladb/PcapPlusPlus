@@ -166,7 +166,7 @@ namespace pcpp
 		 */
 		uint8_t* getRecordBasePtr() const
 		{
-			return (uint8_t*)m_Data;
+			return reinterpret_cast<uint8_t*>(m_Data);
 		}
 
 		/**
