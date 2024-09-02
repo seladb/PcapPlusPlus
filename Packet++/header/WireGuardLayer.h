@@ -16,7 +16,7 @@ namespace pcpp
 	/**
 	 * WireGuard message types
 	 */
-	enum WireGuardMessageType
+	enum class WireGuardMessageType
 	{
 		HandshakeInitiation = 1,  ///< Handshake Initiation message
 		HandshakeResponse = 2,    ///< Handshake Response message
@@ -246,7 +246,8 @@ namespace pcpp
 			return false;
 
 		uint8_t messageType = data[0];
-		return messageType >= HandshakeInitiation && messageType <= TransportData;
+		return messageType >= static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation) &&
+		       messageType <= static_cast<uint8_t>(WireGuardMessageType::TransportData);
 	}
 
 }  // namespace pcpp

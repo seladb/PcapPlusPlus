@@ -20,7 +20,8 @@ PTF_TEST_CASE(WGHandshakeInitParsingTest)
 
 	const pcpp::wg_handshake_initiation* handshakeInit = wgLayer->getHandshakeInitiation();
 	PTF_ASSERT_NOT_NULL(handshakeInit);
-	PTF_ASSERT_EQUAL(handshakeInit->common.messageType, pcpp::HandshakeInitiation);
+	PTF_ASSERT_EQUAL(handshakeInit->common.messageType,
+	                 static_cast<uint8_t>(pcpp::WireGuardMessageType::HandshakeInitiation));
 	PTF_ASSERT_EQUAL(handshakeInit->senderIndex, 818952152);
 
 	uint8_t expectedPublicKey[32] = { 0x5f, 0xce, 0xc7, 0xc8, 0xe5, 0xc8, 0xe2, 0xe3, 0xf7, 0x98, 0x9e,
@@ -65,7 +66,8 @@ PTF_TEST_CASE(WGHandshakeRespParsingTest)
 
 	const pcpp::wg_handshake_response* handshakeResponse = wgLayer->getHandshakeResponse();
 	PTF_ASSERT_NOT_NULL(handshakeResponse);
-	PTF_ASSERT_EQUAL(handshakeResponse->common.messageType, pcpp::HandshakeResponse);
+	PTF_ASSERT_EQUAL(handshakeResponse->common.messageType,
+	                 static_cast<uint8_t>(pcpp::WireGuardMessageType::HandshakeResponse));
 	PTF_ASSERT_EQUAL(handshakeResponse->senderIndex, 2877158406);
 	PTF_ASSERT_EQUAL(handshakeResponse->receiverIndex, 818952152);
 
@@ -99,7 +101,8 @@ PTF_TEST_CASE(WGTransportDataParsingTest)
 
 	const pcpp::wg_transport_data* transportData = wgLayer->getTransportData();
 	PTF_ASSERT_NOT_NULL(transportData);
-	PTF_ASSERT_EQUAL(transportData->common.messageType, pcpp::TransportData);
+	PTF_ASSERT_EQUAL(transportData->common.messageType,
+	                 static_cast<uint8_t>(pcpp::WireGuardMessageType::TransportData));
 	PTF_ASSERT_EQUAL(transportData->receiverIndex, 2877158406);
 
 	uint8_t expectedCounter[8] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };

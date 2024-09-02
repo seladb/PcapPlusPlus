@@ -31,7 +31,7 @@ namespace pcpp
 
 		switch (header->messageType)
 		{
-		case HandshakeInitiation:
+		case static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation):
 		{
 			const wg_handshake_initiation* msg = getHandshakeInitiation();
 			ss << "  Handshake Initiation\n";
@@ -68,7 +68,7 @@ namespace pcpp
 			ss << std::dec << "\n";
 			break;
 		}
-		case HandshakeResponse:
+		case static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse):
 		{
 			const wg_handshake_response* msg = getHandshakeResponse();
 			ss << "  Handshake Response\n";
@@ -100,7 +100,7 @@ namespace pcpp
 			ss << std::dec << "\n";
 			break;
 		}
-		case CookieReply:
+		case static_cast<uint8_t>(WireGuardMessageType::CookieReply):
 		{
 			const wg_cookie_reply* msg = getCookieReply();
 			ss << "  Cookie Reply\n";
@@ -119,7 +119,7 @@ namespace pcpp
 			ss << std::dec << "\n";
 			break;
 		}
-		case TransportData:
+		case static_cast<uint8_t>(WireGuardMessageType::TransportData):
 		{
 			const wg_transport_data* msg = getTransportData();
 			ss << "  Transport Data\n";
