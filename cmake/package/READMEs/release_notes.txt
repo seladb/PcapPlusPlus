@@ -61,7 +61,7 @@ Breaking changes
 ----------------
 
 This version includes a small number of breaking changes:
-- Removed `isValid()` from `MacAddress,` `IPAddress`, `IPv4Adress`, `IPv6Address`, instead they throw an exception if the input argument is invalid
+- Removed `isValid()` from `MacAddress,` `IPAddress`, `IPv4Address`, `IPv6Address`, instead they throw an exception if the input argument is invalid
 - Introduced a new `TcpOptionEnumType`
 - Removed the `dummy` argument in `PayloadLayer`'s constructor
 
