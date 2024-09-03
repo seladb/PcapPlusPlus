@@ -63,9 +63,8 @@ namespace pcpp
 	// -------- Class HttpRequestLayer -----------------
 
 	HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : HttpMessage(data, dataLen, prevLayer, packet)
+	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPRequest)
 	{
-		m_Protocol = HTTPRequest;
 		m_FirstLine = new HttpRequestFirstLine(this);
 		m_FieldsOffset = m_FirstLine->getSize();
 		parseFields();
@@ -669,9 +668,8 @@ namespace pcpp
 	}
 
 	HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : HttpMessage(data, dataLen, prevLayer, packet)
+	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPResponse)
 	{
-		m_Protocol = HTTPResponse;
 		m_FirstLine = new HttpResponseFirstLine(this);
 		m_FieldsOffset = m_FirstLine->getSize();
 		parseFields();

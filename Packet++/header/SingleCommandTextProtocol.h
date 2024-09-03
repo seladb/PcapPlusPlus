@@ -23,10 +23,11 @@ namespace pcpp
 		bool hyphenRequired(const std::string& value);
 
 	protected:
-		SingleCommandTextProtocol(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet) {};
+		SingleCommandTextProtocol(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		                          ProtocolType protocol)
+		    : Layer(data, dataLen, prevLayer, packet, protocol) {};
 
-		SingleCommandTextProtocol(const std::string& command, const std::string& option);
+		SingleCommandTextProtocol(const std::string& command, const std::string& option, ProtocolType protocol);
 
 		bool setCommandInternal(std::string value);
 		bool setCommandOptionInternal(std::string value);
