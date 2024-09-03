@@ -123,7 +123,7 @@ class MemPlumberInternal {
         memset(pointerMetaDataRecord, 0, sizeof(new_ptr_list_t));
 
         // if cannot allocate, return NULL
-        if (pointerMetaDataRecord == nullptr)
+        if (pointerMetaDataRecord == NULL)
             return pointerMetaDataRecord;
 
         // calculate the actual pointer to provide to the user
@@ -159,7 +159,7 @@ class MemPlumberInternal {
 
     void freeMemory(void* pointer, const char* file, int line) {
 
-        if (pointer == nullptr) {
+        if (pointer == NULL) {
             return;
         }
 
@@ -169,7 +169,7 @@ class MemPlumberInternal {
 	    new_ptr_list_t* metaDataBucketLinkedListPrevElement = NULL;
 
         // inside the bucket, go over the linked list until you find the specific pointer
-        while (metaDataBucketLinkedListElement != nullptr) {
+        while (metaDataBucketLinkedListElement != NULL) {
 
             // get the actual pointer from the record
             void* actualPointerInRecord = (char*)metaDataBucketLinkedListElement + sizeof(new_ptr_list_t);
@@ -183,7 +183,7 @@ class MemPlumberInternal {
             else { // this is the pointer we're looking for
 
                 // remove the current element from the linked list
-                if (metaDataBucketLinkedListPrevElement == nullptr) { // this is the first item in the list
+                if (metaDataBucketLinkedListPrevElement == NULL) { // this is the first item in the list
                     m_PointerListHashtable[hashIndex] = metaDataBucketLinkedListElement->next;
                 }
                 else { // this is not the first item in the list
@@ -246,12 +246,12 @@ class MemPlumberInternal {
             new_ptr_list_t* metaDataBucketLinkedListElement = m_PointerListHashtable[index];
 
             // if bucket is empty - continue
-            if (metaDataBucketLinkedListElement == nullptr) {
+            if (metaDataBucketLinkedListElement == NULL) {
                 continue;
             }
 
             // go over all of the elements in the link list in this bucket
-            while (metaDataBucketLinkedListElement != nullptr) {
+            while (metaDataBucketLinkedListElement != NULL) {
 
                 memLeakCount++;
                 memLeakSize += (uint64_t)metaDataBucketLinkedListElement->size;
@@ -285,12 +285,12 @@ class MemPlumberInternal {
             new_ptr_list_t* metaDataBucketLinkedListElement = m_StaticPointerListHashtable[index];
 
             // if bucket is empty - continue
-            if (metaDataBucketLinkedListElement == nullptr) {
+            if (metaDataBucketLinkedListElement == NULL) {
                 continue;
             }
 
             // go over all of the elements in the link list in this bucket
-            while (metaDataBucketLinkedListElement != nullptr) {
+            while (metaDataBucketLinkedListElement != NULL) {
 
                 if (verbose) {
                     fprintf(dumper, "Static object allocated at 0x%p (size %d[bytes]) allocated in: %s:%d\n",
@@ -316,12 +316,12 @@ class MemPlumberInternal {
             new_ptr_list_t* metaDataBucketLinkedListElement = m_PointerListHashtable[index];
 
             // if bucket is empty - continue
-            if (metaDataBucketLinkedListElement == nullptr) {
+            if (metaDataBucketLinkedListElement == NULL) {
                 continue;
             }
 
             // go over all of the elements in the link list in this bucket
-            while (metaDataBucketLinkedListElement != nullptr) {
+            while (metaDataBucketLinkedListElement != NULL) {
                 new_ptr_list_t* next = metaDataBucketLinkedListElement->next;
 
                 void* actualPointerInRecord = (char*)metaDataBucketLinkedListElement + sizeof(new_ptr_list_t);
@@ -342,11 +342,11 @@ class MemPlumberInternal {
             }
 
             // done freeing all elements in the linked list, set the hashtable bucket to null
-            m_PointerListHashtable[index] = nullptr;
+            m_PointerListHashtable[index] = NULL;
         }
 
         closeFile(m_Dumper);
-        m_Dumper = nullptr;
+        m_Dumper = NULL;
     }
 };
 
