@@ -140,10 +140,8 @@ namespace pcpp
 		 * @param packet A pointer to the Packet instance where layer will be stored in
 		 */
 		IcmpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = ICMPv6;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, ICMPv6)
+		{}
 
 		/**
 		 * A constructor that allocates a new ICMPv6 layer with type, code and data

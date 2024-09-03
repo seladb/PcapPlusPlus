@@ -72,7 +72,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
 
@@ -101,7 +101,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@f8be330398166d1eb0601f01353839d4052367b2 # v1.0.7
+        uses: vmactions/freebsd-vm@12c207ac1ba13827f25726fe93f9c2e6f685f0f3 # v1.0.8
         with:
           release: ${{ matrix.freebsd-version }}
           envs: 'BUILD_DIR'
@@ -115,7 +115,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
 
@@ -159,7 +159,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
 
@@ -191,7 +191,7 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@d0e80f58dffbc64f6a3a1f43527d469b4fc7b6c8 # v2.23.0
+        uses: msys2/setup-msys2@ddf331adaebd714795f1042345e6ca57bd66cea8 # v2.24.1
         with:
           msystem: ${{matrix.sys}}
           update: true
@@ -230,7 +230,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
@@ -280,7 +280,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
         with:
           subject-path: "${{ env.BUILD_DIR }}/*.zip"
 
@@ -343,7 +343,7 @@ jobs:
           mkdir -p "android-package"
           mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
-      - uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
+      - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           path: android-package
           name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
@@ -371,7 +371,7 @@ jobs:
 
       - name: Generate artifact attestation
         if: github.ref_type == 'tag'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1.3.2
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
         with:
           subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
 
