@@ -350,7 +350,7 @@ namespace pcpp
 	/*
 	 * Wireguard protocol
 	 */
-	const ProtocolType WIREGUARD = 56;
+	const ProtocolType Wireguard = 56;
 
 	/**
 	 * An enum representing OSI model layers

@@ -334,9 +334,9 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(LdapParsingTest, "ldap");
 	PTF_RUN_TEST(LdapCreationTest, "ldap");
 
-	PTF_RUN_TEST(WGHandshakeInitParsingTest, "wg");
-	PTF_RUN_TEST(WGHandshakeRespParsingTest, "wg");
-	PTF_RUN_TEST(WGTransportDataParsingTest, "wg");
+	PTF_RUN_TEST(WireGuardHandshakeInitParsingTest, "wg");
+	PTF_RUN_TEST(WireGuardHandshakeRespParsingTest, "wg");
+	PTF_RUN_TEST(WireGuardTransportDataParsingTest, "wg");
 
 	PTF_END_RUNNING_TESTS;
 }

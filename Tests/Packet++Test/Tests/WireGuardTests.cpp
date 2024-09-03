@@ -5,7 +5,7 @@
 #include "SystemUtils.h"
 #include <cstring>
 
-PTF_TEST_CASE(WGHandshakeInitParsingTest)
+PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -13,7 +13,7 @@ PTF_TEST_CASE(WGHandshakeInitParsingTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeInitiation.dat");
 
 	pcpp::Packet wgPacket(&rawPacket1);
-	PTF_ASSERT_TRUE(wgPacket.isPacketOfType(pcpp::WIREGUARD));
+	PTF_ASSERT_TRUE(wgPacket.isPacketOfType(pcpp::Wireguard));
 	pcpp::WireGuardLayer* wgLayer = wgPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 	PTF_ASSERT_TRUE(wgLayer->getHeaderLen() == sizeof(pcpp::wg_handshake_initiation));
@@ -50,7 +50,7 @@ PTF_TEST_CASE(WGHandshakeInitParsingTest)
 	PTF_ASSERT_TRUE(std::memcmp(handshakeInit->mac2, expectedMac2, sizeof(expectedMac2)) == 0);
 }
 
-PTF_TEST_CASE(WGHandshakeRespParsingTest)
+PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -58,7 +58,7 @@ PTF_TEST_CASE(WGHandshakeRespParsingTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardHandshakeResponse.dat");
 
 	pcpp::Packet wgPacket(&rawPacket1);
-	PTF_ASSERT_TRUE(wgPacket.isPacketOfType(pcpp::WIREGUARD));
+	PTF_ASSERT_TRUE(wgPacket.isPacketOfType(pcpp::Wireguard));
 	pcpp::WireGuardLayer* wgLayer = wgPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
@@ -86,7 +86,7 @@ PTF_TEST_CASE(WGHandshakeRespParsingTest)
 	PTF_ASSERT_TRUE(std::memcmp(handshakeResponse->mac2, expectedMac2, sizeof(expectedMac2)) == 0);
 }
 
-PTF_TEST_CASE(WGTransportDataParsingTest)
+PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -94,7 +94,7 @@ PTF_TEST_CASE(WGTransportDataParsingTest)
 	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/WireGuardTransportData.dat");
 
 	pcpp::Packet wgPacket(&rawPacket1);
-	PTF_ASSERT_TRUE(wgPacket.isPacketOfType(pcpp::WIREGUARD));
+	PTF_ASSERT_TRUE(wgPacket.isPacketOfType(pcpp::Wireguard));
 	pcpp::WireGuardLayer* wgLayer = wgPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 	PTF_ASSERT_TRUE(wgLayer->getHeaderLen() >= sizeof(pcpp::wg_transport_data));
