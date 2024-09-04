@@ -30,7 +30,7 @@ Release notes (changes from v23.09)
   - Refactored IP address classes `IPv4Address`, `IPv6Address`, `IPAddress` (thanks @tigercosmos , @Dimi1010 !)
     - Added equality operators between `IPAddress` and `in_addr` types
   - Refactored the MAC address class `MacAddress` (thanks @tigercosmos !)
-  - Ported PcapPlusPlus libraries to C++11 (thanks @Dimi1010 , @tigercosmos , @egecetin , @WojtekMs , @rtmeng !)
+  - Ported PcapPlusPlus libraries to C++11 (thanks @Dimi1010 , @tigercosmos , @egecetin , @WojtekMs , @rtmeng, @DeepakReddy1999 !)
   - Ported most of the examples and tutorials to C++11 (thanks @jpcofr , @merttozer !)
   - Refactored and cleaned up PF_RING devices (thanks @Dimi1010 !)
   - Refactored and cleaned up the `PointerVector` class (thanks @Dimi1010 !)
@@ -118,6 +118,9 @@ Contributors
 - @mserdarsanli
 - @MCredbear 
 - @rahagal
+- @DeepakReddy1999
+- @kraj
+- @nadongjun
 
 
 **Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v23.09...v24.09
