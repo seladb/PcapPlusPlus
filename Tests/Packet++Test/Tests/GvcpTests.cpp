@@ -51,7 +51,7 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		auto udpLayer = discoverRequestPacket.getLayerOfType<pcpp::UdpLayer>();
 
 		// we get the raw buffer from the payload of the UDP layer and create a gvcpRequestLayer from the buffer
-		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+		GvcpDiscoveryRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
 		GvcpRequestHeader* header = gvcpRequestLayer.getGvcpHeader();
@@ -73,7 +73,7 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		pcpp::Packet discoverCmdPacket(&rawPacket1);
 
 		// we get the GVCP layer from the packet
-		auto gvcpRequestLayer = discoverCmdPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
+		auto gvcpRequestLayer = discoverCmdPacket.getLayerOfType<pcpp::GvcpDiscoveryRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
 		GvcpRequestHeader* header = gvcpRequestLayer->getGvcpHeader();
@@ -100,7 +100,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
 
 		// we get the raw buffer from the payload of the UDP layer and create a GvcpAcknowledgeLayer from the buffer
-		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+		GvcpDiscoveryAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader* header = gvcpAcknowledgeLayer.getGvcpHeader();
@@ -110,13 +110,11 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(header->getAckId(), 1);
 		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpAckHeader));
 
-		auto discoveryBody = gvcpAcknowledgeLayer.getGvcpDiscoveryBody();
-		PTF_ASSERT_TRUE(discoveryBody != nullptr);
-		PTF_ASSERT_EQUAL(discoveryBody->getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
-		PTF_ASSERT_EQUAL(discoveryBody->getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
-		PTF_ASSERT_EQUAL(discoveryBody->getManufacturerName(), "Vendor01");
-		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "ABCDE 3D Scanner (TW)");
-		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "XXX-005");
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getManufacturerName(), "Vendor01");
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getModelName(), "ABCDE 3D Scanner (TW)");
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getSerialNumber(), "XXX-005");
 	}
 
 	// test the GVCP layer directly from the packet
@@ -129,7 +127,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		pcpp::Packet discoverAckPacket(&rawPacket1);
 
 		// we get the GVCP layer from the packet
-		auto gvcpAcknowledgeLayer = discoverAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
+		auto gvcpAcknowledgeLayer = discoverAckPacket.getLayerOfType<pcpp::GvcpDiscoveryAcknowledgeLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
 		GvcpAckHeader* header = gvcpAcknowledgeLayer->getGvcpHeader();
@@ -139,13 +137,11 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		PTF_ASSERT_EQUAL(header->getAckId(), 1);
 		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpAcknowledgeLayer->getLayerPayloadSize());
 
-		auto discoveryBody = gvcpAcknowledgeLayer->getGvcpDiscoveryBody();
-		PTF_ASSERT_TRUE(discoveryBody != nullptr);
-		PTF_ASSERT_EQUAL(discoveryBody->getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
-		PTF_ASSERT_EQUAL(discoveryBody->getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
-		PTF_ASSERT_EQUAL(discoveryBody->getManufacturerName(), "Vendor01");
-		PTF_ASSERT_EQUAL(discoveryBody->getModelName(), "ABCDE 3D Scanner (TW)");
-		PTF_ASSERT_EQUAL(discoveryBody->getSerialNumber(), "XXX-005");
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getManufacturerName(), "Vendor01");
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getModelName(), "ABCDE 3D Scanner (TW)");
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getSerialNumber(), "XXX-005");
 	}
 }
 
@@ -163,7 +159,7 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
 
 		// we get the raw buffer from the payload of the UDP layer and create a GvcpRequestLayer from the buffer
-		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+		GvcpForceIpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), Gvcp);
 		GvcpRequestHeader* header = gvcpRequestLayer.getGvcpHeader();
@@ -173,12 +169,10 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		PTF_ASSERT_EQUAL(header->getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(GvcpRequestHeader));
 		PTF_ASSERT_EQUAL(header->getRequestId(), 8787);
 
-		auto forceIpBody = gvcpRequestLayer.getGvcpForceIpBody();
-		PTF_ASSERT_TRUE(forceIpBody != nullptr);
-		PTF_ASSERT_EQUAL(forceIpBody->getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
-		PTF_ASSERT_EQUAL(forceIpBody->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
-		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
-		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
 	}
 
 	// test the GVCP layer directly from the packet
@@ -191,7 +185,7 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		pcpp::Packet forceIpCommandPacket(&rawPacket1);
 
 		// we get the GVCP layer from the packet
-		auto gvcpRequestLayer = forceIpCommandPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
+		auto gvcpRequestLayer = forceIpCommandPacket.getLayerOfType<pcpp::GvcpForceIpRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), Gvcp);
 		GvcpRequestHeader* header = gvcpRequestLayer->getGvcpHeader();
@@ -201,12 +195,10 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		PTF_ASSERT_EQUAL(header->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
 		PTF_ASSERT_EQUAL(header->getRequestId(), 8787);
 
-		auto forceIpBody = gvcpRequestLayer->getGvcpForceIpBody();
-		PTF_ASSERT_TRUE(forceIpBody != nullptr);
-		PTF_ASSERT_EQUAL(forceIpBody->getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
-		PTF_ASSERT_EQUAL(forceIpBody->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
-		PTF_ASSERT_EQUAL(forceIpBody->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
-		PTF_ASSERT_EQUAL(forceIpBody->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getIpAddress(), pcpp::IPv4Address("192.168.5.1"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getSubnetMask(), pcpp::IPv4Address("255.255.0.0"));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer->getGatewayIpAddress(), pcpp::IPv4Address("0.0.0.0"));
 	}
 }
 
@@ -224,7 +216,7 @@ PTF_TEST_CASE(GvcpForceIpAck)
 		auto udpLayer = forceIpAckPacket.getLayerOfType<pcpp::UdpLayer>();
 
 		// we get the raw buffer from the payload of the UDP layer and create a GvcpAcknowledgeLayer from the buffer
-		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+		GvcpForceIpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader* header = gvcpAcknowledgeLayer.getGvcpHeader();
@@ -245,15 +237,13 @@ PTF_TEST_CASE(GvcpForceIpAck)
 		pcpp::Packet forceIpAckPacket(&rawPacket1);
 
 		// we get the GVCP layer from the packet
-		auto gvcpAcknowledgeLayer = forceIpAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
+		auto gvcpAcknowledgeLayer = forceIpAckPacket.getLayerOfType<pcpp::GvcpForceIpAcknowledgeLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
-		GvcpAckHeader* header = gvcpAcknowledgeLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
-		PTF_ASSERT_EQUAL(header->getStatus(), GvcpResponseStatus::Success);
-		PTF_ASSERT_EQUAL(header->getCommand(), GvcpCommand::ForceIpAck);
-		PTF_ASSERT_EQUAL(header->getAckId(), 8787);
-		PTF_ASSERT_EQUAL(header->getDataSize(), 0);
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getStatus(), GvcpResponseStatus::Success);
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getCommand(), GvcpCommand::ForceIpAck);
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getAckId(), 8787);
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getDataSize(), 0);
 	}
 }
 

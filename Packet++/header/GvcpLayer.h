@@ -348,7 +348,14 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		explicit GvcpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		GvcpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		GvcpRequestLayer(const uint8_t* data, size_t dataSize);
 
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
@@ -359,15 +366,8 @@ namespace pcpp
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData = nullptr,
-		                          uint16_t payloadDataSize = 0, GvcpFlag flag = 0, uint16_t requestId = 1);
-
-		/**
-		 * @brief Construct a new GvcpRequestLayer object
-		 * @param[in] data A pointer to the data including the header and the payload
-		 * @param[in] dataSize The size of the data in bytes
-		 */
-		explicit GvcpRequestLayer(const uint8_t* data, uint16_t dataSize);
+		GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
+		                 GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
 		 * @brief Get the header object
@@ -376,20 +376,6 @@ namespace pcpp
 		GvcpRequestHeader* getGvcpHeader() const
 		{
 			return reinterpret_cast<GvcpRequestHeader*>(m_Data);  // the header is at the beginning of the data
-		}
-
-		/**
-		 * @brief Get the force id command body object
-		 * @return GvcpForceIpBody* A pointer to the force id command body object. If the data length is invalid or the
-		 * command is not ForceIpCmd, return nullptr.
-		 */
-		GvcpForceIpBody* getGvcpForceIpBody() const
-		{
-			if (getDataLen() - getHeaderLen() != internal::kGvcpForceIpBodyLength ||
-			    getGvcpHeader()->getCommand() != GvcpCommand::ForceIpCmd)
-				return nullptr;
-
-			return reinterpret_cast<GvcpForceIpBody*>(m_Data + getHeaderLen());
 		}
 
 		/// @brief get the GVCP command
@@ -406,15 +392,6 @@ namespace pcpp
 		{
 			return sizeof(GvcpRequestHeader);
 		}
-
-		/**
-		 * @brief Get the discovery request object
-		 * @return GvcpDiscoveryRequest* A pointer to the discovery request object.
-		 */
-		GvcpDiscoveryRequest* getGvcpDiscoveryRequest() const
-		{
-			return reinterpret_cast<GvcpDiscoveryRequest*>(getGvcpHeader());
-		}
 	};
 
 	/// @brief Gvcp acknowledge layer
@@ -428,7 +405,14 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		explicit GvcpAcknowledgeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		GvcpAcknowledgeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		GvcpAcknowledgeLayer(const uint8_t* data, size_t dataSize);
 
 		/**
 		 * @brief Construct a new GvcpAcknowledgeLayer object
@@ -439,16 +423,8 @@ namespace pcpp
 		 * @param[in] ackId The acknowledge ID, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		explicit GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
-		                              const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
-		                              uint16_t ackId = 0);
-
-		/**
-		 * @brief Construct a new GvcpAcknowledgeLayer object
-		 * @param[in] data A pointer to the data including the header and the payload
-		 * @param[in] dataSize The size of the data in bytes
-		 */
-		explicit GvcpAcknowledgeLayer(const uint8_t* data, uint16_t dataSize);
+		GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command, const uint8_t* payloadData = nullptr,
+		                     uint16_t payloadDataSize = 0, uint16_t ackId = 0);
 
 		/**
 		 * @brief Get the header object
@@ -477,27 +453,29 @@ namespace pcpp
 		{
 			return sizeof(GvcpAckHeader);
 		}
-
-		/**
-		 * @brief Get the discovery body object
-		 * @return GvcpDiscoveryBody* A pointer to the discovery body object. If the data length is invalid or the
-		 * command is not DiscoveredAck, return nullptr.
-		 */
-		GvcpDiscoveryBody* getGvcpDiscoveryBody() const
-		{
-			if (getDataLen() - getHeaderLen() != internal::kGvcpDiscoveryBodyLength ||
-			    getGvcpHeader()->getCommand() != GvcpCommand::DiscoveredAck)
-			{
-				return nullptr;
-			}
-
-			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data + getHeaderLen());
-		}
 	};
 
 	// ---------------------------------------- Special Layer ----------------------------------------
 	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
 	{
+	public:
+		/**
+		 * @brief Construct a new GvcpLayer object
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		GvcpDiscoveryRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : GvcpRequestLayer(data, dataLen, prevLayer, packet) {};
+
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		explicit GvcpDiscoveryRequestLayer(const uint8_t* data, size_t dataSize) : GvcpRequestLayer(data, dataSize) {};
+
 		/**
 		 * @brief Construct a new GvcpRequestLayer object
 		 * @param[in] payloadData A pointer to the payload data, optional
@@ -515,6 +493,23 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * @brief Construct a new GvcpLayer object
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		GvcpDiscoveryAcknowledgeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet) {};
+
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		GvcpDiscoveryAcknowledgeLayer(const uint8_t* data, uint16_t dataSize) : GvcpAcknowledgeLayer(data, dataSize) {};
+
+		/**
 		 * @brief Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] status The response status
 		 * @param[in] payloadData A pointer to the payload data, optional
@@ -522,8 +517,8 @@ namespace pcpp
 		 * @param[in] ackId The acknowledge ID, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		explicit GvcpDiscoveryAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
-		                                       uint16_t payloadDataSize = 0, uint16_t ackId = 0)
+		GvcpDiscoveryAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
+		                              uint16_t payloadDataSize = 0, uint16_t ackId = 0)
 		    : GvcpAcknowledgeLayer(status, GvcpCommand::DiscoveredAck, payloadData, payloadDataSize, ackId) {};
 
 		/**
@@ -647,6 +642,23 @@ namespace pcpp
 	{
 	public:
 		/**
+		 * @brief Construct a new GvcpLayer object
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		GvcpForceIpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : GvcpRequestLayer(data, dataLen, prevLayer, packet) {};
+
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		explicit GvcpForceIpRequestLayer(const uint8_t* data, size_t dataSize) : GvcpRequestLayer(data, dataSize) {};
+
+		/**
 		 * @brief Construct a new GvcpRequestLayer object
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
@@ -707,6 +719,24 @@ namespace pcpp
 
 	class GvcpForceIpAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
+	public:
+		/**
+		 * @brief Construct a new GvcpLayer object
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		GvcpForceIpAcknowledgeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet) {};
+
+		/**
+		 * @brief Construct a new GvcpRequestLayer object
+		 * @param[in] data A pointer to the data including the header and the payload
+		 * @param[in] dataSize The size of the data in bytes
+		 */
+		GvcpForceIpAcknowledgeLayer(const uint8_t* data, size_t dataSize) : GvcpAcknowledgeLayer(data, dataSize) {};
+
 		/**
 		 * @brief Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] status The response status
@@ -715,8 +745,8 @@ namespace pcpp
 		 * @param[in] ackId The acknowledge ID, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		explicit GvcpForceIpAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
-		                                     uint16_t payloadDataSize = 0, uint16_t ackId = 0)
+		GvcpForceIpAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
+		                            uint16_t payloadDataSize = 0, uint16_t ackId = 0)
 		    : GvcpAcknowledgeLayer(status, GvcpCommand::ForceIpAck, payloadData, payloadDataSize, ackId) {};
 	};
 }  // namespace pcpp

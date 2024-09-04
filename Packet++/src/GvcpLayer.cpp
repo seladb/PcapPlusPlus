@@ -68,7 +68,7 @@ namespace pcpp
 		header->dataSize = hostToNet16(payloadDataSize);
 	}
 
-	GvcpRequestLayer::GvcpRequestLayer(const uint8_t* data, uint16_t dataSize)
+	GvcpRequestLayer::GvcpRequestLayer(const uint8_t* data, size_t dataSize)
 	{
 		m_Protocol = Gvcp;
 
@@ -108,7 +108,7 @@ namespace pcpp
 		header->ackId = hostToNet16(ackId);
 	}
 
-	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(const uint8_t* data, uint16_t dataSize)
+	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(const uint8_t* data, size_t dataSize)
 	{
 		m_Protocol = Gvcp;
 
