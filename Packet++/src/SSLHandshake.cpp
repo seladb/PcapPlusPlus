@@ -1216,6 +1216,20 @@ namespace pcpp
 		return result;
 	}
 
+	// --------------------------
+	// SSLx509Certificate methods
+	// --------------------------
+
+	Asn1SequenceRecord* SSLx509Certificate::getRootAsn1Record()
+	{
+		if (m_Asn1Record == nullptr)
+		{
+			m_Asn1Record = Asn1Record::decode(m_Data, m_DataLen);
+		}
+
+		return m_Asn1Record->castAs<Asn1SequenceRecord>();
+	}
+
 	// ---------------------------
 	// SSLHandshakeMessage methods
 	// ---------------------------

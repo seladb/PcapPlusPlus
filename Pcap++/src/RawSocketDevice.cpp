@@ -136,7 +136,7 @@ namespace pcpp
 		if (bufferLen > 0)
 		{
 			timeval time;
-			gettimeofday(&time, NULL);
+			gettimeofday(&time, nullptr);
 			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_DLT_RAW1);
 			return RecvSuccess;
 		}
@@ -199,7 +199,7 @@ namespace pcpp
 		if (bufferLen > 0)
 		{
 			timeval time;
-			gettimeofday(&time, NULL);
+			gettimeofday(&time, nullptr);
 			rawPacket.setRawData((const uint8_t*)buffer, bufferLen, time, LINKTYPE_ETHERNET);
 			return RecvSuccess;
 		}
@@ -386,7 +386,7 @@ namespace pcpp
 			return false;
 		}
 
-		void* localAddr = NULL;
+		void* localAddr = nullptr;
 		struct sockaddr_in localAddrIPv4;
 		struct sockaddr_in6 localAddrIPv6;
 		size_t localAddrSize = 0;
@@ -464,7 +464,7 @@ namespace pcpp
 		getifaddrs(&addrs);
 		std::string ifaceName = "";
 		int ifaceIndex = -1;
-		for (struct ifaddrs* curAddr = addrs; curAddr != NULL; curAddr = curAddr->ifa_next)
+		for (struct ifaddrs* curAddr = addrs; curAddr != nullptr; curAddr = curAddr->ifa_next)
 		{
 			if (curAddr->ifa_addr && (curAddr->ifa_flags & IFF_UP))
 			{

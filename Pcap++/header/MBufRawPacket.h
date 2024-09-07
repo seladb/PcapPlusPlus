@@ -69,7 +69,7 @@ namespace pcpp
 		 * is not usable. This c'tor can be used for initializing an array of MBufRawPacket (which requires an empty
 		 * c'tor)
 		 */
-		MBufRawPacket() : RawPacket(), m_MBuf(NULL), m_Mempool(NULL), m_MbufDataSize(0), m_FreeMbuf(true)
+		MBufRawPacket() : RawPacket(), m_MBuf(nullptr), m_Mempool(nullptr), m_MbufDataSize(0), m_FreeMbuf(true)
 		{
 			m_DeleteRawDataAtDestructor = false;
 		}
@@ -171,7 +171,7 @@ namespace pcpp
 		 * which takes control of the data pointer and frees it when RawPacket is destroyed, this method frees this
 		 * pointer right away after data is copied to the mbuf. So when using this method please notice that after it's
 		 * called pRawData memory is free, don't use this pointer again. In addition, if raw packet isn't initialized
-		 * (mbuf is NULL), this method will call the init() method
+		 * (mbuf is nullptr), this method will call the init() method
 		 * @param[in] pRawData A pointer to the new raw data
 		 * @param[in] rawDataLen The new raw data length in bytes
 		 * @param[in] timestamp The timestamp packet was received by the NIC
@@ -193,8 +193,8 @@ namespace pcpp
 
 		/**
 		 * Append packet data at the end of current data. This method uses the same mbuf already allocated and tries to
-		 * append more space and copy the data to it. If MBufRawPacket is not initialize (mbuf is NULL) or mbuf append
-		 * failed an error is printed to log
+		 * append more space and copy the data to it. If MBufRawPacket is not initialize (mbuf is nullptr) or mbuf
+		 * append failed an error is printed to log
 		 * @param[in] dataToAppend A pointer to the data to append
 		 * @param[in] dataToAppendLen Length in bytes of dataToAppend
 		 */
@@ -203,8 +203,8 @@ namespace pcpp
 		/**
 		 * Insert raw data at some index of the current data and shift the remaining data to the end. This method uses
 		 * the same mbuf already allocated and tries to append more space to it. Then it just copies dataToAppend at the
-		 * relevant index and shifts the remaining data to the end. If MBufRawPacket is not initialize (mbuf is NULL) or
-		 * mbuf append failed an error is printed to log
+		 * relevant index and shifts the remaining data to the end. If MBufRawPacket is not initialize (mbuf is nullptr)
+		 * or mbuf append failed an error is printed to log
 		 * @param[in] atIndex The index to insert the new data to
 		 * @param[in] dataToInsert A pointer to the new data to insert
 		 * @param[in] dataToInsertLen Length in bytes of dataToInsert
@@ -217,8 +217,8 @@ namespace pcpp
 		 * @param[in] atIndex The index to start removing bytes from
 		 * @param[in] numOfBytesToRemove Number of bytes to remove
 		 * @return True if all bytes were removed successfully, or false if MBufRawPacket is not initialize (mbuf is
-		 * NULL), mbuf trim failed or logatIndex+numOfBytesToRemove is out-of-bounds of the raw data buffer. In all of
-		 * these cases an error is printed to log
+		 * nullptr), mbuf trim failed or logatIndex+numOfBytesToRemove is out-of-bounds of the raw data buffer. In all
+		 * of these cases an error is printed to log
 		 */
 		bool removeData(int atIndex, size_t numOfBytesToRemove);
 

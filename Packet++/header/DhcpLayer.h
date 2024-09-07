@@ -765,23 +765,23 @@ namespace pcpp
 
 		/**
 		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain
-		 * a logical NULL (DhcpOption#isNull() == true)
+		 * a logical null (DhcpOption#isNull() == true)
 		 */
 		DhcpOption getFirstOptionData() const;
 
 		/**
 		 * Get the DHCP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (DhcpOption#isNull() == true)
+		 * returned value will contain a logical null (DhcpOption#isNull() == true)
 		 * @param[in] dhcpOption A given DHCP option
-		 * @return A DhcpOption object containing the option data that comes next, or logical NULL if the given DHCP
-		 * option: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
+		 * @return A DhcpOption object containing the option data that comes next, or logical null if the given DHCP
+		 * option: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		 */
 		DhcpOption getNextOptionData(DhcpOption dhcpOption) const;
 
 		/**
 		 * Get a DHCP option by type
 		 * @param[in] option DHCP option type
-		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical NULL
+		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical null
 		 * (DhcpOption#isNull() == true) if no such option found
 		 */
 		DhcpOption getOptionData(DhcpOptionTypes option) const;
@@ -794,7 +794,7 @@ namespace pcpp
 		/**
 		 * Add a new DHCP option at the end of the layer
 		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
-		 * @return A DhcpOption object containing the newly added DHCP option data or logical NULL
+		 * @return A DhcpOption object containing the newly added DHCP option data or logical null
 		 * (DhcpOption#isNull() == true) if addition failed
 		 */
 		DhcpOption addOption(const DhcpOptionBuilder& optionBuilder);
@@ -803,7 +803,7 @@ namespace pcpp
 		 * Add a new DHCP option after an existing one
 		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
 		 * @param[in] prevOption The DHCP option type which the newly added option will come after
-		 * @return A DhcpOption object containing the newly added DHCP option data or logical NULL
+		 * @return A DhcpOption object containing the newly added DHCP option data or logical null
 		 * (DhcpOption#isNull() == true) if addition failed
 		 */
 		DhcpOption addOptionAfter(const DhcpOptionBuilder& optionBuilder, DhcpOptionTypes prevOption);
@@ -820,6 +820,14 @@ namespace pcpp
 		 * @return True if all DHCP options were successfully removed or false if removal failed for some reason
 		 */
 		bool removeAllOptions();
+
+		/**
+		 * A static method that checks whether a pair of ports are considered DHCP ports
+		 * @param[in] portSrc The source port number to check
+		 * @param[in] portDst The destination port number to check
+		 * @return True if these are DHCP port numbers, false otherwise
+		 */
+		static inline bool isDhcpPorts(uint16_t portSrc, uint16_t portDst);
 
 		// implement abstract methods
 
@@ -868,4 +876,13 @@ namespace pcpp
 
 		DhcpOption addOptionAt(const DhcpOptionBuilder& optionBuilder, int offset);
 	};
+
+	// implementation of inline methods
+
+	bool DhcpLayer::isDhcpPorts(uint16_t portSrc, uint16_t portDst)
+	{
+		return ((portSrc == 68 && portDst == 67) || (portSrc == 67 && portDst == 68) ||
+		        (portSrc == 67 && portDst == 67));
+	}
+
 }  // namespace pcpp

@@ -282,7 +282,7 @@ namespace pcpp
 		/**
 		 * Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
 		 * @param[out] length Length of the data of current command
-		 * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command.
+		 * @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command.
 		 */
 		uint8_t* getOptionData(size_t& length);
 
@@ -290,7 +290,7 @@ namespace pcpp
 		 * Returns the data of provided command. It will return data of first occurrence of the command
 		 * @param[in] command Telnet command to search
 		 * @param[out] length Length of the data of current command
-		 * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if
+		 * @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command or if
 		 * can't find the command.
 		 */
 		uint8_t* getOptionData(TelnetCommand command, size_t& length);

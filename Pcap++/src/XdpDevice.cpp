@@ -366,7 +366,7 @@ namespace pcpp
 		auto socketInfo = static_cast<xsk_socket_info*>(m_SocketInfo);
 		if (xsk_ring_prod__needs_wakeup(&socketInfo->tx))
 		{
-			sendto(xsk_socket__fd(socketInfo->xsk), NULL, 0, MSG_DONTWAIT, NULL, 0);
+			sendto(xsk_socket__fd(socketInfo->xsk), nullptr, 0, MSG_DONTWAIT, nullptr, 0);
 		}
 
 		uint32_t completedCount = xsk_ring_cons__peek(&umemInfo->cq, m_Config->rxTxBatchSize, &cqId);

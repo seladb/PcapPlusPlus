@@ -94,7 +94,7 @@ namespace pcpp
 		 * @param[in] contentLength The content length value to set
 		 * @param[in] prevFieldName Optional parameter, if specified and "Content-Length" field doesn't exist, it will
 		 * be created after this field
-		 * @return A pointer to the "Content-Length" field, or NULL if creation failed
+		 * @return A pointer to the "Content-Length" field, or nullptr if creation failed
 		 */
 		HeaderField* setContentLength(int contentLength, const std::string& prevFieldName = "");
 
@@ -614,13 +614,13 @@ namespace pcpp
 		class SipRequestFirstLineException : public std::exception
 		{
 		public:
-			~SipRequestFirstLineException() throw()
+			~SipRequestFirstLineException() noexcept
 			{}
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const throw()
+			virtual const char* what() const noexcept
 			{
 				return m_Message.c_str();
 			}
@@ -748,13 +748,13 @@ namespace pcpp
 		class SipResponseFirstLineException : public std::exception
 		{
 		public:
-			~SipResponseFirstLineException() throw()
+			~SipResponseFirstLineException() noexcept
 			{}
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const throw()
+			virtual const char* what() const noexcept
 			{
 				return m_Message.c_str();
 			}

@@ -360,7 +360,7 @@ namespace pcpp
 	SipRequestLayer::SipRequestLayer(SipMethod method, const std::string& requestUri, const std::string& version)
 	{
 		m_Protocol = SIPRequest;
-		m_FirstLine = new SipRequestFirstLine(this, method, std::move(version), std::move(requestUri));
+		m_FirstLine = new SipRequestFirstLine(this, method, version, requestUri);
 		m_FieldsOffset = m_FirstLine->getSize();
 	}
 
@@ -598,7 +598,7 @@ namespace pcpp
 	                                   const std::string& sipVersion)
 	{
 		m_Protocol = SIPResponse;
-		m_FirstLine = new SipResponseFirstLine(this, std::move(sipVersion), statusCode, std::move(statusCodeString));
+		m_FirstLine = new SipResponseFirstLine(this, sipVersion, statusCode, std::move(statusCodeString));
 		m_FieldsOffset = m_FirstLine->getSize();
 	}
 

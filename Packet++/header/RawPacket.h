@@ -311,7 +311,7 @@ namespace pcpp
 
 		/**
 		 * A default constructor that initializes class'es attributes to default value:
-		 * - data pointer is set to NULL
+		 * - data pointer is set to nullptr
 		 * - data length is set to 0
 		 * - deleteRawDataAtDestructor is set to 'true'
 		 * @todo timestamp isn't set here to a default value
@@ -467,8 +467,8 @@ namespace pcpp
 		}
 
 		/**
-		 * Clears all members of this instance, meaning setting raw data to NULL, raw data length to 0, etc. Currently
-		 * raw data is always freed, even if deleteRawDataAtDestructor was set to 'false'
+		 * Clears all members of this instance, meaning setting raw data to nullptr, raw data length to 0, etc.
+		 * Currently raw data is always freed, even if deleteRawDataAtDestructor was set to 'false'
 		 * @todo deleteRawDataAtDestructor was set to 'true', don't free the raw data
 		 * @todo set timestamp to a default value as well
 		 */

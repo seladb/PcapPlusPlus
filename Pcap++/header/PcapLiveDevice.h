@@ -52,9 +52,6 @@ namespace pcpp
 	 */
 	using OnStatsUpdateCallback = std::function<void(IPcapDevice::PcapStats&, void*)>;
 
-	// for internal use only
-	typedef void* (*ThreadStart)(void*);
-
 	/**
 	 * @class PcapLiveDevice
 	 * A class that wraps a network interface (each of the interfaces listed in ifconfig/ipconfig).
@@ -277,8 +274,8 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be NULL in some
-		 * interfaces
+		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be empty string in
+		 * some interfaces
 		 */
 		std::string getDesc() const
 		{
