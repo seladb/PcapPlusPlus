@@ -3,14 +3,16 @@ cmake_minimum_required(VERSION 3.14)
 include(FetchContent)
 
 FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG release-1.12.0
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.0
 )
 
 if(WIN32)
   # Prevent overriding the parent project's compiler/linker settings.
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  set(gtest_force_shared_crt
+      ON
+      CACHE BOOL "" FORCE)
 endif()
 
 FetchContent_MakeAvailable(googletest)
@@ -20,10 +22,9 @@ add_executable(
   Common++Test
   Tests/GeneralUtilsTests.cpp
   Tests/IPAddressTests.cpp
-  Tests/MacAddressTests.cpp
-  Tests/PointerVectorTests.cpp
   Tests/LRUListTests.cpp
-)
+  Tests/MacAddressTests.cpp
+  Tests/PointerVectorTests.cpp)
 
 target_link_libraries(
   Common++Test
@@ -31,12 +32,9 @@ target_link_libraries(
           memplumber
           gtest
           gmock
-          gmock_main
-)
+          gmock_main)
 
-target_include_directories(Common++Test PRIVATE 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>
-)
+target_include_directories(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>)
 
 
 if(MSVC)
