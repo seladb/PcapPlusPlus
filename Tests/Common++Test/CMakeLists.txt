@@ -5,8 +5,7 @@ include(FetchContent)
 FetchContent_Declare(
   googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG release-1.12.0
-)
+  GIT_TAG release-1.12.0)
 
 if(WIN32)
   # Prevent overriding the parent project's compiler/linker settings.
@@ -16,7 +15,6 @@ if(WIN32)
 endif()
 
 FetchContent_MakeAvailable(googletest)
-
 
 add_executable(
   Common++Test
@@ -35,7 +33,6 @@ target_link_libraries(
           gmock_main)
 
 target_include_directories(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>)
-
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
