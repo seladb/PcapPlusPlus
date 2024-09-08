@@ -1,5 +1,6 @@
 #include <array>
 #include <cstring>
+#include <sstream>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -66,6 +67,14 @@ namespace pcpp
 		EXPECT_TRUE(ipDefault < ipString) << "Comparison operator '<' does not compare less than values correctly.";
 		EXPECT_FALSE(ipString < ipDefault) << "Comparison operator '<' does not compare less than values correctly.";
 	};
+
+	TEST(IPv4AddressTest, OutputStreamOperator)
+	{
+		IPAddress ip("192.100.1.1");
+		std::stringstream ss;
+		ss << ip;
+		EXPECT_EQ(ss.str(), "192.100.1.1");
+	}
 
 	TEST(IPv4AddressTest, Literals)
 	{
@@ -182,6 +191,14 @@ namespace pcpp
 		delete[] heapOutBuffer;
 	};
 
+	TEST(IPv6AddressTest, OutputStreamOperator)
+	{
+		IPv6Address ip("2001:db8:85a3::8a2e:370:7334");
+		std::stringstream ss;
+		ss << ip;
+		EXPECT_EQ(ss.str(), "2001:db8:85a3::8a2e:370:7334");
+	}
+
 	TEST(IPv6AddressTest, Literals)
 	{
 		using namespace pcpp::literals;
@@ -275,6 +292,19 @@ namespace pcpp
 
 		// Todo: less than operator
 	};
+
+	TEST(IPAddressTest, OutputStreamOperrator)
+	{
+		IPAddress ip4("192.168.0.1");
+		std::stringstream ss;
+		ss << ip4;
+		EXPECT_EQ(ss.str(), "192.168.0.1");
+
+		IPAddress ip6("2001:db8:85a3::8a2e:370:7334");
+		ss.str("");
+		ss << ip6;
+		EXPECT_EQ(ss.str(), "2001:db8:85a3::8a2e:370:7334");
+	}
 
 	TEST(IPAddressTest, Multicast)
 	{
@@ -380,6 +410,14 @@ namespace pcpp
 		EXPECT_FALSE(netBase.includes(IPv4Network("192.0.0.0/8")));
 	};
 
+	TEST(IPv4NetworkTest, OutputStreamOperator)
+	{
+		IPv4Network net("192.168.1.1/32");
+		std::stringstream ss;
+		ss << net;
+		EXPECT_EQ(ss.str(), "192.168.1.1/32");
+	}
+
 	TEST(IPv6NetworkTest, IPv6NetworkBasics)
 	{
 		using namespace pcpp::literals;
@@ -444,6 +482,16 @@ namespace pcpp
 		EXPECT_TRUE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/72")));
 		EXPECT_FALSE(netBase.includes(IPv6Network("2001:db8:85a3:34ac::/56")));
 	};
+
+	TEST(IPv6NetworkTest, OutputStreamOperator)
+	{
+		using namespace pcpp::literals;
+
+		IPv6Network net("2001:db8:85a3:34ac::/64");
+		std::stringstream ss;
+		ss << net;
+		EXPECT_EQ(ss.str(), "2001:db8:85a3:34ac::/64");
+	}
 
 	TEST(IPNetworkTest, IPNetworkBasics)
 	{
@@ -518,4 +566,17 @@ namespace pcpp
 		EXPECT_FALSE(netBaseV6_V4compat.includes(IPNetwork("192.169.1.1/17")))
 		    << "IPNetwork in V6 mode should not match V4 equivalent ranges.";
 	};
+
+	TEST(IPNetworkTest, OutputStreamOperator)
+	{
+		IPv4Network netV4("192.168.1.1/32");
+		std::stringstream ss;
+		ss << netV4;
+		EXPECT_EQ(ss.str(), "192.168.1.1/32");
+
+		ss.str("");
+		IPNetwork netV6("2001:db8:85a3:34ac::/64");
+		ss << netV6;
+		EXPECT_EQ(ss.str(), "2001:db8:85a3:34ac::/64");
+	}
 }  // namespace pcpp
