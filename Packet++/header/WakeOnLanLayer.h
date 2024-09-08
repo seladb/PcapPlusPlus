@@ -43,10 +43,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		WakeOnLanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = WakeOnLan;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, WakeOnLan)
+		{}
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values

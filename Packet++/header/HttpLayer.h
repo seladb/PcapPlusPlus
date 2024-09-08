@@ -100,8 +100,8 @@ namespace pcpp
 		}
 
 	protected:
-		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet)
+		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
+		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
 		{}
 		HttpMessage() : TextBasedProtocolMessage()
 		{}

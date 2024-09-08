@@ -38,10 +38,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		PacketTrailerLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = PacketTrailer;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, PacketTrailer)
+		{}
 
 		~PacketTrailerLayer()
 		{}

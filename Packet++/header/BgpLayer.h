@@ -127,10 +127,8 @@ namespace pcpp
 		BgpLayer()
 		{}
 		BgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = BGP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, BGP)
+		{}
 
 		bgp_common_header* getBasicHeader() const
 		{

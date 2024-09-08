@@ -227,9 +227,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		TelnetLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
+		    : Layer(data, dataLen, prevLayer, packet, Telnet)
 		{
-			m_Protocol = Telnet;
 			lastPositionOffset = SIZE_MAX;
 		};
 

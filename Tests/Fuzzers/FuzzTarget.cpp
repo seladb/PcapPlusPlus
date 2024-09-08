@@ -10,7 +10,7 @@ static std::string tmpFile;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
 	if (tmpName.empty())
-		tmpName = tmpnam(NULL);
+		tmpName = tmpnam(nullptr);
 
 	if (tmpFile.empty())
 		tmpFile = tmpName + FILE_EXT;
@@ -59,7 +59,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 			pcpp::Packet parsedPacket(&rawPacket);
 			parsedPacket.toString();
 			auto layer = parsedPacket.getFirstLayer();
-			while (layer != NULL)
+			while (layer != nullptr)
 			{
 				std::cout << layer->toString() << std::endl;
 				layer->getHeaderLen();
