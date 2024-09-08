@@ -58,7 +58,7 @@ namespace pcpp
 		EXPECT_FALSE(macAddr2 != macAddr3) << "Comparison operator '!=' does not compare equal values correctly.";
 	};
 
-	TEST(MacAddressTest, ToStream)
+	TEST(MacAddressTest, OutputStreamOperator)
 	{
 		MacAddress macAddr("00:11:22:33:44:55");
 		std::stringstream stream;
