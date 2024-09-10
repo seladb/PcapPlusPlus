@@ -66,12 +66,40 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, IB)
 		{}
 
+        InfiniBandLayer( uint8_t opcode, int se,
+                    int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
+                    uint32_t psn);
+
         rxe_bth* getBthHeader() const
         {
             return (rxe_bth*)m_Data;
         }
 
         uint8_t getOpcode() const;
+        void setOpcode(uint8_t opcode) const;
+        uint8_t getSe() const;
+        void setSe(int se) const;
+        uint8_t getMig() const;
+        void setMig(uint8_t mig) const;
+        uint8_t getPad() const;
+        void setPad(uint8_t pad) const;
+        uint8_t getTver() const;
+        void setTver(uint8_t tver) const;
+        uint16_t getPkey() const;
+        void setPkey(uint16_t pkey) const;
+        uint32_t getQpn() const;
+        void setQpn(uint32_t qpn) const;
+        int getFecn() const;
+        void setfecn(int fecn) const;
+        int getBecn() const;
+        void setbecn(int becn) const;
+        uint8_t getResv6a() const;
+        void setResv6a() const;
+        int getAck() const;
+        void setAck(int ack) const;
+        void setResv7() const;
+        uint32_t getPsn() const;
+        void setPsn(uint32_t psn) const;
 
         void parseNextLayer();
 

@@ -190,7 +190,18 @@ PTF_TEST_CASE(InfiniBandPacketParsing)
 					}
 					// print opcode
 					std::cout
-						<< "Opcode: " << std::dec << (int)ibLayer->getOpcode() << std::endl;
+						<< "Opcode: " << std::dec << (int)ibLayer->getOpcode() << std::endl
+						<< "Se: " << (int)ibLayer->getSe() << std::endl
+						<< "Mig: " << (int)ibLayer->getMig() << std::endl
+						<< "Pad: " << (int)ibLayer->getPad() << std::endl
+						<< "Tver: " << (int)ibLayer->getTver() << std::endl
+						<< "Pkey: " << (int)ibLayer->getPkey() << std::endl
+						<< "Qpn: " << (int)ibLayer->getQpn() << std::endl
+						<< "Fecn: " << (int)ibLayer->getFecn() << std::endl
+						<< "Becn: " << (int)ibLayer->getBecn() << std::endl
+						<< "Resv6a: " << (int)ibLayer->getResv6a() << std::endl
+						<< "Ack: " << (int)ibLayer->getAck() << std::endl
+						<< "Psn: " << (int)ibLayer->getPsn() << std::endl;
 					break;
 				}
 				case pcpp::GenericPayload:
