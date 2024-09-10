@@ -39,6 +39,7 @@ add_executable(
   Tests/TcpTests.cpp
   Tests/TelnetTests.cpp
   Tests/TpktTests.cpp
+  Tests/InfiniBandTests.cpp
   Tests/VlanMplsTests.cpp
   Tests/VrrpTest.cpp
   Tests/WakeOnLanTests.cpp

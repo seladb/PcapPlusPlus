@@ -60,6 +60,7 @@ add_library(
   src/TLVData.cpp
   src/TpktLayer.cpp
   src/UdpLayer.cpp
+  src/InfiniBandLayer.cpp
   src/VlanLayer.cpp
   src/VrrpLayer.cpp
   src/VxlanLayer.cpp

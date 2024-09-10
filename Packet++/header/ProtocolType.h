@@ -347,6 +347,8 @@ namespace pcpp
 	 */
 	const ProtocolType LDAP = 55;
 
+	const ProtocolType IB = 56;
+
 	/**
 	 * An enum representing OSI model layers
 	 */

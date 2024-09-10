@@ -5,6 +5,7 @@
 #include "PayloadLayer.h"
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
+#include "InfiniBandLayer.h"
 #include "DnsLayer.h"
 #include "DhcpLayer.h"
 #include "DhcpV6Layer.h"
@@ -134,6 +135,8 @@ namespace pcpp
 			m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 			m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
+		else if (InfiniBandLayer::isInfiniBandPort(portDst))
+			m_NextLayer = new InfiniBandLayer(udpData, udpDataLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 	}
