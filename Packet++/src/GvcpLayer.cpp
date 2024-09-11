@@ -36,34 +36,34 @@ namespace pcpp
 	{
 		if (GvcpLayer::verifyRequest(data))
 		{
-			auto layer = new GvcpRequestLayer(data, dataLen, prevLayer, packet);
-			if (layer->getCommand() == GvcpCommand::DiscoveredCmd)
+			auto* header = reinterpret_cast<GvcpRequestHeader*>(data);
+			if (header->getCommand() == GvcpCommand::DiscoveredCmd)
 			{
 				return new GvcpDiscoveryRequestLayer(data, dataLen, prevLayer, packet);
 			}
-			else if (layer->getCommand() == GvcpCommand::ForceIpCmd)
+			else if (header->getCommand() == GvcpCommand::ForceIpCmd)
 			{
 				return new GvcpForceIpRequestLayer(data, dataLen, prevLayer, packet);
 			}
 			else
 			{
-				return layer;
+				return new GvcpRequestLayer(data, dataLen, prevLayer, packet);
 			}
 		}
 		else
 		{
-			auto layer = new GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet);
-			if (layer->getCommand() == GvcpCommand::DiscoveredAck)
+			auto* header = reinterpret_cast<GvcpAckHeader*>(data);
+			if (header->getCommand() == GvcpCommand::DiscoveredAck)
 			{
 				return new GvcpDiscoveryAcknowledgeLayer(data, dataLen);
 			}
-			else if (layer->getCommand() == GvcpCommand::ForceIpAck)
+			else if (header->getCommand() == GvcpCommand::ForceIpAck)
 			{
 				return new GvcpForceIpAcknowledgeLayer(data, dataLen);
 			}
 			else
 			{
-				return layer;
+				return new GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet);
 			}
 		}
 	}
