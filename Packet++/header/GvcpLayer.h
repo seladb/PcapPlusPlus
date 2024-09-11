@@ -435,14 +435,33 @@ namespace pcpp
 			return reinterpret_cast<GvcpAckHeader*>(m_Data);  // the header is at the beginning of the data
 		}
 
+		GvcpResponseStatus getStatus() const
+		{
+			return getGvcpHeader()->getStatus();
+		}
+
 		/**
-		 * @brief Get the response command type.
-		 * Use the command type to determine the response body.
-		 * @return GvcpCommand The response command type
+		 * @return the response command type
 		 */
 		GvcpCommand getCommand() const
 		{
 			return getGvcpHeader()->getCommand();
+		}
+
+		/**
+		 * @return the size of the data in bytes
+		 */
+		uint16_t getDataSize() const
+		{
+			return getGvcpHeader()->getDataSize();
+		}
+
+		/**
+		 * @return uint16_t The acknowledge ID
+		 */
+		uint16_t getAckId() const
+		{
+			return getGvcpHeader()->getAckId();
 		}
 
 		// implement Layer's abstract methods

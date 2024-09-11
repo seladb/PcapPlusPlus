@@ -129,6 +129,7 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		// we get the GVCP layer from the packet
 		auto gvcpAcknowledgeLayer = discoverAckPacket.getLayerOfType<pcpp::GvcpDiscoveryAcknowledgeLayer>();
 
+		PTF_ASSERT_NOT_NULL(gvcpAcknowledgeLayer);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), Gvcp);
 		GvcpAckHeader* header = gvcpAcknowledgeLayer->getGvcpHeader();
 		PTF_ASSERT_TRUE(header != nullptr);
