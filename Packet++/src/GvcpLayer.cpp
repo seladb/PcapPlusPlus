@@ -36,11 +36,35 @@ namespace pcpp
 	{
 		if (GvcpLayer::verifyRequest(data))
 		{
-			return new GvcpRequestLayer(data, dataLen, prevLayer, packet);
+			auto layer = new GvcpRequestLayer(data, dataLen, prevLayer, packet);
+			if (layer->getCommand() == GvcpCommand::DiscoveredCmd)
+			{
+				return new GvcpDiscoveryRequestLayer(data, dataLen, prevLayer, packet);
+			}
+			else if (layer->getCommand() == GvcpCommand::ForceIpCmd)
+			{
+				return new GvcpForceIpRequestLayer(data, dataLen, prevLayer, packet);
+			}
+			else
+			{
+				return layer;
+			}
 		}
 		else
 		{
-			return new GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet);
+			auto layer = new GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet);
+			if (layer->getCommand() == GvcpCommand::DiscoveredAck)
+			{
+				return new GvcpDiscoveryAcknowledgeLayer(data, dataLen);
+			}
+			else if (layer->getCommand() == GvcpCommand::ForceIpAck)
+			{
+				return new GvcpForceIpAcknowledgeLayer(data, dataLen);
+			}
+			else
+			{
+				return layer;
+			}
 		}
 	}
 
