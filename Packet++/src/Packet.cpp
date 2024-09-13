@@ -85,7 +85,7 @@ namespace pcpp
 		if (curLayer != nullptr && curLayer->getOsiModelLayer() > parseUntilLayer)
 		{
 			// don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
-			if( curLayer == m_FirstLayer )
+			if (curLayer == m_FirstLayer)
 			{
 				curLayer->m_IsAllocatedInPacket = true;
 			}
