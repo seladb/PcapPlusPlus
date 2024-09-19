@@ -7,6 +7,18 @@ repos:
         name: Check clang-format version
         entry: python3 ./ci/check-clang-format-version.py
         language: system
+      - id: check-ruff-format-version
+        name: Check ruff-format version
+        entry: python3 ./ci/check-ruff-version.py
+        language: system
+      - id: ruff
+        name: ruff
+        entry: ruff check
+        language: system
+      - id: ruff-format
+        name: ruff-format
+        entry: ruff format --check
+        language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -21,10 +33,6 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
       - id: trailing-whitespace
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
-    hooks:
-      - id: black
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
