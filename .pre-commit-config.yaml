@@ -14,10 +14,12 @@ repos:
       - id: ruff
         name: ruff
         entry: ruff check
+        types_or: [python]
         language: system
       - id: ruff-format
         name: ruff-format
         entry: ruff format --check
+        types_or: [python]
         language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
