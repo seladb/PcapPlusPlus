@@ -1,0 +1,385 @@
+name: Package and release
+
+on:
+  push:
+    tags:
+      - '*'
+  pull_request:
+    paths:
+      # Also run this workflow when this package.yml is update by a PR
+      - '.github/workflows/package.yml'
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
+
+env:
+  BUILD_DIR: Dist
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    container: seladb/${{ matrix.image }}
+    strategy:
+      matrix:
+        include:
+          - image: ubuntu2404
+            config-zstd: OFF
+          - image: ubuntu2204
+            config-zstd: OFF
+          - image: ubuntu2204-icpx
+            config-zstd: OFF
+            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
+          - image: ubuntu2004
+            config-zstd: OFF
+          - image: rhel94
+            config-zstd: OFF
+          - image: fedora39
+            config-zstd: OFF
+          - image: alpine317
+            config-zstd: OFF
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Setup Intel Compiler variables
+        if: contains(matrix.image, 'icpx')
+        run: |
+          . /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+
+      - name: Debug Cmake
+        run: cmake --system-information
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
+      - name: Package
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - name: Generate artifact attestation
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
+
+      - name: Upload binaries to release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.deb,${{ env.BUILD_DIR }}/*.rpm"
+
+  freebsd:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    strategy:
+      matrix:
+        include:
+          - freebsd-version: "13.2"
+          - freebsd-version: "14.0"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Test in FreeBSD
+        uses: vmactions/freebsd-vm@12c207ac1ba13827f25726fe93f9c2e6f685f0f3 # v1.0.8
+        with:
+          release: ${{ matrix.freebsd-version }}
+          envs: 'BUILD_DIR'
+          usesh: true
+          prepare: |
+            pkg install -y bash cmake git-tiny gmake gsed libpcap py311-pip
+          run: |
+            cmake -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
+            cmake --build "$BUILD_DIR" -j 4
+            cmake --build "$BUILD_DIR" --target package
+
+      - name: Generate artifact attestation
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.tar.gz"
+
+      - name: Upload binaries to release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
+
+  macos:
+    runs-on: macos-14
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    strategy:
+      matrix:
+        xcode-version: [15.4, 14.3.1]
+        arch: [x86_64, arm64]
+
+    steps:
+      - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
+        with:
+          xcode-version: "${{ matrix.xcode-version }}"
+
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Configure PcapPlusPlus
+        run: |
+          cmake -DPCAPPP_PACKAGE=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
+      - name: Package
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - name: Generate artifact attestation
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
+
+      - name: Upload binaries to release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.BUILD_DIR }}/*.tar.gz,${{ env.BUILD_DIR }}/*.pkg"
+
+  mingw-w64:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    strategy:
+      matrix:
+        include:
+          - env: i686
+            sys: mingw32
+          - env: x86_64
+            sys: mingw64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@ddf331adaebd714795f1042345e6ca57bd66cea8 # v2.24.1
+        with:
+          msystem: ${{matrix.sys}}
+          update: true
+          install: >-
+            git
+            mingw-w64-${{matrix.env}}-cmake
+            mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-make
+
+      - name: Install NPcap
+        env:
+          NPCAP_USERNAME: ${{ secrets.NPCAP_USERNAME }}
+          NPCAP_PASSWORD: ${{ secrets.NPCAP_PASSWORD }}
+        run: |
+          ci\install_npcap.bat
+          echo "PCAP_SDK_DIR=/C/Npcap-sdk" >> $env:GITHUB_ENV
+
+      - name: Configure PcapPlusPlus
+        shell: msys2 {0}
+        run: |
+          cmake -G "MinGW Makefiles" -DPCAP_ROOT=/C/Npcap-sdk -DLIGHT_PCAPNG_ZSTD=OFF -DPCAPPP_PACKAGE=ON -S . -B "$BUILD_DIR"
+
+      - name: Debug Cmake
+        shell: msys2 {0}
+        run: cmake --system-information
+
+      - name: Build PcapPlusPlus
+        shell: msys2 {0}
+        # More than 2 jobs would make the build crash with OOM
+        # cc1plus.exe: out of memory allocating 65536 bytes
+        run: cmake --build "$BUILD_DIR" -j 2
+
+      - name: Package
+        shell: msys2 {0}
+        run: cmake --build "$BUILD_DIR" --target package
+
+      - name: Generate artifact attestation
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.zip"
+
+      - name: Upload binaries to release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.BUILD_DIR }}/*.zip"
+
+  visual-studio:
+    strategy:
+      matrix:
+        os: [ windows-2019, windows-2022 ]
+        arch: [ Win32, x64 ]
+        configuration: [ Debug, Release ]
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+
+      - name: Install WinPcap
+        run: |
+          ci\install_winpcap.bat
+          echo "PCAP_SDK_DIR=C:\WpdPack" >> $env:GITHUB_ENV
+
+      - name: Configure PcapPlusPlus
+        run: |
+          $platform = if ("${{ matrix.os }}" -eq "windows-2019") { "Visual Studio 16 2019" } else { "Visual Studio 17 2022" }
+          cmake -A ${{ matrix.arch }} -G "$platform" -DPCAP_ROOT=${{ env.PCAP_SDK_DIR }} -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DPCAPPP_PACKAGE=ON -S . -B "$env:BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build $env:BUILD_DIR --config ${{ matrix.configuration }} -j
+
+      - name: Package
+        run: cmake --build "$env:BUILD_DIR" --config ${{ matrix.configuration }} --target package
+
+      - name: Generate artifact attestation
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
+        with:
+          subject-path: "${{ env.BUILD_DIR }}/*.zip"
+
+      - name: Upload binaries to release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.BUILD_DIR }}/*.zip"
+
+  android-build:
+    strategy:
+      matrix:
+        include:
+          - target: "armeabi-v7a"
+            api-version: 30
+          - target: "x86"
+            api-version: 30
+          - target: "arm64-v8a"
+            api-version: 30
+          - target: "x86_64"
+            api-version: 30
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Checkout lipbcap for Android
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # main
+        with:
+          repository: seladb/libpcap-android
+          path: ./libpcap-android
+
+      - name: Configure and Build PcapPlusPlus
+        run: |
+          LIBPCAP_PATH="$(pwd)/libpcap-android"
+          export LIB_DIR="${{ matrix.target }}/${{ matrix.api-version }}"
+          export LOCAL_BUILD_DIR="${BUILD_DIR}/${LIB_DIR}"
+          cmake -DPCAPPP_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_LIBDIR="${LIB_DIR}" -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version }}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -DPCAPPP_PACKAGE=ON -S . -B "$LOCAL_BUILD_DIR"
+          cmake --build "$LOCAL_BUILD_DIR" -j --target package
+
+      - name: Prepare package
+        run: |
+          export LOCAL_BUILD_DIR="${BUILD_DIR}/${{ matrix.target }}/${{ matrix.api-version }}"
+          export PACKAGE_FILE=$(ls ${LOCAL_BUILD_DIR} | grep pcapplusplus)
+          export PACKAGE_DIR=$(basename ${PACKAGE_FILE%} .tar.gz)
+          export COMBINED_PACKAGE_DIR=$(echo "$PACKAGE_DIR" | cut -f1,2,3 -d'-')
+
+          tar -xvf "${LOCAL_BUILD_DIR}/${PACKAGE_FILE}"
+          mv "${PACKAGE_DIR}" "${COMBINED_PACKAGE_DIR}"
+          find . -name example-app -type d -exec rm -r {} +
+          find . -name cmake -type d -exec rm -r {} +
+          find . -name pkgconfig -type d -exec rm -r {} +
+          mv ${COMBINED_PACKAGE_DIR}/include/pcapplusplus/* "${COMBINED_PACKAGE_DIR}/include/"
+          rmdir "${COMBINED_PACKAGE_DIR}/include/pcapplusplus/"
+          mkdir -p "android-package"
+          mv "${COMBINED_PACKAGE_DIR}" "android-package"
+
+      - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          path: android-package
+          name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
+          if-no-files-found: error
+
+  android-package:
+    needs: android-build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          pattern: android-package-*
+          merge-multiple: true
+
+      - name: Package into archive
+        run: |
+          export PACKAGE_DIR=$(ls | grep pcapplusplus)
+          echo "PACKAGE_DIR=$PACKAGE_DIR" >> $GITHUB_ENV
+          tar cvf "${PACKAGE_DIR}.tar.gz" "${PACKAGE_DIR}"
+
+      - name: Generate artifact attestation
+        if: github.ref_type == 'tag'
+        uses: actions/attest-build-provenance@6149ea5740be74af77f260b9db67e633f6b0a9a1 # v1.4.2
+        with:
+          subject-path: "${{ env.PACKAGE_DIR }}.tar.gz"
+
+      - name: Upload binaries to release
+        if: github.ref_type == 'tag'
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
+        with:
+          draft: true
+          allowUpdates: true
+          updateOnlyUnreleased: true
+          artifacts: "${{ env.PACKAGE_DIR }}.tar.gz"

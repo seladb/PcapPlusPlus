@@ -1,0 +1,75 @@
+name: Auto Update
+
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Runs at 00:00, on day 1 of the month
+
+permissions:
+  contents: read
+
+jobs:
+  precommit-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: dev
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        with:
+          python-version: "3.8.x"
+      - name: Run update
+        run: |
+            pip install pre-commit
+            pre-commit autoupdate
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        with:
+          token: ${{ secrets.PAT }}
+          author: GitHub <noreply@github.com>
+          add-paths: .pre-commit-config.yaml
+          commit-message: Auto pre-commit update
+          body: |
+            Update pre-commit hooks to latest
+
+            Auto generated
+          branch: auto-update/precommit_update
+          delete-branch: true
+          title: Auto precommit update
+          labels: automated-pr
+          assignees: seladb
+
+  oui-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: dev
+      - name: Setup Python
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+        with:
+          python-version: "3.9.x"
+      - name: Run update
+        run: |
+            python3 3rdParty/OUIDataset/create_oui_data.py
+            mv -f PCPP_OUIDataset.json 3rdParty/OUIDataset/PCPP_OUIDataset.json
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        with:
+          token: ${{ secrets.PAT }}
+          author: GitHub <noreply@github.com>
+          add-paths: 3rdParty/OUIDataset/PCPP_OUIDataset.json
+          commit-message: Auto OUI Database Update
+          body: |
+            Update OUI database to latest
+
+            Auto generated
+          branch: auto-update/oui_update
+          delete-branch: true
+          title: Auto OUI Database Update
+          labels: automated-pr
+          assignees: seladb

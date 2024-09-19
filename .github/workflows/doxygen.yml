@@ -1,0 +1,53 @@
+name: Build doxygen
+on:
+  push:
+    branches: ["master", "dev"]
+  pull_request:
+    branches: ["dev"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  doxygen:
+    runs-on: ubuntu-latest
+    container: seladb/ubuntu2204:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+      - name: Checkout docs repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          repository: PcapPlusPlus/pcapplusplus.github.io
+          path: pcapplusplus.github.io
+
+      - name: Run doxygen
+        run: |
+          cd pcapplusplus.github.io/static/api-docs/next/doxygen
+          doxygen Doxyfile-ci
+
+      - name: Prepare documentation
+        if: github.ref == 'refs/heads/master'
+        run: |
+          cd pcapplusplus.github.io/static/api-docs/
+          find next/ -maxdepth 1 -type f -exec rm {} \;
+          rm -rf next/search/
+          mv next/html/* next/
+
+      - name: Upload documentation
+        if: github.ref == 'refs/heads/master'
+        uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # main
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SSH_DEPLOY_KEY }}
+        with:
+          source-directory: pcapplusplus.github.io
+          destination-github-username: "PcapPlusPlus"
+          destination-repository-name: "pcapplusplus.github.io"
+          user-email: noreply@github.com
+          commit-message: Update API documentation for commit ORIGIN_COMMIT
+          target-branch: master
