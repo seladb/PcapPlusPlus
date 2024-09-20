@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <memory>
 #ifdef _MSC_VER
 #	include <WinSock2.h>
 #	include <time.h>
