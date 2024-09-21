@@ -1,5 +1,3 @@
-#if defined(USE_DPDK) && defined(__linux__)
-
 // GCOVR_EXCL_START
 
 #	define LOG_MODULE PcapLogModuleKniDevice
@@ -984,5 +982,3 @@ namespace pcpp
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* defined(USE_DPDK) && defined(__linux__) */

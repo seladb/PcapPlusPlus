@@ -1,5 +1,3 @@
-#ifdef __linux__
-
 #	define LOG_MODULE UndefinedLogModule
 
 #	include "Logger.h"
@@ -71,4 +69,3 @@ namespace pcpp
 		return true;
 	}
 }  // namespace pcpp
-#endif /* __linux__ */

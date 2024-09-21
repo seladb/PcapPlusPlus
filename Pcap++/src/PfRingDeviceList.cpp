@@ -1,5 +1,3 @@
-#ifdef USE_PF_RING
-
 // GCOVR_EXCL_START
 
 #	define LOG_MODULE PcapLogModulePfRingDevice
@@ -136,5 +134,3 @@ namespace pcpp
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* USE_PF_RING */

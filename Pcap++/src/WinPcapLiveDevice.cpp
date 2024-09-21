@@ -1,5 +1,3 @@
-#if defined(_WIN32)
-
 #	define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
 #	include "WinPcapLiveDevice.h"
@@ -139,5 +137,3 @@ namespace pcpp
 	}
 
 }  // namespace pcpp
-
-#endif  // _WIN32
