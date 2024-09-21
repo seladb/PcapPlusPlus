@@ -1,15 +1,15 @@
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModulePfRingDevice
+#define LOG_MODULE PcapLogModulePfRingDevice
 
-#	include <cstdio>
-#	include <array>
-#	include "PfRingDeviceList.h"
-#	include "SystemUtils.h"
-#	include "DeviceUtils.h"
-#	include "Logger.h"
-#	include "pcap.h"
-#	include "pfring.h"
+#include <cstdio>
+#include <array>
+#include "PfRingDeviceList.h"
+#include "SystemUtils.h"
+#include "DeviceUtils.h"
+#include "Logger.h"
+#include "pcap.h"
+#include "pfring.h"
 
 namespace pcpp
 {

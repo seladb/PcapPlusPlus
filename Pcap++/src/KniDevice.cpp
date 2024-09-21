@@ -1,42 +1,42 @@
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModuleKniDevice
+#define LOG_MODULE PcapLogModuleKniDevice
 
-#	include "KniDevice.h"
-#	include "Logger.h"
-#	include "SystemUtils.h"
+#include "KniDevice.h"
+#include "Logger.h"
+#include "SystemUtils.h"
 
-#	include <unistd.h>
-#	include <time.h>
-#	include <thread>
-#	include <sys/ioctl.h>
-#	include <net/if.h>
-#	include <net/if_arp.h>
+#include <unistd.h>
+#include <time.h>
+#include <thread>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <net/if_arp.h>
 
-#	include <rte_version.h>
-#	include <rte_mempool.h>
-#	include <rte_mbuf.h>
-#	include <rte_lcore.h>
-#	include <rte_kni.h>
-#	include <rte_memory.h>
-#	include <rte_branch_prediction.h>
+#include <rte_version.h>
+#include <rte_mempool.h>
+#include <rte_mbuf.h>
+#include <rte_lcore.h>
+#include <rte_kni.h>
+#include <rte_memory.h>
+#include <rte_branch_prediction.h>
 
-#	include <cerrno>
-#	include <cstdio>
-#	include <cstring>
-#	include <algorithm>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
 
-#	ifndef KNI_MEMPOOL_NAME_PREFIX
-#		define KNI_MEMPOOL_NAME_PREFIX "kniMempool"
-#	endif
-#	ifndef MEMPOOL_CACHE_SIZE
-#		define MEMPOOL_CACHE_SIZE 256
-#	endif
-#	ifndef MAX_BURST_SIZE
-#		define MAX_BURST_SIZE 64
-#	endif
+#ifndef KNI_MEMPOOL_NAME_PREFIX
+#	define KNI_MEMPOOL_NAME_PREFIX "kniMempool"
+#endif
+#ifndef MEMPOOL_CACHE_SIZE
+#	define MEMPOOL_CACHE_SIZE 256
+#endif
+#ifndef MAX_BURST_SIZE
+#	define MAX_BURST_SIZE 64
+#endif
 
-#	define CPP_VLA(TYPE, SIZE) (TYPE*)__builtin_alloca(sizeof(TYPE) * SIZE)
+#define CPP_VLA(TYPE, SIZE) (TYPE*)__builtin_alloca(sizeof(TYPE) * SIZE)
 
 namespace pcpp
 {
@@ -117,17 +117,17 @@ namespace pcpp
 			{
 				return oldState = KniDevice::LINK_ERROR;
 			}
-#	if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 			oldState = (KniDevice::KniLinkState)rte_kni_update_link(kni, state);
 			if (oldState == KniDevice::LINK_ERROR)
 			{  //? NOTE(echo-Mike): Not LOG_ERROR because will generate a lot of junk messages on some DPDK versions
 				PCPP_LOG_DEBUG("DPDK KNI Failed to update links state for device '" << deviceName << "'");
 			}
-#	else
+#else
 			// To avoid compiler warnings
 			(void)kni;
 			(void)deviceName;
-#	endif
+#endif
 			return oldState;
 		}
 
@@ -173,30 +173,30 @@ namespace pcpp
 		kniConf.core_id = conf.kthreadCoreId;
 		kniConf.mbuf_size = RTE_MBUF_DEFAULT_BUF_SIZE;
 		kniConf.force_bind = conf.bindKthread ? 1 : 0;
-#	if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 		if (conf.mac != MacAddress::Zero)
 			conf.mac.copyTo((uint8_t*)kniConf.mac_addr);
 		kniConf.mtu = conf.mtu;
-#	endif
+#endif
 
 		kniOps.port_id = conf.portId;
-#	if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 		if (conf.callbacks != nullptr)
 		{
 			kniOps.change_mtu = conf.callbacks->change_mtu;
 			kniOps.config_network_if = conf.callbacks->config_network_if;
-#		if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
+#	if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 			kniOps.config_mac_address = conf.callbacks->config_mac_address;
 			kniOps.config_promiscusity = conf.callbacks->config_promiscusity;
-#		endif
+#	endif
 		}
-#	else
+#else
 		if (conf.oldCallbacks != nullptr)
 		{
 			kniOps.change_mtu = conf.oldCallbacks->change_mtu;
 			kniOps.config_network_if = conf.oldCallbacks->config_network_if;
 		}
-#	endif
+#endif
 
 		m_Device = rte_kni_alloc(m_MBufMempool, &kniConf, &kniOps);
 		if (m_Device == nullptr)

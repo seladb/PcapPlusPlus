@@ -1,24 +1,24 @@
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModuleMBufRawPacket
+#define LOG_MODULE PcapLogModuleMBufRawPacket
 
-#	define __STDC_LIMIT_MACROS
-#	define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
+#define __STDC_FORMAT_MACROS
 
-#	include "rte_mbuf.h"
-#	include "rte_mempool.h"
-#	include "rte_errno.h"
+#include "rte_mbuf.h"
+#include "rte_mempool.h"
+#include "rte_errno.h"
 
-#	include "MBufRawPacket.h"
-#	include "Logger.h"
-#	include "DpdkDevice.h"
-#	ifdef USE_DPDK_KNI
-#		include "KniDevice.h"
-#	endif
+#include "MBufRawPacket.h"
+#include "Logger.h"
+#include "DpdkDevice.h"
+#ifdef USE_DPDK_KNI
+#	include "KniDevice.h"
+#endif
 
-#	include <string>
-#	include <stdint.h>
-#	include <unistd.h>
+#include <string>
+#include <stdint.h>
+#include <unistd.h>
 
 namespace pcpp
 {
@@ -68,12 +68,12 @@ namespace pcpp
 		return init(device->m_MBufMempool);
 	}
 
-#	ifdef USE_DPDK_KNI
+#ifdef USE_DPDK_KNI
 	bool MBufRawPacket::init(KniDevice* device)
 	{
 		return init(device->m_MBufMempool);
 	}
-#	endif
+#endif
 
 	bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, struct rte_mempool* mempool)
 	{
@@ -102,12 +102,12 @@ namespace pcpp
 		return initFromRawPacket(rawPacket, device->m_MBufMempool);
 	}
 
-#	ifdef USE_DPDK_KNI
+#ifdef USE_DPDK_KNI
 	bool MBufRawPacket::initFromRawPacket(const RawPacket* rawPacket, KniDevice* device)
 	{
 		return initFromRawPacket(rawPacket, device->m_MBufMempool);
 	}
-#	endif
+#endif
 
 	MBufRawPacket::MBufRawPacket(const MBufRawPacket& other)
 	{

@@ -1,17 +1,17 @@
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModulePfRingDevice
+#define LOG_MODULE PcapLogModulePfRingDevice
 
-#	include "PfRingDevice.h"
-#	include "EthLayer.h"
-#	include "VlanLayer.h"
-#	include "Logger.h"
-#	include <errno.h>
-#	include <pfring.h>
-#	include <pthread.h>
-#	include <chrono>
+#include "PfRingDevice.h"
+#include "EthLayer.h"
+#include "VlanLayer.h"
+#include "Logger.h"
+#include <errno.h>
+#include <pfring.h>
+#include <pthread.h>
+#include <chrono>
 
-#	define DEFAULT_PF_RING_SNAPLEN 1600
+#define DEFAULT_PF_RING_SNAPLEN 1600
 
 namespace pcpp
 {
@@ -758,7 +758,7 @@ namespace pcpp
 
 		uint8_t flushTxAsUint = (flushTxQueues ? 1 : 0);
 
-#	define MAX_TRIES 5
+#define MAX_TRIES 5
 
 		int tries = 0;
 		int res = 0;

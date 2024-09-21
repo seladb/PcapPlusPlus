@@ -1,8 +1,8 @@
-#	define LOG_MODULE PcapLogModuleRemoteDevice
+#define LOG_MODULE PcapLogModuleRemoteDevice
 
-#	include "PcapRemoteDevice.h"
-#	include "Logger.h"
-#	include "pcap.h"
+#include "PcapRemoteDevice.h"
+#include "Logger.h"
+#include "pcap.h"
 
 namespace pcpp
 {
