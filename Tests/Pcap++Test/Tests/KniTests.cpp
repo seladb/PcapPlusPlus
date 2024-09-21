@@ -3,10 +3,10 @@
 #include "../Common/PcapFileNamesDef.h"
 
 #ifdef USE_DPDK_KNI
-#	include "KniDeviceList.h"
-#	include "PcapFileDevice.h"
-#	include "RawSocketDevice.h"
-#	include "SystemUtils.h"
+#	include "pcapplusplus/KniDeviceList.h"
+#	include "pcapplusplus/PcapFileDevice.h"
+#	include "pcapplusplus/RawSocketDevice.h"
+#	include "pcapplusplus/SystemUtils.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 

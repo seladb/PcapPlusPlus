@@ -2,10 +2,10 @@
 
 #define LOG_MODULE PcapLogModulePfRingDevice
 
-#include "PfRingDevice.h"
-#include "EthLayer.h"
-#include "VlanLayer.h"
-#include "Logger.h"
+#include "pcapplusplus/PfRingDevice.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/VlanLayer.h"
+#include "pcapplusplus/Logger.h"
 #include <errno.h>
 #include <pfring.h>
 #include <pthread.h>

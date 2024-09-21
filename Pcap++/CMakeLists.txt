@@ -25,55 +25,55 @@ add_library(
   $<TARGET_OBJECTS:light_pcapng>)
 
 set(public_headers
-    header/Device.h
-    header/NetworkUtils.h
-    header/PcapDevice.h
-    header/PcapFileDevice.h
-    header/PcapFilter.h
-    header/PcapLiveDevice.h
-    header/PcapLiveDeviceList.h
-    header/RawSocketDevice.h)
+    header/pcapplusplus/Device.h
+    header/pcapplusplus/NetworkUtils.h
+    header/pcapplusplus/PcapDevice.h
+    header/pcapplusplus/PcapFileDevice.h
+    header/pcapplusplus/PcapFilter.h
+    header/pcapplusplus/PcapLiveDevice.h
+    header/pcapplusplus/PcapLiveDeviceList.h
+    header/pcapplusplus/RawSocketDevice.h)
 
 if(PCAPPP_USE_DPDK)
   list(
     APPEND
     public_headers
-    header/DpdkDevice.h
-    header/DpdkDeviceList.h
-    header/MBufRawPacket.h)
+    header/pcapplusplus/DpdkDevice.h
+    header/pcapplusplus/DpdkDeviceList.h
+    header/pcapplusplus/MBufRawPacket.h)
 endif()
 
 if(PCAPPP_USE_DPDK_KNI)
   list(
     APPEND
     public_headers
-    header/KniDevice.h
-    header/KniDeviceList.h)
+    header/pcapplusplus/KniDevice.h
+    header/pcapplusplus/KniDeviceList.h)
 endif()
 
 if(PCAPPP_USE_PF_RING)
   list(
     APPEND
     public_headers
-    header/PfRingDevice.h
-    header/PfRingDeviceList.h)
+    header/pcapplusplus/PfRingDevice.h
+    header/pcapplusplus/PfRingDeviceList.h)
 endif()
 
 if(PCAPPP_USE_XDP)
-  list(APPEND public_headers header/XdpDevice.h)
+  list(APPEND public_headers header/pcapplusplus/XdpDevice.h)
 endif()
 
 if(LINUX)
-  list(APPEND public_headers header/LinuxNicInformationSocket.h)
+  list(APPEND public_headers header/pcapplusplus/LinuxNicInformationSocket.h)
 endif()
 
 if(WIN32)
   list(
     APPEND
     public_headers
-    header/PcapRemoteDevice.h
-    header/PcapRemoteDeviceList.h
-    header/WinPcapLiveDevice.h)
+    header/pcapplusplus/WinPcapLiveDevice.h
+    header/pcapplusplus/PcapRemoteDevice.h
+    header/pcapplusplus/PcapRemoteDeviceList.h)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})

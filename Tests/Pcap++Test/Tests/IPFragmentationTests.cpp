@@ -1,9 +1,9 @@
 #include "../TestDefinition.h"
 #include "../Common/TestUtils.h"
-#include "IPReassembly.h"
-#include "IPv6Layer.h"
-#include "HttpLayer.h"
-#include "PcapFileDevice.h"
+#include "pcapplusplus/IPReassembly.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/HttpLayer.h"
+#include "pcapplusplus/PcapFileDevice.h"
 #include "EndianPortable.h"
 
 static void ipReassemblyOnFragmentsClean(const pcpp::IPReassembly::PacketKey* key, void* userCookie)

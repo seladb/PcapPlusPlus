@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleSSHLayer
 
-#include "SSHLayer.h"
-#include "GeneralUtils.h"
-#include "Logger.h"
+#include "pcapplusplus/SSHLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/Logger.h"
 #include "EndianPortable.h"
 #include <cstring>
 

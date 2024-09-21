@@ -4,12 +4,12 @@
 #include <fstream>
 #include <algorithm>
 #include "EndianPortable.h"
-#include "SystemUtils.h"
-#include "TcpReassembly.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
-#include "PayloadLayer.h"
-#include "PcapFileDevice.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/TcpReassembly.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/TcpLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/PcapFileDevice.h"
 
 // ~~~~~~~~~~~~~~~~~~
 // TcpReassemblyStats

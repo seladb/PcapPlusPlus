@@ -27,12 +27,12 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-#include "TcpReassembly.h"
-#include "PcapLiveDeviceList.h"
-#include "PcapFileDevice.h"
-#include "SystemUtils.h"
-#include "PcapPlusPlusVersion.h"
-#include "LRUList.h"
+#include "pcapplusplus/TcpReassembly.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/PcapFileDevice.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include "pcapplusplus/LRUList.h"
 #include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason)                                                                                        \

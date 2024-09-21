@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleIgmpLayer
 
-#include "IgmpLayer.h"
-#include "PacketUtils.h"
-#include "Logger.h"
+#include "pcapplusplus/IgmpLayer.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/Logger.h"
 #include "EndianPortable.h"
 
 namespace pcpp

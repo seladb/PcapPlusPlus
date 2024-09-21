@@ -37,12 +37,12 @@
 #include <utility>
 #include <vector>
 #include <unordered_map>
-#include <Logger.h>
-#include <PcapPlusPlusVersion.h>
-#include <SystemUtils.h>
-#include <RawPacket.h>
-#include <Packet.h>
-#include <PcapFileDevice.h>
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/RawPacket.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PcapFileDevice.h"
 #include <getopt.h>
 
 // clang-format off

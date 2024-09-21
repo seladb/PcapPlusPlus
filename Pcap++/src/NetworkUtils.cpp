@@ -2,19 +2,16 @@
 
 #include <condition_variable>
 #include <mutex>
-#include "Logger.h"
-#include "Packet.h"
-#include "EthLayer.h"
-#include "ArpLayer.h"
-#include "IPv4Layer.h"
-#include "UdpLayer.h"
-#include "DnsLayer.h"
-#include "PcapFilter.h"
-#include "NetworkUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/ArpLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/UdpLayer.h"
+#include "pcapplusplus/DnsLayer.h"
+#include "pcapplusplus/PcapFilter.h"
+#include "pcapplusplus/NetworkUtils.h"
 #include "EndianPortable.h"
-#ifdef _MSC_VER
-#	include "SystemUtils.h"
-#endif
 #ifndef ETIMEDOUT
 #	define ETIMEDOUT 10060
 #endif

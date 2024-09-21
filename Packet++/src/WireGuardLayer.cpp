@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModuleWireGuardLayer
 
-#include "UdpLayer.h"
-#include "WireGuardLayer.h"
+#include "pcapplusplus/UdpLayer.h"
+#include "pcapplusplus/WireGuardLayer.h"
 #include "EndianPortable.h"
 #include <iomanip>
 

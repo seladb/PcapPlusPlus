@@ -1,12 +1,12 @@
 #include "../TestDefinition.h"
-#include "Logger.h"
-#include "SystemUtils.h"
-#include "PcapLiveDeviceList.h"
-#include "PcapFileDevice.h"
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "UdpLayer.h"
-#include "PayloadLayer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/PcapFileDevice.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/UdpLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
@@ -16,9 +16,9 @@
 #include <algorithm>
 #include <cstdio>
 #if defined(_WIN32)
-#	include "PcapRemoteDevice.h"
-#	include "PcapRemoteDeviceList.h"
-#	include "WinPcapLiveDevice.h"
+#	include "pcapplusplus/PcapRemoteDevice.h"
+#	include "pcapplusplus/PcapRemoteDeviceList.h"
+#	include "pcapplusplus/WinPcapLiveDevice.h"
 #	include <windows.h>
 #endif
 

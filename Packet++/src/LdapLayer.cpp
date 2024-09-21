@@ -1,5 +1,5 @@
-#include "LdapLayer.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/LdapLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <unordered_map>
 
 namespace pcpp

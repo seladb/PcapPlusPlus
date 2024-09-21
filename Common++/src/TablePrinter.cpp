@@ -5,8 +5,8 @@
 #include <iostream>
 #include <numeric>
 #include <utility>
-#include "TablePrinter.h"
-#include "Logger.h"
+#include "pcapplusplus/TablePrinter.h"
+#include "pcapplusplus/Logger.h"
 
 namespace pcpp
 {

@@ -1,7 +1,7 @@
 #define LOG_MODULE PacketLogModulePayloadLayer
 
-#include "PayloadLayer.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <sstream>
 #include <cstring>
 

@@ -2,10 +2,18 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
+<<<<<<< HEAD
 #include "Packet.h"
 #include "HttpLayer.h"
 #include "DnsLayer.h"
 #include "PcapFileDevice.h"
+=======
+#include <stdlib.h>
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/HttpLayer.h"
+#include "pcapplusplus/DnsLayer.h"
+#include "pcapplusplus/PcapFileDevice.h"
+>>>>>>> c5dfc41d (Remove ifdef inside cpp)
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {

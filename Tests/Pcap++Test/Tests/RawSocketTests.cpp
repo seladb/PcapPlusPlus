@@ -1,10 +1,10 @@
 #include "../TestDefinition.h"
 #include "../Common/PcapFileNamesDef.h"
 #include "../Common/GlobalTestArgs.h"
-#include "Logger.h"
-#include "Packet.h"
-#include "RawSocketDevice.h"
-#include "PcapFileDevice.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/RawSocketDevice.h"
+#include "pcapplusplus/PcapFileDevice.h"
 
 extern PcapTestArgs PcapTestGlobalArgs;
 

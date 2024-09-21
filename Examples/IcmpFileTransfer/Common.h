@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MacAddress.h"
-#include "IpAddress.h"
-#include "PcapLiveDevice.h"
+#include "pcapplusplus/MacAddress.h"
+#include "pcapplusplus/IpAddress.h"
+#include "pcapplusplus/PcapLiveDevice.h"
 
 #define ICMP_FT_WAITING_FT_START 0x345a56c8e7f3cd67ULL
 #define ICMP_FT_START 0xd45ae6c2e7a3cd67ULL

@@ -7,8 +7,8 @@
 #include <set>
 #include <utility>
 #include <cstring>
-#include "Logger.h"
-#include "SSLHandshake.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/SSLHandshake.h"
 
 namespace pcpp
 {

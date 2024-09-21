@@ -3,8 +3,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "RawPacket.h"
-#include "Device.h"
+#include "pcapplusplus/RawPacket.h"
+#include "pcapplusplus/Device.h"
 
 class DeviceTeardown
 {

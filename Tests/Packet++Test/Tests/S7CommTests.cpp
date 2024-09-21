@@ -1,9 +1,9 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "Packet.h"
-#include "S7CommLayer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/S7CommLayer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(S7CommLayerParsingTest)
 {

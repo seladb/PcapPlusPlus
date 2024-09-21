@@ -1,7 +1,19 @@
 #pragma once
 
+<<<<<<< HEAD
 #include <Packet.h>
 #include <PfRingDeviceList.h>
+=======
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PfRingDeviceList.h"
+
+#include "pcapplusplus/SystemUtils.h"
+
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <iostream>
+>>>>>>> c5dfc41d (Remove ifdef inside cpp)
 #include <sstream>
 
 /**

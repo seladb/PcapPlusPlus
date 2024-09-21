@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Splitters.h"
-#include "PacketUtils.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/SystemUtils.h"
 
 /**
  * A virtual abstract class for all splitters that split files by IP address or TCP/UDP port. Inherits from

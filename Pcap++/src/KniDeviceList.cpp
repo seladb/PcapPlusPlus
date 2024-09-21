@@ -5,9 +5,9 @@
 #include <inttypes.h>
 #include <algorithm>
 
-#include "KniDeviceList.h"
-#include "Logger.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/KniDeviceList.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/SystemUtils.h"
 
 #include <rte_version.h>
 #include <rte_kni.h>

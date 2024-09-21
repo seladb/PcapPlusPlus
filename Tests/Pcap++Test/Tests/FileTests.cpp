@@ -1,7 +1,7 @@
 #include "../TestDefinition.h"
-#include "Logger.h"
-#include "Packet.h"
-#include "PcapFileDevice.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PcapFileDevice.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <array>
 #include <fstream>

@@ -1,10 +1,10 @@
 #define LOG_MODULE PacketLogModuleSipLayer
 
-#include "SipLayer.h"
-#include "SdpLayer.h"
-#include "PayloadLayer.h"
-#include "Logger.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/SipLayer.h"
+#include "pcapplusplus/SdpLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <algorithm>
 #include <exception>
 #include <utility>

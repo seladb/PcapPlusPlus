@@ -12,20 +12,20 @@ add_library(
   src/TablePrinter.cpp)
 
 set(public_headers
-    header/DeprecationUtils.h
-    header/GeneralUtils.h
-    header/IpAddress.h
-    header/IpAddressUtils.h
-    header/IpUtils.h
-    header/Logger.h
-    header/LRUList.h
-    header/MacAddress.h
-    header/OUILookup.h
-    header/PcapPlusPlusVersion.h
-    header/PointerVector.h
-    header/SystemUtils.h
-    header/TablePrinter.h
-    header/TimespecTimeval.h)
+    header/pcapplusplus/DeprecationUtils.h
+    header/pcapplusplus/GeneralUtils.h
+    header/pcapplusplus/IpAddress.h
+    header/pcapplusplus/IpAddressUtils.h
+    header/pcapplusplus/IpUtils.h
+    header/pcapplusplus/Logger.h
+    header/pcapplusplus/LRUList.h
+    header/pcapplusplus/MacAddress.h
+    header/pcapplusplus/OUILookup.h
+    header/pcapplusplus/PcapPlusPlusVersion.h
+    header/pcapplusplus/PointerVector.h
+    header/pcapplusplus/SystemUtils.h
+    header/pcapplusplus/TablePrinter.h
+    header/pcapplusplus/TimespecTimeval.h)
 
 # Set the public header that will be installed
 set_property(TARGET Common++ PROPERTY PUBLIC_HEADER ${public_headers})

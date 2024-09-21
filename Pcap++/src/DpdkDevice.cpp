@@ -5,19 +5,19 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_FORMAT_MACROS
 
-#include "DpdkDevice.h"
-#include "DpdkDeviceList.h"
-#include "Logger.h"
-#include "rte_version.h"
+#include "pcapplusplus/DpdkDevice.h"
+#include "pcapplusplus/DpdkDeviceList.h"
+#include "pcapplusplus/Logger.h"
+#include <rte_version.h>
 #if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
-#	include "rte_bus_pci.h"
+#	include <rte_bus_pci.h>
 #endif
-#include "rte_pci.h"
-#include "rte_config.h"
-#include "rte_ethdev.h"
-#include "rte_errno.h"
-#include "rte_malloc.h"
-#include "rte_cycles.h"
+#include <rte_pci.h>
+#include <rte_config.h>
+#include <rte_ethdev.h>
+#include <rte_errno.h>
+#include <rte_malloc.h>
+#include <rte_cycles.h>
 #include <string>
 #include <unistd.h>
 

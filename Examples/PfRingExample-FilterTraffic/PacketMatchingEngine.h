@@ -1,9 +1,17 @@
 #pragma once
 
+<<<<<<< HEAD
 #include "Packet.h"
 #include "IPv4Layer.h"
 #include "TcpLayer.h"
 #include "UdpLayer.h"
+=======
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/TcpLayer.h"
+#include "pcapplusplus/UdpLayer.h"
+>>>>>>> c5dfc41d (Remove ifdef inside cpp)
 
 /**
  * Responsible for matching packets by match criteria received from the user. Current match criteria are a combination

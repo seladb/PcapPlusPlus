@@ -13,11 +13,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <RawPacket.h>
-#include <Packet.h>
-#include <PcapFileDevice.h>
-#include <PcapPlusPlusVersion.h>
-#include <SystemUtils.h>
+#include "pcapplusplus/RawPacket.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PcapFileDevice.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include "pcapplusplus/SystemUtils.h"
 #include <getopt.h>
 
 static struct option PcapPrinterOptions[] = {

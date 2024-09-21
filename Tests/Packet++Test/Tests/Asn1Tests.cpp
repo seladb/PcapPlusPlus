@@ -1,7 +1,7 @@
 #include "../TestDefinition.h"
-#include "Asn1Codec.h"
-#include "RawPacket.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/Asn1Codec.h"
+#include "pcapplusplus/RawPacket.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <functional>
 #include <cstring>
 #include <sstream>

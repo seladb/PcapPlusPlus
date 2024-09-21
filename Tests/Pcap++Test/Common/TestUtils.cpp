@@ -1,14 +1,14 @@
 #include "TestUtils.h"
 #include <fstream>
 #include "GlobalTestArgs.h"
-#include "PcapFileDevice.h"
-#include "PcapLiveDeviceList.h"
+#include "pcapplusplus/PcapFileDevice.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
 // clang-format off
 #ifdef USE_PF_RING
-#include "PfRingDeviceList.h"
+#include "pcapplusplus/PfRingDeviceList.h"
 #endif
 #ifdef USE_DPDK
-#include "DpdkDeviceList.h"
+#include "pcapplusplus/DpdkDeviceList.h"
 #endif
 // clang-format on
 

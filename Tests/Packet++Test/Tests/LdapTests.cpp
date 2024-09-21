@@ -1,8 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Packet.h"
-#include "SystemUtils.h"
-#include "LdapLayer.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/LdapLayer.h"
 #include <sstream>
 #include <cstring>
 

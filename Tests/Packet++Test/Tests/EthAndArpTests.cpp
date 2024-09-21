@@ -1,14 +1,14 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "IpAddress.h"
-#include "EthLayer.h"
-#include "EthDot3Layer.h"
-#include "ArpLayer.h"
-#include "PayloadLayer.h"
-#include "Packet.h"
-#include "OUILookup.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/IpAddress.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/EthDot3Layer.h"
+#include "pcapplusplus/ArpLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/OUILookup.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(OUILookup)
 {

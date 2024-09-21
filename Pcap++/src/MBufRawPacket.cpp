@@ -5,15 +5,15 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_FORMAT_MACROS
 
-#include "rte_mbuf.h"
-#include "rte_mempool.h"
-#include "rte_errno.h"
+#include <rte_mbuf.h>
+#include <rte_mempool.h>
+#include <rte_errno.h>
 
-#include "MBufRawPacket.h"
-#include "Logger.h"
-#include "DpdkDevice.h"
+#include "pcapplusplus/MBufRawPacket.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/DpdkDevice.h"
 #ifdef USE_DPDK_KNI
-#	include "KniDevice.h"
+#	include "pcapplusplus/KniDevice.h"
 #endif
 
 #include <string>

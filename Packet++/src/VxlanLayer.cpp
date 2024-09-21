@@ -1,5 +1,5 @@
-#include "VxlanLayer.h"
-#include "EthLayer.h"
+#include "pcapplusplus/VxlanLayer.h"
+#include "pcapplusplus/EthLayer.h"
 #include "EndianPortable.h"
 
 namespace pcpp

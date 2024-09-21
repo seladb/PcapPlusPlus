@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleTelnetLayer
 
-#include "TelnetLayer.h"
-#include "Logger.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/TelnetLayer.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include <cstring>
 
 namespace pcpp

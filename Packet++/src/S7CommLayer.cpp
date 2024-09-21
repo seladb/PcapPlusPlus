@@ -1,6 +1,6 @@
 #include "EndianPortable.h"
 
-#include "S7CommLayer.h"
+#include "pcapplusplus/S7CommLayer.h"
 #include <iostream>
 #include <sstream>
 

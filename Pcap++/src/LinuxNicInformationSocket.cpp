@@ -1,7 +1,7 @@
 #define LOG_MODULE UndefinedLogModule
 
-#include "Logger.h"
-#include "LinuxNicInformationSocket.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/LinuxNicInformationSocket.h"
 
 #include <sys/types.h>
 #include <unistd.h>

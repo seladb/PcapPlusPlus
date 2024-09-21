@@ -1,11 +1,11 @@
-#include "DeviceUtils.h"
+#include "pcapplusplus/DeviceUtils.h"
 
 #include <array>
 #include <string>
 
-#include "pcap.h"
-#include "Logger.h"
-#include "IpAddress.h"
+#include <pcap.h>
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/IpAddress.h"
 
 namespace pcpp
 {

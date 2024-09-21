@@ -1,11 +1,11 @@
 #define LOG_MODULE PcapLogModuleRemoteDevice
 
-#include "PcapRemoteDeviceList.h"
-#include "Logger.h"
-#include "IpUtils.h"
-#include "PcapUtils.h"
-#include "IpAddressUtils.h"
-#include "pcap.h"
+#include "pcapplusplus/PcapRemoteDeviceList.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/IpUtils.h"
+#include "pcapplusplus/PcapUtils.h"
+#include "pcapplusplus/IpAddressUtils.h"
+#include <pcap.h>
 #include <array>
 #include <ws2tcpip.h>
 

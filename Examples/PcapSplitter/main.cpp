@@ -47,15 +47,15 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <RawPacket.h>
-#include <Packet.h>
-#include <PcapFileDevice.h>
+#include "pcapplusplus/RawPacket.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PcapFileDevice.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include <getopt.h>
 #include "SimpleSplitters.h"
 #include "IPPortSplitters.h"
 #include "ConnectionSplitters.h"
-#include <getopt.h>
-#include <SystemUtils.h>
-#include <PcapPlusPlusVersion.h>
 
 static struct option PcapSplitterOptions[] = {
 	{ "input-file",  required_argument, nullptr, 'f' },

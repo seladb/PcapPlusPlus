@@ -1,9 +1,10 @@
 #include <getopt.h>
-#include "PcapPlusPlusVersion.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
 #include "PcppTestFrameworkRun.h"
+#include "pcapplusplus/Logger.h"
+
 #include "TestDefinition.h"
-#include "Logger.h"
-#include "../../Tests/Packet++Test/Utils/TestUtils.h"
+#include "Utils/TestUtils.h"
 
 static struct option PacketTestOptions[] = {
 	{ "include-tags",        required_argument, nullptr, 't' },

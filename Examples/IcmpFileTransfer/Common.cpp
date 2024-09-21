@@ -2,12 +2,12 @@
 #include <iostream>
 #include <vector>
 #include <getopt.h>
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "IcmpLayer.h"
-#include "PcapLiveDeviceList.h"
-#include "SystemUtils.h"
-#include "PcapPlusPlusVersion.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IcmpLayer.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
 
 #if defined(_WIN32)
 #	define SEPARATOR '\\'
