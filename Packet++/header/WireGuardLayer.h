@@ -18,10 +18,14 @@ namespace pcpp
 	 */
 	enum class WireGuardMessageType
 	{
-		HandshakeInitiation = 1,  ///< Handshake Initiation message
-		HandshakeResponse = 2,    ///< Handshake Response message
-		CookieReply = 3,          ///< Cookie Reply message
-		TransportData = 4         ///< Transport Data message
+		/** Handshake Initiation message */
+		HandshakeInitiation = 1,
+		/** Handshake Response message */
+		HandshakeResponse = 2,
+		/** Cookie Reply message */
+		CookieReply = 3,
+		/** Transport Data message */
+		TransportData = 4
 	};
 
 	/**
@@ -45,13 +49,20 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct wg_handshake_initiation
 	{
-		wg_common_header common;               ///< Common header for all WireGuard messages
-		uint32_t senderIndex;                  ///< Sender index
-		uint8_t initiatorEphemeral[32];        ///< Initiator's ephemeral public key
-		uint8_t encryptedInitiatorStatic[48];  ///< Encrypted initiator's static key
-		uint8_t encryptedTimestamp[28];        ///< Encrypted timestamp
-		uint8_t mac1[16];                      ///< MAC1 field
-		uint8_t mac2[16];                      ///< MAC2 field
+		/** Common header for all WireGuard messages */
+		wg_common_header common;
+		/** Sender index */
+		uint32_t senderIndex;
+		/** Initiator's ephemeral public key */
+		uint8_t initiatorEphemeral[32];
+		/** Encrypted initiator's static key */
+		uint8_t encryptedInitiatorStatic[48];
+		/** Encrypted timestamp */
+		uint8_t encryptedTimestamp[28];
+		/** MAC1 field */
+		uint8_t mac1[16];
+		/** MAC2 field */
+		uint8_t mac2[16];
 	};
 #pragma pack(pop)
 
@@ -62,13 +73,20 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct wg_handshake_response
 	{
-		wg_common_header common;         ///< Common header for all WireGuard messages
-		uint32_t senderIndex;            ///< Sender index
-		uint32_t receiverIndex;          ///< Receiver index
-		uint8_t responderEphemeral[32];  ///< Responder's ephemeral public key
-		uint8_t encryptedEmpty[16];      ///< Encrypted empty field
-		uint8_t mac1[16];                ///< MAC1 field
-		uint8_t mac2[16];                ///< MAC2 field
+		/** Common header for all WireGuard messages */
+		wg_common_header common;
+		/** Sender index */
+		uint32_t senderIndex;
+		/** Receiver index */
+		uint32_t receiverIndex;
+		/** Responder's ephemeral public key */
+		uint8_t responderEphemeral[32];
+		/** Encrypted empty field */
+		uint8_t encryptedEmpty[16];
+		/** MAC1 field */
+		uint8_t mac1[16];
+		/** MAC2 field */
+		uint8_t mac2[16];
 	};
 #pragma pack(pop)
 
@@ -79,10 +97,14 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct wg_cookie_reply
 	{
-		wg_common_header common;      ///< Common header for all WireGuard messages
-		uint32_t receiverIndex;       ///< Receiver index
-		uint8_t nonce[24];            ///< Nonce field
-		uint8_t encryptedCookie[32];  ///< Encrypted cookie
+		/** Common header for all WireGuard messages */
+		wg_common_header common;
+		/** Receiver index */
+		uint32_t receiverIndex;
+		/** Nonce field */
+		uint8_t nonce[24];
+		/** Encrypted cookie */
+		uint8_t encryptedCookie[32];
 	};
 #pragma pack(pop)
 
@@ -93,10 +115,14 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct wg_transport_data
 	{
-		wg_common_header common;   ///< Common header for all WireGuard messages
-		uint32_t receiverIndex;    ///< Receiver index
-		uint64_t counter;          ///< Counter field
-		uint8_t encryptedData[0];  ///< Flexible array member for encrypted data
+		/** Common header for all WireGuard messages */
+		wg_common_header common;
+		/** Receiver index */
+		uint32_t receiverIndex;
+		/** Counter field */
+		uint64_t counter;
+		/** Flexible array member for encrypted data */
+		uint8_t encryptedData[0];
 	};
 #pragma pack(pop)
 
