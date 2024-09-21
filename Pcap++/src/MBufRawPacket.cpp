@@ -175,6 +175,11 @@ namespace pcpp
 		return *this;
 	}
 
+	MBufRawPacket* MBufRawPacket::clone() const
+	{
+		return new MBufRawPacket(*this);
+	}
+
 	bool MBufRawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
 	                               int frameLength)
 	{
