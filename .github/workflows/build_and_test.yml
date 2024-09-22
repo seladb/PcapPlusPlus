@@ -585,12 +585,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["14.0", "13.2"]
+        version: ["14.1", "13.4"]
     steps:
     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@12c207ac1ba13827f25726fe93f9c2e6f685f0f3 # v1.0.8
+      uses: vmactions/freebsd-vm@d7b8fcc7711aa41ad45e8d9b737cf90f035a7e3d # v1.1.3
       with:
         release: ${{ matrix.version }}
         usesh: true
