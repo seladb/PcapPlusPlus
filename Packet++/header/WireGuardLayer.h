@@ -393,6 +393,7 @@ namespace pcpp
 		 * @param[in] receiverIndex The receiver index
 		 * @param[in] counter The counter field
 		 * @param[in] encryptedData The encrypted data
+		 * @param[in] encryptedDataLen The length of the encrypted data
 		 */
 		WireGuardTransportDataLayer(uint32_t receiverIndex, uint64_t counter, const uint8_t* encryptedData,
 		                            size_t encryptedDataLen);
