@@ -13,7 +13,7 @@
 
 </div>
 
-[PcapPlusPlus](https://pcapplusplus.github.io/) 是一個跨平台的 C++ 函式庫，用於捕捉、解析和生成網路封包。它設計為高效、強大且易於使用。
+[PcapPlusPlus](https://pcapplusplus.github.io/) 是一個跨平台的 C++ 函式庫，提供高效、強大且易於使用的功能，來進行網路封包的捕捉、解析和生成。
 
 PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
 
