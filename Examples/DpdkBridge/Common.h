@@ -13,23 +13,24 @@
 #include <sstream>
 #include <stdlib.h>
 
-
 /**
  * Macros for exiting the application with error
  */
 
-#define EXIT_WITH_ERROR(reason) do { \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
+#define EXIT_WITH_ERROR(reason)                                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
-
-#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason) do { \
-	printUsage(); \
-	std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl; \
-	exit(1); \
-	} while(0)
-
+#define EXIT_WITH_ERROR_AND_PRINT_USAGE(reason)                                                                        \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		printUsage();                                                                                                  \
+		std::cout << std::endl << "ERROR: " << reason << std::endl << std::endl;                                       \
+		exit(1);                                                                                                       \
+	} while (0)
 
 /**
  * Contains all the configuration needed for the worker thread including:
@@ -43,7 +44,6 @@ struct AppWorkerConfig
 	uint16_t RxQueues;
 	pcpp::DpdkDevice* TxDevice;
 
-	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES+1), RxDevice(NULL), RxQueues(1), TxDevice(NULL)
-	{
-	}
+	AppWorkerConfig() : CoreId(MAX_NUM_OF_CORES + 1), RxDevice(nullptr), RxQueues(1), TxDevice(nullptr)
+	{}
 };

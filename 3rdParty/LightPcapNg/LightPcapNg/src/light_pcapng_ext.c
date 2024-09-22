@@ -123,24 +123,25 @@ static light_pcapng_file_info *__create_file_info(light_pcapng pcapng_head)
 	return file_info;
 }
 
-static double __power_of(int x, int y)
+// PCPP patch
+static uint64_t int_pow(uint64_t x, uint8_t y)
 {
 	int i;
-	double res = 1;
-
-	if (y < 0)
-		return 1 / __power_of(x, -y);
+	uint64_t res = 1;
 
 	for (i = 0; i < y; i++)
 		res *= x;
 
 	return res;
 }
+// PCPP patch end
 
+// PCPP patch
 static void __append_interface_block_to_file_info(const light_pcapng interface_block, light_pcapng_file_info* info)
 {
 	struct _light_interface_description_block* interface_desc_block;
 	light_option ts_resolution_option = NULL;
+	uint32_t ticks_per_sec;
 
 	if (info->interface_block_count >= MAX_SUPPORTED_INTERFACE_BLOCKS)
 		return;
@@ -150,19 +151,21 @@ static void __append_interface_block_to_file_info(const light_pcapng interface_b
 	ts_resolution_option = light_get_option(interface_block, LIGHT_OPTION_IF_TSRESOL);
 	if (ts_resolution_option == NULL)
 	{
-		info->timestamp_resolution[info->interface_block_count] = __power_of(10,-6);
+		ticks_per_sec = int_pow(10, 6);
 	}
 	else
 	{
 		uint8_t* raw_ts_data = (uint8_t*)light_get_option_data(ts_resolution_option);
 		if (*raw_ts_data < 128)
-			info->timestamp_resolution[info->interface_block_count] = __power_of(10, (-1)*(*raw_ts_data));
+			ticks_per_sec = int_pow(10, (*raw_ts_data));
 		else
-			info->timestamp_resolution[info->interface_block_count] = __power_of(2, (-1)*((*raw_ts_data)-128));
+			ticks_per_sec = int_pow(2, ((*raw_ts_data)-128));
 	}
+	info->timestamp_ticks_per_second[info->interface_block_count] = ticks_per_sec;
 
 	info->link_types[info->interface_block_count++] = interface_desc_block->link_type;
 }
+// PCPP patch end
 
 static light_boolean __is_open_for_write(const struct _light_pcapng_t* pcapng)
 {
@@ -418,15 +421,13 @@ int light_get_next_packet(light_pcapng_t *pcapng, light_packet_header *packet_he
 			uint64_t timestamp = epb->timestamp_high;
 			timestamp = timestamp << 32;
 			timestamp += epb->timestamp_low;
-			double timestamp_res = pcapng->file_info->timestamp_resolution[epb->interface_id];
-			uint64_t packet_secs = timestamp * timestamp_res;
-			if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE)
+			uint64_t ticks_per_sec = pcapng->file_info->timestamp_ticks_per_second[epb->interface_id];
+			uint64_t packet_secs = (ticks_per_sec != 0 ?  timestamp / ticks_per_sec : 0);
+			if (packet_secs <= MAXIMUM_PACKET_SECONDS_VALUE && packet_secs != 0)
 			{
+				uint64_t ticks = timestamp % ticks_per_sec;
 				packet_header->timestamp.tv_sec = packet_secs;
-				packet_header->timestamp.tv_nsec =
-						(timestamp - (packet_secs / timestamp_res))	// number of time units less than seconds
-						* timestamp_res								// shift . to the left to get 0.{previous_number}
-						* 1000000000;								// get the nanoseconds
+				packet_header->timestamp.tv_nsec = (1000000000ul * ticks) / ticks_per_sec;
 			}
 			else
 			{

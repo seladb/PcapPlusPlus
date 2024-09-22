@@ -50,7 +50,8 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		SllLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet) { m_Protocol = SLL; }
+		SllLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet, SLL)
+		{}
 
 		/**
 		 * A constructor that creates a new SLL header and allocates the data
@@ -59,13 +60,18 @@ namespace pcpp
 		 */
 		SllLayer(uint16_t packetType, uint16_t ARPHRDType);
 
-		~SllLayer() {}
+		~SllLayer()
+		{}
 
 		/**
-		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the Sll header. Notice this points directly to the data, so every change will change the
+		 * actual packet data
 		 * @return A pointer to the sll_header
 		 */
-		sll_header* getSllHeader() const { return (sll_header*)m_Data; }
+		sll_header* getSllHeader() const
+		{
+			return (sll_header*)m_Data;
+		}
 
 		/**
 		 * A setter for the link layer address field
@@ -83,16 +89,18 @@ namespace pcpp
 		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
 
 		/**
-		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer, PPPoEDiscoveryLayer,
-		 * MplsLayer.
-		 * Otherwise sets PayloadLayer
+		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer,
+		 * PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();
 
 		/**
 		 * @return Size of sll_header
 		 */
-		size_t getHeaderLen() const { return sizeof(sll_header); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(sll_header);
+		}
 
 		/**
 		 * Calculate the next protocol type for known protocols: IPv4, IPv6, ARP, VLAN
@@ -101,7 +109,10 @@ namespace pcpp
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelDataLinkLayer;
+		}
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

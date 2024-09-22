@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 #include "DeprecationUtils.h"
 
@@ -17,6 +18,34 @@
  */
 namespace pcpp
 {
+	namespace internal
+	{
+		/**
+		 * @brief A helper struct to facilitate the creation of a copy of an object.
+		 * @tparam T The type of object to copy.
+		 * @tparam Enable Helper parameter for SFINAE.
+		 */
+		template <class T, class Enable = void> struct Copier
+		{
+			std::unique_ptr<T> operator()(const T& obj) const
+			{
+				return std::unique_ptr<T>(new T(obj));
+			}
+		};
+
+		/**
+		 * @brief A specialization of Copier to facilitate the safe copying of polymorphic objects via clone() method.
+		 * @tparam T The type of object to copy.
+		 */
+		template <class T> struct Copier<T, typename std::enable_if<std::is_polymorphic<T>::value>::type>
+		{
+			std::unique_ptr<T> operator()(const T& obj) const
+			{
+				// Clone can return unique_ptr or raw pointer.
+				return std::unique_ptr<T>(std::move(obj.clone()));
+			}
+		};
+	}  // namespace internal
 
 	/**
 	 * @class PointerVector
@@ -303,6 +332,18 @@ namespace pcpp
 		}
 
 		/**
+		 * Removes an element from the vector and transfers ownership to the returned unique pointer.
+		 * @param[in] position An iterator pointing to the element to detach.
+		 * @return An unique pointer that holds ownership of the detached element.
+		 */
+		std::unique_ptr<T> getAndDetach(VectorIterator const& position)
+		{
+			std::unique_ptr<T> result(*position);
+			m_Vector.erase(position);
+			return result;
+		}
+
+		/**
 		 * Return a pointer to the element in a certain index
 		 * @param[in] index The index to retrieve the element from
 		 * @return The element at the specified position in the vector
@@ -331,21 +372,16 @@ namespace pcpp
 		static std::vector<T*> deepCopyUnsafe(std::vector<T*> const& origin)
 		{
 			std::vector<T*> copyVec;
+			// Allocate the vector initially to ensure no exceptions are thrown during push_back.
+			copyVec.reserve(origin.size());
 
 			try
 			{
 				for (const auto iter : origin)
 				{
-					T* objCopy = new T(*iter);
-					try
-					{
-						copyVec.push_back(objCopy);
-					}
-					catch (const std::exception&)
-					{
-						delete objCopy;
-						throw;
-					}
+					std::unique_ptr<T> objCopy = internal::Copier<T>()(*iter);
+					// There shouldn't be a memory leak as the vector is reserved.
+					copyVec.push_back(objCopy.release());
 				}
 			}
 			catch (const std::exception&)

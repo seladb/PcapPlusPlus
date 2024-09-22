@@ -91,7 +91,8 @@
  * - Finished
  * - New-session-ticket
  *
- * All handshake messages classes inherit from a base abstract class: pcpp::SSLHandshakeMessage which cannot be instantiated.
+ * All handshake messages classes inherit from a base abstract class: pcpp::SSLHandshakeMessage which cannot be
+ * instantiated.
  * Also, all of them reside in SSLHandshake.h. Following is a simple diagram of these classes:
  *
  @verbatim
@@ -129,14 +130,16 @@
  *
  * __Cipher suites:__    <BR>
  *
- * Cipher suites are named combinations of authentication, encryption, message authentication code (MAC) and key exchange
- * algorithms used to negotiate the security settings for a network connection using SSL/TLS.
+ * Cipher suites are named combinations of authentication, encryption, message authentication code (MAC) and key
+ * exchange algorithms used to negotiate the security settings for a network connection using SSL/TLS.
  * There are many known cipher-suites. PcapPlusPlus support above 300 of them, according to this list:
  * http://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml
- * There is a designated class in PcapPlusPlus called pcpp::SSLCipherSuite which represents the cipher-suites and provides
- * access to their attributes. Then there is a static instance of this class for each one of the supported cipher-suites.
- * This means there are 300+ static instances of pcpp::SSLCipherSuite representing the different cipher suites. The user can
- * access them through static methods in pcpp::SSLCipherSuite or from client-hello and server-hello messages where they appear
+ * There is a designated class in PcapPlusPlus called pcpp::SSLCipherSuite which represents the cipher-suites and
+ * provides access to their attributes. Then there is a static instance of this class for each one of the supported
+ * cipher-suites.
+ * This means there are 300+ static instances of pcpp::SSLCipherSuite representing the different cipher suites. The user
+ * can access them through static methods in pcpp::SSLCipherSuite or from client-hello and server-hello messages where
+ * they appear.
  *
  * <BR><BR>
  *
@@ -144,14 +147,15 @@
  *
  * SSL/TLS handshake messages, specifically client-hello and server-hello usually include extensions. There are various
  * types of extensions - some are more broadly used, some are less. In PcapPlusPlus there is a base class for all
- * extensions: pcpp::SSLExtension. This class is instantiable and represents a generic extension, which means extension data
- * isn't parsed and given to the user as raw data. Currently there are only two extension that are fully parsed which are
- * server-name-indication (pcpp::SSLServerNameIndicationExtension) and SupportedVersions (pcpp::SSLSupportedVersionsExtension).
+ * extensions: pcpp::SSLExtension. This class is instantiable and represents a generic extension, which means extension
+ * data isn't parsed and given to the user as raw data. Currently there are only two extension that are fully parsed
+ * which are server-name-indication (pcpp::SSLServerNameIndicationExtension) and SupportedVersions
+ * (pcpp::SSLSupportedVersionsExtension).
  * Both inherit from pcpp::SSLExtension and add additional parsing relevant for the specific extension.
  * All other extensions aren't parsed and are represented by instance of pcpp::SSLExtension.
- * Access to extensions is done through the handshake messages classes, specifically pcpp::SSLClientHelloMessage and pcpp::SSLServerHelloMessage
+ * Access to extensions is done through the handshake messages classes, specifically pcpp::SSLClientHelloMessage and
+ * pcpp::SSLServerHelloMessage
  */
-
 
 /**
  * \namespace pcpp
@@ -164,13 +168,12 @@ namespace pcpp
 	 * @class SSLLayer
 	 * The base class for the 4 record type classes. Each record type is represented as a layer. See SSLLayer.h for
 	 * detailed explanation of the TLS/SSL protocol support in PcapPlusPlus.
-	 * This class provides the common functionality used by all record types and also contains static methods for identifying
-	 * an creating SSL/TLS record type layers
+	 * This class provides the common functionality used by all record types and also contains static methods for
+	 * identifying an creating SSL/TLS record type layers
 	 */
 	class SSLLayer : public Layer
 	{
 	public:
-
 		/**
 		 * A static method that checks whether the port is considered as SSL/TLS
 		 * @param[in] port The port number to be checked
@@ -178,9 +181,9 @@ namespace pcpp
 		static inline bool isSSLPort(uint16_t port);
 
 		/**
-		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This check is
-		 * done using the source/dest port and matching of a legal record type in the raw data. The list of ports identified
-		 * as SSL/TLS is hard-coded and includes the following ports:
+		 * A static methods that gets raw data of a layer and checks whether this data is a SSL/TLS record or not. This
+		 * check is done using the source/dest port and matching of a legal record type in the raw data. The list of
+		 * ports identified as SSL/TLS is hard-coded and includes the following ports:
 		 * - Port 443 [HTTPS]
 		 * - Port 261 [NSIIOPS]
 		 * - Port 448 [DDM-SSL]
@@ -200,11 +203,12 @@ namespace pcpp
 		 * criteria to identify SSL/TLS packets
 		 * @param[in] data The data to check
 		 * @param[in] dataLen Length (in bytes) of the data
-		 * @param[in] ignorePorts SSL/TLS ports are only relevant for parsing the first SSL/TLS message, but are not relevant
-		 * for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check. This is an
-		 * optional parameter and its default is "false"
+		 * @param[in] ignorePorts SSL/TLS ports are only relevant for parsing the first SSL/TLS message, but are not
+		 * relevant for parsing subsequent messages. This parameter can be set to "true" to skip SSL/TLS ports check.
+		 * This is an optional parameter and its default is "false"
 		 */
-		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen, bool ignorePorts = false);
+		static bool IsSSLMessage(uint16_t srcPort, uint16_t dstPort, uint8_t* data, size_t dataLen,
+		                         bool ignorePorts = false);
 
 		/**
 		 * A static method that creates SSL/TLS layers by raw data. This method parses the raw data, finds if and which
@@ -214,16 +218,20 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 * @return A pointer to the newly created record layer. If no SSL/TLS record could be identified from the raw data
-		 * NULL is returned
+		 * @return A pointer to the newly created record layer. If no SSL/TLS record could be identified from the raw
+		 * data nullptr is returned
 		 */
 		static SSLLayer* createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the record header. Notice this points directly to the data, so every change will change the
+		 * actual packet data
 		 * @return A pointer to the @ref ssl_tls_record_layer
 		 */
-		ssl_tls_record_layer* getRecordLayer() const { return (ssl_tls_record_layer*)m_Data; }
+		ssl_tls_record_layer* getRecordLayer() const
+		{
+			return (ssl_tls_record_layer*)m_Data;
+		}
 
 		/**
 		 * @return The SSL/TLS version used in this record (parsed from the record)
@@ -248,22 +256,29 @@ namespace pcpp
 		 */
 		void parseNextLayer();
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelPresentationLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelPresentationLayer;
+		}
 
 	protected:
-		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = SSL; }
+		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, SSL)
+		{}
 
-	}; // class SSLLayer
+	};  // class SSLLayer
 
-
+	// The graph below will break the code formatting, so it's disabled.
+	// clang-format off
 	/**
 	 * @class SSLHandshakeLayer
-	 * Represents SSL/TLS handshake layer. This layer may contain one or more handshake messages (all of them inherit from
-	 * the base class SSLHandshakeMessage) which are the SSL/TLS handshake message sent between a client and a server until
-	 * they establish a secure connection (e.g client-hello, server-hello, certificate, client-key-exchange,
-	 * server-key-exchange, etc.). Usually this layer will contain just one message (as the first example below
-	 * demonstrates). But there are cases a layer may contain more than 1 message. To better explain this layer structure
-	 * we'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
+	 * Represents SSL/TLS handshake layer. This layer may contain one or more handshake messages (all of them inherit
+	 * from the base class SSLHandshakeMessage) which are the SSL/TLS handshake message sent between a client and a
+	 * server until they establish a secure connection (e.g client-hello, server-hello, certificate,
+	 * client-key-exchange, server-key-exchange, etc.).
+	 * Usually this layer will contain just one message (as the first example below
+	 * demonstrates). But there are cases a layer may contain more than 1 message. To better explain this layer
+	 * structure. We'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
 	 @verbatim
 
 	         |------------------- SSLHandshakeLayer ----------------------|
@@ -281,8 +296,8 @@ namespace pcpp
 	                                |                                yyy
 	 @endverbatim
 
-	 * Second example is a multiple-message handshake layer comprises of server-hello, certificate and server-key-exchange
-	 * messages:
+	 * Second example is a multiple-message handshake layer comprises of server-hello, certificate and
+	 * server-key-exchange messages:
 
 	 @verbatim
 
@@ -299,10 +314,10 @@ namespace pcpp
 	     (22)                 xxx   |               version,length        |                           |
 	 @endverbatim
 	 */
-	class SSLHandshakeLayer: public SSLLayer
+	// clang-format on
+	class SSLHandshakeLayer : public SSLLayer
 	{
 	public:
-
 		/**
 		 * C'tor for this class that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -315,34 +330,37 @@ namespace pcpp
 		/**
 		 * @return The number of messages in this layer instance
 		 */
-		size_t getHandshakeMessagesCount() const { return m_MessageList.size(); }
+		size_t getHandshakeMessagesCount() const
+		{
+			return m_MessageList.size();
+		}
 
 		/**
-		 * Get a pointer to an handshake message by index. The message are numbered according to their order of appearance
-		 * in the layer. If index is out of bounds (less than 0 or larger than total amount of message) NULL will be
-		 * returned
+		 * Get a pointer to an handshake message by index. The message are numbered according to their order of
+		 * appearance in the layer. If index is out of bounds (less than 0 or larger than total amount of message)
+		 * nullptr will be returned
 		 * @param[in] index The index of the message to return
-		 * @return The pointer to the message object or NULL if index is out of bounds
+		 * @return The pointer to the message object or nullptr if index is out of bounds
 		 */
 		SSLHandshakeMessage* getHandshakeMessageAt(int index) const;
 
 		/**
-		 * A templated method to get a message of a certain type. If no message of such type is found, NULL is returned
-		 * @return A pointer to the message of the requested type, NULL if not found
+		 * A templated method to get a message of a certain type. If no message of such type is found, nullptr is
+		 * returned
+		 * @return A pointer to the message of the requested type, nullptr if not found
 		 */
-		template<class THandshakeMessage>
-		THandshakeMessage* getHandshakeMessageOfType() const;
+		template <class THandshakeMessage> THandshakeMessage* getHandshakeMessageOfType() const;
 
 		/**
 		 * A templated method to get the first message of a certain type, starting to search from a certain message.
 		 * For example: if the layer looks like: HelloRequest(1) -> HelloRequest(2)
 		 * and the user put HelloRequest(1) as a parameter and wishes to search for an HelloRequest message, the
 		 * HelloRequest(2) will be returned.<BR>
-		 * If no layer of such type is found, NULL is returned
+		 * If no layer of such type is found, nullptr is returned
 		 * @param[in] after A pointer to the message to start search from
-		 * @return A pointer to the message of the requested type, NULL if not found
+		 * @return A pointer to the message of the requested type, nullptr if not found
 		 */
-		template<class THandshakeMessage>
+		template <class THandshakeMessage>
 		THandshakeMessage* getNextHandshakeMessageOfType(const SSLHandshakeMessage* after) const;
 
 		// implement abstract methods
@@ -352,22 +370,21 @@ namespace pcpp
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 	private:
 		PointerVector<SSLHandshakeMessage> m_MessageList;
-	}; // class SSLHandshakeLayer
-
+	};  // class SSLHandshakeLayer
 
 	/**
 	 * @class SSLChangeCipherSpecLayer
-	 * Represents SSL/TLS change-cipher-spec layer. This layer has no additional fields besides common fields described in
-	 * SSLLayer
+	 * Represents SSL/TLS change-cipher-spec layer. This layer has no additional fields besides common fields described
+	 * in SSLLayer
 	 */
 	class SSLChangeCipherSpecLayer : public SSLLayer
 	{
 	public:
-
 		/**
 		 * C'tor for this class that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -376,9 +393,11 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		SSLChangeCipherSpecLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: SSLLayer(data, dataLen, prevLayer, packet) {}
+		    : SSLLayer(data, dataLen, prevLayer, packet)
+		{}
 
-		~SSLChangeCipherSpecLayer() {}
+		~SSLChangeCipherSpecLayer()
+		{}
 
 		// implement abstract methods
 
@@ -387,19 +406,18 @@ namespace pcpp
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields() {}
-	}; // class SSLChangeCipherSpecLayer
-
+		void computeCalculateFields()
+		{}
+	};  // class SSLChangeCipherSpecLayer
 
 	/**
 	 * @class SSLAlertLayer
-	 * Represents SSL/TLS alert layer. Inherits from SSLLayer and adds parsing functionality such as retrieving the alert
-	 * level and description
+	 * Represents SSL/TLS alert layer. Inherits from SSLLayer and adds parsing functionality such as retrieving the
+	 * alert level and description
 	 */
 	class SSLAlertLayer : public SSLLayer
 	{
 	public:
-
 		/**
 		 * C'tor for this class that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -408,9 +426,11 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		SSLAlertLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: SSLLayer(data, dataLen, prevLayer, packet) {}
+		    : SSLLayer(data, dataLen, prevLayer, packet)
+		{}
 
-		~SSLAlertLayer() {}
+		~SSLAlertLayer()
+		{}
 
 		/**
 		 * @return SSL/TLS alert level. Will return ::SSL_ALERT_LEVEL_ENCRYPTED if alert is encrypted
@@ -429,9 +449,9 @@ namespace pcpp
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields() {}
-	}; // class SSLAlertLayer
-
+		void computeCalculateFields()
+		{}
+	};  // class SSLAlertLayer
 
 	/**
 	 * @class SSLApplicationDataLayer
@@ -441,7 +461,6 @@ namespace pcpp
 	class SSLApplicationDataLayer : public SSLLayer
 	{
 	public:
-
 		/**
 		 * C'tor for this class that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -450,9 +469,11 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		SSLApplicationDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: SSLLayer(data, dataLen, prevLayer, packet) {}
+		    : SSLLayer(data, dataLen, prevLayer, packet)
+		{}
 
-		~SSLApplicationDataLayer() {}
+		~SSLApplicationDataLayer()
+		{}
 
 		/**
 		 * @return A pointer to the encrypted data. This data can be decrypted only if you have the symmetric key
@@ -472,27 +493,25 @@ namespace pcpp
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields() {}
-	}; // class SSLApplicationDataLayer
+		void computeCalculateFields()
+		{}
+	};  // class SSLApplicationDataLayer
 
-
-	template<class THandshakeMessage>
-	THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const
+	template <class THandshakeMessage> THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const
 	{
 		size_t vecSize = m_MessageList.size();
 		for (size_t i = 0; i < vecSize; i++)
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
-			 if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
-				 return (THandshakeMessage*)curElem;
+			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
+				return (THandshakeMessage*)curElem;
 		}
 
 		// element not found
-		return NULL;
-	} // getHandshakeMessageOfType
+		return nullptr;
+	}  // getHandshakeMessageOfType
 
-
-	template<class THandshakeMessage>
+	template <class THandshakeMessage>
 	THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(const SSLHandshakeMessage* after) const
 	{
 		size_t vecSize = m_MessageList.size();
@@ -508,45 +527,44 @@ namespace pcpp
 
 		// "after" not found
 		if (afterIndex == vecSize)
-			return NULL;
+			return nullptr;
 
-		for (size_t i = afterIndex+1; i < vecSize; i++)
+		for (size_t i = afterIndex + 1; i < vecSize; i++)
 		{
 			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
-			 if (dynamic_cast<THandshakeMessage*>(curElem) != NULL)
-				 return (THandshakeMessage*)curElem;
+			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
+				return (THandshakeMessage*)curElem;
 		}
 
 		// element not found
-		return NULL;
-	} // getNextHandshakeMessageOfType
-
+		return nullptr;
+	}  // getNextHandshakeMessageOfType
 
 	// implementation of inline methods
 
 	bool SSLLayer::isSSLPort(uint16_t port)
 	{
-		if (port == 443) // HTTPS, this is likely case
+		if (port == 443)  // HTTPS, this is likely case
 			return true;
 
 		switch (port)
 		{
-		case 261: // NSIIOPS
-		case 448: // DDM-SSL
-		case 465: // SMTPS
-		case 563: // NNTPS
-		case 614: // SSHELL
-		case 636: // LDAPS
-		case 989: // FTPS - data
-		case 990: // FTPS - control
-		case 992: // Telnet over TLS/SSL
-		case 993: // IMAPS
-		case 994: // IRCS
-		case 995: // POP3S
+		case 261:  // NSIIOPS
+		case 448:  // DDM-SSL
+		case 465:  // SMTPS
+		case 563:  // NNTPS
+		case 614:  // SSHELL
+		case 636:  // LDAPS
+		case 989:  // FTPS - data
+		case 990:  // FTPS - control
+		case 992:  // Telnet over TLS/SSL
+		case 993:  // IMAPS
+		case 994:  // IRCS
+		case 995:  // POP3S
 			return true;
 		default:
 			return false;
 		}
-	} // isSSLPort
+	}  // isSSLPort
 
-} // namespace pcpp
+}  // namespace pcpp

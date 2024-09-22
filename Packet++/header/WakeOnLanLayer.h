@@ -17,10 +17,10 @@ namespace pcpp
 	 */
 	class WakeOnLanLayer : public Layer
 	{
-	  private:
-	  	void init(uint16_t len);
+	private:
+		void init(uint16_t len);
 
-	  public:
+	public:
 		/**
 		 * @struct wol_header
 		 * Wake On LAN protocol header
@@ -42,17 +42,15 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		WakeOnLanLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = WakeOnLan;
-		}
+		WakeOnLanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, WakeOnLan)
+		{}
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
 		 * @param[in] targetAddr Target MAC address
 		 */
-		explicit WakeOnLanLayer(const pcpp::MacAddress &targetAddr);
+		explicit WakeOnLanLayer(const pcpp::MacAddress& targetAddr);
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
@@ -60,28 +58,31 @@ namespace pcpp
 		 * @param[in] password Password as array
 		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
 		 */
-		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, uint8_t *password, uint8_t len);
+		WakeOnLanLayer(const pcpp::MacAddress& targetAddr, uint8_t* password, uint8_t len);
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
 		 * @param[in] targetAddr Target MAC address
 		 * @param[in] password Password as MAC address
 		 */
-		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const pcpp::MacAddress &password);
+		WakeOnLanLayer(const pcpp::MacAddress& targetAddr, const pcpp::MacAddress& password);
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
 		 * @param[in] targetAddr Target MAC address
 		 * @param[in] password Password as IPv4 address
 		 */
-		WakeOnLanLayer(const pcpp::MacAddress &targetAddr, const IPv4Address &password);
+		WakeOnLanLayer(const pcpp::MacAddress& targetAddr, const IPv4Address& password);
 
 		/**
 		 * Get a pointer to the Wake On LAN header. Notice this points directly to the data, so every change will change
 		 * the actual packet data
 		 * @return A pointer to the wol_header
 		 */
-		inline wol_header *getWakeOnLanHeader() const { return (wol_header *)m_Data; }
+		inline wol_header* getWakeOnLanHeader() const
+		{
+			return (wol_header*)m_Data;
+		}
 
 		/**
 		 * Get the target MAC address of the command
@@ -93,7 +94,7 @@ namespace pcpp
 		 * Set the target MAC address
 		 * @param[in] targetAddr MAC address of the target
 		 */
-		void setTargetAddr(const pcpp::MacAddress &targetAddr);
+		void setTargetAddr(const pcpp::MacAddress& targetAddr);
 
 		/**
 		 * Get the password of the command
@@ -107,34 +108,37 @@ namespace pcpp
 		 * @param[in] len Length of the password array, length of the password should be less than 6 bytes
 		 * @return True if operation successful, false otherwise
 		 */
-		bool setPassword(const uint8_t *password, uint8_t len);
+		bool setPassword(const uint8_t* password, uint8_t len);
 
 		/**
 		 * Set the password of the command
 		 * @param[in] password Password as string. Length of the password should be less than 6 bytes
 		 * @return True if operation successful, false otherwise
 		 */
-		bool setPassword(const std::string &password);
+		bool setPassword(const std::string& password);
 
 		/**
 		 * Set the password of the command
 		 * @param[in] addr Password as MAC address
 		 * @return True if operation successful, false otherwise
 		 */
-		bool setPassword(const MacAddress &addr);
+		bool setPassword(const MacAddress& addr);
 
 		/**
 		 * Set the password of the command
 		 * @param addr Password as IPv4 address
 		 * @return True if operation successful, false otherwise
 		 */
-		bool setPassword(const IPv4Address &addr);
+		bool setPassword(const IPv4Address& addr);
 
 		/**
 		 * A static method that checks whether the port is considered as Wake on LAN
 		 * @param[in] port The port number to be checked
 		 */
-		static bool isWakeOnLanPort(uint16_t port) { return (port == 0) || (port == 7) || (port == 9); }
+		static bool isWakeOnLanPort(uint16_t port)
+		{
+			return (port == 0) || (port == 7) || (port == 9);
+		}
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a Wake on LAN message
@@ -142,29 +146,37 @@ namespace pcpp
 		 * @param[in] dataSize The byte array size (in bytes)
 		 * @return True if the data is identified as Wake on LAN message
 		 */
-		static bool isDataValid(const uint8_t *data, size_t dataSize);
+		static bool isDataValid(const uint8_t* data, size_t dataSize);
 
 		// overridden methods
 
 		/// Parses the next layer. Wake on LAN is the always last so does nothing for this layer
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const
+		{
+			return m_DataLen;
+		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		/**
 		 * @return The OSI layer level of Wake on LAN (Data Link Layer)
 		 */
-		OsiModelLayer getOsiModelLayer() const { return OsiModelDataLinkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelDataLinkLayer;
+		}
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
 		std::string toString() const;
 	};
-} // namespace pcpp
+}  // namespace pcpp

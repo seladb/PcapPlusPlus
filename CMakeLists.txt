@@ -1,7 +1,7 @@
 # We need 3.12 or later, so that we can set policy CMP0074; see below.
 cmake_minimum_required(VERSION 3.12)
 
-set(PCAPPP_VERSION "23.09+")
+set(PCAPPP_VERSION "24.09+")
 
 # MAIN_PROJECT CHECK
 set(PCAPPP_MAIN_PROJECT OFF)
@@ -101,6 +101,7 @@ cmake_dependent_option(
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
+option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -257,6 +258,23 @@ if(PCAPPP_TARGET_COMPILER_CLANG
    OR PCAPPP_TARGET_COMPILER_GCC
    OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall)
+endif()
+
+if(PCAPPP_BUILD_REPRODUCIBLE)
+  add_definitions(-DPCAPPP_BUILD_REPRODUCIBLE)
+  if(APPLE)
+    if(NOT $ENV{ZERO_AR_DATE})
+      message(FATAL_ERROR "You need to set `export ZERO_AR_DATE=1`")
+    endif()
+  elseif(MSVC)
+    message(FATAL_ERROR "Unsupported with MSVC compiler")
+    # Try to build a reproducible static library with MSVC doesn't work but this option should make it work for shared
+    # libraries or executables. add_compile_options(/Brepro) add_compile_options(/experimental:deterministic)
+    # add_link_options(/Brepro) add_link_options(/experimental:deterministic) add_link_options(/INCREMENTAL:NO)
+  else()
+    # We should not use __DATE__ nor __TIME__ in case of reproducible build
+    add_compile_options(-Wdate-time)
+  endif()
 endif()
 
 if(PCAPPP_BUILD_FUZZERS)

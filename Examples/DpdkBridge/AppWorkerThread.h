@@ -7,11 +7,10 @@
 #include "DpdkDeviceList.h"
 #include "PcapFileDevice.h"
 
-
 /**
- * The worker thread class which does all the work. It's initialized with pointers to the RX and TX devices, then it runs in
- * an endless loop which reads packets from the RX device and sends them to the TX device.
- * The endless loop is interrupted only when the thread is asked to stop (calling its stop() method)
+ * The worker thread class which does all the work. It's initialized with pointers to the RX and TX devices, then it
+ * runs in an endless loop which reads packets from the RX device and sends them to the TX device. The endless loop is
+ * interrupted only when the thread is asked to stop (calling its stop() method)
  */
 class AppWorkerThread : public pcpp::DpdkWorkerThread
 {
@@ -21,10 +20,9 @@ private:
 	uint32_t m_CoreId;
 
 public:
-	explicit AppWorkerThread(AppWorkerConfig& workerConfig) :
-		m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES+1)
-	{
-	}
+	explicit AppWorkerThread(AppWorkerConfig& workerConfig)
+	    : m_WorkerConfig(workerConfig), m_Stop(true), m_CoreId(MAX_NUM_OF_CORES + 1)
+	{}
 
 	virtual ~AppWorkerThread()
 	{
@@ -46,13 +44,13 @@ public:
 			return true;
 		}
 
-		#define MAX_RECEIVE_BURST 64
+#define MAX_RECEIVE_BURST 64
 		pcpp::MBufRawPacket* packetArr[MAX_RECEIVE_BURST] = {};
 
 		// main loop, runs until be told to stop
 		while (!m_Stop)
 		{
-			for(uint16_t i = 0; i < m_WorkerConfig.RxQueues; i++)
+			for (uint16_t i = 0; i < m_WorkerConfig.RxQueues; i++)
 			{
 				// receive packets from network on the specified DPDK device
 				uint16_t packetsReceived = rxDevice->receivePackets(packetArr, MAX_RECEIVE_BURST, i);
@@ -68,7 +66,7 @@ public:
 		// free packet array (frees all mbufs as well)
 		for (int i = 0; i < MAX_RECEIVE_BURST; i++)
 		{
-			if (packetArr[i] != NULL)
+			if (packetArr[i] != nullptr)
 				delete packetArr[i];
 		}
 
@@ -85,5 +83,4 @@ public:
 	{
 		return m_CoreId;
 	}
-
 };

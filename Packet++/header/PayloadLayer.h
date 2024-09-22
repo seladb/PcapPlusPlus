@@ -18,13 +18,15 @@ namespace pcpp
 	class PayloadLayer : public Layer
 	{
 	public:
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		PayloadLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = GenericPayload; }
+		PayloadLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, GenericPayload)
+		{}
 
 		/**
 		 * A constructor that allocates a new payload
@@ -35,46 +37,60 @@ namespace pcpp
 
 		/**
 		 * A constructor that allocates a new payload from an hex stream
-		 * @param[in] payloadAsHexStream A string that represents an hex stream of the payload. For example: 0001080006040002842b2b774c56c0a80078000000000000c0a8.
-		 * In order for the hex stream to be valid it has to contain valid hex chars only (which means, for example, that it can't begin with "0x") and it also has
-		 * to have an even number of chars (each char represents one nibble). If the string is not a valid hex stream an error will be printed to log and the payload
-		 * layer will be empty (no data)
+		 * @param[in] payloadAsHexStream A string that represents an hex stream of the payload. For example:
+		 * 0001080006040002842b2b774c56c0a80078000000000000c0a8. In order for the hex stream to be valid it has to
+		 * contain valid hex chars only (which means, for example, that it can't begin with "0x") and it also has to
+		 * have an even number of chars (each char represents one nibble). If the string is not a valid hex stream an
+		 * error will be printed to log and the payload layer will be empty (no data)
 		 */
 		explicit PayloadLayer(const std::string& payloadAsHexStream);
 
-		~PayloadLayer() {}
+		~PayloadLayer()
+		{}
 
 		/**
 		 * Get a pointer to the payload data
 		 * @return A pointer to the payload data
 		 */
-		uint8_t* getPayload() const { return m_Data; }
+		uint8_t* getPayload() const
+		{
+			return m_Data;
+		}
 
 		/**
 		 * Get the payload data length
 		 * @return The payload data length in bytes
 		 */
-		size_t getPayloadLen() const { return m_DataLen; }
+		size_t getPayloadLen() const
+		{
+			return m_DataLen;
+		}
 
 		// implement abstract methods
 
 		/**
 		 * Does nothing for this layer (PayloadLayer is always last)
 		 */
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * @return Payload data length in bytes
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const
+		{
+			return m_DataLen;
+		}
 
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		/**
-		 * Sets the payload of the PayloadLayer to the given pointer. This will resize (extend/shorten) the underlying packet respectively if there is one.
+		 * Sets the payload of the PayloadLayer to the given pointer. This will resize (extend/shorten) the underlying
+		 * packet respectively if there is one.
 		 * @param[in] newPayload New payload that shall be set
 		 * @param[in] newPayloadLength New length of payload
 		 */
@@ -82,8 +98,10 @@ namespace pcpp
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
-
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelApplicationLayer;
+		}
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

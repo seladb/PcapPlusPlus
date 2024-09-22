@@ -10,7 +10,7 @@
  */
 namespace pcpp
 {
-#define PCAPPLUSPLUS_VERSION "23.09+"
+#define PCAPPLUSPLUS_VERSION "24.09+"
 #define PCAPPLUSPLUS_VERSION_OFFICIAL "non-official release"
 
 #define PCAPPLUSPLUS_VERSION_FULL "v" PCAPPLUSPLUS_VERSION " (" PCAPPLUSPLUS_VERSION_OFFICIAL ")"
@@ -37,10 +37,17 @@ namespace pcpp
 	/**
 	 * @return The build date and time in a format of "Mmm dd yyyy hh:mm:ss"
 	 */
+#ifdef PCAPPP_BUILD_REPRODUCIBLE
+	inline std::string getBuildDateTime()
+	{
+		return " ";
+	}
+#else
 	inline std::string getBuildDateTime()
 	{
 		return std::string(__DATE__) + " " + std::string(__TIME__);
 	}
+#endif
 
 	/**
 	 * @return The Git commit (revision) the binaries are built from

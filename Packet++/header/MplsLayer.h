@@ -18,48 +18,60 @@ namespace pcpp
 	class MplsLayer : public Layer
 	{
 	private:
-
-		#pragma pack(push, 1)
+#pragma pack(push, 1)
 		struct mpls_header
 		{
 			uint16_t hiLabel;
-			uint8_t  misc;
-			uint8_t  ttl;
+			uint8_t misc;
+			uint8_t ttl;
 		};
-		#pragma pack(pop)
+#pragma pack(pop)
 
-		mpls_header* getMplsHeader() const { return (mpls_header*)m_Data; }
+		mpls_header* getMplsHeader() const
+		{
+			return (mpls_header*)m_Data;
+		}
 
 	public:
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		MplsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = MPLS; }
+		MplsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, MPLS)
+		{}
 
 		/**
 		 * A constructor that allocates a new MPLS header
 		 * @param[in] mplsLabel MPLS label
 		 * @param[in] ttl Time-to-leave value
 		 * @param[in] experimentalUseValue Experimental use value
-		 * @param[in] bottomOfStack Bottom-of-stack value which indicate whether the next layer will also be a MPLS label or not
+		 * @param[in] bottomOfStack Bottom-of-stack value which indicate whether the next layer will also be a MPLS
+		 * label or not
 		 */
 		MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack);
 
-		virtual ~MplsLayer() {}
+		virtual ~MplsLayer()
+		{}
 
 		/**
 		 * @return TTL value of the MPLS header
 		 */
-		uint8_t getTTL() const { return getMplsHeader()->ttl; }
+		uint8_t getTTL() const
+		{
+			return getMplsHeader()->ttl;
+		}
 
 		/**
 		 * Set the TTL value
 		 * @param[in] ttl The TTL value to set
 		 */
-		void setTTL(uint8_t ttl) { getMplsHeader()->ttl = ttl; }
+		void setTTL(uint8_t ttl)
+		{
+			getMplsHeader()->ttl = ttl;
+		}
 
 		/**
 		 * Get an indication whether the next layer is also be a MPLS label or not
@@ -107,17 +119,23 @@ namespace pcpp
 		/**
 		 * @return Size of MPLS header (4 bytes)
 		 */
-		size_t getHeaderLen() const { return sizeof(mpls_header); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(mpls_header);
+		}
 
 		/**
-		 * Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be unset. If it's not a
-		 * MPLS layer this bit will be set
+		 * Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be
+		 * unset. If it's not a MPLS layer this bit will be set
 		 */
 		void computeCalculateFields();
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelNetworkLayer;
+		}
 	};
 
-} // namespace pcpp
+}  // namespace pcpp

@@ -18,16 +18,11 @@ namespace pcpp
 	class SmtpLayer : public SingleCommandTextProtocol
 	{
 	protected:
-		SmtpLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: SingleCommandTextProtocol(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = SMTP;
-		};
+		SmtpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : SingleCommandTextProtocol(data, dataLen, prevLayer, packet, SMTP) {};
 
-		SmtpLayer(const std::string &command, const std::string &option) : SingleCommandTextProtocol(command, option)
-		{
-			m_Protocol = SMTP;
-		};
+		SmtpLayer(const std::string& command, const std::string& option)
+		    : SingleCommandTextProtocol(command, option, SMTP) {};
 
 	public:
 		/**
@@ -35,25 +30,36 @@ namespace pcpp
 		 * @param[in] port The port number to be checked
 		 * @return True if this an SMTP port (25 or 587)
 		 */
-		static bool isSmtpPort(uint16_t port) { return port == 25 || port == 587; }
+		static bool isSmtpPort(uint16_t port)
+		{
+			return port == 25 || port == 587;
+		}
 
 		// overridden methods
 
 		/// SMTP is the always last so does nothing for this layer
-		void parseNextLayer() {}
+		void parseNextLayer()
+		{}
 
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const { return m_DataLen; }
+		size_t getHeaderLen() const
+		{
+			return m_DataLen;
+		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		/**
 		 * @return The OSI layer level of SMTP (Application Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const { return OsiModelApplicationLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelApplicationLayer;
+		}
 	};
 
 	/**
@@ -93,7 +99,7 @@ namespace pcpp
 			VRFY = ('V') | ('R' << 8) | ('F' << 16) | ('Y' << 24),
 			/// Start TLS handshake
 			STARTTLS = (('S') | ('T' << 8) | ('A' << 16) | ('R' << 24) |
-					static_cast<uint64_t>(('T') | ('T' << 8) | ('L' << 16) | ('S' << 24)) << 32),
+			            static_cast<uint64_t>(('T') | ('T' << 8) | ('L' << 16) | ('S' << 24)) << 32),
 			/// Reverse the role of sender and receiver
 			TURN = ('T') | ('U' << 8) | ('R' << 16) | ('N' << 24),
 			/// Send mail to terminal
@@ -126,16 +132,16 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		SmtpRequestLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: SmtpLayer(data, dataLen, prevLayer, packet){};
+		SmtpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : SmtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
 		 * A constructor that creates layer with provided input values
 		 * @param[in] command SMTP command
 		 * @param[in] option Argument of the command
 		 */
-		explicit SmtpRequestLayer(const SmtpCommand &command, const std::string &option = "")
-			: SmtpLayer(getCommandAsString(command), option){};
+		explicit SmtpRequestLayer(const SmtpCommand& command, const std::string& option = "")
+		    : SmtpLayer(getCommandAsString(command), option) {};
 
 		/**
 		 * Set the command of request message
@@ -161,7 +167,7 @@ namespace pcpp
 		 * @param[in] value Value to set command argument
 		 * @return True if the operation is successful, false otherwise
 		 */
-		bool setCommandOption(const std::string &value);
+		bool setCommandOption(const std::string& value);
 
 		/**
 		 * Get the command argument of request message
@@ -279,16 +285,16 @@ namespace pcpp
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		SmtpResponseLayer(uint8_t *data, size_t dataLen, Layer *prevLayer, Packet *packet)
-			: SmtpLayer(data, dataLen, prevLayer, packet){};
+		SmtpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : SmtpLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
 		 * A constructor that creates layer with provided input values
 		 * @param[in] code Status code
 		 * @param[in] option Argument of the status code
 		 */
-		explicit SmtpResponseLayer(const SmtpStatusCode &code, const std::string &option = "")
-			: SmtpLayer(std::to_string(int(code)), option){};
+		explicit SmtpResponseLayer(const SmtpStatusCode& code, const std::string& option = "")
+		    : SmtpLayer(std::to_string(int(code)), option) {};
 
 		/**
 		 * Set the status code of response message
@@ -314,7 +320,7 @@ namespace pcpp
 		 * @param[in] value Value to set argument
 		 * @return True if the operation is successful, false otherwise
 		 */
-		bool setStatusOption(const std::string &value);
+		bool setStatusOption(const std::string& value);
 
 		/**
 		 * Get the argument of response message
@@ -337,6 +343,6 @@ namespace pcpp
 		 */
 		std::string toString() const;
 	};
-} // namespace pcpp
+}  // namespace pcpp
 
 #endif /* PACKETPP_SMTP_LAYER */

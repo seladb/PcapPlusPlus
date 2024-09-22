@@ -51,19 +51,25 @@ namespace pcpp
 	class AuthenticationHeaderLayer : public Layer
 	{
 	public:
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		AuthenticationHeaderLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = AuthenticationHeader; }
+		AuthenticationHeaderLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, AuthenticationHeader)
+		{}
 
 		/**
-		 * Get a pointer to the raw AH header. Notice this points directly to the data, so every change will change the actual packet data
+		 * Get a pointer to the raw AH header. Notice this points directly to the data, so every change will change the
+		 * actual packet data
 		 * @return A pointer to the ipsec_authentication_header
 		 */
-		ipsec_authentication_header* getAHHeader() const { return (ipsec_authentication_header*)m_Data; }
+		ipsec_authentication_header* getAHHeader() const
+		{
+			return (ipsec_authentication_header*)m_Data;
+		}
 
 		/**
 		 * @return The Security Parameters Index (SPI) field value
@@ -103,28 +109,35 @@ namespace pcpp
 		/**
 		 * @return The size of the AH header
 		 */
-		size_t getHeaderLen() const { return 4*(getAHHeader()->payloadLen + 2); }
+		size_t getHeaderLen() const
+		{
+			return 4 * (getAHHeader()->payloadLen + 2);
+		}
 
 		/**
-		 * Currently identifies the following next layers: UdpLayer, TcpLayer, IPv4Layer, IPv6Layer and ESPLayer. Otherwise sets PayloadLayer
+		 * Currently identifies the following next layers: UdpLayer, TcpLayer, IPv4Layer, IPv6Layer and ESPLayer.
+		 * Otherwise sets PayloadLayer
 		 */
 		void parseNextLayer();
 
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelNetworkLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelNetworkLayer;
+		}
 
 	private:
 		// this layer supports parsing only
-		AuthenticationHeaderLayer() {}
+		AuthenticationHeaderLayer()
+		{}
 	};
-
-
 
 	/**
 	 * @class ESPLayer
@@ -133,15 +146,20 @@ namespace pcpp
 	class ESPLayer : public Layer
 	{
 	public:
-		 /** A constructor that creates the layer from an existing packet raw data
+		/** A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		ESPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet) : Layer(data, dataLen, prevLayer, packet) { m_Protocol = ESP; }
+		ESPLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, ESP)
+		{}
 
-		ipsec_esp* getESPHeader() const { return (ipsec_esp*)m_Data; }
+		ipsec_esp* getESPHeader() const
+		{
+			return reinterpret_cast<ipsec_esp*>(m_Data);
+		}
 
 		/**
 		 * @return The Security Parameters Index (SPI) field value
@@ -166,7 +184,10 @@ namespace pcpp
 		/**
 		 * @return The size of the ESP header (8 bytes)
 		 */
-		size_t getHeaderLen() const { return sizeof(ipsec_esp); }
+		size_t getHeaderLen() const
+		{
+			return sizeof(ipsec_esp);
+		}
 
 		/**
 		 * The payload of an ESP layer is encrypted, hence the next layer is always a generic payload (PayloadLayer)
@@ -176,17 +197,21 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {}
+		void computeCalculateFields()
+		{}
 
 		std::string toString() const;
 
-		OsiModelLayer getOsiModelLayer() const { return OsiModelTransportLayer; }
+		OsiModelLayer getOsiModelLayer() const
+		{
+			return OsiModelTransportLayer;
+		}
 
 	private:
 		// this layer supports parsing only
-		ESPLayer() {}
+		ESPLayer()
+		{}
 	};
-
 
 	// implementation of inline methods
 
@@ -206,4 +231,4 @@ namespace pcpp
 	{
 		return data && dataLen >= sizeof(ipsec_esp);
 	}
-}
+}  // namespace pcpp
