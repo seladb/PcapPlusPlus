@@ -15,7 +15,7 @@
 
 [PcapPlusPlus](https://pcapplusplus.github.io/) 是一個跨平台的 C++ 函式庫，用於捕捉、解析和生成網路封包。它設計為高效、強大且易於使用。
 
-PcapPlusPlus 支援對多種網路協議進行解碼和生成，並提供了對最受歡迎的封包處理引擎（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）的 C++ 包裝器。
+PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
 
 ## 目錄
 
@@ -45,7 +45,7 @@ PcapPlusPlus 支援對多種網路協議進行解碼和生成，並提供了對�
 
 ## 下載
 
-您可以從 GitHub 發佈頁面下載、使用套件管理器，或自行建構 PcapPlusPlus。更多詳情請參考 [下載](https://pcapplusplus.github.io/docs/install) 頁面。
+您可以從 GitHub 發佈頁面下載，使用套件管理器來下載，或自行建構 PcapPlusPlus。更多詳情請參考 [下載](https://pcapplusplus.github.io/docs/install) 頁面。
 
 [![GitHub 全部下載](https://img.shields.io/github/downloads/seladb/PcapPlusPlus/total?style=flat&label=Downloads&logo=github)](https://tooomm.github.io/github-release-stats/?username=seladb&repository=PcapPlusPlus)
 
@@ -88,7 +88,7 @@ Conan 套件頁面: <https://conan.io/center/pcapplusplus>
 
 ### 自行建構
 
-克隆 git 儲存函式庫：
+取得 git repo：
 
 ```shell
 git clone https://github.com/seladb/PcapPlusPlus.git
@@ -98,10 +98,10 @@ git clone https://github.com/seladb/PcapPlusPlus.git
 
 ## 功能概述
 
-- __封包捕獲__：提供簡單易用的 C++ 封裝器，支援多種流行的封包捕獲引擎，如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[Intel DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[ntop 的 PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 以及 [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-capture)]
-- __封包解析與構造__：包含對協定與層的詳細分析、封包生成及編輯，支援多種類型的 [網路協定](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
+- __封包捕獲__：提供簡單易用的 C++ 封裝函式來使用常見的封包捕獲引擎，如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[Intel DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html)、[ntop 的 PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 以及 [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-capture)]
+- __封包解析與構造__：包含網路協定解析、網路封包建構與編輯，支援各種類型的 [網路協定](https://pcapplusplus.github.io/docs/features#supported-network-protocols) [[了解更多](https://pcapplusplus.github.io/docs/features#packet-parsing-and-crafting)]
 - __從檔案讀寫封包__：支援 __PCAP__ 和 __PCAPNG__ 格式 [[了解更多](https://pcapplusplus.github.io/docs/features#read-and-write-packets-fromto-files)]
-- __線速封包處理__：提供高效且易用的 C++ 包裝器，支援 [DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[了解更多](https://pcapplusplus.github.io/docs/features#dpdk-support)]
+- __線速封包處理__：提供高效且易用的 C++ 封裝函式來使用 [DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) [[了解更多](https://pcapplusplus.github.io/docs/features#dpdk-support)]
 - __多平台支援__：PcapPlusPlus 完全支援 Linux、MacOS、Windows、Android 和 FreeBSD
 - __封包重組__：包含 __TCP 重組__ 的獨特實現，處理 TCP 重傳、亂序的 TCP 封包及遺失的 TCP 資料，並支援 __IP 分片與重組__，可生成並重組 IPv4 和 IPv6 的分片 [[了解更多](https://pcapplusplus.github.io/docs/features#packet-reassembly)]
 - __封包過濾__：讓 libpcap 的 BPF 過濾器變得更加易用 [[了解更多](https://pcapplusplus.github.io/docs/features#packet-filtering)]
@@ -195,7 +195,7 @@ __FreeBSD__
 
 ## 支援的網路協定
 
-PcapPlusPlus 目前支援解析、編輯和創建以下協定的封包：
+PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 
 ### 資料連接層 (L2)
 
