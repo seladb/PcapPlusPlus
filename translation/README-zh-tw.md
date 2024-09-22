@@ -26,6 +26,7 @@ PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的�
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
   - [自行建構](#自行建構])
+  - [驗證您的套件](#驗證您的套件)
 - [功能概述](#功能概述)
 - [快速入門](#快速入門)
 - [API 文件](#api-文件)
@@ -95,6 +96,20 @@ git clone https://github.com/seladb/PcapPlusPlus.git
 ```
 
 根據您的平台，請遵循 [從原始碼建置](https://pcapplusplus.github.io/docs/install#build-from-source) 頁面中的指示進行建置。
+
+### 驗證您的套件
+
+PcapPlusPlus 發佈的版本自 v23.09 以後都已通過 GitHub 驗證簽署。所有的驗證文件都可以在 [這裡](https://github.com/seladb/PcapPlusPlus/attestations) 找到。您可以使用 GitHub CLI 驗證這些套件的簽署。要驗證套件，您可以參考 [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify) 的最新說明。以下是簡單的操作命令：
+
+```shell
+gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
+```
+
+執行後，您應該會在終端機中看到以下輸出：
+
+```shell
+✓ Verification succeeded!
+```
 
 ## 功能概述
 
