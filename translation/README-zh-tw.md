@@ -19,18 +19,18 @@ PcapPlusPlus 支援對多種網路協議進行解碼和生成，並提供了對�
 
 ## 目錄
 
-- [目錄](#table-of-contents)
+- [目錄](#目錄)
 - [下載](#下載)
   - [GitHub 發佈頁面](#github-發佈頁面)
   - [Homebrew](#Homebrew)
   - [Vcpkg](#vcpkg)
   - [Conan](#conan)
-  - [自行建構](#自行建構)
+  - [自行建構](#自行建構])
 - [功能概述](#功能概述)
 - [快速入門](#快速入門)
 - [API 文件](#api-文件)
 - [跨平台支援](#跨平台支援)
-- [支援的網路協議](#支援的網路協議)
+- [支援的網路協定](#支援的網路協定)
   - [資料連接層 (L2)](#資料鏈路層-l2)
   - [網路層 (L3)](#網路層-l3)
   - [傳輸層 (L4)](#傳輸層-l4)
@@ -38,10 +38,10 @@ PcapPlusPlus 支援對多種網路協議進行解碼和生成，並提供了對�
   - [表現層 (L6)](#表現層-l6)
   - [應用層 (L7)](#應用層-l7)
 - [DPDK 與 PF_RING 支援](#dpdk-和-pf_ring-支援)
-- [效能測試](#效能測試)
-- [提供反饋](#提供反饋)
+- [基準測試](#基準測試)
+- [提供回饋](#提供回饋)
 - [貢獻](#貢獻)
-- [授權](#授權)
+- [授權條款](#授權條款)
 
 ## 下載
 
@@ -86,7 +86,7 @@ conan install "pcapplusplus/[>0]@" -u
 
 Conan 套件頁面: <https://conan.io/center/pcapplusplus>
 
-### 自行建置
+### 自行建構
 
 克隆 git 儲存函式庫：
 
@@ -107,7 +107,7 @@ git clone https://github.com/seladb/PcapPlusPlus.git
 - __封包過濾__：讓 libpcap 的 BPF 過濾器變得更加易用 [[了解更多](https://pcapplusplus.github.io/docs/features#packet-filtering)]
 - __TLS 指紋識別__：C++ 實現的 [JA3 和 JA3S](https://github.com/salesforce/ja3) TLS 指紋識別 [[了解更多](https://pcapplusplus.github.io/docs/features#tls-fingerprinting)]
 
-## 入門指南
+## 快速入門
 
 使用 PcapPlusPlus 編寫應用程式非常簡單且直觀。以下是一個簡單的應用程式，展示了如何從 PCAP 檔案讀取封包並解析它：
 
@@ -168,7 +168,7 @@ PcapPlusPlus 包含三個函式庫：
 
 您可以在 PcapPlusPlus 網站的 [API 文件區](https://pcapplusplus.github.io/docs/api) 找到詳細的 API 文件。如果您發現有任何遺漏的資料，請[聯繫我們](#provide-feedback)。
 
-## 多平台支援
+## 跨平台支援
 
 PcapPlusPlus 目前支援以下平台：
 __Windows__
@@ -197,7 +197,7 @@ __FreeBSD__
 
 PcapPlusPlus 目前支援解析、編輯和創建以下協定的封包：
 
-### 資料鏈路層 (L2)
+### 資料連接層 (L2)
 
 1. Ethernet II
 2. IEEE 802.3 Ethernet
@@ -236,7 +236,7 @@ PcapPlusPlus 目前支援解析、編輯和創建以下協定的封包：
 29. TPKT
 30. UDP
 
-### 會話層 (L5)
+### 對話層 (L5)
 
 31. SDP
 32. SIP
