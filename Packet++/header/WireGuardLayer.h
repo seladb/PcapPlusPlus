@@ -150,6 +150,10 @@ namespace pcpp
 	{
 	public:
 #pragma pack(push, 1)
+		/**
+		 * @struct wg_handshake_initiation
+		 * Represents the Handshake Initiation message structure
+		 */
 		typedef struct wg_handshake_initiation : wg_common_header
 		{
 			/** Sender index */
@@ -166,6 +170,7 @@ namespace pcpp
 			uint8_t mac2[16];
 		} wg_handshake_initiation;
 #pragma pack(pop)
+
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -223,7 +228,7 @@ namespace pcpp
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_handshake_response
-		 * Represents the Handshake Response message
+		 * Represents the Handshake Response message structure
 		 */
 		typedef struct wg_handshake_response : wg_common_header
 		{
@@ -298,7 +303,7 @@ namespace pcpp
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_cookie_reply
-		 * Represents the Cookie Reply message
+		 * Represents the Cookie Reply message structure
 		 */
 		typedef struct wg_cookie_reply : wg_common_header
 		{
@@ -359,7 +364,7 @@ namespace pcpp
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_transport_data
-		 * Represents the Transport Data message
+		 * Represents the Transport Data message structure
 		 */
 		typedef struct wg_transport_data : wg_common_header
 		{
