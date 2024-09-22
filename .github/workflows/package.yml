@@ -41,7 +41,7 @@ jobs:
             config-zstd: OFF
           - image: fedora39
             config-zstd: OFF
-          - image: alpine317
+          - image: alpine320
             config-zstd: OFF
 
     steps:
