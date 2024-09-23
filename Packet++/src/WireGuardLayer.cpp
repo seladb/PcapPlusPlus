@@ -11,22 +11,30 @@
 
 namespace pcpp
 {
-	WireGuardLayer* WireGuardLayer::parseWireGuardLayer()
+	void WireGuardLayer::parseNextLayer()
 	{
-		if (m_DataLen < sizeof(WireGuardLayer::wg_common_header))
+		size_t headerLen = getHeaderLen();
+		if (m_DataLen <= headerLen || headerLen == 0)
+			return;
+		m_NextLayer = WireGuardLayer::parseWireGuardLayer(m_Data, m_DataLen, this, m_Packet);
+	}
+
+	WireGuardLayer* WireGuardLayer::parseWireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	{
+		if (dataLen < sizeof(WireGuardLayer::wg_common_header))
 			return nullptr;
-		wg_common_header* wgHeader = reinterpret_cast<wg_common_header*>(m_Data);
+		wg_common_header* wgHeader = reinterpret_cast<wg_common_header*>(data);
 
 		switch (wgHeader->messageType)
 		{
 		case static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation):
-			return new WireGuardHandshakeInitiationLayer(m_Data, m_DataLen, this, m_Packet);
+			return new WireGuardHandshakeInitiationLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse):
-			return new WireGuardHandshakeResponseLayer(m_Data, m_DataLen, this, m_Packet);
+			return new WireGuardHandshakeResponseLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::CookieReply):
-			return new WireGuardCookieReplyLayer(m_Data, m_DataLen, this, m_Packet);
+			return new WireGuardCookieReplyLayer(data, dataLen, prevLayer, packet);
 		case static_cast<uint8_t>(WireGuardMessageType::TransportData):
-			return new WireGuardTransportDataLayer(m_Data, m_DataLen, this, m_Packet);
+			return new WireGuardTransportDataLayer(data, dataLen, prevLayer, packet);
 		default:
 			return nullptr;
 		}

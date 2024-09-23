@@ -137,7 +137,11 @@ namespace pcpp
 			m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((WireGuardLayer::isWireguardPorts(portDst, portSrc) &&
 		          WireGuardLayer::isDataValid(udpData, udpDataLen)))
-			m_NextLayer = new WireGuardLayer(udpData, udpDataLen, this, m_Packet);
+		{
+			m_NextLayer = WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, m_Packet);
+			if (!m_NextLayer)
+				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+		}
 		else
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 	}

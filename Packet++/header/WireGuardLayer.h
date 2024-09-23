@@ -90,7 +90,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
-		WireGuardLayer* parseWireGuardLayer();
+		static WireGuardLayer* parseWireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		std::string getMessageTypeAsString() const;
 
@@ -105,9 +105,13 @@ namespace pcpp
 		}
 
 		/**
-		 * No operation required for parsing the next layer since WireGuard does not have a next layer.
+		 * Multiple WireGuard messages can be present in a single packet.
+		 * WireGuard does not have a layer that follows its messages, but this method checks for remaining data
+		 * in the packet to determine if another WireGuard message exists. If so, it parses the next message
+		 * as a new WireGuard layer.
 		 */
-		void parseNextLayer() override {};
+		void parseNextLayer() override;
+
 		/**
 		 * Calculates the length of the header based on the message type.
 		 *

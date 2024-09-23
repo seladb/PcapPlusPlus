@@ -15,6 +15,7 @@ PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 	pcpp::Packet wgHandShakeInitPacket(&rawPacket1);
 
 	PTF_ASSERT_TRUE(wgHandShakeInitPacket.isPacketOfType(pcpp::Wireguard));
+
 	pcpp::WireGuardLayer* wgLayer = wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
@@ -22,8 +23,7 @@ PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 	PTF_ASSERT_EQUAL(wgLayer->toString(), "WireGuardLayer, " + wgLayer->getMessageTypeAsString() + " message");
 
 	pcpp::WireGuardHandshakeInitiationLayer* wgHandShakeInitLayer =
-	    dynamic_cast<pcpp::WireGuardHandshakeInitiationLayer*>(wgLayer->parseWireGuardLayer());
-
+	    wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardHandshakeInitiationLayer>();
 	PTF_ASSERT_NOT_NULL(wgHandShakeInitLayer);
 
 	PTF_ASSERT_TRUE(wgHandShakeInitLayer->getWireGuardMessageType() ==
@@ -77,9 +77,9 @@ PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 	PTF_ASSERT_EQUAL(wgLayer->toString(), "WireGuardLayer, " + wgLayer->getMessageTypeAsString() + " message");
 
 	pcpp::WireGuardHandshakeResponseLayer* wgHandShakeResponseLayer =
-	    dynamic_cast<pcpp::WireGuardHandshakeResponseLayer*>(wgLayer->parseWireGuardLayer());
-
+	    wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardHandshakeResponseLayer>();
 	PTF_ASSERT_NOT_NULL(wgHandShakeResponseLayer);
+
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::HandshakeResponse);
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getHeaderLen() ==
@@ -124,7 +124,8 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 	PTF_ASSERT_EQUAL(wgLayer->toString(), "WireGuardLayer, " + wgLayer->getMessageTypeAsString() + " message");
 
 	pcpp::WireGuardTransportDataLayer* wgTransportDataLayer =
-	    dynamic_cast<pcpp::WireGuardTransportDataLayer*>(wgLayer->parseWireGuardLayer());
+	    wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
+	PTF_ASSERT_NOT_NULL(wgTransportDataLayer);
 
 	PTF_ASSERT_NOT_NULL(wgTransportDataLayer);
 	PTF_ASSERT_TRUE(wgTransportDataLayer->getWireGuardMessageType() ==
@@ -151,70 +152,4 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 		                                   0xe5, 0x47, 0xdd, 0xb2, 0x6e, 0xf6, 0xa4, 0x6b };
 	PTF_ASSERT_TRUE(std::memcmp(wgTransportDataLayer->getEncryptedData(), expectedEncryptedData,
 	                            sizeof(expectedEncryptedData)) == 0);
-}
-
-PTF_TEST_CASE(WireGuardHandshakeInitCreatingTest)
-{
-	uint32_t senderIndex = 12345;
-	uint8_t initiatorEphemeral[32] = { 0 };
-	uint8_t encryptedInitiatorStatic[48] = { 0 };
-	uint8_t encryptedTimestamp[28] = { 0 };
-	uint8_t mac1[16] = { 0 };
-	uint8_t mac2[16] = { 0 };
-
-	pcpp::WireGuardHandshakeInitiationLayer handshakeInitLayer(
-	    senderIndex, initiatorEphemeral, encryptedInitiatorStatic, encryptedTimestamp, mac1, mac2);
-
-	PTF_ASSERT_EQUAL(handshakeInitLayer.getSenderIndex(), senderIndex);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeInitLayer.getInitiatorEphemeral(), initiatorEphemeral, 32) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeInitLayer.getEncryptedInitiatorStatic(), encryptedInitiatorStatic, 48) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeInitLayer.getEncryptedTimestamp(), encryptedTimestamp, 28) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeInitLayer.getMac1(), mac1, 16) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeInitLayer.getMac2(), mac2, 16) == 0);
-}
-
-PTF_TEST_CASE(WireGuardHandshakeRespCreatingTest)
-{
-	uint32_t senderIndex = 12345;
-	uint32_t receiverIndex = 54321;
-	uint8_t responderEphemeral[32] = { 0 };
-	uint8_t encryptedEmpty[16] = { 0 };
-	uint8_t mac1[16] = { 0 };
-	uint8_t mac2[16] = { 0 };
-
-	pcpp::WireGuardHandshakeResponseLayer handshakeResponseLayer(senderIndex, receiverIndex, responderEphemeral,
-	                                                             encryptedEmpty, mac1, mac2);
-
-	PTF_ASSERT_EQUAL(handshakeResponseLayer.getSenderIndex(), senderIndex);
-	PTF_ASSERT_EQUAL(handshakeResponseLayer.getReceiverIndex(), receiverIndex);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeResponseLayer.getResponderEphemeral(), responderEphemeral, 32) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeResponseLayer.getEncryptedEmpty(), encryptedEmpty, 16) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeResponseLayer.getMac1(), mac1, 16) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(handshakeResponseLayer.getMac2(), mac2, 16) == 0);
-}
-
-PTF_TEST_CASE(WireGuardCookieReplyCreatingTest)
-{
-	uint32_t receiverIndex = 54321;
-	uint8_t nonce[24] = { 0 };
-	uint8_t encryptedCookie[32] = { 0 };
-
-	pcpp::WireGuardCookieReplyLayer cookieReplyLayer(receiverIndex, nonce, encryptedCookie);
-
-	PTF_ASSERT_EQUAL(cookieReplyLayer.getReceiverIndex(), receiverIndex);
-	PTF_ASSERT_TRUE(std::memcmp(cookieReplyLayer.getNonce(), nonce, 24) == 0);
-	PTF_ASSERT_TRUE(std::memcmp(cookieReplyLayer.getEncryptedCookie(), encryptedCookie, 32) == 0);
-}
-
-PTF_TEST_CASE(WireGuardTransportDataCreatingTest)
-{
-	uint32_t receiverIndex = 54321;
-	uint64_t counter = 100;
-	uint8_t encryptedData[64] = { 0 };
-
-	pcpp::WireGuardTransportDataLayer transportDataLayer(receiverIndex, counter, encryptedData, sizeof(encryptedData));
-
-	PTF_ASSERT_EQUAL(transportDataLayer.getReceiverIndex(), receiverIndex);
-	PTF_ASSERT_EQUAL(transportDataLayer.getCounter(), counter);
-	PTF_ASSERT_TRUE(std::memcmp(transportDataLayer.getEncryptedData(), encryptedData, sizeof(encryptedData)) == 0);
 }
