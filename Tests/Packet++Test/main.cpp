@@ -337,6 +337,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardHandshakeInitParsingTest, "wg");
 	PTF_RUN_TEST(WireGuardHandshakeRespParsingTest, "wg");
 	PTF_RUN_TEST(WireGuardTransportDataParsingTest, "wg");
+	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 
 	PTF_END_RUNNING_TESTS;
 }

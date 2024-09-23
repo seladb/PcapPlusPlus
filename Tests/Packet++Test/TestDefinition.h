@@ -268,3 +268,4 @@ PTF_TEST_CASE(LdapCreationTest);
 PTF_TEST_CASE(WireGuardHandshakeInitParsingTest);
 PTF_TEST_CASE(WireGuardHandshakeRespParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
+PTF_TEST_CASE(WireGuardCreationTest);
