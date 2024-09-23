@@ -1,10 +1,8 @@
 #pragma once
 
-#if defined(_WIN32)
-
 /// @file
 
-#	include "PcapLiveDevice.h"
+#include "PcapLiveDevice.h"
 
 /**
  * \namespace pcpp
@@ -76,5 +74,3 @@ namespace pcpp
 	};
 
 }  // namespace pcpp
-
-#endif  // _WIN32
