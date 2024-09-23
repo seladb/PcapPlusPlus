@@ -67,7 +67,7 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
-				return 0u;  // Cpp23 - uz literal
+				return 0;
 
 			return static_cast<size_t>(m_Data->recordLen) * 8;
 		}
@@ -76,7 +76,7 @@ namespace pcpp
 		{
 			if (m_Data == nullptr)
 			{
-				return 0u;  // Cpp23 - uz literal
+				return 0;
 			}
 
 			// length value is stored in units of 8 octets
