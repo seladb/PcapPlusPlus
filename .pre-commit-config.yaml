@@ -11,16 +11,6 @@ repos:
         name: Check ruff-format version
         entry: python3 ./ci/check-ruff-version.py
         language: system
-      - id: ruff
-        name: ruff
-        entry: ruff check
-        types_or: [python]
-        language: system
-      - id: ruff-format
-        name: ruff-format
-        entry: ruff format --check
-        types_or: [python]
-        language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -35,6 +25,14 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
       - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.5
+    hooks:
+      - id: ruff # Run the linter.
+        types_or: [ python ]
+      - id: ruff-format  # Run the formatter.
+        types_or: [ python ]
+        args: [ --check ]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
