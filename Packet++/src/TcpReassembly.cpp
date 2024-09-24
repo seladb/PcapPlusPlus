@@ -239,7 +239,7 @@ namespace pcpp
 			}
 
 			PCPP_LOG_DEBUG("Got a packet after FIN or RST were already seen on this side ("
-					               << static_cast<int>(sideIndex) << "). Ignoring this packet");
+			               << static_cast<int>(sideIndex) << "). Ignoring this packet");
 
 			return Ignore_PacketOfClosedFlow;
 		}
