@@ -29,8 +29,7 @@ namespace pcpp
 		 */
 		virtual uint8_t* getDataPtr(size_t offset = 0) const = 0;
 
-		virtual ~IDataContainer()
-		{}
+		virtual ~IDataContainer() = default;
 	};
 
 	class Packet;
@@ -75,7 +74,7 @@ namespace pcpp
 		 * A destructor for this class. Frees the data if it was allocated by the layer constructor (see
 		 * isAllocatedToPacket() for more info)
 		 */
-		virtual ~Layer();
+		~Layer() override;
 
 		/**
 		 * @return A pointer to the next layer in the protocol stack or nullptr if the layer is the last one
@@ -164,9 +163,9 @@ namespace pcpp
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) const
+		uint8_t* getDataPtr(size_t offset = 0) const override
 		{
-			return (uint8_t*)(m_Data + offset);
+			return static_cast<uint8_t*>(m_Data + offset);
 		}
 
 		// abstract methods
