@@ -19,22 +19,7 @@ namespace pcpp
 	 */
 	class WireGuardLayer : public Layer
 	{
-	public:
-		/**
-		 * WireGuard message types
-		 */
-		enum class WireGuardMessageType
-		{
-			/** Handshake Initiation message */
-			HandshakeInitiation = 1,
-			/** Handshake Response message */
-			HandshakeResponse = 2,
-			/** Cookie Reply message */
-			CookieReply = 3,
-			/** Transport Data message */
-			TransportData = 4
-		};
-
+	protected:
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_common_header
@@ -48,9 +33,33 @@ namespace pcpp
 			uint8_t reserved[3];
 		};
 #pragma pack(pop)
+		/**
+		 * Get the basic header common to all WireGuard messages.
+		 *
+		 * @return Pointer to the common header structure.
+		 */
+		wg_common_header* getBasicHeader() const
+		{
+			return reinterpret_cast<wg_common_header*>(m_Data);
+		}
 
-		WireGuardLayer()
-		{}
+	public:
+		/**
+		 * WireGuard message types
+		 */
+		enum class WireGuardMessageType
+		{
+			/** Unknown Initiation message */
+			Unknown = 0,
+			/** Handshake Initiation message */
+			HandshakeInitiation = 1,
+			/** Handshake Response message */
+			HandshakeResponse = 2,
+			/** Cookie Reply message */
+			CookieReply = 3,
+			/** Transport Data message */
+			TransportData = 4
+		};
 
 		/**
 		 * Constructs a WireGuardLayer object.
@@ -61,13 +70,11 @@ namespace pcpp
 		 * @param packet Pointer to the packet this layer belongs to
 		 */
 		WireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet, Wireguard)
+		    : Layer(data, dataLen, prevLayer, packet, WireGuard)
 		{}
 
-		wg_common_header* getBasicHeader() const
-		{
-			return (wg_common_header*)m_Data;
-		}
+		WireGuardLayer()
+		{}
 
 		/**
 		 * Checks if the given port numbers are WireGuard ports.
@@ -76,7 +83,7 @@ namespace pcpp
 		 * @param portDst The destination port number to check
 		 * @return True if either port matches the WireGuard port (51820), false otherwise
 		 */
-		static bool isWireguardPorts(uint16_t portSrc, uint16_t portDst)
+		static bool isWireGuardPorts(uint16_t portSrc, uint16_t portDst)
 		{
 			return (portSrc == 51820 || portDst == 51820);
 		}
@@ -90,18 +97,44 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen);
 
+		/**
+		 * Parses the raw data into a WireGuard layer.
+		 *
+		 * @param data Pointer to the raw data
+		 * @param dataLen Length of the data
+		 * @param prevLayer Pointer to the previous layer
+		 * @param packet Pointer to the packet
+		 * @return A pointer to the parsed WireGuardLayer, or nullptr if parsing fails
+		 */
 		static WireGuardLayer* parseWireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
+		/**
+		 * Get the message type as a human-readable string.
+		 *
+		 * @return String representation of the message type.
+		 */
 		std::string getMessageTypeAsString() const;
 
-		uint32_t getMessageType()
+		/**
+		 * Get the message type of the WireGuard message.
+		 *
+		 * @return The message type as an unsigned 32-bit integer.
+		 */
+		uint32_t getMessageType() const
 		{
 			return getBasicHeader()->messageType;
 		}
 
-		uint8_t* getReserved()
+		/**
+		 * Get the reserved field from the WireGuard message.
+		 *
+		 * @return The reserved field as a 32-bit integer.
+		 */
+		uint32_t getReserved() const
 		{
-			return getBasicHeader()->reserved;
+			uint32_t reservedValue = 0;
+			std::memcpy(&reservedValue, getBasicHeader()->reserved, 3);
+			return reservedValue;
 		}
 
 		/**
@@ -115,7 +148,7 @@ namespace pcpp
 		/**
 		 * Calculates the length of the header based on the message type.
 		 *
-		 * @return Size of the header in bytes. For TransportData, returns the total data length.
+		 * @return Size of the header in bytes.
 		 */
 		size_t getHeaderLen() const override;
 
@@ -123,10 +156,7 @@ namespace pcpp
 		 * No fields to compute or update, so this method is left empty.
 		 */
 		void computeCalculateFields() override
-		{
-			// Since WireGuard headers have fixed lengths and no fields to compute (like checksums or lengths),
-			// this method does not need to perform any operations. It's left empty.
-		}
+		{}
 
 		/**
 		 * Converts the WireGuard layer to a string representation.
@@ -144,6 +174,16 @@ namespace pcpp
 		{
 			return OsiModelNetworkLayer;
 		}
+
+		/**
+		 * Get the WireGuard message type in the form of a WireGuardMessageType enum.
+		 *
+		 * @return The message type as a WireGuardMessageType enum value.
+		 */
+		virtual WireGuardMessageType getWireGuardMessageType() const
+		{
+			return WireGuardMessageType::Unknown;
+		}
 	};
 
 	/**
@@ -152,7 +192,7 @@ namespace pcpp
 	 */
 	class WireGuardHandshakeInitiationLayer : public WireGuardLayer
 	{
-	public:
+	private:
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_handshake_initiation
@@ -174,7 +214,7 @@ namespace pcpp
 			uint8_t mac2[16];
 		} wg_handshake_initiation;
 #pragma pack(pop)
-
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -201,13 +241,13 @@ namespace pcpp
 		                                  const uint8_t mac2[16]);
 
 		uint32_t getMessageType() const;
-		const uint8_t* getReserved() const;
+		uint32_t getReserved() const;
 		uint32_t getSenderIndex() const;
-		const uint8_t* getInitiatorEphemeral() const;
-		const uint8_t* getEncryptedInitiatorStatic() const;
-		const uint8_t* getEncryptedTimestamp() const;
-		const uint8_t* getMac1() const;
-		const uint8_t* getMac2() const;
+		std::array<uint8_t, 32> getInitiatorEphemeral() const;
+		std::array<uint8_t, 48> getEncryptedInitiatorStatic() const;
+		std::array<uint8_t, 28> getEncryptedTimestamp() const;
+		std::array<uint8_t, 16> getMac1() const;
+		std::array<uint8_t, 16> getMac2() const;
 
 		wg_handshake_initiation* getHandshakeInitiationHeader() const
 		{
@@ -216,7 +256,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		WireGuardMessageType getWireGuardMessageType() const
+		WireGuardMessageType getWireGuardMessageType() const override
 		{
 			return WireGuardMessageType::HandshakeInitiation;
 		}
@@ -228,7 +268,7 @@ namespace pcpp
 	 */
 	class WireGuardHandshakeResponseLayer : public WireGuardLayer
 	{
-	public:
+	private:
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_handshake_response
@@ -250,7 +290,7 @@ namespace pcpp
 			uint8_t mac2[16];
 		} wg_handshake_response;
 #pragma pack(pop)
-
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -276,13 +316,13 @@ namespace pcpp
 		                                const uint8_t mac1[16], const uint8_t mac2[16]);
 
 		uint32_t getMessageType() const;
-		const uint8_t* getReserved() const;
+		uint32_t getReserved() const;
 		uint32_t getSenderIndex() const;
 		uint32_t getReceiverIndex() const;
-		const uint8_t* getResponderEphemeral() const;
-		const uint8_t* getEncryptedEmpty() const;
-		const uint8_t* getMac1() const;
-		const uint8_t* getMac2() const;
+		std::array<uint8_t, 32> getResponderEphemeral() const;
+		std::array<uint8_t, 16> getEncryptedEmpty() const;
+		std::array<uint8_t, 16> getMac1() const;
+		std::array<uint8_t, 16> getMac2() const;
 
 		wg_handshake_response* getHandshakeResponseHeader() const
 		{
@@ -291,7 +331,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		WireGuardMessageType getWireGuardMessageType() const
+		WireGuardMessageType getWireGuardMessageType() const override
 		{
 			return WireGuardMessageType::HandshakeResponse;
 		}
@@ -303,7 +343,7 @@ namespace pcpp
 	 */
 	class WireGuardCookieReplyLayer : public WireGuardLayer
 	{
-	public:
+	private:
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_cookie_reply
@@ -319,7 +359,7 @@ namespace pcpp
 			uint8_t encryptedCookie[32];
 		} wg_cookie_reply;
 #pragma pack(pop)
-
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -340,10 +380,10 @@ namespace pcpp
 		WireGuardCookieReplyLayer(uint32_t receiverIndex, const uint8_t nonce[24], const uint8_t encryptedCookie[32]);
 
 		uint32_t getMessageType() const;
-		const uint8_t* getReserved() const;
+		uint32_t getReserved() const;
 		uint32_t getReceiverIndex() const;
-		const uint8_t* getNonce() const;
-		const uint8_t* getEncryptedCookie() const;
+		std::array<uint8_t, 24> getNonce() const;
+		std::array<uint8_t, 32> getEncryptedCookie() const;
 
 		wg_cookie_reply* getCookieReplyHeader() const
 		{
@@ -352,7 +392,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		WireGuardMessageType getWireGuardMessageType() const
+		WireGuardMessageType getWireGuardMessageType() const override
 		{
 			return WireGuardMessageType::CookieReply;
 		}
@@ -364,7 +404,7 @@ namespace pcpp
 	 */
 	class WireGuardTransportDataLayer : public WireGuardLayer
 	{
-	public:
+	private:
 #pragma pack(push, 1)
 		/**
 		 * @struct wg_transport_data
@@ -380,7 +420,7 @@ namespace pcpp
 			uint8_t encryptedData[0];
 		} wg_transport_data;
 #pragma pack(pop)
-
+	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
@@ -403,7 +443,7 @@ namespace pcpp
 		                            size_t encryptedDataLen);
 
 		uint32_t getMessageType() const;
-		const uint8_t* getReserved() const;
+		uint32_t getReserved() const;
 		uint32_t getReceiverIndex() const;
 		uint64_t getCounter() const;
 		const uint8_t* getEncryptedData() const;
@@ -415,7 +455,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		WireGuardMessageType getWireGuardMessageType() const
+		WireGuardMessageType getWireGuardMessageType() const override
 		{
 			return WireGuardMessageType::TransportData;
 		}
