@@ -105,11 +105,11 @@ namespace pcpp
 		std::memset(msgHdr->reserved, 0, sizeof(msgHdr->reserved));
 
 		msgHdr->senderIndex = htobe32(senderIndex);
-		std::memcpy(msgHdr->initiatorEphemeral, initiatorEphemeral, 32);
-		std::memcpy(msgHdr->encryptedInitiatorStatic, encryptedInitiatorStatic, 48);
-		std::memcpy(msgHdr->encryptedTimestamp, encryptedTimestamp, 28);
-		std::memcpy(msgHdr->mac1, mac1, 16);
-		std::memcpy(msgHdr->mac2, mac2, 16);
+		memcpy(msgHdr->initiatorEphemeral, initiatorEphemeral, 32);
+		memcpy(msgHdr->encryptedInitiatorStatic, encryptedInitiatorStatic, 48);
+		memcpy(msgHdr->encryptedTimestamp, encryptedTimestamp, 28);
+		memcpy(msgHdr->mac1, mac1, 16);
+		memcpy(msgHdr->mac2, mac2, 16);
 
 		m_Protocol = WireGuard;
 	}
@@ -122,7 +122,7 @@ namespace pcpp
 	uint32_t WireGuardHandshakeInitiationLayer::getReserved() const
 	{
 		uint32_t reservedValue = 0;
-		std::memcpy(&reservedValue, getHandshakeInitiationHeader()->reserved, 3);
+		memcpy(&reservedValue, getHandshakeInitiationHeader()->reserved, 3);
 		return be32toh(reservedValue);
 	}
 
@@ -134,35 +134,35 @@ namespace pcpp
 	std::array<uint8_t, 32> WireGuardHandshakeInitiationLayer::getInitiatorEphemeral() const
 	{
 		std::array<uint8_t, 32> ephemeralArray;
-		std::memcpy(ephemeralArray.data(), getHandshakeInitiationHeader()->initiatorEphemeral, 32);
+		memcpy(ephemeralArray.data(), getHandshakeInitiationHeader()->initiatorEphemeral, 32);
 		return ephemeralArray;
 	}
 
 	std::array<uint8_t, 48> WireGuardHandshakeInitiationLayer::getEncryptedInitiatorStatic() const
 	{
 		std::array<uint8_t, 48> initArray;
-		std::memcpy(initArray.data(), getHandshakeInitiationHeader()->encryptedInitiatorStatic, 48);
+		memcpy(initArray.data(), getHandshakeInitiationHeader()->encryptedInitiatorStatic, 48);
 		return initArray;
 	}
 
 	std::array<uint8_t, 28> WireGuardHandshakeInitiationLayer::getEncryptedTimestamp() const
 	{
 		std::array<uint8_t, 28> tsArray;
-		std::memcpy(tsArray.data(), getHandshakeInitiationHeader()->encryptedTimestamp, 28);
+		memcpy(tsArray.data(), getHandshakeInitiationHeader()->encryptedTimestamp, 28);
 		return tsArray;
 	}
 
 	std::array<uint8_t, 16> WireGuardHandshakeInitiationLayer::getMac1() const
 	{
 		std::array<uint8_t, 16> mac1Array;
-		std::memcpy(mac1Array.data(), getHandshakeInitiationHeader()->mac1, 16);
+		memcpy(mac1Array.data(), getHandshakeInitiationHeader()->mac1, 16);
 		return mac1Array;
 	}
 
 	std::array<uint8_t, 16> WireGuardHandshakeInitiationLayer::getMac2() const
 	{
 		std::array<uint8_t, 16> mac2Array;
-		std::memcpy(mac2Array.data(), getHandshakeInitiationHeader()->mac2, 16);
+		memcpy(mac2Array.data(), getHandshakeInitiationHeader()->mac2, 16);
 		return mac2Array;
 	}
 
@@ -188,10 +188,10 @@ namespace pcpp
 
 		msg->senderIndex = htobe32(senderIndex);
 		msg->receiverIndex = htobe32(receiverIndex);
-		std::memcpy(msg->responderEphemeral, responderEphemeral, 32);
-		std::memcpy(msg->encryptedEmpty, encryptedEmpty, 16);
-		std::memcpy(msg->mac1, mac1, 16);
-		std::memcpy(msg->mac2, mac2, 16);
+		memcpy(msg->responderEphemeral, responderEphemeral, 32);
+		memcpy(msg->encryptedEmpty, encryptedEmpty, 16);
+		memcpy(msg->mac1, mac1, 16);
+		memcpy(msg->mac2, mac2, 16);
 
 		m_Protocol = WireGuard;
 	}
@@ -204,7 +204,7 @@ namespace pcpp
 	uint32_t WireGuardHandshakeResponseLayer::getReserved() const
 	{
 		uint32_t reservedValue = 0;
-		std::memcpy(&reservedValue, getHandshakeResponseHeader()->reserved, 3);
+		memcpy(&reservedValue, getHandshakeResponseHeader()->reserved, 3);
 		return be32toh(reservedValue);
 	}
 
@@ -221,28 +221,28 @@ namespace pcpp
 	std::array<uint8_t, 32> WireGuardHandshakeResponseLayer::getResponderEphemeral() const
 	{
 		std::array<uint8_t, 32> responderEphemeralArray;
-		std::memcpy(responderEphemeralArray.data(), getHandshakeResponseHeader()->responderEphemeral, 32);
+		memcpy(responderEphemeralArray.data(), getHandshakeResponseHeader()->responderEphemeral, 32);
 		return responderEphemeralArray;
 	}
 
 	std::array<uint8_t, 16> WireGuardHandshakeResponseLayer::getEncryptedEmpty() const
 	{
 		std::array<uint8_t, 16> encryptedEmptyArray;
-		std::memcpy(encryptedEmptyArray.data(), getHandshakeResponseHeader()->encryptedEmpty, 16);
+		memcpy(encryptedEmptyArray.data(), getHandshakeResponseHeader()->encryptedEmpty, 16);
 		return encryptedEmptyArray;
 	}
 
 	std::array<uint8_t, 16> WireGuardHandshakeResponseLayer::getMac1() const
 	{
 		std::array<uint8_t, 16> mac1Array;
-		std::memcpy(mac1Array.data(), getHandshakeResponseHeader()->mac1, 16);
+		memcpy(mac1Array.data(), getHandshakeResponseHeader()->mac1, 16);
 		return mac1Array;
 	}
 
 	std::array<uint8_t, 16> WireGuardHandshakeResponseLayer::getMac2() const
 	{
 		std::array<uint8_t, 16> mac2Array;
-		std::memcpy(mac2Array.data(), getHandshakeResponseHeader()->mac2, 16);
+		memcpy(mac2Array.data(), getHandshakeResponseHeader()->mac2, 16);
 		return mac2Array;
 	}
 
@@ -265,8 +265,8 @@ namespace pcpp
 		std::memset(msg->reserved, 0, sizeof(msg->reserved));
 
 		msg->receiverIndex = htobe32(receiverIndex);
-		std::memcpy(msg->nonce, nonce, 24);
-		std::memcpy(msg->encryptedCookie, encryptedCookie, 32);
+		memcpy(msg->nonce, nonce, 24);
+		memcpy(msg->encryptedCookie, encryptedCookie, 32);
 
 		m_Protocol = WireGuard;
 	}
@@ -279,7 +279,7 @@ namespace pcpp
 	uint32_t WireGuardCookieReplyLayer::getReserved() const
 	{
 		uint32_t reservedValue = 0;
-		std::memcpy(&reservedValue, getCookieReplyHeader()->reserved, 3);
+		memcpy(&reservedValue, getCookieReplyHeader()->reserved, 3);
 		return be32toh(reservedValue);
 	}
 
@@ -291,14 +291,14 @@ namespace pcpp
 	std::array<uint8_t, 24> WireGuardCookieReplyLayer::getNonce() const
 	{
 		std::array<uint8_t, 24> nonceArray;
-		std::memcpy(nonceArray.data(), getCookieReplyHeader()->nonce, 24);
+		memcpy(nonceArray.data(), getCookieReplyHeader()->nonce, 24);
 		return nonceArray;
 	}
 
 	std::array<uint8_t, 32> WireGuardCookieReplyLayer::getEncryptedCookie() const
 	{
 		std::array<uint8_t, 32> encryptedCookieArray;
-		std::memcpy(encryptedCookieArray.data(), getCookieReplyHeader()->encryptedCookie, 32);
+		memcpy(encryptedCookieArray.data(), getCookieReplyHeader()->encryptedCookie, 32);
 		return encryptedCookieArray;
 	}
 
@@ -323,7 +323,7 @@ namespace pcpp
 		msg->receiverIndex = htobe32(receiverIndex);
 		msg->counter = htobe64(counter);
 
-		std::memcpy(m_Data + sizeof(wg_transport_data), encryptedData, encryptedDataLen);
+		memcpy(m_Data + sizeof(wg_transport_data), encryptedData, encryptedDataLen);
 
 		m_Protocol = WireGuard;
 	}
@@ -336,7 +336,7 @@ namespace pcpp
 	uint32_t WireGuardTransportDataLayer::getReserved() const
 	{
 		uint32_t reservedValue = 0;
-		std::memcpy(&reservedValue, getTransportHeader()->reserved, 3);
+		memcpy(&reservedValue, getTransportHeader()->reserved, 3);
 		return be32toh(reservedValue);
 	}
 

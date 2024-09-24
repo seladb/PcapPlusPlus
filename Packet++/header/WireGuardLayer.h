@@ -133,7 +133,7 @@ namespace pcpp
 		uint32_t getReserved() const
 		{
 			uint32_t reservedValue = 0;
-			std::memcpy(&reservedValue, getBasicHeader()->reserved, 3);
+			memcpy(&reservedValue, getBasicHeader()->reserved, 3);
 			return reservedValue;
 		}
 
