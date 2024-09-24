@@ -101,8 +101,7 @@ namespace pcpp
 		 */
 		EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType = 0);
 
-		~EthLayer()
-		{}
+		~EthLayer() override = default;
 
 		/**
 		 * Get a pointer to the Ethernet header. Notice this points directly to the data, so every change will change
@@ -111,7 +110,7 @@ namespace pcpp
 		 */
 		inline ether_header* getEthHeader() const
 		{
-			return (ether_header*)m_Data;
+			return reinterpret_cast<ether_header*>(m_Data);
 		}
 
 		/**
@@ -156,12 +155,12 @@ namespace pcpp
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer,
 		 * PPPoEDiscoveryLayer, MplsLayer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of ether_header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(ether_header);
 		}
@@ -169,11 +168,11 @@ namespace pcpp
 		/**
 		 * Calculate ether_header#etherType for known protocols: IPv4, IPv6, ARP, VLAN
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

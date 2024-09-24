@@ -576,7 +576,7 @@ namespace pcpp
 		 * calculation is: [ 4 * (ipv6_authentication_header#headerLen + 2) ]
 		 * @return The length of this extension
 		 */
-		size_t getExtensionLen() const
+		size_t getExtensionLen() const override
 		{
 			return 4 * (getBaseHeader()->headerLen + 2);
 		}
