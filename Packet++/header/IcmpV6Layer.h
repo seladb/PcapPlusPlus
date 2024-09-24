@@ -140,10 +140,8 @@ namespace pcpp
 		 * @param packet A pointer to the Packet instance where layer will be stored in
 		 */
 		IcmpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = ICMPv6;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, ICMPv6)
+		{}
 
 		/**
 		 * A constructor that allocates a new ICMPv6 layer with type, code and data
@@ -154,8 +152,7 @@ namespace pcpp
 		 */
 		IcmpV6Layer(ICMPv6MessageType msgType, uint8_t code, const uint8_t* data, size_t dataLen);
 
-		virtual ~IcmpV6Layer()
-		{}
+		~IcmpV6Layer() override = default;
 
 		/**
 		 * A static method that creates an ICMPv6 layer from packet raw data
@@ -194,13 +191,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer. ICMPv6 is the last layer.
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return The size of the ICMPv6 message
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
@@ -208,14 +205,14 @@ namespace pcpp
 		/**
 		 * Calculate ICMPv6 checksum field
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	protected:
 		IcmpV6Layer() = default;
@@ -224,7 +221,7 @@ namespace pcpp
 		void calculateChecksum();
 		icmpv6hdr* getIcmpv6Header() const
 		{
-			return (icmpv6hdr*)m_Data;
+			return reinterpret_cast<icmpv6hdr*>(m_Data);
 		}
 	};
 
@@ -267,8 +264,7 @@ namespace pcpp
 		 */
 		ICMPv6EchoLayer(ICMPv6EchoType echoType, uint16_t id, uint16_t sequence, const uint8_t* data, size_t dataLen);
 
-		virtual ~ICMPv6EchoLayer()
-		{}
+		~ICMPv6EchoLayer() override = default;
 
 		/**
 		 * @return Identifier in host representation
@@ -296,12 +292,12 @@ namespace pcpp
 			return m_Data + sizeof(icmpv6_echo_hdr);
 		}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		icmpv6_echo_hdr* getEchoHeader() const
 		{
-			return (icmpv6_echo_hdr*)m_Data;
+			return reinterpret_cast<icmpv6_echo_hdr*>(m_Data);
 		}
 	};
 

@@ -520,8 +520,6 @@ namespace pcpp
 			PCPP_LOG_DEBUG(
 			    "Starting first iteration of checkOutOfOrderFragments - looking for fragments that match the current sequence or have smaller sequence");
 
-			foundSomething = false;
-
 			do
 			{
 				auto tcpFragIter = curSideData.tcpFragmentList.begin();

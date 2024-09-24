@@ -10,21 +10,27 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      - id: trailing-whitespace
       - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-shebang-scripts-are-executable
+      - id: check-merge-conflict
+      - id: check-symlinks
       - id: end-of-file-fixer
+      - id: forbid-submodules
       - id: mixed-line-ending
         args: ['--fix=lf']
+      - id: trailing-whitespace
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.8.0
     hooks:
       - id: black
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
       - id: clang-format
-        args: ["--style=file"]  # Use the .clang-format file for configuration
-        files: ^(Common\+\+|Tests|Examples|Packet\+\+)/.*\.(cpp|h)$
+        args: ["--style=file", "-i"]  # Use the .clang-format file for configuration and apply all fixes
+        files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
   - repo: https://github.com/codespell-project/codespell
@@ -33,8 +39,12 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.23.6
+    rev: typos-dict-v0.11.27
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
         pass_filenames: false
+  - repo: https://github.com/lovesegfault/beautysh
+    rev: v6.2.1
+    hooks:
+      - id: beautysh

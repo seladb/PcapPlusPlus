@@ -40,8 +40,7 @@ namespace pcpp
 		/**
 		 * A virtual d'tor, does nothing
 		 */
-		virtual ~IDnsResourceData()
-		{}
+		virtual ~IDnsResourceData() = default;
 
 		/**
 		 * A templated method which takes a class that derives from IDnsResourceData as the template argument and
@@ -50,14 +49,14 @@ namespace pcpp
 		 */
 		template <class IDnsResourceDataType> bool isTypeOf() const
 		{
-			return dynamic_cast<const IDnsResourceDataType*>(this) != NULL;
+			return dynamic_cast<const IDnsResourceDataType*>(this) != nullptr;
 		}
 
 		/**
 		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries
 		 * to cast the current instance as that type
-		 * @return A pointer to the current instance casted as the requested type or NULL if this instance isn't of this
-		 * type
+		 * @return A pointer to the current instance casted as the requested type or nullptr if this instance isn't of
+		 * this type
 		 */
 		template <class IDnsResourceDataType> IDnsResourceDataType* castAs()
 		{
@@ -107,7 +106,7 @@ namespace pcpp
 		/**
 		 * A templated method which take a class that derives from IDnsResourceData as the template argument and tries
 		 * to cast the pointer stored in this object as that type
-		 * @return A pointer to the stored pointer casted as the requested type or NULL if it isn't of this type
+		 * @return A pointer to the stored pointer casted as the requested type or nullptr if it isn't of this type
 		 */
 		template <class IDnsResourceDataType> IDnsResourceDataType* castAs()
 		{
@@ -142,8 +141,7 @@ namespace pcpp
 
 		StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource);
 
-		~StringDnsResourceData()
-		{}
+		~StringDnsResourceData() override = default;
 
 		/**
 		 * Equality operator overload for this class that compares the strings stored in each object
@@ -157,11 +155,11 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const
+		std::string toString() const override
 		{
 			return m_Data;
 		}
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
 	};
 
 	/**
@@ -215,11 +213,11 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const
+		std::string toString() const override
 		{
 			return m_Data.toString();
 		}
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
 	};
 
 	/**
@@ -273,11 +271,11 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const
+		std::string toString() const override
 		{
 			return m_Data.toString();
 		}
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
 	};
 
 	/**
@@ -319,8 +317,7 @@ namespace pcpp
 		 */
 		MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange);
 
-		~MxDnsResourceData()
-		{}
+		~MxDnsResourceData() override = default;
 
 		/**
 		 * Equality operator overload for this class that compares the MX data stored in each object
@@ -351,9 +348,9 @@ namespace pcpp
 		 * A string representation of the MX data stored in this object. The string format is as follows:
 		 * 'pref: {preference_value}; mx: {mail_exchange_hostname_value}'
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
 
 	private:
 		MxData m_Data;
@@ -391,9 +388,9 @@ namespace pcpp
 		 */
 		GenericDnsResourceData(const GenericDnsResourceData& other);
 
-		~GenericDnsResourceData()
+		~GenericDnsResourceData() override
 		{
-			if (m_Data != NULL)
+			if (m_Data != nullptr)
 				delete[] m_Data;
 		}
 
@@ -408,8 +405,8 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
-		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const;
+		std::string toString() const override;
+		bool toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const override;
 	};
 
 }  // namespace pcpp

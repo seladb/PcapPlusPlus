@@ -1,5 +1,3 @@
-#ifdef __linux__
-
 #define LOG_MODULE UndefinedLogModule
 
 #include "Logger.h"
@@ -20,65 +18,54 @@
 namespace pcpp
 {
 
-static inline LinuxNicInformationSocket::LinuxSocket
-openLinuxNicInformationSocket()
-{
-	LinuxNicInformationSocket::LinuxSocket soc = socket(AF_INET, SOCK_DGRAM, 0);
-	if (soc < 0)
+	static inline LinuxNicInformationSocket::LinuxSocket openLinuxNicInformationSocket()
 	{
-		const char* error = std::strerror(errno);
-		PCPP_LOG_DEBUG("Can't open Linux information socket. Errno string: "<< error);
-		return soc = INVALID_SOCKET_VALUE;
+		LinuxNicInformationSocket::LinuxSocket soc = socket(AF_INET, SOCK_DGRAM, 0);
+		if (soc < 0)
+		{
+			const char* error = std::strerror(errno);
+			PCPP_LOG_DEBUG("Can't open Linux information socket. Errno string: " << error);
+			return soc = INVALID_SOCKET_VALUE;
+		}
+		return soc;
 	}
-	return soc;
-}
 
-LinuxNicInformationSocket::LinuxNicInformationSocket() :
-	m_Socket(openLinuxNicInformationSocket())
-{}
+	LinuxNicInformationSocket::LinuxNicInformationSocket() : m_Socket(openLinuxNicInformationSocket())
+	{}
 
-LinuxNicInformationSocket::~LinuxNicInformationSocket()
-{
-	if (m_Socket == INVALID_SOCKET_VALUE)
+	LinuxNicInformationSocket::~LinuxNicInformationSocket()
 	{
-		PCPP_LOG_DEBUG("Closing not opened Linux NIC information socket");
-	}
-	else
-	{
-		close(m_Socket);
-	}
-}
-
-bool LinuxNicInformationSocket::makeRequest(
-	const char* nicName,
-	const IoctlType ioctlType,
-	ifreq* request
-)
-{
-	if (m_Socket == INVALID_SOCKET_VALUE)
-	{
-		m_Socket = openLinuxNicInformationSocket();
 		if (m_Socket == INVALID_SOCKET_VALUE)
 		{
-			PCPP_LOG_ERROR(
-				"Request to Linux NIC incformation socket failed. "
-				"Can't open socket"
-			);
-			return false;
+			PCPP_LOG_DEBUG("Closing not opened Linux NIC information socket");
+		}
+		else
+		{
+			close(m_Socket);
 		}
 	}
-	snprintf(request->ifr_name, IFNAMSIZ, "%s", nicName);
-	if (ioctl(m_Socket, ioctlType, request))
+
+	bool LinuxNicInformationSocket::makeRequest(const char* nicName, const IoctlType ioctlType, ifreq* request)
 	{
-		const char* error = std::strerror(errno);
-		PCPP_LOG_ERROR(
-			"Request to Linux NIC incformation socket failed. "
-			"ioctl(2) failed with error string: "
-			<< error
-		);
-		return false;
+		if (m_Socket == INVALID_SOCKET_VALUE)
+		{
+			m_Socket = openLinuxNicInformationSocket();
+			if (m_Socket == INVALID_SOCKET_VALUE)
+			{
+				PCPP_LOG_ERROR("Request to Linux NIC incformation socket failed. "
+				               "Can't open socket");
+				return false;
+			}
+		}
+		snprintf(request->ifr_name, IFNAMSIZ, "%s", nicName);
+		if (ioctl(m_Socket, ioctlType, request))
+		{
+			const char* error = std::strerror(errno);
+			PCPP_LOG_ERROR("Request to Linux NIC incformation socket failed. "
+			               "ioctl(2) failed with error string: "
+			               << error);
+			return false;
+		}
+		return true;
 	}
-	return true;
-}
-} // namespace pcpp
-#endif /* __linux__ */
+}  // namespace pcpp

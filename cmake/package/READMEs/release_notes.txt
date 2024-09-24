@@ -1,74 +1,126 @@
-Release notes (changes from v22.11)
+Release notes (changes from v23.09)
 -----------------------------------
 
- - PcapPlusPlus moved from a custom build system to CMake! (thanks @clementperon !)
- - Added IP/IPv4/IPv6 network classes to better support netmask and subnets
- - Add support for opening NFLOG live device (thanks @MrPeck !)
- - MAC address OUI Lookup (thanks @egecetin !)
- - Intel oneAPI compiler support (icpx) (thanks @egecetin !)
- - DPDK improvements:
-   - Properly support no RSS mode in `DpdkDevice`
-   - Make DPDK app name configurable (thanks @szokovacs !)
-   - More generic search of DPDK KNI kernel module in `setup_dpdk.py`
- - New protocols:
-   - NFLOG (Linux Netfilter NFLOG) (thanks @jafar75 !)
-   - SLL2 (Linux cooked capture v2) (thanks @jiangjiongyu !)
-   - TPKT (thanks @wivien19 !)
-   - COTP (thanks @wivien19 !)
-   - VRRP (thanks @wangchong2023 !)
- - Existing protocols improvements:
-   - HTTP - refactor and improve `HttpResponseStatusCode` (thanks @tigercosmos !)
-   - SSL/TLS - better detection of possible encrypted handshake messages (thanks @axmahr !)
-   - DNS - support parsing of resources with larger data (thanks @aengusjiang !)
-   - STP - add editing/crafting support (thanks @egecetin !)
-   - ARP - add `isRequest` and `isReply` methods (thanks @tigercosmos !)
-   - FTP-DATA support (thanks @egecetin !)
-   - NTP - support Kiss of Death (thanks @egecetin !)
-   - SIP - refactor status codes + add a few missing ones
- - Modernize the codebase to use `nullptr` instead of `NULL` (thanks @clementperon !)
- - Remove usage of unsupported `pcap_compile_nopcap()` (thanks @yushijinhun !)
- - Internal tools:
-   - Codecov integration for coverage reports (thanks @egecetin !)
-   - Enable Clang-Tidy (thanks @clementperon !)
-   - Enable `cppcheck` (thanks @egecetin !)
-   - Improve the test framework
-   - Increase test coverage
- - Remove deprecated methods (due to typos):
-   - `DhcpLayer::getMesageType()` -> replaced by `DhcpLayer::getMessageType()`
-   - `DhcpLayer::setMesageType()` -> replaced by `DhcpLayer::setMessageType()`
-   - `SSLHandshakeMessage::createHandhakeMessage()` -> replaced by `SSLHandshakeMessage::createHandshakeMessage()`
-   - `SSLClientHelloMessage::getExtensionsLenth()` -> replaced by `SSLClientHelloMessage::getExtensionsLength()`
-   - `SSLServerHelloMessage::getExtensionsLenth()` -> replaced by `SSLServerHelloMessage::getExtensionsLength()`
- - Tons of bug fixes, security fixes, major and minor improvements (thanks @egecetin, @clementperon, @sashashura, @tigercosmos, @kolbex, @traversebitree, @JasMetzger, @tbhaxor, @yishai1999, @aengusjiang, @Heysunk, @jpcofr !)
+- Added support for eBPF AF_XDP
+- New protocols:
+  - SMTP (thanks @egecetin !)
+  - ASN.1 encoding and decoding
+  - Enabled ASN.1 root record parsing in x509 certificates
+  - LDAP
+  - S7COMM (thanks @wivien19 !)
+- DPDK improvements:
+  - DPDK 22.11 support (thanks @clementperon !)
+  - Jumbo frames support (thanks @gyl30 !)
+  - Added an option to disable hugepages and driver verification on initialization (thanks @MatteO-Matic !)
+  - NUMA awareness (thanks @SesomB !)
+- Examples and utils:
+  - Added `XdpExample-FilterTraffic` to demonstrate `XdpDevice` usage
+  - `PcapSplitter`: updated output filenames with 5-tuple information (thanks @hidd3ncod3s !)
+- Added support for nanosecond precision in reading and writing pcap files (thanks @egecetin !)
+- Blocking mode packet capture now uses `poll()` (thanks @tigercosmos !)
+- Added millisecond precision timeout in `RawSocketDevice` (thanks @tigercosmos !)
+- Extended `IPFilter` to support IPv6 where possible (thanks @Dimi1010 !)
+- Boosted build time with Ccache (thanks @clementperon !)
+- Fixed precision issue in pcapng file reader (thanks @mserdarsanli !)
+- Improved method for retrieving the default gateway on macOS (thanks @zhengfeihe !)
+- Added security and code of conduct guidelines (thanks @egecetin !)
+- Refactoring and modernization of the code base:
+  - Refactored and cleaned up live devices (thanks @Dimi1010 !)
+    - Added a getter for fetching all IP addresses as `IPAddress` objects.
+  - Refactored IP address classes `IPv4Address`, `IPv6Address`, `IPAddress` (thanks @tigercosmos , @Dimi1010 !)
+    - Added equality operators between `IPAddress` and `in_addr` types
+  - Refactored the MAC address class `MacAddress` (thanks @tigercosmos !)
+  - Ported PcapPlusPlus libraries to C++11 (thanks @Dimi1010 , @tigercosmos , @egecetin , @WojtekMs , @rtmeng, @DeepakReddy1999 !)
+  - Ported most of the examples and tutorials to C++11 (thanks @jpcofr , @merttozer !)
+  - Refactored and cleaned up PF_RING devices (thanks @Dimi1010 !)
+  - Refactored and cleaned up the `PointerVector` class (thanks @Dimi1010 !)
+  - Converted Macro Guard to `pragma once` (thanks @clementperon !)
+  - Replaced `std::map` with `std::unordered_map` (thanks @tigercosmos !)
+  - Refactored large parts of the packet filtering code (thanks @Dimi1010 !)
+- Supported platforms update:
+  - Ubuntu: added 24.04 LTS and dropped 18.04 LTS (thanks @tigercosmos !)
+  - Added support for RHEL 9.4 (thanks @clementperon !)
+  - Fedora: added support for 39 and removed 37 (thanks @clementperon !)
+  - Removed support for CentOS 7
+  - FreeBSD: added support for 14.0 and dropped 12 (thanks @clementperon !)
+- Internal tools: 
+  - Reformatted the entire code base using `clang-format` (thanks @tigercosmos , @Dimi1010 !)
+  - Added `dependabot` to keep GitHub Actions and Python packages up-to-date (thanks @egecetin !)
+  - Added OpenSSF Scorecard automation to monitor and enhance security (thanks @egecetin !)
+  - Transitioned from CirrusCI to GitHub Actions for all workflows (thanks @tigercosmos !)
+  - Scheduled regular CI builds (thanks @tigercosmos !)
+  - Replaced deprecated `netifaces` by `scapy` (thanks @zhengfeihe !)
+  - Improved fuzzing coverage and added Fuzz CI (thanks @sashashura !)
+  - Added a template for opening GitHub issues (thanks @tigercosmos !)
+  - Upgraded `LightPcapNg` to the latest from `master` (thanks @tigercosmos !)
+  - Fixed unhandled exceptions crashing the entire test suite (thanks @Dimi1010 !)
+- Tons of bug fixes, security fixes and small improvements (thanks @sashashura , @tigercosmos , @clementperon , @egecetin , @kraj , @liu0hy , @lucashc , @axmahr, @Double0101, @prudens , @MCredbear, @rahagal, @nadongjun !)
+
+
+Breaking changes
+----------------
+
+This version includes a small number of breaking changes:
+- Removed `isValid()` from `MacAddress,` `IPAddress`, `IPv4Address`, `IPv6Address`, instead they throw an exception if the input argument is invalid
+- Introduced a new `TcpOptionEnumType`
+- Removed the `dummy` argument in `PayloadLayer`'s constructor
+
+
+Deprecation list
+----------------
+
+The following methods that were marked as deprecated in previous versions were removed:
+- `IPv4Address::matchSubnet()`
+
+The following methods are now marked as deprecated and will be removed in future versions:
+- `PointerVector::getAndRemoveFromVector()` -> replaced by `PointerVector::getAndDetach()`
+- `HttpResponseLayer::HttpResponseLayer(version, statusCode, statusCodeString)` -> use other constructors
+- `HttpResponseLayer::setStatusCode(newStatusCode, statusCodeString)` -> use the other overload
+- `TcpOptionType` enum -> replaced by `TcpOptionEnumType`
+- `TcpOption::getTcpOptionType()` -> replaced by `TcpOption::getTcpOptionEnumType()`
+- `TcpOptionBuilder::TcpOptionBuilder()` -> use other constructors
+- `TcpLayer::getTcpOption(TcpOptionType option)` -> use the other overload
+- `TcpLayer::addTcpOptionAfter()` -> replaced by `TcpLayer::insertTcpOptionAfter()`
+- `TcpLayer::removeTcpOption()` -> use the other overload
+- `PcapLiveDevice::getAddresses()` -> replaced by `PcapLiveDevice::getIPAddresses()`
+- `PcapRemoteDeviceList::getRemoteDeviceList()` -> replaced by `PcapRemoteDeviceList::createRemoteDeviceList()`
 
 
 Collaborators
 -------------
 
- - @clementperon
+ - @tigercosmos
+ - @Dimi1010
  - @egecetin
+ - @clementperon
+ - @seladb
 
 
 Contributors
 ------------
 
- - @sashashura
- - @tigercosmos
- - @wivien19
- - @jafar75
- - @MrPeck
- - @szokovacs
- - @axmahr
- - @yishai1999
- - @traversebitree
- - @jiangjiongyu
- - @wangchong2023
- - @kolbex
- - @JasMetzger
- - @yushijinhun
- - @aengusjiang
- - @tbhaxor
- - @Heysunk
- - @jpcofr
+- @sashashura
+- @zhengfeihe
+- @wivien19
+- @gyl30
+- @MatteO-Matic
+- @SesomB
+- @jpcofr
+- @liu0hy
+- @merttozer
+- @lucashc
+- @axmahr
+- @Double0101
+- @prudens
+- @rtmeng 
+- @hidd3ncod3s 
+- @WojtekMs
+- @mserdarsanli
+- @MCredbear 
+- @rahagal
+- @DeepakReddy1999
+- @kraj
+- @nadongjun
 
-**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v22.11...v23.09
+
+**Full Changelog**: https://github.com/seladb/PcapPlusPlus/compare/v23.09...v24.09

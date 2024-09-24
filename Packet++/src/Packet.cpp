@@ -84,9 +84,17 @@ namespace pcpp
 
 		if (curLayer != nullptr && curLayer->getOsiModelLayer() > parseUntilLayer)
 		{
-			m_LastLayer = curLayer->getPrevLayer();
-			delete curLayer;
-			m_LastLayer->m_NextLayer = nullptr;
+			// don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
+			if (curLayer == m_FirstLayer)
+			{
+				curLayer->m_IsAllocatedInPacket = true;
+			}
+			else
+			{
+				m_LastLayer = curLayer->getPrevLayer();
+				delete curLayer;
+				m_LastLayer->m_NextLayer = nullptr;
+			}
 		}
 
 		if (m_LastLayer != nullptr && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)
@@ -216,7 +224,7 @@ namespace pcpp
 	{
 		if (newLayer == nullptr)
 		{
-			PCPP_LOG_ERROR("Layer to add is NULL");
+			PCPP_LOG_ERROR("Layer to add is nullptr");
 			return false;
 		}
 
@@ -264,7 +272,7 @@ namespace pcpp
 			newLayer->setPrevLayer(prevLayer);
 			prevLayer->setNextLayer(newLayer);
 		}
-		else  // prevLayer == NULL
+		else  // prevLayer == nullptr
 		{
 			newLayer->setNextLayer(m_FirstLayer);
 			if (m_FirstLayer != nullptr)
@@ -397,7 +405,7 @@ namespace pcpp
 	{
 		if (layer == nullptr)
 		{
-			PCPP_LOG_ERROR("Layer is NULL");
+			PCPP_LOG_ERROR("Layer is nullptr");
 			return false;
 		}
 
@@ -555,7 +563,7 @@ namespace pcpp
 	{
 		if (layer == nullptr)
 		{
-			PCPP_LOG_ERROR("Layer is NULL");
+			PCPP_LOG_ERROR("Layer is nullptr");
 			return false;
 		}
 
@@ -584,7 +592,7 @@ namespace pcpp
 
 		// insert layer data to raw packet
 		int indexToInsertData = layer->m_Data + offsetInLayer - m_RawPacket->getRawData();
-		// passing NULL to insertData will move the data by numOfBytesToExtend
+		// passing nullptr to insertData will move the data by numOfBytesToExtend
 		// no new data has to be created for this insertion which saves at least little time
 		// this move operation occurs on already allocated memory, which is backed by the reallocation if's provided
 		// above if offsetInLayer == layer->getHeaderLen() insertData will not move any data but only increase the
@@ -624,7 +632,7 @@ namespace pcpp
 	{
 		if (layer == nullptr)
 		{
-			PCPP_LOG_ERROR("Layer is NULL");
+			PCPP_LOG_ERROR("Layer is nullptr");
 			return false;
 		}
 
