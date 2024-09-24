@@ -232,13 +232,15 @@ namespace pcpp
 		// if this side already got FIN or RST packet before, ignore this packet as this side is considered closed
 		if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 		{
-			PCPP_LOG_DEBUG("Got a packet after FIN or RST were already seen on this side ("
-			               << static_cast<int>(sideIndex) << "). Ignoring this packet");
 			if (!tcpReassemblyData->twoSides[1 - sideIndex].gotFinOrRst && isRst)
 			{
 				handleFinOrRst(tcpReassemblyData, 1 - sideIndex, flowKey, isRst);
 				return FIN_RSTWithNoData;
 			}
+
+			PCPP_LOG_DEBUG("Got a packet after FIN or RST were already seen on this side ("
+					               << static_cast<int>(sideIndex) << "). Ignoring this packet");
+
 			return Ignore_PacketOfClosedFlow;
 		}
 
