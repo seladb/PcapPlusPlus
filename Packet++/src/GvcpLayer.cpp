@@ -27,10 +27,8 @@ namespace pcpp
 	/*---------------------- Class GvcpLayer ----------------------------*/
 
 	GvcpLayer::GvcpLayer(uint8_t* data, size_t dataSize, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataSize, prevLayer, packet)
-	{
-		m_Protocol = Gvcp;
-	}
+	    : Layer(data, dataSize, prevLayer, packet, Gvcp)
+	{}
 
 	GvcpLayer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
