@@ -7,10 +7,6 @@ repos:
         name: Check clang-format version
         entry: python3 ./ci/check-clang-format-version.py
         language: system
-      - id: check-ruff-format-version
-        name: Check ruff-format version
-        entry: python3 ./ci/check-ruff-version.py
-        language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
