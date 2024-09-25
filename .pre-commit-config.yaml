@@ -21,10 +21,14 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
       - id: trailing-whitespace
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.5
     hooks:
-      - id: black
+      - id: ruff # Run the linter.
+        types_or: [ python ]
+      - id: ruff-format  # Run the formatter.
+        types_or: [ python ]
+        args: [ --check ]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:

@@ -230,9 +230,7 @@ def usage():
     [Restore]
 
         sudo python setup_dpdk.py restore\n\n
-    """.format(
-        settings_file=_SETTINGS_FILE
-    )
+    """.format(settings_file=_SETTINGS_FILE)
 
 
 # This is roughly compatible with check_output function in subprocess module
@@ -439,7 +437,7 @@ def unbind_one(dev_id, quiet, force):
     filename = "/sys/bus/pci/drivers/%s/unbind" % dev["Driver_str"]
     try:
         file_d = open(filename, "a")
-    except:  # pylint:disable=bare-except
+    except Exception:
         handle_error(
             "Error: unbind failed for %s - Cannot open %s" % (dev_id, filename)
         )
@@ -491,7 +489,7 @@ def bind_one(dev_id, driver, quiet, force):
     if os.path.exists(filename):
         try:
             file_d = open(filename, "w")
-        except:  # pylint:disable=bare-except
+        except Exception:
             handle_error(
                 "Error: bind failed for %s - Cannot open %s" % (dev_id, filename)
             )
@@ -500,7 +498,7 @@ def bind_one(dev_id, driver, quiet, force):
             file_d.write("%s" % driver)
             logger.debug("bind_one: write '%s' to '%s'", driver, filename)
             file_d.close()
-        except:  # pylint:disable=bare-except
+        except Exception:
             handle_error(
                 "Error: bind failed for %s - Cannot write driver %s to "
                 "PCI ID " % (dev_id, driver)
@@ -511,7 +509,7 @@ def bind_one(dev_id, driver, quiet, force):
         filename = "/sys/bus/pci/drivers/%s/new_id" % driver
         try:
             file_d = open(filename, "w")
-        except:  # pylint:disable=bare-except
+        except Exception:
             handle_error(
                 "Error: bind failed for %s - Cannot open %s" % (dev_id, filename)
             )
@@ -520,7 +518,7 @@ def bind_one(dev_id, driver, quiet, force):
             # Convert Device and Vendor Id to int to write to new_id
             file_d.write("%04x %04x" % (int(dev["Vendor"], 16), int(dev["Device"], 16)))
             file_d.close()
-        except:  # pylint:disable=bare-except
+        except Exception:
             handle_error(
                 "Error: bind failed for %s - Cannot write new PCI ID to "
                 "driver %s" % (dev_id, driver)
@@ -531,7 +529,7 @@ def bind_one(dev_id, driver, quiet, force):
     filename = "/sys/bus/pci/drivers/%s/bind" % driver
     try:
         file_d = open(filename, "a")
-    except:  # pylint:disable=bare-except
+    except Exception:
         logger.error("Error: bind failed for %s - Cannot open %s", dev_id, filename)
         if saved_driver is not None:  # restore any previous driver
             bind_one(dev_id, saved_driver, quiet, force)
@@ -540,7 +538,7 @@ def bind_one(dev_id, driver, quiet, force):
         file_d.write(dev_id)
         logger.debug("bind_one: write '%s' to '%s'", dev_id, filename)
         file_d.close()
-    except:  # pylint:disable=bare-except
+    except Exception:
         # for some reason, closing dev_id after adding a new PCI ID to new_id
         # results in IOError. however, if the device was successfully bound,
         # we don't care for any errors and can safely ignore IOError
@@ -561,7 +559,7 @@ def bind_one(dev_id, driver, quiet, force):
     if os.path.exists(filename):
         try:
             file_d = open(filename, "w")
-        except:  # pylint:disable=bare-except
+        except Exception:
             handle_error(
                 "Error: unbind failed for %s - Cannot open %s" % (dev_id, filename)
             )
@@ -570,7 +568,7 @@ def bind_one(dev_id, driver, quiet, force):
             file_d.write("\00")
             logger.debug("bind_one: write '\00' to '%s'", filename)
             file_d.close()
-        except:  # pylint:disable=bare-except
+        except Exception:
             handle_error(
                 "Error: unbind failed for %s - Cannot open %s" % (dev_id, filename)
             )
@@ -1216,7 +1214,7 @@ def main():
     try:
         args.func(args, settings)
         settings.save(settings_file_full_path)
-    except:  # pylint:disable=bare-except
+    except Exception:
         pass
 
 

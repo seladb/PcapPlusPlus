@@ -57,7 +57,7 @@ def find_interface():
                 if completed_process.returncode != 0:
                     continue
                 return interface, ip_address
-            except:
+            except Exception:
                 pass
     return None, None
 
