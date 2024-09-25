@@ -100,7 +100,8 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		auto udpLayer = discoverAckPacket.getLayerOfType<pcpp::UdpLayer>();
 
 		// we get the raw buffer from the payload of the UDP layer and create a GvcpAcknowledgeLayer from the buffer
-		GvcpDiscoveryAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
+		GvcpDiscoveryAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(),
+		                                                   udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), Gvcp);
 		GvcpAckHeader* header = gvcpAcknowledgeLayer.getGvcpHeader();
