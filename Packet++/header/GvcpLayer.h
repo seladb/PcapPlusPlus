@@ -769,8 +769,8 @@ namespace pcpp
 		 * @param[in] ackId The acknowledge ID, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		GvcpForceIpAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
-		                            uint16_t payloadDataSize = 0, uint16_t ackId = 0)
+		explicit GvcpForceIpAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
+		                                     uint16_t payloadDataSize = 0, uint16_t ackId = 0)
 		    : GvcpAcknowledgeLayer(status, GvcpCommand::ForceIpAck, payloadData, payloadDataSize, ackId) {};
 	};
 }  // namespace pcpp
