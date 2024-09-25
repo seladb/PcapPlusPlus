@@ -238,7 +238,7 @@ class TestPcapSplitter(ExampleTest):
             else:
                 conn = frozenset([])
 
-            assert not conn in connection_map
+            assert conn not in connection_map
             connection_map[conn] = True
 
             if len(conn) == 0:

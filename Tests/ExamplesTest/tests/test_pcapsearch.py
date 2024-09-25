@@ -1,6 +1,4 @@
-from os import path
 import pytest
-import re
 import ntpath
 from .test_utils import ExampleTest
 
@@ -42,7 +40,7 @@ class TestPcapSearch(ExampleTest):
                     num_of_packets = int(words[0])
                     file_name = ntpath.basename(words[-1].replace("'", ""))
                     actual.add((num_of_packets, file_name))
-                except:
+                except Exception:
                     pass
 
         assert expected.issubset(actual)
@@ -52,7 +50,7 @@ class TestPcapSearch(ExampleTest):
         completed_process = self.run_example(args=args)
         assert ".dmp'" in completed_process.stdout
         assert ".pcapng'" in completed_process.stdout
-        assert not ".pcap'" in completed_process.stdout
+        assert ".pcap'" not in completed_process.stdout
 
     def test_no_args(self):
         args = {}
