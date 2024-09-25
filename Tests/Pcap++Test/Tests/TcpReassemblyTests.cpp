@@ -1263,3 +1263,21 @@ PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 	packetStream.clear();
 	tcpReassemblyResults.clear();
 }  // TestTcpReassemblyTimeStamps
+
+PTF_TEST_CASE(TestTcpReassemblyFinReset)
+{
+	std::string errMsg;
+
+	std::vector<pcpp::RawPacket> packetStream;
+	PTF_ASSERT_TRUE(
+	    readPcapIntoPacketVec("PcapExamples/one_tcp_stream_fin_rst_close_packet.pcap", packetStream, errMsg));
+
+	TcpReassemblyMultipleConnStats tcpReassemblyResults;
+	tcpReassemblyTest(packetStream, tcpReassemblyResults, true, false);
+
+	TcpReassemblyMultipleConnStats::Stats& stats = tcpReassemblyResults.stats;
+	PTF_ASSERT_EQUAL(stats.size(), 1);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsStarted);
+	PTF_ASSERT_TRUE(stats.begin()->second.connectionsEnded);
+	PTF_ASSERT_FALSE(stats.begin()->second.connectionsEndedManually);
+}  // TestTcpReassemblyFinReset
