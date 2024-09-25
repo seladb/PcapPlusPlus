@@ -475,6 +475,8 @@ namespace pcpp
 	};
 
 	// ---------------------------------------- Special Layer ----------------------------------------
+
+	/// @brief Gvcp discovery request layer
 	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
 	{
 	public:
@@ -508,6 +510,7 @@ namespace pcpp
 		    : GvcpRequestLayer(GvcpCommand::DiscoveredCmd, payloadData, payloadDataSize, flag, requestId) {};
 	};
 
+	/// @brief Gvcp discovery acknowledge layer
 	class GvcpDiscoveryAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
@@ -657,6 +660,7 @@ namespace pcpp
 		}
 	};
 
+	/// @brief Gvcp force IP request layer
 	class GvcpForceIpRequestLayer : public GvcpRequestLayer
 	{
 	public:
@@ -736,6 +740,7 @@ namespace pcpp
 		}
 	};
 
+	/// @brief Gvcp force IP acknowledge layer
 	class GvcpForceIpAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
