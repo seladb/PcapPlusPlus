@@ -16,11 +16,14 @@ namespace pcpp
 	void WireGuardLayer::parseNextLayer()
 	{
 		size_t headerLen = getHeaderLen();
-		if (m_DataLen <= headerLen || headerLen == 0)
-			return;
-		m_NextLayer = WireGuardLayer::parseWireGuardLayer(m_Data, m_DataLen, this, m_Packet);
-		if (!m_NextLayer)
+		if (m_DataLen <= headerLen && headerLen != 0)
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen, this, m_Packet);
+		else
+		{
+			m_NextLayer = WireGuardLayer::parseWireGuardLayer(m_Data, m_DataLen, this, m_Packet);
+			if (!m_NextLayer)
+				m_NextLayer = new PayloadLayer(m_Data, m_DataLen, this, m_Packet);
+		}
 	}
 
 	WireGuardLayer* WireGuardLayer::parseWireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -46,7 +49,6 @@ namespace pcpp
 
 	std::string WireGuardLayer::getMessageTypeAsString() const
 	{
-		// Assuming you have a method to retrieve the message type from the header
 		uint32_t messageType = getMessageType();
 		switch (messageType)
 		{
@@ -71,6 +73,18 @@ namespace pcpp
 	size_t WireGuardLayer::getHeaderLen() const
 	{
 		return m_DataLen;
+	}
+
+	uint8_t WireGuardLayer::getMessageType() const
+	{
+		return getBasicHeader()->messageType;
+	}
+
+	uint32_t WireGuardLayer::getReserved() const
+	{
+		uint32_t reservedValue = 0;
+		memcpy(&reservedValue, getBasicHeader()->reserved, 3);
+		return be32toh(reservedValue);
 	}
 
 	bool WireGuardLayer::isDataValid(const uint8_t* data, size_t dataLen)
@@ -101,9 +115,6 @@ namespace pcpp
 		wg_handshake_initiation* msgHdr = reinterpret_cast<wg_handshake_initiation*>(m_Data);
 
 		msgHdr->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation);
-
-		std::memset(msgHdr->reserved, 0, sizeof(msgHdr->reserved));
-
 		msgHdr->senderIndex = htobe32(senderIndex);
 		memcpy(msgHdr->initiatorEphemeral, initiatorEphemeral, 32);
 		memcpy(msgHdr->encryptedInitiatorStatic, encryptedInitiatorStatic, 48);
@@ -112,18 +123,6 @@ namespace pcpp
 		memcpy(msgHdr->mac2, mac2, 16);
 
 		m_Protocol = WireGuard;
-	}
-
-	uint32_t WireGuardHandshakeInitiationLayer::getMessageType() const
-	{
-		return be32toh(getHandshakeInitiationHeader()->messageType);
-	}
-
-	uint32_t WireGuardHandshakeInitiationLayer::getReserved() const
-	{
-		uint32_t reservedValue = 0;
-		memcpy(&reservedValue, getHandshakeInitiationHeader()->reserved, 3);
-		return be32toh(reservedValue);
 	}
 
 	uint32_t WireGuardHandshakeInitiationLayer::getSenderIndex() const
@@ -178,14 +177,9 @@ namespace pcpp
 		const size_t messageLen = sizeof(wg_handshake_response);
 		m_DataLen = messageLen;
 		m_Data = new uint8_t[messageLen];
-		std::memset(m_Data, 0, messageLen);
-
 		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse);
-
-		std::memset(msg->reserved, 0, sizeof(msg->reserved));
-
 		msg->senderIndex = htobe32(senderIndex);
 		msg->receiverIndex = htobe32(receiverIndex);
 		memcpy(msg->responderEphemeral, responderEphemeral, 32);
@@ -194,18 +188,6 @@ namespace pcpp
 		memcpy(msg->mac2, mac2, 16);
 
 		m_Protocol = WireGuard;
-	}
-
-	uint32_t WireGuardHandshakeResponseLayer::getMessageType() const
-	{
-		return be32toh(getHandshakeResponseHeader()->messageType);
-	}
-
-	uint32_t WireGuardHandshakeResponseLayer::getReserved() const
-	{
-		uint32_t reservedValue = 0;
-		memcpy(&reservedValue, getHandshakeResponseHeader()->reserved, 3);
-		return be32toh(reservedValue);
 	}
 
 	uint32_t WireGuardHandshakeResponseLayer::getSenderIndex() const
@@ -256,31 +238,16 @@ namespace pcpp
 		const size_t messageLen = sizeof(wg_cookie_reply);
 		m_DataLen = messageLen;
 		m_Data = new uint8_t[messageLen];
-		std::memset(m_Data, 0, messageLen);
+		memset(m_Data, 0, messageLen);
 
 		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::CookieReply);
-
-		std::memset(msg->reserved, 0, sizeof(msg->reserved));
-
 		msg->receiverIndex = htobe32(receiverIndex);
 		memcpy(msg->nonce, nonce, 24);
 		memcpy(msg->encryptedCookie, encryptedCookie, 32);
 
 		m_Protocol = WireGuard;
-	}
-
-	uint32_t WireGuardCookieReplyLayer::getMessageType() const
-	{
-		return be32toh(getCookieReplyHeader()->messageType);
-	}
-
-	uint32_t WireGuardCookieReplyLayer::getReserved() const
-	{
-		uint32_t reservedValue = 0;
-		memcpy(&reservedValue, getCookieReplyHeader()->reserved, 3);
-		return be32toh(reservedValue);
 	}
 
 	uint32_t WireGuardCookieReplyLayer::getReceiverIndex() const
@@ -312,32 +279,16 @@ namespace pcpp
 		const size_t messageLen = sizeof(wg_transport_data) + encryptedDataLen;
 		m_DataLen = messageLen;
 		m_Data = new uint8_t[messageLen];
-		std::memset(m_Data, 0, messageLen);
+		memset(m_Data, 0, messageLen);
 
 		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::TransportData);
-
-		std::memset(msg->reserved, 0, sizeof(msg->reserved));
-
 		msg->receiverIndex = htobe32(receiverIndex);
 		msg->counter = htobe64(counter);
-
 		memcpy(m_Data + sizeof(wg_transport_data), encryptedData, encryptedDataLen);
 
 		m_Protocol = WireGuard;
-	}
-
-	uint32_t WireGuardTransportDataLayer::getMessageType() const
-	{
-		return be32toh(getTransportHeader()->messageType);
-	}
-
-	uint32_t WireGuardTransportDataLayer::getReserved() const
-	{
-		uint32_t reservedValue = 0;
-		memcpy(&reservedValue, getTransportHeader()->reserved, 3);
-		return be32toh(reservedValue);
 	}
 
 	uint32_t WireGuardTransportDataLayer::getReceiverIndex() const

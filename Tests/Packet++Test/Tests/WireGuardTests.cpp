@@ -20,12 +20,13 @@ PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 	pcpp::WireGuardLayer* wgLayer = wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
-	PTF_ASSERT_EQUAL(wgLayer->getMessageTypeAsString(), "Handshake Initiation");
-	PTF_ASSERT_EQUAL(wgLayer->toString(), "WireGuard Layer, " + wgLayer->getMessageTypeAsString() + " message");
-
 	pcpp::WireGuardHandshakeInitiationLayer* wgHandShakeInitLayer =
 	    wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardHandshakeInitiationLayer>();
 	PTF_ASSERT_NOT_NULL(wgHandShakeInitLayer);
+
+	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getMessageTypeAsString(), "Handshake Initiation");
+	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->toString(),
+	                 "WireGuard Layer, " + wgHandShakeInitLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgHandShakeInitLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::HandshakeInitiation);
@@ -70,12 +71,14 @@ PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 	PTF_ASSERT_TRUE(wgHandShakeResponsePacket.isPacketOfType(pcpp::WireGuard));
 	pcpp::WireGuardLayer* wgLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
-	PTF_ASSERT_EQUAL(wgLayer->getMessageTypeAsString(), "Handshake Response");
-	PTF_ASSERT_EQUAL(wgLayer->toString(), "WireGuard Layer, " + wgLayer->getMessageTypeAsString() + " message");
 
 	pcpp::WireGuardHandshakeResponseLayer* wgHandShakeResponseLayer =
 	    wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardHandshakeResponseLayer>();
 	PTF_ASSERT_NOT_NULL(wgHandShakeResponseLayer);
+
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getMessageTypeAsString(), "Handshake Response");
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->toString(),
+	                 "WireGuard Layer, " + wgHandShakeResponseLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::HandshakeResponse);
@@ -114,12 +117,14 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 	PTF_ASSERT_TRUE(wgTransportDataPacket.isPacketOfType(pcpp::WireGuard));
 	pcpp::WireGuardLayer* wgLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
-	PTF_ASSERT_EQUAL(wgLayer->getMessageTypeAsString(), "Transport Data");
-	PTF_ASSERT_EQUAL(wgLayer->toString(), "WireGuard Layer, " + wgLayer->getMessageTypeAsString() + " message");
 
 	pcpp::WireGuardTransportDataLayer* wgTransportDataLayer =
 	    wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
 	PTF_ASSERT_NOT_NULL(wgTransportDataLayer);
+
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->getMessageTypeAsString(), "Transport Data");
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->toString(),
+	                 "WireGuard Layer, " + wgTransportDataLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgTransportDataLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::TransportData);
