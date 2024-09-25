@@ -1266,7 +1266,6 @@ PTF_TEST_CASE(TestTcpReassemblyTimeStamps)
 
 PTF_TEST_CASE(TestTcpReassemblyFinReset)
 {
-	TcpReassemblyMultipleConnStats results;
 	std::string errMsg;
 
 	std::vector<pcpp::RawPacket> packetStream;
