@@ -21,8 +21,7 @@ namespace pcpp
 	class IPLayer
 	{
 	protected:
-		IPLayer()
-		{}
+		IPLayer() = default;
 
 	public:
 		/**
@@ -40,7 +39,6 @@ namespace pcpp
 		/**
 		 * An empty destructor
 		 */
-		virtual ~IPLayer()
-		{}
+		virtual ~IPLayer() = default;
 	};
 }  // namespace pcpp
