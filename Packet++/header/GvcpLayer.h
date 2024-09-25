@@ -366,8 +366,8 @@ namespace pcpp
 		 * @param[in] requestId The request ID, it should be always larger than 1, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData = nullptr, uint16_t payloadDataSize = 0,
-		                 GvcpFlag flag = 0, uint16_t requestId = 1);
+		explicit GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData = nullptr,
+		                          uint16_t payloadDataSize = 0, GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
 		 * @brief Get the header object
@@ -536,8 +536,8 @@ namespace pcpp
 		 * @param[in] ackId The acknowledge ID, optional
 		 * @note all the parameters will be converted to the network byte order
 		 */
-		GvcpDiscoveryAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
-		                              uint16_t payloadDataSize = 0, uint16_t ackId = 0)
+		explicit GvcpDiscoveryAcknowledgeLayer(GvcpResponseStatus status, const uint8_t* payloadData = nullptr,
+		                                       uint16_t payloadDataSize = 0, uint16_t ackId = 0)
 		    : GvcpAcknowledgeLayer(status, GvcpCommand::DiscoveredAck, payloadData, payloadDataSize, ackId) {};
 
 		/**
@@ -546,8 +546,8 @@ namespace pcpp
 		 */
 		std::pair<uint16_t, uint16_t> getVersion() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return { getGvcpDiscoveryBody->versionMajor, getGvcpDiscoveryBody->versionMinor };
+			auto body = this->getGvcpDiscoveryBody();
+			return { body->versionMajor, body->versionMinor };
 		}
 
 		/**
@@ -556,8 +556,8 @@ namespace pcpp
 		 */
 		pcpp::MacAddress getMacAddress() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return pcpp::MacAddress(getGvcpDiscoveryBody->macAddress);
+			auto body = this->getGvcpDiscoveryBody();
+			return pcpp::MacAddress(body->macAddress);
 		}
 
 		/**
@@ -566,8 +566,8 @@ namespace pcpp
 		 */
 		pcpp::IPv4Address getIpAddress() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return pcpp::IPv4Address(getGvcpDiscoveryBody->ipAddress);
+			auto body = this->getGvcpDiscoveryBody();
+			return pcpp::IPv4Address(body->ipAddress);
 		}
 
 		/**
@@ -576,8 +576,8 @@ namespace pcpp
 		 */
 		pcpp::IPv4Address getSubnetMask() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return pcpp::IPv4Address(getGvcpDiscoveryBody->subnetMask);
+			auto body = this->getGvcpDiscoveryBody();
+			return pcpp::IPv4Address(body->subnetMask);
 		}
 
 		/**
@@ -586,8 +586,8 @@ namespace pcpp
 		 */
 		pcpp::IPv4Address getGatewayIpAddress() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return pcpp::IPv4Address(getGvcpDiscoveryBody->defaultGateway);
+			auto body = this->getGvcpDiscoveryBody();
+			return pcpp::IPv4Address(body->defaultGateway);
 		}
 
 		/**
@@ -596,8 +596,8 @@ namespace pcpp
 		 */
 		std::string getManufacturerName() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return std::string(getGvcpDiscoveryBody->manufacturerName);
+			auto body = this->getGvcpDiscoveryBody();
+			return std::string(body->manufacturerName);
 		}
 
 		/**
@@ -606,8 +606,8 @@ namespace pcpp
 		 */
 		std::string getModelName() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return std::string(getGvcpDiscoveryBody->modelName);
+			auto body = this->getGvcpDiscoveryBody();
+			return std::string(body->modelName);
 		}
 
 		/**
@@ -616,8 +616,8 @@ namespace pcpp
 		 */
 		std::string getDeviceVersion() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return std::string(getGvcpDiscoveryBody->deviceVersion);
+			auto body = this->getGvcpDiscoveryBody();
+			return std::string(body->deviceVersion);
 		}
 
 		/**
@@ -626,8 +626,8 @@ namespace pcpp
 		 */
 		std::string getManufacturerSpecificInformation() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return std::string(getGvcpDiscoveryBody->manufacturerSpecificInformation);
+			auto body = this->getGvcpDiscoveryBody();
+			return std::string(body->manufacturerSpecificInformation);
 		}
 
 		/**
@@ -636,8 +636,8 @@ namespace pcpp
 		 */
 		std::string getSerialNumber() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return std::string(getGvcpDiscoveryBody->serialNumber);
+			auto body = this->getGvcpDiscoveryBody();
+			return std::string(body->serialNumber);
 		}
 
 		/**
@@ -646,8 +646,8 @@ namespace pcpp
 		 */
 		std::string getUserDefinedName() const
 		{
-			auto getGvcpDiscoveryBody = this->getGvcpDiscoveryBody();
-			return std::string(getGvcpDiscoveryBody->userDefinedName);
+			auto body = this->getGvcpDiscoveryBody();
+			return std::string(body->userDefinedName);
 		}
 
 	private:
@@ -695,8 +695,8 @@ namespace pcpp
 		 */
 		pcpp::MacAddress getMacAddress() const
 		{
-			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
-			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(getGvcpForceIpBody->macAddress));
+			auto body = this->getGvcpForceIpBody();
+			return pcpp::MacAddress(reinterpret_cast<const uint8_t*>(body->macAddress));
 		}
 
 		/**
@@ -705,8 +705,8 @@ namespace pcpp
 		 */
 		pcpp::IPv4Address getIpAddress() const
 		{
-			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
-			return pcpp::IPv4Address(getGvcpForceIpBody->ipAddress);
+			auto body = this->getGvcpForceIpBody();
+			return pcpp::IPv4Address(body->ipAddress);
 		}
 
 		/**
@@ -715,8 +715,8 @@ namespace pcpp
 		 */
 		pcpp::IPv4Address getSubnetMask() const
 		{
-			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
-			return pcpp::IPv4Address(getGvcpForceIpBody->subnetMask);
+			auto body = this->getGvcpForceIpBody();
+			return pcpp::IPv4Address(body->subnetMask);
 		}
 
 		/**
@@ -725,8 +725,8 @@ namespace pcpp
 		 */
 		pcpp::IPv4Address getGatewayIpAddress() const
 		{
-			auto getGvcpForceIpBody = this->getGvcpForceIpBody();
-			return pcpp::IPv4Address(getGvcpForceIpBody->gateway);
+			auto body = this->getGvcpForceIpBody();
+			return pcpp::IPv4Address(body->gateway);
 		}
 
 	private:
