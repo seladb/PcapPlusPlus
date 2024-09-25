@@ -75,7 +75,7 @@ def convert_line(line: str) -> list[str]:
 
 
 def parse_mac_and_vendor(line_parts: list[str]) -> Optional[LineElements]:
-    if line_parts == None or len(line_parts) < 3:
+    if line_parts is None or len(line_parts) < 3:
         return None
 
     if len(line_parts[0]) == 6:

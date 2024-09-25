@@ -340,6 +340,12 @@ namespace pcpp
 		RawPacket& operator=(const RawPacket& other);
 
 		/**
+		 * @brief Clones the current packet. Caller is responsible for deallocation of the memory.
+		 * @return A pointer to the new RawPacket object which is a clone of this object
+		 */
+		virtual RawPacket* clone() const;
+
+		/**
 		 * @return RawPacket object type. Each derived class should return a different value
 		 */
 		virtual uint8_t getObjectType() const

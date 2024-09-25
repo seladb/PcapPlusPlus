@@ -68,10 +68,8 @@ namespace pcpp
 	}
 
 	DhcpV6Layer::DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = DHCPv6;
-	}
+	    : Layer(data, dataLen, prevLayer, packet, DHCPv6)
+	{}
 
 	DhcpV6Layer::DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId)
 	{

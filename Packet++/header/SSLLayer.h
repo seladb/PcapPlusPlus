@@ -230,7 +230,7 @@ namespace pcpp
 		 */
 		ssl_tls_record_layer* getRecordLayer() const
 		{
-			return (ssl_tls_record_layer*)m_Data;
+			return reinterpret_cast<ssl_tls_record_layer*>(m_Data);
 		}
 
 		/**
@@ -248,25 +248,23 @@ namespace pcpp
 		/**
 		 * @return The record size as extracted from the record data (in ssl_tls_record_layer#length)
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Several SSL/TLS records can reside in a single packets. So this method checks the remaining data and if it's
 		 * identified as SSL/TLS it creates another SSL/TLS record layer as the next layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelPresentationLayer;
 		}
 
 	protected:
 		SSLLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = SSL;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, SSL)
+		{}
 
 	};  // class SSLLayer
 
@@ -367,12 +365,12 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 	private:
@@ -398,17 +396,16 @@ namespace pcpp
 		    : SSLLayer(data, dataLen, prevLayer, packet)
 		{}
 
-		~SSLChangeCipherSpecLayer()
-		{}
+		~SSLChangeCipherSpecLayer() override = default;
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 	};  // class SSLChangeCipherSpecLayer
 
@@ -431,8 +428,7 @@ namespace pcpp
 		    : SSLLayer(data, dataLen, prevLayer, packet)
 		{}
 
-		~SSLAlertLayer()
-		{}
+		~SSLAlertLayer() override = default;
 
 		/**
 		 * @return SSL/TLS alert level. Will return ::SSL_ALERT_LEVEL_ENCRYPTED if alert is encrypted
@@ -446,12 +442,12 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 	};  // class SSLAlertLayer
 
@@ -474,8 +470,7 @@ namespace pcpp
 		    : SSLLayer(data, dataLen, prevLayer, packet)
 		{}
 
-		~SSLApplicationDataLayer()
-		{}
+		~SSLApplicationDataLayer() override = default;
 
 		/**
 		 * @return A pointer to the encrypted data. This data can be decrypted only if you have the symmetric key
@@ -490,12 +485,12 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * There are no calculated fields for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 	};  // class SSLApplicationDataLayer
 

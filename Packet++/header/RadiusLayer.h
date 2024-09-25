@@ -48,25 +48,24 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		virtual ~RadiusAttribute()
-		{}
+		~RadiusAttribute() override = default;
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
 
-			return (size_t)m_Data->recordLen;
+			return static_cast<size_t>(m_Data->recordLen);
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
 
-			return (size_t)m_Data->recordLen - 2 * sizeof(uint8_t);
+			return static_cast<size_t>(m_Data->recordLen) - 2 * sizeof(uint8_t);
 		}
 	};
 
@@ -184,10 +183,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		RadiusLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = Radius;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, Radius)
+		{}
 
 		/**
 		 * A constructor that creates a new layer from scratch
@@ -215,8 +212,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this layer, currently does nothing
 		 */
-		~RadiusLayer()
-		{}
+		~RadiusLayer() override = default;
 
 		/**
 		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the
@@ -225,7 +221,7 @@ namespace pcpp
 		 */
 		radius_header* getRadiusHeader() const
 		{
-			return (radius_header*)m_Data;
+			return reinterpret_cast<radius_header*>(m_Data);
 		}
 
 		/**
@@ -325,22 +321,22 @@ namespace pcpp
 		/**
 		 * @return The size written in radius_header#length
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Does nothing for this layer, RADIUS is always last
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * Calculate and store the value of radius_header#length according to the layer size
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

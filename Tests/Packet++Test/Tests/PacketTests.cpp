@@ -1068,3 +1068,17 @@ PTF_TEST_CASE(ProtocolFamilyMembershipTest)
 	PTF_ASSERT_FALSE(httpLayer->isMemberOfProtocolFamily(pcpp::HTTPResponse));
 	PTF_ASSERT_FALSE(httpLayer->isMemberOfProtocolFamily(pcpp::IP));
 }
+
+PTF_TEST_CASE(PacketParseLayerLimitTest)
+{
+	timeval time;
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(0, "PacketExamples/TcpPacketWithOptions3.dat");
+	pcpp::Packet packet0(&rawPacket0, pcpp::OsiModelPhysicalLayer);
+	PTF_ASSERT_EQUAL(packet0.getLastLayer(), packet0.getFirstLayer());
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/TcpPacketWithOptions3.dat");
+	pcpp::Packet packet1(&rawPacket1, pcpp::OsiModelTransportLayer);
+	PTF_ASSERT_EQUAL(packet1.getLastLayer()->getOsiModelLayer(), pcpp::OsiModelTransportLayer);
+}
