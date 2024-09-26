@@ -2,30 +2,13 @@
 
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
 #include "WireGuardLayer.h"
-#include "Logger.h"
 #include "EndianPortable.h"
-#include <sstream>
 #include <iomanip>
 #include <cstring>
 
 namespace pcpp
 {
-	void WireGuardLayer::parseNextLayer()
-	{
-		size_t headerLen = getHeaderLen();
-		if (m_DataLen <= headerLen && headerLen != 0)
-			m_NextLayer = new PayloadLayer(m_Data, m_DataLen, this, m_Packet);
-		else
-		{
-			m_NextLayer = WireGuardLayer::parseWireGuardLayer(m_Data, m_DataLen, this, m_Packet);
-			if (!m_NextLayer)
-				m_NextLayer = new PayloadLayer(m_Data, m_DataLen, this, m_Packet);
-		}
-	}
-
 	WireGuardLayer* WireGuardLayer::parseWireGuardLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (dataLen < sizeof(WireGuardLayer::wg_common_header))
