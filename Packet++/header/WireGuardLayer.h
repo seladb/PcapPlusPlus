@@ -21,6 +21,10 @@ namespace pcpp
 	{
 	protected:
 #pragma pack(push, 1)
+		/**
+		 * @struct wg_common_header
+		 * Represents the common header for all WireGuard message types
+		 */
 		struct wg_common_header
 		{
 			/** Message type field */
@@ -29,6 +33,9 @@ namespace pcpp
 			uint8_t reserved[3];
 		};
 #pragma pack(pop)
+		/**
+		 * @return Pointer to the common header structure.
+		 */
 		wg_common_header* getBasicHeader() const
 		{
 			return reinterpret_cast<wg_common_header*>(m_Data);
@@ -162,6 +169,10 @@ namespace pcpp
 	{
 	private:
 #pragma pack(push, 1)
+		/**
+		 * @struct wg_handshake_initiation
+		 * Represents the Handshake Initiation message structure
+		 */
 		typedef struct wg_handshake_initiation : wg_common_header
 		{
 			/** Sender index */
@@ -179,6 +190,9 @@ namespace pcpp
 		} wg_handshake_initiation;
 #pragma pack(pop)
 
+		/**
+		 * @return A pointer to the Handshake Initiation message structure.
+		 */
 		wg_handshake_initiation* getHandshakeInitiationHeader() const
 		{
 			return reinterpret_cast<wg_handshake_initiation*>(getBasicHeader());
@@ -259,6 +273,10 @@ namespace pcpp
 	{
 	private:
 #pragma pack(push, 1)
+		/**
+		 * @struct wg_handshake_response
+		 * Represents the Handshake Response message structure
+		 */
 		typedef struct wg_handshake_response : wg_common_header
 		{
 			/** Sender index */
@@ -276,6 +294,9 @@ namespace pcpp
 		} wg_handshake_response;
 #pragma pack(pop)
 
+		/**
+		 * @return A pointer to the Handshake Response message structure.
+		 */
 		wg_handshake_response* getHandshakeResponseHeader() const
 		{
 			return reinterpret_cast<wg_handshake_response*>(getBasicHeader());
@@ -355,6 +376,10 @@ namespace pcpp
 	{
 	private:
 #pragma pack(push, 1)
+		/**
+		 * @struct wg_cookie_reply
+		 * Represents the Cookie Reply message structure
+		 */
 		typedef struct wg_cookie_reply : wg_common_header
 		{
 			/** Receiver index */
@@ -365,7 +390,9 @@ namespace pcpp
 			uint8_t encryptedCookie[32];
 		} wg_cookie_reply;
 #pragma pack(pop)
-
+		/**
+		 * @return A pointer to the Cookie Reply message structure.
+		 */
 		wg_cookie_reply* getCookieReplyHeader() const
 		{
 			return reinterpret_cast<wg_cookie_reply*>(getBasicHeader());
@@ -425,6 +452,10 @@ namespace pcpp
 	{
 	private:
 #pragma pack(push, 1)
+		/**
+		 * @struct wg_transport_data
+		 * Represents the Transport Data message structure
+		 */
 		typedef struct wg_transport_data : wg_common_header
 		{
 			/** Receiver index */
@@ -436,6 +467,9 @@ namespace pcpp
 		} wg_transport_data;
 #pragma pack(pop)
 
+		/**
+		 * @return A pointer to the Transport Data message structure.
+		 */
 		wg_transport_data* getTransportHeader() const
 		{
 			return reinterpret_cast<wg_transport_data*>(getBasicHeader());
