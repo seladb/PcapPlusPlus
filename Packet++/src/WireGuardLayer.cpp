@@ -94,16 +94,17 @@ namespace pcpp
 		m_Data = new uint8_t[messageLen];
 		memset(m_Data, 0, messageLen);
 
-		wg_handshake_initiation* msgHdr = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
 
-		msgHdr->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation);
-		msgHdr->senderIndex = htobe32(senderIndex);
+		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation);
+		memset(msg->reserved, 0, 3);
+		msg->senderIndex = htobe32(senderIndex);
 
-		memcpy(msgHdr->initiatorEphemeral, initiatorEphemeral, 32);
-		memcpy(msgHdr->encryptedInitiatorStatic, encryptedInitiatorStatic, 48);
-		memcpy(msgHdr->encryptedTimestamp, encryptedTimestamp, 28);
-		memcpy(msgHdr->mac1, mac1, 16);
-		memcpy(msgHdr->mac2, mac2, 16);
+		memcpy(msg->initiatorEphemeral, initiatorEphemeral, 32);
+		memcpy(msg->encryptedInitiatorStatic, encryptedInitiatorStatic, 48);
+		memcpy(msg->encryptedTimestamp, encryptedTimestamp, 28);
+		memcpy(msg->mac1, mac1, 16);
+		memcpy(msg->mac2, mac2, 16);
 
 		m_Protocol = WireGuard;
 	}
@@ -163,6 +164,7 @@ namespace pcpp
 		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeResponse);
+		memset(msg->reserved, 0, 3);
 		msg->senderIndex = htobe32(senderIndex);
 		msg->receiverIndex = htobe32(receiverIndex);
 		memcpy(msg->responderEphemeral, responderEphemeral, 32);
@@ -226,6 +228,7 @@ namespace pcpp
 		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::CookieReply);
+		memset(msg->reserved, 0, 3);
 		msg->receiverIndex = htobe32(receiverIndex);
 		memcpy(msg->nonce, nonce, 24);
 		memcpy(msg->encryptedCookie, encryptedCookie, 32);
@@ -267,6 +270,7 @@ namespace pcpp
 		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
 
 		msg->messageType = static_cast<uint8_t>(WireGuardMessageType::TransportData);
+		memset(msg->reserved, 0, 3);
 		msg->receiverIndex = htobe32(receiverIndex);
 		msg->counter = htobe64(counter);
 		memcpy(m_Data + sizeof(wg_transport_data), encryptedData, encryptedDataLen);
