@@ -1,7 +1,6 @@
 #define LOG_MODULE PacketLogModuleWireGuardLayer
 
 #include "UdpLayer.h"
-#include "PayloadLayer.h"
 #include "WireGuardLayer.h"
 #include "EndianPortable.h"
 #include <iomanip>
@@ -99,6 +98,7 @@ namespace pcpp
 
 		msgHdr->messageType = static_cast<uint8_t>(WireGuardMessageType::HandshakeInitiation);
 		msgHdr->senderIndex = htobe32(senderIndex);
+
 		memcpy(msgHdr->initiatorEphemeral, initiatorEphemeral, 32);
 		memcpy(msgHdr->encryptedInitiatorStatic, encryptedInitiatorStatic, 48);
 		memcpy(msgHdr->encryptedTimestamp, encryptedTimestamp, 28);

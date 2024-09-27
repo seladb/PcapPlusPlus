@@ -17,21 +17,24 @@ PTF_TEST_CASE(WireGuardHandshakeInitParsingTest)
 
 	PTF_ASSERT_TRUE(wgHandShakeInitPacket.isPacketOfType(pcpp::WireGuard));
 
-	pcpp::WireGuardLayer* wgLayer = wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardLayer>();
+	auto wgLayer = wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
-	pcpp::WireGuardHandshakeInitiationLayer* wgHandShakeInitLayer =
-	    wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardHandshakeInitiationLayer>();
+	auto wgHandShakeInitLayer = wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardHandshakeInitiationLayer>();
 	PTF_ASSERT_NOT_NULL(wgHandShakeInitLayer);
 
 	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getMessageTypeAsString(), "Handshake Initiation");
+
+	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getMessageType(), 1);
+	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getReserved(), 0);
+	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getHeaderLen(), 148);
+
 	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->toString(),
 	                 "WireGuard Layer, " + wgHandShakeInitLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgHandShakeInitLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::HandshakeInitiation);
-
-	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getSenderIndex(), be32toh(818952152));
+	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getSenderIndex(), 0xd837d030);
 
 	std::array<uint8_t, 32> expectedPublicKey = { 0x5f, 0xce, 0xc7, 0xc8, 0xe5, 0xc8, 0xe2, 0xe3, 0xf7, 0x98, 0x9e,
 		                                          0xef, 0x60, 0xc2, 0x28, 0xd8, 0x23, 0x29, 0xd6, 0x02, 0xb6, 0xb1,
@@ -69,22 +72,26 @@ PTF_TEST_CASE(WireGuardHandshakeRespParsingTest)
 	pcpp::Packet wgHandShakeResponsePacket(&rawPacket1);
 
 	PTF_ASSERT_TRUE(wgHandShakeResponsePacket.isPacketOfType(pcpp::WireGuard));
-	pcpp::WireGuardLayer* wgLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardLayer>();
+	auto wgLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
-	pcpp::WireGuardHandshakeResponseLayer* wgHandShakeResponseLayer =
-	    wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardHandshakeResponseLayer>();
+	auto wgHandShakeResponseLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardHandshakeResponseLayer>();
 	PTF_ASSERT_NOT_NULL(wgHandShakeResponseLayer);
 
 	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getMessageTypeAsString(), "Handshake Response");
+
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getMessageType(), 2);
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getReserved(), 0);
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getHeaderLen(), 92);
+
 	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->toString(),
 	                 "WireGuard Layer, " + wgHandShakeResponseLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgHandShakeResponseLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::HandshakeResponse);
 
-	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getSenderIndex(), be32toh(2877158406));
-	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getReceiverIndex(), be32toh(818952152));
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getSenderIndex(), 0x06f47dab);
+	PTF_ASSERT_EQUAL(wgHandShakeResponseLayer->getReceiverIndex(), 0xd837d030);
 
 	std::array<uint8_t, 32> expectedResponderEphemeral = { 0xb1, 0x8d, 0x55, 0x50, 0xbd, 0x40, 0x42, 0xa3,
 		                                                   0x7a, 0x46, 0x82, 0x3a, 0xc0, 0x8d, 0xb1, 0xec,
@@ -116,23 +123,25 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest)
 	pcpp::Packet wgCookieReplyPacket(&rawPacket1);
 
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.isPacketOfType(pcpp::WireGuard));
-	pcpp::WireGuardLayer* wgLayer = wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardLayer>();
+	auto wgLayer = wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
-	pcpp::WireGuardCookieReplyLayer* wgCookieReplyaLayer =
-	    wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardCookieReplyLayer>();
+	auto wgCookieReplyaLayer = wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardCookieReplyLayer>();
 	PTF_ASSERT_NOT_NULL(wgCookieReplyaLayer);
 
 	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->getMessageTypeAsString(), "Cookie Reply");
+
+	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->getMessageType(), 3);
+	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->getReserved(), 0);
+	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->getHeaderLen(), 64);
+
 	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->toString(),
 	                 "WireGuard Layer, " + wgCookieReplyaLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgCookieReplyaLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::CookieReply);
 
-	uint32_t receiverIndex = 2877158406;
-
-	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->getReceiverIndex(), receiverIndex);
+	PTF_ASSERT_EQUAL(wgCookieReplyaLayer->getReceiverIndex(), 0xab7df406);
 
 	uint8_t nonce[24] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
 		                  0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -153,24 +162,27 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 
 	pcpp::Packet wgTransportDataPacket(&rawPacket1);
 	PTF_ASSERT_TRUE(wgTransportDataPacket.isPacketOfType(pcpp::WireGuard));
-	pcpp::WireGuardLayer* wgLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardLayer>();
+	auto wgLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardLayer>();
 	PTF_ASSERT_NOT_NULL(wgLayer);
 
-	pcpp::WireGuardTransportDataLayer* wgTransportDataLayer =
-	    wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
+	auto wgTransportDataLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
 	PTF_ASSERT_NOT_NULL(wgTransportDataLayer);
 
 	PTF_ASSERT_EQUAL(wgTransportDataLayer->getMessageTypeAsString(), "Transport Data");
+
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->getMessageType(), 4);
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->getReserved(), 0);
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->getHeaderLen(), 128);
+
 	PTF_ASSERT_EQUAL(wgTransportDataLayer->toString(),
 	                 "WireGuard Layer, " + wgTransportDataLayer->getMessageTypeAsString() + " message");
 
 	PTF_ASSERT_TRUE(wgTransportDataLayer->getWireGuardMessageType() ==
 	                pcpp::WireGuardLayer::WireGuardMessageType::TransportData);
 
-	PTF_ASSERT_EQUAL(wgTransportDataLayer->getReceiverIndex(), be32toh(2877158406));
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->getReceiverIndex(), 0x06f47dab);
 
-	uint64_t expectedCounter = 0x0000000000000000;
-	PTF_ASSERT_EQUAL(wgTransportDataLayer->getCounter(), be32toh(expectedCounter));
+	PTF_ASSERT_EQUAL(wgTransportDataLayer->getCounter(), 0);
 
 	uint8_t expectedEncryptedData[112] = { 0xa4, 0xeb, 0xc1, 0x2e, 0xe3, 0xf9, 0x90, 0xda, 0x18, 0x03, 0x3a, 0x07, 0x89,
 		                                   0xc0, 0x4e, 0x27, 0x00, 0xf6, 0xf5, 0xc2, 0x71, 0xd4, 0x2a, 0xc4, 0xb4, 0xd6,
@@ -181,8 +193,8 @@ PTF_TEST_CASE(WireGuardTransportDataParsingTest)
 		                                   0xbe, 0x03, 0x34, 0x6d, 0x91, 0x2e, 0x91, 0x6d, 0xad, 0x86, 0x25, 0x45, 0x45,
 		                                   0x47, 0x01, 0x36, 0x4f, 0x2d, 0x24, 0x86, 0xd7, 0xce, 0xd4, 0xc8, 0x64, 0x2c,
 		                                   0xe5, 0x47, 0xdd, 0xb2, 0x6e, 0xf6, 0xa4, 0x6b };
-	PTF_ASSERT_TRUE(std::memcmp(wgTransportDataLayer->getEncryptedData(), expectedEncryptedData,
-	                            sizeof(expectedEncryptedData)) == 0);
+	PTF_ASSERT_BUF_COMPARE(wgTransportDataLayer->getEncryptedData(), expectedEncryptedData,
+	                       sizeof(expectedEncryptedData));
 }
 
 PTF_TEST_CASE(WireGuardCreationTest)
@@ -218,26 +230,29 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	uint8_t expectedMac2Init[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-	pcpp::WireGuardHandshakeInitiationLayer newHandshakeInitMessage(818952152, expectedPublicKeyInit,
+	pcpp::WireGuardHandshakeInitiationLayer newHandshakeInitMessage(0xd837d030, expectedPublicKeyInit,
 	                                                                expectedStaticKeyInit, expectedTimestampInit,
 	                                                                expectedMac1Init, expectedMac2Init);
 	pcpp::Packet wgHandshakeInitPacket(&rawPacket1);
-	pcpp::WireGuardHandshakeInitiationLayer* origHandshakeInitMessage =
+	auto origHandshakeInitMessage =
 	    dynamic_cast<pcpp::WireGuardHandshakeInitiationLayer*>(wgHandshakeInitPacket.detachLayer(pcpp::WireGuard));
 	PTF_ASSERT_NOT_NULL(origHandshakeInitMessage);
-	PTF_ASSERT_EQUAL(newHandshakeInitMessage.getDataLen(), origHandshakeInitMessage->getDataLen());
 
-	PTF_ASSERT_EQUAL(newHandshakeInitMessage.getSenderIndex(), 818952152);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeInitMessage.getInitiatorEphemeral().data(), expectedPublicKeyInit, 32) == 0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeInitMessage.getEncryptedInitiatorStatic().data(), expectedStaticKeyInit, 48) ==
-	                0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeInitMessage.getEncryptedTimestamp().data(), expectedTimestampInit, 28) == 0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeInitMessage.getMac1().data(), expectedMac1Init, 16) == 0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeInitMessage.getMac2().data(), expectedMac2Init, 16) == 0);
+	PTF_ASSERT_EQUAL(newHandshakeInitMessage.getSenderIndex(), 0xd837d030);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getInitiatorEphemeral().data(), expectedPublicKeyInit, 32);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getEncryptedInitiatorStatic().data(), expectedStaticKeyInit, 48);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getEncryptedTimestamp().data(), expectedTimestampInit, 28);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getMac1().data(), expectedMac1Init, 16);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getMac2().data(), expectedMac2Init, 16);
 
 	PTF_ASSERT_TRUE(wgHandshakeInitPacket.addLayer(&newHandshakeInitMessage));
 
 	PTF_ASSERT_EQUAL(wgHandshakeInitPacket.getRawPacket()->getRawDataLen(), bufferLength1);
+	PTF_ASSERT_EQUAL(newHandshakeInitMessage.getDataLen(), origHandshakeInitMessage->getDataLen());
+
+	PTF_ASSERT_BUF_COMPARE(newHandshakeInitMessage.getData(), origHandshakeInitMessage->getData(),
+	                       origHandshakeInitMessage->getDataLen());
+
 	delete origHandshakeInitMessage;
 
 	// create WireGuard Handshake Response message
@@ -255,52 +270,60 @@ PTF_TEST_CASE(WireGuardCreationTest)
 	uint8_t expectedMac2Resp[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-	pcpp::WireGuardHandshakeResponseLayer newHandshakeRespMessage(2877158406, 818952152, expectedResponderEphemeralResp,
-	                                                              encryptedEmptyDataResp, expectedMac1Resp,
-	                                                              expectedMac2Resp);
+	pcpp::WireGuardHandshakeResponseLayer newHandshakeRespMessage(
+	    0x06f47dab, 0xd837d030, expectedResponderEphemeralResp, encryptedEmptyDataResp, expectedMac1Resp,
+	    expectedMac2Resp);
 	pcpp::Packet wgHandshakeRespPacket(&rawPacket2);
 	pcpp::WireGuardHandshakeResponseLayer* origHandshakeRespMessage =
 	    dynamic_cast<pcpp::WireGuardHandshakeResponseLayer*>(wgHandshakeRespPacket.detachLayer(pcpp::WireGuard));
 	PTF_ASSERT_NOT_NULL(origHandshakeRespMessage);
 	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getDataLen(), origHandshakeRespMessage->getDataLen());
-	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getSenderIndex(), 2877158406);
-	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getReceiverIndex(), 818952152);
-	PTF_ASSERT_TRUE(
-	    memcmp(newHandshakeRespMessage.getResponderEphemeral().data(), expectedResponderEphemeralResp, 32) == 0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeRespMessage.getEncryptedEmpty().data(), encryptedEmptyDataResp, 16) == 0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeRespMessage.getMac1().data(), expectedMac1Resp, 16) == 0);
-	PTF_ASSERT_TRUE(memcmp(newHandshakeRespMessage.getMac2().data(), expectedMac2Resp, 16) == 0);
+	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getSenderIndex(), 0x06f47dab);
+	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getReceiverIndex(), 0xd837d030);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeRespMessage.getResponderEphemeral().data(), expectedResponderEphemeralResp, 32);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeRespMessage.getEncryptedEmpty().data(), encryptedEmptyDataResp, 16);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeRespMessage.getMac1().data(), expectedMac1Resp, 16);
+	PTF_ASSERT_BUF_COMPARE(newHandshakeRespMessage.getMac2().data(), expectedMac2Resp, 16);
 
 	PTF_ASSERT_TRUE(wgHandshakeRespPacket.addLayer(&newHandshakeRespMessage));
 
 	PTF_ASSERT_EQUAL(wgHandshakeRespPacket.getRawPacket()->getRawDataLen(), bufferLength2);
+	PTF_ASSERT_EQUAL(newHandshakeRespMessage.getDataLen(), origHandshakeRespMessage->getDataLen());
+
+	PTF_ASSERT_BUF_COMPARE(newHandshakeRespMessage.getData(), origHandshakeRespMessage->getData(),
+	                       origHandshakeRespMessage->getDataLen());
+
 	delete origHandshakeRespMessage;
 
 	// create WireGuard Cookie Reply message
 
 	memcpy(origBuffer, buffer3, bufferLength3);
 
-	uint32_t receiverIndex = 2877158406;
 	uint8_t nonce[24] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
 		                  0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 	uint8_t encryptedCookie[32] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
 		                            0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
 		                            0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-	pcpp::WireGuardCookieReplyLayer newCookieReplyMessage(receiverIndex, nonce, encryptedCookie);
+	pcpp::WireGuardCookieReplyLayer newCookieReplyMessage(0xab7df406, nonce, encryptedCookie);
 	pcpp::Packet wgCookieReplyPacket(&rawPacket3);
 
-	pcpp::WireGuardCookieReplyLayer* origCookieReplyMessage =
+	auto origCookieReplyMessage =
 	    dynamic_cast<pcpp::WireGuardCookieReplyLayer*>(wgCookieReplyPacket.detachLayer(pcpp::WireGuard));
 	PTF_ASSERT_NOT_NULL(origCookieReplyMessage);
 
 	PTF_ASSERT_EQUAL(newCookieReplyMessage.getDataLen(), origCookieReplyMessage->getDataLen());
-	PTF_ASSERT_EQUAL(newCookieReplyMessage.getReceiverIndex(), receiverIndex);
+	PTF_ASSERT_EQUAL(newCookieReplyMessage.getReceiverIndex(), 0xab7df406);
 	PTF_ASSERT_TRUE(std::memcmp(newCookieReplyMessage.getNonce().data(), nonce, sizeof(nonce)) == 0);
 	PTF_ASSERT_TRUE(
 	    std::memcmp(newCookieReplyMessage.getEncryptedCookie().data(), encryptedCookie, sizeof(encryptedCookie)) == 0);
 	PTF_ASSERT_TRUE(wgCookieReplyPacket.addLayer(&newCookieReplyMessage));
+
 	PTF_ASSERT_EQUAL(wgCookieReplyPacket.getRawPacket()->getRawDataLen(), bufferLength3);
+	PTF_ASSERT_EQUAL(newCookieReplyMessage.getDataLen(), origCookieReplyMessage->getDataLen());
+
+	PTF_ASSERT_BUF_COMPARE(newCookieReplyMessage.getData(), origCookieReplyMessage->getData(),
+	                       origCookieReplyMessage->getDataLen());
 
 	delete origCookieReplyMessage;
 
@@ -319,18 +342,24 @@ PTF_TEST_CASE(WireGuardCreationTest)
 		0x24, 0x86, 0xd7, 0xce, 0xd4, 0xc8, 0x64, 0x2c, 0xe5, 0x47, 0xdd, 0xb2, 0x6e, 0xf6, 0xa4, 0x6b
 	};
 
-	pcpp::WireGuardTransportDataLayer newTransportDataMessage(2877158406, expectedCounterTransport,
+	pcpp::WireGuardTransportDataLayer newTransportDataMessage(0x06f47dab, expectedCounterTransport,
 	                                                          expectedEncryptedDataTransport, 112);
 	pcpp::Packet wgTransportDataPacket(&rawPacket4);
 
-	pcpp::WireGuardTransportDataLayer* origTransportDataMessage =
+	auto origTransportDataMessage =
 	    dynamic_cast<pcpp::WireGuardTransportDataLayer*>(wgTransportDataPacket.detachLayer(pcpp::WireGuard));
 	PTF_ASSERT_NOT_NULL(origTransportDataMessage);
 	PTF_ASSERT_EQUAL(newTransportDataMessage.getDataLen(), origTransportDataMessage->getDataLen());
+	PTF_ASSERT_EQUAL(newCookieReplyMessage.getReceiverIndex(), 0xab7df406);
 	PTF_ASSERT_EQUAL(newTransportDataMessage.getCounter(), expectedCounterTransport);
-	PTF_ASSERT_TRUE(memcmp(newTransportDataMessage.getEncryptedData(), expectedEncryptedDataTransport, 112) == 0);
+	PTF_ASSERT_BUF_COMPARE(newTransportDataMessage.getEncryptedData(), expectedEncryptedDataTransport, 112);
 	PTF_ASSERT_TRUE(wgTransportDataPacket.addLayer(&newTransportDataMessage));
 
 	PTF_ASSERT_EQUAL(wgTransportDataPacket.getRawPacket()->getRawDataLen(), bufferLength4);
+	PTF_ASSERT_EQUAL(newTransportDataMessage.getDataLen(), origTransportDataMessage->getDataLen());
+
+	PTF_ASSERT_BUF_COMPARE(newTransportDataMessage.getData(), origTransportDataMessage->getData(),
+	                       origTransportDataMessage->getDataLen());
+
 	delete origTransportDataMessage;
 }

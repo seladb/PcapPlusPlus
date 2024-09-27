@@ -33,9 +33,6 @@ namespace pcpp
 			uint8_t reserved[3];
 		};
 #pragma pack(pop)
-		/**
-		 * @return Pointer to the common header structure.
-		 */
 		wg_common_header* getBasicHeader() const
 		{
 			return reinterpret_cast<wg_common_header*>(m_Data);
@@ -189,10 +186,6 @@ namespace pcpp
 			uint8_t mac2[16];
 		} wg_handshake_initiation;
 #pragma pack(pop)
-
-		/**
-		 * @return A pointer to the Handshake Initiation message structure.
-		 */
 		wg_handshake_initiation* getHandshakeInitiationHeader() const
 		{
 			return reinterpret_cast<wg_handshake_initiation*>(getBasicHeader());
@@ -294,9 +287,6 @@ namespace pcpp
 		} wg_handshake_response;
 #pragma pack(pop)
 
-		/**
-		 * @return A pointer to the Handshake Response message structure.
-		 */
 		wg_handshake_response* getHandshakeResponseHeader() const
 		{
 			return reinterpret_cast<wg_handshake_response*>(getBasicHeader());
@@ -390,9 +380,7 @@ namespace pcpp
 			uint8_t encryptedCookie[32];
 		} wg_cookie_reply;
 #pragma pack(pop)
-		/**
-		 * @return A pointer to the Cookie Reply message structure.
-		 */
+
 		wg_cookie_reply* getCookieReplyHeader() const
 		{
 			return reinterpret_cast<wg_cookie_reply*>(getBasicHeader());
@@ -467,9 +455,6 @@ namespace pcpp
 		} wg_transport_data;
 #pragma pack(pop)
 
-		/**
-		 * @return A pointer to the Transport Data message structure.
-		 */
 		wg_transport_data* getTransportHeader() const
 		{
 			return reinterpret_cast<wg_transport_data*>(getBasicHeader());
