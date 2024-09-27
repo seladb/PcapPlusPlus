@@ -46,8 +46,7 @@ namespace pcpp
 		 */
 		explicit CotpLayer(uint8_t tpduNumber);
 
-		virtual ~CotpLayer()
-		{}
+		~CotpLayer() override = default;
 
 		/**
 		 * @return COTP length
@@ -119,7 +118,7 @@ namespace pcpp
 	private:
 		cotphdr* getCotpHeader() const
 		{
-			return (cotphdr*)m_Data;
+			return reinterpret_cast<cotphdr*>(m_Data);
 		}
 	};
 

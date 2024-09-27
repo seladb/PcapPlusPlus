@@ -394,8 +394,7 @@ namespace pcpp
 		 */
 		IcmpLayer();
 
-		virtual ~IcmpLayer()
-		{}
+		~IcmpLayer() override = default;
 
 		/**
 		 * Get a pointer to the basic ICMP header. Notice this points directly to the data, so every change will change
@@ -404,7 +403,7 @@ namespace pcpp
 		 */
 		icmphdr* getIcmpHeader() const
 		{
-			return (icmphdr*)m_Data;
+			return reinterpret_cast<icmphdr*>(m_Data);
 		}
 
 		/**
@@ -706,23 +705,23 @@ namespace pcpp
 		 * ICMP_PARAM_PROBLEM have data that contains IPv4 header and some L4 header (TCP/UDP/ICMP). This method parses
 		 * these headers as separate layers on top of the ICMP layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return The ICMP header length. This length varies according to the ICMP message type. This length doesn't
 		 * include IPv4 and L4 headers in case ICMP message type are: ICMP_DEST_UNREACHABLE, ICMP_SOURCE_QUENCH,
 		 * ICMP_TIME_EXCEEDED, ICMP_REDIRECT, ICMP_PARAM_PROBLEM
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Calculate ICMP checksum field
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
