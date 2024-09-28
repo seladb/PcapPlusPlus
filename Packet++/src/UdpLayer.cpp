@@ -16,6 +16,7 @@
 #include "NtpLayer.h"
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
+#include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include <string.h>
@@ -135,29 +136,35 @@ namespace pcpp
 			m_NextLayer = SomeIpLayer::parseSomeIpLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((WakeOnLanLayer::isWakeOnLanPort(portDst) && WakeOnLanLayer::isDataValid(udpData, udpDataLen)))
 			m_NextLayer = new WakeOnLanLayer(udpData, udpDataLen, this, m_Packet);
-		else if (GvcpLayer::isGvcpPort(portSrc) || GvcpLayer::isGvcpPort(portDst))
-		{
-			m_NextLayer = GvcpLayer::parseGvcpLayer(udpData, udpDataLen, this, m_Packet);
-		}
-		else
+	}
+	else if ((WireGuardLayer::isWireGuardPorts(portDst, portSrc) && WireGuardLayer::isDataValid(udpData, udpDataLen)))
+	{
+		m_NextLayer = WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, m_Packet);
+		if (!m_NextLayer)
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 	}
-
-	void UdpLayer::computeCalculateFields()
+	else if (GvcpLayer::isGvcpPort(portSrc) || GvcpLayer::isGvcpPort(portDst))
 	{
-		udphdr* udpHdr = (udphdr*)m_Data;
-		udpHdr->length = htobe16(m_DataLen);
-		calculateChecksum(true);
+		m_NextLayer = GvcpLayer::parseGvcpLayer(udpData, udpDataLen, this, m_Packet);
 	}
+	else m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+}
 
-	std::string UdpLayer::toString() const
-	{
-		std::ostringstream srcPortStream;
-		srcPortStream << getSrcPort();
-		std::ostringstream dstPortStream;
-		dstPortStream << getDstPort();
+void UdpLayer::computeCalculateFields()
+{
+	udphdr* udpHdr = (udphdr*)m_Data;
+	udpHdr->length = htobe16(m_DataLen);
+	calculateChecksum(true);
+}
 
-		return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
-	}
+std::string UdpLayer::toString() const
+{
+	std::ostringstream srcPortStream;
+	srcPortStream << getSrcPort();
+	std::ostringstream dstPortStream;
+	dstPortStream << getDstPort();
+
+	return "UDP Layer, Src port: " + srcPortStream.str() + ", Dst port: " + dstPortStream.str();
+}
 
 }  // namespace pcpp

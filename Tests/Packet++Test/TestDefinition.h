@@ -274,3 +274,10 @@ PTF_TEST_CASE(Asn1EncodingTest);
 // Implemented in LdapTests.cpp
 PTF_TEST_CASE(LdapParsingTest);
 PTF_TEST_CASE(LdapCreationTest);
+
+// Implemented in WireGuardTests.cpp
+PTF_TEST_CASE(WireGuardHandshakeInitParsingTest);
+PTF_TEST_CASE(WireGuardHandshakeRespParsingTest);
+PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
+PTF_TEST_CASE(WireGuardTransportDataParsingTest);
+PTF_TEST_CASE(WireGuardCreationTest);
