@@ -32,7 +32,7 @@ namespace pcpp
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other);
 
 	public:
-		virtual LiveDeviceType getDeviceType() const override
+		LiveDeviceType getDeviceType() const override
 		{
 			return WinPcapDevice;
 		}
