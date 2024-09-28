@@ -112,9 +112,9 @@ namespace pcpp
 		/** End timestamp of the connection with microsecond precision */
 		timeval endTime;
 		/** Start timestamp of the connection with nanosecond precision */
-		std::chrono::time_point<std::chrono::system_clock> startTimePrecise;
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTimePrecise;
 		/** End timestamp of the connection with nanosecond precision */
-		std::chrono::time_point<std::chrono::system_clock> endTimePrecise;
+		std::chrono::time_point<std::chrono::high_resolution_clock> endTimePrecise;
 
 		/**
 		 * A c'tor for this struct that basically zeros all members
@@ -126,13 +126,13 @@ namespace pcpp
 		 * Set the start time of the connection
 		 * @param[in] startTimeValue timestamp value
 		 */
-		void setStartTime(const std::chrono::time_point<std::chrono::system_clock>& startTimeValue);
+		void setStartTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& startTimeValue);
 
 		/**
 		 * Set the end time of the connection
 		 * @param[in] endTimeValue timestamp value
 		 */
-		void setEndTime(const std::chrono::time_point<std::chrono::system_clock>& endTimeValue);
+		void setEndTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& endTimeValue);
 	};
 
 	class TcpReassembly;
@@ -155,7 +155,7 @@ namespace pcpp
 		 * @param[in] timestamp when this packet was received
 		 */
 		TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData,
-		              std::chrono::time_point<std::chrono::system_clock> timestamp)
+		              std::chrono::time_point<std::chrono::high_resolution_clock> timestamp)
 		    : m_Data(tcpData), m_DataLen(tcpDataLength), m_MissingBytes(missingBytes), m_Connection(connData),
 		      m_Timestamp(timestamp)
 		{}
@@ -213,7 +213,7 @@ namespace pcpp
 		/**
 		 * @return A nanosecond precision of the packet timestamp
 		 */
-		std::chrono::time_point<std::chrono::system_clock> getTimeStampPrecise() const
+		std::chrono::time_point<std::chrono::high_resolution_clock> getTimeStampPrecise() const
 		{
 			return m_Timestamp;
 		}
@@ -223,7 +223,7 @@ namespace pcpp
 		size_t m_DataLen;
 		size_t m_MissingBytes;
 		const ConnectionData& m_Connection;
-		std::chrono::time_point<std::chrono::system_clock> m_Timestamp;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_Timestamp;
 	};
 
 	/**
@@ -486,7 +486,7 @@ namespace pcpp
 			uint32_t sequence;
 			size_t dataLength;
 			uint8_t* data;
-			std::chrono::time_point<std::chrono::system_clock> timestamp;
+			std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
 
 			TcpFragment() : sequence(0), dataLength(0), data(nullptr)
 			{}

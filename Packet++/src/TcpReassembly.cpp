@@ -23,7 +23,7 @@
 namespace pcpp
 {
 
-	static timeval timePointToTimeval(const std::chrono::time_point<std::chrono::system_clock>& in)
+	static timeval timePointToTimeval(const std::chrono::time_point<std::chrono::high_resolution_clock>& in)
 	{
 		auto duration = in.time_since_epoch();
 
@@ -36,20 +36,21 @@ namespace pcpp
 		return out;
 	}
 
-	static std::chrono::time_point<std::chrono::system_clock> timespecToTimePoint(const timespec& in)
+	static std::chrono::time_point<std::chrono::high_resolution_clock> timespecToTimePoint(const timespec& in)
 	{
-		auto duration = std::chrono::duration_cast<std::chrono::system_clock::duration>(
+		auto duration = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
 		    std::chrono::seconds(in.tv_sec) + std::chrono::nanoseconds(in.tv_nsec));
-		return std::chrono::time_point<std::chrono::system_clock>(duration);
+
+		return std::chrono::time_point<std::chrono::high_resolution_clock>(duration);
 	}
 
-	void ConnectionData::setStartTime(const std::chrono::time_point<std::chrono::system_clock>& startTimeValue)
+	void ConnectionData::setStartTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& startTimeValue)
 	{
 		startTime = timePointToTimeval(startTimeValue);
 		startTimePrecise = startTimeValue;
 	}
 
-	void ConnectionData::setEndTime(const std::chrono::time_point<std::chrono::system_clock>& endTimeValue)
+	void ConnectionData::setEndTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& endTimeValue)
 	{
 		endTime = timePointToTimeval(endTimeValue);
 		endTimePrecise = endTimeValue;
