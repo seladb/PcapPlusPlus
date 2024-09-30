@@ -314,7 +314,7 @@ namespace pcpp
 	template <class T> inline void log(LogSource source, LogLevel level, T const& message)
 	{
 		auto& logger = Logger::getInstance();
-		if (logger.shouldLog(level, source.module))
+		if (logger.shouldLog(level, source.logModule))
 		{
 			std::ostringstream sstream;
 			sstream << message;
