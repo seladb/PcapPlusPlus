@@ -103,7 +103,6 @@ namespace pcpp
 		 * Represents the source of a log message.
 		 * Contains information about the source file, function, line number, and the log module.
 		 */
-
 		constexpr LogSource() = default;
 
 		/**
