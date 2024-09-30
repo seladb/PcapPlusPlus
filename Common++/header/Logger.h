@@ -96,13 +96,16 @@ namespace pcpp
 		NumOfLogModules
 	};
 
+	/**
+	 * @struct LogSource
+	 * Represents the source of a log message.
+	 * Contains information about the source file, function, line number, and the log module.
+	 */
 	struct LogSource
 	{
 		/**
-		 * @struct LogSource
-		 * Represents the source of a log message.
-		 * Contains information about the source file, function, line number, and the log module.
-		 */
+		 * Default constructor for LogSource.
+		 */ /
 		constexpr LogSource() = default;
 
 		/**
