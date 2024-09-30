@@ -105,7 +105,7 @@ namespace pcpp
 	{
 		/**
 		 * Default constructor for LogSource.
-		 */ /
+		 */
 		constexpr LogSource() = default;
 
 		/**
