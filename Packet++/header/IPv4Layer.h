@@ -226,8 +226,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		~IPv4Option()
-		{}
+		~IPv4Option() override = default;
 
 		/**
 		 * A method for parsing the IPv4 option value as a list of IPv4 addresses. This method is relevant only for
@@ -347,7 +346,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
@@ -359,7 +358,7 @@ namespace pcpp
 			return static_cast<size_t>(m_Data->recordLen);
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
@@ -505,7 +504,7 @@ namespace pcpp
 		 */
 		iphdr* getIPv4Header() const
 		{
-			return (iphdr*)m_Data;
+			return reinterpret_cast<iphdr*>(m_Data);
 		}
 
 		/**
@@ -513,7 +512,7 @@ namespace pcpp
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the source address
 		 */
-		IPAddress getSrcIPAddress() const
+		IPAddress getSrcIPAddress() const override
 		{
 			return getSrcIPv4Address();
 		}
@@ -541,7 +540,7 @@ namespace pcpp
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the destination address
 		 */
-		IPAddress getDstIPAddress() const
+		IPAddress getDstIPAddress() const override
 		{
 			return getDstIPv4Address();
 		}
@@ -673,12 +672,12 @@ namespace pcpp
 		 *
 		 * Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return static_cast<size_t>(static_cast<uint16_t>(getIPv4Header()->internetHeaderLength) * 4) +
 			       m_TempHeaderExtension;
@@ -692,11 +691,11 @@ namespace pcpp
 		 * - iphdr#protocol = calculated if next layer is known: ::PACKETPP_IPPROTO_TCP for TCP, ::PACKETPP_IPPROTO_UDP
 		 * for UDP, ::PACKETPP_IPPROTO_ICMP for ICMP
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}

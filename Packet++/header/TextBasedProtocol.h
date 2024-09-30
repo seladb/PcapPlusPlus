@@ -124,7 +124,7 @@ namespace pcpp
 		friend class HeaderField;
 
 	public:
-		~TextBasedProtocolMessage();
+		~TextBasedProtocolMessage() override;
 
 		/**
 		 * Get a pointer to a header field by name. The search is case insensitive, meaning if a field with name "Host"
@@ -247,17 +247,17 @@ namespace pcpp
 		/**
 		 * Currently set only PayloadLayer for the rest of the data
 		 */
-		virtual void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return The message length
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Does nothing for this class
 		 */
-		virtual void computeCalculateFields();
+		void computeCalculateFields() override;
 
 	protected:
 		TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,

@@ -49,8 +49,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~NullLoopbackLayer()
-		{}
+		~NullLoopbackLayer() override = default;
 
 		/**
 		 * @return The protocol family in this layer
@@ -72,12 +71,12 @@ namespace pcpp
 		 * IPv6Layer
 		 * - for other values the next layer in PayloadLayer (unknown protocol)
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of Null/Loopback header = 4B
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(uint32_t);
 		}
@@ -85,12 +84,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

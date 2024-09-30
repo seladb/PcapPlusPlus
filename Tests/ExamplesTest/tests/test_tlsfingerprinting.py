@@ -1,5 +1,4 @@
 import os
-import filecmp
 import pytest
 from .test_utils import (
     ExampleTest,
