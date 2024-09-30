@@ -136,7 +136,7 @@ public:
 	~LoggerCleaner()
 	{
 		pcpp::Logger::getInstance().enableLogs();
-		pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::Logger::Info);
+		pcpp::Logger::getInstance().setAllModulesToLogLevel(pcpp::LogLevel::Info);
 		pcpp::Logger::getInstance().resetLogPrinter();
 		std::cout.clear();
 		LogPrinter::clean();

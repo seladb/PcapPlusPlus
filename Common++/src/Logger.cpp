@@ -8,19 +8,31 @@ namespace pcpp
 	{
 		m_LastError.reserve(200);
 		for (int i = 0; i < NumOfLogModules; i++)
-			m_LogModulesArray[i] = Info;
+			m_LogModulesArray[i] = LogLevel::Info;
 	}
 
 	std::string Logger::logLevelAsString(LogLevel logLevel)
 	{
 		switch (logLevel)
 		{
-		case Logger::Error:
+		case LogLevel::Error:
 			return "ERROR";
-		case Logger::Info:
+		case LogLevel::Info:
 			return "INFO";
 		default:
 			return "DEBUG";
+		}
+	}
+
+	void Logger::printLogMessage(LogSource source, LogLevel logLevel, std::string const& message)
+	{
+		if (logLevel == LogLevel::Error)
+		{
+			m_LastError = message;
+		}
+		if (m_LogsEnabled)
+		{
+			m_LogPrinter(logLevel, message, source.file, source.function, source.line);
 		}
 	}
 
@@ -32,25 +44,4 @@ namespace pcpp
 		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
 		          << sstream.str() << "] " << logMessage << std::endl;
 	}
-
-	std::ostringstream* Logger::internalCreateLogStream()
-	{
-		return new std::ostringstream();
-	}
-
-	void Logger::internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file,
-	                                     const char* method, int line)
-	{
-		std::string logMessage = logStream->str();
-		delete logStream;
-		if (logLevel == Logger::Error)
-		{
-			m_LastError = logMessage;
-		}
-		if (m_LogsEnabled)
-		{
-			m_LogPrinter(logLevel, logMessage, file, method, line);
-		}
-	}
-
 }  // namespace pcpp
