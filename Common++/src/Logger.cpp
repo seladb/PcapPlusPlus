@@ -15,12 +15,16 @@ namespace pcpp
 	{
 		switch (logLevel)
 		{
+		case LogLevel::Off:
+			return "OFF";
 		case LogLevel::Error:
 			return "ERROR";
 		case LogLevel::Info:
 			return "INFO";
-		default:
+		case LogLevel::Debug:
 			return "DEBUG";
+		default:
+			return "UNKNOWN";
 		}
 	}
 
