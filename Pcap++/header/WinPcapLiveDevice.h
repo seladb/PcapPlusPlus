@@ -32,17 +32,17 @@ namespace pcpp
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other);
 
 	public:
-		virtual LiveDeviceType getDeviceType() const
+		LiveDeviceType getDeviceType() const override
 		{
 			return WinPcapDevice;
 		}
 
 		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
 		                  int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie);
+		                  void* onStatsUpdateUserCookie) override;
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie);
-		bool startCapture(RawPacketVector& capturedPacketsVector)
+		                  void* onStatsUpdateUserCookie) override;
+		bool startCapture(RawPacketVector& capturedPacketsVector) override
 		{
 			return PcapLiveDevice::startCapture(capturedPacketsVector);
 		}
