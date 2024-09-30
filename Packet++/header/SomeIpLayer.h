@@ -116,8 +116,7 @@ namespace pcpp
 		/**
 		 * Destroy the layer object
 		 */
-		~SomeIpLayer()
-		{}
+		~SomeIpLayer() override = default;
 
 		/**
 		 * A static method that creates a SOME/IP or SOME/IP-TP layer from packet raw data. Returns PayloadLayer if data
@@ -137,7 +136,7 @@ namespace pcpp
 		 */
 		someiphdr* getSomeIpHeader() const
 		{
-			return (someiphdr*)m_Data;
+			return reinterpret_cast<someiphdr*>(m_Data);
 		}
 
 		/**
@@ -329,7 +328,7 @@ namespace pcpp
 		 * Get the Length of the SOME/IP header inc payload
 		 * @return size_t
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(uint32_t) * 2 + getLengthField();
 		}
@@ -337,23 +336,23 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		virtual void computeCalculateFields()
+		virtual void computeCalculateFields() override
 		{}
 
 		/**
 		 * Identifies the following next layers: SomeIpLayer, SomeIpTpLayer, SomeIpSdLayer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return The string representation of the SOME/IP layer
 		 */
-		virtual std::string toString() const;
+		virtual std::string toString() const override;
 
 		/**
 		 * @return The OSI model layer of this layer
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
@@ -425,8 +424,7 @@ namespace pcpp
 		/**
 		 * Destroy the layer object
 		 */
-		~SomeIpTpLayer()
-		{}
+		~SomeIpTpLayer() override = default;
 
 		/**
 		 * Get a pointer to the basic SOME/IP-TP header. Notice this points directly to the data, so every change will
@@ -435,7 +433,7 @@ namespace pcpp
 		 */
 		someiptphdr* getSomeIpTpHeader() const
 		{
-			return (someiptphdr*)m_Data;
+			return reinterpret_cast<someiptphdr*>(m_Data);
 		}
 
 		/**
@@ -466,18 +464,18 @@ namespace pcpp
 		/**
 		 * Sets the message type in this layer with enabling the TP flag
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * @return The string representation of the SOME/IP-TP layer
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		static const uint32_t SOMEIP_TP_MORE_FLAG_MASK = 0x01;
 		static const uint32_t SOMEIP_TP_OFFSET_MASK = 0xFFFFFFF0;
 
-		size_t getSomeIpHeaderLen() const
+		size_t getSomeIpHeaderLen() const override
 		{
 			return sizeof(someiptphdr);
 		}
