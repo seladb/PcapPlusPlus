@@ -155,17 +155,6 @@ namespace pcpp
 	class Logger
 	{
 	public:
-		/**
-		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
-		 * default log level
-		 */
-		/* enum LogLevel
-		{
-		    Error,  ///< Error log level
-		    Info,   ///< Info log level
-		    Debug   ///< Debug log level
-		};*/
-
 		// Deprecated, Use the LogLevel in the pcpp namespace instead.
 		using LogLevel = pcpp::LogLevel;
 		PCPP_DEPRECATED("Use the LogLevel in the pcpp namespace instead.")
@@ -329,7 +318,7 @@ namespace pcpp
 		{
 			std::ostringstream sstream;
 			sstream << message;
-			logger.printLogMessage(source, level, sstream);
+			logger.printLogMessage(source, level, sstream.str());
 		}
 	};
 
