@@ -98,17 +98,36 @@ namespace pcpp
 
 	struct LogSource
 	{
+		/**
+		 * @struct LogSource
+		 * Represents the source of a log message.
+		 * Contains information about the source file, function, line number, and the log module.
+		 */
+
 		constexpr LogSource() = default;
+
+		/**
+		 * Constructor for LogSource with only the log module.
+		 * @param logModule The log module.
+		 */
 		constexpr LogSource(LogModule logModule) : logModule(logModule)
 		{}
+
+		/**
+		 * Constructor for LogSource with all parameters.
+		 * @param logModule The log module.
+		 * @param file The source file.
+		 * @param function The source function.
+		 * @param line The line number.
+		 */
 		constexpr LogSource(LogModule logModule, const char* file, const char* function, int line)
 		    : file(file), function(function), line(line), logModule(logModule)
 		{}
 
-		const char* file = nullptr;
-		const char* function = nullptr;
-		int line = 0;
-		LogModule logModule = UndefinedLogModule;
+		const char* file = nullptr;               /**< The source file. */
+		const char* function = nullptr;           /**< The source function. */
+		int line = 0;                             /**< The line number. */
+		LogModule logModule = UndefinedLogModule; /**< The log module. */
 	};
 
 	/**
