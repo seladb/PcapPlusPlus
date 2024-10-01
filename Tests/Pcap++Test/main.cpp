@@ -290,6 +290,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyDisableOOOCleanup, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyTimeStamps, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyFinReset, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyHighPrecision, "no_network;tcp_reassembly");
 
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");
