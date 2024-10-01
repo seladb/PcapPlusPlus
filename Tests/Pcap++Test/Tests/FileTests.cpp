@@ -1001,7 +1001,7 @@ PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
 		writerDevDestructorExplicitClose.close();
 	}
 
-	// Check that file sizes are equal.  This should fail if the pcpp::PcapFileWriterDevice destructor does not close
+	// Check that file sizes are equal. This should fail if the pcpp::PcapFileWriterDevice destructor does not close
 	// properly.
 	std::ifstream fileDestructorNoClose(EXAMPLE_PCAP_DESTRUCTOR1_PATH, std::ios::binary | std::ios::in);
 	fileDestructorNoClose.seekg(0, std::ios::end);
@@ -1015,4 +1015,4 @@ PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
 	PTF_ASSERT_NOT_EQUAL(0, posNoClose);
 	PTF_ASSERT_NOT_EQUAL(0, posExplicitClose);
 	PTF_ASSERT_EQUAL(posNoClose, posExplicitClose);
-}
+}  // TestPcapFileWriterDeviceDestructor
