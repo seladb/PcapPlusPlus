@@ -69,6 +69,12 @@ namespace pcpp
 		return be32toh(reservedValue);
 	}
 
+	void WireGuardLayer::setReserved(const std::array<uint8_t, 3>& reserved)
+	{
+		wg_common_header* msg = reinterpret_cast<wg_common_header*>(m_Data);
+		memcpy(msg->reserved, reserved.data(), 3);
+	}
+
 	bool WireGuardLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < sizeof(WireGuardLayer::wg_common_header))
@@ -149,6 +155,43 @@ namespace pcpp
 		return mac2Array;
 	}
 
+	void WireGuardHandshakeInitiationLayer::setSenderIndex(uint32_t senderIndex)
+	{
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		msg->senderIndex = htobe32(senderIndex);
+	}
+
+	void WireGuardHandshakeInitiationLayer::setInitiatorEphemeral(const std::array<uint8_t, 32>& initiatorEphemeral)
+	{
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		memcpy(msg->initiatorEphemeral, initiatorEphemeral.data(), 32);
+	}
+
+	void WireGuardHandshakeInitiationLayer::setEncryptedInitiatorStatic(
+	    const std::array<uint8_t, 48>& encryptedInitiatorStatic)
+	{
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		memcpy(msg->encryptedInitiatorStatic, encryptedInitiatorStatic.data(), 48);
+	}
+
+	void WireGuardHandshakeInitiationLayer::setEncryptedTimestamp(const std::array<uint8_t, 28>& encryptedTimestamp)
+	{
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		memcpy(msg->encryptedTimestamp, encryptedTimestamp.data(), 28);
+	}
+
+	void WireGuardHandshakeInitiationLayer::setMac1(const std::array<uint8_t, 16>& mac1)
+	{
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		memcpy(msg->mac1, mac1.data(), 16);
+	}
+
+	void WireGuardHandshakeInitiationLayer::setMac2(const std::array<uint8_t, 16>& mac2)
+	{
+		wg_handshake_initiation* msg = reinterpret_cast<wg_handshake_initiation*>(m_Data);
+		memcpy(msg->mac2, mac2.data(), 16);
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~
 	// WireGuardHandshakeResponseLayer
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -213,6 +256,43 @@ namespace pcpp
 		return mac2Array;
 	}
 
+	void WireGuardHandshakeResponseLayer::setSenderIndex(uint32_t senderIndex)
+	{
+
+		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
+		msg->senderIndex = htobe32(senderIndex);
+	}
+
+	void WireGuardHandshakeResponseLayer::setReceiverIndex(uint32_t receiverIndex)
+	{
+		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
+		msg->receiverIndex = htobe32(receiverIndex);
+	}
+
+	void WireGuardHandshakeResponseLayer::setResponderEphemeral(const std::array<uint8_t, 32>& responderEphemeral)
+	{
+		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
+		memcpy(msg->responderEphemeral, responderEphemeral.data(), 32);
+	}
+
+	void WireGuardHandshakeResponseLayer::setEncryptedEmpty(const std::array<uint8_t, 16>& encryptedEmpty)
+	{
+		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
+		memcpy(msg->encryptedEmpty, encryptedEmpty.data(), 16);
+	}
+
+	void WireGuardHandshakeResponseLayer::setMac1(const std::array<uint8_t, 16>& mac1)
+	{
+		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
+		memcpy(msg->mac1, mac1.data(), 16);
+	}
+
+	void WireGuardHandshakeResponseLayer::setMac2(const std::array<uint8_t, 16>& mac2)
+	{
+		wg_handshake_response* msg = reinterpret_cast<wg_handshake_response*>(m_Data);
+		memcpy(msg->mac2, mac2.data(), 16);
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~
 	// WireGuardCookieReplyLayer
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -255,6 +335,24 @@ namespace pcpp
 		return encryptedCookieArray;
 	}
 
+	void WireGuardCookieReplyLayer::setReceiverIndex(uint32_t receiverIndex)
+	{
+		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
+		msg->receiverIndex = htobe32(receiverIndex);
+	}
+
+	void WireGuardCookieReplyLayer::setNonce(const std::array<uint8_t, 24>& nonce)
+	{
+		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
+		memcpy(msg->nonce, nonce.data(), 24);
+	}
+
+	void WireGuardCookieReplyLayer::setEncryptedCookie(const std::array<uint8_t, 32>& encryptedCookie)
+	{
+		wg_cookie_reply* msg = reinterpret_cast<wg_cookie_reply*>(m_Data);
+		memcpy(msg->encryptedCookie, encryptedCookie.data(), 32);
+	}
+
 	// ~~~~~~~~~~~~~~~~~~~~
 	// WireGuardTransportDataLayer
 	// ~~~~~~~~~~~~~~~~~~~~
@@ -291,6 +389,24 @@ namespace pcpp
 	const uint8_t* WireGuardTransportDataLayer::getEncryptedData() const
 	{
 		return getTransportHeader()->encryptedData;
+	}
+
+	void WireGuardTransportDataLayer::setReceiverIndex(uint32_t receiverIndex)
+	{
+		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
+		msg->receiverIndex = htobe32(receiverIndex);
+	}
+
+	void WireGuardTransportDataLayer::setCounter(uint64_t counter)
+	{
+		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
+		msg->counter = htobe64(counter);
+	}
+
+	void WireGuardTransportDataLayer::setEncryptedData(const uint8_t* encryptedData, size_t encryptedDataLen)
+	{
+		wg_transport_data* msg = reinterpret_cast<wg_transport_data*>(m_Data);
+		memcpy(msg->encryptedData, encryptedData, encryptedDataLen);
 	}
 
 }  // namespace pcpp
