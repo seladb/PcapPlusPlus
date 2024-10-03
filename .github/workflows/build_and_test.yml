@@ -39,18 +39,15 @@ jobs:
       # TODO: investigate how to run pre-commit with `venv`
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
 
-      - name: CMake format
-        run: |
-          ./ci/cmake-format-all.sh
-          git diff --exit-code
+      - name: Fetch dev branch
+        run: git fetch origin dev
 
       - name: Configure PcapPlusPlus for Static analysis
-        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
+        run: cmake -S . -B "$BUILD_DIR"
 
-      - name: Build PcapPlusPlus and check any diff
+      - name: Run clang-tidy on changed files
         run: |
-          cmake --build "$BUILD_DIR" -j
-          git diff --exit-code
+          ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
 
   linux:
     runs-on: ubuntu-latest
