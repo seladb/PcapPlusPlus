@@ -1,4 +1,5 @@
 #define LOG_MODULE PcapLogModuleXdpDevice
+
 #include "XdpDevice.h"
 #include "GeneralUtils.h"
 #include "Logger.h"

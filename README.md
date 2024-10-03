@@ -243,43 +243,44 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 22. NDP
 23. Raw IP (IPv4 & IPv6)
 24. VRRP (IPv4 & IPv6)
+25. WireGuard
 
 ### Transport Layer (L4)
 
-25. COTP
-26. GTP (v1)
-27. IPSec AH & ESP - parsing only (no editing capabilities)
-28. TCP
-29. TPKT
-30. UDP
+26. COTP
+27. GTP (v1)
+28. IPSec AH & ESP - parsing only (no editing capabilities)
+29. TCP
+30. TPKT
+31. UDP
 
 ### Session Layer (L5)
 
-31. SDP
-32. SIP
+32. SDP
+33. SIP
 
 ### Presentation Layer (L6)
 
-33. SSL/TLS - parsing only (no editing capabilities)
+34. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-34. ASN.1 decoder and encoder
-35. BGP (v4)
-36. DHCP
-37. DHCPv6
-38. DNS
-39. FTP
-40. HTTP headers (request & response)
-41. LDAP
-42. NTP (v3, v4)
-43. Radius
-44. S7 Communication (S7comm)
-45. SMTP
-46. SOME/IP
-47. SSH - parsing only (no editing capabilities)
-48. Telnet - parsing only (no editing capabilities)
-49. Generic payload
+35. ASN.1 decoder and encoder
+36. BGP (v4)
+37. DHCP
+38. DHCPv6
+39. DNS
+40. FTP
+41. HTTP headers (request & response)
+42. LDAP
+43. NTP (v3, v4)
+44. Radius
+45. S7 Communication (S7comm)
+46. SMTP
+47. SOME/IP
+48. SSH - parsing only (no editing capabilities)
+49. Telnet - parsing only (no editing capabilities)
+50. Generic payload
 
 ## DPDK And PF_RING Support
 

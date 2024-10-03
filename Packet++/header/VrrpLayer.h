@@ -135,10 +135,8 @@ namespace pcpp
 	protected:
 		VrrpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType vrrpVer,
 		          IPAddress::AddressType addressType)
-		    : Layer(data, dataLen, prevLayer, packet), m_AddressType(addressType)
-		{
-			m_Protocol = vrrpVer;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, vrrpVer), m_AddressType(addressType)
+		{}
 
 		explicit VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority);
 
@@ -177,8 +175,7 @@ namespace pcpp
 			Other
 		};
 
-		virtual ~VrrpLayer()
-		{}
+		~VrrpLayer() override = default;
 
 		/**
 		 * @return The VRRP IP Address type
@@ -377,8 +374,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~VrrpV2Layer()
-		{}
+		~VrrpV2Layer() override = default;
 
 		/**
 		 * @return The VRRP advertisement interval in this message
@@ -454,8 +450,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~VrrpV3Layer()
-		{}
+		~VrrpV3Layer() override = default;
 
 		/**
 		 * @return The maximum advertisement interval in this message

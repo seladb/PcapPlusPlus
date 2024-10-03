@@ -58,8 +58,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		virtual ~TLVRecord()
-		{}
+		virtual ~TLVRecord() = default;
 
 		/**
 		 * Assign a pointer to the TLV record raw data (byte array)
@@ -167,7 +166,7 @@ namespace pcpp
 		 */
 		uint8_t* getRecordBasePtr() const
 		{
-			return (uint8_t*)m_Data;
+			return reinterpret_cast<uint8_t*>(m_Data);
 		}
 
 		/**
@@ -246,7 +245,7 @@ namespace pcpp
 		 */
 		TLVRecordReader()
 		{
-			m_RecordCount = (size_t)-1;
+			m_RecordCount = static_cast<size_t>(-1);
 		}
 
 		/**
@@ -260,8 +259,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class which currently does nothing
 		 */
-		virtual ~TLVRecordReader()
-		{}
+		virtual ~TLVRecordReader() = default;
 
 		/**
 		 * Overload of the assignment operator for this class
@@ -372,7 +370,7 @@ namespace pcpp
 		 */
 		size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
-			if (m_RecordCount != (size_t)-1)
+			if (m_RecordCount != static_cast<size_t>(-1))
 				return m_RecordCount;
 
 			m_RecordCount = 0;
@@ -395,7 +393,7 @@ namespace pcpp
 		 */
 		void changeTLVRecordCount(int changedBy)
 		{
-			if (m_RecordCount != (size_t)-1)
+			if (m_RecordCount != static_cast<size_t>(-1))
 				m_RecordCount += changedBy;
 		}
 	};

@@ -43,10 +43,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		WakeOnLanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = WakeOnLan;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, WakeOnLan)
+		{}
 
 		/**
 		 * Construct a new Wake On Lan Layer with provided values
@@ -83,7 +81,7 @@ namespace pcpp
 		 */
 		inline wol_header* getWakeOnLanHeader() const
 		{
-			return (wol_header*)m_Data;
+			return reinterpret_cast<wol_header*>(m_Data);
 		}
 
 		/**
@@ -153,25 +151,25 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Wake on LAN is the always last so does nothing for this layer
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
 		 * @return The OSI layer level of Wake on LAN (Data Link Layer)
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}
@@ -179,6 +177,6 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 	};
 }  // namespace pcpp

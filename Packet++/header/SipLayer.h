@@ -100,7 +100,7 @@ namespace pcpp
 
 		// Overridden methods
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelSesionLayer;
 		}
@@ -110,13 +110,13 @@ namespace pcpp
 		 * If content-length field doesn't exist or set to zero and still there is data after this layer, a PayloadLayer
 		 * will be created
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * Set the content-length only if a content-length field already exists and if its current value is different
 		 * than the total length of the next layer(s)
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * A static method that checks whether the port is considered as SIP
@@ -128,8 +128,8 @@ namespace pcpp
 		}
 
 	protected:
-		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet)
+		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
+		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
 		{}
 		SipLayer() : TextBasedProtocolMessage()
 		{}
@@ -142,11 +142,11 @@ namespace pcpp
 		}
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() const
+		char getHeaderFieldNameValueSeparator() const override
 		{
 			return ':';
 		}
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() const
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const override
 		{
 			return true;
 		}
@@ -222,7 +222,7 @@ namespace pcpp
 		 */
 		SipRequestLayer(SipMethod method, const std::string& requestUri, const std::string& version = "SIP/2.0");
 
-		~SipRequestLayer();
+		~SipRequestLayer() override;
 
 		/**
 		 * A copy constructor for this layer. Inherits base copy constructor SipLayer and adds the functionality
@@ -248,7 +248,7 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		SipRequestFirstLine* m_FirstLine;
@@ -493,7 +493,7 @@ namespace pcpp
 		explicit SipResponseLayer(SipResponseLayer::SipResponseStatusCode statusCode, std::string statusCodeString = "",
 		                          const std::string& sipVersion = "SIP/2.0");
 
-		virtual ~SipResponseLayer();
+		~SipResponseLayer() override;
 
 		/**
 		 * A copy constructor for this layer. This copy constructor inherits base copy constructor SipLayer and adds the
@@ -519,7 +519,7 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		SipResponseFirstLine* m_FirstLine;
