@@ -407,6 +407,8 @@ PTF_TEST_CASE(WireGuardEditTest)
 	wgHandShakeInitLayer->setEncryptedTimestamp(expectedTimestampInit);
 	wgHandShakeInitLayer->setMac1(expectedMac1Init);
 	wgHandShakeInitLayer->setMac2(expectedMac2Init);
+	wgHandShakeInitLayer = wgHandShakeInitPacket.getLayerOfType<pcpp::WireGuardHandshakeInitiationLayer>();
+
 	uint32_t reservedValueInit = 0;
 	memcpy(&reservedValueInit, expectedReservedInit.data(), 3);
 	PTF_ASSERT_EQUAL(wgHandShakeInitLayer->getReserved(), be32toh(reservedValueInit));
@@ -450,6 +452,8 @@ PTF_TEST_CASE(WireGuardEditTest)
 	wgHandShakeResponseLayer->setEncryptedEmpty(encryptedEmptyDataResp);
 	wgHandShakeResponseLayer->setMac1(expectedMac1Resp);
 	wgHandShakeResponseLayer->setMac2(expectedMac2Resp);
+	wgHandShakeResponseLayer = wgHandShakeResponsePacket.getLayerOfType<pcpp::WireGuardHandshakeResponseLayer>();
+
 	uint32_t reservedValueResp = 0;
 	memcpy(&reservedValueResp, expectedReservedResp.data(), 3);
 
@@ -481,6 +485,7 @@ PTF_TEST_CASE(WireGuardEditTest)
 	wgCookieReplyaLayer->setNonce(nonceCookie);
 	wgCookieReplyaLayer->setReceiverIndex(1);
 	wgCookieReplyaLayer->setEncryptedCookie(encryptedCookie);
+	wgCookieReplyaLayer = wgCookieReplyPacket.getLayerOfType<pcpp::WireGuardCookieReplyLayer>();
 
 	uint32_t reservedValueCookie = 0;
 	memcpy(&reservedValueCookie, expectedReservedCookie.data(), 3);
@@ -514,6 +519,7 @@ PTF_TEST_CASE(WireGuardEditTest)
 	wgTransportDataLayer->setCounter(1);
 	wgTransportDataLayer->setReceiverIndex(1);
 	wgTransportDataLayer->setEncryptedData(expectedEncryptedDataTrans, sizeof(expectedEncryptedDataTrans));
+	wgTransportDataLayer = wgTransportDataPacket.getLayerOfType<pcpp::WireGuardTransportDataLayer>();
 
 	uint32_t reservedValue = 0;
 	memcpy(&reservedValue, expectedReservedTrans.data(), 3);
