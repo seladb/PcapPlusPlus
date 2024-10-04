@@ -36,7 +36,7 @@ namespace pcpp
 	public:
 		WinPcapLiveDevice(const WinPcapLiveDevice& other) = delete;
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other) = delete;
-		
+
 		LiveDeviceType getDeviceType() const override
 		{
 			return WinPcapDevice;
