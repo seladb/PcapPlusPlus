@@ -127,10 +127,8 @@ namespace pcpp
 	{
 	protected:
 		StpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = STP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, STP)
+		{}
 
 		explicit StpLayer(size_t dataLen)
 		{
@@ -155,7 +153,7 @@ namespace pcpp
 		 */
 		stp_header* getStpHeader() const
 		{
-			return (stp_header*)(m_Data);
+			return reinterpret_cast<stp_header*>(m_Data);
 		}
 
 		/**
@@ -217,19 +215,19 @@ namespace pcpp
 		/**
 		 * @return The size of STP packet
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
 		 * @return The OSI layer level of STP (Data Link Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}
@@ -296,18 +294,18 @@ namespace pcpp
 		/**
 		 * @return The size of STP TCN message
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(stp_tcn_bpdu);
 		}
 
 		/// Parses next layer
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const
+		std::string toString() const override
 		{
 			return "Spanning Tree Topology Change Notification";
 		}
@@ -358,7 +356,7 @@ namespace pcpp
 		 */
 		stp_conf_bpdu* getStpConfHeader() const
 		{
-			return (stp_conf_bpdu*)(m_Data);
+			return reinterpret_cast<stp_conf_bpdu*>(m_Data);
 		}
 
 		/**
@@ -558,18 +556,18 @@ namespace pcpp
 		/**
 		 * @return The size of STP configuration BPDU message
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(stp_conf_bpdu);
 		}
 
 		/// Parses next layer
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const
+		std::string toString() const override
 		{
 			return "Spanning Tree Configuration";
 		}
@@ -620,7 +618,7 @@ namespace pcpp
 		 */
 		rstp_conf_bpdu* getRstpConfHeader() const
 		{
-			return (rstp_conf_bpdu*)(m_Data);
+			return reinterpret_cast<rstp_conf_bpdu*>(m_Data);
 		}
 
 		/**
@@ -646,18 +644,18 @@ namespace pcpp
 		/**
 		 * @return The size of Rapid STP message
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(rstp_conf_bpdu);
 		}
 
 		/// Parses next layer
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const
+		std::string toString() const override
 		{
 			return "Rapid Spanning Tree";
 		}
@@ -705,7 +703,7 @@ namespace pcpp
 		 */
 		mstp_conf_bpdu* getMstpHeader() const
 		{
-			return (mstp_conf_bpdu*)(m_Data);
+			return reinterpret_cast<mstp_conf_bpdu*>(m_Data);
 		}
 
 		/**
@@ -879,13 +877,13 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses next layer
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const
+		std::string toString() const override
 		{
 			return "Multiple Spanning Tree";
 		}

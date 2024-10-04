@@ -162,10 +162,8 @@ namespace pcpp
 	{
 	protected:
 		IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType igmpVer)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = igmpVer;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, igmpVer)
+		{}
 
 		IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer);
 
@@ -174,8 +172,7 @@ namespace pcpp
 		size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const;
 
 	public:
-		virtual ~IgmpLayer()
-		{}
+		~IgmpLayer() override = default;
 
 		/**
 		 * Get a pointer to the raw IGMPv1/IGMPv2 header. Notice this points directly to the data, so every change will
@@ -184,7 +181,7 @@ namespace pcpp
 		 */
 		igmp_header* getIgmpHeader() const
 		{
-			return (igmp_header*)m_Data;
+			return reinterpret_cast<igmp_header*>(m_Data);
 		}
 
 		/**
@@ -228,20 +225,20 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (IGMP layer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Size of IGMP header = 8B
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(igmp_header);
 		}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
@@ -278,15 +275,14 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~IgmpV1Layer()
-		{}
+		~IgmpV1Layer() override = default;
 
 		// implement abstract methods
 
 		/**
 		 * Calculate the IGMP checksum and set igmp_header#maxResponseTime to 0 (this field is unused in IGMPv1)
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 	};
 
 	/**
@@ -322,15 +318,14 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~IgmpV2Layer()
-		{}
+		~IgmpV2Layer() override = default;
 
 		// implement abstract methods
 
 		/**
 		 * Calculate the IGMP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 	};
 
 	/**
@@ -368,7 +363,7 @@ namespace pcpp
 		 */
 		igmpv3_query_header* getIgmpV3QueryHeader() const
 		{
-			return (igmpv3_query_header*)m_Data;
+			return reinterpret_cast<igmpv3_query_header*>(m_Data);
 		}
 
 		/**
@@ -425,13 +420,13 @@ namespace pcpp
 		/**
 		 * Calculate the IGMP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * @return The message size in bytes which include the size of the basic header + the size of the source address
 		 * list
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 	};
 
 	/**
@@ -468,7 +463,7 @@ namespace pcpp
 		 */
 		igmpv3_report_header* getReportHeader() const
 		{
-			return (igmpv3_report_header*)m_Data;
+			return reinterpret_cast<igmpv3_report_header*>(m_Data);
 		}
 
 		/**
@@ -478,18 +473,18 @@ namespace pcpp
 		uint16_t getGroupRecordCount() const;
 
 		/**
-		 * @return A pointer to the first group record or NULL if no group records exist. Notice the return value is a
-		 * pointer to the real data, so changes in the return value will affect the packet data
+		 * @return A pointer to the first group record or nullptr if no group records exist. Notice the return value is
+		 * a pointer to the real data, so changes in the return value will affect the packet data
 		 */
 		igmpv3_group_record* getFirstGroupRecord() const;
 
 		/**
-		 * Get the group record that comes next to a given group record. If "groupRecord" is NULL then NULL will be
-		 * returned. If "groupRecord" is the last group record or if it is out of layer bounds NULL will be returned
-		 * also. Notice the return value is a pointer to the real data casted to igmpv3_group_record type (as opposed to
-		 * a copy of the option data). So changes in the return value will affect the packet data
+		 * Get the group record that comes next to a given group record. If "groupRecord" is nullptr then nullptr will
+		 * be returned. If "groupRecord" is the last group record or if it is out of layer bounds nullptr will be
+		 * returned also. Notice the return value is a pointer to the real data casted to igmpv3_group_record type (as
+		 * opposed to a copy of the option data). So changes in the return value will affect the packet data
 		 * @param[in] groupRecord The group record to start searching from
-		 * @return The next group record or NULL if "groupRecord" is NULL, last or out of layer bounds
+		 * @return The next group record or nullptr if "groupRecord" is nullptr, last or out of layer bounds
 		 */
 		igmpv3_group_record* getNextGroupRecord(igmpv3_group_record* groupRecord) const;
 
@@ -501,7 +496,7 @@ namespace pcpp
 		 * @param[in] sourceAddresses A vector containing all the source addresses of the new group record
 		 * @return The method constructs a new group record, adds it to the end of the group record list of IGMPv3
 		 * report message and returns a pointer to the new message. If something went wrong in creating or adding the
-		 * new group record a NULL value is returned and an appropriate error message is printed to log
+		 * new group record a nullptr value is returned and an appropriate error message is printed to log
 		 */
 		igmpv3_group_record* addGroupRecord(uint8_t recordType, const IPv4Address& multicastAddress,
 		                                    const std::vector<IPv4Address>& sourceAddresses);
@@ -514,7 +509,7 @@ namespace pcpp
 		 * @param[in] sourceAddresses A vector containing all the source addresses of the new group record
 		 * @param[in] index The index to add the new group address at
 		 * @return The method constructs a new group record, adds it to the IGMPv3 report message and returns a pointer
-		 * to the new message. If something went wrong in creating or adding the new group record a NULL value is
+		 * to the new message. If something went wrong in creating or adding the new group record a nullptr value is
 		 * returned and an appropriate error message is printed to log
 		 */
 		igmpv3_group_record* addGroupRecordAtIndex(uint8_t recordType, const IPv4Address& multicastAddress,
@@ -541,13 +536,13 @@ namespace pcpp
 		/**
 		 * Calculate the IGMP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * @return The message size in bytes which include the size of the basic header + the size of the group record
 		 * list
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}

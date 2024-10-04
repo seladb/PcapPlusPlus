@@ -1,11 +1,9 @@
 #pragma once
 
-#if defined(_WIN32)
-
-#	include <memory>
-#	include "IpAddress.h"
-#	include "PcapRemoteDevice.h"
-#	include "DeprecationUtils.h"
+#include <memory>
+#include "IpAddress.h"
+#include "PcapRemoteDevice.h"
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -69,9 +67,9 @@ namespace pcpp
 		 * @param[in] ipAddress The IP address of the remote machine through which clients can connect to the rpcapd
 		 * daemon
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
-		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed
-		 * to log in each case):
-		 * - IP address provided is NULL or not valid
+		 * @return A pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be
+		 * printed to log in each case):
+		 * - IP address provided is nullptr or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
 		 *   devices on the remote machine
@@ -108,9 +106,9 @@ namespace pcpp
 		 * @param[in] port The port of the remote machine through which clients can connect to the rpcapd daemon
 		 * @param[in] remoteAuth A pointer to the authentication object which contains the username and password for
 		 * connecting to the remote daemon
-		 * @return A pointer to the newly created PcapRemoteDeviceList, or NULL if (an appropriate error will be printed
-		 * to log in each case):
-		 * - IP address provided is NULL or not valid
+		 * @return A pointer to the newly created PcapRemoteDeviceList, or nullptr if (an appropriate error will be
+		 * printed to log in each case):
+		 * - IP address provided is nullptr or not valid
 		 * - WinPcap/Npcap encountered an error in creating the remote connection string
 		 * - WinPcap/Npcap encountered an error connecting to the rpcapd daemon on the remote machine or retrieving
 		 *   devices on the remote machine
@@ -163,28 +161,28 @@ namespace pcpp
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv4Address& ip4Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPv6Address& ip6Addr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const IPAddress& ipAddr) const;
 
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format
-		 * @return The PcapRemoteDevice if found, NULL otherwise
+		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getRemoteDeviceByIP(const std::string& ipAddrAsString) const;
 
@@ -222,5 +220,3 @@ namespace pcpp
 	};
 
 }  // namespace pcpp
-
-#endif  // _WIN32

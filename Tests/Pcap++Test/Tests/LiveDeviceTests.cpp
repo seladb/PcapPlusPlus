@@ -11,6 +11,8 @@
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
 #include <array>
+#include <vector>
+#include <iterator>
 #include <algorithm>
 #include <cstdio>
 #if defined(_WIN32)
@@ -821,9 +823,8 @@ PTF_TEST_CASE(TestSendPackets)
 	pcpp::PcapFileReaderDevice fileReaderDev(EXAMPLE_PCAP_PATH);
 	PTF_ASSERT_TRUE(fileReaderDev.open());
 
-	pcpp::RawPacket rawPacketArr[10000];
+	std::vector<pcpp::RawPacket> rawPacketArr(10000);
 	pcpp::PointerVector<pcpp::Packet> packetVec;
-	pcpp::Packet* packetArr[10000];
 	int packetsRead = 0;
 	while (fileReaderDev.getNextPacket(rawPacketArr[packetsRead]))
 	{
@@ -832,11 +833,13 @@ PTF_TEST_CASE(TestSendPackets)
 	}
 
 	// send packets as RawPacket array
-	int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr, packetsRead);
+	int packetsSentAsRaw = liveDev->sendPackets(rawPacketArr.data(), packetsRead);
 
 	// send packets as parsed EthPacekt array
-	std::copy(packetVec.begin(), packetVec.end(), packetArr);
-	int packetsSentAsParsed = liveDev->sendPackets(packetArr, packetsRead);
+	std::vector<pcpp::Packet*> packetArr;
+	packetArr.reserve(10000);
+	std::copy(packetVec.begin(), packetVec.end(), std::back_inserter(packetArr));
+	int packetsSentAsParsed = liveDev->sendPackets(packetArr.data(), packetsRead);
 
 	PTF_ASSERT_EQUAL(packetsSentAsRaw, packetsRead);
 	PTF_ASSERT_EQUAL(packetsSentAsParsed, packetsRead);

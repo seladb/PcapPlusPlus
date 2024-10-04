@@ -1,5 +1,6 @@
 #define LOG_MODULE PacketLogModuleIPv6Layer
 
+#include <stdexcept>
 #include "IPv6Layer.h"
 #include "IPv4Layer.h"
 #include "PayloadLayer.h"
@@ -28,9 +29,8 @@ namespace pcpp
 	}
 
 	IPv6Layer::IPv6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet)
+	    : Layer(data, dataLen, prevLayer, packet, IPv6)
 	{
-		m_Protocol = IPv6;
 		m_FirstExtension = nullptr;
 		m_LastExtension = nullptr;
 		m_ExtensionsLen = 0;
@@ -133,6 +133,10 @@ namespace pcpp
 			}
 			else
 			{
+				if (curExt == nullptr)
+				{
+					throw std::logic_error("curExt is nullptr");
+				}
 				curExt->setNextHeader(newExt);
 				curExt = curExt->getNextHeader();
 			}

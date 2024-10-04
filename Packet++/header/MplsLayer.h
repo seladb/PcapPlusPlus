@@ -29,7 +29,7 @@ namespace pcpp
 
 		mpls_header* getMplsHeader() const
 		{
-			return (mpls_header*)m_Data;
+			return reinterpret_cast<mpls_header*>(m_Data);
 		}
 
 	public:
@@ -40,10 +40,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		MplsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = MPLS;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, MPLS)
+		{}
 
 		/**
 		 * A constructor that allocates a new MPLS header
@@ -55,8 +53,7 @@ namespace pcpp
 		 */
 		MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack);
 
-		virtual ~MplsLayer()
-		{}
+		~MplsLayer() override = default;
 
 		/**
 		 * @return TTL value of the MPLS header
@@ -116,12 +113,12 @@ namespace pcpp
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, MplsLayer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of MPLS header (4 bytes)
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(mpls_header);
 		}
@@ -130,11 +127,11 @@ namespace pcpp
 		 * Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be
 		 * unset. If it's not a MPLS layer this bit will be set
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}

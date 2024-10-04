@@ -26,7 +26,7 @@ namespace pcpp
 
 	/**
 	 * @class NullLoopbackLayer
-	 * Represents a NULL/Loopback layer
+	 * Represents a Null/Loopback layer
 	 */
 	class NullLoopbackLayer : public Layer
 	{
@@ -36,10 +36,9 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		NullLoopbackLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet)
-		{
-			m_Protocol = NULL_LOOPBACK;
-		}
+		NullLoopbackLayer(uint8_t* data, size_t dataLen, Packet* packet)
+		    : Layer(data, dataLen, nullptr, packet, NULL_LOOPBACK)
+		{}
 
 		/**
 		 * A constructor that allocates a new Null/Loopback header
@@ -50,8 +49,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~NullLoopbackLayer()
-		{}
+		~NullLoopbackLayer() override = default;
 
 		/**
 		 * @return The protocol family in this layer
@@ -73,12 +71,12 @@ namespace pcpp
 		 * IPv6Layer
 		 * - for other values the next layer in PayloadLayer (unknown protocol)
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of Null/Loopback header = 4B
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(uint32_t);
 		}
@@ -86,12 +84,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

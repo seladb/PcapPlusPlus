@@ -96,6 +96,20 @@ git clone https://github.com/seladb/PcapPlusPlus.git
 
 Follow the build instructions according to your platform in the [Build From Source](https://pcapplusplus.github.io/docs/install#build-from-source) page in PcapPlusPlus web-site.
 
+### Verify your packages
+
+PcapPlusPlus releases which newer than v23.09 are signed with GitHub attestation. All of the attestations can be found [here](https://github.com/seladb/PcapPlusPlus/attestations). You can verify the attestation of these packages with GitHub CLI. To verify packages you can follow the most recent instructions from [gh attestation verify](https://cli.github.com/manual/gh_attestation_verify). For simple instructions you can use the following command:
+
+```shell
+gh attestation verify <path-to-package-file> --repository seladb/PcapPlusPlus
+```
+
+and you should see the following output in your terminal:
+
+```shell
+✓ Verification succeeded!
+```
+
 ## Feature Overview
 
 - __Packet capture__ through an easy to use C++ wrapper for popular packet capture engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [Intel DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [ntop’s PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) and [raw sockets](https://en.wikipedia.org/wiki/Network_socket#Raw_socket) [[Learn more](https://pcapplusplus.github.io/docs/features#packet-capture)]
@@ -228,43 +242,44 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 22. NDP
 23. Raw IP (IPv4 & IPv6)
 24. VRRP (IPv4 & IPv6)
+25. WireGuard
 
 ### Transport Layer (L4)
 
-25. COTP
-26. GTP (v1)
-27. IPSec AH & ESP - parsing only (no editing capabilities)
-28. TCP
-29. TPKT
-30. UDP
+26. COTP
+27. GTP (v1)
+28. IPSec AH & ESP - parsing only (no editing capabilities)
+29. TCP
+30. TPKT
+31. UDP
 
 ### Session Layer (L5)
 
-31. SDP
-32. SIP
+32. SDP
+33. SIP
 
 ### Presentation Layer (L6)
 
-33. SSL/TLS - parsing only (no editing capabilities)
+34. SSL/TLS - parsing only (no editing capabilities)
 
 ### Application Layer (L7)
 
-34. ASN.1 decoder and encoder
-35. BGP (v4)
-36. DHCP
-37. DHCPv6
-38. DNS
-39. FTP
-40. HTTP headers (request & response)
-41. LDAP
-42. NTP (v3, v4)
-43. Radius
-44. S7 Communication (S7comm)
-45. SMTP
-46. SOME/IP
-47. SSH - parsing only (no editing capabilities)
-48. Telnet - parsing only (no editing capabilities)
-49. Generic payload
+35. ASN.1 decoder and encoder
+36. BGP (v4)
+37. DHCP
+38. DHCPv6
+39. DNS
+40. FTP
+41. HTTP headers (request & response)
+42. LDAP
+43. NTP (v3, v4)
+44. Radius
+45. S7 Communication (S7comm)
+46. SMTP
+47. SOME/IP
+48. SSH - parsing only (no editing capabilities)
+49. Telnet - parsing only (no editing capabilities)
+50. Generic payload
 
 ## DPDK And PF_RING Support
 

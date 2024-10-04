@@ -1,19 +1,17 @@
-#ifdef USE_PF_RING
-
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModulePfRingDevice
+#define LOG_MODULE PcapLogModulePfRingDevice
 
-#	include "PfRingDevice.h"
-#	include "EthLayer.h"
-#	include "VlanLayer.h"
-#	include "Logger.h"
-#	include <errno.h>
-#	include <pfring.h>
-#	include <pthread.h>
-#	include <chrono>
+#include "PfRingDevice.h"
+#include "EthLayer.h"
+#include "VlanLayer.h"
+#include "Logger.h"
+#include <errno.h>
+#include <pfring.h>
+#include <pthread.h>
+#include <chrono>
 
-#	define DEFAULT_PF_RING_SNAPLEN 1600
+#define DEFAULT_PF_RING_SNAPLEN 1600
 
 namespace pcpp
 {
@@ -25,8 +23,8 @@ namespace pcpp
 		m_DeviceName = std::string(deviceName);
 		m_InterfaceIndex = -1;
 		m_StopThread = true;
-		m_OnPacketsArriveCallback = NULL;
-		m_OnPacketsArriveUserCookie = NULL;
+		m_OnPacketsArriveCallback = nullptr;
+		m_OnPacketsArriveUserCookie = nullptr;
 		m_ReentrantMode = false;
 		m_HwClockEnabled = false;
 		m_DeviceMTU = 0;
@@ -85,7 +83,7 @@ namespace pcpp
 		uint32_t flags = PF_RING_PROMISC | PF_RING_HW_TIMESTAMP | PF_RING_DNA_SYMMETRIC_RSS;
 		*ring = pfring_open(deviceName, DEFAULT_PF_RING_SNAPLEN, flags);
 
-		if (*ring == NULL)
+		if (*ring == nullptr)
 		{
 			return 1;
 		}
@@ -235,7 +233,7 @@ namespace pcpp
 			for (uint8_t ringId = 0; ringId < numOfRingsPerRxChannel; ringId++)
 			{
 				m_PfRingDescriptors[ringsOpen] = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
-				if (m_PfRingDescriptors[ringsOpen] == NULL)
+				if (m_PfRingDescriptors[ringsOpen] == nullptr)
 				{
 					PCPP_LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
 					break;
@@ -256,7 +254,7 @@ namespace pcpp
 			if (remainderRings > 0)
 			{
 				m_PfRingDescriptors[ringsOpen] = pfring_open(ringName.str().c_str(), DEFAULT_PF_RING_SNAPLEN, flags);
-				if (m_PfRingDescriptors[ringsOpen] == NULL)
+				if (m_PfRingDescriptors[ringsOpen] == nullptr)
 				{
 					PCPP_LOG_ERROR("Couldn't open a ring on channel [" << (int)channelId << "]");
 					break;
@@ -575,13 +573,13 @@ namespace pcpp
 		}
 
 		int coreId = this->getCurrentCoreId().Id;
-		pfring* ring = NULL;
+		pfring* ring = nullptr;
 
 		PCPP_LOG_DEBUG("Starting capture thread " << coreId);
 
 		ring = this->m_CoreConfiguration[coreId].Channel;
 
-		if (ring == NULL)
+		if (ring == nullptr)
 		{
 			PCPP_LOG_ERROR("Couldn't find ring for core " << coreId << ". Exiting capture thread");
 			return;
@@ -589,8 +587,8 @@ namespace pcpp
 
 		while (!this->m_StopThread)
 		{
-			// if buffer is NULL PF_RING avoids copy of the data
-			uint8_t* buffer = NULL;
+			// if buffer is nullptr PF_RING avoids copy of the data
+			uint8_t* buffer = nullptr;
 			uint32_t bufferLen = 0;
 
 			// in multi-threaded mode flag PF_RING_REENTRANT is set, and this flag doesn't work with zero copy
@@ -629,12 +627,12 @@ namespace pcpp
 
 	void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats) const
 	{
-		pfring* ring = NULL;
+		pfring* ring = nullptr;
 		uint8_t coreId = core.Id;
 
 		ring = m_CoreConfiguration[coreId].Channel;
 
-		if (ring != NULL)
+		if (ring != nullptr)
 		{
 			pfring_stat tempStats;
 			if (pfring_stats(ring, &tempStats) < 0)
@@ -697,7 +695,7 @@ namespace pcpp
 		if (m_InterfaceIndex > -1)
 			return;
 
-		pfring* ring = NULL;
+		pfring* ring = nullptr;
 		bool closeRing = false;
 		if (m_NumOfOpenedRxChannels > 0)
 			ring = m_PfRingDescriptors[0];
@@ -708,7 +706,7 @@ namespace pcpp
 			closeRing = true;
 		}
 
-		if (ring == NULL)
+		if (ring == nullptr)
 		{
 			PCPP_LOG_ERROR(
 			    "Could not open a pfring for setting device attributes: MAC address, interface index and HW clock");
@@ -760,7 +758,7 @@ namespace pcpp
 
 		uint8_t flushTxAsUint = (flushTxQueues ? 1 : 0);
 
-#	define MAX_TRIES 5
+#define MAX_TRIES 5
 
 		int tries = 0;
 		int res = 0;
@@ -890,12 +888,12 @@ namespace pcpp
 		return packetsSent;
 	}
 
-	PfRingDevice::CoreConfiguration::CoreConfiguration() : Channel(NULL), IsInUse(false), IsAffinitySet(true)
+	PfRingDevice::CoreConfiguration::CoreConfiguration() : Channel(nullptr), IsInUse(false), IsAffinitySet(true)
 	{}
 
 	void PfRingDevice::CoreConfiguration::clear()
 	{
-		Channel = NULL;
+		Channel = nullptr;
 		IsInUse = false;
 		IsAffinitySet = true;
 	}
@@ -903,5 +901,3 @@ namespace pcpp
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* USE_PF_RING */

@@ -18,6 +18,93 @@ namespace pcpp
 	// Forward Declaration - required for IPcapDevice::matchPacketWithFilter
 	class GeneralFilter;
 
+	namespace internal
+	{
+		/**
+		 * @class PcapHandle
+		 * @brief A wrapper class for pcap_t* which is the libpcap packet capture descriptor.
+		 * This class is used to manage the lifecycle of the pcap_t* object
+		 */
+		class PcapHandle
+		{
+		public:
+			/**
+			 * @brief Creates an empty handle.
+			 */
+			constexpr PcapHandle() noexcept = default;
+			/**
+			 * @brief Creates a handle from the provided pcap descriptor.
+			 * @param pcapDescriptor The pcap descriptor to wrap.
+			 */
+			explicit PcapHandle(pcap_t* pcapDescriptor) noexcept;
+
+			PcapHandle(const PcapHandle&) = delete;
+			PcapHandle(PcapHandle&& other) noexcept;
+
+			PcapHandle& operator=(const PcapHandle&) = delete;
+			PcapHandle& operator=(PcapHandle&& other) noexcept;
+			PcapHandle& operator=(std::nullptr_t) noexcept;
+
+			~PcapHandle();
+
+			/**
+			 * @return True if the handle is not null, false otherwise.
+			 */
+			bool isValid() const noexcept
+			{
+				return m_PcapDescriptor != nullptr;
+			}
+
+			/**
+			 * @return The underlying pcap descriptor.
+			 */
+			pcap_t* get() const noexcept
+			{
+				return m_PcapDescriptor;
+			}
+
+			/**
+			 * @brief Releases ownership of the handle and returns the pcap descriptor.
+			 * @return The pcap descriptor or nullptr if no handle is owned.
+			 */
+			pcap_t* release() noexcept;
+
+			/**
+			 * @brief Replaces the managed handle with the provided one.
+			 * @param pcapDescriptor A new pcap descriptor to manage.
+			 * @remarks If the handle contains a non-null descriptor it will be closed.
+			 */
+			void reset(pcap_t* pcapDescriptor = nullptr) noexcept;
+
+			/**
+			 * @brief Helper function to retrieve a view of the last error string for this handle.
+			 * @return A null-terminated view of the last error string.
+			 * @remarks The returned view is only valid until the next call to a pcap function.
+			 */
+			char const* getLastError() const noexcept;
+
+			/**
+			 * @return True if the handle is not null, false otherwise.
+			 */
+			explicit operator bool() const noexcept
+			{
+				return isValid();
+			}
+
+			bool operator==(std::nullptr_t) const noexcept
+			{
+				return !isValid();
+			}
+			bool operator!=(std::nullptr_t) const noexcept
+			{
+				return isValid();
+			}
+
+		private:
+			pcap_t* m_PcapDescriptor = nullptr;
+		};
+	}  // namespace internal
+
 	/**
 	 * @class IPcapDevice
 	 * An abstract class representing all libpcap-based packet capturing devices: files, libPcap, WinPcap/Npcap and
@@ -26,13 +113,11 @@ namespace pcpp
 	class IPcapDevice : public IDevice, public IFilterableDevice
 	{
 	protected:
-		pcap_t* m_PcapDescriptor;
+		internal::PcapHandle m_PcapDescriptor;
 
 		// c'tor should not be public
 		IPcapDevice() : IDevice()
-		{
-			m_PcapDescriptor = nullptr;
-		}
+		{}
 
 	public:
 		/**

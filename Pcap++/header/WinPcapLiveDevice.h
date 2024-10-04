@@ -1,10 +1,8 @@
 #pragma once
 
-#if defined(_WIN32)
-
 /// @file
 
-#	include "PcapLiveDevice.h"
+#include "PcapLiveDevice.h"
 
 /**
  * \namespace pcpp
@@ -38,13 +36,18 @@ namespace pcpp
 	public:
 		WinPcapLiveDevice(const WinPcapLiveDevice& other) = delete;
 		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other) = delete;
+		
+		LiveDeviceType getDeviceType() const override
+		{
+			return WinPcapDevice;
+		}
 
 		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
 		                  int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie);
+		                  void* onStatsUpdateUserCookie) override;
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie);
-		bool startCapture(RawPacketVector& capturedPacketsVector)
+		                  void* onStatsUpdateUserCookie) override;
+		bool startCapture(RawPacketVector& capturedPacketsVector) override
 		{
 			return PcapLiveDevice::startCapture(capturedPacketsVector);
 		}
@@ -76,5 +79,3 @@ namespace pcpp
 	};
 
 }  // namespace pcpp
-
-#endif  // _WIN32

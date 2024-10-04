@@ -41,10 +41,9 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		EthDot3Layer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, NULL, packet)
-		{
-			m_Protocol = EthernetDot3;
-		}
+		EthDot3Layer(uint8_t* data, size_t dataLen, Packet* packet)
+		    : Layer(data, dataLen, nullptr, packet, EthernetDot3)
+		{}
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -54,10 +53,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		EthDot3Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = EthernetDot3;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, EthernetDot3)
+		{}
 
 		/**
 		 * A constructor that creates a new IEEE 802.3 Ethernet header and allocates the data
@@ -67,8 +64,7 @@ namespace pcpp
 		 */
 		EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length);
 
-		~EthDot3Layer()
-		{}
+		~EthDot3Layer() override = default;
 
 		/**
 		 * Get a pointer to the Ethernet header. Notice this points directly to the data, so every change will change
@@ -77,7 +73,7 @@ namespace pcpp
 		 */
 		ether_dot3_header* getEthHeader() const
 		{
-			return (ether_dot3_header*)m_Data;
+			return reinterpret_cast<ether_dot3_header*>(m_Data);
 		}
 
 		/**
@@ -121,12 +117,12 @@ namespace pcpp
 		/**
 		 * Parses next layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of ether_dot3_header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(ether_dot3_header);
 		}
@@ -134,12 +130,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

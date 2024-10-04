@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
 	// close the writer files which are still open
 	for (const auto& it : outputFiles)
 	{
-		if (it.second != NULL)
+		if (it.second != nullptr)
 		{
 			it.second->close();
 			delete it.second;

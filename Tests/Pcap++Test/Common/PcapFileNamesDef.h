@@ -30,5 +30,7 @@
 #define SLL2_PCAP_PATH "PcapExamples/sll2.pcap"
 #define SLL2_PCAP_WRITE_PATH "PcapExamples/sll2_copy.pcap"
 #define EXAMPLE_PCAP_MICRO_PATH "PcapExamples/microsecs.pcap"
+#define EXAMPLE_PCAP_DESTRUCTOR1_PATH "PcapExamples/destructor1.pcap"
+#define EXAMPLE_PCAP_DESTRUCTOR2_PATH "PcapExamples/destructor2.pcap"
 #define EXAMPLE_PCAP_NANO_PATH "PcapExamples/nanosecs.pcap"
 #define EXAMPLE_PCAPNG_NANO_PATH "PcapExamples/nanosecs.pcapng"

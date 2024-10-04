@@ -48,8 +48,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		~NdpOption()
-		{}
+		~NdpOption() override = default;
 
 		/**
 		 * @return NDP option type casted as pcpp::NDPNeighborOptionTypes enum. If the data is null a value
@@ -65,15 +64,15 @@ namespace pcpp
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
-				return (size_t)0;
+				return 0;
 
-			return (size_t)m_Data->recordLen * 8;
+			return static_cast<size_t>(m_Data->recordLen) * 8;
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 			{
@@ -81,7 +80,7 @@ namespace pcpp
 			}
 
 			// length value is stored in units of 8 octets
-			return (size_t)m_Data->recordLen * 8 - (2 * sizeof(uint8_t));
+			return static_cast<size_t>(m_Data->recordLen) * 8 - (2 * sizeof(uint8_t));
 		}
 	};
 
@@ -120,8 +119,7 @@ namespace pcpp
 	class NDPLayerBase : public IcmpV6Layer
 	{
 	public:
-		virtual ~NDPLayerBase()
-		{}
+		~NDPLayerBase() override = default;
 
 		/**
 		 * @return The number of NDP options in this layer
@@ -131,30 +129,30 @@ namespace pcpp
 		/**
 		 * Get a NDP option by type.
 		 * @param[in] option NDP option type
-		 * @return An NdpOption object that contains the first option that matches this type, or logical NULL
+		 * @return An NdpOption object that contains the first option that matches this type, or logical null
 		 * (NdpOption#isNull() == true) if no such option found
 		 */
 		NdpOption getNdpOption(NDPNeighborOptionTypes option) const;
 
 		/**
 		 * @return The first NDP option in the packet. If the current layer contains no options the returned value will
-		 * contain a logical NULL (NdpOption#isNull() == true)
+		 * contain a logical null (NdpOption#isNull() == true)
 		 */
 		NdpOption getFirstNdpOption() const;
 
 		/**
 		 * Get the NDP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (IdpOption#isNull() == true)
+		 * returned value will contain a logical null (IdpOption#isNull() == true)
 		 * @param[in] option An NDP option object that exists in the current layer
-		 * @return A NdpOption object that contains the NDP option data that comes next, or logical NULL if the given
-		 * NDP option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
+		 * @return A NdpOption object that contains the NDP option data that comes next, or logical null if the given
+		 * NDP option: (1) was the last one; or (2) contains a logical null; or (3) doesn't belong to this packet
 		 */
 		NdpOption getNextNdpOption(NdpOption& option) const;
 
 		/**
 		 * Add a new NDP option at the end of the layer (after the last NDP option)
 		 * @param[in] optionBuilder An NdpOptionBuilder object that contains the NDP option data to be added
-		 * @return A NdpOption object that contains the newly added NDP option data or logical NULL
+		 * @return A NdpOption object that contains the newly added NDP option data or logical null
 		 * (NdpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
@@ -232,8 +230,7 @@ namespace pcpp
 		 */
 		NDPNeighborSolicitationLayer(uint8_t code, const IPv6Address& targetIP, const MacAddress& srcMac);
 
-		virtual ~NDPNeighborSolicitationLayer()
-		{}
+		~NDPNeighborSolicitationLayer() override = default;
 
 		/**
 		 * @return Get the IP address specified as the target IP address in the solicitation message
@@ -255,15 +252,15 @@ namespace pcpp
 		 */
 		MacAddress getLinkLayerAddress() const;
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		void initLayer(uint8_t code, const IPv6Address& targetIP);
 		ndpneighborsolicitationhdr* getNdpHeader() const
 		{
-			return (ndpneighborsolicitationhdr*)m_Data;
+			return reinterpret_cast<ndpneighborsolicitationhdr*>(m_Data);
 		}
-		size_t getNdpHeaderLen() const
+		size_t getNdpHeaderLen() const override
 		{
 			return sizeof(ndpneighborsolicitationhdr);
 		};
@@ -349,8 +346,7 @@ namespace pcpp
 		NDPNeighborAdvertisementLayer(uint8_t code, const IPv6Address& targetIP, bool routerFlag, bool unicastFlag,
 		                              bool overrideFlag);
 
-		virtual ~NDPNeighborAdvertisementLayer()
-		{}
+		~NDPNeighborAdvertisementLayer() override = default;
 
 		/**
 		 * @return Get the target MAC address
@@ -394,15 +390,15 @@ namespace pcpp
 			return getNdpHeader()->override;
 		}
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		void initLayer(uint8_t code, const IPv6Address& targetIP, bool routerFlag, bool unicastFlag, bool overrideFlag);
 		ndpneighboradvertisementhdr* getNdpHeader() const
 		{
-			return (ndpneighboradvertisementhdr*)m_Data;
+			return reinterpret_cast<ndpneighboradvertisementhdr*>(m_Data);
 		}
-		size_t getNdpHeaderLen() const
+		size_t getNdpHeaderLen() const override
 		{
 			return sizeof(ndpneighboradvertisementhdr);
 		};

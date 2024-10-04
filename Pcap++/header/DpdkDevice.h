@@ -266,7 +266,7 @@ namespace pcpp
 			 * When configuring a DPDK device, DPDK supports to activate the Receive Side Scaling (RSS) feature to
 			 * distribute traffic between the RX queues This parameter points to an array holding the RSS key to use for
 			 * hashing specific header fields of received packets. The length of this array should be indicated by
-			 * rssKeyLength below. Supplying a NULL value causes a default random hash key to be used by the device
+			 * rssKeyLength below. Supplying a nullptr value causes a default random hash key to be used by the device
 			 * driver
 			 */
 			uint8_t* rssKey;

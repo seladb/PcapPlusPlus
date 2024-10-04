@@ -1,10 +1,8 @@
-#if defined(_WIN32)
+#define LOG_MODULE PcapLogModuleRemoteDevice
 
-#	define LOG_MODULE PcapLogModuleRemoteDevice
-
-#	include "PcapRemoteDevice.h"
-#	include "Logger.h"
-#	include "pcap.h"
+#include "PcapRemoteDevice.h"
+#include "Logger.h"
+#include "pcap.h"
 
 namespace pcpp
 {
@@ -43,7 +41,7 @@ namespace pcpp
 		}
 
 		m_PcapDescriptor =
-		    pcap_open(m_InterfaceDetails.name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf);
+		    internal::PcapHandle(pcap_open(m_InterfaceDetails.name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf));
 		if (m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
@@ -52,7 +50,7 @@ namespace pcpp
 		}
 
 		// in Remote devices there shouldn't be 2 separate descriptors
-		m_PcapSendDescriptor = m_PcapDescriptor;
+		m_PcapSendDescriptor = m_PcapDescriptor.get();
 
 		// setFilter requires that m_DeviceOpened == true
 		m_DeviceOpened = true;
@@ -75,7 +73,7 @@ namespace pcpp
 	void PcapRemoteDevice::getStatistics(PcapStats& stats) const
 	{
 		int allocatedMemory;
-		pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor, &allocatedMemory);
+		pcap_stat* tempStats = pcap_stats_ex(m_PcapDescriptor.get(), &allocatedMemory);
 		if (allocatedMemory < static_cast<int>(sizeof(pcap_stat)))
 		{
 			PCPP_LOG_ERROR("Error getting statistics from live device '"
@@ -106,5 +104,3 @@ namespace pcpp
 	}
 
 }  // namespace pcpp
-
-#endif  // _WIN32

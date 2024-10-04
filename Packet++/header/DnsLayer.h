@@ -125,7 +125,7 @@ namespace pcpp
 		 */
 		DnsLayer& operator=(const DnsLayer& other);
 
-		virtual ~DnsLayer();
+		~DnsLayer() override;
 
 		/**
 		 * Get a pointer to the DNS header (as opposed to the DNS data which is the queries, answers, etc. Data can be
@@ -138,23 +138,23 @@ namespace pcpp
 		/**
 		 * Searches for a DNS query by its name field. Notice this method returns only a query which its name equals to
 		 * the requested name. If several queries match the requested name, the first one will be returned. If no
-		 * queries match the requested name, NULL will be returned
+		 * queries match the requested name, nullptr will be returned
 		 * @param[in] name The name of the query to search
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
-		 * @return The first matching DNS query or NULL if no queries were found
+		 * @return The first matching DNS query or nullptr if no queries were found
 		 */
 		DnsQuery* getQuery(const std::string& name, bool exactMatch) const;
 
 		/**
-		 * @return The first DNS query in the packet or NULL if packet doesn't contain any queries
+		 * @return The first DNS query in the packet or nullptr if packet doesn't contain any queries
 		 */
 		DnsQuery* getFirstQuery() const;
 
 		/**
 		 * Get the DNS query following a certain query
 		 * @param[in] query A pointer to a DNS query that exist in the packet
-		 * @return The DNS query following 'query'. If 'query' is NULL or 'query' is the last query in the packet NULL
-		 * will be returned
+		 * @return The DNS query following 'query'. If 'query' is nullptr or 'query' is the last query in the packet
+		 * nullptr will be returned
 		 */
 		DnsQuery* getNextQuery(DnsQuery* query) const;
 
@@ -168,8 +168,8 @@ namespace pcpp
 		 * @param[in] name The value that shall be set in the name field of the query
 		 * @param[in] dnsType The value that shall be set in the DNS type field of the query
 		 * @param[in] dnsClass The value that shall be set in the DNS class field of the query
-		 * @return A pointer to the newly created DNS query or NULL if query could not be created (an appropriate error
-		 * log message will be printed in this case)
+		 * @return A pointer to the newly created DNS query or nullptr if query could not be created (an appropriate
+		 * error log message will be printed in this case)
 		 */
 		DnsQuery* addQuery(const std::string& name, DnsType dnsType, DnsClass dnsClass);
 
@@ -177,8 +177,8 @@ namespace pcpp
 		 * Add a new DNS query similar to an already existing DNS query. All query fields will be copied from the
 		 * existing query
 		 * @param[in] copyQuery The record to create the new record from. copyQuery won't be changed in any way
-		 * @return A pointer to the newly created DNS query or NULL if query could not be created (an appropriate error
-		 * log message will be printed in this case)
+		 * @return A pointer to the newly created DNS query or nullptr if query could not be created (an appropriate
+		 * error log message will be printed in this case)
 		 */
 		DnsQuery* addQuery(DnsQuery* const copyQuery);
 
@@ -202,23 +202,23 @@ namespace pcpp
 		/**
 		 * Searches for a DNS answer by its name field. Notice this method returns only an answer which its name equals
 		 * to the requested name. If several answers match the requested name, the first one will be returned. If no
-		 * answers match the requested name, NULL will be returned
+		 * answers match the requested name, nullptr will be returned
 		 * @param[in] name The name of the answer to search
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
-		 * @return The first matching DNS answer or NULL if no answers were found
+		 * @return The first matching DNS answer or nullptr if no answers were found
 		 */
 		DnsResource* getAnswer(const std::string& name, bool exactMatch) const;
 
 		/**
-		 * @return The first DNS answer in the packet or NULL if packet doesn't contain any answers
+		 * @return The first DNS answer in the packet or nullptr if packet doesn't contain any answers
 		 */
 		DnsResource* getFirstAnswer() const;
 
 		/**
 		 * Get the DNS answer following a certain answer
 		 * @param[in] answer A pointer to a DNS answer that exist in the packet
-		 * @return The DNS answer following 'answer'. If 'answer' is NULL or 'answer' is the last answer in the packet
-		 * NULL will be returned
+		 * @return The DNS answer following 'answer'. If 'answer' is nullptr or 'answer' is the last answer in the
+		 * packet nullptr will be returned
 		 */
 		DnsResource* getNextAnswer(DnsResource* answer) const;
 
@@ -236,7 +236,7 @@ namespace pcpp
 		 * @param[in] data The answer data to be set. The type of the data should match the type of the DNS record
 		 * (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see
 		 * DnsResource#setData() for more info on this
-		 * @return A pointer to the newly created DNS answer or NULL if answer could not be created (an appropriate
+		 * @return A pointer to the newly created DNS answer or nullptr if answer could not be created (an appropriate
 		 * error log message will be printed in this case)
 		 */
 		DnsResource* addAnswer(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl,
@@ -246,8 +246,8 @@ namespace pcpp
 		 * Add a new DNS answer similar to an already existing DNS answer. All answer fields will be copied from the
 		 * existing answer
 		 * @param[in] copyAnswer The record to create the new record from. copyAnswer won't be changed in any way
-		 * @return A pointer to the newly created DNS answer or NULL if query could not be created (an appropriate error
-		 * log message will be printed in this case)
+		 * @return A pointer to the newly created DNS answer or nullptr if query could not be created (an appropriate
+		 * error log message will be printed in this case)
 		 */
 		DnsResource* addAnswer(DnsResource* const copyAnswer);
 
@@ -271,23 +271,23 @@ namespace pcpp
 		/**
 		 * Searches for a DNS authority by its name field. Notice this method returns only an authority which its name
 		 * equals to the requested name. If several authorities match the requested name, the first one will be
-		 * returned. If no authorities match the requested name, NULL will be returned
+		 * returned. If no authorities match the requested name, nullptr will be returned
 		 * @param[in] name The name of the authority to search
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
-		 * @return The first matching DNS authority or NULL if no authorities were found
+		 * @return The first matching DNS authority or nullptr if no authorities were found
 		 */
 		DnsResource* getAuthority(const std::string& name, bool exactMatch) const;
 
 		/**
-		 * @return The first DNS authority in the packet or NULL if packet doesn't contain any authorities
+		 * @return The first DNS authority in the packet or nullptr if packet doesn't contain any authorities
 		 */
 		DnsResource* getFirstAuthority() const;
 
 		/**
 		 * Get the DNS authority following a certain authority
 		 * @param[in] authority A pointer to a DNS authority that exist in the packet
-		 * @return The DNS authority following 'authority'. If 'authority' is NULL or 'authority' is the last authority
-		 * in the packet NULL will be returned
+		 * @return The DNS authority following 'authority'. If 'authority' is nullptr or 'authority' is the last
+		 * authority in the packet nullptr will be returned
 		 */
 		DnsResource* getNextAuthority(DnsResource* authority) const;
 
@@ -305,7 +305,7 @@ namespace pcpp
 		 * @param[in] data The authority data to be set. The type of the data should match the type of the DNS record
 		 * (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see
 		 * DnsResource#setData() for more info on this
-		 * @return A pointer to the newly created DNS authority or NULL if authority could not be created (an
+		 * @return A pointer to the newly created DNS authority or nullptr if authority could not be created (an
 		 * appropriate error log message will be printed in this case)
 		 */
 		DnsResource* addAuthority(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl,
@@ -315,7 +315,7 @@ namespace pcpp
 		 * Add a new DNS authority similar to an already existing DNS authority. All authority fields will be copied
 		 * from the existing authority
 		 * @param[in] copyAuthority The record to create the new record from. copyAuthority won't be changed in any way
-		 * @return A pointer to the newly created DNS authority or NULL if query could not be created (an appropriate
+		 * @return A pointer to the newly created DNS authority or nullptr if query could not be created (an appropriate
 		 * error log message will be printed in this case)
 		 */
 		DnsResource* addAuthority(DnsResource* const copyAuthority);
@@ -341,15 +341,15 @@ namespace pcpp
 		/**
 		 * Searches for a DNS additional record by its name field. Notice this method returns only an additional record
 		 * which its name equals to the requested name. If several additional records match the requested name, the
-		 * first one will be returned. If no additional records match the requested name, NULL will be returned
+		 * first one will be returned. If no additional records match the requested name, nullptr will be returned
 		 * @param[in] name The name of the additional record to search
 		 * @param[in] exactMatch Indicate whether to match the whole name or just a part of it
-		 * @return The first matching DNS additional record or NULL if no additional records were found
+		 * @return The first matching DNS additional record or nullptr if no additional records were found
 		 */
 		DnsResource* getAdditionalRecord(const std::string& name, bool exactMatch) const;
 
 		/**
-		 * @return The first DNS additional record in the packet or NULL if packet doesn't contain any additional
+		 * @return The first DNS additional record in the packet or nullptr if packet doesn't contain any additional
 		 * records
 		 */
 		DnsResource* getFirstAdditionalRecord() const;
@@ -357,8 +357,8 @@ namespace pcpp
 		/**
 		 * Get the DNS additional record following a certain additional record
 		 * @param[in] additionalRecord A pointer to a DNS additional record that exist in the packet
-		 * @return The DNS additional record following 'additionalRecord'. If 'additionalRecord' is NULL or
-		 * 'additionalRecord' is the last additional record in the packet NULL will be returned
+		 * @return The DNS additional record following 'additionalRecord'. If 'additionalRecord' is nullptr or
+		 * 'additionalRecord' is the last additional record in the packet nullptr will be returned
 		 */
 		DnsResource* getNextAdditionalRecord(DnsResource* additionalRecord) const;
 
@@ -376,7 +376,7 @@ namespace pcpp
 		 * @param[in] data The additional record data to be set. The type of the data should match the type of the DNS
 		 * record (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see
 		 * DnsResource#setData() for more info on this
-		 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be
+		 * @return A pointer to the newly created DNS additional record or nullptr if additional record could not be
 		 * created (an appropriate error log message will be printed in this case)
 		 */
 		DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, DnsClass dnsClass, uint32_t ttl,
@@ -395,7 +395,7 @@ namespace pcpp
 		 * @param[in] data The additional record data to be set. The type of the data should match the type of the DNS
 		 * record. (for example: DNS record of type A should have data of type IPv4DnsResourceData. Please see
 		 * DnsResource#setData() for more info on this
-		 * @return A pointer to the newly created DNS additional record or NULL if additional record could not be
+		 * @return A pointer to the newly created DNS additional record or nullptr if additional record could not be
 		 * created (an appropriate error log message will be printed in this case)
 		 */
 		DnsResource* addAdditionalRecord(const std::string& name, DnsType dnsType, uint16_t customData1,
@@ -406,7 +406,7 @@ namespace pcpp
 		 * fields will be copied from the existing additional record
 		 * @param[in] copyAdditionalRecord The record to create the new record from. copyAdditionalRecord won't be
 		 * changed in any way
-		 * @return A pointer to the newly created DNS additional record or NULL if query could not be created (an
+		 * @return A pointer to the newly created DNS additional record or nullptr if query could not be created (an
 		 * appropriate error log message will be printed in this case)
 		 */
 		DnsResource* addAdditionalRecord(DnsResource* const copyAdditionalRecord);
@@ -434,14 +434,14 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (DnsLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return The size of the DNS data in the packet including he DNS header and size of all queries, answers,
 		 * authorities and additional records
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}  // No layer above DNS
@@ -449,12 +449,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		virtual void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
@@ -566,7 +566,7 @@ namespace pcpp
 		/**
 		 * Calculate the TCP message length field
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 	};
 
 	// implementation of inline methods

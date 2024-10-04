@@ -10,20 +10,30 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      - id: trailing-whitespace
       - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-shebang-scripts-are-executable
+      - id: check-merge-conflict
+      - id: check-symlinks
       - id: end-of-file-fixer
+      - id: forbid-submodules
       - id: mixed-line-ending
         args: ['--fix=lf']
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.8
     hooks:
-      - id: black
+      - id: ruff # Run the linter.
+        types_or: [ python ]
+      - id: ruff-format  # Run the formatter.
+        types_or: [ python ]
+        args: [ --check ]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
       - id: clang-format
-        args: ["--style=file"]  # Use the .clang-format file for configuration
+        args: ["--style=file", "-i"]  # Use the .clang-format file for configuration and apply all fixes
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
@@ -33,8 +43,12 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.23.6
+    rev: v1.25.0
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
         pass_filenames: false
+  - repo: https://github.com/lovesegfault/beautysh
+    rev: v6.2.1
+    hooks:
+      - id: beautysh

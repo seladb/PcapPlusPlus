@@ -1,11 +1,9 @@
-#if defined(_WIN32)
+#define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
-#	define LOG_MODULE PcapLogModuleWinPcapLiveDevice
-
-#	include "WinPcapLiveDevice.h"
-#	include "Logger.h"
-#	include "TimespecTimeval.h"
-#	include "pcap.h"
+#include "WinPcapLiveDevice.h"
+#include "Logger.h"
+#include "TimespecTimeval.h"
+#include "pcap.h"
 
 namespace pcpp
 {
@@ -21,14 +19,14 @@ namespace pcpp
 	                                     int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
 	                                     void* onStatsUpdateUserCookie)
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 			return false;
 		}
 
 		// Put the interface in capture mode
-		if (pcap_setmode(m_PcapDescriptor, MODE_CAPT) < 0)
+		if (pcap_setmode(m_PcapDescriptor.get(), MODE_CAPT) < 0)
 		{
 			PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_InterfaceDetails.name << "'");
 			return false;
@@ -41,14 +39,14 @@ namespace pcpp
 	bool WinPcapLiveDevice::startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
 	                                     void* onStatsUpdateUserCookie)
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 			return false;
 		}
 
 		// Put the interface in statistics mode
-		if (pcap_setmode(m_PcapDescriptor, MODE_STAT) < 0)
+		if (pcap_setmode(m_PcapDescriptor.get(), MODE_STAT) < 0)
 		{
 			PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_InterfaceDetails.name << "'");
 			return false;
@@ -59,7 +57,7 @@ namespace pcpp
 
 	int WinPcapLiveDevice::sendPackets(RawPacket* rawPacketsArr, int arrLength)
 	{
-		if (!m_DeviceOpened || m_PcapDescriptor == NULL)
+		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 			return 0;
@@ -90,9 +88,9 @@ namespace pcpp
 		PCPP_LOG_DEBUG(packetsSent << " packets were queued successfully");
 
 		int res;
-		if ((res = pcap_sendqueue_transmit(m_PcapDescriptor, sendQueue, 0)) < (int)(sendQueue->len))
+		if ((res = pcap_sendqueue_transmit(m_PcapDescriptor.get(), sendQueue, 0)) < static_cast<int>(sendQueue->len))
 		{
-			PCPP_LOG_ERROR("An error occurred sending the packets: " << pcap_geterr(m_PcapDescriptor) << ". Only "
+			PCPP_LOG_ERROR("An error occurred sending the packets: " << m_PcapDescriptor.getLastError() << ". Only "
 			                                                         << res << " bytes were sent");
 			packetsSent = 0;
 			dataSize = 0;
@@ -124,7 +122,7 @@ namespace pcpp
 			return false;
 		}
 
-		if (pcap_setmintocopy(m_PcapDescriptor, size) != 0)
+		if (pcap_setmintocopy(m_PcapDescriptor.get(), size) != 0)
 		{
 			PCPP_LOG_ERROR("pcap_setmintocopy failed");
 			return false;
@@ -139,5 +137,3 @@ namespace pcpp
 	}
 
 }  // namespace pcpp
-
-#endif  // _WIN32

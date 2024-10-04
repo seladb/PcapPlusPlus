@@ -227,9 +227,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		TelnetLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
+		    : Layer(data, dataLen, prevLayer, packet, Telnet)
 		{
-			m_Protocol = Telnet;
 			lastPositionOffset = SIZE_MAX;
 		};
 
@@ -282,7 +281,7 @@ namespace pcpp
 		/**
 		 * Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
 		 * @param[out] length Length of the data of current command
-		 * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command.
+		 * @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command.
 		 */
 		uint8_t* getOptionData(size_t& length);
 
@@ -290,7 +289,7 @@ namespace pcpp
 		 * Returns the data of provided command. It will return data of first occurrence of the command
 		 * @param[in] command Telnet command to search
 		 * @param[out] length Length of the data of current command
-		 * @return uint8_t* Pointer to the data of current command. NULL if there is no data for this command or if
+		 * @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command or if
 		 * can't find the command.
 		 */
 		uint8_t* getOptionData(TelnetCommand command, size_t& length);
@@ -332,25 +331,25 @@ namespace pcpp
 		// overridden methods
 
 		/// Parses the next layer. Telnet is the always last so does nothing for this layer
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Get the size of the layer
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
 
 		/// Does nothing for this layer
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
 		 * @return The OSI layer level of Telnet (Application Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
@@ -358,7 +357,7 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 }  // namespace pcpp

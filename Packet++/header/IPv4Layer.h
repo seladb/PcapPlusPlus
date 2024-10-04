@@ -226,8 +226,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		~IPv4Option()
-		{}
+		~IPv4Option() override = default;
 
 		/**
 		 * A method for parsing the IPv4 option value as a list of IPv4 addresses. This method is relevant only for
@@ -347,7 +346,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
@@ -359,7 +358,7 @@ namespace pcpp
 			return static_cast<size_t>(m_Data->recordLen);
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
@@ -401,7 +400,7 @@ namespace pcpp
 		 * @param[in] optionType IPv4 option type
 		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
 		 * any way. For option types ::IPV4OPT_NOP and ::IPV4OPT_EndOfOptionsList this parameter is ignored (expected to
-		 * be NULL) as these option types don't contain any data
+		 * be nullptr) as these option types don't contain any data
 		 * @param[in] optionValueLen Option value length in bytes
 		 */
 		IPv4OptionBuilder(IPv4OptionTypes optionType, const uint8_t* optionValue, uint8_t optionValueLen)
@@ -505,7 +504,7 @@ namespace pcpp
 		 */
 		iphdr* getIPv4Header() const
 		{
-			return (iphdr*)m_Data;
+			return reinterpret_cast<iphdr*>(m_Data);
 		}
 
 		/**
@@ -513,7 +512,7 @@ namespace pcpp
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the source address
 		 */
-		IPAddress getSrcIPAddress() const
+		IPAddress getSrcIPAddress() const override
 		{
 			return getSrcIPv4Address();
 		}
@@ -541,7 +540,7 @@ namespace pcpp
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the destination address
 		 */
-		IPAddress getDstIPAddress() const
+		IPAddress getDstIPAddress() const override
 		{
 			return getDstIPv4Address();
 		}
@@ -594,23 +593,24 @@ namespace pcpp
 		/**
 		 * Get an IPv4 option by type.
 		 * @param[in] option IPv4 option type
-		 * @return An IPv4Option object that contains the first option that matches this type, or logical NULL
+		 * @return An IPv4Option object that contains the first option that matches this type, or logical null
 		 * (IPv4Option#isNull() == true) if no such option found
 		 */
 		IPv4Option getOption(IPv4OptionTypes option) const;
 
 		/**
 		 * @return The first IPv4 option in the packet. If the current layer contains no options the returned value will
-		 * contain a logical NULL (IPv4Option#isNull() == true)
+		 * contain a logical null (IPv4Option#isNull() == true)
 		 */
 		IPv4Option getFirstOption() const;
 
 		/**
 		 * Get the IPv4 option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical NULL (IPv4Option#isNull() == true)
+		 * returned value will contain a logical null (IPv4Option#isNull() == true)
 		 * @param[in] option An IPv4 option object that exists in the current layer
-		 * @return A IPv4Option object that contains the IPv4 option data that comes next, or logical NULL if the given
-		 * IPv4 option: (1) was the last one; or (2) contains a logical NULL; or (3) doesn't belong to this packet
+		 * @return A IPv4Option object that contains the IPv4 option data that comes next, or logical null if the
+		 * given IPv4 option: (1) was the last one; or (2) contains a logical null; or (3) doesn't belong to this
+		 * packet
 		 */
 		IPv4Option getNextOption(IPv4Option& option) const;
 
@@ -622,7 +622,7 @@ namespace pcpp
 		/**
 		 * Add a new IPv4 option at the end of the layer (after the last IPv4 option)
 		 * @param[in] optionBuilder An IPv4OptionBuilder object that contains the IPv4 option data to be added
-		 * @return A IPv4Option object that contains the newly added IPv4 option data or logical NULL
+		 * @return A IPv4Option object that contains the newly added IPv4 option data or logical null
 		 * (IPv4Option#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
@@ -634,7 +634,7 @@ namespace pcpp
 		 * @param[in] prevOptionType The IPv4 option which the newly added option should come after. This is an optional
 		 * parameter which gets a default value of ::IPV4OPT_Unknown if omitted, which means the new option will be
 		 * added as the first option in the layer
-		 * @return A IPv4Option object containing the newly added IPv4 option data or logical NULL
+		 * @return A IPv4Option object containing the newly added IPv4 option data or logical null
 		 * (IPv4Option#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
 		 * printed to log
 		 */
@@ -672,12 +672,12 @@ namespace pcpp
 		 *
 		 * Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of IPv4 header (including IPv4 options if exist)
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return static_cast<size_t>(static_cast<uint16_t>(getIPv4Header()->internetHeaderLength) * 4) +
 			       m_TempHeaderExtension;
@@ -691,11 +691,11 @@ namespace pcpp
 		 * - iphdr#protocol = calculated if next layer is known: ::PACKETPP_IPPROTO_TCP for TCP, ::PACKETPP_IPPROTO_UDP
 		 * for UDP, ::PACKETPP_IPPROTO_ICMP for ICMP
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}

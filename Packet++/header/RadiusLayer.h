@@ -48,25 +48,24 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		virtual ~RadiusAttribute()
-		{}
+		~RadiusAttribute() override = default;
 
 		// implement abstract methods
 
-		size_t getTotalSize() const
+		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
 
-			return (size_t)m_Data->recordLen;
+			return static_cast<size_t>(m_Data->recordLen);
 		}
 
-		size_t getDataSize() const
+		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
 				return 0;
 
-			return (size_t)m_Data->recordLen - 2 * sizeof(uint8_t);
+			return static_cast<size_t>(m_Data->recordLen) - 2 * sizeof(uint8_t);
 		}
 	};
 
@@ -184,10 +183,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		RadiusLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = Radius;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, Radius)
+		{}
 
 		/**
 		 * A constructor that creates a new layer from scratch
@@ -215,8 +212,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this layer, currently does nothing
 		 */
-		~RadiusLayer()
-		{}
+		~RadiusLayer() override = default;
 
 		/**
 		 * Get a pointer to the RADIUS header. Notice this points directly to the data, so every change will change the
@@ -225,7 +221,7 @@ namespace pcpp
 		 */
 		radius_header* getRadiusHeader() const
 		{
-			return (radius_header*)m_Data;
+			return reinterpret_cast<radius_header*>(m_Data);
 		}
 
 		/**
@@ -249,24 +245,24 @@ namespace pcpp
 
 		/**
 		 * @return The first RADIUS attribute in the packet. If there are no attributes the returned value will contain
-		 * a logical NULL (RadiusAttribute#isNull() == true)
+		 * a logical null (RadiusAttribute#isNull() == true)
 		 */
 		RadiusAttribute getFirstAttribute() const;
 
 		/**
 		 * Get the RADIUS attribute that comes after a given attribute. If the given attribute was the last one, the
-		 * returned value will contain a logical NULL (RadiusAttribute#isNull() == true)
+		 * returned value will contain a logical null (RadiusAttribute#isNull() == true)
 		 * @param[in] attr A given attribute
-		 * @return A RadiusAttribute object containing the attribute data that comes next, or logical NULL if the given
-		 * attribute: (1) was the last one; (2) contains a logical NULL or (3) doesn't belong to this packet
+		 * @return A RadiusAttribute object containing the attribute data that comes next, or logical null if the
+		 * given attribute: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		 */
 		RadiusAttribute getNextAttribute(RadiusAttribute& attr) const;
 
 		/**
 		 * Get a RADIUS attribute by attribute type
 		 * @param[in] attrType RADIUS attribute type
-		 * @return A RadiusAttribute object containing the first attribute data that matches this type, or logical NULL
-		 * (RadiusAttribute#isNull() == true) if no such attribute found
+		 * @return A RadiusAttribute object containing the first attribute data that matches this type, or logical
+		 * null (RadiusAttribute#isNull() == true) if no such attribute found
 		 */
 		RadiusAttribute getAttribute(uint8_t attrType) const;
 
@@ -278,7 +274,7 @@ namespace pcpp
 		/**
 		 * Add a new RADIUS attribute at the end of the layer
 		 * @param[in] attrBuilder A RadiusAttributeBuilder object that contains the requested attribute data to add
-		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical NULL
+		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical null
 		 * (RadiusAttribute#isNull() == true) if addition failed
 		 */
 		RadiusAttribute addAttribute(const RadiusAttributeBuilder& attrBuilder);
@@ -287,7 +283,7 @@ namespace pcpp
 		 * Add a new RADIUS attribute after an existing one
 		 * @param[in] attrBuilder A RadiusAttributeBuilder object that contains the requested attribute data to add
 		 * @param[in] prevAttrType The RADIUS attribute which the newly added attribute will come after
-		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical NULL
+		 * @return A RadiusAttribute object containing the newly added RADIUS attribute data or logical null
 		 * (RadiusAttribute#isNull() == true) if addition failed
 		 */
 		RadiusAttribute addAttributeAfter(const RadiusAttributeBuilder& attrBuilder, uint8_t prevAttrType);
@@ -325,22 +321,22 @@ namespace pcpp
 		/**
 		 * @return The size written in radius_header#length
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Does nothing for this layer, RADIUS is always last
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * Calculate and store the value of radius_header#length according to the layer size
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

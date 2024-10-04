@@ -289,8 +289,8 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be NULL in some
-		 * interfaces
+		 * @return A human-readable description of the device, taken from pcap_if_t->description. May be empty string in
+		 * some interfaces
 		 */
 		std::string getDesc() const
 		{
