@@ -4,7 +4,6 @@
 #include "WireGuardLayer.h"
 #include "EndianPortable.h"
 #include <iomanip>
-#include <cstring>
 
 namespace pcpp
 {

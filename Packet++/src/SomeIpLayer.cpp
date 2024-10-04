@@ -7,7 +7,6 @@
 #include "EndianPortable.h"
 #include <algorithm>
 #include <sstream>
-#include <string.h>
 
 namespace pcpp
 {

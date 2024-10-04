@@ -4,9 +4,7 @@
 #include "NtpLayer.h"
 #include "SystemUtils.h"
 #include "GeneralUtils.h"
-
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
 
 /// 2^16 as a double
 #define NTP_FRIC 65536.

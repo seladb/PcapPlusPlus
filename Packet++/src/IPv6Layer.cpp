@@ -11,7 +11,6 @@
 #include "IcmpV6Layer.h"
 #include "VrrpLayer.h"
 #include "Packet.h"
-#include <string.h>
 #include "EndianPortable.h"
 
 namespace pcpp

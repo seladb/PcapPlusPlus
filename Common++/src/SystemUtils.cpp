@@ -9,9 +9,7 @@
 #include <array>
 #include <iostream>
 #include <mutex>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
+#include <csignal>
 #include <sys/stat.h>
 #if defined(__APPLE__)
 #	include <mach/clock.h>

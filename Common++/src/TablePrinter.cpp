@@ -3,7 +3,6 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
-#include <iterator>
 #include <numeric>
 #include <utility>
 #include "TablePrinter.h"

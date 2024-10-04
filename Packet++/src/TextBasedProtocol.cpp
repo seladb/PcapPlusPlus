@@ -1,10 +1,9 @@
 #include "TextBasedProtocol.h"
 #include "Logger.h"
 #include "PayloadLayer.h"
-#include <string.h>
+#include <cstring>
 #include <algorithm>
 #include <utility>
-#include <stdlib.h>
 
 namespace pcpp
 {

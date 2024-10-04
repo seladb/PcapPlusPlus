@@ -11,7 +11,6 @@
 #include "IPSecLayer.h"
 #include "VrrpLayer.h"
 #include "PacketUtils.h"
-#include <string.h>
 #include <sstream>
 #include "Logger.h"
 #include "EndianPortable.h"

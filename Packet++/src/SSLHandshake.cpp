@@ -2,7 +2,6 @@
 
 #include "EndianPortable.h"
 #include "md5.h"
-#include <string.h>
 #include <sstream>
 #include <unordered_map>
 #include <set>

@@ -2,7 +2,6 @@
 
 #include "PayloadLayer.h"
 #include "GeneralUtils.h"
-#include <string.h>
 #include <sstream>
 
 namespace pcpp

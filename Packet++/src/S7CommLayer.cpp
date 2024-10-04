@@ -1,10 +1,7 @@
 #include "EndianPortable.h"
 
 #include "S7CommLayer.h"
-#include "TcpLayer.h"
 #include <iostream>
-
-#include <cstring>
 #include <sstream>
 
 namespace pcpp
