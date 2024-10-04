@@ -3,6 +3,7 @@
 #include "Layer.h"
 #include "Logger.h"
 #include "Packet.h"
+#include <cstring>
 
 namespace pcpp
 {

@@ -10,6 +10,7 @@
 #include <sstream>
 #include <cmath>
 #include <limits>
+#include <cstring>
 
 #if defined(_WIN32)
 #	undef max

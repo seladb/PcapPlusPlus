@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <set>
 #include <utility>
+#include <cstring>
 #include "Logger.h"
 #include "SSLHandshake.h"
 

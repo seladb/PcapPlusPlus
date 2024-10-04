@@ -3,6 +3,7 @@
 #include "RawPacket.h"
 #include "Logger.h"
 #include "TimespecTimeval.h"
+#include <cstring>
 
 namespace pcpp
 {
