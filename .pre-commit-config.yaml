@@ -21,10 +21,14 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
       - id: trailing-whitespace
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.8
     hooks:
-      - id: black
+      - id: ruff # Run the linter.
+        types_or: [ python ]
+      - id: ruff-format  # Run the formatter.
+        types_or: [ python ]
+        args: [ --check ]
   - repo: https://github.com/pocc/pre-commit-hooks
     rev: v1.3.5
     hooks:
@@ -39,7 +43,7 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.11.27
+    rev: v1.25.0
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']

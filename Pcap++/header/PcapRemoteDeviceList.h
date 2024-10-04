@@ -1,11 +1,9 @@
 #pragma once
 
-#if defined(_WIN32)
-
-#	include <memory>
-#	include "IpAddress.h"
-#	include "PcapRemoteDevice.h"
-#	include "DeprecationUtils.h"
+#include <memory>
+#include "IpAddress.h"
+#include "PcapRemoteDevice.h"
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -222,5 +220,3 @@ namespace pcpp
 	};
 
 }  // namespace pcpp
-
-#endif  // _WIN32

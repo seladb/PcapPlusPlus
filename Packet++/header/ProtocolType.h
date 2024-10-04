@@ -347,6 +347,15 @@ namespace pcpp
 	 */
 	const ProtocolType LDAP = 55;
 
+
+	/*
+	 * WireGuard protocol
+	 */
+	const ProtocolType WireGuard = 56;
+  
+  /*
+	 * infiniband protocol
+	 */
 	const ProtocolType IB = 56;
 
 	/**

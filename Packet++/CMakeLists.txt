@@ -65,6 +65,7 @@ add_library(
   src/VrrpLayer.cpp
   src/VxlanLayer.cpp
   src/WakeOnLanLayer.cpp
+  src/WireGuardLayer.cpp
   # Force hash-library pcapng to be link fully static
 )
 
@@ -134,7 +135,8 @@ set(public_headers
     header/VlanLayer.h
     header/VrrpLayer.h
     header/VxlanLayer.h
-    header/WakeOnLanLayer.h)
+    header/WakeOnLanLayer.h
+    header/WireGuardLayer.h)
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
