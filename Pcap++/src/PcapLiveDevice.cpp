@@ -440,12 +440,7 @@ namespace pcpp
 
 	PcapLiveDevice* PcapLiveDevice::clone() const
 	{
-		return doClone(m_InterfaceDetails);
-	}
-
-	PcapLiveDevice* PcapLiveDevice::doClone(DeviceInterfaceDetails const& devInterface) const
-	{
-		return new PcapLiveDevice(devInterface, true, true, true);
+		return new PcapLiveDevice(m_InterfaceDetails, true, true, true);
 	}
 
 	bool PcapLiveDevice::startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie)

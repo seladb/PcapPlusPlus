@@ -40,8 +40,8 @@ namespace pcpp
 			pRmAuth = &rmAuth;
 		}
 
-		m_PcapDescriptor =
-		    internal::PcapHandle(pcap_open(m_InterfaceDetails.name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf));
+		m_PcapDescriptor = internal::PcapHandle(
+		    pcap_open(m_InterfaceDetails.name.c_str(), PCPP_MAX_PACKET_SIZE, flags, 250, pRmAuth, errbuf));
 		if (m_PcapDescriptor == nullptr)
 		{
 			PCPP_LOG_ERROR("Error opening device. Error was: " << errbuf);
@@ -97,9 +97,9 @@ namespace pcpp
 		return MacAddress::Zero;
 	}
 
-	PcapRemoteDevice* PcapRemoteDevice::doClone(DeviceInterfaceDetails const& devInterface) const
+	PcapRemoteDevice* PcapRemoteDevice::clone() const
 	{
-		return new PcapRemoteDevice(devInterface, m_RemoteAuthentication, m_RemoteMachineIpAddress,
+		return new PcapRemoteDevice(m_InterfaceDetails, m_RemoteAuthentication, m_RemoteMachineIpAddress,
 		                            m_RemoteMachinePort);
 	}
 

@@ -641,14 +641,12 @@ namespace pcpp
 		 * Clones the current device class
 		 * @return Pointer to the copied class
 		 */
-		PcapLiveDevice* clone() const;
+		virtual PcapLiveDevice* clone() const;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
-
-		virtual PcapLiveDevice* doClone(DeviceInterfaceDetails const& devInterface) const;
 	};
 
 }  // namespace pcpp

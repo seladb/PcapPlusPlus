@@ -131,9 +131,9 @@ namespace pcpp
 		return true;
 	}
 
-	WinPcapLiveDevice* WinPcapLiveDevice::doClone(DeviceInterfaceDetails const& devInterface) const
+	WinPcapLiveDevice* WinPcapLiveDevice::clone() const
 	{
-		return new WinPcapLiveDevice(devInterface, true, true, true);
+		return new WinPcapLiveDevice(m_InterfaceDetails, true, true, true);
 	}
 
 }  // namespace pcpp

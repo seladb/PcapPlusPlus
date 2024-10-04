@@ -161,8 +161,7 @@ namespace pcpp
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
-	protected:
-		PcapRemoteDevice* doClone(DeviceInterfaceDetails const& devInterface) const override;
+		PcapRemoteDevice* clone() const override;
 	};
 
 }  // namespace pcpp

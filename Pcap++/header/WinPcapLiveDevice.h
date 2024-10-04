@@ -74,8 +74,7 @@ namespace pcpp
 			return m_MinAmountOfDataToCopyFromKernelToApplication;
 		}
 
-	protected:
-		WinPcapLiveDevice* doClone(DeviceInterfaceDetails const& devInterface) const override;
+		WinPcapLiveDevice* clone() const override;
 	};
 
 }  // namespace pcpp
