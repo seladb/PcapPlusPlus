@@ -72,7 +72,7 @@ namespace pcpp
 
         rxe_bth* getBthHeader() const
         {
-            return (rxe_bth*)m_Data;
+            return reinterpret_cast<rxe_bth*>(m_Data);
         }
 
         uint8_t getOpcode() const;
@@ -101,9 +101,9 @@ namespace pcpp
         uint32_t getPsn() const;
         void setPsn(uint32_t psn) const;
 
-        void parseNextLayer();
+        void parseNextLayer() override;
 
-        size_t getHeaderLen() const
+        size_t getHeaderLen() const override
         {
             return sizeof(rxe_bth);
         }
@@ -111,11 +111,11 @@ namespace pcpp
         /**
 		 * Calculate @ref udphdr#headerChecksum field
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelTransportLayer;
 		}

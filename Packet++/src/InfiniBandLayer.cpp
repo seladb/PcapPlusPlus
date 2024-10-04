@@ -16,7 +16,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		rxe_bth* bthHdr = (rxe_bth*)m_Data;
+		rxe_bth* bthHdr = reinterpret_cast<rxe_bth*>(m_Data);
 
         bthHdr->opcode = opcode;
         bthHdr->flags = (pad << 4) & BTH_PAD_MASK;
