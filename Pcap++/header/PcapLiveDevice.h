@@ -101,6 +101,8 @@ namespace pcpp
 		pcap_t* m_PcapSendDescriptor;
 		int m_PcapSelectableFd;
 		DeviceInterfaceDetails m_InterfaceDetails;
+		// NOTE@Dimi: Possibly pull mtu, mac address and default gateway in the interface details.
+		// They only appear to be set in the constructor and not modified afterwards.
 		uint32_t m_DeviceMtu;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
