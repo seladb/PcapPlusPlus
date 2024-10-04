@@ -9,6 +9,7 @@
 #include <array>
 #include <iostream>
 #include <mutex>
+#include <cstring>
 #include <csignal>
 #include <sys/stat.h>
 #if defined(__APPLE__)
