@@ -6,6 +6,7 @@
 #endif
 // clang-format on
 #include <cstdint>
+#include <cstdlib>
 
 namespace pcpp_tests
 {
