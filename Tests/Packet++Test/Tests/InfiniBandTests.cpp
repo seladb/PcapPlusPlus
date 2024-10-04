@@ -107,7 +107,8 @@ PTF_TEST_CASE(InfiniBandPacketParsing)
 	// parse the raw packet into a parsed packet
 	pcpp::Packet parsedPacket(&rawPacket1);
 
-	// first let's go over the layers one by one and find out its type, its total length, its header length and its payload length
+	// first let's go over the layers one by one and find out its type, its total length, 
+	// its header length and its payload length
 	for (auto* curLayer = parsedPacket.getFirstLayer(); curLayer != nullptr; curLayer = curLayer->getNextLayer())
 	{
 		std::cout
@@ -119,100 +120,100 @@ PTF_TEST_CASE(InfiniBandPacketParsing)
 
 			switch (curLayer->getProtocol())
 			{
-				case pcpp::Ethernet:
+			case pcpp::Ethernet:
+			{
+				// now let's get the Ethernet layer
+				auto* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
+				if (ethernetLayer == nullptr)
 				{
-					// now let's get the Ethernet layer
-					auto* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
-					if (ethernetLayer == nullptr)
-					{
-						std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
-					}
+					std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
+				}
 
-					// print the source and dest MAC addresses and the Ether type
-					std::cout
-						<< "Source MAC address: " << ethernetLayer->getSourceMac() << std::endl
-						<< "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
-						<< "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType) << std::endl;
-					break;
-				}
-				case pcpp::VLAN:
+				// print the source and dest MAC addresses and the Ether type
+				std::cout
+					<< "Source MAC address: " << ethernetLayer->getSourceMac() << std::endl
+					<< "Destination MAC address: " << ethernetLayer->getDestMac() << std::endl
+					<< "Ether type = 0x" << std::hex << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType) << std::endl;
+				break;
+			}
+			case pcpp::VLAN:
+			{
+				// now let's get the Vlan layer
+				auto* vlanLayer = parsedPacket.getLayerOfType<pcpp::VlanLayer>();
+				if (vlanLayer == nullptr)
 				{
-					// now let's get the Vlan layer
-					auto* vlanLayer = parsedPacket.getLayerOfType<pcpp::VlanLayer>();
-					if (vlanLayer == nullptr)
-					{
-						std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
-					}
+					std::cerr << "Something went wrong, couldn't find Ethernet layer" << std::endl;
+				}
 
-					std::cout
-						<< vlanLayer->toString() << std::endl
-						<< "vlan type = 0x" << std::hex << pcpp::netToHost16(vlanLayer->getVlanHeader()->etherType) << std::endl;
-					break;
-				}
-				case pcpp::IPv4:
+				std::cout
+					<< vlanLayer->toString() << std::endl
+					<< "vlan type = 0x" << std::hex << pcpp::netToHost16(vlanLayer->getVlanHeader()->etherType) << std::endl;
+				break;
+			}
+			case pcpp::IPv4:
+			{
+				// let's get the IPv4 layer
+				auto* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
+				if (ipLayer == nullptr)
 				{
-					// let's get the IPv4 layer
-					auto* ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
-					if (ipLayer == nullptr)
-					{
-						std::cerr << "Something went wrong, couldn't find IPv4 layer" << std::endl;
-					}
+					std::cerr << "Something went wrong, couldn't find IPv4 layer" << std::endl;
+				}
 
-					// print source and dest IP addresses, IP ID and TTL
-					std::cout
-						<< "Source IP address: " << ipLayer->getSrcIPAddress() << std::endl
-						<< "Destination IP address: " << ipLayer->getDstIPAddress() << std::endl
-						<< "IP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId) << std::endl
-						<< "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
-					break;
-				}
-				case pcpp::UDP:
+				// print source and dest IP addresses, IP ID and TTL
+				std::cout
+					<< "Source IP address: " << ipLayer->getSrcIPAddress() << std::endl
+					<< "Destination IP address: " << ipLayer->getDstIPAddress() << std::endl
+					<< "IP ID: 0x" << std::hex << pcpp::netToHost16(ipLayer->getIPv4Header()->ipId) << std::endl
+					<< "TTL: " << std::dec << (int)ipLayer->getIPv4Header()->timeToLive << std::endl;
+				break;
+			}
+			case pcpp::UDP:
+			{
+				// let's get the UDP layer
+				auto* udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
+				if (udpLayer == nullptr)
 				{
-					// let's get the UDP layer
-					auto* udpLayer = parsedPacket.getLayerOfType<pcpp::UdpLayer>();
-					if (udpLayer == nullptr)
-					{
-						std::cerr << "Something went wrong, couldn't find UDP layer" << std::endl;
-					}
-					// print source and dest port
-					std::cout
-						<< "Source port: " << udpLayer->getSrcPort() << std::endl
-						<< "Destination port: " << udpLayer->getDstPort() << std::endl;
-					break;
+					std::cerr << "Something went wrong, couldn't find UDP layer" << std::endl;
 				}
-				case pcpp::IB:
+				// print source and dest port
+				std::cout
+					<< "Source port: " << udpLayer->getSrcPort() << std::endl
+					<< "Destination port: " << udpLayer->getDstPort() << std::endl;
+				break;
+			}
+			case pcpp::IB:
+			{
+				// let's get the IB layer
+				auto* ibLayer = parsedPacket.getLayerOfType<pcpp::InfiniBandLayer>();
+				if (ibLayer == nullptr)
 				{
-					// let's get the IB layer
-					auto* ibLayer = parsedPacket.getLayerOfType<pcpp::InfiniBandLayer>();
-					if (ibLayer == nullptr)
-					{
-						std::cerr << "Something went wrong, couldn't find IB layer" << std::endl;
-					}
-					// print opcode
-					std::cout
-						<< "Opcode: " << std::dec << (int)ibLayer->getOpcode() << std::endl
-						<< "Se: " << (int)ibLayer->getSe() << std::endl
-						<< "Mig: " << (int)ibLayer->getMig() << std::endl
-						<< "Pad: " << (int)ibLayer->getPad() << std::endl
-						<< "Tver: " << (int)ibLayer->getTver() << std::endl
-						<< "Pkey: " << (int)ibLayer->getPkey() << std::endl
-						<< "Qpn: " << (int)ibLayer->getQpn() << std::endl
-						<< "Fecn: " << (int)ibLayer->getFecn() << std::endl
-						<< "Becn: " << (int)ibLayer->getBecn() << std::endl
-						<< "Resv6a: " << (int)ibLayer->getResv6a() << std::endl
-						<< "Ack: " << (int)ibLayer->getAck() << std::endl
-						<< "Psn: " << (int)ibLayer->getPsn() << std::endl;
-					break;
+					std::cerr << "Something went wrong, couldn't find IB layer" << std::endl;
 				}
-				case pcpp::GenericPayload:
-				{
-					break;
-				}
-				default:
-				{
-					std::cerr << "Something went wrong, couldn't find this layer" << std::endl;
-					break;
-				}
+				// print opcode
+				std::cout
+					<< "Opcode: " << std::dec << (int)ibLayer->getOpcode() << std::endl
+					<< "Se: " << (int)ibLayer->getSe() << std::endl
+					<< "Mig: " << (int)ibLayer->getMig() << std::endl
+					<< "Pad: " << (int)ibLayer->getPad() << std::endl
+					<< "Tver: " << (int)ibLayer->getTver() << std::endl
+					<< "Pkey: " << (int)ibLayer->getPkey() << std::endl
+					<< "Qpn: " << (int)ibLayer->getQpn() << std::endl
+					<< "Fecn: " << (int)ibLayer->getFecn() << std::endl
+					<< "Becn: " << (int)ibLayer->getBecn() << std::endl
+					<< "Resv6a: " << (int)ibLayer->getResv6a() << std::endl
+					<< "Ack: " << (int)ibLayer->getAck() << std::endl
+					<< "Psn: " << (int)ibLayer->getPsn() << std::endl;
+				break;
+			}
+			case pcpp::GenericPayload:
+			{
+				break;
+			}
+			default:
+			{
+				std::cerr << "Something went wrong, couldn't find this layer" << std::endl;
+				break;
+			}
 			}
 	}
 
