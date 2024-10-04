@@ -31,7 +31,7 @@
  * @param[in] src Network address structure, can be either in_addr (IPv4) or in6_addr (IPv6)
  * @param[out] dst Network address string representation
  * @param[in] size 'dst' Maximum size
- * @return pointer to presentation format address ('dst'), or NULL (see errno).
+ * @return pointer to presentation format address ('dst'), or nullptr (see errno).
  */
 const char* inet_ntop(int af, const void* src, char* dst, size_t size);
 

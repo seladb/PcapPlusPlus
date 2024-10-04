@@ -124,7 +124,7 @@ namespace pcpp
 		friend class HeaderField;
 
 	public:
-		~TextBasedProtocolMessage();
+		~TextBasedProtocolMessage() override;
 
 		/**
 		 * Get a pointer to a header field by name. The search is case insensitive, meaning if a field with name "Host"
@@ -134,12 +134,12 @@ namespace pcpp
 		 * @param[in] index Optional parameter. If the field name appears more than once, this parameter will indicate
 		 * which field to get. The default value is 0 (get the first appearance of the field name as appears on the
 		 * packet)
-		 * @return A pointer to an HeaderField instance, or NULL if field doesn't exist
+		 * @return A pointer to an HeaderField instance, or nullptr if field doesn't exist
 		 */
 		HeaderField* getFieldByName(std::string fieldName, int index = 0) const;
 
 		/**
-		 * @return A pointer to the first header field exists in this message, or NULL if no such field exists
+		 * @return A pointer to the first header field exists in this message, or nullptr if no such field exists
 		 */
 		HeaderField* getFirstField() const
 		{
@@ -149,15 +149,15 @@ namespace pcpp
 		/**
 		 * Get the field which appears after a certain field
 		 * @param[in] prevField A pointer to the field
-		 * @return The field after prevField or NULL if prevField is the last field. If prevField is NULL, this method
-		 * will return NULL
+		 * @return The field after prevField or nullptr if prevField is the last field. If prevField is nullptr, this
+		 * method will return nullptr
 		 */
 		HeaderField* getNextField(HeaderField* prevField) const
 		{
-			if (prevField != NULL)
+			if (prevField != nullptr)
 				return prevField->getNextField();
 			else
-				return NULL;
+				return nullptr;
 		}
 
 		/**
@@ -169,40 +169,41 @@ namespace pcpp
 		 * Add a new header field to this message. This field will be added last (before the end-of-header field)
 		 * @param[in] fieldName The field name
 		 * @param[in] fieldValue The field value
-		 * @return A pointer to the newly created header field, or NULL if the field could not be created
+		 * @return A pointer to the newly created header field, or nullptr if the field could not be created
 		 */
 		virtual HeaderField* addField(const std::string& fieldName, const std::string& fieldValue);
 
 		/**
 		 * Add a new header field to this message. This field will be added last (before the end-of-header field)
 		 * @param[in] newField The header field to add
-		 * @return A pointer to the newly created header field, or NULL if the field could not be created
+		 * @return A pointer to the newly created header field, or nullptr if the field could not be created
 		 */
 		virtual HeaderField* addField(const HeaderField& newField);
 
 		/**
 		 * Add the special end-of-header field (see the explanation in HeaderField)
-		 * @return A pointer to the newly created header field, or NULL if the field could not be created
+		 * @return A pointer to the newly created header field, or nullptr if the field could not be created
 		 */
 		HeaderField* addEndOfHeader();
 
 		/**
 		 * Insert a new field after an existing field
-		 * @param[in] prevField A pointer to the existing field. If it's NULL the new field will be added as first field
+		 * @param[in] prevField A pointer to the existing field. If it's nullptr the new field will be added as first
+		 * field
 		 * @param[in] fieldName The field name
 		 * @param[in] fieldValue The field value
-		 * @return A pointer to the newly created header field, or NULL if the field could not be created
+		 * @return A pointer to the newly created header field, or nullptr if the field could not be created
 		 */
 		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName,
 		                                 const std::string& fieldValue);
 
 		/**
 		 * Insert a new field after an existing field
-		 * @param[in] prevFieldName A name of an existing field. If the field doesn't exist NULL will be returned.
+		 * @param[in] prevFieldName A name of an existing field. If the field doesn't exist nullptr will be returned.
 		 * If field name is empty ('') the new field will be added as first field
 		 * @param[in] fieldName The field name
 		 * @param[in] fieldValue The field value
-		 * @return A pointer to the newly created header field, or NULL if the field could not be created
+		 * @return A pointer to the newly created header field, or nullptr if the field could not be created
 		 */
 		virtual HeaderField* insertField(std::string prevFieldName, const std::string& fieldName,
 		                                 const std::string& fieldValue);
@@ -211,7 +212,7 @@ namespace pcpp
 		 * Insert a new field after an existing field
 		 * @param[in] prevField A pointer to the existing field
 		 * @param[in] newField The header field to add
-		 * @return A pointer to the newly created header field, or NULL if the field could not be created
+		 * @return A pointer to the newly created header field, or nullptr if the field could not be created
 		 */
 		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
 
@@ -219,7 +220,7 @@ namespace pcpp
 		 * Remove a field from the message
 		 * @param[in] fieldToRemove A pointer to the field that should be removed
 		 * @return True if the field was removed successfully, or false otherwise (for example: if fieldToRemove is
-		 * NULL, if it doesn't exist in the message, or if the removal failed)
+		 * nullptr, if it doesn't exist in the message, or if the removal failed)
 		 */
 		bool removeField(HeaderField* fieldToRemove);
 
@@ -246,21 +247,22 @@ namespace pcpp
 		/**
 		 * Currently set only PayloadLayer for the rest of the data
 		 */
-		virtual void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return The message length
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Does nothing for this class
 		 */
-		virtual void computeCalculateFields();
+		void computeCalculateFields() override;
 
 	protected:
-		TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-		TextBasedProtocolMessage() : m_FieldList(NULL), m_LastField(NULL), m_FieldsOffset(0)
+		TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+		                         ProtocolType protocol);
+		TextBasedProtocolMessage() : m_FieldList(nullptr), m_LastField(nullptr), m_FieldsOffset(0)
 		{}
 
 		// copy c'tor

@@ -1,55 +1,53 @@
-#ifdef USE_DPDK
-
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModuleDpdkDevice
+#define LOG_MODULE PcapLogModuleDpdkDevice
 
-#	define __STDC_LIMIT_MACROS
-#	define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
+#define __STDC_FORMAT_MACROS
 
-#	include "DpdkDeviceList.h"
-#	include "Logger.h"
+#include "DpdkDeviceList.h"
+#include "Logger.h"
 
-#	include <rte_config.h>
-#	include <rte_common.h>
-#	include <rte_log.h>
-#	include <rte_memory.h>
-#	include <rte_memcpy.h>
-#	include <rte_memzone.h>
-#	include <rte_eal.h>
-#	include <rte_per_lcore.h>
-#	include <rte_launch.h>
-#	include <rte_atomic.h>
-#	include <rte_cycles.h>
-#	include <rte_prefetch.h>
-#	include <rte_lcore.h>
-#	include <rte_per_lcore.h>
-#	include <rte_branch_prediction.h>
-#	include <rte_interrupts.h>
-#	include <rte_pci.h>
-#	include <rte_random.h>
-#	include <rte_debug.h>
-#	include <rte_ether.h>
-#	include <rte_ethdev.h>
-#	include <rte_ring.h>
-#	include <rte_mempool.h>
-#	include <rte_mbuf.h>
-#	include <rte_version.h>
+#include <rte_config.h>
+#include <rte_common.h>
+#include <rte_log.h>
+#include <rte_memory.h>
+#include <rte_memcpy.h>
+#include <rte_memzone.h>
+#include <rte_eal.h>
+#include <rte_per_lcore.h>
+#include <rte_launch.h>
+#include <rte_atomic.h>
+#include <rte_cycles.h>
+#include <rte_prefetch.h>
+#include <rte_lcore.h>
+#include <rte_per_lcore.h>
+#include <rte_branch_prediction.h>
+#include <rte_interrupts.h>
+#include <rte_pci.h>
+#include <rte_random.h>
+#include <rte_debug.h>
+#include <rte_ether.h>
+#include <rte_ethdev.h>
+#include <rte_ring.h>
+#include <rte_mempool.h>
+#include <rte_mbuf.h>
+#include <rte_version.h>
 
 #	include <memory>
-#	include <sstream>
-#	include <iomanip>
-#	include <string>
-#	include <algorithm>
-#	include <unistd.h>
+#include <sstream>
+#include <iomanip>
+#include <string>
+#include <algorithm>
+#include <unistd.h>
 
-#	if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
-#		define GET_MASTER_CORE rte_get_master_lcore
-#		define MASTER_LCORE "--master-lcore"
-#	else
-#		define GET_MASTER_CORE rte_get_main_lcore
-#		define MASTER_LCORE "--main-lcore"
-#	endif
+#if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
+#	define GET_MASTER_CORE rte_get_master_lcore
+#	define MASTER_LCORE "--master-lcore"
+#else
+#	define GET_MASTER_CORE rte_get_main_lcore
+#	define MASTER_LCORE "--main-lcore"
+#endif
 
 namespace pcpp
 {
@@ -106,7 +104,7 @@ namespace pcpp
 		dpdkParamsStream << (int)masterCore << " ";
 
 		uint32_t i = 0;
-		while (i < initDpdkArgc && initDpdkArgv[i] != NULL)
+		while (i < initDpdkArgc && initDpdkArgv[i] != nullptr)
 		{
 			dpdkParamsStream << initDpdkArgv[i] << " ";
 			i++;
@@ -170,11 +168,11 @@ namespace pcpp
 		if (m_IsInitialized)
 			return true;
 
-#	if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)
+#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)
 		int numOfPorts = (int)rte_eth_dev_count();
-#	else
+#else
 		int numOfPorts = (int)rte_eth_dev_count_avail();
-#	endif
+#endif
 
 		if (numOfPorts <= 0)
 		{
@@ -224,7 +222,7 @@ namespace pcpp
 		if (!isInitialized())
 		{
 			PCPP_LOG_ERROR("DpdkDeviceList not initialized");
-			return NULL;
+			return nullptr;
 		}
 
 		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
@@ -295,26 +293,26 @@ namespace pcpp
 
 	void DpdkDeviceList::setDpdkLogLevel(Logger::LogLevel logLevel)
 	{
-#	if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
+#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 		if (logLevel == Logger::Info)
 			rte_log_set_global_level(RTE_LOG_NOTICE);
 		else  // logLevel == Logger::Debug
 			rte_log_set_global_level(RTE_LOG_DEBUG);
-#	else
+#else
 		if (logLevel == Logger::Info)
 			rte_set_log_level(RTE_LOG_NOTICE);
 		else  // logLevel == Logger::Debug
 			rte_set_log_level(RTE_LOG_DEBUG);
-#	endif
+#endif
 	}
 
 	Logger::LogLevel DpdkDeviceList::getDpdkLogLevel() const
 	{
-#	if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
+#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
 		if (rte_log_get_global_level() <= RTE_LOG_NOTICE)
-#	else
+#else
 		if (rte_get_log_level() <= RTE_LOG_NOTICE)
-#	endif
+#endif
 			return Logger::Info;
 		else
 			return Logger::Debug;
@@ -434,5 +432,3 @@ namespace pcpp
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* USE_DPDK */

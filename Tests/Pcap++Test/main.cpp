@@ -227,6 +227,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
 	PTF_RUN_TEST(TestSolarisSnoopFileRead, "no_network;pcap;snoop");
+	PTF_RUN_TEST(TestPcapFileWriterDeviceDestructor, "no_network;pcap");
 
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");
@@ -289,6 +290,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestTcpReassemblyMaxSeq, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyDisableOOOCleanup, "no_network;tcp_reassembly");
 	PTF_RUN_TEST(TestTcpReassemblyTimeStamps, "no_network;tcp_reassembly");
+	PTF_RUN_TEST(TestTcpReassemblyFinReset, "no_network;tcp_reassembly");
 
 	PTF_RUN_TEST(TestIPFragmentationSanity, "no_network;ip_frag");
 	PTF_RUN_TEST(TestIPFragOutOfOrder, "no_network;ip_frag");

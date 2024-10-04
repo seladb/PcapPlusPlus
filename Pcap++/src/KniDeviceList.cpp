@@ -1,24 +1,22 @@
-#if defined(USE_DPDK) && defined(__linux__)
-
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModuleKniDevice
+#define LOG_MODULE PcapLogModuleKniDevice
 
-#	include <inttypes.h>
-#	include <algorithm>
+#include <inttypes.h>
+#include <algorithm>
 
-#	include "KniDeviceList.h"
-#	include "Logger.h"
-#	include "SystemUtils.h"
+#include "KniDeviceList.h"
+#include "Logger.h"
+#include "SystemUtils.h"
 
-#	include <rte_version.h>
-#	include <rte_kni.h>
+#include <rte_version.h>
+#include <rte_kni.h>
 
-#	ifndef MAX_KNI_DEVICES
+#ifndef MAX_KNI_DEVICES
 // This value have no meaning in current DPDK implementation (ver >= 18.11)
 // In older versions have literal meaning
-#		define MAX_KNI_DEVICES 4
-#	endif
+#	define MAX_KNI_DEVICES 4
+#endif
 
 namespace pcpp
 {
@@ -53,15 +51,15 @@ namespace pcpp
 			m_Initialized = false;
 			return;
 		}
-#	if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 11, 0, 0)
 		if (rte_kni_init(MAX_KNI_DEVICES) < 0)
 		{
 			PCPP_LOG_ERROR("Failed to initialize DPDK KNI module");
 			m_Initialized = false;
 		}
-#	else
+#else
 		rte_kni_init(MAX_KNI_DEVICES);
-#	endif
+#endif
 	}
 
 	KniDeviceList::~KniDeviceList()
@@ -135,11 +133,11 @@ namespace pcpp
 
 	KniDeviceList::KniCallbackVersion KniDeviceList::callbackVersion()
 	{
-#	if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
+#if RTE_VERSION >= RTE_VERSION_NUM(17, 11, 0, 0)
 		return KniDeviceList::CALLBACKS_NEW;
-#	else
+#else
 		return KniDeviceList::CALLBACKS_OLD;
-#	endif
+#endif
 	}
 
 	bool KniDeviceList::isCallbackSupported(const KniCallbackType cbType)
@@ -153,16 +151,14 @@ namespace pcpp
 		case KniDeviceList::CALLBACK_MAC:
 			/* fall through */
 		case KniDeviceList::CALLBACK_PROMISC:
-#	if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
+#if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 			return true;
-#	else
+#else
 			return false;
-#	endif
+#endif
 		}
 		return false;
 	}
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* defined(USE_DPDK) && defined(__linux__) */

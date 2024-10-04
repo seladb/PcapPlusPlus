@@ -29,8 +29,7 @@ namespace pcpp
 		 */
 		virtual uint8_t* getDataPtr(size_t offset = 0) const = 0;
 
-		virtual ~IDataContainer()
-		{}
+		virtual ~IDataContainer() = default;
 	};
 
 	class Packet;
@@ -75,10 +74,10 @@ namespace pcpp
 		 * A destructor for this class. Frees the data if it was allocated by the layer constructor (see
 		 * isAllocatedToPacket() for more info)
 		 */
-		virtual ~Layer();
+		~Layer() override;
 
 		/**
-		 * @return A pointer to the next layer in the protocol stack or NULL if the layer is the last one
+		 * @return A pointer to the next layer in the protocol stack or nullptr if the layer is the last one
 		 */
 		Layer* getNextLayer() const
 		{
@@ -86,7 +85,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A pointer to the previous layer in the protocol stack or NULL if the layer is the first one
+		 * @return A pointer to the previous layer in the protocol stack or nullptr if the layer is the first one
 		 */
 		Layer* getPrevLayer() const
 		{
@@ -153,7 +152,7 @@ namespace pcpp
 		 */
 		bool isAllocatedToPacket() const
 		{
-			return m_Packet != NULL;
+			return m_Packet != nullptr;
 		}
 
 		/**
@@ -164,9 +163,9 @@ namespace pcpp
 
 		// implement abstract methods
 
-		uint8_t* getDataPtr(size_t offset = 0) const
+		uint8_t* getDataPtr(size_t offset = 0) const override
 		{
-			return (uint8_t*)(m_Data + offset);
+			return static_cast<uint8_t*>(m_Data + offset);
 		}
 
 		// abstract methods
@@ -207,12 +206,12 @@ namespace pcpp
 		bool m_IsAllocatedInPacket;
 
 		Layer()
-		    : m_Data(NULL), m_DataLen(0), m_Packet(NULL), m_Protocol(UnknownProtocol), m_NextLayer(NULL),
-		      m_PrevLayer(NULL), m_IsAllocatedInPacket(false)
+		    : m_Data(nullptr), m_DataLen(0), m_Packet(nullptr), m_Protocol(UnknownProtocol), m_NextLayer(nullptr),
+		      m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
 		{}
 
-		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(UnknownProtocol), m_NextLayer(NULL),
+		Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol = UnknownProtocol)
+		    : m_Data(data), m_DataLen(dataLen), m_Packet(packet), m_Protocol(protocol), m_NextLayer(nullptr),
 		      m_PrevLayer(prevLayer), m_IsAllocatedInPacket(false)
 		{}
 

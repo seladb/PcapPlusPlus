@@ -1,16 +1,14 @@
-#if defined(_WIN32)
+#define LOG_MODULE PcapLogModuleRemoteDevice
 
-#	define LOG_MODULE PcapLogModuleRemoteDevice
-
-#	include "PcapRemoteDeviceList.h"
-#	include "Logger.h"
-#	include "IpUtils.h"
-#	include "PcapUtils.h"
-#	include "IpAddressUtils.h"
-#	include "pcap.h"
-#	include <array>
-#	include <memory>
-#	include <ws2tcpip.h>
+#include "PcapRemoteDeviceList.h"
+#include "Logger.h"
+#include "IpUtils.h"
+#include "PcapUtils.h"
+#include "IpAddressUtils.h"
+#include "pcap.h"
+#include <array>
+#include <memory>
+#include <ws2tcpip.h>
 
 namespace pcpp
 {
@@ -172,7 +170,7 @@ namespace pcpp
 				in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
 				if (currAddr == nullptr)
 				{
-					PCPP_LOG_DEBUG("Address is NULL");
+					PCPP_LOG_DEBUG("Address is nullptr");
 					continue;
 				}
 
@@ -205,7 +203,7 @@ namespace pcpp
 				in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
 				if (currAddr == nullptr)
 				{
-					PCPP_LOG_DEBUG("Address is NULL");
+					PCPP_LOG_DEBUG("Address is nullptr");
 					continue;
 				}
 
@@ -221,5 +219,3 @@ namespace pcpp
 	}
 
 }  // namespace pcpp
-
-#endif  // _WIN32

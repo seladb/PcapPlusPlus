@@ -662,8 +662,7 @@ namespace pcpp
 		/**
 		 * Destroy the layer object
 		 */
-		~SomeIpSdLayer()
-		{}
+		~SomeIpSdLayer() override = default;
 
 		/**
 		 * Checks if given port is a SOME/IP-SD protocol port
@@ -746,12 +745,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {};
+		void computeCalculateFields() override {};
 
 		/**
 		 * @return The string representation of the SOME/IP-SD layer
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		/**

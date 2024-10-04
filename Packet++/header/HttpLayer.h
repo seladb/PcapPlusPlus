@@ -73,8 +73,7 @@ namespace pcpp
 	class HttpMessage : public TextBasedProtocolMessage
 	{
 	public:
-		virtual ~HttpMessage()
-		{}
+		~HttpMessage() override = default;
 
 		/**
 		 * A static method that checks whether the port is considered as HTTP
@@ -88,20 +87,20 @@ namespace pcpp
 
 		// overridden methods
 
-		virtual HeaderField* addField(const std::string& fieldName, const std::string& fieldValue);
-		virtual HeaderField* addField(const HeaderField& newField);
-		virtual HeaderField* insertField(HeaderField* prevField, const std::string& fieldName,
-		                                 const std::string& fieldValue);
-		virtual HeaderField* insertField(HeaderField* prevField, const HeaderField& newField);
+		HeaderField* addField(const std::string& fieldName, const std::string& fieldValue) override;
+		HeaderField* addField(const HeaderField& newField) override;
+		HeaderField* insertField(HeaderField* prevField, const std::string& fieldName,
+		                         const std::string& fieldValue) override;
+		HeaderField* insertField(HeaderField* prevField, const HeaderField& newField) override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
 
 	protected:
-		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet)
+		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
+		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
 		{}
 		HttpMessage() : TextBasedProtocolMessage()
 		{}
@@ -114,11 +113,11 @@ namespace pcpp
 		}
 
 		// implementation of abstract methods
-		char getHeaderFieldNameValueSeparator() const
+		char getHeaderFieldNameValueSeparator() const override
 		{
 			return ':';
 		}
-		bool spacesAllowedBetweenHeaderFieldNameAndValue() const
+		bool spacesAllowedBetweenHeaderFieldNameAndValue() const override
 		{
 			return true;
 		}
@@ -187,7 +186,7 @@ namespace pcpp
 		 */
 		HttpRequestLayer(HttpMethod method, const std::string& uri, HttpVersion version);
 
-		virtual ~HttpRequestLayer();
+		~HttpRequestLayer() override;
 
 		/**
 		 * A copy constructor for this layer. This copy constructor inherits base copy constructor
@@ -222,7 +221,7 @@ namespace pcpp
 		std::string getUrl() const;
 
 		// implement Layer's abstract methods
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		HttpRequestFirstLine* m_FirstLine;
@@ -554,7 +553,7 @@ namespace pcpp
 		 */
 		explicit HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode);
 
-		virtual ~HttpResponseLayer();
+		~HttpResponseLayer() override;
 
 		/**
 		 * A copy constructor for this layer. This copy constructor inherits base copy constructor
@@ -592,7 +591,7 @@ namespace pcpp
 		 * @param[in] contentLength The content length value to set
 		 * @param[in] prevFieldName Optional field, if specified and "Content-Length" field doesn't exist, it will be
 		 * created after it
-		 * @return A pointer to the "Content-Length" field, or NULL if creation failed for some reason
+		 * @return A pointer to the "Content-Length" field, or nullptr if creation failed for some reason
 		 */
 		HeaderField* setContentLength(int contentLength, const std::string& prevFieldName = "");
 
@@ -606,7 +605,7 @@ namespace pcpp
 
 		// implement Layer's abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		HttpResponseFirstLine* m_FirstLine;

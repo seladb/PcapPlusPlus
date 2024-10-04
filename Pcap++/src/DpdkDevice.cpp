@@ -1,38 +1,36 @@
-#ifdef USE_DPDK
-
 // GCOVR_EXCL_START
 
-#	define LOG_MODULE PcapLogModuleDpdkDevice
+#define LOG_MODULE PcapLogModuleDpdkDevice
 
-#	define __STDC_LIMIT_MACROS
-#	define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
+#define __STDC_FORMAT_MACROS
 
-#	include "DpdkDevice.h"
-#	include "DpdkDeviceList.h"
-#	include "Logger.h"
-#	include "rte_version.h"
-#	if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
-#		include "rte_bus_pci.h"
-#	endif
-#	include "rte_pci.h"
-#	include "rte_config.h"
-#	include "rte_ethdev.h"
-#	include "rte_errno.h"
-#	include "rte_malloc.h"
-#	include "rte_cycles.h"
-#	include <string>
-#	include <stdint.h>
-#	include <unistd.h>
+#include "DpdkDevice.h"
+#include "DpdkDeviceList.h"
+#include "Logger.h"
+#include "rte_version.h"
+#if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)
+#	include "rte_bus_pci.h"
+#endif
+#include "rte_pci.h"
+#include "rte_config.h"
+#include "rte_ethdev.h"
+#include "rte_errno.h"
+#include "rte_malloc.h"
+#include "rte_cycles.h"
+#include <string>
+#include <stdint.h>
+#include <unistd.h>
 
-#	define MAX_BURST_SIZE 64
+#define MAX_BURST_SIZE 64
 
-#	define MEMPOOL_CACHE_SIZE 256
+#define MEMPOOL_CACHE_SIZE 256
 
-#	if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
-#		define GET_MASTER_CORE rte_get_master_lcore
-#	else
-#		define GET_MASTER_CORE rte_get_main_lcore
-#	endif
+#if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
+#	define GET_MASTER_CORE rte_get_master_lcore
+#else
+#	define GET_MASTER_CORE rte_get_main_lcore
+#endif
 
 namespace pcpp
 {
@@ -43,65 +41,65 @@ namespace pcpp
 	 * ================
 	 */
 
-#	define DPDK_CONFIG_HEADER_SPLIT 0 /**< Header Split disabled */
-#	define DPDK_CONFIG_SPLIT_HEADER_SIZE 0
-#	define DPDK_CONFIG_HW_IP_CHECKSUM 0 /**< IP checksum offload disabled */
-#	define DPDK_CONFIG_HW_VLAN_FILTER 0 /**< VLAN filtering disabled */
-#	define DPDK_CONFIG_JUMBO_FRAME 0    /**< Jumbo Frame Support disabled */
-#	define DPDK_CONFIG_HW_STRIP_CRC 0   /**< CRC stripped by hardware disabled */
-#	if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
-#		define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX ETH_LINK_FULL_DUPLEX
-#		define DPDK_CONFIG_MQ_RSS ETH_RSS
-#		define DPDK_CONFIG_MQ_NO_RSS ETH_MQ_RX_NONE
-#	else
-#		define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX RTE_ETH_LINK_FULL_DUPLEX
-#		define DPDK_CONFIG_MQ_RSS RTE_ETH_MQ_RX_RSS
-#		define DPDK_CONFIG_MQ_NO_RSS RTE_ETH_MQ_RX_NONE
-#	endif
+#define DPDK_CONFIG_HEADER_SPLIT 0 /**< Header Split disabled */
+#define DPDK_CONFIG_SPLIT_HEADER_SIZE 0
+#define DPDK_CONFIG_HW_IP_CHECKSUM 0 /**< IP checksum offload disabled */
+#define DPDK_CONFIG_HW_VLAN_FILTER 0 /**< VLAN filtering disabled */
+#define DPDK_CONFIG_JUMBO_FRAME 0    /**< Jumbo Frame Support disabled */
+#define DPDK_CONFIG_HW_STRIP_CRC 0   /**< CRC stripped by hardware disabled */
+#if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
+#	define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX ETH_LINK_FULL_DUPLEX
+#	define DPDK_CONFIG_MQ_RSS ETH_RSS
+#	define DPDK_CONFIG_MQ_NO_RSS ETH_MQ_RX_NONE
+#else
+#	define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX RTE_ETH_LINK_FULL_DUPLEX
+#	define DPDK_CONFIG_MQ_RSS RTE_ETH_MQ_RX_RSS
+#	define DPDK_CONFIG_MQ_NO_RSS RTE_ETH_MQ_RX_NONE
+#endif
 
-#	if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
-#		define DPDK_CONFIG_ETH_RSS_IPV4 ETH_RSS_IPV4
-#		define DPDK_CONFIG_ETH_RSS_FRAG_IPV4 ETH_RSS_FRAG_IPV4
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_TCP ETH_RSS_NONFRAG_IPV4_TCP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_UDP ETH_RSS_NONFRAG_IPV4_UDP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_SCTP ETH_RSS_NONFRAG_IPV4_SCTP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_OTHER ETH_RSS_NONFRAG_IPV4_OTHER
-#		define DPDK_CONFIG_ETH_RSS_IPV6 ETH_RSS_IPV6
-#		define DPDK_CONFIG_ETH_RSS_FRAG_IPV6 ETH_RSS_FRAG_IPV6
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_TCP ETH_RSS_NONFRAG_IPV6_TCP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_UDP ETH_RSS_NONFRAG_IPV6_UDP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_SCTP ETH_RSS_NONFRAG_IPV6_SCTP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_OTHER ETH_RSS_NONFRAG_IPV6_OTHER
-#		define DPDK_CONFIG_ETH_RSS_L2_PAYLOAD ETH_RSS_L2_PAYLOAD
-#		define DPDK_CONFIG_ETH_RSS_IPV6_EX ETH_RSS_IPV6_EX
-#		define DPDK_CONFIG_ETH_RSS_IPV6_TCP_EX ETH_RSS_IPV6_TCP_EX
-#		define DPDK_CONFIG_ETH_RSS_IPV6_UDP_EX ETH_RSS_IPV6_UDP_EX
-#		define DPDK_CONFIG_ETH_RSS_PORT ETH_RSS_PORT
-#		define DPDK_CONFIG_ETH_RSS_VXLAN ETH_RSS_VXLAN
-#		define DPDK_CONFIG_ETH_RSS_GENEVE ETH_RSS_GENEVE
-#		define DPDK_CONFIG_ETH_RSS_NVGRE ETH_RSS_NVGRE
-#	else
-#		define DPDK_CONFIG_ETH_RSS_IPV4 RTE_ETH_RSS_IPV4
-#		define DPDK_CONFIG_ETH_RSS_FRAG_IPV4 RTE_ETH_RSS_FRAG_IPV4
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_TCP RTE_ETH_RSS_NONFRAG_IPV4_TCP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_UDP RTE_ETH_RSS_NONFRAG_IPV4_UDP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_SCTP RTE_ETH_RSS_NONFRAG_IPV4_SCTP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_OTHER RTE_ETH_RSS_NONFRAG_IPV4_OTHER
-#		define DPDK_CONFIG_ETH_RSS_IPV6 RTE_ETH_RSS_IPV6
-#		define DPDK_CONFIG_ETH_RSS_FRAG_IPV6 RTE_ETH_RSS_FRAG_IPV6
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_TCP RTE_ETH_RSS_NONFRAG_IPV6_TCP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_UDP RTE_ETH_RSS_NONFRAG_IPV6_UDP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_SCTP RTE_ETH_RSS_NONFRAG_IPV6_SCTP
-#		define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_OTHER RTE_ETH_RSS_NONFRAG_IPV6_OTHER
-#		define DPDK_CONFIG_ETH_RSS_L2_PAYLOAD RTE_ETH_RSS_L2_PAYLOAD
-#		define DPDK_CONFIG_ETH_RSS_IPV6_EX RTE_ETH_RSS_IPV6_EX
-#		define DPDK_CONFIG_ETH_RSS_IPV6_TCP_EX RTE_ETH_RSS_IPV6_TCP_EX
-#		define DPDK_CONFIG_ETH_RSS_IPV6_UDP_EX RTE_ETH_RSS_IPV6_UDP_EX
-#		define DPDK_CONFIG_ETH_RSS_PORT RTE_ETH_RSS_PORT
-#		define DPDK_CONFIG_ETH_RSS_VXLAN RTE_ETH_RSS_VXLAN
-#		define DPDK_CONFIG_ETH_RSS_GENEVE RTE_ETH_RSS_GENEVE
-#		define DPDK_CONFIG_ETH_RSS_NVGRE RTE_ETH_RSS_NVGRE
-#	endif
+#if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
+#	define DPDK_CONFIG_ETH_RSS_IPV4 ETH_RSS_IPV4
+#	define DPDK_CONFIG_ETH_RSS_FRAG_IPV4 ETH_RSS_FRAG_IPV4
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_TCP ETH_RSS_NONFRAG_IPV4_TCP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_UDP ETH_RSS_NONFRAG_IPV4_UDP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_SCTP ETH_RSS_NONFRAG_IPV4_SCTP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_OTHER ETH_RSS_NONFRAG_IPV4_OTHER
+#	define DPDK_CONFIG_ETH_RSS_IPV6 ETH_RSS_IPV6
+#	define DPDK_CONFIG_ETH_RSS_FRAG_IPV6 ETH_RSS_FRAG_IPV6
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_TCP ETH_RSS_NONFRAG_IPV6_TCP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_UDP ETH_RSS_NONFRAG_IPV6_UDP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_SCTP ETH_RSS_NONFRAG_IPV6_SCTP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_OTHER ETH_RSS_NONFRAG_IPV6_OTHER
+#	define DPDK_CONFIG_ETH_RSS_L2_PAYLOAD ETH_RSS_L2_PAYLOAD
+#	define DPDK_CONFIG_ETH_RSS_IPV6_EX ETH_RSS_IPV6_EX
+#	define DPDK_CONFIG_ETH_RSS_IPV6_TCP_EX ETH_RSS_IPV6_TCP_EX
+#	define DPDK_CONFIG_ETH_RSS_IPV6_UDP_EX ETH_RSS_IPV6_UDP_EX
+#	define DPDK_CONFIG_ETH_RSS_PORT ETH_RSS_PORT
+#	define DPDK_CONFIG_ETH_RSS_VXLAN ETH_RSS_VXLAN
+#	define DPDK_CONFIG_ETH_RSS_GENEVE ETH_RSS_GENEVE
+#	define DPDK_CONFIG_ETH_RSS_NVGRE ETH_RSS_NVGRE
+#else
+#	define DPDK_CONFIG_ETH_RSS_IPV4 RTE_ETH_RSS_IPV4
+#	define DPDK_CONFIG_ETH_RSS_FRAG_IPV4 RTE_ETH_RSS_FRAG_IPV4
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_TCP RTE_ETH_RSS_NONFRAG_IPV4_TCP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_UDP RTE_ETH_RSS_NONFRAG_IPV4_UDP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_SCTP RTE_ETH_RSS_NONFRAG_IPV4_SCTP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV4_OTHER RTE_ETH_RSS_NONFRAG_IPV4_OTHER
+#	define DPDK_CONFIG_ETH_RSS_IPV6 RTE_ETH_RSS_IPV6
+#	define DPDK_CONFIG_ETH_RSS_FRAG_IPV6 RTE_ETH_RSS_FRAG_IPV6
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_TCP RTE_ETH_RSS_NONFRAG_IPV6_TCP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_UDP RTE_ETH_RSS_NONFRAG_IPV6_UDP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_SCTP RTE_ETH_RSS_NONFRAG_IPV6_SCTP
+#	define DPDK_CONFIG_ETH_RSS_NONFRAG_IPV6_OTHER RTE_ETH_RSS_NONFRAG_IPV6_OTHER
+#	define DPDK_CONFIG_ETH_RSS_L2_PAYLOAD RTE_ETH_RSS_L2_PAYLOAD
+#	define DPDK_CONFIG_ETH_RSS_IPV6_EX RTE_ETH_RSS_IPV6_EX
+#	define DPDK_CONFIG_ETH_RSS_IPV6_TCP_EX RTE_ETH_RSS_IPV6_TCP_EX
+#	define DPDK_CONFIG_ETH_RSS_IPV6_UDP_EX RTE_ETH_RSS_IPV6_UDP_EX
+#	define DPDK_CONFIG_ETH_RSS_PORT RTE_ETH_RSS_PORT
+#	define DPDK_CONFIG_ETH_RSS_VXLAN RTE_ETH_RSS_VXLAN
+#	define DPDK_CONFIG_ETH_RSS_GENEVE RTE_ETH_RSS_GENEVE
+#	define DPDK_CONFIG_ETH_RSS_NVGRE RTE_ETH_RSS_NVGRE
+#endif
 
 	// RSS random key:
 	uint8_t DpdkDevice::m_RSSKey[40] = {
@@ -119,11 +117,11 @@ namespace pcpp
 		m_DeviceName = deviceNameStream.str();
 		m_DeviceSocketId = rte_eth_dev_socket_id(m_Id);
 
-#	if (RTE_VER_YEAR > 19) || (RTE_VER_YEAR == 19 && RTE_VER_MONTH >= 8)
+#if (RTE_VER_YEAR > 19) || (RTE_VER_YEAR == 19 && RTE_VER_MONTH >= 8)
 		struct rte_ether_addr etherAddr;
-#	else
+#else
 		struct ether_addr etherAddr;
-#	endif
+#endif
 		rte_eth_macaddr_get((uint8_t)m_Id, &etherAddr);
 		m_MacAddress = MacAddress(etherAddr.addr_bytes[0], etherAddr.addr_bytes[1], etherAddr.addr_bytes[2],
 		                          etherAddr.addr_bytes[3], etherAddr.addr_bytes[4], etherAddr.addr_bytes[5]);
@@ -145,8 +143,8 @@ namespace pcpp
 
 		memset(&m_PrevStats, 0, sizeof(m_PrevStats));
 
-		m_TxBuffers = NULL;
-		m_TxBufferLastDrainTsc = NULL;
+		m_TxBuffers = nullptr;
+		m_TxBufferLastDrainTsc = nullptr;
 
 		m_DeviceOpened = false;
 		m_WasOpened = false;
@@ -155,10 +153,10 @@ namespace pcpp
 
 	DpdkDevice::~DpdkDevice()
 	{
-		if (m_TxBuffers != NULL)
+		if (m_TxBuffers != nullptr)
 			delete[] m_TxBuffers;
 
-		if (m_TxBufferLastDrainTsc != NULL)
+		if (m_TxBufferLastDrainTsc != nullptr)
 			delete[] m_TxBufferLastDrainTsc;
 	}
 
@@ -244,16 +242,16 @@ namespace pcpp
 		rte_eth_dev_stop(m_Id);
 		PCPP_LOG_DEBUG("Called rte_eth_dev_stop for device [" << m_DeviceName << "]");
 
-		if (m_TxBuffers != NULL)
+		if (m_TxBuffers != nullptr)
 		{
 			delete[] m_TxBuffers;
-			m_TxBuffers = NULL;
+			m_TxBuffers = nullptr;
 		}
 
-		if (m_TxBufferLastDrainTsc != NULL)
+		if (m_TxBufferLastDrainTsc != nullptr)
 		{
 			delete[] m_TxBufferLastDrainTsc;
-			m_TxBufferLastDrainTsc = NULL;
+			m_TxBufferLastDrainTsc = nullptr;
 		}
 
 		m_DeviceOpened = false;
@@ -309,16 +307,16 @@ namespace pcpp
 
 		struct rte_eth_conf portConf;
 		memset(&portConf, 0, sizeof(rte_eth_conf));
-#	if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
+#if (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)
 		portConf.rxmode.split_hdr_size = DPDK_CONFIG_SPLIT_HEADER_SIZE;
-#	endif
-#	if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 8)
+#endif
+#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 8)
 		portConf.rxmode.header_split = DPDK_CONFIG_HEADER_SPLIT;
 		portConf.rxmode.hw_ip_checksum = DPDK_CONFIG_HW_IP_CHECKSUM;
 		portConf.rxmode.hw_vlan_filter = DPDK_CONFIG_HW_VLAN_FILTER;
 		portConf.rxmode.jumbo_frame = DPDK_CONFIG_JUMBO_FRAME;
 		portConf.rxmode.hw_strip_crc = DPDK_CONFIG_HW_STRIP_CRC;
-#	endif
+#endif
 		// Enable RSS only if hardware supports it and the user wants to use it
 		if (m_Config.rssHashFunction == RSS_NONE)
 		{
@@ -371,7 +369,7 @@ namespace pcpp
 		for (uint8_t i = 0; i < numOfRxQueuesToInit; i++)
 		{
 			int ret = rte_eth_rx_queue_setup((uint8_t)m_Id, i, m_Config.receiveDescriptorsNumber, m_DeviceSocketId,
-			                                 NULL, m_MBufMempool);
+			                                 nullptr, m_MBufMempool);
 
 			if (ret < 0)
 			{
@@ -388,7 +386,7 @@ namespace pcpp
 		for (uint8_t i = 0; i < numOfTxQueuesToInit; i++)
 		{
 			int ret =
-			    rte_eth_tx_queue_setup((uint8_t)m_Id, i, m_Config.transmitDescriptorsNumber, m_DeviceSocketId, NULL);
+			    rte_eth_tx_queue_setup((uint8_t)m_Id, i, m_Config.transmitDescriptorsNumber, m_DeviceSocketId, nullptr);
 			if (ret < 0)
 			{
 				PCPP_LOG_ERROR("Failed to init TX queue #" << i << " for port " << m_Id << ". Error was: '"
@@ -397,10 +395,10 @@ namespace pcpp
 			}
 		}
 
-		if (m_TxBuffers != NULL)
+		if (m_TxBuffers != nullptr)
 			delete[] m_TxBuffers;
 
-		if (m_TxBufferLastDrainTsc != NULL)
+		if (m_TxBufferLastDrainTsc != nullptr)
 			delete[] m_TxBufferLastDrainTsc;
 
 		m_TxBuffers = new rte_eth_dev_tx_buffer*[numOfTxQueuesToInit];
@@ -412,7 +410,7 @@ namespace pcpp
 			m_TxBuffers[i] = (rte_eth_dev_tx_buffer*)rte_zmalloc_socket(
 			    "tx_buffer", RTE_ETH_TX_BUFFER_SIZE(MAX_BURST_SIZE), 0, m_DeviceSocketId);
 
-			if (m_TxBuffers[i] == NULL)
+			if (m_TxBuffers[i] == nullptr)
 			{
 				PCPP_LOG_ERROR("Failed to allocate TX buffer for port " << m_Id << " TX queue " << (int)i);
 				return false;
@@ -444,7 +442,7 @@ namespace pcpp
 		// create mbuf pool
 		memPool =
 		    rte_pktmbuf_pool_create(mempoolName, mBufPoolSize, MEMPOOL_CACHE_SIZE, 0, m_MBufDataSize, m_DeviceSocketId);
-		if (memPool == NULL)
+		if (memPool == nullptr)
 		{
 			PCPP_LOG_ERROR("Failed to create packets memory pool for port "
 			               << m_Id << ", pool name: " << mempoolName << ". Error was: '" << rte_strerror(rte_errno)
@@ -545,19 +543,19 @@ namespace pcpp
 		else
 			m_PMDType = PMD_UNKNOWN;
 
-#	if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)  // before 18.05
+#if (RTE_VER_YEAR < 18) || (RTE_VER_YEAR == 18 && RTE_VER_MONTH < 5)  // before 18.05
 		char pciName[30];
-#		if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)  // 17.11 - 18.02
+#	if (RTE_VER_YEAR > 17) || (RTE_VER_YEAR == 17 && RTE_VER_MONTH >= 11)  // 17.11 - 18.02
 		rte_pci_device_name(&(portInfo.pci_dev->addr), pciName, 30);
-#		else  // 16.11 - 17.11
+#	else  // 16.11 - 17.11
 		rte_eal_pci_device_name(&(portInfo.pci_dev->addr), pciName, 30);
-#		endif
-		m_PciAddress = std::string(pciName);
-#	elif (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)  // before 22.11
-		m_PciAddress = std::string(portInfo.device->name);
-#	else                                                                    // 22.11 forward
-		m_PciAddress = std::string(rte_dev_name(portInfo.device));
 #	endif
+		m_PciAddress = std::string(pciName);
+#elif (RTE_VER_YEAR < 22) || (RTE_VER_YEAR == 22 && RTE_VER_MONTH < 11)  // before 22.11
+		m_PciAddress = std::string(portInfo.device->name);
+#else                                                                    // 22.11 forward
+		m_PciAddress = std::string(rte_dev_name(portInfo.device));
+#endif
 
 		PCPP_LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_rx_queues << " RX queues");
 		PCPP_LOG_DEBUG("Device [" << m_DeviceName << "] has " << portInfo.max_tx_queues << " TX queues");
@@ -749,7 +747,7 @@ namespace pcpp
 		DpdkDevice* pThis = (DpdkDevice*)ptr;
 		struct rte_mbuf* mBufArray[MAX_BURST_SIZE];
 
-		if (pThis == NULL)
+		if (pThis == nullptr)
 		{
 			PCPP_LOG_ERROR("Failed to retrieve DPDK device in capture thread main loop");
 			return 1;
@@ -770,7 +768,7 @@ namespace pcpp
 			timespec time;
 			clock_gettime(CLOCK_REALTIME, &time);
 
-			if (likely(pThis->m_OnPacketsArriveCallback != NULL))
+			if (likely(pThis->m_OnPacketsArriveCallback != nullptr))
 			{
 				MBufRawPacket rawPackets[MAX_BURST_SIZE];
 				for (uint32_t index = 0; index < numOfPktsReceived; ++index)
@@ -788,7 +786,7 @@ namespace pcpp
 		return 0;
 	}
 
-#	define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
+#define nanosec_gap(begin, end) ((end.tv_sec - begin.tv_sec) * 1000000000.0 + (end.tv_nsec - begin.tv_nsec))
 
 	void DpdkDevice::getStatistics(DpdkDeviceStats& stats) const
 	{
@@ -926,9 +924,9 @@ namespace pcpp
 			return 0;
 		}
 
-		if (unlikely(rawPacketsArr == NULL))
+		if (unlikely(rawPacketsArr == nullptr))
 		{
-			PCPP_LOG_ERROR("Provided address of array to store packets is NULL");
+			PCPP_LOG_ERROR("Provided address of array to store packets is nullptr");
 			return 0;
 		}
 
@@ -946,7 +944,7 @@ namespace pcpp
 		for (size_t index = 0; index < packetsReceived; ++index)
 		{
 			struct rte_mbuf* mBuf = mBufArray[index];
-			if (rawPacketsArr[index] == NULL)
+			if (rawPacketsArr[index] == nullptr)
 				rawPacketsArr[index] = new MBufRawPacket();
 
 			rawPacketsArr[index]->setMBuf(mBuf, time);
@@ -991,7 +989,7 @@ namespace pcpp
 			struct rte_mbuf* mBuf = mBufArray[index];
 			MBufRawPacket* newRawPacket = new MBufRawPacket();
 			newRawPacket->setMBuf(mBuf, time);
-			if (packetsArr[index] == NULL)
+			if (packetsArr[index] == nullptr)
 				packetsArr[index] = new Packet();
 
 			packetsArr[index]->setRawPacket(newRawPacket, true);
@@ -1066,7 +1064,7 @@ namespace pcpp
 		uint16_t packetsSent = 0;
 		int lastSleep = 0;
 
-#	define PACKET_TRANSMISSION_THRESHOLD 0.8
+#define PACKET_TRANSMISSION_THRESHOLD 0.8
 		int packetTxThreshold = m_Config.transmitDescriptorsNumber * PACKET_TRANSMISSION_THRESHOLD;
 
 		while (packetIndex < arrLength)
@@ -1142,7 +1140,7 @@ namespace pcpp
 
 		for (size_t i = 0; i < arrLength; i++)
 		{
-			MBufRawPacket* rawPacket = NULL;
+			MBufRawPacket* rawPacket = nullptr;
 			uint8_t rawPacketType = packetsArr[i]->getRawPacketReadOnly()->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
@@ -1184,7 +1182,7 @@ namespace pcpp
 
 		for (RawPacketVector::ConstVectorIterator iter = rawPacketsVec.begin(); iter != rawPacketsVec.end(); iter++)
 		{
-			MBufRawPacket* rawPacket = NULL;
+			MBufRawPacket* rawPacket = nullptr;
 			uint8_t rawPacketType = (*iter)->getObjectType();
 			if (rawPacketType != MBUFRAWPACKET_OBJECT_TYPE)
 			{
@@ -1541,5 +1539,3 @@ namespace pcpp
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP
-
-#endif /* USE_DPDK */

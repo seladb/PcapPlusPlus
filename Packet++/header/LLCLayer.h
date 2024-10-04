@@ -41,10 +41,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		LLCLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = LLC;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, LLC)
+		{}
 
 		/**
 		 * A constructor that creates the LLC layer from provided values
@@ -60,22 +58,22 @@ namespace pcpp
 		 */
 		inline llc_header* getLlcHeader() const
 		{
-			return (llc_header*)m_Data;
+			return reinterpret_cast<llc_header*>(m_Data);
 		};
 
 		// overridden methods
 
 		/// Parses the next layer. Currently only STP supported as next layer
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/// Does nothing for this layer
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
 		 * @return Get the size of the LLC header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(llc_header);
 		}
@@ -83,12 +81,12 @@ namespace pcpp
 		/**
 		 * @return Returns the protocol info as readable string
 		 */
-		std::string toString() const;
+		std::string toString() const override;
 
 		/**
 		 * @return The OSI layer level of LLC (Data Link Layer).
 		 */
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

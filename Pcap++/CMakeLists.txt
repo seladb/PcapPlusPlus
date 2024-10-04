@@ -72,9 +72,9 @@ if(WIN32)
   list(
     APPEND
     public_headers
-    header/WinPcapLiveDevice.h
     header/PcapRemoteDevice.h
-    header/PcapRemoteDeviceList.h)
+    header/PcapRemoteDeviceList.h
+    header/WinPcapLiveDevice.h)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})

@@ -23,8 +23,10 @@ namespace pcpp
 
 	// -------- Class TextBasedProtocolMessage -----------------
 
-	TextBasedProtocolMessage::TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet), m_FieldList(nullptr), m_LastField(nullptr), m_FieldsOffset(0)
+	TextBasedProtocolMessage::TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
+	                                                   ProtocolType protocol)
+	    : Layer(data, dataLen, prevLayer, packet, protocol), m_FieldList(nullptr), m_LastField(nullptr),
+	      m_FieldsOffset(0)
 	{}
 
 	TextBasedProtocolMessage::TextBasedProtocolMessage(const TextBasedProtocolMessage& other) : Layer(other)
@@ -306,14 +308,6 @@ namespace pcpp
 		// update offsets of all fields after this field
 		HeaderField* curField = fieldToRemove->getNextField();
 		shiftFieldsOffset(curField, 0 - fieldToRemove->getFieldSize());
-		//	while (curField != NULL)
-		//	{
-		//		curField->m_NameOffsetInMessage -= fieldToRemove->getFieldSize();
-		//		if (curField->m_ValueOffsetInMessage != -1)
-		//			curField->m_ValueOffsetInMessage -= fieldToRemove->getFieldSize();
-		//
-		//		curField = curField->getNextField();
-		//	}
 
 		// update fields link list
 		if (fieldToRemove == m_FieldList)

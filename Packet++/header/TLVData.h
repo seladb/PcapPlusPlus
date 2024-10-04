@@ -58,8 +58,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class, currently does nothing
 		 */
-		virtual ~TLVRecord()
-		{}
+		virtual ~TLVRecord() = default;
 
 		/**
 		 * Assign a pointer to the TLV record raw data (byte array)
@@ -147,7 +146,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return True if the TLV record raw data is NULL, false otherwise
+		 * @return True if the TLV record raw data is nullptr, false otherwise
 		 */
 		bool isNull() const
 		{
@@ -155,7 +154,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @return True if the TLV record raw data is not NULL, false otherwise
+		 * @return True if the TLV record raw data is not nullptr, false otherwise
 		 */
 		bool isNotNull() const
 		{
@@ -167,7 +166,7 @@ namespace pcpp
 		 */
 		uint8_t* getRecordBasePtr() const
 		{
-			return (uint8_t*)m_Data;
+			return reinterpret_cast<uint8_t*>(m_Data);
 		}
 
 		/**
@@ -246,7 +245,7 @@ namespace pcpp
 		 */
 		TLVRecordReader()
 		{
-			m_RecordCount = (size_t)-1;
+			m_RecordCount = static_cast<size_t>(-1);
 		}
 
 		/**
@@ -260,8 +259,7 @@ namespace pcpp
 		/**
 		 * A d'tor for this class which currently does nothing
 		 */
-		virtual ~TLVRecordReader()
-		{}
+		virtual ~TLVRecordReader() = default;
 
 		/**
 		 * Overload of the assignment operator for this class
@@ -277,24 +275,24 @@ namespace pcpp
 		 * Get the first TLV record out of a byte stream
 		 * @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		 * @param[in] tlvDataLen The TLV data byte stream length
-		 * @return An instance of type TLVRecordType that contains the first TLV record. If tlvDataBasePtr is NULL or
-		 * tlvDataLen is zero the returned TLVRecordType instance will be logically NULL, meaning TLVRecordType.isNull()
-		 * will return true
+		 * @return An instance of type TLVRecordType that contains the first TLV record. If tlvDataBasePtr is nullptr or
+		 * tlvDataLen is zero the returned TLVRecordType instance will be logically null, meaning
+		 * TLVRecordType.isNull() will return true
 		 */
 		TLVRecordType getFirstTLVRecord(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
-			TLVRecordType resRec(NULL);  // for NRVO optimization
+			TLVRecordType resRec(nullptr);  // for NRVO optimization
 			if (!TLVRecordType::canAssign(tlvDataBasePtr, tlvDataLen))
 				return resRec;
 
 			resRec.assign(tlvDataBasePtr);
 			// resRec pointer is out-bounds of the TLV records memory
 			if (resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
-				resRec.assign(NULL);
+				resRec.assign(nullptr);
 
 			// check if there are records at all and the total size is not zero
 			if (!resRec.isNull() && (tlvDataLen == 0 || resRec.getTotalSize() == 0))
-				resRec.assign(NULL);
+				resRec.assign(nullptr);
 
 			return resRec;
 		}
@@ -305,12 +303,12 @@ namespace pcpp
 		 * @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		 * @param[in] tlvDataLen The TLV data byte stream length
 		 * @return An instance of type TLVRecordType that wraps the record following the record given as input. If the
-		 * input record.isNull() is true or if the next record is out of bounds of the byte stream, a logical NULL
+		 * input record.isNull() is true or if the next record is out of bounds of the byte stream, a logical null
 		 * instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
 		TLVRecordType getNextTLVRecord(TLVRecordType& record, const uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
-			TLVRecordType resRec(NULL);  // for NRVO optimization
+			TLVRecordType resRec(nullptr);  // for NRVO optimization
 
 			if (record.isNull())
 				return resRec;
@@ -323,15 +321,15 @@ namespace pcpp
 			resRec.assign(record.getRecordBasePtr() + record.getTotalSize());
 
 			if (resRec.getTotalSize() == 0)
-				resRec.assign(NULL);
+				resRec.assign(nullptr);
 
 			// resRec pointer is out-bounds of the TLV records memory
 			if ((resRec.getRecordBasePtr() - tlvDataBasePtr) < 0)
-				resRec.assign(NULL);
+				resRec.assign(nullptr);
 
 			// resRec pointer is out-bounds of the TLV records memory
 			if (!resRec.isNull() && resRec.getRecordBasePtr() + resRec.getTotalSize() > tlvDataBasePtr + tlvDataLen)
-				resRec.assign(NULL);
+				resRec.assign(nullptr);
 
 			return resRec;
 		}
@@ -342,7 +340,7 @@ namespace pcpp
 		 * @param[in] tlvDataBasePtr A pointer to the TLV data byte stream
 		 * @param[in] tlvDataLen The TLV data byte stream length
 		 * @return An instance of type TLVRecordType that contains the result record. If record was not found a logical
-		 * NULL instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
+		 * null instance of TLVRecordType will be returned, meaning TLVRecordType.isNull() will return true
 		 */
 		TLVRecordType getTLVRecord(uint32_t recordType, uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
@@ -357,7 +355,7 @@ namespace pcpp
 				curRec = getNextTLVRecord(curRec, tlvDataBasePtr, tlvDataLen);
 			}
 
-			curRec.assign(NULL);
+			curRec.assign(nullptr);
 			return curRec;  // for NRVO optimization
 		}
 
@@ -372,7 +370,7 @@ namespace pcpp
 		 */
 		size_t getTLVRecordCount(uint8_t* tlvDataBasePtr, size_t tlvDataLen) const
 		{
-			if (m_RecordCount != (size_t)-1)
+			if (m_RecordCount != static_cast<size_t>(-1))
 				return m_RecordCount;
 
 			m_RecordCount = 0;
@@ -395,7 +393,7 @@ namespace pcpp
 		 */
 		void changeTLVRecordCount(int changedBy)
 		{
-			if (m_RecordCount != (size_t)-1)
+			if (m_RecordCount != static_cast<size_t>(-1))
 				m_RecordCount += changedBy;
 		}
 	};

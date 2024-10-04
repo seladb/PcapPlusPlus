@@ -319,7 +319,7 @@ namespace pcpp
 		case CTRL_C_EVENT:
 		case CTRL_BREAK_EVENT:
 		{
-			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != NULL)
+			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != nullptr)
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
 				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
 			return TRUE;
@@ -341,7 +341,7 @@ namespace pcpp
 		{
 			// Most calls are unsafe in a signal handler, and this includes printf(). In particular,
 			// if the signal is caught while inside printf() it may be called twice at the same time which might not be
-			// a good idea The way to make sure the signal is called only once is using this lock and putting NULL in
+			// a good idea The way to make sure the signal is called only once is using this lock and putting nullptr in
 			// m_ApplicationInterruptedHandler
 			const std::lock_guard<std::mutex> lock(UnixLinuxHandlerRoutineMutex);
 

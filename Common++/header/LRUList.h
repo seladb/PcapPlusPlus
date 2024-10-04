@@ -44,12 +44,13 @@ namespace pcpp
 		 * this method will remove the least recently used element and return a value in deletedValue. Method complexity
 		 * is O(log(getSize())). This is a optimized version of the method T* put(const T&).
 		 * @param[in] element The element to insert or to advance to the head of the list (if already exists)
-		 * @param[out] deletedValue The value of deleted element if a pointer is not NULL. This parameter is optional.
+		 * @param[out] deletedValue The value of deleted element if a pointer is not nullptr. This parameter is
+		 * optional.
 		 * @return 0 if the list didn't reach its max size, 1 otherwise. In case the list already reached its max size
-		 * and deletedValue is not NULL the value of deleted element is copied into the place the deletedValue points
+		 * and deletedValue is not nullptr the value of deleted element is copied into the place the deletedValue points
 		 * to.
 		 */
-		int put(const T& element, T* deletedValue = NULL)
+		int put(const T& element, T* deletedValue = nullptr)
 		{
 			m_CacheItemsList.push_front(element);
 
@@ -68,7 +69,7 @@ namespace pcpp
 				ListIterator lruIter = m_CacheItemsList.end();
 				--lruIter;
 
-				if (deletedValue != NULL)
+				if (deletedValue != nullptr)
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 					*deletedValue = std::move(*lruIter);
 #else

@@ -83,7 +83,7 @@ namespace pcpp
 		/**
 		 * A destructor for this layer
 		 */
-		~IPv6Layer();
+		~IPv6Layer() override;
 
 		/**
 		 * An assignment operator that first delete all data from current layer and then copy the entire header from the
@@ -98,7 +98,7 @@ namespace pcpp
 		 */
 		ip6_hdr* getIPv6Header() const
 		{
-			return (ip6_hdr*)m_Data;
+			return reinterpret_cast<ip6_hdr*>(m_Data);
 		}
 
 		/**
@@ -106,7 +106,7 @@ namespace pcpp
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the source address
 		 */
-		IPAddress getSrcIPAddress() const
+		IPAddress getSrcIPAddress() const override
 		{
 			return getSrcIPv6Address();
 		}
@@ -143,7 +143,7 @@ namespace pcpp
 		 * but adds a level of abstraction because IPAddress can be used for both IPv4 and IPv6 addresses
 		 * @return An IPAddress containing the destination address
 		 */
-		IPAddress getDstIPAddress() const
+		IPAddress getDstIPAddress() const override
 		{
 			return getDstIPv6Address();
 		}
@@ -165,19 +165,19 @@ namespace pcpp
 		/**
 		 * A templated getter for an IPv6 extension of a type TIPv6Extension. TIPv6Extension has to be one of the
 		 * supported IPv6 extensions, meaning a class that inherits IPv6Extension. If the requested extension type isn't
-		 * found NULL is returned
-		 * @return A pointer to the extension instance or NULL if the requested extension type isn't found
+		 * found nullptr is returned
+		 * @return A pointer to the extension instance or nullptr if the requested extension type isn't found
 		 */
 		template <class TIPv6Extension> TIPv6Extension* getExtensionOfType() const;
 
 		/**
 		 * Add a new extension of type TIPv6Extension to the layer. This is a templated method and TIPv6Extension has to
 		 * be one of the supported IPv6 extensions, meaning a class that inherits IPv6Extension. If the extension is
-		 * added successfully a pointer to the newly added extension object is returned, otherwise NULL is returned
+		 * added successfully a pointer to the newly added extension object is returned, otherwise nullptr is returned
 		 * @param[in] extensionHeader The extension object to add. Notice the object passed here is read-only, meaning
 		 * its data is copied but the object itself isn't modified
 		 * @return If the extension is added successfully a pointer to the newly added extension object is returned.
-		 * Otherwise NULL is returned
+		 * Otherwise nullptr is returned
 		 */
 		template <class TIPv6Extension> TIPv6Extension* addExtension(const TIPv6Extension& extensionHeader);
 
@@ -213,12 +213,12 @@ namespace pcpp
 		 *
 		 * Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of @ref ip6_hdr
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(ip6_hdr) + m_ExtensionsLen;
 		}
@@ -230,11 +230,11 @@ namespace pcpp
 		 * - ip6_hdr#nextHeader = calculated if next layer is known: ::PACKETPP_IPPROTO_TCP for TCP,
 		 * ::PACKETPP_IPPROTO_UDP for UDP, ::PACKETPP_IPPROTO_ICMP for ICMP
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
@@ -252,7 +252,7 @@ namespace pcpp
 	template <class TIPv6Extension> TIPv6Extension* IPv6Layer::getExtensionOfType() const
 	{
 		IPv6Extension* curExt = m_FirstExtension;
-		while (curExt != NULL && dynamic_cast<TIPv6Extension*>(curExt) == NULL)
+		while (curExt != nullptr && dynamic_cast<TIPv6Extension*>(curExt) == nullptr)
 			curExt = curExt->getNextHeader();
 
 		return static_cast<TIPv6Extension*>(curExt);
@@ -263,13 +263,13 @@ namespace pcpp
 		int offsetToAddHeader = static_cast<int>(getHeaderLen());
 		if (!extendLayer(offsetToAddHeader, extensionHeader.getExtensionLen()))
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		TIPv6Extension* newHeader = new TIPv6Extension(this, static_cast<size_t>(offsetToAddHeader));
 		(*newHeader) = extensionHeader;
 
-		if (m_FirstExtension != NULL)
+		if (m_FirstExtension != nullptr)
 		{
 			newHeader->getBaseHeader()->nextHeader = m_LastExtension->getBaseHeader()->nextHeader;
 			m_LastExtension->getBaseHeader()->nextHeader = newHeader->getExtensionType();

@@ -173,7 +173,7 @@ namespace pcpp
 		 * This structure MUST be used ONLY when KniDeviceList#callbackVersion returns
 		 * KniDeviceList#KniCallbackVersion#CALLBACKS_NEW.
 		 * Or if You are sure that DPDK version used is 17.11 or higher.
-		 * If some callback is not provided (NULL) the request will always succeeds
+		 * If some callback is not provided (nullptr) the request will always succeeds
 		 * if other is not specified in callback description.
 		 * @note This callbacks are direct copy of one defined in rte_kni_ops. Future
 		 * maintainers of KNI device feature MUST refer to rte_kni_ops structure in
@@ -214,7 +214,7 @@ namespace pcpp
 		 * This structure MUST be used ONLY when KniDeviceList#callbackVersion returns
 		 * KniDeviceList#KniCallbackVersion#CALLBACKS_OLD.
 		 * Or if You are sure that DPDK version used is lower than 17.11.
-		 * If some callback is not provided (NULL) the request will always succeeds.
+		 * If some callback is not provided (nullptr) the request will always succeeds.
 		 */
 		struct KniOldIoctlCallbacks
 		{
@@ -294,7 +294,7 @@ namespace pcpp
 		 */
 		inline bool isInitialized() const
 		{
-			return !(m_Device == NULL || m_MBufMempool == NULL);
+			return !(m_Device == nullptr || m_MBufMempool == nullptr);
 		}
 		/**
 		 * Obtains name of KNI device in form of C++ string
@@ -669,7 +669,7 @@ namespace pcpp
 			static void runCapture(void* devicePointer, std::atomic<bool>& stopThread);
 			inline bool isRunning() const
 			{
-				return thread != NULL;
+				return thread != nullptr;
 			}
 			void cleanup();
 		} m_Capturing;
