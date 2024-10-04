@@ -27,7 +27,7 @@ namespace pcpp
 	/*---------------------- Class GvcpLayer ----------------------------*/
 
 	GvcpLayer::GvcpLayer(uint8_t* data, size_t dataSize, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataSize, prevLayer, packet, Gvcp)
+	    : Layer(data, dataSize, prevLayer, packet, GVCP)
 	{}
 
 	GvcpLayer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
@@ -74,7 +74,7 @@ namespace pcpp
 	GvcpRequestLayer::GvcpRequestLayer(GvcpCommand command, const uint8_t* payloadData, uint16_t payloadDataSize,
 	                                   GvcpFlag flag, uint16_t requestId)
 	{
-		m_Protocol = Gvcp;
+		m_Protocol = GVCP;
 
 		m_DataLen = getHeaderLen() + payloadDataSize;
 		m_Data = new uint8_t[m_DataLen];
@@ -92,7 +92,7 @@ namespace pcpp
 
 	GvcpRequestLayer::GvcpRequestLayer(const uint8_t* data, size_t dataSize)
 	{
-		m_Protocol = Gvcp;
+		m_Protocol = GVCP;
 
 		m_DataLen = dataSize;
 		m_Data = new uint8_t[m_DataLen];
@@ -102,7 +102,7 @@ namespace pcpp
 	std::string GvcpRequestLayer::toString() const
 	{
 		std::stringstream ss;
-		ss << "GVCP Request Layer, Command: " << getCommand() << ", Request ID: " << getGvcpHeader()->getRequestId();
+		ss << "GVCP Request Layer, Command: " << getCommand() << ", Request ID: " << getRequestId();
 		return ss.str();
 	}
 
@@ -114,7 +114,7 @@ namespace pcpp
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(GvcpResponseStatus status, GvcpCommand command,
 	                                           const uint8_t* payloadData, uint16_t payloadDataSize, uint16_t ackId)
 	{
-		m_Protocol = Gvcp;
+		m_Protocol = GVCP;
 
 		m_DataLen = getHeaderLen() + payloadDataSize;
 		m_Data = new uint8_t[m_DataLen];
@@ -132,7 +132,7 @@ namespace pcpp
 
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(const uint8_t* data, size_t dataSize)
 	{
-		m_Protocol = Gvcp;
+		m_Protocol = GVCP;
 
 		m_DataLen = dataSize;
 		m_Data = new uint8_t[m_DataLen];
@@ -142,8 +142,8 @@ namespace pcpp
 	std::string GvcpAcknowledgeLayer::toString() const
 	{
 		std::stringstream ss;
-		ss << "GVCP Acknowledge Layer, Command: " << getCommand() << ", Acknowledge ID: " << getGvcpHeader()->getAckId()
-		   << ", Status: " << getGvcpHeader()->getStatus();
+		ss << "GVCP Acknowledge Layer, Command: " << getCommand() << ", Acknowledge ID: " << getAckId()
+		   << ", Status: " << getStatus();
 		return ss.str();
 	}
 }  // namespace pcpp

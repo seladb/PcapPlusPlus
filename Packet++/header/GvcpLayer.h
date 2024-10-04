@@ -125,43 +125,9 @@ namespace pcpp
 		      requestId(hostToNet16(requestId))
 		{}
 
-		GvcpFlag getFlag() const
-		{
-			return flag;
-		}
-
 		GvcpCommand getCommand() const
 		{
 			return static_cast<GvcpCommand>(netToHost16(command));
-		}
-
-		uint16_t getDataSize() const
-		{
-			return netToHost16(dataSize);
-		}
-
-		uint16_t getRequestId() const
-		{
-			return netToHost16(requestId);
-		}
-
-		/**
-		 * @brief Verify the magic number
-		 * @return true The magic number is valid
-		 */
-		bool verifyMagicNumber() const
-		{
-			return magicNumber == internal::kGvcpMagicNumber;
-		}
-
-		/**
-		 * @brief Check if the acknowledge is required
-		 * @return true The acknowledge is required
-		 */
-		bool hasAcknowledgeFlag() const
-		{
-			constexpr GvcpFlag kAcknowledgeFlag = 0b0000001;
-			return (flag & kAcknowledgeFlag) == kAcknowledgeFlag;
 		}
 	};
 	static_assert(sizeof(GvcpRequestHeader) == internal::kGvcpRequestHeaderLength,
@@ -206,24 +172,9 @@ namespace pcpp
 		      dataSize(hostToNet16(dataSize)), ackId(hostToNet16(ackId))
 		{}
 
-		GvcpResponseStatus getStatus() const
-		{
-			return static_cast<GvcpResponseStatus>(netToHost16(status));
-		}
-
 		GvcpCommand getCommand() const
 		{
 			return static_cast<GvcpCommand>(netToHost16(command));
-		}
-
-		uint16_t getDataSize() const
-		{
-			return netToHost16(dataSize);
-		}
-
-		uint16_t getAckId() const
-		{
-			return netToHost16(ackId);
 		}
 	};
 	static_assert(sizeof(GvcpAckHeader) == internal::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
@@ -378,10 +329,56 @@ namespace pcpp
 			return reinterpret_cast<GvcpRequestHeader*>(m_Data);  // the header is at the beginning of the data
 		}
 
-		/// @brief get the GVCP command
+		/**
+		 * @brief Get the flag from the header
+		 */
+		GvcpFlag getFlag() const
+		{
+			return getGvcpHeader()->flag;
+		}
+
+		/**
+		 * @brief Get the data size from the header
+		 */
+		uint16_t getDataSize() const
+		{
+			return netToHost16(getGvcpHeader()->dataSize);
+		}
+
+		/**
+		 * @brief Get the request ID from the header
+		 */
+		uint16_t getRequestId() const
+		{
+			return netToHost16(getGvcpHeader()->requestId);
+		}
+
+
+		/**
+		 * @brief Get the command from the header
+		 */
 		GvcpCommand getCommand() const
 		{
-			return getGvcpHeader()->getCommand();
+			return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
+		}
+
+		/**
+		 * @brief Verify the magic number in the header
+		 * @return true The magic number is valid
+		 */
+		bool verifyMagicNumber() const
+		{
+			return getGvcpHeader()->magicNumber == internal::kGvcpMagicNumber;
+		}
+
+		/**
+		 * @brief Check if the acknowledge is required from the header
+		 * @return true The acknowledge is required
+		 */
+		bool hasAcknowledgeFlag() const
+		{
+			constexpr GvcpFlag kAcknowledgeFlag = 0b0000001;
+			return (getGvcpHeader()->flag & kAcknowledgeFlag) == kAcknowledgeFlag;
 		}
 
 		// implement Layer's abstract methods
@@ -435,33 +432,36 @@ namespace pcpp
 			return reinterpret_cast<GvcpAckHeader*>(m_Data);  // the header is at the beginning of the data
 		}
 
+		/**
+		 * @return the response status from the header
+		 */
 		GvcpResponseStatus getStatus() const
 		{
-			return getGvcpHeader()->getStatus();
+			return static_cast<GvcpResponseStatus>((netToHost16(getGvcpHeader()->status)));
 		}
 
 		/**
-		 * @return the response command type
+		 * @return the response command type from the header
 		 */
 		GvcpCommand getCommand() const
 		{
-			return getGvcpHeader()->getCommand();
+			return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
 		}
 
 		/**
-		 * @return the size of the data in bytes
+		 * @return the size of the data in bytes from the header
 		 */
 		uint16_t getDataSize() const
 		{
-			return getGvcpHeader()->getDataSize();
+			return netToHost16(getGvcpHeader()->dataSize);
 		}
 
 		/**
-		 * @return uint16_t The acknowledge ID
+		 * @return uint16_t The acknowledge ID from the header
 		 */
 		uint16_t getAckId() const
 		{
-			return getGvcpHeader()->getAckId();
+			return netToHost16(getGvcpHeader()->ackId);
 		}
 
 		// implement Layer's abstract methods

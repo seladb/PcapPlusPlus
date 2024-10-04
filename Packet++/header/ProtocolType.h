@@ -355,7 +355,7 @@ namespace pcpp
 	/*
 	 * GVCP protocol
 	 */
-	const ProtocolType Gvcp = 57;
+	const ProtocolType GVCP = 57;
 
 	/**
 	 * An enum representing OSI model layers
