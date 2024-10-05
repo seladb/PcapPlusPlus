@@ -628,11 +628,11 @@ jobs:
           - run-on-os: ubuntu-20.04
             target: x86
             api-version: 30
-          - run-on-os: macos-15
+          - run-on-os: macos-14
             target: arm64-v8a
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
-          - run-on-os: macos-15
+          - run-on-os: macos-14
             target: x86_64
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30
