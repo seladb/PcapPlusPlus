@@ -3,7 +3,6 @@
 #include "DnsResource.h"
 #include "Logger.h"
 #include <sstream>
-#include <string.h>
 #include "EndianPortable.h"
 
 namespace pcpp

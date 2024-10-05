@@ -5,9 +5,7 @@
 #include "PayloadLayer.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
-#include <string.h>
 #include <algorithm>
-#include <stdlib.h>
 #include <exception>
 #include <utility>
 #include <unordered_map>

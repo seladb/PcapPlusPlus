@@ -33,7 +33,6 @@
 
 #include <vector>
 #include <iostream>
-#include <stdlib.h>
 #include <getopt.h>
 #include <string>
 #include <sstream>

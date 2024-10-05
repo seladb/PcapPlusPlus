@@ -2,7 +2,6 @@
 
 #include "ArpLayer.h"
 #include "EthLayer.h"
-#include <string.h>
 #include "EndianPortable.h"
 
 namespace pcpp

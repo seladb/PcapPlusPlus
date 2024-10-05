@@ -17,8 +17,6 @@
  * For more details about modes of operation and parameters run HttpAnalyzer -h
  */
 
-#include <stdlib.h>
-#include <string.h>
 #include <iomanip>
 #include <algorithm>
 #include "PcapLiveDeviceList.h"

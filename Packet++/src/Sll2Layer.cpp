@@ -9,7 +9,6 @@
 #include "VlanLayer.h"
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
-#include <string.h>
 #include "EndianPortable.h"
 
 namespace pcpp
