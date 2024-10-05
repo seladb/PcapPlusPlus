@@ -29,7 +29,7 @@ namespace pcpp
 		if (ack_req)
 			psn |= BTH_ACK_MASK;
 		bthHdr->apsn = htobe32(psn);
-		m_Protocol = IB;
+		m_Protocol = Infiniband;
 	}
 
 	void InfiniBandLayer::parseNextLayer()

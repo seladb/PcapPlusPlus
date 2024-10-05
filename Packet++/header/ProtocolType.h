@@ -355,7 +355,7 @@ namespace pcpp
 	/*
 	 * infiniband protocol
 	 */
-	const ProtocolType IB = 57;
+	const ProtocolType Infiniband = 57;
 
 	/**
 	 * An enum representing OSI model layers

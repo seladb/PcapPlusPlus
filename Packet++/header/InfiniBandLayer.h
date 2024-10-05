@@ -15,7 +15,7 @@ namespace pcpp
 	*
 	* Some of these are for reference and completeness only since
 	* rxe does not currently support RD transport
-	* most of this could be moved into IB core. ib_pack.h has
+	* most of this could be moved into Infiniband core. ib_pack.h has
 	* part of this but is incomplete
 	*
 	* Header specific routines to insert/extract values to/from headers
@@ -26,13 +26,10 @@ namespace pcpp
 	* Conversion to/from network byte order from cpu order is also done.
 	*/
 
-	#define RXE_ICRC_SIZE		(4)
-	#define RXE_MAX_HDR_LENGTH	(80)
+#define RXE_ICRC_SIZE		4
+#define RXE_MAX_HDR_LENGTH	80
 
-	/******************************************************************************
-	 * Base Transport Header
-	 ******************************************************************************/
-#pragma pack(push, 1)
+	/* Base Transport Header */
 	struct rxe_bth
 	{
 		uint8_t				opcode;
@@ -41,29 +38,32 @@ namespace pcpp
 		uint32_t			qpn;
 		uint32_t			apsn;
 	};
-#pragma pack(pop)
 
-	#define BTH_TVER		(0)
-	#define BTH_DEF_PKEY		(0xffff)
+#define BTH_TVER		0x0
+#define BTH_DEF_PKEY	0xffff
 
-	#define BTH_SE_MASK		(0x80)
-	#define BTH_MIG_MASK		(0x40)
-	#define BTH_PAD_MASK		(0x30)
-	#define BTH_TVER_MASK		(0x0f)
-	#define BTH_FECN_MASK		(0x80000000)
-	#define BTH_BECN_MASK		(0x40000000)
-	#define BTH_RESV6A_MASK		(0x3f000000)
-	#define BTH_QPN_MASK		(0x00ffffff)
-	#define BTH_ACK_MASK		(0x80000000)
-	#define BTH_RESV7_MASK		(0x7f000000)
-	#define BTH_PSN_MASK		(0x00ffffff)
+#define BTH_SE_MASK		0x80
+#define BTH_MIG_MASK	0x40
+#define BTH_PAD_MASK	0x30
+#define BTH_TVER_MASK	0x0f
+#define BTH_FECN_MASK	0x80000000
+#define BTH_BECN_MASK	0x40000000
+#define BTH_RESV6A_MASK	0x3f000000
+#define BTH_QPN_MASK	0x00ffffff
+#define BTH_ACK_MASK	0x80000000
+#define BTH_RESV7_MASK	0x7f000000
+#define BTH_PSN_MASK	0x00ffffff
 
+	/**
+	 * @class InfiniBandLayer
+	 * Represents an InfiniBand protocol layer
+	 */
 	class InfiniBandLayer : public Layer
 	{
 	public:
 
 		InfiniBandLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: Layer(data, dataLen, prevLayer, packet, IB)
+			: Layer(data, dataLen, prevLayer, packet, Infiniband)
 		{}
 
 		InfiniBandLayer( uint8_t opcode, int se,

@@ -28,8 +28,8 @@ std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType)
 		return "UDP";
 	case pcpp::TCP:
 		return "TCP";
-	case pcpp::IB:
-		return "IB";
+	case pcpp::Infiniband:
+		return "Infiniband";
 	case pcpp::HTTPRequest:
 	case pcpp::HTTPResponse:
 		return "HTTP";
@@ -181,13 +181,13 @@ PTF_TEST_CASE(InfiniBandPacketParsing)
 					<< "Destination port: " << udpLayer->getDstPort() << std::endl;
 				break;
 			}
-			case pcpp::IB:
+			case pcpp::Infiniband:
 			{
-				// let's get the IB layer
+				// let's get the Infiniband layer
 				auto* ibLayer = parsedPacket.getLayerOfType<pcpp::InfiniBandLayer>();
 				if (ibLayer == nullptr)
 				{
-					std::cerr << "Something went wrong, couldn't find IB layer" << std::endl;
+					std::cerr << "Something went wrong, couldn't find Infiniband layer" << std::endl;
 				}
 				// print opcode
 				std::cout
