@@ -7,6 +7,8 @@
 #include "Logger.h"
 #include "../../Tests/Packet++Test/Utils/TestUtils.h"
 
+#include <signal.h>
+
 static struct option PacketTestOptions[] = {
 	{ "include-tags",        required_argument, nullptr, 't' },
 	{ "exclude-tags",        required_argument, nullptr, 'x' },
@@ -120,6 +122,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(EthDot3LayerParsingTest, "eth_dot3;eth");
 	PTF_RUN_TEST(EthDot3LayerCreateEditTest, "eth_dot3;eth");
 
+	raise(SIGSEGV);
 	PTF_RUN_TEST(VlanParseAndCreation, "vlan");
 	PTF_RUN_TEST(QinQ802_1adParse, "vlan");
 	PTF_RUN_TEST(MplsLayerTest, "mpls");
