@@ -61,8 +61,7 @@ namespace pcpp
 		void setDnsLayer(DnsLayer* dnsLayer, size_t offsetInLayer);
 
 	public:
-		virtual ~IDnsResource()
-		{}
+		virtual ~IDnsResource() = default;
 
 		/**
 		 * @return The DNS type of this record
@@ -146,15 +145,14 @@ namespace pcpp
 		{}
 
 	public:
-		virtual ~DnsQuery()
-		{}
+		~DnsQuery() override = default;
 
 		// implementation of abstract methods
-		virtual size_t getSize() const
+		size_t getSize() const override
 		{
 			return m_NameLength + 2 * sizeof(uint16_t);
 		}
-		virtual DnsResourceType getType() const
+		DnsResourceType getType() const override
 		{
 			return DnsQueryType;
 		}
@@ -182,8 +180,7 @@ namespace pcpp
 		{}
 
 	public:
-		virtual ~DnsResource()
-		{}
+		~DnsResource() override = default;
 
 		/**
 		 * @return The time-to-leave value for this record
@@ -260,11 +257,11 @@ namespace pcpp
 		void setCustomDnsClass(uint16_t customValue);
 
 		// implementation of abstract methods
-		virtual size_t getSize() const
+		size_t getSize() const override
 		{
 			return m_NameLength + 3 * sizeof(uint16_t) + sizeof(uint32_t) + getDataLength();
 		}
-		virtual DnsResourceType getType() const
+		DnsResourceType getType() const override
 		{
 			return m_ResourceType;
 		}

@@ -115,7 +115,7 @@ namespace pcpp
 		 */
 		void assign(uint8_t* recordRawData)
 		{
-			m_Data = (NflogTLVRawData*)recordRawData;
+			m_Data = reinterpret_cast<NflogTLVRawData*>(recordRawData);
 		}
 
 		/**
@@ -150,7 +150,7 @@ namespace pcpp
 		 */
 		uint8_t* getRecordBasePtr() const
 		{
-			return (uint8_t*)m_Data;
+			return reinterpret_cast<uint8_t*>(m_Data);
 		}
 
 		/**
@@ -175,13 +175,10 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
-		NflogLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet)
-		{
-			m_Protocol = NFLOG;
-		}
-
-		~NflogLayer()
+		NflogLayer(uint8_t* data, size_t dataLen, Packet* packet) : Layer(data, dataLen, nullptr, packet, NFLOG)
 		{}
+
+		~NflogLayer() override = default;
 
 		/**
 		 * Get a pointer to the Nflog header.
@@ -189,7 +186,7 @@ namespace pcpp
 		 */
 		nflog_header* getNflogHeader() const
 		{
-			return (nflog_header*)m_Data;
+			return reinterpret_cast<nflog_header*>(m_Data);
 		}
 
 		/**
@@ -226,21 +223,21 @@ namespace pcpp
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer using address family
 		 * Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of nflog_header
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() {};
+		void computeCalculateFields() override {};
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}
