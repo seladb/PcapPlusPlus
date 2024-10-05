@@ -8,8 +8,8 @@
 namespace pcpp
 {
 
-	InfiniBandLayer::InfiniBandLayer( uint8_t opcode, int se, int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
-									  uint32_t psn)
+	InfiniBandLayer::InfiniBandLayer(uint8_t opcode, int se, int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
+	                                 uint32_t psn)
 	{
 		const size_t headerLen = sizeof(rxe_bth);
 		m_DataLen = headerLen;
@@ -44,14 +44,12 @@ namespace pcpp
 	}
 
 	void InfiniBandLayer::computeCalculateFields()
-	{
-		
-	}
+	{}
 
 	std::string InfiniBandLayer::toString() const
 	{
 		std::ostringstream ss;
-		ss <<  "InfiniBand Layer, Opcode: " << getOpcode();
+		ss << "InfiniBand Layer, Opcode: " << getOpcode();
 		return ss.str();
 	}
 
@@ -99,8 +97,7 @@ namespace pcpp
 
 	void InfiniBandLayer::setPad(uint8_t pad) const
 	{
-		getBthHeader()->flags = (BTH_PAD_MASK & (pad << 4)) |
-				(~BTH_PAD_MASK & getBthHeader()->flags);
+		getBthHeader()->flags = (BTH_PAD_MASK & (pad << 4)) | (~BTH_PAD_MASK & getBthHeader()->flags);
 	}
 
 	uint8_t InfiniBandLayer::getTver() const
@@ -110,8 +107,7 @@ namespace pcpp
 
 	void InfiniBandLayer::setTver(uint8_t tver) const
 	{
-		getBthHeader()->flags = (BTH_TVER_MASK & tver) |
-				(~BTH_TVER_MASK & getBthHeader()->flags);
+		getBthHeader()->flags = (BTH_TVER_MASK & tver) | (~BTH_TVER_MASK & getBthHeader()->flags);
 	}
 
 	uint16_t InfiniBandLayer::getPkey() const
@@ -134,8 +130,7 @@ namespace pcpp
 
 		uint32_t resvqpn = be32toh(getBthHeader()->qpn);
 
-		getBthHeader()->qpn = htobe32((BTH_QPN_MASK & qpn) |
-					(~BTH_QPN_MASK & resvqpn));
+		getBthHeader()->qpn = htobe32((BTH_QPN_MASK & qpn) | (~BTH_QPN_MASK & resvqpn));
 	}
 
 	int InfiniBandLayer::getFecn() const
@@ -201,7 +196,6 @@ namespace pcpp
 	{
 		uint32_t apsn = be32toh(getBthHeader()->apsn);
 
-		getBthHeader()->apsn = htobe32((BTH_PSN_MASK & psn) |
-				(~BTH_PSN_MASK & apsn));
+		getBthHeader()->apsn = htobe32((BTH_PSN_MASK & psn) | (~BTH_PSN_MASK & apsn));
 	}
-} // namespace pcpp
+}  // namespace pcpp

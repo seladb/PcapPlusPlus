@@ -11,48 +11,48 @@
 namespace pcpp
 {
 	/*
-	* IBA header types and methods
-	*
-	* Some of these are for reference and completeness only since
-	* rxe does not currently support RD transport
-	* most of this could be moved into Infiniband core. ib_pack.h has
-	* part of this but is incomplete
-	*
-	* Header specific routines to insert/extract values to/from headers
-	* the routines that are named __hhh_(set_)fff() take a pointer to a
-	* hhh header and get(set) the fff field. The routines named
-	* hhh_(set_)fff take a packet info struct and find the
-	* header and field based on the opcode in the packet.
-	* Conversion to/from network byte order from cpu order is also done.
-	*/
+	 * IBA header types and methods
+	 *
+	 * Some of these are for reference and completeness only since
+	 * rxe does not currently support RD transport
+	 * most of this could be moved into Infiniband core. ib_pack.h has
+	 * part of this but is incomplete
+	 *
+	 * Header specific routines to insert/extract values to/from headers
+	 * the routines that are named __hhh_(set_)fff() take a pointer to a
+	 * hhh header and get(set) the fff field. The routines named
+	 * hhh_(set_)fff take a packet info struct and find the
+	 * header and field based on the opcode in the packet.
+	 * Conversion to/from network byte order from cpu order is also done.
+	 */
 
-#define RXE_ICRC_SIZE		4
-#define RXE_MAX_HDR_LENGTH	80
+#define RXE_ICRC_SIZE 4
+#define RXE_MAX_HDR_LENGTH 80
 
 	/* Base Transport Header */
 	struct rxe_bth
 	{
-		uint8_t				opcode;
-		uint8_t				flags;
-		uint16_t			pkey;
-		uint32_t			qpn;
-		uint32_t			apsn;
+		uint8_t opcode;
+		uint8_t flags;
+		uint16_t pkey;
+		uint32_t qpn;
+		uint32_t apsn;
 	};
 
-#define BTH_TVER		0x0
-#define BTH_DEF_PKEY	0xffff
+#define BTH_TVER 0x0
+#define BTH_DEF_PKEY 0xffff
 
-#define BTH_SE_MASK		0x80
-#define BTH_MIG_MASK	0x40
-#define BTH_PAD_MASK	0x30
-#define BTH_TVER_MASK	0x0f
-#define BTH_FECN_MASK	0x80000000
-#define BTH_BECN_MASK	0x40000000
-#define BTH_RESV6A_MASK	0x3f000000
-#define BTH_QPN_MASK	0x00ffffff
-#define BTH_ACK_MASK	0x80000000
-#define BTH_RESV7_MASK	0x7f000000
-#define BTH_PSN_MASK	0x00ffffff
+#define BTH_SE_MASK 0x80
+#define BTH_MIG_MASK 0x40
+#define BTH_PAD_MASK 0x30
+#define BTH_TVER_MASK 0x0f
+#define BTH_FECN_MASK 0x80000000
+#define BTH_BECN_MASK 0x40000000
+#define BTH_RESV6A_MASK 0x3f000000
+#define BTH_QPN_MASK 0x00ffffff
+#define BTH_ACK_MASK 0x80000000
+#define BTH_RESV7_MASK 0x7f000000
+#define BTH_PSN_MASK 0x00ffffff
 
 	/**
 	 * @class InfiniBandLayer
@@ -63,12 +63,11 @@ namespace pcpp
 	public:
 
 		InfiniBandLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-			: Layer(data, dataLen, prevLayer, packet, Infiniband)
+		    : Layer(data, dataLen, prevLayer, packet, Infiniband)
 		{}
 
-		InfiniBandLayer( uint8_t opcode, int se,
-					int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
-					uint32_t psn);
+		InfiniBandLayer(uint8_t opcode, int se, int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
+		                uint32_t psn);
 
 		rxe_bth* getBthHeader() const
 		{

@@ -351,7 +351,7 @@ namespace pcpp
 	 * WireGuard protocol
 	 */
 	const ProtocolType WireGuard = 56;
-  
+
 	/*
 	 * infiniband protocol
 	 */
