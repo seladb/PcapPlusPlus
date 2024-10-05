@@ -22,7 +22,7 @@ concurrency:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
-    container: seladb/alpine317
+    container: seladb/alpine320
     steps:
       - name: Checkout code
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -34,10 +34,14 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add cppcheck python3-dev
-          python3 -m pip install clang-format==18.1.6 clang-tidy==18.1.8
+          python3 -m venv ./venv
+          . ./venv/bin/activate
+          python3 -m pip install clang-format==18.1.6 clang-tidy==18.1.8 pre-commit==3.8.0
 
-      # TODO: investigate how to run pre-commit with `venv`
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+      - name: Run pre-commit
+        run: |
+          . ./venv/bin/activate
+          pre-commit run --all-files
 
       - name: Configure PcapPlusPlus for Static analysis
         run: cmake -S . -B "$BUILD_DIR"
