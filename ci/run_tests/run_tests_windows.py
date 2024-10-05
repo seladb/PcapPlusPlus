@@ -93,74 +93,83 @@ def main():
         )
         tcpreplay_proc = subprocess.Popen(tcpreplay_cmd, shell=True, cwd=TCPREPLAY_PATH)
 
-        if args.coverage:
-            completed_process = subprocess.run(
-                [
-                    "OpenCppCoverage.exe",
-                    "--verbose",
-                    "--sources",
-                    "Packet++",
-                    "--sources",
-                    "Pcap++",
-                    "--sources",
-                    "Common++",
-                    "--excluded_sources",
-                    "Tests",
-                    "--export_type",
-                    "cobertura:Packet++Coverage.xml",
-                    "--",
+        try:
+            if args.coverage:
+                completed_process = subprocess.run(
+                    [
+                        "OpenCppCoverage.exe",
+                        "--verbose",
+                        "--sources",
+                        "Packet++",
+                        "--sources",
+                        "Pcap++",
+                        "--sources",
+                        "Common++",
+                        "--excluded_sources",
+                        "Tests",
+                        "--export_type",
+                        "cobertura:Packet++Coverage.xml",
+                        "--",
+                        os.path.join("Bin", "Packet++Test"),
+                    ],
+                    cwd=os.path.join("Tests", "Packet++Test"),
+                    shell=True,
+                )
+            else:
+                completed_process = subprocess.run(
                     os.path.join("Bin", "Packet++Test"),
-                ],
-                cwd=os.path.join("Tests", "Packet++Test"),
-                shell=True,
-            )
-        else:
-            completed_process = subprocess.run(
-                os.path.join("Bin", "Packet++Test"),
-                cwd=os.path.join("Tests", "Packet++Test"),
-                shell=True,
-            )
+                    cwd=os.path.join("Tests", "Packet++Test"),
+                    shell=True,
+                )
+        except subprocess.CalledProcessError as e:
+            print(e)
+
         if completed_process.returncode != 0:
             exit(completed_process.returncode)
 
         skip_tests = ["TestRemoteCapture"] + args.skip_tests
-        if args.coverage:
-            completed_process = subprocess.run(
-                [
-                    "OpenCppCoverage.exe",
-                    "--verbose",
-                    "--sources",
-                    "Packet++",
-                    "--sources",
-                    "Pcap++",
-                    "--sources",
-                    "Common++",
-                    "--excluded_sources",
-                    "Tests",
-                    "--export_type",
-                    "cobertura:Pcap++Coverage.xml",
-                    "--",
-                    os.path.join("Bin", "Pcap++Test"),
-                    "-i",
-                    ip_address,
-                    "-x",
-                    ";".join(skip_tests),
-                ],
-                cwd=os.path.join("Tests", "Pcap++Test"),
-                shell=True,
-            )
-        else:
-            completed_process = subprocess.run(
-                [
-                    os.path.join("Bin", "Pcap++Test"),
-                    "-i",
-                    ip_address,
-                    "-x",
-                    ";".join(skip_tests),
-                ],
-                cwd=os.path.join("Tests", "Pcap++Test"),
-                shell=True,
-            )
+
+        try:
+            if args.coverage:
+                completed_process = subprocess.run(
+                    [
+                        "OpenCppCoverage.exe",
+                        "--verbose",
+                        "--sources",
+                        "Packet++",
+                        "--sources",
+                        "Pcap++",
+                        "--sources",
+                        "Common++",
+                        "--excluded_sources",
+                        "Tests",
+                        "--export_type",
+                        "cobertura:Pcap++Coverage.xml",
+                        "--",
+                        os.path.join("Bin", "Pcap++Test"),
+                        "-i",
+                        ip_address,
+                        "-x",
+                        ";".join(skip_tests),
+                    ],
+                    cwd=os.path.join("Tests", "Pcap++Test"),
+                    shell=True,
+                )
+            else:
+                completed_process = subprocess.run(
+                    [
+                        os.path.join("Bin", "Pcap++Test"),
+                        "-i",
+                        ip_address,
+                        "-x",
+                        ";".join(skip_tests),
+                    ],
+                    cwd=os.path.join("Tests", "Pcap++Test"),
+                    shell=True,
+                )
+        except subprocess.CalledProcessError as e:
+            print(e)
+
         if completed_process.returncode != 0:
             exit(completed_process.returncode)
 
