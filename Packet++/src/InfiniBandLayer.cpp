@@ -50,10 +50,9 @@ namespace pcpp
 
 	std::string InfiniBandLayer::toString() const
 	{
-		std::ostringstream opCodeStream;
-		opCodeStream << getOpcode();
-
-		return "InfiniBand Layer, Opcode: " + opCodeStream.str();
+		std::ostringstream ss;
+		ss <<  "InfiniBand Layer, Opcode: " << getOpcode();
+		return ss.str();
 	}
 
 	
