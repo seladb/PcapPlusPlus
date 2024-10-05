@@ -38,13 +38,10 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		PacketTrailerLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = PacketTrailer;
-		}
-
-		~PacketTrailerLayer()
+		    : Layer(data, dataLen, prevLayer, packet, PacketTrailer)
 		{}
+
+		~PacketTrailerLayer() override = default;
 
 		/**
 		 * Get a pointer to the trailer data
@@ -74,13 +71,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PacketTrailerLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return trailer data length in bytes
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
@@ -88,12 +85,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

@@ -25,10 +25,8 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		PayloadLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = GenericPayload;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, GenericPayload)
+		{}
 
 		/**
 		 * A constructor that allocates a new payload
@@ -47,8 +45,7 @@ namespace pcpp
 		 */
 		explicit PayloadLayer(const std::string& payloadAsHexStream);
 
-		~PayloadLayer()
-		{}
+		~PayloadLayer() override = default;
 
 		/**
 		 * Get a pointer to the payload data
@@ -73,13 +70,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PayloadLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Payload data length in bytes
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
@@ -87,7 +84,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
 		/**
@@ -98,9 +95,9 @@ namespace pcpp
 		 */
 		void setPayload(const uint8_t* newPayload, size_t newPayloadLength);
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}

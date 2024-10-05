@@ -13,7 +13,7 @@ static int writes = 0;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
 	if (tmpName.empty())
-		tmpName = tmpnam(NULL);
+		tmpName = tmpnam(nullptr);
 
 	if (tmpFile.empty())
 		tmpFile = tmpName + FILE_EXT;

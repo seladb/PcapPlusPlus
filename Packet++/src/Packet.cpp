@@ -84,9 +84,17 @@ namespace pcpp
 
 		if (curLayer != nullptr && curLayer->getOsiModelLayer() > parseUntilLayer)
 		{
-			m_LastLayer = curLayer->getPrevLayer();
-			delete curLayer;
-			m_LastLayer->m_NextLayer = nullptr;
+			// don't delete the first layer. If already past the target layer, treat the same as if the layer was found.
+			if (curLayer == m_FirstLayer)
+			{
+				curLayer->m_IsAllocatedInPacket = true;
+			}
+			else
+			{
+				m_LastLayer = curLayer->getPrevLayer();
+				delete curLayer;
+				m_LastLayer->m_NextLayer = nullptr;
+			}
 		}
 
 		if (m_LastLayer != nullptr && parseUntil == UnknownProtocol && parseUntilLayer == OsiModelLayerUnknown)

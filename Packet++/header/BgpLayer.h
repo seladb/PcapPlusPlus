@@ -99,17 +99,17 @@ namespace pcpp
 		/**
 		 * @return The size of the BGP message
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
 		/**
 		 * Multiple BGP messages can reside in a single packet, and the only layer that can come after a BGP message
 		 * is another BGP message. This method checks for remaining data and parses it as another BGP layer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
@@ -120,21 +120,19 @@ namespace pcpp
 		 * - Set message type value
 		 * - Set message length
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 	protected:
 		// protected c'tors, this class cannot be instantiated by users
 		BgpLayer()
 		{}
 		BgpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = BGP;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, BGP)
+		{}
 
 		bgp_common_header* getBasicHeader() const
 		{
-			return (bgp_common_header*)m_Data;
+			return reinterpret_cast<bgp_common_header*>(m_Data);
 		}
 
 		void setBgpFields(size_t messageLen = 0);
@@ -224,7 +222,7 @@ namespace pcpp
 		 */
 		bgp_open_message* getOpenMsgHeader() const
 		{
-			return (bgp_open_message*)m_Data;
+			return reinterpret_cast<bgp_open_message*>(m_Data);
 		}
 
 		/**
@@ -274,7 +272,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		BgpMessageType getBgpMessageType() const
+		BgpMessageType getBgpMessageType() const override
 		{
 			return BgpLayer::Open;
 		}
@@ -390,7 +388,7 @@ namespace pcpp
 		 */
 		bgp_common_header* getBasicMsgHeader() const
 		{
-			return (bgp_common_header*)m_Data;
+			return reinterpret_cast<bgp_common_header*>(m_Data);
 		}
 
 		/**
@@ -482,7 +480,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		BgpMessageType getBgpMessageType() const
+		BgpMessageType getBgpMessageType() const override
 		{
 			return BgpLayer::Update;
 		}
@@ -563,7 +561,7 @@ namespace pcpp
 		 */
 		bgp_notification_message* getNotificationMsgHeader() const
 		{
-			return (bgp_notification_message*)m_Data;
+			return reinterpret_cast<bgp_notification_message*>(m_Data);
 		}
 
 		/**
@@ -608,7 +606,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		BgpMessageType getBgpMessageType() const
+		BgpMessageType getBgpMessageType() const override
 		{
 			return BgpLayer::Notification;
 		}
@@ -654,12 +652,12 @@ namespace pcpp
 		 */
 		bgp_keepalive_message* getKeepaliveHeader() const
 		{
-			return (bgp_keepalive_message*)getBasicHeader();
+			return reinterpret_cast<bgp_keepalive_message*>(getBasicHeader());
 		}
 
 		// implement abstract methods
 
-		BgpMessageType getBgpMessageType() const
+		BgpMessageType getBgpMessageType() const override
 		{
 			return BgpLayer::Keepalive;
 		}
@@ -713,12 +711,12 @@ namespace pcpp
 		 */
 		bgp_route_refresh_message* getRouteRefreshHeader() const
 		{
-			return (bgp_route_refresh_message*)getBasicHeader();
+			return reinterpret_cast<bgp_route_refresh_message*>(getBasicHeader());
 		}
 
 		// implement abstract methods
 
-		BgpMessageType getBgpMessageType() const
+		BgpMessageType getBgpMessageType() const override
 		{
 			return BgpLayer::RouteRefresh;
 		}
