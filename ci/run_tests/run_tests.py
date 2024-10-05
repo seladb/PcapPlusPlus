@@ -49,7 +49,7 @@ def main():
                 + [os.path.join("Bin", "Packet++Test")]
                 + args.packet_test_args.split(),
                 cwd="Tests/Packet++Test",
-                check=True
+                check=True,
             )
         except subprocess.CalledProcessError as e:
             print(e)
@@ -64,7 +64,7 @@ def main():
                 + [os.path.join("Bin", "Pcap++Test"), "-i", ip_address]
                 + args.pcap_test_args.split(),
                 cwd="Tests/Pcap++Test",
-                check=True
+                check=True,
             )
         except subprocess.CalledProcessError as e:
             print(e)
