@@ -1,5 +1,4 @@
 from os import path
-from itertools import filterfalse
 import pytest
 from .test_utils import ExampleTest, compare_stdout_with_file
 

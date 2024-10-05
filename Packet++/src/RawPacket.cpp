@@ -68,6 +68,11 @@ namespace pcpp
 		return *this;
 	}
 
+	RawPacket* RawPacket::clone() const
+	{
+		return new RawPacket(*this);
+	}
+
 	void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	{
 		if (!other.m_RawPacketSet)

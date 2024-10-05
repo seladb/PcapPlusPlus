@@ -162,10 +162,8 @@ namespace pcpp
 	{
 	protected:
 		IgmpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType igmpVer)
-		    : Layer(data, dataLen, prevLayer, packet)
-		{
-			m_Protocol = igmpVer;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, igmpVer)
+		{}
 
 		IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer);
 
@@ -174,8 +172,7 @@ namespace pcpp
 		size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const;
 
 	public:
-		virtual ~IgmpLayer()
-		{}
+		~IgmpLayer() override = default;
 
 		/**
 		 * Get a pointer to the raw IGMPv1/IGMPv2 header. Notice this points directly to the data, so every change will
@@ -184,7 +181,7 @@ namespace pcpp
 		 */
 		igmp_header* getIgmpHeader() const
 		{
-			return (igmp_header*)m_Data;
+			return reinterpret_cast<igmp_header*>(m_Data);
 		}
 
 		/**
@@ -228,20 +225,20 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (IGMP layer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return Size of IGMP header = 8B
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(igmp_header);
 		}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
@@ -278,15 +275,14 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~IgmpV1Layer()
-		{}
+		~IgmpV1Layer() override = default;
 
 		// implement abstract methods
 
 		/**
 		 * Calculate the IGMP checksum and set igmp_header#maxResponseTime to 0 (this field is unused in IGMPv1)
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 	};
 
 	/**
@@ -322,15 +318,14 @@ namespace pcpp
 		/**
 		 * A destructor for this layer (does nothing)
 		 */
-		~IgmpV2Layer()
-		{}
+		~IgmpV2Layer() override = default;
 
 		// implement abstract methods
 
 		/**
 		 * Calculate the IGMP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 	};
 
 	/**
@@ -368,7 +363,7 @@ namespace pcpp
 		 */
 		igmpv3_query_header* getIgmpV3QueryHeader() const
 		{
-			return (igmpv3_query_header*)m_Data;
+			return reinterpret_cast<igmpv3_query_header*>(m_Data);
 		}
 
 		/**
@@ -425,13 +420,13 @@ namespace pcpp
 		/**
 		 * Calculate the IGMP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * @return The message size in bytes which include the size of the basic header + the size of the source address
 		 * list
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 	};
 
 	/**
@@ -468,7 +463,7 @@ namespace pcpp
 		 */
 		igmpv3_report_header* getReportHeader() const
 		{
-			return (igmpv3_report_header*)m_Data;
+			return reinterpret_cast<igmpv3_report_header*>(m_Data);
 		}
 
 		/**
@@ -541,13 +536,13 @@ namespace pcpp
 		/**
 		 * Calculate the IGMP checksum
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
 		/**
 		 * @return The message size in bytes which include the size of the basic header + the size of the group record
 		 * list
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}

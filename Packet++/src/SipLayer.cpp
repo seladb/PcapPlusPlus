@@ -349,9 +349,8 @@ namespace pcpp
 	// -------- Class SipRequestLayer -----------------
 
 	SipRequestLayer::SipRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : SipLayer(data, dataLen, prevLayer, packet)
+	    : SipLayer(data, dataLen, prevLayer, packet, SIPRequest)
 	{
-		m_Protocol = SIPRequest;
 		m_FirstLine = new SipRequestFirstLine(this);
 		m_FieldsOffset = m_FirstLine->getSize();
 		parseFields();
@@ -586,9 +585,8 @@ namespace pcpp
 	};
 
 	SipResponseLayer::SipResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : SipLayer(data, dataLen, prevLayer, packet)
+	    : SipLayer(data, dataLen, prevLayer, packet, SIPResponse)
 	{
-		m_Protocol = SIPResponse;
 		m_FirstLine = new SipResponseFirstLine(this);
 		m_FieldsOffset = m_FirstLine->getSize();
 		parseFields();

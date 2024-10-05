@@ -1011,15 +1011,15 @@ namespace pcpp
 			return;
 		}
 
-		uint8_t buf[len];
+		std::vector<uint8_t> buf(len);
 
-		if (sysctl(mib, 6, buf, &len, nullptr, 0) < 0)
+		if (sysctl(mib, 6, buf.data(), &len, nullptr, 0) < 0)
 		{
 			PCPP_LOG_DEBUG("Error in retrieving MAC address: sysctl 2 error");
 			return;
 		}
 
-		struct if_msghdr* ifm = (struct if_msghdr*)buf;
+		struct if_msghdr* ifm = (struct if_msghdr*)buf.data();
 		struct sockaddr_dl* sdl = (struct sockaddr_dl*)(ifm + 1);
 		uint8_t* ptr = (uint8_t*)LLADDR(sdl);
 		m_MacAddress = MacAddress(ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5]);

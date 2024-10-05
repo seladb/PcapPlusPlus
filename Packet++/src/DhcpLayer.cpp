@@ -42,10 +42,8 @@ namespace pcpp
 	}
 
 	DhcpLayer::DhcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet)
-	{
-		m_Protocol = DHCP;
-	}
+	    : Layer(data, dataLen, prevLayer, packet, DHCP)
+	{}
 
 	void DhcpLayer::initDhcpLayer(size_t numOfBytesToAllocate)
 	{
