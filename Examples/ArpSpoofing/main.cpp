@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <iostream>
 #include <fstream>
-#include <memory>
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <PcapPlusPlusVersion.h>
@@ -11,7 +8,6 @@
 #include <PcapLiveDevice.h>
 #include <EthLayer.h>
 #include <ArpLayer.h>
-#include <Logger.h>
 #include <getopt.h>
 
 #define EXIT_WITH_ERROR(reason)                                                                                        \

@@ -5,7 +5,6 @@
 #include "GeneralUtils.h"
 #include <sstream>
 #include <utility>
-#include <string.h>
 #include "EndianPortable.h"
 
 namespace pcpp

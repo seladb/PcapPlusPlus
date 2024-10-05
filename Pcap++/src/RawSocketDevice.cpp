@@ -10,7 +10,6 @@
 #	include <ifaddrs.h>
 #	include <net/if.h>
 #endif
-#include <string.h>
 #include "Logger.h"
 #include "IpUtils.h"
 #include "SystemUtils.h"

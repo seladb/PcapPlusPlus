@@ -1,15 +1,11 @@
 #define LOG_MODULE PacketLogModuleIPv6ExtensionLayer
 
-#include <sstream>
 #include "EndianPortable.h"
-#include "Logger.h"
 #include "IPv6Extensions.h"
 #include "IPv6Layer.h"
 #include "IPv4Layer.h"
-#include "PayloadLayer.h"
 #include "UdpLayer.h"
 #include "TcpLayer.h"
-#include "GreLayer.h"
 
 namespace pcpp
 {

@@ -2,8 +2,7 @@
 
 #include "IpUtils.h"
 #include "Logger.h"
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
 #include <stdexcept>
 #ifndef NS_INADDRSZ
 #	define NS_INADDRSZ 4
