@@ -114,12 +114,14 @@ def main():
                     ],
                     cwd=os.path.join("Tests", "Packet++Test"),
                     shell=True,
+                    check=True
                 )
             else:
                 completed_process = subprocess.run(
                     os.path.join("Bin", "Packet++Test"),
                     cwd=os.path.join("Tests", "Packet++Test"),
                     shell=True,
+                    check=True
                 )
         except subprocess.CalledProcessError as e:
             print(e)
@@ -154,6 +156,7 @@ def main():
                     ],
                     cwd=os.path.join("Tests", "Pcap++Test"),
                     shell=True,
+                    check=True
                 )
             else:
                 completed_process = subprocess.run(
@@ -166,6 +169,7 @@ def main():
                     ],
                     cwd=os.path.join("Tests", "Pcap++Test"),
                     shell=True,
+                    check=True
                 )
         except subprocess.CalledProcessError as e:
             print(e)
