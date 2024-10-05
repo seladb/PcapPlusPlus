@@ -53,6 +53,7 @@ def main():
             )
         except subprocess.CalledProcessError as e:
             print(e)
+            exit(e.returncode)
 
         if completed_process.returncode != 0:
             exit(completed_process.returncode)
@@ -67,6 +68,7 @@ def main():
             )
         except subprocess.CalledProcessError as e:
             print(e)
+            exit(e.returncode)
 
         if completed_process.returncode != 0:
             exit(completed_process.returncode)
