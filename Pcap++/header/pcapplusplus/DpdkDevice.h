@@ -7,8 +7,8 @@
 #include <vector>
 #include "pcapplusplus/MacAddress.h"
 #include "pcapplusplus/SystemUtils.h"
-#include "Device.h"
-#include "MBufRawPacket.h"
+#include "pcapplusplus/Device.h"
+#include "pcapplusplus/MBufRawPacket.h"
 
 /**
  * @file
