@@ -274,7 +274,7 @@ namespace pcpp
 		 */
 		IPv4Address getAddress() const
 		{
-			return IPv4Address(routerAddress);
+			return routerAddress;
 		}
 	};
 #pragma pack(pop)

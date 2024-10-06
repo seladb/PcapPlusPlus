@@ -108,7 +108,7 @@ namespace pcpp
 		 */
 		IPAddress getSrcIPAddress() const override
 		{
-			return IPAddress(getSrcIPv6Address());
+			return getSrcIPv6Address();
 		}
 
 		/**
@@ -117,7 +117,7 @@ namespace pcpp
 		 */
 		IPv6Address getSrcIPv6Address() const
 		{
-			return IPv6Address(getIPv6Header()->ipSrc);
+			return getIPv6Header()->ipSrc;
 		}
 
 		/**
@@ -145,7 +145,7 @@ namespace pcpp
 		 */
 		IPAddress getDstIPAddress() const override
 		{
-			return IPAddress(getDstIPv6Address());
+			return getDstIPv6Address();
 		}
 
 		/**
@@ -154,7 +154,7 @@ namespace pcpp
 		 */
 		IPv6Address getDstIPv6Address() const
 		{
-			return IPv6Address(getIPv6Header()->ipDst);
+			return getIPv6Header()->ipDst;
 		}
 
 		/**

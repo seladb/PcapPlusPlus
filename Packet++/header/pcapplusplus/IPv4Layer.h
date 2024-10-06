@@ -514,7 +514,7 @@ namespace pcpp
 		 */
 		IPAddress getSrcIPAddress() const override
 		{
-			return IPAddress(getSrcIPv4Address());
+			return getSrcIPv4Address();
 		}
 
 		/**
@@ -523,7 +523,7 @@ namespace pcpp
 		 */
 		IPv4Address getSrcIPv4Address() const
 		{
-			return IPv4Address(getIPv4Header()->ipSrc);
+			return getIPv4Header()->ipSrc;
 		}
 
 		/**
@@ -542,7 +542,7 @@ namespace pcpp
 		 */
 		IPAddress getDstIPAddress() const override
 		{
-			return IPAddress(getDstIPv4Address());
+			return getDstIPv4Address();
 		}
 
 		/**
@@ -551,7 +551,7 @@ namespace pcpp
 		 */
 		IPv4Address getDstIPv4Address() const
 		{
-			return IPv4Address(getIPv4Header()->ipDst);
+			return getIPv4Header()->ipDst;
 		}
 
 		/**

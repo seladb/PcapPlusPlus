@@ -351,10 +351,10 @@ namespace pcpp
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			return IPAddress(IPv4Address(*((uint32_t*)data)));
+			return IPv4Address(*((uint32_t*)data));
 		}
 
-		return IPAddress(IPv6Address(data));
+		return IPv6Address(data);
 	}
 
 	bool VrrpLayer::isIPAddressValid(IPAddress& ipAddress) const

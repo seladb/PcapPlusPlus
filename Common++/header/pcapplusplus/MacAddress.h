@@ -54,7 +54,7 @@ namespace pcpp
 		 * @param[in] addr the string representing the MAC address in format "00:00:00:00:00:00"
 		 */
 		template <typename T, typename = typename std::enable_if<std::is_convertible<T, std::string>::value>::type>
-		explicit MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr))
+		MacAddress(const T& addr) : MacAddress(static_cast<std::string>(addr))
 		{}
 
 		/**
