@@ -669,13 +669,11 @@ jobs:
         run: |
           TOYVPN_PCAPPLUSPLUS="./ToyVpn-PcapPlusPlus/app/libs/pcapplusplus"
           PCAPPLUSPLUS_LIBS_PATH="$TOYVPN_PCAPPLUSPLUS/${{ matrix.target }}/${{ matrix.api-version }}"
-          PCAPPLUSPLUS_INCLUDE_PATH="$TOYVPN_PCAPPLUSPLUS/include"
           cmake -DPCAPPP_BUILD_COVERAGE=OFF -S . -B "$BUILD_DIR"
           cmake --build "$BUILD_DIR" -j
-          cmake --install "$BUILD_DIR" --prefix ${TOYVPN_PCAPPLUSPLUS}
-          mkdir -p ${PCAPPLUSPLUS_LIBS_PATH} ${PCAPPLUSPLUS_INCLUDE_PATH}
-          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
-          mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
+          cmake --install "$BUILD_DIR" --prefix "${TOYVPN_PCAPPLUSPLUS}"
+          mkdir -p "${PCAPPLUSPLUS_LIBS_PATH}" "${PCAPPLUSPLUS_INCLUDE_PATH}"
+          mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a "${PCAPPLUSPLUS_LIBS_PATH}/"
 
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus

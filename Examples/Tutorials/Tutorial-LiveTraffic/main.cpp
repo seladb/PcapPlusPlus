@@ -1,7 +1,7 @@
 #include <iostream>
 #include <algorithm>
-#include "PcapLiveDeviceList.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/SystemUtils.h"
 /**
  * A struct for collecting packet statistics
  */
