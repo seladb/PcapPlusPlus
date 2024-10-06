@@ -8,7 +8,7 @@ namespace pcpp
 {
 	/**
 	 * @class PacketTrailerLayer
-	 * A class for representing packet tailer (a.k.a footer or padding) which refers to supplemental data placed at the
+	 * A class for representing packet trailer (a.k.a footer or padding) which refers to supplemental data placed at the
 	 * end of a block of data being stored or transmitted, which may contain information for the handling of the data
 	 * block, or just mark its end (taken from Wikipedia: https://en.wikipedia.org/wiki/Trailer_(computing) )
 	 *
