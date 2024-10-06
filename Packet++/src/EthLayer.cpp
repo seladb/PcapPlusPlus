@@ -10,7 +10,6 @@
 #include "MplsLayer.h"
 #include "WakeOnLanLayer.h"
 #include "EndianPortable.h"
-#include <string.h>
 
 namespace pcpp
 {

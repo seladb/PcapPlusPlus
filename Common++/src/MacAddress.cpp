@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #include "MacAddress.h"
 
 namespace pcpp

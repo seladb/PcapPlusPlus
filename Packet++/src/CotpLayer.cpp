@@ -1,10 +1,6 @@
 #include "../header/CotpLayer.h"
-#include "EndianPortable.h"
 #include "S7CommLayer.h"
 #include <PayloadLayer.h>
-#include <cstring>
-#include <iostream>
-#include <sstream>
 
 namespace pcpp
 {

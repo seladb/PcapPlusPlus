@@ -974,3 +974,45 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead)
 
 	readerDev.close();
 }  // TestSolarisSnoopFileRead
+
+PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor)
+{
+	std::array<uint8_t, 16> testPayload = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		                                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
+	pcpp::RawPacket rawPacket1(testPayload.data(), testPayload.size(), timeval{}, false);
+	pcpp::RawPacket rawPacket2(testPayload.data(), testPayload.size(), timeval{}, false);
+
+	// Create some pcaps in a nested scope to test cleanup on destruction.
+	{
+		// create a file to leave open on destruction. If close is properly done on destruction, the contents & size of
+		// this file should match the next explicitly closed file.
+		pcpp::PcapFileWriterDevice writerDevDestructorNoClose(EXAMPLE_PCAP_DESTRUCTOR1_PATH, pcpp::LINKTYPE_ETHERNET,
+		                                                      false);
+		PTF_ASSERT_TRUE(writerDevDestructorNoClose.open());
+		PTF_ASSERT_TRUE(writerDevDestructorNoClose.writePacket(rawPacket1));
+		PTF_ASSERT_TRUE(writerDevDestructorNoClose.writePacket(rawPacket2));
+
+		// create a file that will be explicitly closed before construction
+		pcpp::PcapFileWriterDevice writerDevDestructorExplicitClose(EXAMPLE_PCAP_DESTRUCTOR2_PATH,
+		                                                            pcpp::LINKTYPE_ETHERNET, false);
+		PTF_ASSERT_TRUE(writerDevDestructorExplicitClose.open());
+		PTF_ASSERT_TRUE(writerDevDestructorExplicitClose.writePacket(rawPacket1));
+		PTF_ASSERT_TRUE(writerDevDestructorExplicitClose.writePacket(rawPacket2));
+		writerDevDestructorExplicitClose.close();
+	}
+
+	// Check that file sizes are equal. This should fail if the pcpp::PcapFileWriterDevice destructor does not close
+	// properly.
+	std::ifstream fileDestructorNoClose(EXAMPLE_PCAP_DESTRUCTOR1_PATH, std::ios::binary | std::ios::in);
+	fileDestructorNoClose.seekg(0, std::ios::end);
+	auto posNoClose = fileDestructorNoClose.tellg();
+
+	std::ifstream fileDestructorExplicitClose(EXAMPLE_PCAP_DESTRUCTOR2_PATH, std::ios::binary | std::ios::in);
+	fileDestructorExplicitClose.seekg(0, std::ios::end);
+	auto posExplicitClose = fileDestructorExplicitClose.tellg();
+
+	// sizes should be non-zero and match if files both got closed properly
+	PTF_ASSERT_NOT_EQUAL(0, posNoClose);
+	PTF_ASSERT_NOT_EQUAL(0, posExplicitClose);
+	PTF_ASSERT_EQUAL(posNoClose, posExplicitClose);
+}  // TestPcapFileWriterDeviceDestructor

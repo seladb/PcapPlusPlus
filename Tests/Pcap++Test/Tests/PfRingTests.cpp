@@ -2,7 +2,6 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <sstream>
 
 #ifdef USE_PF_RING
 #	include "Logger.h"

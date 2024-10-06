@@ -30,6 +30,7 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4);
 PTF_TEST_CASE(TestSolarisSnoopFileRead);
 PTF_TEST_CASE(TestPcapNgFilePrecision);
+PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor);
 
 // Implemented in LiveDeviceTests.cpp
 PTF_TEST_CASE(TestPcapLiveDeviceList);

@@ -3,15 +3,14 @@
 #include "Asn1Codec.h"
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
-#include "GeneralUtils.h"
 #include <unordered_map>
 #include <numeric>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <cstring>
 #include <cmath>
 #include <limits>
+#include <cstring>
 
 #if defined(_WIN32)
 #	undef max

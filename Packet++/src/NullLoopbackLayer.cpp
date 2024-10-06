@@ -3,7 +3,6 @@
 #include "IPv4Layer.h"
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
-#include <string.h>
 
 namespace pcpp
 {

@@ -4,8 +4,7 @@
 #include "Logger.h"
 #include <sstream>
 #include <iomanip>
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
 
 namespace pcpp
 {

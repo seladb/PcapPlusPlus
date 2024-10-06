@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "PcapPlusPlusVersion.h"
 #include "Logger.h"
 #include "PcppTestFrameworkRun.h"
@@ -227,6 +225,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv6, "no_network;pcap");
 	PTF_RUN_TEST(TestPcapFileReadLinkTypeIPv4, "no_network;pcap");
 	PTF_RUN_TEST(TestSolarisSnoopFileRead, "no_network;pcap;snoop");
+	PTF_RUN_TEST(TestPcapFileWriterDeviceDestructor, "no_network;pcap");
 
 	PTF_RUN_TEST(TestPcapLiveDeviceList, "no_network;live_device;skip_mem_leak_check");
 	PTF_RUN_TEST(TestPcapLiveDeviceListSearch, "live_device");

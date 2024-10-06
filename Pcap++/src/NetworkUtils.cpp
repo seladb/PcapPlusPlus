@@ -1,9 +1,7 @@
 #define LOG_MODULE PcapLogModuleNetworkUtils
 
 #include <condition_variable>
-#include <errno.h>
 #include <mutex>
-#include <stdlib.h>
 #include "Logger.h"
 #include "Packet.h"
 #include "EthLayer.h"

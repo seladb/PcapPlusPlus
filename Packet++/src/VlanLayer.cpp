@@ -8,7 +8,6 @@
 #include "PPPoELayer.h"
 #include "MplsLayer.h"
 #include "LLCLayer.h"
-#include <string.h>
 #include <sstream>
 #include "EndianPortable.h"
 

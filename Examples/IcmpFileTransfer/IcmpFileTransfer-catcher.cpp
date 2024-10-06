@@ -6,7 +6,6 @@
  * For more information please refer to README.md
  */
 
-#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include "EthLayer.h"

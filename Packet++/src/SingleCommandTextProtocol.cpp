@@ -1,7 +1,5 @@
 #include "SingleCommandTextProtocol.h"
-#include "Logger.h"
-
-#include <string.h>
+#include <cstring>
 #include <algorithm>
 #include <vector>
 
