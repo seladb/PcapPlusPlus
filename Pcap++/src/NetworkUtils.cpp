@@ -2,6 +2,7 @@
 
 #include <condition_variable>
 #include <mutex>
+
 #include "pcapplusplus/Logger.h"
 #include "pcapplusplus/Packet.h"
 #include "pcapplusplus/EthLayer.h"
@@ -11,6 +12,7 @@
 #include "pcapplusplus/DnsLayer.h"
 #include "pcapplusplus/PcapFilter.h"
 #include "pcapplusplus/NetworkUtils.h"
+#include "pcapplusplus/SystemUtils.h"
 #include "EndianPortable.h"
 #ifndef ETIMEDOUT
 #	define ETIMEDOUT 10060
