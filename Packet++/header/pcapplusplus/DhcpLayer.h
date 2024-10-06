@@ -416,7 +416,7 @@ namespace pcpp
 		 */
 		IPv4Address getValueAsIpAddr() const
 		{
-			return getValueAs<uint32_t>();
+			return IPv4Address(getValueAs<uint32_t>());
 		}
 
 		/**
@@ -669,7 +669,7 @@ namespace pcpp
 		 */
 		IPv4Address getClientIpAddress() const
 		{
-			return getDhcpHeader()->clientIpAddress;
+			return IPv4Address(getDhcpHeader()->clientIpAddress);
 		}
 
 		/**
@@ -687,7 +687,7 @@ namespace pcpp
 		 */
 		IPv4Address getServerIpAddress() const
 		{
-			return getDhcpHeader()->serverIpAddress;
+			return IPv4Address(getDhcpHeader()->serverIpAddress);
 		}
 
 		/**
@@ -704,7 +704,7 @@ namespace pcpp
 		 */
 		IPv4Address getYourIpAddress() const
 		{
-			return getDhcpHeader()->yourIpAddress;
+			return IPv4Address(getDhcpHeader()->yourIpAddress);
 		}
 
 		/**
@@ -721,7 +721,7 @@ namespace pcpp
 		 */
 		IPv4Address getGatewayIpAddress() const
 		{
-			return getDhcpHeader()->gatewayIpAddress;
+			return IPv4Address(getDhcpHeader()->gatewayIpAddress);
 		}
 
 		/**

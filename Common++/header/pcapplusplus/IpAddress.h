@@ -40,7 +40,7 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 4-byte integer value.
 		 * @param[in] addrAsInt The address as 4-byte integer in network byte order
 		 */
-		IPv4Address(const uint32_t addrAsInt)
+		explicit IPv4Address(const uint32_t addrAsInt)
 		{
 			memcpy(m_Bytes.data(), &addrAsInt, sizeof(addrAsInt));
 		}
@@ -49,7 +49,7 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 4-byte array.
 		 * @param[in] bytes The address as 4-byte array in network byte order
 		 */
-		IPv4Address(const uint8_t bytes[4])
+		explicit IPv4Address(const uint8_t bytes[4])
 		{
 			memcpy(m_Bytes.data(), bytes, 4 * sizeof(uint8_t));
 		}
@@ -58,7 +58,7 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of a 4-byte standard array.
 		 * @param[in] bytes The address as 4-byte standard array in network byte order
 		 */
-		IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes)
+		explicit IPv4Address(const std::array<uint8_t, 4>& bytes) : m_Bytes(bytes)
 		{}
 
 		/**
@@ -67,7 +67,7 @@ namespace pcpp
 		 * @param[in] addrAsString The std::string representation of the address
 		 * @throws std::invalid_argument The provided string does not represent a valid IPv4 address.
 		 */
-		IPv4Address(const std::string& addrAsString);
+		explicit IPv4Address(const std::string& addrAsString);
 
 		/**
 		 * @return A 4-byte integer in network byte order representing the IPv4 address
@@ -207,7 +207,7 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of 16-byte array.
 		 * @param[in] bytes The address as 16-byte array in network byte order
 		 */
-		IPv6Address(const uint8_t bytes[16])
+		explicit IPv6Address(const uint8_t bytes[16])
 		{
 			memcpy(m_Bytes.data(), bytes, 16 * sizeof(uint8_t));
 		}
@@ -216,7 +216,7 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of a 16-byte standard array.
 		 * @param[in] bytes The address as 16-byte standard array in network byte order
 		 */
-		IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes)
+		explicit IPv6Address(const std::array<uint8_t, 16>& bytes) : m_Bytes(bytes)
 		{}
 
 		/**
@@ -225,7 +225,7 @@ namespace pcpp
 		 * @param[in] addrAsString The std::string representation of the address
 		 * @throws std::invalid_argument The provided string does not represent a valid IPv6 address.
 		 */
-		IPv6Address(const std::string& addrAsString);
+		explicit IPv6Address(const std::string& addrAsString);
 
 		/**
 		 * Returns a view of the IPv6 address as a 16-byte raw C-style array
@@ -382,14 +382,14 @@ namespace pcpp
 		 * A constructor that creates an instance of the class out of IPv4Address.
 		 * @param[in] addr A const reference to instance of IPv4Address
 		 */
-		IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr)
+		explicit IPAddress(const IPv4Address& addr) : m_Type(IPv4AddressType), m_IPv4(addr)
 		{}
 
 		/**
 		 * A constructor that creates an instance of the class out of IPv6Address.
 		 * @param[in] addr A const reference to instance of IPv6Address
 		 */
-		IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr)
+		explicit IPAddress(const IPv6Address& addr) : m_Type(IPv6AddressType), m_IPv6(addr)
 		{}
 
 		/**
@@ -596,7 +596,7 @@ namespace pcpp
 		 *    a valid netmask
 		 * @throws std::invalid_argument The provided string does not represent a valid address and netmask format.
 		 */
-		IPv4Network(const std::string& addressAndNetmask);
+		explicit IPv4Network(const std::string& addressAndNetmask);
 
 		/**
 		 * @return The prefix length, for example: the prefix length of 10.10.10.10/255.0.0.0 is 8
@@ -713,7 +713,7 @@ namespace pcpp
 		 *    and IPV6_NETMASK is a valid IPv6 netmask
 		 * @throws std::invalid_argument The provided string does not represent a valid address and netmask format.
 		 */
-		IPv6Network(const std::string& addressAndNetmask);
+		explicit IPv6Network(const std::string& addressAndNetmask);
 
 		/**
 		 * @return The prefix length, for example: the prefix length of 3546::/ffff:: is 16
@@ -852,7 +852,7 @@ namespace pcpp
 		 *    is a valid netmask for this type of network (IPv4 or IPv6 network)
 		 * @throws std::invalid_argument The provided string does not represent a valid address and netmask format.
 		 */
-		IPNetwork(const std::string& addressAndNetmask)
+		explicit IPNetwork(const std::string& addressAndNetmask)
 		{
 			try
 			{

@@ -285,14 +285,14 @@ namespace pcpp
 	IPv4Address IPv4Network::getLowestAddress() const
 	{
 		std::bitset<32> bitset(m_Mask);
-		return bitset.count() < 32 ? m_NetworkPrefix + htobe32(1) : m_NetworkPrefix;
+		return bitset.count() < 32 ? IPv4Address(m_NetworkPrefix + htobe32(1)) : IPv4Address(m_NetworkPrefix);
 	}
 
 	IPv4Address IPv4Network::getHighestAddress() const
 	{
 		auto tempAddress = static_cast<uint32_t>(m_NetworkPrefix | ~m_Mask);
 		std::bitset<32> bitset(m_Mask);
-		return bitset.count() < 32 ? tempAddress - htobe32(1) : tempAddress;
+		return bitset.count() < 32 ? IPv4Address(tempAddress - htobe32(1)) : IPv4Address(tempAddress);
 	}
 
 	uint64_t IPv4Network::getTotalAddressCount() const
@@ -496,13 +496,13 @@ namespace pcpp
 	{
 		if (getPrefixLen() == 128)
 		{
-			return m_NetworkPrefix;
+			return IPv6Address(m_NetworkPrefix);
 		}
 
 		uint8_t lowestAddress[IPV6_ADDR_SIZE];
 		memcpy(lowestAddress, m_NetworkPrefix, IPV6_ADDR_SIZE);
 		lowestAddress[IPV6_ADDR_SIZE - 1]++;
-		return lowestAddress;
+		return IPv6Address(lowestAddress);
 	}
 
 	IPv6Address IPv6Network::getHighestAddress() const
@@ -514,7 +514,7 @@ namespace pcpp
 			result[byteIndex] = m_NetworkPrefix[byteIndex] | ~m_Mask[byteIndex];
 		}
 
-		return result;
+		return IPv6Address(result);
 	}
 
 	uint64_t IPv6Network::getTotalAddressCount() const

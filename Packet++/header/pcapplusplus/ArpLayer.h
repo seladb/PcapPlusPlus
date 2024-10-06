@@ -119,7 +119,7 @@ namespace pcpp
 		 */
 		inline IPv4Address getSenderIpAddr() const
 		{
-			return getArpHeader()->senderIpAddr;
+			return IPv4Address(getArpHeader()->senderIpAddr);
 		}
 
 		/**
@@ -128,7 +128,7 @@ namespace pcpp
 		 */
 		inline IPv4Address getTargetIpAddr() const
 		{
-			return getArpHeader()->targetIpAddr;
+			return IPv4Address(getArpHeader()->targetIpAddr);
 		}
 
 		// implement abstract methods

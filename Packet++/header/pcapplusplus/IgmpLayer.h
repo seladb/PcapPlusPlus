@@ -95,7 +95,7 @@ namespace pcpp
 		 */
 		IPv4Address getMulticastAddress() const
 		{
-			return multicastAddress;
+			return IPv4Address(multicastAddress);
 		}
 
 		/**
@@ -189,7 +189,7 @@ namespace pcpp
 		 */
 		IPv4Address getGroupAddress() const
 		{
-			return getIgmpHeader()->groupAddress;
+			return IPv4Address(getIgmpHeader()->groupAddress);
 		}
 
 		/**
