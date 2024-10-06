@@ -1,9 +1,9 @@
 #pragma once
 
 #include <memory>
-#include "IpAddress.h"
-#include "PcapRemoteDevice.h"
-#include "DeprecationUtils.h"
+#include "pcapplusplus/IpAddress.h"
+#include "pcapplusplus/PcapRemoteDevice.h"
+#include "pcapplusplus/DeprecationUtils.h"
 
 /// @file
 

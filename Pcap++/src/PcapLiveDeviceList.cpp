@@ -14,7 +14,7 @@
 #if defined(_WIN32)
 #	include <ws2tcpip.h>
 #	include <iphlpapi.h>
-#	include "WinPcapLiveDevice.h"
+#	include "pcapplusplus/WinPcapLiveDevice.h"
 #elif defined(__APPLE__)
 #	include <systemconfiguration/scdynamicstore.h>
 #elif defined(__FreeBSD__)

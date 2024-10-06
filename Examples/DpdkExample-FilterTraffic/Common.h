@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Packet.h"
-#include "DpdkDevice.h"
-
-#include <SystemUtils.h>
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/DpdkDevice.h"
+#include "pcapplusplus/SystemUtils.h"
 
 #include <string>
 #include <unordered_map>
