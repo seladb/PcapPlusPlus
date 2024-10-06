@@ -1,6 +1,6 @@
 #include <memory>
 #include <iostream>
-#include "PcapFileDevice.h"
+#include "pcapplusplus/PcapFileDevice.h"
 
 /**
  * main method of the application

@@ -5,10 +5,10 @@
 #include <string>
 #include <atomic>
 
-#include "pcapplusplusDevice.h"
-#include "pcapplusplusMacAddress.h"
-#include "pcapplusplusMBufRawPacket.h"
-#include "pcapplusplusLinuxNicInformationSocket.h"
+#include "pcapplusplus/Device.h"
+#include "pcapplusplus/MacAddress.h"
+#include "pcapplusplus/MBufRawPacket.h"
+#include "pcapplusplus/LinuxNicInformationSocket.h"
 
 /**
  * @file
