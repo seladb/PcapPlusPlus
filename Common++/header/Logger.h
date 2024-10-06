@@ -112,7 +112,7 @@ namespace pcpp
 		 * Constructor for LogSource with only the log module.
 		 * @param logModule The log module.
 		 */
-		constexpr LogSource(LogModule logModule) : logModule(logModule)
+		explicit constexpr LogSource(LogModule logModule) : logModule(logModule)
 		{}
 
 		/**
