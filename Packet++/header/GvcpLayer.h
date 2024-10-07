@@ -3,7 +3,6 @@
 #include "IpAddress.h"
 #include "Layer.h"
 #include "MacAddress.h"
-#include "SystemUtils.h"
 #include <iostream>
 
 /**
@@ -12,6 +11,9 @@
  */
 namespace pcpp
 {
+	uint16_t hostToNet16(uint16_t val);  // forward declare the function in SystemUtil.h
+	uint16_t netToHost16(uint16_t val);  // forward declare the function in SystemUtil.h
+
 	namespace internal
 	{
 		static constexpr size_t kGvcpMagicNumber = 0x42;
