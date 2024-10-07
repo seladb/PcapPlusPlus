@@ -19,7 +19,6 @@
 #include "rte_malloc.h"
 #include "rte_cycles.h"
 #include <string>
-#include <stdint.h>
 #include <unistd.h>
 
 #define MAX_BURST_SIZE 64

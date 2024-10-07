@@ -2,7 +2,6 @@
 
 // GCOVR_EXCL_START
 
-#include <memory>
 #include "PfRingDevice.h"
 
 /// @file

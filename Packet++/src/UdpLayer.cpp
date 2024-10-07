@@ -19,7 +19,6 @@
 #include "WireGuardLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
-#include <string.h>
 #include <sstream>
 
 namespace pcpp
