@@ -353,7 +353,6 @@ namespace pcpp
 			return netToHost16(getGvcpHeader()->requestId);
 		}
 
-
 		/**
 		 * @brief Get the command from the header
 		 */
