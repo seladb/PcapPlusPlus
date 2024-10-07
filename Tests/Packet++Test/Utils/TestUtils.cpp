@@ -1,5 +1,5 @@
 #include "TestUtils.h"
-#include "SomeIpLayer.h"
+#include "pcapplusplus/SomeIpLayer.h"
 #include <iostream>
 #include <iomanip>
 #include <string.h>
@@ -80,7 +80,7 @@ namespace pcpp_tests
 	}
 
 #ifdef PCPP_TESTS_DEBUG
-#	include "pcap.h"
+#	include <pcap.h>
 
 	void savePacketToPcap(pcpp::Packet& packet, const std::string& fileName)
 	{

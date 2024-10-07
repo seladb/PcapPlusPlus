@@ -2,10 +2,10 @@
 #include "../Utils/TestUtils.h"
 #include <sstream>
 #include "EndianPortable.h"
-#include "Logger.h"
-#include "Packet.h"
-#include "SomeIpSdLayer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SomeIpSdLayer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(SomeIpSdParsingTest)
 {

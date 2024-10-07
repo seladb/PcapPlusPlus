@@ -1,10 +1,10 @@
 #define LOG_MODULE PacketLogModuleNflogLayer
 
-#include "NflogLayer.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "PayloadLayer.h"
-#include "GeneralUtils.h"
+#include "pcapplusplus/NflogLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
 #include "EndianPortable.h"
 
 namespace pcpp

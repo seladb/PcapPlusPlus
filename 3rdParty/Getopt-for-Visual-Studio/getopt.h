@@ -68,6 +68,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+/* Enforce Windows.h to use winsock2 */
+#include <winsock2.h>
 #include <windows.h>
 
 #ifdef __cplusplus

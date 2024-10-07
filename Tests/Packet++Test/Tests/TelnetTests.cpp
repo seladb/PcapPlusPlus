@@ -1,10 +1,10 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "GeneralUtils.h"
-#include "Logger.h"
-#include "Packet.h"
-#include "SystemUtils.h"
-#include "TelnetLayer.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/TelnetLayer.h"
 
 #include <string.h>
 

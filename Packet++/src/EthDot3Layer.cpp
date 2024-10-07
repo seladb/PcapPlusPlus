@@ -1,7 +1,7 @@
-#include "EthDot3Layer.h"
+#include "pcapplusplus/EthDot3Layer.h"
 #include "EndianPortable.h"
-#include "PayloadLayer.h"
-#include "LLCLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/LLCLayer.h"
 
 namespace pcpp
 {

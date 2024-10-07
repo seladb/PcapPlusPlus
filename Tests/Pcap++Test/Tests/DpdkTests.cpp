@@ -6,14 +6,14 @@
 
 #ifdef USE_DPDK
 #	include <mutex>
-#	include "Logger.h"
-#	include "PacketUtils.h"
-#	include "IPv4Layer.h"
-#	include "TcpLayer.h"
-#	include "UdpLayer.h"
-#	include "DnsLayer.h"
-#	include "DpdkDeviceList.h"
-#	include "PcapFileDevice.h"
+#	include "pcapplusplus/Logger.h"
+#	include "pcapplusplus/PacketUtils.h"
+#	include "pcapplusplus/IPv4Layer.h"
+#	include "pcapplusplus/TcpLayer.h"
+#	include "pcapplusplus/UdpLayer.h"
+#	include "pcapplusplus/DnsLayer.h"
+#	include "pcapplusplus/DpdkDeviceList.h"
+#	include "pcapplusplus/PcapFileDevice.h"
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;

@@ -1,10 +1,10 @@
 #define LOG_MODULE PacketLogModuleIPReassembly
 
-#include "IPReassembly.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "PacketUtils.h"
-#include "Logger.h"
+#include "pcapplusplus/IPReassembly.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/Logger.h"
 #include "EndianPortable.h"
 
 namespace pcpp

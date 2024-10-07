@@ -1,8 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Packet.h"
-#include "SSHLayer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SSHLayer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(SSHParsingTest)
 {

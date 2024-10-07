@@ -1,9 +1,9 @@
 #define LOG_MODULE PacketLogModuleStpLayer
 
-#include "StpLayer.h"
-#include "PayloadLayer.h"
+#include "pcapplusplus/StpLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
 #include "EndianPortable.h"
-#include "Logger.h"
+#include "pcapplusplus/Logger.h"
 
 namespace pcpp
 {

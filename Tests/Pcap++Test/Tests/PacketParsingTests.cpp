@@ -2,10 +2,10 @@
 #include "../Common/PcapFileNamesDef.h"
 #include <sstream>
 #include <fstream>
-#include "Packet.h"
-#include "HttpLayer.h"
-#include "DnsLayer.h"
-#include "PcapFileDevice.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/HttpLayer.h"
+#include "pcapplusplus/DnsLayer.h"
+#include "pcapplusplus/PcapFileDevice.h"
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {

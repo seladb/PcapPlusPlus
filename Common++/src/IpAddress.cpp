@@ -4,9 +4,9 @@
 #include <sstream>
 #include <stdexcept>
 #include <bitset>
-#include "Logger.h"
-#include "IpUtils.h"
-#include "IpAddress.h"
+#include "pcapplusplus/Logger.h"
+#include "pcapplusplus/IpUtils.h"
+#include "pcapplusplus/IpAddress.h"
 #include "EndianPortable.h"
 
 // for AF_INET, AF_INET6

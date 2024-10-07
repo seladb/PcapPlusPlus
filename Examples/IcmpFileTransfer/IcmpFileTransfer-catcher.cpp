@@ -8,14 +8,14 @@
 
 #include <iostream>
 #include <fstream>
-#include "EthLayer.h"
-#include "IPv4Layer.h"
-#include "IcmpLayer.h"
-#include "Packet.h"
-#include "PcapLiveDeviceList.h"
-#include "PcapFilter.h"
+#include "pcapplusplus/EthLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IcmpLayer.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
+#include "pcapplusplus/PcapFilter.h"
 #include "Common.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/SystemUtils.h"
 
 /**
  * A struct used for starting a file transfer, mainly sending or getting the file name

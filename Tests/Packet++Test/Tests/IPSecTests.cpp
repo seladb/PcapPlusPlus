@@ -1,8 +1,8 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
-#include "Packet.h"
-#include "IPSecLayer.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/IPSecLayer.h"
+#include "pcapplusplus/SystemUtils.h"
 
 PTF_TEST_CASE(IPSecParsingTest)
 {

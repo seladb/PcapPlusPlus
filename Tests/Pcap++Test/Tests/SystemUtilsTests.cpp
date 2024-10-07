@@ -1,5 +1,5 @@
 #include "../TestDefinition.h"
-#include "SystemUtils.h"
+#include "pcapplusplus/SystemUtils.h"
 #include <bitset>
 
 PTF_TEST_CASE(TestSystemCoreUtils)

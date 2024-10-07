@@ -1,6 +1,6 @@
-#include "PcapDevice.h"
-#include "PcapFilter.h"
-#include "Logger.h"
+#include "pcapplusplus/PcapDevice.h"
+#include "pcapplusplus/PcapFilter.h"
+#include "pcapplusplus/Logger.h"
 #include "pcap.h"
 
 namespace pcpp

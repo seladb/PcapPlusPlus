@@ -9,13 +9,14 @@
  */
 
 #include "PacketMatchingEngine.h"
-#include "SystemUtils.h"
-#include "PcapPlusPlusVersion.h"
-#include "PacketUtils.h"
-#include "TablePrinter.h"
-#include "XdpDevice.h"
-#include "PcapFileDevice.h"
-#include "PcapLiveDeviceList.h"
+
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/PcapPlusPlusVersion.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/TablePrinter.h"
+#include "pcapplusplus/XdpDevice.h"
+#include "pcapplusplus/PcapFileDevice.h"
+#include "pcapplusplus/PcapLiveDeviceList.h"
 #include <getopt.h>
 #include <unordered_map>
 #include <future>

@@ -1,8 +1,8 @@
 #define LOG_MODULE PacketLogModuleLLCLayer
 
-#include "LLCLayer.h"
-#include "PayloadLayer.h"
-#include "StpLayer.h"
+#include "pcapplusplus/LLCLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
+#include "pcapplusplus/StpLayer.h"
 
 namespace pcpp
 {

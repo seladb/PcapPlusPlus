@@ -1,7 +1,7 @@
-#include "IpAddressUtils.h"
+#include "pcapplusplus/IpAddressUtils.h"
 
-#include "IpAddress.h"
-#include "IpUtils.h"  // Just needing in_addr and in6_addr.
+#include "pcapplusplus/IpAddress.h"
+#include "pcapplusplus/IpUtils.h"  // Just needing in_addr and in6_addr.
 
 namespace pcpp
 {

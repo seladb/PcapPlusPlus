@@ -1,6 +1,6 @@
-#include "../header/CotpLayer.h"
-#include "S7CommLayer.h"
-#include <PayloadLayer.h>
+#include "pcapplusplus/CotpLayer.h"
+#include "pcapplusplus/S7CommLayer.h"
+#include "pcapplusplus/PayloadLayer.h"
 
 namespace pcpp
 {

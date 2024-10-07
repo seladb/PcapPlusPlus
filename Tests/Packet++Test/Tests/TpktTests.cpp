@@ -1,9 +1,9 @@
 #include "../TestDefinition.h"
 #include "../Utils/TestUtils.h"
 #include "EndianPortable.h"
-#include "Packet.h"
-#include "SystemUtils.h"
-#include "TpktLayer.h"
+#include "pcapplusplus/Packet.h"
+#include "pcapplusplus/SystemUtils.h"
+#include "pcapplusplus/TpktLayer.h"
 #include <iostream>
 
 PTF_TEST_CASE(TpktLayerTest)

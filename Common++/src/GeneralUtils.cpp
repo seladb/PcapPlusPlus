@@ -1,7 +1,7 @@
 #define LOG_MODULE CommonLogModuleGenericUtils
 
-#include "GeneralUtils.h"
-#include "Logger.h"
+#include "pcapplusplus/GeneralUtils.h"
+#include "pcapplusplus/Logger.h"
 #include <sstream>
 #include <iomanip>
 #include <cstring>

@@ -1,12 +1,12 @@
 #define LOG_MODULE PacketLogModuleIcmpV6Layer
 
-#include "IcmpV6Layer.h"
+#include "pcapplusplus/IcmpV6Layer.h"
 #include "EndianPortable.h"
-#include "IPv4Layer.h"
-#include "IPv6Layer.h"
-#include "NdpLayer.h"
-#include "PacketUtils.h"
-#include "PayloadLayer.h"
+#include "pcapplusplus/IPv4Layer.h"
+#include "pcapplusplus/IPv6Layer.h"
+#include "pcapplusplus/NdpLayer.h"
+#include "pcapplusplus/PacketUtils.h"
+#include "pcapplusplus/PayloadLayer.h"
 #include <sstream>
 
 // IcmpV6Layer
