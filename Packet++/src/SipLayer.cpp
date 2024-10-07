@@ -119,8 +119,9 @@ namespace pcpp
 		parseVersion();
 
 		char* endOfFirstLine;
-		if ((endOfFirstLine = static_cast<char*>(memchr(reinterpret_cast<char*>(m_SipRequest->m_Data + m_VersionOffset),'\n',
-		                                                m_SipRequest->m_DataLen - static_cast<size_t>(m_VersionOffset)))) != nullptr)
+		if ((endOfFirstLine =
+		         static_cast<char*>(memchr(reinterpret_cast<char*>(m_SipRequest->m_Data + m_VersionOffset), '\n',
+		                                   m_SipRequest->m_DataLen - static_cast<size_t>(m_VersionOffset)))) != nullptr)
 		{
 			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipRequest->m_Data) + 1;
 			m_IsComplete = true;
@@ -226,7 +227,8 @@ namespace pcpp
 		}
 
 		// verify packet doesn't end before the version, meaning still left place for " SIP/x.y" (7 chars)
-		if (static_cast<uint16_t>(verPos + 7 - reinterpret_cast<char*>(m_SipRequest->m_Data)) > m_SipRequest->getDataLen())
+		if (static_cast<uint16_t>(verPos + 7 - reinterpret_cast<char*>(m_SipRequest->m_Data)) >
+		    m_SipRequest->getDataLen())
 		{
 			m_Version = "";
 			m_VersionOffset = -1;
@@ -295,7 +297,8 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_UriOffset != -1 && m_VersionOffset != -1)
-			result.assign(reinterpret_cast<char*>(m_SipRequest->m_Data + m_UriOffset), m_VersionOffset - 1 - m_UriOffset);
+			result.assign(reinterpret_cast<char*>(m_SipRequest->m_Data + m_UriOffset),
+			              m_VersionOffset - 1 - m_UriOffset);
 
 		// else first line is illegal, return empty string
 
@@ -782,7 +785,8 @@ namespace pcpp
 		}
 
 		char* endOfFirstLine;
-		if ((endOfFirstLine = static_cast<char*>(memchr(reinterpret_cast<char*>(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen))) != nullptr)
+		if ((endOfFirstLine = static_cast<char*>(
+		         memchr(reinterpret_cast<char*>(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen))) != nullptr)
 		{
 			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipResponse->m_Data) + 1;
 			m_IsComplete = true;

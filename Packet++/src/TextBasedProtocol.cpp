@@ -431,11 +431,11 @@ namespace pcpp
 	      m_SpacesAllowedBetweenNameAndValue(spacesAllowedBetweenNameAndValue)
 	{
 		char* fieldData = reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
-		char* fieldEndPtr =
-		    static_cast<char*>(memchr(fieldData, '\n', m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
+		char* fieldEndPtr = static_cast<char*>(memchr(
+		    fieldData, '\n', m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
 		if (fieldEndPtr == nullptr)
-			m_FieldSize =
-			    tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage));
+			m_FieldSize = tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen -
+			                                                static_cast<size_t>(m_NameOffsetInMessage));
 		else
 			m_FieldSize = fieldEndPtr - fieldData + 1;
 
@@ -451,8 +451,9 @@ namespace pcpp
 		else
 			m_IsEndOfHeaderField = false;
 
-		char* fieldValuePtr = static_cast<char*>
-			(memchr(fieldData, nameValueSeparator, m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
+		char* fieldValuePtr = static_cast<char*>(
+		    memchr(fieldData, nameValueSeparator,
+		           m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
 		// could not find the position of the separator, meaning field value position is unknown
 		if (fieldValuePtr == nullptr || (fieldEndPtr != nullptr && fieldValuePtr >= fieldEndPtr))
 		{
@@ -480,9 +481,10 @@ namespace pcpp
 			{
 				// advance fieldValuePtr 1 byte forward while didn't get to end of packet and fieldValuePtr points to a
 				// space char
-				while (static_cast<size_t>
-				       (fieldValuePtr - reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data)) < m_TextBasedProtocolMessage->getDataLen() &&
-				       (*fieldValuePtr) == ' ')
+				while (
+				    static_cast<size_t>(fieldValuePtr - reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data)) <
+				        m_TextBasedProtocolMessage->getDataLen() &&
+				    (*fieldValuePtr) == ' ')
 				{
 					fieldValuePtr++;
 				}

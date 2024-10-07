@@ -72,7 +72,8 @@ namespace pcpp
 		char* ptr = const_cast<char*>(haystack);
 		while (needleLen <= (haystackLen - (ptr - haystack)))
 		{
-			if (nullptr != (ptr = static_cast<char*>(memchr(ptr, static_cast<int>(*needle), haystackLen - (ptr - haystack)))))
+			if (nullptr !=
+			    (ptr = static_cast<char*>(memchr(ptr, static_cast<int>(*needle), haystackLen - (ptr - haystack)))))
 			{
 				// check if there is room to do a memcmp
 				if (needleLen > (haystackLen - (ptr - haystack)))
