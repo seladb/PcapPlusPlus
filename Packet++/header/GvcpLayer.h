@@ -7,11 +7,6 @@
 #include <iostream>
 
 /**
- * @file GvcpLayer.h
- * @author An-Chi Liu (phy.tiger@gmail.com)
- */
-
-/**
  * @namespace pcpp
  * @brief The main namespace for the PcapPlusPlus lib
  */

@@ -4,14 +4,8 @@
 #include <cstring>
 #include <sstream>
 
-/**
- * @file GvcpLayer.cpp
- * @author An-Chi Liu (phy.tiger@gmail.com)
- */
-
 namespace pcpp
 {
-
 	std::ostream& operator<<(std::ostream& os, GvcpCommand command)
 	{
 		os << "0x" << std::hex << static_cast<uint16_t>(command) << std::dec;
