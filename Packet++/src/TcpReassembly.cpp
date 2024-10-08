@@ -27,12 +27,14 @@ namespace pcpp
 	{
 		auto duration = in.time_since_epoch();
 
-		auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
-		auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration) % 1000000000;
+		auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+		auto microseconds =
+		    std::chrono::duration_cast<std::chrono::microseconds>(duration).count() -
+		    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(seconds)).count();
 
 		struct timeval out;
-		out.tv_sec = seconds.count();
-		out.tv_usec = nanoseconds.count() / 1000;
+		out.tv_sec = seconds;
+		out.tv_usec = microseconds;
 		return out;
 	}
 
