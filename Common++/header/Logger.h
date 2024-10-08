@@ -87,6 +87,7 @@ namespace pcpp
 		PacketLogModuleSdpLayer,         ///< SdpLayer module (Packet++)
 		PacketLogModuleRadiusLayer,      ///< RadiusLayer module (Packet++)
 		PacketLogModuleGtpLayer,         ///< GtpLayer module (Packet++)
+		PacketLogModuleGvcpLayer,        ///< GvcpLayer module (Packet++)
 		PacketLogModuleBgpLayer,         ///< GtpLayer module (Packet++)
 		PacketLogModuleSSHLayer,         ///< SSHLayer module (Packet++)
 		PacketLogModuleVrrpLayer,        ///< Vrrp Record module (Packet++)
