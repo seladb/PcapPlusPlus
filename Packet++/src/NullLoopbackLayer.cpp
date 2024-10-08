@@ -25,7 +25,7 @@ namespace pcpp
 
 	uint32_t NullLoopbackLayer::getFamily() const
 	{
-		uint32_t family = *(uint32_t*)m_Data;
+		uint32_t family = *(reinterpret_cast<uint32_t*>(m_Data));
 		if ((family & 0xFFFF0000) != 0)
 		{
 			if ((family & 0xFF000000) == 0 && (family & 0x00FF0000) < 0x00060000)
@@ -58,7 +58,7 @@ namespace pcpp
 		uint32_t family = getFamily();
 		if (family > IEEE_802_3_MAX_LEN)
 		{
-			uint16_t ethType = (uint16_t)family;
+			uint16_t ethType = static_cast<uint16_t>(family);
 			switch (ethType)
 			{
 			case PCPP_ETHERTYPE_IP:

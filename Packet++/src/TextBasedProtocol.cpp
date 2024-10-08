@@ -430,12 +430,12 @@ namespace pcpp
 	      m_NameOffsetInMessage(offsetInMessage), m_NextField(nullptr), m_NameValueSeparator(nameValueSeparator),
 	      m_SpacesAllowedBetweenNameAndValue(spacesAllowedBetweenNameAndValue)
 	{
-		char* fieldData = (char*)(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
-		char* fieldEndPtr =
-		    (char*)memchr(fieldData, '\n', m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
+		char* fieldData = reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data + m_NameOffsetInMessage);
+		char* fieldEndPtr = static_cast<char*>(memchr(
+		    fieldData, '\n', m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
 		if (fieldEndPtr == nullptr)
-			m_FieldSize =
-			    tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
+			m_FieldSize = tbp_my_own_strnlen(fieldData, m_TextBasedProtocolMessage->m_DataLen -
+			                                                static_cast<size_t>(m_NameOffsetInMessage));
 		else
 			m_FieldSize = fieldEndPtr - fieldData + 1;
 
@@ -451,8 +451,9 @@ namespace pcpp
 		else
 			m_IsEndOfHeaderField = false;
 
-		char* fieldValuePtr = (char*)memchr(fieldData, nameValueSeparator,
-		                                    m_TextBasedProtocolMessage->m_DataLen - (size_t)m_NameOffsetInMessage);
+		char* fieldValuePtr = static_cast<char*>(
+		    memchr(fieldData, nameValueSeparator,
+		           m_TextBasedProtocolMessage->m_DataLen - static_cast<size_t>(m_NameOffsetInMessage)));
 		// could not find the position of the separator, meaning field value position is unknown
 		if (fieldValuePtr == nullptr || (fieldEndPtr != nullptr && fieldValuePtr >= fieldEndPtr))
 		{
@@ -468,7 +469,7 @@ namespace pcpp
 			fieldValuePtr++;
 
 			// reached the end of the packet and value start offset wasn't found
-			if ((size_t)(fieldValuePtr - (char*)(m_TextBasedProtocolMessage->m_Data)) >=
+			if (static_cast<size_t>(fieldValuePtr - reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data)) >=
 			    m_TextBasedProtocolMessage->getDataLen())
 			{
 				m_ValueOffsetInMessage = -1;
@@ -480,16 +481,17 @@ namespace pcpp
 			{
 				// advance fieldValuePtr 1 byte forward while didn't get to end of packet and fieldValuePtr points to a
 				// space char
-				while ((size_t)(fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data) <
-				           m_TextBasedProtocolMessage->getDataLen() &&
-				       (*fieldValuePtr) == ' ')
+				while (
+				    static_cast<size_t>(fieldValuePtr - reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data)) <
+				        m_TextBasedProtocolMessage->getDataLen() &&
+				    (*fieldValuePtr) == ' ')
 				{
 					fieldValuePtr++;
 				}
 			}
 
 			// reached the end of the packet and value start offset wasn't found
-			if ((size_t)(fieldValuePtr - (char*)(m_TextBasedProtocolMessage->m_Data)) >=
+			if (static_cast<size_t>(fieldValuePtr - reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data)) >=
 			    m_TextBasedProtocolMessage->getDataLen())
 			{
 				m_ValueOffsetInMessage = -1;
@@ -497,13 +499,13 @@ namespace pcpp
 			}
 			else
 			{
-				m_ValueOffsetInMessage = fieldValuePtr - (char*)m_TextBasedProtocolMessage->m_Data;
+				m_ValueOffsetInMessage = fieldValuePtr - reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data);
 				// couldn't find the end of the field, so assuming the field value length is from m_ValueOffsetInMessage
 				// until the end of the packet
 				if (fieldEndPtr == nullptr)
 				{
 					// clang-format off
-					m_FieldValueSize = (char*)(m_TextBasedProtocolMessage->m_Data + m_TextBasedProtocolMessage->getDataLen()) - fieldValuePtr;
+					m_FieldValueSize = reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data + m_TextBasedProtocolMessage->getDataLen()) - fieldValuePtr;
 					// clang-format on
 				}
 				else
@@ -596,9 +598,9 @@ namespace pcpp
 	char* HeaderField::getData() const
 	{
 		if (m_TextBasedProtocolMessage == nullptr)
-			return (char*)m_NewFieldData;
+			return reinterpret_cast<char*>(m_NewFieldData);
 		else
-			return (char*)(m_TextBasedProtocolMessage->m_Data);
+			return reinterpret_cast<char*>(m_TextBasedProtocolMessage->m_Data);
 	}
 
 	void HeaderField::setNextField(HeaderField* nextField)
@@ -615,8 +617,8 @@ namespace pcpp
 	{
 		std::string result;
 
-		if (m_FieldNameSize != (size_t)-1)
-			result.assign((const char*)(((HeaderField*)this)->getData() + m_NameOffsetInMessage), m_FieldNameSize);
+		if (m_FieldNameSize != static_cast<size_t>(-1))
+			result.assign((getData() + m_NameOffsetInMessage), m_FieldNameSize);
 
 		return result;
 	}
@@ -625,7 +627,7 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_ValueOffsetInMessage != -1)
-			result.assign((const char*)(((HeaderField*)this)->getData() + m_ValueOffsetInMessage), m_FieldValueSize);
+			result.assign((getData() + m_ValueOffsetInMessage), m_FieldValueSize);
 		return result;
 	}
 
