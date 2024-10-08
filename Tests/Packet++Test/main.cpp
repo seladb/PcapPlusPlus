@@ -339,5 +339,7 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(WireGuardCreationTest, "wg");
 	PTF_RUN_TEST(WireGuardEditTest, "wg");
 
+	PTF_RUN_TEST(InfiniBandPacketParsing, "ib");
+
 	PTF_END_RUNNING_TESTS;
 }
