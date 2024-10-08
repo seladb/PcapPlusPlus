@@ -24,18 +24,12 @@
 #include "AppWorkerThread.h"
 
 #include "DpdkDeviceList.h"
-#include "IPv4Layer.h"
-#include "TcpLayer.h"
-#include "UdpLayer.h"
 #include "SystemUtils.h"
 #include "PcapPlusPlusVersion.h"
 #include "TablePrinter.h"
 
 #include <vector>
 #include <iostream>
-#include <iomanip>
-#include <stdlib.h>
-#include <signal.h>
 #include <getopt.h>
 #include <string>
 #include <sstream>

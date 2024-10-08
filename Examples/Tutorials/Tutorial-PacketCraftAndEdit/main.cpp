@@ -1,6 +1,5 @@
 #include <iostream>
 #include <memory>
-#include "stdlib.h"
 #include "SystemUtils.h"
 #include "Packet.h"
 #include "EthLayer.h"

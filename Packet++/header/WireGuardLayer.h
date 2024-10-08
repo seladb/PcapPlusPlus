@@ -118,6 +118,11 @@ namespace pcpp
 		uint32_t getReserved() const;
 
 		/**
+		 * @param reserved The reserved field to set as a An array containing the 3-byte.
+		 */
+		void setReserved(const std::array<uint8_t, 3>& reserved);
+
+		/**
 		 * Does nothing for this layer (WireGuard layer is always last)
 		 */
 		void parseNextLayer() override
@@ -247,6 +252,36 @@ namespace pcpp
 		 */
 		std::array<uint8_t, 16> getMac2() const;
 
+		/**
+		 * @param senderIndex A 32-bit integer representing the sender index.
+		 */
+		void setSenderIndex(uint32_t senderIndex);
+
+		/**
+		 * @param initiatorEphemeral An array containing the 32-byte initiator ephemeral public key.
+		 */
+		void setInitiatorEphemeral(const std::array<uint8_t, 32>& initiatorEphemeral);
+
+		/**
+		 * @param encryptedInitiatorStatic An array containing the 48-byte encrypted initiator's static key.
+		 */
+		void setEncryptedInitiatorStatic(const std::array<uint8_t, 48>& encryptedInitiatorStatic);
+
+		/**
+		 * @param encryptedTimestamp An array containing the 28-byte encrypted timestamp.
+		 */
+		void setEncryptedTimestamp(const std::array<uint8_t, 28>& encryptedTimestamp);
+
+		/**
+		 * @param mac1 An array containing the 16-byte MAC1 field.
+		 */
+		void setMac1(const std::array<uint8_t, 16>& mac1);
+
+		/**
+		 * @param mac2 An array containing the 16-byte MAC2 field.
+		 */
+		void setMac2(const std::array<uint8_t, 16>& mac2);
+
 		// implement abstract methods
 
 		/**
@@ -347,6 +382,36 @@ namespace pcpp
 		 */
 		std::array<uint8_t, 16> getMac2() const;
 
+		/**
+		 * @param senderIndex A 32-bit unsigned integer representing the sender index.
+		 */
+		void setSenderIndex(uint32_t senderIndex);
+
+		/**
+		 * @param receiverIndex A 32-bit unsigned integer representing the receiver index.
+		 */
+		void setReceiverIndex(uint32_t receiverIndex);
+
+		/**
+		 * @param responderEphemeral An array containing the 32-byte responder ephemeral public key.
+		 */
+		void setResponderEphemeral(const std::array<uint8_t, 32>& responderEphemeral);
+
+		/**
+		 * @param encryptedEmpty An array containing the 16-byte encrypted empty field.
+		 */
+		void setEncryptedEmpty(const std::array<uint8_t, 16>& encryptedEmpty);
+
+		/**
+		 * @param mac1 An array containing the 16-byte MAC1 field.
+		 */
+		void setMac1(const std::array<uint8_t, 16>& mac1);
+
+		/**
+		 * @param mac2 An array containing the 16-byte MAC2 field.
+		 */
+		void setMac2(const std::array<uint8_t, 16>& mac2);
+
 		// implement abstract methods
 
 		/**
@@ -420,6 +485,21 @@ namespace pcpp
 		 * @return The encrypted cookie as an array of 32 bytes.
 		 */
 		std::array<uint8_t, 32> getEncryptedCookie() const;
+
+		/**
+		 * @param receiverIndex A 32-bit unsigned integer representing the receiver index.
+		 */
+		void setReceiverIndex(uint32_t receiverIndex);
+
+		/**
+		 * @param nonce An array containing the 24-byte nonce field.
+		 */
+		void setNonce(const std::array<uint8_t, 24>& nonce);
+
+		/**
+		 * @param encryptedCookie An array containing the 32-byte encrypted cookie.
+		 */
+		void setEncryptedCookie(const std::array<uint8_t, 32>& encryptedCookie);
 
 		// implement abstract methods
 
@@ -496,6 +576,22 @@ namespace pcpp
 		 * @return A pointer to the encrypted data field.
 		 */
 		const uint8_t* getEncryptedData() const;
+
+		/**
+		 * @param receiverIndex A 32-bit unsigned integer representing the receiver index.
+		 */
+		void setReceiverIndex(uint32_t receiverIndex);
+
+		/**
+		 * @param counter A 64-bit unsigned integer representing the counter field.
+		 */
+		void setCounter(uint64_t counter);
+
+		/**
+		 * @param encryptedData A pointer to the encrypted data.
+		 * @param encryptedDataLen The length of the encrypted data.
+		 */
+		void setEncryptedData(const uint8_t* encryptedData, size_t encryptedDataLen);
 
 		// implement abstract methods
 
