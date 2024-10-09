@@ -41,7 +41,6 @@ repos:
     rev: 0.15.1
     hooks:
     - id: gersemi
-      args: ['--line-length', '80']
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
