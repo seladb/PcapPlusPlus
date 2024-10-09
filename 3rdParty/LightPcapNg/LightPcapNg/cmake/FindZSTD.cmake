@@ -37,21 +37,15 @@ This module defines the following variables:
 set(ZSTD_NAMES zstd zstd_static)
 set(ZSTD_NAMES_DEBUG zstdd zstd_staticd)
 
-find_path(ZSTD_INCLUDE_DIR
-          NAMES zstd.h
-          PATH_SUFFIXES include)
+find_path(ZSTD_INCLUDE_DIR NAMES zstd.h PATH_SUFFIXES include)
 
 # Allow ZSTD_LIBRARY to be set manually, as the location of the zstd library
 if(NOT ZSTD_LIBRARY)
-  find_library(ZSTD_LIBRARY_RELEASE
-               NAMES ${ZSTD_NAMES}
-               PATH_SUFFIXES lib)
-  find_library(ZSTD_LIBRARY_DEBUG
-               NAMES ${ZSTD_NAMES_DEBUG}
-               PATH_SUFFIXES lib)
+    find_library(ZSTD_LIBRARY_RELEASE NAMES ${ZSTD_NAMES} PATH_SUFFIXES lib)
+    find_library(ZSTD_LIBRARY_DEBUG NAMES ${ZSTD_NAMES_DEBUG} PATH_SUFFIXES lib)
 
-  include(SelectLibraryConfigurations)
-  select_library_configurations(ZSTD)
+    include(SelectLibraryConfigurations)
+    select_library_configurations(ZSTD)
 endif()
 
 unset(ZSTD_NAMES)
@@ -69,9 +63,7 @@ if(ZSTD_INCLUDE_DIR AND EXISTS "${ZSTD_INCLUDE_DIR}/zstd.h")
 endif()
 
 include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(ZSTD
-        REQUIRED_VARS ZSTD_LIBRARY ZSTD_INCLUDE_DIR
-        VERSION_VAR ZSTD_VERSION_STRING)
+find_package_handle_standard_args(ZSTD REQUIRED_VARS ZSTD_LIBRARY ZSTD_INCLUDE_DIR VERSION_VAR ZSTD_VERSION_STRING)
 
 if(ZSTD_FOUND)
     set(ZSTD_INCLUDE_DIRS ${ZSTD_INCLUDE_DIR})
@@ -82,26 +74,20 @@ if(ZSTD_FOUND)
 
     if(NOT TARGET ZSTD::ZSTD)
         add_library(ZSTD::ZSTD UNKNOWN IMPORTED)
-        set_target_properties(ZSTD::ZSTD PROPERTIES
-                INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_INCLUDE_DIRS}")
+        set_target_properties(ZSTD::ZSTD PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_INCLUDE_DIRS}")
 
         if(ZSTD_LIBRARY_RELEASE)
-            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY
-                    IMPORTED_CONFIGURATIONS RELEASE)
-            set_target_properties(ZSTD::ZSTD PROPERTIES
-                    IMPORTED_LOCATION_RELEASE "${ZSTD_LIBRARY_RELEASE}")
+            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+            set_target_properties(ZSTD::ZSTD PROPERTIES IMPORTED_LOCATION_RELEASE "${ZSTD_LIBRARY_RELEASE}")
         endif()
 
         if(ZSTD_LIBRARY_DEBUG)
-            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY
-                    IMPORTED_CONFIGURATIONS DEBUG)
-            set_target_properties(ZSTD::ZSTD PROPERTIES
-                    IMPORTED_LOCATION_DEBUG "${ZSTD_LIBRARY_DEBUG}")
+            set_property(TARGET ZSTD::ZSTD APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
+            set_target_properties(ZSTD::ZSTD PROPERTIES IMPORTED_LOCATION_DEBUG "${ZSTD_LIBRARY_DEBUG}")
         endif()
 
         if(NOT ZSTD_LIBRARY_RELEASE AND NOT ZSTD_LIBRARY_DEBUG)
-            set_target_properties(ZSTD::ZSTD PROPERTIES
-                    IMPORTED_LOCATION_RELEASE "${ZSTD_LIBRARY}")
+            set_target_properties(ZSTD::ZSTD PROPERTIES IMPORTED_LOCATION_RELEASE "${ZSTD_LIBRARY}")
         endif()
     endif()
 endif()

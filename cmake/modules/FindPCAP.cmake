@@ -30,28 +30,25 @@
 # -DPCAP_ROOT=C:\path\to\packet [...])
 # ~~~
 
-find_path(
-  PCAP_INCLUDE_DIR
-  NAMES pcap/pcap.h pcap.h
-  PATH_SUFFIXES include Include)
+find_path(PCAP_INCLUDE_DIR NAMES pcap/pcap.h pcap.h PATH_SUFFIXES include Include)
 
 # The 64-bit Wpcap.lib is located under /x64
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-  #
-  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries. The
-  # 64-bit libraries are in the Lib/x64 directory.
-  #
-  # The only way to *FORCE* CMake to look in the Lib/x64 directory without searching in the Lib directory first appears
-  # to be to set CMAKE_LIBRARY_ARCHITECTURE to "x64".
-  #
-  set(CMAKE_LIBRARY_ARCHITECTURE "x64")
+    #
+    # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries. The
+    # 64-bit libraries are in the Lib/x64 directory.
+    #
+    # The only way to *FORCE* CMake to look in the Lib/x64 directory without searching in the Lib directory first appears
+    # to be to set CMAKE_LIBRARY_ARCHITECTURE to "x64".
+    #
+    set(CMAKE_LIBRARY_ARCHITECTURE "x64")
 endif()
 
 find_library(PCAP_LIBRARY NAMES pcap wpcap)
 
 # If Pcap is not found as this level no need to continue
 if(NOT PCAP_LIBRARY OR NOT PCAP_INCLUDE_DIR)
-  return()
+    return()
 endif()
 
 include(CheckCXXSourceCompiles)
@@ -61,21 +58,19 @@ set(CMAKE_REQUIRED_LIBRARIES)
 
 # check if linking against libpcap also needs to link against a thread library
 if(NOT PCAP_LINKS_SOLO)
-  find_package(Threads)
-  if(THREADS_FOUND)
-    set(CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-    check_cxx_source_compiles("int main() { return 0; }" PCAP_NEEDS_THREADS)
-    set(CMAKE_REQUIRED_LIBRARIES)
-  endif(THREADS_FOUND)
-  if(THREADS_FOUND AND PCAP_NEEDS_THREADS)
-    set(_tmp ${PCAP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-    list(REMOVE_DUPLICATES _tmp)
-    set(PCAP_LIBRARY
-        ${_tmp}
-        CACHE STRING "Libraries needed to link against libpcap" FORCE)
-  else(THREADS_FOUND AND PCAP_NEEDS_THREADS)
-    message(FATAL_ERROR "Couldn't determine how to link against libpcap")
-  endif(THREADS_FOUND AND PCAP_NEEDS_THREADS)
+    find_package(Threads)
+    if(THREADS_FOUND)
+        set(CMAKE_REQUIRED_LIBRARIES ${PCAP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+        check_cxx_source_compiles("int main() { return 0; }" PCAP_NEEDS_THREADS)
+        set(CMAKE_REQUIRED_LIBRARIES)
+    endif(THREADS_FOUND)
+    if(THREADS_FOUND AND PCAP_NEEDS_THREADS)
+        set(_tmp ${PCAP_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+        list(REMOVE_DUPLICATES _tmp)
+        set(PCAP_LIBRARY ${_tmp} CACHE STRING "Libraries needed to link against libpcap" FORCE)
+    else(THREADS_FOUND AND PCAP_NEEDS_THREADS)
+        message(FATAL_ERROR "Couldn't determine how to link against libpcap")
+    endif(THREADS_FOUND AND PCAP_NEEDS_THREADS)
 endif(NOT PCAP_LINKS_SOLO)
 
 include(CheckFunctionExists)
@@ -87,9 +82,9 @@ set(CMAKE_REQUIRED_LIBRARIES)
 
 # Check libPCAP version
 if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
-  # Simple C code to extract the libpcap version
-  set(PCAP_VERSION_CODE
-      "
+    # Simple C code to extract the libpcap version
+    set(PCAP_VERSION_CODE
+        "
   #include <stdio.h>
   #include <string.h>
   #include <pcap/pcap.h>
@@ -103,41 +98,43 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
     printf(\"%s\", version);
     return 0;
   }
-  ")
+  "
+    )
 
-  # Write the code to a temporary file
-  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.c")
-  file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
+    # Write the code to a temporary file
+    set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.c")
+    file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
 
-  # Try to compile and run the program
-  try_run(
-    RUN_RESULT_VAR
-    COMPILE_RESULT_VAR
-    "${CMAKE_BINARY_DIR}"
-    "${detect_pcap_version_file}"
-    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PCAP_INCLUDE_DIR}" LINK_LIBRARIES ${PCAP_LIBRARY}
-    RUN_OUTPUT_VARIABLE PCAP_VERSION_OUTPUT)
+    # Try to compile and run the program
+    try_run(
+        RUN_RESULT_VAR
+        COMPILE_RESULT_VAR
+        "${CMAKE_BINARY_DIR}"
+        "${detect_pcap_version_file}"
+        CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PCAP_INCLUDE_DIR}"
+        LINK_LIBRARIES ${PCAP_LIBRARY}
+        RUN_OUTPUT_VARIABLE PCAP_VERSION_OUTPUT
+    )
 
-  # If successful, parse the output to get the version string
-  if(COMPILE_RESULT_VAR AND RUN_RESULT_VAR EQUAL 0)
-    set(PCAP_VERSION ${PCAP_VERSION_OUTPUT})
-  endif()
+    # If successful, parse the output to get the version string
+    if(COMPILE_RESULT_VAR AND RUN_RESULT_VAR EQUAL 0)
+        set(PCAP_VERSION ${PCAP_VERSION_OUTPUT})
+    endif()
 endif()
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  PCAP
-  REQUIRED_VARS PCAP_LIBRARY PCAP_INCLUDE_DIR
-  VERSION_VAR PCAP_VERSION)
+find_package_handle_standard_args(PCAP REQUIRED_VARS PCAP_LIBRARY PCAP_INCLUDE_DIR VERSION_VAR PCAP_VERSION)
 
 # create IMPORTED target for libpcap dependency
 if(NOT TARGET PCAP::PCAP)
-  add_library(PCAP::PCAP IMPORTED SHARED)
-  set_target_properties(
-    PCAP::PCAP
-    PROPERTIES IMPORTED_LOCATION ${PCAP_LIBRARY}
-               IMPORTED_IMPLIB ${PCAP_LIBRARY}
-               INTERFACE_INCLUDE_DIRECTORIES ${PCAP_INCLUDE_DIR})
+    add_library(PCAP::PCAP IMPORTED SHARED)
+    set_target_properties(
+        PCAP::PCAP
+        PROPERTIES
+            IMPORTED_LOCATION ${PCAP_LIBRARY}
+            IMPORTED_IMPLIB ${PCAP_LIBRARY}
+            INTERFACE_INCLUDE_DIRECTORIES ${PCAP_INCLUDE_DIR}
+    )
 endif()
 
 mark_as_advanced(PCAP_INCLUDE_DIR PCAP_LIBRARY)
