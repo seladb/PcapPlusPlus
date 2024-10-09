@@ -82,9 +82,9 @@ set(CMAKE_REQUIRED_LIBRARIES)
 
 # Check libPCAP version
 if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
-  # Simple C code to extract the libpcap version
-  set(PCAP_VERSION_CODE
-      "
+    # Simple C code to extract the libpcap version
+    set(PCAP_VERSION_CODE
+        "
   #include <cstdio>
   #include <cstring>
   #include <pcap/pcap.h>
@@ -101,9 +101,9 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
   "
     )
 
-  # Write the code to a temporary file
-  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.cpp")
-  file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
+    # Write the code to a temporary file
+    set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.cpp")
+    file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
 
     # Try to compile and run the program
     try_run(
