@@ -3,7 +3,6 @@
 #include "IgmpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
-#include <string.h>
 #include "EndianPortable.h"
 
 namespace pcpp

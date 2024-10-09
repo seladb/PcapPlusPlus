@@ -1,6 +1,5 @@
 #define LOG_MODULE PacketLogModuleSSLLayer
 
-#include "Logger.h"
 #include "SSLLayer.h"
 #include "EndianPortable.h"
 #include <sstream>

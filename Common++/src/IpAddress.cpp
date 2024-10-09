@@ -1,11 +1,8 @@
 #define LOG_MODULE CommonLogModuleIpUtils
 
 #include <algorithm>
-#include <cmath>
-#include <errno.h>
 #include <sstream>
 #include <stdexcept>
-#include <stdint.h>
 #include <bitset>
 #include "Logger.h"
 #include "IpUtils.h"

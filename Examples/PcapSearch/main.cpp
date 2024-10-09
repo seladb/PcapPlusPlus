@@ -29,7 +29,6 @@
  * For more details about modes of operation and parameters please run PcapSearch -h
  */
 
-#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>

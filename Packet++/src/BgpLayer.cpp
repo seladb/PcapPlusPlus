@@ -1,6 +1,5 @@
 #define LOG_MODULE PacketLogModuleBgpLayer
 
-#include <string.h>
 #include "Logger.h"
 #include "BgpLayer.h"
 #include "EndianPortable.h"

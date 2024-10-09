@@ -17,8 +17,6 @@
  * For more details about modes of operation and parameters run SSLAnalyzer -h
  */
 
-#include <stdlib.h>
-#include <string.h>
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
