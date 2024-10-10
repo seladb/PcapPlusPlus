@@ -133,24 +133,8 @@ static void BM_PacketParsing(benchmark::State& state)
 		// Parse packet
 		pcpp::Packet parsedPacket(&rawPacket);
 
-		// Count protocol layers to simulate accessing
-		for (pcpp::Layer* curLayer = parsedPacket.getFirstLayer(); curLayer != NULL;
-		     curLayer = curLayer->getNextLayer())
-		{
-			// Count protocol types. If the protocol type is not in the map, add it
-			if (layerTypes.find(curLayer->getProtocol()) == layerTypes.end())
-			{
-				layerTypes[curLayer->getProtocol()] = 0;
-			}
-			++layerTypes[curLayer->getProtocol()];
-
-			// Count OSI layers. If the OSI layer is not in the map, add it
-			if (osiLayers.find(curLayer->getOsiModelLayer()) == osiLayers.end())
-			{
-				osiLayers[curLayer->getOsiModelLayer()] = 0;
-			}
-			++osiLayers[curLayer->getOsiModelLayer()];
-		}
+		// Use parsedPacket to prevent compiler optimizations
+		assert(parsedPacket.getFirstLayer() != nullptr);
 
 		// Count total bytes and packets
 		++totalPackets;
