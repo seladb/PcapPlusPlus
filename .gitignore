@@ -23,6 +23,7 @@
 *.pcapng.zst
 *.pcapng.zstd
 *.cap
+*.snoop
 
 #Bin and Obj directories
 **/Bin
