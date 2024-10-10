@@ -149,10 +149,10 @@ jobs:
             xcode-version: 14.3.1
             arch: arm64
           - os-version: macos-15
-            xcode-version: 16.1
+            xcode-version: 16.0.0
             arch: x86_64
           - os-version: macos-15
-            xcode-version: 16.1
+            xcode-version: 16.0.0
             arch: arm64
 
     steps:
