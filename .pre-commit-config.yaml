@@ -37,6 +37,10 @@ repos:
         files: ^(Common\+\+|Packet\+\+|Pcap\+\+|Tests|Examples)/.*\.(cpp|h)$
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
+  - repo: https://github.com/BlankSpruce/gersemi
+    rev: 0.15.1
+    hooks:
+    - id: gersemi
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:

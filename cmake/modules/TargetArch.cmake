@@ -2,8 +2,9 @@
 # https://qt.gitorious.org/qt/qtbase/blobs/master/src/corelib/global/qprocessordetection.h Currently handles arm (v5,
 # v6, v7), x86 (32/64), ia64, and ppc (32/64)
 
-set(archdetect_c_code
-    "
+set(
+  archdetect_c_code
+  "
 #if defined(__arm__) || defined(__TARGET_ARCH_ARM)
     #if defined(__ARM_ARCH_7__) \\
         || defined(__ARM_ARCH_7A__) \\
@@ -43,7 +44,8 @@ set(archdetect_c_code
 #endif
 
 #error cmake_ARCH unknown
-")
+"
+)
 
 # Set ppc_support to TRUE before including this file or ppc and ppc64 will be treated as invalid architectures since
 # they are no longer supported by Apple
@@ -65,21 +67,14 @@ function(target_architecture output_var)
     "${CMAKE_BINARY_DIR}"
     "${CMAKE_BINARY_DIR}/arch.c"
     COMPILE_OUTPUT_VARIABLE ARCH
-    CMAKE_FLAGS CMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES})
+    CMAKE_FLAGS CMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+  )
 
   # Parse the architecture name from the compiler output
-  string(
-    REGEX MATCH
-          "cmake_ARCH ([a-zA-Z0-9_]+)"
-          ARCH
-          "${ARCH}")
+  string(REGEX MATCH "cmake_ARCH ([a-zA-Z0-9_]+)" ARCH "${ARCH}")
 
   # Get rid of the value marker leaving just the architecture name
-  string(
-    REPLACE "cmake_ARCH "
-            ""
-            ARCH
-            "${ARCH}")
+  string(REPLACE "cmake_ARCH " "" ARCH "${ARCH}")
 
   # If we are compiling with an unknown architecture this variable should already be set to "unknown" but in the case
   # that it's empty (i.e. due to a typo in the code), then set it to unknown
@@ -87,7 +82,5 @@ function(target_architecture output_var)
     set(ARCH unknown)
   endif()
 
-  set(${output_var}
-      "${ARCH}"
-      PARENT_SCOPE)
+  set(${output_var} "${ARCH}" PARENT_SCOPE)
 endfunction()
