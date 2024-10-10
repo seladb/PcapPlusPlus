@@ -102,7 +102,7 @@ option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
-option(PCAPPP_BUILD_BENCHMARK_SUITE "Build benchmarks using Google benchmark" OFF)
+option(PCAPPP_USE_GOOGLEBENCHMARK "Build benchmarks using Google benchmark" ON)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
@@ -304,10 +304,6 @@ add_subdirectory(3rdParty)
 add_subdirectory(Packet++)
 add_subdirectory(Pcap++)
 add_subdirectory(Common++)
-
-if(PCAPPP_BUILD_BENCHMARK_SUITE)
-  add_subdirectory(Benchmarks)
-endif()
 
 if(PCAPPP_BUILD_EXAMPLES)
   set(PCAPPP_BINARY_EXAMPLES_DIR ${CMAKE_BINARY_DIR}/examples_bin)

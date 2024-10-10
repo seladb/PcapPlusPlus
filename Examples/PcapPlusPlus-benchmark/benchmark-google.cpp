@@ -11,10 +11,8 @@
 #include <benchmark/benchmark.h>
 
 #include <iostream>
-#include <string>
-#include <unordered_map>
 
-static std::string pcapFileName = "PcapExamples/example.pcap";
+static std::string pcapFileName = "";
 
 static void BM_PcapFileRead(benchmark::State& state)
 {
@@ -60,7 +58,7 @@ BENCHMARK(BM_PcapFileRead);
 static void BM_PcapFileWrite(benchmark::State& state)
 {
 	// Open the pcap file for writing
-	pcpp::PcapFileWriterDevice writer("PcapExamples/output.pcap");
+	pcpp::PcapFileWriterDevice writer("benchmark-output.pcap");
 	if (!writer.open())
 	{
 		state.SkipWithError("Cannot open pcap file for writing");
@@ -97,9 +95,6 @@ BENCHMARK(BM_PcapFileWrite);
 
 static void BM_PacketParsing(benchmark::State& state)
 {
-	std::unordered_map<pcpp::ProtocolType, size_t> layerTypes;
-	std::unordered_map<pcpp::OsiModelLayer, size_t> osiLayers;
-
 	// Open the pcap file for reading
 	size_t totalBytes = 0;
 	size_t totalPackets = 0;
@@ -127,6 +122,7 @@ static void BM_PacketParsing(benchmark::State& state)
 				reader.close();
 				reader.open();
 				state.ResumeTiming();
+				continue;
 			}
 		}
 
@@ -134,7 +130,7 @@ static void BM_PacketParsing(benchmark::State& state)
 		pcpp::Packet parsedPacket(&rawPacket);
 
 		// Use parsedPacket to prevent compiler optimizations
-		assert(parsedPacket.getFirstLayer() != nullptr);
+		assert(parsedPacket.getFirstLayer());
 
 		// Count total bytes and packets
 		++totalPackets;
@@ -247,12 +243,14 @@ int main(int argc, char** argv)
 			pcapFileName = argv[idx + 1];
 			break;
 		}
-
-		if (idx == argc - 1)
-		{
-			std::cout << "You can provide a pcap file after --pcap-file. Using default pcap file" << std::endl;
-		}
 	}
+
+	if (pcapFileName.empty())
+	{
+		std::cerr << "Please provide a pcap file name using --pcap-file" << std::endl;
+		return 1;
+	}
+
 	benchmark::AddCustomContext("PcapPlusPlus version", pcpp::getPcapPlusPlusVersionFull());
 	benchmark::AddCustomContext("Build info", pcpp::getBuildDateTime());
 	benchmark::AddCustomContext("Git info", pcpp::getGitInfo());
