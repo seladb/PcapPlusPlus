@@ -135,9 +135,25 @@ jobs:
       id-token: write
     strategy:
       matrix:
-        os-version: [macos-14, macos-15]
-        xcode-version: [15.4, 14.3.1]
-        arch: [x86_64, arm64]
+        include:
+          - os-version: macos-14
+            xcode-version: 15.4
+            arch: x86_64
+          - os-version: macos-14
+            xcode-version: 15.4
+            arch: arm64
+          - os-version: macos-14
+            xcode-version: 14.3.1
+            arch: x86_64
+          - os-version: macos-14
+            xcode-version: 14.3.1
+            arch: arm64
+          - os-version: macos-15
+            xcode-version: 16.1
+            arch: x86_64
+          - os-version: macos-15
+            xcode-version: 16.1
+            arch: arm64
 
     steps:
       - uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
