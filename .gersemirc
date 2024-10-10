@@ -3,7 +3,7 @@
 cache: true
 color: false
 definitions: []
-indent: 4
+indent: 2
 line_length: 120
 list_expansion: favour-inlining
 quiet: false

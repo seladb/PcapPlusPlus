@@ -47,14 +47,14 @@
 
 # The 64-bit Packet.lib is located under /x64
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    #
-    # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries; the
-    # 64-bit libraries are in the Lib/x64 directory.
-    #
-    # The only way to *FORCE* CMake to look in the Lib/x64 directory without searching in the Lib directory first appears
-    # to be to set CMAKE_LIBRARY_ARCHITECTURE to "x64".
-    #
-    set(CMAKE_LIBRARY_ARCHITECTURE "x64")
+  #
+  # For the WinPcap and Npcap SDKs, the Lib subdirectory of the top-level directory contains 32-bit libraries; the
+  # 64-bit libraries are in the Lib/x64 directory.
+  #
+  # The only way to *FORCE* CMake to look in the Lib/x64 directory without searching in the Lib directory first appears
+  # to be to set CMAKE_LIBRARY_ARCHITECTURE to "x64".
+  #
+  set(CMAKE_LIBRARY_ARCHITECTURE "x64")
 endif()
 
 # Find the header
@@ -69,14 +69,14 @@ find_package_handle_standard_args(Packet DEFAULT_MSG Packet_LIBRARY Packet_INCLU
 
 # create IMPORTED target for libpcap dependency
 if(NOT TARGET Packet::Packet)
-    add_library(Packet::Packet IMPORTED SHARED)
-    set_target_properties(
-        Packet::Packet
-        PROPERTIES
-            IMPORTED_LOCATION ${Packet_LIBRARY}
-            IMPORTED_IMPLIB ${Packet_LIBRARY}
-            INTERFACE_INCLUDE_DIRECTORIES ${Packet_INCLUDE_DIR}
-    )
+  add_library(Packet::Packet IMPORTED SHARED)
+  set_target_properties(
+    Packet::Packet
+    PROPERTIES
+      IMPORTED_LOCATION ${Packet_LIBRARY}
+      IMPORTED_IMPLIB ${Packet_LIBRARY}
+      INTERFACE_INCLUDE_DIRECTORIES ${Packet_INCLUDE_DIR}
+  )
 endif()
 
 mark_as_advanced(Packet_INCLUDE_DIR Packet_LIBRARY)
