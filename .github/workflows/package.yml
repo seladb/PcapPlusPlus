@@ -128,13 +128,14 @@ jobs:
           artifacts: "${{ env.BUILD_DIR }}/*.tar.gz"
 
   macos:
-    runs-on: macos-14
+    runs-on: ${{ matrix.os-version }}
     permissions:
       contents: write
       attestations: write
       id-token: write
     strategy:
       matrix:
+        os-version: [macos-14, macos-15]
         xcode-version: [15.4, 14.3.1]
         arch: [x86_64, arm64]
 
