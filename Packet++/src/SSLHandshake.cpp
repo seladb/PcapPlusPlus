@@ -2,11 +2,11 @@
 
 #include "EndianPortable.h"
 #include "md5.h"
-#include <string.h>
 #include <sstream>
 #include <unordered_map>
 #include <set>
 #include <utility>
+#include <cstring>
 #include "Logger.h"
 #include "SSLHandshake.h"
 

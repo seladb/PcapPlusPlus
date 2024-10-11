@@ -9,7 +9,6 @@
 #include "SystemUtils.h"
 #include "pcap.h"
 #include <array>
-#include <string.h>
 #include <sstream>
 #include <algorithm>
 #if defined(_WIN32)

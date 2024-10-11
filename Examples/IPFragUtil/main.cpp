@@ -1,9 +1,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <sstream>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 #include "PcapPlusPlusVersion.h"
 #include "Packet.h"
 #include "IPv4Layer.h"

@@ -10,7 +10,6 @@
 #include "MplsLayer.h"
 #include "WakeOnLanLayer.h"
 #include "EndianPortable.h"
-#include <string.h>
 
 namespace pcpp
 {
@@ -22,7 +21,7 @@ namespace pcpp
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 
-		ether_header* ethHdr = (ether_header*)m_Data;
+		ether_header* ethHdr = getEthHeader();
 		destMac.copyTo(ethHdr->dstMac);
 		sourceMac.copyTo(ethHdr->srcMac);
 		ethHdr->etherType = htobe16(etherType);
@@ -122,7 +121,7 @@ namespace pcpp
 			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
 			 * More: IEEE Std 802.3 Clause 3.2.6
 			 */
-			return be16toh(*(uint16_t*)(data + 12)) >= (uint16_t)0x0600;
+			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) >= static_cast<uint16_t>(0x0600);
 		}
 		else
 		{
