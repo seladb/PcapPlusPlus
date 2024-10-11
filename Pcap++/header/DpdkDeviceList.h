@@ -4,6 +4,7 @@
 
 #include "SystemUtils.h"
 #include "DpdkDevice.h"
+#include "DeviceListBase.h"
 #include "Logger.h"
 #include <vector>
 
@@ -72,7 +73,7 @@ namespace pcpp
 	 *    - it contains the list of DpdkDevice instances and enables access to them
 	 *    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
 	 */
-	class DpdkDeviceList
+	class DpdkDeviceList : public internal::DeviceListBase<DpdkDevice>
 	{
 		friend class KniDeviceList;
 
@@ -82,7 +83,7 @@ namespace pcpp
 		static uint32_t m_MBufPoolSizePerDevice;
 		static uint16_t m_MBufDataSize;
 		static CoreMask m_CoreMask;
-		std::vector<DpdkDevice*> m_DpdkDeviceList;
+		std::vector<DpdkDevice*> m_DpdkDeviceListView;
 		std::vector<DpdkWorkerThread*> m_WorkerThreads;
 
 		DpdkDeviceList();
@@ -97,8 +98,6 @@ namespace pcpp
 		static int dpdkWorkerThreadStart(void* ptr);
 
 	public:
-		~DpdkDeviceList();
-
 		/**
 		 * As DpdkDeviceList is a singleton, this is the static getter to retrieve its instance. Note that if the static
 		 * method initDpdk() was not called or returned false this instance won't be initialized and DpdkDevices won't
@@ -164,10 +163,12 @@ namespace pcpp
 
 		/**
 		 * @return A vector of all DpdkDevice instances
+		 * @deprecated This method has been deprecated in favor of direct accessor API.
 		 */
+		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
 		const std::vector<DpdkDevice*>& getDpdkDeviceList() const
 		{
-			return m_DpdkDeviceList;
+			return m_DpdkDeviceListView;
 		}
 
 		/**
