@@ -15,6 +15,7 @@ BUILD_DIR=${2:-build}
 
 if [ "$MODE" = "changed" ]; then
     # Get the list of changed files from origin/dev
+    git fetch origin dev
     files=$(git diff --name-only origin/dev -- '*.cpp' '*.h' | grep -v '3rdParty/' || true)
 else
     # Find all relevant files

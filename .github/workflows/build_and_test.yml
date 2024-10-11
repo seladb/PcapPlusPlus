@@ -48,7 +48,6 @@ jobs:
 
       - name: Run clang-tidy on changed files
         run: |
-          git fetch origin dev
           ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
 
   linux:
