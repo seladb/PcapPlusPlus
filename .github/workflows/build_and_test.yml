@@ -310,7 +310,7 @@ jobs:
             arch: x86_64
             config-zstd: OFF
           - os-version: macos-15
-            host-arch: x86_64
+            host-arch: arm64
             arch: arm64
             config-zstd: OFF
 
