@@ -302,13 +302,17 @@ jobs:
             arch: arm64
             config-zstd: OFF
           - os-version: macos-14
+            host-arch: x86_64
+            arch: x86_64
+            config-zstd: ON
+          - os-version: macos-14
             host-arch: arm64
             arch: arm64
             config-zstd: OFF
           - os-version: macos-15
             host-arch: x86_64
             arch: x86_64
-            config-zstd: OFF
+            config-zstd: ON
           - os-version: macos-15
             host-arch: arm64
             arch: arm64
