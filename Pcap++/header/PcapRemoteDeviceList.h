@@ -177,6 +177,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPv4Address& ip4Addr) const;
+
 		/*
 		 * Search a PcapRemoteDevice in the list by its IPv4 address
 		 * @param[in] ip4Addr The IPv4 address
@@ -195,6 +196,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPv6Address& ip6Addr) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IPv6 address
 		 * @param[in] ip6Addr The IPv6 address
@@ -213,6 +215,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, nullptr otherwise
 		 */
 		PcapRemoteDevice* getDeviceByIp(const IPAddress& ipAddr) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
 		 * @param[in] ipAddr The IP address
@@ -231,6 +234,7 @@ namespace pcpp
 		 * @return The PcapRemoteDevice if found, NULL otherwise
 		 */
 		PcapRemoteDevice* getDeviceByIp(const std::string& ipAddrAsString) const;
+
 		/**
 		 * Search a PcapRemoteDevice in the list by its IP address
 		 * @param[in] ipAddrAsString The IP address in string format

@@ -63,6 +63,7 @@ namespace pcpp
 		 * @return A pointer to the PF_RING device
 		 */
 		PfRingDevice* getDeviceByName(const std::string& devName) const;
+
 		/**
 		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
 		 * (e.g eth0, eth1, etc.)

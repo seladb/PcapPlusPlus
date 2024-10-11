@@ -80,6 +80,7 @@ namespace pcpp
 			{
 				return m_DeviceList.front();
 			}
+
 			/**
 			 * @brief Returns a pointer to last device.
 			 * @return A pointer to the specified device.
@@ -88,6 +89,7 @@ namespace pcpp
 			{
 				return m_DeviceList.back();
 			}
+
 			/**
 			 * @brief Returns a pointer to last device.
 			 * @return A pointer to the specified device.
@@ -105,6 +107,7 @@ namespace pcpp
 			{
 				return m_DeviceList.begin();
 			}
+
 			/**
 			 * @brief Returns an iterator to the first device.
 			 * @return An iterator to the specified device.
@@ -113,6 +116,7 @@ namespace pcpp
 			{
 				return cbegin();
 			}
+
 			/**
 			 * @brief Returns an iterator to the first device.
 			 * @return An iterator to the specified device.
@@ -121,6 +125,7 @@ namespace pcpp
 			{
 				return m_DeviceList.begin();
 			}
+
 			/**
 			 * @brief Returns an iterator past the last device.
 			 * @return An iterator past the last device.
@@ -129,6 +134,7 @@ namespace pcpp
 			{
 				return m_DeviceList.end();
 			}
+
 			/**
 			 * @brief Returns an iterator past the last device.
 			 * @return An iterator past the last device.
@@ -137,6 +143,7 @@ namespace pcpp
 			{
 				return cend();
 			}
+
 			/**
 			 * @brief Returns an iterator past the last device.
 			 * @return An iterator past the last device.
@@ -154,6 +161,7 @@ namespace pcpp
 			{
 				return m_DeviceList.size() == 0;
 			}
+
 			/**
 			 * @brief Returns the number of devices.
 			 * @return The number of devices in the container.

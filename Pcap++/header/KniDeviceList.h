@@ -109,6 +109,7 @@ namespace pcpp
 		 * @return Pointer to new KNI device or nullptr in case of error
 		 */
 		KniDevice* createDevice(const KniDevice::KniDeviceConfiguration& config, const size_t mempoolSize);
+
 		/**
 		 * @brief Returns KNI device with specified portId.
 		 * @note MT SAFE if createDevice or destroyDevice is not called concurrently
@@ -116,6 +117,7 @@ namespace pcpp
 		 * @return Pointer to KNI device or nullptr if device not found
 		 */
 		KniDevice* getDeviceByPort(const uint16_t portId);
+
 		/**
 		 * @brief Returns KNI device with specified name.
 		 * @note MT SAFE if createDevice or destroyDevice is not called concurrently
@@ -132,6 +134,7 @@ namespace pcpp
 		 * @note MT SAFE
 		 */
 		static KniCallbackVersion callbackVersion();
+
 		/**
 		 * Returns true if provided callback type is supported by used DPDK version
 		 * @note MT SAFE
