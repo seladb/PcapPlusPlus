@@ -121,6 +121,7 @@ def main():
                 shell=True,
             )
         if completed_process.returncode != 0:
+            print("Error while executing Packet++ tests: " + str(completed_process))
             exit(completed_process.returncode)
 
         skip_tests = ["TestRemoteCapture"] + args.skip_tests
@@ -162,6 +163,7 @@ def main():
                 shell=True,
             )
         if completed_process.returncode != 0:
+            print("Error while executing Pcap++ tests: " + str(completed_process))
             exit(completed_process.returncode)
 
     finally:
