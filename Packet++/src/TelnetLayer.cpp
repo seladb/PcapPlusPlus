@@ -2,11 +2,8 @@
 
 #include "TelnetLayer.h"
 #include "Logger.h"
-
 #include "GeneralUtils.h"
-#include "SystemUtils.h"
-
-#include <string.h>
+#include <cstring>
 
 namespace pcpp
 {

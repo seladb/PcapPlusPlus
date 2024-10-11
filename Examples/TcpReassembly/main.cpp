@@ -22,7 +22,6 @@
  * For more details about modes of operation and parameters run TcpReassembly -h
  */
 
-#include <stdlib.h>
 #include <unordered_map>
 #include <iostream>
 #include <fstream>

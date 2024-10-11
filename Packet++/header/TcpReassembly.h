@@ -4,6 +4,7 @@
 #include "IpAddress.h"
 #include "PointerVector.h"
 #include <unordered_map>
+#include <chrono>
 #include <map>
 #include <list>
 #include <time.h>
@@ -106,10 +107,14 @@ namespace pcpp
 		uint16_t dstPort;
 		/** A 4-byte hash key representing the connection */
 		uint32_t flowKey;
-		/** Start TimeStamp of the connection */
+		/** Start timestamp of the connection with microsecond precision */
 		timeval startTime;
-		/** End TimeStamp of the connection */
+		/** End timestamp of the connection with microsecond precision */
 		timeval endTime;
+		/** Start timestamp of the connection with nanosecond precision */
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTimePrecise;
+		/** End timestamp of the connection with nanosecond precision */
+		std::chrono::time_point<std::chrono::high_resolution_clock> endTimePrecise;
 
 		/**
 		 * A c'tor for this struct that basically zeros all members
@@ -118,22 +123,16 @@ namespace pcpp
 		{}
 
 		/**
-		 * Set startTime of Connection
-		 * @param[in] startTimeValue integer value
+		 * Set the start time of the connection
+		 * @param[in] startTimeValue timestamp value
 		 */
-		void setStartTime(const timeval& startTimeValue)
-		{
-			startTime = startTimeValue;
-		}
+		void setStartTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& startTimeValue);
 
 		/**
-		 * Set endTime of Connection
-		 * @param[in] endTimeValue integer value
+		 * Set the end time of the connection
+		 * @param[in] endTimeValue timestamp value
 		 */
-		void setEndTime(const timeval& endTimeValue)
-		{
-			endTime = endTimeValue;
-		}
+		void setEndTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& endTimeValue);
 	};
 
 	class TcpReassembly;
@@ -156,7 +155,7 @@ namespace pcpp
 		 * @param[in] timestamp when this packet was received
 		 */
 		TcpStreamData(const uint8_t* tcpData, size_t tcpDataLength, size_t missingBytes, const ConnectionData& connData,
-		              timeval timestamp)
+		              std::chrono::time_point<std::chrono::high_resolution_clock> timestamp)
 		    : m_Data(tcpData), m_DataLen(tcpDataLength), m_MissingBytes(missingBytes), m_Connection(connData),
 		      m_Timestamp(timestamp)
 		{}
@@ -207,10 +206,14 @@ namespace pcpp
 		}
 
 		/**
-		 * A getter for the timestamp of this packet
-		 * @return The const timeval object with timestamp of this packet
+		 * @return A microsecond precision of the packet timestamp
 		 */
-		timeval getTimeStamp() const
+		timeval getTimeStamp() const;
+
+		/**
+		 * @return A nanosecond precision of the packet timestamp
+		 */
+		std::chrono::time_point<std::chrono::high_resolution_clock> getTimeStampPrecise() const
 		{
 			return m_Timestamp;
 		}
@@ -220,7 +223,7 @@ namespace pcpp
 		size_t m_DataLen;
 		size_t m_MissingBytes;
 		const ConnectionData& m_Connection;
-		timeval m_Timestamp;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_Timestamp;
 	};
 
 	/**
@@ -483,7 +486,7 @@ namespace pcpp
 			uint32_t sequence;
 			size_t dataLength;
 			uint8_t* data;
-			timeval timestamp;
+			std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
 
 			TcpFragment() : sequence(0), dataLength(0), data(nullptr)
 			{}

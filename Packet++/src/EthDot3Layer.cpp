@@ -13,7 +13,7 @@ namespace pcpp
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 
-		ether_dot3_header* ethHdr = (ether_dot3_header*)m_Data;
+		ether_dot3_header* ethHdr = getEthHeader();
 		destMac.copyTo(ethHdr->dstMac);
 		sourceMac.copyTo(ethHdr->srcMac);
 		ethHdr->length = be16toh(length);
@@ -51,7 +51,7 @@ namespace pcpp
 			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
 			 * More: IEEE Std 802.3 Clause 3.2.6
 			 */
-			return be16toh(*(uint16_t*)(data + 12)) <= (uint16_t)0x05DC;
+			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) <= static_cast<uint16_t>(0x05DC);
 		}
 		else
 		{

@@ -32,15 +32,11 @@
 
 #include "Common.h"
 #include "PacketMatchingEngine.h"
-#include <PfRingDeviceList.h>
 #include <PcapFileDevice.h>
 #include <PacketUtils.h>
-#include <SystemUtils.h>
 #include <PcapPlusPlusVersion.h>
 #include <TablePrinter.h>
 #include <Logger.h>
-#include <stdlib.h>
-#include <vector>
 #include <getopt.h>
 #include <unordered_map>
 #include <sstream>

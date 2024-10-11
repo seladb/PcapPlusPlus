@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <iostream>
 #include "PcapPlusPlusVersion.h"
 #include "PcapLiveDevice.h"
