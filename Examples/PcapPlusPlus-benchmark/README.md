@@ -1,7 +1,7 @@
 PcapPlusPlus Benchmark
 ======================
 
-There is a benchmark application used for measuring PcapPlusPlus performance. It is based on Matias Fontanini's packet-capture-benchmarks project (https://github.com/mfontanini/packet-capture-benchmarks).
+This is a benchmark application used for measuring PcapPlusPlus performance. It is based on Matias Fontanini's packet-capture-benchmarks project (https://github.com/mfontanini/packet-capture-benchmarks).
 
 See this page for more details: https://pcapplusplus.github.io/docs/benchmark
 
