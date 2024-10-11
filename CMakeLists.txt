@@ -102,7 +102,7 @@ option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
 option(PCAPPP_BUILD_REPRODUCIBLE "Build a reproducible version" OFF)
-option(PCAPPP_USE_GOOGLEBENCHMARK "Build benchmarks using Google benchmark" ON)
+option(PCAPPP_USE_GOOGLEBENCHMARK "Build benchmarks using Google benchmark" OFF)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
