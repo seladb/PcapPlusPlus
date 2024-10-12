@@ -4,7 +4,7 @@
 #include "GeneralUtils.h"
 #include "Logger.h"
 #include "EndianPortable.h"
-#include <string.h>
+#include <cstring>
 
 namespace pcpp
 {

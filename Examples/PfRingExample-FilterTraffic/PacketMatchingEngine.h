@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SystemUtils.h"
 #include "Packet.h"
 #include "IPv4Layer.h"
 #include "TcpLayer.h"

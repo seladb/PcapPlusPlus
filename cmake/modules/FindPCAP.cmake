@@ -90,8 +90,8 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
   # Simple C code to extract the libpcap version
   set(PCAP_VERSION_CODE
       "
-  #include <stdio.h>
-  #include <string.h>
+  #include <cstdio>
+  #include <cstring>
   #include <pcap/pcap.h>
 
   int main() {
@@ -106,7 +106,7 @@ if(HAVE_PCAP_LIB_VERSION AND NOT CMAKE_CROSSCOMPILING)
   ")
 
   # Write the code to a temporary file
-  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.c")
+  set(detect_pcap_version_file "${PROJECT_BINARY_DIR}/detect_pcap_version.cpp")
   file(WRITE "${detect_pcap_version_file}" "${PCAP_VERSION_CODE}")
 
   # Try to compile and run the program

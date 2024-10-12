@@ -1,10 +1,6 @@
 #include "../header/CotpLayer.h"
-#include "EndianPortable.h"
 #include "S7CommLayer.h"
 #include <PayloadLayer.h>
-#include <cstring>
-#include <iostream>
-#include <sstream>
 
 namespace pcpp
 {
@@ -15,7 +11,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		cotphdr* cotpHdr = (cotphdr*)m_Data;
+		cotphdr* cotpHdr = getCotpHeader();
 		cotpHdr->length = 0x02;
 		cotpHdr->pduType = 0x0f;
 		cotpHdr->tpduNumber = tpduNumber;

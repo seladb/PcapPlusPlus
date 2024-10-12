@@ -3,7 +3,6 @@
 #include "SomeIpSdLayer.h"
 #include "EndianPortable.h"
 #include <algorithm>
-#include <cstring>
 #include <sstream>
 #include <stdexcept>
 

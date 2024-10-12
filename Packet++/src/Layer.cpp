@@ -1,9 +1,9 @@
 #define LOG_MODULE PacketLogModuleLayer
 
 #include "Layer.h"
-#include <string.h>
 #include "Logger.h"
 #include "Packet.h"
+#include <cstring>
 
 namespace pcpp
 {

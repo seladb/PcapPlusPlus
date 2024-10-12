@@ -5,9 +5,7 @@
 #include "PayloadLayer.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
-#include <string.h>
 #include <algorithm>
-#include <stdlib.h>
 #include <exception>
 #include <utility>
 #include <unordered_map>
@@ -100,7 +98,7 @@ namespace pcpp
 		if (m_DataLen > headerLen)
 		{
 			int currentContentLength = getContentLength();
-			if (currentContentLength != (int)(m_DataLen - headerLen))
+			if (currentContentLength != static_cast<int>(m_DataLen - headerLen))
 				setContentLength(m_DataLen - headerLen);
 		}
 	}
@@ -109,7 +107,7 @@ namespace pcpp
 
 	SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest) : m_SipRequest(sipRequest)
 	{
-		m_Method = parseMethod((char*)m_SipRequest->m_Data, m_SipRequest->getDataLen());
+		m_Method = parseMethod(reinterpret_cast<char*>(m_SipRequest->m_Data), m_SipRequest->getDataLen());
 		if (m_Method == SipRequestLayer::SipMethodUnknown)
 		{
 			m_UriOffset = -1;
@@ -121,10 +119,11 @@ namespace pcpp
 		parseVersion();
 
 		char* endOfFirstLine;
-		if ((endOfFirstLine = (char*)memchr((char*)(m_SipRequest->m_Data + m_VersionOffset), '\n',
-		                                    m_SipRequest->m_DataLen - (size_t)m_VersionOffset)) != nullptr)
+		if ((endOfFirstLine =
+		         static_cast<char*>(memchr(reinterpret_cast<char*>(m_SipRequest->m_Data + m_VersionOffset), '\n',
+		                                   m_SipRequest->m_DataLen - static_cast<size_t>(m_VersionOffset)))) != nullptr)
 		{
-			m_FirstLineEndOffset = endOfFirstLine - (char*)m_SipRequest->m_Data + 1;
+			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipRequest->m_Data) + 1;
 			m_IsComplete = true;
 		}
 		else
@@ -218,8 +217,8 @@ namespace pcpp
 			return;
 		}
 
-		char* data = (char*)(m_SipRequest->m_Data + m_UriOffset);
-		char* verPos = (char*)cross_platform_memmem(data, m_SipRequest->getDataLen() - m_UriOffset, " SIP/", 5);
+		char* data = reinterpret_cast<char*>(m_SipRequest->m_Data + m_UriOffset);
+		char* verPos = cross_platform_memmem(data, m_SipRequest->getDataLen() - m_UriOffset, " SIP/", 5);
 		if (verPos == nullptr)
 		{
 			m_Version = "";
@@ -228,7 +227,8 @@ namespace pcpp
 		}
 
 		// verify packet doesn't end before the version, meaning still left place for " SIP/x.y" (7 chars)
-		if ((uint16_t)(verPos + 7 - (char*)m_SipRequest->m_Data) > m_SipRequest->getDataLen())
+		if (static_cast<uint16_t>(verPos + 7 - reinterpret_cast<char*>(m_SipRequest->m_Data)) >
+		    m_SipRequest->getDataLen())
 		{
 			m_Version = "";
 			m_VersionOffset = -1;
@@ -239,13 +239,13 @@ namespace pcpp
 		verPos++;
 
 		int endOfVerPos = 0;
-		while (((verPos + endOfVerPos) < (char*)(m_SipRequest->m_Data + m_SipRequest->m_DataLen)) &&
+		while (((verPos + endOfVerPos) < reinterpret_cast<char*>(m_SipRequest->m_Data + m_SipRequest->m_DataLen)) &&
 		       ((verPos + endOfVerPos)[0] != '\r') && ((verPos + endOfVerPos)[0] != '\n'))
 			endOfVerPos++;
 
 		m_Version = std::string(verPos, endOfVerPos);
 
-		m_VersionOffset = verPos - (char*)m_SipRequest->m_Data;
+		m_VersionOffset = verPos - reinterpret_cast<char*>(m_SipRequest->m_Data);
 	}
 
 	bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
@@ -297,7 +297,8 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_UriOffset != -1 && m_VersionOffset != -1)
-			result.assign((char*)(m_SipRequest->m_Data + m_UriOffset), m_VersionOffset - 1 - m_UriOffset);
+			result.assign(reinterpret_cast<char*>(m_SipRequest->m_Data + m_UriOffset),
+			              m_VersionOffset - 1 - m_UriOffset);
 
 		// else first line is illegal, return empty string
 
@@ -398,7 +399,7 @@ namespace pcpp
 		if (size <= maxLengthToPrint)
 		{
 			char* firstLine = new char[size + 1];
-			strncpy(firstLine, (char*)m_Data, size);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), size);
 			firstLine[size] = 0;
 			result += std::string(firstLine);
 			delete[] firstLine;
@@ -406,7 +407,7 @@ namespace pcpp
 		else
 		{
 			char firstLine[maxLengthToPrint + 1];
-			strncpy(firstLine, (char*)m_Data, maxLengthToPrint - 3);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), maxLengthToPrint - 3);
 			firstLine[maxLengthToPrint - 3] = '.';
 			firstLine[maxLengthToPrint - 2] = '.';
 			firstLine[maxLengthToPrint - 1] = '.';
@@ -635,7 +636,7 @@ namespace pcpp
 		if (size <= maxLengthToPrint)
 		{
 			char* firstLine = new char[size + 1];
-			strncpy(firstLine, (char*)m_Data, size);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), size);
 			firstLine[size] = 0;
 			result += std::string(firstLine);
 			delete[] firstLine;
@@ -643,7 +644,7 @@ namespace pcpp
 		else
 		{
 			char firstLine[maxLengthToPrint + 1];
-			strncpy(firstLine, (char*)m_Data, maxLengthToPrint - 3);
+			strncpy(firstLine, reinterpret_cast<char*>(m_Data), maxLengthToPrint - 3);
 			firstLine[maxLengthToPrint - 3] = '.';
 			firstLine[maxLengthToPrint - 2] = '.';
 			firstLine[maxLengthToPrint - 1] = '.';
@@ -670,7 +671,7 @@ namespace pcpp
 			int statusStringEndOffset = m_FirstLineEndOffset - 2;
 			if ((*(m_SipResponse->m_Data + statusStringEndOffset)) != '\r')
 				statusStringEndOffset++;
-			result.assign((char*)(m_SipResponse->m_Data + statusStringOffset),
+			result.assign(reinterpret_cast<char*>(m_SipResponse->m_Data + statusStringOffset),
 			              statusStringEndOffset - statusStringOffset);
 		}
 
@@ -744,7 +745,7 @@ namespace pcpp
 			return;
 		}
 
-		char* verPos = (char*)m_SipResponse->m_Data;
+		char* verPos = reinterpret_cast<char*>(m_SipResponse->m_Data);
 		memcpy(verPos, newVersion.c_str(), newVersion.length());
 		m_Version = newVersion;
 	}
@@ -773,20 +774,21 @@ namespace pcpp
 
 	SipResponseFirstLine::SipResponseFirstLine(SipResponseLayer* sipResponse) : m_SipResponse(sipResponse)
 	{
-		m_Version = parseVersion((char*)m_SipResponse->m_Data, m_SipResponse->getDataLen());
+		m_Version = parseVersion(reinterpret_cast<char*>(m_SipResponse->m_Data), m_SipResponse->getDataLen());
 		if (m_Version == "")
 		{
 			m_StatusCode = SipResponseLayer::SipStatusCodeUnknown;
 		}
 		else
 		{
-			m_StatusCode = parseStatusCode((char*)m_SipResponse->m_Data, m_SipResponse->getDataLen());
+			m_StatusCode = parseStatusCode(reinterpret_cast<char*>(m_SipResponse->m_Data), m_SipResponse->getDataLen());
 		}
 
 		char* endOfFirstLine;
-		if ((endOfFirstLine = (char*)memchr((char*)(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen)) != nullptr)
+		if ((endOfFirstLine = static_cast<char*>(
+		         memchr(reinterpret_cast<char*>(m_SipResponse->m_Data), '\n', m_SipResponse->m_DataLen))) != nullptr)
 		{
-			m_FirstLineEndOffset = endOfFirstLine - (char*)m_SipResponse->m_Data + 1;
+			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipResponse->m_Data) + 1;
 			m_IsComplete = true;
 		}
 		else
@@ -854,7 +856,7 @@ namespace pcpp
 			return "";
 		}
 
-		char* nextSpace = (char*)memchr(data, ' ', dataLen);
+		const char* nextSpace = static_cast<const char*>(memchr(data, ' ', dataLen));
 		if (nextSpace == nullptr)
 			return "";
 

@@ -7,7 +7,6 @@
 #include "NdpLayer.h"
 #include "PacketUtils.h"
 #include "PayloadLayer.h"
-#include <memory>
 #include <sstream>
 
 // IcmpV6Layer
