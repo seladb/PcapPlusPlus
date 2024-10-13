@@ -52,7 +52,6 @@ namespace pcpp
 		ss << "InfiniBand Layer, Opcode: " << getOpcode();
 		return ss.str();
 	}
-
 	
 	uint8_t InfiniBandLayer::getOpcode() const
 	{

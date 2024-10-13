@@ -19,6 +19,7 @@ add_library(
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
   src/IgmpLayer.cpp
+  src/InfiniBandLayer.cpp
   src/IPReassembly.cpp
   src/IPSecLayer.cpp
   src/IPv4Layer.cpp
@@ -60,7 +61,6 @@ add_library(
   src/TLVData.cpp
   src/TpktLayer.cpp
   src/UdpLayer.cpp
-  src/InfiniBandLayer.cpp
   src/VlanLayer.cpp
   src/VrrpLayer.cpp
   src/VxlanLayer.cpp
