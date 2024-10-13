@@ -25,19 +25,19 @@ namespace pcpp
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, uint16_t recValue)
 	{
 		recValue = htobe16(recValue);
-		init(recType, (uint8_t*)&recValue, sizeof(uint16_t));
+		init(recType, reinterpret_cast<uint8_t*>(&recValue), sizeof(uint16_t));
 	}
 
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, uint32_t recValue)
 	{
 		recValue = htobe32(recValue);
-		init(recType, (uint8_t*)&recValue, sizeof(uint32_t));
+		init(recType, reinterpret_cast<uint8_t*>(&recValue), sizeof(uint32_t));
 	}
 
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const IPv4Address& recValue)
 	{
 		uint32_t recIntValue = recValue.toInt();
-		init(recType, (uint8_t*)&recIntValue, sizeof(uint32_t));
+		init(recType, reinterpret_cast<uint8_t*>(&recIntValue), sizeof(uint32_t));
 	}
 
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString)
@@ -57,7 +57,7 @@ namespace pcpp
 		}
 		else
 		{
-			uint8_t* recValueByteArr = (uint8_t*)recValue.c_str();
+			const uint8_t* recValueByteArr = reinterpret_cast<const uint8_t*>(recValue.c_str());
 			init(recType, recValueByteArr, recValue.length());
 		}
 	}

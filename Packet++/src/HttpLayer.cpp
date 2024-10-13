@@ -3,11 +3,9 @@
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include "HttpLayer.h"
-#include <string.h>
+#include <cstring>
 #include <algorithm>
-#include <stdlib.h>
 #include <exception>
-#include <utility>
 #include <unordered_map>
 
 namespace pcpp

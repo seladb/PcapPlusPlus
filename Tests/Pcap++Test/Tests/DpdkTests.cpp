@@ -2,8 +2,6 @@
 #include "../Common/GlobalTestArgs.h"
 #include "../Common/TestUtils.h"
 #include "../Common/PcapFileNamesDef.h"
-#include <unordered_map>
-#include <stdlib.h>
 #include <sstream>
 
 #ifdef USE_DPDK

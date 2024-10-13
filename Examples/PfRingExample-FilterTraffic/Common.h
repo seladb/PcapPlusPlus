@@ -2,15 +2,7 @@
 
 #include <Packet.h>
 #include <PfRingDeviceList.h>
-
-#include <SystemUtils.h>
-
-#include <string>
-#include <vector>
-#include <iomanip>
-#include <iostream>
 #include <sstream>
-#include <stdlib.h>
 
 /**
  * Macros for exiting the application with error

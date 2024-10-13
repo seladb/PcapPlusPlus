@@ -5,7 +5,6 @@
  * response. Its basic input is the target IP address and the interface name/IP to send the ARP request from
  */
 
-#include <stdlib.h>
 #include <iostream>
 #include <MacAddress.h>
 #include <IpAddress.h>
