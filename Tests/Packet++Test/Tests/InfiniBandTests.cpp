@@ -40,7 +40,7 @@ std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType)
 	}
 }
 
-PTF_TEST_CASE(InfiniBandPacketParsing)
+PTF_TEST_CASE(InfiniBandParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -113,10 +113,33 @@ PTF_TEST_CASE(InfiniBandPacketParsing)
 		}
 		default:
 		{
-			std::cerr << "Something went wrong, couldn't find this layer" << std::endl;
 			break;
 		}
 		}
 	}
+}  // InfiniBandParsingTest
 
-}  // InfiniBandPacketParsing
+PTF_TEST_CASE(InfiniBandCreationTest)
+{
+	pcpp::EthLayer ethLayer1(pcpp::MacAddress("02:7d:fa:01:17:40"), pcpp::MacAddress("02:7d:fa:00:10:01"),
+	                         PCPP_ETHERTYPE_IP);
+	pcpp::IPv4Layer ipLayer1(pcpp::IPv4Address("192.168.0.1"), pcpp::IPv4Address("192.168.0.2"));
+	pcpp::UdpLayer udpLayer1(30502, 4791);
+	pcpp::InfiniBandLayer infinibandLayer1(12, 0, 0, 0, 65535, 17, 1, 5557091);
+
+	pcpp::Packet infinibandPacket1(100);
+	PTF_ASSERT_TRUE(infinibandPacket1.addLayer(&ethLayer1));
+	PTF_ASSERT_TRUE(infinibandPacket1.addLayer(&ipLayer1));
+	PTF_ASSERT_TRUE(infinibandPacket1.addLayer(&udpLayer1));
+	PTF_ASSERT_TRUE(infinibandPacket1.addLayer(&infinibandLayer1));
+
+	PTF_ASSERT_EQUAL(infinibandPacket1.getLayerOfType<pcpp::UdpLayer>()->getDataLen(), 20);
+	PTF_ASSERT_NOT_NULL(infinibandPacket1.getLayerOfType<pcpp::InfiniBandLayer>());
+	PTF_ASSERT_EQUAL(udpLayer1.getDstPort(), 4791);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getOpcode(), 12);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getPkey(), 65535);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getQpn(), 17);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getAck(), 1);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getPsn(), 5557091);
+
+}  // InfiniBandCreationTest
