@@ -104,7 +104,7 @@ jobs:
             ${{ matrix.image }}-ccache
 
       - name: Configure PcapPlusPlus
-        run: cmake -DPCAPPP_USE_GOOGLEBENCHMARK=ON -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
+        run: cmake -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DPCAPPP_BUILD_COVERAGE=ON ${{ matrix.additional-flags }} -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
