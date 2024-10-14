@@ -2,8 +2,6 @@
 #include "RadiusLayer.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
-
-#include <string.h>
 #include <sstream>
 #include "EndianPortable.h"
 

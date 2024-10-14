@@ -1,6 +1,3 @@
-# Disable Clang-tidy for 3rdParty modules
-set(CMAKE_CXX_CLANG_TIDY "")
-
 add_subdirectory(EndianPortable)
 add_subdirectory(Getopt-for-Visual-Studio)
 add_subdirectory(hash-library)

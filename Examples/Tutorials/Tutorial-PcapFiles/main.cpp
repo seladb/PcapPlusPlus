@@ -1,6 +1,5 @@
 #include <memory>
 #include <iostream>
-#include "stdlib.h"
 #include "PcapFileDevice.h"
 
 /**

@@ -80,16 +80,30 @@ namespace pcpp
 		friend class PcapLiveDeviceList;
 
 	protected:
+		/// @struct DeviceInterfaceDetails
+		/// @brief A struct that contains all details of a network interface.
+		struct DeviceInterfaceDetails
+		{
+			explicit DeviceInterfaceDetails(pcap_if_t* pInterface);
+			/// @brief Name of the device.
+			std::string name;
+			/// @brief Description of the device.
+			std::string description;
+			/// @brief IP addresses associated with the device.
+			std::vector<IPAddress> addresses;
+			/// @brief Flag to indicate if the device is a loopback device.
+			bool isLoopback;
+		};
+
 		// This is a second descriptor for the same device. It is needed because of a bug
 		// that occurs in libpcap on Linux (on Windows using WinPcap/Npcap it works well):
 		// It's impossible to capture packets sent by the same descriptor
 		pcap_t* m_PcapSendDescriptor;
 		int m_PcapSelectableFd;
-		std::string m_Name;
-		std::string m_Description;
-		bool m_IsLoopback;
+		DeviceInterfaceDetails m_InterfaceDetails;
+		// NOTE@Dimi: Possibly pull mtu, mac address and default gateway in the interface details.
+		// They only appear to be set in the constructor and not modified afterwards.
 		uint32_t m_DeviceMtu;
-		std::vector<pcap_addr_t> m_Addresses;
 		MacAddress m_MacAddress;
 		IPv4Address m_DefaultGateway;
 		std::thread m_CaptureThread;
@@ -114,11 +128,12 @@ namespace pcpp
 		bool m_UsePoll;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
-		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress,
+		PcapLiveDevice(pcap_if_t* pInterface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+		    : PcapLiveDevice(DeviceInterfaceDetails(pInterface), calculateMTU, calculateMacAddress,
+		                     calculateDefaultGateway)
+		{}
+		PcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
 		               bool calculateDefaultGateway);
-		// copy c'tor is not public
-		PcapLiveDevice(const PcapLiveDevice& other);
-		PcapLiveDevice& operator=(const PcapLiveDevice& other);
 
 		void setDeviceMtu();
 		void setDeviceMacAddress();
@@ -252,6 +267,8 @@ namespace pcpp
 			}
 		};
 
+		PcapLiveDevice(const PcapLiveDevice& other) = delete;
+		PcapLiveDevice& operator=(const PcapLiveDevice& other) = delete;
 		/**
 		 * A destructor for this class
 		 */
@@ -270,7 +287,7 @@ namespace pcpp
 		 */
 		std::string getName() const
 		{
-			return m_Name;
+			return m_InterfaceDetails.name;
 		}
 
 		/**
@@ -279,7 +296,7 @@ namespace pcpp
 		 */
 		std::string getDesc() const
 		{
-			return m_Description;
+			return m_InterfaceDetails.description;
 		}
 
 		/**
@@ -287,7 +304,7 @@ namespace pcpp
 		 */
 		bool getLoopback() const
 		{
-			return m_IsLoopback;
+			return m_InterfaceDetails.isLoopback;
 		}
 
 		/**
@@ -307,23 +324,12 @@ namespace pcpp
 		}
 
 		/**
-		 * @return A vector containing all addresses defined for this interface, each in pcap_addr_t struct
-		 * @deprecated This method is deprecated and will be removed in future versions. Please use getIPAddresses()
-		 * instead.
-		 */
-		// clang-format off
-		// Breaking the macro into multiple lines causes doxygen to cause a fit.
-		PCPP_DEPRECATED("This method is deprecated and will be removed in future versions. Please use getIPAddresses() instead.")
-		// clang-format on
-		const std::vector<pcap_addr_t>& getAddresses() const
-		{
-			return m_Addresses;
-		}
-
-		/**
 		 * @return A vector containing all IP addresses defined for this interface.
 		 */
-		std::vector<IPAddress> getIPAddresses() const;
+		std::vector<IPAddress> getIPAddresses() const
+		{
+			return m_InterfaceDetails.addresses;
+		}
 
 		/**
 		 * @return The MAC address for this interface
@@ -637,14 +643,12 @@ namespace pcpp
 		 * Clones the current device class
 		 * @return Pointer to the copied class
 		 */
-		PcapLiveDevice* clone() const;
+		virtual PcapLiveDevice* clone() const;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
 
 	protected:
 		pcap_t* doOpen(const DeviceConfiguration& config);
-
-		virtual PcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const;
 	};
 
 }  // namespace pcpp

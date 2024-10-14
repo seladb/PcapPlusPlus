@@ -34,23 +34,21 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add cppcheck python3-dev
-          python3 -m pip install cmake-format clang-format==18.1.6
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install pre-commit setuptools clang-format==18.1.6 clang-tidy==18.1.8
 
-      # TODO: investigate how to run pre-commit with `venv`
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-
-      - name: CMake format
+      - name: Run pre-commit
         run: |
-          ./ci/cmake-format-all.sh
-          git diff --exit-code
+          . .venv/bin/activate
+          pre-commit run --all-files
 
       - name: Configure PcapPlusPlus for Static analysis
-        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
+        run: cmake -S . -B "$BUILD_DIR"
 
-      - name: Build PcapPlusPlus and check any diff
+      - name: Run clang-tidy on changed files
         run: |
-          cmake --build "$BUILD_DIR" -j
-          git diff --exit-code
+          ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
 
   linux:
     runs-on: ubuntu-latest
@@ -111,18 +109,18 @@ jobs:
 
       - name: Prepare environment for tests
         run: |
-          python3 -m venv ./venv
-          . ./venv/bin/activate
+          python3 -m venv .venv
+          . .venv/bin/activate
           python3 -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           cd Tests/ExamplesTest
           python3 -m pip install -r requirements.txt
           python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin
@@ -143,7 +141,7 @@ jobs:
 
       - name: Create Cobertura Report
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python3 -m pip install gcovr
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
@@ -355,15 +353,15 @@ jobs:
 
       - name: Prepare environment for tests
         run: |
-          python -m venv ./venv
-          . ./venv/bin/activate
+          python -m venv .venv
+          . .venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         # We can't run cross compiled binaries
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
@@ -724,13 +722,13 @@ jobs:
 
       - name: Prepare environment for tests
         run: |
-          python -m venv ./venv
-          . ./venv/bin/activate
+          python -m venv .venv
+          . .venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
 
       - name: Create Cobertura Report

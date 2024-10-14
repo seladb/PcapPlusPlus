@@ -2,11 +2,7 @@
 
 #include "DnsLayer.h"
 #include "Logger.h"
-#include "IpAddress.h"
 #include <sstream>
-#include <string.h>
-#include <iomanip>
-#include <stdlib.h>
 #include "EndianPortable.h"
 
 namespace pcpp

@@ -12,10 +12,7 @@
 #include "PayloadLayer.h"
 #include "PacketTrailerLayer.h"
 #include "Logger.h"
-#include "EndianPortable.h"
-#include <string.h>
 #include <numeric>
-#include <typeinfo>
 #include <sstream>
 #ifdef _MSC_VER
 #	include <time.h>

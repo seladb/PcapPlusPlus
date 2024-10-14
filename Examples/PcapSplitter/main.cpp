@@ -44,12 +44,8 @@
  *
  */
 
-#include <stdlib.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <iomanip>
 #include <unordered_map>
 #include <RawPacket.h>
 #include <Packet.h>
