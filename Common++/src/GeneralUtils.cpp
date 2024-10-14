@@ -18,10 +18,10 @@ namespace pcpp
 		dataStream << std::hex;
 		for (size_t i = 0; i < byteArrSize; ++i)
 		{
-			if (i >= (size_t)stringSizeLimit)
+			if (i >= static_cast<size_t>(stringSizeLimit))
 				break;
 
-			dataStream << std::setw(2) << std::setfill('0') << (int)byteArr[i];
+			dataStream << std::setw(2) << std::setfill('0') << static_cast<int>(byteArr[i]);
 		}
 
 		return dataStream.str();
@@ -69,10 +69,11 @@ namespace pcpp
 
 	char* cross_platform_memmem(const char* haystack, size_t haystackLen, const char* needle, size_t needleLen)
 	{
-		char* ptr = (char*)haystack;
+		char* ptr = const_cast<char*>(haystack);
 		while (needleLen <= (haystackLen - (ptr - haystack)))
 		{
-			if (nullptr != (ptr = (char*)memchr(ptr, (int)(*needle), haystackLen - (ptr - haystack))))
+			if (nullptr !=
+			    (ptr = static_cast<char*>(memchr(ptr, static_cast<int>(*needle), haystackLen - (ptr - haystack)))))
 			{
 				// check if there is room to do a memcmp
 				if (needleLen > (haystackLen - (ptr - haystack)))
