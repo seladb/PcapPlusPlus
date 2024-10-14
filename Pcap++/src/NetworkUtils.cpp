@@ -1,4 +1,4 @@
-#define LOG_MODULE NetworkUtils
+#define LOG_MODULE PcapLogModuleNetworkUtils
 
 #include <condition_variable>
 #include <mutex>
