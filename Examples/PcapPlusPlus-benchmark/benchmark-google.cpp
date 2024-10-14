@@ -35,15 +35,15 @@ static void BM_PcapFileRead(benchmark::State& state)
 			if (totalBytes == 0)
 			{
 				state.SkipWithError("Cannot read packet");
-				break;
+				return;
 			}
-			else  // If the rawPacket is not empty, it means the file is over
-			{
-				state.PauseTiming();
-				reader.close();
-				reader.open();
-				state.ResumeTiming();
-			}
+
+			// Rewind the file if it reached the end
+			state.PauseTiming();
+			reader.close();
+			reader.open();
+			state.ResumeTiming();
+			continue;
 		}
 
 		++totalPackets;
@@ -114,16 +114,15 @@ static void BM_PacketParsing(benchmark::State& state)
 			if (totalBytes == 0)
 			{
 				state.SkipWithError("Cannot read packet");
-				break;
+				return;
 			}
-			else  // If the rawPacket is not empty, it means the file is over
-			{
-				state.PauseTiming();
-				reader.close();
-				reader.open();
-				state.ResumeTiming();
-				continue;
-			}
+
+			// Rewind the file if it reached the end
+			state.PauseTiming();
+			reader.close();
+			reader.open();
+			state.ResumeTiming();
+			continue;
 		}
 
 		// Parse packet
@@ -152,23 +151,17 @@ static void BM_PacketCrafting(benchmark::State& state)
 	{
 		uint8_t randNum = static_cast<uint8_t>(rand() % 256);
 
+		pcpp::Packet packet;
+
 		// Generate random MAC addresses
 		pcpp::MacAddress srcMac(randNum, randNum, randNum, randNum, randNum, randNum);
 		pcpp::MacAddress dstMac(randNum, randNum, randNum, randNum, randNum, randNum);
-
-		// Craft packet
-		std::unique_ptr<pcpp::EthLayer> ethLayer(new pcpp::EthLayer(srcMac, dstMac));
-
-		std::unique_ptr<pcpp::IPv4Layer> ipv4Layer(nullptr);
-		std::unique_ptr<pcpp::IPv6Layer> ipv6Layer(nullptr);
-
-		std::unique_ptr<pcpp::TcpLayer> tcpLayer(nullptr);
-		std::unique_ptr<pcpp::UdpLayer> udpLayer(nullptr);
+		packet.addLayer(new pcpp::EthLayer(srcMac, dstMac), true);
 
 		// Randomly choose between IPv4 and IPv6
 		if (randNum % 2)
 		{
-			ipv4Layer.reset(new pcpp::IPv4Layer(randNum, randNum));
+			packet.addLayer(new pcpp::IPv4Layer(randNum, randNum), true);
 		}
 		else
 		{
@@ -177,40 +170,20 @@ static void BM_PacketCrafting(benchmark::State& state)
 			std::array<uint8_t, 16> dstIP = { randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum,
 				                              randNum, randNum, randNum, randNum, randNum, randNum, randNum, randNum };
 
-			ipv6Layer.reset(new pcpp::IPv6Layer(srcIP, dstIP));
+			packet.addLayer(new pcpp::IPv6Layer(srcIP, dstIP), true);
 		}
 
 		// Randomly choose between TCP and UDP
 		if (randNum % 2)
 		{
-			tcpLayer.reset(new pcpp::TcpLayer(randNum % 65536, randNum % 65536));
+			packet.addLayer(new pcpp::TcpLayer(randNum % 65536, randNum % 65536), true);
 		}
 		else
 		{
-			udpLayer.reset(new pcpp::UdpLayer(randNum % 65536, randNum % 65536));
+			packet.addLayer(new pcpp::UdpLayer(randNum % 65536, randNum % 65536), true);
 		}
 
-		// Add layers to the packet
-		pcpp::Packet packet;
-		packet.addLayer(ethLayer.get());
-		if (ipv4Layer)
-		{
-			packet.addLayer(ipv4Layer.get());
-		}
-		else
-		{
-			packet.addLayer(ipv6Layer.get());
-		}
-
-		if (tcpLayer)
-		{
-			packet.addLayer(tcpLayer.get());
-		}
-		else
-		{
-			packet.addLayer(udpLayer.get());
-		}
-
+		// Calculate all fields to update the packet
 		packet.computeCalculateFields();
 
 		// Count total bytes and packets
