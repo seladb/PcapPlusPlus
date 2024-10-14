@@ -149,6 +149,11 @@ namespace pcpp
 		return s << static_cast<std::underlying_type<LogLevel>::type>(v);
 	}
 
+	// Forward declaration
+	template <class T> void log(LogSource source, LogLevel level, T const& message);
+	template <> void log(LogSource source, LogLevel level, std::string const& message);
+	template <> void log(LogSource source, LogLevel level, const char* const& message);
+
 	/**
 	 * @class Logger
 	 * PcapPlusPlus logger manager.
@@ -311,48 +316,7 @@ namespace pcpp
 			return instance;
 		}
 
-		template <class T> void log(LogSource source, LogLevel level, T const& message)
-		{
-			if (shouldLog(level, source.logModule))
-			{
-				std::ostringstream sstream;
-				sstream << message;
-				printLogMessage(source, level, sstream.str());
-			}
-		};
-
-		// Specialization for string to skip the stringstream
-		template <> void log(LogSource source, LogLevel level, std::string const& message)
-		{
-			if (shouldLog(level, source.logModule))
-			{
-				printLogMessage(source, level, message);
-			}
-		};
-
-		// Specialization for const char* to skip the stringstream
-		template <> void log(LogSource source, LogLevel level, const char* const& message)
-		{
-			if (shouldLog(level, source.logModule))
-			{
-				printLogMessage(source, level, message);
-			}
-		};
-
-		template <class T> void logError(LogSource source, T const& message)
-		{
-			log(source, LogLevel::Error, message);
-		};
-
-		template <class T> void logInfo(LogSource source, T const& message)
-		{
-			log(source, LogLevel::Info, message);
-		};
-
-		template <class T> void logDebug(LogSource source, T const& message)
-		{
-			log(source, LogLevel::Debug, message);
-		};
+		template <class T> friend void pcpp::log(LogSource source, LogLevel level, T const& message);
 
 	private:
 		bool m_LogsEnabled;
@@ -367,17 +331,62 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                              const std::string& method, const int line);
 	};
+
+	template <class T> inline void log(LogSource source, LogLevel level, T const& message)
+	{
+		auto& logger = Logger::getInstance();
+		if (logger.shouldLog(level, source.logModule))
+		{
+			std::ostringstream sstream;
+			sstream << message;
+			logger.printLogMessage(source, level, sstream.str());
+		}
+	};
+
+	// Specialization for string to skip the stringstream
+	template <> inline void log(LogSource source, LogLevel level, std::string const& message)
+	{
+		auto& logger = Logger::getInstance();
+		if (logger.shouldLog(level, source.logModule))
+		{
+			logger.printLogMessage(source, level, message);
+		}
+	};
+
+	// Specialization for const char* to skip the stringstream
+	template <> inline void log(LogSource source, LogLevel level, const char* const& message)
+	{
+		auto& logger = Logger::getInstance();
+		if (logger.shouldLog(level, source.logModule))
+		{
+			logger.printLogMessage(source, level, message);
+		}
+	};
+
+	template <class T> inline void logError(LogSource source, T const& message)
+	{
+		log(source, LogLevel::Error, message);
+	};
+
+	template <class T> inline void logInfo(LogSource source, T const& message)
+	{
+		log(source, LogLevel::Info, message);
+	};
+
+	template <class T> inline void logDebug(LogSource source, T const& message)
+	{
+		log(source, LogLevel::Debug, message);
+	};
 }  // namespace pcpp
 
 #define PCPP_LOG(level, message)                                                                                       \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		auto& logger = Logger::getInstance();                                                                          \
-		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
+		if (pcpp::Logger::getInstance().shouldLog(level, LOG_MODULE))                                                  \
 		{                                                                                                              \
 			std::ostringstream sstream;                                                                                \
 			sstream << message;                                                                                        \
-			logger.log(pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__), level, sstream.str());    \
+			pcpp::log(pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__), level, sstream.str());     \
 		}                                                                                                              \
 	} while (0)
 
