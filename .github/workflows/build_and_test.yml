@@ -287,34 +287,35 @@ jobs:
     strategy:
       matrix:
         include:
-          # - os-version: macos-13
-          #   host-arch: x86_64
-          #   arch: x86_64
-          #   config-zstd: OFF
-          # - os-version: macos-13
-          #   host-arch: x86_64
-          #   arch: x86_64
-          #   config-zstd: ON
+          - os-version: macos-13
+            host-arch: x86_64
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-13
+            host-arch: x86_64
+            arch: x86_64
+            config-zstd: ON
           - os-version: macos-13
             host-arch: x86_64
             arch: arm64
             config-zstd: OFF
-          # - os-version: macos-14
-          #   host-arch: x86_64
-          #   arch: x86_64
-          #   config-zstd: OFF
-          # - os-version: macos-14
-          #   host-arch: arm64
-          #   arch: arm64
-          #   config-zstd: ON
-          # - os-version: macos-15
-          #   host-arch: x86_64
-          #   arch: x86_64
-          #   config-zstd: OFF
-          # - os-version: macos-15
-          #   host-arch: arm64
-          #   arch: arm64
-          #   config-zstd: ON
+            additional-flags: -DCMAKE_CROSSCOMPILING=1 -DRUN_HAVE_STD_REGEX=0
+          - os-version: macos-14
+            host-arch: x86_64
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-14
+            host-arch: arm64
+            arch: arm64
+            config-zstd: ON
+          - os-version: macos-15
+            host-arch: x86_64
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-15
+            host-arch: arm64
+            arch: arm64
+            config-zstd: ON
 
     steps:
       - name: Checkout code
@@ -343,7 +344,7 @@ jobs:
         run: |
           sudo chmod a+rw /dev/bpf*
           sudo chmod a+rw /usr/local
-          cmake -DCMAKE_CROSSCOMPILING=1 -DRUN_HAVE_STD_REGEX=0 -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+          cmake ${{ matrix.additional-flags}} -DLIGHT_PCAPNG_ZSTD=${{ matrix.config-zstd }} -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
 
       - name: Build PcapPlusPlus
         run: cmake --build "$BUILD_DIR" -j
