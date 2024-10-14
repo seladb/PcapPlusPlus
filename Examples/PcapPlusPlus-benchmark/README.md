@@ -1,17 +1,19 @@
 PcapPlusPlus Benchmark
 ======================
 
-This is a benchmark application used for measuring PcapPlusPlus performance. It is based on Matias Fontanini's packet-capture-benchmarks project (https://github.com/mfontanini/packet-capture-benchmarks).
+This folder contains benchmark applications for measuring the performance of PcapPlusPlus. Currently, there are two benchmark applications.
 
-See this page for more details: https://pcapplusplus.github.io/docs/benchmark
+## Compare with other libraries
 
-This application currently compiles on Linux only (where benchmark was running on)
+A benchmark application used for measuring PcapPlusPlus performance can be found in `benchmark.cpp`. It is based on Matias Fontanini's packet-capture-benchmarks project (https://github.com/mfontanini/packet-capture-benchmarks) and allows us to compare PcapPlusPlus with other packet libraries. See this page for more details and result comparisons: https://pcapplusplus.github.io/docs/benchmark
 
-Additionally, there is an integration of Google Benchmark library for benchmarking. For enabling, configure the library with `-DPCAPPP_USE_GOOGLEBENCHMARK=ON`. Each benchmark can be affected from different sources. You can check the table below for more information. If you have performance critical applications which will use PcapPlusPlus, please benchmark it in your environment to get better and more precise results. Also using different pcaps, both in terms of size (larger is better to prevent open/close overhead) and protocol/session variety, can also help to give idea about performance of PcapPlusPlus in your environment.
+## Directly benchmark PcapPlusPlus
 
-|     Benchmark     |   Operation   |  Can be affected  |
-|:-----------------:|:-------------:|:-----------------:|
-| BM_PcapFileRead   |     Read      | CPU + Disk (Read) |
-| BM_PcapFileWrite  |     Write     | CPU + Disk (Write)|
-| BM_PacketParsing  | Read + Parse  | CPU + Disk (Read) |
-| BM_PacketCrafting |     Craft     |       CPU         |
+Another application integrates with the Google Benchmark library and can be found in `benchmark-google.cpp`. This application currently consists of four different benchmarks, and each benchmark can be influenced by various factors. These benchmarks aim to utilize different influence factors to provide accurate results for different scenarios. You can check the table below for more information. For performance-critical applications using PcapPlusPlus, it is recommended to run benchmarks in your specific environment for more accurate results. Using larger pcap files and those with diverse protocols and sessions can provide better insights into PcapPlusPlus performance in your setup.
+
+|     Benchmark     |   Operation   |  Can be influenced by  |
+|:-----------------:|:-------------:|:----------------------:|
+| BM_PcapFileRead   |     Read      |  CPU + Disk (Read)     |
+| BM_PcapFileWrite  |     Write     |  CPU + Disk (Write)    |
+| BM_PacketParsing  | Read + Parse  |  CPU + Disk (Read)     |
+| BM_PacketCrafting |     Craft     |        CPU             |
