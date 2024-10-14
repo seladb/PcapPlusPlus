@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <algorithm>
 #include <initializer_list>
 #include <iterator>
@@ -39,6 +40,15 @@ namespace pcpp
 		explicit MacAddress(const uint8_t* addr)
 		{
 			memcpy(m_Address, addr, sizeof(m_Address));
+		}
+
+		/**
+		 * A constructor that creates an instance of the class out of a std::array.
+		 * @param[in] addr The std::array containing 6 bytes representing the MAC address.
+		 */
+		explicit MacAddress(std::array<uint8_t, 6> const& addr)
+		{
+			std::copy(addr.begin(), addr.end(), std::begin(m_Address));
 		}
 
 		/**
@@ -173,10 +183,10 @@ namespace pcpp
 	private:
 		uint8_t m_Address[6] = { 0 };
 	};
-}  // namespace pcpp
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
-{
-	os << macAddress.toString();
-	return os;
-}
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
+	{
+		os << macAddress.toString();
+		return os;
+	}
+}  // namespace pcpp
