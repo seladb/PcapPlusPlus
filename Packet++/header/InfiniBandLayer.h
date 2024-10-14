@@ -83,7 +83,7 @@ namespace pcpp
 		 * @param[in] se The solicited event
 		 * @param[in] mig The migration state
 		 * @param[in] pad The pad count
-		 * @param[in] pkey The parition key
+		 * @param[in] pkey The partition key
 		 * @param[in] qpn The destination queue pair (QP) number
 		 * @param[in] ack_req The acknowledgment request
 		 * @param[in] psn The packet sequence number
@@ -101,9 +101,9 @@ namespace pcpp
 			return reinterpret_cast<rxe_bth*>(m_Data);
 		}
 
-		/** 
-		 * @return The operation code which defines the interpretation of the remaining header and	payload bytes
-		 */ 
+		/**
+		 * @return The operation code which defines the interpretation of the remaining header and payload bytes
+		 */
 		uint8_t getOpcode() const;
 
 		/**
@@ -118,8 +118,8 @@ namespace pcpp
 		uint8_t getSe() const;
 
 		/**
-		 * Set solicited evnet
-		 * @param[in] se The solicited evnet to set
+		 * Set solicited event
+		 * @param[in] se The solicited event to set
 		 */
 		void setSe(int se) const;
 
@@ -130,21 +130,22 @@ namespace pcpp
 
 		/**
 		 * Set migreq
-		 * @param[in] mig The migration state to set. If set to one, indicates the connection or EE context has been migrated;
-		 *  if set to zero, it means there is no change in the current migration state.
+		 * @param[in] mig The migration state to set. If set to one, indicates the connection or EE context has been
+		 * migrated; if set to zero, it means there is no change in the current migration state.
 		 */
 		void setMig(uint8_t mig) const;
 
 		/**
-		 * @return PadCount which Packet payloads are sent as a multiple of 4-byte quantities. 
+		 * @return PadCount which Packet payloads are sent as a multiple of 4-byte quantities.
 		 * Pad count indicates the number of pad bytes - 0 to 3 - that are appended to the packetpayload.
-		 * Pads are used to “stretch” the payload (payloads may be zero or more bytes in length) to be a multiple of 4 bytes
+		 * Pads are used to “stretch” the payload (payloads may be zero or more bytes in length) to be a multiple of 4
+		 * bytes
 		 */
 		uint8_t getPad() const;
 
 		/**
 		 * Set PadCount
-		 * @param[in] pad The PadCount to set 
+		 * @param[in] pad The PadCount to set
 		 */
 		void setPad(uint8_t pad) const;
 
@@ -160,14 +161,14 @@ namespace pcpp
 		void setTver(uint8_t tver) const;
 
 		/**
-		 * @return parition key identifing the partition 
+		 * @return partition key identifying the partition
 		 * that the destination QP (RC, UC, UD, XRC) or EE Context (RD) is a member.
 		 */
 		uint16_t getPkey() const;
 
 		/**
-		 * Set parition key
-		 * @param[in] pkey The parition key to set
+		 * Set partition key
+		 * @param[in] pkey The partition key to set
 		 */
 		void setPkey(uint16_t pkey) const;
 
@@ -184,7 +185,7 @@ namespace pcpp
 
 		/**
 		 * @return FECN
-		 * F (FECN): 0 indicates that a FECN indication was not received. 
+		 * F (FECN): 0 indicates that a FECN indication was not received.
 		 * 1 indicates that the packet went through a point of congestion
 		 */
 		int getFecn() const;
@@ -211,7 +212,7 @@ namespace pcpp
 		void setbecn(int becn) const;
 
 		/**
-		 * @return Reserved (variant) - 6 bits. Transmitted as 0, ignored on receive. 
+		 * @return Reserved (variant) - 6 bits. Transmitted as 0, ignored on receive.
 		 */
 		uint8_t getResv6a() const;
 
@@ -232,13 +233,13 @@ namespace pcpp
 		void setAck(int ack) const;
 
 		/**
-		 * Transmitted as 0, ignored on receive. 
+		 * Transmitted as 0, ignored on receive.
 		 */
 		void setResv7() const;
 
 		/**
-		 * @return packet sequence number that is used to identify the position of a packet 
-		 * within a sequence of packets.  
+		 * @return packet sequence number that is used to identify the position of a packet
+		 * within a sequence of packets.
 		 */
 		uint32_t getPsn() const;
 
@@ -275,7 +276,7 @@ namespace pcpp
 
 		/**
 		 * A static method that check whether is inifiniband RoCE port
-		 * @param[in] port The port from UDP destionation port
+		 * @param[in] port The port from UDP destination port
 		 * @return True if the port is inifiniband RoCE and can represent an rxe packet
 		 */
 		static inline bool isInfiniBandPort(uint16_t port)
