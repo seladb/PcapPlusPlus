@@ -10,7 +10,7 @@
  */
 namespace pcpp
 {
-	/*
+	/**
 	 * IBA header types and methods
 	 *
 	 * Some of these are for reference and completeness only since
