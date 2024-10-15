@@ -12,7 +12,7 @@ fetchcontent_declare(
   GIT_REPOSITORY https://github.com/google/benchmark.git
   GIT_TAG v1.9.0)
 
-# Disable testing for benchmark
+# Disable testing and installation for Google Benchmark
 set(BENCHMARK_ENABLE_TESTING OFF)
 set(BENCHMARK_ENABLE_INSTALL OFF)
 fetchcontent_makeavailable(benchmark)
