@@ -14,6 +14,7 @@ fetchcontent_declare(
 
 # Disable testing for benchmark
 set(BENCHMARK_ENABLE_TESTING OFF)
+set(BENCHMARK_ENABLE_INSTALL OFF)
 fetchcontent_makeavailable(benchmark)
 
 add_executable(BenchmarkExampleGoogle benchmark-google.cpp)
