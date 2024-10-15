@@ -299,7 +299,7 @@ jobs:
             host-arch: x86_64
             arch: arm64
             config-zstd: OFF
-            additional-flags: -DCMAKE_CROSSCOMPILING=1 -DRUN_HAVE_STD_REGEX=0
+            # additional-flags: -DCMAKE_CROSSCOMPILING=1 -DRUN_HAVE_STD_REGEX=0
           - os-version: macos-14
             host-arch: x86_64
             arch: x86_64
