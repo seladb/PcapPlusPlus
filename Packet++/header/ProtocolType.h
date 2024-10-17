@@ -352,6 +352,11 @@ namespace pcpp
 	 */
 	const ProtocolType WireGuard = 56;
 
+	/*
+	 * GVCP protocol
+	 */
+	const ProtocolType GVCP = 57;
+
 	/**
 	 * An enum representing OSI model layers
 	 */
