@@ -1,6 +1,5 @@
 #include <iostream>
 #include <algorithm>
-#include "stdlib.h"
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
 /**

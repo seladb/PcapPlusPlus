@@ -5,8 +5,8 @@
 #include "Packet.h"
 #endif
 // clang-format on
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 namespace pcpp_tests
 {

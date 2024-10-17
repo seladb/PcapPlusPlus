@@ -1,5 +1,4 @@
 #include "TestUtils.h"
-#include <stdlib.h>
 #include <fstream>
 #include "GlobalTestArgs.h"
 #include "PcapFileDevice.h"

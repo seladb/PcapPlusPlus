@@ -11,7 +11,6 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stdlib.h>
 
 /**
  * Macros for exiting the application with error

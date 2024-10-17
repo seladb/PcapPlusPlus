@@ -30,6 +30,7 @@ PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv6);
 PTF_TEST_CASE(TestPcapFileReadLinkTypeIPv4);
 PTF_TEST_CASE(TestSolarisSnoopFileRead);
 PTF_TEST_CASE(TestPcapNgFilePrecision);
+PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor);
 
 // Implemented in LiveDeviceTests.cpp
 PTF_TEST_CASE(TestPcapLiveDeviceList);
@@ -78,6 +79,8 @@ PTF_TEST_CASE(TestTcpReassemblyMaxOOOFrags);
 PTF_TEST_CASE(TestTcpReassemblyMaxSeq);
 PTF_TEST_CASE(TestTcpReassemblyDisableOOOCleanup);
 PTF_TEST_CASE(TestTcpReassemblyTimeStamps);
+PTF_TEST_CASE(TestTcpReassemblyFinReset);
+PTF_TEST_CASE(TestTcpReassemblyHighPrecision);
 
 // Implemented in IPFragmentationTests.cpp
 PTF_TEST_CASE(TestIPFragmentationSanity);

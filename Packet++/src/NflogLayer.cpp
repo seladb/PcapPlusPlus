@@ -7,8 +7,6 @@
 #include "GeneralUtils.h"
 #include "EndianPortable.h"
 
-#include <string.h>
-
 namespace pcpp
 {
 /** IPv4 protocol */

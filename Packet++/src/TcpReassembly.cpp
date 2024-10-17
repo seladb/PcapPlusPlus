@@ -23,11 +23,44 @@
 namespace pcpp
 {
 
-	static timeval timespecToTimeval(const timespec& in)
+	static timeval timePointToTimeval(const std::chrono::time_point<std::chrono::high_resolution_clock>& in)
 	{
-		timeval out;
-		TIMESPEC_TO_TIMEVAL(&out, &in);
+		auto duration = in.time_since_epoch();
+
+		auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+		auto microseconds =
+		    std::chrono::duration_cast<std::chrono::microseconds>(duration).count() -
+		    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(seconds)).count();
+
+		struct timeval out;
+		out.tv_sec = seconds;
+		out.tv_usec = microseconds;
 		return out;
+	}
+
+	static std::chrono::time_point<std::chrono::high_resolution_clock> timespecToTimePoint(const timespec& in)
+	{
+		auto duration = std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(
+		    std::chrono::seconds(in.tv_sec) + std::chrono::nanoseconds(in.tv_nsec));
+
+		return std::chrono::time_point<std::chrono::high_resolution_clock>(duration);
+	}
+
+	void ConnectionData::setStartTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& startTimeValue)
+	{
+		startTime = timePointToTimeval(startTimeValue);
+		startTimePrecise = startTimeValue;
+	}
+
+	void ConnectionData::setEndTime(const std::chrono::time_point<std::chrono::high_resolution_clock>& endTimeValue)
+	{
+		endTime = timePointToTimeval(endTimeValue);
+		endTimePrecise = endTimeValue;
+	}
+
+	timeval TcpStreamData::getTimeStamp() const
+	{
+		return timePointToTimeval(m_Timestamp);
 	}
 
 	TcpReassembly::TcpReassembly(OnTcpMessageReady onMessageReadyCallback, void* userCookie,
@@ -109,7 +142,7 @@ namespace pcpp
 		uint32_t flowKey = hash5Tuple(&tcpData);
 
 		// time stamp for this packet
-		timeval currTime = timespecToTimeval(tcpData.getRawPacket()->getPacketTimeStamp());
+		auto currTime = timespecToTimePoint(tcpData.getRawPacket()->getPacketTimeStamp());
 
 		// find the connection in the connection map
 		ConnectionList::iterator iter = m_ConnectionList.find(flowKey);
@@ -146,22 +179,13 @@ namespace pcpp
 
 			tcpReassemblyData = &iter->second;
 
-			if (currTime.tv_sec > tcpReassemblyData->connData.endTime.tv_sec)
+			if (currTime > tcpReassemblyData->connData.endTimePrecise)
 			{
 				tcpReassemblyData->connData.setEndTime(currTime);
 				m_ConnectionInfo[flowKey].setEndTime(currTime);
 			}
-			else if (currTime.tv_sec == tcpReassemblyData->connData.endTime.tv_sec)
-			{
-				if (currTime.tv_usec > tcpReassemblyData->connData.endTime.tv_usec)
-				{
-					tcpReassemblyData->connData.setEndTime(currTime);
-					m_ConnectionInfo[flowKey].setEndTime(currTime);
-				}
-			}
 		}
 
-		timeval timestampOfTheReceivedPacket = currTime;
 		int8_t sideIndex = -1;
 		bool first = false;
 
@@ -232,8 +256,15 @@ namespace pcpp
 		// if this side already got FIN or RST packet before, ignore this packet as this side is considered closed
 		if (tcpReassemblyData->twoSides[sideIndex].gotFinOrRst)
 		{
+			if (!tcpReassemblyData->twoSides[1 - sideIndex].gotFinOrRst && isRst)
+			{
+				handleFinOrRst(tcpReassemblyData, 1 - sideIndex, flowKey, isRst);
+				return FIN_RSTWithNoData;
+			}
+
 			PCPP_LOG_DEBUG("Got a packet after FIN or RST were already seen on this side ("
 			               << static_cast<int>(sideIndex) << "). Ignoring this packet");
+
 			return Ignore_PacketOfClosedFlow;
 		}
 
@@ -292,7 +323,7 @@ namespace pcpp
 			if (tcpPayloadSize != 0 && m_OnMessageReadyCallback != nullptr)
 			{
 				TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,
-				                         timestampOfTheReceivedPacket);
+				                         currTime);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
 			status = TcpMessageHandled;
@@ -330,7 +361,7 @@ namespace pcpp
 				if (m_OnMessageReadyCallback != nullptr)
 				{
 					TcpStreamData streamData(tcpLayer->getLayerPayload() + newLength, tcpPayloadSize - newLength, 0,
-					                         tcpReassemblyData->connData, timestampOfTheReceivedPacket);
+					                         tcpReassemblyData->connData, currTime);
 					m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 				}
 				status = TcpMessageHandled;
@@ -383,7 +414,7 @@ namespace pcpp
 			if (m_OnMessageReadyCallback != nullptr)
 			{
 				TcpStreamData streamData(tcpLayer->getLayerPayload(), tcpPayloadSize, 0, tcpReassemblyData->connData,
-				                         timestampOfTheReceivedPacket);
+				                         currTime);
 				m_OnMessageReadyCallback(sideIndex, streamData, m_UserCookie);
 			}
 			status = TcpMessageHandled;
@@ -429,7 +460,7 @@ namespace pcpp
 			newTcpFrag->data = new uint8_t[tcpPayloadSize];
 			newTcpFrag->dataLength = tcpPayloadSize;
 			newTcpFrag->sequence = sequence;
-			newTcpFrag->timestamp = timestampOfTheReceivedPacket;
+			newTcpFrag->timestamp = currTime;
 			memcpy(newTcpFrag->data, tcpLayer->getLayerPayload(), tcpPayloadSize);
 			tcpReassemblyData->twoSides[sideIndex].tcpFragmentList.pushBack(newTcpFrag);
 

@@ -8,7 +8,7 @@ namespace pcpp
 {
 	/**
 	 * @class PacketTrailerLayer
-	 * A class for representing packet tailer (a.k.a footer or padding) which refers to supplemental data placed at the
+	 * A class for representing packet trailer (a.k.a footer or padding) which refers to supplemental data placed at the
 	 * end of a block of data being stored or transmitted, which may contain information for the handling of the data
 	 * block, or just mark its end (taken from Wikipedia: https://en.wikipedia.org/wiki/Trailer_(computing) )
 	 *
@@ -41,8 +41,7 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, PacketTrailer)
 		{}
 
-		~PacketTrailerLayer()
-		{}
+		~PacketTrailerLayer() override = default;
 
 		/**
 		 * Get a pointer to the trailer data
@@ -72,13 +71,13 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer (PacketTrailerLayer is always last)
 		 */
-		void parseNextLayer()
+		void parseNextLayer() override
 		{}
 
 		/**
 		 * @return trailer data length in bytes
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
@@ -86,12 +85,12 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		void computeCalculateFields()
+		void computeCalculateFields() override
 		{}
 
-		std::string toString() const;
+		std::string toString() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelDataLinkLayer;
 		}

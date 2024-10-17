@@ -2,8 +2,6 @@
 
 #include "SdpLayer.h"
 #include "Logger.h"
-#include <stdlib.h>
-#include <string>
 #include <sstream>
 
 namespace pcpp

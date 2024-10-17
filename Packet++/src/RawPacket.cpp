@@ -1,9 +1,9 @@
 #define LOG_MODULE PacketLogModuleRawPacket
 
 #include "RawPacket.h"
-#include <string.h>
 #include "Logger.h"
 #include "TimespecTimeval.h"
+#include <cstring>
 
 namespace pcpp
 {

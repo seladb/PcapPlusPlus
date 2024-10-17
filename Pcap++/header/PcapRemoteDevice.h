@@ -1,10 +1,8 @@
 #pragma once
 
-#if defined(_WIN32)
-
-#	include <vector>
-#	include <memory>
-#	include "PcapLiveDevice.h"
+#include <vector>
+#include <memory>
+#include "PcapLiveDevice.h"
 
 /// @file
 
@@ -95,6 +93,12 @@ namespace pcpp
 		// c'tor is private, as only PcapRemoteDeviceList should create instances of it, and it'll create only one for
 		// every remote interface
 		PcapRemoteDevice(pcap_if_t* iface, std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication,
+		                 const IPAddress& remoteMachineIP, uint16_t remoteMachinePort)
+		    : PcapRemoteDevice(DeviceInterfaceDetails(iface), std::move(remoteAuthentication), remoteMachineIP,
+		                       remoteMachinePort)
+		{}
+		PcapRemoteDevice(DeviceInterfaceDetails deviceInterface,
+		                 std::shared_ptr<PcapRemoteAuthentication> remoteAuthentication,
 		                 const IPAddress& remoteMachineIP, uint16_t remoteMachinePort);
 
 	public:
@@ -157,8 +161,8 @@ namespace pcpp
 		bool open() override;
 
 		void getStatistics(IPcapDevice::PcapStats& stats) const override;
+
+		PcapRemoteDevice* clone() const override;
 	};
 
 }  // namespace pcpp
-
-#endif  // _WIN32
