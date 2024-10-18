@@ -1082,40 +1082,40 @@ namespace pcpp
 		std::unique_ptr<IPv4Network> m_IPv4Network;
 		std::unique_ptr<IPv6Network> m_IPv6Network;
 	};
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
+	{
+		os << ipv4Address.toString();
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Address& ipv6Address)
+	{
+		os << ipv6Address.toString();
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddress)
+	{
+		os << ipAddress.toString();
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
+	{
+		os << network.toString();
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
+	{
+		os << network.toString();
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network)
+	{
+		os << network.toString();
+		return os;
+	}
 }  // namespace pcpp
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
-{
-	os << ipv4Address.toString();
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Address& ipv6Address)
-{
-	os << ipv6Address.toString();
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddress)
-{
-	os << ipAddress.toString();
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
-{
-	os << network.toString();
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
-{
-	os << network.toString();
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network)
-{
-	os << network.toString();
-	return os;
-}
