@@ -31,20 +31,6 @@ namespace pcpp
 	/// TcpOptionBuilder
 	/// ~~~~~~~~~~~~~~~~
 
-	TcpOptionBuilder::TcpOptionBuilder(NopEolOptionTypes optionType)
-	{
-		switch (optionType)
-		{
-		case EOL:
-			init(static_cast<uint8_t>(PCPP_TCPOPT_EOL), nullptr, 0);
-			break;
-		case NOP:
-		default:
-			init(static_cast<uint8_t>(PCPP_TCPOPT_NOP), nullptr, 0);
-			break;
-		}
-	}
-
 	TcpOptionBuilder::TcpOptionBuilder(const NopEolOptionEnumType optionType)
 	{
 		switch (optionType)
@@ -459,74 +445,4 @@ namespace pcpp
 
 		return result;
 	}
-
-	/// ~~~~~~~~
-	/// TcpLayer Deprecated Code
-	/// ~~~~~~~~
-
-	DISABLE_WARNING_PUSH
-	DISABLE_WARNING_DEPRECATED
-	TcpOption TcpLayer::addTcpOptionAfter(const TcpOptionBuilder& optionBuilder, TcpOptionType prevOptionType)
-	{
-		int offset = 0;
-
-		if (prevOptionType == TcpOptionType::TCPOPT_Unknown)
-		{
-			offset = sizeof(tcphdr);
-		}
-		else
-		{
-			TcpOption prevOpt = getTcpOption(prevOptionType);
-			if (prevOpt.isNull())
-			{
-				PCPP_LOG_ERROR("Previous option of type " << static_cast<int>(prevOptionType)
-				                                          << " not found, cannot add a new TCP option");
-				return TcpOption(nullptr);
-			}
-
-			offset = prevOpt.getRecordBasePtr() + prevOpt.getTotalSize() - m_Data;
-		}
-
-		return addTcpOptionAt(optionBuilder, offset);
-	}
-
-	TcpOption TcpLayer::getTcpOption(TcpOptionType option) const
-	{
-		return m_OptionReader.getTLVRecord(static_cast<uint8_t>(option), getOptionsBasePtr(),
-		                                   getHeaderLen() - sizeof(tcphdr));
-	}
-
-	bool TcpLayer::removeTcpOption(TcpOptionType optionType)
-	{
-		TcpOption opt = getTcpOption(optionType);
-		if (opt.isNull())
-		{
-			return false;
-		}
-
-		// calculate total TCP option size
-		TcpOption curOpt = getFirstTcpOption();
-		size_t totalOptSize = 0;
-		while (!curOpt.isNull())
-		{
-			totalOptSize += curOpt.getTotalSize();
-			curOpt = getNextTcpOption(curOpt);
-		}
-		totalOptSize -= opt.getTotalSize();
-
-		int offset = opt.getRecordBasePtr() - m_Data;
-
-		if (!shortenLayer(offset, opt.getTotalSize()))
-		{
-			return false;
-		}
-
-		adjustTcpOptionTrailer(totalOptSize);
-
-		m_OptionReader.changeTLVRecordCount(-1);
-
-		return true;
-	}
-	DISABLE_WARNING_POP
-
 }  // namespace pcpp
