@@ -17,6 +17,8 @@
 
 PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
 
+翻譯: [English](../README.md) · 正體中文
+
 ## 目錄
 
 - [目錄](#目錄)
