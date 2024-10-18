@@ -12,6 +12,7 @@
 #include "SipLayer.h"
 #include "RadiusLayer.h"
 #include "GtpLayer.h"
+#include "GvcpLayer.h"
 #include "NtpLayer.h"
 #include "SomeIpLayer.h"
 #include "WakeOnLanLayer.h"
@@ -140,6 +141,10 @@ namespace pcpp
 			m_NextLayer = WireGuardLayer::parseWireGuardLayer(udpData, udpDataLen, this, m_Packet);
 			if (!m_NextLayer)
 				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
+		}
+		else if (GvcpLayer::isGvcpPort(portSrc) || GvcpLayer::isGvcpPort(portDst))
+		{
+			m_NextLayer = GvcpLayer::parseGvcpLayer(udpData, udpDataLen, this, m_Packet);
 		}
 		else
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
