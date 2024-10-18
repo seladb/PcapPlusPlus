@@ -271,3 +271,7 @@ PTF_TEST_CASE(WireGuardCookieReplyParsingTest);
 PTF_TEST_CASE(WireGuardTransportDataParsingTest);
 PTF_TEST_CASE(WireGuardCreationTest);
 PTF_TEST_CASE(WireGuardEditTest);
+
+// Implemented in InfiniBandTests.cpp
+PTF_TEST_CASE(InfiniBandParsingTest);
+PTF_TEST_CASE(InfiniBandCreationTest);

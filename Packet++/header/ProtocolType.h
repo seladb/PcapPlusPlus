@@ -352,6 +352,11 @@ namespace pcpp
 	 */
 	const ProtocolType WireGuard = 56;
 
+	/*
+	 * Infiniband protocol
+	 */
+	const ProtocolType Infiniband = 57;
+
 	/**
 	 * An enum representing OSI model layers
 	 */
