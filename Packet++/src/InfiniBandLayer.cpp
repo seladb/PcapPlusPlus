@@ -7,6 +7,23 @@
 
 namespace pcpp
 {
+#define RXE_ICRC_SIZE 4
+#define RXE_MAX_HDR_LENGTH 80
+
+#define BTH_TVER 0x0
+#define BTH_DEF_PKEY 0xffff
+
+#define BTH_SE_MASK 0x80
+#define BTH_MIG_MASK 0x40
+#define BTH_PAD_MASK 0x30
+#define BTH_TVER_MASK 0x0f
+#define BTH_FECN_MASK 0x80000000
+#define BTH_BECN_MASK 0x40000000
+#define BTH_RESV6A_MASK 0x3f000000
+#define BTH_QPN_MASK 0x00ffffff
+#define BTH_ACK_MASK 0x80000000
+#define BTH_RESV7_MASK 0x7f000000
+#define BTH_PSN_MASK 0x00ffffff
 
 	InfiniBandLayer::InfiniBandLayer(uint8_t opcode, int se, int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
 	                                 uint32_t psn)
@@ -29,7 +46,7 @@ namespace pcpp
 		if (ack_req)
 			psn |= BTH_ACK_MASK;
 		bthHdr->apsn = htobe32(psn);
-		m_Protocol = Infiniband;
+		m_Protocol = InfiniBand;
 	}
 
 	void InfiniBandLayer::parseNextLayer()

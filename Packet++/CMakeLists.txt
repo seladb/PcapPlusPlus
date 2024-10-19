@@ -89,6 +89,7 @@ set(public_headers
     header/IcmpLayer.h
     header/IcmpV6Layer.h
     header/IgmpLayer.h
+    header/InfiniBandLayer.h
     header/IPLayer.h
     header/IPReassembly.h
     header/IPSecLayer.h
