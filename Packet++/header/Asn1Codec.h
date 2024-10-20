@@ -225,8 +225,8 @@ namespace pcpp
 		virtual void decodeValue(uint8_t* data, bool lazy) = 0;
 		virtual std::vector<uint8_t> encodeValue() const = 0;
 
-		static Asn1Record* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen);
-		int decodeLength(const uint8_t* data, size_t dataLen);
+		static Asn1Record* decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, uint8_t& tagLen);
+		uint8_t decodeLength(const uint8_t* data, size_t dataLen);
 		void decodeValueIfNeeded();
 
 		uint8_t encodeTag();
