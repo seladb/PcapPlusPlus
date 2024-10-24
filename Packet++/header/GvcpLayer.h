@@ -104,7 +104,7 @@ namespace pcpp
 #pragma pack(push, 1)
 	/// @brief Gvcp request header
 	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
-	struct GvcpRequestHeader
+	struct gvcp_request_header
 	{
 		friend class GvcpRequestLayer;
 
@@ -117,9 +117,9 @@ namespace pcpp
 
 	public:
 		// ------------- methods --------------
-		GvcpRequestHeader() = default;
+		gvcp_request_header() = default;
 
-		GvcpRequestHeader(GvcpFlag flag, GvcpCommand command, uint16_t dataSize, uint16_t requestId)
+		gvcp_request_header(GvcpFlag flag, GvcpCommand command, uint16_t dataSize, uint16_t requestId)
 		    : flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
 		      requestId(hostToNet16(requestId))
 		{}
@@ -129,30 +129,12 @@ namespace pcpp
 			return static_cast<GvcpCommand>(netToHost16(command));
 		}
 	};
-	static_assert(sizeof(GvcpRequestHeader) == internal::kGvcpRequestHeaderLength,
+	static_assert(sizeof(gvcp_request_header) == internal::kGvcpRequestHeaderLength,
 	              "Gvcp request header size should be 8 bytes");
-
-	/// @brief Gvcp discovery request
-	struct GvcpDiscoveryRequest : public GvcpRequestHeader
-	{
-		// no addition fields
-
-		// ------------- methods --------------
-
-		/**
-		 * @brief Check if the broadcast is allowed
-		 * @return true The broadcast acknowledge is allowed
-		 */
-		bool hasAllowBroadcastFlag() const
-		{
-			constexpr GvcpFlag kAllowBroadcastFlag = 0b0001000;
-			return (flag & kAllowBroadcastFlag) == kAllowBroadcastFlag;
-		}
-	};
 
 	/// @brief Gvcp acknowledge header
 	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
-	struct GvcpAckHeader
+	struct gvcp_ack_header
 	{
 		friend class GvcpAcknowledgeLayer;
 
@@ -164,9 +146,9 @@ namespace pcpp
 
 	public:
 		// ------------- methods --------------
-		GvcpAckHeader() = default;
+		gvcp_ack_header() = default;
 
-		GvcpAckHeader(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize, uint16_t ackId)
+		gvcp_ack_header(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize, uint16_t ackId)
 		    : status(hostToNet16(static_cast<uint16_t>(status))), command(hostToNet16(static_cast<uint16_t>(command))),
 		      dataSize(hostToNet16(dataSize)), ackId(hostToNet16(ackId))
 		{}
@@ -176,11 +158,11 @@ namespace pcpp
 			return static_cast<GvcpCommand>(netToHost16(command));
 		}
 	};
-	static_assert(sizeof(GvcpAckHeader) == internal::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
+	static_assert(sizeof(gvcp_ack_header) == internal::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
 
 	/// @brief Gvcp discovery acknowledge body
 	/// @note refer to the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
-	struct GvcpDiscoveryBody
+	struct gvcp_discovery_body
 	{
 		uint16_t versionMajor = 0;
 		uint16_t versionMinor = 0;
@@ -202,12 +184,12 @@ namespace pcpp
 		char serialNumber[16] = { 0 };
 		char userDefinedName[16] = { 0 };
 	};
-	static_assert(sizeof(GvcpDiscoveryBody) == internal::kGvcpDiscoveryBodyLength,
+	static_assert(sizeof(gvcp_discovery_body) == internal::kGvcpDiscoveryBodyLength,
 	              "Gvcp ack body size should be 248 bytes");
 
 	/// @brief GVCP force IP command body
 	/// @note refer to the spec "16.2 FORCEIP". The data is stored as big-endian.
-	struct GvcpForceIpBody
+	struct gvcp_forceip_body
 	{
 		char padding1[2] = { 0 };
 		char macAddress[6] = { 0 };
@@ -218,7 +200,7 @@ namespace pcpp
 		char padding4[12] = { 0 };
 		uint32_t gateway = 0;
 	};
-	static_assert(sizeof(GvcpForceIpBody) == internal::kGvcpForceIpBodyLength,
+	static_assert(sizeof(gvcp_forceip_body) == internal::kGvcpForceIpBodyLength,
 	              "GVCP force IP command body size should be 56 bytes");
 #pragma pack(pop)
 
@@ -321,11 +303,11 @@ namespace pcpp
 
 		/**
 		 * @brief Get the header object
-		 * @return GvcpRequestHeader* A pointer to the header object
+		 * @return gvcp_request_header* A pointer to the header object
 		 */
-		GvcpRequestHeader* getGvcpHeader() const
+		gvcp_request_header* getGvcpHeader() const
 		{
-			return reinterpret_cast<GvcpRequestHeader*>(m_Data);  // the header is at the beginning of the data
+			return reinterpret_cast<gvcp_request_header*>(m_Data);  // the header is at the beginning of the data
 		}
 
 		/**
@@ -385,7 +367,7 @@ namespace pcpp
 		// implement Layer's abstract methods
 		size_t getHeaderLen() const override
 		{
-			return sizeof(GvcpRequestHeader);
+			return sizeof(gvcp_request_header);
 		}
 	};
 
@@ -423,11 +405,11 @@ namespace pcpp
 
 		/**
 		 * @brief Get the header object
-		 * @return GvcpAckHeader* A pointer to the header object
+		 * @return gvcp_ack_header* A pointer to the header object
 		 */
-		GvcpAckHeader* getGvcpHeader() const
+		gvcp_ack_header* getGvcpHeader() const
 		{
-			return reinterpret_cast<GvcpAckHeader*>(m_Data);  // the header is at the beginning of the data
+			return reinterpret_cast<gvcp_ack_header*>(m_Data);  // the header is at the beginning of the data
 		}
 
 		/**
@@ -468,7 +450,7 @@ namespace pcpp
 		// implement Layer's abstract methods
 		size_t getHeaderLen() const override
 		{
-			return sizeof(GvcpAckHeader);
+			return sizeof(gvcp_ack_header);
 		}
 	};
 
@@ -652,9 +634,9 @@ namespace pcpp
 		}
 
 	private:
-		GvcpDiscoveryBody* getGvcpDiscoveryBody() const
+		gvcp_discovery_body* getGvcpDiscoveryBody() const
 		{
-			return reinterpret_cast<GvcpDiscoveryBody*>(m_Data + getHeaderLen());
+			return reinterpret_cast<gvcp_discovery_body*>(m_Data + getHeaderLen());
 		}
 	};
 
@@ -732,9 +714,9 @@ namespace pcpp
 		}
 
 	private:
-		GvcpForceIpBody* getGvcpForceIpBody() const
+		gvcp_forceip_body* getGvcpForceIpBody() const
 		{
-			return reinterpret_cast<GvcpForceIpBody*>(m_Data + getHeaderLen());
+			return reinterpret_cast<gvcp_forceip_body*>(m_Data + getHeaderLen());
 		}
 	};
 
