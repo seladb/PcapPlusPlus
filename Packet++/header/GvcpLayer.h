@@ -106,16 +106,12 @@ namespace pcpp
 	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
 	struct gvcp_request_header
 	{
-		friend class GvcpRequestLayer;
-
-	protected:
 		uint8_t magicNumber = internal::kGvcpMagicNumber;  // always fixed
 		uint8_t flag = 0;  // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
 		uint16_t command = 0;
 		uint16_t dataSize = 0;
 		uint16_t requestId = 0;
 
-	public:
 		// ------------- methods --------------
 		gvcp_request_header() = default;
 
@@ -136,15 +132,11 @@ namespace pcpp
 	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
 	struct gvcp_ack_header
 	{
-		friend class GvcpAcknowledgeLayer;
-
-	protected:
 		uint16_t status = 0;
 		uint16_t command = 0;
 		uint16_t dataSize = 0;
 		uint16_t ackId = 0;
 
-	public:
 		// ------------- methods --------------
 		gvcp_ack_header() = default;
 
