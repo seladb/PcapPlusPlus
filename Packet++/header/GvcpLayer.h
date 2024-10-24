@@ -5,6 +5,8 @@
 #include "MacAddress.h"
 #include <iostream>
 
+/// @file
+
 /**
  * @namespace pcpp
  * @brief The main namespace for the PcapPlusPlus lib
