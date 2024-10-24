@@ -154,68 +154,22 @@ namespace pcpp
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv4Address& ip4Addr) const
 	{
-		PCPP_LOG_DEBUG("Searching all remote devices in list...");
-		for (auto const devicePtr : m_DeviceList)
-		{
-			PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
-			for (const auto& addrIter : devicePtr->m_Addresses)
-			{
-				if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != nullptr)
-				{
-					std::array<char, INET6_ADDRSTRLEN> addrAsString;
-					internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
-					PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
-				}
-
-				in_addr* currAddr = internal::try_sockaddr2in_addr(addrIter.addr);
-				if (currAddr == nullptr)
-				{
-					PCPP_LOG_DEBUG("Address is nullptr");
-					continue;
-				}
-
-				if (*currAddr == ip4Addr)
-				{
-					PCPP_LOG_DEBUG("Found matched address!");
-					return devicePtr;
-				}
-			}
-		}
-
-		return nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                       [&ip4Addr](PcapRemoteDevice const* devPtr) {
+			                       auto devIP = devPtr->getIPv4Address();
+			                       return devIP == ip4Addr;
+		                       });
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 	{
-		PCPP_LOG_DEBUG("Searching all remote devices in list...");
-		for (auto devicePtr : m_DeviceList)
-		{
-			PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
-			for (const auto& addrIter : devicePtr->m_Addresses)
-			{
-				if (Logger::getInstance().isDebugEnabled(PcapLogModuleRemoteDevice) && addrIter.addr != nullptr)
-				{
-					std::array<char, INET6_ADDRSTRLEN> addrAsString;
-					internal::sockaddr2string(addrIter.addr, addrAsString.data(), addrAsString.size());
-					PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
-				}
-
-				in6_addr* currAddr = internal::try_sockaddr2in6_addr(addrIter.addr);
-				if (currAddr == nullptr)
-				{
-					PCPP_LOG_DEBUG("Address is nullptr");
-					continue;
-				}
-
-				if (*currAddr == ip6Addr)
-				{
-					PCPP_LOG_DEBUG("Found matched address!");
-					return devicePtr;
-				}
-			}
-		}
-
-		return nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
+		                       [&ip6Addr](PcapRemoteDevice const* devPtr) {
+			                       auto devIP = devPtr->getIPv6Address();
+			                       return devIP == ip6Addr;
+		                       });
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 }  // namespace pcpp

@@ -277,68 +277,20 @@ namespace pcpp
 
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPv4Address& ipAddr) const
 	{
-		PCPP_LOG_DEBUG("Searching all live devices...");
-		for (const auto& devicePtr : m_DeviceList)
-		{
-			PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
-			for (const auto& addressInfo : devicePtr->m_Addresses)
-			{
-				if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
-				{
-					std::array<char, INET6_ADDRSTRLEN> addrAsString;
-					internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
-					PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
-				}
-
-				in_addr* currAddr = internal::try_sockaddr2in_addr(addressInfo.addr);
-				if (currAddr == nullptr)
-				{
-					PCPP_LOG_DEBUG("Address is nullptr");
-					continue;
-				}
-
-				if (*currAddr == ipAddr)
-				{
-					PCPP_LOG_DEBUG("Found matched address!");
-					return devicePtr;
-				}
-			}
-		}
-
-		return nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ipAddr](PcapLiveDevice const* devPtr) {
+			auto devIP = devPtr->getIPv4Address();
+			return devIP == ipAddr;
+		});
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 	{
-		PCPP_LOG_DEBUG("Searching all live devices...");
-		for (const auto& devicePtr : m_DeviceList)
-		{
-			PCPP_LOG_DEBUG("Searching device '" << devicePtr->m_Name << "'. Searching all addresses...");
-			for (const auto& addressInfo : devicePtr->m_Addresses)
-			{
-				if (Logger::getInstance().isDebugEnabled(PcapLogModuleLiveDevice) && addressInfo.addr != nullptr)
-				{
-					std::array<char, INET6_ADDRSTRLEN> addrAsString;
-					internal::sockaddr2string(addressInfo.addr, addrAsString.data(), addrAsString.size());
-					PCPP_LOG_DEBUG("Searching address " << addrAsString.data());
-				}
-
-				in6_addr* currAddr = internal::try_sockaddr2in6_addr(addressInfo.addr);
-				if (currAddr == nullptr)
-				{
-					PCPP_LOG_DEBUG("Address is nullptr");
-					continue;
-				}
-
-				if (*currAddr == ip6Addr)
-				{
-					PCPP_LOG_DEBUG("Found matched address!");
-					return devicePtr;
-				}
-			}
-		}
-
-		return nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](PcapLiveDevice const* devPtr) {
+			auto devIP = devPtr->getIPv6Address();
+			return devIP == ip6Addr;
+		});
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	PcapLiveDevice* PcapLiveDeviceList::getDeviceByIp(const std::string& ipAddrAsString) const
@@ -362,7 +314,7 @@ namespace pcpp
 	{
 		PCPP_LOG_DEBUG("Searching all live devices...");
 		auto devIter = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
-		                            [&name](PcapLiveDevice* const dev) { return dev->getName() == name; });
+		                            [&name](PcapLiveDevice const* dev) { return dev->getName() == name; });
 
 		if (devIter == m_DeviceList.end())
 		{

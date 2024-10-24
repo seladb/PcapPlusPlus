@@ -1019,6 +1019,12 @@ PTF_TEST_CASE(TestRemoteCapture)
 
 	remoteDevice->close();
 
+	// Check clone method produces correct pointer.
+	pcpp::PcapLiveDevice* remoteDeviceCloned = remoteDevice->clone();
+	auto devCopyTeardown = DeviceTeardown(remoteDeviceCloned, true);
+	PTF_ASSERT_NOT_NULL(remoteDeviceCloned);
+	PTF_ASSERT_NOT_NULL(dynamic_cast<pcpp::PcapRemoteDevice*>(remoteDeviceCloned));
+
 	// the device object is already deleted, cannot close it
 	devTeardown.cancelTeardown();
 #else

@@ -123,6 +123,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_EXTENSIONS ON)
 # Set Position Independent Code for static libraries
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# Export compile commands for external tools
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
 if(WIN32
@@ -169,17 +171,6 @@ if(PCAPPP_ENABLE_PCAP_SET_DIRECTION)
     message(FATAL_ERROR "PCAP library doesn't have Direction support!")
   endif()
   add_definitions(-DHAS_SET_DIRECTION_ENABLED)
-endif()
-
-option(PCAPPP_ENABLE_CLANG_TIDY "Run Clang-Tidy static analysis during build" OFF)
-
-if(PCAPPP_ENABLE_CLANG_TIDY)
-  find_program(CLANG_TIDY_EXE NAMES "clang-tidy" REQUIRED)
-  set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--fix"
-                         "--checks=modernize-use-nullptr,modernize-use-override,performance-unnecessary-value-param")
-  set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_COMMAND})
-  # Force to recompile all files with clang-tidy by setting a dummy definition variable
-  add_definitions(-DUSE_CLANG_TIDY)
 endif()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
