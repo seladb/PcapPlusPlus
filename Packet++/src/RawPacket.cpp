@@ -1,9 +1,9 @@
 #define LOG_MODULE PacketLogModuleRawPacket
 
 #include "RawPacket.h"
-#include <string.h>
 #include "Logger.h"
 #include "TimespecTimeval.h"
+#include <cstring>
 
 namespace pcpp
 {
@@ -66,6 +66,11 @@ namespace pcpp
 		}
 
 		return *this;
+	}
+
+	RawPacket* RawPacket::clone() const
+	{
+		return new RawPacket(*this);
 	}
 
 	void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)

@@ -129,8 +129,7 @@ namespace pcpp
 		 */
 		explicit SSLExtension(uint8_t* data);
 
-		virtual ~SSLExtension()
-		{}
+		virtual ~SSLExtension() = default;
 
 		/**
 		 * @return The type of the extension as enum
@@ -176,7 +175,7 @@ namespace pcpp
 
 		SSLExtensionStruct* getExtensionStruct() const
 		{
-			return (SSLExtensionStruct*)m_RawData;
+			return reinterpret_cast<SSLExtensionStruct*>(m_RawData);
 		}
 	};
 
@@ -338,8 +337,7 @@ namespace pcpp
 	class SSLHandshakeMessage
 	{
 	public:
-		virtual ~SSLHandshakeMessage()
-		{}
+		virtual ~SSLHandshakeMessage() = default;
 
 		/**
 		 * A factory method for creating instances of handshake messages from raw data
@@ -453,8 +451,7 @@ namespace pcpp
 		 */
 		SSLClientHelloMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
-		virtual ~SSLClientHelloMessage()
-		{}
+		~SSLClientHelloMessage() override = default;
 
 		/**
 		 * @return A struct containing common fields for client-hello and server-hello messages. Notice this points
@@ -462,7 +459,7 @@ namespace pcpp
 		 */
 		ssl_tls_client_server_hello* getClientHelloHeader() const
 		{
-			return (ssl_tls_client_server_hello*)m_Data;
+			return reinterpret_cast<ssl_tls_client_server_hello*>(m_Data);
 		}
 
 		/**
@@ -572,7 +569,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		PointerVector<SSLExtension> m_ExtensionList;
@@ -632,8 +629,7 @@ namespace pcpp
 		 */
 		SSLServerHelloMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
-		virtual ~SSLServerHelloMessage()
-		{}
+		~SSLServerHelloMessage() override = default;
 
 		/**
 		 * @return A struct containing common fields for client-hello and server-hello messages. Notice this points
@@ -641,7 +637,7 @@ namespace pcpp
 		 */
 		ssl_tls_client_server_hello* getServerHelloHeader() const
 		{
-			return (ssl_tls_client_server_hello*)m_Data;
+			return reinterpret_cast<ssl_tls_client_server_hello*>(m_Data);
 		}
 
 		/**
@@ -747,7 +743,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		PointerVector<SSLExtension> m_ExtensionList;
@@ -773,8 +769,7 @@ namespace pcpp
 		 */
 		SSLCertificateMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
-		virtual ~SSLCertificateMessage()
-		{}
+		~SSLCertificateMessage() override = default;
 
 		/**
 		 * @return The number of certificates encapsulated in this message (as written in the 'length' field of the
@@ -795,7 +790,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		PointerVector<SSLx509Certificate> m_CertificateList;
@@ -820,12 +815,11 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		virtual ~SSLHelloRequestMessage()
-		{}
+		~SSLHelloRequestMessage() override = default;
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -848,8 +842,7 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		~SSLServerKeyExchangeMessage()
-		{}
+		~SSLServerKeyExchangeMessage() override = default;
 
 		/**
 		 * @return A pointer to the raw data of the server key exchange params. Currently this data can only returned as
@@ -868,7 +861,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -891,8 +884,7 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		~SSLClientKeyExchangeMessage()
-		{}
+		~SSLClientKeyExchangeMessage() override = default;
 
 		/**
 		 * @return A pointer to the raw data of the server key exchange params. Currently this data can only be returned
@@ -911,7 +903,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -931,8 +923,7 @@ namespace pcpp
 		 */
 		SSLCertificateRequestMessage(uint8_t* data, size_t dataLen, SSLHandshakeLayer* container);
 
-		~SSLCertificateRequestMessage()
-		{}
+		~SSLCertificateRequestMessage() override = default;
 
 		/**
 		 * @return A reference to a vector containing all client certificate types exist in this message
@@ -956,7 +947,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 
 	private:
 		std::vector<SSLClientCertificateType> m_ClientCertificateTypes;
@@ -981,12 +972,11 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		virtual ~SSLServerHelloDoneMessage()
-		{}
+		~SSLServerHelloDoneMessage() override = default;
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -1009,8 +999,7 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		virtual ~SSLCertificateVerifyMessage()
-		{}
+		~SSLCertificateVerifyMessage() override = default;
 
 		/**
 		 * @return A pointer to the signed hash data as raw data (byte array). Parsing of this data may be added
@@ -1029,7 +1018,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -1052,8 +1041,7 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		virtual ~SSLFinishedMessage()
-		{}
+		~SSLFinishedMessage() override = default;
 
 		/**
 		 * @return A pointer to the signed hash data as raw data (byte array). Parsing of this data may be added
@@ -1072,7 +1060,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -1094,8 +1082,7 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		virtual ~SSLNewSessionTicketMessage()
-		{}
+		~SSLNewSessionTicketMessage() override = default;
 
 		/**
 		 * @return A pointer to the session ticket data as raw data (byte array). Parsing of this data may be added
@@ -1114,7 +1101,7 @@ namespace pcpp
 
 		// implement abstract methods
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -1137,24 +1124,23 @@ namespace pcpp
 		    : SSLHandshakeMessage(data, dataLen, container)
 		{}
 
-		virtual ~SSLUnknownMessage()
-		{}
+		~SSLUnknownMessage() override = default;
 
 		// implement virtual and abstract methods
 
 		/**
 		 * @return Always ::SSL_HANDSHAKE_UNKNOWN (overridden from SSLHandshakeMessage)
 		 */
-		SSLHandshakeType getHandshakeType() const;
+		SSLHandshakeType getHandshakeType() const override;
 
 		/**
 		 * @return The length of the data from message start until the end of the layer. Since it's an unknown type
 		 * or an encrypted message the length parsed from the message can't be guaranteed to be the correct length.
 		 * That's why the length returned is the size until the end of the layer
 		 */
-		size_t getMessageLength() const;
+		size_t getMessageLength() const override;
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	template <class TExtension> TExtension* SSLClientHelloMessage::getExtensionOfType() const
@@ -1164,7 +1150,7 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (dynamic_cast<TExtension*>(curElem) != nullptr)
-				return (TExtension*)curElem;
+				return static_cast<TExtension*>(curElem);
 		}
 
 		return nullptr;
@@ -1177,7 +1163,7 @@ namespace pcpp
 		{
 			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (dynamic_cast<TExtension*>(curElem) != nullptr)
-				return (TExtension*)curElem;
+				return static_cast<TExtension*>(curElem);
 		}
 
 		return nullptr;

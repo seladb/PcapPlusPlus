@@ -42,6 +42,7 @@ add_executable(
   Tests/VlanMplsTests.cpp
   Tests/VrrpTest.cpp
   Tests/WakeOnLanTests.cpp
+  Tests/WireGuardTests.cpp
   Utils/TestUtils.cpp)
 
 target_link_libraries(

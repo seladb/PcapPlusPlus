@@ -5,7 +5,6 @@
 #include "IPv6Layer.h"
 #include "PayloadLayer.h"
 #include "Logger.h"
-#include <string.h>
 #include <sstream>
 #include "EndianPortable.h"
 

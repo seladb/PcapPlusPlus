@@ -201,17 +201,17 @@ namespace pcpp
 
 			// implement abstract methods
 
-			uint32_t getHashValue() const;
+			uint32_t getHashValue() const override;
 
 			/**
 			 * @return pcpp#IPv4 protocol
 			 */
-			ProtocolType getProtocolType() const
+			ProtocolType getProtocolType() const override
 			{
 				return IPv4;
 			}
 
-			PacketKey* clone() const
+			PacketKey* clone() const override
 			{
 				return new IPv4PacketKey(*this);
 			}
@@ -319,17 +319,17 @@ namespace pcpp
 
 			// implement abstract methods
 
-			uint32_t getHashValue() const;
+			uint32_t getHashValue() const override;
 
 			/**
 			 * @return pcpp#IPv6 protocol
 			 */
-			ProtocolType getProtocolType() const
+			ProtocolType getProtocolType() const override
 			{
 				return IPv6;
 			}
 
-			PacketKey* clone() const
+			PacketKey* clone() const override
 			{
 				return new IPv6PacketKey(*this);
 			}

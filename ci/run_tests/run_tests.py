@@ -50,6 +50,7 @@ def main():
             cwd="Tests/Packet++Test",
         )
         if completed_process.returncode != 0:
+            print("Error while executing Packet++ tests: " + str(completed_process))
             exit(completed_process.returncode)
 
         completed_process = subprocess.run(
@@ -59,6 +60,7 @@ def main():
             cwd="Tests/Pcap++Test",
         )
         if completed_process.returncode != 0:
+            print("Error while executing Pcap++ tests: " + str(completed_process))
             exit(completed_process.returncode)
 
     finally:

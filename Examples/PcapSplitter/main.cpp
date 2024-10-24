@@ -44,12 +44,8 @@
  *
  */
 
-#include <stdlib.h>
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <string>
-#include <iomanip>
 #include <unordered_map>
 #include <RawPacket.h>
 #include <Packet.h>
@@ -140,29 +136,29 @@ void printUsage()
 	    << "                      'round-robin'  - split the file in a round-robin manner - each packet to a"
 	    << std::endl
 	    << "                                       different file" << std::endl
-	    << "    -p split-param  : The relevant parameter for the split method:" << std::endl
-	    << "                      'method = file-size'    => split-param is the max size per file (in bytes)."
+	    << "    -p split_param  : The relevant parameter for the split method:" << std::endl
+	    << "                      'method = file-size'    => split_param is the max size per file (in bytes)."
 	    << std::endl
-	    << "                                                 split-param is required for this method" << std::endl
-	    << "                      'method = packet-count' => split-param is the number of packet per file." << std::endl
-	    << "                                                 split-param is required for this method" << std::endl
-	    << "                      'method = client-ip'    => split-param is max number of files to open." << std::endl
+	    << "                                                 split_param is required for this method" << std::endl
+	    << "                      'method = packet-count' => split_param is the number of packet per file." << std::endl
+	    << "                                                 split_param is required for this method" << std::endl
+	    << "                      'method = client-ip'    => split_param is max number of files to open." << std::endl
 	    << "                                                 If not provided the default is unlimited number of files"
 	    << std::endl
-	    << "                      'method = server-ip'    => split-param is max number of files to open." << std::endl
+	    << "                      'method = server-ip'    => split_param is max number of files to open." << std::endl
 	    << "                                                 If not provided the default is unlimited number of files"
 	    << std::endl
-	    << "                      'method = server-port'  => split-param is max number of files to open." << std::endl
+	    << "                      'method = server-port'  => split_param is max number of files to open." << std::endl
 	    << "                                                 If not provided the default is unlimited number of files"
 	    << std::endl
-	    << "                      'method = ip-src-dst'   => split-param is max number of files to open." << std::endl
+	    << "                      'method = ip-src-dst'   => split_param is max number of files to open." << std::endl
 	    << "                                                 If not provided the default is unlimited number of files"
 	    << std::endl
-	    << "                      'method = connection'   => split-param is max number of files to open." << std::endl
+	    << "                      'method = connection'   => split_param is max number of files to open." << std::endl
 	    << "                                                 If not provided the default is unlimited number of files"
 	    << std::endl
-	    << "                      'method = bpf-filter'   => split-param is the BPF filter to match upon" << std::endl
-	    << "                      'method = round-robin'  => split-param is number of files to round-robin packets "
+	    << "                      'method = bpf-filter'   => split_param is the BPF filter to match upon" << std::endl
+	    << "                      'method = round-robin'  => split_param is number of files to round-robin packets "
 	       "between"
 	    << std::endl
 	    << "    -i filter       : Apply a BPF filter, meaning only filtered packets will be counted in the split"

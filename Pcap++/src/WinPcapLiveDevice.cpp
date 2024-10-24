@@ -1,18 +1,16 @@
-#if defined(_WIN32)
+#define LOG_MODULE PcapLogModuleWinPcapLiveDevice
 
-#	define LOG_MODULE PcapLogModuleWinPcapLiveDevice
-
-#	include "WinPcapLiveDevice.h"
-#	include "Logger.h"
-#	include "TimespecTimeval.h"
-#	include "pcap.h"
+#include "WinPcapLiveDevice.h"
+#include "Logger.h"
+#include "TimespecTimeval.h"
+#include "pcap.h"
 
 namespace pcpp
 {
 
-	WinPcapLiveDevice::WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress,
-	                                     bool calculateDefaultGateway)
-	    : PcapLiveDevice(iface, calculateMTU, calculateMacAddress, calculateDefaultGateway)
+	WinPcapLiveDevice::WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU,
+	                                     bool calculateMacAddress, bool calculateDefaultGateway)
+	    : PcapLiveDevice(std::move(interfaceDetails), calculateMTU, calculateMacAddress, calculateDefaultGateway)
 	{
 		m_MinAmountOfDataToCopyFromKernelToApplication = 16000;
 	}
@@ -23,14 +21,14 @@ namespace pcpp
 	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
-			PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 			return false;
 		}
 
 		// Put the interface in capture mode
 		if (pcap_setmode(m_PcapDescriptor.get(), MODE_CAPT) < 0)
 		{
-			PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_Name << "'");
+			PCPP_LOG_ERROR("Error setting the capture mode for device '" << m_InterfaceDetails.name << "'");
 			return false;
 		}
 
@@ -43,14 +41,14 @@ namespace pcpp
 	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
-			PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 			return false;
 		}
 
 		// Put the interface in statistics mode
 		if (pcap_setmode(m_PcapDescriptor.get(), MODE_STAT) < 0)
 		{
-			PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_Name << "'");
+			PCPP_LOG_ERROR("Error setting the statistics mode for device '" << m_InterfaceDetails.name << "'");
 			return false;
 		}
 
@@ -61,7 +59,7 @@ namespace pcpp
 	{
 		if (!m_DeviceOpened || m_PcapDescriptor == nullptr)
 		{
-			PCPP_LOG_ERROR("Device '" << m_Name << "' not opened");
+			PCPP_LOG_ERROR("Device '" << m_InterfaceDetails.name << "' not opened");
 			return 0;
 		}
 
@@ -133,11 +131,9 @@ namespace pcpp
 		return true;
 	}
 
-	WinPcapLiveDevice* WinPcapLiveDevice::cloneInternal(pcap_if_t& devInterface) const
+	WinPcapLiveDevice* WinPcapLiveDevice::clone() const
 	{
-		return new WinPcapLiveDevice(&devInterface, true, true, true);
+		return new WinPcapLiveDevice(m_InterfaceDetails, true, true, true);
 	}
 
 }  // namespace pcpp
-
-#endif  // _WIN32

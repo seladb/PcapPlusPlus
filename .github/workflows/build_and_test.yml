@@ -25,7 +25,7 @@ jobs:
     container: seladb/alpine317
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -34,23 +34,21 @@ jobs:
       - name: Install dependencies
         run: |
           apk update && apk add cppcheck python3-dev
-          python3 -m pip install cmake-format clang-format==18.1.6
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install pre-commit setuptools clang-format==18.1.6 clang-tidy==18.1.8
 
-      # TODO: investigate how to run pre-commit with `venv`
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-
-      - name: CMake format
+      - name: Run pre-commit
         run: |
-          ./ci/cmake-format-all.sh
-          git diff --exit-code
+          . .venv/bin/activate
+          pre-commit run --all-files
 
       - name: Configure PcapPlusPlus for Static analysis
-        run: CXX=clang++ CC=clang cmake -DLIGHT_PCAPNG_ZSTD=ON -DPCAPPP_ENABLE_CLANG_TIDY=ON -S . -B "$BUILD_DIR"
+        run: cmake -S . -B "$BUILD_DIR"
 
-      - name: Build PcapPlusPlus and check any diff
+      - name: Run clang-tidy on changed files
         run: |
-          cmake --build "$BUILD_DIR" -j
-          git diff --exit-code
+          ./ci/clang-tidy-all.sh changed "$BUILD_DIR"
 
   linux:
     runs-on: ubuntu-latest
@@ -72,14 +70,14 @@ jobs:
             config-zstd: OFF
           - image: ubuntu2004-zstd
             config-zstd: ON
-          - image: fedora39
+          - image: fedora40
             config-zstd: OFF
-          - image: alpine317
+          - image: alpine320
             config-zstd: OFF
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -111,18 +109,18 @@ jobs:
 
       - name: Prepare environment for tests
         run: |
-          python3 -m venv ./venv
-          . ./venv/bin/activate
+          python3 -m venv .venv
+          . .venv/bin/activate
           python3 -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python3 ci/run_tests/run_tests.py --interface eth0 ${{ matrix.test-flags }}
 
       - name: Test Examples
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           cd Tests/ExamplesTest
           python3 -m pip install -r requirements.txt
           python3 -m pytest --interface eth0 --root-path=../../Dist/examples_bin
@@ -143,7 +141,7 @@ jobs:
 
       - name: Create Cobertura Report
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python3 -m pip install gcovr
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
@@ -177,7 +175,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Restore Ccache
         id: ccache-restore
@@ -237,7 +235,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Restore Ccache
         id: ccache-restore
@@ -289,14 +287,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os-version: macos-12
-            host-arch: x86_64
-            arch: x86_64
-            config-zstd: OFF
-          - os-version: macos-12
-            host-arch: x86_64
-            arch: arm64
-            config-zstd: OFF
           - os-version: macos-13
             host-arch: x86_64
             arch: x86_64
@@ -310,13 +300,25 @@ jobs:
             arch: arm64
             config-zstd: OFF
           - os-version: macos-14
+            host-arch: x86_64
+            arch: x86_64
+            config-zstd: OFF
+          - os-version: macos-14
             host-arch: arm64
             arch: arm64
+            config-zstd: ON
+          - os-version: macos-15
+            host-arch: x86_64
+            arch: x86_64
             config-zstd: OFF
+          - os-version: macos-15
+            host-arch: arm64
+            arch: arm64
+            config-zstd: ON
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup Python
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
@@ -351,15 +353,15 @@ jobs:
 
       - name: Prepare environment for tests
         run: |
-          python -m venv ./venv
-          . ./venv/bin/activate
+          python -m venv .venv
+          . .venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         # We can't run cross compiled binaries
         if: ${{ matrix.host-arch == matrix.arch }}
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python ci/run_tests/run_tests.py --interface en0
 
       - name: Test Examples
@@ -420,7 +422,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@ddf331adaebd714795f1042345e6ca57bd66cea8 # v2.24.1
@@ -514,7 +516,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Setup Python
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
@@ -585,12 +587,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["14.0", "13.2"]
+        version: ["14.1", "13.4"]
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@12c207ac1ba13827f25726fe93f9c2e6f685f0f3 # v1.0.8
+      uses: vmactions/freebsd-vm@d7b8fcc7711aa41ad45e8d9b737cf90f035a7e3d # v1.1.3
       with:
         release: ${{ matrix.version }}
         usesh: true
@@ -641,10 +643,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # main
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # main
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -658,7 +660,7 @@ jobs:
         run: cmake --build "$BUILD_DIR" -j
 
       - name: Checkout ToyVpn-PcapPlusPlus
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # master
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # master
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
           path: ./ToyVpn-PcapPlusPlus
@@ -697,7 +699,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Install dependencies
         run: |
@@ -720,13 +722,13 @@ jobs:
 
       - name: Prepare environment for tests
         run: |
-          python -m venv ./venv
-          . ./venv/bin/activate
+          python -m venv .venv
+          . .venv/bin/activate
           python -m pip install -r ci/run_tests/requirements.txt
 
       - name: Test PcapPlusPlus
         run: |
-          . ./venv/bin/activate
+          . .venv/bin/activate
           python ci/run_tests/run_tests.py --interface eth0 --use-sudo --pcap-test-args="-t xdp"
 
       - name: Create Cobertura Report
@@ -762,7 +764,7 @@ jobs:
       image: gcr.io/oss-fuzz-base/base-builder
     steps:
       - name: Checkout code
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
 
       - name: Install prerequisites
         run: |

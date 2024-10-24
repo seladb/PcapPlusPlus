@@ -1,10 +1,8 @@
 #pragma once
 
-#if defined(_WIN32)
-
 /// @file
 
-#	include "PcapLiveDevice.h"
+#include "PcapLiveDevice.h"
 
 /**
  * \namespace pcpp
@@ -28,23 +26,28 @@ namespace pcpp
 		int m_MinAmountOfDataToCopyFromKernelToApplication;
 
 		// c'tor is not public, there should be only one for every interface (created by PcapLiveDeviceList)
-		WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway);
-		// copy c'tor is not public
-		WinPcapLiveDevice(const WinPcapLiveDevice& other);
-		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other);
+		WinPcapLiveDevice(pcap_if_t* iface, bool calculateMTU, bool calculateMacAddress, bool calculateDefaultGateway)
+		    : WinPcapLiveDevice(DeviceInterfaceDetails(iface), calculateMTU, calculateMacAddress,
+		                        calculateDefaultGateway)
+		{}
+		WinPcapLiveDevice(DeviceInterfaceDetails interfaceDetails, bool calculateMTU, bool calculateMacAddress,
+		                  bool calculateDefaultGateway);
 
 	public:
-		virtual LiveDeviceType getDeviceType() const
+		WinPcapLiveDevice(const WinPcapLiveDevice& other) = delete;
+		WinPcapLiveDevice& operator=(const WinPcapLiveDevice& other) = delete;
+
+		LiveDeviceType getDeviceType() const override
 		{
 			return WinPcapDevice;
 		}
 
 		bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie,
 		                  int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie);
+		                  void* onStatsUpdateUserCookie) override;
 		bool startCapture(int intervalInSecondsToUpdateStats, OnStatsUpdateCallback onStatsUpdate,
-		                  void* onStatsUpdateUserCookie);
-		bool startCapture(RawPacketVector& capturedPacketsVector)
+		                  void* onStatsUpdateUserCookie) override;
+		bool startCapture(RawPacketVector& capturedPacketsVector) override
 		{
 			return PcapLiveDevice::startCapture(capturedPacketsVector);
 		}
@@ -71,10 +74,7 @@ namespace pcpp
 			return m_MinAmountOfDataToCopyFromKernelToApplication;
 		}
 
-	protected:
-		WinPcapLiveDevice* cloneInternal(pcap_if_t& devInterface) const override;
+		WinPcapLiveDevice* clone() const override;
 	};
 
 }  // namespace pcpp
-
-#endif  // _WIN32

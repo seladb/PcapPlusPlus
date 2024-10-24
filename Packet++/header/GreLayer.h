@@ -104,8 +104,7 @@ namespace pcpp
 	class GreLayer : public Layer
 	{
 	public:
-		virtual ~GreLayer()
-		{}
+		~GreLayer() override = default;
 
 		/**
 		 * A static method that determines the GRE version of GRE layer raw data by looking at the
@@ -147,14 +146,14 @@ namespace pcpp
 		 *   IPv4Layer, IPv6Layer, VlanLayer, MplsLayer, PPP_PPTPLayer, EthLayer, EthDot3Layer
 		 * Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return Size of GRE header (may change if optional fields are added or removed)
 		 */
-		size_t getHeaderLen() const;
+		size_t getHeaderLen() const override;
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelNetworkLayer;
 		}
@@ -204,8 +203,7 @@ namespace pcpp
 		 */
 		GREv0Layer();
 
-		virtual ~GREv0Layer()
-		{}
+		~GREv0Layer() override = default;
 
 		/**
 		 * Get a pointer to the basic GRE header containing only non-optional fields. Notice this points directly to the
@@ -218,7 +216,7 @@ namespace pcpp
 		 */
 		gre_basic_header* getGreHeader() const
 		{
-			return (gre_basic_header*)m_Data;
+			return reinterpret_cast<gre_basic_header*>(m_Data);
 		}
 
 		/**
@@ -301,9 +299,9 @@ namespace pcpp
 		 * - gre_basic_header#protocol
 		 * - GRE checksum field (if exists in packet)
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -329,8 +327,7 @@ namespace pcpp
 		 */
 		explicit GREv1Layer(uint16_t callID);
 
-		virtual ~GREv1Layer()
-		{}
+		~GREv1Layer() override = default;
 
 		/**
 		 * Get a pointer to the basic GREv1 header containing all non-optional fields. Notice this points directly to
@@ -344,7 +341,7 @@ namespace pcpp
 		 */
 		gre1_header* getGreHeader() const
 		{
-			return (gre1_header*)m_Data;
+			return reinterpret_cast<gre1_header*>(m_Data);
 		}
 
 		/**
@@ -389,9 +386,9 @@ namespace pcpp
 		 * - gre1_header#payloadLength
 		 * - gre_basic_header#protocol
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const;
+		std::string toString() const override;
 	};
 
 	/**
@@ -420,8 +417,7 @@ namespace pcpp
 		 */
 		PPP_PPTPLayer(uint8_t address, uint8_t control);
 
-		~PPP_PPTPLayer()
-		{}
+		~PPP_PPTPLayer() override = default;
 
 		/**
 		 * Get a pointer to the PPP-PPTP header. Notice this points directly to the data, so every change will change
@@ -430,7 +426,7 @@ namespace pcpp
 		 */
 		ppp_pptp_header* getPPP_PPTPHeader() const
 		{
-			return (ppp_pptp_header*)m_Data;
+			return reinterpret_cast<ppp_pptp_header*>(m_Data);
 		}
 
 		// implement abstract methods
@@ -438,12 +434,12 @@ namespace pcpp
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
 		 */
-		void parseNextLayer();
+		void parseNextLayer() override;
 
 		/**
 		 * @return The size of @ref ppp_pptp_header
 		 */
-		size_t getHeaderLen() const
+		size_t getHeaderLen() const override
 		{
 			return sizeof(ppp_pptp_header);
 		}
@@ -452,14 +448,14 @@ namespace pcpp
 		 * Calculate the following fields:
 		 * - ppp_pptp_header#protocol
 		 */
-		void computeCalculateFields();
+		void computeCalculateFields() override;
 
-		std::string toString() const
+		std::string toString() const override
 		{
 			return "PPP for PPTP Layer";
 		}
 
-		OsiModelLayer getOsiModelLayer() const
+		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelSesionLayer;
 		}
