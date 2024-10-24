@@ -234,18 +234,6 @@ namespace pcpp
 		 */
 		static GvcpLayer* parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-	protected:
-		GvcpLayer() = default;
-
-		/**
-		 * @brief Construct a new GvcpLayer object
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
-		GvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
-
 		// implement Layer's abstract methods
 		void parseNextLayer() override
 		{}
@@ -259,6 +247,18 @@ namespace pcpp
 		{
 			return OsiModelLayer::OsiModelApplicationLayer;
 		}
+
+	protected:
+		GvcpLayer() = default;
+
+		/**
+		 * @brief Construct a new GvcpLayer object
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		GvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	};
 
 	/// @brief Gvcp request layer
