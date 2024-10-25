@@ -564,8 +564,6 @@ namespace pcpp
 	    : IFileWriterDevice(fileName)
 	{
 		m_PcapDumpHandler = nullptr;
-		m_NumOfPacketsNotWritten = 0;
-		m_NumOfPacketsWritten = 0;
 		m_PcapLinkLayerType = linkLayerType;
 		m_AppendMode = false;
 #if defined(PCAP_TSTAMP_PRECISION_NANO)
