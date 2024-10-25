@@ -7,6 +7,8 @@
 
 /// @file
 
+/// This GVCP implementation is based on GigE Vision ® Specification version 2.0
+
 /**
  * @namespace pcpp
  * @brief The main namespace for the PcapPlusPlus lib
@@ -27,8 +29,8 @@ namespace pcpp
 
 	using GvcpFlag = uint8_t;  // flag bits are specified by each command
 
-	/// @brief Gvcp command
-	/// See spec "18 Command and Acknowledge Values"
+	/// @brief Gvcp command defines the command values and the corresponding acknowledge values
+	/// See more in the spec "18 Command and Acknowledge Values"
 	enum class GvcpCommand : uint16_t
 	{
 		// Discovery Protocol Control
@@ -64,39 +66,47 @@ namespace pcpp
 		Unknown = 0xFFFF
 	};
 
+	/// output operator for GvcpCommand
 	std::ostream& operator<<(std::ostream& os, GvcpCommand command);
 
-	/// @brief Gvcp response status
-	/// See spec "Table 19-1: List of Standard Status Codes"
+	/// @brief GVCP response status can be returned in an acknowledge message or a GVSP header.
+	/// See more in the spec "Table 19-1: List of Standard Status Codes"
 	enum class GvcpResponseStatus : uint16_t
 	{
-		Success = 0x0000,
-		PacketResend = 0x0100,
-		NotImplemented = 0x8001,
-		InvalidParameter = 0x8002,
-		InvalidAddress = 0x8003,
-		WriteProtect = 0x8004,
-		BadAlignment = 0x8005,
-		AccessDenied = 0x8006,
-		Busy = 0x8007,
-		LocalProblem = 0x8008,     // deprecated
-		MsgMismatch = 0x8009,      // deprecated
-		InvalidProtocol = 0x800A,  // deprecated
-		NoMsg = 0x800B,            // deprecated
-		PacketUnavailable = 0x800C,
-		DataOverrun = 0x800D,
-		InvalidHeader = 0x800E,
-		WrongConfig = 0x800F,  // deprecated
-		PacketNotYetAvailable = 0x8010,
-		PacketAndPrevRemovedFromMemory = 0x8011,
-		PacketRemovedFromMemory = 0x8012,
-		NoRefTime = 0x8013,                     // GEV 2.0
-		PacketTemporarilyUnavailable = 0x8014,  // GEV 2.0
-		Overflow = 0x8015,                      // GEV 2.0
-		ActionLate = 0x8016,                    // GEV 2.0
-		LeaderTrailerOverflow = 0x8017,         // GEV 2.1
-		Error = 0x8FFF,
-		Unknown = 0xFFFF
+		Success = 0x0000,         ///< Command executed successfully
+		PacketResend = 0x0100,    ///< Only applies to packet being resent
+		NotImplemented = 0x8001,  ///< Command is not supported by the device
+		InvalidParameter =
+		    0x8002,  ///< At least one parameter provided in the command is invalid (or out of range) for the device
+		InvalidAddress = 0x8003,  ///< An attempt was made to access a non-existent address space location.
+		WriteProtect = 0x8004,    ///< The addressed register cannot be written to
+		BadAlignment = 0x8005,    ///< A badly aligned address offset or data size was specified.
+		AccessDenied =
+		    0x8006,  ///< An attempt was made to access an address location which is currently/momentary not accessible
+		Busy = 0x8007,  ///< A required resource to service the request is not currently available. The request may be
+		                ///< retried at a later time
+		LocalProblem = 0x8008,       // deprecated
+		MsgMismatch = 0x8009,        // deprecated
+		InvalidProtocol = 0x800A,    // deprecated
+		NoMsg = 0x800B,              // deprecated
+		PacketUnavailable = 0x800C,  ///< The requested packet is not available anymore
+		DataOverrun = 0x800D,        ///< Internal memory of GVSP transmitter overrun (typically for image acquisition)
+		InvalidHeader = 0x800E,  ///< The message header is not valid. Some of its fields do not match the specification
+		WrongConfig = 0x800F,    // deprecated
+		PacketNotYetAvailable = 0x8010,  ///< The requested packet has not yet been acquired. Can be used for linescan
+		                                 ///< cameras device when line trigger rate is slower than application timeout
+		PacketAndPrevRemovedFromMemory = 0x8011,  ///< The requested packet and all previous ones are not available
+		                                          ///< anymore and have been discarded from the GVSP transmitter memory
+		PacketRemovedFromMemory = 0x8012,  ///< The requested packet is not available anymore and has been discarded
+		                                   ///< from the GVSP transmitter memory
+		NoRefTime = 0x8013,  ///< The device is not synchronized to a master clock to be used as time reference
+		PacketTemporarilyUnavailable = 0x8014,  ///< The packet cannot be resent at the moment due to temporary
+		                                        ///< bandwidth issues and should be requested again in the future
+		Overflow = 0x8015,                      ///< A device queue or packet data has overflowed
+		ActionLate = 0x8016,  ///< The requested scheduled action command was requested at a time that is already past
+		LeaderTrailerOverflow = 0x8017,  // GEV 2.1
+		Error = 0x8FFF,                  ///< Generic error
+		Unknown = 0xFFFF                 ///< Unknown status
 	};
 
 	std::ostream& operator<<(std::ostream& os, GvcpResponseStatus status);
