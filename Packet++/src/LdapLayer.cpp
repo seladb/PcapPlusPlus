@@ -343,7 +343,17 @@ namespace pcpp
 
 	LdapOperationType LdapLayer::getLdapOperationType() const
 	{
-		return LdapOperationType::fromUintValue(getLdapOperationAsn1Record()->getTagType());
+		uint8_t tagType;
+		try
+		{
+			tagType = getLdapOperationAsn1Record()->getTagType();
+		}
+		catch (...)
+		{
+			tagType = LdapOperationType::Unknown;
+		}
+
+		return LdapOperationType::fromUintValue(tagType);
 	}
 
 	void LdapLayer::parseNextLayer()
