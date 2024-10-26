@@ -45,7 +45,7 @@ PTF_TEST_CASE(InfiniBandParsingTest)
 	timeval time;
 	gettimeofday(&time, nullptr);
 
-	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/InfinibandPacket.dat");
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/InfiniBandPacket.dat");
 
 	pcpp::Packet ip4Packet(&rawPacket1);
 
@@ -94,17 +94,17 @@ PTF_TEST_CASE(InfiniBandParsingTest)
 			auto* ibLayer = parsedPacket.getLayerOfType<pcpp::InfiniBandLayer>();
 			PTF_ASSERT_NOT_NULL(ibLayer);
 			PTF_ASSERT_EQUAL(ibLayer->getOpcode(), 12);
-			PTF_ASSERT_EQUAL(ibLayer->getSe(), 0);
-			PTF_ASSERT_EQUAL(ibLayer->getMig(), 0);
-			PTF_ASSERT_EQUAL(ibLayer->getPad(), 0);
-			PTF_ASSERT_EQUAL(ibLayer->getTver(), 0);
-			PTF_ASSERT_EQUAL(ibLayer->getPkey(), 65535);
-			PTF_ASSERT_EQUAL(ibLayer->getQpn(), 17);
-			PTF_ASSERT_EQUAL(ibLayer->getFecn(), 0);
-			PTF_ASSERT_EQUAL(ibLayer->getBecn(), 0);
+			PTF_ASSERT_EQUAL(ibLayer->getSoliciteEvent(), 0);
+			PTF_ASSERT_EQUAL(ibLayer->getMigrationState(), 0);
+			PTF_ASSERT_EQUAL(ibLayer->getPadCount(), 0);
+			PTF_ASSERT_EQUAL(ibLayer->getTransportHeaderVersion(), 0);
+			PTF_ASSERT_EQUAL(ibLayer->getPartitionKey(), 65535);
+			PTF_ASSERT_EQUAL(ibLayer->getQueuePairNumber(), 17);
+			PTF_ASSERT_EQUAL(ibLayer->getFecn(), false);
+			PTF_ASSERT_EQUAL(ibLayer->getBecn(), false);
 			PTF_ASSERT_EQUAL(ibLayer->getResv6a(), 0);
 			PTF_ASSERT_EQUAL(ibLayer->getAck(), 1);
-			PTF_ASSERT_EQUAL(ibLayer->getPsn(), 5557091);
+			PTF_ASSERT_EQUAL(ibLayer->getPacketSequenceNumber(), 5557091);
 			break;
 		}
 		case pcpp::GenericPayload:
@@ -137,9 +137,9 @@ PTF_TEST_CASE(InfiniBandCreationTest)
 	PTF_ASSERT_NOT_NULL(infinibandPacket1.getLayerOfType<pcpp::InfiniBandLayer>());
 	PTF_ASSERT_EQUAL(udpLayer1.getDstPort(), 4791);
 	PTF_ASSERT_EQUAL(infinibandLayer1.getOpcode(), 12);
-	PTF_ASSERT_EQUAL(infinibandLayer1.getPkey(), 65535);
-	PTF_ASSERT_EQUAL(infinibandLayer1.getQpn(), 17);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getPartitionKey(), 65535);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getQueuePairNumber(), 17);
 	PTF_ASSERT_EQUAL(infinibandLayer1.getAck(), 1);
-	PTF_ASSERT_EQUAL(infinibandLayer1.getPsn(), 5557091);
+	PTF_ASSERT_EQUAL(infinibandLayer1.getPacketSequenceNumber(), 5557091);
 
 }  // InfiniBandCreationTest

@@ -142,7 +142,8 @@ namespace pcpp
 			if (!m_NextLayer)
 				m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);
 		}
-		else if (InfiniBandLayer::isInfiniBandPort(portDst))
+		else if (InfiniBandLayer::isInfiniBandPort(portDst) &&
+				InfiniBandLayer::isDataValid(udpData, udpDataLen))
 			m_NextLayer = new InfiniBandLayer(udpData, udpDataLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(udpData, udpDataLen, this, m_Packet);

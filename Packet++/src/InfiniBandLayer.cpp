@@ -25,8 +25,8 @@ namespace pcpp
 #define BTH_RESV7_MASK 0x7f000000
 #define BTH_PSN_MASK 0x00ffffff
 
-	InfiniBandLayer::InfiniBandLayer(uint8_t opcode, int se, int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
-	                                 uint32_t psn)
+	InfiniBandLayer::InfiniBandLayer(uint8_t opcode, int soliciteEvent, int migrationState, int padCount, uint16_t partitionKey,
+									 uint32_t queuePairNumber, int ackReq, uint32_t packetSequenceNumber)
 	{
 		const size_t headerLen = sizeof(rxe_bth);
 		m_DataLen = headerLen;
@@ -35,17 +35,17 @@ namespace pcpp
 		rxe_bth* bthHdr = reinterpret_cast<rxe_bth*>(m_Data);
 
 		bthHdr->opcode = opcode;
-		bthHdr->flags = (pad << 4) & BTH_PAD_MASK;
-		if (se)
+		bthHdr->flags = (padCount << 4) & BTH_PAD_MASK;
+		if (soliciteEvent)
 			bthHdr->flags |= BTH_SE_MASK;
-		if (mig)
+		if (migrationState)
 			bthHdr->flags |= BTH_MIG_MASK;
-		bthHdr->pkey = htobe16(pkey);
-		bthHdr->qpn = htobe32(qpn & BTH_QPN_MASK);
-		psn &= BTH_PSN_MASK;
-		if (ack_req)
-			psn |= BTH_ACK_MASK;
-		bthHdr->apsn = htobe32(psn);
+		bthHdr->pkey = htobe16(partitionKey);
+		bthHdr->qpn = htobe32(queuePairNumber & BTH_QPN_MASK);
+		packetSequenceNumber &= BTH_PSN_MASK;
+		if (ackReq)
+			packetSequenceNumber |= BTH_ACK_MASK;
+		bthHdr->apsn = htobe32(packetSequenceNumber);
 		m_Protocol = InfiniBand;
 	}
 
@@ -80,12 +80,12 @@ namespace pcpp
 		getBthHeader()->opcode = opcode;
 	}
 
-	uint8_t InfiniBandLayer::getSe() const
+	uint8_t InfiniBandLayer::getSoliciteEvent() const
 	{
 		return 0 != (BTH_SE_MASK & getBthHeader()->flags);
 	}
 
-	void InfiniBandLayer::setSe(int se) const
+	void InfiniBandLayer::setSolicitedEvent(int se) const
 	{
 		if (se)
 			getBthHeader()->flags |= BTH_SE_MASK;
@@ -93,12 +93,12 @@ namespace pcpp
 			getBthHeader()->flags &= ~BTH_SE_MASK;
 	}
 
-	uint8_t InfiniBandLayer::getMig() const
+	uint8_t InfiniBandLayer::getMigrationState() const
 	{
 		return 0 != (BTH_MIG_MASK & getBthHeader()->flags);
 	}
 
-	void InfiniBandLayer::setMig(uint8_t mig) const
+	void InfiniBandLayer::setMigrationState(uint8_t mig) const
 	{
 		if (mig)
 			getBthHeader()->flags |= BTH_MIG_MASK;
@@ -106,42 +106,42 @@ namespace pcpp
 			getBthHeader()->flags &= ~BTH_MIG_MASK;
 	}
 
-	uint8_t InfiniBandLayer::getPad() const
+	uint8_t InfiniBandLayer::getPadCount() const
 	{
 		return (BTH_PAD_MASK & getBthHeader()->flags) >> 4;
 	}
 
-	void InfiniBandLayer::setPad(uint8_t pad) const
+	void InfiniBandLayer::setPadCount(uint8_t pad) const
 	{
 		getBthHeader()->flags = (BTH_PAD_MASK & (pad << 4)) | (~BTH_PAD_MASK & getBthHeader()->flags);
 	}
 
-	uint8_t InfiniBandLayer::getTver() const
+	uint8_t InfiniBandLayer::getTransportHeaderVersion() const
 	{
 		return BTH_TVER_MASK & getBthHeader()->flags;
 	}
 
-	void InfiniBandLayer::setTver(uint8_t tver) const
+	void InfiniBandLayer::setTransportHeaderVersion(uint8_t tver) const
 	{
 		getBthHeader()->flags = (BTH_TVER_MASK & tver) | (~BTH_TVER_MASK & getBthHeader()->flags);
 	}
 
-	uint16_t InfiniBandLayer::getPkey() const
+	uint16_t InfiniBandLayer::getPartitionKey() const
 	{
 		return be16toh(getBthHeader()->pkey);
 	}
 
-	void InfiniBandLayer::setPkey(uint16_t pkey) const
+	void InfiniBandLayer::setPartitionKey(uint16_t pkey) const
 	{
 		getBthHeader()->pkey = htobe16(pkey);
 	}
 
-	uint32_t InfiniBandLayer::getQpn() const
+	uint32_t InfiniBandLayer::getQueuePairNumber() const
 	{
 		return BTH_QPN_MASK & be32toh(getBthHeader()->qpn);
 	}
 
-	void InfiniBandLayer::setQpn(uint32_t qpn) const
+	void InfiniBandLayer::setQueuePairNumber(uint32_t qpn) const
 	{
 
 		uint32_t resvqpn = be32toh(getBthHeader()->qpn);
@@ -149,12 +149,12 @@ namespace pcpp
 		getBthHeader()->qpn = htobe32((BTH_QPN_MASK & qpn) | (~BTH_QPN_MASK & resvqpn));
 	}
 
-	int InfiniBandLayer::getFecn() const
+	bool InfiniBandLayer::getFecn() const
 	{
 		return 0 != (htobe32(BTH_FECN_MASK) & getBthHeader()->qpn);
 	}
 
-	void InfiniBandLayer::setfecn(int fecn) const
+	void InfiniBandLayer::setFecn(int fecn) const
 	{
 		if (fecn)
 			getBthHeader()->qpn |= htobe32(BTH_FECN_MASK);
@@ -162,7 +162,7 @@ namespace pcpp
 			getBthHeader()->qpn &= ~htobe32(BTH_FECN_MASK);
 	}
 
-	int InfiniBandLayer::getBecn() const
+	bool InfiniBandLayer::getBecn() const
 	{
 		return 0 != (htobe32(BTH_BECN_MASK) & getBthHeader()->qpn);
 	}
@@ -203,15 +203,24 @@ namespace pcpp
 		getBthHeader()->apsn &= ~htobe32(BTH_RESV7_MASK);
 	}
 
-	uint32_t InfiniBandLayer::getPsn() const
+	uint32_t InfiniBandLayer::getPacketSequenceNumber() const
 	{
 		return BTH_PSN_MASK & be32toh(getBthHeader()->apsn);
 	}
 
-	void InfiniBandLayer::setPsn(uint32_t psn) const
+	void InfiniBandLayer::setPacketSequenceNumber(uint32_t psn) const
 	{
 		uint32_t apsn = be32toh(getBthHeader()->apsn);
 
 		getBthHeader()->apsn = htobe32((BTH_PSN_MASK & psn) | (~BTH_PSN_MASK & apsn));
+	}
+
+	bool InfiniBandLayer::isDataValid(const uint8_t* udpData, size_t udpDataLen)
+	{
+		if (udpData != nullptr && udpDataLen >= sizeof(rxe_bth))
+		{
+			return true;
+		}
+		return false;
 	}
 }  // namespace pcpp

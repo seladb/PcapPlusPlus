@@ -55,8 +55,8 @@ namespace pcpp
 		 * @param[in] ack_req The acknowledgment request
 		 * @param[in] psn The packet sequence number
 		 */
-		InfiniBandLayer(uint8_t opcode, int se, int mig, int pad, uint16_t pkey, uint32_t qpn, int ack_req,
-		                uint32_t psn);
+		InfiniBandLayer(uint8_t opcode, int soliciteEvent, int migrationState, int padCount, uint16_t partitionKey,
+						uint32_t queuePairNumber, int ackReq, uint32_t packetSequenceNumber);
 
 		/**
 		 * Get a pointer to the BTH header. Notice this points directly to the data, so every change will change
@@ -82,25 +82,25 @@ namespace pcpp
 		/**
 		 * @return solicited event that the responder shall invoke the CQ event handler
 		 */
-		uint8_t getSe() const;
+		uint8_t getSoliciteEvent() const;
 
 		/**
 		 * Set solicited event
 		 * @param[in] se The solicited event to set
 		 */
-		void setSe(int se) const;
+		void setSolicitedEvent(int se) const;
 
 		/**
 		 * @return migreq which used to communicate migration state
 		 */
-		uint8_t getMig() const;
+		uint8_t getMigrationState() const;
 
 		/**
 		 * Set migreq
 		 * @param[in] mig The migration state to set. If set to one, indicates the connection or EE context has been
 		 * migrated; if set to zero, it means there is no change in the current migration state.
 		 */
-		void setMig(uint8_t mig) const;
+		void setMigrationState(uint8_t mig) const;
 
 		/**
 		 * @return PadCount which Packet payloads are sent as a multiple of 4-byte quantities.
@@ -108,69 +108,69 @@ namespace pcpp
 		 * Pads are used to “stretch” the payload (payloads may be zero or more bytes in length) to be a multiple of 4
 		 * bytes
 		 */
-		uint8_t getPad() const;
+		uint8_t getPadCount() const;
 
 		/**
 		 * Set PadCount
 		 * @param[in] pad The PadCount to set
 		 */
-		void setPad(uint8_t pad) const;
+		void setPadCount(uint8_t pad) const;
 
 		/**
 		 * @return Transport Header Version that specifies the version of the IBA Transport used for this packet
 		 */
-		uint8_t getTver() const;
+		uint8_t getTransportHeaderVersion() const;
 
 		/**
 		 * Set Transport Header Version
 		 * @param[in] tvr The transport header version to set
 		 */
-		void setTver(uint8_t tver) const;
+		void setTransportHeaderVersion(uint8_t tver) const;
 
 		/**
 		 * @return partition key identifying the partition
 		 * that the destination QP (RC, UC, UD, XRC) or EE Context (RD) is a member.
 		 */
-		uint16_t getPkey() const;
+		uint16_t getPartitionKey() const;
 
 		/**
 		 * Set partition key
 		 * @param[in] pkey The partition key to set
 		 */
-		void setPkey(uint16_t pkey) const;
+		void setPartitionKey(uint16_t pkey) const;
 
 		/**
 		 * @return destination queue pair (QP) identifier
 		 */
-		uint32_t getQpn() const;
+		uint32_t getQueuePairNumber() const;
 
 		/**
 		 * Set Queue Pair Number
 		 * @param[in] qpn The queue pair number to set
 		 */
-		void setQpn(uint32_t qpn) const;
+		void setQueuePairNumber(uint32_t qpn) const;
 
 		/**
 		 * @return FECN
-		 * F (FECN): 0 indicates that a FECN indication was not received.
-		 * 1 indicates that the packet went through a point of congestion
+		 * F (FECN): false indicates that a FECN indication was not received.
+		 * true indicates that the packet went through a point of congestion
 		 */
-		int getFecn() const;
+		bool getFecn() const;
 
 		/**
 		 * Set Fecn
 		 * @param[in] fecn The FECN to set
 		 */
-		void setfecn(int fecn) const;
+		void setFecn(int fecn) const;
 
 		/**
 		 * @return BECN
-		 * B (BECN): 0 the packet did not go through a point of congestion or went
-		 * through a point of congestion but was not marked. 1 indicates that the
+		 * B (BECN): false the packet did not go through a point of congestion or went
+		 * through a point of congestion but was not marked. true indicates that the
 		 * packet indicated by this header was subject to forward congestion. The B
 		 * bit is set in an ACK or CN BTH
 		 */
-		int getBecn() const;
+		bool getBecn() const;
 
 		/**
 		 * Set BECN
@@ -208,13 +208,13 @@ namespace pcpp
 		 * @return packet sequence number that is used to identify the position of a packet
 		 * within a sequence of packets.
 		 */
-		uint32_t getPsn() const;
+		uint32_t getPacketSequenceNumber() const;
 
 		/**
 		 * Set packet sequence number
 		 * @param[in] psn The packet sequence number to set
 		 */
-		void setPsn(uint32_t psn) const;
+		void setPacketSequenceNumber(uint32_t psn) const;
 
 		/**
 		 * Currently identifies the following next layers sets to PayloadLayer
@@ -250,6 +250,14 @@ namespace pcpp
 		{
 			return (port == 4791);
 		}
+
+		/**
+		 * The static method makes validation of UDP data
+		 * @param[in] udpData The pointer to the UDP payload data. It points to the first byte of rxe_bth header.
+		 * @param[in] udpDataLen The payload data size
+		 * @return True if the data is valid and can represent the rxe_bth packet
+		 */
+		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
 	};
 
 }  // namespace pcpp
