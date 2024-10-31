@@ -17,7 +17,7 @@
 
 PcapPlusPlus는 다양한 네트워크 프로토콜을 디코딩하고 생성할 수 있는 기능을 제공하며, [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html), [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/) 등과 같은 유용한 패킷 처리 엔진을 위한 손쉬운 C++ 래퍼를 지원합니다.
 
-번역: [English](../README.md) · [正體中文](./translation/README-zh-tw.md) · 한국어
+번역: [English](../README.md) · [正體中文](./README-zh-tw.md) · 한국어
 
 ## 목차
 
