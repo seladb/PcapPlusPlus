@@ -4,28 +4,31 @@ target_link_libraries(BenchmarkExample PUBLIC PcapPlusPlus::Pcap++)
 
 set_target_properties(BenchmarkExample PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
-include(FetchContent)
+if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+  include(FetchContent)
 
-# Fetch Google Benchmark
-fetchcontent_declare(
-  benchmark
-  GIT_REPOSITORY https://github.com/google/benchmark.git
-  GIT_TAG v1.9.0)
+  # Fetch Google Benchmark
+  fetchcontent_declare(
+    benchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG v1.9.0)
 
-if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
-  # Disable testing and installation for Google Benchmark
-  set(BENCHMARK_ENABLE_TESTING OFF)
-  set(BENCHMARK_ENABLE_INSTALL OFF)
-  fetchcontent_makeavailable(benchmark)
+  if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
+    # Disable testing and installation for Google Benchmark
+    set(BENCHMARK_ENABLE_TESTING OFF)
+    set(BENCHMARK_ENABLE_INSTALL OFF)
+    fetchcontent_makeavailable(benchmark)
 
-  add_executable(BenchmarkExampleGoogle benchmark-google.cpp)
+    add_executable(BenchmarkExampleGoogle benchmark-google.cpp)
 
-  target_link_libraries(BenchmarkExampleGoogle PUBLIC PcapPlusPlus::Pcap++ benchmark::benchmark)
+    target_link_libraries(BenchmarkExampleGoogle PUBLIC PcapPlusPlus::Pcap++ benchmark::benchmark)
 
-  set_target_properties(BenchmarkExampleGoogle PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
-else()
-  message(WARNING "Google Benchmark backend is not supported for cross-compilation")
+    set_target_properties(BenchmarkExampleGoogle PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
+  else()
+    message(WARNING "Google Benchmark backend is not supported for cross-compilation")
+  endif()
 endif()
+
 
 if(PCAPPP_INSTALL)
   install(
