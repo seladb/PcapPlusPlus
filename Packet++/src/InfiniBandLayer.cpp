@@ -60,13 +60,10 @@ namespace pcpp
 		m_NextLayer = new PayloadLayer(bthData, bthDataLen, this, m_Packet);
 	}
 
-	void InfiniBandLayer::computeCalculateFields()
-	{}
-
 	std::string InfiniBandLayer::toString() const
 	{
 		std::ostringstream ss;
-		ss << "InfiniBand Layer, Opcode: " << getOpcode();
+		ss << "InfiniBand Layer, Opcode: " << static_cast<int>(getOpcode());
 		return ss.str();
 	}
 
@@ -80,12 +77,12 @@ namespace pcpp
 		getBthHeader()->opcode = opcode;
 	}
 
-	uint8_t InfiniBandLayer::getSoliciteEvent() const
+	bool InfiniBandLayer::getSoliciteEvent() const
 	{
 		return 0 != (BTH_SE_MASK & getBthHeader()->flags);
 	}
 
-	void InfiniBandLayer::setSolicitedEvent(int se) const
+	void InfiniBandLayer::setSolicitedEvent(bool se) const
 	{
 		if (se)
 			getBthHeader()->flags |= BTH_SE_MASK;
@@ -93,12 +90,12 @@ namespace pcpp
 			getBthHeader()->flags &= ~BTH_SE_MASK;
 	}
 
-	uint8_t InfiniBandLayer::getMigrationState() const
+	bool InfiniBandLayer::getMigrationState() const
 	{
 		return 0 != (BTH_MIG_MASK & getBthHeader()->flags);
 	}
 
-	void InfiniBandLayer::setMigrationState(uint8_t mig) const
+	void InfiniBandLayer::setMigrationState(bool mig) const
 	{
 		if (mig)
 			getBthHeader()->flags |= BTH_MIG_MASK;
@@ -143,7 +140,6 @@ namespace pcpp
 
 	void InfiniBandLayer::setQueuePairNumber(uint32_t qpn) const
 	{
-
 		uint32_t resvqpn = be32toh(getBthHeader()->qpn);
 
 		getBthHeader()->qpn = htobe32((BTH_QPN_MASK & qpn) | (~BTH_QPN_MASK & resvqpn));
@@ -154,7 +150,7 @@ namespace pcpp
 		return 0 != (htobe32(BTH_FECN_MASK) & getBthHeader()->qpn);
 	}
 
-	void InfiniBandLayer::setFecn(int fecn) const
+	void InfiniBandLayer::setFecn(bool fecn) const
 	{
 		if (fecn)
 			getBthHeader()->qpn |= htobe32(BTH_FECN_MASK);
@@ -167,17 +163,12 @@ namespace pcpp
 		return 0 != (htobe32(BTH_BECN_MASK) & getBthHeader()->qpn);
 	}
 
-	void InfiniBandLayer::setbecn(int becn) const
+	void InfiniBandLayer::setBecn(bool becn) const
 	{
 		if (becn)
 			getBthHeader()->qpn |= htobe32(BTH_BECN_MASK);
 		else
 			getBthHeader()->qpn &= ~htobe32(BTH_BECN_MASK);
-	}
-
-	uint8_t InfiniBandLayer::getResv6a() const
-	{
-		return (BTH_RESV6A_MASK & be32toh(getBthHeader()->qpn)) >> 24;
 	}
 
 	void InfiniBandLayer::setResv6a() const
@@ -196,11 +187,6 @@ namespace pcpp
 			getBthHeader()->apsn |= htobe32(BTH_ACK_MASK);
 		else
 			getBthHeader()->apsn &= ~htobe32(BTH_ACK_MASK);
-	}
-
-	void InfiniBandLayer::setResv7() const
-	{
-		getBthHeader()->apsn &= ~htobe32(BTH_RESV7_MASK);
 	}
 
 	uint32_t InfiniBandLayer::getPacketSequenceNumber() const

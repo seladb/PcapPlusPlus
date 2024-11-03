@@ -94,15 +94,14 @@ PTF_TEST_CASE(InfiniBandParsingTest)
 			auto* ibLayer = parsedPacket.getLayerOfType<pcpp::InfiniBandLayer>();
 			PTF_ASSERT_NOT_NULL(ibLayer);
 			PTF_ASSERT_EQUAL(ibLayer->getOpcode(), 12);
-			PTF_ASSERT_EQUAL(ibLayer->getSoliciteEvent(), 0);
-			PTF_ASSERT_EQUAL(ibLayer->getMigrationState(), 0);
+			PTF_ASSERT_EQUAL(ibLayer->getSoliciteEvent(), false);
+			PTF_ASSERT_EQUAL(ibLayer->getMigrationState(), false);
 			PTF_ASSERT_EQUAL(ibLayer->getPadCount(), 0);
 			PTF_ASSERT_EQUAL(ibLayer->getTransportHeaderVersion(), 0);
 			PTF_ASSERT_EQUAL(ibLayer->getPartitionKey(), 65535);
 			PTF_ASSERT_EQUAL(ibLayer->getQueuePairNumber(), 17);
 			PTF_ASSERT_EQUAL(ibLayer->getFecn(), false);
 			PTF_ASSERT_EQUAL(ibLayer->getBecn(), false);
-			PTF_ASSERT_EQUAL(ibLayer->getResv6a(), 0);
 			PTF_ASSERT_EQUAL(ibLayer->getAck(), 1);
 			PTF_ASSERT_EQUAL(ibLayer->getPacketSequenceNumber(), 5557091);
 			break;

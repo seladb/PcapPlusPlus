@@ -47,26 +47,16 @@ namespace pcpp
 		/**
 		 * A constructor that creates a new rxe_bth header and allocates the data
 		 * @param[in] opcode The operation code
-		 * @param[in] se The solicited event
-		 * @param[in] mig The migration state
-		 * @param[in] pad The pad count
-		 * @param[in] pkey The partition key
-		 * @param[in] qpn The destination queue pair (QP) number
-		 * @param[in] ack_req The acknowledgment request
-		 * @param[in] psn The packet sequence number
+		 * @param[in] soliciteEvent The solicited event
+		 * @param[in] migrationState The migration state
+		 * @param[in] padCount The pad count
+		 * @param[in] partitionKey The partition key
+		 * @param[in] queuePairNumber The destination queue pair (QP) number
+		 * @param[in] ackReq The acknowledgment request
+		 * @param[in] packetSequenceNumber The packet sequence number
 		 */
 		InfiniBandLayer(uint8_t opcode, int soliciteEvent, int migrationState, int padCount, uint16_t partitionKey,
 						uint32_t queuePairNumber, int ackReq, uint32_t packetSequenceNumber);
-
-		/**
-		 * Get a pointer to the BTH header. Notice this points directly to the data, so every change will change
-		 * the actual packet data
-		 * @return A pointer to the bth_header
-		 */
-		rxe_bth* getBthHeader() const
-		{
-			return reinterpret_cast<rxe_bth*>(m_Data);
-		}
 
 		/**
 		 * @return The operation code which defines the interpretation of the remaining header and payload bytes
@@ -82,25 +72,25 @@ namespace pcpp
 		/**
 		 * @return solicited event that the responder shall invoke the CQ event handler
 		 */
-		uint8_t getSoliciteEvent() const;
+		bool getSoliciteEvent() const;
 
 		/**
 		 * Set solicited event
 		 * @param[in] se The solicited event to set
 		 */
-		void setSolicitedEvent(int se) const;
+		void setSolicitedEvent(bool se) const;
 
 		/**
 		 * @return migreq which used to communicate migration state
 		 */
-		uint8_t getMigrationState() const;
+		bool getMigrationState() const;
 
 		/**
 		 * Set migreq
 		 * @param[in] mig The migration state to set. If set to one, indicates the connection or EE context has been
 		 * migrated; if set to zero, it means there is no change in the current migration state.
 		 */
-		void setMigrationState(uint8_t mig) const;
+		void setMigrationState(bool mig) const;
 
 		/**
 		 * @return PadCount which Packet payloads are sent as a multiple of 4-byte quantities.
@@ -161,7 +151,7 @@ namespace pcpp
 		 * Set Fecn
 		 * @param[in] fecn The FECN to set
 		 */
-		void setFecn(int fecn) const;
+		void setFecn(bool fecn) const;
 
 		/**
 		 * @return BECN
@@ -176,12 +166,7 @@ namespace pcpp
 		 * Set BECN
 		 * @param[in] becn The BECN to set
 		 */
-		void setbecn(int becn) const;
-
-		/**
-		 * @return Reserved (variant) - 6 bits. Transmitted as 0, ignored on receive.
-		 */
-		uint8_t getResv6a() const;
+		void setBecn(bool becn) const;
 
 		/**
 		 * Set Reserved 6 bits
@@ -200,11 +185,6 @@ namespace pcpp
 		void setAck(int ack) const;
 
 		/**
-		 * Transmitted as 0, ignored on receive.
-		 */
-		void setResv7() const;
-
-		/**
 		 * @return packet sequence number that is used to identify the position of a packet
 		 * within a sequence of packets.
 		 */
@@ -217,7 +197,7 @@ namespace pcpp
 		void setPacketSequenceNumber(uint32_t psn) const;
 
 		/**
-		 * Currently identifies the following next layers sets to PayloadLayer
+		 * Identify the next layer as PayloadLayer
 		 */
 		void parseNextLayer() override;
 
@@ -230,9 +210,10 @@ namespace pcpp
 		}
 
 		/**
-		 * Calculate @ref udphdr#headerChecksum field
+		 * Does nothing for this layer
 		 */
-		void computeCalculateFields() override;
+		void computeCalculateFields() override
+		{}
 
 		std::string toString() const override;
 
@@ -258,6 +239,17 @@ namespace pcpp
 		 * @return True if the data is valid and can represent the rxe_bth packet
 		 */
 		static bool isDataValid(const uint8_t* udpData, size_t udpDataLen);
+
+	private:
+		/**
+		 * Get a pointer to the BTH header. Notice this points directly to the data, so every change will change
+		 * the actual packet data
+		 * @return A pointer to the bth_header
+		 */
+		rxe_bth* getBthHeader() const
+		{
+			return reinterpret_cast<rxe_bth*>(m_Data);
+		}
 	};
 
 }  // namespace pcpp
