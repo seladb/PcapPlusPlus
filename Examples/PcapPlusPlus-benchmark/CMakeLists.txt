@@ -5,18 +5,18 @@ target_link_libraries(BenchmarkExample PUBLIC PcapPlusPlus::Pcap++)
 set_target_properties(BenchmarkExample PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
 if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-  include(FetchContent)
-
-  # Fetch Google Benchmark
-  fetchcontent_declare(
-    benchmark
-    GIT_REPOSITORY https://github.com/google/benchmark.git
-    GIT_TAG v1.9.0)
-
   if(
-    (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
-    AND (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_OSX_ARCHITECTURES)
-  )
+      (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_SYSTEM_PROCESSOR)
+      AND (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL CMAKE_OSX_ARCHITECTURES)
+    )
+    include(FetchContent)
+
+    # Fetch Google Benchmark
+    fetchcontent_declare(
+      benchmark
+      GIT_REPOSITORY https://github.com/google/benchmark.git
+      GIT_TAG v1.9.0)
+
     # Disable testing and installation for Google Benchmark
     set(BENCHMARK_ENABLE_TESTING OFF)
     set(BENCHMARK_ENABLE_INSTALL OFF)
@@ -30,6 +30,8 @@ if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
   else()
     message(WARNING "Google Benchmark backend is not supported for cross-compilation")
   endif()
+else()
+  message(WARNING "Google Benchmark backend requires C++14 support")
 endif()
 
 
