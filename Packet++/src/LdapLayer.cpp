@@ -343,7 +343,17 @@ namespace pcpp
 
 	LdapOperationType LdapLayer::getLdapOperationType() const
 	{
-		return LdapOperationType::fromUintValue(getLdapOperationAsn1Record()->getTagType());
+		uint8_t tagType;
+		try
+		{
+			tagType = getLdapOperationAsn1Record()->getTagType();
+		}
+		catch (...)
+		{
+			tagType = LdapOperationType::Unknown;
+		}
+
+		return LdapOperationType::fromUintValue(tagType);
 	}
 
 	void LdapLayer::parseNextLayer()
@@ -671,7 +681,7 @@ namespace pcpp
 
 	LdapSearchRequestLayer::SearchRequestScope LdapSearchRequestLayer::SearchRequestScope::fromUintValue(uint8_t value)
 	{
-		if (value >= 0 && value <= 2)
+		if (value <= 2)
 		{
 			return static_cast<LdapSearchRequestLayer::SearchRequestScope::Value>(value);
 		}
@@ -686,7 +696,7 @@ namespace pcpp
 
 	LdapSearchRequestLayer::DerefAliases LdapSearchRequestLayer::DerefAliases::fromUintValue(uint8_t value)
 	{
-		if (value >= 0 && value <= 3)
+		if (value <= 3)
 		{
 			return static_cast<LdapSearchRequestLayer::DerefAliases::Value>(value);
 		}
