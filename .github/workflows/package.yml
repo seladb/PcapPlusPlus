@@ -46,7 +46,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # Checkout is performed out of the container and doesn't match our user
       - name: Fix checkout ownership
@@ -97,10 +97,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Test in FreeBSD
-        uses: vmactions/freebsd-vm@d7b8fcc7711aa41ad45e8d9b737cf90f035a7e3d # v1.1.3
+        uses: vmactions/freebsd-vm@c96341966a3954a757e6ea41692f7c7b32312a0c # v1.1.4
         with:
           release: ${{ matrix.version }}
           envs: 'BUILD_DIR'
@@ -161,7 +161,7 @@ jobs:
           xcode-version: "${{ matrix.xcode-version }}"
 
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Configure PcapPlusPlus
         run: |
@@ -204,7 +204,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@ddf331adaebd714795f1042345e6ca57bd66cea8 # v2.24.1
@@ -273,7 +273,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
@@ -326,10 +326,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Checkout lipbcap for Android
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # main
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
         with:
           repository: seladb/libpcap-android
           path: ./libpcap-android
@@ -359,7 +359,7 @@ jobs:
           mkdir -p "android-package"
           mv "${COMBINED_PACKAGE_DIR}" "android-package"
 
-      - uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           path: android-package
           name: android-package-${{ matrix.target }}-${{ matrix.api-version }}
