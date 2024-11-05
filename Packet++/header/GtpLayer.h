@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Layer.h"
+#include "TLVData.h"
+#include <vector>
+#include <bitset>
 
 /// @file
 
@@ -373,7 +376,7 @@ namespace pcpp
 		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
 		 * message will be written to log
 		 */
-		bool setSequenceNumber(const uint16_t seqNumber);
+		bool setSequenceNumber(uint16_t seqNumber);
 
 		/**
 		 * Get the N-PDU number if exists on the message (N-PDU number is an optional field in GTP messages)
@@ -389,7 +392,7 @@ namespace pcpp
 		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
 		 * message will be written to log
 		 */
-		bool setNpduNumber(const uint8_t npduNum);
+		bool setNpduNumber(uint8_t npduNum);
 
 		/**
 		 * Get the type of the next header extension if exists on the message (extensions are optional in GTP messages)
@@ -441,7 +444,7 @@ namespace pcpp
 		/**
 		 * A static method that checks whether the port is considered as GTPv1
 		 * @param[in] port The port number to be checked
-		 * @return True if the port matches those associated with the BGP protocol
+		 * @return True if the port matches those associated with the GTPv1 protocol
 		 */
 		static bool isGTPv1Port(uint16_t port)
 		{
@@ -475,5 +478,723 @@ namespace pcpp
 		{
 			return OsiModelTransportLayer;
 		}
+	};
+
+	class GtpV2MessageType
+	{
+	public:
+		enum Value : uint8_t
+		{
+			/** Unknown message */
+			Unknown = 0,
+			/** Echo Request message */
+			EchoRequest = 1,
+			/** Echo Response message */
+			EchoResponse = 2,
+			/** Version Not Supported message */
+			VersionNotSupported = 3,
+			/** Create Session Request message */
+			CreateSessionRequest = 32,
+			/** Create Session Response message */
+			CreateSessionResponse = 33,
+			/** Modify Bearer Request message */
+			ModifyBearerRequest = 34,
+			/** Modify Bearer Response message */
+			ModifyBearerResponse = 35,
+			/** Delete Session Request message */
+			DeleteSessionRequest = 36,
+			/** Delete Session Response message */
+			DeleteSessionResponse = 37,
+			/** Change Notification Request message */
+			ChangeNotificationRequest = 38,
+			/** Change Notification Response message */
+			ChangeNotificationResponse = 39,
+			/** Remote UE Report Notifications message */
+			RemoteUEReportNotifications = 40,
+			/** Remote UE Report Acknowledge message */
+			RemoteUEReportAcknowledge = 41,
+			/** Modify Bearer Command message */
+			ModifyBearerCommand = 64,
+			/** Modify Bearer Failure message */
+			ModifyBearerFailure = 65,
+			/** Delete Bearer Command message */
+			DeleteBearerCommand = 66,
+			/** Delete Bearer Failure message */
+			DeleteBearerFailure = 67,
+			/** Bearer Resource Command message */
+			BearerResourceCommand = 68,
+			/** Bearer Resource Failure message */
+			BearerResourceFailure = 69,
+			/** Downlink Data Notification Failure message */
+			DownlinkDataNotificationFailure = 70,
+			/** Trace Session Activation message */
+			TraceSessionActivation = 71,
+			/** Trace Session Deactivation message */
+			TraceSessionDeactivation = 72,
+			/** Stop Paging Indication message */
+			StopPagingIndication = 73,
+			/** Create Bearer Request message */
+			CreateBearerRequest = 95,
+			/** Create Bearer Response message */
+			CreateBearerResponse = 96,
+			/** Update Bearer Request message */
+			UpdateBearerRequest = 97,
+			/** Update Bearer Response message */
+			UpdateBearerResponse = 98,
+			/** Delete Bearer Request message */
+			DeleteBearerRequest = 99,
+			/** Delete Bearer Response message */
+			DeleteBearerResponse = 100,
+			/** Delete PDN Request message */
+			DeletePDNRequest = 101,
+			/** Delete PDN Response message */
+			DeletePDNResponse = 102,
+			/** PGW Downlink Notification message */
+			PGWDownlinkNotification = 103,
+			/** PGW Downlink Acknowledge message */
+			PGWDownlinkAcknowledge = 104,
+			/** Identification Request message */
+			IdentificationRequest = 128,
+			/** Identification Response message */
+			IdentificationResponse = 129,
+			/** Context Request message */
+			ContextRequest = 130,
+			/** Context Response message */
+			ContextResponse = 131,
+			/** Context Acknowledge message */
+			ContextAcknowledge = 132,
+			/** Forward Relocation Request message */
+			ForwardRelocationRequest = 133,
+			/** Forward Relocation Response message */
+			ForwardRelocationResponse = 134,
+			/** Forward Relocation Notification message */
+			ForwardRelocationNotification = 135,
+			/** Forward Relocation Acknowledge message */
+			ForwardRelocationAcknowledge = 136,
+			/** Forward Access Notification message */
+			ForwardAccessNotification = 137,
+			/** Forward Access Acknowledge message */
+			ForwardAccessAcknowledge = 138,
+			/** Relocation Cancel Request message */
+			RelocationCancelRequest = 139,
+			/** Relocation Cancel Response message */
+			RelocationCancelResponse = 140,
+			/** Configuration Transfer Tunnel message */
+			ConfigurationTransferTunnel = 141,
+			/** Detach Notification message */
+			DetachNotification = 149,
+			/** Detach Acknowledge message */
+			DetachAcknowledge = 150,
+			/** CS Paging message */
+			CSPaging = 151,
+			/** RAN Information Relay message */
+			RANInformationRelay = 152,
+			/** Alert MME Notification message */
+			AlertMMENotification = 153,
+			/** Alert MME Acknowledge message */
+			AlertMMEAcknowledge = 154,
+			/** UE Activity Notification message */
+			UEActivityNotification = 155,
+			/** UE Activity Acknowledge message */
+			UEActivityAcknowledge = 156,
+			/** ISR Status message */
+			ISRStatus = 157,
+			/** Create Forwarding Request message */
+			CreateForwardingRequest = 160,
+			/** Create Forwarding Response message */
+			CreateForwardingResponse = 161,
+			/** Suspend Notification message */
+			SuspendNotification = 162,
+			/** Suspend Acknowledge message */
+			SuspendAcknowledge = 163,
+			/** Resume Notification message */
+			ResumeNotification = 164,
+			/** Resume Acknowledge message */
+			ResumeAcknowledge = 165,
+			/** Create Indirect Data Tunnel Request message */
+			CreateIndirectDataTunnelRequest = 166,
+			/** Create Indirect Data Tunnel Response message */
+			CreateIndirectDataTunnelResponse = 167,
+			/** Delete Indirect Data Tunnel Request message */
+			DeleteIndirectDataTunnelRequest = 168,
+			/** Delete Indirect Data Tunnel Response message */
+			DeleteIndirectDataTunnelResponse = 169,
+			/** Release Access Bearers Request message */
+			ReleaseAccessBearersRequest = 170,
+			/** Release Access Bearers Response message */
+			ReleaseAccessBearersResponse = 171,
+			/** Downlink Data Notification message */
+			DownlinkDataNotification = 176,
+			/** Downlink Data Acknowledge message */
+			DownlinkDataAcknowledge = 177,
+			/** PGW Restart Notification message */
+			PGWRestartNotification = 179,
+			/** PGW Restart Acknowledge message */
+			PGWRestartAcknowledge = 180,
+			/** Update PDN Connection Request message */
+			UpdatePDNConnectionRequest = 200,
+			/** Update PDN Connection Response message */
+			UpdatePDNConnectionResponse = 201,
+			/** Modify Access Bearers Request message */
+			ModifyAccessBearersRequest = 211,
+			/** Modify Access Bearers Response message */
+			ModifyAccessBearersResponse = 212,
+			/** MMBS Session Start Request message */
+			MMBSSessionStartRequest = 231,
+			/** MMBS Session Start Response message */
+			MMBSSessionStartResponse = 232,
+			/** MMBS Session Update Request message */
+			MMBSSessionUpdateRequest = 233,
+			/** MMBS Session Update Response message */
+			MMBSSessionUpdateResponse = 234,
+			/** MMBS Session Stop Request message */
+			MMBSSessionStopRequest = 235,
+			/** MMBS Session Stop Response message */
+			MMBSSessionStopResponse = 236
+		};
+
+		GtpV2MessageType() = default;
+
+		// cppcheck-suppress noExplicitConstructor
+		/**
+		 * Construct GtpV2MessageType from Value enum
+		 * @param[in] value the message type enum value
+		 */
+		constexpr GtpV2MessageType(Value value) : m_Value(value)
+		{}
+
+		/**
+		 * @return A string representation of the message type
+		 */
+		std::string toString() const;
+
+		/**
+		 * A static method that creates GtpV2MessageType from an integer value
+		 * @param[in] value The message type integer value
+		 * @return The message type that corresponds to the integer value. If the integer value
+		 * doesn't corresponds to any message type, GtpV2MessageType::Unknown is returned
+		 */
+		static GtpV2MessageType fromUintValue(uint8_t value);
+
+		// Allow switch and comparisons.
+		constexpr operator Value() const
+		{
+			return m_Value;
+		}
+
+		// Prevent usage: if(GtpV2MessageType)
+		explicit operator bool() const = delete;
+
+	private:
+		Value m_Value;
+	};
+
+	/**
+	 * @class GtpV2InformationElement
+	 * A wrapper class for GTPv2 information elements (IE). This class does not create or modify IEs, but rather
+	 * serves as a wrapper and provides useful methods for retrieving data from them
+	 */
+	class GtpV2InformationElement : public TLVRecord<uint8_t, uint16_t>
+	{
+	public:
+		/**
+		 * GTPv2 Information Element (IE) types as defined in 3GPP TS 29.274
+		 */
+		enum class Type : uint8_t
+		{
+			/** Unknown or reserved value */
+			Unknown = 0,
+			/** International Mobile Subscriber Identity */
+			Imsi = 1,
+			/** Indicates the result of a procedure */
+			Cause = 2,
+			/** Recovery counter for GTP path management */
+			Recovery = 3,
+			/** Session Transfer Number for SRVCC */
+			StnSr = 51,
+			/** Access Point Name */
+			Apn = 71,
+			/** Aggregate Maximum Bit Rate */
+			Ambr = 72,
+			/** EPS Bearer ID */
+			Ebi = 73,
+			/** IPv4/IPv6 Address */
+			IpAddress = 74,
+			/** Mobile Equipment Identity (IMEI or IMEISV) */
+			Mei = 75,
+			/** Mobile Station International Subscriber Directory Number */
+			Msisdn = 76,
+			/** Indication flags for various features and capabilities */
+			Indication = 77,
+			/** Protocol Configuration Options */
+			Pco = 78,
+			/** PDN Address Allocation */
+			Paa = 79,
+			/** Bearer Level Quality of Service */
+			BearerQos = 80,
+			/** Flow Level Quality of Service */
+			FlowQos = 81,
+			/** Radio Access Technology Type */
+			RatType = 82,
+			/** Current PLMN and MME identifier */
+			ServingNetwork = 83,
+			/** Bearer Traffic Flow Template */
+			BearerTft = 84,
+			/** Traffic Aggregation Description */
+			Tad = 85,
+			/** User Location Information */
+			Uli = 86,
+			/** Fully Qualified TEID */
+			FTeid = 87,
+			/** Temporary Mobile Subscriber Identity */
+			Tmsi = 88,
+			/** Global Core Network ID */
+			GlobalCnId = 89,
+			/** S103 PDN Data Forwarding Info */
+			S103PdnDataForwardingInfo = 90,
+			/** S1-U Data Forwarding Info */
+			S1UDataForwardingInfo = 91,
+			/** Delay Value in integer multiples of 50 milliseconds */
+			DelayValue = 92,
+			/** Bearer Context */
+			BearerContext = 93,
+			/** Charging ID for this PDP context */
+			ChargingId = 94,
+			/** Charging Characteristics */
+			ChargingCharacteristics = 95,
+			/** Trace Information */
+			TraceInformation = 96,
+			/** Bearer Flags */
+			BearerFlags = 97,
+			/** PDN Type (IPv4, IPv6, IPv4v6) */
+			PdnType = 99,
+			/** Procedure Transaction ID */
+			Pti = 100,
+			/** MM Context (GSM Key and Triplets) */
+			MmContext1 = 103,
+			/** MM Context (UMTS Key, Used Cipher and Quintuplets) */
+			MmContext2 = 104,
+			/** MM Context (GSM Key, Used Cipher and Quintuplets) */
+			MmContext3 = 105,
+			/** MM Context (UMTS Key and Quintuplets) */
+			MmContext4 = 106,
+			/** MM Context (EPS Security Context, Quadruplets and Quintuplets) */
+			MmContext5 = 107,
+			/** MM Context (UMTS Key, Quadruplets and Quintuplets) */
+			MmContext6 = 108,
+			/** PDN Connection */
+			PdnConnection = 109,
+			/** PDU Numbers */
+			PduNumbers = 110,
+			/** Packet TMSI */
+			PTmsi = 111,
+			/** P-TMSI Signature */
+			PTmsiSignature = 112,
+			/** Hop Counter */
+			HopCounter = 113,
+			/** UE Time Zone */
+			UeTimeZone = 114,
+			/** Trace Reference */
+			TraceReference = 115,
+			/** Complete Request Message */
+			CompleteRequestMessage = 116,
+			/** Globally Unique Temporary Identity */
+			Guti = 117,
+			/** F-Container */
+			FContainer = 118,
+			/** F-Cause */
+			FCause = 119,
+			/** PLMN Identity */
+			PlmnId = 120,
+			/** Target Identification */
+			TargetIdentification = 121,
+			/** Packet Flow ID */
+			PacketFlowId = 123,
+			/** RAB Context */
+			RabContext = 124,
+			/** Source RNC PDCP Context Info */
+			SourceRncPdcpContextInfo = 125,
+			/** Port Number */
+			PortNumber = 126,
+			/** APN Restriction */
+			ApnRestriction = 127,
+			/** Selection Mode */
+			SelectionMode = 128,
+			/** Source Identification */
+			SourceIdentification = 129,
+			/** Change Reporting Action */
+			ChangeReportingAction = 131,
+			/** Fully Qualified PDN Connection Set Identifier */
+			FqCsid = 132,
+			/** Channel Needed */
+			ChannelNeeded = 133,
+			/** eMLPP Priority */
+			EmlppPriority = 134,
+			/** Node Type */
+			NodeType = 135,
+			/** Fully Qualified Domain Name */
+			Fqdn = 136,
+			/** Transaction Identifier */
+			Ti = 137,
+			/** MBMS Session Duration */
+			MbmsSessionDuration = 138,
+			/** MBMS Service Area */
+			MbmsServiceArea = 139,
+			/** MBMS Session Identifier */
+			MbmsSessionIdentifier = 140,
+			/** MBMS Flow Identifier */
+			MbmsFlowIdentifier = 141,
+			/** MBMS IP Multicast Distribution */
+			MbmsIpMulticastDistribution = 142,
+			/** MBMS Distribution Acknowledge */
+			MbmsDistributionAcknowledge = 143,
+			/** RF Selection Priority Index */
+			RfspIndex = 144,
+			/** User CSG Information */
+			Uci = 145,
+			/** CSG Information Reporting Action */
+			CsgInformationReportingAction = 146,
+			/** CSG ID */
+			CsgId = 147,
+			/** CSG Membership Indication */
+			Cmi = 148,
+			/** Service Indicator */
+			ServiceIndicator = 149,
+			/** Detach Type */
+			DetachType = 150,
+			/** Local Distinguished Name */
+			Ldn = 151,
+			/** Node Features */
+			NodeFeatures = 152,
+			/** MBMS Time To Data Transfer */
+			MbmsTimeToDataTransfer = 153,
+			/** Throttling */
+			Throttling = 154,
+			/** Allocation Retention Priority */
+			Arp = 155,
+			/** EPC Timer */
+			EpcTimer = 156,
+			/** Signalling Priority Indication */
+			SignallingPriorityIndication = 157,
+			/** Temporary Mobile Group Identity */
+			Tmgi = 158,
+			/** Additional MM Context For SRVCC */
+			AdditionalMmContextForSrvcc = 159,
+			/** Additional Flags For SRVCC */
+			AdditionalFlagsForSrvcc = 160,
+			/** MDT Configuration */
+			MdtConfiguration = 162,
+			/** Additional Protocol Configuration Options */
+			Apco = 163,
+			/** Absolute Time of MBMS Data Transfer */
+			AbsoluteTimeOfMbmsDataTransfer = 164,
+			/** H(e)NB Information Reporting */
+			HenbInformationReporting = 165,
+			/** IPv4 Configuration Parameters */
+			Ipv4ConfigurationParameters = 166,
+			/** Change To Report Flags */
+			ChangeToReportFlags = 167,
+			/** Action Indication */
+			ActionIndication = 168,
+			/** TWAN Identifier */
+			TwanIdentifier = 169,
+			/** ULI Timestamp */
+			UliTimestamp = 170,
+			/** MBMS Flags */
+			MbmsFlags = 171,
+			/** RAN/NAS Cause */
+			RanNasCause = 172,
+			/** CN Operator Selection Entity */
+			CnOperatorSelectionEntity = 173,
+			/** Trusted WLAN Mode Indication */
+			Twmi = 174,
+			/** Node Number */
+			NodeNumber = 175,
+			/** Node Identifier */
+			NodeIdentifier = 176,
+			/** Presence Reporting Area Action */
+			PresenceReportingAreaAction = 177,
+			/** Presence Reporting Area Information */
+			PresenceReportingAreaInformation = 178,
+			/** TWAN Identifier Timestamp */
+			TwanIdentifierTimestamp = 179,
+			/** Overload Control Information */
+			OverloadControlInformation = 180,
+			/** Load Control Information */
+			LoadControlInformation = 181,
+			/** Metric */
+			Metric = 182,
+			/** Sequence Number */
+			SequenceNumber = 183,
+			/** APN and Relative Capacity */
+			ApnAndRelativeCapacity = 184,
+			/** WLAN Offloadability Indication */
+			WlanOffloadabilityIndication = 185,
+			/** Paging and Service Information */
+			PagingAndServiceInformation = 186,
+			/** Integer Number */
+			IntegerNumber = 187,
+			/** Millisecond Time Stamp */
+			MillisecondTimeStamp = 188,
+			/** Monitoring Event Information */
+			MonitoringEventInformation = 189,
+			/** ECGI List */
+			EcgiList = 190,
+			/** Remote UE Context */
+			RemoteUeContext = 191,
+			/** Remote User ID */
+			RemoteUserId = 192,
+			/** Remote UE IP Information */
+			RemoteUeIpInformation = 193,
+			/** CIoT Optimizations Support Indication */
+			CiotOptimizationsSupportIndication = 194,
+			/** SCEF PDN Connection */
+			ScefPdnConnection = 195,
+			/** Header Compression Configuration */
+			HeaderCompressionConfiguration = 196,
+			/** Extended Protocol Configuration Options */
+			ExtendedPco = 197,
+			/** Serving PLMN Rate Control */
+			ServingPlmnRateControl = 198,
+			/** Counter */
+			Counter = 199,
+			/** Mapped UE Usage Type */
+			MappedUeUsageType = 200,
+			/** Secondary RAT Usage Data Report */
+			SecondaryRatUsageDataReport = 201,
+			/** UP Function Selection Indication Flags */
+			UpFunctionSelectionIndicationFlags = 202,
+			/** Maximum Packet Loss Rate */
+			MaximumPacketLossRate = 203,
+			/** APN Rate Control Status */
+			ApnRateControlStatus = 204,
+			/** Extended Trace Information */
+			ExtendedTraceInformation = 205,
+			/** Monitoring Event Extension Information */
+			MonitoringEventExtensionInformation = 206,
+			/** Additional RRM Policy Index */
+			AdditionalRrmPolicyIndex = 207,
+			/** V2X Context */
+			V2xContext = 208,
+			/** PC5 QoS Parameters */
+			Pc5QosParameters = 209,
+			/** Services Authorized */
+			ServicesAuthorized = 210,
+			/** Bit Rate */
+			BitRate = 211,
+			/** PC5 QoS Flow */
+			Pc5QosFlow = 212,
+			/** SGi PtP Tunnel Address */
+			SgiPtpTunnelAddress = 213
+		};
+
+		/**
+		 * A c'tor for this class that gets a pointer to the IE raw data (byte array)
+		 * @param[in] ieRawData A pointer to the IE raw data
+		 */
+		explicit GtpV2InformationElement(uint8_t* ieRawData) : TLVRecord(ieRawData)
+		{}
+
+		/**
+		 * A d'tor for this class, currently does nothing
+		 */
+		~GtpV2InformationElement() override = default;
+
+		GtpV2InformationElement::Type getIEType();
+
+		uint8_t getCRFlag();
+
+		uint8_t getInstance();
+
+		// implement methods
+
+		size_t getValueOffset() const override
+		{
+			return sizeof(uint8_t);
+		}
+
+		size_t getTotalSize() const override;
+
+		size_t getDataSize() const override;
+	};
+
+	/**
+	 * @class GtpV2InformationElementBuilder
+	 * A class for building GTPv2 information elements (IE). This builder receives the NDP option parameters in its
+	 * c'tor, builds the NDP option raw buffer and provides a build() method to get a NdpOption object out of it
+	 */
+	class GtpV2InformationElementBuilder : public TLVRecordBuilder
+	{
+	public:
+		/**
+		 * A c'tor for building NDP options which their value is a byte array. The NdpOption object can be later
+		 * retrieved by calling build(). Each option is padded to have a 64-bit boundary.
+		 * @param[in] optionType NDP option type
+		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
+		 * any way.
+		 * @param[in] optionValueLen Option value length in bytes
+		 */
+		GtpV2InformationElementBuilder(GtpV2InformationElement::Type messageType, const std::bitset<4>& crFlag,
+		                               const std::bitset<4>& instance, const std::vector<uint8_t>& infoElementValue);
+
+		/**
+		 * Build the NdpOption object out of the parameters defined in the c'tor. Padding bytes are added to the
+		 * option for option length with 64-bit boundaries.
+		 * @return The NdpOption object
+		 */
+		GtpV2InformationElement build() const;
+
+	private:
+		std::bitset<4> m_CRFlag;
+		std::bitset<4> m_Instance;
+	};
+
+	class GtpV2Layer : public Layer
+	{
+	public:
+		~GtpV2Layer() override = default;
+
+		/** A constructor that creates the layer from an existing packet raw data
+		 * @param[in] data A pointer to the raw data
+		 * @param[in] dataLen Size of the data in bytes
+		 * @param[in] prevLayer A pointer to the previous layer
+		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
+		 */
+		GtpV2Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+		    : Layer(data, dataLen, prevLayer, packet, GTPv2)
+		{}
+
+		GtpV2Layer(GtpV2MessageType messageType, uint32_t sequenceNumber, bool setTeid = false, uint32_t teid = 0,
+		           bool setMessagePriority = false, uint8_t messagePriority = 0);
+
+		/**
+		 * A static method that checks whether the port is considered as GTPv2
+		 * @param[in] port The port number to be checked
+		 * @return True if the port matches those associated with the GTPv2 protocol
+		 */
+		static bool isGTPv2Port(uint16_t port)
+		{
+			return port == 2123;
+		}
+
+		/**
+		 * A static method that takes a byte array and detects whether it is a GTPv2 message
+		 * @param[in] data A byte array
+		 * @param[in] dataSize The byte array size (in bytes)
+		 * @return True if the data is identified as GTPv2 message
+		 */
+		static bool isDataValid(const uint8_t* data, size_t dataSize);
+
+		GtpV2MessageType getMessageType() const;
+
+		void setMessageType(const GtpV2MessageType& type);
+
+		uint16_t getMessageLength() const;
+
+		bool isPiggybacking() const;
+
+		std::pair<bool, uint32_t> getTeid() const;
+
+		void setTeid(uint32_t teid);
+
+		void unsetTeid();
+
+		uint32_t getSequenceNumber() const;
+
+		void setSequenceNumber(uint32_t sequenceNumber);
+
+		std::pair<bool, uint8_t> getMessagePriority() const;
+
+		void setMessagePriority(const std::bitset<4>& messagePriority);
+
+		void unsetMessagePriority();
+
+		/**
+		 * @return The first GTPv2 Information Element (IE). If there are no IE the returned value will contain
+		 * a logical null (GtpV2InformationElement#isNull() == true)
+		 */
+		GtpV2InformationElement getFirstInformationElement() const;
+
+		/**
+		 * Get the GTPv2 Information Element (IE) that comes after a given IE. If the given IE was the last one, the
+		 * returned value will contain a logical null (GtpV2InformationElement#isNull() == true)
+		 * @param[in] infoElement A given GTPv2 Information Element
+		 * @return A GtpV2InformationElement object containing the IE that comes next, or logical null if the given
+		 * IE: (1) is the last one; (2) contains a logical null or (3) doesn't belong to this packet
+		 */
+		GtpV2InformationElement getNextInformationElement(GtpV2InformationElement infoElement) const;
+
+		/**
+		 * Get a GTPv2 Information Element (IE) by type
+		 * @param[in] ieType GTPv2 Information Element (IE) type
+		 * @return A GtpV2InformationElement object containing the first IE that matches this type, or logical
+		 * null (GtpV2InformationElement#isNull() == true) if no such IE found
+		 */
+		GtpV2InformationElement getInformationElement(GtpV2InformationElement::Type ieType) const;
+
+		/**
+		 * @return The number of GTPv2 Information Elements (IEs) in this layer
+		 */
+		size_t getInformationElementCount() const;
+
+		GtpV2InformationElement addInformationElement(const GtpV2InformationElementBuilder& infoElementBuilder);
+
+		GtpV2InformationElement addInformationElementAfter(const GtpV2InformationElementBuilder& infoElementBuilder,
+		                                                   GtpV2InformationElement::Type infoElementType);
+
+		bool removeInformationElement(GtpV2InformationElement::Type infoElementType);
+
+		bool removeAllInformationElements();
+
+		// implement abstract methods
+
+		/**
+		 * Identifies if the next layer is GTPv2 piggyback. Otherwise sets PayloadLayer
+		 */
+		void parseNextLayer() override;
+
+		/**
+		 * @return The size of the GTPv2 header including its Information Elements (IE)
+		 */
+		size_t getHeaderLen() const override;
+
+		/**
+		 * Calculate the following fields:
+		 * TBD
+		 */
+		void computeCalculateFields() override;
+
+		std::string toString() const override;
+
+		OsiModelLayer getOsiModelLayer() const override
+		{
+			return OsiModelTransportLayer;
+		}
+
+	private:
+#pragma pack(push, 1)
+		struct gtpv2_basic_header
+		{
+#if (BYTE_ORDER == LITTLE_ENDIAN)
+			uint8_t unused : 2, messagePriorityPresent : 1, teidPresent : 1, piggybacking : 1, version : 3;
+#else
+			uint8_t version : 3, piggybacking : 1, teidPresent : 1, messagePriorityPresent : 1, unused : 2;
+#endif
+			uint8_t messageType;
+			uint16_t messageLength;
+		};
+#pragma pack(pop)
+
+		TLVRecordReader<GtpV2InformationElement> m_IEReader;
+
+		gtpv2_basic_header* getHeader() const
+		{
+			return reinterpret_cast<gtpv2_basic_header*>(m_Data);
+		}
+
+		uint8_t* getIEBasePtr() const;
+
+		GtpV2InformationElement addInformationElementAt(const GtpV2InformationElementBuilder& infoElementBuilder,
+		                                                int offset);
 	};
 }  // namespace pcpp

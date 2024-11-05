@@ -10,7 +10,7 @@
 #include "IcmpLayer.h"
 #include "SystemUtils.h"
 
-PTF_TEST_CASE(GtpLayerParsingTest)
+PTF_TEST_CASE(GtpV1LayerParsingTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -161,7 +161,7 @@ PTF_TEST_CASE(GtpLayerParsingTest)
 	PTF_ASSERT_FALSE(gtpLayer->isGTPUMessage());
 }  // GtpLayerParsingTest
 
-PTF_TEST_CASE(GtpLayerCreationTest)
+PTF_TEST_CASE(GtpV1LayerCreationTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -230,7 +230,7 @@ PTF_TEST_CASE(GtpLayerCreationTest)
 	                       newGtpPacket.getRawPacket()->getRawDataLen());
 }  // GtpLayerCreationTest
 
-PTF_TEST_CASE(GtpLayerEditTest)
+PTF_TEST_CASE(GtpV1LayerEditTest)
 {
 	timeval time;
 	gettimeofday(&time, nullptr);
@@ -282,3 +282,355 @@ PTF_TEST_CASE(GtpLayerEditTest)
 
 	delete[] buffer2;
 }  // GtpLayerEditTest
+
+PTF_TEST_CASE(GtpV2LayerParsingTest)
+{
+	timeval time{};
+	gettimeofday(&time, nullptr);
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-teid.dat");
+		pcpp::Packet gtpPacket(&rawPacket1);
+
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
+		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+
+		PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV2MessageType::ModifyBearerRequest);
+		PTF_ASSERT_EQUAL(gtpLayer->getMessageLength(), 107);
+		PTF_ASSERT_FALSE(gtpLayer->isPiggybacking());
+		PTF_ASSERT_EQUAL(gtpLayer->getHeaderLen(), 111);
+		auto teid = gtpLayer->getTeid();
+		PTF_ASSERT_TRUE(teid.first);
+		PTF_ASSERT_EQUAL(teid.second, 0xd37d1590);
+		PTF_ASSERT_EQUAL(gtpLayer->getSequenceNumber(), 0x1a4a43);
+		PTF_ASSERT_FALSE(gtpLayer->getMessagePriority().first);
+		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Modify Bearer Request message");
+		PTF_ASSERT_NULL(gtpLayer->getNextLayer());
+
+		PTF_ASSERT_EQUAL(gtpLayer->getInformationElementCount(), 9);
+
+		auto expectedIEValues = std::vector<
+		    std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>>{
+			{ pcpp::GtpV2InformationElement::Type::Uli,            17, 13, 0, 0, 0x18, 0x64 },
+			{ pcpp::GtpV2InformationElement::Type::ServingNetwork, 7,  3,  0, 0, 0x64, 0xf6 },
+			{ pcpp::GtpV2InformationElement::Type::RatType,        5,  1,  0, 0, 0x06, 0    },
+			{ pcpp::GtpV2InformationElement::Type::FTeid,          13, 9,  0, 0, 0x86, 0xa4 },
+			{ pcpp::GtpV2InformationElement::Type::Ambr,           12, 8,  0, 0, 0,    0    },
+			{ pcpp::GtpV2InformationElement::Type::Mei,            12, 8,  0, 0, 0x53, 0x02 },
+			{ pcpp::GtpV2InformationElement::Type::UeTimeZone,     6,  2,  0, 0, 0x23, 0    },
+			{ pcpp::GtpV2InformationElement::Type::BearerContext,  22, 18, 0, 0, 0x49, 0    },
+			{ pcpp::GtpV2InformationElement::Type::Recovery,       5,  1,  0, 0, 18,   0    },
+		};
+
+		auto infoElement = gtpLayer->getFirstInformationElement();
+		for (auto expectedIEValue : expectedIEValues)
+		{
+			PTF_ASSERT_EQUAL(infoElement.getIEType(), std::get<0>(expectedIEValue), enumclass);
+			PTF_ASSERT_EQUAL(infoElement.getTotalSize(), std::get<1>(expectedIEValue));
+			PTF_ASSERT_EQUAL(infoElement.getDataSize(), std::get<2>(expectedIEValue));
+			PTF_ASSERT_EQUAL(static_cast<int>(infoElement.getCRFlag()), static_cast<int>(std::get<3>(expectedIEValue)));
+			PTF_ASSERT_EQUAL(static_cast<int>(infoElement.getInstance()),
+			                 static_cast<int>(std::get<4>(expectedIEValue)));
+			PTF_ASSERT_EQUAL(infoElement.getValueAs<uint8_t>(), std::get<5>(expectedIEValue));
+			if (infoElement.getDataSize() > 1)
+			{
+				PTF_ASSERT_EQUAL(static_cast<int>(infoElement.getValueAs<uint8_t>(1)),
+				                 static_cast<int>(std::get<6>(expectedIEValue)));
+			}
+			PTF_ASSERT_EQUAL(gtpLayer->getInformationElement(infoElement.getIEType()).getIEType(),
+			                 std::get<0>(expectedIEValue), enumclass);
+			infoElement = gtpLayer->getNextInformationElement(infoElement);
+		}
+		PTF_ASSERT_TRUE(infoElement.isNull());
+	}
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-piggyback.dat");
+		pcpp::Packet gtpPacket(&rawPacket1);
+
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
+		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+
+		PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV2MessageType::EchoRequest);
+		PTF_ASSERT_TRUE(gtpLayer->isPiggybacking());
+		PTF_ASSERT_FALSE(gtpLayer->getTeid().first);
+		PTF_ASSERT_EQUAL(gtpLayer->getSequenceNumber(), 12345);
+		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Echo Request message");
+		PTF_ASSERT_EQUAL(gtpLayer->getInformationElementCount(), 1);
+
+		gtpLayer = reinterpret_cast<pcpp::GtpV2Layer*>(gtpLayer->getNextLayer());
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+
+		PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV2MessageType::CreateSessionResponse);
+		PTF_ASSERT_FALSE(gtpLayer->isPiggybacking());
+		auto teid = gtpLayer->getTeid();
+		PTF_ASSERT_TRUE(teid.first);
+		PTF_ASSERT_EQUAL(teid.second, 87654);
+		PTF_ASSERT_EQUAL(gtpLayer->getSequenceNumber(), 67890);
+		auto messagePriority = gtpLayer->getMessagePriority();
+		PTF_ASSERT_TRUE(messagePriority.first);
+		PTF_ASSERT_EQUAL(messagePriority.second, 9);
+		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Create Session Response message");
+		PTF_ASSERT_NULL(gtpLayer->getNextLayer());
+	}
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-piggyback-malformed.dat");
+		pcpp::Packet gtpPacket(&rawPacket1);
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
+		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+		PTF_ASSERT_TRUE(gtpLayer->isPiggybacking());
+		PTF_ASSERT_NOT_NULL(gtpLayer->getNextLayer());
+		PTF_ASSERT_EQUAL(gtpLayer->getNextLayer()->getProtocol(), pcpp::GenericPayload);
+	}
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-over-tcp.dat");
+		pcpp::Packet gtpPacket(&rawPacket1);
+
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTPv2));
+		PTF_ASSERT_TRUE(gtpPacket.isPacketOfType(pcpp::GTP));
+		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+		PTF_ASSERT_EQUAL(gtpLayer->getMessageType(), pcpp::GtpV2MessageType::DeleteSessionResponse);
+		PTF_ASSERT_EQUAL(gtpLayer->toString(), "GTPv2 Layer, Delete Session Response message");
+	}
+
+	{
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
+		pcpp::Packet gtpPacket(&rawPacket1);
+
+		auto gtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(gtpLayer);
+		auto infoElement = gtpLayer->getFirstInformationElement();
+		PTF_ASSERT_EQUAL(infoElement.getCRFlag(), 7);
+		PTF_ASSERT_EQUAL(infoElement.getInstance(), 12);
+	}
+}  // GtpV2LayerParsingTest
+
+PTF_TEST_CASE(GtpV2LayerCreationTest)
+{
+	timeval time{};
+	gettimeofday(&time, nullptr);
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::ModifyBearerRequest, 0x1a4a43, true, 0xd37d1590);
+
+		// clang-format off
+		std::vector<pcpp::GtpV2InformationElementBuilder> infoElementBuilders = {
+			{ pcpp::GtpV2InformationElement::Type::Uli,           0, 0, { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }                               },
+			{ pcpp::GtpV2InformationElement::Type::RatType,       0, 0, { 0x06 }                                                                                                       },
+			{ pcpp::GtpV2InformationElement::Type::FTeid,         0, 0, { 0x86, 0xa4, 0x3e, 0xd0, 0x30, 0x6f, 0x47, 0xec, 0x31 }                                                       },
+			{ pcpp::GtpV2InformationElement::Type::Ambr,          0, 0, { 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x08, 0x00 }                                                             },
+			{ pcpp::GtpV2InformationElement::Type::Mei,           0, 0, { 0x53, 0x02, 0x89, 0x70, 0x72, 0x61, 0x23, 0x60 }                                                             },
+			{ pcpp::GtpV2InformationElement::Type::UeTimeZone,    0, 0, { 0x23, 0x00 }                                                                                                 },
+			{ pcpp::GtpV2InformationElement::Type::BearerContext, 0, 0, { 0x49, 0x00, 0x01, 0x00, 0x05, 0x57, 0x00, 0x09, 0x01, 0x84, 0xa4, 0x30, 0xf3, 0xe2, 0x6f, 0x47, 0xec, 0x43 } },
+		};
+		// clang-format on
+
+		for (const auto& infoElementBuilder : infoElementBuilders)
+		{
+			gtpLayer.addInformationElement(infoElementBuilder);
+		}
+
+		// clang-format off
+		gtpLayer.addInformationElementAfter({ pcpp::GtpV2InformationElement::Type::ServingNetwork, 0, 0, { 0x64, 0xf6, 0x29 } },
+		                                      pcpp::GtpV2InformationElement::Type::Uli);
+		// clang-format on
+		gtpLayer.addInformationElementAfter({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x12 } },
+		                                      pcpp::GtpV2InformationElement::Type::BearerContext);
+
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-teid.dat");
+		pcpp::Packet gtpPacket1(&rawPacket1);
+
+		auto expectedGtpLayer = gtpPacket1.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(expectedGtpLayer);
+
+		PTF_ASSERT_EQUAL(gtpLayer.getDataLen(), expectedGtpLayer->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData(), expectedGtpLayer->getData(), gtpLayer.getDataLen());
+	}
+
+	{
+		pcpp::EthLayer ethLayer("10:5b:ad:b0:f5:07", "08:b4:b1:1a:46:ad", PCPP_ETHERTYPE_IP);
+		pcpp::IPv4Layer ipLayer(pcpp::IPv4Address("192.168.1.100"), pcpp::IPv4Address("192.168.1.200"));
+		ipLayer.getIPv4Header()->ipId = htobe16(1);
+		ipLayer.getIPv4Header()->timeToLive = 64;
+		pcpp::UdpLayer udpLayer(2123, 2123);
+
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::EchoRequest, 0x003039);
+		gtpLayer.addInformationElement({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x11 } });
+
+		pcpp::GtpV2Layer piggybackGtpLayer(pcpp::GtpV2MessageType::CreateSessionResponse, 0x010932, true, 0x00015666,
+		                                   true, 9);
+		piggybackGtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Imsi, 0, 0, { 0x33, 0x87, 0x93, 0x34, 0x49, 0x51, 0x83, 0xf6 }
+        });
+
+		pcpp::Packet newPacket;
+		newPacket.addLayer(&ethLayer);
+		newPacket.addLayer(&ipLayer);
+		newPacket.addLayer(&udpLayer);
+		newPacket.addLayer(&gtpLayer);
+		newPacket.addLayer(&piggybackGtpLayer);
+		newPacket.computeCalculateFields();
+
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-piggyback.dat");
+		pcpp::Packet expectedPacket(&rawPacket1);
+
+		PTF_ASSERT_EQUAL(newPacket.getRawPacket()->getRawDataLen(), expectedPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(newPacket.getRawPacket()->getRawData(), expectedPacket.getRawPacket()->getRawData(),
+		                       newPacket.getRawPacket()->getRawDataLen());
+	}
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::ModifyBearerRequest, 0x1a4a43, true, 0xd37d1590, true, 1);
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Uli,
+		    7,
+		    12,
+		    { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }
+        });
+
+		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
+		pcpp::Packet gtpPacket(&rawPacket1);
+
+		auto expectedGtpLayer = gtpPacket.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(expectedGtpLayer);
+
+		PTF_ASSERT_EQUAL(gtpLayer.getDataLen(), expectedGtpLayer->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData(), expectedGtpLayer->getData(), expectedGtpLayer->getDataLen());
+	}
+}  // GtpV2LayerCreationTest
+
+PTF_TEST_CASE(GtpV2LayerEditTest)
+{
+	timeval time{};
+	gettimeofday(&time, nullptr);
+
+	READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-non-zero-cf-flag-instance.dat");
+	pcpp::Packet gtpPacket1(&rawPacket1);
+
+	auto expectedGtpLayer1 = gtpPacket1.getLayerOfType<pcpp::GtpV2Layer>();
+	PTF_ASSERT_NOT_NULL(expectedGtpLayer1);
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::ISRStatus, 0x10);
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Uli,
+		    7,
+		    12,
+		    { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }
+        });
+
+		gtpLayer.setMessageType(pcpp::GtpV2MessageType::ModifyBearerRequest);
+		gtpLayer.setTeid(0xd37d1590);
+		gtpLayer.setMessagePriority(1);
+		gtpLayer.setSequenceNumber(0x1a4a43);
+
+		PTF_ASSERT_EQUAL(gtpLayer.getDataLen(), expectedGtpLayer1->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData(), expectedGtpLayer1->getData(), expectedGtpLayer1->getDataLen());
+	}
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::ModifyBearerRequest, 0x1a4a43, true, 1, true, 2);
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Uli,
+		    7,
+		    12,
+		    { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }
+        });
+
+		gtpLayer.setTeid(0xd37d1590);
+		gtpLayer.setMessagePriority(1);
+
+		PTF_ASSERT_EQUAL(gtpLayer.getDataLen(), expectedGtpLayer1->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData(), expectedGtpLayer1->getData(), expectedGtpLayer1->getDataLen());
+	}
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::EchoRequest, 12345, true, 1, true, 2);
+		gtpLayer.addInformationElement({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x11 } });
+
+		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtpv2-with-piggyback.dat");
+		pcpp::Packet gtpPacket2(&rawPacket2);
+
+		auto expectedGtpLayer2 = gtpPacket2.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(expectedGtpLayer2);
+
+		gtpLayer.unsetMessagePriority();
+		gtpLayer.unsetTeid();
+
+		PTF_ASSERT_EQUAL(gtpLayer.getHeaderLen(), expectedGtpLayer2->getHeaderLen());
+		PTF_ASSERT_EQUAL(gtpLayer.getData()[0], 0x40);
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData() + 1, expectedGtpLayer2->getData() + 1,
+		                       expectedGtpLayer2->getHeaderLen() - 1);
+
+		gtpLayer.unsetMessagePriority();
+		gtpLayer.unsetTeid();
+
+		PTF_ASSERT_EQUAL(gtpLayer.getHeaderLen(), expectedGtpLayer2->getHeaderLen());
+		PTF_ASSERT_EQUAL(gtpLayer.getData()[0], 0x40);
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData() + 1, expectedGtpLayer2->getData() + 1,
+		                       expectedGtpLayer2->getHeaderLen() - 1);
+	}
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::ModifyBearerRequest, 0x1a4a43, true, 0xd37d1590, true, 1);
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Imsi, 0, 0, { 0x33, 0x87, 0x93, 0x34, 0x49, 0x51, 0x83, 0xf6 }
+        });
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Uli,
+		    7,
+		    12,
+		    { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }
+        });
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Imsi, 0, 0, { 0x33, 0x87, 0x93, 0x34, 0x49, 0x51, 0x83, 0xf6 }
+        });
+		gtpLayer.addInformationElement({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x11 } });
+
+		PTF_ASSERT_TRUE(gtpLayer.removeInformationElement(pcpp::GtpV2InformationElement::Type::Recovery));
+		PTF_ASSERT_TRUE(gtpLayer.removeInformationElement(pcpp::GtpV2InformationElement::Type::Imsi));
+		PTF_ASSERT_TRUE(gtpLayer.removeInformationElement(pcpp::GtpV2InformationElement::Type::Imsi));
+		PTF_ASSERT_FALSE(gtpLayer.removeInformationElement(pcpp::GtpV2InformationElement::Type::Imsi));
+
+		PTF_ASSERT_EQUAL(gtpLayer.getInformationElementCount(), 1);
+
+		PTF_ASSERT_EQUAL(gtpLayer.getDataLen(), expectedGtpLayer1->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData(), expectedGtpLayer1->getData(), expectedGtpLayer1->getDataLen());
+	}
+
+	{
+		pcpp::GtpV2Layer gtpLayer(pcpp::GtpV2MessageType::ModifyBearerRequest, 0x1a4a43, true, 0xd37d1590, true, 1);
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Imsi, 0, 0, { 0x33, 0x87, 0x93, 0x34, 0x49, 0x51, 0x83, 0xf6 }
+        });
+		gtpLayer.addInformationElement({
+		    pcpp::GtpV2InformationElement::Type::Uli,
+		    7,
+		    12,
+		    { 0x18, 0x64, 0xf6, 0x29, 0x2e, 0x18, 0x64, 0xf6, 0x29, 0x01, 0xce, 0x66, 0x21 }
+        });
+		gtpLayer.addInformationElement({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x11 } });
+
+		gtpLayer.removeAllInformationElements();
+
+		PTF_ASSERT_EQUAL(gtpLayer.getInformationElementCount(), 0);
+
+		READ_FILE_AND_CREATE_PACKET(2, "PacketExamples/gtpv2-no-info-elements.dat");
+		pcpp::Packet gtpPacket2(&rawPacket2);
+
+		auto expectedGtpLayer2 = gtpPacket2.getLayerOfType<pcpp::GtpV2Layer>();
+		PTF_ASSERT_NOT_NULL(expectedGtpLayer2);
+
+		PTF_ASSERT_EQUAL(gtpLayer.getDataLen(), expectedGtpLayer2->getDataLen());
+		PTF_ASSERT_BUF_COMPARE(gtpLayer.getData(), expectedGtpLayer2->getData(), expectedGtpLayer2->getDataLen());
+	}
+}  // GtpV2LayerEditTest

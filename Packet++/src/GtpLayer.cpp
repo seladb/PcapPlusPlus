@@ -113,11 +113,11 @@ namespace pcpp
 		uint8_t nextExtType = getNextExtensionHeaderType();
 		if (nextExtType > 0 && m_DataLen > totalLength + sizeof(uint8_t))
 		{
-			return GtpV1Layer::GtpExtension(m_Data + totalLength, m_DataLen - totalLength, nextExtType);
+			return { m_Data + totalLength, m_DataLen - totalLength, nextExtType };
 		}
 		else
 		{
-			return GtpV1Layer::GtpExtension();
+			return {};
 		}
 	}
 
@@ -134,7 +134,7 @@ namespace pcpp
 	{
 		if (dataLen < 4 * sizeof(uint8_t))
 		{
-			return GtpExtension();
+			return {};
 		}
 
 		data[0] = 1;
@@ -142,7 +142,7 @@ namespace pcpp
 		data[2] = content & 0xff;
 		data[3] = 0;
 
-		return GtpV1Layer::GtpExtension(data, dataLen, extType);
+		return { data, dataLen, extType };
 	}
 
 	/// ================
@@ -341,11 +341,11 @@ namespace pcpp
 		bool nextExtExists = getNextExtensionHeaderType(nextExtType);
 		if (!nextExtExists || nextExtType == 0 || m_DataLen <= sizeof(gtpv1_header) + sizeof(gtpv1_header_extra))
 		{
-			return GtpV1Layer::GtpExtension();
+			return {};
 		}
 
-		return GtpV1Layer::GtpExtension(m_Data + sizeof(gtpv1_header) + sizeof(gtpv1_header_extra),
-		                                m_DataLen - sizeof(gtpv1_header) - sizeof(gtpv1_header_extra), nextExtType);
+		return { m_Data + sizeof(gtpv1_header) + sizeof(gtpv1_header_extra),
+			     m_DataLen - sizeof(gtpv1_header) - sizeof(gtpv1_header_extra), nextExtType };
 	}
 
 	GtpV1Layer::GtpExtension GtpV1Layer::addExtension(uint8_t extensionType, uint16_t extensionContent)
@@ -355,7 +355,7 @@ namespace pcpp
 		if (header == nullptr)
 		{
 			PCPP_LOG_ERROR("Add extension failed: GTP header is nullptr");
-			return GtpExtension();
+			return {};
 		}
 
 		size_t offsetForNewExtension = sizeof(gtpv1_header);
@@ -366,7 +366,7 @@ namespace pcpp
 			if (!extendLayer(offsetForNewExtension, sizeof(gtpv1_header_extra)))
 			{
 				PCPP_LOG_ERROR("Add extension failed: cannot extend layer");
-				return GtpExtension();
+				return {};
 			}
 			header = getHeader();
 		}
@@ -376,7 +376,7 @@ namespace pcpp
 		if (headerExtra == nullptr)
 		{
 			PCPP_LOG_ERROR("Add extension failed: extra header is nullptr");
-			return GtpExtension();
+			return {};
 		}
 
 		offsetForNewExtension += sizeof(gtpv1_header_extra);
@@ -403,7 +403,7 @@ namespace pcpp
 		if (!extendLayer(offsetForNewExtension, 4 * sizeof(uint8_t)))
 		{
 			PCPP_LOG_ERROR("Add extension failed: cannot extend layer");
-			return GtpExtension();
+			return {};
 		}
 
 		// lastExt != null means layer contains 1 or more extensions
@@ -524,8 +524,7 @@ namespace pcpp
 			return GTPv1MsgTypeToStringMap.find(0)->second;
 		}
 
-		std::unordered_map<uint8_t, std::string>::const_iterator iter =
-		    GTPv1MsgTypeToStringMap.find(header->messageType);
+		auto iter = GTPv1MsgTypeToStringMap.find(header->messageType);
 		if (iter != GTPv1MsgTypeToStringMap.end())
 		{
 			return iter->second;
@@ -582,7 +581,7 @@ namespace pcpp
 
 		// GTP-U message, try to parse the next layer
 
-		uint8_t* payload = (uint8_t*)(m_Data + headerLen);
+		auto payload = (uint8_t*)(m_Data + headerLen);
 		size_t payloadLen = m_DataLen - headerLen;
 
 		uint8_t subProto = *payload;
@@ -673,6 +672,683 @@ namespace pcpp
 		}
 
 		hdr->messageLength = htobe16(m_DataLen - sizeof(gtpv1_header));
+	}
+
+	/// ================
+	/// GtpV2MessageType
+	/// ================
+
+	static const std::unordered_map<GtpV2MessageType::Value, std::string> messageTypeMap = {
+		{ GtpV2MessageType::EchoRequest,                      "Echo Request"                         },
+		{ GtpV2MessageType::EchoResponse,                     "Echo Response"                        },
+		{ GtpV2MessageType::VersionNotSupported,              "Version Not Supported"                },
+		{ GtpV2MessageType::CreateSessionRequest,             "Create Session Request"               },
+		{ GtpV2MessageType::CreateSessionResponse,            "Create Session Response"              },
+		{ GtpV2MessageType::ModifyBearerRequest,              "Modify Bearer Request"                },
+		{ GtpV2MessageType::ModifyBearerResponse,             "Modify Bearer Response"               },
+		{ GtpV2MessageType::DeleteSessionRequest,             "Delete Session Request"               },
+		{ GtpV2MessageType::DeleteSessionResponse,            "Delete Session Response"              },
+		{ GtpV2MessageType::ChangeNotificationRequest,        "Change Notification Request"          },
+		{ GtpV2MessageType::ChangeNotificationResponse,       "Change Notification Response"         },
+		{ GtpV2MessageType::RemoteUEReportNotifications,      "Remote UE Report Notifications"       },
+		{ GtpV2MessageType::RemoteUEReportAcknowledge,        "Remote UE Report Acknowledge"         },
+		{ GtpV2MessageType::ModifyBearerCommand,              "Modify Bearer Command"                },
+		{ GtpV2MessageType::ModifyBearerFailure,              "Modify Bearer Failure"                },
+		{ GtpV2MessageType::DeleteBearerCommand,              "Delete Bearer Command"                },
+		{ GtpV2MessageType::DeleteBearerFailure,              "Delete Bearer Failure"                },
+		{ GtpV2MessageType::BearerResourceCommand,            "Bearer Resource Command"              },
+		{ GtpV2MessageType::BearerResourceFailure,            "Bearer Resource Failure"              },
+		{ GtpV2MessageType::DownlinkDataNotificationFailure,  "Downlink Data Notification Failure"   },
+		{ GtpV2MessageType::TraceSessionActivation,           "Trace Session Activation"             },
+		{ GtpV2MessageType::TraceSessionDeactivation,         "Trace Session Deactivation"           },
+		{ GtpV2MessageType::StopPagingIndication,             "Stop Paging Indication"               },
+		{ GtpV2MessageType::CreateBearerRequest,              "Create Bearer Request"                },
+		{ GtpV2MessageType::CreateBearerResponse,             "Create Bearer Response"               },
+		{ GtpV2MessageType::UpdateBearerRequest,              "Update Bearer Request"                },
+		{ GtpV2MessageType::UpdateBearerResponse,             "Update Bearer Response"               },
+		{ GtpV2MessageType::DeleteBearerRequest,              "Delete Bearer Request"                },
+		{ GtpV2MessageType::DeleteBearerResponse,             "Delete Bearer Response"               },
+		{ GtpV2MessageType::DeletePDNRequest,                 "Delete PDN Request"                   },
+		{ GtpV2MessageType::DeletePDNResponse,                "Delete PDN Response"                  },
+		{ GtpV2MessageType::PGWDownlinkNotification,          "PGW Downlink Notification"            },
+		{ GtpV2MessageType::PGWDownlinkAcknowledge,           "PGW Downlink Acknowledge"             },
+		{ GtpV2MessageType::IdentificationRequest,            "Identification Request"               },
+		{ GtpV2MessageType::IdentificationResponse,           "Identification Response"              },
+		{ GtpV2MessageType::ContextRequest,                   "Context Request"                      },
+		{ GtpV2MessageType::ContextResponse,                  "Context Response"                     },
+		{ GtpV2MessageType::ContextAcknowledge,               "Context Acknowledge"                  },
+		{ GtpV2MessageType::ForwardRelocationRequest,         "Forward Relocation Request"           },
+		{ GtpV2MessageType::ForwardRelocationResponse,        "Forward Relocation Response"          },
+		{ GtpV2MessageType::ForwardRelocationNotification,    "Forward Relocation Notification"      },
+		{ GtpV2MessageType::ForwardRelocationAcknowledge,     "Forward Relocation Acknowledge"       },
+		{ GtpV2MessageType::ForwardAccessNotification,        "Forward Access Notification"          },
+		{ GtpV2MessageType::ForwardAccessAcknowledge,         "Forward Access Acknowledge"           },
+		{ GtpV2MessageType::RelocationCancelRequest,          "Relocation Cancel Request"            },
+		{ GtpV2MessageType::RelocationCancelResponse,         "Relocation Cancel Response"           },
+		{ GtpV2MessageType::ConfigurationTransferTunnel,      "Configuration Transfer Tunnel"        },
+		{ GtpV2MessageType::DetachNotification,               "Detach Notification"                  },
+		{ GtpV2MessageType::DetachAcknowledge,                "Detach Acknowledge"                   },
+		{ GtpV2MessageType::CSPaging,                         "CS Paging"                            },
+		{ GtpV2MessageType::RANInformationRelay,              "RAN Information Relay"                },
+		{ GtpV2MessageType::AlertMMENotification,             "Alert MME Notification"               },
+		{ GtpV2MessageType::AlertMMEAcknowledge,              "Alert MME Acknowledge"                },
+		{ GtpV2MessageType::UEActivityNotification,           "UE Activity Notification"             },
+		{ GtpV2MessageType::UEActivityAcknowledge,            "UE Activity Acknowledge"              },
+		{ GtpV2MessageType::ISRStatus,                        "ISR Status"                           },
+		{ GtpV2MessageType::CreateForwardingRequest,          "Create Forwarding Request"            },
+		{ GtpV2MessageType::CreateForwardingResponse,         "Create Forwarding Response"           },
+		{ GtpV2MessageType::SuspendNotification,              "Suspend Notification"                 },
+		{ GtpV2MessageType::SuspendAcknowledge,               "Suspend Acknowledge"                  },
+		{ GtpV2MessageType::ResumeNotification,               "Resume Notification"                  },
+		{ GtpV2MessageType::ResumeAcknowledge,                "Resume Acknowledge"                   },
+		{ GtpV2MessageType::CreateIndirectDataTunnelRequest,  "Create Indirect Data Tunnel Request"  },
+		{ GtpV2MessageType::CreateIndirectDataTunnelResponse, "Create Indirect Data Tunnel Response" },
+		{ GtpV2MessageType::DeleteIndirectDataTunnelRequest,  "Delete Indirect Data Tunnel Request"  },
+		{ GtpV2MessageType::DeleteIndirectDataTunnelResponse, "Delete Indirect Data Tunnel Response" },
+		{ GtpV2MessageType::ReleaseAccessBearersRequest,      "Release Access Bearers Request"       },
+		{ GtpV2MessageType::ReleaseAccessBearersResponse,     "Release Access Bearers Response"      },
+		{ GtpV2MessageType::DownlinkDataNotification,         "Downlink Data Notification"           },
+		{ GtpV2MessageType::DownlinkDataAcknowledge,          "Downlink Data Acknowledge"            },
+		{ GtpV2MessageType::PGWRestartNotification,           "PGW Restart Notification"             },
+		{ GtpV2MessageType::PGWRestartAcknowledge,            "PGW Restart Acknowledge"              },
+		{ GtpV2MessageType::UpdatePDNConnectionRequest,       "Update PDN Connection Request"        },
+		{ GtpV2MessageType::UpdatePDNConnectionResponse,      "Update PDN Connection Response"       },
+		{ GtpV2MessageType::ModifyAccessBearersRequest,       "Modify Access Bearers Request"        },
+		{ GtpV2MessageType::ModifyAccessBearersResponse,      "Modify Access Bearers Response"       },
+		{ GtpV2MessageType::MMBSSessionStartRequest,          "MMBS Session Start Request"           },
+		{ GtpV2MessageType::MMBSSessionStartResponse,         "MMBS Session Start Response"          },
+		{ GtpV2MessageType::MMBSSessionUpdateRequest,         "MMBS Session Update Request"          },
+		{ GtpV2MessageType::MMBSSessionUpdateResponse,        "MMBS Session Update Response"         },
+		{ GtpV2MessageType::MMBSSessionStopRequest,           "MMBS Session Stop Request"            },
+		{ GtpV2MessageType::MMBSSessionStopResponse,          "MMBS Session Stop Response"           }
+	};
+
+	std::string GtpV2MessageType::toString() const
+	{
+		auto it = messageTypeMap.find(m_Value);
+		if (it != messageTypeMap.end())
+		{
+			return it->second;
+		}
+
+		return "Unknown GTPv2 Message Type";
+	}
+
+	// clang-format off
+	static const std::unordered_map<uint8_t, GtpV2MessageType> uintToValueMap = {
+		{ static_cast<uint8_t>(GtpV2MessageType::EchoRequest),                      GtpV2MessageType::EchoRequest                      },
+		{ static_cast<uint8_t>(GtpV2MessageType::EchoResponse),                     GtpV2MessageType::EchoResponse                     },
+		{ static_cast<uint8_t>(GtpV2MessageType::VersionNotSupported),              GtpV2MessageType::VersionNotSupported              },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateSessionRequest),             GtpV2MessageType::CreateSessionRequest             },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateSessionResponse),            GtpV2MessageType::CreateSessionResponse            },
+		{ static_cast<uint8_t>(GtpV2MessageType::ModifyBearerRequest),              GtpV2MessageType::ModifyBearerRequest              },
+		{ static_cast<uint8_t>(GtpV2MessageType::ModifyBearerResponse),             GtpV2MessageType::ModifyBearerResponse             },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteSessionRequest),             GtpV2MessageType::DeleteSessionRequest             },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteSessionResponse),            GtpV2MessageType::DeleteSessionResponse            },
+		{ static_cast<uint8_t>(GtpV2MessageType::ChangeNotificationRequest),        GtpV2MessageType::ChangeNotificationRequest        },
+		{ static_cast<uint8_t>(GtpV2MessageType::ChangeNotificationResponse),       GtpV2MessageType::ChangeNotificationResponse       },
+		{ static_cast<uint8_t>(GtpV2MessageType::RemoteUEReportNotifications),      GtpV2MessageType::RemoteUEReportNotifications      },
+		{ static_cast<uint8_t>(GtpV2MessageType::RemoteUEReportAcknowledge),        GtpV2MessageType::RemoteUEReportAcknowledge        },
+		{ static_cast<uint8_t>(GtpV2MessageType::ModifyBearerCommand),              GtpV2MessageType::ModifyBearerCommand              },
+		{ static_cast<uint8_t>(GtpV2MessageType::ModifyBearerFailure),              GtpV2MessageType::ModifyBearerFailure              },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteBearerCommand),              GtpV2MessageType::DeleteBearerCommand              },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteBearerFailure),              GtpV2MessageType::DeleteBearerFailure              },
+		{ static_cast<uint8_t>(GtpV2MessageType::BearerResourceCommand),            GtpV2MessageType::BearerResourceCommand            },
+		{ static_cast<uint8_t>(GtpV2MessageType::BearerResourceFailure),            GtpV2MessageType::BearerResourceFailure            },
+		{ static_cast<uint8_t>(GtpV2MessageType::DownlinkDataNotificationFailure),  GtpV2MessageType::DownlinkDataNotificationFailure  },
+		{ static_cast<uint8_t>(GtpV2MessageType::TraceSessionActivation),           GtpV2MessageType::TraceSessionActivation           },
+		{ static_cast<uint8_t>(GtpV2MessageType::TraceSessionDeactivation),         GtpV2MessageType::TraceSessionDeactivation         },
+		{ static_cast<uint8_t>(GtpV2MessageType::StopPagingIndication),             GtpV2MessageType::StopPagingIndication             },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateBearerRequest),              GtpV2MessageType::CreateBearerRequest              },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateBearerResponse),             GtpV2MessageType::CreateBearerResponse             },
+		{ static_cast<uint8_t>(GtpV2MessageType::UpdateBearerRequest),              GtpV2MessageType::UpdateBearerRequest              },
+		{ static_cast<uint8_t>(GtpV2MessageType::UpdateBearerResponse),             GtpV2MessageType::UpdateBearerResponse             },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteBearerRequest),              GtpV2MessageType::DeleteBearerRequest              },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteBearerResponse),             GtpV2MessageType::DeleteBearerResponse             },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeletePDNRequest),                 GtpV2MessageType::DeletePDNRequest                 },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeletePDNResponse),                GtpV2MessageType::DeletePDNResponse                },
+		{ static_cast<uint8_t>(GtpV2MessageType::PGWDownlinkNotification),          GtpV2MessageType::PGWDownlinkNotification          },
+		{ static_cast<uint8_t>(GtpV2MessageType::PGWDownlinkAcknowledge),           GtpV2MessageType::PGWDownlinkAcknowledge           },
+		{ static_cast<uint8_t>(GtpV2MessageType::IdentificationRequest),            GtpV2MessageType::IdentificationRequest            },
+		{ static_cast<uint8_t>(GtpV2MessageType::IdentificationResponse),           GtpV2MessageType::IdentificationResponse           },
+		{ static_cast<uint8_t>(GtpV2MessageType::ContextRequest),                   GtpV2MessageType::ContextRequest                   },
+		{ static_cast<uint8_t>(GtpV2MessageType::ContextResponse),                  GtpV2MessageType::ContextResponse                  },
+		{ static_cast<uint8_t>(GtpV2MessageType::ContextAcknowledge),               GtpV2MessageType::ContextAcknowledge               },
+		{ static_cast<uint8_t>(GtpV2MessageType::ForwardRelocationRequest),         GtpV2MessageType::ForwardRelocationRequest         },
+		{ static_cast<uint8_t>(GtpV2MessageType::ForwardRelocationResponse),        GtpV2MessageType::ForwardRelocationResponse        },
+		{ static_cast<uint8_t>(GtpV2MessageType::ForwardRelocationNotification),    GtpV2MessageType::ForwardRelocationNotification    },
+		{ static_cast<uint8_t>(GtpV2MessageType::ForwardRelocationAcknowledge),     GtpV2MessageType::ForwardRelocationAcknowledge     },
+		{ static_cast<uint8_t>(GtpV2MessageType::ForwardAccessNotification),        GtpV2MessageType::ForwardAccessNotification        },
+		{ static_cast<uint8_t>(GtpV2MessageType::ForwardAccessAcknowledge),         GtpV2MessageType::ForwardAccessAcknowledge         },
+		{ static_cast<uint8_t>(GtpV2MessageType::RelocationCancelRequest),          GtpV2MessageType::RelocationCancelRequest          },
+		{ static_cast<uint8_t>(GtpV2MessageType::RelocationCancelResponse),         GtpV2MessageType::RelocationCancelResponse         },
+		{ static_cast<uint8_t>(GtpV2MessageType::ConfigurationTransferTunnel),      GtpV2MessageType::ConfigurationTransferTunnel      },
+		{ static_cast<uint8_t>(GtpV2MessageType::DetachNotification),               GtpV2MessageType::DetachNotification               },
+		{ static_cast<uint8_t>(GtpV2MessageType::DetachAcknowledge),                GtpV2MessageType::DetachAcknowledge                },
+		{ static_cast<uint8_t>(GtpV2MessageType::CSPaging),                         GtpV2MessageType::CSPaging                         },
+		{ static_cast<uint8_t>(GtpV2MessageType::RANInformationRelay),              GtpV2MessageType::RANInformationRelay              },
+		{ static_cast<uint8_t>(GtpV2MessageType::AlertMMENotification),             GtpV2MessageType::AlertMMENotification             },
+		{ static_cast<uint8_t>(GtpV2MessageType::AlertMMEAcknowledge),              GtpV2MessageType::AlertMMEAcknowledge              },
+		{ static_cast<uint8_t>(GtpV2MessageType::UEActivityNotification),           GtpV2MessageType::UEActivityNotification           },
+		{ static_cast<uint8_t>(GtpV2MessageType::UEActivityAcknowledge),            GtpV2MessageType::UEActivityAcknowledge            },
+		{ static_cast<uint8_t>(GtpV2MessageType::ISRStatus),                        GtpV2MessageType::ISRStatus                        },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateForwardingRequest),          GtpV2MessageType::CreateForwardingRequest          },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateForwardingResponse),         GtpV2MessageType::CreateForwardingResponse         },
+		{ static_cast<uint8_t>(GtpV2MessageType::SuspendNotification),              GtpV2MessageType::SuspendNotification              },
+		{ static_cast<uint8_t>(GtpV2MessageType::SuspendAcknowledge),               GtpV2MessageType::SuspendAcknowledge               },
+		{ static_cast<uint8_t>(GtpV2MessageType::ResumeNotification),               GtpV2MessageType::ResumeNotification               },
+		{ static_cast<uint8_t>(GtpV2MessageType::ResumeAcknowledge),                GtpV2MessageType::ResumeAcknowledge                },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateIndirectDataTunnelRequest),  GtpV2MessageType::CreateIndirectDataTunnelRequest  },
+		{ static_cast<uint8_t>(GtpV2MessageType::CreateIndirectDataTunnelResponse), GtpV2MessageType::CreateIndirectDataTunnelResponse },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteIndirectDataTunnelRequest),  GtpV2MessageType::DeleteIndirectDataTunnelRequest  },
+		{ static_cast<uint8_t>(GtpV2MessageType::DeleteIndirectDataTunnelResponse), GtpV2MessageType::DeleteIndirectDataTunnelResponse },
+		{ static_cast<uint8_t>(GtpV2MessageType::ReleaseAccessBearersRequest),      GtpV2MessageType::ReleaseAccessBearersRequest      },
+		{ static_cast<uint8_t>(GtpV2MessageType::ReleaseAccessBearersResponse),     GtpV2MessageType::ReleaseAccessBearersResponse     },
+		{ static_cast<uint8_t>(GtpV2MessageType::DownlinkDataNotification),         GtpV2MessageType::DownlinkDataNotification         },
+		{ static_cast<uint8_t>(GtpV2MessageType::DownlinkDataAcknowledge),          GtpV2MessageType::DownlinkDataAcknowledge          },
+		{ static_cast<uint8_t>(GtpV2MessageType::PGWRestartNotification),           GtpV2MessageType::PGWRestartNotification           },
+		{ static_cast<uint8_t>(GtpV2MessageType::PGWRestartAcknowledge),            GtpV2MessageType::PGWRestartAcknowledge            },
+		{ static_cast<uint8_t>(GtpV2MessageType::UpdatePDNConnectionRequest),       GtpV2MessageType::UpdatePDNConnectionRequest       },
+		{ static_cast<uint8_t>(GtpV2MessageType::UpdatePDNConnectionResponse),      GtpV2MessageType::UpdatePDNConnectionResponse      },
+		{ static_cast<uint8_t>(GtpV2MessageType::ModifyAccessBearersRequest),       GtpV2MessageType::ModifyAccessBearersRequest       },
+		{ static_cast<uint8_t>(GtpV2MessageType::ModifyAccessBearersResponse),      GtpV2MessageType::ModifyAccessBearersResponse      },
+		{ static_cast<uint8_t>(GtpV2MessageType::MMBSSessionStartRequest),          GtpV2MessageType::MMBSSessionStartRequest          },
+		{ static_cast<uint8_t>(GtpV2MessageType::MMBSSessionStartResponse),         GtpV2MessageType::MMBSSessionStartResponse         },
+		{ static_cast<uint8_t>(GtpV2MessageType::MMBSSessionUpdateRequest),         GtpV2MessageType::MMBSSessionUpdateRequest         },
+		{ static_cast<uint8_t>(GtpV2MessageType::MMBSSessionUpdateResponse),        GtpV2MessageType::MMBSSessionUpdateResponse        },
+		{ static_cast<uint8_t>(GtpV2MessageType::MMBSSessionStopRequest),           GtpV2MessageType::MMBSSessionStopRequest           },
+		{ static_cast<uint8_t>(GtpV2MessageType::MMBSSessionStopResponse),          GtpV2MessageType::MMBSSessionStopResponse          }
+	};
+	// clang-format on
+
+	GtpV2MessageType GtpV2MessageType::fromUintValue(uint8_t value)
+	{
+		auto it = uintToValueMap.find(value);
+		if (it != uintToValueMap.end())
+		{
+			return it->second;
+		}
+
+		return Unknown;
+	}
+
+	/// =======================
+	/// GtpV2InformationElement
+	/// =======================
+
+	GtpV2InformationElement::Type GtpV2InformationElement::getIEType()
+	{
+		if (m_Data == nullptr)
+		{
+			return GtpV2InformationElement::Type::Unknown;
+		}
+
+		auto ieType = m_Data->recordType;
+		if ((ieType >= 4 && ieType <= 50) || (ieType >= 52 && ieType <= 70) || ieType == 98 || ieType == 101 ||
+		    ieType == 102 || ieType == 122 || ieType == 130 || ieType == 161 || ieType > 213)
+		{
+			return GtpV2InformationElement::Type::Unknown;
+		}
+
+		return static_cast<GtpV2InformationElement::Type>(ieType);
+	}
+
+	uint8_t GtpV2InformationElement::getCRFlag()
+	{
+		if (m_Data == nullptr)
+		{
+			return 0;
+		}
+
+		return m_Data->recordValue[0] >> 4;
+	}
+
+	uint8_t GtpV2InformationElement::getInstance()
+	{
+		if (m_Data == nullptr)
+		{
+			return 0;
+		}
+
+		return m_Data->recordValue[0] & 0xf;
+	}
+
+	size_t GtpV2InformationElement::getTotalSize() const
+	{
+		if (m_Data == nullptr)
+		{
+			return 0;
+		}
+
+		return getDataSize() + 2 * sizeof(uint8_t) + sizeof(uint16_t);
+	}
+
+	size_t GtpV2InformationElement::getDataSize() const
+	{
+		if (m_Data == nullptr)
+		{
+			return 0;
+		}
+
+		return static_cast<size_t>(be16toh(m_Data->recordLen));
+	}
+
+	/// ==============================
+	/// GtpV2InformationElementBuilder
+	/// ==============================
+
+	GtpV2InformationElementBuilder::GtpV2InformationElementBuilder(GtpV2InformationElement::Type messageType,
+	                                                               const std::bitset<4>& crFlag,
+	                                                               const std::bitset<4>& instance,
+	                                                               const std::vector<uint8_t>& infoElementValue)
+	    : TLVRecordBuilder(static_cast<uint32_t>(messageType), infoElementValue.data(),
+	                       static_cast<uint8_t>(infoElementValue.size())),
+	      m_CRFlag(crFlag), m_Instance(instance)
+	{}
+
+	GtpV2InformationElement GtpV2InformationElementBuilder::build() const
+	{
+		if (m_RecType == 0)
+		{
+			GtpV2InformationElement(nullptr);
+		}
+
+		size_t infoElementBaseSize = sizeof(uint8_t) + sizeof(uint16_t);
+		size_t infoElementTotalSize = infoElementBaseSize + sizeof(uint8_t) + m_RecValueLen;
+		auto recordBuffer = new uint8_t[infoElementTotalSize];
+		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
+		auto infoElementLength = htobe16(m_RecValueLen);
+		memcpy(recordBuffer + sizeof(uint8_t), &infoElementLength, sizeof(uint16_t));
+		auto crFlag = static_cast<uint8_t>(m_CRFlag.to_ulong());
+		auto instance = static_cast<uint8_t>(m_Instance.to_ulong());
+		recordBuffer[infoElementBaseSize] = ((crFlag << 4) & 0xf0) | (instance & 0x0f);
+		if (m_RecValueLen > 0 && m_RecValue != nullptr)
+		{
+			memcpy(recordBuffer + infoElementBaseSize + sizeof(uint8_t), m_RecValue, m_RecValueLen);
+		}
+
+		return GtpV2InformationElement(recordBuffer);
+	}
+
+	/// ==========
+	/// GtpV2Layer
+	/// ==========
+
+	GtpV2Layer::GtpV2Layer(GtpV2MessageType messageType, uint32_t sequenceNumber, bool setTeid, uint32_t teid,
+	                       bool setMessagePriority, uint8_t messagePriority)
+	{
+		size_t messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
+		size_t headerLen = sizeof(gtpv2_basic_header) + messageLength;
+		m_DataLen = headerLen;
+		m_Data = new uint8_t[headerLen];
+		memset(m_Data, 0, headerLen);
+
+		auto hdr = getHeader();
+		hdr->version = 2;
+		hdr->teidPresent = setTeid;
+		hdr->messagePriorityPresent = setMessagePriority;
+		hdr->messageType = static_cast<uint8_t>(messageType);
+		hdr->messageLength = htobe16(messageLength);
+
+		auto dataPtr = m_Data + sizeof(gtpv2_basic_header);
+		if (setTeid)
+		{
+			teid = htobe32(teid);
+			memcpy(dataPtr, &teid, sizeof(uint32_t));
+			dataPtr += sizeof(uint32_t);
+		}
+
+		sequenceNumber = htobe32(sequenceNumber) >> 8;
+		memcpy(dataPtr, &sequenceNumber, sizeof(uint32_t));
+		dataPtr += sizeof(uint32_t) - 1;
+
+		if (setMessagePriority)
+		{
+			dataPtr[0] = messagePriority << 4;
+		}
+
+		m_Protocol = GTPv2;
+	}
+
+	bool GtpV2Layer::isDataValid(const uint8_t* data, size_t dataSize)
+	{
+		if (!data || dataSize < sizeof(gtpv2_basic_header) + sizeof(uint32_t))
+		{
+			return false;
+		}
+
+		auto header = reinterpret_cast<const gtpv2_basic_header*>(data);
+
+		if (header->version != 2)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	GtpV2MessageType GtpV2Layer::getMessageType() const
+	{
+		return GtpV2MessageType::fromUintValue(getHeader()->messageType);
+	}
+
+	void GtpV2Layer::setMessageType(const GtpV2MessageType& type)
+	{
+		getHeader()->messageType = type;
+	}
+
+	uint16_t GtpV2Layer::getMessageLength() const
+	{
+		return be16toh(getHeader()->messageLength);
+	}
+
+	bool GtpV2Layer::isPiggybacking() const
+	{
+		return getHeader()->piggybacking;
+	}
+
+	std::pair<bool, uint32_t> GtpV2Layer::getTeid() const
+	{
+		if (!getHeader()->teidPresent)
+		{
+			return { false, 0 };
+		}
+
+		return { true, be32toh(*reinterpret_cast<uint32_t*>(m_Data + sizeof(gtpv2_basic_header))) };
+	}
+
+	void GtpV2Layer::setTeid(uint32_t teid)
+	{
+		auto header = getHeader();
+
+		auto teidOffset = sizeof(gtpv2_basic_header);
+		if (!header->teidPresent)
+		{
+			if (!extendLayer(static_cast<int>(teidOffset), sizeof(uint32_t)))
+			{
+				PCPP_LOG_ERROR("Unable to set TEID: failed to extend the layer");
+				return;
+			}
+			header = getHeader();
+			header->messageLength = htobe16(be16toh(header->messageLength) + sizeof(uint32_t));
+		}
+
+		reinterpret_cast<uint32_t*>(m_Data + teidOffset)[0] = htobe32(teid);
+
+		header->teidPresent = 1;
+	}
+
+	void GtpV2Layer::unsetTeid()
+	{
+		auto header = getHeader();
+
+		if (!header->teidPresent)
+		{
+			return;
+		}
+
+		auto teidOffset = sizeof(gtpv2_basic_header);
+		if (!shortenLayer(static_cast<int>(teidOffset), sizeof(uint32_t)))
+		{
+			PCPP_LOG_ERROR("Unable to unset TEID: failed to shorten the layer");
+			return;
+		}
+
+		header = getHeader();
+		header->messageLength = htobe16(be16toh(header->messageLength) - sizeof(uint32_t));
+		header->teidPresent = 0;
+	}
+
+	uint32_t GtpV2Layer::getSequenceNumber() const
+	{
+		auto sequencePos = m_Data + sizeof(gtpv2_basic_header);
+		if (getHeader()->teidPresent)
+		{
+			sequencePos += sizeof(uint32_t);
+		}
+
+		return be32toh(*reinterpret_cast<uint32_t*>(sequencePos)) >> 8;
+	}
+
+	void GtpV2Layer::setSequenceNumber(uint32_t sequenceNumber)
+	{
+		auto sequencePos = m_Data + sizeof(gtpv2_basic_header);
+		if (getHeader()->teidPresent)
+		{
+			sequencePos += sizeof(uint32_t);
+		}
+
+		sequenceNumber = htobe32(sequenceNumber) >> 8;
+		memcpy(sequencePos, &sequenceNumber, sizeof(uint32_t) - 1);
+	}
+
+	std::pair<bool, uint8_t> GtpV2Layer::getMessagePriority() const
+	{
+		auto header = getHeader();
+
+		if (!header->messagePriorityPresent)
+		{
+			return { false, 0 };
+		}
+
+		auto mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
+		if (header->teidPresent)
+		{
+			mpPos += sizeof(uint32_t);
+		}
+
+		return { true, mpPos[0] >> 4 };
+	}
+
+	void GtpV2Layer::setMessagePriority(const std::bitset<4>& messagePriority)
+	{
+		auto header = getHeader();
+
+		header->messagePriorityPresent = 1;
+
+		auto mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
+		if (header->teidPresent)
+		{
+			mpPos += sizeof(uint32_t);
+		}
+
+		auto messagePriorityNum = static_cast<uint8_t>(messagePriority.to_ulong());
+		mpPos[0] = messagePriorityNum << 4;
+	}
+
+	void GtpV2Layer::unsetMessagePriority()
+	{
+		auto header = getHeader();
+
+		header->messagePriorityPresent = 0;
+
+		auto mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
+		if (header->teidPresent)
+		{
+			mpPos += sizeof(uint32_t);
+		}
+
+		mpPos[0] = 0;
+	}
+
+	GtpV2InformationElement GtpV2Layer::getFirstInformationElement() const
+	{
+		auto basePtr = getIEBasePtr();
+		return m_IEReader.getFirstTLVRecord(basePtr, m_Data + getHeaderLen() - basePtr);
+	}
+
+	GtpV2InformationElement GtpV2Layer::getNextInformationElement(GtpV2InformationElement infoElement) const
+	{
+		auto basePtr = getIEBasePtr();
+		return m_IEReader.getNextTLVRecord(infoElement, basePtr, m_Data + getHeaderLen() - basePtr);
+	}
+
+	GtpV2InformationElement GtpV2Layer::getInformationElement(GtpV2InformationElement::Type ieType) const
+	{
+		auto basePtr = getIEBasePtr();
+		return m_IEReader.getTLVRecord(static_cast<uint32_t>(ieType), basePtr, m_Data + getHeaderLen() - basePtr);
+	}
+
+	size_t GtpV2Layer::getInformationElementCount() const
+	{
+		auto basePtr = getIEBasePtr();
+		return m_IEReader.getTLVRecordCount(basePtr, m_Data + getHeaderLen() - basePtr);
+	}
+
+	GtpV2InformationElement GtpV2Layer::addInformationElement(const GtpV2InformationElementBuilder& infoElementBuilder)
+	{
+		return addInformationElementAt(infoElementBuilder, static_cast<int>(getHeaderLen()));
+	}
+
+	GtpV2InformationElement GtpV2Layer::addInformationElementAfter(
+	    const GtpV2InformationElementBuilder& infoElementBuilder, GtpV2InformationElement::Type infoElementType)
+	{
+		auto prevInfoElement = getInformationElement(infoElementType);
+
+		if (prevInfoElement.isNull())
+		{
+			PCPP_LOG_ERROR("Information element type " << static_cast<int>(infoElementType)
+			                                           << " doesn't exist in layer");
+			return GtpV2InformationElement(nullptr);
+		}
+		auto offset = prevInfoElement.getRecordBasePtr() + prevInfoElement.getTotalSize() - m_Data;
+		return addInformationElementAt(infoElementBuilder, offset);
+	}
+
+	bool GtpV2Layer::removeInformationElement(GtpV2InformationElement::Type infoElementType)
+	{
+		auto infoElementToRemove = getInformationElement(infoElementType);
+		if (infoElementToRemove.isNull())
+		{
+			return false;
+		}
+
+		int offset = infoElementToRemove.getRecordBasePtr() - m_Data;
+
+		auto infoElementSize = infoElementToRemove.getTotalSize();
+		if (!shortenLayer(offset, infoElementSize))
+		{
+			return false;
+		}
+
+		getHeader()->messageLength = htobe16(be16toh(getHeader()->messageLength) - infoElementSize);
+		m_IEReader.changeTLVRecordCount(-1);
+		return true;
+	}
+
+	bool GtpV2Layer::removeAllInformationElements()
+	{
+		auto firstInfoElement = getFirstInformationElement();
+		if (firstInfoElement.isNull())
+		{
+			return true;
+		}
+
+		auto offset = firstInfoElement.getRecordBasePtr() - m_Data;
+
+		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
+			return false;
+		}
+
+		m_IEReader.changeTLVRecordCount(static_cast<int>(0 - getInformationElementCount()));
+		return true;
+	}
+
+	GtpV2InformationElement GtpV2Layer::addInformationElementAt(
+	    const GtpV2InformationElementBuilder& infoElementBuilder, int offset)
+	{
+		auto newInfoElement = infoElementBuilder.build();
+
+		if (newInfoElement.isNull())
+		{
+			PCPP_LOG_ERROR("Cannot build new information element");
+			return newInfoElement;
+		}
+
+		auto sizeToExtend = newInfoElement.getTotalSize();
+
+		if (!extendLayer(offset, sizeToExtend))
+		{
+			PCPP_LOG_ERROR("Could not extend GtpV2Layer in [" << sizeToExtend << "] bytes");
+			newInfoElement.purgeRecordData();
+			return GtpV2InformationElement(nullptr);
+		}
+
+		memcpy(m_Data + offset, newInfoElement.getRecordBasePtr(), newInfoElement.getTotalSize());
+
+		auto newMessageLength = getMessageLength() + newInfoElement.getTotalSize();
+
+		newInfoElement.purgeRecordData();
+
+		m_IEReader.changeTLVRecordCount(1);
+
+		getHeader()->messageLength = htobe16(newMessageLength);
+
+		uint8_t* newInfoElementPtr = m_Data + offset;
+
+		return GtpV2InformationElement(newInfoElementPtr);
+	}
+
+	void GtpV2Layer::parseNextLayer()
+	{
+		auto headerLen = getHeaderLen();
+		if (m_DataLen <= headerLen)
+		{
+			return;
+		}
+
+		auto nextLayerData = m_Data + headerLen;
+		auto nextLayerDataLen = m_DataLen - headerLen;
+
+		if (getHeader()->piggybacking && GtpV2Layer::isDataValid(nextLayerData, nextLayerDataLen))
+		{
+			m_NextLayer = new GtpV2Layer(nextLayerData, nextLayerDataLen, this, m_Packet);
+		}
+		else
+		{
+			m_NextLayer = new PayloadLayer(nextLayerData, nextLayerDataLen, this, m_Packet);
+		}
+	}
+
+	size_t GtpV2Layer::getHeaderLen() const
+	{
+		auto messageLength = be16toh(getHeader()->messageLength) + sizeof(gtpv2_basic_header);
+		if (messageLength > m_DataLen)
+		{
+			return m_DataLen;
+		}
+
+		return messageLength;
+	}
+
+	void GtpV2Layer::computeCalculateFields()
+	{
+		if (m_NextLayer == nullptr)
+		{
+			return;
+		}
+
+		if (m_NextLayer->getProtocol() == GTPv2)
+		{
+			getHeader()->piggybacking = 1;
+		}
+	}
+
+	std::string GtpV2Layer::toString() const
+	{
+		return "GTPv2 Layer, " + getMessageType().toString() + " message";
+	}
+
+	uint8_t* GtpV2Layer::getIEBasePtr() const
+	{
+		auto basePtr = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t);
+		if (getHeader()->teidPresent)
+		{
+			basePtr += sizeof(uint32_t);
+		}
+
+		return basePtr;
 	}
 
 }  // namespace pcpp
