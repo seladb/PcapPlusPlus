@@ -154,21 +154,19 @@ namespace pcpp
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv4Address& ip4Addr) const
 	{
-		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
-		                       [&ip4Addr](PcapRemoteDevice const* devPtr) {
-			                       auto devIP = devPtr->getIPv4Address();
-			                       return devIP == ip4Addr;
-		                       });
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip4Addr](PcapRemoteDevice const* devPtr) {
+			auto devIP = devPtr->getIPv4Address();
+			return devIP == ip4Addr;
+		});
 		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 	{
-		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(),
-		                       [&ip6Addr](PcapRemoteDevice const* devPtr) {
-			                       auto devIP = devPtr->getIPv6Address();
-			                       return devIP == ip6Addr;
-		                       });
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](PcapRemoteDevice const* devPtr) {
+			auto devIP = devPtr->getIPv6Address();
+			return devIP == ip6Addr;
+		});
 		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
