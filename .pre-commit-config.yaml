@@ -8,7 +8,7 @@ repos:
         entry: python3 ./ci/check-clang-format-version.py
         language: system
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-case-conflict
       - id: check-executables-have-shebangs
@@ -22,7 +22,7 @@ repos:
         args: ['--fix=lf']
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.8
+    rev: v0.7.1
     hooks:
       - id: ruff # Run the linter.
         types_or: [ python ]
@@ -38,7 +38,7 @@ repos:
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force", "--library=googletest"]
   - repo: https://github.com/BlankSpruce/gersemi
-    rev: 0.15.1
+    rev: 0.17.0
     hooks:
     - id: gersemi
   - repo: https://github.com/codespell-project/codespell
@@ -47,7 +47,7 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.25.0
+    rev: v1.26.8
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
