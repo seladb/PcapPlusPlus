@@ -20,6 +20,19 @@
 
 /// @file
 
+// Compile time log levels.
+// Allows for conditional removal of unwanted log calls at compile time.
+#define PCAP_LOG_LEVEL_OFF 0
+#define PCAP_LOG_LEVEL_ERROR 1
+#define PCAP_LOG_LEVEL_INFO 2
+#define PCAP_LOG_LEVEL_DEBUG 3
+
+// All log messages built via a PCAP_LOG_* macro below the PCAP_ACTIVE_LOG_LEVEL will be removed at compile time.
+// Uses the PCAP_ACTIVE_LOG_LEVEL if it is defined, otherwise defaults to PCAP_LOG_LEVEL_DEBUG
+#ifndef PCAP_ACTIVE_LOG_LEVEL
+#	define PCAP_ACTIVE_LOG_LEVEL PCAP_LOG_LEVEL_DEBUG
+#endif  // !PCAP_ACTIVE_LOG_LEVEL
+
 /**
  * \namespace pcpp
  * \brief The main namespace for the PcapPlusPlus lib
@@ -133,26 +146,21 @@ namespace pcpp
 	};
 
 	/**
-	 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
+	 * An enum representing the log level. Currently 4 log levels are supported: Off, Error, Info and Debug. Info is the
 	 * default log level
 	 */
 	enum class LogLevel
 	{
-		Off,    ///< No log messages are emitted.
-		Error,  ///< Error level logs are emitted.
-		Info,   ///< Info level logs and above are emitted.
-		Debug   ///< Debug level logs and above are emitted.
+		Off = PCAP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
+		Error = PCAP_LOG_LEVEL_ERROR,  ///< Error level logs are emitted.
+		Info = PCAP_LOG_LEVEL_INFO,    ///< Info level logs and above are emitted.
+		Debug = PCAP_LOG_LEVEL_DEBUG   ///< Debug level logs and above are emitted.
 	};
 
 	inline std::ostream& operator<<(std::ostream& s, LogLevel v)
 	{
 		return s << static_cast<std::underlying_type<LogLevel>::type>(v);
 	}
-
-	// Forward declaration
-	template <class T> void log(LogSource source, LogLevel level, T const& message);
-	template <> void log(LogSource source, LogLevel level, std::string const& message);
-	template <> void log(LogSource source, LogLevel level, const char* const& message);
 
 	/**
 	 * @class Logger
@@ -316,7 +324,30 @@ namespace pcpp
 			return instance;
 		}
 
-		template <class T> friend void pcpp::log(LogSource source, LogLevel level, T const& message);
+		template <class T> void log(LogSource source, LogLevel level, T const& message)
+		{
+			if (shouldLog(level, source.logModule))
+			{
+				std::ostringstream sstream;
+				sstream << message;
+				printLogMessage(source, level, sstream.str());
+			}
+		};
+
+		template <class T> void logError(LogSource source, T const& message)
+		{
+			log(source, LogLevel::Error, message);
+		};
+
+		template <class T> void logInfo(LogSource source, T const& message)
+		{
+			log(source, LogLevel::Info, message);
+		};
+
+		template <class T> void logDebug(LogSource source, T const& message)
+		{
+			log(source, LogLevel::Debug, message);
+		};
 
 	private:
 		bool m_LogsEnabled;
@@ -332,66 +363,52 @@ namespace pcpp
 		                              const std::string& method, const int line);
 	};
 
-	template <class T> inline void log(LogSource source, LogLevel level, T const& message)
-	{
-		auto& logger = Logger::getInstance();
-		if (logger.shouldLog(level, source.logModule))
-		{
-			std::ostringstream sstream;
-			sstream << message;
-			logger.printLogMessage(source, level, sstream.str());
-		}
-	};
-
 	// Specialization for string to skip the stringstream
-	template <> inline void log(LogSource source, LogLevel level, std::string const& message)
+	template <> inline void Logger::log(LogSource source, LogLevel level, std::string const& message)
 	{
-		auto& logger = Logger::getInstance();
-		if (logger.shouldLog(level, source.logModule))
+		if (shouldLog(level, source.logModule))
 		{
-			logger.printLogMessage(source, level, message);
+			printLogMessage(source, level, message);
 		}
 	};
 
 	// Specialization for const char* to skip the stringstream
-	template <> inline void log(LogSource source, LogLevel level, const char* const& message)
+	template <> inline void Logger::log(LogSource source, LogLevel level, const char* const& message)
 	{
-		auto& logger = Logger::getInstance();
-		if (logger.shouldLog(level, source.logModule))
+		if (shouldLog(level, source.logModule))
 		{
-			logger.printLogMessage(source, level, message);
+			printLogMessage(source, level, message);
 		}
 	};
 
-	template <class T> inline void logError(LogSource source, T const& message)
-	{
-		log(source, LogLevel::Error, message);
-	};
-
-	template <class T> inline void logInfo(LogSource source, T const& message)
-	{
-		log(source, LogLevel::Info, message);
-	};
-
-	template <class T> inline void logDebug(LogSource source, T const& message)
-	{
-		log(source, LogLevel::Debug, message);
-	};
 }  // namespace pcpp
 
 #define PCPP_LOG(level, message)                                                                                       \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		if (pcpp::Logger::getInstance().shouldLog(level, LOG_MODULE))                                                  \
+		auto& logger = Logger::getInstance();                                                                          \
+		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
 		{                                                                                                              \
 			std::ostringstream sstream;                                                                                \
 			sstream << message;                                                                                        \
-			pcpp::log(pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__), level, sstream.str());     \
+			logger.log(pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__), level, sstream.str());    \
 		}                                                                                                              \
 	} while (0)
 
-#define PCPP_LOG_DEBUG(message) PCPP_LOG(pcpp::LogLevel::Debug, message)
+#if PCAP_ACTIVE_LOG_LEVEL >= PCAP_LOG_LEVEL_DEBUG
+#	define PCPP_LOG_DEBUG(message) PCPP_LOG(pcpp::LogLevel::Debug, message)
+#else
+#	define PCPP_LOG_DEBUG(message) (void)0
+#endif
 
-#define PCPP_LOG_INFO(message) PCPP_LOG(pcpp::LogLevel::Info, message)
+#if PCAP_ACTIVE_LOG_LEVEL >= PCAP_LOG_LEVEL_INFO
+#	define PCPP_LOG_INFO(message) PCPP_LOG(pcpp::LogLevel::Info, message)
+#else
+#	define PCPP_LOG_INFO(message) (void)0
+#endif
 
-#define PCPP_LOG_ERROR(message) PCPP_LOG(pcpp::LogLevel::Error, message)
+#if PCAP_ACTIVE_LOG_LEVEL >= PCAP_LOG_LEVEL_ERROR
+#	define PCPP_LOG_ERROR(message) PCPP_LOG(pcpp::LogLevel::Error, message)
+#else
+#	define PCPP_LOG_ERROR(message) (void)0
+#endif
