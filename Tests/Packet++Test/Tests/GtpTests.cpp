@@ -441,10 +441,10 @@ PTF_TEST_CASE(GtpV2LayerCreationTest)
 
 		// clang-format off
 		gtpLayer.addInformationElementAfter({ pcpp::GtpV2InformationElement::Type::ServingNetwork, 0, 0, { 0x64, 0xf6, 0x29 } },
-		                                      pcpp::GtpV2InformationElement::Type::Uli);
+		                                    pcpp::GtpV2InformationElement::Type::Uli);
 		// clang-format on
 		gtpLayer.addInformationElementAfter({ pcpp::GtpV2InformationElement::Type::Recovery, 0, 0, { 0x12 } },
-		                                      pcpp::GtpV2InformationElement::Type::BearerContext);
+		                                    pcpp::GtpV2InformationElement::Type::BearerContext);
 
 		READ_FILE_AND_CREATE_PACKET(1, "PacketExamples/gtpv2-with-teid.dat");
 		pcpp::Packet gtpPacket1(&rawPacket1);
