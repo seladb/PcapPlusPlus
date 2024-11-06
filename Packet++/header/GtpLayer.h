@@ -480,9 +480,16 @@ namespace pcpp
 		}
 	};
 
+	/**
+	 * @class GtpV2MessageType
+	 * The enum wrapper class of GTPv2 message type
+	 */
 	class GtpV2MessageType
 	{
 	public:
+		/**
+		 * Define enum types and the corresponding int values
+		 */
 		enum Value : uint8_t
 		{
 			/** Unknown message */
@@ -990,23 +997,29 @@ namespace pcpp
 
 		/**
 		 * A c'tor for this class that gets a pointer to the IE raw data (byte array)
-		 * @param[in] ieRawData A pointer to the IE raw data
+		 * @param[in] infoElementRawData A pointer to the IE raw data
 		 */
-		explicit GtpV2InformationElement(uint8_t* ieRawData) : TLVRecord(ieRawData)
+		explicit GtpV2InformationElement(uint8_t* infoElementRawData) : TLVRecord(infoElementRawData)
 		{}
 
-		/**
-		 * A d'tor for this class, currently does nothing
-		 */
 		~GtpV2InformationElement() override = default;
 
+		/**
+		 * @return The information element (IE) type
+		 */
 		GtpV2InformationElement::Type getIEType();
 
+		/**
+		 * @return The IE CR flag
+		 */
 		uint8_t getCRFlag();
 
+		/**
+		 * @return The IE instance value
+		 */
 		uint8_t getInstance();
 
-		// implement methods
+		// implement abstract methods
 
 		size_t getValueOffset() const override
 		{
@@ -1020,27 +1033,26 @@ namespace pcpp
 
 	/**
 	 * @class GtpV2InformationElementBuilder
-	 * A class for building GTPv2 information elements (IE). This builder receives the NDP option parameters in its
-	 * c'tor, builds the NDP option raw buffer and provides a build() method to get a NdpOption object out of it
+	 * A class for building GTPv2 information elements (IE). This builder receives the IE parameters in its c'tor,
+	 * builds the IE raw buffer and provides a build() method to get a GtpV2InformationElement object out of it
 	 */
 	class GtpV2InformationElementBuilder : public TLVRecordBuilder
 	{
 	public:
 		/**
-		 * A c'tor for building NDP options which their value is a byte array. The NdpOption object can be later
-		 * retrieved by calling build(). Each option is padded to have a 64-bit boundary.
-		 * @param[in] optionType NDP option type
-		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
-		 * any way.
-		 * @param[in] optionValueLen Option value length in bytes
+		 * A c'tor for building information elements (IE) which their value is a byte array. The GtpV2InformationElement
+		 * object can be later retrieved by calling build().
+		 * @param[in] infoElementType Information elements (IE) type
+		 * @param[in] crFlag CR flag value
+		 * @param[in] instance Instance value
+		 * @param[in] infoElementValue A byte array of the IE value
 		 */
-		GtpV2InformationElementBuilder(GtpV2InformationElement::Type messageType, const std::bitset<4>& crFlag,
+		GtpV2InformationElementBuilder(GtpV2InformationElement::Type infoElementType, const std::bitset<4>& crFlag,
 		                               const std::bitset<4>& instance, const std::vector<uint8_t>& infoElementValue);
 
 		/**
-		 * Build the NdpOption object out of the parameters defined in the c'tor. Padding bytes are added to the
-		 * option for option length with 64-bit boundaries.
-		 * @return The NdpOption object
+		 * Build the GtpV2InformationElement object out of the parameters defined in the c'tor
+		 * @return The GtpV2InformationElement object
 		 */
 		GtpV2InformationElement build() const;
 
@@ -1049,12 +1061,17 @@ namespace pcpp
 		std::bitset<4> m_Instance;
 	};
 
+	/**
+	 * @class GtpV2Layer
+	 * A class representing the GTPv2 defined in 3GPP TS 29.274
+	 */
 	class GtpV2Layer : public Layer
 	{
 	public:
 		~GtpV2Layer() override = default;
 
-		/** A constructor that creates the layer from an existing packet raw data
+		/**
+		 * A constructor that creates the layer from an existing packet raw data
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -1064,8 +1081,17 @@ namespace pcpp
 		    : Layer(data, dataLen, prevLayer, packet, GTPv2)
 		{}
 
+		/**
+		 * A constructor that creates a new GTPv2 message
+		 * @param messageType GTPv2 message type
+		 * @param sequenceNumber Message sequence number
+		 * @param setTeid Whether or not to set Tunnel Endpoint Identifier in this message
+		 * @param teid Tunnel Endpoint Identifier value. Only used if setTeid is set to true
+		 * @param setMessagePriority Whether or not to set Message Priority in this message
+		 * @param messagePriority Message Priority. Only used if setMessagePriority to true
+		 */
 		GtpV2Layer(GtpV2MessageType messageType, uint32_t sequenceNumber, bool setTeid = false, uint32_t teid = 0,
-		           bool setMessagePriority = false, uint8_t messagePriority = 0);
+		           bool setMessagePriority = false, std::bitset<4> messagePriority = 0);
 
 		/**
 		 * A static method that checks whether the port is considered as GTPv2
@@ -1085,32 +1111,79 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataSize);
 
+		/**
+		 * @return The message type
+		 */
 		GtpV2MessageType getMessageType() const;
 
+		/**
+		 * Set message type
+		 * @param type The message type to set
+		 */
 		void setMessageType(const GtpV2MessageType& type);
 
+		/**
+		 * @return The message length as set in the layer. Note it is different from getHeaderLen() because the later
+		 * refers to the entire layers length, and this property excludes the mandatory part of the GTP-C header
+		 * (the first 4 octets)
+		 */
 		uint16_t getMessageLength() const;
 
+		/**
+		 * @return True if there is another GTPv2 message piggybacking on this message (will appear as another
+		 * GtpV2Layer after this layer)
+		 */
 		bool isPiggybacking() const;
 
+		/**
+		 * Get the Tunnel Endpoint Identifier (TEID) if exists
+		 * @return A pair of 2 values; the first value states whether TEID exists, and if it's true the second value
+		 * contains the TEID value
+		 */
 		std::pair<bool, uint32_t> getTeid() const;
 
+		/**
+		 * Set Tunnel Endpoint Identifier (TEID)
+		 * @param teid The TEID value to set
+		 */
 		void setTeid(uint32_t teid);
 
+		/**
+		 * Unset Tunnel Endpoint Identifier (TEID) if exists in the layer (otherwise does nothing)
+		 */
 		void unsetTeid();
 
+		/**
+		 * @return The sequence number
+		 */
 		uint32_t getSequenceNumber() const;
 
+		/**
+		 * Set the sequence number
+		 * @param sequenceNumber The sequence number value to set
+		 */
 		void setSequenceNumber(uint32_t sequenceNumber);
 
+		/**
+		 * Get the Message Property if exists
+		 * @return A pair of 2 values; the first value states whether Message Priority exists, and if it's true
+		 * the second value contains the Message Priority value
+		 */
 		std::pair<bool, uint8_t> getMessagePriority() const;
 
+		/**
+		 * Set Message Priority
+		 * @param teid The Message Priority value to set
+		 */
 		void setMessagePriority(const std::bitset<4>& messagePriority);
 
+		/**
+		 * Unset Message Priority if exists in the layer (otherwise does nothing)
+		 */
 		void unsetMessagePriority();
 
 		/**
-		 * @return The first GTPv2 Information Element (IE). If there are no IE the returned value will contain
+		 * @return The first GTPv2 Information Element (IE). If there are no IEs the returned value will contain
 		 * a logical null (GtpV2InformationElement#isNull() == true)
 		 */
 		GtpV2InformationElement getFirstInformationElement() const;
@@ -1126,24 +1199,48 @@ namespace pcpp
 
 		/**
 		 * Get a GTPv2 Information Element (IE) by type
-		 * @param[in] ieType GTPv2 Information Element (IE) type
+		 * @param[in] infoElementType GTPv2 Information Element (IE) type
 		 * @return A GtpV2InformationElement object containing the first IE that matches this type, or logical
 		 * null (GtpV2InformationElement#isNull() == true) if no such IE found
 		 */
-		GtpV2InformationElement getInformationElement(GtpV2InformationElement::Type ieType) const;
+		GtpV2InformationElement getInformationElement(GtpV2InformationElement::Type infoElementType) const;
 
 		/**
 		 * @return The number of GTPv2 Information Elements (IEs) in this layer
 		 */
 		size_t getInformationElementCount() const;
 
+		/**
+		 * Add a new Information Element (IE) at the end of the layer
+		 * @param[in] infoElementBuilder A GtpV2InformationElementBuilder object that contains the requested
+		 * IE data to add
+		 * @return A GtpV2InformationElement object containing the newly added IE data or logical null
+		 * (GtpV2InformationElement#isNull() == true) if addition failed
+		 */
 		GtpV2InformationElement addInformationElement(const GtpV2InformationElementBuilder& infoElementBuilder);
 
+		/**
+		 * Add a new Information Element (IE) after an existing one
+		 * @param[in] infoElementBuilder A GtpV2InformationElementBuilder object that contains the requested
+		 * IE data to add
+		 * @param[in] infoElementType The IE type which the newly added option will come after
+		 * @return A GtpV2InformationElement object containing the newly added IE data or logical null
+		 * (GtpV2InformationElement#isNull() == true) if addition failed
+		 */
 		GtpV2InformationElement addInformationElementAfter(const GtpV2InformationElementBuilder& infoElementBuilder,
 		                                                   GtpV2InformationElement::Type infoElementType);
 
+		/**
+		 * Remove an existing Information Element (IE) from the layer
+		 * @param[in] infoElementType The IE type to remove
+		 * @return True if the IE was successfully removed or false if type wasn't found or if removal failed
+		 */
 		bool removeInformationElement(GtpV2InformationElement::Type infoElementType);
 
+		/**
+		 * Remove all Information Elements (IE) in this layer
+		 * @return True if all IEs were successfully removed or false if removal failed for some reason
+		 */
 		bool removeAllInformationElements();
 
 		// implement abstract methods
@@ -1159,8 +1256,7 @@ namespace pcpp
 		size_t getHeaderLen() const override;
 
 		/**
-		 * Calculate the following fields:
-		 * TBD
+		 * Computes the piggybacking flag by checking if the next layer is also a GTPv2 message
 		 */
 		void computeCalculateFields() override;
 

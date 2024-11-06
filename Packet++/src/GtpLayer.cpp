@@ -945,11 +945,11 @@ namespace pcpp
 	/// GtpV2InformationElementBuilder
 	/// ==============================
 
-	GtpV2InformationElementBuilder::GtpV2InformationElementBuilder(GtpV2InformationElement::Type messageType,
+	GtpV2InformationElementBuilder::GtpV2InformationElementBuilder(GtpV2InformationElement::Type infoElementType,
 	                                                               const std::bitset<4>& crFlag,
 	                                                               const std::bitset<4>& instance,
 	                                                               const std::vector<uint8_t>& infoElementValue)
-	    : TLVRecordBuilder(static_cast<uint32_t>(messageType), infoElementValue.data(),
+	    : TLVRecordBuilder(static_cast<uint32_t>(infoElementType), infoElementValue.data(),
 	                       static_cast<uint8_t>(infoElementValue.size())),
 	      m_CRFlag(crFlag), m_Instance(instance)
 	{}
@@ -983,7 +983,7 @@ namespace pcpp
 	/// ==========
 
 	GtpV2Layer::GtpV2Layer(GtpV2MessageType messageType, uint32_t sequenceNumber, bool setTeid, uint32_t teid,
-	                       bool setMessagePriority, uint8_t messagePriority)
+	                       bool setMessagePriority, std::bitset<4> messagePriority)
 	{
 		size_t messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
 		size_t headerLen = sizeof(gtpv2_basic_header) + messageLength;
@@ -1012,7 +1012,8 @@ namespace pcpp
 
 		if (setMessagePriority)
 		{
-			dataPtr[0] = messagePriority << 4;
+			auto messagePriorityNum = static_cast<uint8_t>(messagePriority.to_ulong());
+			dataPtr[0] = messagePriorityNum << 4;
 		}
 
 		m_Protocol = GTPv2;
@@ -1191,10 +1192,11 @@ namespace pcpp
 		return m_IEReader.getNextTLVRecord(infoElement, basePtr, m_Data + getHeaderLen() - basePtr);
 	}
 
-	GtpV2InformationElement GtpV2Layer::getInformationElement(GtpV2InformationElement::Type ieType) const
+	GtpV2InformationElement GtpV2Layer::getInformationElement(GtpV2InformationElement::Type infoElementType) const
 	{
 		auto basePtr = getIEBasePtr();
-		return m_IEReader.getTLVRecord(static_cast<uint32_t>(ieType), basePtr, m_Data + getHeaderLen() - basePtr);
+		return m_IEReader.getTLVRecord(static_cast<uint32_t>(infoElementType), basePtr,
+		                               m_Data + getHeaderLen() - basePtr);
 	}
 
 	size_t GtpV2Layer::getInformationElementCount() const
@@ -1340,6 +1342,10 @@ namespace pcpp
 		if (m_NextLayer->getProtocol() == GTPv2)
 		{
 			getHeader()->piggybacking = 1;
+		}
+		else
+		{
+			getHeader()->piggybacking = 0;
 		}
 	}
 
