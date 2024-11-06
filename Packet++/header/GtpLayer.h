@@ -1173,7 +1173,7 @@ namespace pcpp
 
 		/**
 		 * Set Message Priority
-		 * @param teid The Message Priority value to set
+		 * @param messagePriority The Message Priority value to set
 		 */
 		void setMessagePriority(const std::bitset<4>& messagePriority);
 
