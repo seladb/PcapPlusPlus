@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-IGNORE_LIST=".*dirent.* .*DpdkDevice* .*KniDevice* .*MBufRawPacket* .*PfRingDevice* .*RemoteDevice* .*XdpDevice* .*WinPcap*"
-
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "${SCRIPT}")
 ROOTPATH=$(realpath "${SCRIPTPATH}"/..)
@@ -32,12 +30,6 @@ fi
 
 # Process each file
 echo "$files" | while IFS= read -r file; do
-    for ignore in $IGNORE_LIST; do
-        if echo "$file" | grep -qE "$ignore"; then
-            echo "Ignoring: $file"
-            continue 2
-        fi
-    done
     echo "Checking: $file"
     clang-tidy "$file" -p $BUILD_DIR --fix --checks=modernize-use-nullptr,modernize-use-override,performance-unnecessary-value-param
 done
