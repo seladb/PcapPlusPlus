@@ -9,6 +9,7 @@
 #include "UdpLayer.h"
 #include "IcmpLayer.h"
 #include "SystemUtils.h"
+#include <tuple>
 
 PTF_TEST_CASE(GtpV1LayerParsingTest)
 {
