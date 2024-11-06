@@ -678,7 +678,15 @@ namespace pcpp
 	/// GtpV2MessageType
 	/// ================
 
-	static const std::unordered_map<GtpV2MessageType::Value, std::string> messageTypeMap = {
+	struct GtpV2MessageTypeHash
+	{
+		size_t operator()(const GtpV2MessageType& messageType) const
+		{
+			return static_cast<uint8_t>(messageType);
+		}
+	};
+
+	static const std::unordered_map<GtpV2MessageType, std::string, GtpV2MessageTypeHash> messageTypeMap = {
 		{ GtpV2MessageType::EchoRequest,                      "Echo Request"                         },
 		{ GtpV2MessageType::EchoResponse,                     "Echo Response"                        },
 		{ GtpV2MessageType::VersionNotSupported,              "Version Not Supported"                },

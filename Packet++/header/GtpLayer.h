@@ -686,7 +686,7 @@ namespace pcpp
 		explicit operator bool() const = delete;
 
 	private:
-		Value m_Value;
+		Value m_Value = GtpV2MessageType::Unknown;
 	};
 
 	/**

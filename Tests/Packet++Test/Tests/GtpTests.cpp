@@ -311,18 +311,19 @@ PTF_TEST_CASE(GtpV2LayerParsingTest)
 
 		PTF_ASSERT_EQUAL(gtpLayer->getInformationElementCount(), 9);
 
-		auto expectedIEValues = std::vector<
-		    std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>>{
-			{ pcpp::GtpV2InformationElement::Type::Uli,            17, 13, 0, 0, 0x18, 0x64 },
-			{ pcpp::GtpV2InformationElement::Type::ServingNetwork, 7,  3,  0, 0, 0x64, 0xf6 },
-			{ pcpp::GtpV2InformationElement::Type::RatType,        5,  1,  0, 0, 0x06, 0    },
-			{ pcpp::GtpV2InformationElement::Type::FTeid,          13, 9,  0, 0, 0x86, 0xa4 },
-			{ pcpp::GtpV2InformationElement::Type::Ambr,           12, 8,  0, 0, 0,    0    },
-			{ pcpp::GtpV2InformationElement::Type::Mei,            12, 8,  0, 0, 0x53, 0x02 },
-			{ pcpp::GtpV2InformationElement::Type::UeTimeZone,     6,  2,  0, 0, 0x23, 0    },
-			{ pcpp::GtpV2InformationElement::Type::BearerContext,  22, 18, 0, 0, 0x49, 0    },
-			{ pcpp::GtpV2InformationElement::Type::Recovery,       5,  1,  0, 0, 18,   0    },
+		// clang-format off
+		auto expectedIEValues = std::vector<std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>> {
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::Uli,            17, 13, 0, 0, 0x18, 0x64 },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::ServingNetwork, 7,  3,  0, 0, 0x64, 0xf6 },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::RatType,        5,  1,  0, 0, 0x06, 0    },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::FTeid,          13, 9,  0, 0, 0x86, 0xa4 },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::Ambr,           12, 8,  0, 0, 0,    0    },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::Mei,            12, 8,  0, 0, 0x53, 0x02 },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::UeTimeZone,     6,  2,  0, 0, 0x23, 0    },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::BearerContext,  22, 18, 0, 0, 0x49, 0    },
+			std::tuple<pcpp::GtpV2InformationElement::Type, size_t, size_t, uint8_t, uint8_t, uint8_t, uint8_t>{ pcpp::GtpV2InformationElement::Type::Recovery,       5,  1,  0, 0, 18,   0    },
 		};
+		// clang-format on
 
 		auto infoElement = gtpLayer->getFirstInformationElement();
 		for (auto expectedIEValue : expectedIEValues)
