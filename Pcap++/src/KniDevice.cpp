@@ -613,7 +613,7 @@ namespace pcpp
 
 		for (uint16_t i = 0; i < arrLength; ++i)
 		{
-			const auto *raw_pkt = packetsArr[i]->getRawPacketReadOnly();
+			const auto* raw_pkt = packetsArr[i]->getRawPacketReadOnly();
 			uint8_t raw_type = raw_pkt->getObjectType();
 			if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
 			{
