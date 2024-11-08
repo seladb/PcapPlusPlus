@@ -581,7 +581,7 @@ namespace pcpp
 
 		// GTP-U message, try to parse the next layer
 
-		auto payload = (uint8_t*)(m_Data + headerLen);
+		auto* payload = static_cast<uint8_t*>(m_Data + headerLen);
 		size_t payloadLen = m_DataLen - headerLen;
 
 		uint8_t subProto = *payload;
@@ -773,10 +773,10 @@ namespace pcpp
 
 	std::string GtpV2MessageType::toString() const
 	{
-		auto it = messageTypeMap.find(m_Value);
-		if (it != messageTypeMap.end())
+		auto iter = messageTypeMap.find(m_Value);
+		if (iter != messageTypeMap.end())
 		{
-			return it->second;
+			return iter->second;
 		}
 
 		return "Unknown GTPv2 Message Type";
@@ -871,10 +871,10 @@ namespace pcpp
 
 	GtpV2MessageType GtpV2MessageType::fromUintValue(uint8_t value)
 	{
-		auto it = uintToValueMap.find(value);
-		if (it != uintToValueMap.end())
+		auto iter = uintToValueMap.find(value);
+		if (iter != uintToValueMap.end())
 		{
-			return it->second;
+			return iter->second;
 		}
 
 		return Unknown;
