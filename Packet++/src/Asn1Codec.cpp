@@ -191,8 +191,8 @@ namespace pcpp
 		}
 
 		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
-		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength || // check for overflow
-			decodedRecord->m_TotalLength > dataLen)
+		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
+		    decodedRecord->m_TotalLength > dataLen)
 		{
 			delete decodedRecord;
 			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
@@ -390,7 +390,7 @@ namespace pcpp
 		for (int i = 0; i < actualLengthBytes; i++)
 		{
 			size_t partialValueLength = m_ValueLength << 8;
-			if (partialValueLength < m_ValueLength) // check for overflow
+			if (partialValueLength < m_ValueLength)  // check for overflow
 			{
 				throw std::invalid_argument("Cannot decode ASN.1 record length");
 			}
