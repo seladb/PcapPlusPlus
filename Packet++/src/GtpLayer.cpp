@@ -963,7 +963,7 @@ namespace pcpp
 
 		size_t infoElementBaseSize = sizeof(uint8_t) + sizeof(uint16_t);
 		size_t infoElementTotalSize = infoElementBaseSize + sizeof(uint8_t) + m_RecValueLen;
-		auto recordBuffer = new uint8_t[infoElementTotalSize];
+		auto* recordBuffer = new uint8_t[infoElementTotalSize];
 		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
 		auto infoElementLength = htobe16(m_RecValueLen);
 		memcpy(recordBuffer + sizeof(uint8_t), &infoElementLength, sizeof(uint16_t));
@@ -991,14 +991,14 @@ namespace pcpp
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 
-		auto hdr = getHeader();
+		auto* hdr = getHeader();
 		hdr->version = 2;
 		hdr->teidPresent = setTeid;
 		hdr->messagePriorityPresent = setMessagePriority;
 		hdr->messageType = static_cast<uint8_t>(messageType);
 		hdr->messageLength = htobe16(messageLength);
 
-		auto dataPtr = m_Data + sizeof(gtpv2_basic_header);
+		auto* dataPtr = m_Data + sizeof(gtpv2_basic_header);
 		if (setTeid)
 		{
 			teid = htobe32(teid);
@@ -1026,7 +1026,7 @@ namespace pcpp
 			return false;
 		}
 
-		auto header = reinterpret_cast<const gtpv2_basic_header*>(data);
+		auto* header = reinterpret_cast<const gtpv2_basic_header*>(data);
 
 		if (header->version != 2)
 		{
@@ -1068,7 +1068,7 @@ namespace pcpp
 
 	void GtpV2Layer::setTeid(uint32_t teid)
 	{
-		auto header = getHeader();
+		auto* header = getHeader();
 
 		auto teidOffset = sizeof(gtpv2_basic_header);
 		if (!header->teidPresent)
@@ -1089,7 +1089,7 @@ namespace pcpp
 
 	void GtpV2Layer::unsetTeid()
 	{
-		auto header = getHeader();
+		auto* header = getHeader();
 
 		if (!header->teidPresent)
 		{
@@ -1110,7 +1110,7 @@ namespace pcpp
 
 	uint32_t GtpV2Layer::getSequenceNumber() const
 	{
-		auto sequencePos = m_Data + sizeof(gtpv2_basic_header);
+		auto* sequencePos = m_Data + sizeof(gtpv2_basic_header);
 		if (getHeader()->teidPresent)
 		{
 			sequencePos += sizeof(uint32_t);
@@ -1121,7 +1121,7 @@ namespace pcpp
 
 	void GtpV2Layer::setSequenceNumber(uint32_t sequenceNumber)
 	{
-		auto sequencePos = m_Data + sizeof(gtpv2_basic_header);
+		auto* sequencePos = m_Data + sizeof(gtpv2_basic_header);
 		if (getHeader()->teidPresent)
 		{
 			sequencePos += sizeof(uint32_t);
@@ -1133,14 +1133,14 @@ namespace pcpp
 
 	std::pair<bool, uint8_t> GtpV2Layer::getMessagePriority() const
 	{
-		auto header = getHeader();
+		auto* header = getHeader();
 
 		if (!header->messagePriorityPresent)
 		{
 			return { false, 0 };
 		}
 
-		auto mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
+		auto* mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
 		if (header->teidPresent)
 		{
 			mpPos += sizeof(uint32_t);
@@ -1151,11 +1151,11 @@ namespace pcpp
 
 	void GtpV2Layer::setMessagePriority(const std::bitset<4>& messagePriority)
 	{
-		auto header = getHeader();
+		auto* header = getHeader();
 
 		header->messagePriorityPresent = 1;
 
-		auto mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
+		auto* mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
 		if (header->teidPresent)
 		{
 			mpPos += sizeof(uint32_t);
@@ -1167,11 +1167,11 @@ namespace pcpp
 
 	void GtpV2Layer::unsetMessagePriority()
 	{
-		auto header = getHeader();
+		auto* header = getHeader();
 
 		header->messagePriorityPresent = 0;
 
-		auto mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
+		auto* mpPos = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t) - 1;
 		if (header->teidPresent)
 		{
 			mpPos += sizeof(uint32_t);
@@ -1182,26 +1182,26 @@ namespace pcpp
 
 	GtpV2InformationElement GtpV2Layer::getFirstInformationElement() const
 	{
-		auto basePtr = getIEBasePtr();
+		auto* basePtr = getIEBasePtr();
 		return m_IEReader.getFirstTLVRecord(basePtr, m_Data + getHeaderLen() - basePtr);
 	}
 
 	GtpV2InformationElement GtpV2Layer::getNextInformationElement(GtpV2InformationElement infoElement) const
 	{
-		auto basePtr = getIEBasePtr();
+		auto* basePtr = getIEBasePtr();
 		return m_IEReader.getNextTLVRecord(infoElement, basePtr, m_Data + getHeaderLen() - basePtr);
 	}
 
 	GtpV2InformationElement GtpV2Layer::getInformationElement(GtpV2InformationElement::Type infoElementType) const
 	{
-		auto basePtr = getIEBasePtr();
+		auto* basePtr = getIEBasePtr();
 		return m_IEReader.getTLVRecord(static_cast<uint32_t>(infoElementType), basePtr,
 		                               m_Data + getHeaderLen() - basePtr);
 	}
 
 	size_t GtpV2Layer::getInformationElementCount() const
 	{
-		auto basePtr = getIEBasePtr();
+		auto* basePtr = getIEBasePtr();
 		return m_IEReader.getTLVRecordCount(basePtr, m_Data + getHeaderLen() - basePtr);
 	}
 
@@ -1308,7 +1308,7 @@ namespace pcpp
 			return;
 		}
 
-		auto nextLayerData = m_Data + headerLen;
+		auto* nextLayerData = m_Data + headerLen;
 		auto nextLayerDataLen = m_DataLen - headerLen;
 
 		if (getHeader()->piggybacking && GtpV2Layer::isDataValid(nextLayerData, nextLayerDataLen))
@@ -1356,7 +1356,7 @@ namespace pcpp
 
 	uint8_t* GtpV2Layer::getIEBasePtr() const
 	{
-		auto basePtr = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t);
+		auto* basePtr = m_Data + sizeof(gtpv2_basic_header) + sizeof(uint32_t);
 		if (getHeader()->teidPresent)
 		{
 			basePtr += sizeof(uint32_t);
