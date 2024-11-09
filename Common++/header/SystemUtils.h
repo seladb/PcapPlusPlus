@@ -1,12 +1,15 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
 /// @file
 
-#define MAX_NUM_OF_CORES 32
+enum
+{
+	MAX_NUM_OF_CORES = 32
+};
 
 #ifdef _MSC_VER
 int gettimeofday(struct timeval* tp, struct timezone* tzp);
@@ -189,7 +192,7 @@ namespace pcpp
 		static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
 	};
 
-	typedef uint32_t CoreMask;
+	using CoreMask = uint32_t;
 
 	/**
 	 * Get total number of cores on device
@@ -362,7 +365,7 @@ namespace pcpp
 		 * The callback to be invoked when the event occurs
 		 * @param[in] cookie A pointer the the cookie provided by the user in ApplicationEventHandler c'tor
 		 */
-		typedef void (*EventHandlerCallback)(void* cookie);
+		using EventHandlerCallback = void (*)(void*);
 
 		/**
 		 * As ApplicationEventHandler is a singleton, this is the static getter to retrieve its instance
