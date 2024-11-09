@@ -610,11 +610,10 @@ namespace pcpp
 		MBufRawPacket** allocated = CPP_VLA(MBufRawPacket*, arrLength);
 		uint16_t allocated_count = 0, packetsSent = 0;
 		MBufRawPacket* rawPacket;
-		RawPacket* raw_pkt;
 
 		for (uint16_t i = 0; i < arrLength; ++i)
 		{
-			raw_pkt = packetsArr[i]->getRawPacketReadOnly();
+			const auto* raw_pkt = packetsArr[i]->getRawPacketReadOnly();
 			uint8_t raw_type = raw_pkt->getObjectType();
 			if (raw_type != MBUFRAWPACKET_OBJECT_TYPE)
 			{

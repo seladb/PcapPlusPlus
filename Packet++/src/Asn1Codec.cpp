@@ -176,10 +176,10 @@ namespace pcpp
 
 	Asn1Record* Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		int tagLen;
+		uint8_t tagLen;
 		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
 
-		int lengthLen;
+		uint8_t lengthLen;
 		try
 		{
 			lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
@@ -190,13 +190,13 @@ namespace pcpp
 			throw;
 		}
 
-		if (static_cast<int>(dataLen) - tagLen - lengthLen - static_cast<int>(decodedRecord->m_ValueLength) < 0)
+		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
+		if (decodedRecord->m_TotalLength < decodedRecord->m_ValueLength ||  // check for overflow
+		    decodedRecord->m_TotalLength > dataLen)
 		{
 			delete decodedRecord;
 			throw std::invalid_argument("Cannot decode ASN.1 record, data doesn't contain the entire record");
 		}
-
-		decodedRecord->m_TotalLength = tagLen + lengthLen + decodedRecord->m_ValueLength;
 
 		if (!lazy)
 		{
@@ -228,7 +228,7 @@ namespace pcpp
 		return Asn1UniversalTagType::NotApplicable;
 	}
 
-	Asn1Record* Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, int& tagLen)
+	Asn1Record* Asn1Record::decodeTagAndCreateRecord(const uint8_t* data, size_t dataLen, uint8_t& tagLen)
 	{
 		if (dataLen < 1)
 		{
@@ -360,7 +360,7 @@ namespace pcpp
 		return newRecord;
 	}
 
-	int Asn1Record::decodeLength(const uint8_t* data, size_t dataLen)
+	uint8_t Asn1Record::decodeLength(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < 1)
 		{
@@ -370,30 +370,35 @@ namespace pcpp
 		// Check 8th bit
 		auto lengthForm = data[0] & 0x80;
 
-		auto numberLengthBytes = 1;
-
 		// Check if the tag is using more than one byte
 		// 8th bit at 0 means the length only uses one byte
 		// 8th bit at 1 means the length uses more than one byte. The number of bytes is encoded in the other 7 bits
-		if (lengthForm != 0)
+		if (lengthForm == 0)
 		{
-			auto additionalLengthBytes = data[0] & 0x7F;
-			if (static_cast<int>(dataLen) < additionalLengthBytes + 1)
+			m_ValueLength = data[0];
+			return 1;
+		}
+
+		uint8_t actualLengthBytes = data[0] & 0x7F;
+		const uint8_t* actualLengthData = data + 1;
+
+		if (dataLen < static_cast<size_t>(actualLengthBytes) + 1)
+		{
+			throw std::invalid_argument("Cannot decode ASN.1 record length");
+		}
+
+		for (int i = 0; i < actualLengthBytes; i++)
+		{
+			size_t partialValueLength = m_ValueLength << 8;
+			if (partialValueLength < m_ValueLength)  // check for overflow
 			{
 				throw std::invalid_argument("Cannot decode ASN.1 record length");
 			}
-			for (auto index = additionalLengthBytes; index > 0; --index)
-			{
-				m_ValueLength += data[index] * static_cast<int>(std::pow(256, (additionalLengthBytes - index)));
-			}
-			numberLengthBytes += additionalLengthBytes;
-		}
-		else
-		{
-			m_ValueLength = data[0];
+
+			m_ValueLength = partialValueLength | actualLengthData[i];
 		}
 
-		return numberLengthBytes;
+		return 1 + actualLengthBytes;
 	}
 
 	void Asn1Record::decodeValueIfNeeded()

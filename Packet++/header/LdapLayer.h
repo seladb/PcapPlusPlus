@@ -77,7 +77,7 @@ namespace pcpp
 		// cppcheck-suppress noExplicitConstructor
 		/**
 		 * Construct LdapOperationType from Value enum
-		 * @param[in] value the opetation type enum value
+		 * @param[in] value the operation type enum value
 		 */
 		constexpr LdapOperationType(Value value) : m_Value(value)
 		{}

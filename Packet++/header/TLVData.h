@@ -23,6 +23,7 @@ namespace pcpp
 	{
 	protected:
 		/** A struct representing the TLV construct */
+#pragma pack(push, 1)
 		struct TLVRawData
 		{
 			/** Record type */
@@ -32,6 +33,7 @@ namespace pcpp
 			/** Record value (variable size) */
 			uint8_t recordValue[];
 		};
+#pragma pack(pop)
 
 		TLVRawData* m_Data;
 
@@ -196,7 +198,7 @@ namespace pcpp
 				return 0;
 
 			T result;
-			memcpy(&result, m_Data->recordValue + offset, sizeof(T));
+			memcpy(&result, m_Data->recordValue + getValueOffset() + offset, sizeof(T));
 			return result;
 		}
 
@@ -214,7 +216,7 @@ namespace pcpp
 			if (getDataSize() < sizeof(T))
 				return false;
 
-			memcpy(m_Data->recordValue + valueOffset, &newValue, sizeof(T));
+			memcpy(m_Data->recordValue + getValueOffset() + valueOffset, &newValue, sizeof(T));
 			return true;
 		}
 
@@ -227,6 +229,12 @@ namespace pcpp
 		 * @return The size of the record value (meaning the size of the 'V' part in TLV)
 		 */
 		virtual size_t getDataSize() const = 0;
+
+	protected:
+		virtual size_t getValueOffset() const
+		{
+			return 0;
+		}
 	};
 
 	/**

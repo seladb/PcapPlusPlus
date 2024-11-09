@@ -248,7 +248,7 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 ### 傳輸層 (L4)
 
 26. COTP
-27. GTP (v1)
+27. GTP (v1 & v2)
 28. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
 29. TCP
 30. TPKT
