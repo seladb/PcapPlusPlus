@@ -17,6 +17,7 @@
 #include "SomeIpLayer.h"
 #include "SmtpLayer.h"
 #include "LdapLayer.h"
+#include "GtpLayer.h"
 #include "PacketUtils.h"
 #include "Logger.h"
 #include "DeprecationUtils.h"
@@ -418,6 +419,9 @@ namespace pcpp
 			if (!m_NextLayer)
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 		}
+		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
+		         GtpV2Layer::isDataValid(payload, payloadLen))
+			m_NextLayer = new GtpV2Layer(payload, payloadLen, this, m_Packet);
 		else
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
 	}
