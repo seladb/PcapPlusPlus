@@ -161,9 +161,12 @@ PTF_TEST_CASE(RadiusLayerCreationTest);
 PTF_TEST_CASE(RadiusLayerEditTest);
 
 // Implemented in GtpTests.cpp
-PTF_TEST_CASE(GtpLayerParsingTest);
-PTF_TEST_CASE(GtpLayerCreationTest);
-PTF_TEST_CASE(GtpLayerEditTest);
+PTF_TEST_CASE(GtpV1LayerParsingTest);
+PTF_TEST_CASE(GtpV1LayerCreationTest);
+PTF_TEST_CASE(GtpV1LayerEditTest);
+PTF_TEST_CASE(GtpV2LayerParsingTest);
+PTF_TEST_CASE(GtpV2LayerCreationTest);
+PTF_TEST_CASE(GtpV2LayerEditTest);
 
 // Implemented in BgpTests.cpp
 PTF_TEST_CASE(BgpLayerParsingTest);
