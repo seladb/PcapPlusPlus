@@ -29,7 +29,7 @@ namespace pcpp
 
 	using GvcpFlag = uint8_t;  // flag bits are specified by each command
 
-	/// @brief Gvcp command defines the command values and the corresponding acknowledge values
+	/// @brief GVCP command defines the command values and the corresponding acknowledge values
 	/// See more in the spec "18 Command and Acknowledge Values"
 	enum class GvcpCommand : uint16_t
 	{
@@ -112,7 +112,7 @@ namespace pcpp
 	std::ostream& operator<<(std::ostream& os, GvcpResponseStatus status);
 
 #pragma pack(push, 1)
-	/// @brief Gvcp request header
+	/// @brief GVCP request header
 	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
 	struct gvcp_request_header
 	{
@@ -136,9 +136,9 @@ namespace pcpp
 		}
 	};
 	static_assert(sizeof(gvcp_request_header) == internal::kGvcpRequestHeaderLength,
-	              "Gvcp request header size should be 8 bytes");
+	              "GVCP request header size should be 8 bytes");
 
-	/// @brief Gvcp acknowledge header
+	/// @brief GVCP acknowledge header
 	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
 	struct gvcp_ack_header
 	{
@@ -160,9 +160,9 @@ namespace pcpp
 			return static_cast<GvcpCommand>(netToHost16(command));
 		}
 	};
-	static_assert(sizeof(gvcp_ack_header) == internal::kGvcpAckHeaderLength, "Gvcp ack header size should be 8 bytes");
+	static_assert(sizeof(gvcp_ack_header) == internal::kGvcpAckHeaderLength, "GVCP ack header size should be 8 bytes");
 
-	/// @brief Gvcp discovery acknowledge body
+	/// @brief GVCP discovery acknowledge body
 	/// @note refer to the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
 	struct gvcp_discovery_body
 	{
@@ -187,7 +187,7 @@ namespace pcpp
 		char userDefinedName[16] = { 0 };
 	};
 	static_assert(sizeof(gvcp_discovery_body) == internal::kGvcpDiscoveryBodyLength,
-	              "Gvcp ack body size should be 248 bytes");
+	              "GVCP ack body size should be 248 bytes");
 
 	/// @brief GVCP force IP command body
 	/// @note refer to the spec "16.2 FORCEIP". The data is stored as big-endian.
@@ -271,7 +271,7 @@ namespace pcpp
 		GvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	};
 
-	/// @brief Gvcp request layer
+	/// @brief GVCP request layer
 	class GvcpRequestLayer : public GvcpLayer
 	{
 	public:
@@ -373,7 +373,7 @@ namespace pcpp
 		}
 	};
 
-	/// @brief Gvcp acknowledge layer
+	/// @brief GVCP acknowledge layer
 	class GvcpAcknowledgeLayer : public GvcpLayer
 	{
 	public:
@@ -458,7 +458,7 @@ namespace pcpp
 
 	// ---------------------------------------- Special Layer ----------------------------------------
 
-	/// @brief Gvcp discovery request layer
+	/// @brief GVCP discovery request layer
 	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
 	{
 	public:
@@ -492,7 +492,7 @@ namespace pcpp
 		    : GvcpRequestLayer(GvcpCommand::DiscoveredCmd, payloadData, payloadDataSize, flag, requestId) {};
 	};
 
-	/// @brief Gvcp discovery acknowledge layer
+	/// @brief GVCP discovery acknowledge layer
 	class GvcpDiscoveryAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
@@ -642,7 +642,7 @@ namespace pcpp
 		}
 	};
 
-	/// @brief Gvcp force IP request layer
+	/// @brief GVCP force IP request layer
 	class GvcpForceIpRequestLayer : public GvcpRequestLayer
 	{
 	public:
@@ -722,7 +722,7 @@ namespace pcpp
 		}
 	};
 
-	/// @brief Gvcp force IP acknowledge layer
+	/// @brief GVCP force IP acknowledge layer
 	class GvcpForceIpAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
