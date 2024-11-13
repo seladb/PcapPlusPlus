@@ -28,7 +28,7 @@ namespace pcpp
 	{
 		if (GvcpLayer::verifyRequest(data))
 		{
-			auto* header = reinterpret_cast<gvcp_request_header*>(data);
+			auto* header = reinterpret_cast<internal::gvcp_request_header*>(data);
 			if (header->getCommand() == GvcpCommand::DiscoveredCmd)
 			{
 				return new GvcpDiscoveryRequestLayer(data, dataLen, prevLayer, packet);
@@ -44,7 +44,7 @@ namespace pcpp
 		}
 		else
 		{
-			auto* header = reinterpret_cast<gvcp_ack_header*>(data);
+			auto* header = reinterpret_cast<internal::gvcp_ack_header*>(data);
 			if (header->getCommand() == GvcpCommand::DiscoveredAck)
 			{
 				return new GvcpDiscoveryAcknowledgeLayer(data, dataLen);
@@ -77,7 +77,7 @@ namespace pcpp
 		memcpy(m_Data + getHeaderLen(), payloadData, payloadDataSize);
 
 		// set the header fields
-		auto header = reinterpret_cast<gvcp_request_header*>(m_Data);
+		auto header = reinterpret_cast<internal::gvcp_request_header*>(m_Data);
 		header->command = hostToNet16(static_cast<uint16_t>(command));
 		header->flag = flag;
 		header->requestId = hostToNet16(requestId);
@@ -117,7 +117,7 @@ namespace pcpp
 		memcpy(m_Data + getHeaderLen(), payloadData, payloadDataSize);
 
 		// set the header fields
-		auto header = reinterpret_cast<gvcp_ack_header*>(m_Data);
+		auto header = reinterpret_cast<internal::gvcp_ack_header*>(m_Data);
 		header->status = hostToNet16(static_cast<uint16_t>(status));
 		header->command = hostToNet16(static_cast<uint16_t>(command));
 		header->dataSize = hostToNet16(payloadDataSize);

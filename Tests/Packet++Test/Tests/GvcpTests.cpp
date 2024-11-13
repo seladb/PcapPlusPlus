@@ -16,8 +16,6 @@ PTF_TEST_CASE(GvcpBasicTest)
 		GvcpRequestLayer gvcpRequestLayer(GvcpCommand::DiscoveredCmd, payload.data(), payload.size(), 1, 2);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), GVCP);
 
-		gvcp_request_header* header = gvcpRequestLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getCommand(), GvcpCommand::DiscoveredCmd);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getFlag(), 1);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getRequestId(), 2);
@@ -28,8 +26,6 @@ PTF_TEST_CASE(GvcpBasicTest)
 		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(GvcpResponseStatus::Success, GvcpCommand::DiscoveredAck,
 		                                          payload.data(), payload.size(), 2);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), GVCP);
-		gvcp_ack_header* header = gvcpAcknowledgeLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getCommand(), GvcpCommand::DiscoveredAck);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getAckId(), 2);
@@ -54,8 +50,6 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		GvcpDiscoveryRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(uint8_t(gvcpRequestLayer.getFlag()), uint8_t(0x11));  // allow broadcast, acknowledge required
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.hasAcknowledgeFlag(), true);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getCommand(), GvcpCommand::DiscoveredCmd);
@@ -76,8 +70,6 @@ PTF_TEST_CASE(GvcpDiscoveryCommand)
 		auto gvcpRequestLayer = discoverCmdPacket.getLayerOfType<pcpp::GvcpDiscoveryRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(uint8_t(gvcpRequestLayer->getFlag()), uint8_t(0x11));  // allow broadcast, acknowledge required
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->hasAcknowledgeFlag(), true);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getCommand(), GvcpCommand::DiscoveredCmd);
@@ -104,12 +96,10 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 		                                                   udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), GVCP);
-		gvcp_ack_header* header = gvcpAcknowledgeLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getCommand(), GvcpCommand::DiscoveredAck);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getAckId(), 1);
-		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(gvcp_ack_header));
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(internal::gvcp_ack_header));
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getMacAddress(), pcpp::MacAddress("00:04:4b:ea:b0:b4"));
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getIpAddress(), pcpp::IPv4Address("172.28.60.100"));
@@ -132,8 +122,6 @@ PTF_TEST_CASE(GvcpDiscoveryAck)
 
 		PTF_ASSERT_NOT_NULL(gvcpAcknowledgeLayer);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), GVCP);
-		gvcp_ack_header* header = gvcpAcknowledgeLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getCommand(), GvcpCommand::DiscoveredAck);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getAckId(), 1);
@@ -164,11 +152,9 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		GvcpForceIpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getCommand(), GvcpCommand::ForceIpCmd);
-		PTF_ASSERT_EQUAL(gvcpRequestLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(gvcp_request_header));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(internal::gvcp_request_header));
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getRequestId(), 8787);
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getMacAddress(), pcpp::MacAddress("8c:e9:b4:01:63:b2"));
@@ -190,8 +176,6 @@ PTF_TEST_CASE(GvcpForceIpCommand)
 		auto gvcpRequestLayer = forceIpCommandPacket.getLayerOfType<pcpp::GvcpForceIpRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getCommand(), GvcpCommand::ForceIpCmd);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
@@ -221,8 +205,6 @@ PTF_TEST_CASE(GvcpForceIpAck)
 		GvcpForceIpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), GVCP);
-		gvcp_ack_header* header = gvcpAcknowledgeLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getStatus(), GvcpResponseStatus::Success);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getCommand(), GvcpCommand::ForceIpAck);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getAckId(), 8787);
@@ -266,11 +248,9 @@ PTF_TEST_CASE(GvcpReadRegisterCommand)
 		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getCommand(), GvcpCommand::ReadRegCmd);
-		PTF_ASSERT_EQUAL(gvcpRequestLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(gvcp_request_header));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(internal::gvcp_request_header));
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getRequestId(), 35824);
 
 		auto payload = gvcpRequestLayer.getLayerPayload();
@@ -291,8 +271,6 @@ PTF_TEST_CASE(GvcpReadRegisterCommand)
 		auto gvcpRequestLayer = readRegCmdPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getCommand(), GvcpCommand::ReadRegCmd);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
@@ -321,11 +299,9 @@ PTF_TEST_CASE(GvcpReadRegisterAcknowledge)
 		GvcpAcknowledgeLayer gvcpAcknowledgeLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getProtocol(), GVCP);
-		auto header = gvcpAcknowledgeLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getAckId(), 0x1fee);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getCommand(), GvcpCommand::ReadRegAck);
-		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(gvcp_ack_header));
+		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(internal::gvcp_ack_header));
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer.getStatus(), 0x0000);
 
 		auto payload = gvcpAcknowledgeLayer.getLayerPayload();
@@ -346,8 +322,6 @@ PTF_TEST_CASE(GvcpReadRegisterAcknowledge)
 		auto gvcpAcknowledgeLayer = readRegAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), GVCP);
-		auto header = gvcpAcknowledgeLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getAckId(), 0x1fee);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getCommand(), GvcpCommand::ReadRegAck);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getDataSize(), gvcpAcknowledgeLayer->getLayerPayloadSize());
@@ -376,11 +350,9 @@ PTF_TEST_CASE(GvcpWriteRegisterCommand)
 		GvcpRequestLayer gvcpRequestLayer(udpLayer->getLayerPayload(), udpLayer->getLayerPayloadSize());
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer.getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getCommand(), GvcpCommand::WriteRegCmd);
-		PTF_ASSERT_EQUAL(gvcpRequestLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(gvcp_request_header));
+		PTF_ASSERT_EQUAL(gvcpRequestLayer.getDataSize(), udpLayer->getLayerPayloadSize() - sizeof(internal::gvcp_request_header));
 		PTF_ASSERT_EQUAL(gvcpRequestLayer.getRequestId(), 8788);
 
 		auto payload = gvcpRequestLayer.getLayerPayload();
@@ -403,8 +375,6 @@ PTF_TEST_CASE(GvcpWriteRegisterCommand)
 		auto gvcpRequestLayer = writeRegCmdPacket.getLayerOfType<pcpp::GvcpRequestLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getProtocol(), GVCP);
-		gvcp_request_header* header = gvcpRequestLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getFlag(), 0x01);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getCommand(), GvcpCommand::WriteRegCmd);
 		PTF_ASSERT_EQUAL(gvcpRequestLayer->getDataSize(), gvcpRequestLayer->getLayerPayloadSize());
@@ -456,8 +426,6 @@ PTF_TEST_CASE(GvcpWriteRegisterAcknowledge)
 		auto gvcpAcknowledgeLayer = writeRegAckPacket.getLayerOfType<pcpp::GvcpAcknowledgeLayer>();
 
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getProtocol(), GVCP);
-		auto header = gvcpAcknowledgeLayer->getGvcpHeader();
-		PTF_ASSERT_TRUE(header != nullptr);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getAckId(), 8788);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getCommand(), GvcpCommand::WriteRegAck);
 		PTF_ASSERT_EQUAL(gvcpAcknowledgeLayer->getDataSize(), gvcpAcknowledgeLayer->getLayerPayloadSize());
