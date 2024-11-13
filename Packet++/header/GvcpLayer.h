@@ -89,14 +89,14 @@ namespace pcpp
 		    0x8006,  ///< An attempt was made to access an address location which is currently/momentary not accessible
 		Busy = 0x8007,  ///< A required resource to service the request is not currently available. The request may be
 		                ///< retried at a later time
-		LocalProblem = 0x8008,       // deprecated
-		MsgMismatch = 0x8009,        // deprecated
-		InvalidProtocol = 0x800A,    // deprecated
-		NoMsg = 0x800B,              // deprecated
+		LocalProblem = 0x8008,       ///< deprecated
+		MsgMismatch = 0x8009,        ///< deprecated
+		InvalidProtocol = 0x800A,    ///< deprecated
+		NoMsg = 0x800B,              ///< deprecated
 		PacketUnavailable = 0x800C,  ///< The requested packet is not available anymore
 		DataOverrun = 0x800D,        ///< Internal memory of GVSP transmitter overrun (typically for image acquisition)
 		InvalidHeader = 0x800E,  ///< The message header is not valid. Some of its fields do not match the specification
-		WrongConfig = 0x800F,    // deprecated
+		WrongConfig = 0x800F,    ///< deprecated
 		PacketNotYetAvailable = 0x8010,  ///< The requested packet has not yet been acquired. Can be used for linescan
 		                                 ///< cameras device when line trigger rate is slower than application timeout
 		PacketAndPrevRemovedFromMemory = 0x8011,  ///< The requested packet and all previous ones are not available
