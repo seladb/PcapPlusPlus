@@ -18,7 +18,7 @@
 
 PcapPlusPlus enables decoding and forging capabilities for a large variety of network protocols. It also provides easy to use C++ wrappers for the most popular packet processing engines such as [libpcap](https://www.tcpdump.org/), [WinPcap](https://www.winpcap.org/), [Npcap](https://nmap.org/npcap/), [DPDK](https://www.dpdk.org/), [eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) and [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/).
 
-Translations: English · [正體中文](./translation/README-zh-tw.md)
+Translations: English · [正體中文](./translation/README-zh-tw.md) · [한국어](./translation/README-kor.md)
 
 ## Table Of Contents
 
@@ -250,7 +250,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 ### Transport Layer (L4)
 
 26. COTP
-27. GTP (v1)
+27. GTP (v1 & v2)
 28. IPSec AH & ESP - parsing only (no editing capabilities)
 29. TCP
 30. TPKT

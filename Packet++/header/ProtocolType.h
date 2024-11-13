@@ -218,9 +218,9 @@ namespace pcpp
 	const ProtocolType GTPv1 = 32;
 
 	/**
-	 * GTP protocol family (currently only GTPv1)
+	 * GTP protocol family (GTPv1 and GTPv2)
 	 */
-	const ProtocolTypeFamily GTP = 0x20;
+	const ProtocolTypeFamily GTP = 0x2039;
 
 	/**
 	 * IEEE 802.3 Ethernet protocol
@@ -356,6 +356,11 @@ namespace pcpp
 	 * GVCP protocol
 	 */
 	const ProtocolType GVCP = 57;
+
+	/**
+	 * GTPv2 protocol
+	 */
+	const ProtocolType GTPv2 = 57;
 
 	/**
 	 * An enum representing OSI model layers

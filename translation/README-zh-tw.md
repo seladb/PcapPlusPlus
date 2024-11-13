@@ -17,7 +17,7 @@
 
 PcapPlusPlus 支援對多種網路協議進行解析和建構，並對常見的封包處理函式庫（如 [libpcap](https://www.tcpdump.org/)、[WinPcap](https://www.winpcap.org/)、[Npcap](https://nmap.org/npcap/)、[DPDK](https://www.dpdk.org/)、[eBPF AF_XDP](https://www.kernel.org/doc/html/next/networking/af_xdp.html) 和 [PF_RING](https://www.ntop.org/products/packet-capture/pf_ring/)）提供 C++ 的封裝函式。
 
-翻譯: [English](../README.md) · 正體中文
+翻譯: [English](../README.md) · 正體中文 · [한국어](./README-kor.md)
 
 ## 目錄
 
@@ -243,43 +243,44 @@ PcapPlusPlus 目前支援解析、編輯和建構以下網路協定的封包：
 22. NDP
 23. Raw IP（IPv4 和 IPv6）
 24. VRRP（IPv4 和 IPv6）
+25. WireGuard
 
 ### 傳輸層 (L4)
 
-25. COTP
-26. GTP (v1)
-27. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
-28. TCP
-29. TPKT
-30. UDP
+26. COTP
+27. GTP (v1 & v2)
+28. IPSec AH 和 ESP - 僅支援解析（不支援編輯）
+29. TCP
+30. TPKT
+31. UDP
 
 ### 對話層 (L5)
 
-31. SDP
-32. SIP
+32. SDP
+33. SIP
 
 ### 表示層 (L6)
 
-33. SSL/TLS - 僅支援解析（不支援編輯）
+34. SSL/TLS - 僅支援解析（不支援編輯）
 
 ### 應用層 (L7)
 
-34. ASN.1 編碼器與解碼器
-35. BGP (v4)
-36. DHCP
-37. DHCPv6
-38. DNS
-39. FTP
-40. HTTP 標頭（請求和響應）
-41. LDAP
-42. NTP (v3, v4)
-43. Radius
-44. S7 通訊（S7comm）
-45. SMTP
-46. SOME/IP
-47. SSH - 僅支援解析（不支援編輯）
-48. Telnet - 僅支援解析（不支援編輯）
-49. 通用酬載（Generic Payload）
+35. ASN.1 編碼器與解碼器
+36. BGP (v4)
+37. DHCP
+38. DHCPv6
+39. DNS
+40. FTP
+41. HTTP 標頭（請求和響應）
+42. LDAP
+43. NTP (v3, v4)
+44. Radius
+45. S7 通訊（S7comm）
+46. SMTP
+47. SOME/IP
+48. SSH - 僅支援解析（不支援編輯）
+49. Telnet - 僅支援解析（不支援編輯）
+50. 通用酬載（Generic Payload）
 
 ## DPDK 和 PF_RING 支援
 
