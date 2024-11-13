@@ -11,7 +11,7 @@
 
 /**
  * @namespace pcpp
- * @brief The main namespace for the PcapPlusPlus lib
+ * The main namespace for the PcapPlusPlus lib
  */
 namespace pcpp
 {
@@ -29,8 +29,10 @@ namespace pcpp
 
 	using GvcpFlag = uint8_t;  // flag bits are specified by each command
 
-	/// @brief GVCP command defines the command values and the corresponding acknowledge values
-	/// See more in the spec "18 Command and Acknowledge Values"
+	/**
+	 * GVCP command defines the command values and the corresponding acknowledge values
+	 * See more in the spec "18 Command and Acknowledge Values"
+	 */
 	enum class GvcpCommand : uint16_t
 	{
 		// Discovery Protocol Control
@@ -69,8 +71,10 @@ namespace pcpp
 	/// output operator for GvcpCommand
 	std::ostream& operator<<(std::ostream& os, GvcpCommand command);
 
-	/// @brief GVCP response status can be returned in an acknowledge message or a GVSP header.
-	/// See more in the spec "Table 19-1: List of Standard Status Codes"
+	/**
+	 * GVCP response status can be returned in an acknowledge message or a GVSP header.
+	 * See more in the spec "Table 19-1: List of Standard Status Codes"
+	 */
 	enum class GvcpResponseStatus : uint16_t
 	{
 		Success = 0x0000,         ///< Command executed successfully
@@ -112,8 +116,10 @@ namespace pcpp
 	std::ostream& operator<<(std::ostream& os, GvcpResponseStatus status);
 
 #pragma pack(push, 1)
-	/// @brief GVCP request header
-	/// @note refer to the spec "15.1 Request Header". The data is stored as big-endian.
+	/**
+	 * GVCP request header
+	 * refer to the spec "15.1 Request Header". The data is stored as big-endian.
+	 */
 	struct gvcp_request_header
 	{
 		uint8_t magicNumber = internal::kGvcpMagicNumber;  // always fixed
@@ -138,8 +144,10 @@ namespace pcpp
 	static_assert(sizeof(gvcp_request_header) == internal::kGvcpRequestHeaderLength,
 	              "GVCP request header size should be 8 bytes");
 
-	/// @brief GVCP acknowledge header
-	/// @note refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
+	/**
+	 * GVCP acknowledge header
+	 * refer to the spec "15.2 Acknowledge Header". The data is stored as big-endian.
+	 */
 	struct gvcp_ack_header
 	{
 		uint16_t status = 0;
@@ -162,8 +170,10 @@ namespace pcpp
 	};
 	static_assert(sizeof(gvcp_ack_header) == internal::kGvcpAckHeaderLength, "GVCP ack header size should be 8 bytes");
 
-	/// @brief GVCP discovery acknowledge body
-	/// @note refer to the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
+	/**
+	 * GVCP discovery acknowledge body
+	 * refer to the spec "16.1.2 DISCOVERY_ACK". The data is stored as big-endian.
+	 */
 	struct gvcp_discovery_body
 	{
 		uint16_t versionMajor = 0;
@@ -189,8 +199,10 @@ namespace pcpp
 	static_assert(sizeof(gvcp_discovery_body) == internal::kGvcpDiscoveryBodyLength,
 	              "GVCP ack body size should be 248 bytes");
 
-	/// @brief GVCP force IP command body
-	/// @note refer to the spec "16.2 FORCEIP". The data is stored as big-endian.
+	/**
+	 * GVCP force IP command body
+	 * refer to the spec "16.2 FORCEIP". The data is stored as big-endian.
+	 */
 	struct gvcp_forceip_body
 	{
 		char padding1[2] = { 0 };
@@ -226,7 +238,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the magic number
+		 * Get the magic number
 		 * @return uint8_t The magic number
 		 */
 		static bool verifyRequest(const uint8_t* data)
@@ -235,7 +247,7 @@ namespace pcpp
 		};
 
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -262,7 +274,7 @@ namespace pcpp
 		GvcpLayer() = default;
 
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -271,12 +283,14 @@ namespace pcpp
 		GvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 	};
 
-	/// @brief GVCP request layer
+	/** 
+	 * GVCP request layer
+	 */
 	class GvcpRequestLayer : public GvcpLayer
 	{
 	public:
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -285,14 +299,14 @@ namespace pcpp
 		GvcpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
 		GvcpRequestLayer(const uint8_t* data, size_t dataSize);
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] command The command
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
@@ -304,7 +318,7 @@ namespace pcpp
 		                          uint16_t payloadDataSize = 0, GvcpFlag flag = 0, uint16_t requestId = 1);
 
 		/**
-		 * @brief Get the header object
+		 * Get the header object
 		 * @return gvcp_request_header* A pointer to the header object
 		 */
 		gvcp_request_header* getGvcpHeader() const
@@ -313,7 +327,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the flag from the header
+		 * Get the flag from the header
 		 */
 		GvcpFlag getFlag() const
 		{
@@ -321,7 +335,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the data size from the header
+		 * Get the data size from the header
 		 */
 		uint16_t getDataSize() const
 		{
@@ -329,7 +343,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the request ID from the header
+		 * Get the request ID from the header
 		 */
 		uint16_t getRequestId() const
 		{
@@ -337,7 +351,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the command from the header
+		 * Get the command from the header
 		 */
 		GvcpCommand getCommand() const
 		{
@@ -345,7 +359,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Verify the magic number in the header
+		 * Verify the magic number in the header
 		 * @return true The magic number is valid
 		 */
 		bool verifyMagicNumber() const
@@ -354,7 +368,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Check if the acknowledge is required from the header
+		 * Check if the acknowledge is required from the header
 		 * @return true The acknowledge is required
 		 */
 		bool hasAcknowledgeFlag() const
@@ -373,12 +387,14 @@ namespace pcpp
 		}
 	};
 
-	/// @brief GVCP acknowledge layer
+	/**
+	 * GVCP acknowledge layer
+	 */
 	class GvcpAcknowledgeLayer : public GvcpLayer
 	{
 	public:
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -387,14 +403,14 @@ namespace pcpp
 		GvcpAcknowledgeLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
 		GvcpAcknowledgeLayer(const uint8_t* data, size_t dataSize);
 
 		/**
-		 * @brief Construct a new GvcpAcknowledgeLayer object
+		 * Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] status The response status
 		 * @param[in] command The command
 		 * @param[in] payloadData A pointer to the payload data, optional
@@ -406,7 +422,7 @@ namespace pcpp
 		                     uint16_t payloadDataSize = 0, uint16_t ackId = 0);
 
 		/**
-		 * @brief Get the header object
+		 * Get the header object
 		 * @return gvcp_ack_header* A pointer to the header object
 		 */
 		gvcp_ack_header* getGvcpHeader() const
@@ -458,12 +474,14 @@ namespace pcpp
 
 	// ---------------------------------------- Special Layer ----------------------------------------
 
-	/// @brief GVCP discovery request layer
+	/**
+	 * GVCP discovery request layer
+	 */
 	class GvcpDiscoveryRequestLayer : public GvcpRequestLayer
 	{
 	public:
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -473,14 +491,14 @@ namespace pcpp
 		    : GvcpRequestLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
 		explicit GvcpDiscoveryRequestLayer(const uint8_t* data, size_t dataSize) : GvcpRequestLayer(data, dataSize) {};
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] flag The flag, optional
@@ -492,12 +510,14 @@ namespace pcpp
 		    : GvcpRequestLayer(GvcpCommand::DiscoveredCmd, payloadData, payloadDataSize, flag, requestId) {};
 	};
 
-	/// @brief GVCP discovery acknowledge layer
+	/**
+	 * GVCP discovery acknowledge layer
+	 */
 	class GvcpDiscoveryAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -507,14 +527,14 @@ namespace pcpp
 		    : GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
 		GvcpDiscoveryAcknowledgeLayer(const uint8_t* data, uint16_t dataSize) : GvcpAcknowledgeLayer(data, dataSize) {};
 
 		/**
-		 * @brief Construct a new GvcpAcknowledgeLayer object
+		 * Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] status The response status
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
@@ -526,7 +546,7 @@ namespace pcpp
 		    : GvcpAcknowledgeLayer(status, GvcpCommand::DiscoveredAck, payloadData, payloadDataSize, ackId) {};
 
 		/**
-		 * @brief Get the version
+		 * Get the version
 		 * @return std::pair<uint16_t, uint16_t> The version major and minor
 		 */
 		std::pair<uint16_t, uint16_t> getVersion() const
@@ -536,7 +556,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the IP address
+		 * Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
 		pcpp::MacAddress getMacAddress() const
@@ -546,7 +566,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the IP address
+		 * Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
 		pcpp::IPv4Address getIpAddress() const
@@ -556,7 +576,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the subnet mask
+		 * Get the subnet mask
 		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
 		 */
 		pcpp::IPv4Address getSubnetMask() const
@@ -566,7 +586,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the gateway IP address
+		 * Get the gateway IP address
 		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
 		 */
 		pcpp::IPv4Address getGatewayIpAddress() const
@@ -576,7 +596,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the manufacturer name
+		 * Get the manufacturer name
 		 * @return std::string The manufacturer name
 		 */
 		std::string getManufacturerName() const
@@ -586,7 +606,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the model name
+		 * Get the model name
 		 * @return std::string The model name
 		 */
 		std::string getModelName() const
@@ -596,7 +616,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the device version
+		 * Get the device version
 		 * @return std::string The device version
 		 */
 		std::string getDeviceVersion() const
@@ -606,7 +626,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the manufacturer specific information
+		 * Get the manufacturer specific information
 		 * @return std::string The manufacturer specific information
 		 */
 		std::string getManufacturerSpecificInformation() const
@@ -616,7 +636,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the serial number
+		 * Get the serial number
 		 * @return std::string The serial number
 		 */
 		std::string getSerialNumber() const
@@ -626,7 +646,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the user defined name
+		 * Get the user defined name
 		 * @return std::string The user defined name
 		 */
 		std::string getUserDefinedName() const
@@ -642,12 +662,14 @@ namespace pcpp
 		}
 	};
 
-	/// @brief GVCP force IP request layer
+	/**
+	 * GVCP force IP request layer
+	 */
 	class GvcpForceIpRequestLayer : public GvcpRequestLayer
 	{
 	public:
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -657,14 +679,14 @@ namespace pcpp
 		    : GvcpRequestLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
 		explicit GvcpForceIpRequestLayer(const uint8_t* data, size_t dataSize) : GvcpRequestLayer(data, dataSize) {};
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
 		 * @param[in] flag The flag, optional
@@ -676,7 +698,7 @@ namespace pcpp
 		    : GvcpRequestLayer(GvcpCommand::ForceIpCmd, payloadData, payloadDataSize, flag, requestId) {};
 
 		/**
-		 * @brief Get the IP address
+		 * Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
 		pcpp::MacAddress getMacAddress() const
@@ -686,7 +708,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the IP address
+		 * Get the IP address
 		 * @return pcpp::IPAddress The IP address. Throw if the IP address is invalid.
 		 */
 		pcpp::IPv4Address getIpAddress() const
@@ -696,7 +718,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the subnet mask
+		 * Get the subnet mask
 		 * @return pcpp::IPAddress The subnet mask. Throw if the subnet mask is invalid.
 		 */
 		pcpp::IPv4Address getSubnetMask() const
@@ -706,7 +728,7 @@ namespace pcpp
 		}
 
 		/**
-		 * @brief Get the gateway IP address
+		 * Get the gateway IP address
 		 * @return pcpp::IPAddress The gateway IP address. Throw if the gateway IP address is invalid.
 		 */
 		pcpp::IPv4Address getGatewayIpAddress() const
@@ -722,12 +744,14 @@ namespace pcpp
 		}
 	};
 
-	/// @brief GVCP force IP acknowledge layer
+	/**
+	 * GVCP force IP acknowledge layer
+	 */
 	class GvcpForceIpAcknowledgeLayer : public GvcpAcknowledgeLayer
 	{
 	public:
 		/**
-		 * @brief Construct a new GvcpLayer object
+		 * Construct a new GvcpLayer object
 		 * @param[in] data A pointer to the raw data
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
@@ -737,14 +761,14 @@ namespace pcpp
 		    : GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet) {};
 
 		/**
-		 * @brief Construct a new GvcpRequestLayer object
+		 * Construct a new GvcpRequestLayer object
 		 * @param[in] data A pointer to the data including the header and the payload
 		 * @param[in] dataSize The size of the data in bytes
 		 */
 		GvcpForceIpAcknowledgeLayer(const uint8_t* data, size_t dataSize) : GvcpAcknowledgeLayer(data, dataSize) {};
 
 		/**
-		 * @brief Construct a new GvcpAcknowledgeLayer object
+		 * Construct a new GvcpAcknowledgeLayer object
 		 * @param[in] status The response status
 		 * @param[in] payloadData A pointer to the payload data, optional
 		 * @param[in] payloadDataSize The size of the payload data in bytes, optional
