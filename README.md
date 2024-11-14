@@ -250,7 +250,7 @@ PcapPlusPlus currently supports parsing, editing and creation of packets of the 
 ### Transport Layer (L4)
 
 26. COTP
-27. GTP (v1)
+27. GTP (v1 & v2)
 28. IPSec AH & ESP - parsing only (no editing capabilities)
 29. TCP
 30. TPKT
