@@ -22,15 +22,15 @@
 
 // Compile time log levels.
 // Allows for conditional removal of unwanted log calls at compile time.
-#define PCAP_LOG_LEVEL_OFF 0
-#define PCAP_LOG_LEVEL_ERROR 1
-#define PCAP_LOG_LEVEL_INFO 2
-#define PCAP_LOG_LEVEL_DEBUG 3
+#define PCPP_LOG_LEVEL_OFF 0
+#define PCPP_LOG_LEVEL_ERROR 1
+#define PCPP_LOG_LEVEL_INFO 2
+#define PCPP_LOG_LEVEL_DEBUG 3
 
 // All log messages built via a PCAP_LOG_* macro below the PCAP_ACTIVE_LOG_LEVEL will be removed at compile time.
 // Uses the PCAP_ACTIVE_LOG_LEVEL if it is defined, otherwise defaults to PCAP_LOG_LEVEL_DEBUG
-#ifndef PCAP_ACTIVE_LOG_LEVEL
-#	define PCAP_ACTIVE_LOG_LEVEL PCAP_LOG_LEVEL_DEBUG
+#ifndef PCPP_ACTIVE_LOG_LEVEL
+#	define PCPP_ACTIVE_LOG_LEVEL PCPP_LOG_LEVEL_DEBUG
 #endif  // !PCAP_ACTIVE_LOG_LEVEL
 
 /**
@@ -151,10 +151,10 @@ namespace pcpp
 	 */
 	enum class LogLevel
 	{
-		Off = PCAP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
-		Error = PCAP_LOG_LEVEL_ERROR,  ///< Error level logs are emitted.
-		Info = PCAP_LOG_LEVEL_INFO,    ///< Info level logs and above are emitted.
-		Debug = PCAP_LOG_LEVEL_DEBUG   ///< Debug level logs and above are emitted.
+		Off = PCPP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
+		Error = PCPP_LOG_LEVEL_ERROR,  ///< Error level logs are emitted.
+		Info = PCPP_LOG_LEVEL_INFO,    ///< Info level logs and above are emitted.
+		Debug = PCPP_LOG_LEVEL_DEBUG   ///< Debug level logs and above are emitted.
 	};
 
 	inline std::ostream& operator<<(std::ostream& s, LogLevel v)
@@ -395,19 +395,19 @@ namespace pcpp
 		}                                                                                                              \
 	} while (0)
 
-#if PCAP_ACTIVE_LOG_LEVEL >= PCAP_LOG_LEVEL_DEBUG
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_DEBUG
 #	define PCPP_LOG_DEBUG(message) PCPP_LOG(pcpp::LogLevel::Debug, message)
 #else
 #	define PCPP_LOG_DEBUG(message) (void)0
 #endif
 
-#if PCAP_ACTIVE_LOG_LEVEL >= PCAP_LOG_LEVEL_INFO
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_INFO
 #	define PCPP_LOG_INFO(message) PCPP_LOG(pcpp::LogLevel::Info, message)
 #else
 #	define PCPP_LOG_INFO(message) (void)0
 #endif
 
-#if PCAP_ACTIVE_LOG_LEVEL >= PCAP_LOG_LEVEL_ERROR
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_ERROR
 #	define PCPP_LOG_ERROR(message) PCPP_LOG(pcpp::LogLevel::Error, message)
 #else
 #	define PCPP_LOG_ERROR(message) (void)0
