@@ -183,7 +183,7 @@ namespace pcpp
 			void init(LogLevel level, LogSource source)
 			{
 				m_Source = source;
-				level = level;
+				this->level = level;
 				m_Stream.clear();
 				m_Stream.str({});
 			}
