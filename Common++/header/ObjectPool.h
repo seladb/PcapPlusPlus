@@ -112,7 +112,6 @@ namespace pcpp
 			if (m_maxPoolSize == INFINITE_POOL_SIZE || m_pool.size() < m_maxPoolSize)
 			{
 				m_pool.push(obj);
-				int x = 1;
 			}
 			else
 			{
