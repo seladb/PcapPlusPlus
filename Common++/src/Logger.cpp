@@ -1,9 +1,9 @@
+#include <stdexcept>
 #include <sstream>
 #include "Logger.h"
 
 namespace pcpp
 {
-
 	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&defaultLogPrinter)
 	{
 		m_LastError.reserve(200);
@@ -28,7 +28,30 @@ namespace pcpp
 		}
 	}
 
-	void Logger::printLogMessage(LogSource const& source, LogLevel logLevel, std::string const& message)
+	std::unique_ptr<internal::LogContext> Logger::createLogContext()
+	{
+		return createLogContext(LogLevel::Info, {});  // call the other createLogContext method
+	}
+	std::unique_ptr<internal::LogContext> Logger::createLogContext(LogLevel level, LogSource const& source)
+	{
+#ifdef PCPP_LOG_USE_OBJECT_POOL
+		auto ctx = m_LogContextPool.acquireObject();
+		ctx->init(level, source);
+		return ctx;
+#else
+		return std::unique_ptr<internal::LogContext>(new internal::LogContext(level, source));
+#endif  // PCPP_LOG_USE_OBJECT_POOL
+	}
+
+	void Logger::emit(std::unique_ptr<internal::LogContext> message)
+	{
+		emit(message->m_Source, message->level, message->m_Stream.str());
+#ifdef PCPP_LOG_USE_OBJECT_POOL
+		m_LogContextPool.releaseObject(std::move(message));
+#endif  // PCPP_LOG_USE_OBJECT_POOL
+	}
+
+	void Logger::emit(LogSource const& source, LogLevel logLevel, std::string const& message)
 	{
 		if (logLevel == LogLevel::Error)
 		{
@@ -37,6 +60,14 @@ namespace pcpp
 		if (m_LogsEnabled)
 		{
 			m_LogPrinter(logLevel, message, source.file, source.function, source.line);
+		}
+	}
+
+	void Logger::log(std::unique_ptr<internal::LogContext> message)
+	{
+		if (shouldLog(message->level, message->m_Source.logModule))
+		{
+			emit(std::move(message));
 		}
 	}
 

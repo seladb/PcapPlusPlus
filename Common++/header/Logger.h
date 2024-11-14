@@ -1,11 +1,15 @@
 #pragma once
 
 #include <stdio.h>
+#include <memory>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <stdint.h>
 #include "DeprecationUtils.h"
+#ifdef PCPP_LOG_USE_OBJECT_POOL
+#	include "ObjectPool.h"
+#endif  // PCPP_LOG_USE_OBJECT_POOL
 
 #ifndef LOG_MODULE
 #	define LOG_MODULE UndefinedLogModule
@@ -161,6 +165,41 @@ namespace pcpp
 	{
 		return s << static_cast<std::underlying_type<LogLevel>::type>(v);
 	}
+
+	// Forward declaration
+	class Logger;
+
+	namespace internal
+	{
+		class LogContext
+		{
+		public:
+			friend class Logger;
+
+			LogContext() = default;
+			LogContext(LogLevel level, LogSource source = {}) : level(level), m_Source(source)
+			{}
+
+			void init(LogLevel level, LogSource source)
+			{
+				m_Source = source;
+				level = level;
+				m_Stream.clear();
+				m_Stream.str({});
+			}
+
+			template <class T> inline LogContext& operator<<(T const& value)
+			{
+				m_Stream << value;
+				return *this;
+			}
+
+			LogLevel level = LogLevel::Info;  // Public to be able to be directly set for now.
+		private:
+			LogSource m_Source;
+			std::ostringstream m_Stream;
+		};
+	}  // namespace internal
 
 	/**
 	 * @class Logger
@@ -324,13 +363,45 @@ namespace pcpp
 			return instance;
 		}
 
+		/**
+		 * @brief Creates a new LogContext with Info level and no source.
+		 * @return A new LogContext.
+		 */
+		std::unique_ptr<internal::LogContext> createLogContext();
+		/**
+		 * @brief Creates a new LogContext with the given level and source.
+		 * @param level The log level for this message.
+		 * @param source The log source.
+		 * @return A new LogContext.
+		 */
+		std::unique_ptr<internal::LogContext> createLogContext(LogLevel level, LogSource const& source = {});
+
+		/**
+		 * @brief Directly emits a log message bypassing all level checks.
+		 * @param source The log source.
+		 * @param level The log level for this message. This is only used for the log printer.
+		 * @param message The log message.
+		 */
+		void emit(LogSource const& source, LogLevel level, std::string const& message);
+		/**
+		 * @brief Directly emits a log message bypassing all level checks.
+		 * @param message The log message.
+		 */
+		void emit(std::unique_ptr<internal::LogContext> message);
+
+		/**
+		 * @brief Logs a message with the given source, level, and message.
+		 * @param message The log message.
+		 */
+		void log(std::unique_ptr<internal::LogContext> message);
+
 		template <class T> void log(LogSource const& source, LogLevel level, T const& message)
 		{
 			if (shouldLog(level, source.logModule))
 			{
-				std::ostringstream sstream;
-				sstream << message;
-				printLogMessage(source, level, sstream.str());
+				auto ctx = createLogContext();
+				ctx << message;
+				emit(std::move(ctx));
 			}
 		};
 
@@ -355,10 +426,14 @@ namespace pcpp
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
 
+#ifdef PCPP_LOG_USE_OBJECT_POOL
+		ObjectPool<internal::LogContext> m_LogContextPool = { 10 };  ///< Keep a maximum of 10 LogContext objects.
+
+#endif  // PCPP_LOG_USE_OBJECT_POOL
+
 		// private c'tor - this class is a singleton
 		Logger();
 
-		void printLogMessage(LogSource const& source, LogLevel logLevel, std::string const& message);
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                              const std::string& method, const int line);
 	};
@@ -368,7 +443,7 @@ namespace pcpp
 	{
 		if (shouldLog(level, source.logModule))
 		{
-			printLogMessage(source, level, message);
+			emit(source, level, message);
 		}
 	};
 
@@ -377,7 +452,7 @@ namespace pcpp
 	{
 		if (shouldLog(level, source.logModule))
 		{
-			printLogMessage(source, level, message);
+			emit(source, level, message);
 		}
 	};
 
@@ -389,9 +464,10 @@ namespace pcpp
 		auto& logger = Logger::getInstance();                                                                          \
 		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
 		{                                                                                                              \
-			std::ostringstream sstream;                                                                                \
-			sstream << message;                                                                                        \
-			logger.log(pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__), level, sstream.str());    \
+			auto ctx =                                                                                                 \
+			    logger.createLogContext(level, pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__));  \
+			(*ctx) << message;                                                                                         \
+			logger.emit(std::move(ctx));                                                                               \
 		}                                                                                                              \
 	} while (0)
 
