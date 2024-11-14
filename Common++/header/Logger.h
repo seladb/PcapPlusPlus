@@ -324,7 +324,7 @@ namespace pcpp
 			return instance;
 		}
 
-		template <class T> void log(LogSource source, LogLevel level, T const& message)
+		template <class T> void log(LogSource const& source, LogLevel level, T const& message)
 		{
 			if (shouldLog(level, source.logModule))
 			{
@@ -334,17 +334,17 @@ namespace pcpp
 			}
 		};
 
-		template <class T> void logError(LogSource source, T const& message)
+		template <class T> void logError(LogSource const& source, T const& message)
 		{
 			log(source, LogLevel::Error, message);
 		};
 
-		template <class T> void logInfo(LogSource source, T const& message)
+		template <class T> void logInfo(LogSource const& source, T const& message)
 		{
 			log(source, LogLevel::Info, message);
 		};
 
-		template <class T> void logDebug(LogSource source, T const& message)
+		template <class T> void logDebug(LogSource const& source, T const& message)
 		{
 			log(source, LogLevel::Debug, message);
 		};
@@ -358,13 +358,13 @@ namespace pcpp
 		// private c'tor - this class is a singleton
 		Logger();
 
-		void printLogMessage(LogSource source, LogLevel logLevel, std::string const& message);
+		void printLogMessage(LogSource const& source, LogLevel logLevel, std::string const& message);
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                              const std::string& method, const int line);
 	};
 
 	// Specialization for string to skip the stringstream
-	template <> inline void Logger::log(LogSource source, LogLevel level, std::string const& message)
+	template <> inline void Logger::log(LogSource const& source, LogLevel level, std::string const& message)
 	{
 		if (shouldLog(level, source.logModule))
 		{
@@ -373,7 +373,7 @@ namespace pcpp
 	};
 
 	// Specialization for const char* to skip the stringstream
-	template <> inline void Logger::log(LogSource source, LogLevel level, const char* const& message)
+	template <> inline void Logger::log(LogSource const& source, LogLevel level, const char* const& message)
 	{
 		if (shouldLog(level, source.logModule))
 		{

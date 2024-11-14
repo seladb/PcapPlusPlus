@@ -28,7 +28,7 @@ namespace pcpp
 		}
 	}
 
-	void Logger::printLogMessage(LogSource source, LogLevel logLevel, std::string const& message)
+	void Logger::printLogMessage(LogSource const& source, LogLevel logLevel, std::string const& message)
 	{
 		if (logLevel == LogLevel::Error)
 		{
