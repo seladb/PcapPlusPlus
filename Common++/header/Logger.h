@@ -174,7 +174,7 @@ namespace pcpp
 		class LogContext
 		{
 		public:
-			friend class Logger;
+			friend class pcpp::Logger;
 
 			LogContext() = default;
 			LogContext(LogLevel level, LogSource source = {}) : level(level), m_Source(source)
