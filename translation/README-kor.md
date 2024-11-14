@@ -225,7 +225,7 @@ PcapPlusPlus는 현재 다음 프로토콜의 패킷을 파싱, 편집 및 생�
 ### 전송 계층 (L4)
 
 26. COTP
-27. GTP (v1)
+27. GTP (v1 & v2)
 28. IPSec AH & ESP - 파싱만 가능 (편집 불가)
 29. TCP
 30. TPKT

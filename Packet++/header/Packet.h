@@ -178,7 +178,7 @@ namespace pcpp
 		 * Get a pointer to the Packet's RawPacket in a read-only manner
 		 * @return A pointer to the Packet's RawPacket
 		 */
-		RawPacket* getRawPacketReadOnly() const
+		const RawPacket* getRawPacketReadOnly() const
 		{
 			return m_RawPacket;
 		}
