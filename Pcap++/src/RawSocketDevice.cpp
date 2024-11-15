@@ -505,10 +505,13 @@ namespace pcpp
 		}
 
 		// bind raw socket to interface
-		struct ifreq ifr;
-		memset(&ifr, 0, sizeof(ifr));
-		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
-		if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, (void*)&ifr, sizeof(ifr)) == -1)
+		struct sockaddr_ll saddr;
+		memset(&saddr, 0, sizeof(saddr));
+		saddr.sll_family = AF_PACKET;
+		saddr.sll_protocol = htons(ETH_P_IP);
+		saddr.sll_ifindex = if_nametoindex(ifaceName.c_str());
+
+		if (bind(fd, reinterpret_cast<struct sockaddr*>(&saddr), sizeof(saddr)) < 0)
 		{
 			PCPP_LOG_ERROR("Cannot bind raw socket to interface '" << ifaceName << "'");
 			::close(fd);
