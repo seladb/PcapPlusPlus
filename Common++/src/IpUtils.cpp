@@ -100,7 +100,7 @@ namespace pcpp
 				break;
 			}
 			default:
-				throw std::invalid_argument("Unsupported sockaddr family. Family is not AF_INET or AF_INET6.");
+				PCPP_LOG_ERROR("Unsupported sockaddr family. Family is not AF_INET or AF_INET6.");
 			}
 		}
 
