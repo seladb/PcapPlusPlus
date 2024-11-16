@@ -2,6 +2,7 @@
 
 #include <stack>
 #include <mutex>
+#include <memory>
 #include <type_traits>
 
 namespace pcpp
