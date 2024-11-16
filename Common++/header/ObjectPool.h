@@ -2,6 +2,7 @@
 
 #include <stack>
 #include <mutex>
+#include <type_traits>
 
 namespace pcpp
 {
@@ -13,9 +14,10 @@ namespace pcpp
 	 * `releaseObject` method. If the pool is empty when acquiring an object, a new object will be created. If the pool
 	 * is full when releasing an object, the object will be deleted.
 	 *
-	 * @tparam T The type of objects managed by the pool.
+	 * @tparam T The type of objects managed by the pool. Must be default constructable.
 	 */
-	template <class T> class ObjectPool
+	template <class T, typename std::enable_if<std::is_default_constructible<T>::value, bool>::type = true>
+	class ObjectPool
 	{
 	public:
 		constexpr static std::size_t DEFAULT_POOL_SIZE = 100;
@@ -39,12 +41,7 @@ namespace pcpp
 		 */
 		~ObjectPool()
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
-			while (!m_pool.empty())
-			{
-				delete m_pool.top();
-				m_pool.pop();
-			}
+			clear();
 		}
 
 		/**
@@ -118,6 +115,19 @@ namespace pcpp
 				// We don't need the lock anymore, so release it.
 				lock.unlock();
 				delete obj;
+			}
+		}
+
+		/**
+		 * @brief Deallocates and releases all objects currently held by the pool.
+		 */
+		void clear()
+		{
+			std::unique_lock<std::mutex> lock(m_mutex);
+			while (!m_pool.empty())
+			{
+				delete m_pool.top();
+				m_pool.pop();
 			}
 		}
 

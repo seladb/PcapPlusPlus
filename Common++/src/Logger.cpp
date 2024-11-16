@@ -34,21 +34,23 @@ namespace pcpp
 	}
 	std::unique_ptr<internal::LogContext> Logger::createLogContext(LogLevel level, LogSource const& source)
 	{
-#ifdef PCPP_LOG_USE_OBJECT_POOL
-		auto ctx = m_LogContextPool.acquireObject();
-		ctx->init(level, source);
-		return ctx;
-#else
+		if (m_UseContextPooling)
+		{
+			auto ctx = m_LogContextPool.acquireObject();
+			ctx->init(level, source);
+			return ctx;
+		}
 		return std::unique_ptr<internal::LogContext>(new internal::LogContext(level, source));
-#endif  // PCPP_LOG_USE_OBJECT_POOL
 	}
 
 	void Logger::emit(std::unique_ptr<internal::LogContext> message)
 	{
 		emit(message->m_Source, message->level, message->m_Stream.str());
-#ifdef PCPP_LOG_USE_OBJECT_POOL
-		m_LogContextPool.releaseObject(std::move(message));
-#endif  // PCPP_LOG_USE_OBJECT_POOL
+		// Pushes the message back to the pool if pooling is enabled. Otherwise, the message is deleted.
+		if (m_UseContextPooling)
+		{
+			m_LogContextPool.releaseObject(std::move(message));
+		}
 	}
 
 	void Logger::emit(LogSource const& source, LogLevel logLevel, std::string const& message)

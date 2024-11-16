@@ -7,9 +7,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include "DeprecationUtils.h"
-#ifdef PCPP_LOG_USE_OBJECT_POOL
-#	include "ObjectPool.h"
-#endif  // PCPP_LOG_USE_OBJECT_POOL
+#include "ObjectPool.h"
 
 #ifndef LOG_MODULE
 #	define LOG_MODULE UndefinedLogModule
@@ -353,6 +351,20 @@ namespace pcpp
 		}
 
 		/**
+		 * @brief Controls if the logger should use a pool of LogContext objects.
+		 * @param enabled True to enable context pooling, false to disable.
+		 * @remarks Disabling the pooling clears the pool.
+		 */
+		void useContextPooling(bool enabled)
+		{
+			m_UseContextPooling = enabled;
+
+			// Clear the pool if we're disabling pooling.
+			if (!m_UseContextPooling)
+				m_LogContextPool.clear();
+		}
+
+		/**
 		 * Get access to Logger singleton
 		 * @todo: make this singleton thread-safe/
 		 * @return a pointer to the Logger singleton
@@ -426,10 +438,9 @@ namespace pcpp
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
 
-#ifdef PCPP_LOG_USE_OBJECT_POOL
-		ObjectPool<internal::LogContext> m_LogContextPool = { 10 };  ///< Keep a maximum of 10 LogContext objects.
-
-#endif  // PCPP_LOG_USE_OBJECT_POOL
+		bool m_UseContextPooling = true;
+		// Keep a maximum of 10 LogContext objects in the pool.
+		ObjectPool<internal::LogContext> m_LogContextPool = { 10 };
 
 		// private c'tor - this class is a singleton
 		Logger();

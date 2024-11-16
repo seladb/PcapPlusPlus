@@ -1,6 +1,7 @@
 #include "TestUtils.h"
 #include <fstream>
 #include "GlobalTestArgs.h"
+#include "Logger.h"
 #include "PcapFileDevice.h"
 #include "PcapLiveDeviceList.h"
 // clang-format off
@@ -91,6 +92,9 @@ uint8_t* readFileIntoBuffer(const std::string& filename, int& bufferLength)
 
 void testSetUp()
 {
+	// Disables context pooling for the logger as it causes issues when used with the memory leak detection tool.
+	pcpp::Logger::getInstance().useContextPooling(false);
+
 	pcpp::PcapLiveDeviceList::getInstance();
 
 #ifdef USE_PF_RING
