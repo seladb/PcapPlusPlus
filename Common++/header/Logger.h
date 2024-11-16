@@ -169,16 +169,33 @@ namespace pcpp
 
 	namespace internal
 	{
+		/**
+		 * @class LogContext
+		 * @brief A context encapsulating the details of a single log message to be passed to the Logger.
+		 */
 		class LogContext
 		{
 		public:
 			friend class pcpp::Logger;
 
+			/**
+			 * @brief Creates a context with an empty message with Info level and no source.
+			 */
 			LogContext() = default;
-			LogContext(LogLevel level, LogSource source = {}) : level(level), m_Source(source)
+			/**
+			 * @brief Creates a context with an empty message with the given level and source.
+			 * @param level The log level for this message.
+			 * @param source The log source.
+			 */
+			explicit LogContext(LogLevel level, LogSource const& source = {}) : level(level), m_Source(source)
 			{}
 
-			void init(LogLevel level, LogSource source)
+			/**
+			 * @brief Initializes the context with an empty message and the given level and source.
+			 * @param level The log level for this message.
+			 * @param source The log source.
+			 */
+			void init(LogLevel level, LogSource const& source)
 			{
 				m_Source = source;
 				this->level = level;
@@ -186,13 +203,22 @@ namespace pcpp
 				m_Stream.str({});
 			}
 
+			/**
+			 * @brief Appends to the message.
+			 * @param value The value to append.
+			 * @return A reference to this context.
+			 */
 			template <class T> inline LogContext& operator<<(T const& value)
 			{
 				m_Stream << value;
 				return *this;
 			}
 
-			LogLevel level = LogLevel::Info;  // Public to be able to be directly set for now.
+			/**
+			 * @brief The log level at which the message will be emitted.
+			 */
+			LogLevel level = LogLevel::Info;
+
 		private:
 			LogSource m_Source;
 			std::ostringstream m_Stream;
@@ -407,6 +433,15 @@ namespace pcpp
 		 */
 		void log(std::unique_ptr<internal::LogContext> message);
 
+		/**
+		 * @brief Logs an object with the given source, level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param level The log level for this message.
+		 * @param message The object to be logged.
+		 */
 		template <class T> void log(LogSource const& source, LogLevel level, T const& message)
 		{
 			if (shouldLog(level, source.logModule))
@@ -417,16 +452,40 @@ namespace pcpp
 			}
 		};
 
+		/**
+		 * @brief Logs an object with the given source at the Error level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param message The object to be logged.
+		 */
 		template <class T> void logError(LogSource const& source, T const& message)
 		{
 			log(source, LogLevel::Error, message);
 		};
 
+		/**
+		 * @brief Logs an object with the given source at the Info level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param message The object to be logged.
+		 */
 		template <class T> void logInfo(LogSource const& source, T const& message)
 		{
 			log(source, LogLevel::Info, message);
 		};
 
+		/**
+		 * @brief Logs an object with the given source at the Debug level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param message The object to be logged.
+		 */
 		template <class T> void logDebug(LogSource const& source, T const& message)
 		{
 			log(source, LogLevel::Debug, message);
@@ -440,7 +499,7 @@ namespace pcpp
 
 		bool m_UseContextPooling = true;
 		// Keep a maximum of 10 LogContext objects in the pool.
-		ObjectPool<internal::LogContext> m_LogContextPool = { 10 };
+		ObjectPool<internal::LogContext> m_LogContextPool{ 10 };
 
 		// private c'tor - this class is a singleton
 		Logger();

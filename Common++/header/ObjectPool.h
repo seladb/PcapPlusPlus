@@ -27,7 +27,7 @@ namespace pcpp
 		 * A constructor for this class that creates a pool of objects
 		 * @param[in] maxPoolSize The maximum number of objects in the pool
 		 */
-		ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE) : m_maxPoolSize(maxPoolSize)
+		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE) : m_maxPoolSize(maxPoolSize)
 		{}
 
 		// These don't strictly need to be deleted, but don't need to be implemented for now either.
