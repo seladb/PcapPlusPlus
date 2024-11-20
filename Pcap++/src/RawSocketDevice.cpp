@@ -530,7 +530,7 @@ namespace pcpp
 		ifr.ifr_flags |= IFF_PROMISC;
 		if (ioctl(fd, SIOCSIFFLAGS, &ifr) == -1)
 		{
-			PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket");
+			PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket. Error was: " << errno);
 			::close(fd);
 			return false;
 		}
