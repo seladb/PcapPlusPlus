@@ -379,15 +379,25 @@ namespace pcpp
 		/**
 		 * @brief Controls if the logger should use a pool of LogContext objects.
 		 * @param enabled True to enable context pooling, false to disable.
+		 * @param preallocate The number of LogContext objects to preallocate in the pool.
 		 * @remarks Disabling the pooling clears the pool.
 		 */
-		void useContextPooling(bool enabled)
+		void useContextPooling(bool enabled, std::size_t preallocate = 2)
 		{
 			m_UseContextPooling = enabled;
 
-			// Clear the pool if we're disabling pooling.
-			if (!m_UseContextPooling)
+			if (m_UseContextPooling)
+			{
+				if (preallocate > 0)
+				{
+					m_LogContextPool.preallocate(preallocate);
+				}
+			}
+			else
+			{
+				// Clear the pool if we're disabling pooling.
 				m_LogContextPool.clear();
+			}
 		}
 
 		/**
@@ -499,7 +509,7 @@ namespace pcpp
 
 		bool m_UseContextPooling = true;
 		// Keep a maximum of 10 LogContext objects in the pool.
-		ObjectPool<internal::LogContext> m_LogContextPool{ 10 };
+		ObjectPool<internal::LogContext> m_LogContextPool{ 10, 2 };
 
 		// private c'tor - this class is a singleton
 		Logger();

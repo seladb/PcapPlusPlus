@@ -27,9 +27,12 @@ namespace pcpp
 		/**
 		 * A constructor for this class that creates a pool of objects
 		 * @param[in] maxPoolSize The maximum number of objects in the pool
+		 * @param[in] preallocate The number of objects to preallocate in the pool
 		 */
-		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE) : m_maxPoolSize(maxPoolSize)
-		{}
+		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0) : m_maxPoolSize(maxPoolSize)
+		{
+			this->preallocate(preallocate);
+		}
 
 		// These don't strictly need to be deleted, but don't need to be implemented for now either.
 		ObjectPool(const ObjectPool&) = delete;
@@ -116,6 +119,19 @@ namespace pcpp
 				// We don't need the lock anymore, so release it.
 				lock.unlock();
 				delete obj;
+			}
+		}
+
+		/**
+		 * @brief Pre-allocates up to a minimum number of objects in the pool.
+		 * @param count The number of objects to pre-allocate.
+		 */
+		void preallocate(std::size_t count)
+		{
+			std::unique_lock<std::mutex> lock(m_mutex);
+			for (std::size_t i = m_pool.size(); i < count; i++)
+			{
+				m_pool.push(new T());
 			}
 		}
 
