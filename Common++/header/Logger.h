@@ -264,6 +264,7 @@ namespace pcpp
 		 * @param[in] file The source file in PcapPlusPlus code the log message is coming from
 		 * @param[in] method The method in PcapPlusPlus code the log message is coming from
 		 * @param[in] line The line in PcapPlusPlus code the log message is coming from
+		 * @remarks The printer callback should support being called from multiple threads simultaneously.
 		 */
 		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                           const std::string& method, const int line);

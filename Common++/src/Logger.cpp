@@ -1,6 +1,7 @@
-#include <stdexcept>
-#include <sstream>
 #include "Logger.h"
+
+#include <sstream>
+#include <mutex>
 
 namespace pcpp
 {
@@ -76,8 +77,13 @@ namespace pcpp
 	void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 	                               const std::string& method, const int line)
 	{
+		// This mutex is used to prevent multiple threads from writing to the console at the same time.
+		static std::mutex logMutex;
+
 		std::ostringstream sstream;
 		sstream << file << ": " << method << ":" << line;
+
+		std::unique_lock<std::mutex> lock(logMutex);
 		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
 		          << sstream.str() << "] " << logMessage << std::endl;
 	}
