@@ -29,7 +29,8 @@ namespace pcpp
 		 * @param[in] maxPoolSize The maximum number of objects in the pool
 		 * @param[in] preallocate The number of objects to preallocate in the pool
 		 */
-		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0) : m_maxPoolSize(maxPoolSize)
+		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0)
+		    : m_maxPoolSize(maxPoolSize)
 		{
 			this->preallocate(preallocate);
 		}
