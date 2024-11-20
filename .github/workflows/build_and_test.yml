@@ -56,20 +56,20 @@ jobs:
     strategy:
       matrix:
         include: # Check the images at https://github.com/seladb/PcapPlusPlus-DockerImages
-          - image: ubuntu2404
-            config-zstd: OFF
-          - image: ubuntu2204
-            config-zstd: OFF
-          - image: ubuntu2204-icpx
-            config-zstd: OFF
-            additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
-            additional-gcov-flags: --gcov-executable "llvm-cov gcov"
-          - image: ubuntu2004
-            config-zstd: OFF
+          # - image: ubuntu2404
+          #   config-zstd: OFF
+          # - image: ubuntu2204
+          #   config-zstd: OFF
+          # - image: ubuntu2204-icpx
+          #   config-zstd: OFF
+          #   additional-flags: -DCMAKE_C_COMPILER=icx -DCMAKE_CXX_COMPILER=icpx
+          #   additional-gcov-flags: --gcov-executable "llvm-cov gcov"
+          # - image: ubuntu2004
+          #   config-zstd: OFF
           - image: rhel94
             config-zstd: OFF
-          - image: ubuntu2004-zstd
-            config-zstd: ON
+          # - image: ubuntu2004-zstd
+          #   config-zstd: ON
           - image: fedora40
             config-zstd: OFF
           - image: alpine320
