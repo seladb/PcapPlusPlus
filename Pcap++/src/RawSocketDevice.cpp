@@ -9,6 +9,7 @@
 #	include <netpacket/packet.h>
 #	include <ifaddrs.h>
 #	include <net/if.h>
+#	include <sys/ioctl.h>
 #endif
 #include "Logger.h"
 #include "IpUtils.h"
