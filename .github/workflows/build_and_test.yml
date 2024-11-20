@@ -174,7 +174,7 @@ jobs:
         run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
 
       - name: Install tools
-        run: apt-get update && apt-get -y install apt-utils build-essential ccache cmake curl doxygen git libpcap-dev pkg-config python3-pip software-properties-common tar wget xz-utils net-tools tcpreplay python3-venv python3-dev
+        run: sudo apt-get update && sudo apt-get -y install apt-utils build-essential ccache cmake curl doxygen git libpcap-dev pkg-config python3-pip software-properties-common tar wget xz-utils net-tools tcpreplay python3-venv python3-dev
 
       - name: Configure PcapPlusPlus
         run: cmake -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
