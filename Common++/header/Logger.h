@@ -447,7 +447,7 @@ namespace pcpp
 			if (shouldLog(level, source.logModule))
 			{
 				auto ctx = createLogContext();
-				ctx << message;
+				(*ctx) << message;
 				emit(std::move(ctx));
 			}
 		};
