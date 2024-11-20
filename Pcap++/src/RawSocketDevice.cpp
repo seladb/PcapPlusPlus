@@ -520,14 +520,14 @@ namespace pcpp
 
 		struct ifreq ifr;
 		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
-		if (ioctl(sockfd, SIOCGIFFLAGS, &ifr) == -1)
+		if (ioctl(fd, SIOCGIFFLAGS, &ifr) == -1)
 		{
 			PCPP_LOG_ERROR("Failed to fetch raw socket flags");
 			::close(fd);
 			return false;
 		}
 		ifr.ifr_flags |= IFF_PROMISC;
-		if (ioctl(sockfd, SIOCSIFFLAGS, &ifr) == -1)
+		if (ioctl(fd, SIOCSIFFLAGS, &ifr) == -1)
 		{
 			PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket");
 			::close(fd);
