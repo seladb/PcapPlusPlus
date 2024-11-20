@@ -163,6 +163,33 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
 
+  raw-sockets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      # Checkout is performed out of the container and doesn't match our user
+      - name: Fix checkout ownership
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
+
+      - name: Configure PcapPlusPlus
+        run: cmake -DPCAPPP_BUILD_COVERAGE=ON -S . -B "$BUILD_DIR"
+
+      - name: Build PcapPlusPlus
+        run: cmake --build "$BUILD_DIR" -j
+
+      - name: Prepare environment for tests
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python3 -m pip install -r ci/run_tests/requirements.txt
+
+      - name: Test PcapPlusPlus
+        run: |
+          . .venv/bin/activate
+          python3 ci/run_tests/run_tests.py --interface eth0 --pcap-test-args="-t raw_sockets"
+
   dpdk:
     runs-on: ubuntu-latest
     container: seladb/${{ matrix.image }}
