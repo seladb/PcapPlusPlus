@@ -109,8 +109,11 @@ namespace pcpp
 		 */
 		PointerVector& operator=(const PointerVector& other)
 		{
-			// Saves a copy of the old pointer to defer cleanup.
-			auto oldValues = m_Vector;
+			if (this == &other)
+				return *this;
+
+			// Moves the old values to a temporary to defer cleanup.
+			auto oldValues = std::move(m_Vector);
 			try
 			{
 				m_Vector = deepCopyUnsafe(other.m_Vector);
@@ -134,6 +137,9 @@ namespace pcpp
 		 */
 		PointerVector& operator=(PointerVector&& other) noexcept
 		{
+			if (this == &other)
+				return *this;
+
 			// Releases all current elements.
 			clear();
 			// Moves the elements of the other vector.
@@ -387,10 +393,7 @@ namespace pcpp
 			}
 			catch (const std::exception&)
 			{
-				for (auto obj : copyVec)
-				{
-					Deleter()(obj);
-				}
+				freeVectorUnsafe(copyVec);
 				throw;
 			}
 
