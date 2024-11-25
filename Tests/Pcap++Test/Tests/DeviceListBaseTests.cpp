@@ -5,15 +5,14 @@
 namespace
 {
 	/// @brief A derived class of DeviceListBase used for testing purposes.
-	template<class T>
-	struct DerivedDeviceList : public pcpp::internal::DeviceListBase<T>
+	template <class T> struct DerivedDeviceList : public pcpp::internal::DeviceListBase<T>
 	{
 		DerivedDeviceList() = default;
 		DerivedDeviceList(pcpp::PointerVector<T> devices) : pcpp::internal::DeviceListBase<T>(std::move(devices))
 		{}
 	};
 
-}
+}  // namespace
 
 PTF_TEST_CASE(TestDeviceListBase)
 {
