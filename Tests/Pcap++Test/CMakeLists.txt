@@ -2,6 +2,7 @@ add_executable(
   Pcap++Test
   Common/TestUtils.cpp
   main.cpp
+  Tests/DeviceListBaseTests.cpp
   Tests/DpdkTests.cpp
   Tests/FileTests.cpp
   Tests/FilterTests.cpp
@@ -15,7 +16,8 @@ add_executable(
   Tests/RawSocketTests.cpp
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp
-  Tests/XdpTests.cpp)
+  Tests/XdpTests.cpp 
+)
 
 target_link_libraries(
   Pcap++Test
