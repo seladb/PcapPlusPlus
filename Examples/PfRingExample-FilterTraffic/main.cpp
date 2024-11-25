@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
 		case 'n':
 		{
 			std::string ifaceName = std::string(optarg);
-			dev = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(ifaceName);
+			dev = pcpp::PfRingDeviceList::getInstance().getDeviceByName(ifaceName);
 			if (dev == nullptr)
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << ifaceName << "'");
 			break;
@@ -285,7 +285,7 @@ int main(int argc, char* argv[])
 		case 's':
 		{
 			std::string sendPacketsToIfaceName = std::string(optarg);
-			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getPfRingDeviceByName(sendPacketsToIfaceName);
+			sendPacketsToIface = pcpp::PfRingDeviceList::getInstance().getDeviceByName(sendPacketsToIfaceName);
 			if (sendPacketsToIface == nullptr)
 				EXIT_WITH_ERROR("Could not find PF_RING device '" << sendPacketsToIfaceName << "'");
 
