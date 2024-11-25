@@ -20,6 +20,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <memory>
 #include "PcapLiveDeviceList.h"
 #include "PcapFilter.h"
 #include "PcapFileDevice.h"
@@ -148,7 +149,7 @@ void sslPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* c
 	// parse the packet
 	pcpp::Packet parsedPacket(packet);
 
-	SSLPacketArrivedData* data = (SSLPacketArrivedData*)cookie;
+	SSLPacketArrivedData* data = static_cast<SSLPacketArrivedData*>(cookie);
 
 	// give the packet to the collector
 	data->statsCollector->collectStats(&parsedPacket);
@@ -348,7 +349,7 @@ void printCurrentRates(SSLStatsCollector& collector)
  */
 void onApplicationInterrupted(void* cookie)
 {
-	bool* shouldStop = (bool*)cookie;
+	bool* shouldStop = static_cast<bool*>(cookie);
 	*shouldStop = true;
 }
 
@@ -358,7 +359,7 @@ void onApplicationInterrupted(void* cookie)
 void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 {
 	// open input file (pcap or pcapng file)
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFileName);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
 
 	if (!reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
@@ -378,9 +379,6 @@ void analyzeSSLFromPcapFile(const std::string& pcapFileName)
 
 	// close input file
 	reader->close();
-
-	// free reader memory
-	delete reader;
 }
 
 /**
@@ -415,10 +413,10 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	}
 
 	// if needed to save the captured packets to file - open a writer device
-	pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
+	std::unique_ptr<pcpp::PcapFileWriterDevice> pcapWriter;
 	if (savePacketsToFileName != "")
 	{
-		pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
+		pcapWriter.reset(new pcpp::PcapFileWriterDevice(savePacketsToFileName));
 		if (!pcapWriter->open())
 		{
 			EXIT_WITH_ERROR("Could not open pcap file for writing");
@@ -429,7 +427,7 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	SSLPacketArrivedData data;
 	SSLStatsCollector collector;
 	data.statsCollector = &collector;
-	data.pcapWriter = pcapWriter;
+	data.pcapWriter = pcapWriter.get();
 	dev->startCapture(sslPacketArrive, &data);
 
 	// register the on app close event to print summary stats on app termination
@@ -463,7 +461,6 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 	if (pcapWriter != nullptr)
 	{
 		pcapWriter->close();
-		delete pcapWriter;
 	}
 }
 

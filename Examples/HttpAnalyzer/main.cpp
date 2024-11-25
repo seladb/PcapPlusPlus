@@ -17,6 +17,7 @@
  * For more details about modes of operation and parameters run HttpAnalyzer -h
  */
 
+#include <memory>
 #include <iomanip>
 #include <algorithm>
 #include "PcapLiveDeviceList.h"
@@ -147,7 +148,7 @@ void httpPacketArrive(pcpp::RawPacket* packet, pcpp::PcapLiveDevice* dev, void* 
 	// parse the packet
 	pcpp::Packet parsedPacket(packet);
 
-	HttpPacketArrivedData* data = (HttpPacketArrivedData*)cookie;
+	HttpPacketArrivedData* data = static_cast<HttpPacketArrivedData*>(cookie);
 
 	// give the packet to the collector
 	data->statsCollector->collectStats(&parsedPacket);
@@ -389,7 +390,7 @@ void printCurrentRates(HttpStatsCollector& collector)
  */
 void onApplicationInterrupted(void* cookie)
 {
-	bool* shouldStop = (bool*)cookie;
+	bool* shouldStop = static_cast<bool*>(cookie);
 	*shouldStop = true;
 }
 
@@ -399,7 +400,7 @@ void onApplicationInterrupted(void* cookie)
 void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 {
 	// open input file (pcap or pcapng file)
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(pcapFileName);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(pcapFileName));
 
 	if (!reader->open())
 		EXIT_WITH_ERROR("Could not open input pcap file");
@@ -424,9 +425,6 @@ void analyzeHttpFromPcapFile(const std::string& pcapFileName, uint16_t dstPort)
 
 	// close input file
 	reader->close();
-
-	// free reader memory
-	delete reader;
 }
 
 /**
@@ -444,10 +442,10 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 		EXIT_WITH_ERROR("Could not set up filter on device");
 
 	// if needed to save the captured packets to file - open a writer device
-	pcpp::PcapFileWriterDevice* pcapWriter = nullptr;
+	std::unique_ptr<pcpp::PcapFileWriterDevice> pcapWriter;
 	if (savePacketsToFileName != "")
 	{
-		pcapWriter = new pcpp::PcapFileWriterDevice(savePacketsToFileName);
+		pcapWriter.reset(new pcpp::PcapFileWriterDevice(savePacketsToFileName));
 		if (!pcapWriter->open())
 		{
 			EXIT_WITH_ERROR("Could not open pcap file for writing");
@@ -458,7 +456,7 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 	HttpPacketArrivedData data;
 	HttpStatsCollector collector(dstPort);
 	data.statsCollector = &collector;
-	data.pcapWriter = pcapWriter;
+	data.pcapWriter = pcapWriter.get();
 	dev->startCapture(httpPacketArrive, &data);
 
 	// register the on app close event to print summary stats on app termination
@@ -492,7 +490,6 @@ void analyzeHttpFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriod
 	if (pcapWriter != nullptr)
 	{
 		pcapWriter->close();
-		delete pcapWriter;
 	}
 }
 
