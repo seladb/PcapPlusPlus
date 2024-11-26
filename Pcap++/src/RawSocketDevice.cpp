@@ -457,7 +457,7 @@ namespace pcpp
 		int fd = socket(AF_PACKET, SOCK_RAW, htobe16(ETH_P_ALL));
 		if (fd < 0)
 		{
-			PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << errno);
+			PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << strerror(errno));
 			return false;
 		}
 
@@ -530,7 +530,7 @@ namespace pcpp
 		ifr.ifr_flags |= IFF_PROMISC;
 		if (ioctl(fd, SIOCSIFFLAGS, &ifr) == -1)
 		{
-			PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket. Error was: " << errno);
+			PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket. Error was: " << strerror(errno));
 			::close(fd);
 			return false;
 		}
