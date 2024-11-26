@@ -460,6 +460,22 @@ namespace pcpp
 			PCPP_LOG_ERROR("Failed to create raw socket. Error code was " << strerror(errno));
 			return false;
 		}
+		
+		// Set socket to blocking mode
+    		int flags = fcntl(fd, F_GETFL, 0);
+    		if (flags == -1) 
+		{
+			PCPP_LOG_ERROR("Failed to get socket flags: " << strerror(errno));
+			::close(fd);
+			return false;
+		}
+		
+		if (fcntl(fd, F_SETFL, flags & ~O_NONBLOCK) == -1) 
+		{
+			PCPP_LOG_ERROR("Failed to set blocking mode: " << strerror(errno));
+			::close(fd);
+			return false;
+		}
 
 		// find interface name and index from IP address
 		struct ifaddrs* addrs;
@@ -521,7 +537,7 @@ namespace pcpp
 
 		struct packet_mreq mr;
 		memset(&mr, 0, sizeof(mr));
-		mr.mr_ifindex = if_nametoindex(ifaceName.c_str());
+		mr.mr_ifindex = saddr.sll_ifindex;
 		mr.mr_type = PACKET_MR_PROMISC;
 
 		if (setsockopt(fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) < 0)
