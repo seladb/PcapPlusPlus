@@ -68,15 +68,15 @@ jobs:
           #   config-zstd: OFF
           - image: rhel94
             config-zstd: OFF
-            options: --privileged --network=host
+            options: --cap-add=NET_RAW
           # - image: ubuntu2004-zstd
           #   config-zstd: ON
           - image: fedora40
             config-zstd: OFF
-            options: --privileged --network=host
+            options: --cap-add=NET_RAW
           - image: alpine320
             config-zstd: OFF
-            options: --privileged --network=host
+            options: --cap-add=NET_RAW
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
