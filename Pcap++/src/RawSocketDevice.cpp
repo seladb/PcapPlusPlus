@@ -519,21 +519,32 @@ namespace pcpp
 			return false;
 		}
 
-		struct ifreq ifr;
-		snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
-		if (ioctl(fd, SIOCGIFFLAGS, &ifr) == -1)
+		struct packet_mreq mr;
+		memset(&mr, 0, sizeof(mr));
+		mr.mr_ifindex = if_nametoindex(ifaceName.c_str());
+		mr.mr_type = PACKET_MR_PROMISC;
+
+		if (setsockopt(fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) < 0)
 		{
-			PCPP_LOG_ERROR("Failed to fetch raw socket flags");
-			::close(fd);
-			return false;
+    			PCPP_LOG_ERROR("Cannot set promiscuous mode: " << strerror(errno));
+    			::close(fd);
+    			return false;
 		}
-		ifr.ifr_flags |= IFF_PROMISC;
-		if (ioctl(fd, SIOCSIFFLAGS, &ifr) == -1)
-		{
-			PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket. Error was: " << strerror(errno));
-			::close(fd);
-			return false;
-		}
+		// struct ifreq ifr;
+		// snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifaceName.c_str());
+		// if (ioctl(fd, SIOCGIFFLAGS, &ifr) == -1)
+		// {
+		// 	PCPP_LOG_ERROR("Failed to fetch raw socket flags");
+		// 	::close(fd);
+		// 	return false;
+		// }
+		// ifr.ifr_flags |= IFF_PROMISC;
+		// if (ioctl(fd, SIOCSIFFLAGS, &ifr) == -1)
+		// {
+		// 	PCPP_LOG_ERROR("Failed to set promiscuous mode for raw socket. Error was: " << strerror(errno));
+		// 	::close(fd);
+		// 	return false;
+		// }
 
 		m_Socket = new SocketContainer();
 		((SocketContainer*)m_Socket)->fd = fd;
