@@ -98,6 +98,8 @@ namespace pcpp
 		static int dpdkWorkerThreadStart(void* ptr);
 
 	public:
+		~DpdkDeviceList() = default;
+
 		/**
 		 * As DpdkDeviceList is a singleton, this is the static getter to retrieve its instance. Note that if the static
 		 * method initDpdk() was not called or returned false this instance won't be initialized and DpdkDevices won't

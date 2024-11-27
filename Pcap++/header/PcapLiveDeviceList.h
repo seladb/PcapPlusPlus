@@ -44,6 +44,7 @@ namespace pcpp
 		PcapLiveDeviceList(PcapLiveDeviceList&&) noexcept = delete;
 		PcapLiveDeviceList& operator=(const PcapLiveDeviceList&) = delete;
 		PcapLiveDeviceList& operator=(PcapLiveDeviceList&&) noexcept = delete;
+		~PcapLiveDeviceList() = default;
 
 		/**
 		 * The access method to the singleton

@@ -35,6 +35,7 @@ namespace pcpp
 		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;
 		PfRingDeviceList& operator=(const PfRingDeviceList&) = delete;
 		PfRingDeviceList& operator=(PfRingDeviceList&&) noexcept = delete;
+		~PfRingDeviceList() = default;
 
 		/**
 		 * A static method that returns the singleton object for PfRingDeviceList
