@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <cstddef>
 #include <unordered_map>
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
@@ -27,7 +28,7 @@ namespace pcpp
 
 		/// A c'tor for this class
 		/// @param[in] maxSize The max size this list can go
-		explicit LRUList(size_t maxSize)
+		explicit LRUList(std::size_t maxSize)
 		{
 			m_MaxSize = maxSize;
 		}
@@ -102,13 +103,13 @@ namespace pcpp
 		}
 
 		/// @return The max size of this list as determined in the c'tor
-		size_t getMaxSize() const
+		std::size_t getMaxSize() const
 		{
 			return m_MaxSize;
 		}
 
 		/// @return The number of elements currently in this list
-		size_t getSize() const
+		std::size_t getSize() const
 		{
 			return m_CacheItemsMap.size();
 		}
@@ -116,7 +117,7 @@ namespace pcpp
 	private:
 		std::list<T> m_CacheItemsList;
 		std::unordered_map<T, ListIterator> m_CacheItemsMap;
-		size_t m_MaxSize;
+		std::size_t m_MaxSize;
 	};
 
 }  // namespace pcpp
