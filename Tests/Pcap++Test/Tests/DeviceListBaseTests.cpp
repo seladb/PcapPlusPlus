@@ -8,7 +8,8 @@ namespace
 	template <class T> struct DerivedDeviceList : public pcpp::internal::DeviceListBase<T>
 	{
 		DerivedDeviceList() = default;
-		DerivedDeviceList(pcpp::PointerVector<T> devices) : pcpp::internal::DeviceListBase<T>(std::move(devices))
+		explicit DerivedDeviceList(pcpp::PointerVector<T> devices)
+		    : pcpp::internal::DeviceListBase<T>(std::move(devices))
 		{}
 	};
 
