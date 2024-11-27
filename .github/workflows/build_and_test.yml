@@ -68,15 +68,15 @@ jobs:
           #   config-zstd: OFF
           - image: rhel94
             config-zstd: OFF
-            options: --cap-add=NET_ADMIN --privileged
+            # options: --cap-add=NET_ADMIN --privileged
           # - image: ubuntu2004-zstd
           #   config-zstd: ON
           - image: fedora40
             config-zstd: OFF
-            options: --cap-add=NET_ADMIN --privileged
+            # options: --cap-add=NET_ADMIN --privileged
           - image: alpine320
             config-zstd: OFF
-            options: --cap-add=NET_ADMIN --privileged
+            # options: --cap-add=NET_ADMIN --privileged
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
