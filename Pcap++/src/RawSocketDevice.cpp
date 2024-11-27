@@ -461,22 +461,6 @@ namespace pcpp
 			return false;
 		}
 		
-		// Set socket to blocking mode
-    		int flags = fcntl(fd, F_GETFL, 0);
-    		if (flags == -1) 
-		{
-			PCPP_LOG_ERROR("Failed to get socket flags: " << strerror(errno));
-			::close(fd);
-			return false;
-		}
-		
-		if (fcntl(fd, F_SETFL, flags & ~O_NONBLOCK) == -1) 
-		{
-			PCPP_LOG_ERROR("Failed to set blocking mode: " << strerror(errno));
-			::close(fd);
-			return false;
-		}
-
 		// find interface name and index from IP address
 		struct ifaddrs* addrs;
 		getifaddrs(&addrs);
@@ -525,7 +509,7 @@ namespace pcpp
 		struct sockaddr_ll saddr;
 		memset(&saddr, 0, sizeof(saddr));
 		saddr.sll_family = AF_PACKET;
-		saddr.sll_protocol = htons(ETH_P_IP);
+		saddr.sll_protocol = htons(ETH_P_ALL);
 		saddr.sll_ifindex = if_nametoindex(ifaceName.c_str());
 
 		if (bind(fd, reinterpret_cast<struct sockaddr*>(&saddr), sizeof(saddr)) < 0)
