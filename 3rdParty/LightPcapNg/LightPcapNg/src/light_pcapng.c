@@ -46,16 +46,24 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
       uint16_t *local_memory = (uint16_t*)*memory;
       uint16_t remaining_size;
 
+      // Read custom option code and length from local_memory
+      if (remaining_size < 2 * sizeof(uint16_t)) {
+          return NULL; // Not enough data for option code and length
+      }
       opt->custom_option_code = *local_memory++;
       opt->option_length = *local_memory++;
 
+      // Check if the option length is valid
+      if (opt->option_length > remaining_size - sizeof(opt->custom_option_code)) {
+          return NULL; // Invalid length, buffer too small
+      }
       actual_length = (opt->option_length % alignment) == 0 ?
             opt->option_length :
             (opt->option_length / alignment + 1) * alignment;
 
-      if (actual_length > 0) {
+      if (actual_length > 0 && remaining_size >= actual_length) {
          opt->data = calloc(1, actual_length);
-         memcpy(opt->data, local_memory, actual_length);
+         memcpy(opt->data, local_memory, actual_length); // Safe copy now
          local_memory += (sizeof(**memory) / sizeof(*local_memory)) * (actual_length / alignment);
       }
 
