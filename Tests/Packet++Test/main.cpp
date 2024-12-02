@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
 #endif
 
 	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
+	// Context pooling can cause issues if the logger's built-in context pool allocates new LogContext instances.
 	pcpp::Logger::getInstance();
 
 	// cppcheck-suppress knownConditionTrueFalse

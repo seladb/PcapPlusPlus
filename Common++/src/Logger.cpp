@@ -1,56 +1,90 @@
-#include <sstream>
 #include "Logger.h"
+
+#include <sstream>
+#include <mutex>
 
 namespace pcpp
 {
-
 	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&defaultLogPrinter)
 	{
 		m_LastError.reserve(200);
 		for (int i = 0; i < NumOfLogModules; i++)
-			m_LogModulesArray[i] = Info;
+			m_LogModulesArray[i] = LogLevel::Info;
 	}
 
 	std::string Logger::logLevelAsString(LogLevel logLevel)
 	{
 		switch (logLevel)
 		{
-		case Logger::Error:
+		case LogLevel::Off:
+			return "OFF";
+		case LogLevel::Error:
 			return "ERROR";
-		case Logger::Info:
+		case LogLevel::Info:
 			return "INFO";
-		default:
+		case LogLevel::Debug:
 			return "DEBUG";
+		default:
+			return "UNKNOWN";
+		}
+	}
+
+	std::unique_ptr<internal::LogContext> Logger::createLogContext()
+	{
+		return createLogContext(LogLevel::Info, {});  // call the other createLogContext method
+	}
+	std::unique_ptr<internal::LogContext> Logger::createLogContext(LogLevel level, LogSource const& source)
+	{
+		if (m_UseContextPooling)
+		{
+			auto ctx = m_LogContextPool.acquireObject();
+			ctx->init(level, source);
+			return ctx;
+		}
+		return std::unique_ptr<internal::LogContext>(new internal::LogContext(level, source));
+	}
+
+	void Logger::emit(std::unique_ptr<internal::LogContext> message)
+	{
+		emit(message->m_Source, message->level, message->m_Stream.str());
+		// Pushes the message back to the pool if pooling is enabled. Otherwise, the message is deleted.
+		if (m_UseContextPooling)
+		{
+			m_LogContextPool.releaseObject(std::move(message));
+		}
+	}
+
+	void Logger::emit(LogSource const& source, LogLevel logLevel, std::string const& message)
+	{
+		if (logLevel == LogLevel::Error)
+		{
+			m_LastError = message;
+		}
+		if (m_LogsEnabled)
+		{
+			m_LogPrinter(logLevel, message, source.file, source.function, source.line);
+		}
+	}
+
+	void Logger::log(std::unique_ptr<internal::LogContext> message)
+	{
+		if (shouldLog(message->level, message->m_Source.logModule))
+		{
+			emit(std::move(message));
 		}
 	}
 
 	void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 	                               const std::string& method, const int line)
 	{
+		// This mutex is used to prevent multiple threads from writing to the console at the same time.
+		static std::mutex logMutex;
+
 		std::ostringstream sstream;
 		sstream << file << ": " << method << ":" << line;
+
+		std::unique_lock<std::mutex> lock(logMutex);
 		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
 		          << sstream.str() << "] " << logMessage << std::endl;
 	}
-
-	std::ostringstream* Logger::internalCreateLogStream()
-	{
-		return new std::ostringstream();
-	}
-
-	void Logger::internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file,
-	                                     const char* method, int line)
-	{
-		std::string logMessage = logStream->str();
-		delete logStream;
-		if (logLevel == Logger::Error)
-		{
-			m_LastError = logMessage;
-		}
-		if (m_LogsEnabled)
-		{
-			m_LogPrinter(logLevel, logMessage, file, method, line);
-		}
-	}
-
 }  // namespace pcpp

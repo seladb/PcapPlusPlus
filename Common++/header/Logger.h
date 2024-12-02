@@ -1,10 +1,13 @@
 #pragma once
 
 #include <stdio.h>
+#include <memory>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <stdint.h>
+#include "DeprecationUtils.h"
+#include "ObjectPool.h"
 
 #ifndef LOG_MODULE
 #	define LOG_MODULE UndefinedLogModule
@@ -17,30 +20,20 @@
 #	define PCAPPP_FILENAME __FILE__
 #endif
 
-#define PCPP_LOG(level, message)                                                                                       \
-	do                                                                                                                 \
-	{                                                                                                                  \
-		std::ostringstream* sstream = pcpp::Logger::getInstance().internalCreateLogStream();                           \
-		(*sstream) << message;                                                                                         \
-		pcpp::Logger::getInstance().internalPrintLogMessage(sstream, level, PCAPPP_FILENAME, __FUNCTION__, __LINE__);  \
-	} while (0)
-
-#define PCPP_LOG_DEBUG(message)                                                                                        \
-	do                                                                                                                 \
-	{                                                                                                                  \
-		if (pcpp::Logger::getInstance().logsEnabled() && pcpp::Logger::getInstance().isDebugEnabled(LOG_MODULE))       \
-		{                                                                                                              \
-			PCPP_LOG(pcpp::Logger::Debug, message);                                                                    \
-		}                                                                                                              \
-	} while (0)
-
-#define PCPP_LOG_ERROR(message)                                                                                        \
-	do                                                                                                                 \
-	{                                                                                                                  \
-		PCPP_LOG(pcpp::Logger::Error, message);                                                                        \
-	} while (0)
-
 /// @file
+
+// Compile time log levels.
+// Allows for conditional removal of unwanted log calls at compile time.
+#define PCPP_LOG_LEVEL_OFF 0
+#define PCPP_LOG_LEVEL_ERROR 1
+#define PCPP_LOG_LEVEL_INFO 2
+#define PCPP_LOG_LEVEL_DEBUG 3
+
+// All log messages built via a PCAP_LOG_* macro below the PCAP_ACTIVE_LOG_LEVEL will be removed at compile time.
+// Uses the PCAP_ACTIVE_LOG_LEVEL if it is defined, otherwise defaults to PCAP_LOG_LEVEL_DEBUG
+#ifndef PCPP_ACTIVE_LOG_LEVEL
+#	define PCPP_ACTIVE_LOG_LEVEL PCPP_LOG_LEVEL_DEBUG
+#endif  // !PCAP_ACTIVE_LOG_LEVEL
 
 /**
  * \namespace pcpp
@@ -79,6 +72,7 @@ namespace pcpp
 		PacketLogModuleGreLayer,         ///< GreLayer module (Packet++)
 		PacketLogModuleSSLLayer,         ///< SSLLayer module (Packet++)
 		PacketLogModuleSllLayer,         ///< SllLayer module (Packet++)
+		PacketLogModuleSll2Layer,        ///< Sll2Layer module (Packet++)
 		PacketLogModuleNflogLayer,       ///< NflogLayer module (Packet++)
 		PacketLogModuleDhcpLayer,        ///< DhcpLayer module (Packet++)
 		PacketLogModuleDhcpV6Layer,      ///< DhcpV6Layer module (Packet++)
@@ -113,9 +107,123 @@ namespace pcpp
 		PcapLogModuleDpdkDevice,         ///< DpdkDevice module (Pcap++)
 		PcapLogModuleKniDevice,          ///< KniDevice module (Pcap++)
 		PcapLogModuleXdpDevice,          ///< XdpDevice module (Pcap++)
-		NetworkUtils,                    ///< NetworkUtils module (Pcap++)
+		PcapLogModuleNetworkUtils,       ///< Network Utils module (Pcap++)
 		NumOfLogModules
 	};
+
+	/**
+	 * @struct LogSource
+	 * Represents the source of a log message.
+	 * Contains information about the source file, function, line number, and the log module.
+	 */
+	struct LogSource
+	{
+		/**
+		 * Default constructor for LogSource.
+		 */
+		constexpr LogSource() = default;
+
+		/**
+		 * Constructor for LogSource with only the log module.
+		 * @param logModule The log module.
+		 */
+		explicit constexpr LogSource(LogModule logModule) : logModule(logModule)
+		{}
+
+		/**
+		 * Constructor for LogSource with all parameters.
+		 * @param logModule The log module.
+		 * @param file The source file.
+		 * @param function The source function.
+		 * @param line The line number.
+		 */
+		constexpr LogSource(LogModule logModule, const char* file, const char* function, int line)
+		    : file(file), function(function), line(line), logModule(logModule)
+		{}
+
+		const char* file = nullptr;               /**< The source file. */
+		const char* function = nullptr;           /**< The source function. */
+		int line = 0;                             /**< The line number. */
+		LogModule logModule = UndefinedLogModule; /**< The log module. */
+	};
+
+	/**
+	 * An enum representing the log level. Currently 4 log levels are supported: Off, Error, Info and Debug. Info is the
+	 * default log level
+	 */
+	enum class LogLevel
+	{
+		Off = PCPP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
+		Error = PCPP_LOG_LEVEL_ERROR,  ///< Error level logs are emitted.
+		Info = PCPP_LOG_LEVEL_INFO,    ///< Info level logs and above are emitted.
+		Debug = PCPP_LOG_LEVEL_DEBUG   ///< Debug level logs and above are emitted.
+	};
+
+	inline std::ostream& operator<<(std::ostream& s, LogLevel v)
+	{
+		return s << static_cast<std::underlying_type<LogLevel>::type>(v);
+	}
+
+	// Forward declaration
+	class Logger;
+
+	namespace internal
+	{
+		/**
+		 * @class LogContext
+		 * @brief A context encapsulating the details of a single log message to be passed to the Logger.
+		 */
+		class LogContext
+		{
+		public:
+			friend class pcpp::Logger;
+
+			/**
+			 * @brief Creates a context with an empty message with Info level and no source.
+			 */
+			LogContext() = default;
+			/**
+			 * @brief Creates a context with an empty message with the given level and source.
+			 * @param level The log level for this message.
+			 * @param source The log source.
+			 */
+			explicit LogContext(LogLevel level, LogSource const& source = {}) : level(level), m_Source(source)
+			{}
+
+			/**
+			 * @brief Initializes the context with an empty message and the given level and source.
+			 * @param level The log level for this message.
+			 * @param source The log source.
+			 */
+			void init(LogLevel level, LogSource const& source)
+			{
+				m_Source = source;
+				this->level = level;
+				m_Stream.clear();
+				m_Stream.str({});
+			}
+
+			/**
+			 * @brief Appends to the message.
+			 * @param value The value to append.
+			 * @return A reference to this context.
+			 */
+			template <class T> inline LogContext& operator<<(T const& value)
+			{
+				m_Stream << value;
+				return *this;
+			}
+
+			/**
+			 * @brief The log level at which the message will be emitted.
+			 */
+			LogLevel level = LogLevel::Info;
+
+		private:
+			LogSource m_Source;
+			std::ostringstream m_Stream;
+		};
+	}  // namespace internal
 
 	/**
 	 * @class Logger
@@ -139,16 +247,14 @@ namespace pcpp
 	class Logger
 	{
 	public:
-		/**
-		 * An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
-		 * default log level
-		 */
-		enum LogLevel
-		{
-			Error,  ///< Error log level
-			Info,   ///< Info log level
-			Debug   ///< Debug log level
-		};
+		// Deprecated, Use the LogLevel in the pcpp namespace instead.
+		using LogLevel = pcpp::LogLevel;
+		PCPP_DEPRECATED("Use the LogLevel in the pcpp namespace instead.")
+		static const LogLevel Error = LogLevel::Error;
+		PCPP_DEPRECATED("Use the LogLevel in the pcpp namespace instead.")
+		static const LogLevel Info = LogLevel::Info;
+		PCPP_DEPRECATED("Use the LogLevel in the pcpp namespace instead.")
+		static const LogLevel Debug = LogLevel::Debug;
 
 		/**
 		 * @typedef LogPrinter
@@ -158,6 +264,7 @@ namespace pcpp
 		 * @param[in] file The source file in PcapPlusPlus code the log message is coming from
 		 * @param[in] method The method in PcapPlusPlus code the log message is coming from
 		 * @param[in] line The line in PcapPlusPlus code the log message is coming from
+		 * @remarks The printer callback should support being called from multiple threads simultaneously.
 		 */
 		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                           const std::string& method, const int line);
@@ -196,7 +303,18 @@ namespace pcpp
 		 */
 		bool isDebugEnabled(LogModule module) const
 		{
-			return m_LogModulesArray[module] == Debug;
+			return m_LogModulesArray[module] == LogLevel::Debug;
+		}
+
+		/**
+		 * @brief Check whether a log level should be emitted by the logger.
+		 * @param level The level of the log message.
+		 * @param module PcapPlusPlus module
+		 * @return True if the message should be emitted. False otherwise.
+		 */
+		bool shouldLog(LogLevel level, LogModule module) const
+		{
+			return level != LogLevel::Off && m_LogModulesArray[module] >= level;
 		}
 
 		/**
@@ -259,19 +377,29 @@ namespace pcpp
 			return m_LogsEnabled;
 		}
 
-		template <class T> Logger& operator<<(const T& msg)
-		{
-			(*m_LogStream) << msg;
-			return *this;
-		}
-
-		std::ostringstream* internalCreateLogStream();
-
 		/**
-		 * An internal method to print log messages. Shouldn't be used externally.
+		 * @brief Controls if the logger should use a pool of LogContext objects.
+		 * @param enabled True to enable context pooling, false to disable.
+		 * @param preallocate The number of LogContext objects to preallocate in the pool.
+		 * @remarks Disabling the pooling clears the pool.
 		 */
-		void internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file,
-		                             const char* method, int line);
+		void useContextPooling(bool enabled, std::size_t preallocate = 2)
+		{
+			m_UseContextPooling = enabled;
+
+			if (m_UseContextPooling)
+			{
+				if (preallocate > 0)
+				{
+					m_LogContextPool.preallocate(preallocate);
+				}
+			}
+			else
+			{
+				// Clear the pool if we're disabling pooling.
+				m_LogContextPool.clear();
+			}
+		}
 
 		/**
 		 * Get access to Logger singleton
@@ -284,12 +412,105 @@ namespace pcpp
 			return instance;
 		}
 
+		/**
+		 * @brief Creates a new LogContext with Info level and no source.
+		 * @return A new LogContext.
+		 */
+		std::unique_ptr<internal::LogContext> createLogContext();
+		/**
+		 * @brief Creates a new LogContext with the given level and source.
+		 * @param level The log level for this message.
+		 * @param source The log source.
+		 * @return A new LogContext.
+		 */
+		std::unique_ptr<internal::LogContext> createLogContext(LogLevel level, LogSource const& source = {});
+
+		/**
+		 * @brief Directly emits a log message bypassing all level checks.
+		 * @param source The log source.
+		 * @param level The log level for this message. This is only used for the log printer.
+		 * @param message The log message.
+		 */
+		void emit(LogSource const& source, LogLevel level, std::string const& message);
+		/**
+		 * @brief Directly emits a log message bypassing all level checks.
+		 * @param message The log message.
+		 */
+		void emit(std::unique_ptr<internal::LogContext> message);
+
+		/**
+		 * @brief Logs a message with the given source, level, and message.
+		 * @param message The log message.
+		 */
+		void log(std::unique_ptr<internal::LogContext> message);
+
+		/**
+		 * @brief Logs an object with the given source, level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param level The log level for this message.
+		 * @param message The object to be logged.
+		 */
+		template <class T> void log(LogSource const& source, LogLevel level, T const& message)
+		{
+			if (shouldLog(level, source.logModule))
+			{
+				auto ctx = createLogContext();
+				(*ctx) << message;
+				emit(std::move(ctx));
+			}
+		};
+
+		/**
+		 * @brief Logs an object with the given source at the Error level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param message The object to be logged.
+		 */
+		template <class T> void logError(LogSource const& source, T const& message)
+		{
+			log(source, LogLevel::Error, message);
+		};
+
+		/**
+		 * @brief Logs an object with the given source at the Info level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param message The object to be logged.
+		 */
+		template <class T> void logInfo(LogSource const& source, T const& message)
+		{
+			log(source, LogLevel::Info, message);
+		};
+
+		/**
+		 * @brief Logs an object with the given source at the Debug level.
+		 *
+		 * The object is converted to a string via the std::ostream << operator.
+		 * @tparam T The type of object to be logged.
+		 * @param source The log source.
+		 * @param message The object to be logged.
+		 */
+		template <class T> void logDebug(LogSource const& source, T const& message)
+		{
+			log(source, LogLevel::Debug, message);
+		};
+
 	private:
 		bool m_LogsEnabled;
-		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
+		LogLevel m_LogModulesArray[NumOfLogModules];
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
-		std::ostringstream* m_LogStream;
+
+		bool m_UseContextPooling = true;
+		// Keep a maximum of 10 LogContext objects in the pool.
+		ObjectPool<internal::LogContext> m_LogContextPool{ 10, 2 };
 
 		// private c'tor - this class is a singleton
 		Logger();
@@ -297,4 +518,54 @@ namespace pcpp
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                              const std::string& method, const int line);
 	};
+
+	// Specialization for string to skip the stringstream
+	template <> inline void Logger::log(LogSource const& source, LogLevel level, std::string const& message)
+	{
+		if (shouldLog(level, source.logModule))
+		{
+			emit(source, level, message);
+		}
+	};
+
+	// Specialization for const char* to skip the stringstream
+	template <> inline void Logger::log(LogSource const& source, LogLevel level, const char* const& message)
+	{
+		if (shouldLog(level, source.logModule))
+		{
+			emit(source, level, message);
+		}
+	};
+
 }  // namespace pcpp
+
+#define PCPP_LOG(level, message)                                                                                       \
+	do                                                                                                                 \
+	{                                                                                                                  \
+		auto& logger = Logger::getInstance();                                                                          \
+		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
+		{                                                                                                              \
+			auto ctx =                                                                                                 \
+			    logger.createLogContext(level, pcpp::LogSource(LOG_MODULE, PCAPPP_FILENAME, __FUNCTION__, __LINE__));  \
+			(*ctx) << message;                                                                                         \
+			logger.emit(std::move(ctx));                                                                               \
+		}                                                                                                              \
+	} while (0)
+
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_DEBUG
+#	define PCPP_LOG_DEBUG(message) PCPP_LOG(pcpp::LogLevel::Debug, message)
+#else
+#	define PCPP_LOG_DEBUG(message) (void)0
+#endif
+
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_INFO
+#	define PCPP_LOG_INFO(message) PCPP_LOG(pcpp::LogLevel::Info, message)
+#else
+#	define PCPP_LOG_INFO(message) (void)0
+#endif
+
+#if PCPP_ACTIVE_LOG_LEVEL >= PCPP_LOG_LEVEL_ERROR
+#	define PCPP_LOG_ERROR(message) PCPP_LOG(pcpp::LogLevel::Error, message)
+#else
+#	define PCPP_LOG_ERROR(message) (void)0
+#endif
