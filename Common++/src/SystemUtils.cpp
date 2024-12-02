@@ -12,6 +12,7 @@
 #include <cstring>
 #include <csignal>
 #include <sys/stat.h>
+#include <thread>
 #if defined(__APPLE__)
 #	include <mach/clock.h>
 #	include <mach/mach.h>
@@ -276,20 +277,12 @@ namespace pcpp
 
 	void multiPlatformSleep(uint32_t seconds)
 	{
-#if defined(_WIN32)
-		Sleep(seconds * 1000);
-#else
-		sleep(seconds);
-#endif
+		std::this_thread::sleep_for(std::chrono::seconds(seconds));
 	}
 
 	void multiPlatformMSleep(uint32_t milliseconds)
 	{
-#if defined(_WIN32)
-		Sleep(milliseconds);
-#else
-		usleep(milliseconds * 1000);
-#endif
+		std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 	}
 
 	uint16_t hostToNet16(uint16_t host)
