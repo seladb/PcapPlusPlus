@@ -45,7 +45,7 @@ namespace pcpp
 		 * MAC addresses with only first three octets. The first element is unsigned integer equivalent of "XX:XX:XX"
 		 * formatted MAC address
 		 */
-		typedef std::unordered_map<uint64_t, VendorData> OUIVendorMap;
+		using OUIVendorMap = std::unordered_map<uint64_t, VendorData>;
 
 		/// Internal vendor list for MAC addresses
 		OUIVendorMap vendorMap;

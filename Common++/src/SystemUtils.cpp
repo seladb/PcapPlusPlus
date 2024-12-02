@@ -122,13 +122,13 @@ namespace pcpp
 		GetSystemInfo(&sysinfo);
 		return sysinfo.dwNumberOfProcessors;
 #else
-		return sysconf(_SC_NPROCESSORS_ONLN);
+		return static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #endif
 	}
 
 	CoreMask getCoreMaskForAllMachineCores()
 	{
-		int numOfCores = getNumOfCores() < 32 ? getNumOfCores() : 32;
+		const int numOfCores = getNumOfCores() < 32 ? getNumOfCores() : 32;
 		CoreMask result = 0;
 		for (int i = 0; i < numOfCores; i++)
 		{
@@ -164,47 +164,51 @@ namespace pcpp
 
 	void createCoreVectorFromCoreMask(CoreMask coreMask, std::vector<SystemCore>& resultVec)
 	{
-		int i = 0;
+		int idx = 0;
 		while (coreMask != 0)
 		{
-			if (1 & coreMask)
+			if ((1 & coreMask) != 0U)
 			{
-				resultVec.push_back(SystemCores::IdToSystemCore[i]);
+				resultVec.push_back(SystemCores::IdToSystemCore[idx]);
 			}
 
 			coreMask = coreMask >> 1;
-			i++;
+			++idx;
 		}
 	}
 
 	std::string executeShellCommand(const std::string& command)
 	{
-		std::unique_ptr<FILE, PcloseDeleter> pipe = std::unique_ptr<FILE, PcloseDeleter>(POPEN(command.c_str(), "r"));
+		const std::unique_ptr<FILE, PcloseDeleter> pipe =
+		    std::unique_ptr<FILE, PcloseDeleter>(POPEN(command.c_str(), "r"));
 		if (!pipe)
 		{
 			throw std::runtime_error("Error executing command: " + command);
 		}
 
-		std::array<char, 128> buffer;
+		std::array<char, 128> buffer{};
 		std::string result;
-		while (!feof(pipe.get()))
+		while (feof(pipe.get()) == 0)
 		{
 			if (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+			{
 				result += buffer.data();  // Using the C-string overload of string append.
+			}
 		}
 		return result;
 	}
 
 	bool directoryExists(const std::string& dirPath)
 	{
-		struct stat info;
+		struct stat info
+		{
+		};
 
 		if (stat(dirPath.c_str(), &info) != 0)
+		{
 			return false;
-		else if (info.st_mode & S_IFDIR)
-			return true;
-		else
-			return false;
+		}
+		return (info.st_mode & S_IFDIR) != 0;
 	}
 
 	int clockGetTime(long& sec, long& nsec)
@@ -256,14 +260,14 @@ namespace pcpp
 
 #else  // Linux
 
-#	include <time.h>
+#	include <ctime>
 
-		timespec ts;
-		int res = clock_gettime(CLOCK_REALTIME, &ts);
+		timespec tspec{};
+		const int res = clock_gettime(CLOCK_REALTIME, &tspec);
 		if (res == 0)
 		{
-			sec = ts.tv_sec;
-			nsec = ts.tv_nsec;
+			sec = tspec.tv_sec;
+			nsec = tspec.tv_nsec;
 		}
 		return res;
 
@@ -345,8 +349,10 @@ namespace pcpp
 			const std::lock_guard<std::mutex> lock(UnixLinuxHandlerRoutineMutex);
 
 			if (ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler != nullptr)
+			{
 				ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler(
 				    ApplicationEventHandler::getInstance().m_ApplicationInterruptedCookie);
+			}
 
 			ApplicationEventHandler::getInstance().m_ApplicationInterruptedHandler = nullptr;
 
@@ -372,7 +378,9 @@ namespace pcpp
 #if defined(_WIN32)
 		SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
 #else
-		struct sigaction action;
+		struct sigaction action
+		{
+		};
 		memset(&action, 0, sizeof(struct sigaction));
 		action.sa_handler = handlerRoutine;
 		sigemptyset(&action.sa_mask);

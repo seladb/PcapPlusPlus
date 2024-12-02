@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <list>
 #include <unordered_map>
 
@@ -26,17 +27,15 @@ namespace pcpp
 	template <typename T> class LRUList
 	{
 	public:
-		typedef typename std::list<T>::iterator ListIterator;
-		typedef typename std::unordered_map<T, ListIterator>::iterator MapIterator;
+		using ListIterator = typename std::list<T>::iterator;
+		using MapIterator = typename std::unordered_map<T, ListIterator>::iterator;
 
 		/**
 		 * A c'tor for this class
 		 * @param[in] maxSize The max size this list can go
 		 */
-		explicit LRUList(size_t maxSize)
-		{
-			m_MaxSize = maxSize;
-		}
+		explicit LRUList(std::size_t maxSize) : m_MaxSize(maxSize)
+		{}
 
 		/**
 		 * Puts an element in the list. This element will be inserted (or advanced if it already exists) to the head of
@@ -58,7 +57,7 @@ namespace pcpp
 			// iterator to the element that prevented the insertion
 			std::pair<MapIterator, bool> pair =
 			    m_CacheItemsMap.insert(std::make_pair(element, m_CacheItemsList.begin()));
-			if (pair.second == false)  // already exists
+			if (!static_cast<bool>(pair.second))  // already exists
 			{
 				m_CacheItemsList.erase(pair.first->second);
 				pair.first->second = m_CacheItemsList.begin();
@@ -70,11 +69,13 @@ namespace pcpp
 				--lruIter;
 
 				if (deletedValue != nullptr)
+				{
 #if __cplusplus > 199711L || _MSC_VER >= 1800
 					*deletedValue = std::move(*lruIter);
 #else
 					*deletedValue = *lruIter;
 #endif
+				}
 				m_CacheItemsMap.erase(*lruIter);
 				m_CacheItemsList.erase(lruIter);
 				return 1;
@@ -109,7 +110,9 @@ namespace pcpp
 		{
 			MapIterator iter = m_CacheItemsMap.find(element);
 			if (iter == m_CacheItemsMap.end())
+			{
 				return;
+			}
 
 			m_CacheItemsList.erase(iter->second);
 			m_CacheItemsMap.erase(iter);

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstddef>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 #include <stdexcept>
 #include <vector>
 #include <memory>
@@ -70,8 +70,7 @@ namespace pcpp
 		/**
 		 * A constructor that create an empty instance of this object
 		 */
-		PointerVector()
-		{}
+		PointerVector() = default;
 
 		/**
 		 * Copies the vector along with all elements inside it.
@@ -259,7 +258,7 @@ namespace pcpp
 		/**
 		 * @return A pointer to the first element in the vector
 		 */
-		T const* front() const
+		const T* front() const
 		{
 			return m_Vector.front();
 		}
@@ -275,7 +274,7 @@ namespace pcpp
 		/*
 		 * @return A pointer to the last element in the vector.
 		 */
-		T const* back() const
+		const T* back() const
 		{
 			return m_Vector.back();
 		}
@@ -336,7 +335,7 @@ namespace pcpp
 		 * @param[in] position An iterator pointing to the element to detach.
 		 * @return An unique pointer that holds ownership of the detached element.
 		 */
-		std::unique_ptr<T> getAndDetach(VectorIterator const& position)
+		std::unique_ptr<T> getAndDetach(const VectorIterator& position)
 		{
 			std::unique_ptr<T> result(*position);
 			m_Vector.erase(position);
@@ -369,7 +368,7 @@ namespace pcpp
 		 * The caller is responsible of freeing the copied elements.
 		 * @return A vector of pointers to the newly copied elements.
 		 */
-		static std::vector<T*> deepCopyUnsafe(std::vector<T*> const& origin)
+		static std::vector<T*> deepCopyUnsafe(const std::vector<T*>& origin)
 		{
 			std::vector<T*> copyVec;
 			// Allocate the vector initially to ensure no exceptions are thrown during push_back.
@@ -402,7 +401,7 @@ namespace pcpp
 		 * @param[in] origin The vector of elements to free.
 		 * @remarks The vector's contents are not cleared and will point to invalid locations in memory.
 		 */
-		static void freeVectorUnsafe(std::vector<T*> const& origin)
+		static void freeVectorUnsafe(const std::vector<T*>& origin)
 		{
 			for (auto& obj : origin)
 			{
