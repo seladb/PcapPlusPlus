@@ -686,6 +686,15 @@ jobs:
           java-version: "8"
           distribution: "zulu"
 
+      - name: Verify CMake
+        run: |
+         cmake --version
+         which cmake
+
+      - name: Verify Gradle
+        run: |
+         ./gradlew --version
+
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
