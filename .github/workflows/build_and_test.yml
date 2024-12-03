@@ -691,11 +691,6 @@ jobs:
          cmake --version
          which cmake
 
-      - name: Verify Gradle
-        run: |
-         chmod +x gradlew
-         ./gradlew --version
-
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
@@ -709,6 +704,7 @@ jobs:
               sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
           fi
           chmod +x gradlew
+          ./gradlew --version
           ./gradlew assembleDebug --info --stacktrace
 
   # xdp:
