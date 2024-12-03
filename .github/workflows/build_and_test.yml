@@ -693,6 +693,7 @@ jobs:
 
       - name: Verify Gradle
         run: |
+         chmod +x gradlew
          ./gradlew --version
 
       - name: Build ToyVpn-PcapPlusPlus
