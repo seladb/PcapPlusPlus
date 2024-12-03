@@ -679,6 +679,11 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
