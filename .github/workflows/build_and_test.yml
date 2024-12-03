@@ -699,7 +699,7 @@ jobs:
               sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
           fi
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --info --stacktrace
 
   # xdp:
   #   runs-on: ubuntu-latest
