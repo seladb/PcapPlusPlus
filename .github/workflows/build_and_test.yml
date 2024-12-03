@@ -683,7 +683,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "8"
-          distribution: "temurin"
+          distribution: "zulu"
 
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
