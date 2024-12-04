@@ -624,12 +624,12 @@ jobs:
     strategy:
       matrix:
         include:
-          # - run-on-os: ubuntu-20.04
-          #   target: armeabi-v7a
-          #   api-version: 30
-          # - run-on-os: ubuntu-20.04
-          #   target: x86
-          #   api-version: 30
+          - run-on-os: ubuntu-20.04
+            target: armeabi-v7a
+            api-version: 30
+          - run-on-os: ubuntu-20.04
+            target: x86
+            api-version: 30
           - run-on-os: macos-14
             target: arm64-v8a
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
