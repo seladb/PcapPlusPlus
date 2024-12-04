@@ -686,17 +686,17 @@ jobs:
           java-version: "8"
           distribution: "zulu"
 
-      - name: Install CMake 3.10.2
-        run: |
-          which cmake
-          cmake --version
+      # - name: Install CMake 3.10.2
+      #   run: |
+      #     which cmake
+      #     cmake --version
 
-          wget https://cmake.org/files/v3.10/cmake-3.10.2-Darwin-x86_64.tar.gz
-          tar -xzvf cmake-3.10.2-Darwin-x86_64.tar.gz
-          sudo cp -R cmake-3.10.2-Darwin-x86_64/CMake.app/Contents/* /opt/homebrew/
+      #     wget https://cmake.org/files/v3.10/cmake-3.10.2-Darwin-x86_64.tar.gz
+      #     tar -xzvf cmake-3.10.2-Darwin-x86_64.tar.gz
+      #     sudo cp -R cmake-3.10.2-Darwin-x86_64/CMake.app/Contents/* /opt/homebrew/
           
-          which cmake
-          cmake --version
+      #     which cmake
+      #     cmake --version
 
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
@@ -711,7 +711,7 @@ jobs:
               sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
           fi
           chmod +x gradlew
-          ./gradlew assembleDebug --info --stacktrace
+          ./gradlew assembleDebug
 
   # xdp:
   #   runs-on: ubuntu-latest
