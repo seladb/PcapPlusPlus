@@ -663,7 +663,6 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # master
         with:
           repository: seladb/ToyVpn-PcapPlusPlus
-          ref: fix-build
           path: ./ToyVpn-PcapPlusPlus
           submodules: true
 
@@ -685,18 +684,6 @@ jobs:
         with:
           java-version: "8"
           distribution: "zulu"
-
-      # - name: Install CMake 3.10.2
-      #   run: |
-      #     which cmake
-      #     cmake --version
-
-      #     wget https://cmake.org/files/v3.10/cmake-3.10.2-Darwin-x86_64.tar.gz
-      #     tar -xzvf cmake-3.10.2-Darwin-x86_64.tar.gz
-      #     sudo cp -R cmake-3.10.2-Darwin-x86_64/CMake.app/Contents/* /opt/homebrew/
-          
-      #     which cmake
-      #     cmake --version
 
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
