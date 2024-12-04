@@ -688,9 +688,14 @@ jobs:
 
       - name: Install CMake 3.10.2
         run: |
+          which cmake
+          cmake --version
+
           wget https://cmake.org/files/v3.10/cmake-3.10.2-Darwin-x86_64.tar.gz
           tar -xzvf cmake-3.10.2-Darwin-x86_64.tar.gz
           sudo cp -R cmake-3.10.2-Darwin-x86_64/CMake.app/Contents/* /usr/local/
+
+          which cmake
           cmake --version
 
       - name: Build ToyVpn-PcapPlusPlus
