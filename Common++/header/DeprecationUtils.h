@@ -2,11 +2,27 @@
 
 /// @file
 
+#ifndef PCPP_DEPRECATED_GNU
+#	if defined(__GUNC__) || defined(__clang__)
+#		define PCPP_DEPRECATED_GNU(msg) __attribute__((deprecated(msg)))
+#	else
+#		define PCPP_DEPRECATED_GNU(msg)
+#	endif  // defined(__GUNC__) || defined(__clang__)
+#endif      // !PCPP_DEPRECATED_GNU
+
+#ifndef PCPP_DEPRECATED_MSVC
+#	ifdef _MSC_VER
+#		define PCPP_DEPRECATED_MSVC(msg) __declspec(deprecated(msg))
+#	else
+#		define PCPP_DEPRECATED_MSVC(msg)
+#	endif  // __MSC_VER
+#endif      // !PCPP_DEPRECATED_MSVC
+
 #ifndef PCPP_DEPRECATED
 #	if defined(__GNUC__) || defined(__clang__)
-#		define PCPP_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#		define PCPP_DEPRECATED(msg) PCPP_DEPRECATED_GNU(msg)
 #	elif defined(_MSC_VER)
-#		define PCPP_DEPRECATED(msg) __declspec(deprecated(msg))
+#		define PCPP_DEPRECATED(msg) PCPP_DEPRECATED_MSVC(msg)
 #	else
 #		pragma message("WARNING: DEPRECATED feature is not implemented for this compiler")
 #		define PCPP_DEPRECATED(msg)

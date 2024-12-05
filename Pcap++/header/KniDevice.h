@@ -90,6 +90,11 @@ namespace pcpp
 	class KniDevice;
 	class KniDeviceList;
 
+	namespace internal
+	{
+		class KniDeviceDeleter;
+	}
+
 	/**
 	 * Defines the signature callback used by capturing API on KNI device
 	 */
@@ -124,6 +129,7 @@ namespace pcpp
 	class KniDevice : public IDevice
 	{
 		friend class KniDeviceList;
+		friend struct internal::KniDeviceDeleter;
 		friend class MBufRawPacket;
 
 	public:
@@ -278,7 +284,7 @@ namespace pcpp
 		/** This class is not copyable */
 		KniDevice& operator=(const KniDevice&);
 		/** All instances of this class MUST be destroyed by KniDeviceList class */
-		~KniDevice();
+		~KniDevice() override;
 
 	public:
 		/* Information getters */
@@ -630,13 +636,13 @@ namespace pcpp
 		 * @return true if the device was opened successfully, false if device is already opened,
 		 * or KNI device configuration and startup failed
 		 */
-		bool open();
+		bool open() override;
 		/**
 		 * @brief Close the KNI device.
 		 * When device is closed it's not possible to work with it.
 		 * Stops asynchronous packet capture if it is running.
 		 */
-		void close();
+		void close() override;
 
 	private:
 		struct rte_kni* m_Device;

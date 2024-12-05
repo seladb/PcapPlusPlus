@@ -3,6 +3,8 @@
 // GCOVR_EXCL_START
 
 #include "PfRingDevice.h"
+#include "DeviceListBase.h"
+#include "DeprecationUtils.h"
 
 /// @file
 
@@ -18,10 +20,11 @@ namespace pcpp
 	 * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING
 	 * devices or find a specific device by name
 	 */
-	class PfRingDeviceList
+	class PfRingDeviceList : public internal::DeviceListBase<PfRingDevice>
 	{
 	private:
-		std::vector<std::unique_ptr<PfRingDevice>> m_PfRingDeviceList;
+		using Base = internal::DeviceListBase<PfRingDevice>;
+
 		std::vector<PfRingDevice*> m_PfRingDeviceListView;
 		std::string m_PfRingVersion;
 
@@ -32,6 +35,7 @@ namespace pcpp
 		PfRingDeviceList(PfRingDeviceList&&) noexcept = delete;
 		PfRingDeviceList& operator=(const PfRingDeviceList&) = delete;
 		PfRingDeviceList& operator=(PfRingDeviceList&&) noexcept = delete;
+		~PfRingDeviceList() = default;
 
 		/**
 		 * A static method that returns the singleton object for PfRingDeviceList
@@ -46,7 +50,9 @@ namespace pcpp
 		/**
 		 * Return a list of all available PF_RING devices
 		 * @return a list of all available PF_RING devices
+		 * @deprecated This method has been deprecated in favor of direct accessor API.
 		 */
+		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
 		const std::vector<PfRingDevice*>& getPfRingDevicesList() const
 		{
 			return m_PfRingDeviceListView;
@@ -57,7 +63,19 @@ namespace pcpp
 		 * (e.g eth0, eth1, etc.)
 		 * @return A pointer to the PF_RING device
 		 */
-		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const;
+		PfRingDevice* getDeviceByName(const std::string& devName) const;
+
+		/**
+		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
+		 * (e.g eth0, eth1, etc.)
+		 * @return A pointer to the PF_RING device
+		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
+		 */
+		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
+		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const
+		{
+			return getDeviceByName(devName);
+		}
 
 		/**
 		 * Get installed PF_RING version
