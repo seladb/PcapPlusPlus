@@ -352,6 +352,11 @@ namespace pcpp
 	 */
 	const ProtocolType WireGuard = 56;
 
+	/*
+	 * InfiniBand protocol
+	 */
+	const ProtocolType InfiniBand = 57;
+
 	/**
 	 * GTPv2 protocol
 	 */
