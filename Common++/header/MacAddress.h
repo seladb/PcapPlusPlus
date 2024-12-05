@@ -141,10 +141,10 @@ namespace pcpp
 	private:
 		uint8_t m_Address[6] = { 0 };
 	};
-}  // namespace pcpp
 
-inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
-{
-	os << macAddress.toString();
-	return os;
-}
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
+	{
+		os << macAddress.toString();
+		return os;
+	}
+}  // namespace pcpp
