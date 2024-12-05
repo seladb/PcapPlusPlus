@@ -103,13 +103,13 @@ namespace pcpp
 		}
 
 		/// @return The max size of this list as determined in the c'tor
-		std::size_t getMaxSize() const
+		size_t getMaxSize() const
 		{
 			return m_MaxSize;
 		}
 
 		/// @return The number of elements currently in this list
-		std::size_t getSize() const
+		size_t getSize() const
 		{
 			return m_CacheItemsMap.size();
 		}
@@ -117,7 +117,7 @@ namespace pcpp
 	private:
 		std::list<T> m_CacheItemsList;
 		std::unordered_map<T, ListIterator> m_CacheItemsMap;
-		std::size_t m_MaxSize;
+		size_t m_MaxSize;
 	};
 
 }  // namespace pcpp
