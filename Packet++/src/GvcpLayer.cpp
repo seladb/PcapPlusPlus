@@ -1,6 +1,7 @@
 #define LOG_MODULE PacketLogModuleGvcpLayer
 
 #include "GvcpLayer.h"
+#include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include <cstring>
 #include <sstream>
@@ -51,8 +52,13 @@ namespace pcpp
 	    : Layer(data, dataSize, prevLayer, packet, GVCP)
 	{}
 
-	GvcpLayer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
+	Layer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
+		if(data == nullptr || dataLen < sizeof(internal::gvcp_request_header) ||  dataLen < sizeof(internal::gvcp_ack_header))
+		{
+			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
+
 		if (GvcpLayer::verifyRequest(data))
 		{
 			auto* header = reinterpret_cast<internal::gvcp_request_header*>(data);

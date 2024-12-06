@@ -243,9 +243,9 @@ namespace pcpp
 		 * @param[in] dataLen Size of the data in bytes
 		 * @param[in] prevLayer A pointer to the previous layer
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 * @return GvcpLayer* A pointer to the constructed GvcpLayer object
+		 * @return Layer* A pointer to the constructed GvcpLayer object
 		 */
-		static GvcpLayer* parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
+		static Layer* parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
 		// implement Layer's abstract methods
 		void parseNextLayer() override
