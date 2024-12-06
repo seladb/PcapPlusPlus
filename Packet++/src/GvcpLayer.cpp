@@ -1,11 +1,38 @@
 #define LOG_MODULE PacketLogModuleGvcpLayer
 
 #include "GvcpLayer.h"
+#include "SystemUtils.h"
 #include <cstring>
 #include <sstream>
 
 namespace pcpp
 {
+	namespace internal
+	{
+		gvcp_request_header::gvcp_request_header(GvcpFlag flag, GvcpCommand command, uint16_t dataSize,
+		                                         uint16_t requestId)
+		    : flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
+		      requestId(hostToNet16(requestId))
+		{}
+
+		GvcpCommand gvcp_request_header::getCommand() const
+		{
+			return static_cast<GvcpCommand>(netToHost16(command));
+		}
+
+		gvcp_ack_header::gvcp_ack_header(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize,
+		                                 uint16_t ackId)
+		    : status(hostToNet16(static_cast<uint16_t>(status))), command(hostToNet16(static_cast<uint16_t>(command))),
+		      dataSize(hostToNet16(dataSize)), ackId(hostToNet16(ackId))
+		{}
+
+		GvcpCommand gvcp_ack_header::getCommand() const
+		{
+			return static_cast<GvcpCommand>(netToHost16(command));
+		}
+
+	}  // namespace internal
+
 	std::ostream& operator<<(std::ostream& os, GvcpCommand command)
 	{
 		os << "0x" << std::hex << static_cast<uint16_t>(command) << std::dec;
@@ -100,6 +127,21 @@ namespace pcpp
 		return ss.str();
 	}
 
+	uint16_t GvcpRequestLayer::getDataSize() const
+	{
+		return netToHost16(getGvcpHeader()->dataSize);
+	}
+
+	uint16_t GvcpRequestLayer::getRequestId() const
+	{
+		return netToHost16(getGvcpHeader()->requestId);
+	}
+
+	GvcpCommand GvcpRequestLayer::getCommand() const
+	{
+		return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
+	}
+
 	/*---------------------- Class GvcpAcknowledgeLayer ----------------------------*/
 	GvcpAcknowledgeLayer::GvcpAcknowledgeLayer(uint8_t* data, size_t dataSize, Layer* prevLayer, Packet* packet)
 	    : GvcpLayer(data, dataSize, prevLayer, packet)
@@ -139,5 +181,25 @@ namespace pcpp
 		ss << "GVCP Acknowledge Layer, Command: " << getCommand() << ", Acknowledge ID: " << getAckId()
 		   << ", Status: " << getStatus();
 		return ss.str();
+	}
+
+	GvcpResponseStatus GvcpAcknowledgeLayer::getStatus() const
+	{
+		return static_cast<GvcpResponseStatus>((netToHost16(getGvcpHeader()->status)));
+	}
+
+	GvcpCommand GvcpAcknowledgeLayer::getCommand() const
+	{
+		return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
+	}
+
+	uint16_t GvcpAcknowledgeLayer::getDataSize() const
+	{
+		return netToHost16(getGvcpHeader()->dataSize);
+	}
+
+	uint16_t GvcpAcknowledgeLayer::getAckId() const
+	{
+		return netToHost16(getGvcpHeader()->ackId);
 	}
 }  // namespace pcpp

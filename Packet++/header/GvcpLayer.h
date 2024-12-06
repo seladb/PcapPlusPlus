@@ -15,9 +15,6 @@
  */
 namespace pcpp
 {
-	uint16_t hostToNet16(uint16_t val);  // forward declare the function in SystemUtil.h
-	uint16_t netToHost16(uint16_t val);  // forward declare the function in SystemUtil.h
-
 	namespace internal
 	{
 		static constexpr size_t kGvcpMagicNumber = 0x42;
@@ -135,15 +132,9 @@ namespace pcpp
 			// ------------- methods --------------
 			gvcp_request_header() = default;
 
-			gvcp_request_header(GvcpFlag flag, GvcpCommand command, uint16_t dataSize, uint16_t requestId)
-			    : flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
-			      requestId(hostToNet16(requestId))
-			{}
+			gvcp_request_header(GvcpFlag flag, GvcpCommand command, uint16_t dataSize, uint16_t requestId);
 
-			GvcpCommand getCommand() const
-			{
-				return static_cast<GvcpCommand>(netToHost16(command));
-			}
+			GvcpCommand getCommand() const;
 		};
 		static_assert(sizeof(gvcp_request_header) == internal::kGvcpRequestHeaderLength,
 		              "GVCP request header size should be 8 bytes");
@@ -162,16 +153,9 @@ namespace pcpp
 			// ------------- methods --------------
 			gvcp_ack_header() = default;
 
-			gvcp_ack_header(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize, uint16_t ackId)
-			    : status(hostToNet16(static_cast<uint16_t>(status))),
-			      command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
-			      ackId(hostToNet16(ackId))
-			{}
+			gvcp_ack_header(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize, uint16_t ackId);
 
-			GvcpCommand getCommand() const
-			{
-				return static_cast<GvcpCommand>(netToHost16(command));
-			}
+			GvcpCommand getCommand() const;
 		};
 		static_assert(sizeof(gvcp_ack_header) == internal::kGvcpAckHeaderLength,
 		              "GVCP ack header size should be 8 bytes");
@@ -335,26 +319,17 @@ namespace pcpp
 		/**
 		 * Get the data size from the header
 		 */
-		uint16_t getDataSize() const
-		{
-			return netToHost16(getGvcpHeader()->dataSize);
-		}
+		uint16_t getDataSize() const;
 
 		/**
 		 * Get the request ID from the header
 		 */
-		uint16_t getRequestId() const
-		{
-			return netToHost16(getGvcpHeader()->requestId);
-		}
+		uint16_t getRequestId() const;
 
 		/**
 		 * Get the command from the header
 		 */
-		GvcpCommand getCommand() const
-		{
-			return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
-		}
+		GvcpCommand getCommand() const;
 
 		/**
 		 * Verify the magic number in the header
@@ -433,34 +408,22 @@ namespace pcpp
 		/**
 		 * @return the response status from the header
 		 */
-		GvcpResponseStatus getStatus() const
-		{
-			return static_cast<GvcpResponseStatus>((netToHost16(getGvcpHeader()->status)));
-		}
+		GvcpResponseStatus getStatus() const;
 
 		/**
 		 * @return the response command type from the header
 		 */
-		GvcpCommand getCommand() const
-		{
-			return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
-		}
+		GvcpCommand getCommand() const;
 
 		/**
 		 * @return the size of the data in bytes from the header
 		 */
-		uint16_t getDataSize() const
-		{
-			return netToHost16(getGvcpHeader()->dataSize);
-		}
+		uint16_t getDataSize() const;
 
 		/**
 		 * @return uint16_t The acknowledge ID from the header
 		 */
-		uint16_t getAckId() const
-		{
-			return netToHost16(getGvcpHeader()->ackId);
-		}
+		uint16_t getAckId() const;
 
 		// implement Layer's abstract methods
 		std::string toString() const override;
