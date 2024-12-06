@@ -125,11 +125,12 @@ namespace pcpp
 		 */
 		struct gvcp_request_header
 		{
-			uint8_t magicNumber = internal::kGvcpMagicNumber;  // always fixed
-			uint8_t flag = 0;  // 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
-			uint16_t command = 0;
-			uint16_t dataSize = 0;
-			uint16_t requestId = 0;
+			uint8_t magicNumber = internal::kGvcpMagicNumber;  ///< Magic number
+			uint8_t flag =
+			    0;  ///< GVCP flag. 0-3 bits are specified by each command, 4-6 bits are reserved, 7 bit is acknowledge
+			uint16_t command = 0;    ///< Command
+			uint16_t dataSize = 0;   ///< Data size
+			uint16_t requestId = 0;  ///< Request ID
 
 			// ------------- methods --------------
 			gvcp_request_header() = default;
@@ -153,10 +154,10 @@ namespace pcpp
 		 */
 		struct gvcp_ack_header
 		{
-			uint16_t status = 0;
-			uint16_t command = 0;
-			uint16_t dataSize = 0;
-			uint16_t ackId = 0;
+			uint16_t status = 0;    ///< Response status
+			uint16_t command = 0;   ///< Command
+			uint16_t dataSize = 0;  ///< Data size
+			uint16_t ackId = 0;     ///< Acknowledge ID
 
 			// ------------- methods --------------
 			gvcp_ack_header() = default;
@@ -181,25 +182,25 @@ namespace pcpp
 		 */
 		struct gvcp_discovery_body
 		{
-			uint16_t versionMajor = 0;
-			uint16_t versionMinor = 0;
-			uint32_t deviceMode = 0;
-			uint16_t reserved = 0;
-			uint8_t macAddress[6] = { 0 };
-			uint32_t supportedIpConfigOptions = 0;
-			uint32_t ipConfigCurrent = 0;
-			uint8_t reserved2[12] = { 0 };
-			uint32_t ipAddress = 0;
-			uint8_t reserved3[12];
-			uint32_t subnetMask = 0;
-			uint8_t reserved4[12] = { 0 };
-			uint32_t defaultGateway = 0;
-			char manufacturerName[32] = { 0 };
-			char modelName[32] = { 0 };
-			char deviceVersion[32] = { 0 };
-			char manufacturerSpecificInformation[48] = { 0 };
-			char serialNumber[16] = { 0 };
-			char userDefinedName[16] = { 0 };
+			uint16_t versionMajor = 0;                         ///< GigE Vision version major number
+			uint16_t versionMinor = 0;                         ///< GigE Vision version minor number
+			uint32_t deviceMode = 0;                           ///< Device mode
+			uint16_t reserved = 0;                             ///< Reserved
+			uint8_t macAddress[6] = { 0 };                     ///< MAC address
+			uint32_t supportedIpConfigOptions = 0;             ///< Supported IP configuration options
+			uint32_t ipConfigCurrent = 0;                      ///< Current IP configuration
+			uint8_t reserved2[12] = { 0 };                     ///< Reserved
+			uint32_t ipAddress = 0;                            ///< IP address
+			uint8_t reserved3[12];                             ///< Reserved
+			uint32_t subnetMask = 0;                           ///< Subnet mask
+			uint8_t reserved4[12] = { 0 };                     ///< Reserved
+			uint32_t defaultGateway = 0;                       ///< Default gateway
+			char manufacturerName[32] = { 0 };                 ///< Manufacturer name
+			char modelName[32] = { 0 };                        ///< Model name
+			char deviceVersion[32] = { 0 };                    ///< Device version
+			char manufacturerSpecificInformation[48] = { 0 };  ///< Manufacturer specific information
+			char serialNumber[16] = { 0 };                     ///< Serial number
+			char userDefinedName[16] = { 0 };                  ///< User defined name
 		};
 		static_assert(sizeof(gvcp_discovery_body) == internal::kGvcpDiscoveryBodyLength,
 		              "GVCP ack body size should be 248 bytes");
@@ -210,14 +211,14 @@ namespace pcpp
 		 */
 		struct gvcp_forceip_body
 		{
-			char padding1[2] = { 0 };
-			char macAddress[6] = { 0 };
-			char padding2[12] = { 0 };
-			uint32_t ipAddress = 0;
-			char padding3[12] = { 0 };
-			uint32_t subnetMask = 0;
-			char padding4[12] = { 0 };
-			uint32_t gateway = 0;
+			char padding1[2] = { 0 };    ///< Padding
+			char macAddress[6] = { 0 };  ///< MAC address
+			char padding2[12] = { 0 };   ///< Padding
+			uint32_t ipAddress = 0;      ///< IP address
+			char padding3[12] = { 0 };   ///< Padding
+			uint32_t subnetMask = 0;     ///< Subnet mask
+			char padding4[12] = { 0 };   ///< Padding
+			uint32_t gateway = 0;        ///< Gateway
 		};
 		static_assert(sizeof(gvcp_forceip_body) == internal::kGvcpForceIpBodyLength,
 		              "GVCP force IP command body size should be 56 bytes");
