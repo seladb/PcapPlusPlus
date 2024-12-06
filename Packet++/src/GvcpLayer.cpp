@@ -54,7 +54,8 @@ namespace pcpp
 
 	Layer* GvcpLayer::parseGvcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
-		if(data == nullptr || dataLen < sizeof(internal::gvcp_request_header) ||  dataLen < sizeof(internal::gvcp_ack_header))
+		if (data == nullptr || dataLen < sizeof(internal::gvcp_request_header) ||
+		    dataLen < sizeof(internal::gvcp_ack_header))
 		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
 		}
@@ -62,32 +63,26 @@ namespace pcpp
 		if (GvcpLayer::verifyRequest(data))
 		{
 			auto* header = reinterpret_cast<internal::gvcp_request_header*>(data);
-			if (header->getCommand() == GvcpCommand::DiscoveredCmd)
+			switch (header->getCommand())
 			{
+			case GvcpCommand::DiscoveredCmd:
 				return new GvcpDiscoveryRequestLayer(data, dataLen, prevLayer, packet);
-			}
-			else if (header->getCommand() == GvcpCommand::ForceIpCmd)
-			{
+			case GvcpCommand::ForceIpCmd:
 				return new GvcpForceIpRequestLayer(data, dataLen, prevLayer, packet);
-			}
-			else
-			{
+			default:
 				return new GvcpRequestLayer(data, dataLen, prevLayer, packet);
 			}
 		}
 		else
 		{
 			auto* header = reinterpret_cast<internal::gvcp_ack_header*>(data);
-			if (header->getCommand() == GvcpCommand::DiscoveredAck)
+			switch (header->getCommand())
 			{
+			case GvcpCommand::DiscoveredAck:
 				return new GvcpDiscoveryAcknowledgeLayer(data, dataLen);
-			}
-			else if (header->getCommand() == GvcpCommand::ForceIpAck)
-			{
+			case GvcpCommand::ForceIpAck:
 				return new GvcpForceIpAcknowledgeLayer(data, dataLen);
-			}
-			else
-			{
+			default:
 				return new GvcpAcknowledgeLayer(data, dataLen, prevLayer, packet);
 			}
 		}
