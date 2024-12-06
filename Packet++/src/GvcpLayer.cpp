@@ -4,12 +4,33 @@
 #include "PayloadLayer.h"
 #include "SystemUtils.h"
 #include <cstring>
+#include <functional>
 #include <sstream>
+#include <unordered_set>
+
+template <> struct std::hash<pcpp::GvcpCommand>
+{
+	std::size_t operator()(const pcpp::GvcpCommand& command) const
+	{
+		return static_cast<uint16_t>(command);
+	}
+};
 
 namespace pcpp
 {
 	namespace internal
 	{
+		std::unordered_set<GvcpCommand> gvcpCommandSet = {
+			GvcpCommand::DiscoveredCmd, GvcpCommand::DiscoveredAck,   GvcpCommand::ForceIpCmd,
+			GvcpCommand::ForceIpAck,    GvcpCommand::PacketResendCmd, GvcpCommand::PacketResendAck,
+			GvcpCommand::ReadRegCmd,    GvcpCommand::ReadRegAck,      GvcpCommand::WriteRegCmd,
+			GvcpCommand::WriteRegAck,   GvcpCommand::ReadMemCmd,      GvcpCommand::ReadMemAck,
+			GvcpCommand::WriteMemCmd,   GvcpCommand::WriteMemAck,     GvcpCommand::PendingAck,
+			GvcpCommand::EventCmd,      GvcpCommand::EventAck,        GvcpCommand::EventDataCmd,
+			GvcpCommand::EventDataAck,  GvcpCommand::ActionCmd,       GvcpCommand::ActionAck,
+			GvcpCommand::Unknown
+		};
+
 		gvcp_request_header::gvcp_request_header(GvcpFlag flag, GvcpCommand command, uint16_t dataSize,
 		                                         uint16_t requestId)
 		    : flag(flag), command(hostToNet16(static_cast<uint16_t>(command))), dataSize(hostToNet16(dataSize)),
@@ -18,7 +39,13 @@ namespace pcpp
 
 		GvcpCommand gvcp_request_header::getCommand() const
 		{
-			return static_cast<GvcpCommand>(netToHost16(command));
+			GvcpCommand command_ = static_cast<GvcpCommand>(netToHost16(command));
+			if (internal::gvcpCommandSet.find(command_) != internal::gvcpCommandSet.end())
+			{
+				return command_;
+			}
+
+			return GvcpCommand::Unknown;
 		}
 
 		gvcp_ack_header::gvcp_ack_header(GvcpResponseStatus status, GvcpCommand command, uint16_t dataSize,
@@ -29,7 +56,13 @@ namespace pcpp
 
 		GvcpCommand gvcp_ack_header::getCommand() const
 		{
-			return static_cast<GvcpCommand>(netToHost16(command));
+			GvcpCommand command_ = static_cast<GvcpCommand>(netToHost16(command));
+			if (internal::gvcpCommandSet.find(command_) != internal::gvcpCommandSet.end())
+			{
+				return command_;
+			}
+
+			return GvcpCommand::Unknown;
 		}
 
 	}  // namespace internal
@@ -140,7 +173,13 @@ namespace pcpp
 
 	GvcpCommand GvcpRequestLayer::getCommand() const
 	{
-		return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
+		GvcpCommand command = getGvcpHeader()->getCommand();
+		if (internal::gvcpCommandSet.find(command) != internal::gvcpCommandSet.end())
+		{
+			return command;
+		}
+
+		return GvcpCommand::Unknown;
 	}
 
 	/*---------------------- Class GvcpAcknowledgeLayer ----------------------------*/
@@ -191,7 +230,13 @@ namespace pcpp
 
 	GvcpCommand GvcpAcknowledgeLayer::getCommand() const
 	{
-		return static_cast<GvcpCommand>(netToHost16(getGvcpHeader()->command));
+		GvcpCommand command = getGvcpHeader()->getCommand();
+		if (internal::gvcpCommandSet.find(command) != internal::gvcpCommandSet.end())
+		{
+			return command;
+		}
+
+		return GvcpCommand::Unknown;
 	}
 
 	uint16_t GvcpAcknowledgeLayer::getDataSize() const
