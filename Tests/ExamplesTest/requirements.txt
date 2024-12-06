@@ -3,5 +3,5 @@ iniconfig==2.0.0
 py==1.11.0
 pyparsing==3.1.4
 pytest==8.3.3
-scapy==2.6.0
+scapy==2.6.1
 toml==0.10.2
