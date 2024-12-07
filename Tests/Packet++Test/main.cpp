@@ -282,9 +282,12 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(RadiusLayerCreationTest, "radius");
 	PTF_RUN_TEST(RadiusLayerEditTest, "radius");
 
-	PTF_RUN_TEST(GtpLayerParsingTest, "gtp");
-	PTF_RUN_TEST(GtpLayerCreationTest, "gtp");
-	PTF_RUN_TEST(GtpLayerEditTest, "gtp");
+	PTF_RUN_TEST(GtpV1LayerParsingTest, "gtp");
+	PTF_RUN_TEST(GtpV1LayerCreationTest, "gtp");
+	PTF_RUN_TEST(GtpV1LayerEditTest, "gtp");
+	PTF_RUN_TEST(GtpV2LayerParsingTest, "gtp");
+	PTF_RUN_TEST(GtpV2LayerCreationTest, "gtp");
+	PTF_RUN_TEST(GtpV2LayerEditTest, "gtp");
 
 	PTF_RUN_TEST(BgpLayerParsingTest, "bgp");
 	PTF_RUN_TEST(BgpLayerCreationTest, "bgp");
