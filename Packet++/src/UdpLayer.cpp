@@ -8,6 +8,7 @@
 #include "DnsLayer.h"
 #include "DhcpLayer.h"
 #include "DhcpV6Layer.h"
+#include "DoIpLayer.h"
 #include "VxlanLayer.h"
 #include "SipLayer.h"
 #include "RadiusLayer.h"
@@ -127,6 +128,9 @@ namespace pcpp
 		else if ((DhcpV6Layer::isDhcpV6Port(portSrc) || DhcpV6Layer::isDhcpV6Port(portDst)) &&
 		         (DhcpV6Layer::isDataValid(udpData, udpDataLen)))
 			m_NextLayer = new DhcpV6Layer(udpData, udpDataLen, this, m_Packet);
+		else if ((DoIpLayer::isDoIpPort(portSrc) || DoIpLayer::isDoIpPort(portDst)) &&
+		         (DoIpLayer::isDataValid(udpData, udpDataLen)))
+			m_NextLayer = new DoIpLayer(udpData, udpDataLen, this, m_Packet);
 		else if ((NtpLayer::isNTPPort(portSrc) || NtpLayer::isNTPPort(portDst)) &&
 		         NtpLayer::isDataValid(udpData, udpDataLen))
 			m_NextLayer = new NtpLayer(udpData, udpDataLen, this, m_Packet);

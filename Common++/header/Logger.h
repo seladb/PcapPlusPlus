@@ -114,7 +114,8 @@ namespace pcpp
 		PcapLogModuleKniDevice,          ///< KniDevice module (Pcap++)
 		PcapLogModuleXdpDevice,          ///< XdpDevice module (Pcap++)
 		NetworkUtils,                    ///< NetworkUtils module (Pcap++)
-		NumOfLogModules
+		PacketLogModuleDoIpLayer,        ///< DoipLayer module (Packet++)
+		NumOfLogModules,
 	};
 
 	/**

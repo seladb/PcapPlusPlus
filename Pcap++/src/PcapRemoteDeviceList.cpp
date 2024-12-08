@@ -109,7 +109,6 @@ namespace pcpp
 				auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(
 				    new PcapRemoteDevice(currInterface, pRemoteAuthCopy, ipAddress, port));
 				// Release is called after pushback to prevent memory leaks if vector reallocation fails.
-				// cppcheck-suppress danglingLifetime
 				devices.push_back(pNewRemoteDevice.get());
 				pNewRemoteDevice.release();
 			}
