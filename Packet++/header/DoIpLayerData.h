@@ -600,7 +600,7 @@ namespace pcpp
 		 * - `maxConcurrentSockets`: Set to `0`, meaning no concurrent sockets are allowed by default.
 		 * - `currentlyOpenSockets`: Set to `0`, indicating no sockets are currently open.
 		 * - `maxDataSize`: Set to `nullptr`, meaning no data for this field. can be assigned after object
-		 * creation by :
+		 *
 		 * @code
 		 * EntityStatusResponseData data;
 		 * data.maxDataSize = std::unique_ptr<std::array<uint8_t, 4>>(new std::array<uint8_t, 4> {0x00, 0x01, 0x02,

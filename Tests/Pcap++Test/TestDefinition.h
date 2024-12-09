@@ -62,9 +62,6 @@ PTF_TEST_CASE(TestHttpResponseParsing);
 PTF_TEST_CASE(TestPrintPacketAndLayers);
 PTF_TEST_CASE(TestDnsParsing);
 
-// Implemented in DoIpTests.cpp
-PTF_TEST_CASE(DoIpPacketParsing);
-
 // Implemented in TcpReassemblyTests.cpp
 PTF_TEST_CASE(TestTcpReassemblySanity);
 PTF_TEST_CASE(TestTcpReassemblyRetran);

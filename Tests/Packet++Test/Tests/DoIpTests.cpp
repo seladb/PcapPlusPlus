@@ -49,7 +49,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 1);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Generic DOIP header Nack (0x0)\nPayload Length: 1\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Generic DOIP header Nack (0x0000)\nPayload Length: 1\n")
 }
 
 PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
@@ -90,7 +90,7 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 1);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Generic DOIP header Nack (0x0)\nPayload Length: 1\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Generic DOIP header Nack (0x0000)\nPayload Length: 1\n")
 }
 // DoIpVehicleIdentificationRequestPacketParsing
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
@@ -124,7 +124,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadTypeAsStr(), "Vehicle identification request");
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request (0x1)\nPayload Length: 0\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request (0x0001)\nPayload Length: 0\n")
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x0);
 
 }  // DoIpVehicleIdentificationRequestPacketParsing
@@ -161,7 +161,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadTypeAsStr(), "Vehicle identification request");
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request (0x1)\nPayload Length: 0\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request (0x0001)\nPayload Length: 0\n")
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 0x0);
 }
 // VehicleIdentificationWithVIN
@@ -195,7 +195,6 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 	if (data.buildFromLayer(doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "VIN: BAUNEE4MZ17042403\n");
-	// PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012);
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadType(), pcpp::DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN,
@@ -204,7 +203,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x11);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with VIN (0x3)\nPayload Length: 17\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with VIN (0x0003)\nPayload Length: 17\n")
 
 }  // DoIpVehicleIdentificationRequestVINPacketParsing
 
@@ -248,7 +247,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 17);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with VIN (0x3)\nPayload Length: 17\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with VIN (0x0003)\nPayload Length: 17\n")
 }
 // VehicleIdentificationWithEID
 PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
@@ -289,7 +288,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0x6);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with EID (0x2)\nPayload Length: 6\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with EID (0x0002)\nPayload Length: 6\n")
 
 }  // DoIpVehicleIdentificationRequestVINPacketParsing
 
@@ -335,7 +334,7 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 6);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with EID (0x2)\nPayload Length: 6\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle identification request with EID (0x0002)\nPayload Length: 6\n")
 }
 // VehicleAnnouncement
 PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
@@ -379,7 +378,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 32);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle announcement message / vehicle identification response message (0x4)\nPayload Length: 32\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle announcement message / vehicle identification response message (0x0004)\nPayload Length: 32\n")
 
 }  // DoIpVehicleAnnouncementPacketParsing
 
@@ -435,7 +434,7 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 33);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle announcement message / vehicle identification response message (0x4)\nPayload Length: 33\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Vehicle announcement message / vehicle identification response message (0x0004)\nPayload Length: 33\n")
 }
 // RoutingActivationRequest
 PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
@@ -477,7 +476,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 11);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation request (0x5)\nPayload Length: 11\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation request (0x0005)\nPayload Length: 11\n")
 }
 
 PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
@@ -524,7 +523,7 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 11);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation request (0x5)\nPayload Length: 11\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation request (0x0005)\nPayload Length: 11\n")
 }
 // RoutingActivationResponse
 PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
@@ -564,7 +563,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 9);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation response (0x6)\nPayload Length: 9\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation response (0x0006)\nPayload Length: 9\n")
 }
 
 PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
@@ -612,7 +611,7 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 13);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation response (0x6)\nPayload Length: 13\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Routing activation response (0x0006)\nPayload Length: 13\n")
 }
 // ---------------
 // AliveCheckRequestPacket
@@ -645,7 +644,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 0);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check request (0x7)\nPayload Length: 0\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check request (0x0007)\nPayload Length: 0\n")
 }
 
 PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation)
@@ -685,7 +684,7 @@ PTF_TEST_CASE(DoIpAliveCheckRequestPacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 0);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check request (0x7)\nPayload Length: 0\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check request (0x0007)\nPayload Length: 0\n")
 }
 // ---------------
 // AliveCheckResponsePacket
@@ -724,7 +723,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketParsing)
 	PTF_ASSERT_EQUAL(doipLayer->getPayloadLength(), 2);
 	PTF_ASSERT_EQUAL(
 	    doipLayer->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check response (0x8)\nPayload Length: 2\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check response (0x0008)\nPayload Length: 2\n")
 }
 
 PTF_TEST_CASE(DoIpAliveCheckResponsePacketCreation)
@@ -764,7 +763,7 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketCreation)
 	PTF_ASSERT_EQUAL(_doipLayer2->getPayloadLength(), 2);
 	PTF_ASSERT_EQUAL(
 	    _doipLayer2->toString(),
-	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check response (0x8)\nPayload Length: 2\n")
+	    "DOIP Layer:\nProtocol Version: DoIP ISO 13400-2:2012 (0x2)\nPayload Type: Alive check response (0x0008)\nPayload Length: 2\n")
 }
 // ------------------
 // EntityStatusRequestPacket

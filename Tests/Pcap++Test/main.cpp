@@ -199,7 +199,6 @@ int main(int argc, char* argv[])
 	PTF_START_RUNNING_TESTS(userTagsInclude, userTagsExclude, configTags);
 
 	testSetUp();
-	PTF_RUN_TEST(DoIpPacketParsing, "no_network");
 	PTF_RUN_TEST(TestIPAddress, "no_network;ip");
 	PTF_RUN_TEST(TestMacAddress, "no_network;mac");
 	PTF_RUN_TEST(TestLRUList, "no_network");

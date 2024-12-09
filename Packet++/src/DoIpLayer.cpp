@@ -133,6 +133,11 @@ namespace pcpp
 	std::string DoIpLayer::toString() const
 	{
 		std::stringstream os;
+		if (!resolveLayer())
+		{
+			os << "Malformed doip Packet";
+			return os.str();
+		}
 		DoIpProtocolVersion version = getProtocolVersion();
 		DoIpPayloadTypes type = getPayloadType();
 		uint32_t length = getPayloadLength();
@@ -140,8 +145,8 @@ namespace pcpp
 		os << "DOIP Layer:" << std::endl;
 		os << "Protocol Version: " << DoIpEnumToStringProtocolVersion.at(version) << std::hex << " (0x"
 		   << unsigned((uint8_t)version) << ")" << std::endl;
-		os << "Payload Type: " << getPayloadTypeAsStr() << std::hex << " (0x" << htole16((uint16_t)type) << ")"
-		   << std::endl;
+		os << "Payload Type: " << getPayloadTypeAsStr() << std::hex << " (0x" << std::setw(4) << std::setfill('0')
+		   << (uint16_t)type << ")" << std::endl;
 		os << std::dec << "Payload Length: " << length << std::endl;
 
 		return os.str();

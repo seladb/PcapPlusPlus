@@ -281,7 +281,7 @@ namespace pcpp
 	std::string VehicleIdentificationRequestVINData::toString() const
 	{
 		std::stringstream os;
-		os << "VIN: " << std::string(vin.data(), vin.end()) << std::endl;
+		os << "VIN: " << std::string(reinterpret_cast<const char*>(vin.data()), vin.size()) << std::endl;
 		return os.str();
 	}
 	std::vector<uint8_t> VehicleIdentificationRequestVINData::getData() const

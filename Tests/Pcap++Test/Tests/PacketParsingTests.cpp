@@ -475,20 +475,3 @@ PTF_TEST_CASE(TestDnsParsing)
 	// wireshark filter: dns.count.add_rr > 0 and dns.resp.type == 47
 	PTF_ASSERT_EQUAL(additionalWithTypeNSEC, 14);
 }  // TestDnsParsing
-
-PTF_TEST_CASE(DoIpPacketParsing)
-{
-	pcpp::PcapFileReaderDevice reader(EXAMPLE_PCAPNG_DOIP_PATH);
-	PTF_ASSERT_TRUE(reader.open());
-	pcpp::RawPacket rawPacket;
-	while (reader.getNextPacket(rawPacket))
-	{
-		pcpp::Packet packet(&rawPacket);
-		std::cout << packet.toString();
-		// pcpp::DoIpLayer* doipLayer = packet.getLayerOfType<pcpp::DoIpLayer>();
-		// PTF_ASSERT_TRUE(doipLayer->resolveProtocolVersion(doipLayer->getProtocolVersion(),
-		// doipLayer->getInvertProtocolVersion(), doipLayer->getPayloadType()));
-		// PTF_ASSERT_TRUE(doipLayer->resolvePayloadLength(doipLayer->getPayloadLength(), doipLayer->getPayloadType()));
-		pcpp::multiPlatformSleep(1);
-	}
-}
