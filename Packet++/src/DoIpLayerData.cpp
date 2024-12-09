@@ -339,7 +339,7 @@ namespace pcpp
 	std::string VehicleAnnouncementData::toString() const
 	{
 		std::stringstream os;
-		os << "VIN: " << std::string(vin.data(), vin.end()) << std::endl;
+		os << "VIN: " << std::string(reinterpret_cast<const char*>(vin.data()), vin.size()) << std::endl;
 		os << "logical address: " << std::hex << "0x" << htobe16(logicalAddress) << std::endl;
 		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << std::endl;
 		os << "GID: " << pcpp::byteArrayToHexString(gid.data(), DOIP_GID_LEN) << std::endl;

@@ -414,7 +414,7 @@ namespace pcpp
 		std::array<uint8_t, DOIP_EID_LEN> eid; /**< Electronic Identifier (EID). */
 		std::array<uint8_t, DOIP_GID_LEN> gid; /**< Group Identifier (GID). */
 		DoIpActionCodes furtherActionRequired; /**< Action required after the announcement. */
-		DoIpSyncStatus syncStatus;             /**< version and invert version are synchronized */
+		DoIpSyncStatus syncStatus;             /**< version and invert version are synchronized. */
 
 		/**
 		 * \brief Returns the type of the message.
@@ -599,12 +599,12 @@ namespace pcpp
 		 * - `status`: Set to `DoIpEntityStatus::GATEWAY`, indicating the entity is acting as a gateway.
 		 * - `maxConcurrentSockets`: Set to `0`, meaning no concurrent sockets are allowed by default.
 		 * - `currentlyOpenSockets`: Set to `0`, indicating no sockets are currently open.
-		 * - `maxDataSize`: Set to `nullptr`, meaning no data for this field. can be assigned after object
+		 * - `maxDataSize`: Set to `nullptr`, meaning no data for this field. can be assigned after object creation.
 		 *
 		 * @code
 		 * EntityStatusResponseData data;
 		 * data.maxDataSize = std::unique_ptr<std::array<uint8_t, 4>>(new std::array<uint8_t, 4> {0x00, 0x01, 0x02,
-		 * 0x03})
+		 * 0x03}).
 		 */
 		EntityStatusResponseData();
 
@@ -679,7 +679,7 @@ namespace pcpp
 
 		uint16_t sourceAddress;              /**< Source address of the message. */
 		uint16_t targetAddress;              /**< Target address for the diagnostic message. */
-		std::vector<uint8_t> diagnosticData; /**< Diagnostic message data with dynamic length*/
+		std::vector<uint8_t> diagnosticData; /**< Diagnostic message data with dynamic length. */
 
 		/**
 		 * \brief Returns the type of the message.
