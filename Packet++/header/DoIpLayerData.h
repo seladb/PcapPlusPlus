@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include "EndianPortable.h"
 #include "Logger.h"
 #include "GeneralUtils.h"
 #include "DoIpEnumToString.h"

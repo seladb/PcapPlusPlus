@@ -223,31 +223,4 @@ namespace pcpp
 		{ DoIpSyncStatus::VIN_AND_OR_GID_ARE_NOT_SINCHRONIZED, "VIN and/or GID are not synchronized" },
 		{ DoIpSyncStatus::NON_INITIALIZED,                     "NULL"                                }
 	};
-
-	/**
-	 * @brief Mapping of DoIP Payload Types to their corresponding payload lengths.
-	 *
-	 * This unordered map associates each `DoIpPayloadType` enum value with a specific max payload length.
-	 * It provides the needed length for each payload type, ensuring proper handling of message sizes
-	 * when building DoIP messages.
-
-	inline static const std::unordered_map<DoIpPayloadTypes, int> DoIpMapPayloadTypeToPayloadLength{
-	    { DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK,                  1    },
-	    { DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST,          0    },
-	    { DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID, 6    },
-	    { DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN, 17   },
-	    { DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE,                    40   },
-	    { DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST,              11   },
-	    { DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE,             9    },
-	    { DoIpPayloadTypes::ALIVE_CHECK_REQUEST,                     0    },
-	    { DoIpPayloadTypes::ALIVE_CHECK_RESPONSE,                    2    },
-	    { DoIpPayloadTypes::ENTITY_STATUS_REQUEST,                   0    },
-	    { DoIpPayloadTypes::ENTITY_STATUS_RESPONSE,                  7    },
-	    { DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST,           0    },
-	    { DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE,          1    },
-	    { DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_TYPE,                 1452 },
-	    { DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_POS_ACK,              5    },
-	    { DoIpPayloadTypes::DIAGNOSTIC_MESSAGE_NEG_ACK,              4    }
-	}; */
-
 }  // namespace pcpp
