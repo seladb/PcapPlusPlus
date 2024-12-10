@@ -2,15 +2,11 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-	/**
-	 * An enum for all possible DNS record types
-	 */
+	/// An enum for all possible DNS record types
 	enum DnsType
 	{
 		/** IPv4 address record */
@@ -119,9 +115,7 @@ namespace pcpp
 		DNS_TYPE_ALL = 255
 	};
 
-	/**
-	 * An enum for all possible DNS classes
-	 */
+	/// An enum for all possible DNS classes
 	enum DnsClass
 	{
 		/** Internet class */
@@ -136,9 +130,7 @@ namespace pcpp
 		DNS_CLASS_ANY = 255
 	};
 
-	/**
-	 * An enum for representing the 4 types of possible DNS records
-	 */
+	/// An enum for representing the 4 types of possible DNS records
 	enum DnsResourceType
 	{
 		/** DNS query record */
