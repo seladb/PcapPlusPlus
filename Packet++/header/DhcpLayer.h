@@ -8,17 +8,12 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-/**
- * @struct dhcp_header
- * Represents a DHCP protocol header
- */
+	/// @struct dhcp_header
+	/// Represents a DHCP protocol header
 #pragma pack(push, 1)
 	struct dhcp_header
 	{
@@ -55,9 +50,7 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * BootP opcodes
-	 */
+	/// BootP opcodes
 	enum BootpOpCodes
 	{
 		/** BootP request */
@@ -66,9 +59,7 @@ namespace pcpp
 		DHCP_BOOTREPLY = 2
 	};
 
-	/**
-	 * DHCP message types
-	 */
+	/// DHCP message types
 	enum DhcpMessageType
 	{
 		/** Unknown message type */
@@ -91,9 +82,7 @@ namespace pcpp
 		DHCP_INFORM = 8
 	};
 
-	/**
-	 * DHCP option types.
-	 */
+	/// DHCP option types.
 	enum DhcpOptionTypes
 	{
 		/** Unknown option type */
@@ -390,54 +379,42 @@ namespace pcpp
 		DHCPOPT_END = 255
 	};
 
-	/**
-	 * @class DhcpOption
-	 * A wrapper class for DHCP options. This class does not create or modify DHCP option records, but rather
-	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
-	 */
+	/// @class DhcpOption
+	/// A wrapper class for DHCP options. This class does not create or modify DHCP option records, but rather
+	/// serves as a wrapper and provides useful methods for setting and retrieving data to/from them
 	class DhcpOption : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
-		/**
-		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
-		 * @param[in] optionRawData A pointer to the option raw data
-		 */
+		/// A c'tor for this class that gets a pointer to the option raw data (byte array)
+		/// @param[in] optionRawData A pointer to the option raw data
 		explicit DhcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData)
 		{}
 
-		/**
-		 * A d'tor for this class, currently does nothing
-		 */
+		/// A d'tor for this class, currently does nothing
 		~DhcpOption() override = default;
 
-		/**
-		 * Retrieve DHCP option data as IPv4 address. Relevant only if option value is indeed an IPv4 address
-		 * @return DHCP option data as IPv4 address
-		 */
+		/// Retrieve DHCP option data as IPv4 address. Relevant only if option value is indeed an IPv4 address
+		/// @return DHCP option data as IPv4 address
 		IPv4Address getValueAsIpAddr() const
 		{
 			return getValueAs<uint32_t>();
 		}
 
-		/**
-		 * Set DHCP option data as IPv4 address. This method copies the 4 bytes of the IP address to the option value
-		 * @param[in] addr The IPv4 address to set
-		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set
-		 * to 0). For example: if option data is 20 bytes long and you want to set the IP address in the 4 last bytes
-		 * then use this method like this: setValueIpAddr(your_addr, 16)
-		 */
+		/// Set DHCP option data as IPv4 address. This method copies the 4 bytes of the IP address to the option value
+		/// @param[in] addr The IPv4 address to set
+		/// @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set
+		/// to 0). For example: if option data is 20 bytes long and you want to set the IP address in the 4 last bytes
+		/// then use this method like this: setValueIpAddr(your_addr, 16)
 		void setValueIpAddr(const IPv4Address& addr, int valueOffset = 0)
 		{
 			setValue<uint32_t>(addr.toInt(), valueOffset);
 		}
 
-		/**
-		 * Retrieve DHCP option data as string. Relevant only if option value is indeed a string
-		 * @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For
-		 * example: when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method like
-		 * this: getValueAsString(3). The default is 0 - start copying from the beginning of option data
-		 * @return DHCP option data as string
-		 */
+		/// Retrieve DHCP option data as string. Relevant only if option value is indeed a string
+		/// @param[in] valueOffset An optional parameter that specifies where to start copy the DHCP option data. For
+		/// example: when retrieving Client FQDN option, you may ignore the flags and RCODE fields using this method
+		/// like this: getValueAsString(3). The default is 0 - start copying from the beginning of option data
+		/// @return DHCP option data as string
 		std::string getValueAsString(int valueOffset = 0) const
 		{
 			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
@@ -447,14 +424,12 @@ namespace pcpp
 			                   static_cast<int>(m_Data->recordLen) - valueOffset);
 		}
 
-		/**
-		 * Set DHCP option data as string. This method copies the string to the option value. If the string is longer
-		 * than option length the string is trimmed so it will fit the option length
-		 * @param[in] stringValue The string to set
-		 * @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set
-		 * to 0). For example: if option data is 20 bytes long and you want to set a 6 char-long string in the 6 last
-		 * bytes then use this method like this: setValueString("string", 14)
-		 */
+		/// Set DHCP option data as string. This method copies the string to the option value. If the string is longer
+		/// than option length the string is trimmed so it will fit the option length
+		/// @param[in] stringValue The string to set
+		/// @param[in] valueOffset An optional parameter that specifies where to start set the option data (default set
+		/// to 0). For example: if option data is 20 bytes long and you want to set a 6 char-long string in the 6 last
+		/// bytes then use this method like this: setValueString("string", 14)
 		void setValueString(const std::string& stringValue, int valueOffset = 0)
 		{
 			// calculate the maximum length of the destination buffer
@@ -467,12 +442,10 @@ namespace pcpp
 			memcpy(m_Data->recordValue + valueOffset, stringValue.data(), len);
 		}
 
-		/**
-		 * Check if a pointer can be assigned to the TLV record data
-		 * @param[in] recordRawData A pointer to the TLV record raw data
-		 * @param[in] tlvDataLen The size of the TLV record raw data
-		 * @return True if data is valid and can be assigned
-		 */
+		/// Check if a pointer can be assigned to the TLV record data
+		/// @param[in] recordRawData A pointer to the TLV record raw data
+		/// @param[in] tlvDataLen The size of the TLV record raw data
+		/// @return True if data is valid and can be assigned
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
 			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
@@ -516,347 +489,266 @@ namespace pcpp
 		}
 	};
 
-	/**
-	 * @class DhcpOptionBuilder
-	 * A class for building DHCP options. This builder receives the option parameters in its c'tor,
-	 * builds the DHCP option raw buffer and provides a build() method to get a DhcpOption object out of it
-	 */
+	/// @class DhcpOptionBuilder
+	/// A class for building DHCP options. This builder receives the option parameters in its c'tor,
+	/// builds the DHCP option raw buffer and provides a build() method to get a DhcpOption object out of it
 	class DhcpOptionBuilder : public TLVRecordBuilder
 	{
 	public:
-		/**
-		 * A c'tor for building DHCP options which their value is a byte array. The DhcpOption object can later
-		 * be retrieved by calling build()
-		 * @param[in] optionType DHCP option type
-		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
-		 * any way
-		 * @param[in] optionValueLen DHCP option value length in bytes
-		 */
+		/// A c'tor for building DHCP options which their value is a byte array. The DhcpOption object can later
+		/// be retrieved by calling build()
+		/// @param[in] optionType DHCP option type
+		/// @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
+		/// any way
+		/// @param[in] optionValueLen DHCP option value length in bytes
 		DhcpOptionBuilder(DhcpOptionTypes optionType, const uint8_t* optionValue, uint8_t optionValueLen)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue, optionValueLen)
 		{}
 
-		/**
-		 * A c'tor for building DHCP options which have a 1-byte value. The DhcpOption object can later be retrieved
-		 * by calling build()
-		 * @param[in] optionType DHCP option type
-		 * @param[in] optionValue A 1-byte option value
-		 */
+		/// A c'tor for building DHCP options which have a 1-byte value. The DhcpOption object can later be retrieved
+		/// by calling build()
+		/// @param[in] optionType DHCP option type
+		/// @param[in] optionValue A 1-byte option value
 		DhcpOptionBuilder(DhcpOptionTypes optionType, uint8_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building DHCP options which have a 2-byte value. The DhcpOption object can later be retrieved
-		 * by calling build()
-		 * @param[in] optionType DHCP option type
-		 * @param[in] optionValue A 2-byte option value
-		 */
+		/// A c'tor for building DHCP options which have a 2-byte value. The DhcpOption object can later be retrieved
+		/// by calling build()
+		/// @param[in] optionType DHCP option type
+		/// @param[in] optionValue A 2-byte option value
 		DhcpOptionBuilder(DhcpOptionTypes optionType, uint16_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building DHCP options which have a 4-byte value. The DhcpOption object can later be retrieved
-		 * by calling build()
-		 * @param[in] optionType DHCP option type
-		 * @param[in] optionValue A 4-byte option value
-		 */
+		/// A c'tor for building DHCP options which have a 4-byte value. The DhcpOption object can later be retrieved
+		/// by calling build()
+		/// @param[in] optionType DHCP option type
+		/// @param[in] optionValue A 4-byte option value
 		DhcpOptionBuilder(DhcpOptionTypes optionType, uint32_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building DHCP options which have an IPv4Address value. The DhcpOption object can later be
-		 * retrieved by calling build()
-		 * @param[in] optionType DHCP option type
-		 * @param[in] optionValue The IPv4 address option value
-		 */
+		/// A c'tor for building DHCP options which have an IPv4Address value. The DhcpOption object can later be
+		/// retrieved by calling build()
+		/// @param[in] optionType DHCP option type
+		/// @param[in] optionValue The IPv4 address option value
 		DhcpOptionBuilder(DhcpOptionTypes optionType, const IPv4Address& optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building DHCP options which have a string value. The DhcpOption object can later be retrieved
-		 * by calling build()
-		 * @param[in] optionType DHCP option type
-		 * @param[in] optionValue The string option value
-		 */
+		/// A c'tor for building DHCP options which have a string value. The DhcpOption object can later be retrieved
+		/// by calling build()
+		/// @param[in] optionType DHCP option type
+		/// @param[in] optionValue The string option value
 		DhcpOptionBuilder(DhcpOptionTypes optionType, const std::string& optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A copy c'tor which copies all the data from another instance of DhcpOptionBuilder
-		 * @param[in] other The instance to copy from
-		 */
+		/// A copy c'tor which copies all the data from another instance of DhcpOptionBuilder
+		/// @param[in] other The instance to copy from
 		DhcpOptionBuilder(const DhcpOptionBuilder& other) : TLVRecordBuilder(other)
 		{}
 
-		/**
-		 * Assignment operator that copies all data from another instance of DhcpOptionBuilder
-		 * @param[in] other The instance to assign from
-		 * @return A reference to the assignee
-		 */
+		/// Assignment operator that copies all data from another instance of DhcpOptionBuilder
+		/// @param[in] other The instance to assign from
+		/// @return A reference to the assignee
 		DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other)
 		{
 			TLVRecordBuilder::operator=(other);
 			return *this;
 		}
 
-		/**
-		 * Build the DhcpOption object out of the parameters defined in the c'tor
-		 * @return The DhcpOption object
-		 */
+		/// Build the DhcpOption object out of the parameters defined in the c'tor
+		/// @return The DhcpOption object
 		DhcpOption build() const;
 	};
 
-	/**
-	 * @class DhcpLayer
-	 * Represents a DHCP (Dynamic Host Configuration Protocol) protocol layer
-	 */
+	/// @class DhcpLayer
+	/// Represents a DHCP (Dynamic Host Configuration Protocol) protocol layer
 	class DhcpLayer : public Layer
 	{
 	public:
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		DhcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		/**
-		 * A constructor that creates the layer from scratch. Adds a ::DHCPOPT_DHCP_MESSAGE_TYPE and a ::DHCPOPT_END
-		 * options
-		 * @param[in] msgType A DHCP message type to be set
-		 * @param[in] clientMacAddr A client MAC address to set in dhcp_header#clientHardwareAddress field
-		 */
+		/// A constructor that creates the layer from scratch. Adds a ::DHCPOPT_DHCP_MESSAGE_TYPE and a ::DHCPOPT_END
+		/// options
+		/// @param[in] msgType A DHCP message type to be set
+		/// @param[in] clientMacAddr A client MAC address to set in dhcp_header#clientHardwareAddress field
 		DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr);
 
-		/**
-		 * A constructor that creates the layer from scratch with clean data
-		 */
+		/// A constructor that creates the layer from scratch with clean data
 		DhcpLayer();
 
-		/**
-		 * A destructor for this layer
-		 */
+		/// A destructor for this layer
 		~DhcpLayer() override = default;
 
-		/**
-		 * Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the
-		 * actual packet data
-		 * @return A pointer to the @ref dhcp_header
-		 */
+		/// Get a pointer to the DHCP header. Notice this points directly to the data, so every change will change the
+		/// actual packet data
+		/// @return A pointer to the @ref dhcp_header
 		dhcp_header* getDhcpHeader() const
 		{
 			return reinterpret_cast<dhcp_header*>(m_Data);
 		}
 
-		/**
-		 * @return The BootP opcode of this message
-		 */
+		/// @return The BootP opcode of this message
 		BootpOpCodes getOpCode() const
 		{
 			return static_cast<BootpOpCodes>(getDhcpHeader()->opCode);
 		}
 
-		/**
-		 * @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address
-		 * object)
-		 */
+		/// @return The client IPv4 address (as extracted from dhcp_header#clientIpAddress converted to IPv4Address
+		/// object)
 		IPv4Address getClientIpAddress() const
 		{
 			return getDhcpHeader()->clientIpAddress;
 		}
 
-		/**
-		 * Set the client IPv4 address in dhcp_header#clientIpAddress
-		 * @param[in] addr The IPv4 address to set
-		 */
+		/// Set the client IPv4 address in dhcp_header#clientIpAddress
+		/// @param[in] addr The IPv4 address to set
 		void setClientIpAddress(const IPv4Address& addr)
 		{
 			getDhcpHeader()->clientIpAddress = addr.toInt();
 		}
 
-		/**
-		 * @return The server IPv4 address (as extracted from dhcp_header#serverIpAddress converted to IPv4Address
-		 * object)
-		 */
+		/// @return The server IPv4 address (as extracted from dhcp_header#serverIpAddress converted to IPv4Address
+		/// object)
 		IPv4Address getServerIpAddress() const
 		{
 			return getDhcpHeader()->serverIpAddress;
 		}
 
-		/**
-		 * Set the server IPv4 address in dhcp_header#serverIpAddress
-		 * @param[in] addr The IPv4 address to set
-		 */
+		/// Set the server IPv4 address in dhcp_header#serverIpAddress
+		/// @param[in] addr The IPv4 address to set
 		void setServerIpAddress(const IPv4Address& addr)
 		{
 			getDhcpHeader()->serverIpAddress = addr.toInt();
 		}
 
-		/**
-		 * @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress converted to IPv4Address object)
-		 */
+		/// @return Your IPv4 address (as extracted from dhcp_header#yourIpAddress converted to IPv4Address object)
 		IPv4Address getYourIpAddress() const
 		{
 			return getDhcpHeader()->yourIpAddress;
 		}
 
-		/**
-		 * Set your IPv4 address in dhcp_header#yourIpAddress
-		 * @param[in] addr The IPv4 address to set
-		 */
+		/// Set your IPv4 address in dhcp_header#yourIpAddress
+		/// @param[in] addr The IPv4 address to set
 		void setYourIpAddress(const IPv4Address& addr)
 		{
 			getDhcpHeader()->yourIpAddress = addr.toInt();
 		}
 
-		/**
-		 * @return Gateway IPv4 address (as extracted from dhcp_header#gatewayIpAddress converted to IPv4Address object)
-		 */
+		/// @return Gateway IPv4 address (as extracted from dhcp_header#gatewayIpAddress converted to IPv4Address
+		/// object)
 		IPv4Address getGatewayIpAddress() const
 		{
 			return getDhcpHeader()->gatewayIpAddress;
 		}
 
-		/**
-		 * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
-		 * @param[in] addr The IPv4 address to set
-		 */
+		/// Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
+		/// @param[in] addr The IPv4 address to set
 		void setGatewayIpAddress(const IPv4Address& addr)
 		{
 			getDhcpHeader()->gatewayIpAddress = addr.toInt();
 		}
 
-		/**
-		 * @return The client MAC address as extracted from dhcp_header#clientHardwareAddress, assuming
-		 * dhcp_header#hardwareType is 1 (Ethernet) and dhcp_header#hardwareAddressLength is 6 (MAC address length).
-		 * Otherwise returns MacAddress#Zero
-		 */
+		/// @return The client MAC address as extracted from dhcp_header#clientHardwareAddress, assuming
+		/// dhcp_header#hardwareType is 1 (Ethernet) and dhcp_header#hardwareAddressLength is 6 (MAC address length).
+		/// Otherwise returns MacAddress#Zero
 		MacAddress getClientHardwareAddress() const;
 
-		/**
-		 * Set a MAC address into the first 6 bytes of dhcp_header#clientHardwareAddress. This method also sets
-		 * dhcp_header#hardwareType to 1 (Ethernet) and dhcp_header#hardwareAddressLength to 6 (MAC address length)
-		 * @param[in] addr The MAC address to set
-		 */
+		/// Set a MAC address into the first 6 bytes of dhcp_header#clientHardwareAddress. This method also sets
+		/// dhcp_header#hardwareType to 1 (Ethernet) and dhcp_header#hardwareAddressLength to 6 (MAC address length)
+		/// @param[in] addr The MAC address to set
 		void setClientHardwareAddress(const MacAddress& addr);
 
-		/**
-		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist
-		 * the value of
-		 * ::DHCP_UNKNOWN_MSG_TYPE is returned
-		 */
+		/// @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist
+		/// the value of
+		/// ::DHCP_UNKNOWN_MSG_TYPE is returned
 		DhcpMessageType getMessageType() const;
 
-		/**
-		 * Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it
-		 * sets the requested message type as its value. If not, it creates a ::DHCPOPT_DHCP_MESSAGE_TYPE option and
-		 * sets the requested message type as its value
-		 * @param[in] msgType Message type to set
-		 * @return True if message type was set successfully or false if msgType is ::DHCP_UNKNOWN_MSG_TYPE or if failed
-		 * to add
-		 * ::DHCPOPT_DHCP_MESSAGE_TYPE option
-		 */
+		/// Set DHCP message type. This method searches for existing ::DHCPOPT_DHCP_MESSAGE_TYPE option. If found, it
+		/// sets the requested message type as its value. If not, it creates a ::DHCPOPT_DHCP_MESSAGE_TYPE option and
+		/// sets the requested message type as its value
+		/// @param[in] msgType Message type to set
+		/// @return True if message type was set successfully or false if msgType is ::DHCP_UNKNOWN_MSG_TYPE or if
+		/// failed to add
+		/// ::DHCPOPT_DHCP_MESSAGE_TYPE option
 		bool setMessageType(DhcpMessageType msgType);
 
-		/**
-		 * @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain
-		 * a logical null (DhcpOption#isNull() == true)
-		 */
+		/// @return The first DHCP option in the packet. If there are no DHCP options the returned value will contain
+		/// a logical null (DhcpOption#isNull() == true)
 		DhcpOption getFirstOptionData() const;
 
-		/**
-		 * Get the DHCP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical null (DhcpOption#isNull() == true)
-		 * @param[in] dhcpOption A given DHCP option
-		 * @return A DhcpOption object containing the option data that comes next, or logical null if the given DHCP
-		 * option: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
-		 */
+		/// Get the DHCP option that comes after a given option. If the given option was the last one, the
+		/// returned value will contain a logical null (DhcpOption#isNull() == true)
+		/// @param[in] dhcpOption A given DHCP option
+		/// @return A DhcpOption object containing the option data that comes next, or logical null if the given DHCP
+		/// option: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		DhcpOption getNextOptionData(DhcpOption dhcpOption) const;
 
-		/**
-		 * Get a DHCP option by type
-		 * @param[in] option DHCP option type
-		 * @return A DhcpOption object containing the first DHCP option data that matches this type, or logical null
-		 * (DhcpOption#isNull() == true) if no such option found
-		 */
+		/// Get a DHCP option by type
+		/// @param[in] option DHCP option type
+		/// @return A DhcpOption object containing the first DHCP option data that matches this type, or logical null
+		/// (DhcpOption#isNull() == true) if no such option found
 		DhcpOption getOptionData(DhcpOptionTypes option) const;
 
-		/**
-		 * @return The number of DHCP options in this layer
-		 */
+		/// @return The number of DHCP options in this layer
 		size_t getOptionsCount() const;
 
-		/**
-		 * Add a new DHCP option at the end of the layer
-		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
-		 * @return A DhcpOption object containing the newly added DHCP option data or logical null
-		 * (DhcpOption#isNull() == true) if addition failed
-		 */
+		/// Add a new DHCP option at the end of the layer
+		/// @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
+		/// @return A DhcpOption object containing the newly added DHCP option data or logical null
+		/// (DhcpOption#isNull() == true) if addition failed
 		DhcpOption addOption(const DhcpOptionBuilder& optionBuilder);
 
-		/**
-		 * Add a new DHCP option after an existing one
-		 * @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
-		 * @param[in] prevOption The DHCP option type which the newly added option will come after
-		 * @return A DhcpOption object containing the newly added DHCP option data or logical null
-		 * (DhcpOption#isNull() == true) if addition failed
-		 */
+		/// Add a new DHCP option after an existing one
+		/// @param[in] optionBuilder A DhcpOptionBuilder object that contains the requested DHCP option data to add
+		/// @param[in] prevOption The DHCP option type which the newly added option will come after
+		/// @return A DhcpOption object containing the newly added DHCP option data or logical null
+		/// (DhcpOption#isNull() == true) if addition failed
 		DhcpOption addOptionAfter(const DhcpOptionBuilder& optionBuilder, DhcpOptionTypes prevOption);
 
-		/**
-		 * Remove an existing DHCP option from the layer
-		 * @param[in] optionType The DHCP option type to remove
-		 * @return True if DHCP option was successfully removed or false if type wasn't found or if removal failed
-		 */
+		/// Remove an existing DHCP option from the layer
+		/// @param[in] optionType The DHCP option type to remove
+		/// @return True if DHCP option was successfully removed or false if type wasn't found or if removal failed
 		bool removeOption(DhcpOptionTypes optionType);
 
-		/**
-		 * Remove all DHCP options in this layer
-		 * @return True if all DHCP options were successfully removed or false if removal failed for some reason
-		 */
+		/// Remove all DHCP options in this layer
+		/// @return True if all DHCP options were successfully removed or false if removal failed for some reason
 		bool removeAllOptions();
 
-		/**
-		 * A static method that checks whether a pair of ports are considered DHCP ports
-		 * @param[in] portSrc The source port number to check
-		 * @param[in] portDst The destination port number to check
-		 * @return True if these are DHCP port numbers, false otherwise
-		 */
+		/// A static method that checks whether a pair of ports are considered DHCP ports
+		/// @param[in] portSrc The source port number to check
+		/// @param[in] portDst The destination port number to check
+		/// @return True if these are DHCP port numbers, false otherwise
 		static inline bool isDhcpPorts(uint16_t portSrc, uint16_t portDst);
 
 		// implement abstract methods
 
-		/**
-		 * Does nothing for this layer (DhcpLayer is always last)
-		 */
+		/// Does nothing for this layer (DhcpLayer is always last)
 		void parseNextLayer() override
 		{}
 
-		/**
-		 * @return The size of @ref dhcp_header + size of options
-		 */
+		/// @return The size of @ref dhcp_header + size of options
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
 
-		/**
-		 * Calculate the following fields:
-		 * - @ref dhcp_header#magicNumber = DHCP magic number (0x63538263)
-		 * - @ref dhcp_header#opCode = ::DHCP_BOOTREQUEST for message types: ::DHCP_DISCOVER, ::DHCP_REQUEST,
-		 * ::DHCP_DECLINE, ::DHCP_RELEASE,
-		 *                            ::DHCP_INFORM, ::DHCP_UNKNOWN_MSG_TYPE
-		 *                            ::DHCP_BOOTREPLY for message types: ::DHCP_OFFER, ::DHCP_ACK, ::DHCP_NAK
-		 * - @ref dhcp_header#hardwareType = 1 (Ethernet)
-		 * - @ref dhcp_header#hardwareAddressLength = 6 (MAC address length)
-		 */
+		/// Calculate the following fields:
+		/// - @ref dhcp_header#magicNumber = DHCP magic number (0x63538263)
+		/// - @ref dhcp_header#opCode = ::DHCP_BOOTREQUEST for message types: ::DHCP_DISCOVER, ::DHCP_REQUEST,
+		/// ::DHCP_DECLINE, ::DHCP_RELEASE,
+		///                            ::DHCP_INFORM, ::DHCP_UNKNOWN_MSG_TYPE
+		///                            ::DHCP_BOOTREPLY for message types: ::DHCP_OFFER, ::DHCP_ACK, ::DHCP_NAK
+		/// - @ref dhcp_header#hardwareType = 1 (Ethernet)
+		/// - @ref dhcp_header#hardwareAddressLength = 6 (MAC address length)
 		void computeCalculateFields() override;
 
 		std::string toString() const override;

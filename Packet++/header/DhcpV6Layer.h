@@ -5,15 +5,11 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-	/**
-	 * DHCPv6 message types
-	 */
+	/// DHCPv6 message types
 	enum DhcpV6MessageType
 	{
 		/** Unknown message type */
@@ -46,14 +42,12 @@ namespace pcpp
 		DHCPV6_RELAY_REPLY = 13
 	};
 
-	/**
-	 * DHCPv6 option types.
-	 * Resources for more information:
-	 * - https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781118073810.app2
-	 * - https://datatracker.ietf.org/doc/html/rfc5970
-	 * - https://datatracker.ietf.org/doc/html/rfc6607
-	 * - https://datatracker.ietf.org/doc/html/rfc8520
-	 */
+	/// DHCPv6 option types.
+	/// Resources for more information:
+	/// - https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781118073810.app2
+	/// - https://datatracker.ietf.org/doc/html/rfc5970
+	/// - https://datatracker.ietf.org/doc/html/rfc6607
+	/// - https://datatracker.ietf.org/doc/html/rfc8520
 	enum DhcpV6OptionType
 	{
 		/** Unknown option type */
@@ -187,34 +181,24 @@ namespace pcpp
 		DHCPV6_OPT_MUD_URL = 112
 	};
 
-	/**
-	 * @class DhcpV6Option
-	 * A wrapper class for DHCPv6 options. This class does not create or modify DHCP option records, but rather
-	 * serves as a wrapper and provides useful methods for setting and retrieving data to/from them
-	 */
+	/// @class DhcpV6Option
+	/// A wrapper class for DHCPv6 options. This class does not create or modify DHCP option records, but rather
+	/// serves as a wrapper and provides useful methods for setting and retrieving data to/from them
 	class DhcpV6Option : public TLVRecord<uint16_t, uint16_t>
 	{
 	public:
-		/**
-		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
-		 * @param[in] optionRawData A pointer to the option raw data
-		 */
+		/// A c'tor for this class that gets a pointer to the option raw data (byte array)
+		/// @param[in] optionRawData A pointer to the option raw data
 		explicit DhcpV6Option(uint8_t* optionRawData) : TLVRecord(optionRawData)
 		{}
 
-		/**
-		 * A d'tor for this class, currently does nothing
-		 */
+		/// A d'tor for this class, currently does nothing
 		~DhcpV6Option() override = default;
 
-		/**
-		 * @return The option type converted to ::DhcpV6OptionType enum
-		 */
+		/// @return The option type converted to ::DhcpV6OptionType enum
 		DhcpV6OptionType getType() const;
 
-		/**
-		 * @return The raw option value (byte array) as a hex string
-		 */
+		/// @return The raw option value (byte array) as a hex string
 		std::string getValueAsHexString() const;
 
 		// implement abstract methods
@@ -223,47 +207,37 @@ namespace pcpp
 		size_t getDataSize() const override;
 	};
 
-	/**
-	 * @class DhcpV6OptionBuilder
-	 * A class for building DHCPv6 options. This builder receives the option parameters in its c'tor,
-	 * builds the DHCPv6 option raw buffer and provides a build() method to get a DhcpV6Option object out of it
-	 */
+	/// @class DhcpV6OptionBuilder
+	/// A class for building DHCPv6 options. This builder receives the option parameters in its c'tor,
+	/// builds the DHCPv6 option raw buffer and provides a build() method to get a DhcpV6Option object out of it
 	class DhcpV6OptionBuilder : public TLVRecordBuilder
 	{
 	public:
-		/**
-		 * A c'tor for building DHCPv6 options from a string representing the hex stream of the raw byte value.
-		 * The DhcpV6Option object can later be retrieved by calling build()
-		 * @param[in] optionType DHCPv6 option type
-		 * @param[in] optionValueAsHexStream The value as a hex stream string
-		 */
+		/// A c'tor for building DHCPv6 options from a string representing the hex stream of the raw byte value.
+		/// The DhcpV6Option object can later be retrieved by calling build()
+		/// @param[in] optionType DHCPv6 option type
+		/// @param[in] optionValueAsHexStream The value as a hex stream string
 		DhcpV6OptionBuilder(DhcpV6OptionType optionType, const std::string& optionValueAsHexStream)
 		    : TLVRecordBuilder(static_cast<uint16_t>(optionType), optionValueAsHexStream, true)
 		{}
 
-		/**
-		 * A c'tor for building DHCPv6 options from a byte array representing their value. The DhcpV6Option object can
-		 * be later retrieved by calling build()
-		 * @param[in] optionType DHCPv6 option type
-		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
-		 * any way.
-		 * @param[in] optionValueLen Option value length in bytes
-		 */
+		/// A c'tor for building DHCPv6 options from a byte array representing their value. The DhcpV6Option object can
+		/// be later retrieved by calling build()
+		/// @param[in] optionType DHCPv6 option type
+		/// @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
+		/// any way.
+		/// @param[in] optionValueLen Option value length in bytes
 		DhcpV6OptionBuilder(DhcpV6OptionType optionType, const uint8_t* optionValue, uint8_t optionValueLen)
 		    : TLVRecordBuilder(static_cast<uint16_t>(optionType), optionValue, optionValueLen)
 		{}
 
-		/**
-		 * Build the DhcpV6Option object out of the parameters defined in the c'tor
-		 * @return The DhcpV6Option object
-		 */
+		/// Build the DhcpV6Option object out of the parameters defined in the c'tor
+		/// @return The DhcpV6Option object
 		DhcpV6Option build() const;
 	};
 
-	/**
-	 * @struct dhcpv6_header
-	 * Represents the basic DHCPv6 protocol header
-	 */
+	/// @struct dhcpv6_header
+	/// Represents the basic DHCPv6 protocol header
 	struct dhcpv6_header
 	{
 		/** DHCPv6 message type */
@@ -276,158 +250,114 @@ namespace pcpp
 		uint8_t transactionId3;
 	};
 
-	/**
-	 * @class DhcpV6Layer
-	 * Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol layer
-	 */
+	/// @class DhcpV6Layer
+	/// Represents a DHCPv6 (Dynamic Host Configuration Protocol version 6) protocol layer
 	class DhcpV6Layer : public Layer
 	{
 	public:
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		DhcpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		/**
-		 * A constructor that creates the layer from scratch
-		 * @param[in] messageType A DHCPv6 message type to be set
-		 * @param[in] transactionId The transaction ID to be set. Notice the transaction ID is 3-byte long so the value
-		 * shouldn't exceed 0xFFFFFF
-		 */
+		/// A constructor that creates the layer from scratch
+		/// @param[in] messageType A DHCPv6 message type to be set
+		/// @param[in] transactionId The transaction ID to be set. Notice the transaction ID is 3-byte long so the value
+		/// shouldn't exceed 0xFFFFFF
 		DhcpV6Layer(DhcpV6MessageType messageType, uint32_t transactionId);
 
-		/**
-		 * @return The message type of this DHCPv6 message
-		 */
+		/// @return The message type of this DHCPv6 message
 		DhcpV6MessageType getMessageType() const;
 
-		/**
-		 * @return The string value of the message type of this DHCPv6 message
-		 */
+		/// @return The string value of the message type of this DHCPv6 message
 		std::string getMessageTypeAsString() const;
 
-		/**
-		 * Set the message type for this layer
-		 * @param[in] messageType The message type to set
-		 */
+		/// Set the message type for this layer
+		/// @param[in] messageType The message type to set
 		void setMessageType(DhcpV6MessageType messageType);
 
-		/**
-		 * @return The transaction ID of this DHCPv6 message
-		 */
+		/// @return The transaction ID of this DHCPv6 message
 		uint32_t getTransactionID() const;
 
-		/**
-		 * Set the transaction ID for this DHCPv6 message
-		 * @param[in] transactionId The transaction ID value to set
-		 */
+		/// Set the transaction ID for this DHCPv6 message
+		/// @param[in] transactionId The transaction ID value to set
 		void setTransactionID(uint32_t transactionId) const;
 
-		/**
-		 * @return The first DHCPv6 option in the packet. If there are no DHCPv6 options the returned value will contain
-		 * a logical null (DhcpV6Option#isNull() == true)
-		 */
+		/// @return The first DHCPv6 option in the packet. If there are no DHCPv6 options the returned value will
+		/// contain a logical null (DhcpV6Option#isNull() == true)
 		DhcpV6Option getFirstOptionData() const;
 
-		/**
-		 * Get the DHCPv6 option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical null (DhcpV6Option#isNull() == true)
-		 * @param[in] dhcpv6Option A given DHCPv6 option
-		 * @return A DhcpV6Option object containing the option data that comes next, or logical null if the given
-		 * DHCPv6 option: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
-		 */
+		/// Get the DHCPv6 option that comes after a given option. If the given option was the last one, the
+		/// returned value will contain a logical null (DhcpV6Option#isNull() == true)
+		/// @param[in] dhcpv6Option A given DHCPv6 option
+		/// @return A DhcpV6Option object containing the option data that comes next, or logical null if the given
+		/// DHCPv6 option: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		DhcpV6Option getNextOptionData(DhcpV6Option dhcpv6Option) const;
 
-		/**
-		 * Get a DHCPv6 option by type
-		 * @param[in] option DHCPv6 option type
-		 * @return A DhcpV6OptionType object containing the first DHCP option data that matches this type, or logical
-		 * null (DhcpV6Option#isNull() == true) if no such option found
-		 */
+		/// Get a DHCPv6 option by type
+		/// @param[in] option DHCPv6 option type
+		/// @return A DhcpV6OptionType object containing the first DHCP option data that matches this type, or logical
+		/// null (DhcpV6Option#isNull() == true) if no such option found
 		DhcpV6Option getOptionData(DhcpV6OptionType option) const;
 
-		/**
-		 * @return The number of DHCPv6 options in this layer
-		 */
+		/// @return The number of DHCPv6 options in this layer
 		size_t getOptionCount() const;
 
-		/**
-		 * Add a new DHCPv6 option at the end of the layer
-		 * @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
-		 * @return A DhcpV6Option object containing the newly added DHCP option data or logical null
-		 * (DhcpV6Option#isNull() == true) if addition failed
-		 */
+		/// Add a new DHCPv6 option at the end of the layer
+		/// @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
+		/// @return A DhcpV6Option object containing the newly added DHCP option data or logical null
+		/// (DhcpV6Option#isNull() == true) if addition failed
 		DhcpV6Option addOption(const DhcpV6OptionBuilder& optionBuilder);
 
-		/**
-		 * Add a new DHCPv6 option after an existing one
-		 * @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
-		 * @param[in] optionType The DHCPv6 option type which the newly added option will come after
-		 * @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical null
-		 * (DhcpV6Option#isNull() == true) if addition failed
-		 */
+		/// Add a new DHCPv6 option after an existing one
+		/// @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
+		/// @param[in] optionType The DHCPv6 option type which the newly added option will come after
+		/// @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical null
+		/// (DhcpV6Option#isNull() == true) if addition failed
 		DhcpV6Option addOptionAfter(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType);
 
-		/**
-		 * Add a new DHCPv6 option before an existing one
-		 * @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
-		 * @param[in] optionType The DHCPv6 option type which the newly added option will come before
-		 * @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical null
-		 * (DhcpV6Option#isNull() == true) if addition failed
-		 */
+		/// Add a new DHCPv6 option before an existing one
+		/// @param[in] optionBuilder A DhcpV6OptionBuilder object that contains the requested DHCPv6 option data to add
+		/// @param[in] optionType The DHCPv6 option type which the newly added option will come before
+		/// @return A DhcpV6Option object containing the newly added DHCPv6 option data or logical null
+		/// (DhcpV6Option#isNull() == true) if addition failed
 		DhcpV6Option addOptionBefore(const DhcpV6OptionBuilder& optionBuilder, DhcpV6OptionType optionType);
 
-		/**
-		 * Remove an existing DHCPv6 option from the layer
-		 * @param[in] optionType The DHCPv6 option type to remove
-		 * @return True if DHCPv6 option was successfully removed or false if type wasn't found or if removal failed
-		 */
+		/// Remove an existing DHCPv6 option from the layer
+		/// @param[in] optionType The DHCPv6 option type to remove
+		/// @return True if DHCPv6 option was successfully removed or false if type wasn't found or if removal failed
 		bool removeOption(DhcpV6OptionType optionType);
 
-		/**
-		 * Remove all DHCPv6 options in this layer
-		 * @return True if all DHCPv6 options were successfully removed or false if removal failed for some reason
-		 */
+		/// Remove all DHCPv6 options in this layer
+		/// @return True if all DHCPv6 options were successfully removed or false if removal failed for some reason
 		bool removeAllOptions();
 
-		/**
-		 * A static method that checks whether a port is considered as a DHCPv6 port
-		 * @param[in] port The port number to check
-		 * @return True if this is a DHCPv6 port number, false otherwise
-		 */
+		/// A static method that checks whether a port is considered as a DHCPv6 port
+		/// @param[in] port The port number to check
+		/// @return True if this is a DHCPv6 port number, false otherwise
 		static inline bool isDhcpV6Port(uint16_t port);
 
-		/**
-		 * A static method that validates the input data
-		 * @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
-		 * @param[in] dataLen The length of the byte stream
-		 * @return True if the data is valid and can represent an DHCPv6 layer
-		 */
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of a byte stream of an DHCPv6 layer
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent an DHCPv6 layer
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 
-		/**
-		 * Does nothing for this layer (DhcpV6Layer is always last)
-		 */
+		/// Does nothing for this layer (DhcpV6Layer is always last)
 		void parseNextLayer() override
 		{}
 
-		/**
-		 * @return The size of @ref dhcpv6_header + size of options
-		 */
+		/// @return The size of @ref dhcpv6_header + size of options
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
 		}
 
-		/**
-		 * Does nothing for this layer
-		 */
+		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
 
