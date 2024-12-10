@@ -10,6 +10,8 @@ add_library(
   src/DnsLayer.cpp
   src/DnsResource.cpp
   src/DnsResourceData.cpp
+  src/DoIpLayerData.cpp
+  src/DoIpLayer.cpp
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
@@ -80,6 +82,10 @@ set(public_headers
     header/DnsResourceData.h
     header/DnsResource.h
     header/EthDot3Layer.h
+    header/DoIpEnumToString.h
+    header/DoIpEnums.h
+    header/DoIpLayer.h
+    header/DoIpLayerData.h
     header/EthLayer.h
     header/FtpLayer.h
     header/GreLayer.h

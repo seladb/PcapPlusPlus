@@ -437,7 +437,6 @@ namespace pcpp
 
 		HttpResponseStatusCode() = default;
 
-		// cppcheck-suppress noExplicitConstructor
 		/**
 		 * @brief Construct HttpResponseStatusCode from Value enum
 		 * @param[in] statusCode the status code enum
