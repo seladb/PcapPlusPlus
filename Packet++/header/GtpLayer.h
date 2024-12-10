@@ -7,18 +7,14 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
 
 #pragma pack(push, 1)
-	/**
-	 * @struct gtpv1_header
-	 * GTP v1 common message header
-	 */
+	/// @struct gtpv1_header
+	/// GTP v1 common message header
 	struct gtpv1_header
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
@@ -62,11 +58,9 @@ namespace pcpp
 
 #pragma pack(pop)
 
-	/**
-	 * An enum representing the possible GTP v1 message types.
-	 * All of the message types except for #GtpV1_GPDU are considered GTP-C messages. #GtpV1_GPDU is considered a GTP-U
-	 * message
-	 */
+	/// An enum representing the possible GTP v1 message types.
+	/// All of the message types except for #GtpV1_GPDU are considered GTP-C messages. #GtpV1_GPDU is considered a GTP-U
+	/// message
 	enum GtpV1MessageType
 	{
 		/** GTPv1 Message Type Unknown */
@@ -209,10 +203,8 @@ namespace pcpp
 		GtpV1_GPDU = 255
 	};
 
-	/**
-	 * @class GtpV1Layer
-	 * A class representing the [GTP v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
-	 */
+	/// @class GtpV1Layer
+	/// A class representing the [GTP v1](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol) protocol.
 	class GtpV1Layer : public Layer
 	{
 	private:
@@ -229,10 +221,8 @@ namespace pcpp
 		          uint8_t npduNum);
 
 	public:
-		/**
-		 * @class GtpExtension
-		 * A class that represents [GTP header extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
-		 */
+		/// @class GtpExtension
+		/// A class that represents [GTP header extensions](https://en.wikipedia.org/wiki/GPRS_Tunnelling_Protocol)
 		class GtpExtension
 		{
 			friend class GtpV1Layer;
@@ -249,203 +239,150 @@ namespace pcpp
 			static GtpExtension createGtpExtension(uint8_t* data, size_t dataLen, uint8_t extType, uint16_t content);
 
 		public:
-			/**
-			 * An empty c'tor that creates an empty object, meaning one that isNull() returns "true")
-			 */
+			/// An empty c'tor that creates an empty object, meaning one that isNull() returns "true")
 			GtpExtension();
 
-			/**
-			 * A copy c'tor for this class
-			 * @param[in] other The GTP extension to copy from
-			 */
+			/// A copy c'tor for this class
+			/// @param[in] other The GTP extension to copy from
 			GtpExtension(const GtpExtension& other);
 
-			/**
-			 * An assignment operator for this class
-			 * @param[in] other The extension to assign from
-			 * @return A reference to the assignee
-			 */
+			/// An assignment operator for this class
+			/// @param[in] other The extension to assign from
+			/// @return A reference to the assignee
 			GtpExtension& operator=(const GtpExtension& other);
 
-			/**
-			 * @return Instances of this class may be initialized as empty, meaning they don't contain any data. In
-			 * these cases this method returns true
-			 */
+			/// @return Instances of this class may be initialized as empty, meaning they don't contain any data. In
+			/// these cases this method returns true
 			bool isNull() const;
 
-			/**
-			 * @return The extension type. If the object is empty a value of zero is returned
-			 */
+			/// @return The extension type. If the object is empty a value of zero is returned
 			uint8_t getExtensionType() const;
 
-			/**
-			 * @return The total length of the extension including the length and next extension type fields.
-			 * If the object is empty a value of zero is returned
-			 */
+			/// @return The total length of the extension including the length and next extension type fields.
+			/// If the object is empty a value of zero is returned
 			size_t getTotalLength() const;
 
-			/**
-			 * @return The length of the extension's content, excluding the extension length and next extension type
-			 * fields. If the object is empty a value of zero is returned
-			 */
+			/// @return The length of the extension's content, excluding the extension length and next extension type
+			/// fields. If the object is empty a value of zero is returned
 			size_t getContentLength() const;
 
-			/**
-			 * @return A byte array that includes the extension's content. The length of this array can be determined by
-			 * getContentLength(). If the object is empty a null value is returned
-			 */
+			/// @return A byte array that includes the extension's content. The length of this array can be determined
+			/// by getContentLength(). If the object is empty a null value is returned
 			uint8_t* getContent() const;
 
-			/**
-			 * @return The extension type of the next header. If there are no more header extensions or if this object
-			 * is empty a value of zero is returned
-			 */
+			/// @return The extension type of the next header. If there are no more header extensions or if this object
+			/// is empty a value of zero is returned
 			uint8_t getNextExtensionHeaderType() const;
 
-			/**
-			 * @return An instance of this class representing the next extension header, if exists in the message. If
-			 * there are no more header extensions or if this object is empty an empty instance of GtpExtension is
-			 * returned, meaning one that GtpExtension#isNull() returns "true"
-			 */
+			/// @return An instance of this class representing the next extension header, if exists in the message. If
+			/// there are no more header extensions or if this object is empty an empty instance of GtpExtension is
+			/// returned, meaning one that GtpExtension#isNull() returns "true"
 			GtpExtension getNextExtension() const;
 		};  // GtpExtension
 
 		~GtpV1Layer() override = default;
 
-		/** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		GtpV1Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, GTPv1)
 		{}
 
-		/**
-		 * A constructor that creates a new GTPv1 layer and sets the message type and the TEID value
-		 * @param[in] messageType The GTPv1 message type to be set in the newly created layer
-		 * @param[in] teid The TEID value to be set in the newly created layer
-		 */
+		/// A constructor that creates a new GTPv1 layer and sets the message type and the TEID value
+		/// @param[in] messageType The GTPv1 message type to be set in the newly created layer
+		/// @param[in] teid The TEID value to be set in the newly created layer
 		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid);
 
-		/**
-		 * A constructor that creates a new GTPv1 layer and sets various parameters
-		 * @param[in] messageType The GTPv1 message type to be set in the newly created layer
-		 * @param[in] teid The TEID value to be set in the newly created layer
-		 * @param[in] setSeqNum A flag indicating whether to set a sequence number. If set to "false" then the parameter
-		 * "seqNum" will be ignored
-		 * @param[in] seqNum The sequence number to be set in the newly created later. If "setSeqNum" is set to false
-		 * this parameter will be ignored
-		 * @param[in] setNpduNum A flag indicating whether to set the N-PDU number. If set to "false" then the parameter
-		 * "npduNum" will be ignored
-		 * @param[in] npduNum The N-PDU number to be set in the newly created later. If "setNpduNum" is set to false
-		 * this parameter will be ignored
-		 */
+		/// A constructor that creates a new GTPv1 layer and sets various parameters
+		/// @param[in] messageType The GTPv1 message type to be set in the newly created layer
+		/// @param[in] teid The TEID value to be set in the newly created layer
+		/// @param[in] setSeqNum A flag indicating whether to set a sequence number. If set to "false" then the
+		/// parameter "seqNum" will be ignored
+		/// @param[in] seqNum The sequence number to be set in the newly created later. If "setSeqNum" is set to false
+		/// this parameter will be ignored
+		/// @param[in] setNpduNum A flag indicating whether to set the N-PDU number. If set to "false" then the
+		/// parameter "npduNum" will be ignored
+		/// @param[in] npduNum The N-PDU number to be set in the newly created later. If "setNpduNum" is set to false
+		/// this parameter will be ignored
 		GtpV1Layer(GtpV1MessageType messageType, uint32_t teid, bool setSeqNum, uint16_t seqNum, bool setNpduNum,
 		           uint8_t npduNum);
 
-		/**
-		 * A static method that takes a byte array and detects whether it is a GTP v1 message
-		 * @param[in] data A byte array
-		 * @param[in] dataSize The byte array size (in bytes)
-		 * @return True if the data is identified as GTP v1 message (GTP-C or GTP-U)
-		 */
+		/// A static method that takes a byte array and detects whether it is a GTP v1 message
+		/// @param[in] data A byte array
+		/// @param[in] dataSize The byte array size (in bytes)
+		/// @return True if the data is identified as GTP v1 message (GTP-C or GTP-U)
 		static bool isGTPv1(const uint8_t* data, size_t dataSize);
 
-		/**
-		 * @return The GTP v1 common header structure. Notice this points directly to the data, so every change will
-		 * change the actual packet data
-		 */
+		/// @return The GTP v1 common header structure. Notice this points directly to the data, so every change will
+		/// change the actual packet data
 		gtpv1_header* getHeader() const
 		{
 			return reinterpret_cast<gtpv1_header*>(m_Data);
 		}
 
-		/**
-		 * Get the sequence number if exists on the message (sequence number is an optional field in GTP messages)
-		 * @param[out] seqNumber Set with the sequence number value if exists in the layer. Otherwise remains unchanged
-		 * @return True if the sequence number field exists in layer, in which case seqNumber is set with the value.
-		 * Or false otherwise
-		 */
+		/// Get the sequence number if exists on the message (sequence number is an optional field in GTP messages)
+		/// @param[out] seqNumber Set with the sequence number value if exists in the layer. Otherwise remains unchanged
+		/// @return True if the sequence number field exists in layer, in which case seqNumber is set with the value.
+		/// Or false otherwise
 		bool getSequenceNumber(uint16_t& seqNumber) const;
 
-		/**
-		 * Set a sequence number
-		 * @param[in] seqNumber The sequence number to set
-		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
-		 * message will be written to log
-		 */
+		/// Set a sequence number
+		/// @param[in] seqNumber The sequence number to set
+		/// @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
+		/// message will be written to log
 		bool setSequenceNumber(uint16_t seqNumber);
 
-		/**
-		 * Get the N-PDU number if exists on the message (N-PDU number is an optional field in GTP messages)
-		 * @param[out] npduNum Set with the N-PDU number value if exists in the layer. Otherwise remains unchanged
-		 * @return True if the N-PDU number field exists in layer, in which case npduNum is set with the value.
-		 * Or false otherwise
-		 */
+		/// Get the N-PDU number if exists on the message (N-PDU number is an optional field in GTP messages)
+		/// @param[out] npduNum Set with the N-PDU number value if exists in the layer. Otherwise remains unchanged
+		/// @return True if the N-PDU number field exists in layer, in which case npduNum is set with the value.
+		/// Or false otherwise
 		bool getNpduNumber(uint8_t& npduNum) const;
 
-		/**
-		 * Set an N-PDU number
-		 * @param[in] npduNum The N-PDU number to set
-		 * @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
-		 * message will be written to log
-		 */
+		/// Set an N-PDU number
+		/// @param[in] npduNum The N-PDU number to set
+		/// @return True if the value was set successfully, false otherwise. In case of failure a corresponding error
+		/// message will be written to log
 		bool setNpduNumber(uint8_t npduNum);
 
-		/**
-		 * Get the type of the next header extension if exists on the message (extensions are optional in GTP messages)
-		 * @param[out] nextExtType Set with the next header extension type if exists in layer. Otherwise remains
-		 * unchanged
-		 * @return True if the message contains header extensions, in which case nextExtType is set to the next
-		 * header extension type. If there are no header extensions false is returned and nextExtType remains unchanged
-		 */
+		/// Get the type of the next header extension if exists on the message (extensions are optional in GTP messages)
+		/// @param[out] nextExtType Set with the next header extension type if exists in layer. Otherwise remains
+		/// unchanged
+		/// @return True if the message contains header extensions, in which case nextExtType is set to the next
+		/// header extension type. If there are no header extensions false is returned and nextExtType remains unchanged
 		bool getNextExtensionHeaderType(uint8_t& nextExtType) const;
 
-		/**
-		 * @return An object that represents the next extension header, if exists in the message. If there are no
-		 * extensions an empty object is returned, meaning an object which GtpExtension#isNull() returns "true"
-		 */
+		/// @return An object that represents the next extension header, if exists in the message. If there are no
+		/// extensions an empty object is returned, meaning an object which GtpExtension#isNull() returns "true"
 		GtpExtension getNextExtension() const;
 
-		/**
-		 * Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2
-		 * bytes in length. If you need a different content size please reach out to me. This method takes care of
-		 * extending the layer to make room for the new extension and also sets the relevant flags and fields
-		 * @param[in] extensionType The type of the new extension
-		 * @param[in] extensionContent A 2-byte long content
-		 * @return An object representing the newly added extension. If there was an error adding the extension a null
-		 * object will be returned (meaning GtpExtension#isNull() will return "true") and a corresponding error message
-		 * will be written to log
-		 */
+		/// Add a GTPv1 header extension. It is assumed that the extension is 4 bytes in length and its content is 2
+		/// bytes in length. If you need a different content size please reach out to me. This method takes care of
+		/// extending the layer to make room for the new extension and also sets the relevant flags and fields
+		/// @param[in] extensionType The type of the new extension
+		/// @param[in] extensionContent A 2-byte long content
+		/// @return An object representing the newly added extension. If there was an error adding the extension a null
+		/// object will be returned (meaning GtpExtension#isNull() will return "true") and a corresponding error message
+		/// will be written to log
 		GtpExtension addExtension(uint8_t extensionType, uint16_t extensionContent);
 
-		/**
-		 * @return The message type of this GTP packet
-		 */
+		/// @return The message type of this GTP packet
 		GtpV1MessageType getMessageType() const;
 
-		/**
-		 * @return A string representation of the packet's message type
-		 */
+		/// @return A string representation of the packet's message type
 		std::string getMessageTypeAsString() const;
 
-		/**
-		 * @return True if this is a GTP-U message, false otherwise
-		 */
+		/// @return True if this is a GTP-U message, false otherwise
 		bool isGTPUMessage() const;
 
-		/**
-		 * @return True if this is a GTP-C message, false otherwise
-		 */
+		/// @return True if this is a GTP-C message, false otherwise
 		bool isGTPCMessage() const;
 
-		/**
-		 * A static method that checks whether the port is considered as GTPv1
-		 * @param[in] port The port number to be checked
-		 * @return True if the port matches those associated with the GTPv1 protocol
-		 */
+		/// A static method that checks whether the port is considered as GTPv1
+		/// @param[in] port The port number to be checked
+		/// @return True if the port matches those associated with the GTPv1 protocol
 		static bool isGTPv1Port(uint16_t port)
 		{
 			return port == 2152 /* GTP-U */ || port == 2123 /* GTP-C */;
@@ -453,23 +390,17 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/**
-		 * Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		 */
+		/// Identifies the following next layers for GTP-U packets: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
 		void parseNextLayer() override;
 
-		/**
-		 * @return The size of the GTP header. For GTP-C packets the size is determined by the value of
-		 * gtpv1_header#messageLength and for GTP-U the size only includes the GTP header itself (meaning
-		 * the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU
-		 * or extensions if exist)
-		 */
+		/// @return The size of the GTP header. For GTP-C packets the size is determined by the value of
+		/// gtpv1_header#messageLength and for GTP-U the size only includes the GTP header itself (meaning
+		/// the size of gtpv1_header plus the size of the optional fields such as sequence number, N-PDU
+		/// or extensions if exist)
 		size_t getHeaderLen() const override;
 
-		/**
-		 * Calculate the following fields:
-		 * - gtpv1_header#messageLength
-		 */
+		/// Calculate the following fields:
+		/// - gtpv1_header#messageLength
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
@@ -480,16 +411,12 @@ namespace pcpp
 		}
 	};
 
-	/**
-	 * @class GtpV2MessageType
-	 * The enum wrapper class of GTPv2 message type
-	 */
+	/// @class GtpV2MessageType
+	/// The enum wrapper class of GTPv2 message type
 	class GtpV2MessageType
 	{
 	public:
-		/**
-		 * Define enum types and the corresponding int values
-		 */
+		/// Define enum types and the corresponding int values
 		enum Value : uint8_t
 		{
 			/** Unknown message */
@@ -663,24 +590,18 @@ namespace pcpp
 		GtpV2MessageType() = default;
 
 		// cppcheck-suppress noExplicitConstructor
-		/**
-		 * Construct GtpV2MessageType from Value enum
-		 * @param[in] value the message type enum value
-		 */
+		/// Construct GtpV2MessageType from Value enum
+		/// @param[in] value the message type enum value
 		constexpr GtpV2MessageType(Value value) : m_Value(value)
 		{}
 
-		/**
-		 * @return A string representation of the message type
-		 */
+		/// @return A string representation of the message type
 		std::string toString() const;
 
-		/**
-		 * A static method that creates GtpV2MessageType from an integer value
-		 * @param[in] value The message type integer value
-		 * @return The message type that corresponds to the integer value. If the integer value
-		 * doesn't corresponds to any message type, GtpV2MessageType::Unknown is returned
-		 */
+		/// A static method that creates GtpV2MessageType from an integer value
+		/// @param[in] value The message type integer value
+		/// @return The message type that corresponds to the integer value. If the integer value
+		/// doesn't corresponds to any message type, GtpV2MessageType::Unknown is returned
 		static GtpV2MessageType fromUintValue(uint8_t value);
 
 		// Allow switch and comparisons.
@@ -696,17 +617,13 @@ namespace pcpp
 		Value m_Value = GtpV2MessageType::Unknown;
 	};
 
-	/**
-	 * @class GtpV2InformationElement
-	 * A wrapper class for GTPv2 information elements (IE). This class does not create or modify IEs, but rather
-	 * serves as a wrapper and provides useful methods for retrieving data from them
-	 */
+	/// @class GtpV2InformationElement
+	/// A wrapper class for GTPv2 information elements (IE). This class does not create or modify IEs, but rather
+	/// serves as a wrapper and provides useful methods for retrieving data from them
 	class GtpV2InformationElement : public TLVRecord<uint8_t, uint16_t>
 	{
 	public:
-		/**
-		 * GTPv2 Information Element (IE) types as defined in 3GPP TS 29.274
-		 */
+		/// GTPv2 Information Element (IE) types as defined in 3GPP TS 29.274
 		enum class Type : uint8_t
 		{
 			/** Unknown or reserved value */
@@ -995,28 +912,20 @@ namespace pcpp
 			SgiPtpTunnelAddress = 213
 		};
 
-		/**
-		 * A c'tor for this class that gets a pointer to the IE raw data (byte array)
-		 * @param[in] infoElementRawData A pointer to the IE raw data
-		 */
+		/// A c'tor for this class that gets a pointer to the IE raw data (byte array)
+		/// @param[in] infoElementRawData A pointer to the IE raw data
 		explicit GtpV2InformationElement(uint8_t* infoElementRawData) : TLVRecord(infoElementRawData)
 		{}
 
 		~GtpV2InformationElement() override = default;
 
-		/**
-		 * @return The information element (IE) type
-		 */
+		/// @return The information element (IE) type
 		GtpV2InformationElement::Type getIEType();
 
-		/**
-		 * @return The IE CR flag
-		 */
+		/// @return The IE CR flag
 		uint8_t getCRFlag();
 
-		/**
-		 * @return The IE instance value
-		 */
+		/// @return The IE instance value
 		uint8_t getInstance();
 
 		// implement abstract methods
@@ -1031,29 +940,23 @@ namespace pcpp
 		size_t getDataSize() const override;
 	};
 
-	/**
-	 * @class GtpV2InformationElementBuilder
-	 * A class for building GTPv2 information elements (IE). This builder receives the IE parameters in its c'tor,
-	 * builds the IE raw buffer and provides a build() method to get a GtpV2InformationElement object out of it
-	 */
+	/// @class GtpV2InformationElementBuilder
+	/// A class for building GTPv2 information elements (IE). This builder receives the IE parameters in its c'tor,
+	/// builds the IE raw buffer and provides a build() method to get a GtpV2InformationElement object out of it
 	class GtpV2InformationElementBuilder : public TLVRecordBuilder
 	{
 	public:
-		/**
-		 * A c'tor for building information elements (IE) which their value is a byte array. The GtpV2InformationElement
-		 * object can be later retrieved by calling build().
-		 * @param[in] infoElementType Information elements (IE) type
-		 * @param[in] crFlag CR flag value
-		 * @param[in] instance Instance value
-		 * @param[in] infoElementValue A byte array of the IE value
-		 */
+		/// A c'tor for building information elements (IE) which their value is a byte array. The
+		/// GtpV2InformationElement object can be later retrieved by calling build().
+		/// @param[in] infoElementType Information elements (IE) type
+		/// @param[in] crFlag CR flag value
+		/// @param[in] instance Instance value
+		/// @param[in] infoElementValue A byte array of the IE value
 		GtpV2InformationElementBuilder(GtpV2InformationElement::Type infoElementType, const std::bitset<4>& crFlag,
 		                               const std::bitset<4>& instance, const std::vector<uint8_t>& infoElementValue);
 
-		/**
-		 * Build the GtpV2InformationElement object out of the parameters defined in the c'tor
-		 * @return The GtpV2InformationElement object
-		 */
+		/// Build the GtpV2InformationElement object out of the parameters defined in the c'tor
+		/// @return The GtpV2InformationElement object
 		GtpV2InformationElement build() const;
 
 	private:
@@ -1061,203 +964,147 @@ namespace pcpp
 		std::bitset<4> m_Instance;
 	};
 
-	/**
-	 * @class GtpV2Layer
-	 * A class representing the GTPv2 defined in 3GPP TS 29.274
-	 */
+	/// @class GtpV2Layer
+	/// A class representing the GTPv2 defined in 3GPP TS 29.274
 	class GtpV2Layer : public Layer
 	{
 	public:
 		~GtpV2Layer() override = default;
 
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		GtpV2Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, GTPv2)
 		{}
 
-		/**
-		 * A constructor that creates a new GTPv2 message
-		 * @param messageType GTPv2 message type
-		 * @param sequenceNumber Message sequence number
-		 * @param setTeid Whether or not to set Tunnel Endpoint Identifier in this message
-		 * @param teid Tunnel Endpoint Identifier value. Only used if setTeid is set to true
-		 * @param setMessagePriority Whether or not to set Message Priority in this message
-		 * @param messagePriority Message Priority. Only used if setMessagePriority to true
-		 */
+		/// A constructor that creates a new GTPv2 message
+		/// @param messageType GTPv2 message type
+		/// @param sequenceNumber Message sequence number
+		/// @param setTeid Whether or not to set Tunnel Endpoint Identifier in this message
+		/// @param teid Tunnel Endpoint Identifier value. Only used if setTeid is set to true
+		/// @param setMessagePriority Whether or not to set Message Priority in this message
+		/// @param messagePriority Message Priority. Only used if setMessagePriority to true
 		GtpV2Layer(GtpV2MessageType messageType, uint32_t sequenceNumber, bool setTeid = false, uint32_t teid = 0,
 		           bool setMessagePriority = false, std::bitset<4> messagePriority = 0);
 
-		/**
-		 * A static method that checks whether the port is considered as GTPv2
-		 * @param[in] port The port number to be checked
-		 * @return True if the port matches those associated with the GTPv2 protocol
-		 */
+		/// A static method that checks whether the port is considered as GTPv2
+		/// @param[in] port The port number to be checked
+		/// @return True if the port matches those associated with the GTPv2 protocol
 		static bool isGTPv2Port(uint16_t port)
 		{
 			return port == 2123;
 		}
 
-		/**
-		 * A static method that takes a byte array and detects whether it is a GTPv2 message
-		 * @param[in] data A byte array
-		 * @param[in] dataSize The byte array size (in bytes)
-		 * @return True if the data is identified as GTPv2 message
-		 */
+		/// A static method that takes a byte array and detects whether it is a GTPv2 message
+		/// @param[in] data A byte array
+		/// @param[in] dataSize The byte array size (in bytes)
+		/// @return True if the data is identified as GTPv2 message
 		static bool isDataValid(const uint8_t* data, size_t dataSize);
 
-		/**
-		 * @return The message type
-		 */
+		/// @return The message type
 		GtpV2MessageType getMessageType() const;
 
-		/**
-		 * Set message type
-		 * @param type The message type to set
-		 */
+		/// Set message type
+		/// @param type The message type to set
 		void setMessageType(const GtpV2MessageType& type);
 
-		/**
-		 * @return The message length as set in the layer. Note it is different from getHeaderLen() because the later
-		 * refers to the entire layers length, and this property excludes the mandatory part of the GTP-C header
-		 * (the first 4 octets)
-		 */
+		/// @return The message length as set in the layer. Note it is different from getHeaderLen() because the later
+		/// refers to the entire layers length, and this property excludes the mandatory part of the GTP-C header
+		/// (the first 4 octets)
 		uint16_t getMessageLength() const;
 
-		/**
-		 * @return True if there is another GTPv2 message piggybacking on this message (will appear as another
-		 * GtpV2Layer after this layer)
-		 */
+		/// @return True if there is another GTPv2 message piggybacking on this message (will appear as another
+		/// GtpV2Layer after this layer)
 		bool isPiggybacking() const;
 
-		/**
-		 * Get the Tunnel Endpoint Identifier (TEID) if exists
-		 * @return A pair of 2 values; the first value states whether TEID exists, and if it's true the second value
-		 * contains the TEID value
-		 */
+		/// Get the Tunnel Endpoint Identifier (TEID) if exists
+		/// @return A pair of 2 values; the first value states whether TEID exists, and if it's true the second value
+		/// contains the TEID value
 		std::pair<bool, uint32_t> getTeid() const;
 
-		/**
-		 * Set Tunnel Endpoint Identifier (TEID)
-		 * @param teid The TEID value to set
-		 */
+		/// Set Tunnel Endpoint Identifier (TEID)
+		/// @param teid The TEID value to set
 		void setTeid(uint32_t teid);
 
-		/**
-		 * Unset Tunnel Endpoint Identifier (TEID) if exists in the layer (otherwise does nothing)
-		 */
+		/// Unset Tunnel Endpoint Identifier (TEID) if exists in the layer (otherwise does nothing)
 		void unsetTeid();
 
-		/**
-		 * @return The sequence number
-		 */
+		/// @return The sequence number
 		uint32_t getSequenceNumber() const;
 
-		/**
-		 * Set the sequence number
-		 * @param sequenceNumber The sequence number value to set
-		 */
+		/// Set the sequence number
+		/// @param sequenceNumber The sequence number value to set
 		void setSequenceNumber(uint32_t sequenceNumber);
 
-		/**
-		 * Get the Message Property if exists
-		 * @return A pair of 2 values; the first value states whether Message Priority exists, and if it's true
-		 * the second value contains the Message Priority value
-		 */
+		/// Get the Message Property if exists
+		/// @return A pair of 2 values; the first value states whether Message Priority exists, and if it's true
+		/// the second value contains the Message Priority value
 		std::pair<bool, uint8_t> getMessagePriority() const;
 
-		/**
-		 * Set Message Priority
-		 * @param messagePriority The Message Priority value to set
-		 */
+		/// Set Message Priority
+		/// @param messagePriority The Message Priority value to set
 		void setMessagePriority(const std::bitset<4>& messagePriority);
 
-		/**
-		 * Unset Message Priority if exists in the layer (otherwise does nothing)
-		 */
+		/// Unset Message Priority if exists in the layer (otherwise does nothing)
 		void unsetMessagePriority();
 
-		/**
-		 * @return The first GTPv2 Information Element (IE). If there are no IEs the returned value will contain
-		 * a logical null (GtpV2InformationElement#isNull() == true)
-		 */
+		/// @return The first GTPv2 Information Element (IE). If there are no IEs the returned value will contain
+		/// a logical null (GtpV2InformationElement#isNull() == true)
 		GtpV2InformationElement getFirstInformationElement() const;
 
-		/**
-		 * Get the GTPv2 Information Element (IE) that comes after a given IE. If the given IE was the last one, the
-		 * returned value will contain a logical null (GtpV2InformationElement#isNull() == true)
-		 * @param[in] infoElement A given GTPv2 Information Element
-		 * @return A GtpV2InformationElement object containing the IE that comes next, or logical null if the given
-		 * IE: (1) is the last one; (2) contains a logical null or (3) doesn't belong to this packet
-		 */
+		/// Get the GTPv2 Information Element (IE) that comes after a given IE. If the given IE was the last one, the
+		/// returned value will contain a logical null (GtpV2InformationElement#isNull() == true)
+		/// @param[in] infoElement A given GTPv2 Information Element
+		/// @return A GtpV2InformationElement object containing the IE that comes next, or logical null if the given
+		/// IE: (1) is the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		GtpV2InformationElement getNextInformationElement(GtpV2InformationElement infoElement) const;
 
-		/**
-		 * Get a GTPv2 Information Element (IE) by type
-		 * @param[in] infoElementType GTPv2 Information Element (IE) type
-		 * @return A GtpV2InformationElement object containing the first IE that matches this type, or logical
-		 * null (GtpV2InformationElement#isNull() == true) if no such IE found
-		 */
+		/// Get a GTPv2 Information Element (IE) by type
+		/// @param[in] infoElementType GTPv2 Information Element (IE) type
+		/// @return A GtpV2InformationElement object containing the first IE that matches this type, or logical
+		/// null (GtpV2InformationElement#isNull() == true) if no such IE found
 		GtpV2InformationElement getInformationElement(GtpV2InformationElement::Type infoElementType) const;
 
-		/**
-		 * @return The number of GTPv2 Information Elements (IEs) in this layer
-		 */
+		/// @return The number of GTPv2 Information Elements (IEs) in this layer
 		size_t getInformationElementCount() const;
 
-		/**
-		 * Add a new Information Element (IE) at the end of the layer
-		 * @param[in] infoElementBuilder A GtpV2InformationElementBuilder object that contains the requested
-		 * IE data to add
-		 * @return A GtpV2InformationElement object containing the newly added IE data or logical null
-		 * (GtpV2InformationElement#isNull() == true) if addition failed
-		 */
+		/// Add a new Information Element (IE) at the end of the layer
+		/// @param[in] infoElementBuilder A GtpV2InformationElementBuilder object that contains the requested
+		/// IE data to add
+		/// @return A GtpV2InformationElement object containing the newly added IE data or logical null
+		/// (GtpV2InformationElement#isNull() == true) if addition failed
 		GtpV2InformationElement addInformationElement(const GtpV2InformationElementBuilder& infoElementBuilder);
 
-		/**
-		 * Add a new Information Element (IE) after an existing one
-		 * @param[in] infoElementBuilder A GtpV2InformationElementBuilder object that contains the requested
-		 * IE data to add
-		 * @param[in] infoElementType The IE type which the newly added option will come after
-		 * @return A GtpV2InformationElement object containing the newly added IE data or logical null
-		 * (GtpV2InformationElement#isNull() == true) if addition failed
-		 */
+		/// Add a new Information Element (IE) after an existing one
+		/// @param[in] infoElementBuilder A GtpV2InformationElementBuilder object that contains the requested
+		/// IE data to add
+		/// @param[in] infoElementType The IE type which the newly added option will come after
+		/// @return A GtpV2InformationElement object containing the newly added IE data or logical null
+		/// (GtpV2InformationElement#isNull() == true) if addition failed
 		GtpV2InformationElement addInformationElementAfter(const GtpV2InformationElementBuilder& infoElementBuilder,
 		                                                   GtpV2InformationElement::Type infoElementType);
 
-		/**
-		 * Remove an existing Information Element (IE) from the layer
-		 * @param[in] infoElementType The IE type to remove
-		 * @return True if the IE was successfully removed or false if type wasn't found or if removal failed
-		 */
+		/// Remove an existing Information Element (IE) from the layer
+		/// @param[in] infoElementType The IE type to remove
+		/// @return True if the IE was successfully removed or false if type wasn't found or if removal failed
 		bool removeInformationElement(GtpV2InformationElement::Type infoElementType);
 
-		/**
-		 * Remove all Information Elements (IE) in this layer
-		 * @return True if all IEs were successfully removed or false if removal failed for some reason
-		 */
+		/// Remove all Information Elements (IE) in this layer
+		/// @return True if all IEs were successfully removed or false if removal failed for some reason
 		bool removeAllInformationElements();
 
 		// implement abstract methods
 
-		/**
-		 * Identifies if the next layer is GTPv2 piggyback. Otherwise sets PayloadLayer
-		 */
+		/// Identifies if the next layer is GTPv2 piggyback. Otherwise sets PayloadLayer
 		void parseNextLayer() override;
 
-		/**
-		 * @return The size of the GTPv2 header including its Information Elements (IE)
-		 */
+		/// @return The size of the GTPv2 header including its Information Elements (IE)
 		size_t getHeaderLen() const override;
 
-		/**
-		 * Computes the piggybacking flag by checking if the next layer is also a GTPv2 message
-		 */
+		/// Computes the piggybacking flag by checking if the next layer is also a GTPv2 message
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
