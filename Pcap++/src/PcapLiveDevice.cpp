@@ -66,6 +66,11 @@
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
+#ifndef PCAP_TSTAMP_HOST_HIPREC_UNSYNCED
+// PCAP_TSTAMP_HOST_HIPREC_UNSYNCED defined only in libpcap > 1.10.0
+#	define PCAP_TSTAMP_HOST_HIPREC_UNSYNCED 5
+#endif
+
 namespace pcpp
 {
 
@@ -83,6 +88,72 @@ namespace pcpp
 		}
 	}
 #endif
+
+	static int timestampProviderMap(const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+		switch (timestampProvider)
+		{
+		case PcapLiveDevice::TimestampProvider::Host:
+			return PCAP_TSTAMP_HOST;
+		case PcapLiveDevice::TimestampProvider::HostLowPrec:
+			return PCAP_TSTAMP_HOST_LOWPREC;
+		case PcapLiveDevice::TimestampProvider::HostHighPrec:
+			return PCAP_TSTAMP_HOST_HIPREC;
+		case PcapLiveDevice::TimestampProvider::Adapter:
+			return PCAP_TSTAMP_ADAPTER;
+		case PcapLiveDevice::TimestampProvider::AdapterUnsynced:
+			return PCAP_TSTAMP_ADAPTER_UNSYNCED;
+		case PcapLiveDevice::TimestampProvider::HostHighPrecUnsynced:
+			return PCAP_TSTAMP_HOST_HIPREC_UNSYNCED;
+		}
+		return PCAP_TSTAMP_HOST;
+	}
+
+	static int timestampPrecisionMap(const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	{
+		switch (timestampPrecision)
+		{
+		case PcapLiveDevice::TimestampPrecision::Microseconds:
+			return PCAP_TSTAMP_PRECISION_MICRO;
+		case PcapLiveDevice::TimestampPrecision::Nanoseconds:
+			return PCAP_TSTAMP_PRECISION_NANO;
+		}
+		return PCAP_TSTAMP_PRECISION_MICRO;
+	}
+
+	static bool is_tstamp_type_supported(pcap_t* handle, const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+		int tstamp_type = timestampProviderMap(timestampProvider);
+		int* supported_tstamp_types = nullptr;
+		const int num_supported_tstamp_types = pcap_list_tstamp_types(handle, &supported_tstamp_types);
+
+		bool is_supported = false;
+		if (num_supported_tstamp_types < 0)
+		{
+			std::cerr << "Error retrieving timestamp types: " << pcap_geterr(handle) << " - default Host will be used"
+			          << std::endl;
+			is_supported = false;
+		}
+		else if (num_supported_tstamp_types == 1)
+		{
+			// If 1 is returned, then the only available typestamp is TimestampProvider::Host;
+			return timestampProvider == PcapLiveDevice::TimestampProvider::Host;
+		}
+		else
+		{
+			for (int i = 0; i < num_supported_tstamp_types; ++i)
+			{
+				if (supported_tstamp_types[i] == tstamp_type)
+				{
+					is_supported = true;
+					break;
+				}
+			}
+		}
+
+		pcap_free_tstamp_types(supported_tstamp_types);
+		return is_supported;
+	}
 
 	PcapLiveDevice::DeviceInterfaceDetails::DeviceInterfaceDetails(pcap_if_t* pInterface)
 	    : name(pInterface->name), isLoopback(pInterface->flags & PCAP_IF_LOOPBACK)
@@ -307,6 +378,38 @@ namespace pcpp
 			                                                                  << pcap_geterr(pcap) << "'");
 		}
 #endif
+
+		if (config.timestampProvider != PcapLiveDevice::TimestampProvider::Host)
+		{
+			if (is_tstamp_type_supported(pcap, config.timestampProvider))
+			{
+				ret = pcap_set_tstamp_type(pcap, timestampProviderMap(config.timestampProvider));
+				if (ret == 0)
+				{
+					PCPP_LOG_DEBUG("Timestamp provider was set");
+				}
+				else
+				{
+					PCPP_LOG_ERROR("Failed to set timestamping provider: '" << ret << "', error message: '"
+					                                                        << pcap_geterr(pcap) << "'");
+				}
+			}
+			else
+			{
+				PCPP_LOG_ERROR("Selected timestamping provider is not supported");
+			}
+		}
+
+		ret = pcap_set_tstamp_precision(pcap, timestampPrecisionMap(config.timestampPrecision));
+		if (ret == 0)
+		{
+			PCPP_LOG_DEBUG("Timestamp precision was set");
+		}
+		else
+		{
+			PCPP_LOG_ERROR("Failed to set timestamping precision: '" << ret << "', error message: '"
+			                                                         << pcap_geterr(pcap) << "'");
+		}
 
 		ret = pcap_activate(pcap);
 		if (ret != 0)
