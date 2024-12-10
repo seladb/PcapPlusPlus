@@ -169,6 +169,38 @@ namespace pcpp
 			PCPP_OUT
 		};
 
+		/**
+		 * Set which source provides timestamps associated to each captured packet
+		 * (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
+		 */
+		enum class TimestampProvider
+		{
+			/** host-provided, unknown characteristics, default */
+			Host = 0,
+			/** host-provided, low precision, synced with the system clock */
+			HostLowPrec,
+			/** host-provided, high precision, synced with the system clock */
+			HostHighPrec,
+			/** device-provided, synced with the system clock */
+			Adapter,
+			/** device-provided, not synced with the system clock */
+			AdapterUnsynced,
+			/** host-provided, high precision, not synced with the system clock */
+			HostHighPrecUnsynced
+		};
+
+		/**
+		 * Set the precision of timestamps associated to each captured packet
+		 * (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
+		 */
+		enum class TimestampPrecision
+		{
+			/** use timestamps with microsecond precision, default */
+			Microseconds = 0,
+			/** use timestamps with nanosecond precision */
+			Nanoseconds,
+		};
+
 		/// @struct DeviceConfiguration
 		/// A struct that contains user configurable parameters for opening a device. All parameters have default values
 		/// so the user isn't expected to set all parameters or understand exactly how they work
@@ -208,6 +240,18 @@ namespace pcpp
 			/// In Unix-like system, use poll() for blocking mode.
 			bool usePoll;
 
+			/**
+			 * Set which timestamp provider is used.
+			 * Depending on the capture device and the software on the host, different types of time stamp can be used
+			 */
+			TimestampProvider timestampProvider;
+
+			/**
+			 * Set which timestamp precision is used.
+			 * Depending on the capture device and the software on the host, different precision can be used
+			 */
+			TimestampPrecision timestampPrecision;
+
 			/// A c'tor for this struct
 			/// @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is
 			/// promiscuous
@@ -226,7 +270,9 @@ namespace pcpp
 			/// on Unix-like system. Default value is false.
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
-			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false)
+			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false,
+			                             TimestampProvider timestampProvider = TimestampProvider::Host,
+			                             TimestampPrecision timestampPrecision = TimestampPrecision::Microseconds)
 			{
 				this->mode = mode;
 				this->packetBufferTimeoutMs = packetBufferTimeoutMs;
@@ -235,6 +281,8 @@ namespace pcpp
 				this->snapshotLength = snapshotLength;
 				this->nflogGroup = nflogGroup;
 				this->usePoll = usePoll;
+				this->timestampProvider = timestampProvider;
+				this->timestampPrecision = timestampPrecision;
 			}
 		};
 

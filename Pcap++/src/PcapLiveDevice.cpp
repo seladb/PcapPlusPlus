@@ -66,6 +66,11 @@
 static const char* NFLOG_IFACE = "nflog";
 static const int DEFAULT_SNAPLEN = 9000;
 
+#ifndef PCAP_TSTAMP_HOST_HIPREC_UNSYNCED
+// PCAP_TSTAMP_HOST_HIPREC_UNSYNCED defined only in libpcap > 1.10.0
+#	define PCAP_TSTAMP_HOST_HIPREC_UNSYNCED 5
+#endif
+
 namespace pcpp
 {
 
@@ -82,6 +87,120 @@ namespace pcpp
 			return PCAP_D_INOUT;
 		default:
 			throw std::invalid_argument("Unknown direction type");
+		}
+	}
+#endif
+
+#if defined(_WIN32)
+	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+		PCPP_LOG_ERROR("Windows doesn't support timestampProvider option");
+	}
+
+	static void setTimestampPrecision(pcap_t* pcap, const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	{
+		PCPP_LOG_ERROR("Windows doesn't support timestampPrecision option");
+	}
+#else
+	static int timestampProviderMap(const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+		switch (timestampProvider)
+		{
+		case PcapLiveDevice::TimestampProvider::Host:
+			return PCAP_TSTAMP_HOST;
+		case PcapLiveDevice::TimestampProvider::HostLowPrec:
+			return PCAP_TSTAMP_HOST_LOWPREC;
+		case PcapLiveDevice::TimestampProvider::HostHighPrec:
+			return PCAP_TSTAMP_HOST_HIPREC;
+		case PcapLiveDevice::TimestampProvider::Adapter:
+			return PCAP_TSTAMP_ADAPTER;
+		case PcapLiveDevice::TimestampProvider::AdapterUnsynced:
+			return PCAP_TSTAMP_ADAPTER_UNSYNCED;
+		case PcapLiveDevice::TimestampProvider::HostHighPrecUnsynced:
+			return PCAP_TSTAMP_HOST_HIPREC_UNSYNCED;
+		}
+		return PCAP_TSTAMP_HOST;
+	}
+
+	static int timestampPrecisionMap(const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	{
+		switch (timestampPrecision)
+		{
+		case PcapLiveDevice::TimestampPrecision::Microseconds:
+			return PCAP_TSTAMP_PRECISION_MICRO;
+		case PcapLiveDevice::TimestampPrecision::Nanoseconds:
+			return PCAP_TSTAMP_PRECISION_NANO;
+		}
+		return PCAP_TSTAMP_PRECISION_MICRO;
+	}
+
+	static bool isTimestampProviderSupportedByDevice(pcap_t* pcap,
+	                                                 const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+		int tstampType = timestampProviderMap(timestampProvider);
+		int* supportedTstampTypes = nullptr;
+		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap, &supportedTstampTypes);
+
+		bool isSupported = false;
+		if (numSupportedTstampTypes < 0)
+		{
+			std::cerr << "Error retrieving timestamp types: " << pcap_geterr(pcap) << " - default Host will be used"
+			          << std::endl;
+			isSupported = false;
+		}
+		else if (numSupportedTstampTypes == 1)
+		{
+			// If 1 is returned, then the only available typestamp is TimestampProvider::Host;
+			return timestampProvider == PcapLiveDevice::TimestampProvider::Host;
+		}
+		else
+		{
+			for (int i = 0; i < numSupportedTstampTypes; ++i)
+			{
+				if (supportedTstampTypes[i] == tstampType)
+				{
+					isSupported = true;
+					break;
+				}
+			}
+		}
+
+		pcap_free_tstamp_types(supportedTstampTypes);
+		return isSupported;
+	}
+
+	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
+	{
+		if (isTimestampProviderSupportedByDevice(pcap, timestampProvider))
+		{
+			const int ret = pcap_set_tstamp_type(pcap, timestampProviderMap(timestampProvider));
+			if (ret == 0)
+			{
+				PCPP_LOG_DEBUG("Timestamp provider was set");
+			}
+			else
+			{
+				PCPP_LOG_ERROR("Failed to set timestamping provider: '" << ret << "', error message: '"
+				                                                        << pcap_geterr(pcap) << "'");
+			}
+		}
+		else
+		{
+			PCPP_LOG_ERROR("Selected timestamping provider is not supported");
+		}
+	}
+
+	static void setTimestampPrecision(pcap_t* pcap, const PcapLiveDevice::TimestampPrecision timestampPrecision)
+	{
+		const int ret = pcap_set_tstamp_precision(pcap, timestampPrecisionMap(timestampPrecision));
+		if (ret == 0)
+		{
+			PCPP_LOG_DEBUG("Timestamp precision was set");
+		}
+		else
+		{
+			PCPP_LOG_ERROR("Failed to set timestamping precision: '" << ret << "', error message: '"
+			                                                         << pcap_geterr(pcap) << "'");
 		}
 	}
 #endif
@@ -309,6 +428,16 @@ namespace pcpp
 			                                                                  << pcap_geterr(pcap) << "'");
 		}
 #endif
+
+		if (config.timestampProvider != PcapLiveDevice::TimestampProvider::Host)
+		{
+			setTimestampProvider(pcap, config.timestampProvider);
+		}
+
+		if (config.timestampPrecision != PcapLiveDevice::TimestampPrecision::Nanoseconds)
+		{
+			setTimestampPrecision(pcap, config.timestampPrecision);
+		}
 
 		ret = pcap_activate(pcap);
 		if (ret != 0)
