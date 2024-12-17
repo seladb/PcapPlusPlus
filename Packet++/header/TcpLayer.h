@@ -10,17 +10,12 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * @struct tcphdr
-	 * Represents an TCP protocol header
-	 */
+	/// @struct tcphdr
+	/// Represents an TCP protocol header
 #pragma pack(push, 1)
 	struct tcphdr
 	{
@@ -86,9 +81,7 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * TCP options types
-	 */
+	/// TCP options types
 	enum TcpOptionType : uint8_t
 	{
 		/** Padding */
@@ -143,9 +136,7 @@ namespace pcpp
 		TCPOPT_Unknown = 255
 	};
 
-	/**
-	 * TCP options types
-	 */
+	/// TCP options types
 	enum class TcpOptionEnumType : uint8_t
 	{
 		/** Padding */
@@ -249,50 +240,38 @@ namespace pcpp
 	/** pcpp::TcpOptionEnumType::ExpFd and pcpp::TcpOptionEnumType::ExpFe length */
 #define PCPP_TCPOLEN_EXP_MIN 2
 
-	/**
-	 * @class TcpOption
-	 * A wrapper class for TCP options. This class does not create or modify TCP option records, but rather
-	 * serves as a wrapper and provides useful methods for retrieving data from them
-	 */
+	/// @class TcpOption
+	/// A wrapper class for TCP options. This class does not create or modify TCP option records, but rather
+	/// serves as a wrapper and provides useful methods for retrieving data from them
 	class TcpOption : public TLVRecord<uint8_t, uint8_t>
 	{
 	public:
-		/**
-		 * A c'tor for this class that gets a pointer to the option raw data (byte array)
-		 * @param[in] optionRawData A pointer to the TCP option raw data
-		 */
+		/// A c'tor for this class that gets a pointer to the option raw data (byte array)
+		/// @param[in] optionRawData A pointer to the TCP option raw data
 		explicit TcpOption(uint8_t* optionRawData) : TLVRecord(optionRawData)
 		{}
 
-		/**
-		 * A d'tor for this class, currently does nothing
-		 */
+		/// A d'tor for this class, currently does nothing
 		~TcpOption() override = default;
 
-		/**
-		 * @deprecated This method is deprecated, please use getTcpOptionEnumType()
-		 */
+		/// @deprecated This method is deprecated, please use getTcpOptionEnumType()
 		PCPP_DEPRECATED("Use getTcpOptionEnumType instead")
 		TcpOptionType getTcpOptionType() const
 		{
 			return getTcpOptionType(m_Data);
 		}
 
-		/**
-		 * @return TCP option type casted as pcpp::TcpOptionEnumType enum. If the data is null a value
-		 * of TcpOptionEnumType::Unknown is returned
-		 */
+		/// @return TCP option type casted as pcpp::TcpOptionEnumType enum. If the data is null a value
+		/// of TcpOptionEnumType::Unknown is returned
 		TcpOptionEnumType getTcpOptionEnumType() const
 		{
 			return getTcpOptionEnumType(m_Data);
 		}
 
-		/**
-		 * Check if a pointer can be assigned to the TLV record data
-		 * @param[in] recordRawData A pointer to the TLV record raw data
-		 * @param[in] tlvDataLen The size of the TLV record raw data
-		 * @return True if data is valid and can be assigned
-		 */
+		/// Check if a pointer can be assigned to the TLV record data
+		/// @param[in] recordRawData A pointer to the TLV record raw data
+		/// @param[in] tlvDataLen The size of the TLV record raw data
+		/// @return True if data is valid and can be assigned
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
 			const auto* data = reinterpret_cast<const TLVRawData*>(recordRawData);
@@ -353,18 +332,14 @@ namespace pcpp
 		}
 	};
 
-	/**
-	 * @class TcpOptionBuilder
-	 * A class for building TCP option records. This builder receives the TCP option parameters in its c'tor,
-	 * builds the TCP option raw buffer and provides a build() method to get a TcpOption object out of it
-	 */
+	/// @class TcpOptionBuilder
+	/// A class for building TCP option records. This builder receives the TCP option parameters in its c'tor,
+	/// builds the TCP option raw buffer and provides a build() method to get a TcpOption object out of it
 	class TcpOptionBuilder : public TLVRecordBuilder
 	{
 
 	public:
-		/**
-		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
-		 */
+		/// An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		enum NopEolOptionTypes : uint8_t
 		{
 			/** NOP TCP option */
@@ -373,9 +348,7 @@ namespace pcpp
 			EOL
 		};
 
-		/**
-		 * An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
-		 */
+		/// An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		enum class NopEolOptionEnumType : uint8_t
 		{
 			/** NOP TCP option */
@@ -384,282 +357,211 @@ namespace pcpp
 			Eol
 		};
 
-		/**
-		 * @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		 */
+		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		TcpOptionBuilder(TcpOptionType optionType, const uint8_t* optionValue, uint8_t optionValueLen)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue, optionValueLen)
 		{}
 
-		/**
-		 * A c'tor for building TCP options which their value is a byte array. The TcpOption object can be later
-		 * retrieved by calling build()
-		 * @param[in] optionType TCP option type
-		 * @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
-		 * any way.
-		 * @param[in] optionValueLen Option value length in bytes
-		 */
+		/// A c'tor for building TCP options which their value is a byte array. The TcpOption object can be later
+		/// retrieved by calling build()
+		/// @param[in] optionType TCP option type
+		/// @param[in] optionValue A buffer containing the option value. This buffer is read-only and isn't modified in
+		/// any way.
+		/// @param[in] optionValueLen Option value length in bytes
 		TcpOptionBuilder(TcpOptionEnumType optionType, const uint8_t* optionValue, uint8_t optionValueLen)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue, optionValueLen)
 		{}
 
-		/**
-		 * @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		 */
+		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		TcpOptionBuilder(TcpOptionType optionType, uint8_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building TCP options which have a 1-byte value. The TcpOption object can be later retrieved
-		 * by calling build()
-		 * @param[in] optionType TCP option type
-		 * @param[in] optionValue A 1-byte option value
-		 */
+		/// A c'tor for building TCP options which have a 1-byte value. The TcpOption object can be later retrieved
+		/// by calling build()
+		/// @param[in] optionType TCP option type
+		/// @param[in] optionValue A 1-byte option value
 		TcpOptionBuilder(TcpOptionEnumType optionType, uint8_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		 */
+		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		TcpOptionBuilder(TcpOptionType optionType, uint16_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building TCP options which have a 2-byte value. The TcpOption object can be later retrieved
-		 * by calling build()
-		 * @param[in] optionType TCP option type
-		 * @param[in] optionValue A 2-byte option value
-		 */
+		/// A c'tor for building TCP options which have a 2-byte value. The TcpOption object can be later retrieved
+		/// by calling build()
+		/// @param[in] optionType TCP option type
+		/// @param[in] optionValue A 2-byte option value
 		TcpOptionBuilder(TcpOptionEnumType optionType, uint16_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
-		 */
+		/// @deprecated This method is deprecated, please use constructor with TcpOptionEnumType
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		TcpOptionBuilder(TcpOptionType optionType, uint32_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * A c'tor for building TCP options which have a 4-byte value. The TcpOption object can be later retrieved
-		 * by calling build()
-		 * @param[in] optionType TCP option type
-		 * @param[in] optionValue A 4-byte option value
-		 */
+		/// A c'tor for building TCP options which have a 4-byte value. The TcpOption object can be later retrieved
+		/// by calling build()
+		/// @param[in] optionType TCP option type
+		/// @param[in] optionValue A 4-byte option value
 		TcpOptionBuilder(TcpOptionEnumType optionType, uint32_t optionValue)
 		    : TLVRecordBuilder(static_cast<uint8_t>(optionType), optionValue)
 		{}
 
-		/**
-		 * @deprecated This method is deprecated, please use constructor with NopEolOptionEnumType
-		 */
+		/// @deprecated This method is deprecated, please use constructor with NopEolOptionEnumType
 		PCPP_DEPRECATED("enum NopEolOptionTypes is deprecated; Use enum class NopEolOptionEnumType instead")
 		explicit TcpOptionBuilder(NopEolOptionTypes optionType);
 
-		/**
-		 * A c'tor for building TCP NOP and EOL options. These option types are special in that they contain only 1 byte
-		 * which is the TCP option type (NOP or EOL). The TcpOption object can be later retrieved
-		 * by calling build()
-		 * @param[in] optionType An enum value indicating which option type to build (NOP or EOL)
-		 */
+		/// A c'tor for building TCP NOP and EOL options. These option types are special in that they contain only 1
+		/// byte which is the TCP option type (NOP or EOL). The TcpOption object can be later retrieved by calling
+		/// build()
+		/// @param[in] optionType An enum value indicating which option type to build (NOP or EOL)
 		explicit TcpOptionBuilder(NopEolOptionEnumType optionType);
 
-		/**
-		 * Build the TcpOption object out of the parameters defined in the c'tor
-		 * @return The TcpOption object
-		 */
+		/// Build the TcpOption object out of the parameters defined in the c'tor
+		/// @return The TcpOption object
 		TcpOption build() const;
 	};
 
-	/**
-	 * @class TcpLayer
-	 * Represents a TCP (Transmission Control Protocol) protocol layer
-	 */
+	/// @class TcpLayer
+	/// Represents a TCP (Transmission Control Protocol) protocol layer
 	class TcpLayer : public Layer
 	{
 	public:
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be casted to @ref tcphdr)
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data (will be casted to @ref tcphdr)
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		TcpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet);
 
-		/**
-		 * A constructor that allocates a new TCP header with zero TCP options
-		 */
+		/// A constructor that allocates a new TCP header with zero TCP options
 		TcpLayer();
 
-		/**
-		 * A constructor that allocates a new TCP header with source port and destination port and zero TCP options
-		 * @param[in] portSrc Source port
-		 * @param[in] portDst Destination port
-		 */
+		/// A constructor that allocates a new TCP header with source port and destination port and zero TCP options
+		/// @param[in] portSrc Source port
+		/// @param[in] portDst Destination port
 		TcpLayer(uint16_t portSrc, uint16_t portDst);
 
 		~TcpLayer() override = default;
 
-		/**
-		 * A copy constructor that copy the entire header from the other TcpLayer (including TCP options)
-		 */
+		/// A copy constructor that copy the entire header from the other TcpLayer (including TCP options)
 		TcpLayer(const TcpLayer& other);
 
-		/**
-		 * An assignment operator that first delete all data from current layer and then copy the entire header from the
-		 * other TcpLayer (including TCP options)
-		 */
+		/// An assignment operator that first delete all data from current layer and then copy the entire header from
+		/// the other TcpLayer (including TCP options)
 		TcpLayer& operator=(const TcpLayer& other);
 
-		/**
-		 * Get a pointer to the TCP header. Notice this points directly to the data, so every change will change the
-		 * actual packet data
-		 * @return A pointer to the @ref tcphdr
-		 */
+		/// Get a pointer to the TCP header. Notice this points directly to the data, so every change will change the
+		/// actual packet data
+		/// @return A pointer to the @ref tcphdr
 		tcphdr* getTcpHeader() const
 		{
 			return reinterpret_cast<tcphdr*>(m_Data);
 		}
 
-		/**
-		 * @return TCP source port
-		 */
+		/// @return TCP source port
 		uint16_t getSrcPort() const;
 
-		/**
-		 * @return TCP destination port
-		 */
+		/// @return TCP destination port
 		uint16_t getDstPort() const;
 
-		/**
-		 * @deprecated This method is deprecated, please use getTcpOption(TcpOptionEnumType option)
-		 */
+		/// @deprecated This method is deprecated, please use getTcpOption(TcpOptionEnumType option)
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		TcpOption getTcpOption(TcpOptionType option) const;
 
-		/**
-		 * Get a TCP option by type
-		 * @param[in] option TCP option type to retrieve
-		 * @return An TcpOption object that contains the first option that matches this type, or logical null
-		 * (TcpOption#isNull() == true) if no such option found
-		 */
+		/// Get a TCP option by type
+		/// @param[in] option TCP option type to retrieve
+		/// @return An TcpOption object that contains the first option that matches this type, or logical null
+		/// (TcpOption#isNull() == true) if no such option found
 		TcpOption getTcpOption(TcpOptionEnumType option) const;
 
-		/**
-		 * @return The first TCP option in the packet. If the current layer contains no options the returned value will
-		 * contain a logical null (TcpOption#isNull() == true)
-		 */
+		/// @return The first TCP option in the packet. If the current layer contains no options the returned value will
+		/// contain a logical null (TcpOption#isNull() == true)
 		TcpOption getFirstTcpOption() const;
 
-		/**
-		 * Get the TCP option that comes after a given option. If the given option was the last one, the
-		 * returned value will contain a logical null (TcpOption#isNull() == true)
-		 * @param[in] tcpOption A TCP option object that exists in the current layer
-		 * @return A TcpOption object that contains the TCP option data that comes next, or logical null if the given
-		 * TCP option: (1) was the last one; or (2) contains a logical null; or (3) doesn't belong to this packet
-		 */
+		/// Get the TCP option that comes after a given option. If the given option was the last one, the
+		/// returned value will contain a logical null (TcpOption#isNull() == true)
+		/// @param[in] tcpOption A TCP option object that exists in the current layer
+		/// @return A TcpOption object that contains the TCP option data that comes next, or logical null if the given
+		/// TCP option: (1) was the last one; or (2) contains a logical null; or (3) doesn't belong to this packet
 		TcpOption getNextTcpOption(TcpOption& tcpOption) const;
 
-		/**
-		 * @return The number of TCP options in this layer
-		 */
+		/// @return The number of TCP options in this layer
 		size_t getTcpOptionCount() const;
 
-		/**
-		 * Add a new TCP option at the end of the layer (after the last TCP option)
-		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the TCP option data to be added
-		 * @return A TcpOption object that contains the newly added TCP option data or logical null
-		 * (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
-		 * printed to log
-		 */
+		/// Add a new TCP option at the end of the layer (after the last TCP option)
+		/// @param[in] optionBuilder A TcpOptionBuilder object that contains the TCP option data to be added
+		/// @return A TcpOption object that contains the newly added TCP option data or logical null
+		/// (TcpOption#isNull() == true) if addition failed. In case of a failure a corresponding error message will be
+		/// printed to log
 		TcpOption addTcpOption(const TcpOptionBuilder& optionBuilder);
 
-		/**
-		 * @deprecated This method is deprecated, please use insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder,
-		 * TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown)
-		 */
+		/// @deprecated This method is deprecated, please use insertTcpOptionAfter(const TcpOptionBuilder&
+		/// optionBuilder, TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown)
 		PCPP_DEPRECATED("Use insertTcpOptionAfter instead")
 		TcpOption addTcpOptionAfter(const TcpOptionBuilder& optionBuilder,
 		                            TcpOptionType prevOptionType = TcpOptionType::TCPOPT_Unknown);
 
-		/**
-		 * Insert a new TCP option after an existing one
-		 * @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be inserted
-		 * @param[in] prevOptionType The TCP option which the newly inserted option should come after. This is an
-		 * optional parameter which gets a default value of TcpOptionType::Unknown if omitted, which means the new
-		 * option will be inserted as the first option in the layer
-		 * @return A TcpOption object containing the newly inserted TCP option data or logical null
-		 * (TcpOption#isNull() == true) if insertion failed. In case of a failure a corresponding error message will be
-		 * printed to log
-		 */
+		/// Insert a new TCP option after an existing one
+		/// @param[in] optionBuilder A TcpOptionBuilder object that contains the requested TCP option data to be
+		/// inserted
+		/// @param[in] prevOptionType The TCP option which the newly inserted option should come after. This is an
+		/// optional parameter which gets a default value of TcpOptionType::Unknown if omitted, which means the new
+		/// option will be inserted as the first option in the layer
+		/// @return A TcpOption object containing the newly inserted TCP option data or logical null
+		/// (TcpOption#isNull() == true) if insertion failed. In case of a failure a corresponding error message will be
+		/// printed to log
 		TcpOption insertTcpOptionAfter(const TcpOptionBuilder& optionBuilder,
 		                               TcpOptionEnumType prevOptionType = TcpOptionEnumType::Unknown);
 
-		/**
-		 * @deprecated This method is deprecated, please use removeTcpOption(TcpOptionEnumType)
-		 */
+		/// @deprecated This method is deprecated, please use removeTcpOption(TcpOptionEnumType)
 		PCPP_DEPRECATED_TCP_OPTION_TYPE
 		bool removeTcpOption(TcpOptionType optionType);
 
-		/**
-		 * Remove an existing TCP option from the layer. TCP option is found by type
-		 * @param[in] optionType The TCP option type to remove
-		 * @return True if TCP option was removed or false if type wasn't found or if removal failed (in each case a
-		 * proper error will be written to log)
-		 */
+		/// Remove an existing TCP option from the layer. TCP option is found by type
+		/// @param[in] optionType The TCP option type to remove
+		/// @return True if TCP option was removed or false if type wasn't found or if removal failed (in each case a
+		/// proper error will be written to log)
 		bool removeTcpOption(TcpOptionEnumType optionType);
 
-		/**
-		 * Remove all TCP options in this layer
-		 * @return True if all TCP options were successfully removed or false if removal failed for some reason
-		 * (a proper error will be written to log)
-		 */
+		/// Remove all TCP options in this layer
+		/// @return True if all TCP options were successfully removed or false if removal failed for some reason
+		/// (a proper error will be written to log)
 		bool removeAllTcpOptions();
 
-		/**
-		 * Calculate the checksum from header and data and possibly write the result to @ref tcphdr#headerChecksum
-		 * @param[in] writeResultToPacket If set to true then checksum result will be written to @ref
-		 * tcphdr#headerChecksum
-		 * @return The checksum result
-		 */
+		/// Calculate the checksum from header and data and possibly write the result to @ref tcphdr#headerChecksum
+		/// @param[in] writeResultToPacket If set to true then checksum result will be written to @ref
+		/// tcphdr#headerChecksum
+		/// @return The checksum result
 		uint16_t calculateChecksum(bool writeResultToPacket);
 
-		/**
-		 * The static method makes validation of input data
-		 * @param[in] data The pointer to the beginning of byte stream of TCP packet
-		 * @param[in] dataLen The length of byte stream
-		 * @return True if the data is valid and can represent a TCP packet
-		 */
+		/// The static method makes validation of input data
+		/// @param[in] data The pointer to the beginning of byte stream of TCP packet
+		/// @param[in] dataLen The length of byte stream
+		/// @return True if the data is valid and can represent a TCP packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// implement abstract methods
 
-		/**
-		 * Currently identifies the following next layers: HttpRequestLayer, HttpResponseLayer. Otherwise sets
-		 * PayloadLayer
-		 */
+		/// Currently identifies the following next layers: HttpRequestLayer, HttpResponseLayer. Otherwise sets
+		/// PayloadLayer
 		void parseNextLayer() override;
 
-		/**
-		 * @return Size of @ref tcphdr + all TCP options
-		 */
+		/// @return Size of @ref tcphdr + all TCP options
 		size_t getHeaderLen() const override
 		{
 			return getTcpHeader()->dataOffset * 4;
 		}
 
-		/**
-		 * Calculate @ref tcphdr#headerChecksum field
-		 */
+		/// Calculate @ref tcphdr#headerChecksum field
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
