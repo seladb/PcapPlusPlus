@@ -41,11 +41,9 @@
 namespace pcpp
 {
 
-	/**
-	 * ==========================
-	 * Class KniDevice::KniThread
-	 * ==========================
-	 */
+	/// ==========================
+	/// Class KniDevice::KniThread
+	/// ==========================
 
 	struct KniDevice::KniThread
 	{
@@ -90,11 +88,9 @@ namespace pcpp
 		m_StopThread = true;
 	}
 
-	/**
-	 * ===============
-	 * Class KniDevice
-	 * ===============
-	 */
+	/// ===============
+	/// Class KniDevice
+	/// ===============
 
 	namespace
 	{
