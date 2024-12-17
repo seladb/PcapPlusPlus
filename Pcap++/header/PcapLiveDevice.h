@@ -201,15 +201,16 @@ namespace pcpp
 			/// information that may be important. You can read more here: https://wiki.wireshark.org/SnapLen
 			int snapshotLength;
 
-			/// Set NFLOG group. Which NFLOG group to be listened to when connecting to NFLOG device. If device is not of
-			/// type NFLOG this attribute is ignored.
+			/// Set NFLOG group. Which NFLOG group to be listened to when connecting to NFLOG device. If device is not
+			/// of type NFLOG this attribute is ignored.
 			unsigned int nflogGroup;
 
 			/// In Unix-like system, use poll() for blocking mode.
 			bool usePoll;
 
 			/// A c'tor for this struct
-			/// @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is promiscuous
+			/// @param[in] mode The mode to open the device: promiscuous or non-promiscuous. Default value is
+			/// promiscuous
 			/// @param[in] packetBufferTimeoutMs Buffer timeout in millisecond. Default value is 0 which means set
 			/// timeout of 1 or -1 (depends on the platform)
 			/// @param[in] packetBufferSize The packet buffer size. Default value is 0 which means use the default value
@@ -221,8 +222,8 @@ namespace pcpp
 			/// (65549) and some USB packets captured with USBPcap (> 131072, < 262144). A snapshot length of 65535
 			/// should be sufficient, on most if not all networks, to capture all the data available from the packet.
 			/// @param[in] nflogGroup NFLOG group for NFLOG devices. Default value is 0.
-			/// @param[in] usePoll use `poll()` when capturing packets in blocking more (`startCaptureBlockingMode()`) on
-			/// Unix-like system. Default value is false.
+			/// @param[in] usePoll use `poll()` when capturing packets in blocking more (`startCaptureBlockingMode()`)
+			/// on Unix-like system. Default value is false.
 			explicit DeviceConfiguration(DeviceMode mode = Promiscuous, int packetBufferTimeoutMs = 0,
 			                             int packetBufferSize = 0, PcapDirection direction = PCPP_INOUT,
 			                             int snapshotLength = 0, unsigned int nflogGroup = 0, bool usePoll = false)
@@ -254,8 +255,8 @@ namespace pcpp
 			return m_InterfaceDetails.name;
 		}
 
-		/// @return A human-readable description of the device, taken from pcap_if_t->description. May be empty string in
-		/// some interfaces
+		/// @return A human-readable description of the device, taken from pcap_if_t->description. May be empty string
+		/// in some interfaces
 		std::string getDesc() const
 		{
 			return m_InterfaceDetails.description;
@@ -301,15 +302,15 @@ namespace pcpp
 		/// returned
 		IPv6Address getIPv6Address() const;
 
-		/// @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4 or
-		/// if couldn't extract default gateway IPv4Address#Zero will be returned. If multiple gateways were defined the
-		/// first one will be returned
+		/// @return The default gateway defined for this interface. If no default gateway is defined, if it's not IPv4
+		/// or if couldn't extract default gateway IPv4Address#Zero will be returned. If multiple gateways were defined
+		/// the first one will be returned
 		IPv4Address getDefaultGateway() const;
 
 		/// @return A list of all DNS servers defined for this machine. If this list is empty it means no DNS servers
-		/// were defined or they couldn't be extracted from some reason. This list is created in PcapLiveDeviceList class
-		/// and can be also retrieved from there. This method exists for convenience - so it'll be possible to get this
-		/// list from PcapLiveDevice as well
+		/// were defined or they couldn't be extracted from some reason. This list is created in PcapLiveDeviceList
+		/// class and can be also retrieved from there. This method exists for convenience - so it'll be possible to get
+		/// this list from PcapLiveDevice as well
 		const std::vector<IPv4Address>& getDnsServers() const;
 
 		/// Start capturing packets on this network interface (device). Each time a packet is captured the
@@ -319,27 +320,27 @@ namespace pcpp
 		/// (i.e the open() method was called), otherwise an error will be returned.
 		/// @param[in] onPacketArrives A callback that is called each time a packet is captured
 		/// @param[in] onPacketArrivesUserCookie A pointer to a user provided object. This object will be transferred to
-		/// the onPacketArrives callback each time it is called. This cookie is very useful for transferring objects that
-		/// give context to the capture callback, for example: objects that counts packets, manages flow state or manages
-		/// the application state according to the packet that was captured
+		/// the onPacketArrives callback each time it is called. This cookie is very useful for transferring objects
+		/// that give context to the capture callback, for example: objects that counts packets, manages flow state or
+		/// manages the application state according to the packet that was captured
 		/// @return True if capture started successfully, false if (relevant log error is printed in any case):
 		/// - Capture is already running
 		/// - Device is not opened
 		/// - Capture thread could not be created
 		virtual bool startCapture(OnPacketArrivesCallback onPacketArrives, void* onPacketArrivesUserCookie);
 
-		/// Start capturing packets on this network interface (device) with periodic stats collection. Each time a packet
-		/// is captured the onPacketArrives callback is called. In addition, each intervalInSecondsToUpdateStats seconds
-		/// stats are collected from the device and the onStatsUpdate callback is called. Both the capture and periodic
-		/// stats collection are done on new threads created by this method, each on a different thread, meaning all
-		/// callback calls are done in threads other than the caller thread. Capture process and stats collection will
-		/// stop and threads will be terminated when calling stopCapture(). This method must be called after the device
-		/// is opened (i.e the open() method was called), otherwise an error will be returned.
+		/// Start capturing packets on this network interface (device) with periodic stats collection. Each time a
+		/// packet is captured the onPacketArrives callback is called. In addition, each intervalInSecondsToUpdateStats
+		/// seconds stats are collected from the device and the onStatsUpdate callback is called. Both the capture and
+		/// periodic stats collection are done on new threads created by this method, each on a different thread,
+		/// meaning all callback calls are done in threads other than the caller thread. Capture process and stats
+		/// collection will stop and threads will be terminated when calling stopCapture(). This method must be called
+		/// after the device is opened (i.e the open() method was called), otherwise an error will be returned.
 		/// @param[in] onPacketArrives A callback that is called each time a packet is captured
 		/// @param[in] onPacketArrivesUserCookie A pointer to a user provided object. This object will be transferred to
-		/// the onPacketArrives callback each time it is called. This cookie is very useful for transferring objects that
-		/// give context to the capture callback, for example: objects that counts packets, manages flow state or manages
-		/// the application state according to the packet that was captured
+		/// the onPacketArrives callback each time it is called. This cookie is very useful for transferring objects
+		/// that give context to the capture callback, for example: objects that counts packets, manages flow state or
+		/// manages the application state according to the packet that was captured
 		/// @param[in] intervalInSecondsToUpdateStats The interval in seconds to activate periodic stats collection
 		/// @param[in] onStatsUpdate A callback that will be called each time intervalInSecondsToUpdateStats expires and
 		/// stats are collected. This callback will contain the collected stats
@@ -389,21 +390,22 @@ namespace pcpp
 		virtual bool startCapture(RawPacketVector& capturedPacketsVector);
 
 		/// Start capturing packets on this network interface (device) in blocking mode, meaning this method blocks and
-		/// won't return until the user frees the blocking (via onPacketArrives callback) or until a user defined timeout
-		/// expires. Whenever a packets is captured the onPacketArrives callback is called and lets the user handle the
-		/// packet. In each callback call the user should return true if he wants to release the block or false if it
-		/// wants it to keep blocking. Regardless of this callback a timeout is defined when start capturing. When this
-		/// timeout expires the method will return.<BR> Please notice that stopCapture() isn't needed here because when
-		/// the method returns (after timeout or per user decision) capturing on the device is stopped
+		/// won't return until the user frees the blocking (via onPacketArrives callback) or until a user defined
+		/// timeout expires. Whenever a packets is captured the onPacketArrives callback is called and lets the user
+		/// handle the packet. In each callback call the user should return true if he wants to release the block or
+		/// false if it wants it to keep blocking. Regardless of this callback a timeout is defined when start
+		/// capturing. When this timeout expires the method will return.<BR> Please notice that stopCapture() isn't
+		/// needed here because when the method returns (after timeout or per user decision) capturing on the device is
+		/// stopped
 		/// @param[in] onPacketArrives A callback given by the user for handling incoming packets. After handling each
 		/// packet the user needs to return a boolean value. True value indicates stop capturing and stop blocking and
 		/// false value indicates continue capturing and blocking
 		/// @param[in] userCookie A pointer to a user provided object. This object will be transferred to the
 		/// onPacketArrives callback each time it is called. This cookie is very useful for transferring objects that
-		/// give context to the capture callback, for example: objects that counts packets, manages flow state or manages
-		/// the application state according to the packet that was captured
-		/// @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in the
-		/// onPacketArrives callback. The precision of `timeout` is millisecond, e.g. 2.345 seconds means 2345
+		/// give context to the capture callback, for example: objects that counts packets, manages flow state or
+		/// manages the application state according to the packet that was captured
+		/// @param[in] timeout A timeout in seconds for the blocking to stop even if the user didn't return "true" in
+		/// the onPacketArrives callback. The precision of `timeout` is millisecond, e.g. 2.345 seconds means 2345
 		/// milliseconds. If this timeout is set to 0 or less the timeout will be ignored, meaning the method will keep
 		/// handling packets until the `onPacketArrives` callback returns `true`.
 		/// @return -1 if timeout expired, 1 if blocking was stopped via onPacketArrives callback or 0 if an error
@@ -449,8 +451,8 @@ namespace pcpp
 		/// @param[in] packetDataLength The length of the buffer (this is the entire packet, including link layer)
 		/// @param[in] packetPayloadLength The length of the payload for the data link layer. This includes all data
 		/// apart from the header for the data link layer.
-		/// @return True if the packet was sent successfully. False will be returned in the following cases (relevant log
-		/// error is printed in any case):
+		/// @return True if the packet was sent successfully. False will be returned in the following cases (relevant
+		/// log error is printed in any case):
 		/// - Device is not opened
 		/// - Packet data length is 0
 		/// - Packet payload length is larger than device MTU
@@ -490,12 +492,12 @@ namespace pcpp
 		bool sendPacket(Packet* packet, bool checkMtu = true);
 
 		/// Send an array of RawPacket objects to the network
-		/// @param[in] rawPacketsArr The array of RawPacket objects to send. This method treats all packets as read-only,
-		/// it doesn't change anything in them
+		/// @param[in] rawPacketsArr The array of RawPacket objects to send. This method treats all packets as
+		/// read-only, it doesn't change anything in them
 		/// @param[in] arrLength The length of the array
 		/// @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Incurs a parsing
-		/// overhead. Default value is false to avoid performance overhead. Set to true if you don't know whether packets
-		/// fit the live device's MTU and you can afford the overhead.
+		/// overhead. Default value is false to avoid performance overhead. Set to true if you don't know whether
+		/// packets fit the live device's MTU and you can afford the overhead.
 		/// @return The number of packets sent successfully. Sending a packet can fail if:
 		/// - Device is not opened. In this case no packets will be sent, return value will be 0
 		/// - Packet length is 0
@@ -521,8 +523,8 @@ namespace pcpp
 		/// @param[in] rawPackets The array of pointers to RawPacket objects to send. This method treats all packets as
 		/// read-only, it doesn't change anything in them
 		/// @param[in] checkMtu Whether to check the size of the packet payload against MTU size. Incurs a parsing
-		/// overhead. Default value is false to avoid performance overhead. Set to true if you don't know whether packets
-		/// fit the live device's MTU and you can afford the overhead.
+		/// overhead. Default value is false to avoid performance overhead. Set to true if you don't know whether
+		/// packets fit the live device's MTU and you can afford the overhead.
 		/// @return The number of packets sent successfully. Sending a packet can fail if:
 		/// - Device is not opened. In this case no packets will be sent, return value will be 0
 		/// - Packet length is 0
