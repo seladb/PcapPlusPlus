@@ -21,9 +21,7 @@ namespace pcpp
 #define VRRP_V2_VERSION 2
 #define VRRP_V3_VERSION 3
 
-	/*************
-	 * VrrpLayer
-	 *************/
+	// -------- Class VrrpLayer -----------------
 
 	VrrpLayer::VrrpLayer(ProtocolType subProtocol, uint8_t virtualRouterId, uint8_t priority)
 	{
@@ -383,9 +381,7 @@ namespace pcpp
 		m_AddressType = addressType;
 	}
 
-	/*************
-	 * Vrrpv2Layer
-	 *************/
+	// -------- Class Vrrpv2Layer -----------------
 
 	VrrpV2Layer::VrrpV2Layer(uint8_t virtualRouterId, uint8_t priority, uint8_t advInt, uint8_t authType)
 	    : VrrpLayer(VRRPv2, virtualRouterId, priority)
@@ -451,9 +447,7 @@ namespace pcpp
 		return checksum;
 	}
 
-	/*************
-	 * Vrrpv3Layer
-	 *************/
+	// -------- Class Vrrpv3Layer -----------------
 
 	VrrpV3Layer::VrrpV3Layer(IPAddress::AddressType addressType, uint8_t virtualRouterId, uint8_t priority,
 	                         uint16_t maxAdvInt)

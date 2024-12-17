@@ -4,16 +4,11 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * Class for representing the Telnet Layer
-	 */
+	/// Class for representing the Telnet Layer
 	class TelnetLayer : public Layer
 	{
 	private:
@@ -38,9 +33,7 @@ namespace pcpp
 		uint8_t* getCommandData(uint8_t* pos, size_t& slen);
 
 	public:
-		/**
-		 * Telnet Command Indicator
-		 */
+		/// Telnet Command Indicator
 		enum class TelnetCommand : int
 		{
 			/// Indicator to parser reached end of packet
@@ -99,9 +92,7 @@ namespace pcpp
 			InterpretAsCommand
 		};
 
-		/**
-		 * Telnet Options
-		 */
+		/// Telnet Options
 		enum class TelnetOption : int
 		{
 			/// Internal return for no option detected
@@ -219,110 +210,82 @@ namespace pcpp
 			ExtendedOptions = 255
 		};
 
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		TelnetLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, Telnet)
 		{
 			lastPositionOffset = SIZE_MAX;
 		};
 
-		/**
-		 * Get the Telnet data as readable string
-		 * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
-		 * @return Full payload as readable string, empty if Telnet packet contains control commands/options.
-		 */
+		/// Get the Telnet data as readable string
+		/// @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
+		/// @return Full payload as readable string, empty if Telnet packet contains control commands/options.
 		std::string getDataAsString(bool removeEscapeCharacters = true);
 
-		/**
-		 * Get the total number of detected Telnet commands
-		 * @return size_t The number of Telnet commands
-		 */
+		/// Get the total number of detected Telnet commands
+		/// @return size_t The number of Telnet commands
 		size_t getTotalNumberOfCommands();
 
-		/**
-		 * Returns the number of occurrences of provided command
-		 * @param[in] command Telnet command to count
-		 * @return size_t Number of occurrences of command
-		 */
+		/// Returns the number of occurrences of provided command
+		/// @param[in] command Telnet command to count
+		/// @return size_t Number of occurrences of command
 		size_t getNumberOfCommands(TelnetCommand command);
 
-		/**
-		 * Returns the first command of packet
-		 * @return TelnetCommand First detected command value, TelnetCommandEndOfPacket if there is no command field
-		 */
+		/// Returns the first command of packet
+		/// @return TelnetCommand First detected command value, TelnetCommandEndOfPacket if there is no command field
 		TelnetCommand getFirstCommand();
 
-		/**
-		 * Returns the next command of packet. Uses an internal iterator. The iterator resets when reached end of
-		 * packet.
-		 * @return TelnetCommand Detected command value, TelnetCommandEndOfPacket if reached the end of packet.
-		 */
+		/// Returns the next command of packet. Uses an internal iterator. The iterator resets when reached end of
+		/// packet.
+		/// @return TelnetCommand Detected command value, TelnetCommandEndOfPacket if reached the end of packet.
 		TelnetCommand getNextCommand();
 
-		/**
-		 * Returns the option of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
-		 * @return TelnetOption Option of current command
-		 */
+		/// Returns the option of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
+		/// @return TelnetOption Option of current command
 		TelnetOption getOption();
 
-		/**
-		 * Returns the option of provided command. It will return option of first occurrence of the command
-		 * @param[in] command Telnet command to search
-		 * @return TelnetOption Option of the command. Returns TelnetOptionNoOption if the provided command not found.
-		 */
+		/// Returns the option of provided command. It will return option of first occurrence of the command
+		/// @param[in] command Telnet command to search
+		/// @return TelnetOption Option of the command. Returns TelnetOptionNoOption if the provided command not found.
 		TelnetOption getOption(TelnetCommand command);
 
-		/**
-		 * Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
-		 * @param[out] length Length of the data of current command
-		 * @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command.
-		 */
+		/// Returns the data of current command. Uses an internal iterator. Iterator can be moved with getNextCommand
+		/// @param[out] length Length of the data of current command
+		/// @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command.
 		uint8_t* getOptionData(size_t& length);
 
-		/**
-		 * Returns the data of provided command. It will return data of first occurrence of the command
-		 * @param[in] command Telnet command to search
-		 * @param[out] length Length of the data of current command
-		 * @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command or if
-		 * can't find the command.
-		 */
+		/// Returns the data of provided command. It will return data of first occurrence of the command
+		/// @param[in] command Telnet command to search
+		/// @param[out] length Length of the data of current command
+		/// @return uint8_t* Pointer to the data of current command. nullptr if there is no data for this command or if
+		/// can't find the command.
 		uint8_t* getOptionData(TelnetCommand command, size_t& length);
 
-		/**
-		 * Convert the Telnet Command to readable string
-		 * @param[in] val Value of the command
-		 * @return The Telnet Command as readable string
-		 */
+		/// Convert the Telnet Command to readable string
+		/// @param[in] val Value of the command
+		/// @return The Telnet Command as readable string
 		static std::string getTelnetCommandAsString(TelnetCommand val);
 
-		/**
-		 * Convert the Telnet option to readable string
-		 * @param[in] val Value of the option
-		 * @return The Telnet Option as readable string
-		 */
+		/// Convert the Telnet option to readable string
+		/// @param[in] val Value of the option
+		/// @return The Telnet Option as readable string
 		static std::string getTelnetOptionAsString(TelnetOption val);
 
-		/**
-		 * A static method that checks whether the port is considered as Telnet
-		 * @param[in] port The port number to be checked
-		 */
+		/// A static method that checks whether the port is considered as Telnet
+		/// @param[in] port The port number to be checked
 		static bool isTelnetPort(uint16_t port)
 		{
 			return port == 23;
 		}
 
-		/**
-		 * A static method that takes a byte array and detects whether it is a Telnet message
-		 * @param[in] data A byte array
-		 * @param[in] dataSize The byte array size (in bytes)
-		 * @return True if the data is identified as Telnet message
-		 */
+		/// A static method that takes a byte array and detects whether it is a Telnet message
+		/// @param[in] data A byte array
+		/// @param[in] dataSize The byte array size (in bytes)
+		/// @return True if the data is identified as Telnet message
 		static bool isDataValid(const uint8_t* data, size_t dataSize)
 		{
 			return data && dataSize;
@@ -334,9 +297,7 @@ namespace pcpp
 		void parseNextLayer() override
 		{}
 
-		/**
-		 * @return Get the size of the layer
-		 */
+		/// @return Get the size of the layer
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
@@ -346,17 +307,13 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		/**
-		 * @return The OSI layer level of Telnet (Application Layer).
-		 */
+		/// @return The OSI layer level of Telnet (Application Layer).
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
 
-		/**
-		 * @return Returns the protocol info as readable string
-		 */
+		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
 	};
 

@@ -13,7 +13,6 @@
 
 namespace pcpp
 {
-
 	EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType) : Layer()
 	{
 		const size_t headerLen = sizeof(ether_header);
@@ -112,15 +111,13 @@ namespace pcpp
 	{
 		if (dataLen >= sizeof(ether_header))
 		{
-			/**
-			 * Ethertypes: These are 16-bit identifiers appearing as the initial
-			 * two octets after the MAC destination and source (or after a
-			 * tag) which, when considered as an unsigned integer, are equal
-			 * to or larger than 0x0600.
-			 *
-			 * From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
-			 * More: IEEE Std 802.3 Clause 3.2.6
-			 */
+			// Ethertypes: These are 16-bit identifiers appearing as the initial
+			// two octets after the MAC destination and source (or after a
+			// tag) which, when considered as an unsigned integer, are equal
+			// to or larger than 0x0600.
+			//
+			// From: https://tools.ietf.org/html/rfc5342#section-2.3.2.1
+			// More: IEEE Std 802.3 Clause 3.2.6
 			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) >= static_cast<uint16_t>(0x0600);
 		}
 		else
@@ -128,5 +125,4 @@ namespace pcpp
 			return false;
 		}
 	}
-
 }  // namespace pcpp

@@ -7,17 +7,12 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * @struct pppoe_header
-	 * Represents an PPPoE protocol header
-	 */
+	/// @struct pppoe_header
+	/// Represents an PPPoE protocol header
 #pragma pack(push, 1)
 	struct pppoe_header
 	{
@@ -43,17 +38,13 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * @class PPPoELayer
-	 * An abstract class that describes the PPPoE protocol. Contains common data and logic of the two types of PPPoE
-	 * packets: PPPoE session and PPPoE discovery
-	 */
+	/// @class PPPoELayer
+	/// An abstract class that describes the PPPoE protocol. Contains common data and logic of the two types of PPPoE
+	/// packets: PPPoE session and PPPoE discovery
 	class PPPoELayer : public Layer
 	{
 	public:
-		/**
-		 * PPPoE possible codes
-		 */
+		/// PPPoE possible codes
 		enum PPPoECode
 		{
 			/** PPPoE session code */
@@ -82,11 +73,9 @@ namespace pcpp
 
 		~PPPoELayer() override = default;
 
-		/**
-		 * Get a pointer to the PPPoE header. Notice this points directly to the data, so every change will change the
-		 * actual packet data
-		 * @return A pointer to the pppoe_header
-		 */
+		/// Get a pointer to the PPPoE header. Notice this points directly to the data, so every change will change the
+		/// actual packet data
+		/// @return A pointer to the pppoe_header
 		pppoe_header* getPPPoEHeader() const
 		{
 			return reinterpret_cast<pppoe_header*>(m_Data);
@@ -94,9 +83,7 @@ namespace pcpp
 
 		// abstract methods implementation
 
-		/**
-		 * Calculate @ref pppoe_header#payloadLength field
-		 */
+		/// Calculate @ref pppoe_header#payloadLength field
 		void computeCalculateFields() override;
 
 		OsiModelLayer getOsiModelLayer() const override
@@ -115,32 +102,26 @@ namespace pcpp
 		           size_t additionalBytesToAllocate = 0);
 	};
 
-	/**
-	 * @class PPPoESessionLayer
-	 * Describes the PPPoE session protocol
-	 */
+	/// @class PPPoESessionLayer
+	/// Describes the PPPoE session protocol
 	class PPPoESessionLayer : public PPPoELayer
 	{
 	public:
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be casted to @ref pppoe_header)
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data (will be casted to @ref pppoe_header)
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		PPPoESessionLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : PPPoELayer(data, dataLen, prevLayer, packet, PPPoESession)
 		{}
 
-		/**
-		 * A constructor that allocates a new PPPoE Session header with version, type and session ID
-		 * @param[in] version PPPoE version
-		 * @param[in] type PPPoE type
-		 * @param[in] sessionId PPPoE session ID
-		 * @param[in] pppNextProtocol The next protocol to come after the PPPoE session header. Should be one of the
-		 * PPP_* macros listed below
-		 */
+		/// A constructor that allocates a new PPPoE Session header with version, type and session ID
+		/// @param[in] version PPPoE version
+		/// @param[in] type PPPoE type
+		/// @param[in] sessionId PPPoE session ID
+		/// @param[in] pppNextProtocol The next protocol to come after the PPPoE session header. Should be one of the
+		/// PPP_* macros listed below
 		PPPoESessionLayer(uint8_t version, uint8_t type, uint16_t sessionId, uint16_t pppNextProtocol)
 		    : PPPoELayer(version, type, PPPoELayer::PPPOE_CODE_SESSION, sessionId, sizeof(uint16_t))
 		{
@@ -149,37 +130,27 @@ namespace pcpp
 
 		~PPPoESessionLayer() override = default;
 
-		/**
-		 * @return The protocol after the PPPoE session header. The return value is one of the PPP_* macros listed
-		 * below. This method is also used when parsing a packet (this way we know which layer comes after the PPPoE
-		 * session)
-		 */
+		/// @return The protocol after the PPPoE session header. The return value is one of the PPP_* macros listed
+		/// below. This method is also used when parsing a packet (this way we know which layer comes after the PPPoE
+		/// session)
 		uint16_t getPPPNextProtocol() const;
 
-		/**
-		 * Set the field that describes which header comes after the PPPoE session header
-		 * @param[in] nextProtocol The protocol value. Should be one of the PPP_* macros listed below
-		 */
+		/// Set the field that describes which header comes after the PPPoE session header
+		/// @param[in] nextProtocol The protocol value. Should be one of the PPP_* macros listed below
 		void setPPPNextProtocol(uint16_t nextProtocol);
 
-		/**
-		 * A static method that validates the input data
-		 * @param[in] data The pointer to the beginning of byte stream of a packet
-		 * @param[in] dataLen The length of the byte stream
-		 * @return True if the data is valid and can represent a PPPoES packet
-		 */
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of byte stream of a packet
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent a PPPoES packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// abstract methods implementation
 
-		/**
-		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
-		 */
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer. Otherwise sets PayloadLayer
 		void parseNextLayer() override;
 
-		/**
-		 * @return Size of @ref pppoe_header
-		 */
+		/// @return Size of @ref pppoe_header
 		size_t getHeaderLen() const override
 		{
 			return sizeof(pppoe_header) + sizeof(uint16_t);
@@ -188,16 +159,12 @@ namespace pcpp
 		std::string toString() const override;
 	};
 
-	/**
-	 * @class PPPoEDiscoveryLayer
-	 * Describes the PPPoE discovery protocol
-	 */
+	/// @class PPPoEDiscoveryLayer
+	/// Describes the PPPoE discovery protocol
 	class PPPoEDiscoveryLayer : public PPPoELayer
 	{
 	public:
-		/**
-		 * PPPoE tag types
-		 */
+		/// PPPoE tag types
 		enum PPPoETagTypes
 		{
 			/** End-Of-List tag type*/
@@ -238,34 +205,24 @@ namespace pcpp
 			PPPOE_TAG_GENERIC_ERR = 0x0203
 		};
 
-		/**
-		 * @class PPPoETag
-		 * Represents a PPPoE tag and its data
-		 */
+		/// @class PPPoETag
+		/// Represents a PPPoE tag and its data
 		class PPPoETag : public TLVRecord<uint16_t, uint16_t>
 		{
 		public:
-			/**
-			 * A c'tor that gets a pointer to the tag raw data (byte array)
-			 * @param[in] tagRawData A pointer to the tag raw data
-			 */
+			/// A c'tor that gets a pointer to the tag raw data (byte array)
+			/// @param[in] tagRawData A pointer to the tag raw data
 			explicit PPPoETag(uint8_t* tagRawData) : TLVRecord(tagRawData)
 			{}
 
-			/**
-			 * A d'tor for this class, currently does nothing
-			 */
+			/// A d'tor for this class, currently does nothing
 			~PPPoETag() override = default;
 
-			/**
-			 * @return The tag type converted to PPPoEDiscoveryLayer#PPPoETagTypes enum
-			 */
+			/// @return The tag type converted to PPPoEDiscoveryLayer#PPPoETagTypes enum
 			PPPoEDiscoveryLayer::PPPoETagTypes getType() const;
 
-			/**
-			 * Retrieve the tag data as string. Relevant only if the tag value is indeed a string
-			 * @return The tag data as string
-			 */
+			/// Retrieve the tag data as string. Relevant only if the tag value is indeed a string
+			/// @return The tag data as string
 			std::string getValueAsString() const
 			{
 				size_t dataSize = getDataSize();
@@ -282,156 +239,120 @@ namespace pcpp
 			size_t getDataSize() const override;
 		};
 
-		/**
-		 * @class PPPoETagBuilder
-		 * A class for building PPPoE Tags. This builder receives the tag parameters in its c'tor,
-		 * builds the PPPoE Tag raw buffer and provides a build() method to get a PPPoETag object out of it
-		 */
+		/// @class PPPoETagBuilder
+		/// A class for building PPPoE Tags. This builder receives the tag parameters in its c'tor,
+		/// builds the PPPoE Tag raw buffer and provides a build() method to get a PPPoETag object out of it
 		class PPPoETagBuilder : public TLVRecordBuilder
 		{
 		public:
-			/**
-			 * A c'tor for building a PPPoE Tag which has no value (tag len is zero). The PPPoETag object can later
-			 * be retrieved by calling build()
-			 * @param[in] tagType Tag type
-			 */
+			/// A c'tor for building a PPPoE Tag which has no value (tag len is zero). The PPPoETag object can later
+			/// be retrieved by calling build()
+			/// @param[in] tagType Tag type
 			explicit PPPoETagBuilder(PPPoETagTypes tagType)
 			    : TLVRecordBuilder(static_cast<uint16_t>(tagType), nullptr, 0)
 			{}
 
-			/**
-			 * A c'tor for building a PPPoE Tag which has a 4-byte value. The PPPoETag object can later
-			 * be retrieved by calling build()
-			 * @param[in] tagType Tag type
-			 * @param[in] tagValue The tag's 4-byte value
-			 */
+			/// A c'tor for building a PPPoE Tag which has a 4-byte value. The PPPoETag object can later
+			/// be retrieved by calling build()
+			/// @param[in] tagType Tag type
+			/// @param[in] tagValue The tag's 4-byte value
 			PPPoETagBuilder(PPPoETagTypes tagType, uint32_t tagValue)
 			    : TLVRecordBuilder(static_cast<uint16_t>(tagType), tagValue)
 			{}
 
-			/**
-			 * A c'tor for building a PPPoE Tag which has some arbitrary value. The PPPoETag object can later
-			 * be retrieved by calling build()
-			 * @param[in] tagType Tag type
-			 * @param[in] tagValue A byte array that contains the tag data
-			 * @param[in] tagValueLen The length of the value byte array
-			 */
+			/// A c'tor for building a PPPoE Tag which has some arbitrary value. The PPPoETag object can later
+			/// be retrieved by calling build()
+			/// @param[in] tagType Tag type
+			/// @param[in] tagValue A byte array that contains the tag data
+			/// @param[in] tagValueLen The length of the value byte array
 			PPPoETagBuilder(PPPoETagTypes tagType, uint8_t* tagValue, uint8_t tagValueLen)
 			    : TLVRecordBuilder(static_cast<uint16_t>(tagType), tagValue, tagValueLen)
 			{}
 
-			/**
-			 * Build the PPPoETag object out of the parameters defined in the c'tor
-			 * @return The PPPoETag object
-			 */
+			/// Build the PPPoETag object out of the parameters defined in the c'tor
+			/// @return The PPPoETag object
 			PPPoETag build() const;
 		};
 
-		/**
-		 * A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data (will be casted to @ref pppoe_header)
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data (will be casted to @ref pppoe_header)
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		PPPoEDiscoveryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : PPPoELayer(data, dataLen, prevLayer, packet, PPPoEDiscovery)
 		{
 			m_DataLen = getHeaderLen();
 		}
 
-		/**
-		 * A constructor that allocates a new PPPoE Discovery header with version, type, PPPoE code and session ID
-		 * @param[in] version PPPoE version
-		 * @param[in] type PPPoE type
-		 * @param[in] code PPPoE code enum
-		 * @param[in] sessionId PPPoE session ID
-		 */
+		/// A constructor that allocates a new PPPoE Discovery header with version, type, PPPoE code and session ID
+		/// @param[in] version PPPoE version
+		/// @param[in] type PPPoE type
+		/// @param[in] code PPPoE code enum
+		/// @param[in] sessionId PPPoE session ID
 		PPPoEDiscoveryLayer(uint8_t version, uint8_t type, PPPoELayer::PPPoECode code, uint16_t sessionId)
 		    : PPPoELayer(version, type, code, sessionId)
 		{
 			m_Protocol = PPPoEDiscovery;
 		}
 
-		/**
-		 * Get a PPPoE Tag by tag type.
-		 * @param[in] tagType The type of the tag to search
-		 * @return A PPPoETag object that contains the first tag that matches this type, or logical null
-		 * (PPPoETag#isNull() == true) if no such tag found
-		 */
+		/// Get a PPPoE Tag by tag type.
+		/// @param[in] tagType The type of the tag to search
+		/// @return A PPPoETag object that contains the first tag that matches this type, or logical null
+		/// (PPPoETag#isNull() == true) if no such tag found
 		PPPoETag getTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType) const;
 
-		/**
-		 * @return The first tag in the PPPoE discovery layer. If the current layer contains no tags the returned value
-		 * will contain a logical null (PPPoETag#isNull() == true)
-		 */
+		/// @return The first tag in the PPPoE discovery layer. If the current layer contains no tags the returned value
+		/// will contain a logical null (PPPoETag#isNull() == true)
 		PPPoETag getFirstTag() const;
 
-		/**
-		 * Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value
-		 * will contain a logical null (PPPoETag#isNull() == true)
-		 * @param[in] tag A given tag
-		 * @return A PPPoETag object containing the tag that comes next, or logical null if the given
-		 * tag: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
-		 */
+		/// Get the tag that comes right after the "tag" parameter. If the given tag is the last one, the returned value
+		/// will contain a logical null (PPPoETag#isNull() == true)
+		/// @param[in] tag A given tag
+		/// @return A PPPoETag object containing the tag that comes next, or logical null if the given
+		/// tag: (1) was the last one; (2) contains a logical null or (3) doesn't belong to this packet
 		PPPoETag getNextTag(const PPPoETag& tag) const;
 
-		/**
-		 * @return The number of tags in this layer
-		 */
+		/// @return The number of tags in this layer
 		int getTagCount() const;
 
-		/**
-		 * Add a new PPPoE Tag at the end of the layer
-		 * @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
-		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical null
-		 * (PPPoETag#isNull() == true) if addition failed
-		 */
+		/// Add a new PPPoE Tag at the end of the layer
+		/// @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
+		/// @return A PPPoETag object containing the newly added PPPoE Tag data or logical null
+		/// (PPPoETag#isNull() == true) if addition failed
 		PPPoETag addTag(const PPPoETagBuilder& tagBuilder);
 
-		/**
-		 * Add a new PPPoE Tag after an existing one
-		 * @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
-		 * @param[in] prevTagType The PPPoE Tag which the newly added tag will come after
-		 * @return A PPPoETag object containing the newly added PPPoE Tag data or logical null
-		 * (PPPoETag#isNull() == true) if addition failed
-		 */
+		/// Add a new PPPoE Tag after an existing one
+		/// @param[in] tagBuilder A PPPoETagBuilder object that contains the requested tag data to add
+		/// @param[in] prevTagType The PPPoE Tag which the newly added tag will come after
+		/// @return A PPPoETag object containing the newly added PPPoE Tag data or logical null
+		/// (PPPoETag#isNull() == true) if addition failed
 		PPPoETag addTagAfter(const PPPoETagBuilder& tagBuilder, PPPoETagTypes prevTagType);
 
-		/**
-		 * Remove an existing tag. Tag will be found by the tag type
-		 * @param[in] tagType The tag type to remove
-		 * @return True if tag was removed or false if tag wasn't found or if tag removal failed (in each case a proper
-		 * error will be written to log)
-		 */
+		/// Remove an existing tag. Tag will be found by the tag type
+		/// @param[in] tagType The tag type to remove
+		/// @return True if tag was removed or false if tag wasn't found or if tag removal failed (in each case a proper
+		/// error will be written to log)
 		bool removeTag(PPPoEDiscoveryLayer::PPPoETagTypes tagType);
 
-		/**
-		 * Remove all tags in this layer
-		 * @return True if all tags were successfully or false if removal failed for some reason (a proper error will be
-		 * written to log)
-		 */
+		/// Remove all tags in this layer
+		/// @return True if all tags were successfully or false if removal failed for some reason (a proper error will
+		/// be written to log)
 		bool removeAllTags();
 
-		/**
-		 * A static method that validates the input data
-		 * @param[in] data The pointer to the beginning of byte stream of a packet
-		 * @param[in] dataLen The length of the byte stream
-		 * @return True if the data is valid and can represent a PPPoED packet
-		 */
+		/// A static method that validates the input data
+		/// @param[in] data The pointer to the beginning of byte stream of a packet
+		/// @param[in] dataLen The length of the byte stream
+		/// @return True if the data is valid and can represent a PPPoED packet
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 		// abstract methods implementation
 
-		/**
-		 * Does nothing for this layer (PPPoE discovery is always the last layer)
-		 */
+		/// Does nothing for this layer (PPPoE discovery is always the last layer)
 		void parseNextLayer() override
 		{}
 
-		/**
-		 * @return The header length which is size of strcut pppoe_header plus the total size of tags
-		 */
+		/// @return The header length which is size of strcut pppoe_header plus the total size of tags
 		size_t getHeaderLen() const override;
 
 		std::string toString() const override
