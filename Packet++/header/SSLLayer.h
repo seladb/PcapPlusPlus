@@ -5,6 +5,10 @@
 #include "SSLCommon.h"
 #include "SSLHandshake.h"
 
+#ifdef __GNUC__
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wcomment"
+#endif
 /// @file
 /// This file as well as SSLCommon.h and SSLHandshake.h provide structures that represent SSL/TLS protocol.
 /// Main features:
@@ -162,7 +166,9 @@
 /// extension. All other extensions aren't parsed and are represented by instance of
 /// pcpp::SSLExtension. Access to extensions is done through the handshake messages classes,
 /// specifically pcpp::SSLClientHelloMessage and pcpp::SSLServerHelloMessage
-///
+#ifdef __GNUC__
+#	pragma GCC diagnostic pop
+#endif
 
 /// @namespace pcpp
 /// @brief The main namespace for the PcapPlusPlus lib
@@ -255,6 +261,10 @@ namespace pcpp
 
 	};  // class SSLLayer
 
+#ifdef __GNUC__
+#	pragma GCC diagnostic push
+#	pragma GCC diagnostic ignored "-Wcomment"
+#endif
 	// The graph below will break the code formatting, so it's disabled.
 	// clang-format off
 	/// @class SSLHandshakeLayer
@@ -300,6 +310,9 @@ namespace pcpp
 	///     (22)                 xxx   |               version,length        |                           |
 	/// @endverbatim
 	// clang-format on
+#ifdef __GNUC__
+#	pragma GCC diagnostic pop
+#endif
 	class SSLHandshakeLayer : public SSLLayer
 	{
 	public:
