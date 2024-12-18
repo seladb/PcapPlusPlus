@@ -929,8 +929,8 @@ namespace pcpp
 			return 0;
 		}
 
-		struct rte_mbuf* mBufArray[rawPacketArrLength];
-		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, rawPacketArrLength);
+		std::vector<struct rte_mbuf*> mBufArray(rawPacketArrLength);
+		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray.data(), rawPacketArrLength);
 
 		if (unlikely(!packetsReceived))
 		{
@@ -972,8 +972,8 @@ namespace pcpp
 			return 0;
 		}
 
-		struct rte_mbuf* mBufArray[packetsArrLength];
-		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, packetsArrLength);
+		std::vector<struct rte_mbuf*> mBufArray(packetsArrLength);
+		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray.data(), packetsArrLength);
 
 		if (unlikely(!packetsReceived))
 		{
@@ -1133,9 +1133,9 @@ namespace pcpp
 
 	uint16_t DpdkDevice::sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId, bool useTxBuffer)
 	{
-		rte_mbuf* mBufArr[arrLength];
+		std::vector<rte_mbuf*> mBufArr(arrLength);
 		MBufRawPacketVector mBufVec;
-		MBufRawPacket* mBufRawPacketArr[arrLength];
+		std::vector<MBufRawPacket*> mBufRawPacketArr(arrLength);
 
 		for (size_t i = 0; i < arrLength; i++)
 		{
@@ -1162,7 +1162,7 @@ namespace pcpp
 		}
 
 		uint16_t packetsSent =
-		    sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, arrLength, useTxBuffer);
+		    sendPacketsInner(txQueueId, (void*)mBufArr.data(), getNextPacketFromMBufArray, arrLength, useTxBuffer);
 
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != arrLength));
 		for (int index = 0; index < arrLength; index++)
@@ -1174,8 +1174,8 @@ namespace pcpp
 	uint16_t DpdkDevice::sendPackets(RawPacketVector& rawPacketsVec, uint16_t txQueueId, bool useTxBuffer)
 	{
 		size_t vecSize = rawPacketsVec.size();
-		rte_mbuf* mBufArr[vecSize];
-		MBufRawPacket* mBufRawPacketArr[vecSize];
+		std::vector<rte_mbuf*> mBufArr(vecSize);
+		std::vector<MBufRawPacket*> mBufRawPacketArr(vecSize);
 		MBufRawPacketVector mBufVec;
 		int mBufIndex = 0;
 
@@ -1204,7 +1204,7 @@ namespace pcpp
 		}
 
 		uint16_t packetsSent =
-		    sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, vecSize, useTxBuffer);
+		    sendPacketsInner(txQueueId, (void*)mBufArr.data(), getNextPacketFromMBufArray, vecSize, useTxBuffer);
 
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != vecSize));
 		for (size_t index = 0; index < rawPacketsVec.size(); index++)
