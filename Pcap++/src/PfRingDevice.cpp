@@ -15,6 +15,26 @@
 
 namespace pcpp
 {
+	namespace
+	{
+		void setThreadCoreAffinity(std::thread const& thread, int coreId)
+		{
+			if (thread.get_id() == std::thread::id{})
+			{
+				throw std::invalid_argument("Can't set core affinity for a non-joinable thread");
+			}
+
+			cpu_set_t cpuset;
+			CPU_ZERO(&cpuset);
+			CPU_SET(coreId, &cpuset);
+			int err = pthread_setaffinity_np(thread.native_handle(), sizeof(cpu_set_t), &cpuset);
+			if (err != 0)
+			{
+				throw std::runtime_error("Error while binding thread to core " + std::to_string(coreId) +
+				                         ": errno=" + std::to_string(err));
+			}
+		}
+	}  // namespace
 
 	PfRingDevice::PfRingDevice(const char* deviceName) : m_MacAddress(MacAddress::Zero)
 	{
@@ -457,7 +477,9 @@ namespace pcpp
 		int rxChannel = 0;
 		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
-			if (!m_CoreConfiguration[coreId].IsInUse)
+			auto& coreConfig = m_CoreConfiguration[coreId];
+
+			if (!coreConfig.IsInUse)
 				continue;
 
 			m_ReentrantMode = true;
@@ -466,19 +488,18 @@ namespace pcpp
 			m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
 
 			// create a new thread
-			m_CoreConfiguration[coreId].Channel = m_PfRingDescriptors[rxChannel++];
-			m_CoreConfiguration[coreId].RxThread =
+			coreConfig.Channel = m_PfRingDescriptors[rxChannel++];
+			coreConfig.RxThread =
 			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
 
 			// set affinity to cores
-			cpu_set_t cpuset;
-			CPU_ZERO(&cpuset);
-			CPU_SET(coreId, &cpuset);
-			int err = pthread_setaffinity_np(m_CoreConfiguration[coreId].RxThread.native_handle(), sizeof(cpu_set_t),
-			                                 &cpuset);
-			if (err != 0)
+			try
 			{
-				PCPP_LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
+				setThreadCoreAffinity(coreConfig.RxThread, coreId);
+			}
+			catch (const std::exception& e)
+			{
+				PCPP_LOG_ERROR(e.what());
 				startThread = 1;
 				clearCoreConfiguration();
 				return false;
@@ -521,19 +542,20 @@ namespace pcpp
 		std::condition_variable cond;
 		int startThread = 0;
 
-		cpu_set_t cpuset;
-		CPU_ZERO(&cpuset);
-		CPU_SET(0, &cpuset);
-		m_CoreConfiguration[0].IsInUse = true;
-		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
-		m_CoreConfiguration[0].RxThread =
-		    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
-		m_CoreConfiguration[0].IsAffinitySet = false;
-		int err = pthread_setaffinity_np(m_CoreConfiguration[0].RxThread.native_handle(), sizeof(cpu_set_t), &cpuset);
-		if (err != 0)
+		auto& coreConfig = m_CoreConfiguration[0];
+		coreConfig.IsInUse = true;
+		coreConfig.Channel = m_PfRingDescriptors[0];
+		coreConfig.RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+		coreConfig.IsAffinitySet = false;
+
+		try
 		{
+			setThreadCoreAffinity(coreConfig.RxThread, 0);
+		}
+		catch (const std::exception& e)
+		{
+			PCPP_LOG_ERROR(e.what());
 			startThread = 1;
-			PCPP_LOG_ERROR("Error while binding thread to core 0: errno=" << err);
 			clearCoreConfiguration();
 			return false;
 		}
