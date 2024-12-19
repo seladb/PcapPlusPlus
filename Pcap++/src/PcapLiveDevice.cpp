@@ -80,6 +80,8 @@ namespace pcpp
 			return PCAP_D_OUT;
 		case PcapLiveDevice::PCPP_INOUT:
 			return PCAP_D_INOUT;
+		default:
+			throw std::invalid_argument("Unknown direction type");
 		}
 	}
 #endif
