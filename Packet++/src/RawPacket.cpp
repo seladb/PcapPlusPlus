@@ -41,10 +41,7 @@ namespace pcpp
 
 	RawPacket::~RawPacket()
 	{
-		if (m_DeleteRawDataAtDestructor)
-		{
-			delete[] m_RawData;
-		}
+		clear();
 	}
 
 	RawPacket::RawPacket(const RawPacket& other)
@@ -57,10 +54,7 @@ namespace pcpp
 	{
 		if (this != &other)
 		{
-			if (m_RawData != nullptr)
-				delete[] m_RawData;
-
-			m_RawPacketSet = false;
+			clear();
 
 			copyDataFrom(other, true);
 		}
@@ -104,14 +98,9 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		if (frameLength == -1)
-			frameLength = rawDataLen;
-		m_FrameLength = frameLength;
-		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
-		{
-			delete[] m_RawData;
-		}
+		clear();
 
+		m_FrameLength = (frameLength == -1) ? rawDataLen : frameLength;
 		m_RawData = (uint8_t*)pRawData;
 		m_RawDataLen = rawDataLen;
 		m_TimeStamp = timestamp;
@@ -129,7 +118,7 @@ namespace pcpp
 
 	void RawPacket::clear()
 	{
-		if (m_RawData != nullptr)
+		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
 			delete[] m_RawData;
 
 		m_RawData = nullptr;
