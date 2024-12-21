@@ -7,10 +7,14 @@ namespace pcpp
 	namespace internal
 	{
 		class StopToken;
+
+		/// Tag type used to construct a StopTokenSource without a shared state.
 		struct NoStopStateTag
 		{
 		};
 
+		/// @class StopTokenSource
+		/// @brief A source that can be used to request a stop operation.
 		class StopTokenSource
 		{
 			friend class StopToken;
@@ -24,14 +28,20 @@ namespace pcpp
 			{}
 
 			/// Returns a StopToken that is associated with this source.
+			/// @return A StopToken associated with this StopTokenSource.
 			StopToken getToken() const noexcept;
 
-			/// Requests stop.
+			/// Requests a stop operation. This will notify all associated StopTokens
+			/// that a stop has been requested.
+			/// @return True if the stop request was successful, false otherwise.
 			bool requestStop() noexcept;
 
-			/// Returns true if stop has been requested.
+			/// Checks if a stop has been requested for this StopTokenSource.
+			/// @return True if a stop has been requested, false otherwise.
 			bool stopRequested() const noexcept;
-			/// Returns true if stop can be requested.
+
+			/// Checks if a stop can be requested for this StopTokenSource.
+			/// @return True if a stop can be requested, false otherwise.
 			bool stopPossible() const noexcept;
 
 		private:
@@ -40,25 +50,36 @@ namespace pcpp
 			std::shared_ptr<SharedState> m_SharedState;
 		};
 
+		/// @class StopToken
+		/// @brief A token that can be used to check if a stop has been requested.
+		///
+		/// The StopToken class is used to check if a stop has been requested by a StopTokenSource.
+		/// It holds a shared state with the StopTokenSource to determine if a stop has been requested.
 		class StopToken
 		{
 			friend class StopTokenSource;
 
 		public:
-			/// Create a StopToken that is not associated with any shared state.
+			/// @brief Default constructor for StopToken.
+			/// Constructs a StopToken with no associated shared state.
 			StopToken() noexcept = default;
 
-			/// Returns true if stop has been requested.
+			/// @brief Checks if a stop has been requested.
+			/// @return True if a stop has been requested, false otherwise.
 			bool stopRequested() const noexcept;
-			/// Returns true if stop can be requested.
+
+			/// @brief Checks if a stop can be requested.
+			/// @return True if a stop can be requested, false otherwise.
 			bool stopPossible() const noexcept;
 
 		private:
-			/// Creates a StopToken that is associated with the given shared state.
+			/// @brief Constructs a StopToken with the given shared state.
+			/// @param sharedState The shared state associated with this StopToken.
 			explicit StopToken(std::shared_ptr<StopTokenSource::SharedState> sharedState) noexcept
 			    : m_SharedState(std::move(sharedState))
 			{}
 
+			/// @brief The shared state associated with this StopToken.
 			std::shared_ptr<StopTokenSource::SharedState> m_SharedState;
 		};
 
