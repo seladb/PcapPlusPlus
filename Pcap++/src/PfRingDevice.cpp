@@ -10,6 +10,9 @@
 #include <pfring.h>
 #include <pthread.h>
 #include <chrono>
+#include <memory>
+#include <mutex>
+#include <condition_variable>
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
 
@@ -42,9 +45,6 @@ namespace pcpp
 		m_DeviceOpened = false;
 		m_DeviceName = std::string(deviceName);
 		m_InterfaceIndex = -1;
-		m_StopThread = true;
-		m_OnPacketsArriveCallback = nullptr;
-		m_OnPacketsArriveUserCookie = nullptr;
 		m_ReentrantMode = false;
 		m_HwClockEnabled = false;
 		m_DeviceMTU = 0;
@@ -75,6 +75,8 @@ namespace pcpp
 		{
 			PCPP_LOG_DEBUG("Succeeded opening device [" << m_DeviceName << "]");
 			m_NumOfOpenedRxChannels = 1;
+			// Set reentrant mode to false as the channel is opened without the PF_RING_REENTRANT flag.
+			m_ReentrantMode = false;
 			m_DeviceOpened = true;
 			return true;
 		}
@@ -208,6 +210,8 @@ namespace pcpp
 			return false;
 		}
 
+		// Set reentrant mode to false as the channels are opened without the PF_RING_REENTRANT flag.
+		m_ReentrantMode = false;
 		m_DeviceOpened = true;
 
 		return true;
@@ -330,6 +334,8 @@ namespace pcpp
 
 		m_NumOfOpenedRxChannels = ringsOpen;
 
+		// Set reentrant mode to true as the channels are opened with the PF_RING_REENTRANT flag.
+		m_ReentrantMode = true;
 		m_DeviceOpened = true;
 		return true;
 	}
@@ -351,7 +357,7 @@ namespace pcpp
 		}
 	}
 
-	SystemCore PfRingDevice::getCurrentCoreId() const
+	SystemCore PfRingDevice::getCurrentCoreId()
 	{
 		return SystemCores::IdToSystemCore[sched_getcpu()];
 	}
@@ -448,10 +454,102 @@ namespace pcpp
 		return true;
 	}
 
+	namespace
+	{
+		struct StartupBlock
+		{
+			std::mutex startMutex;
+			std::condition_variable startCond;
+			bool startupReady = false;
+		};
+
+		struct PfRingCaptureThreadData
+		{
+			std::shared_ptr<StartupBlock> startupBlock;  /// The startup block to wait on
+
+			pfring* ringChannel;   /// The PF_RING channel to capture on (non-owning)
+			bool zeroCopySupport;  /// True if zero copy is supported
+
+			OnPfRingPacketsArriveCallback onPacketsArrive;  /// Callback to be called when packets arrive
+			void* onPacketsArriveUserCookie = nullptr;      /// User cookie to be passed to the callback
+			PfRingDevice* device = nullptr;                 /// The device this thread is capturing on (non-owning)
+		};
+
+		void pfRingCaptureThreadMain(PfRingCaptureThreadData threadData, internal::StopToken ct)
+		{
+			if (threadData.startupBlock == nullptr)
+			{
+				PCPP_LOG_ERROR("Capture thread started without a startup block");
+				return;
+			}
+
+			{
+				// Wait for the start signal
+				std::lock_guard<std::mutex> lock(threadData.startupBlock->startMutex);
+				threadData.startupBlock->startCond.wait(lock, [&] { return threadData.startupBlock->startupReady; });
+			}
+
+			// Startup is complete, clear the startup block
+			threadData.startupBlock = nullptr;
+
+			// Check if the thread should stop.
+			// If the initialization of other threads failed, this thread should stop.
+			if (ct.isCancellationRequested())
+			{
+				return;
+			}
+
+			// Core affinity should be set by now, so the core ID should be able to be cached.
+			const int coreId = PfRingDevice::getCurrentCoreId().Id;
+
+			PCPP_LOG_DEBUG("Starting capture thread " << coreId);
+
+			uint8_t bufferPtr = nullptr;
+			uint32_t bufferLen = 0;
+			std::vector<uint8_t> recvBuffer;
+
+			// If zero copy is not supported, allocate a buffer for the packet
+			if (!threadData.zeroCopySupport)
+			{
+				recvBuffer.resize(PCPP_MAX_PACKET_SIZE);
+				bufferPtr = recvBuffer.data();
+				bufferLen = recvBuffer.size();
+			}
+
+			while (!ct.isCancellationRequested())
+			{
+				struct pfring_pkthdr pktHdr;
+				int recvRes = pfring_recv(ring, &bufferPtr, bufferLen, &pktHdr, 0);
+				if (recvRes > 0)
+				{
+					// if caplen < len it means we don't have the whole packet. Treat this case as packet drop
+					// TODO: add this packet to dropped packet stats
+					//	if (pktHdr.caplen != pktHdr.len)
+					//	{
+					//		PCPP_LOG_ERROR("Packet dropped due to len != caplen");
+					//		continue;
+					//	}
+
+					RawPacket rawPacket(bufferPtr, pktHdr.caplen, pktHdr.ts, false);
+					threadData.onPacketsArrive(&rawPacket, 1, coreId, threadData.device,
+					                           threadData.onPacketsArriveUserCookie);
+				}
+				else if (recvRes < 0)
+				{
+					// cppcheck-suppress shiftNegative
+					PCPP_LOG_ERROR("pfring_recv returned an error: [Err=" << recvRes << "]");
+				}
+			}
+
+			PCPP_LOG_DEBUG("Exiting capture thread " << coreId);
+		}
+	}  // namespace
+
 	bool PfRingDevice::startCaptureMultiThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                           void* onPacketsArriveUserCookie, CoreMask coreMask)
 	{
-		if (!m_StopThread)
+		// Uses the stop token to determine if the device is already capturing
+		if (!m_StopTokenSource.stopPossible())
 		{
 			PCPP_LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
 			return false;
@@ -460,37 +558,43 @@ namespace pcpp
 		if (!initCoreConfigurationByCoreMask(coreMask))
 			return false;
 
-		if (m_NumOfOpenedRxChannels != getCoresInUseCount())
+		const int requestedInUseCores = getCoresInUseCount();
+		if (m_NumOfOpenedRxChannels != requestedInUseCores)
 		{
 			PCPP_LOG_ERROR("Cannot use a different number of channels and cores. Opened "
-			               << m_NumOfOpenedRxChannels << " channels but set " << getCoresInUseCount()
+			               << m_NumOfOpenedRxChannels << " channels but set " << requestedInUseCores
 			               << " cores in core mask");
 			clearCoreConfiguration();
 			return false;
 		}
 
-		std::mutex mutex;
-		std::condition_variable cond;
-		int startThread = 0;
+		PCPP_LOG_DEBUG("Trying to start capturing on " << requestedInUseCores << " threads for device [" << m_DeviceName << "]");
 
-		m_StopThread = false;
+		// Create a new stop token source for this capture session.
+		m_StopTokenSource = internal::StopTokenSource();
+		// Create a startup block for all threads
+		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
+
 		int rxChannel = 0;
-		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
+		for (int coreId = 0; coreId < m_CoreConfiguration.size(); coreId++)
 		{
 			auto& coreConfig = m_CoreConfiguration[coreId];
 
 			if (!coreConfig.IsInUse)
 				continue;
 
-			m_ReentrantMode = true;
+			pfring* ringChannel = m_PfRingDescriptors[rxChannel++];
+			PfRingCaptureThreadData threadData;
+			threadData.startupBlock = startupBlock;
+			threadData.ringChannel = ringChannel;
+			threadData.zeroCopySupport = !m_ReentrantMode;  // Zero copy is not supported in reentrant mode
+			threadData.onPacketsArrive = onPacketsArrive;
+			threadData.onPacketsArriveUserCookie = onPacketsArriveUserCookie;
+			threadData.device = this;
 
-			m_OnPacketsArriveCallback = onPacketsArrive;
-			m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
-
-			// create a new thread
-			coreConfig.Channel = m_PfRingDescriptors[rxChannel++];
-			coreConfig.RxThread =
-			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+			// Create a new thread
+			coreConfig.Channel = ringChannel;
+			coreConfig.RxThread = std::thread(&pfRingCaptureThreadMain, threadData, m_StopTokenSource.getToken());
 
 			// set affinity to cores
 			try
@@ -500,14 +604,37 @@ namespace pcpp
 			catch (const std::exception& e)
 			{
 				PCPP_LOG_ERROR(e.what());
-				startThread = 1;
+
+				// Request stop and set the startup block to ready to prevent other threads from starting
+				m_StopTokenSource.requestStop();
+				{
+					std::lock_guard<std::mutex> lock(startupBlock->startMutex);
+					startupBlock->startupReady = true;
+				}
+				startupBlock->startCond.notify_all();
+
+				// Wait for all threads to stop
+				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
+				{
+					if (!m_CoreConfiguration[coreId2].IsInUse)
+						continue;
+					m_CoreConfiguration[coreId2].RxThread.join();
+					PCPP_LOG_DEBUG("Thread on core [" << coreId2 << "] stopped");
+				}
+
+				// Clear the core configuration and stop token source
+				m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
 				clearCoreConfiguration();
 				return false;
 			}
 		}
 
-		startThread = 2;
-		cond.notify_all();
+		// Set the startup block to ready to start all threads
+		{
+			std::lock_guard<std::mutex> lock(startupBlock->startMutex);
+			startupBlock->startupReady = true;
+		}
+		startupBlock->startCond.notify_all();
 
 		return true;
 	}
@@ -515,7 +642,8 @@ namespace pcpp
 	bool PfRingDevice::startCaptureSingleThread(OnPfRingPacketsArriveCallback onPacketsArrive,
 	                                            void* onPacketsArriveUserCookie)
 	{
-		if (!m_StopThread)
+		// Uses the stop token to determine if the device is already capturing
+		if (!m_StopTokenSource.stopPossible())
 		{
 			PCPP_LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
 			return false;
@@ -528,49 +656,19 @@ namespace pcpp
 		}
 
 		PCPP_LOG_DEBUG("Trying to start capturing on a single thread for device [" << m_DeviceName << "]");
-
-		clearCoreConfiguration();
-
-		m_OnPacketsArriveCallback = onPacketsArrive;
-		m_OnPacketsArriveUserCookie = onPacketsArriveUserCookie;
-
-		m_StopThread = false;
-
-		m_ReentrantMode = false;
-
-		std::mutex mutex;
-		std::condition_variable cond;
-		int startThread = 0;
-
-		auto& coreConfig = m_CoreConfiguration[0];
-		coreConfig.IsInUse = true;
-		coreConfig.Channel = m_PfRingDescriptors[0];
-		coreConfig.RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
-		coreConfig.IsAffinitySet = false;
-
-		try
-		{
-			setThreadCoreAffinity(coreConfig.RxThread, 0);
-		}
-		catch (const std::exception& e)
-		{
-			PCPP_LOG_ERROR(e.what());
-			startThread = 1;
-			clearCoreConfiguration();
-			return false;
-		}
-		startThread = 2;
-		cond.notify_all();
-
-		PCPP_LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
-		return true;
+		// Starts capture on a single thread by using a Core 0 mask.
+		// Multi-threaded capture spawns a thread for each core, so this is equivalent to starting capture on a single
+		// thread.
+		return startCaptureMultiThread(onPacketsArrive, onPacketsArriveUserCookie,
+		                               createCoreMaskFromCoreVector({ SystemCores::Core0 }));
 	}
 
 	void PfRingDevice::stopCapture()
 	{
 		PCPP_LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
-		m_StopThread = true;
-		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
+		m_StopTokenSource.requestStop();
+
+		for (int coreId = 0; coreId < m_CoreConfiguration.size(); coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
 				continue;
@@ -578,73 +676,11 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Thread on core [" << coreId << "] stopped");
 		}
 
+		// Clear the core configuration and stop token source
+		m_StopTokenSource = internal::StopTokenSource(internal::NoStopStateTag{});
+		clearCoreConfiguration();
+
 		PCPP_LOG_DEBUG("All capturing threads stopped");
-	}
-
-	void PfRingDevice::captureThreadMain(std::condition_variable* startCond, std::mutex* startMutex,
-	                                     const int* startState)
-	{
-		while (*startState == 0)
-		{
-			std::unique_lock<std::mutex> lock(*startMutex);
-			startCond->wait_for(lock, std::chrono::milliseconds(100));
-		}
-		if (*startState == 1)
-		{
-			return;
-		}
-
-		int coreId = this->getCurrentCoreId().Id;
-		pfring* ring = nullptr;
-
-		PCPP_LOG_DEBUG("Starting capture thread " << coreId);
-
-		ring = this->m_CoreConfiguration[coreId].Channel;
-
-		if (ring == nullptr)
-		{
-			PCPP_LOG_ERROR("Couldn't find ring for core " << coreId << ". Exiting capture thread");
-			return;
-		}
-
-		while (!this->m_StopThread)
-		{
-			// if buffer is nullptr PF_RING avoids copy of the data
-			uint8_t* buffer = nullptr;
-			uint32_t bufferLen = 0;
-
-			// in multi-threaded mode flag PF_RING_REENTRANT is set, and this flag doesn't work with zero copy
-			// so I need to allocate a buffer and set buffer to point to it
-			if (this->m_ReentrantMode)
-			{
-				uint8_t tempBuffer[PCPP_MAX_PACKET_SIZE];
-				buffer = tempBuffer;
-				bufferLen = PCPP_MAX_PACKET_SIZE;
-			}
-
-			struct pfring_pkthdr pktHdr;
-			int recvRes = pfring_recv(ring, &buffer, bufferLen, &pktHdr, 0);
-			if (recvRes > 0)
-			{
-				// if caplen < len it means we don't have the whole packet. Treat this case as packet drop
-				// TODO: add this packet to dropped packet stats
-				//			if (pktHdr.caplen != pktHdr.len)
-				//			{
-				//				PCPP_LOG_ERROR("Packet dropped due to len != caplen");
-				//				continue;
-				//			}
-
-				RawPacket rawPacket(buffer, pktHdr.caplen, pktHdr.ts, false);
-				this->m_OnPacketsArriveCallback(&rawPacket, 1, coreId, this, this->m_OnPacketsArriveUserCookie);
-			}
-			else if (recvRes < 0)
-			{
-				// cppcheck-suppress shiftNegative
-				PCPP_LOG_ERROR("pfring_recv returned an error: [Err=" << recvRes << "]");
-			}
-		}
-
-		PCPP_LOG_DEBUG("Exiting capture thread " << coreId);
 	}
 
 	void PfRingDevice::getThreadStatistics(SystemCore core, PfRingStats& stats) const
@@ -698,15 +734,15 @@ namespace pcpp
 
 	void PfRingDevice::clearCoreConfiguration()
 	{
-		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
-			m_CoreConfiguration[i].clear();
+		for (auto& config : m_CoreConfiguration)
+			config.clear();
 	}
 
 	int PfRingDevice::getCoresInUseCount() const
 	{
 		int res = 0;
-		for (int i = 0; i < MAX_NUM_OF_CORES; i++)
-			if (m_CoreConfiguration[i].IsInUse)
+		for (auto& config : m_CoreConfiguration)
+			if (config.IsInUse)
 				res++;
 
 		return res;

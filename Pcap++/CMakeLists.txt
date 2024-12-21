@@ -20,6 +20,7 @@ add_library(
   $<$<BOOL:${PCAPPP_USE_PF_RING}>:src/PfRingDeviceList.cpp>
   $<$<BOOL:${PCAPPP_USE_XDP}>:src/XdpDevice.cpp>
   src/RawSocketDevice.cpp
+  src/StopToken.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
   # Force light pcapng to be link fully static
   $<TARGET_OBJECTS:light_pcapng>)
@@ -32,7 +33,8 @@ set(public_headers
     header/PcapFilter.h
     header/PcapLiveDevice.h
     header/PcapLiveDeviceList.h
-    header/RawSocketDevice.h)
+    header/RawSocketDevice.h
+    header/StopToken.h)
 
 if(PCAPPP_USE_DPDK)
   list(
