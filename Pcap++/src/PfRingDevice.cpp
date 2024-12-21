@@ -483,9 +483,15 @@ namespace pcpp
 				return;
 			}
 
+			if (!ct.stopPossible())
+			{
+				PCPP_LOG_ERROR("Capture thread started without a stop token");
+				return;
+			}
+
 			{
 				// Wait for the start signal
-				std::lock_guard<std::mutex> lock(threadData.startupBlock->startMutex);
+				std::unique_lock<std::mutex> lock(threadData.startupBlock->startMutex);
 				threadData.startupBlock->startCond.wait(lock, [&] { return threadData.startupBlock->startupReady; });
 			}
 
@@ -494,7 +500,7 @@ namespace pcpp
 
 			// Check if the thread should stop.
 			// If the initialization of other threads failed, this thread should stop.
-			if (ct.isCancellationRequested())
+			if (ct.stopRequested())
 			{
 				return;
 			}
@@ -504,7 +510,7 @@ namespace pcpp
 
 			PCPP_LOG_DEBUG("Starting capture thread " << coreId);
 
-			uint8_t bufferPtr = nullptr;
+			uint8_t* bufferPtr = nullptr;
 			uint32_t bufferLen = 0;
 			std::vector<uint8_t> recvBuffer;
 
@@ -516,10 +522,10 @@ namespace pcpp
 				bufferLen = recvBuffer.size();
 			}
 
-			while (!ct.isCancellationRequested())
+			while (!ct.stopRequested())
 			{
 				struct pfring_pkthdr pktHdr;
-				int recvRes = pfring_recv(ring, &bufferPtr, bufferLen, &pktHdr, 0);
+				int recvRes = pfring_recv(threadData.ringChannel, &bufferPtr, bufferLen, &pktHdr, 0);
 				if (recvRes > 0)
 				{
 					// if caplen < len it means we don't have the whole packet. Treat this case as packet drop
