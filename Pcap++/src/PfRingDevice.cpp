@@ -12,6 +12,7 @@
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <algorithm>
 #include <condition_variable>
 
 #define DEFAULT_PF_RING_SNAPLEN 1600
@@ -747,12 +748,8 @@ namespace pcpp
 
 	int PfRingDevice::getCoresInUseCount() const
 	{
-		int res = 0;
-		for (auto const& config : m_CoreConfiguration)
-			if (config.IsInUse)
-				res++;
-
-		return res;
+		return std::count_if(m_CoreConfiguration.begin(), m_CoreConfiguration.end(),
+		                     [](const CoreConfiguration& config) { return config.IsInUse; });
 	}
 
 	void PfRingDevice::setPfRingDeviceAttributes()
