@@ -23,10 +23,7 @@ namespace pcpp
 			{}
 
 			/// Returns a StopToken that is associated with this source.
-			StopToken getToken() const noexcept
-			{
-				return StopToken(m_SharedState);
-			}
+			StopToken getToken() const noexcept;
 
 			/// Requests stop.
 			bool requestStop() noexcept;
@@ -47,7 +44,7 @@ namespace pcpp
 			friend class StopTokenSource;
 
 		public:
-			/// Create a StopToken that never requests stop.
+			/// Create a StopToken that is not associated with any shared state.
 			StopToken() noexcept = default;
 
 			/// Returns true if stop has been requested.
@@ -63,5 +60,10 @@ namespace pcpp
 
 			std::shared_ptr<StopTokenSource::SharedState> m_SharedState;
 		};
+
+		inline StopToken StopTokenSource::getToken() const noexcept
+		{
+			return StopToken(m_SharedState);
+		}
 	}  // namespace internal
 }  // namespace pcpp
