@@ -748,7 +748,7 @@ namespace pcpp
 	int PfRingDevice::getCoresInUseCount() const
 	{
 		int res = 0;
-		for (auto& config : m_CoreConfiguration)
+		for (auto const& config : m_CoreConfiguration)
 			if (config.IsInUse)
 				res++;
 

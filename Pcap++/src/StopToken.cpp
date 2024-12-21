@@ -23,7 +23,8 @@ namespace pcpp
 			// Try to set the flag to true. If it was already true, return false
 			// This is done to prevent multiple threads from setting the flag to true
 			bool expected = false;
-			return m_SharedState->IsCancellationRequested.compare_exchange_strong(expected, true, std::memory_order_relaxed);
+			return m_SharedState->IsCancellationRequested.compare_exchange_strong(expected, true,
+			                                                                      std::memory_order_relaxed);
 		}
 		bool StopTokenSource::stopRequested() const noexcept
 		{
@@ -43,4 +44,4 @@ namespace pcpp
 			return m_SharedState != nullptr;
 		}
 	}  // namespace internal
-}
+}  // namespace pcpp
