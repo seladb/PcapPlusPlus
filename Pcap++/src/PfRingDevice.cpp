@@ -574,7 +574,8 @@ namespace pcpp
 			return false;
 		}
 
-		PCPP_LOG_DEBUG("Trying to start capturing on " << requestedInUseCores << " threads for device [" << m_DeviceName << "]");
+		PCPP_LOG_DEBUG("Trying to start capturing on " << requestedInUseCores << " threads for device [" << m_DeviceName
+		                                               << "]");
 
 		// Create a new stop token source for this capture session.
 		m_StopTokenSource = internal::StopTokenSource();

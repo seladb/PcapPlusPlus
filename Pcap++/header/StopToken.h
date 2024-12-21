@@ -14,6 +14,7 @@ namespace pcpp
 		class StopTokenSource
 		{
 			friend class StopToken;
+
 		public:
 			/// Creates a new StopTokenSource.
 			StopTokenSource();
@@ -53,6 +54,7 @@ namespace pcpp
 			bool stopRequested() const noexcept;
 			/// Returns true if stop can be requested.
 			bool stopPossible() const noexcept;
+
 		private:
 			/// Creates a StopToken that is associated with the given shared state.
 			StopToken::StopToken(std::shared_ptr<StopTokenSource::SharedState> sharedState) noexcept

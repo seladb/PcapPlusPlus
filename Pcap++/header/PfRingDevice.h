@@ -57,7 +57,7 @@ namespace pcpp
 
 		std::array<CoreConfiguration, MAX_NUM_OF_CORES> m_CoreConfiguration;
 		// An empty stop token source is used to indicate that no capture is running
-		internal::StopTokenSource m_StopTokenSource{internal::NoStopStateTag{}};
+		internal::StopTokenSource m_StopTokenSource{ internal::NoStopStateTag{} };
 
 		bool m_ReentrantMode;
 		bool m_HwClockEnabled;
