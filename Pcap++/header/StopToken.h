@@ -18,6 +18,7 @@ namespace pcpp
 		public:
 			/// Creates a new StopTokenSource.
 			StopTokenSource();
+			// cppcheck-suppress noExplicitConstructor
 			/// Creates a new StopTokenSource without a shared state.
 			StopTokenSource(NoStopStateTag) noexcept : m_SharedState(nullptr)
 			{}
@@ -54,7 +55,7 @@ namespace pcpp
 
 		private:
 			/// Creates a StopToken that is associated with the given shared state.
-			StopToken::StopToken(std::shared_ptr<StopTokenSource::SharedState> sharedState) noexcept
+			explicit StopToken(std::shared_ptr<StopTokenSource::SharedState> sharedState) noexcept
 			    : m_SharedState(std::move(sharedState))
 			{}
 
