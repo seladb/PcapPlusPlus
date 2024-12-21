@@ -20,7 +20,7 @@ namespace pcpp
 {
 	namespace
 	{
-		void setThreadCoreAffinity(std::thread const& thread, int coreId)
+		void setThreadCoreAffinity(std::thread& thread, int coreId)
 		{
 			if (thread.get_id() == std::thread::id{})
 			{
