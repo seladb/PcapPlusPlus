@@ -584,7 +584,7 @@ namespace pcpp
 		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
 		int rxChannel = 0;
-		for (int coreId = 0; coreId < m_CoreConfiguration.size(); coreId++)
+		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			auto& coreConfig = m_CoreConfiguration[coreId];
 
@@ -676,7 +676,7 @@ namespace pcpp
 		PCPP_LOG_DEBUG("Trying to stop capturing on device [" << m_DeviceName << "]");
 		m_StopTokenSource.requestStop();
 
-		for (int coreId = 0; coreId < m_CoreConfiguration.size(); coreId++)
+		for (int coreId = 0; coreId < MAX_NUM_OF_CORES; coreId++)
 		{
 			if (!m_CoreConfiguration[coreId].IsInUse)
 				continue;
