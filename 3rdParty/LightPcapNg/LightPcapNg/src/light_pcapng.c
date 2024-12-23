@@ -85,56 +85,52 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
 /// <param name="current">Block pointer with type and length filled out</param>
 /// <param name="local_data">Pointer to data which constitutes block body</param>
 /// <param name="block_start">Pointer to the start of the block data</param>
-void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start)
-{
-   switch (current->block_type)
-   {
-      case LIGHT_SECTION_HEADER_BLOCK:
-      {
-         DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
-         struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
-         struct _light_option *opt = NULL;
-         uint32_t version;
-         int32_t local_offset;
+void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start) {
+    switch (current->block_type) {
+        case LIGHT_SECTION_HEADER_BLOCK: {
+            DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
+            struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
+            struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+            uint32_t version = 0;
+            int32_t local_offset = 0;
 
-         shb->byteorder_magic = *local_data++;
-         // TODO check byte order.
-         version = *local_data++;
-         shb->major_version = version & 0xFFFF;
-         shb->minor_version = (version >> 16) & 0xFFFF;
-         shb->section_length = *((uint64_t*)local_data);
-         local_data += 2;
+            shb->byteorder_magic = *local_data++;
+            // TODO check byte order.
+            version = *local_data++;
+            shb->major_version = version & 0xFFFF;
+            shb->minor_version = (version >> 16) & 0xFFFF;
+            shb->section_length = *((uint64_t*)local_data);
+            local_data += 2;
 
-         current->block_body = (uint32_t*)shb;
-         local_offset = (size_t)local_data - (size_t)block_start;
-         opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
-         current->options = opt;
-      }
-      break;
+            current->block_body = (uint32_t*)shb;
+            local_offset = (size_t)local_data - (size_t)block_start;
+            opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+            current->options = opt;
+        }
+        break;
 
-      case LIGHT_INTERFACE_BLOCK:
-      {
-         DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
-         struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
-         struct _light_option *opt = NULL;
-         uint32_t link_reserved = *local_data++;
-         int32_t local_offset;
+        case LIGHT_INTERFACE_BLOCK: {
+            DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
+            struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
+            struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+            uint32_t link_reserved = *local_data++;
+            int32_t local_offset = 0;
 
-         idb->link_type = link_reserved & 0xFFFF;
-         idb->reserved = (link_reserved >> 16) & 0xFFFF;
-         idb->snapshot_length = *local_data++;
-         current->block_body = (uint32_t*)idb;
-         local_offset = (size_t)local_data - (size_t)block_start;
-         opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
-         current->options = opt;
-      }
-      break;
+            idb->link_type = link_reserved & 0xFFFF;
+            idb->reserved = (link_reserved >> 16) & 0xFFFF;
+            idb->snapshot_length = *local_data++;
+            current->block_body = (uint32_t*)idb;
+            local_offset = (size_t)local_data - (size_t)block_start;
+            opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+            current->options = opt;
+        }
+        break;
 
       case LIGHT_ENHANCED_PACKET_BLOCK:
       {
          DPRINT_HERE(LIGHT_ENHANCED_PACKET_BLOCK);
          struct _light_enhanced_packet_block *epb = NULL;
-         struct _light_option *opt = NULL;
+         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
          uint32_t interface_id = *local_data++;
          uint32_t timestamp_high = *local_data++;
          uint32_t timestamp_low = *local_data++;
@@ -182,7 +178,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       {
          DPRINT_HERE(LIGHT_CUSTOM_DATA_BLOCK);
          struct _light_custom_nonstandard_block *cnb = NULL;
-         struct _light_option *opt = NULL;
+         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
          uint32_t len = *local_data++;
          uint32_t reserved0 = *local_data++;
          uint32_t reserved1 = *local_data++;
@@ -203,24 +199,19 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          current->options = opt;
       }
       break;
-
-      default: // Could not find registered block type. Copying data as RAW.
-      {
-         DPRINT_HERE(default);
-         uint32_t raw_size = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type);
-         if (raw_size > 0)
-         {
-            current->block_body = calloc(raw_size, 1);
-            memcpy(current->block_body, local_data, raw_size);
-            local_data += raw_size / (sizeof(*local_data));
-         }
-         else
-         {
-            current->block_body = NULL;
-         }
-      }
-      break;
-   }
+      default: {
+            DPRINT_HERE(default);
+            uint32_t raw_size = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type);
+            if (raw_size > 0) {
+                current->block_body = calloc(raw_size, 1);
+                memcpy(current->block_body, local_data, raw_size);
+                local_data += raw_size / (sizeof(*local_data));
+            } else {
+                current->block_body = NULL;
+            }
+        }
+        break;
+    }
 }
 
 // Parse memory and allocate _light_pcapng array.
