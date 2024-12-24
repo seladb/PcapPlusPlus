@@ -556,7 +556,8 @@ namespace pcpp
 	                                           void* onPacketsArriveUserCookie, CoreMask coreMask)
 	{
 		// Uses the stop token to determine if the device is already capturing
-		if (!m_StopTokenSource.stopPossible())
+		// If a stop token has a internal shared state, then another capture has already started.
+		if (m_StopTokenSource.stopPossible())
 		{
 			PCPP_LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
 			return false;
@@ -651,7 +652,8 @@ namespace pcpp
 	                                            void* onPacketsArriveUserCookie)
 	{
 		// Uses the stop token to determine if the device is already capturing
-		if (!m_StopTokenSource.stopPossible())
+		// If a stop token has a internal shared state, then another capture has already started.
+		if (m_StopTokenSource.stopPossible())
 		{
 			PCPP_LOG_ERROR("Device already capturing. Cannot start 2 capture sessions at the same time");
 			return false;
