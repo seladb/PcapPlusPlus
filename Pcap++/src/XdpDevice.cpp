@@ -10,6 +10,7 @@
 #include <net/if.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <vector>
 #include <functional>
 #include <algorithm>
 #include <poll.h>
@@ -144,6 +145,7 @@ namespace pcpp
 		pollfd pollFds[1];
 		pollFds[0] = { .fd = xsk_socket__fd(socketInfo->xsk), .events = POLLIN };
 
+		std::vector<RawPacket> receiveBuffer;
 		while (m_ReceivingPackets)
 		{
 			checkCompletionRing();
@@ -169,14 +171,16 @@ namespace pcpp
 
 			uint32_t receivedPacketsCount = xsk_ring_cons__peek(&socketInfo->rx, m_Config->rxTxBatchSize, &rxId);
 
-			if (!receivedPacketsCount)
+			if (receivedPacketsCount == 0)
 			{
 				continue;
 			}
 
 			m_Stats.rxPackets += receivedPacketsCount;
 
-			RawPacket rawPacketsArr[receivedPacketsCount];
+			// Reserves at least enough memory to hold all the received packets. No-op if capacity is enough.
+			// May hold more memory than needed if a previous cycle has reserved more already.
+			receiveBuffer.reserve(receivedPacketsCount);
 
 			for (uint32_t i = 0; i < receivedPacketsCount; i++)
 			{
@@ -186,14 +190,15 @@ namespace pcpp
 				auto data = m_Umem->getDataPtr(addr);
 				timespec ts;
 				clock_gettime(CLOCK_REALTIME, &ts);
-				rawPacketsArr[i].initWithRawData(data, static_cast<int>(len), ts);
+				// Initializes the RawPacket directly into the buffer.
+				receiveBuffer.emplace_back(data, static_cast<int>(len), ts, false);
 
 				m_Stats.rxBytes += len;
 
 				m_Umem->freeFrame(addr);
 			}
 
-			onPacketsArrive(rawPacketsArr, receivedPacketsCount, this, onPacketsArriveUserCookie);
+			onPacketsArrive(receiveBuffer.data(), receiveBuffer.size(), this, onPacketsArriveUserCookie);
 
 			xsk_ring_cons__release(&socketInfo->rx, receivedPacketsCount);
 			m_Stats.rxRingId = rxId + receivedPacketsCount;
@@ -202,6 +207,9 @@ namespace pcpp
 			{
 				m_ReceivingPackets = false;
 			}
+
+			// Clears the receive buffer.
+			receiveBuffer.clear();
 		}
 
 		return true;
