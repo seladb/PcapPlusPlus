@@ -46,7 +46,7 @@ namespace pcpp
 
 	void Logger::emit(std::unique_ptr<internal::LogContext> message)
 	{
-		emit(message->m_Source, message->level, message->m_Stream.str());
+		emit(message->m_Source, message->m_Level, message->m_Stream.str());
 		// Pushes the message back to the pool if pooling is enabled. Otherwise, the message is deleted.
 		if (m_UseContextPooling)
 		{
@@ -68,7 +68,7 @@ namespace pcpp
 
 	void Logger::log(std::unique_ptr<internal::LogContext> message)
 	{
-		if (shouldLog(message->level, message->m_Source.logModule))
+		if (shouldLog(message->m_Level, message->m_Source.logModule))
 		{
 			emit(std::move(message));
 		}

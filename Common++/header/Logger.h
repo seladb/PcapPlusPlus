@@ -168,7 +168,7 @@ namespace pcpp
 			/// @brief Creates a context with an empty message with the given level and source.
 			/// @param level The log level for this message.
 			/// @param source The log source.
-			explicit LogContext(LogLevel level, LogSource const& source = {}) : level(level), m_Source(source)
+			explicit LogContext(LogLevel level, LogSource const& source = {}) : m_Source(source), m_Level(level)
 			{}
 
 			/// @brief Initializes the context with an empty message and the given level and source.
@@ -177,7 +177,7 @@ namespace pcpp
 			void init(LogLevel level, LogSource const& source)
 			{
 				m_Source = source;
-				this->level = level;
+				m_Level = level;
 				m_Stream.clear();
 				m_Stream.str({});
 			}
@@ -191,12 +191,10 @@ namespace pcpp
 				return *this;
 			}
 
-			/// @brief The log level at which the message will be emitted.
-			LogLevel level = LogLevel::Info;
-
 		private:
-			LogSource m_Source;
 			std::ostringstream m_Stream;
+			LogSource m_Source;
+			LogLevel m_Level = LogLevel::Info;
 		};
 	}  // namespace internal
 
