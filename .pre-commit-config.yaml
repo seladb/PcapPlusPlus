@@ -1,4 +1,4 @@
-exclude: '.*\.(pcap|pcapng|dat|txt)'
+exclude: '.*\.(pcap|pcapng|dat)|Tests.*\.txt'
 fail_fast: false
 repos:
   - repo: local
@@ -41,6 +41,7 @@ repos:
     rev: 0.17.1
     hooks:
     - id: gersemi
+      args: ["-c"]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
     hooks:
