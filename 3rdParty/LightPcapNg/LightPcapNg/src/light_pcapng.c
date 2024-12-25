@@ -89,7 +89,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
     switch (current->block_type) 
     {
         case LIGHT_SECTION_HEADER_BLOCK: 
-		{ // PCPP patch
+        { // PCPP patch
             DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
             struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
             struct _light_option *opt = calloc(1, sizeof(struct _light_option));
@@ -106,13 +106,16 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
 
             current->block_body = (uint32_t*)shb;
             local_offset = (size_t)local_data - (size_t)block_start;
-            opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+
+            if (opt != NULL) free(opt); // Free memory before reassignment
+            opt = __parse_options((uint32_t **)&local_data, 
+                                  current->block_total_length - local_offset - sizeof(current->block_total_length));
             current->options = opt;
         }
         break;
 
         case LIGHT_INTERFACE_BLOCK:
-		{ // PCPP patch
+        { // PCPP patch
             DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
             struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
             struct _light_option *opt = calloc(1, sizeof(struct _light_option));
@@ -124,7 +127,10 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
             idb->snapshot_length = *local_data++;
             current->block_body = (uint32_t*)idb;
             local_offset = (size_t)local_data - (size_t)block_start;
-            opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+
+            if (opt != NULL) free(opt); // Free memory before reassignment
+            opt = __parse_options((uint32_t **)&local_data, 
+                                  current->block_total_length - local_offset - sizeof(current->block_total_length));
             current->options = opt;
         }
         break;
