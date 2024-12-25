@@ -29,11 +29,11 @@
 #define PCPP_LOG_LEVEL_INFO 2
 #define PCPP_LOG_LEVEL_DEBUG 3
 
-// All log messages built via a PCAP_LOG_* macro below the PCAP_ACTIVE_LOG_LEVEL will be removed at compile time.
-// Uses the PCAP_ACTIVE_LOG_LEVEL if it is defined, otherwise defaults to PCAP_LOG_LEVEL_DEBUG
+// All log messages built via a PCPP_LOG_* macro below the PCPP_ACTIVE_LOG_LEVEL will be removed at compile time.
+// Uses the PCPP_ACTIVE_LOG_LEVEL if it is defined, otherwise defaults to PCAP_LOG_LEVEL_DEBUG
 #ifndef PCPP_ACTIVE_LOG_LEVEL
 #	define PCPP_ACTIVE_LOG_LEVEL PCPP_LOG_LEVEL_DEBUG
-#endif  // !PCAP_ACTIVE_LOG_LEVEL
+#endif  // !PCPP_ACTIVE_LOG_LEVEL
 
 /// @namespace pcpp
 /// @brief The main namespace for the PcapPlusPlus lib
