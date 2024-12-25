@@ -1,11 +1,11 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstdint>
 #include <memory>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <stdint.h>
 #include "DeprecationUtils.h"
 #include "ObjectPool.h"
 
