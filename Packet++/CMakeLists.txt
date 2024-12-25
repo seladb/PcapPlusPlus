@@ -19,6 +19,7 @@ add_library(
   src/IcmpLayer.cpp
   src/IcmpV6Layer.cpp
   src/IgmpLayer.cpp
+  src/InfiniBandLayer.cpp
   src/IPReassembly.cpp
   src/IPSecLayer.cpp
   src/IPv4Layer.cpp
@@ -88,6 +89,7 @@ set(public_headers
     header/IcmpLayer.h
     header/IcmpV6Layer.h
     header/IgmpLayer.h
+    header/InfiniBandLayer.h
     header/IPLayer.h
     header/IPReassembly.h
     header/IPSecLayer.h

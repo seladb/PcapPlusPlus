@@ -15,6 +15,7 @@ add_executable(
   Tests/IcmpTests.cpp
   Tests/IcmpV6Tests.cpp
   Tests/IgmpTests.cpp
+  Tests/InfiniBandTests.cpp
   Tests/IPSecTests.cpp
   Tests/IPv4Tests.cpp
   Tests/IPv6Tests.cpp
