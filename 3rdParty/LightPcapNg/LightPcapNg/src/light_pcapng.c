@@ -135,36 +135,42 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
         }
         break;
 
-      case LIGHT_ENHANCED_PACKET_BLOCK:
-      {
-         DPRINT_HERE(LIGHT_ENHANCED_PACKET_BLOCK);
-         struct _light_enhanced_packet_block *epb = NULL;
-         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
-         uint32_t interface_id = *local_data++;
-         uint32_t timestamp_high = *local_data++;
-         uint32_t timestamp_low = *local_data++;
-         uint32_t captured_packet_length = *local_data++;
-         uint32_t original_packet_length = *local_data++;
-         int32_t local_offset;
-         uint32_t actual_len = 0;
+        case LIGHT_ENHANCED_PACKET_BLOCK:
+        { //PCPP Patch
+            DPRINT_HERE(LIGHT_ENHANCED_PACKET_BLOCK);
 
-         PADD32(captured_packet_length, &actual_len);
+            struct _light_enhanced_packet_block *epb = NULL;
+            struct _light_option *opt = calloc(1, sizeof(struct _light_option)); // Allocate memory for opt
+            uint32_t interface_id = *local_data++;
+            uint32_t timestamp_high = *local_data++;
+            uint32_t timestamp_low = *local_data++;
+            uint32_t captured_packet_length = *local_data++;
+            uint32_t original_packet_length = *local_data++;
+            int32_t local_offset;
+            uint32_t actual_len = 0;
 
-         epb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
-         epb->interface_id = interface_id;
-         epb->timestamp_high = timestamp_high;
-         epb->timestamp_low = timestamp_low;
-         epb->capture_packet_length = captured_packet_length;
-         epb->original_capture_length = original_packet_length;
+            PADD32(captured_packet_length, &actual_len);
 
-         memcpy(epb->packet_data, local_data, captured_packet_length); // Maybe actual_len?
-         local_data += actual_len / sizeof(uint32_t);
-         current->block_body = (uint32_t*)epb;
-         local_offset = (size_t)local_data - (size_t)block_start;
-         opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
-         current->options = opt;
-      }
-      break;
+            epb = calloc(1, sizeof(struct _light_enhanced_packet_block) + actual_len);
+            epb->interface_id = interface_id;
+            epb->timestamp_high = timestamp_high;
+            epb->timestamp_low = timestamp_low;
+            epb->capture_packet_length = captured_packet_length;
+            epb->original_capture_length = original_packet_length;
+
+            memcpy(epb->packet_data, local_data, captured_packet_length); // Maybe actual_len?
+            local_data += actual_len / sizeof(uint32_t);
+            current->block_body = (uint32_t*)epb;
+            local_offset = (size_t)local_data - (size_t)block_start;
+
+            if (opt != NULL) 
+                free(opt); // Free memory before reassignment
+
+            opt = __parse_options((uint32_t **)&local_data, 
+                                  current->block_total_length - local_offset - sizeof(current->block_total_length));
+            current->options = opt;
+        }
+        break;
 
       case LIGHT_SIMPLE_PACKET_BLOCK:
       {
@@ -184,31 +190,40 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       break;
 
       case LIGHT_CUSTOM_DATA_BLOCK:
-      {
-         DPRINT_HERE(LIGHT_CUSTOM_DATA_BLOCK);
-         struct _light_custom_nonstandard_block *cnb = NULL;
-         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
-         uint32_t len = *local_data++;
-         uint32_t reserved0 = *local_data++;
-         uint32_t reserved1 = *local_data++;
-         int32_t local_offset;
-         uint32_t actual_len = 0;
+        { //PCPP Patch
+            DPRINT_HERE(LIGHT_CUSTOM_DATA_BLOCK);
 
-         PADD32(len, &actual_len);
-         cnb = calloc(1, sizeof(struct _light_custom_nonstandard_block) + actual_len);
-         cnb->data_length = len;
-         cnb->reserved0 = reserved0;
-         cnb->reserved1 = reserved1;
+            struct _light_custom_nonstandard_block *cnb = NULL;
+            struct _light_option *opt = calloc(1, sizeof(struct _light_option)); // Allocate memory for opt
+            uint32_t len = *local_data++;
+            uint32_t reserved0 = *local_data++;
+            uint32_t reserved1 = *local_data++;
+            int32_t local_offset;
+            uint32_t actual_len = 0;
 
-         memcpy(cnb->packet_data, local_data, len); // Maybe actual_len?
-         local_data += actual_len / sizeof(uint32_t);
-         current->block_body = (uint32_t*)cnb;
-         local_offset = (size_t)local_data - (size_t)block_start;
-         opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
-         current->options = opt;
-      }
-      break;
-      default: {
+            PADD32(len, &actual_len);
+
+            cnb = calloc(1, sizeof(struct _light_custom_nonstandard_block) + actual_len);
+            cnb->data_length = len;
+            cnb->reserved0 = reserved0;
+            cnb->reserved1 = reserved1;
+
+            memcpy(cnb->packet_data, local_data, len); // Maybe actual_len?
+            local_data += actual_len / sizeof(uint32_t);
+            current->block_body = (uint32_t*)cnb;
+            local_offset = (size_t)local_data - (size_t)block_start;
+
+            if (opt != NULL) 
+                free(opt); // Free memory before reassignment
+
+            opt = __parse_options((uint32_t **)&local_data, 
+                                  current->block_total_length - local_offset - sizeof(current->block_total_length));
+            current->options = opt;
+        }
+        break;
+	    
+      default:
+	      {
             DPRINT_HERE(default);
             uint32_t raw_size = current->block_total_length - 2 * sizeof(current->block_total_length) - sizeof(current->block_type);
             if (raw_size > 0) {
