@@ -5,16 +5,11 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * Class for general FTP message
-	 */
+	/// Class for general FTP message
 	class FtpLayer : public SingleCommandTextProtocol
 	{
 	protected:
@@ -24,19 +19,15 @@ namespace pcpp
 		    : SingleCommandTextProtocol(command, option, FTP) {};
 
 	public:
-		/**
-		 * A static method that checks whether the port is considered as FTP control
-		 * @param[in] port The port number to be checked
-		 */
+		/// A static method that checks whether the port is considered as FTP control
+		/// @param[in] port The port number to be checked
 		static bool isFtpPort(uint16_t port)
 		{
 			return port == 21;
 		}
 
-		/**
-		 * A static method that checks whether the port is considered as FTP data
-		 * @param[in] port The port number to be checked
-		 */
+		/// A static method that checks whether the port is considered as FTP data
+		/// @param[in] port The port number to be checked
 		static bool isFtpDataPort(uint16_t port)
 		{
 			return port == 20;
@@ -48,9 +39,7 @@ namespace pcpp
 		void parseNextLayer() override
 		{}
 
-		/**
-		 * @return Get the size of the layer
-		 */
+		/// @return Get the size of the layer
 		size_t getHeaderLen() const override
 		{
 			return m_DataLen;
@@ -60,24 +49,18 @@ namespace pcpp
 		void computeCalculateFields() override
 		{}
 
-		/**
-		 * @return The OSI layer level of FTP (Application Layer).
-		 */
+		/// @return The OSI layer level of FTP (Application Layer).
 		OsiModelLayer getOsiModelLayer() const override
 		{
 			return OsiModelApplicationLayer;
 		}
 	};
 
-	/**
-	 * Class for representing the request messages of FTP Layer
-	 */
+	/// Class for representing the request messages of FTP Layer
 	class FtpRequestLayer : public FtpLayer
 	{
 	public:
-		/**
-		 * Enum for FTP command codes
-		 */
+		/// Enum for FTP command codes
 		enum class FtpCommand : int
 		{
 			/// Unknown command
@@ -228,87 +211,64 @@ namespace pcpp
 			XSEN = ('X') | ('S' << 8) | ('E' << 16) | ('N' << 24)
 		};
 
-		/** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		FtpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : FtpLayer(data, dataLen, prevLayer, packet) {};
 
-		/**
-		 * A constructor that creates layer with provided input values
-		 * @param[in] command FTP command
-		 * @param[in] option Argument of the command
-		 */
+		/// A constructor that creates layer with provided input values
+		/// @param[in] command FTP command
+		/// @param[in] option Argument of the command
 		explicit FtpRequestLayer(const FtpCommand& command, const std::string& option = "")
 		    : FtpLayer(getCommandAsString(command), option) {};
 
-		/**
-		 * Set the command of request message
-		 * @param[in] code Value to set command
-		 * @return True if the operation is successful, false otherwise
-		 */
+		/// Set the command of request message
+		/// @param[in] code Value to set command
+		/// @return True if the operation is successful, false otherwise
 		bool setCommand(FtpCommand code);
 
-		/**
-		 * Get the command of request message
-		 * @return FtpCommand Value of the command
-		 */
+		/// Get the command of request message
+		/// @return FtpCommand Value of the command
 		FtpCommand getCommand() const;
 
-		/**
-		 * Get the command of request message as string
-		 * @return std::string Value of the command as string
-		 */
+		/// Get the command of request message as string
+		/// @return std::string Value of the command as string
 		std::string getCommandString() const;
 
-		/**
-		 * Set the command argument of request message
-		 * @param[in] value Value to set command argument
-		 * @return True if the operation is successful, false otherwise
-		 */
+		/// Set the command argument of request message
+		/// @param[in] value Value to set command argument
+		/// @return True if the operation is successful, false otherwise
 		bool setCommandOption(const std::string& value);
 
-		/**
-		 * Get the command argument of request message
-		 * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
-		 * @return std::string Value of command argument
-		 */
+		/// Get the command argument of request message
+		/// @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
+		/// @return std::string Value of command argument
 		std::string getCommandOption(bool removeEscapeCharacters = true) const;
 
-		/**
-		 * Convert the command info to readable string
-		 * @param[in] code Command code to convert
-		 * @return std::string Returns the command info as readable string
-		 */
+		/// Convert the command info to readable string
+		/// @param[in] code Command code to convert
+		/// @return std::string Returns the command info as readable string
 		static std::string getCommandInfo(FtpCommand code);
 
-		/**
-		 * Convert the command to readable string
-		 * @param[in] code Command code to convert
-		 * @return std::string Returns the command as readable string
-		 */
+		/// Convert the command to readable string
+		/// @param[in] code Command code to convert
+		/// @return std::string Returns the command as readable string
 		static std::string getCommandAsString(FtpCommand code);
 
 		// overridden methods
 
-		/**
-		 * @return Returns the protocol info as readable string
-		 */
+		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
 	};
 
-	/**
-	 * Class for representing the response messages of FTP Layer
-	 */
+	/// Class for representing the response messages of FTP Layer
 	class FtpResponseLayer : public FtpLayer
 	{
 	public:
-		/**
-		 * Enum for FTP response codes
-		 */
+		/// Enum for FTP response codes
 		enum class FtpStatusCode : int
 		{
 			/// Unknown status code
@@ -427,92 +387,70 @@ namespace pcpp
 			CONFIDENTIALITY_PROTECTED = 633
 		};
 
-		/** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		FtpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : FtpLayer(data, dataLen, prevLayer, packet) {};
 
-		/**
-		 * A constructor that creates layer with provided input values
-		 * @param[in] code Status code
-		 * @param[in] option Argument of the status code
-		 */
+		/// A constructor that creates layer with provided input values
+		/// @param[in] code Status code
+		/// @param[in] option Argument of the status code
 		explicit FtpResponseLayer(const FtpStatusCode& code, const std::string& option = "")
 		    : FtpLayer(std::to_string(int(code)), option) {};
 
-		/**
-		 * Set the status code of response message
-		 * @param[in] code Value to set status code
-		 * @return True if the operation is successful, false otherwise
-		 */
+		/// Set the status code of response message
+		/// @param[in] code Value to set status code
+		/// @return True if the operation is successful, false otherwise
 		bool setStatusCode(FtpStatusCode code);
 
-		/**
-		 * Get the status code of response message
-		 * @return FtpStatusCode Value of the status code
-		 */
+		/// Get the status code of response message
+		/// @return FtpStatusCode Value of the status code
 		FtpStatusCode getStatusCode() const;
 
-		/**
-		 * Get the status code of response message as string
-		 * @return std::string Value of the status code as string
-		 */
+		/// Get the status code of response message as string
+		/// @return std::string Value of the status code as string
 		std::string getStatusCodeString() const;
 
-		/**
-		 * Set the argument of response message
-		 * @param[in] value Value to set argument
-		 * @return True if the operation is successful, false otherwise
-		 */
+		/// Set the argument of response message
+		/// @param[in] value Value to set argument
+		/// @return True if the operation is successful, false otherwise
 		bool setStatusOption(const std::string& value);
 
-		/**
-		 * Get the argument of response message
-		 * @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
-		 * @return std::string Value of argument
-		 */
+		/// Get the argument of response message
+		/// @param[in] removeEscapeCharacters Whether non-alphanumerical characters should be removed or not
+		/// @return std::string Value of argument
 		std::string getStatusOption(bool removeEscapeCharacters = true) const;
 
-		/**
-		 * Convert the status code to readable string
-		 * @param[in] code Status code to convert
-		 * @return std::string Returns the status info as readable string
-		 */
+		/// Convert the status code to readable string
+		/// @param[in] code Status code to convert
+		/// @return std::string Returns the status info as readable string
 		static std::string getStatusCodeAsString(FtpStatusCode code);
 
 		// overridden methods
 
-		/**
-		 * @return Returns the protocol info as readable string
-		 */
+		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
 	};
 
-	/**
-	 * Class for representing the data of FTP Layer
-	 */
+	/// Class for representing the data of FTP Layer
 	class FtpDataLayer : public PayloadLayer
 	{
 	public:
-		/** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		FtpDataLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : PayloadLayer(data, dataLen, prevLayer, packet)
 		{
 			m_Protocol = FTP;
 		};
 
-		/**
-		 * @return Returns the protocol info as readable string
-		 */
+		/// @return Returns the protocol info as readable string
 		std::string toString() const override;
 	};
 }  // namespace pcpp

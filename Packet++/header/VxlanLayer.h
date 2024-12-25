@@ -4,13 +4,12 @@
 
 /// @file
 
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * @struct vxlan_header
-	 * Represents a VXLAN protocol header
-	 */
+	/// @struct vxlan_header
+	/// Represents a VXLAN protocol header
 #pragma pack(push, 1)
 	struct vxlan_header
 	{
@@ -64,62 +63,49 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * @class VxlanLayer
-	 * Represents a VXLAN (Virtual eXtensible Local Area Network) protocol layer
-	 */
+	/// @class VxlanLayer
+	/// Represents a VXLAN (Virtual eXtensible Local Area Network) protocol layer
 	class VxlanLayer : public Layer
 	{
 	public:
-		/** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		VxlanLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, VXLAN)
 		{}
 
-		/**
-		 * A constructor that creates a new VXLAN header and allocates the data. Note: the VNI present flag is set
-		 * automatically
-		 * @param[in] vni VNI (VXLAN Network ID) to set. Optional parameter (default is 0)
-		 * @param[in] groupPolicyID Group Policy ID to set. Optional parameter (default is 0)
-		 * @param[in] setGbpFlag Set GBP flag. Optional parameter (default is false)
-		 * @param[in] setPolicyAppliedFlag Set Policy Applied flag. Optional parameter (default is false)
-		 * @param[in] setDontLearnFlag Set Don't Learn flag. Optional parameter (default is false)
-		 */
+		/// A constructor that creates a new VXLAN header and allocates the data. Note: the VNI present flag is set
+		/// automatically
+		/// @param[in] vni VNI (VXLAN Network ID) to set. Optional parameter (default is 0)
+		/// @param[in] groupPolicyID Group Policy ID to set. Optional parameter (default is 0)
+		/// @param[in] setGbpFlag Set GBP flag. Optional parameter (default is false)
+		/// @param[in] setPolicyAppliedFlag Set Policy Applied flag. Optional parameter (default is false)
+		/// @param[in] setDontLearnFlag Set Don't Learn flag. Optional parameter (default is false)
 		explicit VxlanLayer(uint32_t vni = 0, uint16_t groupPolicyID = 0, bool setGbpFlag = false,
 		                    bool setPolicyAppliedFlag = false, bool setDontLearnFlag = false);
 
 		~VxlanLayer() override = default;
 
-		/**
-		 * Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the
-		 * actual packet data
-		 * @return A pointer to the vxlan_header
-		 */
+		/// Get a pointer to the VXLAN header. Notice this points directly to the data, so every change will change the
+		/// actual packet data
+		/// @return A pointer to the vxlan_header
 		vxlan_header* getVxlanHeader() const
 		{
 			return reinterpret_cast<vxlan_header*>(m_Data);
 		}
 
-		/**
-		 * @return The VXLAN Network ID (VNI) value
-		 */
+		/// @return The VXLAN Network ID (VNI) value
 		uint32_t getVNI() const;
 
-		/**
-		 * Set VXLAN Network ID (VNI) value
-		 * @param[in] vni VNI value to set
-		 */
+		/// Set VXLAN Network ID (VNI) value
+		/// @param[in] vni VNI value to set
 		void setVNI(uint32_t vni);
 
-		/**
-		 * A static method that checks whether the port is considered as VxLAN
-		 * @param[in] port The port number to be checked
-		 */
+		/// A static method that checks whether the port is considered as VxLAN
+		/// @param[in] port The port number to be checked
 		static bool isVxlanPort(uint16_t port)
 		{
 			return port == 4789;
@@ -127,22 +113,16 @@ namespace pcpp
 
 		// implement abstract methods
 
-		/**
-		 * Next layer for VXLAN is always Ethernet
-		 */
+		/// Next layer for VXLAN is always Ethernet
 		void parseNextLayer() override;
 
-		/**
-		 * @return Size of vxlan_header
-		 */
+		/// @return Size of vxlan_header
 		size_t getHeaderLen() const override
 		{
 			return sizeof(vxlan_header);
 		}
 
-		/**
-		 * Does nothing for this layer
-		 */
+		/// Does nothing for this layer
 		void computeCalculateFields() override
 		{}
 
@@ -153,5 +133,4 @@ namespace pcpp
 			return OsiModelDataLinkLayer;
 		}
 	};
-
 }  // namespace pcpp

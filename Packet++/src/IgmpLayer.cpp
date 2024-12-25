@@ -7,10 +7,7 @@
 
 namespace pcpp
 {
-
-	/*************
-	 * IgmpLayer
-	 *************/
+	// -------- Class IgmpLayer -----------------
 
 	IgmpLayer::IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer)
 	{
@@ -179,9 +176,7 @@ namespace pcpp
 		return result;
 	}
 
-	/*************
-	 * IgmpV1Layer
-	 *************/
+	// -------- Class IgmpV1Layer -----------------
 
 	void IgmpV1Layer::computeCalculateFields()
 	{
@@ -191,9 +186,7 @@ namespace pcpp
 		hdr->maxResponseTime = 0;
 	}
 
-	/*************
-	 * IgmpV2Layer
-	 *************/
+	// -------- Class IgmpV2Layer -----------------
 
 	void IgmpV2Layer::computeCalculateFields()
 	{
@@ -202,9 +195,7 @@ namespace pcpp
 		hdr->checksum = htobe16(calculateChecksum());
 	}
 
-	/******************
-	 * IgmpV3QueryLayer
-	 ******************/
+	// -------- Class IgmpV3QueryLayer -----------------
 
 	IgmpV3QueryLayer::IgmpV3QueryLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : IgmpLayer(data, dataLen, prevLayer, packet, IGMPv3)
@@ -335,9 +326,7 @@ namespace pcpp
 		return true;
 	}
 
-	/*******************
-	 * IgmpV3ReportLayer
-	 *******************/
+	// -------- Class IgmpV3ReportLayer -----------------
 
 	uint16_t IgmpV3ReportLayer::getGroupRecordCount() const
 	{
@@ -505,9 +494,7 @@ namespace pcpp
 		return true;
 	}
 
-	/*********************
-	 * igmpv3_group_record
-	 *********************/
+	// -------- Struct igmpv3_group_record -----------------
 
 	uint16_t igmpv3_group_record::getSourceAddressCount() const
 	{
@@ -532,5 +519,4 @@ namespace pcpp
 		int headerLen = numOfRecords * sizeof(uint32_t) + sizeof(igmpv3_group_record);
 		return (size_t)headerLen;
 	}
-
 }  // namespace pcpp

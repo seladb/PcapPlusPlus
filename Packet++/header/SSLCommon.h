@@ -3,22 +3,15 @@
 #include <string>
 #include <stdint.h>
 
-/**
- * @file
- * See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
- */
+/// @file
+/// See detailed explanation of the TLS/SSL protocol support in PcapPlusPlus in SSLLayer.h
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * @struct ssl_tls_record_layer
-	 * The common part of all SSL/TLS messages
-	 */
+	/// @struct ssl_tls_record_layer
+	/// The common part of all SSL/TLS messages
 #pragma pack(push, 1)
 	struct ssl_tls_record_layer
 	{
@@ -31,10 +24,8 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * @struct ssl_tls_handshake_layer
-	 * The common part of all SSL/TLS handshake message types
-	 */
+	/// @struct ssl_tls_handshake_layer
+	/// The common part of all SSL/TLS handshake message types
 #pragma pack(push, 1)
 	struct ssl_tls_handshake_layer
 	{
@@ -47,10 +38,8 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * @struct ssl_tls_client_server_hello
-	 * The common header part of client-hello and server-hello handshake messages
-	 */
+	/// @struct ssl_tls_client_server_hello
+	/// The common header part of client-hello and server-hello handshake messages
 #pragma pack(push, 1)
 	struct ssl_tls_client_server_hello : ssl_tls_handshake_layer
 	{
@@ -61,10 +50,8 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * @struct ssl_tls_change_cipher_spec
-	 * SSL/TLS change-cipher-spec message structure
-	 */
+	/// @struct ssl_tls_change_cipher_spec
+	/// SSL/TLS change-cipher-spec message structure
 #pragma pack(push, 1)
 	struct ssl_tls_change_cipher_spec
 	{
@@ -73,10 +60,8 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * @struct ssl_tls_alert
-	 * SSL/TLS alert message structure
-	 */
+	/// @struct ssl_tls_alert
+	/// SSL/TLS alert message structure
 #pragma pack(push, 1)
 	struct ssl_tls_alert
 	{
@@ -87,9 +72,7 @@ namespace pcpp
 	};
 #pragma pack(pop)
 
-	/**
-	 * SSL/TLS message types
-	 */
+	/// SSL/TLS message types
 	enum SSLRecordType
 	{
 		/** Change-cipher-spec message */
@@ -102,18 +85,14 @@ namespace pcpp
 		SSL_APPLICATION_DATA = 23
 	};
 
-	/**
-	 * @class SSLVersion
-	 * A wrapper class for SSL/TLS versions. The SSL/TLS version is typically represented by a 2-byte number,
-	 * for example TLS 1.2 is represented by 0x0303.
-	 * This class wraps the numeric value and provides methods to convert it into an enum, string, etc.
-	 */
+	/// @class SSLVersion
+	/// A wrapper class for SSL/TLS versions. The SSL/TLS version is typically represented by a 2-byte number,
+	/// for example TLS 1.2 is represented by 0x0303.
+	/// This class wraps the numeric value and provides methods to convert it into an enum, string, etc.
 	class SSLVersion
 	{
 	public:
-		/**
-		 * SSL/TLS versions enum
-		 */
+		/// SSL/TLS versions enum
 		enum SSLVersionEnum
 		{
 			/** SSL 2.0 */
@@ -166,40 +145,32 @@ namespace pcpp
 			Unknown = 0
 		};
 
-		/**
-		 * A c'tor for this class.
-		 * @param[in] sslVersionValue The numeric value representing this SSL/TLS version. For example:
-		 * for TLS 1.2 this would be 0x0303.
-		 */
+		/// A c'tor for this class.
+		/// @param[in] sslVersionValue The numeric value representing this SSL/TLS version. For example:
+		/// for TLS 1.2 this would be 0x0303.
 		explicit SSLVersion(uint16_t sslVersionValue)
 		{
 			m_SSLVersionValue = sslVersionValue;
 		}
 
-		/**
-		 * @return An enum value of type SSLVersion::SSLVersionEnum representing the SSL/TLS version.
-		 * If the numeric value is an invalid SSL/TLS version SSLVersion::Unknown will be returned.
-		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the enum value SSLVersion::TLS1_3 for all
-		 * TLS 1.3 drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
-		 * SSLVersion::TLS1_3, otherwise the corresponding enum values will be returned. The default value is "false".
-		 */
+		/// @return An enum value of type SSLVersion::SSLVersionEnum representing the SSL/TLS version.
+		/// If the numeric value is an invalid SSL/TLS version SSLVersion::Unknown will be returned.
+		/// @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the enum value SSLVersion::TLS1_3 for all
+		/// TLS 1.3 drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
+		/// SSLVersion::TLS1_3, otherwise the corresponding enum values will be returned. The default value is "false".
 		SSLVersionEnum asEnum(bool countTlsDraftsAs1_3 = false);
 
-		/**
-		 * @return The numeric value of the SSL/TLs version
-		 */
+		/// @return The numeric value of the SSL/TLs version
 		uint16_t asUInt()
 		{
 			return m_SSLVersionValue;
 		}
 
-		/**
-		 * @return A string representation of the SSL/TLS version. For example: for TLS 1.2 the string "TLS 1.2" is
-		 * returned. If the numeric value is an invalid SSL/TLS version the string "Unknown" will be returned.
-		 * @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the string value "TLS 1.3" for all TLS 1.3
-		 * drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
-		 * "TLS 1.3", otherwise the corresponding string values will be returned. The default value is "false".
-		 */
+		/// @return A string representation of the SSL/TLS version. For example: for TLS 1.2 the string "TLS 1.2" is
+		/// returned. If the numeric value is an invalid SSL/TLS version the string "Unknown" will be returned.
+		/// @param[in] countTlsDraftsAs1_3 A flag indicating whether to return the string value "TLS 1.3" for all
+		/// TLS 1.3 drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
+		/// "TLS 1.3", otherwise the corresponding string values will be returned. The default value is "false".
 		std::string toString(bool countTlsDraftsAs1_3 = false);
 
 	private:
@@ -209,9 +180,7 @@ namespace pcpp
 		SSLVersion();
 	};
 
-	/**
-	 * SSL/TLS handshake message types
-	 */
+	/// SSL/TLS handshake message types
 	enum SSLHandshakeType
 	{
 		/** Hello-request message type */
@@ -246,9 +215,7 @@ namespace pcpp
 		SSL_HANDSHAKE_UNKNOWN = 255
 	};
 
-	/**
-	 * SSL/TLS alert levels
-	 */
+	/// SSL/TLS alert levels
 	enum SSLAlertLevel
 	{
 		/** Warning level alert */
@@ -259,9 +226,7 @@ namespace pcpp
 		SSL_ALERT_LEVEL_ENCRYPTED = 255
 	};
 
-	/**
-	 * SSL/TLS alert description types
-	 */
+	/// SSL/TLS alert description types
 	enum SSLAlertDescription
 	{
 		/** Close notify alert */
@@ -318,9 +283,7 @@ namespace pcpp
 		SSL_ALERT_ENCRYPTED = 255
 	};
 
-	/**
-	 * SSL/TLS key exchange algorithms
-	 */
+	/// SSL/TLS key exchange algorithms
 	enum SSLKeyExchangeAlgorithm
 	{
 		/** Null value */
@@ -351,9 +314,7 @@ namespace pcpp
 		SSL_KEYX_Unknown
 	};
 
-	/**
-	 * SSL/TLS authentication algorithms
-	 */
+	/// SSL/TLS authentication algorithms
 	enum SSLAuthenticationAlgorithm
 	{
 		/** Null value */
@@ -384,9 +345,7 @@ namespace pcpp
 		SSL_AUTH_Unknown
 	};
 
-	/**
-	 * SSL/TLS symmetric encryption algorithms
-	 */
+	/// SSL/TLS symmetric encryption algorithms
 	enum SSLSymetricEncryptionAlgorithm
 	{
 		/** Null value */
@@ -467,9 +426,7 @@ namespace pcpp
 		SSL_SYM_Unknown
 	};
 
-	/**
-	 * SSL/TLS hashing algorithms
-	 */
+	/// SSL/TLS hashing algorithms
 	enum SSLHashingAlgorithm
 	{
 		/** Null value */
@@ -494,9 +451,7 @@ namespace pcpp
 		SSL_HASH_Unknown
 	};
 
-	/**
-	 * SSL/TLS extension types
-	 */
+	/// SSL/TLS extension types
 	enum SSLExtensionType
 	{
 		/** Server Name Indication extension */
@@ -577,9 +532,7 @@ namespace pcpp
 		SSL_EXT_Unknown
 	};
 
-	/**
-	 * SSL/TLS client certificate types
-	 */
+	/// SSL/TLS client certificate types
 	enum SSLClientCertificateType
 	{
 		/** RSA_SIGN */
@@ -605,5 +558,4 @@ namespace pcpp
 		/** Unknown client certificate type */
 		SSL_CCT_UNKNOWN
 	};
-
 }  // namespace pcpp

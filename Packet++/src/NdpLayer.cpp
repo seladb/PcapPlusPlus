@@ -6,9 +6,7 @@
 namespace pcpp
 {
 
-	/*
-	 *	NdpOptionBuilder
-	 */
+	// -------- Class NdpOptionBuilder -----------------
 
 	NdpOption NdpOptionBuilder::build() const
 	{
@@ -26,9 +24,7 @@ namespace pcpp
 		return NdpOption(recordBuffer);
 	}
 
-	/*
-	 *	NDPLayerBase
-	 */
+	// -------- Class NDPLayerBase -----------------
 
 	size_t NDPLayerBase::getNdpOptionCount() const
 	{
@@ -95,9 +91,7 @@ namespace pcpp
 		return true;
 	}
 
-	/*
-	 *	NDPNeighborSolicitationLayer
-	 */
+	// -------- Class NDPNeighborSolicitationLayer -----------------
 
 	NDPNeighborSolicitationLayer::NDPNeighborSolicitationLayer(uint8_t code, const IPv6Address& targetIP)
 	{
@@ -153,9 +147,7 @@ namespace pcpp
 		return typeStream.str();
 	}
 
-	/*
-	 *	NDPNeighborAdvertisementLayer
-	 */
+	// -------- Class NDPNeighborAdvertisementLayer -----------------
 
 	NDPNeighborAdvertisementLayer::NDPNeighborAdvertisementLayer(uint8_t code, const IPv6Address& targetIP,
 	                                                             const MacAddress& targetMac, bool routerFlag,
