@@ -86,8 +86,10 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
 /// <param name="local_data">Pointer to data which constitutes block body</param>
 /// <param name="block_start">Pointer to the start of the block data</param>
 void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_data, const uint32_t *block_start) {
-    switch (current->block_type) {
-        case LIGHT_SECTION_HEADER_BLOCK: {
+    switch (current->block_type) 
+    {
+        case LIGHT_SECTION_HEADER_BLOCK: 
+		{ // PCPP patch
             DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
             struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
             struct _light_option *opt = calloc(1, sizeof(struct _light_option));
@@ -109,7 +111,8 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
         }
         break;
 
-        case LIGHT_INTERFACE_BLOCK: {
+        case LIGHT_INTERFACE_BLOCK:
+		{ // PCPP patch
             DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
             struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
             struct _light_option *opt = calloc(1, sizeof(struct _light_option));
