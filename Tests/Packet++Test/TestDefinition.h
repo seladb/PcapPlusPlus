@@ -168,6 +168,17 @@ PTF_TEST_CASE(GtpV2LayerParsingTest);
 PTF_TEST_CASE(GtpV2LayerCreationTest);
 PTF_TEST_CASE(GtpV2LayerEditTest);
 
+// Implemented in GvcpTests.cpp
+PTF_TEST_CASE(GvcpBasicTest);
+PTF_TEST_CASE(GvcpDiscoveryAck);
+PTF_TEST_CASE(GvcpForceIpCommand);
+PTF_TEST_CASE(GvcpDiscoveryCommand);
+PTF_TEST_CASE(GvcpForceIpAck);
+PTF_TEST_CASE(GvcpReadRegisterCommand);
+PTF_TEST_CASE(GvcpReadRegisterAcknowledge);
+PTF_TEST_CASE(GvcpWriteRegisterCommand);
+PTF_TEST_CASE(GvcpWriteRegisterAcknowledge);
+
 // Implemented in BgpTests.cpp
 PTF_TEST_CASE(BgpLayerParsingTest);
 PTF_TEST_CASE(BgpLayerCreationTest);
