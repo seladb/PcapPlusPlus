@@ -235,8 +235,9 @@ namespace pcpp
 		/// @param[in] method The method in PcapPlusPlus code the log message is coming from
 		/// @param[in] line The line in PcapPlusPlus code the log message is coming from
 		/// @remarks The printer callback should support being called from multiple threads simultaneously.
-		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                           const std::string& method, const int line);
+		using LogPrinter =
+		    std::add_pointer<void(LogLevel logLevel, const std::string& logMessage, const std::string& file,
+		                          const std::string& method, const int line)>::type;
 
 		/// A static method for converting the log level enum to a string.
 		/// @param[in] logLevel A log level enum
