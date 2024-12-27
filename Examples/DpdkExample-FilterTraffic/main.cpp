@@ -162,7 +162,7 @@ void listDpdkPorts()
 void prepareCoreConfiguration(std::vector<pcpp::DpdkDevice*>& dpdkDevicesToUse,
                               std::vector<pcpp::SystemCore>& coresToUse, bool writePacketsToDisk,
                               const std::string& packetFilePath, pcpp::DpdkDevice* sendPacketsTo,
-                              AppWorkerConfig workerConfigArr[], int workerConfigArrLen, uint16_t rxQueues)
+                              std::vector<AppWorkerConfig>& workerConfigArr, int workerConfigArrLen, uint16_t rxQueues)
 {
 	// create a list of pairs of DpdkDevice and RX queues for all RX queues in all requested devices
 	int totalNumOfRxQueues = 0;
@@ -588,7 +588,7 @@ int main(int argc, char* argv[])
 	}
 
 	// prepare configuration for every core
-	AppWorkerConfig workerConfigArr[coresToUse.size()];
+	std::vector<AppWorkerConfig> workerConfigArr(coresToUse.size());
 	prepareCoreConfiguration(dpdkDevicesToUse, coresToUse, writePacketsToDisk, packetFilePath, sendPacketsTo,
 	                         workerConfigArr, coresToUse.size(), rxQueues);
 
