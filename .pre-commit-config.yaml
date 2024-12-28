@@ -1,4 +1,4 @@
-exclude: '.*\.(pcap|pcapng|dat)|Tests.*\.txt'
+exclude: '.*\.(pcap|pcapng|dat)|(PacketExamples|PcapExamples|expected_output|pcap_examples).*\.txt'
 fail_fast: false
 repos:
   - repo: local
