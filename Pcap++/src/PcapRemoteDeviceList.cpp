@@ -7,6 +7,7 @@
 #include "IpAddressUtils.h"
 #include "pcap.h"
 #include <array>
+#include <memory>
 #include <ws2tcpip.h>
 
 namespace pcpp
@@ -50,8 +51,8 @@ namespace pcpp
 
 	PcapRemoteDeviceList::PcapRemoteDeviceList(const IPAddress& ipAddress, uint16_t port,
 	                                           std::shared_ptr<PcapRemoteAuthentication> remoteAuth,
-	                                           std::vector<PcapRemoteDevice*> deviceList)
-	    : m_RemoteDeviceList(std::move(deviceList)), m_RemoteMachineIpAddress(ipAddress), m_RemoteMachinePort(port),
+	                                           PointerVector<PcapRemoteDevice> deviceList)
+	    : Base(std::move(deviceList)), m_RemoteMachineIpAddress(ipAddress), m_RemoteMachinePort(port),
 	      m_RemoteAuthentication(std::move(remoteAuth))
 	{}
 
@@ -100,7 +101,7 @@ namespace pcpp
 			return nullptr;
 		}
 
-		std::vector<PcapRemoteDevice*> devices;
+		PointerVector<PcapRemoteDevice> devices;
 		try
 		{
 			for (pcap_if_t* currInterface = interfaceList.get(); currInterface != nullptr;
@@ -108,27 +109,20 @@ namespace pcpp
 			{
 				auto pNewRemoteDevice = std::unique_ptr<PcapRemoteDevice>(
 				    new PcapRemoteDevice(currInterface, pRemoteAuthCopy, ipAddress, port));
-				// Release is called after pushback to prevent memory leaks if vector reallocation fails.
-				// cppcheck-suppress danglingLifetime
-				devices.push_back(pNewRemoteDevice.get());
-				pNewRemoteDevice.release();
+				devices.pushBack(std::move(pNewRemoteDevice));
 			}
 		}
 		catch (const std::exception& e)
 		{
-			for (auto device : devices)
-			{
-				delete device;
-			}
 			PCPP_LOG_ERROR("Error creating remote devices: " << e.what());
 			return nullptr;
 		}
 
 		return std::unique_ptr<PcapRemoteDeviceList>(
-		    new PcapRemoteDeviceList(ipAddress, port, pRemoteAuthCopy, devices));
+		    new PcapRemoteDeviceList(ipAddress, port, pRemoteAuthCopy, std::move(devices)));
 	}
 
-	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const std::string& ipAddrAsString) const
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const std::string& ipAddrAsString) const
 	{
 		IPAddress ipAddr;
 
@@ -142,50 +136,38 @@ namespace pcpp
 			return nullptr;
 		}
 
-		PcapRemoteDevice* result = getRemoteDeviceByIP(ipAddr);
+		PcapRemoteDevice* result = getDeviceByIp(ipAddr);
 		return result;
 	}
 
-	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPAddress& ipAddr) const
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPAddress& ipAddr) const
 	{
 		if (ipAddr.getType() == IPAddress::IPv4AddressType)
 		{
-			return getRemoteDeviceByIP(ipAddr.getIPv4());
+			return getDeviceByIp(ipAddr.getIPv4());
 		}
 		else  // IPAddress::IPv6AddressType
 		{
-			return getRemoteDeviceByIP(ipAddr.getIPv6());
+			return getDeviceByIp(ipAddr.getIPv6());
 		}
 	}
 
-	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv4Address& ip4Addr) const
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv4Address& ip4Addr) const
 	{
-		auto it = std::find_if(m_RemoteDeviceList.begin(), m_RemoteDeviceList.end(),
-		                       [&ip4Addr](PcapRemoteDevice const* devPtr) {
-			                       auto devIP = devPtr->getIPv4Address();
-			                       return devIP == ip4Addr;
-		                       });
-		return it != m_RemoteDeviceList.end() ? *it : nullptr;
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip4Addr](PcapRemoteDevice const* devPtr) {
+			auto devIP = devPtr->getIPv4Address();
+			return devIP == ip4Addr;
+		});
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
-	PcapRemoteDevice* PcapRemoteDeviceList::getRemoteDeviceByIP(const IPv6Address& ip6Addr) const
+	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPv6Address& ip6Addr) const
 	{
-		auto it = std::find_if(m_RemoteDeviceList.begin(), m_RemoteDeviceList.end(),
-		                       [&ip6Addr](PcapRemoteDevice const* devPtr) {
-			                       auto devIP = devPtr->getIPv6Address();
-			                       return devIP == ip6Addr;
-		                       });
-		return it != m_RemoteDeviceList.end() ? *it : nullptr;
-	}
-
-	PcapRemoteDeviceList::~PcapRemoteDeviceList()
-	{
-		while (m_RemoteDeviceList.size() > 0)
-		{
-			RemoteDeviceListIterator devIter = m_RemoteDeviceList.begin();
-			delete (*devIter);
-			m_RemoteDeviceList.erase(devIter);
-		}
+		auto it = std::find_if(m_DeviceList.begin(), m_DeviceList.end(), [&ip6Addr](PcapRemoteDevice const* devPtr) {
+			auto devIP = devPtr->getIPv6Address();
+			return devIP == ip6Addr;
+		});
+		return it != m_DeviceList.end() ? *it : nullptr;
 	}
 
 }  // namespace pcpp
