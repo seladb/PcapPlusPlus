@@ -406,7 +406,7 @@ int main(int argc, char* argv[])
 	int threadCount = 0;
 
 	// create an array of packet stats with the size of all machine cores
-	PacketStats packetStatsArr[totalNumOfCores];
+	std::vector<PacketStats> packetStatsArr(totalNumOfCores);
 
 	// init each packet stats instance with an illegal core ID
 	for (int coreId = 0; coreId < totalNumOfCores; coreId++)
@@ -430,7 +430,7 @@ int main(int argc, char* argv[])
 	PacketMatchingEngine matchingEngine(srcIPToMatch, dstIPToMatch, srcPortToMatch, dstPortToMatch, protocolToMatch);
 
 	// create a flow table for each core
-	std::unordered_map<uint32_t, bool> flowTables[totalNumOfCores];
+	std::vector<std::unordered_map<uint32_t, bool>> flowTables(totalNumOfCores);
 
 	pcpp::PcapFileWriterDevice** pcapWriters = nullptr;
 
@@ -463,9 +463,9 @@ int main(int argc, char* argv[])
 
 	// prepare packet capture configuration
 	CaptureThreadArgs args;
-	args.packetStatArr = packetStatsArr;
+	args.packetStatArr = packetStatsArr.data();
 	args.matchingEngine = &matchingEngine;
-	args.flowTables = flowTables;
+	args.flowTables = flowTables.data();
 	args.sendPacketsTo = sendPacketsToIface;
 	args.pcapWriters = pcapWriters;
 
