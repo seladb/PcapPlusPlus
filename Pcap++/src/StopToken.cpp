@@ -17,7 +17,7 @@ namespace pcpp
 
 		bool StopTokenSource::requestStop() noexcept
 		{
-			if (m_SharedState != nullptr)
+			if (m_SharedState == nullptr)
 				return false;
 
 			// Try to set the flag to true. If it was already true, return false

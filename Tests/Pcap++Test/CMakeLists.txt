@@ -13,6 +13,7 @@ add_executable(
   Tests/PacketParsingTests.cpp
   Tests/PfRingTests.cpp
   Tests/RawSocketTests.cpp
+  Tests/StopTokenTests.cpp
   Tests/SystemUtilsTests.cpp
   Tests/TcpReassemblyTests.cpp
   Tests/XdpTests.cpp)
