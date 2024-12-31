@@ -4,9 +4,9 @@
 
 PTF_TEST_CASE(TestStopToken)
 {
+	using pcpp::internal::NoStopStateTag;
 	using pcpp::internal::StopToken;
 	using pcpp::internal::StopTokenSource;
-	using pcpp::internal::NoStopStateTag;
 
 	{
 		// A stop token source without a shared state should not be able to request a stop.
