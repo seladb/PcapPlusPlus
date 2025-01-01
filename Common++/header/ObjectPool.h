@@ -26,7 +26,7 @@ namespace pcpp
 		/// @param[in] maxPoolSize The maximum number of objects in the pool
 		/// @param[in] preallocate The number of objects to preallocate in the pool
 		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0)
-		    : m_maxPoolSize(maxPoolSize)
+		    : m_MaxPoolSize(maxPoolSize)
 		{
 			this->preallocate(preallocate);
 		}
@@ -62,17 +62,17 @@ namespace pcpp
 		/// @return A raw pointer to an object from the pool.
 		T* acquireObjectRaw()
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
+			std::unique_lock<std::mutex> lock(m_Mutex);
 
-			if (m_pool.empty())
+			if (m_Pool.empty())
 			{
 				// We don't need the lock anymore, so release it.
 				lock.unlock();
 				return new T();
 			}
 
-			T* obj = m_pool.top();
-			m_pool.pop();
+			T* obj = m_Pool.top();
+			m_Pool.pop();
 			return obj;
 		}
 
@@ -95,11 +95,11 @@ namespace pcpp
 		/// @param[in] obj The raw pointer to the object to release.
 		void releaseObjectRaw(T* obj)
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
+			std::unique_lock<std::mutex> lock(m_Mutex);
 
-			if (m_maxPoolSize == INFINITE_POOL_SIZE || m_pool.size() < m_maxPoolSize)
+			if (m_MaxPoolSize == INFINITE_POOL_SIZE || m_Pool.size() < m_MaxPoolSize)
 			{
-				m_pool.push(obj);
+				m_Pool.push(obj);
 			}
 			else
 			{
@@ -113,27 +113,27 @@ namespace pcpp
 		/// @param count The number of objects to pre-allocate.
 		void preallocate(std::size_t count)
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
-			for (std::size_t i = m_pool.size(); i < count; i++)
+			std::unique_lock<std::mutex> lock(m_Mutex);
+			for (std::size_t i = m_Pool.size(); i < count; i++)
 			{
-				m_pool.push(new T());
+				m_Pool.push(new T());
 			}
 		}
 
 		/// @brief Deallocates and releases all objects currently held by the pool.
 		void clear()
 		{
-			std::unique_lock<std::mutex> lock(m_mutex);
-			while (!m_pool.empty())
+			std::unique_lock<std::mutex> lock(m_Mutex);
+			while (!m_Pool.empty())
 			{
-				delete m_pool.top();
-				m_pool.pop();
+				delete m_Pool.top();
+				m_Pool.pop();
 			}
 		}
 
 	private:
-		std::size_t m_maxPoolSize; ///< The maximum number of objects in the pool
-		std::mutex m_mutex;        ///< Mutex for thread safety
-		std::stack<T*> m_pool;     ///< The pool of objects
+		std::size_t m_MaxPoolSize;  ///< The maximum number of objects in the pool
+		std::mutex m_Mutex;         ///< Mutex for thread safety
+		std::stack<T*> m_Pool;      ///< The pool of objects
 	};
 }  // namespace pcpp
