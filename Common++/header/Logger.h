@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <memory>
+#include <array>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -430,7 +431,7 @@ namespace pcpp
 
 	private:
 		bool m_LogsEnabled;
-		LogLevel m_LogModulesArray[NumOfLogModules];
+		std::array<LogLevel, NumOfLogModules> m_LogModulesArray;
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
 
