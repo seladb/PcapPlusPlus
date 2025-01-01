@@ -85,6 +85,12 @@ namespace pcpp
 		/// @return A reference to the current object.
 		PointerVector& operator=(const PointerVector& other)
 		{
+			// Self-assignment check.
+			if (this == &other)
+			{
+				return *this;
+			}
+
 			// Saves a copy of the old pointer to defer cleanup.
 			auto oldValues = m_Vector;
 			try

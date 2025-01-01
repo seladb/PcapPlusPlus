@@ -694,12 +694,14 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPNetwork& other)
 		{
+			// NOLINTBEGIN(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
 			if (other.isIPv4Network())
 			{
 				return this->operator=(*other.m_IPv4Network);
 			}
 
 			return this->operator=(*other.m_IPv6Network);
+			// NOLINTEND(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
 		}
 
 		/// Overload of an assignment operator.
