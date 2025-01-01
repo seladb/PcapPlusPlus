@@ -707,11 +707,6 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv4Network& other)
 		{
-			if (m_IPv4Network)
-			{
-				m_IPv4Network = nullptr;
-			}
-
 			if (m_IPv6Network)
 			{
 				m_IPv6Network = nullptr;
@@ -730,11 +725,6 @@ namespace pcpp
 			if (m_IPv4Network)
 			{
 				m_IPv4Network = nullptr;
-			}
-
-			if (m_IPv6Network)
-			{
-				m_IPv6Network = nullptr;
 			}
 
 			m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(other));
