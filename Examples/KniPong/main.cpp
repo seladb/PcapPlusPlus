@@ -384,7 +384,7 @@ namespace
 	}
 
 	/**
-	 * Handle all UDP packets as a packet carying a "ping" string to "pong" to with same string.
+	 * Handle all UDP packets as a packet carrying a "ping" string to "pong" to with same string.
 	 * Handle only packets that are of type: Eth / Ip / Udp / Payload.
 	 */
 	inline bool processUdp(pcpp::Packet& packet, pcpp::UdpLayer* udpLayer)
