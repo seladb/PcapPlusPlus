@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 #include "Logger.h"
 
@@ -7,8 +8,7 @@ namespace pcpp
 	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&defaultLogPrinter)
 	{
 		m_LastError.reserve(200);
-		for (int i = 0; i < NumOfLogModules; i++)
-			m_LogModulesArray[i] = Info;
+		std::fill(m_LogModulesArray, m_LogModulesArray + NumOfLogModules, Info);
 	}
 
 	std::string Logger::logLevelAsString(LogLevel logLevel)
@@ -30,7 +30,7 @@ namespace pcpp
 		std::ostringstream sstream;
 		sstream << file << ": " << method << ":" << line;
 		std::cerr << std::left << "[" << std::setw(5) << Logger::logLevelAsString(logLevel) << ": " << std::setw(45)
-		          << sstream.str() << "] " << logMessage << std::endl;
+		          << sstream.str() << "] " << logMessage << '\n';
 	}
 
 	std::ostringstream* Logger::internalCreateLogStream()
@@ -41,7 +41,7 @@ namespace pcpp
 	void Logger::internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file,
 	                                     const char* method, int line)
 	{
-		std::string logMessage = logStream->str();
+		const std::string logMessage = logStream->str();
 		delete logStream;
 		if (logLevel == Logger::Error)
 		{

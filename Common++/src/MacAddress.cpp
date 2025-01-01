@@ -10,7 +10,7 @@ namespace pcpp
 		char str[19];
 		snprintf(str, sizeof str, "%02x:%02x:%02x:%02x:%02x:%02x", m_Address[0], m_Address[1], m_Address[2],
 		         m_Address[3], m_Address[4], m_Address[5]);
-		return std::string(str);
+		return str;
 	}
 
 	MacAddress::MacAddress(const std::string& address)

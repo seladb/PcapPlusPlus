@@ -4,8 +4,8 @@
 #include <initializer_list>
 #include <iterator>
 #include <ostream>
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 #include <string>
 
 /// @file
@@ -142,9 +142,9 @@ namespace pcpp
 		uint8_t m_Address[6] = { 0 };
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::MacAddress& macAddress)
 	{
-		os << macAddress.toString();
-		return os;
+		oss << macAddress.toString();
+		return oss;
 	}
 }  // namespace pcpp

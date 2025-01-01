@@ -18,10 +18,14 @@ namespace pcpp
 		for (const auto& line : parsedJson.items())
 		{
 			if (!(line.value().is_object()))
+			{
 				continue;
+			}
 			auto val = line.value().get<nlohmann::json>();
 			if (!(val.contains("vendor")))
+			{
 				continue;
+			}
 
 			std::vector<MaskedFilter> vLocalMaskedFilter;
 			if (val.contains("maskedFilters") && val["maskedFilters"].is_array())
@@ -30,13 +34,15 @@ namespace pcpp
 				for (const auto& entry : val["maskedFilters"])
 				{
 					if (!entry.is_object())
+					{
 						continue;
+					}
 					auto subVal = entry.get<nlohmann::json>();
 					if (subVal.contains("mask") && subVal.contains("vendors") && subVal["mask"].is_number_integer() &&
 					    subVal["vendors"].is_object())
 					{
-						int maskValue = subVal["mask"].get<int>();
-						vLocalMaskedFilter.push_back({ maskValue, {} });
+						const int maskValue = subVal["mask"].get<int>();
+						vLocalMaskedFilter.emplace_back(maskValue, std::unordered_map<uint64_t, std::string>{});
 
 						// Parse masked filter
 						for (const auto& subentry : subVal["vendors"].items())
@@ -81,28 +87,34 @@ namespace pcpp
 	std::string OUILookup::getVendorName(const pcpp::MacAddress& addr)
 	{
 		if (vendorMap.empty())
+		{
 			PCPP_LOG_DEBUG("Vendor map is empty");
+		}
 
 		// Get MAC address
 		uint8_t buffArray[6];
 		addr.copyTo(buffArray);
 
-		uint64_t macAddr = (((uint64_t)((buffArray)[5]) << 0) + ((uint64_t)((buffArray)[4]) << 8) +
-		                    ((uint64_t)((buffArray)[3]) << 16) + ((uint64_t)((buffArray)[2]) << 24) +
-		                    ((uint64_t)((buffArray)[1]) << 32) + ((uint64_t)((buffArray)[0]) << 40));
+		const uint64_t macAddr = (((uint64_t)((buffArray)[5]) << 0) + ((uint64_t)((buffArray)[4]) << 8) +
+		                          ((uint64_t)((buffArray)[3]) << 16) + ((uint64_t)((buffArray)[2]) << 24) +
+		                          ((uint64_t)((buffArray)[1]) << 32) + ((uint64_t)((buffArray)[0]) << 40));
 
 		auto itr = vendorMap.find(macAddr >> 24);
 		if (itr == vendorMap.end())
+		{
 			return "Unknown";
+		}
 
 		for (const auto& entry : itr->second.maskedFilter)
 		{
-			uint64_t maskValue = ~((1 << (48 - entry.mask)) - 1);
-			uint64_t bufferAddr = macAddr & maskValue;
+			const uint64_t maskValue = ~((1 << (48 - entry.mask)) - 1);
+			const uint64_t bufferAddr = macAddr & maskValue;
 
 			auto subItr = entry.vendorMap.find(bufferAddr);
 			if (subItr != entry.vendorMap.end())
+			{
 				return subItr->second;
+			}
 		}
 
 		return itr->second.vendorName;
