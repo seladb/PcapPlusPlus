@@ -55,8 +55,10 @@ namespace pcpp
 
 	void Logger::emit(LogSource const& source, LogLevel logLevel, std::string const& message)
 	{
+		// If the log level is an error, save the error to the last error message variable.
 		if (logLevel == LogLevel::Error)
 		{
+			std::lock_guard<std::mutex> lock(m_LastErrorMtx);
 			m_LastError = message;
 		}
 		if (m_LogsEnabled)

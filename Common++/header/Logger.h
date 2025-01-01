@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <array>
+#include <mutex>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -300,8 +301,9 @@ namespace pcpp
 		}
 
 		/// @return Get the last error message
-		std::string getLastError()
+		std::string getLastError() const
 		{
+			std::lock_guard<std::mutex> lock(m_LastErrorMtx);
 			return m_LastError;
 		}
 
@@ -433,6 +435,8 @@ namespace pcpp
 		bool m_LogsEnabled;
 		std::array<LogLevel, NumOfLogModules> m_LogModulesArray;
 		LogPrinter m_LogPrinter;
+
+		mutable std::mutex m_LastErrorMtx;
 		std::string m_LastError;
 
 		bool m_UseContextPooling = true;
