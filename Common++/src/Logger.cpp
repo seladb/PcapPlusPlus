@@ -6,11 +6,17 @@
 
 namespace pcpp
 {
-	
+
 	// Alpine Linux incorrectly declares strerror_r
 	// https://stackoverflow.com/questions/41953104/strerror-r-is-incorrectly-declared-on-alpine-linux
-	char *checkError(int /*unused*/, char *buffer, int /*unused*/) { return buffer; }
-	char *checkError(char *result, const char * /*unused*/, int /*unused*/) { return result; }
+	char* checkError(int /*unused*/, char* buffer, int /*unused*/)
+	{
+		return buffer;
+	}
+	char* checkError(char* result, const char* /*unused*/, int /*unused*/)
+	{
+		return result;
+	}
 
 	std::string getErrnoString(int errnum)
 	{
