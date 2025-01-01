@@ -468,7 +468,7 @@ namespace pcpp
 #define PCPP_LOG(level, message)                                                                                       \
 	do                                                                                                                 \
 	{                                                                                                                  \
-		auto& logger = Logger::getInstance();                                                                          \
+		auto& logger = pcpp::Logger::getInstance();                                                                    \
 		if (logger.shouldLog(level, LOG_MODULE))                                                                       \
 		{                                                                                                              \
 			auto ctx =                                                                                                 \
