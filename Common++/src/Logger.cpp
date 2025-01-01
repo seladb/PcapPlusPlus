@@ -13,6 +13,7 @@ namespace pcpp
 	{
 		return buffer;
 	}
+
 	char* checkError(char* result, const char* /*unused*/, int /*unused*/)
 	{
 		return result;
