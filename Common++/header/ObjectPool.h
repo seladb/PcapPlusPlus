@@ -109,6 +109,27 @@ namespace pcpp
 			}
 		}
 
+		/// @brief Gets the maximum number of objects in the pool.
+		std::size_t maxSize() const
+		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+			return m_MaxPoolSize;
+		}
+
+		/// @brief Sets the maximum number of objects in the pool.
+		void setMaxSize(std::size_t maxSize)
+		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+			m_MaxPoolSize = maxSize;
+
+			// If the new max size is less than the current size, we need to remove some objects from the pool.
+			while (m_Pool.size() > m_MaxPoolSize)
+			{
+				delete m_Pool.top();
+				m_Pool.pop();
+			}
+		}
+
 		/// @brief Pre-allocates up to a minimum number of objects in the pool.
 		/// @param count The number of objects to pre-allocate.
 		void preallocate(std::size_t count)
