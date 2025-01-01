@@ -22,7 +22,7 @@ repos:
         args: ['--fix=lf']
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.1
+    rev: v0.8.4
     hooks:
       - id: ruff # Run the linter.
         types_or: [ python ]
@@ -48,7 +48,7 @@ repos:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: v1.28.1
+    rev: codespell-dict-v0.5.0
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
