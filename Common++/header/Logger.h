@@ -113,6 +113,11 @@ namespace pcpp
 		NumOfLogModules
 	};
 
+	/// Cross-platform and thread-safe version of strerror
+	/// @param errnum Value of errno
+	/// @return String representation of the error number
+	std::string getErrnoString(int errnum);
+
 	/// @class Logger
 	/// PcapPlusPlus logger manager.
 	/// PcapPlusPlus uses this logger to output both error and debug logs.
