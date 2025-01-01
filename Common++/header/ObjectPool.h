@@ -28,7 +28,11 @@ namespace pcpp
 		explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0)
 		    : m_MaxPoolSize(maxPoolSize)
 		{
-			this->preallocate(preallocate);
+			if (preallocate > maxPoolSize)
+				throw std::invalid_argument("Preallocated objects cannot exceed the maximum pool size");
+
+			if (preallocate > 0)
+				this->preallocate(preallocate);
 		}
 
 		// These don't strictly need to be deleted, but don't need to be implemented for now either.
