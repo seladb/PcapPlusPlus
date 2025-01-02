@@ -23,11 +23,9 @@
 namespace pcpp
 {
 
-	/**
-	 * ===================
-	 * Class MBufRawPacket
-	 * ===================
-	 */
+	/// ===================
+	/// Class MBufRawPacket
+	/// ===================
 
 	MBufRawPacket::~MBufRawPacket()
 	{

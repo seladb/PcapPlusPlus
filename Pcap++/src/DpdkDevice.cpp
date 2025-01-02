@@ -34,11 +34,9 @@
 namespace pcpp
 {
 
-	/**
-	 * ================
-	 * Class DpdkDevice
-	 * ================
-	 */
+	/// ================
+	/// Class DpdkDevice
+	/// ================
 
 #define DPDK_CONFIG_HEADER_SPLIT 0 /**< Header Split disabled */
 #define DPDK_CONFIG_SPLIT_HEADER_SIZE 0

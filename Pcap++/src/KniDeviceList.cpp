@@ -21,11 +21,9 @@
 namespace pcpp
 {
 
-	/**
-	 * ===================
-	 * Class KniDeviceList
-	 * ===================
-	 */
+	/// ===================
+	/// Class KniDeviceList
+	/// ===================
 
 	static inline bool checkKniDriver()
 	{
