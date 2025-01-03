@@ -518,7 +518,6 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 	while (!shouldStop)
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 
-
 	// stop capturing and close the live device
 	dev->stopCapture();
 	dev->close();
