@@ -327,7 +327,7 @@ namespace pcpp
 		}
 
 		/// @brief Controls if the logger should use a pool of LogContext objects.
-		/// 
+		///
 		/// If enabled is set to false, preallocate and maxPoolSize are ignored.
 		/// @param enabled True to enable context pooling, false to disable.
 		/// @param preallocate The number of LogContext objects to preallocate in the pool.
