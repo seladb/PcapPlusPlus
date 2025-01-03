@@ -19,7 +19,7 @@ namespace pcpp
 		return result;
 	}
 
-	std::string getErrnoString(int errnum)
+	std::string getErrorString(int errnum)
 	{
 		std::array<char, BUFSIZ> buffer{};
 #if defined(_WIN32)

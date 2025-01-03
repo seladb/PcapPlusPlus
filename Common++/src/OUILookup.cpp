@@ -76,7 +76,7 @@ namespace pcpp
 		dataFile.open(path);
 		if (!dataFile.is_open())
 		{
-			PCPP_LOG_ERROR(std::string("Can't open OUI database: ") + getErrnoString(errno));
+			PCPP_LOG_ERROR(std::string("Can't open OUI database: ") + getErrorString(errno));
 			return -1;
 		}
 

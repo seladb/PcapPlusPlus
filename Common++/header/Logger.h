@@ -116,7 +116,7 @@ namespace pcpp
 	/// Cross-platform and thread-safe version of strerror
 	/// @param errnum Value of errno
 	/// @return String representation of the error number
-	std::string getErrnoString(int errnum);
+	std::string getErrorString(int errnum);
 
 	/// @class Logger
 	/// PcapPlusPlus logger manager.
