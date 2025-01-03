@@ -150,6 +150,13 @@ namespace pcpp
 		void preallocate(std::size_t count)
 		{
 			std::unique_lock<std::mutex> lock(m_Mutex);
+
+			if (m_MaxPoolSize < count)
+			{
+				throw std::invalid_argument("Preallocated objects cannot exceed the maximum pool size");
+			}
+
+			// If the pool is already larger than the requested count, we don't need to do anything.
 			for (std::size_t i = m_Pool.size(); i < count; i++)
 			{
 				m_Pool.push(new T());

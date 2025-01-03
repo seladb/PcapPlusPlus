@@ -19,6 +19,9 @@ PTF_TEST_CASE(TestObjectPool)
 		PTF_ASSERT_EQUAL(pool.size(), 1);
 		PTF_ASSERT_EQUAL(pool.maxSize(), 1);
 
+		PTF_ASSERT_RAISES(pool.preallocate(2), std::invalid_argument,
+		                  "Preallocated objects cannot exceed the maximum pool size");
+
 		pool.clear();
 		PTF_ASSERT_EQUAL(pool.size(), 0);
 		PTF_ASSERT_EQUAL(pool.maxSize(), 1);
