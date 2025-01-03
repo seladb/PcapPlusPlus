@@ -89,13 +89,13 @@ namespace pcpp
 
 	std::unique_ptr<Asn1Record> Asn1Record::decode(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		auto record = decodeInternal(data, dataLen, lazy);
+		auto* record = decodeInternal(data, dataLen, lazy);
 		return std::unique_ptr<Asn1Record>(record);
 	}
 
 	uint8_t Asn1Record::encodeTag()
 	{
-		uint8_t tagByte;
+		uint8_t tagByte = 0;
 
 		switch (m_TagClass)
 		{
@@ -145,12 +145,12 @@ namespace pcpp
 		auto tempValueLength = m_ValueLength;
 		do
 		{
-			uint8_t byte = tempValueLength & 0xff;
+			uint8_t const byte = tempValueLength & 0xff;
 			result.push_back(byte);  // Inserts the bytes in reverse order
 			tempValueLength >>= 8;
 		} while (tempValueLength != 0);
 
-		uint8_t firstByte = 0x80 | static_cast<uint8_t>(result.size());
+		uint8_t const firstByte = 0x80 | static_cast<uint8_t>(result.size());
 		result.push_back(firstByte);
 
 		// Reverses the bytes to get forward ordering
@@ -176,10 +176,10 @@ namespace pcpp
 
 	Asn1Record* Asn1Record::decodeInternal(const uint8_t* data, size_t dataLen, bool lazy)
 	{
-		uint8_t tagLen;
-		auto decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
+		uint8_t tagLen = 0;
+		auto* decodedRecord = decodeTagAndCreateRecord(data, dataLen, tagLen);
 
-		uint8_t lengthLen;
+		uint8_t lengthLen = 0;
 		try
 		{
 			lengthLen = decodedRecord->decodeLength(data + tagLen, dataLen - tagLen);
@@ -260,7 +260,7 @@ namespace pcpp
 
 		// Check bit 6
 		auto tagTypeBits = data[0] & 0x20;
-		bool isConstructed = (tagTypeBits != 0);
+		bool const isConstructed = (tagTypeBits != 0);
 
 		// Check last 5 bits
 		auto tagType = data[0] & 0x1f;
@@ -280,7 +280,7 @@ namespace pcpp
 			tagLen = 2;
 		}
 
-		Asn1Record* newRecord;
+		Asn1Record* newRecord = nullptr;
 
 		if (isConstructed)
 		{
@@ -379,7 +379,7 @@ namespace pcpp
 			return 1;
 		}
 
-		uint8_t actualLengthBytes = data[0] & 0x7F;
+		uint8_t const actualLengthBytes = data[0] & 0x7F;
 		const uint8_t* actualLengthData = data + 1;
 
 		if (dataLen < static_cast<size_t>(actualLengthBytes) + 1)
@@ -389,7 +389,7 @@ namespace pcpp
 
 		for (int i = 0; i < actualLengthBytes; i++)
 		{
-			size_t partialValueLength = m_ValueLength << 8;
+			size_t const partialValueLength = m_ValueLength << 8;
 			if (partialValueLength < m_ValueLength)  // check for overflow
 			{
 				throw std::invalid_argument("Cannot decode ASN.1 record length");
@@ -462,7 +462,7 @@ namespace pcpp
 		delete m_Value;
 	}
 
-	void Asn1GenericRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1GenericRecord::decodeValue(uint8_t* data, bool /*lazy*/)
 	{
 		delete m_Value;
 
@@ -501,17 +501,17 @@ namespace pcpp
 
 	void Asn1ConstructedRecord::decodeValue(uint8_t* data, bool lazy)
 	{
-		if (!(data || m_ValueLength))
+		if ((data == nullptr) && (m_ValueLength == 0U))
 		{
 			return;
 		}
 
-		auto value = data;
+		auto* value = data;
 		auto valueLen = m_ValueLength;
 
 		while (valueLen > 0)
 		{
-			auto subRecord = Asn1Record::decodeInternal(value, valueLen, lazy);
+			auto* subRecord = Asn1Record::decodeInternal(value, valueLen, lazy);
 			value += subRecord->getTotalLength();
 			valueLen -= subRecord->getTotalLength();
 
@@ -524,7 +524,7 @@ namespace pcpp
 		std::vector<uint8_t> result;
 		result.reserve(m_ValueLength);
 
-		for (auto record : m_SubRecords)
+		for (auto* record : m_SubRecords)
 		{
 			auto encodedRecord = record->encode();
 			result.insert(result.end(), std::make_move_iterator(encodedRecord.begin()),
@@ -537,7 +537,7 @@ namespace pcpp
 	{
 		decodeValueIfNeeded();
 		std::vector<std::string> result = { Asn1Record::toStringList().front() };
-		for (auto subRecord : m_SubRecords)
+		for (auto* subRecord : m_SubRecords)
 		{
 			for (const auto& line : subRecord->toStringList())
 			{
@@ -565,16 +565,16 @@ namespace pcpp
 	    : Asn1ConstructedRecord(Asn1TagClass::Universal, static_cast<uint8_t>(Asn1UniversalTagType::Set), subRecords)
 	{}
 
-	Asn1PrimitiveRecord::Asn1PrimitiveRecord(Asn1UniversalTagType tagType) : Asn1Record()
+	Asn1PrimitiveRecord::Asn1PrimitiveRecord(Asn1UniversalTagType tagType)
 	{
 		m_TagType = static_cast<uint8_t>(tagType);
 		m_TagClass = Asn1TagClass::Universal;
 		m_IsConstructed = false;
 	}
 
-	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer)
+	Asn1IntegerRecord::Asn1IntegerRecord(uint32_t value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::Integer), m_Value(value)
 	{
-		m_Value = value;
 
 		if (m_Value <= std::numeric_limits<uint8_t>::max())
 		{
@@ -596,7 +596,7 @@ namespace pcpp
 		m_TotalLength = m_ValueLength + 2;
 	}
 
-	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1IntegerRecord::decodeValue(uint8_t* data, bool /*lazy*/)
 	{
 		switch (m_ValueLength)
 		{
@@ -689,26 +689,24 @@ namespace pcpp
 	}
 
 	Asn1OctetStringRecord::Asn1OctetStringRecord(const std::string& value)
-	    : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString), m_Value(value)
 	{
-		m_Value = value;
+
 		m_ValueLength = value.size();
 		m_TotalLength = m_ValueLength + 2;
-		m_IsPrintable = true;
 	}
 
 	Asn1OctetStringRecord::Asn1OctetStringRecord(const uint8_t* value, size_t valueLength)
-	    : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::OctetString), m_IsPrintable(false)
 	{
 		m_Value = byteArrayToHexString(value, valueLength);
 		m_ValueLength = valueLength;
 		m_TotalLength = m_ValueLength + 2;
-		m_IsPrintable = false;
 	}
 
-	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1OctetStringRecord::decodeValue(uint8_t* data, bool /*lazy*/)
 	{
-		auto value = reinterpret_cast<char*>(data);
+		auto* value = reinterpret_cast<char*>(data);
 
 		m_IsPrintable = std::all_of(value, value + m_ValueLength, [](char c) { return isprint(0xff & c); });
 
@@ -744,21 +742,22 @@ namespace pcpp
 		return { Asn1Record::toStringList().front() + ", Value: " + getValue() };
 	}
 
-	Asn1BooleanRecord::Asn1BooleanRecord(bool value) : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean)
+	Asn1BooleanRecord::Asn1BooleanRecord(bool value)
+	    : Asn1PrimitiveRecord(Asn1UniversalTagType::Boolean), m_Value(value)
 	{
-		m_Value = value;
+
 		m_ValueLength = 1;
 		m_TotalLength = 3;
 	}
 
-	void Asn1BooleanRecord::decodeValue(uint8_t* data, bool lazy)
+	void Asn1BooleanRecord::decodeValue(uint8_t* data, bool /*lazy*/)
 	{
 		m_Value = data[0] != 0;
 	}
 
 	std::vector<uint8_t> Asn1BooleanRecord::encodeValue() const
 	{
-		uint8_t byte = (m_Value ? 0xff : 0x00);
+		uint8_t const byte = (m_Value ? 0xff : 0x00);
 		return { byte };
 	}
 

@@ -461,7 +461,7 @@ namespace pcpp
 
 	bool DhcpV6Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(dhcpv6_header);
+		return (data != nullptr) && dataLen >= sizeof(dhcpv6_header);
 	}
 
 }  // namespace pcpp

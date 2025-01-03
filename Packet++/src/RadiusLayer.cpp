@@ -10,13 +10,15 @@ namespace pcpp
 
 	RadiusAttribute RadiusAttributeBuilder::build() const
 	{
-		size_t recSize = m_RecValueLen + 2;
-		uint8_t* recordBuffer = new uint8_t[recSize];
+		size_t const recSize = m_RecValueLen + 2;
+		auto* recordBuffer = new uint8_t[recSize];
 		memset(recordBuffer, 0, recSize);
 		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
 		recordBuffer[1] = static_cast<uint8_t>(recSize);
 		if (m_RecValueLen > 0)
+		{
 			memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+		}
 
 		return RadiusAttribute(recordBuffer);
 	}
@@ -33,9 +35,13 @@ namespace pcpp
 		hdr->id = id;
 		hdr->length = htobe16(sizeof(radius_header));
 		if (authenticatorArrSize == 0 || authenticator == nullptr)
+		{
 			return;
+		}
 		if (authenticatorArrSize > 16)
+		{
 			authenticatorArrSize = 16;
+		}
 		memcpy(hdr->authenticator, authenticator, authenticatorArrSize);
 	}
 
@@ -62,7 +68,7 @@ namespace pcpp
 			return newAttr;
 		}
 
-		size_t sizeToExtend = newAttr.getTotalSize();
+		size_t const sizeToExtend = newAttr.getTotalSize();
 		if (!extendLayer(offset, sizeToExtend))
 		{
 			PCPP_LOG_ERROR("Could not extend RadiusLayer in [" << newAttr.getTotalSize() << "] bytes");
@@ -88,7 +94,7 @@ namespace pcpp
 		return byteArrayToHexString(getRadiusHeader()->authenticator, 16);
 	}
 
-	void RadiusLayer::setAuthenticatorValue(const std::string& authValue)
+	void RadiusLayer::setAuthenticatorValue(const std::string& authValue) const
 	{
 		hexStringToByteArray(authValue, getRadiusHeader()->authenticator, 16);
 	}
@@ -134,9 +140,11 @@ namespace pcpp
 
 	size_t RadiusLayer::getHeaderLen() const
 	{
-		uint16_t len = be16toh(getRadiusHeader()->length);
+		uint16_t const len = be16toh(getRadiusHeader()->length);
 		if (len > m_DataLen)
+		{
 			return m_DataLen;
+		}
 
 		return len;
 	}
@@ -182,7 +190,7 @@ namespace pcpp
 
 	RadiusAttribute RadiusLayer::addAttribute(const RadiusAttributeBuilder& attrBuilder)
 	{
-		int offset = getHeaderLen();
+		int const offset = getHeaderLen();
 		return addAttrAt(attrBuilder, offset);
 	}
 
@@ -190,7 +198,7 @@ namespace pcpp
 	{
 		int offset = 0;
 
-		RadiusAttribute prevAttr = getAttribute(prevAttrType);
+		RadiusAttribute const prevAttr = getAttribute(prevAttrType);
 
 		if (prevAttr.isNull())
 		{
@@ -206,13 +214,13 @@ namespace pcpp
 
 	bool RadiusLayer::removeAttribute(uint8_t attrType)
 	{
-		RadiusAttribute attrToRemove = getAttribute(attrType);
+		RadiusAttribute const attrToRemove = getAttribute(attrType);
 		if (attrToRemove.isNull())
 		{
 			return false;
 		}
 
-		int offset = attrToRemove.getRecordBasePtr() - m_Data;
+		int const offset = attrToRemove.getRecordBasePtr() - m_Data;
 
 		if (!shortenLayer(offset, attrToRemove.getTotalSize()))
 		{
@@ -227,10 +235,12 @@ namespace pcpp
 
 	bool RadiusLayer::removeAllAttributes()
 	{
-		int offset = sizeof(radius_header);
+		int const offset = sizeof(radius_header);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_AttributeReader.changeTLVRecordCount(0 - getAttributeCount());
 
@@ -243,8 +253,8 @@ namespace pcpp
 	{
 		if (udpData != nullptr && udpDataLen >= sizeof(radius_header))
 		{
-			const radius_header* radHdr = reinterpret_cast<const radius_header*>(udpData);
-			size_t radLen = be16toh(radHdr->length);
+			const auto* radHdr = reinterpret_cast<const radius_header*>(udpData);
+			size_t const radLen = be16toh(radHdr->length);
 			return radLen >= sizeof(radius_header) && radLen <= udpDataLen;
 		}
 		return false;

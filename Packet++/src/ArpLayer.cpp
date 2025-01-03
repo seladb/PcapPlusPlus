@@ -32,7 +32,9 @@ namespace pcpp
 		arpHeader->protocolType = htobe16(PCPP_ETHERTYPE_IP);  // assume IPv4 over ARP
 		arpHeader->protocolSize = 4;                           // assume IPv4 over ARP
 		if (arpHeader->opcode == htobe16(ARP_REQUEST))
+		{
 			MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
+		}
 	}
 
 	bool ArpLayer::isRequest() const
@@ -52,11 +54,8 @@ namespace pcpp
 			return "ARP Layer, ARP request, who has " + getTargetIpAddr().toString() + " ? Tell " +
 			       getSenderIpAddr().toString();
 		}
-		else
-		{
-			return "ARP Layer, ARP reply, " + getSenderIpAddr().toString() + " is at " +
-			       getSenderMacAddress().toString();
-		}
+
+		return "ARP Layer, ARP reply, " + getSenderIpAddr().toString() + " is at " + getSenderMacAddress().toString();
 	}
 
 }  // namespace pcpp

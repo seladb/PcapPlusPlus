@@ -20,13 +20,13 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		sll_header* sllHdr = (sll_header*)m_Data;
+		auto* sllHdr = (sll_header*)m_Data;
 		sllHdr->packet_type = htobe16(packetType);
 		sllHdr->ARPHRD_type = htobe16(ARPHRDType);
 		m_Protocol = SLL;
 	}
 
-	bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength)
+	bool SllLayer::setLinkLayerAddr(uint8_t* addr, size_t addrLength) const
 	{
 		if (addr == nullptr || addrLength == 0 || addrLength > 8)
 		{
@@ -41,7 +41,7 @@ namespace pcpp
 		return true;
 	}
 
-	bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr)
+	bool SllLayer::setMacAddressAsLinkLayer(MacAddress const& macAddr) const
 	{
 		uint8_t macAddrAsArr[6];
 		macAddr.copyTo(macAddrAsArr);
@@ -51,10 +51,12 @@ namespace pcpp
 	void SllLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(sll_header))
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(sll_header);
-		size_t payloadLen = m_DataLen - sizeof(sll_header);
+		size_t const payloadLen = m_DataLen - sizeof(sll_header);
 
 		sll_header* hdr = getSllHeader();
 		switch (be16toh(hdr->protocol_type))
@@ -97,7 +99,9 @@ namespace pcpp
 	void SllLayer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		sll_header* hdr = getSllHeader();
 		switch (m_NextLayer->getProtocol())

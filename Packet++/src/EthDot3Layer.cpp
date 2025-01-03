@@ -6,7 +6,7 @@
 namespace pcpp
 {
 
-	EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
+	EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length)
 	{
 		const size_t headerLen = sizeof(ether_dot3_header);
 		m_DataLen = headerLen;
@@ -23,15 +23,21 @@ namespace pcpp
 	void EthDot3Layer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(ether_dot3_header))
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(ether_dot3_header);
-		size_t payloadLen = m_DataLen - sizeof(ether_dot3_header);
+		size_t const payloadLen = m_DataLen - sizeof(ether_dot3_header);
 
 		if (LLCLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new LLCLayer(payload, payloadLen, this, m_Packet);
+		}
 		else
+		{
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		}
 	}
 
 	std::string EthDot3Layer::toString() const
@@ -53,10 +59,8 @@ namespace pcpp
 			 */
 			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) <= static_cast<uint16_t>(0x05DC);
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 }  // namespace pcpp

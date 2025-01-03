@@ -48,18 +48,24 @@ namespace pcpp
 		/* Ideas taken from wireshark some ip dissector */
 		const size_t headerLen = sizeof(someiphdr);
 		if (dataLen < headerLen)
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
 		uint32_t lengthBE = 0;
 		memcpy(&lengthBE, data + sizeof(uint32_t), sizeof(uint32_t));  // length field in SOME/IP header
-		uint32_t length = be32toh(lengthBE);
+		uint32_t const length = be32toh(lengthBE);
 		if ((length < 8) || (length > dataLen - 8))
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
 		if (data[12] != SOMEIP_PROTOCOL_VERSION)
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
-		someiphdr* hdr = (someiphdr*)data;
+		auto* hdr = (someiphdr*)data;
 
 		switch (static_cast<MsgType>(hdr->msgType & ~(uint8_t)MsgType::TP_REQUEST))
 		{
@@ -83,14 +89,12 @@ namespace pcpp
 		{
 			return new SomeIpSdLayer(data, dataLen, prevLayer, packet);
 		}
-		else if ((hdr->msgType & (uint8_t)SomeIpLayer::MsgType::TP_REQUEST) != 0)
+		if ((hdr->msgType & (uint8_t)SomeIpLayer::MsgType::TP_REQUEST) != 0)
 		{
 			return new SomeIpTpLayer(data, dataLen, prevLayer, packet);
 		}
-		else
-		{
-			return new SomeIpLayer(data, dataLen, prevLayer, packet);
-		}
+
+		return new SomeIpLayer(data, dataLen, prevLayer, packet);
 	}
 
 	bool SomeIpLayer::isSomeIpPort(uint16_t port)
@@ -122,10 +126,10 @@ namespace pcpp
 		return ((uint32_t)be16toh(hdr->serviceID) << 16) + be16toh(hdr->methodID);
 	}
 
-	void SomeIpLayer::setMessageID(uint32_t messageID)
+	void SomeIpLayer::setMessageID(uint32_t messageID) const
 	{
-		uint16_t methodID;
-		uint16_t serviceID;
+		uint16_t methodID = 0;
+		uint16_t serviceID = 0;
 
 		splitUint32Id(messageID, serviceID, methodID);
 
@@ -139,7 +143,7 @@ namespace pcpp
 		return be16toh(getSomeIpHeader()->serviceID);
 	}
 
-	void SomeIpLayer::setServiceID(uint16_t serviceID)
+	void SomeIpLayer::setServiceID(uint16_t serviceID) const
 	{
 		getSomeIpHeader()->serviceID = htobe16(serviceID);
 	}
@@ -149,7 +153,7 @@ namespace pcpp
 		return be16toh(getSomeIpHeader()->methodID);
 	}
 
-	void SomeIpLayer::setMethodID(uint16_t methodID)
+	void SomeIpLayer::setMethodID(uint16_t methodID) const
 	{
 		getSomeIpHeader()->methodID = htobe16(methodID);
 	}
@@ -166,10 +170,10 @@ namespace pcpp
 		return ((uint32_t)be16toh(hdr->clientID) << 16) + be16toh(hdr->sessionID);
 	}
 
-	void SomeIpLayer::setRequestID(uint32_t requestID)
+	void SomeIpLayer::setRequestID(uint32_t requestID) const
 	{
-		uint16_t clientID;
-		uint16_t sessionID;
+		uint16_t clientID = 0;
+		uint16_t sessionID = 0;
 
 		splitUint32Id(requestID, clientID, sessionID);
 
@@ -183,7 +187,7 @@ namespace pcpp
 		return be16toh(getSomeIpHeader()->clientID);
 	}
 
-	void SomeIpLayer::setClientID(uint16_t clientID)
+	void SomeIpLayer::setClientID(uint16_t clientID) const
 	{
 		getSomeIpHeader()->clientID = htobe16(clientID);
 	}
@@ -193,7 +197,7 @@ namespace pcpp
 		return be16toh(getSomeIpHeader()->sessionID);
 	}
 
-	void SomeIpLayer::setSessionID(uint16_t sessionID)
+	void SomeIpLayer::setSessionID(uint16_t sessionID) const
 	{
 		getSomeIpHeader()->sessionID = htobe16(sessionID);
 	}
@@ -203,7 +207,7 @@ namespace pcpp
 		return getSomeIpHeader()->protocolVersion;
 	}
 
-	void SomeIpLayer::setProtocolVersion(uint8_t version)
+	void SomeIpLayer::setProtocolVersion(uint8_t version) const
 	{
 		getSomeIpHeader()->protocolVersion = version;
 	}
@@ -213,7 +217,7 @@ namespace pcpp
 		return getSomeIpHeader()->interfaceVersion;
 	}
 
-	void SomeIpLayer::setInterfaceVersion(uint8_t version)
+	void SomeIpLayer::setInterfaceVersion(uint8_t version) const
 	{
 		getSomeIpHeader()->interfaceVersion = version;
 	}
@@ -228,12 +232,12 @@ namespace pcpp
 		return getSomeIpHeader()->msgType;
 	}
 
-	void SomeIpLayer::setMessageType(MsgType type)
+	void SomeIpLayer::setMessageType(MsgType type) const
 	{
 		setMessageType(static_cast<uint8_t>(type));
 	}
 
-	void SomeIpLayer::setMessageType(uint8_t type)
+	void SomeIpLayer::setMessageType(uint8_t type) const
 	{
 		getSomeIpHeader()->msgType = type;
 	}
@@ -243,12 +247,12 @@ namespace pcpp
 		return getSomeIpHeader()->returnCode;
 	}
 
-	void SomeIpLayer::setReturnCode(uint8_t returnCode)
+	void SomeIpLayer::setReturnCode(uint8_t returnCode) const
 	{
 		getSomeIpHeader()->returnCode = returnCode;
 	}
 
-	void SomeIpLayer::setPayloadLength(uint32_t payloadLength)
+	void SomeIpLayer::setPayloadLength(uint32_t payloadLength) const
 	{
 		someiphdr* hdr = getSomeIpHeader();
 		hdr->length = htobe32(sizeof(someiphdr) - sizeof(hdr->serviceID) - sizeof(hdr->methodID) - sizeof(hdr->length) +
@@ -257,12 +261,14 @@ namespace pcpp
 
 	void SomeIpLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
-		size_t payloadLen = m_DataLen - headerLen;
+		size_t const payloadLen = m_DataLen - headerLen;
 
 		m_NextLayer = parseSomeIpLayer(payload, payloadLen, this, m_Packet);
 	}
@@ -309,9 +315,9 @@ namespace pcpp
 		return (be32toh(getSomeIpTpHeader()->offsetAndFlag) & SOMEIP_TP_OFFSET_MASK) >> 4;
 	}
 
-	void SomeIpTpLayer::setOffset(uint32_t offset)
+	void SomeIpTpLayer::setOffset(uint32_t offset) const
 	{
-		uint32_t val = (offset << 4) | (be32toh(getSomeIpTpHeader()->offsetAndFlag) & ~SOMEIP_TP_OFFSET_MASK);
+		uint32_t const val = (offset << 4) | (be32toh(getSomeIpTpHeader()->offsetAndFlag) & ~SOMEIP_TP_OFFSET_MASK);
 		getSomeIpTpHeader()->offsetAndFlag = htobe32(val);
 	}
 
@@ -320,7 +326,7 @@ namespace pcpp
 		return be32toh(getSomeIpTpHeader()->offsetAndFlag) & SOMEIP_TP_MORE_FLAG_MASK;
 	}
 
-	void SomeIpTpLayer::setMoreSegmentsFlag(bool flag)
+	void SomeIpTpLayer::setMoreSegmentsFlag(bool flag) const
 	{
 		uint32_t val = be32toh(getSomeIpTpHeader()->offsetAndFlag);
 

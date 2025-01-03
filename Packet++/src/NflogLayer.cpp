@@ -14,17 +14,17 @@ namespace pcpp
 /** IPv6 protocol */
 #define PCPP_WS_NFPROTO_IPV6 10
 
-	uint8_t NflogLayer::getFamily()
+	uint8_t NflogLayer::getFamily() const
 	{
 		return getNflogHeader()->addressFamily;
 	}
 
-	uint8_t NflogLayer::getVersion()
+	uint8_t NflogLayer::getVersion() const
 	{
 		return getNflogHeader()->version;
 	}
 
-	uint16_t NflogLayer::getResourceId()
+	uint16_t NflogLayer::getResourceId() const
 	{
 		return be16toh(getNflogHeader()->resourceId);
 	}
@@ -50,9 +50,9 @@ namespace pcpp
 		}
 
 		uint8_t* payload = payloadInfo.getValue();
-		size_t payloadLen = payloadInfo.getTotalSize() - sizeof(uint16_t) * 2;
+		size_t const payloadLen = payloadInfo.getTotalSize() - sizeof(uint16_t) * 2;
 
-		uint8_t family = getFamily();
+		uint8_t const family = getFamily();
 
 		switch (family)
 		{
@@ -97,7 +97,7 @@ namespace pcpp
 
 	bool NflogLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(nflog_header);
+		return (data != nullptr) && dataLen >= sizeof(nflog_header);
 	}
 
 }  // namespace pcpp

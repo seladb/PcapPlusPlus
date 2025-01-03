@@ -23,7 +23,7 @@ namespace pcpp
 	 * Represents ICMP basic protocol header (common for all ICMP message types)
 	 */
 #pragma pack(push, 1)
-	typedef struct icmphdr
+	using icmphdr = struct icmphdr
 	{
 		/** message type */
 		uint8_t type;
@@ -31,7 +31,7 @@ namespace pcpp
 		uint8_t code;
 		/** message checksum */
 		uint16_t checksum;
-	} icmphdr;
+	};
 #pragma pack(pop)
 
 	/**
@@ -124,7 +124,7 @@ namespace pcpp
 	 * ICMP echo (ping) request/reply message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_echo_hdr : icmphdr
+	using icmp_echo_hdr = struct icmp_echo_hdr : icmphdr
 	{
 		/** the echo (ping) request identifier */
 		uint16_t id;
@@ -132,14 +132,14 @@ namespace pcpp
 		uint16_t sequence;
 		/** a timestamp of when the message was sent */
 		uint64_t timestamp;
-	} icmp_echo_hdr;
+	};
 #pragma pack(pop)
 
 	/**
 	 * @struct icmp_echo_request
 	 * ICMP echo (ping) request/reply message structure
 	 */
-	typedef struct icmp_echo_request
+	using icmp_echo_request = struct icmp_echo_request
 	{
 		/** a pointer to the header data */
 		icmp_echo_hdr* header;
@@ -147,20 +147,20 @@ namespace pcpp
 		size_t dataLength;
 		/** most echo requests/replies contain some payload data. This is a pointer to this data */
 		uint8_t* data;
-	} icmp_echo_request;
+	};
 
 	/**
 	 * @typedef icmp_echo_reply
 	 * ICMP echo (ping) reply message structure, same as icmp_echo_request
 	 */
-	typedef icmp_echo_request icmp_echo_reply;
+	using icmp_echo_reply = icmp_echo_request;
 
 	/**
 	 * @struct icmp_timestamp_request
 	 * ICMP timestamp request message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_timestamp_request : icmphdr
+	using icmp_timestamp_request = struct icmp_timestamp_request : icmphdr
 	{
 		/** the timestamp request identifier */
 		uint16_t id;
@@ -172,27 +172,27 @@ namespace pcpp
 		uint32_t receiveTimestamp;
 		/** relevant for timestamp reply only - the time the echoer last touched the message on sending it */
 		uint32_t transmitTimestamp;
-	} icmp_timestamp_request;
+	};
 #pragma pack(pop)
 
 	/**
 	 * @typedef icmp_timestamp_reply
 	 * ICMP timestamp reply message structure, same as icmp_timestamp_request
 	 */
-	typedef icmp_timestamp_request icmp_timestamp_reply;
+	using icmp_timestamp_reply = icmp_timestamp_request;
 
 	/**
 	 * @struct icmp_destination_unreachable
 	 * ICMP destination unreachable message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_destination_unreachable : icmphdr
+	using icmp_destination_unreachable = struct icmp_destination_unreachable : icmphdr
 	{
 		/** unused 2 bytes */
 		uint16_t unused;
 		/** contains the MTU of the next-hop network if a code 4 error occurs */
 		uint16_t nextHopMTU;
-	} icmp_destination_unreachable;
+	};
 #pragma pack(pop)
 
 	/**
@@ -200,25 +200,25 @@ namespace pcpp
 	 * ICMP time-to-live exceeded message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_time_exceeded : icmphdr
+	using icmp_time_exceeded = struct icmp_time_exceeded : icmphdr
 	{
 		/** unused 4 bytes */
 		uint32_t unused;
-	} icmp_time_exceeded;
+	};
 #pragma pack(pop)
 
 	/**
 	 * @typedef icmp_source_quench
 	 * ICMP source quence message structure, same as icmp_time_exceeded
 	 */
-	typedef icmp_time_exceeded icmp_source_quench;
+	using icmp_source_quench = icmp_time_exceeded;
 
 	/**
 	 * @struct icmp_param_problem
 	 * ICMP parameter problem message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_param_problem : icmphdr
+	using icmp_param_problem = struct icmp_param_problem : icmphdr
 	{
 		/** in the case of an invalid IP header (Code 0), this field indicates the byte offset of the error in the
 		 * header */
@@ -227,25 +227,25 @@ namespace pcpp
 		uint8_t unused1;
 		/** unused 2 bytes */
 		uint16_t unused2;
-	} icmp_param_problem;
+	};
 #pragma pack(pop)
 
 	/**
 	 * @typedef icmp_router_solicitation
 	 * ICMP router solicitation message structure, same as icmphdr
 	 */
-	typedef icmphdr icmp_router_solicitation;
+	using icmp_router_solicitation = icmphdr;
 
 	/**
 	 * @struct icmp_redirect
 	 * ICMP redirect message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_redirect : icmphdr
+	using icmp_redirect = struct icmp_redirect : icmphdr
 	{
 		/** an IPv4 address of the gateway to which the redirection should be sent */
 		uint32_t gatewayAddress;
-	} icmp_redirect;
+	};
 #pragma pack(pop)
 
 	/**
@@ -284,7 +284,7 @@ namespace pcpp
 	 * ICMP router advertisement message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_router_advertisement_hdr : icmphdr
+	using icmp_router_advertisement_hdr = struct icmp_router_advertisement_hdr : icmphdr
 	{
 		/** the number of router advertisements in this message. Each advertisement contains one router
 		 * address/preference level pair */
@@ -294,7 +294,7 @@ namespace pcpp
 		uint8_t addressEntrySize;
 		/** the maximum number of seconds that the router addresses in this list may be considered valid */
 		uint16_t lifetime;
-	} icmp_router_advertisement_hdr;
+	};
 #pragma pack(pop)
 
 	/**
@@ -321,7 +321,7 @@ namespace pcpp
 	 * ICMP address mask request message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_address_mask_request : icmphdr
+	using icmp_address_mask_request = struct icmp_address_mask_request : icmphdr
 	{
 		/** the address mask request identifier */
 		uint16_t id;
@@ -329,34 +329,34 @@ namespace pcpp
 		uint16_t sequence;
 		/** the subnet mask of the requesting host */
 		uint32_t addressMask;
-	} icmp_address_mask_request;
+	};
 #pragma pack(pop)
 
 	/**
 	 * @typedef icmp_address_mask_reply
 	 * ICMP address mask reply message structure, same as icmp_address_mask_request
 	 */
-	typedef icmp_address_mask_request icmp_address_mask_reply;
+	using icmp_address_mask_reply = icmp_address_mask_request;
 
 	/**
 	 * @struct icmp_info_request
 	 * ICMP information request message structure
 	 */
 #pragma pack(push, 1)
-	typedef struct icmp_info_request : icmphdr
+	using icmp_info_request = struct icmp_info_request : icmphdr
 	{
 		/** the information request identifier */
 		uint16_t id;
 		/** the information request sequence */
 		uint16_t sequence;
-	} icmp_info_request;
+	};
 #pragma pack(pop)
 
 	/**
 	 * @typedef icmp_info_reply
 	 * ICMP information reply message structure, same as icmp_info_request
 	 */
-	typedef icmp_info_request icmp_info_reply;
+	using icmp_info_reply = icmp_info_request;
 
 	/**
 	 * @class IcmpLayer
@@ -365,8 +365,8 @@ namespace pcpp
 	class IcmpLayer : public Layer
 	{
 	private:
-		icmp_echo_request m_EchoData;
-		mutable icmp_router_advertisement m_RouterAdvData;
+		icmp_echo_request m_EchoData{};
+		mutable icmp_router_advertisement m_RouterAdvData{};
 
 		bool cleanIcmpLayer();
 
@@ -732,41 +732,59 @@ namespace pcpp
 	bool IcmpLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < sizeof(icmphdr))
+		{
 			return false;
+		}
 
-		uint8_t type = data[0];
+		uint8_t const type = data[0];
 
 		// ICMP_ECHO_REQUEST, ICMP_ECHO_REPLY, ICMP_ROUTER_SOL, ICMP_INFO_REQUEST, ICMP_INFO_REPLY
 		if (type == 8 || type == 0 || type == 10 || type == 15 || type == 16)
+		{
 			return true;
+		}
 
 		// ICMP_TIMESTAMP_REQUEST, ICMP_TIMESTAMP_REPLY
 		if (type == 13 || type == 14)
+		{
 			return dataLen >= sizeof(icmp_timestamp_request);
+		}
 
 		// ICMP_ADDRESS_MASK_REPLY, ICMP_ADDRESS_MASK_REQUEST
 		if (type == 17 || type == 18)
+		{
 			return dataLen >= sizeof(icmp_address_mask_request);
+		}
 
 		// ICMP_DEST_UNREACHABLE
 		if (type == 3)
+		{
 			return dataLen >= sizeof(icmp_destination_unreachable);
+		}
 
 		// ICMP_REDIRECT
 		if (type == 5)
+		{
 			return dataLen >= sizeof(icmp_redirect);
+		}
 
 		// ICMP_TIME_EXCEEDED, ICMP_SOURCE_QUENCH
 		if (type == 4 || type == 11)
+		{
 			return dataLen >= sizeof(icmp_time_exceeded);
+		}
 
 		// ICMP_PARAM_PROBLEM
 		if (type == 12)
+		{
 			return dataLen >= sizeof(icmp_param_problem);
+		}
 
 		// ICMP_ROUTER_ADV
 		if (type == 9)
+		{
 			return dataLen >= sizeof(icmp_router_advertisement_hdr);
+		}
 
 		return false;
 	}

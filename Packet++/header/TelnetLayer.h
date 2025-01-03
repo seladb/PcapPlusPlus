@@ -18,24 +18,24 @@ namespace pcpp
 	{
 	private:
 		// Position iterator for next command
-		size_t lastPositionOffset;
+		size_t lastPositionOffset{SIZE_MAX};
 
 		// Checks if position is a data field
-		bool isDataField(uint8_t* pos) const;
+		static bool isDataField(const uint8_t* pos);
 		// Checks if position is a command field
-		bool isCommandField(uint8_t* pos) const;
+		static bool isCommandField(uint8_t* pos);
 		// Returns distance to next IAC
-		size_t distanceToNextIAC(uint8_t* startPos, size_t maxLength);
+		static size_t distanceToNextIAC(uint8_t* startPos, size_t maxLength);
 		// Returns length of provided field
-		size_t getFieldLen(uint8_t* startPos, size_t maxLength);
+		static size_t getFieldLen(uint8_t* startPos, size_t maxLength);
 		// Get position of next data field
-		uint8_t* getNextDataField(uint8_t* pos, size_t len);
+		static uint8_t* getNextDataField(uint8_t* pos, size_t len);
 		// Get position of next command field
 		uint8_t* getNextCommandField(uint8_t* pos, size_t len);
 		// Get options of provided field
-		int16_t getSubCommand(uint8_t* pos, size_t len);
+		static int16_t getSubCommand(uint8_t* pos, size_t len);
 		// Get data of provided field
-		uint8_t* getCommandData(uint8_t* pos, size_t& slen);
+		static uint8_t* getCommandData(uint8_t* pos, size_t& slen);
 
 	public:
 		/**
@@ -227,10 +227,9 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		TelnetLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet, Telnet)
-		{
-			lastPositionOffset = SIZE_MAX;
-		};
+		    : Layer(data, dataLen, prevLayer, packet, Telnet) {
+
+		      };
 
 		/**
 		 * Get the Telnet data as readable string
@@ -325,7 +324,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataSize)
 		{
-			return data && dataSize;
+			return (data != nullptr) && (dataSize != 0U);
 		}
 
 		// overridden methods

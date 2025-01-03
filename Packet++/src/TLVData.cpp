@@ -5,12 +5,7 @@
 namespace pcpp
 {
 
-	TLVRecordBuilder::TLVRecordBuilder()
-	{
-		m_RecType = 0;
-		m_RecValueLen = 0;
-		m_RecValue = nullptr;
-	}
+	TLVRecordBuilder::TLVRecordBuilder() = default;
 
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const uint8_t* recValue, uint8_t recValueLen)
 	{
@@ -41,15 +36,13 @@ namespace pcpp
 	}
 
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString)
+	     
 	{
-		m_RecType = 0;
-		m_RecValueLen = 0;
-		m_RecValue = nullptr;
 
 		if (valueIsHexString)
 		{
 			uint8_t recValueByteArr[512];
-			size_t byteArraySize = hexStringToByteArray(recValue, recValueByteArr, 512);
+			size_t const byteArraySize = hexStringToByteArray(recValue, recValueByteArr, 512);
 			if (byteArraySize > 0)
 			{
 				init(recType, recValueByteArr, byteArraySize);
@@ -57,7 +50,7 @@ namespace pcpp
 		}
 		else
 		{
-			const uint8_t* recValueByteArr = reinterpret_cast<const uint8_t*>(recValue.c_str());
+			const auto* recValueByteArr = reinterpret_cast<const uint8_t*>(recValue.c_str());
 			init(recType, recValueByteArr, recValue.length());
 		}
 	}
@@ -94,8 +87,7 @@ namespace pcpp
 
 	TLVRecordBuilder::~TLVRecordBuilder()
 	{
-		if (m_RecValue != nullptr)
-			delete[] m_RecValue;
+		delete[] m_RecValue;
 	}
 
 	void TLVRecordBuilder::init(uint32_t recType, const uint8_t* recValue, size_t recValueLen)
@@ -104,9 +96,13 @@ namespace pcpp
 		m_RecValueLen = recValueLen;
 		m_RecValue = new uint8_t[recValueLen];
 		if (recValue != nullptr)
+		{
 			memcpy(m_RecValue, recValue, recValueLen);
+		}
 		else
+		{
 			memset(m_RecValue, 0, recValueLen);
+		}
 	}
 
 }  // namespace pcpp

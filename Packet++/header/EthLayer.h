@@ -126,7 +126,7 @@ namespace pcpp
 		 * Set source MAC address
 		 * @param sourceMac Source MAC to set
 		 */
-		inline void setSourceMac(const MacAddress& sourceMac)
+		inline void setSourceMac(const MacAddress& sourceMac) const
 		{
 			sourceMac.copyTo(getEthHeader()->srcMac);
 		}
@@ -144,7 +144,7 @@ namespace pcpp
 		 * Set destination MAC address
 		 * @param destMac Destination MAC to set
 		 */
-		inline void setDestMac(const MacAddress& destMac)
+		inline void setDestMac(const MacAddress& destMac) const
 		{
 			destMac.copyTo(getEthHeader()->dstMac);
 		}

@@ -20,31 +20,36 @@
 namespace pcpp
 {
 
-	ProtocolType GreLayer::getGREVersion(uint8_t* greData, size_t greDataLen)
+	ProtocolType GreLayer::getGREVersion(const uint8_t* greData, size_t greDataLen)
 	{
 		if (greDataLen < sizeof(gre_basic_header))
+		{
 			return UnknownProtocol;
+		}
 
 		uint8_t version = *(greData + 1);
 		version &= 0x07;
 		if (version == 0)
+		{
 			return GREv0;
-		else if (version == 1)
+		}
+		if (version == 1)
+		{
 			return GREv1;
-		else
-			return UnknownProtocol;
+		}
+		return UnknownProtocol;
 	}
 
 	uint8_t* GreLayer::getFieldValue(GreField field, bool returnOffsetEvenIfFieldMissing) const
 	{
 		uint8_t* ptr = m_Data + sizeof(gre_basic_header);
 
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 
 		constexpr int numGreField = 4;
 		for (int curFieldAsInt = static_cast<int>(GreChecksumOrRouting); curFieldAsInt < numGreField; ++curFieldAsInt)
 		{
-			const GreField curField = static_cast<GreField>(curFieldAsInt);
+			const auto curField = static_cast<GreField>(curFieldAsInt);
 			bool curFieldExists = false;
 
 			uint8_t* origPtr = ptr;
@@ -86,7 +91,9 @@ namespace pcpp
 			if (field == curField)
 			{
 				if (curFieldExists || returnOffsetEvenIfFieldMissing)
+				{
 					return origPtr;
+				}
 
 				return nullptr;
 			}
@@ -97,7 +104,7 @@ namespace pcpp
 
 	void GreLayer::computeCalculateFieldsInner()
 	{
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 		if (m_NextLayer != nullptr)
 		{
 			switch (m_NextLayer->getProtocol())
@@ -128,14 +135,18 @@ namespace pcpp
 
 	bool GreLayer::getSequenceNumber(uint32_t& seqNumber) const
 	{
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 
 		if (header->sequenceNumBit == 0)
+		{
 			return false;
+		}
 
-		uint32_t* val = (uint32_t*)getFieldValue(GreSeq, false);
+		auto* val = (uint32_t*)getFieldValue(GreSeq, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		seqNumber = be32toh(*val);
 		return true;
@@ -143,16 +154,18 @@ namespace pcpp
 
 	bool GreLayer::setSequenceNumber(uint32_t seqNumber)
 	{
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 
 		bool needToExtendLayer = false;
 
 		if (header->sequenceNumBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreSeq, true);
 
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 		{
 			header->sequenceNumBit = 0;
@@ -162,7 +175,7 @@ namespace pcpp
 
 		header = (gre_basic_header*)m_Data;
 		header->sequenceNumBit = 1;
-		uint32_t* seqPtr = (uint32_t*)(m_Data + offset);
+		auto* seqPtr = (uint32_t*)(m_Data + offset);
 		*seqPtr = htobe32(seqNumber);
 
 		return true;
@@ -170,7 +183,7 @@ namespace pcpp
 
 	bool GreLayer::unsetSequenceNumber()
 	{
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 
 		if (header->sequenceNumBit == 0)
 		{
@@ -180,7 +193,7 @@ namespace pcpp
 
 		uint8_t* offsetPtr = getFieldValue(GreSeq, true);
 
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (!shortenLayer(offset, sizeof(uint32_t)))
 		{
 			PCPP_LOG_ERROR("Couldn't shorted layer to unset sequence number");
@@ -194,13 +207,15 @@ namespace pcpp
 
 	void GreLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 		uint8_t* payload = m_Data + headerLen;
-		size_t payloadLen = m_DataLen - headerLen;
+		size_t const payloadLen = m_DataLen - headerLen;
 
 		switch (be16toh(header->protocol))
 		{
@@ -246,16 +261,24 @@ namespace pcpp
 	{
 		size_t result = sizeof(gre_basic_header);
 
-		gre_basic_header* header = (gre_basic_header*)m_Data;
+		auto* header = (gre_basic_header*)m_Data;
 
 		if (header->checksumBit == 1 || header->routingBit == 1)
+		{
 			result += 4;
+		}
 		if (header->keyBit == 1)
+		{
 			result += 4;
+		}
 		if (header->sequenceNumBit == 1)
+		{
 			result += 4;
+		}
 		if (header->ackSequenceNumBit == 1)
+		{
 			result += 4;
+		}
 
 		return result;
 	}
@@ -276,11 +299,15 @@ namespace pcpp
 	bool GREv0Layer::getChecksum(uint16_t& checksum)
 	{
 		if (getGreHeader()->checksumBit == 0)
+		{
 			return false;
+		}
 
-		uint16_t* val = (uint16_t*)getFieldValue(GreChecksumOrRouting, false);
+		auto* val = (uint16_t*)getFieldValue(GreChecksumOrRouting, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		checksum = be16toh(*val);
 		return true;
@@ -293,10 +320,12 @@ namespace pcpp
 		bool needToExtendLayer = false;
 
 		if (header->routingBit == 0 && header->checksumBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreChecksumOrRouting, true);
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		// extend layer in 4 bytes to keep 4-byte alignment
 		if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 		{
@@ -304,7 +333,7 @@ namespace pcpp
 			return false;
 		}
 
-		uint16_t* checksumPtr = (uint16_t*)(m_Data + offset);
+		auto* checksumPtr = (uint16_t*)(m_Data + offset);
 		*checksumPtr = htobe16(checksum);
 
 		// if layer was extended in 4 bytes, make sure the offset field stays 0
@@ -331,10 +360,10 @@ namespace pcpp
 		}
 
 		// if both routing and checksum are unset we need to shorted the layer
-		bool needToShortenLayer = (header->routingBit == 0);
+		bool const needToShortenLayer = (header->routingBit == 0);
 
 		uint8_t* offsetPtr = getFieldValue(GreChecksumOrRouting, true);
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (needToShortenLayer && !shortenLayer(offset, sizeof(uint32_t)))
 		{
 			PCPP_LOG_ERROR("Couldn't extend layer to unset checksum");
@@ -343,7 +372,7 @@ namespace pcpp
 
 		if (!needToShortenLayer)  // meaning routing bit is set - only zero the checksum field
 		{
-			uint16_t* checksumPtr = (uint16_t*)(m_Data + offset);
+			auto* checksumPtr = (uint16_t*)(m_Data + offset);
 			*checksumPtr = 0;
 		}
 
@@ -356,11 +385,15 @@ namespace pcpp
 	bool GREv0Layer::getOffset(uint16_t& offset) const
 	{
 		if (getGreHeader()->routingBit == 0)
+		{
 			return false;
+		}
 
-		uint8_t* val = (uint8_t*)getFieldValue(GreChecksumOrRouting, false);
+		auto* val = (uint8_t*)getFieldValue(GreChecksumOrRouting, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		offset = be16toh(*(val + 2));
 		return true;
@@ -369,11 +402,15 @@ namespace pcpp
 	bool GREv0Layer::getKey(uint32_t& key) const
 	{
 		if (getGreHeader()->keyBit == 0)
+		{
 			return false;
+		}
 
-		uint32_t* val = (uint32_t*)getFieldValue(GreKey, false);
+		auto* val = (uint32_t*)getFieldValue(GreKey, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		key = be32toh(*val);
 		return true;
@@ -386,11 +423,13 @@ namespace pcpp
 		bool needToExtendLayer = false;
 
 		if (header->keyBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreKey, true);
 
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 		{
 			header->keyBit = 0;
@@ -400,7 +439,7 @@ namespace pcpp
 
 		header = getGreHeader();
 		header->keyBit = 1;
-		uint32_t* keyPtr = (uint32_t*)(m_Data + offset);
+		auto* keyPtr = (uint32_t*)(m_Data + offset);
 		*keyPtr = htobe32(key);
 
 		return true;
@@ -418,7 +457,7 @@ namespace pcpp
 
 		uint8_t* offsetPtr = getFieldValue(GreKey, true);
 
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (!shortenLayer(offset, sizeof(uint32_t)))
 		{
 			PCPP_LOG_ERROR("Couldn't shorted layer to unset key");
@@ -435,15 +474,17 @@ namespace pcpp
 		computeCalculateFieldsInner();
 
 		if (getGreHeader()->checksumBit == 0)
+		{
 			return;
+		}
 
 		// calculate checksum
 		setChecksum(0);
 
-		ScalarBuffer<uint16_t> buffer;
+		ScalarBuffer<uint16_t> buffer{};
 		buffer.buffer = (uint16_t*)m_Data;
 		buffer.len = m_DataLen;
-		size_t checksum = computeChecksum(&buffer, 1);
+		size_t const checksum = computeChecksum(&buffer, 1);
 
 		setChecksum(checksum);
 	}
@@ -474,11 +515,15 @@ namespace pcpp
 	bool GREv1Layer::getAcknowledgmentNum(uint32_t& ackNum) const
 	{
 		if (getGreHeader()->ackSequenceNumBit == 0)
+		{
 			return false;
+		}
 
-		uint32_t* val = (uint32_t*)getFieldValue(GreAck, false);
+		auto* val = (uint32_t*)getFieldValue(GreAck, false);
 		if (val == nullptr)
+		{
 			return false;
+		}
 
 		ackNum = be32toh(*val);
 		return true;
@@ -491,10 +536,12 @@ namespace pcpp
 		gre1_header* header = getGreHeader();
 
 		if (header->ackSequenceNumBit == 0)
+		{
 			needToExtendLayer = true;
+		}
 
 		uint8_t* offsetPtr = getFieldValue(GreAck, true);
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (needToExtendLayer && !extendLayer(offset, sizeof(uint32_t)))
 		{
 			PCPP_LOG_ERROR("Couldn't extend layer to set ack number");
@@ -503,7 +550,7 @@ namespace pcpp
 
 		header = getGreHeader();
 		header->ackSequenceNumBit = 1;
-		uint32_t* ackPtr = (uint32_t*)(m_Data + offset);
+		auto* ackPtr = (uint32_t*)(m_Data + offset);
 		*ackPtr = htobe32(ackNum);
 		return true;
 	}
@@ -520,7 +567,7 @@ namespace pcpp
 
 		uint8_t* offsetPtr = getFieldValue(GreAck, true);
 
-		int offset = offsetPtr - m_Data;
+		int const offset = offsetPtr - m_Data;
 		if (!shortenLayer(offset, sizeof(uint32_t)))
 		{
 			PCPP_LOG_ERROR("Couldn't shorted layer to unset ack number");
@@ -563,12 +610,14 @@ namespace pcpp
 
 	void PPP_PPTPLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
-		size_t payloadLen = m_DataLen - headerLen;
+		size_t const payloadLen = m_DataLen - headerLen;
 
 		switch (be16toh(getPPP_PPTPHeader()->protocol))
 		{
@@ -606,7 +655,9 @@ namespace pcpp
 			}
 		}
 		else
+		{
 			header->protocol = 0;
+		}
 	}
 
 }  // namespace pcpp

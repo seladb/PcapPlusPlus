@@ -55,7 +55,9 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -63,7 +65,9 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - 2 * sizeof(uint8_t);
 		}
@@ -138,18 +142,13 @@ namespace pcpp
 		 * A copy c'tor which copies all the data from another instance of RadiusAttributeBuilder
 		 * @param[in] other The instance to copy from
 		 */
-		RadiusAttributeBuilder(const RadiusAttributeBuilder& other) : TLVRecordBuilder(other)
-		{}
+		RadiusAttributeBuilder(const RadiusAttributeBuilder& other) = default;
 
 		/**
 		 * Assignment operator that copies all data from another instance of RadiusAttributeBuilder
 		 * @param[in] other The instance to assign from
 		 */
-		RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other)
-		{
-			TLVRecordBuilder::operator=(other);
-			return *this;
-		}
+		RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other) = default;
 
 		/**
 		 * Build the RadiusAttribute object out of the parameters defined in the c'tor
@@ -233,7 +232,7 @@ namespace pcpp
 		 * Setter for radius_header#authenticator
 		 * @param[in] authValue A hex string representing the requested authenticator value
 		 */
-		void setAuthenticatorValue(const std::string& authValue);
+		void setAuthenticatorValue(const std::string& authValue) const;
 
 		/**
 		 * A static method that returns the RADIUS message string for a give message code. For example: the string

@@ -103,7 +103,7 @@ namespace pcpp
 		 *  @param[in] name Cipher-suite name (e.g "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA")
 		 *  @return A cipher-suite instance matching this name or nullptr if name not found
 		 */
-		static SSLCipherSuite* getCipherSuiteByName(std::string name);
+		static SSLCipherSuite* getCipherSuiteByName(const std::string& name);
 
 	private:
 		uint16_t m_Id;
@@ -1145,12 +1145,14 @@ namespace pcpp
 
 	template <class TExtension> TExtension* SSLClientHelloMessage::getExtensionOfType() const
 	{
-		size_t vecSize = m_ExtensionList.size();
+		size_t const vecSize = m_ExtensionList.size();
 		for (size_t i = 0; i < vecSize; i++)
 		{
-			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
+			auto* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (dynamic_cast<TExtension*>(curElem) != nullptr)
+			{
 				return static_cast<TExtension*>(curElem);
+			}
 		}
 
 		return nullptr;
@@ -1158,12 +1160,14 @@ namespace pcpp
 
 	template <class TExtension> TExtension* SSLServerHelloMessage::getExtensionOfType() const
 	{
-		size_t vecSize = m_ExtensionList.size();
+		size_t const vecSize = m_ExtensionList.size();
 		for (size_t i = 0; i < vecSize; i++)
 		{
-			SSLExtension* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
+			auto* curElem = const_cast<SSLExtension*>(m_ExtensionList.at(i));
 			if (dynamic_cast<TExtension*>(curElem) != nullptr)
+			{
 				return static_cast<TExtension*>(curElem);
+			}
 		}
 
 		return nullptr;

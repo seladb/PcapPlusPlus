@@ -11,25 +11,29 @@ namespace pcpp
 	Layer::~Layer()
 	{
 		if (!isAllocatedToPacket())
+		{
 			delete[] m_Data;
+		}
 	}
 
 	Layer::Layer(const Layer& other)
-	    : m_Packet(nullptr), m_Protocol(other.m_Protocol), m_NextLayer(nullptr), m_PrevLayer(nullptr),
-	      m_IsAllocatedInPacket(false)
+	    : m_Data(new uint8_t[other.m_DataLen]), m_DataLen(other.getHeaderLen()), m_Packet(nullptr),
+	      m_Protocol(other.m_Protocol), m_NextLayer(nullptr), m_PrevLayer(nullptr), m_IsAllocatedInPacket(false)
 	{
-		m_DataLen = other.getHeaderLen();
-		m_Data = new uint8_t[other.m_DataLen];
+
 		memcpy(m_Data, other.m_Data, other.m_DataLen);
 	}
 
 	Layer& Layer::operator=(const Layer& other)
 	{
 		if (this == &other)
+		{
 			return *this;
+		}
 
-		if (m_Data != nullptr)
+		{
 			delete[] m_Data;
+		}
 
 		m_DataLen = other.getHeaderLen();
 		m_Packet = nullptr;
@@ -73,7 +77,7 @@ namespace pcpp
 				return false;
 			}
 
-			uint8_t* newData = new uint8_t[m_DataLen + numOfBytesToExtend];
+			auto* newData = new uint8_t[m_DataLen + numOfBytesToExtend];
 			memcpy(newData, m_Data, offsetInLayer);
 			memcpy(newData + offsetInLayer + numOfBytesToExtend, m_Data + offsetInLayer, m_DataLen - offsetInLayer);
 			delete[] m_Data;
@@ -101,7 +105,7 @@ namespace pcpp
 				return false;
 			}
 
-			uint8_t* newData = new uint8_t[m_DataLen - numOfBytesToShorten];
+			auto* newData = new uint8_t[m_DataLen - numOfBytesToShorten];
 			memcpy(newData, m_Data, offsetInLayer);
 			memcpy(newData + offsetInLayer, m_Data + offsetInLayer + numOfBytesToShorten,
 			       m_DataLen - offsetInLayer - numOfBytesToShorten);

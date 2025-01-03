@@ -167,9 +167,9 @@ namespace pcpp
 
 		IgmpLayer(IgmpType type, const IPv4Address& groupAddr, uint8_t maxResponseTime, ProtocolType igmpVer);
 
-		uint16_t calculateChecksum();
+		uint16_t calculateChecksum() const;
 
-		size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const;
+		static size_t getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType);
 
 	public:
 		~IgmpLayer() override = default;
@@ -196,7 +196,7 @@ namespace pcpp
 		 * Set the IPv4 multicast address
 		 * @param[in] groupAddr The IPv4 address to set
 		 */
-		void setGroupAddress(const IPv4Address& groupAddr);
+		void setGroupAddress(const IPv4Address& groupAddr) const;
 
 		/**
 		 * @return IGMP type set in igmp_header#type as ::IgmpType enum. Notice that if igmp_header#type contains a
@@ -208,7 +208,7 @@ namespace pcpp
 		 * Set IGMP type (will be written to igmp_header#type field)
 		 * @param[in] type The type to set
 		 */
-		void setType(IgmpType type);
+		void setType(IgmpType type) const;
 
 		/**
 		 * A static method that gets raw IGMP data (byte stream) and returns the IGMP version of this IGMP message
@@ -218,7 +218,7 @@ namespace pcpp
 		 * @return One of the values ::IGMPv1, ::IGMPv2, ::IGMPv3 according to detected IGMP version or
 		 * ::UnknownProtocol if couldn't detect IGMP version
 		 */
-		static ProtocolType getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery);
+		static ProtocolType getIGMPVerFromData(const uint8_t* data, size_t dataLen, bool& isQuery);
 
 		// implement abstract methods
 

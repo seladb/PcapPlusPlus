@@ -102,19 +102,14 @@ namespace pcpp
 		 * anything else
 		 * @param[in] other The instance to copy from
 		 */
-		SdpLayer(const SdpLayer& other) : TextBasedProtocolMessage(other)
-		{}
+		SdpLayer(const SdpLayer& other) = default;
 
 		/**
 		 * An assignment operator overload for this layer. Inherits the base assignment operator
 		 * and doesn't add anything else
 		 * @param[in] other The instance to copy from
 		 */
-		SdpLayer& operator=(const SdpLayer& other)
-		{
-			TextBasedProtocolMessage::operator=(other);
-			return *this;
-		}
+		SdpLayer& operator=(const SdpLayer& other) = default;
 
 		/**
 		 * The 'originator' field (o=) contains the IP address of the the machine from which the session is created.

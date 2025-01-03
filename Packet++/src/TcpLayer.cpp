@@ -62,7 +62,7 @@ namespace pcpp
 
 	TcpOption TcpOptionBuilder::build() const
 	{
-		uint8_t recType = static_cast<uint8_t>(m_RecType);
+		auto const recType = static_cast<uint8_t>(m_RecType);
 		size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
 
 		if (recType == static_cast<uint8_t>(TcpOptionEnumType::Eol) ||
@@ -79,14 +79,16 @@ namespace pcpp
 			optionSize = 1;
 		}
 
-		uint8_t* recordBuffer = new uint8_t[optionSize];
+		auto* recordBuffer = new uint8_t[optionSize];
 		memset(recordBuffer, 0, optionSize);
 		recordBuffer[0] = recType;
 		if (optionSize > 1)
 		{
 			recordBuffer[1] = static_cast<uint8_t>(optionSize);
 			if (optionSize > 2 && m_RecValue != nullptr)
+			{
 				memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+			}
 		}
 
 		return TcpOption(recordBuffer);
@@ -119,10 +121,12 @@ namespace pcpp
 
 	TcpOption TcpLayer::getNextTcpOption(TcpOption& tcpOption) const
 	{
-		TcpOption nextOpt =
+		TcpOption const nextOpt =
 		    m_OptionReader.getNextTLVRecord(tcpOption, getOptionsBasePtr(), getHeaderLen() - sizeof(tcphdr));
 		if (nextOpt.isNotNull() && nextOpt.getType() == TCPOPT_DUMMY)
+		{
 			return TcpOption(nullptr);
+		}
 
 		return nextOpt;
 	}
@@ -180,7 +184,7 @@ namespace pcpp
 		}
 		totalOptSize -= opt.getTotalSize();
 
-		int offset = opt.getRecordBasePtr() - m_Data;
+		int const offset = opt.getRecordBasePtr() - m_Data;
 
 		if (!shortenLayer(offset, opt.getTotalSize()))
 		{
@@ -199,7 +203,9 @@ namespace pcpp
 		const int offset = sizeof(tcphdr);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		getTcpHeader()->dataOffset = sizeof(tcphdr) / 4;
 		m_NumOfTrailingBytes = 0;
@@ -211,7 +217,9 @@ namespace pcpp
 	{
 		TcpOption newOption = optionBuilder.build();
 		if (newOption.isNull())
+		{
 			return newOption;
+		}
 
 		// calculate total TCP option size
 		TcpOption curOpt = getFirstTcpOption();
@@ -223,7 +231,7 @@ namespace pcpp
 		}
 		totalOptSize += newOption.getTotalSize();
 
-		size_t sizeToExtend = newOption.getTotalSize();
+		size_t const sizeToExtend = newOption.getTotalSize();
 
 		if (!extendLayer(offset, sizeToExtend))
 		{
@@ -249,17 +257,25 @@ namespace pcpp
 	{
 		int newNumberOfTrailingBytes = 0;
 		while ((totalOptSize + newNumberOfTrailingBytes) % 4 != 0)
+		{
 			newNumberOfTrailingBytes++;
+		}
 
 		if (newNumberOfTrailingBytes < m_NumOfTrailingBytes)
+		{
 			shortenLayer(sizeof(tcphdr) + totalOptSize, m_NumOfTrailingBytes - newNumberOfTrailingBytes - 1);
+		}
 		else if (newNumberOfTrailingBytes > m_NumOfTrailingBytes)
+		{
 			extendLayer(sizeof(tcphdr) + totalOptSize, newNumberOfTrailingBytes - m_NumOfTrailingBytes);
+		}
 
 		m_NumOfTrailingBytes = newNumberOfTrailingBytes;
 
 		for (int i = 0; i < m_NumOfTrailingBytes; i++)
+		{
 			m_Data[sizeof(tcphdr) + totalOptSize + i] = TCPOPT_DUMMY;
+		}
 
 		getTcpHeader()->dataOffset = (sizeof(tcphdr) + totalOptSize + m_NumOfTrailingBytes) / 4;
 	}
@@ -277,8 +293,8 @@ namespace pcpp
 
 			if (m_PrevLayer->getProtocol() == IPv4)
 			{
-				const IPv4Address srcIP = static_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
-				const IPv4Address dstIP = static_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
+				const IPv4Address srcIP = dynamic_cast<IPv4Layer*>(m_PrevLayer)->getSrcIPv4Address();
+				const IPv4Address dstIP = dynamic_cast<IPv4Layer*>(m_PrevLayer)->getDstIPv4Address();
 
 				checksumRes =
 				    pcpp::computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(tcpHdr), getDataLen(),
@@ -288,8 +304,8 @@ namespace pcpp
 			}
 			else if (m_PrevLayer->getProtocol() == IPv6)
 			{
-				const IPv6Address srcIP = static_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
-				const IPv6Address dstIP = static_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
+				const IPv6Address srcIP = dynamic_cast<IPv6Layer*>(m_PrevLayer)->getSrcIPv6Address();
+				const IPv6Address dstIP = dynamic_cast<IPv6Layer*>(m_PrevLayer)->getDstIPv6Address();
 
 				checksumRes = computePseudoHdrChecksum(reinterpret_cast<uint8_t*>(tcpHdr), getDataLen(),
 				                                       IPAddress::IPv6AddressType, PACKETPP_IPPROTO_TCP, srcIP, dstIP);
@@ -299,9 +315,13 @@ namespace pcpp
 		}
 
 		if (writeResultToPacket)
+		{
 			tcpHdr->headerChecksum = htobe16(checksumRes);
+		}
 		else
+		{
 			tcpHdr->headerChecksum = currChecksumValue;
+		}
 
 		return checksumRes;
 	}
@@ -318,9 +338,7 @@ namespace pcpp
 
 	TcpLayer::TcpLayer(uint8_t* data, const size_t dataLen, Layer* prevLayer, Packet* packet)
 	    : Layer(data, dataLen, prevLayer, packet, TCP)
-	{
-		m_NumOfTrailingBytes = 0;
-	}
+	{}
 
 	TcpLayer::TcpLayer()
 	{
@@ -358,7 +376,9 @@ namespace pcpp
 	{
 		const size_t headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
 		const size_t payloadLen = m_DataLen - headerLen;
@@ -368,62 +388,102 @@ namespace pcpp
 
 		if (HttpMessage::isHttpPort(portDst) &&
 		    HttpRequestFirstLine::parseMethod(payloadChar, payloadLen) != HttpRequestLayer::HttpMethodUnknown)
+		{
 			m_NextLayer = new HttpRequestLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (HttpMessage::isHttpPort(portSrc) &&
 		         HttpResponseFirstLine::parseVersion(payloadChar, payloadLen) != HttpVersion::HttpVersionUnknown &&
 		         !HttpResponseFirstLine::parseStatusCode(payloadChar, payloadLen).isUnsupportedCode())
+		{
 			m_NextLayer = new HttpResponseLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (SSLLayer::IsSSLMessage(portSrc, portDst, payload, payloadLen))
+		{
 			m_NextLayer = SSLLayer::createSSLMessage(payload, payloadLen, this, m_Packet);
+		}
 		else if (SipLayer::isSipPort(portDst) || SipLayer::isSipPort(portSrc))
 		{
 			if (SipRequestFirstLine::parseMethod(payloadChar, payloadLen) != SipRequestLayer::SipMethodUnknown)
+			{
 				m_NextLayer = new SipRequestLayer(payload, payloadLen, this, m_Packet);
+			}
 			else if (SipResponseFirstLine::parseStatusCode(payloadChar, payloadLen) !=
 			         SipResponseLayer::SipStatusCodeUnknown)
+			{
 				m_NextLayer = new SipResponseLayer(payload, payloadLen, this, m_Packet);
+			}
 			else
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 		}
 		else if (BgpLayer::isBgpPort(portSrc, portDst))
 		{
 			m_NextLayer = BgpLayer::parseBgpLayer(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
+			if (m_NextLayer == nullptr)
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 		}
 		else if (SSHLayer::isSSHPort(portSrc, portDst))
+		{
 			m_NextLayer = SSHLayer::createSSHMessage(payload, payloadLen, this, m_Packet);
+		}
 		else if (DnsLayer::isDataValid(payload, payloadLen, true) &&
 		         (DnsLayer::isDnsPort(portDst) || DnsLayer::isDnsPort(portSrc)))
+		{
 			m_NextLayer = new DnsOverTcpLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (TelnetLayer::isDataValid(payload, payloadLen) &&
 		         (TelnetLayer::isTelnetPort(portDst) || TelnetLayer::isTelnetPort(portSrc)))
+		{
 			m_NextLayer = new TelnetLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (FtpLayer::isFtpPort(portSrc) && FtpLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new FtpResponseLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (FtpLayer::isFtpPort(portDst) && FtpLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new FtpRequestLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (FtpLayer::isFtpDataPort(portSrc) || FtpLayer::isFtpDataPort(portDst))
+		{
 			m_NextLayer = new FtpDataLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (SomeIpLayer::isSomeIpPort(portSrc) || SomeIpLayer::isSomeIpPort(portDst))
+		{
 			m_NextLayer = SomeIpLayer::parseSomeIpLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (TpktLayer::isDataValid(payload, payloadLen) && TpktLayer::isTpktPort(portSrc, portDst))
+		{
 			m_NextLayer = new TpktLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (SmtpLayer::isSmtpPort(portSrc) && SmtpLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new SmtpResponseLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (SmtpLayer::isSmtpPort(portDst) && SmtpLayer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new SmtpRequestLayer(payload, payloadLen, this, m_Packet);
+		}
 		else if (LdapLayer::isLdapPort(portDst) || LdapLayer::isLdapPort(portSrc))
 		{
 			m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
+			if (m_NextLayer == nullptr)
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 		}
 		else if ((GtpV2Layer::isGTPv2Port(portDst) || GtpV2Layer::isGTPv2Port(portSrc)) &&
 		         GtpV2Layer::isDataValid(payload, payloadLen))
+		{
 			m_NextLayer = new GtpV2Layer(payload, payloadLen, this, m_Packet);
+		}
 		else
+		{
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		}
 	}
 
 	void TcpLayer::computeCalculateFields()
@@ -441,19 +501,29 @@ namespace pcpp
 		if (hdr->synFlag)
 		{
 			if (hdr->ackFlag)
+			{
 				result += "[SYN, ACK], ";
+			}
 			else
+			{
 				result += "[SYN], ";
+			}
 		}
 		else if (hdr->finFlag)
 		{
 			if (hdr->ackFlag)
+			{
 				result += "[FIN, ACK], ";
+			}
 			else
+			{
 				result += "[FIN], ";
+			}
 		}
 		else if (hdr->ackFlag)
+		{
 			result += "[ACK], ";
+		}
 
 		std::ostringstream srcPortStream;
 		srcPortStream << getSrcPort();
@@ -480,7 +550,7 @@ namespace pcpp
 		}
 		else
 		{
-			TcpOption prevOpt = getTcpOption(prevOptionType);
+			TcpOption const prevOpt = getTcpOption(prevOptionType);
 			if (prevOpt.isNull())
 			{
 				PCPP_LOG_ERROR("Previous option of type " << static_cast<int>(prevOptionType)
@@ -502,7 +572,7 @@ namespace pcpp
 
 	bool TcpLayer::removeTcpOption(TcpOptionType optionType)
 	{
-		TcpOption opt = getTcpOption(optionType);
+		TcpOption const opt = getTcpOption(optionType);
 		if (opt.isNull())
 		{
 			return false;
@@ -518,7 +588,7 @@ namespace pcpp
 		}
 		totalOptSize -= opt.getTotalSize();
 
-		int offset = opt.getRecordBasePtr() - m_Data;
+		int const offset = opt.getRecordBasePtr() - m_Data;
 
 		if (!shortenLayer(offset, opt.getTotalSize()))
 		{

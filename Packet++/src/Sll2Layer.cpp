@@ -25,7 +25,7 @@ namespace pcpp
 		m_Protocol = SLL2;
 	}
 
-	bool Sll2Layer::setLinkLayerAddr(const uint8_t* addr, size_t addrLength)
+	bool Sll2Layer::setLinkLayerAddr(const uint8_t* addr, size_t addrLength) const
 	{
 		if (addr == nullptr || addrLength == 0 || addrLength > 8)
 		{
@@ -38,10 +38,10 @@ namespace pcpp
 		return true;
 	}
 
-	MacAddress Sll2Layer::getLinkLayerAsMacAddress()
+	MacAddress Sll2Layer::getLinkLayerAsMacAddress() const
 	{
 		const uint8_t* data = getLinkLayerAddr();
-		uint8_t dataLen = getLinkLayerAddrLen();
+		uint8_t const dataLen = getLinkLayerAddrLen();
 		if (data == nullptr || dataLen == 0 || dataLen > 8)
 		{
 			return MacAddress::Zero;
@@ -49,7 +49,7 @@ namespace pcpp
 		return MacAddress(data);
 	}
 
-	bool Sll2Layer::setMacAddressAsLinkLayer(const MacAddress& macAddr)
+	bool Sll2Layer::setMacAddressAsLinkLayer(const MacAddress& macAddr) const
 	{
 		uint8_t macAddrAsArr[6];
 		macAddr.copyTo(macAddrAsArr);
@@ -59,10 +59,12 @@ namespace pcpp
 	void Sll2Layer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(sll2_header))
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(sll2_header);
-		size_t payloadLen = m_DataLen - sizeof(sll2_header);
+		size_t const payloadLen = m_DataLen - sizeof(sll2_header);
 
 		sll2_header* hdr = getSll2Header();
 		switch (be16toh(hdr->protocol_type))
@@ -105,7 +107,9 @@ namespace pcpp
 	void Sll2Layer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		sll2_header* hdr = getSll2Header();
 		switch (m_NextLayer->getProtocol())
@@ -129,7 +133,7 @@ namespace pcpp
 
 	bool Sll2Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(sll2_header);
+		return (data != nullptr) && dataLen >= sizeof(sll2_header);
 	}
 
 	std::string Sll2Layer::toString() const
@@ -142,7 +146,7 @@ namespace pcpp
 		return be16toh(getSll2Header()->protocol_type);
 	}
 
-	void Sll2Layer::setProtocolType(uint16_t protocolType)
+	void Sll2Layer::setProtocolType(uint16_t protocolType) const
 	{
 		getSll2Header()->protocol_type = htobe16(protocolType);
 	}
@@ -152,7 +156,7 @@ namespace pcpp
 		return be32toh(getSll2Header()->interface_index);
 	}
 
-	void Sll2Layer::setInterfaceIndex(uint32_t interfaceIndex)
+	void Sll2Layer::setInterfaceIndex(uint32_t interfaceIndex) const
 	{
 		getSll2Header()->interface_index = htobe32(interfaceIndex);
 	}
@@ -162,7 +166,7 @@ namespace pcpp
 		return be16toh(getSll2Header()->ARPHRD_type);
 	}
 
-	void Sll2Layer::setArphrdType(uint16_t arphrdType)
+	void Sll2Layer::setArphrdType(uint16_t arphrdType) const
 	{
 		getSll2Header()->ARPHRD_type = htobe16(arphrdType);
 	}
@@ -172,7 +176,7 @@ namespace pcpp
 		return getSll2Header()->packet_type;
 	}
 
-	void Sll2Layer::setPacketType(uint8_t packetType)
+	void Sll2Layer::setPacketType(uint8_t packetType) const
 	{
 		getSll2Header()->packet_type = packetType;
 	}

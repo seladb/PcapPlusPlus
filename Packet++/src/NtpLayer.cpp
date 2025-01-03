@@ -4,6 +4,7 @@
 #include "NtpLayer.h"
 #include "SystemUtils.h"
 #include "GeneralUtils.h"
+
 #include <cmath>
 
 /// 2^16 as a double
@@ -11,7 +12,10 @@
 /// 2^32 as a double
 #define NTP_FRAC 4294967296.
 /// Epoch offset between Unix time and NTP
-#define EPOCH_OFFSET 2208988800ULL
+enum
+{
+	EPOCH_OFFSET = 2208988800ULL
+};
 
 namespace pcpp
 {
@@ -25,8 +29,10 @@ namespace pcpp
 
 	NtpLayer::LeapIndicator NtpLayer::getLeapIndicator() const
 	{
-		if (getNtpHeader()->leapIndicator < 4)  // Since leap indicator field is 2bit
+		if (getNtpHeader()->leapIndicator < 4)
+		{  // Since leap indicator field is 2bit
 			return static_cast<LeapIndicator>(getNtpHeader()->leapIndicator);
+		}
 		PCPP_LOG_ERROR("Unknown NTP Leap Indicator");
 		return Unknown;
 	}
@@ -48,8 +54,10 @@ namespace pcpp
 
 	NtpLayer::Mode NtpLayer::getMode() const
 	{
-		if (getNtpHeader()->mode < 8)  // Since mode field 3bit
+		if (getNtpHeader()->mode < 8)
+		{  // Since mode field 3bit
 			return static_cast<Mode>(getNtpHeader()->mode);
+		}
 		PCPP_LOG_ERROR("Unknown NTP Mode");
 		return Reserved;
 	}
@@ -76,7 +84,7 @@ namespace pcpp
 			return "Private Use";
 		default:
 			PCPP_LOG_ERROR("Unknown NTP Mode");
-			return std::string();
+			return {};
 		}
 	}
 
@@ -187,9 +195,9 @@ namespace pcpp
 
 	std::string NtpLayer::getReferenceIdentifierString() const
 	{
-		uint8_t stratum = getStratum();
-		uint8_t version = getVersion();
-		uint32_t refID = getReferenceIdentifier();
+		uint8_t const stratum = getStratum();
+		uint8_t const version = getVersion();
+		uint32_t const refID = getReferenceIdentifier();
 
 		if (stratum == 0)
 		{
@@ -248,7 +256,7 @@ namespace pcpp
 				default:
 				{
 					// clang-format off
-					char arrBuff[5] = {
+					char const arrBuff[5] = {
 						static_cast<char>((refID >> 24) & 0xFF),
 						static_cast<char>((refID >> 16) & 0xFF),
 						static_cast<char>((refID >> 8) & 0xFF),
@@ -359,12 +367,12 @@ namespace pcpp
 		{
 			// TODO: Support IPv6 cases for NTPv4, it equals to MD5 hash of first four octets of IPv6 address
 
-			pcpp::IPv4Address addr(getReferenceIdentifier());
+			pcpp::IPv4Address const addr(getReferenceIdentifier());
 			return addr.toString();
 		}
 
 		PCPP_LOG_ERROR("Unknown Stratum type");
-		return std::string();
+		return {};
 	}
 
 	uint64_t NtpLayer::getReferenceTimestamp() const
@@ -387,7 +395,7 @@ namespace pcpp
 		getNtpHeader()->referenceTimestamp = convertToTimestampFormat(val);
 	}
 
-	std::string NtpLayer::getReferenceTimestampAsString()
+	std::string NtpLayer::getReferenceTimestampAsString() const
 	{
 		return convertToIsoFormat(getReferenceTimestamp());
 	}
@@ -412,7 +420,7 @@ namespace pcpp
 		getNtpHeader()->originTimestamp = convertToTimestampFormat(val);
 	}
 
-	std::string NtpLayer::getOriginTimestampAsString()
+	std::string NtpLayer::getOriginTimestampAsString() const
 	{
 		return convertToIsoFormat(getOriginTimestamp());
 	}
@@ -437,7 +445,7 @@ namespace pcpp
 		getNtpHeader()->receiveTimestamp = convertToTimestampFormat(val);
 	}
 
-	std::string NtpLayer::getReceiveTimestampAsString()
+	std::string NtpLayer::getReceiveTimestampAsString() const
 	{
 		return convertToIsoFormat(getReceiveTimestamp());
 	}
@@ -462,7 +470,7 @@ namespace pcpp
 		getNtpHeader()->transmitTimestamp = convertToTimestampFormat(val);
 	}
 
-	std::string NtpLayer::getTransmitTimestampAsString()
+	std::string NtpLayer::getTransmitTimestampAsString() const
 	{
 		return convertToIsoFormat(getTransmitTimestamp());
 	}
@@ -474,9 +482,11 @@ namespace pcpp
 		case 3:
 		{
 			if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v3_auth)))
+			{
 				return 0;
+			}
 
-			ntp_v3_auth* header = (ntp_v3_auth*)(m_Data + sizeof(ntp_header));
+			auto* header = (ntp_v3_auth*)(m_Data + sizeof(ntp_header));
 			return header->keyID;
 		}
 		case 4:
@@ -484,12 +494,12 @@ namespace pcpp
 			// TODO: Add support for extension fields
 			if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_md5)))
 			{
-				ntp_v4_auth_md5* header = (ntp_v4_auth_md5*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
+				auto* header = (ntp_v4_auth_md5*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
 				return header->keyID;
 			}
 			if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1)))
 			{
-				ntp_v4_auth_sha1* header = (ntp_v4_auth_sha1*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
+				auto* header = (ntp_v4_auth_sha1*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
 				return header->keyID;
 			}
 
@@ -511,45 +521,47 @@ namespace pcpp
 		case 3:
 		{
 			if (m_DataLen < (sizeof(ntp_header) + sizeof(ntp_v3_auth)))
-				return std::string();
+			{
+				return {};
+			}
 
-			ntp_v3_auth* header = (ntp_v3_auth*)(m_Data + sizeof(ntp_header));
+			auto* header = (ntp_v3_auth*)(m_Data + sizeof(ntp_header));
 			return byteArrayToHexString(header->dgst, 8);
 		}
 		case 4:
 		{
 			if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_md5)))
 			{
-				ntp_v4_auth_md5* header = (ntp_v4_auth_md5*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
+				auto* header = (ntp_v4_auth_md5*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_md5));
 				return byteArrayToHexString(header->dgst, 16);
 			}
 			if (m_DataLen == (sizeof(ntp_header) + sizeof(ntp_v4_auth_sha1)))
 			{
-				ntp_v4_auth_sha1* header = (ntp_v4_auth_sha1*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
+				auto* header = (ntp_v4_auth_sha1*)(m_Data + m_DataLen - sizeof(ntp_v4_auth_sha1));
 				return byteArrayToHexString(header->dgst, 20);
 			}
 
 			PCPP_LOG_ERROR("NTP authentication parsing with extension fields are not supported");
-			return std::string();
+			return {};
 		}
 		default:
 			PCPP_LOG_ERROR("NTP version not supported");
-			return std::string();
+			return {};
 		}
 	}
 
 	double NtpLayer::convertFromShortFormat(const uint32_t val)
 	{
-		double integerPart = netToHost16(val & 0xFFFF);
-		double fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
+		double const integerPart = netToHost16(val & 0xFFFF);
+		double const fractionPart = netToHost16(((val & 0xFFFF0000) >> 16)) / NTP_FRIC;
 
 		return integerPart + fractionPart;
 	}
 
 	double NtpLayer::convertFromTimestampFormat(const uint64_t val)
 	{
-		double integerPart = netToHost32(val & 0xFFFFFFFF);
-		double fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
+		double const integerPart = netToHost32(val & 0xFFFFFFFF);
+		double const fractionPart = netToHost32(((val & 0xFFFFFFFF00000000) >> 32)) / NTP_FRAC;
 
 		// TODO: Return integer and fraction parts as struct to increase precision
 		// Offset change should be done here because of overflow
@@ -558,52 +570,57 @@ namespace pcpp
 
 	uint32_t NtpLayer::convertToShortFormat(const double val)
 	{
-		double integerPart;
-		double fractionPart = modf(val, &integerPart);
+		double integerPart = NAN;
+		double const fractionPart = modf(val, &integerPart);
 
 		// Cast values to 16bit
-		uint32_t integerPartInt = hostToNet16(integerPart);
-		uint32_t fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
+		uint32_t const integerPartInt = hostToNet16(integerPart);
+		uint32_t const fractionPartInt = hostToNet16(fractionPart * NTP_FRIC);
 
 		return integerPartInt | (fractionPartInt << 16);
 	}
 
 	uint64_t NtpLayer::convertToTimestampFormat(const double val)
 	{
-		double integerPart;
-		double fractionPart = modf(val, &integerPart);
+		double integerPart = NAN;
+		double const fractionPart = modf(val, &integerPart);
 
 		// Cast values to 32bit
-		uint64_t integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
-		uint64_t fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
+		uint64_t const integerPartInt = hostToNet32(integerPart + EPOCH_OFFSET);
+		uint64_t const fractionPartInt = hostToNet32(fractionPart * NTP_FRAC);
 
 		return integerPartInt | (fractionPartInt << 32);
 	}
 
 	std::string NtpLayer::convertToIsoFormat(const double timestamp)
 	{
-		double integerPart;
-		double fractionPart = modf(timestamp, &integerPart);
+		double integerPart = NAN;
+		double const fractionPart = modf(timestamp, &integerPart);
 
-		struct tm* timer;
-		time_t timeStruct = integerPart;
+		struct tm* timer = nullptr;
+		time_t const timeStruct = integerPart;
 #if defined(_WIN32)
 		if (timeStruct < 0)
 			timeStruct = 0;
 		timer = gmtime(&timeStruct);
 #else
-		struct tm timer_r;
+		struct tm timer_r
+		{
+		};
 		timer = gmtime_r(&timeStruct, &timer_r);
 
 		if (timer != nullptr)
+		{
 			timer = &timer_r;
+		}
 #endif
 		if (timer == nullptr)
 		{
 			PCPP_LOG_ERROR("Can't convert time");
-			return std::string();
+			return {};
 		}
-		char buffer[50], bufferFraction[15];
+		char buffer[50];
+		char bufferFraction[15];
 		strftime(buffer, sizeof(buffer) - sizeof(bufferFraction), "%Y-%m-%dT%H:%M:%S", timer);
 
 		snprintf(bufferFraction, sizeof(bufferFraction), "%.04lfZ", fabs(fractionPart));
@@ -619,7 +636,7 @@ namespace pcpp
 
 	bool NtpLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
-		return data && dataSize >= sizeof(ntp_header);
+		return (data != nullptr) && dataSize >= sizeof(ntp_header);
 	}
 
 	std::string NtpLayer::toString() const

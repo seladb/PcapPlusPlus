@@ -10,7 +10,7 @@ namespace pcpp
  * Represents a S7COMM protocol header
  */
 #pragma pack(push, 1)
-	typedef struct
+	struct s7commhdr
 	{
 		/** protocol id */
 		uint8_t protocolId;
@@ -24,7 +24,7 @@ namespace pcpp
 		uint16_t paramLength;
 		/** data length */
 		uint16_t dataLength;
-	} s7commhdr;
+	};
 #pragma pack(pop)
 
 /**
@@ -50,8 +50,7 @@ namespace pcpp
 		friend class S7CommLayer;
 
 	public:
-		S7CommParameter()
-		{}
+		S7CommParameter() = default;
 
 		virtual ~S7CommParameter() = default;
 
@@ -73,8 +72,8 @@ namespace pcpp
 	private:
 		S7CommParameter(uint8_t* data, size_t dataLen) : m_Data(data), m_DataLen(dataLen)
 		{}
-		uint8_t* m_Data;
-		size_t m_DataLen;
+		uint8_t* m_Data{};
+		size_t m_DataLen{};
 	};
 	/**
 	 * @class S7CommLayer
@@ -103,15 +102,12 @@ namespace pcpp
 		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
 		 */
 		S7CommLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-		    : Layer(data, dataLen, prevLayer, packet, S7COMM)
-		{
-			m_Parameter = nullptr;
-		}
+		    : Layer(data, dataLen, prevLayer, packet, S7COMM), m_Parameter(nullptr)
+		{}
 
 		~S7CommLayer() override
 		{
-			if (m_Parameter)
-				delete m_Parameter;
+			delete m_Parameter;
 		}
 
 		/**

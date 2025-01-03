@@ -14,18 +14,22 @@ namespace pcpp
 		char decodedName[4096];
 		m_NameLength = decodeName((const char*)getRawData(), decodedName);
 		if (m_NameLength > 0)
+		{
 			m_DecodedName = decodedName;
+		}
 	}
 
 	IDnsResource::IDnsResource(uint8_t* emptyRawData)
-	    : m_DnsLayer(nullptr), m_OffsetInLayer(0), m_NextResource(nullptr), m_DecodedName(""), m_NameLength(0),
+	    : m_DnsLayer(nullptr), m_OffsetInLayer(0), m_NextResource(nullptr), m_NameLength(0),
 	      m_ExternalRawData(emptyRawData)
 	{}
 
 	uint8_t* IDnsResource::getRawData() const
 	{
 		if (m_DnsLayer == nullptr)
+		{
 			return m_ExternalRawData;
+		}
 
 		return m_DnsLayer->m_Data + m_OffsetInLayer;
 	}
@@ -57,7 +61,9 @@ namespace pcpp
 
 		size_t curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
 		if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+		{
 			return encodedNameLength;
+		}
 
 		if (iteration > 20)
 		{
@@ -73,9 +79,11 @@ namespace pcpp
 			if ((wordLength & 0xc0) == 0xc0)
 			{
 				if (curOffsetInLayer + 2 > m_DnsLayer->m_DataLen || encodedNameLength > 255)
+				{
 					return cleanup(resultPtr, result, encodedNameLength);
+				}
 
-				uint16_t offsetInLayer =
+				uint16_t const offsetInLayer =
 				    (wordLength & 0x3f) * 256 + (0xFF & encodedName[1]) + m_DnsLayer->m_OffsetAdjustment;
 				if (offsetInLayer < sizeof(dnshdr) || offsetInLayer >= m_DnsLayer->m_DataLen)
 				{
@@ -99,56 +107,54 @@ namespace pcpp
 				// in this case the length of the pointer is: 1 byte for 0xc0 + 1 byte for the offset itself
 				return encodedNameLength + sizeof(uint16_t);
 			}
-			else
+
+			// return if next word would be outside of the DNS layer or overflow the buffer behind resultPtr
+			if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen || encodedNameLength + wordLength > 255)
 			{
-				// return if next word would be outside of the DNS layer or overflow the buffer behind resultPtr
-				if (curOffsetInLayer + wordLength + 1 > m_DnsLayer->m_DataLen || encodedNameLength + wordLength > 255)
+				// add the last '\0' to the decoded string
+				if (encodedNameLength == 256)
 				{
-					// add the last '\0' to the decoded string
-					if (encodedNameLength == 256)
-					{
-						resultPtr--;
-						// cppcheck-suppress unreadVariable
-						decodedNameLength--;
-					}
-					else
-					{
-						encodedNameLength++;
-					}
-
-					resultPtr[0] = 0;
-					return encodedNameLength;
+					resultPtr--;
+					// cppcheck-suppress unreadVariable
+					decodedNameLength--;
+				}
+				else
+				{
+					encodedNameLength++;
 				}
 
-				memcpy(resultPtr, encodedName + 1, wordLength);
-				resultPtr += wordLength;
-				resultPtr[0] = '.';
-				resultPtr++;
-				decodedNameLength += wordLength + 1;
-				encodedName += wordLength + 1;
-				encodedNameLength += wordLength + 1;
-
-				curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
-				if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
-				{
-					// add the last '\0' to the decoded string
-					if (encodedNameLength == 256)
-					{
-						// cppcheck-suppress unreadVariable
-						decodedNameLength--;
-						resultPtr--;
-					}
-					else
-					{
-						encodedNameLength++;
-					}
-
-					resultPtr[0] = 0;
-					return encodedNameLength;
-				}
-
-				wordLength = encodedName[0];
+				resultPtr[0] = 0;
+				return encodedNameLength;
 			}
+
+			memcpy(resultPtr, encodedName + 1, wordLength);
+			resultPtr += wordLength;
+			resultPtr[0] = '.';
+			resultPtr++;
+			decodedNameLength += wordLength + 1;
+			encodedName += wordLength + 1;
+			encodedNameLength += wordLength + 1;
+
+			curOffsetInLayer = (uint8_t*)encodedName - m_DnsLayer->m_Data;
+			if (curOffsetInLayer + 1 > m_DnsLayer->m_DataLen)
+			{
+				// add the last '\0' to the decoded string
+				if (encodedNameLength == 256)
+				{
+					// cppcheck-suppress unreadVariable
+					decodedNameLength--;
+					resultPtr--;
+				}
+				else
+				{
+					encodedNameLength++;
+				}
+
+				resultPtr[0] = 0;
+				return encodedNameLength;
+			}
+
+			wordLength = encodedName[0];
 		}
 
 		return cleanup(resultPtr, result, encodedNameLength);
@@ -196,7 +202,7 @@ namespace pcpp
 
 	DnsType IDnsResource::getDnsType() const
 	{
-		uint16_t dnsType = *(uint16_t*)(getRawData() + m_NameLength);
+		uint16_t const dnsType = *(uint16_t*)(getRawData() + m_NameLength);
 		return (DnsType)be16toh(dnsType);
 	}
 
@@ -208,7 +214,7 @@ namespace pcpp
 
 	DnsClass IDnsResource::getDnsClass() const
 	{
-		uint16_t dnsClass = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
+		uint16_t const dnsClass = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
 		return (DnsClass)be16toh(dnsClass);
 	}
 
@@ -244,7 +250,7 @@ namespace pcpp
 		}
 		else
 		{
-			size_t size = getSize();
+			size_t const size = getSize();
 			char* tempData = new char[size];
 			memcpy(tempData, m_ExternalRawData, size);
 			memcpy(m_ExternalRawData + encodedNameLen, tempData, size);
@@ -268,7 +274,7 @@ namespace pcpp
 
 	uint32_t DnsResource::getTTL() const
 	{
-		uint32_t ttl = *(uint32_t*)(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
+		uint32_t const ttl = *(uint32_t*)(getRawData() + m_NameLength + 2 * sizeof(uint16_t));
 		return be32toh(ttl);
 	}
 
@@ -281,23 +287,23 @@ namespace pcpp
 	size_t DnsResource::getDataLength() const
 	{
 
-		size_t sizeToRead = m_NameLength + 2 * sizeof(uint16_t) + sizeof(uint32_t);
+		size_t const sizeToRead = m_NameLength + 2 * sizeof(uint16_t) + sizeof(uint32_t);
 
 		// Heap buffer overflow may occur here, check boundary of m_DnsLayer->m_Data first
 		// Due to dataLength which is uint16_t, here m_DnsLayer->m_Data must have at least 2 bytes to read
-		if (m_DnsLayer && m_OffsetInLayer + sizeToRead >= m_DnsLayer->m_DataLen - 1)
+		if ((m_DnsLayer != nullptr) && m_OffsetInLayer + sizeToRead >= m_DnsLayer->m_DataLen - 1)
 		{
 			return 0;
 		}
 
-		uint16_t dataLength = *(uint16_t*)(getRawData() + sizeToRead);
+		uint16_t const dataLength = *(uint16_t*)(getRawData() + sizeToRead);
 		return be16toh(dataLength);
 	}
 
 	DnsResourceDataPtr DnsResource::getData() const
 	{
 		uint8_t* resourceRawData = getRawData() + m_NameLength + 3 * sizeof(uint16_t) + sizeof(uint32_t);
-		size_t dataLength = getDataLength();
+		size_t const dataLength = getDataLength();
 
 		switch (getDnsType())
 		{
@@ -409,12 +415,12 @@ namespace pcpp
 			return false;
 		}
 
-		size_t dataLengthOffset = m_NameLength + (2 * sizeof(uint16_t)) + sizeof(uint32_t);
-		size_t dataOffset = dataLengthOffset + sizeof(uint16_t);
+		size_t const dataLengthOffset = m_NameLength + (2 * sizeof(uint16_t)) + sizeof(uint32_t);
+		size_t const dataOffset = dataLengthOffset + sizeof(uint16_t);
 
 		if (m_DnsLayer != nullptr)
 		{
-			size_t curLength = getDataLength();
+			size_t const curLength = getDataLength();
 			if (dataLength > curLength)
 			{
 				if (!m_DnsLayer->extendLayer(m_OffsetInLayer + dataOffset, dataLength - curLength, this))
@@ -444,7 +450,7 @@ namespace pcpp
 
 	uint16_t DnsResource::getCustomDnsClass() const
 	{
-		uint16_t value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
+		uint16_t const value = *(uint16_t*)(getRawData() + m_NameLength + sizeof(uint16_t));
 		return be16toh(value);
 	}
 

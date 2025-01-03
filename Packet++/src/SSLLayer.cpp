@@ -15,33 +15,38 @@ namespace pcpp
 	{
 		// check the port map first
 		if (!ignorePorts && !isSSLPort(srcPort) && !isSSLPort(dstPort))
+		{
 			return false;
+		}
 
 		if (dataLen < sizeof(ssl_tls_record_layer))
+		{
 			return false;
+		}
 
-		ssl_tls_record_layer* recordLayer = (ssl_tls_record_layer*)data;
+		auto* recordLayer = (ssl_tls_record_layer*)data;
 
 		// there is no SSL message with length 0
 		if (recordLayer->length == 0)
+		{
 			return false;
+		}
 
 		if (recordLayer->recordType < 20 || recordLayer->recordType > 23)
+		{
 			return false;
+		}
 
-		SSLVersion::SSLVersionEnum recordVersion = SSLVersion(be16toh(recordLayer->recordVersion)).asEnum(true);
+		SSLVersion::SSLVersionEnum const recordVersion = SSLVersion(be16toh(recordLayer->recordVersion)).asEnum(true);
 
-		if (recordVersion == SSLVersion::TLS1_3 || recordVersion == SSLVersion::TLS1_2 ||
-		    recordVersion == SSLVersion::TLS1_1 || recordVersion == SSLVersion::TLS1_0 ||
-		    recordVersion == SSLVersion::SSL3)
-			return true;
-		else
-			return false;
+		return recordVersion == SSLVersion::TLS1_3 || recordVersion == SSLVersion::TLS1_2 ||
+		       recordVersion == SSLVersion::TLS1_1 || recordVersion == SSLVersion::TLS1_0 ||
+		       recordVersion == SSLVersion::SSL3;
 	}
 
 	SSLLayer* SSLLayer::createSSLMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
-		ssl_tls_record_layer* recordLayer = (ssl_tls_record_layer*)data;
+		auto* recordLayer = (ssl_tls_record_layer*)data;
 		switch (recordLayer->recordType)
 		{
 		case SSL_HANDSHAKE:
@@ -71,7 +76,7 @@ namespace pcpp
 
 	SSLVersion SSLLayer::getRecordVersion() const
 	{
-		uint16_t recordVersion = be16toh(getRecordLayer()->recordVersion);
+		uint16_t const recordVersion = be16toh(getRecordLayer()->recordVersion);
 		return SSLVersion(recordVersion);
 	}
 
@@ -82,20 +87,26 @@ namespace pcpp
 
 	size_t SSLLayer::getHeaderLen() const
 	{
-		size_t len = sizeof(ssl_tls_record_layer) + be16toh(getRecordLayer()->length);
+		size_t const len = sizeof(ssl_tls_record_layer) + be16toh(getRecordLayer()->length);
 		if (len > m_DataLen)
+		{
 			return m_DataLen;
+		}
 		return len;
 	}
 
 	void SSLLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		if (SSLLayer::IsSSLMessage(0, 0, m_Data + headerLen, m_DataLen - headerLen, true))
+		{
 			m_NextLayer = SSLLayer::createSSLMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+		}
 	}
 
 	// -------------------------
@@ -109,9 +120,13 @@ namespace pcpp
 		for (size_t i = 0; i < m_MessageList.size(); i++)
 		{
 			if (i == 0)
+			{
 				result << " " << m_MessageList.at(i)->toString();
+			}
 			else
+			{
 				result << ", " << m_MessageList.at(i)->toString();
+			}
 		}
 		return result.str();
 	}
@@ -122,7 +137,9 @@ namespace pcpp
 		uint8_t* curPos = m_Data + sizeof(ssl_tls_record_layer);
 		size_t recordDataLen = be16toh(getRecordLayer()->length);
 		if (recordDataLen > m_DataLen - sizeof(ssl_tls_record_layer))
+		{
 			recordDataLen = m_DataLen - sizeof(ssl_tls_record_layer);
+		}
 
 		size_t curPosIndex = 0;
 		while (true)
@@ -130,7 +147,9 @@ namespace pcpp
 			SSLHandshakeMessage* message =
 			    SSLHandshakeMessage::createHandshakeMessage(curPos, recordDataLen - curPosIndex, this);
 			if (message == nullptr)
+			{
 				break;
+			}
 
 			m_MessageList.pushBack(message);
 			curPos += message->getMessageLength();
@@ -141,7 +160,9 @@ namespace pcpp
 	SSLHandshakeMessage* SSLHandshakeLayer::getHandshakeMessageAt(int index) const
 	{
 		if (index < 0 || index >= (int)(m_MessageList.size()))
+		{
 			return nullptr;
+		}
 
 		return const_cast<SSLHandshakeMessage*>(m_MessageList.at(index));
 	}
@@ -164,20 +185,23 @@ namespace pcpp
 	SSLAlertLevel SSLAlertLayer::getAlertLevel() const
 	{
 		uint8_t* pos = m_Data + sizeof(ssl_tls_record_layer);
-		uint8_t alertLevel = *pos;
+		uint8_t const alertLevel = *pos;
 		if (alertLevel == SSL_ALERT_LEVEL_WARNING || alertLevel == SSL_ALERT_LEVEL_FATAL)
+		{
 			return (SSLAlertLevel)alertLevel;
-		else
-			return SSL_ALERT_LEVEL_ENCRYPTED;
+		}
+		return SSL_ALERT_LEVEL_ENCRYPTED;
 	}
 
 	SSLAlertDescription SSLAlertLayer::getAlertDescription()
 	{
 		if (getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED)
+		{
 			return SSL_ALERT_ENCRYPTED;
+		}
 
 		uint8_t* pos = m_Data + sizeof(ssl_tls_record_layer) + sizeof(uint8_t);
-		uint8_t alertDesc = *pos;
+		uint8_t const alertDesc = *pos;
 
 		switch (alertDesc)
 		{
@@ -217,10 +241,14 @@ namespace pcpp
 		std::stringstream result;
 		result << getRecordVersion().toString(true) << " Layer, ";
 		if (getAlertLevel() == SSL_ALERT_LEVEL_ENCRYPTED)
+		{
 			result << "Encrypted Alert";
+		}
 		else
+		{
 			// TODO: add alert level and description here
 			result << "Alert";
+		}
 		return result.str();
 	}
 
@@ -231,16 +259,20 @@ namespace pcpp
 	uint8_t* SSLApplicationDataLayer::getEncryptedData() const
 	{
 		if (getHeaderLen() <= sizeof(ssl_tls_record_layer))
+		{
 			return nullptr;
+		}
 
 		return m_Data + sizeof(ssl_tls_record_layer);
 	}
 
 	size_t SSLApplicationDataLayer::getEncryptedDataLen() const
 	{
-		int result = (int)getHeaderLen() - (int)sizeof(ssl_tls_record_layer);
+		int const result = (int)getHeaderLen() - (int)sizeof(ssl_tls_record_layer);
 		if (result < 0)
+		{
 			return 0;
+		}
 
 		return (size_t)result;
 	}

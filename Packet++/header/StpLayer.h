@@ -29,7 +29,7 @@ namespace pcpp
 #pragma pack(pop)
 
 	/// Spanning Tree protocol common header
-	typedef stp_tcn_bpdu stp_header;
+	using stp_header = stp_tcn_bpdu;
 
 /**
  * @struct stp_conf_bpdu
@@ -169,7 +169,7 @@ namespace pcpp
 		 * Sets the protocol id
 		 * @param[in] value ID of the protocol
 		 */
-		void setProtoId(uint16_t value)
+		void setProtoId(uint16_t value) const
 		{
 			getStpHeader()->protoId = value;
 		}
@@ -187,7 +187,7 @@ namespace pcpp
 		 * Sets the version
 		 * @param[in] value Version number
 		 */
-		void setVersion(uint8_t value)
+		void setVersion(uint8_t value) const
 		{
 			getStpHeader()->version = value;
 		}
@@ -205,7 +205,7 @@ namespace pcpp
 		 * Sets the type of configuration message
 		 * @param[in] value Type of configuration message
 		 */
-		void setType(uint8_t value)
+		void setType(uint8_t value) const
 		{
 			getStpHeader()->type = value;
 		}
@@ -318,7 +318,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(stp_tcn_bpdu);
+			return (data != nullptr) && dataLen >= sizeof(stp_tcn_bpdu);
 		}
 	};
 
@@ -372,7 +372,7 @@ namespace pcpp
 		 * Returns the flags of configuration message which indicates purpose of BPDU
 		 * @param[in] value Flags of the configuration message
 		 */
-		void setFlag(uint8_t value)
+		void setFlag(uint8_t value) const
 		{
 			getStpConfHeader()->flag = value;
 		}
@@ -387,7 +387,7 @@ namespace pcpp
 		 * Sets the root bridge identifier
 		 * @param[in] value Root bridge identifier
 		 */
-		void setRootId(uint64_t value);
+		void setRootId(uint64_t value) const;
 
 		/**
 		 * Returns the priority of root bridge
@@ -399,7 +399,7 @@ namespace pcpp
 		 * Sets the priority of root bridge
 		 * @param[in] value Priority of root bridge
 		 */
-		void setRootPriority(uint16_t value);
+		void setRootPriority(uint16_t value) const;
 
 		/**
 		 * Returns the system identifier extension of root bridge
@@ -411,7 +411,7 @@ namespace pcpp
 		 * Sets the system identifier extension of root bridge
 		 * @param[in] value System extension of root bridge
 		 */
-		void setRootSystemIDExtension(uint16_t value);
+		void setRootSystemIDExtension(uint16_t value) const;
 
 		/**
 		 * Returns the system identifier of root bridge
@@ -426,7 +426,7 @@ namespace pcpp
 		 * Sets the system identifier of root bridge
 		 * @param[in] value System identifier of root bridge
 		 */
-		void setRootSystemID(const pcpp::MacAddress& value);
+		void setRootSystemID(const pcpp::MacAddress& value) const;
 
 		/**
 		 * Returns the value of the cost of path
@@ -438,7 +438,7 @@ namespace pcpp
 		 * Sets the value of the cost of path
 		 * @param[in] value Cost of path
 		 */
-		void setPathCost(uint32_t value);
+		void setPathCost(uint32_t value) const;
 
 		/**
 		 * Returns the bridge identifier
@@ -450,7 +450,7 @@ namespace pcpp
 		 * Sets the bridge identifier
 		 * @param[in] value Bridge identifier
 		 */
-		void setBridgeId(uint64_t value);
+		void setBridgeId(uint64_t value) const;
 
 		/**
 		 * Returns the priority of bridge
@@ -462,7 +462,7 @@ namespace pcpp
 		 * Sets the priority of bridge
 		 * @param[in] value Priority of bridge
 		 */
-		void setBridgePriority(uint16_t value);
+		void setBridgePriority(uint16_t value) const;
 
 		/**
 		 * Returns the system identifier extension of bridge
@@ -474,7 +474,7 @@ namespace pcpp
 		 * Sets the system identifier extension of bridge
 		 * @param[in] value System extension of bridge
 		 */
-		void setBridgeSystemIDExtension(uint16_t value);
+		void setBridgeSystemIDExtension(uint16_t value) const;
 
 		/**
 		 * Returns the system identifier of bridge
@@ -489,7 +489,7 @@ namespace pcpp
 		 * Sets the system identifier of bridge
 		 * @param[in] value System identifier of bridge
 		 */
-		void setBridgeSystemID(const pcpp::MacAddress& value);
+		void setBridgeSystemID(const pcpp::MacAddress& value) const;
 
 		/**
 		 * Returns the port identifier
@@ -501,7 +501,7 @@ namespace pcpp
 		 * Sets the port identifier
 		 * @param[in] value Port identifier
 		 */
-		void setPortId(uint16_t value);
+		void setPortId(uint16_t value) const;
 
 		/**
 		 * Returns age of the BPDU message
@@ -513,7 +513,7 @@ namespace pcpp
 		 * Sets age of the BPDU message
 		 * @param[in] value Age of BPDU in seconds
 		 */
-		void setMessageAge(double value);
+		void setMessageAge(double value) const;
 
 		/**
 		 * Returns maximum age of the BPDU message
@@ -525,7 +525,7 @@ namespace pcpp
 		 * Sets maximum age of the BPDU message
 		 * @param[in] value Maximum age of BPDU in seconds
 		 */
-		void setMaximumAge(double value);
+		void setMaximumAge(double value) const;
 
 		/**
 		 * Returns the BPDU transmission interval
@@ -537,7 +537,7 @@ namespace pcpp
 		 * Sets the BPDU transmission interval
 		 * @param[in] value Value of the transmission interval in seconds
 		 */
-		void setTransmissionInterval(double value);
+		void setTransmissionInterval(double value) const;
 
 		/**
 		 * Returns the delay for STP message
@@ -549,7 +549,7 @@ namespace pcpp
 		 * Sets the delay for STP message
 		 * @param[in] value Value of the forward delay in seconds
 		 */
-		void setForwardDelay(double value);
+		void setForwardDelay(double value) const;
 
 		// overridden methods
 
@@ -580,7 +580,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(stp_conf_bpdu);
+			return (data != nullptr) && dataLen >= sizeof(stp_conf_bpdu);
 		}
 	};
 
@@ -634,7 +634,7 @@ namespace pcpp
 		 * Returns the length of version1 field
 		 * @param[in] value Length of the version1 field
 		 */
-		void setVersion1Len(uint8_t value)
+		void setVersion1Len(uint8_t value) const
 		{
 			getRstpConfHeader()->version1Len = value;
 		}
@@ -668,7 +668,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(rstp_conf_bpdu);
+			return (data != nullptr) && dataLen >= sizeof(rstp_conf_bpdu);
 		}
 	};
 
@@ -715,7 +715,7 @@ namespace pcpp
 		 * Sets the length of version3 field
 		 * @param[in] value Length of version3 field
 		 */
-		void setVersion3Len(uint16_t value);
+		void setVersion3Len(uint16_t value) const;
 
 		/**
 		 * Returns the configuration ID format selector
@@ -730,7 +730,7 @@ namespace pcpp
 		 * Sets the configuration ID format selector
 		 * @param[in] value Configuration ID of format selector
 		 */
-		void setMstConfigurationFormatSelector(uint8_t value)
+		void setMstConfigurationFormatSelector(uint8_t value) const
 		{
 			getMstpHeader()->mstConfigFormatSelector = value;
 		}
@@ -746,7 +746,7 @@ namespace pcpp
 		 * @param[in] value Configuration name. Length should be less than 32, if longer value provided first 32
 		 * characters are used
 		 */
-		void setMstConfigurationName(const std::string& value);
+		void setMstConfigurationName(const std::string& value) const;
 
 		/**
 		 * Returns the revision of configuration ID
@@ -758,7 +758,7 @@ namespace pcpp
 		 * Sets the revision of configuration ID
 		 * @param[in] value Revision of configuration ID
 		 */
-		void setMstConfigRevision(uint16_t value);
+		void setMstConfigRevision(uint16_t value) const;
 
 		/**
 		 * Returns the pointer to configuration message digest. The field itself always 16 bytes long.
@@ -774,7 +774,7 @@ namespace pcpp
 		 * @param[in] value Pointer to digest
 		 * @param[in] len Length of the digest, should be less than 16. If longer first 16 bytes are used
 		 */
-		void setMstConfigDigest(const uint8_t* value, uint8_t len);
+		void setMstConfigDigest(const uint8_t* value, uint8_t len) const;
 
 		/**
 		 * Returns CIST internal root path cost
@@ -786,7 +786,7 @@ namespace pcpp
 		 * Sets CIST internal root path cost
 		 * @param[in] value Value of the internal root path cost
 		 */
-		void setCISTIrpc(uint32_t value);
+		void setCISTIrpc(uint32_t value) const;
 
 		/**
 		 * Returns CIST bridge identifier
@@ -798,7 +798,7 @@ namespace pcpp
 		 * Sets CIST bridge identifier
 		 * @param[in] value Value of the bridge identifier
 		 */
-		void setCISTBridgeId(uint64_t value);
+		void setCISTBridgeId(uint64_t value) const;
 
 		/**
 		 * Returns the priority of CIST bridge
@@ -810,7 +810,7 @@ namespace pcpp
 		 * Sets the priority of CIST bridge
 		 * @param[in] value Priority of CIST bridge
 		 */
-		void setCISTBridgePriority(uint16_t value);
+		void setCISTBridgePriority(uint16_t value) const;
 
 		/**
 		 * Returns the system identifier extension of CIST bridge
@@ -822,7 +822,7 @@ namespace pcpp
 		 * Sets the system identifier extension of CIST bridge
 		 * @param[in] value System extension of CIST bridge
 		 */
-		void setCISTBridgeSystemIDExtension(uint16_t value);
+		void setCISTBridgeSystemIDExtension(uint16_t value) const;
 
 		/**
 		 * Returns the system identifier of CIST bridge
@@ -837,7 +837,7 @@ namespace pcpp
 		 * Sets the system identifier of CIST bridge
 		 * @param[in] value System identifier of CIST bridge
 		 */
-		void setCISTBridgeSystemID(const pcpp::MacAddress& value);
+		void setCISTBridgeSystemID(const pcpp::MacAddress& value) const;
 
 		/**
 		 * Returns the remaining hop count
@@ -852,7 +852,7 @@ namespace pcpp
 		 * Returns the remaining hop count
 		 * @param[in] value Value of remaining hop count
 		 */
-		void setRemainingHopCount(uint8_t value)
+		void setRemainingHopCount(uint8_t value) const
 		{
 			getMstpHeader()->remainId = value;
 		}
@@ -896,7 +896,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(mstp_conf_bpdu);
+			return (data != nullptr) && dataLen >= sizeof(mstp_conf_bpdu);
 		}
 	};
 }  // namespace pcpp

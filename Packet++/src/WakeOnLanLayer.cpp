@@ -48,19 +48,21 @@ namespace pcpp
 		return pcpp::MacAddress(getWakeOnLanHeader()->addrBody);
 	}
 
-	void WakeOnLanLayer::setTargetAddr(const pcpp::MacAddress& targetAddr)
+	void WakeOnLanLayer::setTargetAddr(const pcpp::MacAddress& targetAddr) const
 	{
 		for (size_t idx = 0; idx < 16; ++idx)
+		{
 			memcpy(&(getWakeOnLanHeader()->addrBody[idx * 6]), targetAddr.getRawData(), 6);
+		}
 	}
 
 	std::string WakeOnLanLayer::getPassword() const
 	{
-		size_t passSize = m_DataLen - sizeof(wol_header);
+		size_t const passSize = m_DataLen - sizeof(wol_header);
 		switch (passSize)
 		{
 		case 0:
-			return std::string();
+			return {};
 		case 4:
 			return IPv4Address(&m_Data[sizeof(wol_header)]).toString();
 		case 6:
@@ -72,7 +74,7 @@ namespace pcpp
 
 	bool WakeOnLanLayer::setPassword(const uint8_t* password, uint8_t len)
 	{
-		if (len)
+		if (len != 0U)
 		{
 			if (m_DataLen > sizeof(wol_header) + len)
 			{
@@ -113,14 +115,16 @@ namespace pcpp
 
 	bool WakeOnLanLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
-		if (data && dataSize >= sizeof(wol_header))
+		if ((data != nullptr) && dataSize >= sizeof(wol_header))
 		{
 			// It should repeat same MAC address at the payload 16 times
-			pcpp::MacAddress bufAddr(&data[6]);
+			pcpp::MacAddress const bufAddr(&data[6]);
 			for (size_t idx = 1; idx < 16; ++idx)
 			{
 				if (bufAddr != pcpp::MacAddress(&data[6 + idx * 6]))
+				{
 					return false;
+				}
 			}
 			return true;
 		}

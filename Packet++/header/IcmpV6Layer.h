@@ -116,13 +116,13 @@ namespace pcpp
  * ICMP echo request/reply message structure
  */
 #pragma pack(push, 1)
-	typedef struct icmpv6_echo_hdr : icmpv6hdr
+	using icmpv6_echo_hdr = struct icmpv6_echo_hdr : icmpv6hdr
 	{
 		/** the echo request identifier */
 		uint16_t id;
 		/** the echo request sequence number */
 		uint16_t sequence;
-	} icmpv6_echo_hdr;
+	};
 #pragma pack(pop)
 
 	/**

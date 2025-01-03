@@ -25,11 +25,11 @@ namespace pcpp
 			PCPP_LOG_DEBUG("Local sum = " << localSum << ", 0x" << std::uppercase << std::hex << localSum);
 
 			// check if there is one byte left
-			if (vec[i].len % 2)
+			if ((vec[i].len % 2) != 0U)
 			{
 				// access to the last byte using an uint8_t pointer
-				uint8_t* vecBytes = (uint8_t*)vec[i].buffer;
-				uint8_t lastByte = vecBytes[vec[i].len - 1];
+				auto* vecBytes = (uint8_t*)vec[i].buffer;
+				uint8_t const lastByte = vecBytes[vec[i].len - 1];
 				PCPP_LOG_DEBUG("1 byte left, adding value: 0x" << std::uppercase << std::hex << lastByte);
 				// We have read the latest byte manually but this byte should be properly interpreted
 				// as a 0xFF on LE and a 0xFF00 on BE to have a proper checksum computation
@@ -39,7 +39,7 @@ namespace pcpp
 			}
 
 			// carry count is added to the sum
-			while (localSum >> 16)
+			while ((localSum >> 16) != 0U)
 			{
 				localSum = (localSum & 0xffff) + (localSum >> 16);
 			}
@@ -47,7 +47,7 @@ namespace pcpp
 			sum += localSum;
 		}
 
-		while (sum >> 16)
+		while ((sum >> 16) != 0U)
 		{
 			sum = (sum & 0xffff) + (sum >> 16);
 		}
@@ -77,8 +77,8 @@ namespace pcpp
 
 		if (ipAddrType == IPAddress::IPv4AddressType)
 		{
-			uint32_t srcIP = srcIPAddress.getIPv4().toInt();
-			uint32_t dstIP = dstIPAddress.getIPv4().toInt();
+			uint32_t const srcIP = srcIPAddress.getIPv4().toInt();
+			uint32_t const dstIP = dstIPAddress.getIPv4().toInt();
 			uint16_t pseudoHeader[6];
 			pseudoHeader[0] = srcIP >> 16;
 			pseudoHeader[1] = srcIP & 0xFFFF;
@@ -111,8 +111,8 @@ namespace pcpp
 		return checksumRes;
 	}
 
-	static const uint32_t FNV_PRIME = 16777619u;
-	static const uint32_t OFFSET_BASIS = 2166136261u;
+	static const uint32_t FNV_PRIME = 16777619U;
+	static const uint32_t OFFSET_BASIS = 2166136261U;
 
 	uint32_t fnvHash(ScalarBuffer<uint8_t> vec[], size_t vecSize)
 	{
@@ -130,7 +130,7 @@ namespace pcpp
 
 	uint32_t fnvHash(uint8_t* buffer, size_t bufSize)
 	{
-		ScalarBuffer<uint8_t> scalarBuf;
+		ScalarBuffer<uint8_t> scalarBuf{};
 		scalarBuf.buffer = buffer;
 		scalarBuf.len = bufSize;
 		return fnvHash(&scalarBuf, 1);
@@ -139,13 +139,19 @@ namespace pcpp
 	uint32_t hash5Tuple(Packet* packet, bool const& directionUnique)
 	{
 		if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
+		{
 			return 0;
+		}
 
 		if (packet->isPacketOfType(ICMP))
+		{
 			return 0;
+		}
 
 		if (!(packet->isPacketOfType(TCP)) && (!packet->isPacketOfType(UDP)))
+		{
 			return 0;
+		}
 
 		ScalarBuffer<uint8_t> vec[5];
 
@@ -153,7 +159,7 @@ namespace pcpp
 		uint16_t portDst = 0;
 		int srcPosition = 0;
 
-		TcpLayer* tcpLayer = packet->getLayerOfType<TcpLayer>(true);  // lookup in reverse order
+		auto* tcpLayer = packet->getLayerOfType<TcpLayer>(true);  // lookup in reverse order
 		if (tcpLayer != nullptr)
 		{
 			portSrc = tcpLayer->getTcpHeader()->portSrc;
@@ -161,7 +167,7 @@ namespace pcpp
 		}
 		else
 		{
-			UdpLayer* udpLayer = packet->getLayerOfType<UdpLayer>(true);
+			auto* udpLayer = packet->getLayerOfType<UdpLayer>(true);
 			portSrc = udpLayer->getUdpHeader()->portSrc;
 			portDst = udpLayer->getUdpHeader()->portDst;
 		}
@@ -169,7 +175,9 @@ namespace pcpp
 		if (!directionUnique)
 		{
 			if (portDst < portSrc)
+			{
 				srcPosition = 1;
+			}
 		}
 
 		vec[0 + srcPosition].buffer = (uint8_t*)&portSrc;
@@ -177,12 +185,14 @@ namespace pcpp
 		vec[1 - srcPosition].buffer = (uint8_t*)&portDst;
 		vec[1 - srcPosition].len = 2;
 
-		IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
+		auto* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
 		if (ipv4Layer != nullptr)
 		{
 			if (!directionUnique && portSrc == portDst &&
 			    ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
+			{
 				srcPosition = 1;
+			}
 
 			vec[2 + srcPosition].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
 			vec[2 + srcPosition].len = 4;
@@ -193,10 +203,12 @@ namespace pcpp
 		}
 		else
 		{
-			IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
+			auto* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
 			if (!directionUnique && portSrc == portDst &&
 			    memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
+			{
 				srcPosition = 1;
+			}
 
 			vec[2 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
 			vec[2 + srcPosition].len = 16;
@@ -212,16 +224,20 @@ namespace pcpp
 	uint32_t hash2Tuple(Packet* packet)
 	{
 		if (!packet->isPacketOfType(IPv4) && !packet->isPacketOfType(IPv6))
+		{
 			return 0;
+		}
 
 		ScalarBuffer<uint8_t> vec[2];
 
-		IPv4Layer* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
+		auto* ipv4Layer = packet->getLayerOfType<IPv4Layer>();
 		if (ipv4Layer != nullptr)
 		{
 			int srcPosition = 0;
 			if (ipv4Layer->getIPv4Header()->ipDst < ipv4Layer->getIPv4Header()->ipSrc)
+			{
 				srcPosition = 1;
+			}
 
 			vec[0 + srcPosition].buffer = (uint8_t*)&ipv4Layer->getIPv4Header()->ipSrc;
 			vec[0 + srcPosition].len = 4;
@@ -230,10 +246,12 @@ namespace pcpp
 		}
 		else
 		{
-			IPv6Layer* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
+			auto* ipv6Layer = packet->getLayerOfType<IPv6Layer>();
 			int srcPosition = 0;
 			if (memcmp(ipv6Layer->getIPv6Header()->ipDst, ipv6Layer->getIPv6Header()->ipSrc, 16) < 0)
+			{
 				srcPosition = 1;
+			}
 
 			vec[0 + srcPosition].buffer = ipv6Layer->getIPv6Header()->ipSrc;
 			vec[0 + srcPosition].len = 16;

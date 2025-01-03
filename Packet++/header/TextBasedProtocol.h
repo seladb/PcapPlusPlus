@@ -99,15 +99,15 @@ namespace pcpp
 		void initNewField(const std::string& name, const std::string& value);
 		void attachToTextBasedProtocolMessage(TextBasedProtocolMessage* message, int fieldOffsetInMessage);
 
-		uint8_t* m_NewFieldData;
-		TextBasedProtocolMessage* m_TextBasedProtocolMessage;
-		int m_NameOffsetInMessage;
-		size_t m_FieldNameSize;
-		int m_ValueOffsetInMessage;
-		size_t m_FieldValueSize;
-		size_t m_FieldSize;
-		HeaderField* m_NextField;
-		bool m_IsEndOfHeaderField;
+		uint8_t* m_NewFieldData{};
+		TextBasedProtocolMessage* m_TextBasedProtocolMessage{};
+		int m_NameOffsetInMessage{};
+		size_t m_FieldNameSize{};
+		int m_ValueOffsetInMessage{};
+		size_t m_FieldValueSize{};
+		size_t m_FieldSize{};
+		HeaderField* m_NextField{};
+		bool m_IsEndOfHeaderField{};
 		char m_NameValueSeparator;
 		bool m_SpacesAllowedBetweenNameAndValue;
 	};
@@ -152,12 +152,13 @@ namespace pcpp
 		 * @return The field after prevField or nullptr if prevField is the last field. If prevField is nullptr, this
 		 * method will return nullptr
 		 */
-		HeaderField* getNextField(HeaderField* prevField) const
+		static HeaderField* getNextField(HeaderField* prevField)
 		{
 			if (prevField != nullptr)
+			{
 				return prevField->getNextField();
-			else
-				return nullptr;
+			}
+			return nullptr;
 		}
 
 		/**
@@ -262,7 +263,7 @@ namespace pcpp
 	protected:
 		TextBasedProtocolMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet,
 		                         ProtocolType protocol);
-		TextBasedProtocolMessage() : m_FieldList(nullptr), m_LastField(nullptr), m_FieldsOffset(0)
+		TextBasedProtocolMessage()
 		{}
 
 		// copy c'tor
@@ -272,15 +273,15 @@ namespace pcpp
 		void copyDataFrom(const TextBasedProtocolMessage& other);
 
 		void parseFields();
-		void shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift);
+		static void shiftFieldsOffset(HeaderField* fromField, int numOfBytesToShift);
 
 		// abstract methods
 		virtual char getHeaderFieldNameValueSeparator() const = 0;
 		virtual bool spacesAllowedBetweenHeaderFieldNameAndValue() const = 0;
 
-		HeaderField* m_FieldList;
-		HeaderField* m_LastField;
-		int m_FieldsOffset;
+		HeaderField* m_FieldList{};
+		HeaderField* m_LastField{};
+		int m_FieldsOffset{};
 		std::multimap<std::string, HeaderField*> m_FieldNameToFieldMap;
 	};
 

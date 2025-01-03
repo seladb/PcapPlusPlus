@@ -25,17 +25,21 @@ namespace pcpp
 	void LLCLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(llc_header))
+		{
 			return;
+		}
 
 		llc_header* hdr = getLlcHeader();
 		uint8_t* payload = m_Data + sizeof(llc_header);
-		size_t payloadLen = m_DataLen - sizeof(llc_header);
+		size_t const payloadLen = m_DataLen - sizeof(llc_header);
 
 		if (hdr->dsap == 0x42 && hdr->ssap == 0x42 && StpLayer::isDataValid(payload, payloadLen))
 		{
 			m_NextLayer = StpLayer::parseStpLayer(payload, payloadLen, this, m_Packet);
-			if (!m_NextLayer)
+			if (m_NextLayer == nullptr)
+			{
 				m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+			}
 			return;
 		}
 		m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
@@ -48,7 +52,7 @@ namespace pcpp
 
 	bool LLCLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return dataLen >= sizeof(llc_header) && !(data[0] == 0xFF && data[1] == 0xFF);
+		return dataLen >= sizeof(llc_header) && (data[0] != 0xFF || data[1] != 0xFF);
 	}
 
 }  // namespace pcpp

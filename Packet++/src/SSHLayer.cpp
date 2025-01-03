@@ -19,20 +19,26 @@ namespace pcpp
 	{
 		SSHIdentificationMessage* sshIdnetMsg = SSHIdentificationMessage::tryParse(data, dataLen, prevLayer, packet);
 		if (sshIdnetMsg != nullptr)
+		{
 			return sshIdnetMsg;
+		}
 
 		SSHHandshakeMessage* sshHandshakeMessage = SSHHandshakeMessage::tryParse(data, dataLen, prevLayer, packet);
 		if (sshHandshakeMessage != nullptr)
+		{
 			return sshHandshakeMessage;
+		}
 
 		return new SSHEncryptedMessage(data, dataLen, prevLayer, packet);
 	}
 
 	void SSHLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 		m_NextLayer = SSHLayer::createSSHMessage(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
 	}
 
@@ -45,11 +51,15 @@ namespace pcpp
 	{
 		// Payload must be at least as long as the string "SSH-"
 		if (dataLen < 5)
+		{
 			return nullptr;
+		}
 
 		// Payload must begin with "SSH-" and end with "\n"
 		if (data[0] == 0x53 && data[1] == 0x53 && data[2] == 0x48 && data[3] == 0x2d && data[dataLen - 1] == 0x0a)
+		{
 			return new SSHIdentificationMessage(data, dataLen, prevLayer, packet);
+		}
 
 		return nullptr;
 	}
@@ -57,7 +67,7 @@ namespace pcpp
 	std::string SSHIdentificationMessage::getIdentificationMessage()
 	{
 		// check if message ends with "\r\n" or just with "\n"
-		size_t identMsgEOL = (m_Data[m_DataLen - 2] == 0x0d ? 2 : 1);
+		size_t const identMsgEOL = (m_Data[m_DataLen - 2] == 0x0d ? 2 : 1);
 		return std::string(reinterpret_cast<const char*>(m_Data), m_DataLen - identMsgEOL);
 	}
 
@@ -72,9 +82,11 @@ namespace pcpp
 
 	SSHHandshakeMessage::SSHHandshakeMessageType SSHHandshakeMessage::getMessageType() const
 	{
-		uint8_t messageCode = getMsgBaseHeader()->messageCode;
+		uint8_t const messageCode = getMsgBaseHeader()->messageCode;
 		if (messageCode == 20 || messageCode == 21 || (messageCode >= 30 && messageCode <= 34))
+		{
 			return static_cast<SSHHandshakeMessage::SSHHandshakeMessageType>(messageCode);
+		}
 		return SSHHandshakeMessage::SSH_MSG_UNKNOWN;
 	}
 
@@ -108,7 +120,7 @@ namespace pcpp
 
 	size_t SSHHandshakeMessage::getSSHHandshakeMessageLength() const
 	{
-		uint32_t length = be32toh(getMsgBaseHeader()->packetLength);
+		uint32_t const length = be32toh(getMsgBaseHeader()->packetLength);
 		return static_cast<size_t>(length) - getMsgBaseHeader()->paddingLength - sizeof(uint8_t) * 2;
 	}
 
@@ -136,9 +148,9 @@ namespace pcpp
 			return nullptr;
 		}
 
-		SSHHandshakeMessage::ssh_message_base* msgBase = (SSHHandshakeMessage::ssh_message_base*)data;
+		auto* msgBase = (SSHHandshakeMessage::ssh_message_base*)data;
 
-		uint32_t msgLength = be32toh(msgBase->packetLength);
+		uint32_t const msgLength = be32toh(msgBase->packetLength);
 		if (msgLength + sizeof(uint32_t) > dataLen)
 		{
 			PCPP_LOG_DEBUG("Message size is larger than layer size. It's probably not an SSH handshake message");
@@ -183,17 +195,23 @@ namespace pcpp
 	{
 		m_OffsetsInitialized = true;
 		if (m_DataLen <= sizeof(ssh_message_base) + 16)
+		{
 			return;
+		}
 
 		size_t offset = sizeof(ssh_message_base) + 16;
 		for (int i = 0; i < 10; i++)
 		{
 			if (offset + sizeof(uint32_t) >= m_DataLen)
+			{
 				return;
+			}
 
-			size_t fieldLength = static_cast<size_t>(be32toh(*(uint32_t*)(m_Data + offset)));
+			auto const fieldLength = static_cast<size_t>(be32toh(*(uint32_t*)(m_Data + offset)));
 			if (offset + sizeof(uint32_t) + fieldLength > m_DataLen)
+			{
 				return;
+			}
 
 			PCPP_LOG_DEBUG("Field offset [" << i << "] = " << offset << ", length = " << fieldLength);
 			m_FieldOffsets[i] = offset;
@@ -201,7 +219,9 @@ namespace pcpp
 		}
 
 		if (offset >= m_DataLen)
+		{
 			return;
+		}
 
 		m_FieldOffsets[10] = offset;
 	}
@@ -209,20 +229,26 @@ namespace pcpp
 	std::string SSHKeyExchangeInitMessage::getFieldValue(int fieldOffsetIndex)
 	{
 		if (!m_OffsetsInitialized)
+		{
 			parseMessageAndInitOffsets();
+		}
 
 		if (m_FieldOffsets[fieldOffsetIndex] == 0)
+		{
 			return "";
+		}
 
-		size_t fieldOffset = m_FieldOffsets[fieldOffsetIndex];
-		uint32_t fieldLength = be32toh(*(uint32_t*)(m_Data + fieldOffset));
+		size_t const fieldOffset = m_FieldOffsets[fieldOffsetIndex];
+		uint32_t const fieldLength = be32toh(*(uint32_t*)(m_Data + fieldOffset));
 		return std::string(reinterpret_cast<const char*>(m_Data + fieldOffset + sizeof(uint32_t)), (size_t)fieldLength);
 	}
 
 	uint8_t* SSHKeyExchangeInitMessage::getCookie()
 	{
 		if (m_DataLen < sizeof(ssh_message_base) + 16)
+		{
 			return nullptr;
+		}
 
 		return m_Data + sizeof(ssh_message_base);
 	}
@@ -231,7 +257,9 @@ namespace pcpp
 	{
 		uint8_t* cookie = getCookie();
 		if (cookie == nullptr)
+		{
 			return "";
+		}
 
 		return byteArrayToHexString(cookie, 16);
 	}
@@ -239,10 +267,14 @@ namespace pcpp
 	bool SSHKeyExchangeInitMessage::isFirstKexPacketFollows()
 	{
 		if (!m_OffsetsInitialized)
+		{
 			parseMessageAndInitOffsets();
+		}
 
 		if (m_FieldOffsets[10] == 0)
+		{
 			return false;
+		}
 
 		return m_Data[m_FieldOffsets[10]] != 0;
 	}

@@ -3,7 +3,7 @@
 #include "Layer.h"
 #include "TLVData.h"
 #include <vector>
-#include <string.h>
+#include <cstring>
 
 /// @file
 
@@ -268,9 +268,11 @@ namespace pcpp
 			 */
 			std::string getValueAsString() const
 			{
-				size_t dataSize = getDataSize();
+				size_t const dataSize = getDataSize();
 				if (dataSize < 1)
+				{
 					return "";
+				}
 
 				return std::string(reinterpret_cast<const char*>(m_Data->recordValue), dataSize);
 			}
@@ -449,19 +451,19 @@ namespace pcpp
 			return m_Data + sizeof(pppoe_header);
 		}
 
-		std::string codeToString(PPPoECode code) const;
+		static std::string codeToString(PPPoECode code);
 	};
 
 	// implementation of inline methods
 
 	bool PPPoESessionLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(pppoe_header) + sizeof(uint16_t);
+		return (data != nullptr) && dataLen >= sizeof(pppoe_header) + sizeof(uint16_t);
 	}
 
 	bool PPPoEDiscoveryLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(pppoe_header);
+		return (data != nullptr) && dataLen >= sizeof(pppoe_header);
 	}
 
 	// Copied from Wireshark: ppptypes.h

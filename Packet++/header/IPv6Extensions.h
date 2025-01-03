@@ -221,8 +221,7 @@ namespace pcpp
 			/**
 			 * A d'tor for this class, currently does nothing
 			 */
-			~IPv6Option()
-			{}
+			~IPv6Option() override = default;
 
 			/**
 			 * Check if a pointer can be assigned to the TLV record data
@@ -232,36 +231,48 @@ namespace pcpp
 			 */
 			static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 			{
-				auto data = (TLVRawData*)recordRawData;
+				auto* data = (TLVRawData*)recordRawData;
 				if (data == nullptr)
+				{
 					return false;
+				}
 
 				if (tlvDataLen < sizeof(TLVRawData::recordType))
+				{
 					return false;
+				}
 
 				if (data->recordType == Pad0OptionType)
+				{
 					return true;
+				}
 
 				return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 			}
 
 			// implement abstract methods
 
-			size_t getTotalSize() const
+			size_t getTotalSize() const override
 			{
 				if (m_Data == nullptr)
+				{
 					return 0;
+				}
 
 				if (m_Data->recordType == Pad0OptionType)
+				{
 					return sizeof(uint8_t);
+				}
 
 				return (size_t)(m_Data->recordLen + sizeof(uint16_t));
 			}
 
-			size_t getDataSize() const
+			size_t getDataSize() const override
 			{
 				if (m_Data == nullptr || m_Data->recordType == Pad0OptionType)
+				{
 					return 0;
+				}
 
 				return (size_t)m_Data->recordLen;
 			}
@@ -310,18 +321,13 @@ namespace pcpp
 			 * it
 			 * @param[in] other The instance to copy data from
 			 */
-			IPv6TLVOptionBuilder(const IPv6TLVOptionBuilder& other) : TLVRecordBuilder(other)
-			{}
+			IPv6TLVOptionBuilder(const IPv6TLVOptionBuilder& other) = default;
 
 			/**
 			 * Assignment operator that copies all data from another instance of IPv6TLVOptionBuilder
 			 * @param[in] other The instance to assign from
 			 */
-			IPv6TLVOptionBuilder& operator=(const IPv6TLVOptionBuilder& other)
-			{
-				TLVRecordBuilder::operator=(other);
-				return *this;
-			}
+			IPv6TLVOptionBuilder& operator=(const IPv6TLVOptionBuilder& other) = default;
 
 			/**
 			 * Build the IPv6Option object out of the parameters defined in the c'tor

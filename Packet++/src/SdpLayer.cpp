@@ -13,7 +13,9 @@ namespace pcpp
 		std::stringstream stream(str);
 		std::vector<std::string> result;
 		while (stream >> buf)
+		{
 			result.push_back(buf);
+		}
 
 		return result;
 	}
@@ -49,8 +51,8 @@ namespace pcpp
 		sessionIDStream << sessionID;
 		std::stringstream sessionVersionStream;
 		sessionVersionStream << sessionVersion;
-		std::string networkInfo = "IN IP4 " + ipAddress.toString();
-		std::string originatorFieldValue =
+		std::string const networkInfo = "IN IP4 " + ipAddress.toString();
+		std::string const originatorFieldValue =
 		    username + " " + sessionIDStream.str() + " " + sessionVersionStream.str() + " " + networkInfo;
 		addField(PCPP_SDP_ORIGINATOR_FIELD, originatorFieldValue);
 
@@ -74,14 +76,20 @@ namespace pcpp
 	{
 		HeaderField* originator = getFieldByName(PCPP_SDP_ORIGINATOR_FIELD);
 		if (originator == nullptr)
+		{
 			return IPv4Address::Zero;
+		}
 
 		std::vector<std::string> tokens = splitByWhiteSpaces(originator->getFieldValue());
 		if (tokens.size() < 6)
+		{
 			return IPv4Address::Zero;
+		}
 
 		if (tokens[3] != "IN" || tokens[4] != "IP4")
+		{
 			return IPv4Address::Zero;
+		}
 
 		try
 		{
@@ -103,7 +111,9 @@ namespace pcpp
 			std::vector<std::string> tokens = splitByWhiteSpaces(mediaDesc->getFieldValue());
 
 			if (tokens.size() >= 2 && tokens[0] == mediaType)
+			{
 				return atoi(tokens[1].c_str());
+			}
 
 			mediaFieldIndex++;
 			mediaDesc = getFieldByName(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldIndex);
@@ -119,7 +129,8 @@ namespace pcpp
 		std::stringstream portStream;
 		portStream << mediaPort;
 
-		std::string mediaFieldValue = mediaType + " " + portStream.str() + " " + mediaProtocol + " " + mediaFormat;
+		std::string const mediaFieldValue =
+		    mediaType + " " + portStream.str() + " " + mediaProtocol + " " + mediaFormat;
 		if (addField(PCPP_SDP_MEDIA_NAME_FIELD, mediaFieldValue) == nullptr)
 		{
 			PCPP_LOG_ERROR("Failed to add media description field");

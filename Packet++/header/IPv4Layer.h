@@ -4,7 +4,7 @@
 #include "TLVData.h"
 #include "IpAddress.h"
 #include "IPLayer.h"
-#include <string.h>
+#include <cstring>
 #include <vector>
 
 /// @file
@@ -184,7 +184,7 @@ namespace pcpp
 		};
 
 		/** The timestamp value type */
-		TimestampType type;
+		TimestampType type{ IPv4TimestampOptionValue::Unknown };
 
 		/** A list of timestamps parsed from the IPv4 timestamp option value */
 		std::vector<uint32_t> timestamps;
@@ -193,8 +193,7 @@ namespace pcpp
 		std::vector<IPv4Address> ipAddresses;
 
 		/** The default constructor */
-		IPv4TimestampOptionValue() : type(IPv4TimestampOptionValue::Unknown)
-		{}
+		IPv4TimestampOptionValue() = default;
 
 		/**
 		 * Clear the structure. Clean the timestamps and IP addresses vectors and set the type as
@@ -241,22 +240,28 @@ namespace pcpp
 			std::vector<IPv4Address> res;
 
 			if (m_Data == nullptr)
+			{
 				return res;
+			}
 
-			size_t dataSize = getDataSize();
+			size_t const dataSize = getDataSize();
 			if (dataSize < 2)
+			{
 				return res;
+			}
 
-			uint8_t valueOffset = static_cast<uint8_t>(1);
+			auto valueOffset = static_cast<uint8_t>(1);
 
 			while (static_cast<size_t>(valueOffset) < dataSize)
 			{
-				uint32_t curValue;
+				uint32_t curValue = 0;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
 				if (curValue == 0)
+				{
 					break;
+				}
 
-				res.push_back(IPv4Address(curValue));
+				res.emplace_back(curValue);
 
 				valueOffset += static_cast<uint8_t>(4);
 			}
@@ -279,34 +284,48 @@ namespace pcpp
 			res.clear();
 
 			if (m_Data == nullptr)
+			{
 				return res;
+			}
 
 			if (getIPv4OptionType() != IPV4OPT_Timestamp)
+			{
 				return res;
+			}
 
-			size_t dataSize = getDataSize();
+			size_t const dataSize = getDataSize();
 			if (dataSize < 2)
+			{
 				return res;
+			}
 
 			res.type = static_cast<IPv4TimestampOptionValue::TimestampType>(m_Data->recordValue[1]);
 
-			uint8_t valueOffset = static_cast<uint8_t>(2);
+			auto valueOffset = static_cast<uint8_t>(2);
 			bool readIPAddr = (res.type == IPv4TimestampOptionValue::TimestampAndIP);
 
 			while (static_cast<size_t>(valueOffset) < dataSize)
 			{
-				uint32_t curValue;
+				uint32_t curValue = 0;
 				memcpy(&curValue, m_Data->recordValue + valueOffset, sizeof(uint32_t));
 				if (curValue == 0)
+				{
 					break;
+				}
 
 				if (readIPAddr)
-					res.ipAddresses.push_back(IPv4Address(curValue));
+				{
+					res.ipAddresses.emplace_back(curValue);
+				}
 				else
+				{
 					res.timestamps.push_back(curValue);
+				}
 
 				if (res.type == IPv4TimestampOptionValue::TimestampAndIP)
+				{
 					readIPAddr = !readIPAddr;
+				}
 
 				valueOffset += static_cast<uint8_t>(4);
 			}
@@ -330,16 +349,22 @@ namespace pcpp
 		 */
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
-			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
+			const auto* data = reinterpret_cast<TLVRawData const*>(recordRawData);
 			if (data == nullptr)
+			{
 				return false;
+			}
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
+			{
 				return false;
+			}
 
 			if (getIPv4OptionType(data) == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) ||
 			    data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+			{
 				return true;
+			}
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
@@ -349,11 +374,15 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (getIPv4OptionType() == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) ||
 			    m_Data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+			{
 				return sizeof(uint8_t);
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -361,11 +390,15 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (getIPv4OptionType() == static_cast<uint8_t>(IPV4OPT_EndOfOptionsList) ||
 			    m_Data->recordType == static_cast<uint8_t>(IPV4OPT_NOP))
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - (2 * sizeof(uint8_t));
 		}
@@ -377,7 +410,9 @@ namespace pcpp
 		static IPv4OptionTypes getIPv4OptionType(const TLVRawData* data)
 		{
 			if (data == nullptr)
+			{
 				return IPV4OPT_Unknown;
+			}
 
 			return static_cast<IPv4OptionTypes>(data->recordType);
 		}
@@ -404,10 +439,8 @@ namespace pcpp
 		 * @param[in] optionValueLen Option value length in bytes
 		 */
 		IPv4OptionBuilder(IPv4OptionTypes optionType, const uint8_t* optionValue, uint8_t optionValueLen)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen)
-		{
-			m_BuilderParamsValid = true;
-		}
+		    : TLVRecordBuilder((uint8_t)optionType, optionValue, optionValueLen), m_BuilderParamsValid(true)
+		{}
 
 		/**
 		 * A c'tor for building IPv4 options which have a 2-byte value. The IPv4Option object can be later retrieved
@@ -416,10 +449,8 @@ namespace pcpp
 		 * @param[in] optionValue A 2-byte option value
 		 */
 		IPv4OptionBuilder(IPv4OptionTypes optionType, uint16_t optionValue)
-		    : TLVRecordBuilder((uint8_t)optionType, optionValue)
-		{
-			m_BuilderParamsValid = true;
-		}
+		    : TLVRecordBuilder((uint8_t)optionType, optionValue), m_BuilderParamsValid(true)
+		{}
 
 		/**
 		 * A c'tor for building IPv4 options which their value is a list of IPv4 addresses, for example:
@@ -530,7 +561,7 @@ namespace pcpp
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setSrcIPv4Address(const IPv4Address& ipAddr)
+		void setSrcIPv4Address(const IPv4Address& ipAddr) const
 		{
 			getIPv4Header()->ipSrc = ipAddr.toInt();
 		}
@@ -558,7 +589,7 @@ namespace pcpp
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setDstIPv4Address(const IPv4Address& ipAddr)
+		void setDstIPv4Address(const IPv4Address& ipAddr) const
 		{
 			getIPv4Header()->ipDst = ipAddr.toInt();
 		}
@@ -709,8 +740,8 @@ namespace pcpp
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen);
 
 	private:
-		int m_NumOfTrailingBytes;
-		int m_TempHeaderExtension;
+		int m_NumOfTrailingBytes{};
+		int m_TempHeaderExtension{};
 		TLVRecordReader<IPv4Option> m_OptionReader;
 
 		void copyLayerData(const IPv4Layer& other);
@@ -728,7 +759,7 @@ namespace pcpp
 
 	bool IPv4Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		const iphdr* hdr = reinterpret_cast<const iphdr*>(data);
+		const auto* hdr = reinterpret_cast<const iphdr*>(data);
 		return dataLen >= sizeof(iphdr) && hdr->ipVersion == 4 && hdr->internetHeaderLength >= 5;
 	}
 

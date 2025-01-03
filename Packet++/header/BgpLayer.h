@@ -150,7 +150,7 @@ namespace pcpp
 		 * @struct bgp_open_message
 		 * BGP OPEN message structure
 		 */
-		typedef struct bgp_open_message : bgp_common_header
+		using bgp_open_message = struct bgp_open_message : bgp_common_header
 		{
 			/** BGP version number */
 			uint8_t version;
@@ -162,7 +162,7 @@ namespace pcpp
 			uint32_t bgpId;
 			/** The total length of the Optional Parameters field */
 			uint8_t optionalParameterLength;
-		} bgp_open_message;
+		};
 #pragma pack(pop)
 
 		/**
@@ -172,17 +172,16 @@ namespace pcpp
 		struct optional_parameter
 		{
 			/** Parameter type */
-			uint8_t type;
+			uint8_t type{};
 			/** Parameter length */
-			uint8_t length;
+			uint8_t length{};
 			/** Parameter data */
-			uint8_t value[32];
+			uint8_t value[32]{};
 
 			/**
 			 * A default c'tor that zeroes all data
 			 */
-			optional_parameter()
-			{}
+			optional_parameter() = default;
 
 			/**
 			 * A c'tor that initializes the values of the struct
@@ -237,7 +236,7 @@ namespace pcpp
 		 * Set the BGP identifier
 		 * @param[in] newBgpId BGP identifier to set. If value is not a valid IPv4 address it won't be set
 		 */
-		void setBgpId(const IPv4Address& newBgpId);
+		void setBgpId(const IPv4Address& newBgpId) const;
 
 		/**
 		 * Get a vector of the optional parameters in the message
@@ -249,7 +248,7 @@ namespace pcpp
 		/**
 		 * @return The length in [bytes] of the optional parameters data in the message
 		 */
-		size_t getOptionalParametersLength();
+		size_t getOptionalParametersLength() const;
 
 		/**
 		 * Set optional parameters in the message. This method will override all existing optional parameters currently
@@ -278,8 +277,8 @@ namespace pcpp
 		}
 
 	private:
-		size_t optionalParamsToByteArray(const std::vector<optional_parameter>& optionalParams, uint8_t* resultByteArr,
-		                                 size_t maxByteArrSize);
+		static size_t optionalParamsToByteArray(const std::vector<optional_parameter>& optionalParams,
+		                                        uint8_t* resultByteArr, size_t maxByteArrSize);
 	};
 
 	/**
@@ -323,19 +322,18 @@ namespace pcpp
 		struct path_attribute
 		{
 			/** Path attribute flags */
-			uint8_t flags;
+			uint8_t flags{};
 			/** Path attribute type */
-			uint8_t type;
+			uint8_t type{};
 			/** Path attribute length */
-			uint8_t length;
+			uint8_t length{};
 			/** Path attribute data. Max supported data length is 32 bytes */
-			uint8_t data[32];
+			uint8_t data[32]{};
 
 			/**
 			 * A default c'tor that zeroes all data
 			 */
-			path_attribute()
-			{}
+			path_attribute() = default;
 
 			/**
 			 * A c'tor that initializes the values of the struct
@@ -486,13 +484,13 @@ namespace pcpp
 		}
 
 	private:
-		void parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLen, std::vector<prefix_and_ip>& result);
+		static void parsePrefixAndIPData(uint8_t* dataPtr, size_t dataLen, std::vector<prefix_and_ip>& result);
 
-		size_t prefixAndIPDataToByteArray(const std::vector<prefix_and_ip>& prefixAndIpData, uint8_t* resultByteArr,
-		                                  size_t maxByteArrSize);
+		static size_t prefixAndIPDataToByteArray(const std::vector<prefix_and_ip>& prefixAndIpData,
+		                                         uint8_t* resultByteArr, size_t maxByteArrSize);
 
-		size_t pathAttributesToByteArray(const std::vector<path_attribute>& pathAttributes, uint8_t* resultByteArr,
-		                                 size_t maxByteArrSize);
+		static size_t pathAttributesToByteArray(const std::vector<path_attribute>& pathAttributes,
+		                                        uint8_t* resultByteArr, size_t maxByteArrSize);
 	};
 
 	/**
@@ -507,13 +505,13 @@ namespace pcpp
 		 * @struct bgp_notification_message
 		 * BGP NOTIFICATION message structure
 		 */
-		typedef struct bgp_notification_message : bgp_common_header
+		using bgp_notification_message = struct bgp_notification_message : bgp_common_header
 		{
 			/** BGP notification error code */
 			uint8_t errorCode;
 			/** BGP notification error sub-code */
 			uint8_t errorSubCode;
-		} bgp_notification_message;
+		};
 #pragma pack(pop)
 
 		/**
@@ -627,7 +625,7 @@ namespace pcpp
 		 * @typedef bgp_keepalive_message
 		 * BGP KEEPALIVE message structure
 		 */
-		typedef bgp_common_header bgp_keepalive_message;
+		using bgp_keepalive_message = bgp_common_header;
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -675,7 +673,7 @@ namespace pcpp
 		 * @struct bgp_route_refresh_message
 		 * BGP ROUTE-REFRESH message structure
 		 */
-		typedef struct bgp_route_refresh_message : bgp_common_header
+		using bgp_route_refresh_message = struct bgp_route_refresh_message : bgp_common_header
 		{
 			/** Address Family Identifier */
 			uint16_t afi;
@@ -683,7 +681,7 @@ namespace pcpp
 			uint8_t reserved;
 			/** Subsequent Address Family Identifier */
 			uint8_t safi;
-		} bgp_route_refresh_message;
+		};
 #pragma pack(pop)
 
 		/**

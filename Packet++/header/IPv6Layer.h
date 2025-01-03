@@ -124,7 +124,7 @@ namespace pcpp
 		 * Set the source IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setSrcIPv6Address(const IPv6Address& ipAddr)
+		void setSrcIPv6Address(const IPv6Address& ipAddr) const
 		{
 			ipAddr.copyTo(getIPv6Header()->ipSrc);
 		}
@@ -133,7 +133,7 @@ namespace pcpp
 		 * Set the dest IP address
 		 * @param[in] ipAddr The IP address to set
 		 */
-		void setDstIPv6Address(const IPv6Address& ipAddr)
+		void setDstIPv6Address(const IPv6Address& ipAddr) const
 		{
 			ipAddr.copyTo(getIPv6Header()->ipDst);
 		}
@@ -244,16 +244,18 @@ namespace pcpp
 		void parseExtensions();
 		void deleteExtensions();
 
-		IPv6Extension* m_FirstExtension;
-		IPv6Extension* m_LastExtension;
-		size_t m_ExtensionsLen;
+		IPv6Extension* m_FirstExtension{};
+		IPv6Extension* m_LastExtension{};
+		size_t m_ExtensionsLen{};
 	};
 
 	template <class TIPv6Extension> TIPv6Extension* IPv6Layer::getExtensionOfType() const
 	{
 		IPv6Extension* curExt = m_FirstExtension;
 		while (curExt != nullptr && dynamic_cast<TIPv6Extension*>(curExt) == nullptr)
+		{
 			curExt = curExt->getNextHeader();
+		}
 
 		return static_cast<TIPv6Extension*>(curExt);
 	}
@@ -266,7 +268,7 @@ namespace pcpp
 			return nullptr;
 		}
 
-		TIPv6Extension* newHeader = new TIPv6Extension(this, static_cast<size_t>(offsetToAddHeader));
+		auto* newHeader = new TIPv6Extension(this, static_cast<size_t>(offsetToAddHeader));
 		(*newHeader) = extensionHeader;
 
 		if (m_FirstExtension != nullptr)
@@ -293,7 +295,7 @@ namespace pcpp
 
 	bool IPv6Layer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(ip6_hdr);
+		return (data != nullptr) && dataLen >= sizeof(ip6_hdr);
 	}
 
 }  // namespace pcpp

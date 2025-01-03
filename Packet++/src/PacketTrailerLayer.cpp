@@ -18,7 +18,9 @@ namespace pcpp
 		std::string trailerStr = byteArrayToHexString(m_Data, m_DataLen, 15);
 
 		if (m_DataLen > 15)
+		{
 			trailerStr += "...";
+		}
 
 		return "Packet Trailer, Data: " + trailerStr + ", Length: " + dataLenStream.str() + " [Bytes]";
 	}

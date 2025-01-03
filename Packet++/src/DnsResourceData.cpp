@@ -10,7 +10,7 @@
 namespace pcpp
 {
 
-	size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const
+	size_t IDnsResourceData::decodeName(const char* encodedName, char* result, IDnsResource* dnsResource)
 	{
 		if (dnsResource == nullptr)
 		{
@@ -22,7 +22,7 @@ namespace pcpp
 	}
 
 	void IDnsResourceData::encodeName(const std::string& decodedName, char* result, size_t& resultLen,
-	                                  IDnsResource* dnsResource) const
+	                                  IDnsResource* dnsResource)
 	{
 		if (dnsResource == nullptr)
 		{
@@ -30,19 +30,21 @@ namespace pcpp
 			return;
 		}
 
-		dnsResource->encodeName(decodedName, result, resultLen);
+		pcpp::IDnsResource::encodeName(decodedName, result, resultLen);
 	}
 
 	StringDnsResourceData::StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 	{
-		if (dataPtr && dataLen > 0)
+		if ((dataPtr != nullptr) && dataLen > 0)
 		{
 			char tempResult[4096];
 			decodeName((const char*)dataPtr, tempResult, dnsResource);
 			m_Data = tempResult;
 		}
 		else
+		{
 			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
+		}
 	}
 
 	bool StringDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* dnsResource) const
@@ -59,11 +61,11 @@ namespace pcpp
 			return;
 		}
 
-		uint32_t addrAsInt = *(uint32_t*)dataPtr;
+		uint32_t const addrAsInt = *(uint32_t*)dataPtr;
 		m_Data = IPv4Address(addrAsInt);
 	}
 
-	bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
+	bool IPv4DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* /*dnsResource*/) const
 	{
 		arrLength = sizeof(uint32_t);
 		memcpy(arr, m_Data.toBytes(), sizeof(uint32_t));
@@ -81,7 +83,7 @@ namespace pcpp
 		m_Data = IPv6Address(dataPtr);
 	}
 
-	bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
+	bool IPv6DnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* /*dnsResource*/) const
 	{
 		arrLength = 16;
 		m_Data.copyTo(arr);
@@ -90,16 +92,18 @@ namespace pcpp
 
 	MxDnsResourceData::MxDnsResourceData(uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource)
 	{
-		if (dataPtr && dataLen > 0)
+		if ((dataPtr != nullptr) && dataLen > 0)
 		{
-			uint16_t preference = be16toh(*(uint16_t*)dataPtr);
+			uint16_t const preference = be16toh(*(uint16_t*)dataPtr);
 			char tempMX[4096];
 			decodeName((const char*)(dataPtr + sizeof(preference)), tempMX, dnsResource);
 			m_Data.preference = preference;
 			m_Data.mailExchange = tempMX;
 		}
 		else
+		{
 			PCPP_LOG_ERROR("Cannot decode name, dataPtr is nullptr or length is 0");
+		}
 	}
 
 	MxDnsResourceData::MxDnsResourceData(const uint16_t& preference, const std::string& mailExchange)
@@ -137,9 +141,9 @@ namespace pcpp
 	}
 
 	GenericDnsResourceData::GenericDnsResourceData(const uint8_t* dataPtr, size_t dataLen)
+	    : m_Data(nullptr), m_DataLen(0)
 	{
-		m_Data = nullptr;
-		m_DataLen = 0;
+
 		if (dataLen > 0 && dataPtr != nullptr)
 		{
 			m_DataLen = dataLen;
@@ -148,9 +152,9 @@ namespace pcpp
 		}
 	}
 
-	GenericDnsResourceData::GenericDnsResourceData(const std::string& dataAsHexString)
+	GenericDnsResourceData::GenericDnsResourceData(const std::string& dataAsHexString) : m_Data(nullptr)
 	{
-		m_Data = nullptr;
+
 		uint8_t tempDataArr[2048];
 		m_DataLen = hexStringToByteArray(dataAsHexString, tempDataArr, 2048);
 		if (m_DataLen != 0)
@@ -160,9 +164,8 @@ namespace pcpp
 		}
 	}
 
-	GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& other) : IDnsResourceData()
+	GenericDnsResourceData::GenericDnsResourceData(const GenericDnsResourceData& other) : m_DataLen(other.m_DataLen)
 	{
-		m_DataLen = other.m_DataLen;
 
 		if (m_DataLen > 0 && other.m_Data != nullptr)
 		{
@@ -173,8 +176,9 @@ namespace pcpp
 
 	GenericDnsResourceData& GenericDnsResourceData::operator=(const GenericDnsResourceData& other)
 	{
-		if (m_Data != nullptr)
+		{
 			delete[] m_Data;
+		}
 
 		m_Data = nullptr;
 		m_DataLen = other.m_DataLen;
@@ -190,7 +194,9 @@ namespace pcpp
 	bool GenericDnsResourceData::operator==(const GenericDnsResourceData& other) const
 	{
 		if (m_DataLen != other.m_DataLen)
+		{
 			return false;
+		}
 
 		return (memcmp(m_Data, other.m_Data, m_DataLen) == 0);
 	}
@@ -200,7 +206,7 @@ namespace pcpp
 		return byteArrayToHexString(m_Data, m_DataLen);
 	}
 
-	bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource*) const
+	bool GenericDnsResourceData::toByteArr(uint8_t* arr, size_t& arrLength, IDnsResource* /*dnsResource*/) const
 	{
 		if (m_DataLen == 0 || m_Data == nullptr)
 		{

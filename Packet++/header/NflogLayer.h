@@ -87,7 +87,7 @@ namespace pcpp
 			/** Record value (variable size) */
 			uint8_t recordValue[];
 		};
-		NflogTLVRawData* m_Data;
+		NflogTLVRawData* m_Data{};
 
 	public:
 		/**
@@ -193,21 +193,21 @@ namespace pcpp
 		 * Get address family of the packet. e.g. 2 for ipv4 and 10 for ipv6
 		 * @return an unsigned char of address family
 		 */
-		uint8_t getFamily();
+		uint8_t getFamily() const;
 
 		/**
 		 * Get Version number inside packet header
 		 * The version field is 0 for the current version of the pseudo-header
 		 * @return an unsigned char for version
 		 */
-		uint8_t getVersion();
+		uint8_t getVersion() const;
 
 		/**
 		 * Get Resource Id in packet header
 		 * On one netlink socket it's possible to listen to several nflog groups; the resource ID is the nflog group for
 		 * the packet
 		 */
-		uint16_t getResourceId();
+		uint16_t getResourceId() const;
 
 		/**
 		 * Get a TLV object found with the input type. if no tlv is found, the internal value of the object will set to

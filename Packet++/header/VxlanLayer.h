@@ -114,7 +114,7 @@ namespace pcpp
 		 * Set VXLAN Network ID (VNI) value
 		 * @param[in] vni VNI value to set
 		 */
-		void setVNI(uint32_t vni);
+		void setVNI(uint32_t vni) const;
 
 		/**
 		 * A static method that checks whether the port is considered as VxLAN

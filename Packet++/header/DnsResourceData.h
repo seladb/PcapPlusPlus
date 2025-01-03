@@ -4,7 +4,8 @@
 #include "IpAddress.h"
 #include <memory>
 #include <string>
-#include <stdint.h>
+#include <utility>
+#include <cstdint>
 
 /// @file
 
@@ -32,9 +33,9 @@ namespace pcpp
 		IDnsResourceData()
 		{}
 
-		size_t decodeName(const char* encodedName, char* result, IDnsResource* dnsResource) const;
-		void encodeName(const std::string& decodedName, char* result, size_t& resultLen,
-		                IDnsResource* dnsResource) const;
+		static size_t decodeName(const char* encodedName, char* result, IDnsResource* dnsResource);
+		static void encodeName(const std::string& decodedName, char* result, size_t& resultLen,
+		                       IDnsResource* dnsResource);
 
 	public:
 		/**
@@ -136,7 +137,7 @@ namespace pcpp
 		 * 'my.subdomain.yahoo.com' you may use the following string: 'my.subdomain.#12'. This will result in writing
 		 * 'my.subdomain' and a pointer to offset 12
 		 */
-		explicit StringDnsResourceData(const std::string& data) : m_Data(data)
+		explicit StringDnsResourceData(std::string data) : m_Data(std::move(data))
 		{}
 
 		StringDnsResourceData(const uint8_t* dataPtr, size_t dataLen, IDnsResource* dnsResource);
@@ -390,8 +391,7 @@ namespace pcpp
 
 		~GenericDnsResourceData() override
 		{
-			if (m_Data != nullptr)
-				delete[] m_Data;
+			delete[] m_Data;
 		}
 
 		GenericDnsResourceData& operator=(const GenericDnsResourceData& other);

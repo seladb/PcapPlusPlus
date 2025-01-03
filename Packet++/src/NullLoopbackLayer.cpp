@@ -53,12 +53,12 @@ namespace pcpp
 	void NullLoopbackLayer::parseNextLayer()
 	{
 		uint8_t* payload = m_Data + sizeof(uint32_t);
-		size_t payloadLen = m_DataLen - sizeof(uint32_t);
+		size_t const payloadLen = m_DataLen - sizeof(uint32_t);
 
-		uint32_t family = getFamily();
+		uint32_t const family = getFamily();
 		if (family > IEEE_802_3_MAX_LEN)
 		{
-			uint16_t ethType = static_cast<uint16_t>(family);
+			auto const ethType = static_cast<uint16_t>(family);
 			switch (ethType)
 			{
 			case PCPP_ETHERTYPE_IP:

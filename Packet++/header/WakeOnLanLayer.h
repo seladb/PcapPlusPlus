@@ -94,7 +94,7 @@ namespace pcpp
 		 * Set the target MAC address
 		 * @param[in] targetAddr MAC address of the target
 		 */
-		void setTargetAddr(const pcpp::MacAddress& targetAddr);
+		void setTargetAddr(const pcpp::MacAddress& targetAddr) const;
 
 		/**
 		 * Get the password of the command

@@ -17,10 +17,12 @@ namespace pcpp
 	Layer* IcmpV6Layer::parseIcmpV6Layer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (dataLen < sizeof(icmpv6hdr))
+		{
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
+		}
 
-		icmpv6hdr* hdr = (icmpv6hdr*)data;
-		ICMPv6MessageType messageType = static_cast<ICMPv6MessageType>(hdr->type);
+		auto* hdr = (icmpv6hdr*)data;
+		auto const messageType = static_cast<ICMPv6MessageType>(hdr->type);
 
 		switch (messageType)
 		{
@@ -45,12 +47,14 @@ namespace pcpp
 		memset(m_Data, 0, m_DataLen);
 		m_Protocol = ICMPv6;
 
-		icmpv6hdr* hdr = (icmpv6hdr*)m_Data;
+		auto* hdr = (icmpv6hdr*)m_Data;
 		hdr->type = static_cast<uint8_t>(msgType);
 		hdr->code = code;
 
 		if (data != nullptr && dataLen > 0)
+		{
 			memcpy(m_Data + sizeof(icmpv6hdr), data, dataLen);
+		}
 	}
 
 	ICMPv6MessageType IcmpV6Layer::getMessageType() const
@@ -96,8 +100,8 @@ namespace pcpp
 			const unsigned int bigEndianNextHeader = htobe32(PACKETPP_IPPROTO_ICMPV6);
 
 			uint16_t pseudoHeader[pseudoHeaderLen / 2];
-			((IPv6Layer*)m_PrevLayer)->getSrcIPv6Address().copyTo((uint8_t*)pseudoHeader);
-			((IPv6Layer*)m_PrevLayer)->getDstIPv6Address().copyTo((uint8_t*)(pseudoHeader + 8));
+			(dynamic_cast<IPv6Layer*>(m_PrevLayer))->getSrcIPv6Address().copyTo((uint8_t*)pseudoHeader);
+			(dynamic_cast<IPv6Layer*>(m_PrevLayer))->getDstIPv6Address().copyTo((uint8_t*)(pseudoHeader + 8));
 			memcpy(&pseudoHeader[16], &bigEndianLen, sizeof(uint32_t));
 			memcpy(&pseudoHeader[18], &bigEndianNextHeader, sizeof(uint32_t));
 			vec[1].buffer = pseudoHeader;
@@ -146,7 +150,9 @@ namespace pcpp
 		header->sequence = htobe16(sequence);
 
 		if (data != nullptr && dataLen > 0)
+		{
 			memcpy(getEchoDataPtr(), data, dataLen);
+		}
 	}
 
 	uint16_t ICMPv6EchoLayer::getIdentifier() const

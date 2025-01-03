@@ -14,7 +14,7 @@ namespace pcpp
 	FtpRequestLayer::FtpCommand FtpRequestLayer::getCommand() const
 	{
 		size_t val = 0;
-		std::string field = getCommandString();
+		std::string const field = getCommandString();
 
 		for (size_t idx = 0; idx < field.size(); ++idx)
 		{
@@ -39,11 +39,13 @@ namespace pcpp
 		if (removeEscapeCharacters)
 		{
 			std::stringstream ss;
-			std::string field = getCommandOptionInternal();
+			std::string const field = getCommandOptionInternal();
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
-				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)  // From SPACE to ~
+				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)
+				{  // From SPACE to ~
 					ss << field.c_str()[idx];
+				}
 			}
 			return ss.str();
 		}
@@ -204,8 +206,8 @@ namespace pcpp
 		std::stringstream oss;
 		for (size_t idx = 0; idx < 4; ++idx)
 		{
-			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
-			if (val)  // Dont push if it is a null character
+			char const val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
+			if (val != 0)  // Dont push if it is a null character
 			{
 				oss << val;
 			}
@@ -246,11 +248,13 @@ namespace pcpp
 		if (removeEscapeCharacters)
 		{
 			std::stringstream ss;
-			std::string field = getCommandOptionInternal();
+			std::string const field = getCommandOptionInternal();
 			for (size_t idx = 0; idx < field.size(); ++idx)
 			{
-				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)  // From SPACE to ~
+				if (int(field.c_str()[idx]) < 127 && int(field.c_str()[idx]) > 31)
+				{  // From SPACE to ~
 					ss << field.c_str()[idx];
+				}
 			}
 			return ss.str();
 		}

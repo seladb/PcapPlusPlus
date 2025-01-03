@@ -44,17 +44,17 @@ namespace pcpp
 		return (be16toh(getVlanHeader()->vlan) >> 13) & 7;
 	}
 
-	void VlanLayer::setVlanID(uint16_t id)
+	void VlanLayer::setVlanID(uint16_t id) const
 	{
 		getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF));
 	}
 
-	void VlanLayer::setCFI(bool cfi)
+	void VlanLayer::setCFI(bool cfi) const
 	{
 		getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(1 << 12))) | ((cfi & 1) << 12));
 	}
 
-	void VlanLayer::setPriority(uint8_t priority)
+	void VlanLayer::setPriority(uint8_t priority) const
 	{
 		getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~(7 << 13))) | ((priority & 7) << 13));
 	}
@@ -62,10 +62,12 @@ namespace pcpp
 	void VlanLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(vlan_header))
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(vlan_header);
-		size_t payloadLen = m_DataLen - sizeof(vlan_header);
+		size_t const payloadLen = m_DataLen - sizeof(vlan_header);
 
 		vlan_header* hdr = getVlanHeader();
 		switch (be16toh(hdr->etherType))
@@ -110,7 +112,9 @@ namespace pcpp
 	void VlanLayer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		switch (m_NextLayer->getProtocol())
 		{
