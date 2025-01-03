@@ -3,6 +3,7 @@
 #include <stack>
 #include <mutex>
 #include <memory>
+#include <limits>
 #include <type_traits>
 
 namespace pcpp
@@ -20,7 +21,10 @@ namespace pcpp
 	{
 	public:
 		constexpr static std::size_t DEFAULT_POOL_SIZE = 100;
-		constexpr static std::size_t INFINITE_POOL_SIZE = 0;
+#pragma push_macro("max")  // Undefine max to avoid conflict with std::numeric_limits<std::size_t>::max()
+#undef max
+		constexpr static std::size_t INFINITE_POOL_SIZE = std::numeric_limits<std::size_t>::max();
+#pragma pop_macro("max")
 
 		/// A constructor for this class that creates a pool of objects
 		/// @param[in] maxPoolSize The maximum number of objects in the pool
@@ -113,6 +117,13 @@ namespace pcpp
 			}
 		}
 
+		/// @brief Gets the current number of objects in the pool.
+		std::size_t size() const
+		{
+			std::lock_guard<std::mutex> lock(m_Mutex);
+			return m_Pool.size();
+		}
+
 		/// @brief Gets the maximum number of objects in the pool.
 		std::size_t maxSize() const
 		{
@@ -157,8 +168,8 @@ namespace pcpp
 		}
 
 	private:
-		std::size_t m_MaxPoolSize;  ///< The maximum number of objects in the pool
-		std::mutex m_Mutex;         ///< Mutex for thread safety
-		std::stack<T*> m_Pool;      ///< The pool of objects
+		std::size_t m_MaxPoolSize;   ///< The maximum number of objects in the pool
+		mutable std::mutex m_Mutex;  ///< Mutex for thread safety
+		std::stack<T*> m_Pool;       ///< The pool of objects
 	};
 }  // namespace pcpp

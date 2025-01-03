@@ -210,6 +210,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPv6Network, "no_network;ip");
 	PTF_RUN_TEST(TestIPNetwork, "no_network;ip");
 
+	PTF_RUN_TEST(TestObjectPool, "no_network");
+
 	PTF_RUN_TEST(TestLogger, "no_network;logger");
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
 
