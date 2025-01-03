@@ -40,14 +40,14 @@ PTF_TEST_CASE(TestObjectPool)
 		// Acquire an object, since the pool is empty, a new object will be created.
 		auto obj1 = pool.acquireObject();
 		PTF_ASSERT_NOT_NULL(obj1);
-		
+
 		// Acquire a second object, since the pool is still empty, a new object will be created.
 		auto obj2 = pool.acquireObject();
 
 		// For the purposes of this test a value will be assigned to track the object.
 		*obj1 = 55;
 		*obj2 = 66;
-		
+
 		// Release the objects back to the pool.
 		pool.releaseObject(std::move(obj1));
 		pool.releaseObject(std::move(obj2));

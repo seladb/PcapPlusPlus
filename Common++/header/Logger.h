@@ -137,8 +137,8 @@ namespace pcpp
 		LogModule logModule = UndefinedLogModule; /**< The log module. */
 	};
 
-	/// An enum representing the log level. Currently 4 log levels are supported: Off, Error, Info and Debug. Info is the
-	/// default log level
+	/// An enum representing the log level. Currently 4 log levels are supported: Off, Error, Info and Debug. Info is
+	/// the default log level
 	enum class LogLevel
 	{
 		Off = PCPP_LOG_LEVEL_OFF,      ///< No log messages are emitted.
