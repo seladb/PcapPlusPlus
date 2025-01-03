@@ -516,7 +516,8 @@ void doTlsFingerprintingOnLiveTraffic(const std::string& interfaceNameOrIP, std:
 
 	// run in an endless loop until the user press ctrl+c
 	while (!shouldStop)
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+
 
 	// stop capturing and close the live device
 	dev->stopCapture();

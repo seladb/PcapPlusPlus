@@ -57,7 +57,7 @@ int incSleep(int maxSleepTime, int minPacketCount, const DpdkPacketData& packetD
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 		if (packetData.PacketCount > minPacketCount)
 			break;
@@ -72,7 +72,7 @@ int incSleepMultiThread(int maxSleepTime, DpdkPacketData packetData[], int total
 	int totalSleepTime = 0;
 	while (totalSleepTime < maxSleepTime)
 	{
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 
 		int coresWithPacketCountNotZero = 0;
@@ -665,7 +665,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		while (rxQueueId < numOfRxQueues)
 		{
 			dev->receivePackets(rawPacketVec, rxQueueId);
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			if (rawPacketVec.size() > 0)
 			{
 				isPacketRecvd = true;
@@ -693,7 +693,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		while (rxQueueId < numOfRxQueues)
 		{
 			mBufRawPacketArrLen = dev->receivePackets(mBufRawPacketArr, 32, rxQueueId);
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			if (mBufRawPacketArrLen > 0)
 			{
 				isPacketRecvd = true;
@@ -726,7 +726,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 		while (rxQueueId < numOfRxQueues)
 		{
 			packetArrLen = dev->receivePackets(packetArr, 32, rxQueueId);
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			if (packetArrLen > 0)
 			{
 				isPacketRecvd = true;
@@ -797,7 +797,7 @@ PTF_TEST_CASE(TestDpdkDeviceWorkerThreads)
 			PTF_PRINT_VERBOSE("Bytes captured on RX queue #" << i << " according to stats: " << stats.rxStats[i].bytes);
 		}
 
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 
 		if (stats.aggregatedRxStats.packets > curPackets)
 			break;
@@ -900,7 +900,7 @@ PTF_TEST_CASE(TestDpdkMbufRawPacket)
 		for (int i = 0; i < dev->getNumOfOpenedRxQueues(); i++)
 		{
 			dev->receivePackets(rawPacketVec, i);
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			for (pcpp::MBufRawPacketVector::VectorIterator iter = rawPacketVec.begin(); iter != rawPacketVec.end();
 			     iter++)
 			{
