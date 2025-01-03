@@ -206,7 +206,7 @@ PTF_TEST_CASE(TestLogger)
 
 		PTF_ASSERT_EQUAL(logger.getLogLevel(moduleEnum), LogLevel::Info, enum);
 		PTF_ASSERT_FALSE(logger.isDebugEnabled(moduleEnum));
-		
+
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Error, moduleEnum));
 		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Info, moduleEnum));
 		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Debug, moduleEnum));
@@ -215,14 +215,14 @@ PTF_TEST_CASE(TestLogger)
 
 	// invoke debug and error logs - expect to see only the error log
 	logger.setLogPrinter(&LogPrinter::logPrinter);
-	
+
 	pcpp::invokeDebugLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, 999);
 	PTF_ASSERT_EQUAL(LogPrinter::lastLineSeen, 99999);
 	PTF_ASSERT_NULL(LogPrinter::lastLogMessageSeen);
 	PTF_ASSERT_NULL(LogPrinter::lastFilenameSeen);
 	PTF_ASSERT_NULL(LogPrinter::lastMethodSeen);
-	
+
 	pcpp::invokeErrorLog();
 	PTF_ASSERT_EQUAL(LogPrinter::lastLogLevelSeen, (int)pcpp::Logger::Error);
 	PTF_ASSERT_EQUAL(*LogPrinter::lastLogMessageSeen, "error log");
@@ -232,8 +232,7 @@ PTF_TEST_CASE(TestLogger)
 
 	// change one module log level
 	logger.setLogLevel(pcpp::PacketLogModuleArpLayer, pcpp::Logger::Debug);
-	PTF_ASSERT_EQUAL(logger.getLogLevel(pcpp::PacketLogModuleArpLayer), pcpp::LogLevel::Debug,
-	                 enum);
+	PTF_ASSERT_EQUAL(logger.getLogLevel(pcpp::PacketLogModuleArpLayer), pcpp::LogLevel::Debug, enum);
 	PTF_ASSERT_TRUE(logger.isDebugEnabled(pcpp::PacketLogModuleArpLayer));
 
 	// invoke debug and error logs - expect to see both
