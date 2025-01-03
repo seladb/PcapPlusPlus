@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DeprecationUtils.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -161,11 +163,15 @@ namespace pcpp
 	/// A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according
 	/// to the platform it is running on.
 	/// @param[in] seconds Number of seconds to sleep
+	/// @deprecated Please use std::this_thread::sleep_for(). It is a standard C++ (since C++11) method which is already cross-platform
+	PCPP_DEPRECATED("Please use std::this_thread::sleep_for(std::chrono::seconds(seconds)) instead")
 	void multiPlatformSleep(uint32_t seconds);
 
 	/// A multi-platform version of sleep in milliseconds resolution. This method simply runs the right sleep method,
 	/// according to the platform it is running on.
 	/// @param[in] milliseconds Number of milliseconds to sleep
+	/// @deprecated Please use std::this_thread::sleep_for(). It is a standard C++ (since C++11) method which is already cross-platform
+	PCPP_DEPRECATED("Please use std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)) instead")
 	void multiPlatformMSleep(uint32_t milliseconds);
 
 	/// A multi-platform version of `htons` which convert host to network byte order
