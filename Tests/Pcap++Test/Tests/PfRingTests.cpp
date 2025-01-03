@@ -10,6 +10,7 @@
 #	include "PfRingDeviceList.h"
 #	include "PcapFileDevice.h"
 #	include "PcapLiveDeviceList.h"
+#	include <thread>
 #endif
 
 extern PcapTestArgs PcapTestGlobalArgs;

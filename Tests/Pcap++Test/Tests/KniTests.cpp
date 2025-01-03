@@ -7,6 +7,7 @@
 #	include "PcapFileDevice.h"
 #	include "RawSocketDevice.h"
 #	include "SystemUtils.h"
+#	include <thread>
 
 extern PcapTestArgs PcapTestGlobalArgs;
 
