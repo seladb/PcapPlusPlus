@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #ifdef __linux__
 #	include <netinet/in.h>
 #	include <arpa/inet.h>
@@ -53,34 +53,34 @@ namespace pcpp
 	namespace internal
 	{
 		/// Extract IPv4 address from sockaddr
-		/// @param[in] sa - input sockaddr
+		/// @param[in] sAddr - input sockaddr
 		/// @return Address in in_addr format
 		/// @throws std::invalid_argument Sockaddr family is not AF_INET or sockaddr is nullptr.
-		in_addr* sockaddr2in_addr(sockaddr* sa);
+		in_addr* sockaddr2in_addr(sockaddr* sAddr);
 
 		/// Attempt to extract IPv4 address from sockaddr
-		/// @param[in] sa - input sockaddr
+		/// @param[in] sAddr - input sockaddr
 		/// @return Pointer to address in in_addr format or nullptr if extraction fails.
-		in_addr* try_sockaddr2in_addr(sockaddr* sa);
+		in_addr* try_sockaddr2in_addr(sockaddr* sAddr);
 
 		/// Extract IPv6 address from sockaddr
-		/// @param[in] sa - input sockaddr
+		/// @param[in] sAddr - input sockaddr
 		/// @return Address in in6_addr format
 		/// @throws std::invalid_argument Sockaddr family is not AF_INET6 or sockaddr is nullptr.
-		in6_addr* sockaddr2in6_addr(sockaddr* sa);
+		in6_addr* sockaddr2in6_addr(sockaddr* sAddr);
 
 		/// Attempt to extract IPv6 address from sockaddr
-		/// @param[in] sa - input sockaddr
+		/// @param[in] sAddr - input sockaddr
 		/// @return Pointer to address in in6_addr format or nullptr if extraction fails.
-		in6_addr* try_sockaddr2in6_addr(sockaddr* sa);
+		in6_addr* try_sockaddr2in6_addr(sockaddr* sAddr);
 
 		/// Converts a sockaddr format address to its string representation
-		/// @param[in] sa Address in sockaddr format
+		/// @param[in] sAddr Address in sockaddr format
 		/// @param[out] resultString String representation of the address
 		/// @param[in] resultBufLen Length of the result buffer.
 		/// @throws std::invalid_argument Sockaddr family is not AF_INET or AF_INET6, sockaddr is nullptr or the result
 		/// str buffer is insufficient.
-		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen);
+		void sockaddr2string(const sockaddr* sAddr, char* resultString, size_t resultBufLen);
 
 		/// Convert a in_addr format address to 32bit representation
 		/// @param[in] inAddr Address in in_addr format

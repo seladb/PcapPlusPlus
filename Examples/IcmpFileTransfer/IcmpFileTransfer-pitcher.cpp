@@ -269,7 +269,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 		                nullptr, 0);
 		icmpId++;
 		// sleep for a few seconds between sending the message
-		pcpp::multiPlatformSleep(SEND_TIMEOUT_BEFORE_FT_START);
+		std::this_thread::sleep_for(std::chrono::seconds(SEND_TIMEOUT_BEFORE_FT_START));
 	}
 
 	// stop capturing packets
@@ -318,7 +318,7 @@ void receiveFile(pcpp::IPv4Address pitcherIP, pcpp::IPv4Address catcherIP, int p
 			if (packetPerSec > 1)
 				usleep(sleepBetweenPackets);
 			else if (packetPerSec == 1)
-				pcpp::multiPlatformSleep(1);
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 
 			icmpId++;
 		}
@@ -504,7 +504,7 @@ void sendFile(const std::string& filePath, pcpp::IPv4Address pitcherIP, pcpp::IP
 			if (packetPerSec > 1)
 				usleep(sleepBetweenPackets);
 			else if (packetPerSec == 1)
-				pcpp::multiPlatformSleep(1);
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 
 			bytesSentSoFar += blockSize;
 

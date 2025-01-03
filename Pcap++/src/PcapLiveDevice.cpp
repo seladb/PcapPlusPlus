@@ -249,7 +249,7 @@ namespace pcpp
 			PcapStats stats;
 			getStatistics(stats);
 			m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
-			multiPlatformSleep(m_IntervalToUpdateStats);
+			std::this_thread::sleep_for(std::chrono::milliseconds(m_IntervalToUpdateStats));
 		}
 		PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
 	}
