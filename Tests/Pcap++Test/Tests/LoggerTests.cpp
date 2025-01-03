@@ -206,6 +206,11 @@ PTF_TEST_CASE(TestLogger)
 
 		PTF_ASSERT_EQUAL(logger.getLogLevel(moduleEnum), LogLevel::Info, enum);
 		PTF_ASSERT_FALSE(logger.isDebugEnabled(moduleEnum));
+		
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Error, moduleEnum));
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Info, moduleEnum));
+		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Debug, moduleEnum));
+		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Off, moduleEnum));
 	}
 
 	// invoke debug and error logs - expect to see only the error log
@@ -257,6 +262,11 @@ PTF_TEST_CASE(TestLogger)
 
 		PTF_ASSERT_EQUAL(logger.getLogLevel(static_cast<LogModule>(moduleEnum)), pcpp::LogLevel::Debug, enum);
 		PTF_ASSERT_TRUE(logger.isDebugEnabled(static_cast<LogModule>(moduleEnum)));
+
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Error, moduleEnum));
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Info, moduleEnum));
+		PTF_ASSERT_TRUE(logger.shouldLog(LogLevel::Debug, moduleEnum));
+		PTF_ASSERT_FALSE(logger.shouldLog(LogLevel::Off, moduleEnum));
 	}
 
 	// invoke debug log - expect to see it
