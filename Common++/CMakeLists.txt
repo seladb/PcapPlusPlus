@@ -22,6 +22,7 @@ set(
   header/Logger.h
   header/LRUList.h
   header/MacAddress.h
+  header/ObjectPool.h
   header/OUILookup.h
   header/PcapPlusPlusVersion.h
   header/PointerVector.h

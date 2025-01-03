@@ -896,5 +896,4 @@ namespace pcpp
 		os << network.toString();
 		return os;
 	}
-
 }  // namespace pcpp

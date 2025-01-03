@@ -143,8 +143,9 @@ int main(int argc, char* argv[])
 	          << "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 #endif
 
-	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
-	pcpp::Logger::getInstance();
+	// The logger singleton looks like a memory leak. Invoke it before starting the memory check.
+	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
+	pcpp::Logger::getInstance().useContextPooling(false);
 
 	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
@@ -208,6 +209,8 @@ int main(int argc, char* argv[])
 	PTF_RUN_TEST(TestIPv4Network, "no_network;ip");
 	PTF_RUN_TEST(TestIPv6Network, "no_network;ip");
 	PTF_RUN_TEST(TestIPNetwork, "no_network;ip");
+
+	PTF_RUN_TEST(TestObjectPool, "no_network");
 
 	PTF_RUN_TEST(TestLogger, "no_network;logger");
 	PTF_RUN_TEST(TestLoggerMultiThread, "no_network;logger;skip_mem_leak_check");
