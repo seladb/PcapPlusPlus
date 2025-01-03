@@ -143,9 +143,9 @@ int main(int argc, char* argv[])
 	          << "     https://github.com/cpputest/cpputest/issues/786#issuecomment-148921958" << std::endl;
 #endif
 
-	// The logger singleton looks like a memory leak. Invoke it before starting the memory check
-	// Context pooling can cause issues if the logger's built-in context pool allocates new LogContext instances.
-	pcpp::Logger::getInstance();
+	// The logger singleton looks like a memory leak. Invoke it before starting the memory check.
+	// Disables context pooling to avoid false positives in the memory leak check, as the contexts persist in the pool.
+	pcpp::Logger::getInstance().useContextPooling(false);
 
 	// cppcheck-suppress knownConditionTrueFalse
 	if (skipMemLeakCheck)
