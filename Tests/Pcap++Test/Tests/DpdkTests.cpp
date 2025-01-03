@@ -6,6 +6,7 @@
 
 #ifdef USE_DPDK
 #	include <mutex>
+#	include <thread>
 #	include "Logger.h"
 #	include "PacketUtils.h"
 #	include "IPv4Layer.h"
