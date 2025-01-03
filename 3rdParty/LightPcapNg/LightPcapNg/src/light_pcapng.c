@@ -93,7 +93,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       { // PCPP patch
          DPRINT_HERE(LIGHT_SECTION_HEADER_BLOCK);
          struct _light_section_header *shb = calloc(1, sizeof(struct _light_section_header));
-         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+         struct _light_option *opt = NULL;
          uint32_t version = 0;
          int32_t local_offset = 0;
 
@@ -107,9 +107,9 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
 
          current->block_body = (uint32_t*)shb;
          local_offset = (size_t)local_data - (size_t)block_start;
-         if (opt != NULL)
-		 free(opt); // Free memory before reassignment
          opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+         if (opt == NULL)
+            opt = calloc(1, sizeof(struct _light_option));
          current->options = opt;
       }
       break;
@@ -118,7 +118,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       { // PCPP patch
          DPRINT_HERE(LIGHT_INTERFACE_BLOCK);
          struct _light_interface_description_block *idb = calloc(1, sizeof(struct _light_interface_description_block));
-         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+         struct _light_option *opt = NULL;
          uint32_t link_reserved = *local_data++;
          int32_t local_offset = 0;
 
@@ -127,18 +127,18 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          idb->snapshot_length = *local_data++;
          current->block_body = (uint32_t*)idb;
          local_offset = (size_t)local_data - (size_t)block_start;
-	 if (opt != NULL)
-		 free(opt); // Free memory before reassignment
          opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+         if (opt == NULL)
+            opt = calloc(1, sizeof(struct _light_option));
          current->options = opt;
       }
       break;
 
       case LIGHT_ENHANCED_PACKET_BLOCK:
-      { //PCPP Patch
+      { // PCPP Patch
          DPRINT_HERE(LIGHT_ENHANCED_PACKET_BLOCK);
          struct _light_enhanced_packet_block *epb = NULL;
-         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+         struct _light_option *opt = NULL;
          uint32_t interface_id = *local_data++;
          uint32_t timestamp_high = *local_data++;
          uint32_t timestamp_low = *local_data++;
@@ -160,9 +160,9 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          local_data += actual_len / sizeof(uint32_t);
          current->block_body = (uint32_t*)epb;
          local_offset = (size_t)local_data - (size_t)block_start;
-	 if (opt != NULL) 
-		 free(opt); // Free memory before reassignment
          opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+         if (opt == NULL)
+            opt = calloc(1, sizeof(struct _light_option));
          current->options = opt;
       }
       break;
@@ -188,7 +188,7 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
       {
          DPRINT_HERE(LIGHT_CUSTOM_DATA_BLOCK);
          struct _light_custom_nonstandard_block *cnb = NULL;
-         struct _light_option *opt = calloc(1, sizeof(struct _light_option));
+         struct _light_option *opt = NULL;
          uint32_t len = *local_data++;
          uint32_t reserved0 = *local_data++;
          uint32_t reserved1 = *local_data++;
@@ -205,9 +205,9 @@ void parse_by_block_type(struct _light_pcapng *current, const uint32_t *local_da
          local_data += actual_len / sizeof(uint32_t);
          current->block_body = (uint32_t*)cnb;
          local_offset = (size_t)local_data - (size_t)block_start;
-	 if (opt != NULL) 
-                free(opt); // Free memory before reassignment
          opt = __parse_options((uint32_t **)&local_data, current->block_total_length - local_offset - sizeof(current->block_total_length));
+         if (opt == NULL)
+            opt = calloc(1, sizeof(struct _light_option));
          current->options = opt;
       }
       break;
