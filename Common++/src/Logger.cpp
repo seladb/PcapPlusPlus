@@ -1,5 +1,7 @@
 #include "Logger.h"
 
+#include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <mutex>
 

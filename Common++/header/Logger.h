@@ -5,9 +5,8 @@
 #include <memory>
 #include <array>
 #include <mutex>
-#include <iostream>
+#include <ostream>
 #include <sstream>
-#include <iomanip>
 #include "DeprecationUtils.h"
 #include "ObjectPool.h"
 
