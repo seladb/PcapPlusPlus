@@ -75,9 +75,7 @@ namespace pcpp
 
 	bool IPv4Address::isValidIPv4Address(const std::string& addrAsString)
 	{
-		struct sockaddr_in sa_in
-		{
-		};
+		sockaddr_in sa_in{};
 		return inet_pton(AF_INET, addrAsString.data(), &(sa_in.sin_addr)) > 0;
 	}
 
@@ -139,9 +137,7 @@ namespace pcpp
 
 	bool IPv6Address::isValidIPv6Address(const std::string& addrAsString)
 	{
-		struct sockaddr_in6 sa_in6
-		{
-		};
+		sockaddr_in6 sa_in6{};
 		return inet_pton(AF_INET6, addrAsString.data(), &(sa_in6.sin6_addr)) > 0;
 	}
 
