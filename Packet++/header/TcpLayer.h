@@ -3,7 +3,7 @@
 #include "DeprecationUtils.h"
 #include "Layer.h"
 #include "TLVData.h"
-#include <string.h>
+#include <cstring>
 
 #define PCPP_DEPRECATED_TCP_OPTION_TYPE                                                                                \
 	PCPP_DEPRECATED("enum TcpOptionType is deprecated; Use enum class TcpOptionEnumType instead")
@@ -297,14 +297,20 @@ namespace pcpp
 		{
 			const auto* data = reinterpret_cast<const TLVRawData*>(recordRawData);
 			if (data == nullptr)
+			{
 				return false;
+			}
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
+			{
 				return false;
+			}
 
 			const auto recordType = getTcpOptionEnumType(data);
 			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
+			{
 				return true;
+			}
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
@@ -314,11 +320,15 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
 			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
+			{
 				return sizeof(uint8_t);
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -326,11 +336,15 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			const auto recordType = getTcpOptionEnumType(m_Data);
 			if (recordType == TcpOptionEnumType::Nop || recordType == TcpOptionEnumType::Eol)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - (2 * sizeof(uint8_t));
 		}
@@ -339,7 +353,9 @@ namespace pcpp
 		static TcpOptionType getTcpOptionType(const TLVRawData* optionRawData)
 		{
 			if (optionRawData == nullptr)
+			{
 				return TcpOptionType::TCPOPT_Unknown;
+			}
 
 			return static_cast<TcpOptionType>(optionRawData->recordType);
 		}
@@ -347,7 +363,9 @@ namespace pcpp
 		static TcpOptionEnumType getTcpOptionEnumType(const TLVRawData* optionRawData)
 		{
 			if (optionRawData == nullptr)
+			{
 				return TcpOptionEnumType::Unknown;
+			}
 
 			return static_cast<TcpOptionEnumType>(optionRawData->recordType);
 		}
@@ -671,7 +689,7 @@ namespace pcpp
 
 	private:
 		TLVRecordReader<TcpOption> m_OptionReader;
-		int m_NumOfTrailingBytes;
+		int m_NumOfTrailingBytes{};
 
 		void initLayer();
 		uint8_t* getOptionsBasePtr() const
@@ -687,7 +705,7 @@ namespace pcpp
 
 	bool TcpLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		const tcphdr* hdr = reinterpret_cast<const tcphdr*>(data);
+		const auto* hdr = reinterpret_cast<const tcphdr*>(data);
 		return dataLen >= sizeof(tcphdr) && hdr->dataOffset >= 5 /* the minimum TCP header size */
 		       && dataLen >= hdr->dataOffset * sizeof(uint32_t);
 	}

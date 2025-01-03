@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * @file
@@ -171,10 +171,8 @@ namespace pcpp
 		 * @param[in] sslVersionValue The numeric value representing this SSL/TLS version. For example:
 		 * for TLS 1.2 this would be 0x0303.
 		 */
-		explicit SSLVersion(uint16_t sslVersionValue)
-		{
-			m_SSLVersionValue = sslVersionValue;
-		}
+		explicit SSLVersion(uint16_t sslVersionValue) : m_SSLVersionValue(sslVersionValue)
+		{}
 
 		/**
 		 * @return An enum value of type SSLVersion::SSLVersionEnum representing the SSL/TLS version.
@@ -183,12 +181,12 @@ namespace pcpp
 		 * TLS 1.3 drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
 		 * SSLVersion::TLS1_3, otherwise the corresponding enum values will be returned. The default value is "false".
 		 */
-		SSLVersionEnum asEnum(bool countTlsDraftsAs1_3 = false);
+		SSLVersionEnum asEnum(bool countTlsDraftsAs1_3 = false) const;
 
 		/**
 		 * @return The numeric value of the SSL/TLs version
 		 */
-		uint16_t asUInt()
+		uint16_t asUInt() const
 		{
 			return m_SSLVersionValue;
 		}
@@ -200,7 +198,7 @@ namespace pcpp
 		 * drafts. If set to "true" all TLS 1.3 draft values (i.e 0x7f0e - 0x7f1c, 0xfb17, 0xfb1a) will return
 		 * "TLS 1.3", otherwise the corresponding string values will be returned. The default value is "false".
 		 */
-		std::string toString(bool countTlsDraftsAs1_3 = false);
+		std::string toString(bool countTlsDraftsAs1_3 = false) const;
 
 	private:
 		uint16_t m_SSLVersionValue;

@@ -131,15 +131,10 @@ namespace pcpp
 		SipLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
 		{}
-		SipLayer() : TextBasedProtocolMessage()
+		SipLayer()
 		{}
-		SipLayer(const SipLayer& other) : TextBasedProtocolMessage(other)
-		{}
-		SipLayer& operator=(const SipLayer& other)
-		{
-			TextBasedProtocolMessage::operator=(other);
-			return *this;
-		}
+		SipLayer(const SipLayer& other) = default;
+		SipLayer& operator=(const SipLayer& other) = default;
 
 		// implementation of abstract methods
 		char getHeaderFieldNameValueSeparator() const override
@@ -614,13 +609,12 @@ namespace pcpp
 		class SipRequestFirstLineException : public std::exception
 		{
 		public:
-			~SipRequestFirstLineException() noexcept
-			{}
+			~SipRequestFirstLineException() noexcept override = default;
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const noexcept
+			const char* what() const noexcept override
 			{
 				return m_Message.c_str();
 			}
@@ -639,7 +633,7 @@ namespace pcpp
 		SipRequestLayer* m_SipRequest;
 		SipRequestLayer::SipMethod m_Method;
 		std::string m_Version;
-		int m_VersionOffset;
+		int m_VersionOffset{};
 		int m_UriOffset;
 		int m_FirstLineEndOffset;
 		bool m_IsComplete;
@@ -748,13 +742,12 @@ namespace pcpp
 		class SipResponseFirstLineException : public std::exception
 		{
 		public:
-			~SipResponseFirstLineException() noexcept
-			{}
+			~SipResponseFirstLineException() noexcept override = default;
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const noexcept
+			const char* what() const noexcept override
 			{
 				return m_Message.c_str();
 			}

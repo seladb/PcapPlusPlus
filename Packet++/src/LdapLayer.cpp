@@ -193,10 +193,8 @@ namespace pcpp
 
 	LdapLayer::LdapLayer(std::unique_ptr<Asn1Record> asn1Record, uint8_t* data, size_t dataLen, Layer* prevLayer,
 	                     Packet* packet)
-	    : Layer(data, dataLen, prevLayer, packet, LDAP)
-	{
-		m_Asn1Record = std::move(asn1Record);
-	}
+	    : Layer(data, dataLen, prevLayer, packet, LDAP), m_Asn1Record(std::move(asn1Record))
+	{}
 
 	void LdapLayer::init(uint16_t messageId, LdapOperationType operationType,
 	                     const std::vector<Asn1Record*>& messageRecords, const std::vector<LdapControl>& controls)
@@ -230,7 +228,7 @@ namespace pcpp
 				else
 				{
 					auto controlValueSize = static_cast<size_t>(control.controlValue.size() / 2);
-					std::unique_ptr<uint8_t[]> controlValue(new uint8_t[controlValueSize]);
+					std::unique_ptr<uint8_t[]> const controlValue(new uint8_t[controlValueSize]);
 					controlValueSize = hexStringToByteArray(control.controlValue, controlValue.get(), controlValueSize);
 					Asn1OctetStringRecord controlValueRecord(controlValue.get(), controlValueSize);
 					controlsSubRecords.pushBack(new Asn1SequenceRecord({ &controlTypeRecord, &controlValueRecord }));
@@ -323,10 +321,10 @@ namespace pcpp
 			return controls;
 		}
 
-		auto controlsRecord = getRootAsn1Record()->getSubRecords().at(controlsIndex)->castAs<Asn1ConstructedRecord>();
-		for (auto controlRecord : controlsRecord->getSubRecords())
+		auto* controlsRecord = getRootAsn1Record()->getSubRecords().at(controlsIndex)->castAs<Asn1ConstructedRecord>();
+		for (auto* controlRecord : controlsRecord->getSubRecords())
 		{
-			auto controlSequence = controlRecord->castAs<Asn1SequenceRecord>();
+			auto* controlSequence = controlRecord->castAs<Asn1SequenceRecord>();
 			auto controlType =
 			    controlSequence->getSubRecords().at(controlTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 			std::string controlValue;
@@ -343,7 +341,7 @@ namespace pcpp
 
 	LdapOperationType LdapLayer::getLdapOperationType() const
 	{
-		uint8_t tagType;
+		uint8_t tagType = 0;
 		try
 		{
 			tagType = getLdapOperationAsn1Record()->getTagType();
@@ -358,12 +356,14 @@ namespace pcpp
 
 	void LdapLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen || headerLen == 0)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
-		size_t payloadLen = m_DataLen - headerLen;
+		size_t const payloadLen = m_DataLen - headerLen;
 
 		m_NextLayer = LdapLayer::parseLdapMessage(payload, payloadLen, this, m_Packet);
 	}
@@ -407,7 +407,7 @@ namespace pcpp
 
 		if (!additionalRecords.empty())
 		{
-			for (auto additionalRecord : additionalRecords)
+			for (auto* additionalRecord : additionalRecords)
 			{
 				messageRecords.push_back(additionalRecord);
 			}
@@ -451,14 +451,14 @@ namespace pcpp
 			return result;
 		}
 
-		auto referralRecord = getLdapOperationAsn1Record()->getSubRecords().at(referralIndex);
+		auto* referralRecord = getLdapOperationAsn1Record()->getSubRecords().at(referralIndex);
 		if (referralRecord->getTagClass() != Asn1TagClass::ContextSpecific ||
 		    referralRecord->getTagType() != referralTagType)
 		{
 			return result;
 		}
 
-		for (auto uriRecord : referralRecord->castAs<Asn1ConstructedRecord>()->getSubRecords())
+		for (auto* uriRecord : referralRecord->castAs<Asn1ConstructedRecord>()->getSubRecords())
 		{
 			result.push_back(uriRecord->castAs<Asn1OctetStringRecord>()->getValue());
 		}
@@ -484,7 +484,7 @@ namespace pcpp
 		std::unique_ptr<Asn1GenericRecord> simpleAuthenticationRecord;
 		if (!simpleAuthentication.empty())
 		{
-			auto data = reinterpret_cast<const uint8_t*>(simpleAuthentication.data());
+			const auto* data = reinterpret_cast<const uint8_t*>(simpleAuthentication.data());
 			simpleAuthenticationRecord = std::unique_ptr<Asn1GenericRecord>(
 			    new Asn1GenericRecord(Asn1TagClass::ContextSpecific, false,
 			                          static_cast<uint8_t>(LdapBindRequestLayer::AuthenticationType::Simple), data,
@@ -509,8 +509,8 @@ namespace pcpp
 			saslAuthenticationRecords.pushBack(new Asn1OctetStringRecord(saslAuthentication.mechanism));
 			if (!saslAuthentication.credentials.empty())
 			{
-				auto credentialsRecord = new Asn1OctetStringRecord(saslAuthentication.credentials.data(),
-				                                                   saslAuthentication.credentials.size());
+				auto* credentialsRecord = new Asn1OctetStringRecord(saslAuthentication.credentials.data(),
+				                                                    saslAuthentication.credentials.size());
 				saslAuthenticationRecords.pushBack(credentialsRecord);
 			}
 
@@ -559,7 +559,7 @@ namespace pcpp
 			throw std::invalid_argument("Authentication type is not simple");
 		}
 
-		auto authRecord =
+		auto* authRecord =
 		    getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1GenericRecord>();
 		return { reinterpret_cast<const char*>(authRecord->getValue()), authRecord->getValueLength() };
 	}
@@ -571,7 +571,7 @@ namespace pcpp
 			throw std::invalid_argument("Authentication type is not sasl");
 		}
 
-		auto authRecord =
+		auto* authRecord =
 		    getLdapOperationAsn1Record()->getSubRecords().at(credentialIndex)->castAs<Asn1ConstructedRecord>();
 		std::string mechanism;
 		std::vector<uint8_t> credentials;
@@ -631,7 +631,7 @@ namespace pcpp
 	{
 		try
 		{
-			auto serverSaslCredentialsRecord =
+			auto* serverSaslCredentialsRecord =
 			    getLdapOperationAsn1Record()->getSubRecords().back()->castAs<Asn1GenericRecord>();
 			return { serverSaslCredentialsRecord->getValue(),
 				     serverSaslCredentialsRecord->getValue() + serverSaslCredentialsRecord->getValueLength() };
@@ -788,9 +788,9 @@ namespace pcpp
 			return result;
 		}
 
-		auto attributesRecord =
+		auto* attributesRecord =
 		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
-		for (auto attribute : attributesRecord->getSubRecords())
+		for (auto* attribute : attributesRecord->getSubRecords())
 		{
 			result.push_back(attribute->castAs<Asn1OctetStringRecord>()->getValue());
 		}
@@ -852,24 +852,24 @@ namespace pcpp
 	{
 		std::vector<LdapAttribute> result;
 
-		auto attributes =
+		auto* attributes =
 		    getLdapOperationAsn1Record()->getSubRecords().at(attributesIndex)->castAs<Asn1SequenceRecord>();
-		for (auto attributeRecord : attributes->getSubRecords())
+		for (auto* attributeRecord : attributes->getSubRecords())
 		{
-			auto attrAsSequence = attributeRecord->castAs<Asn1SequenceRecord>();
+			auto* attrAsSequence = attributeRecord->castAs<Asn1SequenceRecord>();
 
 			auto type =
 			    attrAsSequence->getSubRecords().at(attributeTypeIndex)->castAs<Asn1OctetStringRecord>()->getValue();
 
 			std::vector<std::string> values;
-			auto valuesRecord = attrAsSequence->getSubRecords().at(attributeValueIndex)->castAs<Asn1SetRecord>();
+			auto* valuesRecord = attrAsSequence->getSubRecords().at(attributeValueIndex)->castAs<Asn1SetRecord>();
 
-			for (auto valueRecord : valuesRecord->getSubRecords())
+			for (auto* valueRecord : valuesRecord->getSubRecords())
 			{
 				values.push_back(valueRecord->castAs<Asn1OctetStringRecord>()->getValue());
 			}
 
-			LdapAttribute ldapAttribute = { type, values };
+			LdapAttribute const ldapAttribute = { type, values };
 			result.push_back(ldapAttribute);
 		}
 

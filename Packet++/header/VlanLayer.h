@@ -59,7 +59,7 @@ namespace pcpp
 		 * @param[in] etherType Protocol EtherType of the next layer. It's an optional parameter, a value of 0 will be
 		 * set if not provided
 		 */
-		VlanLayer(const uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType = 0);
+		VlanLayer(uint16_t vlanID, bool cfi, uint8_t priority, uint16_t etherType = 0);
 
 		~VlanLayer() override = default;
 
@@ -99,21 +99,21 @@ namespace pcpp
 		 * @param[in] id The VLAN ID to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		void setVlanID(uint16_t id);
+		void setVlanID(uint16_t id) const;
 
 		/**
 		 * Set CFI bit
 		 * @param[in] cfi The CFI bit to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		void setCFI(bool cfi);
+		void setCFI(bool cfi) const;
 
 		/**
 		 * Set priority value
 		 * @param[in] priority The priority value to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		void setPriority(uint8_t priority);
+		void setPriority(uint8_t priority) const;
 
 		// implement abstract methods
 

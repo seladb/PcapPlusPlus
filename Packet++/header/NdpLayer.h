@@ -57,7 +57,9 @@ namespace pcpp
 		NDPNeighborOptionTypes getNdpOptionType() const
 		{
 			if (m_Data == nullptr)
+			{
 				return NDPNeighborOptionTypes::NDP_OPTION_UNKNOWN;
+			}
 
 			return static_cast<NDPNeighborOptionTypes>(m_Data->recordType);
 		}
@@ -67,7 +69,9 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) * 8;
 		}
@@ -237,7 +241,7 @@ namespace pcpp
 		 */
 		IPv6Address getTargetIP() const
 		{
-			return IPv6Address(getNdpHeader()->targetIP);
+			return { getNdpHeader()->targetIP };
 		};
 
 		/**
@@ -358,7 +362,7 @@ namespace pcpp
 		 */
 		IPv6Address getTargetIP() const
 		{
-			return IPv6Address(getNdpHeader()->targetIP);
+			return { getNdpHeader()->targetIP };
 		}
 
 		/**

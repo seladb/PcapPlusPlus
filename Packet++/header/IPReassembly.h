@@ -132,9 +132,7 @@ namespace pcpp
 			 * A copy c'tor for this class
 			 * @param[in] other The instance to copy from
 			 */
-			IPv4PacketKey(const IPv4PacketKey& other)
-			    : PacketKey(other), m_IpID(other.m_IpID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP)
-			{}
+			IPv4PacketKey(const IPv4PacketKey& other) = default;
 
 			/**
 			 * Assignment operator for this class
@@ -250,9 +248,7 @@ namespace pcpp
 			 * A copy c'tor for this class
 			 * @param[in] other The instance to copy from
 			 */
-			IPv6PacketKey(const IPv6PacketKey& other)
-			    : PacketKey(other), m_FragmentID(other.m_FragmentID), m_SrcIP(other.m_SrcIP), m_DstIP(other.m_DstIP)
-			{}
+			IPv6PacketKey(const IPv6PacketKey& other) = default;
 
 			/**
 			 * Assignment operator for this class
@@ -350,7 +346,7 @@ namespace pcpp
 		 * @param[in] userCookie A pointer to the cookie provided by the user in IPReassemby c'tor (or nullptr if no
 		 * cookie provided)
 		 */
-		typedef void (*OnFragmentsClean)(const PacketKey* key, void* userCookie);
+		using OnFragmentsClean = void (*)(const PacketKey*, void*);
 
 		/**
 		 * An enum representing the status returned from processing a fragment
@@ -514,17 +510,11 @@ namespace pcpp
 	private:
 		struct IPFragment
 		{
-			uint16_t fragmentOffset;
-			bool lastFragment;
-			uint8_t* fragmentData;
-			size_t fragmentDataLen;
-			IPFragment()
-			{
-				fragmentOffset = 0;
-				lastFragment = false;
-				fragmentData = nullptr;
-				fragmentDataLen = 0;
-			}
+			uint16_t fragmentOffset{ 0 };
+			bool lastFragment{ false };
+			uint8_t* fragmentData{ nullptr };
+			size_t fragmentDataLen{ 0 };
+			IPFragment() = default;
 			~IPFragment()
 			{
 				delete[] fragmentData;
@@ -533,20 +523,14 @@ namespace pcpp
 
 		struct IPFragmentData
 		{
-			uint16_t currentOffset;
-			RawPacket* data;
-			bool deleteData;
+			uint16_t currentOffset{ 0 };
+			RawPacket* data{ nullptr };
+			bool deleteData{ true };
 			uint32_t fragmentID;
 			PacketKey* packetKey;
 			PointerVector<IPFragment> outOfOrderFragments;
-			IPFragmentData(PacketKey* pktKey, uint32_t fragId)
-			{
-				currentOffset = 0;
-				data = nullptr;
-				deleteData = true;
-				fragmentID = fragId;
-				packetKey = pktKey;
-			}
+			IPFragmentData(PacketKey* pktKey, uint32_t fragId) : fragmentID(fragId), packetKey(pktKey)
+			{}
 			~IPFragmentData()
 			{
 				delete packetKey;
@@ -563,7 +547,7 @@ namespace pcpp
 		void* m_CallbackUserCookie;
 
 		void addNewFragment(uint32_t hash, IPFragmentData* fragData);
-		bool matchOutOfOrderFragments(IPFragmentData* fragData);
+		static bool matchOutOfOrderFragments(IPFragmentData* fragData);
 	};
 
 }  // namespace pcpp

@@ -55,19 +55,23 @@ namespace pcpp
 
 	void TpktLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen <= headerLen)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + headerLen;
-		size_t payloadLen = m_DataLen - headerLen;
+		size_t const payloadLen = m_DataLen - headerLen;
 
 		if (CotpLayer::isDataValid(payload, payloadLen))
 		{
 			m_NextLayer = new CotpLayer(payload, payloadLen, this, m_Packet);
 		}
 		else
+		{
 			m_NextLayer = new PayloadLayer(payload, payloadLen, this, m_Packet);
+		}
 	}
 
 }  // namespace pcpp

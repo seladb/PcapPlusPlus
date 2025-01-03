@@ -3,9 +3,9 @@
 #include "DnsLayer.h"
 #include "DnsLayerEnums.h"
 #include "DnsResourceData.h"
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <stdint.h>
+#include <cstdint>
 
 /// @file
 
@@ -32,7 +32,6 @@ namespace pcpp
 		friend class DnsLayer;
 		friend class IDnsResourceData;
 
-	protected:
 		DnsLayer* m_DnsLayer;
 		size_t m_OffsetInLayer;
 		IDnsResource* m_NextResource;
@@ -45,7 +44,7 @@ namespace pcpp
 		IDnsResource(uint8_t* emptyRawData);
 
 		size_t decodeName(const char* encodedName, char* result, int iteration = 1);
-		void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
+		static void encodeName(const std::string& decodedName, char* result, size_t& resultLen);
 
 		IDnsResource* getNextResource() const
 		{
@@ -170,10 +169,8 @@ namespace pcpp
 		DnsResourceType m_ResourceType;
 
 		DnsResource(DnsLayer* dnsLayer, size_t offsetInLayer, DnsResourceType resourceType)
-		    : IDnsResource(dnsLayer, offsetInLayer)
-		{
-			m_ResourceType = resourceType;
-		}
+		    : IDnsResource(dnsLayer, offsetInLayer), m_ResourceType(resourceType)
+		{}
 
 		DnsResource(uint8_t* emptyRawData, DnsResourceType resType)
 		    : IDnsResource(emptyRawData), m_ResourceType(resType)

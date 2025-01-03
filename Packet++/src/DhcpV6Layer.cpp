@@ -11,9 +11,11 @@ namespace pcpp
 	DhcpV6OptionType DhcpV6Option::getType() const
 	{
 		if (m_Data == nullptr)
+		{
 			return DhcpV6OptionType::DHCPV6_OPT_UNKNOWN;
+		}
 
-		uint16_t optionType = be16toh(m_Data->recordType);
+		uint16_t const optionType = be16toh(m_Data->recordType);
 		if (optionType <= 62 && optionType != 10 && optionType != 35 && optionType != 57 && optionType != 58)
 		{
 			return static_cast<DhcpV6OptionType>(optionType);
@@ -29,7 +31,9 @@ namespace pcpp
 	std::string DhcpV6Option::getValueAsHexString() const
 	{
 		if (m_Data == nullptr)
+		{
 			return "";
+		}
 
 		return byteArrayToHexString(m_Data->recordValue, getDataSize());
 	}
@@ -37,7 +41,9 @@ namespace pcpp
 	size_t DhcpV6Option::getTotalSize() const
 	{
 		if (m_Data == nullptr)
+		{
 			return 0;
+		}
 
 		return 2 * sizeof(uint16_t) + be16toh(m_Data->recordLen);
 	}
@@ -45,7 +51,9 @@ namespace pcpp
 	size_t DhcpV6Option::getDataSize() const
 	{
 		if (m_Data == nullptr)
+		{
 			return 0;
+		}
 
 		return static_cast<size_t>(be16toh(m_Data->recordLen));
 	}
@@ -53,16 +61,20 @@ namespace pcpp
 	DhcpV6Option DhcpV6OptionBuilder::build() const
 	{
 		if (m_RecType == 0)
+		{
 			return DhcpV6Option(nullptr);
+		}
 
-		size_t optionSize = 2 * sizeof(uint16_t) + m_RecValueLen;
-		uint8_t* recordBuffer = new uint8_t[optionSize];
+		size_t const optionSize = 2 * sizeof(uint16_t) + m_RecValueLen;
+		auto* recordBuffer = new uint8_t[optionSize];
 		uint16_t optionTypeVal = htobe16(static_cast<uint16_t>(m_RecType));
 		uint16_t optionLength = htobe16(static_cast<uint16_t>(m_RecValueLen));
 		memcpy(recordBuffer, &optionTypeVal, sizeof(uint16_t));
 		memcpy(recordBuffer + sizeof(uint16_t), &optionLength, sizeof(uint16_t));
 		if (optionSize > 0 && m_RecValue != nullptr)
+		{
 			memcpy(recordBuffer + 2 * sizeof(uint16_t), m_RecValue, m_RecValueLen);
+		}
 
 		return DhcpV6Option(recordBuffer);
 	}
@@ -84,7 +96,7 @@ namespace pcpp
 
 	DhcpV6MessageType DhcpV6Layer::getMessageType() const
 	{
-		uint8_t messageType = getDhcpHeader()->messageType;
+		uint8_t const messageType = getDhcpHeader()->messageType;
 		if (messageType > 13)
 		{
 			return DHCPV6_UNKNOWN_MSG_TYPE;
@@ -95,7 +107,7 @@ namespace pcpp
 
 	std::string DhcpV6Layer::getMessageTypeAsString() const
 	{
-		DhcpV6MessageType messageType = getMessageType();
+		DhcpV6MessageType const messageType = getMessageType();
 		switch (messageType)
 		{
 		case DHCPV6_SOLICIT:
@@ -137,7 +149,7 @@ namespace pcpp
 	uint32_t DhcpV6Layer::getTransactionID() const
 	{
 		dhcpv6_header* hdr = getDhcpHeader();
-		uint32_t result = hdr->transactionId1 << 16 | hdr->transactionId2 << 8 | hdr->transactionId3;
+		uint32_t const result = hdr->transactionId1 << 16 | hdr->transactionId2 << 8 | hdr->transactionId3;
 		return result;
 	}
 
@@ -180,7 +192,7 @@ namespace pcpp
 			return DhcpV6Option(nullptr);
 		}
 
-		size_t sizeToExtend = newOpt.getTotalSize();
+		size_t const sizeToExtend = newOpt.getTotalSize();
 
 		if (!extendLayer(offset, sizeToExtend))
 		{
@@ -209,7 +221,7 @@ namespace pcpp
 	{
 		int offset = 0;
 
-		DhcpV6Option prevOpt = getOptionData(optionType);
+		DhcpV6Option const prevOpt = getOptionData(optionType);
 
 		if (prevOpt.isNull())
 		{
@@ -224,7 +236,7 @@ namespace pcpp
 	{
 		int offset = 0;
 
-		DhcpV6Option nextOpt = getOptionData(optionType);
+		DhcpV6Option const nextOpt = getOptionData(optionType);
 
 		if (nextOpt.isNull())
 		{
@@ -238,13 +250,13 @@ namespace pcpp
 
 	bool DhcpV6Layer::removeOption(DhcpV6OptionType optionType)
 	{
-		DhcpV6Option optToRemove = getOptionData(optionType);
+		DhcpV6Option const optToRemove = getOptionData(optionType);
 		if (optToRemove.isNull())
 		{
 			return false;
 		}
 
-		int offset = optToRemove.getRecordBasePtr() - m_Data;
+		int const offset = optToRemove.getRecordBasePtr() - m_Data;
 
 		if (!shortenLayer(offset, optToRemove.getTotalSize()))
 		{
@@ -257,10 +269,12 @@ namespace pcpp
 
 	bool DhcpV6Layer::removeAllOptions()
 	{
-		int offset = sizeof(dhcpv6_header);
+		int const offset = sizeof(dhcpv6_header);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_OptionReader.changeTLVRecordCount(0 - getOptionCount());
 		return true;

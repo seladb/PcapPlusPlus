@@ -435,7 +435,7 @@ namespace pcpp
 		bool isFirstKexPacketFollows();
 
 	private:
-		size_t m_FieldOffsets[11];
+		size_t m_FieldOffsets[11]{};
 		bool m_OffsetsInitialized;
 
 		void parseMessageAndInitOffsets();

@@ -7,7 +7,7 @@
 #include <chrono>
 #include <map>
 #include <list>
-#include <time.h>
+#include <ctime>
 
 /**
  * @file
@@ -102,11 +102,11 @@ namespace pcpp
 		/** Destination IP address */
 		IPAddress dstIP;
 		/** Source TCP/UDP port */
-		uint16_t srcPort;
+		uint16_t srcPort{ 0 };
 		/** Destination TCP/UDP port */
-		uint16_t dstPort;
+		uint16_t dstPort{ 0 };
 		/** A 4-byte hash key representing the connection */
-		uint32_t flowKey;
+		uint32_t flowKey{ 0 };
 		/** Start timestamp of the connection with microsecond precision */
 		timeval startTime;
 		/** End timestamp of the connection with microsecond precision */
@@ -119,7 +119,7 @@ namespace pcpp
 		/**
 		 * A c'tor for this struct that basically zeros all members
 		 */
-		ConnectionData() : srcPort(0), dstPort(0), flowKey(0), startTime(), endTime()
+		ConnectionData() : startTime(), endTime()
 		{}
 
 		/**
@@ -370,7 +370,7 @@ namespace pcpp
 		/**
 		 * The type for storing the connection information
 		 */
-		typedef std::unordered_map<uint32_t, ConnectionData> ConnectionInfoList;
+		using ConnectionInfoList = std::unordered_map<uint32_t, ConnectionData>;
 
 		/**
 		 * @typedef OnTcpMessageReady
@@ -381,7 +381,7 @@ namespace pcpp
 		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		 * cookie provided)
 		 */
-		typedef void (*OnTcpMessageReady)(int8_t side, const TcpStreamData& tcpData, void* userCookie);
+		using OnTcpMessageReady = void (*)(int8_t, const TcpStreamData&, void*);
 
 		/**
 		 * @typedef OnTcpConnectionStart
@@ -390,7 +390,7 @@ namespace pcpp
 		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		 * cookie provided)
 		 */
-		typedef void (*OnTcpConnectionStart)(const ConnectionData& connectionData, void* userCookie);
+		using OnTcpConnectionStart = void (*)(const ConnectionData&, void*);
 
 		/**
 		 * @typedef OnTcpConnectionEnd
@@ -400,8 +400,7 @@ namespace pcpp
 		 * @param[in] userCookie A pointer to the cookie provided by the user in TcpReassembly c'tor (or nullptr if no
 		 * cookie provided)
 		 */
-		typedef void (*OnTcpConnectionEnd)(const ConnectionData& connectionData, ConnectionEndReason reason,
-		                                   void* userCookie);
+		using OnTcpConnectionEnd = void (*)(const ConnectionData&, ConnectionEndReason, void*);
 
 		/**
 		 * A c'tor for this class
@@ -483,13 +482,12 @@ namespace pcpp
 	private:
 		struct TcpFragment
 		{
-			uint32_t sequence;
-			size_t dataLength;
-			uint8_t* data;
+			uint32_t sequence{ 0 };
+			size_t dataLength{ 0 };
+			uint8_t* data{ nullptr };
 			std::chrono::time_point<std::chrono::high_resolution_clock> timestamp;
 
-			TcpFragment() : sequence(0), dataLength(0), data(nullptr)
-			{}
+			TcpFragment() = default;
 			~TcpFragment()
 			{
 				delete[] data;
@@ -499,25 +497,23 @@ namespace pcpp
 		struct TcpOneSideData
 		{
 			IPAddress srcIP;
-			uint16_t srcPort;
-			uint32_t sequence;
+			uint16_t srcPort{ 0 };
+			uint32_t sequence{ 0 };
 			PointerVector<TcpFragment> tcpFragmentList;
-			bool gotFinOrRst;
+			bool gotFinOrRst{ false };
 
-			TcpOneSideData() : srcPort(0), sequence(0), gotFinOrRst(false)
-			{}
+			TcpOneSideData() = default;
 		};
 
 		struct TcpReassemblyData
 		{
-			bool closed;
-			int8_t numOfSides;
-			int8_t prevSide;
+			bool closed{ false };
+			int8_t numOfSides{ 0 };
+			int8_t prevSide{ -1 };
 			TcpOneSideData twoSides[2];
 			ConnectionData connData;
 
-			TcpReassemblyData() : closed(false), numOfSides(0), prevSide(-1)
-			{}
+			TcpReassemblyData() = default;
 		};
 
 		class OutOfOrderProcessingGuard
@@ -541,8 +537,8 @@ namespace pcpp
 			OutOfOrderProcessingGuard& operator=(const OutOfOrderProcessingGuard&) = delete;
 		};
 
-		typedef std::unordered_map<uint32_t, TcpReassemblyData> ConnectionList;
-		typedef std::map<time_t, std::list<uint32_t>> CleanupList;
+		using ConnectionList = std::unordered_map<uint32_t, TcpReassemblyData>;
+		using CleanupList = std::map<time_t, std::list<uint32_t>>;
 
 		OnTcpMessageReady m_OnMessageReadyCallback;
 		OnTcpConnectionStart m_OnConnStart;

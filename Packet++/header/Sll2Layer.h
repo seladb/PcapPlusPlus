@@ -96,7 +96,7 @@ namespace pcpp
 		 * Set protocol type of this layer
 		 * @param[in] protocolType type to set
 		 */
-		void setProtocolType(uint16_t protocolType);
+		void setProtocolType(uint16_t protocolType) const;
 
 		/**
 		 * Get interface index of this layer
@@ -108,7 +108,7 @@ namespace pcpp
 		 * Set interface index of this layer
 		 * @param[in] interfaceIndex interface index to set
 		 */
-		void setInterfaceIndex(uint32_t interfaceIndex);
+		void setInterfaceIndex(uint32_t interfaceIndex) const;
 
 		/**
 		 * Get arphrd type of this layer
@@ -120,7 +120,7 @@ namespace pcpp
 		 * Set arphrd type of this layer
 		 * @param[in] arphrdType arphrd type to set
 		 */
-		void setArphrdType(uint16_t arphrdType);
+		void setArphrdType(uint16_t arphrdType) const;
 
 		/**
 		 * Get packet type of this layer
@@ -132,7 +132,7 @@ namespace pcpp
 		 * Set packet type of this layer
 		 * @param[in] packetType packet type to set
 		 */
-		void setPacketType(uint8_t packetType);
+		void setPacketType(uint8_t packetType) const;
 
 		/**
 		 * Get link layer address length
@@ -152,21 +152,21 @@ namespace pcpp
 		 * @param[in] addrLength Address length, must be lower or equal to 8 (which is max length for SLL2 address)
 		 * @return True if address was set successfully, or false of addrLength is out of bounds (0 or larger than 8)
 		 */
-		bool setLinkLayerAddr(const uint8_t* addr, size_t addrLength);
+		bool setLinkLayerAddr(const uint8_t* addr, size_t addrLength) const;
 
 		/**
 		 * Get a MAC address in the link layer address field
 		 * @return return macAddress pointer was set successfully, null pointer if d MAC address isn't valid or if set
 		 * failed
 		 */
-		MacAddress getLinkLayerAsMacAddress();
+		MacAddress getLinkLayerAsMacAddress() const;
 
 		/**
 		 * Set a MAC address in the link layer address field
 		 * @param[in] macAddr MAC address to set
 		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		 */
-		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
+		bool setMacAddressAsLinkLayer(const MacAddress& macAddr) const;
 
 		// implement abstract methods
 

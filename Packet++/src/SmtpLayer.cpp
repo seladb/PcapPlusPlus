@@ -15,7 +15,7 @@ namespace pcpp
 	SmtpRequestLayer::SmtpCommand SmtpRequestLayer::getCommand() const
 	{
 		size_t val = 0;
-		std::string field = getCommandString();
+		std::string const field = getCommandString();
 
 		for (size_t idx = 0; idx < std::min(field.size(), static_cast<size_t>(8)); ++idx)
 		{
@@ -44,7 +44,7 @@ namespace pcpp
 		}
 
 		std::string optionWithEscapeChars;
-		for (char ch : option)
+		for (char const ch : option)
 		{
 			if (ch < 127 && ch > 31)
 			{
@@ -117,8 +117,8 @@ namespace pcpp
 		std::stringstream oss;
 		for (size_t idx = 0; idx < 8; ++idx)
 		{
-			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
-			if (val)  // Dont push if it is a null character
+			char const val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
+			if (val != 0)  // Dont push if it is a null character
 			{
 				oss << val;
 			}
@@ -163,7 +163,7 @@ namespace pcpp
 		}
 
 		std::string optionWithEscapeChars;
-		for (char ch : option)
+		for (char const ch : option)
 		{
 			if (ch < 127 && ch > 31)
 			{

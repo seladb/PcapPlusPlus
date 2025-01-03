@@ -102,15 +102,10 @@ namespace pcpp
 		HttpMessage(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet, ProtocolType protocol)
 		    : TextBasedProtocolMessage(data, dataLen, prevLayer, packet, protocol)
 		{}
-		HttpMessage() : TextBasedProtocolMessage()
+		HttpMessage()
 		{}
-		HttpMessage(const HttpMessage& other) : TextBasedProtocolMessage(other)
-		{}
-		HttpMessage& operator=(const HttpMessage& other)
-		{
-			TextBasedProtocolMessage::operator=(other);
-			return *this;
-		}
+		HttpMessage(const HttpMessage& other) = default;
+		HttpMessage& operator=(const HttpMessage& other) = default;
 
 		// implementation of abstract methods
 		char getHeaderFieldNameValueSeparator() const override
@@ -709,13 +704,12 @@ namespace pcpp
 		class HttpRequestFirstLineException : public std::exception
 		{
 		public:
-			~HttpRequestFirstLineException() noexcept
-			{}
+			~HttpRequestFirstLineException() noexcept override = default;
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const noexcept
+			const char* what() const noexcept override
 			{
 				return m_Message.c_str();
 			}
@@ -856,13 +850,12 @@ namespace pcpp
 		class HttpResponseFirstLineException : public std::exception
 		{
 		public:
-			~HttpResponseFirstLineException() noexcept
-			{}
+			~HttpResponseFirstLineException() noexcept override = default;
 			void setMessage(const std::string& message)
 			{
 				m_Message = message;
 			}
-			virtual const char* what() const noexcept
+			const char* what() const noexcept override
 			{
 				return m_Message.c_str();
 			}

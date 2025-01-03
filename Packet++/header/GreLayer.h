@@ -113,7 +113,7 @@ namespace pcpp
 		 * @param[in] greDataLen Size of raw data
 		 * @return ::GREv0 or ::GREv1 values if raw data is GREv0 or GREv1 (accordingly) or ::UnknownProtocol otherwise
 		 */
-		static ProtocolType getGREVersion(uint8_t* greData, size_t greDataLen);
+		static ProtocolType getGREVersion(const uint8_t* greData, size_t greDataLen);
 
 		/**
 		 * Get sequence number value if field exists in layer
@@ -289,7 +289,7 @@ namespace pcpp
 		 */
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(gre_basic_header);
+			return (data != nullptr) && dataLen >= sizeof(gre_basic_header);
 		}
 
 		// implement abstract methods
@@ -376,7 +376,7 @@ namespace pcpp
 		 */
 		static inline bool isDataValid(const uint8_t* data, size_t dataLen)
 		{
-			return data && dataLen >= sizeof(gre1_header);
+			return (data != nullptr) && dataLen >= sizeof(gre1_header);
 		}
 
 		// implement abstract methods

@@ -11,7 +11,7 @@ namespace pcpp
 	DhcpOption DhcpOptionBuilder::build() const
 	{
 		size_t recSize = 2 * sizeof(uint8_t) + m_RecValueLen;
-		uint8_t recType = static_cast<uint8_t>(m_RecType);
+		auto const recType = static_cast<uint8_t>(m_RecType);
 
 		if ((recType == DHCPOPT_END || recType == DHCPOPT_PAD))
 		{
@@ -26,16 +26,20 @@ namespace pcpp
 			recSize = sizeof(uint8_t);
 		}
 
-		uint8_t* recordBuffer = new uint8_t[recSize];
+		auto* recordBuffer = new uint8_t[recSize];
 		memset(recordBuffer, 0, recSize);
 		recordBuffer[0] = recType;
 		if (recSize > 1)
 		{
 			recordBuffer[1] = static_cast<uint8_t>(m_RecValueLen);
 			if (m_RecValue != nullptr)
+			{
 				memcpy(recordBuffer + 2, m_RecValue, m_RecValueLen);
+			}
 			else
+			{
 				memset(recordBuffer + 2, 0, m_RecValueLen);
+			}
 		}
 
 		return DhcpOption(recordBuffer);
@@ -53,12 +57,12 @@ namespace pcpp
 		m_Protocol = DHCP;
 	}
 
-	DhcpLayer::DhcpLayer() : Layer()
+	DhcpLayer::DhcpLayer()
 	{
 		initDhcpLayer(sizeof(dhcp_header));
 	}
 
-	DhcpLayer::DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr) : Layer()
+	DhcpLayer::DhcpLayer(DhcpMessageType msgType, const MacAddress& clientMacAddr)
 	{
 		initDhcpLayer(sizeof(dhcp_header) + 4 * sizeof(uint8_t));
 
@@ -76,14 +80,16 @@ namespace pcpp
 	{
 		dhcp_header* hdr = getDhcpHeader();
 		if (hdr != nullptr && hdr->hardwareType == 1 && hdr->hardwareAddressLength == 6)
+		{
 			return MacAddress(hdr->clientHardwareAddress);
+		}
 
 		PCPP_LOG_DEBUG("Hardware type isn't Ethernet or hardware addr len != 6, returning MacAddress:Zero");
 
 		return MacAddress::Zero;
 	}
 
-	void DhcpLayer::setClientHardwareAddress(const MacAddress& addr)
+	void DhcpLayer::setClientHardwareAddress(const MacAddress& addr) const
 	{
 		dhcp_header* hdr = getDhcpHeader();
 		hdr->hardwareType = 1;           // Ethernet
@@ -97,7 +103,7 @@ namespace pcpp
 
 		hdr->magicNumber = DHCP_MAGIC_NUMBER;
 
-		DhcpMessageType msgType = getMessageType();
+		DhcpMessageType const msgType = getMessageType();
 		switch (msgType)
 		{
 		case DHCP_DISCOVER:
@@ -175,9 +181,11 @@ namespace pcpp
 
 	DhcpMessageType DhcpLayer::getMessageType() const
 	{
-		DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
+		DhcpOption const opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
 		if (opt.isNull())
+		{
 			return DHCP_UNKNOWN_MSG_TYPE;
+		}
 
 		return (DhcpMessageType)opt.getValueAs<uint8_t>();
 	}
@@ -185,14 +193,18 @@ namespace pcpp
 	bool DhcpLayer::setMessageType(DhcpMessageType msgType)
 	{
 		if (msgType == DHCP_UNKNOWN_MSG_TYPE)
+		{
 			return false;
+		}
 
 		DhcpOption opt = getOptionData(DHCPOPT_DHCP_MESSAGE_TYPE);
 		if (opt.isNull())
 		{
 			opt = addOptionAfter(DhcpOptionBuilder(DHCPOPT_DHCP_MESSAGE_TYPE, (uint8_t)msgType), DHCPOPT_UNKNOWN);
 			if (opt.isNull())
+			{
 				return false;
+			}
 		}
 
 		opt.setValue<uint8_t>((uint8_t)msgType);
@@ -229,7 +241,7 @@ namespace pcpp
 			return DhcpOption(nullptr);
 		}
 
-		size_t sizeToExtend = newOpt.getTotalSize();
+		size_t const sizeToExtend = newOpt.getTotalSize();
 
 		if (!extendLayer(offset, sizeToExtend))
 		{
@@ -252,11 +264,15 @@ namespace pcpp
 	DhcpOption DhcpLayer::addOption(const DhcpOptionBuilder& optionBuilder)
 	{
 		int offset = 0;
-		DhcpOption endOpt = getOptionData(DHCPOPT_END);
+		DhcpOption const endOpt = getOptionData(DHCPOPT_END);
 		if (!endOpt.isNull())
+		{
 			offset = endOpt.getRecordBasePtr() - m_Data;
+		}
 		else
+		{
 			offset = getHeaderLen();
+		}
 
 		return addOptionAt(optionBuilder, offset);
 	}
@@ -265,7 +281,7 @@ namespace pcpp
 	{
 		int offset = 0;
 
-		DhcpOption prevOpt = getOptionData(prevOption);
+		DhcpOption const prevOpt = getOptionData(prevOption);
 
 		if (prevOpt.isNull())
 		{
@@ -281,13 +297,13 @@ namespace pcpp
 
 	bool DhcpLayer::removeOption(DhcpOptionTypes optionType)
 	{
-		DhcpOption optToRemove = getOptionData(optionType);
+		DhcpOption const optToRemove = getOptionData(optionType);
 		if (optToRemove.isNull())
 		{
 			return false;
 		}
 
-		int offset = optToRemove.getRecordBasePtr() - m_Data;
+		int const offset = optToRemove.getRecordBasePtr() - m_Data;
 
 		if (!shortenLayer(offset, optToRemove.getTotalSize()))
 		{
@@ -300,10 +316,12 @@ namespace pcpp
 
 	bool DhcpLayer::removeAllOptions()
 	{
-		int offset = sizeof(dhcp_header);
+		int const offset = sizeof(dhcp_header);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_OptionReader.changeTLVRecordCount(0 - getOptionsCount());
 		return true;

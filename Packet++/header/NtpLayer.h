@@ -509,7 +509,7 @@ namespace pcpp
 		/**
 		 * @return The reference timestamp value as readable string in ISO8601 format
 		 */
-		std::string getReferenceTimestampAsString();
+		std::string getReferenceTimestampAsString() const;
 
 		/**
 		 * @return The value of origin timestamp in NTP timestamp format
@@ -536,7 +536,7 @@ namespace pcpp
 		/**
 		 * @return the origin timestamp value as readable string in ISO8601 format
 		 */
-		std::string getOriginTimestampAsString();
+		std::string getOriginTimestampAsString() const;
 
 		/**
 		 * @return The value of receive timestamp in NTP timestamp format
@@ -563,7 +563,7 @@ namespace pcpp
 		/**
 		 * @return The receive timestamp value as readable string in ISO8601 format
 		 */
-		std::string getReceiveTimestampAsString();
+		std::string getReceiveTimestampAsString() const;
 
 		/**
 		 * @return The value of transmit timestamp in NTP timestamp format
@@ -590,7 +590,7 @@ namespace pcpp
 		/**
 		 * @return The transmit timestamp value as readable string in ISO8601 format
 		 */
-		std::string getTransmitTimestampAsString();
+		std::string getTransmitTimestampAsString() const;
 
 		/**
 		 * @return Returns the key identifier if exists, returns 0 on unsupported NTP version or key identifier not
@@ -609,7 +609,7 @@ namespace pcpp
 		 * @param[in] val Value in NTP short format
 		 * @return Value in seconds from Unix Epoch (1 Jan 1970)
 		 */
-		static double convertFromShortFormat(const uint32_t val);
+		static double convertFromShortFormat(uint32_t val);
 
 		/**
 		 * Convert NTP timestamp format to seconds from the Unix Epoch
@@ -617,7 +617,7 @@ namespace pcpp
 		 * @param[in] val Value in NTP timestamp format
 		 * @return Value in seconds from Unix Epoch (1 Jan 1970)
 		 */
-		static double convertFromTimestampFormat(const uint64_t val);
+		static double convertFromTimestampFormat(uint64_t val);
 
 		/**
 		 * Convert seconds from the Unix Epoch to NTP short format
@@ -625,7 +625,7 @@ namespace pcpp
 		 * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
 		 * @return Value in NTP short format
 		 */
-		static uint32_t convertToShortFormat(const double val);
+		static uint32_t convertToShortFormat(double val);
 
 		/**
 		 * Convert seconds from the Unix Epoch to NTP timestamp format
@@ -633,21 +633,21 @@ namespace pcpp
 		 * @param[in] val Value in seconds from Unix Epoch (1 Jan 1970)
 		 * @return Value in NTP timestamp format
 		 */
-		static uint64_t convertToTimestampFormat(const double val);
+		static uint64_t convertToTimestampFormat(double val);
 
 		/**
 		 * A static method to convert timestamp value to ISO8601 date time format
 		 * @param[in] timestamp Value in seconds from the Unix Epoch
 		 * @return std::string ISO8601 formatted string
 		 */
-		static std::string convertToIsoFormat(const double timestamp);
+		static std::string convertToIsoFormat(double timestamp);
 
 		/**
 		 * A static method to convert timestamp value to ISO8601 date time format
 		 * @param[in] timestampInNTPformat Value in NTP timestamp format
 		 * @return std::string ISO8601 formatted string
 		 */
-		static std::string convertToIsoFormat(const uint64_t timestampInNTPformat);
+		static std::string convertToIsoFormat(uint64_t timestampInNTPformat);
 
 		/**
 		 * A static method that takes a byte array and detects whether it is a NTP message

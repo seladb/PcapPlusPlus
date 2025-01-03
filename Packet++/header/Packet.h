@@ -28,12 +28,12 @@ namespace pcpp
 		friend class Layer;
 
 	private:
-		RawPacket* m_RawPacket;
-		Layer* m_FirstLayer;
-		Layer* m_LastLayer;
-		size_t m_MaxPacketLen;
-		bool m_FreeRawPacket;
-		bool m_CanReallocateData;
+		RawPacket* m_RawPacket{};
+		Layer* m_FirstLayer{};
+		Layer* m_LastLayer{};
+		size_t m_MaxPacketLen{};
+		bool m_FreeRawPacket{};
+		bool m_CanReallocateData{};
 
 	public:
 		/**
@@ -405,14 +405,18 @@ namespace pcpp
 		if (!reverse)
 		{
 			if (dynamic_cast<TLayer*>(getFirstLayer()) != nullptr)
+			{
 				return dynamic_cast<TLayer*>(getFirstLayer());
+			}
 
 			return getNextLayerOfType<TLayer>(getFirstLayer());
 		}
 
 		// lookup in reverse order
 		if (dynamic_cast<TLayer*>(getLastLayer()) != nullptr)
+		{
 			return dynamic_cast<TLayer*>(getLastLayer());
+		}
 
 		return getPrevLayerOfType<TLayer>(getLastLayer());
 	}
@@ -420,7 +424,9 @@ namespace pcpp
 	template <class TLayer> TLayer* Packet::getNextLayerOfType(Layer* curLayer) const
 	{
 		if (curLayer == nullptr)
+		{
 			return nullptr;
+		}
 
 		curLayer = curLayer->getNextLayer();
 		while ((curLayer != nullptr) && (dynamic_cast<TLayer*>(curLayer) == nullptr))
@@ -434,7 +440,9 @@ namespace pcpp
 	template <class TLayer> TLayer* Packet::getPrevLayerOfType(Layer* curLayer) const
 	{
 		if (curLayer == nullptr)
+		{
 			return nullptr;
+		}
 
 		curLayer = curLayer->getPrevLayer();
 		while (curLayer != nullptr && dynamic_cast<TLayer*>(curLayer) == nullptr)

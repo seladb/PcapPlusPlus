@@ -156,7 +156,7 @@ namespace pcpp
 		 * @return The DNS query following 'query'. If 'query' is nullptr or 'query' is the last query in the packet
 		 * nullptr will be returned
 		 */
-		DnsQuery* getNextQuery(DnsQuery* query) const;
+		static DnsQuery* getNextQuery(DnsQuery* query);
 
 		/**
 		 * @return The number of DNS queries in the packet
@@ -180,7 +180,7 @@ namespace pcpp
 		 * @return A pointer to the newly created DNS query or nullptr if query could not be created (an appropriate
 		 * error log message will be printed in this case)
 		 */
-		DnsQuery* addQuery(DnsQuery* const copyQuery);
+		DnsQuery* addQuery(DnsQuery* copyQuery);
 
 		/**
 		 * Remove an existing query by name. If several queries matches the name, the first match will be removed
@@ -220,7 +220,7 @@ namespace pcpp
 		 * @return The DNS answer following 'answer'. If 'answer' is nullptr or 'answer' is the last answer in the
 		 * packet nullptr will be returned
 		 */
-		DnsResource* getNextAnswer(DnsResource* answer) const;
+		static DnsResource* getNextAnswer(DnsResource* answer);
 
 		/**
 		 * @return The number of DNS answers in the packet
@@ -249,7 +249,7 @@ namespace pcpp
 		 * @return A pointer to the newly created DNS answer or nullptr if query could not be created (an appropriate
 		 * error log message will be printed in this case)
 		 */
-		DnsResource* addAnswer(DnsResource* const copyAnswer);
+		DnsResource* addAnswer(DnsResource* copyAnswer);
 
 		/**
 		 * Remove an existing answer by name. If several answers matches the name, the first match will be removed
@@ -289,7 +289,7 @@ namespace pcpp
 		 * @return The DNS authority following 'authority'. If 'authority' is nullptr or 'authority' is the last
 		 * authority in the packet nullptr will be returned
 		 */
-		DnsResource* getNextAuthority(DnsResource* authority) const;
+		static DnsResource* getNextAuthority(DnsResource* authority);
 
 		/**
 		 * @return The number of DNS authorities in the packet
@@ -318,7 +318,7 @@ namespace pcpp
 		 * @return A pointer to the newly created DNS authority or nullptr if query could not be created (an appropriate
 		 * error log message will be printed in this case)
 		 */
-		DnsResource* addAuthority(DnsResource* const copyAuthority);
+		DnsResource* addAuthority(DnsResource* copyAuthority);
 
 		/**
 		 * Remove an existing authority by name. If several authorities matches the name, the first match will be
@@ -360,7 +360,7 @@ namespace pcpp
 		 * @return The DNS additional record following 'additionalRecord'. If 'additionalRecord' is nullptr or
 		 * 'additionalRecord' is the last additional record in the packet nullptr will be returned
 		 */
-		DnsResource* getNextAdditionalRecord(DnsResource* additionalRecord) const;
+		static DnsResource* getNextAdditionalRecord(DnsResource* additionalRecord);
 
 		/**
 		 * @return The number of DNS additional records in the packet
@@ -409,7 +409,7 @@ namespace pcpp
 		 * @return A pointer to the newly created DNS additional record or nullptr if query could not be created (an
 		 * appropriate error log message will be printed in this case)
 		 */
-		DnsResource* addAdditionalRecord(DnsResource* const copyAdditionalRecord);
+		DnsResource* addAdditionalRecord(DnsResource* copyAdditionalRecord);
 
 		/**
 		 * Remove an existing additional record by name. If several additional records matches the name, the first match
@@ -481,14 +481,14 @@ namespace pcpp
 		explicit DnsLayer(size_t offsetAdjustment);
 
 	private:
-		IDnsResource* m_ResourceList;
-		DnsQuery* m_FirstQuery;
-		DnsResource* m_FirstAnswer;
-		DnsResource* m_FirstAuthority;
-		DnsResource* m_FirstAdditional;
-		uint16_t m_OffsetAdjustment;
+		IDnsResource* m_ResourceList{};
+		DnsQuery* m_FirstQuery{};
+		DnsResource* m_FirstAnswer{};
+		DnsResource* m_FirstAuthority{};
+		DnsResource* m_FirstAdditional{};
+		uint16_t m_OffsetAdjustment{};
 
-		size_t getBasicHeaderSize();
+		size_t getBasicHeaderSize() const;
 		void init(size_t offsetAdjustment, bool callParseResource);
 		void initNewLayer(size_t offsetAdjustment);
 
@@ -501,8 +501,8 @@ namespace pcpp
 		using Layer::shortenLayer;
 		bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten, IDnsResource* resource);
 
-		IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name,
-		                                bool exactMatch) const;
+		static IDnsResource* getResourceByName(IDnsResource* startFrom, size_t resourceCount, const std::string& name,
+		                                       bool exactMatch);
 
 		void parseResources();
 
@@ -547,8 +547,7 @@ namespace pcpp
 		 * A copy constructor for this layer
 		 * @param[in] other The DNS over TCP layer to copy from
 		 */
-		DnsOverTcpLayer(const DnsOverTcpLayer& other) : DnsLayer(other)
-		{}
+		DnsOverTcpLayer(const DnsOverTcpLayer& other) = default;
 
 		/**
 		 * @return The value of the TCP message length as described in https://tools.ietf.org/html/rfc7766#section-8
@@ -586,8 +585,8 @@ namespace pcpp
 
 	bool DnsLayer::isDataValid(const uint8_t* data, size_t dataLen, bool dnsOverTcp)
 	{
-		size_t minSize = sizeof(dnshdr) + (dnsOverTcp ? sizeof(uint16_t) : 0);
-		return data && dataLen >= minSize;
+		size_t const minSize = sizeof(dnshdr) + (dnsOverTcp ? sizeof(uint16_t) : 0);
+		return (data != nullptr) && dataLen >= minSize;
 	}
 
 }  // namespace pcpp

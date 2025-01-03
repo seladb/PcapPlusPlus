@@ -4,7 +4,7 @@
 #include "TLVData.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
-#include <string.h>
+#include <cstring>
 
 /// @file
 
@@ -441,7 +441,9 @@ namespace pcpp
 		std::string getValueAsString(int valueOffset = 0) const
 		{
 			if (m_Data == nullptr || m_Data->recordLen - valueOffset < 1)
+			{
 				return "";
+			}
 
 			return std::string(reinterpret_cast<const char*>(m_Data->recordValue) + valueOffset,
 			                   static_cast<int>(m_Data->recordLen) - valueOffset);
@@ -462,7 +464,9 @@ namespace pcpp
 
 			// use the length of input string if a buffer is large enough for whole string
 			if (stringValue.length() < len)
+			{
 				len = stringValue.length();
+			}
 
 			memcpy(m_Data->recordValue + valueOffset, stringValue.data(), len);
 		}
@@ -475,16 +479,22 @@ namespace pcpp
 		 */
 		static bool canAssign(const uint8_t* recordRawData, size_t tlvDataLen)
 		{
-			auto data = reinterpret_cast<TLVRawData const*>(recordRawData);
+			const auto* data = reinterpret_cast<TLVRawData const*>(recordRawData);
 			if (data == nullptr)
+			{
 				return false;
+			}
 
 			if (tlvDataLen < sizeof(TLVRawData::recordType))
+			{
 				return false;
+			}
 
 			if (data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
 			    data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
+			{
 				return true;
+			}
 
 			return TLVRecord<uint8_t, uint8_t>::canAssign(recordRawData, tlvDataLen);
 		}
@@ -494,11 +504,15 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (m_Data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
 			    m_Data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
+			{
 				return sizeof(uint8_t);
+			}
 
 			return sizeof(uint8_t) * 2 + static_cast<size_t>(m_Data->recordLen);
 		}
@@ -506,11 +520,15 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			if (m_Data->recordType == static_cast<uint8_t>(DHCPOPT_END) ||
 			    m_Data->recordType == static_cast<uint8_t>(DHCPOPT_PAD))
+			{
 				return 0;
+			}
 
 			return m_Data->recordLen;
 		}
@@ -590,19 +608,14 @@ namespace pcpp
 		 * A copy c'tor which copies all the data from another instance of DhcpOptionBuilder
 		 * @param[in] other The instance to copy from
 		 */
-		DhcpOptionBuilder(const DhcpOptionBuilder& other) : TLVRecordBuilder(other)
-		{}
+		DhcpOptionBuilder(const DhcpOptionBuilder& other) = default;
 
 		/**
 		 * Assignment operator that copies all data from another instance of DhcpOptionBuilder
 		 * @param[in] other The instance to assign from
 		 * @return A reference to the assignee
 		 */
-		DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other)
-		{
-			TLVRecordBuilder::operator=(other);
-			return *this;
-		}
+		DhcpOptionBuilder& operator=(const DhcpOptionBuilder& other) = default;
 
 		/**
 		 * Build the DhcpOption object out of the parameters defined in the c'tor
@@ -676,7 +689,7 @@ namespace pcpp
 		 * Set the client IPv4 address in dhcp_header#clientIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setClientIpAddress(const IPv4Address& addr)
+		void setClientIpAddress(const IPv4Address& addr) const
 		{
 			getDhcpHeader()->clientIpAddress = addr.toInt();
 		}
@@ -694,7 +707,7 @@ namespace pcpp
 		 * Set the server IPv4 address in dhcp_header#serverIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setServerIpAddress(const IPv4Address& addr)
+		void setServerIpAddress(const IPv4Address& addr) const
 		{
 			getDhcpHeader()->serverIpAddress = addr.toInt();
 		}
@@ -711,7 +724,7 @@ namespace pcpp
 		 * Set your IPv4 address in dhcp_header#yourIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setYourIpAddress(const IPv4Address& addr)
+		void setYourIpAddress(const IPv4Address& addr) const
 		{
 			getDhcpHeader()->yourIpAddress = addr.toInt();
 		}
@@ -728,7 +741,7 @@ namespace pcpp
 		 * Set the gateway IPv4 address in dhcp_header#gatewayIpAddress
 		 * @param[in] addr The IPv4 address to set
 		 */
-		void setGatewayIpAddress(const IPv4Address& addr)
+		void setGatewayIpAddress(const IPv4Address& addr) const
 		{
 			getDhcpHeader()->gatewayIpAddress = addr.toInt();
 		}
@@ -745,7 +758,7 @@ namespace pcpp
 		 * dhcp_header#hardwareType to 1 (Ethernet) and dhcp_header#hardwareAddressLength to 6 (MAC address length)
 		 * @param[in] addr The MAC address to set
 		 */
-		void setClientHardwareAddress(const MacAddress& addr);
+		void setClientHardwareAddress(const MacAddress& addr) const;
 
 		/**
 		 * @return DHCP message type as extracted from ::DHCPOPT_DHCP_MESSAGE_TYPE option. If this option doesn't exist

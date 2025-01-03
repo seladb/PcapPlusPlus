@@ -14,7 +14,7 @@
 namespace pcpp
 {
 
-	EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType) : Layer()
+	EthLayer::EthLayer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t etherType)
 	{
 		const size_t headerLen = sizeof(ether_header);
 		m_DataLen = headerLen;
@@ -31,11 +31,13 @@ namespace pcpp
 	void EthLayer::parseNextLayer()
 	{
 		if (m_DataLen <= sizeof(ether_header))
+		{
 			return;
+		}
 
 		ether_header* hdr = getEthHeader();
 		uint8_t* payload = m_Data + sizeof(ether_header);
-		size_t payloadLen = m_DataLen - sizeof(ether_header);
+		size_t const payloadLen = m_DataLen - sizeof(ether_header);
 
 		switch (be16toh(hdr->etherType))
 		{
@@ -82,7 +84,9 @@ namespace pcpp
 	void EthLayer::computeCalculateFields()
 	{
 		if (m_NextLayer == nullptr)
+		{
 			return;
+		}
 
 		switch (m_NextLayer->getProtocol())
 		{
@@ -123,10 +127,8 @@ namespace pcpp
 			 */
 			return be16toh(*reinterpret_cast<const uint16_t*>(data + 12)) >= static_cast<uint16_t>(0x0600);
 		}
-		else
-		{
-			return false;
-		}
+
+		return false;
 	}
 
 }  // namespace pcpp

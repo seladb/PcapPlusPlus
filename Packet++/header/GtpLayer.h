@@ -238,9 +238,9 @@ namespace pcpp
 			friend class GtpV1Layer;
 
 		private:
-			uint8_t* m_Data;
-			size_t m_DataLen;
-			uint8_t m_ExtType;
+			uint8_t* m_Data{ nullptr };
+			size_t m_DataLen{ 0 };
+			uint8_t m_ExtType{ 0 };
 
 			GtpExtension(uint8_t* data, size_t dataLen, uint8_t type);
 

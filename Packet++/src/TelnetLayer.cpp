@@ -8,14 +8,14 @@
 namespace pcpp
 {
 
-	bool TelnetLayer::isDataField(uint8_t* pos) const
+	bool TelnetLayer::isDataField(const uint8_t* pos)
 	{
 		// "FF FF" means data
 		return pos[0] != static_cast<int>(TelnetCommand::InterpretAsCommand) ||
 		       pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand);
 	}
 
-	bool TelnetLayer::isCommandField(uint8_t* pos) const
+	bool TelnetLayer::isCommandField(uint8_t* pos)
 	{
 		return !isDataField(pos);
 	}
@@ -28,18 +28,24 @@ namespace pcpp
 		do
 		{
 			// If it is second turn position should be adjusted to after second FF
-			if (addition)
+			if (addition != 0U)
+			{
 				addition += 2;
+			}
 
 			pos = (uint8_t*)memchr(startPos + currentOffset + 1, static_cast<int>(TelnetCommand::InterpretAsCommand),
 			                       maxLength - currentOffset);
-			if (pos)
+			if (pos != nullptr)
+			{
 				addition += pos - (startPos + currentOffset);
+			}
 			else
+			{
 				addition += maxLength - currentOffset;
+			}
 			currentOffset = currentOffset + addition;
 			// "FF FF" means data continue
-		} while (pos && ((pos + 1) < (startPos + maxLength)) &&
+		} while ((pos != nullptr) && ((pos + 1) < (startPos + maxLength)) &&
 		         (pos[1] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (currentOffset < maxLength));
 
 		return addition;
@@ -48,15 +54,20 @@ namespace pcpp
 	size_t TelnetLayer::getFieldLen(uint8_t* startPos, size_t maxLength)
 	{
 		// Check first byte is IAC
-		if (startPos && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) && (maxLength >= 2))
+		if ((startPos != nullptr) && (startPos[0] == static_cast<int>(TelnetCommand::InterpretAsCommand)) &&
+		    (maxLength >= 2))
 		{
 			// If subnegotiation parse until next IAC
 			if (startPos[1] == static_cast<int>(TelnetCommand::Subnegotiation))
+			{
 				return distanceToNextIAC(startPos, maxLength);
+			}
 			// Only WILL, WONT, DO, DONT have option. Ref http://pcmicro.com/netfoss/telnet.html
-			else if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) &&
-			         startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
+			if (startPos[1] >= static_cast<int>(TelnetCommand::WillPerform) &&
+			    startPos[1] <= static_cast<int>(TelnetCommand::DontPerform))
+			{
 				return 3;
+			}
 			return 2;
 		}
 		return distanceToNextIAC(startPos, maxLength);
@@ -68,12 +79,14 @@ namespace pcpp
 		while (offset < len)
 		{
 			// Move to next field
-			size_t length = getFieldLen(pos, len - offset);
+			size_t const length = getFieldLen(pos, len - offset);
 			pos += length;
 			offset += length;
 
 			if (isDataField(pos))
+			{
 				return pos;
+			}
 		}
 
 		return nullptr;
@@ -85,13 +98,14 @@ namespace pcpp
 		while (offset < len)
 		{
 			// Move to next field
-			size_t length = getFieldLen(pos, len - offset);
+			size_t const length = getFieldLen(pos, len - offset);
 			pos += length;
 			offset += length;
 
-			if ((static_cast<size_t>(pos - m_Data) <= (m_DataLen - 2)) &&
-			    isCommandField(pos))  // Need at least 2 bytes for command
+			if ((static_cast<size_t>(pos - m_Data) <= (m_DataLen - 2)) && isCommandField(pos))
+			{  // Need at least 2 bytes for command
 				return pos;
+			}
 		}
 
 		return nullptr;
@@ -100,7 +114,9 @@ namespace pcpp
 	int16_t TelnetLayer::getSubCommand(uint8_t* pos, size_t len)
 	{
 		if (len < 3 || pos[1] < static_cast<int>(TelnetCommand::Subnegotiation))
+		{
 			return static_cast<int>(TelnetOption::TelnetOptionNoOption);
+		}
 		return pos[2];
 	}
 
@@ -119,14 +135,18 @@ namespace pcpp
 	{
 		uint8_t* dataPos = nullptr;
 		if (isDataField(m_Data))
+		{
 			dataPos = m_Data;
+		}
 		else
+		{
 			dataPos = getNextDataField(m_Data, m_DataLen);
+		}
 
-		if (!dataPos)
+		if (dataPos == nullptr)
 		{
 			PCPP_LOG_DEBUG("Packet does not have a data field");
-			return std::string();
+			return {};
 		}
 
 		// Convert to string
@@ -135,8 +155,10 @@ namespace pcpp
 			std::stringstream ss;
 			for (size_t idx = 0; idx < m_DataLen - (dataPos - m_Data) + 1; ++idx)
 			{
-				if (int(dataPos[idx]) < 127 && int(dataPos[idx]) > 31)  // From SPACE to ~
+				if (int(dataPos[idx]) < 127 && int(dataPos[idx]) > 31)
+				{  // From SPACE to ~
 					ss << dataPos[idx];
+				}
 			}
 			return ss.str();
 		}
@@ -147,15 +169,19 @@ namespace pcpp
 	{
 		size_t ctr = 0;
 		if (isCommandField(m_Data))
+		{
 			++ctr;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
 		{
-			size_t offset = pos - m_Data;
+			size_t const offset = pos - m_Data;
 			pos = getNextCommandField(pos, m_DataLen - offset);
-			if (pos)
+			if (pos != nullptr)
+			{
 				++ctr;
+			}
 		}
 
 		return ctr;
@@ -164,19 +190,25 @@ namespace pcpp
 	size_t TelnetLayer::getNumberOfCommands(TelnetCommand command)
 	{
 		if (static_cast<int>(command) < 0)
+		{
 			return 0;
+		}
 
 		size_t ctr = 0;
 		if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
+		{
 			++ctr;
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
 		{
-			size_t offset = pos - m_Data;
+			size_t const offset = pos - m_Data;
 			pos = getNextCommandField(pos, m_DataLen - offset);
-			if (pos && pos[1] == static_cast<int>(command))
+			if ((pos != nullptr) && pos[1] == static_cast<int>(command))
+			{
 				++ctr;
+			}
 		}
 
 		return ctr;
@@ -186,12 +218,16 @@ namespace pcpp
 	{
 		// If starts with command
 		if (isCommandField(m_Data))
+		{
 			return static_cast<TelnetCommand>(m_Data[1]);
+		}
 
 		// Check is there any command
 		uint8_t* pos = getNextCommandField(m_Data, m_DataLen);
-		if (pos)
+		if (pos != nullptr)
+		{
 			return static_cast<TelnetCommand>(pos[1]);
+		}
 		return TelnetCommand::TelnetCommandEndOfPacket;
 	}
 
@@ -201,11 +237,13 @@ namespace pcpp
 		{
 			lastPositionOffset = 0;
 			if (isCommandField(m_Data))
+			{
 				return static_cast<TelnetLayer::TelnetCommand>(m_Data[1]);
+			}
 		}
 
 		uint8_t* pos = getNextCommandField(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset);
-		if (pos)
+		if (pos != nullptr)
 		{
 			lastPositionOffset = pos - m_Data;
 			return static_cast<TelnetLayer::TelnetCommand>(pos[1]);
@@ -217,8 +255,10 @@ namespace pcpp
 	TelnetLayer::TelnetOption TelnetLayer::getOption()
 	{
 		if (lastPositionOffset < m_DataLen)
+		{
 			return static_cast<TelnetOption>(getSubCommand(
 			    &m_Data[lastPositionOffset], getFieldLen(&m_Data[lastPositionOffset], m_DataLen - lastPositionOffset)));
+		}
 		return TelnetOption::TelnetOptionNoOption;
 	}
 
@@ -232,16 +272,20 @@ namespace pcpp
 		}
 
 		if (isCommandField(m_Data) && m_Data[1] == static_cast<int>(command))
+		{
 			return static_cast<TelnetOption>(getSubCommand(m_Data, getFieldLen(m_Data, m_DataLen)));
+		}
 
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
 		{
-			size_t offset = pos - m_Data;
+			size_t const offset = pos - m_Data;
 			pos = getNextCommandField(pos, m_DataLen - offset);
 
-			if (pos && pos[1] == static_cast<int>(command))
+			if ((pos != nullptr) && pos[1] == static_cast<int>(command))
+			{
 				return static_cast<TelnetOption>(getSubCommand(pos, getFieldLen(pos, m_DataLen - offset)));
+			}
 		}
 
 		PCPP_LOG_DEBUG("Can't find requested command");
@@ -283,10 +327,10 @@ namespace pcpp
 		uint8_t* pos = m_Data;
 		while (pos != nullptr)
 		{
-			size_t offset = pos - m_Data;
+			size_t const offset = pos - m_Data;
 			pos = getNextCommandField(pos, m_DataLen - offset);
 
-			if (pos && pos[1] == static_cast<int>(command))
+			if ((pos != nullptr) && pos[1] == static_cast<int>(command))
 			{
 				size_t lenBuffer = getFieldLen(m_Data, m_DataLen);
 				uint8_t* posBuffer = getCommandData(m_Data, lenBuffer);
@@ -474,7 +518,9 @@ namespace pcpp
 	std::string TelnetLayer::toString() const
 	{
 		if (isDataField(m_Data))
+		{
 			return "Telnet Data";
+		}
 		return "Telnet Control";
 	}
 
