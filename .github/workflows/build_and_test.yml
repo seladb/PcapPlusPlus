@@ -36,7 +36,7 @@ jobs:
           apk update && apk add cppcheck python3-dev
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install pre-commit setuptools clang-format==18.1.6 clang-tidy==18.1.8
+          python3 -m pip install pre-commit setuptools clang-format==19.1.6 clang-tidy==18.1.8
 
       - name: Run pre-commit
         run: |
