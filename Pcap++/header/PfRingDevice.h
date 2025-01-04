@@ -7,6 +7,7 @@
 #include "SystemUtils.h"
 #include "Packet.h"
 #include <thread>
+#include <mutex>
 #include <condition_variable>
 
 /// @file
@@ -47,6 +48,13 @@ namespace pcpp
 			void clear();
 		};
 
+		struct StartupBlock
+		{
+			std::mutex Mutex;
+			std::condition_variable Cond;
+			int State = 0;
+		};
+
 		pfring** m_PfRingDescriptors;
 		uint8_t m_NumOfOpenedRxChannels;
 		std::string m_DeviceName;
@@ -64,7 +72,7 @@ namespace pcpp
 		PfRingDevice(const char* deviceName);
 
 		bool initCoreConfigurationByCoreMask(CoreMask coreMask);
-		void captureThreadMain(std::condition_variable* startCond, std::mutex* startMutex, const int* startState);
+		void captureThreadMain(std::shared_ptr<StartupBlock> startupBlock);
 
 		int openSingleRxChannel(const char* deviceName, pfring** ring);
 
