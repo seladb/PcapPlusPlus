@@ -545,7 +545,7 @@ namespace pcpp
 			// Ensure the memory access is within bounds
 			if (sizeof(bgp_common_header) + sizeof(uint16_t) + withdrawnRouteLen + sizeof(uint16_t) > headerLen)
 			{
-				return 0; // Invalid access, return 0
+				return 0;  // Invalid access, return 0
 			}
 			uint16_t res =
 			    be16toh(*(uint16_t*)(m_Data + sizeof(bgp_common_header) + sizeof(uint16_t) + withdrawnRouteLen));
