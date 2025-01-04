@@ -40,14 +40,14 @@ namespace pcpp
 		/// An enum for reporting packet receive results
 		enum RecvPacketResult
 		{
-			/// Receive success 
+			/// Receive success
 			RecvSuccess = 0,
-			/// Receive timeout - timeout expired without any packets being captured 
+			/// Receive timeout - timeout expired without any packets being captured
 			RecvTimeout = 1,
 			/// Receive would block - in non-blocking mode if there are no packets in the rx queue the receive method
 			/// will return immediately with this return value
 			RecvWouldBlock = 2,
-			/// Receive error, usually will be followed by an error log 
+			/// Receive error, usually will be followed by an error log
 			RecvError = 3
 		};
 

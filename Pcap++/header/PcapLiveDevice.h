@@ -140,20 +140,20 @@ namespace pcpp
 		/// The type of the live device
 		enum LiveDeviceType
 		{
-			/// libPcap live device 
+			/// libPcap live device
 			LibPcapDevice,
-			/// WinPcap/Npcap live device 
+			/// WinPcap/Npcap live device
 			WinPcapDevice,
-			/// WinPcap/Npcap Remote Capture device 
+			/// WinPcap/Npcap Remote Capture device
 			RemoteDevice
 		};
 
 		/// Device capturing mode
 		enum DeviceMode
 		{
-			/// Only packets that their destination is this NIC are captured 
+			/// Only packets that their destination is this NIC are captured
 			Normal = 0,
-			/// All packets that arrive to the NIC are captured, even packets that their destination isn't this NIC 
+			/// All packets that arrive to the NIC are captured, even packets that their destination isn't this NIC
 			Promiscuous = 1
 		};
 
@@ -161,11 +161,11 @@ namespace pcpp
 		/// <https://www.tcpdump.org/manpages/pcap.3pcap.html#lbAI>)
 		enum PcapDirection
 		{
-			/// Capture traffics both incoming and outgoing 
+			/// Capture traffics both incoming and outgoing
 			PCPP_INOUT = 0,
-			/// Only capture incoming traffics 
+			/// Only capture incoming traffics
 			PCPP_IN,
-			/// Only capture outgoing traffics 
+			/// Only capture outgoing traffics
 			PCPP_OUT
 		};
 

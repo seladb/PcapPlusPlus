@@ -39,28 +39,28 @@ namespace pcpp
 	/// An enum that contains direction (source or destination)
 	typedef enum
 	{
-		/// Source 
+		/// Source
 		SRC,
-		/// Destination 
+		/// Destination
 		DST,
-		/// Source or destination 
+		/// Source or destination
 		SRC_OR_DST
 	} Direction;
 
 	/// Supported operators enum
 	typedef enum
 	{
-		/// Equals 
+		/// Equals
 		EQUALS,
-		/// Not equals 
+		/// Not equals
 		NOT_EQUALS,
-		/// Greater than 
+		/// Greater than
 		GREATER_THAN,
-		/// Greater or equal 
+		/// Greater or equal
 		GREATER_OR_EQUAL,
-		/// Less than 
+		/// Less than
 		LESS_THAN,
-		/// Less or equal 
+		/// Less or equal
 		LESS_OR_EQUAL
 	} FilterOperator;
 
@@ -609,9 +609,9 @@ namespace pcpp
 	/// Supported composite logic filter operators enum
 	enum class CompositeLogicFilterOp
 	{
-		/// Logical AND operation 
+		/// Logical AND operation
 		AND,
-		/// Logical OR operation 
+		/// Logical OR operation
 		OR,
 	};
 
@@ -812,17 +812,17 @@ namespace pcpp
 		/// An enum of all TCP flags that can be use in the filter
 		enum TcpFlags
 		{
-			/// TCP FIN flag 
+			/// TCP FIN flag
 			tcpFin = 1,
-			/// TCP SYN flag 
+			/// TCP SYN flag
 			tcpSyn = 2,
-			/// TCP RST flag 
+			/// TCP RST flag
 			tcpRst = 4,
-			/// TCP PSH flag 
+			/// TCP PSH flag
 			tcpPush = 8,
-			/// TCP ACK flag 
+			/// TCP ACK flag
 			tcpAck = 16,
-			/// TCP URG flag 
+			/// TCP URG flag
 			tcpUrg = 32
 		};
 
@@ -830,9 +830,9 @@ namespace pcpp
 		/// or match packets that contain at least one of the flags defined in the filter
 		enum MatchOptions
 		{
-			/// Match only packets that contain all flags defined in the filter 
+			/// Match only packets that contain all flags defined in the filter
 			MatchAll,
-			/// Match packets that contain at least one of the flags defined in the filter 
+			/// Match packets that contain at least one of the flags defined in the filter
 			MatchOneAtLeast
 		};
 

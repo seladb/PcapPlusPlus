@@ -121,29 +121,29 @@ namespace pcpp
 		/// Various link related constants for KNI device
 		enum KniLinkState
 		{
-			/// Returned by KNI functions if DPDK version used don't support link setup capability 
+			/// Returned by KNI functions if DPDK version used don't support link setup capability
 			LINK_NOT_SUPPORTED = -2,
-			/// Returned by KNI functions if link changing function meets an error 
+			/// Returned by KNI functions if link changing function meets an error
 			LINK_ERROR = -1,
-			/// Used to put link status on KNI device DOWN 
+			/// Used to put link status on KNI device DOWN
 			LINK_DOWN = 0,
-			/// Used to put link status on KNI device UP 
+			/// Used to put link status on KNI device UP
 			LINK_UP = 1
 		};
 		/// Various information related constants for KNI device
 		enum KniInfoState
 		{
-			/// Used to identify intent to obtain cached version of KNI device information 
+			/// Used to identify intent to obtain cached version of KNI device information
 			INFO_CACHED = 0,
-			/// Used to identify intent to renew/update KNI device information 
+			/// Used to identify intent to renew/update KNI device information
 			INFO_RENEW = 1
 		};
 		/// Promiscuous mode related constants for KNI device
 		enum KniPromiscuousMode
 		{
-			/// Used to DISABLE promiscuous mode on KNI device 
+			/// Used to DISABLE promiscuous mode on KNI device
 			PROMISC_DISABLE = 0,
-			/// Used to ENABLE promiscuous mode on KNI device 
+			/// Used to ENABLE promiscuous mode on KNI device
 			PROMISC_ENABLE = 1
 		};
 
@@ -230,13 +230,13 @@ namespace pcpp
 		};
 
 	private:
-		/// All instances of this class MUST be produced by KniDeviceList class 
+		/// All instances of this class MUST be produced by KniDeviceList class
 		KniDevice(const KniDeviceConfiguration& conf, size_t mempoolSize, int unique);
-		/// This class is not copyable 
+		/// This class is not copyable
 		KniDevice(const KniDevice&);
-		/// This class is not copyable 
+		/// This class is not copyable
 		KniDevice& operator=(const KniDevice&);
-		/// All instances of this class MUST be destroyed by KniDeviceList class 
+		/// All instances of this class MUST be destroyed by KniDeviceList class
 		~KniDevice();
 
 	public:

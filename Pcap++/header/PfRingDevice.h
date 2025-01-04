@@ -92,9 +92,9 @@ namespace pcpp
 		/// A container for PfRingDevice statistics
 		struct PfRingStats
 		{
-			/// Number of packets received 
+			/// Number of packets received
 			uint64_t recv;
-			/// Number of packets dropped 
+			/// Number of packets dropped
 			uint64_t drop;
 		};
 

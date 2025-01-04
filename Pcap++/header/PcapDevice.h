@@ -102,11 +102,11 @@ namespace pcpp
 		/// A container for pcap device statistics
 		struct PcapStats
 		{
-			/// Number of packets received 
+			/// Number of packets received
 			uint64_t packetsRecv;
-			/// Number of packets dropped 
+			/// Number of packets dropped
 			uint64_t packetsDrop;
-			/// number of packets dropped by interface (not supported on all platforms) 
+			/// number of packets dropped by interface (not supported on all platforms)
 			uint64_t packetsDropByInterface;
 		};
 
