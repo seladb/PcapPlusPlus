@@ -7,7 +7,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/LightPcapNg/cmake/")
 option(LIGHT_PCAPNG_ZSTD "Build with ZSTD compression support" OFF)
 
 add_library(
-  light_pcapng OBJECT
+  light_pcapng
+  OBJECT
   LightPcapNg/src/light_advanced.c
   LightPcapNg/src/light_alloc.c
   LightPcapNg/src/light_compression.c
@@ -20,7 +21,8 @@ add_library(
   LightPcapNg/src/light_pcapng_ext.c
   LightPcapNg/src/light_pcapng.c
   LightPcapNg/src/light_platform.c
-  LightPcapNg/src/light_zstd_compression.c)
+  LightPcapNg/src/light_zstd_compression.c
+)
 
 target_compile_definitions(light_pcapng PUBLIC -DUNIVERSAL)
 
@@ -28,8 +30,10 @@ if(BUILD_SHARED_LIBS)
   set_property(TARGET light_pcapng PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif()
 
-target_include_directories(light_pcapng PUBLIC $<INSTALL_INTERFACE:include>
-                                               $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/LightPcapNg/include>)
+target_include_directories(
+  light_pcapng
+  PUBLIC $<INSTALL_INTERFACE:include> $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/LightPcapNg/include>
+)
 
 if(LIGHT_PCAPNG_ZSTD)
   find_package(ZSTD)
