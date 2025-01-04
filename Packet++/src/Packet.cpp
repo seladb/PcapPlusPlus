@@ -113,31 +113,23 @@ namespace pcpp
 	}
 
 	Packet::Packet(RawPacket* rawPacket, bool freeRawPacket, ProtocolType parseUntil, OsiModelLayer parseUntilLayer)
-	     
 	{
-
 		setRawPacket(rawPacket, freeRawPacket, parseUntil, parseUntilLayer);
 	}
 
 	Packet::Packet(RawPacket* rawPacket, ProtocolType parseUntil)
-	     
 	{
-
 		auto parseUntilFamily = static_cast<ProtocolTypeFamily>(parseUntil);
 		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
 	}
 
 	Packet::Packet(RawPacket* rawPacket, ProtocolTypeFamily parseUntilFamily)
-	     
 	{
-
 		setRawPacket(rawPacket, false, parseUntilFamily, OsiModelLayerUnknown);
 	}
 
 	Packet::Packet(RawPacket* rawPacket, OsiModelLayer parseUntilLayer)
-	     
 	{
-
 		setRawPacket(rawPacket, false, UnknownProtocol, parseUntilLayer);
 	}
 
@@ -754,9 +746,7 @@ namespace pcpp
 		// but they're defined only in newer compilers (>= C++0x).
 		// on Windows localtime and gmtime are already thread-safe so there is not need
 		// to use localtime_r and gmtime_r
-		struct tm nowtm_r
-		{
-		};
+		struct tm nowtm_r{};
 		if (timeAsLocalTime)
 		{
 			nowtm = localtime_r(&nowtime, &nowtm_r);

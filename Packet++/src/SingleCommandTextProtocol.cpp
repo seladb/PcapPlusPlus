@@ -47,9 +47,10 @@ namespace pcpp
 			return std::min(posSpace, posHyphen);
 			// If nothing found but there is a CRLF it is a only command packet
 		}
-		if (posCRLF != std::string::npos) {
+		if (posCRLF != std::string::npos)
+		{
 			return posCRLF;
-}
+		}
 
 		return 0;
 	}

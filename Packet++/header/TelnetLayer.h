@@ -18,7 +18,7 @@ namespace pcpp
 	{
 	private:
 		// Position iterator for next command
-		size_t lastPositionOffset{SIZE_MAX};
+		size_t lastPositionOffset{ SIZE_MAX };
 
 		// Checks if position is a data field
 		static bool isDataField(const uint8_t* pos);

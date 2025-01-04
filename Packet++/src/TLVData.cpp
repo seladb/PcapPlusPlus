@@ -36,9 +36,7 @@ namespace pcpp
 	}
 
 	TLVRecordBuilder::TLVRecordBuilder(uint32_t recType, const std::string& recValue, bool valueIsHexString)
-	     
 	{
-
 		if (valueIsHexString)
 		{
 			uint8_t recValueByteArr[512];

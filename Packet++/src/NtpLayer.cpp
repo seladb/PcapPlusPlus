@@ -604,9 +604,7 @@ namespace pcpp
 			timeStruct = 0;
 		timer = gmtime(&timeStruct);
 #else
-		struct tm timer_r
-		{
-		};
+		struct tm timer_r{};
 		timer = gmtime_r(&timeStruct, &timer_r);
 
 		if (timer != nullptr)

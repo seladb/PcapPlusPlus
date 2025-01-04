@@ -35,9 +35,7 @@ namespace pcpp
 		    std::chrono::duration_cast<std::chrono::microseconds>(duration).count() -
 		    std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::seconds(seconds)).count();
 
-		struct timeval out
-		{
-		};
+		struct timeval out{};
 		out.tv_sec = seconds;
 		out.tv_usec = microseconds;
 		return out;
