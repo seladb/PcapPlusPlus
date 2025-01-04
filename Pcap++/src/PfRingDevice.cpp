@@ -573,7 +573,7 @@ namespace pcpp
 
 	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock)
 	{
-		if (StartupBlock == nullptr)
+		if (startupBlock == nullptr)
 		{
 			PCPP_LOG_ERROR("Capture thread started without a startup block. Exiting capture thread");
 			return;
