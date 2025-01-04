@@ -35,8 +35,8 @@ namespace pcpp
 			/// AF_XDP operation mode
 			enum AttachMode
 			{
-				/** A fallback mode that works for any network device. Use it if the network driver doesn't have support
-				 * for XDP */
+				/// A fallback mode that works for any network device. Use it if the network driver doesn't have support
+				/// for XDP
 				SkbMode = 1,
 				/// Use this mode if the network driver has support for XDP
 				DriverMode = 2,
