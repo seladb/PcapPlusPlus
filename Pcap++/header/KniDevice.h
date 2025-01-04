@@ -240,8 +240,6 @@ namespace pcpp
 		~KniDevice();
 
 	public:
-		/* Information getters */
-
 		/// Indicates whether the KNI device was initialized successfully
 		inline bool isInitialized() const
 		{
@@ -285,8 +283,6 @@ namespace pcpp
 		/// @param[in] state Defines information relevance level
 		/// @return Known promiscuous mode of KNI interface
 		KniPromiscuousMode getPromiscuous(KniInfoState state = INFO_CACHED);
-
-		/* Information setters */
 
 		/// @brief Sets link state of KNI device.
 		/// Firstly the link information is updated as by call to getLinkState(INFO_RENEW).
@@ -336,8 +332,6 @@ namespace pcpp
 		///    LINK_UP - previous link state was UP, state is successfully updated to provided one
 		KniLinkState updateLinkState(KniLinkState state);
 
-		// Requests
-
 		/// @brief Handle requests from Linux kernel synchronously in calling thread.
 		/// When one of events which is needed application attention occurres it must be handled by calling this
 		/// function (or by running RequestHandlerThread for this device).
@@ -373,8 +367,6 @@ namespace pcpp
 		/// function from DETACHED to JOINABLE.
 		void stopRequestHandlerThread();
 
-		// Packet receive
-
 		/// @brief Receive raw packets from kernel.
 		/// @param[out] rawPacketsArr A vector where all received packets will be written into
 		/// @return The number of packets received. If an error occurred 0 will be returned and the error will be
@@ -402,8 +394,6 @@ namespace pcpp
 		/// @return The number of packets received. If an error occurred 0 will be returned and the error will be
 		/// printed to log
 		uint16_t receivePackets(Packet** packetsArr, uint16_t packetsArrLength);
-
-		// Packet send
 
 		/// @brief Send an array of MBufRawPacket to kernel.
 		/// Please notice the following:<BR>
@@ -527,8 +517,6 @@ namespace pcpp
 		                             int timeout);
 		/// Stop a currently running asynchronous packet capture.
 		void stopCapture();
-
-		// Device control
 
 		/// Takes appropriate actions for opening KNI device.
 		/// @return true if the device was opened successfully, false if device is already opened,
