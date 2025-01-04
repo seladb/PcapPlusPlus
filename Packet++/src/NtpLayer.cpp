@@ -570,7 +570,7 @@ namespace pcpp
 
 	uint32_t NtpLayer::convertToShortFormat(const double val)
 	{
-		double integerPart = NAN;
+		double integerPart = 0;
 		double const fractionPart = modf(val, &integerPart);
 
 		// Cast values to 16bit
@@ -582,7 +582,7 @@ namespace pcpp
 
 	uint64_t NtpLayer::convertToTimestampFormat(const double val)
 	{
-		double integerPart = NAN;
+		double integerPart = 0;
 		double const fractionPart = modf(val, &integerPart);
 
 		// Cast values to 32bit
@@ -594,7 +594,7 @@ namespace pcpp
 
 	std::string NtpLayer::convertToIsoFormat(const double timestamp)
 	{
-		double integerPart = NAN;
+		double integerPart = 0;
 		double const fractionPart = modf(timestamp, &integerPart);
 
 		struct tm* timer = nullptr;
