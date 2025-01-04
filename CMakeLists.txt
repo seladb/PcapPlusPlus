@@ -13,7 +13,8 @@ project(
   PcapPlusPlus
   DESCRIPTION "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets."
   LANGUAGES CXX
-  HOMEPAGE_URL "https://pcapplusplus.github.io/")
+  HOMEPAGE_URL "https://pcapplusplus.github.io/"
+)
 
 # Include our custom CMake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/")
@@ -40,10 +41,7 @@ else()
 endif()
 
 # LINUX is set Only since 3.25 see: https://cmake.org/cmake/help/latest/variable/LINUX.html
-if(UNIX
-   AND NOT APPLE
-   AND NOT CYGWIN
-   AND NOT ANDROID)
+if(UNIX AND NOT APPLE AND NOT CYGWIN AND NOT ANDROID)
   set(LINUX True)
 endif()
 
@@ -54,21 +52,18 @@ set(PCAPPP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/pcapplusplus)
 set(PCAPPP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
 
 # Build options enable sanitizers
-set(PCAPPP_ALLOWED_SANITIZERS
-    ""
-    "AddressSanitizer"
-    "MemorySanitizer"
-    "ThreadSanitizer"
-    "UndefinedBehaviorSanitizer")
-set(PCAPPP_USE_SANITIZER
-    ""
-    CACHE STRING "Compile with a sanitizer")
+set(
+  PCAPPP_ALLOWED_SANITIZERS
+  ""
+  "AddressSanitizer"
+  "MemorySanitizer"
+  "ThreadSanitizer"
+  "UndefinedBehaviorSanitizer"
+)
+set(PCAPPP_USE_SANITIZER "" CACHE STRING "Compile with a sanitizer")
 set_property(CACHE PCAPPP_USE_SANITIZER PROPERTY STRINGS ${PCAPPP_ALLOWED_SANITIZERS})
 
-if(NOT
-   PCAPPP_USE_SANITIZER
-   IN_LIST
-   PCAPPP_ALLOWED_SANITIZERS)
+if(NOT PCAPPP_USE_SANITIZER IN_LIST PCAPPP_ALLOWED_SANITIZERS)
   message(FATAL_ERROR "PCAPPP_USE_SANITIZER must be one of ${PCAPPP_ALLOWED_SANITIZERS}")
 endif()
 
@@ -97,7 +92,8 @@ cmake_dependent_option(
   "Build Tutorials"
   OFF
   "PCAPPP_BUILD_EXAMPLES"
-  OFF)
+  OFF
+)
 option(PCAPPP_BUILD_TESTS "Build Tests" ${PCAPPP_MAIN_PROJECT})
 option(PCAPPP_BUILD_COVERAGE "Generate Coverage Report" OFF)
 option(PCAPPP_BUILD_FUZZERS "Build Fuzzers binaries" OFF)
@@ -111,7 +107,8 @@ cmake_dependent_option(
   "Add KNI Support to Pcap++"
   OFF
   "PCAPPP_USE_DPDK"
-  OFF)
+  OFF
+)
 option(PCAPPP_USE_PF_RING "Setup PcapPlusPlus with PF_RING. In this case you must also set PF_RING_ROOT")
 option(PCAPPP_USE_XDP "Setup PcapPlusPlus with XDP")
 option(PCAPPP_INSTALL "Install Pcap++" ${PCAPPP_MAIN_PROJECT})
@@ -127,9 +124,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Usually on Windows PCAP_ROOT and Packet_ROOT are at the same location
-if(WIN32
-   AND PCAP_ROOT
-   AND NOT Packet_ROOT)
+if(WIN32 AND PCAP_ROOT AND NOT Packet_ROOT)
   set(Packet_ROOT ${PCAP_ROOT})
 endif()
 
@@ -162,8 +157,11 @@ if(PCAPPP_ENABLE_PCAP_IMMEDIATE_MODE)
 endif()
 
 # Enable the option if it's available
-option(PCAPPP_ENABLE_PCAP_SET_DIRECTION
-       "Enable set direction for capturing incoming or outgoing packets (supported on libpcap>=0.9.1)" OFF)
+option(
+  PCAPPP_ENABLE_PCAP_SET_DIRECTION
+  "Enable set direction for capturing incoming or outgoing packets (supported on libpcap>=0.9.1)"
+  OFF
+)
 
 # Check in case user force it but it's not available
 if(PCAPPP_ENABLE_PCAP_SET_DIRECTION)
@@ -210,12 +208,14 @@ if(Git_FOUND)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE PCAPPP_GIT_COMMIT)
+    OUTPUT_VARIABLE PCAPPP_GIT_COMMIT
+  )
   string(STRIP "${PCAPPP_GIT_COMMIT}" PCAPPP_GIT_COMMIT)
   execute_process(
     COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE PCAPPP_GIT_BRANCH)
+    OUTPUT_VARIABLE PCAPPP_GIT_BRANCH
+  )
   string(STRIP "${PCAPPP_GIT_BRANCH}" PCAPPP_GIT_BRANCH)
   message(STATUS "Building from commit:${PCAPPP_GIT_COMMIT} on branch:${PCAPPP_GIT_BRANCH}")
   add_compile_definitions(GIT_COMMIT="${PCAPPP_GIT_COMMIT}")
@@ -239,15 +239,11 @@ if(PCAPPP_USE_XDP)
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE
-      "Release"
-      CACHE STRING "Choose the type of build." FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
-if(PCAPPP_TARGET_COMPILER_CLANG
-   OR PCAPPP_TARGET_COMPILER_GCC
-   OR PCAPPP_TARGET_COMPILER_INTEL)
+if(PCAPPP_TARGET_COMPILER_CLANG OR PCAPPP_TARGET_COMPILER_GCC OR PCAPPP_TARGET_COMPILER_INTEL)
   add_compile_options(-Wall)
 endif()
 
@@ -300,9 +296,7 @@ if(PCAPPP_BUILD_EXAMPLES)
   add_subdirectory(Examples)
 endif()
 
-if(PCAPPP_BUILD_TESTS
-   OR PCAPPP_BUILD_FUZZERS
-   OR PCAPPP_BUILD_EXAMPLES)
+if(PCAPPP_BUILD_TESTS OR PCAPPP_BUILD_FUZZERS OR PCAPPP_BUILD_EXAMPLES)
   include(CTest)
   add_subdirectory(Tests)
 endif()
@@ -314,8 +308,11 @@ if(PCAPPP_INSTALL)
       # Add System and CoreFoundation libs on MacOS
       set(PCAPPP_PKGCONFIG_EXTRA_LIBS "-framework SystemConfiguration -framework CoreFoundation")
     endif()
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
-                   @ONLY)
+    configure_file(
+      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlus.pc.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc"
+      @ONLY
+    )
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlus.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
   endif()
 
@@ -338,26 +335,28 @@ if(PCAPPP_INSTALL)
     pcapp_install_cmake_module(ZSTD)
   endif()
 
-  install(
-    EXPORT PcapPlusPlusTargets
-    DESTINATION ${PCAPPP_INSTALL_CMAKEDIR}
-    NAMESPACE PcapPlusPlus::)
+  install(EXPORT PcapPlusPlusTargets DESTINATION ${PCAPPP_INSTALL_CMAKEDIR} NAMESPACE PcapPlusPlus::)
 
   configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake" INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
+    INSTALL_DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}"
+  )
 
   write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
     VERSION ${PCAPPP_VERSION}
-    COMPATIBILITY AnyNewerVersion)
+    COMPATIBILITY AnyNewerVersion
+  )
 
   # CMake helpers to compile Pcap++ with CMake
   install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
-          "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
+    FILES
+      "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfig.cmake"
+      "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusConfigVersion.cmake"
     COMPONENT devel
-    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}")
+    DESTINATION "${PCAPPP_INSTALL_CMAKEDIR}"
+  )
 endif()
 
 if(PCAPPP_PACKAGE)
@@ -369,28 +368,21 @@ if(PCAPPP_PACKAGE)
   set(CPACK_PACKAGE_VERSION "${PCAPPP_VERSION}")
   set(CPACK_PACKAGE_MAINTAINER "seladb")
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_MAINTAINER}")
-  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
-      "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
+  set(
+    CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "PcapPlusPlus is a multiplatform C++ library for capturing, parsing and crafting of network packets. It is designed to be efficient, powerful and easy to use."
   )
 
   # Default output a .tar.gz
   set(CPACK_GENERATOR "TGZ")
 
   # Remove the tweak for Compiler Version
-  string(
-    REPLACE "."
-            ";"
-            VERSION_LIST
-            ${CMAKE_CXX_COMPILER_VERSION})
+  string(REPLACE "." ";" VERSION_LIST ${CMAKE_CXX_COMPILER_VERSION})
   list(LENGTH VERSION_LIST CMAKE_CXX_COMPILER_VERSION_LENGTH)
   if(${CMAKE_CXX_COMPILER_VERSION_LENGTH} GREATER 3)
     list(POP_BACK VERSION_LIST)
   endif()
-  list(
-    JOIN
-    VERSION_LIST
-    "."
-    PCAPP_CXX_COMPILER_VERSION)
+  list(JOIN VERSION_LIST "." PCAPP_CXX_COMPILER_VERSION)
 
   set(_PCAPPP_PACKAGE_README_PATH "${CMAKE_SOURCE_DIR}/cmake/package/READMEs")
   set(_PCAPPP_PACKAGE_README_OUTFILE "${CMAKE_BINARY_DIR}/README.release.md")
@@ -415,14 +407,17 @@ if(PCAPPP_PACKAGE)
     elseif("${DISTRO_ID}" STREQUAL "freebsd")
       set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.freebsd")
     endif()
-    set(CPACK_SYSTEM_NAME
-        "${DISTRO_ID}-${DISTRO_VERSION_ID}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}-${CMAKE_SYSTEM_PROCESSOR}"
+    set(
+      CPACK_SYSTEM_NAME
+      "${DISTRO_ID}-${DISTRO_VERSION_ID}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}-${CMAKE_SYSTEM_PROCESSOR}"
     )
   elseif(MINGW)
     # Check MinGW before WIN32 as MinGW defines both
     set(CPACK_GENERATOR "ZIP")
-    set(CPACK_SYSTEM_NAME
-        "windows-mingw64-${PCAPP_TARGET_ARCHITECTURE}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}")
+    set(
+      CPACK_SYSTEM_NAME
+      "windows-mingw64-${PCAPP_TARGET_ARCHITECTURE}-${PCAPPP_TARGET_COMPILER}-${PCAPP_CXX_COMPILER_VERSION}"
+    )
     set(_PCAPPP_PACKAGE_README_CUSTOM_PATH "${_PCAPPP_PACKAGE_README_PATH}/README.release.win.mingw")
   elseif(WIN32)
     set(CPACK_GENERATOR "ZIP")
@@ -451,10 +446,12 @@ if(PCAPPP_PACKAGE)
     if(NOT CONVERTER)
       message(FATAL_ERROR "textutil executable not found")
     endif()
-    execute_process(COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/LICENSE" -output
-                            "${CMAKE_BINARY_DIR}/LICENSE.html")
-    execute_process(COMMAND ${CONVERTER} -convert html "${_PCAPPP_PACKAGE_README_OUTFILE}" -output
-                            "${CMAKE_BINARY_DIR}/README.html")
+    execute_process(
+      COMMAND ${CONVERTER} -convert html "${CMAKE_SOURCE_DIR}/LICENSE" -output "${CMAKE_BINARY_DIR}/LICENSE.html"
+    )
+    execute_process(
+      COMMAND ${CONVERTER} -convert html "${_PCAPPP_PACKAGE_README_OUTFILE}" -output "${CMAKE_BINARY_DIR}/README.html"
+    )
     set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_BINARY_DIR}/LICENSE.html")
     set(CPACK_RESOURCE_FILE_README "${CMAKE_BINARY_DIR}/README.html")
   else()
@@ -464,11 +461,13 @@ if(PCAPPP_PACKAGE)
 
   # used in CPackAdditionalInstall.cmake
   set(CPACK_ADDITIONAL_INSTALL_RESOURCES "${CPACK_RESOURCE_FILE_LICENSE}" "${CPACK_RESOURCE_FILE_README}")
-  set(CPACK_ADDITIONAL_EXAMPLE_APP
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/1_packet.pcap"
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/CMakeLists.txt"
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/main.cpp"
-      "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/README.md")
+  set(
+    CPACK_ADDITIONAL_EXAMPLE_APP
+    "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/1_packet.pcap"
+    "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/CMakeLists.txt"
+    "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/main.cpp"
+    "${CMAKE_SOURCE_DIR}/Examples/ExampleApp/README.md"
+  )
   set(CPACK_INSTALL_SCRIPT "${CMAKE_SOURCE_DIR}/cmake/CPackAdditionalInstall.cmake")
 
   include(CPack)
@@ -480,7 +479,8 @@ if(NOT TARGET uninstall)
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/PcapPlusPlusUninstall.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusUninstall.cmake"
     IMMEDIATE
-    @ONLY)
+    @ONLY
+  )
 
   add_custom_target(uninstall COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/PcapPlusPlusUninstall.cmake")
 endif()
