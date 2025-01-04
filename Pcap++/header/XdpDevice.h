@@ -38,9 +38,9 @@ namespace pcpp
 				/** A fallback mode that works for any network device. Use it if the network driver doesn't have support
 				 * for XDP */
 				SkbMode = 1,
-				/** Use this mode if the network driver has support for XDP */
+				/// Use this mode if the network driver has support for XDP 
 				DriverMode = 2,
-				/** Automatically detect whether driver mode is supported, otherwise fallback to SKB mode */
+				/// Automatically detect whether driver mode is supported, otherwise fallback to SKB mode 
 				AutoMode = 3
 			};
 
@@ -106,51 +106,51 @@ namespace pcpp
 		/// A container for XDP device statistics
 		struct XdpDeviceStats
 		{
-			/** The timestamp when the stats were collected */
+			/// The timestamp when the stats were collected 
 			timespec timestamp;
-			/** Number of packets received */
+			/// Number of packets received 
 			uint64_t rxPackets;
-			/** Packets received per second. Measured from to the previous time stats were collected */
+			/// Packets received per second. Measured from to the previous time stats were collected 
 			uint64_t rxPacketsPerSec;
-			/** Number of bytes received */
+			/// Number of bytes received 
 			uint64_t rxBytes;
-			/** Bytes per second received. Measured from to the previous time stats were collected */
+			/// Bytes per second received. Measured from to the previous time stats were collected 
 			uint64_t rxBytesPerSec;
-			/** Total number of dropped RX packets */
+			/// Total number of dropped RX packets 
 			uint64_t rxDroppedTotalPackets;
-			/** RX packets dropped due to invalid descriptor */
+			/// RX packets dropped due to invalid descriptor 
 			uint64_t rxDroppedInvalidPackets;
-			/** RX packets dropped due to RX ring being full */
+			/// RX packets dropped due to RX ring being full 
 			uint64_t rxDroppedRxRingFullPackets;
-			/** Failed RX packets to retrieve item from fill ring */
+			/// Failed RX packets to retrieve item from fill ring 
 			uint64_t rxDroppedFillRingPackets;
-			/** Number of poll() timeouts */
+			/// Number of poll() timeouts 
 			uint64_t rxPollTimeout;
-			/** Number of packets sent from the application */
+			/// Number of packets sent from the application 
 			uint64_t txSentPackets;
-			/** Packets sent from the app per second. Measured from to the previous time stats were collected */
+			/// Packets sent from the app per second. Measured from to the previous time stats were collected 
 			uint64_t txSentPacketsPerSec;
-			/** Number of bytes sent from the application */
+			/// Number of bytes sent from the application 
 			uint64_t txSentBytes;
-			/** Bytes per second sent from the app. Measured from to the previous time stats were collected */
+			/// Bytes per second sent from the app. Measured from to the previous time stats were collected 
 			uint64_t txSentBytesPerSec;
-			/** Number of completed sent packets, meaning packets that were confirmed as sent by the kernel */
+			/// Number of completed sent packets, meaning packets that were confirmed as sent by the kernel 
 			uint64_t txCompletedPackets;
-			/** Completed sent packets per second. Measured from to the previous time stats were collected */
+			/// Completed sent packets per second. Measured from to the previous time stats were collected 
 			uint64_t txCompletedPacketsPerSec;
-			/** TX packets dropped due to invalid descriptor */
+			/// TX packets dropped due to invalid descriptor 
 			uint64_t txDroppedInvalidPackets;
-			/** Current RX ring ID */
+			/// Current RX ring ID 
 			uint64_t rxRingId;
-			/** Current TX ring ID */
+			/// Current TX ring ID 
 			uint64_t txRingId;
-			/** Current fill ring ID */
+			/// Current fill ring ID 
 			uint64_t fqRingId;
-			/** Current completion ring ID */
+			/// Current completion ring ID 
 			uint64_t cqRingId;
-			/** Number of UMEM frames that are currently in-use (allocated) */
+			/// Number of UMEM frames that are currently in-use (allocated) 
 			uint64_t umemAllocatedFrames;
-			/** Number of UMEM frames that are currently free (not allocated) */
+			/// Number of UMEM frames that are currently free (not allocated) 
 			uint64_t umemFreeFrames;
 		};
 

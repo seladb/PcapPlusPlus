@@ -35,22 +35,22 @@ namespace pcpp
 		/// Callback related constants for KNI device
 		enum KniCallbackVersion
 		{
-			/** Reports that DPDK supports only KniDevice#KniIoctlCallbacks callback structure */
+			/// Reports that DPDK supports only KniDevice#KniIoctlCallbacks callback structure 
 			CALLBACKS_NEW = 0,
-			/** Reports that DPDK supports only KniDevice#KniOldIoctlCallbacks callback structure */
+			/// Reports that DPDK supports only KniDevice#KniOldIoctlCallbacks callback structure 
 			CALLBACKS_OLD = 1
 		};
 		/// Various callback types supported by KNI device
 		enum KniCallbackType
 		{
-			/** KniDevice#KniIoctlCallbacks#change_mtu and KniDevice#KniOldIoctlCallbacks#change_mtu callback */
+			/// KniDevice#KniIoctlCallbacks#change_mtu and KniDevice#KniOldIoctlCallbacks#change_mtu callback 
 			CALLBACK_MTU,
-			/** KniDevice#KniIoctlCallbacks#config_network_if and KniDevice#KniOldIoctlCallbacks#config_network_if
-			 * callback */
+			/// KniDevice#KniIoctlCallbacks#config_network_if and KniDevice#KniOldIoctlCallbacks#config_network_if
+			/// callback
 			CALLBACK_LINK,
-			/** KniDevice#KniIoctlCallbacks#config_mac_address callback */
+			/// KniDevice#KniIoctlCallbacks#config_mac_address callback 
 			CALLBACK_MAC,
-			/** KniDevice#KniIoctlCallbacks#config_promiscusity callback */
+			/// KniDevice#KniIoctlCallbacks#config_promiscusity callback 
 			CALLBACK_PROMISC
 		};
 

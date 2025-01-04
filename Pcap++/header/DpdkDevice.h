@@ -77,44 +77,44 @@ namespace pcpp
 	/// visit the DPDK web-site
 	enum DpdkPMDType
 	{
-		/** Unknown PMD type */
+		/// Unknown PMD type
 		PMD_UNKNOWN,
-		/** Link Bonding for 1GbE and 10GbE ports to allow the aggregation of multiple (slave) NICs into a single
-		 * logical interface*/
+		/// Link Bonding for 1GbE and 10GbE ports to allow the aggregation of multiple (slave) NICs into a single
+		/// logical interface
 		PMD_BOND,
-		/** Intel E1000 PMD */
+		/// Intel E1000 PMD
 		PMD_E1000EM,
-		/** Intel 1GbE PMD */
+		/// Intel 1GbE PMD 
 		PMD_IGB,
-		/** Intel 1GbE virtual function PMD */
+		/// Intel 1GbE virtual function PMD 
 		PMD_IGBVF,
-		/** Cisco enic (UCS Virtual Interface Card) PMD */
+		/// Cisco enic (UCS Virtual Interface Card) PMD 
 		PMD_ENIC,
-		/** Intel fm10k PMD */
+		/// Intel fm10k PMD 
 		PMD_FM10K,
-		/** Intel 40GbE PMD */
+		/// Intel 40GbE PMD 
 		PMD_I40E,
-		/** Intel 40GbE virtual function PMD */
+		/// Intel 40GbE virtual function PMD 
 		PMD_I40EVF,
-		/** Intel 10GbE PMD */
+		/// Intel 10GbE PMD 
 		PMD_IXGBE,
-		/** Intel 10GbE virtual function PMD */
+		/// Intel 10GbE virtual function PMD 
 		PMD_IXGBEVF,
-		/** Mellanox ConnectX-3, ConnectX-3 Pro PMD */
+		/// Mellanox ConnectX-3, ConnectX-3 Pro PMD 
 		PMD_MLX4,
-		/** Null PMD */
+		/// Null PMD 
 		PMD_NULL,
-		/** pcap file PMD */
+		/// pcap file PMD 
 		PMD_PCAP,
-		/** ring-based (memory) PMD */
+		/// ring-based (memory) PMD 
 		PMD_RING,
-		/** VirtIO PMD */
+		/// VirtIO PMD 
 		PMD_VIRTIO,
-		/** VMWare VMXNET3 PMD */
+		/// VMWare VMXNET3 PMD 
 		PMD_VMXNET3,
-		/** Xen Project PMD */
+		/// Xen Project PMD 
 		PMD_XENVIRT,
-		/** AF_PACKET PMD */
+		/// AF_PACKET PMD 
 		PMD_AF_PACKET
 	};
 
@@ -175,51 +175,51 @@ namespace pcpp
 		/// PMDs support all types of hash functions
 		enum DpdkRssHashFunction
 		{
-			/** No RSS */
+			/// No RSS 
 			RSS_NONE = 0,
-			/** IPv4 based flow */
+			/// IPv4 based flow 
 			RSS_IPV4 = 0x1,
-			/** Fragmented IPv4 based flow */
+			/// Fragmented IPv4 based flow 
 			RSS_FRAG_IPV4 = 0x2,
-			/** Non-fragmented IPv4 + TCP flow */
+			/// Non-fragmented IPv4 + TCP flow 
 			RSS_NONFRAG_IPV4_TCP = 0x4,
-			/** Non-fragmented IPv4 + UDP flow */
+			/// Non-fragmented IPv4 + UDP flow 
 			RSS_NONFRAG_IPV4_UDP = 0x8,
-			/** Non-fragmented IPv4 + SCTP flow */
+			/// Non-fragmented IPv4 + SCTP flow 
 			RSS_NONFRAG_IPV4_SCTP = 0x10,
-			/** Non-fragmented IPv4 + non TCP/UDP/SCTP flow */
+			/// Non-fragmented IPv4 + non TCP/UDP/SCTP flow 
 			RSS_NONFRAG_IPV4_OTHER = 0x20,
-			/** IPv6 based flow */
+			/// IPv6 based flow 
 			RSS_IPV6 = 0x40,
-			/** Fragmented IPv6 based flow */
+			/// Fragmented IPv6 based flow 
 			RSS_FRAG_IPV6 = 0x80,
-			/** Non-fragmented IPv6 + TCP flow */
+			/// Non-fragmented IPv6 + TCP flow 
 			RSS_NONFRAG_IPV6_TCP = 0x100,
-			/** Non-fragmented IPv6 + UDP flow */
+			/// Non-fragmented IPv6 + UDP flow 
 			RSS_NONFRAG_IPV6_UDP = 0x200,
-			/** Non-fragmented IPv6 + SCTP flow */
+			/// Non-fragmented IPv6 + SCTP flow 
 			RSS_NONFRAG_IPV6_SCTP = 0x400,
-			/** Non-fragmented IPv6 + non TCP/UDP/SCTP flow */
+			/// Non-fragmented IPv6 + non TCP/UDP/SCTP flow 
 			RSS_NONFRAG_IPV6_OTHER = 0x800,
-			/** L2 payload based flow */
+			/// L2 payload based flow 
 			RSS_L2_PAYLOAD = 0x1000,
-			/** IPv6 Ex based flow */
+			/// IPv6 Ex based flow 
 			RSS_IPV6_EX = 0x2000,
-			/** IPv6 + TCP Ex based flow */
+			/// IPv6 + TCP Ex based flow 
 			RSS_IPV6_TCP_EX = 0x4000,
-			/** IPv6 + UDP Ex based flow */
+			/// IPv6 + UDP Ex based flow 
 			RSS_IPV6_UDP_EX = 0x8000,
-			/** Consider device port number as a flow differentiator */
+			/// Consider device port number as a flow differentiator 
 			RSS_PORT = 0x10000,
-			/** VXLAN protocol based flow */
+			/// VXLAN protocol based flow 
 			RSS_VXLAN = 0x20000,
-			/** GENEVE protocol based flow */
+			/// GENEVE protocol based flow 
 			RSS_GENEVE = 0x40000,
-			/** NVGRE protocol based flow */
+			/// NVGRE protocol based flow 
 			RSS_NVGRE = 0x80000,
-			/** All RSS functions supported by the device */
+			/// All RSS functions supported by the device 
 			RSS_ALL_SUPPORTED = -1,
-			/** A default set of RSS functions supported by the device */
+			/// A default set of RSS functions supported by the device 
 			RSS_DEFAULT = PCPP_RSS_HASH_MAGIC_NUMBER
 		};
 
@@ -292,20 +292,20 @@ namespace pcpp
 		/// A struct that contains the link status of a DpdkDevice (DPDK port). Returned from DpdkDevice#getLinkStatus()
 		struct LinkStatus
 		{
-			/** Enum for describing link duplex */
+			/// Enum for describing link duplex 
 			enum LinkDuplex
 			{
-				/** Full duplex */
+				/// Full duplex 
 				FULL_DUPLEX,
-				/** Half duplex */
+				/// Half duplex 
 				HALF_DUPLEX
 			};
 
-			/** True if link is up, false if it's down */
+			/// True if link is up, false if it's down 
 			bool linkUp;
-			/** Link speed in Mbps (for example: 10Gbe will show 10000) */
+			/// Link speed in Mbps (for example: 10Gbe will show 10000) 
 			int linkSpeedMbps;
-			/** Link duplex (half/full duplex) */
+			/// Link duplex (half/full duplex) 
 			LinkDuplex linkDuplex;
 		};
 
@@ -313,13 +313,13 @@ namespace pcpp
 		/// A container for RX/TX statistics
 		struct RxTxStats
 		{
-			/** Total number of packets */
+			/// Total number of packets 
 			uint64_t packets;
-			/** Total number of successfully received bytes */
+			/// Total number of successfully received bytes 
 			uint64_t bytes;
-			/** Packets per second */
+			/// Packets per second 
 			uint64_t packetsPerSec;
-			/** Bytes per second */
+			/// Bytes per second 
 			uint64_t bytesPerSec;
 		};
 
@@ -327,24 +327,24 @@ namespace pcpp
 		/// A container for DpdkDevice statistics
 		struct DpdkDeviceStats
 		{
-			/** DpdkDevice ID */
+			/// DpdkDevice ID 
 			uint8_t devId;
-			/** The timestamp of when the stats were written */
+			/// The timestamp of when the stats were written 
 			timespec timestamp;
-			/** RX statistics per RX queue */
+			/// RX statistics per RX queue 
 			RxTxStats rxStats[DPDK_MAX_RX_QUEUES];
-			/** TX statistics per TX queue */
+			/// TX statistics per TX queue 
 			RxTxStats txStats[DPDK_MAX_RX_QUEUES];
-			/** RX statistics, aggregated for all RX queues */
+			/// RX statistics, aggregated for all RX queues 
 			RxTxStats aggregatedRxStats;
-			/** TX statistics, aggregated for all TX queues */
+			/// TX statistics, aggregated for all TX queues 
 			RxTxStats aggregatedTxStats;
 			/** Total number of RX packets dropped by H/W because there are no available buffers (i.e RX queues are
 			 * full) */
 			uint64_t rxPacketsDroppedByHW;
-			/** Total number of erroneous packets */
+			/// Total number of erroneous packets 
 			uint64_t rxErroneousPackets;
-			/** Total number of RX mbuf allocation failures */
+			/// Total number of RX mbuf allocation failures 
 			uint64_t rxMbufAlocFailed;
 		};
 
