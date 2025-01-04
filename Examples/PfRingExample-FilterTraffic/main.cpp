@@ -40,6 +40,7 @@
 #include <getopt.h>
 #include <unordered_map>
 #include <sstream>
+#include <iostream>
 #include <unistd.h>
 
 // clang-format off
