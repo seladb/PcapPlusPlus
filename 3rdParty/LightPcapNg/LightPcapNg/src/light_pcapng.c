@@ -59,14 +59,9 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
             opt->option_length :
             (opt->option_length / alignment + 1) * alignment;
 
-      if (actual_length > 0) {
+      if (actual_length > 0 && actual_length <= max_len - 2 * sizeof(*local_memory)) {
          opt->data = calloc(1, actual_length);
-         if (actual_length <= max_len - 2 * sizeof(*local_memory)) {
-             memcpy(opt->data, local_memory, actual_length);
-         } else {
-             free(opt->data);
-             opt->data = NULL;
-         }
+         memcpy(opt->data, local_memory, actual_length);
          local_memory += (sizeof(**memory) / sizeof(*local_memory)) * (actual_length / alignment);
       }
 
