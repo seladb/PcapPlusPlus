@@ -440,8 +440,7 @@ namespace pcpp
 		/// - If the number of packets to send is higher than 64 this method will run multiple iterations of sending
 		///   packets to DPDK, each iteration of 64 packets
 		/// - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed
-		/// by
-		///   DPDK <BR><BR>
+		///   by DPDK <BR><BR>
 		/// @param[in] rawPacketsVec The vector of raw packet
 		/// @return The number of packets actually and successfully sent
 		uint16_t sendPackets(RawPacketVector& rawPacketsVec);
