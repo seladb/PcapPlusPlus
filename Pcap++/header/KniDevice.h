@@ -472,8 +472,6 @@ namespace pcpp
 		/// for any other reason
 		bool sendPacket(Packet& packet);
 
-		// Packet capture
-
 		/// @brief Start capturing packets asynchronously on this KNI interface.
 		/// Each time a burst of packets is captured the onPacketArrives callback is called.
 		/// The capture is done on a new thread created by this method, meaning all callback

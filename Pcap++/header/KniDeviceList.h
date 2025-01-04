@@ -67,8 +67,6 @@ namespace pcpp
 			return m_Initialized;
 		}
 
-		// Device manipulation
-
 		/// @brief Factory method for KNI devices.
 		/// Newly created device is remembered under portId and name provided in config and can be found later by them.
 		/// If KNI device is not destroyed explicitly thru KniDeviceList#destroyDevice
@@ -88,8 +86,6 @@ namespace pcpp
 		/// @param[in] name Name of KNI device to find
 		/// @return Pointer to KNI device or nullptr if device not found
 		KniDevice* getDeviceByName(const std::string& name);
-
-		// Static information
 
 		/// Returns KniCallbackVersion#CALLBACKS_NEW or
 		/// KniCallbackVersion#CALLBACKS_OLD based on DPDK version used
