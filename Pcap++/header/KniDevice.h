@@ -42,7 +42,7 @@
 /// There is a way to enable <B>ethtool</B> on KNI devices that include
 /// recompilation of DPDK and strict correspondence between KNI port id and DPDK
 /// port id, but it is not currently supported by PcapPlusPlus.<BR>
-
+///
 /// Known issues:
 ///  - KNI device may not be able to set/update it's link status up
 ///    (LINK_ERROR returned):
@@ -427,8 +427,7 @@ namespace pcpp
 		/// - If the number of packets to send is higher than 64 this method will run multiple iterations of sending
 		///   packets to DPDK, each iteration of 64 packets
 		/// - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed
-		/// by
-		///   DPDK <BR><BR>
+		///   by DPDK <BR><BR>
 		/// @param[in] packetsArr A pointer to an array of parsed packet pointers
 		/// @param[in] arrLength The length of the array
 		/// @return The number of packets actually and successfully sent

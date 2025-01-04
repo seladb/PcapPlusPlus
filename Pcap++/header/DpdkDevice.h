@@ -501,8 +501,7 @@ namespace pcpp
 		///   typically around 400 packets), then after reaching this threshold there is a built-in 0.2 sec sleep to let
 		///   the TX descriptors clean
 		/// - The mbufs used or allocated in this method aren't freed by this method, they will be transparently freed
-		/// by
-		///   DPDK <BR><BR>
+		///   by DPDK <BR><BR>
 		/// @param[in] packetsArr A pointer to an array of parsed packet pointers
 		/// @param[in] arrLength The length of the array
 		/// @param[in] txQueueId An optional parameter which indicates to which TX queue the packets will be sent to.
