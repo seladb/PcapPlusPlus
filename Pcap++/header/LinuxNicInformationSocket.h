@@ -50,9 +50,9 @@ namespace pcpp
 		bool makeRequest(const char* nicName, const IoctlType ioctlType, ifreq* request);
 
 	private:
-		/* Hidden copy constructor. This structure is not copyable */
+		/// Hidden copy constructor. This structure is not copyable
 		LinuxNicInformationSocket(const LinuxNicInformationSocket&);
-		/* Hidden copy assignment operator. This structure is not copyable */
+		/// Hidden copy assignment operator. This structure is not copyable
 		LinuxNicInformationSocket operator=(const LinuxNicInformationSocket&);
 		LinuxSocket m_Socket;
 	};

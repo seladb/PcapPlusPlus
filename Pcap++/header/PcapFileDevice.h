@@ -165,12 +165,12 @@ namespace pcpp
 		/// Packet record header.
 		typedef struct
 		{
-			uint32_t original_length;      /* original packet length */
-			uint32_t included_length;      /* saved packet length */
-			uint32_t packet_record_length; /* total record length */
-			uint32_t ndrops_cumulative;    /* cumulative drops */
-			uint32_t time_sec;             /* timestamp */
-			uint32_t time_usec;            /* microsecond timestamp */
+			uint32_t original_length;       ///< original packet length
+			uint32_t included_length;       ///< saved packet length
+			uint32_t packet_record_length;  ///< total record length
+			uint32_t ndrops_cumulative;     ///< cumulative drops
+			uint32_t time_sec;              ///< timestamp
+			uint32_t time_usec;             ///< microsecond timestamp
 		} snoop_packet_header_t;
 #pragma pack()
 
