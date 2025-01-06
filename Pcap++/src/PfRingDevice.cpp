@@ -457,11 +457,31 @@ namespace pcpp
 
 	namespace
 	{
-		struct StartupBlock
+		/// @brief A block to signal when a thread is ready to start
+		class StartupBlock
 		{
-			std::mutex startMutex;
-			std::condition_variable startCond;
-			bool startupReady = false;
+		public:
+			/// @brief Sets the ready flag to true and signals all waiting threads
+			void signalStart()
+			{
+				{
+					std::lock_guard<std::mutex> lock(m_Mutex);
+					m_Ready = true;
+				}
+				m_CV.notify_all();
+			}
+
+			/// @brief Waits for the ready flag to be set. If it is already set, returns immediately.
+			void waitForSignal()
+			{
+				std::unique_lock<std::mutex> lock(m_Mutex);
+				m_CV.wait(lock, [&] { return m_Ready; });
+			}
+
+		private:
+			std::mutex m_Mutex;
+			std::condition_variable m_CV;
+			bool m_Ready = false;
 		};
 
 		struct PfRingCaptureThreadData
@@ -490,11 +510,8 @@ namespace pcpp
 				return;
 			}
 
-			{
-				// Wait for the start signal
-				std::unique_lock<std::mutex> lock(threadData.startupBlock->startMutex);
-				threadData.startupBlock->startCond.wait(lock, [&] { return threadData.startupBlock->startupReady; });
-			}
+			// Wait for the startup block to be signaled
+			threadData.startupBlock->waitForSignal();
 
 			// Startup is complete, clear the startup block
 			threadData.startupBlock = nullptr;
@@ -616,11 +633,8 @@ namespace pcpp
 
 				// Request stop and set the startup block to ready to prevent other threads from starting
 				m_StopTokenSource.requestStop();
-				{
-					std::lock_guard<std::mutex> lock(startupBlock->startMutex);
-					startupBlock->startupReady = true;
-				}
-				startupBlock->startCond.notify_all();
+				// Signal the startup block to unblock all threads so they can shutdown.
+				startupBlock->signalStart();
 
 				// Wait for all threads to stop
 				for (int coreId2 = coreId; coreId2 >= 0; coreId2--)
@@ -639,11 +653,7 @@ namespace pcpp
 		}
 
 		// Set the startup block to ready to start all threads
-		{
-			std::lock_guard<std::mutex> lock(startupBlock->startMutex);
-			startupBlock->startupReady = true;
-		}
-		startupBlock->startCond.notify_all();
+		startupBlock->signalStart();
 
 		return true;
 	}
