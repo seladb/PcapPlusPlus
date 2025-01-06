@@ -464,10 +464,8 @@ namespace pcpp
 			/// @brief Sets the ready flag to true and signals all waiting threads
 			void signalStart()
 			{
-				{
-					std::lock_guard<std::mutex> lock(m_Mutex);
-					m_Ready = true;
-				}
+				std::lock_guard<std::mutex> lock(m_Mutex);
+				m_Ready = true;
 				m_CV.notify_all();
 			}
 
