@@ -33,7 +33,15 @@ namespace pcpp
 
 	std::string DoIpLayer::getProtocolVersionAsStr() const
 	{
-		return DoIpEnumToStringProtocolVersion.at(getProtocolVersion());
+		auto it = DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
+		if (it != DoIpEnumToStringProtocolVersion.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			return "Unknown Protocol Version";
+		}
 	}
 
 	void DoIpLayer::setProtocolVersion(DoIpProtocolVersion version)
@@ -63,7 +71,15 @@ namespace pcpp
 
 	std::string DoIpLayer::getPayloadTypeAsStr() const
 	{
-		return DoIpEnumToStringPayloadType.at(getPayloadType());
+		auto it = DoIpEnumToStringPayloadType.find(getPayloadType());
+		if (it != DoIpEnumToStringPayloadType.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			return "Unknown Payload type";
+		}
 	}
 
 	uint32_t DoIpLayer::getPayloadLength() const
@@ -143,8 +159,8 @@ namespace pcpp
 		uint32_t length = getPayloadLength();
 
 		os << "DOIP Layer:" << std::endl;
-		os << "Protocol Version: " << DoIpEnumToStringProtocolVersion.at(version) << std::hex << " (0x"
-		   << unsigned((uint8_t)version) << ")" << std::endl;
+		os << "Protocol Version: " << getProtocolVersionAsStr() << std::hex << " (0x" << unsigned((uint8_t)version)
+		   << ")" << std::endl;
 		os << "Payload Type: " << getPayloadTypeAsStr() << std::hex << " (0x" << std::setw(4) << std::setfill('0')
 		   << (uint16_t)type << ")" << std::endl;
 		os << std::dec << "Payload Length: " << length << std::endl;

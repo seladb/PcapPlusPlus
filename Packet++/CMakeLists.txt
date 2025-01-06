@@ -81,11 +81,11 @@ set(public_headers
     header/DnsLayer.h
     header/DnsResourceData.h
     header/DnsResource.h
-    header/EthDot3Layer.h
     header/DoIpEnumToString.h
     header/DoIpEnums.h
     header/DoIpLayer.h
     header/DoIpLayerData.h
+    header/EthDot3Layer.h
     header/EthLayer.h
     header/FtpLayer.h
     header/GreLayer.h

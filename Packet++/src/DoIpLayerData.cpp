@@ -689,7 +689,7 @@ namespace pcpp
 	// Diagnostic Ack Message functions definitions
 	DiagnosticAckMessageData::DiagnosticAckMessageData()
 	    : sourceAddress(0x0000), targetAddress(0x0000), ackCode(DoIpDiagnosticAckCodes::ACK),
-	      previousMessage{ 0x22, 0xf1, 01, 0x02 }
+	      previousMessage{ 0x22, 0xf1, 0x01, 0x02 }
 	{}
 	DoIpPayloadTypes DiagnosticAckMessageData::getType() const
 	{
@@ -701,7 +701,11 @@ namespace pcpp
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
 		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << std::endl;
 		os << "ack code: " << DoIpEnumToStringAckCode.at(ackCode) << " (0x" << unsigned(ackCode) << ")" << std::endl;
-
+		if (!previousMessage.empty())
+		{
+			os << "previous message: " << pcpp::byteArrayToHexString(previousMessage.data(), previousMessage.size())
+			   << std::endl;
+		}
 		return os.str();
 	}
 	std::vector<uint8_t> DiagnosticAckMessageData::getData() const
@@ -769,7 +773,7 @@ namespace pcpp
 	// Diagnostic Nack Message functions definitions
 	DiagnosticNackMessageData::DiagnosticNackMessageData()
 	    : sourceAddress(0x0000), targetAddress(0x0000),
-	      nackCode(DoIpDiagnosticMessageNackCodes::INVALID_SOURCE_ADDRESS), previousMessage{ 0x22, 0xf1, 01, 0x02 }
+	      nackCode(DoIpDiagnosticMessageNackCodes::INVALID_SOURCE_ADDRESS), previousMessage{ 0x22, 0xf1, 0x01, 0x02 }
 	{}
 	DoIpPayloadTypes DiagnosticNackMessageData::getType() const
 	{
@@ -782,6 +786,11 @@ namespace pcpp
 		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << std::endl;
 		os << "nack code: " << DoIpEnumToStringDiagnosticNackCodes.at(nackCode) << std::hex << " (0x"
 		   << unsigned(nackCode) << ")" << std::endl;
+		if (!previousMessage.empty())
+		{
+			os << "previous message: " << pcpp::byteArrayToHexString(previousMessage.data(), previousMessage.size())
+			   << std::endl;
+		}
 		return os.str();
 	}
 	std::vector<uint8_t> DiagnosticNackMessageData::getData() const

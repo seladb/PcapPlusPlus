@@ -197,8 +197,8 @@ namespace pcpp
 		 * \brief Retrieves the raw binary data of the message.
 		 * \return A vector of bytes representing the message data.
 		 */
-
 		std::vector<uint8_t> getData() const override;
+
 		/**
 		 * @brief Parses the Routing Activation Response data from a DoIpLayer.
 		 *
@@ -249,8 +249,8 @@ namespace pcpp
 		 * \brief Retrieves the raw binary data of the message.
 		 * \return A vector of bytes representing the message data.
 		 */
-
 		std::vector<uint8_t> getData() const override;
+
 		/**
 		 * @brief Parses and initializes the Generic Header NACK data from a DoIpLayer.
 		 *

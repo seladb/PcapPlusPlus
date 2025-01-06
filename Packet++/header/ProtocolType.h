@@ -248,11 +248,6 @@ namespace pcpp
 	const ProtocolType ESP = 37;
 
 	/**
-	 * Diagnostic over IP protocol (DOIP)
-	 */
-	const ProtocolType DOIP = 38;
-
-	/**
 	 * IPSec protocol family (AH and ESP protocols)
 	 */
 	const ProtocolTypeFamily IPSec = 0x2425;
@@ -361,6 +356,11 @@ namespace pcpp
 	 * GTPv2 protocol
 	 */
 	const ProtocolType GTPv2 = 57;
+
+	/**
+	 * Diagnostic over IP protocol (DOIP)
+	 */
+	const ProtocolType DOIP = 58;
 
 	/**
 	 * An enum representing OSI model layers
