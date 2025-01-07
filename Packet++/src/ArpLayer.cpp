@@ -24,6 +24,26 @@ namespace pcpp
 		arpHeader->senderIpAddr = senderIpAddr.toInt();
 	}
 
+	ArpLayer::ArpLayer(ArpRequest const& arpRequest)
+	    : ArpLayer(ARP_REQUEST, arpRequest.senderMacAddr, MacAddress::Zero, arpRequest.senderIpAddr,
+	               arpRequest.targetIpAddr)
+	{}
+
+	ArpLayer::ArpLayer(ArpReply const& arpReply)
+	    : ArpLayer(ARP_REPLY, arpReply.senderMacAddr, arpReply.targetMacAddr, arpReply.senderIpAddr,
+	               arpReply.targetIpAddr)
+	{}
+
+	ArpLayer::ArpLayer(GratuitousArpRequest const& gratuitousArpRequest)
+	    : ArpLayer(ARP_REQUEST, gratuitousArpRequest.senderMacAddr, MacAddress::Broadcast, gratuitousArpRequest.senderIpAddr,
+	               gratuitousArpRequest.senderIpAddr)
+	{}
+
+	ArpLayer::ArpLayer(GratuitousArpReply const& gratuitousArpReply)
+	    : ArpLayer(ARP_REPLY, gratuitousArpReply.senderMacAddr, MacAddress::Broadcast,
+	               gratuitousArpReply.senderIpAddr, gratuitousArpReply.senderIpAddr)
+	{}
+
 	void ArpLayer::computeCalculateFields()
 	{
 		arphdr* arpHeader = getArpHeader();
@@ -31,8 +51,6 @@ namespace pcpp
 		arpHeader->hardwareSize = 6;
 		arpHeader->protocolType = htobe16(PCPP_ETHERTYPE_IP);  // assume IPv4 over ARP
 		arpHeader->protocolSize = 4;                           // assume IPv4 over ARP
-		if (arpHeader->opcode == htobe16(ARP_REQUEST))
-			MacAddress::Zero.copyTo(arpHeader->targetMacAddr);
 	}
 
 	bool ArpLayer::isRequest() const

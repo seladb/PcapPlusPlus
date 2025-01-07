@@ -52,6 +52,45 @@ namespace pcpp
 		ARP_REPLY = 0x0002     ///< ARP reply (response)
 	};
 
+	struct ArpRequest
+	{
+		MacAddress senderMacAddr;
+		IPv4Address senderIpAddr;
+		IPv4Address targetIpAddr;
+
+		ArpRequest(MacAddress senderMacAddress, IPv4Address senderIPAddress, IPv4Address targetIPAddress)
+		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress), targetIpAddr(targetIPAddress) {};
+	};
+
+	struct ArpReply
+	{
+		MacAddress senderMacAddr;
+		MacAddress targetMacAddr;
+		IPv4Address senderIpAddr;
+		IPv4Address targetIpAddr;
+
+		ArpReply(MacAddress senderMacAddress, MacAddress targetMacAddress, IPv4Address senderIPAddress,
+		         IPv4Address targetIPAddress)
+		    : senderMacAddr(senderMacAddress), targetMacAddr(targetMacAddress), senderIpAddr(senderIPAddress),
+		      targetIpAddr(targetIPAddress) {};
+	};
+
+	struct GratuitousArpRequest
+	{
+		MacAddress senderMacAddr;
+		IPv4Address senderIpAddr;
+		GratuitousArpRequest(MacAddress senderMacAddress, IPv4Address senderIPAddress)
+		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress) {};
+	};
+
+	struct GratuitousArpReply
+	{
+		MacAddress senderMacAddr;
+		IPv4Address senderIpAddr;
+		GratuitousArpReply(MacAddress senderMacAddress, IPv4Address senderIPAddress)
+		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress) {};
+	};
+
 	/**
 	 * @class ArpLayer
 	 * Represents an ARP protocol layer. Currently only IPv4 ARP messages are supported
@@ -82,6 +121,30 @@ namespace pcpp
 		 */
 		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr,
 		         const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr);
+
+		/**
+		 * @brief A constructor that creates an ARP request header.
+		 * @param arpRequest The ARP request data
+		 */
+		ArpLayer(ArpRequest const& arpRequest);
+
+		/**
+		 * @brief A constructor that creates an ARP reply header.
+		 * @param arpReply The ARP reply data
+		 */
+		ArpLayer(ArpReply const& arpReply);
+
+		/**
+		 * @brief A constructor that creates a gratuitous ARP request header.
+		 * @param gratuitousArpRequest The gratuitous ARP request data
+		 */
+		ArpLayer(GratuitousArpRequest const& gratuitousArpRequest);
+
+		/**
+		 * @brief A constructor that creates a gratuitous ARP reply header.
+		 * @param gratuitousArpReply The gratuitous ARP reply data
+		 */
+		ArpLayer(GratuitousArpReply const& gratuitousArpReply);
 
 		~ArpLayer() override = default;
 

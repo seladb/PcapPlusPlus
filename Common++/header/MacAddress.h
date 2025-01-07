@@ -137,6 +137,8 @@ namespace pcpp
 
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		static MacAddress Zero;
+		/// A static value representing a broadcast MAC address, meaning address of value "ff:ff:ff:ff:ff:ff"
+		static MacAddress Broadcast;
 
 	private:
 		uint8_t m_Address[6] = { 0 };
