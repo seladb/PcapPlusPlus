@@ -35,13 +35,13 @@ namespace pcpp
 	{}
 
 	ArpLayer::ArpLayer(GratuitousArpRequest const& gratuitousArpRequest)
-	    : ArpLayer(ARP_REQUEST, gratuitousArpRequest.senderMacAddr, MacAddress::Broadcast, gratuitousArpRequest.senderIpAddr,
-	               gratuitousArpRequest.senderIpAddr)
+	    : ArpLayer(ARP_REQUEST, gratuitousArpRequest.senderMacAddr, MacAddress::Broadcast,
+	               gratuitousArpRequest.senderIpAddr, gratuitousArpRequest.senderIpAddr)
 	{}
 
 	ArpLayer::ArpLayer(GratuitousArpReply const& gratuitousArpReply)
-	    : ArpLayer(ARP_REPLY, gratuitousArpReply.senderMacAddr, MacAddress::Broadcast,
-	               gratuitousArpReply.senderIpAddr, gratuitousArpReply.senderIpAddr)
+	    : ArpLayer(ARP_REPLY, gratuitousArpReply.senderMacAddr, MacAddress::Broadcast, gratuitousArpReply.senderIpAddr,
+	               gratuitousArpReply.senderIpAddr)
 	{}
 
 	void ArpLayer::computeCalculateFields()
