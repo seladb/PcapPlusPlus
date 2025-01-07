@@ -126,25 +126,25 @@ namespace pcpp
 		 * @brief A constructor that creates an ARP request header.
 		 * @param arpRequest The ARP request data
 		 */
-		ArpLayer(ArpRequest const& arpRequest);
+		explicit ArpLayer(ArpRequest const& arpRequest);
 
 		/**
 		 * @brief A constructor that creates an ARP reply header.
 		 * @param arpReply The ARP reply data
 		 */
-		ArpLayer(ArpReply const& arpReply);
+		explicit ArpLayer(ArpReply const& arpReply);
 
 		/**
 		 * @brief A constructor that creates a gratuitous ARP request header.
 		 * @param gratuitousArpRequest The gratuitous ARP request data
 		 */
-		ArpLayer(GratuitousArpRequest const& gratuitousArpRequest);
+		explicit ArpLayer(GratuitousArpRequest const& gratuitousArpRequest);
 
 		/**
 		 * @brief A constructor that creates a gratuitous ARP reply header.
 		 * @param gratuitousArpReply The gratuitous ARP reply data
 		 */
-		ArpLayer(GratuitousArpReply const& gratuitousArpReply);
+		explicit ArpLayer(GratuitousArpReply const& gratuitousArpReply);
 
 		~ArpLayer() override = default;
 
