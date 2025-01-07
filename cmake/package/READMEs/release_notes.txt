@@ -43,7 +43,7 @@ Release notes (changes from v23.09)
   - Fedora: added support for 39 and removed 37 (thanks @clementperon !)
   - Removed support for CentOS 7
   - FreeBSD: added support for 14.0 and dropped 12 (thanks @clementperon !)
-- Internal tools: 
+- Internal tools:
   - Reformatted the entire code base using `clang-format` (thanks @tigercosmos , @Dimi1010 !)
   - Added `dependabot` to keep GitHub Actions and Python packages up-to-date (thanks @egecetin !)
   - Added OpenSSF Scorecard automation to monitor and enhance security (thanks @egecetin !)
@@ -112,11 +112,11 @@ Contributors
 - @axmahr
 - @Double0101
 - @prudens
-- @rtmeng 
-- @hidd3ncod3s 
+- @rtmeng
+- @hidd3ncod3s
 - @WojtekMs
 - @mserdarsanli
-- @MCredbear 
+- @MCredbear
 - @rahagal
 - @DeepakReddy1999
 - @kraj

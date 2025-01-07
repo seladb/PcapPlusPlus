@@ -10,8 +10,8 @@ add_library(
   src/DnsLayer.cpp
   src/DnsResource.cpp
   src/DnsResourceData.cpp
-  src/DoIpLayerData.cpp
   src/DoIpLayer.cpp
+  src/DoIpLayerData.cpp
   src/EthDot3Layer.cpp
   src/EthLayer.cpp
   src/FtpLayer.cpp
@@ -151,7 +151,8 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
-  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
+  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 target_link_libraries(Packet++ PUBLIC Common++)
 
@@ -162,7 +163,8 @@ if(PCAPPP_INSTALL)
     ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
-    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR}
+  )
 endif()
 
 set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "Packet++")
