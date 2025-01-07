@@ -52,6 +52,9 @@ namespace pcpp
 		ARP_REPLY = 0x0002     ///< ARP reply (response)
 	};
 
+	/**
+	 * @brief A struct representing the build data for an ARP request
+	 */
 	struct ArpRequest
 	{
 		MacAddress senderMacAddr;
@@ -62,6 +65,9 @@ namespace pcpp
 		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress), targetIpAddr(targetIPAddress) {};
 	};
 
+	/**
+	 * @brief A struct representing the build data for an ARP reply
+	 */
 	struct ArpReply
 	{
 		MacAddress senderMacAddr;
@@ -75,6 +81,9 @@ namespace pcpp
 		      targetIpAddr(targetIPAddress) {};
 	};
 
+	/**
+	 * @brief A struct representing the build data for a gratuitous ARP request
+	 */
 	struct GratuitousArpRequest
 	{
 		MacAddress senderMacAddr;
@@ -83,6 +92,9 @@ namespace pcpp
 		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress) {};
 	};
 
+	/**
+	 * @brief A struct representing the build data a gratuitous ARP reply
+	 */
 	struct GratuitousArpReply
 	{
 		MacAddress senderMacAddr;
