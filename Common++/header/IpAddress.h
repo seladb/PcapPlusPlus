@@ -707,8 +707,8 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv4Network& other)
 		{
-			auto newNetwork = std::unique_ptr<IPv4Network>(new IPv4Network(other));
-			m_IPv4Network = std::move(newNetwork);
+			// Create the new instance first to maintain strong exception guarantee.
+			m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(other));
 			m_IPv6Network = nullptr;
 			return *this;
 		}
@@ -718,9 +718,9 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv6Network& other)
 		{
-			auto newNetwork = std::unique_ptr<IPv6Network>(new IPv6Network(other));
+			// Create the new instance first to maintain strong exception guarantee.
+			m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(other));
 			m_IPv4Network = nullptr;
-			m_IPv6Network = std::move(newNetwork);
 			return *this;
 		}
 
