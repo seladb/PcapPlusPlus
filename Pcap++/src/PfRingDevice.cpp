@@ -449,9 +449,7 @@ namespace pcpp
 			return false;
 		}
 
-		std::mutex mutex;
-		std::condition_variable cond;
-		int startThread = 0;
+		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
 		m_StopThread = false;
 		int rxChannel = 0;
@@ -468,7 +466,7 @@ namespace pcpp
 			// create a new thread
 			m_CoreConfiguration[coreId].Channel = m_PfRingDescriptors[rxChannel++];
 			m_CoreConfiguration[coreId].RxThread =
-			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+			    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
 
 			// set affinity to cores
 			cpu_set_t cpuset;
@@ -479,14 +477,21 @@ namespace pcpp
 			if (err != 0)
 			{
 				PCPP_LOG_ERROR("Error while binding thread to core " << coreId << ": errno=" << err);
-				startThread = 1;
+				{
+					std::unique_lock<std::mutex> lock(startupBlock->Mutex);
+					startupBlock->State = 1;
+				}
+				startupBlock->Cond.notify_all();
 				clearCoreConfiguration();
 				return false;
 			}
 		}
 
-		startThread = 2;
-		cond.notify_all();
+		{
+			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
+			startupBlock->State = 2;
+		}
+		startupBlock->Cond.notify_all();
 
 		return true;
 	}
@@ -517,28 +522,35 @@ namespace pcpp
 
 		m_ReentrantMode = false;
 
-		std::mutex mutex;
-		std::condition_variable cond;
-		int startThread = 0;
+		std::shared_ptr<StartupBlock> startupBlock = std::make_shared<StartupBlock>();
 
 		cpu_set_t cpuset;
 		CPU_ZERO(&cpuset);
 		CPU_SET(0, &cpuset);
 		m_CoreConfiguration[0].IsInUse = true;
 		m_CoreConfiguration[0].Channel = m_PfRingDescriptors[0];
-		m_CoreConfiguration[0].RxThread =
-		    std::thread(&pcpp::PfRingDevice::captureThreadMain, this, &cond, &mutex, &startThread);
+		m_CoreConfiguration[0].RxThread = std::thread(&pcpp::PfRingDevice::captureThreadMain, this, startupBlock);
 		m_CoreConfiguration[0].IsAffinitySet = false;
 		int err = pthread_setaffinity_np(m_CoreConfiguration[0].RxThread.native_handle(), sizeof(cpu_set_t), &cpuset);
 		if (err != 0)
 		{
-			startThread = 1;
+			{
+				std::unique_lock<std::mutex> lock(startupBlock->Mutex);
+				startupBlock->State = 1;
+			}
+			startupBlock->Cond.notify_all();
+			m_CoreConfiguration[0].RxThread.join();
+
 			PCPP_LOG_ERROR("Error while binding thread to core 0: errno=" << err);
 			clearCoreConfiguration();
 			return false;
 		}
-		startThread = 2;
-		cond.notify_all();
+
+		{
+			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
+			startupBlock->State = 2;
+		}
+		startupBlock->Cond.notify_all();
 
 		PCPP_LOG_DEBUG("Capturing started for device [" << m_DeviceName << "]");
 		return true;
@@ -559,18 +571,26 @@ namespace pcpp
 		PCPP_LOG_DEBUG("All capturing threads stopped");
 	}
 
-	void PfRingDevice::captureThreadMain(std::condition_variable* startCond, std::mutex* startMutex,
-	                                     const int* startState)
+	void PfRingDevice::captureThreadMain(std::shared_ptr<StartupBlock> startupBlock)
 	{
-		while (*startState == 0)
+		if (startupBlock == nullptr)
 		{
-			std::unique_lock<std::mutex> lock(*startMutex);
-			startCond->wait_for(lock, std::chrono::milliseconds(100));
-		}
-		if (*startState == 1)
-		{
+			PCPP_LOG_ERROR("Capture thread started without a startup block. Exiting capture thread");
 			return;
 		}
+
+		{
+			std::unique_lock<std::mutex> lock(startupBlock->Mutex);
+			startupBlock->Cond.wait(lock, [&] { return startupBlock->State != 0; });
+
+			if (startupBlock->State == 1)
+			{
+				return;
+			}
+		}
+
+		// Startup is complete. The block is no longer needed.
+		startupBlock = nullptr;
 
 		int coreId = this->getCurrentCoreId().Id;
 		pfring* ring = nullptr;
