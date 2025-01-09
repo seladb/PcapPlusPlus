@@ -34,18 +34,16 @@
 namespace pcpp
 {
 
-	/**
-	 * ================
-	 * Class DpdkDevice
-	 * ================
-	 */
+	/// ================
+	/// Class DpdkDevice
+	/// ================
 
-#define DPDK_CONFIG_HEADER_SPLIT 0 /**< Header Split disabled */
+#define DPDK_CONFIG_HEADER_SPLIT 0  ///< Header Split disabled
 #define DPDK_CONFIG_SPLIT_HEADER_SIZE 0
-#define DPDK_CONFIG_HW_IP_CHECKSUM 0 /**< IP checksum offload disabled */
-#define DPDK_CONFIG_HW_VLAN_FILTER 0 /**< VLAN filtering disabled */
-#define DPDK_CONFIG_JUMBO_FRAME 0    /**< Jumbo Frame Support disabled */
-#define DPDK_CONFIG_HW_STRIP_CRC 0   /**< CRC stripped by hardware disabled */
+#define DPDK_CONFIG_HW_IP_CHECKSUM 0  ///< IP checksum offload disabled
+#define DPDK_CONFIG_HW_VLAN_FILTER 0  ///< VLAN filtering disabled
+#define DPDK_CONFIG_JUMBO_FRAME 0     ///< Jumbo Frame Support disabled
+#define DPDK_CONFIG_HW_STRIP_CRC 0    ///< CRC stripped by hardware disabled
 #if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
 #	define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX ETH_LINK_FULL_DUPLEX
 #	define DPDK_CONFIG_MQ_RSS ETH_RSS
@@ -929,8 +927,8 @@ namespace pcpp
 			return 0;
 		}
 
-		struct rte_mbuf* mBufArray[rawPacketArrLength];
-		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, rawPacketArrLength);
+		std::vector<struct rte_mbuf*> mBufArray(rawPacketArrLength);
+		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray.data(), rawPacketArrLength);
 
 		if (unlikely(!packetsReceived))
 		{
@@ -972,8 +970,8 @@ namespace pcpp
 			return 0;
 		}
 
-		struct rte_mbuf* mBufArray[packetsArrLength];
-		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray, packetsArrLength);
+		std::vector<struct rte_mbuf*> mBufArray(packetsArrLength);
+		uint16_t packetsReceived = rte_eth_rx_burst(m_Id, rxQueueId, mBufArray.data(), packetsArrLength);
 
 		if (unlikely(!packetsReceived))
 		{
@@ -1133,9 +1131,9 @@ namespace pcpp
 
 	uint16_t DpdkDevice::sendPackets(Packet** packetsArr, uint16_t arrLength, uint16_t txQueueId, bool useTxBuffer)
 	{
-		rte_mbuf* mBufArr[arrLength];
+		std::vector<rte_mbuf*> mBufArr(arrLength);
 		MBufRawPacketVector mBufVec;
-		MBufRawPacket* mBufRawPacketArr[arrLength];
+		std::vector<MBufRawPacket*> mBufRawPacketArr(arrLength);
 
 		for (size_t i = 0; i < arrLength; i++)
 		{
@@ -1162,7 +1160,7 @@ namespace pcpp
 		}
 
 		uint16_t packetsSent =
-		    sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, arrLength, useTxBuffer);
+		    sendPacketsInner(txQueueId, (void*)mBufArr.data(), getNextPacketFromMBufArray, arrLength, useTxBuffer);
 
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != arrLength));
 		for (int index = 0; index < arrLength; index++)
@@ -1174,8 +1172,8 @@ namespace pcpp
 	uint16_t DpdkDevice::sendPackets(RawPacketVector& rawPacketsVec, uint16_t txQueueId, bool useTxBuffer)
 	{
 		size_t vecSize = rawPacketsVec.size();
-		rte_mbuf* mBufArr[vecSize];
-		MBufRawPacket* mBufRawPacketArr[vecSize];
+		std::vector<rte_mbuf*> mBufArr(vecSize);
+		std::vector<MBufRawPacket*> mBufRawPacketArr(vecSize);
 		MBufRawPacketVector mBufVec;
 		int mBufIndex = 0;
 
@@ -1204,7 +1202,7 @@ namespace pcpp
 		}
 
 		uint16_t packetsSent =
-		    sendPacketsInner(txQueueId, (void*)mBufArr, getNextPacketFromMBufArray, vecSize, useTxBuffer);
+		    sendPacketsInner(txQueueId, (void*)mBufArr.data(), getNextPacketFromMBufArray, vecSize, useTxBuffer);
 
 		bool needToFreeMbuf = (!useTxBuffer && (packetsSent != vecSize));
 		for (size_t index = 0; index < rawPacketsVec.size(); index++)

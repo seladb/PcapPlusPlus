@@ -121,7 +121,7 @@ namespace pcpp
 
 		// Should be equal to the number of static params
 		initDpdkArgc += 7;
-		std::string dpdkParamsArray[initDpdkArgc];
+		std::vector<std::string> dpdkParamsArray(initDpdkArgc);
 		initDpdkArgvBuffer = new char*[initDpdkArgc];
 		i = 0;
 		while (dpdkParamsStream.good() && i < initDpdkArgc)

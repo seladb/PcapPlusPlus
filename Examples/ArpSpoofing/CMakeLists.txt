@@ -10,8 +10,5 @@ endif()
 set_target_properties(ArpSpoofing PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PCAPPP_BINARY_EXAMPLES_DIR}")
 
 if(PCAPPP_INSTALL)
-  install(
-    TARGETS ArpSpoofing
-    EXPORT PcapPlusPlusTargets
-    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(TARGETS ArpSpoofing EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
 endif()

@@ -68,74 +68,76 @@ add_library(
   # Force hash-library pcapng to be link fully static
 )
 
-set(public_headers
-    header/ArpLayer.h
-    header/Asn1Codec.h
-    header/BgpLayer.h
-    header/CotpLayer.h
-    header/DhcpLayer.h
-    header/DhcpV6Layer.h
-    header/DnsLayerEnums.h
-    header/DnsLayer.h
-    header/DnsResourceData.h
-    header/DnsResource.h
-    header/EthDot3Layer.h
-    header/EthLayer.h
-    header/FtpLayer.h
-    header/GreLayer.h
-    header/GtpLayer.h
-    header/HttpLayer.h
-    header/IcmpLayer.h
-    header/IcmpV6Layer.h
-    header/IgmpLayer.h
-    header/IPLayer.h
-    header/IPReassembly.h
-    header/IPSecLayer.h
-    header/IPv4Layer.h
-    header/IPv6Extensions.h
-    header/IPv6Layer.h
-    header/Layer.h
-    header/LdapLayer.h
-    header/LLCLayer.h
-    header/MplsLayer.h
-    header/NullLoopbackLayer.h
-    header/NdpLayer.h
-    header/NflogLayer.h
-    header/NtpLayer.h
-    header/Packet.h
-    header/PacketTrailerLayer.h
-    header/PacketUtils.h
-    header/PayloadLayer.h
-    header/PPPoELayer.h
-    header/ProtocolType.h
-    header/RadiusLayer.h
-    header/RawPacket.h
-    header/S7CommLayer.h
-    header/SdpLayer.h
-    header/SingleCommandTextProtocol.h
-    header/SipLayer.h
-    header/SllLayer.h
-    header/Sll2Layer.h
-    header/SmtpLayer.h
-    header/SomeIpLayer.h
-    header/SomeIpSdLayer.h
-    header/SSHLayer.h
-    header/SSLCommon.h
-    header/SSLHandshake.h
-    header/SSLLayer.h
-    header/StpLayer.h
-    header/TcpLayer.h
-    header/TcpReassembly.h
-    header/TelnetLayer.h
-    header/TextBasedProtocol.h
-    header/TLVData.h
-    header/TpktLayer.h
-    header/UdpLayer.h
-    header/VlanLayer.h
-    header/VrrpLayer.h
-    header/VxlanLayer.h
-    header/WakeOnLanLayer.h
-    header/WireGuardLayer.h)
+set(
+  public_headers
+  header/ArpLayer.h
+  header/Asn1Codec.h
+  header/BgpLayer.h
+  header/CotpLayer.h
+  header/DhcpLayer.h
+  header/DhcpV6Layer.h
+  header/DnsLayerEnums.h
+  header/DnsLayer.h
+  header/DnsResourceData.h
+  header/DnsResource.h
+  header/EthDot3Layer.h
+  header/EthLayer.h
+  header/FtpLayer.h
+  header/GreLayer.h
+  header/GtpLayer.h
+  header/HttpLayer.h
+  header/IcmpLayer.h
+  header/IcmpV6Layer.h
+  header/IgmpLayer.h
+  header/IPLayer.h
+  header/IPReassembly.h
+  header/IPSecLayer.h
+  header/IPv4Layer.h
+  header/IPv6Extensions.h
+  header/IPv6Layer.h
+  header/Layer.h
+  header/LdapLayer.h
+  header/LLCLayer.h
+  header/MplsLayer.h
+  header/NullLoopbackLayer.h
+  header/NdpLayer.h
+  header/NflogLayer.h
+  header/NtpLayer.h
+  header/Packet.h
+  header/PacketTrailerLayer.h
+  header/PacketUtils.h
+  header/PayloadLayer.h
+  header/PPPoELayer.h
+  header/ProtocolType.h
+  header/RadiusLayer.h
+  header/RawPacket.h
+  header/S7CommLayer.h
+  header/SdpLayer.h
+  header/SingleCommandTextProtocol.h
+  header/SipLayer.h
+  header/SllLayer.h
+  header/Sll2Layer.h
+  header/SmtpLayer.h
+  header/SomeIpLayer.h
+  header/SomeIpSdLayer.h
+  header/SSHLayer.h
+  header/SSLCommon.h
+  header/SSLHandshake.h
+  header/SSLLayer.h
+  header/StpLayer.h
+  header/TcpLayer.h
+  header/TcpReassembly.h
+  header/TelnetLayer.h
+  header/TextBasedProtocol.h
+  header/TLVData.h
+  header/TpktLayer.h
+  header/UdpLayer.h
+  header/VlanLayer.h
+  header/VrrpLayer.h
+  header/VxlanLayer.h
+  header/WakeOnLanLayer.h
+  header/WireGuardLayer.h
+)
 
 # Don't use set_target_properties CMake limit to 50 elements
 set_property(TARGET Packet++ PROPERTY PUBLIC_HEADER ${public_headers})
@@ -145,7 +147,8 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with hash-library nor EndianPortable as they won't be exported
   PRIVATE $<TARGET_PROPERTY:hash-library,INCLUDE_DIRECTORIES>
-  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>)
+  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 target_link_libraries(Packet++ PUBLIC Common++)
 
@@ -156,7 +159,8 @@ if(PCAPPP_INSTALL)
     ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
-    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR}
+  )
 endif()
 
 set_property(TARGET Packet++ PROPERTY OUTPUT_NAME "Packet++")
