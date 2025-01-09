@@ -5,9 +5,7 @@
 #include "Packet.h"
 #include "HttpLayer.h"
 #include "DnsLayer.h"
-#include "DoIpLayer.h"
 #include "PcapFileDevice.h"
-#include <SystemUtils.h>
 
 PTF_TEST_CASE(TestHttpRequestParsing)
 {

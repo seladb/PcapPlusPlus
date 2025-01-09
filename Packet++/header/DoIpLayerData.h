@@ -604,7 +604,8 @@ namespace pcpp
 		 * @code
 		 * EntityStatusResponseData data;
 		 * data.maxDataSize = std::unique_ptr<std::array<uint8_t, 4>>(new std::array<uint8_t, 4> {0x00, 0x01, 0x02,
-		 * 0x03}).
+		 * 0x03});
+		 * @endcode
 		 */
 		EntityStatusResponseData();
 
