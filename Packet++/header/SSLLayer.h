@@ -33,6 +33,7 @@
 /// be instantiated. This means you'll never see a layer of type pcpp::SSLLayer, you'll only see the type of the derived
 /// classes. A basic class diagram looks like this:
 /// @verbatim
+/// 
 /// ╔═════════════════════════════════════════════════════════════════════════════════════════════════╗
 /// ║                             +----------------------------+                                      ║
 /// ║                         +---|     SSLHandshakeLayer      | ===> Handshake record type           ║
@@ -56,6 +57,7 @@
 /// several layer instances of these types, for example:
 ///
 /// @verbatim
+/// 
 /// ╔══════════════════════════════════════════════════════════════════════════════╗
 /// ║ +--------------------------+                                                 ║
 /// ║ |          EthLayer        |                                                 ║
@@ -106,6 +108,7 @@
 /// classes:
 ///
 /// @verbatim
+/// 
 /// ╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 /// ║                                          SSLHandshakeMessage                                                   ║
 /// ║                                             |                                                                  ║
@@ -277,6 +280,7 @@ namespace pcpp
 	/// structure. We'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
 	///
 	/// @verbatim
+	/// 
 	/// ╔══════════════════════════════════════════════════════════════════════════════════════════╗
 	/// ║          |------------------- SSLHandshakeLayer ----------------------|                  ║
 	/// ║          +----------------------+-------------------------------------+                  ║
@@ -292,12 +296,14 @@ namespace pcpp
 	/// ║                                                    TLS1_2      length                    ║
 	/// ║                                 |                                yyy                     ║
 	/// ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+	/// 
 	/// @endverbatim
 	///
 	/// Second example is a multiple-message handshake layer comprises of server-hello, certificate and
 	/// server-key-exchange messages:
 	///
 	/// @verbatim
+	/// 
 	/// ╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 	/// ║          |---------------------------------------------- SSLHandshakeLayer -----------------------------------------------------|   ║
 	/// ║          +----------------------+-------------------------------------+---------------------------+-----------------------------+   ║
