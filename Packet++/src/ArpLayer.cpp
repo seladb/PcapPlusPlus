@@ -6,41 +6,46 @@
 
 namespace pcpp
 {
-
-	ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr,
-	                   const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr)
+	ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const IPv4Address& senderIpAddr,
+	                   const MacAddress& targetMacAddr, const IPv4Address& targetIpAddr)
 	{
 		constexpr size_t headerLen = sizeof(arphdr);
 		m_DataLen = headerLen;
-		m_Data = new uint8_t[headerLen];
-		memset(m_Data, 0, sizeof(headerLen));
+		m_Data = new uint8_t[headerLen]{};  // zero-initialized
 		m_Protocol = ARP;
 
 		arphdr* arpHeader = getArpHeader();
 		arpHeader->opcode = htobe16(static_cast<uint16_t>(opCode));
-		targetMacAddr.copyTo(arpHeader->targetMacAddr);
 		senderMacAddr.copyTo(arpHeader->senderMacAddr);
-		arpHeader->targetIpAddr = targetIpAddr.toInt();
+		targetMacAddr.copyTo(arpHeader->targetMacAddr);
 		arpHeader->senderIpAddr = senderIpAddr.toInt();
+		arpHeader->targetIpAddr = targetIpAddr.toInt();
 	}
 
+	// This constructor zeroes the target MAC address for ARP requests to keep backward compatibility.
+	ArpLayer::ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const MacAddress& targetMacAddr,
+	                   const IPv4Address& senderIpAddr, const IPv4Address& targetIpAddr)
+	    : ArpLayer(opCode, senderMacAddr, senderIpAddr, opCode == ARP_REQUEST ? MacAddress::Zero : targetMacAddr,
+	               targetIpAddr)
+	{}
+
 	ArpLayer::ArpLayer(ArpRequest const& arpRequest)
-	    : ArpLayer(ARP_REQUEST, arpRequest.senderMacAddr, MacAddress::Zero, arpRequest.senderIpAddr,
+	    : ArpLayer(ARP_REQUEST, arpRequest.senderMacAddr, arpRequest.senderIpAddr, MacAddress::Zero,
 	               arpRequest.targetIpAddr)
 	{}
 
 	ArpLayer::ArpLayer(ArpReply const& arpReply)
-	    : ArpLayer(ARP_REPLY, arpReply.senderMacAddr, arpReply.targetMacAddr, arpReply.senderIpAddr,
+	    : ArpLayer(ARP_REPLY, arpReply.senderMacAddr, arpReply.senderIpAddr, arpReply.targetMacAddr,
 	               arpReply.targetIpAddr)
 	{}
 
 	ArpLayer::ArpLayer(GratuitousArpRequest const& gratuitousArpRequest)
-	    : ArpLayer(ARP_REQUEST, gratuitousArpRequest.senderMacAddr, MacAddress::Broadcast,
-	               gratuitousArpRequest.senderIpAddr, gratuitousArpRequest.senderIpAddr)
+	    : ArpLayer(ARP_REQUEST, gratuitousArpRequest.senderMacAddr, gratuitousArpRequest.senderIpAddr,
+	               MacAddress::Broadcast, gratuitousArpRequest.senderIpAddr)
 	{}
 
 	ArpLayer::ArpLayer(GratuitousArpReply const& gratuitousArpReply)
-	    : ArpLayer(ARP_REPLY, gratuitousArpReply.senderMacAddr, MacAddress::Broadcast, gratuitousArpReply.senderIpAddr,
+	    : ArpLayer(ARP_REPLY, gratuitousArpReply.senderMacAddr, gratuitousArpReply.senderIpAddr, MacAddress::Broadcast,
 	               gratuitousArpReply.senderIpAddr)
 	{}
 
