@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "PointerVector.h"
 #include "Layer.h"
@@ -275,39 +275,42 @@ namespace pcpp
 	/// Usually this layer will contain just one message (as the first example below
 	/// demonstrates). But there are cases a layer may contain more than 1 message. To better explain this layer
 	/// structure. We'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
-	/// @verbatim
 	///
-	///         |------------------- SSLHandshakeLayer ----------------------|
-	///         +----------------------+-------------------------------------+
-	///         | ssl_tls_record_layer |       SSLClientHelloMessage         |
-	///         |        struct        |                                     |
-	///         +----------------------+-------------------------------------+
-	///          /     |       \               |          \         \      \
-	///         /    version    \      |   handshake       \         \      \
-	///        /     TLS1_0      \            type          \         \     rest of
-	///     type                  \    | SSL_CLIENT_HELLO    \         \    message fields...
-	/// SSL_HANDSHAKE           length                   handshake      \
-	///     (22)                 xxx   |                  version      message
-	///                                                   TLS1_2      length
-	///                                |                                yyy
+	/// @verbatim
+	/// ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+	/// ║          |------------------- SSLHandshakeLayer ----------------------|                  ║
+	/// ║          +----------------------+-------------------------------------+                  ║
+	/// ║          | ssl_tls_record_layer |       SSLClientHelloMessage         |                  ║
+	/// ║          |        struct        |                                     |                  ║
+	/// ║          +----------------------+-------------------------------------+                  ║
+	/// ║           /     |       \               |          \         \      \                    ║
+	/// ║          /    version    \      |   handshake       \         \      \                   ║
+	/// ║         /     TLS1_0      \            type          \         \     rest of             ║
+	/// ║      type                  \    | SSL_CLIENT_HELLO    \         \    message fields...   ║
+	/// ║  SSL_HANDSHAKE           length                   handshake      \                       ║
+	/// ║      (22)                 xxx   |                  version      message                  ║
+	/// ║                                                    TLS1_2      length                    ║
+	/// ║                                 |                                yyy                     ║
+	/// ╚══════════════════════════════════════════════════════════════════════════════════════════╝
 	/// @endverbatim
 	///
 	/// Second example is a multiple-message handshake layer comprises of server-hello, certificate and
 	/// server-key-exchange messages:
 	///
 	/// @verbatim
-	///
-	///         |---------------------------------------------- SSLHandshakeLayer -----------------------------------------------------|
-	///         +----------------------+-------------------------------------+---------------------------+-----------------------------+
-	///         | ssl_tls_record_layer |       SSLServerHelloMessage         |   SSLCertificateMessage   | SSLServerKeyExchangeMessage |
-	///         |        struct        |                                     |                           |                             |
-	///         +----------------------+-------------------------------------+---------------------------+-----------------------------+
-	///          /     |       \               |          \         \               |           \               |            \
-	///         /    version    \      |   handshake       \        rest of  |      |          rest      |      |            rest
-	///        /     TLS1_0      \            type          \       message      handshake   of fields...   handshake    of fields...
-	///     type                  \    | SSL_SERVER_HELLO    \      fields...|     type                  |     type
-	/// SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE             SSL_SERVER_KEY_EXCHANGE
-	///     (22)                 xxx   |               version,length        |                           |
+	/// ╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+	/// ║          |---------------------------------------------- SSLHandshakeLayer -----------------------------------------------------|   ║
+	/// ║          +----------------------+-------------------------------------+---------------------------+-----------------------------+   ║
+	/// ║          | ssl_tls_record_layer |       SSLServerHelloMessage         |   SSLCertificateMessage   | SSLServerKeyExchangeMessage |   ║
+	/// ║          |        struct        |                                     |                           |                             |   ║
+	/// ║          +----------------------+-------------------------------------+---------------------------+-----------------------------+   ║
+	/// ║           /     |       \               |          \         \               |           \               |            \             ║
+	/// ║          /    version    \      |   handshake       \        rest of  |      |          rest      |      |            rest          ║
+	/// ║         /     TLS1_0      \            type          \       message      handshake   of fields...   handshake    of fields...      ║
+	/// ║      type                  \    | SSL_SERVER_HELLO    \      fields...|     type                  |     type                        ║
+	/// ║  SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE             SSL_SERVER_KEY_EXCHANGE         ║
+	/// ║      (22)                 xxx   |               version,length        |                           |                                 ║
+	/// ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 	/// @endverbatim
 	// clang-format on
 #ifdef __GNUC__
