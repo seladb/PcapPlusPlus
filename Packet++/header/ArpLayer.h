@@ -55,6 +55,8 @@ namespace pcpp
 
 	/**
 	 * @brief A struct representing the build data for an ARP request
+	 *
+	 * An ARP request is a message sent by a machine to request the MAC address of another machine on the network.
 	 */
 	struct ArpRequest
 	{
@@ -62,12 +64,22 @@ namespace pcpp
 		IPv4Address senderIpAddr;
 		IPv4Address targetIpAddr;
 
-		ArpRequest(MacAddress senderMacAddress, IPv4Address senderIPAddress, IPv4Address targetIPAddress)
+		/**
+		 * @brief Construct a new Arp Request object
+		 * @param senderMacAddress The MAC address of the machine sending the query.
+		 * @param senderIPAddress The IP address of the machine sending the query.
+		 * @param targetIPAddress The IP address of the target machine being queried.
+		 */
+		ArpRequest(MacAddress const& senderMacAddress, IPv4Address const& senderIPAddress,
+		           IPv4Address const& targetIPAddress)
 		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress), targetIpAddr(targetIPAddress) {};
 	};
 
 	/**
 	 * @brief A struct representing the build data for an ARP reply
+	 *
+	 * An ARP reply is a message sent by a machine in response to an ARP request. It contains the MAC address of the
+	 * answering machine, and is sent to the IP/MAC address of the machine that sent the original ARP request.
 	 */
 	struct ArpReply
 	{
@@ -76,31 +88,65 @@ namespace pcpp
 		IPv4Address senderIpAddr;
 		IPv4Address targetIpAddr;
 
-		ArpReply(MacAddress senderMacAddress, MacAddress targetMacAddress, IPv4Address senderIPAddress,
-		         IPv4Address targetIPAddress)
+		/**
+		 * @brief Construct a new Arp Reply object
+		 * @param senderMacAddress The MAC address of the machine sending the reply.
+		 * @param targetMacAddress The MAC address of the target machine being replied to.
+		 * @param senderIPAddress The IP address of the machine sending the reply.
+		 * @param targetIPAddress The IP address of the target machine being replied to.
+		 * @remarks The target machine is considered the machine that sent the original ARP request.
+		 */
+		ArpReply(MacAddress const& senderMacAddress, MacAddress const& targetMacAddress,
+		         IPv4Address const& senderIPAddress, IPv4Address const& targetIPAddress)
 		    : senderMacAddr(senderMacAddress), targetMacAddr(targetMacAddress), senderIpAddr(senderIPAddress),
 		      targetIpAddr(targetIPAddress) {};
 	};
 
 	/**
 	 * @brief A struct representing the build data for a gratuitous ARP request
+	 *
+	 * A gratuitous ARP request is an ARP request that is sent by a machine to announce its presence on the network.
+	 * It is an ARP request that has both the sender and target IP addresses set to the IP address of the machine
+	 * and the target MAC address set to the broadcast address. Normally such a request will not receive a reply.
+	 *
+	 * These requests can be used to update ARP caches on other machines on the network, or to help in detecting IP
+	 * address conflicts.
 	 */
 	struct GratuitousArpRequest
 	{
 		MacAddress senderMacAddr;
 		IPv4Address senderIpAddr;
-		GratuitousArpRequest(MacAddress senderMacAddress, IPv4Address senderIPAddress)
+
+		/**
+		 * @brief Construct a new Gratuitous Arp Request object
+		 * @param senderMacAddress The MAC address of the machine sending the gratuitous ARP request.
+		 * @param senderIPAddress The IP address of the machine sending the gratuitous ARP request.
+		 * @remarks The target MAC address is set to the broadcast address and the target IP address is set to the
+		 * sender's.
+		 */
+		GratuitousArpRequest(MacAddress const& senderMacAddress, IPv4Address const& senderIPAddress)
 		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress) {};
 	};
 
 	/**
 	 * @brief A struct representing the build data a gratuitous ARP reply
+	 *
+	 * A gratuitous ARP reply is an ARP reply that is sent by a machine to announce its presence on the network.
+	 * It is gratuitous in the sense that it is not in response to an ARP request, but sent unsolicited to the network.
 	 */
 	struct GratuitousArpReply
 	{
 		MacAddress senderMacAddr;
 		IPv4Address senderIpAddr;
-		GratuitousArpReply(MacAddress senderMacAddress, IPv4Address senderIPAddress)
+
+		/**
+		 * @brief Construct a new Gratuitous Arp Reply object
+		 * @param senderMacAddress The MAC address of the machine sending the gratuitous ARP reply.
+		 * @param senderIPAddress The IP address of the machine sending the gratuitous ARP reply.
+		 * @remarks The target MAC address is set to the broadcast address and the target IP address is set to the
+		 * sender's.
+		 */
+		GratuitousArpReply(MacAddress const& senderMacAddress, IPv4Address const& senderIPAddress)
 		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress) {};
 	};
 
