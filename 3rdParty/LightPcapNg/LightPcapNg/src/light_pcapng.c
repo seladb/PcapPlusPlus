@@ -62,7 +62,7 @@ static struct _light_option *__parse_options(uint32_t **memory, const int32_t ma
             (opt->option_length / alignment + 1) * alignment;
 
       // PCPP patch
-      // Validate option_length
+      // Validate actual_length
       if (actual_length <= 0 || actual_length > max_len - 2 * sizeof(*local_memory)) {
           free(opt);
           return NULL;
