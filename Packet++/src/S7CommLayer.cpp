@@ -18,7 +18,7 @@ namespace pcpp
 
 		if (msgType == 0x03)
 		{
-			auto* ack_d = (s7comm_ack_data_hdr*)m_Data;
+			auto* ack_d = reinterpret_cast<s7comm_ack_data_hdr*>(m_Data);
 			ack_d->protocolId = 0x32;
 			ack_d->msgType = msgType;
 			ack_d->reserved = 0x0000;
@@ -30,7 +30,7 @@ namespace pcpp
 		}
 		else
 		{
-			auto* s7commHdr = (s7commhdr*)m_Data;
+			auto* s7commHdr = reinterpret_cast<s7commhdr*>(m_Data);
 			s7commHdr->protocolId = 0x32;
 			s7commHdr->msgType = msgType;
 			s7commHdr->reserved = 0x0000;

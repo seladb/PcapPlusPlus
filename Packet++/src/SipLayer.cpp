@@ -44,7 +44,7 @@ namespace pcpp
 		HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 		if (contentLengthField != nullptr)
 		{
-			return atoi(contentLengthField->getFieldValue().c_str());
+			return std::stoi(contentLengthField->getFieldValue());
 		}
 		return 0;
 	}
@@ -110,7 +110,7 @@ namespace pcpp
 			int const currentContentLength = getContentLength();
 			if (currentContentLength != static_cast<int>(m_DataLen - headerLen))
 			{
-				setContentLength(m_DataLen - headerLen);
+				setContentLength(static_cast<int>(m_DataLen - headerLen));
 			}
 		}
 	}
@@ -129,7 +129,7 @@ namespace pcpp
 		}
 		else
 		{
-			m_UriOffset = SipMethodEnumToString[m_Method].length() + 1;
+			m_UriOffset = static_cast<int>(SipMethodEnumToString[m_Method].length() + 1);
 		}
 
 		parseVersion();
