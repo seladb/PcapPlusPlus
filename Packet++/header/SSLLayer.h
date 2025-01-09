@@ -33,44 +33,44 @@
 /// be instantiated. This means you'll never see a layer of type pcpp::SSLLayer, you'll only see the type of the derived
 /// classes. A basic class diagram looks like this:
 /// @verbatim
-///
-///                               +----------------------------+
-///                           +---|     SSLHandshakeLayer      | ===> Handshake record type
-///                           |   +----------------------------+
-///                           |
-///                           |   +----------------------------+
-///                           +---|  SSLChangeCipherSpecLayer  | ===> Change cipher spec record type
-///                           |   +----------------------------+
-///                           |
-///   +------------+          |   +----------------------------+
-///   |  SSLLayer  |----------+---|      SSLAlertLayer         | ===> Alert record type
-///   | (abstract) |          |   +----------------------------+
-///   +------------+          |
-///                           |   +----------------------------+
-///                           +---|   SSLApplicationDataLayer  | ===> Application data record type
-///                               +----------------------------+
-///
+/// ╔═════════════════════════════════════════════════════════════════════════════════════════════════╗
+/// ║                             +----------------------------+                                      ║
+/// ║                         +---|     SSLHandshakeLayer      | ===> Handshake record type           ║
+/// ║                         |   +----------------------------+                                      ║
+/// ║                         |                                                                       ║
+/// ║                         |   +----------------------------+                                      ║
+/// ║                         +---|  SSLChangeCipherSpecLayer  | ===> Change cipher spec record type  ║
+/// ║                         |   +----------------------------+                                      ║
+/// ║                         |                                                                       ║
+/// ║ +------------+          |   +----------------------------+                                      ║
+/// ║ |  SSLLayer  |----------+---|      SSLAlertLayer         | ===> Alert record type               ║
+/// ║ | (abstract) |          |   +----------------------------+                                      ║
+/// ║ +------------+          |                                                                       ║
+/// ║                         |   +----------------------------+                                      ║
+/// ║                         +---|   SSLApplicationDataLayer  | ===> Application data record type    ║
+/// ║                             +----------------------------+                                      ║
+/// ╚═════════════════════════════════════════════════════════════════════════════════════════════════╝
 /// @endverbatim
 ///
 /// A single packet may include several SSL/TLS records, meaning
 /// several layer instances of these types, for example:
 ///
 /// @verbatim
-///
-///   +--------------------------+
-///   |          EthLayer        |
-///   +--------------------------+
-///   |          IPv4Layer       |
-///   +--------------------------+
-///   |          TcpLayer        |
-///   +--------------------------+
-///   |    SSLHandshakeLayer     | \
-///   +--------------------------+  \
-///   | SSLChangeCipherSpecLayer | -------- 3 SSL/TLS records in the same packet!
-///   +--------------------------+  /
-///   |    SSLHandshakeLayer     | /
-///   +--------------------------+
-///
+/// ╔══════════════════════════════════════════════════════════════════════════════╗
+/// ║ +--------------------------+                                                 ║
+/// ║ |          EthLayer        |                                                 ║
+/// ║ +--------------------------+                                                 ║
+/// ║ |          IPv4Layer       |                                                 ║
+/// ║ +--------------------------+                                                 ║
+/// ║ |          TcpLayer        |                                                 ║
+/// ║ +--------------------------+                                                 ║
+/// ║ |    SSLHandshakeLayer     | \                                               ║
+/// ║ +--------------------------+  \                                              ║
+/// ║ | SSLChangeCipherSpecLayer | -------- 3 SSL/TLS records in the same packet!  ║
+/// ║ +--------------------------+  /                                              ║
+/// ║ |    SSLHandshakeLayer     | /                                               ║
+/// ║ +--------------------------+                                                 ║
+/// ╚══════════════════════════════════════════════════════════════════════════════╝
 /// @endverbatim
 ///
 /// <BR><BR>
@@ -106,31 +106,31 @@
 /// classes:
 ///
 /// @verbatim
-///
-///                                           SSLHandshakeMessage
-///                                              |
-///  +-------------------------------+           |--- SSLClientHelloMessage        ==> Client-hello message
-///  |       SSLHandshakeLayer       |           |
-///  +-------------------------------+           |--- SSLServerHelloMessage        ==> Server-hello message
-///  | -List of SSLHandshakeMessage  |           |
-///  |     Message1                  |           |---SSLCertificateMessage         ==> Certificate message
-///  |     Message2                  |           |
-///  |     ...                       |           |---SSLHelloRequestMessage        ==> Hello-request message
-///  |                               |           |
-///  +-------------------------------+           |---SSLServerKeyExchangeMessage   ==> Server-key-exchange message
-///                                              |
-///                                              |---SSLClientKeyExchangeMessage   ==> Client-key-exchange message
-///                                              |
-///                                              |---SSLCertificateRequestMessage  ==> Certificate-request message
-///                                              |
-///                                              |---SSLServerHelloDoneMessage     ==> Server-hello-done message
-///                                              |
-///                                              |---SSLCertificateVerifyMessage   ==> Certificate-verify message
-///                                              |
-///                                              |---SSLFinishedMessage            ==> Finished message
-///                                              |
-///                                              |---SSLNewSessionTicketMessage    ==> New-session-ticket message
-///
+/// ╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+/// ║                                          SSLHandshakeMessage                                                   ║
+/// ║                                             |                                                                  ║
+/// ║ +-------------------------------+           |--- SSLClientHelloMessage        ==> Client-hello message         ║
+/// ║ |       SSLHandshakeLayer       |           |                                                                  ║
+/// ║ +-------------------------------+           |--- SSLServerHelloMessage        ==> Server-hello message         ║
+/// ║ | -List of SSLHandshakeMessage  |           |                                                                  ║
+/// ║ |     Message1                  |           |---SSLCertificateMessage         ==> Certificate message          ║
+/// ║ |     Message2                  |           |                                                                  ║
+/// ║ |     ...                       |           |---SSLHelloRequestMessage        ==> Hello-request message        ║
+/// ║ |                               |           |                                                                  ║
+/// ║ +-------------------------------+           |---SSLServerKeyExchangeMessage   ==> Server-key-exchange message  ║
+/// ║                                             |                                                                  ║
+/// ║                                             |---SSLClientKeyExchangeMessage   ==> Client-key-exchange message  ║
+/// ║                                             |                                                                  ║
+/// ║                                             |---SSLCertificateRequestMessage  ==> Certificate-request message  ║
+/// ║                                             |                                                                  ║
+/// ║                                             |---SSLServerHelloDoneMessage     ==> Server-hello-done message    ║
+/// ║                                             |                                                                  ║
+/// ║                                             |---SSLCertificateVerifyMessage   ==> Certificate-verify message   ║
+/// ║                                             |                                                                  ║
+/// ║                                             |---SSLFinishedMessage            ==> Finished message             ║
+/// ║                                             |                                                                  ║
+/// ║                                             |---SSLNewSessionTicketMessage    ==> New-session-ticket message   ║
+/// ╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 /// @endverbatim
 ///
 /// In addition, for all handshake messages which aren't supported in PcapPlusPlus or for encrypted
