@@ -90,23 +90,23 @@ namespace pcpp
 	/// Represents basic TCP/UDP + IP connection data
 	struct ConnectionData
 	{
-		/** Source IP address */
+		/// Source IP address
 		IPAddress srcIP;
-		/** Destination IP address */
+		/// Destination IP address
 		IPAddress dstIP;
-		/** Source TCP/UDP port */
+		/// Source TCP/UDP port
 		uint16_t srcPort;
-		/** Destination TCP/UDP port */
+		/// Destination TCP/UDP port
 		uint16_t dstPort;
-		/** A 4-byte hash key representing the connection */
+		/// A 4-byte hash key representing the connection
 		uint32_t flowKey;
-		/** Start timestamp of the connection with microsecond precision */
+		/// Start timestamp of the connection with microsecond precision
 		timeval startTime;
-		/** End timestamp of the connection with microsecond precision */
+		/// End timestamp of the connection with microsecond precision
 		timeval endTime;
-		/** Start timestamp of the connection with nanosecond precision */
+		/// Start timestamp of the connection with nanosecond precision
 		std::chrono::time_point<std::chrono::high_resolution_clock> startTimePrecise;
-		/** End timestamp of the connection with nanosecond precision */
+		/// End timestamp of the connection with nanosecond precision
 		std::chrono::time_point<std::chrono::high_resolution_clock> endTimePrecise;
 
 		/// A c'tor for this struct that basically zeros all members
@@ -199,29 +199,25 @@ namespace pcpp
 	/// A structure for configuring the TcpReassembly class
 	struct TcpReassemblyConfiguration
 	{
-		/** The flag indicating whether to remove the connection data after a connection is closed */
+		/// The flag indicating whether to remove the connection data after a connection is closed
 		bool removeConnInfo;
 
-		/** How long the closed connections will not be cleaned up. The value is expressed in seconds. If the value is
-		 * set to 0 then TcpReassembly should use the default value. This parameter is only relevant if removeConnInfo
-		 * is equal to true.
-		 */
+		/// How long the closed connections will not be cleaned up. The value is expressed in seconds. If the value is
+		/// set to 0 then TcpReassembly should use the default value. This parameter is only relevant if removeConnInfo
+		/// is equal to true.
 		uint32_t closedConnectionDelay;
 
-		/** The maximum number of items to be cleaned up per one call of purgeClosedConnections. If the value is set to
-		 * 0 then TcpReassembly should use the default value. This parameter is only relevant if removeConnInfo is equal
-		 * to true.
-		 */
+		/// The maximum number of items to be cleaned up per one call of purgeClosedConnections. If the value is set to
+		/// 0 then TcpReassembly should use the default value. This parameter is only relevant if removeConnInfo is
+		/// equal to true.
 		uint32_t maxNumToClean;
 
-		/** The maximum number of fragments with a non-matching sequence-number to store per connection flow before
-		   packets are assumed permanently missed. If the value is 0, TcpReassembly should keep out of order fragments
-		   indefinitely, or until a message from the paired side is seen.
-		 */
+		/// The maximum number of fragments with a non-matching sequence-number to store per connection flow before
+		/// packets are assumed permanently missed. If the value is 0, TcpReassembly should keep out of order fragments
+		/// indefinitely, or until a message from the paired side is seen.
 		uint32_t maxOutOfOrderFragments;
 
-		/**  To enable to clear buffer once packet contains data from a different side than the side seen before
-		 */
+		/// To enable to clear buffer once packet contains data from a different side than the side seen before
 		bool enableBaseBufferClearCondition;
 
 		/// A c'tor for this struct
@@ -253,9 +249,9 @@ namespace pcpp
 		/// An enum for connection end reasons
 		enum ConnectionEndReason
 		{
-			/** Connection ended because of FIN or RST packet */
+			/// Connection ended because of FIN or RST packet
 			TcpReassemblyConnectionClosedByFIN_RST,
-			/** Connection ended manually by the user */
+			/// Connection ended manually by the user
 			TcpReassemblyConnectionClosedManually
 		};
 

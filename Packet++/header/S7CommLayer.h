@@ -12,17 +12,17 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct
 	{
-		/** protocol id */
+		/// protocol id
 		uint8_t protocolId;
-		/** message type */
+		/// message type
 		uint8_t msgType;
-		/** redundancy identification (reserved) */
+		/// redundancy identification (reserved)
 		uint16_t reserved;
-		/** protocol data unit reference */
+		/// protocol data unit reference
 		uint16_t pduRef;
-		/** parameter length */
+		/// parameter length
 		uint16_t paramLength;
-		/** data length */
+		/// data length
 		uint16_t dataLength;
 	} s7commhdr;
 #pragma pack(pop)
@@ -32,9 +32,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct s7comm_ack_data_hdr : s7commhdr
 	{
-		/** error class */
+		/// error class
 		uint8_t errorClass;
-		/** error code */
+		/// error code
 		uint8_t errorCode;
 	};
 #pragma pack(pop)

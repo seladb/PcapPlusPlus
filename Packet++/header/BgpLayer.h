@@ -24,15 +24,15 @@ namespace pcpp
 		/// An enum representing BGP message types
 		enum BgpMessageType
 		{
-			/** BGP OPEN message */
+			/// BGP OPEN message
 			Open = 1,
-			/** BGP UPDATE message */
+			/// BGP UPDATE message
 			Update = 2,
-			/** BGP NOTIFICATION message */
+			/// BGP NOTIFICATION message
 			Notification = 3,
-			/** BGP KEEPALIVE message */
+			/// BGP KEEPALIVE message
 			Keepalive = 4,
-			/** BGP ROUTE-REFRESH message */
+			/// BGP ROUTE-REFRESH message
 			RouteRefresh = 5,
 		};
 
@@ -41,11 +41,11 @@ namespace pcpp
 		/// Represents the common fields of a BGP 4 message
 		struct bgp_common_header
 		{
-			/** 16-octet marker */
+			/// 16-octet marker
 			uint8_t marker[16];
-			/** Total length of the message, including the header */
+			/// Total length of the message, including the header
 			uint16_t length;
-			/** BGP message type */
+			/// BGP message type
 			uint8_t messageType;
 		};
 #pragma pack(pop)
@@ -124,15 +124,15 @@ namespace pcpp
 		/// BGP OPEN message structure
 		typedef struct bgp_open_message : bgp_common_header
 		{
-			/** BGP version number */
+			/// BGP version number
 			uint8_t version;
-			/** Autonomous System number of the sender */
+			/// Autonomous System number of the sender
 			uint16_t myAutonomousSystem;
-			/** The number of seconds the sender proposes for the value of the Hold Timer */
+			/// The number of seconds the sender proposes for the value of the Hold Timer
 			uint16_t holdTime;
-			/** BGP Identifier of the sender */
+			/// BGP Identifier of the sender
 			uint32_t bgpId;
-			/** The total length of the Optional Parameters field */
+			/// The total length of the Optional Parameters field
 			uint8_t optionalParameterLength;
 		} bgp_open_message;
 #pragma pack(pop)
@@ -141,11 +141,11 @@ namespace pcpp
 		/// A structure that represents BGP OPEN message optional parameters
 		struct optional_parameter
 		{
-			/** Parameter type */
+			/// Parameter type
 			uint8_t type;
-			/** Parameter length */
+			/// Parameter length
 			uint8_t length;
-			/** Parameter data */
+			/// Parameter data
 			uint8_t value[32];
 
 			// FIXME: This does not actually zero the data.
@@ -241,9 +241,9 @@ namespace pcpp
 		/// It's used to represent BGP Withdrawn Routes and Network Layer Reachability Information (NLRI)
 		struct prefix_and_ip
 		{
-			/** IPv4 address mask, must contain one of the values: 8, 16, 24, 32 */
+			/// IPv4 address mask, must contain one of the values: 8, 16, 24, 32
 			uint8_t prefix;
-			/** IPv4 address */
+			/// IPv4 address
 			IPv4Address ipAddr;
 
 			/// A default c'tor that zeroes all data
@@ -261,13 +261,13 @@ namespace pcpp
 		/// A structure that represents BGP OPEN message Path Attributes information
 		struct path_attribute
 		{
-			/** Path attribute flags */
+			/// Path attribute flags
 			uint8_t flags;
-			/** Path attribute type */
+			/// Path attribute type
 			uint8_t type;
-			/** Path attribute length */
+			/// Path attribute length
 			uint8_t length;
-			/** Path attribute data. Max supported data length is 32 bytes */
+			/// Path attribute data. Max supported data length is 32 bytes
 			uint8_t data[32];
 
 			// FIXME: This does not actually zero the data.
@@ -409,9 +409,9 @@ namespace pcpp
 		/// BGP NOTIFICATION message structure
 		typedef struct bgp_notification_message : bgp_common_header
 		{
-			/** BGP notification error code */
+			/// BGP notification error code
 			uint8_t errorCode;
-			/** BGP notification error sub-code */
+			/// BGP notification error sub-code
 			uint8_t errorSubCode;
 		} bgp_notification_message;
 #pragma pack(pop)
@@ -543,11 +543,11 @@ namespace pcpp
 		/// BGP ROUTE-REFRESH message structure
 		typedef struct bgp_route_refresh_message : bgp_common_header
 		{
-			/** Address Family Identifier */
+			/// Address Family Identifier
 			uint16_t afi;
-			/** Reserved field */
+			/// Reserved field
 			uint8_t reserved;
-			/** Subsequent Address Family Identifier */
+			/// Subsequent Address Family Identifier
 			uint8_t safi;
 		} bgp_route_refresh_message;
 #pragma pack(pop)

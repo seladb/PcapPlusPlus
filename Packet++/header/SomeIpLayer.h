@@ -17,35 +17,35 @@ namespace pcpp
 		/// SOME/IP message types
 		enum class MsgType : uint8_t
 		{
-			/** A request expecting a response (even void) */
+			/// A request expecting a response (even void)
 			REQUEST = 0x00,
-			/** Acknowledgment for REQUEST(optional) */
+			/// Acknowledgment for REQUEST(optional)
 			REQUEST_ACK = 0x40,
-			/** A fire&forget request */
+			/// A fire&forget request
 			REQUEST_NO_RETURN = 0x01,
-			/** Acknowledgment for REQUEST_NO_RETURN(informational) */
+			/// Acknowledgment for REQUEST_NO_RETURN(informational)
 			REQUEST_NO_RETURN_ACK = 0x41,
-			/** A request of a notification expecting no response */
+			/// A request of a notification expecting no response
 			NOTIFICATION = 0x02,
-			/** Acknowledgment for NOTIFICATION(informational) */
+			/// Acknowledgment for NOTIFICATION(informational)
 			NOTIFICATION_ACK = 0x42,
-			/** The response message */
+			/// The response message
 			RESPONSE = 0x80,
-			/** The Acknowledgment for RESPONSE(informational) */
+			/// The Acknowledgment for RESPONSE(informational)
 			RESPONSE_ACK = 0xC0,
-			/** The response containing an error */
+			/// The response containing an error
 			ERRORS = 0x81,
-			/** Acknowledgment for ERROR(informational) */
+			/// Acknowledgment for ERROR(informational)
 			ERROR_ACK = 0xC1,
-			/** A TP request expecting a response (even void) */
+			/// A TP request expecting a response (even void)
 			TP_REQUEST = 0x20,
-			/** A TP fire&forget request */
+			/// A TP fire&forget request
 			TP_REQUEST_NO_RETURN = 0x21,
-			/** A TP request of a notification/event callback expecting no response */
+			/// A TP request of a notification/event callback expecting no response
 			TP_NOTIFICATION = 0x22,
-			/** The TP response message */
+			/// The TP response message
 			TP_RESPONSE = 0xa0,
-			/** The TP response containing an error */
+			/// The TP response containing an error
 			TP_ERROR = 0xa1,
 		};
 
@@ -54,23 +54,23 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someiphdr
 		{
-			/** Service ID */
+			/// Service ID
 			uint16_t serviceID;
-			/** Method ID. Most significant bit 0 when E2E communication. 1 when SOME/IP event */
+			/// Method ID. Most significant bit 0 when E2E communication. 1 when SOME/IP event
 			uint16_t methodID;
-			/** Length. Also covers payload. Excludes serviceID, methodID and length field itself */
+			/// Length. Also covers payload. Excludes serviceID, methodID and length field itself
 			uint32_t length;
-			/** Client ID */
+			/// Client ID
 			uint16_t clientID;
-			/** Session ID */
+			/// Session ID
 			uint16_t sessionID;
-			/** Protocol Version */
+			/// Protocol Version
 			uint8_t protocolVersion;
-			/** Interface Version */
+			/// Interface Version
 			uint8_t interfaceVersion;
-			/** Message Type */
+			/// Message Type
 			uint8_t msgType;
-			/** Return Code */
+			/// Return Code
 			uint8_t returnCode;
 		};
 #pragma pack(pop)
@@ -279,7 +279,7 @@ namespace pcpp
 			return sizeof(someiphdr);
 		}
 
-		/* Using unordered_set since insertion and search should be almost constant time */
+		// Using unordered_set since insertion and search should be almost constant time
 		static std::unordered_set<uint16_t> m_SomeIpPorts;
 	};
 
@@ -293,8 +293,8 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someiptphdr : someiphdr
 		{
-			/** Contains the offset and the more segments flag. 28 bit offset field measured in 16 bytes + 3 bit
-			 * reserved + 1 bit more segments flag */
+			/// Contains the offset and the more segments flag. 28 bit offset field measured in 16 bytes + 3 bit
+			/// reserved + 1 bit more segments flag
 			uint32_t offsetAndFlag;
 		};
 #pragma pack(pop)

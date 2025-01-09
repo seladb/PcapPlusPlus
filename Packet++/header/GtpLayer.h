@@ -18,41 +18,41 @@ namespace pcpp
 	struct gtpv1_header
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** A 1-bit value that states whether there is a N-PDU number optional field */
+		/// A 1-bit value that states whether there is a N-PDU number optional field
 		uint8_t npduNumberFlag : 1,
-		    /** A 1-bit value that states whether there is a Sequence Number optional field */
+		    /// A 1-bit value that states whether there is a Sequence Number optional field
 		    sequenceNumberFlag : 1,
-		    /** A 1-bit value that states whether there is an extension header optional field */
+		    /// A 1-bit value that states whether there is an extension header optional field
 		    extensionHeaderFlag : 1,
-		    /** Reserved bit */
+		    /// Reserved bit
 		    reserved : 1,
-		    /** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
+		    /// A 1-bit value that differentiates GTP (value 1) from GTP' (value 0)
 		    protocolType : 1,
-		    /** GTP version */
+		    /// GTP version
 		    version : 3;
 #else
-		/** GTP version */
+		/// GTP version
 		uint8_t version : 3,
-		    /** A 1-bit value that differentiates GTP (value 1) from GTP' (value 0) */
+		    /// A 1-bit value that differentiates GTP (value 1) from GTP' (value 0)
 		    protocolType : 1,
-		    /** Reserved bit */
+		    /// Reserved bit
 		    reserved : 1,
-		    /** A 1-bit value that states whether there is an extension header optional field */
+		    /// A 1-bit value that states whether there is an extension header optional field
 		    extensionHeaderFlag : 1,
-		    /** A 1-bit value that states whether there is a Sequence Number optional field */
+		    /// A 1-bit value that states whether there is a Sequence Number optional field
 		    sequenceNumberFlag : 1,
-		    /** A 1-bit value that states whether there is a N-PDU number optional field */
+		    /// A 1-bit value that states whether there is a N-PDU number optional field
 		    npduNumberFlag : 1;
 #endif
-		/** An 8-bit field that indicates the type of GTP message */
+		/// An 8-bit field that indicates the type of GTP message
 		uint8_t messageType;
 
-		/** A 16-bit field that indicates the length of the payload in bytes (rest of the packet following the mandatory
-		 * 8-byte GTP header). Includes the optional fields */
+		/// A 16-bit field that indicates the length of the payload in bytes (rest of the packet following the mandatory
+		/// 8-byte GTP header). Includes the optional fields
 		uint16_t messageLength;
 
-		/** Tunnel endpoint identifier - A 32-bit(4-octet) field used to multiplex different connections in the same GTP
-		 * tunnel */
+		/// Tunnel endpoint identifier - A 32-bit(4-octet) field used to multiplex different connections in the same GTP
+		/// tunnel
 		uint32_t teid;
 	};
 
@@ -63,143 +63,143 @@ namespace pcpp
 	/// message
 	enum GtpV1MessageType
 	{
-		/** GTPv1 Message Type Unknown */
+		/// GTPv1 Message Type Unknown
 		GtpV1_MessageTypeUnknown = 0,
-		/** Echo Request */
+		/// Echo Request
 		GtpV1_EchoRequest = 1,
-		/** Echo Response */
+		/// Echo Response
 		GtpV1_EchoResponse = 2,
-		/** Version Not Supported */
+		/// Version Not Supported
 		GtpV1_VersionNotSupported = 3,
-		/** Node Alive Request */
+		/// Node Alive Request
 		GtpV1_NodeAliveRequest = 4,
-		/** Node Alive Response */
+		/// Node Alive Response
 		GtpV1_NodeAliveResponse = 5,
-		/** Redirection Request */
+		/// Redirection Request
 		GtpV1_RedirectionRequest = 6,
-		/** Create PDP Context Request */
+		/// Create PDP Context Request
 		GtpV1_CreatePDPContextRequest = 7,
-		/** Create PDP Context Response */
+		/// Create PDP Context Response
 		GtpV1_CreatePDPContextResponse = 16,
-		/** Update PDP Context Request */
+		/// Update PDP Context Request
 		GtpV1_UpdatePDPContextRequest = 17,
-		/** Update PDP Context Response */
+		/// Update PDP Context Response
 		GtpV1_UpdatePDPContextResponse = 18,
-		/** Delete PDP Context Request */
+		/// Delete PDP Context Request
 		GtpV1_DeletePDPContextRequest = 19,
-		/** Delete PDP Context Response */
+		/// Delete PDP Context Response
 		GtpV1_DeletePDPContextResponse = 20,
-		/** Initiate PDP Context Activation Request */
+		/// Initiate PDP Context Activation Request
 		GtpV1_InitiatePDPContextActivationRequest = 22,
-		/** Initiate PDP Context Activation Response */
+		/// Initiate PDP Context Activation Response
 		GtpV1_InitiatePDPContextActivationResponse = 23,
-		/** Error Indication */
+		/// Error Indication
 		GtpV1_ErrorIndication = 26,
-		/** PDU Notification Request */
+		/// PDU Notification Request
 		GtpV1_PDUNotificationRequest = 27,
-		/** PDU Notification Response */
+		/// PDU Notification Response
 		GtpV1_PDUNotificationResponse = 28,
-		/** PDU Notification Reject Request */
+		/// PDU Notification Reject Request
 		GtpV1_PDUNotificationRejectRequest = 29,
-		/** PDU Notification Reject Response */
+		/// PDU Notification Reject Response
 		GtpV1_PDUNotificationRejectResponse = 30,
-		/** Supported Extensions Header Notification */
+		/// Supported Extensions Header Notification
 		GtpV1_SupportedExtensionsHeaderNotification = 31,
-		/** Send Routing for GPRS Request */
+		/// Send Routing for GPRS Request
 		GtpV1_SendRoutingforGPRSRequest = 32,
-		/** Send Routing for GPRS Response */
+		/// Send Routing for GPRS Response
 		GtpV1_SendRoutingforGPRSResponse = 33,
-		/** Failure Report Request */
+		/// Failure Report Request
 		GtpV1_FailureReportRequest = 34,
-		/** Failure Report Response */
+		/// Failure Report Response
 		GtpV1_FailureReportResponse = 35,
-		/** Note MS Present Request */
+		/// Note MS Present Request
 		GtpV1_NoteMSPresentRequest = 36,
-		/** Note MS Present Response */
+		/// Note MS Present Response
 		GtpV1_NoteMSPresentResponse = 37,
-		/** Identification Request */
+		/// Identification Request
 		GtpV1_IdentificationRequest = 38,
-		/** Identification Response */
+		/// Identification Response
 		GtpV1_IdentificationResponse = 39,
-		/** SGSN Context Request */
+		/// SGSN Context Request
 		GtpV1_SGSNContextRequest = 50,
-		/** SGSN Context Response */
+		/// SGSN Context Response
 		GtpV1_SGSNContextResponse = 51,
-		/** SGSN Context Acknowledge */
+		/// SGSN Context Acknowledge
 		GtpV1_SGSNContextAcknowledge = 52,
-		/** Forward Relocation Request */
+		/// Forward Relocation Request
 		GtpV1_ForwardRelocationRequest = 53,
-		/** Forward Relocation Response */
+		/// Forward Relocation Response
 		GtpV1_ForwardRelocationResponse = 54,
-		/** Forward Relocation Complete */
+		/// Forward Relocation Complete
 		GtpV1_ForwardRelocationComplete = 55,
-		/** Relocation Cancel Request */
+		/// Relocation Cancel Request
 		GtpV1_RelocationCancelRequest = 56,
-		/** Relocation Cancel Response */
+		/// Relocation Cancel Response
 		GtpV1_RelocationCancelResponse = 57,
-		/** Forward SRNS Context */
+		/// Forward SRNS Context
 		GtpV1_ForwardSRNSContext = 58,
-		/** Forward Relocation Complete Acknowledge */
+		/// Forward Relocation Complete Acknowledge
 		GtpV1_ForwardRelocationCompleteAcknowledge = 59,
-		/** Forward SRNS Context Acknowledge */
+		/// Forward SRNS Context Acknowledge
 		GtpV1_ForwardSRNSContextAcknowledge = 60,
-		/** UE Registration Request */
+		/// UE Registration Request
 		GtpV1_UERegistrationRequest = 61,
-		/** UE Registration Response */
+		/// UE Registration Response
 		GtpV1_UERegistrationResponse = 62,
-		/** RAN Information Relay */
+		/// RAN Information Relay
 		GtpV1_RANInformationRelay = 70,
-		/** MBMS Notification Request */
+		/// MBMS Notification Request
 		GtpV1_MBMSNotificationRequest = 96,
-		/** MBMS Notification Response */
+		/// MBMS Notification Response
 		GtpV1_MBMSNotificationResponse = 97,
-		/** MBMS Notification Reject Request */
+		/// MBMS Notification Reject Request
 		GtpV1_MBMSNotificationRejectRequest = 98,
-		/** MBMS Notification Reject Response */
+		/// MBMS Notification Reject Response
 		GtpV1_MBMSNotificationRejectResponse = 99,
-		/** Create MBMS Notification Request */
+		/// Create MBMS Notification Request
 		GtpV1_CreateMBMSNotificationRequest = 100,
-		/** Create MBMS Notification Response */
+		/// Create MBMS Notification Response
 		GtpV1_CreateMBMSNotificationResponse = 101,
-		/** Update MBMS Notification Request */
+		/// Update MBMS Notification Request
 		GtpV1_UpdateMBMSNotificationRequest = 102,
-		/** Update MBMS Notification Response */
+		/// Update MBMS Notification Response
 		GtpV1_UpdateMBMSNotificationResponse = 103,
-		/** Delete MBMS Notification Request */
+		/// Delete MBMS Notification Request
 		GtpV1_DeleteMBMSNotificationRequest = 104,
-		/** Delete MBMS Notification Response */
+		/// Delete MBMS Notification Response
 		GtpV1_DeleteMBMSNotificationResponse = 105,
-		/** MBMS Registration Request */
+		/// MBMS Registration Request
 		GtpV1_MBMSRegistrationRequest = 112,
-		/** MBMS Registration Response */
+		/// MBMS Registration Response
 		GtpV1_MBMSRegistrationResponse = 113,
-		/** MBMS De-Registration Request */
+		/// MBMS De-Registration Request
 		GtpV1_MBMSDeRegistrationRequest = 114,
-		/** MBMS De-Registration Response */
+		/// MBMS De-Registration Response
 		GtpV1_MBMSDeRegistrationResponse = 115,
-		/** MBMS Session Start Request */
+		/// MBMS Session Start Request
 		GtpV1_MBMSSessionStartRequest = 116,
-		/** MBMS Session Start Response */
+		/// MBMS Session Start Response
 		GtpV1_MBMSSessionStartResponse = 117,
-		/** MBMS Session Stop Request */
+		/// MBMS Session Stop Request
 		GtpV1_MBMSSessionStopRequest = 118,
-		/** MBMS Session Stop Response */
+		/// MBMS Session Stop Response
 		GtpV1_MBMSSessionStopResponse = 119,
-		/** MBMS Session Update Request */
+		/// MBMS Session Update Request
 		GtpV1_MBMSSessionUpdateRequest = 120,
-		/** MBMS Session Update Response */
+		/// MBMS Session Update Response
 		GtpV1_MBMSSessionUpdateResponse = 121,
-		/** MS Info Change Request */
+		/// MS Info Change Request
 		GtpV1_MSInfoChangeRequest = 128,
-		/** MS Info Change Response */
+		/// MS Info Change Response
 		GtpV1_MSInfoChangeResponse = 129,
-		/** Data Record Transfer Request */
+		/// Data Record Transfer Request
 		GtpV1_DataRecordTransferRequest = 240,
-		/** Data Record Transfer Response */
+		/// Data Record Transfer Response
 		GtpV1_DataRecordTransferResponse = 241,
-		/** End Marker */
+		/// End Marker
 		GtpV1_EndMarker = 254,
-		/** G-PDU */
+		/// G-PDU
 		GtpV1_GPDU = 255
 	};
 
@@ -419,171 +419,171 @@ namespace pcpp
 		/// Define enum types and the corresponding int values
 		enum Value : uint8_t
 		{
-			/** Unknown message */
+			/// Unknown message
 			Unknown = 0,
-			/** Echo Request message */
+			/// Echo Request message
 			EchoRequest = 1,
-			/** Echo Response message */
+			/// Echo Response message
 			EchoResponse = 2,
-			/** Version Not Supported message */
+			/// Version Not Supported message
 			VersionNotSupported = 3,
-			/** Create Session Request message */
+			/// Create Session Request message
 			CreateSessionRequest = 32,
-			/** Create Session Response message */
+			/// Create Session Response message
 			CreateSessionResponse = 33,
-			/** Modify Bearer Request message */
+			/// Modify Bearer Request message
 			ModifyBearerRequest = 34,
-			/** Modify Bearer Response message */
+			/// Modify Bearer Response message
 			ModifyBearerResponse = 35,
-			/** Delete Session Request message */
+			/// Delete Session Request message
 			DeleteSessionRequest = 36,
-			/** Delete Session Response message */
+			/// Delete Session Response message
 			DeleteSessionResponse = 37,
-			/** Change Notification Request message */
+			/// Change Notification Request message
 			ChangeNotificationRequest = 38,
-			/** Change Notification Response message */
+			/// Change Notification Response message
 			ChangeNotificationResponse = 39,
-			/** Remote UE Report Notifications message */
+			/// Remote UE Report Notifications message
 			RemoteUEReportNotifications = 40,
-			/** Remote UE Report Acknowledge message */
+			/// Remote UE Report Acknowledge message
 			RemoteUEReportAcknowledge = 41,
-			/** Modify Bearer Command message */
+			/// Modify Bearer Command message
 			ModifyBearerCommand = 64,
-			/** Modify Bearer Failure message */
+			/// Modify Bearer Failure message
 			ModifyBearerFailure = 65,
-			/** Delete Bearer Command message */
+			/// Delete Bearer Command message
 			DeleteBearerCommand = 66,
-			/** Delete Bearer Failure message */
+			/// Delete Bearer Failure message
 			DeleteBearerFailure = 67,
-			/** Bearer Resource Command message */
+			/// Bearer Resource Command message
 			BearerResourceCommand = 68,
-			/** Bearer Resource Failure message */
+			/// Bearer Resource Failure message
 			BearerResourceFailure = 69,
-			/** Downlink Data Notification Failure message */
+			/// Downlink Data Notification Failure message
 			DownlinkDataNotificationFailure = 70,
-			/** Trace Session Activation message */
+			/// Trace Session Activation message
 			TraceSessionActivation = 71,
-			/** Trace Session Deactivation message */
+			/// Trace Session Deactivation message
 			TraceSessionDeactivation = 72,
-			/** Stop Paging Indication message */
+			/// Stop Paging Indication message
 			StopPagingIndication = 73,
-			/** Create Bearer Request message */
+			/// Create Bearer Request message
 			CreateBearerRequest = 95,
-			/** Create Bearer Response message */
+			/// Create Bearer Response message
 			CreateBearerResponse = 96,
-			/** Update Bearer Request message */
+			/// Update Bearer Request message
 			UpdateBearerRequest = 97,
-			/** Update Bearer Response message */
+			/// Update Bearer Response message
 			UpdateBearerResponse = 98,
-			/** Delete Bearer Request message */
+			/// Delete Bearer Request message
 			DeleteBearerRequest = 99,
-			/** Delete Bearer Response message */
+			/// Delete Bearer Response message
 			DeleteBearerResponse = 100,
-			/** Delete PDN Request message */
+			/// Delete PDN Request message
 			DeletePDNRequest = 101,
-			/** Delete PDN Response message */
+			/// Delete PDN Response message
 			DeletePDNResponse = 102,
-			/** PGW Downlink Notification message */
+			/// PGW Downlink Notification message
 			PGWDownlinkNotification = 103,
-			/** PGW Downlink Acknowledge message */
+			/// PGW Downlink Acknowledge message
 			PGWDownlinkAcknowledge = 104,
-			/** Identification Request message */
+			/// Identification Request message
 			IdentificationRequest = 128,
-			/** Identification Response message */
+			/// Identification Response message
 			IdentificationResponse = 129,
-			/** Context Request message */
+			/// Context Request message
 			ContextRequest = 130,
-			/** Context Response message */
+			/// Context Response message
 			ContextResponse = 131,
-			/** Context Acknowledge message */
+			/// Context Acknowledge message
 			ContextAcknowledge = 132,
-			/** Forward Relocation Request message */
+			/// Forward Relocation Request message
 			ForwardRelocationRequest = 133,
-			/** Forward Relocation Response message */
+			/// Forward Relocation Response message
 			ForwardRelocationResponse = 134,
-			/** Forward Relocation Notification message */
+			/// Forward Relocation Notification message
 			ForwardRelocationNotification = 135,
-			/** Forward Relocation Acknowledge message */
+			/// Forward Relocation Acknowledge message
 			ForwardRelocationAcknowledge = 136,
-			/** Forward Access Notification message */
+			/// Forward Access Notification message
 			ForwardAccessNotification = 137,
-			/** Forward Access Acknowledge message */
+			/// Forward Access Acknowledge message
 			ForwardAccessAcknowledge = 138,
-			/** Relocation Cancel Request message */
+			/// Relocation Cancel Request message
 			RelocationCancelRequest = 139,
-			/** Relocation Cancel Response message */
+			/// Relocation Cancel Response message
 			RelocationCancelResponse = 140,
-			/** Configuration Transfer Tunnel message */
+			/// Configuration Transfer Tunnel message
 			ConfigurationTransferTunnel = 141,
-			/** Detach Notification message */
+			/// Detach Notification message
 			DetachNotification = 149,
-			/** Detach Acknowledge message */
+			/// Detach Acknowledge message
 			DetachAcknowledge = 150,
-			/** CS Paging message */
+			/// CS Paging message
 			CSPaging = 151,
-			/** RAN Information Relay message */
+			/// RAN Information Relay message
 			RANInformationRelay = 152,
-			/** Alert MME Notification message */
+			/// Alert MME Notification message
 			AlertMMENotification = 153,
-			/** Alert MME Acknowledge message */
+			/// Alert MME Acknowledge message
 			AlertMMEAcknowledge = 154,
-			/** UE Activity Notification message */
+			/// UE Activity Notification message
 			UEActivityNotification = 155,
-			/** UE Activity Acknowledge message */
+			/// UE Activity Acknowledge message
 			UEActivityAcknowledge = 156,
-			/** ISR Status message */
+			/// ISR Status message
 			ISRStatus = 157,
-			/** Create Forwarding Request message */
+			/// Create Forwarding Request message
 			CreateForwardingRequest = 160,
-			/** Create Forwarding Response message */
+			/// Create Forwarding Response message
 			CreateForwardingResponse = 161,
-			/** Suspend Notification message */
+			/// Suspend Notification message
 			SuspendNotification = 162,
-			/** Suspend Acknowledge message */
+			/// Suspend Acknowledge message
 			SuspendAcknowledge = 163,
-			/** Resume Notification message */
+			/// Resume Notification message
 			ResumeNotification = 164,
-			/** Resume Acknowledge message */
+			/// Resume Acknowledge message
 			ResumeAcknowledge = 165,
-			/** Create Indirect Data Tunnel Request message */
+			/// Create Indirect Data Tunnel Request message
 			CreateIndirectDataTunnelRequest = 166,
-			/** Create Indirect Data Tunnel Response message */
+			/// Create Indirect Data Tunnel Response message
 			CreateIndirectDataTunnelResponse = 167,
-			/** Delete Indirect Data Tunnel Request message */
+			/// Delete Indirect Data Tunnel Request message
 			DeleteIndirectDataTunnelRequest = 168,
-			/** Delete Indirect Data Tunnel Response message */
+			/// Delete Indirect Data Tunnel Response message
 			DeleteIndirectDataTunnelResponse = 169,
-			/** Release Access Bearers Request message */
+			/// Release Access Bearers Request message
 			ReleaseAccessBearersRequest = 170,
-			/** Release Access Bearers Response message */
+			/// Release Access Bearers Response message
 			ReleaseAccessBearersResponse = 171,
-			/** Downlink Data Notification message */
+			/// Downlink Data Notification message
 			DownlinkDataNotification = 176,
-			/** Downlink Data Acknowledge message */
+			/// Downlink Data Acknowledge message
 			DownlinkDataAcknowledge = 177,
-			/** PGW Restart Notification message */
+			/// PGW Restart Notification message
 			PGWRestartNotification = 179,
-			/** PGW Restart Acknowledge message */
+			/// PGW Restart Acknowledge message
 			PGWRestartAcknowledge = 180,
-			/** Update PDN Connection Request message */
+			/// Update PDN Connection Request message
 			UpdatePDNConnectionRequest = 200,
-			/** Update PDN Connection Response message */
+			/// Update PDN Connection Response message
 			UpdatePDNConnectionResponse = 201,
-			/** Modify Access Bearers Request message */
+			/// Modify Access Bearers Request message
 			ModifyAccessBearersRequest = 211,
-			/** Modify Access Bearers Response message */
+			/// Modify Access Bearers Response message
 			ModifyAccessBearersResponse = 212,
-			/** MMBS Session Start Request message */
+			/// MMBS Session Start Request message
 			MMBSSessionStartRequest = 231,
-			/** MMBS Session Start Response message */
+			/// MMBS Session Start Response message
 			MMBSSessionStartResponse = 232,
-			/** MMBS Session Update Request message */
+			/// MMBS Session Update Request message
 			MMBSSessionUpdateRequest = 233,
-			/** MMBS Session Update Response message */
+			/// MMBS Session Update Response message
 			MMBSSessionUpdateResponse = 234,
-			/** MMBS Session Stop Request message */
+			/// MMBS Session Stop Request message
 			MMBSSessionStopRequest = 235,
-			/** MMBS Session Stop Response message */
+			/// MMBS Session Stop Response message
 			MMBSSessionStopResponse = 236
 		};
 
@@ -626,289 +626,289 @@ namespace pcpp
 		/// GTPv2 Information Element (IE) types as defined in 3GPP TS 29.274
 		enum class Type : uint8_t
 		{
-			/** Unknown or reserved value */
+			/// Unknown or reserved value
 			Unknown = 0,
-			/** International Mobile Subscriber Identity */
+			/// International Mobile Subscriber Identity
 			Imsi = 1,
-			/** Indicates the result of a procedure */
+			/// Indicates the result of a procedure
 			Cause = 2,
-			/** Recovery counter for GTP path management */
+			/// Recovery counter for GTP path management
 			Recovery = 3,
-			/** Session Transfer Number for SRVCC */
+			/// Session Transfer Number for SRVCC
 			StnSr = 51,
-			/** Access Point Name */
+			/// Access Point Name
 			Apn = 71,
-			/** Aggregate Maximum Bit Rate */
+			/// Aggregate Maximum Bit Rate
 			Ambr = 72,
-			/** EPS Bearer ID */
+			/// EPS Bearer ID
 			Ebi = 73,
-			/** IPv4/IPv6 Address */
+			/// IPv4/IPv6 Address
 			IpAddress = 74,
-			/** Mobile Equipment Identity (IMEI or IMEISV) */
+			/// Mobile Equipment Identity (IMEI or IMEISV)
 			Mei = 75,
-			/** Mobile Station International Subscriber Directory Number */
+			/// Mobile Station International Subscriber Directory Number
 			Msisdn = 76,
-			/** Indication flags for various features and capabilities */
+			/// Indication flags for various features and capabilities
 			Indication = 77,
-			/** Protocol Configuration Options */
+			/// Protocol Configuration Options
 			Pco = 78,
-			/** PDN Address Allocation */
+			/// PDN Address Allocation
 			Paa = 79,
-			/** Bearer Level Quality of Service */
+			/// Bearer Level Quality of Service
 			BearerQos = 80,
-			/** Flow Level Quality of Service */
+			/// Flow Level Quality of Service
 			FlowQos = 81,
-			/** Radio Access Technology Type */
+			/// Radio Access Technology Type
 			RatType = 82,
-			/** Current PLMN and MME identifier */
+			/// Current PLMN and MME identifier
 			ServingNetwork = 83,
-			/** Bearer Traffic Flow Template */
+			/// Bearer Traffic Flow Template
 			BearerTft = 84,
-			/** Traffic Aggregation Description */
+			/// Traffic Aggregation Description
 			Tad = 85,
-			/** User Location Information */
+			/// User Location Information
 			Uli = 86,
-			/** Fully Qualified TEID */
+			/// Fully Qualified TEID
 			FTeid = 87,
-			/** Temporary Mobile Subscriber Identity */
+			/// Temporary Mobile Subscriber Identity
 			Tmsi = 88,
-			/** Global Core Network ID */
+			/// Global Core Network ID
 			GlobalCnId = 89,
-			/** S103 PDN Data Forwarding Info */
+			/// S103 PDN Data Forwarding Info
 			S103PdnDataForwardingInfo = 90,
-			/** S1-U Data Forwarding Info */
+			/// S1-U Data Forwarding Info
 			S1UDataForwardingInfo = 91,
-			/** Delay Value in integer multiples of 50 milliseconds */
+			/// Delay Value in integer multiples of 50 milliseconds
 			DelayValue = 92,
-			/** Bearer Context */
+			/// Bearer Context
 			BearerContext = 93,
-			/** Charging ID for this PDP context */
+			/// Charging ID for this PDP context
 			ChargingId = 94,
-			/** Charging Characteristics */
+			/// Charging Characteristics
 			ChargingCharacteristics = 95,
-			/** Trace Information */
+			/// Trace Information
 			TraceInformation = 96,
-			/** Bearer Flags */
+			/// Bearer Flags
 			BearerFlags = 97,
-			/** PDN Type (IPv4, IPv6, IPv4v6) */
+			/// PDN Type (IPv4, IPv6, IPv4v6)
 			PdnType = 99,
-			/** Procedure Transaction ID */
+			/// Procedure Transaction ID
 			Pti = 100,
-			/** MM Context (GSM Key and Triplets) */
+			/// MM Context (GSM Key and Triplets)
 			MmContext1 = 103,
-			/** MM Context (UMTS Key, Used Cipher and Quintuplets) */
+			/// MM Context (UMTS Key, Used Cipher and Quintuplets)
 			MmContext2 = 104,
-			/** MM Context (GSM Key, Used Cipher and Quintuplets) */
+			/// MM Context (GSM Key, Used Cipher and Quintuplets)
 			MmContext3 = 105,
-			/** MM Context (UMTS Key and Quintuplets) */
+			/// MM Context (UMTS Key and Quintuplets)
 			MmContext4 = 106,
-			/** MM Context (EPS Security Context, Quadruplets and Quintuplets) */
+			/// MM Context (EPS Security Context, Quadruplets and Quintuplets)
 			MmContext5 = 107,
-			/** MM Context (UMTS Key, Quadruplets and Quintuplets) */
+			/// MM Context (UMTS Key, Quadruplets and Quintuplets)
 			MmContext6 = 108,
-			/** PDN Connection */
+			/// PDN Connection
 			PdnConnection = 109,
-			/** PDU Numbers */
+			/// PDU Numbers
 			PduNumbers = 110,
-			/** Packet TMSI */
+			/// Packet TMSI
 			PTmsi = 111,
-			/** P-TMSI Signature */
+			/// P-TMSI Signature
 			PTmsiSignature = 112,
-			/** Hop Counter */
+			/// Hop Counter
 			HopCounter = 113,
-			/** UE Time Zone */
+			/// UE Time Zone
 			UeTimeZone = 114,
-			/** Trace Reference */
+			/// Trace Reference
 			TraceReference = 115,
-			/** Complete Request Message */
+			/// Complete Request Message
 			CompleteRequestMessage = 116,
-			/** Globally Unique Temporary Identity */
+			/// Globally Unique Temporary Identity
 			Guti = 117,
-			/** F-Container */
+			/// F-Container
 			FContainer = 118,
-			/** F-Cause */
+			/// F-Cause
 			FCause = 119,
-			/** PLMN Identity */
+			/// PLMN Identity
 			PlmnId = 120,
-			/** Target Identification */
+			/// Target Identification
 			TargetIdentification = 121,
-			/** Packet Flow ID */
+			/// Packet Flow ID
 			PacketFlowId = 123,
-			/** RAB Context */
+			/// RAB Context
 			RabContext = 124,
-			/** Source RNC PDCP Context Info */
+			/// Source RNC PDCP Context Info
 			SourceRncPdcpContextInfo = 125,
-			/** Port Number */
+			/// Port Number
 			PortNumber = 126,
-			/** APN Restriction */
+			/// APN Restriction
 			ApnRestriction = 127,
-			/** Selection Mode */
+			/// Selection Mode
 			SelectionMode = 128,
-			/** Source Identification */
+			/// Source Identification
 			SourceIdentification = 129,
-			/** Change Reporting Action */
+			/// Change Reporting Action
 			ChangeReportingAction = 131,
-			/** Fully Qualified PDN Connection Set Identifier */
+			/// Fully Qualified PDN Connection Set Identifier
 			FqCsid = 132,
-			/** Channel Needed */
+			/// Channel Needed
 			ChannelNeeded = 133,
-			/** eMLPP Priority */
+			/// eMLPP Priority
 			EmlppPriority = 134,
-			/** Node Type */
+			/// Node Type
 			NodeType = 135,
-			/** Fully Qualified Domain Name */
+			/// Fully Qualified Domain Name
 			Fqdn = 136,
-			/** Transaction Identifier */
+			/// Transaction Identifier
 			Ti = 137,
-			/** MBMS Session Duration */
+			/// MBMS Session Duration
 			MbmsSessionDuration = 138,
-			/** MBMS Service Area */
+			/// MBMS Service Area
 			MbmsServiceArea = 139,
-			/** MBMS Session Identifier */
+			/// MBMS Session Identifier
 			MbmsSessionIdentifier = 140,
-			/** MBMS Flow Identifier */
+			/// MBMS Flow Identifier
 			MbmsFlowIdentifier = 141,
-			/** MBMS IP Multicast Distribution */
+			/// MBMS IP Multicast Distribution
 			MbmsIpMulticastDistribution = 142,
-			/** MBMS Distribution Acknowledge */
+			/// MBMS Distribution Acknowledge
 			MbmsDistributionAcknowledge = 143,
-			/** RF Selection Priority Index */
+			/// RF Selection Priority Index
 			RfspIndex = 144,
-			/** User CSG Information */
+			/// User CSG Information
 			Uci = 145,
-			/** CSG Information Reporting Action */
+			/// CSG Information Reporting Action
 			CsgInformationReportingAction = 146,
-			/** CSG ID */
+			/// CSG ID
 			CsgId = 147,
-			/** CSG Membership Indication */
+			/// CSG Membership Indication
 			Cmi = 148,
-			/** Service Indicator */
+			/// Service Indicator
 			ServiceIndicator = 149,
-			/** Detach Type */
+			/// Detach Type
 			DetachType = 150,
-			/** Local Distinguished Name */
+			/// Local Distinguished Name
 			Ldn = 151,
-			/** Node Features */
+			/// Node Features
 			NodeFeatures = 152,
-			/** MBMS Time To Data Transfer */
+			/// MBMS Time To Data Transfer
 			MbmsTimeToDataTransfer = 153,
-			/** Throttling */
+			/// Throttling
 			Throttling = 154,
-			/** Allocation Retention Priority */
+			/// Allocation Retention Priority
 			Arp = 155,
-			/** EPC Timer */
+			/// EPC Timer
 			EpcTimer = 156,
-			/** Signalling Priority Indication */
+			/// Signalling Priority Indication
 			SignallingPriorityIndication = 157,
-			/** Temporary Mobile Group Identity */
+			/// Temporary Mobile Group Identity
 			Tmgi = 158,
-			/** Additional MM Context For SRVCC */
+			/// Additional MM Context For SRVCC
 			AdditionalMmContextForSrvcc = 159,
-			/** Additional Flags For SRVCC */
+			/// Additional Flags For SRVCC
 			AdditionalFlagsForSrvcc = 160,
-			/** MDT Configuration */
+			/// MDT Configuration
 			MdtConfiguration = 162,
-			/** Additional Protocol Configuration Options */
+			/// Additional Protocol Configuration Options
 			Apco = 163,
-			/** Absolute Time of MBMS Data Transfer */
+			/// Absolute Time of MBMS Data Transfer
 			AbsoluteTimeOfMbmsDataTransfer = 164,
-			/** H(e)NB Information Reporting */
+			/// H(e)NB Information Reporting
 			HenbInformationReporting = 165,
-			/** IPv4 Configuration Parameters */
+			/// IPv4 Configuration Parameters
 			Ipv4ConfigurationParameters = 166,
-			/** Change To Report Flags */
+			/// Change To Report Flags
 			ChangeToReportFlags = 167,
-			/** Action Indication */
+			/// Action Indication
 			ActionIndication = 168,
-			/** TWAN Identifier */
+			/// TWAN Identifier
 			TwanIdentifier = 169,
-			/** ULI Timestamp */
+			/// ULI Timestamp
 			UliTimestamp = 170,
-			/** MBMS Flags */
+			/// MBMS Flags
 			MbmsFlags = 171,
-			/** RAN/NAS Cause */
+			/// RAN/NAS Cause
 			RanNasCause = 172,
-			/** CN Operator Selection Entity */
+			/// CN Operator Selection Entity
 			CnOperatorSelectionEntity = 173,
-			/** Trusted WLAN Mode Indication */
+			/// Trusted WLAN Mode Indication
 			Twmi = 174,
-			/** Node Number */
+			/// Node Number
 			NodeNumber = 175,
-			/** Node Identifier */
+			/// Node Identifier
 			NodeIdentifier = 176,
-			/** Presence Reporting Area Action */
+			/// Presence Reporting Area Action
 			PresenceReportingAreaAction = 177,
-			/** Presence Reporting Area Information */
+			/// Presence Reporting Area Information
 			PresenceReportingAreaInformation = 178,
-			/** TWAN Identifier Timestamp */
+			/// TWAN Identifier Timestamp
 			TwanIdentifierTimestamp = 179,
-			/** Overload Control Information */
+			/// Overload Control Information
 			OverloadControlInformation = 180,
-			/** Load Control Information */
+			/// Load Control Information
 			LoadControlInformation = 181,
-			/** Metric */
+			/// Metric
 			Metric = 182,
-			/** Sequence Number */
+			/// Sequence Number
 			SequenceNumber = 183,
-			/** APN and Relative Capacity */
+			/// APN and Relative Capacity
 			ApnAndRelativeCapacity = 184,
-			/** WLAN Offloadability Indication */
+			/// WLAN Offloadability Indication
 			WlanOffloadabilityIndication = 185,
-			/** Paging and Service Information */
+			/// Paging and Service Information
 			PagingAndServiceInformation = 186,
-			/** Integer Number */
+			/// Integer Number
 			IntegerNumber = 187,
-			/** Millisecond Time Stamp */
+			/// Millisecond Time Stamp
 			MillisecondTimeStamp = 188,
-			/** Monitoring Event Information */
+			/// Monitoring Event Information
 			MonitoringEventInformation = 189,
-			/** ECGI List */
+			/// ECGI List
 			EcgiList = 190,
-			/** Remote UE Context */
+			/// Remote UE Context
 			RemoteUeContext = 191,
-			/** Remote User ID */
+			/// Remote User ID
 			RemoteUserId = 192,
-			/** Remote UE IP Information */
+			/// Remote UE IP Information
 			RemoteUeIpInformation = 193,
-			/** CIoT Optimizations Support Indication */
+			/// CIoT Optimizations Support Indication
 			CiotOptimizationsSupportIndication = 194,
-			/** SCEF PDN Connection */
+			/// SCEF PDN Connection
 			ScefPdnConnection = 195,
-			/** Header Compression Configuration */
+			/// Header Compression Configuration
 			HeaderCompressionConfiguration = 196,
-			/** Extended Protocol Configuration Options */
+			/// Extended Protocol Configuration Options
 			ExtendedPco = 197,
-			/** Serving PLMN Rate Control */
+			/// Serving PLMN Rate Control
 			ServingPlmnRateControl = 198,
-			/** Counter */
+			/// Counter
 			Counter = 199,
-			/** Mapped UE Usage Type */
+			/// Mapped UE Usage Type
 			MappedUeUsageType = 200,
-			/** Secondary RAT Usage Data Report */
+			/// Secondary RAT Usage Data Report
 			SecondaryRatUsageDataReport = 201,
-			/** UP Function Selection Indication Flags */
+			/// UP Function Selection Indication Flags
 			UpFunctionSelectionIndicationFlags = 202,
-			/** Maximum Packet Loss Rate */
+			/// Maximum Packet Loss Rate
 			MaximumPacketLossRate = 203,
-			/** APN Rate Control Status */
+			/// APN Rate Control Status
 			ApnRateControlStatus = 204,
-			/** Extended Trace Information */
+			/// Extended Trace Information
 			ExtendedTraceInformation = 205,
-			/** Monitoring Event Extension Information */
+			/// Monitoring Event Extension Information
 			MonitoringEventExtensionInformation = 206,
-			/** Additional RRM Policy Index */
+			/// Additional RRM Policy Index
 			AdditionalRrmPolicyIndex = 207,
-			/** V2X Context */
+			/// V2X Context
 			V2xContext = 208,
-			/** PC5 QoS Parameters */
+			/// PC5 QoS Parameters
 			Pc5QosParameters = 209,
-			/** Services Authorized */
+			/// Services Authorized
 			ServicesAuthorized = 210,
-			/** Bit Rate */
+			/// Bit Rate
 			BitRate = 211,
-			/** PC5 QoS Flow */
+			/// PC5 QoS Flow
 			Pc5QosFlow = 212,
-			/** SGi PtP Tunnel Address */
+			/// SGi PtP Tunnel Address
 			SgiPtpTunnelAddress = 213
 		};
 

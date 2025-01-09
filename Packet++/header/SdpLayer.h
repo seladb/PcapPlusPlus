@@ -11,35 +11,35 @@
 namespace pcpp
 {
 
-/** Protocol version (v) */
+/// Protocol version (v)
 #define PCPP_SDP_PROTOCOL_VERSION_FIELD "v"
-/** Originator and session identifier (o) */
+/// Originator and session identifier (o)
 #define PCPP_SDP_ORIGINATOR_FIELD "o"
-/** Session name (s) */
+/// Session name (s)
 #define PCPP_SDP_SESSION_NAME_FIELD "s"
-/** Session title, media title or short information (i) */
+/// Session title, media title or short information (i)
 #define PCPP_SDP_INFO_FIELD "i"
-/** URI of description (u) */
+/// URI of description (u)
 #define PCPP_SDP_URI_FIELD "u"
-/** Email address with optional name of contacts (e) */
+/// Email address with optional name of contacts (e)
 #define PCPP_SDP_EMAIL_FIELD "e"
-/** Phone number with optional name of contacts (p) */
+/// Phone number with optional name of contacts (p)
 #define PCPP_SDP_PHONE_FIELD "p"
-/** Connection information (c) */
+/// Connection information (c)
 #define PCPP_SDP_CONNECTION_INFO_FIELD "c"
-/** Bandwidth information (b) */
+/// Bandwidth information (b)
 #define PCPP_SDP_BANDWIDTH_FIELD "b"
-/** Time the session is active (t) */
+/// Time the session is active (t)
 #define PCPP_SDP_TIME_FIELD "t"
-/** Repeat times (r) */
+/// Repeat times (r)
 #define PCPP_SDP_REPEAT_TIMES_FIELD "r"
-/** Time zone adjustments (z) */
+/// Time zone adjustments (z)
 #define PCPP_SDP_TIME_ZONE_FIELD "z"
-/** Encryption key (k) */
+/// Encryption key (k)
 #define PCPP_SDP_ENCRYPTION_KEY_FIELD "k"
-/** Media attribute (a) */
+/// Media attribute (a)
 #define PCPP_SDP_MEDIA_ATTRIBUTE_FIELD "a"
-/** Media name and transport address (m) */
+/// Media name and transport address (m)
 #define PCPP_SDP_MEDIA_NAME_FIELD "m"
 
 	/// @class SdpLayer
@@ -104,19 +104,19 @@ namespace pcpp
 		}
 
 		/// The 'originator' field (o=) contains the IP address of the the machine from which the session is created.
-		/// This IP address can be used to track the RTP data relevant for the call. This method extracts this IP address
-		/// from the 'originator' field and returns it. A value of IPv4Address#Zero will be returned in the following
-		/// cases: (1) if 'originator' field doesn't exist; (2) if it doesn't contain the IP address; (3) if it contains
-		/// a non-IPv4 address
+		/// This IP address can be used to track the RTP data relevant for the call. This method extracts this IP
+		/// address from the 'originator' field and returns it. A value of IPv4Address#Zero will be returned in the
+		/// following cases: (1) if 'originator' field doesn't exist; (2) if it doesn't contain the IP address; (3) if
+		/// it contains a non-IPv4 address
 		/// @return The IP address of the the machine from which the session is created
 		IPv4Address getOwnerIPv4Address() const;
 
 		/// The 'media-description' field (m=) contains the transport port to which the media stream is sent. This port
 		/// can be used to track the RTP data relevant for the call. This method extracts this port from the
-		/// 'media-description' field and returns it. Since a SDP message can contain several 'media-description' fields,
-		/// one for each media type (e.g audio, image, etc.), the user is required to provide the media type. A value of
-		/// 0 will be returned in the following cases: (1) if 'media-description' field doesn't exist; (2) if provided
-		/// media type was not found; (3) if 'media-description' field didn't contain a port
+		/// 'media-description' field and returns it. Since a SDP message can contain several 'media-description'
+		/// fields, one for each media type (e.g audio, image, etc.), the user is required to provide the media type. A
+		/// value of 0 will be returned in the following cases: (1) if 'media-description' field doesn't exist; (2) if
+		/// provided media type was not found; (3) if 'media-description' field didn't contain a port
 		/// @param[in] mediaType The media type to search in
 		/// @return The transport port to which the media stream is sent
 		uint16_t getMediaPort(const std::string& mediaType) const;

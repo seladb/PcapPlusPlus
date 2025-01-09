@@ -161,9 +161,9 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct ndpneighborsolicitationhdr : icmpv6hdr
 		{
-			/** Reserved */
+			/// Reserved
 			uint32_t reserved;
-			/** Target address - Target address of solicitation message */
+			/// Target address - Target address of solicitation message
 			uint8_t targetIP[16];
 		};
 #pragma pack(pop)
@@ -230,30 +230,30 @@ namespace pcpp
 		{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 			uint32_t
-			    /** Unused field */
+			    /// Unused field
 			    reserved : 5,
-			    /** Flag indicating that this entry should override the old one */
+			    /// Flag indicating that this entry should override the old one
 			    override : 1,
-			    /** Flag indicating that the advertisement was sent in response to a Neighbor Solicitation from the
-			    Destination address */
+			    /// Flag indicating that the advertisement was sent in response to a Neighbor Solicitation from the
+			    /// Destination address
 			    solicited : 1,
-			    /** Flag indicating that the advertisement is sent by a router */
+			    /// Flag indicating that the advertisement is sent by a router
 			    router : 1,
-			    /** Unused field */
+			    /// Unused field
 			    reserved2 : 24;
 #else
 			uint32_t
-			    /** Flag indicating that the advertisement is sent by a router */
+			    /// Flag indicating that the advertisement is sent by a router
 			    router : 1,
-			    /** Flag indicating that the advertisement was sent in response to a Neighbor Solicitation from the
-			       Destination address */
+			    /// Flag indicating that the advertisement was sent in response to a Neighbor Solicitation from the
+			    /// Destination address
 			    solicited : 1,
-			    /** Flag indicating that this entry should override the old one */
+			    /// Flag indicating that this entry should override the old one
 			    override : 1,
-			    /** Unused field */
+			    /// Unused field
 			    reserved : 29;
 #endif
-			/** Target address - Either source address of advertisement or address for requested MAC */
+			/// Target address - Either source address of advertisement or address for requested MAC
 			uint8_t targetIP[16];
 		};
 #pragma pack(pop)

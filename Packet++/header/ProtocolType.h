@@ -220,21 +220,21 @@ namespace pcpp
 	/// An enum representing OSI model layers
 	enum OsiModelLayer
 	{
-		/** Physical layer (layer 1) */
+		/// Physical layer (layer 1)
 		OsiModelPhysicalLayer = 1,
-		/** Data link layer (layer 2) */
+		/// Data link layer (layer 2)
 		OsiModelDataLinkLayer = 2,
-		/** Network layer (layer 3) */
+		/// Network layer (layer 3)
 		OsiModelNetworkLayer = 3,
-		/** Transport layer (layer 4) */
+		/// Transport layer (layer 4)
 		OsiModelTransportLayer = 4,
-		/** Session layer (layer 5) */
+		/// Session layer (layer 5)
 		OsiModelSesionLayer = 5,
-		/** Presentation layer (layer 6) */
+		/// Presentation layer (layer 6)
 		OsiModelPresentationLayer = 6,
-		/** Application layer (layer 7) */
+		/// Application layer (layer 7)
 		OsiModelApplicationLayer = 7,
-		/** Unknown / null layer */
+		/// Unknown / null layer
 		OsiModelLayerUnknown = 8
 	};
 }  // namespace pcpp

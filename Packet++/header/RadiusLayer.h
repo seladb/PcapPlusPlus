@@ -14,13 +14,13 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct radius_header
 	{
-		/** RADIUS message code */
+		/// RADIUS message code
 		uint8_t code;
-		/** RADIUS message ID */
+		/// RADIUS message ID
 		uint8_t id;
-		/** RADIUS message length */
+		/// RADIUS message length
 		uint16_t length;
-		/** Used to authenticate the reply from the RADIUS server and to encrypt passwords */
+		/// Used to authenticate the reply from the RADIUS server and to encrypt passwords
 		uint8_t authenticator[16];
 	};
 #pragma pack(pop)

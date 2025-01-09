@@ -14,43 +14,43 @@ namespace pcpp
 	/// An enum for HTTP version
 	enum HttpVersion
 	{
-		/** HTTP/0.9 */
+		/// HTTP/0.9
 		ZeroDotNine,
-		/** HTTP/1.0 */
+		/// HTTP/1.0
 		OneDotZero,
-		/** HTTP/1.1 */
+		/// HTTP/1.1
 		OneDotOne,
-		/** Unknown HTTP version */
+		/// Unknown HTTP version
 		HttpVersionUnknown
 	};
 
 	// some popular HTTP fields
 
-	/** Host field */
+	/// Host field
 #define PCPP_HTTP_HOST_FIELD "Host"
-	/** Connection field */
+	/// Connection field
 #define PCPP_HTTP_CONNECTION_FIELD "Connection"
-	/** User-Agent field */
+	/// User-Agent field
 #define PCPP_HTTP_USER_AGENT_FIELD "User-Agent"
-	/** Referer field */
+	/// Referer field
 #define PCPP_HTTP_REFERER_FIELD "Referer"
-	/** Accept field */
+	/// Accept field
 #define PCPP_HTTP_ACCEPT_FIELD "Accept"
-	/** Accept-Encoding field */
+	/// Accept-Encoding field
 #define PCPP_HTTP_ACCEPT_ENCODING_FIELD "Accept-Encoding"
-	/** Accept-Language field */
+	/// Accept-Language field
 #define PCPP_HTTP_ACCEPT_LANGUAGE_FIELD "Accept-Language"
-	/** Cookie field */
+	/// Cookie field
 #define PCPP_HTTP_COOKIE_FIELD "Cookie"
-	/** Content-Length field */
+	/// Content-Length field
 #define PCPP_HTTP_CONTENT_LENGTH_FIELD "Content-Length"
-	/** Content-Encoding field */
+	/// Content-Encoding field
 #define PCPP_HTTP_CONTENT_ENCODING_FIELD "Content-Encoding"
-	/** Content-Type field */
+	/// Content-Type field
 #define PCPP_HTTP_CONTENT_TYPE_FIELD "Content-Type"
-	/** Transfer-Encoding field */
+	/// Transfer-Encoding field
 #define PCPP_HTTP_TRANSFER_ENCODING_FIELD "Transfer-Encoding"
-	/** Server field */
+	/// Server field
 #define PCPP_HTTP_SERVER_FIELD "Server"
 
 	// -------- classes to be defined later -----------------
@@ -135,25 +135,25 @@ namespace pcpp
 		/// HTTP request methods
 		enum HttpMethod
 		{
-			/** GET */
+			/// GET
 			HttpGET,
-			/** HEAD */
+			/// HEAD
 			HttpHEAD,
-			/** POST */
+			/// POST
 			HttpPOST,
-			/** PUT */
+			/// PUT
 			HttpPUT,
-			/** DELETE */
+			/// DELETE
 			HttpDELETE,
-			/** TRACE */
+			/// TRACE
 			HttpTRACE,
-			/** OPTIONS */
+			/// OPTIONS
 			HttpOPTIONS,
-			/** CONNECT */
+			/// CONNECT
 			HttpCONNECT,
-			/** PATCH */
+			/// PATCH
 			HttpPATCH,
-			/** Unknown HTTP method */
+			/// Unknown HTTP method
 			HttpMethodUnknown
 		};
 
@@ -214,191 +214,191 @@ namespace pcpp
 		/// @brief Define enum types and the corresponding int values
 		enum Value : int
 		{
-			/** 100 Continue*/
+			/// 100 Continue
 			Http100Continue = 100,
-			/** 101 Switching Protocols*/
+			/// 101 Switching Protocols
 			Http101SwitchingProtocols = 101,
-			/** 102 Processing */
+			/// 102 Processing
 			Http102Processing = 102,
-			/** 103 Early Hints */
+			/// 103 Early Hints
 			Http103EarlyHints = 103,
-			/** 104-199 Unassigned */
+			/// 104-199 Unassigned
 
-			/** 200 OK */
+			/// 200 OK
 			Http200OK = 200,
-			/** 201 Created */
+			/// 201 Created
 			Http201Created = 201,
-			/** 202 Accepted */
+			/// 202 Accepted
 			Http202Accepted = 202,
-			/** 203 Non-Authoritative Information */
+			/// 203 Non-Authoritative Information
 			Http203NonAuthoritativeInformation = 203,
-			/** 204 No Content*/
+			/// 204 No Content
 			Http204NoContent = 204,
-			/** 205 Reset Content*/
+			/// 205 Reset Content
 			Http205ResetContent = 205,
-			/** 206 Partial Content */
+			/// 206 Partial Content
 			Http206PartialContent = 206,
-			/** 207 Multi-Status */
+			/// 207 Multi-Status
 			Http207MultiStatus = 207,
-			/** 208 Already Reported */
+			/// 208 Already Reported
 			Http208AlreadyReported = 208,
-			/** 209-225 Unassigned */
-			/** 226 IM Used */
+			/// 209-225 Unassigned
+			/// 226 IM Used
 			Http226IMUsed = 226,
-			/** 227-299 Unassigned */
+			/// 227-299 Unassigned
 
-			/** 300 Multiple Choices */
+			/// 300 Multiple Choices
 			Http300MultipleChoices = 300,
-			/** 301 Moved Permanently */
+			/// 301 Moved Permanently
 			Http301MovedPermanently = 301,
-			/** 302 (various messages) */
+			/// 302 (various messages)
 			Http302 = 302,
-			/** 303 See Other */
+			/// 303 See Other
 			Http303SeeOther = 303,
-			/** 304 Not Modified */
+			/// 304 Not Modified
 			Http304NotModified = 304,
-			/** 305 Use Proxy */
+			/// 305 Use Proxy
 			Http305UseProxy = 305,
-			/** 306 Switch Proxy */
+			/// 306 Switch Proxy
 			Http306SwitchProxy = 306,
-			/** 307 Temporary Redirect */
+			/// 307 Temporary Redirect
 			Http307TemporaryRedirect = 307,
-			/** 308 Permanent Redirect, */
+			/// 308 Permanent Redirect,
 			Http308PermanentRedirect = 308,
-			/** 309-399 Unassigned */
+			/// 309-399 Unassigned
 
-			/** 400 Bad Request */
+			/// 400 Bad Request
 			Http400BadRequest = 400,
-			/** 401 Unauthorized */
+			/// 401 Unauthorized
 			Http401Unauthorized = 401,
-			/** 402 Payment Required */
+			/// 402 Payment Required
 			Http402PaymentRequired = 402,
-			/** 403 Forbidden */
+			/// 403 Forbidden
 			Http403Forbidden = 403,
-			/** 404 Not Found */
+			/// 404 Not Found
 			Http404NotFound = 404,
-			/** 405 Method Not Allowed */
+			/// 405 Method Not Allowed
 			Http405MethodNotAllowed = 405,
-			/** 406 Not Acceptable */
+			/// 406 Not Acceptable
 			Http406NotAcceptable = 406,
-			/** 407 Proxy Authentication Required */
+			/// 407 Proxy Authentication Required
 			Http407ProxyAuthenticationRequired = 407,
-			/** 408 Request Timeout */
+			/// 408 Request Timeout
 			Http408RequestTimeout = 408,
-			/** 409 Conflict */
+			/// 409 Conflict
 			Http409Conflict = 409,
-			/** 410 Gone */
+			/// 410 Gone
 			Http410Gone = 410,
-			/** 411 Length Required */
+			/// 411 Length Required
 			Http411LengthRequired = 411,
-			/** 412 Precondition Failed */
+			/// 412 Precondition Failed
 			Http412PreconditionFailed = 412,
-			/** 413 RequestEntity Too Large */
+			/// 413 RequestEntity Too Large
 			Http413RequestEntityTooLarge = 413,
-			/** 414 Request-URI Too Long */
+			/// 414 Request-URI Too Long
 			Http414RequestURITooLong = 414,
-			/** 415 Unsupported Media Type */
+			/// 415 Unsupported Media Type
 			Http415UnsupportedMediaType = 415,
-			/** 416 Requested Range Not Satisfiable */
+			/// 416 Requested Range Not Satisfiable
 			Http416RequestedRangeNotSatisfiable = 416,
-			/** 417 Expectation Failed */
+			/// 417 Expectation Failed
 			Http417ExpectationFailed = 417,
-			/** 418 I'm a teapot */
+			/// 418 I'm a teapot
 			Http418ImATeapot = 418,
-			/** 419 Authentication Timeout */
+			/// 419 Authentication Timeout
 			Http419AuthenticationTimeout = 419,
-			/** 420 (various messages) */
+			/// 420 (various messages)
 			Http420 = 420,
-			/** 421 Misdirected Request */
+			/// 421 Misdirected Request
 			Http421MisdirectedRequest = 421,
-			/** 422 Unprocessable Entity */
+			/// 422 Unprocessable Entity
 			Http422UnprocessableEntity = 422,
-			/** 423 Locked */
+			/// 423 Locked
 			Http423Locked = 423,
-			/** 424 Failed Dependency */
+			/// 424 Failed Dependency
 			Http424FailedDependency = 424,
-			/** 425 Too Early */
+			/// 425 Too Early
 			Http425TooEarly = 425,
-			/** 426 Upgrade Required */
+			/// 426 Upgrade Required
 			Http426UpgradeRequired = 426,
-			/** 427 Unassigned */
-			/** 428 Precondition Required */
+			/// 427 Unassigned
+			/// 428 Precondition Required
 			Http428PreconditionRequired = 428,
-			/** 429 Too Many Requests */
+			/// 429 Too Many Requests
 			Http429TooManyRequests = 429,
-			/** 430 Unassigned */
-			/** 431 Request Header Fields Too Large */
+			/// 430 Unassigned
+			/// 431 Request Header Fields Too Large
 			Http431RequestHeaderFieldsTooLarge = 431,
-			/** 432-439 unassigned */
-			/** 440 Login Timeout */
+			/// 432-439 unassigned
+			/// 440 Login Timeout
 			Http440LoginTimeout = 440,
-			/** 441-443 unassigned */
-			/** 444 No Response */
+			/// 441-443 unassigned
+			/// 444 No Response
 			Http444NoResponse = 444,
-			/** 445-448 unassigned */
-			/** 449 Retry With */
+			/// 445-448 unassigned
+			/// 449 Retry With
 			Http449RetryWith = 449,
-			/** 450 Blocked by Windows Parental Controls */
+			/// 450 Blocked by Windows Parental Controls
 			Http450BlockedByWindowsParentalControls = 450,
-			/** 451 (various messages) */
+			/// 451 (various messages)
 			Http451 = 451,
-			/** 452-493 unassigned */
-			/** 494 Request Header Too Large */
+			/// 452-493 unassigned
+			/// 494 Request Header Too Large
 			Http494RequestHeaderTooLarge = 494,
-			/** 495 Cert Error */
+			/// 495 Cert Error
 			Http495CertError = 495,
-			/** 496 No Cert */
+			/// 496 No Cert
 			Http496NoCert = 496,
-			/** 497 HTTP to HTTPS */
+			/// 497 HTTP to HTTPS
 			Http497HTTPtoHTTPS = 497,
-			/** 498 Token expired/invalid */
+			/// 498 Token expired/invalid
 			Http498TokenExpiredInvalid = 498,
-			/** 499 (various messages) */
+			/// 499 (various messages)
 			Http499 = 499,
 
-			/** 500 Internal Server Error */
+			/// 500 Internal Server Error
 			Http500InternalServerError = 500,
-			/** 501 Not Implemented */
+			/// 501 Not Implemented
 			Http501NotImplemented = 501,
-			/** 502 Bad Gateway */
+			/// 502 Bad Gateway
 			Http502BadGateway = 502,
-			/** 503 Service Unavailable */
+			/// 503 Service Unavailable
 			Http503ServiceUnavailable = 503,
-			/** 504 Gateway Timeout */
+			/// 504 Gateway Timeout
 			Http504GatewayTimeout = 504,
-			/** 505 HTTP Version Not Supported */
+			/// 505 HTTP Version Not Supported
 			Http505HTTPVersionNotSupported = 505,
-			/** 506 Variant Also Negotiates */
+			/// 506 Variant Also Negotiates
 			Http506VariantAlsoNegotiates = 506,
-			/** 507 Insufficient Storage */
+			/// 507 Insufficient Storage
 			Http507InsufficientStorage = 507,
-			/** 508 Loop Detected */
+			/// 508 Loop Detected
 			Http508LoopDetected = 508,
-			/** 509 Bandwidth Limit Exceeded */
+			/// 509 Bandwidth Limit Exceeded
 			Http509BandwidthLimitExceeded = 509,
-			/** 510 Not Extended */
+			/// 510 Not Extended
 			Http510NotExtended = 510,
-			/** 511 Network Authentication Required */
+			/// 511 Network Authentication Required
 			Http511NetworkAuthenticationRequired = 511,
-			/** 512-519 unassigned */
-			/** 520 Origin Error */
+			/// 512-519 unassigned
+			/// 520 Origin Error
 			Http520OriginError = 520,
-			/** 521 Web server is down */
+			/// 521 Web server is down
 			Http521WebServerIsDown = 521,
-			/** 522 Connection timed out */
+			/// 522 Connection timed out
 			Http522ConnectionTimedOut = 522,
-			/** 523 Proxy Declined Request */
+			/// 523 Proxy Declined Request
 			Http523ProxyDeclinedRequest = 523,
-			/** 524 A timeout occurred */
+			/// 524 A timeout occurred
 			Http524aTimeoutOccurred = 524,
-			/** 525-597 unassigned */
-			/** 598 Network read timeout error */
+			/// 525-597 unassigned
+			/// 598 Network read timeout error
 			Http598NetworkReadTimeoutError = 598,
-			/** 599 Network connect timeout error */
+			/// 599 Network connect timeout error
 			Http599NetworkConnectTimeoutError = 599,
 
 			// clang-format off
-			/** Unknown status code */
+			/// Unknown status code
 			HttpStatus1xxCodeUnknown = 900001, // 1xx: Informational - Request received, continuing process
 			HttpStatus2xxCodeUnknown = 900002, // 2xx: Success - The action was successfully received, understood, and accepted
 			HttpStatus3xxCodeUnknown = 900003, // 3xx: Redirection - Further action must be taken in order to complete the request

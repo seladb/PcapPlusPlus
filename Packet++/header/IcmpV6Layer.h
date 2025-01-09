@@ -11,81 +11,81 @@ namespace pcpp
 	/// An enum representing the available ICMPv6 message types
 	enum class ICMPv6MessageType : int
 	{
-		/** Unknown ICMPv6 message */
+		/// Unknown ICMPv6 message
 		ICMPv6_UNKNOWN_MESSAGE = 0,
-		/** Destination Unreachable Message */
+		/// Destination Unreachable Message
 		ICMPv6_DESTINATION_UNREACHABLE = 1,
-		/** Packet Too Big Message */
+		/// Packet Too Big Message
 		ICMPv6_PACKET_TOO_BIG = 2,
-		/** Time Exceeded Message */
+		/// Time Exceeded Message
 		ICMPv6_TIME_EXCEEDED = 3,
-		/** Parameter Problem Message */
+		/// Parameter Problem Message
 		ICMPv6_PARAMETER_PROBLEM = 4,
-		/** Private Experimentation Message */
+		/// Private Experimentation Message
 		ICMPv6_PRIVATE_EXPERIMENTATION1 = 100,
-		/** Private Experimentation Message */
+		/// Private Experimentation Message
 		ICMPv6_PRIVATE_EXPERIMENTATION2 = 101,
-		/** Reserved for expansion of ICMPv6 error messages */
+		/// Reserved for expansion of ICMPv6 error messages
 		ICMPv6_RESERVED_EXPANSION_ERROR = 127,
-		/** Echo Request Message */
+		/// Echo Request Message
 		ICMPv6_ECHO_REQUEST = 128,
-		/** Echo Reply Message */
+		/// Echo Reply Message
 		ICMPv6_ECHO_REPLY = 129,
-		/** Multicast Listener Query Message */
+		/// Multicast Listener Query Message
 		ICMPv6_MULTICAST_LISTENER_QUERY = 130,
-		/** Multicast Listener Report Message */
+		/// Multicast Listener Report Message
 		ICMPv6_MULTICAST_LISTENER_REPORT = 131,
-		/** Multicast Listener Done Message */
+		/// Multicast Listener Done Message
 		ICMPv6_MULTICAST_LISTENER_DONE = 132,
-		/** Router Solicitation Message */
+		/// Router Solicitation Message
 		ICMPv6_ROUTER_SOLICITATION = 133,
-		/** Router Advertisement Message */
+		/// Router Advertisement Message
 		ICMPv6_ROUTER_ADVERTISEMENT = 134,
-		/** Neighbor Solicitation Message */
+		/// Neighbor Solicitation Message
 		ICMPv6_NEIGHBOR_SOLICITATION = 135,
-		/** Neighbor Advertisement Message */
+		/// Neighbor Advertisement Message
 		ICMPv6_NEIGHBOR_ADVERTISEMENT = 136,
-		/** Redirect Message */
+		/// Redirect Message
 		ICMPv6_REDIRECT_MESSAGE = 137,
-		/** Router Renumbering Message */
+		/// Router Renumbering Message
 		ICMPv6_ROUTER_RENUMBERING = 138,
-		/** Node Information Query Message */
+		/// Node Information Query Message
 		ICMPv6_ICMP_NODE_INFORMATION_QUERY = 139,
-		/** Node Information Reply Message*/
+		/// Node Information Reply Message
 		ICMPv6_ICMP_NODE_INFORMATION_RESPONSE = 140,
-		/** Inverse Neighbor Discovery Solicitation Message */
+		/// Inverse Neighbor Discovery Solicitation Message
 		ICMPv6_INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION_MESSAGE = 141,
-		/** Inverse Neighbor Discovery Advertisement Message */
+		/// Inverse Neighbor Discovery Advertisement Message
 		ICMPv6_INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT_MESSAGE = 142,
-		/** Multicast Listener Report Message */
+		/// Multicast Listener Report Message
 		ICMPv6_MULTICAST_LISTENER_DISCOVERY_REPORTS = 143,
-		/** Home Agent Address Discovery Request Message */
+		/// Home Agent Address Discovery Request Message
 		ICMPv6_HOME_AGENT_ADDRESS_DISCOVERY_REQUEST_MESSAGE = 144,
-		/** Home Agent Address Discovery Reply Message */
+		/// Home Agent Address Discovery Reply Message
 		ICMPv6_HOME_AGENT_ADDRESS_DISCOVERY_REPLY_MESSAGE = 145,
-		/** Mobile Prefix Solicitation Message */
+		/// Mobile Prefix Solicitation Message
 		ICMPv6_MOBILE_PREFIX_SOLICITATION = 146,
-		/** Mobile Prefix Advertisement Message */
+		/// Mobile Prefix Advertisement Message
 		ICMPv6_MOBILE_PREFIX_ADVERTISEMENT = 147,
-		/** Certification Path Solicitation Message */
+		/// Certification Path Solicitation Message
 		ICMPv6_CERTIFICATION_PATH_SOLICITATION = 148,
-		/** Certification Path Advertisement Message */
+		/// Certification Path Advertisement Message
 		ICMPv6_CERTIFICATION_PATH_ADVERTISEMENT = 149,
-		/** ICMP Experimental Mobility Subtype Format and Registry Message */
+		/// ICMP Experimental Mobility Subtype Format and Registry Message
 		ICMPv6_EXPERIMENTAL_MOBILITY = 150,
-		/** Multicast Router Advertisement Message */
+		/// Multicast Router Advertisement Message
 		ICMPv6_MULTICAST_ROUTER_ADVERTISEMENT = 151,
-		/** Multicast Router Solicitation Message */
+		/// Multicast Router Solicitation Message
 		ICMPv6_MULTICAST_ROUTER_SOLICITATION = 152,
-		/** Multicast Router Termination Message*/
+		/// Multicast Router Termination Message
 		ICMPv6_MULTICAST_ROUTER_TERMINATION = 153,
-		/** RPL Control Message */
+		/// RPL Control Message
 		ICMPv6_RPL_CONTROL_MESSAGE = 155,
-		/** Private Experimentation Message */
+		/// Private Experimentation Message
 		ICMPv6_PRIVATE_EXPERIMENTATION3 = 200,
-		/** Private Experimentation Message */
+		/// Private Experimentation Message
 		ICMPv6_PRIVATE_EXPERIMENTATION4 = 201,
-		/** Reserved for expansion of ICMPv6 informational messages */
+		/// Reserved for expansion of ICMPv6 informational messages
 		ICMPv6_RESERVED_EXPANSION_INFORMATIONAL = 255
 	};
 
@@ -94,12 +94,12 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct icmpv6hdr
 	{
-		/** Type of the message. Values in the range from 0 to 127 (high-order bit is 0) indicate an error message,
-		while values in the range from 128 to 255 (high-order bit is 1) indicate an information message. */
+		/// Type of the message. Values in the range from 0 to 127 (high-order bit is 0) indicate an error message,
+		/// while values in the range from 128 to 255 (high-order bit is 1) indicate an information message.
 		uint8_t type;
-		/** The code field value depends on the message type and provides an additional level of message granularity */
+		/// The code field value depends on the message type and provides an additional level of message granularity
 		uint8_t code;
-		/** The checksum field provides a minimal level of integrity verification for the ICMP message */
+		/// The checksum field provides a minimal level of integrity verification for the ICMP message
 		uint16_t checksum;
 	};
 #pragma pack(pop)
@@ -109,9 +109,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmpv6_echo_hdr : icmpv6hdr
 	{
-		/** the echo request identifier */
+		/// the echo request identifier
 		uint16_t id;
-		/** the echo request sequence number */
+		/// the echo request sequence number
 		uint16_t sequence;
 	} icmpv6_echo_hdr;
 #pragma pack(pop)
@@ -202,9 +202,9 @@ namespace pcpp
 		/// An enum representing ICMPv6 echo message types
 		enum ICMPv6EchoType
 		{
-			/** Echo Request Type */
+			/// Echo Request Type
 			REQUEST,
-			/** Echo Reply Type */
+			/// Echo Reply Type
 			REPLY
 		};
 

@@ -19,64 +19,64 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct tcphdr
 	{
-		/** Source TCP port */
+		/// Source TCP port
 		uint16_t portSrc;
-		/** Destination TCP port */
+		/// Destination TCP port
 		uint16_t portDst;
-		/** Sequence number */
+		/// Sequence number
 		uint32_t sequenceNumber;
-		/** Acknowledgment number */
+		/// Acknowledgment number
 		uint32_t ackNumber;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 		uint16_t reserved : 4;
-		/** Specifies the size of the TCP header in 32-bit words */
+		/// Specifies the size of the TCP header in 32-bit words
 		uint16_t dataOffset : 4;
-		/** FIN flag */
+		/// FIN flag
 		uint16_t finFlag : 1;
-		/** SYN flag */
+		/// SYN flag
 		uint16_t synFlag : 1;
-		/** RST flag */
+		/// RST flag
 		uint16_t rstFlag : 1;
-		/** PSH flag */
+		/// PSH flag
 		uint16_t pshFlag : 1;
-		/** ACK flag */
+		/// ACK flag
 		uint16_t ackFlag : 1;
-		/** URG flag */
+		/// URG flag
 		uint16_t urgFlag : 1;
-		/** ECE flag */
+		/// ECE flag
 		uint16_t eceFlag : 1;
-		/** CWR flag */
+		/// CWR flag
 		uint16_t cwrFlag : 1;
 #elif (BYTE_ORDER == BIG_ENDIAN)
-		/** Specifies the size of the TCP header in 32-bit words */
+		/// Specifies the size of the TCP header in 32-bit words
 		uint16_t dataOffset : 4;
-		/** Reserved */
+		/// Reserved
 		uint16_t reserved : 4;
-		/** CWR flag */
+		/// CWR flag
 		uint16_t cwrFlag : 1;
-		/** ECE flag */
+		/// ECE flag
 		uint16_t eceFlag : 1;
-		/** URG flag */
+		/// URG flag
 		uint16_t urgFlag : 1;
-		/** ACK flag */
+		/// ACK flag
 		uint16_t ackFlag : 1;
-		/** PSH flag */
+		/// PSH flag
 		uint16_t pshFlag : 1;
-		/** RST flag */
+		/// RST flag
 		uint16_t rstFlag : 1;
-		/** SYN flag */
+		/// SYN flag
 		uint16_t synFlag : 1;
-		/** FIN flag */
+		/// FIN flag
 		uint16_t finFlag : 1;
 #else
 #	error "Endian is not LE nor BE..."
 #endif
-		/** The size of the receive window, which specifies the number of window size units (by default, bytes) */
+		/// The size of the receive window, which specifies the number of window size units (by default, bytes)
 		uint16_t windowSize;
-		/** The 16-bit checksum field is used for error-checking of the header and data */
+		/// The 16-bit checksum field is used for error-checking of the header and data
 		uint16_t headerChecksum;
-		/** If the URG flag (@ref tcphdr#urgFlag) is set, then this 16-bit field is an offset from the sequence number
-		 * indicating the last urgent data byte */
+		/// If the URG flag (@ref tcphdr#urgFlag) is set, then this 16-bit field is an offset from the sequence number
+		/// indicating the last urgent data byte
 		uint16_t urgentPointer;
 	};
 #pragma pack(pop)
@@ -84,160 +84,160 @@ namespace pcpp
 	/// TCP options types
 	enum TcpOptionType : uint8_t
 	{
-		/** Padding */
+		/// Padding
 		PCPP_TCPOPT_NOP = 1,
-		/** End of options */
+		/// End of options
 		PCPP_TCPOPT_EOL = 0,
-		/** Segment size negotiating */
+		/// Segment size negotiating
 		TCPOPT_MSS = 2,
-		/** Window scaling */
+		/// Window scaling
 		PCPP_TCPOPT_WINDOW = 3,
-		/** SACK Permitted */
+		/// SACK Permitted
 		TCPOPT_SACK_PERM = 4,
-		/** SACK Block */
+		/// SACK Block
 		PCPP_TCPOPT_SACK = 5,
-		/** Echo (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP) */
+		/// Echo (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP)
 		TCPOPT_ECHO = 6,
-		/** Echo Reply (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP) */
+		/// Echo Reply (obsoleted by option TcpOptionType::PCPP_TCPOPT_TIMESTAMP)
 		TCPOPT_ECHOREPLY = 7,
-		/** TCP Timestamps */
+		/// TCP Timestamps
 		PCPP_TCPOPT_TIMESTAMP = 8,
-		/** CC (obsolete) */
+		/// CC (obsolete)
 		TCPOPT_CC = 11,
-		/** CC.NEW (obsolete) */
+		/// CC.NEW (obsolete)
 		TCPOPT_CCNEW = 12,
-		/** CC.ECHO(obsolete) */
+		/// CC.ECHO(obsolete)
 		TCPOPT_CCECHO = 13,
-		/** MD5 Signature Option */
+		/// MD5 Signature Option
 		TCPOPT_MD5 = 19,
-		/** Multipath TCP */
+		/// Multipath TCP
 		TCPOPT_MPTCP = 0x1e,
-		/** SCPS Capabilities */
+		/// SCPS Capabilities
 		TCPOPT_SCPS = 20,
-		/** SCPS SNACK */
+		/// SCPS SNACK
 		TCPOPT_SNACK = 21,
-		/** SCPS Record Boundary */
+		/// SCPS Record Boundary
 		TCPOPT_RECBOUND = 22,
-		/** SCPS Corruption Experienced */
+		/// SCPS Corruption Experienced
 		TCPOPT_CORREXP = 23,
-		/** Quick-Start Response */
+		/// Quick-Start Response
 		TCPOPT_QS = 27,
-		/** User Timeout Option (also, other known unauthorized use) */
+		/// User Timeout Option (also, other known unauthorized use)
 		TCPOPT_USER_TO = 28,
-		/** RFC3692-style Experiment 1 (also improperly used for shipping products) */
+		/// RFC3692-style Experiment 1 (also improperly used for shipping products)
 		TCPOPT_EXP_FD = 0xfd,
-		/** RFC3692-style Experiment 2 (also improperly used for shipping products) */
+		/// RFC3692-style Experiment 2 (also improperly used for shipping products)
 		TCPOPT_EXP_FE = 0xfe,
-		/** Riverbed probe option, non IANA registered option number */
+		/// Riverbed probe option, non IANA registered option number
 		TCPOPT_RVBD_PROBE = 76,
-		/** Riverbed transparency option, non IANA registered option number */
+		/// Riverbed transparency option, non IANA registered option number
 		TCPOPT_RVBD_TRPY = 78,
-		/** Unknown option */
+		/// Unknown option
 		TCPOPT_Unknown = 255
 	};
 
 	/// TCP options types
 	enum class TcpOptionEnumType : uint8_t
 	{
-		/** Padding */
+		/// Padding
 		Nop = 1,
-		/** End of options */
+		/// End of options
 		Eol = 0,
-		/** Segment size negotiating */
+		/// Segment size negotiating
 		Mss = 2,
-		/** Window scaling */
+		/// Window scaling
 		Window = 3,
-		/** SACK Permitted */
+		/// SACK Permitted
 		SackPerm = 4,
-		/** SACK Block */
+		/// SACK Block
 		Sack = 5,
-		/** Echo (obsoleted by option TcpOptionEnumType::Timestamp) */
+		/// Echo (obsoleted by option TcpOptionEnumType::Timestamp)
 		Echo = 6,
-		/** Echo Reply (obsoleted by option TcpOptionEnumType::Timestamp) */
+		/// Echo Reply (obsoleted by option TcpOptionEnumType::Timestamp)
 		EchoReply = 7,
-		/** TCP Timestamps */
+		/// TCP Timestamps
 		Timestamp = 8,
-		/** CC (obsolete) */
+		/// CC (obsolete)
 		Cc = 11,
-		/** CC.NEW (obsolete) */
+		/// CC.NEW (obsolete)
 		CcNew = 12,
-		/** CC.ECHO(obsolete) */
+		/// CC.ECHO(obsolete)
 		CcEcho = 13,
-		/** MD5 Signature Option */
+		/// MD5 Signature Option
 		Md5 = 19,
-		/** Multipath TCP */
+		/// Multipath TCP
 		MpTcp = 0x1e,
-		/** SCPS Capabilities */
+		/// SCPS Capabilities
 		Scps = 20,
-		/** SCPS SNACK */
+		/// SCPS SNACK
 		Snack = 21,
-		/** SCPS Record Boundary */
+		/// SCPS Record Boundary
 		RecBound = 22,
-		/** SCPS Corruption Experienced */
+		/// SCPS Corruption Experienced
 		CorrExp = 23,
-		/** Quick-Start Response */
+		/// Quick-Start Response
 		Qs = 27,
-		/** User Timeout Option (also, other known unauthorized use) */
+		/// User Timeout Option (also, other known unauthorized use)
 		UserTo = 28,
-		/** RFC3692-style Experiment 1 (also improperly used for shipping products) */
+		/// RFC3692-style Experiment 1 (also improperly used for shipping products)
 		ExpFd = 0xfd,
-		/** RFC3692-style Experiment 2 (also improperly used for shipping products) */
+		/// RFC3692-style Experiment 2 (also improperly used for shipping products)
 		ExpFe = 0xfe,
-		/** Riverbed probe option, non IANA registered option number */
+		/// Riverbed probe option, non IANA registered option number
 		RvbdProbe = 76,
-		/** Riverbed transparency option, non IANA registered option number */
+		/// Riverbed transparency option, non IANA registered option number
 		RvbdTrpy = 78,
-		/** Unknown option */
+		/// Unknown option
 		Unknown = 255
 	};
 
 	// TCP option lengths
 
-	/** pcpp::TcpOptionEnumType::Nop length */
+	/// pcpp::TcpOptionEnumType::Nop length
 #define PCPP_TCPOLEN_NOP 1
-	/** pcpp::TcpOptionEnumType::Eol length */
+	/// pcpp::TcpOptionEnumType::Eol length
 #define PCPP_TCPOLEN_EOL 1
-	/** pcpp::TcpOptionEnumType::Mss length */
+	/// pcpp::TcpOptionEnumType::Mss length
 #define PCPP_TCPOLEN_MSS 4
-	/** pcpp::TcpOptionEnumType::Window length */
+	/// pcpp::TcpOptionEnumType::Window length
 #define PCPP_TCPOLEN_WINDOW 3
-	/** pcpp::TcpOptionEnumType::SackPerm length */
+	/// pcpp::TcpOptionEnumType::SackPerm length
 #define PCPP_TCPOLEN_SACK_PERM 2
-	/** pcpp::TcpOptionEnumType::Sack length */
+	/// pcpp::TcpOptionEnumType::Sack length
 #define PCPP_TCPOLEN_SACK_MIN 2
-	/** pcpp::TcpOptionEnumType::Echo length */
+	/// pcpp::TcpOptionEnumType::Echo length
 #define PCPP_TCPOLEN_ECHO 6
-	/** pcpp::TcpOptionEnumType::EchoReply length */
+	/// pcpp::TcpOptionEnumType::EchoReply length
 #define PCPP_TCPOLEN_ECHOREPLY 6
-	/** pcpp::TcpOptionEnumType::Timestamp length */
+	/// pcpp::TcpOptionEnumType::Timestamp length
 #define PCPP_TCPOLEN_TIMESTAMP 10
-	/** pcpp::TcpOptionEnumType::Cc length */
+	/// pcpp::TcpOptionEnumType::Cc length
 #define PCPP_TCPOLEN_CC 6
-	/** pcpp::TcpOptionEnumType::CcNew length */
+	/// pcpp::TcpOptionEnumType::CcNew length
 #define PCPP_TCPOLEN_CCNEW 6
-	/** pcpp::TcpOptionEnumType::CcEcho length */
+	/// pcpp::TcpOptionEnumType::CcEcho length
 #define PCPP_TCPOLEN_CCECHO 6
-	/** pcpp::TcpOptionEnumType::Md5 length */
+	/// pcpp::TcpOptionEnumType::Md5 length
 #define PCPP_TCPOLEN_MD5 18
-	/** pcpp::TcpOptionEnumType::MpTcp length */
+	/// pcpp::TcpOptionEnumType::MpTcp length
 #define PCPP_TCPOLEN_MPTCP_MIN 8
-	/** pcpp::TcpOptionEnumType::Scps length */
+	/// pcpp::TcpOptionEnumType::Scps length
 #define PCPP_TCPOLEN_SCPS 4
-	/** pcpp::TcpOptionEnumType::Snack length */
+	/// pcpp::TcpOptionEnumType::Snack length
 #define PCPP_TCPOLEN_SNACK 6
-	/** pcpp::TcpOptionEnumType::RecBound length */
+	/// pcpp::TcpOptionEnumType::RecBound length
 #define PCPP_TCPOLEN_RECBOUND 2
-	/** pcpp::TcpOptionEnumType::CorrExp length */
+	/// pcpp::TcpOptionEnumType::CorrExp length
 #define PCPP_TCPOLEN_CORREXP 2
-	/** pcpp::TcpOptionEnumType::Qs length */
+	/// pcpp::TcpOptionEnumType::Qs length
 #define PCPP_TCPOLEN_QS 8
-	/** pcpp::TcpOptionEnumType::UserTo length */
+	/// pcpp::TcpOptionEnumType::UserTo length
 #define PCPP_TCPOLEN_USER_TO 4
-	/** pcpp::TcpOptionEnumType::RvbdProbe length */
+	/// pcpp::TcpOptionEnumType::RvbdProbe length
 #define PCPP_TCPOLEN_RVBD_PROBE_MIN 3
-	/** pcpp::TcpOptionEnumType::RvbdTrpy length */
+	/// pcpp::TcpOptionEnumType::RvbdTrpy length
 #define PCPP_TCPOLEN_RVBD_TRPY_MIN 16
-	/** pcpp::TcpOptionEnumType::ExpFd and pcpp::TcpOptionEnumType::ExpFe length */
+	/// pcpp::TcpOptionEnumType::ExpFd and pcpp::TcpOptionEnumType::ExpFe length
 #define PCPP_TCPOLEN_EXP_MIN 2
 
 	/// @class TcpOption
@@ -342,18 +342,18 @@ namespace pcpp
 		/// An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		enum NopEolOptionTypes : uint8_t
 		{
-			/** NOP TCP option */
+			/// NOP TCP option
 			NOP,
-			/** EOL TCP option */
+			/// EOL TCP option
 			EOL
 		};
 
 		/// An enum to describe NOP and EOL TCP options. Used in one of this class's c'tors
 		enum class NopEolOptionEnumType : uint8_t
 		{
-			/** NOP TCP option */
+			/// NOP TCP option
 			Nop,
-			/** EOL TCP option */
+			/// EOL TCP option
 			Eol
 		};
 

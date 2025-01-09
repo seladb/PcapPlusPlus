@@ -15,50 +15,50 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ether_header
 	{
-		/** Destination MAC */
+		/// Destination MAC
 		uint8_t dstMac[6];
-		/** Source MAC */
+		/// Source MAC
 		uint8_t srcMac[6];
-		/** EtherType */
+		/// EtherType
 		uint16_t etherType;
 	};
 #pragma pack(pop)
 
-	/* Ethernet protocol ID's */
+	// Ethernet protocol ID's
 
-	/** IP */
+	/// IP
 #define PCPP_ETHERTYPE_IP 0x0800
-	/** Address resolution */
+	/// Address resolution
 #define PCPP_ETHERTYPE_ARP 0x0806
-	/** Transparent Ethernet Bridging */
+	/// Transparent Ethernet Bridging
 #define PCPP_ETHERTYPE_ETHBRIDGE 0x6558
-	/** Reverse ARP */
+	/// Reverse ARP
 #define PCPP_ETHERTYPE_REVARP 0x8035
-	/** AppleTalk protocol */
+	/// AppleTalk protocol
 #define PCPP_ETHERTYPE_AT 0x809B
-	/** AppleTalk ARP */
+	/// AppleTalk ARP
 #define PCPP_ETHERTYPE_AARP 0x80F3
-	/** IEEE 802.1Q VLAN tagging */
+	/// IEEE 802.1Q VLAN tagging
 #define PCPP_ETHERTYPE_VLAN 0x8100
-	/** IPX */
+	/// IPX
 #define PCPP_ETHERTYPE_IPX 0x8137
-	/** IP protocol version 6 */
+	/// IP protocol version 6
 #define PCPP_ETHERTYPE_IPV6 0x86dd
-	/** used to test interfaces */
+	/// used to test interfaces
 #define PCPP_ETHERTYPE_LOOPBACK 0x9000
-	/** PPPoE discovery */
+	/// PPPoE discovery
 #define PCPP_ETHERTYPE_PPPOED 0x8863
-	/** PPPoE session */
+	/// PPPoE session
 #define PCPP_ETHERTYPE_PPPOES 0x8864
-	/** MPLS */
+	/// MPLS
 #define PCPP_ETHERTYPE_MPLS 0x8847
-	/** Point-to-point protocol (PPP) */
+	/// Point-to-point protocol (PPP)
 #define PCPP_ETHERTYPE_PPP 0x880B
-	/** RDMA over Converged Ethernet (RoCEv1) */
+	/// RDMA over Converged Ethernet (RoCEv1)
 #define PCPP_ETHERTYPE_ROCEV1 0x8915
-	/** IEEE 802.1ad Provider Bridge, Q-in-Q */
+	/// IEEE 802.1ad Provider Bridge, Q-in-Q
 #define PCPP_ETHERTYPE_IEEE_802_1AD 0x88A8
-	/** Wake on LAN */
+	/// Wake on LAN
 #define PCPP_ETHERTYPE_WAKE_ON_LAN 0x0842
 
 	/// @class EthLayer

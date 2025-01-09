@@ -14,17 +14,15 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct vlan_header
 	{
-		/**
-		 @verbatim
-		 0               1               2
-		 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 |Prio |C|         VLAN ID       |
-		 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		 @endverbatim
-		 */
-		                                        uint16_t vlan;
-		/** Ethernet type for next layer */
+		/// @verbatim
+		/// 0               1               2
+		/// 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0
+		/// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		/// |Prio |C|         VLAN ID       |
+		/// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+		/// @endverbatim
+		uint16_t vlan;
+		/// Ethernet type for next layer
 		uint16_t etherType;
 	};
 #pragma pack(pop)
@@ -61,8 +59,8 @@ namespace pcpp
 			return reinterpret_cast<vlan_header*>(m_Data);
 		}
 
-		/// Get the VLAN ID value. This method differs from vlan_header#vlanID because vlan_header#vlanID is 12 bits long
-		/// in a 16 bit field. This methods extracts only the 12 bit relevant for the VLAN ID
+		/// Get the VLAN ID value. This method differs from vlan_header#vlanID because vlan_header#vlanID is 12 bits
+		/// long in a 16 bit field. This methods extracts only the 12 bit relevant for the VLAN ID
 		/// @return VLAN ID value
 		/// @todo Verify it works in big endian machines as well
 		uint16_t getVlanID() const;

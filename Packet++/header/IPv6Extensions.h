@@ -22,17 +22,17 @@ namespace pcpp
 		/// An enum representing all supported IPv6 extension types
 		enum IPv6ExtensionType
 		{
-			/** Hop-By-Hop extension type */
+			/// Hop-By-Hop extension type
 			IPv6HopByHop = 0,
-			/** Routing extension type */
+			/// Routing extension type
 			IPv6Routing = 43,
-			/** IPv6 fragmentation extension type */
+			/// IPv6 fragmentation extension type
 			IPv6Fragmentation = 44,
-			/** Authentication Header extension type */
+			/// Authentication Header extension type
 			IPv6AuthenticationHdr = 51,
-			/** Destination extension type */
+			/// Destination extension type
 			IPv6Destination = 60,
-			/** Unknown or unsupported extension type */
+			/// Unknown or unsupported extension type
 			IPv6ExtensionUnknown = 255
 		};
 
@@ -113,14 +113,14 @@ namespace pcpp
 		/// A struct representing IPv6 fragmentation header
 		struct ipv6_frag_header
 		{
-			/** Next header type */
+			/// Next header type
 			uint8_t nextHeader;
-			/** Fragmentation header size is fixed 8 bytes, so len is always zero */
+			/// Fragmentation header size is fixed 8 bytes, so len is always zero
 			uint8_t headerLen;
-			/** Offset, in 8-octet units, relative to the start of the fragmentable part of the original packet
-			 * plus 1-bit indicating if more fragments will follow */
+			/// Offset, in 8-octet units, relative to the start of the fragmentable part of the original packet
+			/// plus 1-bit indicating if more fragments will follow
 			uint16_t fragOffsetAndFlags;
-			/** packet identification value. Needed for reassembly of the original packet */
+			/// packet identification value. Needed for reassembly of the original packet
 			uint32_t id;
 		};
 
@@ -364,13 +364,13 @@ namespace pcpp
 		/// A struct representing the fixed part of the IPv6 routing extension header
 		struct ipv6_routing_header
 		{
-			/** Next header type */
+			/// Next header type
 			uint8_t nextHeader;
-			/** The length of this header, in multiples of 8 octets, not including the first 8 octets */
+			/// The length of this header, in multiples of 8 octets, not including the first 8 octets
 			uint8_t headerLen;
-			/** A value representing the routing type */
+			/// A value representing the routing type
 			uint8_t routingType;
-			/** Number of nodes this packet still has to visit before reaching its final destination */
+			/// Number of nodes this packet still has to visit before reaching its final destination
 			uint8_t segmentsLeft;
 		};
 
@@ -430,18 +430,18 @@ namespace pcpp
 		/// A struct representing the fixed part of the IPv6 authentication header extension
 		struct ipv6_authentication_header
 		{
-			/** Next header type */
+			/// Next header type
 			uint8_t nextHeader;
-			/** The length of this Authentication Header in 4-octet units, minus 2. For example, an AH value of 4
-			 * equals: [ 3×(32-bit fixed-length AH fields) + 3×(32-bit ICV fields) − 2 ] and thus an AH value of 4 means
-			 * 24 octets */
+			/// The length of this Authentication Header in 4-octet units, minus 2. For example, an AH value of 4
+			/// equals: [ 3×(32-bit fixed-length AH fields) + 3×(32-bit ICV fields) − 2 ] and thus an AH value of 4
+			/// means 24 octets
 			uint8_t headerLen;
-			/** Reserved bytes, all zeros */
+			/// Reserved bytes, all zeros
 			uint16_t reserved;
-			/** Arbitrary value which is used (together with the destination IP address) to identify the security
-			 * association of the receiving party */
+			/// Arbitrary value which is used (together with the destination IP address) to identify the security
+			/// association of the receiving party
 			uint32_t securityParametersIndex;
-			/** A monotonic strictly increasing sequence number (incremented by 1 for every packet sent) */
+			/// A monotonic strictly increasing sequence number (incremented by 1 for every packet sent)
 			uint32_t sequenceNumber;
 		};
 

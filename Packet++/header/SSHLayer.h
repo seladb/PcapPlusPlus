@@ -188,21 +188,21 @@ namespace pcpp
 		/// An enum that represents SSH non-encrypted message types
 		enum SSHHandshakeMessageType
 		{
-			/** Key Exchange Init message */
+			/// Key Exchange Init message
 			SSH_MSG_KEX_INIT = 20,
-			/** New Keys message */
+			/// New Keys message
 			SSH_MSG_NEW_KEYS = 21,
-			/** Diffie-Hellman Key Exchange Init message */
+			/// Diffie-Hellman Key Exchange Init message
 			SSH_MSG_KEX_DH_INIT = 30,
-			/**  message */
+			///  message
 			SSH_MSG_KEX_DH_REPLY = 31,
-			/** Diffie-Hellman Group Exchange Init message */
+			/// Diffie-Hellman Group Exchange Init message
 			SSH_MSG_KEX_DH_GEX_INIT = 32,
-			/** "Diffie-Hellman Group Exchange Reply message */
+			/// "Diffie-Hellman Group Exchange Reply message
 			SSH_MSG_KEX_DH_GEX_REPLY = 33,
-			/** Diffie-Hellman Group Exchange Request message */
+			/// Diffie-Hellman Group Exchange Request message
 			SSH_MSG_KEX_DH_GEX_REQUEST = 34,
-			/** Unknown message */
+			/// Unknown message
 			SSH_MSG_UNKNOWN = 999
 		};
 

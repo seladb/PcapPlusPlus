@@ -122,11 +122,11 @@ namespace pcpp
 		/// Represents the common fields of the extension
 		struct SSLExtensionStruct
 		{
-			/** Extension type */
+			/// Extension type
 			uint16_t extensionType;
-			/** Extension length */
+			/// Extension length
 			uint16_t extensionDataLength;
-			/** Extension data as raw (byte array) */
+			/// Extension data as raw (byte array)
 			uint8_t extensionData[];
 		};
 
@@ -312,15 +312,15 @@ namespace pcpp
 		/// This struct contains methods to extract the TLS fingerprint itself: toString() and toMD5()
 		struct ClientHelloTLSFingerprint
 		{
-			/** TLS version */
+			/// TLS version
 			uint16_t tlsVersion;
-			/** A list of Cipher Suite IDs */
+			/// A list of Cipher Suite IDs
 			std::vector<uint16_t> cipherSuites;
-			/** A list of extension IDs */
+			/// A list of extension IDs
 			std::vector<uint16_t> extensions;
-			/** A list of Suppotred Groups taken from the "supported groups" TLS extension (if exist in the message) */
+			/// A list of Suppotred Groups taken from the "supported groups" TLS extension (if exist in the message)
 			std::vector<uint16_t> supportedGroups;
-			/** A list of EC point formats taken from the "EC point formats" TLS extension (if exist in the message) */
+			/// A list of EC point formats taken from the "EC point formats" TLS extension (if exist in the message)
 			std::vector<uint8_t> ecPointFormats;
 
 			/// @return A string representing the TLS fingerprint, for example:
@@ -456,11 +456,11 @@ namespace pcpp
 		/// This struct contains methods to extract the TLS fingerprint itself: toString() and toMD5()
 		struct ServerHelloTLSFingerprint
 		{
-			/** TLS version */
+			/// TLS version
 			uint16_t tlsVersion;
-			/** Cipher Suite ID */
+			/// Cipher Suite ID
 			uint16_t cipherSuite;
-			/** A list of extension IDs */
+			/// A list of extension IDs
 			std::vector<uint16_t> extensions;
 
 			/// @return A string representing the TLS fingerprint, for example: <b>771,49195,65281-16-11</b>

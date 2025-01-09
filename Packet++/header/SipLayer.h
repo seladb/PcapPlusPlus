@@ -10,57 +10,57 @@ namespace pcpp
 {
 // some popular SIP header fields
 
-/** From field */
+/// From field
 #define PCPP_SIP_FROM_FIELD "From"
-/** To field */
+/// To field
 #define PCPP_SIP_TO_FIELD "To"
-/** Via field */
+/// Via field
 #define PCPP_SIP_VIA_FIELD "Via"
-/** Call-ID field */
+/// Call-ID field
 #define PCPP_SIP_CALL_ID_FIELD "Call-ID"
-/** Content-Type field */
+/// Content-Type field
 #define PCPP_SIP_CONTENT_TYPE_FIELD "Content-Type"
-/** Content-Length field */
+/// Content-Length field
 #define PCPP_SIP_CONTENT_LENGTH_FIELD "Content-Length"
-/** Content-Disposition field */
+/// Content-Disposition field
 #define PCPP_SIP_CONTENT_DISPOSITION_FIELD "Content-Disposition"
-/** Content-Encoding field */
+/// Content-Encoding field
 #define PCPP_SIP_CONTENT_ENCODING_FIELD "Content-Encoding"
-/** Content-Language field */
+/// Content-Language field
 #define PCPP_SIP_CONTENT_LANGUAGE_FIELD "Content-Language"
-/** CSeq field */
+/// CSeq field
 #define PCPP_SIP_CSEQ_FIELD "CSeq"
-/** Contact field */
+/// Contact field
 #define PCPP_SIP_CONTACT_FIELD "Contact"
-/** Max-Forwards field */
+/// Max-Forwards field
 #define PCPP_SIP_MAX_FORWARDS_FIELD "Max-Forwards"
-/** User-Agent field */
+/// User-Agent field
 #define PCPP_SIP_USER_AGENT_FIELD "User-Agent"
-/** Accept field */
+/// Accept field
 #define PCPP_SIP_ACCEPT_FIELD "Accept"
-/** Accept-Encoding field */
+/// Accept-Encoding field
 #define PCPP_SIP_ACCEPT_ENCODING_FIELD "Accept-Encoding"
-/** Accept-Language field */
+/// Accept-Language field
 #define PCPP_SIP_ACCEPT_LANGUAGE_FIELD "Accept-Language"
-/** Allow field */
+/// Allow field
 #define PCPP_SIP_ALLOW_FIELD "Allow"
-/** Authorization field */
+/// Authorization field
 #define PCPP_SIP_AUTHORIZATION_FIELD "Authorization"
-/** Date field */
+/// Date field
 #define PCPP_SIP_DATE_FIELD "Date"
-/** MIME-Version field */
+/// MIME-Version field
 #define PCPP_SIP_MIME_VERSION_FIELD "MIME-Version"
-/** Reason field */
+/// Reason field
 #define PCPP_SIP_REASON_FIELD "Reason"
-/** Supported field */
+/// Supported field
 #define PCPP_SIP_SUPPORTED_FIELD "Supported"
-/** Server field */
+/// Server field
 #define PCPP_SIP_SERVER_FIELD "Server"
-/** WWW-Authenticate fild */
+/// WWW-Authenticate fild
 #define PCPP_SIP_WWW_AUTHENTICATE_FIELD "WWW-Authenticate"
-/** Retry-After field */
+/// Retry-After field
 #define PCPP_SIP_RETRY_AFTER_FIELD "Retry-After"
-/** Record-Route field */
+/// Record-Route field
 #define PCPP_SIP_RECORD_ROUTE_FIELD "Record-Route"
 
 	/// @class SipLayer
@@ -156,35 +156,35 @@ namespace pcpp
 		/// SIP request methods
 		enum SipMethod
 		{
-			/** INVITE */
+			/// INVITE
 			SipINVITE,
-			/** ACK */
+			/// ACK
 			SipACK,
-			/** BYE */
+			/// BYE
 			SipBYE,
-			/** CANCEL */
+			/// CANCEL
 			SipCANCEL,
-			/** REFISTER */
+			/// REFISTER
 			SipREGISTER,
-			/** PRACK */
+			/// PRACK
 			SipPRACK,
-			/** OPTIONS */
+			/// OPTIONS
 			SipOPTIONS,
-			/** SUBSCRIBE */
+			/// SUBSCRIBE
 			SipSUBSCRIBE,
-			/** NOTIFY */
+			/// NOTIFY
 			SipNOTIFY,
-			/** PUBLISH */
+			/// PUBLISH
 			SipPUBLISH,
-			/** INFO */
+			/// INFO
 			SipINFO,
-			/** REFER */
+			/// REFER
 			SipREFER,
-			/** MESSAGE */
+			/// MESSAGE
 			SipMESSAGE,
-			/** UPDATE */
+			/// UPDATE
 			SipUPDATE,
-			/** Unknown SIP method */
+			/// Unknown SIP method
 			SipMethodUnknown
 		};
 
@@ -246,198 +246,197 @@ namespace pcpp
 		/// https://en.wikipedia.org/wiki/List_of_SIP_response_codes
 		enum SipResponseStatusCode
 		{
-			/** Extended search being performed may take a significant time so a forking proxy must send a 100 Trying
-			 * response */
+			/// Extended search being performed may take a significant time so a forking proxy must send a 100 Trying
+			/// response
 			Sip100Trying,
-			/** Destination user agent received INVITE, and is alerting user of call */
+			/// Destination user agent received INVITE, and is alerting user of call
 			Sip180Ringing,
-			/** Servers can optionally send this response to indicate a call is being forwarded */
+			/// Servers can optionally send this response to indicate a call is being forwarded
 			Sip181CallisBeingForwarded,
-			/** Indicates that the destination was temporarily unavailable, so the server has queued the call until the
-			 * destination is available. A server may send multiple 182 responses to update progress of the queue */
+			/// Indicates that the destination was temporarily unavailable, so the server has queued the call until the
+			/// destination is available. A server may send multiple 182 responses to update progress of the queue
 			Sip182Queued,
-			/** This response may be used to send extra information for a call which is still being set up */
+			/// This response may be used to send extra information for a call which is still being set up
 			Sip183SessioninProgress,
-			/** Can be used by User Agent Server to indicate to upstream SIP entities (including the User Agent Client
-			 * (UAC)) that an early dialog has been terminated */
+			/// Can be used by User Agent Server to indicate to upstream SIP entities (including the User Agent Client
+			/// (UAC)) that an early dialog has been terminated
 			Sip199EarlyDialogTerminated,
-			/** Indicates the request was successful */
+			/// Indicates the request was successful
 			Sip200OK,
-			/** Indicates that the request has been accepted for processing, but the processing has not been completed
-			 */
+			/// Indicates that the request has been accepted for processing, but the processing has not been completed
 			Sip202Accepted,
-			/** Indicates the request was successful, but the corresponding response will not be received */
+			/// Indicates the request was successful, but the corresponding response will not be received
 			Sip204NoNotification,
-			/** The address resolved to one of several options for the user or client to choose between, which are
-			 * listed in the message body or the message's Contact fields */
+			/// The address resolved to one of several options for the user or client to choose between, which are
+			/// listed in the message body or the message's Contact fields
 			Sip300MultipleChoices,
-			/** The original Request-URI is no longer valid, the new address is given in the Contact header field, and
-			 * the client should update any records of the original Request-URI with the new value */
+			/// The original Request-URI is no longer valid, the new address is given in the Contact header field, and
+			/// the client should update any records of the original Request-URI with the new value
 			Sip301MovedPermanently,
-			/** The client should try at the address in the Contact field. If an Expires field is present, the client
-			 * may cache the result for that period of time */
+			/// The client should try at the address in the Contact field. If an Expires field is present, the client
+			/// may cache the result for that period of time
 			Sip302MovedTemporarily,
-			/** The Contact field details a proxy that must be used to access the requested destination */
+			/// The Contact field details a proxy that must be used to access the requested destination
 			Sip305UseProxy,
-			/** The call failed, but alternatives are detailed in the message body */
+			/// The call failed, but alternatives are detailed in the message body
 			Sip380AlternativeService,
-			/** The request could not be understood due to malformed syntax */
+			/// The request could not be understood due to malformed syntax
 			Sip400BadRequest,
-			/** The request requires user authentication. This response is issued by UASs and registrars */
+			/// The request requires user authentication. This response is issued by UASs and registrars
 			Sip401Unauthorized,
-			/** Reserved for future use */
+			/// Reserved for future use
 			Sip402PaymentRequired,
-			/** The server understood the request, but is refusing to fulfill it */
+			/// The server understood the request, but is refusing to fulfill it
 			Sip403Forbidden,
-			/** The server has definitive information that the user does not exist at the domain specified in the
-			 * Request-URI. This status is also returned if the domain in the Request-URI does not match any of the
-			 * domains handled by the recipient of the request */
+			/// The server has definitive information that the user does not exist at the domain specified in the
+			/// Request-URI. This status is also returned if the domain in the Request-URI does not match any of the
+			/// domains handled by the recipient of the request
 			Sip404NotFound,
-			/** The method specified in the Request-Line is understood, but not allowed for the address identified by
-			 * the Request-URI */
+			/// The method specified in the Request-Line is understood, but not allowed for the address identified by
+			/// the Request-URI
 			Sip405MethodNotAllowed,
-			/** The resource identified by the request is only capable of generating response entities that have content
-			 * characteristics but not acceptable according to the Accept header field sent in the request */
+			/// The resource identified by the request is only capable of generating response entities that have content
+			/// characteristics but not acceptable according to the Accept header field sent in the request
 			Sip406NotAcceptable,
-			/** The request requires user authentication. This response is issued by proxies */
+			/// The request requires user authentication. This response is issued by proxies
 			Sip407ProxyAuthenticationRequired,
-			/** Couldn't find the user in time. The server could not produce a response within a suitable amount of
-			 * time, for example, if it could not determine the location of the user in time. The client MAY repeat the
-			 * request without modifications at any later time */
+			/// Couldn't find the user in time. The server could not produce a response within a suitable amount of
+			/// time, for example, if it could not determine the location of the user in time. The client MAY repeat the
+			/// request without modifications at any later time
 			Sip408RequestTimeout,
-			/** User already registered */
+			/// User already registered
 			Sip409Conflict,
-			/** The user existed once, but is not available here any more */
+			/// The user existed once, but is not available here any more
 			Sip410Gone,
-			/** The server will not accept the request without a valid Content-Length */
+			/// The server will not accept the request without a valid Content-Length
 			Sip411LengthRequired,
-			/** The given precondition has not been met */
+			/// The given precondition has not been met
 			Sip412ConditionalRequestFailed,
-			/** Request body too large */
+			/// Request body too large
 			Sip413RequestEntityTooLarge,
-			/** The server is refusing to service the request because the Request-URI is longer than the server is
-			 * willing to interpret */
+			/// The server is refusing to service the request because the Request-URI is longer than the server is
+			/// willing to interpret
 			Sip414RequestURITooLong,
-			/** Request body in a format not supported */
+			/// Request body in a format not supported
 			Sip415UnsupportedMediaType,
-			/** Request-URI is unknown to the server */
+			/// Request-URI is unknown to the server
 			Sip416UnsupportedURIScheme,
-			/** There was a resource-priority option tag, but no Resource-Priority header */
+			/// There was a resource-priority option tag, but no Resource-Priority header
 			Sip417UnknownResourcePriority,
-			/** Bad SIP Protocol Extension used, not understood by the server */
+			/// Bad SIP Protocol Extension used, not understood by the server
 			Sip420BadExtension,
-			/** The server needs a specific extension not listed in the Supported header */
+			/// The server needs a specific extension not listed in the Supported header
 			Sip421ExtensionRequired,
-			/** The received request contains a Session-Expires header field with a duration below the minimum timer */
+			/// The received request contains a Session-Expires header field with a duration below the minimum timer
 			Sip422SessionIntervalTooSmall,
-			/** Expiration time of the resource is too short */
+			/// Expiration time of the resource is too short
 			Sip423IntervalTooBrief,
-			/** The request's location content was malformed or otherwise unsatisfactory */
+			/// The request's location content was malformed or otherwise unsatisfactory
 			Sip424BadLocationInformation,
-			/** The server rejected a non-interactive emergency call, indicating that the request was malformed enough
-			 * that no reasonable emergency response to the alert can be determined */
+			/// The server rejected a non-interactive emergency call, indicating that the request was malformed enough
+			/// that no reasonable emergency response to the alert can be determined
 			Sip425BadAlertMessage,
-			/** The server policy requires an Identity header, and one has not been provided */
+			/// The server policy requires an Identity header, and one has not been provided
 			Sip428UseIdentityHeader,
-			/** The server did not receive a valid Referred-By token on the request */
+			/// The server did not receive a valid Referred-By token on the request
 			Sip429ProvideReferrerIdentity,
-			/** A specific flow to a user agent has failed, although other flows may succeed. This response is intended
-			 * for use between proxy devices, and should not be seen by an endpoint (and if it is seen by one, should be
-			 * treated as a 400 Bad Request response) */
+			/// A specific flow to a user agent has failed, although other flows may succeed. This response is intended
+			/// for use between proxy devices, and should not be seen by an endpoint (and if it is seen by one, should
+			/// be treated as a 400 Bad Request response)
 			Sip430FlowFailed,
-			/** The request has been rejected because it was anonymous */
+			/// The request has been rejected because it was anonymous
 			Sip433AnonymityDisallowed,
-			/** The request has an Identity-Info header, and the URI scheme in that header cannot be dereferenced */
+			/// The request has an Identity-Info header, and the URI scheme in that header cannot be dereferenced
 			Sip436BadIdentityInfo,
-			/** The server was unable to validate a certificate for the domain that signed the request */
+			/// The server was unable to validate a certificate for the domain that signed the request
 			Sip437UnsupportedCertificate,
-			/** The server obtained a valid certificate that the request claimed was used to sign the request, but was
-			 * unable to verify that signature */
+			/// The server obtained a valid certificate that the request claimed was used to sign the request, but was
+			/// unable to verify that signature
 			Sip438InvalidIdentityHeader,
-			/** The first outbound proxy the user is attempting to register through does not support the "outbound"
-			 * feature of RFC 5626, although the registrar does */
+			/// The first outbound proxy the user is attempting to register through does not support the "outbound"
+			/// feature of RFC 5626, although the registrar does
 			Sip439FirstHopLacksOutboundSupport,
-			/** If a SIP proxy determines a response context has insufficient Incoming Max-Breadth to carry out a
-			 * desired parallel fork, and the proxy is unwilling/unable to compensate by forking serially or sending a
-			 * redirect, that proxy MUST return a 440 response. A client receiving a 440 response can infer that its
-			 * request did not reach all possible destinations */
+			/// If a SIP proxy determines a response context has insufficient Incoming Max-Breadth to carry out a
+			/// desired parallel fork, and the proxy is unwilling/unable to compensate by forking serially or sending a
+			/// redirect, that proxy MUST return a 440 response. A client receiving a 440 response can infer that its
+			/// request did not reach all possible destinations
 			Sip440MaxBreadthExceeded,
-			/** If a SIP UA receives an INFO request associated with an Info Package that the UA has not indicated
-			 * willingness to receive, the UA MUST send a 469 response, which contains a Recv-Info header field with
-			 * Info Packages for which the UA is willing to receive INFO requests */
+			/// If a SIP UA receives an INFO request associated with an Info Package that the UA has not indicated
+			/// willingness to receive, the UA MUST send a 469 response, which contains a Recv-Info header field with
+			/// Info Packages for which the UA is willing to receive INFO requests
 			Sip469BadInfoPackage,
-			/** The source of the request did not have the permission of the recipient to make such a request */
+			/// The source of the request did not have the permission of the recipient to make such a request
 			Sip470ConsentNeeded,
-			/** Callee currently unavailable */
+			/// Callee currently unavailable
 			Sip480TemporarilyUnavailable,
-			/** Server received a request that does not match any dialog or transaction */
+			/// Server received a request that does not match any dialog or transaction
 			Sip481Call_TransactionDoesNotExist,
-			/** Server has detected a loop */
+			/// Server has detected a loop
 			Sip482LoopDetected,
-			/** Max-Forwards header has reached the value '0' */
+			/// Max-Forwards header has reached the value '0'
 			Sip483TooManyHops,
-			/** Request-URI incomplete */
+			/// Request-URI incomplete
 			Sip484AddressIncomplete,
-			/** Request-URI is ambiguous */
+			/// Request-URI is ambiguous
 			Sip485Ambiguous,
-			/** Callee is busy */
+			/// Callee is busy
 			Sip486BusyHere,
-			/** Request has terminated by bye or cancel */
+			/// Request has terminated by bye or cancel
 			Sip487RequestTerminated,
-			/** Some aspect of the session description or the Request-URI is not acceptable */
+			/// Some aspect of the session description or the Request-URI is not acceptable
 			Sip488NotAcceptableHere,
-			/** The server did not understand an event package specified in an Event header field */
+			/// The server did not understand an event package specified in an Event header field
 			Sip489BadEvent,
-			/** Server has some pending request from the same dialog */
+			/// Server has some pending request from the same dialog
 			Sip491RequestPending,
-			/** Request contains an encrypted MIME body, which recipient can not decrypt */
+			/// Request contains an encrypted MIME body, which recipient can not decrypt
 			Sip493Undecipherable,
-			/** The server has received a request that requires a negotiated security mechanism, and the response
-			 * contains a list of suitable security mechanisms for the requester to choose between, or a digest
-			 * authentication challenge */
+			/// The server has received a request that requires a negotiated security mechanism, and the response
+			/// contains a list of suitable security mechanisms for the requester to choose between, or a digest
+			/// authentication challenge
 			Sip494SecurityAgreementRequired,
-			/** The server could not fulfill the request due to some unexpected condition */
+			/// The server could not fulfill the request due to some unexpected condition
 			Sip500ServerInternalError,
-			/** The server does not have the ability to fulfill the request, such as because it does not recognize the
-			 * request method. (Compare with 405 Method Not Allowed, where the server recognizes the method but does not
-			 * allow or support it.) */
+			/// The server does not have the ability to fulfill the request, such as because it does not recognize the
+			/// request method. (Compare with 405 Method Not Allowed, where the server recognizes the method but does
+			/// not allow or support it.)
 			Sip501NotImplemented,
-			/** The server is acting as a gateway or proxy, and received an invalid response from a downstream server
-			 * while attempting to fulfill the request */
+			/// The server is acting as a gateway or proxy, and received an invalid response from a downstream server
+			/// while attempting to fulfill the request
 			Sip502BadGateway,
-			/** The server is undergoing maintenance or is temporarily overloaded and so cannot process the request. A
-			 * "Retry-After" header field may specify when the client may reattempt its request */
+			/// The server is undergoing maintenance or is temporarily overloaded and so cannot process the request. A
+			/// "Retry-After" header field may specify when the client may reattempt its request
 			Sip503ServiceUnavailable,
-			/** The server attempted to access another server in attempting to process the request, and did not receive
-			 * a prompt response */
+			/// The server attempted to access another server in attempting to process the request, and did not receive
+			/// a prompt response
 			Sip504ServerTimeout,
-			/** The SIP protocol version in the request is not supported by the server */
+			/// The SIP protocol version in the request is not supported by the server
 			Sip505VersionNotSupported,
-			/** The request message length is longer than the server can process */
+			/// The request message length is longer than the server can process
 			Sip513MessageTooLarge,
-			/** The server does not support the push notification service identified in a 'pn-provider' SIP URI
-			 * parameter */
+			/// The server does not support the push notification service identified in a 'pn-provider' SIP URI
+			/// parameter
 			Sip555PushNotificationServiceNotSupported,
-			/** The server is unable or unwilling to meet some constraints specified in the offer */
+			/// The server is unable or unwilling to meet some constraints specified in the offer
 			Sip580PreconditionFailure,
-			/** All possible destinations are busy. Unlike the 486 response, this response indicates the destination
-			 * knows there are no alternative destinations (such as a voicemail server) able to accept the call */
+			/// All possible destinations are busy. Unlike the 486 response, this response indicates the destination
+			/// knows there are no alternative destinations (such as a voicemail server) able to accept the call
 			Sip600BusyEverywhere,
-			/** The destination does not wish to participate in the call, or cannot do so, and additionally the
-			 * destination knows there are no alternative destinations (such as a voicemail server) willing to accept
-			 * the call */
+			/// The destination does not wish to participate in the call, or cannot do so, and additionally the
+			/// destination knows there are no alternative destinations (such as a voicemail server) willing to accept
+			/// the call
 			Sip603Decline,
-			/** The server has authoritative information that the requested user does not exist anywhere */
+			/// The server has authoritative information that the requested user does not exist anywhere
 			Sip604DoesNotExistAnywhere,
-			/** The user's agent was contacted successfully but some aspects of the session description such as the
-			 * requested media, bandwidth, or addressing style were not acceptable */
+			/// The user's agent was contacted successfully but some aspects of the session description such as the
+			/// requested media, bandwidth, or addressing style were not acceptable
 			Sip606NotAcceptable,
-			/** The called party did not want this call from the calling party. Future attempts from the calling party
-			 * are likely to be similarly rejected */
+			/// The called party did not want this call from the calling party. Future attempts from the calling party
+			/// are likely to be similarly rejected
 			Sip607Unwanted,
-			/** An intermediary machine or process rejected the call attempt */
+			/// An intermediary machine or process rejected the call attempt
 			Sip608Rejected,
-			/** Unknown SIP status code */
+			/// Unknown SIP status code
 			SipStatusCodeUnknown
 		};
 

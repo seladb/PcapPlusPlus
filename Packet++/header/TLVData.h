@@ -18,15 +18,15 @@ namespace pcpp
 	template <typename TRecType, typename TRecLen> class TLVRecord
 	{
 	protected:
-		/** A struct representing the TLV construct */
+		/// A struct representing the TLV construct
 #pragma pack(push, 1)
 		struct TLVRawData
 		{
-			/** Record type */
+			/// Record type
 			TRecType recordType;
-			/** Record length in bytes */
+			/// Record length in bytes
 			TRecLen recordLen;
-			/** Record value (variable size) */
+			/// Record value (variable size)
 			uint8_t recordValue[];
 		};
 #pragma pack(pop)

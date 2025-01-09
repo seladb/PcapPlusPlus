@@ -12,33 +12,33 @@ namespace pcpp
 	/// DHCPv6 message types
 	enum DhcpV6MessageType
 	{
-		/** Unknown message type */
+		/// Unknown message type
 		DHCPV6_UNKNOWN_MSG_TYPE = 0,
-		/** Solicit message type (Client to Server) */
+		/// Solicit message type (Client to Server)
 		DHCPV6_SOLICIT = 1,
-		/** Advertise message type (Server to Client) */
+		/// Advertise message type (Server to Client)
 		DHCPV6_ADVERTISE = 2,
-		/** Request message type (Client to Server) */
+		/// Request message type (Client to Server)
 		DHCPV6_REQUEST = 3,
-		/** Confirm message type (Client to Server) */
+		/// Confirm message type (Client to Server)
 		DHCPV6_CONFIRM = 4,
-		/** Renew message type (Client to Server) */
+		/// Renew message type (Client to Server)
 		DHCPV6_RENEW = 5,
-		/** Rebind message type (Client to Server) */
+		/// Rebind message type (Client to Server)
 		DHCPV6_REBIND = 6,
-		/** Reply message type (Server to Client) */
+		/// Reply message type (Server to Client)
 		DHCPV6_REPLY = 7,
-		/** Release message type (Client to Server) */
+		/// Release message type (Client to Server)
 		DHCPV6_RELEASE = 8,
-		/** Decline message type (Client to Server) */
+		/// Decline message type (Client to Server)
 		DHCPV6_DECLINE = 9,
-		/** Reconfigure message type (Server to Client) */
+		/// Reconfigure message type (Server to Client)
 		DHCPV6_RECONFIGURE = 10,
-		/** Information-Request message type (Client to Server) */
+		/// Information-Request message type (Client to Server)
 		DHCPV6_INFORMATION_REQUEST = 11,
-		/** Relay-Forward message type (Relay agent to Server) */
+		/// Relay-Forward message type (Relay agent to Server)
 		DHCPV6_RELAY_FORWARD = 12,
-		/** Relay-Reply message type (Server to Relay agent) */
+		/// Relay-Reply message type (Server to Relay agent)
 		DHCPV6_RELAY_REPLY = 13
 	};
 
@@ -50,134 +50,134 @@ namespace pcpp
 	/// - https://datatracker.ietf.org/doc/html/rfc8520
 	enum DhcpV6OptionType
 	{
-		/** Unknown option type */
+		/// Unknown option type
 		DHCPV6_OPT_UNKNOWN = 0,
-		/** Client Identifier (DUID of client) */
+		/// Client Identifier (DUID of client)
 		DHCPV6_OPT_CLIENTID = 1,
-		/** Server Identifier (DUID of server) */
+		/// Server Identifier (DUID of server)
 		DHCPV6_OPT_SERVERID = 2,
-		/** Identity Association for Non-temporary addresses */
+		/// Identity Association for Non-temporary addresses
 		DHCPV6_OPT_IA_NA = 3,
-		/** Identity Association for Temporary addresses */
+		/// Identity Association for Temporary addresses
 		DHCPV6_OPT_IA_TA = 4,
-		/** IA Address option */
+		/// IA Address option
 		DHCPV6_OPT_IAADDR = 5,
-		/** Option Request Option */
+		/// Option Request Option
 		DHCPV6_OPT_ORO = 6,
-		/** Preference setting */
+		/// Preference setting
 		DHCPV6_OPT_PREFERENCE = 7,
-		/** The amount of time since the client began the current DHCP transaction */
+		/// The amount of time since the client began the current DHCP transaction
 		DHCPV6_OPT_ELAPSED_TIME = 8,
-		/** The DHCP message being relayed by a relay agent */
+		/// The DHCP message being relayed by a relay agent
 		DHCPV6_OPT_RELAY_MSG = 9,
-		/** Authentication  information */
+		/// Authentication  information
 		DHCPV6_OPT_AUTH = 11,
-		/** Server unicast */
+		/// Server unicast
 		DHCPV6_OPT_UNICAST = 12,
-		/** Status code */
+		/// Status code
 		DHCPV6_OPT_STATUS_CODE = 13,
-		/** Rapid commit */
+		/// Rapid commit
 		DHCPV6_OPT_RAPID_COMMIT = 14,
-		/** User class */
+		/// User class
 		DHCPV6_OPT_USER_CLASS = 15,
-		/** Vendor class */
+		/// Vendor class
 		DHCPV6_OPT_VENDOR_CLASS = 16,
-		/** Vendor specific information */
+		/// Vendor specific information
 		DHCPV6_OPT_VENDOR_OPTS = 17,
-		/** Interface ID */
+		/// Interface ID
 		DHCPV6_OPT_INTERFACE_ID = 18,
-		/** Reconfigure Message */
+		/// Reconfigure Message
 		DHCPV6_OPT_RECONF_MSG = 19,
-		/** Reconfigure Accept */
+		/// Reconfigure Accept
 		DHCPV6_OPT_RECONF_ACCEPT = 20,
-		/** SIP Servers Domain Name */
+		/// SIP Servers Domain Name
 		DHCPV6_OPT_SIP_SERVERS_D = 21,
-		/** SIP Servers IPv6 Address List */
+		/// SIP Servers IPv6 Address List
 		DHCPV6_OPT_SIP_SERVERS_A = 22,
-		/** DNS Recursive Name Server */
+		/// DNS Recursive Name Server
 		DHCPV6_OPT_DNS_SERVERS = 23,
-		/** Domain Search List */
+		/// Domain Search List
 		DHCPV6_OPT_DOMAIN_LIST = 24,
-		/** Identity Association for Prefix Delegation */
+		/// Identity Association for Prefix Delegation
 		DHCPV6_OPT_IA_PD = 25,
-		/** IA_PD Prefix */
+		/// IA_PD Prefix
 		DHCPV6_OPT_IAPREFIX = 26,
-		/** Network Information Service (NIS) Servers */
+		/// Network Information Service (NIS) Servers
 		DHCPV6_OPT_NIS_SERVERS = 27,
-		/** Network Information Service v2 (NIS+) Servers */
+		/// Network Information Service v2 (NIS+) Servers
 		DHCPV6_OPT_NISP_SERVERS = 28,
-		/** Network Information Service (NIS) domain name */
+		/// Network Information Service (NIS) domain name
 		DHCPV6_OPT_NIS_DOMAIN_NAME = 29,
-		/** Network Information Service v2 (NIS+) domain name */
+		/// Network Information Service v2 (NIS+) domain name
 		DHCPV6_OPT_NISP_DOMAIN_NAME = 30,
-		/** Simple Network Time Protocol (SNTP) servers */
+		/// Simple Network Time Protocol (SNTP) servers
 		DHCPV6_OPT_SNTP_SERVERS = 31,
-		/** Information Refresh */
+		/// Information Refresh
 		DHCPV6_OPT_INFORMATION_REFRESH_TIME = 32,
-		/** Broadcast and Multicast Service (BCMCS) Domain Name List */
+		/// Broadcast and Multicast Service (BCMCS) Domain Name List
 		DHCPV6_OPT_BCMCS_SERVER_D = 33,
-		/** Broadcast and Multicast Service (BCMCS) IPv6 Address List */
+		/// Broadcast and Multicast Service (BCMCS) IPv6 Address List
 		DHCPV6_OPT_BCMCS_SERVER_A = 34,
-		/** Geographical location in civic (e.g., postal) format */
+		/// Geographical location in civic (e.g., postal) format
 		DHCPV6_OPT_GEOCONF_CIVIC = 36,
-		/** Relay Agent Remote ID */
+		/// Relay Agent Remote ID
 		DHCPV6_OPT_REMOTE_ID = 37,
-		/** Relay Agent Subscriber ID */
+		/// Relay Agent Subscriber ID
 		DHCPV6_OPT_SUBSCRIBER_ID = 38,
-		/** FQDN */
+		/// FQDN
 		DHCPV6_OPT_CLIENT_FQDN = 39,
-		/** One or more IPv6 addresses associated with PANA (Protocol for carrying Authentication for Network Access)
-		 * Authentication Agents */
+		/// One or more IPv6 addresses associated with PANA (Protocol for carrying Authentication for Network Access)
+		/// Authentication Agents
 		DHCPV6_OPT_PANA_AGENT = 40,
-		/** Time zone to be used by the client in IEEE 1003.1 format */
+		/// Time zone to be used by the client in IEEE 1003.1 format
 		DHCPV6_OPT_NEW_POSIX_TIMEZONE = 41,
-		/** Time zone (TZ) database entry referred to by entry name */
+		/// Time zone (TZ) database entry referred to by entry name
 		DHCPV6_OPT_NEW_TZDB_TIMEZONE = 42,
-		/** Relay Agent Echo Request */
+		/// Relay Agent Echo Request
 		DHCPV6_OPT_ERO = 43,
-		/** Query option */
+		/// Query option
 		DHCPV6_OPT_LQ_QUERY = 44,
-		/** Client Data */
+		/// Client Data
 		DHCPV6_OPT_CLIENT_DATA = 45,
-		/** Client Last Transaction Time */
+		/// Client Last Transaction Time
 		DHCPV6_OPT_CLT_TIME = 46,
-		/** Relay data */
+		/// Relay data
 		DHCPV6_OPT_LQ_RELAY_DATA = 47,
-		/** Client link */
+		/// Client link
 		DHCPV6_OPT_LQ_CLIENT_LINK = 48,
-		/** Mobile IPv6 Home Network Information */
+		/// Mobile IPv6 Home Network Information
 		DHCPV6_OPT_MIP6_HNINF = 49,
-		/** Mobile IPv6 Relay Agent */
+		/// Mobile IPv6 Relay Agent
 		DHCPV6_OPT_MIP6_RELAY = 50,
-		/** Location to Service Translation (LoST) server domain name */
+		/// Location to Service Translation (LoST) server domain name
 		DHCPV6_OPT_V6_LOST = 51,
-		/** Access Points (CAPWAP) Access Controller IPv6 addresses */
+		/// Access Points (CAPWAP) Access Controller IPv6 addresses
 		DHCPV6_OPT_CAPWAP_AC_V6 = 52,
-		/** DHCPv6 Bulk LeaseQuery */
+		/// DHCPv6 Bulk LeaseQuery
 		DHCPV6_OPT_RELAY_ID = 53,
-		/** List of IPv6 addresses for servers providing particular types of IEEE 802.21 Mobility Service (MoS) */
+		/// List of IPv6 addresses for servers providing particular types of IEEE 802.21 Mobility Service (MoS)
 		DHCPV6_OPT_IPH6_ADDRESS_MOS = 54,
-		/** List of FQDNs for servers providing particular types of IEEE 802.21 Mobility Service (MoS) */
+		/// List of FQDNs for servers providing particular types of IEEE 802.21 Mobility Service (MoS)
 		DHCPV6_OPT_IPV6_FQDN_MOS = 55,
-		/** Network Time Protocol (NTP) or Simple NTP (SNTP) Server Location */
+		/// Network Time Protocol (NTP) or Simple NTP (SNTP) Server Location
 		DHCPV6_OPT_NTP_SERVER = 56,
-		/** Boot File Uniform Resource Locator (URL) */
+		/// Boot File Uniform Resource Locator (URL)
 		DHCPV6_OPT_BOOTFILE_URL = 59,
-		/** Boot File Parameters */
+		/// Boot File Parameters
 		DHCPV6_OPT_BOOTFILE_PARAM = 60,
-		/** Client System Architecture Type */
+		/// Client System Architecture Type
 		DHCPV6_OPT_CLIENT_ARCH_TYPE = 61,
-		/** Client Network Interface Identifier */
+		/// Client Network Interface Identifier
 		DHCPV6_OPT_NII = 62,
-		/** ERP Local Domain Name */
+		/// ERP Local Domain Name
 		DHCPV6_OPT_ERP_LOCAL_DOMAIN_NAME = 65,
-		/** Relay supplied options */
+		/// Relay supplied options
 		DHCPV6_OPT_RELAY_SUPPLIED_OPTIONS = 66,
-		/** Virtual Subnet Selection */
+		/// Virtual Subnet Selection
 		DHCPV6_OPT_VSS = 68,
-		/** Client link layer */
+		/// Client link layer
 		DHCPV6_OPT_CLIENT_LINKLAYER_ADDR = 79,
-		/** Manufacturer Usage Description */
+		/// Manufacturer Usage Description
 		DHCPV6_OPT_MUD_URL = 112
 	};
 
@@ -240,13 +240,13 @@ namespace pcpp
 	/// Represents the basic DHCPv6 protocol header
 	struct dhcpv6_header
 	{
-		/** DHCPv6 message type */
+		/// DHCPv6 message type
 		uint8_t messageType;
-		/** DHCPv6 transaction ID (first byte) */
+		/// DHCPv6 transaction ID (first byte)
 		uint8_t transactionId1;
-		/** DHCPv6 transaction ID (second byte) */
+		/// DHCPv6 transaction ID (second byte)
 		uint8_t transactionId2;
-		/** DHCPv6 transaction ID (last byte) */
+		/// DHCPv6 transaction ID (last byte)
 		uint8_t transactionId3;
 	};
 

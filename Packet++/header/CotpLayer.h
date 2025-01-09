@@ -14,11 +14,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct
 	{
-		/** length */
+		/// length
 		uint8_t length;
-		/** PDU type identifier */
+		/// PDU type identifier
 		uint8_t pduType;
-		/** TPDU number sequence*/
+		/// TPDU number sequence
 		uint8_t tpduNumber;
 	} cotphdr;
 #pragma pack(pop)

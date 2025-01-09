@@ -21,11 +21,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmphdr
 	{
-		/** message type */
+		/// message type
 		uint8_t type;
-		/** message code */
+		/// message code
 		uint8_t code;
-		/** message checksum */
+		/// message checksum
 		uint16_t checksum;
 	} icmphdr;
 #pragma pack(pop)
@@ -33,37 +33,37 @@ namespace pcpp
 	/// An enum of all supported ICMP message types
 	enum IcmpMessageType
 	{
-		/** ICMP echo (ping) reply message */
+		/// ICMP echo (ping) reply message
 		ICMP_ECHO_REPLY = 0,
-		/** ICMP destination unreachable message */
+		/// ICMP destination unreachable message
 		ICMP_DEST_UNREACHABLE = 3,
-		/** ICMP source quench message */
+		/// ICMP source quench message
 		ICMP_SOURCE_QUENCH = 4,
-		/** ICMP redirect message */
+		/// ICMP redirect message
 		ICMP_REDIRECT = 5,
-		/** ICMP echo (ping) request message */
+		/// ICMP echo (ping) request message
 		ICMP_ECHO_REQUEST = 8,
-		/** ICMP router advertisement message */
+		/// ICMP router advertisement message
 		ICMP_ROUTER_ADV = 9,
-		/** ICMP router soliciatation message */
+		/// ICMP router soliciatation message
 		ICMP_ROUTER_SOL = 10,
-		/** ICMP time-to-live excceded message */
+		/// ICMP time-to-live excceded message
 		ICMP_TIME_EXCEEDED = 11,
-		/** ICMP parameter problem message */
+		/// ICMP parameter problem message
 		ICMP_PARAM_PROBLEM = 12,
-		/** ICMP timestamp request message */
+		/// ICMP timestamp request message
 		ICMP_TIMESTAMP_REQUEST = 13,
-		/** ICMP timestamp reply message */
+		/// ICMP timestamp reply message
 		ICMP_TIMESTAMP_REPLY = 14,
-		/** ICMP information request message */
+		/// ICMP information request message
 		ICMP_INFO_REQUEST = 15,
-		/** ICMP information reply message */
+		/// ICMP information reply message
 		ICMP_INFO_REPLY = 16,
-		/** ICMP address mask request message */
+		/// ICMP address mask request message
 		ICMP_ADDRESS_MASK_REQUEST = 17,
-		/** ICMP address mask reply message */
+		/// ICMP address mask reply message
 		ICMP_ADDRESS_MASK_REPLY = 18,
-		/** ICMP message type unsupported by PcapPlusPlus */
+		/// ICMP message type unsupported by PcapPlusPlus
 		ICMP_UNSUPPORTED = 255
 	};
 
@@ -71,43 +71,40 @@ namespace pcpp
 	/// Documentation is taken from Wikipedia: https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol
 	enum IcmpDestUnreachableCodes
 	{
-		/** Network unreachable error */
+		/// Network unreachable error
 		IcmpNetworkUnreachable = 0,
-		/** Host unreachable error */
+		/// Host unreachable error
 		IcmpHostUnreachable = 1,
-		/** Protocol unreachable error (the designated transport protocol is not supported) */
+		/// Protocol unreachable error (the designated transport protocol is not supported)
 		IcmpProtocolUnreachable = 2,
-		/** Port unreachable error (the designated protocol is unable to inform the host of the incoming message) */
+		/// Port unreachable error (the designated protocol is unable to inform the host of the incoming message)
 		IcmpPortUnreachable = 3,
-		/** The datagram is too big. Packet fragmentation is required but the 'don't fragment' (DF) flag is on */
+		/// The datagram is too big. Packet fragmentation is required but the 'don't fragment' (DF) flag is on
 		IcmpDatagramTooBig = 4,
-		/** Source route failed error */
+		/// Source route failed error
 		IcmpSourceRouteFailed = 5,
-		/** Destination network unknown error */
+		/// Destination network unknown error
 		IcmpDestinationNetworkUnknown = 6,
-		/** Destination host unknown error */
+		/// Destination host unknown error
 		IcmpDestinationHostUnknown = 7,
-		/** Source host isolated error */
+		/// Source host isolated error
 		IcmpSourceHostIsolated = 8,
-		/** The destination network is administratively prohibited */
+		/// The destination network is administratively prohibited
 		IcmpDestinationNetworkProhibited = 9,
-		/** The destination host is administratively prohibited */
+		/// The destination host is administratively prohibited
 		IcmpDestinationHostProhibited = 10,
-		/** The network is unreachable for Type Of Service */
+		/// The network is unreachable for Type Of Service
 		IcmpNetworkUnreachableForTypeOfService = 11,
-		/** The host is unreachable for Type Of Service */
+		/// The host is unreachable for Type Of Service
 		IcmpHostUnreachableForTypeOfService = 12,
-		/** Communication administratively prohibited (administrative filtering prevents
-		 * packet from being forwarded)
-		 */
+		/// Communication administratively prohibited (administrative filtering prevents
+		/// packet from being forwarded)
 		IcmpCommunicationProhibited = 13,
-		/** Host precedence violation (indicates the requested precedence is not permitted for
-		 * the combination of host or network and port)
-		 */
+		/// Host precedence violation (indicates the requested precedence is not permitted for
+		/// the combination of host or network and port)
 		IcmpHostPrecedenceViolation = 14,
-		/** Precedence cutoff in effect (precedence of datagram is below the level set by
-		 * the network administrators)
-		 */
+		/// Precedence cutoff in effect (precedence of datagram is below the level set by
+		/// the network administrators)
 		IcmpPrecedenceCutoff = 15
 	};
 
@@ -116,12 +113,12 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_echo_hdr : icmphdr
 	{
-		/** the echo (ping) request identifier */
+		/// the echo (ping) request identifier
 		uint16_t id;
-		    /** the echo (ping) request sequence number */
-		    uint16_t sequence;
-		    /** a timestamp of when the message was sent */
-		    uint64_t timestamp;
+		/// the echo (ping) request sequence number
+		uint16_t sequence;
+		/// a timestamp of when the message was sent
+		uint64_t timestamp;
 	} icmp_echo_hdr;
 #pragma pack(pop)
 
@@ -129,11 +126,11 @@ namespace pcpp
 	/// ICMP echo (ping) request/reply message structure
 	typedef struct icmp_echo_request
 	{
-		/** a pointer to the header data */
+		/// a pointer to the header data
 		icmp_echo_hdr* header;
-		/** most echo requests/replies contain some payload data. This is the data length */
+		/// most echo requests/replies contain some payload data. This is the data length
 		size_t dataLength;
-		/** most echo requests/replies contain some payload data. This is a pointer to this data */
+		/// most echo requests/replies contain some payload data. This is a pointer to this data
 		uint8_t* data;
 	} icmp_echo_request;
 
@@ -146,15 +143,15 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_timestamp_request : icmphdr
 	{
-		/** the timestamp request identifier */
+		/// the timestamp request identifier
 		uint16_t id;
-		/** the timestamp request sequence number */
+		/// the timestamp request sequence number
 		uint16_t sequence;
-		/** the time (in milliseconds since midnight) the sender last touched the packet */
+		/// the time (in milliseconds since midnight) the sender last touched the packet
 		uint32_t originateTimestamp;
-		/** relevant for timestamp reply only - the time the echoer first touched it on receipt */
+		/// relevant for timestamp reply only - the time the echoer first touched it on receipt
 		uint32_t receiveTimestamp;
-		/** relevant for timestamp reply only - the time the echoer last touched the message on sending it */
+		/// relevant for timestamp reply only - the time the echoer last touched the message on sending it
 		uint32_t transmitTimestamp;
 	} icmp_timestamp_request;
 #pragma pack(pop)
@@ -168,9 +165,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_destination_unreachable : icmphdr
 	{
-		/** unused 2 bytes */
+		/// unused 2 bytes
 		uint16_t unused;
-		/** contains the MTU of the next-hop network if a code 4 error occurs */
+		/// contains the MTU of the next-hop network if a code 4 error occurs
 		uint16_t nextHopMTU;
 	} icmp_destination_unreachable;
 #pragma pack(pop)
@@ -180,7 +177,7 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_time_exceeded : icmphdr
 	{
-		/** unused 4 bytes */
+		/// unused 4 bytes
 		uint32_t unused;
 	} icmp_time_exceeded;
 #pragma pack(pop)
@@ -194,12 +191,12 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_param_problem : icmphdr
 	{
-		/** in the case of an invalid IP header (Code 0), this field indicates the byte offset of the error in the
-		 * header */
+		/// in the case of an invalid IP header (Code 0), this field indicates the byte offset of the error in the
+		/// header
 		uint8_t pointer;
-		/** unused 1 byte */
+		/// unused 1 byte
 		uint8_t unused1;
-		/** unused 2 bytes */
+		/// unused 2 bytes
 		uint16_t unused2;
 	} icmp_param_problem;
 #pragma pack(pop)
@@ -213,7 +210,7 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_redirect : icmphdr
 	{
-		/** an IPv4 address of the gateway to which the redirection should be sent */
+		/// an IPv4 address of the gateway to which the redirection should be sent
 		uint32_t gatewayAddress;
 	} icmp_redirect;
 #pragma pack(pop)
@@ -223,11 +220,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct icmp_router_address_structure
 	{
-		/** the IPv4 address of the advertised router */
+		/// the IPv4 address of the advertised router
 		uint32_t routerAddress;
-		/** The preferability of the router address as a default router address, relative to other router addresses
-		 * on the same subnet. This is a twos-complement value where higher values indicate that the route is
-		 * more preferable */
+		/// The preferability of the router address as a default router address, relative to other router addresses
+		/// on the same subnet. This is a twos-complement value where higher values indicate that the route is
+		/// more preferable
 		uint32_t preferenceLevel;
 
 		/// Set router address structure from a given IPv4 address and preference level
@@ -248,13 +245,13 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_router_advertisement_hdr : icmphdr
 	{
-		/** the number of router advertisements in this message. Each advertisement contains one router
-		 * address/preference level pair */
+		/// the number of router advertisements in this message. Each advertisement contains one router
+		/// address/preference level pair
 		uint8_t advertisementCount;
-		/** the number of 32-bit words of information for each router address entry in the list. The value is normally
-		 * set to 2 (router address + preference level) */
+		/// the number of 32-bit words of information for each router address entry in the list. The value is normally
+		/// set to 2 (router address + preference level)
 		uint8_t addressEntrySize;
-		/** the maximum number of seconds that the router addresses in this list may be considered valid */
+		/// the maximum number of seconds that the router addresses in this list may be considered valid
 		uint16_t lifetime;
 	} icmp_router_advertisement_hdr;
 #pragma pack(pop)
@@ -263,7 +260,7 @@ namespace pcpp
 	/// ICMP router advertisement message structure
 	struct icmp_router_advertisement
 	{
-		/** a pointer to the header data on the packet */
+		/// a pointer to the header data on the packet
 		icmp_router_advertisement_hdr* header;
 
 		/// Extract router advertisement at a given index
@@ -279,11 +276,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_address_mask_request : icmphdr
 	{
-		/** the address mask request identifier */
+		/// the address mask request identifier
 		uint16_t id;
-		/** the address mask request sequence */
+		/// the address mask request sequence
 		uint16_t sequence;
-		/** the subnet mask of the requesting host */
+		/// the subnet mask of the requesting host
 		uint32_t addressMask;
 	} icmp_address_mask_request;
 #pragma pack(pop)
@@ -297,9 +294,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	typedef struct icmp_info_request : icmphdr
 	{
-		/** the information request identifier */
+		/// the information request identifier
 		uint16_t id;
-		/** the information request sequence */
+		/// the information request sequence
 		uint16_t sequence;
 	} icmp_info_request;
 #pragma pack(pop)

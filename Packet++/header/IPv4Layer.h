@@ -19,133 +19,133 @@ namespace pcpp
 	struct iphdr
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** IP header length, has the value of 5 for IPv4 */
+		/// IP header length, has the value of 5 for IPv4
 		uint8_t internetHeaderLength : 4,
-		    /** IP version number, has the value of 4 for IPv4 */
+		    /// IP version number, has the value of 4 for IPv4
 		    ipVersion : 4;
 #else
-		/** IP version number, has the value of 4 for IPv4 */
+		/// IP version number, has the value of 4 for IPv4
 		uint8_t ipVersion : 4,
-		    /** IP header length, has the value of 5 for IPv4 */
+		    /// IP header length, has the value of 5 for IPv4
 		    internetHeaderLength : 4;
 #endif
-		/** type of service, same as Differentiated Services Code Point (DSCP)*/
+		/// type of service, same as Differentiated Services Code Point (DSCP)
 		uint8_t typeOfService;
-		/** Entire packet (fragment) size, including header and data, in bytes */
+		/// Entire packet (fragment) size, including header and data, in bytes
 		uint16_t totalLength;
-		/** Identification field. Primarily used for uniquely identifying the group of fragments of a single IP
-		 * datagram*/
+		/// Identification field. Primarily used for uniquely identifying the group of fragments of a single IP
+		/// datagram
 		uint16_t ipId;
-		/** Fragment offset field, measured in units of eight-byte blocks (64 bits) */
+		/// Fragment offset field, measured in units of eight-byte blocks (64 bits)
 		uint16_t fragmentOffset;
-		/** An eight-bit time to live field helps prevent datagrams from persisting (e.g. going in circles) on an
-		 * internet.  In practice, the field has become a hop count */
+		/// An eight-bit time to live field helps prevent datagrams from persisting (e.g. going in circles) on an
+		/// internet.  In practice, the field has become a hop count
 		uint8_t timeToLive;
-		/** Defines the protocol used in the data portion of the IP datagram. Must be one of ::IPProtocolTypes */
+		/// Defines the protocol used in the data portion of the IP datagram. Must be one of ::IPProtocolTypes
 		uint8_t protocol;
-		/** Error-checking of the header */
+		/// Error-checking of the header
 		uint16_t headerChecksum;
-		/** IPv4 address of the sender of the packet */
+		/// IPv4 address of the sender of the packet
 		uint32_t ipSrc;
-		/** IPv4 address of the receiver of the packet */
+		/// IPv4 address of the receiver of the packet
 		uint32_t ipDst;
-		/*The options start here. */
+		// The options start here.
 	};
 #pragma pack(pop)
 
 	/// An enum for all possible IPv4 and IPv6 protocol types
 	enum IPProtocolTypes
 	{
-		/** Dummy protocol for TCP */
+		/// Dummy protocol for TCP
 		PACKETPP_IPPROTO_IP = 0,
-		/** IPv6 Hop-by-Hop options */
+		/// IPv6 Hop-by-Hop options
 		PACKETPP_IPPROTO_HOPOPTS = 0,
-		/** Internet Control Message Protocol */
+		/// Internet Control Message Protocol
 		PACKETPP_IPPROTO_ICMP = 1,
-		/** Internet Gateway Management Protocol */
+		/// Internet Gateway Management Protocol
 		PACKETPP_IPPROTO_IGMP = 2,
-		/** IPIP tunnels (older KA9Q tunnels use 94) */
+		/// IPIP tunnels (older KA9Q tunnels use 94)
 		PACKETPP_IPPROTO_IPIP = 4,
-		/** Transmission Control Protocol */
+		/// Transmission Control Protocol
 		PACKETPP_IPPROTO_TCP = 6,
-		/** Exterior Gateway Protocol */
+		/// Exterior Gateway Protocol
 		PACKETPP_IPPROTO_EGP = 8,
-		/** PUP protocol */
+		/// PUP protocol
 		PACKETPP_IPPROTO_PUP = 12,
-		/** User Datagram Protocol */
+		/// User Datagram Protocol
 		PACKETPP_IPPROTO_UDP = 17,
-		/** XNS IDP protocol */
+		/// XNS IDP protocol
 		PACKETPP_IPPROTO_IDP = 22,
-		/** IPv6 header */
+		/// IPv6 header
 		PACKETPP_IPPROTO_IPV6 = 41,
-		/** IPv6 Routing header */
+		/// IPv6 Routing header
 		PACKETPP_IPPROTO_ROUTING = 43,
-		/** IPv6 fragmentation header */
+		/// IPv6 fragmentation header
 		PACKETPP_IPPROTO_FRAGMENT = 44,
-		/** GRE protocol */
+		/// GRE protocol
 		PACKETPP_IPPROTO_GRE = 47,
-		/** encapsulating security payload */
+		/// encapsulating security payload
 		PACKETPP_IPPROTO_ESP = 50,
-		/** authentication header */
+		/// authentication header
 		PACKETPP_IPPROTO_AH = 51,
-		/** ICMPv6 */
+		/// ICMPv6
 		PACKETPP_IPPROTO_ICMPV6 = 58,
-		/** IPv6 no next header */
+		/// IPv6 no next header
 		PACKETPP_IPPROTO_NONE = 59,
-		/** IPv6 Destination options */
+		/// IPv6 Destination options
 		PACKETPP_IPPROTO_DSTOPTS = 60,
-		/** VRRP protocol */
+		/// VRRP protocol
 		PACKETPP_IPPROTO_VRRP = 112,
-		/** Raw IP packets */
+		/// Raw IP packets
 		PACKETPP_IPPROTO_RAW = 255,
-		/** Maximum value */
+		/// Maximum value
 		PACKETPP_IPPROTO_MAX
 	};
 
 	/// An enum for supported IPv4 option types
 	enum IPv4OptionTypes
 	{
-		/** End of Options List */
+		/// End of Options List
 		IPV4OPT_EndOfOptionsList = 0,
-		/** No Operation */
+		/// No Operation
 		IPV4OPT_NOP = 1,
-		/** Record Route */
+		/// Record Route
 		IPV4OPT_RecordRoute = 7,
-		/** MTU Probe */
+		/// MTU Probe
 		IPV4OPT_MTUProbe = 11,
-		/** MTU Reply */
+		/// MTU Reply
 		IPV4OPT_MTUReply = 12,
-		/** Quick-Start */
+		/// Quick-Start
 		IPV4OPT_QuickStart = 25,
-		/** Timestamp */
+		/// Timestamp
 		IPV4OPT_Timestamp = 68,
-		/** Traceroute */
+		/// Traceroute
 		IPV4OPT_Traceroute = 82,
-		/** Security */
+		/// Security
 		IPV4OPT_Security = 130,
-		/** Loose Source Route */
+		/// Loose Source Route
 		IPV4OPT_LooseSourceRoute = 131,
-		/** Extended Security */
+		/// Extended Security
 		IPV4OPT_ExtendedSecurity = 133,
-		/** Commercial Security */
+		/// Commercial Security
 		IPV4OPT_CommercialSecurity = 134,
-		/** Stream ID */
+		/// Stream ID
 		IPV4OPT_StreamID = 136,
-		/** Strict Source Route */
+		/// Strict Source Route
 		IPV4OPT_StrictSourceRoute = 137,
-		/** Extended Internet Protocol */
+		/// Extended Internet Protocol
 		IPV4OPT_ExtendedInternetProtocol = 145,
-		/** Address Extension */
+		/// Address Extension
 		IPV4OPT_AddressExtension = 147,
-		/** Router Alert */
+		/// Router Alert
 		IPV4OPT_RouterAlert = 148,
-		/** Selective Directed Broadcast */
+		/// Selective Directed Broadcast
 		IPV4OPT_SelectiveDirectedBroadcast = 149,
-		/** Dynamic Packet State */
+		/// Dynamic Packet State
 		IPV4OPT_DynamicPacketState = 151,
-		/** Upstream Multicast Pkt. */
+		/// Upstream Multicast Pkt.
 		IPV4OPT_UpstreamMulticastPkt = 152,
-		/** Unknown IPv4 option */
+		/// Unknown IPv4 option
 		IPV4OPT_Unknown
 	};
 
@@ -160,26 +160,26 @@ namespace pcpp
 		/// An enum for IPv4 timestamp option types
 		enum TimestampType
 		{
-			/** Value containing only timestamps */
+			/// Value containing only timestamps
 			TimestampOnly = 0,
-			/** Value containing both timestamps and IPv4 addresses */
+			/// Value containing both timestamps and IPv4 addresses
 			TimestampAndIP = 1,
-			/** The IPv4 addresses are prespecified */
+			/// The IPv4 addresses are prespecified
 			TimestampsForPrespecifiedIPs = 2,
-			/** Invalid or unknown value type */
+			/// Invalid or unknown value type
 			Unknown = 3
 		};
 
-		/** The timestamp value type */
+		/// The timestamp value type
 		TimestampType type;
 
-		/** A list of timestamps parsed from the IPv4 timestamp option value */
+		/// A list of timestamps parsed from the IPv4 timestamp option value
 		std::vector<uint32_t> timestamps;
 
-		/** A list of IPv4 addresses parsed from the IPv4 timestamp option value */
+		/// A list of IPv4 addresses parsed from the IPv4 timestamp option value
 		std::vector<IPv4Address> ipAddresses;
 
-		/** The default constructor */
+		/// The default constructor
 		IPv4TimestampOptionValue() : type(IPv4TimestampOptionValue::Unknown)
 		{}
 

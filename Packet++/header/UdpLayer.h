@@ -13,13 +13,13 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct udphdr
 	{
-		/** Source port */
+		/// Source port
 		uint16_t portSrc;
-		/** Destination port */
+		/// Destination port
 		uint16_t portDst;
-		/** Length of header and payload in bytes */
+		/// Length of header and payload in bytes
 		uint16_t length;
-		/**  Error-checking of the header and data */
+		///  Error-checking of the header and data
 		uint16_t headerChecksum;
 	};
 #pragma pack(pop)

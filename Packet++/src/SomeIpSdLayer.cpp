@@ -39,7 +39,7 @@ namespace pcpp
 		someipsdhdroptionsbase* optionHdr = getSomeIpSdOptionHeader();
 
 		optionHdr->type = static_cast<uint8_t>(type);
-		/* Length field is excluding length field itself and uint8_t type field */
+		// Length field is excluding length field itself and uint8_t type field
 		optionHdr->length = htobe16((uint16_t)(m_DataLen - sizeof(optionHdr->length) - sizeof(optionHdr->type)));
 	}
 

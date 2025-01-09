@@ -18,27 +18,27 @@ namespace pcpp
 	struct ip6_hdr
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** Traffic class */
+		/// Traffic class
 		uint8_t trafficClass : 4,
-		    /** IP version number, has the value of 6 for IPv6 */
+		    /// IP version number, has the value of 6 for IPv6
 		    ipVersion : 4;
 #else
-		/** IP version number, has the value of 6 for IPv6 */
+		/// IP version number, has the value of 6 for IPv6
 		uint8_t ipVersion : 4,
-		    /** Traffic class */
+		    /// Traffic class
 		    trafficClass : 4;
 #endif
-		/** Flow label */
+		/// Flow label
 		uint8_t flowLabel[3];
-		/** The size of the payload in octets, including any extension headers */
+		/// The size of the payload in octets, including any extension headers
 		uint16_t payloadLength;
-		/** Specifies the type of the next header (protocol). Must be one of ::IPProtocolTypes */
+		/// Specifies the type of the next header (protocol). Must be one of ::IPProtocolTypes
 		uint8_t nextHeader;
-		/** Replaces the time to live field of IPv4 */
+		/// Replaces the time to live field of IPv4
 		uint8_t hopLimit;
-		/** Source address */
+		/// Source address
 		uint8_t ipSrc[16];
-		/** Destination address */
+		/// Destination address
 		uint8_t ipDst[16];
 	};
 #pragma pack(pop)

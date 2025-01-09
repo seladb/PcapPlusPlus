@@ -19,9 +19,9 @@ namespace pcpp
 	/// Types of protocols that can be referenced in SOME/IP-SD
 	enum SomeIpSdProtocolType : uint8_t
 	{
-		/** TCP */
+		/// TCP
 		SD_TCP = 0x06,
-		/** UDP */
+		/// UDP
 		SD_UDP = 0x11
 	};
 
@@ -37,23 +37,23 @@ namespace pcpp
 		/// Types of options currently available for the SOME/IP-SD protocol
 		enum class OptionType : uint8_t
 		{
-			/** Unknown Option Type */
+			/// Unknown Option Type
 			Unknown = 0x00,
-			/** Configuration Option */
+			/// Configuration Option
 			ConfigurationString = 0x01,
-			/** Load Balancing Option */
+			/// Load Balancing Option
 			LoadBalancing = 0x02,
-			/** IPv4 Endpoint Option */
+			/// IPv4 Endpoint Option
 			IPv4Endpoint = 0x04,
-			/** IPv6 Endpoint Option */
+			/// IPv6 Endpoint Option
 			IPv6Endpoint = 0x06,
-			/** IPv4 Multicast Option */
+			/// IPv4 Multicast Option
 			IPv4Multicast = 0x14,
-			/** IPv6 Multicast Option */
+			/// IPv6 Multicast Option
 			IPv6Multicast = 0x16,
-			/** IPv4 SD Endpoint Option */
+			/// IPv4 SD Endpoint Option
 			IPv4SdEndpoint = 0x24,
-			/** IPv6 SD Endpoint Option */
+			/// IPv6 SD Endpoint Option
 			IPv6SdEndpoint = 0x26
 		};
 
@@ -62,11 +62,11 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someipsdhdroptionsbase
 		{
-			/** Length - excluding the 16 bit Length field and the 8 bit type flag */
+			/// Length - excluding the 16 bit Length field and the 8 bit type flag
 			uint16_t length;
-			/** Type */
+			/// Type
 			uint8_t type;
-			/** Reserved */
+			/// Reserved
 			uint8_t reserved;
 		};
 #pragma pack(pop)
@@ -122,11 +122,11 @@ namespace pcpp
 		/// Types of options which are implemented with this class
 		enum IPv4OptionType
 		{
-			/** IPv4 Endpoint Option */
+			/// IPv4 Endpoint Option
 			IPv4Endpoint,
-			/** IPv4 Multicast Option */
+			/// IPv4 Multicast Option
 			IPv4Multicast,
-			/** IPv4 SD Endpoint Option */
+			/// IPv4 SD Endpoint Option
 			IPv4SdEndpoint,
 		};
 
@@ -160,14 +160,14 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someipsdhdroptionsipv4 : someipsdhdroptionsbase
 		{
-			/* IPv4-Address field */
+			/// IPv4-Address field
 			uint32_t ipv4Address;
-			/* Reserved */
 			// cppcheck-suppress duplInheritedMember
+			/// Reserved
 			uint8_t reserved;
-			/* Layer 4 Protocol field (L4-Proto) - Either UDP or TCP */
+			/// Layer 4 Protocol field (L4-Proto) - Either UDP or TCP
 			SomeIpSdProtocolType l4Protocol;
-			/* Port number of UDP or TCP */
+			/// Port number of UDP or TCP
 			uint16_t portNumber;
 		};
 #pragma pack(pop)
@@ -183,11 +183,11 @@ namespace pcpp
 		/// Types of options which are implemented with this class
 		enum IPv6OptionType
 		{
-			/** IPv6 Endpoint Option */
+			/// IPv6 Endpoint Option
 			IPv6Endpoint,
-			/** IPv6 Multicast Option */
+			/// IPv6 Multicast Option
 			IPv6Multicast,
-			/** IPv6 SD Endpoint Option */
+			/// IPv6 SD Endpoint Option
 			IPv6SdEndpoint,
 		};
 
@@ -221,14 +221,14 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someipsdhdroptionsipv6 : someipsdhdroptionsbase
 		{
-			/* IPv6-Address field */
+			/// IPv6-Address field
 			uint8_t ipv6Address[16];
-			/* Reserved */
 			// cppcheck-suppress duplInheritedMember
+			/// Reserved
 			uint8_t reserved;
-			/* Layer 4 Protocol field (L4-Proto) - Either UDP or TCP */
+			/// Layer 4 Protocol field (L4-Proto) - Either UDP or TCP
 			SomeIpSdProtocolType l4Protocol;
-			/* Port number of UDP or TCP */
+			/// Port number of UDP or TCP
 			uint16_t portNumber;
 		};
 #pragma pack(pop)
@@ -286,9 +286,9 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someipsdhdroptionsload : someipsdhdroptionsbase
 		{
-			/* Priority field */
+			/// Priority field
 			uint16_t priority;
-			/* Weight field */
+			/// Weight field
 			uint16_t weight;
 		};
 #pragma pack(pop)
@@ -304,21 +304,21 @@ namespace pcpp
 		/// Types of entries that can occur in SOME/IP-SD
 		enum class EntryType : uint8_t
 		{
-			/** Find Service */
+			/// Find Service
 			FindService,
-			/** Offer Service */
+			/// Offer Service
 			OfferService,
-			/** Stop Offer Service */
+			/// Stop Offer Service
 			StopOfferService,
-			/** Subscribe Eventgroup */
+			/// Subscribe Eventgroup
 			SubscribeEventgroup,
-			/** Stop Subscribe Eventgroup */
+			/// Stop Subscribe Eventgroup
 			StopSubscribeEventgroup,
-			/** Subscribe Eventgroup Acknowledgment */
+			/// Subscribe Eventgroup Acknowledgment
 			SubscribeEventgroupAck,
-			/** Subscribe Eventgroup Negative Acknowledgement */
+			/// Subscribe Eventgroup Negative Acknowledgement
 			SubscribeEventgroupNack,
-			/** Unknown Entry Type */
+			/// Unknown Entry Type
 			UnknownEntryType
 		};
 
@@ -327,32 +327,32 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someipsdhdrentry
 		{
-			/** Type */
+			/// Type
 			uint8_t type;
-			/** Index 1st option */
+			/// Index 1st option
 			uint8_t indexFirstOption;
-			/** Index 2nd option */
+			/// Index 2nd option
 			uint8_t indexSecondOption;
 #if (BYTE_ORDER == LITTLE_ENDIAN)
 			uint8_t
-			    /** Numbers of Option #2 (4bit) */
+			    /// Numbers of Option #2 (4bit)
 			    nrOpt2 : 4,
-			    /** Numbers of Option #1 (4bit) */
+			    /// Numbers of Option #1 (4bit)
 			    nrOpt1 : 4;
 #else
 			uint8_t
-			    /** Numbers of Option #1 (4bit) */
+			    /// Numbers of Option #1 (4bit)
 			    nrOpt1 : 4,
-			    /** Numbers of Option #2 (4bit) */
+			    /// Numbers of Option #2 (4bit)
 			    nrOpt2 : 4;
 #endif
-			/** Service ID */
+			/// Service ID
 			uint16_t serviceID;
-			/** Instance ID */
+			/// Instance ID
 			uint16_t instanceID;
-			/** Major Version (8 bit) + TTL (24 bit) */
+			/// Major Version (8 bit) + TTL (24 bit)
 			uint32_t majorVersion_ttl;
-			/** Minor Version (Service Entry Type) or Counter + Eventgroup ID (Eventgroup Entry Type) */
+			/// Minor Version (Service Entry Type) or Counter + Eventgroup ID (Eventgroup Entry Type)
 			uint32_t data;
 		};
 #pragma pack(pop)
@@ -473,13 +473,13 @@ namespace pcpp
 		/// are not unique.
 		enum class TypeInternal : uint8_t
 		{
-			/** Find Service */
+			/// Find Service
 			FindService_Internal = 0x00,
-			/** Offer Service / Stop Offer Service */
+			/// Offer Service / Stop Offer Service
 			OfferService_Internal = 0x01,
-			/** Subscribe Eventgroup & Stop Subscribe Eventgroup */
+			/// Subscribe Eventgroup & Stop Subscribe Eventgroup
 			SubscribeEventgroup_Internal = 0x06,
-			/** Subscribe Eventgroup Acknowledgment / Negative Acknowledgement */
+			/// Subscribe Eventgroup Acknowledgment / Negative Acknowledgement
 			SubscribeEventgroupAck_Internal = 0x07,
 		};
 
@@ -598,13 +598,13 @@ namespace pcpp
 #pragma pack(push, 1)
 		struct someipsdhdr : someiphdr
 		{
-			/** Flags (8 bit) */
+			/// Flags (8 bit)
 			uint8_t flags;
-			/** Reserved1 field (Bits 0-7 of 24-bits reserved field) */
+			/// Reserved1 field (Bits 0-7 of 24-bits reserved field)
 			uint8_t reserved1;
-			/** Reserved2 field (Bits 8-15 of 24-bits reserved field) */
+			/// Reserved2 field (Bits 8-15 of 24-bits reserved field)
 			uint8_t reserved2;
-			/** Reserved3 field (Bits 16-23 of 24-bits reserved field) */
+			/// Reserved3 field (Bits 16-23 of 24-bits reserved field)
 			uint8_t reserved3;
 		};
 #pragma pack(pop)

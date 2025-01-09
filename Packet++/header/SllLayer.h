@@ -14,20 +14,18 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct sll_header
 	{
-		/** Specifies whether packet was: specifically sent to us by somebody else (value=0);
-		 *  broadcast by somebody else (value=1); multicast, but not broadcast, by somebody else (value=2);
-		 *  sent to somebody else by somebody else (value=3); sent by us (value=4)
-		 **/
+		/// Specifies whether packet was: specifically sent to us by somebody else (value=0);
+		/// broadcast by somebody else (value=1); multicast, but not broadcast, by somebody else (value=2);
+		/// sent to somebody else by somebody else (value=3); sent by us (value=4)
 		uint16_t packet_type;
-		/** Contains a Linux ARPHRD_ value for the link-layer device type */
+		/// Contains a Linux ARPHRD_ value for the link-layer device type
 		uint16_t ARPHRD_type;
-		/** Contains the length of the link-layer address of the sender of the packet. That length could be zero */
+		/// Contains the length of the link-layer address of the sender of the packet. That length could be zero
 		uint16_t link_layer_addr_len;
-		/** contains the link-layer address of the sender of the packet; the number of bytes of that field that are
-		 *  meaningful is specified by the link-layer address length field
-		 **/
+		/// contains the link-layer address of the sender of the packet; the number of bytes of that field that are
+		/// meaningful is specified by the link-layer address length field
 		uint8_t link_layer_addr[8];
-		/** Contains an Ethernet protocol type of the next layer */
+		/// Contains an Ethernet protocol type of the next layer
 		uint16_t protocol_type;
 	};
 #pragma pack(pop)

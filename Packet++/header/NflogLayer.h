@@ -15,11 +15,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct nflog_header
 	{
-		/** A Linux AF_ value, so it's 2 for IPv4 and 10 for IPv6 */
+		/// A Linux AF_ value, so it's 2 for IPv4 and 10 for IPv6
 		uint8_t addressFamily;
-		/** The version field is 0 for the current version of the pseudo-header */
+		/// The version field is 0 for the current version of the pseudo-header
 		uint8_t version;
-		/** The network byte order (big-endian) */
+		/// The network byte order (big-endian)
 		uint16_t resourceId;
 	};
 #pragma pack(pop)
@@ -28,39 +28,39 @@ namespace pcpp
 	/// Represents TLV types of NFLOG packets
 	enum class NflogTlvType
 	{
-		/** the packet header structure */
+		/// the packet header structure
 		NFULA_PACKET_HDR = 1,
-		/** packet mark from skbuff */
+		/// packet mark from skbuff
 		NFULA_MARK = 2,
-		/** nflog_timestamp_t for skbuff's time stamp */
+		/// nflog_timestamp_t for skbuff's time stamp
 		NFULA_TIMESTAMP = 3,
-		/** ifindex of device on which packet received (possibly bridge group) */
+		/// ifindex of device on which packet received (possibly bridge group)
 		NFULA_IFINDEX_INDEV = 4,
-		/** ifindex of device on which packet transmitted (possibly bridge group) */
+		/// ifindex of device on which packet transmitted (possibly bridge group)
 		NFULA_IFINDEX_OUTDEV = 5,
-		/** ifindex of physical device on which packet received (not bridge group) */
+		/// ifindex of physical device on which packet received (not bridge group)
 		NFULA_IFINDEX_PHYSINDEV = 6,
-		/** ifindex of physical device on which packet transmitted (not bridge group) */
+		/// ifindex of physical device on which packet transmitted (not bridge group)
 		NFULA_IFINDEX_PHYSOUTDEV = 7,
-		/** nflog_hwaddr_t for hardware address */
+		/// nflog_hwaddr_t for hardware address
 		NFULA_HWADDR = 8,
-		/** packet payload */
+		/// packet payload
 		NFULA_PAYLOAD = 9,
-		/** text string - null-terminated, count includes NUL */
+		/// text string - null-terminated, count includes NUL
 		NFULA_PREFIX = 10,
-		/** UID owning socket on which packet was sent/received */
+		/// UID owning socket on which packet was sent/received
 		NFULA_UID = 11,
-		/** sequence number of packets on this NFLOG socket */
+		/// sequence number of packets on this NFLOG socket
 		NFULA_SEQ = 12,
-		/** sequence number of packets on all NFLOG sockets */
+		/// sequence number of packets on all NFLOG sockets
 		NFULA_SEQ_GLOBAL = 13,
-		/** GID owning socket on which packet was sent/received */
+		/// GID owning socket on which packet was sent/received
 		NFULA_GID = 14,
-		/** ARPHRD_ type of skbuff's device */
+		/// ARPHRD_ type of skbuff's device
 		NFULA_HWTYPE = 15,
-		/** skbuff's MAC-layer header */
+		/// skbuff's MAC-layer header
 		NFULA_HWHEADER = 16,
-		/** length of skbuff's MAC-layer header */
+		/// length of skbuff's MAC-layer header
 		NFULA_HWLEN = 17,
 	};
 
@@ -72,11 +72,11 @@ namespace pcpp
 	private:
 		struct NflogTLVRawData
 		{
-			/** Record length in bytes */
+			/// Record length in bytes
 			uint16_t recordLen;
-			/** Record type */
+			/// Record type
 			uint16_t recordType;
-			/** Record value (variable size) */
+			/// Record value (variable size)
 			uint8_t recordValue[];
 		};
 		NflogTLVRawData* m_Data;

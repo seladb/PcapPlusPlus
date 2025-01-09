@@ -15,11 +15,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ether_dot3_header
 	{
-		/** Destination MAC */
+		/// Destination MAC
 		uint8_t dstMac[6];
-		/** Source MAC */
+		/// Source MAC
 		uint8_t srcMac[6];
-		/** EtherType */
+		/// EtherType
 		uint16_t length;
 	};
 #pragma pack(pop)

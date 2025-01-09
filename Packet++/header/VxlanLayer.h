@@ -14,51 +14,51 @@ namespace pcpp
 	struct vxlan_header
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved6_8 : 3;
-		/** VNI present flag */
+		/// VNI present flag
 		uint16_t vniPresentFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved2_4 : 3;
-		/** GBP flag */
+		/// GBP flag
 		uint16_t gbpFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved14_16 : 3;
-		/** Policy applied flag */
+		/// Policy applied flag
 		uint16_t policyAppliedFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved11_12 : 2;
-		/** Don't learn flag */
+		/// Don't learn flag
 		uint16_t dontLearnFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved9 : 1;
 #else
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved9 : 1;
-		/** Don't learn flag */
+		/// Don't learn flag
 		uint16_t dontLearnFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved11_12 : 2;
-		/** Policy applied flag */
+		/// Policy applied flag
 		uint16_t policyAppliedFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved14_16 : 3;
-		/** GBP flag */
+		/// GBP flag
 		uint16_t gbpFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved2_4 : 3;
-		/** VNI present flag */
+		/// VNI present flag
 		uint16_t vniPresentFlag : 1;
-		/** Reserved bits */
+		/// Reserved bits
 		uint16_t reserved6_8 : 3;
 #endif
 
-		/** Group Policy ID */
+		/// Group Policy ID
 		uint16_t groupPolicyID;
 
-		/** VXLAN Network ID (VNI) */
+		/// VXLAN Network ID (VNI)
 		uint32_t vni : 24;
-		/** Reserved bits */
+		/// Reserved bits
 		uint32_t pad : 8;
 	};
 #pragma pack(pop)

@@ -15,25 +15,25 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct arphdr
 	{
-		/** Hardware type (HTYPE) */
+		/// Hardware type (HTYPE)
 		uint16_t hardwareType;
-		/** Protocol type (PTYPE). The permitted PTYPE values share a numbering space with those for EtherType */
+		/// Protocol type (PTYPE). The permitted PTYPE values share a numbering space with those for EtherType
 		uint16_t protocolType;
-		/** Hardware address length (HLEN). For IPv4, this has the value 0x0800 */
+		/// Hardware address length (HLEN). For IPv4, this has the value 0x0800
 		uint8_t hardwareSize;
-		/** Protocol length (PLEN). Length (in octets) of addresses used in the upper layer protocol. (The upper layer
-		 * protocol specified in PTYPE.) IPv4 address size is 4 */
+		/// Protocol length (PLEN). Length (in octets) of addresses used in the upper layer protocol. (The upper layer
+		/// protocol specified in PTYPE.) IPv4 address size is 4
 		uint8_t protocolSize;
-		/** Specifies the operation that the sender is performing: 1 (::ARP_REQUEST) for request, 2 (::ARP_REPLY) for
-		 * reply */
+		/// Specifies the operation that the sender is performing: 1 (::ARP_REQUEST) for request, 2 (::ARP_REPLY) for
+		/// reply
 		uint16_t opcode;
-		/** Sender hardware address (SHA) */
+		/// Sender hardware address (SHA)
 		uint8_t senderMacAddr[6];
-		/** Sender protocol address (SPA) */
+		/// Sender protocol address (SPA)
 		uint32_t senderIpAddr;
-		/** Target hardware address (THA) */
+		/// Target hardware address (THA)
 		uint8_t targetMacAddr[6];
-		/** Target protocol address (TPA) */
+		/// Target protocol address (TPA)
 		uint32_t targetIpAddr;
 	};
 #pragma pack(pop)

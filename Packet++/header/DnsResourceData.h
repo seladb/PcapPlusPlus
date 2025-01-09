@@ -234,9 +234,9 @@ namespace pcpp
 		/// A struct that represents mail exchange (MX) data
 		struct MxData
 		{
-			/** Preference value */
+			/// Preference value
 			uint16_t preference;
-			/** Mail exchange hostname */
+			/// Mail exchange hostname
 			std::string mailExchange;
 		};
 

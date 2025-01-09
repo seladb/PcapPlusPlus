@@ -13,15 +13,15 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ipsec_authentication_header
 	{
-		/** Type of the next header */
+		/// Type of the next header
 		uint8_t nextHeader;
-		/** The length of the Authentication Header in 4-octet units, minus 2 */
+		/// The length of the Authentication Header in 4-octet units, minus 2
 		uint8_t payloadLen;
-		/** Reserved */
+		/// Reserved
 		uint16_t reserved;
-		/** Security Parameters Index */
+		/// Security Parameters Index
 		uint32_t spi;
-		/** Sequence Number */
+		/// Sequence Number
 		uint32_t sequenceNumber;
 	};
 #pragma pack(pop)
@@ -31,9 +31,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ipsec_esp
 	{
-		/** Security Parameters Index */
+		/// Security Parameters Index
 		uint32_t spi;
-		/** Sequence Number */
+		/// Sequence Number
 		uint32_t sequenceNumber;
 	};
 #pragma pack(pop)

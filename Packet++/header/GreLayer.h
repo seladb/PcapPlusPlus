@@ -14,49 +14,49 @@ namespace pcpp
 	struct gre_basic_header
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** Number of additional encapsulations which are permitted. 0 is the default value */
+		/// Number of additional encapsulations which are permitted. 0 is the default value
 		uint8_t recursionControl : 3,
-		    /** Strict source routing bit (GRE v0 only) */
+		    /// Strict source routing bit (GRE v0 only)
 		    strictSourceRouteBit : 1,
-		    /** Set if sequence number exists */
+		    /// Set if sequence number exists
 		    sequenceNumBit : 1,
-		    /** Set if key exists */
+		    /// Set if key exists
 		    keyBit : 1,
-		    /** Set if routing exists (GRE v0 only) */
+		    /// Set if routing exists (GRE v0 only)
 		    routingBit : 1,
-		    /** Set if checksum exists (GRE v0 only) */
+		    /// Set if checksum exists (GRE v0 only)
 		    checksumBit : 1;
 #else
-		/** Set if checksum exists (GRE v0 only) */
+		/// Set if checksum exists (GRE v0 only)
 		uint8_t checksumBit : 1,
-		    /** Set if routing exists (GRE v0 only) */
+		    /// Set if routing exists (GRE v0 only)
 		    routingBit : 1,
-		    /** Set if key exists */
+		    /// Set if key exists
 		    keyBit : 1,
-		    /** Set if sequence number exists */
+		    /// Set if sequence number exists
 		    sequenceNumBit : 1,
-		    /** Strict source routing bit (GRE v0 only) */
+		    /// Strict source routing bit (GRE v0 only)
 		    strictSourceRouteBit : 1,
-		    /** Number of additional encapsulations which are permitted. 0 is the default value */
+		    /// Number of additional encapsulations which are permitted. 0 is the default value
 		    recursionControl : 3;
 #endif
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** GRE version - can be 0 or 1 */
+		/// GRE version - can be 0 or 1
 		uint8_t version : 3,
-		    /** Reserved */
+		    /// Reserved
 		    flags : 4,
-		    /** Set if acknowledgment number is set (GRE v1 only) */
+		    /// Set if acknowledgment number is set (GRE v1 only)
 		    ackSequenceNumBit : 1;
 #else
-		/** Set if acknowledgment number is set (GRE v1 only) */
+		/// Set if acknowledgment number is set (GRE v1 only)
 		uint8_t ackSequenceNumBit : 1,
-		    /** Reserved */
+		    /// Reserved
 		    flags : 4,
-		    /** GRE version - can be 0 or 1 */
+		    /// GRE version - can be 0 or 1
 		    version : 3;
 #endif
 
-		/** Protocol type of the next layer */
+		/// Protocol type of the next layer
 		uint16_t protocol;
 	};
 #pragma pack(pop)
@@ -66,9 +66,9 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct gre1_header : gre_basic_header
 	{
-		/** Size of the payload not including the GRE header */
+		/// Size of the payload not including the GRE header
 		uint16_t payloadLength;
-		/** Contains the Peer's Call ID for the session to which this packet belongs */
+		/// Contains the Peer's Call ID for the session to which this packet belongs
 		uint16_t callID;
 	};
 #pragma pack(pop)
@@ -78,11 +78,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct ppp_pptp_header
 	{
-		/** Broadcast address */
+		/// Broadcast address
 		uint8_t address;
-		/** Control byte */
+		/// Control byte
 		uint8_t control;
-		/** Protocol type of the next layer (see PPP_* macros at PPPoELayer.h) */
+		/// Protocol type of the next layer (see PPP_* macros at PPPoELayer.h)
 		uint16_t protocol;
 	};
 #pragma pack(pop)

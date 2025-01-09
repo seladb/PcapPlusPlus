@@ -65,37 +65,37 @@ namespace pcpp
 	struct vrrp_header
 	{
 #if (BYTE_ORDER == LITTLE_ENDIAN)
-		/** Type */
+		/// Type
 		uint8_t type : 4;
 
-		/** Version bits */
+		/// Version bits
 		uint8_t version : 4;
 #else
-		/** Version bits */
+		/// Version bits
 		uint8_t version : 4;
 
-		/** Type */
+		/// Type
 		uint8_t type : 4;
 #endif
-		/** The Virtual Router Identifier (VRID) field identifies the virtual router this packet is reporting status
-		 * for*/
+		/// The Virtual Router Identifier (VRID) field identifies the virtual router this packet is reporting status
+		/// for
 		uint8_t vrId;
 
-		/** This specifies the sending VRRP router's priority for the virtual router */
+		/// This specifies the sending VRRP router's priority for the virtual router
 		uint8_t priority;
 
-		/** Specifies how many IPvX addresses are present in this Packet */
+		/// Specifies how many IPvX addresses are present in this Packet
 		uint8_t ipAddrCount;
 
-		/** This specifies authentication type(v2) or (Max) Advertisement interval (in seconds(v2) or
-		 * centi-seconds(v3)). */
+		/// This specifies authentication type(v2) or (Max) Advertisement interval (in seconds(v2) or
+		/// centi-seconds(v3)).
 		uint16_t authTypeAdvInt;
 
-		/** This specifies checksum field that is used to detect data corruption in the VRRP message.
-		 * VRRPv2 uses normal checksum algorithm, while VRRPv3 uses "pseudo-header" checksum algorithm. */
+		/// This specifies checksum field that is used to detect data corruption in the VRRP message.
+		/// VRRPv2 uses normal checksum algorithm, while VRRPv3 uses "pseudo-header" checksum algorithm.
 		uint16_t checksum;
 
-		/** This specifies one or more IPvX addresses that are associated with the virtual router. */
+		/// This specifies one or more IPvX addresses that are associated with the virtual router.
 		uint8_t* ipAddresses[];
 	};
 
@@ -141,23 +141,23 @@ namespace pcpp
 		/// VRRP message types
 		enum VrrpType
 		{
-			/** Unknown VRRP message */
+			/// Unknown VRRP message
 			VrrpType_Unknown = 0,
 
-			/** VRRP advertisement message */
+			/// VRRP advertisement message
 			VrrpType_Advertisement = 1
 		};
 
 		/// An enum describing VRRP special priority values
 		enum VrrpPriority
 		{
-			/** Default priority for a backup VRRP router (value of 100) */
+			/// Default priority for a backup VRRP router (value of 100)
 			Default,
-			/** Current Master has stopped participating in VRRP (value of 0) */
+			/// Current Master has stopped participating in VRRP (value of 0)
 			Stop,
-			/** This VRRP router owns the virtual router's IP address(es) (value of 255) */
+			/// This VRRP router owns the virtual router's IP address(es) (value of 255)
 			Owner,
-			/** Other priority */
+			/// Other priority
 			Other
 		};
 
@@ -280,15 +280,15 @@ namespace pcpp
 		/// VRRP v2 authentication types
 		enum class VrrpAuthType : uint8_t
 		{
-			/** No Authentication */
+			/// No Authentication
 			NoAuthentication = 0,
-			/** Simple Text Password */
+			/// Simple Text Password
 			SimpleTextPassword = 1,
-			/** IP Authentication Header */
+			/// IP Authentication Header
 			IPAuthenticationHeader = 2,
-			/** Cisco VRRP MD5 Authentication */
+			/// Cisco VRRP MD5 Authentication
 			MD5 = 3,
-			/** Other/Unknown Authentication Type */
+			/// Other/Unknown Authentication Type
 			Other = 4
 		};
 

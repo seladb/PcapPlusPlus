@@ -11,9 +11,9 @@
 namespace pcpp
 {
 
-#define VRRP_PRIO_STOP 0    /* priority to stop  */
-#define VRRP_PRIO_DEF 100   /* default priority */
-#define VRRP_PRIO_OWNER 255 /* priority of the ip owner */
+#define VRRP_PRIO_STOP 0     ///< priority to stop
+#define VRRP_PRIO_DEF 100    ///< default priority
+#define VRRP_PRIO_OWNER 255  ///< priority of the ip owner
 
 #define VRRP_PACKET_FIX_LEN 8
 #define VRRP_PACKET_MAX_IP_ADDRESS_NUM 255

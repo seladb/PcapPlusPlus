@@ -289,20 +289,20 @@ namespace pcpp
 		/// An enum representing the status returned from processing a fragment
 		enum ReassemblyStatus
 		{
-			/** The processed packet isn't of type IPv4 or IPv6 */
+			/// The processed packet isn't of type IPv4 or IPv6
 			NON_IP_PACKET = 0x00,
-			/** The processed packet isn't a fragment */
+			/// The processed packet isn't a fragment
 			NON_FRAGMENT = 0x01,
-			/** The processed fragment is the first fragment */
+			/// The processed fragment is the first fragment
 			FIRST_FRAGMENT = 0x02,
-			/** The processed fragment is a fragment (but not the first one) */
+			/// The processed fragment is a fragment (but not the first one)
 			FRAGMENT = 0x04,
-			/** The processed fragment is not the fragment that was expected at this time */
+			/// The processed fragment is not the fragment that was expected at this time
 			OUT_OF_ORDER_FRAGMENT = 0x08,
-			/** The processed fragment is malformed, meaning a fragment which has offset of zero but isn't the first
-			 * fragment */
+			/// The processed fragment is malformed, meaning a fragment which has offset of zero but isn't the first
+			/// fragment
 			MALFORMED_FRAGMENT = 0x10,
-			/** Packet is now fully reassembled */
+			/// Packet is now fully reassembled
 			REASSEMBLED = 0x20
 		};
 

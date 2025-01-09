@@ -1,8 +1,8 @@
 #ifndef PACKETPP_SMTP_LAYER
-#	define PACKETPP_SMTP_LAYER
+#define PACKETPP_SMTP_LAYER
 
-#	include "PayloadLayer.h"
-#	include "SingleCommandTextProtocol.h"
+#include "PayloadLayer.h"
+#include "SingleCommandTextProtocol.h"
 
 /// @file
 
@@ -172,74 +172,74 @@ namespace pcpp
 		/// Enum for SMTP response codes
 		enum class SmtpStatusCode : int
 		{
-		    /// System status, or system help reply
-		    SYSTEM_STATUS = 211,
-		    /// Help message
-		    HELP_MESSAGE = 214,
-		    /// \<domain\> Service ready
-		    SERVICE_READY = 220,
-		    /// \<domain\> Service closing transmission channel
-		    SERVICE_CLOSE = 221,
-		    /// Authentication successful
-		    AUTH_SUCCESS = 235,
-		    /// Requested mail action okay, completed
-		    COMPLETED = 250,
-		    /// User not local; will forward to <forward-path>
-		    WILL_FORWARD = 251,
-		    /// Cannot VRFY user, but will accept message and attempt delivery
-		    CANNOT_VERIFY = 252,
-		    /// AUTH input
-		    AUTH_INPUT = 334,
-		    /// Start mail input; end with \<CRLF\>.\<CRLF\>
-		    MAIL_INPUT = 354,
-		    /// \<domain\> Service not available, closing transmission channel
-		    SERVICE_UNAVAILABLE = 421,
-		    /// A password transition is needed
-		    PASS_NEEDED = 432,
-		    /// Requested mail action not taken: mailbox unavailable (mail busy or temporarily blocked)
-		    MAILBOX_UNAVAILABLE_TEMP = 450,
-		    /// Requested action aborted: local error in processing
-		    ABORT_LOCAL_ERROR = 451,
-		    /// Requested action not taken: insufficient system storage
-		    INSUFFICIENT_STORAGE = 452,
-		    /// Temporary authentication failed
-		    TEMP_AUTH_FAILED = 454,
-		    /// Server unable to accommodate parameters
-		    PARAM_NOT_ACCOMMODATED = 455,
-		    /// Syntax error, command unrecognized
-		    CMD_NOT_RECOGNIZED = 500,
-		    /// Syntax error in parameters or arguments
-		    SYNTAX_ERROR_PARAM = 501,
-		    /// Command not implemented
-		    CMD_NOT_IMPLEMENTED = 502,
-		    /// Bad sequence of commands
-		    CMD_BAD_SEQUENCE = 503,
-		    /// Command parameter not implemented
-		    PARAM_NOT_IMPLEMENTED = 504,
-		    /// Server does not accept mail
-		    MAIL_NOT_ACCEPTED = 521,
-		    /// Encryption needed
-		    ENCRYPT_NEED = 523,
-		    /// Authentication required
-		    AUTH_REQUIRED = 530,
-		    /// Authentication mechanism is too weak
-		    AUTH_TOO_WEAK = 534,
-		    /// Authentication credentials invalid
-		    AUTH_CRED_INVALID = 535,
-		    /// Encryption required for requested authentication mechanism
-		    ENCRYPT_REQUIRED = 538,
-		    /// Requested action not taken: mailbox unavailable
-		    MAILBOX_UNAVAILABLE = 550,
-		    /// User not local; please try <forward-path>
-		    USER_NOT_LOCAL = 551,
-		    /// Requested mail action aborted: exceeded storage allocation
-		    EXCEED_STORAGE = 552,
-		    /// Requested action not taken: mailbox name not allowed
-		    NAME_NOT_ALLOWED = 553,
-		    /// Transaction failed
-		    TRANSACTION_FAIL = 554,
-		    /// Domain does not accept mail
-		    DOMAIN_NOT_ACCEPT = 556
+			/// System status, or system help reply
+			SYSTEM_STATUS = 211,
+			/// Help message
+			HELP_MESSAGE = 214,
+			/// \<domain\> Service ready
+			SERVICE_READY = 220,
+			/// \<domain\> Service closing transmission channel
+			SERVICE_CLOSE = 221,
+			/// Authentication successful
+			AUTH_SUCCESS = 235,
+			/// Requested mail action okay, completed
+			COMPLETED = 250,
+			/// User not local; will forward to <forward-path>
+			WILL_FORWARD = 251,
+			/// Cannot VRFY user, but will accept message and attempt delivery
+			CANNOT_VERIFY = 252,
+			/// AUTH input
+			AUTH_INPUT = 334,
+			/// Start mail input; end with \<CRLF\>.\<CRLF\>
+			MAIL_INPUT = 354,
+			/// \<domain\> Service not available, closing transmission channel
+			SERVICE_UNAVAILABLE = 421,
+			/// A password transition is needed
+			PASS_NEEDED = 432,
+			/// Requested mail action not taken: mailbox unavailable (mail busy or temporarily blocked)
+			MAILBOX_UNAVAILABLE_TEMP = 450,
+			/// Requested action aborted: local error in processing
+			ABORT_LOCAL_ERROR = 451,
+			/// Requested action not taken: insufficient system storage
+			INSUFFICIENT_STORAGE = 452,
+			/// Temporary authentication failed
+			TEMP_AUTH_FAILED = 454,
+			/// Server unable to accommodate parameters
+			PARAM_NOT_ACCOMMODATED = 455,
+			/// Syntax error, command unrecognized
+			CMD_NOT_RECOGNIZED = 500,
+			/// Syntax error in parameters or arguments
+			SYNTAX_ERROR_PARAM = 501,
+			/// Command not implemented
+			CMD_NOT_IMPLEMENTED = 502,
+			/// Bad sequence of commands
+			CMD_BAD_SEQUENCE = 503,
+			/// Command parameter not implemented
+			PARAM_NOT_IMPLEMENTED = 504,
+			/// Server does not accept mail
+			MAIL_NOT_ACCEPTED = 521,
+			/// Encryption needed
+			ENCRYPT_NEED = 523,
+			/// Authentication required
+			AUTH_REQUIRED = 530,
+			/// Authentication mechanism is too weak
+			AUTH_TOO_WEAK = 534,
+			/// Authentication credentials invalid
+			AUTH_CRED_INVALID = 535,
+			/// Encryption required for requested authentication mechanism
+			ENCRYPT_REQUIRED = 538,
+			/// Requested action not taken: mailbox unavailable
+			MAILBOX_UNAVAILABLE = 550,
+			/// User not local; please try <forward-path>
+			USER_NOT_LOCAL = 551,
+			/// Requested mail action aborted: exceeded storage allocation
+			EXCEED_STORAGE = 552,
+			/// Requested action not taken: mailbox name not allowed
+			NAME_NOT_ALLOWED = 553,
+			/// Transaction failed
+			TRANSACTION_FAIL = 554,
+			/// Domain does not accept mail
+			DOMAIN_NOT_ACCEPT = 556
 		};
 
 		/// A constructor that creates the layer from an existing packet raw data
@@ -291,4 +291,4 @@ namespace pcpp
 	};
 }  // namespace pcpp
 
-#endif /* PACKETPP_SMTP_LAYER */
+#endif  // PACKETPP_SMTP_LAYER

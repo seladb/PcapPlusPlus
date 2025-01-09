@@ -15,94 +15,94 @@ namespace pcpp
 	/// An enum for representing ASN.1 tag class
 	enum class Asn1TagClass : uint8_t
 	{
-		/** The Universal tag class */
+		/// The Universal tag class
 		Universal = 0,
-		/** The Application tag class */
+		/// The Application tag class
 		Application = 1,
-		/** The Context-Specific tag class */
+		/// The Context-Specific tag class
 		ContextSpecific = 2,
-		/** The Private tag class */
+		/// The Private tag class
 		Private = 3,
 	};
 
 	/// An enum for representing ASN.1 Universal tag types
 	enum class Asn1UniversalTagType : uint8_t
 	{
-		/** The reserved identifier for the End-of-Contents marker in an indefinite length encoding */
+		/// The reserved identifier for the End-of-Contents marker in an indefinite length encoding
 		EndOfContent = 0,
-		/** The universal tag type for Boolean */
+		/// The universal tag type for Boolean
 		Boolean = 1,
-		/** The universal tag type for Integer */
+		/// The universal tag type for Integer
 		Integer = 2,
-		/** The universal tag type for Bit String */
+		/// The universal tag type for Bit String
 		BitString = 3,
-		/** The universal tag type for Octet String */
+		/// The universal tag type for Octet String
 		OctetString = 4,
-		/** The universal tag type for Null */
+		/// The universal tag type for Null
 		Null = 5,
-		/** The universal tag type for Object Identifier */
+		/// The universal tag type for Object Identifier
 		ObjectIdentifier = 6,
-		/** The universal tag type for Object Descriptor */
+		/// The universal tag type for Object Descriptor
 		ObjectDescriptor = 7,
-		/** The universal tag type for External */
+		/// The universal tag type for External
 		External = 8,
-		/** The universal tag type for Real */
+		/// The universal tag type for Real
 		Real = 9,
-		/** The universal tag type for Enumerated */
+		/// The universal tag type for Enumerated
 		Enumerated = 10,
-		/** The universal tag type for Embedded-PDV */
+		/// The universal tag type for Embedded-PDV
 		EmbeddedPDV = 11,
-		/** The universal tag type for UTF8 String */
+		/// The universal tag type for UTF8 String
 		UTF8String = 12,
-		/** The universal tag type for Relative Object Identifier */
+		/// The universal tag type for Relative Object Identifier
 		RelativeObjectIdentifier = 13,
-		/** The universal tag type for Time */
+		/// The universal tag type for Time
 		Time = 14,
-		/** A reserved value */
+		/// A reserved value
 		Reserved = 15,
-		/** The universal tag type Sequence */
+		/// The universal tag type Sequence
 		Sequence = 16,
-		/** The universal tag type for Set */
+		/// The universal tag type for Set
 		Set = 17,
-		/** The universal tag type for Numeric String */
+		/// The universal tag type for Numeric String
 		NumericString = 18,
-		/** The universal tag type for Printable String */
+		/// The universal tag type for Printable String
 		PrintableString = 19,
-		/** The universal tag type for T61String */
+		/// The universal tag type for T61String
 		T61String = 20,
-		/** The universal tag type for Videotex String */
+		/// The universal tag type for Videotex String
 		VideotexString = 21,
-		/** The universal tag type for IA5String */
+		/// The universal tag type for IA5String
 		IA5String = 22,
-		/** The universal tag type for UTC time */
+		/// The universal tag type for UTC time
 		UTCTime = 23,
-		/** The universal tag type for Generalized time */
+		/// The universal tag type for Generalized time
 		GeneralizedTime = 24,
-		/** The universal tag type for GraphicString */
+		/// The universal tag type for GraphicString
 		GraphicString = 25,
-		/** The universal tag type for VisibleString */
+		/// The universal tag type for VisibleString
 		VisibleString = 26,
-		/** The universal tag type for GeneralString */
+		/// The universal tag type for GeneralString
 		GeneralString = 27,
-		/** The universal tag type for UniversalString */
+		/// The universal tag type for UniversalString
 		UniversalString = 28,
-		/** The universal tag type for CharacterString */
+		/// The universal tag type for CharacterString
 		CharacterString = 29,
-		/** The universal tag type for BMPString */
+		/// The universal tag type for BMPString
 		BMPString = 30,
-		/** The universal tag type for Date */
+		/// The universal tag type for Date
 		Date = 31,
-		/** The universal tag type for Time of Day */
+		/// The universal tag type for Time of Day
 		TimeOfDay = 32,
-		/** The universal tag type for Date-Time */
+		/// The universal tag type for Date-Time
 		DateTime = 33,
-		/** The universal tag type for Duration */
+		/// The universal tag type for Duration
 		Duration = 34,
-		/** The universal tag type for Object Identifier Internationalized Resource Identifier (IRI) */
+		/// The universal tag type for Object Identifier Internationalized Resource Identifier (IRI)
 		ObjectIdentifierIRI = 35,
-		/** The universal tag type for Relative Object Identifier Internationalized Resource Identifier (IRI) */
+		/// The universal tag type for Relative Object Identifier Internationalized Resource Identifier (IRI)
 		RelativeObjectIdentifierIRI = 36,
-		/** A non-applicable value */
+		/// A non-applicable value
 		NotApplicable = 255
 	};
 

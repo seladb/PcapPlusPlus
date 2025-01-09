@@ -20,9 +20,9 @@ namespace pcpp
 		/// Represents the common header for all WireGuard message types
 		struct wg_common_header
 		{
-			/** Message type field */
+			/// Message type field
 			uint8_t messageType;
-			/** Reserved field (3 bytes) */
+			/// Reserved field (3 bytes)
 			uint8_t reserved[3];
 		};
 #pragma pack(pop)
@@ -37,15 +37,15 @@ namespace pcpp
 		/// WireGuard message types
 		enum class WireGuardMessageType
 		{
-			/** Unknown Initiation message */
+			/// Unknown Initiation message
 			Unknown = 0,
-			/** Handshake Initiation message */
+			/// Handshake Initiation message
 			HandshakeInitiation = 1,
-			/** Handshake Response message */
+			/// Handshake Response message
 			HandshakeResponse = 2,
-			/** Cookie Reply message */
+			/// Cookie Reply message
 			CookieReply = 3,
-			/** Transport Data message */
+			/// Transport Data message
 			TransportData = 4
 		};
 
@@ -131,17 +131,17 @@ namespace pcpp
 		/// Represents the Handshake Initiation message structure
 		typedef struct wg_handshake_initiation : wg_common_header
 		{
-			/** Sender index */
+			/// Sender index
 			uint32_t senderIndex;
-			/** Initiator's ephemeral public key */
+			/// Initiator's ephemeral public key
 			uint8_t initiatorEphemeral[32];
-			/** Encrypted initiator's static key */
+			/// Encrypted initiator's static key
 			uint8_t encryptedInitiatorStatic[48];
-			/** Encrypted timestamp */
+			/// Encrypted timestamp
 			uint8_t encryptedTimestamp[28];
-			/** MAC1 field */
+			/// MAC1 field
 			uint8_t mac1[16];
-			/** MAC2 field */
+			/// MAC2 field
 			uint8_t mac2[16];
 		} wg_handshake_initiation;
 #pragma pack(pop)
@@ -227,17 +227,17 @@ namespace pcpp
 		/// Represents the Handshake Response message structure
 		typedef struct wg_handshake_response : wg_common_header
 		{
-			/** Sender index */
+			/// Sender index
 			uint32_t senderIndex;
-			/** Receiver index */
+			/// Receiver index
 			uint32_t receiverIndex;
-			/** Responder's ephemeral public key */
+			/// Responder's ephemeral public key
 			uint8_t responderEphemeral[32];
-			/** Encrypted empty field */
+			/// Encrypted empty field
 			uint8_t encryptedEmpty[16];
-			/** MAC1 field */
+			/// MAC1 field
 			uint8_t mac1[16];
-			/** MAC2 field */
+			/// MAC2 field
 			uint8_t mac2[16];
 		} wg_handshake_response;
 #pragma pack(pop)
@@ -323,11 +323,11 @@ namespace pcpp
 		/// Represents the Cookie Reply message structure
 		typedef struct wg_cookie_reply : wg_common_header
 		{
-			/** Receiver index */
+			/// Receiver index
 			uint32_t receiverIndex;
-			/** Nonce field */
+			/// Nonce field
 			uint8_t nonce[24];
-			/** Encrypted cookie */
+			/// Encrypted cookie
 			uint8_t encryptedCookie[32];
 		} wg_cookie_reply;
 #pragma pack(pop)
@@ -390,11 +390,11 @@ namespace pcpp
 		/// Represents the Transport Data message structure
 		typedef struct wg_transport_data : wg_common_header
 		{
-			/** Receiver index */
+			/// Receiver index
 			uint32_t receiverIndex;
-			/** Counter field */
+			/// Counter field
 			uint64_t counter;
-			/** Flexible array member for encrypted data */
+			/// Flexible array member for encrypted data
 			uint8_t encryptedData[0];
 		} wg_transport_data;
 #pragma pack(pop)

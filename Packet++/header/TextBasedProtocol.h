@@ -8,7 +8,7 @@
 namespace pcpp
 {
 
-/** End of header */
+/// End of header
 #define PCPP_END_OF_TEXT_BASED_PROTOCOL_HEADER ""
 
 	class TextBasedProtocolMessage;

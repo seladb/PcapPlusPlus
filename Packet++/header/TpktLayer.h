@@ -14,11 +14,11 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct tpkthdr
 	{
-		/** message version */
+		/// message version
 		uint8_t version;
-		/** message reserved */
+		/// message reserved
 		uint8_t reserved;
-		/** message length */
+		/// message length
 		uint16_t length;
 	};
 #pragma pack(pop)

@@ -9,21 +9,21 @@
 namespace pcpp
 {
 
-/** IPv4 protocol **/
+/// IPv4 protocol *
 #define PCPP_BSD_AF_INET 2
-/** XEROX NS protocols */
+/// XEROX NS protocols
 #define PCPP_BSD_AF_NS 6
-/** ISO */
+/// ISO
 #define PCPP_BSD_AF_ISO 7
-/** AppleTalk */
+/// AppleTalk
 #define PCPP_BSD_AF_APPLETALK 16
-/** IPX */
+/// IPX
 #define PCPP_BSD_AF_IPX 23
-/** OpenBSD (and probably NetBSD), BSD/OS IPv6 */
+/// OpenBSD (and probably NetBSD), BSD/OS IPv6
 #define PCPP_BSD_AF_INET6_BSD 24
-/** FreeBSD IPv6 */
+/// FreeBSD IPv6
 #define PCPP_BSD_AF_INET6_FREEBSD 28
-/** Darwin IPv6 */
+/// Darwin IPv6
 #define PCPP_BSD_AF_INET6_DARWIN 30
 
 	/// @class NullLoopbackLayer
