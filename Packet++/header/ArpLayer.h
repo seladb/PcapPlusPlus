@@ -85,21 +85,21 @@ namespace pcpp
 	struct ArpReply
 	{
 		MacAddress senderMacAddr;
-		MacAddress targetMacAddr;
 		IPv4Address senderIpAddr;
+		MacAddress targetMacAddr;
 		IPv4Address targetIpAddr;
 
 		/**
 		 * @brief Construct a new Arp Reply object
 		 * @param senderMacAddress The MAC address of the machine sending the reply.
-		 * @param targetMacAddress The MAC address of the target machine being replied to.
 		 * @param senderIPAddress The IP address of the machine sending the reply.
+		 * @param targetMacAddress The MAC address of the target machine being replied to.
 		 * @param targetIPAddress The IP address of the target machine being replied to.
 		 * @remarks The target machine is considered the machine that sent the original ARP request.
 		 */
-		ArpReply(MacAddress const& senderMacAddress, MacAddress const& targetMacAddress,
-		         IPv4Address const& senderIPAddress, IPv4Address const& targetIPAddress)
-		    : senderMacAddr(senderMacAddress), targetMacAddr(targetMacAddress), senderIpAddr(senderIPAddress),
+		ArpReply(MacAddress const& senderMacAddress, IPv4Address const& senderIPAddress,
+		         MacAddress const& targetMacAddress, IPv4Address const& targetIPAddress)
+		    : senderMacAddr(senderMacAddress), senderIpAddr(senderIPAddress), targetMacAddr(targetMacAddress),
 		      targetIpAddr(targetIPAddress) {};
 	};
 
