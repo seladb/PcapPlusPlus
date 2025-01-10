@@ -43,6 +43,7 @@ namespace pcpp
 		uint32_t targetIpAddr;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(arphdr) == 28, "arphdr size is not 28 bytes");
 
 	/**
 	 * An enum for ARP message type
