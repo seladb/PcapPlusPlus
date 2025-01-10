@@ -37,7 +37,8 @@ namespace pcpp
 
 	uint16_t UdpLayer::getSrcPort() const
 	{
-		if (m_DataLen < sizeof(udphdr)) {
+		if (m_DataLen < sizeof(udphdr))
+		{
 			PCPP_LOG_ERROR("Buffer too small to access source port");
 			return 0; // Return an invalid port number
 		}
@@ -46,7 +47,8 @@ namespace pcpp
 
 	uint16_t UdpLayer::getDstPort() const
 	{
-		if (m_DataLen < sizeof(udphdr)) {
+		if (m_DataLen < sizeof(udphdr))
+		{
 			PCPP_LOG_ERROR("Buffer too small to access destination port");
 			return 0; // Return an invalid port number
 		}
@@ -159,7 +161,8 @@ namespace pcpp
 	void UdpLayer::computeCalculateFields()
 	{
 		udphdr* udpHdr = (udphdr*)m_Data;
-		if (m_DataLen < sizeof(udphdr)) {
+		if (m_DataLen < sizeof(udphdr))
+		{
 			PCPP_LOG_ERROR("Buffer too small to calculate fields");
 			return;
 		}
