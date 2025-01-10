@@ -40,7 +40,7 @@ namespace pcpp
 		if (m_DataLen < sizeof(udphdr))
 		{
 			PCPP_LOG_ERROR("Buffer too small to access source port");
-			return 0; // Return an invalid port number
+			return 0;  // Return an invalid port number
 		}
 		return be16toh(getUdpHeader()->portSrc);
 	}
@@ -50,7 +50,7 @@ namespace pcpp
 		if (m_DataLen < sizeof(udphdr))
 		{
 			PCPP_LOG_ERROR("Buffer too small to access destination port");
-			return 0; // Return an invalid port number
+			return 0;  // Return an invalid port number
 		}
 		return be16toh(getUdpHeader()->portDst);
 	}
