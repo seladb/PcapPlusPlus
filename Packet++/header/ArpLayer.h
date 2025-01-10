@@ -156,19 +156,6 @@ namespace pcpp
 	 */
 	class ArpLayer : public Layer
 	{
-	private:
-		/**
-		 * @brief A constructor that creates an ARP header
-		 * @param[in] opCode ARP message type (ARP request or ARP reply)
-		 * @param[in] senderMacAddr The sender MAC address (will be put in arphdr#senderMacAddr)
-		 * @param[in] senderIpAddr The sender IP address (will be put in arphdr#senderIpAddr)
-		 * @param[in] targetMacAddr The target MAC address (will be put in arphdr#targetMacAddr)
-		 * @param[in] targetIpAddr The target IP address (will be put in arphdr#targetIpAddr)
-		 * @remarks This constructor's parameters are reordered to avoid ambiguity with the deprecated constructor.
-		 */
-		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const IPv4Address& senderIpAddr,
-		         const MacAddress& targetMacAddr, const IPv4Address& targetIpAddr);
-
 	public:
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -182,6 +169,19 @@ namespace pcpp
 		{
 			m_DataLen = sizeof(arphdr);
 		}
+
+		/**
+		 * @brief A constructor that creates an ARP header
+		 * @param[in] opCode ARP message type (ARP request or ARP reply)
+		 * @param[in] senderMacAddr The sender MAC address (will be put in arphdr#senderMacAddr)
+		 * @param[in] senderIpAddr The sender IP address (will be put in arphdr#senderIpAddr)
+		 * @param[in] targetMacAddr The target MAC address (will be put in arphdr#targetMacAddr)
+		 * @param[in] targetIpAddr The target IP address (will be put in arphdr#targetIpAddr)
+		 * @remarks No validation is done on the input parameters. The caller must ensure that the input creates a valid
+		 * header.
+		 */
+		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const IPv4Address& senderIpAddr,
+		         const MacAddress& targetMacAddr, const IPv4Address& targetIpAddr);
 
 		/**
 		 * A constructor that allocates a new ARP header
