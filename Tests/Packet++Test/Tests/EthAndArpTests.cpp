@@ -120,32 +120,122 @@ PTF_TEST_CASE(EthAndArpPacketParsing)
 
 PTF_TEST_CASE(ArpPacketCreation)
 {
-	pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
-	pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff");
-	pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
-
-	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address("10.0.0.1"),
-	                        pcpp::IPv4Address("10.0.0.138"));
-
-	pcpp::Packet arpRequestPacket(1);
-	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
-	PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&arpLayer));
-	arpRequestPacket.computeCalculateFields();
-	PTF_ASSERT_EQUAL(arpRequestPacket.getRawPacket()->getRawDataLen(), 42);
-
-	pcpp::ArpLayer* pArpLayer = arpRequestPacket.getLayerOfType<pcpp::ArpLayer>();
-	PTF_ASSERT_NOT_NULL(pArpLayer);
-
-	pcpp::arphdr* arpHeader = pArpLayer->getArpHeader();
-	PTF_ASSERT_EQUAL(arpHeader->hardwareSize, 6);
-	PTF_ASSERT_EQUAL(arpHeader->protocolType, htobe16(PCPP_ETHERTYPE_IP));
-
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/ArpRequestPacket.dat");
+	// Stores the buffer in a unique_ptr to ensure it's deleted when the test ends.
+	std::unique_ptr<uint8_t[]> buffer1Uptr(buffer1);
+	
+	{
+		pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
+		pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff");
+		pcpp::EthLayer ethLayer(srcMac, dstMac, PCPP_ETHERTYPE_ARP);
+		pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address("10.0.0.1"),
+		                        pcpp::IPv4Address("10.0.0.138"));
 
-	PTF_ASSERT_EQUAL(bufferLength1, arpRequestPacket.getRawPacket()->getRawDataLen());
-	PTF_ASSERT_BUF_COMPARE(arpRequestPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+		pcpp::Packet arpRequestPacket(1);
 
-	delete[] buffer1;
+		PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
+		PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&arpLayer));
+		arpRequestPacket.computeCalculateFields();
+		PTF_ASSERT_EQUAL(arpRequestPacket.getRawPacket()->getRawDataLen(), 42);
+
+		pcpp::ArpLayer* pArpLayer = arpRequestPacket.getLayerOfType<pcpp::ArpLayer>();
+		PTF_ASSERT_NOT_NULL(pArpLayer);
+
+		pcpp::arphdr* arpHeader = pArpLayer->getArpHeader();
+		PTF_ASSERT_EQUAL(arpHeader->hardwareSize, 6);
+		PTF_ASSERT_EQUAL(arpHeader->protocolType, htobe16(PCPP_ETHERTYPE_IP));
+
+		PTF_ASSERT_EQUAL(bufferLength1, arpRequestPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(arpRequestPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	}
+
+	{
+		pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
+		pcpp::IPv4Address srcIp("10.0.0.1");
+		pcpp::IPv4Address dstIp("10.0.0.138");
+
+		pcpp::EthLayer ethLayer(srcMac, pcpp::MacAddress::Broadcast, PCPP_ETHERTYPE_ARP);
+		pcpp::ArpLayer arpLayer(pcpp::ArpRequest(srcMac, srcIp, dstIp));
+
+		pcpp::Packet argRequestPacket(1);
+		PTF_ASSERT_TRUE(argRequestPacket.addLayer(&ethLayer));
+		PTF_ASSERT_TRUE(argRequestPacket.addLayer(&arpLayer));
+
+		argRequestPacket.computeCalculateFields();
+		PTF_ASSERT_EQUAL(argRequestPacket.getRawPacket()->getRawDataLen(), 42);
+
+		pcpp::ArpLayer* pArpLayer = argRequestPacket.getLayerOfType<pcpp::ArpLayer>();
+		PTF_ASSERT_NOT_NULL(pArpLayer);
+
+		pcpp::arphdr* arpHeader = pArpLayer->getArpHeader();
+		PTF_ASSERT_EQUAL(arpHeader->hardwareSize, 6);
+		PTF_ASSERT_EQUAL(arpHeader->protocolType, htobe16(PCPP_ETHERTYPE_IP));
+
+		PTF_ASSERT_EQUAL(bufferLength1, argRequestPacket.getRawPacket()->getRawDataLen());
+		PTF_ASSERT_BUF_COMPARE(argRequestPacket.getRawPacket()->getRawData(), buffer1, bufferLength1);
+	}
+
+	{
+		// TODO: Add an actual packet to test against.
+		pcpp::MacAddress srcMac("02:00:00:00:00:02");
+		pcpp::IPv4Address srcIp("10.0.0.138");
+		pcpp::MacAddress dstMac("02:00:00:00:00:01");
+		pcpp::IPv4Address dstIp("10.0.0.1");
+
+		pcpp::ArpLayer arpLayer(pcpp::ArpReply(srcMac, srcIp, dstMac, dstIp));
+
+		arpLayer.computeCalculateFields();
+		PTF_ASSERT_EQUAL(arpLayer.getHeaderLen(), 28);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareSize, 6);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolSize, 4);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareType, htobe16(1));
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP));
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY));
+		PTF_ASSERT_EQUAL(arpLayer.getSenderMacAddress(), srcMac);
+		PTF_ASSERT_EQUAL(arpLayer.getSenderIpAddr(), srcIp);
+		PTF_ASSERT_EQUAL(arpLayer.getTargetMacAddress(), dstMac);
+		PTF_ASSERT_EQUAL(arpLayer.getTargetIpAddr(), dstIp);
+	}
+
+	{
+		// TODO: Add an actual packet to test against.
+		pcpp::MacAddress srcMac("02:00:00:00:00:01");
+		pcpp::IPv4Address srcIp("10.0.0.1");
+
+		pcpp::ArpLayer arpLayer(pcpp::GratuitousArpRequest(srcMac, srcIp));
+		arpLayer.computeCalculateFields();
+
+		PTF_ASSERT_EQUAL(arpLayer.getHeaderLen(), 28);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareSize, 6);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolSize, 4);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareType, htobe16(1));
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP));
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->opcode, htobe16(pcpp::ARP_REQUEST));
+		PTF_ASSERT_EQUAL(arpLayer.getSenderMacAddress(), srcMac);
+		PTF_ASSERT_EQUAL(arpLayer.getSenderIpAddr(), srcIp);
+		PTF_ASSERT_EQUAL(arpLayer.getTargetMacAddress(), pcpp::MacAddress::Broadcast);
+		PTF_ASSERT_EQUAL(arpLayer.getTargetIpAddr(), srcIp);
+	}
+
+	{
+		// TODO: Add an actual packet to test against.
+		pcpp::MacAddress srcMac("02:00:00:00:00:01");
+		pcpp::IPv4Address srcIp("10.0.0.1");
+
+		pcpp::ArpLayer arpLayer(pcpp::GratuitousArpReply(srcMac, srcIp));
+		arpLayer.computeCalculateFields();
+
+		PTF_ASSERT_EQUAL(arpLayer.getHeaderLen(), 28);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareSize, 6);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolSize, 4);
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareType, htobe16(1));
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP));
+		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY));
+		PTF_ASSERT_EQUAL(arpLayer.getSenderMacAddress(), srcMac);
+		PTF_ASSERT_EQUAL(arpLayer.getSenderIpAddr(), srcIp);
+		PTF_ASSERT_EQUAL(arpLayer.getTargetMacAddress(), pcpp::MacAddress::Broadcast);
+		PTF_ASSERT_EQUAL(arpLayer.getTargetIpAddr(), srcIp);
+	}
 }  // ArpPacketCreation
 
 PTF_TEST_CASE(EthDot3LayerParsingTest)
