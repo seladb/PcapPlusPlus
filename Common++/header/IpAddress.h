@@ -276,7 +276,7 @@ namespace pcpp
 	{
 	public:
 		/// An enum representing the address type: IPv4 or IPv6
-		enum AddressType
+		enum AddressType : uint8_t
 		{
 			/// IPv4 address type
 			IPv4AddressType,

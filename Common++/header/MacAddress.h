@@ -52,7 +52,7 @@ namespace pcpp
 		/// @param[in] fourthOctet Represent the fourth octet in the address
 		/// @param[in] fifthOctet Represent the fifth octet in the address
 		/// @param[in] sixthOctet Represent the sixth octet in the address
-		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
+		MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
 		                  uint8_t fifthOctet, uint8_t sixthOctet)
 		{
 			m_Address[0] = firstOctet;

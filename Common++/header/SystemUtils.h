@@ -8,7 +8,7 @@
 
 /// @file
 
-enum
+enum : uint8_t
 {
 	MAX_NUM_OF_CORES = 32
 };

@@ -48,7 +48,7 @@ namespace pcpp
 {
 
 	/// An enum representing all PcapPlusPlus modules
-	enum LogModule
+	enum LogModule : uint8_t
 	{
 		UndefinedLogModule,
 		CommonLogModuleIpUtils,          ///< IP Utils module (Common++)
@@ -140,7 +140,7 @@ namespace pcpp
 	public:
 		/// An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
 		/// default log level
-		enum LogLevel
+		enum LogLevel : uint8_t
 		{
 			Error,  ///< Error log level
 			Info,   ///< Info log level
