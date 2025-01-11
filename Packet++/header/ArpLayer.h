@@ -55,6 +55,18 @@ namespace pcpp
 	};
 
 	/**
+	 * @brief An enum representing the ARP message type
+	 */
+	enum class ArpMessageType
+	{
+		Unknown,            ///< Unknown ARP message type
+		Request,            ///< ARP request
+		Reply,              ///< ARP reply
+		GratuitousRequest,  ///< Gratuitous ARP request
+		GratuitousReply,    ///< Gratuitous ARP reply
+	};
+
+	/**
 	 * @brief A struct representing the build data for an ARP request
 	 *
 	 * An ARP request is a message sent by a machine to request the MAC address of another machine on the network.
@@ -235,6 +247,13 @@ namespace pcpp
 		}
 
 		/**
+		 * Get the ARP opcode
+		 * @return The ARP opcode
+		 * @remarks The opcode may not be one of the values in @ref ArpOpcode
+		 */
+		ArpOpcode getOpcode() const;
+
+		/**
 		 * Get the sender hardware address (SHA) in the form of MacAddress
 		 * @return A MacAddress containing the sender hardware address (SHA)
 		 */
@@ -292,9 +311,14 @@ namespace pcpp
 		 * - @ref arphdr#hardwareSize = 6
 		 * - @ref arphdr#protocolType = ETHERTYPE_IP (assume IPv4 over ARP)
 		 * - @ref arphdr#protocolSize = 4 (assume IPv4 over ARP)
-		 * - if it's an ARP request: @ref arphdr#targetMacAddr = MacAddress("00:00:00:00:00:00")
 		 */
 		void computeCalculateFields() override;
+
+		/**
+		 * @brief Attempts to determine the ARP message type based on the header signature.
+		 * @return An @ref ArpMessageType representing the ARP message type.
+		 */
+		ArpMessageType getMessageType() const;
 
 		/**
 		 * Is this packet an ARP request?

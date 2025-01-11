@@ -131,6 +131,8 @@ PTF_TEST_CASE(ArpPacketCreation)
 		pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, srcMac, srcMac, pcpp::IPv4Address("10.0.0.1"),
 		                        pcpp::IPv4Address("10.0.0.138"));
 
+		PTF_ASSERT_TRUE(arpLayer.getMessageType() == pcpp::ArpMessageType::Request);
+
 		pcpp::Packet arpRequestPacket(1);
 
 		PTF_ASSERT_TRUE(arpRequestPacket.addLayer(&ethLayer));
@@ -156,6 +158,8 @@ PTF_TEST_CASE(ArpPacketCreation)
 
 		pcpp::EthLayer ethLayer(srcMac, pcpp::MacAddress::Broadcast, PCPP_ETHERTYPE_ARP);
 		pcpp::ArpLayer arpLayer(pcpp::ArpRequest(srcMac, srcIp, dstIp));
+
+		PTF_ASSERT_TRUE(arpLayer.getMessageType() == pcpp::ArpMessageType::Request);
 
 		pcpp::Packet argRequestPacket(1);
 		PTF_ASSERT_TRUE(argRequestPacket.addLayer(&ethLayer));
@@ -191,6 +195,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareType, htobe16(1));
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP));
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY));
+		PTF_ASSERT_TRUE(arpLayer.getMessageType() == pcpp::ArpMessageType::Reply);
 		PTF_ASSERT_EQUAL(arpLayer.getSenderMacAddress(), srcMac);
 		PTF_ASSERT_EQUAL(arpLayer.getSenderIpAddr(), srcIp);
 		PTF_ASSERT_EQUAL(arpLayer.getTargetMacAddress(), dstMac);
@@ -211,6 +216,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareType, htobe16(1));
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP));
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->opcode, htobe16(pcpp::ARP_REQUEST));
+		PTF_ASSERT_TRUE(arpLayer.getMessageType() == pcpp::ArpMessageType::GratuitousRequest);
 		PTF_ASSERT_EQUAL(arpLayer.getSenderMacAddress(), srcMac);
 		PTF_ASSERT_EQUAL(arpLayer.getSenderIpAddr(), srcIp);
 		PTF_ASSERT_EQUAL(arpLayer.getTargetMacAddress(), pcpp::MacAddress::Broadcast);
@@ -231,6 +237,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->hardwareType, htobe16(1));
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->protocolType, htobe16(PCPP_ETHERTYPE_IP));
 		PTF_ASSERT_EQUAL(arpLayer.getArpHeader()->opcode, htobe16(pcpp::ARP_REPLY));
+		PTF_ASSERT_TRUE(arpLayer.getMessageType() == pcpp::ArpMessageType::GratuitousReply);
 		PTF_ASSERT_EQUAL(arpLayer.getSenderMacAddress(), srcMac);
 		PTF_ASSERT_EQUAL(arpLayer.getSenderIpAddr(), srcIp);
 		PTF_ASSERT_EQUAL(arpLayer.getTargetMacAddress(), pcpp::MacAddress::Broadcast);

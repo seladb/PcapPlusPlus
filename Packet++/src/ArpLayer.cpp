@@ -49,6 +49,11 @@ namespace pcpp
 	               gratuitousArpReply.senderIpAddr)
 	{}
 
+	ArpOpcode ArpLayer::getOpcode() const
+	{
+		return static_cast<ArpOpcode>(be16toh(getArpHeader()->opcode));
+	}
+
 	void ArpLayer::computeCalculateFields()
 	{
 		arphdr* arpHeader = getArpHeader();
@@ -58,27 +63,53 @@ namespace pcpp
 		arpHeader->protocolSize = 4;                           // assume IPv4 over ARP
 	}
 
+	ArpMessageType ArpLayer::getMessageType() const
+	{
+		switch (getOpcode())
+		{
+		case ArpOpcode::ARP_REQUEST:
+		{
+			if (getTargetMacAddress() == MacAddress::Broadcast && getSenderIpAddr() == getTargetIpAddr())
+			{
+				return ArpMessageType::GratuitousRequest;
+			}
+			return ArpMessageType::Request;
+		}
+		case ArpOpcode::ARP_REPLY:
+		{
+			if (getTargetMacAddress() == MacAddress::Broadcast && getSenderIpAddr() == getTargetIpAddr())
+			{
+				return ArpMessageType::GratuitousReply;
+			}
+			return ArpMessageType::Reply;
+		}
+		default:
+			return ArpMessageType::Unknown;
+		}
+	}
+
 	bool ArpLayer::isRequest() const
 	{
-		return be16toh(getArpHeader()->opcode) == pcpp::ArpOpcode::ARP_REQUEST;
+		return getOpcode() == pcpp::ArpOpcode::ARP_REQUEST;
 	}
 
 	bool ArpLayer::isReply() const
 	{
-		return be16toh(getArpHeader()->opcode) == pcpp::ArpOpcode::ARP_REPLY;
+		return getOpcode() == pcpp::ArpOpcode::ARP_REPLY;
 	}
 
 	std::string ArpLayer::toString() const
 	{
-		if (be16toh(getArpHeader()->opcode) == ARP_REQUEST)
+		switch (getOpcode())
 		{
+		case ArpOpcode::ARP_REQUEST:
 			return "ARP Layer, ARP request, who has " + getTargetIpAddr().toString() + " ? Tell " +
 			       getSenderIpAddr().toString();
-		}
-		else
-		{
+		case ArpOpcode::ARP_REPLY:
 			return "ARP Layer, ARP reply, " + getSenderIpAddr().toString() + " is at " +
 			       getSenderMacAddress().toString();
+		default:
+			return "ARP Layer, unknown opcode (" + std::to_string(getOpcode()) + ")";
 		}
 	}
 
