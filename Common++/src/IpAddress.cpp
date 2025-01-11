@@ -300,7 +300,7 @@ namespace pcpp
 
 	uint64_t IPv4Network::getTotalAddressCount() const
 	{
-		const std::bitset<32> bitset((~m_Mask));
+		const std::bitset<32> bitset(~static_cast<uint64_t>(m_Mask));
 		return 1ULL << bitset.count();
 	}
 
