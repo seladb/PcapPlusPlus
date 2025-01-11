@@ -1,6 +1,6 @@
 import subprocess
 
-EXPECTED_CLANG_VERSION = "18.1.6"
+EXPECTED_CLANG_VERSION = "19.1.6"
 
 
 def main():

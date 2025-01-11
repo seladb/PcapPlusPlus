@@ -485,8 +485,7 @@ namespace pcpp
 		auto* ipLayer = m_Packet->getLayerOfType<pcpp::IPLayer>();
 		if (ipLayer == nullptr)
 		{
-			PCPP_LOG_ERROR("Calculate checksum failed, for can not get IPLayer"
-			               << "");
+			PCPP_LOG_ERROR("Calculate checksum failed, for can not get IPLayer" << "");
 			return 0;
 		}
 
