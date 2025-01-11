@@ -524,9 +524,9 @@ namespace pcpp
 	uint64_t IPv6Network::getTotalAddressCount() const
 	{
 		int numOfBitset = 0;
-		for (const unsigned char byteIndex : m_Mask)
+		for (const auto &byte : m_Mask)
 		{
-			const std::bitset<8> bitset(static_cast<uint8_t>(~byteIndex));
+			const std::bitset<8> bitset(static_cast<uint8_t>(~byte));
 			numOfBitset += static_cast<int>(bitset.count());
 		}
 
