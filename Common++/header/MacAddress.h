@@ -5,8 +5,8 @@
 #include <iterator>
 #include <ostream>
 #include <stdint.h>
-#include <string.h>
 #include <string>
+#include <array>
 
 /// @file
 
@@ -28,10 +28,16 @@ namespace pcpp
 		/// The byte array length should be 6 (as MAC address is 6-byte long), and the remaining bytes are ignored.
 		/// If the byte array is invalid, the constructor throws an exception.
 		/// @param[in] addr A pointer to the byte array containing 6 bytes representing the MAC address
-		explicit MacAddress(const uint8_t* addr)
+		explicit MacAddress(const uint8_t addr[6])
 		{
-			memcpy(m_Address, addr, sizeof(m_Address));
+			std::copy(addr, addr + 6, m_Address.begin());
 		}
+
+		/// A constructor that creates an instance of the class out of a std::array.
+		/// The array length should be 6 (as MAC address is 6-byte long).
+		/// @param [in] addr A std::array containing 6 bytes representing the MAC address
+		explicit MacAddress(const std::array<uint8_t, 6>& addr) : m_Address(addr)
+		{}
 
 		/// A constructor that creates an instance of the class out of a std::string.
 		/// If the string doesn't represent a valid MAC address, the constructor throws an exception.
@@ -54,14 +60,8 @@ namespace pcpp
 		/// @param[in] sixthOctet Represent the sixth octet in the address
 		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
 		                  uint8_t fifthOctet, uint8_t sixthOctet)
-		{
-			m_Address[0] = firstOctet;
-			m_Address[1] = secondOctet;
-			m_Address[2] = thirdOctet;
-			m_Address[3] = fourthOctet;
-			m_Address[4] = fifthOctet;
-			m_Address[5] = sixthOctet;
-		}
+		    : m_Address{ firstOctet, secondOctet, thirdOctet, fourthOctet, fifthOctet, sixthOctet }
+		{}
 
 		/// A constructor that creates an instance out of the initializer list.
 		/// The byte list length should be 6 (as MAC address is 6-byte long).
@@ -69,7 +69,7 @@ namespace pcpp
 		/// @param[in] octets An initializer list containing the values of type uint8_t representing the MAC address
 		MacAddress(std::initializer_list<uint8_t> octets)
 		{
-			if (octets.size() != sizeof(m_Address))
+			if (octets.size() != m_Address.size())
 			{
 				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
@@ -81,7 +81,7 @@ namespace pcpp
 		/// @return True if addresses are equal, false otherwise
 		bool operator==(const MacAddress& other) const
 		{
-			return memcmp(m_Address, other.m_Address, sizeof(m_Address)) == 0;
+			return m_Address == other.m_Address;
 		}
 
 		/// Overload of the not-equal operator
@@ -103,7 +103,7 @@ namespace pcpp
 				throw std::invalid_argument("Invalid initializer list size, should be 6");
 			}
 
-			std::copy(octets.begin(), octets.end(), std::begin(m_Address));
+			std::copy(octets.begin(), octets.end(), m_Address.begin());
 			return *this;
 		}
 
@@ -111,35 +111,41 @@ namespace pcpp
 		/// @return The pointer to raw data
 		const uint8_t* getRawData() const
 		{
-			return m_Address;
+			return m_Address.data();
 		}
 
 		/// Returns a std::string representation of the address
 		/// @return A string representation of the address
 		std::string toString() const;
 
+		/// @return A 6-byte integer representing the MAC address
+		std::array<uint8_t, 6> toByteArray() const
+		{
+			return m_Address;
+		}
+
 		/// Allocates a byte array of length 6 and copies address value into it. Array deallocation is user
 		/// responsibility
 		/// @param[in] arr A pointer to where array will be allocated
 		void copyTo(uint8_t** arr) const
 		{
-			*arr = new uint8_t[sizeof(m_Address)];
-			memcpy(*arr, m_Address, sizeof(m_Address));
+			*arr = new uint8_t[m_Address.size()];
+			std::copy(m_Address.begin(), m_Address.end(), *arr);
 		}
 
 		/// Gets a pointer to an already allocated byte array and copies the address value to it.
 		/// This method assumes array allocated size is at least 6 (the size of a MAC address)
 		/// @param[in] arr A pointer to the array which address will be copied to
-		void copyTo(uint8_t* arr) const
+		void copyTo(uint8_t arr[6]) const
 		{
-			memcpy(arr, m_Address, sizeof(m_Address));
+			std::copy(m_Address.begin(), m_Address.end(), arr);
 		}
 
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
 		static MacAddress Zero;
 
 	private:
-		uint8_t m_Address[6] = { 0 };
+		std::array<uint8_t, 6> m_Address{};
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
