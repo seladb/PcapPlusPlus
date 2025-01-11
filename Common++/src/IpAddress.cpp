@@ -367,15 +367,15 @@ namespace pcpp
 	{
 		memset(m_Mask, 0, IPV6_ADDR_SIZE);
 		int remainingPrefixLen = prefixLen;
-		for (unsigned char& byteIndex : m_Mask)
+		for (auto& byte : m_Mask)
 		{
 			if (remainingPrefixLen >= 8)
 			{
-				byteIndex = 0xff;
+				byte = 0xff;
 			}
 			else if (remainingPrefixLen > 0)
 			{
-				byteIndex = 0xff << (8 - remainingPrefixLen);
+				byte = 0xff << (8 - remainingPrefixLen);
 			}
 			else
 			{
@@ -488,9 +488,9 @@ namespace pcpp
 	uint8_t IPv6Network::getPrefixLen() const
 	{
 		uint8_t result = 0;
-		for (const unsigned char byteIndex : m_Mask)
+		for (const auto& byte : m_Mask)
 		{
-			const std::bitset<8> bset(byteIndex);
+			const std::bitset<8> bset(byte);
 			result += static_cast<uint8_t>(bset.count());
 		}
 		return result;
