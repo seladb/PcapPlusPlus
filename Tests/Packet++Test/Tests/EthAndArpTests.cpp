@@ -123,7 +123,7 @@ PTF_TEST_CASE(ArpPacketCreation)
 	READ_FILE_INTO_BUFFER(1, "PacketExamples/ArpRequestPacket.dat");
 	// Stores the buffer in a unique_ptr to ensure it's deleted when the test ends.
 	std::unique_ptr<uint8_t[]> buffer1Uptr(buffer1);
-	
+
 	{
 		pcpp::MacAddress srcMac("6c:f0:49:b2:de:6e");
 		pcpp::MacAddress dstMac("ff:ff:ff:ff:ff:ff");
