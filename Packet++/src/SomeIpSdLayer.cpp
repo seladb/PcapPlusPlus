@@ -499,7 +499,7 @@ namespace pcpp
 		while (remainingLen > 0)
 		{
 		    	// Ensure there is enough remaining length for a new entry
-		        if (remainingLen < sizeof(SomeIpSdEntry::someipsdhdrentry))
+		        if (remainingLen < sizeof(SomeIpSdEntry::someipsdhdrentry)) 
 			{
 				break;
 			}
