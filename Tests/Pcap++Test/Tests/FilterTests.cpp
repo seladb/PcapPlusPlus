@@ -25,7 +25,7 @@ static int incSleep(const pcpp::RawPacketVector& capturedPackets, size_t expecte
 			return totalSleepTime;
 		}
 
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 	}
 

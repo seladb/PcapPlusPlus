@@ -24,8 +24,8 @@ namespace pcpp
 #if defined(_WIN32)
 
 #	ifndef SIO_RCVALL
-/* SIO_RCVALL defined on w2k and later. Not defined in Mingw32 */
-/* 0x98000001 = _WSAIOW(IOC_VENDOR,1)       */
+// SIO_RCVALL defined on w2k and later. Not defined in Mingw32
+// 0x98000001 = _WSAIOW(IOC_VENDOR,1)
 #		define SIO_RCVALL 0x98000001
 #	endif  // SIO_RCVALL
 
