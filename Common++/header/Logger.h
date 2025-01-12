@@ -1,10 +1,10 @@
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <stdint.h>
+#include <cstdint>
 
 #ifndef LOG_MODULE
 #	define LOG_MODULE UndefinedLogModule
@@ -48,7 +48,7 @@ namespace pcpp
 {
 
 	/// An enum representing all PcapPlusPlus modules
-	enum LogModule
+	enum LogModule : uint8_t
 	{
 		UndefinedLogModule,
 		CommonLogModuleIpUtils,          ///< IP Utils module (Common++)
@@ -114,6 +114,11 @@ namespace pcpp
 		NumOfLogModules,
 	};
 
+	/// Cross-platform and thread-safe version of strerror
+	/// @param errnum Value of errno
+	/// @return String representation of the error number
+	std::string getErrorString(int errnum);
+
 	/// @class Logger
 	/// PcapPlusPlus logger manager.
 	/// PcapPlusPlus uses this logger to output both error and debug logs.
@@ -136,7 +141,7 @@ namespace pcpp
 	public:
 		/// An enum representing the log level. Currently 3 log levels are supported: Error, Info and Debug. Info is the
 		/// default log level
-		enum LogLevel
+		enum LogLevel : uint8_t
 		{
 			Error,  ///< Error log level
 			Info,   ///< Info log level
@@ -150,8 +155,7 @@ namespace pcpp
 		/// @param[in] file The source file in PcapPlusPlus code the log message is coming from
 		/// @param[in] method The method in PcapPlusPlus code the log message is coming from
 		/// @param[in] line The line in PcapPlusPlus code the log message is coming from
-		typedef void (*LogPrinter)(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                           const std::string& method, const int line);
+		using LogPrinter = void (*)(LogLevel, const std::string&, const std::string&, const std::string&, const int);
 
 		/// A static method for converting the log level enum to a string.
 		/// @param[in] logLevel A log level enum
@@ -187,7 +191,9 @@ namespace pcpp
 		void setAllModulesToLogLevel(LogLevel level)
 		{
 			for (int i = 1; i < NumOfLogModules; i++)
+			{
 				m_LogModulesArray[i] = level;
+			}
 		}
 
 		/// Set a custom log printer.
@@ -234,7 +240,7 @@ namespace pcpp
 			return *this;
 		}
 
-		std::ostringstream* internalCreateLogStream();
+		static std::ostringstream* internalCreateLogStream();
 
 		/// An internal method to print log messages. Shouldn't be used externally.
 		void internalPrintLogMessage(std::ostringstream* logStream, Logger::LogLevel logLevel, const char* file,
@@ -251,15 +257,15 @@ namespace pcpp
 
 	private:
 		bool m_LogsEnabled;
-		Logger::LogLevel m_LogModulesArray[NumOfLogModules];
+		Logger::LogLevel m_LogModulesArray[NumOfLogModules]{};
 		LogPrinter m_LogPrinter;
 		std::string m_LastError;
-		std::ostringstream* m_LogStream;
+		std::ostringstream* m_LogStream{};
 
 		// private c'tor - this class is a singleton
 		Logger();
 
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                              const std::string& method, const int line);
+		                              const std::string& method, int line);
 	};
 }  // namespace pcpp

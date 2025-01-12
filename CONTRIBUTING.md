@@ -29,7 +29,7 @@ Every code contribution to this project is highly valued and appreciated. I enco
          - For Windows (using `choco`) `choco install cppcheck --version=2.7`
          - For Windows (MSI install): https://github.com/danmar/cppcheck/releases/download/2.7/cppcheck-2.7-x64-Setup.msi
          - Build from source: https://github.com/danmar/cppcheck/releases/tag/2.7
-      - `clang-format`: `pip install clang-format==18.1.6`
+      - `clang-format`: `pip install clang-format==19.1.6`
 - After you commit the code and push it to GitHub, before creating the pull request please make sure that:
    - You merge all new code from **dev** to your fork
    - CI passes on all platforms
