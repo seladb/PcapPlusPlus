@@ -36,7 +36,7 @@ namespace pcpp
 #pragma pack(pop)
 
 	/**
-	 * @class DoipLayer
+	 * @class DoIpLayer
 	 * Represents an DoIP protocol layer. Currently only IPv4 DoIP messages are supported
 	 */
 	class DoIpLayer : public Layer
