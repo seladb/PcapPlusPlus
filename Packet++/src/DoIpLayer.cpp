@@ -148,12 +148,11 @@ namespace pcpp
 
 	std::string DoIpLayer::toString() const
 	{
-		std::stringstream os;
 		if (!resolveLayer())
 		{
-			os << "Malformed doip Packet";
-			return os.str();
+			return "Malformed doip Packet";
 		}
+		std::stringstream os;
 		DoIpProtocolVersion version = getProtocolVersion();
 		DoIpPayloadTypes type = getPayloadType();
 		uint32_t length = getPayloadLength();
