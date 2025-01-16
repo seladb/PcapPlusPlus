@@ -19,10 +19,10 @@ namespace pcpp
 	std::string RoutingActivationRequestData::toString() const
 	{
 		std::stringstream os;
-		os << "sourceAddress: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
+		os << "sourceAddress: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		os << "activation type: " << DoIpEnumToStringActivationTypes.at(activationType) << std::hex << " (0x"
-		   << unsigned(activationType) << ")" << std::endl;
-		os << "reserved by ISO: " << pcpp::byteArrayToHexString(reservedIso.data(), DOIP_RESERVED_ISO_LEN) << std::endl;
+		   << unsigned(activationType) << ")" << "\n";
+		os << "reserved by ISO: " << pcpp::byteArrayToHexString(reservedIso.data(), DOIP_RESERVED_ISO_LEN) << "\n";
 		if (reservedOem)
 		{
 			os << "Reserved by OEM: " << pcpp::byteArrayToHexString(reservedOem->data(), DOIP_RESERVED_OEM_LEN) << '\n';
@@ -94,15 +94,14 @@ namespace pcpp
 	{
 		std::stringstream os;
 		os << "logical address of external tester: " << std::hex << "0x" << htobe16(logicalAddressExternalTester)
-		   << std::endl;
-		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
+		   << "\n";
+		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		os << "routing activation response code: " << DoIpEnumToStringRoutingResponseCodes.at(responseCode) << std::hex
-		   << " (0x" << unsigned(responseCode) << ")" << std::endl;
-		os << "reserved by ISO: " << pcpp::byteArrayToHexString(reservedIso.data(), DOIP_RESERVED_ISO_LEN) << std::endl;
+		   << " (0x" << unsigned(responseCode) << ")" << "\n";
+		os << "reserved by ISO: " << pcpp::byteArrayToHexString(reservedIso.data(), DOIP_RESERVED_ISO_LEN) << "\n";
 		if (reservedOem)
 		{
-			os << "Reserved by OEM: " << pcpp::byteArrayToHexString(reservedOem->data(), DOIP_RESERVED_OEM_LEN)
-			   << std::endl;
+			os << "Reserved by OEM: " << pcpp::byteArrayToHexString(reservedOem->data(), DOIP_RESERVED_OEM_LEN) << "\n";
 		}
 		return os.str();
 	}
@@ -180,7 +179,7 @@ namespace pcpp
 	{
 		std::stringstream os;
 		os << "generic header nack code: " << DoIpEnumToStringGenericHeaderNackCodes.at(genericNackCode) << std::hex
-		   << " (0x" << unsigned(genericNackCode) << ")" << std::endl;
+		   << " (0x" << unsigned(genericNackCode) << ")" << "\n";
 		;
 		return os.str();
 	}
@@ -231,7 +230,7 @@ namespace pcpp
 	std::string VehicleIdentificationRequestEIDData::toString() const
 	{
 		std::stringstream os;
-		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << std::endl;
+		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << "\n";
 		return os.str();
 	}
 	std::vector<uint8_t> VehicleIdentificationRequestEIDData::getData() const
@@ -281,7 +280,7 @@ namespace pcpp
 	std::string VehicleIdentificationRequestVINData::toString() const
 	{
 		std::stringstream os;
-		os << "VIN: " << std::string(reinterpret_cast<const char*>(vin.data()), vin.size()) << std::endl;
+		os << "VIN: " << std::string(reinterpret_cast<const char*>(vin.data()), vin.size()) << "\n";
 		return os.str();
 	}
 	std::vector<uint8_t> VehicleIdentificationRequestVINData::getData() const
@@ -339,14 +338,13 @@ namespace pcpp
 	std::string VehicleAnnouncementData::toString() const
 	{
 		std::stringstream os;
-		os << "VIN: " << std::string(reinterpret_cast<const char*>(vin.data()), vin.size()) << std::endl;
-		os << "logical address: " << std::hex << "0x" << htobe16(logicalAddress) << std::endl;
-		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << std::endl;
-		os << "GID: " << pcpp::byteArrayToHexString(gid.data(), DOIP_GID_LEN) << std::endl;
+		os << "VIN: " << std::string(reinterpret_cast<const char*>(vin.data()), vin.size()) << "\n";
+		os << "logical address: " << std::hex << "0x" << htobe16(logicalAddress) << "\n";
+		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << "\n";
+		os << "GID: " << pcpp::byteArrayToHexString(gid.data(), DOIP_GID_LEN) << "\n";
 		os << "further action required:" << DoIpEnumToStringActionCodes.at(furtherActionRequired) << std::hex << " (0x"
-		   << unsigned(furtherActionRequired) << ")" << std::endl;
-		os << "VIN/GID sync status: " << DoIpEnumToStringSyncStatus.at(syncStatus)
-		   << std::endl;  // Convert enum to byte
+		   << unsigned(furtherActionRequired) << ")" << "\n";
+		os << "VIN/GID sync status: " << DoIpEnumToStringSyncStatus.at(syncStatus) << "\n";  // Convert enum to byte
 		return os.str();
 	}
 
@@ -437,7 +435,7 @@ namespace pcpp
 	std::string AliveCheckResponseData::toString() const
 	{
 		std::stringstream os;
-		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
+		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		return os.str();
 	}
 	std::vector<uint8_t> AliveCheckResponseData::getData() const
@@ -492,7 +490,7 @@ namespace pcpp
 	{
 		std::stringstream os;
 		os << "diagnostic power mode: " << DoIpEnumToStringDiagnosticPowerModeCodes.at(powerModeCode) << std::hex
-		   << " (0x" << unsigned(powerModeCode) << ")" << std::endl;
+		   << " (0x" << unsigned(powerModeCode) << ")" << "\n";
 		return os.str();
 	}
 
@@ -548,13 +546,13 @@ namespace pcpp
 	{
 		std::stringstream os;
 		os << "Entity status: " << DoIpEnumToStringEntityStatusNodeTypes.at(nodeType) << std::hex << " (0x"
-		   << unsigned(nodeType) << ")" << std::endl;
-		os << "maximum Concurrent Socket: " << unsigned(maxConcurrentSockets) << std::endl;
-		os << "currently Opened Socket: " << unsigned(currentlyOpenSockets) << std::endl;
+		   << unsigned(nodeType) << ")" << "\n";
+		os << "maximum Concurrent Socket: " << unsigned(maxConcurrentSockets) << "\n";
+		os << "currently Opened Socket: " << unsigned(currentlyOpenSockets) << "\n";
 		if (maxDataSize)
 		{
 			os << "maximum Data Size: "
-			   << "0x" << pcpp::byteArrayToHexString(maxDataSize->data(), 4) << std::endl;
+			   << "0x" << pcpp::byteArrayToHexString(maxDataSize->data(), 4) << "\n";
 		}
 
 		return os.str();
@@ -633,8 +631,8 @@ namespace pcpp
 	std::string DiagnosticMessageData::toString() const
 	{
 		std::stringstream os;
-		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
-		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << std::endl;
+		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
+		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
 		return os.str();
 	}
 	std::vector<uint8_t> DiagnosticMessageData::getData() const
@@ -698,13 +696,13 @@ namespace pcpp
 	std::string DiagnosticAckMessageData::toString() const
 	{
 		std::stringstream os;
-		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
-		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << std::endl;
-		os << "ack code: " << DoIpEnumToStringAckCode.at(ackCode) << " (0x" << unsigned(ackCode) << ")" << std::endl;
+		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
+		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
+		os << "ack code: " << DoIpEnumToStringAckCode.at(ackCode) << " (0x" << unsigned(ackCode) << ")" << "\n";
 		if (!previousMessage.empty())
 		{
 			os << "previous message: " << pcpp::byteArrayToHexString(previousMessage.data(), previousMessage.size())
-			   << std::endl;
+			   << "\n";
 		}
 		return os.str();
 	}
@@ -782,14 +780,14 @@ namespace pcpp
 	std::string DiagnosticNackMessageData::toString() const
 	{
 		std::stringstream os;
-		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << std::endl;
-		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << std::endl;
+		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
+		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
 		os << "nack code: " << DoIpEnumToStringDiagnosticNackCodes.at(nackCode) << std::hex << " (0x"
-		   << unsigned(nackCode) << ")" << std::endl;
+		   << unsigned(nackCode) << ")" << "\n";
 		if (!previousMessage.empty())
 		{
 			os << "previous message: " << pcpp::byteArrayToHexString(previousMessage.data(), previousMessage.size())
-			   << std::endl;
+			   << "\n";
 		}
 		return os.str();
 	}

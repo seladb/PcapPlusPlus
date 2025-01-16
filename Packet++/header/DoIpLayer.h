@@ -12,8 +12,8 @@
 /// @file
 
 /**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
+ * @namespace pcpp
+ * @brief The main namespace for the PcapPlusPlus lib
  */
 namespace pcpp
 {
@@ -155,7 +155,7 @@ namespace pcpp
 		 * Set the doip payload length
 		 * @param[in] length the doip payload length to set
 		 */
-		void setPayloadength(uint32_t length);
+		void setPayloadLength(uint32_t length);
 
 		/**
 		 * copy data from msgFields to dest

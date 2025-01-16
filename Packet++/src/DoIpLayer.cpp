@@ -66,7 +66,7 @@ namespace pcpp
 
 	void DoIpLayer::setPayloadType(DoIpPayloadTypes type)
 	{
-		getDoIpHeader()->payloadType = htobe16((uint16_t)type);
+		getDoIpHeader()->payloadType = htobe16(static_cast<uint16_t>(type));
 	}
 
 	std::string DoIpLayer::getPayloadTypeAsStr() const
@@ -87,7 +87,7 @@ namespace pcpp
 		return htobe32(getDoIpHeader()->payloadLength);
 	}
 
-	void DoIpLayer::setPayloadength(uint32_t Payloadength)
+	void DoIpLayer::setPayloadLength(uint32_t Payloadength)
 	{
 		getDoIpHeader()->payloadLength = be32toh(Payloadength);
 	}
@@ -109,7 +109,7 @@ namespace pcpp
 			PCPP_LOG_ERROR("Invalid/unsupported DoIP version!");
 			return false;
 		}
-		if ((uint8_t)(version) != (uint8_t) ~(inVersion))
+		if ((uint8_t)(version) != (uint8_t)~(inVersion))
 		{
 			PCPP_LOG_ERROR("Version and invert version are not synchronised !");
 			return false;
@@ -157,12 +157,12 @@ namespace pcpp
 		DoIpPayloadTypes type = getPayloadType();
 		uint32_t length = getPayloadLength();
 
-		os << "DOIP Layer:" << std::endl;
+		os << "DOIP Layer:" << "\n";
 		os << "Protocol Version: " << getProtocolVersionAsStr() << std::hex << " (0x" << unsigned((uint8_t)version)
-		   << ")" << std::endl;
+		   << ")" << "\n";
 		os << "Payload Type: " << getPayloadTypeAsStr() << std::hex << " (0x" << std::setw(4) << std::setfill('0')
-		   << (uint16_t)type << ")" << std::endl;
-		os << std::dec << "Payload Length: " << length << std::endl;
+		   << (uint16_t)type << ")" << "\n";
+		os << std::dec << "Payload Length: " << length << "\n";
 
 		return os.str();
 	}
@@ -176,8 +176,7 @@ namespace pcpp
 	{
 		m_DataLen = sizeof(doiphdr);
 		m_Protocol = DOIP;
-		m_Data = new uint8_t[m_DataLen];
-		memset(m_Data, 0, m_DataLen);
+		m_Data = new uint8_t[m_DataLen]{};
 	}
 
 	void DoIpLayer::buildLayer(DoIpPayloadTypes type, const IDoIpMessageData* data)
@@ -189,7 +188,7 @@ namespace pcpp
 		case DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_REQUEST:
 		case DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST:
 			setPayloadType(type);
-			setPayloadength(0);
+			setPayloadLength(0);
 			break;
 		default:
 			// Payload handling for rest of types
@@ -203,7 +202,7 @@ namespace pcpp
 				size_t headerLength = sizeof(doiphdr);
 
 				setPayloadType(data->getType());
-				setPayloadength(payloadSize);
+				setPayloadLength(payloadSize);
 				extendLayer(headerLength, payloadSize);
 				serializeData(m_Data + headerLength, data->getData());
 				break;

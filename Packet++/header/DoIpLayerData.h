@@ -11,8 +11,8 @@
 /// @file
 
 /**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus library
+ * @namespace pcpp
+ * @brief The main namespace for the PcapPlusPlus library
  */
 namespace pcpp
 {
@@ -45,7 +45,7 @@ namespace pcpp
 	class DoIpLayer;
 
 	/**
-	 * \brief A pure abstract class representing the basic structure of DoIP messages.
+	 * @brief A pure abstract class representing the basic structure of DoIP messages.
 	 *
 	 * This interface defines methods to retrieve the type, string representation,
 	 * and binary data of DoIP messages. All DoIP message classes must implement this interface.
@@ -56,27 +56,27 @@ namespace pcpp
 		virtual ~IDoIpMessageData() = default;
 
 		/**
-		 * \brief Returns the type of the DoIP message.
-		 * \return The type of the message as a `DoIpPayloadTypes` enum.
+		 * @brief Returns the type of the DoIP message.
+		 * @return The type of the message as a `DoIpPayloadTypes` enum.
 		 */
 		virtual DoIpPayloadTypes getType() const = 0;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return The string representation of the message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return The string representation of the message.
 		 */
 		virtual std::string toString() const = 0;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return The message data as a vector of bytes.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return The message data as a vector of bytes.
 		 */
 		virtual std::vector<uint8_t> getData() const = 0;
 
 		/**
-		 * \brief build IDoIpMessageData from DoIpLayer
+		 * @brief build IDoIpMessageData from DoIpLayer
 		 * @param[in] doipLayer pointer to doipLayer to retrieve data from
-		 * \return true if encapsulating process is done successufly else false.
+		 * @return true if encapsulating process is done successufly else false.
 		 *
 		 * @exception Logs an error and returns `false` if:
 		 * - The input layer is null.
@@ -88,7 +88,7 @@ namespace pcpp
 
 	/**
 	 * @class RoutingActivationRequestData
-	 * \brief Represents a Routing Activation Request message in DoIP.
+	 * @brief Represents a Routing Activation Request message in DoIP.
 	 *
 	 * This class encapsulates data for a Routing Activation Request message,
 	 * including source address, activation type, and reserved fields.
@@ -114,20 +114,20 @@ namespace pcpp
 		std::unique_ptr<std::array<uint8_t, DOIP_RESERVED_OEM_LEN>> reservedOem; /**< Reserved OEM bytes. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::ROUTING_ACTIVATION_REQUEST`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Routing Activation Request message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Routing Activation Request message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -155,7 +155,7 @@ namespace pcpp
 
 	/**
 	 * @class RoutingActivationResponseData
-	 * \brief Represents a Routing Activation Response message in DoIP.
+	 * @brief Represents a Routing Activation Response message in DoIP.
 	 *
 	 * This class encapsulates data for a Routing Activation Response message,
 	 * including logical address, source address, response code, and reserved fields.
@@ -182,20 +182,20 @@ namespace pcpp
 		std::unique_ptr<std::array<uint8_t, DOIP_RESERVED_OEM_LEN>> reservedOem; /**< Reserved OEM bytes. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::ROUTING_ACTIVATION_RESPONSE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Routing Activation Response message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Routing Activation Response message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -215,7 +215,7 @@ namespace pcpp
 
 	/**
 	 * @class GenericHeaderNackData
-	 * \brief Represents a Generic Header Negative Acknowledgment message in DoIP.
+	 * @brief Represents a Generic Header Negative Acknowledgment message in DoIP.
 	 *
 	 * This class encapsulates data for a Generic Header NACK message, including
 	 * the NACK code to indicate the failure.
@@ -234,20 +234,20 @@ namespace pcpp
 		DoIpGenericHeaderNackCodes genericNackCode; /**< The NACK code indicating the error. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::GENERIC_HEADER_NEG_ACK`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Generic Header NACK message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Generic Header NACK message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -271,7 +271,7 @@ namespace pcpp
 
 	/**
 	 *  @class VehicleIdentificationRequestEIDData
-	 * \brief Represents a Vehicle Identification Request with EID message in DoIP.
+	 * @brief Represents a Vehicle Identification Request with EID message in DoIP.
 	 *
 	 * This class encapsulates data for a Vehicle Identification Request message
 	 * that includes the Electronic Identifier (EID).
@@ -290,20 +290,20 @@ namespace pcpp
 		std::array<uint8_t, DOIP_EID_LEN> eid; /**< Electronic Identifier (EID). */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_EID`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Vehicle Identification Request EID message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Vehicle Identification Request EID message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -327,7 +327,7 @@ namespace pcpp
 
 	/**
 	 * @class VehicleIdentificationRequestVINData
-	 * \brief Represents a Vehicle Identification Request with VIN message in DoIP.
+	 * @brief Represents a Vehicle Identification Request with VIN message in DoIP.
 	 *
 	 * This class encapsulates data for a Vehicle Identification Request message
 	 * that includes the Vehicle Identification Number (VIN).
@@ -346,20 +346,20 @@ namespace pcpp
 		std::array<uint8_t, DOIP_VIN_LEN> vin; /**< Vehicle Identification Number (VIN). */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::VEHICLE_IDENTIFICATION_REQUEST_WITH_VIN`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Vehicle Identification Request VIN message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Vehicle Identification Request VIN message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -388,7 +388,7 @@ namespace pcpp
 
 	/**
 	 * @class VehicleAnnouncementData
-	 * \brief Represents a Vehicle Announcement message in DoIP.
+	 * @brief Represents a Vehicle Announcement message in DoIP.
 	 *
 	 * This class encapsulates data for a Vehicle Announcement message, including
 	 * VIN, logical address, EID, GID, and further action required.
@@ -417,20 +417,20 @@ namespace pcpp
 		DoIpSyncStatus syncStatus;             /**< version and invert version are synchronized. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::ANNOUNCEMENT_MESSAGE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Vehicle Announcement message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Vehicle Announcement message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -464,7 +464,7 @@ namespace pcpp
 
 	/**
 	 * @class AliveCheckResponseData
-	 * \brief Represents an Alive Check Response message in DoIP.
+	 * @brief Represents an Alive Check Response message in DoIP.
 	 *
 	 * This class encapsulates data for an Alive Check Response message,
 	 * including the source address.
@@ -483,20 +483,20 @@ namespace pcpp
 		uint16_t sourceAddress; /**< Source address of the Alive Check Response message. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::ALIVE_CHECK_RESPONSE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::ALIVE_CHECK_RESPONSE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Alive Check Response message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Alive Check Response message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -524,7 +524,7 @@ namespace pcpp
 
 	/**
 	 * @class DiagnosticPowerModeResponseData
-	 * \brief Represents a Diagnostic Power Mode Response message in DoIP.
+	 * @brief Represents a Diagnostic Power Mode Response message in DoIP.
 	 *
 	 * This class encapsulates data for a Diagnostic Power Mode Response message,
 	 * including a power mode code indicating the current power mode.
@@ -543,20 +543,20 @@ namespace pcpp
 		DoIpDiagnosticPowerModeCodes powerModeCode; /**< Code representing the power mode. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::DIAGNOSTIC_POWER_MODE_RESPONSE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Diagnostic Power Mode Response message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Diagnostic Power Mode Response message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -584,7 +584,7 @@ namespace pcpp
 
 	/**
 	 * @class EntityStatusResponseData
-	 * \brief Represents an Entity Status Response message in DoIP.
+	 * @brief Represents an Entity Status Response message in DoIP.
 	 *
 	 * This class encapsulates data for an Entity Status Response message,
 	 * including status, maximum concurrent sockets, open sockets, and maximum data size.
@@ -616,20 +616,20 @@ namespace pcpp
 		    maxDataSize; /**< Maximum data size that can be handled (4 bytes optional). */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::ENTITY_STATUS_RESPONSE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::ENTITY_STATUS_RESPONSE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Entity Status Response message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Entity Status Response message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -661,7 +661,7 @@ namespace pcpp
 
 	/**
 	 * @class DiagnosticMessageData
-	 * \brief Represents a Diagnostic Message in DoIP.
+	 * @brief Represents a Diagnostic Message in DoIP.
 	 * This class encapsulates data for a Diagnostic Message, including source
 	 * and target addresses, as well as diagnostic data.
 	 */
@@ -683,20 +683,20 @@ namespace pcpp
 		std::vector<uint8_t> diagnosticData; /**< Diagnostic message data with dynamic length. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::DIAGNOSTIC_MESSAGE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::DIAGNOSTIC_MESSAGE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Diagnostic Message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Diagnostic Message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -727,7 +727,7 @@ namespace pcpp
 
 	/**
 	 * @class DiagnosticAckMessageData
-	 * \brief Represents a Diagnostic Acknowledgment Message in DoIP.
+	 * @brief Represents a Diagnostic Acknowledgment Message in DoIP.
 	 *
 	 * This class encapsulates data for a Diagnostic Acknowledgment Message,
 	 * including source and target addresses, as well as the acknowledgment code.
@@ -752,20 +752,20 @@ namespace pcpp
 		std::vector<uint8_t> previousMessage; /**< Previous acknowlged message. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::DIAGNOSTIC_ACK_MESSAGE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::DIAGNOSTIC_ACK_MESSAGE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Diagnostic Acknowledgment Message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Diagnostic Acknowledgment Message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
@@ -797,7 +797,7 @@ namespace pcpp
 
 	/**
 	 * @class DiagnosticNackMessageData
-	 * \brief Represents a Diagnostic Negative Acknowledgment Message in DoIP.
+	 * @brief Represents a Diagnostic Negative Acknowledgment Message in DoIP.
 	 *
 	 * This class encapsulates data for a Diagnostic Negative Acknowledgment
 	 * Message, including source and target addresses, as well as the NACK code.
@@ -823,20 +823,20 @@ namespace pcpp
 		std::vector<uint8_t> previousMessage;    /**< Previous acknowlged message. */
 
 		/**
-		 * \brief Returns the type of the message.
-		 * \return `DoIpPayloadTypes::DIAGNOSTIC_NACK_MESSAGE`.
+		 * @brief Returns the type of the message.
+		 * @return `DoIpPayloadTypes::DIAGNOSTIC_NACK_MESSAGE`.
 		 */
 		DoIpPayloadTypes getType() const override;
 
 		/**
-		 * \brief Converts the message data to a human-readable string.
-		 * \return A string representation of the Diagnostic Negative Acknowledgment Message.
+		 * @brief Converts the message data to a human-readable string.
+		 * @return A string representation of the Diagnostic Negative Acknowledgment Message.
 		 */
 		std::string toString() const override;
 
 		/**
-		 * \brief Retrieves the raw binary data of the message.
-		 * \return A vector of bytes representing the message data.
+		 * @brief Retrieves the raw binary data of the message.
+		 * @return A vector of bytes representing the message data.
 		 */
 		std::vector<uint8_t> getData() const override;
 
