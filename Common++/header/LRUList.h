@@ -1,6 +1,7 @@
 #pragma once
 
 #include <list>
+#include <cstddef>
 #include <unordered_map>
 
 #if __cplusplus > 199711L || _MSC_VER >= 1800
