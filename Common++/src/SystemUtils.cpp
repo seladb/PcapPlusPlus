@@ -55,9 +55,10 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
 
 namespace
 {
-
-	/// @class PcloseDeleter
-	/// A deleter that cleans up a FILE handle using pclose.
+	/**
+	 * @class PcloseDeleter
+	 * A deleter that cleans up a FILE handle using pclose.
+	 */
 	struct PcloseDeleter
 	{
 		void operator()(FILE* ptr) const
