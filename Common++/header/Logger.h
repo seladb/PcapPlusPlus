@@ -118,7 +118,7 @@ namespace pcpp
 	};
 
 	/**
-	 * Cross-platform and thread-safe version of strerror 
+	 * Cross-platform and thread-safe version of strerror
 	 * @param errnum Value of errno
 	 * @return String representation of the error number
 	 */

@@ -50,8 +50,8 @@ int inet_pton(int af, const char* src, void* dst);
 #endif
 
 /**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
+ * @namespace pcpp
+ * @brief The main namespace for the PcapPlusPlus lib
  */
 namespace pcpp
 {
