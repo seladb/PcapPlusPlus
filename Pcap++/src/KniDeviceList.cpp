@@ -21,9 +21,11 @@
 namespace pcpp
 {
 
-	/// ===================
-	/// Class KniDeviceList
-	/// ===================
+	/**
+	 * ===================
+	 * Class KniDeviceList
+	 * ===================
+	 */
 
 	static inline bool checkKniDriver()
 	{
@@ -151,11 +153,11 @@ namespace pcpp
 		switch (cbType)
 		{
 		case KniDeviceList::CALLBACK_MTU:
-			// fall through
+			/* fall through */
 		case KniDeviceList::CALLBACK_LINK:
 			return true;
 		case KniDeviceList::CALLBACK_MAC:
-			// fall through
+			/* fall through */
 		case KniDeviceList::CALLBACK_PROMISC:
 #if RTE_VERSION >= RTE_VERSION_NUM(18, 2, 0, 0)
 			return true;

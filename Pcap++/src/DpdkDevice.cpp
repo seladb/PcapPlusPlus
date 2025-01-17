@@ -34,16 +34,18 @@
 namespace pcpp
 {
 
-	/// ================
-	/// Class DpdkDevice
-	/// ================
+	/**
+	 * ================
+	 * Class DpdkDevice
+	 * ================
+	 */
 
-#define DPDK_CONFIG_HEADER_SPLIT 0  ///< Header Split disabled
+#define DPDK_CONFIG_HEADER_SPLIT 0 /**< Header Split disabled */
 #define DPDK_CONFIG_SPLIT_HEADER_SIZE 0
-#define DPDK_CONFIG_HW_IP_CHECKSUM 0  ///< IP checksum offload disabled
-#define DPDK_CONFIG_HW_VLAN_FILTER 0  ///< VLAN filtering disabled
-#define DPDK_CONFIG_JUMBO_FRAME 0     ///< Jumbo Frame Support disabled
-#define DPDK_CONFIG_HW_STRIP_CRC 0    ///< CRC stripped by hardware disabled
+#define DPDK_CONFIG_HW_IP_CHECKSUM 0 /**< IP checksum offload disabled */
+#define DPDK_CONFIG_HW_VLAN_FILTER 0 /**< VLAN filtering disabled */
+#define DPDK_CONFIG_JUMBO_FRAME 0    /**< Jumbo Frame Support disabled */
+#define DPDK_CONFIG_HW_STRIP_CRC 0   /**< CRC stripped by hardware disabled */
 #if (RTE_VER_YEAR < 21) || (RTE_VER_YEAR == 21 && RTE_VER_MONTH < 11)
 #	define DPDK_CONFIG_ETH_LINK_FULL_DUPLEX ETH_LINK_FULL_DUPLEX
 #	define DPDK_CONFIG_MQ_RSS ETH_RSS
