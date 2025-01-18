@@ -5,6 +5,8 @@
 #include "EndianPortable.h"
 #include "Logger.h"
 
+#include <cstring>
+
 namespace pcpp
 {
 
