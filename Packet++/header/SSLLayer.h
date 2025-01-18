@@ -33,44 +33,40 @@
 /// be instantiated. This means you'll never see a layer of type pcpp::SSLLayer, you'll only see the type of the derived
 /// classes. A basic class diagram looks like this:
 /// @code{.unparsed}
-/// ╔═════════════════════════════════════════════════════════════════════════════════════════════════╗
-/// ║                             +----------------------------+                                      ║
-/// ║                         +---|     SSLHandshakeLayer      | ===> Handshake record type           ║
-/// ║                         |   +----------------------------+                                      ║
-/// ║                         |                                                                       ║
-/// ║                         |   +----------------------------+                                      ║
-/// ║                         +---|  SSLChangeCipherSpecLayer  | ===> Change cipher spec record type  ║
-/// ║                         |   +----------------------------+                                      ║
-/// ║                         |                                                                       ║
-/// ║ +------------+          |   +----------------------------+                                      ║
-/// ║ |  SSLLayer  |----------+---|      SSLAlertLayer         | ===> Alert record type               ║
-/// ║ | (abstract) |          |   +----------------------------+                                      ║
-/// ║ +------------+          |                                                                       ║
-/// ║                         |   +----------------------------+                                      ║
-/// ║                         +---|   SSLApplicationDataLayer  | ===> Application data record type    ║
-/// ║                             +----------------------------+                                      ║
-/// ╚═════════════════════════════════════════════════════════════════════════════════════════════════╝
+///                              +----------------------------+
+///                          +---|     SSLHandshakeLayer      | ===> Handshake record type
+///                          |   +----------------------------+
+///                          |
+///                          |   +----------------------------+
+///                          +---|  SSLChangeCipherSpecLayer  | ===> Change cipher spec record type
+///                          |   +----------------------------+
+///                          |
+///  +------------+          |   +----------------------------+
+///  |  SSLLayer  |----------+---|      SSLAlertLayer         | ===> Alert record type
+///  | (abstract) |          |   +----------------------------+
+///  +------------+          |
+///                          |   +----------------------------+
+///                          +---|   SSLApplicationDataLayer  | ===> Application data record type
+///                              +----------------------------+
 /// @endcode
 ///
 /// A single packet may include several SSL/TLS records, meaning
 /// several layer instances of these types, for example:
 ///
 /// @code{.unparsed}
-/// ╔══════════════════════════════════════════════════════════════════════════════╗
-/// ║ +--------------------------+                                                 ║
-/// ║ |          EthLayer        |                                                 ║
-/// ║ +--------------------------+                                                 ║
-/// ║ |          IPv4Layer       |                                                 ║
-/// ║ +--------------------------+                                                 ║
-/// ║ |          TcpLayer        |                                                 ║
-/// ║ +--------------------------+                                                 ║
-/// ║ |    SSLHandshakeLayer     | \                                               ║
-/// ║ +--------------------------+  \                                              ║
-/// ║ | SSLChangeCipherSpecLayer | -------- 3 SSL/TLS records in the same packet!  ║
-/// ║ +--------------------------+  /                                              ║
-/// ║ |    SSLHandshakeLayer     | /                                               ║
-/// ║ +--------------------------+                                                 ║
-/// ╚══════════════════════════════════════════════════════════════════════════════╝
+///  +--------------------------+
+///  |          EthLayer        |
+///  +--------------------------+
+///  |          IPv4Layer       |
+///  +--------------------------+
+///  |          TcpLayer        |
+///  +--------------------------+
+///  |    SSLHandshakeLayer     | --+
+///  +--------------------------+   |
+///  | SSLChangeCipherSpecLayer | --+----- 3 SSL/TLS records in the same packet!
+///  +--------------------------+   |
+///  |    SSLHandshakeLayer     | --+
+///  +--------------------------+
 /// @endcode
 ///
 /// <BR><BR>
@@ -106,31 +102,29 @@
 /// classes:
 ///
 /// @code{.unparsed}
-/// ╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-/// ║                                          SSLHandshakeMessage                                                   ║
-/// ║                                             |                                                                  ║
-/// ║ +-------------------------------+           |--- SSLClientHelloMessage        ==> Client-hello message         ║
-/// ║ |       SSLHandshakeLayer       |           |                                                                  ║
-/// ║ +-------------------------------+           |--- SSLServerHelloMessage        ==> Server-hello message         ║
-/// ║ | -List of SSLHandshakeMessage  |           |                                                                  ║
-/// ║ |     Message1                  |           |---SSLCertificateMessage         ==> Certificate message          ║
-/// ║ |     Message2                  |           |                                                                  ║
-/// ║ |     ...                       |           |---SSLHelloRequestMessage        ==> Hello-request message        ║
-/// ║ |                               |           |                                                                  ║
-/// ║ +-------------------------------+           |---SSLServerKeyExchangeMessage   ==> Server-key-exchange message  ║
-/// ║                                             |                                                                  ║
-/// ║                                             |---SSLClientKeyExchangeMessage   ==> Client-key-exchange message  ║
-/// ║                                             |                                                                  ║
-/// ║                                             |---SSLCertificateRequestMessage  ==> Certificate-request message  ║
-/// ║                                             |                                                                  ║
-/// ║                                             |---SSLServerHelloDoneMessage     ==> Server-hello-done message    ║
-/// ║                                             |                                                                  ║
-/// ║                                             |---SSLCertificateVerifyMessage   ==> Certificate-verify message   ║
-/// ║                                             |                                                                  ║
-/// ║                                             |---SSLFinishedMessage            ==> Finished message             ║
-/// ║                                             |                                                                  ║
-/// ║                                             |---SSLNewSessionTicketMessage    ==> New-session-ticket message   ║
-/// ╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+///                                            SSLHandshakeMessage
+///                                               |
+///   +-------------------------------+           |--- SSLClientHelloMessage        ==> Client-hello message
+///   |       SSLHandshakeLayer       |           |
+///   +-------------------------------+           |--- SSLServerHelloMessage        ==> Server-hello message
+///   | -List of SSLHandshakeMessage  |           |
+///   |     Message1                  |           |---SSLCertificateMessage         ==> Certificate message
+///   |     Message2                  |           |
+///   |     ...                       |           |---SSLHelloRequestMessage        ==> Hello-request message
+///   |                               |           |
+///   +-------------------------------+           |---SSLServerKeyExchangeMessage   ==> Server-key-exchange message
+///                                               |
+///                                               |---SSLClientKeyExchangeMessage   ==> Client-key-exchange message
+///                                               |
+///                                               |---SSLCertificateRequestMessage  ==> Certificate-request message
+///                                               |
+///                                               |---SSLServerHelloDoneMessage     ==> Server-hello-done message
+///                                               |
+///                                               |---SSLCertificateVerifyMessage   ==> Certificate-verify message
+///                                               |
+///                                               |---SSLFinishedMessage            ==> Finished message
+///                                               |
+///                                               |---SSLNewSessionTicketMessage    ==> New-session-ticket message
 /// @endcode
 ///
 /// In addition, for all handshake messages which aren't supported in PcapPlusPlus or for encrypted
@@ -261,10 +255,6 @@ namespace pcpp
 
 	};  // class SSLLayer
 
-#ifdef __GNUC__
-#	pragma GCC diagnostic push
-#	pragma GCC diagnostic ignored "-Wcomment"
-#endif
 	// The graph below will break the code formatting, so it's disabled.
 	// clang-format off
 	/// @class SSLHandshakeLayer
@@ -277,45 +267,38 @@ namespace pcpp
 	/// structure. We'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
 	///
 	/// @code{.unparsed}
-	/// ╔══════════════════════════════════════════════════════════════════════════════════════════╗
-	/// ║          |------------------- SSLHandshakeLayer ----------------------|                  ║
-	/// ║          +----------------------+-------------------------------------+                  ║
-	/// ║          | ssl_tls_record_layer |       SSLClientHelloMessage         |                  ║
-	/// ║          |        struct        |                                     |                  ║
-	/// ║          +----------------------+-------------------------------------+                  ║
-	/// ║           /     |       \               |          \         \      \                    ║
-	/// ║          /    version    \      |   handshake       \         \      \                   ║
-	/// ║         /     TLS1_0      \            type          \         \     rest of             ║
-	/// ║      type                  \    | SSL_CLIENT_HELLO    \         \    message fields...   ║
-	/// ║  SSL_HANDSHAKE           length                   handshake      \                       ║
-	/// ║      (22)                 xxx   |                  version      message                  ║
-	/// ║                                                    TLS1_2      length                    ║
-	/// ║                                 |                                yyy                     ║
-	/// ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+	///  |----------------------------- SSLHandshakeLayer ----------------------------------------|
+	///  +--------------------------------+-------------------------------------------------------+
+	///  |      ssl_tls_record_layer      |       SSLClientHelloMessage                           |
+	///  |             struct             |                                                       |
+	///  +--------------------------------+-------------------------------------------------------+
+	///  |          /     |       \               |          \         \      \                   |
+	///  |         /    version    \      |   handshake       \         \      \                  |
+	///  |        /     TLS1_0      \            type          \         \     rest of            |
+	///  |     type                  \    | SSL_CLIENT_HELLO    \         \    message fields...  |
+	///  | SSL_HANDSHAKE           length                   handshake      \                      |
+	///  |     (22)                 xxx   |                  version      message                 |
+	///  |                                                   TLS1_2      length                   |
+	///  |                                |                                yyy                    |
 	/// @endcode
 	///
 	/// Second example is a multiple-message handshake layer comprises of server-hello, certificate and
 	/// server-key-exchange messages:
 	///
 	/// @code{.unparsed}
-	/// ╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-	/// ║          |---------------------------------------------- SSLHandshakeLayer -----------------------------------------------------|   ║
-	/// ║          +----------------------+-------------------------------------+---------------------------+-----------------------------+   ║
-	/// ║          | ssl_tls_record_layer |       SSLServerHelloMessage         |   SSLCertificateMessage   | SSLServerKeyExchangeMessage |   ║
-	/// ║          |        struct        |                                     |                           |                             |   ║
-	/// ║          +----------------------+-------------------------------------+---------------------------+-----------------------------+   ║
-	/// ║           /     |       \               |          \         \               |           \               |            \             ║
-	/// ║          /    version    \      |   handshake       \        rest of  |      |          rest      |      |            rest          ║
-	/// ║         /     TLS1_0      \            type          \       message      handshake   of fields...   handshake    of fields...      ║
-	/// ║      type                  \    | SSL_SERVER_HELLO    \      fields...|     type                  |     type                        ║
-	/// ║  SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE             SSL_SERVER_KEY_EXCHANGE         ║
-	/// ║      (22)                 xxx   |               version,length        |                           |                                 ║
-	/// ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+	///  |------------------------------------------------------- SSLHandshakeLayer ------------------------------------------------------|
+	///  +--------------------------------+-------------------------------------+---------------------------+-----------------------------+
+	///  |      ssl_tls_record_layer      |       SSLServerHelloMessage         |   SSLCertificateMessage   | SSLServerKeyExchangeMessage |
+	///  |             struct             |                                     |                           |                             |
+	///  +--------------------------------+-------------------------------------+---------------------------+-----------------------------+
+	///  |          /     |       \               |          \         \               |           \               |            \         |
+	///  |         /    version    \      |   handshake       \        rest of  |      |          rest      |      |            rest      |
+	///  |        /     TLS1_0      \            type          \       message      handshake   of fields...   handshake    of fields...  |
+	///  |     type                  \    | SSL_SERVER_HELLO    \      fields...|     type                  |     type                    |
+	///  | SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE             SSL_SERVER_KEY_EXCHANGE     |
+	///  |     (22)                 xxx   |               version,length        |                           |                             |
 	/// @endcode
 	// clang-format on
-#ifdef __GNUC__
-#	pragma GCC diagnostic pop
-#endif
 	class SSLHandshakeLayer : public SSLLayer
 	{
 	public:
