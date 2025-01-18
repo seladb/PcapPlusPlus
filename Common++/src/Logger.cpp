@@ -93,14 +93,6 @@ namespace pcpp
 		}
 	}
 
-	void Logger::log(std::unique_ptr<internal::LogContext> message)
-	{
-		if (shouldLog(message->m_Level, message->m_Source.logModule))
-		{
-			emit(std::move(message));
-		}
-	}
-
 	void Logger::defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 	                               const std::string& method, const int line)
 	{

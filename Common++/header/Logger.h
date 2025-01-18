@@ -387,60 +387,6 @@ namespace pcpp
 		/// @param message The log message.
 		void emit(std::unique_ptr<internal::LogContext> message);
 
-		/// @brief Logs a message with the given source, level, and message.
-		/// @param message The log message.
-		void log(std::unique_ptr<internal::LogContext> message);
-
-		/// @brief Logs an object with the given source, level.
-		///
-		/// The object is converted to a string via the std::ostream << operator.
-		/// @tparam T The type of object to be logged.
-		/// @param source The log source.
-		/// @param level The log level for this message.
-		/// @param message The object to be logged.
-		template <class T> void log(LogSource const& source, LogLevel level, T const& message)
-		{
-			if (shouldLog(level, source.logModule))
-			{
-				auto ctx = createLogContext();
-				(*ctx) << message;
-				emit(std::move(ctx));
-			}
-		};
-
-		/// @brief Logs an object with the given source at the Error level.
-		///
-		/// The object is converted to a string via the std::ostream << operator.
-		/// @tparam T The type of object to be logged.
-		/// @param source The log source.
-		/// @param message The object to be logged.
-		template <class T> void logError(LogSource const& source, T const& message)
-		{
-			log(source, LogLevel::Error, message);
-		};
-
-		/// @brief Logs an object with the given source at the Info level.
-		///
-		/// The object is converted to a string via the std::ostream << operator.
-		/// @tparam T The type of object to be logged.
-		/// @param source The log source.
-		/// @param message The object to be logged.
-		template <class T> void logInfo(LogSource const& source, T const& message)
-		{
-			log(source, LogLevel::Info, message);
-		};
-
-		/// @brief Logs an object with the given source at the Debug level.
-		///
-		/// The object is converted to a string via the std::ostream << operator.
-		/// @tparam T The type of object to be logged.
-		/// @param source The log source.
-		/// @param message The object to be logged.
-		template <class T> void logDebug(LogSource const& source, T const& message)
-		{
-			log(source, LogLevel::Debug, message);
-		};
-
 	private:
 		bool m_LogsEnabled;
 		std::array<LogLevel, NumOfLogModules> m_LogModulesArray;
@@ -458,24 +404,6 @@ namespace pcpp
 
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
 		                              const std::string& method, int line);
-	};
-
-	// Specialization for string to skip the stringstream
-	template <> inline void Logger::log(LogSource const& source, LogLevel level, std::string const& message)
-	{
-		if (shouldLog(level, source.logModule))
-		{
-			emit(source, level, message);
-		}
-	};
-
-	// Specialization for const char* to skip the stringstream
-	template <> inline void Logger::log(LogSource const& source, LogLevel level, const char* const& message)
-	{
-		if (shouldLog(level, source.logModule))
-		{
-			emit(source, level, message);
-		}
 	};
 
 }  // namespace pcpp
