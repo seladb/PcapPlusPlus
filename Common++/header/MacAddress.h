@@ -4,7 +4,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <array>
 
@@ -58,7 +58,7 @@ namespace pcpp
 		/// @param[in] fourthOctet Represent the fourth octet in the address
 		/// @param[in] fifthOctet Represent the fifth octet in the address
 		/// @param[in] sixthOctet Represent the sixth octet in the address
-		inline MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
+		MacAddress(uint8_t firstOctet, uint8_t secondOctet, uint8_t thirdOctet, uint8_t fourthOctet,
 		                  uint8_t fifthOctet, uint8_t sixthOctet)
 		    : m_Address{ firstOctet, secondOctet, thirdOctet, fourthOctet, fifthOctet, sixthOctet }
 		{}
@@ -148,9 +148,9 @@ namespace pcpp
 		std::array<uint8_t, 6> m_Address{};
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::MacAddress& macAddress)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::MacAddress& macAddress)
 	{
-		os << macAddress.toString();
-		return os;
+		oss << macAddress.toString();
+		return oss;
 	}
 }  // namespace pcpp
