@@ -155,7 +155,7 @@ void printLogThread(int threadId)
 	{
 		pcpp::invokeErrorLog(threadIdAsString);
 		int sleepTime = dist(simpleRand);
-		pcpp::multiPlatformMSleep(sleepTime);
+		std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 	}
 }
 

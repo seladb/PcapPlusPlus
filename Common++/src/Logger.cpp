@@ -7,6 +7,30 @@
 
 namespace pcpp
 {
+
+	// Alpine Linux incorrectly declares strerror_r
+	// https://stackoverflow.com/questions/41953104/strerror-r-is-incorrectly-declared-on-alpine-linux
+	char* checkError(int /*unused*/, char* buffer, int /*unused*/)
+	{
+		return buffer;
+	}
+
+	char* checkError(char* result, const char* /*unused*/, int /*unused*/)
+	{
+		return result;
+	}
+
+	std::string getErrorString(int errnum)
+	{
+		std::array<char, BUFSIZ> buffer{};
+#if defined(_WIN32)
+		strerror_s(buffer.data(), buffer.size(), errnum);
+		return buffer.data();
+#else
+		return checkError(strerror_r(errnum, buffer.data(), BUFSIZ), buffer.data(), errnum);
+#endif
+	}
+
 	Logger::Logger() : m_LogsEnabled(true), m_LogPrinter(&defaultLogPrinter)
 	{
 		m_LastError.reserve(200);

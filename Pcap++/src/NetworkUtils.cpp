@@ -57,7 +57,7 @@ namespace pcpp
 			return;
 
 		// verify it's the right ARP response
-		if (arpReplyLayer->getArpHeader()->hardwareType != htobe16(1) /* Ethernet */
+		if (arpReplyLayer->getArpHeader()->hardwareType != htobe16(1)  // Ethernet
 		    || arpReplyLayer->getArpHeader()->protocolType != htobe16(PCPP_ETHERTYPE_IP))
 			return;
 
@@ -215,7 +215,7 @@ namespace pcpp
 			return;
 
 		// verify it's the right DNS response
-		if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1 /* DNS response */
+		if (dnsResponseLayer->getDnsHeader()->queryOrResponse != 1  // DNS response
 		    || dnsResponseLayer->getDnsHeader()->numberOfAnswers < htobe16(1) ||
 		    dnsResponseLayer->getDnsHeader()->transactionID != htobe16(data->transactionID))
 		{

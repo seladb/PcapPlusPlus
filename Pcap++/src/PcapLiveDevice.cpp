@@ -249,7 +249,7 @@ namespace pcpp
 			PcapStats stats;
 			getStatistics(stats);
 			m_cbOnStatsUpdate(stats, m_cbOnStatsUpdateUserCookie);
-			multiPlatformSleep(m_IntervalToUpdateStats);
+			std::this_thread::sleep_for(std::chrono::seconds(m_IntervalToUpdateStats));
 		}
 		PCPP_LOG_DEBUG("Ended stats thread for device '" << m_InterfaceDetails.name << "'");
 	}
@@ -854,7 +854,7 @@ namespace pcpp
 		{
 			if (oidData->Length <= sizeof(uint32_t))
 			{
-				/* copy value from driver */
+				// copy value from driver
 				memcpy(&mtuValue, oidData->Data, oidData->Length);
 				// Sometimes the query gives a wrong number that includes the link header size
 				// A very common value is 1514 - if identify this value just reduce to 1500.
@@ -867,7 +867,7 @@ namespace pcpp
 			}
 			else
 			{
-				/* the driver returned a value that is longer than expected (and longer than the given buffer) */
+				// the driver returned a value that is longer than expected (and longer than the given buffer)
 				PCPP_LOG_ERROR(
 				    "Error in retrieving MTU: Size of Oid larger than uint32_t, OidLen: " << oidData->Length);
 				return;
@@ -931,7 +931,7 @@ namespace pcpp
 			{
 #	pragma GCC diagnostic push
 #	pragma GCC diagnostic ignored "-Warray-bounds"
-				/* copy value from driver */
+				// copy value from driver
 				m_MacAddress = MacAddress(oidData->Data[0], oidData->Data[1], oidData->Data[2], oidData->Data[3],
 				                          oidData->Data[4], oidData->Data[5]);
 #	pragma GCC diagnostic pop
@@ -939,7 +939,7 @@ namespace pcpp
 			}
 			else
 			{
-				/* the driver returned a value that is longer than expected (and longer than the given buffer) */
+				// the driver returned a value that is longer than expected (and longer than the given buffer)
 				PCPP_LOG_DEBUG(
 				    "Error in retrieving MAC address: Size of Oid larger than 6, OidLen: " << oidData->Length);
 				return;

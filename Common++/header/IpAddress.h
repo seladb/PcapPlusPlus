@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 #include <string>
 #include <algorithm>
 #include <ostream>
@@ -145,7 +145,7 @@ namespace pcpp
 
 	uint32_t IPv4Address::toInt() const
 	{
-		uint32_t addr;
+		uint32_t addr = 0;
 		memcpy(&addr, m_Bytes.data(), m_Bytes.size() * sizeof(uint8_t));
 		return addr;
 	}
@@ -276,7 +276,7 @@ namespace pcpp
 	{
 	public:
 		/// An enum representing the address type: IPv4 or IPv6
-		enum AddressType
+		enum AddressType : uint8_t
 		{
 			/// IPv4 address type
 			IPv4AddressType,
@@ -395,7 +395,9 @@ namespace pcpp
 	bool IPAddress::operator==(const IPAddress& rhs) const
 	{
 		if (isIPv4())
+		{
 			return rhs.isIPv4() ? (m_IPv4 == rhs.m_IPv4) : false;
+		}
 
 		return rhs.isIPv6() ? m_IPv6 == rhs.m_IPv6 : false;
 	}
@@ -433,7 +435,7 @@ namespace pcpp
 		/// A constructor that creates an instance of the class out of an address and a full prefix length,
 		/// essentially making a network of consisting of only 1 address.
 		/// @param address An address representing the network prefix.
-		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32u)
+		explicit IPv4Network(const IPv4Address& address) : IPv4Network(address, 32U)
 		{}
 
 		/// A constructor that creates an instance of the class out of an address representing the network prefix
@@ -476,7 +478,7 @@ namespace pcpp
 		/// @return The network prefix, for example: the network prefix of 10.10.10.10/16 is 10.10.0.0
 		IPv4Address getNetworkPrefix() const
 		{
-			return IPv4Address(m_NetworkPrefix);
+			return m_NetworkPrefix;
 		}
 
 		/// @return The lowest non-reserved IPv4 address in this network, for example: the lowest address
@@ -505,10 +507,10 @@ namespace pcpp
 		std::string toString() const;
 
 	private:
-		uint32_t m_NetworkPrefix;
-		uint32_t m_Mask;
+		uint32_t m_NetworkPrefix{};
+		uint32_t m_Mask{};
 
-		bool isValidNetmask(const IPv4Address& netmaskAddress);
+		static bool isValidNetmask(const IPv4Address& netmaskAddress);
 		void initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen);
 		void initFromAddressAndNetmask(const IPv4Address& address, const IPv4Address& netmaskAddress);
 	};
@@ -521,7 +523,7 @@ namespace pcpp
 		/// A constructor that creates an instance of the class out of an address and a full prefix length,
 		/// essentially making a network of consisting of only 1 address.
 		/// @param address An address representing the network prefix.
-		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128u)
+		explicit IPv6Network(const IPv6Address& address) : IPv6Network(address, 128U)
 		{}
 
 		/// A constructor that creates an instance of the class out of an address representing the network prefix
@@ -564,7 +566,7 @@ namespace pcpp
 		/// @return The network prefix, for example: the network prefix of 3546:f321::/16 is 3546::
 		IPv6Address getNetworkPrefix() const
 		{
-			return IPv6Address(m_NetworkPrefix);
+			return { m_NetworkPrefix };
 		}
 
 		/// @return The lowest non-reserved IPv6 address in this network, for example: the lowest address in 3546::/16
@@ -593,10 +595,10 @@ namespace pcpp
 		std::string toString() const;
 
 	private:
-		uint8_t m_NetworkPrefix[16];
-		uint8_t m_Mask[16];
+		uint8_t m_NetworkPrefix[16]{};
+		uint8_t m_Mask[16]{};
 
-		bool isValidNetmask(const IPv6Address& netmaskAddress);
+		static bool isValidNetmask(const IPv6Address& netmaskAddress);
 		void initFromAddressAndPrefixLength(const IPv6Address& address, uint8_t prefixLen);
 		void initFromAddressAndNetmask(const IPv6Address& address, const IPv6Address& netmaskAddress);
 	};
@@ -609,7 +611,7 @@ namespace pcpp
 		/// A constructor that creates an instance of the class out of an IP address and a full prefix length,
 		/// essentially making a network of consisting of only 1 address.
 		/// @param address An address representing the network prefix.
-		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32u : 128u)
+		explicit IPNetwork(const IPAddress& address) : IPNetwork(address, address.isIPv4() ? 32U : 128U)
 		{}
 
 		/// A constructor that creates an instance of the class out of an address representing the network prefix
@@ -692,14 +694,14 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPNetwork& other)
 		{
+			// NOLINTBEGIN(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
 			if (other.isIPv4Network())
 			{
 				return this->operator=(*other.m_IPv4Network);
 			}
-			else
-			{
-				return this->operator=(*other.m_IPv6Network);
-			}
+
+			return this->operator=(*other.m_IPv6Network);
+			// NOLINTEND(cppcoreguidelines-c-copy-assignment-signature,misc-unconventional-assign-operator)
 		}
 
 		/// Overload of an assignment operator.
@@ -707,18 +709,9 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv4Network& other)
 		{
-			if (m_IPv4Network)
-			{
-				m_IPv4Network = nullptr;
-			}
-
-			if (m_IPv6Network)
-			{
-				m_IPv6Network = nullptr;
-			}
-
+			// Create the new instance first to maintain strong exception guarantee.
 			m_IPv4Network = std::unique_ptr<IPv4Network>(new IPv4Network(other));
-
+			m_IPv6Network = nullptr;
 			return *this;
 		}
 
@@ -727,18 +720,9 @@ namespace pcpp
 		/// @return A reference to the assignee
 		IPNetwork& operator=(const IPv6Network& other)
 		{
-			if (m_IPv4Network)
-			{
-				m_IPv4Network = nullptr;
-			}
-
-			if (m_IPv6Network)
-			{
-				m_IPv6Network = nullptr;
-			}
-
+			// Create the new instance first to maintain strong exception guarantee.
 			m_IPv6Network = std::unique_ptr<IPv6Network>(new IPv6Network(other));
-
+			m_IPv4Network = nullptr;
 			return *this;
 		}
 
@@ -814,15 +798,13 @@ namespace pcpp
 
 				return m_IPv4Network->includes(address.getIPv4());
 			}
-			else
-			{
-				if (address.isIPv4())
-				{
-					return false;
-				}
 
-				return m_IPv6Network->includes(address.getIPv6());
+			if (address.isIPv4())
+			{
+				return false;
 			}
+
+			return m_IPv6Network->includes(address.getIPv6());
 		}
 
 		/// @param network An IP network
@@ -838,15 +820,13 @@ namespace pcpp
 
 				return m_IPv4Network->includes(*network.m_IPv4Network);
 			}
-			else
-			{
-				if (network.isIPv4Network())
-				{
-					return false;
-				}
 
-				return m_IPv6Network->includes(*network.m_IPv6Network);
+			if (network.isIPv4Network())
+			{
+				return false;
 			}
+
+			return m_IPv6Network->includes(*network.m_IPv6Network);
 		}
 
 		/// @return A string representation of the network in a format of NETWORK_PREFIX/PREFIX_LEN, for example:
@@ -861,39 +841,39 @@ namespace pcpp
 		std::unique_ptr<IPv6Network> m_IPv6Network;
 	};
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Address& ipv4Address)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPv4Address& ipv4Address)
 	{
-		os << ipv4Address.toString();
-		return os;
+		oss << ipv4Address.toString();
+		return oss;
 	}
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Address& ipv6Address)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPv6Address& ipv6Address)
 	{
-		os << ipv6Address.toString();
-		return os;
+		oss << ipv6Address.toString();
+		return oss;
 	}
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPAddress& ipAddress)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPAddress& ipAddress)
 	{
-		os << ipAddress.toString();
-		return os;
+		oss << ipAddress.toString();
+		return oss;
 	}
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv4Network& network)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPv4Network& network)
 	{
-		os << network.toString();
-		return os;
+		oss << network.toString();
+		return oss;
 	}
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPv6Network& network)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPv6Network& network)
 	{
-		os << network.toString();
-		return os;
+		oss << network.toString();
+		return oss;
 	}
 
-	inline std::ostream& operator<<(std::ostream& os, const pcpp::IPNetwork& network)
+	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPNetwork& network)
 	{
-		os << network.toString();
-		return os;
+		oss << network.toString();
+		return oss;
 	}
 }  // namespace pcpp

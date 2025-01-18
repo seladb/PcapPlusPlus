@@ -40,9 +40,13 @@
 /// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
+	/// Cross-platform and thread-safe version of strerror
+	/// @param errnum Value of errno
+	/// @return String representation of the error number
+	std::string getErrorString(int errnum);
 
 	/// An enum representing all PcapPlusPlus modules
-	enum LogModule
+	enum LogModule : uint8_t
 	{
 		UndefinedLogModule,
 		CommonLogModuleIpUtils,          ///< IP Utils module (Common++)
@@ -283,7 +287,9 @@ namespace pcpp
 		void setAllModulesToLogLevel(LogLevel level)
 		{
 			for (int i = 1; i < NumOfLogModules; i++)
+			{
 				m_LogModulesArray[i] = level;
+			}
 		}
 
 		/// Set a custom log printer.
@@ -451,7 +457,7 @@ namespace pcpp
 		Logger();
 
 		static void defaultLogPrinter(LogLevel logLevel, const std::string& logMessage, const std::string& file,
-		                              const std::string& method, const int line);
+		                              const std::string& method, int line);
 	};
 
 	// Specialization for string to skip the stringstream

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
+#include <thread>
 #include "EndianPortable.h"
 #include "SystemUtils.h"
 #include "TcpReassembly.h"
@@ -1137,7 +1138,7 @@ PTF_TEST_CASE(TestTcpReassemblyCleanup)
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn2->second), 0);
 	PTF_ASSERT_EQUAL(tcpReassembly.isConnectionOpen(iterConn3->second), 0);
 
-	pcpp::multiPlatformSleep(3);
+	std::this_thread::sleep_for(std::chrono::seconds(3));
 
 	tcpReassembly.reassemblePacket(&lastPacket);  // automatic cleanup of 1 item
 	PTF_ASSERT_EQUAL(tcpReassembly.getConnectionInformation().size(), 2);

@@ -18,22 +18,26 @@ namespace pcpp
 {
 	namespace internal
 	{
-		in_addr* sockaddr2in_addr(sockaddr* sa)
+		in_addr* sockaddr2in_addr(sockaddr* sAddr)
 		{
-			if (sa == nullptr)
+			if (sAddr == nullptr)
+			{
 				throw std::invalid_argument("sockaddr is nullptr");
+			}
 
-			if (sa->sa_family != AF_INET)
+			if (sAddr->sa_family != AF_INET)
+			{
 				throw std::invalid_argument("sockaddr family is not AF_INET.");
+			}
 
-			return &(reinterpret_cast<sockaddr_in*>(sa)->sin_addr);
+			return &(reinterpret_cast<sockaddr_in*>(sAddr)->sin_addr);
 		}
 
-		in_addr* try_sockaddr2in_addr(sockaddr* sa)
+		in_addr* try_sockaddr2in_addr(sockaddr* sAddr)
 		{
 			try
 			{
-				return sockaddr2in_addr(sa);
+				return sockaddr2in_addr(sAddr);
 			}
 			catch (const std::invalid_argument& e)
 			{
@@ -43,22 +47,26 @@ namespace pcpp
 			}
 		}
 
-		in6_addr* sockaddr2in6_addr(sockaddr* sa)
+		in6_addr* sockaddr2in6_addr(sockaddr* sAddr)
 		{
-			if (sa == nullptr)
+			if (sAddr == nullptr)
+			{
 				throw std::invalid_argument("sockaddr is nullptr");
+			}
 
-			if (sa->sa_family != AF_INET6)
+			if (sAddr->sa_family != AF_INET6)
+			{
 				throw std::invalid_argument("sockaddr family is not AF_INET6.");
+			}
 
-			return &(reinterpret_cast<sockaddr_in6*>(sa)->sin6_addr);
+			return &(reinterpret_cast<sockaddr_in6*>(sAddr)->sin6_addr);
 		}
 
-		in6_addr* try_sockaddr2in6_addr(sockaddr* sa)
+		in6_addr* try_sockaddr2in6_addr(sockaddr* sAddr)
 		{
 			try
 			{
-				return sockaddr2in6_addr(sa);
+				return sockaddr2in6_addr(sAddr);
 			}
 			catch (const std::invalid_argument& e)
 			{
@@ -68,20 +76,24 @@ namespace pcpp
 			}
 		}
 
-		void sockaddr2string(sockaddr const* sa, char* resultString, size_t resultBufLen)
+		void sockaddr2string(const sockaddr* sAddr, char* resultString, size_t resultBufLen)
 		{
-			if (sa == nullptr)
+			if (sAddr == nullptr)
+			{
 				throw std::invalid_argument("sockaddr is nullptr");
+			}
 
-			switch (sa->sa_family)
+			switch (sAddr->sa_family)
 			{
 			case AF_INET:
 			{
 				PCPP_LOG_DEBUG("IPv4 packet address");
 				if (resultBufLen < INET_ADDRSTRLEN)
+				{
 					throw std::invalid_argument("Insufficient buffer");
+				}
 
-				if (inet_ntop(AF_INET, &(reinterpret_cast<sockaddr_in const*>(sa)->sin_addr), resultString,
+				if (inet_ntop(AF_INET, &(reinterpret_cast<const sockaddr_in*>(sAddr)->sin_addr), resultString,
 				              resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
@@ -92,9 +104,11 @@ namespace pcpp
 			{
 				PCPP_LOG_DEBUG("IPv6 packet address");
 				if (resultBufLen < INET6_ADDRSTRLEN)
+				{
 					throw std::invalid_argument("Insufficient buffer");
+				}
 
-				if (inet_ntop(AF_INET6, &(reinterpret_cast<sockaddr_in6 const*>(sa)->sin6_addr), resultString,
+				if (inet_ntop(AF_INET6, &(reinterpret_cast<const sockaddr_in6*>(sAddr)->sin6_addr), resultString,
 				              resultBufLen) == nullptr)
 				{
 					throw std::runtime_error("Unknown error during conversion");
