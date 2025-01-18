@@ -209,4 +209,16 @@ namespace pcpp
 			}
 		}
 	}
+
+	void DoIpLayer::parseNextLayer()
+	{
+		DiagnosticMessageData diagnosticMessage;
+
+		if (diagnosticMessage.buildFromLayer(this))
+		{
+			// handle UDS layer as generic PayloadLayer for now.
+			m_NextLayer = new PayloadLayer(diagnosticMessage.diagnosticData.data(),
+			                               diagnosticMessage.diagnosticData.size(), this, m_Packet);
+		}
+	}
 }  // namespace pcpp

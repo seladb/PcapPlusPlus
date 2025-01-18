@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include "Layer.h"
+#include "PayloadLayer.h"
 #include "IpAddress.h"
 #include "MacAddress.h"
 #include "Logger.h"
@@ -215,8 +216,7 @@ namespace pcpp
 		/**
 		 * TODO, parse UDS layer
 		 */
-		void parseNextLayer() override
-		{}
+		void parseNextLayer() override;
 
 		/**
 		 * @return The size of @ref doiphdr + attached fields length

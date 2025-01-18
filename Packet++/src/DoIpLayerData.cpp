@@ -20,8 +20,15 @@ namespace pcpp
 	{
 		std::stringstream os;
 		os << "sourceAddress: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
-		os << "activation type: " << DoIpEnumToStringActivationTypes.at(activationType) << std::hex << " (0x"
-		   << unsigned(activationType) << ")" << "\n";
+		auto it = DoIpEnumToStringActivationTypes.find(activationType);
+		if (it != DoIpEnumToStringActivationTypes.end())
+		{
+			os << "activation type: " << it->second << std::hex << " (0x" << unsigned(activationType) << ")" << "\n";
+		}
+		else
+		{
+			os << "activation type: Unknown" << std::hex << " (0x" << unsigned(activationType) << ")" << "\n";
+		}
 		os << "reserved by ISO: " << pcpp::byteArrayToHexString(reservedIso.data(), DOIP_RESERVED_ISO_LEN) << "\n";
 		if (reservedOem)
 		{
@@ -34,9 +41,9 @@ namespace pcpp
 	{
 		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&sourceAddress),
-		            reinterpret_cast<const uint8_t*>(&sourceAddress) + sizeof(sourceAddress));
-		data.push_back(static_cast<uint8_t>(activationType));  // Convert enum to byte
+		data.push_back(static_cast<uint8_t>(sourceAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((sourceAddress >> 8) & 0xFF));
+		data.push_back(static_cast<uint8_t>(activationType));
 		data.insert(data.end(), reservedIso.begin(), reservedIso.end());
 		if (reservedOem)
 		{
@@ -59,17 +66,30 @@ namespace pcpp
 			PCPP_LOG_ERROR("Cannot retrieve routing activation request data from " + doipLayer->getPayloadTypeAsStr());
 			return false;
 		}
+
+		constexpr size_t fixedFieldLength = sizeof(sourceAddress) + sizeof(activationType) + DOIP_RESERVED_ISO_LEN;
+
+		if (doipLayer->getDataLen() - sizeof(doiphdr) < fixedFieldLength)
+		{
+			PCPP_LOG_ERROR("Insufficient data length for routing activation request payload");
+			return false;
+		}
+
 		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
 		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
-		activationType = static_cast<DoIpActivationTypes>(dataPtr[2]);
-		std::copy(dataPtr + 3, dataPtr + 3 + DOIP_RESERVED_ISO_LEN, reservedIso.begin());
-		if (doipLayer->getDataLen() - sizeof(doiphdr) >=
-		    sizeof(sourceAddress) + sizeof(activationType) + DOIP_RESERVED_ISO_LEN + DOIP_RESERVED_OEM_LEN)
+		dataPtr += sizeof(sourceAddress);
+
+		activationType = static_cast<DoIpActivationTypes>(dataPtr[0]);
+		dataPtr += sizeof(activationType);
+
+		std::copy(dataPtr, dataPtr + DOIP_RESERVED_ISO_LEN, reservedIso.begin());
+		dataPtr += DOIP_RESERVED_ISO_LEN;
+
+		if (doipLayer->getDataLen() - (sizeof(doiphdr) + fixedFieldLength) == DOIP_RESERVED_OEM_LEN)
 		{
 			reservedOem = std::unique_ptr<std::array<uint8_t, DOIP_RESERVED_OEM_LEN>>(
 			    new std::array<uint8_t, DOIP_RESERVED_OEM_LEN>());
-			std::copy(dataPtr + 3 + DOIP_RESERVED_ISO_LEN, dataPtr + 3 + DOIP_RESERVED_ISO_LEN + DOIP_RESERVED_OEM_LEN,
-			          reservedOem->begin());
+			std::copy(dataPtr, dataPtr + DOIP_RESERVED_OEM_LEN, reservedOem->begin());
 		}
 		else
 		{
@@ -96,8 +116,17 @@ namespace pcpp
 		os << "logical address of external tester: " << std::hex << "0x" << htobe16(logicalAddressExternalTester)
 		   << "\n";
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
-		os << "routing activation response code: " << DoIpEnumToStringRoutingResponseCodes.at(responseCode) << std::hex
-		   << " (0x" << unsigned(responseCode) << ")" << "\n";
+		auto it = DoIpEnumToStringRoutingResponseCodes.find(responseCode);
+		if (it != DoIpEnumToStringRoutingResponseCodes.end())
+		{
+			os << "routing activation response code: " << it->second << std::hex << " (0x" << unsigned(responseCode)
+			   << ")" << "\n";
+		}
+		else
+		{
+			os << "routing activation response code: Unknown" << std::hex << " (0x" << unsigned(responseCode) << ")"
+			   << "\n";
+		}
 		os << "reserved by ISO: " << pcpp::byteArrayToHexString(reservedIso.data(), DOIP_RESERVED_ISO_LEN) << "\n";
 		if (reservedOem)
 		{
@@ -109,11 +138,12 @@ namespace pcpp
 	{
 		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&logicalAddressExternalTester),
-		            reinterpret_cast<const uint8_t*>(&logicalAddressExternalTester) +
-		                sizeof(logicalAddressExternalTester));
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&sourceAddress),
-		            reinterpret_cast<const uint8_t*>(&sourceAddress) + sizeof(sourceAddress));
+		data.push_back(static_cast<uint8_t>(logicalAddressExternalTester & 0xFF));
+		data.push_back(static_cast<uint8_t>((logicalAddressExternalTester >> 8) & 0xFF));
+
+		data.push_back(static_cast<uint8_t>(sourceAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((sourceAddress >> 8) & 0xFF));
+
 		data.push_back(static_cast<uint8_t>(responseCode));  // Convert enum to byte
 		data.insert(data.end(), reservedIso.begin(), reservedIso.end());
 		if (reservedOem)
@@ -137,25 +167,33 @@ namespace pcpp
 			return false;
 		}
 
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
-		if (!dataPtr)
+		if (doipLayer->getDataLen() - sizeof(doiphdr) <
+		    sizeof(logicalAddressExternalTester) + sizeof(sourceAddress) + sizeof(responseCode) + DOIP_RESERVED_ISO_LEN)
 		{
-			PCPP_LOG_ERROR("Data pointer is null");
+			PCPP_LOG_ERROR("Insufficient data length for routing activation response payload");
 			return false;
 		}
 
+		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
 		logicalAddressExternalTester = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
-		sourceAddress = static_cast<uint16_t>(dataPtr[3] << 8 | dataPtr[2]);
-		responseCode = static_cast<DoIpRoutingResponseCodes>(dataPtr[4]);
+		dataPtr += sizeof(logicalAddressExternalTester);
 
-		std::copy(dataPtr + 5, dataPtr + 5 + DOIP_RESERVED_ISO_LEN, reservedIso.begin());
+		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
+		dataPtr += sizeof(sourceAddress);
 
-		if (doipLayer->getDataLen() - sizeof(doiphdr) >= 5 + DOIP_RESERVED_ISO_LEN + DOIP_RESERVED_OEM_LEN)
+		responseCode = static_cast<DoIpRoutingResponseCodes>(dataPtr[0]);
+		dataPtr += sizeof(responseCode);
+
+		std::copy(dataPtr, dataPtr + DOIP_RESERVED_ISO_LEN, reservedIso.begin());
+		dataPtr += DOIP_RESERVED_ISO_LEN;
+
+		if (doipLayer->getDataLen() - (sizeof(doiphdr) + sizeof(logicalAddressExternalTester) + sizeof(sourceAddress) +
+		                               sizeof(responseCode) + DOIP_RESERVED_ISO_LEN) ==
+		    DOIP_RESERVED_OEM_LEN)
 		{
 			reservedOem = std::unique_ptr<std::array<uint8_t, DOIP_RESERVED_OEM_LEN>>(
 			    new std::array<uint8_t, DOIP_RESERVED_OEM_LEN>());
-			std::copy(dataPtr + 5 + DOIP_RESERVED_ISO_LEN, dataPtr + 5 + DOIP_RESERVED_ISO_LEN + DOIP_RESERVED_OEM_LEN,
-			          reservedOem->begin());
+			std::copy(dataPtr, dataPtr + DOIP_RESERVED_OEM_LEN, reservedOem->begin());
 		}
 		else
 		{
@@ -178,9 +216,16 @@ namespace pcpp
 	std::string GenericHeaderNackData::toString() const
 	{
 		std::stringstream os;
-		os << "generic header nack code: " << DoIpEnumToStringGenericHeaderNackCodes.at(genericNackCode) << std::hex
-		   << " (0x" << unsigned(genericNackCode) << ")" << "\n";
-		;
+		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(genericNackCode);
+		if (it != DoIpEnumToStringGenericHeaderNackCodes.end())
+		{
+			os << "generic header nack code: " << it->second << std::hex << " (0x" << unsigned(genericNackCode) << ")"
+			   << "\n";
+		}
+		else
+		{
+			os << "generic header nack code: Unknown" << std::hex << " (0x" << unsigned(genericNackCode) << ")" << "\n";
+		}
 		return os.str();
 	}
 	std::vector<uint8_t> GenericHeaderNackData::getData() const
@@ -257,7 +302,7 @@ namespace pcpp
 		}
 
 		// Validate data length (must at least accommodate EID length)
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < DOIP_EID_LEN)
+		if (doipLayer->getDataLen() - sizeof(doiphdr) != DOIP_EID_LEN)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Vehicle Identification Request with EID payload");
 			return false;
@@ -307,7 +352,7 @@ namespace pcpp
 		}
 
 		// Validate data length (must at least accommodate VIN length)
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < DOIP_VIN_LEN)
+		if (doipLayer->getDataLen() - sizeof(doiphdr) != DOIP_VIN_LEN)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Vehicle Identification Request with EID payload");
 			return false;
@@ -342,9 +387,28 @@ namespace pcpp
 		os << "logical address: " << std::hex << "0x" << htobe16(logicalAddress) << "\n";
 		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << "\n";
 		os << "GID: " << pcpp::byteArrayToHexString(gid.data(), DOIP_GID_LEN) << "\n";
-		os << "further action required:" << DoIpEnumToStringActionCodes.at(furtherActionRequired) << std::hex << " (0x"
-		   << unsigned(furtherActionRequired) << ")" << "\n";
-		os << "VIN/GID sync status: " << DoIpEnumToStringSyncStatus.at(syncStatus) << "\n";  // Convert enum to byte
+		auto it = DoIpEnumToStringActionCodes.find(furtherActionRequired);
+		if (it != DoIpEnumToStringActionCodes.end())
+		{
+			os << "further action required:" << it->second << std::hex << " (0x" << unsigned(furtherActionRequired)
+			   << ")" << "\n";
+		}
+		else
+		{
+			os << "further action required: Unknown" << std::hex << " (0x" << unsigned(furtherActionRequired) << ")"
+			   << "\n";
+		}
+
+		auto it_ = DoIpEnumToStringSyncStatus.find(syncStatus);
+		if (it_ != DoIpEnumToStringSyncStatus.end())
+		{
+			os << "VIN/GID sync status: " << it_->second << "\n";  // Convert enum to byte
+		}
+		else
+		{
+			os << "VIN/GID sync status: Unknown" << std::hex << " (0x" << unsigned(syncStatus) << ")" << "\n";
+		}
+
 		return os.str();
 	}
 
@@ -381,9 +445,9 @@ namespace pcpp
 		}
 
 		// Validate minimum data length
-		size_t expectedMinLength =
+		size_t fixedFieldLength =
 		    DOIP_VIN_LEN + sizeof(logicalAddress) + DOIP_EID_LEN + DOIP_GID_LEN + 1;  // 1 for furtherActionRequired
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < expectedMinLength)
+		if (doipLayer->getDataLen() - sizeof(doiphdr) < fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Vehicle Announcement payload");
 			return false;
@@ -410,10 +474,10 @@ namespace pcpp
 
 		// Further Action Required
 		furtherActionRequired = static_cast<DoIpActionCodes>(*dataPtr);
-		dataPtr += 1;
+		dataPtr += sizeof(furtherActionRequired);
 
 		// Optional Sync Status
-		if (doipLayer->getDataLen() - sizeof(doiphdr) > expectedMinLength)
+		if (doipLayer->getDataLen() - sizeof(doiphdr) > fixedFieldLength)
 		{
 			syncStatus = static_cast<DoIpSyncStatus>(*dataPtr);
 		}
@@ -441,9 +505,10 @@ namespace pcpp
 	std::vector<uint8_t> AliveCheckResponseData::getData() const
 	{
 		std::vector<uint8_t> data;
-		// Copy each field's data into the vector
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&sourceAddress),
-		            reinterpret_cast<const uint8_t*>(&sourceAddress) + sizeof(sourceAddress));
+
+		data.push_back(static_cast<uint8_t>(sourceAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((sourceAddress >> 8) & 0xFF));
+
 		return data;
 	}
 
@@ -462,8 +527,8 @@ namespace pcpp
 		}
 
 		// Validate minimum data length
-		constexpr size_t requiredLength = sizeof(sourceAddress);
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < requiredLength)
+		constexpr size_t fixedFieldLength = sizeof(sourceAddress);
+		if (doipLayer->getDataLen() - sizeof(doiphdr) != fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Alive Check Response payload");
 			return false;
@@ -471,7 +536,7 @@ namespace pcpp
 
 		// Parse sourceAddress from payload
 		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
-		sourceAddress = *reinterpret_cast<uint16_t*>(dataPtr);
+		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
 		return true;
 	}
@@ -489,8 +554,16 @@ namespace pcpp
 	std::string DiagnosticPowerModeResponseData::toString() const
 	{
 		std::stringstream os;
-		os << "diagnostic power mode: " << DoIpEnumToStringDiagnosticPowerModeCodes.at(powerModeCode) << std::hex
-		   << " (0x" << unsigned(powerModeCode) << ")" << "\n";
+		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(powerModeCode);
+		if (it != DoIpEnumToStringDiagnosticPowerModeCodes.end())
+		{
+			os << "diagnostic power mode: " << it->second << std::hex << " (0x" << unsigned(powerModeCode) << ")"
+			   << "\n";
+		}
+		else
+		{
+			os << "diagnostic power mode: Unknown" << std::hex << " (0x" << unsigned(powerModeCode) << ")" << "\n";
+		}
 		return os.str();
 	}
 
@@ -518,8 +591,8 @@ namespace pcpp
 		}
 
 		// Validate minimum data length
-		constexpr size_t requiredLength = sizeof(powerModeCode);
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < requiredLength)
+		constexpr size_t fixedFieldLength = sizeof(powerModeCode);
+		if (doipLayer->getDataLen() - sizeof(doiphdr) < fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Diagnostic Power Mode Response payload");
 			return false;
@@ -545,8 +618,15 @@ namespace pcpp
 	std::string EntityStatusResponseData::toString() const
 	{
 		std::stringstream os;
-		os << "Entity status: " << DoIpEnumToStringEntityStatusNodeTypes.at(nodeType) << std::hex << " (0x"
-		   << unsigned(nodeType) << ")" << "\n";
+		auto it = DoIpEnumToStringEntityStatusNodeTypes.find(nodeType);
+		if (it != DoIpEnumToStringEntityStatusNodeTypes.end())
+		{
+			os << "Entity status: " << it->second << std::hex << " (0x" << unsigned(nodeType) << ")" << "\n";
+		}
+		else
+		{
+			os << "Node Type: Unknown" << std::hex << " (0x" << unsigned(nodeType) << ")" << "\n";
+		}
 		os << "maximum Concurrent Socket: " << unsigned(maxConcurrentSockets) << "\n";
 		os << "currently Opened Socket: " << unsigned(currentlyOpenSockets) << "\n";
 		if (maxDataSize)
@@ -562,9 +642,10 @@ namespace pcpp
 	{
 		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.push_back(static_cast<uint8_t>(nodeType));  // Convert enum to byte
+		data.push_back(static_cast<uint8_t>(nodeType));
 		data.push_back(static_cast<uint8_t>(maxConcurrentSockets));
 		data.push_back(static_cast<uint8_t>(currentlyOpenSockets));
+
 		// optional field
 		if (maxDataSize)
 		{
@@ -605,7 +686,7 @@ namespace pcpp
 		currentlyOpenSockets = dataPtr[2];
 
 		// Parse optional maxDataSize field if present
-		if (totalDataLength >= fixedFieldLength + optionalFieldLength)
+		if (totalDataLength == (fixedFieldLength + optionalFieldLength))
 		{
 			maxDataSize = std::unique_ptr<std::array<uint8_t, optionalFieldLength>>(
 			    new std::array<uint8_t, optionalFieldLength>());
@@ -639,11 +720,14 @@ namespace pcpp
 	{
 		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&sourceAddress),
-		            reinterpret_cast<const uint8_t*>(&sourceAddress) + sizeof(sourceAddress));
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&targetAddress),
-		            reinterpret_cast<const uint8_t*>(&targetAddress) + sizeof(targetAddress));
+		data.push_back(static_cast<uint8_t>(sourceAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((sourceAddress >> 8) & 0xFF));
+
+		data.push_back(static_cast<uint8_t>(targetAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((targetAddress >> 8) & 0xFF));
+
 		data.insert(data.end(), diagnosticData.data(), diagnosticData.data() + diagnosticData.size());
+
 		return data;
 	}
 
@@ -672,14 +756,17 @@ namespace pcpp
 
 		// Parse fixed fields
 		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
-		sourceAddress = *reinterpret_cast<uint16_t*>(dataPtr);
-		targetAddress = *reinterpret_cast<uint16_t*>(dataPtr + sizeof(sourceAddress));
+		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
+
+		dataPtr += sizeof(sourceAddress);
+		targetAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
+
+		dataPtr += sizeof(targetAddress);
 
 		// Parse diagnosticData field (remaining data after fixed fields)
 		size_t diagnosticDataLength = totalDataLength - fixedFieldLength;
 		diagnosticData.resize(diagnosticDataLength);
-		std::copy(dataPtr + fixedFieldLength, dataPtr + fixedFieldLength + diagnosticDataLength,
-		          diagnosticData.begin());
+		std::copy(dataPtr, dataPtr + diagnosticDataLength, diagnosticData.begin());
 
 		return true;
 	}
@@ -698,7 +785,15 @@ namespace pcpp
 		std::stringstream os;
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
-		os << "ack code: " << DoIpEnumToStringAckCode.at(ackCode) << " (0x" << unsigned(ackCode) << ")" << "\n";
+		auto it = DoIpEnumToStringAckCode.find(ackCode);
+		if (it != DoIpEnumToStringAckCode.end())
+		{
+			os << "ack code: " << it->second << " (0x" << unsigned(ackCode) << ")" << "\n";
+		}
+		else
+		{
+			os << "Ack code: Unknown" << std::hex << " (0x" << unsigned(ackCode) << ")" << "\n";
+		}
 		if (!previousMessage.empty())
 		{
 			os << "previous message: " << pcpp::byteArrayToHexString(previousMessage.data(), previousMessage.size())
@@ -710,11 +805,14 @@ namespace pcpp
 	{
 		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&sourceAddress),
-		            reinterpret_cast<const uint8_t*>(&sourceAddress) + sizeof(sourceAddress));
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&targetAddress),
-		            reinterpret_cast<const uint8_t*>(&targetAddress) + sizeof(targetAddress));
+		data.push_back(static_cast<uint8_t>(sourceAddress & 0xFF));  // Low byte
+		data.push_back(static_cast<uint8_t>((sourceAddress >> 8) & 0xFF));
+
+		data.push_back(static_cast<uint8_t>(targetAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((targetAddress >> 8) & 0xFF));
+
 		data.push_back(static_cast<uint8_t>(ackCode));
+
 		if (!previousMessage.empty())
 		{
 			data.insert(data.end(), previousMessage.begin(), previousMessage.end());
@@ -748,18 +846,21 @@ namespace pcpp
 
 		// Parse fixed fields
 		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
-		sourceAddress = (*reinterpret_cast<uint16_t*>(dataPtr));
-		targetAddress = (*reinterpret_cast<uint16_t*>(dataPtr + sizeof(sourceAddress)));
-		ackCode = static_cast<DoIpDiagnosticAckCodes>(
-		    *reinterpret_cast<uint8_t*>(dataPtr + sizeof(sourceAddress) + sizeof(targetAddress)));
+		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
+		dataPtr += sizeof(sourceAddress);
+		targetAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
+
+		dataPtr += sizeof(targetAddress);
+		ackCode = static_cast<DoIpDiagnosticAckCodes>(dataPtr[0]);
+
+		dataPtr += sizeof(ackCode);
 		// Check if there is any data left for the optional previousMessage field
 		size_t remainingDataLength = totalDataLength - fixedFieldLength;
 		if (remainingDataLength > 0)
 		{
 			previousMessage.resize(remainingDataLength);
-			std::copy(dataPtr + fixedFieldLength, dataPtr + fixedFieldLength + remainingDataLength,
-			          previousMessage.begin());
+			std::copy(dataPtr, dataPtr + remainingDataLength, previousMessage.begin());
 		}
 		else
 		{
@@ -782,8 +883,15 @@ namespace pcpp
 		std::stringstream os;
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
-		os << "nack code: " << DoIpEnumToStringDiagnosticNackCodes.at(nackCode) << std::hex << " (0x"
-		   << unsigned(nackCode) << ")" << "\n";
+		auto it = DoIpEnumToStringDiagnosticNackCodes.find(nackCode);
+		if (it != DoIpEnumToStringDiagnosticNackCodes.end())
+		{
+			os << "nack code: " << it->second << std::hex << " (0x" << unsigned(nackCode) << ")" << "\n";
+		}
+		else
+		{
+			os << "nack code: Unknown" << std::hex << " (0x" << unsigned(nackCode) << ")" << "\n";
+		}
 		if (!previousMessage.empty())
 		{
 			os << "previous message: " << pcpp::byteArrayToHexString(previousMessage.data(), previousMessage.size())
@@ -795,10 +903,12 @@ namespace pcpp
 	{
 		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&sourceAddress),
-		            reinterpret_cast<const uint8_t*>(&sourceAddress) + sizeof(sourceAddress));
-		data.insert(data.end(), reinterpret_cast<const uint8_t*>(&targetAddress),
-		            reinterpret_cast<const uint8_t*>(&targetAddress) + sizeof(targetAddress));
+		data.push_back(static_cast<uint8_t>(sourceAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((sourceAddress >> 8) & 0xFF));
+
+		data.push_back(static_cast<uint8_t>(targetAddress & 0xFF));
+		data.push_back(static_cast<uint8_t>((targetAddress >> 8) & 0xFF));
+
 		data.push_back(static_cast<uint8_t>(nackCode));
 		if (!previousMessage.empty())
 		{
@@ -833,18 +943,21 @@ namespace pcpp
 
 		// Parse fixed fields
 		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
-		sourceAddress = (*reinterpret_cast<uint16_t*>(dataPtr));
-		targetAddress = (*reinterpret_cast<uint16_t*>(dataPtr + sizeof(sourceAddress)));
-		nackCode = static_cast<DoIpDiagnosticMessageNackCodes>(
-		    *reinterpret_cast<uint8_t*>(dataPtr + sizeof(sourceAddress) + sizeof(targetAddress)));
+		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
+		dataPtr += sizeof(sourceAddress);
+		targetAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
+
+		dataPtr += sizeof(targetAddress);
+		nackCode = static_cast<DoIpDiagnosticMessageNackCodes>(dataPtr[0]);
+
+		dataPtr += sizeof(nackCode);
 		// Check if there is any data left for the optional previousMessage field
 		size_t remainingDataLength = totalDataLength - fixedFieldLength;
 		if (remainingDataLength > 0)
 		{
 			previousMessage.resize(remainingDataLength);
-			std::copy(dataPtr + fixedFieldLength, dataPtr + fixedFieldLength + remainingDataLength,
-			          previousMessage.begin());
+			std::copy(dataPtr, dataPtr + remainingDataLength, previousMessage.begin());
 		}
 		else
 		{

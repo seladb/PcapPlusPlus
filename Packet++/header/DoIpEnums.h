@@ -570,6 +570,11 @@ namespace pcpp
 		NODE = 0x01U
 	};
 
+	/**
+	 * @brief Enum representing DoIP sync status (ISO 13400).
+	 *
+	 * These codes are used to indicate whether GID and VIN are synchronized or not.
+	 */
 	enum class DoIpSyncStatus : uint8_t
 	{
 		/**
