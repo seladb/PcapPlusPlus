@@ -1,12 +1,17 @@
 #pragma once
 
-#include <stdint.h>
+#include "DeprecationUtils.h"
+
+#include <cstdint>
 #include <string>
 #include <vector>
 
 /// @file
 
-#define MAX_NUM_OF_CORES 32
+enum : uint8_t
+{
+	MAX_NUM_OF_CORES = 32
+};
 
 #ifdef _MSC_VER
 int gettimeofday(struct timeval* tp, struct timezone* tzp);
@@ -112,7 +117,7 @@ namespace pcpp
 		static const SystemCore IdToSystemCore[MAX_NUM_OF_CORES];
 	};
 
-	typedef uint32_t CoreMask;
+	using CoreMask = uint32_t;
 
 	/// Get total number of cores on device
 	/// @return Total number of CPU cores on device
@@ -158,11 +163,17 @@ namespace pcpp
 	/// A multi-platform version of the popular sleep method. This method simply runs the right sleep method, according
 	/// to the platform it is running on.
 	/// @param[in] seconds Number of seconds to sleep
+	/// @deprecated Please use std::this_thread::sleep_for(). It is a standard C++ (since C++11) method which is already
+	/// cross-platform
+	PCPP_DEPRECATED("Please use std::this_thread::sleep_for(std::chrono::seconds(seconds)) instead")
 	void multiPlatformSleep(uint32_t seconds);
 
 	/// A multi-platform version of sleep in milliseconds resolution. This method simply runs the right sleep method,
 	/// according to the platform it is running on.
 	/// @param[in] milliseconds Number of milliseconds to sleep
+	/// @deprecated Please use std::this_thread::sleep_for(). It is a standard C++ (since C++11) method which is already
+	/// cross-platform
+	PCPP_DEPRECATED("Please use std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds)) instead")
 	void multiPlatformMSleep(uint32_t milliseconds);
 
 	/// A multi-platform version of `htons` which convert host to network byte order
@@ -247,7 +258,7 @@ namespace pcpp
 		/// @typedef EventHandlerCallback
 		/// The callback to be invoked when the event occurs
 		/// @param[in] cookie A pointer the the cookie provided by the user in ApplicationEventHandler c'tor
-		typedef void (*EventHandlerCallback)(void* cookie);
+		using EventHandlerCallback = void (*)(void*);
 
 		/// As ApplicationEventHandler is a singleton, this is the static getter to retrieve its instance
 		/// @return The singleton instance of ApplicationEventHandler
