@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
 #include <mutex>
 
 namespace pcpp
