@@ -5,7 +5,7 @@
 
 PTF_TEST_CASE(TestObjectPool)
 {
-	using pcpp::ObjectPool;
+	using pcpp::internal::ObjectPool;
 
 	{
 		ObjectPool<int> pool;

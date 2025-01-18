@@ -451,7 +451,7 @@ namespace pcpp
 
 		bool m_UseContextPooling = true;
 		// Keep a maximum of 10 LogContext objects in the pool.
-		ObjectPool<internal::LogContext> m_LogContextPool{ 10, 2 };
+		internal::ObjectPool<internal::LogContext> m_LogContextPool{ 10, 2 };
 
 		// private c'tor - this class is a singleton
 		Logger();
