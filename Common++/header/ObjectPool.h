@@ -19,7 +19,7 @@ namespace pcpp
 		///
 		/// @tparam T The type of objects managed by the pool. Must be default constructable.
 		template <class T, typename std::enable_if<std::is_default_constructible<T>::value, bool>::type = true>
-		class ObjectPool
+		class DynamicObjectPool
 		{
 		public:
 			constexpr static std::size_t DEFAULT_POOL_SIZE = 100;
@@ -31,7 +31,7 @@ namespace pcpp
 			/// A constructor for this class that creates a pool of objects
 			/// @param[in] maxPoolSize The maximum number of objects in the pool
 			/// @param[in] preallocate The number of objects to preallocate in the pool
-			explicit ObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0)
+			explicit DynamicObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0)
 			    : m_MaxPoolSize(maxPoolSize)
 			{
 				if (preallocate > maxPoolSize)
@@ -42,13 +42,13 @@ namespace pcpp
 			}
 
 			// These don't strictly need to be deleted, but don't need to be implemented for now either.
-			ObjectPool(const ObjectPool&) = delete;
-			ObjectPool(ObjectPool&&) = delete;
-			ObjectPool& operator=(const ObjectPool&) = delete;
-			ObjectPool& operator=(ObjectPool&&) = delete;
+			DynamicObjectPool(const DynamicObjectPool&) = delete;
+			DynamicObjectPool(DynamicObjectPool&&) = delete;
+			DynamicObjectPool& operator=(const DynamicObjectPool&) = delete;
+			DynamicObjectPool& operator=(DynamicObjectPool&&) = delete;
 
 			/// A destructor for this class that deletes all objects in the pool
-			~ObjectPool()
+			~DynamicObjectPool()
 			{
 				clear();
 			}

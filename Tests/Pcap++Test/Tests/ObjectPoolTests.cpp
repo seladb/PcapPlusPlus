@@ -5,10 +5,10 @@
 
 PTF_TEST_CASE(TestObjectPool)
 {
-	using pcpp::internal::ObjectPool;
+	using pcpp::internal::DynamicObjectPool;
 
 	{
-		ObjectPool<int> pool;
+		DynamicObjectPool<int> pool;
 		PTF_ASSERT_EQUAL(pool.size(), 0);
 		PTF_ASSERT_EQUAL(pool.maxSize(), 100);
 
@@ -28,16 +28,16 @@ PTF_TEST_CASE(TestObjectPool)
 	}
 
 	{
-		ObjectPool<int> pool(10, 2);
+		DynamicObjectPool<int> pool(10, 2);
 		PTF_ASSERT_EQUAL(pool.size(), 2);
 		PTF_ASSERT_EQUAL(pool.maxSize(), 10);
 
-		PTF_ASSERT_RAISES(ObjectPool<int>(0, 2), std::invalid_argument,
+		PTF_ASSERT_RAISES(DynamicObjectPool<int>(0, 2), std::invalid_argument,
 		                  "Preallocated objects cannot exceed the maximum pool size");
 	}
 
 	{
-		ObjectPool<int> pool;
+		DynamicObjectPool<int> pool;
 		PTF_ASSERT_EQUAL(pool.size(), 0);
 
 		// Acquire an object, since the pool is empty, a new object will be created.
