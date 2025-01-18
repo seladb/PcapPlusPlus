@@ -30,15 +30,15 @@ namespace pcpp
 
 			/// A constructor for this class that creates a pool of objects
 			/// @param[in] maxPoolSize The maximum number of objects in the pool
-			/// @param[in] preallocate The number of objects to preallocate in the pool
-			explicit DynamicObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t preallocate = 0)
+			/// @param[in] initialSize The number of objects to preallocate in the pool
+			explicit DynamicObjectPool(std::size_t maxPoolSize = DEFAULT_POOL_SIZE, std::size_t initialSize = 0)
 			    : m_MaxPoolSize(maxPoolSize)
 			{
-				if (preallocate > maxPoolSize)
+				if (initialSize > maxPoolSize)
 					throw std::invalid_argument("Preallocated objects cannot exceed the maximum pool size");
 
-				if (preallocate > 0)
-					this->preallocate(preallocate);
+				if (initialSize > 0)
+					this->preallocate(initialSize);
 			}
 
 			// These don't strictly need to be deleted, but don't need to be implemented for now either.
