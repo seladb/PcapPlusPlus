@@ -32,8 +32,7 @@
 /// pcpp::SSLLayer. The pcpp::SSLLayer is an abstract class which cannot be instantiated. Only its 4 derived classes can
 /// be instantiated. This means you'll never see a layer of type pcpp::SSLLayer, you'll only see the type of the derived
 /// classes. A basic class diagram looks like this:
-/// @verbatim
-/// 
+/// @code{.unparsed}
 /// ╔═════════════════════════════════════════════════════════════════════════════════════════════════╗
 /// ║                             +----------------------------+                                      ║
 /// ║                         +---|     SSLHandshakeLayer      | ===> Handshake record type           ║
@@ -51,13 +50,12 @@
 /// ║                         +---|   SSLApplicationDataLayer  | ===> Application data record type    ║
 /// ║                             +----------------------------+                                      ║
 /// ╚═════════════════════════════════════════════════════════════════════════════════════════════════╝
-/// @endverbatim
+/// @endcode
 ///
 /// A single packet may include several SSL/TLS records, meaning
 /// several layer instances of these types, for example:
 ///
-/// @verbatim
-/// 
+/// @code{.unparsed}
 /// ╔══════════════════════════════════════════════════════════════════════════════╗
 /// ║ +--------------------------+                                                 ║
 /// ║ |          EthLayer        |                                                 ║
@@ -73,7 +71,7 @@
 /// ║ |    SSLHandshakeLayer     | /                                               ║
 /// ║ +--------------------------+                                                 ║
 /// ╚══════════════════════════════════════════════════════════════════════════════╝
-/// @endverbatim
+/// @endcode
 ///
 /// <BR><BR>
 ///
@@ -107,8 +105,7 @@
 /// them reside in SSLHandshake.h. Following is a simple diagram of these
 /// classes:
 ///
-/// @verbatim
-/// 
+/// @code{.unparsed}
 /// ╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 /// ║                                          SSLHandshakeMessage                                                   ║
 /// ║                                             |                                                                  ║
@@ -134,7 +131,7 @@
 /// ║                                             |                                                                  ║
 /// ║                                             |---SSLNewSessionTicketMessage    ==> New-session-ticket message   ║
 /// ╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-/// @endverbatim
+/// @endcode
 ///
 /// In addition, for all handshake messages which aren't supported in PcapPlusPlus or for encrypted
 /// handshake messages There is another class: pcpp::SSLUnknownMessage
@@ -279,8 +276,7 @@ namespace pcpp
 	/// demonstrates). But there are cases a layer may contain more than 1 message. To better explain this layer
 	/// structure. We'll use 2 examples. The first will be client-hello message. The layer structure will look like this:
 	///
-	/// @verbatim
-	/// 
+	/// @code{.unparsed}
 	/// ╔══════════════════════════════════════════════════════════════════════════════════════════╗
 	/// ║          |------------------- SSLHandshakeLayer ----------------------|                  ║
 	/// ║          +----------------------+-------------------------------------+                  ║
@@ -296,14 +292,12 @@ namespace pcpp
 	/// ║                                                    TLS1_2      length                    ║
 	/// ║                                 |                                yyy                     ║
 	/// ╚══════════════════════════════════════════════════════════════════════════════════════════╝
-	/// 
-	/// @endverbatim
+	/// @endcode
 	///
 	/// Second example is a multiple-message handshake layer comprises of server-hello, certificate and
 	/// server-key-exchange messages:
 	///
-	/// @verbatim
-	/// 
+	/// @code{.unparsed}
 	/// ╔═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
 	/// ║          |---------------------------------------------- SSLHandshakeLayer -----------------------------------------------------|   ║
 	/// ║          +----------------------+-------------------------------------+---------------------------+-----------------------------+   ║
@@ -317,7 +311,7 @@ namespace pcpp
 	/// ║  SSL_HANDSHAKE           length                   handshake             SSL_CERTIFICATE             SSL_SERVER_KEY_EXCHANGE         ║
 	/// ║      (22)                 xxx   |               version,length        |                           |                                 ║
 	/// ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-	/// @endverbatim
+	/// @endcode
 	// clang-format on
 #ifdef __GNUC__
 #	pragma GCC diagnostic pop

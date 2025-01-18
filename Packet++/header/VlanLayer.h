@@ -14,13 +14,13 @@ namespace pcpp
 #pragma pack(push, 1)
 	struct vlan_header
 	{
-		/// @verbatim
+		/// @code{.unparsed}
 		/// 0               1               2
 		/// 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0
 		/// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 		/// |Prio |C|         VLAN ID       |
 		/// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-		/// @endverbatim
+		/// @endcode
 		uint16_t vlan;
 		/// Ethernet type for next layer
 		uint16_t etherType;

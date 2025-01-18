@@ -18,7 +18,7 @@ namespace pcpp
 	/// v4), and an optional message authentication code (MAC). Currently the extension fields are not supported. The
 	/// NTP header is:
 	///
-	/// @verbatim
+	/// @code{.unparsed}
 	///  0                   1                   2                   3
 	///  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 	/// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -64,7 +64,7 @@ namespace pcpp
 	/// |                   dgst (128 for v4, 64 for v3)                |
 	/// |                                                               |
 	/// +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	/// @endverbatim
+	/// @endcode
 	class NtpLayer : public Layer
 	{
 	private:

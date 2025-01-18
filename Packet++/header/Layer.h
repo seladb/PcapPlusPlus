@@ -41,7 +41,7 @@ namespace pcpp
 	/// to the relevant place in the packet. The layer sees all the data from this pointer forward until the end of the
 	/// packet. Here is an example packet showing this concept:
 	///
-	/// @verbatim
+	/// @code{.unparsed}
 	/// ====================================================
 	/// |Eth       |IPv4       |TCP       |Packet          |
 	/// |Header    |Header     |Header    |Payload         |
@@ -55,7 +55,7 @@ namespace pcpp
 	///                        TcpLayer data
 	///                                   |----------------|
 	///                                   PayloadLayer data
-	/// @endverbatim
+	/// @endcode
 	class Layer : public IDataContainer
 	{
 		friend class Packet;

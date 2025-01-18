@@ -19,7 +19,7 @@
 /// Following is an overview of the SSH protocol classes currently supported in PcapPlusPlus. They cover the different
 /// messages of the SSH protocol:
 ///
-/// @verbatim
+/// @code{.unparsed}
 ///                          +----------------------------+      SSH version identification
 ///                      +---|  SSHIdentificationMessage  | ===> as described here:
 ///                      |   +----------------------------+      https://tools.ietf.org/html/rfc4253#section-4.2
@@ -37,7 +37,7 @@
 ///                      +---|  SSHEncryptedMessage       | ===> An encrypted SSH message
 ///                          +----------------------------+
 ///
-/// @endverbatim
+/// @endcode
 /// The following points describe the heuristics for deciding the
 /// message type for each packet:
 /// 1. If the data starts with the characters "SSH-" and ends with
@@ -166,13 +166,13 @@ namespace pcpp
 	/// A class representing all of the non-encrypted SSH handshake messages.
 	/// An handshake message typically has the following structure:
 	///
-	/// @verbatim
+	/// @code{.unparsed}
 	/// 0         1         2         3         4         5         6
 	/// +---------+---------+---------+---------+---------+---------+-----------     ---------+
 	/// |            Packet Length              | Padding | Message |  Message  ....  Padding |
 	/// |                                       | Length  |  Type   |  Content  ....          |
 	/// +---------------------------------------+---------+---------+-----------     ---------+
-	/// @endverbatim
+	/// @endcode
 	///
 	/// The first 4 bytes hold the packet length, followed by 1 byte that holds the padding length (which comes at the
 	/// end of the message), then 1 byte that holds the message type (which can be of type
