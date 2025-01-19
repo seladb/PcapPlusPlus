@@ -54,7 +54,7 @@ namespace pcpp
 			return UnknownProtocol;
 		}
 
-		auto* vrrpPacketCommon = (vrrp_header*)data;
+		auto* vrrpPacketCommon = reinterpret_cast<vrrp_header*>(data);
 		uint8_t const version = vrrpPacketCommon->version;
 		switch (version)
 		{
@@ -352,7 +352,7 @@ namespace pcpp
 	{
 		if (getAddressType() == IPAddress::IPv4AddressType)
 		{
-			return IPv4Address(*((uint32_t*)data));
+			return IPv4Address(*(reinterpret_cast<uint32_t*>(data)));
 		}
 
 		return IPv6Address(data);
@@ -409,13 +409,13 @@ namespace pcpp
 	uint8_t VrrpV2Layer::getAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto* authAdvIntPtr = (vrrpv2_auth_adv*)(&authAdvInt);
+		auto* authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&authAdvInt);
 		return authAdvIntPtr->advInt;
 	}
 
 	void VrrpV2Layer::setAdvInt(uint8_t advInt)
 	{
-		auto* authAdvIntPtr = (vrrpv2_auth_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto* authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		authAdvIntPtr->advInt = advInt;
 	}
 
@@ -428,7 +428,7 @@ namespace pcpp
 
 	void VrrpV2Layer::setAuthType(uint8_t authType)
 	{
-		auto* authAdvIntPtr = (vrrpv2_auth_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto* authAdvIntPtr = reinterpret_cast<vrrpv2_auth_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		authAdvIntPtr->authType = authType;
 	}
 
@@ -441,7 +441,7 @@ namespace pcpp
 
 		auto* vrrpHeader = getVrrpHeader();
 		ScalarBuffer<uint16_t> buffer = {};
-		buffer.buffer = (uint16_t*)vrrpHeader;
+		buffer.buffer = reinterpret_cast<uint16_t*>(vrrpHeader);
 		buffer.len = getHeaderLen();
 
 		uint16_t const currChecksumValue = vrrpHeader->checksum;
@@ -467,7 +467,7 @@ namespace pcpp
 	uint16_t VrrpV3Layer::getMaxAdvInt() const
 	{
 		uint16_t authAdvInt = getVrrpHeader()->authTypeAdvInt;
-		auto* rsvdAdv = (vrrpv3_rsvd_adv*)(&authAdvInt);
+		auto* rsvdAdv = reinterpret_cast<vrrpv3_rsvd_adv*>(&authAdvInt);
 		return be16toh(rsvdAdv->maxAdvInt);
 	}
 
@@ -477,7 +477,7 @@ namespace pcpp
 		{
 			throw std::invalid_argument("maxAdvInt must not exceed 12 bits length");
 		}
-		auto* rsvdAdv = (vrrpv3_rsvd_adv*)&getVrrpHeader()->authTypeAdvInt;
+		auto* rsvdAdv = reinterpret_cast<vrrpv3_rsvd_adv*>(&getVrrpHeader()->authTypeAdvInt);
 		rsvdAdv->maxAdvInt = htobe16(maxAdvInt);
 	}
 
@@ -496,18 +496,10 @@ namespace pcpp
 
 		pcpp::IPAddress const srcIPAddr = ipLayer->getSrcIPAddress();
 		pcpp::IPAddress const dstIPAddr = ipLayer->getDstIPAddress();
-		uint16_t checksum = 0;
-		if (getAddressType() == IPAddress::IPv4AddressType)
-		{
-			checksum = computePseudoHdrChecksum((uint8_t*)vrrpHeader, getDataLen(), IPAddress::IPv4AddressType,
-			                                    PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
-		}
-		else
-		{
-			checksum = computePseudoHdrChecksum((uint8_t*)vrrpHeader, getDataLen(), IPAddress::IPv6AddressType,
-			                                    PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
-		}
-
+		uint16_t checksum = computePseudoHdrChecksum(
+		    reinterpret_cast<uint8_t*>(vrrpHeader), getDataLen(),
+		    getAddressType() == IPAddress::IPv4AddressType ? IPAddress::IPv4AddressType : IPAddress::IPv6AddressType,
+		    PACKETPP_IPPROTO_VRRP, srcIPAddr, dstIPAddr);
 		vrrpHeader->checksum = currChecksumValue;
 
 		return checksum;

@@ -274,7 +274,7 @@ namespace pcpp
 		timespec m_TimeStamp{};
 		bool m_DeleteRawDataAtDestructor{};
 		bool m_RawPacketSet{};
-		LinkLayerType m_LinkLayerType;
+		LinkLayerType m_LinkLayerType{LINKTYPE_ETHERNET};
 		void init(bool deleteRawDataAtDestructor = true);
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 

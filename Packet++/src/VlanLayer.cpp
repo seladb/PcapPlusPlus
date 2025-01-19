@@ -44,9 +44,9 @@ namespace pcpp
 		return (be16toh(getVlanHeader()->vlan) >> 13) & 7;
 	}
 
-	void VlanLayer::setVlanID(uint16_t id) const
+	void VlanLayer::setVlanID(uint16_t vlanId) const
 	{
-		getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (id & 0xFFF));
+		getVlanHeader()->vlan = htobe16((be16toh(getVlanHeader()->vlan) & (~0xFFF)) | (vlanId & 0xFFF));
 	}
 
 	void VlanLayer::setCFI(bool cfi) const

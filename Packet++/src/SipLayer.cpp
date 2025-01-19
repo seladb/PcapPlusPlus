@@ -134,17 +134,17 @@ namespace pcpp
 
 		parseVersion();
 
-		char* endOfFirstLine = nullptr;
-		if ((endOfFirstLine =
-		         static_cast<char*>(memchr(reinterpret_cast<char*>(m_SipRequest->m_Data + m_VersionOffset), '\n',
-		                                   m_SipRequest->m_DataLen - static_cast<size_t>(m_VersionOffset)))) != nullptr)
+		uint8_t* endOfFirstLine = nullptr;
+		if ((endOfFirstLine = static_cast<uint8_t*>(
+		         memchr(reinterpret_cast<char*>(m_SipRequest->m_Data + m_VersionOffset), '\n',
+		                m_SipRequest->m_DataLen - static_cast<size_t>(m_VersionOffset)))) != nullptr)
 		{
-			m_FirstLineEndOffset = endOfFirstLine - reinterpret_cast<char*>(m_SipRequest->m_Data) + 1;
+			m_FirstLineEndOffset = std::distance(m_SipRequest->m_Data, endOfFirstLine) + 1;
 			m_IsComplete = true;
 		}
 		else
 		{
-			m_FirstLineEndOffset = m_SipRequest->getDataLen();
+			m_FirstLineEndOffset = static_cast<int>(m_SipRequest->getDataLen());
 			m_IsComplete = false;
 		}
 
@@ -158,7 +158,6 @@ namespace pcpp
 
 	SipRequestFirstLine::SipRequestFirstLine(SipRequestLayer* sipRequest, SipRequestLayer::SipMethod method,
 	                                         const std::string& version, const std::string& uri)
-	try  // throw(SipRequestFirstLineException)
 	{
 		if (method == SipRequestLayer::SipMethodUnknown)
 		{
@@ -179,23 +178,15 @@ namespace pcpp
 
 		std::string firstLine = SipMethodEnumToString[m_Method] + " " + uri + " " + version + "\r\n";
 
-		m_UriOffset = SipMethodEnumToString[m_Method].length() + 1;
-		m_FirstLineEndOffset = firstLine.length();
-		m_VersionOffset = m_UriOffset + uri.length() + 6;
+		m_UriOffset = static_cast<int>(SipMethodEnumToString[m_Method].length()) + 1;
+		m_FirstLineEndOffset = static_cast<int>(firstLine.length());
+		m_VersionOffset = m_UriOffset + static_cast<int>(uri.length()) + 6;
 
 		m_SipRequest->m_DataLen = firstLine.length();
 		m_SipRequest->m_Data = new uint8_t[m_SipRequest->m_DataLen];
 		memcpy(m_SipRequest->m_Data, firstLine.c_str(), m_SipRequest->m_DataLen);
 
 		m_IsComplete = true;
-	}
-	catch (const SipRequestFirstLineException&)
-	{
-		throw;
-	}
-	catch (...)
-	{
-		std::terminate();
 	}
 
 	SipRequestLayer::SipMethod SipRequestFirstLine::parseMethod(const char* data, size_t dataLen)
@@ -263,7 +254,7 @@ namespace pcpp
 
 		m_Version = std::string(verPos, endOfVerPos);
 
-		m_VersionOffset = verPos - reinterpret_cast<char*>(m_SipRequest->m_Data);
+		m_VersionOffset = std::distance(m_SipRequest->m_Data, reinterpret_cast<uint8_t*>(verPos));
 	}
 
 	bool SipRequestFirstLine::setMethod(SipRequestLayer::SipMethod newMethod)
@@ -275,8 +266,8 @@ namespace pcpp
 		}
 
 		// extend or shorten layer
-		int const lengthDifference =
-		    SipMethodEnumToString[newMethod].length() - SipMethodEnumToString[m_Method].length();
+		int const lengthDifference = static_cast<int>(SipMethodEnumToString[newMethod].length()) -
+		                             static_cast<int>(SipMethodEnumToString[m_Method].length());
 		if (lengthDifference > 0)
 		{
 			if (!m_SipRequest->extendLayer(0, lengthDifference))
@@ -336,7 +327,7 @@ namespace pcpp
 
 		// extend or shorten layer
 		std::string const currentUri = getUri();
-		int const lengthDifference = newUri.length() - currentUri.length();
+		int const lengthDifference = static_cast<int>(newUri.length()) - static_cast<int>(currentUri.length());
 		if (lengthDifference > 0)
 		{
 			if (!m_SipRequest->extendLayer(m_UriOffset, lengthDifference))
@@ -716,7 +707,8 @@ namespace pcpp
 		{
 			statusCodeString = StatusCodeEnumToString[newStatusCode];
 		}
-		int const lengthDifference = statusCodeString.length() - getStatusCodeString().length();
+		int const lengthDifference =
+		    static_cast<int>(statusCodeString.length()) - static_cast<int>(getStatusCodeString().length());
 
 		if (lengthDifference > 0)
 		{
@@ -888,7 +880,7 @@ namespace pcpp
 			return "";
 		}
 
-		return std::string(data, nextSpace - data);
+		return {data, static_cast<size_t>(std::distance(data, nextSpace))};
 	}
 
 }  // namespace pcpp

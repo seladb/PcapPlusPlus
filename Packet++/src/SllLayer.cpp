@@ -20,7 +20,7 @@ namespace pcpp
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
-		auto* sllHdr = (sll_header*)m_Data;
+		auto* sllHdr = reinterpret_cast<sll_header*>(m_Data);
 		sllHdr->packet_type = htobe16(packetType);
 		sllHdr->ARPHRD_type = htobe16(ARPHRDType);
 		m_Protocol = SLL;

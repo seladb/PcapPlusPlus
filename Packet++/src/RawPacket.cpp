@@ -10,12 +10,7 @@ namespace pcpp
 
 	void RawPacket::init(bool deleteRawDataAtDestructor)
 	{
-		m_RawData = nullptr;
-		m_RawDataLen = 0;
-		m_FrameLength = 0;
 		m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
-		m_RawPacketSet = false;
-		m_LinkLayerType = LINKTYPE_ETHERNET;
 	}
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
@@ -111,7 +106,7 @@ namespace pcpp
 			delete[] m_RawData;
 		}
 
-		m_RawData = (uint8_t*)pRawData;
+		m_RawData = const_cast<uint8_t*>(pRawData);
 		m_RawDataLen = rawDataLen;
 		m_TimeStamp = timestamp;
 		m_RawPacketSet = true;

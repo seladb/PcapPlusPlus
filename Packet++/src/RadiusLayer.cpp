@@ -23,7 +23,7 @@ namespace pcpp
 		return RadiusAttribute(recordBuffer);
 	}
 
-	RadiusLayer::RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator, uint8_t authenticatorArrSize)
+	RadiusLayer::RadiusLayer(uint8_t code, uint8_t radiusId, const uint8_t* authenticator, uint8_t authenticatorArrSize)
 	{
 		m_DataLen = sizeof(radius_header);
 		m_Data = new uint8_t[m_DataLen];
@@ -32,7 +32,7 @@ namespace pcpp
 
 		radius_header* hdr = getRadiusHeader();
 		hdr->code = code;
-		hdr->id = id;
+		hdr->id = radiusId;
 		hdr->length = htobe16(sizeof(radius_header));
 		if (authenticatorArrSize == 0 || authenticator == nullptr)
 		{
@@ -177,10 +177,9 @@ namespace pcpp
 		return m_AttributeReader.getNextTLVRecord(attr, getAttributesBasePtr(), getHeaderLen() - sizeof(radius_header));
 	}
 
-	RadiusAttribute RadiusLayer::getAttribute(uint8_t attributeType) const
+	RadiusAttribute RadiusLayer::getAttribute(uint8_t attrType) const
 	{
-		return m_AttributeReader.getTLVRecord(attributeType, getAttributesBasePtr(),
-		                                      getHeaderLen() - sizeof(radius_header));
+		return m_AttributeReader.getTLVRecord(attrType, getAttributesBasePtr(), getHeaderLen() - sizeof(radius_header));
 	}
 
 	size_t RadiusLayer::getAttributeCount() const
@@ -190,7 +189,7 @@ namespace pcpp
 
 	RadiusAttribute RadiusLayer::addAttribute(const RadiusAttributeBuilder& attrBuilder)
 	{
-		int const offset = getHeaderLen();
+		int const offset = static_cast<int>(getHeaderLen());
 		return addAttrAt(attrBuilder, offset);
 	}
 
@@ -202,11 +201,11 @@ namespace pcpp
 
 		if (prevAttr.isNull())
 		{
-			offset = getHeaderLen();
+			offset = static_cast<int>(getHeaderLen());
 		}
 		else
 		{
-			offset = prevAttr.getRecordBasePtr() + prevAttr.getTotalSize() - m_Data;
+			offset = std::distance(m_Data, prevAttr.getRecordBasePtr() + prevAttr.getTotalSize());
 		}
 
 		return addAttrAt(attrBuilder, offset);
@@ -220,7 +219,7 @@ namespace pcpp
 			return false;
 		}
 
-		int const offset = attrToRemove.getRecordBasePtr() - m_Data;
+		int const offset = std::distance(m_Data, attrToRemove.getRecordBasePtr());
 
 		if (!shortenLayer(offset, attrToRemove.getTotalSize()))
 		{
@@ -242,7 +241,7 @@ namespace pcpp
 			return false;
 		}
 
-		m_AttributeReader.changeTLVRecordCount(0 - getAttributeCount());
+		m_AttributeReader.changeTLVRecordCount(0 - static_cast<int>(getAttributeCount()));
 
 		getRadiusHeader()->length = htobe16(m_DataLen);
 

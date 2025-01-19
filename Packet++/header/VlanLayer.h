@@ -96,10 +96,10 @@ namespace pcpp
 		/**
 		 * Set VLAN ID. This method differs from setting vlan_header#vlanID because vlan_header#vlanID is 12 bits long
 		 * in a 16 bit field. This methods sets only the 12 bit relevant for the VLAN ID
-		 * @param[in] id The VLAN ID to set
+		 * @param[in] vlanId The VLAN ID to set
 		 * @todo Verify it works in big endian machines as well
 		 */
-		void setVlanID(uint16_t id) const;
+		void setVlanID(uint16_t vlanId) const;
 
 		/**
 		 * Set CFI bit

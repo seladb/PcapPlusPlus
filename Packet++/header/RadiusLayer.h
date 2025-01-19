@@ -188,14 +188,14 @@ namespace pcpp
 		/**
 		 * A constructor that creates a new layer from scratch
 		 * @param[in] code The RADIUS message code
-		 * @param[in] id The RADIUS message ID
+		 * @param[in] radiusId The RADIUS message ID
 		 * @param[in] authenticator A pointer to a byte array containing the authenticator value
 		 * @param[in] authenticatorArrSize The authenticator byte array size. A valid size of the authenticator field is
 		 * 16 bytes. If the provided size is less than that then the byte array will be copied to the packet but the
 		 * missing bytes will stay zero. If the size is more than 16 bytes, only the first 16 bytes will be copied to
 		 * the packet
 		 */
-		RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator, uint8_t authenticatorArrSize);
+		RadiusLayer(uint8_t code, uint8_t radiusId, const uint8_t* authenticator, uint8_t authenticatorArrSize);
 
 		/**
 		 * A constructor that creates a new layer from scratch

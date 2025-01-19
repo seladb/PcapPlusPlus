@@ -155,7 +155,7 @@ namespace pcpp
 	IPv6TLVOptionHeader::IPv6TLVOptionHeader(const std::vector<IPv6TLVOptionBuilder>& options)
 	{
 		m_ExtType = IPv6ExtensionUnknown;
-		m_OptionReader.changeTLVRecordCount(options.size());
+		m_OptionReader.changeTLVRecordCount(static_cast<int>(options.size()));
 
 		size_t totalSize = sizeof(uint16_t);  // nextHeader + headerLen
 
@@ -234,7 +234,7 @@ namespace pcpp
 
 	size_t IPv6RoutingHeader::getRoutingAdditionalDataLength() const
 	{
-		int const result = getExtensionLen() - sizeof(ipv6_routing_header);
+		int const result = static_cast<int>(getExtensionLen() - sizeof(ipv6_routing_header));
 		if (result < 0)
 		{
 			return (size_t)0;
@@ -299,7 +299,7 @@ namespace pcpp
 
 	size_t IPv6AuthenticationHeader::getIntegrityCheckValueLength() const
 	{
-		int const result = getExtensionLen() - sizeof(ipv6_authentication_header);
+		int const result = static_cast<int>(getExtensionLen() - sizeof(ipv6_authentication_header));
 		if (result < 0)
 		{
 			return (size_t)0;
