@@ -598,12 +598,13 @@ namespace pcpp
 		double const fractionPart = modf(timestamp, &integerPart);
 
 		struct tm* timer = nullptr;
-		time_t timeStruct = integerPart;
 #if defined(_WIN32)
+		time_t timeStruct = integerPart;
 		if (timeStruct < 0)
 			timeStruct = 0;
 		timer = gmtime(&timeStruct);
 #else
+		const time_t timeStruct = integerPart;
 		struct tm timer_r{};
 		timer = gmtime_r(&timeStruct, &timer_r);
 

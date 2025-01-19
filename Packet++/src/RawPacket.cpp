@@ -105,11 +105,7 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		if (frameLength == -1)
-		{
-			frameLength = rawDataLen;
-		}
-		m_FrameLength = frameLength;
+		m_FrameLength = frameLength == -1 ? rawDataLen : frameLength;
 		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
 		{
 			delete[] m_RawData;
@@ -143,7 +139,7 @@ namespace pcpp
 	void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 	{
 		memcpy((uint8_t*)m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
-		m_RawDataLen += dataToAppendLen;
+		m_RawDataLen += static_cast<int>(dataToAppendLen);
 		m_FrameLength = m_RawDataLen;
 	}
 
@@ -160,7 +156,7 @@ namespace pcpp
 			memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
 		}
 
-		m_RawDataLen += dataToInsertLen;
+		m_RawDataLen += static_cast<int>(dataToInsertLen);
 		m_FrameLength = m_RawDataLen;
 	}
 
@@ -211,7 +207,7 @@ namespace pcpp
 			        m_RawDataLen - (atIndex + numOfBytesToRemove));
 		}
 
-		m_RawDataLen -= numOfBytesToRemove;
+		m_RawDataLen -= static_cast<int>(numOfBytesToRemove);
 		m_FrameLength = m_RawDataLen;
 		return true;
 	}

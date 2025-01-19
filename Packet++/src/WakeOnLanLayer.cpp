@@ -86,7 +86,7 @@ namespace pcpp
 			}
 			else if (m_DataLen < sizeof(wol_header) + len)
 			{
-				if (!extendLayer(m_DataLen, (sizeof(wol_header) + len) - m_DataLen))
+				if (!extendLayer(static_cast<int>(m_DataLen), (sizeof(wol_header) + len) - m_DataLen))
 				{
 					PCPP_LOG_ERROR("Can't extend Wake on LAN layer");
 					return false;
