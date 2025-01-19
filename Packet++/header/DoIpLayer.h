@@ -58,7 +58,9 @@ namespace pcpp
 
 		/**
 		 * A constructor that creates an generic doip layer and set header and payload fields
-		 * @param[in] Fields DoIpMessageFields contains all doipMessage specification based on its payload type
+		 * @param[in] version DoIpProtocolVersion specify the doip protocol version
+		 * @param[in] type DoIpPayloadTypes indicating the doip payload type
+		 * @param[in] data IDoIpMessageData contains all doipMessage specification based on its payload type
 		 */
 		DoIpLayer(DoIpProtocolVersion version, DoIpPayloadTypes type, const IDoIpMessageData* data = nullptr);
 
