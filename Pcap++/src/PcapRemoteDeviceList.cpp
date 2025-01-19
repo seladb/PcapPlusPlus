@@ -140,13 +140,15 @@ namespace pcpp
 
 	PcapRemoteDevice* PcapRemoteDeviceList::getDeviceByIp(const IPAddress& ipAddr) const
 	{
-		if (ipAddr.getType() == IPAddress::IPv4AddressType)
+		switch (ipAddr.getType())
 		{
+		case IPAddress::IPv4AddressType:
 			return getDeviceByIp(ipAddr.getIPv4());
-		}
-		else  // IPAddress::IPv6AddressType
-		{
+		case IPAddress::IPv6AddressType:
 			return getDeviceByIp(ipAddr.getIPv6());
+		default:
+			PCPP_LOG_ERROR("Unknown IP address type: " << ipAddr.getType());
+			return nullptr;
 		}
 	}
 
