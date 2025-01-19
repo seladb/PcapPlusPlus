@@ -126,7 +126,7 @@ namespace pcpp
 		 * Routing Activation Request payload type. It extracts the source address, activation
 		 * type, reserved ISO bytes, and optionally reserved OEM bytes if present.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Routing Activation Request data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Routing Activation Request data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note This method overrides the base class implementation and adds specific parsing
@@ -195,7 +195,7 @@ namespace pcpp
 		 * payload type and parses fields including the logical tester address, source
 		 * address, response code, and reserved fields.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Routing Activation Response data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Routing Activation Response data.
 		 * @return `true` if parsing was successful, `false` otherwise.
 		 */
 		bool buildFromLayer(const DoIpLayer& doipLayer);
@@ -245,7 +245,7 @@ namespace pcpp
 		 * This method validates the provided DoIpLayer to ensure it corresponds to the
 		 * Generic Header NACK payload type. It extracts the `genericNackCode` field from the layer.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Generic Header NACK data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Generic Header NACK data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method checks for null pointers and verifies that the payload type matches
@@ -301,7 +301,8 @@ namespace pcpp
 		 * This method validates the provided DoIpLayer to ensure it corresponds to the
 		 * Vehicle Identification Request with EID payload type. It extracts the EID field from the layer.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Vehicle Identification Request with EID data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Vehicle Identification Request with EID
+		 * data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method checks for null pointers and verifies that the payload type matches
@@ -358,7 +359,8 @@ namespace pcpp
 		 * Vehicle Identification Request with VIN payload type. It extracts the VIN (Vehicle Identification Number)
 		 * field from the payload data and populates the class instance.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Vehicle Identification Request with VIN data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Vehicle Identification Request with VIN
+		 * data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
@@ -429,7 +431,7 @@ namespace pcpp
 		 * Announcement Message payload type. It extracts fields such as VIN, logical address, EID, GID,
 		 * further action required, and synchronization status from the payload data.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Vehicle Announcement data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Vehicle Announcement data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
@@ -494,7 +496,7 @@ namespace pcpp
 		 * This method validates the provided DoIpLayer to ensure it corresponds to the
 		 * Alive Check Response payload type. It extracts the `sourceAddress` field from the payload data.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Alive Check Response data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Alive Check Response data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
@@ -554,7 +556,7 @@ namespace pcpp
 		 * This method validates the provided DoIpLayer to ensure it corresponds to the
 		 * Diagnostic Power Mode Response payload type. It extracts the `powerModeCode` field from the payload data.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Diagnostic Power Mode Response data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Diagnostic Power Mode Response data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
@@ -628,7 +630,7 @@ namespace pcpp
 		 * Entity Status Response payload type. It extracts fields such as `nodeType`,
 		 * `maxConcurrentSockets`, `currentlyOpenSockets`, and optionally `maxDataSize` from the payload data.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Entity Status Response data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Entity Status Response data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
@@ -695,7 +697,7 @@ namespace pcpp
 		 * Diagnostic Message payload type. It extracts fields such as `sourceAddress`,
 		 * `targetAddress`, and `diagnosticData` from the payload data.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Diagnostic Message data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Diagnostic Message data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
@@ -764,7 +766,7 @@ namespace pcpp
 		 * Diagnostic Acknowledgment Message payload type. It extracts fields such as `sourceAddress`,
 		 * `targetAddress`, `ackCode`, and `previousMessage` from the payload data.
 		 *
-		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Diagnostic Acknowledgment Message data.
+		 * @param[in] doipLayer const reference to the DoIpLayer containing the Diagnostic Acknowledgment Message data.
 		 * @return `true` if parsing and initialization were successful, `false` otherwise.
 		 *
 		 * @note The method performs the following checks:
