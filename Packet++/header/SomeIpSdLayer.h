@@ -80,6 +80,7 @@ namespace pcpp
 			uint8_t reserved;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someipsdhdroptionsbase) == 4, "someipsdhdroptionsbase size is not 4 bytes");
 
 		/**
 		 * Destroy the SOME/IP-SD Option object and delete allocated data if it has been allocated by a constructor
@@ -207,6 +208,7 @@ namespace pcpp
 			uint16_t portNumber;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someipsdhdroptionsipv4) == 12, "someipsdhdroptionsipv4 size is not 12 bytes");
 	};
 
 	/**
@@ -284,6 +286,7 @@ namespace pcpp
 			uint16_t portNumber;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someipsdhdroptionsipv6) == 24, "someipsdhdroptionsipv6 size is not 24 bytes");
 	};
 
 	/**
@@ -364,6 +367,7 @@ namespace pcpp
 			uint16_t weight;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someipsdhdroptionsload) == 8, "someipsdhdroptionsload size is not 8 bytes");
 	};
 
 	/**
@@ -434,6 +438,7 @@ namespace pcpp
 			uint32_t data;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someipsdhdrentry) == 16, "someipsdhdrentry size is not 16 bytes");
 
 		/**
 		 * Construct a new SOME/IP-SD Service Entry Type
@@ -770,6 +775,7 @@ namespace pcpp
 			uint8_t reserved3;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someipsdhdr) == 20, "someipsdhdr size is not 20 bytes");
 
 		uint32_t m_NumOptions;
 

@@ -59,6 +59,7 @@ namespace pcpp
 			uint8_t messageType;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(bgp_common_header) == 19, "bgp_common_header size is not 19 bytes");
 
 		/**
 		 * @return BGP message type

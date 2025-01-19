@@ -42,6 +42,7 @@ namespace pcpp
 		uint16_t payloadLength;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(pppoe_header) == 6, "pppoe_header size is not 6 bytes");
 
 	/**
 	 * @class PPPoELayer

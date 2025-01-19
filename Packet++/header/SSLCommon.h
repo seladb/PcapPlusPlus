@@ -30,6 +30,7 @@ namespace pcpp
 		uint16_t length;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ssl_tls_record_layer) == 5, "ssl_tls_record_layer size is not 5 bytes");
 
 	/**
 	 * @struct ssl_tls_handshake_layer
@@ -46,6 +47,7 @@ namespace pcpp
 		uint16_t length2;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ssl_tls_handshake_layer) == 4, "ssl_tls_handshake_layer size is not 4 bytes");
 
 	/**
 	 * @struct ssl_tls_client_server_hello
@@ -60,6 +62,7 @@ namespace pcpp
 		uint8_t random[32];
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ssl_tls_client_server_hello) == 38, "ssl_tls_client_server_hello size is not 38 bytes");
 
 	/**
 	 * @struct ssl_tls_change_cipher_spec
@@ -72,6 +75,7 @@ namespace pcpp
 		uint8_t changeCipherSpec;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ssl_tls_change_cipher_spec) == 1, "ssl_tls_change_cipher_spec size is not 1 byte");
 
 	/**
 	 * @struct ssl_tls_alert
@@ -86,6 +90,7 @@ namespace pcpp
 		uint8_t alertDescription;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ssl_tls_alert) == 2, "ssl_tls_alert size is not 2 bytes");
 
 	/**
 	 * SSL/TLS message types

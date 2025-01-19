@@ -65,6 +65,7 @@ namespace pcpp
 		uint16_t protocol;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(gre_basic_header) == 4, "gre_basic_header size is not 4 bytes");
 
 	/**
 	 * @struct gre1_header
@@ -79,6 +80,7 @@ namespace pcpp
 		uint16_t callID;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(gre1_header) == 8, "gre1_header size is not 8 bytes");
 
 	/**
 	 * @struct ppp_pptp_header
@@ -95,6 +97,7 @@ namespace pcpp
 		uint16_t protocol;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ppp_pptp_header) == 4, "ppp_pptp_header size is not 4 bytes");
 
 	/**
 	 * @class GreLayer

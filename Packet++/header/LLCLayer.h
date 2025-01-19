@@ -25,6 +25,7 @@ namespace pcpp
 		    control;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(llc_header) == 3, "llc_header size is not 3 bytes");
 
 	/**
 	 * @class LLCLayer

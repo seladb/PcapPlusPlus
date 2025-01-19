@@ -27,6 +27,7 @@ namespace pcpp
 		uint16_t resourceId;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(nflog_header) == 4, "nflog_header size is not 4 bytes");
 
 	/**
 	 * @enum NflogTlvType

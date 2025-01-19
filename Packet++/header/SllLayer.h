@@ -36,6 +36,7 @@ namespace pcpp
 		uint16_t protocol_type;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(sll_header) == 16, "sll_header size is not 16 bytes");
 
 	/**
 	 * @class SllLayer

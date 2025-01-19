@@ -85,6 +85,7 @@ namespace pcpp
 		uint16_t urgentPointer;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(tcphdr) == 20, "tcphdr size is not 20 bytes");
 
 	/**
 	 * TCP options types

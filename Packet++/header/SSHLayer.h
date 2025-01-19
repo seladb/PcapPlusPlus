@@ -287,6 +287,7 @@ namespace pcpp
 			uint8_t messageCode;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(ssh_message_base) == 6, "ssh_message_base size is not 6 bytes");
 
 		// this layer supports only parsing
 		SSHHandshakeMessage();

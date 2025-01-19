@@ -41,6 +41,7 @@ namespace pcpp
 		uint8_t link_layer_addr[8];
 	};
 #pragma pack(pop)
+	static_assert(sizeof(sll2_header) == 20, "sll2_header size is not 20 bytes");
 
 	/**
 	 * @class Sll2Layer
