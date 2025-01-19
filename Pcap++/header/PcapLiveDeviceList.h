@@ -18,7 +18,7 @@ namespace pcpp
 	/// (on Windows) instances. All live devices are initialized on startup and wrap the network interfaces installed on
 	/// the machine. This class enables access to them through their IP addresses or get a vector of all of them so the
 	/// user can search them in some other way
-    class PcapLiveDeviceList : public internal::DeviceListBase<PcapLiveDevice>
+	class PcapLiveDeviceList : public internal::DeviceListBase<PcapLiveDevice>
 	{
 	private:
 		using Base = internal::DeviceListBase<PcapLiveDevice>;
@@ -102,12 +102,14 @@ namespace pcpp
 			return getDeviceByIp(ip6Addr);
 		}
 
-		/// Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
+		/// Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or
+		/// IPv6
 		/// @param[in] ipAddrAsString The IP address defined for the device as string
 		/// @return A pointer to the live device if this IP address is valid and exists. nullptr otherwise
 		PcapLiveDevice* getDeviceByIp(const std::string& ipAddrAsString) const;
 
-		/// Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or IPv6
+		/// Get a pointer to the live device by its IP address represented as string. IP address can be both IPv4 or
+		/// IPv6
 		/// @param[in] ipAddrAsString The IP address defined for the device as string
 		/// @return A pointer to the live device if this IP address is valid and exists. nullptr otherwise
 		/// @deprecated This method has been deprecated in favor of getDeviceByIp(...).

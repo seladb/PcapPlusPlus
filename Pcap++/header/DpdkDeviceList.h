@@ -55,7 +55,7 @@ namespace pcpp
 	///      once in every application at its startup process
 	///    - it contains the list of DpdkDevice instances and enables access to them
 	///    - it has methods to start and stop worker threads. See more details in startDpdkWorkerThreads()
-    class DpdkDeviceList : public internal::DeviceListBase<DpdkDevice>
+	class DpdkDeviceList : public internal::DeviceListBase<DpdkDevice>
 	{
 		friend class KniDeviceList;
 
