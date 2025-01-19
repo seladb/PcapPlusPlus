@@ -181,8 +181,8 @@ namespace pcpp
 			return getDeviceByIp(ip6Addr);
 		}
 
-		/// Search a PcapRemoteDevice in the list by its IP address
-		/// @param[in] ipAddrAsString The IP address in string format
+		/// Search a PcapRemoteDevice in the list by its IP address (IPv4 or IPv6)
+		/// @param[in] ipAddr The IP address
 		/// @return The PcapRemoteDevice if found, nullptr otherwise
 		PcapRemoteDevice* getDeviceByIp(const IPAddress& ipAddr) const;
 
