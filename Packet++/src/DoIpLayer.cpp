@@ -213,8 +213,7 @@ namespace pcpp
 	void DoIpLayer::parseNextLayer()
 	{
 		DiagnosticMessageData diagnosticMessage;
-
-		if (diagnosticMessage.buildFromLayer(this))
+		if (diagnosticMessage.buildFromLayer(*this))
 		{
 			// handle UDS layer as generic PayloadLayer for now.
 			m_NextLayer = new PayloadLayer(diagnosticMessage.diagnosticData.data(),

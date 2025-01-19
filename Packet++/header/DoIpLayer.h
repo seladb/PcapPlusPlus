@@ -35,6 +35,7 @@ namespace pcpp
 		uint32_t payloadLength;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(doiphdr) == 8, "DoIP header must be exactly 8 bytes.");
 
 	/**
 	 * @class DoIpLayer

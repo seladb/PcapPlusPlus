@@ -39,13 +39,13 @@ PTF_TEST_CASE(DoIpGenericHeaderNackPacketParsing)
 
 	// build doipData from existent layer
 	pcpp::GenericHeaderNackData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "generic header nack code: Unknown payload type (0x1)\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -197,13 +197,13 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestVINPacketParsing)
 
 	// build doipData from existent layer
 	pcpp::VehicleIdentificationRequestVINData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "VIN: BAUNEE4MZ17042403\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -287,13 +287,13 @@ PTF_TEST_CASE(DoIpVehicleIdentificationRequestEIDPacketParsing)
 
 	// build doipData from existent layer
 	pcpp::VehicleIdentificationRequestEIDData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "EID: 4241554e4545\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -379,15 +379,15 @@ PTF_TEST_CASE(DoIpVehicleAnnouncementPacketParsing)
 
 	// build doipData from existent layer
 	pcpp::VehicleAnnouncementData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(
 		    data.toString(),
 		    "VIN: BAUNEE4MZ17042403\nlogical address: 0x4010\nEID: 001a37bfee74\nGID: 001a37bfee74\nfurther action required:No further action required (0x0)\nVIN/GID sync status: NULL\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -481,16 +481,16 @@ PTF_TEST_CASE(DoIpRoutingActivationRequestPacketParsing)
 
 	// build doipData from existent layer
 	pcpp::RoutingActivationRequestData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 
 		PTF_ASSERT_EQUAL(
 		    data.toString(),
 		    "sourceAddress: 0xe80\nactivation type: Default (0x0)\nreserved by ISO: 00000000\nReserved by OEM: 00000000\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationResponseData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -573,15 +573,15 @@ PTF_TEST_CASE(DoIpRoutingActivationResponsePacketParsing)
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	pcpp::RoutingActivationResponseData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(
 		    data.toString(),
 		    "logical address of external tester: 0xe80\nsource address: 0x4010\nrouting activation response code: Routing successfully activated (0x10)\nreserved by ISO: 00000000\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -739,13 +739,13 @@ PTF_TEST_CASE(DoIpAliveCheckResponsePacketParsing)
 
 	// build doipData from existent layer
 	pcpp::AliveCheckResponseData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "source address: 0x0\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -893,15 +893,15 @@ PTF_TEST_CASE(DoIpEntityStatusResponsePacketParsing)
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	pcpp::EntityStatusResponseData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(
 		    data.toString(),
 		    "Entity status: DoIP gateway (0x0)\nmaximum Concurrent Socket: 1\ncurrently Opened Socket: 0\nmaximum Data Size: 0x00000fff\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -1053,13 +1053,13 @@ PTF_TEST_CASE(DoIpPowerModeResponsePacketParsing)
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	pcpp::DiagnosticPowerModeResponseData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "diagnostic power mode: not ready (0x0)\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -1136,13 +1136,13 @@ PTF_TEST_CASE(DoIpDiagnosticMessagePacketParsing)
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	pcpp::DiagnosticMessageData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(data.toString(), "source address: 0xe80\ntarget address: 0x4010\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -1223,15 +1223,15 @@ PTF_TEST_CASE(DoIpDiagnosticAckMessagePacketParsing)
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	pcpp::DiagnosticAckMessageData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(
 		    data.toString(),
 		    "source address: 0x4010\ntarget address: 0xe80\nack code: ACK (0x0)\nprevious message: 22f101\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);
@@ -1314,15 +1314,15 @@ PTF_TEST_CASE(DoIpDiagnosticNackMessagePacketParsing)
 	PTF_ASSERT_NOT_NULL(doipLayer);
 
 	pcpp::DiagnosticNackMessageData data;
-	if (data.buildFromLayer(doipLayer))
+	if (data.buildFromLayer(*doipLayer))
 		// std::cout << data.toString();
 		PTF_ASSERT_EQUAL(
 		    data.toString(),
 		    "source address: 0x4010\ntarget address: 0xe80\nnack code: Invalid source address (0x2)\nprevious message: 22f101\n");
 	// wrong build
-	PTF_ASSERT_FALSE(data.buildFromLayer(nullptr));
+
 	pcpp::RoutingActivationRequestData routingData;
-	PTF_ASSERT_FALSE(routingData.buildFromLayer(doipLayer));
+	PTF_ASSERT_FALSE(routingData.buildFromLayer(*doipLayer));
 
 	PTF_ASSERT_EQUAL(doipLayer->getProtocolVersion(), pcpp::DoIpProtocolVersion::version02Iso2012, enumclass);
 	PTF_ASSERT_EQUAL(doipLayer->getInvertProtocolVersion(), 0xFD);

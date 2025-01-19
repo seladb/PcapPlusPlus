@@ -72,18 +72,6 @@ namespace pcpp
 		 * @return The message data as a vector of bytes.
 		 */
 		virtual std::vector<uint8_t> getData() const = 0;
-
-		/**
-		 * @brief build IDoIpMessageData from DoIpLayer
-		 * @param[in] doipLayer pointer to doipLayer to retrieve data from
-		 * @return true if encapsulating process is done successufly else false.
-		 *
-		 * @exception Logs an error and returns `false` if:
-		 * - The input layer is null.
-		 * - The payload type of doipLayer does not match the expected type for IDoIpMessageData.
-		 * - The input data length is insufficient for parsing all required fields.
-		 */
-		virtual bool buildFromLayer(DoIpLayer* doipLayer) = 0;
 	};
 
 	/**
@@ -150,7 +138,7 @@ namespace pcpp
 		 * - `reservedIso`: Reserved bytes as defined by ISO specifications.
 		 * - `reservedOem`: Reserved bytes as defined by OEM specifications, only if present.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -210,7 +198,7 @@ namespace pcpp
 		 * @param[in] doipLayer Pointer to the DoIpLayer containing the Routing Activation Response data.
 		 * @return `true` if parsing was successful, `false` otherwise.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -266,7 +254,7 @@ namespace pcpp
 		 * The following field is parsed:
 		 * - `genericNackCode`: The NACK code indicating the type of error.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -322,7 +310,7 @@ namespace pcpp
 		 * The following field is parsed:
 		 * - `eid`: The EID (Extended Identifier), extracted as a byte array of length `DOIP_EID_LEN`.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -383,7 +371,7 @@ namespace pcpp
 		 * The following field is parsed:
 		 * - `vin`: The Vehicle Identification Number (VIN), extracted as a byte array of length `DOIP_VIN_LEN`.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -459,7 +447,7 @@ namespace pcpp
 		 * - `furtherActionRequired`: Further action required code.
 		 * - `syncStatus`: VIN/GID synchronization status (if present).
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -519,7 +507,7 @@ namespace pcpp
 		 * The following field is parsed:
 		 * - `sourceAddress`: The source address of the response.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -579,7 +567,7 @@ namespace pcpp
 		 * The following field is parsed:
 		 * - `powerModeCode`: The diagnostic power mode response code.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -656,7 +644,7 @@ namespace pcpp
 		 * - `currentlyOpenSockets`: Number of currently open sockets.
 		 * - `maxDataSize` (optional): Maximum data size supported (4 bytes).
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -722,7 +710,7 @@ namespace pcpp
 		 * - `targetAddress`: Target address of the diagnostic message (2 bytes).
 		 * - `diagnosticData`: Variable length data representing the diagnostic payload.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -792,7 +780,7 @@ namespace pcpp
 		 * - `ackCode`: Acknowledgment code (1 byte, converted from enum).
 		 * - `previousMessage`: std::vector representing the previous message.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 
 	/**
@@ -852,6 +840,6 @@ namespace pcpp
 		 * @param doipLayer The layer containing the message data to be parsed.
 		 * @return `true` if the message was successfully built from the layer, `false` otherwise.
 		 */
-		bool buildFromLayer(DoIpLayer* doipLayer) override;
+		bool buildFromLayer(const DoIpLayer& doipLayer);
 	};
 }  // namespace pcpp

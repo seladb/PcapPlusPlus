@@ -53,29 +53,23 @@ namespace pcpp
 	}
 
 	// buildFromLayer implementation
-	bool RoutingActivationRequestData::buildFromLayer(DoIpLayer* doipLayer)
+	bool RoutingActivationRequestData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input data buffer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve routing activation request data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve routing activation request data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		constexpr size_t fixedFieldLength = sizeof(sourceAddress) + sizeof(activationType) + DOIP_RESERVED_ISO_LEN;
 
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < fixedFieldLength)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) < fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for routing activation request payload");
 			return false;
 		}
 
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 		dataPtr += sizeof(sourceAddress);
 
@@ -85,7 +79,7 @@ namespace pcpp
 		std::copy(dataPtr, dataPtr + DOIP_RESERVED_ISO_LEN, reservedIso.begin());
 		dataPtr += DOIP_RESERVED_ISO_LEN;
 
-		if (doipLayer->getDataLen() - (sizeof(doiphdr) + fixedFieldLength) == DOIP_RESERVED_OEM_LEN)
+		if (doipLayer.getDataLen() - (sizeof(doiphdr) + fixedFieldLength) == DOIP_RESERVED_OEM_LEN)
 		{
 			reservedOem = std::unique_ptr<std::array<uint8_t, DOIP_RESERVED_OEM_LEN>>(
 			    new std::array<uint8_t, DOIP_RESERVED_OEM_LEN>());
@@ -153,28 +147,22 @@ namespace pcpp
 		return data;
 	}
 
-	bool RoutingActivationResponseData::buildFromLayer(DoIpLayer* doipLayer)
+	bool RoutingActivationResponseData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input data buffer is null");
+			PCPP_LOG_ERROR("Cannot retrieve routing activation response data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve routing activation response data from " + doipLayer->getPayloadTypeAsStr());
-			return false;
-		}
-
-		if (doipLayer->getDataLen() - sizeof(doiphdr) <
+		if (doipLayer.getDataLen() - sizeof(doiphdr) <
 		    sizeof(logicalAddressExternalTester) + sizeof(sourceAddress) + sizeof(responseCode) + DOIP_RESERVED_ISO_LEN)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for routing activation response payload");
 			return false;
 		}
 
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		logicalAddressExternalTester = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 		dataPtr += sizeof(logicalAddressExternalTester);
 
@@ -187,8 +175,8 @@ namespace pcpp
 		std::copy(dataPtr, dataPtr + DOIP_RESERVED_ISO_LEN, reservedIso.begin());
 		dataPtr += DOIP_RESERVED_ISO_LEN;
 
-		if (doipLayer->getDataLen() - (sizeof(doiphdr) + sizeof(logicalAddressExternalTester) + sizeof(sourceAddress) +
-		                               sizeof(responseCode) + DOIP_RESERVED_ISO_LEN) ==
+		if (doipLayer.getDataLen() - (sizeof(doiphdr) + sizeof(logicalAddressExternalTester) + sizeof(sourceAddress) +
+		                              sizeof(responseCode) + DOIP_RESERVED_ISO_LEN) ==
 		    DOIP_RESERVED_OEM_LEN)
 		{
 			reservedOem = std::unique_ptr<std::array<uint8_t, DOIP_RESERVED_OEM_LEN>>(
@@ -237,29 +225,23 @@ namespace pcpp
 	}
 
 	// buildFromLayer fun implementation
-	bool GenericHeaderNackData::buildFromLayer(DoIpLayer* doipLayer)
+	bool GenericHeaderNackData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve Generic Header NACK data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve Generic Header NACK data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		// Validate data length (1 byte is expected for genericNackCode)
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < 1)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) < 1)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Generic Header NACK payload");
 			return false;
 		}
 
 		// Extract the NACK code (1 byte)
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		genericNackCode = static_cast<DoIpGenericHeaderNackCodes>(dataPtr[0]);
 
 		return true;
@@ -280,36 +262,28 @@ namespace pcpp
 	}
 	std::vector<uint8_t> VehicleIdentificationRequestEIDData::getData() const
 	{
-		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), eid.begin(), eid.end());
-		return data;
+		return std::vector<uint8_t>(eid.begin(), eid.end());
 	}
 
-	bool VehicleIdentificationRequestEIDData::buildFromLayer(DoIpLayer* doipLayer)
+	bool VehicleIdentificationRequestEIDData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
-		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
+		if (doipLayer.getPayloadType() != getType())
 		{
 			PCPP_LOG_ERROR("Cannot retrieve Vehicle Identification Request with EID data from " +
-			               doipLayer->getPayloadTypeAsStr());
+			               doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		// Validate data length (must at least accommodate EID length)
-		if (doipLayer->getDataLen() - sizeof(doiphdr) != DOIP_EID_LEN)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) != DOIP_EID_LEN)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Vehicle Identification Request with EID payload");
 			return false;
 		}
 
 		// Extract the EID
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		std::copy(dataPtr, dataPtr + DOIP_EID_LEN, eid.begin());
 
 		return true;
@@ -330,36 +304,28 @@ namespace pcpp
 	}
 	std::vector<uint8_t> VehicleIdentificationRequestVINData::getData() const
 	{
-		std::vector<uint8_t> data;
 		// Copy each field's data into the vector
-		data.insert(data.end(), vin.begin(), vin.end());
-		return data;
+		return std::vector<uint8_t>(vin.begin(), vin.end());
 	}
 
-	bool VehicleIdentificationRequestVINData::buildFromLayer(DoIpLayer* doipLayer)
+	bool VehicleIdentificationRequestVINData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
-		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
+		if (doipLayer.getPayloadType() != getType())
 		{
 			PCPP_LOG_ERROR("Cannot retrieve Vehicle Identification Request with VIN data from " +
-			               doipLayer->getPayloadTypeAsStr());
+			               doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		// Validate data length (must at least accommodate VIN length)
-		if (doipLayer->getDataLen() - sizeof(doiphdr) != DOIP_VIN_LEN)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) != DOIP_VIN_LEN)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Vehicle Identification Request with EID payload");
 			return false;
 		}
 
 		// Extract the VIN
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		std::copy(dataPtr, dataPtr + DOIP_VIN_LEN, vin.begin());
 
 		return true;
@@ -430,31 +396,25 @@ namespace pcpp
 		return data;
 	}
 
-	bool VehicleAnnouncementData::buildFromLayer(DoIpLayer* doipLayer)
+	bool VehicleAnnouncementData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve Vehicle Announcement data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve Vehicle Announcement data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		// Validate minimum data length
 		size_t fixedFieldLength =
 		    DOIP_VIN_LEN + sizeof(logicalAddress) + DOIP_EID_LEN + DOIP_GID_LEN + 1;  // 1 for furtherActionRequired
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < fixedFieldLength)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) < fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Vehicle Announcement payload");
 			return false;
 		}
 
 		// Parse fields from payload
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 
 		// VIN
 		std::copy(dataPtr, dataPtr + DOIP_VIN_LEN, vin.begin());
@@ -477,7 +437,7 @@ namespace pcpp
 		dataPtr += sizeof(furtherActionRequired);
 
 		// Optional Sync Status
-		if (doipLayer->getDataLen() - sizeof(doiphdr) > fixedFieldLength)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) > fixedFieldLength)
 		{
 			syncStatus = static_cast<DoIpSyncStatus>(*dataPtr);
 		}
@@ -512,30 +472,24 @@ namespace pcpp
 		return data;
 	}
 
-	bool AliveCheckResponseData::buildFromLayer(DoIpLayer* doipLayer)
+	bool AliveCheckResponseData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve Alive Check Response data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve Alive Check Response data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		// Validate minimum data length
 		constexpr size_t fixedFieldLength = sizeof(sourceAddress);
-		if (doipLayer->getDataLen() - sizeof(doiphdr) != fixedFieldLength)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) != fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Alive Check Response payload");
 			return false;
 		}
 
 		// Parse sourceAddress from payload
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
 		return true;
@@ -575,31 +529,25 @@ namespace pcpp
 		return data;
 	}
 
-	bool DiagnosticPowerModeResponseData::buildFromLayer(DoIpLayer* doipLayer)
+	bool DiagnosticPowerModeResponseData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
-		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
+		if (doipLayer.getPayloadType() != getType())
 		{
 			PCPP_LOG_ERROR("Cannot retrieve Diagnostic Power Mode Response data from " +
-			               doipLayer->getPayloadTypeAsStr());
+			               doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		// Validate minimum data length
 		constexpr size_t fixedFieldLength = sizeof(powerModeCode);
-		if (doipLayer->getDataLen() - sizeof(doiphdr) < fixedFieldLength)
+		if (doipLayer.getDataLen() - sizeof(doiphdr) < fixedFieldLength)
 		{
 			PCPP_LOG_ERROR("Insufficient data length for Diagnostic Power Mode Response payload");
 			return false;
 		}
 
 		// Parse powerModeCode from payload
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		powerModeCode = static_cast<DoIpDiagnosticPowerModeCodes>(dataPtr[0]);
 
 		return true;
@@ -654,24 +602,18 @@ namespace pcpp
 		return data;
 	}
 
-	bool EntityStatusResponseData::buildFromLayer(DoIpLayer* doipLayer)
+	bool EntityStatusResponseData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve Entity Status Response data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve Entity Status Response data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		constexpr size_t fixedFieldLength =
 		    sizeof(nodeType) + sizeof(maxConcurrentSockets) + sizeof(currentlyOpenSockets);
 		constexpr size_t optionalFieldLength = 4;  // Length of maxDataSize field
-		size_t totalDataLength = doipLayer->getDataLen() - sizeof(doiphdr);
+		size_t totalDataLength = doipLayer.getDataLen() - sizeof(doiphdr);
 
 		if (totalDataLength < fixedFieldLength)
 		{
@@ -680,7 +622,7 @@ namespace pcpp
 		}
 
 		// Parse fixed fields
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		nodeType = static_cast<DoIpEntityStatus>(dataPtr[0]);
 		maxConcurrentSockets = dataPtr[1];
 		currentlyOpenSockets = dataPtr[2];
@@ -731,22 +673,16 @@ namespace pcpp
 		return data;
 	}
 
-	bool DiagnosticMessageData::buildFromLayer(DoIpLayer* doipLayer)
+	bool DiagnosticMessageData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
-		{
-			PCPP_LOG_ERROR("Cannot retrieve Diagnostic Message data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve Diagnostic Message data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		constexpr size_t fixedFieldLength = sizeof(sourceAddress) + sizeof(targetAddress) + 2;  // SI + DID
-		size_t totalDataLength = doipLayer->getDataLen() - sizeof(doiphdr);
+		size_t totalDataLength = doipLayer.getDataLen() - sizeof(doiphdr);
 
 		if (totalDataLength < fixedFieldLength)
 		{
@@ -755,7 +691,7 @@ namespace pcpp
 		}
 
 		// Parse fixed fields
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
 		dataPtr += sizeof(sourceAddress);
@@ -820,23 +756,17 @@ namespace pcpp
 		return data;
 	}
 
-	bool DiagnosticAckMessageData::buildFromLayer(DoIpLayer* doipLayer)
+	bool DiagnosticAckMessageData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
-		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
-
-		if (doipLayer->getPayloadType() != getType())
+		if (doipLayer.getPayloadType() != getType())
 		{
 			PCPP_LOG_ERROR("Cannot retrieve Diagnostic Acknowledgment Message data from " +
-			               doipLayer->getPayloadTypeAsStr());
+			               doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		constexpr size_t fixedFieldLength = sizeof(sourceAddress) + sizeof(targetAddress) + sizeof(ackCode);
-		size_t totalDataLength = doipLayer->getDataLen() - sizeof(doiphdr);
+		size_t totalDataLength = doipLayer.getDataLen() - sizeof(doiphdr);
 
 		if (totalDataLength < fixedFieldLength)
 		{
@@ -845,7 +775,7 @@ namespace pcpp
 		}
 
 		// Parse fixed fields
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
 		dataPtr += sizeof(sourceAddress);
@@ -918,22 +848,17 @@ namespace pcpp
 		return data;
 	}
 
-	bool DiagnosticNackMessageData::buildFromLayer(DoIpLayer* doipLayer)
+	bool DiagnosticNackMessageData::buildFromLayer(const DoIpLayer& doipLayer)
 	{
-		if (!doipLayer)
-		{
-			PCPP_LOG_ERROR("Input DoIpLayer is null");
-			return false;
-		}
 
-		if (doipLayer->getPayloadType() != getType())
+		if (doipLayer.getPayloadType() != getType())
 		{
-			PCPP_LOG_ERROR("Cannot retrieve Diagnostic NACK Message data from " + doipLayer->getPayloadTypeAsStr());
+			PCPP_LOG_ERROR("Cannot retrieve Diagnostic NACK Message data from " + doipLayer.getPayloadTypeAsStr());
 			return false;
 		}
 
 		constexpr size_t fixedFieldLength = sizeof(sourceAddress) + sizeof(targetAddress) + sizeof(nackCode);
-		size_t totalDataLength = doipLayer->getDataLen() - sizeof(doiphdr);
+		size_t totalDataLength = doipLayer.getDataLen() - sizeof(doiphdr);
 
 		if (totalDataLength < fixedFieldLength)
 		{
@@ -942,7 +867,7 @@ namespace pcpp
 		}
 
 		// Parse fixed fields
-		uint8_t* dataPtr = doipLayer->getDataPtr(sizeof(doiphdr));
+		uint8_t* dataPtr = doipLayer.getDataPtr(sizeof(doiphdr));
 		sourceAddress = static_cast<uint16_t>(dataPtr[1] << 8 | dataPtr[0]);
 
 		dataPtr += sizeof(sourceAddress);
