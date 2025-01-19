@@ -436,7 +436,7 @@ void analyzeSSLFromLiveTraffic(pcpp::PcapLiveDevice* dev, bool printRatesPeriodi
 
 	while (!shouldStop)
 	{
-		pcpp::multiPlatformSleep(printRatePeriod);
+		std::this_thread::sleep_for(std::chrono::seconds(printRatePeriod));
 
 		// calculate rates
 		if (printRatesPeriodically)

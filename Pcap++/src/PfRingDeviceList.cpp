@@ -18,10 +18,8 @@ namespace pcpp
 
 	namespace
 	{
-		/**
-		 * @class PfRingCloseDeleter
-		 * A deleter that cleans up a pfring structure by calling pfring_close.
-		 */
+		/// @class PfRingCloseDeleter
+		/// A deleter that cleans up a pfring structure by calling pfring_close.
 		struct PfRingCloseDeleter
 		{
 			void operator()(pfring* ptr) const
@@ -30,11 +28,9 @@ namespace pcpp
 			}
 		};
 
-		/**
-		 * Reads the ring version of a PF_RING handle.
-		 * @param[in] ring A PF_RING handle.
-		 * @return A string representation of the ring version or empty string if the read fails.
-		 */
+		/// Reads the ring version of a PF_RING handle.
+		/// @param[in] ring A PF_RING handle.
+		/// @return A string representation of the ring version or empty string if the read fails.
 		std::string readPfRingVersion(pfring* ring)
 		{
 			uint32_t version;
@@ -129,7 +125,6 @@ namespace pcpp
 
 		return *devIter;
 	}
-
 }  // namespace pcpp
 
 // GCOVR_EXCL_STOP

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstddef>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 #include <stdexcept>
 #include <vector>
 #include <memory>
@@ -59,8 +59,7 @@ namespace pcpp
 		using ConstVectorIterator = typename std::vector<T*>::const_iterator;
 
 		/// A constructor that create an empty instance of this object
-		PointerVector()
-		{}
+		PointerVector() = default;
 
 		/// Copies the vector along with all elements inside it.
 		/// All elements inside the copied vector are duplicates and the originals remain unchanged.
@@ -89,11 +88,14 @@ namespace pcpp
 		/// @return A reference to the current object.
 		PointerVector& operator=(const PointerVector& other)
 		{
+			// Self-assignment check.
 			if (this == &other)
+			{
 				return *this;
+			}
 
-			// Moves the old values to a temporary to defer cleanup.
-			auto oldValues = std::move(m_Vector);
+			// Saves a copy of the old pointer to defer cleanup.
+			auto oldValues = m_Vector;
 			try
 			{
 				m_Vector = deepCopyUnsafe(other.m_Vector);
@@ -286,7 +288,7 @@ namespace pcpp
 		/// Removes an element from the vector and transfers ownership to the returned unique pointer.
 		/// @param[in] position An iterator pointing to the element to detach.
 		/// @return An unique pointer that holds ownership of the detached element.
-		std::unique_ptr<T> getAndDetach(VectorIterator const& position)
+		std::unique_ptr<T> getAndDetach(const VectorIterator& position)
 		{
 			std::unique_ptr<T> result(*position);
 			m_Vector.erase(position);
@@ -313,7 +315,7 @@ namespace pcpp
 		/// Performs a copy of the vector along with its elements.
 		/// The caller is responsible of freeing the copied elements.
 		/// @return A vector of pointers to the newly copied elements.
-		static std::vector<T*> deepCopyUnsafe(std::vector<T*> const& origin)
+		static std::vector<T*> deepCopyUnsafe(const std::vector<T*>& origin)
 		{
 			std::vector<T*> copyVec;
 			// Allocate the vector initially to ensure no exceptions are thrown during push_back.
@@ -341,7 +343,7 @@ namespace pcpp
 		/// Calling this function with non-heap allocated pointers is UB.
 		/// @param[in] origin The vector of elements to free.
 		/// @remarks The vector's contents are not cleared and will point to invalid locations in memory.
-		static void freeVectorUnsafe(std::vector<T*> const& origin)
+		static void freeVectorUnsafe(const std::vector<T*>& origin)
 		{
 			for (auto& obj : origin)
 			{

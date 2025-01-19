@@ -8,19 +8,14 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * @class PfRingDeviceList
-	 * A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING
-	 * devices or find a specific device by name
-	 */
-	class PfRingDeviceList : public internal::DeviceListBase<PfRingDevice>
+	/// @class PfRingDeviceList
+	/// A singleton class that holds all available PF_RING devices. Through this class the user can iterate all PF_RING
+	/// devices or find a specific device by name
+    class PfRingDeviceList : public internal::DeviceListBase<PfRingDevice>
 	{
 	private:
 		using Base = internal::DeviceListBase<PfRingDevice>;
@@ -37,50 +32,40 @@ namespace pcpp
 		PfRingDeviceList& operator=(PfRingDeviceList&&) noexcept = delete;
 		~PfRingDeviceList() = default;
 
-		/**
-		 * A static method that returns the singleton object for PfRingDeviceList
-		 * @return PfRingDeviceList singleton
-		 */
+		/// A static method that returns the singleton object for PfRingDeviceList
+		/// @return PfRingDeviceList singleton
 		static PfRingDeviceList& getInstance()
 		{
 			static PfRingDeviceList instance;
 			return instance;
 		}
 
-		/**
-		 * Return a list of all available PF_RING devices
-		 * @return a list of all available PF_RING devices
-		 * @deprecated This method has been deprecated in favor of direct accessor API.
-		 */
+		/// Return a list of all available PF_RING devices
+		/// @return a list of all available PF_RING devices
+		/// @deprecated This method has been deprecated in favor of direct accessor API.
 		PCPP_DEPRECATED("Deprecated in favor of direct accessor API")
 		const std::vector<PfRingDevice*>& getPfRingDevicesList() const
 		{
 			return m_PfRingDeviceListView;
 		}
 
-		/**
-		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
-		 * (e.g eth0, eth1, etc.)
-		 * @return A pointer to the PF_RING device
-		 */
+		/// Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
+		/// (e.g eth0, eth1, etc.)
+		/// @return A pointer to the PF_RING device
 		PfRingDevice* getDeviceByName(const std::string& devName) const;
 
-		/**
-		 * Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
-		 * (e.g eth0, eth1, etc.)
-		 * @return A pointer to the PF_RING device
-		 * @deprecated This method has been deprecated in favor of getDeviceByName(...).
-		 */
+		/// Get a PF_RING device by name. The name is the Linux interface name which appears in ifconfig
+		/// (e.g eth0, eth1, etc.)
+		/// @return A pointer to the PF_RING device
+		/// @deprecated This method has been deprecated in favor of getDeviceByName(...).
 		PCPP_DEPRECATED("Please use getDeviceByName(...) instead.")
 		PfRingDevice* getPfRingDeviceByName(const std::string& devName) const
 		{
 			return getDeviceByName(devName);
 		}
 
-		/**
-		 * Get installed PF_RING version
-		 * @return A string representing PF_RING version
-		 */
+		/// Get installed PF_RING version
+		/// @return A string representing PF_RING version
 		std::string getPfRingVersion() const
 		{
 			return m_PfRingVersion;

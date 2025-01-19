@@ -347,7 +347,7 @@ void doDnsSpoofing(pcpp::PcapLiveDevice* dev, const pcpp::IPAddress& dnsServer, 
 	while (!args.shouldStop)
 	{
 		std::cout << "Spoofed " << args.stats.numOfSpoofedDnsRequests << " DNS requests so far" << std::endl;
-		pcpp::multiPlatformSleep(5);
+		std::this_thread::sleep_for(std::chrono::seconds(5));
 	}
 }
 

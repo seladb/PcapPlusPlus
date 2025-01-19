@@ -315,7 +315,7 @@ PTF_TEST_CASE(TestPcapLiveDevice)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -376,7 +376,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceClone)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -446,7 +446,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceStatsMode)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 6)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		pcpp::IPcapDevice::PcapStats statistics;
 		liveDev->getStatistics(statistics);
@@ -514,7 +514,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		int totalSleepTime = 0;
 		while (totalSleepTime <= 5)
 		{
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			totalSleepTime += 1;
 			if (packetCount > 0)
 				break;
@@ -553,7 +553,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceBlockingMode)
 		totalSleepTime = 0;
 		while (totalSleepTime <= 5)
 		{
-			pcpp::multiPlatformSleep(1);
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 			totalSleepTime += 1;
 			if (packetCount > 0)
 				break;
@@ -598,7 +598,7 @@ PTF_TEST_CASE(TestPcapLiveDeviceWithLambda)
 	int totalSleepTime = 0;
 	while (totalSleepTime <= 20)
 	{
-		pcpp::multiPlatformSleep(2);
+		std::this_thread::sleep_for(std::chrono::seconds(2));
 		totalSleepTime += 2;
 		if (packetCount > 0)
 			break;
@@ -982,7 +982,7 @@ PTF_TEST_CASE(TestRemoteCapture)
 			break;
 		}
 
-		pcpp::multiPlatformSleep(1);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		totalSleepTime += 1;
 	}
 
