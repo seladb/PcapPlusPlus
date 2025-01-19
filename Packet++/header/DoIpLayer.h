@@ -164,7 +164,7 @@ namespace pcpp
 		/**
 		 * copy data from msgFields to dest
 		 * @param[in] dest pointer to where start copying
-		 * @param[in] msgFields the doip Fields to copy
+		 * @param[in] data the doip Fields to copy
 		 */
 		void serializeData(uint8_t* dest, std::vector<uint8_t> data);
 
