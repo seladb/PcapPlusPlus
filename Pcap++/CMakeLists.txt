@@ -22,41 +22,31 @@ add_library(
   src/RawSocketDevice.cpp
   $<$<BOOL:${WIN32}>:src/WinPcapLiveDevice.cpp>
   # Force light pcapng to be link fully static
-  $<TARGET_OBJECTS:light_pcapng>)
+  $<TARGET_OBJECTS:light_pcapng>
+)
 
-set(public_headers
-    header/Device.h
-    header/NetworkUtils.h
-    header/PcapDevice.h
-    header/PcapFileDevice.h
-    header/PcapFilter.h
-    header/PcapLiveDevice.h
-    header/PcapLiveDeviceList.h
-    header/RawSocketDevice.h)
+set(
+  public_headers
+  header/Device.h
+  header/NetworkUtils.h
+  header/PcapDevice.h
+  header/PcapFileDevice.h
+  header/PcapFilter.h
+  header/PcapLiveDevice.h
+  header/PcapLiveDeviceList.h
+  header/RawSocketDevice.h
+)
 
 if(PCAPPP_USE_DPDK)
-  list(
-    APPEND
-    public_headers
-    header/DpdkDevice.h
-    header/DpdkDeviceList.h
-    header/MBufRawPacket.h)
+  list(APPEND public_headers header/DpdkDevice.h header/DpdkDeviceList.h header/MBufRawPacket.h)
 endif()
 
 if(PCAPPP_USE_DPDK_KNI)
-  list(
-    APPEND
-    public_headers
-    header/KniDevice.h
-    header/KniDeviceList.h)
+  list(APPEND public_headers header/KniDevice.h header/KniDeviceList.h)
 endif()
 
 if(PCAPPP_USE_PF_RING)
-  list(
-    APPEND
-    public_headers
-    header/PfRingDevice.h
-    header/PfRingDeviceList.h)
+  list(APPEND public_headers header/PfRingDevice.h header/PfRingDeviceList.h)
 endif()
 
 if(PCAPPP_USE_XDP)
@@ -68,12 +58,7 @@ if(LINUX)
 endif()
 
 if(WIN32)
-  list(
-    APPEND
-    public_headers
-    header/PcapRemoteDevice.h
-    header/PcapRemoteDeviceList.h
-    header/WinPcapLiveDevice.h)
+  list(APPEND public_headers header/PcapRemoteDevice.h header/PcapRemoteDeviceList.h header/WinPcapLiveDevice.h)
 endif()
 
 set_property(TARGET Pcap++ PROPERTY PUBLIC_HEADER ${public_headers})
@@ -91,18 +76,22 @@ target_include_directories(
   Pcap++
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/header> $<INSTALL_INTERFACE:include/pcapplusplus>
   # Don't link with EndianPortable nor Light_PcapNG as they won't be exported
-  PRIVATE $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
-          $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>)
+  PRIVATE
+    $<TARGET_PROPERTY:EndianPortable,INTERFACE_INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:light_pcapng,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 target_link_libraries(
   Pcap++
-  PUBLIC Common++
-         Packet++
-         $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
-         $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
-         $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
-         PCAP::PCAP
-         Threads::Threads)
+  PUBLIC
+    Common++
+    Packet++
+    $<$<BOOL:${PCAPPP_USE_PF_RING}>:PF_RING::PF_RING>
+    $<$<BOOL:${PCAPPP_USE_DPDK}>:DPDK::DPDK>
+    $<$<BOOL:${PCAPPP_USE_XDP}>:BPF::BPF>
+    PCAP::PCAP
+    Threads::Threads
+)
 
 if(LIGHT_PCAPNG_ZSTD)
   target_link_libraries(Pcap++ PRIVATE light_pcapng)
@@ -115,7 +104,8 @@ if(PCAPPP_INSTALL)
     ARCHIVE DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${PCAPPP_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${PCAPPP_INSTALL_INCLUDEDIR}
-    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR}
+  )
 endif()
 
 set_property(TARGET Pcap++ PROPERTY OUTPUT_NAME "Pcap++")

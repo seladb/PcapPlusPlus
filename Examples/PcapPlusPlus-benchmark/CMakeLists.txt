@@ -12,15 +12,12 @@ if("cxx_std_14" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
     include(FetchContent)
 
     # Fetch Google Benchmark
-    fetchcontent_declare(
-      benchmark
-      GIT_REPOSITORY https://github.com/google/benchmark.git
-      GIT_TAG v1.9.0)
+    FetchContent_Declare(benchmark GIT_REPOSITORY https://github.com/google/benchmark.git GIT_TAG v1.9.0)
 
     # Disable testing and installation for Google Benchmark
     set(BENCHMARK_ENABLE_TESTING OFF)
     set(BENCHMARK_ENABLE_INSTALL OFF)
-    fetchcontent_makeavailable(benchmark)
+    FetchContent_MakeAvailable(benchmark)
 
     add_executable(BenchmarkExampleGoogle benchmark-google.cpp)
 
@@ -34,17 +31,10 @@ else()
   message(WARNING "Google Benchmark backend requires C++14 support")
 endif()
 
-
 if(PCAPPP_INSTALL)
-  install(
-    TARGETS BenchmarkExample
-    EXPORT PcapPlusPlusTargets
-    RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+  install(TARGETS BenchmarkExample EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
 
   if(TARGET BenchmarkExampleGoogle)
-    install(
-        TARGETS BenchmarkExampleGoogle
-        EXPORT PcapPlusPlusTargets
-        RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
+    install(TARGETS BenchmarkExampleGoogle EXPORT PcapPlusPlusTargets RUNTIME DESTINATION ${PCAPPP_INSTALL_BINDIR})
   endif()
 endif()
