@@ -1320,47 +1320,47 @@ namespace pcpp
 		    : LdapResponseLayer(std::move(asn1Record), data, dataLen, prevLayer, packet)
 		{}
 	};
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
+	{
+		os << "{" << control.controlType << ", " << control.controlValue << "}";
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& attr)
+	{
+		os << "{" << attr.type << ", {";
+
+		std::string separator;
+		for (const auto& value : attr.values)
+		{
+			os << separator << value;
+			if (separator.empty())
+			{
+				separator = ", ";
+			}
+		}
+
+		os << "}}";
+		return os;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os,
+	                                const pcpp::LdapBindRequestLayer::SaslAuthentication& saslAuthentication)
+	{
+		os << "{" << saslAuthentication.mechanism << ", {";
+
+		std::string separator;
+		for (const auto& value : saslAuthentication.credentials)
+		{
+			os << separator << "0x" << std::hex << static_cast<int>(value) << std::dec;
+			if (separator.empty())
+			{
+				separator = ", ";
+			}
+		}
+
+		os << "}}";
+		return os;
+	}
 }  // namespace pcpp
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapControl& control)
-{
-	os << "{" << control.controlType << ", " << control.controlValue << "}";
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::LdapAttribute& attr)
-{
-	os << "{" << attr.type << ", {";
-
-	std::string separator;
-	for (const auto& value : attr.values)
-	{
-		os << separator << value;
-		if (separator.empty())
-		{
-			separator = ", ";
-		}
-	}
-
-	os << "}}";
-	return os;
-}
-
-inline std::ostream& operator<<(std::ostream& os,
-                                const pcpp::LdapBindRequestLayer::SaslAuthentication& saslAuthentication)
-{
-	os << "{" << saslAuthentication.mechanism << ", {";
-
-	std::string separator;
-	for (const auto& value : saslAuthentication.credentials)
-	{
-		os << separator << "0x" << std::hex << static_cast<int>(value) << std::dec;
-		if (separator.empty())
-		{
-			separator = ", ";
-		}
-	}
-
-	os << "}}";
-	return os;
-}
