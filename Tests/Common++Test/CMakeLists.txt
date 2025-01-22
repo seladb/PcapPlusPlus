@@ -20,6 +20,7 @@ add_executable(
   Common++Test
   Tests/GeneralUtilsTests.cpp
   Tests/IPAddressTests.cpp
+  Tests/LoggerTests.cpp
   Tests/LRUListTests.cpp
   Tests/MacAddressTests.cpp
   Tests/PointerVectorTests.cpp)
