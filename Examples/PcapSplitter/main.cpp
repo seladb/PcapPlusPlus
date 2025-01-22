@@ -45,6 +45,7 @@
  */
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <RawPacket.h>
@@ -294,66 +295,67 @@ int main(int argc, char* argv[])
 		EXIT_WITH_ERROR("Split method was not given");
 	}
 
-	Splitter* splitter = nullptr;
+	std::unique_ptr<Splitter> splitter;
 
 	// decide of the splitter to use, according to the user's choice
 	if (method == SPLIT_BY_FILE_SIZE)
 	{
 		uint64_t paramAsUint64 = (paramWasSet ? strtoull(param, nullptr, 10) : 0);
-		splitter = new FileSizeSplitter(paramAsUint64);
+		splitter.reset(new FileSizeSplitter(paramAsUint64));
 	}
 	else if (method == SPLIT_BY_PACKET_COUNT)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : 0);
-		splitter = new PacketCountSplitter(paramAsInt);
+		splitter.reset(new PacketCountSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_IP_CLIENT)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
-		splitter = new ClientIPSplitter(paramAsInt);
+		splitter.reset(new ClientIPSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_IP_SERVER)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
-		splitter = new ServerIPSplitter(paramAsInt);
+		splitter.reset(new ServerIPSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_SERVER_PORT)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
-		splitter = new ServerPortSplitter(paramAsInt);
+		splitter.reset(new ServerPortSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_CLIENT_PORT)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
-		splitter = new ClientPortSplitter(paramAsInt);
+		splitter.reset(new ClientPortSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_2_TUPLE)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
-		splitter = new TwoTupleSplitter(paramAsInt);
+		splitter.reset(new TwoTupleSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_5_TUPLE)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : SplitterWithMaxFiles::UNLIMITED_FILES_MAGIC_NUMBER);
-		splitter = new FiveTupleSplitter(paramAsInt);
+		splitter.reset(new FiveTupleSplitter(paramAsInt));
 	}
 	else if (method == SPLIT_BY_BPF_FILTER)
 	{
-		splitter = new BpfCriteriaSplitter(std::string(param));
+		splitter.reset(new BpfCriteriaSplitter(std::string(param)));
 	}
 	else if (method == SPLIT_BY_ROUND_ROBIN)
 	{
 		int paramAsInt = (paramWasSet ? atoi(param) : 0);
-		splitter = new RoundRobinSplitter(paramAsInt);
+		splitter.reset(new RoundRobinSplitter(paramAsInt));
 	}
 	else
+	{
 		EXIT_WITH_ERROR("Unknown method '" << method << "'");
+	}
 
 	// verify splitter param is legal, otherwise return an error
 	std::string errorStr;
 	if (!splitter->isSplitterParamLegal(errorStr))
 	{
-		delete splitter;
 		EXIT_WITH_ERROR(errorStr);
 	}
 
@@ -362,8 +364,8 @@ int main(int argc, char* argv[])
 	    outputPcapDir + std::string(1, SEPARATOR) + getFileNameWithoutExtension(inputPcapFileName) + "-";
 
 	// open a pcap file for reading
-	pcpp::IFileReaderDevice* reader = pcpp::IFileReaderDevice::getReader(inputPcapFileName);
-	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader) != nullptr);
+	std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(inputPcapFileName));
+	bool isReaderPcapng = (dynamic_cast<pcpp::PcapNgFileReaderDevice*>(reader.get()) != nullptr);
 
 	if (reader == nullptr || !reader->open())
 	{
@@ -387,7 +389,7 @@ int main(int argc, char* argv[])
 	pcpp::RawPacket rawPacket;
 
 	// prepare a map of file number to IFileWriterDevice
-	std::unordered_map<int, pcpp::IFileWriterDevice*> outputFiles;
+	std::unordered_map<int, std::unique_ptr<pcpp::IFileWriterDevice>> outputFiles;
 
 	// read all packets from input file, for each packet do:
 	while (reader->getNextPacket(rawPacket))
@@ -411,12 +413,12 @@ int main(int argc, char* argv[])
 			if (isReaderPcapng)
 			{
 				// if reader is pcapng, create a pcapng writer
-				outputFiles[fileNum] = new pcpp::PcapNgFileWriterDevice(fileName);
+				outputFiles[fileNum].reset(new pcpp::PcapNgFileWriterDevice(fileName));
 			}
 			else
 			{
 				// if reader is pcap, create a pcap writer
-				outputFiles[fileNum] = new pcpp::PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
+				outputFiles[fileNum].reset(new pcpp::PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType()));
 			}
 
 			// open the writer
@@ -438,12 +440,12 @@ int main(int argc, char* argv[])
 			if (isReaderPcapng)
 			{
 				// if reader is pcapng, create a pcapng writer
-				outputFiles[fileNum] = new pcpp::PcapNgFileWriterDevice(fileName);
+				outputFiles[fileNum].reset(new pcpp::PcapNgFileWriterDevice(fileName));
 			}
 			else
 			{
 				// if reader is pcap, create a pcap writer
-				outputFiles[fileNum] = new pcpp::PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType());
+				outputFiles[fileNum].reset(new pcpp::PcapFileWriterDevice(fileName, rawPacket.getLinkLayerType()));
 			}
 
 			// open the writer in __append__ mode
@@ -464,8 +466,7 @@ int main(int argc, char* argv[])
 				outputFiles[fileId]->close();
 
 				// free the writer memory and put null in the map record
-				delete outputFiles[fileId];
-				outputFiles[fileId] = nullptr;
+				outputFiles[fileId].reset();
 			}
 		}
 
@@ -478,17 +479,12 @@ int main(int argc, char* argv[])
 	// close the reader file
 	reader->close();
 
-	// free reader memory
-	delete reader;
-	delete splitter;
-
 	// close the writer files which are still open
 	for (const auto& it : outputFiles)
 	{
 		if (it.second != nullptr)
 		{
 			it.second->close();
-			delete it.second;
 		}
 	}
 

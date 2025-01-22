@@ -36,7 +36,7 @@ jobs:
           apk update && apk add cppcheck python3-dev
           python3 -m venv .venv
           . .venv/bin/activate
-          python3 -m pip install pre-commit setuptools clang-format==18.1.6 clang-tidy==18.1.8
+          python3 -m pip install pre-commit setuptools clang-format==19.1.6 clang-tidy==18.1.8
 
       - name: Run pre-commit
         run: |
@@ -146,7 +146,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
@@ -394,7 +394,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         if: ${{ matrix.host-arch == matrix.arch }}
         with:
           files: ./coverage.xml
@@ -425,7 +425,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@ddf331adaebd714795f1042345e6ca57bd66cea8 # v2.24.1
+        uses: msys2/setup-msys2@c52d1fa9c7492275e60fe763540fb601f5f232a1 # v2.25.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -483,7 +483,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -574,7 +574,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -592,7 +592,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@c96341966a3954a757e6ea41692f7c7b32312a0c # v1.1.4
+      uses: vmactions/freebsd-vm@debf37ca7b7fa40e19c542ef7ba30d6054a706a4 # v1.1.5
       with:
         release: ${{ matrix.version }}
         usesh: true
@@ -630,11 +630,11 @@ jobs:
           - run-on-os: ubuntu-20.04
             target: x86
             api-version: 30
-          - run-on-os: macos-12
+          - run-on-os: macos-15
             target: arm64-v8a
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
-          - run-on-os: macos-12
+          - run-on-os: macos-15
             target: x86_64
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30
@@ -679,6 +679,12 @@ jobs:
           mv ${TOYVPN_PCAPPLUSPLUS}/lib/*.a ${PCAPPLUSPLUS_LIBS_PATH}/
           mv ${TOYVPN_PCAPPLUSPLUS}/include/pcapplusplus/*.h ${PCAPPLUSPLUS_INCLUDE_PATH}/
 
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: "8"
+          distribution: "zulu"
+
       - name: Build ToyVpn-PcapPlusPlus
         working-directory: ./ToyVpn-PcapPlusPlus
         run: |
@@ -695,7 +701,7 @@ jobs:
           ./gradlew assembleDebug
 
   xdp:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -737,7 +743,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4.6.0
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
         with:
           files: ./coverage.xml
           flags: xdp,unittest
