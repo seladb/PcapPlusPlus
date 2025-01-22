@@ -439,7 +439,7 @@ namespace pcpp
 		{}
 
 		/// A constructor that creates an instance of the class out of an address representing the network prefix
-		/// and a prefix length
+		/// and a prefix length	
 		/// @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		/// exception is thrown
 		/// @param prefixLen A number between 0 and 32 representing the prefix length.
