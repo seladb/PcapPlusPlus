@@ -127,7 +127,7 @@ namespace pcpp
 
 		/**
 		 * Set the invert protocol version of DOIP protocol
-		 * @param[in] version the invert version of DOIP protocol to set
+		 * @param[in] iVersion the invert version of DOIP protocol to set
 		 */
 		void setInvertProtocolVersion(uint8_t iVersion);
 
