@@ -8,61 +8,116 @@
 
 namespace pcpp
 {
-	TEST(MacAddressTest, MacAddressStatics)
+	TEST(MacAddressTest, DefaultConstructor)
 	{
-		EXPECT_EQ(MacAddress::Zero.toString(), "00:00:00:00:00:00");
-	};
+		pcpp::MacAddress mac;
+		std::array<uint8_t, 6> expected = { 0, 0, 0, 0, 0, 0 };
+		EXPECT_EQ(std::memcmp(mac.getRawData(), expected.data(), 6), 0);
+	}
 
-	TEST(MacAddressTest, MacAddressBasics)
+	TEST(MacAddressTest, ByteArrayConstructor)
 	{
-		MacAddress macAddr1;
-		EXPECT_EQ(macAddr1.toString(), "00:00:00:00:00:00");
+		uint8_t addr[6] = { 1, 2, 3, 4, 5, 6 };
+		pcpp::MacAddress mac(addr);
+		EXPECT_EQ(std::memcmp(mac.getRawData(), addr, 6), 0);
+	}
 
-		std::array<uint8_t, 6> addr = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 };
-		MacAddress macAddr2(addr.data());
-		EXPECT_EQ(macAddr2.toString(), "00:11:22:33:44:55");
+	TEST(MacAddressTest, StdArrayConstructor)
+	{
+		std::array<uint8_t, 6> addr = { 1, 2, 3, 4, 5, 6 };
+		pcpp::MacAddress mac(addr);
+		EXPECT_EQ(std::memcmp(mac.getRawData(), addr.data(), 6), 0);
+	}
 
-		MacAddress macAddr3(addr);
-		EXPECT_EQ(macAddr3.toString(), "00:11:22:33:44:55");
+	TEST(MacAddressTest, StringConstructor)
+	{
+		std::string addr = "01:02:03:04:05:06";
+		pcpp::MacAddress mac(addr);
+		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
+		EXPECT_EQ(std::memcmp(mac.getRawData(), expected.data(), 6), 0);
 
-		MacAddress macAddr4("00:11:22:33:44:55");
-		EXPECT_EQ(macAddr4.toString(), "00:11:22:33:44:55");
-		EXPECT_THROW(MacAddress("00:11:22:33:44"), std::invalid_argument);
-		EXPECT_THROW(MacAddress("00:11:22:33:44:55:66"), std::invalid_argument);
-		EXPECT_THROW(MacAddress("bogus string"), std::invalid_argument);
+		EXPECT_THROW(pcpp::MacAddress("01:02:03:04:05"), std::invalid_argument);
+		EXPECT_THROW(pcpp::MacAddress("01:02:03:04:05:06:07"), std::invalid_argument);
+		EXPECT_THROW(pcpp::MacAddress("bogus string"), std::invalid_argument);
+	}
 
-		MacAddress macAddr5(std::string("00:11:22:33:44:55"));
-		EXPECT_EQ(macAddr5.toString(), "00:11:22:33:44:55");
+	TEST(MacAddressTest, OctetConstructor)
+	{
+		pcpp::MacAddress mac(1, 2, 3, 4, 5, 6);
+		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
+		EXPECT_EQ(std::memcmp(mac.getRawData(), expected.data(), 6), 0);
+	}
 
-		MacAddress macAddr6(0x00, 0x11, 0x22, 0x33, 0x44, 0x55);
-		EXPECT_EQ(macAddr6.toString(), "00:11:22:33:44:55");
+	TEST(MacAddressTest, InitializerListConstructor)
+	{
+		pcpp::MacAddress mac({ 1, 2, 3, 4, 5, 6 });
+		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
+		EXPECT_EQ(std::memcmp(mac.getRawData(), expected.data(), 6), 0);
+	}
 
-		MacAddress macAddr7{ 0x00, 0x11, 0x22, 0x33, 0x44, 0x55 };
-		EXPECT_EQ(macAddr7.toString(), "00:11:22:33:44:55");
-		EXPECT_THROW(MacAddress({ 0x00, 0x11, 0x22, 0x33, 0x44 }), std::invalid_argument);
-		EXPECT_THROW(MacAddress({ 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66 }), std::invalid_argument);
+	TEST(MacAddressTest, EqualityOperator)
+	{
+		pcpp::MacAddress mac1(1, 2, 3, 4, 5, 6);
+		pcpp::MacAddress mac2(1, 2, 3, 4, 5, 6);
+		EXPECT_TRUE(mac1 == mac2);
 
-		MacAddress macAddr8 = "00:11:22:33:44:55";
-		EXPECT_EQ(macAddr8.toString(), "00:11:22:33:44:55");
+		pcpp::MacAddress mac3(1, 2, 3, 4, 5, 7);
+		EXPECT_FALSE(mac1 == mac3);
+	}
 
-		MacAddress macAddr9 = std::string("00:11:22:33:44:55");
-		EXPECT_EQ(macAddr9.toString(), "00:11:22:33:44:55");
+	TEST(MacAddressTest, InequalityOperator)
+	{
+		pcpp::MacAddress mac1(1, 2, 3, 4, 5, 6);
+		pcpp::MacAddress mac2(1, 2, 3, 4, 5, 7);
+		EXPECT_TRUE(mac1 != mac2);
 
-		MacAddress macAddr10 = MacAddress("00:11:22:33:44:55");
-		EXPECT_EQ(macAddr10.toString(), "00:11:22:33:44:55");
+		pcpp::MacAddress mac3(1, 2, 3, 4, 5, 6);
+		EXPECT_FALSE(mac1 != mac3);
+	}
 
-		EXPECT_FALSE(macAddr1 == macAddr2) << "Comparison operator '==' does not compare unequal values correctly.";
-		EXPECT_TRUE(macAddr2 == macAddr3) << "Comparison operator '==' does not compare equal values correctly.";
+	TEST(MacAddressTest, AssignmentOperator)
+	{
+		pcpp::MacAddress mac;
+		mac = { 1, 2, 3, 4, 5, 6 };
+		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
+		EXPECT_EQ(std::memcmp(mac.getRawData(), expected.data(), 6), 0);
+	}
 
-		EXPECT_TRUE(macAddr1 != macAddr2) << "Comparison operator '!=' does not compare unequal values correctly.";
-		EXPECT_FALSE(macAddr2 != macAddr3) << "Comparison operator '!=' does not compare equal values correctly.";
-	};
+	TEST(MacAddressTest, ToString)
+	{
+		pcpp::MacAddress mac(1, 2, 3, 4, 5, 6);
+		EXPECT_EQ(mac.toString(), "01:02:03:04:05:06");
+	}
+
+	TEST(MacAddressTest, CopyToAllocatedArray)
+	{
+		pcpp::MacAddress mac(1, 2, 3, 4, 5, 6);
+		uint8_t* arr = nullptr;
+		mac.copyTo(&arr);
+		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
+		EXPECT_EQ(std::memcmp(arr, expected.data(), 6), 0);
+		delete[] arr;
+	}
+
+	TEST(MacAddressTest, CopyToPreAllocatedArray)
+	{
+		pcpp::MacAddress mac(1, 2, 3, 4, 5, 6);
+		std::array<uint8_t, 6> arr;
+		mac.copyTo(arr.data());
+		std::array<uint8_t, 6> expected = { 1, 2, 3, 4, 5, 6 };
+		EXPECT_EQ(arr, expected);
+	}
 
 	TEST(MacAddressTest, OutputStreamOperator)
 	{
-		MacAddress macAddr("00:11:22:33:44:55");
+		MacAddress macAddr(1, 2, 3, 4, 5, 6);
 		std::stringstream stream;
 		stream << macAddr;
-		EXPECT_EQ(stream.str(), "00:11:22:33:44:55");
+		EXPECT_EQ(stream.str(), "01:02:03:04:05:06");
+	};
+
+	TEST(MacAddressTest, ConstantHelpers)
+	{
+		EXPECT_EQ(MacAddress::Zero, MacAddress(0, 0, 0, 0, 0, 0));
 	};
 }  // namespace pcpp

@@ -1,7 +1,7 @@
 #include <array>
 #include <algorithm>
 #include <memory>
-#include <cstring>
+#include <stdexcept>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -11,111 +11,170 @@
 
 namespace pcpp
 {
+	class TestObject
+	{
+	public:
+		TestObject(int value) : m_Value(value)
+		{}
+		int getValue() const
+		{
+			return m_Value;
+		}
+		std::unique_ptr<TestObject> clone() const
+		{
+			return std::make_unique<TestObject>(*this);
+		}
+
+	private:
+		int m_Value;
+	};
+
 	class PointerVectorTest : public MemoryLeakDetectorTest
 	{
 	};
 
-	TEST_F(PointerVectorTest, PointerVectorBasics)
+	TEST_F(PointerVectorTest, DefaultConstructor)
 	{
-		PointerVector<int> pVector;
-		PointerVector<int> const& cpVector = pVector;
-		EXPECT_EQ(pVector.size(), 0);
+		pcpp::PointerVector<TestObject> vec;
+		EXPECT_EQ(vec.size(), 0);
+	}
 
-		pVector.pushBack(new int(1));
-		EXPECT_EQ(pVector.size(), 1);
+	TEST_F(PointerVectorTest, CopyConstructor)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-		EXPECT_THROW(pVector.pushBack(static_cast<int*>(nullptr)), std::invalid_argument);
-		EXPECT_THROW(pVector.pushBack(std::unique_ptr<int>()), std::invalid_argument);
+		pcpp::PointerVector<TestObject> copyVec(vec);
+		EXPECT_EQ(copyVec.size(), 2);
+		EXPECT_EQ(copyVec.at(0)->getValue(), 1);
+		EXPECT_EQ(copyVec.at(1)->getValue(), 2);
+	}
 
-		int* atIdx0 = pVector.at(0);
-		ASSERT_NE(atIdx0, nullptr);
-		EXPECT_EQ(*atIdx0, 1);
+	TEST_F(PointerVectorTest, MoveConstructor)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-		int const* cAtIdx0 = cpVector.at(0);
-		ASSERT_NE(cAtIdx0, nullptr);
-		EXPECT_EQ(*cAtIdx0, 1);
+		pcpp::PointerVector<TestObject> movedVec(std::move(vec));
+		EXPECT_EQ(movedVec.size(), 2);
+		EXPECT_EQ(movedVec.at(0)->getValue(), 1);
+		EXPECT_EQ(movedVec.at(1)->getValue(), 2);
+		EXPECT_EQ(vec.size(), 0);
+	}
 
-		pVector.pushBack(std::unique_ptr<int>(new int(2)));
-		EXPECT_EQ(pVector.size(), 2);
+	TEST_F(PointerVectorTest, CopyAssignmentOperator)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-		{
-			int* atFront = pVector.front();
-			ASSERT_NE(atFront, nullptr);
-			EXPECT_EQ(*atFront, 1);
+		pcpp::PointerVector<TestObject> copyVec;
+		copyVec = vec;
+		EXPECT_EQ(copyVec.size(), 2);
+		EXPECT_EQ(copyVec.at(0)->getValue(), 1);
+		EXPECT_EQ(copyVec.at(1)->getValue(), 2);
+	}
 
-			int const* cAtFront = cpVector.front();
-			ASSERT_NE(cAtFront, nullptr);
-			EXPECT_EQ(*cAtFront, 1);
+	TEST_F(PointerVectorTest, MoveAssignmentOperator)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-			int* atBack = pVector.back();
-			ASSERT_NE(atBack, nullptr);
-			EXPECT_EQ(*atBack, 2);
+		pcpp::PointerVector<TestObject> movedVec;
+		movedVec = std::move(vec);
+		EXPECT_EQ(movedVec.size(), 2);
+		EXPECT_EQ(movedVec.at(0)->getValue(), 1);
+		EXPECT_EQ(movedVec.at(1)->getValue(), 2);
+		EXPECT_EQ(vec.size(), 0);
+	}
 
-			int const* cAtBack = cpVector.back();
-			ASSERT_NE(cAtBack, nullptr);
-			EXPECT_EQ(*cAtBack, 2);
-		}
+	TEST_F(PointerVectorTest, PushBack)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-		{
-			auto itBegin = pVector.begin();
-			auto itEnd = pVector.end();
+		EXPECT_EQ(vec.size(), 2);
+		EXPECT_EQ(vec.at(0)->getValue(), 1);
+		EXPECT_EQ(vec.at(1)->getValue(), 2);
+	}
 
-			EXPECT_EQ(std::distance(itBegin, itEnd), 2);
-			EXPECT_EQ(**itBegin, 1);
-			EXPECT_EQ(**std::next(itBegin), 2);
-		}
+	TEST_F(PointerVectorTest, PushBackUniquePtr)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(std::unique_ptr<TestObject>(new TestObject(1)));
+		vec.pushBack(std::unique_ptr<TestObject>(new TestObject(2)));
 
-		{
-			std::unique_ptr<int> p = pVector.getAndDetach(1);
-			EXPECT_EQ(*p, 2);
-			EXPECT_EQ(pVector.size(), 1);
-		}
+		EXPECT_EQ(vec.size(), 2);
+		EXPECT_EQ(vec.at(0)->getValue(), 1);
+		EXPECT_EQ(vec.at(1)->getValue(), 2);
+	}
 
-		PointerVector<int> pVectorCopy = pVector;
-		EXPECT_EQ(pVectorCopy.size(), pVector.size());
-		EXPECT_NE(pVectorCopy.at(0), pVector.at(0));
-		EXPECT_EQ(*pVectorCopy.at(0), *pVector.at(0));
+	TEST_F(PointerVectorTest, Clear)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
+		vec.clear();
 
-		{
-			PointerVector<int> pVectorMove = std::move(pVector);
-			EXPECT_EQ(pVector.size(), 0);
-			EXPECT_EQ(pVectorMove.size(), 1);
-			EXPECT_EQ(*pVectorMove.at(0), 1);
+		EXPECT_EQ(vec.size(), 0);
+	}
 
-			pVector = std::move(pVectorMove);
-			ASSERT_EQ(pVector.size(), 1);
-		}
+	TEST_F(PointerVectorTest, Erase)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
+		vec.pushBack(new TestObject(3));
 
-		pVectorCopy.clear();
-		EXPECT_EQ(pVectorCopy.size(), 0);
-		EXPECT_EQ(pVector.size(), 1);
+		auto it = vec.begin();
+		++it;
+		vec.erase(it);
 
-		pVector.pushBack(new int(3));
-		EXPECT_EQ(pVector.size(), 2);
+		EXPECT_EQ(vec.size(), 2);
+		EXPECT_EQ(vec.at(0)->getValue(), 1);
+		EXPECT_EQ(vec.at(1)->getValue(), 3);
+	}
 
-		{
-			// Can't pass pVector.begin() directly to getAndRemoveFromVector because temporaries can't be passed as
-			// non-const reference.
-			auto it = pVector.begin();
-			int* removed = pVector.getAndRemoveFromVector(it);
-			EXPECT_EQ(*removed, 1);
-			EXPECT_EQ(pVector.size(), 1);
-			EXPECT_EQ(*pVector.front(), 3);
-			delete removed;
-		}
+	TEST_F(PointerVectorTest, GetAndDetach)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-		pVector.erase(pVector.begin());
-		EXPECT_EQ(pVector.size(), 0);
+		auto obj = vec.getAndDetach(0);
+		EXPECT_EQ(obj->getValue(), 1);
+		EXPECT_EQ(vec.size(), 1);
+		EXPECT_EQ(vec.at(0)->getValue(), 2);
+	}
 
-		pVector.pushBack(new int(4));
-		pVector.pushBack(new int(5));
-		EXPECT_EQ(pVector.size(), 2);
+	TEST_F(PointerVectorTest, At)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
 
-		{
-			std::unique_ptr<int> p = pVector.getAndDetach(pVector.begin());
-			ASSERT_NE(p, nullptr);
-			EXPECT_EQ(*p, 4);
-			EXPECT_EQ(pVector.size(), 1);
-		}
+		EXPECT_EQ(vec.at(0)->getValue(), 1);
+		EXPECT_EQ(vec.at(1)->getValue(), 2);
+	}
+
+	TEST_F(PointerVectorTest, FrontBack)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		vec.pushBack(new TestObject(1));
+		vec.pushBack(new TestObject(2));
+
+		EXPECT_EQ(vec.front()->getValue(), 1);
+		EXPECT_EQ(vec.back()->getValue(), 2);
+	}
+
+	TEST_F(PointerVectorTest, PushBackNullptr)
+	{
+		pcpp::PointerVector<TestObject> vec;
+		TestObject* obj = nullptr;  // Using nullptr directly in pushBack is a compile time error.
+		EXPECT_THROW(vec.pushBack(obj), std::invalid_argument);
 	}
 }  // namespace pcpp

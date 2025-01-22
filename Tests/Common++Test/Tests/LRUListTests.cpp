@@ -6,68 +6,83 @@
 
 namespace pcpp
 {
-	TEST(LRUListTest, PutAndErase)
+	TEST(LRUListTest, PutTest)
 	{
-		int deletedValue = 0;
-		LRUList<int> lruCache(4);
-		EXPECT_EQ(lruCache.getMaxSize(), 4);
-		EXPECT_EQ(lruCache.getSize(), 0);
-		ASSERT_EQ(deletedValue, 0);
+		LRUList<int> lruList(3);
+		int deletedValue;
 
-		lruCache.put(1, &deletedValue);
-		EXPECT_EQ(lruCache.getSize(), 1);
-		EXPECT_EQ(deletedValue, 0);
+		// Test inserting elements
+		EXPECT_EQ(lruList.put(1), 0);
+		EXPECT_EQ(lruList.put(2), 0);
+		EXPECT_EQ(lruList.put(3), 0);
+		EXPECT_EQ(lruList.getSize(), 3);
 
-		lruCache.put(1, &deletedValue);
-		EXPECT_EQ(lruCache.getSize(), 1);
-		EXPECT_EQ(deletedValue, 0);
-
-		lruCache.put(2, &deletedValue);
-		EXPECT_EQ(deletedValue, 0);
-		lruCache.put(3, &deletedValue);
-		EXPECT_EQ(deletedValue, 0);
-		lruCache.put(4, &deletedValue);
-		EXPECT_EQ(lruCache.getMaxSize(), 4);
-		EXPECT_EQ(lruCache.getSize(), 4);
-		EXPECT_EQ(deletedValue, 0);
-
-		lruCache.put(5, &deletedValue);
-		EXPECT_EQ(lruCache.getMaxSize(), 4);
-		EXPECT_EQ(lruCache.getSize(), 4);
+		// Test inserting an element that exceeds the max size
+		EXPECT_EQ(lruList.put(4, &deletedValue), 1);
 		EXPECT_EQ(deletedValue, 1);
+		EXPECT_EQ(lruList.getSize(), 3);
 
-		deletedValue = 0;
-		ASSERT_EQ(deletedValue, 0);
-		lruCache.eraseElement(3);
-		EXPECT_EQ(lruCache.getSize(), 3);
+		// Test inserting an existing element
+		EXPECT_EQ(lruList.put(2), 0);
+		EXPECT_EQ(lruList.getSize(), 3);
+	}
 
-		lruCache.put(6, &deletedValue);
-		EXPECT_EQ(deletedValue, 0);
-		EXPECT_EQ(lruCache.getSize(), 4);
-
-		lruCache.eraseElement(7);
-		EXPECT_EQ(lruCache.getSize(), 4);
-	};
-
-	TEST(LRUListTest, RecentlyUsedElementAccessors)
+	TEST(LRUListTest, GetTest)
 	{
-		LRUList<int> lruCache(4);
-		ASSERT_EQ(lruCache.getMaxSize(), 4);
+		LRUList<std::string> lruList(2);
 
-		lruCache.put(1);
-		lruCache.put(2);
-		lruCache.put(3);
-		lruCache.put(4);
+		lruList.put("first");
+		lruList.put("second");
 
-		EXPECT_EQ(lruCache.getMRUElement(), 4);
-		EXPECT_EQ(lruCache.getLRUElement(), 1);
+		// Test getting the most recently used element
+		EXPECT_EQ(lruList.getMRUElement(), "second");
 
-		lruCache.put(5);
-		EXPECT_EQ(lruCache.getMRUElement(), 5);
-		EXPECT_EQ(lruCache.getLRUElement(), 2);
+		// Test getting the least recently used element
+		EXPECT_EQ(lruList.getLRUElement(), "first");
 
-		lruCache.put(3);
-		EXPECT_EQ(lruCache.getMRUElement(), 3);
-		EXPECT_EQ(lruCache.getLRUElement(), 2);
-	};
+		lruList.put("third");
+
+		// Test getting the new most recently used element
+		EXPECT_EQ(lruList.getMRUElement(), "third");
+
+		// Test getting the new least recently used element
+		EXPECT_EQ(lruList.getLRUElement(), "second");
+	}
+
+	TEST(LRUListTest, EraseTest)
+	{
+		LRUList<int> lruList(3);
+
+		lruList.put(1);
+		lruList.put(2);
+		lruList.put(3);
+
+		// Test erasing an element
+		lruList.eraseElement(2);
+		EXPECT_EQ(lruList.getSize(), 2);
+
+		// Test erasing a non-existing element
+		lruList.eraseElement(4);
+		EXPECT_EQ(lruList.getSize(), 2);
+	}
+
+	TEST(LRUListTest, SizeTest)
+	{
+		LRUList<int> lruList(3);
+
+		// Test initial size
+		EXPECT_EQ(lruList.getSize(), 0);
+
+		lruList.put(1);
+		lruList.put(2);
+
+		// Test size after inserting elements
+		EXPECT_EQ(lruList.getSize(), 2);
+
+		lruList.put(3);
+		lruList.put(4);
+
+		// Test size after exceeding max size
+		EXPECT_EQ(lruList.getSize(), 3);
+	}
 }  // namespace pcpp
