@@ -24,7 +24,8 @@ add_executable(
   Tests/LoggerTests.cpp
   Tests/LRUListTests.cpp
   Tests/MacAddressTests.cpp
-  Tests/PointerVectorTests.cpp)
+  Tests/PointerVectorTests.cpp
+  Tests/SystemUtilsTests.cpp)
 
 target_link_libraries(
   Common++Test
