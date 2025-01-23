@@ -132,6 +132,8 @@ PTF_TEST_CASE(TLS1_3ParsingTest);
 PTF_TEST_CASE(TLSCipherSuiteTest);
 PTF_TEST_CASE(ClientHelloTLSFingerprintTest);
 PTF_TEST_CASE(ServerHelloTLSFingerprintTest);
+PTF_TEST_CASE(SSL2RecordSSL2ClientHelloTest);
+PTF_TEST_CASE(SSL2RecordTLS1ClientHelloTest);
 
 // Implemented in IgmpTests.cpp
 PTF_TEST_CASE(IgmpParsingTest);
