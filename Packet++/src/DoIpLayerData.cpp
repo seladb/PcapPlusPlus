@@ -20,8 +20,8 @@ namespace pcpp
 	{
 		std::stringstream os;
 		os << "sourceAddress: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
-		auto it = DoIpEnumToStringActivationTypes.find(activationType);
-		if (it != DoIpEnumToStringActivationTypes.end())
+		auto it = internal::DoIpEnumToStringActivationTypes.find(activationType);
+		if (it != internal::DoIpEnumToStringActivationTypes.end())
 		{
 			os << "activation type: " << it->second << std::hex << " (0x" << unsigned(activationType) << ")" << "\n";
 		}
@@ -110,8 +110,8 @@ namespace pcpp
 		os << "logical address of external tester: " << std::hex << "0x" << htobe16(logicalAddressExternalTester)
 		   << "\n";
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
-		auto it = DoIpEnumToStringRoutingResponseCodes.find(responseCode);
-		if (it != DoIpEnumToStringRoutingResponseCodes.end())
+		auto it = internal::DoIpEnumToStringRoutingResponseCodes.find(responseCode);
+		if (it != internal::DoIpEnumToStringRoutingResponseCodes.end())
 		{
 			os << "routing activation response code: " << it->second << std::hex << " (0x" << unsigned(responseCode)
 			   << ")" << "\n";
@@ -204,8 +204,8 @@ namespace pcpp
 	std::string GenericHeaderNackData::toString() const
 	{
 		std::stringstream os;
-		auto it = DoIpEnumToStringGenericHeaderNackCodes.find(genericNackCode);
-		if (it != DoIpEnumToStringGenericHeaderNackCodes.end())
+		auto it = internal::DoIpEnumToStringGenericHeaderNackCodes.find(genericNackCode);
+		if (it != internal::DoIpEnumToStringGenericHeaderNackCodes.end())
 		{
 			os << "generic header nack code: " << it->second << std::hex << " (0x" << unsigned(genericNackCode) << ")"
 			   << "\n";
@@ -353,8 +353,8 @@ namespace pcpp
 		os << "logical address: " << std::hex << "0x" << htobe16(logicalAddress) << "\n";
 		os << "EID: " << pcpp::byteArrayToHexString(eid.data(), DOIP_EID_LEN) << "\n";
 		os << "GID: " << pcpp::byteArrayToHexString(gid.data(), DOIP_GID_LEN) << "\n";
-		auto it = DoIpEnumToStringActionCodes.find(furtherActionRequired);
-		if (it != DoIpEnumToStringActionCodes.end())
+		auto it = internal::DoIpEnumToStringActionCodes.find(furtherActionRequired);
+		if (it != internal::DoIpEnumToStringActionCodes.end())
 		{
 			os << "further action required:" << it->second << std::hex << " (0x" << unsigned(furtherActionRequired)
 			   << ")" << "\n";
@@ -365,8 +365,8 @@ namespace pcpp
 			   << "\n";
 		}
 
-		auto it_ = DoIpEnumToStringSyncStatus.find(syncStatus);
-		if (it_ != DoIpEnumToStringSyncStatus.end())
+		auto it_ = internal::DoIpEnumToStringSyncStatus.find(syncStatus);
+		if (it_ != internal::DoIpEnumToStringSyncStatus.end())
 		{
 			os << "VIN/GID sync status: " << it_->second << "\n";  // Convert enum to byte
 		}
@@ -508,8 +508,8 @@ namespace pcpp
 	std::string DiagnosticPowerModeResponseData::toString() const
 	{
 		std::stringstream os;
-		auto it = DoIpEnumToStringDiagnosticPowerModeCodes.find(powerModeCode);
-		if (it != DoIpEnumToStringDiagnosticPowerModeCodes.end())
+		auto it = internal::DoIpEnumToStringDiagnosticPowerModeCodes.find(powerModeCode);
+		if (it != internal::DoIpEnumToStringDiagnosticPowerModeCodes.end())
 		{
 			os << "diagnostic power mode: " << it->second << std::hex << " (0x" << unsigned(powerModeCode) << ")"
 			   << "\n";
@@ -566,8 +566,8 @@ namespace pcpp
 	std::string EntityStatusResponseData::toString() const
 	{
 		std::stringstream os;
-		auto it = DoIpEnumToStringEntityStatusNodeTypes.find(nodeType);
-		if (it != DoIpEnumToStringEntityStatusNodeTypes.end())
+		auto it = internal::DoIpEnumToStringEntityStatusNodeTypes.find(nodeType);
+		if (it != internal::DoIpEnumToStringEntityStatusNodeTypes.end())
 		{
 			os << "Entity status: " << it->second << std::hex << " (0x" << unsigned(nodeType) << ")" << "\n";
 		}
@@ -721,8 +721,8 @@ namespace pcpp
 		std::stringstream os;
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
-		auto it = DoIpEnumToStringAckCode.find(ackCode);
-		if (it != DoIpEnumToStringAckCode.end())
+		auto it = internal::DoIpEnumToStringAckCode.find(ackCode);
+		if (it != internal::DoIpEnumToStringAckCode.end())
 		{
 			os << "ack code: " << it->second << " (0x" << unsigned(ackCode) << ")" << "\n";
 		}
@@ -813,8 +813,8 @@ namespace pcpp
 		std::stringstream os;
 		os << "source address: " << std::hex << "0x" << htobe16(sourceAddress) << "\n";
 		os << "target address: " << std::hex << "0x" << htobe16(targetAddress) << "\n";
-		auto it = DoIpEnumToStringDiagnosticNackCodes.find(nackCode);
-		if (it != DoIpEnumToStringDiagnosticNackCodes.end())
+		auto it = internal::DoIpEnumToStringDiagnosticNackCodes.find(nackCode);
+		if (it != internal::DoIpEnumToStringDiagnosticNackCodes.end())
 		{
 			os << "nack code: " << it->second << std::hex << " (0x" << unsigned(nackCode) << ")" << "\n";
 		}

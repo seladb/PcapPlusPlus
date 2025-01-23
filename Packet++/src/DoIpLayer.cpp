@@ -33,8 +33,8 @@ namespace pcpp
 
 	std::string DoIpLayer::getProtocolVersionAsStr() const
 	{
-		auto it = DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
-		if (it != DoIpEnumToStringProtocolVersion.end())
+		auto it = internal::DoIpEnumToStringProtocolVersion.find(getProtocolVersion());
+		if (it != internal::DoIpEnumToStringProtocolVersion.end())
 		{
 			return it->second;
 		}
@@ -71,8 +71,8 @@ namespace pcpp
 
 	std::string DoIpLayer::getPayloadTypeAsStr() const
 	{
-		auto it = DoIpEnumToStringPayloadType.find(getPayloadType());
-		if (it != DoIpEnumToStringPayloadType.end())
+		auto it = internal::DoIpEnumToStringPayloadType.find(getPayloadType());
+		if (it != internal::DoIpEnumToStringPayloadType.end())
 		{
 			return it->second;
 		}
