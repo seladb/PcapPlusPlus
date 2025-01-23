@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(
   Common++Test
+  main.cpp
   Tests/GeneralUtilsTests.cpp
   Tests/IPAddressTests.cpp
   Tests/LoggerTests.cpp
@@ -30,8 +31,7 @@ target_link_libraries(
   PRIVATE Common++
           memplumber
           gtest
-          gmock
-          gmock_main)
+          gmock)
 
 target_include_directories(Common++Test PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Utils>)
 
