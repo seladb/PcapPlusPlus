@@ -38,23 +38,18 @@ namespace pcpp
 
 	class LoggerTest : public ::testing::Test
 	{
+		using Base = ::testing::Test;
 	public:
 		LoggerTest() : m_Logger(Logger::getInstance())
-		{
-			// Setup log callback trampoline
-			m_Logger.setLogPrinter(&LoggerTest::logPrinterTrampoline);
-		}
-
-		~LoggerTest()
-		{
-			// Reset log callback trampoline
-			m_Logger.enableLogs();
-			m_Logger.setAllModulesToLogLevel(Logger::Info);
-			m_Logger.resetLogPrinter();
-		}
+		{}
 
 		void SetUp() override
 		{
+			Base::SetUp();
+			
+			// Setup log callback trampoline
+			m_Logger.setLogPrinter(&LoggerTest::logPrinterTrampoline);
+			
 			// Enable all logs and set them to Info level by default
 			m_Logger.enableLogs();
 			m_Logger.setAllModulesToLogLevel(Logger::Info);
@@ -65,8 +60,15 @@ namespace pcpp
 
 		void TearDown() override
 		{
+			// Reset log callback trampoline
+			m_Logger.enableLogs();
+			m_Logger.setAllModulesToLogLevel(Logger::Info);
+			m_Logger.resetLogPrinter();
+
 			// Reset log callback mock
 			m_LogCallbackMock.reset();
+
+			Base::TearDown();
 		}
 
 	protected:
