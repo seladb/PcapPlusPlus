@@ -41,11 +41,9 @@
 namespace pcpp
 {
 
-	/**
-	 * ==========================
-	 * Class KniDevice::KniThread
-	 * ==========================
-	 */
+	/// ==========================
+	/// Class KniDevice::KniThread
+	/// ==========================
 
 	struct KniDevice::KniThread
 	{
@@ -90,11 +88,9 @@ namespace pcpp
 		m_StopThread = true;
 	}
 
-	/**
-	 * ===============
-	 * Class KniDevice
-	 * ===============
-	 */
+	/// ===============
+	/// Class KniDevice
+	/// ===============
 
 	namespace
 	{
@@ -960,9 +956,9 @@ namespace pcpp
 		case LINK_ERROR:
 			return m_DeviceOpened = false;
 		case LINK_NOT_SUPPORTED:
-			/* fall through */
+			// fall through
 		case LINK_DOWN:
-			/* fall through */
+			// fall through
 		case LINK_UP:
 			return m_DeviceOpened = true;
 		}
