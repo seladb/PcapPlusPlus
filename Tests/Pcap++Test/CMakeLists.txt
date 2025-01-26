@@ -2,6 +2,7 @@ add_executable(
   Pcap++Test
   Common/TestUtils.cpp
   main.cpp
+  Tests/DeviceListBaseTests.cpp
   Tests/DpdkTests.cpp
   Tests/FileTests.cpp
   Tests/FilterTests.cpp

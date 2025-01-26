@@ -32,6 +32,9 @@ PTF_TEST_CASE(TestSolarisSnoopFileRead);
 PTF_TEST_CASE(TestPcapNgFilePrecision);
 PTF_TEST_CASE(TestPcapFileWriterDeviceDestructor);
 
+// Implemented in DeviceListBaseTests.cpp
+PTF_TEST_CASE(TestDeviceListBase);
+
 // Implemented in LiveDeviceTests.cpp
 PTF_TEST_CASE(TestPcapLiveDeviceList);
 PTF_TEST_CASE(TestPcapLiveDeviceListSearch);
