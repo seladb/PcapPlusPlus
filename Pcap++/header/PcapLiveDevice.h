@@ -169,10 +169,8 @@ namespace pcpp
 			PCPP_OUT
 		};
 
-		/**
-		 * Set which source provides timestamps associated to each captured packet
-		 * (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
-		 */
+		/// Set which source provides timestamps associated to each captured packet
+		/// (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
 		enum class TimestampProvider
 		{
 			/** host-provided, unknown characteristics, default */
@@ -189,10 +187,8 @@ namespace pcpp
 			HostHighPrecUnsynced
 		};
 
-		/**
-		 * Set the precision of timestamps associated to each captured packet
-		 * (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
-		 */
+		/// Set the precision of timestamps associated to each captured packet
+		/// (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
 		enum class TimestampPrecision
 		{
 			/** use timestamps with microsecond precision, default */
@@ -240,16 +236,12 @@ namespace pcpp
 			/// In Unix-like system, use poll() for blocking mode.
 			bool usePoll;
 
-			/**
-			 * Set which timestamp provider is used.
-			 * Depending on the capture device and the software on the host, different types of time stamp can be used
-			 */
+			/// Set which timestamp provider is used.
+			/// Depending on the capture device and the software on the host, different types of time stamp can be used
 			TimestampProvider timestampProvider;
 
-			/**
-			 * Set which timestamp precision is used.
-			 * Depending on the capture device and the software on the host, different precision can be used
-			 */
+			/// Set which timestamp precision is used.
+			/// Depending on the capture device and the software on the host, different precision can be used
 			TimestampPrecision timestampPrecision;
 
 			/// A c'tor for this struct

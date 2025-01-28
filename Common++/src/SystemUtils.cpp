@@ -200,7 +200,9 @@ namespace pcpp
 
 	bool directoryExists(const std::string& dirPath)
 	{
-		struct stat info{};
+		struct stat info
+		{
+		};
 
 		if (stat(dirPath.c_str(), &info) != 0)
 		{
@@ -368,7 +370,9 @@ namespace pcpp
 #if defined(_WIN32)
 		SetConsoleCtrlHandler((PHANDLER_ROUTINE)handlerRoutine, TRUE);
 #else
-		struct sigaction action{};
+		struct sigaction action
+		{
+		};
 		memset(&action, 0, sizeof(struct sigaction));
 		action.sa_handler = handlerRoutine;
 		sigemptyset(&action.sa_mask);

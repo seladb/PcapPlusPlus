@@ -204,7 +204,8 @@ namespace pcpp
 	{
 		if (m_DataLen == 0 || m_Data == nullptr)
 		{
-			PCPP_LOG_ERROR("Input data is null or illegal" << "|m_DataLen:" << m_DataLen);
+			PCPP_LOG_ERROR("Input data is null or illegal"
+			               << "|m_DataLen:" << m_DataLen);
 			return false;
 		}
 

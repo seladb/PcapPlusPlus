@@ -137,36 +137,40 @@ namespace pcpp
 	static bool isTimestampProviderSupportedByDevice(pcap_t* pcap,
 	                                                 const PcapLiveDevice::TimestampProvider timestampProvider)
 	{
-		int tstampType = timestampProviderMap(timestampProvider);
-		int* supportedTstampTypes = nullptr;
+		const auto tstampType = timestampProviderMap(timestampProvider);
+
+		// Use unique_ptr with a custom deleter directly
+		std::unique_ptr<int[], void (*)(int*)> supportedTstampTypes(nullptr, [](int* ptr) {
+			if (ptr != nullptr)
+			{
+				pcap_free_tstamp_types(ptr);
+			}
+		});
+
 		const int numSupportedTstampTypes = pcap_list_tstamp_types(pcap, &supportedTstampTypes);
 
-		bool isSupported = false;
 		if (numSupportedTstampTypes < 0)
 		{
 			std::cerr << "Error retrieving timestamp types: " << pcap_geterr(pcap) << " - default Host will be used"
 			          << std::endl;
-			isSupported = false;
+			return false;
 		}
-		else if (numSupportedTstampTypes == 1)
+
+		if (numSupportedTstampTypes == 1)
 		{
-			// If 1 is returned, then the only available typestamp is TimestampProvider::Host;
+			// If 1 is returned, then the only available timestamp is TimestampProvider::Host
 			return timestampProvider == PcapLiveDevice::TimestampProvider::Host;
 		}
-		else
+
+		for (int i = 0; i < numSupportedTstampTypes; ++i)
 		{
-			for (int i = 0; i < numSupportedTstampTypes; ++i)
+			if (supportedTstampTypes[i] == tstampType)
 			{
-				if (supportedTstampTypes[i] == tstampType)
-				{
-					isSupported = true;
-					break;
-				}
+				return true;
 			}
 		}
 
-		pcap_free_tstamp_types(supportedTstampTypes);
-		return isSupported;
+		return false;
 	}
 
 	static void setTimestampProvider(pcap_t* pcap, const PcapLiveDevice::TimestampProvider timestampProvider)
