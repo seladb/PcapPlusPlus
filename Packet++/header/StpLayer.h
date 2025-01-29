@@ -2,6 +2,7 @@
 
 #include "Layer.h"
 #include "MacAddress.h"
+#include <cstring>
 
 /// @file
 
