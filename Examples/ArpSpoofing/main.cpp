@@ -66,8 +66,7 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address& ipAddr, pcpp::PcapLiveDe
 	pcpp::MacAddress macSrc = pDevice->getMacAddress();
 	pcpp::MacAddress macDst(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 	pcpp::EthLayer ethLayer(macSrc, macDst, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
-	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, pDevice->getMacAddress(), pDevice->getMacAddress(),
-	                        pDevice->getIPv4Address(), ipAddr);
+	pcpp::ArpLayer arpLayer(pcpp::ArpRequest(pDevice->getMacAddress(), pDevice->getIPv4Address(), ipAddr));
 
 	arpRequest.addLayer(&ethLayer);
 	arpRequest.addLayer(&arpLayer);
@@ -137,7 +136,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	// Create ARP reply for the gateway
 	pcpp::Packet gwArpReply(500);
 	pcpp::EthLayer gwEthLayer(deviceMacAddress, gatewayMacAddr, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
-	pcpp::ArpLayer gwArpLayer(pcpp::ARP_REPLY, pDevice->getMacAddress(), gatewayMacAddr, victimAddr, gatewayAddr);
+	pcpp::ArpLayer gwArpLayer(pcpp::ArpReply(pDevice->getMacAddress(), victimAddr, gatewayMacAddr, gatewayAddr));
 	gwArpReply.addLayer(&gwEthLayer);
 	gwArpReply.addLayer(&gwArpLayer);
 	gwArpReply.computeCalculateFields();
@@ -145,7 +144,7 @@ void doArpSpoofing(pcpp::PcapLiveDevice* pDevice, const pcpp::IPv4Address& gatew
 	// Create ARP reply for the victim
 	pcpp::Packet victimArpReply(500);
 	pcpp::EthLayer victimEthLayer(deviceMacAddress, victimMacAddr, static_cast<uint16_t>(PCPP_ETHERTYPE_ARP));
-	pcpp::ArpLayer victimArpLayer(pcpp::ARP_REPLY, pDevice->getMacAddress(), victimMacAddr, gatewayAddr, victimAddr);
+	pcpp::ArpLayer victimArpLayer(pcpp::ArpReply(pDevice->getMacAddress(), gatewayAddr, victimMacAddr, victimAddr));
 	victimArpReply.addLayer(&victimEthLayer);
 	victimArpReply.addLayer(&victimArpLayer);
 	victimArpReply.computeCalculateFields();

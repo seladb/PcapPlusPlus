@@ -106,10 +106,8 @@ namespace pcpp
 
 		Packet arpRequest(100);
 
-		MacAddress destMac(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
-		EthLayer ethLayer(sourceMac, destMac);
-
-		ArpLayer arpLayer(ARP_REQUEST, sourceMac, destMac, sourceIP, ipAddr);
+		EthLayer ethLayer(sourceMac, MacAddress::Broadcast);
+		ArpLayer arpLayer(ArpRequest(sourceMac, sourceIP, ipAddr));
 
 		if (!arpRequest.addLayer(&ethLayer))
 		{
