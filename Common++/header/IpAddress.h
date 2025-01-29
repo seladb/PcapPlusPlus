@@ -439,7 +439,7 @@ namespace pcpp
 		{}
 
 		/// A constructor that creates an instance of the class out of an address representing the network prefix
-		/// and a prefix length
+		/// and a prefix length	
 		/// @param address An address representing the network prefix. If the address is invalid std::invalid_argument
 		/// exception is thrown
 		/// @param prefixLen A number between 0 and 32 representing the prefix length.
@@ -840,6 +840,19 @@ namespace pcpp
 		std::unique_ptr<IPv4Network> m_IPv4Network;
 		std::unique_ptr<IPv6Network> m_IPv6Network;
 	};
+
+	namespace literals
+	{
+		inline IPv4Address operator""_ipv4(const char* addrString, std::size_t size)
+		{
+			return IPv4Address(std::string(addrString, size));
+		}
+
+		inline IPv6Address operator""_ipv6(const char* addrString, std::size_t size)
+		{
+			return IPv6Address(std::string(addrString, size));
+		}
+	}  // namespace literals
 
 	inline std::ostream& operator<<(std::ostream& oss, const pcpp::IPv4Address& ipv4Address)
 	{
