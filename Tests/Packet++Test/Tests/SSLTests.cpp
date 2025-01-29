@@ -755,14 +755,15 @@ PTF_TEST_CASE(ServerHelloTLSFingerprintTest)
 	PTF_ASSERT_EQUAL(tlsFingerprint.toMD5(), "eca9b8f0f3eae50309eaf901cb822d9b");
 }  // ServerHelloTLSFingerprintTest
 
-static uint16_t
-getSSL2ClientHelloVersion(uint8_t *data, size_t size)
+static uint16_t getSSL2ClientHelloVersion(uint8_t* data, size_t size)
 {
-	if (size < 2) {
+	if (size < 2)
+	{
 		return 0;
 	}
 
-	if ((data[0] & 0x80) == 0) {
+	if ((data[0] & 0x80) == 0)
+	{
 		// Record has padding, three-byte record header.
 		// Either data record or security escape.
 		return 0;
@@ -773,17 +774,19 @@ getSSL2ClientHelloVersion(uint8_t *data, size_t size)
 	size_t const rec_header_length = 2;
 	size_t const clienthello_header_length = 9;
 	size_t reclen = ((data[0] & 0x7f) << 8) | data[1];
-	if (size != rec_header_length + reclen || reclen < clienthello_header_length) {
+	if (size != rec_header_length + reclen || reclen < clienthello_header_length)
+	{
 		return 0;
 	}
 
 	size_t pos = rec_header_length;
 	uint8_t const SSL_MT_CLIENT_HELLO = 1;
-	if (data[pos] != SSL_MT_CLIENT_HELLO) {
+	if (data[pos] != SSL_MT_CLIENT_HELLO)
+	{
 		return 0;
 	}
 	pos++;
-	return be16toh(*(uint16_t *)&data[pos]);
+	return be16toh(*(uint16_t*)&data[pos]);
 }
 
 PTF_TEST_CASE(SSL2RecordSSL2ClientHelloTest)
@@ -796,7 +799,7 @@ PTF_TEST_CASE(SSL2RecordSSL2ClientHelloTest)
 	pcpp::Packet clientHelloPacket(&rawPacket1);
 
 	// PCPP does not know how to parse SSLv2 yet, so we find the version field manually.
-	pcpp::PayloadLayer *payloadLayer = clientHelloPacket.getLayerOfType<pcpp::PayloadLayer>();
+	pcpp::PayloadLayer* payloadLayer = clientHelloPacket.getLayerOfType<pcpp::PayloadLayer>();
 	PTF_ASSERT_NOT_NULL(payloadLayer);
 	uint16_t version = getSSL2ClientHelloVersion(payloadLayer->getPayload(), payloadLayer->getPayloadLen());
 	PTF_ASSERT_EQUAL(version, pcpp::SSLVersion::SSL2)
@@ -812,7 +815,7 @@ PTF_TEST_CASE(SSL2RecordTLS1ClientHelloTest)
 	pcpp::Packet clientHelloPacket(&rawPacket1);
 
 	// PCPP does not know how to parse SSLv2 yet, so we find the version field manually.
-	pcpp::PayloadLayer *payloadLayer = clientHelloPacket.getLayerOfType<pcpp::PayloadLayer>();
+	pcpp::PayloadLayer* payloadLayer = clientHelloPacket.getLayerOfType<pcpp::PayloadLayer>();
 	PTF_ASSERT_NOT_NULL(payloadLayer);
 	uint16_t version = getSSL2ClientHelloVersion(payloadLayer->getPayload(), payloadLayer->getPayloadLen());
 	PTF_ASSERT_EQUAL(version, pcpp::SSLVersion::TLS1_0)
