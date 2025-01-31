@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iomanip>
+#include <cstring>
 #include <iostream>
 #include "memplumber.h"
 #include "PcppTestFrameworkCommon.h"

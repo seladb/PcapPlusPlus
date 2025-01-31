@@ -3,6 +3,8 @@
 #include "PayloadLayer.h"
 #include "LLCLayer.h"
 
+#include <cstring>
+
 namespace pcpp
 {
 

@@ -2,6 +2,8 @@
 #include "S7CommLayer.h"
 #include <PayloadLayer.h>
 
+#include <cstring>
+
 namespace pcpp
 {
 
