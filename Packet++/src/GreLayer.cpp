@@ -590,12 +590,12 @@ namespace pcpp
 
 	void PPP_PPTPLayer::computeCalculateFields()
 	{
-		ppp_pptp_header* header = getPPP_PPTPHeader();
 		if (m_DataLen < sizeof(ppp_pptp_header))
 		{
 			PCPP_LOG_ERROR("Insufficient data length for PPP_PPTP header");
 			return;
 		}
+		ppp_pptp_header* header = getPPP_PPTPHeader();
 		if (m_NextLayer != nullptr)
 		{
 			switch (m_NextLayer->getProtocol())
