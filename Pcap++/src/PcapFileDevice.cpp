@@ -166,15 +166,15 @@ namespace pcpp
 
 		// From https://datatracker.ietf.org/doc/html/rfc1761
 		static const pcpp::LinkLayerType snoop_encap[] = {
-			LINKTYPE_ETHERNET,  /* IEEE 802.3 */
-			LINKTYPE_NULL,      /* IEEE 802.4 Token Bus */
-			LINKTYPE_IEEE802_5, /* IEEE 802.5 */
-			LINKTYPE_NULL,      /* IEEE 802.6 Metro Net */
-			LINKTYPE_ETHERNET,  /* Ethernet */
-			LINKTYPE_C_HDLC,    /* HDLC */
-			LINKTYPE_NULL,      /* Character Synchronous, e.g. bisync */
-			LINKTYPE_NULL,      /* IBM Channel-to-Channel */
-			LINKTYPE_FDDI       /* FDDI */
+			LINKTYPE_ETHERNET,   /// IEEE 802.3
+			LINKTYPE_NULL,       /// IEEE 802.4 Token Bus
+			LINKTYPE_IEEE802_5,  /// IEEE 802.5
+			LINKTYPE_NULL,       /// IEEE 802.6 Metro Net
+			LINKTYPE_ETHERNET,   /// Ethernet
+			LINKTYPE_C_HDLC,     /// HDLC
+			LINKTYPE_NULL,       /// Character Synchronous, e.g. bisync
+			LINKTYPE_NULL,       /// IBM Channel-to-Channel
+			LINKTYPE_FDDI        /// FDDI
 		};
 		uint32_t datalink_type = be32toh(snoop_file_header.datalink_type);
 		if (datalink_type > ARRAY_SIZE(snoop_encap) - 1)

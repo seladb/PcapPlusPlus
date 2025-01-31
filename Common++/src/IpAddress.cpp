@@ -33,9 +33,11 @@ namespace pcpp
 		char addrBuffer[INET_ADDRSTRLEN];
 
 		if (inet_ntop(AF_INET, toBytes(), addrBuffer, sizeof(addrBuffer)) != nullptr)
-			return std::string(addrBuffer);
+		{
+			return addrBuffer;
+		}
 
-		return std::string();
+		return {};
 	}
 
 	bool IPv4Address::isMulticast() const
@@ -66,6 +68,7 @@ namespace pcpp
 		}
 		catch (const std::invalid_argument& e)
 		{
+			(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
@@ -73,7 +76,7 @@ namespace pcpp
 
 	bool IPv4Address::isValidIPv4Address(const std::string& addrAsString)
 	{
-		struct sockaddr_in sa_in;
+		sockaddr_in sa_in{};
 		return inet_pton(AF_INET, addrAsString.data(), &(sa_in.sin_addr)) > 0;
 	}
 
@@ -86,9 +89,11 @@ namespace pcpp
 		char addrBuffer[INET6_ADDRSTRLEN];
 
 		if (inet_ntop(AF_INET6, toBytes(), addrBuffer, sizeof(addrBuffer)) != nullptr)
-			return std::string(addrBuffer);
+		{
+			return addrBuffer;
+		}
 
-		return std::string();
+		return {};
 	}
 
 	bool IPv6Address::isMulticast() const
@@ -126,6 +131,7 @@ namespace pcpp
 		}
 		catch (const std::invalid_argument& e)
 		{
+			(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
@@ -133,7 +139,7 @@ namespace pcpp
 
 	bool IPv6Address::isValidIPv6Address(const std::string& addrAsString)
 	{
-		struct sockaddr_in6 sa_in6;
+		sockaddr_in6 sa_in6{};
 		return inet_pton(AF_INET6, addrAsString.data(), &(sa_in6.sin6_addr)) > 0;
 	}
 
@@ -170,18 +176,16 @@ namespace pcpp
 			return true;
 		}
 
-		uint32_t maskAsInt = be32toh(maskAddress.toInt());
-		std::bitset<32> bitset(maskAsInt);
+		const uint32_t maskAsInt = be32toh(maskAddress.toInt());
+		const std::bitset<32> bitset(maskAsInt);
 		auto bitsetCount = bitset.count();
 
 		if (bitsetCount == 32)
 		{
 			return true;
 		}
-		else
-		{
-			return maskAsInt << bitsetCount == 0;
-		}
+
+		return maskAsInt << bitsetCount == 0;
 	}
 
 	void IPv4Network::initFromAddressAndPrefixLength(const IPv4Address& address, uint8_t prefixLen)
@@ -227,7 +231,8 @@ namespace pcpp
 	IPv4Network::IPv4Network(const std::string& addressAndNetmask)
 	{
 		std::stringstream stream(addressAndNetmask);
-		std::string networkPrefixStr, netmaskStr;
+		std::string networkPrefixStr;
+		std::string netmaskStr;
 		std::getline(stream, networkPrefixStr, '/');
 		std::getline(stream, netmaskStr);
 
@@ -249,7 +254,7 @@ namespace pcpp
 
 		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
 		{
-			uint32_t prefixLen = std::stoi(netmaskStr);
+			const uint32_t prefixLen = std::stoi(netmaskStr);
 			if (prefixLen > 32)
 			{
 				throw std::invalid_argument("Prefix length must be an integer between 0 and 32");
@@ -278,26 +283,26 @@ namespace pcpp
 
 	uint8_t IPv4Network::getPrefixLen() const
 	{
-		std::bitset<32> bitset(m_Mask);
+		const std::bitset<32> bitset(m_Mask);
 		return bitset.count();
 	}
 
 	IPv4Address IPv4Network::getLowestAddress() const
 	{
-		std::bitset<32> bitset(m_Mask);
+		const std::bitset<32> bitset(m_Mask);
 		return bitset.count() < 32 ? m_NetworkPrefix + htobe32(1) : m_NetworkPrefix;
 	}
 
 	IPv4Address IPv4Network::getHighestAddress() const
 	{
 		auto tempAddress = static_cast<uint32_t>(m_NetworkPrefix | ~m_Mask);
-		std::bitset<32> bitset(m_Mask);
+		const std::bitset<32> bitset(m_Mask);
 		return bitset.count() < 32 ? tempAddress - htobe32(1) : tempAddress;
 	}
 
 	uint64_t IPv4Network::getTotalAddressCount() const
 	{
-		std::bitset<32> bitset(static_cast<uint32_t>(~m_Mask));
+		const std::bitset<32> bitset(~static_cast<uint64_t>(m_Mask));
 		return 1ULL << bitset.count();
 	}
 
@@ -308,8 +313,8 @@ namespace pcpp
 
 	bool IPv4Network::includes(const IPv4Network& network) const
 	{
-		uint32_t lowestAddress = network.m_NetworkPrefix;
-		uint32_t highestAddress = network.m_NetworkPrefix | ~network.m_Mask;
+		const uint32_t lowestAddress = network.m_NetworkPrefix;
+		const uint32_t highestAddress = network.m_NetworkPrefix | ~network.m_Mask;
 		return ((lowestAddress & m_Mask) == m_NetworkPrefix && (highestAddress & m_Mask) == m_NetworkPrefix);
 	}
 
@@ -344,7 +349,7 @@ namespace pcpp
 				{
 					continue;
 				}
-				std::bitset<8> bitset(curByte);
+				const std::bitset<8> bitset(curByte);
 				if (((curByte << bitset.count()) & 0xff) != 0)
 				{
 					return false;
@@ -364,15 +369,15 @@ namespace pcpp
 	{
 		memset(m_Mask, 0, IPV6_ADDR_SIZE);
 		int remainingPrefixLen = prefixLen;
-		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		for (auto& byte : m_Mask)
 		{
 			if (remainingPrefixLen >= 8)
 			{
-				m_Mask[byteIndex] = 0xff;
+				byte = 0xff;
 			}
 			else if (remainingPrefixLen > 0)
 			{
-				m_Mask[byteIndex] = 0xff << (8 - remainingPrefixLen);
+				byte = 0xff << (8 - remainingPrefixLen);
 			}
 			else
 			{
@@ -433,7 +438,8 @@ namespace pcpp
 	IPv6Network::IPv6Network(const std::string& addressAndNetmask)
 	{
 		std::stringstream stream(addressAndNetmask);
-		std::string networkPrefixStr, netmaskStr;
+		std::string networkPrefixStr;
+		std::string netmaskStr;
 		std::getline(stream, networkPrefixStr, '/');
 		std::getline(stream, netmaskStr);
 
@@ -454,7 +460,7 @@ namespace pcpp
 		}
 		if (std::all_of(netmaskStr.begin(), netmaskStr.end(), ::isdigit))
 		{
-			uint32_t prefixLen = std::stoi(netmaskStr);
+			const uint32_t prefixLen = std::stoi(netmaskStr);
 			if (prefixLen > 128)
 			{
 				throw std::invalid_argument("Prefix length must be an integer between 0 and 128");
@@ -484,10 +490,10 @@ namespace pcpp
 	uint8_t IPv6Network::getPrefixLen() const
 	{
 		uint8_t result = 0;
-		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		for (const auto& byte : m_Mask)
 		{
-			std::bitset<8> bs(m_Mask[byteIndex]);
-			result += static_cast<uint8_t>(bs.count());
+			const std::bitset<8> bset(byte);
+			result += static_cast<uint8_t>(bset.count());
 		}
 		return result;
 	}
@@ -520,10 +526,10 @@ namespace pcpp
 	uint64_t IPv6Network::getTotalAddressCount() const
 	{
 		int numOfBitset = 0;
-		for (auto byteIndex = 0; byteIndex < IPV6_ADDR_SIZE; byteIndex++)
+		for (const auto& byte : m_Mask)
 		{
-			std::bitset<8> bitset(static_cast<uint8_t>(~m_Mask[byteIndex]));
-			numOfBitset += bitset.count();
+			const std::bitset<8> bitset(static_cast<uint8_t>(~byte));
+			numOfBitset += static_cast<int>(bitset.count());
 		}
 
 		if (numOfBitset >= 64)

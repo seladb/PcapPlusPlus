@@ -43,14 +43,10 @@ add_executable(
   Tests/VrrpTest.cpp
   Tests/WakeOnLanTests.cpp
   Tests/WireGuardTests.cpp
-  Utils/TestUtils.cpp)
+  Utils/TestUtils.cpp
+)
 
-target_link_libraries(
-  Packet++Test
-  PUBLIC memplumber
-         Packet++
-         PcppTestFramework
-         EndianPortable)
+target_link_libraries(Packet++Test PUBLIC memplumber Packet++ PcppTestFramework EndianPortable)
 
 if(MSVC)
   # This executable requires getopt.h not available on VStudio
@@ -60,7 +56,4 @@ endif()
 set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
 set_property(TARGET Packet++Test PROPERTY RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/Bin")
-add_test(
-  NAME Packet++Test
-  COMMAND $<TARGET_FILE:Packet++Test>
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
+add_test(NAME Packet++Test COMMAND $<TARGET_FILE:Packet++Test> WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
