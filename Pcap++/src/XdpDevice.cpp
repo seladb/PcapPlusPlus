@@ -5,7 +5,7 @@
 #include "Logger.h"
 #include "Packet.h"
 #include <bpf/libbpf.h>
-#include <bpf/xsk.h>
+#include <xdp/xsk.h>
 #include <linux/if_link.h>
 #include <net/if.h>
 #include <sys/mman.h>
