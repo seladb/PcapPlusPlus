@@ -83,7 +83,7 @@ jobs:
             image: alpine320
             config-zstd: OFF
           - runner: ubuntu-24.04-arm
-            image: ubuntu2404
+            image: arm64v8/ubuntu:24.04
             config-zstd: OFF
 
     steps:
