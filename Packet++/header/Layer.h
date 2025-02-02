@@ -191,10 +191,9 @@ namespace pcpp
 		virtual bool shortenLayer(int offsetInLayer, size_t numOfBytesToShorten);
 	};
 
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)
+	{
+		os << layer.toString();
+		return os;
+	}
 }  // namespace pcpp
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::Layer& layer)
-{
-	os << layer.toString();
-	return os;
-}

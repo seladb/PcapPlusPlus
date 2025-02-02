@@ -379,10 +379,9 @@ namespace pcpp
 		return dynamic_cast<TLayer*>(curLayer);
 	}
 
+	inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet)
+	{
+		os << packet.toString();
+		return os;
+	}
 }  // namespace pcpp
-
-inline std::ostream& operator<<(std::ostream& os, const pcpp::Packet& packet)
-{
-	os << packet.toString();
-	return os;
-}

@@ -68,6 +68,7 @@ namespace pcpp
 		}
 		catch (const std::invalid_argument& e)
 		{
+			(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 			PCPP_LOG_ERROR(e.what());
 			return false;
 		}
@@ -130,6 +131,7 @@ namespace pcpp
 		}
 		catch (const std::invalid_argument& e)
 		{
+			(void)e;  // Suppress the unreferenced local variable warning when PCPP_LOG_ERROR is disabled
 			PCPP_LOG_ERROR(e.what());
 			return false;
 		}

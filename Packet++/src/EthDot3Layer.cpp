@@ -3,6 +3,8 @@
 #include "PayloadLayer.h"
 #include "LLCLayer.h"
 
+#include <cstring>
+
 namespace pcpp
 {
 	EthDot3Layer::EthDot3Layer(const MacAddress& sourceMac, const MacAddress& destMac, uint16_t length) : Layer()
