@@ -34,6 +34,7 @@ namespace pcpp
 			uint8_t addrBody[6 * 16];
 		};
 #pragma pack(pop)
+		static_assert(sizeof(wol_header) == 102, "wol_header size is not 102 bytes");
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data

@@ -106,6 +106,7 @@ namespace pcpp
 		/** This specifies one or more IPvX addresses that are associated with the virtual router. */
 		uint8_t* ipAddresses[];
 	};
+	static_assert(sizeof(vrrp_header) == 8, "vrrp_header size is not 8 bytes");
 
 	/**
 	 * @class VrrpLayer

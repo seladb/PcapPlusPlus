@@ -33,6 +33,8 @@ namespace pcpp
 			uint8_t reserved[3];
 		};
 #pragma pack(pop)
+		static_assert(sizeof(wg_common_header) == 4, "wg_common_header size is not 4 bytes");
+
 		wg_common_header* getBasicHeader() const
 		{
 			return reinterpret_cast<wg_common_header*>(m_Data);

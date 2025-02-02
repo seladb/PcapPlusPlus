@@ -116,6 +116,7 @@ namespace pcpp
 			    transmitTimestamp;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(ntp_header) == 48, "ntp_header size is not 48 bytes");
 
 #pragma pack(push, 1)
 		struct ntp_v3_auth
@@ -126,6 +127,7 @@ namespace pcpp
 			uint8_t dgst[8];  // 64 bit DES based
 		};
 #pragma pack(pop)
+		static_assert(sizeof(ntp_v3_auth) == 12, "ntp_v3_auth size is not 12 bytes");
 
 #pragma pack(push, 1)
 		struct ntp_v4_auth_md5
@@ -136,6 +138,7 @@ namespace pcpp
 			uint8_t dgst[16];
 		};
 #pragma pack(pop)
+		static_assert(sizeof(ntp_v4_auth_md5) == 20, "ntp_v4_auth_md5 size is not 20 bytes");
 
 #pragma pack(push, 1)
 		struct ntp_v4_auth_sha1
@@ -146,10 +149,11 @@ namespace pcpp
 			uint8_t dgst[20];
 		};
 #pragma pack(pop)
+		static_assert(sizeof(ntp_v4_auth_sha1) == 24, "ntp_v4_auth_sha1 size is not 24 bytes");
 
 		ntp_header* getNtpHeader() const
 		{
-			return (ntp_header*)m_Data;
+			return reinterpret_cast<ntp_header*>(m_Data);
 		}
 
 	public:

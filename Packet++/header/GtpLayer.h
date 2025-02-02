@@ -59,8 +59,8 @@ namespace pcpp
 		 * tunnel */
 		uint32_t teid;
 	};
-
 #pragma pack(pop)
+	static_assert(sizeof(gtpv1_header) == 8, "gtpv1_header size is not 8 bytes");
 
 	/**
 	 * An enum representing the possible GTP v1 message types.

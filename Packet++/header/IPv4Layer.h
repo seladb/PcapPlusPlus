@@ -57,6 +57,7 @@ namespace pcpp
 		/*The options start here. */
 	};
 #pragma pack(pop)
+	static_assert(sizeof(iphdr) == 20, "iphdr size is not 20 bytes");
 
 	/**
 	 * An enum for all possible IPv4 and IPv6 protocol types

@@ -29,6 +29,7 @@ namespace pcpp
 		uint32_t sequenceNumber;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ipsec_authentication_header) == 12, "ipsec_authentication_header size is not 12 bytes");
 
 	/**
 	 * @struct ipsec_esp
@@ -43,6 +44,7 @@ namespace pcpp
 		uint32_t sequenceNumber;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ipsec_esp) == 8, "ipsec_esp size is not 8 bytes");
 
 	/**
 	 * @class AuthenticationHeaderLayer

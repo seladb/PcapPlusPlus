@@ -29,6 +29,7 @@ namespace pcpp
 		uint8_t authenticator[16];
 	};
 #pragma pack(pop)
+	static_assert(sizeof(radius_header) == 20, "radius_header size is not 20 bytes");
 
 	/**
 	 * @class RadiusAttribute

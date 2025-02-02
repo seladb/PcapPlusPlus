@@ -54,6 +54,7 @@ namespace pcpp
 		uint32_t magicNumber;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(dhcp_header) == 240, "dhcp_header size is not 240 bytes");
 
 	/**
 	 * BootP opcodes

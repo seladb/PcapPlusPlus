@@ -110,6 +110,7 @@ namespace pcpp
 		uint16_t checksum;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(icmpv6hdr) == 4, "icmpv6hdr size is not 4 bytes");
 
 /**
  * @struct icmpv6_echo_hdr
@@ -124,6 +125,7 @@ namespace pcpp
 		uint16_t sequence;
 	} icmpv6_echo_hdr;
 #pragma pack(pop)
+	static_assert(sizeof(icmpv6_echo_hdr) == 8, "icmpv6_echo_hdr size is not 8 bytes");
 
 	/**
 	 * @class IcmpV6Layer

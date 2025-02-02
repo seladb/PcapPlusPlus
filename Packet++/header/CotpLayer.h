@@ -11,7 +11,7 @@ namespace pcpp
  * Represents a COTP protocol header
  */
 #pragma pack(push, 1)
-	typedef struct
+	struct cotphdr
 	{
 		/** length */
 		uint8_t length;
@@ -19,8 +19,9 @@ namespace pcpp
 		uint8_t pduType;
 		/** TPDU number sequence*/
 		uint8_t tpduNumber;
-	} cotphdr;
+	};
 #pragma pack(pop)
+	static_assert(sizeof(cotphdr) == 3, "cotphdr size is not 3 bytes");
 
 	/**
 	 * @class CotpLayer

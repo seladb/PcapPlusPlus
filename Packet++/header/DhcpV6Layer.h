@@ -275,6 +275,7 @@ namespace pcpp
 		/** DHCPv6 transaction ID (last byte) */
 		uint8_t transactionId3;
 	};
+	static_assert(sizeof(dhcpv6_header) == 4, "dhcpv6_header size is not 4 bytes");
 
 	/**
 	 * @class DhcpV6Layer

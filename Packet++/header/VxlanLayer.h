@@ -63,6 +63,7 @@ namespace pcpp
 		uint32_t pad : 8;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(vxlan_header) == 8, "vxlan_header size is not 8 bytes");
 
 	/**
 	 * @class VxlanLayer

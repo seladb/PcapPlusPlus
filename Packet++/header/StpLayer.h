@@ -28,9 +28,11 @@ namespace pcpp
 		uint8_t type;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(stp_tcn_bpdu) == 4, "stp_tcn_bpdu size is not 4 bytes");
 
 	/// Spanning Tree protocol common header
 	typedef stp_tcn_bpdu stp_header;
+	static_assert(sizeof(stp_header) == 4, "stp_header size is not 4 bytes");
 
 /**
  * @struct stp_conf_bpdu
@@ -59,6 +61,7 @@ namespace pcpp
 		uint16_t forwardDelay;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(stp_conf_bpdu) == 35, "stp_conf_bpdu size is not 35 bytes");
 
 /**
  * @struct rstp_conf_bpdu
@@ -71,6 +74,7 @@ namespace pcpp
 		uint8_t version1Len;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(rstp_conf_bpdu) == 36, "rstp_conf_bpdu size is not 36 bytes");
 
 /**
  * @struct mstp_conf_bpdu
@@ -97,6 +101,7 @@ namespace pcpp
 		uint8_t remainId;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(mstp_conf_bpdu) == 102, "mstp_conf_bpdu size is not 102 bytes");
 
 /**
  * @struct msti_conf_msg
@@ -119,6 +124,7 @@ namespace pcpp
 		uint8_t remainingHops;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(msti_conf_msg) == 16, "msti_conf_msg size is not 16 bytes");
 
 	/**
 	 * @class StpLayer

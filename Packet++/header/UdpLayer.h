@@ -28,6 +28,7 @@ namespace pcpp
 		uint16_t headerChecksum;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(udphdr) == 8, "udphdr size is not 8 bytes");
 
 	/**
 	 * @class UdpLayer

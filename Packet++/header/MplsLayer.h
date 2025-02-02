@@ -26,6 +26,7 @@ namespace pcpp
 			uint8_t ttl;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(mpls_header) == 4, "mpls_header size is not 4 bytes");
 
 		mpls_header* getMplsHeader() const
 		{

@@ -27,6 +27,7 @@ namespace pcpp
 		uint16_t length;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(tpkthdr) == 4, "tpkthdr size is not 4 bytes");
 
 	/**
 	 * @class TpktLayer

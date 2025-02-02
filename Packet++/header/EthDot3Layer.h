@@ -27,6 +27,7 @@ namespace pcpp
 		uint16_t length;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ether_dot3_header) == 14, "ether_dot3_header size is not 14 bytes");
 
 	/**
 	 * @class EthDot3Layer

@@ -26,6 +26,7 @@ namespace pcpp
 		uint16_t dataLength;
 	} s7commhdr;
 #pragma pack(pop)
+	static_assert(sizeof(s7commhdr) == 10, "s7commhdr size is not 10 bytes");
 
 /**
  * @struct s7comm_ack_data_hdr
@@ -40,6 +41,7 @@ namespace pcpp
 		uint8_t errorCode;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(s7comm_ack_data_hdr) == 12, "s7comm_ack_data_hdr size is not 12 bytes");
 
 	/**
 	 * @class S7CommParameter

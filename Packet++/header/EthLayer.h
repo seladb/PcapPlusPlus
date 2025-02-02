@@ -27,6 +27,7 @@ namespace pcpp
 		uint16_t etherType;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ether_header) == 14, "ether_header size is not 14 bytes");
 
 	/* Ethernet protocol ID's */
 

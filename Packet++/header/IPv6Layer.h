@@ -46,6 +46,7 @@ namespace pcpp
 		uint8_t ipDst[16];
 	};
 #pragma pack(pop)
+	static_assert(sizeof(ip6_hdr) == 40, "ip6_hdr size is not 40 bytes");
 
 	/**
 	 * @class IPv6Layer

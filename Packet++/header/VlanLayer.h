@@ -33,6 +33,7 @@ namespace pcpp
 		uint16_t etherType;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(vlan_header) == 4, "vlan_header size is not 4 bytes");
 
 	/**
 	 * @class VlanLayer

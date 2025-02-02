@@ -33,6 +33,7 @@ namespace pcpp
 		uint16_t checksum;
 	} icmphdr;
 #pragma pack(pop)
+	static_assert(sizeof(icmphdr) == 4, "icmphdr size is not 4 bytes");
 
 	/**
 	 * An enum of all supported ICMP message types
@@ -134,6 +135,7 @@ namespace pcpp
 		uint64_t timestamp;
 	} icmp_echo_hdr;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_echo_hdr) == 16, "icmp_echo_hdr size is not 16 bytes");
 
 	/**
 	 * @struct icmp_echo_request
@@ -174,12 +176,14 @@ namespace pcpp
 		uint32_t transmitTimestamp;
 	} icmp_timestamp_request;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_timestamp_request) == 20, "icmp_timestamp_request size is not 20 bytes");
 
 	/**
 	 * @typedef icmp_timestamp_reply
 	 * ICMP timestamp reply message structure, same as icmp_timestamp_request
 	 */
 	typedef icmp_timestamp_request icmp_timestamp_reply;
+	static_assert(sizeof(icmp_timestamp_reply) == 20, "icmp_timestamp_reply size is not 20 bytes");
 
 	/**
 	 * @struct icmp_destination_unreachable
@@ -194,6 +198,7 @@ namespace pcpp
 		uint16_t nextHopMTU;
 	} icmp_destination_unreachable;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_destination_unreachable) == 8, "icmp_destination_unreachable size is not 8 bytes");
 
 	/**
 	 * @struct icmp_time_exceeded
@@ -206,12 +211,14 @@ namespace pcpp
 		uint32_t unused;
 	} icmp_time_exceeded;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_time_exceeded) == 8, "icmp_time_exceeded size is not 8 bytes");
 
 	/**
 	 * @typedef icmp_source_quench
 	 * ICMP source quence message structure, same as icmp_time_exceeded
 	 */
 	typedef icmp_time_exceeded icmp_source_quench;
+	static_assert(sizeof(icmp_source_quench) == 8, "icmp_source_quench size is not 8 bytes");
 
 	/**
 	 * @struct icmp_param_problem
@@ -229,12 +236,14 @@ namespace pcpp
 		uint16_t unused2;
 	} icmp_param_problem;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_param_problem) == 8, "icmp_param_problem size is not 8 bytes");
 
 	/**
 	 * @typedef icmp_router_solicitation
 	 * ICMP router solicitation message structure, same as icmphdr
 	 */
 	typedef icmphdr icmp_router_solicitation;
+	static_assert(sizeof(icmp_router_solicitation) == 4, "icmp_router_solicitation size is not 4 bytes");
 
 	/**
 	 * @struct icmp_redirect
@@ -247,6 +256,7 @@ namespace pcpp
 		uint32_t gatewayAddress;
 	} icmp_redirect;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_redirect) == 8, "icmp_redirect size is not 8 bytes");
 
 	/**
 	 * @struct icmp_router_address_structure
@@ -278,6 +288,7 @@ namespace pcpp
 		}
 	};
 #pragma pack(pop)
+	static_assert(sizeof(icmp_router_address_structure) == 8, "icmp_router_address_structure size is not 8 bytes");
 
 	/**
 	 * @struct icmp_router_advertisement_hdr
@@ -296,6 +307,7 @@ namespace pcpp
 		uint16_t lifetime;
 	} icmp_router_advertisement_hdr;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_router_advertisement_hdr) == 8, "icmp_router_advertisement_hdr size is not 8 bytes");
 
 	/**
 	 * @struct icmp_router_advertisement
@@ -331,6 +343,7 @@ namespace pcpp
 		uint32_t addressMask;
 	} icmp_address_mask_request;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_address_mask_request) == 12, "icmp_address_mask_request size is not 12 bytes");
 
 	/**
 	 * @typedef icmp_address_mask_reply
@@ -351,12 +364,14 @@ namespace pcpp
 		uint16_t sequence;
 	} icmp_info_request;
 #pragma pack(pop)
+	static_assert(sizeof(icmp_info_request) == 8, "icmp_info_request size is not 8 bytes");
 
 	/**
 	 * @typedef icmp_info_reply
 	 * ICMP information reply message structure, same as icmp_info_request
 	 */
 	typedef icmp_info_request icmp_info_reply;
+	static_assert(sizeof(icmp_info_reply) == 8, "icmp_info_reply size is not 8 bytes");
 
 	/**
 	 * @class IcmpLayer

@@ -29,6 +29,7 @@ namespace pcpp
 		 */
 		uint32_t groupAddress;
 	};
+	static_assert(sizeof(igmp_header) == 8, "igmp_header size is not 8 bytes");
 
 	/**
 	 * @struct igmpv3_query_header
@@ -52,6 +53,7 @@ namespace pcpp
 		/** This field specifies the number of source addresses present in the Query */
 		uint16_t numOfSources;
 	};
+	static_assert(sizeof(igmpv3_query_header) == 12, "igmpv3_query_header size is not 12 bytes");
 
 	/**
 	 * @struct igmpv3_report_header
@@ -70,6 +72,7 @@ namespace pcpp
 		/** This field specifies the number of group records present in the Report */
 		uint16_t numOfGroupRecords;
 	};
+	static_assert(sizeof(igmpv3_report_header) == 8, "igmpv3_report_header size is not 8 bytes");
 
 	/**
 	 * @struct igmpv3_group_record

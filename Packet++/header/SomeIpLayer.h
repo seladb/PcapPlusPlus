@@ -83,6 +83,7 @@ namespace pcpp
 			uint8_t returnCode;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someiphdr) == 16, "someiphdr size is not 16 bytes");
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -391,6 +392,7 @@ namespace pcpp
 			uint32_t offsetAndFlag;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(someiptphdr) == 20, "someiptphdr size is not 20 bytes");
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data

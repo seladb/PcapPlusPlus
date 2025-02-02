@@ -79,6 +79,7 @@ namespace pcpp
 		uint16_t numberOfAdditional;
 	};
 #pragma pack(pop)
+	static_assert(sizeof(dnshdr) == 12, "dnshdr size is not 12 bytes");
 
 	// forward declarations
 	class DnsQuery;
