@@ -10,12 +10,7 @@ namespace pcpp
 
 	void RawPacket::init(bool deleteRawDataAtDestructor)
 	{
-		m_RawData = nullptr;
-		m_RawDataLen = 0;
-		m_FrameLength = 0;
 		m_DeleteRawDataAtDestructor = deleteRawDataAtDestructor;
-		m_RawPacketSet = false;
-		m_LinkLayerType = LINKTYPE_ETHERNET;
 	}
 
 	RawPacket::RawPacket(const uint8_t* pRawData, int rawDataLen, timeval timestamp, bool deleteRawDataAtDestructor,
@@ -49,7 +44,7 @@ namespace pcpp
 
 	RawPacket::RawPacket(const RawPacket& other)
 	{
-		m_RawData = nullptr;
+
 		copyDataFrom(other, true);
 	}
 
@@ -57,8 +52,7 @@ namespace pcpp
 	{
 		if (this != &other)
 		{
-			if (m_RawData != nullptr)
-				delete[] m_RawData;
+			delete[] m_RawData;
 
 			m_RawPacketSet = false;
 
@@ -76,7 +70,9 @@ namespace pcpp
 	void RawPacket::copyDataFrom(const RawPacket& other, bool allocateData)
 	{
 		if (!other.m_RawPacketSet)
+		{
 			return;
+		}
 
 		m_TimeStamp = other.m_TimeStamp;
 
@@ -96,7 +92,7 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timeval timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		timespec nsec_time;
+		timespec nsec_time{};
 		TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
 		return setRawData(pRawData, rawDataLen, nsec_time, layerType, frameLength);
 	}
@@ -104,15 +100,13 @@ namespace pcpp
 	bool RawPacket::setRawData(const uint8_t* pRawData, int rawDataLen, timespec timestamp, LinkLayerType layerType,
 	                           int frameLength)
 	{
-		if (frameLength == -1)
-			frameLength = rawDataLen;
-		m_FrameLength = frameLength;
+		m_FrameLength = frameLength == -1 ? rawDataLen : frameLength;
 		if (m_RawData != nullptr && m_DeleteRawDataAtDestructor)
 		{
 			delete[] m_RawData;
 		}
 
-		m_RawData = (uint8_t*)pRawData;
+		m_RawData = const_cast<uint8_t*>(pRawData);
 		m_RawDataLen = rawDataLen;
 		m_TimeStamp = timestamp;
 		m_RawPacketSet = true;
@@ -129,8 +123,7 @@ namespace pcpp
 
 	void RawPacket::clear()
 	{
-		if (m_RawData != nullptr)
-			delete[] m_RawData;
+		delete[] m_RawData;
 
 		m_RawData = nullptr;
 		m_RawDataLen = 0;
@@ -141,7 +134,7 @@ namespace pcpp
 	void RawPacket::appendData(const uint8_t* dataToAppend, size_t dataToAppendLen)
 	{
 		memcpy((uint8_t*)m_RawData + m_RawDataLen, dataToAppend, dataToAppendLen);
-		m_RawDataLen += dataToAppendLen;
+		m_RawDataLen += static_cast<int>(dataToAppendLen);
 		m_FrameLength = m_RawDataLen;
 	}
 
@@ -158,14 +151,16 @@ namespace pcpp
 			memcpy((uint8_t*)m_RawData + atIndex, dataToInsert, dataToInsertLen);
 		}
 
-		m_RawDataLen += dataToInsertLen;
+		m_RawDataLen += static_cast<int>(dataToInsertLen);
 		m_FrameLength = m_RawDataLen;
 	}
 
 	bool RawPacket::reallocateData(size_t newBufferLength)
 	{
 		if ((int)newBufferLength == m_RawDataLen)
+		{
 			return true;
+		}
 
 		if ((int)newBufferLength < m_RawDataLen)
 		{
@@ -174,11 +169,13 @@ namespace pcpp
 			return false;
 		}
 
-		uint8_t* newBuffer = new uint8_t[newBufferLength];
+		auto* newBuffer = new uint8_t[newBufferLength];
 		memset(newBuffer, 0, newBufferLength);
 		memcpy(newBuffer, m_RawData, m_RawDataLen);
 		if (m_DeleteRawDataAtDestructor)
+		{
 			delete[] m_RawData;
+		}
 
 		m_DeleteRawDataAtDestructor = true;
 		m_RawData = newBuffer;
@@ -198,19 +195,21 @@ namespace pcpp
 		// this is so that resizing of the last layer can occur fast by just reducing the fictional length of the packet
 		// (m_RawDataLen) by the given amount
 		if ((atIndex + (int)numOfBytesToRemove) != m_RawDataLen)
+		{
 			// memmove copies data as if there was an intermediate buffer in between - so it allows for copying
 			// processes on overlapping src/dest ptrs
 			memmove((uint8_t*)m_RawData + atIndex, (uint8_t*)m_RawData + atIndex + numOfBytesToRemove,
 			        m_RawDataLen - (atIndex + numOfBytesToRemove));
+		}
 
-		m_RawDataLen -= numOfBytesToRemove;
+		m_RawDataLen -= static_cast<int>(numOfBytesToRemove);
 		m_FrameLength = m_RawDataLen;
 		return true;
 	}
 
 	bool RawPacket::setPacketTimeStamp(timeval timestamp)
 	{
-		timespec nsec_time;
+		timespec nsec_time{};
 		TIMEVAL_TO_TIMESPEC(&timestamp, &nsec_time);
 		return setPacketTimeStamp(nsec_time);
 	}
@@ -224,7 +223,9 @@ namespace pcpp
 	bool RawPacket::isLinkTypeValid(int linkTypeValue)
 	{
 		if ((linkTypeValue < 0 || linkTypeValue > 264) && linkTypeValue != 276)
+		{
 			return false;
+		}
 
 		switch (static_cast<LinkLayerType>(linkTypeValue))
 		{

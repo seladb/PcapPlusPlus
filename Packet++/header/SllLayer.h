@@ -78,14 +78,14 @@ namespace pcpp
 		 * @param[in] addrLength Address length, must be lower or equal to 8 (which is max length for SLL address)
 		 * @return True if address was set successfully, or false of addrLength is out of bounds (0 or larger than 8)
 		 */
-		bool setLinkLayerAddr(uint8_t* addr, size_t addrLength);
+		bool setLinkLayerAddr(uint8_t* addr, size_t addrLength) const;
 
 		/**
 		 * Set a MAC address in the link layer address field
 		 * @param[in] macAddr MAC address to set
 		 * @return True if address was set successfully, false if MAC address isn't valid or if set failed
 		 */
-		bool setMacAddressAsLinkLayer(const MacAddress& macAddr);
+		bool setMacAddressAsLinkLayer(const MacAddress& macAddr) const;
 
 		/**
 		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, ArpLayer, VlanLayer, PPPoESessionLayer,

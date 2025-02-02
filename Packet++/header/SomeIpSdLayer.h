@@ -126,7 +126,7 @@ namespace pcpp
 		    : m_DataContainer(dataContainer), m_Offset(offset), m_ShadowData(nullptr), m_DataLen(0)
 		{}
 
-		void initStdFields(OptionType type);
+		void initStdFields(OptionType type) const;
 
 		SomeIpSdOption(const SomeIpSdOption&) = delete;
 		SomeIpSdOption& operator=(const SomeIpSdOption&) = delete;
@@ -497,7 +497,7 @@ namespace pcpp
 		 * Get the Length of the SomeIpSd Entry
 		 * @return size_t
 		 */
-		size_t getLength() const
+		static size_t getLength()
 		{
 			return sizeof(someipsdhdrentry);
 		}
@@ -518,7 +518,7 @@ namespace pcpp
 		 * Set the Service Id
 		 * @param[in] serviceId
 		 */
-		void setServiceId(uint16_t serviceId);
+		void setServiceId(uint16_t serviceId) const;
 
 		/**
 		 * Get the Instance Id in host endianness
@@ -530,7 +530,7 @@ namespace pcpp
 		 * Set the Instance Id
 		 * @param[in] instanceId
 		 */
-		void setInstanceId(uint16_t instanceId);
+		void setInstanceId(uint16_t instanceId) const;
 
 		/**
 		 * Get the Major version field in host endianness
@@ -542,7 +542,7 @@ namespace pcpp
 		 * Set the Major Version
 		 * @param[in] majorVersion
 		 */
-		void setMajorVersion(uint8_t majorVersion);
+		void setMajorVersion(uint8_t majorVersion) const;
 
 		/**
 		 * Get the Ttl field
@@ -554,7 +554,7 @@ namespace pcpp
 		 * Set the Ttl field
 		 * @param[in] ttl
 		 */
-		void setTtl(uint32_t ttl);
+		void setTtl(uint32_t ttl) const;
 
 		/**
 		 * Get the minor version
@@ -566,7 +566,7 @@ namespace pcpp
 		 * Set the minor version
 		 * @param[in] minorVersion
 		 */
-		void setMinorVersion(uint32_t minorVersion);
+		void setMinorVersion(uint32_t minorVersion) const;
 
 		/**
 		 * Get the counter value
@@ -578,7 +578,7 @@ namespace pcpp
 		 * Set the counter value
 		 * @param[in] counter
 		 */
-		void setCounter(uint8_t counter);
+		void setCounter(uint8_t counter) const;
 
 		/**
 		 * Get the eventgroup id
@@ -590,7 +590,7 @@ namespace pcpp
 		 * Set the eventgroup id
 		 * @param[in] eventgroupID
 		 */
-		void setEventgroupId(uint16_t eventgroupID);
+		void setEventgroupId(uint16_t eventgroupID) const;
 
 	private:
 		/**
@@ -610,9 +610,9 @@ namespace pcpp
 		};
 
 		EntryType m_EntryType;
-		const SomeIpSdLayer* m_Layer;
-		size_t m_Offset;
-		uint8_t* m_ShadowData;
+		const SomeIpSdLayer* m_Layer{};
+		size_t m_Offset{};
+		uint8_t* m_ShadowData{};
 
 		void initStdFields(EntryType type, uint16_t serviceID, uint16_t instanceID, uint8_t majorVersion, uint32_t TTL);
 
@@ -631,10 +631,10 @@ namespace pcpp
 	public:
 		friend class SomeIpSdEntry;
 
-		typedef SomeIpSdEntry* EntryPtr;
-		typedef std::vector<EntryPtr> EntriesVec;
-		typedef SomeIpSdOption* OptionPtr;
-		typedef std::vector<OptionPtr> OptionsVec;
+		using EntryPtr = SomeIpSdEntry*;
+		using EntriesVec = std::vector<EntryPtr>;
+		using OptionPtr = SomeIpSdOption*;
+		using OptionsVec = std::vector<OptionPtr>;
 
 		/**
 		 * A constructor that creates the layer from an existing packet raw data
@@ -710,20 +710,20 @@ namespace pcpp
 		 * Get the Entries from this layer
 		 * @return EntriesVec Vector holding pointers to the options
 		 */
-		const EntriesVec getEntries() const;
+		EntriesVec getEntries() const;
 
 		/**
 		 * Get the Options from this layer
 		 * @return OptionsVec Vector holding pointers to the options
 		 */
-		const OptionsVec getOptions() const;
+		OptionsVec getOptions() const;
 
 		/**
 		 * Get the Options from a specific Entry
 		 * @param[in] index Index of the Entry, starting with 0.
 		 * @return OptionsVec Vector holding pointers to the options
 		 */
-		const OptionsVec getOptionsFromEntry(uint32_t index) const;
+		OptionsVec getOptionsFromEntry(uint32_t index) const;
 
 		/**
 		 * Adds a given entry to the layer and returns the index of the entry
@@ -771,7 +771,7 @@ namespace pcpp
 		};
 #pragma pack(pop)
 
-		uint32_t m_NumOptions;
+		uint32_t m_NumOptions{};
 
 		static bool countOptions(uint32_t& count, const uint8_t* data);
 		uint32_t findOption(const SomeIpSdOption& option);

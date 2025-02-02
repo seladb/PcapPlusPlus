@@ -110,7 +110,7 @@ namespace pcpp
 		 * packets.
 		 */
 		SomeIpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientID, uint16_t sessionID,
-		            uint8_t interfaceVersion, MsgType type, uint8_t returnCode, const uint8_t* const data = nullptr,
+		            uint8_t interfaceVersion, MsgType type, uint8_t returnCode, const uint8_t* data = nullptr,
 		            size_t dataLen = 0);
 
 		/**
@@ -174,7 +174,7 @@ namespace pcpp
 		 * Set the Message ID
 		 * @param[in] messageID messageID to set
 		 */
-		void setMessageID(uint32_t messageID);
+		void setMessageID(uint32_t messageID) const;
 
 		/**
 		 * Get the serviceID
@@ -186,7 +186,7 @@ namespace pcpp
 		 * Set the Service ID
 		 * @param[in] serviceID serviceID to set
 		 */
-		void setServiceID(uint16_t serviceID);
+		void setServiceID(uint16_t serviceID) const;
 
 		/**
 		 * Get the methodID
@@ -198,7 +198,7 @@ namespace pcpp
 		 * Set the Method ID
 		 * @param[in] methodID methodID to set
 		 */
-		void setMethodID(uint16_t methodID);
+		void setMethodID(uint16_t methodID) const;
 
 		/**
 		 * Get the Length Field of the SOME/IP header
@@ -216,7 +216,7 @@ namespace pcpp
 		 * Set the Request ID
 		 * @param[in] requestID requestID to set
 		 */
-		void setRequestID(uint32_t requestID);
+		void setRequestID(uint32_t requestID) const;
 
 		/**
 		 * Get the sessionID
@@ -228,7 +228,7 @@ namespace pcpp
 		 * Set the Session ID
 		 * @param[in] sessionID sessionID to set
 		 */
-		void setSessionID(uint16_t sessionID);
+		void setSessionID(uint16_t sessionID) const;
 
 		/**
 		 * Get the clientID
@@ -240,7 +240,7 @@ namespace pcpp
 		 * Set the Client ID
 		 * @param[in] clientID clientID to set
 		 */
-		void setClientID(uint16_t clientID);
+		void setClientID(uint16_t clientID) const;
 
 		/**
 		 * Get the protocolVersion
@@ -252,7 +252,7 @@ namespace pcpp
 		 * Set the Protocol Version
 		 * @param[in] version version to set
 		 */
-		void setProtocolVersion(uint8_t version);
+		void setProtocolVersion(uint8_t version) const;
 
 		/**
 		 * Get the interfaceVersion
@@ -264,7 +264,7 @@ namespace pcpp
 		 * Set the Interface Version
 		 * @param[in] version version to set
 		 */
-		void setInterfaceVersion(uint8_t version);
+		void setInterfaceVersion(uint8_t version) const;
 
 		/**
 		 * Get the message type
@@ -282,13 +282,13 @@ namespace pcpp
 		 * Set the Message Type
 		 * @param[in] type Type to set
 		 */
-		void setMessageType(MsgType type);
+		void setMessageType(MsgType type) const;
 
 		/**
 		 * Set the Message Type
 		 * @param[in] type Type to set
 		 */
-		void setMessageType(uint8_t type);
+		void setMessageType(uint8_t type) const;
 
 		/**
 		 * Get the returnCode
@@ -300,13 +300,13 @@ namespace pcpp
 		 * Set the returnCode
 		 * @param[in] returnCode ReturnCode to set
 		 */
-		void setReturnCode(uint8_t returnCode);
+		void setReturnCode(uint8_t returnCode) const;
 
 		/**
 		 * Set the length field of the SOME/IP header
 		 * @param[in] payloadLength Length of the payload
 		 */
-		void setPayloadLength(uint32_t payloadLength);
+		void setPayloadLength(uint32_t payloadLength) const;
 
 		/**
 		 * @return A pointer for the layer payload, meaning the first byte after the header
@@ -336,7 +336,7 @@ namespace pcpp
 		/**
 		 * Does nothing for this layer
 		 */
-		virtual void computeCalculateFields() override
+		void computeCalculateFields() override
 		{}
 
 		/**
@@ -347,7 +347,7 @@ namespace pcpp
 		/**
 		 * @return The string representation of the SOME/IP layer
 		 */
-		virtual std::string toString() const override;
+		std::string toString() const override;
 
 		/**
 		 * @return The OSI model layer of this layer
@@ -419,7 +419,7 @@ namespace pcpp
 		 */
 		SomeIpTpLayer(uint16_t serviceID, uint16_t methodID, uint16_t clientID, uint16_t sessionID,
 		              uint8_t interfaceVersion, MsgType type, uint8_t returnCode, uint32_t offset,
-		              bool moreSegmentsFlag, const uint8_t* const data = nullptr, size_t dataLen = 0);
+		              bool moreSegmentsFlag, const uint8_t* data = nullptr, size_t dataLen = 0);
 
 		/**
 		 * Destroy the layer object
@@ -447,7 +447,7 @@ namespace pcpp
 		 * If 32 bytes have already been transmitted, the offset has to be set to 2.
 		 * @param[in] offset Offset to set. Already has to be in multiples of 16 bytes.
 		 */
-		void setOffset(uint32_t offset);
+		void setOffset(uint32_t offset) const;
 
 		/**
 		 * Get the More Segments Flag
@@ -459,7 +459,7 @@ namespace pcpp
 		 * Set the More Segments Flag
 		 * @param[in] flag True if the More Segments Flag shall be set, false for resetting
 		 */
-		void setMoreSegmentsFlag(bool flag);
+		void setMoreSegmentsFlag(bool flag) const;
 
 		/**
 		 * Sets the message type in this layer with enabling the TP flag

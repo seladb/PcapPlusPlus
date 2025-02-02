@@ -55,7 +55,9 @@ namespace pcpp
 		size_t getTotalSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen);
 		}
@@ -63,7 +65,9 @@ namespace pcpp
 		size_t getDataSize() const override
 		{
 			if (m_Data == nullptr)
+			{
 				return 0;
+			}
 
 			return static_cast<size_t>(m_Data->recordLen) - 2 * sizeof(uint8_t);
 		}
@@ -138,18 +142,13 @@ namespace pcpp
 		 * A copy c'tor which copies all the data from another instance of RadiusAttributeBuilder
 		 * @param[in] other The instance to copy from
 		 */
-		RadiusAttributeBuilder(const RadiusAttributeBuilder& other) : TLVRecordBuilder(other)
-		{}
+		RadiusAttributeBuilder(const RadiusAttributeBuilder& other) = default;
 
 		/**
 		 * Assignment operator that copies all data from another instance of RadiusAttributeBuilder
 		 * @param[in] other The instance to assign from
 		 */
-		RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other)
-		{
-			TLVRecordBuilder::operator=(other);
-			return *this;
-		}
+		RadiusAttributeBuilder& operator=(const RadiusAttributeBuilder& other) = default;
 
 		/**
 		 * Build the RadiusAttribute object out of the parameters defined in the c'tor
@@ -189,14 +188,14 @@ namespace pcpp
 		/**
 		 * A constructor that creates a new layer from scratch
 		 * @param[in] code The RADIUS message code
-		 * @param[in] id The RADIUS message ID
+		 * @param[in] radiusId The RADIUS message ID
 		 * @param[in] authenticator A pointer to a byte array containing the authenticator value
 		 * @param[in] authenticatorArrSize The authenticator byte array size. A valid size of the authenticator field is
 		 * 16 bytes. If the provided size is less than that then the byte array will be copied to the packet but the
 		 * missing bytes will stay zero. If the size is more than 16 bytes, only the first 16 bytes will be copied to
 		 * the packet
 		 */
-		RadiusLayer(uint8_t code, uint8_t id, const uint8_t* authenticator, uint8_t authenticatorArrSize);
+		RadiusLayer(uint8_t code, uint8_t radiusId, const uint8_t* authenticator, uint8_t authenticatorArrSize);
 
 		/**
 		 * A constructor that creates a new layer from scratch
@@ -233,7 +232,7 @@ namespace pcpp
 		 * Setter for radius_header#authenticator
 		 * @param[in] authValue A hex string representing the requested authenticator value
 		 */
-		void setAuthenticatorValue(const std::string& authValue);
+		void setAuthenticatorValue(const std::string& authValue) const;
 
 		/**
 		 * A static method that returns the RADIUS message string for a give message code. For example: the string

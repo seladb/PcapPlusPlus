@@ -120,7 +120,7 @@ namespace pcpp
 		 */
 		static bool isDataValid(const uint8_t* data, size_t dataSize)
 		{
-			return data && dataSize >= sizeof(tpkthdr);
+			return (data != nullptr) && dataSize >= sizeof(tpkthdr);
 		}
 
 		std::string toString() const override;

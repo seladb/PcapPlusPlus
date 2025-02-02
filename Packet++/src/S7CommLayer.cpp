@@ -11,15 +11,15 @@ namespace pcpp
 	S7CommLayer::S7CommLayer(uint8_t msgType, uint16_t pduRef, uint16_t paramLength, uint16_t dataLength,
 	                         uint8_t errorClass, uint8_t errorCode)
 	{
-		size_t basicHeaderLen = msgType == 0x03 ? sizeof(s7comm_ack_data_hdr) : sizeof(s7commhdr);
-		size_t headerLen = basicHeaderLen + paramLength + dataLength;
+		size_t const basicHeaderLen = msgType == 0x03 ? sizeof(s7comm_ack_data_hdr) : sizeof(s7commhdr);
+		size_t const headerLen = basicHeaderLen + paramLength + dataLength;
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
 
 		if (msgType == 0x03)
 		{
-			auto* ack_d = (s7comm_ack_data_hdr*)m_Data;
+			auto* ack_d = reinterpret_cast<s7comm_ack_data_hdr*>(m_Data);
 			ack_d->protocolId = 0x32;
 			ack_d->msgType = msgType;
 			ack_d->reserved = 0x0000;
@@ -31,7 +31,7 @@ namespace pcpp
 		}
 		else
 		{
-			auto* s7commHdr = (s7commhdr*)m_Data;
+			auto* s7commHdr = reinterpret_cast<s7commhdr*>(m_Data);
 			s7commHdr->protocolId = 0x32;
 			s7commHdr->msgType = msgType;
 			s7commHdr->reserved = 0x0000;
@@ -72,8 +72,10 @@ namespace pcpp
 
 	bool S7CommLayer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
-		if (!data || dataSize < sizeof(s7commhdr))
+		if ((data == nullptr) || dataSize < sizeof(s7commhdr))
+		{
 			return false;
+		}
 
 		return data[0] == 0x32;
 	}
@@ -135,7 +137,7 @@ namespace pcpp
 
 	const S7CommParameter* S7CommLayer::getParameter()
 	{
-		if (!m_Parameter)
+		if (m_Parameter == nullptr)
 		{
 			uint8_t* payload = m_Data + getS7commHeaderLength();
 			m_Parameter = new S7CommParameter(payload, getParamLength());

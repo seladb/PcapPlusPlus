@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstdio>
 #include "ProtocolType.h"
 #include <string>
 

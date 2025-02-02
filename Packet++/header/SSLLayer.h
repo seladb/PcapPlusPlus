@@ -496,12 +496,14 @@ namespace pcpp
 
 	template <class THandshakeMessage> THandshakeMessage* SSLHandshakeLayer::getHandshakeMessageOfType() const
 	{
-		size_t vecSize = m_MessageList.size();
+		size_t const vecSize = m_MessageList.size();
 		for (size_t i = 0; i < vecSize; i++)
 		{
-			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
+			auto* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
 			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
+			{
 				return (THandshakeMessage*)curElem;
+			}
 		}
 
 		// element not found
@@ -511,26 +513,32 @@ namespace pcpp
 	template <class THandshakeMessage>
 	THandshakeMessage* SSLHandshakeLayer::getNextHandshakeMessageOfType(const SSLHandshakeMessage* after) const
 	{
-		size_t vecSize = m_MessageList.size();
-		size_t afterIndex;
+		size_t const vecSize = m_MessageList.size();
+		size_t afterIndex = 0;
 
 		// find the index of "after"
 		for (afterIndex = 0; afterIndex < vecSize; afterIndex++)
 		{
-			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(afterIndex));
+			auto* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(afterIndex));
 			if (curElem == after)
+			{
 				break;
+			}
 		}
 
 		// "after" not found
 		if (afterIndex == vecSize)
+		{
 			return nullptr;
+		}
 
 		for (size_t i = afterIndex + 1; i < vecSize; i++)
 		{
-			SSLHandshakeMessage* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
+			auto* curElem = const_cast<SSLHandshakeMessage*>(m_MessageList.at(i));
 			if (dynamic_cast<THandshakeMessage*>(curElem) != nullptr)
+			{
 				return (THandshakeMessage*)curElem;
+			}
 		}
 
 		// element not found
@@ -541,8 +549,10 @@ namespace pcpp
 
 	bool SSLLayer::isSSLPort(uint16_t port)
 	{
-		if (port == 443)  // HTTPS, this is likely case
+		if (port == 443)
+		{  // HTTPS, this is likely case
 			return true;
+		}
 
 		switch (port)
 		{

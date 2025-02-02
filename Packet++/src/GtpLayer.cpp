@@ -18,34 +18,15 @@ namespace pcpp
 	/// GtpExtension class
 	/// ==================
 
-	GtpV1Layer::GtpExtension::GtpExtension()
-	{
-		m_Data = nullptr;
-		m_DataLen = 0;
-		m_ExtType = 0;
-	}
+	GtpV1Layer::GtpExtension::GtpExtension() = default;
 
 	GtpV1Layer::GtpExtension::GtpExtension(uint8_t* data, size_t dataLen, uint8_t type)
-	{
-		m_Data = data;
-		m_DataLen = dataLen;
-		m_ExtType = type;
-	}
+	    : m_Data(data), m_DataLen(dataLen), m_ExtType(type)
+	{}
 
-	GtpV1Layer::GtpExtension::GtpExtension(const GtpExtension& other)
-	{
-		m_Data = other.m_Data;
-		m_DataLen = other.m_DataLen;
-		m_ExtType = other.m_ExtType;
-	}
+	GtpV1Layer::GtpExtension::GtpExtension(const GtpExtension& other) = default;
 
-	GtpV1Layer::GtpExtension& GtpV1Layer::GtpExtension::operator=(const GtpV1Layer::GtpExtension& other)
-	{
-		m_Data = other.m_Data;
-		m_DataLen = other.m_DataLen;
-		m_ExtType = other.m_ExtType;
-		return *this;
-	}
+	GtpV1Layer::GtpExtension& GtpV1Layer::GtpExtension::operator=(const GtpV1Layer::GtpExtension& other) = default;
 
 	bool GtpV1Layer::GtpExtension::isNull() const
 	{
@@ -64,7 +45,7 @@ namespace pcpp
 			return 0;
 		}
 
-		size_t len = (size_t)(m_Data[0] * 4);
+		auto const len = (size_t)(m_Data[0] * 4);
 		if (len <= m_DataLen)
 		{
 			return len;
@@ -75,7 +56,7 @@ namespace pcpp
 
 	size_t GtpV1Layer::GtpExtension::getContentLength() const
 	{
-		size_t res = getTotalLength();
+		size_t const res = getTotalLength();
 
 		if (res >= 2 * sizeof(uint8_t))
 		{
@@ -102,23 +83,21 @@ namespace pcpp
 			return 0;
 		}
 
-		uint8_t res = *(uint8_t*)(m_Data + sizeof(uint8_t) + getContentLength());
+		uint8_t const res = *(uint8_t*)(m_Data + sizeof(uint8_t) + getContentLength());
 
 		return res;
 	}
 
 	GtpV1Layer::GtpExtension GtpV1Layer::GtpExtension::getNextExtension() const
 	{
-		size_t totalLength = getTotalLength();
-		uint8_t nextExtType = getNextExtensionHeaderType();
+		size_t const totalLength = getTotalLength();
+		uint8_t const nextExtType = getNextExtensionHeaderType();
 		if (nextExtType > 0 && m_DataLen > totalLength + sizeof(uint8_t))
 		{
 			return { m_Data + totalLength, m_DataLen - totalLength, nextExtType };
 		}
-		else
-		{
-			return {};
-		}
+
+		return {};
 	}
 
 	void GtpV1Layer::GtpExtension::setNextHeaderType(uint8_t nextHeaderType)
@@ -200,12 +179,7 @@ namespace pcpp
 
 	bool GtpV1Layer::isGTPv1(const uint8_t* data, size_t dataSize)
 	{
-		if (data != nullptr && dataSize >= sizeof(gtpv1_header) && (data[0] & 0xE0) == 0x20)
-		{
-			return true;
-		}
-
-		return false;
+		return data != nullptr && dataSize >= sizeof(gtpv1_header) && (data[0] & 0xE0) == 0x20;
 	}
 
 	GtpV1Layer::gtpv1_header_extra* GtpV1Layer::getHeaderExtra() const
@@ -338,7 +312,7 @@ namespace pcpp
 	GtpV1Layer::GtpExtension GtpV1Layer::getNextExtension() const
 	{
 		uint8_t nextExtType = 0;
-		bool nextExtExists = getNextExtensionHeaderType(nextExtType);
+		bool const nextExtExists = getNextExtensionHeaderType(nextExtType);
 		if (!nextExtExists || nextExtType == 0 || m_DataLen <= sizeof(gtpv1_header) + sizeof(gtpv1_header_extra))
 		{
 			return {};
@@ -529,10 +503,8 @@ namespace pcpp
 		{
 			return iter->second;
 		}
-		else
-		{
-			return GTPv1MsgTypeToStringMap.find(0)->second;
-		}
+
+		return GTPv1MsgTypeToStringMap.find(0)->second;
 	}
 
 	bool GtpV1Layer::isGTPUMessage() const
@@ -559,7 +531,7 @@ namespace pcpp
 
 	void GtpV1Layer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (headerLen < sizeof(gtpv1_header))
 		{
 			// do nothing
@@ -582,9 +554,9 @@ namespace pcpp
 		// GTP-U message, try to parse the next layer
 
 		auto* payload = static_cast<uint8_t*>(m_Data + headerLen);
-		size_t payloadLen = m_DataLen - headerLen;
+		size_t const payloadLen = m_DataLen - headerLen;
 
-		uint8_t subProto = *payload;
+		uint8_t const subProto = *payload;
 		if (subProto >= 0x45 && subProto <= 0x4e)
 		{
 			m_NextLayer = IPv4Layer::isDataValid(payload, payloadLen)
@@ -615,7 +587,7 @@ namespace pcpp
 
 		if (header->messageType != PCPP_GTP_V1_GPDU_MESSAGE_TYPE)
 		{
-			size_t msgLen = be16toh(header->messageLength);
+			size_t const msgLen = be16toh(header->messageLength);
 			res += (msgLen > m_DataLen - sizeof(gtpv1_header) ? m_DataLen - sizeof(gtpv1_header) : msgLen);
 		}
 		else
@@ -961,8 +933,8 @@ namespace pcpp
 			GtpV2InformationElement(nullptr);
 		}
 
-		size_t infoElementBaseSize = sizeof(uint8_t) + sizeof(uint16_t);
-		size_t infoElementTotalSize = infoElementBaseSize + sizeof(uint8_t) + m_RecValueLen;
+		size_t const infoElementBaseSize = sizeof(uint8_t) + sizeof(uint16_t);
+		size_t const infoElementTotalSize = infoElementBaseSize + sizeof(uint8_t) + m_RecValueLen;
 		auto* recordBuffer = new uint8_t[infoElementTotalSize];
 		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
 		auto infoElementLength = htobe16(m_RecValueLen);
@@ -985,8 +957,8 @@ namespace pcpp
 	GtpV2Layer::GtpV2Layer(GtpV2MessageType messageType, uint32_t sequenceNumber, bool setTeid, uint32_t teid,
 	                       bool setMessagePriority, std::bitset<4> messagePriority)
 	{
-		size_t messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
-		size_t headerLen = sizeof(gtpv2_basic_header) + messageLength;
+		size_t const messageLength = sizeof(uint32_t) + (setTeid ? sizeof(uint32_t) : 0);
+		size_t const headerLen = sizeof(gtpv2_basic_header) + messageLength;
 		m_DataLen = headerLen;
 		m_Data = new uint8_t[headerLen];
 		memset(m_Data, 0, headerLen);
@@ -1021,19 +993,14 @@ namespace pcpp
 
 	bool GtpV2Layer::isDataValid(const uint8_t* data, size_t dataSize)
 	{
-		if (!data || dataSize < sizeof(gtpv2_basic_header) + sizeof(uint32_t))
+		if ((data == nullptr) || dataSize < sizeof(gtpv2_basic_header) + sizeof(uint32_t))
 		{
 			return false;
 		}
 
-		auto* header = reinterpret_cast<const gtpv2_basic_header*>(data);
+		const auto* header = reinterpret_cast<const gtpv2_basic_header*>(data);
 
-		if (header->version != 2)
-		{
-			return false;
-		}
-
-		return true;
+		return header->version == 2;
 	}
 
 	GtpV2MessageType GtpV2Layer::getMessageType() const
@@ -1233,7 +1200,7 @@ namespace pcpp
 			return false;
 		}
 
-		int offset = infoElementToRemove.getRecordBasePtr() - m_Data;
+		int const offset = infoElementToRemove.getRecordBasePtr() - m_Data;
 
 		auto infoElementSize = infoElementToRemove.getTotalSize();
 		if (!shortenLayer(offset, infoElementSize))

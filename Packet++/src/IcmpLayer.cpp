@@ -14,9 +14,11 @@ namespace pcpp
 	icmp_router_address_structure* icmp_router_advertisement::getRouterAddress(int index) const
 	{
 		if (index < 0 || index >= header->advertisementCount)
+		{
 			return nullptr;
+		}
 
-		uint8_t* headerAsByteArr = (uint8_t*)header;
+		auto* headerAsByteArr = (uint8_t*)header;
 		return (icmp_router_address_structure*)(headerAsByteArr + sizeof(icmp_router_advertisement_hdr) +
 		                                        index * sizeof(icmp_router_address_structure));
 	}
@@ -27,7 +29,7 @@ namespace pcpp
 		preferenceLevel = htobe32(preference);
 	}
 
-	IcmpLayer::IcmpLayer() : Layer()
+	IcmpLayer::IcmpLayer()
 	{
 		m_DataLen = sizeof(icmphdr);
 		m_Data = new uint8_t[m_DataLen];
@@ -37,9 +39,11 @@ namespace pcpp
 
 	IcmpMessageType IcmpLayer::getMessageType() const
 	{
-		uint8_t type = getIcmpHeader()->type;
+		uint8_t const type = getIcmpHeader()->type;
 		if (type > 18)
+		{
 			return ICMP_UNSUPPORTED;
+		}
 
 		return (IcmpMessageType)type;
 	}
@@ -50,18 +54,22 @@ namespace pcpp
 
 		if (m_Packet != nullptr)
 		{
-			bool res = m_Packet->removeAllLayersAfter(this);
+			bool const res = m_Packet->removeAllLayersAfter(this);
 			if (!res)
+			{
 				return false;
+			}
 		}
 
 		// shorten layer to size of icmphdr
 
-		size_t headerLen = this->getHeaderLen();
+		size_t const headerLen = this->getHeaderLen();
 		if (headerLen > sizeof(icmphdr))
 		{
 			if (!this->shortenLayer(sizeof(icmphdr), headerLen - sizeof(icmphdr)))
+			{
 				return false;
+			}
 		}
 
 		return true;
@@ -71,20 +79,30 @@ namespace pcpp
 	                            const uint8_t* data, size_t dataLen)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return false;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_echo_hdr) - sizeof(icmphdr) + dataLen))
+		{
 			return false;
+		}
 
 		getIcmpHeader()->type = (uint8_t)echoType;
 
 		icmp_echo_request* header = nullptr;
 		if (echoType == ICMP_ECHO_REQUEST)
+		{
 			header = getEchoRequestData();
+		}
 		else if (echoType == ICMP_ECHO_REPLY)
+		{
 			header = (icmp_echo_request*)getEchoReplyData();
+		}
 		else
+		{
 			return false;
+		}
 
 		header->header->code = 0;
 		header->header->checksum = 0;
@@ -92,7 +110,9 @@ namespace pcpp
 		header->header->sequence = htobe16(sequence);
 		header->header->timestamp = timestamp;
 		if (data != nullptr && dataLen > 0)
+		{
 			memcpy(header->data, data, dataLen);
+		}
 
 		return true;
 	}
@@ -124,7 +144,9 @@ namespace pcpp
 	icmp_echo_request* IcmpLayer::getEchoRequestData()
 	{
 		if (!isMessageOfType(ICMP_ECHO_REQUEST))
+		{
 			return nullptr;
+		}
 
 		m_EchoData.header = (icmp_echo_hdr*)m_Data;
 		m_EchoData.data = (uint8_t*)(m_Data + sizeof(icmp_echo_hdr));
@@ -137,15 +159,18 @@ namespace pcpp
 	                                                 const uint8_t* data, size_t dataLen)
 	{
 		if (setEchoData(ICMP_ECHO_REQUEST, id, sequence, timestamp, data, dataLen))
+		{
 			return getEchoRequestData();
-		else
-			return nullptr;
+		}
+		return nullptr;
 	}
 
 	icmp_echo_reply* IcmpLayer::getEchoReplyData()
 	{
 		if (!isMessageOfType(ICMP_ECHO_REPLY))
+		{
 			return nullptr;
+		}
 
 		m_EchoData.header = (icmp_echo_hdr*)m_Data;
 		m_EchoData.data = (uint8_t*)(m_Data + sizeof(icmp_echo_hdr));
@@ -158,15 +183,18 @@ namespace pcpp
 	                                             const uint8_t* data, size_t dataLen)
 	{
 		if (setEchoData(ICMP_ECHO_REPLY, id, sequence, timestamp, data, dataLen))
+		{
 			return getEchoReplyData();
-		else
-			return nullptr;
+		}
+		return nullptr;
 	}
 
 	icmp_timestamp_request* IcmpLayer::getTimestampRequestData()
 	{
 		if (!isMessageOfType(ICMP_TIMESTAMP_REQUEST))
+		{
 			return nullptr;
+		}
 
 		return (icmp_timestamp_request*)m_Data;
 	}
@@ -175,10 +203,14 @@ namespace pcpp
 	                                                           timeval originateTimestamp)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_timestamp_request) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_TIMESTAMP_REQUEST;
 
@@ -196,7 +228,9 @@ namespace pcpp
 	icmp_timestamp_reply* IcmpLayer::getTimestampReplyData()
 	{
 		if (!isMessageOfType(ICMP_TIMESTAMP_REPLY))
+		{
 			return nullptr;
+		}
 
 		return (icmp_timestamp_reply*)m_Data;
 	}
@@ -205,10 +239,14 @@ namespace pcpp
 	                                                       timeval receiveTimestamp, timeval transmitTimestamp)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_timestamp_reply) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_TIMESTAMP_REPLY;
 
@@ -226,7 +264,9 @@ namespace pcpp
 	icmp_destination_unreachable* IcmpLayer::getDestUnreachableData()
 	{
 		if (!isMessageOfType(ICMP_DEST_UNREACHABLE))
+		{
 			return nullptr;
+		}
 
 		return (icmp_destination_unreachable*)m_Data;
 	}
@@ -235,10 +275,14 @@ namespace pcpp
 	                                                                IPv4Layer* ipHeader, Layer* l4Header)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_destination_unreachable) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_DEST_UNREACHABLE;
 
@@ -248,7 +292,9 @@ namespace pcpp
 		header->unused = 0;
 
 		if (!setIpAndL4Layers(ipHeader, l4Header))
+		{
 			return nullptr;
+		}
 
 		return header;
 	}
@@ -256,7 +302,9 @@ namespace pcpp
 	icmp_source_quench* IcmpLayer::getSourceQuenchdata()
 	{
 		if (!isMessageOfType(ICMP_SOURCE_QUENCH))
+		{
 			return nullptr;
+		}
 
 		return (icmp_source_quench*)m_Data;
 	}
@@ -264,10 +312,14 @@ namespace pcpp
 	icmp_source_quench* IcmpLayer::setSourceQuenchdata(IPv4Layer* ipHeader, Layer* l4Header)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_source_quench) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_SOURCE_QUENCH;
 
@@ -275,7 +327,9 @@ namespace pcpp
 		header->unused = 0;
 
 		if (!setIpAndL4Layers(ipHeader, l4Header))
+		{
 			return nullptr;
+		}
 
 		return header;
 	}
@@ -283,7 +337,9 @@ namespace pcpp
 	icmp_redirect* IcmpLayer::getRedirectData()
 	{
 		if (!isMessageOfType(ICMP_REDIRECT))
+		{
 			return nullptr;
+		}
 
 		return (icmp_redirect*)m_Data;
 	}
@@ -298,10 +354,14 @@ namespace pcpp
 		}
 
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_redirect) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_REDIRECT;
 
@@ -310,7 +370,9 @@ namespace pcpp
 		header->gatewayAddress = gatewayAddress.toInt();
 
 		if (!setIpAndL4Layers(ipHeader, l4Header))
+		{
 			return nullptr;
+		}
 
 		return header;
 	}
@@ -318,7 +380,9 @@ namespace pcpp
 	icmp_router_advertisement* IcmpLayer::getRouterAdvertisementData() const
 	{
 		if (!isMessageOfType(ICMP_ROUTER_ADV))
+		{
 			return nullptr;
+		}
 
 		m_RouterAdvData.header = (icmp_router_advertisement_hdr*)m_Data;
 
@@ -336,12 +400,16 @@ namespace pcpp
 		}
 
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_router_advertisement_hdr) +
 		                                      (routerAddresses.size() * sizeof(icmp_router_address_structure)) -
 		                                      sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_ROUTER_ADV;
 
@@ -351,7 +419,7 @@ namespace pcpp
 		header->header->advertisementCount = (uint8_t)routerAddresses.size();
 		header->header->addressEntrySize = 2;
 
-		icmp_router_address_structure* curPos =
+		auto* curPos =
 		    (icmp_router_address_structure*)((uint8_t*)header->header + sizeof(icmp_router_advertisement_hdr));
 		for (const auto& iter : routerAddresses)
 		{
@@ -366,7 +434,9 @@ namespace pcpp
 	icmp_router_solicitation* IcmpLayer::getRouterSolicitationData()
 	{
 		if (!isMessageOfType(ICMP_ROUTER_SOL))
+		{
 			return nullptr;
+		}
 
 		return (icmp_router_solicitation*)m_Data;
 	}
@@ -374,7 +444,9 @@ namespace pcpp
 	icmp_router_solicitation* IcmpLayer::setRouterSolicitationData()
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_ROUTER_SOL;
 
@@ -387,7 +459,9 @@ namespace pcpp
 	icmp_time_exceeded* IcmpLayer::getTimeExceededData()
 	{
 		if (!isMessageOfType(ICMP_TIME_EXCEEDED))
+		{
 			return nullptr;
+		}
 
 		return (icmp_time_exceeded*)m_Data;
 	}
@@ -401,10 +475,14 @@ namespace pcpp
 		}
 
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_time_exceeded) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_TIME_EXCEEDED;
 
@@ -413,7 +491,9 @@ namespace pcpp
 		header->unused = 0;
 
 		if (!setIpAndL4Layers(ipHeader, l4Header))
+		{
 			return nullptr;
+		}
 
 		return header;
 	}
@@ -421,7 +501,9 @@ namespace pcpp
 	icmp_param_problem* IcmpLayer::getParamProblemData()
 	{
 		if (!isMessageOfType(ICMP_PARAM_PROBLEM))
+		{
 			return nullptr;
+		}
 
 		return (icmp_param_problem*)m_Data;
 	}
@@ -436,10 +518,14 @@ namespace pcpp
 		}
 
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_param_problem) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_PARAM_PROBLEM;
 
@@ -450,7 +536,9 @@ namespace pcpp
 		header->pointer = errorOctetPointer;
 
 		if (!setIpAndL4Layers(ipHeader, l4Header))
+		{
 			return nullptr;
+		}
 
 		return header;
 	}
@@ -458,7 +546,9 @@ namespace pcpp
 	icmp_address_mask_request* IcmpLayer::getAddressMaskRequestData()
 	{
 		if (!isMessageOfType(ICMP_ADDRESS_MASK_REQUEST))
+		{
 			return nullptr;
+		}
 
 		return (icmp_address_mask_request*)m_Data;
 	}
@@ -466,10 +556,14 @@ namespace pcpp
 	icmp_address_mask_request* IcmpLayer::setAddressMaskRequestData(uint16_t id, uint16_t sequence, IPv4Address mask)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_address_mask_request) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_ADDRESS_MASK_REQUEST;
 
@@ -485,7 +579,9 @@ namespace pcpp
 	icmp_address_mask_reply* IcmpLayer::getAddressMaskReplyData()
 	{
 		if (!isMessageOfType(ICMP_ADDRESS_MASK_REPLY))
+		{
 			return nullptr;
+		}
 
 		return (icmp_address_mask_reply*)m_Data;
 	}
@@ -493,10 +589,14 @@ namespace pcpp
 	icmp_address_mask_reply* IcmpLayer::setAddressMaskReplyData(uint16_t id, uint16_t sequence, IPv4Address mask)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_address_mask_reply) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_ADDRESS_MASK_REPLY;
 
@@ -512,7 +612,9 @@ namespace pcpp
 	icmp_info_request* IcmpLayer::getInfoRequestData()
 	{
 		if (!isMessageOfType(ICMP_INFO_REQUEST))
+		{
 			return nullptr;
+		}
 
 		return (icmp_info_request*)m_Data;
 	}
@@ -520,10 +622,14 @@ namespace pcpp
 	icmp_info_request* IcmpLayer::setInfoRequestData(uint16_t id, uint16_t sequence)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_info_request) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_INFO_REQUEST;
 
@@ -538,7 +644,9 @@ namespace pcpp
 	icmp_info_reply* IcmpLayer::getInfoReplyData()
 	{
 		if (!isMessageOfType(ICMP_INFO_REPLY))
+		{
 			return nullptr;
+		}
 
 		return (icmp_info_reply*)m_Data;
 	}
@@ -546,10 +654,14 @@ namespace pcpp
 	icmp_info_reply* IcmpLayer::setInfoReplyData(uint16_t id, uint16_t sequence)
 	{
 		if (!cleanIcmpLayer())
+		{
 			return nullptr;
+		}
 
 		if (!this->extendLayer(m_DataLen, sizeof(icmp_info_reply) - sizeof(icmphdr)))
+		{
 			return nullptr;
+		}
 
 		getIcmpHeader()->type = (uint8_t)ICMP_INFO_REPLY;
 
@@ -563,7 +675,7 @@ namespace pcpp
 
 	void IcmpLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 
 		switch (getMessageType())
 		{
@@ -580,14 +692,16 @@ namespace pcpp
 			return;
 		default:
 			if (m_DataLen > headerLen)
+			{
 				m_NextLayer = new PayloadLayer(m_Data + headerLen, m_DataLen - headerLen, this, m_Packet);
+			}
 			return;
 		}
 	}
 
 	size_t IcmpLayer::getHeaderLen() const
 	{
-		IcmpMessageType type = getMessageType();
+		IcmpMessageType const type = getMessageType();
 		size_t routerAdvSize = 0;
 		switch (type)
 		{
@@ -619,7 +733,9 @@ namespace pcpp
 			routerAdvSize = sizeof(icmp_router_advertisement_hdr) + (getRouterAdvertisementData()->header->advertisementCount * sizeof(icmp_router_address_structure));
 			// clang-format on
 			if (routerAdvSize > m_DataLen)
+			{
 				return m_DataLen;
+			}
 			return routerAdvSize;
 		default:
 			return sizeof(icmphdr);
@@ -639,10 +755,10 @@ namespace pcpp
 			curLayer = curLayer->getNextLayer();
 		}
 
-		ScalarBuffer<uint16_t> buffer;
+		ScalarBuffer<uint16_t> buffer{};
 		buffer.buffer = (uint16_t*)getIcmpHeader();
 		buffer.len = icmpLen;
-		size_t checksum = computeChecksum(&buffer, 1);
+		size_t const checksum = computeChecksum(&buffer, 1);
 
 		getIcmpHeader()->checksum = htobe16(checksum);
 	}
@@ -650,7 +766,7 @@ namespace pcpp
 	std::string IcmpLayer::toString() const
 	{
 		std::string messageTypeAsString;
-		IcmpMessageType type = getMessageType();
+		IcmpMessageType const type = getMessageType();
 		switch (type)
 		{
 		case ICMP_ECHO_REPLY:

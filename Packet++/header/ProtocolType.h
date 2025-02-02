@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 /// @file
 
@@ -14,13 +14,13 @@ namespace pcpp
 	 * @typedef ProtocolType
 	 * Representing all protocols supported by PcapPlusPlus
 	 */
-	typedef uint8_t ProtocolType;
+	using ProtocolType = uint8_t;
 
 	/**
 	 * @typedef ProtocolTypeFamily
 	 * Representing a family of protocols
 	 */
-	typedef uint32_t ProtocolTypeFamily;
+	using ProtocolTypeFamily = uint32_t;
 
 	/**
 	 * Unknown protocol (or unsupported by PcapPlusPlus)

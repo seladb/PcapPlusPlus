@@ -1,13 +1,13 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #ifdef _MSC_VER
 #	include <WinSock2.h>
 #	include <time.h>
 #else
 #	include <sys/time.h>
 #endif
-#include <stddef.h>
+#include <cstddef>
 
 /// @file
 
@@ -268,13 +268,13 @@ namespace pcpp
 	class RawPacket
 	{
 	protected:
-		uint8_t* m_RawData;
-		int m_RawDataLen;
-		int m_FrameLength;
-		timespec m_TimeStamp;
-		bool m_DeleteRawDataAtDestructor;
-		bool m_RawPacketSet;
-		LinkLayerType m_LinkLayerType;
+		uint8_t* m_RawData{};
+		int m_RawDataLen{};
+		int m_FrameLength{};
+		timespec m_TimeStamp{};
+		bool m_DeleteRawDataAtDestructor{};
+		bool m_RawPacketSet{};
+		LinkLayerType m_LinkLayerType{LINKTYPE_ETHERNET};
 		void init(bool deleteRawDataAtDestructor = true);
 		void copyDataFrom(const RawPacket& other, bool allocateData = true);
 

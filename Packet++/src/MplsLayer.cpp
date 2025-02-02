@@ -27,15 +27,19 @@ namespace pcpp
 
 	bool MplsLayer::isBottomOfStack() const
 	{
-		return (getMplsHeader()->misc & 0x01);
+		return (getMplsHeader()->misc & 0x01) != 0;
 	}
 
 	void MplsLayer::setBottomOfStack(bool val)
 	{
 		if (!val)
+		{
 			getMplsHeader()->misc &= 0xFE;
+		}
 		else
+		{
 			getMplsHeader()->misc |= 0x1;
+		}
 	}
 
 	uint8_t MplsLayer::getExperimentalUseValue() const
@@ -87,7 +91,7 @@ namespace pcpp
 		hdr->misc &= 0x0F;
 
 		// take the last nibble of the label value and move this nibble to its place in misc
-		uint8_t miscVal = (label & 0x0F) << 4;
+		uint8_t const miscVal = (label & 0x0F) << 4;
 
 		// update misc field
 		hdr->misc |= miscVal;
@@ -103,12 +107,14 @@ namespace pcpp
 
 	void MplsLayer::parseNextLayer()
 	{
-		size_t headerLen = getHeaderLen();
+		size_t const headerLen = getHeaderLen();
 		if (m_DataLen < headerLen + 1)
+		{
 			return;
+		}
 
 		uint8_t* payload = m_Data + sizeof(mpls_header);
-		size_t payloadLen = m_DataLen - sizeof(mpls_header);
+		size_t const payloadLen = m_DataLen - sizeof(mpls_header);
 
 		if (!isBottomOfStack())
 		{
@@ -116,7 +122,7 @@ namespace pcpp
 			return;
 		}
 
-		uint8_t nextNibble = (*((uint8_t*)(m_Data + headerLen)) & 0xF0) >> 4;
+		uint8_t const nextNibble = (*((uint8_t*)(m_Data + headerLen)) & 0xF0) >> 4;
 		switch (nextNibble)
 		{
 		case 4:
@@ -151,7 +157,7 @@ namespace pcpp
 		expStream << (int)getExperimentalUseValue();
 		std::ostringstream ttlStream;
 		ttlStream << (int)getTTL();
-		std::string bottomOfStack = isBottomOfStack() ? "true" : "false";
+		std::string const bottomOfStack = isBottomOfStack() ? "true" : "false";
 
 		return "MPLS Layer, Label: " + labelStream.str() + ", Exp: " + expStream.str() + ", TTL: " + ttlStream.str() +
 		       ", Bottom of stack: " + bottomOfStack;

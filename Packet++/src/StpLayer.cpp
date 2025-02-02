@@ -14,8 +14,11 @@ namespace pcpp
 
 	MacAddress StpLayer::IDtoMacAddress(uint64_t id)
 	{
-		return MacAddress((id >> 40) & 0xFF, (id >> 32) & 0xFF, (id >> 24) & 0xFF, (id >> 16) & 0xFF, (id >> 8) & 0xFF,
-		                  id & 0xFF);
+		return {
+			static_cast<uint8_t>((id >> 40) & 0xFF), static_cast<uint8_t>((id >> 32) & 0xFF),
+			static_cast<uint8_t>((id >> 24) & 0xFF), static_cast<uint8_t>((id >> 16) & 0xFF),
+			static_cast<uint8_t>((id >> 8) & 0xFF),  static_cast<uint8_t>(id & 0xFF),
+		};
 	}
 
 	uint64_t StpLayer::macAddressToID(const pcpp::MacAddress& addr)
@@ -28,14 +31,14 @@ namespace pcpp
 
 	bool StpLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen;
+		return (data != nullptr) && (dataLen != 0U);
 	}
 
 	StpLayer* StpLayer::parseStpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
 		if (dataLen >= sizeof(stp_tcn_bpdu))
 		{
-			stp_tcn_bpdu* ptr = (stp_tcn_bpdu*)data;
+			auto* ptr = (stp_tcn_bpdu*)data;
 			switch (ptr->type)
 			{
 			case 0x00:
@@ -44,13 +47,17 @@ namespace pcpp
 				           : nullptr;
 			case 0x02:
 				if (ptr->version == 0x2)
+				{
 					return RapidStpLayer::isDataValid(data, dataLen)
 					           ? new RapidStpLayer(data, dataLen, prevLayer, packet)
 					           : nullptr;
+				}
 				if (ptr->version == 0x3)
+				{
 					return MultipleStpLayer::isDataValid(data, dataLen)
 					           ? new MultipleStpLayer(data, dataLen, prevLayer, packet)
 					           : nullptr;
+				}
 				PCPP_LOG_DEBUG("Unknown Spanning Tree Version");
 				return nullptr;
 			case 0x80:
@@ -82,7 +89,9 @@ namespace pcpp
 	void StpTopologyChangeBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_tcn_bpdu))
+		{
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_tcn_bpdu), this, m_Packet);
+		}
 	}
 
 	// ---------------------- Class StpConfigurationBPDULayer ----------------------
@@ -99,7 +108,7 @@ namespace pcpp
 		return be64toh(getStpConfHeader()->rootId);
 	}
 
-	void StpConfigurationBPDULayer::setRootId(uint64_t value)
+	void StpConfigurationBPDULayer::setRootId(uint64_t value) const
 	{
 		getStpConfHeader()->rootId = htobe64(value);
 	}
@@ -109,7 +118,7 @@ namespace pcpp
 		return be16toh(getStpConfHeader()->rootId) & 0xf000;
 	}
 
-	void StpConfigurationBPDULayer::setRootPriority(uint16_t value)
+	void StpConfigurationBPDULayer::setRootPriority(uint16_t value) const
 	{
 		getStpConfHeader()->rootId = (getStpConfHeader()->rootId & ~htobe16(0xf000)) | htobe16(value & 0xf000);
 	}
@@ -119,12 +128,12 @@ namespace pcpp
 		return be16toh(getStpConfHeader()->rootId) & 0x0fff;
 	}
 
-	void StpConfigurationBPDULayer::setRootSystemIDExtension(uint16_t value)
+	void StpConfigurationBPDULayer::setRootSystemIDExtension(uint16_t value) const
 	{
 		getStpConfHeader()->rootId = (getStpConfHeader()->rootId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 	}
 
-	void StpConfigurationBPDULayer::setRootSystemID(const pcpp::MacAddress& value)
+	void StpConfigurationBPDULayer::setRootSystemID(const pcpp::MacAddress& value) const
 	{
 		setRootId((getRootId() & (uint64_t(0xffff) << 48)) | macAddressToID(value));
 	};
@@ -134,7 +143,7 @@ namespace pcpp
 		return be32toh(getStpConfHeader()->pathCost);
 	}
 
-	void StpConfigurationBPDULayer::setPathCost(uint32_t value)
+	void StpConfigurationBPDULayer::setPathCost(uint32_t value) const
 	{
 		getStpConfHeader()->pathCost = htobe32(value);
 	}
@@ -144,7 +153,7 @@ namespace pcpp
 		return be64toh(getStpConfHeader()->bridgeId);
 	}
 
-	void StpConfigurationBPDULayer::setBridgeId(uint64_t value)
+	void StpConfigurationBPDULayer::setBridgeId(uint64_t value) const
 	{
 		getStpConfHeader()->bridgeId = htobe64(value);
 	}
@@ -154,7 +163,7 @@ namespace pcpp
 		return be16toh(getStpConfHeader()->bridgeId) & 0xf000;
 	}
 
-	void StpConfigurationBPDULayer::setBridgePriority(uint16_t value)
+	void StpConfigurationBPDULayer::setBridgePriority(uint16_t value) const
 	{
 		getStpConfHeader()->bridgeId = (getStpConfHeader()->bridgeId & ~htobe16(0xf000)) | htobe16(value & 0xf000);
 	}
@@ -164,12 +173,12 @@ namespace pcpp
 		return be16toh(getStpConfHeader()->bridgeId) & 0x0fff;
 	}
 
-	void StpConfigurationBPDULayer::setBridgeSystemIDExtension(uint16_t value)
+	void StpConfigurationBPDULayer::setBridgeSystemIDExtension(uint16_t value) const
 	{
 		getStpConfHeader()->bridgeId = (getStpConfHeader()->bridgeId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 	}
 
-	void StpConfigurationBPDULayer::setBridgeSystemID(const pcpp::MacAddress& value)
+	void StpConfigurationBPDULayer::setBridgeSystemID(const pcpp::MacAddress& value) const
 	{
 		setBridgeId((getBridgeId() & (uint64_t(0xffff) << 48)) | macAddressToID(value));
 	}
@@ -179,7 +188,7 @@ namespace pcpp
 		return be16toh(getStpConfHeader()->portId);
 	}
 
-	void StpConfigurationBPDULayer::setPortId(uint16_t value)
+	void StpConfigurationBPDULayer::setPortId(uint16_t value) const
 	{
 		getStpConfHeader()->portId = htobe16(value);
 	}
@@ -189,7 +198,7 @@ namespace pcpp
 		return getStpConfHeader()->msgAge;
 	}
 
-	void StpConfigurationBPDULayer::setMessageAge(double value)
+	void StpConfigurationBPDULayer::setMessageAge(double value) const
 	{
 		getStpConfHeader()->msgAge = value;
 	}
@@ -199,7 +208,7 @@ namespace pcpp
 		return getStpConfHeader()->maxAge;
 	}
 
-	void StpConfigurationBPDULayer::setMaximumAge(double value)
+	void StpConfigurationBPDULayer::setMaximumAge(double value) const
 	{
 		getStpConfHeader()->maxAge = value;
 	}
@@ -209,7 +218,7 @@ namespace pcpp
 		return getStpConfHeader()->helloTime;
 	}
 
-	void StpConfigurationBPDULayer::setTransmissionInterval(double value)
+	void StpConfigurationBPDULayer::setTransmissionInterval(double value) const
 	{
 		getStpConfHeader()->helloTime = value;
 	}
@@ -219,7 +228,7 @@ namespace pcpp
 		return getStpConfHeader()->forwardDelay;
 	}
 
-	void StpConfigurationBPDULayer::setForwardDelay(double value)
+	void StpConfigurationBPDULayer::setForwardDelay(double value) const
 	{
 		getStpConfHeader()->forwardDelay = value;
 	}
@@ -227,7 +236,9 @@ namespace pcpp
 	void StpConfigurationBPDULayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(stp_conf_bpdu))
+		{
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(stp_conf_bpdu), this, m_Packet);
+		}
 	}
 
 	// ---------------------- Class RapidStpLayer ----------------------
@@ -242,7 +253,9 @@ namespace pcpp
 	void RapidStpLayer::parseNextLayer()
 	{
 		if (m_DataLen > sizeof(rstp_conf_bpdu))
+		{
 			m_NextLayer = new PayloadLayer(m_Data, m_DataLen - sizeof(rstp_conf_bpdu), this, m_Packet);
+		}
 	}
 
 	// ---------------------- Class MultipleStpLayer ----------------------
@@ -259,7 +272,7 @@ namespace pcpp
 		return be16toh(getMstpHeader()->version3Len);
 	}
 
-	void MultipleStpLayer::setVersion3Len(uint16_t value)
+	void MultipleStpLayer::setVersion3Len(uint16_t value) const
 	{
 		getMstpHeader()->version3Len = htobe16(value);
 	}
@@ -269,7 +282,7 @@ namespace pcpp
 		return be32toh(getMstpHeader()->irpc);
 	}
 
-	void MultipleStpLayer::setCISTIrpc(uint32_t value)
+	void MultipleStpLayer::setCISTIrpc(uint32_t value) const
 	{
 		getMstpHeader()->irpc = htobe32(value);
 	}
@@ -279,7 +292,7 @@ namespace pcpp
 		return be64toh(getMstpHeader()->cistBridgeId);
 	}
 
-	void MultipleStpLayer::setCISTBridgeId(uint64_t value)
+	void MultipleStpLayer::setCISTBridgeId(uint64_t value) const
 	{
 		getMstpHeader()->cistBridgeId = htobe64(value);
 	}
@@ -289,7 +302,7 @@ namespace pcpp
 		return be16toh(getMstpHeader()->cistBridgeId) & 0xf000;
 	}
 
-	void MultipleStpLayer::setCISTBridgePriority(uint16_t value)
+	void MultipleStpLayer::setCISTBridgePriority(uint16_t value) const
 	{
 		getMstpHeader()->cistBridgeId = (getMstpHeader()->cistBridgeId & ~htobe16(0xf000)) | htobe16(value & 0xf000);
 	}
@@ -299,12 +312,12 @@ namespace pcpp
 		return be16toh(getMstpHeader()->cistBridgeId) & 0x0fff;
 	}
 
-	void MultipleStpLayer::setCISTBridgeSystemIDExtension(uint16_t value)
+	void MultipleStpLayer::setCISTBridgeSystemIDExtension(uint16_t value) const
 	{
 		getMstpHeader()->cistBridgeId = (getMstpHeader()->cistBridgeId & ~htobe16(0x0fff)) | htobe16(value & 0x0fff);
 	}
 
-	void MultipleStpLayer::setCISTBridgeSystemID(const pcpp::MacAddress& value)
+	void MultipleStpLayer::setCISTBridgeSystemID(const pcpp::MacAddress& value) const
 	{
 		setCISTBridgeId((getCISTBridgeId() & (uint64_t(0xffff) << 48)) | macAddressToID(value));
 	}
@@ -321,18 +334,18 @@ namespace pcpp
 		return be16toh(getMstpHeader()->mstConfigRevision);
 	}
 
-	void MultipleStpLayer::setMstConfigRevision(uint16_t value)
+	void MultipleStpLayer::setMstConfigRevision(uint16_t value) const
 	{
 		getMstpHeader()->mstConfigRevision = htobe16(value);
 	}
 
-	void MultipleStpLayer::setMstConfigDigest(const uint8_t* value, uint8_t len)
+	void MultipleStpLayer::setMstConfigDigest(const uint8_t* value, uint8_t len) const
 	{
 		memset(getMstpHeader()->mstConfigDigest, 0, 16);
 		memcpy(getMstpHeader()->mstConfigDigest, value, std::min<size_t>(len, 16));
 	}
 
-	void MultipleStpLayer::setMstConfigurationName(const std::string& value)
+	void MultipleStpLayer::setMstConfigurationName(const std::string& value) const
 	{
 		memset(getMstpHeader()->mstConfigName, 0, 32);
 		memcpy(getMstpHeader()->mstConfigName, value.c_str(), std::min<size_t>(value.size(), 32));
@@ -340,8 +353,10 @@ namespace pcpp
 
 	msti_conf_msg* MultipleStpLayer::getMstiConfMessages() const
 	{
-		if (getNumberOfMSTIConfMessages())
+		if (getNumberOfMSTIConfMessages() != 0U)
+		{
 			return (msti_conf_msg*)(m_Data + sizeof(mstp_conf_bpdu));
+		}
 		return nullptr;
 	}
 

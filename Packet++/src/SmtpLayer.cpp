@@ -15,7 +15,7 @@ namespace pcpp
 	SmtpRequestLayer::SmtpCommand SmtpRequestLayer::getCommand() const
 	{
 		size_t val = 0;
-		std::string field = getCommandString();
+		std::string const field = getCommandString();
 
 		for (size_t idx = 0; idx < std::min(field.size(), static_cast<size_t>(8)); ++idx)
 		{
@@ -44,11 +44,11 @@ namespace pcpp
 		}
 
 		std::string optionWithEscapeChars;
-		for (char ch : option)
+		for (char const chr : option)
 		{
-			if (ch < 127 && ch > 31)
+			if (chr < 127 && chr > 31)
 			{
-				optionWithEscapeChars.push_back(ch);
+				optionWithEscapeChars.push_back(chr);
 			}
 		}
 
@@ -117,8 +117,8 @@ namespace pcpp
 		std::stringstream oss;
 		for (size_t idx = 0; idx < 8; ++idx)
 		{
-			char val = (uint64_t(code) >> (8 * idx)) & UINT8_MAX;
-			if (val)  // Dont push if it is a null character
+			char const val = static_cast<char>((uint64_t(code) >> (8 * idx)) & UINT8_MAX);
+			if (val != 0)  // Dont push if it is a null character
 			{
 				oss << val;
 			}
@@ -141,7 +141,7 @@ namespace pcpp
 
 	SmtpResponseLayer::SmtpStatusCode SmtpResponseLayer::getStatusCode() const
 	{
-		return static_cast<SmtpStatusCode>(atoi(getCommandInternal().c_str()));
+		return static_cast<SmtpStatusCode>(std::stoi(getCommandInternal()));
 	}
 
 	std::string SmtpResponseLayer::getStatusCodeString() const
@@ -163,11 +163,11 @@ namespace pcpp
 		}
 
 		std::string optionWithEscapeChars;
-		for (char ch : option)
+		for (char const chr : option)
 		{
-			if (ch < 127 && ch > 31)
+			if (chr < 127 && chr > 31)
 			{
-				optionWithEscapeChars.push_back(ch);
+				optionWithEscapeChars.push_back(chr);
 			}
 		}
 

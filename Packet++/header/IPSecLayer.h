@@ -218,17 +218,16 @@ namespace pcpp
 	bool AuthenticationHeaderLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
 		if (dataLen < sizeof(ipsec_authentication_header))
+		{
 			return false;
+		}
 
-		size_t payloadLen = 4 * (data[1] + 2);
-		if (payloadLen < sizeof(ipsec_authentication_header) || payloadLen > dataLen)
-			return false;
-
-		return true;
+		size_t const payloadLen = 4 * (data[1] + 2);
+		return payloadLen >= sizeof(ipsec_authentication_header) && payloadLen <= dataLen;
 	}
 
 	bool ESPLayer::isDataValid(const uint8_t* data, size_t dataLen)
 	{
-		return data && dataLen >= sizeof(ipsec_esp);
+		return (data != nullptr) && dataLen >= sizeof(ipsec_esp);
 	}
 }  // namespace pcpp

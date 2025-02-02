@@ -175,7 +175,7 @@ namespace pcpp
 		 * @struct wg_handshake_initiation
 		 * Represents the Handshake Initiation message structure
 		 */
-		typedef struct wg_handshake_initiation : wg_common_header
+		using wg_handshake_initiation = struct wg_handshake_initiation : wg_common_header
 		{
 			/** Sender index */
 			uint32_t senderIndex;
@@ -189,7 +189,7 @@ namespace pcpp
 			uint8_t mac1[16];
 			/** MAC2 field */
 			uint8_t mac2[16];
-		} wg_handshake_initiation;
+		};
 #pragma pack(pop)
 		wg_handshake_initiation* getHandshakeInitiationHeader() const
 		{
@@ -305,7 +305,7 @@ namespace pcpp
 		 * @struct wg_handshake_response
 		 * Represents the Handshake Response message structure
 		 */
-		typedef struct wg_handshake_response : wg_common_header
+		using wg_handshake_response = struct wg_handshake_response : wg_common_header
 		{
 			/** Sender index */
 			uint32_t senderIndex;
@@ -319,7 +319,7 @@ namespace pcpp
 			uint8_t mac1[16];
 			/** MAC2 field */
 			uint8_t mac2[16];
-		} wg_handshake_response;
+		};
 #pragma pack(pop)
 
 		wg_handshake_response* getHandshakeResponseHeader() const
@@ -435,7 +435,7 @@ namespace pcpp
 		 * @struct wg_cookie_reply
 		 * Represents the Cookie Reply message structure
 		 */
-		typedef struct wg_cookie_reply : wg_common_header
+		using wg_cookie_reply = struct wg_cookie_reply : wg_common_header
 		{
 			/** Receiver index */
 			uint32_t receiverIndex;
@@ -443,7 +443,7 @@ namespace pcpp
 			uint8_t nonce[24];
 			/** Encrypted cookie */
 			uint8_t encryptedCookie[32];
-		} wg_cookie_reply;
+		};
 #pragma pack(pop)
 
 		wg_cookie_reply* getCookieReplyHeader() const
@@ -524,7 +524,7 @@ namespace pcpp
 		 * @struct wg_transport_data
 		 * Represents the Transport Data message structure
 		 */
-		typedef struct wg_transport_data : wg_common_header
+		using wg_transport_data = struct wg_transport_data : wg_common_header
 		{
 			/** Receiver index */
 			uint32_t receiverIndex;
@@ -532,7 +532,7 @@ namespace pcpp
 			uint64_t counter;
 			/** Flexible array member for encrypted data */
 			uint8_t encryptedData[0];
-		} wg_transport_data;
+		};
 #pragma pack(pop)
 
 		wg_transport_data* getTransportHeader() const

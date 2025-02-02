@@ -25,7 +25,7 @@ namespace pcpp
 		getIgmpHeader()->maxResponseTime = maxResponseTime;
 	}
 
-	void IgmpLayer::setGroupAddress(const IPv4Address& groupAddr)
+	void IgmpLayer::setGroupAddress(const IPv4Address& groupAddr) const
 	{
 		igmp_header* hdr = getIgmpHeader();
 		hdr->groupAddress = groupAddr.toInt();
@@ -33,7 +33,7 @@ namespace pcpp
 
 	IgmpType IgmpLayer::getType() const
 	{
-		uint8_t type = getIgmpHeader()->type;
+		uint8_t const type = getIgmpHeader()->type;
 		if (type < (uint8_t)IgmpType_MembershipQuery ||
 		    (type > (uint8_t)IgmpType_LeaveGroup && type < (uint8_t)IgmpType_MulticastTracerouteResponse) ||
 		    (type > (uint8_t)IgmpType_MulticastTraceroute && type < (uint8_t)IgmpType_MembershipReportV3) ||
@@ -46,21 +46,25 @@ namespace pcpp
 		return (IgmpType)type;
 	}
 
-	void IgmpLayer::setType(IgmpType type)
+	void IgmpLayer::setType(IgmpType type) const
 	{
 		if (type == IgmpType_Unknown)
+		{
 			return;
+		}
 
 		igmp_header* hdr = getIgmpHeader();
 		hdr->type = type;
 	}
 
-	ProtocolType IgmpLayer::getIGMPVerFromData(uint8_t* data, size_t dataLen, bool& isQuery)
+	ProtocolType IgmpLayer::getIGMPVerFromData(const uint8_t* data, size_t dataLen, bool& isQuery)
 	{
 		isQuery = false;
 
 		if (dataLen < 8 || data == nullptr)
+		{
 			return UnknownProtocol;
+		}
 
 		switch ((int)data[0])
 		{
@@ -76,37 +80,46 @@ namespace pcpp
 			isQuery = true;
 
 			if (dataLen >= sizeof(igmpv3_query_header))
+			{
 				return IGMPv3;
+			}
 
 			if (data[1] == 0)
+			{
 				return IGMPv1;
-			else
-				return IGMPv2;
+			}
+			return IGMPv2;
 		}
 		default:
 			return UnknownProtocol;
 		}
 	}
 
-	uint16_t IgmpLayer::calculateChecksum()
+	uint16_t IgmpLayer::calculateChecksum() const
 	{
-		ScalarBuffer<uint16_t> buffer;
+		ScalarBuffer<uint16_t> buffer{};
 		buffer.buffer = (uint16_t*)getIgmpHeader();
 		buffer.len = getHeaderLen();
 		return computeChecksum(&buffer, 1);
 	}
 
-	size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType) const
+	size_t IgmpLayer::getHeaderSizeByVerAndType(ProtocolType igmpVer, IgmpType igmpType)
 	{
 		if (igmpVer == IGMPv1 || igmpVer == IGMPv2)
+		{
 			return sizeof(igmp_header);
+		}
 
 		if (igmpVer == IGMPv3)
 		{
 			if (igmpType == IgmpType_MembershipQuery)
+			{
 				return sizeof(igmpv3_query_header);
-			else if (igmpType == IgmpType_MembershipReportV3)
+			}
+			if (igmpType == IgmpType_MembershipReportV3)
+			{
 				return sizeof(igmpv3_report_header);
+			}
 		}
 
 		return 0;
@@ -114,7 +127,7 @@ namespace pcpp
 
 	std::string IgmpLayer::toString() const
 	{
-		std::string igmpVer = "";
+		std::string igmpVer;
 		switch (getProtocol())
 		{
 		case IGMPv1:
@@ -223,14 +236,18 @@ namespace pcpp
 
 	IPv4Address IgmpV3QueryLayer::getSourceAddressAtIndex(int index) const
 	{
-		uint16_t numOfSources = getSourceAddressCount();
+		uint16_t const numOfSources = getSourceAddressCount();
 		if (index < 0 || index >= numOfSources)
-			return IPv4Address();
+		{
+			return {};
+		}
 
 		// verify numOfRecords is a reasonable number that points to data within the packet
-		int ptrOffset = index * sizeof(uint32_t) + sizeof(igmpv3_query_header);
+		int const ptrOffset = index * sizeof(uint32_t) + sizeof(igmpv3_query_header);
 		if (ptrOffset + sizeof(uint32_t) > getDataLen())
-			return IPv4Address();
+		{
+			return {};
+		}
 
 		uint8_t* ptr = m_Data + ptrOffset;
 		return IPv4Address(*(uint32_t*)ptr);
@@ -238,13 +255,15 @@ namespace pcpp
 
 	size_t IgmpV3QueryLayer::getHeaderLen() const
 	{
-		uint16_t numOfSources = getSourceAddressCount();
+		uint16_t const numOfSources = getSourceAddressCount();
 
-		int headerLen = numOfSources * sizeof(uint32_t) + sizeof(igmpv3_query_header);
+		int const headerLen = numOfSources * sizeof(uint32_t) + sizeof(igmpv3_query_header);
 
 		// verify numOfRecords is a reasonable number that points to data within the packet
 		if ((size_t)headerLen > getDataLen())
+		{
 			return getDataLen();
+		}
 
 		return (size_t)headerLen;
 	}
@@ -263,7 +282,7 @@ namespace pcpp
 
 	bool IgmpV3QueryLayer::addSourceAddressAtIndex(const IPv4Address& addr, int index)
 	{
-		uint16_t sourceAddrCount = getSourceAddressCount();
+		uint16_t const sourceAddrCount = getSourceAddressCount();
 
 		if (index < 0 || index > (int)sourceAddrCount)
 		{
@@ -271,7 +290,7 @@ namespace pcpp
 			return false;
 		}
 
-		size_t offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
+		size_t const offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
 		if (offset > getHeaderLen())
 		{
 			PCPP_LOG_ERROR("Cannot add source address at index " << index << ", index is out of packet bounds");
@@ -293,7 +312,7 @@ namespace pcpp
 
 	bool IgmpV3QueryLayer::removeSourceAddressAtIndex(int index)
 	{
-		uint16_t sourceAddrCount = getSourceAddressCount();
+		uint16_t const sourceAddrCount = getSourceAddressCount();
 
 		if (index < 0 || index > (int)sourceAddrCount - 1)
 		{
@@ -301,7 +320,7 @@ namespace pcpp
 			return false;
 		}
 
-		size_t offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
+		size_t const offset = sizeof(igmpv3_query_header) + index * sizeof(uint32_t);
 		if (offset >= getHeaderLen())
 		{
 			PCPP_LOG_ERROR("Cannot remove source address at index " << index << ", index is out of packet bounds");
@@ -321,8 +340,8 @@ namespace pcpp
 
 	bool IgmpV3QueryLayer::removeAllSourceAddresses()
 	{
-		size_t offset = sizeof(igmpv3_query_header);
-		size_t numOfBytesToShorted = getHeaderLen() - offset;
+		size_t const offset = sizeof(igmpv3_query_header);
+		size_t const numOfBytesToShorted = getHeaderLen() - offset;
 
 		if (!shortenLayer(offset, numOfBytesToShorted))
 		{
@@ -348,7 +367,9 @@ namespace pcpp
 	{
 		// check if there are group records at all
 		if (getHeaderLen() <= sizeof(igmpv3_report_header))
+		{
 			return nullptr;
+		}
 
 		uint8_t* curGroupPtr = m_Data + sizeof(igmpv3_report_header);
 		return (igmpv3_group_record*)curGroupPtr;
@@ -357,13 +378,17 @@ namespace pcpp
 	igmpv3_group_record* IgmpV3ReportLayer::getNextGroupRecord(igmpv3_group_record* groupRecord) const
 	{
 		if (groupRecord == nullptr)
+		{
 			return nullptr;
+		}
 
 		// prev group was the last group
 		if ((uint8_t*)groupRecord + groupRecord->getRecordLen() - m_Data >= (int)getHeaderLen())
+		{
 			return nullptr;
+		}
 
-		igmpv3_group_record* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
+		auto* nextGroup = (igmpv3_group_record*)((uint8_t*)groupRecord + groupRecord->getRecordLen());
 
 		return nextGroup;
 	}
@@ -385,7 +410,7 @@ namespace pcpp
 			return nullptr;
 		}
 
-		size_t groupRecordSize = sizeof(igmpv3_group_record) + sizeof(uint32_t) * sourceAddresses.size();
+		size_t const groupRecordSize = sizeof(igmpv3_group_record) + sizeof(uint32_t) * sourceAddresses.size();
 
 		if (!extendLayer(offset, groupRecordSize))
 		{
@@ -393,9 +418,9 @@ namespace pcpp
 			return nullptr;
 		}
 
-		uint8_t* groupRecordBuffer = new uint8_t[groupRecordSize];
+		auto* groupRecordBuffer = new uint8_t[groupRecordSize];
 		memset(groupRecordBuffer, 0, groupRecordSize);
-		igmpv3_group_record* newGroupRecord = (igmpv3_group_record*)groupRecordBuffer;
+		auto* newGroupRecord = (igmpv3_group_record*)groupRecordBuffer;
 		newGroupRecord->multicastAddress = multicastAddress.toInt();
 		newGroupRecord->recordType = recordType;
 		newGroupRecord->auxDataLen = 0;
@@ -428,7 +453,7 @@ namespace pcpp
 	                                                              const std::vector<IPv4Address>& sourceAddresses,
 	                                                              int index)
 	{
-		int groupCnt = (int)getGroupRecordCount();
+		int const groupCnt = (int)getGroupRecordCount();
 
 		if (index < 0 || index > groupCnt)
 		{
@@ -456,7 +481,7 @@ namespace pcpp
 
 	bool IgmpV3ReportLayer::removeGroupRecordAtIndex(int index)
 	{
-		int groupCnt = (int)getGroupRecordCount();
+		int const groupCnt = (int)getGroupRecordCount();
 
 		if (index < 0 || index >= groupCnt)
 		{
@@ -493,7 +518,7 @@ namespace pcpp
 
 	bool IgmpV3ReportLayer::removeAllGroupRecords()
 	{
-		int offset = (int)sizeof(igmpv3_report_header);
+		int const offset = (int)sizeof(igmpv3_report_header);
 
 		if (!shortenLayer(offset, getHeaderLen() - offset))
 		{
@@ -516,20 +541,22 @@ namespace pcpp
 
 	IPv4Address igmpv3_group_record::getSourceAddressAtIndex(int index) const
 	{
-		uint16_t numOfRecords = getSourceAddressCount();
+		uint16_t const numOfRecords = getSourceAddressCount();
 		if (index < 0 || index >= numOfRecords)
-			return IPv4Address();
+		{
+			return {};
+		}
 
-		int offset = index * sizeof(uint32_t);
+		int const offset = index * sizeof(uint32_t);
 		const uint8_t* ptr = sourceAddresses + offset;
 		return IPv4Address(*(uint32_t*)ptr);
 	}
 
 	size_t igmpv3_group_record::getRecordLen() const
 	{
-		uint16_t numOfRecords = getSourceAddressCount();
+		uint16_t const numOfRecords = getSourceAddressCount();
 
-		int headerLen = numOfRecords * sizeof(uint32_t) + sizeof(igmpv3_group_record);
+		int const headerLen = numOfRecords * sizeof(uint32_t) + sizeof(igmpv3_group_record);
 		return (size_t)headerLen;
 	}
 

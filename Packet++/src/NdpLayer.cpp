@@ -12,11 +12,11 @@ namespace pcpp
 
 	NdpOption NdpOptionBuilder::build() const
 	{
-		size_t optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
-		size_t padding = (8 - (optionSize % 8)) % 8;  // Padding bytes for a option with 8 byte boundary
-		size_t optionSizeWithPadding = optionSize + padding;
+		size_t const optionSize = m_RecValueLen + 2 * sizeof(uint8_t);
+		size_t const padding = (8 - (optionSize % 8)) % 8;  // Padding bytes for a option with 8 byte boundary
+		size_t const optionSizeWithPadding = optionSize + padding;
 
-		uint8_t* recordBuffer = new uint8_t[optionSizeWithPadding];
+		auto* recordBuffer = new uint8_t[optionSizeWithPadding];
 		memset(recordBuffer, 0, optionSizeWithPadding);
 		recordBuffer[0] = static_cast<uint8_t>(m_RecType);
 		// length value is stored in units of 8 octets
@@ -65,7 +65,7 @@ namespace pcpp
 			return newOption;
 		}
 
-		size_t sizeToExtend = newOption.getTotalSize();
+		size_t const sizeToExtend = newOption.getTotalSize();
 
 		if (!extendLayer(offset, sizeToExtend))
 		{
@@ -87,9 +87,11 @@ namespace pcpp
 
 	bool NDPLayerBase::removeAllNdpOptions()
 	{
-		int offset = getNdpHeaderLen();
+		int const offset = getNdpHeaderLen();
 		if (!shortenLayer(offset, getHeaderLen() - offset))
+		{
 			return false;
+		}
 
 		m_OptionReader.changeTLVRecordCount(0 - getNdpOptionCount());
 		return true;
@@ -127,13 +129,13 @@ namespace pcpp
 
 	bool NDPNeighborSolicitationLayer::hasLinkLayerAddress() const
 	{
-		NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
-		return option.isNull() ? false : true;
+		NdpOption const option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
+		return !option.isNull();
 	}
 
 	MacAddress NDPNeighborSolicitationLayer::getLinkLayerAddress() const
 	{
-		NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
+		NdpOption const option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_SOURCE_LINK_LAYER);
 
 		if (option.isNull())
 		{
@@ -192,13 +194,13 @@ namespace pcpp
 
 	bool NDPNeighborAdvertisementLayer::hasTargetMacInfo() const
 	{
-		NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
-		return option.isNull() ? false : true;
+		NdpOption const option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
+		return !option.isNull();
 	}
 
 	MacAddress NDPNeighborAdvertisementLayer::getTargetMac() const
 	{
-		NdpOption option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
+		NdpOption const option = this->getNdpOption(NDPNeighborOptionTypes::NDP_OPTION_TARGET_LINK_LAYER);
 
 		if (option.isNull())
 		{

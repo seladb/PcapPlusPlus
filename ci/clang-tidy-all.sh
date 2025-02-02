@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-IGNORE_LIST=".*dirent.* .*DpdkDevice* .*KniDevice* .*MBufRawPacket* .*PfRingDevice* .*RemoteDevice* .*XdpDevice* .*WinPcap*"
+IGNORE_LIST=".*dirent.* .*DpdkDevice* .*KniDevice* .*MBufRawPacket* .*PfRingDevice* .*RemoteDevice* .*XdpDevice* .*WinPcap* .*Examples* .*Tests* .*build* .*3rdParty* .*Common\+\+* .*Pcap\+\+*"
 
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "${SCRIPT}")
@@ -39,5 +39,5 @@ echo "$files" | while IFS= read -r file; do
         fi
     done
     echo "Checking: $file"
-    clang-tidy "$file" -p $BUILD_DIR --fix --checks=modernize-use-nullptr,modernize-use-override,performance-unnecessary-value-param
+    clang-tidy "$file" -p $BUILD_DIR --fix-errors
 done

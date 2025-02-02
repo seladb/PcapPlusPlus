@@ -61,31 +61,32 @@ namespace pcpp
 	// -------- Class HttpRequestLayer -----------------
 
 	HttpRequestLayer::HttpRequestLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPRequest)
+	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPRequest), m_FirstLine(new HttpRequestFirstLine(this))
 	{
-		m_FirstLine = new HttpRequestFirstLine(this);
+
 		m_FieldsOffset = m_FirstLine->getSize();
 		parseFields();
 	}
 
 	HttpRequestLayer::HttpRequestLayer(HttpMethod method, const std::string& uri, HttpVersion version)
+	    : m_FirstLine(new HttpRequestFirstLine(this, method, version, uri))
 	{
 		m_Protocol = HTTPRequest;
-		m_FirstLine = new HttpRequestFirstLine(this, method, version, uri);
+
 		m_FieldsOffset = m_FirstLine->getSize();
 	}
 
-	HttpRequestLayer::HttpRequestLayer(const HttpRequestLayer& other) : HttpMessage(other)
-	{
-		m_FirstLine = new HttpRequestFirstLine(this);
-	}
+	HttpRequestLayer::HttpRequestLayer(const HttpRequestLayer& other)
+	    : HttpMessage(other), m_FirstLine(new HttpRequestFirstLine(this))
+	{}
 
 	HttpRequestLayer& HttpRequestLayer::operator=(const HttpRequestLayer& other)
 	{
 		HttpMessage::operator=(other);
 
-		if (m_FirstLine != nullptr)
+		{
 			delete m_FirstLine;
+		}
 
 		m_FirstLine = new HttpRequestFirstLine(this);
 
@@ -96,7 +97,9 @@ namespace pcpp
 	{
 		HeaderField* hostField = getFieldByName(PCPP_HTTP_HOST_FIELD);
 		if (hostField == nullptr)
+		{
 			return m_FirstLine->getUri();
+		}
 
 		return hostField->getFieldValue() + m_FirstLine->getUri();
 	}
@@ -110,7 +113,7 @@ namespace pcpp
 	{
 		static const int maxLengthToPrint = 120;
 		std::string result = "HTTP request, ";
-		int size = m_FirstLine->getSize() - 2;  // the -2 is to remove \r\n at the end of the first line
+		int const size = m_FirstLine->getSize() - 2;  // the -2 is to remove \r\n at the end of the first line
 		if (size <= 0)
 		{
 			result += std::string("CORRUPT DATA");
@@ -164,9 +167,10 @@ namespace pcpp
 		{ "1.1", HttpVersion::OneDotOne   }
 	};
 	// clang-format on
-	HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest) : m_HttpRequest(httpRequest)
+	HttpRequestFirstLine::HttpRequestFirstLine(HttpRequestLayer* httpRequest)
+	    : m_HttpRequest(httpRequest), m_Method(parseMethod((char*)m_HttpRequest->m_Data, m_HttpRequest->getDataLen()))
 	{
-		m_Method = parseMethod((char*)m_HttpRequest->m_Data, m_HttpRequest->getDataLen());
+
 		if (m_Method == HttpRequestLayer::HttpMethodUnknown)
 		{
 			m_UriOffset = -1;
@@ -177,10 +181,8 @@ namespace pcpp
 			m_FirstLineEndOffset = m_HttpRequest->getDataLen();
 			return;
 		}
-		else
-		{
-			m_UriOffset = MethodEnumToString[m_Method].length() + 1;
-		}
+
+		m_UriOffset = MethodEnumToString[m_Method].length() + 1;
 
 		parseVersion();
 		if (m_VersionOffset < 0)
@@ -190,7 +192,7 @@ namespace pcpp
 			return;
 		}
 
-		char* endOfFirstLine;
+		char* endOfFirstLine = nullptr;
 		if ((endOfFirstLine = (char*)memchr((char*)(m_HttpRequest->m_Data + m_VersionOffset), '\n',
 		                                    m_HttpRequest->m_DataLen - (size_t)m_VersionOffset)) != nullptr)
 		{
@@ -205,7 +207,7 @@ namespace pcpp
 
 		if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
 		{
-			std::string method =
+			std::string const method =
 			    m_Method == HttpRequestLayer::HttpMethodUnknown ? "Unknown" : MethodEnumToString[m_Method];
 			PCPP_LOG_DEBUG("Method='" << method << "'; "
 			                          << "HTTP version='" << VersionEnumToString[m_Version] << "'; "
@@ -235,7 +237,7 @@ namespace pcpp
 			m_Method = method;
 			m_Version = version;
 
-			std::string firstLine =
+			std::string const firstLine =
 			    MethodEnumToString[m_Method] + " " + uri + " " + "HTTP/" + VersionEnumToString[m_Version] + "\r\n";
 
 			m_UriOffset = MethodEnumToString[m_Method].length() + 1;
@@ -260,7 +262,7 @@ namespace pcpp
 
 	HttpRequestLayer::HttpMethod HttpRequestFirstLine::parseMethod(const char* data, size_t dataLen)
 	{
-		if (!data || dataLen < 4)
+		if ((data == nullptr) || dataLen < 4)
 		{
 			return HttpRequestLayer::HttpMethodUnknown;
 		}
@@ -296,7 +298,7 @@ namespace pcpp
 		}
 
 		// verify packet doesn't end before the version, meaning still left place for " HTTP/x.y" (9 chars)
-		std::ptrdiff_t actualLen = verPos + 9 - (char*)m_HttpRequest->m_Data;
+		std::ptrdiff_t const actualLen = verPos + 9 - (char*)m_HttpRequest->m_Data;
 		if (static_cast<size_t>(actualLen) > m_HttpRequest->getDataLen())
 		{
 			m_Version = HttpVersionUnknown;
@@ -328,7 +330,7 @@ namespace pcpp
 		}
 
 		// extend or shorten layer
-		int lengthDifference = MethodEnumToString[newMethod].length() - MethodEnumToString[m_Method].length();
+		int const lengthDifference = MethodEnumToString[newMethod].length() - MethodEnumToString[m_Method].length();
 		if (lengthDifference > 0)
 		{
 			if (!m_HttpRequest->extendLayer(0, lengthDifference))
@@ -347,7 +349,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
-			m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+		{
+			pcpp::HttpRequestLayer::shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+		}
 
 		memcpy(m_HttpRequest->m_Data, MethodEnumToString[newMethod].c_str(), MethodEnumToString[newMethod].length());
 
@@ -362,7 +366,9 @@ namespace pcpp
 	{
 		std::string result;
 		if (m_UriOffset != -1 && m_VersionOffset != -1)
+		{
 			result.assign((const char*)m_HttpRequest->m_Data + m_UriOffset, m_VersionOffset - 6 - m_UriOffset);
+		}
 
 		// else first line is illegal, return empty string
 
@@ -373,11 +379,13 @@ namespace pcpp
 	{
 		// make sure the new URI begins with "/"
 		if (newUri.compare(0, 1, "/") != 0)
+		{
 			newUri = "/" + newUri;
+		}
 
 		// extend or shorten layer
-		std::string currentUri = getUri();
-		int lengthDifference = newUri.length() - currentUri.length();
+		std::string const currentUri = getUri();
+		int const lengthDifference = newUri.length() - currentUri.length();
 		if (lengthDifference > 0)
 		{
 			if (!m_HttpRequest->extendLayer(m_UriOffset, lengthDifference))
@@ -396,7 +404,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
-			m_HttpRequest->shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+		{
+			pcpp::HttpRequestLayer::shiftFieldsOffset(m_HttpRequest->getFirstField(), lengthDifference);
+		}
 
 		memcpy(m_HttpRequest->m_Data + m_UriOffset, newUri.c_str(), newUri.length());
 
@@ -408,10 +418,14 @@ namespace pcpp
 	void HttpRequestFirstLine::setVersion(HttpVersion newVersion)
 	{
 		if (m_VersionOffset == -1)
+		{
 			return;
+		}
 
 		if (newVersion == HttpVersionUnknown)
+		{
 			return;
+		}
 
 		char* verPos = (char*)(m_HttpRequest->m_Data + m_VersionOffset);
 		memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
@@ -509,7 +523,7 @@ namespace pcpp
 
 	HttpResponseStatusCode::HttpResponseStatusCode(const int& statusCodeNumber, const std::string& statusMessage)
 	{
-		if (statusMessage != "")
+		if (!statusMessage.empty())
 		{
 			m_CustomizedMessage = statusMessage;
 		}
@@ -650,7 +664,7 @@ namespace pcpp
 	HttpResponseStatusCode::HttpResponseStatusCode(const Value& statusCode, const std::string& statusMessage)
 	    : m_Value(statusCode)
 	{
-		if (statusMessage != "")
+		if (!statusMessage.empty())
 		{
 			m_CustomizedMessage = statusMessage;
 		}
@@ -658,7 +672,7 @@ namespace pcpp
 
 	std::string HttpResponseStatusCode::getMessage() const
 	{
-		if (m_CustomizedMessage != "")
+		if (!m_CustomizedMessage.empty())
 		{
 			return m_CustomizedMessage;
 		}
@@ -666,9 +680,9 @@ namespace pcpp
 	}
 
 	HttpResponseLayer::HttpResponseLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
-	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPResponse)
+	    : HttpMessage(data, dataLen, prevLayer, packet, HTTPResponse), m_FirstLine(new HttpResponseFirstLine(this))
 	{
-		m_FirstLine = new HttpResponseFirstLine(this);
+
 		m_FieldsOffset = m_FirstLine->getSize();
 		parseFields();
 	}
@@ -682,9 +696,10 @@ namespace pcpp
 	}
 
 	HttpResponseLayer::HttpResponseLayer(HttpVersion version, const HttpResponseStatusCode& statusCode)
+	    : m_FirstLine(new HttpResponseFirstLine(this, version, statusCode))
 	{
 		m_Protocol = HTTPResponse;
-		m_FirstLine = new HttpResponseFirstLine(this, version, statusCode);
+
 		m_FieldsOffset = m_FirstLine->getSize();
 	}
 
@@ -693,18 +708,15 @@ namespace pcpp
 		delete m_FirstLine;
 	}
 
-	HttpResponseLayer::HttpResponseLayer(const HttpResponseLayer& other) : HttpMessage(other)
-	{
-		m_FirstLine = new HttpResponseFirstLine(this);
-	}
+	HttpResponseLayer::HttpResponseLayer(const HttpResponseLayer& other)
+	    : HttpMessage(other), m_FirstLine(new HttpResponseFirstLine(this))
+	{}
 
 	HttpResponseLayer& HttpResponseLayer::operator=(const HttpResponseLayer& other)
 	{
 		HttpMessage::operator=(other);
 
-		if (m_FirstLine != nullptr)
-			delete m_FirstLine;
-
+		delete m_FirstLine;
 		m_FirstLine = new HttpResponseFirstLine(this);
 
 		return *this;
@@ -714,7 +726,7 @@ namespace pcpp
 	{
 		std::ostringstream contentLengthAsString;
 		contentLengthAsString << contentLength;
-		std::string contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
+		std::string const contentLengthFieldName(PCPP_HTTP_CONTENT_LENGTH_FIELD);
 		HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 		if (contentLengthField == nullptr)
 		{
@@ -722,7 +734,9 @@ namespace pcpp
 			contentLengthField = insertField(prevField, PCPP_HTTP_CONTENT_LENGTH_FIELD, contentLengthAsString.str());
 		}
 		else
+		{
 			contentLengthField->setFieldValue(contentLengthAsString.str());
+		}
 
 		return contentLengthField;
 	}
@@ -734,7 +748,9 @@ namespace pcpp
 		               ::tolower);
 		HeaderField* contentLengthField = getFieldByName(contentLengthFieldName);
 		if (contentLengthField != nullptr)
+		{
 			return atoi(contentLengthField->getFieldValue().c_str());
+		}
 		return 0;
 	}
 
@@ -742,7 +758,7 @@ namespace pcpp
 	{
 		static const int maxLengthToPrint = 120;
 		std::string result = "HTTP response, ";
-		int size = m_FirstLine->getSize() - 2;  // the -2 is to remove \r\n at the end of the first line
+		int const size = m_FirstLine->getSize() - 2;  // the -2 is to remove \r\n at the end of the first line
 		if (size <= maxLengthToPrint)
 		{
 			char* firstLine = new char[size + 1];
@@ -800,10 +816,10 @@ namespace pcpp
 
 		// extend or shorten layer
 
-		size_t statusStringOffset = 13;
+		size_t const statusStringOffset = 13;
 		auto newStatusCodeMessage = newStatusCode.getMessage();
 
-		int lengthDifference = newStatusCodeMessage.length() - getStatusCodeString().length();
+		int const lengthDifference = newStatusCodeMessage.length() - getStatusCodeString().length();
 		if (lengthDifference > 0)
 		{
 			if (!m_HttpResponse->extendLayer(statusStringOffset, lengthDifference))
@@ -822,7 +838,9 @@ namespace pcpp
 		}
 
 		if (lengthDifference != 0)
-			m_HttpResponse->shiftFieldsOffset(m_HttpResponse->getFirstField(), lengthDifference);
+		{
+			pcpp::HttpResponseLayer::shiftFieldsOffset(m_HttpResponse->getFirstField(), lengthDifference);
+		}
 
 		// copy status string
 		memcpy(m_HttpResponse->m_Data + statusStringOffset, newStatusCodeMessage.c_str(),
@@ -841,7 +859,9 @@ namespace pcpp
 	void HttpResponseFirstLine::setVersion(HttpVersion newVersion)
 	{
 		if (newVersion == HttpVersionUnknown)
+		{
 			return;
+		}
 
 		char* verPos = (char*)(m_HttpResponse->m_Data + 5);
 		memcpy(verPos, VersionEnumToString[newVersion].c_str(), 3);
@@ -852,15 +872,16 @@ namespace pcpp
 	HttpResponseStatusCode HttpResponseFirstLine::parseStatusCode(const char* data, size_t dataLen)
 	{
 		// minimum data should be 12B long: "HTTP/x.y XXX"
-		if (!data || dataLen < 12)
+		if ((data == nullptr) || dataLen < 12)
 		{
 			return HttpResponseStatusCode::HttpStatusCodeUnknown;
 		}
 
 		const std::string codeString = std::string(data + 9, 3);
 
-		if (codeString.empty() || (std::find_if(codeString.begin(), codeString.end(),
-		                                        [](unsigned char c) { return !std::isdigit(c); }) != codeString.end()))
+		if (codeString.empty() || (std::find_if(codeString.begin(), codeString.end(), [](unsigned char c) {
+			                           return std::isdigit(c) == 0;
+		                           }) != codeString.end()))
 		{
 			return HttpResponseStatusCode::HttpStatusCodeUnknown;
 		}
@@ -896,9 +917,11 @@ namespace pcpp
 		return HttpResponseStatusCode(std::stoi(codeString), messageString);
 	}
 
-	HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse) : m_HttpResponse(httpResponse)
+	HttpResponseFirstLine::HttpResponseFirstLine(HttpResponseLayer* httpResponse)
+	    : m_HttpResponse(httpResponse),
+	      m_Version(parseVersion((char*)m_HttpResponse->m_Data, m_HttpResponse->getDataLen()))
 	{
-		m_Version = parseVersion((char*)m_HttpResponse->m_Data, m_HttpResponse->getDataLen());
+
 		if (m_Version == HttpVersionUnknown)
 		{
 			m_StatusCode = HttpResponseStatusCode::HttpStatusCodeUnknown;
@@ -908,7 +931,7 @@ namespace pcpp
 			m_StatusCode = parseStatusCode((char*)m_HttpResponse->m_Data, m_HttpResponse->getDataLen());
 		}
 
-		char* endOfFirstLine;
+		char* endOfFirstLine = nullptr;
 		if ((endOfFirstLine = (char*)memchr((char*)(m_HttpResponse->m_Data), '\n', m_HttpResponse->m_DataLen)) !=
 		    nullptr)
 		{
@@ -923,8 +946,9 @@ namespace pcpp
 
 		if (Logger::getInstance().isDebugEnabled(PacketLogModuleHttpLayer))
 		{
-			std::string version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
-			int statusCode = (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeUnknown ? 0 : m_StatusCode.toInt());
+			std::string const version = (m_Version == HttpVersionUnknown ? "Unknown" : VersionEnumToString[m_Version]);
+			int const statusCode =
+			    (m_StatusCode == HttpResponseStatusCode::HttpStatusCodeUnknown ? 0 : m_StatusCode.toInt());
 			PCPP_LOG_DEBUG("Version='" << version << "'; Status code=" << statusCode << " '" << getStatusCodeString()
 			                           << "'");
 		}
@@ -950,8 +974,8 @@ namespace pcpp
 		m_StatusCode = statusCode;
 		m_Version = version;
 
-		std::string firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +
-		                        m_StatusCode.getMessage() + "\r\n";
+		std::string const firstLine = "HTTP/" + VersionEnumToString[m_Version] + " " + m_StatusCode.toString() + " " +
+		                              m_StatusCode.getMessage() + "\r\n";
 
 		m_FirstLineEndOffset = firstLine.length();
 
@@ -964,7 +988,7 @@ namespace pcpp
 
 	HttpVersion HttpResponseFirstLine::parseVersion(const char* data, size_t dataLen)
 	{
-		if (!data || dataLen < 8)  // "HTTP/x.y"
+		if ((data == nullptr) || dataLen < 8)  // "HTTP/x.y"
 		{
 			PCPP_LOG_DEBUG("HTTP response length < 8, cannot identify version");
 			return HttpVersionUnknown;
