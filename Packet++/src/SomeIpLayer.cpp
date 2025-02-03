@@ -45,7 +45,7 @@ namespace pcpp
 
 	Layer* SomeIpLayer::parseSomeIpLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 	{
-		/* Ideas taken from wireshark some ip dissector */
+		// Ideas taken from wireshark some ip dissector
 		const size_t headerLen = sizeof(someiphdr);
 		if (dataLen < headerLen)
 			return new PayloadLayer(data, dataLen, prevLayer, packet);
