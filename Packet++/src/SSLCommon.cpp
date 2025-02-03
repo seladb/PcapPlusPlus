@@ -11,7 +11,7 @@ namespace pcpp
 
 	SSLVersion::SSLVersionEnum SSLVersion::asEnum(bool countTlsDraftsAs1_3)
 	{
-		if (m_SSLVersionValue >= 0x0300 && m_SSLVersionValue <= 0x0304)
+		if ((m_SSLVersionValue >= 0x0300 && m_SSLVersionValue <= 0x0304) || m_SSLVersionValue == 0x0002)
 			return static_cast<SSLVersion::SSLVersionEnum>(m_SSLVersionValue);
 
 		if ((m_SSLVersionValue >= 0x7f0e && m_SSLVersionValue <= 0x7f1c) || m_SSLVersionValue == 0xfb17 ||
@@ -22,9 +22,6 @@ namespace pcpp
 			else
 				return static_cast<SSLVersion::SSLVersionEnum>(m_SSLVersionValue);
 		}
-
-		if (m_SSLVersionValue == 0x200)
-			return SSLVersion::SSL2;
 
 		return SSLVersion::Unknown;
 	}

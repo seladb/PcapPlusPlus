@@ -122,7 +122,7 @@ namespace pcpp
 		enum SSLVersionEnum
 		{
 			/** SSL 2.0 */
-			SSL2 = 0x0200,
+			SSL2 = 0x0002,
 			/** SSL 3.0 */
 			SSL3 = 0x0300,
 			/** TLS 1.0 */
