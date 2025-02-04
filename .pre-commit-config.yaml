@@ -38,17 +38,17 @@ repos:
       - id: cppcheck
         args: ["--std=c++11", "--language=c++", "--suppressions-list=cppcheckSuppressions.txt", "--inline-suppr", "--force"]
   - repo: https://github.com/BlankSpruce/gersemi
-    rev: 0.17.1
+    rev: 0.18.2
     hooks:
     - id: gersemi
       args: ["-c"]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
+    rev: v2.4.1
     hooks:
       - id: codespell
         pass_filenames: false
   - repo: https://github.com/crate-ci/typos
-    rev: codespell-dict-v0.5.0
+    rev: typos-dict-v0.12.4
     hooks:
       - id: typos
         args: ['--config=typos-config.toml']
