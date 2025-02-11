@@ -160,8 +160,8 @@ namespace pcpp
 		/// @param[in] senderIpAddr The sender IP address (will be put in arphdr#senderIpAddr)
 		/// @param[in] targetMacAddr The target MAC address (will be put in arphdr#targetMacAddr)
 		/// @param[in] targetIpAddr The target IP address (will be put in arphdr#targetIpAddr)
-		/// @remarks No validation is done on the input parameters. The caller must ensure that the input creates a valid
-		/// header.
+		/// @remarks No validation is done on the input parameters. The caller must ensure that the input creates a
+		/// valid header.
 		ArpLayer(ArpOpcode opCode, const MacAddress& senderMacAddr, const IPv4Address& senderIpAddr,
 		         const MacAddress& targetMacAddr, const IPv4Address& targetIpAddr);
 
