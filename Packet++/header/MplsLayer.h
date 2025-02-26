@@ -4,17 +4,12 @@
 
 /// @file
 
-/**
- * \namespace pcpp
- * \brief The main namespace for the PcapPlusPlus lib
- */
+/// @namespace pcpp
+/// @brief The main namespace for the PcapPlusPlus lib
 namespace pcpp
 {
-
-	/**
-	 * @class MplsLayer
-	 * Represents a MPLS (Multi-Protocol Label Switching) layer
-	 */
+	/// @class MplsLayer
+	/// Represents a MPLS (Multi-Protocol Label Switching) layer
 	class MplsLayer : public Layer
 	{
 	private:
@@ -26,6 +21,7 @@ namespace pcpp
 			uint8_t ttl;
 		};
 #pragma pack(pop)
+		static_assert(sizeof(mpls_header) == 4, "mpls_header size is not 4 bytes");
 
 		mpls_header* getMplsHeader() const
 		{
@@ -33,100 +29,75 @@ namespace pcpp
 		}
 
 	public:
-		/** A constructor that creates the layer from an existing packet raw data
-		 * @param[in] data A pointer to the raw data
-		 * @param[in] dataLen Size of the data in bytes
-		 * @param[in] prevLayer A pointer to the previous layer
-		 * @param[in] packet A pointer to the Packet instance where layer will be stored in
-		 */
+		/// A constructor that creates the layer from an existing packet raw data
+		/// @param[in] data A pointer to the raw data
+		/// @param[in] dataLen Size of the data in bytes
+		/// @param[in] prevLayer A pointer to the previous layer
+		/// @param[in] packet A pointer to the Packet instance where layer will be stored in
 		MplsLayer(uint8_t* data, size_t dataLen, Layer* prevLayer, Packet* packet)
 		    : Layer(data, dataLen, prevLayer, packet, MPLS)
 		{}
 
-		/**
-		 * A constructor that allocates a new MPLS header
-		 * @param[in] mplsLabel MPLS label
-		 * @param[in] ttl Time-to-leave value
-		 * @param[in] experimentalUseValue Experimental use value
-		 * @param[in] bottomOfStack Bottom-of-stack value which indicate whether the next layer will also be a MPLS
-		 * label or not
-		 */
+		/// A constructor that allocates a new MPLS header
+		/// @param[in] mplsLabel MPLS label
+		/// @param[in] ttl Time-to-leave value
+		/// @param[in] experimentalUseValue Experimental use value
+		/// @param[in] bottomOfStack Bottom-of-stack value which indicate whether the next layer will also be a MPLS
+		/// label or not
 		MplsLayer(uint32_t mplsLabel, uint8_t ttl, uint8_t experimentalUseValue, bool bottomOfStack);
 
 		~MplsLayer() override = default;
 
-		/**
-		 * @return TTL value of the MPLS header
-		 */
+		/// @return TTL value of the MPLS header
 		uint8_t getTTL() const
 		{
 			return getMplsHeader()->ttl;
 		}
 
-		/**
-		 * Set the TTL value
-		 * @param[in] ttl The TTL value to set
-		 */
+		/// Set the TTL value
+		/// @param[in] ttl The TTL value to set
 		void setTTL(uint8_t ttl)
 		{
 			getMplsHeader()->ttl = ttl;
 		}
 
-		/**
-		 * Get an indication whether the next layer is also be a MPLS label or not
-		 * @return True if it's the last MPLS layer, false otherwise
-		 */
+		/// Get an indication whether the next layer is also be a MPLS label or not
+		/// @return True if it's the last MPLS layer, false otherwise
 		bool isBottomOfStack() const;
 
-		/**
-		 * Set the bottom-of-stack bit in the MPLS label
-		 * @param[in] val Set or unset the bit
-		 */
+		/// Set the bottom-of-stack bit in the MPLS label
+		/// @param[in] val Set or unset the bit
 		void setBottomOfStack(bool val);
 
-		/**
-		 * @return The exp value (3 bits) of the MPLS label
-		 */
+		/// @return The exp value (3 bits) of the MPLS label
 		uint8_t getExperimentalUseValue() const;
 
-		/**
-		 * Set the exp value (3 bits) of the MPLS label
-		 * @param[in] val The exp value to set. val must be a valid number meaning between 0 and 7 (inclusive)
-		 * @return True if exp value was set successfully or false if val has invalid value
-		 */
+		/// Set the exp value (3 bits) of the MPLS label
+		/// @param[in] val The exp value to set. val must be a valid number meaning between 0 and 7 (inclusive)
+		/// @return True if exp value was set successfully or false if val has invalid value
 		bool setExperimentalUseValue(uint8_t val);
 
-		/**
-		 * @return The MPLS label value (20 bits)
-		 */
+		/// @return The MPLS label value (20 bits)
 		uint32_t getMplsLabel() const;
 
-		/**
-		 * Set the MPLS label (20 bits)
-		 * @param[in] label The label to set. label must be a valid number meaning between 0 and 0xFFFFF (inclusive)
-		 * @return True if label was set successfully or false if label has invalid value
-		 */
+		/// Set the MPLS label (20 bits)
+		/// @param[in] label The label to set. label must be a valid number meaning between 0 and 0xFFFFF (inclusive)
+		/// @return True if label was set successfully or false if label has invalid value
 		bool setMplsLabel(uint32_t label);
 
 		// implement abstract methods
 
-		/**
-		 * Currently identifies the following next layers: IPv4Layer, IPv6Layer, MplsLayer. Otherwise sets PayloadLayer
-		 */
+		/// Currently identifies the following next layers: IPv4Layer, IPv6Layer, MplsLayer. Otherwise sets PayloadLayer
 		void parseNextLayer() override;
 
-		/**
-		 * @return Size of MPLS header (4 bytes)
-		 */
+		/// @return Size of MPLS header (4 bytes)
 		size_t getHeaderLen() const override
 		{
 			return sizeof(mpls_header);
 		}
 
-		/**
-		 * Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be
-		 * unset. If it's not a MPLS layer this bit will be set
-		 */
+		/// Set/unset the bottom-of-stack bit according to next layer: if it's a MPLS layer then bottom-of-stack will be
+		/// unset. If it's not a MPLS layer this bit will be set
 		void computeCalculateFields() override;
 
 		std::string toString() const override;
