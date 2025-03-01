@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <algorithm>
 #include <initializer_list>
 #include <iterator>
@@ -142,7 +143,7 @@ namespace pcpp
 		}
 
 		/// A static value representing a zero value of MAC address, meaning address of value "00:00:00:00:00:00"
-		static MacAddress Zero;
+		static const MacAddress Zero;
 
 	private:
 		std::array<uint8_t, 6> m_Address{};

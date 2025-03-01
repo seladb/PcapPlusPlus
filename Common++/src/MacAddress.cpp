@@ -3,7 +3,7 @@
 namespace pcpp
 {
 
-	MacAddress MacAddress::Zero(0, 0, 0, 0, 0, 0);
+	const MacAddress MacAddress::Zero(0, 0, 0, 0, 0, 0);
 
 	std::string MacAddress::toString() const
 	{
