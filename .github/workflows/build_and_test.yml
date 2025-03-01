@@ -91,7 +91,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: |
             ${{ env.CCACHE_DIR }}
@@ -146,7 +146,7 @@ jobs:
           gcovr -v -r . ${{ matrix.additional-gcov-flags }} $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.image }},unittest
@@ -156,7 +156,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -179,7 +179,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -220,7 +220,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -239,7 +239,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -277,7 +277,7 @@ jobs:
         run: cd build_examples/tutorials_bin && ./Tutorial-HelloWorld
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -321,7 +321,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           # support version: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
           python-version: "3.12"
@@ -331,7 +331,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.os-version }}-${{ matrix.arch }}-ccache-${{ github.run_id }}
@@ -394,7 +394,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         if: ${{ matrix.host-arch == matrix.arch }}
         with:
           files: ./coverage.xml
@@ -405,7 +405,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -425,7 +425,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup MSYS2
-        uses: msys2/setup-msys2@c52d1fa9c7492275e60fe763540fb601f5f232a1 # v2.25.0
+        uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0
         with:
           msystem: ${{matrix.sys}}
           install: >-
@@ -435,7 +435,7 @@ jobs:
             mingw-w64-${{matrix.env}}-make
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: "3.12"
 
@@ -483,7 +483,7 @@ jobs:
         run: gcovr -v -g -k -r . $env:GCOVR_FLAGS.split() -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
           flags: ${{ matrix.sys }},unittest
@@ -519,7 +519,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: "3.12"
 
@@ -574,7 +574,7 @@ jobs:
           python -m pytest --root-path=../../Dist/examples_bin
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./Tests/Pcap++Test/Pcap++Coverage.xml,./Tests/Packet++Test/Packet++Coverage.xml
           flags: ${{ matrix.os }},unittest,${{ matrix.pcap_lib }}
@@ -592,7 +592,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@debf37ca7b7fa40e19c542ef7ba30d6054a706a4 # v1.1.5
+      uses: vmactions/freebsd-vm@848dac7e118679d08e2c2f9d42cd96608d834323 # v1.1.8
       with:
         release: ${{ matrix.version }}
         usesh: true
@@ -713,7 +713,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.image }}-ccache-${{ github.run_id }}
@@ -743,7 +743,7 @@ jobs:
           gcovr -v -r . $GCOVR_FLAGS -o coverage.xml
 
       - name: Upload Coverage Results
-        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
         with:
           files: ./coverage.xml
           flags: xdp,unittest
@@ -753,7 +753,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
@@ -782,7 +782,7 @@ jobs:
 
       - name: Restore Ccache
         id: ccache-restore
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/restore@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ matrix.engine }}-${{ matrix.sanitizer }}-ccache-${{ github.run_id }}
@@ -804,7 +804,7 @@ jobs:
           Tests/Fuzzers/RegressionTests/run_tests.sh
 
       - name: Save Ccache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ${{ steps.ccache-restore.outputs.cache-primary-key }}
