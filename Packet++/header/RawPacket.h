@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #ifdef _MSC_VER
-#	include <WinSock2.h>
+#	include <winsock2.h>
 #	include <time.h>
 #else
 #	include <sys/time.h>
