@@ -52,8 +52,8 @@ PTF_TEST_CASE(VlanParseAndCreation)
 	pcpp::EthLayer ethLayer(macSrc, macDest);
 	pcpp::VlanLayer firstVlanLayer(666, 1, 5);
 	pcpp::VlanLayer secondVlanLayer(200, 0, 2, PCPP_ETHERTYPE_ARP);
-	pcpp::ArpLayer arpLayer(pcpp::ARP_REQUEST, macSrc, pcpp::MacAddress("00:00:00:00:00:00"),
-	                        pcpp::IPv4Address("192.168.2.200"), pcpp::IPv4Address("192.168.2.254"));
+	pcpp::ArpLayer arpLayer(
+	    pcpp::ArpRequest(macSrc, pcpp::IPv4Address("192.168.2.200"), pcpp::IPv4Address("192.168.2.254")));
 	pcpp::Packet arpWithVlanNew(1);
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&ethLayer));
 	PTF_ASSERT_TRUE(arpWithVlanNew.addLayer(&firstVlanLayer));
