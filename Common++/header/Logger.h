@@ -224,6 +224,9 @@ namespace pcpp
 	class Logger
 	{
 	public:
+		Logger(const Logger&) = delete;
+		Logger& operator=(const Logger&) = delete;
+
 		// Deprecated, Use the LogLevel in the pcpp namespace instead.
 		using LogLevel = pcpp::LogLevel;
 		PCPP_DEPRECATED("Use the LogLevel in the pcpp namespace instead.")

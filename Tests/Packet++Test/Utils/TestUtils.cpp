@@ -19,6 +19,44 @@ namespace pcpp_tests
 		return length;
 	}
 
+	namespace
+	{
+		std::uint8_t hexCharToDigit(char c)
+		{
+			if (c >= '0' && c <= '9')
+				return c - '0';
+			if (c >= 'a' && c <= 'f')
+				return c - 'a' + 10;
+			if (c >= 'A' && c <= 'F')
+				return c - 'A' + 10;
+			throw std::invalid_argument("Invalid hex character");
+		}
+
+		std::uint8_t hexPairToByte(const char* pair)
+		{
+			return (hexCharToDigit(pair[0]) << 4) | hexCharToDigit(pair[1]);
+		}
+	}  // namespace
+
+	std::vector<std::uint8_t> readFileIntoBuffer(const char* filename)
+	{
+		int fileLength = getFileLength(filename);
+		if (fileLength == -1)
+			throw std::runtime_error(std::string("Failed to open file: ") + filename);
+
+		std::ifstream infile(filename);
+		if (!infile)
+			throw std::runtime_error(std::string("Failed to open file: ") + filename);
+
+		std::vector<std::uint8_t> buffer;
+		char hexPair[2];  // 0 - high, 1 - low
+		while (infile.read(hexPair, 2))
+		{
+			buffer.push_back(hexPairToByte(hexPair));
+		}
+		return buffer;
+	}
+
 	uint8_t* readFileIntoBuffer(const char* filename, int& bufferLength)
 	{
 		int fileLength = getFileLength(filename);
