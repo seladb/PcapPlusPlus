@@ -23,9 +23,6 @@ namespace pcpp
 				return static_cast<SSLVersion::SSLVersionEnum>(m_SSLVersionValue);
 		}
 
-		if (m_SSLVersionValue == 0x200)
-			return SSLVersion::SSL2;
-
 		return SSLVersion::Unknown;
 	}
 
@@ -81,8 +78,6 @@ namespace pcpp
 			return "TLS 1.3 (Facebook draft 26)";
 		case SSLVersion::Unknown:
 			return "Unknown";
-		case SSLVersion::SSL2:
-			return "SSL 2.0";
 		default:
 			return "Unknown";
 		}
