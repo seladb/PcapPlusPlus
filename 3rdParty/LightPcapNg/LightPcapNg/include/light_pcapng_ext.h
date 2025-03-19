@@ -33,7 +33,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 #ifdef _MSC_VER
-#include <Winsock2.h>
+#include <winsock2.h>
 #include <time.h>
 #else
 #include <sys/time.h>
