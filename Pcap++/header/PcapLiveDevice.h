@@ -173,27 +173,27 @@ namespace pcpp
 		/// (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
 		enum class TimestampProvider
 		{
-			/** host-provided, unknown characteristics, default */
+			/// host-provided, unknown characteristics, default
 			Host = 0,
-			/** host-provided, low precision, synced with the system clock */
-			HostLowPrec,
-			/** host-provided, high precision, synced with the system clock */
-			HostHighPrec,
-			/** device-provided, synced with the system clock */
+			/// host-provided, low precision, synced with the system clock
+			HostLowPrecision,
+			/// host-provided, high precision, synced with the system clock
+			HostHighPrecision,
+			/// device-provided, synced with the system clock
 			Adapter,
-			/** device-provided, not synced with the system clock */
+			/// device-provided, not synced with the system clock
 			AdapterUnsynced,
-			/** host-provided, high precision, not synced with the system clock */
-			HostHighPrecUnsynced
+			/// host-provided, high precision, not synced with the system clock
+			HostHighPrecisionUnsynced
 		};
 
 		/// Set the precision of timestamps associated to each captured packet
 		/// (you can read more here: <https://www.tcpdump.org/manpages/pcap-tstamp.7.html>)
 		enum class TimestampPrecision
 		{
-			/** use timestamps with microsecond precision, default */
+			/// use timestamps with microsecond precision, default
 			Microseconds = 0,
-			/** use timestamps with nanosecond precision */
+			/// use timestamps with nanosecond precision
 			Nanoseconds,
 		};
 
